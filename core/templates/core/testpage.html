@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}ZPT.KZ{% endblock %}
+
+{% block content %}
+
+<!-- ШАПКА -->
+<header class="topbar">
+  <div class="container">
+    <div class="brand-title">ZPT.KZ</div>
+  </div>
+</header>
+
+<!-- ГЛАВНЫЙ БЛОК -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-card">
+
+      <h1>Найдите нужную запчасть</h1>
+      <p>Легковые, грузовые авто и аксессуары</p>
+
+      <!-- переключатели -->
+      <div class="hero-tabs">
+        <button class="tab active">Легковые</button>
+        <button class="tab">Грузовые</button>
+        <button class="tab">Аксессуары</button>
+      </div>
+
+      <!-- подбор -->
+      <div class="hero-search">
+        <select>
+          <option>Марка</option>
+        </select>
+
+        <select>
+          <option>Модель</option>
+        </select>
+
+        <button class="btn red">Найти запчасть</button>
+      </div>
+
+      <div class="divider">Или</div>
+
+      <!-- поиск -->
+      <div class="hero-search">
+        <input type="text" placeholder="Введите название или артикул">
+        <button class="btn blue">Найти</button>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- БЛОК ЗАЯВКИ -->
+<section class="section">
+  <div class="container">
+    <div class="card center">
+
+      <h2>Не нашли нужную запчасть?</h2>
+      <p>Отправьте заявку всем продавцам и получите предложения</p>
+
+      <button class="btn red">Оставить заявку</button>
+
+    </div>
+  </div>
+</section>
+
+<!-- БЛОК СЕРВИСОВ -->
+<section class="section">
+  <div class="container">
+
+    <h2>Другие автосервисы ZPT.KZ</h2>
+
+    <div class="services">
+
+      <div class="service-card">
+        <h3>Детейлинг и тюнинг</h3>
+        <p>Уход, защита и доработка автомобиля</p>
+      </div>
+
+      <div class="service-card">
+        <h3>Электромобили</h3>
+        <p>Товары и услуги для электромобилей</p>
+      </div>
+
+      <div class="service-card">
+        <h3>Аксессуары и автохимия</h3>
+        <p>Универсальные товары для авто</p>
+      </div>
+
+      <div class="service-card">
+        <h3>Шинные центры</h3>
+        <p>Шины, замена, сезонные услуги</p>
+      </div>
+
+      <div class="service-card">
+        <h3>Услуги СТО и мастеров</h3>
+        <p>Ремонт и обслуживание автомобилей</p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- БЛОК ПРОДАВЦОВ -->
+<section class="section">
+  <div class="container">
+
+    <h2>Вы продаёте запчасти или аксессуары?</h2>
+    <p>Выберите, как хотите работать с клиентами</p>
+
+    <div class="seller-blocks">
+
+      <div class="seller-card">
+        <h3>Продавать через магазин</h3>
+        <p>Размещайте товары и получайте клиентов из каталога</p>
+        <button class="btn red">Размещать товары</button>
+      </div>
+
+      <div class="seller-card">
+        <h3>Получать заявки от клиентов</h3>
+        <p>Без размещения товаров — просто отвечайте на запросы</p>
+        <button class="btn blue">Получать заявки</button>
+      </div>
+
+    </div>
+
+  </div>
+</section>
+
+<!-- ИНФО -->
+<section class="section">
+  <div class="container center">
+    <p>Легковые и грузовые авто</p>
+    <p>Запчасти и аксессуары</p>
+    <p>Прямой контакт с продавцами</p>
+  </div>
+</section>
+
+<!-- ПОДВАЛ -->
+<footer class="footer">
+  <div class="container footer-links">
+    <a href="#">Гид ZPT.KZ</a>
+    <a href="#">Частые вопросы</a>
+    <a href="#">Обратная связь</a>
+    <a href="#">Для продавцов</a>
+  </div>
+
+  <div class="container center">
+    © ZPT.KZ
+  </div>
+</footer>
+
+{% endblock %}
