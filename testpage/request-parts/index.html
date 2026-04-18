@@ -3,71 +3,55 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Заявка — Market Parts</title>
+<title>Заявка</title>
 
 <style>
-:root {
-  --accent: #d92d20;
-  --bg: #f5f6f8;
-}
-
 body {
-  margin: 0;
-  font-family: Arial;
-  background: var(--bg);
+  margin:0;
+  font-family:Arial;
+  background:#f4f5f7;
 }
 
 .container {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 16px;
+  max-width:520px;
+  margin:auto;
+  padding:16px;
 }
 
 .logo {
-  font-size: 26px;
-  font-weight: bold;
-  color: var(--accent); /* 🔴 ВАЖНО */
-  margin-bottom: 10px;
-}
-
-.nav {
-  margin-bottom: 20px;
+  font-size:24px;
+  font-weight:bold;
+  margin-bottom:10px;
 }
 
 .nav a {
-  margin-right: 10px;
-  color: #333;
-  text-decoration: none;
+  margin-right:10px;
+  text-decoration:none;
+  color:#333;
 }
 
-.intro {
-  background: #fff;
-  padding: 14px;
-  border-radius: 14px;
-  margin-bottom: 14px;
+.block {
+  background:#fff;
+  padding:16px;
+  border-radius:14px;
+  margin-bottom:12px;
 }
 
-.form {
-  background: #fff;
-  padding: 16px;
-  border-radius: 14px;
+input,select,textarea {
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
-input, select, textarea {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-.btn {
-  width: 100%;
-  padding: 14px;
-  background: var(--accent);
-  color: #fff;
-  border-radius: 10px;
-  border: none;
+button {
+  width:100%;
+  padding:14px;
+  background:#d92d20;
+  color:#fff;
+  border:none;
+  border-radius:10px;
 }
 
 </style>
@@ -81,43 +65,25 @@ input, select, textarea {
 
 <div class="nav">
 <a href="../">Главная</a>
-<a href="#">Кабинет</a>
-<a href="#">Выход</a>
 </div>
 
-<div class="intro">
-Нужны запчасти для авто? Отправьте заявку — продавцы сами напишут в WhatsApp
-</div>
+<div class="block">
 
-<div class="form">
+<select><option>Страна</option></select>
+<select><option>Марка</option></select>
+<select><option>Модель</option></select>
 
-<select>
-<option>Выберите страну</option>
-</select>
+<select><option>Категория</option></select>
 
-<select>
-<option>Сначала выберите страну</option>
-</select>
+<input placeholder="Артикул">
 
-<select>
-<option>Сначала выберите марку</option>
-</select>
+<textarea placeholder="Описание"></textarea>
 
-<select>
-<option>Выберите категорию</option>
-</select>
+<select><option>Город</option></select>
 
-<input type="text" placeholder="Артикул (если есть)">
+<input placeholder="Телефон">
 
-<textarea placeholder="Опишите запчасть"></textarea>
-
-<select>
-<option>Выберите город</option>
-</select>
-
-<input type="tel" placeholder="Телефон / WhatsApp">
-
-<button class="btn">Отправить заявку</button>
+<button>Отправить заявку</button>
 
 </div>
 
