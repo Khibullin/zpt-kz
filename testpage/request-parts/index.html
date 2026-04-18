@@ -1,348 +1,127 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Заявка на запчасти — Market Parts</title>
-  <style>
-    :root {
-      --bg: #f5f6f8;
-      --card: #ffffff;
-      --text: #1f2328;
-      --muted: #667085;
-      --line: #e5e7eb;
-      --accent: #d92d20;
-      --accent-dark: #b42318;
-      --soft: #fff3f2;
-      --shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-      --radius: 18px;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Заявка — Market Parts</title>
 
-    * {
-      box-sizing: border-box;
-    }
+<style>
+:root {
+  --accent: #d92d20;
+  --bg: #f5f6f8;
+}
 
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-    }
+body {
+  margin: 0;
+  font-family: Arial;
+  background: var(--bg);
+}
 
-    a {
-      color: inherit;
-      text-decoration: none;
-    }
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 16px;
+}
 
-    .container {
-      width: 100%;
-      max-width: 560px;
-      margin: 0 auto;
-      padding: 0 16px 28px;
-    }
+.logo {
+  font-size: 26px;
+  font-weight: bold;
+  color: var(--accent); /* 🔴 ВАЖНО */
+  margin-bottom: 10px;
+}
 
-    .topbar {
-      background: #fff;
-      border-bottom: 1px solid var(--line);
-      margin: 0 -16px 18px;
-      padding: 14px 16px 12px;
-      box-shadow: 0 2px 10px rgba(15, 23, 42, 0.03);
-    }
+.nav {
+  margin-bottom: 20px;
+}
 
-    .brand {
-      font-size: 24px;
-      font-weight: 800;
-      color: #111827;
-      margin-bottom: 12px;
-    }
+.nav a {
+  margin-right: 10px;
+  color: #333;
+  text-decoration: none;
+}
 
-    .topnav {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      font-size: 15px;
-    }
+.intro {
+  background: #fff;
+  padding: 14px;
+  border-radius: 14px;
+  margin-bottom: 14px;
+}
 
-    .topnav a {
-      color: #344054;
-    }
+.form {
+  background: #fff;
+  padding: 16px;
+  border-radius: 14px;
+}
 
-    .topnav a:hover {
-      color: var(--accent);
-    }
+input, select, textarea {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
 
-    .intro {
-      background: linear-gradient(145deg, #fff 0%, #fff5f4 100%);
-      border: 1px solid #ffd9d4;
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      margin-bottom: 16px;
-    }
+.btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 10px;
+  border: none;
+}
 
-    .intro h1 {
-      margin: 0 0 8px;
-      font-size: 24px;
-      line-height: 1.2;
-      color: #101828;
-    }
-
-    .intro p {
-      margin: 0;
-      color: #475467;
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    .form-card {
-      background: var(--card);
-      border-radius: 22px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      border: 1px solid #edf0f3;
-    }
-
-    .form-title {
-      margin: 0 0 16px;
-      font-size: 24px;
-      line-height: 1.2;
-      color: #101828;
-      font-weight: 800;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .label {
-      display: block;
-      margin-bottom: 8px;
-      font-size: 15px;
-      font-weight: 700;
-      color: #344054;
-    }
-
-    .input,
-    .select,
-    .textarea {
-      width: 100%;
-      border: 1px solid #d9dee5;
-      border-radius: 14px;
-      background: #fff;
-      padding: 14px 14px;
-      font-size: 15px;
-      color: #101828;
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .input::placeholder,
-    .textarea::placeholder {
-      color: #98a2b3;
-    }
-
-    .input:focus,
-    .select:focus,
-    .textarea:focus {
-      border-color: #f29b92;
-      box-shadow: 0 0 0 4px rgba(217, 45, 32, 0.08);
-    }
-
-    .select {
-      appearance: none;
-      -webkit-appearance: none;
-      -moz-appearance: none;
-      background-image:
-        linear-gradient(45deg, transparent 50%, #667085 50%),
-        linear-gradient(135deg, #667085 50%, transparent 50%);
-      background-position:
-        calc(100% - 18px) calc(50% - 3px),
-        calc(100% - 12px) calc(50% - 3px);
-      background-size: 6px 6px, 6px 6px;
-      background-repeat: no-repeat;
-      color: #667085;
-    }
-
-    .select.has-value {
-      color: #101828;
-    }
-
-    .textarea {
-      min-height: 110px;
-      resize: vertical;
-      line-height: 1.5;
-    }
-
-    .hint {
-      margin-top: 7px;
-      font-size: 13px;
-      color: #667085;
-      line-height: 1.4;
-    }
-
-    .btn {
-      width: 100%;
-      border: none;
-      border-radius: 14px;
-      background: var(--accent);
-      color: #fff;
-      font-size: 16px;
-      font-weight: 700;
-      padding: 15px 16px;
-      cursor: pointer;
-      box-shadow: 0 10px 18px rgba(217, 45, 32, 0.18);
-      transition: background 0.15s ease;
-    }
-
-    .btn:hover {
-      background: var(--accent-dark);
-    }
-
-    @media (min-width: 768px) {
-      .container {
-        max-width: 680px;
-      }
-
-      .topbar {
-        margin-left: 0;
-        margin-right: 0;
-        border-radius: 0 0 18px 18px;
-      }
-
-      .intro,
-      .form-card {
-        padding: 22px;
-      }
-    }
-  </style>
+</style>
 </head>
+
 <body>
-  <div class="container">
 
-    <div class="topbar">
-      <div class="brand">Market Parts</div>
-      <div class="topnav">
-        <a href="../">Главная</a>
-        <a href="#">Кабинет</a>
-        <a href="#">Выход</a>
-      </div>
-    </div>
+<div class="container">
 
-    <section class="intro">
-      <h1>Нужны запчасти для авто? Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</h1>
-      <p>Вы получите предложения напрямую от продавцов без поиска и звонков</p>
-    </section>
+<div class="logo">Market Parts</div>
 
-    <section class="form-card">
-      <h2 class="form-title">Заявка на запчасти</h2>
+<div class="nav">
+<a href="../">Главная</a>
+<a href="#">Кабинет</a>
+<a href="#">Выход</a>
+</div>
 
-      <form>
-        <div class="field">
-          <label class="label" for="country">Страна производителя</label>
-          <select class="select" id="country" name="country">
-            <option selected>Выберите страну</option>
-            <option>Япония</option>
-            <option>Германия</option>
-            <option>Корея</option>
-            <option>США</option>
-            <option>Китай</option>
-            <option>Франция</option>
-            <option>Италия</option>
-          </select>
-        </div>
+<div class="intro">
+Нужны запчасти для авто? Отправьте заявку — продавцы сами напишут в WhatsApp
+</div>
 
-        <div class="field">
-          <label class="label" for="brand">Марка автомобиля</label>
-          <select class="select" id="brand" name="brand">
-            <option selected>Сначала выберите страну</option>
-          </select>
-        </div>
+<div class="form">
 
-        <div class="field">
-          <label class="label" for="model">Модель автомобиля</label>
-          <select class="select" id="model" name="model">
-            <option selected>Сначала выберите марку</option>
-          </select>
-        </div>
+<select>
+<option>Выберите страну</option>
+</select>
 
-        <div class="field">
-          <label class="label" for="category">Категория запчасти</label>
-          <select class="select" id="category" name="category">
-            <option selected>Выберите категорию</option>
-            <option>Двигатель</option>
-            <option>Ходовая часть</option>
-            <option>Кузов</option>
-            <option>Тормозная система</option>
-            <option>Электрика</option>
-            <option>Трансмиссия</option>
-            <option>Салон</option>
-            <option>Оптика</option>
-          </select>
-        </div>
+<select>
+<option>Сначала выберите страну</option>
+</select>
 
-        <div class="field">
-          <label class="label" for="article">Артикул</label>
-          <input
-            class="input"
-            id="article"
-            name="article"
-            type="text"
-            placeholder="Если есть артикул, укажите его"
-          />
-        </div>
+<select>
+<option>Сначала выберите марку</option>
+</select>
 
-        <div class="field">
-          <label class="label" for="description">Опишите нужную запчасть</label>
-          <textarea
-            class="textarea"
-            id="description"
-            name="description"
-            placeholder="Например: передний амортизатор, можно новый или б/у"
-          ></textarea>
-        </div>
+<select>
+<option>Выберите категорию</option>
+</select>
 
-        <div class="field">
-          <label class="label" for="city">Город</label>
-          <select class="select" id="city" name="city">
-            <option selected>Выберите город</option>
-            <option>Алматы</option>
-            <option>Астана</option>
-            <option>Шымкент</option>
-            <option>Караганда</option>
-            <option>Актобе</option>
-            <option>Атырау</option>
-            <option>Павлодар</option>
-          </select>
-        </div>
+<input type="text" placeholder="Артикул (если есть)">
 
-        <div class="field">
-          <label class="label" for="phone">Телефон / WhatsApp</label>
-          <input
-            class="input"
-            id="phone"
-            name="phone"
-            type="tel"
-            placeholder="77071234567"
-          />
-          <div class="hint">Введите номер в формате 77071234567</div>
-        </div>
+<textarea placeholder="Опишите запчасть"></textarea>
 
-        <button class="btn" type="submit">Отправить заявку</button>
-      </form>
-    </section>
+<select>
+<option>Выберите город</option>
+</select>
 
-  </div>
+<input type="tel" placeholder="Телефон / WhatsApp">
 
-  <script>
-    document.querySelectorAll('.select').forEach(function(select) {
-      select.addEventListener('change', function() {
-        if (this.selectedIndex > 0) {
-          this.classList.add('has-value');
-        } else {
-          this.classList.remove('has-value');
-        }
-      });
-    });
-  </script>
+<button class="btn">Отправить заявку</button>
+
+</div>
+
+</div>
+
 </body>
 </html>
