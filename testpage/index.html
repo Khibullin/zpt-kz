@@ -1,85 +1,664 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Market Parts</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Market Parts</title>
+  <style>
+    :root {
+      --bg: #f4f5f7;
+      --card: #ffffff;
+      --text: #1f2328;
+      --muted: #667085;
+      --line: #e6e8ec;
+      --accent: #d92d20;
+      --accent-dark: #b42318;
+      --soft: #fff3f2;
+      --dark: #111827;
+      --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+      --radius: 22px;
+    }
 
-<style>
-:root {
-  --accent: #d92d20;
-  --bg: #f5f6f8;
-}
+    * {
+      box-sizing: border-box;
+    }
 
-body {
-  margin: 0;
-  font-family: Arial;
-  background: var(--bg);
-}
+    html {
+      scroll-behavior: smooth;
+    }
 
-.container {
-  max-width: 520px;
-  margin: 0 auto;
-  padding: 16px;
-}
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, #fff1f0 0, transparent 28%),
+        radial-gradient(circle at top right, #f0f4ff 0, transparent 25%),
+        var(--bg);
+      color: var(--text);
+    }
 
-.logo {
-  font-size: 28px;
-  font-weight: bold;
-  color: var(--accent);
-  margin-bottom: 20px;
-}
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
 
-.block {
-  background: #fff;
-  padding: 18px;
-  border-radius: 16px;
-  margin-bottom: 14px;
-}
+    .container {
+      width: 100%;
+      max-width: 540px;
+      margin: 0 auto;
+      padding: 16px 16px 36px;
+    }
 
-.block h2 {
-  margin: 0 0 8px;
-}
+    .header {
+      padding: 10px 2px 18px;
+    }
 
-.btn {
-  display: block;
-  margin-top: 10px;
-  background: var(--accent);
-  color: #fff;
-  padding: 12px;
-  text-align: center;
-  border-radius: 10px;
-  text-decoration: none;
-}
+    .brand-top {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
 
-</style>
+    .brand-main {
+      font-size: 30px;
+      font-weight: 800;
+      line-height: 1.05;
+      color: var(--dark);
+    }
+
+    .hero {
+      background: linear-gradient(145deg, #ffffff 0%, #fff4f2 100%);
+      border: 1px solid #ffe1dd;
+      border-radius: 28px;
+      padding: 24px 18px 20px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -45px;
+      top: -45px;
+      width: 130px;
+      height: 130px;
+      border-radius: 50%;
+      background: rgba(217, 45, 32, 0.08);
+    }
+
+    .hero h1 {
+      position: relative;
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.1;
+      color: var(--dark);
+      max-width: 360px;
+    }
+
+    .hero p {
+      position: relative;
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #4b5565;
+      max-width: 420px;
+    }
+
+    .hero-tags {
+      position: relative;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .hero-tag {
+      padding: 9px 12px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid #f2d6d2;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #3d4652;
+      box-shadow: 0 4px 10px rgba(15, 23, 42, 0.04);
+    }
+
+    .grid {
+      display: grid;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 18px;
+      box-shadow: var(--shadow);
+      border: 1px solid #edf0f3;
+    }
+
+    .service-card {
+      position: relative;
+      overflow: hidden;
+      padding-top: 20px;
+    }
+
+    .service-card::before {
+      content: "";
+      position: absolute;
+      left: 18px;
+      top: 0;
+      width: 62px;
+      height: 5px;
+      border-radius: 0 0 8px 8px;
+      background: linear-gradient(90deg, var(--accent), #ff7a6f);
+    }
+
+    .service-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 21px;
+      background: var(--soft);
+      color: var(--accent);
+      margin-bottom: 14px;
+    }
+
+    .service-card h3 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      line-height: 1.2;
+      color: var(--dark);
+    }
+
+    .service-card p {
+      margin: 0 0 14px;
+      color: var(--muted);
+      line-height: 1.5;
+      font-size: 14px;
+    }
+
+    .btn {
+      display: inline-block;
+      width: 100%;
+      text-align: center;
+      padding: 13px 16px;
+      border-radius: 14px;
+      font-weight: 700;
+      font-size: 15px;
+      transition: 0.2s ease;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 10px 18px rgba(217, 45, 32, 0.18);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-dark);
+    }
+
+    .one-window {
+      background: linear-gradient(145deg, #181d27 0%, #2a3140 100%);
+      color: #fff;
+      border-radius: 26px;
+      padding: 22px 18px;
+      box-shadow: var(--shadow);
+      margin-bottom: 18px;
+    }
+
+    .one-window h2 {
+      margin: 0 0 10px;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+
+    .one-window p {
+      margin: 0 0 16px;
+      font-size: 14px;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.82);
+    }
+
+    .feature-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .feature-item {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      border-radius: 16px;
+      padding: 12px 13px;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .search-card h2,
+    .steps h2,
+    .directions h2,
+    .partners h2,
+    .info-block h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.2;
+      color: var(--dark);
+    }
+
+    .search-card p,
+    .steps > p,
+    .directions > p,
+    .partners > p,
+    .info-block > p {
+      margin: 0 0 15px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 100px;
+      text-align: center;
+      padding: 11px 10px;
+      border-radius: 12px;
+      background: #f2f4f7;
+      color: #475467;
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid #e4e7ec;
+    }
+
+    .tab.active {
+      background: var(--soft);
+      color: var(--accent);
+      border-color: #f6c5bf;
+    }
+
+    .field-group {
+      display: grid;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .input {
+      width: 100%;
+      border: 1px solid #dfe3e8;
+      border-radius: 14px;
+      padding: 14px 14px;
+      background: #fff;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+    }
+
+    .input::placeholder {
+      color: #98a2b3;
+    }
+
+    .search-note {
+      text-align: center;
+      margin-top: 10px;
+      color: #667085;
+      font-size: 13px;
+    }
+
+    .steps-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 6px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      padding: 14px;
+      background: #fafafa;
+      border: 1px solid #eceff3;
+      border-radius: 18px;
+    }
+
+    .step-num {
+      min-width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--soft);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .step-content h3 {
+      margin: 0 0 5px;
+      font-size: 16px;
+      line-height: 1.25;
+      color: var(--dark);
+    }
+
+    .step-content p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .direction-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .direction-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 15px;
+      border-radius: 16px;
+      background: #fafafa;
+      border: 1px solid #eceff3;
+      font-size: 15px;
+      font-weight: 700;
+      color: #293140;
+    }
+
+    .direction-item span:last-child {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .partner-options {
+      display: grid;
+      gap: 14px;
+    }
+
+    .partner-option {
+      border: 1px solid #ebeef2;
+      border-radius: 18px;
+      padding: 16px;
+      background: #fbfcfd;
+    }
+
+    .partner-option h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+      color: var(--dark);
+    }
+
+    .partner-option p {
+      margin: 0 0 14px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    .btn-secondary {
+      background: #fff;
+      color: var(--accent);
+      border: 1px solid #f2c8c3;
+    }
+
+    .info-points {
+      display: grid;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .info-point {
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: #f8fafc;
+      border: 1px solid #edf1f5;
+      font-size: 14px;
+      color: #334155;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 20px;
+      padding: 8px 0 0;
+      color: #7a8597;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .footer-links {
+      margin-bottom: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .container {
+        max-width: 860px;
+        padding: 24px 20px 42px;
+      }
+
+      .hero {
+        padding: 30px 26px 24px;
+      }
+
+      .hero h1 {
+        font-size: 38px;
+        max-width: 560px;
+      }
+
+      .hero p {
+        font-size: 16px;
+        max-width: 620px;
+      }
+
+      .main-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+
+      .field-group {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .partner-options {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .feature-list,
+      .steps-list,
+      .direction-list,
+      .info-points {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
 </head>
-
 <body>
+  <div class="container">
 
-<div class="container">
+    <header class="header">
+      <div class="brand-top">ZPT.KZ</div>
+      <div class="brand-main">Market Parts</div>
+    </header>
 
-<div class="logo">Market Parts</div>
+    <section class="hero">
+      <h1>Запчасти, заявки и автоуслуги — в одном месте</h1>
+      <p>
+        Находите нужные товары, отправляйте одну заявку продавцам и получайте предложения
+        от СТО и сервисов через WhatsApp в удобном формате одного окна.
+      </p>
 
-<div class="block">
-<h2>Продажи запчастей</h2>
-<p>Выберите товар и свяжитесь с продавцом</p>
-<a href="#" class="btn">Перейти в магазин</a>
-</div>
+      <div class="hero-tags">
+        <div class="hero-tag">Запчасти и аксессуары</div>
+        <div class="hero-tag">Заявки продавцам</div>
+        <div class="hero-tag">СТО и автоуслуги</div>
+        <div class="hero-tag">Прямой контакт через WhatsApp</div>
+      </div>
+    </section>
 
-<div class="block">
-<h2>Заявки продавцам</h2>
-<p>Одна заявка — предложения от продавцов</p>
-<a href="request-parts/" class="btn">Оставить заявку</a>
-</div>
+    <section class="grid main-grid">
+      <div class="card service-card">
+        <div class="service-icon">🛒</div>
+        <h3>Продажи запчастей и аксессуаров</h3>
+        <p>
+          Подбирайте нужные товары и связывайтесь с продавцом напрямую без лишних шагов.
+        </p>
+        <a href="#" class="btn btn-primary">Перейти в магазин</a>
+      </div>
 
-<div class="block">
-<h2>Автоуслуги</h2>
-<p>СТО, шины, детейлинг — один запрос всем</p>
-<a href="#" class="btn">Оставить заявку</a>
-</div>
+      <div class="card service-card">
+        <div class="service-icon">📩</div>
+        <h3>Заявки продавцам</h3>
+        <p>
+          Оставьте одну заявку и получите предложения от продавцов запчастей в удобном формате.
+        </p>
+        <a href="request-parts/" class="btn btn-primary">Оставить заявку</a>
+      </div>
 
-</div>
+      <div class="card service-card">
+        <div class="service-icon">🔧</div>
+        <h3>Автоуслуги и сервис</h3>
+        <p>
+          СТО, детейлинг, шины, масла и автохимия — один запрос всем зарегистрированным партнёрам.
+        </p>
+        <a href="#" class="btn btn-primary">Оставить заявку</a>
+      </div>
+    </section>
 
+    <section class="one-window">
+      <h2>Удобно получать всё из одного окна</h2>
+      <p>
+        На Market Parts не нужно искать товары, продавцов и автоуслуги по разным сайтам.
+        Здесь можно купить запчасти, отправить заявку продавцам и получить предложения
+        от сервисов в одном месте.
+      </p>
+
+      <div class="feature-list">
+        <div class="feature-item">Один сайт для нескольких задач</div>
+        <div class="feature-item">Один запрос сразу нескольким партнёрам</div>
+        <div class="feature-item">Быстрый переход к нужному сценарию</div>
+        <div class="feature-item">Прямой контакт через WhatsApp</div>
+      </div>
+    </section>
+
+    <section class="card search-card">
+      <h2>Найти нужную запчасть</h2>
+      <p>Легковые, грузовые авто и аксессуары</p>
+
+      <div class="tabs">
+        <div class="tab active">Легковые</div>
+        <div class="tab">Грузовые</div>
+        <div class="tab">Аксессуары</div>
+      </div>
+
+      <div class="field-group">
+        <input class="input" type="text" placeholder="Марка" />
+        <input class="input" type="text" placeholder="Модель" />
+      </div>
+
+      <a href="#" class="btn btn-primary">Найти</a>
+
+      <div class="search-note">или поиск по артикулу / названию</div>
+    </section>
+
+    <section class="card steps">
+      <h2>Как это работает</h2>
+      <p>Выберите нужный сценарий и получите результат быстрее и удобнее.</p>
+
+      <div class="steps-list">
+        <div class="step-item">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h3>Для запчастей</h3>
+            <p>Найдите нужный товар и свяжитесь с продавцом напрямую.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h3>Для заявок продавцам</h3>
+            <p>Оставьте одну заявку и получите предложения от продавцов.</p>
+          </div>
+        </div>
+
+        <div class="step-item">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h3>Для автоуслуг</h3>
+            <p>Отправьте запрос и получите отклики от зарегистрированных партнёров через WhatsApp.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card directions">
+      <h2>Направления автоуслуг</h2>
+      <p>Один запрос может быть отправлен сразу нескольким партнёрам.</p>
+
+      <div class="direction-list">
+        <div class="direction-item"><span>СТО</span><span>→</span></div>
+        <div class="direction-item"><span>Детейлинг и тюнинг</span><span>→</span></div>
+        <div class="direction-item"><span>Шины</span><span>→</span></div>
+        <div class="direction-item"><span>Масла и автохимия</span><span>→</span></div>
+      </div>
+    </section>
+
+    <section class="card partners">
+      <h2>Вы продаёте товары или оказываете услуги?</h2>
+      <p>Выберите, как хотите получать клиентов на Market Parts.</p>
+
+      <div class="partner-options">
+        <div class="partner-option">
+          <h3>Продавать через магазин</h3>
+          <p>
+            Размещайте запчасти и аксессуары и получайте прямые обращения от покупателей.
+          </p>
+          <a href="#" class="btn btn-secondary">Размещать товары</a>
+        </div>
+
+        <div class="partner-option">
+          <h3>Получать заявки</h3>
+          <p>
+            Подходит для продавцов, СТО и автоуслуг, которые хотят получать обращения без размещения товаров.
+          </p>
+          <a href="#" class="btn btn-secondary">Получать заявки</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="card info-block">
+      <h2>Всё для автомобиля — в одном месте</h2>
+      <p>
+        Market Parts объединяет покупку товаров, заявки продавцам и автоуслуги
+        в одном удобном пространстве.
+      </p>
+
+      <div class="info-points">
+        <div class="info-point">Запчасти для легковых и грузовых авто</div>
+        <div class="info-point">Аксессуары и автохимия</div>
+        <div class="info-point">Заявки продавцам и партнёрам</div>
+        <div class="info-point">Прямой контакт с продавцами и сервисами</div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <div class="footer-links">Гид • FAQ • Обратная связь • Для продавцов</div>
+      <div>© ZPT.KZ</div>
+    </footer>
+
+  </div>
 </body>
 </html>
