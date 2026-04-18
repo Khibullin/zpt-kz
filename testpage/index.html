@@ -1,229 +1,260 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>ZPT.KZ</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Parts</title>
 
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #1f1f1f;
-    }
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            color: #222;
+        }
 
-    .container {
-      max-width: 1100px;
-      margin: 0 auto;
-      padding: 20px;
-    }
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 16px;
+        }
 
-    header {
-      background: #fff;
-      padding: 15px 20px;
-      font-size: 24px;
-      font-weight: bold;
-      border-bottom: 1px solid #ddd;
-    }
+        /* HEADER */
+        .header {
+            text-align: center;
+            padding: 20px 0 10px;
+        }
 
-    .hero {
-      background: #f34735;
-      color: white;
-      padding: 40px 20px;
-      border-radius: 16px;
-    }
+        .logo-small {
+            font-size: 12px;
+            color: #888;
+        }
 
-    h1 {
-      margin: 0 0 10px;
-      font-size: 36px;
-    }
+        .logo-main {
+            font-size: 26px;
+            font-weight: bold;
+        }
 
-    .sub {
-      margin-bottom: 20px;
-    }
+        /* MAIN BLOCKS */
+        .main-block {
+            background: #fff;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
 
-    .tabs button {
-      padding: 10px 15px;
-      margin-right: 10px;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
+        .main-block h2 {
+            margin: 0 0 6px;
+            font-size: 18px;
+        }
 
-    .tabs .active {
-      background: white;
-      color: black;
-    }
+        .main-block p {
+            margin: 0 0 12px;
+            color: #555;
+            font-size: 14px;
+        }
 
-    .search {
-      margin-top: 20px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+        .btn {
+            display: block;
+            text-align: center;
+            background: #e53935;
+            color: #fff;
+            padding: 12px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: bold;
+        }
 
-    select, input {
-      padding: 10px;
-      border-radius: 10px;
-      border: none;
-      min-width: 150px;
-    }
+        /* SEARCH BLOCK */
+        .search-block {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            margin: 20px 0;
+        }
 
-    .btn {
-      padding: 10px 20px;
-      border-radius: 10px;
-      border: none;
-      cursor: pointer;
-      font-weight: bold;
-    }
+        .search-title {
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
 
-    .btn-red {
-      background: #c73426;
-      color: white;
-    }
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
 
-    .btn-blue {
-      background: #2f80ed;
-      color: white;
-    }
+        .tab {
+            flex: 1;
+            padding: 8px;
+            text-align: center;
+            background: #eee;
+            border-radius: 8px;
+            font-size: 13px;
+        }
 
-    .divider {
-      margin: 20px 0;
-      text-align: center;
-    }
+        .inputs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
 
-    .section {
-      margin-top: 30px;
-      background: white;
-      padding: 25px;
-      border-radius: 16px;
-    }
+        .inputs input {
+            flex: 1;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+        }
 
-    .center {
-      text-align: center;
-    }
+        .btn-search {
+            background: #e53935;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            display: block;
+            margin-bottom: 10px;
+        }
 
-    .services {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 15px;
-    }
+        .search-alt {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+        }
 
-    .service {
-      border: 1px solid #eee;
-      padding: 15px;
-      border-radius: 12px;
-    }
+        /* SERVICES LIST */
+        .list-block {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
 
-    .seller {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
+        .list-block h3 {
+            margin-bottom: 10px;
+        }
 
-    .seller div {
-      border: 1px solid #eee;
-      padding: 20px;
-      border-radius: 12px;
-    }
+        .list-item {
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
 
-    footer {
-      margin-top: 30px;
-      padding: 20px;
-      background: #eee;
-      text-align: center;
-    }
+        .list-item:last-child {
+            border-bottom: none;
+        }
 
-  </style>
+        /* SELLER BLOCK */
+        .seller-block {
+            background: #fff;
+            border-radius: 14px;
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .seller-option {
+            margin-bottom: 12px;
+        }
+
+        .seller-option h4 {
+            margin: 0 0 4px;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            font-size: 13px;
+            color: #777;
+            padding: 20px 0;
+        }
+
+    </style>
 </head>
 
 <body>
 
-<header>
-  ZPT.KZ
-</header>
-
 <div class="container">
 
-  <!-- ГЛАВНЫЙ БЛОК -->
-  <div class="hero">
-    <h1>Найдите нужную запчасть</h1>
-    <div class="sub">Легковые, грузовые авто и аксессуары</div>
-
-    <div class="tabs">
-      <button class="active">Легковые</button>
-      <button>Грузовые</button>
-      <button>Аксессуары</button>
+    <!-- HEADER -->
+    <div class="header">
+        <div class="logo-small">ZPT.KZ</div>
+        <div class="logo-main">Market Parts</div>
     </div>
 
-    <div class="search">
-      <select><option>Марка</option></select>
-      <select><option>Модель</option></select>
-      <button class="btn btn-red">Найти запчасть</button>
+    <!-- MAIN BLOCKS -->
+    <div class="main-block">
+        <h2>Продажи запчастей и аксессуаров</h2>
+        <p>Выберите товар и свяжитесь с продавцом напрямую</p>
+        <a href="#" class="btn">Перейти в магазин</a>
     </div>
 
-    <div class="divider">Или</div>
-
-    <div class="search">
-      <input type="text" placeholder="Введите название или артикул">
-      <button class="btn btn-blue">Найти</button>
+    <div class="main-block">
+        <h2>Заявки продавцам</h2>
+        <p>Отправьте одну заявку и получите предложения</p>
+        <a href="#" class="btn">Оставить заявку</a>
     </div>
-  </div>
 
-  <!-- ЗАЯВКА -->
-  <div class="section center">
-    <h2>Не нашли нужную запчасть?</h2>
-    <p>Отправьте заявку всем продавцам и получите предложения</p>
-    <button class="btn btn-red">Оставить заявку</button>
-  </div>
-
-  <!-- СЕРВИСЫ -->
-  <div class="section">
-    <h2>Другие автосервисы ZPT.KZ</h2>
-
-    <div class="services">
-      <div class="service"><b>Детейлинг и тюнинг</b><br>Уход и доработка</div>
-      <div class="service"><b>Электромобили</b><br>Товары и услуги</div>
-      <div class="service"><b>Аксессуары и автохимия</b><br>Универсальные товары</div>
-      <div class="service"><b>Шинные центры</b><br>Шины и замена</div>
-      <div class="service"><b>СТО и мастера</b><br>Ремонт авто</div>
+    <div class="main-block">
+        <h2>Автоуслуги и сервис</h2>
+        <p>Одна заявка всем партнёрам через WhatsApp</p>
+        <a href="#" class="btn">Оставить заявку</a>
     </div>
-  </div>
 
-  <!-- ПРОДАВЦЫ -->
-  <div class="section">
-    <h2>Вы продаёте запчасти или аксессуары?</h2>
-    <p>Выберите, как работать с клиентами</p>
+    <!-- SEARCH -->
+    <div class="search-block">
+        <div class="search-title">Найти нужную запчасть</div>
 
-    <div class="seller">
-      <div>
-        <b>Продавать через магазин</b>
-        <p>Размещайте товары и получайте клиентов</p>
-        <button class="btn btn-red">Размещать товары</button>
-      </div>
+        <div class="tabs">
+            <div class="tab">Легковые</div>
+            <div class="tab">Грузовые</div>
+            <div class="tab">Аксессуары</div>
+        </div>
 
-      <div>
-        <b>Получать заявки</b>
-        <p>Без размещения товаров</p>
-        <button class="btn btn-blue">Получать заявки</button>
-      </div>
+        <div class="inputs">
+            <input type="text" placeholder="Марка">
+            <input type="text" placeholder="Модель">
+        </div>
+
+        <div class="btn-search">Найти</div>
+
+        <div class="search-alt">
+            или поиск по артикулу / названию
+        </div>
     </div>
-  </div>
 
-  <!-- ИНФО -->
-  <div class="section center">
-    <p>Легковые и грузовые авто</p>
-    <p>Запчасти и аксессуары</p>
-    <p>Прямой контакт с продавцами</p>
-  </div>
+    <!-- SERVICES -->
+    <div class="list-block">
+        <h3>Направления автоуслуг</h3>
+
+        <div class="list-item">СТО</div>
+        <div class="list-item">Детейлинг и тюнинг</div>
+        <div class="list-item">Шины</div>
+        <div class="list-item">Масла и автохимия</div>
+    </div>
+
+    <!-- SELLERS -->
+    <div class="seller-block">
+        <h3>Вы продаёте товары или оказываете услуги?</h3>
+        <p>Выберите, как хотите получать клиентов</p>
+
+        <div class="seller-option">
+            <h4>Продавать через магазин</h4>
+            <a href="#" class="btn">Размещать товары</a>
+        </div>
+
+        <div class="seller-option">
+            <h4>Получать заявки</h4>
+            <a href="#" class="btn">Получать заявки</a>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        Гид • FAQ • Обратная связь • Для продавцов<br><br>
+        © ZPT.KZ
+    </div>
 
 </div>
-
-<footer>
-  Гид • FAQ • Обратная связь • Для продавцов<br><br>
-  © ZPT.KZ
-</footer>
 
 </body>
 </html>
