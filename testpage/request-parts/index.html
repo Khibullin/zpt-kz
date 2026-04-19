@@ -27,7 +27,6 @@ body {
   padding:16px;
 }
 
-/* HEADER */
 .header {
   margin-bottom:20px;
 }
@@ -38,10 +37,6 @@ body {
   color:var(--accent);
 }
 
-.nav {
-  margin-top:6px;
-}
-
 .nav a {
   margin-right:12px;
   color:#333;
@@ -49,7 +44,6 @@ body {
   font-size:14px;
 }
 
-/* HERO */
 .hero {
   background:#fff;
   padding:18px;
@@ -69,7 +63,6 @@ body {
   font-size:14px;
 }
 
-/* FORM CARD */
 .card {
   background:#fff;
   padding:18px;
@@ -83,7 +76,6 @@ body {
   margin-bottom:14px;
 }
 
-/* FIELDS */
 .field {
   margin-bottom:14px;
 }
@@ -108,7 +100,7 @@ textarea {
   resize:none;
 }
 
-/* TRANSPORT TABS */
+/* ТАБЫ */
 .transport-tabs {
   display:flex;
   gap:8px;
@@ -129,7 +121,6 @@ textarea {
   color:#fff;
 }
 
-/* BUTTON */
 .btn {
   width:100%;
   padding:14px;
@@ -142,7 +133,6 @@ textarea {
   margin-top:6px;
 }
 
-/* NOTE */
 .note {
   margin-top:10px;
   font-size:13px;
@@ -156,99 +146,102 @@ textarea {
 
 <div class="container">
 
-  <!-- HEADER -->
-  <div class="header">
-    <div class="logo">Market Parts</div>
-    <div class="nav">
-      <a href="../">Главная</a>
-      <a href="#">Кабинет</a>
-      <a href="#">Выход</a>
-    </div>
+<div class="header">
+  <div class="logo">Market Parts</div>
+  <div class="nav">
+    <a href="../">Главная</a>
   </div>
+</div>
 
-  <!-- HERO -->
-  <div class="hero">
-    <h1>Нужны запчасти для авто?</h1>
-    <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
-    <p style="margin-top:6px;">Вы получите предложения напрямую без поиска и звонков</p>
-  </div>
+<div class="hero">
+  <h1>Нужны запчасти для авто?</h1>
+  <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
+</div>
 
-  <!-- FORM -->
-  <div class="card">
+<div class="card">
 
-    <div class="title">Заявка на запчасти</div>
+<div class="title">Заявка на запчасти</div>
 
-    <form>
+<form id="requestForm">
 
-      <div class="field">
-        <label class="label">Тип транспорта</label>
-        <div class="transport-tabs">
-          <div class="tab active">Легковые</div>
-          <div class="tab">Грузовые</div>
-        </div>
-      </div>
+<!-- 🔥 ТИП ТРАНСПОРТА -->
+<div class="field">
+<label class="label">Тип транспорта</label>
 
-      <div class="field">
-        <label class="label">Страна производителя</label>
-        <select>
-          <option>Выберите страну</option>
-        </select>
-      </div>
+<div class="transport-tabs">
+  <div class="tab active" data-value="car">Легковые</div>
+  <div class="tab" data-value="truck">Грузовые</div>
+</div>
 
-      <div class="field">
-        <label class="label">Марка автомобиля</label>
-        <select>
-          <option>Сначала выберите страну</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label">Модель автомобиля</label>
-        <select>
-          <option>Сначала выберите марку</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label">Категория запчасти</label>
-        <select>
-          <option>Выберите категорию</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label">Артикул</label>
-        <input type="text" placeholder="Если есть, укажите артикул">
-      </div>
-
-      <div class="field">
-        <label class="label">Опишите нужную запчасть</label>
-        <textarea placeholder="Например: передний амортизатор, можно новый или б/у"></textarea>
-      </div>
-
-      <div class="field">
-        <label class="label">Город</label>
-        <select>
-          <option>Выберите город</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label">Телефон / WhatsApp</label>
-        <input type="tel" placeholder="77071234567">
-      </div>
-
-      <button class="btn">Отправить заявку</button>
-
-    </form>
-
-    <div class="note">
-      Один запрос отправляется сразу нескольким продавцам
-    </div>
-
-  </div>
+<input type="hidden" name="transport_type" id="transportType" value="car">
 
 </div>
+
+<div class="field">
+<label class="label">Страна производителя</label>
+<select><option>Выберите страну</option></select>
+</div>
+
+<div class="field">
+<label class="label">Марка автомобиля</label>
+<select><option>Сначала выберите страну</option></select>
+</div>
+
+<div class="field">
+<label class="label">Модель автомобиля</label>
+<select><option>Сначала выберите марку</option></select>
+</div>
+
+<div class="field">
+<label class="label">Категория запчасти</label>
+<select><option>Выберите категорию</option></select>
+</div>
+
+<div class="field">
+<label class="label">Артикул</label>
+<input type="text" placeholder="Если есть, укажите артикул">
+</div>
+
+<div class="field">
+<label class="label">Опишите нужную запчасть</label>
+<textarea placeholder="Например: передний амортизатор"></textarea>
+</div>
+
+<div class="field">
+<label class="label">Город</label>
+<select><option>Выберите город</option></select>
+</div>
+
+<div class="field">
+<label class="label">Телефон / WhatsApp</label>
+<input type="tel" placeholder="77071234567">
+</div>
+
+<button class="btn">Отправить заявку</button>
+
+</form>
+
+<div class="note">
+Один запрос отправляется сразу нескольким продавцам
+</div>
+
+</div>
+
+</div>
+
+<script>
+// 🔥 ПЕРЕКЛЮЧЕНИЕ ТАБОВ
+const tabs = document.querySelectorAll('.tab');
+const input = document.getElementById('transportType');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    input.value = tab.dataset.value;
+  });
+});
+</script>
 
 </body>
 </html>
