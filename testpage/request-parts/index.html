@@ -3,55 +3,130 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Заявка</title>
+<title>Заявка на запчасти — Market Parts</title>
 
 <style>
+:root {
+  --bg:#f4f5f7;
+  --card:#ffffff;
+  --text:#1f2328;
+  --muted:#667085;
+  --accent:#d92d20;
+  --shadow:0 10px 30px rgba(0,0,0,0.08);
+}
+
 body {
   margin:0;
   font-family:Arial;
-  background:#f4f5f7;
+  background:var(--bg);
 }
 
 .container {
-  max-width:520px;
+  max-width:560px;
   margin:auto;
   padding:16px;
 }
 
+/* HEADER */
+.header {
+  margin-bottom:20px;
+}
+
 .logo {
-  font-size:24px;
-  font-weight:bold;
-  margin-bottom:10px;
+  font-size:26px;
+  font-weight:800;
+  color:var(--accent);
+}
+
+.nav {
+  margin-top:6px;
 }
 
 .nav a {
-  margin-right:10px;
-  text-decoration:none;
+  margin-right:12px;
   color:#333;
+  text-decoration:none;
+  font-size:14px;
 }
 
-.block {
+/* HERO */
+.hero {
   background:#fff;
-  padding:16px;
-  border-radius:14px;
-  margin-bottom:12px;
+  padding:18px;
+  border-radius:18px;
+  margin-bottom:16px;
+  box-shadow:var(--shadow);
 }
 
-input,select,textarea {
+.hero h1 {
+  margin:0 0 6px;
+  font-size:20px;
+}
+
+.hero p {
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* FORM CARD */
+.card {
+  background:#fff;
+  padding:18px;
+  border-radius:20px;
+  box-shadow:var(--shadow);
+}
+
+.title {
+  font-size:22px;
+  font-weight:700;
+  margin-bottom:14px;
+}
+
+/* FIELDS */
+.field {
+  margin-bottom:14px;
+}
+
+.label {
+  font-size:14px;
+  font-weight:600;
+  margin-bottom:6px;
+  display:block;
+}
+
+input, select, textarea {
   width:100%;
   padding:12px;
-  margin-bottom:10px;
   border-radius:10px;
   border:1px solid #ddd;
+  font-size:14px;
 }
 
-button {
+textarea {
+  min-height:90px;
+  resize:none;
+}
+
+/* BUTTON */
+.btn {
   width:100%;
   padding:14px;
-  background:#d92d20;
+  background:var(--accent);
   color:#fff;
   border:none;
-  border-radius:10px;
+  border-radius:12px;
+  font-size:16px;
+  font-weight:bold;
+  margin-top:6px;
+}
+
+/* NOTE */
+.note {
+  margin-top:10px;
+  font-size:13px;
+  color:#777;
+  text-align:center;
 }
 
 </style>
@@ -61,29 +136,88 @@ button {
 
 <div class="container">
 
-<div class="logo">Market Parts</div>
-
-<div class="nav">
-<a href="../">Главная</a>
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">Market Parts</div>
+  <div class="nav">
+    <a href="../">Главная</a>
+    <a href="#">Кабинет</a>
+    <a href="#">Выход</a>
+  </div>
 </div>
 
-<div class="block">
+<!-- HERO -->
+<div class="hero">
+  <h1>Нужны запчасти для авто?</h1>
+  <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
+  <p style="margin-top:6px;">Вы получите предложения напрямую без поиска и звонков</p>
+</div>
 
-<select><option>Страна</option></select>
-<select><option>Марка</option></select>
-<select><option>Модель</option></select>
+<!-- FORM -->
+<div class="card">
 
-<select><option>Категория</option></select>
+<div class="title">Заявка на запчасти</div>
 
-<input placeholder="Артикул">
+<form>
 
-<textarea placeholder="Описание"></textarea>
+<div class="field">
+<label class="label">Страна производителя</label>
+<select>
+<option>Выберите страну</option>
+</select>
+</div>
 
-<select><option>Город</option></select>
+<div class="field">
+<label class="label">Марка автомобиля</label>
+<select>
+<option>Сначала выберите страну</option>
+</select>
+</div>
 
-<input placeholder="Телефон">
+<div class="field">
+<label class="label">Модель автомобиля</label>
+<select>
+<option>Сначала выберите марку</option>
+</select>
+</div>
 
-<button>Отправить заявку</button>
+<div class="field">
+<label class="label">Категория запчасти</label>
+<select>
+<option>Выберите категорию</option>
+</select>
+</div>
+
+<!-- 🔥 ДОБАВИЛИ АРТИКУЛ -->
+<div class="field">
+<label class="label">Артикул</label>
+<input type="text" placeholder="Если есть, укажите артикул">
+</div>
+
+<div class="field">
+<label class="label">Опишите нужную запчасть</label>
+<textarea placeholder="Например: передний амортизатор, можно новый или б/у"></textarea>
+</div>
+
+<div class="field">
+<label class="label">Город</label>
+<select>
+<option>Выберите город</option>
+</select>
+</div>
+
+<div class="field">
+<label class="label">Телефон / WhatsApp</label>
+<input type="tel" placeholder="77071234567">
+</div>
+
+<button class="btn">Отправить заявку</button>
+
+</form>
+
+<div class="note">
+Один запрос отправляется сразу нескольким продавцам
+</div>
 
 </div>
 
