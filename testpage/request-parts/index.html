@@ -19,6 +19,7 @@ body {
   margin:0;
   font-family:Arial;
   background:var(--bg);
+  color:var(--text);
 }
 
 .container {
@@ -93,6 +94,7 @@ input, select, textarea {
   border-radius:10px;
   border:1px solid #ddd;
   font-size:14px;
+  box-sizing:border-box;
 }
 
 textarea {
@@ -114,6 +116,7 @@ textarea {
   background:#f0f0f0;
   cursor:pointer;
   font-weight:600;
+  user-select:none;
 }
 
 .transport-tabs .tab.active {
@@ -131,6 +134,7 @@ textarea {
   font-size:16px;
   font-weight:bold;
   margin-top:6px;
+  cursor:pointer;
 }
 
 .note {
@@ -139,6 +143,13 @@ textarea {
   color:#777;
   text-align:center;
 }
+
+.error {
+  color:#b42318;
+  font-size:13px;
+  margin-top:8px;
+  display:none;
+}
 </style>
 </head>
 
@@ -146,100 +157,173 @@ textarea {
 
 <div class="container">
 
-<div class="header">
-  <div class="logo">Market Parts</div>
-  <div class="nav">
-    <a href="../">Главная</a>
+  <div class="header">
+    <div class="logo">Market Parts</div>
+    <div class="nav">
+      <a href="../">Главная</a>
+    </div>
   </div>
-</div>
 
-<div class="hero">
-  <h1>Нужны запчасти для авто?</h1>
-  <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
-</div>
+  <div class="hero">
+    <h1>Нужны запчасти для авто?</h1>
+    <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
+  </div>
 
-<div class="card">
+  <div class="card">
 
-<div class="title">Заявка на запчасти</div>
+    <div class="title">Заявка на запчасти</div>
 
-<form id="requestForm">
+    <form id="requestForm">
 
-<!-- 🔥 ТИП ТРАНСПОРТА -->
-<div class="field">
-<label class="label">Тип транспорта</label>
+      <div class="field">
+        <label class="label">Тип транспорта</label>
 
-<div class="transport-tabs">
-  <div class="tab active" data-value="car">Легковые</div>
-  <div class="tab" data-value="truck">Грузовые</div>
-</div>
+        <div class="transport-tabs">
+          <div class="tab active" data-value="Легковые">Легковые</div>
+          <div class="tab" data-value="Грузовые">Грузовые</div>
+        </div>
 
-<input type="hidden" name="transport_type" id="transportType" value="car">
+        <input type="hidden" name="transport_type" id="transportType" value="Легковые">
+      </div>
 
-</div>
+      <div class="field">
+        <label class="label" for="country">Страна производителя</label>
+        <select id="country" name="country">
+          <option value="">Выберите страну</option>
+          <option>Япония</option>
+          <option>Германия</option>
+          <option>Корея</option>
+          <option>США</option>
+          <option>Китай</option>
+          <option>Франция</option>
+          <option>Италия</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Страна производителя</label>
-<select><option>Выберите страну</option></select>
-</div>
+      <div class="field">
+        <label class="label" for="brand">Марка автомобиля</label>
+        <select id="brand" name="brand">
+          <option value="">Сначала выберите страну</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Марка автомобиля</label>
-<select><option>Сначала выберите страну</option></select>
-</div>
+      <div class="field">
+        <label class="label" for="model">Модель автомобиля</label>
+        <select id="model" name="model">
+          <option value="">Сначала выберите марку</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Модель автомобиля</label>
-<select><option>Сначала выберите марку</option></select>
-</div>
+      <div class="field">
+        <label class="label" for="category">Категория запчасти</label>
+        <select id="category" name="category">
+          <option value="">Выберите категорию</option>
+          <option>Двигатель</option>
+          <option>Ходовая часть</option>
+          <option>Кузов</option>
+          <option>Тормозная система</option>
+          <option>Электрика</option>
+          <option>Трансмиссия</option>
+          <option>Салон</option>
+          <option>Оптика</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Категория запчасти</label>
-<select><option>Выберите категорию</option></select>
-</div>
+      <div class="field">
+        <label class="label" for="article">Артикул</label>
+        <input id="article" name="article" type="text" placeholder="Если есть, укажите артикул">
+      </div>
 
-<div class="field">
-<label class="label">Артикул</label>
-<input type="text" placeholder="Если есть, укажите артикул">
-</div>
+      <div class="field">
+        <label class="label" for="description">Опишите нужную запчасть</label>
+        <textarea id="description" name="description" placeholder="Например: передний амортизатор"></textarea>
+      </div>
 
-<div class="field">
-<label class="label">Опишите нужную запчасть</label>
-<textarea placeholder="Например: передний амортизатор"></textarea>
-</div>
+      <div class="field">
+        <label class="label" for="city">Город</label>
+        <select id="city" name="city">
+          <option value="">Выберите город</option>
+          <option>Алматы</option>
+          <option>Астана</option>
+          <option>Шымкент</option>
+          <option>Караганда</option>
+          <option>Актобе</option>
+          <option>Атырау</option>
+          <option>Павлодар</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Город</label>
-<select><option>Выберите город</option></select>
-</div>
+      <div class="field">
+        <label class="label" for="phone">Телефон / WhatsApp</label>
+        <input id="phone" name="phone" type="tel" placeholder="77071234567">
+      </div>
 
-<div class="field">
-<label class="label">Телефон / WhatsApp</label>
-<input type="tel" placeholder="77071234567">
-</div>
+      <button class="btn" type="submit">Отправить заявку</button>
+      <div class="error" id="formError">Заполните хотя бы описание запчасти и телефон.</div>
 
-<button class="btn">Отправить заявку</button>
+    </form>
 
-</form>
+    <div class="note">
+      Один запрос отправляется сразу нескольким продавцам
+    </div>
 
-<div class="note">
-Один запрос отправляется сразу нескольким продавцам
-</div>
-
-</div>
+  </div>
 
 </div>
 
 <script>
-// 🔥 ПЕРЕКЛЮЧЕНИЕ ТАБОВ
+// Переключение табов
 const tabs = document.querySelectorAll('.tab');
-const input = document.getElementById('transportType');
+const transportInput = document.getElementById('transportType');
 
 tabs.forEach(tab => {
   tab.addEventListener('click', () => {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
-    input.value = tab.dataset.value;
+    transportInput.value = tab.dataset.value;
   });
+});
+
+// Отправка в WhatsApp
+const form = document.getElementById('requestForm');
+const errorBox = document.getElementById('formError');
+
+form.addEventListener('submit', function (e) {
+  e.preventDefault();
+
+  const transportType = document.getElementById('transportType').value.trim();
+  const country = document.getElementById('country').value.trim();
+  const brand = document.getElementById('brand').value.trim();
+  const model = document.getElementById('model').value.trim();
+  const category = document.getElementById('category').value.trim();
+  const article = document.getElementById('article').value.trim();
+  const description = document.getElementById('description').value.trim();
+  const city = document.getElementById('city').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if (!description || !phone) {
+    errorBox.style.display = 'block';
+    return;
+  }
+
+  errorBox.style.display = 'none';
+
+  const message =
+`Заявка на запчасти
+
+Тип транспорта: ${transportType}
+Страна производителя: ${country || '-'}
+Марка автомобиля: ${brand || '-'}
+Модель автомобиля: ${model || '-'}
+Категория запчасти: ${category || '-'}
+Артикул: ${article || '-'}
+Описание: ${description || '-'}
+Город: ${city || '-'}
+Телефон / WhatsApp: ${phone}`;
+
+  // Пока без номера получателя: откроется WhatsApp с готовым текстом
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+  window.open(whatsappUrl, '_blank');
 });
 </script>
 
