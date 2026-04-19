@@ -108,6 +108,27 @@ textarea {
   resize:none;
 }
 
+/* TRANSPORT TABS */
+.transport-tabs {
+  display:flex;
+  gap:8px;
+}
+
+.transport-tabs .tab {
+  flex:1;
+  text-align:center;
+  padding:10px;
+  border-radius:10px;
+  background:#f0f0f0;
+  cursor:pointer;
+  font-weight:600;
+}
+
+.transport-tabs .tab.active {
+  background:var(--accent);
+  color:#fff;
+}
+
 /* BUTTON */
 .btn {
   width:100%;
@@ -128,7 +149,6 @@ textarea {
   color:#777;
   text-align:center;
 }
-
 </style>
 </head>
 
@@ -136,90 +156,97 @@ textarea {
 
 <div class="container">
 
-<!-- HEADER -->
-<div class="header">
-  <div class="logo">Market Parts</div>
-  <div class="nav">
-    <a href="../">Главная</a>
-    <a href="#">Кабинет</a>
-    <a href="#">Выход</a>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">Market Parts</div>
+    <div class="nav">
+      <a href="../">Главная</a>
+      <a href="#">Кабинет</a>
+      <a href="#">Выход</a>
+    </div>
   </div>
-</div>
 
-<!-- HERO -->
-<div class="hero">
-  <h1>Нужны запчасти для авто?</h1>
-  <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
-  <p style="margin-top:6px;">Вы получите предложения напрямую без поиска и звонков</p>
-</div>
+  <!-- HERO -->
+  <div class="hero">
+    <h1>Нужны запчасти для авто?</h1>
+    <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
+    <p style="margin-top:6px;">Вы получите предложения напрямую без поиска и звонков</p>
+  </div>
 
-<!-- FORM -->
-<div class="card">
+  <!-- FORM -->
+  <div class="card">
 
-<div class="title">Заявка на запчасти</div>
+    <div class="title">Заявка на запчасти</div>
 
-<form>
+    <form>
 
-<div class="field">
-<label class="label">Страна производителя</label>
-<select>
-<option>Выберите страну</option>
-</select>
-</div>
+      <div class="field">
+        <label class="label">Тип транспорта</label>
+        <div class="transport-tabs">
+          <div class="tab active">Легковые</div>
+          <div class="tab">Грузовые</div>
+        </div>
+      </div>
 
-<div class="field">
-<label class="label">Марка автомобиля</label>
-<select>
-<option>Сначала выберите страну</option>
-</select>
-</div>
+      <div class="field">
+        <label class="label">Страна производителя</label>
+        <select>
+          <option>Выберите страну</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Модель автомобиля</label>
-<select>
-<option>Сначала выберите марку</option>
-</select>
-</div>
+      <div class="field">
+        <label class="label">Марка автомобиля</label>
+        <select>
+          <option>Сначала выберите страну</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Категория запчасти</label>
-<select>
-<option>Выберите категорию</option>
-</select>
-</div>
+      <div class="field">
+        <label class="label">Модель автомобиля</label>
+        <select>
+          <option>Сначала выберите марку</option>
+        </select>
+      </div>
 
-<!-- 🔥 ДОБАВИЛИ АРТИКУЛ -->
-<div class="field">
-<label class="label">Артикул</label>
-<input type="text" placeholder="Если есть, укажите артикул">
-</div>
+      <div class="field">
+        <label class="label">Категория запчасти</label>
+        <select>
+          <option>Выберите категорию</option>
+        </select>
+      </div>
 
-<div class="field">
-<label class="label">Опишите нужную запчасть</label>
-<textarea placeholder="Например: передний амортизатор, можно новый или б/у"></textarea>
-</div>
+      <div class="field">
+        <label class="label">Артикул</label>
+        <input type="text" placeholder="Если есть, укажите артикул">
+      </div>
 
-<div class="field">
-<label class="label">Город</label>
-<select>
-<option>Выберите город</option>
-</select>
-</div>
+      <div class="field">
+        <label class="label">Опишите нужную запчасть</label>
+        <textarea placeholder="Например: передний амортизатор, можно новый или б/у"></textarea>
+      </div>
 
-<div class="field">
-<label class="label">Телефон / WhatsApp</label>
-<input type="tel" placeholder="77071234567">
-</div>
+      <div class="field">
+        <label class="label">Город</label>
+        <select>
+          <option>Выберите город</option>
+        </select>
+      </div>
 
-<button class="btn">Отправить заявку</button>
+      <div class="field">
+        <label class="label">Телефон / WhatsApp</label>
+        <input type="tel" placeholder="77071234567">
+      </div>
 
-</form>
+      <button class="btn">Отправить заявку</button>
 
-<div class="note">
-Один запрос отправляется сразу нескольким продавцам
-</div>
+    </form>
 
-</div>
+    <div class="note">
+      Один запрос отправляется сразу нескольким продавцам
+    </div>
+
+  </div>
 
 </div>
 
