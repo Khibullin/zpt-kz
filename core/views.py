@@ -1,9 +1,57 @@
-from django.shortcuts import render
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+from .models import Request, Country, Brand, CarModel
 
 
-def home(request):
-    return render(request, "core/home.html")
+@csrf_exempt
+def create_request(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        req = Request.objects.create(
+            transport_type=data.get('transport_type'),
+            country=data.get('country', ''),
+            brand=data.get('brand', ''),
+            model=data.get('model', ''),
+            category=data.get('category', ''),
+            article=data.get('article', ''),
+            description=data.get('description', ''),
+            city=data.get('city', ''),
+            phone=data.get('phone', ''),
+        )
+
+        return JsonResponse({'status': 'ok', 'id': req.id})
+
+    return JsonResponse({'error': 'invalid method'}, status=405)
 
 
-def testpage(request):
-    return render(request, "core/testpage.html")
+def countries_list(request):
+    countries = Country.objects.order_by('name')
+    data = [{'id': country.id, 'name': country.name} for country in countries]
+    return JsonResponse({'countries': data})
+
+
+def brands_by_country(request):
+    country_id = request.GET.get('country_id')
+
+    if not country_id:
+        return JsonResponse({'brands': []})
+
+    brands = Brand.objects.filter(country_id=country_id).order_by('name')
+    data = [{'id': brand.id, 'name': brand.name} for brand in brands]
+
+    return JsonResponse({'brands': data})
+
+
+def models_by_brand(request):
+    brand_id = request.GET.get('brand_id')
+
+    if not brand_id:
+        return JsonResponse({'models': []})
+
+    models = CarModel.objects.filter(brand_id=brand_id).order_by('name')
+    data = [{'id': model.id, 'name': model.name} for model in models]
+
+    return JsonResponse({'models': data})

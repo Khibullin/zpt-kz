@@ -195,14 +195,7 @@ textarea {
       <div class="field">
         <label class="label" for="country">Страна производителя</label>
         <select id="country">
-          <option value="">Выберите страну</option>
-          <option>Япония</option>
-          <option>Германия</option>
-          <option>Корея</option>
-          <option>США</option>
-          <option>Китай</option>
-          <option>Франция</option>
-          <option>Италия</option>
+          <option value="">Загрузка стран...</option>
         </select>
       </div>
 
@@ -285,6 +278,10 @@ const form = document.getElementById('requestForm');
 const errorBox = document.getElementById('error');
 const successBox = document.getElementById('success');
 
+const countrySelect = document.getElementById('country');
+const brandSelect = document.getElementById('brand');
+const modelSelect = document.getElementById('model');
+
 tabs.forEach(tab => {
   tab.onclick = () => {
     tabs.forEach(t => t.classList.remove('active'));
@@ -293,14 +290,93 @@ tabs.forEach(tab => {
   };
 });
 
+async function loadCountries() {
+  countrySelect.innerHTML = '<option value="">Загрузка стран...</option>';
+
+  try {
+    const response = await fetch('/api/countries/');
+    const data = await response.json();
+
+    countrySelect.innerHTML = '<option value="">Выберите страну</option>';
+
+    data.countries.forEach(country => {
+      const option = document.createElement('option');
+      option.value = country.id;
+      option.textContent = country.name;
+      countrySelect.appendChild(option);
+    });
+  } catch (error) {
+    countrySelect.innerHTML = '<option value="">Ошибка загрузки стран</option>';
+  }
+}
+
+countrySelect.addEventListener('change', async function () {
+  const countryId = this.value;
+
+  brandSelect.innerHTML = '<option value="">Загрузка...</option>';
+  modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
+
+  if (!countryId) {
+    brandSelect.innerHTML = '<option value="">Сначала выберите страну</option>';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/brands-by-country/?country_id=${countryId}`);
+    const data = await response.json();
+
+    brandSelect.innerHTML = '<option value="">Выберите марку</option>';
+
+    data.brands.forEach(brand => {
+      const option = document.createElement('option');
+      option.value = brand.id;
+      option.textContent = brand.name;
+      brandSelect.appendChild(option);
+    });
+  } catch (error) {
+    brandSelect.innerHTML = '<option value="">Ошибка загрузки марок</option>';
+  }
+});
+
+brandSelect.addEventListener('change', async function () {
+  const brandId = this.value;
+
+  modelSelect.innerHTML = '<option value="">Загрузка...</option>';
+
+  if (!brandId) {
+    modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/models-by-brand/?brand_id=${brandId}`);
+    const data = await response.json();
+
+    modelSelect.innerHTML = '<option value="">Выберите модель</option>';
+
+    data.models.forEach(model => {
+      const option = document.createElement('option');
+      option.value = model.name;
+      option.textContent = model.name;
+      modelSelect.appendChild(option);
+    });
+  } catch (error) {
+    modelSelect.innerHTML = '<option value="">Ошибка загрузки моделей</option>';
+  }
+});
+
 form.onsubmit = async function(e) {
   e.preventDefault();
 
+  const selectedCountryText = countrySelect.options[countrySelect.selectedIndex]?.text || '';
+  const selectedBrandText = brandSelect.options[brandSelect.selectedIndex]?.text || '';
+  const selectedModelText = modelSelect.value || '';
+
   const data = {
     transport_type: transport.value,
-    country: document.getElementById('country').value,
-    brand: document.getElementById('brand').value,
-    model: document.getElementById('model').value,
+    country: countrySelect.value ? selectedCountryText : '',
+    brand: brandSelect.value ? selectedBrandText : '',
+    model: selectedModelText,
     category: document.getElementById('category').value,
     article: document.getElementById('article').value,
     description: document.getElementById('description').value,
@@ -334,6 +410,9 @@ form.onsubmit = async function(e) {
       transport.value = 'car';
       tabs.forEach(t => t.classList.remove('active'));
       tabs[0].classList.add('active');
+      brandSelect.innerHTML = '<option value="">Сначала выберите страну</option>';
+      modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
+      await loadCountries();
     } else {
       errorBox.innerText = 'Ошибка отправки заявки';
       errorBox.style.display = 'block';
@@ -345,6 +424,8 @@ form.onsubmit = async function(e) {
     successBox.style.display = 'none';
   }
 };
+
+loadCountries();
 </script>
 
 </body>
