@@ -284,11 +284,21 @@ const countrySelect = document.getElementById('country');
 const brandSelect = document.getElementById('brand');
 const modelSelect = document.getElementById('model');
 
+function resetBrandAndModel() {
+  brandSelect.innerHTML = '<option value="">Сначала выберите страну</option>';
+  modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
+}
+
+function resetModel() {
+  modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
+}
+
 tabs.forEach(tab => {
   tab.onclick = () => {
     tabs.forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
     transport.value = tab.dataset.value;
+    resetBrandAndModel();
   };
 });
 
@@ -314,6 +324,7 @@ async function loadCountries() {
 
 countrySelect.addEventListener('change', async function () {
   const countryId = this.value;
+  const transportType = transport.value;
 
   brandSelect.innerHTML = '<option value="">Загрузка...</option>';
   modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
@@ -324,7 +335,7 @@ countrySelect.addEventListener('change', async function () {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/api/brands-by-country/?country_id=${countryId}`);
+    const response = await fetch(`${API_BASE}/api/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
     const data = await response.json();
 
     brandSelect.innerHTML = '<option value="">Выберите марку</option>';
@@ -342,6 +353,7 @@ countrySelect.addEventListener('change', async function () {
 
 brandSelect.addEventListener('change', async function () {
   const brandId = this.value;
+  const transportType = transport.value;
 
   modelSelect.innerHTML = '<option value="">Загрузка...</option>';
 
@@ -351,7 +363,7 @@ brandSelect.addEventListener('change', async function () {
   }
 
   try {
-    const response = await fetch(`${API_BASE}/api/models-by-brand/?brand_id=${brandId}`);
+    const response = await fetch(`${API_BASE}/api/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
     const data = await response.json();
 
     modelSelect.innerHTML = '<option value="">Выберите модель</option>';
@@ -412,8 +424,7 @@ form.onsubmit = async function(e) {
       transport.value = 'car';
       tabs.forEach(t => t.classList.remove('active'));
       tabs[0].classList.add('active');
-      brandSelect.innerHTML = '<option value="">Сначала выберите страну</option>';
-      modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
+      resetBrandAndModel();
       await loadCountries();
     } else {
       errorBox.innerText = 'Ошибка отправки заявки';

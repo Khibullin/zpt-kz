@@ -35,23 +35,31 @@ def countries_list(request):
 
 def brands_by_country(request):
     country_id = request.GET.get('country_id')
+    transport_type = request.GET.get('transport_type')
 
-    if not country_id:
+    if not country_id or not transport_type:
         return JsonResponse({'brands': []})
 
-    brands = Brand.objects.filter(country_id=country_id).order_by('name')
-    data = [{'id': brand.id, 'name': brand.name} for brand in brands]
+    brands = Brand.objects.filter(
+        country_id=country_id,
+        transport_type=transport_type
+    ).order_by('name')
 
+    data = [{'id': brand.id, 'name': brand.name} for brand in brands]
     return JsonResponse({'brands': data})
 
 
 def models_by_brand(request):
     brand_id = request.GET.get('brand_id')
+    transport_type = request.GET.get('transport_type')
 
-    if not brand_id:
+    if not brand_id or not transport_type:
         return JsonResponse({'models': []})
 
-    models = CarModel.objects.filter(brand_id=brand_id).order_by('name')
-    data = [{'id': model.id, 'name': model.name} for model in models]
+    models = CarModel.objects.filter(
+        brand_id=brand_id,
+        transport_type=transport_type
+    ).order_by('name')
 
+    data = [{'id': model.id, 'name': model.name} for model in models]
     return JsonResponse({'models': data})
