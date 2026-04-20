@@ -1,6 +1,12 @@
 from django.db import models
 
 
+TRANSPORT_CHOICES = [
+    ('car', 'Легковые'),
+    ('truck', 'Грузовые'),
+]
+
+
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -16,37 +22,34 @@ class Country(models.Model):
 class Brand(models.Model):
     country = models.ForeignKey(Country, on_delete=models.CASCADE, related_name='brands')
     name = models.CharField(max_length=100)
+    transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES, default='car')
 
     class Meta:
         verbose_name = 'Марка'
         verbose_name_plural = 'Марки'
         ordering = ['name']
-        unique_together = ('country', 'name')
+        unique_together = ('country', 'name', 'transport_type')
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_transport_type_display()})"
 
 
 class CarModel(models.Model):
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='car_models')
     name = models.CharField(max_length=100)
+    transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES, default='car')
 
     class Meta:
         verbose_name = 'Модель'
         verbose_name_plural = 'Модели'
         ordering = ['name']
-        unique_together = ('brand', 'name')
+        unique_together = ('brand', 'name', 'transport_type')
 
     def __str__(self):
-        return self.name
+        return f"{self.name} ({self.get_transport_type_display()})"
 
 
 class Request(models.Model):
-    TRANSPORT_CHOICES = [
-        ('car', 'Легковые'),
-        ('truck', 'Грузовые'),
-    ]
-
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     country = models.CharField(max_length=100, blank=True)
     brand = models.CharField(max_length=100, blank=True)
@@ -70,11 +73,6 @@ class Request(models.Model):
 
 
 class Seller(models.Model):
-    TRANSPORT_CHOICES = [
-        ('car', 'Легковые'),
-        ('truck', 'Грузовые'),
-    ]
-
     name = models.CharField(max_length=255)
     whatsapp = models.CharField(max_length=20)
 
