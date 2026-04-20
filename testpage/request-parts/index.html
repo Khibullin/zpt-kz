@@ -272,6 +272,8 @@ textarea {
 </div>
 
 <script>
+const API_BASE = 'https://zpt-kz-backend.onrender.com';
+
 const tabs = document.querySelectorAll('.tab');
 const transport = document.getElementById('transportType');
 const form = document.getElementById('requestForm');
@@ -294,7 +296,7 @@ async function loadCountries() {
   countrySelect.innerHTML = '<option value="">Загрузка стран...</option>';
 
   try {
-    const response = await fetch('/api/countries/');
+    const response = await fetch(`${API_BASE}/api/countries/`);
     const data = await response.json();
 
     countrySelect.innerHTML = '<option value="">Выберите страну</option>';
@@ -322,7 +324,7 @@ countrySelect.addEventListener('change', async function () {
   }
 
   try {
-    const response = await fetch(`/api/brands-by-country/?country_id=${countryId}`);
+    const response = await fetch(`${API_BASE}/api/brands-by-country/?country_id=${countryId}`);
     const data = await response.json();
 
     brandSelect.innerHTML = '<option value="">Выберите марку</option>';
@@ -349,7 +351,7 @@ brandSelect.addEventListener('change', async function () {
   }
 
   try {
-    const response = await fetch(`/api/models-by-brand/?brand_id=${brandId}`);
+    const response = await fetch(`${API_BASE}/api/models-by-brand/?brand_id=${brandId}`);
     const data = await response.json();
 
     modelSelect.innerHTML = '<option value="">Выберите модель</option>';
@@ -393,7 +395,7 @@ form.onsubmit = async function(e) {
   errorBox.style.display = 'none';
 
   try {
-    const response = await fetch('/api/create-request/', {
+    const response = await fetch(`${API_BASE}/api/create-request/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
