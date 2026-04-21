@@ -67,6 +67,98 @@ def models_by_brand(request):
     return JsonResponse(data, safe=False)
 
 
+def _build_base_sellers_queryset(req):
+    sellers = Seller.objects.filter(
+        is_active=True,
+        is_paused=False,
+        transport_type=req.transport_type
+    )
+
+    if req.category:
+        sellers = sellers.filter(category=req.category)
+
+    return sellers.distinct()
+
+
+def _apply_optional_filters(qs, req, use_city=True, use_country=True, use_brand=True, use_model=True):
+    if use_city and req.city:
+        qs = qs.filter(city=req.city)
+
+    if use_country and req.country:
+        qs = qs.filter(
+            Q(country_fk__name=req.country) | Q(country_fk__isnull=True)
+        )
+
+    if use_brand and req.brand:
+        qs = qs.filter(
+            Q(brand=req.brand) | Q(brand_fk__name=req.brand)
+        )
+
+    if use_model and req.model:
+        qs = qs.filter(
+            Q(model=req.model) | Q(model_fk__name=req.model)
+        )
+
+    return qs.distinct()
+
+
+def _find_best_matching_sellers(req):
+    base_qs = _build_base_sellers_queryset(req)
+
+    strategies = [
+        {
+            'name': 'exact',
+            'use_city': True,
+            'use_country': True,
+            'use_brand': True,
+            'use_model': True,
+        },
+        {
+            'name': 'without_model',
+            'use_city': True,
+            'use_country': True,
+            'use_brand': True,
+            'use_model': False,
+        },
+        {
+            'name': 'without_brand_and_model',
+            'use_city': True,
+            'use_country': True,
+            'use_brand': False,
+            'use_model': False,
+        },
+        {
+            'name': 'without_country_brand_model',
+            'use_city': True,
+            'use_country': False,
+            'use_brand': False,
+            'use_model': False,
+        },
+        {
+            'name': 'without_city_country_brand_model',
+            'use_city': False,
+            'use_country': False,
+            'use_brand': False,
+            'use_model': False,
+        },
+    ]
+
+    for strategy in strategies:
+        qs = _apply_optional_filters(
+            base_qs,
+            req,
+            use_city=strategy['use_city'],
+            use_country=strategy['use_country'],
+            use_brand=strategy['use_brand'],
+            use_model=strategy['use_model'],
+        )
+
+        if qs.exists():
+            return qs, strategy['name']
+
+    return Seller.objects.none(), 'no_match'
+
+
 @csrf_exempt
 def create_request(request):
     if request.method != 'POST':
@@ -89,47 +181,23 @@ def create_request(request):
         phone=data.get('phone', ''),
     )
 
-    sellers = Seller.objects.filter(
-        is_active=True,
-        is_paused=False,
-        transport_type=req.transport_type
-    )
-
-    if req.city:
-        sellers = sellers.filter(city=req.city)
-
-    if req.category:
-        sellers = sellers.filter(category=req.category)
-
-    if req.country:
-        sellers = sellers.filter(
-            Q(country_fk__name=req.country) | Q(country_fk__isnull=True)
-        )
-
-    if req.brand:
-        sellers = sellers.filter(
-            Q(brand=req.brand) | Q(brand_fk__name=req.brand)
-        )
-
-    if req.model:
-        sellers = sellers.filter(
-            Q(model=req.model) | Q(model_fk__name=req.model)
-        )
+    sellers, strategy_used = _find_best_matching_sellers(req)
 
     matches_created = 0
 
-    for seller in sellers.distinct():
-        Match.objects.create(
+    for seller in sellers:
+        Match.objects.get_or_create(
             request=req,
             seller=seller,
-            status='prepared'
+            defaults={'status': 'prepared'}
         )
         matches_created += 1
 
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
-        'matches': matches_created
+        'matches': matches_created,
+        'strategy': strategy_used,
     })
 
 
