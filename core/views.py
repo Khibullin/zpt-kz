@@ -67,7 +67,7 @@ def models_by_brand(request):
     return JsonResponse(data, safe=False)
 
 
-def _build_base_sellers_queryset(req):
+def _base_sellers_queryset(req):
     sellers = Seller.objects.filter(
         is_active=True,
         is_paused=False,
@@ -80,78 +80,93 @@ def _build_base_sellers_queryset(req):
     return sellers.distinct()
 
 
-def _apply_optional_filters(qs, req, use_city=True, use_country=True, use_brand=True, use_model=True):
-    if use_city and req.city:
+def _apply_city_filter(qs, req):
+    if req.city:
         qs = qs.filter(city=req.city)
+    return qs
 
-    if use_country and req.country:
+
+def _apply_country_filter(qs, req):
+    if req.country:
         qs = qs.filter(
             Q(country_fk__name=req.country) | Q(country_fk__isnull=True)
         )
+    return qs
 
-    if use_brand and req.brand:
+
+def _apply_brand_filter(qs, req):
+    if req.brand:
         qs = qs.filter(
             Q(brand=req.brand) | Q(brand_fk__name=req.brand)
         )
+    return qs
 
-    if use_model and req.model:
+
+def _apply_model_filter(qs, req):
+    if req.model:
         qs = qs.filter(
             Q(model=req.model) | Q(model_fk__name=req.model)
         )
+    return qs
 
-    return qs.distinct()
 
-
-def _find_best_matching_sellers(req):
-    base_qs = _build_base_sellers_queryset(req)
+def _find_matching_sellers(req):
+    base_qs = _base_sellers_queryset(req)
 
     strategies = [
         {
             'name': 'exact',
-            'use_city': True,
-            'use_country': True,
-            'use_brand': True,
-            'use_model': True,
+            'city': True,
+            'country': True,
+            'brand': True,
+            'model': True,
         },
         {
             'name': 'without_model',
-            'use_city': True,
-            'use_country': True,
-            'use_brand': True,
-            'use_model': False,
+            'city': True,
+            'country': True,
+            'brand': True,
+            'model': False,
         },
         {
-            'name': 'without_brand_and_model',
-            'use_city': True,
-            'use_country': True,
-            'use_brand': False,
-            'use_model': False,
+            'name': 'without_brand_model',
+            'city': True,
+            'country': True,
+            'brand': False,
+            'model': False,
         },
         {
             'name': 'without_country_brand_model',
-            'use_city': True,
-            'use_country': False,
-            'use_brand': False,
-            'use_model': False,
+            'city': True,
+            'country': False,
+            'brand': False,
+            'model': False,
         },
         {
-            'name': 'without_city_country_brand_model',
-            'use_city': False,
-            'use_country': False,
-            'use_brand': False,
-            'use_model': False,
+            'name': 'category_only',
+            'city': False,
+            'country': False,
+            'brand': False,
+            'model': False,
         },
     ]
 
     for strategy in strategies:
-        qs = _apply_optional_filters(
-            base_qs,
-            req,
-            use_city=strategy['use_city'],
-            use_country=strategy['use_country'],
-            use_brand=strategy['use_brand'],
-            use_model=strategy['use_model'],
-        )
+        qs = base_qs
+
+        if strategy['city']:
+            qs = _apply_city_filter(qs, req)
+
+        if strategy['country']:
+            qs = _apply_country_filter(qs, req)
+
+        if strategy['brand']:
+            qs = _apply_brand_filter(qs, req)
+
+        if strategy['model']:
+            qs = _apply_model_filter(qs, req)
+
+        qs = qs.distinct()
 
         if qs.exists():
             return qs, strategy['name']
@@ -181,17 +196,18 @@ def create_request(request):
         phone=data.get('phone', ''),
     )
 
-    sellers, strategy_used = _find_best_matching_sellers(req)
+    sellers, strategy_used = _find_matching_sellers(req)
 
     matches_created = 0
 
     for seller in sellers:
-        Match.objects.get_or_create(
+        _, created = Match.objects.get_or_create(
             request=req,
             seller=seller,
             defaults={'status': 'prepared'}
         )
-        matches_created += 1
+        if created:
+            matches_created += 1
 
     return JsonResponse({
         'status': 'ok',
