@@ -82,8 +82,36 @@ class Seller(models.Model):
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     city = models.CharField(max_length=100, blank=True)
     category = models.CharField(max_length=100, blank=True)
+
+    # Старые поля оставляем, чтобы ничего не сломать
     brand = models.CharField(max_length=100, blank=True)
     model = models.CharField(max_length=100, blank=True)
+
+    # Новые безопасные поля для перехода на справочники
+    country_fk = models.ForeignKey(
+        Country,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sellers',
+        verbose_name='Страна'
+    )
+    brand_fk = models.ForeignKey(
+        Brand,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sellers',
+        verbose_name='Марка'
+    )
+    model_fk = models.ForeignKey(
+        CarModel,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='sellers',
+        verbose_name='Модель'
+    )
 
     class Meta:
         verbose_name = 'Продавец'

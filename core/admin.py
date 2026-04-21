@@ -10,30 +10,44 @@ class CountryAdmin(admin.ModelAdmin):
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'country')
-    list_filter = ('country',)
+    list_display = ('id', 'name', 'country', 'transport_type')
+    list_filter = ('country', 'transport_type')
     search_fields = ('name',)
 
 
 @admin.register(CarModel)
 class CarModelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'brand')
-    list_filter = ('brand', 'brand__country')
+    list_display = ('id', 'name', 'brand', 'transport_type')
+    list_filter = ('transport_type', 'brand', 'brand__country')
     search_fields = ('name',)
 
 
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'transport_type', 'brand', 'model', 'category', 'city', 'phone', 'status', 'created_at')
+    list_display = (
+        'id', 'transport_type', 'country', 'brand', 'model',
+        'category', 'city', 'phone', 'status', 'created_at'
+    )
     list_filter = ('transport_type', 'status', 'city', 'category')
-    search_fields = ('brand', 'model', 'article', 'description', 'phone')
+    search_fields = ('country', 'brand', 'model', 'article', 'description', 'phone')
 
 
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name', 'whatsapp', 'transport_type', 'city', 'category', 'brand', 'model', 'is_active', 'is_paused')
-    list_filter = ('transport_type', 'is_active', 'is_paused', 'city', 'category')
-    search_fields = ('name', 'whatsapp', 'brand', 'model')
+    list_display = (
+        'id', 'name', 'whatsapp', 'transport_type',
+        'country_fk', 'city', 'category',
+        'brand', 'brand_fk', 'model', 'model_fk',
+        'is_active', 'is_paused'
+    )
+    list_filter = (
+        'transport_type', 'is_active', 'is_paused',
+        'city', 'category', 'country_fk', 'brand_fk'
+    )
+    search_fields = (
+        'name', 'whatsapp', 'brand', 'model',
+        'brand_fk__name', 'model_fk__name', 'country_fk__name'
+    )
 
 
 @admin.register(Match)
