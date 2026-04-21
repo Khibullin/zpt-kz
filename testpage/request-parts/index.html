@@ -1,445 +1,465 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Заявка на запчасти — Market Parts</title>
-
-<style>
-:root {
-  --bg:#f4f5f7;
-  --card:#ffffff;
-  --text:#1f2328;
-  --muted:#667085;
-  --accent:#d92d20;
-  --shadow:0 10px 30px rgba(0,0,0,0.08);
-}
-
-body {
-  margin:0;
-  font-family:Arial;
-  background:var(--bg);
-  color:var(--text);
-}
-
-.container {
-  max-width:560px;
-  margin:auto;
-  padding:16px;
-}
-
-.header {
-  margin-bottom:20px;
-}
-
-.logo {
-  font-size:26px;
-  font-weight:800;
-  color:var(--accent);
-}
-
-.nav a {
-  margin-right:12px;
-  color:#333;
-  text-decoration:none;
-  font-size:14px;
-}
-
-.hero {
-  background:#fff;
-  padding:18px;
-  border-radius:18px;
-  margin-bottom:16px;
-  box-shadow:var(--shadow);
-}
-
-.hero h1 {
-  margin:0 0 6px;
-  font-size:20px;
-}
-
-.hero p {
-  margin:0;
-  color:var(--muted);
-  font-size:14px;
-}
-
-.card {
-  background:#fff;
-  padding:18px;
-  border-radius:20px;
-  box-shadow:var(--shadow);
-}
-
-.title {
-  font-size:22px;
-  font-weight:700;
-  margin-bottom:14px;
-}
-
-.field {
-  margin-bottom:14px;
-}
-
-.label {
-  font-size:14px;
-  font-weight:600;
-  margin-bottom:6px;
-  display:block;
-}
-
-input, select, textarea {
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid #ddd;
-  font-size:14px;
-  box-sizing:border-box;
-}
-
-textarea {
-  min-height:90px;
-  resize:none;
-}
-
-.transport-tabs {
-  display:flex;
-  gap:8px;
-}
-
-.transport-tabs .tab {
-  flex:1;
-  text-align:center;
-  padding:10px;
-  border-radius:10px;
-  background:#f0f0f0;
-  cursor:pointer;
-  font-weight:600;
-  user-select:none;
-}
-
-.transport-tabs .tab.active {
-  background:var(--accent);
-  color:#fff;
-}
-
-.btn {
-  width:100%;
-  padding:14px;
-  background:var(--accent);
-  color:#fff;
-  border:none;
-  border-radius:12px;
-  font-size:16px;
-  font-weight:bold;
-  margin-top:6px;
-  cursor:pointer;
-}
-
-.note {
-  margin-top:10px;
-  font-size:13px;
-  color:#777;
-  text-align:center;
-}
-
-.error {
-  color:#b42318;
-  font-size:13px;
-  margin-top:8px;
-  display:none;
-}
-
-.success {
-  color:#167c2f;
-  font-size:13px;
-  margin-top:8px;
-  display:none;
-}
-</style>
-</head>
-
-<body>
-
-<div class="container">
-
-  <div class="header">
-    <div class="logo">Market Parts</div>
-    <div class="nav">
-      <a href="../">Главная</a>
-    </div>
-  </div>
-
-  <div class="hero">
-    <h1>Нужны запчасти для авто?</h1>
-    <p>Отправьте заявку — продавцы сами свяжутся с вами в WhatsApp</p>
-  </div>
-
-  <div class="card">
-
-    <div class="title">Заявка на запчасти</div>
-
-    <form id="requestForm">
-
-      <div class="field">
-        <label class="label">Тип транспорта</label>
-
-        <div class="transport-tabs">
-          <div class="tab active" data-value="car">Легковые</div>
-          <div class="tab" data-value="truck">Грузовые</div>
-        </div>
-
-        <input type="hidden" id="transportType" value="car">
-      </div>
-
-      <div class="field">
-        <label class="label" for="country">Страна производителя</label>
-        <select id="country">
-          <option value="">Загрузка стран...</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label" for="brand">Марка автомобиля</label>
-        <select id="brand">
-          <option value="">Сначала выберите страну</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label" for="model">Модель автомобиля</label>
-        <select id="model">
-          <option value="">Сначала выберите марку</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label" for="category">Категория запчасти</label>
-        <select id="category">
-          <option value="">Выберите категорию</option>
-          <option>Двигатель</option>
-          <option>Ходовая часть</option>
-          <option>Кузов</option>
-          <option>Тормозная система</option>
-          <option>Электрика</option>
-          <option>Трансмиссия</option>
-          <option>Салон</option>
-          <option>Оптика</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label" for="article">Артикул</label>
-        <input id="article" type="text" placeholder="Если есть, укажите артикул">
-      </div>
-
-      <div class="field">
-        <label class="label" for="description">Опишите нужную запчасть</label>
-        <textarea id="description" placeholder="Например: передний амортизатор"></textarea>
-      </div>
-
-      <div class="field">
-        <label class="label" for="city">Город</label>
-        <select id="city">
-          <option value="">Выберите город</option>
-          <option>Алматы</option>
-          <option>Астана</option>
-          <option>Шымкент</option>
-          <option>Караганда</option>
-          <option>Актобе</option>
-          <option>Атырау</option>
-          <option>Павлодар</option>
-        </select>
-      </div>
-
-      <div class="field">
-        <label class="label" for="phone">Телефон / WhatsApp</label>
-        <input id="phone" type="tel" placeholder="77071234567">
-      </div>
-
-      <button class="btn" type="submit">Отправить заявку</button>
-      <div class="error" id="error">Заполните описание и телефон</div>
-      <div class="success" id="success"></div>
-
-    </form>
-
-    <div class="note">
-      Один запрос отправляется сразу нескольким продавцам
-    </div>
-
-  </div>
-
-</div>
-
-<script>
-const API_BASE = 'https://zpt-kz-backend.onrender.com';
-
-const tabs = document.querySelectorAll('.tab');
-const transport = document.getElementById('transportType');
-const form = document.getElementById('requestForm');
-const errorBox = document.getElementById('error');
-const successBox = document.getElementById('success');
-
-const countrySelect = document.getElementById('country');
-const brandSelect = document.getElementById('brand');
-const modelSelect = document.getElementById('model');
-
-function resetBrandAndModel() {
-  brandSelect.innerHTML = '<option value="">Сначала выберите страну</option>';
-  modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
-}
-
-function resetModel() {
-  modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
-}
-
-tabs.forEach(tab => {
-  tab.onclick = () => {
-    tabs.forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    transport.value = tab.dataset.value;
-    resetBrandAndModel();
-  };
-});
-
-async function loadCountries() {
-  countrySelect.innerHTML = '<option value="">Загрузка стран...</option>';
-
-  try {
-    const response = await fetch(`${API_BASE}/api/countries/`);
-    const data = await response.json();
-
-    countrySelect.innerHTML = '<option value="">Выберите страну</option>';
-
-    data.countries.forEach(country => {
-      const option = document.createElement('option');
-      option.value = country.id;
-      option.textContent = country.name;
-      countrySelect.appendChild(option);
-    });
-  } catch (error) {
-    countrySelect.innerHTML = '<option value="">Ошибка загрузки стран</option>';
-  }
-}
-
-countrySelect.addEventListener('change', async function () {
-  const countryId = this.value;
-  const transportType = transport.value;
-
-  brandSelect.innerHTML = '<option value="">Загрузка...</option>';
-  modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
-
-  if (!countryId) {
-    brandSelect.innerHTML = '<option value="">Сначала выберите страну</option>';
-    return;
-  }
-
-  try {
-    const response = await fetch(`${API_BASE}/api/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
-    const data = await response.json();
-
-    brandSelect.innerHTML = '<option value="">Выберите марку</option>';
-
-    data.brands.forEach(brand => {
-      const option = document.createElement('option');
-      option.value = brand.id;
-      option.textContent = brand.name;
-      brandSelect.appendChild(option);
-    });
-  } catch (error) {
-    brandSelect.innerHTML = '<option value="">Ошибка загрузки марок</option>';
-  }
-});
-
-brandSelect.addEventListener('change', async function () {
-  const brandId = this.value;
-  const transportType = transport.value;
-
-  modelSelect.innerHTML = '<option value="">Загрузка...</option>';
-
-  if (!brandId) {
-    modelSelect.innerHTML = '<option value="">Сначала выберите марку</option>';
-    return;
-  }
-
-  try {
-    const response = await fetch(`${API_BASE}/api/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
-    const data = await response.json();
-
-    modelSelect.innerHTML = '<option value="">Выберите модель</option>';
-
-    data.models.forEach(model => {
-      const option = document.createElement('option');
-      option.value = model.name;
-      option.textContent = model.name;
-      modelSelect.appendChild(option);
-    });
-  } catch (error) {
-    modelSelect.innerHTML = '<option value="">Ошибка загрузки моделей</option>';
-  }
-});
-
-form.onsubmit = async function(e) {
-  e.preventDefault();
-
-  const selectedCountryText = countrySelect.options[countrySelect.selectedIndex]?.text || '';
-  const selectedBrandText = brandSelect.options[brandSelect.selectedIndex]?.text || '';
-  const selectedModelText = modelSelect.value || '';
-
-  const data = {
-    transport_type: transport.value,
-    country: countrySelect.value ? selectedCountryText : '',
-    brand: brandSelect.value ? selectedBrandText : '',
-    model: selectedModelText,
-    category: document.getElementById('category').value,
-    article: document.getElementById('article').value,
-    description: document.getElementById('description').value,
-    city: document.getElementById('city').value,
-    phone: document.getElementById('phone').value
-  };
-
-  if (!data.description || !data.phone) {
-    errorBox.style.display = 'block';
-    successBox.style.display = 'none';
-    return;
-  }
-
-  errorBox.style.display = 'none';
-
-  try {
-    const response = await fetch(`${API_BASE}/api/create-request/`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(data)
-    });
-
-    const result = await response.json();
-
-    if (result.status === 'ok') {
-      successBox.innerText = 'Заявка отправлена! ID: ' + result.id;
-      successBox.style.display = 'block';
-      form.reset();
-      transport.value = 'car';
-      tabs.forEach(t => t.classList.remove('active'));
-      tabs[0].classList.add('active');
-      resetBrandAndModel();
-      await loadCountries();
-    } else {
-      errorBox.innerText = 'Ошибка отправки заявки';
-      errorBox.style.display = 'block';
-      successBox.style.display = 'none';
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Заявка на запчасти — Market Parts</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      color: #222;
     }
-  } catch (error) {
-    errorBox.innerText = 'Ошибка соединения с сервером';
-    errorBox.style.display = 'block';
-    successBox.style.display = 'none';
-  }
-};
 
-loadCountries();
-</script>
+    .wrap {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
 
+    .card {
+      background: #fff;
+      border-radius: 16px;
+      padding: 22px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 10px;
+      font-size: 28px;
+      line-height: 1.2;
+      color: #c62828;
+    }
+
+    .sub {
+      margin: 0 0 22px;
+      color: #555;
+      line-height: 1.5;
+    }
+
+    .transport-switch {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .transport-switch button {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid #ddd;
+      background: #f1f1f1;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+    }
+
+    .transport-switch button.active {
+      background: #d6281f;
+      color: #fff;
+      border-color: #d6281f;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .field.full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input, select, textarea, button {
+      width: 100%;
+      min-height: 46px;
+      border-radius: 12px;
+      border: 1px solid #d8d8d8;
+      padding: 0 14px;
+      font-size: 16px;
+      font-family: inherit;
+    }
+
+    textarea {
+      min-height: 110px;
+      padding-top: 12px;
+      padding-bottom: 12px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #d6281f;
+    }
+
+    .submit-btn {
+      background: #d6281f;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.75;
+      cursor: not-allowed;
+    }
+
+    .msg {
+      margin-top: 14px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      display: none;
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .msg.success {
+      display: block;
+      background: #e8f5e9;
+      color: #1b5e20;
+      border: 1px solid #c8e6c9;
+    }
+
+    .msg.error {
+      display: block;
+      background: #ffebee;
+      color: #b71c1c;
+      border: 1px solid #ffcdd2;
+    }
+
+    .note {
+      margin-top: 16px;
+      font-size: 14px;
+      color: #666;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Заявка на запчасти</h1>
+      <p class="sub">
+        Оставьте одну заявку, и её получат продавцы автозапчастей.
+      </p>
+
+      <div class="transport-switch">
+        <button type="button" id="btnCar" class="active">Легковые</button>
+        <button type="button" id="btnTruck">Грузовые</button>
+      </div>
+
+      <form id="requestForm">
+        <div class="grid">
+          <div class="field full">
+            <label for="country">Страна производителя</label>
+            <select id="country">
+              <option value="">Загрузка стран...</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="brand">Марка автомобиля</label>
+            <select id="brand" disabled>
+              <option value="">Сначала выберите страну</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="model">Модель автомобиля</label>
+            <select id="model" disabled>
+              <option value="">Сначала выберите марку</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="category">Категория запчасти</label>
+            <select id="category" required>
+              <option value="">Выберите категорию</option>
+              <option value="Двигатель">Двигатель</option>
+              <option value="КПП">КПП</option>
+              <option value="Кузов">Кузов</option>
+              <option value="Подвеска">Подвеска</option>
+              <option value="Тормозная система">Тормозная система</option>
+              <option value="Электрика">Электрика</option>
+              <option value="Оптика">Оптика</option>
+              <option value="Салон">Салон</option>
+              <option value="Расходники">Расходники</option>
+              <option value="Шины и диски">Шины и диски</option>
+              <option value="Аксессуары">Аксессуары</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="article">Артикул</label>
+            <input type="text" id="article" placeholder="Если есть" />
+          </div>
+
+          <div class="field">
+            <label for="city">Город</label>
+            <input type="text" id="city" placeholder="Алматы" required />
+          </div>
+
+          <div class="field">
+            <label for="phone">Телефон / WhatsApp</label>
+            <input type="text" id="phone" placeholder="+7 777 123 45 67" required />
+          </div>
+
+          <div class="field full">
+            <label for="description">Описание</label>
+            <textarea id="description" placeholder="Например: нужен передний бампер, белый цвет, рестайлинг"></textarea>
+          </div>
+
+          <div class="field full">
+            <button type="submit" class="submit-btn" id="submitBtn">Отправить заявку</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="msg" class="msg"></div>
+
+      <div class="note">
+        После отправки заявка будет обработана и распределена по продавцам.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://zpt-kz-backend.onrender.com/api';
+
+    let transportType = 'car';
+
+    const btnCar = document.getElementById('btnCar');
+    const btnTruck = document.getElementById('btnTruck');
+
+    const form = document.getElementById('requestForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const msg = document.getElementById('msg');
+
+    const countryEl = document.getElementById('country');
+    const brandEl = document.getElementById('brand');
+    const modelEl = document.getElementById('model');
+
+    function setMessage(text, type) {
+      msg.className = 'msg ' + type;
+      msg.textContent = text;
+    }
+
+    function clearMessage() {
+      msg.className = 'msg';
+      msg.textContent = '';
+    }
+
+    function resetBrand() {
+      brandEl.innerHTML = '<option value="">Сначала выберите страну</option>';
+      brandEl.disabled = true;
+    }
+
+    function resetModel() {
+      modelEl.innerHTML = '<option value="">Сначала выберите марку</option>';
+      modelEl.disabled = true;
+    }
+
+    function setTransport(type) {
+      transportType = type;
+
+      btnCar.classList.toggle('active', type === 'car');
+      btnTruck.classList.toggle('active', type === 'truck');
+
+      countryEl.value = '';
+      resetBrand();
+      resetModel();
+      loadCountries();
+    }
+
+    async function loadCountries() {
+      clearMessage();
+
+      try {
+        const res = await fetch(`${API_BASE}/countries/`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        countryEl.innerHTML = '<option value="">Выберите страну</option>';
+
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.name;
+          countryEl.appendChild(option);
+        });
+
+        resetBrand();
+        resetModel();
+      } catch (error) {
+        countryEl.innerHTML = '<option value="">Ошибка загрузки стран</option>';
+        resetBrand();
+        resetModel();
+        setMessage('Не удалось загрузить страны', 'error');
+      }
+    }
+
+    async function loadBrands(countryId) {
+      resetModel();
+
+      if (!countryId) {
+        resetBrand();
+        return;
+      }
+
+      brandEl.disabled = true;
+      brandEl.innerHTML = '<option value="">Загрузка...</option>';
+
+      try {
+        const res = await fetch(`${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        brandEl.innerHTML = '<option value="">Выберите марку</option>';
+
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.name;
+          brandEl.appendChild(option);
+        });
+
+        brandEl.disabled = false;
+      } catch (error) {
+        brandEl.innerHTML = '<option value="">Ошибка загрузки марки</option>';
+        brandEl.disabled = true;
+        setMessage('Не удалось загрузить марки', 'error');
+      }
+    }
+
+    async function loadModels(brandId) {
+      if (!brandId) {
+        resetModel();
+        return;
+      }
+
+      modelEl.disabled = true;
+      modelEl.innerHTML = '<option value="">Загрузка...</option>';
+
+      try {
+        const res = await fetch(`${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+
+        modelEl.innerHTML = '<option value="">Выберите модель</option>';
+
+        data.forEach(item => {
+          const option = document.createElement('option');
+          option.value = item.id;
+          option.textContent = item.name;
+          modelEl.appendChild(option);
+        });
+
+        modelEl.disabled = false;
+      } catch (error) {
+        modelEl.innerHTML = '<option value="">Ошибка загрузки модели</option>';
+        modelEl.disabled = true;
+        setMessage('Не удалось загрузить модели', 'error');
+      }
+    }
+
+    btnCar.addEventListener('click', () => setTransport('car'));
+    btnTruck.addEventListener('click', () => setTransport('truck'));
+
+    countryEl.addEventListener('change', () => {
+      loadBrands(countryEl.value);
+    });
+
+    brandEl.addEventListener('change', () => {
+      loadModels(brandEl.value);
+    });
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      clearMessage();
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Отправляем...';
+
+      const selectedCountry = countryEl.options[countryEl.selectedIndex]?.text || '';
+      const selectedBrand = brandEl.options[brandEl.selectedIndex]?.text || '';
+      const selectedModel = modelEl.options[modelEl.selectedIndex]?.text || '';
+
+      const payload = {
+        transport_type: transportType,
+        country: countryEl.value ? selectedCountry : '',
+        brand: brandEl.value ? selectedBrand : '',
+        model: modelEl.value ? selectedModel : '',
+        category: document.getElementById('category').value,
+        article: document.getElementById('article').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        city: document.getElementById('city').value.trim(),
+        phone: document.getElementById('phone').value.trim()
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/create-request/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          throw new Error(data.error || 'Ошибка отправки заявки');
+        }
+
+        setMessage(`Заявка отправлена! ID: ${data.id}`, 'success');
+        form.reset();
+        setTransport('car');
+      } catch (error) {
+        setMessage(error.message || 'Ошибка отправки заявки', 'error');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Отправить заявку';
+      }
+    });
+
+    loadCountries();
+  </script>
 </body>
 </html>
