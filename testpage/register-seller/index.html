@@ -213,10 +213,7 @@
   </div>
 
   <script>
-    const API_BASE = window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost'
-      ? 'http://127.0.0.1:8000/api'
-      : 'https://zpt-kz-backend.onrender.com/api';
-
+    const API_BASE = 'https://zpt-kz-backend.onrender.com/api';
     let transportType = 'car';
 
     const btnCar = document.getElementById('btnCar');
@@ -240,17 +237,6 @@
       msg.textContent = '';
     }
 
-    function setTransport(type) {
-      transportType = type;
-
-      btnCar.classList.toggle('active', type === 'car');
-      btnTruck.classList.toggle('active', type === 'truck');
-
-      resetBrand();
-      resetModel();
-      loadCountries();
-    }
-
     function resetBrand() {
       brandEl.innerHTML = '<option value="">Сначала выберите страну</option>';
       brandEl.disabled = true;
@@ -261,10 +247,25 @@
       modelEl.disabled = true;
     }
 
+    function setTransport(type) {
+      transportType = type;
+
+      btnCar.classList.toggle('active', type === 'car');
+      btnTruck.classList.toggle('active', type === 'truck');
+
+      countryEl.value = '';
+      resetBrand();
+      resetModel();
+      loadCountries();
+    }
+
     async function loadCountries() {
       clearMessage();
+
       try {
         const res = await fetch(`${API_BASE}/countries/`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const data = await res.json();
 
         countryEl.innerHTML = '<option value="">Выберите страну</option>';
@@ -279,6 +280,9 @@
         resetBrand();
         resetModel();
       } catch (error) {
+        countryEl.innerHTML = '<option value="">Ошибка загрузки стран</option>';
+        resetBrand();
+        resetModel();
         setMessage('Не удалось загрузить страны', 'error');
       }
     }
@@ -295,7 +299,10 @@
       brandEl.innerHTML = '<option value="">Загрузка...</option>';
 
       try {
-        const res = await fetch(`${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
+        const url = `${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const data = await res.json();
 
         brandEl.innerHTML = '<option value="">Выберите марку</option>';
@@ -309,7 +316,8 @@
 
         brandEl.disabled = false;
       } catch (error) {
-        brandEl.innerHTML = '<option value="">Ошибка загрузки</option>';
+        brandEl.innerHTML = '<option value="">Ошибка загрузки марки</option>';
+        brandEl.disabled = true;
         setMessage('Не удалось загрузить марки', 'error');
       }
     }
@@ -324,7 +332,10 @@
       modelEl.innerHTML = '<option value="">Загрузка...</option>';
 
       try {
-        const res = await fetch(`${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
+        const url = `${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
         const data = await res.json();
 
         modelEl.innerHTML = '<option value="">Выберите модель</option>';
@@ -338,7 +349,8 @@
 
         modelEl.disabled = false;
       } catch (error) {
-        modelEl.innerHTML = '<option value="">Ошибка загрузки</option>';
+        modelEl.innerHTML = '<option value="">Ошибка загрузки модели</option>';
+        modelEl.disabled = true;
         setMessage('Не удалось загрузить модели', 'error');
       }
     }
@@ -375,17 +387,12 @@
       try {
         const res = await fetch(`${API_BASE}/create-seller/`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
 
         const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Ошибка сохранения');
-        }
+        if (!res.ok) throw new Error(data.error || 'Ошибка сохранения');
 
         setMessage(`Готово! Продавец зарегистрирован. ID: ${data.id}`, 'success');
         form.reset();
