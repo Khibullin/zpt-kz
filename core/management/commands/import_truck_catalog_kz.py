@@ -3,50 +3,34 @@ from core.models import Country, Brand, CarModel
 
 
 TRUCK_CATALOG = {
-    "Россия": {
-        "КамАЗ": ["43118", "5320", "65115", "6520", "5490"],
-        "ГАЗ": ["Газель", "Газон Next", "Садко Next", "Валдай"],
-        "Урал": ["4320", "5557", "6370"],
+    'Россия': {
+        'КамАЗ': ['4310', '5320', '55111', '6520'],
+        'МАЗ': ['4370', '5336', '5440', '5516'],
+        'ГАЗ': ['3307', '3309', 'Газель Next', 'Соболь'],
+        'Урал': ['4320', '5557', '6370'],
     },
-    "Беларусь": {
-        "МАЗ": ["4370", "5440", "5516", "6312"],
+    'Китай': {
+        'HOWO': ['A7', 'T5G', 'TX'],
+        'Shacman': ['F2000', 'F3000', 'X3000'],
+        'FAW': ['J6', 'CA3250', 'CA3310'],
     },
-    "Германия": {
-        "MAN": ["TGA", "TGS", "TGX", "L2000"],
-        "Mercedes-Benz Trucks": ["Actros", "Atego", "Axor", "Unimog"],
+    'Япония': {
+        'Isuzu': ['NQR', 'FVR', 'ELF'],
+        'Hino': ['300', '500', '700'],
     },
-    "Швеция": {
-        "Volvo Trucks": ["FH", "FM", "FL", "FE"],
-        "Scania": ["P-series", "G-series", "R-series", "S-series"],
-    },
-    "Нидерланды": {
-        "DAF": ["CF", "XF", "LF"],
-    },
-    "Италия": {
-        "Iveco": ["Daily", "EuroCargo", "Stralis", "Trakker"],
-    },
-    "Китай": {
-        "HOWO": ["A7", "T5G", "TX"],
-        "Shacman": ["F2000", "F3000", "X3000"],
-        "FAW": ["J6", "Tiger", "CA"],
-        "Dongfeng": ["KR", "KL", "Captain"],
-        "Foton": ["Auman", "Ollin", "Tunland"],
-    },
-    "Япония": {
-        "Isuzu": ["NQR", "FVR", "GIGA", "ELF"],
-        "Hino": ["300", "500", "700"],
+    'Европа': {
+        'MAN': ['TGA', 'TGS', 'TGX'],
+        'Mercedes-Benz Trucks': ['Actros', 'Atego', 'Axor'],
+        'Volvo': ['FH', 'FM', 'FL'],
+        'Scania': ['P-series', 'G-series', 'R-series'],
     },
 }
 
 
 class Command(BaseCommand):
-    help = "Очищает временные truck-дубли и импортирует реальный грузовой справочник"
+    help = 'Импорт грузового справочника: страны, марки и модели'
 
     def handle(self, *args, **options):
-        # Удаляем только truck-данные, car не трогаем
-        truck_models_deleted, _ = CarModel.objects.filter(transport_type="truck").delete()
-        truck_brands_deleted, _ = Brand.objects.filter(transport_type="truck").delete()
-
         created_countries = 0
         created_brands = 0
         created_models = 0
@@ -55,27 +39,38 @@ class Command(BaseCommand):
             country, country_created = Country.objects.get_or_create(name=country_name)
             if country_created:
                 created_countries += 1
+                self.stdout.write(self.style.SUCCESS(f'Страна создана: {country_name}'))
+            else:
+                self.stdout.write(f'Страна уже есть: {country_name}')
 
             for brand_name, models in brands.items():
                 brand, brand_created = Brand.objects.get_or_create(
                     country=country,
                     name=brand_name,
-                    transport_type="truck",
+                    transport_type='truck',
                 )
                 if brand_created:
                     created_brands += 1
+                    self.stdout.write(self.style.SUCCESS(f'  Марка создана: {brand_name}'))
+                else:
+                    self.stdout.write(f'  Марка уже есть: {brand_name}')
 
                 for model_name in models:
                     car_model, model_created = CarModel.objects.get_or_create(
                         brand=brand,
                         name=model_name,
-                        transport_type="truck",
+                        transport_type='truck',
                     )
                     if model_created:
                         created_models += 1
+                        self.stdout.write(self.style.SUCCESS(f'    Модель создана: {model_name}'))
+                    else:
+                        self.stdout.write(f'    Модель уже есть: {model_name}')
 
-        self.stdout.write(self.style.SUCCESS(
-            f"Готово. Удалено truck-моделей: {truck_models_deleted}, "
-            f"удалено truck-марок: {truck_brands_deleted}, "
-            f"добавлено стран: +{created_countries}, марок: +{created_brands}, моделей: +{created_models}"
-        ))
+        self.stdout.write('')
+        self.stdout.write(self.style.SUCCESS('Импорт грузового справочника завершён'))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f'Создано: стран={created_countries}, марок={created_brands}, моделей={created_models}'
+            )
+        )
