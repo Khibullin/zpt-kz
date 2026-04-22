@@ -119,6 +119,19 @@
       color: #b71c1c;
       border: 1px solid #ffcdd2;
     }
+    .check-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 6px;
+      font-size: 14px;
+    }
+    .check-row input[type="checkbox"] {
+      width: auto;
+      min-height: auto;
+      padding: 0;
+      margin: 0;
+    }
     @media (max-width: 640px) {
       .grid {
         grid-template-columns: 1fr;
@@ -161,7 +174,7 @@
 
           <div class="field full">
             <label for="category">Категория</label>
-            <select id="category" required>
+            <select id="category">
               <option value="">Выберите категорию</option>
               <option value="Двигатель">Двигатель</option>
               <option value="КПП">КПП</option>
@@ -175,6 +188,10 @@
               <option value="Шины и диски">Шины и диски</option>
               <option value="Аксессуары">Аксессуары</option>
             </select>
+            <label class="check-row">
+              <input type="checkbox" id="allCategories" />
+              Все категории
+            </label>
           </div>
 
           <div class="field">
@@ -182,6 +199,10 @@
             <select id="country">
               <option value="">Выберите страну</option>
             </select>
+            <label class="check-row">
+              <input type="checkbox" id="allCountries" />
+              Все страны
+            </label>
           </div>
 
           <div class="field">
@@ -189,6 +210,10 @@
             <select id="brand" disabled>
               <option value="">Сначала выберите страну</option>
             </select>
+            <label class="check-row">
+              <input type="checkbox" id="allBrands" />
+              Все марки
+            </label>
           </div>
 
           <div class="field full">
@@ -196,6 +221,10 @@
             <select id="model" disabled>
               <option value="">Сначала выберите марку</option>
             </select>
+            <label class="check-row">
+              <input type="checkbox" id="allModels" />
+              Все модели
+            </label>
           </div>
 
           <div class="field full">
@@ -226,6 +255,12 @@
     const countryEl = document.getElementById('country');
     const brandEl = document.getElementById('brand');
     const modelEl = document.getElementById('model');
+    const categoryEl = document.getElementById('category');
+
+    const allCountriesEl = document.getElementById('allCountries');
+    const allBrandsEl = document.getElementById('allBrands');
+    const allModelsEl = document.getElementById('allModels');
+    const allCategoriesEl = document.getElementById('allCategories');
 
     function setMessage(text, type) {
       msg.className = 'msg ' + type;
@@ -257,6 +292,54 @@
       resetBrand();
       resetModel();
       loadCountries();
+      applyToggles();
+    }
+
+    function applyToggles() {
+      categoryEl.disabled = allCategoriesEl.checked;
+
+      countryEl.disabled = allCountriesEl.checked;
+
+      if (allBrandsEl.checked) {
+        allModelsEl.checked = true;
+        allModelsEl.disabled = true;
+      } else {
+        allModelsEl.disabled = false;
+      }
+
+      if (allCountriesEl.checked) {
+        countryEl.value = '';
+        resetBrand();
+        resetModel();
+      }
+
+      if (allBrandsEl.checked) {
+        brandEl.value = '';
+        modelEl.value = '';
+        brandEl.disabled = true;
+        modelEl.disabled = true;
+        brandEl.innerHTML = '<option value="">Все марки</option>';
+        modelEl.innerHTML = '<option value="">Все модели</option>';
+      } else {
+        if (!allCountriesEl.checked && countryEl.value) {
+          loadBrands(countryEl.value);
+        } else {
+          resetBrand();
+          resetModel();
+        }
+      }
+
+      if (!allBrandsEl.checked && allModelsEl.checked) {
+        modelEl.value = '';
+        modelEl.disabled = true;
+        modelEl.innerHTML = '<option value="">Все модели</option>';
+      } else if (!allBrandsEl.checked && !allModelsEl.checked) {
+        if (brandEl.value) {
+          loadModels(brandEl.value);
+        } else {
+          resetModel();
+        }
+      }
     }
 
     async function loadCountries() {
@@ -290,8 +373,7 @@
     async function loadBrands(countryId) {
       resetModel();
 
-      if (!countryId) {
-        resetBrand();
+      if (!countryId || allCountriesEl.checked || allBrandsEl.checked) {
         return;
       }
 
@@ -323,8 +405,7 @@
     }
 
     async function loadModels(brandId) {
-      if (!brandId) {
-        resetModel();
+      if (!brandId || allBrandsEl.checked || allModelsEl.checked) {
         return;
       }
 
@@ -358,12 +439,21 @@
     btnCar.addEventListener('click', () => setTransport('car'));
     btnTruck.addEventListener('click', () => setTransport('truck'));
 
+    allCountriesEl.addEventListener('change', applyToggles);
+    allBrandsEl.addEventListener('change', applyToggles);
+    allModelsEl.addEventListener('change', applyToggles);
+    allCategoriesEl.addEventListener('change', applyToggles);
+
     countryEl.addEventListener('change', () => {
-      loadBrands(countryEl.value);
+      if (!allCountriesEl.checked && !allBrandsEl.checked) {
+        loadBrands(countryEl.value);
+      }
     });
 
     brandEl.addEventListener('change', () => {
-      loadModels(brandEl.value);
+      if (!allBrandsEl.checked && !allModelsEl.checked) {
+        loadModels(brandEl.value);
+      }
     });
 
     form.addEventListener('submit', async (e) => {
@@ -378,10 +468,14 @@
         whatsapp: document.getElementById('whatsapp').value.trim(),
         transport_type: transportType,
         city: document.getElementById('city').value.trim(),
-        category: document.getElementById('category').value,
+        category: categoryEl.value,
         country_id: countryEl.value || null,
         brand_id: brandEl.value || null,
-        model_id: modelEl.value || null
+        model_id: modelEl.value || null,
+        all_countries: allCountriesEl.checked,
+        all_brands: allBrandsEl.checked,
+        all_models: allModelsEl.checked,
+        all_categories: allCategoriesEl.checked
       };
 
       try {
@@ -396,6 +490,10 @@
 
         setMessage(`Готово! Продавец зарегистрирован. ID: ${data.id}`, 'success');
         form.reset();
+        allCountriesEl.checked = false;
+        allBrandsEl.checked = false;
+        allModelsEl.checked = false;
+        allCategoriesEl.checked = false;
         setTransport('car');
       } catch (error) {
         setMessage(error.message || 'Ошибка регистрации продавца', 'error');

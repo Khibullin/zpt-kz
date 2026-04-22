@@ -9,13 +9,7 @@ from .models import Request, Country, Brand, CarModel, Seller, Match
 
 def countries_list(request):
     countries = Country.objects.all().order_by('name')
-    data = [
-        {
-            'id': country.id,
-            'name': country.name,
-        }
-        for country in countries
-    ]
+    data = [{'id': country.id, 'name': country.name} for country in countries]
     return JsonResponse(data, safe=False)
 
 
@@ -75,7 +69,9 @@ def _base_sellers_queryset(req):
     )
 
     if req.category:
-        sellers = sellers.filter(category=req.category)
+        sellers = sellers.filter(
+            Q(all_categories=True) | Q(category=req.category)
+        )
 
     return sellers.distinct()
 
@@ -89,7 +85,8 @@ def _apply_city_filter(qs, req):
 def _apply_country_filter(qs, req):
     if req.country:
         qs = qs.filter(
-            Q(country_fk__name=req.country) | Q(country_fk__isnull=True)
+            Q(all_countries=True) |
+            Q(country_fk__name=req.country)
         )
     return qs
 
@@ -97,7 +94,9 @@ def _apply_country_filter(qs, req):
 def _apply_brand_filter(qs, req):
     if req.brand:
         qs = qs.filter(
-            Q(brand=req.brand) | Q(brand_fk__name=req.brand)
+            Q(all_brands=True) |
+            Q(brand=req.brand) |
+            Q(brand_fk__name=req.brand)
         )
     return qs
 
@@ -105,7 +104,10 @@ def _apply_brand_filter(qs, req):
 def _apply_model_filter(qs, req):
     if req.model:
         qs = qs.filter(
-            Q(model=req.model) | Q(model_fk__name=req.model)
+            Q(all_brands=True) |
+            Q(all_models=True) |
+            Q(model=req.model) |
+            Q(model_fk__name=req.model)
         )
     return qs
 
@@ -114,41 +116,11 @@ def _find_matching_sellers(req):
     base_qs = _base_sellers_queryset(req)
 
     strategies = [
-        {
-            'name': 'exact',
-            'city': True,
-            'country': True,
-            'brand': True,
-            'model': True,
-        },
-        {
-            'name': 'without_model',
-            'city': True,
-            'country': True,
-            'brand': True,
-            'model': False,
-        },
-        {
-            'name': 'without_brand_model',
-            'city': True,
-            'country': True,
-            'brand': False,
-            'model': False,
-        },
-        {
-            'name': 'without_country_brand_model',
-            'city': True,
-            'country': False,
-            'brand': False,
-            'model': False,
-        },
-        {
-            'name': 'category_only',
-            'city': False,
-            'country': False,
-            'brand': False,
-            'model': False,
-        },
+        {'name': 'exact', 'city': True, 'country': True, 'brand': True, 'model': True},
+        {'name': 'without_model', 'city': True, 'country': True, 'brand': True, 'model': False},
+        {'name': 'without_brand_model', 'city': True, 'country': True, 'brand': False, 'model': False},
+        {'name': 'without_country_brand_model', 'city': True, 'country': False, 'brand': False, 'model': False},
+        {'name': 'category_only', 'city': False, 'country': False, 'brand': False, 'model': False},
     ]
 
     for strategy in strategies:
@@ -156,13 +128,10 @@ def _find_matching_sellers(req):
 
         if strategy['city']:
             qs = _apply_city_filter(qs, req)
-
         if strategy['country']:
             qs = _apply_country_filter(qs, req)
-
         if strategy['brand']:
             qs = _apply_brand_filter(qs, req)
-
         if strategy['model']:
             qs = _apply_model_filter(qs, req)
 
@@ -233,6 +202,11 @@ def create_seller(request):
     city = (data.get('city') or '').strip()
     category = (data.get('category') or '').strip()
 
+    all_countries = bool(data.get('all_countries'))
+    all_brands = bool(data.get('all_brands'))
+    all_models = bool(data.get('all_models'))
+    all_categories = bool(data.get('all_categories'))
+
     country_id = data.get('country_id')
     brand_id = data.get('brand_id')
     model_id = data.get('model_id')
@@ -249,24 +223,27 @@ def create_seller(request):
     if not city:
         return JsonResponse({'error': 'Укажите город'}, status=400)
 
-    if not category:
-        return JsonResponse({'error': 'Выберите категорию'}, status=400)
+    if not all_categories and not category:
+        return JsonResponse({'error': 'Выберите категорию или включите "Все категории"'}, status=400)
+
+    if all_brands:
+        all_models = True
 
     country = None
     brand = None
     car_model = None
 
-    if country_id:
+    if not all_countries and country_id:
         country = Country.objects.filter(id=country_id).first()
         if not country:
             return JsonResponse({'error': 'Страна не найдена'}, status=400)
 
-    if brand_id:
+    if not all_brands and brand_id:
         brand = Brand.objects.filter(id=brand_id, transport_type=transport_type).first()
         if not brand:
             return JsonResponse({'error': 'Марка не найдена'}, status=400)
 
-    if model_id:
+    if not all_brands and not all_models and model_id:
         car_model = CarModel.objects.filter(id=model_id, transport_type=transport_type).first()
         if not car_model:
             return JsonResponse({'error': 'Модель не найдена'}, status=400)
@@ -282,12 +259,16 @@ def create_seller(request):
         whatsapp=whatsapp,
         transport_type=transport_type,
         city=city,
-        category=category,
-        brand=brand.name if brand else '',
-        model=car_model.name if car_model else '',
-        country_fk=country,
-        brand_fk=brand,
-        model_fk=car_model,
+        category='' if all_categories else category,
+        brand='' if all_brands else (brand.name if brand else ''),
+        model='' if (all_brands or all_models) else (car_model.name if car_model else ''),
+        country_fk=None if all_countries else country,
+        brand_fk=None if all_brands else brand,
+        model_fk=None if (all_brands or all_models) else car_model,
+        all_countries=all_countries,
+        all_brands=all_brands,
+        all_models=all_models,
+        all_categories=all_categories,
         is_active=True,
         is_paused=False,
     )

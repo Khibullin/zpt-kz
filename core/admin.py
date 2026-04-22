@@ -36,12 +36,15 @@ class RequestAdmin(admin.ModelAdmin):
 class SellerAdmin(admin.ModelAdmin):
     list_display = (
         'id', 'name', 'whatsapp', 'transport_type',
-        'country_fk', 'city', 'category',
-        'brand', 'brand_fk', 'model', 'model_fk',
-        'is_active', 'is_paused'
+        'all_countries', 'country_fk',
+        'all_brands', 'brand_fk',
+        'all_models', 'model_fk',
+        'all_categories', 'category',
+        'city', 'is_active', 'is_paused'
     )
     list_filter = (
         'transport_type', 'is_active', 'is_paused',
+        'all_countries', 'all_brands', 'all_models', 'all_categories',
         'city', 'category', 'country_fk', 'brand_fk'
     )
     search_fields = (

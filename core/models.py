@@ -56,7 +56,7 @@ class Request(models.Model):
     model = models.CharField(max_length=100, blank=True)
     category = models.CharField(max_length=100, blank=True)
     article = models.CharField(max_length=100, blank=True)
-    description = models.TextField()
+    description = models.TextField(blank=True)
     city = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20)
 
@@ -83,11 +83,11 @@ class Seller(models.Model):
     city = models.CharField(max_length=100, blank=True)
     category = models.CharField(max_length=100, blank=True)
 
-    # Старые поля оставляем, чтобы ничего не сломать
+    # Старые поля оставляем для совместимости
     brand = models.CharField(max_length=100, blank=True)
     model = models.CharField(max_length=100, blank=True)
 
-    # Новые безопасные поля для перехода на справочники
+    # Новые FK
     country_fk = models.ForeignKey(
         Country,
         on_delete=models.SET_NULL,
@@ -112,6 +112,12 @@ class Seller(models.Model):
         related_name='sellers',
         verbose_name='Модель'
     )
+
+    # Режимы "все"
+    all_countries = models.BooleanField(default=False, verbose_name='Все страны')
+    all_brands = models.BooleanField(default=False, verbose_name='Все марки')
+    all_models = models.BooleanField(default=False, verbose_name='Все модели')
+    all_categories = models.BooleanField(default=False, verbose_name='Все категории')
 
     class Meta:
         verbose_name = 'Продавец'
