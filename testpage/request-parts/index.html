@@ -128,7 +128,8 @@
       border-radius: 12px;
       display: none;
       font-size: 14px;
-      line-height: 1.45;
+      line-height: 1.6;
+      white-space: pre-line;
     }
 
     .msg.success {
@@ -448,7 +449,17 @@
           throw new Error(data.error || 'Ошибка отправки заявки');
         }
 
-        setMessage(`Заявка отправлена! ID: ${data.id}`, 'success');
+        let successText = `Заявка отправлена! ID: ${data.id}`;
+
+        if (data.matches !== undefined) {
+          successText += `\nНайдено продавцов: ${data.matches}`;
+        }
+
+        if (data.strategy) {
+          successText += `\nТип подбора: ${data.strategy}`;
+        }
+
+        setMessage(successText, 'success');
         form.reset();
         setTransport('car');
       } catch (error) {
