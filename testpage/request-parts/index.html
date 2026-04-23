@@ -307,7 +307,9 @@
 
       try {
         const res = await fetch(`${API_BASE}/countries/`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
 
         const data = await res.json();
 
@@ -343,7 +345,9 @@
 
       try {
         const res = await fetch(`${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
 
         const data = await res.json();
 
@@ -375,7 +379,9 @@
 
       try {
         const res = await fetch(`${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
 
         const data = await res.json();
 
@@ -399,8 +405,13 @@
     btnCar.addEventListener('click', () => setTransport('car'));
     btnTruck.addEventListener('click', () => setTransport('truck'));
 
-    countryEl.addEventListener('change', () => loadBrands(countryEl.value));
-    brandEl.addEventListener('change', () => loadModels(brandEl.value));
+    countryEl.addEventListener('change', () => {
+      loadBrands(countryEl.value);
+    });
+
+    brandEl.addEventListener('change', () => {
+      loadModels(brandEl.value);
+    });
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -428,7 +439,9 @@
       try {
         const res = await fetch(`${API_BASE}/create-request/`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json'
+          },
           body: JSON.stringify(payload)
         });
 
@@ -448,10 +461,9 @@
           successText += `\nТип подбора: ${data.strategy}`;
         }
 
-        setMessage(successText, 'success');
-
         form.reset();
         setTransport('car');
+        setMessage(successText, 'success');
       } catch (error) {
         setMessage(error.message || 'Ошибка отправки заявки', 'error');
       } finally {
