@@ -143,6 +143,10 @@ def _find_matching_sellers(req):
     return Seller.objects.none(), 'no_match'
 
 
+def _normalize_whatsapp(phone):
+    return ''.join(ch for ch in str(phone or '') if ch.isdigit())
+
+
 @csrf_exempt
 def create_request(request):
     if request.method != 'POST':
@@ -168,6 +172,7 @@ def create_request(request):
     sellers, strategy_used = _find_matching_sellers(req)
 
     matches_created = 0
+    matched_sellers = []
 
     for seller in sellers:
         _, created = Match.objects.get_or_create(
@@ -175,14 +180,24 @@ def create_request(request):
             seller=seller,
             defaults={'status': 'prepared'}
         )
+
+        matched_sellers.append(seller)
+
         if created:
             matches_created += 1
+
+    sellers_list = []
+    for seller in matched_sellers[:10]:
+        sellers_list.append({
+            'name': seller.name,
+            'whatsapp': _normalize_whatsapp(seller.whatsapp),
+        })
 
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
-        'matches': matches_created,
-        'strategy': strategy_used,
+        'matches': len(matched_sellers),
+        'sellers': sellers_list,
     })
 
 
