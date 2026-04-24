@@ -5,6 +5,7 @@ from .views import (
     countries_list,
     brands_by_country,
     models_by_brand,
+    seller_requests,
 )
 
 urlpatterns = [
@@ -13,4 +14,5 @@ urlpatterns = [
     path('countries/', countries_list, name='countries_list'),
     path('brands-by-country/', brands_by_country, name='brands_by_country'),
     path('models-by-brand/', models_by_brand, name='models_by_brand'),
+    path('seller-requests/', seller_requests, name='seller_requests'),
 ]
