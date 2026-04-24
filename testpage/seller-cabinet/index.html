@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Кабинет продавца</title>
+
+<style>
+body { font-family: Arial; background:#f5f5f5; margin:0; }
+.wrap { max-width:900px; margin:auto; padding:20px; }
+
+h1 { color:#d62828; }
+
+.card {
+  background:#fff;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:12px;
+  box-shadow:0 3px 10px rgba(0,0,0,0.05);
+}
+
+.btn {
+  display:inline-block;
+  padding:8px 12px;
+  border-radius:8px;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+.wa { background:#25D366; color:#fff; }
+
+.filter button {
+  margin-right:6px;
+  padding:6px 10px;
+  border-radius:6px;
+  border:1px solid #ddd;
+  cursor:pointer;
+}
+
+.active { background:#d62828; color:#fff; }
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+  <h1>Кабинет продавца</h1>
+
+  <div class="filter">
+    <button onclick="loadData('today')">Сегодня</button>
+    <button class="active" onclick="loadData('7d')">7 дней</button>
+    <button onclick="loadData('30d')">30 дней</button>
+    <button onclick="loadData('all')">Все</button>
+  </div>
+
+  <div id="list"></div>
+</div>
+
+<script>
+
+const API = 'https://zpt-kz-backend.onrender.com/api';
+
+function getSellerId() {
+  const url = new URL(window.location.href);
+  return url.searchParams.get('seller_id') || 2;
+}
+
+function buildWA(phone, req) {
+  const text = encodeURIComponent(
+`Здравствуйте! Пишу по заявке №${req.id}
+
+${req.brand} ${req.model}
+Категория: ${req.category}
+Город: ${req.city}
+
+${req.description}
+
+Есть ли в наличии?`
+  );
+
+  return `https://wa.me/${phone}?text=${text}`;
+}
+
+async function loadData(period='7d') {
+
+  const seller_id = getSellerId();
+
+  const res = await fetch(`${API}/seller-requests/?seller_id=${seller_id}&period=${period}`);
+  const data = await res.json();
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+
+  data.requests.forEach(r => {
+
+    const wa = buildWA(r.phone, r);
+
+    list.innerHTML += `
+      <div class="card">
+        <b>Заявка №${r.id}</b><br>
+        ${r.city} • ${r.brand} ${r.model}<br>
+        Категория: ${r.category}<br><br>
+        ${r.description}<br><br>
+
+        <a class="btn wa" target="_blank" href="${wa}">
+          Написать клиенту
+        </a>
+      </div>
+    `;
+  });
+}
+
+loadData();
+
+</script>
+
+</body>
+</html>
