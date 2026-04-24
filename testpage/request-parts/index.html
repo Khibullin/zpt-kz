@@ -30,38 +30,12 @@
     h1 {
       margin: 0 0 10px;
       font-size: 28px;
-      line-height: 1.2;
       color: #c62828;
     }
 
     .sub {
       margin: 0 0 22px;
       color: #555;
-      line-height: 1.5;
-    }
-
-    .transport-switch {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-
-    .transport-switch button {
-      width: 100%;
-      min-height: 46px;
-      border-radius: 12px;
-      border: 1px solid #ddd;
-      background: #f1f1f1;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-    }
-
-    .transport-switch button.active {
-      background: #d6281f;
-      color: #fff;
-      border-color: #d6281f;
     }
 
     .grid {
@@ -93,386 +67,218 @@
       border: 1px solid #d8d8d8;
       padding: 0 14px;
       font-size: 16px;
-      font-family: inherit;
     }
 
     textarea {
-      min-height: 110px;
-      padding-top: 12px;
-      padding-bottom: 12px;
-      resize: vertical;
-    }
-
-    input:focus, select:focus, textarea:focus {
-      outline: none;
-      border-color: #d6281f;
+      min-height: 100px;
+      padding: 10px;
     }
 
     .submit-btn {
       background: #d6281f;
       color: #fff;
       border: none;
-      cursor: pointer;
       font-size: 18px;
       font-weight: bold;
-    }
-
-    .submit-btn:disabled {
-      opacity: 0.75;
-      cursor: not-allowed;
+      cursor: pointer;
     }
 
     .msg {
       margin-top: 14px;
-      padding: 12px 14px;
+      padding: 14px;
       border-radius: 12px;
       display: none;
-      font-size: 16px;
-      line-height: 1.7;
       white-space: pre-line;
-      font-weight: 600;
     }
 
     .msg.success {
       display: block;
       background: #e8f5e9;
-      color: #1b5e20;
-      border: 1px solid #c8e6c9;
     }
 
-    .msg.error {
-      display: block;
-      background: #ffebee;
-      color: #b71c1c;
-      border: 1px solid #ffcdd2;
+    .seller {
+      margin-top: 10px;
     }
 
-    .note {
-      margin-top: 16px;
+    .wa-btn {
+      display: inline-block;
+      margin-top: 4px;
+      padding: 6px 10px;
+      background: #25D366;
+      color: #fff;
+      border-radius: 8px;
+      text-decoration: none;
       font-size: 14px;
-      color: #666;
-      line-height: 1.5;
     }
 
-    @media (max-width: 640px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-
-      h1 {
-        font-size: 24px;
-      }
-    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Заявка на запчасти</h1>
-      <p class="sub">
-        Оставьте одну заявку, и её получат продавцы автозапчастей.
-      </p>
 
-      <div class="transport-switch">
-        <button type="button" id="btnCar" class="active">Легковые</button>
-        <button type="button" id="btnTruck">Грузовые</button>
-      </div>
+<div class="wrap">
+  <div class="card">
+    <h1>Заявка на запчасти</h1>
+    <p class="sub">Оставьте одну заявку, и её получат продавцы автозапчастей.</p>
 
-      <form id="requestForm">
-        <div class="grid">
-          <div class="field full">
-            <label for="country">Страна производителя</label>
-            <select id="country">
-              <option value="">Загрузка стран...</option>
-            </select>
-          </div>
+    <form id="requestForm">
+      <div class="grid">
 
-          <div class="field">
-            <label for="brand">Марка автомобиля</label>
-            <select id="brand" disabled>
-              <option value="">Сначала выберите страну</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="model">Модель автомобиля</label>
-            <select id="model" disabled>
-              <option value="">Сначала выберите марку</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="category">Категория запчасти</label>
-            <select id="category" required>
-              <option value="">Выберите категорию</option>
-              <option value="Двигатель">Двигатель</option>
-              <option value="КПП">КПП</option>
-              <option value="Кузов">Кузов</option>
-              <option value="Подвеска">Подвеска</option>
-              <option value="Тормозная система">Тормозная система</option>
-              <option value="Электрика">Электрика</option>
-              <option value="Оптика">Оптика</option>
-              <option value="Салон">Салон</option>
-              <option value="Расходники">Расходники</option>
-              <option value="Шины и диски">Шины и диски</option>
-              <option value="Аксессуары">Аксессуары</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="article">Артикул</label>
-            <input type="text" id="article" placeholder="Если есть" />
-          </div>
-
-          <div class="field">
-            <label for="city">Город</label>
-            <input type="text" id="city" placeholder="Алматы" required />
-          </div>
-
-          <div class="field">
-            <label for="phone">Телефон / WhatsApp</label>
-            <input type="text" id="phone" placeholder="+7 777 123 45 67" required />
-          </div>
-
-          <div class="field full">
-            <label for="description">Описание</label>
-            <textarea id="description" placeholder="Например: нужен передний бампер, белый цвет, рестайлинг"></textarea>
-          </div>
-
-          <div class="field full">
-            <button type="submit" class="submit-btn" id="submitBtn">Отправить заявку</button>
-          </div>
+        <div class="field full">
+          <label>Страна</label>
+          <select id="country"></select>
         </div>
-      </form>
 
-      <div id="msg" class="msg"></div>
+        <div class="field">
+          <label>Марка</label>
+          <select id="brand"></select>
+        </div>
 
-      <div class="note">
-        После отправки заявка будет обработана и распределена по продавцам.
+        <div class="field">
+          <label>Модель</label>
+          <select id="model"></select>
+        </div>
+
+        <div class="field">
+          <label>Категория</label>
+          <input id="category">
+        </div>
+
+        <div class="field">
+          <label>Город</label>
+          <input id="city">
+        </div>
+
+        <div class="field">
+          <label>Телефон</label>
+          <input id="phone">
+        </div>
+
+        <div class="field full">
+          <label>Описание</label>
+          <textarea id="description"></textarea>
+        </div>
+
+        <div class="field full">
+          <button class="submit-btn">Отправить заявку</button>
+        </div>
+
       </div>
-    </div>
+    </form>
+
+    <div id="msg" class="msg"></div>
+
   </div>
+</div>
 
-  <script>
-    const API_BASE = 'https://zpt-kz-backend.onrender.com/api';
+<script>
 
-    let transportType = 'car';
+const API = 'https://zpt-kz-backend.onrender.com/api';
 
-    const btnCar = document.getElementById('btnCar');
-    const btnTruck = document.getElementById('btnTruck');
+const form = document.getElementById('requestForm');
+const msg = document.getElementById('msg');
 
-    const form = document.getElementById('requestForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const msg = document.getElementById('msg');
+function buildWhatsAppLink(phone, data) {
+  const text = encodeURIComponent(
+`Здравствуйте! Пишу по заявке №${data.id} с сайта ZPT.KZ.
 
-    const countryEl = document.getElementById('country');
-    const brandEl = document.getElementById('brand');
-    const modelEl = document.getElementById('model');
+${data.brand} ${data.model}, категория: ${data.category}
+Город: ${data.city}
 
-    function setMessage(text, type) {
-      msg.className = 'msg ' + type;
-      msg.textContent = text;
-      msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+${data.description}
 
-    function clearMessage() {
-      msg.className = 'msg';
-      msg.textContent = '';
-    }
+Подскажите, есть ли в наличии?`
+  );
 
-    function resetBrand() {
-      brandEl.innerHTML = '<option value="">Сначала выберите страну</option>';
-      brandEl.disabled = true;
-    }
+  return `https://wa.me/${phone}?text=${text}`;
+}
 
-    function resetModel() {
-      modelEl.innerHTML = '<option value="">Сначала выберите марку</option>';
-      modelEl.disabled = true;
-    }
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
 
-    function setTransport(type) {
-      transportType = type;
+  const payload = {
+    country: document.getElementById('country').value,
+    brand: document.getElementById('brand').value,
+    model: document.getElementById('model').value,
+    category: document.getElementById('category').value,
+    description: document.getElementById('description').value,
+    city: document.getElementById('city').value,
+    phone: document.getElementById('phone').value,
+    transport_type: 'car'
+  };
 
-      btnCar.classList.toggle('active', type === 'car');
-      btnTruck.classList.toggle('active', type === 'truck');
+  const res = await fetch(`${API}/create-request/`, {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify(payload)
+  });
 
-      countryEl.value = '';
-      resetBrand();
-      resetModel();
-      loadCountries();
-    }
+  const data = await res.json();
 
-    async function loadCountries() {
-      clearMessage();
+let html = `Заявка отправлена! ID: ${data.id}\n\n`;
 
-      try {
-        const res = await fetch(`${API_BASE}/countries/`);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+html += `Найдено продавцов: ${data.matches}\n\n`;
 
-        const data = await res.json();
+html += `Ваша заявка отправлена всем подходящим продавцам по выбранной категории и параметрам.\n`;
+html += `Ожидайте предложения — продавцы сами свяжутся с вами.\n\n`;
+html += `При желании вы можете самостоятельно написать любому продавцу из списка ниже.\n\n`;
 
-        countryEl.innerHTML = '<option value="">Выберите страну</option>';
+if (data.sellers && data.sellers.length > 0) {
+  html += `Первые продавцы:\n\n`;
 
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          countryEl.appendChild(option);
-        });
+  data.sellers.forEach(s => {
+    const text = encodeURIComponent(
+`Здравствуйте! Пишу по заявке №${data.id} с сайта ZPT.KZ.
 
-        resetBrand();
-        resetModel();
-      } catch (error) {
-        countryEl.innerHTML = '<option value="">Ошибка загрузки стран</option>';
-        resetBrand();
-        resetModel();
-        setMessage('Не удалось загрузить страны', 'error');
-      }
-    }
+${selectedBrand} ${selectedModel}, категория: ${payload.category}
+Город: ${payload.city}
 
-    async function loadBrands(countryId) {
-      resetModel();
+${payload.description}
 
-      if (!countryId) {
-        resetBrand();
-        return;
-      }
+Подскажите, есть ли в наличии?`
+    );
 
-      brandEl.disabled = true;
-      brandEl.innerHTML = '<option value="">Загрузка...</option>';
+    const link = `https://wa.me/${s.whatsapp}?text=${text}`;
 
-      try {
-        const res = await fetch(`${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
+    html += `${s.name}\n`;
+    html += `<a href="${link}" target="_blank" style="display:inline-block;margin:5px 0 10px;padding:6px 10px;background:#25D366;color:#fff;border-radius:8px;text-decoration:none;">Написать в WhatsApp</a>\n\n`;
+  });
+}
 
-        const data = await res.json();
+if (data.matches > 10) {
+  html += `Ещё ${data.matches - 10} продавцов также получили вашу заявку.`;
+}
 
-        brandEl.innerHTML = '<option value="">Выберите марку</option>';
+msg.innerHTML = html;
+msg.className = 'msg success';
 
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          brandEl.appendChild(option);
-        });
+  if (data.sellers && data.sellers.length > 0) {
+    html += `Первые продавцы:\n`;
 
-        brandEl.disabled = false;
-      } catch (error) {
-        brandEl.innerHTML = '<option value="">Ошибка загрузки марки</option>';
-        brandEl.disabled = true;
-        setMessage('Не удалось загрузить марки', 'error');
-      }
-    }
+    data.sellers.forEach(s => {
+      const link = buildWhatsAppLink(s.whatsapp, {
+        id: data.id,
+        brand: payload.brand,
+        model: payload.model,
+        category: payload.category,
+        description: payload.description,
+        city: payload.city
+      });
 
-    async function loadModels(brandId) {
-      if (!brandId) {
-        resetModel();
-        return;
-      }
-
-      modelEl.disabled = true;
-      modelEl.innerHTML = '<option value="">Загрузка...</option>';
-
-      try {
-        const res = await fetch(`${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-
-        modelEl.innerHTML = '<option value="">Выберите модель</option>';
-
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          modelEl.appendChild(option);
-        });
-
-        modelEl.disabled = false;
-      } catch (error) {
-        modelEl.innerHTML = '<option value="">Ошибка загрузки модели</option>';
-        modelEl.disabled = true;
-        setMessage('Не удалось загрузить модели', 'error');
-      }
-    }
-
-    btnCar.addEventListener('click', () => setTransport('car'));
-    btnTruck.addEventListener('click', () => setTransport('truck'));
-
-    countryEl.addEventListener('change', () => {
-      loadBrands(countryEl.value);
+      html += `\n${s.name}\n`;
+      html += `<a class="wa-btn" target="_blank" href="${link}">Написать в WhatsApp</a>\n`;
     });
+  }
 
-    brandEl.addEventListener('change', () => {
-      loadModels(brandEl.value);
-    });
+  if (data.matches > 10) {
+    html += `\n\nЕщё ${data.matches - 10} продавцов также получили вашу заявку.`;
+  }
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearMessage();
+  msg.className = 'msg success';
+  msg.innerHTML = html;
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Отправляем...';
+});
 
-      const selectedCountry = countryEl.options[countryEl.selectedIndex]?.text || '';
-      const selectedBrand = brandEl.options[brandEl.selectedIndex]?.text || '';
-      const selectedModel = modelEl.options[modelEl.selectedIndex]?.text || '';
+</script>
 
-      const payload = {
-        transport_type: transportType,
-        country: countryEl.value ? selectedCountry : '',
-        brand: brandEl.value ? selectedBrand : '',
-        model: modelEl.value ? selectedModel : '',
-        category: document.getElementById('category').value,
-        article: document.getElementById('article').value.trim(),
-        description: document.getElementById('description').value.trim(),
-        city: document.getElementById('city').value.trim(),
-        phone: document.getElementById('phone').value.trim()
-      };
-
-      try {
-        const res = await fetch(`${API_BASE}/create-request/`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(payload)
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          throw new Error(data.error || 'Ошибка отправки заявки');
-        }
-
-        let successText = `Заявка отправлена! ID: ${data.id}`;
-
-        if (typeof data.matches !== 'undefined') {
-          successText += `\nНайдено продавцов: ${data.matches}`;
-        }
-
-        if (data.strategy) {
-          successText += `\nТип подбора: ${data.strategy}`;
-        }
-
-        form.reset();
-        setTransport('car');
-        setMessage(successText, 'success');
-      } catch (error) {
-        setMessage(error.message || 'Ошибка отправки заявки', 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Отправить заявку';
-      }
-    });
-
-    loadCountries();
-  </script>
 </body>
 </html>
