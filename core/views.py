@@ -349,3 +349,39 @@ def seller_requests(request):
         'count': len(data),
         'requests': data,
     })
+
+
+@csrf_exempt
+def update_match_status(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    match_id = data.get('match_id')
+    status = data.get('status')
+
+    allowed_statuses = ['prepared', 'viewed', 'contacted', 'rejected']
+
+    if not match_id:
+        return JsonResponse({'error': 'match_id required'}, status=400)
+
+    if status not in allowed_statuses:
+        return JsonResponse({'error': 'invalid status'}, status=400)
+
+    try:
+        match = Match.objects.get(id=match_id)
+    except Match.DoesNotExist:
+        return JsonResponse({'error': 'match not found'}, status=404)
+
+    match.status = status
+    match.save()
+
+    return JsonResponse({
+        'status': 'ok',
+        'match_id': match.id,
+        'match_status': match.status,
+    })
