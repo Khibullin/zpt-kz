@@ -2,71 +2,115 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет продавца</title>
 
 <style>
-body { font-family: Arial; background:#f5f5f5; margin:0; }
-.wrap { max-width:900px; margin:auto; padding:20px; }
+body{font-family:Arial;background:#f5f5f5;margin:0}
+.wrap{max-width:980px;margin:auto;padding:20px}
+h1{color:#d62828}
 
-h1 { color:#d62828; }
-
-.card {
-  background:#fff;
-  padding:16px;
-  border-radius:12px;
-  margin-bottom:12px;
-  box-shadow:0 3px 10px rgba(0,0,0,0.05);
+.filter button,.statusfilter button{
+margin-right:6px;
+margin-bottom:8px;
+padding:8px 12px;
+border-radius:8px;
+border:1px solid #ddd;
+cursor:pointer;
+background:white;
 }
 
-.btn {
-  display:inline-block;
-  padding:8px 12px;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:bold;
+.active{background:#d62828;color:white}
+
+.card{
+background:#fff;
+padding:16px;
+border-radius:12px;
+margin-bottom:14px;
+box-shadow:0 3px 10px rgba(0,0,0,.05);
 }
 
-.wa { background:#25D366; color:#fff; }
-
-.filter button {
-  margin-right:6px;
-  padding:6px 10px;
-  border-radius:6px;
-  border:1px solid #ddd;
-  cursor:pointer;
+.badge{
+display:inline-block;
+padding:5px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+margin-bottom:10px;
 }
 
-.active { background:#d62828; color:#fff; }
+.prepared{background:#e8f5e9}
+.viewed{background:#e3f2fd}
+.contacted{background:#fff8e1}
+.rejected{background:#ffebee}
+
+.btn{
+display:inline-block;
+padding:9px 12px;
+border-radius:8px;
+text-decoration:none;
+font-weight:bold;
+margin-right:8px;
+margin-top:8px;
+border:none;
+cursor:pointer;
+}
+
+.wa{background:#25D366;color:#fff}
+.ok{background:#1565c0;color:#fff}
+.no{background:#c62828;color:#fff}
+
+small{color:#666}
 </style>
 </head>
 
 <body>
 
 <div class="wrap">
-  <h1>Кабинет продавца</h1>
 
-  <div class="filter">
-    <button onclick="loadData('today')">Сегодня</button>
-    <button class="active" onclick="loadData('7d')">7 дней</button>
-    <button onclick="loadData('30d')">30 дней</button>
-    <button onclick="loadData('all')">Все</button>
-  </div>
+<h1>Кабинет продавца</h1>
 
-  <div id="list"></div>
+<div class="filter">
+Период:
+<button onclick="loadData('today')">Сегодня</button>
+<button class="active" onclick="loadData('7d')">7 дней</button>
+<button onclick="loadData('30d')">30 дней</button>
+<button onclick="loadData('all')">Все</button>
+</div>
+
+<div class="statusfilter">
+Статус:
+<button onclick="setStatusFilter('all')">Все</button>
+<button onclick="setStatusFilter('prepared')">Новые</button>
+<button onclick="setStatusFilter('contacted')">Связался</button>
+<button onclick="setStatusFilter('rejected')">Отказ</button>
+</div>
+
+<div id="list"></div>
+
 </div>
 
 <script>
 
-const API = 'https://zpt-kz-backend.onrender.com/api';
+const API='https://zpt-kz-backend.onrender.com/api';
 
-function getSellerId() {
-  const url = new URL(window.location.href);
-  return url.searchParams.get('seller_id') || 2;
+let currentStatus='all';
+
+function getSellerId(){
+ const url=new URL(window.location.href);
+ return url.searchParams.get('seller_id') || 2;
 }
 
-function buildWA(phone, req) {
-  const text = encodeURIComponent(
+function label(s){
+ if(s=='prepared') return 'Новая';
+ if(s=='viewed') return 'Просмотрена';
+ if(s=='contacted') return 'Связался';
+ if(s=='rejected') return 'Отказ';
+ return s;
+}
+
+function buildWA(phone,req){
+ const text=encodeURIComponent(
 `Здравствуйте! Пишу по заявке №${req.id}
 
 ${req.brand} ${req.model}
@@ -76,38 +120,102 @@ ${req.brand} ${req.model}
 ${req.description}
 
 Есть ли в наличии?`
-  );
+);
 
-  return `https://wa.me/${phone}?text=${text}`;
+ return `https://wa.me/${phone}?text=${text}`;
 }
 
-async function loadData(period='7d') {
+function setStatusFilter(status){
+ currentStatus=status;
+ loadData();
+}
 
-  const seller_id = getSellerId();
+async function changeStatus(match_id,status){
+ await fetch(`${API}/update-match-status/`,{
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+      match_id:match_id,
+      status:status
+   })
+ });
 
-  const res = await fetch(`${API}/seller-requests/?seller_id=${seller_id}&period=${period}`);
-  const data = await res.json();
+ loadData();
+}
 
-  const list = document.getElementById('list');
-  list.innerHTML = '';
+async function loadData(period='7d'){
 
-  data.requests.forEach(r => {
+ const seller_id=getSellerId();
 
-    const wa = buildWA(r.phone, r);
+ const res=await fetch(
+ `${API}/seller-requests/?seller_id=${seller_id}&period=${period}`
+ );
 
-    list.innerHTML += `
-      <div class="card">
-        <b>Заявка №${r.id}</b><br>
-        ${r.city} • ${r.brand} ${r.model}<br>
-        Категория: ${r.category}<br><br>
-        ${r.description}<br><br>
+ const data=await res.json();
 
-        <a class="btn wa" target="_blank" href="${wa}">
-          Написать клиенту
-        </a>
-      </div>
-    `;
-  });
+ let rows=data.requests;
+
+ if(currentStatus!='all'){
+   rows=rows.filter(x=>x.match_status==currentStatus);
+ }
+
+ const list=document.getElementById('list');
+
+ list.innerHTML='';
+
+ rows.forEach(r=>{
+
+ const wa=buildWA(r.phone,r);
+
+ list.innerHTML += `
+ <div class="card">
+
+ <div class="badge ${r.match_status}">
+ ${label(r.match_status)}
+ </div>
+
+ <b>Заявка №${r.id}</b><br>
+
+ <small>
+ ${r.created_at}
+ </small>
+
+ <br><br>
+
+ ${r.city} • ${r.brand} ${r.model}<br>
+ Категория: ${r.category}<br>
+
+ ${r.article ? 'Артикул: '+r.article+'<br>' : ''}
+
+ <br>
+ ${r.description}
+
+ <br><br>
+
+ <a
+ class="btn wa"
+ target="_blank"
+ onclick="changeStatus(${r.match_id},'contacted')"
+ href="${wa}">
+ Написать клиенту
+ </a>
+
+ <button
+ class="btn ok"
+ onclick="changeStatus(${r.match_id},'contacted')">
+ Связался
+ </button>
+
+ <button
+ class="btn no"
+ onclick="changeStatus(${r.match_id},'rejected')">
+ Отказ
+ </button>
+
+ </div>
+ `;
+ });
+
 }
 
 loadData();
