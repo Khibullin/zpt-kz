@@ -19,46 +19,59 @@ border:1px solid #ddd;
 cursor:pointer;
 background:white;
 }
-
-.active{background:#d62828!important;color:white!important}
+.active{background:#d62828!important;color:#fff!important}
 
 .stats{
 display:grid;
 grid-template-columns:repeat(4,minmax(0,1fr));
 gap:10px;
 margin:16px 0;
-width:100%;
 }
 
 .stat{
-min-width:0;
 background:#fff;
-border-radius:12px;
 padding:14px;
+border-radius:12px;
 box-shadow:0 3px 10px rgba(0,0,0,.05);
 font-weight:bold;
 }
-.stat{
-background:#fff;
-border-radius:12px;
-padding:14px;
-box-shadow:0 3px 10px rgba(0,0,0,.05);
-font-weight:bold;
-}
-
 .stat span{
 display:block;
 font-size:26px;
-margin-top:6px;
+margin-top:5px;
 color:#d62828;
 }
 
-.card{
+.ticket{
 background:#fff;
+border-radius:14px;
 padding:16px;
-border-radius:12px;
-margin-bottom:14px;
+margin-bottom:12px;
 box-shadow:0 3px 10px rgba(0,0,0,.05);
+}
+
+.ticket-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+}
+
+.ticket-title{
+font-weight:bold;
+font-size:20px;
+}
+
+.ticket-line{
+margin-top:6px;
+}
+
+.ticket-detail{
+display:none;
+border-top:1px solid #eee;
+margin-top:14px;
+padding-top:14px;
 }
 
 .badge{
@@ -67,26 +80,26 @@ padding:5px 10px;
 border-radius:20px;
 font-size:12px;
 font-weight:bold;
-margin-bottom:10px;
 }
 
-.prepared{background:#e8f5e9;color:#0d5d22}
-.viewed{background:#e3f2fd;color:#0d47a1}
-.contacted{background:#fff3cd;color:#8a5a00}
-.rejected{background:#ffebee;color:#b71c1c}
+.prepared{background:#e8f5e9}
+.viewed{background:#e3f2fd}
+.contacted{background:#fff3cd}
+.rejected{background:#ffebee}
 
 .btn{
 display:inline-block;
 padding:9px 12px;
 border-radius:8px;
-text-decoration:none;
 font-weight:bold;
-margin-right:8px;
-margin-top:8px;
+text-decoration:none;
 border:none;
 cursor:pointer;
+margin-right:8px;
+margin-top:8px;
 }
 
+.openbtn{background:#efefef}
 .wa{background:#25D366;color:#fff}
 .ok{background:#1565c0;color:#fff}
 .no{background:#c62828;color:#fff}
@@ -98,7 +111,6 @@ small{color:#666}
 }
 </style>
 </head>
-
 <body>
 
 <div class="wrap">
@@ -146,96 +158,83 @@ function getSellerId(){
 
 function label(s){
  if(s==='prepared') return 'Новая';
- if(s==='viewed') return 'Просмотрена';
  if(s==='contacted') return 'Связался';
  if(s==='rejected') return 'Отказ';
- return s || 'Новая';
+ if(s==='viewed') return 'Просмотрена';
+ return 'Новая';
 }
 
-function normalizePhone(phone){
- let digits=String(phone || '').replace(/\D/g,'');
- if(digits.length===11 && digits.startsWith('8')) digits='7'+digits.slice(1);
- return digits;
+function phoneDigits(phone){
+ let d=String(phone||'').replace(/\D/g,'');
+ if(d.startsWith('8')) d='7'+d.slice(1);
+ return d;
 }
 
 function buildWA(phone,req){
- const cleanPhone=normalizePhone(phone);
-
  const text=encodeURIComponent(
 `Здравствуйте! Пишу по заявке №${req.id}
 
 ${req.brand} ${req.model}
-Категория: ${req.category}
-Город: ${req.city}
-
 ${req.description || ''}
 
 Есть ли в наличии?`
 );
-
- return `https://wa.me/${cleanPhone}?text=${text}`;
+ return `https://wa.me/${phoneDigits(phone)}?text=${text}`;
 }
 
-function setActiveButtons(){
- document.querySelectorAll('.filter button').forEach(b=>b.classList.remove('active'));
- document.querySelectorAll('.statusfilter button').forEach(b=>b.classList.remove('active'));
-
- const periodBtn=document.getElementById(`period-${currentPeriod}`);
- const statusBtn=document.getElementById(`status-${currentStatus}`);
-
- if(periodBtn) periodBtn.classList.add('active');
- if(statusBtn) statusBtn.classList.add('active');
-}
-
-function setPeriod(period){
- currentPeriod=period;
- setActiveButtons();
+function setPeriod(p){
+ currentPeriod=p;
  loadData();
 }
 
-function setStatusFilter(status){
- currentStatus=status;
- setActiveButtons();
- renderList();
+function setStatusFilter(s){
+ currentStatus=s;
+ render();
 }
 
-async function changeStatus(match_id,status,shouldReload=true){
+async function changeStatus(match_id,status){
  await fetch(`${API}/update-match-status/`,{
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({
-      match_id:match_id,
-      status:status
-   })
+ method:'POST',
+ headers:{'Content-Type':'application/json'},
+ body:JSON.stringify({
+   match_id,
+   status
+ })
  });
 
- const item=allRows.find(x=>x.match_id===match_id);
+ let item=allRows.find(x=>x.match_id===match_id);
  if(item) item.match_status=status;
 
- if(shouldReload){
-   renderList();
- }
+ render();
 }
 
-async function contactClient(match_id,waLink){
- await changeStatus(match_id,'contacted',false);
- window.open(waLink,'_blank');
- renderList();
+async function contactClient(match_id,wa){
+ await changeStatus(match_id,'contacted');
+ window.open(wa,'_blank');
+}
+
+function toggleDetail(id){
+ const el=document.getElementById('detail-'+id);
+ el.style.display=
+   el.style.display==='block' ? 'none' : 'block';
 }
 
 function updateStats(){
- const total=allRows.length;
- const prepared=allRows.filter(x=>x.match_status==='prepared').length;
- const contacted=allRows.filter(x=>x.match_status==='contacted').length;
- const rejected=allRows.filter(x=>x.match_status==='rejected').length;
+ document.getElementById('stat-total').textContent=
+ allRows.length;
 
- document.getElementById('stat-total').textContent=total;
- document.getElementById('stat-new').textContent=prepared;
- document.getElementById('stat-contacted').textContent=contacted;
- document.getElementById('stat-rejected').textContent=rejected;
+ document.getElementById('stat-new').textContent=
+ allRows.filter(x=>x.match_status==='prepared').length;
+
+ document.getElementById('stat-contacted').textContent=
+ allRows.filter(x=>x.match_status==='contacted').length;
+
+ document.getElementById('stat-rejected').textContent=
+ allRows.filter(x=>x.match_status==='rejected').length;
 }
 
-function renderList(){
+function render(){
+
  updateStats();
 
  let rows=allRows;
@@ -247,65 +246,99 @@ function renderList(){
  const list=document.getElementById('list');
  list.innerHTML='';
 
- if(rows.length===0){
-   list.innerHTML='<div class="card">Заявок по выбранному фильтру нет.</div>';
-   return;
- }
-
  rows.forEach(r=>{
-   const wa=buildWA(r.phone,r);
 
-   list.innerHTML += `
-   <div class="card">
-     <div class="badge ${r.match_status}">
-       ${label(r.match_status)}
-     </div>
+ const wa=buildWA(r.phone,r);
 
-     <b>Заявка №${r.id}</b><br>
-     <small>${r.created_at}</small>
+ list.innerHTML+=`
+<div class="ticket">
 
-     <br><br>
+<div class="ticket-head">
+<div>
+<span class="badge ${r.match_status}">
+${label(r.match_status)}
+</span>
 
-     ${r.city || '-'} • ${r.brand || '-'} ${r.model || ''}<br>
-     Категория: ${r.category || '-'}<br>
-     ${r.article ? 'Артикул: '+r.article+'<br>' : ''}
+<span class="ticket-title">
+Заявка №${r.id}
+</span>
 
-     <br>
-     ${r.description || ''}
+<div class="ticket-line">
+${r.brand} ${r.model} • ${r.category}
+</div>
 
-     <br><br>
+<small>${r.created_at}</small>
+</div>
 
-     <button class="btn wa" onclick="contactClient(${r.match_id}, '${wa}')">
-       Написать клиенту
-     </button>
+<button
+class="btn openbtn"
+onclick="toggleDetail(${r.id})">
+Открыть заявку
+</button>
 
-     <button class="btn ok" onclick="changeStatus(${r.match_id},'contacted')">
-       Связался
-     </button>
+</div>
 
-     <button class="btn no" onclick="changeStatus(${r.match_id},'rejected')">
-       Отказ
-     </button>
-   </div>
-   `;
+<div
+class="ticket-detail"
+id="detail-${r.id}">
+
+Город: ${r.city}<br>
+Транспорт: ${r.transport_type}<br>
+Страна: ${r.country || '-'}<br>
+Марка: ${r.brand}<br>
+Модель: ${r.model}<br>
+Категория: ${r.category}<br>
+${r.article ? 'Артикул: '+r.article+'<br>' : ''}
+Телефон: ${r.phone}<br><br>
+
+${r.description || ''}
+
+<br><br>
+
+<button
+class="btn wa"
+onclick="contactClient(${r.match_id},'${wa}')">
+Написать клиенту
+</button>
+
+<button
+class="btn ok"
+onclick="changeStatus(${r.match_id},'contacted')">
+Связался
+</button>
+
+<button
+class="btn no"
+onclick="changeStatus(${r.match_id},'rejected')">
+Отказ
+</button>
+
+</div>
+
+</div>
+`;
  });
+
 }
 
 async function loadData(){
- const seller_id=getSellerId();
 
- const res=await fetch(
-   `${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
- );
+const seller_id=getSellerId();
 
- const data=await res.json();
- allRows=Array.isArray(data.requests) ? data.requests : [];
+const res=await fetch(
+`${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
+);
 
- renderList();
+const data=await res.json();
+
+allRows=data.requests || [];
+
+render();
+
 }
 
-setActiveButtons();
 loadData();
+
 </script>
 
 </body>
