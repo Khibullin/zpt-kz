@@ -20,7 +20,29 @@ cursor:pointer;
 background:white;
 }
 
-.active{background:#d62828;color:white}
+.active{background:#d62828!important;color:white!important}
+
+.stats{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin:16px 0;
+}
+
+.stat{
+background:#fff;
+border-radius:12px;
+padding:14px;
+box-shadow:0 3px 10px rgba(0,0,0,.05);
+font-weight:bold;
+}
+
+.stat span{
+display:block;
+font-size:26px;
+margin-top:6px;
+color:#d62828;
+}
 
 .card{
 background:#fff;
@@ -39,10 +61,10 @@ font-weight:bold;
 margin-bottom:10px;
 }
 
-.prepared{background:#e8f5e9}
-.viewed{background:#e3f2fd}
-.contacted{background:#fff8e1}
-.rejected{background:#ffebee}
+.prepared{background:#e8f5e9;color:#0d5d22}
+.viewed{background:#e3f2fd;color:#0d47a1}
+.contacted{background:#fff3cd;color:#8a5a00}
+.rejected{background:#ffebee;color:#b71c1c}
 
 .btn{
 display:inline-block;
@@ -61,6 +83,10 @@ cursor:pointer;
 .no{background:#c62828;color:#fff}
 
 small{color:#666}
+
+@media(max-width:700px){
+.stats{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 
@@ -72,18 +98,25 @@ small{color:#666}
 
 <div class="filter">
 Период:
-<button onclick="loadData('today')">Сегодня</button>
-<button class="active" onclick="loadData('7d')">7 дней</button>
-<button onclick="loadData('30d')">30 дней</button>
-<button onclick="loadData('all')">Все</button>
+<button id="period-today" onclick="setPeriod('today')">Сегодня</button>
+<button id="period-7d" class="active" onclick="setPeriod('7d')">7 дней</button>
+<button id="period-30d" onclick="setPeriod('30d')">30 дней</button>
+<button id="period-all" onclick="setPeriod('all')">Все</button>
 </div>
 
 <div class="statusfilter">
 Статус:
-<button onclick="setStatusFilter('all')">Все</button>
-<button onclick="setStatusFilter('prepared')">Новые</button>
-<button onclick="setStatusFilter('contacted')">Связался</button>
-<button onclick="setStatusFilter('rejected')">Отказ</button>
+<button id="status-all" class="active" onclick="setStatusFilter('all')">Все</button>
+<button id="status-prepared" onclick="setStatusFilter('prepared')">Новые</button>
+<button id="status-contacted" onclick="setStatusFilter('contacted')">Связался</button>
+<button id="status-rejected" onclick="setStatusFilter('rejected')">Отказ</button>
+</div>
+
+<div class="stats">
+<div class="stat">Всего<span id="stat-total">0</span></div>
+<div class="stat">Новые<span id="stat-new">0</span></div>
+<div class="stat">Связался<span id="stat-contacted">0</span></div>
+<div class="stat">Отказ<span id="stat-rejected">0</span></div>
 </div>
 
 <div id="list"></div>
@@ -91,10 +124,11 @@ small{color:#666}
 </div>
 
 <script>
-
 const API='https://zpt-kz-backend.onrender.com/api';
 
 let currentStatus='all';
+let currentPeriod='7d';
+let allRows=[];
 
 function getSellerId(){
  const url=new URL(window.location.href);
@@ -102,14 +136,22 @@ function getSellerId(){
 }
 
 function label(s){
- if(s=='prepared') return 'Новая';
- if(s=='viewed') return 'Просмотрена';
- if(s=='contacted') return 'Связался';
- if(s=='rejected') return 'Отказ';
- return s;
+ if(s==='prepared') return 'Новая';
+ if(s==='viewed') return 'Просмотрена';
+ if(s==='contacted') return 'Связался';
+ if(s==='rejected') return 'Отказ';
+ return s || 'Новая';
+}
+
+function normalizePhone(phone){
+ let digits=String(phone || '').replace(/\D/g,'');
+ if(digits.length===11 && digits.startsWith('8')) digits='7'+digits.slice(1);
+ return digits;
 }
 
 function buildWA(phone,req){
+ const cleanPhone=normalizePhone(phone);
+
  const text=encodeURIComponent(
 `Здравствуйте! Пишу по заявке №${req.id}
 
@@ -117,20 +159,38 @@ ${req.brand} ${req.model}
 Категория: ${req.category}
 Город: ${req.city}
 
-${req.description}
+${req.description || ''}
 
 Есть ли в наличии?`
 );
 
- return `https://wa.me/${phone}?text=${text}`;
+ return `https://wa.me/${cleanPhone}?text=${text}`;
+}
+
+function setActiveButtons(){
+ document.querySelectorAll('.filter button').forEach(b=>b.classList.remove('active'));
+ document.querySelectorAll('.statusfilter button').forEach(b=>b.classList.remove('active'));
+
+ const periodBtn=document.getElementById(`period-${currentPeriod}`);
+ const statusBtn=document.getElementById(`status-${currentStatus}`);
+
+ if(periodBtn) periodBtn.classList.add('active');
+ if(statusBtn) statusBtn.classList.add('active');
+}
+
+function setPeriod(period){
+ currentPeriod=period;
+ setActiveButtons();
+ loadData();
 }
 
 function setStatusFilter(status){
  currentStatus=status;
- loadData();
+ setActiveButtons();
+ renderList();
 }
 
-async function changeStatus(match_id,status){
+async function changeStatus(match_id,status,shouldReload=true){
  await fetch(`${API}/update-match-status/`,{
    method:'POST',
    headers:{'Content-Type':'application/json'},
@@ -140,86 +200,103 @@ async function changeStatus(match_id,status){
    })
  });
 
- loadData();
+ const item=allRows.find(x=>x.match_id===match_id);
+ if(item) item.match_status=status;
+
+ if(shouldReload){
+   renderList();
+ }
 }
 
-async function loadData(period='7d'){
+async function contactClient(match_id,waLink){
+ await changeStatus(match_id,'contacted',false);
+ window.open(waLink,'_blank');
+ renderList();
+}
 
- const seller_id=getSellerId();
+function updateStats(){
+ const total=allRows.length;
+ const prepared=allRows.filter(x=>x.match_status==='prepared').length;
+ const contacted=allRows.filter(x=>x.match_status==='contacted').length;
+ const rejected=allRows.filter(x=>x.match_status==='rejected').length;
 
- const res=await fetch(
- `${API}/seller-requests/?seller_id=${seller_id}&period=${period}`
- );
+ document.getElementById('stat-total').textContent=total;
+ document.getElementById('stat-new').textContent=prepared;
+ document.getElementById('stat-contacted').textContent=contacted;
+ document.getElementById('stat-rejected').textContent=rejected;
+}
 
- const data=await res.json();
+function renderList(){
+ updateStats();
 
- let rows=data.requests;
+ let rows=allRows;
 
- if(currentStatus!='all'){
-   rows=rows.filter(x=>x.match_status==currentStatus);
+ if(currentStatus!=='all'){
+   rows=rows.filter(x=>x.match_status===currentStatus);
  }
 
  const list=document.getElementById('list');
-
  list.innerHTML='';
 
+ if(rows.length===0){
+   list.innerHTML='<div class="card">Заявок по выбранному фильтру нет.</div>';
+   return;
+ }
+
  rows.forEach(r=>{
+   const wa=buildWA(r.phone,r);
 
- const wa=buildWA(r.phone,r);
+   list.innerHTML += `
+   <div class="card">
+     <div class="badge ${r.match_status}">
+       ${label(r.match_status)}
+     </div>
 
- list.innerHTML += `
- <div class="card">
+     <b>Заявка №${r.id}</b><br>
+     <small>${r.created_at}</small>
 
- <div class="badge ${r.match_status}">
- ${label(r.match_status)}
- </div>
+     <br><br>
 
- <b>Заявка №${r.id}</b><br>
+     ${r.city || '-'} • ${r.brand || '-'} ${r.model || ''}<br>
+     Категория: ${r.category || '-'}<br>
+     ${r.article ? 'Артикул: '+r.article+'<br>' : ''}
 
- <small>
- ${r.created_at}
- </small>
+     <br>
+     ${r.description || ''}
 
- <br><br>
+     <br><br>
 
- ${r.city} • ${r.brand} ${r.model}<br>
- Категория: ${r.category}<br>
+     <button class="btn wa" onclick="contactClient(${r.match_id}, '${wa}')">
+       Написать клиенту
+     </button>
 
- ${r.article ? 'Артикул: '+r.article+'<br>' : ''}
+     <button class="btn ok" onclick="changeStatus(${r.match_id},'contacted')">
+       Связался
+     </button>
 
- <br>
- ${r.description}
-
- <br><br>
-
- <a
- class="btn wa"
- target="_blank"
- onclick="changeStatus(${r.match_id},'contacted')"
- href="${wa}">
- Написать клиенту
- </a>
-
- <button
- class="btn ok"
- onclick="changeStatus(${r.match_id},'contacted')">
- Связался
- </button>
-
- <button
- class="btn no"
- onclick="changeStatus(${r.match_id},'rejected')">
- Отказ
- </button>
-
- </div>
- `;
+     <button class="btn no" onclick="changeStatus(${r.match_id},'rejected')">
+       Отказ
+     </button>
+   </div>
+   `;
  });
-
 }
 
-loadData();
+async function loadData(){
+ const seller_id=getSellerId();
 
+ const res=await fetch(
+   `${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
+ );
+
+ const data=await res.json();
+ allRows=Array.isArray(data.requests) ? data.requests : [];
+
+ renderList();
+}
+
+setActiveButtons();
+loadData();
 </script>
 
 </body>
