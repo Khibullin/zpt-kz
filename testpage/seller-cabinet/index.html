@@ -24,11 +24,20 @@ background:white;
 
 .stats{
 display:grid;
-grid-template-columns:repeat(4,1fr);
+grid-template-columns:repeat(4,minmax(0,1fr));
 gap:10px;
 margin:16px 0;
+width:100%;
 }
 
+.stat{
+min-width:0;
+background:#fff;
+border-radius:12px;
+padding:14px;
+box-shadow:0 3px 10px rgba(0,0,0,.05);
+font-weight:bold;
+}
 .stat{
 background:#fff;
 border-radius:12px;
