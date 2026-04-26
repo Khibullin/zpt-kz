@@ -23,7 +23,7 @@ background:white;
 
 .stats{
 display:grid;
-grid-template-columns:repeat(4,minmax(0,1fr));
+grid-template-columns:repeat(5,minmax(0,1fr));
 gap:10px;
 margin:16px 0;
 }
@@ -50,6 +50,11 @@ margin-bottom:12px;
 box-shadow:0 3px 10px rgba(0,0,0,.05);
 }
 
+.ticket.archived{
+opacity:.86;
+background:#f2f2f2;
+}
+
 .ticket-head{
 display:flex;
 justify-content:space-between;
@@ -63,9 +68,7 @@ font-weight:bold;
 font-size:20px;
 }
 
-.ticket-line{
-margin-top:6px;
-}
+.ticket-line{margin-top:6px}
 
 .ticket-detail{
 display:none;
@@ -83,9 +86,9 @@ font-weight:bold;
 }
 
 .prepared{background:#e8f5e9}
-.viewed{background:#e3f2fd}
-.contacted{background:#fff3cd}
+.contacted{background:#e3f2fd}
 .rejected{background:#ffebee}
+.archived{background:#eeeeee}
 
 .btn{
 display:inline-block;
@@ -102,12 +105,16 @@ margin-top:8px;
 .openbtn{background:#efefef}
 .wa{background:#25D366;color:#fff}
 .ok{background:#1565c0;color:#fff}
+.archive{background:#757575;color:#fff}
+.restore{background:#546e7a;color:#fff}
 .no{background:#c62828;color:#fff}
 
 small{color:#666}
 
 @media(max-width:700px){
-.stats{grid-template-columns:1fr 1fr}
+.stats{
+grid-template-columns:1fr 1fr;
+}
 }
 </style>
 </head>
@@ -130,6 +137,7 @@ small{color:#666}
 <button id="status-all" class="active" onclick="setStatusFilter('all')">Все</button>
 <button id="status-prepared" onclick="setStatusFilter('prepared')">Новые</button>
 <button id="status-contacted" onclick="setStatusFilter('contacted')">Связался</button>
+<button id="status-archived" onclick="setStatusFilter('archived')">Архив</button>
 <button id="status-rejected" onclick="setStatusFilter('rejected')">Отказ</button>
 </div>
 
@@ -137,6 +145,7 @@ small{color:#666}
 <div class="stat">Всего<span id="stat-total">0</span></div>
 <div class="stat">Новые<span id="stat-new">0</span></div>
 <div class="stat">Связался<span id="stat-contacted">0</span></div>
+<div class="stat">Архив<span id="stat-archived">0</span></div>
 <div class="stat">Отказ<span id="stat-rejected">0</span></div>
 </div>
 
@@ -160,7 +169,7 @@ function label(s){
  if(s==='prepared') return 'Новая';
  if(s==='contacted') return 'Связался';
  if(s==='rejected') return 'Отказ';
- if(s==='viewed') return 'Просмотрена';
+ if(s==='archived') return 'Архив';
  return 'Новая';
 }
 
@@ -178,7 +187,7 @@ ${req.brand} ${req.model}
 ${req.description || ''}
 
 Есть ли в наличии?`
-);
+ );
  return `https://wa.me/${phoneDigits(phone)}?text=${text}`;
 }
 
@@ -193,44 +202,82 @@ function setStatusFilter(s){
 }
 
 async function changeStatus(match_id,status){
- await fetch(`${API}/update-match-status/`,{
- method:'POST',
- headers:{'Content-Type':'application/json'},
- body:JSON.stringify({
-   match_id,
-   status
- })
+
+ await fetch(
+ `${API}/update-match-status/`,
+ {
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({
+    match_id,
+    status
+  })
  });
 
- let item=allRows.find(x=>x.match_id===match_id);
- if(item) item.match_status=status;
+ let item=allRows.find(
+   x=>x.match_id===match_id
+ );
+
+ if(item){
+   item.match_status=status;
+ }
 
  render();
 }
 
 async function contactClient(match_id,wa){
- await changeStatus(match_id,'contacted');
+ await changeStatus(
+   match_id,
+   'contacted'
+ );
  window.open(wa,'_blank');
 }
 
 function toggleDetail(id){
- const el=document.getElementById('detail-'+id);
+ const el=document.getElementById(
+   'detail-'+id
+ );
  el.style.display=
-   el.style.display==='block' ? 'none' : 'block';
+  el.style.display==='block'
+  ? 'none'
+  : 'block';
 }
 
 function updateStats(){
- document.getElementById('stat-total').textContent=
- allRows.length;
 
- document.getElementById('stat-new').textContent=
- allRows.filter(x=>x.match_status==='prepared').length;
+document.getElementById(
+'stat-total'
+).textContent=
+allRows.length;
 
- document.getElementById('stat-contacted').textContent=
- allRows.filter(x=>x.match_status==='contacted').length;
+document.getElementById(
+'stat-new'
+).textContent=
+allRows.filter(
+x=>x.match_status==='prepared'
+).length;
 
- document.getElementById('stat-rejected').textContent=
- allRows.filter(x=>x.match_status==='rejected').length;
+document.getElementById(
+'stat-contacted'
+).textContent=
+allRows.filter(
+x=>x.match_status==='contacted'
+).length;
+
+document.getElementById(
+'stat-archived'
+).textContent=
+allRows.filter(
+x=>x.match_status==='archived'
+).length;
+
+document.getElementById(
+'stat-rejected'
+).textContent=
+allRows.filter(
+x=>x.match_status==='rejected'
+).length;
+
 }
 
 function render(){
@@ -240,7 +287,9 @@ function render(){
  let rows=allRows;
 
  if(currentStatus!=='all'){
-   rows=rows.filter(x=>x.match_status===currentStatus);
+   rows=rows.filter(
+    x=>x.match_status===currentStatus
+   );
  }
 
  const list=document.getElementById('list');
@@ -250,11 +299,60 @@ function render(){
 
  const wa=buildWA(r.phone,r);
 
+ const archivedClass=
+ r.match_status==='archived'
+ ? 'archived'
+ : '';
+
+ let actions='';
+
+ if(r.match_status==='archived'){
+
+ actions=`
+<button
+class="btn restore"
+onclick="changeStatus(${r.match_id},'prepared')">
+Восстановить
+</button>
+`;
+
+ } else {
+
+ actions=`
+
+<button
+class="btn wa"
+onclick="contactClient(${r.match_id},'${wa}')">
+Написать клиенту
+</button>
+
+<button
+class="btn ok"
+onclick="changeStatus(${r.match_id},'contacted')">
+Связался
+</button>
+
+<button
+class="btn archive"
+onclick="changeStatus(${r.match_id},'archived')">
+В архив
+</button>
+
+<button
+class="btn no"
+onclick="changeStatus(${r.match_id},'rejected')">
+Отказ
+</button>
+
+`;
+ }
+
  list.innerHTML+=`
-<div class="ticket">
+<div class="ticket ${archivedClass}">
 
 <div class="ticket-head">
 <div>
+
 <span class="badge ${r.match_status}">
 ${label(r.match_status)}
 </span>
@@ -264,10 +362,13 @@ ${label(r.match_status)}
 </span>
 
 <div class="ticket-line">
-${r.brand} ${r.model} • ${r.category}
+${r.brand} ${r.model}
+•
+${r.category}
 </div>
 
 <small>${r.created_at}</small>
+
 </div>
 
 <button
@@ -288,30 +389,18 @@ id="detail-${r.id}">
 Марка: ${r.brand}<br>
 Модель: ${r.model}<br>
 Категория: ${r.category}<br>
-${r.article ? 'Артикул: '+r.article+'<br>' : ''}
+
+${r.article ?
+'Артикул: '+r.article+'<br>'
+: ''}
+
 Телефон: ${r.phone}<br><br>
 
 ${r.description || ''}
 
 <br><br>
 
-<button
-class="btn wa"
-onclick="contactClient(${r.match_id},'${wa}')">
-Написать клиенту
-</button>
-
-<button
-class="btn ok"
-onclick="changeStatus(${r.match_id},'contacted')">
-Связался
-</button>
-
-<button
-class="btn no"
-onclick="changeStatus(${r.match_id},'rejected')">
-Отказ
-</button>
+${actions}
 
 </div>
 
