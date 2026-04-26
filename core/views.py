@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from urllib.parse import quote
 
 from django.db.models import Q
 from django.http import JsonResponse
@@ -149,6 +150,30 @@ def _normalize_whatsapp(phone):
     return ''.join(ch for ch in str(phone or '') if ch.isdigit())
 
 
+def _seller_notification_text(req):
+    return (
+        f"Новая заявка №{req.id} с ZPT.KZ\n\n"
+        f"Марка: {req.brand}\n"
+        f"Модель: {req.model}\n"
+        f"Категория: {req.category}\n"
+        f"Город: {req.city}\n\n"
+        f"Комментарий:\n"
+        f"{req.description or '-'}\n\n"
+        f"Телефон клиента:\n"
+        f"{req.phone}\n\n"
+        f"Свяжитесь с клиентом и предложите цену и наличие.\n\n"
+        f"По вопросам сервиса и поддержки:\n"
+        f"WhatsApp +7 771 360 7040\n\n"
+        f"https://zpt.kz"
+    )
+
+
+def _seller_notification_link(seller_whatsapp, req):
+    phone = _normalize_whatsapp(seller_whatsapp)
+    text = quote(_seller_notification_text(req))
+    return f"https://wa.me/{phone}?text={text}"
+
+
 @csrf_exempt
 def create_request(request):
     if request.method != 'POST':
@@ -190,12 +215,21 @@ def create_request(request):
             'whatsapp': _normalize_whatsapp(seller.whatsapp),
         })
 
+    seller_notifications = []
+    for seller in matched_sellers:
+        seller_notifications.append({
+            'seller': seller.name,
+            'whatsapp': _normalize_whatsapp(seller.whatsapp),
+            'wa_link': _seller_notification_link(seller.whatsapp, req),
+        })
+
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
         'matches': len(matched_sellers),
         'strategy': strategy_used,
         'sellers': sellers_list,
+        'seller_notifications': seller_notifications,
     })
 
 
