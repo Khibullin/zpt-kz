@@ -1,509 +1,529 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Регистрация продавца — Market Parts</title>
-  <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
-      color: #222;
-    }
-    .wrap {
-      max-width: 760px;
-      margin: 0 auto;
-      padding: 24px 16px 48px;
-    }
-    .card {
-      background: #fff;
-      border-radius: 14px;
-      padding: 20px;
-      box-shadow: 0 6px 24px rgba(0,0,0,0.08);
-    }
-    h1 {
-      margin: 0 0 10px;
-      font-size: 28px;
-      line-height: 1.2;
-      color: #c62828;
-    }
-    .sub {
-      margin: 0 0 22px;
-      color: #555;
-      line-height: 1.5;
-    }
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-    }
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-bottom: 14px;
-    }
-    .field.full {
-      grid-column: 1 / -1;
-    }
-    label {
-      font-size: 14px;
-      font-weight: bold;
-    }
-    input, select, button {
-      width: 100%;
-      min-height: 46px;
-      border-radius: 10px;
-      border: 1px solid #d7d7d7;
-      padding: 0 14px;
-      font-size: 15px;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: #c62828;
-    }
-    .transport-switch {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 18px;
-    }
-    .transport-switch button {
-      border: 1px solid #ddd;
-      background: #fff;
-      cursor: pointer;
-      font-weight: bold;
-    }
-    .transport-switch button.active {
-      background: #c62828;
-      color: #fff;
-      border-color: #c62828;
-    }
-    .submit-btn {
-      background: #c62828;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      font-size: 16px;
-      font-weight: bold;
-    }
-    .submit-btn:disabled {
-      opacity: 0.7;
-      cursor: not-allowed;
-    }
-    .note {
-      margin-top: 16px;
-      font-size: 14px;
-      color: #666;
-      line-height: 1.5;
-    }
-    .msg {
-      margin-top: 14px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      display: none;
-      font-size: 14px;
-      line-height: 1.45;
-    }
-    .msg.success {
-      display: block;
-      background: #e8f5e9;
-      color: #1b5e20;
-      border: 1px solid #c8e6c9;
-    }
-    .msg.error {
-      display: block;
-      background: #ffebee;
-      color: #b71c1c;
-      border: 1px solid #ffcdd2;
-    }
-    .check-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 6px;
-      font-size: 14px;
-    }
-    .check-row input[type="checkbox"] {
-      width: auto;
-      min-height: auto;
-      padding: 0;
-      margin: 0;
-    }
-    @media (max-width: 640px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
-      h1 {
-        font-size: 24px;
-      }
-    }
-  </style>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Регистрация продавца — Market Parts</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial;background:#f5f5f5;color:#222}
+.wrap{max-width:760px;margin:auto;padding:24px 16px 48px}
+.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+h1{margin:0 0 10px;font-size:28px;color:#c62828}
+.sub{margin:0 0 22px;color:#555;line-height:1.5}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.field.full{grid-column:1/-1}
+
+label{font-size:14px;font-weight:bold}
+
+input,select,button{
+width:100%;
+min-height:46px;
+border-radius:10px;
+border:1px solid #d7d7d7;
+padding:0 14px;
+font-size:15px;
+}
+
+.transport-switch{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+margin-bottom:18px;
+}
+
+.transport-switch button{
+background:#fff;
+border:1px solid #ddd;
+font-weight:bold;
+cursor:pointer;
+}
+
+.transport-switch button.active{
+background:#c62828;
+color:#fff;
+border-color:#c62828;
+}
+
+.submit-btn{
+background:#c62828;
+color:#fff;
+border:none;
+font-weight:bold;
+cursor:pointer;
+}
+
+.submit-btn:disabled{
+opacity:.7;
+cursor:not-allowed;
+}
+
+.msg{
+margin-top:14px;
+padding:12px 14px;
+border-radius:10px;
+display:none;
+font-size:14px;
+line-height:1.45;
+}
+
+.msg.success{
+display:block;
+background:#e8f5e9;
+color:#1b5e20;
+border:1px solid #c8e6c9;
+}
+
+.msg.error{
+display:block;
+background:#ffebee;
+color:#b71c1c;
+border:1px solid #ffcdd2;
+}
+
+.check-row{
+display:flex;
+align-items:center;
+gap:8px;
+margin-top:6px;
+font-size:14px;
+}
+
+.check-row input{
+width:auto;
+min-height:auto;
+margin:0;
+}
+
+.note{
+margin-top:16px;
+font-size:14px;
+color:#666;
+}
+
+@media(max-width:640px){
+.grid{grid-template-columns:1fr}
+h1{font-size:24px}
+}
+</style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Регистрация продавца</h1>
-      <p class="sub">
-        Зарегистрируйтесь по своим запчастям и получайте заявки от покупателей.
-      </p>
 
-      <div class="transport-switch">
-        <button type="button" id="btnCar" class="active">Легковые</button>
-        <button type="button" id="btnTruck">Грузовые</button>
-      </div>
+<div class="wrap">
+<div class="card">
 
-      <form id="sellerForm">
-        <div class="grid">
-          <div class="field full">
-            <label for="name">Имя / название продавца</label>
-            <input type="text" id="name" placeholder="Например: Auto Parts Astana" required />
-          </div>
+<h1>Регистрация продавца</h1>
 
-          <div class="field">
-            <label for="whatsapp">WhatsApp</label>
-            <input type="text" id="whatsapp" placeholder="+7 777 123 45 67" required />
-          </div>
+<p class="sub">
+Зарегистрируйтесь по своим запчастям и получайте заявки покупателей.
+</p>
 
-          <div class="field">
-            <label for="city">Город</label>
-            <input type="text" id="city" placeholder="Астана" required />
-          </div>
+<div class="transport-switch">
+<button type="button" id="btnCar" class="active">Легковые</button>
+<button type="button" id="btnTruck">Грузовые</button>
+</div>
 
-          <div class="field full">
-            <label for="category">Категория</label>
-            <select id="category">
-              <option value="">Выберите категорию</option>
-              <option value="Двигатель">Двигатель</option>
-              <option value="КПП">КПП</option>
-              <option value="Кузов">Кузов</option>
-              <option value="Подвеска">Подвеска</option>
-              <option value="Тормозная система">Тормозная система</option>
-              <option value="Электрика">Электрика</option>
-              <option value="Оптика">Оптика</option>
-              <option value="Салон">Салон</option>
-              <option value="Расходники">Расходники</option>
-              <option value="Шины и диски">Шины и диски</option>
-              <option value="Аксессуары">Аксессуары</option>
-            </select>
-            <label class="check-row">
-              <input type="checkbox" id="allCategories" />
-              Все категории
-            </label>
-          </div>
+<form id="sellerForm">
 
-          <div class="field">
-            <label for="country">Страна</label>
-            <select id="country">
-              <option value="">Выберите страну</option>
-            </select>
-            <label class="check-row">
-              <input type="checkbox" id="allCountries" />
-              Все страны
-            </label>
-          </div>
+<div class="grid">
 
-          <div class="field">
-            <label for="brand">Марка</label>
-            <select id="brand" disabled>
-              <option value="">Сначала выберите страну</option>
-            </select>
-            <label class="check-row">
-              <input type="checkbox" id="allBrands" />
-              Все марки
-            </label>
-          </div>
+<div class="field full">
+<label for="name">Имя / название продавца</label>
+<input id="name" required>
+</div>
 
-          <div class="field full">
-            <label for="model">Модель</label>
-            <select id="model" disabled>
-              <option value="">Сначала выберите марку</option>
-            </select>
-            <label class="check-row">
-              <input type="checkbox" id="allModels" />
-              Все модели
-            </label>
-          </div>
+<div class="field">
+<label for="whatsapp">WhatsApp</label>
+<input id="whatsapp" placeholder="+7 777 123 45 67" required>
+</div>
 
-          <div class="field full">
-            <button type="submit" class="submit-btn" id="submitBtn">Зарегистрироваться</button>
-          </div>
-        </div>
-      </form>
+<div class="field">
+<label for="city">Город</label>
 
-      <div id="msg" class="msg"></div>
+<select id="city" required>
+<option value="">Выберите город</option>
 
-      <div class="note">
-        После регистрации продавец будет получать заявки по своим запчастям.
-      </div>
-    </div>
-  </div>
+<option value="Алматы">Алматы</option>
+<option value="Астана">Астана</option>
+<option value="Шымкент">Шымкент</option>
+<option value="Караганда">Караганда</option>
 
-  <script>
-    const API_BASE = 'https://zpt-kz-backend.onrender.com/api';
-    let transportType = 'car';
+<option disabled>──────────</option>
 
-    const btnCar = document.getElementById('btnCar');
-    const btnTruck = document.getElementById('btnTruck');
+<option value="Актобе">Актобе</option>
+<option value="Атырау">Атырау</option>
+<option value="Актау">Актау</option>
+<option value="Павлодар">Павлодар</option>
+<option value="Усть-Каменогорск">Усть-Каменогорск</option>
+<option value="Семей">Семей</option>
+<option value="Костанай">Костанай</option>
+<option value="Петропавловск">Петропавловск</option>
+<option value="Кокшетау">Кокшетау</option>
+<option value="Тараз">Тараз</option>
+<option value="Туркестан">Туркестан</option>
+<option value="Кызылорда">Кызылорда</option>
+<option value="Уральск">Уральск</option>
+<option value="Талдыкорган">Талдыкорган</option>
+<option value="Жезказган">Жезказган</option>
+<option value="Экибастуз">Экибастуз</option>
 
-    const form = document.getElementById('sellerForm');
-    const submitBtn = document.getElementById('submitBtn');
-    const msg = document.getElementById('msg');
+</select>
+</div>
 
-    const countryEl = document.getElementById('country');
-    const brandEl = document.getElementById('brand');
-    const modelEl = document.getElementById('model');
-    const categoryEl = document.getElementById('category');
+<div class="field full">
+<label for="category">Категория</label>
 
-    const allCountriesEl = document.getElementById('allCountries');
-    const allBrandsEl = document.getElementById('allBrands');
-    const allModelsEl = document.getElementById('allModels');
-    const allCategoriesEl = document.getElementById('allCategories');
+<select id="category">
+<option value="">Выберите категорию</option>
 
-    function setMessage(text, type) {
-      msg.className = 'msg ' + type;
-      msg.textContent = text;
-    }
+<option>Двигатель</option>
+<option>КПП / трансмиссия</option>
+<option>Ходовая / подвеска</option>
+<option>Тормозная система</option>
+<option>Кузов</option>
+<option>Оптика</option>
+<option>Электрика</option>
+<option>Салон</option>
+<option>Система охлаждения</option>
+<option>Топливная система</option>
+<option>Выхлопная система</option>
+<option>Рулевое управление</option>
+<option>Кондиционер / отопитель</option>
+<option>Расходники</option>
+<option>Другое</option>
 
-    function clearMessage() {
-      msg.className = 'msg';
-      msg.textContent = '';
-    }
+</select>
 
-    function resetBrand() {
-      brandEl.innerHTML = '<option value="">Сначала выберите страну</option>';
-      brandEl.disabled = true;
-    }
+<label class="check-row">
+<input type="checkbox" id="allCategories">
+Все категории
+</label>
 
-    function resetModel() {
-      modelEl.innerHTML = '<option value="">Сначала выберите марку</option>';
-      modelEl.disabled = true;
-    }
+</div>
 
-    function setTransport(type) {
-      transportType = type;
+<div class="field">
+<label for="country">Страна</label>
 
-      btnCar.classList.toggle('active', type === 'car');
-      btnTruck.classList.toggle('active', type === 'truck');
+<select id="country">
+<option value="">Выберите страну</option>
+</select>
 
-      countryEl.value = '';
-      resetBrand();
-      resetModel();
-      loadCountries();
-      applyToggles();
-    }
+<label class="check-row">
+<input type="checkbox" id="allCountries">
+Все страны
+</label>
 
-    function applyToggles() {
-      categoryEl.disabled = allCategoriesEl.checked;
+</div>
 
-      countryEl.disabled = allCountriesEl.checked;
+<div class="field">
+<label for="brand">Марка</label>
 
-      if (allBrandsEl.checked) {
-        allModelsEl.checked = true;
-        allModelsEl.disabled = true;
-      } else {
-        allModelsEl.disabled = false;
-      }
+<select id="brand" disabled>
+<option value="">Сначала выберите страну</option>
+</select>
 
-      if (allCountriesEl.checked) {
-        countryEl.value = '';
-        resetBrand();
-        resetModel();
-      }
+<label class="check-row">
+<input type="checkbox" id="allBrands">
+Все марки
+</label>
 
-      if (allBrandsEl.checked) {
-        brandEl.value = '';
-        modelEl.value = '';
-        brandEl.disabled = true;
-        modelEl.disabled = true;
-        brandEl.innerHTML = '<option value="">Все марки</option>';
-        modelEl.innerHTML = '<option value="">Все модели</option>';
-      } else {
-        if (!allCountriesEl.checked && countryEl.value) {
-          loadBrands(countryEl.value);
-        } else {
-          resetBrand();
-          resetModel();
-        }
-      }
+</div>
 
-      if (!allBrandsEl.checked && allModelsEl.checked) {
-        modelEl.value = '';
-        modelEl.disabled = true;
-        modelEl.innerHTML = '<option value="">Все модели</option>';
-      } else if (!allBrandsEl.checked && !allModelsEl.checked) {
-        if (brandEl.value) {
-          loadModels(brandEl.value);
-        } else {
-          resetModel();
-        }
-      }
-    }
+<div class="field full">
+<label for="model">Модель</label>
 
-    async function loadCountries() {
-      clearMessage();
+<select id="model" disabled>
+<option value="">Сначала выберите марку</option>
+</select>
 
-      try {
-        const res = await fetch(`${API_BASE}/countries/`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+<label class="check-row">
+<input type="checkbox" id="allModels">
+Все модели
+</label>
 
-        const data = await res.json();
+</div>
 
-        countryEl.innerHTML = '<option value="">Выберите страну</option>';
+<div class="field full">
+<button class="submit-btn" id="submitBtn">
+Зарегистрироваться
+</button>
+</div>
 
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          countryEl.appendChild(option);
-        });
+</div>
+</form>
 
-        resetBrand();
-        resetModel();
-      } catch (error) {
-        countryEl.innerHTML = '<option value="">Ошибка загрузки стран</option>';
-        resetBrand();
-        resetModel();
-        setMessage('Не удалось загрузить страны', 'error');
-      }
-    }
+<div id="msg" class="msg"></div>
 
-    async function loadBrands(countryId) {
-      resetModel();
+<div class="note">
+После регистрации продавец будет получать заявки по своим категориям.
+</div>
 
-      if (!countryId || allCountriesEl.checked || allBrandsEl.checked) {
-        return;
-      }
+</div>
+</div>
 
-      brandEl.disabled = true;
-      brandEl.innerHTML = '<option value="">Загрузка...</option>';
 
-      try {
-        const url = `${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+<script>
+const API='https://zpt-kz-backend.onrender.com/api';
+let transportType='car';
 
-        const data = await res.json();
+const btnCar=document.getElementById('btnCar');
+const btnTruck=document.getElementById('btnTruck');
 
-        brandEl.innerHTML = '<option value="">Выберите марку</option>';
+const form=document.getElementById('sellerForm');
+const submitBtn=document.getElementById('submitBtn');
 
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          brandEl.appendChild(option);
-        });
+const msg=document.getElementById('msg');
 
-        brandEl.disabled = false;
-      } catch (error) {
-        brandEl.innerHTML = '<option value="">Ошибка загрузки марки</option>';
-        brandEl.disabled = true;
-        setMessage('Не удалось загрузить марки', 'error');
-      }
-    }
+const countryEl=document.getElementById('country');
+const brandEl=document.getElementById('brand');
+const modelEl=document.getElementById('model');
+const categoryEl=document.getElementById('category');
 
-    async function loadModels(brandId) {
-      if (!brandId || allBrandsEl.checked || allModelsEl.checked) {
-        return;
-      }
+const allCountriesEl=document.getElementById('allCountries');
+const allBrandsEl=document.getElementById('allBrands');
+const allModelsEl=document.getElementById('allModels');
+const allCategoriesEl=document.getElementById('allCategories');
 
-      modelEl.disabled = true;
-      modelEl.innerHTML = '<option value="">Загрузка...</option>';
 
-      try {
-        const url = `${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+function setMessage(text,type){
+msg.className='msg '+type;
+msg.textContent=text;
+}
 
-        const data = await res.json();
+function clearMessage(){
+msg.className='msg';
+msg.textContent='';
+}
 
-        modelEl.innerHTML = '<option value="">Выберите модель</option>';
+function normalizePhone(v){
+let d=String(v||'').replace(/\D/g,'');
+if(d.length===11 && d.startsWith('8')){
+d='7'+d.slice(1);
+}
+return d;
+}
 
-        data.forEach(item => {
-          const option = document.createElement('option');
-          option.value = item.id;
-          option.textContent = item.name;
-          modelEl.appendChild(option);
-        });
+function validPhone(v){
+return /^7\d{10}$/.test(normalizePhone(v));
+}
 
-        modelEl.disabled = false;
-      } catch (error) {
-        modelEl.innerHTML = '<option value="">Ошибка загрузки модели</option>';
-        modelEl.disabled = true;
-        setMessage('Не удалось загрузить модели', 'error');
-      }
-    }
+function resetBrand(){
+brandEl.innerHTML='<option value="">Сначала выберите страну</option>';
+brandEl.disabled=true;
+}
 
-    btnCar.addEventListener('click', () => setTransport('car'));
-    btnTruck.addEventListener('click', () => setTransport('truck'));
+function resetModel(){
+modelEl.innerHTML='<option value="">Сначала выберите марку</option>';
+modelEl.disabled=true;
+}
 
-    allCountriesEl.addEventListener('change', applyToggles);
-    allBrandsEl.addEventListener('change', applyToggles);
-    allModelsEl.addEventListener('change', applyToggles);
-    allCategoriesEl.addEventListener('change', applyToggles);
+function setTransport(type){
+transportType=type;
 
-    countryEl.addEventListener('change', () => {
-      if (!allCountriesEl.checked && !allBrandsEl.checked) {
-        loadBrands(countryEl.value);
-      }
-    });
+btnCar.classList.toggle('active',type==='car');
+btnTruck.classList.toggle('active',type==='truck');
 
-    brandEl.addEventListener('change', () => {
-      if (!allBrandsEl.checked && !allModelsEl.checked) {
-        loadModels(brandEl.value);
-      }
-    });
+countryEl.value='';
+resetBrand();
+resetModel();
 
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      clearMessage();
+loadCountries();
+applyToggles();
+}
 
-      submitBtn.disabled = true;
-      submitBtn.textContent = 'Сохраняем...';
+function applyToggles(){
 
-      const payload = {
-        name: document.getElementById('name').value.trim(),
-        whatsapp: document.getElementById('whatsapp').value.trim(),
-        transport_type: transportType,
-        city: document.getElementById('city').value.trim(),
-        category: categoryEl.value,
-        country_id: countryEl.value || null,
-        brand_id: brandEl.value || null,
-        model_id: modelEl.value || null,
-        all_countries: allCountriesEl.checked,
-        all_brands: allBrandsEl.checked,
-        all_models: allModelsEl.checked,
-        all_categories: allCategoriesEl.checked
-      };
+categoryEl.disabled=allCategoriesEl.checked;
 
-      try {
-        const res = await fetch(`${API_BASE}/create-seller/`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
+countryEl.disabled=allCountriesEl.checked;
 
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || 'Ошибка сохранения');
+if(allBrandsEl.checked){
+allModelsEl.checked=true;
+allModelsEl.disabled=true;
+}else{
+allModelsEl.disabled=false;
+}
 
-        setMessage(`Готово! Продавец зарегистрирован. ID: ${data.id}`, 'success');
-        form.reset();
-        allCountriesEl.checked = false;
-        allBrandsEl.checked = false;
-        allModelsEl.checked = false;
-        allCategoriesEl.checked = false;
-        setTransport('car');
-      } catch (error) {
-        setMessage(error.message || 'Ошибка регистрации продавца', 'error');
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Зарегистрироваться';
-      }
-    });
+if(allCountriesEl.checked){
+countryEl.value='';
+resetBrand();
+resetModel();
+}
 
-    loadCountries();
-  </script>
+if(allBrandsEl.checked){
+brandEl.disabled=true;
+modelEl.disabled=true;
+brandEl.innerHTML='<option>Все марки</option>';
+modelEl.innerHTML='<option>Все модели</option>';
+}else{
+if(countryEl.value){
+loadBrands(countryEl.value);
+}
+}
+
+if(!allBrandsEl.checked && !allModelsEl.checked && brandEl.value){
+loadModels(brandEl.value);
+}
+
+}
+
+async function loadCountries(){
+
+try{
+const res=await fetch(`${API}/countries/`);
+const data=await res.json();
+
+countryEl.innerHTML='<option value="">Выберите страну</option>';
+
+data.forEach(item=>{
+let o=document.createElement('option');
+o.value=item.id;
+o.textContent=item.name;
+countryEl.appendChild(o);
+});
+
+}catch(e){
+setMessage('Ошибка загрузки стран','error');
+}
+
+}
+
+async function loadBrands(countryId){
+
+if(!countryId || allCountriesEl.checked || allBrandsEl.checked){
+return;
+}
+
+brandEl.innerHTML='<option>Загрузка...</option>';
+
+const res=await fetch(
+`${API}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`
+);
+
+const data=await res.json();
+
+brandEl.innerHTML='<option value="">Выберите марку</option>';
+
+data.forEach(item=>{
+let o=document.createElement('option');
+o.value=item.id;
+o.textContent=item.name;
+brandEl.appendChild(o);
+});
+
+brandEl.disabled=false;
+}
+
+async function loadModels(brandId){
+
+if(!brandId || allBrandsEl.checked || allModelsEl.checked){
+return;
+}
+
+modelEl.innerHTML='<option>Загрузка...</option>';
+
+const res=await fetch(
+`${API}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`
+);
+
+const data=await res.json();
+
+modelEl.innerHTML='<option value="">Выберите модель</option>';
+
+data.forEach(item=>{
+let o=document.createElement('option');
+o.value=item.id;
+o.textContent=item.name;
+modelEl.appendChild(o);
+});
+
+modelEl.disabled=false;
+}
+
+btnCar.onclick=()=>setTransport('car');
+btnTruck.onclick=()=>setTransport('truck');
+
+allCountriesEl.onchange=applyToggles;
+allBrandsEl.onchange=applyToggles;
+allModelsEl.onchange=applyToggles;
+allCategoriesEl.onchange=applyToggles;
+
+countryEl.onchange=()=>loadBrands(countryEl.value);
+brandEl.onchange=()=>loadModels(brandEl.value);
+
+form.addEventListener('submit',async function(e){
+
+e.preventDefault();
+clearMessage();
+
+if(!validPhone(document.getElementById('whatsapp').value)){
+setMessage('Введите корректный WhatsApp','error');
+return;
+}
+
+submitBtn.disabled=true;
+
+const payload={
+name:document.getElementById('name').value.trim(),
+whatsapp:normalizePhone(document.getElementById('whatsapp').value),
+transport_type:transportType,
+city:document.getElementById('city').value,
+category:categoryEl.value,
+country_id:countryEl.value || null,
+brand_id:brandEl.value || null,
+model_id:modelEl.value || null,
+
+all_countries:allCountriesEl.checked,
+all_brands:allBrandsEl.checked,
+all_models:allModelsEl.checked,
+all_categories:allCategoriesEl.checked
+};
+
+try{
+
+const res=await fetch(`${API}/create-seller/`,{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify(payload)
+});
+
+const data=await res.json();
+
+if(!res.ok){
+throw new Error(data.error||'Ошибка');
+}
+
+setMessage(
+`Продавец зарегистрирован. ID ${data.id}`,
+'success'
+);
+
+form.reset();
+
+allCountriesEl.checked=false;
+allBrandsEl.checked=false;
+allModelsEl.checked=false;
+allCategoriesEl.checked=false;
+
+setTransport('car');
+
+}catch(e){
+setMessage(e.message,'error');
+}
+
+submitBtn.disabled=false;
+
+});
+
+loadCountries();
+
+</script>
+
 </body>
 </html>
