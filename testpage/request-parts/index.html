@@ -65,16 +65,20 @@
             <select id="category" required>
               <option value="">Выберите категорию</option>
               <option value="Двигатель">Двигатель</option>
-              <option value="КПП">КПП</option>
-              <option value="Кузов">Кузов</option>
-              <option value="Подвеска">Подвеска</option>
+              <option value="КПП / трансмиссия">КПП / трансмиссия</option>
+              <option value="Ходовая / подвеска">Ходовая / подвеска</option>
               <option value="Тормозная система">Тормозная система</option>
-              <option value="Электрика">Электрика</option>
+              <option value="Кузов">Кузов</option>
               <option value="Оптика">Оптика</option>
+              <option value="Электрика">Электрика</option>
               <option value="Салон">Салон</option>
+              <option value="Система охлаждения">Система охлаждения</option>
+              <option value="Топливная система">Топливная система</option>
+              <option value="Выхлопная система">Выхлопная система</option>
+              <option value="Рулевое управление">Рулевое управление</option>
+              <option value="Кондиционер / отопитель">Кондиционер / отопитель</option>
               <option value="Расходники">Расходники</option>
-              <option value="Шины и диски">Шины и диски</option>
-              <option value="Аксессуары">Аксессуары</option>
+              <option value="Другое">Другое</option>
             </select>
           </div>
 
@@ -85,7 +89,30 @@
 
           <div class="field">
             <label for="city">Город</label>
-            <input type="text" id="city" placeholder="Алматы" required />
+            <select id="city" required>
+              <option value="">Выберите город</option>
+              <option value="Алматы">Алматы</option>
+              <option value="Астана">Астана</option>
+              <option value="Шымкент">Шымкент</option>
+              <option value="Караганда">Караганда</option>
+              <option disabled>──────────</option>
+              <option value="Актобе">Актобе</option>
+              <option value="Атырау">Атырау</option>
+              <option value="Актау">Актау</option>
+              <option value="Павлодар">Павлодар</option>
+              <option value="Усть-Каменогорск">Усть-Каменогорск</option>
+              <option value="Семей">Семей</option>
+              <option value="Костанай">Костанай</option>
+              <option value="Петропавловск">Петропавловск</option>
+              <option value="Кокшетау">Кокшетау</option>
+              <option value="Тараз">Тараз</option>
+              <option value="Туркестан">Туркестан</option>
+              <option value="Кызылорда">Кызылорда</option>
+              <option value="Уральск">Уральск</option>
+              <option value="Талдыкорган">Талдыкорган</option>
+              <option value="Жезказган">Жезказган</option>
+              <option value="Экибастуз">Экибастуз</option>
+            </select>
           </div>
 
           <div class="field">
@@ -351,7 +378,7 @@ form.addEventListener('submit', async (e) => {
     category: document.getElementById('category').value,
     article: document.getElementById('article').value.trim(),
     description: document.getElementById('description').value.trim(),
-    city: document.getElementById('city').value.trim(),
+    city: document.getElementById('city').value,
     phone: normalizePhone(phoneRaw)
   };
 
