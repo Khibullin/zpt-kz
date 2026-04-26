@@ -27,8 +27,12 @@
     .msg.error { display: block; background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
     .seller-list { margin-top: 14px; display: grid; gap: 10px; }
     .seller-card { background: #fff; border: 1px solid #cfe8d2; border-radius: 12px; padding: 12px; }
-    .seller-name { font-weight: bold; margin-bottom: 8px; color: #222; }
-    .wa-btn { display: inline-block; padding: 9px 12px; background: #25D366; color: #fff; border-radius: 9px; text-decoration: none; font-weight: bold; font-size: 14px; }
+    .seller-name { font-weight: bold; margin-bottom: 4px; color: #222; }
+    .seller-type { font-size: 14px; color: #555; margin-bottom: 10px; }
+    .seller-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+    .wa-btn, .call-btn { display: inline-block; padding: 9px 12px; color: #fff; border-radius: 9px; text-decoration: none; font-weight: bold; font-size: 14px; }
+    .wa-btn { background: #25D366; }
+    .call-btn { background: #1565c0; }
     @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
   </style>
 </head>
@@ -168,6 +172,10 @@ function normalizePhone(value) {
 function isValidKazakhstanPhone(value) {
   const digits = normalizePhone(value);
   return /^7\d{10}$/.test(digits);
+}
+
+function sellerTypeText() {
+  return transportType === 'truck' ? 'Грузовые запчасти' : 'Легковые запчасти';
 }
 
 function setMessage(html, type) {
@@ -327,13 +335,21 @@ function buildResultHtml(data, payload) {
       const sellerPhone = normalizePhone(seller.whatsapp);
       const waText = buildBuyerWhatsAppText(data.id, payload);
       const waLink = `https://wa.me/${sellerPhone}?text=${waText}`;
+      const callLink = `tel:+${sellerPhone}`;
 
       html += `
         <div class="seller-card">
           <div class="seller-name">${sellerName}</div>
-          <a class="wa-btn" target="_blank" rel="noopener noreferrer" href="${waLink}">
-            Написать в WhatsApp
-          </a>
+          <div class="seller-type">${sellerTypeText()}</div>
+
+          <div class="seller-actions">
+            <a class="wa-btn" target="_blank" rel="noopener noreferrer" href="${waLink}">
+              Написать в WhatsApp
+            </a>
+            <a class="call-btn" href="${callLink}">
+              Позвонить
+            </a>
+          </div>
         </div>
       `;
     });
