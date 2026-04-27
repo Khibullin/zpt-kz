@@ -1,4 +1,5 @@
 from django.urls import path
+
 from .views import (
     create_request,
     create_seller,
@@ -6,6 +7,8 @@ from .views import (
     brands_by_country,
     models_by_brand,
     seller_requests,
+    seller_profile,
+    toggle_seller_pause,
     update_match_status,
 )
 
@@ -16,5 +19,7 @@ urlpatterns = [
     path('brands-by-country/', brands_by_country, name='brands_by_country'),
     path('models-by-brand/', models_by_brand, name='models_by_brand'),
     path('seller-requests/', seller_requests, name='seller_requests'),
+    path('seller-profile/', seller_profile, name='seller_profile'),
+    path('toggle-seller-pause/', toggle_seller_pause, name='toggle_seller_pause'),
     path('update-match-status/', update_match_status, name='update_match_status'),
 ]

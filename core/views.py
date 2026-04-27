@@ -376,12 +376,72 @@ def seller_requests(request):
             'name': seller.name,
             'whatsapp': seller.whatsapp,
             'city': seller.city,
+            'transport_type': seller.transport_type,
             'is_active': seller.is_active,
             'is_paused': seller.is_paused,
         },
         'period': period,
         'count': len(data),
         'requests': data,
+    })
+
+
+def seller_profile(request):
+    seller_id = request.GET.get('seller_id')
+
+    if not seller_id:
+        return JsonResponse({'error': 'seller_id required'}, status=400)
+
+    try:
+        seller = Seller.objects.get(id=seller_id)
+    except Seller.DoesNotExist:
+        return JsonResponse({'error': 'seller not found'}, status=404)
+
+    return JsonResponse({
+        'id': seller.id,
+        'name': seller.name,
+        'whatsapp': seller.whatsapp,
+        'city': seller.city,
+        'transport_type': seller.transport_type,
+        'category': seller.category,
+        'brand': seller.brand,
+        'model': seller.model,
+        'all_countries': seller.all_countries,
+        'all_brands': seller.all_brands,
+        'all_models': seller.all_models,
+        'all_categories': seller.all_categories,
+        'is_active': seller.is_active,
+        'is_paused': seller.is_paused,
+    })
+
+
+@csrf_exempt
+def toggle_seller_pause(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    seller_id = data.get('seller_id')
+
+    if not seller_id:
+        return JsonResponse({'error': 'seller_id required'}, status=400)
+
+    try:
+        seller = Seller.objects.get(id=seller_id)
+    except Seller.DoesNotExist:
+        return JsonResponse({'error': 'seller not found'}, status=404)
+
+    seller.is_paused = not seller.is_paused
+    seller.save()
+
+    return JsonResponse({
+        'status': 'ok',
+        'seller_id': seller.id,
+        'is_paused': seller.is_paused,
     })
 
 
@@ -398,7 +458,13 @@ def update_match_status(request):
     match_id = data.get('match_id')
     status = data.get('status')
 
-    allowed_statuses = ['prepared', 'viewed', 'contacted', 'rejected']
+    allowed_statuses = [
+        'prepared',
+        'viewed',
+        'contacted',
+        'rejected',
+        'archived',
+    ]
 
     if not match_id:
         return JsonResponse({'error': 'match_id required'}, status=400)

@@ -10,6 +10,25 @@ body{font-family:Arial;background:#f5f5f5;margin:0}
 .wrap{max-width:980px;margin:auto;padding:20px}
 h1{color:#d62828}
 
+.profile{
+background:#fff;
+padding:16px;
+border-radius:14px;
+margin-bottom:16px;
+box-shadow:0 3px 10px rgba(0,0,0,.05)
+}
+
+.profile-title{
+font-size:18px;
+font-weight:bold;
+margin-bottom:8px;
+}
+
+.profile-status{
+margin-top:8px;
+font-weight:bold;
+}
+
 .filter button,.statusfilter button{
 margin-right:6px;
 margin-bottom:8px;
@@ -19,6 +38,7 @@ border:1px solid #ddd;
 cursor:pointer;
 background:white;
 }
+
 .active{background:#d62828!important;color:#fff!important}
 
 .stats{
@@ -35,6 +55,7 @@ border-radius:12px;
 box-shadow:0 3px 10px rgba(0,0,0,.05);
 font-weight:bold;
 }
+
 .stat span{
 display:block;
 font-size:26px;
@@ -108,21 +129,26 @@ margin-top:8px;
 .archive{background:#757575;color:#fff}
 .restore{background:#546e7a;color:#fff}
 .no{background:#c62828;color:#fff}
+.pause{background:#f57c00;color:#fff}
+.resume{background:#2e7d32;color:#fff}
 
 small{color:#666}
 
 @media(max-width:700px){
-.stats{
-grid-template-columns:1fr 1fr;
-}
+.stats{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
+
 <body>
 
 <div class="wrap">
 
 <h1>Кабинет продавца</h1>
+
+<div id="sellerProfile" class="profile">
+Загрузка профиля...
+</div>
 
 <div class="filter">
 Период:
@@ -173,6 +199,11 @@ function label(s){
  return 'Новая';
 }
 
+function transportLabel(type){
+ if(type==='truck') return 'Грузовые';
+ return 'Легковые';
+}
+
 function phoneDigits(phone){
  let d=String(phone||'').replace(/\D/g,'');
  if(d.startsWith('8')) d='7'+d.slice(1);
@@ -201,8 +232,56 @@ function setStatusFilter(s){
  render();
 }
 
-async function changeStatus(match_id,status){
+async function loadSellerProfile(){
+ const seller_id=getSellerId();
 
+ const res=await fetch(
+  `${API}/seller-profile/?seller_id=${seller_id}`
+ );
+
+ const seller=await res.json();
+
+ const statusText=seller.is_paused
+  ? '⏸ На паузе — новые заявки не приходят'
+  : '🟢 Принимает заявки';
+
+ const btnClass=seller.is_paused
+  ? 'resume'
+  : 'pause';
+
+ const btnText=seller.is_paused
+  ? 'Возобновить приём заявок'
+  : 'Поставить на паузу';
+
+ document.getElementById('sellerProfile').innerHTML=`
+  <div class="profile-title">${seller.name}</div>
+  WhatsApp: ${seller.whatsapp}<br>
+  Город: ${seller.city || '-'}<br>
+  Тип: ${transportLabel(seller.transport_type)}<br>
+  <div class="profile-status">${statusText}</div>
+
+  <button class="btn ${btnClass}" onclick="toggleSellerPause()">
+    ${btnText}
+  </button>
+ `;
+}
+
+async function toggleSellerPause(){
+ await fetch(
+  `${API}/toggle-seller-pause/`,
+  {
+   method:'POST',
+   headers:{'Content-Type':'application/json'},
+   body:JSON.stringify({
+    seller_id:getSellerId()
+   })
+  }
+ );
+
+ loadSellerProfile();
+}
+
+async function changeStatus(match_id,status){
  await fetch(
  `${API}/update-match-status/`,
  {
@@ -244,44 +323,22 @@ function toggleDetail(id){
 }
 
 function updateStats(){
+ document.getElementById('stat-total').textContent=allRows.length;
 
-document.getElementById(
-'stat-total'
-).textContent=
-allRows.length;
+ document.getElementById('stat-new').textContent=
+ allRows.filter(x=>x.match_status==='prepared').length;
 
-document.getElementById(
-'stat-new'
-).textContent=
-allRows.filter(
-x=>x.match_status==='prepared'
-).length;
+ document.getElementById('stat-contacted').textContent=
+ allRows.filter(x=>x.match_status==='contacted').length;
 
-document.getElementById(
-'stat-contacted'
-).textContent=
-allRows.filter(
-x=>x.match_status==='contacted'
-).length;
+ document.getElementById('stat-archived').textContent=
+ allRows.filter(x=>x.match_status==='archived').length;
 
-document.getElementById(
-'stat-archived'
-).textContent=
-allRows.filter(
-x=>x.match_status==='archived'
-).length;
-
-document.getElementById(
-'stat-rejected'
-).textContent=
-allRows.filter(
-x=>x.match_status==='rejected'
-).length;
-
+ document.getElementById('stat-rejected').textContent=
+ allRows.filter(x=>x.match_status==='rejected').length;
 }
 
 function render(){
-
  updateStats();
 
  let rows=allRows;
@@ -295,8 +352,12 @@ function render(){
  const list=document.getElementById('list');
  list.innerHTML='';
 
- rows.forEach(r=>{
+ if(rows.length===0){
+   list.innerHTML='<div class="ticket">Заявок по выбранному фильтру нет.</div>';
+   return;
+ }
 
+ rows.forEach(r=>{
  const wa=buildWA(r.phone,r);
 
  const archivedClass=
@@ -307,7 +368,6 @@ function render(){
  let actions='';
 
  if(r.match_status==='archived'){
-
  actions=`
 <button
 class="btn restore"
@@ -315,11 +375,8 @@ onclick="changeStatus(${r.match_id},'prepared')">
 Восстановить
 </button>
 `;
-
  } else {
-
  actions=`
-
 <button
 class="btn wa"
 onclick="contactClient(${r.match_id},'${wa}')">
@@ -343,7 +400,6 @@ class="btn no"
 onclick="changeStatus(${r.match_id},'rejected')">
 Отказ
 </button>
-
 `;
  }
 
@@ -384,15 +440,13 @@ class="ticket-detail"
 id="detail-${r.id}">
 
 Город: ${r.city}<br>
-Транспорт: ${r.transport_type}<br>
+Транспорт: ${transportLabel(r.transport_type)}<br>
 Страна: ${r.country || '-'}<br>
 Марка: ${r.brand}<br>
 Модель: ${r.model}<br>
 Категория: ${r.category}<br>
 
-${r.article ?
-'Артикул: '+r.article+'<br>'
-: ''}
+${r.article ? 'Артикул: '+r.article+'<br>' : ''}
 
 Телефон: ${r.phone}<br><br>
 
@@ -407,27 +461,24 @@ ${actions}
 </div>
 `;
  });
-
 }
 
 async function loadData(){
+ const seller_id=getSellerId();
 
-const seller_id=getSellerId();
+ const res=await fetch(
+ `${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
+ );
 
-const res=await fetch(
-`${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
-);
+ const data=await res.json();
 
-const data=await res.json();
+ allRows=data.requests || [];
 
-allRows=data.requests || [];
-
-render();
-
+ render();
 }
 
+loadSellerProfile();
 loadData();
-
 </script>
 
 </body>
