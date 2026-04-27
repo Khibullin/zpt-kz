@@ -6,6 +6,7 @@ from .views import (
     countries_list,
     brands_by_country,
     models_by_brand,
+    part_categories_list,
     seller_requests,
     seller_profile,
     toggle_seller_pause,
@@ -16,9 +17,12 @@ from .views import (
 urlpatterns = [
     path('create-request/', create_request, name='create_request'),
     path('create-seller/', create_seller, name='create_seller'),
+
     path('countries/', countries_list, name='countries_list'),
     path('brands-by-country/', brands_by_country, name='brands_by_country'),
     path('models-by-brand/', models_by_brand, name='models_by_brand'),
+    path('part-categories/', part_categories_list, name='part_categories_list'),
+
     path('seller-requests/', seller_requests, name='seller_requests'),
     path('seller-profile/', seller_profile, name='seller_profile'),
     path('toggle-seller-pause/', toggle_seller_pause, name='toggle_seller_pause'),

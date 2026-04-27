@@ -49,6 +49,15 @@ def brands_by_country(request):
 
 
 def models_by_brand(request):
+def part_categories_list(request):
+    data = [
+        {
+            'id': category.id,
+            'name': category.name,
+        }
+        for category in PartCategory.objects.all().order_by('name')
+    ]
+    return JsonResponse(data, safe=False)
     brand_id = request.GET.get('brand_id')
     transport_type = request.GET.get('transport_type')
 
