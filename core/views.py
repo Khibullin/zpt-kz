@@ -7,7 +7,15 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
-from .models import Request, Country, Brand, CarModel, Seller, Match
+from .models import (
+    Request,
+    Country,
+    Brand,
+    CarModel,
+    PartCategory,
+    Seller,
+    Match,
+)
 
 
 def countries_list(request):
@@ -65,65 +73,94 @@ def models_by_brand(request):
 
 
 def _base_sellers_queryset(req):
-    sellers = Seller.objects.filter(
+    return Seller.objects.filter(
         is_active=True,
         is_paused=False,
         transport_type=req.transport_type
-    )
-
-    if req.category:
-        sellers = sellers.filter(
-            Q(all_categories=True) | Q(category=req.category)
-        )
-
-    return sellers.distinct()
+    ).distinct()
 
 
 def _apply_city_filter(qs, req):
     if req.city:
         qs = qs.filter(city=req.city)
-    return qs
+    return qs.distinct()
 
 
 def _apply_country_filter(qs, req):
-    if req.country:
-        qs = qs.filter(
-            Q(all_countries=True) |
-            Q(country_fk__name=req.country)
-        )
-    return qs
+    if not req.country:
+        return qs
+
+    return qs.filter(
+        Q(all_countries=True) |
+        Q(country_fk__name=req.country) |
+        Q(selected_countries__name=req.country)
+    ).distinct()
 
 
 def _apply_brand_filter(qs, req):
-    if req.brand:
-        qs = qs.filter(
-            Q(all_brands=True) |
-            Q(brand=req.brand) |
-            Q(brand_fk__name=req.brand)
-        )
-    return qs
+    if not req.brand:
+        return qs
+
+    return qs.filter(
+        Q(all_brands=True) |
+        Q(brand=req.brand) |
+        Q(brand_fk__name=req.brand) |
+        Q(selected_brands__name=req.brand)
+    ).distinct()
 
 
 def _apply_model_filter(qs, req):
-    if req.model:
-        qs = qs.filter(
-            Q(all_brands=True) |
-            Q(all_models=True) |
-            Q(model=req.model) |
-            Q(model_fk__name=req.model)
-        )
-    return qs
+    if not req.model:
+        return qs
+
+    return qs.filter(
+        Q(all_brands=True) |
+        Q(all_models=True) |
+        Q(model=req.model) |
+        Q(model_fk__name=req.model) |
+        Q(selected_models__name=req.model)
+    ).distinct()
 
 
 def _find_matching_sellers(req):
     base_qs = _base_sellers_queryset(req)
 
+    if req.category:
+        base_qs = base_qs.filter(
+            Q(all_categories=True) |
+            Q(category=req.category) |
+            Q(selected_categories__name=req.category)
+        ).distinct()
+
     strategies = [
-        {'name': 'exact', 'city': True, 'country': True, 'brand': True, 'model': True},
-        {'name': 'without_model', 'city': True, 'country': True, 'brand': True, 'model': False},
-        {'name': 'without_brand_model', 'city': True, 'country': True, 'brand': False, 'model': False},
-        {'name': 'without_country_brand_model', 'city': True, 'country': False, 'brand': False, 'model': False},
-        {'name': 'category_only', 'city': False, 'country': False, 'brand': False, 'model': False},
+        {
+            'name': 'exact_multi',
+            'city': True,
+            'country': True,
+            'brand': True,
+            'model': True,
+        },
+        {
+            'name': 'brand_category',
+            'city': True,
+            'country': True,
+            'brand': True,
+            'model': False,
+        },
+        {
+            'name': 'category_city',
+            'city': True,
+            'country': False,
+            'brand': False,
+            'model': False,
+        },
+        {
+            'name': 'category_only',
+            'city': False,
+            'country': False,
+            'brand': False,
+            'model': False,
+        },
     ]
 
     for strategy in strategies:
@@ -131,10 +168,13 @@ def _find_matching_sellers(req):
 
         if strategy['city']:
             qs = _apply_city_filter(qs, req)
+
         if strategy['country']:
             qs = _apply_country_filter(qs, req)
+
         if strategy['brand']:
             qs = _apply_brand_filter(qs, req)
+
         if strategy['model']:
             qs = _apply_model_filter(qs, req)
 
@@ -320,6 +360,19 @@ def create_seller(request):
         is_paused=False,
     )
 
+    if not all_categories and category:
+        part_category, _ = PartCategory.objects.get_or_create(name=category)
+        seller.selected_categories.add(part_category)
+
+    if not all_countries and country:
+        seller.selected_countries.add(country)
+
+    if not all_brands and brand:
+        seller.selected_brands.add(brand)
+
+    if not all_brands and not all_models and car_model:
+        seller.selected_models.add(car_model)
+
     return JsonResponse({
         'status': 'ok',
         'id': seller.id,
@@ -406,6 +459,24 @@ def seller_profile(request):
         'category': seller.category,
         'brand': seller.brand,
         'model': seller.model,
+
+        'selected_categories': [
+            {'id': c.id, 'name': c.name}
+            for c in seller.selected_categories.all()
+        ],
+        'selected_countries': [
+            {'id': c.id, 'name': c.name}
+            for c in seller.selected_countries.all()
+        ],
+        'selected_brands': [
+            {'id': b.id, 'name': b.name}
+            for b in seller.selected_brands.all()
+        ],
+        'selected_models': [
+            {'id': m.id, 'name': m.name}
+            for m in seller.selected_models.all()
+        ],
+
         'all_countries': seller.all_countries,
         'all_brands': seller.all_brands,
         'all_models': seller.all_models,
@@ -473,6 +544,32 @@ def update_seller_profile(request):
     seller.all_categories = bool(data.get('all_categories', seller.all_categories))
     seller.all_brands = bool(data.get('all_brands', seller.all_brands))
     seller.all_countries = bool(data.get('all_countries', seller.all_countries))
+    seller.all_models = bool(data.get('all_models', seller.all_models))
+
+    selected_category_ids = data.get('selected_category_ids')
+    selected_country_ids = data.get('selected_country_ids')
+    selected_brand_ids = data.get('selected_brand_ids')
+    selected_model_ids = data.get('selected_model_ids')
+
+    if selected_category_ids is not None:
+        seller.selected_categories.set(
+            PartCategory.objects.filter(id__in=selected_category_ids)
+        )
+
+    if selected_country_ids is not None:
+        seller.selected_countries.set(
+            Country.objects.filter(id__in=selected_country_ids)
+        )
+
+    if selected_brand_ids is not None:
+        seller.selected_brands.set(
+            Brand.objects.filter(id__in=selected_brand_ids)
+        )
+
+    if selected_model_ids is not None:
+        seller.selected_models.set(
+            CarModel.objects.filter(id__in=selected_model_ids)
+        )
 
     if seller.all_categories:
         seller.category = ''
