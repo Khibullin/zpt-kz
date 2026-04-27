@@ -446,6 +446,56 @@ def toggle_seller_pause(request):
 
 
 @csrf_exempt
+def update_seller_profile(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    seller_id = data.get('seller_id')
+
+    if not seller_id:
+        return JsonResponse({'error': 'seller_id required'}, status=400)
+
+    try:
+        seller = Seller.objects.get(id=seller_id)
+    except Seller.DoesNotExist:
+        return JsonResponse({'error': 'seller not found'}, status=404)
+
+    seller.whatsapp = data.get('whatsapp', seller.whatsapp)
+    seller.city = data.get('city', seller.city)
+    seller.category = data.get('category', seller.category)
+    seller.brand = data.get('brand', seller.brand)
+
+    seller.all_categories = bool(data.get('all_categories', seller.all_categories))
+    seller.all_brands = bool(data.get('all_brands', seller.all_brands))
+    seller.all_countries = bool(data.get('all_countries', seller.all_countries))
+
+    if seller.all_categories:
+        seller.category = ''
+
+    if seller.all_brands:
+        seller.brand = ''
+        seller.brand_fk = None
+        seller.model = ''
+        seller.model_fk = None
+        seller.all_models = True
+
+    if seller.all_countries:
+        seller.country_fk = None
+
+    seller.save()
+
+    return JsonResponse({
+        'status': 'ok',
+        'seller_id': seller.id,
+    })
+
+
+@csrf_exempt
 def update_match_status(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)

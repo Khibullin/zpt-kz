@@ -9,6 +9,7 @@ from .views import (
     seller_requests,
     seller_profile,
     toggle_seller_pause,
+    update_seller_profile,
     update_match_status,
 )
 
@@ -21,5 +22,6 @@ urlpatterns = [
     path('seller-requests/', seller_requests, name='seller_requests'),
     path('seller-profile/', seller_profile, name='seller_profile'),
     path('toggle-seller-pause/', toggle_seller_pause, name='toggle_seller_pause'),
+    path('update-seller-profile/', update_seller_profile, name='update_seller_profile'),
     path('update-match-status/', update_match_status, name='update_match_status'),
 ]
