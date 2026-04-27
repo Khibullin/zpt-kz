@@ -6,22 +6,31 @@
 <title>Кабинет продавца</title>
 
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0}
+body{font-family:Arial;background:#f3f5f8;margin:0;color:#111}
 .wrap{max-width:980px;margin:auto;padding:20px}
-h1{color:#d62828}
-.profile,.ticket{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.05)}
-.profile-title{font-size:18px;font-weight:bold;margin-bottom:8px}
-.profile-status{margin-top:8px;font-weight:bold;margin-bottom:12px}
-.editor{display:none;margin-top:16px;padding-top:16px;border-top:1px solid #ddd}
-.editor label{font-weight:bold;font-size:14px}
-.editor select,.editor input{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
-.help{font-size:13px;color:#666;margin:-6px 0 10px}
-.checkline{margin-bottom:10px}
-.filter button,.statusfilter button{margin-right:6px;margin-bottom:8px;padding:8px 12px;border-radius:8px;border:1px solid #ddd;cursor:pointer;background:white}
-.active{background:#d62828!important;color:#fff!important}
+h1{color:#d62828;margin-bottom:8px}
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px;box-shadow:0 3px 12px rgba(0,0,0,.06)}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
+.tabs button,.filter button,.statusfilter button{padding:10px 12px;border-radius:10px;border:1px solid #ddd;background:#eef3fb;font-weight:bold;cursor:pointer}
+.tabs button.active,.filter button.active,.statusfilter button.active{background:#2f7df6;color:#fff}
+.profile-title{font-size:22px;font-weight:bold;margin-bottom:10px}
+.row{margin:8px 0}
+.label{font-weight:bold}
+.good{color:#1b8f3a;font-weight:bold}
+.pause-text{color:#d97706;font-weight:bold}
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;font-weight:bold;text-decoration:none;border:none;cursor:pointer;margin-right:8px;margin-top:8px}
+.wa{background:#25D366;color:#fff}
+.ok{background:#1565c0;color:#fff}
+.archive{background:#757575;color:#fff}
+.restore{background:#546e7a;color:#fff}
+.no{background:#c62828;color:#fff}
+.pause{background:#f57c00;color:#fff}
+.resume{background:#2e7d32;color:#fff}
+.red{background:#d62828;color:#fff}
 .stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:16px 0}
 .stat{background:#fff;padding:14px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.05);font-weight:bold}
 .stat span{display:block;font-size:26px;margin-top:5px;color:#d62828}
+.ticket{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.05)}
 .ticket.archived{opacity:.86;background:#f2f2f2}
 .ticket-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
 .ticket-title{font-weight:bold;font-size:20px}
@@ -32,17 +41,16 @@ h1{color:#d62828}
 .contacted{background:#e3f2fd}
 .rejected{background:#ffebee}
 .archived{background:#eeeeee}
-.btn{display:inline-block;padding:9px 12px;border-radius:8px;font-weight:bold;text-decoration:none;border:none;cursor:pointer;margin-right:8px;margin-top:8px}
-.openbtn{background:#efefef}
-.wa{background:#25D366;color:#fff}
-.ok{background:#1565c0;color:#fff}
-.archive{background:#757575;color:#fff}
-.restore{background:#546e7a;color:#fff}
-.no{background:#c62828;color:#fff}
-.pause{background:#f57c00;color:#fff}
-.resume{background:#2e7d32;color:#fff}
+.form label{font-weight:bold;display:block;margin-top:12px}
+.form input,.form select{width:100%;padding:12px;margin-top:6px;border:1px solid #ddd;border-radius:10px;font-size:15px}
+.help{font-size:13px;color:#666;margin-top:4px}
+.checkline{margin-top:12px}
+.checkline input{width:auto}
 small{color:#666}
-@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
+@media(max-width:700px){
+.tabs{grid-template-columns:1fr}
+.stats{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 
@@ -51,19 +59,24 @@ small{color:#666}
 
 <h1>Кабинет продавца</h1>
 
-<div id="sellerProfile" class="profile">Загрузка профиля...</div>
+<div class="tabs">
+<button id="tab-requests" class="active" onclick="showTab('requests')">Заявки</button>
+<button id="tab-profile" onclick="showTab('profile')">Мой профиль</button>
+<button id="tab-edit" onclick="showTab('edit')">Редактировать</button>
+</div>
 
-<div class="filter">
+<div id="requestsView">
+<div class="filter card">
 Период:
-<button onclick="setPeriod('today')">Сегодня</button>
 <button class="active" onclick="setPeriod('7d')">7 дней</button>
+<button onclick="setPeriod('today')">Сегодня</button>
 <button onclick="setPeriod('30d')">30 дней</button>
 <button onclick="setPeriod('all')">Все</button>
 </div>
 
-<div class="statusfilter">
+<div class="statusfilter card">
 Статус:
-<button onclick="setStatusFilter('all')" class="active">Все</button>
+<button class="active" onclick="setStatusFilter('all')">Все</button>
 <button onclick="setStatusFilter('prepared')">Новые</button>
 <button onclick="setStatusFilter('contacted')">Связался</button>
 <button onclick="setStatusFilter('archived')">Архив</button>
@@ -79,6 +92,51 @@ small{color:#666}
 </div>
 
 <div id="list"></div>
+</div>
+
+<div id="profileView" style="display:none">
+<div id="sellerProfile" class="card">Загрузка профиля...</div>
+</div>
+
+<div id="editView" style="display:none">
+<div class="card">
+<div class="profile-title">Редактировать профиль</div>
+<div class="help">Измените данные продавца и специализацию. Если включить “Все”, выбранное поле будет игнорироваться.</div>
+
+<div class="form">
+<label>WhatsApp</label>
+<input id="edit_whatsapp">
+
+<label>Город работы</label>
+<select id="edit_city"></select>
+<div class="help">Город, из которого продавец принимает заявки.</div>
+
+<label>Категория запчастей</label>
+<select id="edit_category"></select>
+<div class="checkline">
+<label><input type="checkbox" id="all_categories" onchange="applyEditorToggles()"> Все категории</label>
+</div>
+
+<label>Страна производителя</label>
+<select id="edit_country"></select>
+<div class="help">Нужна только для загрузки списка марок.</div>
+
+<label>Марка</label>
+<select id="edit_brand"></select>
+<div class="checkline">
+<label><input type="checkbox" id="all_brands" onchange="applyEditorToggles()"> Все марки</label>
+</div>
+
+<div class="checkline">
+<label><input type="checkbox" id="all_countries"> Все страны производителей</label>
+</div>
+
+<br>
+<button class="btn ok" onclick="saveProfile()">Сохранить</button>
+<button class="btn archive" onclick="showTab('profile')">Отмена</button>
+</div>
+</div>
+</div>
 
 </div>
 
@@ -105,6 +163,19 @@ const CATEGORIES=[
 function getSellerId(){
 const url=new URL(window.location.href);
 return url.searchParams.get('seller_id') || 1;
+}
+
+function showTab(tab){
+document.getElementById('requestsView').style.display=tab==='requests'?'block':'none';
+document.getElementById('profileView').style.display=tab==='profile'?'block':'none';
+document.getElementById('editView').style.display=tab==='edit'?'block':'none';
+
+document.getElementById('tab-requests').classList.toggle('active',tab==='requests');
+document.getElementById('tab-profile').classList.toggle('active',tab==='profile');
+document.getElementById('tab-edit').classList.toggle('active',tab==='edit');
+
+if(tab==='profile') loadSellerProfile();
+if(tab==='edit') loadEditForm();
 }
 
 function label(s){
@@ -136,12 +207,6 @@ ${req.brand} ${req.model}
 return `https://wa.me/${phoneDigits(phone)}?text=${text}`;
 }
 
-function options(list,selected){
-return list.map(x=>`
-<option value="${x}" ${x===selected?'selected':''}>${x}</option>
-`).join('');
-}
-
 function setPeriod(p){
 currentPeriod=p;
 loadData();
@@ -152,22 +217,64 @@ currentStatus=s;
 render();
 }
 
-function toggleProfileEditor(){
-const el=document.getElementById('profileEditor');
-el.style.display=el.style.display==='block'?'none':'block';
+function makeOptions(list,selected){
+let html='<option value="">Выберите</option>';
+list.forEach(x=>{
+html+=`<option value="${x}" ${x===selected?'selected':''}>${x}</option>`;
+});
+return html;
 }
 
-function applyEditorToggles(){
-const allCategories=document.getElementById('all_categories').checked;
-const allBrands=document.getElementById('all_brands').checked;
+async function loadSellerProfile(){
+const res=await fetch(`${API}/seller-profile/?seller_id=${getSellerId()}`);
+const seller=await res.json();
+currentSeller=seller;
 
-document.getElementById('edit_category').disabled=allCategories;
-document.getElementById('edit_country').disabled=allBrands;
-document.getElementById('edit_brand').disabled=allBrands;
+const status=seller.is_paused
+? '<span class="pause-text">⏸ На паузе — новые заявки не приходят</span>'
+: '<span class="good">🟢 Принимает заявки</span>';
 
-if(allBrands){
-document.getElementById('edit_brand').innerHTML='<option value="">Все марки</option>';
+const pauseClass=seller.is_paused?'resume':'pause';
+const pauseText=seller.is_paused?'Возобновить приём заявок':'Поставить на паузу';
+
+document.getElementById('sellerProfile').innerHTML=`
+<div class="profile-title">${seller.name}</div>
+
+<div class="row"><span class="label">WhatsApp:</span> ${seller.whatsapp}</div>
+<div class="row"><span class="label">Город:</span> ${seller.city || '-'}</div>
+<div class="row"><span class="label">Тип:</span> ${transportLabel(seller.transport_type)}</div>
+<div class="row"><span class="label">Статус:</span> ${status}</div>
+
+<hr>
+
+<div class="profile-title">Настройки автозапчастей</div>
+<div class="row"><span class="label">Категории:</span> ${seller.all_categories?'Все категории':(seller.category||'-')}</div>
+<div class="row"><span class="label">Марки:</span> ${seller.all_brands?'Все марки':(seller.brand||'-')}</div>
+<div class="row"><span class="label">Модели:</span> ${seller.all_models?'Все модели':(seller.model||'-')}</div>
+<div class="row"><span class="label">Страны производителей:</span> ${seller.all_countries?'Все страны':'По выбранной марке/стране'}</div>
+
+<br>
+<button class="btn ${pauseClass}" onclick="toggleSellerPause()">${pauseText}</button>
+<button class="btn ok" onclick="showTab('edit')">Редактировать профиль</button>
+`;
 }
+
+async function loadEditForm(){
+if(!currentSeller){
+const res=await fetch(`${API}/seller-profile/?seller_id=${getSellerId()}`);
+currentSeller=await res.json();
+}
+
+document.getElementById('edit_whatsapp').value=currentSeller.whatsapp || '';
+document.getElementById('edit_city').innerHTML=makeOptions(CITIES,currentSeller.city);
+document.getElementById('edit_category').innerHTML=makeOptions(CATEGORIES,currentSeller.category);
+
+document.getElementById('all_categories').checked=!!currentSeller.all_categories;
+document.getElementById('all_brands').checked=!!currentSeller.all_brands;
+document.getElementById('all_countries').checked=!!currentSeller.all_countries;
+
+await loadCountriesToEditor();
+applyEditorToggles();
 }
 
 async function loadCountriesToEditor(){
@@ -219,6 +326,19 @@ brandEl.appendChild(o);
 });
 }
 
+function applyEditorToggles(){
+const allCategories=document.getElementById('all_categories').checked;
+const allBrands=document.getElementById('all_brands').checked;
+
+document.getElementById('edit_category').disabled=allCategories;
+document.getElementById('edit_country').disabled=allBrands;
+document.getElementById('edit_brand').disabled=allBrands;
+
+if(allBrands){
+document.getElementById('edit_brand').innerHTML='<option value="">Все марки</option>';
+}
+}
+
 async function saveProfile(){
 const payload={
 seller_id:getSellerId(),
@@ -238,79 +358,9 @@ body:JSON.stringify(payload)
 });
 
 alert('Профиль сохранён');
+currentSeller=null;
 loadSellerProfile();
-}
-
-async function loadSellerProfile(){
-const res=await fetch(`${API}/seller-profile/?seller_id=${getSellerId()}`);
-const seller=await res.json();
-currentSeller=seller;
-
-let statusText=seller.is_paused?'⏸ На паузе — новые заявки не приходят':'🟢 Принимает заявки';
-let pauseClass=seller.is_paused?'resume':'pause';
-let pauseText=seller.is_paused?'Возобновить':'Пауза';
-
-document.getElementById('sellerProfile').innerHTML=`
-
-<div class="profile-title">${seller.name}</div>
-
-WhatsApp: ${seller.whatsapp}<br>
-Город: ${seller.city || '-'}<br>
-Тип: ${transportLabel(seller.transport_type)}<br>
-Категория: ${seller.all_categories?'Все категории':(seller.category||'-')}<br>
-Марка: ${seller.all_brands?'Все марки':(seller.brand||'-')}<br>
-Страны производителей: ${seller.all_countries?'Все страны':'По выбранной стране / марке'}<br>
-
-<div class="profile-status">${statusText}</div>
-
-<button class="btn ${pauseClass}" onclick="toggleSellerPause()">${pauseText}</button>
-
-<button class="btn ok" onclick="toggleProfileEditor()">Редактировать специализацию</button>
-
-<div id="profileEditor" class="editor">
-
-<label>WhatsApp продавца</label>
-<input id="edit_whatsapp" value="${seller.whatsapp}">
-
-<label>Город работы</label>
-<select id="edit_city">
-<option value="">Выберите город</option>
-${options(CITIES,seller.city)}
-</select>
-<div class="help">Если продавец работает только в одном городе — выберите город.</div>
-
-<label>Категория запчастей</label>
-<select id="edit_category">
-<option value="">Выберите категорию</option>
-${options(CATEGORIES,seller.category)}
-</select>
-<div class="checkline">
-<label><input type="checkbox" id="all_categories" ${seller.all_categories?'checked':''} onchange="applyEditorToggles()"> Все категории</label>
-</div>
-<div class="help">Если включено “Все категории”, продавец получает заявки по всем категориям запчастей.</div>
-
-<label>Страна производителя для выбора марки</label>
-<select id="edit_country"></select>
-
-<label>Марка</label>
-<select id="edit_brand"></select>
-<div class="checkline">
-<label><input type="checkbox" id="all_brands" ${seller.all_brands?'checked':''} onchange="applyEditorToggles()"> Все марки</label>
-</div>
-<div class="help">Если включено “Все марки”, продавец получает заявки по всем маркам выбранного типа транспорта.</div>
-
-<div class="checkline">
-<label><input type="checkbox" id="all_countries" ${seller.all_countries?'checked':''}> Все страны производителей</label>
-</div>
-<div class="help">Это относится к странам производителей авто, а не к городам Казахстана.</div>
-
-<button class="btn ok" onclick="saveProfile()">Сохранить</button>
-
-</div>
-`;
-
-await loadCountriesToEditor();
-applyEditorToggles();
+showTab('profile');
 }
 
 async function toggleSellerPause(){
@@ -376,9 +426,7 @@ let archivedClass=r.match_status==='archived'?'archived':'';
 let actions='';
 
 if(r.match_status==='archived'){
-actions=`
-<button class="btn restore" onclick="changeStatus(${r.match_id},'prepared')">Восстановить</button>
-`;
+actions=`<button class="btn restore" onclick="changeStatus(${r.match_id},'prepared')">Восстановить</button>`;
 }else{
 actions=`
 <button class="btn wa" onclick="contactClient(${r.match_id},'${wa}')">Написать клиенту</button>
@@ -402,6 +450,11 @@ list.innerHTML+=`
 
 <div class="ticket-detail" id="detail-${r.id}">
 Город: ${r.city}<br>
+Страна: ${r.country || '-'}<br>
+Марка: ${r.brand || '-'}<br>
+Модель: ${r.model || '-'}<br>
+Категория: ${r.category || '-'}<br>
+${r.article ? 'Артикул: '+r.article+'<br>' : ''}
 Телефон: ${r.phone}<br><br>
 ${r.description||''}
 <br><br>
