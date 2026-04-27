@@ -27,6 +27,26 @@ margin-bottom:8px;
 .profile-status{
 margin-top:8px;
 font-weight:bold;
+margin-bottom:12px;
+}
+
+.editor{
+display:none;
+margin-top:16px;
+padding-top:16px;
+border-top:1px solid #ddd;
+}
+
+.editor input{
+width:100%;
+padding:12px;
+margin-bottom:10px;
+border:1px solid #ddd;
+border-radius:8px;
+}
+
+.checkline{
+margin-bottom:10px;
 }
 
 .filter button,.statusfilter button{
@@ -39,7 +59,10 @@ cursor:pointer;
 background:white;
 }
 
-.active{background:#d62828!important;color:#fff!important}
+.active{
+background:#d62828!important;
+color:#fff!important
+}
 
 .stats{
 display:grid;
@@ -89,7 +112,9 @@ font-weight:bold;
 font-size:20px;
 }
 
-.ticket-line{margin-top:6px}
+.ticket-line{
+margin-top:6px
+}
 
 .ticket-detail{
 display:none;
@@ -135,7 +160,9 @@ margin-top:8px;
 small{color:#666}
 
 @media(max-width:700px){
-.stats{grid-template-columns:1fr 1fr}
+.stats{
+grid-template-columns:1fr 1fr
+}
 }
 </style>
 </head>
@@ -152,19 +179,19 @@ small{color:#666}
 
 <div class="filter">
 Период:
-<button id="period-today" onclick="setPeriod('today')">Сегодня</button>
-<button id="period-7d" class="active" onclick="setPeriod('7d')">7 дней</button>
-<button id="period-30d" onclick="setPeriod('30d')">30 дней</button>
-<button id="period-all" onclick="setPeriod('all')">Все</button>
+<button onclick="setPeriod('today')">Сегодня</button>
+<button class="active" onclick="setPeriod('7d')">7 дней</button>
+<button onclick="setPeriod('30d')">30 дней</button>
+<button onclick="setPeriod('all')">Все</button>
 </div>
 
 <div class="statusfilter">
 Статус:
-<button id="status-all" class="active" onclick="setStatusFilter('all')">Все</button>
-<button id="status-prepared" onclick="setStatusFilter('prepared')">Новые</button>
-<button id="status-contacted" onclick="setStatusFilter('contacted')">Связался</button>
-<button id="status-archived" onclick="setStatusFilter('archived')">Архив</button>
-<button id="status-rejected" onclick="setStatusFilter('rejected')">Отказ</button>
+<button onclick="setStatusFilter('all')" class="active">Все</button>
+<button onclick="setStatusFilter('prepared')">Новые</button>
+<button onclick="setStatusFilter('contacted')">Связался</button>
+<button onclick="setStatusFilter('archived')">Архив</button>
+<button onclick="setStatusFilter('rejected')">Отказ</button>
 </div>
 
 <div class="stats">
@@ -180,6 +207,7 @@ small{color:#666}
 </div>
 
 <script>
+
 const API='https://zpt-kz-backend.onrender.com/api';
 
 let currentStatus='all';
@@ -187,196 +215,415 @@ let currentPeriod='7d';
 let allRows=[];
 
 function getSellerId(){
- const url=new URL(window.location.href);
- return url.searchParams.get('seller_id') || 2;
+const url=new URL(window.location.href);
+return url.searchParams.get('seller_id') || 1;
 }
 
 function label(s){
- if(s==='prepared') return 'Новая';
- if(s==='contacted') return 'Связался';
- if(s==='rejected') return 'Отказ';
- if(s==='archived') return 'Архив';
- return 'Новая';
+if(s==='prepared') return 'Новая';
+if(s==='contacted') return 'Связался';
+if(s==='archived') return 'Архив';
+if(s==='rejected') return 'Отказ';
+return 'Новая';
 }
 
 function transportLabel(type){
- if(type==='truck') return 'Грузовые';
- return 'Легковые';
+return type==='truck'
+?'Грузовые'
+:'Легковые';
 }
 
 function phoneDigits(phone){
- let d=String(phone||'').replace(/\D/g,'');
- if(d.startsWith('8')) d='7'+d.slice(1);
- return d;
+let d=String(phone||'').replace(/\D/g,'');
+if(d.startsWith('8')) d='7'+d.slice(1);
+return d;
 }
 
 function buildWA(phone,req){
- const text=encodeURIComponent(
-`Здравствуйте! Пишу по заявке №${req.id}
+const text=encodeURIComponent(
+`Здравствуйте! По заявке №${req.id}
 
 ${req.brand} ${req.model}
-${req.description || ''}
 
 Есть ли в наличии?`
- );
- return `https://wa.me/${phoneDigits(phone)}?text=${text}`;
+);
+return `https://wa.me/${phoneDigits(phone)}?text=${text}`;
 }
 
 function setPeriod(p){
- currentPeriod=p;
- loadData();
+currentPeriod=p;
+loadData();
 }
 
 function setStatusFilter(s){
- currentStatus=s;
- render();
+currentStatus=s;
+render();
+}
+
+function toggleProfileEditor(){
+const el=document.getElementById(
+'profileEditor'
+);
+
+el.style.display=
+el.style.display==='block'
+?'none'
+:'block';
+}
+
+async function saveProfile(){
+
+await fetch(
+`${API}/update-seller-profile/`,
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+seller_id:getSellerId(),
+whatsapp:document.getElementById(
+'edit_whatsapp'
+).value,
+
+city:document.getElementById(
+'edit_city'
+).value,
+
+category:document.getElementById(
+'edit_category'
+).value,
+
+brand:document.getElementById(
+'edit_brand'
+).value,
+
+all_categories:
+document.getElementById(
+'all_categories'
+).checked,
+
+all_brands:
+document.getElementById(
+'all_brands'
+).checked,
+
+all_countries:
+document.getElementById(
+'all_countries'
+).checked
+})
+}
+);
+
+alert(
+'Профиль сохранён'
+);
+
+loadSellerProfile();
+
 }
 
 async function loadSellerProfile(){
- const seller_id=getSellerId();
 
- const res=await fetch(
-  `${API}/seller-profile/?seller_id=${seller_id}`
- );
+const seller_id=getSellerId();
 
- const seller=await res.json();
+const res=await fetch(
+`${API}/seller-profile/?seller_id=${seller_id}`
+);
 
- const statusText=seller.is_paused
-  ? '⏸ На паузе — новые заявки не приходят'
-  : '🟢 Принимает заявки';
+const seller=await res.json();
 
- const btnClass=seller.is_paused
-  ? 'resume'
-  : 'pause';
+let statusText=seller.is_paused
+?'⏸ На паузе'
+:'🟢 Принимает заявки';
 
- const btnText=seller.is_paused
-  ? 'Возобновить приём заявок'
-  : 'Поставить на паузу';
+let pauseClass=seller.is_paused
+?'resume'
+:'pause';
 
- document.getElementById('sellerProfile').innerHTML=`
-  <div class="profile-title">${seller.name}</div>
-  WhatsApp: ${seller.whatsapp}<br>
-  Город: ${seller.city || '-'}<br>
-  Тип: ${transportLabel(seller.transport_type)}<br>
-  <div class="profile-status">${statusText}</div>
+let pauseText=seller.is_paused
+?'Возобновить'
+:'Пауза';
 
-  <button class="btn ${btnClass}" onclick="toggleSellerPause()">
-    ${btnText}
-  </button>
- `;
+document.getElementById(
+'sellerProfile'
+).innerHTML=`
+
+<div class="profile-title">
+${seller.name}
+</div>
+
+WhatsApp:
+${seller.whatsapp}
+<br>
+
+Город:
+${seller.city}
+<br>
+
+Категория:
+${seller.all_categories
+?'Все категории'
+:(seller.category||'-')}
+<br>
+
+Марка:
+${seller.all_brands
+?'Все марки'
+:(seller.brand||'-')}
+<br>
+
+География:
+${seller.all_countries
+?'Весь Казахстан'
+:(seller.city||'-')}
+
+<div class="profile-status">
+${statusText}
+</div>
+
+<button
+class="btn ${pauseClass}"
+onclick="toggleSellerPause()">
+${pauseText}
+</button>
+
+<button
+class="btn ok"
+onclick="toggleProfileEditor()">
+Редактировать специализацию
+</button>
+
+<div
+id="profileEditor"
+class="editor">
+
+<input
+id="edit_whatsapp"
+value="${seller.whatsapp}"
+>
+
+<input
+id="edit_city"
+value="${seller.city}"
+>
+
+<input
+id="edit_category"
+value="${seller.category}"
+placeholder="Категория"
+>
+
+<input
+id="edit_brand"
+value="${seller.brand}"
+placeholder="Марка"
+>
+
+<div class="checkline">
+<label>
+<input
+type="checkbox"
+id="all_categories"
+${seller.all_categories?'checked':''}
+>
+Все категории
+</label>
+</div>
+
+<div class="checkline">
+<label>
+<input
+type="checkbox"
+id="all_brands"
+${seller.all_brands?'checked':''}
+>
+Все марки
+</label>
+</div>
+
+<div class="checkline">
+<label>
+<input
+type="checkbox"
+id="all_countries"
+${seller.all_countries?'checked':''}
+>
+Весь Казахстан
+</label>
+</div>
+
+<button
+class="btn ok"
+onclick="saveProfile()">
+Сохранить
+</button>
+
+</div>
+
+`;
+
 }
 
 async function toggleSellerPause(){
- await fetch(
-  `${API}/toggle-seller-pause/`,
-  {
-   method:'POST',
-   headers:{'Content-Type':'application/json'},
-   body:JSON.stringify({
-    seller_id:getSellerId()
-   })
-  }
- );
 
- loadSellerProfile();
+await fetch(
+`${API}/toggle-seller-pause/`,
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+seller_id:getSellerId()
+})
+}
+);
+
+loadSellerProfile();
+
 }
 
 async function changeStatus(match_id,status){
- await fetch(
- `${API}/update-match-status/`,
- {
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({
-    match_id,
-    status
-  })
- });
 
- let item=allRows.find(
-   x=>x.match_id===match_id
- );
+await fetch(
+`${API}/update-match-status/`,
+{
+method:'POST',
+headers:{
+'Content-Type':'application/json'
+},
+body:JSON.stringify({
+match_id,
+status
+})
+}
+);
 
- if(item){
-   item.match_status=status;
- }
+let item=allRows.find(
+x=>x.match_id===match_id
+);
 
- render();
+if(item){
+item.match_status=status;
+}
+
+render();
+
 }
 
 async function contactClient(match_id,wa){
- await changeStatus(
-   match_id,
-   'contacted'
- );
- window.open(wa,'_blank');
+
+await changeStatus(
+match_id,
+'contacted'
+);
+
+window.open(
+wa,
+'_blank'
+);
+
 }
 
 function toggleDetail(id){
- const el=document.getElementById(
-   'detail-'+id
- );
- el.style.display=
-  el.style.display==='block'
-  ? 'none'
-  : 'block';
+
+const el=document.getElementById(
+'detail-'+id
+);
+
+el.style.display=
+el.style.display==='block'
+?'none'
+:'block';
+
 }
 
 function updateStats(){
- document.getElementById('stat-total').textContent=allRows.length;
 
- document.getElementById('stat-new').textContent=
- allRows.filter(x=>x.match_status==='prepared').length;
+document.getElementById(
+'stat-total'
+).textContent=
+allRows.length;
 
- document.getElementById('stat-contacted').textContent=
- allRows.filter(x=>x.match_status==='contacted').length;
+document.getElementById(
+'stat-new'
+).textContent=
+allRows.filter(
+x=>x.match_status==='prepared'
+).length;
 
- document.getElementById('stat-archived').textContent=
- allRows.filter(x=>x.match_status==='archived').length;
+document.getElementById(
+'stat-contacted'
+).textContent=
+allRows.filter(
+x=>x.match_status==='contacted'
+).length;
 
- document.getElementById('stat-rejected').textContent=
- allRows.filter(x=>x.match_status==='rejected').length;
+document.getElementById(
+'stat-archived'
+).textContent=
+allRows.filter(
+x=>x.match_status==='archived'
+).length;
+
+document.getElementById(
+'stat-rejected'
+).textContent=
+allRows.filter(
+x=>x.match_status==='rejected'
+).length;
+
 }
 
 function render(){
- updateStats();
 
- let rows=allRows;
+updateStats();
 
- if(currentStatus!=='all'){
-   rows=rows.filter(
-    x=>x.match_status===currentStatus
-   );
- }
+let rows=allRows;
 
- const list=document.getElementById('list');
- list.innerHTML='';
+if(
+currentStatus!=='all'
+){
+rows=rows.filter(
+x=>x.match_status===currentStatus
+);
+}
 
- if(rows.length===0){
-   list.innerHTML='<div class="ticket">Заявок по выбранному фильтру нет.</div>';
-   return;
- }
+const list=document.getElementById(
+'list'
+);
 
- rows.forEach(r=>{
- const wa=buildWA(r.phone,r);
+list.innerHTML='';
 
- const archivedClass=
- r.match_status==='archived'
- ? 'archived'
- : '';
+rows.forEach(r=>{
 
- let actions='';
+const wa=buildWA(
+r.phone,
+r
+);
 
- if(r.match_status==='archived'){
- actions=`
+let archivedClass=
+r.match_status==='archived'
+?'archived'
+:'';
+
+let actions='';
+
+if(
+r.match_status==='archived'
+){
+actions=`
 <button
 class="btn restore"
 onclick="changeStatus(${r.match_id},'prepared')">
 Восстановить
 </button>
 `;
- } else {
- actions=`
+}
+else{
+actions=`
 <button
 class="btn wa"
 onclick="contactClient(${r.match_id},'${wa}')">
@@ -401,12 +648,13 @@ onclick="changeStatus(${r.match_id},'rejected')">
 Отказ
 </button>
 `;
- }
+}
 
- list.innerHTML+=`
+list.innerHTML+=`
 <div class="ticket ${archivedClass}">
 
 <div class="ticket-head">
+
 <div>
 
 <span class="badge ${r.match_status}">
@@ -418,12 +666,15 @@ ${label(r.match_status)}
 </span>
 
 <div class="ticket-line">
-${r.brand} ${r.model}
+${r.brand}
+${r.model}
 •
 ${r.category}
 </div>
 
-<small>${r.created_at}</small>
+<small>
+${r.created_at}
+</small>
 
 </div>
 
@@ -439,18 +690,15 @@ onclick="toggleDetail(${r.id})">
 class="ticket-detail"
 id="detail-${r.id}">
 
-Город: ${r.city}<br>
-Транспорт: ${transportLabel(r.transport_type)}<br>
-Страна: ${r.country || '-'}<br>
-Марка: ${r.brand}<br>
-Модель: ${r.model}<br>
-Категория: ${r.category}<br>
+Город:
+${r.city}
+<br>
 
-${r.article ? 'Артикул: '+r.article+'<br>' : ''}
+Телефон:
+${r.phone}
+<br><br>
 
-Телефон: ${r.phone}<br><br>
-
-${r.description || ''}
+${r.description||''}
 
 <br><br>
 
@@ -460,25 +708,30 @@ ${actions}
 
 </div>
 `;
- });
+
+});
+
 }
 
 async function loadData(){
- const seller_id=getSellerId();
 
- const res=await fetch(
- `${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
- );
+const seller_id=getSellerId();
 
- const data=await res.json();
+const res=await fetch(
+`${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
+);
 
- allRows=data.requests || [];
+const data=await res.json();
 
- render();
+allRows=data.requests||[];
+
+render();
+
 }
 
 loadSellerProfile();
 loadData();
+
 </script>
 
 </body>
