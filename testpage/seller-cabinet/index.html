@@ -9,145 +9,30 @@
 body{font-family:Arial;background:#f5f5f5;margin:0}
 .wrap{max-width:980px;margin:auto;padding:20px}
 h1{color:#d62828}
-
-.profile{
-background:#fff;
-padding:16px;
-border-radius:14px;
-margin-bottom:16px;
-box-shadow:0 3px 10px rgba(0,0,0,.05)
-}
-
-.profile-title{
-font-size:18px;
-font-weight:bold;
-margin-bottom:8px;
-}
-
-.profile-status{
-margin-top:8px;
-font-weight:bold;
-margin-bottom:12px;
-}
-
-.editor{
-display:none;
-margin-top:16px;
-padding-top:16px;
-border-top:1px solid #ddd;
-}
-
-.editor input{
-width:100%;
-padding:12px;
-margin-bottom:10px;
-border:1px solid #ddd;
-border-radius:8px;
-}
-
-.checkline{
-margin-bottom:10px;
-}
-
-.filter button,.statusfilter button{
-margin-right:6px;
-margin-bottom:8px;
-padding:8px 12px;
-border-radius:8px;
-border:1px solid #ddd;
-cursor:pointer;
-background:white;
-}
-
-.active{
-background:#d62828!important;
-color:#fff!important
-}
-
-.stats{
-display:grid;
-grid-template-columns:repeat(5,minmax(0,1fr));
-gap:10px;
-margin:16px 0;
-}
-
-.stat{
-background:#fff;
-padding:14px;
-border-radius:12px;
-box-shadow:0 3px 10px rgba(0,0,0,.05);
-font-weight:bold;
-}
-
-.stat span{
-display:block;
-font-size:26px;
-margin-top:5px;
-color:#d62828;
-}
-
-.ticket{
-background:#fff;
-border-radius:14px;
-padding:16px;
-margin-bottom:12px;
-box-shadow:0 3px 10px rgba(0,0,0,.05);
-}
-
-.ticket.archived{
-opacity:.86;
-background:#f2f2f2;
-}
-
-.ticket-head{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-}
-
-.ticket-title{
-font-weight:bold;
-font-size:20px;
-}
-
-.ticket-line{
-margin-top:6px
-}
-
-.ticket-detail{
-display:none;
-border-top:1px solid #eee;
-margin-top:14px;
-padding-top:14px;
-}
-
-.badge{
-display:inline-block;
-padding:5px 10px;
-border-radius:20px;
-font-size:12px;
-font-weight:bold;
-}
-
+.profile,.ticket{background:#fff;border-radius:14px;padding:16px;margin-bottom:12px;box-shadow:0 3px 10px rgba(0,0,0,.05)}
+.profile-title{font-size:18px;font-weight:bold;margin-bottom:8px}
+.profile-status{margin-top:8px;font-weight:bold;margin-bottom:12px}
+.editor{display:none;margin-top:16px;padding-top:16px;border-top:1px solid #ddd}
+.editor label{font-weight:bold;font-size:14px}
+.editor select,.editor input{width:100%;padding:12px;margin:6px 0 12px;border:1px solid #ddd;border-radius:8px;font-size:15px}
+.help{font-size:13px;color:#666;margin:-6px 0 10px}
+.checkline{margin-bottom:10px}
+.filter button,.statusfilter button{margin-right:6px;margin-bottom:8px;padding:8px 12px;border-radius:8px;border:1px solid #ddd;cursor:pointer;background:white}
+.active{background:#d62828!important;color:#fff!important}
+.stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;margin:16px 0}
+.stat{background:#fff;padding:14px;border-radius:12px;box-shadow:0 3px 10px rgba(0,0,0,.05);font-weight:bold}
+.stat span{display:block;font-size:26px;margin-top:5px;color:#d62828}
+.ticket.archived{opacity:.86;background:#f2f2f2}
+.ticket-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.ticket-title{font-weight:bold;font-size:20px}
+.ticket-line{margin-top:6px}
+.ticket-detail{display:none;border-top:1px solid #eee;margin-top:14px;padding-top:14px}
+.badge{display:inline-block;padding:5px 10px;border-radius:20px;font-size:12px;font-weight:bold}
 .prepared{background:#e8f5e9}
 .contacted{background:#e3f2fd}
 .rejected{background:#ffebee}
 .archived{background:#eeeeee}
-
-.btn{
-display:inline-block;
-padding:9px 12px;
-border-radius:8px;
-font-weight:bold;
-text-decoration:none;
-border:none;
-cursor:pointer;
-margin-right:8px;
-margin-top:8px;
-}
-
+.btn{display:inline-block;padding:9px 12px;border-radius:8px;font-weight:bold;text-decoration:none;border:none;cursor:pointer;margin-right:8px;margin-top:8px}
 .openbtn{background:#efefef}
 .wa{background:#25D366;color:#fff}
 .ok{background:#1565c0;color:#fff}
@@ -156,26 +41,17 @@ margin-top:8px;
 .no{background:#c62828;color:#fff}
 .pause{background:#f57c00;color:#fff}
 .resume{background:#2e7d32;color:#fff}
-
 small{color:#666}
-
-@media(max-width:700px){
-.stats{
-grid-template-columns:1fr 1fr
-}
-}
+@media(max-width:700px){.stats{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 
 <body>
-
 <div class="wrap">
 
 <h1>Кабинет продавца</h1>
 
-<div id="sellerProfile" class="profile">
-Загрузка профиля...
-</div>
+<div id="sellerProfile" class="profile">Загрузка профиля...</div>
 
 <div class="filter">
 Период:
@@ -207,12 +83,24 @@ grid-template-columns:1fr 1fr
 </div>
 
 <script>
-
 const API='https://zpt-kz-backend.onrender.com/api';
 
 let currentStatus='all';
 let currentPeriod='7d';
 let allRows=[];
+let currentSeller=null;
+
+const CITIES=[
+'Алматы','Астана','Шымкент','Караганда','Актобе','Атырау','Актау','Павлодар',
+'Усть-Каменогорск','Семей','Костанай','Петропавловск','Кокшетау','Тараз',
+'Туркестан','Кызылорда','Уральск','Талдыкорган','Жезказган','Экибастуз'
+];
+
+const CATEGORIES=[
+'Двигатель','КПП / трансмиссия','Ходовая / подвеска','Тормозная система',
+'Кузов','Оптика','Электрика','Салон','Система охлаждения','Топливная система',
+'Выхлопная система','Рулевое управление','Кондиционер / отопитель','Расходники','Другое'
+];
 
 function getSellerId(){
 const url=new URL(window.location.href);
@@ -228,9 +116,7 @@ return 'Новая';
 }
 
 function transportLabel(type){
-return type==='truck'
-?'Грузовые'
-:'Легковые';
+return type==='truck'?'Грузовые':'Легковые';
 }
 
 function phoneDigits(phone){
@@ -250,6 +136,12 @@ ${req.brand} ${req.model}
 return `https://wa.me/${phoneDigits(phone)}?text=${text}`;
 }
 
+function options(list,selected){
+return list.map(x=>`
+<option value="${x}" ${x===selected?'selected':''}>${x}</option>
+`).join('');
+}
+
 function setPeriod(p){
 currentPeriod=p;
 loadData();
@@ -261,477 +153,274 @@ render();
 }
 
 function toggleProfileEditor(){
-const el=document.getElementById(
-'profileEditor'
+const el=document.getElementById('profileEditor');
+el.style.display=el.style.display==='block'?'none':'block';
+}
+
+function applyEditorToggles(){
+const allCategories=document.getElementById('all_categories').checked;
+const allBrands=document.getElementById('all_brands').checked;
+
+document.getElementById('edit_category').disabled=allCategories;
+document.getElementById('edit_country').disabled=allBrands;
+document.getElementById('edit_brand').disabled=allBrands;
+
+if(allBrands){
+document.getElementById('edit_brand').innerHTML='<option value="">Все марки</option>';
+}
+}
+
+async function loadCountriesToEditor(){
+const countryEl=document.getElementById('edit_country');
+const brandEl=document.getElementById('edit_brand');
+
+const res=await fetch(`${API}/countries/`);
+const countries=await res.json();
+
+countryEl.innerHTML='<option value="">Выберите страну производителя</option>';
+
+countries.forEach(c=>{
+const o=document.createElement('option');
+o.value=c.id;
+o.textContent=c.name;
+countryEl.appendChild(o);
+});
+
+brandEl.innerHTML=currentSeller.brand
+? `<option value="${currentSeller.brand}" selected>${currentSeller.brand}</option>`
+: '<option value="">Сначала выберите страну</option>';
+
+countryEl.onchange=()=>loadBrandsToEditor(countryEl.value);
+}
+
+async function loadBrandsToEditor(countryId){
+const brandEl=document.getElementById('edit_brand');
+
+if(!countryId){
+brandEl.innerHTML='<option value="">Сначала выберите страну</option>';
+return;
+}
+
+brandEl.innerHTML='<option value="">Загрузка...</option>';
+
+const res=await fetch(
+`${API}/brands-by-country/?country_id=${countryId}&transport_type=${currentSeller.transport_type}`
 );
 
-el.style.display=
-el.style.display==='block'
-?'none'
-:'block';
+const brands=await res.json();
+
+brandEl.innerHTML='<option value="">Выберите марку</option>';
+
+brands.forEach(b=>{
+const o=document.createElement('option');
+o.value=b.name;
+o.textContent=b.name;
+brandEl.appendChild(o);
+});
 }
 
 async function saveProfile(){
-
-await fetch(
-`${API}/update-seller-profile/`,
-{
-method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
+const payload={
 seller_id:getSellerId(),
-whatsapp:document.getElementById(
-'edit_whatsapp'
-).value,
+whatsapp:document.getElementById('edit_whatsapp').value,
+city:document.getElementById('edit_city').value,
+category:document.getElementById('edit_category').value,
+brand:document.getElementById('edit_brand').value,
+all_categories:document.getElementById('all_categories').checked,
+all_brands:document.getElementById('all_brands').checked,
+all_countries:document.getElementById('all_countries').checked
+};
 
-city:document.getElementById(
-'edit_city'
-).value,
+await fetch(`${API}/update-seller-profile/`,{
+method:'POST',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify(payload)
+});
 
-category:document.getElementById(
-'edit_category'
-).value,
-
-brand:document.getElementById(
-'edit_brand'
-).value,
-
-all_categories:
-document.getElementById(
-'all_categories'
-).checked,
-
-all_brands:
-document.getElementById(
-'all_brands'
-).checked,
-
-all_countries:
-document.getElementById(
-'all_countries'
-).checked
-})
-}
-);
-
-alert(
-'Профиль сохранён'
-);
-
+alert('Профиль сохранён');
 loadSellerProfile();
-
 }
 
 async function loadSellerProfile(){
-
-const seller_id=getSellerId();
-
-const res=await fetch(
-`${API}/seller-profile/?seller_id=${seller_id}`
-);
-
+const res=await fetch(`${API}/seller-profile/?seller_id=${getSellerId()}`);
 const seller=await res.json();
+currentSeller=seller;
 
-let statusText=seller.is_paused
-?'⏸ На паузе'
-:'🟢 Принимает заявки';
+let statusText=seller.is_paused?'⏸ На паузе — новые заявки не приходят':'🟢 Принимает заявки';
+let pauseClass=seller.is_paused?'resume':'pause';
+let pauseText=seller.is_paused?'Возобновить':'Пауза';
 
-let pauseClass=seller.is_paused
-?'resume'
-:'pause';
+document.getElementById('sellerProfile').innerHTML=`
 
-let pauseText=seller.is_paused
-?'Возобновить'
-:'Пауза';
+<div class="profile-title">${seller.name}</div>
 
-document.getElementById(
-'sellerProfile'
-).innerHTML=`
+WhatsApp: ${seller.whatsapp}<br>
+Город: ${seller.city || '-'}<br>
+Тип: ${transportLabel(seller.transport_type)}<br>
+Категория: ${seller.all_categories?'Все категории':(seller.category||'-')}<br>
+Марка: ${seller.all_brands?'Все марки':(seller.brand||'-')}<br>
+Страны производителей: ${seller.all_countries?'Все страны':'По выбранной стране / марке'}<br>
 
-<div class="profile-title">
-${seller.name}
+<div class="profile-status">${statusText}</div>
+
+<button class="btn ${pauseClass}" onclick="toggleSellerPause()">${pauseText}</button>
+
+<button class="btn ok" onclick="toggleProfileEditor()">Редактировать специализацию</button>
+
+<div id="profileEditor" class="editor">
+
+<label>WhatsApp продавца</label>
+<input id="edit_whatsapp" value="${seller.whatsapp}">
+
+<label>Город работы</label>
+<select id="edit_city">
+<option value="">Выберите город</option>
+${options(CITIES,seller.city)}
+</select>
+<div class="help">Если продавец работает только в одном городе — выберите город.</div>
+
+<label>Категория запчастей</label>
+<select id="edit_category">
+<option value="">Выберите категорию</option>
+${options(CATEGORIES,seller.category)}
+</select>
+<div class="checkline">
+<label><input type="checkbox" id="all_categories" ${seller.all_categories?'checked':''} onchange="applyEditorToggles()"> Все категории</label>
 </div>
+<div class="help">Если включено “Все категории”, продавец получает заявки по всем категориям запчастей.</div>
 
-WhatsApp:
-${seller.whatsapp}
-<br>
+<label>Страна производителя для выбора марки</label>
+<select id="edit_country"></select>
 
-Город:
-${seller.city}
-<br>
-
-Категория:
-${seller.all_categories
-?'Все категории'
-:(seller.category||'-')}
-<br>
-
-Марка:
-${seller.all_brands
-?'Все марки'
-:(seller.brand||'-')}
-<br>
-
-География:
-${seller.all_countries
-?'Весь Казахстан'
-:(seller.city||'-')}
-
-<div class="profile-status">
-${statusText}
+<label>Марка</label>
+<select id="edit_brand"></select>
+<div class="checkline">
+<label><input type="checkbox" id="all_brands" ${seller.all_brands?'checked':''} onchange="applyEditorToggles()"> Все марки</label>
 </div>
-
-<button
-class="btn ${pauseClass}"
-onclick="toggleSellerPause()">
-${pauseText}
-</button>
-
-<button
-class="btn ok"
-onclick="toggleProfileEditor()">
-Редактировать специализацию
-</button>
-
-<div
-id="profileEditor"
-class="editor">
-
-<input
-id="edit_whatsapp"
-value="${seller.whatsapp}"
->
-
-<input
-id="edit_city"
-value="${seller.city}"
->
-
-<input
-id="edit_category"
-value="${seller.category}"
-placeholder="Категория"
->
-
-<input
-id="edit_brand"
-value="${seller.brand}"
-placeholder="Марка"
->
+<div class="help">Если включено “Все марки”, продавец получает заявки по всем маркам выбранного типа транспорта.</div>
 
 <div class="checkline">
-<label>
-<input
-type="checkbox"
-id="all_categories"
-${seller.all_categories?'checked':''}
->
-Все категории
-</label>
+<label><input type="checkbox" id="all_countries" ${seller.all_countries?'checked':''}> Все страны производителей</label>
 </div>
+<div class="help">Это относится к странам производителей авто, а не к городам Казахстана.</div>
 
-<div class="checkline">
-<label>
-<input
-type="checkbox"
-id="all_brands"
-${seller.all_brands?'checked':''}
->
-Все марки
-</label>
-</div>
-
-<div class="checkline">
-<label>
-<input
-type="checkbox"
-id="all_countries"
-${seller.all_countries?'checked':''}
->
-Весь Казахстан
-</label>
-</div>
-
-<button
-class="btn ok"
-onclick="saveProfile()">
-Сохранить
-</button>
+<button class="btn ok" onclick="saveProfile()">Сохранить</button>
 
 </div>
-
 `;
 
+await loadCountriesToEditor();
+applyEditorToggles();
 }
 
 async function toggleSellerPause(){
-
-await fetch(
-`${API}/toggle-seller-pause/`,
-{
+await fetch(`${API}/toggle-seller-pause/`,{
 method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
-seller_id:getSellerId()
-})
-}
-);
-
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({seller_id:getSellerId()})
+});
 loadSellerProfile();
-
 }
 
 async function changeStatus(match_id,status){
-
-await fetch(
-`${API}/update-match-status/`,
-{
+await fetch(`${API}/update-match-status/`,{
 method:'POST',
-headers:{
-'Content-Type':'application/json'
-},
-body:JSON.stringify({
-match_id,
-status
-})
-}
-);
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({match_id,status})
+});
 
-let item=allRows.find(
-x=>x.match_id===match_id
-);
-
-if(item){
-item.match_status=status;
-}
-
+let item=allRows.find(x=>x.match_id===match_id);
+if(item){item.match_status=status;}
 render();
-
 }
 
 async function contactClient(match_id,wa){
-
-await changeStatus(
-match_id,
-'contacted'
-);
-
-window.open(
-wa,
-'_blank'
-);
-
+await changeStatus(match_id,'contacted');
+window.open(wa,'_blank');
 }
 
 function toggleDetail(id){
-
-const el=document.getElementById(
-'detail-'+id
-);
-
-el.style.display=
-el.style.display==='block'
-?'none'
-:'block';
-
+const el=document.getElementById('detail-'+id);
+el.style.display=el.style.display==='block'?'none':'block';
 }
 
 function updateStats(){
-
-document.getElementById(
-'stat-total'
-).textContent=
-allRows.length;
-
-document.getElementById(
-'stat-new'
-).textContent=
-allRows.filter(
-x=>x.match_status==='prepared'
-).length;
-
-document.getElementById(
-'stat-contacted'
-).textContent=
-allRows.filter(
-x=>x.match_status==='contacted'
-).length;
-
-document.getElementById(
-'stat-archived'
-).textContent=
-allRows.filter(
-x=>x.match_status==='archived'
-).length;
-
-document.getElementById(
-'stat-rejected'
-).textContent=
-allRows.filter(
-x=>x.match_status==='rejected'
-).length;
-
+document.getElementById('stat-total').textContent=allRows.length;
+document.getElementById('stat-new').textContent=allRows.filter(x=>x.match_status==='prepared').length;
+document.getElementById('stat-contacted').textContent=allRows.filter(x=>x.match_status==='contacted').length;
+document.getElementById('stat-archived').textContent=allRows.filter(x=>x.match_status==='archived').length;
+document.getElementById('stat-rejected').textContent=allRows.filter(x=>x.match_status==='rejected').length;
 }
 
 function render(){
-
 updateStats();
 
 let rows=allRows;
 
-if(
-currentStatus!=='all'
-){
-rows=rows.filter(
-x=>x.match_status===currentStatus
-);
+if(currentStatus!=='all'){
+rows=rows.filter(x=>x.match_status===currentStatus);
 }
 
-const list=document.getElementById(
-'list'
-);
-
+const list=document.getElementById('list');
 list.innerHTML='';
 
+if(rows.length===0){
+list.innerHTML='<div class="ticket">Заявок по выбранному фильтру нет.</div>';
+return;
+}
+
 rows.forEach(r=>{
-
-const wa=buildWA(
-r.phone,
-r
-);
-
-let archivedClass=
-r.match_status==='archived'
-?'archived'
-:'';
+const wa=buildWA(r.phone,r);
+let archivedClass=r.match_status==='archived'?'archived':'';
 
 let actions='';
 
-if(
-r.match_status==='archived'
-){
+if(r.match_status==='archived'){
 actions=`
-<button
-class="btn restore"
-onclick="changeStatus(${r.match_id},'prepared')">
-Восстановить
-</button>
+<button class="btn restore" onclick="changeStatus(${r.match_id},'prepared')">Восстановить</button>
 `;
-}
-else{
+}else{
 actions=`
-<button
-class="btn wa"
-onclick="contactClient(${r.match_id},'${wa}')">
-Написать клиенту
-</button>
-
-<button
-class="btn ok"
-onclick="changeStatus(${r.match_id},'contacted')">
-Связался
-</button>
-
-<button
-class="btn archive"
-onclick="changeStatus(${r.match_id},'archived')">
-В архив
-</button>
-
-<button
-class="btn no"
-onclick="changeStatus(${r.match_id},'rejected')">
-Отказ
-</button>
+<button class="btn wa" onclick="contactClient(${r.match_id},'${wa}')">Написать клиенту</button>
+<button class="btn ok" onclick="changeStatus(${r.match_id},'contacted')">Связался</button>
+<button class="btn archive" onclick="changeStatus(${r.match_id},'archived')">В архив</button>
+<button class="btn no" onclick="changeStatus(${r.match_id},'rejected')">Отказ</button>
 `;
 }
 
 list.innerHTML+=`
 <div class="ticket ${archivedClass}">
-
 <div class="ticket-head">
-
 <div>
-
-<span class="badge ${r.match_status}">
-${label(r.match_status)}
-</span>
-
-<span class="ticket-title">
-Заявка №${r.id}
-</span>
-
-<div class="ticket-line">
-${r.brand}
-${r.model}
-•
-${r.category}
+<span class="badge ${r.match_status}">${label(r.match_status)}</span>
+<span class="ticket-title">Заявка №${r.id}</span>
+<div class="ticket-line">${r.brand} ${r.model} • ${r.category}</div>
+<small>${r.created_at}</small>
+</div>
+<button class="btn openbtn" onclick="toggleDetail(${r.id})">Открыть заявку</button>
 </div>
 
-<small>
-${r.created_at}
-</small>
-
-</div>
-
-<button
-class="btn openbtn"
-onclick="toggleDetail(${r.id})">
-Открыть заявку
-</button>
-
-</div>
-
-<div
-class="ticket-detail"
-id="detail-${r.id}">
-
-Город:
-${r.city}
-<br>
-
-Телефон:
-${r.phone}
-<br><br>
-
+<div class="ticket-detail" id="detail-${r.id}">
+Город: ${r.city}<br>
+Телефон: ${r.phone}<br><br>
 ${r.description||''}
-
 <br><br>
-
 ${actions}
-
 </div>
-
 </div>
 `;
-
 });
-
 }
 
 async function loadData(){
-
-const seller_id=getSellerId();
-
-const res=await fetch(
-`${API}/seller-requests/?seller_id=${seller_id}&period=${currentPeriod}`
-);
-
+const res=await fetch(`${API}/seller-requests/?seller_id=${getSellerId()}&period=${currentPeriod}`);
 const data=await res.json();
-
 allRows=data.requests||[];
-
 render();
-
 }
 
 loadSellerProfile();
 loadData();
-
 </script>
 
 </body>
