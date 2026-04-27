@@ -49,6 +49,18 @@ class CarModel(models.Model):
         return f"{self.name} ({self.get_transport_type_display()})"
 
 
+class PartCategory(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name = 'Категория запчастей'
+        verbose_name_plural = 'Категории запчастей'
+        ordering = ['name']
+
+    def __str__(self):
+        return self.name
+
+
 class Request(models.Model):
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     country = models.CharField(max_length=100, blank=True)
@@ -81,13 +93,13 @@ class Seller(models.Model):
 
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     city = models.CharField(max_length=100, blank=True)
-    category = models.CharField(max_length=100, blank=True)
 
     # Старые поля оставляем для совместимости
+    category = models.CharField(max_length=100, blank=True)
     brand = models.CharField(max_length=100, blank=True)
     model = models.CharField(max_length=100, blank=True)
 
-    # Новые FK
+    # Старые одиночные FK оставляем для совместимости
     country_fk = models.ForeignKey(
         Country,
         on_delete=models.SET_NULL,
@@ -111,6 +123,32 @@ class Seller(models.Model):
         blank=True,
         related_name='sellers',
         verbose_name='Модель'
+    )
+
+    # Новый множественный выбор
+    selected_categories = models.ManyToManyField(
+        PartCategory,
+        blank=True,
+        related_name='sellers',
+        verbose_name='Выбранные категории'
+    )
+    selected_countries = models.ManyToManyField(
+        Country,
+        blank=True,
+        related_name='multi_sellers',
+        verbose_name='Выбранные страны'
+    )
+    selected_brands = models.ManyToManyField(
+        Brand,
+        blank=True,
+        related_name='multi_sellers',
+        verbose_name='Выбранные марки'
+    )
+    selected_models = models.ManyToManyField(
+        CarModel,
+        blank=True,
+        related_name='multi_sellers',
+        verbose_name='Выбранные модели'
     )
 
     # Режимы "все"
