@@ -15,7 +15,12 @@ from .models import (
     PartCategory,
     Seller,
     Match,
+    RequestDispatch,
 )
+
+
+WAVE_SIZE = 10
+WAVE_INTERVAL_MINUTES = 10
 
 
 def countries_list(request):
@@ -160,7 +165,7 @@ def _find_matching_sellers(req):
         if strategy['model']:
             qs = _apply_model_filter(qs, req)
 
-        qs = qs.distinct()
+        qs = qs.distinct().order_by('dispatch_priority', 'id')
 
         if qs.exists():
             return qs, strategy['name']
@@ -190,16 +195,124 @@ def _seller_notification_text(req):
     )
 
 
+def _buyer_to_seller_text(req):
+    return (
+        f"Здравствуйте! Я оставил заявку №{req.id} на ZPT.KZ\n\n"
+        f"Марка: {req.brand}\n"
+        f"Модель: {req.model}\n"
+        f"Категория: {req.category}\n"
+        f"Город: {req.city}\n"
+        f"Артикул: {req.article or '-'}\n\n"
+        f"Описание:\n"
+        f"{req.description or '-'}\n\n"
+        f"Подскажите, есть ли в наличии и какая цена?"
+    )
+
+
 def _seller_notification_link(seller_whatsapp, req):
     phone = _normalize_whatsapp(seller_whatsapp)
     text = quote(_seller_notification_text(req))
     return f"https://wa.me/{phone}?text={text}"
 
 
+def _buyer_contact_link(seller_whatsapp, req):
+    phone = _normalize_whatsapp(seller_whatsapp)
+    text = quote(_buyer_to_seller_text(req))
+    return f"https://wa.me/{phone}?text={text}"
+
+
+def _mark_dispatch_sent(dispatch):
+    now = timezone.now()
+
+    match, created = Match.objects.get_or_create(
+        request=dispatch.request,
+        seller=dispatch.seller,
+        defaults={
+            'status': 'prepared',
+            'sent_at': now,
+        }
+    )
+
+    if not created and not match.sent_at:
+        match.sent_at = now
+        match.save(update_fields=['sent_at'])
+
+    if dispatch.status != RequestDispatch.STATUS_SENT:
+        dispatch.status = RequestDispatch.STATUS_SENT
+        dispatch.sent_at = now
+        dispatch.save(update_fields=['status', 'sent_at'])
+
+
+def _dispatch_due_requests():
+    now = timezone.now()
+
+    due_dispatches = RequestDispatch.objects.select_related(
+        'request',
+        'seller'
+    ).filter(
+        status=RequestDispatch.STATUS_QUEUED,
+        scheduled_at__lte=now
+    ).order_by('scheduled_at', 'position_number')
+
+    processed_count = 0
+
+    for dispatch in due_dispatches:
+        _mark_dispatch_sent(dispatch)
+        processed_count += 1
+
+    return processed_count
+
+
+def _build_dispatch_queue(req, sellers):
+    now = timezone.now()
+    dispatches = []
+
+    for index, seller in enumerate(sellers, start=1):
+        wave_number = ((index - 1) // WAVE_SIZE) + 1
+        scheduled_at = now + timedelta(minutes=(wave_number - 1) * WAVE_INTERVAL_MINUTES)
+
+        dispatch, created = RequestDispatch.objects.get_or_create(
+            request=req,
+            seller=seller,
+            defaults={
+                'wave_number': wave_number,
+                'position_number': index,
+                'status': RequestDispatch.STATUS_QUEUED,
+                'scheduled_at': scheduled_at,
+            }
+        )
+
+        dispatches.append(dispatch)
+
+    for dispatch in dispatches:
+        if dispatch.wave_number == 1:
+            _mark_dispatch_sent(dispatch)
+
+    return dispatches
+
+
+def _dispatch_to_json(dispatch, req):
+    seller = dispatch.seller
+
+    return {
+        'seller_id': seller.id,
+        'seller_name': seller.name,
+        'wave_number': dispatch.wave_number,
+        'position_number': dispatch.position_number,
+        'status': dispatch.status,
+        'status_label': 'Отправлено' if dispatch.status == RequestDispatch.STATUS_SENT else 'Ожидает отправки',
+        'scheduled_at': dispatch.scheduled_at.strftime('%d.%m.%Y %H:%M') if dispatch.scheduled_at else '',
+        'sent_at': dispatch.sent_at.strftime('%d.%m.%Y %H:%M') if dispatch.sent_at else '',
+        'buyer_wa_link': _buyer_contact_link(seller.whatsapp, req),
+    }
+
+
 @csrf_exempt
 def create_request(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
+
+    _dispatch_due_requests()
 
     try:
         data = json.loads(request.body)
@@ -219,38 +332,64 @@ def create_request(request):
     )
 
     sellers, strategy_used = _find_matching_sellers(req)
+    matched_sellers = list(sellers)
 
-    matched_sellers = []
+    dispatches = _build_dispatch_queue(req, matched_sellers)
 
-    for seller in sellers:
-        Match.objects.get_or_create(
-            request=req,
-            seller=seller,
-            defaults={'status': 'prepared'}
-        )
-        matched_sellers.append(seller)
+    if matched_sellers:
+        req.status = 'sent'
+    else:
+        req.status = 'no_sellers'
+    req.save(update_fields=['status'])
 
-    sellers_list = []
-    for seller in matched_sellers[:10]:
-        sellers_list.append({
-            'name': seller.name,
-            'whatsapp': _normalize_whatsapp(seller.whatsapp),
-        })
+    first_wave_dispatches = [
+        dispatch for dispatch in dispatches
+        if dispatch.wave_number == 1
+    ]
+
+    sellers_list = [
+        _dispatch_to_json(dispatch, req)
+        for dispatch in first_wave_dispatches
+    ]
+
+    all_sellers_list = [
+        _dispatch_to_json(dispatch, req)
+        for dispatch in dispatches
+    ]
 
     seller_notifications = []
-    for seller in matched_sellers:
+    for dispatch in first_wave_dispatches:
+        seller = dispatch.seller
         seller_notifications.append({
             'seller': seller.name,
-            'whatsapp': _normalize_whatsapp(seller.whatsapp),
             'wa_link': _seller_notification_link(seller.whatsapp, req),
+            'wave_number': dispatch.wave_number,
+            'status': dispatch.status,
         })
+
+    total_waves = 0
+    if dispatches:
+        total_waves = max(dispatch.wave_number for dispatch in dispatches)
 
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
+        'request_status': req.status,
         'matches': len(matched_sellers),
         'strategy': strategy_used,
+
+        'wave_size': WAVE_SIZE,
+        'wave_interval_minutes': WAVE_INTERVAL_MINUTES,
+        'total_waves': total_waves,
+
+        'message': (
+            f"Заявка принята. Найдено продавцов: {len(matched_sellers)}. "
+            f"Заявка отправляется продавцам волнами по {WAVE_SIZE} каждые "
+            f"{WAVE_INTERVAL_MINUTES} минут."
+        ),
+
         'sellers': sellers_list,
+        'all_sellers': all_sellers_list,
         'seller_notifications': seller_notifications,
     })
 
@@ -363,6 +502,8 @@ def create_seller(request):
 
 
 def seller_requests(request):
+    _dispatch_due_requests()
+
     seller_id = request.GET.get('seller_id')
     period = request.GET.get('period', '7d')
 
@@ -441,6 +582,7 @@ def seller_profile(request):
         'category': seller.category,
         'brand': seller.brand,
         'model': seller.model,
+        'dispatch_priority': seller.dispatch_priority,
 
         'selected_categories': [
             {'id': c.id, 'name': c.name}

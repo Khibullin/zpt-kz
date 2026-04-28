@@ -94,6 +94,12 @@ class Seller(models.Model):
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     city = models.CharField(max_length=100, blank=True)
 
+    dispatch_priority = models.PositiveIntegerField(
+        default=1000,
+        verbose_name='Приоритет рассылки',
+        help_text='Чем меньше число, тем раньше продавец получает заявку в волнах рассылки.'
+    )
+
     # Старые поля оставляем для совместимости
     category = models.CharField(max_length=100, blank=True)
     brand = models.CharField(max_length=100, blank=True)
@@ -160,7 +166,7 @@ class Seller(models.Model):
     class Meta:
         verbose_name = 'Продавец'
         verbose_name_plural = 'Продавцы'
-        ordering = ['name']
+        ordering = ['dispatch_priority', 'id', 'name']
 
     def __str__(self):
         return self.name
@@ -179,6 +185,54 @@ class Match(models.Model):
         verbose_name = 'Отправка заявки'
         verbose_name_plural = 'Отправки заявок'
         ordering = ['-created_at']
+        unique_together = ('request', 'seller')
 
     def __str__(self):
         return f"{self.request} → {self.seller}"
+
+
+class RequestDispatch(models.Model):
+    STATUS_QUEUED = 'queued'
+    STATUS_SENT = 'sent'
+
+    STATUS_CHOICES = [
+        (STATUS_QUEUED, 'В очереди'),
+        (STATUS_SENT, 'Отправлено'),
+    ]
+
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.CASCADE,
+        related_name='dispatches',
+        verbose_name='Заявка'
+    )
+    seller = models.ForeignKey(
+        Seller,
+        on_delete=models.CASCADE,
+        related_name='dispatches',
+        verbose_name='Продавец'
+    )
+
+    wave_number = models.PositiveIntegerField(verbose_name='Номер волны')
+    position_number = models.PositiveIntegerField(verbose_name='Позиция в очереди')
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_QUEUED,
+        verbose_name='Статус'
+    )
+
+    scheduled_at = models.DateTimeField(verbose_name='Запланировано на')
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name='Отправлено в')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Очередь рассылки заявки'
+        verbose_name_plural = 'Очередь рассылки заявок'
+        ordering = ['request', 'position_number']
+        unique_together = ('request', 'seller')
+
+    def __str__(self):
+        return f"{self.request} → {self.seller} / волна {self.wave_number}"

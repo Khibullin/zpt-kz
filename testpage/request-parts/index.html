@@ -30,9 +30,8 @@
     .seller-name { font-weight: bold; margin-bottom: 4px; color: #222; }
     .seller-type { font-size: 14px; color: #555; margin-bottom: 10px; }
     .seller-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .wa-btn, .call-btn { display: inline-block; padding: 9px 12px; color: #fff; border-radius: 9px; text-decoration: none; font-weight: bold; font-size: 14px; }
-    .wa-btn { background: #25D366; }
-    .call-btn { background: #1565c0; }
+    .wa-btn { display: inline-block; padding: 9px 12px; color: #fff; border-radius: 9px; text-decoration: none; font-weight: bold; font-size: 14px; background: #25D366; }
+    .wave-info { background: #f7fff8; border: 1px solid #cfe8d2; border-radius: 12px; padding: 12px; margin: 12px 0; color: #0d5d22; }
     @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
   </style>
 </head>
@@ -174,10 +173,6 @@ function isValidKazakhstanPhone(value) {
   return /^7\d{10}$/.test(digits);
 }
 
-function sellerTypeText() {
-  return transportType === 'truck' ? 'Грузовые запчасти' : 'Легковые запчасти';
-}
-
 function setMessage(html, type) {
   msg.className = 'msg ' + type;
   msg.innerHTML = html;
@@ -306,48 +301,74 @@ function buildBuyerWhatsAppText(requestId, payload) {
 
 ${payload.brand} ${payload.model}, категория: ${payload.category}
 Город: ${payload.city}
+Артикул: ${payload.article || '-'}
 
 ${payload.description || ''}
 
-Подскажите, есть ли в наличии?`
+Подскажите, есть ли в наличии и какая цена?`
   );
 }
 
 function buildResultHtml(data, payload) {
   const matches = Number(data.matches || 0);
   const sellers = Array.isArray(data.sellers) ? data.sellers : [];
-  const hiddenCount = Math.max(matches - sellers.length, 0);
+  const allSellers = Array.isArray(data.all_sellers) ? data.all_sellers : [];
+
+  const waveSize = Number(data.wave_size || 10);
+  const waveMinutes = Number(data.wave_interval_minutes || 10);
+  const totalWaves = Number(data.total_waves || Math.ceil(matches / waveSize));
 
   let html = `
-    <strong>Заявка отправлена!</strong><br>
+    <strong style="font-size:22px;">Заявка принята ✔</strong><br><br>
+
     Найдено продавцов: <strong>${matches}</strong><br><br>
 
-    Ваша заявка отправлена подходящим продавцам.<br>
-    Заявка мгновенно доставлена продавцам по WhatsApp.<br>
-    Ожидайте предложения или напишите продавцам ниже.<br><br>
+    <div class="wave-info">
+      Ваша заявка отправляется продавцам волнами:<br>
+      <strong>по ${waveSize} продавцов каждые ${waveMinutes} минут</strong><br>
+    </div>
   `;
 
-  if (sellers.length > 0) {
-    html += `<div class="seller-list"><strong>Первые продавцы:</strong>`;
+  if (matches === 0) {
+    html += `
+      Подходящих продавцов сейчас не найдено.<br>
+      Мы рекомендуем попробовать другую категорию, город или описание заявки.<br><br>
+    `;
+  } else if (matches <= waveSize) {
+    html += `
+      Заявка отправлена всем найденным продавцам первой волной.<br><br>
+    `;
+  } else {
+    html += `
+      Всего волн рассылки: <strong>${totalWaves}</strong><br>
+      Волна 1 — отправлена сейчас.<br>
+      Волна 2 — через ${waveMinutes} минут.<br>
+      Волна 3 — ещё через ${waveMinutes} минут.<br>
+      Остальные волны уйдут автоматически, пока заявка не будет отправлена всем выбранным продавцам.<br><br>
+    `;
+  }
 
-    sellers.forEach(seller => {
-      const sellerName = escapeHtml(seller.name || 'Продавец');
+  if (sellers.length > 0) {
+    html += `
+      <strong>Продавцы первой волны:</strong>
+      <div class="seller-list">
+    `;
+
+    sellers.forEach((seller, idx) => {
+      const sellerName = escapeHtml(seller.name || seller.seller_name || 'Продавец');
       const sellerPhone = normalizePhone(seller.whatsapp);
+      const waLinkFromApi = seller.buyer_wa_link || '';
       const waText = buildBuyerWhatsAppText(data.id, payload);
-      const waLink = `https://wa.me/${sellerPhone}?text=${waText}`;
-      const callLink = `tel:+${sellerPhone}`;
+      const waLink = waLinkFromApi || `https://wa.me/${sellerPhone}?text=${waText}`;
 
       html += `
         <div class="seller-card">
-          <div class="seller-name">${sellerName}</div>
-          <div class="seller-type">Специализация продавца</div>
+          <div class="seller-name">${idx + 1}. ${sellerName}</div>
+          <div class="seller-type">Волна 1 — заявка отправлена</div>
 
           <div class="seller-actions">
             <a class="wa-btn" target="_blank" rel="noopener noreferrer" href="${waLink}">
-              Написать в WhatsApp
-            </a>
-            <a class="call-btn" href="${callLink}">
-              Позвонить
+              Связаться в WhatsApp
             </a>
           </div>
         </div>
@@ -357,8 +378,47 @@ function buildResultHtml(data, payload) {
     html += `</div>`;
   }
 
-  if (hiddenCount > 0) {
-    html += `<br>Ещё ${hiddenCount} продавцов также получили вашу заявку.`;
+  if (allSellers.length > sellers.length) {
+    html += `
+      <br>
+      <strong>Следующие продавцы:</strong>
+      <div class="seller-list">
+    `;
+
+    allSellers.slice(sellers.length).forEach((seller, idx) => {
+      const sellerName = escapeHtml(seller.seller_name || seller.name || 'Продавец');
+      const waveNumber = seller.wave_number || '';
+      const statusLabel = escapeHtml(seller.status_label || 'Ожидает отправки');
+      const waLink = seller.buyer_wa_link || '#';
+
+      html += `
+        <div class="seller-card">
+          <div class="seller-name">${sellers.length + idx + 1}. ${sellerName}</div>
+          <div class="seller-type">Волна ${waveNumber} — ${statusLabel}</div>
+
+          <div class="seller-actions">
+            <a class="wa-btn" target="_blank" rel="noopener noreferrer" href="${waLink}">
+              Связаться в WhatsApp
+            </a>
+          </div>
+        </div>
+      `;
+    });
+
+    html += `</div>`;
+  } else if (matches > sellers.length) {
+    html += `
+      <br>
+      Остальные продавцы (${matches - sellers.length}) получат заявку автоматически следующими волнами.
+    `;
+  }
+
+  if (matches > 0) {
+    html += `
+      <br><br>
+      Вы можете самостоятельно написать выбранному продавцу через WhatsApp.
+      Номер продавца на странице не отображается.
+    `;
   }
 
   html += `
