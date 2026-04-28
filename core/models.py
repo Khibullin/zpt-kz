@@ -61,6 +61,61 @@ class PartCategory(models.Model):
         return self.name
 
 
+class BroadcastSettings(models.Model):
+    MODE_OFF = 'off'
+    MODE_TEST = 'test'
+    MODE_LIVE = 'live'
+
+    MODE_CHOICES = [
+        (MODE_OFF, 'OFF — рассылка выключена'),
+        (MODE_TEST, 'TEST — только тестовые продавцы'),
+        (MODE_LIVE, 'LIVE — боевая рассылка'),
+    ]
+
+    mode = models.CharField(
+        max_length=10,
+        choices=MODE_CHOICES,
+        default=MODE_OFF,
+        verbose_name='Режим рассылки'
+    )
+
+    wave_size = models.PositiveIntegerField(
+        default=10,
+        verbose_name='Размер волны',
+        help_text='Сколько продавцов получает заявку в одной волне.'
+    )
+
+    wave_interval_minutes = models.PositiveIntegerField(
+        default=5,
+        verbose_name='Интервал между волнами, минут',
+        help_text='Через сколько минут отправлять следующую волну.'
+    )
+
+    emergency_stop = models.BooleanField(
+        default=False,
+        verbose_name='Emergency Stop',
+        help_text='Если включено, все следующие волны рассылки должны быть остановлены.'
+    )
+
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Broadcast Control'
+        verbose_name_plural = 'Broadcast Control'
+
+    def __str__(self):
+        return f"Broadcast Control: {self.get_mode_display()}"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+
 class Request(models.Model):
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     country = models.CharField(max_length=100, blank=True)
@@ -90,6 +145,18 @@ class Seller(models.Model):
 
     is_active = models.BooleanField(default=True)
     is_paused = models.BooleanField(default=False)
+
+    receive_requests = models.BooleanField(
+        default=False,
+        verbose_name='Получает заявки',
+        help_text='Участвует в боевой LIVE-рассылке заявок.'
+    )
+
+    is_test_seller = models.BooleanField(
+        default=False,
+        verbose_name='Тестовый продавец',
+        help_text='Используется только в TEST-режиме рассылки.'
+    )
 
     transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
     city = models.CharField(max_length=100, blank=True)
@@ -194,10 +261,14 @@ class Match(models.Model):
 class RequestDispatch(models.Model):
     STATUS_QUEUED = 'queued'
     STATUS_SENT = 'sent'
+    STATUS_PAUSED = 'paused'
+    STATUS_FAILED = 'failed'
 
     STATUS_CHOICES = [
         (STATUS_QUEUED, 'В очереди'),
         (STATUS_SENT, 'Отправлено'),
+        (STATUS_PAUSED, 'Остановлено'),
+        (STATUS_FAILED, 'Ошибка'),
     ]
 
     request = models.ForeignKey(

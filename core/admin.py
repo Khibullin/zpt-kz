@@ -1,10 +1,12 @@
 from django.contrib import admin
+from django.contrib import messages
 
 from .models import (
     Country,
     Brand,
     CarModel,
     PartCategory,
+    BroadcastSettings,
     Request,
     Seller,
     Match,
@@ -63,6 +65,42 @@ class PartCategoryAdmin(admin.ModelAdmin):
     search_fields = ('name',)
 
 
+@admin.register(BroadcastSettings)
+class BroadcastSettingsAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'mode',
+        'wave_size',
+        'wave_interval_minutes',
+        'emergency_stop',
+        'updated_at',
+    )
+
+    readonly_fields = (
+        'updated_at',
+    )
+
+    fieldsets = (
+        ('Broadcast Control', {
+            'fields': (
+                'mode',
+                'wave_size',
+                'wave_interval_minutes',
+                'emergency_stop',
+                'updated_at',
+            )
+        }),
+    )
+
+    def has_add_permission(self, request):
+        if BroadcastSettings.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(Request)
 class RequestAdmin(admin.ModelAdmin):
     list_display = (
@@ -95,6 +133,30 @@ class RequestAdmin(admin.ModelAdmin):
     )
 
 
+@admin.action(description='Включить получение заявок')
+def enable_receive_requests(modeladmin, request, queryset):
+    updated = queryset.update(receive_requests=True)
+    messages.success(request, f'Получение заявок включено: {updated} продавцов.')
+
+
+@admin.action(description='Выключить получение заявок')
+def disable_receive_requests(modeladmin, request, queryset):
+    updated = queryset.update(receive_requests=False)
+    messages.warning(request, f'Получение заявок выключено: {updated} продавцов.')
+
+
+@admin.action(description='Пометить как тестовых продавцов')
+def mark_as_test_seller(modeladmin, request, queryset):
+    updated = queryset.update(is_test_seller=True)
+    messages.success(request, f'Помечено как тестовые продавцы: {updated}.')
+
+
+@admin.action(description='Снять признак тестовых продавцов')
+def unmark_as_test_seller(modeladmin, request, queryset):
+    updated = queryset.update(is_test_seller=False)
+    messages.warning(request, f'Снят признак тестовых продавцов: {updated}.')
+
+
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
     list_display = (
@@ -103,6 +165,9 @@ class SellerAdmin(admin.ModelAdmin):
         'whatsapp',
         'transport_type',
         'dispatch_priority',
+
+        'receive_requests',
+        'is_test_seller',
 
         'all_categories',
         'all_brands',
@@ -116,10 +181,14 @@ class SellerAdmin(admin.ModelAdmin):
 
     list_editable = (
         'dispatch_priority',
+        'receive_requests',
+        'is_test_seller',
     )
 
     list_filter = (
         'transport_type',
+        'receive_requests',
+        'is_test_seller',
         'is_active',
         'is_paused',
         'all_categories',
@@ -143,6 +212,13 @@ class SellerAdmin(admin.ModelAdmin):
         'selected_models'
     )
 
+    actions = (
+        enable_receive_requests,
+        disable_receive_requests,
+        mark_as_test_seller,
+        unmark_as_test_seller,
+    )
+
     fieldsets = (
 
         ('Основное', {
@@ -153,7 +229,9 @@ class SellerAdmin(admin.ModelAdmin):
                 'city',
                 'dispatch_priority',
                 'is_active',
-                'is_paused'
+                'is_paused',
+                'receive_requests',
+                'is_test_seller',
             )
         }),
 
@@ -206,6 +284,22 @@ class MatchAdmin(admin.ModelAdmin):
     )
 
 
+@admin.action(description='Остановить выбранные волны')
+def pause_dispatches(modeladmin, request, queryset):
+    updated = queryset.exclude(status=RequestDispatch.STATUS_SENT).update(
+        status=RequestDispatch.STATUS_PAUSED
+    )
+    messages.warning(request, f'Остановлено волн/отправок: {updated}.')
+
+
+@admin.action(description='Вернуть выбранные волны в очередь')
+def queue_dispatches(modeladmin, request, queryset):
+    updated = queryset.exclude(status=RequestDispatch.STATUS_SENT).update(
+        status=RequestDispatch.STATUS_QUEUED
+    )
+    messages.success(request, f'Возвращено в очередь: {updated}.')
+
+
 @admin.register(RequestDispatch)
 class RequestDispatchAdmin(admin.ModelAdmin):
     list_display = (
@@ -237,4 +331,9 @@ class RequestDispatchAdmin(admin.ModelAdmin):
 
     readonly_fields = (
         'created_at',
+    )
+
+    actions = (
+        pause_dispatches,
+        queue_dispatches,
     )
