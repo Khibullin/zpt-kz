@@ -49,15 +49,6 @@ def brands_by_country(request):
 
 
 def models_by_brand(request):
-def part_categories_list(request):
-    data = [
-        {
-            'id': category.id,
-            'name': category.name,
-        }
-        for category in PartCategory.objects.all().order_by('name')
-    ]
-    return JsonResponse(data, safe=False)
     brand_id = request.GET.get('brand_id')
     transport_type = request.GET.get('transport_type')
 
@@ -78,6 +69,12 @@ def part_categories_list(request):
         }
         for model in models
     ]
+    return JsonResponse(data, safe=False)
+
+
+def part_categories_list(request):
+    categories = PartCategory.objects.all().order_by('name')
+    data = [{'id': category.id, 'name': category.name} for category in categories]
     return JsonResponse(data, safe=False)
 
 
@@ -142,34 +139,10 @@ def _find_matching_sellers(req):
         ).distinct()
 
     strategies = [
-        {
-            'name': 'exact_multi',
-            'city': True,
-            'country': True,
-            'brand': True,
-            'model': True,
-        },
-        {
-            'name': 'brand_category',
-            'city': True,
-            'country': True,
-            'brand': True,
-            'model': False,
-        },
-        {
-            'name': 'category_city',
-            'city': True,
-            'country': False,
-            'brand': False,
-            'model': False,
-        },
-        {
-            'name': 'category_only',
-            'city': False,
-            'country': False,
-            'brand': False,
-            'model': False,
-        },
+        {'name': 'exact_multi', 'city': True, 'country': True, 'brand': True, 'model': True},
+        {'name': 'brand_category', 'city': True, 'country': True, 'brand': True, 'model': False},
+        {'name': 'category_city', 'city': True, 'country': False, 'brand': False, 'model': False},
+        {'name': 'category_only', 'city': False, 'country': False, 'brand': False, 'model': False},
     ]
 
     for strategy in strategies:
