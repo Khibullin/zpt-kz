@@ -7,6 +7,13 @@ TRANSPORT_CHOICES = [
 ]
 
 
+SELLER_TYPE_CHOICES = [
+    ('seller', 'Продавец запчастей'),
+    ('service', 'Сервис / СТО'),
+    ('both', 'Продавец + сервис'),
+]
+
+
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -142,6 +149,25 @@ class Request(models.Model):
 class Seller(models.Model):
     name = models.CharField(max_length=255)
     whatsapp = models.CharField(max_length=20)
+    phone2 = models.CharField(max_length=20, blank=True, verbose_name='Доп. телефон')
+
+    seller_type = models.CharField(
+        max_length=20,
+        choices=SELLER_TYPE_CHOICES,
+        default='seller',
+        verbose_name='Тип продавца'
+    )
+
+    market_location = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name='Локация / бутик'
+    )
+
+    notes = models.TextField(
+        blank=True,
+        verbose_name='Примечания'
+    )
 
     is_active = models.BooleanField(default=True)
     is_paused = models.BooleanField(default=False)
@@ -172,7 +198,6 @@ class Seller(models.Model):
     brand = models.CharField(max_length=100, blank=True)
     model = models.CharField(max_length=100, blank=True)
 
-    # Старые одиночные FK оставляем для совместимости
     country_fk = models.ForeignKey(
         Country,
         on_delete=models.SET_NULL,
@@ -198,7 +223,6 @@ class Seller(models.Model):
         verbose_name='Модель'
     )
 
-    # Новый множественный выбор
     selected_categories = models.ManyToManyField(
         PartCategory,
         blank=True,
@@ -224,7 +248,6 @@ class Seller(models.Model):
         verbose_name='Выбранные модели'
     )
 
-    # Режимы "все"
     all_countries = models.BooleanField(default=False, verbose_name='Все страны')
     all_brands = models.BooleanField(default=False, verbose_name='Все марки')
     all_models = models.BooleanField(default=False, verbose_name='Все модели')

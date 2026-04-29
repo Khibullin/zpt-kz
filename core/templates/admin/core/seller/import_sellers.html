@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Импорт продавцов XLSX</h1>
+
+<p>
+    Все импортируемые продавцы будут загружены безопасно:
+    <b>receive_requests = False</b>,
+    <b>is_test_seller = False</b>.
+</p>
+
+{% if errors %}
+    <div class="messagelist">
+        {% for error in errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if not preview_rows %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <button type="submit" name="action" value="preview" class="default">
+            Проверить импорт
+        </button>
+    </form>
+{% endif %}
+
+{% if preview_rows %}
+    <h2>Предпросмотр</h2>
+
+    <p>Найдено строк: {{ preview_rows|length }}</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Строка</th>
+                <th>Статус</th>
+                <th>Продавец</th>
+                <th>WhatsApp</th>
+                <th>Город</th>
+                <th>Локация</th>
+                <th>Тип</th>
+                <th>Категории</th>
+                <th>Марки</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for row in preview_rows %}
+                <tr>
+                    <td>{{ row.row_number }}</td>
+                    <td>{{ row.status }}</td>
+                    <td>{{ row.seller_name }}</td>
+                    <td>{{ row.whatsapp }}</td>
+                    <td>{{ row.city }}</td>
+                    <td>{{ row.market_location }}</td>
+                    <td>{{ row.seller_type }}</td>
+                    <td>{{ row.categories }}</td>
+                    <td>{{ row.brands }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="action" value="import" class="default">
+            Импортировать
+        </button>
+        <a href="../">Отмена</a>
+    </form>
+{% endif %}
+
+{% endblock %}
