@@ -151,6 +151,17 @@ class Seller(models.Model):
     whatsapp = models.CharField(max_length=20)
     phone2 = models.CharField(max_length=20, blank=True, verbose_name='Доп. телефон')
 
+    password_hash = models.CharField(
+        max_length=255,
+        blank=True,
+        verbose_name='Хэш пароля'
+    )
+
+    must_change_password = models.BooleanField(
+        default=True,
+        verbose_name='Требует смены пароля'
+    )
+
     seller_type = models.CharField(
         max_length=20,
         choices=SELLER_TYPE_CHOICES,
@@ -193,7 +204,6 @@ class Seller(models.Model):
         help_text='Чем меньше число, тем раньше продавец получает заявку в волнах рассылки.'
     )
 
-    # Старые поля оставляем для совместимости
     category = models.CharField(max_length=100, blank=True)
     brand = models.CharField(max_length=100, blank=True)
     model = models.CharField(max_length=100, blank=True)
@@ -206,6 +216,7 @@ class Seller(models.Model):
         related_name='sellers',
         verbose_name='Страна'
     )
+
     brand_fk = models.ForeignKey(
         Brand,
         on_delete=models.SET_NULL,
@@ -214,6 +225,7 @@ class Seller(models.Model):
         related_name='sellers',
         verbose_name='Марка'
     )
+
     model_fk = models.ForeignKey(
         CarModel,
         on_delete=models.SET_NULL,
@@ -229,18 +241,21 @@ class Seller(models.Model):
         related_name='sellers',
         verbose_name='Выбранные категории'
     )
+
     selected_countries = models.ManyToManyField(
         Country,
         blank=True,
         related_name='multi_sellers',
         verbose_name='Выбранные страны'
     )
+
     selected_brands = models.ManyToManyField(
         Brand,
         blank=True,
         related_name='multi_sellers',
         verbose_name='Выбранные марки'
     )
+
     selected_models = models.ManyToManyField(
         CarModel,
         blank=True,
@@ -300,6 +315,7 @@ class RequestDispatch(models.Model):
         related_name='dispatches',
         verbose_name='Заявка'
     )
+
     seller = models.ForeignKey(
         Seller,
         on_delete=models.CASCADE,

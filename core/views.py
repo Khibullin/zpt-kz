@@ -2,6 +2,7 @@ import json
 from datetime import timedelta
 from urllib.parse import quote
 
+from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
@@ -19,8 +20,14 @@ from .models import (
     BroadcastSettings,
 )
 
+
 WAVE_SIZE = 10
 WAVE_INTERVAL_MINUTES = 5
+TEMP_SELLER_PASSWORD = 'zpt2026'
+
+
+def _normalize_whatsapp(phone):
+    return ''.join(ch for ch in str(phone or '') if ch.isdigit())
 
 
 def countries_list(request):
@@ -43,12 +50,15 @@ def brands_by_country(request):
     if transport_type:
         brands = brands.filter(transport_type=transport_type)
 
-    data = [{
-        'id': b.id,
-        'name': b.name,
-        'country_id': b.country_id,
-        'transport_type': b.transport_type
-    } for b in brands]
+    data = [
+        {
+            'id': b.id,
+            'name': b.name,
+            'country_id': b.country_id,
+            'transport_type': b.transport_type,
+        }
+        for b in brands
+    ]
 
     return JsonResponse(data, safe=False)
 
@@ -65,12 +75,15 @@ def models_by_brand(request):
     if transport_type:
         models = models.filter(transport_type=transport_type)
 
-    data = [{
-        'id': m.id,
-        'name': m.name,
-        'brand_id': m.brand_id,
-        'transport_type': m.transport_type
-    } for m in models]
+    data = [
+        {
+            'id': m.id,
+            'name': m.name,
+            'brand_id': m.brand_id,
+            'transport_type': m.transport_type,
+        }
+        for m in models
+    ]
 
     return JsonResponse(data, safe=False)
 
@@ -82,10 +95,6 @@ def part_categories_list(request):
         safe=False
     )
 
-
-# -------------------------
-# BROADCAST CONTROL
-# -------------------------
 
 def _base_sellers_queryset(req):
     settings = BroadcastSettings.load()
@@ -103,14 +112,10 @@ def _base_sellers_queryset(req):
         return Seller.objects.none()
 
     if settings.mode == 'test':
-        return base.filter(
-            is_test_seller=True
-        ).distinct()
+        return base.filter(is_test_seller=True).distinct()
 
     if settings.mode == 'live':
-        return base.filter(
-            receive_requests=True
-        ).distinct()
+        return base.filter(receive_requests=True).distinct()
 
     return Seller.objects.none()
 
@@ -118,6 +123,7 @@ def _base_sellers_queryset(req):
 def _apply_city_filter(qs, req):
     if req.city:
         qs = qs.filter(city=req.city)
+
     return qs.distinct()
 
 
@@ -197,16 +203,13 @@ def _find_matching_sellers(req):
     return Seller.objects.none(), 'no_match'
 
 
-def _normalize_whatsapp(phone):
-    return ''.join(ch for ch in str(phone or '') if ch.isdigit())
-
-
 def _seller_notification_text(req):
     return (
-        f"Новая заявка от клиента на автозапчасть\n\n"
+        f"Новая заявка #{req.id} от клиента на автозапчасть\n\n"
         f"Марка: {req.brand}\n"
         f"Модель: {req.model}\n"
-        f"Категория: {req.category}\n\n"
+        f"Категория: {req.category}\n"
+        f"Город: {req.city}\n\n"
         f"Комментарий клиента:\n"
         f"{req.description or '-'}\n\n"
         f"Телефон клиента: {req.phone}\n\n"
@@ -243,7 +246,7 @@ def _mark_dispatch_sent(dispatch):
         seller=dispatch.seller,
         defaults={
             'status': 'prepared',
-            'sent_at': now
+            'sent_at': now,
         }
     )
 
@@ -257,259 +260,384 @@ def _dispatch_due_requests():
     due = RequestDispatch.objects.filter(
         status=RequestDispatch.STATUS_QUEUED,
         scheduled_at__lte=timezone.now()
-    ).order_by('scheduled_at','position_number')
+    ).order_by('scheduled_at', 'position_number')
 
-    for d in due:
-        _mark_dispatch_sent(d)
+    for dispatch in due:
+        _mark_dispatch_sent(dispatch)
 
 
 def _build_dispatch_queue(req, sellers):
-    dispatches=[]
-    now=timezone.now()
+    dispatches = []
+    now = timezone.now()
 
-    for idx,seller in enumerate(sellers,start=1):
-        wave=((idx-1)//WAVE_SIZE)+1
+    for index, seller in enumerate(sellers, start=1):
+        wave_number = ((index - 1) // WAVE_SIZE) + 1
 
         scheduled_at = now + timedelta(
-            minutes=(wave-1)*WAVE_INTERVAL_MINUTES
+            minutes=(wave_number - 1) * WAVE_INTERVAL_MINUTES
         )
 
-        d,_=RequestDispatch.objects.get_or_create(
+        dispatch, created = RequestDispatch.objects.get_or_create(
             request=req,
             seller=seller,
-            defaults=dict(
-                wave_number=wave,
-                position_number=idx,
-                status=RequestDispatch.STATUS_QUEUED,
-                scheduled_at=scheduled_at
-            )
+            defaults={
+                'wave_number': wave_number,
+                'position_number': index,
+                'status': RequestDispatch.STATUS_QUEUED,
+                'scheduled_at': scheduled_at,
+            }
         )
 
-        dispatches.append(d)
+        dispatches.append(dispatch)
 
-    for d in dispatches:
-        if d.wave_number==1:
-            _mark_dispatch_sent(d)
+    for dispatch in dispatches:
+        if dispatch.wave_number == 1:
+            _mark_dispatch_sent(dispatch)
 
     return dispatches
 
 
 def _dispatch_to_json(dispatch, req):
-    s=dispatch.seller
+    seller = dispatch.seller
 
     return {
-        'seller_id':s.id,
-        'seller_name':s.name,
-        'wave_number':dispatch.wave_number,
-        'status':dispatch.status,
-        'buyer_wa_link':_buyer_contact_link(
-            s.whatsapp,
-            req
-        )
+        'seller_id': seller.id,
+        'seller_name': seller.name,
+        'wave_number': dispatch.wave_number,
+        'status': dispatch.status,
+        'buyer_wa_link': _buyer_contact_link(seller.whatsapp, req),
     }
 
 
 @csrf_exempt
 def create_request(request):
-
-    if request.method!='POST':
-        return JsonResponse(
-            {'error':'invalid method'},
-            status=405
-        )
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
 
     _dispatch_due_requests()
 
-    data=json.loads(request.body)
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
 
-    req=Request.objects.create(
+    req = Request.objects.create(
         transport_type=data.get('transport_type'),
-        country=data.get('country',''),
-        brand=data.get('brand',''),
-        model=data.get('model',''),
-        category=data.get('category',''),
-        article=data.get('article',''),
-        description=data.get('description',''),
-        city=data.get('city',''),
-        phone=data.get('phone',''),
+        country=data.get('country', ''),
+        brand=data.get('brand', ''),
+        model=data.get('model', ''),
+        category=data.get('category', ''),
+        article=data.get('article', ''),
+        description=data.get('description', ''),
+        city=data.get('city', ''),
+        phone=data.get('phone', ''),
     )
 
-    sellers,strategy=_find_matching_sellers(req)
+    sellers, strategy = _find_matching_sellers(req)
+    matched = list(sellers)
 
-    matched=list(sellers)
+    dispatches = _build_dispatch_queue(req, matched)
 
-    dispatches=_build_dispatch_queue(
-        req,
-        matched
-    )
-
-    req.status='sent' if matched else 'no_sellers'
+    req.status = 'sent' if matched else 'no_sellers'
     req.save(update_fields=['status'])
 
-    first_wave=[
-        d for d in dispatches
-        if d.wave_number==1
+    first_wave = [
+        dispatch for dispatch in dispatches
+        if dispatch.wave_number == 1
     ]
 
-    seller_notifications=[
+    seller_notifications = [
         {
-            'seller':d.seller.name,
-            'wa_link':_seller_notification_link(
-                d.seller.whatsapp,
-                req
-            )
+            'seller': dispatch.seller.name,
+            'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
         }
-        for d in first_wave
+        for dispatch in first_wave
     ]
 
     return JsonResponse({
-        'status':'ok',
-        'id':req.id,
-        'matches':len(matched),
-        'strategy':strategy,
-        'wave_size':WAVE_SIZE,
-        'wave_interval_minutes':WAVE_INTERVAL_MINUTES,
-        'message':
-            f'Заявка отправляется волнами по '
-            f'{WAVE_SIZE} каждые '
-            f'{WAVE_INTERVAL_MINUTES} минут.',
-        'sellers':[
-            _dispatch_to_json(d,req)
-            for d in first_wave
+        'status': 'ok',
+        'id': req.id,
+        'matches': len(matched),
+        'strategy': strategy,
+        'wave_size': WAVE_SIZE,
+        'wave_interval_minutes': WAVE_INTERVAL_MINUTES,
+        'message': (
+            f'Заявка отправляется волнами по {WAVE_SIZE} '
+            f'каждые {WAVE_INTERVAL_MINUTES} минут.'
+        ),
+        'sellers': [
+            _dispatch_to_json(dispatch, req)
+            for dispatch in first_wave
         ],
-        'all_sellers':[
-            _dispatch_to_json(d,req)
-            for d in dispatches
+        'all_sellers': [
+            _dispatch_to_json(dispatch, req)
+            for dispatch in dispatches
         ],
-        'seller_notifications':seller_notifications
+        'seller_notifications': seller_notifications,
     })
 
 
 @csrf_exempt
 def create_seller(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
 
-    if request.method!='POST':
-        return JsonResponse(
-            {'error':'invalid method'},
-            status=405
-        )
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
 
-    data=json.loads(request.body)
+    name = (data.get('name') or '').strip()
+    whatsapp = _normalize_whatsapp(data.get('whatsapp'))
+    password = data.get('password') or ''
+    password_confirm = data.get('password_confirm') or ''
+    transport_type = data.get('transport_type')
+    city = data.get('city') or ''
+    category = data.get('category') or ''
 
-    seller=Seller.objects.create(
-        name=data.get('name'),
-        whatsapp=data.get('whatsapp'),
-        transport_type=data.get('transport_type'),
-        city=data.get('city'),
-        category=data.get('category',''),
+    if not name:
+        return JsonResponse({'error': 'Укажите название продавца'}, status=400)
+
+    if not whatsapp:
+        return JsonResponse({'error': 'Укажите WhatsApp'}, status=400)
+
+    if transport_type not in ['car', 'truck']:
+        return JsonResponse({'error': 'Некорректный тип транспорта'}, status=400)
+
+    if not password:
+        return JsonResponse({'error': 'Укажите пароль'}, status=400)
+
+    if len(password) < 6:
+        return JsonResponse({'error': 'Пароль должен быть не короче 6 символов'}, status=400)
+
+    if password != password_confirm:
+        return JsonResponse({'error': 'Пароли не совпадают'}, status=400)
+
+    if Seller.objects.filter(whatsapp=whatsapp).exists():
+        return JsonResponse({'error': 'Продавец с таким WhatsApp уже зарегистрирован'}, status=400)
+
+    seller = Seller.objects.create(
+        name=name,
+        whatsapp=whatsapp,
+        password_hash=make_password(password),
+        must_change_password=False,
+        transport_type=transport_type,
+        city=city,
+        category=category,
         is_active=True,
-        is_paused=False
+        is_paused=False,
+        receive_requests=False,
+        is_test_seller=False,
     )
 
     return JsonResponse({
-        'status':'ok',
-        'id':seller.id
+        'status': 'ok',
+        'id': seller.id,
+        'message': 'Продавец зарегистрирован',
     })
 
 
+@csrf_exempt
+def seller_login(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    whatsapp = _normalize_whatsapp(data.get('whatsapp'))
+    password = data.get('password') or ''
+
+    try:
+        seller = Seller.objects.get(whatsapp=whatsapp)
+    except Seller.DoesNotExist:
+        return JsonResponse({'error': 'Неверный WhatsApp или пароль'}, status=400)
+
+    if not seller.password_hash:
+        seller.password_hash = make_password(TEMP_SELLER_PASSWORD)
+        seller.must_change_password = True
+        seller.save(update_fields=['password_hash', 'must_change_password'])
+
+    if not check_password(password, seller.password_hash):
+        return JsonResponse({'error': 'Неверный WhatsApp или пароль'}, status=400)
+
+    request.session['seller_id'] = seller.id
+
+    return JsonResponse({
+        'status': 'ok',
+        'seller_id': seller.id,
+        'seller_name': seller.name,
+        'must_change_password': seller.must_change_password,
+    })
+
+
+@csrf_exempt
+def seller_logout(request):
+    request.session.pop('seller_id', None)
+    return JsonResponse({'status': 'ok'})
+
+
+def _get_logged_seller(request):
+    seller_id = request.session.get('seller_id')
+
+    if not seller_id:
+        return None
+
+    return Seller.objects.filter(id=seller_id).first()
+
+
+@csrf_exempt
+def change_seller_password(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    seller = _get_logged_seller(request)
+
+    if not seller:
+        return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
+
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    old_password = data.get('old_password') or ''
+    new_password = data.get('new_password') or ''
+    new_password_confirm = data.get('new_password_confirm') or ''
+
+    if not check_password(old_password, seller.password_hash):
+        return JsonResponse({'error': 'Старый пароль неверный'}, status=400)
+
+    if len(new_password) < 6:
+        return JsonResponse({'error': 'Новый пароль должен быть не короче 6 символов'}, status=400)
+
+    if new_password != new_password_confirm:
+        return JsonResponse({'error': 'Новые пароли не совпадают'}, status=400)
+
+    seller.password_hash = make_password(new_password)
+    seller.must_change_password = False
+    seller.save(update_fields=['password_hash', 'must_change_password'])
+
+    return JsonResponse({'status': 'ok'})
+
+
 def seller_requests(request):
-    seller_id=request.GET.get('seller_id')
+    seller = _get_logged_seller(request)
 
-    seller=Seller.objects.get(
-        id=seller_id
-    )
+    if not seller:
+        return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
-    matches=Match.objects.filter(
+    matches = Match.objects.filter(
         seller=seller
     ).select_related('request')
 
-    data=[]
+    data = []
 
-    for m in matches:
-        r=m.request
+    for match in matches:
+        request_obj = match.request
 
         data.append({
-            'id':r.id,
-            'brand':r.brand,
-            'model':r.model,
-            'category':r.category,
-            'phone':r.phone
+            'id': request_obj.id,
+            'brand': request_obj.brand,
+            'model': request_obj.model,
+            'category': request_obj.category,
+            'phone': request_obj.phone,
         })
 
     return JsonResponse({
-        'count':len(data),
-        'requests':data
+        'count': len(data),
+        'requests': data,
     })
 
 
 def seller_profile(request):
-    seller_id=request.GET.get('seller_id')
+    seller = _get_logged_seller(request)
 
-    seller=Seller.objects.get(
-        id=seller_id
-    )
+    if not seller:
+        return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
     return JsonResponse({
-        'id':seller.id,
-        'name':seller.name,
-        'whatsapp':seller.whatsapp,
-        'city':seller.city
+        'id': seller.id,
+        'name': seller.name,
+        'whatsapp': seller.whatsapp,
+        'phone2': seller.phone2,
+        'city': seller.city,
+        'market_location': seller.market_location,
+        'transport_type': seller.transport_type,
+        'seller_type': seller.seller_type,
+        'is_active': seller.is_active,
+        'is_paused': seller.is_paused,
+        'receive_requests': seller.receive_requests,
+        'must_change_password': seller.must_change_password,
     })
 
 
 @csrf_exempt
 def toggle_seller_pause(request):
-    data=json.loads(request.body)
+    seller = _get_logged_seller(request)
 
-    seller=Seller.objects.get(
-        id=data['seller_id']
-    )
+    if not seller:
+        return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
-    seller.is_paused=not seller.is_paused
-    seller.save()
+    seller.is_paused = not seller.is_paused
+    seller.save(update_fields=['is_paused'])
 
     return JsonResponse({
-        'status':'ok',
-        'is_paused':seller.is_paused
+        'status': 'ok',
+        'is_paused': seller.is_paused,
     })
 
 
 @csrf_exempt
 def update_seller_profile(request):
-    data=json.loads(request.body)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
 
-    seller=Seller.objects.get(
-        id=data['seller_id']
-    )
+    seller = _get_logged_seller(request)
 
-    seller.whatsapp=data.get(
-        'whatsapp',
-        seller.whatsapp
-    )
+    if not seller:
+        return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
-    seller.city=data.get(
-        'city',
-        seller.city
-    )
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
 
-    seller.save()
+    seller.phone2 = data.get('phone2', seller.phone2)
+    seller.city = data.get('city', seller.city)
+    seller.market_location = data.get('market_location', seller.market_location)
 
-    return JsonResponse({
-        'status':'ok'
-    })
+    seller.save(update_fields=['phone2', 'city', 'market_location'])
+
+    return JsonResponse({'status': 'ok'})
 
 
 @csrf_exempt
 def update_match_status(request):
-    data=json.loads(request.body)
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
 
-    match=Match.objects.get(
-        id=data['match_id']
-    )
+    seller = _get_logged_seller(request)
 
-    match.status=data['status']
-    match.save()
+    if not seller:
+        return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
-    return JsonResponse({
-        'status':'ok'
-    })
+    try:
+        data = json.loads(request.body)
+    except json.JSONDecodeError:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    match_id = data.get('match_id')
+    status = data.get('status')
+
+    try:
+        match = Match.objects.get(id=match_id, seller=seller)
+    except Match.DoesNotExist:
+        return JsonResponse({'error': 'Заявка не найдена'}, status=404)
+
+    match.status = status
+    match.save(update_fields=['status'])
+
+    return JsonResponse({'status': 'ok'})
