@@ -68,9 +68,7 @@ def parse_sellers_xlsx(file_obj):
 
     required = [
         'seller_name',
-        'whatsapp',
         'transport_type',
-        'categories',
     ]
 
     errors = []
@@ -102,32 +100,46 @@ def parse_sellers_xlsx(file_obj):
         notes = get_cell(row, headers, 'notes')
 
         if not seller_name:
-            errors.append(f'Строка {row_number}: нет seller_name')
-            continue
+            seller_name = f"Seller {row_number}"
+            notes = (notes + " | " if notes else "") + "Требует проверки: нет названия"
 
         if not whatsapp:
-            errors.append(f'Строка {row_number}: нет whatsapp')
-            continue
+            whatsapp = f"NO-WA-{row_number}"
+            notes = (notes + " | " if notes else "") + "Требует проверки: нет WhatsApp"
+
+        if not categories:
+            categories = 'general_parts'
+            notes = (notes + " | " if notes else "") + "Требует проверки: нет категории"
+
+        if not countries:
+            countries = 'Multi'
+            notes = (notes + " | " if notes else "") + "Требует проверки: нет страны"
+
+        if not brands:
+            brands = 'Multi'
+            notes = (notes + " | " if notes else "") + "Требует проверки: нет марки"
 
         if transport_type not in ['car', 'truck']:
-            errors.append(f'Строка {row_number}: transport_type должен быть car или truck')
-            continue
+            transport_type = 'car'
+            notes = (notes + " | " if notes else "") + "Требует проверки: transport_type исправлен на car"
 
         if seller_type not in ['seller', 'service', 'both']:
             seller_type = 'seller'
+            notes = (notes + " | " if notes else "") + "Требует проверки: seller_type исправлен на seller"
 
         try:
             dispatch_priority = int(dispatch_priority_raw)
         except ValueError:
             dispatch_priority = 1000
+            notes = (notes + " | " if notes else "") + "Требует проверки: priority исправлен на 1000"
 
         parsed_rows.append({
             'row_number': row_number,
-            'seller_name': seller_name,
+            'seller_name': seller_name[:255],
             'whatsapp': whatsapp,
             'phone2': phone2,
             'city': city,
-            'market_location': market_location,
+            'market_location': market_location[:255],
             'transport_type': transport_type,
             'categories': categories,
             'countries': countries,
@@ -167,17 +179,26 @@ def import_seller_row(row):
     country_names = split_values(row.get('countries'))
     brand_names = split_values(row.get('brands'))
 
-    seller.name = row['seller_name']
-    seller.whatsapp = row['whatsapp']
-    seller.phone2 = row['phone2']
-    seller.city = row['city']
-    seller.market_location = row['market_location']
+    if not category_names:
+        category_names = ['general_parts']
+
+    if not country_names:
+        country_names = ['Multi']
+
+    if not brand_names:
+        brand_names = ['Multi']
+
+    seller.name = row['seller_name'][:255]
+    seller.whatsapp = row['whatsapp'][:20]
+    seller.phone2 = row['phone2'][:20]
+    seller.city = row['city'][:100]
+    seller.market_location = row['market_location'][:255]
     seller.transport_type = row['transport_type']
     seller.seller_type = row['seller_type']
     seller.dispatch_priority = row['dispatch_priority']
     seller.notes = row['notes']
 
-    # Безопасность импорта
+    # Безопасность импорта: никто не получает заявки автоматически.
     seller.receive_requests = False
     seller.is_test_seller = False
     seller.is_active = True
@@ -187,7 +208,7 @@ def import_seller_row(row):
     seller.brand = brand_names[0] if brand_names else ''
     seller.model = ''
 
-    seller.all_categories = not bool(category_names)
+    seller.all_categories = not bool(category_names) or 'Multi' in category_names
     seller.all_countries = not bool(country_names) or 'Multi' in country_names
     seller.all_brands = not bool(brand_names) or 'Multi' in brand_names
     seller.all_models = True
@@ -523,7 +544,8 @@ class SellerAdmin(admin.ModelAdmin):
                     failed_count += 1
                     messages.error(
                         request,
-                        f"Ошибка строки {row.get('row_number')}: {row.get('seller_name')} — {exc}"
+                        f"Ошибка строки {row.get('row_number')}: "
+                        f"{row.get('seller_name')} — {exc}"
                     )
 
             request.session.pop('seller_import_rows', None)
