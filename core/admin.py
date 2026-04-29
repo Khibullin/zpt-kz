@@ -27,25 +27,22 @@ def normalize_phone(value):
     return ''.join(ch for ch in str(value or '') if ch.isdigit())
 
 
-def normalize_bool(value):
-    value = str(value or '').strip().lower()
-    return value in ['true', '1', 'yes', 'да', 'y']
-
-
 def split_values(value):
     if not value:
         return []
 
     raw = str(value).replace(',', ';')
-    return [item.strip() for item in raw.split(';') if item.strip()]
+    return [item.strip() for item in raw.split(';') if item and item.strip()]
 
 
 def get_cell(row, headers, name, default=''):
     index = headers.get(name)
+
     if index is None:
         return default
 
     value = row[index]
+
     if value is None:
         return default
 
@@ -62,13 +59,20 @@ def parse_sellers_xlsx(file_obj):
         return [], ['Файл пустой']
 
     header_row = rows[0]
+
     headers = {
         str(value).strip().lower(): index
         for index, value in enumerate(header_row)
         if value
     }
 
-    required = ['seller_name', 'whatsapp', 'transport_type', 'categories']
+    required = [
+        'seller_name',
+        'whatsapp',
+        'transport_type',
+        'categories',
+    ]
+
     errors = []
 
     for col in required:
@@ -91,6 +95,7 @@ def parse_sellers_xlsx(file_obj):
         market_location = get_cell(row, headers, 'market_location')
         transport_type = get_cell(row, headers, 'transport_type', 'car').lower()
         categories = get_cell(row, headers, 'categories')
+        countries = get_cell(row, headers, 'countries')
         brands = get_cell(row, headers, 'brands')
         seller_type = get_cell(row, headers, 'seller_type', 'seller').lower()
         dispatch_priority_raw = get_cell(row, headers, 'dispatch_priority', '1000')
@@ -125,6 +130,7 @@ def parse_sellers_xlsx(file_obj):
             'market_location': market_location,
             'transport_type': transport_type,
             'categories': categories,
+            'countries': countries,
             'brands': brands,
             'seller_type': seller_type,
             'receive_requests': False,
@@ -157,6 +163,10 @@ def import_seller_row(row):
         seller = Seller()
         created = True
 
+    category_names = split_values(row.get('categories'))
+    country_names = split_values(row.get('countries'))
+    brand_names = split_values(row.get('brands'))
+
     seller.name = row['seller_name']
     seller.whatsapp = row['whatsapp']
     seller.phone2 = row['phone2']
@@ -167,31 +177,46 @@ def import_seller_row(row):
     seller.dispatch_priority = row['dispatch_priority']
     seller.notes = row['notes']
 
+    # Безопасность импорта
     seller.receive_requests = False
     seller.is_test_seller = False
     seller.is_active = True
     seller.is_paused = False
 
-    category_names = split_values(row['categories'])
-    brand_names = split_values(row['brands'])
-
     seller.category = category_names[0] if category_names else ''
     seller.brand = brand_names[0] if brand_names else ''
+    seller.model = ''
 
     seller.all_categories = not bool(category_names)
-    seller.all_brands = not bool(brand_names)
+    seller.all_countries = not bool(country_names) or 'Multi' in country_names
+    seller.all_brands = not bool(brand_names) or 'Multi' in brand_names
     seller.all_models = True
 
     seller.save()
 
     seller.selected_categories.clear()
+    seller.selected_countries.clear()
     seller.selected_brands.clear()
+    seller.selected_models.clear()
 
     for category_name in category_names:
+        if category_name == 'Multi':
+            continue
+
         category, _ = PartCategory.objects.get_or_create(name=category_name)
         seller.selected_categories.add(category)
 
+    for country_name in country_names:
+        if country_name == 'Multi':
+            continue
+
+        country, _ = Country.objects.get_or_create(name=country_name)
+        seller.selected_countries.add(country)
+
     for brand_name in brand_names:
+        if brand_name == 'Multi':
+            continue
+
         matches = Brand.objects.filter(
             name__iexact=brand_name,
             transport_type=row['transport_type']
@@ -384,7 +409,6 @@ class SellerAdmin(admin.ModelAdmin):
     )
 
     fieldsets = (
-
         ('Основное', {
             'fields': (
                 'name',
@@ -433,6 +457,7 @@ class SellerAdmin(admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
+
         custom_urls = [
             path(
                 'import-xlsx/',
@@ -440,6 +465,7 @@ class SellerAdmin(admin.ModelAdmin):
                 name='core_seller_import_xlsx'
             ),
         ]
+
         return custom_urls + urls
 
     def import_xlsx_view(self, request):
@@ -459,6 +485,7 @@ class SellerAdmin(admin.ModelAdmin):
                 rows, errors = parse_sellers_xlsx(request.FILES['file'])
 
                 preview_rows = []
+
                 for row in rows:
                     exists = find_seller_by_whatsapp(row['whatsapp']) is not None
                     preview_rows.append({
@@ -481,20 +508,30 @@ class SellerAdmin(admin.ModelAdmin):
 
             created_count = 0
             updated_count = 0
+            failed_count = 0
 
             for row in rows:
-                created = import_seller_row(row)
+                try:
+                    created = import_seller_row(row)
 
-                if created:
-                    created_count += 1
-                else:
-                    updated_count += 1
+                    if created:
+                        created_count += 1
+                    else:
+                        updated_count += 1
+
+                except Exception as exc:
+                    failed_count += 1
+                    messages.error(
+                        request,
+                        f"Ошибка строки {row.get('row_number')}: {row.get('seller_name')} — {exc}"
+                    )
 
             request.session.pop('seller_import_rows', None)
 
             messages.success(
                 request,
-                f'Импорт завершён. Создано: {created_count}. Обновлено: {updated_count}.'
+                f'Импорт завершён. Создано: {created_count}. '
+                f'Обновлено: {updated_count}. Ошибок: {failed_count}.'
             )
 
             return redirect('..')
