@@ -10,18 +10,37 @@
 <link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
 
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0}
+body{font-family:Arial;background:#f5f5f5;margin:0;color:#222}
 .wrap{max-width:1100px;margin:auto;padding:20px}
 .card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-h1{margin-top:0;color:#d62828}.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.tab{border:none;padding:16px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}.tab.active{background:#3478f6;color:#fff}
-.section{display:none}.section.active{display:block}.btn{border:none;padding:11px 18px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px}
-.red{background:#ed1c24;color:#fff}.blue{background:#3478f6;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#f57c00;color:#fff}.gray{background:#757575;color:#fff}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.metric{border:1px solid #dde3ef;border-radius:14px;padding:18px}.metric b{display:block;font-size:42px;margin-top:8px}
-label{font-weight:bold;display:block;margin-top:12px;margin-bottom:6px}select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;font-size:15px;box-sizing:border-box}
-.checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:1px solid #e5e5e5;padding:14px;border-radius:12px;background:#fafafa;max-height:260px;overflow:auto}.checkgrid label{font-weight:normal;margin:0;display:flex;gap:8px;align-items:center}.checkgrid input,.checkblock input{width:auto}.checkblock{margin-top:12px;padding:12px;background:#f5f8ff;border-radius:10px}
-.ticket{border:1px solid #e6e6e6;border-radius:14px;padding:16px;margin-top:14px}.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:#eef5ff;font-size:12px;font-weight:bold}.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #eee}
-.error{color:#ed1c24;font-weight:bold;margin-top:12px}.hint{font-size:13px;color:#666;margin-top:12px}
+h1{margin-top:0;color:#d62828}
+h2,h3{margin-bottom:10px}
+.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.tab{border:none;padding:16px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
+.tab.active{background:#3478f6;color:#fff}
+.section{display:none}
+.section.active{display:block}
+.btn{border:none;padding:11px 18px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px}
+.red{background:#ed1c24;color:#fff}
+.blue{background:#3478f6;color:#fff}
+.green{background:#25D366;color:#fff}
+.orange{background:#f57c00;color:#fff}
+.gray{background:#757575;color:#fff}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.metric{border:1px solid #dde3ef;border-radius:14px;padding:18px}.metric b{display:block;font-size:42px;margin-top:8px}
+label{font-weight:bold;display:block;margin-top:12px;margin-bottom:6px}
+select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;font-size:15px;box-sizing:border-box}
+.checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:1px solid #e5e5e5;padding:14px;border-radius:12px;background:#fafafa;max-height:260px;overflow:auto}
+.checkgrid label{font-weight:normal;margin:0;display:flex;gap:8px;align-items:center}
+.checkgrid input,.checkblock input{width:auto}
+.checkblock{margin-top:12px;padding:12px;background:#f5f8ff;border-radius:10px}
+.checkblock label{font-weight:normal;margin:8px 0;display:flex;gap:8px;align-items:center}
+.ticket{border:1px solid #e6e6e6;border-radius:14px;padding:16px;margin-top:14px}
+.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:#eef5ff;font-size:12px;font-weight:bold}
+.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #eee}
+.error{color:#ed1c24;font-weight:bold;margin-top:12px}
+.hint{font-size:13px;color:#666;margin-top:12px}
+.muted{color:#666;font-size:13px;line-height:1.5}
 @media(max-width:760px){.tabs,.grid3,.checkgrid{grid-template-columns:1fr}}
 </style>
 </head>
@@ -124,6 +143,21 @@ label{font-weight:bold;display:block;margin-top:12px;margin-bottom:6px}select,in
     <div class="card">
       <h2>Редактирование профиля</h2>
 
+      <h3>Участие в заявках</h3>
+      <div class="checkblock">
+        <label>
+          <input type="checkbox" id="receive_requests">
+          Получать заявки
+        </label>
+        <label>
+          <input type="checkbox" id="is_test_seller">
+          Тестовый продавец (для TEST-режима)
+        </label>
+        <div class="muted">
+          В TEST-режиме заявки получают только тестовые продавцы. В LIVE-режиме — продавцы с включенным пунктом «Получать заявки».
+        </div>
+      </div>
+
       <label>WhatsApp</label>
       <input id="edit_whatsapp" disabled>
 
@@ -175,10 +209,6 @@ const cities=[
  'Павлодар','Усть-Каменогорск','Семей','Костанай','Петропавловск',
  'Кокшетау','Тараз','Туркестан','Кызылорда','Уральск','Талдыкорган'
 ];
-
-function sellerId(){
-  return localStorage.getItem('seller_id');
-}
 
 async function apiFetch(url, options={}){
   return fetch(url,{
@@ -300,10 +330,16 @@ async function loadCheckboxData(){
 async function loadModelsForSelectedBrands(){
   let ids=checkedIds('brandcheck');
   let models=[];
+  let used={};
 
   for(let id of ids){
     let d=await(await apiFetch(API+'/models-by-brand/?brand_id='+id+'&transport_type='+(seller?.transport_type||'car'))).json();
-    models=models.concat(d);
+    d.forEach(m=>{
+      if(!used[m.id]){
+        used[m.id]=true;
+        models.push(m);
+      }
+    });
   }
 
   renderChecks('modelsBox',models,'modelcheck',(seller.selected_models||[]).map(x=>x.id));
@@ -323,15 +359,20 @@ async function loadSeller(){
   sellerSummary.innerHTML=`
     <b>${seller.name}</b><br>
     WhatsApp: ${seller.whatsapp}<br>
-    ${seller.is_paused?'На паузе':'Принимает заявки'}
+    ${seller.is_paused?'На паузе':'Принимает заявки'}<br>
+    ${seller.receive_requests?'Рассылка включена':'Рассылка выключена'}${seller.is_test_seller?' / Тестовый продавец':''}
   `;
 
   profileData.innerHTML=`
     <b>WhatsApp:</b> ${seller.whatsapp}<br>
     <b>Город:</b> ${seller.city||'-'}<br>
-    <b>Локация:</b> ${seller.market_location||'-'}<br><br>
-    <b>Категории:</b> ${seller.all_categories?'Все категории':(seller.selected_categories||[]).map(x=>x.name).join(', ')}<br><br>
-    <b>Марки:</b> ${seller.all_brands?'Все марки':(seller.selected_brands||[]).map(x=>x.name).join(', ')}
+    <b>Локация:</b> ${seller.market_location||'-'}<br>
+    <b>Получает заявки:</b> ${seller.receive_requests?'Да':'Нет'}<br>
+    <b>Тестовый продавец:</b> ${seller.is_test_seller?'Да':'Нет'}<br><br>
+    <b>Категории:</b> ${seller.all_categories?'Все категории':((seller.selected_categories||[]).map(x=>x.name).join(', ')||'-')}<br><br>
+    <b>Страны:</b> ${seller.all_countries?'Все страны':((seller.selected_countries||[]).map(x=>x.name).join(', ')||'-')}<br><br>
+    <b>Марки:</b> ${seller.all_brands?'Все марки':((seller.selected_brands||[]).map(x=>x.name).join(', ')||'-')}<br><br>
+    <b>Модели:</b> ${seller.all_models?'Все модели':((seller.selected_models||[]).map(x=>x.name).join(', ')||'-')}
   `;
 
   pauseBtn.innerText=seller.is_paused?'Возобновить':'Пауза';
@@ -340,6 +381,9 @@ async function loadSeller(){
   edit_phone2.value=seller.phone2||'';
   edit_city.innerHTML=optionList(cities,seller.city);
   edit_market_location.value=seller.market_location||'';
+
+  receive_requests.checked=!!seller.receive_requests;
+  is_test_seller.checked=!!seller.is_test_seller;
 
   all_categories.checked=!!seller.all_categories;
   all_countries.checked=!!seller.all_countries;
@@ -433,12 +477,14 @@ function showSavedToast(text='✓ Настройки сохранены'){
 }
 
 async function saveMultiProfile(){
-  await apiFetch(`${API}/update-seller-profile/`,{
+  let r=await apiFetch(`${API}/update-seller-profile/`,{
     method:'POST',
     body:JSON.stringify({
       phone2:edit_phone2.value,
       city:edit_city.value,
       market_location:edit_market_location.value,
+      receive_requests:receive_requests.checked,
+      is_test_seller:is_test_seller.checked,
       selected_category_ids:checkedIds('catcheck'),
       selected_country_ids:checkedIds('countrycheck'),
       selected_brand_ids:checkedIds('brandcheck'),
@@ -449,6 +495,13 @@ async function saveMultiProfile(){
       all_models:all_models.checked
     })
   });
+
+  let data=await r.json();
+
+  if(data.error){
+    showSavedToast('Ошибка: '+data.error);
+    return;
+  }
 
   showSavedToast();
   await loadSeller();
