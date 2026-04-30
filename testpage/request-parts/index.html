@@ -1,494 +1,213 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Заявка на запчасти — Market Parts</title>
-  <style>
-    * { box-sizing: border-box; }
-    body { margin: 0; font-family: Arial, sans-serif; background: #f5f5f5; color: #222; }
-    .wrap { max-width: 760px; margin: 0 auto; padding: 24px 16px 48px; }
-    .card { background: #fff; border-radius: 16px; padding: 22px; box-shadow: 0 6px 24px rgba(0,0,0,.08); }
-    h1 { margin: 0 0 10px; font-size: 28px; color: #c62828; }
-    .sub, .note { color: #555; line-height: 1.5; }
-    .transport-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
-    .transport-switch button { min-height: 46px; border-radius: 12px; border: 1px solid #ddd; background: #f1f1f1; font-weight: bold; cursor: pointer; }
-    .transport-switch button.active { background: #d6281f; color: #fff; border-color: #d6281f; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; }
-    .field.full { grid-column: 1 / -1; }
-    label { font-size: 14px; font-weight: bold; }
-    input, select, textarea, button { width: 100%; min-height: 46px; border-radius: 12px; border: 1px solid #d8d8d8; padding: 0 14px; font-size: 16px; font-family: inherit; }
-    textarea { min-height: 110px; padding-top: 12px; resize: vertical; }
-    .submit-btn { background: #d6281f; color: #fff; border: none; font-size: 18px; font-weight: bold; cursor: pointer; }
-    .submit-btn:disabled { opacity: .7; cursor: not-allowed; }
-    .msg { margin-top: 16px; padding: 16px; border-radius: 14px; display: none; font-size: 16px; line-height: 1.55; }
-    .msg.success { display: block; background: #e8f5e9; color: #0d5d22; border: 1px solid #c8e6c9; }
-    .msg.error { display: block; background: #ffebee; color: #b71c1c; border: 1px solid #ffcdd2; }
-    .seller-list { margin-top: 14px; display: grid; gap: 10px; }
-    .seller-card { background: #fff; border: 1px solid #cfe8d2; border-radius: 12px; padding: 12px; }
-    .seller-name { font-weight: bold; margin-bottom: 4px; color: #222; }
-    .seller-type { font-size: 14px; color: #555; margin-bottom: 10px; }
-    .seller-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-    .wa-btn { display: inline-block; padding: 9px 12px; color: #fff; border-radius: 9px; text-decoration: none; font-weight: bold; font-size: 14px; background: #25D366; }
-    .wave-info { background: #f7fff8; border: 1px solid #cfe8d2; border-radius: 12px; padding: 12px; margin: 12px 0; color: #0d5d22; }
-    @media (max-width: 640px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 24px; } }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Заявка на запчасти — Market Parts</title>
+
+<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
+<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
+<link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
+.wrap{max-width:980px;margin:auto;padding:24px 16px 48px}
+.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+h1{margin:0 0 10px;color:#c62828;font-size:30px}
+.sub{margin:0 0 22px;color:#555;line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+.field{display:flex;flex-direction:column}.field.full{grid-column:1/-1}
+label{font-weight:bold;margin-bottom:6px}
+input,select,textarea,button{width:100%;border-radius:10px;border:1px solid #d7d7d7;font-size:15px;padding:0 14px}
+input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;resize:vertical}
+.transport{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.transport button{background:#eef2f7;color:#3478f6;font-weight:bold;cursor:pointer;border:none}
+.transport button.active{background:#3478f6;color:#fff}
+.submit-btn{background:#c62828;color:#fff;border:none;font-weight:bold;cursor:pointer}.submit-btn:disabled{background:#999;cursor:not-allowed}
+.msg{display:none;margin-top:16px;padding:14px;border-radius:12px;line-height:1.45}.msg.success{display:block;background:#e8f5e9;color:#1b5e20}.msg.error{display:block;background:#ffebee;color:#b71c1c}
+.result-card{margin-top:14px;border:1px solid #e0e0e0;border-radius:14px;padding:14px;background:#fafafa}.seller-row{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #eee;padding-top:10px;margin-top:10px}
+.wa-btn{display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;white-space:nowrap}.hint{font-size:13px;color:#666;margin-top:6px}
+@media(max-width:760px){.grid,.transport{grid-template-columns:1fr}.seller-row{display:block}.wa-btn{margin-top:10px}}
+</style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="card">
-      <h1>Заявка на запчасти</h1>
-      <p class="sub">Оставьте одну заявку, и её получат продавцы автозапчастей.</p>
 
-      <div class="transport-switch">
-        <button type="button" id="btnCar" class="active">Легковые</button>
-        <button type="button" id="btnTruck">Грузовые</button>
-      </div>
+<div class="wrap">
+  <div class="card">
+    <h1>Отправить заявку на запчасти</h1>
+    <p class="sub">Заполните данные автомобиля и нужной запчасти. Заявка будет направлена подходящим продавцам.</p>
 
-      <form id="requestForm">
-        <div class="grid">
-          <div class="field full">
-            <label for="country">Страна производителя</label>
-            <select id="country"><option value="">Загрузка стран...</option></select>
-          </div>
-
-          <div class="field">
-            <label for="brand">Марка автомобиля</label>
-            <select id="brand" disabled><option value="">Сначала выберите страну</option></select>
-          </div>
-
-          <div class="field">
-            <label for="model">Модель автомобиля</label>
-            <select id="model" disabled><option value="">Сначала выберите марку</option></select>
-          </div>
-
-          <div class="field">
-            <label for="category">Категория запчасти</label>
-            <select id="category" required>
-              <option value="">Выберите категорию</option>
-              <option value="Двигатель">Двигатель</option>
-              <option value="КПП / трансмиссия">КПП / трансмиссия</option>
-              <option value="Ходовая / подвеска">Ходовая / подвеска</option>
-              <option value="Тормозная система">Тормозная система</option>
-              <option value="Кузов">Кузов</option>
-              <option value="Оптика">Оптика</option>
-              <option value="Электрика">Электрика</option>
-              <option value="Салон">Салон</option>
-              <option value="Система охлаждения">Система охлаждения</option>
-              <option value="Топливная система">Топливная система</option>
-              <option value="Выхлопная система">Выхлопная система</option>
-              <option value="Рулевое управление">Рулевое управление</option>
-              <option value="Кондиционер / отопитель">Кондиционер / отопитель</option>
-              <option value="Расходники">Расходники</option>
-              <option value="Другое">Другое</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="article">Артикул</label>
-            <input type="text" id="article" placeholder="Если есть" />
-          </div>
-
-          <div class="field">
-            <label for="city">Город</label>
-            <select id="city" required>
-              <option value="">Выберите город</option>
-              <option value="Алматы">Алматы</option>
-              <option value="Астана">Астана</option>
-              <option value="Шымкент">Шымкент</option>
-              <option value="Караганда">Караганда</option>
-              <option disabled>──────────</option>
-              <option value="Актобе">Актобе</option>
-              <option value="Атырау">Атырау</option>
-              <option value="Актау">Актау</option>
-              <option value="Павлодар">Павлодар</option>
-              <option value="Усть-Каменогорск">Усть-Каменогорск</option>
-              <option value="Семей">Семей</option>
-              <option value="Костанай">Костанай</option>
-              <option value="Петропавловск">Петропавловск</option>
-              <option value="Кокшетау">Кокшетау</option>
-              <option value="Тараз">Тараз</option>
-              <option value="Туркестан">Туркестан</option>
-              <option value="Кызылорда">Кызылорда</option>
-              <option value="Уральск">Уральск</option>
-              <option value="Талдыкорган">Талдыкорган</option>
-              <option value="Жезказган">Жезказган</option>
-              <option value="Экибастуз">Экибастуз</option>
-            </select>
-          </div>
-
-          <div class="field">
-            <label for="phone">Телефон / WhatsApp</label>
-            <input type="text" id="phone" placeholder="+7 701 123 45 67" required />
-          </div>
-
-          <div class="field full">
-            <label for="description">Описание</label>
-            <textarea id="description" placeholder="Например: нужен передний бампер, белый цвет, рестайлинг"></textarea>
-          </div>
-
-          <div class="field full">
-            <button type="submit" class="submit-btn" id="submitBtn">Отправить заявку</button>
+    <form id="requestForm">
+      <div class="grid">
+        <div class="field full">
+          <label>Тип транспорта</label>
+          <div class="transport">
+            <button type="button" id="carBtn" class="active" onclick="setTransport('car')">Легковые</button>
+            <button type="button" id="truckBtn" onclick="setTransport('truck')">Грузовые</button>
           </div>
         </div>
-      </form>
 
-      <div id="msg" class="msg"></div>
+        <div class="field">
+          <label for="country">Страна производителя</label>
+          <select id="country" required><option value="">Загрузка стран...</option></select>
+        </div>
 
-      <p class="note">После отправки заявка будет обработана и распределена по продавцам.</p>
-    </div>
+        <div class="field">
+          <label for="brand">Марка</label>
+          <select id="brand" required><option value="">Сначала выберите страну</option></select>
+        </div>
+
+        <div class="field">
+          <label for="model">Модель</label>
+          <select id="model" required><option value="">Сначала выберите марку</option></select>
+        </div>
+
+        <div class="field">
+          <label for="category">Категория запчасти</label>
+          <select id="category" required><option value="">Загрузка категорий...</option></select>
+        </div>
+
+        <div class="field">
+          <label for="article">Артикул</label>
+          <input id="article" placeholder="Если есть">
+          <div class="hint">Артикул пока не отправляем продавцам, но сохраняем в заявке.</div>
+        </div>
+
+        <div class="field">
+          <label for="city">Город</label>
+          <select id="city" required>
+            <option value="">Выберите город</option>
+            <option value="Алматы">Алматы</option><option value="Астана">Астана</option><option value="Шымкент">Шымкент</option><option value="Караганда">Караганда</option>
+            <option disabled>──────────</option>
+            <option value="Актобе">Актобе</option><option value="Атырау">Атырау</option><option value="Актау">Актау</option><option value="Павлодар">Павлодар</option>
+            <option value="Усть-Каменогорск">Усть-Каменогорск</option><option value="Семей">Семей</option><option value="Костанай">Костанай</option><option value="Петропавловск">Петропавловск</option>
+            <option value="Кокшетау">Кокшетау</option><option value="Тараз">Тараз</option><option value="Туркестан">Туркестан</option><option value="Кызылорда">Кызылорда</option>
+            <option value="Уральск">Уральск</option><option value="Талдыкорган">Талдыкорган</option><option value="Жезказган">Жезказган</option><option value="Экибастуз">Экибастуз</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="phone">Телефон / WhatsApp</label>
+          <input type="text" id="phone" placeholder="+7 701 123 45 67" required>
+        </div>
+
+        <div class="field full">
+          <label for="description">Описание</label>
+          <textarea id="description" placeholder="Например: нужен передний бампер, белый цвет, рестайлинг"></textarea>
+        </div>
+
+        <div class="field full">
+          <button type="submit" class="submit-btn" id="submitBtn">Отправить заявку</button>
+        </div>
+      </div>
+    </form>
+
+    <div id="msg" class="msg"></div>
   </div>
+</div>
 
 <script>
-const API_BASE = 'https://zpt-kz-backend.onrender.com/api';
-let transportType = 'car';
+const API='https://zpt-kz-backend.onrender.com/api';
+let transportType='car';
+let countriesData=[];let brandsData=[];let modelsData=[];
+const countryEl=document.getElementById('country');
+const brandEl=document.getElementById('brand');
+const modelEl=document.getElementById('model');
+const categoryEl=document.getElementById('category');
+const articleEl=document.getElementById('article');
+const cityEl=document.getElementById('city');
+const phoneEl=document.getElementById('phone');
+const descriptionEl=document.getElementById('description');
+const msg=document.getElementById('msg');
+const submitBtn=document.getElementById('submitBtn');
 
-const btnCar = document.getElementById('btnCar');
-const btnTruck = document.getElementById('btnTruck');
-const form = document.getElementById('requestForm');
-const submitBtn = document.getElementById('submitBtn');
-const msg = document.getElementById('msg');
-const countryEl = document.getElementById('country');
-const brandEl = document.getElementById('brand');
-const modelEl = document.getElementById('model');
+function setMessage(text,type){msg.className='msg '+type;msg.innerHTML=text}
+function clearMessage(){msg.className='msg';msg.innerHTML=''}
+function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
+async function apiGet(url){let r=await fetch(url);if(!r.ok){throw new Error('Ошибка загрузки данных')}return r.json()}
+function optionHtml(value,label){return `<option value="${value}">${label}</option>`}
+function getSelectedText(select){if(!select.value)return '';let opt=select.options[select.selectedIndex];return opt?opt.textContent.trim():''}
 
-function escapeHtml(value) {
-  return String(value || '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+function setTransport(type){
+  transportType=type;
+  carBtn.classList.toggle('active',type==='car');
+  truckBtn.classList.toggle('active',type==='truck');
+  brandEl.innerHTML='<option value="">Сначала выберите страну</option>';
+  modelEl.innerHTML='<option value="">Сначала выберите марку</option>';
+  loadCountries();
 }
 
-function normalizePhone(value) {
-  let digits = String(value || '').replace(/\D/g, '');
-  if (digits.length === 11 && digits.startsWith('8')) digits = '7' + digits.slice(1);
-  return digits;
+async function loadCategories(){
+  try{
+    let cats=await apiGet(API+'/part-categories/');
+    categoryEl.innerHTML='<option value="">Выберите категорию</option>'+cats.map(c=>optionHtml(c.name,c.name)).join('');
+  }catch(e){categoryEl.innerHTML='<option value="">Ошибка загрузки категорий</option>'}
 }
 
-function isValidKazakhstanPhone(value) {
-  const digits = normalizePhone(value);
-  return /^7\d{10}$/.test(digits);
+async function loadCountries(){
+  try{
+    countriesData=await apiGet(API+'/countries/');
+    countryEl.innerHTML='<option value="">Выберите страну</option>'+countriesData.map(c=>optionHtml(c.id,c.name)).join('');
+  }catch(e){countryEl.innerHTML='<option value="">Ошибка загрузки стран</option>'}
 }
 
-function setMessage(html, type) {
-  msg.className = 'msg ' + type;
-  msg.innerHTML = html;
-  msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+async function loadBrands(){
+  let countryId=countryEl.value;
+  brandEl.innerHTML='<option value="">Загрузка марок...</option>';
+  modelEl.innerHTML='<option value="">Сначала выберите марку</option>';
+  if(!countryId){brandEl.innerHTML='<option value="">Сначала выберите страну</option>';return}
+  try{
+    brandsData=await apiGet(API+'/brands-by-country/?country_id='+countryId+'&transport_type='+transportType);
+    brandEl.innerHTML='<option value="">Выберите марку</option>'+brandsData.map(b=>optionHtml(b.id,b.name)).join('');
+    if(!brandsData.length){brandEl.innerHTML='<option value="">Марок нет в справочнике</option>'}
+  }catch(e){brandEl.innerHTML='<option value="">Ошибка загрузки марок</option>'}
 }
 
-function clearMessage() {
-  msg.className = 'msg';
-  msg.innerHTML = '';
+async function loadModels(){
+  let brandId=brandEl.value;
+  modelEl.innerHTML='<option value="">Загрузка моделей...</option>';
+  if(!brandId){modelEl.innerHTML='<option value="">Сначала выберите марку</option>';return}
+  try{
+    modelsData=await apiGet(API+'/models-by-brand/?brand_id='+brandId+'&transport_type='+transportType);
+    modelEl.innerHTML='<option value="">Выберите модель</option>'+modelsData.map(m=>optionHtml(m.id,m.name)).join('');
+    if(!modelsData.length){modelEl.innerHTML='<option value="">Моделей нет в справочнике</option>'}
+  }catch(e){modelEl.innerHTML='<option value="">Ошибка загрузки моделей</option>'}
 }
 
-function resetBrand() {
-  brandEl.innerHTML = '<option value="">Сначала выберите страну</option>';
-  brandEl.disabled = true;
-}
-
-function resetModel() {
-  modelEl.innerHTML = '<option value="">Сначала выберите марку</option>';
-  modelEl.disabled = true;
-}
-
-function setTransport(type) {
-  transportType = type;
-  btnCar.classList.toggle('active', type === 'car');
-  btnTruck.classList.toggle('active', type === 'truck');
-  countryEl.value = '';
-  resetBrand();
-  resetModel();
-  loadCountries(false);
-}
-
-async function loadCountries(shouldClear = true) {
-  if (shouldClear) clearMessage();
-
-  try {
-    const res = await fetch(`${API_BASE}/countries/`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    countryEl.innerHTML = '<option value="">Выберите страну</option>';
-
-    data.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.id;
-      option.textContent = item.name;
-      countryEl.appendChild(option);
+function renderResult(data){
+  let sellers=data.sellers||[];
+  let notifications=data.seller_notifications||[];
+  let html=`<b>Заявка отправлена! ID: ${data.id}</b><br>Найдено продавцов: <b>${data.matches||0}</b><br>Стратегия: ${data.strategy||'-'}<br>${data.message||''}`;
+  if(sellers.length){
+    html+='<div class="result-card"><b>Первая волна продавцов:</b>';
+    sellers.forEach((s,index)=>{
+      let wa=(notifications[index]&&notifications[index].wa_link)||s.buyer_wa_link||'#';
+      html+=`<div class="seller-row"><div><b>${s.seller_name||(notifications[index]&&notifications[index].seller)||'Продавец'}</b><br>Волна: ${s.wave_number||1} / статус: ${s.status||'prepared'}</div><a class="wa-btn" href="${wa}" target="_blank" rel="noopener">WhatsApp</a></div>`;
     });
-
-    resetBrand();
-    resetModel();
-  } catch (error) {
-    countryEl.innerHTML = '<option value="">Ошибка загрузки стран</option>';
-    resetBrand();
-    resetModel();
-    setMessage('Не удалось загрузить страны', 'error');
+    html+='</div>';
   }
+  setMessage(html,'success');
 }
 
-async function loadBrands(countryId) {
-  resetModel();
-
-  if (!countryId) {
-    resetBrand();
-    return;
-  }
-
-  brandEl.disabled = true;
-  brandEl.innerHTML = '<option value="">Загрузка...</option>';
-
-  try {
-    const res = await fetch(`${API_BASE}/brands-by-country/?country_id=${countryId}&transport_type=${transportType}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    brandEl.innerHTML = '<option value="">Выберите марку</option>';
-
-    data.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.id;
-      option.textContent = item.name;
-      brandEl.appendChild(option);
-    });
-
-    brandEl.disabled = false;
-  } catch (error) {
-    brandEl.innerHTML = '<option value="">Ошибка загрузки марки</option>';
-    brandEl.disabled = true;
-    setMessage('Не удалось загрузить марки', 'error');
-  }
-}
-
-async function loadModels(brandId) {
-  if (!brandId) {
-    resetModel();
-    return;
-  }
-
-  modelEl.disabled = true;
-  modelEl.innerHTML = '<option value="">Загрузка...</option>';
-
-  try {
-    const res = await fetch(`${API_BASE}/models-by-brand/?brand_id=${brandId}&transport_type=${transportType}`);
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-
-    const data = await res.json();
-    modelEl.innerHTML = '<option value="">Выберите модель</option>';
-
-    data.forEach(item => {
-      const option = document.createElement('option');
-      option.value = item.id;
-      option.textContent = item.name;
-      modelEl.appendChild(option);
-    });
-
-    modelEl.disabled = false;
-  } catch (error) {
-    modelEl.innerHTML = '<option value="">Ошибка загрузки модели</option>';
-    modelEl.disabled = true;
-    setMessage('Не удалось загрузить модели', 'error');
-  }
-}
-
-function buildBuyerWhatsAppText(requestId, payload) {
-  return encodeURIComponent(
-`Здравствуйте! Пишу по заявке №${requestId} с сайта ZPT.KZ.
-
-${payload.brand} ${payload.model}, категория: ${payload.category}
-Город: ${payload.city}
-Артикул: ${payload.article || '-'}
-
-${payload.description || ''}
-
-Подскажите, есть ли в наличии и какая цена?`
-  );
-}
-
-function buildResultHtml(data, payload) {
-  const matches = Number(data.matches || 0);
-  const sellers = Array.isArray(data.sellers) ? data.sellers : [];
-  const allSellers = Array.isArray(data.all_sellers) ? data.all_sellers : [];
-
-  const waveSize = Number(data.wave_size || 10);
-  const waveMinutes = Number(data.wave_interval_minutes || 10);
-  const totalWaves = Number(data.total_waves || Math.ceil(matches / waveSize));
-
-  let html = `
-    <strong style="font-size:22px;">Заявка принята ✔</strong><br><br>
-
-    Найдено продавцов: <strong>${matches}</strong><br><br>
-
-    <div class="wave-info">
-      Ваша заявка отправляется продавцам волнами:<br>
-      <strong>по ${waveSize} продавцов каждые ${waveMinutes} минут</strong><br>
-    </div>
-  `;
-
-  if (matches === 0) {
-    html += `
-      Подходящих продавцов сейчас не найдено.<br>
-      Мы рекомендуем попробовать другую категорию, город или описание заявки.<br><br>
-    `;
-  } else if (matches <= waveSize) {
-    html += `
-      Заявка отправлена всем найденным продавцам первой волной.<br><br>
-    `;
-  } else {
-    html += `
-      Всего волн рассылки: <strong>${totalWaves}</strong><br>
-      Волна 1 — отправлена сейчас.<br>
-      Волна 2 — через ${waveMinutes} минут.<br>
-      Волна 3 — ещё через ${waveMinutes} минут.<br>
-      Остальные волны уйдут автоматически, пока заявка не будет отправлена всем выбранным продавцам.<br><br>
-    `;
-  }
-
-  if (sellers.length > 0) {
-    html += `
-      <strong>Продавцы первой волны:</strong>
-      <div class="seller-list">
-    `;
-
-    sellers.forEach((seller, idx) => {
-      const sellerName = escapeHtml(seller.name || seller.seller_name || 'Продавец');
-      const sellerPhone = normalizePhone(seller.whatsapp);
-      const waLinkFromApi = seller.buyer_wa_link || '';
-      const waText = buildBuyerWhatsAppText(data.id, payload);
-      const waLink = waLinkFromApi || `https://wa.me/${sellerPhone}?text=${waText}`;
-
-      html += `
-        <div class="seller-card">
-          <div class="seller-name">${idx + 1}. ${sellerName}</div>
-          <div class="seller-type">Волна 1 — заявка отправлена</div>
-
-          <div class="seller-actions">
-            <a class="wa-btn" target="_blank" rel="noopener noreferrer" href="${waLink}">
-              Связаться в WhatsApp
-            </a>
-          </div>
-        </div>
-      `;
-    });
-
-    html += `</div>`;
-  }
-
-  if (allSellers.length > sellers.length) {
-    html += `
-      <br>
-      <strong>Следующие продавцы:</strong>
-      <div class="seller-list">
-    `;
-
-    allSellers.slice(sellers.length).forEach((seller, idx) => {
-      const sellerName = escapeHtml(seller.seller_name || seller.name || 'Продавец');
-      const waveNumber = seller.wave_number || '';
-      const statusLabel = escapeHtml(seller.status_label || 'Ожидает отправки');
-      const waLink = seller.buyer_wa_link || '#';
-
-      html += `
-        <div class="seller-card">
-          <div class="seller-name">${sellers.length + idx + 1}. ${sellerName}</div>
-          <div class="seller-type">Волна ${waveNumber} — ${statusLabel}</div>
-
-          <div class="seller-actions">
-            <a class="wa-btn" target="_blank" rel="noopener noreferrer" href="${waLink}">
-              Связаться в WhatsApp
-            </a>
-          </div>
-        </div>
-      `;
-    });
-
-    html += `</div>`;
-  } else if (matches > sellers.length) {
-    html += `
-      <br>
-      Остальные продавцы (${matches - sellers.length}) получат заявку автоматически следующими волнами.
-    `;
-  }
-
-  if (matches > 0) {
-    html += `
-      <br><br>
-      Вы можете самостоятельно написать выбранному продавцу через WhatsApp.
-      Номер продавца на странице не отображается.
-    `;
-  }
-
-  html += `
-    <br><br>
-    По вопросам сервиса и поддержки:<br>
-    WhatsApp +7 771 360 7040
-  `;
-
-  return html;
-}
-
-btnCar.addEventListener('click', () => setTransport('car'));
-btnTruck.addEventListener('click', () => setTransport('truck'));
-countryEl.addEventListener('change', () => loadBrands(countryEl.value));
-brandEl.addEventListener('change', () => loadModels(brandEl.value));
-
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  clearMessage();
-
-  const phoneRaw = document.getElementById('phone').value.trim();
-
-  if (!isValidKazakhstanPhone(phoneRaw)) {
-    setMessage('Введите корректный WhatsApp номер, например +7 701 123 45 67', 'error');
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Отправляем...';
-
-  const selectedCountry = countryEl.options[countryEl.selectedIndex]?.text || '';
-  const selectedBrand = brandEl.options[brandEl.selectedIndex]?.text || '';
-  const selectedModel = modelEl.options[modelEl.selectedIndex]?.text || '';
-
-  const payload = {
-    transport_type: transportType,
-    country: countryEl.value ? selectedCountry : '',
-    brand: brandEl.value ? selectedBrand : '',
-    model: modelEl.value ? selectedModel : '',
-    category: document.getElementById('category').value,
-    article: document.getElementById('article').value.trim(),
-    description: document.getElementById('description').value.trim(),
-    city: document.getElementById('city').value,
-    phone: normalizePhone(phoneRaw)
-  };
-
-  try {
-    const res = await fetch(`${API_BASE}/create-request/`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    const data = await res.json();
-
-    if (!res.ok) {
-      throw new Error(data.error || 'Ошибка отправки заявки');
-    }
-
-    form.reset();
-    setTransport('car');
-    setMessage(buildResultHtml(data, payload), 'success');
-  } catch (error) {
-    setMessage(error.message || 'Ошибка отправки заявки', 'error');
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Отправить заявку';
-  }
+document.getElementById('requestForm').addEventListener('submit',async function(e){
+  e.preventDefault();clearMessage();
+  let payload={transport_type:transportType,country:getSelectedText(countryEl),brand:getSelectedText(brandEl),model:getSelectedText(modelEl),category:categoryEl.value,article:articleEl.value.trim(),description:descriptionEl.value.trim(),city:cityEl.value,phone:normalizePhone(phoneEl.value)};
+  if(!payload.country||!payload.brand||!payload.model||!payload.category||!payload.city||!payload.phone){setMessage('Заполните обязательные поля.','error');return}
+  submitBtn.disabled=true;submitBtn.innerText='Отправляем...';
+  try{
+    let r=await fetch(API+'/create-request/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    let data=await r.json();
+    if(data.error){setMessage(data.error,'error');return}
+    renderResult(data);
+    requestForm.reset();setTransport('car');await loadCategories();
+  }catch(err){setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error')}
+  finally{submitBtn.disabled=false;submitBtn.innerText='Отправить заявку'}
 });
 
+countryEl.addEventListener('change',loadBrands);
+brandEl.addEventListener('change',loadModels);
+loadCategories();
 loadCountries();
 </script>
 </body>
