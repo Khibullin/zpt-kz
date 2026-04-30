@@ -235,9 +235,14 @@ async function sellerLogin(){
 }
 
 async function sellerLogout(){
-  await apiFetch(`${API}/seller-logout/`,{method:'POST',body:JSON.stringify({})});
+  await apiFetch(`${API}/seller-logout/`,{
+    method:'POST',
+    body:JSON.stringify({})
+  });
+
   localStorage.removeItem('seller_id');
-  location.reload();
+
+  window.location.href = '/request-parts/';
 }
 
 function togglePasswordVisible(show){
