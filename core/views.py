@@ -378,6 +378,7 @@ def create_request(request):
 
 
 @csrf_exempt
+@csrf_exempt
 def create_seller(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
@@ -428,16 +429,37 @@ def create_seller(request):
         is_paused=False,
         receive_requests=False,
         is_test_seller=False,
+        all_categories=bool(data.get('all_categories', False)),
+        all_countries=bool(data.get('all_countries', False)),
+        all_brands=bool(data.get('all_brands', False)),
+        all_models=bool(data.get('all_models', False)),
     )
+
+    if not seller.all_categories:
+        seller.selected_categories.set(
+            PartCategory.objects.filter(id__in=data.get('selected_category_ids', []) or [])
+        )
+
+    if not seller.all_countries:
+        seller.selected_countries.set(
+            Country.objects.filter(id__in=data.get('selected_country_ids', []) or [])
+        )
+
+    if not seller.all_brands:
+        seller.selected_brands.set(
+            Brand.objects.filter(id__in=data.get('selected_brand_ids', []) or [])
+        )
+
+    if not seller.all_models:
+        seller.selected_models.set(
+            CarModel.objects.filter(id__in=data.get('selected_model_ids', []) or [])
+        )
 
     return JsonResponse({
         'status': 'ok',
         'id': seller.id,
         'message': 'Продавец зарегистрирован',
     })
-
-
-@csrf_exempt
 def seller_login(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
@@ -571,6 +593,14 @@ def seller_profile(request):
         'is_paused': seller.is_paused,
         'receive_requests': seller.receive_requests,
         'must_change_password': seller.must_change_password,
+        'selected_categories': list(seller.selected_categories.values('id', 'name')),
+        'selected_countries': list(seller.selected_countries.values('id', 'name')),
+        'selected_brands': list(seller.selected_brands.values('id', 'name')),
+        'selected_models': list(seller.selected_models.values('id', 'name')),
+        'all_categories': seller.all_categories,
+        'all_countries': seller.all_countries,
+        'all_brands': seller.all_brands,
+        'all_models': seller.all_models,
     })
 
 
@@ -608,8 +638,45 @@ def update_seller_profile(request):
     seller.phone2 = data.get('phone2', seller.phone2)
     seller.city = data.get('city', seller.city)
     seller.market_location = data.get('market_location', seller.market_location)
+    seller.all_categories = bool(data.get('all_categories', False))
+    seller.all_countries = bool(data.get('all_countries', False))
+    seller.all_brands = bool(data.get('all_brands', False))
+    seller.all_models = bool(data.get('all_models', False))
 
-    seller.save(update_fields=['phone2', 'city', 'market_location'])
+    seller.save(update_fields=[
+        'phone2',
+        'city',
+        'market_location',
+        'all_categories',
+        'all_countries',
+        'all_brands',
+        'all_models',
+    ])
+
+    category_ids = data.get('selected_category_ids', []) or []
+    country_ids = data.get('selected_country_ids', []) or []
+    brand_ids = data.get('selected_brand_ids', []) or []
+    model_ids = data.get('selected_model_ids', []) or []
+
+    if seller.all_categories:
+        seller.selected_categories.clear()
+    else:
+        seller.selected_categories.set(PartCategory.objects.filter(id__in=category_ids))
+
+    if seller.all_countries:
+        seller.selected_countries.clear()
+    else:
+        seller.selected_countries.set(Country.objects.filter(id__in=country_ids))
+
+    if seller.all_brands:
+        seller.selected_brands.clear()
+    else:
+        seller.selected_brands.set(Brand.objects.filter(id__in=brand_ids))
+
+    if seller.all_models:
+        seller.selected_models.clear()
+    else:
+        seller.selected_models.set(CarModel.objects.filter(id__in=model_ids))
 
     return JsonResponse({'status': 'ok'})
 
