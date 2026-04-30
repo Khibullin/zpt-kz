@@ -108,6 +108,12 @@ password2.type=this.checked?'text':'password';
 
 <script>
 const API='https://zpt-kz-backend.onrender.com/api';
+const nameEl = document.getElementById('name');
+const whatsappEl = document.getElementById('whatsapp');
+const passwordEl = document.getElementById('password');
+const password2El = document.getElementById('password2');
+const cityEl = document.getElementById('city');
+const msg = document.getElementById('msg');
 
 function setMessage(text,type){
 msg.className='msg '+type;
@@ -146,7 +152,7 @@ whatsapp,
 password,
 password_confirm:password2,
 transport_type:'car',
-city:city.value
+city:cityEl.value
 })
 });
 
