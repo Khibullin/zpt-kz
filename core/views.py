@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import urllib.error
 import urllib.request
 from datetime import timedelta
@@ -35,7 +36,14 @@ def _normalize_whatsapp(phone):
 
 
 def _wa_template_param(value):
-    text = str(value or '-').strip()
+    text = str(value or '-')
+
+    text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+    text = re.sub(r'\s+', ' ', text)
+
+    text = text.strip()
+    text = text[:500]
+
     return {
         'type': 'text',
         'text': text if text else '-',
