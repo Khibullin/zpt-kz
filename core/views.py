@@ -42,7 +42,7 @@ def _wa_template_param(value):
     }
 
 
-def send_whatsapp_template(to_phone, req, seller_name=''):
+def send_whatsapp_template(to_phone, req):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
     template_name = os.getenv('WHATSAPP_TEMPLATE_NAME', 'zpt_request_notification')
@@ -51,39 +51,17 @@ def send_whatsapp_template(to_phone, req, seller_name=''):
     to_phone = _normalize_whatsapp(to_phone)
 
     if not phone_number_id or not access_token:
-        error_text = 'WhatsApp ENV variables are not configured'
-
-        WhatsAppMessageLog.objects.create(
-            request_id=req.id,
-            seller_name=seller_name or '-',
-            phone_clean=to_phone or '-',
-            is_success=False,
-            status_text='env_error',
-            error_text=error_text,
-        )
-
         return {
             'ok': False,
             'status_code': None,
-            'error': error_text,
+            'error': 'WhatsApp ENV variables are not configured',
         }
 
     if not to_phone:
-        error_text = 'Seller WhatsApp phone is empty'
-
-        WhatsAppMessageLog.objects.create(
-            request_id=req.id,
-            seller_name=seller_name or '-',
-            phone_clean='-',
-            is_success=False,
-            status_text='phone_error',
-            error_text=error_text,
-        )
-
         return {
             'ok': False,
             'status_code': None,
-            'error': error_text,
+            'error': 'Seller WhatsApp phone is empty',
         }
 
     url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
@@ -129,69 +107,23 @@ def send_whatsapp_template(to_phone, req, seller_name=''):
     try:
         with urllib.request.urlopen(http_request, timeout=20) as response:
             response_body = response.read().decode('utf-8')
-
-            message_id = ''
-
-            try:
-                response_json = json.loads(response_body)
-                messages = response_json.get('messages') or []
-
-                if messages:
-                    message_id = messages[0].get('id', '')
-            except Exception:
-                message_id = ''
-
-            WhatsAppMessageLog.objects.create(
-                request_id=req.id,
-                seller_name=seller_name or '-',
-                phone_clean=to_phone,
-                is_success=200 <= response.status < 300,
-                status_text='sent',
-                message_id=message_id,
-                error_text='' if 200 <= response.status < 300 else response_body,
-            )
-
             return {
                 'ok': 200 <= response.status < 300,
                 'status_code': response.status,
                 'response': response_body,
-                'message_id': message_id,
             }
-
     except urllib.error.HTTPError as e:
         error_body = e.read().decode('utf-8')
-
-        WhatsAppMessageLog.objects.create(
-            request_id=req.id,
-            seller_name=seller_name or '-',
-            phone_clean=to_phone,
-            is_success=False,
-            status_text='http_error',
-            error_text=error_body,
-        )
-
         return {
             'ok': False,
             'status_code': e.code,
             'error': error_body,
         }
-
     except Exception as e:
-        error_text = str(e)
-
-        WhatsAppMessageLog.objects.create(
-            request_id=req.id,
-            seller_name=seller_name or '-',
-            phone_clean=to_phone,
-            is_success=False,
-            status_text='error',
-            error_text=error_text,
-        )
-
         return {
             'ok': False,
             'status_code': None,
-            'error': error_text,
+            'error': str(e),
         }
 
 
@@ -513,30 +445,30 @@ def create_request(request):
 
     seller_notifications = []
 
-for dispatch in first_wave:
-    try:
-        wa_result = send_whatsapp_template(
-            dispatch.seller.whatsapp,
-            req,
-            dispatch.seller.name
-        )
-    except Exception as e:
-        print("WA ERROR:", str(e))
-        wa_result = {
-            'ok': False,
-            'status_code': None,
-            'error': str(e),
-        }
+    for dispatch in first_wave:
+        try:
+            wa_result = send_whatsapp_template(
+                dispatch.seller.whatsapp,
+                req,
+                dispatch.seller.name
+            )
+        except Exception as e:
+            print("WA ERROR:", str(e))
+            wa_result = {
+                'ok': False,
+                'status_code': None,
+                'error': str(e),
+            }
 
-    seller_notifications.append({
-        'seller': dispatch.seller.name,
-        'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
-        'wa_sent': wa_result.get('ok', False),
-        'wa_status_code': wa_result.get('status_code'),
-        'wa_error': wa_result.get('error'),
-    })
+        seller_notifications.append({
+            'seller': dispatch.seller.name,
+            'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
+            'wa_sent': wa_result.get('ok', False),
+            'wa_status_code': wa_result.get('status_code'),
+            'wa_error': wa_result.get('error'),
+        })
 
-return JsonResponse({
+    return JsonResponse({
         'status': 'ok',
         'id': req.id,
         'matches': len(matched),
@@ -557,7 +489,6 @@ return JsonResponse({
         ],
         'seller_notifications': seller_notifications,
     })
-
 
 @csrf_exempt
 def create_seller(request):
