@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls import path
+from .models import WhatsAppMessageLog
 
 from openpyxl import load_workbook
 
@@ -633,3 +634,19 @@ class RequestDispatchAdmin(admin.ModelAdmin):
         pause_dispatches,
         queue_dispatches,
     )
+
+from .models import WhatsAppMessageLog
+
+@admin.register(WhatsAppMessageLog)
+class WhatsAppMessageLogAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'created_at',
+        'seller_name',
+        'phone_clean',
+        'is_success',
+        'status_text',
+        'message_id',
+    )
+    search_fields = ('seller_name', 'phone_clean', 'message_id')
+    list_filter = ('is_success', 'status_text')
