@@ -220,9 +220,20 @@ async function loadModels(){
 function renderResult(data){
   let sellers=data.sellers||[];
   let notifications=data.seller_notifications||[];
-  let html=`<b>Заявка отправлена! ID: ${data.id}</b><br>Найдено продавцов: <b>${data.matches||0}</b><br>Стратегия: ${data.strategy||'-'}<br>${data.message||''}`;
+  let html = `
+<b>Заявка принята.</b><br><br>
+
+Мы уже отправили вашу заявку продавцам.<br>
+В ближайшее время они сами напишут вам в WhatsApp с предложениями.<br><br>
+
+Обычно ответы приходят в течение 5–15 минут.<br><br>
+
+Не нужно отправлять заявку повторно — продавцы уже её получили.<br><br>
+
+Вы также можете написать продавцу сами, если хотите ускорить ответ.
+`;
   if(sellers.length){
-    html+='<div class="result-card"><b>Первая волна продавцов:</b>';
+    html+='<div class="result-card"><b>Уже получили вашу заявку:</b>';
     sellers.forEach((s,index)=>{
       let wa=(notifications[index]&&notifications[index].wa_link)||s.buyer_wa_link||'#';
       html+=`<div class="seller-row"><div><b>${s.seller_name||(notifications[index]&&notifications[index].seller)||'Продавец'}</b><br>Волна: ${s.wave_number||1} / статус: ${s.status||'prepared'}</div><a class="wa-btn" href="${wa}" target="_blank" rel="noopener">WhatsApp</a></div>`;
