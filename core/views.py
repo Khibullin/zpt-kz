@@ -514,15 +514,27 @@ def create_request(request):
     seller_notifications = []
 
     for dispatch in first_wave:
-        wa_result = send_whatsapp_template(dispatch.seller.whatsapp, req, dispatch.seller.name)
+    try:
+        wa_result = send_whatsapp_template(
+            dispatch.seller.whatsapp,
+            req,
+            dispatch.seller.name
+        )
+    except Exception as e:
+        print("WA ERROR:", str(e))
+        wa_result = {
+            'ok': False,
+            'status_code': None,
+            'error': str(e),
+        }
 
-        seller_notifications.append({
-            'seller': dispatch.seller.name,
-            'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
-            'wa_sent': wa_result.get('ok', False),
-            'wa_status_code': wa_result.get('status_code'),
-            'wa_error': wa_result.get('error'),
-        })
+    seller_notifications.append({
+        'seller': dispatch.seller.name,
+        'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
+        'wa_sent': wa_result.get('ok', False),
+        'wa_status_code': wa_result.get('status_code'),
+        'wa_error': wa_result.get('error'),
+    })
 
     return JsonResponse({
         'status': 'ok',
