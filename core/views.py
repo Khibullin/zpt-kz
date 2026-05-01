@@ -42,7 +42,9 @@ def _wa_template_param(value):
     }
 
 
-def send_whatsapp_template(to_phone, req):
+def send_whatsapp_template(to_phone, req, seller_name=''):
+    import requests
+
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
     template_name = os.getenv('WHATSAPP_TEMPLATE_NAME', 'zpt_request_notification')
@@ -51,81 +53,89 @@ def send_whatsapp_template(to_phone, req):
     to_phone = _normalize_whatsapp(to_phone)
 
     if not phone_number_id or not access_token:
+        WhatsAppMessageLog.objects.create(
+            request_id=req.id,
+            seller_name=seller_name,
+            phone_clean=to_phone,
+            is_success=False,
+            status_text='error',
+            message_id='',
+            error_text='ENV not configured'
+        )
         return {
             'ok': False,
             'status_code': None,
             'error': 'WhatsApp ENV variables are not configured',
         }
 
-    if not to_phone:
-        return {
-            'ok': False,
-            'status_code': None,
-            'error': 'Seller WhatsApp phone is empty',
-        }
+    url = f"https://graph.facebook.com/v18.0/{phone_number_id}/messages"
 
-    url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
-
-    payload = {
-        'messaging_product': 'whatsapp',
-        'to': to_phone,
-        'type': 'template',
-        'template': {
-            'name': template_name,
-            'language': {
-                'code': template_lang,
-            },
-            'components': [
-                {
-                    'type': 'body',
-                    'parameters': [
-                        _wa_template_param(req.id),
-                        _wa_template_param(req.brand),
-                        _wa_template_param(req.model),
-                        _wa_template_param(req.category),
-                        _wa_template_param(req.city),
-                        _wa_template_param(req.description),
-                        _wa_template_param(req.phone),
-                    ],
-                }
-            ],
-        },
+    headers = {
+        "Authorization": f"Bearer {access_token}",
+        "Content-Type": "application/json"
     }
 
-    body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-
-    http_request = urllib.request.Request(
-        url,
-        data=body,
-        method='POST',
-        headers={
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json',
-        },
-    )
+    data = {
+        "messaging_product": "whatsapp",
+        "to": to_phone,
+        "type": "template",
+        "template": {
+            "name": template_name,
+            "language": {"code": template_lang},
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {"type": "text", "text": str(req.id)},
+                        {"type": "text", "text": req.brand},
+                        {"type": "text", "text": req.model},
+                        {"type": "text", "text": req.category},
+                        {"type": "text", "text": req.city},
+                        {"type": "text", "text": req.description or "-"},
+                        {"type": "text", "text": req.phone},
+                    ]
+                }
+            ]
+        }
+    }
 
     try:
-        with urllib.request.urlopen(http_request, timeout=20) as response:
-            response_body = response.read().decode('utf-8')
-            return {
-                'ok': 200 <= response.status < 300,
-                'status_code': response.status,
-                'response': response_body,
-            }
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode('utf-8')
-        return {
-            'ok': False,
-            'status_code': e.code,
-            'error': error_body,
-        }
+        response = requests.post(url, headers=headers, json=data)
+        resp_json = response.json()
     except Exception as e:
+        WhatsAppMessageLog.objects.create(
+            request_id=req.id,
+            seller_name=seller_name,
+            phone_clean=to_phone,
+            is_success=False,
+            status_text='error',
+            message_id='',
+            error_text=str(e)
+        )
         return {
             'ok': False,
             'status_code': None,
             'error': str(e),
         }
 
+    is_ok = response.status_code == 200
+
+    WhatsAppMessageLog.objects.create(
+        request_id=req.id,
+        seller_name=seller_name,
+        phone_clean=to_phone,
+        is_success=is_ok,
+        status_text='sent' if is_ok else 'error',
+        message_id=resp_json.get('messages', [{}])[0].get('id', ''),
+        error_text='' if is_ok else str(resp_json),
+    )
+
+    return {
+        'ok': is_ok,
+        'status_code': response.status_code,
+        'response': resp_json,
+        'error': None if is_ok else resp_json,
+    }
 
 def countries_list(request):
     countries = Country.objects.all().order_by('name')
