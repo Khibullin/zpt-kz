@@ -346,3 +346,19 @@ class RequestDispatch(models.Model):
 
     def __str__(self):
         return f"{self.request} → {self.seller} / волна {self.wave_number}"
+
+class WhatsAppMessageLog(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    request_id = models.IntegerField(null=True, blank=True)
+    seller_name = models.CharField(max_length=255)
+    phone_clean = models.CharField(max_length=20)
+
+    is_success = models.BooleanField(default=False)
+    status_text = models.CharField(max_length=50, blank=True)
+    message_id = models.CharField(max_length=255, blank=True)
+
+    error_text = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"{self.seller_name} - {self.phone_clean}"
