@@ -1,4 +1,7 @@
 import json
+import os
+import urllib.error
+import urllib.request
 from datetime import timedelta
 from urllib.parse import quote
 
@@ -28,6 +31,99 @@ TEMP_SELLER_PASSWORD = 'zpt2026'
 
 def _normalize_whatsapp(phone):
     return ''.join(ch for ch in str(phone or '') if ch.isdigit())
+
+
+def _wa_template_param(value):
+    text = str(value or '-').strip()
+    return {
+        'type': 'text',
+        'text': text if text else '-',
+    }
+
+
+def send_whatsapp_template(to_phone, req):
+    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
+    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
+    template_name = os.getenv('WHATSAPP_TEMPLATE_NAME', 'zpt_request_notification')
+    template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
+
+    to_phone = _normalize_whatsapp(to_phone)
+
+    if not phone_number_id or not access_token:
+        return {
+            'ok': False,
+            'status_code': None,
+            'error': 'WhatsApp ENV variables are not configured',
+        }
+
+    if not to_phone:
+        return {
+            'ok': False,
+            'status_code': None,
+            'error': 'Seller WhatsApp phone is empty',
+        }
+
+    url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
+
+    payload = {
+        'messaging_product': 'whatsapp',
+        'to': to_phone,
+        'type': 'template',
+        'template': {
+            'name': template_name,
+            'language': {
+                'code': template_lang,
+            },
+            'components': [
+                {
+                    'type': 'body',
+                    'parameters': [
+                        _wa_template_param(req.id),
+                        _wa_template_param(req.brand),
+                        _wa_template_param(req.model),
+                        _wa_template_param(req.category),
+                        _wa_template_param(req.city),
+                        _wa_template_param(req.description),
+                        _wa_template_param(req.phone),
+                    ],
+                }
+            ],
+        },
+    }
+
+    body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
+
+    http_request = urllib.request.Request(
+        url,
+        data=body,
+        method='POST',
+        headers={
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json',
+        },
+    )
+
+    try:
+        with urllib.request.urlopen(http_request, timeout=20) as response:
+            response_body = response.read().decode('utf-8')
+            return {
+                'ok': 200 <= response.status < 300,
+                'status_code': response.status,
+                'response': response_body,
+            }
+    except urllib.error.HTTPError as e:
+        error_body = e.read().decode('utf-8')
+        return {
+            'ok': False,
+            'status_code': e.code,
+            'error': error_body,
+        }
+    except Exception as e:
+        return {
+            'ok': False,
+            'status_code': None,
+            'error': str(e),
+        }
 
 
 def countries_list(request):
@@ -346,13 +442,18 @@ def create_request(request):
         if dispatch.wave_number == 1
     ]
 
-    seller_notifications = [
-        {
+    seller_notifications = []
+
+    for dispatch in first_wave:
+        wa_result = send_whatsapp_template(dispatch.seller.whatsapp, req)
+
+        seller_notifications.append({
             'seller': dispatch.seller.name,
             'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
-        }
-        for dispatch in first_wave
-    ]
+            'wa_sent': wa_result.get('ok', False),
+            'wa_status_code': wa_result.get('status_code'),
+            'wa_error': wa_result.get('error'),
+        })
 
     return JsonResponse({
         'status': 'ok',
