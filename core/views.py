@@ -513,7 +513,7 @@ def create_request(request):
 
     seller_notifications = []
 
-    for dispatch in first_wave:
+for dispatch in first_wave:
     try:
         wa_result = send_whatsapp_template(
             dispatch.seller.whatsapp,
@@ -536,7 +536,7 @@ def create_request(request):
         'wa_error': wa_result.get('error'),
     })
 
-    return JsonResponse({
+return JsonResponse({
         'status': 'ok',
         'id': req.id,
         'matches': len(matched),
