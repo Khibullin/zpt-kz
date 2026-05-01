@@ -585,6 +585,16 @@ def create_seller(request):
     city = data.get('city') or ''
     category = data.get('category') or ''
 
+    selected_category_ids = data.get('selected_category_ids') or []
+    selected_country_ids = data.get('selected_country_ids') or []
+    selected_brand_ids = data.get('selected_brand_ids') or []
+    selected_model_ids = data.get('selected_model_ids') or []
+
+    all_categories = bool(data.get('all_categories', False))
+    all_countries = bool(data.get('all_countries', False))
+    all_brands = bool(data.get('all_brands', False))
+    all_models = bool(data.get('all_models', False))
+
     if not name:
         return JsonResponse({'error': 'Укажите название продавца'}, status=400)
 
@@ -618,14 +628,37 @@ def create_seller(request):
         is_paused=False,
         receive_requests=False,
         is_test_seller=False,
+        all_categories=all_categories,
+        all_countries=all_countries,
+        all_brands=all_brands,
+        all_models=all_models,
     )
+
+    if all_categories:
+        seller.selected_categories.clear()
+    else:
+        seller.selected_categories.set(selected_category_ids)
+
+    if all_countries:
+        seller.selected_countries.clear()
+    else:
+        seller.selected_countries.set(selected_country_ids)
+
+    if all_brands:
+        seller.selected_brands.clear()
+    else:
+        seller.selected_brands.set(selected_brand_ids)
+
+    if all_models:
+        seller.selected_models.clear()
+    else:
+        seller.selected_models.set(selected_model_ids)
 
     return JsonResponse({
         'status': 'ok',
         'id': seller.id,
         'message': 'Продавец зарегистрирован',
     })
-
 
 @csrf_exempt
 def seller_login(request):
