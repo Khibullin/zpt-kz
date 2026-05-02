@@ -421,8 +421,11 @@ async function loadSeller(){
     ${seller.receive_requests?'Получает заявки':'Рассылка выключена'}
   `;
 
-  profileData.innerHTML=`
+profileData.innerHTML=`
     <b>WhatsApp:</b> ${seller.whatsapp}<br>
+    <b>Тип транспорта:</b> ${
+      seller.transport_type === 'truck' ? 'Грузовые' : 'Легковые'
+    }<br>
     <b>Город:</b> ${seller.city||'-'}<br>
     <b>Локация:</b> ${seller.market_location||'-'}<br>
     <b>Получает заявки:</b> ${seller.receive_requests?'Да':'Нет'}<br>
@@ -432,7 +435,7 @@ async function loadSeller(){
     <b>Страны:</b> ${seller.all_countries?'Все страны':namesList(seller.selected_countries)}<br><br>
     <b>Марки:</b> ${seller.all_brands?'Все марки':namesList(seller.selected_brands)}<br><br>
     <b>Модели:</b> ${seller.all_models?'Все модели':namesList(seller.selected_models)}
-  `;
+`;
 
   pauseBtn.innerText=seller.is_paused?'Возобновить':'Пауза';
 
