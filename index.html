@@ -4,25 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <title>ZPT.kz — Оставьте заявку на запчасть и получите предложения от продавцов</title>
-  <meta name="description" content="ZPT.kz — сервис заявок на автозапчасти в Казахстане. Оставьте заявку и получите предложения от 50+ продавцов по всей стране." />
+  <title>Купить запчасти для легковых и грузовых авто в Казахстане | ZPT.kz</title>
+  <meta name="description" content="Купить запчасти для легковых и грузовых автомобилей в Казахстане. Оставьте одну заявку и получите предложения от продавцов автозапчастей по всей стране." />
+  <meta name="keywords" content="купить запчасти, автозапчасти Казахстан, запчасти для легковых автомобилей, запчасти для грузовых автомобилей, б/у запчасти, новые запчасти, запчасти на авто" />
 
-  <!-- Favicon -->
   <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
   <link rel="apple-touch-icon" sizes="180x180" href="/static/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="192x192" href="/static/favicon/android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/static/favicon/android-chrome-512x512.png">
 
-  <!-- Open Graph preview -->
-  <meta property="og:title" content="ZPT.kz — заявки на автозапчасти">
-  <meta property="og:description" content="Оставьте заявку и получите предложения от продавцов по всему Казахстану.">
+  <meta property="og:title" content="ZPT.kz — купить запчасти для авто">
+  <meta property="og:description" content="Оставьте одну заявку и получите предложения от продавцов автозапчастей по Казахстану.">
   <meta property="og:image" content="https://zpt.kz/static/favicon/Лого MP.jpeg">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zpt.kz/">
 
   <style>
     * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
@@ -30,12 +30,14 @@
       background: #f8fafc;
       line-height: 1.5;
     }
+
     .container {
       width: 100%;
       max-width: 1120px;
       margin: 0 auto;
       padding: 0 20px;
     }
+
     header {
       background: #ffffff;
       border-bottom: 1px solid #e5e7eb;
@@ -43,6 +45,7 @@
       top: 0;
       z-index: 10;
     }
+
     .header-wrap {
       display: flex;
       align-items: center;
@@ -50,12 +53,14 @@
       min-height: 72px;
       gap: 16px;
     }
+
     .logo {
       font-size: 28px;
       font-weight: 800;
       color: #dc2626;
       text-decoration: none;
     }
+
     .btn {
       display: inline-block;
       padding: 14px 24px;
@@ -64,67 +69,96 @@
       font-weight: 700;
       transition: 0.2s ease;
     }
+
     .btn-primary {
       background: #16a34a;
       color: #ffffff;
     }
+
     .btn-primary:hover { background: #15803d; }
+
     .btn-secondary {
       background: #f59e0b;
       color: #111827;
     }
+
     .btn-secondary:hover { background: #d97706; }
-    .btn-small {
-      padding: 10px 16px;
-      border-radius: 10px;
-      font-size: 14px;
-    }
+
     .hero {
       background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
       padding: 72px 0 56px;
     }
+
     .hero-box {
-      max-width: 760px;
+      max-width: 800px;
     }
-    .pretitle { font-size:14px; color:#6b7280; margin-bottom:10px; font-weight:600; }
+
+    .pretitle {
+      display: inline-block;
+      font-size: 14px;
+      color: #991b1b;
+      background: #fee2e2;
+      padding: 8px 12px;
+      border-radius: 999px;
+      margin-bottom: 14px;
+      font-weight: 700;
+    }
+
     h1 {
       font-size: 48px;
       line-height: 1.1;
       margin: 0 0 20px;
       color: #111827;
     }
+
     .hero p {
       font-size: 20px;
-      margin: 0 0 28px;
+      margin: 0 0 16px;
       color: #374151;
     }
+
+    .hero-strong {
+      font-weight: 800;
+      color: #111827;
+    }
+
+    .hero-actions {
+      margin-top: 26px;
+    }
+
     .hero-notes {
       display: flex;
       flex-wrap: wrap;
       gap: 12px 24px;
-      margin-top: 20px;
+      margin-top: 22px;
       color: #4b5563;
       font-size: 15px;
+      font-weight: 600;
     }
+
     section {
-      padding: 64px 0;
+      padding: 56px 0;
     }
+
     h2 {
       font-size: 34px;
       margin: 0 0 24px;
       color: #111827;
     }
+
     .steps, .advantages {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
+
     .card {
       background: #ffffff;
       border-radius: 18px;
       padding: 24px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     }
+
     .step-number {
       width: 42px;
       height: 42px;
@@ -137,24 +171,45 @@
       font-weight: 800;
       margin-bottom: 14px;
     }
+
     .advantages {
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: repeat(3, 1fr);
     }
+
     .adv-item {
       background: #ffffff;
       border-radius: 16px;
       padding: 18px 20px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-      font-weight: 600;
+      font-weight: 700;
     }
-    .cta {
+
+    .main-message {
       background: #111827;
       color: #ffffff;
+      border-radius: 24px;
+      padding: 44px 28px;
+      text-align: center;
+    }
+
+    .main-message h2,
+    .main-message p {
+      color: #ffffff;
+    }
+
+    .main-message p {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .cta {
+      background: #ffffff;
       text-align: center;
       border-radius: 24px;
-      padding: 48px 24px;
+      padding: 44px 28px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
     }
-    .cta h2, .cta p { color: #ffffff; }
+
     .seller {
       background: #fff7ed;
       border: 1px solid #fed7aa;
@@ -162,6 +217,7 @@
       padding: 40px 28px;
       text-align: center;
     }
+
     .seo-text {
       color: #4b5563;
       font-size: 17px;
@@ -170,48 +226,58 @@
       padding: 28px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.05);
     }
+
     .faq {
       display: grid;
       gap: 14px;
     }
+
     .faq-item {
       background: #ffffff;
       border-radius: 16px;
       padding: 20px;
       box-shadow: 0 8px 24px rgba(0,0,0,0.05);
     }
+
     footer {
       padding: 32px 0 48px;
       color: #6b7280;
       text-align: center;
       font-size: 14px;
     }
+
     @media (max-width: 900px) {
       h1 { font-size: 38px; }
       .steps, .advantages { grid-template-columns: 1fr; }
     }
+
     @media (max-width: 640px) {
       .header-wrap {
         flex-direction: column;
         align-items: stretch;
         padding: 14px 0;
       }
+
       .logo { text-align: center; }
+
       h1 { font-size: 32px; }
+
       .hero p { font-size: 18px; }
+
       h2 { font-size: 28px; }
-      .btn, .btn-small {
+
+      .btn {
         width: 100%;
         text-align: center;
       }
     }
   </style>
 </head>
+
 <body>
   <header>
     <div class="container header-wrap">
-      <a href="#" class="logo">ZPT.kz</a>
-      
+      <a href="/" class="logo">ZPT.kz</a>
     </div>
   </header>
 
@@ -219,12 +285,20 @@
     <section class="hero">
       <div class="container">
         <div class="hero-box">
-          <div class="pretitle">Платформа заявок на автозапчасти — оформите заявку (марка, модель, категория) и получайте предложения от продавцов по всему Казахстану</div>
-          <h1>Оставьте заявку на запчасть<br>и получите предложения от продавцов</h1>
-          <p>Получите предложения от 50+ продавцов по всему Казахстану. Без звонков, долгих поисков и переписок с десятками магазинов.</p>
-          <a class="btn btn-primary" href="/request-parts/">Оставить заявку</a>
+          <div class="pretitle">Запчасти для легковых и грузовых автомобилей</div>
+
+          <h1>Купить запчасти для легковых и грузовых автомобилей</h1>
+
+          <p>Оставьте одну заявку — и получите предложения от продавцов автозапчастей по всему Казахстану.</p>
+
+          <p class="hero-strong">Вам напишут сами — без звонков, долгого поиска и переписок с десятками магазинов.</p>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="/request-parts/">Оставить заявку</a>
+          </div>
+
           <div class="hero-notes">
-            <span>✔ Более 50 продавцов в системе</span>
+            <span>✔ Более 50 продавцов</span>
             <span>✔ Новые и б/у запчасти</span>
             <span>✔ Бесплатно для покупателей</span>
           </div>
@@ -235,21 +309,24 @@
     <section>
       <div class="container">
         <h2>Как это работает</h2>
+
         <div class="steps">
           <div class="card">
             <div class="step-number">1</div>
             <h3>Оставляете заявку</h3>
-            <p>Указываете марку, модель автомобиля и нужную запчасть.</p>
+            <p>Указываете тип автомобиля, марку, модель и нужную запчасть.</p>
           </div>
+
           <div class="card">
             <div class="step-number">2</div>
             <h3>Продавцы получают запрос</h3>
-            <p>Зарегистрированные продавцы видят вашу заявку и подбирают предложения.</p>
+            <p>Заявка уходит продавцам, которые могут предложить нужную запчасть.</p>
           </div>
+
           <div class="card">
             <div class="step-number">3</div>
-            <h3>Выбираете лучшее предложение</h3>
-            <p>Сравниваете варианты и связываетесь с подходящим продавцом.</p>
+            <h3>Выбираете предложение</h3>
+            <p>Сравниваете варианты и связываетесь с подходящим продавцом напрямую.</p>
           </div>
         </div>
       </div>
@@ -257,14 +334,24 @@
 
     <section>
       <div class="container">
-        <h2>Почему выгодно оставлять заявку через ZPT.kz</h2>
+        <div class="main-message">
+          <h2>Одна заявка — много предложений</h2>
+          <p>Не нужно искать по сайтам и звонить в магазины. Продавцы сами увидят вашу заявку и предложат варианты.</p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <h2>Почему это удобно</h2>
+
         <div class="advantages">
-          <div class="adv-item">✔ Одна заявка вместо десятков звонков</div>
-          <div class="adv-item">✔ Экономия времени на поиске</div>
-          <div class="adv-item">✔ Предложения от разных продавцов</div>
-          <div class="adv-item">✔ Новые и б/у автозапчасти</div>
-          <div class="adv-item">✔ Продавцы со всего Казахстана</div>
-          <div class="adv-item">✔ Удобный старт для рекламы в Google Ads</div>
+          <div class="adv-item">✔ Быстро</div>
+          <div class="adv-item">✔ Без поиска</div>
+          <div class="adv-item">✔ Много предложений</div>
+          <div class="adv-item">✔ Новые и б/у запчасти</div>
+          <div class="adv-item">✔ Легковые и грузовые авто</div>
+          <div class="adv-item">✔ Продавцы по Казахстану</div>
         </div>
       </div>
     </section>
@@ -272,9 +359,9 @@
     <section>
       <div class="container">
         <div class="cta">
-          <h2>Получите предложения уже сегодня</h2>
-          <p>Оставьте заявку и получите отклики от продавцов автозапчастей.</p>
-          <a class="btn btn-primary" href="https://marketparts.kz/">Оставить заявку</a>
+          <h2>Нужна запчасть?</h2>
+          <p>Оставьте заявку и получите предложения от продавцов автозапчастей.</p>
+          <a class="btn btn-primary" href="/request-parts/">Оставить заявку</a>
         </div>
       </div>
     </section>
@@ -284,22 +371,30 @@
         <div class="seller">
           <h2>Вы продаете автозапчасти?</h2>
           <p>Получайте заявки от покупателей со всего Казахстана и расширяйте продажи через ZPT.kz.</p>
-          <a class="btn btn-secondary" href="https://marketparts.kz/">Зарегистрироваться продавцом</a>
+          <a class="btn btn-secondary" href="/register-seller/">Зарегистрироваться продавцом</a>
         </div>
       </div>
     </section>
 
     <section>
       <div class="container">
-        <h2>О сервисе ZPT.kz</h2>
+        <h2>Автозапчасти в Казахстане</h2>
+
         <div class="seo-text">
-          ZPT.kz — платформа заявок на автозапчасти в Казахстане. Здесь вы можете быстро оставить заявку на нужную автозапчасть (по марке, модели и категории) и получить предложения от продавцов по всей стране. 
+          <p>
+            ZPT.kz помогает покупателям найти и купить автозапчасти для легковых и грузовых автомобилей в Казахстане.
+            Вы оставляете одну заявку на нужную запчасть, а продавцы автозапчастей получают запрос и предлагают варианты.
+          </p>
 
-Сервис помогает найти автозапчасти без долгих поисков и звонков. Вместо того чтобы искать запчасти вручную, вы отправляете одну заявку и получаете ответы от продавцов автозапчастей. 
+          <p>
+            Через ZPT.kz можно искать новые и б/у запчасти на авто: двигатели, коробки передач, кузовные детали,
+            оптику, электронику, ходовую часть, расходники и другие автозапчасти.
+          </p>
 
-На заявки откликаются магазины и частные продавцы, предлагая как новые, так и б/у автозапчасти: двигатели, коробки передач, кузовные детали, оптику, электронику, ходовую часть и другие запчасти для автомобилей. 
-
-ZPT.kz подходит для поиска автозапчастей на легковые автомобили по всему Казахстану — быстро, удобно и бесплатно для покупателей.
+          <p>
+            Сервис удобен для тех, кто не хочет тратить время на звонки и поиск по разным сайтам.
+            Одна заявка позволяет получить предложения от продавцов по всему Казахстану.
+          </p>
         </div>
       </div>
     </section>
@@ -307,15 +402,18 @@ ZPT.kz подходит для поиска автозапчастей на ле
     <section>
       <div class="container">
         <h2>Частые вопросы</h2>
+
         <div class="faq">
           <div class="faq-item">
             <strong>Сколько стоит отправить заявку?</strong>
             <p>Для покупателя отправка заявки бесплатна.</p>
           </div>
+
           <div class="faq-item">
-            <strong>Как быстро приходят ответы?</strong>
-            <p>Обычно предложения начинают поступать в течение дня.</p>
+            <strong>Какие запчасти можно искать?</strong>
+            <p>Новые и б/у автозапчасти для легковых и грузовых автомобилей.</p>
           </div>
+
           <div class="faq-item">
             <strong>Кто отвечает на заявки?</strong>
             <p>На заявки отвечают зарегистрированные продавцы автозапчастей.</p>
