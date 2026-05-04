@@ -21,68 +21,293 @@
   <meta property="og:url" content="https://zpt.kz/">
 
 <style>
-  * { box-sizing: border-box; }
+*{box-sizing:border-box}
 
-  body {
-    margin: 0;
-    font-family: Arial, sans-serif;
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  color:#1f2937;
+  background:#f8fafc;
+  line-height:1.5;
+}
+
+.container{
+  width:100%;
+  max-width:1120px;
+  margin:0 auto;
+  padding:0 20px;
+}
+
+header{
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+.header-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:72px;
+  gap:16px;
+}
+
+.logo{
+  font-size:28px;
+  font-weight:800;
+  color:#dc2626;
+  text-decoration:none;
+}
+
+.header-actions{
+  display:flex;
+  gap:12px;
+  align-items:center;
+}
+
+.header-btn{
+  text-decoration:none;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:800;
+  font-size:14px;
+  transition:.2s;
+}
+
+.header-btn-primary{
+  background:#dc2626;
+  color:#fff;
+}
+
+.header-btn-primary:hover{
+  background:#b91c1c;
+}
+
+.header-btn-secondary{
+  background:#eef2f7;
+  color:#2563eb;
+}
+
+.header-btn-secondary:hover{
+  background:#dbeafe;
+}
+
+.btn{
+  display:inline-block;
+  padding:14px 24px;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:700;
+  transition:.2s ease;
+}
+
+.btn-primary{
+  background:#16a34a;
+  color:#fff;
+}
+
+.btn-primary:hover{background:#15803d}
+
+.btn-secondary{
+  background:#f59e0b;
+  color:#111827;
+}
+
+.btn-secondary:hover{background:#d97706}
+
+.hero{
+  background:linear-gradient(135deg,#fff 0%,#fef2f2 100%);
+  padding:72px 0 56px;
+}
+
+.hero-box{
+  max-width:800px;
+}
+
+.pretitle{
+  display:inline-block;
+  font-size:14px;
+  color:#991b1b;
+  background:#fee2e2;
+  padding:8px 12px;
+  border-radius:999px;
+  margin-bottom:14px;
+  font-weight:700;
+}
+
+h1{
+  font-size:48px;
+  line-height:1.1;
+  margin:0 0 20px;
+  color:#111827;
+}
+
+.hero p{
+  font-size:20px;
+  margin:0 0 16px;
+  color:#374151;
+}
+
+.hero-strong{
+  font-weight:800;
+  color:#111827;
+}
+
+.hero-actions{
+  margin-top:26px;
+}
+
+.hero-notes{
+  display:flex;
+  flex-wrap:wrap;
+  gap:12px 24px;
+  margin-top:22px;
+  color:#4b5563;
+  font-size:15px;
+  font-weight:600;
+}
+
+section{
+  padding:56px 0;
+}
+
+h2{
+  font-size:34px;
+  margin:0 0 24px;
+  color:#111827;
+}
+
+.steps,.advantages{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+}
+
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:24px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+.step-number{
+  width:42px;
+  height:42px;
+  border-radius:999px;
+  background:#dc2626;
+  color:#fff;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  margin-bottom:14px;
+}
+
+.advantages{
+  grid-template-columns:repeat(3,1fr);
+}
+
+.adv-item{
+  background:#fff;
+  border-radius:16px;
+  padding:18px 20px;
+  box-shadow:0 10px 30px rgba(0,0,0,.05);
+  font-weight:700;
+}
+
+.main-message{
+  background:#111827;
+  color:#fff;
+  border-radius:24px;
+  padding:44px 28px;
+  text-align:center;
+}
+
+.main-message h2,
+.main-message p{
+  color:#fff;
+}
+
+.main-message p{
+  font-size:18px;
+  margin:0;
+}
+
+.cta{
+  background:#fff;
+  text-align:center;
+  border-radius:24px;
+  padding:44px 28px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+}
+
+.seller{
+  background:#fff7ed;
+  border:1px solid #fed7aa;
+  border-radius:24px;
+  padding:40px 28px;
+  text-align:center;
+}
+
+.seo-text{
+  color:#4b5563;
+  font-size:17px;
+  background:#fff;
+  border-radius:18px;
+  padding:28px;
+  box-shadow:0 10px 30px rgba(0,0,0,.05);
+}
+
+.faq{
+  display:grid;
+  gap:14px;
+}
+
+.faq-item{
+  background:#fff;
+  border-radius:16px;
+  padding:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,.05);
+}
+
+footer{
+  padding:32px 0 48px;
+  color:#6b7280;
+  text-align:center;
+  font-size:14px;
+}
+
+@media(max-width:900px){
+  h1{font-size:38px}
+  .steps,.advantages{grid-template-columns:1fr}
+}
+
+@media(max-width:640px){
+  .header-wrap{
+    flex-direction:column;
+    align-items:stretch;
+    padding:14px 0;
   }
 
-  /* ещё куча твоих стилей */
-
-
-  /* 👇 ВСТАВЛЯЕШЬ ВОТ СЮДА */
+  .logo{text-align:center}
 
   .header-actions{
-    display:flex;
-    gap:12px;
-    align-items:center;
+    width:100%;
+    display:grid;
+    grid-template-columns:1fr;
   }
 
   .header-btn{
-    text-decoration:none;
-    padding:12px 18px;
-    border-radius:12px;
-    font-weight:800;
-    font-size:14px;
-    transition:.2s;
+    text-align:center;
   }
 
-  .header-btn-primary{
-    background:#dc2626;
-    color:#fff;
-  }
-
-  .header-btn-primary:hover{
-    background:#b91c1c;
-  }
-
-  .header-btn-secondary{
-    background:#eef2f7;
-    color:#2563eb;
-  }
-
-  .header-btn-secondary:hover{
-    background:#dbeafe;
-  }
-
-  @media(max-width:640px){
-    .header-inner{
-      flex-direction:column;
-      align-items:flex-start;
-    }
-
-    .header-actions{
-      width:100%;
-      display:grid;
-      grid-template-columns:1fr;
-    }
-
-    .header-btn{
-      text-align:center;
-    }
-  }
-
+  h1{font-size:32px}
+  .hero p{font-size:18px}
+  h2{font-size:28px}
+  .btn{width:100%;text-align:center}
+}
 </style>
 </head>
 
