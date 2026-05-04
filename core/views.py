@@ -760,21 +760,48 @@ def seller_requests(request):
     if not seller:
         return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
+    period = request.GET.get('period', 'all')
+
+    now = timezone.now()
+
     matches = Match.objects.filter(
         seller=seller
     ).select_related('request')
 
+    # 📌 Фильтр по периоду
+    if period == 'today':
+        matches = matches.filter(request__created_at__date=now.date())
+
+    elif period == '7d':
+        matches = matches.filter(request__created_at__gte=now - timedelta(days=7))
+
+    elif period == '30d':
+        matches = matches.filter(request__created_at__gte=now - timedelta(days=30))
+
     data = []
 
     for match in matches:
-        request_obj = match.request
+        req = match.request
+
+        # 👉 нормальный статус
+        status_map = {
+            'prepared': 'Новая',
+            'sent': 'Отправлена',
+            'contacted': 'В работе',
+            'done': 'Закрыта',
+        }
 
         data.append({
-            'id': request_obj.id,
-            'brand': request_obj.brand,
-            'model': request_obj.model,
-            'category': request_obj.category,
-            'phone': request_obj.phone,
+            'id': req.id,
+            'brand': req.brand,
+            'model': req.model,
+            'category': req.category,
+            'city': req.city,
+            'description': req.description,
+            'phone': req.phone,
+            'created_at': req.created_at.strftime('%d.%m.%Y %H:%M') if hasattr(req, 'created_at') else '',
+            'match_id': match.id,
+            'match_status': status_map.get(match.status, match.status),
         })
 
     return JsonResponse({
