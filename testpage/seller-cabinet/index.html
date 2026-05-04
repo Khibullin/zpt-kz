@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет продавца</title>
 
-<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
+<link rel="icon" href="/static/favicon/favicon.ico">
 
 <style>
 body{font-family:Arial;background:#f5f5f5;margin:0;color:#222}
@@ -15,576 +13,175 @@ body{font-family:Arial;background:#f5f5f5;margin:0;color:#222}
 .card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
 h1{margin-top:0;color:#d62828}
 .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.tab{border:none;padding:16px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
+.tab{border:none;padding:14px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
 .tab.active{background:#3478f6;color:#fff}
 .section{display:none}.section.active{display:block}
-.btn{border:none;padding:11px 18px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px}
-.red{background:#ed1c24;color:#fff}.blue{background:#3478f6;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#f57c00;color:#fff}.gray{background:#757575;color:#fff}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.metric{border:1px solid #dde3ef;border-radius:14px;padding:18px}.metric b{display:block;font-size:42px;margin-top:8px}
-label{font-weight:bold;display:block;margin-top:12px;margin-bottom:6px}
-select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;font-size:15px;box-sizing:border-box}
-.checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:1px solid #e5e5e5;padding:14px;border-radius:12px;background:#fafafa;max-height:260px;overflow:auto}
-.checkgrid label{font-weight:normal;margin:0;display:flex;gap:8px;align-items:center}
-.checkgrid input,.checkblock input{width:auto}
-.checkblock{margin-top:12px;padding:12px;background:#f5f8ff;border-radius:10px}
-.checkblock label{font-weight:normal;display:flex;gap:8px;align-items:center}
-.ticket{border:1px solid #e6e6e6;border-radius:14px;padding:16px;margin-top:14px}.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:#eef5ff;font-size:12px;font-weight:bold}
-.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #eee}
-.error{color:#ed1c24;font-weight:bold;margin-top:12px}.hint{font-size:13px;color:#666;margin-top:12px}.muted{color:#666}
-@media(max-width:760px){.tabs,.grid3,.checkgrid{grid-template-columns:1fr}}
+.btn{border:none;padding:10px 16px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:6px}
+.blue{background:#3478f6;color:#fff}
+.green{background:#25D366;color:#fff}
+.gray{background:#757575;color:#fff}
+.metric{border:1px solid #dde3ef;border-radius:14px;padding:16px}
+.metric b{display:block;font-size:32px;margin-top:6px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.ticket{border:1px solid #e6e6e6;border-radius:14px;padding:16px;margin-top:14px;background:#fafafa}
+.ticket-header{display:flex;justify-content:space-between;align-items:center}
+.badge{padding:6px 10px;border-radius:20px;font-size:12px;font-weight:bold;background:#eef5ff}
+.detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #ddd}
+.periods{display:flex;gap:10px;margin-top:10px}
+.periods button{border:none;padding:8px 14px;border-radius:10px;cursor:pointer;background:#e9eef8}
+.periods button.active{background:#3478f6;color:#fff}
 </style>
 </head>
 
 <body>
 
-<div id="loginBox" class="wrap">
-  <div class="card">
-    <h1>Вход продавца</h1>
+<div class="wrap">
 
-    <label>WhatsApp</label>
-    <input id="login_whatsapp" placeholder="8707XXXXXXX">
-
-    <label>Пароль</label>
-    <input id="login_password" type="password">
-
-    <label style="font-weight:normal">
-      <input type="checkbox" style="width:auto" onclick="login_password.type=this.checked?'text':'password'">
-      Показать пароль
-    </label>
-
-    <button class="btn blue" onclick="sellerLogin()">Войти</button>
-
-    <div class="hint">
-      Для ранее загруженных продавцов временный пароль: <b>zpt2026</b>
-    </div>
-
-    <div id="loginError" class="error"></div>
-  </div>
+<div class="card">
+<h1>Кабинет продавца</h1>
+<div id="sellerSummary"></div>
+<button class="btn gray" onclick="logout()">Выйти</button>
 </div>
 
-<div id="cabinet" class="wrap" style="display:none">
-  <div class="card">
-    <h1>Кабинет продавца</h1>
-    <div id="sellerSummary">Загрузка...</div>
-    <button class="btn gray" onclick="sellerLogout()">Выйти</button>
-  </div>
+<div class="card">
+<div class="tabs">
+<button class="tab active" onclick="openTab('requests')">Заявки</button>
+<button class="tab" onclick="openTab('profile')">Профиль</button>
+</div>
+</div>
 
-  <div id="passwordNotice" class="card" style="display:none;border:2px solid #f57c00">
-    <h2>Смените временный пароль</h2>
+<div id="requests" class="section active">
 
-    <label>Старый пароль</label>
-    <input id="old_password" type="password">
+<div class="card">
+<h2>Сводка</h2>
+<div class="grid3">
+<div class="metric">Новых<b id="newCount">0</b></div>
+<div class="metric">Всего<b id="allCount">0</b></div>
+<div class="metric">За период<b id="periodCount">0</b></div>
+</div>
 
-    <label>Новый пароль</label>
-    <input id="new_password" type="password">
+<div class="periods">
+<button onclick="setPeriod('all')" id="p_all">Все</button>
+<button onclick="setPeriod('today')" id="p_today">Сегодня</button>
+<button onclick="setPeriod('7d')" id="p_7d">7 дней</button>
+<button onclick="setPeriod('30d')" id="p_30d">30 дней</button>
+</div>
+</div>
 
-    <label>Повторите новый пароль</label>
-    <input id="new_password_confirm" type="password">
+<div class="card">
+<h2>Заявки покупателей</h2>
+<div id="list"></div>
+</div>
 
-    <label style="font-weight:normal">
-      <input type="checkbox" style="width:auto" onclick="togglePasswordVisible(this.checked)">
-      Показать пароли
-    </label>
+</div>
 
-    <button class="btn blue" onclick="changePassword()">Сменить пароль</button>
-    <div id="passwordError" class="error"></div>
-  </div>
+<div id="profile" class="section">
+<div class="card">
+<h2>Профиль</h2>
+<div id="profileData"></div>
+</div>
+</div>
 
-  <div class="card">
-    <div class="tabs">
-      <button class="tab active" id="tabRequests" onclick="openTab('requests')">Заявки</button>
-      <button class="tab" id="tabProfile" onclick="openTab('profile')">Мой профиль</button>
-      <button class="tab" id="tabEdit" onclick="openTab('edit')">Редактировать</button>
-      <button class="tab" onclick="sellerLogout()">Выход</button>
-    </div>
-  </div>
-
-  <div id="requests" class="section active">
-    <div class="card">
-      <h2>Сводка</h2>
-      <div class="grid3">
-        <div class="metric">Новых<b id="newCount">0</b></div>
-        <div class="metric">Всего<b id="allCount">0</b></div>
-        <div class="metric">За период<b id="periodCount">0</b></div>
-      </div>
-      <br>
-      <button class="tab active" onclick="setPeriod('all')">Все</button>
-      <button class="tab" onclick="setPeriod('today')">Сегодня</button>
-      <button class="tab" onclick="setPeriod('7d')">7 дней</button>
-      <button class="tab" onclick="setPeriod('30d')">30 дней</button>
-    </div>
-
-    <div class="card">
-      <h2>Заявки покупателей</h2>
-      <div id="requestList"></div>
-    </div>
-  </div>
-
-  <div id="profile" class="section">
-    <div class="card">
-      <h2>Профиль продавца</h2>
-      <div id="profileData">Загрузка...</div>
-      <button class="btn orange" id="pauseBtn" onclick="togglePause()">Пауза</button>
-      <button class="btn red" onclick="openTab('edit')">Редактировать профиль</button>
-    </div>
-  </div>
-
-  <div id="edit" class="section">
-    <div class="card">
-      <h2>Редактирование профиля</h2>
-
-      <h3>Участие в заявках</h3>
-      <div class="checkblock">
-        <label><input type="checkbox" id="receive_requests"> Получать заявки</label>
-        <label><input type="checkbox" id="is_test_seller"> Тестовый продавец (для TEST-режима)</label>
-        <div class="hint">В TEST-режиме заявки получают только тестовые продавцы. В LIVE-режиме — продавцы с включенным пунктом «Получать заявки».</div>
-      </div>
-
-      <label>WhatsApp</label>
-      <input id="edit_whatsapp" disabled>
-
-      <label>Доп. телефон</label>
-      <input id="edit_phone2">
-
-      <label>Город</label>
-      <select id="edit_city"></select>
-
-      <label>Локация / бутик</label>
-      <input id="edit_market_location">
-
-      <h3>Категории</h3>
-      <div id="categoriesBox" class="checkgrid"></div>
-      <div class="checkblock">
-        <label><input type="checkbox" id="all_categories"> Все категории</label>
-      </div>
-
-      <h3>Страны производителей</h3>
-      <div id="countriesBox" class="checkgrid"></div>
-      <div class="checkblock">
-        <label><input type="checkbox" id="all_countries"> Все страны</label>
-      </div>
-
-      <h3>Марки</h3>
-      <div id="brandsBox" class="checkgrid"></div>
-      <div class="checkblock">
-        <label><input type="checkbox" id="all_brands"> Все марки</label>
-      </div>
-
-      <h3>Модели</h3>
-      <div id="modelsBox" class="checkgrid"></div>
-      <div class="checkblock">
-        <label><input type="checkbox" id="all_models"> Все модели</label>
-      </div>
-
-      <button class="btn blue" onclick="saveMultiProfile()">Сохранить</button>
-    </div>
-  </div>
 </div>
 
 <script>
 const API='https://zpt-kz-backend.onrender.com/api';
-let seller=null;
 let requests=[];
+let currentPeriod='all';
 
-const cities=[
- 'Алматы','Астана','Шымкент','Караганда','Актобе','Атырау','Актау',
- 'Павлодар','Усть-Каменогорск','Семей','Костанай','Петропавловск',
- 'Кокшетау','Тараз','Туркестан','Кызылорда','Уральск','Талдыкорган'
-];
-
-async function apiFetch(url, options={}){
-  return fetch(url,{
-    credentials:'include',
-    ...options,
-    headers:{
-      'Content-Type':'application/json',
-      ...(options.headers||{})
-    }
-  });
+function openTab(t){
+document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
+document.getElementById(t).classList.add('active');
 }
 
-async function sellerLogin(){
-  loginError.innerText='';
+async function loadProfile(){
+let r=await fetch(API+'/seller-profile/',{credentials:'include'});
+let d=await r.json();
 
-  let whatsapp=login_whatsapp.value.trim();
-  let password=login_password.value;
-
-  let r=await apiFetch(`${API}/seller-login/`,{
-    method:'POST',
-    body:JSON.stringify({whatsapp,password})
-  });
-
-  let data=await r.json();
-
-  if(data.error){
-    loginError.innerText=data.error;
-    return;
-  }
-
-  localStorage.setItem('seller_id',data.seller_id);
-
-  loginBox.style.display='none';
-  cabinet.style.display='block';
-
-  await loadSeller();
-  await loadRequests();
-
-  if(data.must_change_password){
-    passwordNotice.style.display='block';
-  }
+sellerSummary.innerHTML=`<b>${d.name}</b><br>${d.whatsapp}`;
+profileData.innerHTML=`Тип: ${d.transport_type=='truck'?'Грузовые':'Легковые'}`;
 }
 
-async function sellerLogout(){
-  await apiFetch(`${API}/seller-logout/`,{method:'POST',body:JSON.stringify({})});
-  localStorage.removeItem('seller_id');
-  location.reload();
-}
-
-function togglePasswordVisible(show){
-  old_password.type=show?'text':'password';
-  new_password.type=show?'text':'password';
-  new_password_confirm.type=show?'text':'password';
-}
-
-async function changePassword(){
-  passwordError.innerText='';
-
-  let r=await apiFetch(`${API}/change-seller-password/`,{
-    method:'POST',
-    body:JSON.stringify({
-      old_password:old_password.value,
-      new_password:new_password.value,
-      new_password_confirm:new_password_confirm.value
-    })
-  });
-
-  let data=await r.json();
-
-  if(data.error){
-    passwordError.innerText=data.error;
-    return;
-  }
-
-  passwordNotice.style.display='none';
-  showSavedToast('Пароль изменён');
-}
-
-function openTab(tab){
-  document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
-  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
-  document.getElementById(tab).classList.add('active');
-
-  if(tab==='requests')tabRequests.classList.add('active');
-  if(tab==='profile')tabProfile.classList.add('active');
-  if(tab==='edit')tabEdit.classList.add('active');
-}
-
-function optionList(arr,val){
-  return arr.map(x=>`<option ${x===val?'selected':''}>${x}</option>`).join('');
-}
-
-function checkedIds(cls){
-  return [...document.querySelectorAll('.'+cls+':checked')].map(x=>parseInt(x.value));
-}
-
-function namesList(items, allText){
-  if(!items || !items.length) return '-';
-  return items.map(x=>x.name).join(', ') || allText || '-';
-}
-
-function renderChecks(box,data,cls,selected=[]){
-  document.getElementById(box).innerHTML=(data||[]).map(x=>`
-    <label>
-      <input type="checkbox" class="${cls}" value="${x.id}" ${selected.includes(x.id)?'checked':''}>
-      ${x.name}
-    </label>
-  `).join('');
-}
-
-async function loadCheckboxData(){
-  let cats=await(await apiFetch(API+'/part-categories/')).json();
-  let countries=await(await apiFetch(API+'/countries/')).json();
-
-  renderChecks('categoriesBox',cats,'catcheck',(seller.selected_categories||[]).map(x=>x.id));
-  renderChecks('countriesBox',countries,'countrycheck',(seller.selected_countries||[]).map(x=>x.id));
-
-  document.querySelectorAll('.countrycheck').forEach(x=>{
-    x.onchange=loadBrandsForSelectedCountries;
-  });
-
-  all_countries.onchange=async function(){
-    if(this.checked){
-      document.querySelectorAll('.countrycheck').forEach(x=>x.checked=false);
-    }
-    await loadBrandsForSelectedCountries();
-  };
-
-  all_brands.onchange=async function(){
-    if(this.checked){
-      document.querySelectorAll('.brandcheck').forEach(x=>x.checked=false);
-    }
-    await loadModelsForSelectedBrands();
-  };
-
-  all_models.onchange=function(){
-    if(this.checked){
-      document.querySelectorAll('.modelcheck').forEach(x=>x.checked=false);
-    }
-  };
-
-  all_categories.onchange=function(){
-    if(this.checked){
-      document.querySelectorAll('.catcheck').forEach(x=>x.checked=false);
-    }
-  };
-
-  await loadBrandsForSelectedCountries();
-}
-
-async function loadBrandsForSelectedCountries(){
-  let countryIds=checkedIds('countrycheck');
-  let brands=[];
-  let used={};
-
-  if(all_countries.checked || countryIds.length===0){
-    brands=await(await apiFetch(API+'/brands-by-country/?transport_type='+(seller?.transport_type||'car'))).json();
-  }else{
-    for(let id of countryIds){
-      let d=await(await apiFetch(API+'/brands-by-country/?country_id='+id+'&transport_type='+(seller?.transport_type||'car'))).json();
-      d.forEach(b=>{
-        if(!used[b.id]){
-          used[b.id]=true;
-          brands.push(b);
-        }
-      });
-    }
-  }
-
-  let selectedBrandIds=(seller.selected_brands||[]).map(x=>x.id);
-  renderChecks('brandsBox',brands,'brandcheck',selectedBrandIds);
-
-  document.querySelectorAll('.brandcheck').forEach(x=>{
-    x.onchange=loadModelsForSelectedBrands;
-  });
-
-  await loadModelsForSelectedBrands();
-}
-
-async function loadModelsForSelectedBrands(){
-  let ids=checkedIds('brandcheck');
-  let models=[];
-  let used={};
-
-  if(all_brands.checked || ids.length===0){
-    models=[];
-  }else{
-    for(let id of ids){
-      let d=await(await apiFetch(API+'/models-by-brand/?brand_id='+id+'&transport_type='+(seller?.transport_type||'car'))).json();
-      d.forEach(m=>{
-        if(!used[m.id]){
-          used[m.id]=true;
-          models.push(m);
-        }
-      });
-    }
-  }
-
-  renderChecks('modelsBox',models,'modelcheck',(seller.selected_models||[]).map(x=>x.id));
-
-  document.querySelectorAll('.modelcheck').forEach(x=>{
-    x.onchange=function(){
-      if(this.checked) all_models.checked=false;
-    };
-  });
-}
-
-async function loadSeller(){
-  let r=await apiFetch(`${API}/seller-profile/`);
-  seller=await r.json();
-
-  if(seller.error){
-    localStorage.removeItem('seller_id');
-    loginBox.style.display='block';
-    cabinet.style.display='none';
-    return;
-  }
-
-  sellerSummary.innerHTML=`
-    <b>${seller.name}</b><br>
-    WhatsApp: ${seller.whatsapp}<br>
-    ${seller.is_paused?'На паузе':'Принимает заявки'}<br>
-    ${seller.receive_requests?'Получает заявки':'Рассылка выключена'}
-  `;
-
-  profileData.innerHTML=`
-    <b>WhatsApp:</b> ${seller.whatsapp}<br>
-    <b>Город:</b> ${seller.city||'-'}<br>
-    <b>Локация:</b> ${seller.market_location||'-'}<br>
-    <b>Получает заявки:</b> ${seller.receive_requests?'Да':'Нет'}<br>
-    <b>Тестовый продавец:</b> ${seller.is_test_seller?'Да':'Нет'}<br><br>
-
-    <b>Категории:</b> ${seller.all_categories?'Все категории':namesList(seller.selected_categories)}<br><br>
-    <b>Страны:</b> ${seller.all_countries?'Все страны':namesList(seller.selected_countries)}<br><br>
-    <b>Марки:</b> ${seller.all_brands?'Все марки':namesList(seller.selected_brands)}<br><br>
-    <b>Модели:</b> ${seller.all_models?'Все модели':namesList(seller.selected_models)}
-  `;
-
-  pauseBtn.innerText=seller.is_paused?'Возобновить':'Пауза';
-
-  edit_whatsapp.value=seller.whatsapp||'';
-  edit_phone2.value=seller.phone2||'';
-  edit_city.innerHTML=optionList(cities,seller.city);
-  edit_market_location.value=seller.market_location||'';
-
-  receive_requests.checked=!!seller.receive_requests;
-  is_test_seller.checked=!!seller.is_test_seller;
-
-  all_categories.checked=!!seller.all_categories;
-  all_countries.checked=!!seller.all_countries;
-  all_brands.checked=!!seller.all_brands;
-  all_models.checked=!!seller.all_models;
-
-  if(seller.must_change_password){
-    passwordNotice.style.display='block';
-  }
-
-  await loadCheckboxData();
-}
-
-async function loadRequests(period='7d'){
-  let r=await apiFetch(`${API}/seller-requests/?period=${period}`);
-  let data=await r.json();
-
-  if(data.error){
-    requests=[];
-  }else{
-    requests=data.requests||[];
-  }
-
-  renderRequests();
+async function loadRequests(){
+let r=await fetch(API+`/seller-requests/?period=${currentPeriod}`,{credentials:'include'});
+let d=await r.json();
+requests=d.requests||[];
+render();
 }
 
 function setPeriod(p){
-  loadRequests(p);
+currentPeriod=p;
+
+document.querySelectorAll('.periods button').forEach(x=>x.classList.remove('active'));
+document.getElementById('p_'+p).classList.add('active');
+
+loadRequests();
 }
 
-function renderRequests(){
-  allCount.innerText=requests.length;
-  periodCount.innerText=requests.length;
-  newCount.innerText=requests.filter(x=>x.match_status==='prepared').length;
+function render(){
 
-  let html='';
+allCount.innerText=requests.length;
+periodCount.innerText=requests.length;
+newCount.innerText=requests.filter(x=>x.match_status=='Новая').length;
 
-  requests.forEach(r=>{
-    html+=`
-      <div class="ticket">
-        <b>Заявка №${r.id}</b>
-        <span class="badge">${r.match_status||'prepared'}</span>
-        <div>${r.city||''} • ${r.brand||''} ${r.model||''}</div>
-        <button class="btn gray" onclick="toggleDetail(${r.id})">Открыть</button>
-        <div class="detail" id="detail-${r.id}">
-          ${r.description||''}<br><br>
-          Телефон клиента: ${r.phone||''}<br><br>
-          <button class="btn blue" onclick="changeStatus(${r.match_id},'contacted')">Связался</button>
-        </div>
-      </div>
-    `;
-  });
+let html='';
 
-  requestList.innerHTML=html||'<p>Заявок пока нет.</p>';
+requests.forEach(r=>{
+
+html+=`
+<div class="ticket">
+
+<div class="ticket-header">
+<b>Заявка №${r.id}</b>
+<span class="badge">${r.match_status}</span>
+</div>
+
+<div>${r.city||''} • ${r.brand||''} ${r.model||''}</div>
+
+<button class="btn gray" onclick="toggle(${r.id})">Открыть</button>
+
+<div class="detail" id="d${r.id}">
+
+<div><b>Категория:</b> ${r.category||''}</div>
+<div><b>Описание:</b> ${r.description||'-'}</div>
+<div><b>Дата:</b> ${r.created_at||''}</div>
+<div><b>Телефон:</b> ${r.phone||''}</div>
+
+<a class="btn green" href="https://wa.me/${r.phone}" target="_blank">WhatsApp</a>
+<button class="btn blue" onclick="contacted(${r.match_id})">Связался</button>
+
+</div>
+
+</div>
+`;
+
+});
+
+list.innerHTML=html||'Нет заявок';
 }
 
-function toggleDetail(id){
-  let x=document.getElementById('detail-'+id);
-  x.style.display=x.style.display==='block'?'none':'block';
+function toggle(id){
+let el=document.getElementById('d'+id);
+el.style.display=el.style.display=='block'?'none':'block';
 }
 
-async function changeStatus(id,status){
-  await apiFetch(`${API}/update-match-status/`,{
-    method:'POST',
-    body:JSON.stringify({match_id:id,status})
-  });
-
-  loadRequests();
+async function contacted(id){
+await fetch(API+'/update-match-status/',{
+method:'POST',
+credentials:'include',
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({match_id:id,status:'contacted'})
+});
+loadRequests();
 }
 
-async function togglePause(){
-  await apiFetch(`${API}/toggle-seller-pause/`,{
-    method:'POST',
-    body:JSON.stringify({})
-  });
-
-  loadSeller();
+function logout(){
+fetch(API+'/seller-logout/',{method:'POST',credentials:'include'});
+location.reload();
 }
 
-function showSavedToast(text='✓ Настройки сохранены'){
-  let old=document.getElementById('saveToast');
-  if(old)old.remove();
-
-  let t=document.createElement('div');
-  t.id='saveToast';
-  t.innerText=text;
-  t.style.cssText='position:fixed;top:20px;right:20px;background:#25D366;color:#fff;padding:14px 18px;border-radius:10px;font-weight:bold;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,.2)';
-  document.body.appendChild(t);
-
-  setTimeout(()=>t.remove(),2200);
-}
-
-async function saveMultiProfile(){
-  let r=await apiFetch(`${API}/update-seller-profile/`,{
-    method:'POST',
-    body:JSON.stringify({
-      phone2:edit_phone2.value,
-      city:edit_city.value,
-      market_location:edit_market_location.value,
-
-      receive_requests:receive_requests.checked,
-      is_test_seller:is_test_seller.checked,
-
-      selected_category_ids:checkedIds('catcheck'),
-      selected_country_ids:checkedIds('countrycheck'),
-      selected_brand_ids:checkedIds('brandcheck'),
-      selected_model_ids:checkedIds('modelcheck'),
-
-      all_categories:all_categories.checked,
-      all_countries:all_countries.checked,
-      all_brands:all_brands.checked,
-      all_models:all_models.checked
-    })
-  });
-
-  let data=await r.json();
-
-  if(data.error){
-    showSavedToast(data.error);
-    return;
-  }
-
-  showSavedToast();
-  await loadSeller();
-  openTab('profile');
-}
-
-async function checkSellerSession(){
-  let r=await apiFetch(`${API}/seller-profile/`);
-  let data=await r.json();
-
-  if(data.error){
-    localStorage.removeItem('seller_id');
-    loginBox.style.display='block';
-    cabinet.style.display='none';
-    return;
-  }
-
-  seller=data;
-  loginBox.style.display='none';
-  cabinet.style.display='block';
-
-  await loadSeller();
-  await loadRequests();
-}
-
-checkSellerSession();
+loadProfile();
+setPeriod('all');
 </script>
 
 </body>
