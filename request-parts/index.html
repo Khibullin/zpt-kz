@@ -235,7 +235,7 @@ function renderResult(data){
   if(sellers.length){
     html+='<div class="result-card"><b>Уже получили вашу заявку:</b>';
     sellers.forEach((s,index)=>{
-      let wa=(notifications[index]&&notifications[index].wa_link)||s.buyer_wa_link||'#';
+      let wa = s.buyer_wa_link || '#';
       html+=`<div class="seller-row"><div><b>${s.seller_name||(notifications[index]&&notifications[index].seller)||'Продавец'}</b><br>Волна: ${s.wave_number||1} / статус: ${s.status||'prepared'}</div><a class="wa-btn" href="${wa}" target="_blank" rel="noopener">WhatsApp</a></div>`;
     });
     html+='</div>';
