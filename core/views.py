@@ -399,10 +399,14 @@ def _seller_notification_text(req):
 
 def _buyer_to_seller_text(req):
     return (
-        f"Здравствуйте! По моей заявке №{req.id}\n\n"
-        f"{req.brand} {req.model}\n"
-        f"{req.category}\n\n"
-        f"{req.description or '-'}"
+        f"Здравствуйте!\n\n"
+        f"Пишу по заявке ZPT.kz №{req.id}.\n\n"
+        f"Автомобиль: {req.brand} {req.model}\n"
+        f"Категория: {req.category}\n"
+        f"Город: {req.city}\n\n"
+        f"Нужная запчасть:\n"
+        f"{req.description or '-'}\n\n"
+        f"Подскажите, пожалуйста, есть ли в наличии, какая цена и срок?"
     )
 
 
