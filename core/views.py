@@ -761,14 +761,12 @@ def seller_requests(request):
         return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
     period = request.GET.get('period', 'all')
-
     now = timezone.now()
 
     matches = Match.objects.filter(
         seller=seller
     ).select_related('request')
 
-    # 📌 Фильтр по периоду
     if period == 'today':
         matches = matches.filter(request__created_at__date=now.date())
 
@@ -783,9 +781,9 @@ def seller_requests(request):
     for match in matches:
         req = match.request
 
-        # 👉 нормальный статус
         status_map = {
             'prepared': 'Новая',
+            'viewed': 'Просмотрена',
             'sent': 'Отправлена',
             'contacted': 'В работе',
             'done': 'Закрыта',
