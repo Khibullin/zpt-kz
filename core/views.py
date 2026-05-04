@@ -394,19 +394,17 @@ def _seller_notification_text(req):
         f"https://zpt.kz\n\n"
         f"По всем вопросам:\n"
         f"WhatsApp +7 771 360 7040"
-    )
-
 
 def _buyer_to_seller_text(req):
     return (
         f"Здравствуйте!\n\n"
-        f"Пишу по заявке ZPT.kz №{req.id}.\n\n"
+        f"Пишу по заявке с ZPT.kz №{req.id}.\n\n"
         f"Автомобиль: {req.brand} {req.model}\n"
         f"Категория: {req.category}\n"
         f"Город: {req.city}\n\n"
         f"Нужная запчасть:\n"
         f"{req.description or '-'}\n\n"
-        f"Подскажите, пожалуйста, есть ли в наличии, какая цена и срок?"
+        f"Подскажите, пожалуйста, есть ли в наличии, цена и срок?"
     )
 
 
