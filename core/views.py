@@ -394,6 +394,7 @@ def _seller_notification_text(req):
         f"https://zpt.kz\n\n"
         f"По всем вопросам:\n"
         f"WhatsApp +7 771 360 7040"
+    )
 
 def _buyer_to_seller_text(req):
     return (
