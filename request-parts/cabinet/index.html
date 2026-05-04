@@ -18,9 +18,11 @@ h1{margin-top:0;color:#d62828}
 .tab{border:none;padding:16px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
 .tab.active{background:#3478f6;color:#fff}
 .section{display:none}.section.active{display:block}
-.btn{border:none;padding:11px 18px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px}
+.btn{border:none;padding:11px 18px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px;text-decoration:none;display:inline-block}
 .red{background:#ed1c24;color:#fff}.blue{background:#3478f6;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#f57c00;color:#fff}.gray{background:#757575;color:#fff}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.metric{border:1px solid #dde3ef;border-radius:14px;padding:18px}.metric b{display:block;font-size:42px;margin-top:8px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.metric{border:1px solid #dde3ef;border-radius:14px;padding:18px}
+.metric b{display:block;font-size:42px;margin-top:8px}
 label{font-weight:bold;display:block;margin-top:12px;margin-bottom:6px}
 select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;font-size:15px;box-sizing:border-box}
 .checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:1px solid #e5e5e5;padding:14px;border-radius:12px;background:#fafafa;max-height:260px;overflow:auto}
@@ -28,10 +30,43 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
 .checkgrid input,.checkblock input{width:auto}
 .checkblock{margin-top:12px;padding:12px;background:#f5f8ff;border-radius:10px}
 .checkblock label{font-weight:normal;display:flex;gap:8px;align-items:center}
-.ticket{border:1px solid #e6e6e6;border-radius:14px;padding:16px;margin-top:14px}.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:#eef5ff;font-size:12px;font-weight:bold}
-.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #eee}
-.error{color:#ed1c24;font-weight:bold;margin-top:12px}.hint{font-size:13px;color:#666;margin-top:12px}.muted{color:#666}
-@media(max-width:760px){.tabs,.grid3,.checkgrid{grid-template-columns:1fr}}
+
+.periods{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.period-btn{border:none;padding:11px 16px;border-radius:12px;background:#e9eef8;color:#3478f6;font-weight:bold;cursor:pointer}
+.period-btn.active{background:#3478f6;color:#fff}
+
+.ticket{
+  background:#fff;
+  border:2px solid #e74c3c;
+  border-radius:18px;
+  padding:18px;
+  margin-top:16px;
+  box-shadow:0 8px 22px rgba(0,0,0,.05);
+}
+.ticket.new{
+  background:#fff8e1;
+  border-color:#ff9800;
+}
+.ticket-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.ticket-id{font-size:20px;font-weight:bold;color:#d62828}
+.ticket-date{font-size:12px;color:#666;margin-top:5px;text-align:right}
+.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:#eef5ff;font-size:12px;font-weight:bold;color:#1d4ed8}
+.ticket-row{margin-top:7px;font-size:15px}
+.comment{background:#f3f4f6;padding:12px;border-radius:12px;margin-top:12px;white-space:pre-wrap}
+.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #e5e7eb}
+.ticket-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ticket-actions .btn{margin:0}
+.error{color:#ed1c24;font-weight:bold;margin-top:12px}
+.hint{font-size:13px;color:#666;margin-top:12px}
+.muted{color:#666}
+
+@media(max-width:760px){
+  .tabs,.grid3,.checkgrid{grid-template-columns:1fr}
+  .ticket-head{display:block}
+  .ticket-date{text-align:left}
+  .ticket-actions .btn{width:100%;text-align:center}
+  .period-btn{flex:1}
+}
 </style>
 </head>
 
@@ -107,11 +142,13 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
         <div class="metric">Всего<b id="allCount">0</b></div>
         <div class="metric">За период<b id="periodCount">0</b></div>
       </div>
-      <br>
-      <button class="tab active" onclick="setPeriod('all')">Все</button>
-      <button class="tab" onclick="setPeriod('today')">Сегодня</button>
-      <button class="tab" onclick="setPeriod('7d')">7 дней</button>
-      <button class="tab" onclick="setPeriod('30d')">30 дней</button>
+
+      <div class="periods">
+        <button class="period-btn active" id="period_all" onclick="setPeriod('all')">Все</button>
+        <button class="period-btn" id="period_today" onclick="setPeriod('today')">Сегодня</button>
+        <button class="period-btn" id="period_7d" onclick="setPeriod('7d')">7 дней</button>
+        <button class="period-btn" id="period_30d" onclick="setPeriod('30d')">30 дней</button>
+      </div>
     </div>
 
     <div class="card">
@@ -185,6 +222,7 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
 const API='https://zpt-kz-backend.onrender.com/api';
 let seller=null;
 let requests=[];
+let currentPeriod='all';
 
 const cities=[
  'Алматы','Астана','Шымкент','Караганда','Актобе','Атырау','Актау',
@@ -201,6 +239,10 @@ async function apiFetch(url, options={}){
       ...(options.headers||{})
     }
   });
+}
+
+function normalizePhoneForWa(phone){
+  return String(phone||'').replace(/\D/g,'');
 }
 
 async function sellerLogin(){
@@ -227,7 +269,7 @@ async function sellerLogin(){
   cabinet.style.display='block';
 
   await loadSeller();
-  await loadRequests();
+  await loadRequests(currentPeriod);
 
   if(data.must_change_password){
     passwordNotice.style.display='block';
@@ -241,7 +283,6 @@ async function sellerLogout(){
   });
 
   localStorage.removeItem('seller_id');
-
   window.location.href = '/request-parts/';
 }
 
@@ -417,6 +458,7 @@ async function loadSeller(){
   sellerSummary.innerHTML=`
     <b>${seller.name}</b><br>
     WhatsApp: ${seller.whatsapp}<br>
+    ${seller.transport_type === 'truck' ? 'Грузовые' : 'Легковые'}<br>
     ${seller.is_paused?'На паузе':'Принимает заявки'}<br>
     ${seller.receive_requests?'Получает заявки':'Рассылка выключена'}
   `;
@@ -459,7 +501,9 @@ profileData.innerHTML=`
   await loadCheckboxData();
 }
 
-async function loadRequests(period='7d'){
+async function loadRequests(period='all'){
+  currentPeriod=period;
+
   let r=await apiFetch(`${API}/seller-requests/?period=${period}`);
   let data=await r.json();
 
@@ -473,31 +517,64 @@ async function loadRequests(period='7d'){
 }
 
 function setPeriod(p){
+  currentPeriod=p;
+
+  document.querySelectorAll('.period-btn').forEach(x=>x.classList.remove('active'));
+  let activeBtn=document.getElementById('period_'+p);
+  if(activeBtn) activeBtn.classList.add('active');
+
   loadRequests(p);
 }
 
 function renderRequests(){
   allCount.innerText=requests.length;
   periodCount.innerText=requests.length;
-  newCount.innerText=requests.filter(x=>x.match_status==='prepared').length;
+  newCount.innerText=requests.filter(x=>x.match_status==='Новая').length;
 
   let html='';
 
-  requests.forEach(r=>{
-    html+=`
-      <div class="ticket">
-        <b>Заявка №${r.id}</b>
-        <span class="badge">${r.match_status||'prepared'}</span>
-        <div>${r.city||''} • ${r.brand||''} ${r.model||''}</div>
-        <button class="btn gray" onclick="toggleDetail(${r.id})">Открыть</button>
-        <div class="detail" id="detail-${r.id}">
-          ${r.description||''}<br><br>
-          Телефон клиента: ${r.phone||''}<br><br>
-          <button class="btn blue" onclick="changeStatus(${r.match_id},'contacted')">Связался</button>
+  requests
+    .sort((a,b)=>{
+      if(a.match_status==='Новая' && b.match_status!=='Новая') return -1;
+      if(a.match_status!=='Новая' && b.match_status==='Новая') return 1;
+      return b.id - a.id;
+    })
+    .forEach(r=>{
+      const isNew = r.match_status === 'Новая';
+      const waPhone = normalizePhoneForWa(r.phone);
+
+      html+=`
+        <div class="ticket ${isNew?'new':''}">
+          <div class="ticket-head">
+            <div>
+              <div class="ticket-id">MP-${r.id}</div>
+              <div class="muted">Заявка покупателя</div>
+            </div>
+            <div>
+              <span class="badge">${r.match_status || 'Новая'} ${isNew?'🔥 NEW':''}</span>
+              <div class="ticket-date">${r.created_at||''}</div>
+            </div>
+          </div>
+
+          <div class="ticket-row"><b>Город:</b> ${r.city||'-'}</div>
+          <div class="ticket-row"><b>Авто:</b> ${r.brand||''} ${r.model||''}</div>
+          <div class="ticket-row"><b>Категория:</b> ${r.category||'-'}</div>
+
+          <div class="comment">${r.description||'-'}</div>
+
+          <button class="btn red" onclick="toggleDetail(${r.id})">Открыть заявку</button>
+
+          <div class="detail" id="detail-${r.id}">
+            <div class="ticket-row"><b>Телефон клиента:</b> ${r.phone||'-'}</div>
+
+            <div class="ticket-actions">
+              <a class="btn green" href="https://wa.me/${waPhone}" target="_blank">Написать в WhatsApp</a>
+              <button class="btn blue" onclick="changeStatus(${r.match_id},'contacted')">Связался</button>
+            </div>
+          </div>
         </div>
-      </div>
-    `;
-  });
+      `;
+    });
 
   requestList.innerHTML=html||'<p>Заявок пока нет.</p>';
 }
@@ -513,7 +590,7 @@ async function changeStatus(id,status){
     body:JSON.stringify({match_id:id,status})
   });
 
-  loadRequests();
+  loadRequests(currentPeriod);
 }
 
 async function togglePause(){
@@ -589,7 +666,7 @@ async function checkSellerSession(){
   cabinet.style.display='block';
 
   await loadSeller();
-  await loadRequests();
+  await loadRequests('all');
 }
 
 checkSellerSession();
