@@ -9,27 +9,80 @@
 
 <style>
 body{font-family:Arial;background:#f5f5f5;margin:0;color:#222}
-.wrap{max-width:1100px;margin:auto;padding:20px}
-.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-h1{margin-top:0;color:#d62828}
-.tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.tab{border:none;padding:14px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
-.tab.active{background:#3478f6;color:#fff}
-.section{display:none}.section.active{display:block}
-.btn{border:none;padding:10px 16px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:6px}
-.blue{background:#3478f6;color:#fff}
-.green{background:#25D366;color:#fff}
-.gray{background:#757575;color:#fff}
-.metric{border:1px solid #dde3ef;border-radius:14px;padding:16px}
-.metric b{display:block;font-size:32px;margin-top:6px}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.ticket{border:1px solid #e6e6e6;border-radius:14px;padding:16px;margin-top:14px;background:#fafafa}
-.ticket-header{display:flex;justify-content:space-between;align-items:center}
-.badge{padding:6px 10px;border-radius:20px;font-size:12px;font-weight:bold;background:#eef5ff}
-.detail{display:none;margin-top:12px;padding-top:12px;border-top:1px solid #ddd}
-.periods{display:flex;gap:10px;margin-top:10px}
-.periods button{border:none;padding:8px 14px;border-radius:10px;cursor:pointer;background:#e9eef8}
+
+.wrap{max-width:900px;margin:auto;padding:16px}
+
+.card{background:#fff;border-radius:16px;padding:18px;margin-bottom:16px}
+
+h1{color:#d62828;margin:0 0 10px}
+
+.periods{display:flex;gap:10px;flex-wrap:wrap}
+.periods button{
+border:none;padding:10px 14px;border-radius:10px;
+background:#e9eef8;cursor:pointer;font-weight:bold
+}
 .periods button.active{background:#3478f6;color:#fff}
+
+.ticket{
+background:#fff;
+border-radius:16px;
+padding:16px;
+margin-bottom:14px;
+border:2px solid #e74c3c;
+}
+
+.ticket-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:10px
+}
+
+.ticket-id{
+font-weight:bold;
+color:#d62828;
+font-size:18px
+}
+
+.badge{
+background:#eef5ff;
+padding:6px 10px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold
+}
+
+.ticket-line{
+margin:4px 0;
+font-size:14px
+}
+
+.comment{
+background:#f3f3f3;
+padding:10px;
+border-radius:10px;
+margin:10px 0;
+font-size:14px
+}
+
+.btn{
+display:block;
+width:100%;
+text-align:center;
+padding:14px;
+border:none;
+border-radius:12px;
+font-weight:bold;
+margin-top:10px;
+cursor:pointer;
+}
+
+.red{background:#e53935;color:#fff}
+.green{background:#25D366;color:#fff}
+.blue{background:#3478f6;color:#fff}
+
+.detail{display:none}
+
 </style>
 </head>
 
@@ -40,47 +93,18 @@ h1{margin-top:0;color:#d62828}
 <div class="card">
 <h1>Кабинет продавца</h1>
 <div id="sellerSummary"></div>
-<button class="btn gray" onclick="logout()">Выйти</button>
 </div>
 
 <div class="card">
-<div class="tabs">
-<button class="tab active" onclick="openTab('requests')">Заявки</button>
-<button class="tab" onclick="openTab('profile')">Профиль</button>
-</div>
-</div>
-
-<div id="requests" class="section active">
-
-<div class="card">
-<h2>Сводка</h2>
-<div class="grid3">
-<div class="metric">Новых<b id="newCount">0</b></div>
-<div class="metric">Всего<b id="allCount">0</b></div>
-<div class="metric">За период<b id="periodCount">0</b></div>
-</div>
-
 <div class="periods">
-<button onclick="setPeriod('all')" id="p_all">Все</button>
-<button onclick="setPeriod('today')" id="p_today">Сегодня</button>
-<button onclick="setPeriod('7d')" id="p_7d">7 дней</button>
-<button onclick="setPeriod('30d')" id="p_30d">30 дней</button>
+<button id="p_all" onclick="setPeriod('all')">Все</button>
+<button id="p_today" onclick="setPeriod('today')">Сегодня</button>
+<button id="p_7d" onclick="setPeriod('7d')">7 дней</button>
+<button id="p_30d" onclick="setPeriod('30d')">30 дней</button>
 </div>
 </div>
 
-<div class="card">
-<h2>Заявки покупателей</h2>
 <div id="list"></div>
-</div>
-
-</div>
-
-<div id="profile" class="section">
-<div class="card">
-<h2>Профиль</h2>
-<div id="profileData"></div>
-</div>
-</div>
 
 </div>
 
@@ -89,17 +113,15 @@ const API='https://zpt-kz-backend.onrender.com/api';
 let requests=[];
 let currentPeriod='all';
 
-function openTab(t){
-document.querySelectorAll('.section').forEach(x=>x.classList.remove('active'));
-document.getElementById(t).classList.add('active');
-}
-
 async function loadProfile(){
 let r=await fetch(API+'/seller-profile/',{credentials:'include'});
 let d=await r.json();
 
-sellerSummary.innerHTML=`<b>${d.name}</b><br>${d.whatsapp}`;
-profileData.innerHTML=`Тип: ${d.transport_type=='truck'?'Грузовые':'Легковые'}`;
+sellerSummary.innerHTML=`
+<b>${d.name}</b><br>
+WhatsApp: ${d.whatsapp}<br>
+${d.transport_type=='truck'?'Грузовые':'Легковые'}
+`;
 }
 
 async function loadRequests(){
@@ -120,10 +142,6 @@ loadRequests();
 
 function render(){
 
-allCount.innerText=requests.length;
-periodCount.innerText=requests.length;
-newCount.innerText=requests.filter(x=>x.match_status=='Новая').length;
-
 let html='';
 
 requests.forEach(r=>{
@@ -132,22 +150,27 @@ html+=`
 <div class="ticket">
 
 <div class="ticket-header">
-<b>Заявка №${r.id}</b>
-<span class="badge">${r.match_status}</span>
+<div class="ticket-id">MP-${r.id}</div>
+<div>
+<span class="badge">${r.match_status}</span><br>
+<small>${r.created_at||''}</small>
+</div>
 </div>
 
-<div>${r.city||''} • ${r.brand||''} ${r.model||''}</div>
+<div class="ticket-line"><b>Город:</b> ${r.city||'-'}</div>
+<div class="ticket-line"><b>Авто:</b> ${r.brand||''} ${r.model||''}</div>
+<div class="ticket-line"><b>Категория:</b> ${r.category||''}</div>
 
-<button class="btn gray" onclick="toggle(${r.id})">Открыть</button>
+<div class="comment">${r.description||'-'}</div>
+
+<button class="btn red" onclick="toggle(${r.id})">Открыть заявку</button>
 
 <div class="detail" id="d${r.id}">
 
-<div><b>Категория:</b> ${r.category||''}</div>
-<div><b>Описание:</b> ${r.description||'-'}</div>
-<div><b>Дата:</b> ${r.created_at||''}</div>
-<div><b>Телефон:</b> ${r.phone||''}</div>
+<div class="ticket-line"><b>Телефон:</b> ${r.phone}</div>
 
-<a class="btn green" href="https://wa.me/${r.phone}" target="_blank">WhatsApp</a>
+<a class="btn green" href="https://wa.me/${r.phone}" target="_blank">Написать в WhatsApp</a>
+
 <button class="btn blue" onclick="contacted(${r.match_id})">Связался</button>
 
 </div>
@@ -157,7 +180,7 @@ html+=`
 
 });
 
-list.innerHTML=html||'Нет заявок';
+list.innerHTML=html||'<p>Заявок нет</p>';
 }
 
 function toggle(id){
@@ -173,11 +196,6 @@ headers:{'Content-Type':'application/json'},
 body:JSON.stringify({match_id:id,status:'contacted'})
 });
 loadRequests();
-}
-
-function logout(){
-fetch(API+'/seller-logout/',{method:'POST',credentials:'include'});
-location.reload();
 }
 
 loadProfile();
