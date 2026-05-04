@@ -10,19 +10,69 @@
 <link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
 
 <style>
-body{font-family:Arial;background:#f5f5f5;margin:0;color:#222}
+body{font-family:Arial;background:#f4f5f7;margin:0;color:#222}
 .wrap{max-width:1100px;margin:auto;padding:20px}
-.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 4px 12px rgba(0,0,0,.05)}
-h1{margin-top:0;color:#d62828}
+.card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+h1{margin:0;color:#d62828}
+h2{margin-top:0}
+
+.top{display:flex;justify-content:space-between;gap:18px;align-items:flex-start}
+.seller-name{font-size:28px;font-weight:800;color:#d62828}
+.seller-sub{margin-top:8px;color:#555}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.pill{padding:7px 12px;border-radius:999px;font-size:13px;font-weight:700}
+.pill-green{background:#e8f8ee;color:#16803a}
+.pill-blue{background:#eaf1ff;color:#2563eb}
+.pill-gray{background:#f0f0f0;color:#555}
+.pill-red{background:#ffe8e8;color:#d62828}
+
+.action-box{background:#fff7ed;border:1px solid #fed7aa;border-radius:18px;padding:16px;margin-top:18px}
+.action-box b{color:#d62828}
+
 .tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
-.tab{border:none;padding:16px;border-radius:12px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
+.tab{border:none;padding:15px;border-radius:14px;font-weight:bold;cursor:pointer;background:#e9eef8;color:#3478f6}
 .tab.active{background:#3478f6;color:#fff}
 .section{display:none}.section.active{display:block}
-.btn{border:none;padding:11px 18px;border-radius:10px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px;text-decoration:none;display:inline-block}
-.red{background:#ed1c24;color:#fff}.blue{background:#3478f6;color:#fff}.green{background:#25D366;color:#fff}.orange{background:#f57c00;color:#fff}.gray{background:#757575;color:#fff}
+
+.btn{border:none;padding:11px 18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:10px;margin-right:8px;text-decoration:none;display:inline-block}
+.red{background:#ed1c24;color:#fff}
+.blue{background:#3478f6;color:#fff}
+.green{background:#25D366;color:#fff}
+.orange{background:#f57c00;color:#fff}
+.gray{background:#757575;color:#fff}
+
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.metric{border:1px solid #dde3ef;border-radius:14px;padding:18px}
+.metric{border:1px solid #dde3ef;border-radius:16px;padding:18px;background:#fff}
+.metric span{color:#666}
 .metric b{display:block;font-size:42px;margin-top:8px}
+.metric-new b{color:#ed1c24}
+.metric-period b{color:#3478f6}
+
+.periods{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.period-btn{border:none;padding:11px 16px;border-radius:12px;background:#e9eef8;color:#3478f6;font-weight:bold;cursor:pointer}
+.period-btn.active{background:#3478f6;color:#fff}
+
+.ticket{background:#fff;border:2px solid #e5e7eb;border-radius:18px;padding:18px;margin-top:16px;box-shadow:0 8px 22px rgba(0,0,0,.05)}
+.ticket.new{background:#fff8e1;border-color:#ff9800}
+.ticket.work{background:#eef5ff;border-color:#3478f6}
+.ticket.done{background:#ecfdf3;border-color:#22c55e}
+.ticket.sent{background:#f8fafc;border-color:#cbd5e1}
+
+.ticket-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
+.ticket-id{font-size:20px;font-weight:bold;color:#d62828}
+.ticket-date{font-size:12px;color:#666;margin-top:5px;text-align:right}
+.status-badge{display:inline-block;padding:7px 12px;border-radius:999px;font-size:12px;font-weight:bold}
+.status-new{background:#eef5ff;color:#1d4ed8}
+.status-work{background:#dbeafe;color:#1d4ed8}
+.status-done{background:#dcfce7;color:#15803d}
+.status-sent{background:#f1f5f9;color:#475569}
+
+.ticket-row{margin-top:7px;font-size:15px}
+.comment{background:#f3f4f6;padding:12px;border-radius:12px;margin-top:12px;white-space:pre-wrap}
+.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #e5e7eb}
+.ticket-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.ticket-actions .btn{margin:0}
+
 label{font-weight:bold;display:block;margin-top:12px;margin-bottom:6px}
 select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;font-size:15px;box-sizing:border-box}
 .checkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;border:1px solid #e5e5e5;padding:14px;border-radius:12px;background:#fafafa;max-height:260px;overflow:auto}
@@ -30,37 +80,13 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
 .checkgrid input,.checkblock input{width:auto}
 .checkblock{margin-top:12px;padding:12px;background:#f5f8ff;border-radius:10px}
 .checkblock label{font-weight:normal;display:flex;gap:8px;align-items:center}
-
-.periods{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
-.period-btn{border:none;padding:11px 16px;border-radius:12px;background:#e9eef8;color:#3478f6;font-weight:bold;cursor:pointer}
-.period-btn.active{background:#3478f6;color:#fff}
-
-.ticket{
-  background:#fff;
-  border:2px solid #e74c3c;
-  border-radius:18px;
-  padding:18px;
-  margin-top:16px;
-  box-shadow:0 8px 22px rgba(0,0,0,.05);
-}
-.ticket.new{
-  background:#fff8e1;
-  border-color:#ff9800;
-}
-.ticket-head{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}
-.ticket-id{font-size:20px;font-weight:bold;color:#d62828}
-.ticket-date{font-size:12px;color:#666;margin-top:5px;text-align:right}
-.badge{display:inline-block;padding:6px 12px;border-radius:20px;background:#eef5ff;font-size:12px;font-weight:bold;color:#1d4ed8}
-.ticket-row{margin-top:7px;font-size:15px}
-.comment{background:#f3f4f6;padding:12px;border-radius:12px;margin-top:12px;white-space:pre-wrap}
-.detail{display:none;margin-top:15px;padding-top:15px;border-top:1px solid #e5e7eb}
-.ticket-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
-.ticket-actions .btn{margin:0}
 .error{color:#ed1c24;font-weight:bold;margin-top:12px}
 .hint{font-size:13px;color:#666;margin-top:12px}
 .muted{color:#666}
 
 @media(max-width:760px){
+  .wrap{padding:12px}
+  .top{display:block}
   .tabs,.grid3,.checkgrid{grid-template-columns:1fr}
   .ticket-head{display:block}
   .ticket-date{text-align:left}
@@ -89,19 +115,25 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
 
     <button class="btn blue" onclick="sellerLogin()">Войти</button>
 
-    <div class="hint">
-      Для ранее загруженных продавцов временный пароль: <b>zpt2026</b>
-    </div>
-
+    <div class="hint">Для ранее загруженных продавцов временный пароль: <b>zpt2026</b></div>
     <div id="loginError" class="error"></div>
   </div>
 </div>
 
 <div id="cabinet" class="wrap" style="display:none">
   <div class="card">
-    <h1>Кабинет продавца</h1>
-    <div id="sellerSummary">Загрузка...</div>
-    <button class="btn gray" onclick="sellerLogout()">Выйти</button>
+    <div class="top">
+      <div>
+        <div class="seller-name" id="sellerName">Кабинет продавца</div>
+        <div class="seller-sub" id="sellerInfo">Загрузка...</div>
+        <div class="badges" id="sellerBadges"></div>
+      </div>
+      <button class="btn gray" onclick="sellerLogout()">Выйти</button>
+    </div>
+
+    <div class="action-box" id="actionBox">
+      <b>Заявки загружаются...</b>
+    </div>
   </div>
 
   <div id="passwordNotice" class="card" style="display:none;border:2px solid #f57c00">
@@ -138,9 +170,9 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
     <div class="card">
       <h2>Сводка</h2>
       <div class="grid3">
-        <div class="metric">Новых<b id="newCount">0</b></div>
-        <div class="metric">Всего<b id="allCount">0</b></div>
-        <div class="metric">За период<b id="periodCount">0</b></div>
+        <div class="metric metric-new"><span>Новых</span><b id="newCount">0</b></div>
+        <div class="metric"><span>Всего</span><b id="allCount">0</b></div>
+        <div class="metric metric-period"><span>За период</span><b id="periodCount">0</b></div>
       </div>
 
       <div class="periods">
@@ -222,6 +254,7 @@ select,input{width:100%;padding:12px;border:1px solid #d8d8d8;border-radius:8px;
 const API='https://zpt-kz-backend.onrender.com/api';
 let seller=null;
 let requests=[];
+let allRequests=[];
 let currentPeriod='all';
 
 const cities=[
@@ -243,6 +276,22 @@ async function apiFetch(url, options={}){
 
 function normalizePhoneForWa(phone){
   return String(phone||'').replace(/\D/g,'');
+}
+
+function statusInfo(status){
+  if(status==='Новая' || status==='prepared'){
+    return {text:'Новая', icon:'🔥', card:'new', badge:'status-new'};
+  }
+  if(status==='В работе' || status==='contacted'){
+    return {text:'В работе', icon:'🔵', card:'work', badge:'status-work'};
+  }
+  if(status==='Закрыта' || status==='done'){
+    return {text:'Закрыта', icon:'✅', card:'done', badge:'status-done'};
+  }
+  if(status==='Отправлена' || status==='sent'){
+    return {text:'Отправлена', icon:'📨', card:'sent', badge:'status-sent'};
+  }
+  return {text:status||'Новая', icon:'', card:'new', badge:'status-new'};
 }
 
 async function sellerLogin(){
@@ -455,12 +504,16 @@ async function loadSeller(){
     return;
   }
 
-  sellerSummary.innerHTML=`
-    <b>${seller.name}</b><br>
-    WhatsApp: ${seller.whatsapp}<br>
-    ${seller.transport_type === 'truck' ? 'Грузовые' : 'Легковые'}<br>
-    ${seller.is_paused?'На паузе':'Принимает заявки'}<br>
-    ${seller.receive_requests?'Получает заявки':'Рассылка выключена'}
+  sellerName.innerText=seller.name || 'Кабинет продавца';
+  sellerInfo.innerHTML=`
+    ${seller.transport_type === 'truck' ? 'Грузовые автомобили' : 'Легковые автомобили'}
+    · WhatsApp ${seller.whatsapp}
+  `;
+
+  sellerBadges.innerHTML=`
+    <span class="pill ${seller.receive_requests?'pill-green':'pill-red'}">${seller.receive_requests?'Получает заявки':'Рассылка выключена'}</span>
+    <span class="pill ${seller.is_paused?'pill-red':'pill-green'}">${seller.is_paused?'На паузе':'Активен'}</span>
+    <span class="pill pill-blue">${seller.transport_type === 'truck' ? 'Грузовые' : 'Легковые'}</span>
   `;
 
 profileData.innerHTML=`
@@ -504,14 +557,13 @@ profileData.innerHTML=`
 async function loadRequests(period='all'){
   currentPeriod=period;
 
-  let r=await apiFetch(`${API}/seller-requests/?period=${period}`);
-  let data=await r.json();
+  let allResp=await apiFetch(`${API}/seller-requests/?period=all`);
+  let allData=await allResp.json();
+  allRequests=allData.requests||[];
 
-  if(data.error){
-    requests=[];
-  }else{
-    requests=data.requests||[];
-  }
+  let periodResp=await apiFetch(`${API}/seller-requests/?period=${period}`);
+  let periodData=await periodResp.json();
+  requests=periodData.requests||[];
 
   renderRequests();
 }
@@ -527,31 +579,43 @@ function setPeriod(p){
 }
 
 function renderRequests(){
-  allCount.innerText=requests.length;
+  const allNewCount=allRequests.filter(x=>statusInfo(x.match_status).text==='Новая').length;
+
+  allCount.innerText=allRequests.length;
   periodCount.innerText=requests.length;
-  newCount.innerText=requests.filter(x=>x.match_status==='Новая').length;
+  newCount.innerText=allNewCount;
+
+  actionBox.innerHTML=allNewCount>0
+    ? `<b>У вас ${allNewCount} новые заявки.</b><br>Откройте заявки и свяжитесь с покупателями в WhatsApp.`
+    : `<b>Новых заявок нет.</b><br>Обработанные заявки можно закрывать, чтобы не путаться в списке.`;
 
   let html='';
 
   requests
     .sort((a,b)=>{
-      if(a.match_status==='Новая' && b.match_status!=='Новая') return -1;
-      if(a.match_status!=='Новая' && b.match_status==='Новая') return 1;
+      const sa=statusInfo(a.match_status).text;
+      const sb=statusInfo(b.match_status).text;
+
+      if(sa==='Новая' && sb!=='Новая') return -1;
+      if(sa!=='Новая' && sb==='Новая') return 1;
+      if(sa==='В работе' && sb==='Закрыта') return -1;
+      if(sa==='Закрыта' && sb!=='Закрыта') return 1;
+
       return b.id - a.id;
     })
     .forEach(r=>{
-      const isNew = r.match_status === 'Новая';
-      const waPhone = normalizePhoneForWa(r.phone);
+      const st=statusInfo(r.match_status);
+      const waPhone=normalizePhoneForWa(r.phone);
 
       html+=`
-        <div class="ticket ${isNew?'new':''}">
+        <div class="ticket ${st.card}">
           <div class="ticket-head">
             <div>
               <div class="ticket-id">MP-${r.id}</div>
               <div class="muted">Заявка покупателя</div>
             </div>
             <div>
-              <span class="badge">${r.match_status || 'Новая'} ${isNew?'🔥 NEW':''}</span>
+              <span class="status-badge ${st.badge}">${st.text} ${st.icon}</span>
               <div class="ticket-date">${r.created_at||''}</div>
             </div>
           </div>
@@ -569,7 +633,8 @@ function renderRequests(){
 
             <div class="ticket-actions">
               <a class="btn green" href="https://wa.me/${waPhone}" target="_blank">Написать в WhatsApp</a>
-              <button class="btn blue" onclick="changeStatus(${r.match_id},'contacted')">Связался</button>
+              <button class="btn blue" onclick="changeStatus(${r.match_id},'contacted')">В работу</button>
+              <button class="btn gray" onclick="changeStatus(${r.match_id},'done')">Закрыть</button>
             </div>
           </div>
         </div>
@@ -590,7 +655,7 @@ async function changeStatus(id,status){
     body:JSON.stringify({match_id:id,status})
   });
 
-  loadRequests(currentPeriod);
+  await loadRequests(currentPeriod);
 }
 
 async function togglePause(){
