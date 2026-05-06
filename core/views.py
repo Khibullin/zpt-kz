@@ -493,9 +493,7 @@ def create_request(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
 
-    print('CREATE REQUEST CALLED')
-
-    _dispatch_due_requests()
+    print('CREATE REQUEST CALLED (NO WAVES MODE)')
 
     try:
         data = json.loads(request.body)
@@ -517,31 +515,40 @@ def create_request(request):
     sellers, strategy = _find_matching_sellers(req)
     matched = list(sellers)
 
-    dispatches = _build_dispatch_queue(req, matched)
-
-    req.status = 'sent' if matched else 'no_sellers'
-    req.save(update_fields=['status'])
-
-    first_wave = [
-        dispatch for dispatch in dispatches
-        if dispatch.wave_number == 1
-    ]
-
-    print('FIRST WAVE COUNT:', len(first_wave))
+    print('TOTAL MATCHED SELLERS:', len(matched))
 
     seller_notifications = []
 
-    for dispatch in first_wave:
-        print('CALLING WA:', dispatch.seller.name)
+    for seller in matched:
+        print('PROCESS SELLER:', seller.name)
+
+        # создаём Match
+        match = Match.objects.create(
+            request=req,
+            seller=seller,
+            status='prepared'
+        )
 
         try:
             wa_result = send_whatsapp_template(
-                dispatch.seller.whatsapp,
+                seller.whatsapp,
                 req,
-                dispatch.seller.name
+                seller.name
             )
+
+            if wa_result.get('ok'):
+                match.status = 'sent'
+            else:
+                match.status = 'error'
+
+            match.save(update_fields=['status'])
+
         except Exception as e:
             print('WA ERROR:', str(e))
+
+            match.status = 'error'
+            match.save(update_fields=['status'])
+
             wa_result = {
                 'ok': False,
                 'status_code': None,
@@ -549,32 +556,22 @@ def create_request(request):
             }
 
         seller_notifications.append({
-            'seller': dispatch.seller.name,
-            'wa_link': _seller_notification_link(dispatch.seller.whatsapp, req),
+            'seller': seller.name,
+            'wa_link': _seller_notification_link(seller.whatsapp, req),
             'wa_sent': wa_result.get('ok', False),
             'wa_status_code': wa_result.get('status_code'),
             'wa_error': wa_result.get('error'),
         })
+
+    req.status = 'sent' if matched else 'no_sellers'
+    req.save(update_fields=['status'])
 
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
         'matches': len(matched),
         'strategy': strategy,
-        'wave_size': WAVE_SIZE,
-        'wave_interval_minutes': WAVE_INTERVAL_MINUTES,
-        'message': (
-            f'Заявка отправляется волнами по {WAVE_SIZE} '
-            f'каждые {WAVE_INTERVAL_MINUTES} минут.'
-        ),
-        'sellers': [
-            _dispatch_to_json(dispatch, req)
-            for dispatch in first_wave
-        ],
-        'all_sellers': [
-            _dispatch_to_json(dispatch, req)
-            for dispatch in dispatches
-        ],
+        'message': 'Заявка отправлена всем продавцам сразу (без волн)',
         'seller_notifications': seller_notifications,
     })
 
