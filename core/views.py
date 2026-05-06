@@ -342,45 +342,24 @@ def _apply_model_filter(qs, req):
 
 
 def _find_matching_sellers(req):
-    base_qs = _base_sellers_queryset(req)
+    qs = _base_sellers_queryset(req)
 
     if req.category:
-        base_qs = base_qs.filter(
+        qs = qs.filter(
             Q(all_categories=True) |
-            Q(category=req.category) |
-            Q(selected_categories__name=req.category)
-        ).distinct()
+            Q(category=req.category)
+        )
 
-    strategies = [
-        {'city': True, 'country': True, 'brand': True, 'model': True},
-        {'city': True, 'country': True, 'brand': True, 'model': False},
-        {'city': True, 'country': False, 'brand': False, 'model': False},
-        {'city': False, 'country': False, 'brand': False, 'model': False},
-    ]
+    if req.city:
+        qs = qs.filter(
+            Q(city=req.city) |
+            Q(city__isnull=True) |
+            Q(city='')
+        )
 
-    for strategy in strategies:
-        qs = base_qs
+    qs = qs.order_by('dispatch_priority', 'id')[:30]
 
-        if strategy['city']:
-            qs = _apply_city_filter(qs, req)
-
-        if strategy['country']:
-            qs = _apply_country_filter(qs, req)
-
-        if strategy['brand']:
-            qs = _apply_brand_filter(qs, req)
-
-        if strategy['model']:
-            qs = _apply_model_filter(qs, req)
-
-        qs = qs.order_by('dispatch_priority', 'id')[:30]
-
-        first_seller = qs.first()
-        if first_seller:
-            return qs, 'matched'
-
-    return Seller.objects.none(), 'no_match'
-
+    return qs, 'simple'
 
 def _seller_notification_text(req):
     return (
