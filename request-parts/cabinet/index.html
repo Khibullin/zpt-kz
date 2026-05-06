@@ -4,115 +4,115 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет продавца</title>
-
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
-
 <style>
-body{font-family:Arial;background:#f4f5f7;margin:0;color:#222}
-
-.back-link{
-  display:inline-block;
-  margin:16px;
-  text-decoration:none;
-  font-weight:bold;
-  color:#3478f6;
-}
-
-.wrap{max-width:1100px;margin:auto;padding:20px}
-.card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-h1{margin:0;color:#d62828}
-
-.btn{border:none;padding:11px 18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:10px}
-.blue{background:#3478f6;color:#fff}
-
-.error{color:#ed1c24;font-weight:bold;margin-top:12px}
-
-.login-help{
-  margin-top:18px;
-  padding:14px;
-  background:#f5f7fb;
-  border-radius:12px;
-  font-size:14px;
-  color:#444;
-}
-
-.help-btn{
-  display:inline-block;
-  margin-top:8px;
-  background:#25D366;
-  color:#fff;
-  padding:10px 14px;
-  border-radius:10px;
-  text-decoration:none;
-  font-weight:bold;
-}
+body{font-family:Arial;background:#f4f5f7;margin:0;color:#222}.back-link{display:inline-block;margin:16px;text-decoration:none;font-weight:bold;color:#3478f6}.wrap{max-width:1100px;margin:auto;padding:20px}.card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}h1{margin:0 0 18px;color:#d62828}.btn{border:none;padding:11px 18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:10px}.blue{background:#3478f6;color:#fff}.red{background:#d62828;color:#fff}.green{background:#25D366;color:#fff}.gray{background:#eef2f7;color:#222}.error{color:#ed1c24;font-weight:bold;margin-top:12px}.login-help{margin-top:18px;padding:14px;background:#f5f7fb;border-radius:12px;font-size:14px;color:#444}.help-btn{display:inline-block;margin-top:8px;background:#25D366;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold}input,select{padding:10px;border:1px solid #ccc;border-radius:8px;margin:6px 10px 6px 0}.hidden{display:none}.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.info{background:#f5f7fb;border-radius:12px;padding:12px}.requests-table{width:100%;border-collapse:collapse;margin-top:12px}.requests-table th,.requests-table td{border-bottom:1px solid #eee;padding:10px;text-align:left;vertical-align:top}.top-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.muted{color:#666;font-size:13px}.status{font-weight:bold}.wa-link{display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:bold}@media(max-width:760px){.profile-grid{grid-template-columns:1fr}.requests-table{font-size:13px}.requests-table th:nth-child(4),.requests-table td:nth-child(4){display:none}}
 </style>
 </head>
-
 <body>
-
 <a href="/" class="back-link">← На главную</a>
-
 <div class="wrap">
-
   <div class="card" id="loginBox">
-
     <h1>Вход продавца</h1>
-
     <label>WhatsApp</label>
     <input id="login_whatsapp" placeholder="8707XXXXXXX">
-
     <label>Пароль</label>
     <input id="login_password" type="password">
-
-    <label style="font-weight:normal">
-      <input type="checkbox" style="width:auto" onclick="login_password.type=this.checked?'text':'password'">
-      Показать пароль
-    </label>
-
+    <label style="font-weight:normal"><input type="checkbox" style="width:auto" onclick="login_password.type=this.checked?'text':'password'"> Показать пароль</label>
     <button class="btn blue" onclick="sellerLogin()">Войти</button>
-
     <div id="loginError" class="error"></div>
-
-    <!-- 🔥 Новый блок помощи -->
     <div class="login-help">
       <p><b>Нет доступа в кабинет?</b></p>
       <p>Напишите администратору в WhatsApp — поможем восстановить доступ.</p>
-      <a href="https://wa.me/77713607040" target="_blank" class="help-btn">
-        Написать администратору
-      </a>
+      <a href="https://wa.me/77713607040" target="_blank" class="help-btn">Написать администратору</a>
     </div>
-
   </div>
 
+  <div class="card hidden" id="cabinetBox">
+    <div class="top-actions">
+      <h1>Кабинет продавца</h1>
+      <button class="btn red" onclick="sellerLogout()">Выйти</button>
+    </div>
+    <div id="profileBox"></div>
+  </div>
+
+  <div class="card hidden" id="requestsBox">
+    <div class="top-actions">
+      <h1>Заявки</h1>
+      <button class="btn gray" onclick="loadRequests()">Обновить</button>
+    </div>
+    <div id="requestsContent">Загрузка...</div>
+  </div>
 </div>
 
 <script>
 const API='https://zpt-kz-backend.onrender.com/api';
 
+function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
+function showLogin(){loginBox.classList.remove('hidden');cabinetBox.classList.add('hidden');requestsBox.classList.add('hidden')}
+function showCabinet(){loginBox.classList.add('hidden');cabinetBox.classList.remove('hidden');requestsBox.classList.remove('hidden')}
+
 async function sellerLogin(){
   loginError.innerText='';
-
-  let whatsapp=login_whatsapp.value.trim();
+  let whatsapp=normalizePhone(login_whatsapp.value.trim());
   let password=login_password.value;
-
-let r=await fetch(`${API}/seller-login/`,{
-  method:'POST',
-  credentials:'include',   // 🔥 ВОТ ЭТО ГЛАВНОЕ
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({whatsapp,password})
-});
-
-  let data=await r.json();
-
-  if(data.error){
-    loginError.innerText=data.error;
-    return;
-  }
-
-  window.location.href='/request-parts/cabinet/';
+  try{
+    let r=await fetch(`${API}/seller-login/`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({whatsapp,password})});
+    let data=await r.json();
+    if(data.error){loginError.innerText=data.error;return}
+    await loadProfile();
+    await loadRequests();
+  }catch(e){loginError.innerText='Ошибка входа. Попробуйте ещё раз.'}
 }
-</script>
 
+async function loadProfile(){
+  try{
+    let r=await fetch(`${API}/seller-profile/`,{credentials:'include'});
+    let data=await r.json();
+    if(data.error){showLogin();return}
+    showCabinet();
+    profileBox.innerHTML=`
+      <div class="profile-grid">
+        <div class="info"><b>Название:</b><br>${data.name||'-'}</div>
+        <div class="info"><b>WhatsApp:</b><br>${data.whatsapp||'-'}</div>
+        <div class="info"><b>Город:</b><br>${data.city||data.market_location||'-'}</div>
+        <div class="info"><b>Тип транспорта:</b><br>${data.transport_type==='truck'?'Грузовые':'Легковые'}</div>
+        <div class="info"><b>Получает заявки:</b><br>${data.receive_requests?'Да':'Нет'}</div>
+        <div class="info"><b>Статус:</b><br>${data.is_paused?'Пауза':'Активен'}</div>
+      </div>`;
+  }catch(e){showLogin()}
+}
+
+async function loadRequests(){
+  try{
+    let r=await fetch(`${API}/seller-requests/`,{credentials:'include'});
+    let data=await r.json();
+    if(data.error){showLogin();return}
+    let items=data.requests||[];
+    if(!items.length){requestsContent.innerHTML='<p>Пока заявок нет.</p>';return}
+    let html='<table class="requests-table"><thead><tr><th>ID</th><th>Авто</th><th>Категория</th><th>Описание</th><th>Телефон</th><th>Статус</th></tr></thead><tbody>';
+    items.forEach(x=>{
+      let phone=normalizePhone(x.phone);
+      html+=`<tr>
+        <td>${x.id}<br><span class="muted">${x.created_at||''}</span></td>
+        <td>${x.brand||'-'}<br>${x.model||'-'}<br><span class="muted">${x.city||''}</span></td>
+        <td>${x.category||'-'}</td>
+        <td>${x.description||'-'}</td>
+        <td>${phone?`<a class="wa-link" target="_blank" href="https://wa.me/${phone}">WhatsApp</a><br>${phone}`:'-'}</td>
+        <td><span class="status">${x.match_status||'-'}</span></td>
+      </tr>`;
+    });
+    html+='</tbody></table>';
+    requestsContent.innerHTML=html;
+  }catch(e){requestsContent.innerHTML='<p class="error">Ошибка загрузки заявок.</p>'}
+}
+
+async function sellerLogout(){
+  await fetch(`${API}/seller-logout/`,{method:'POST',credentials:'include'});
+  showLogin();
+}
+
+loadProfile();
+</script>
 </body>
 </html>
