@@ -548,7 +548,7 @@ def create_request(request):
     )
 
     sellers, strategy = _find_matching_sellers(req)
-    matched = list(sellers)
+    matched = list(sellers[:30])
 
     print('TOTAL MATCHED SELLERS:', len(matched))
 
