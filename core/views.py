@@ -373,7 +373,7 @@ def _find_matching_sellers(req):
         if strategy['model']:
             qs = _apply_model_filter(qs, req)
 
-        qs = qs.order_by('dispatch_priority', 'id')
+        qs = qs.order_by('dispatch_priority', 'id')[:30]
 
         if qs.exists():
             return qs, 'matched'
