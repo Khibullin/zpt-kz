@@ -954,3 +954,36 @@ def update_match_status(request):
     match.save(update_fields=['status'])
 
     return JsonResponse({'status': 'ok'})
+
+@csrf_exempt
+def update_seller_profile(request):
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    seller_id = request.session.get('seller_id')
+
+    if not seller_id:
+        return JsonResponse({'error': 'not authenticated'}, status=403)
+
+    try:
+        data = json.loads(request.body)
+    except:
+        return JsonResponse({'error': 'invalid json'}, status=400)
+
+    try:
+        seller = Seller.objects.get(id=seller_id)
+
+        seller.name = data.get('name', seller.name)
+        seller.whatsapp = data.get('whatsapp', seller.whatsapp)
+        seller.city = data.get('city', seller.city)
+        seller.transport_type = data.get('transport_type', seller.transport_type)
+
+        seller.save()
+
+        return JsonResponse({'status': 'ok'})
+
+    except Seller.DoesNotExist:
+        return JsonResponse({'error': 'seller not found'}, status=404)
+
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
