@@ -4,155 +4,223 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет продавца — Market Parts</title>
-
+<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
 <style>
 *{box-sizing:border-box}
-body{margin:0;font-family:Arial;background:#f3f4f6}
-.page{max-width:1180px;margin:0 auto;padding:20px}
-
-.topbar{display:flex;justify-content:space-between;margin-bottom:20px}
-.brand{font-weight:800;color:#e21d25;font-size:22px}
-.nav a,.nav button{margin-left:10px;padding:10px 16px;border-radius:10px;border:0;color:#fff;font-weight:700}
-.home{background:#2f7df6}
-.cabinet{background:#24c770}
-.logout{background:#e21d25}
-
-.hero,.panel{background:#fff;border-radius:14px;padding:20px;margin-bottom:16px}
-
-.tabs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:16px}
-.tab{padding:12px;border-radius:10px;border:0;font-weight:700;background:#eaf1ff}
-.tab.active{background:#2f7df6;color:#fff}
-.tab.exit{background:#ffe8e8;color:#e21d25}
-
-.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
-.summary-card{border:1px solid #e3e9f1;padding:14px;border-radius:10px}
-.summary-card b{font-size:26px}
-
-.filters{display:flex;flex-wrap:wrap;gap:10px}
-.pill{padding:10px 14px;border-radius:10px;border:1px solid #ddd;background:#fff;cursor:pointer}
-.pill.active{background:#e21d25;color:#fff}
-.pill.blue.active{background:#2f7df6}
-
-.request-card{background:#fff;border-radius:14px;padding:16px;margin-top:12px}
-.badge{padding:5px 10px;border-radius:999px;font-size:12px}
-.badge-new{background:#e7f8e9}
-.badge-contacted{background:#eaf1ff}
-.badge-done{background:#ffe8e8}
-
-.actions{margin-top:10px;display:flex;gap:10px}
-.btn{padding:10px 14px;border-radius:10px;border:0;font-weight:700}
-.btn-green{background:#22d36c;color:#fff}
-.btn-blue{background:#1769d8;color:#fff}
-.btn-red{background:#d92027;color:#fff}
-
-.profile-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:12px;
-}
-
-.info-box{
-  background:#f9fbff;
-  border:1px solid #e3e9f1;
-  border-radius:10px;
-  padding:12px;
-}
-
-.info-box b{
-  display:block;
-  font-size:12px;
-  color:#666;
-  margin-bottom:3px;
-}
-
-.info-box div{
-  font-weight:700;
-}
-
-.hidden{display:none}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#111}.page{max-width:1180px;margin:0 auto;padding:18px 18px 50px}.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}.brand{font-size:22px;font-weight:800;color:#e21d25;text-decoration:none}.nav{display:flex;gap:10px}.nav a,.nav button{border:0;border-radius:10px;padding:11px 18px;font-weight:800;color:#fff;text-decoration:none;cursor:pointer;font-size:15px}.nav .home{background:#2f7df6}.nav .cabinet{background:#24c770}.nav .logout{background:#e21d25}.hero,.panel,.login-card{background:#fff;border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.05);padding:24px;margin-bottom:20px}.hero h1,.panel h2,.login-card h1{margin:0 0 14px;color:#111;font-size:30px}.hero p{margin:0;font-size:16px}.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;background:#fff;border-radius:14px;padding:18px;box-shadow:0 8px 22px rgba(0,0,0,.05);margin-bottom:20px}.tab{border:0;border-radius:10px;padding:13px;font-weight:800;cursor:pointer;background:#eaf1ff;color:#1467ff;font-size:15px}.tab.active{background:#2f7df6;color:#fff}.tab.exit{background:#ffe8e8;color:#e21d25}.summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.summary-card{border:1px solid #d9e0ea;border-radius:12px;padding:18px;background:#f8fbff}.summary-card span{display:block;color:#556070;font-weight:700;font-size:13px}.summary-card b{display:block;margin-top:10px;font-size:30px;color:#071529}.filters{display:flex;flex-wrap:wrap;gap:12px;align-items:center}.filter-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.filter-title{font-size:18px}.pill{border:1px solid #d9d9d9;background:#fff;border-radius:10px;padding:11px 18px;cursor:pointer;font-size:15px}.pill.active{background:#e21d25;color:#fff;border-color:#e21d25}.pill.blue.active{background:#2f7df6;border-color:#2f7df6}.requests-head{display:flex;align-items:center;justify-content:space-between;gap:12px}.counter{background:#eef3f9;border-radius:14px;padding:10px 16px;font-weight:800}.request-card{background:#fff;border-radius:16px;box-shadow:0 8px 22px rgba(0,0,0,.05);padding:22px;margin:16px 0;border:1px solid #edf0f4}.request-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.request-title h3{margin:0;font-size:22px}.badge{display:inline-block;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:800}.badge-new{background:#e7f8e9;color:#087a24}.badge-sent{background:#e7f8e9;color:#087a24}.badge-viewed{background:#fff2dd;color:#e87900}.badge-contacted{background:#eaf1ff;color:#1467ff}.badge-done{background:#ffe8e8;color:#c81921}.muted{color:#5f6b7a}.request-body{font-size:18px;line-height:1.35}.request-description{background:#f8fafc;border:1px solid #dde5ee;border-radius:10px;padding:13px;margin:16px 0;white-space:pre-wrap}.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{border:0;border-radius:11px;padding:12px 18px;font-weight:800;cursor:pointer;text-decoration:none;display:inline-block;font-size:15px}.btn-green{background:#22d36c;color:#fff}.btn-blue{background:#1769d8;color:#fff}.btn-red{background:#d92027;color:#fff}.btn-gray{background:#eef3f9;color:#111}.profile-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.info-box{background:#f9fbff;border:1px solid #e3e9f1;border-radius:12px;padding:14px;font-size:14px}.info-box b{display:block;margin-bottom:4px;font-size:13px;color:#6b7685}.info-box div{font-size:16px;font-weight:700;color:#111}.profile-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.hidden{display:none!important}.login-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.login-row input{padding:11px 13px;border:1px solid #cfd6df;border-radius:9px;font-size:15px}.error{color:#e21d25;font-weight:800;margin-top:12px}.login-help{margin-top:18px;padding:14px;background:#f5f7fb;border-radius:12px}.help-btn{display:inline-block;margin-top:8px;background:#25D366;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold}.loading{padding:20px;color:#666}@media(max-width:760px){.page{padding:14px}.topbar{align-items:flex-start;gap:12px;flex-direction:column}.nav{width:100%;display:grid;grid-template-columns:1fr 1fr 1fr}.tabs,.summary,.profile-grid{grid-template-columns:1fr}.hero h1,.panel h2,.login-card h1{font-size:25px}.request-title{align-items:flex-start;flex-direction:column}.request-body{font-size:16px}.actions .btn{width:100%;text-align:center}}
 </style>
 </head>
-
 <body>
-
 <div class="page">
-
-<div class="topbar">
-  <div class="brand">Market Parts</div>
-  <div class="nav">
-    <a class="home">Главная</a>
-    <a class="cabinet">Кабинет</a>
-    <button class="logout" onclick="sellerLogout()">Выход</button>
+  <div class="topbar">
+    <a class="brand" href="/">Market Parts</a>
+    <div class="nav">
+      <a class="home" href="/">Главная</a>
+      <a class="cabinet" href="/request-parts/cabinet/">Кабинет</a>
+      <button class="logout" onclick="sellerLogout()">Выход</button>
+    </div>
   </div>
-</div>
 
-<div id="cabinetApp">
-
-<div class="hero">
-  <h1 id="pageTitle">Кабинет продавца</h1>
-  <p id="pageSubtitle">Заявки покупателей</p>
-</div>
-
-<div class="tabs">
-  <button id="tabRequests" class="tab active" onclick="showTab('requests')">Заявки</button>
-  <button id="tabProfile" class="tab" onclick="showTab('profile')">Мой профиль</button>
-  <button class="tab exit" onclick="sellerLogout()">Выход</button>
-</div>
-
-<!-- ЗАЯВКИ -->
-<div id="requestsTab">
-
-<div class="panel">
-  <div class="summary">
-    <div class="summary-card"><span>Новые</span><b id="countNew">0</b></div>
-    <div class="summary-card"><span>Всего</span><b id="countAll">0</b></div>
-    <div class="summary-card"><span>Период</span><b id="countPeriod">0</b></div>
+  <div class="login-card" id="loginBox">
+    <h1>Вход продавца</h1>
+    <div class="login-row">
+      <label>WhatsApp</label>
+      <input id="login_whatsapp" placeholder="7707XXXXXXX">
+      <label>Пароль</label>
+      <input id="login_password" type="password">
+      <label><input type="checkbox" onclick="login_password.type=this.checked?'text':'password'"> Показать пароль</label>
+      <button class="btn btn-blue" onclick="sellerLogin()">Войти</button>
+    </div>
+    <div id="loginError" class="error"></div>
+    <div class="login-help">
+      <b>Нет доступа в кабинет?</b><br>
+      Напишите администратору в WhatsApp — поможем восстановить доступ.<br>
+      <a class="help-btn" href="https://wa.me/77713607040" target="_blank">Написать администратору</a>
+    </div>
   </div>
-</div>
 
-<div class="panel">
-  <div class="filters">
-    <button class="pill active" onclick="setPeriod('all')">Все</button>
-    <button class="pill" onclick="setPeriod('today')">Сегодня</button>
-    <button class="pill" onclick="setPeriod('7d')">7 дней</button>
+  <div id="cabinetApp" class="hidden">
+    <section class="hero">
+      <h1 id="pageTitle">Кабинет продавца</h1>
+      <p id="pageSubtitle">Здесь отображаются заявки покупателей, которые подходят вашему магазину.</p>
+    </section>
+
+    <section class="tabs">
+      <button id="tabRequests" class="tab active" onclick="showTab('requests')">Заявки</button>
+      <button id="tabProfile" class="tab" onclick="showTab('profile')">Мой профиль</button>
+      <button class="tab exit" onclick="sellerLogout()">Выход</button>
+    </section>
+
+    <section id="requestsTab">
+      <section class="panel">
+        <h2>Сводка</h2>
+        <div class="summary">
+          <div class="summary-card"><span>Новых заявок</span><b id="countNew">0</b></div>
+          <div class="summary-card"><span>Всего заявок</span><b id="countAll">0</b></div>
+          <div class="summary-card"><span>За выбранный период</span><b id="countPeriod">0</b></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Фильтр</h2>
+        <div class="filters">
+          <div class="filter-group">
+            <span class="filter-title">Период:</span>
+            <button class="pill period-pill blue" data-period="today" onclick="setPeriod('today')">Сегодня</button>
+            <button class="pill period-pill blue active" data-period="7d" onclick="setPeriod('7d')">7 дней</button>
+            <button class="pill period-pill blue" data-period="30d" onclick="setPeriod('30d')">30 дней</button>
+            <button class="pill period-pill blue" data-period="all" onclick="setPeriod('all')">Все</button>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Статус:</span>
+            <button class="pill status-pill active" data-status="all" onclick="setStatusFilter('all')">Все</button>
+            <button class="pill status-pill" data-status="new" onclick="setStatusFilter('new')">Новые</button>
+            <button class="pill status-pill" data-status="contacted" onclick="setStatusFilter('contacted')">Связался</button>
+            <button class="pill status-pill" data-status="done" onclick="setStatusFilter('done')">Отказ</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="requests-head">
+          <h2>Заявки покупателей</h2>
+          <div style="display:flex;gap:10px;align-items:center"><span class="counter" id="visibleCounter">0 заявок</span><button class="btn btn-gray" onclick="loadRequests()">Обновить</button></div>
+        </div>
+        <div id="requestsContent" class="loading">Загрузка...</div>
+      </section>
+    </section>
+
+    <section id="profileTab" class="hidden">
+      <section class="panel">
+        <div class="profile-header">
+          <div>
+            <h2>Мой профиль</h2>
+            <div class="muted">Проверьте данные вашего магазина и настройки автозапчастей.</div>
+          </div>
+          <button class="btn btn-red" type="button">Редактировать профиль</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Данные магазина</h2>
+        <div id="profileBox" class="profile-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Настройки автозапчастей</h2>
+        <div id="settingsBox" class="profile-grid"></div>
+      </section>
+    </section>
   </div>
-</div>
-
-<div id="requestsContent"></div>
-
-</div>
-
-<!-- ПРОФИЛЬ -->
-<div id="profileTab" class="hidden">
-
-<div class="panel">
-  <div style="display:flex;justify-content:space-between">
-    <h2>Мой профиль</h2>
-    <button class="btn btn-red">Редактировать</button>
-  </div>
-</div>
-
-<div class="panel">
-  <h3>Данные магазина</h3>
-  <div id="profileBox" class="profile-grid"></div>
-</div>
-
-<div class="panel">
-  <h3>Настройки</h3>
-  <div id="settingsBox" class="profile-grid"></div>
-</div>
-
-</div>
-
-</div>
 </div>
 
 <script>
-function showTab(tab){
-  requestsTab.classList.toggle('hidden',tab!=='requests');
-  profileTab.classList.toggle('hidden',tab!=='profile');
-}
-</script>
+const API='https://zpt-kz-backend.onrender.com/api';
+let currentPeriod='7d';
+let currentStatus='all';
+let allRequests=[];
 
+function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
+function showLogin(){loginBox.classList.remove('hidden');cabinetApp.classList.add('hidden')}
+function showCabinet(){loginBox.classList.add('hidden');cabinetApp.classList.remove('hidden')}
+function labelStatus(s){if(s==='Новая'||s==='prepared')return 'Новая';if(s==='Отправлена'||s==='sent')return 'Отправлена';if(s==='Просмотрена'||s==='viewed')return 'Просмотрена';if(s==='В работе'||s==='contacted')return 'Связался';if(s==='Закрыта'||s==='done')return 'Отказ';return s||'Новая'}
+function statusClass(s){let t=labelStatus(s);if(t==='Новая')return 'badge-new';if(t==='Отправлена')return 'badge-sent';if(t==='Просмотрена')return 'badge-viewed';if(t==='Связался')return 'badge-contacted';if(t==='Отказ')return 'badge-done';return 'badge-new'}
+function statusKey(s){let t=labelStatus(s);if(t==='Новая')return 'new';if(t==='Отправлена')return 'sent';if(t==='Просмотрена')return 'viewed';if(t==='Связался')return 'contacted';if(t==='Отказ')return 'done';return 'new'}
+
+async function sellerLogin(){
+  loginError.innerText='';
+  let whatsapp=normalizePhone(login_whatsapp.value.trim());
+  let password=login_password.value;
+  try{
+    let r=await fetch(`${API}/seller-login/`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({whatsapp,password})});
+    let data=await r.json();
+    if(data.error){loginError.innerText=data.error;return}
+    await loadProfile();
+    await loadRequests();
+  }catch(e){loginError.innerText='Ошибка входа. Попробуйте ещё раз.'}
+}
+
+async function loadProfile(){
+  try{
+    let r=await fetch(`${API}/seller-profile/`,{credentials:'include'});
+    let data=await r.json();
+    if(data.error){showLogin();return}
+    showCabinet();
+    profileBox.innerHTML=`
+      <div class="info-box"><b>Название магазина</b><div>${data.name||'-'}</div></div>
+      <div class="info-box"><b>WhatsApp</b><div>${data.whatsapp||'-'}</div></div>
+      <div class="info-box"><b>Город</b><div>${data.city||data.market_location||'-'}</div></div>
+      <div class="info-box"><b>Тип транспорта</b><div>${data.transport_type==='truck'?'Грузовые':'Легковые'}</div></div>
+      <div class="info-box"><b>Получает заявки</b><div>${data.receive_requests?'Да':'Нет'}</div></div>
+      <div class="info-box"><b>Статус</b><div>${data.is_paused?'Пауза':'Активен'}</div></div>`;
+    let cats=(data.all_categories?'Все категории':(data.selected_categories||[]).map(x=>x.name).join(', ')||'-');
+    let countries=(data.all_countries?'Все страны':(data.selected_countries||[]).map(x=>x.name).join(', ')||'-');
+    let brands=(data.all_brands?'Все марки':(data.selected_brands||[]).map(x=>x.name).join(', ')||'-');
+    let models=(data.all_models?'Все модели':(data.selected_models||[]).map(x=>x.name).join(', ')||'-');
+    settingsBox.innerHTML=`
+      <div class="info-box"><b>Страны производителей</b><div>${countries}</div></div>
+      <div class="info-box"><b>Марки</b><div>${brands}</div></div>
+      <div class="info-box"><b>Модели</b><div>${models}</div></div>
+      <div class="info-box"><b>Категории</b><div>${cats}</div></div>`;
+  }catch(e){showLogin()}
+}
+
+async function loadRequests(){
+  try{
+    requestsContent.innerHTML='Загрузка...';
+    let r=await fetch(`${API}/seller-requests/?period=${currentPeriod}`,{credentials:'include'});
+    let data=await r.json();
+    if(data.error){showLogin();return}
+    allRequests=data.requests||[];
+    renderRequests();
+  }catch(e){requestsContent.innerHTML='<p class="error">Ошибка загрузки заявок.</p>'}
+}
+
+function renderRequests(){
+  let filtered=allRequests.filter(x=>currentStatus==='all'||statusKey(x.match_status)===currentStatus);
+  countAll.innerText=allRequests.length;
+  countNew.innerText=allRequests.filter(x=>statusKey(x.match_status)==='new'||statusKey(x.match_status)==='sent').length;
+  countPeriod.innerText=filtered.length;
+  visibleCounter.innerText=`${filtered.length} заявок`;
+  if(!filtered.length){requestsContent.innerHTML='<p>Заявок по выбранному фильтру нет.</p>';return}
+  let html='';
+  filtered.forEach(x=>{
+    let phone=normalizePhone(x.phone);
+    let auto=`${x.brand||'-'} ${x.model||''}`.trim();
+    html+=`<div class="request-card">
+      <div class="request-title"><h3><span class="badge ${statusClass(x.match_status)}">${labelStatus(x.match_status)}</span> Заявка №${x.id}</h3><span class="muted">${x.created_at||''}</span></div>
+      <div class="request-body">
+        <div>${x.city||'-'} • ${auto}</div>
+        <div>Категория: ${x.category||'-'}</div>
+        <div class="request-description">${x.description||'-'}</div>
+      </div>
+      <div class="actions">
+        ${phone?`<a class="btn btn-green" target="_blank" href="https://wa.me/${phone}">Написать клиенту</a>`:''}
+        <button class="btn btn-blue" onclick="setMatchStatus(${x.match_id},'contacted')">Связался</button>
+        <button class="btn btn-red" onclick="setMatchStatus(${x.match_id},'done')">Отказ</button>
+      </div>
+    </div>`;
+  });
+  requestsContent.innerHTML=html;
+}
+
+async function setMatchStatus(matchId,status){
+  try{
+    await fetch(`${API}/update-match-status/`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({match_id:matchId,status})});
+    await loadRequests();
+  }catch(e){alert('Не удалось изменить статус')}
+}
+function setPeriod(p){currentPeriod=p;document.querySelectorAll('.period-pill').forEach(b=>b.classList.toggle('active',b.dataset.period===p));loadRequests()}
+function setStatusFilter(s){currentStatus=s;document.querySelectorAll('.status-pill').forEach(b=>b.classList.toggle('active',b.dataset.status===s));renderRequests()}
+function showTab(tab){
+  let isRequests=tab==='requests';
+  requestsTab.classList.toggle('hidden',!isRequests);profileTab.classList.toggle('hidden',isRequests);
+  tabRequests.classList.toggle('active',isRequests);tabProfile.classList.toggle('active',!isRequests);
+  pageTitle.innerText=isRequests?'Кабинет продавца':'Мой профиль';
+  pageSubtitle.innerText=isRequests?'Здесь отображаются заявки покупателей, которые подходят вашему магазину.':'Проверьте данные вашего магазина и настройки автозапчастей.';
+}
+async function sellerLogout(){await fetch(`${API}/seller-logout/`,{method:'POST',credentials:'include'});showLogin()}
+loadProfile().then(()=>loadRequests());
+</script>
 </body>
 </html>
