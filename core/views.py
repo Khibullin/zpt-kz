@@ -373,9 +373,10 @@ def _find_matching_sellers(req):
         if strategy['model']:
             qs = _apply_model_filter(qs, req)
 
-        qs = qs.order_by('dispatch_priority', 'id')
+        qs = qs.order_by('dispatch_priority', 'id')[:30]
 
-        if qs.exists():
+        first_seller = qs.first()
+        if first_seller:
             return qs, 'matched'
 
     return Seller.objects.none(), 'no_match'
@@ -548,7 +549,7 @@ def create_request(request):
     )
 
     sellers, strategy = _find_matching_sellers(req)
-    matched = list(sellers)
+    matched = list(sellers[:30])
 
     print('TOTAL MATCHED SELLERS:', len(matched))
 
