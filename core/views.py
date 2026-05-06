@@ -886,12 +886,13 @@ def update_seller_profile(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'invalid json'}, status=400)
 
-    seller.phone2 = data.get('phone2', seller.phone2)
+    seller.name = data.get('name', seller.name)
+    seller.whatsapp = _normalize_whatsapp(data.get('whatsapp', seller.whatsapp))
     seller.city = data.get('city', seller.city)
-    seller.market_location = data.get('market_location', seller.market_location)
+    seller.transport_type = data.get('transport_type', seller.transport_type)
 
     seller.receive_requests = data.get('receive_requests', seller.receive_requests)
-    seller.is_test_seller = data.get('is_test_seller', seller.is_test_seller)
+    seller.is_paused = data.get('is_paused', seller.is_paused)
 
     seller.all_categories = data.get('all_categories', seller.all_categories)
     seller.all_countries = data.get('all_countries', seller.all_countries)
@@ -900,33 +901,27 @@ def update_seller_profile(request):
 
     seller.save()
 
-    category_ids = data.get('selected_category_ids', [])
-    country_ids = data.get('selected_country_ids', [])
-    brand_ids = data.get('selected_brand_ids', [])
-    model_ids = data.get('selected_model_ids', [])
-
     if seller.all_categories:
         seller.selected_categories.clear()
     else:
-        seller.selected_categories.set(category_ids)
+        seller.selected_categories.set(data.get('selected_category_ids', []))
 
     if seller.all_countries:
         seller.selected_countries.clear()
     else:
-        seller.selected_countries.set(country_ids)
+        seller.selected_countries.set(data.get('selected_country_ids', []))
 
     if seller.all_brands:
         seller.selected_brands.clear()
     else:
-        seller.selected_brands.set(brand_ids)
+        seller.selected_brands.set(data.get('selected_brand_ids', []))
 
     if seller.all_models:
         seller.selected_models.clear()
     else:
-        seller.selected_models.set(model_ids)
+        seller.selected_models.set(data.get('selected_model_ids', []))
 
     return JsonResponse({'status': 'ok'})
-
 @csrf_exempt
 def update_match_status(request):
     if request.method != 'POST':
