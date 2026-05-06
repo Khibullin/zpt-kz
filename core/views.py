@@ -675,36 +675,48 @@ def seller_login(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
 
+    print('SELLER LOGIN START')
+
     try:
         data = json.loads(request.body)
-    except json.JSONDecodeError:
+    except Exception as e:
+        print('JSON ERROR', e)
         return JsonResponse({'error': 'invalid json'}, status=400)
 
     whatsapp = _normalize_whatsapp(data.get('whatsapp'))
     password = data.get('password') or ''
 
+    print('LOGIN DATA:', whatsapp)
+
     try:
-        seller = Seller.objects.get(whatsapp=whatsapp)
-    except Seller.DoesNotExist:
+        seller = Seller.objects.filter(whatsapp=whatsapp).first()
+    except Exception as e:
+        print('DB ERROR', e)
+        return JsonResponse({'error': 'Ошибка базы'}, status=500)
+
+    if not seller:
         return JsonResponse({'error': 'Неверный WhatsApp или пароль'}, status=400)
 
-    if not seller.password_hash:
-        seller.password_hash = make_password(TEMP_SELLER_PASSWORD)
-        seller.must_change_password = True
-        seller.save(update_fields=['password_hash', 'must_change_password'])
+    try:
+        if not seller.password_hash:
+            seller.password_hash = make_password(TEMP_SELLER_PASSWORD)
+            seller.must_change_password = True
+            seller.save(update_fields=['password_hash', 'must_change_password'])
+    except Exception as e:
+        print('PASSWORD INIT ERROR', e)
 
     if not check_password(password, seller.password_hash):
         return JsonResponse({'error': 'Неверный WhatsApp или пароль'}, status=400)
 
     request.session['seller_id'] = seller.id
 
+    print('LOGIN SUCCESS:', seller.id)
+
     return JsonResponse({
         'status': 'ok',
         'seller_id': seller.id,
         'seller_name': seller.name,
-        'must_change_password': seller.must_change_password,
     })
-
 
 @csrf_exempt
 def seller_logout(request):
