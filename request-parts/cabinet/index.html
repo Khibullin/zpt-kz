@@ -96,11 +96,12 @@ async function sellerLogin(){
   let whatsapp=login_whatsapp.value.trim();
   let password=login_password.value;
 
-  let r=await fetch(`${API}/seller-login/`,{
-    method:'POST',
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({whatsapp,password})
-  });
+let r=await fetch(`${API}/seller-login/`,{
+  method:'POST',
+  credentials:'include',   // 🔥 ВОТ ЭТО ГЛАВНОЕ
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({whatsapp,password})
+});
 
   let data=await r.json();
 
