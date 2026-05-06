@@ -6,7 +6,30 @@
 <title>Кабинет продавца</title>
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
 <style>
-body{font-family:Arial;background:#f4f5f7;margin:0;color:#222}.back-link{display:inline-block;margin:16px;text-decoration:none;font-weight:bold;color:#3478f6}.wrap{max-width:1100px;margin:auto;padding:20px}.card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}h1{margin:0 0 18px;color:#d62828}.btn{border:none;padding:11px 18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:10px}.blue{background:#3478f6;color:#fff}.red{background:#d62828;color:#fff}.green{background:#25D366;color:#fff}.gray{background:#eef2f7;color:#222}.error{color:#ed1c24;font-weight:bold;margin-top:12px}.login-help{margin-top:18px;padding:14px;background:#f5f7fb;border-radius:12px;font-size:14px;color:#444}.help-btn{display:inline-block;margin-top:8px;background:#25D366;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold}input,select{padding:10px;border:1px solid #ccc;border-radius:8px;margin:6px 10px 6px 0}.hidden{display:none}.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}.info{background:#f5f7fb;border-radius:12px;padding:12px}.requests-table{width:100%;border-collapse:collapse;margin-top:12px}.requests-table th,.requests-table td{border-bottom:1px solid #eee;padding:10px;text-align:left;vertical-align:top}.top-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}.muted{color:#666;font-size:13px}.status{font-weight:bold}.wa-link{display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:bold}@media(max-width:760px){.profile-grid{grid-template-columns:1fr}.requests-table{font-size:13px}.requests-table th:nth-child(4),.requests-table td:nth-child(4){display:none}}
+*{box-sizing:border-box}
+body{font-family:Arial,Helvetica,sans-serif;background:#f4f5f7;margin:0;color:#222}
+.back-link{display:inline-block;margin:16px;text-decoration:none;font-weight:bold;color:#3478f6}
+.wrap{max-width:1100px;margin:auto;padding:20px}
+.card{background:#fff;border-radius:20px;padding:22px;margin-bottom:18px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+h1{margin:0 0 18px;color:#d62828}
+.btn{border:none;padding:11px 18px;border-radius:12px;font-weight:bold;cursor:pointer;margin-top:10px}
+.blue{background:#3478f6;color:#fff}.red{background:#d62828;color:#fff}.green{background:#25D366;color:#fff}.gray{background:#eef2f7;color:#222}
+.error{color:#ed1c24;font-weight:bold;margin-top:12px}.success{color:#1b5e20;font-weight:bold;margin-top:12px}
+.login-help{margin-top:18px;padding:14px;background:#f5f7fb;border-radius:12px;font-size:14px;color:#444}
+.help-btn{display:inline-block;margin-top:8px;background:#25D366;color:#fff;padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold}
+input,select{padding:10px;border:1px solid #ccc;border-radius:8px;margin:6px 10px 6px 0;min-height:42px}
+.hidden{display:none!important}
+.profile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.info{background:#f5f7fb;border-radius:12px;padding:12px}
+.requests-table{width:100%;border-collapse:collapse;margin-top:12px}
+.requests-table th,.requests-table td{border-bottom:1px solid #eee;padding:10px;text-align:left;vertical-align:top}
+.top-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.filters{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.muted{color:#666;font-size:13px}.status{display:inline-block;font-weight:bold;padding:6px 9px;border-radius:9px;background:#eef2f7}
+.status-new{color:#3478f6;background:#eef4ff}.status-sent{color:#128c3a;background:#e8f5e9}.status-viewed{color:#666;background:#f0f0f0}.status-work{color:#ef6c00;background:#fff3e0}.status-done{color:#d62828;background:#ffebee}
+.wa-link{display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:8px 10px;border-radius:8px;font-weight:bold}
+.count-badge{display:inline-block;background:#eef2f7;border-radius:999px;padding:8px 12px;font-weight:bold;color:#333}
+@media(max-width:760px){.profile-grid{grid-template-columns:1fr}.requests-table{font-size:13px}.requests-table th:nth-child(4),.requests-table td:nth-child(4){display:none}.top-actions{align-items:flex-start}.filters{width:100%}.filters select,.filters button{width:100%;margin-right:0}}
 </style>
 </head>
 <body>
@@ -15,10 +38,13 @@ body{font-family:Arial;background:#f4f5f7;margin:0;color:#222}.back-link{display
   <div class="card" id="loginBox">
     <h1>Вход продавца</h1>
     <label>WhatsApp</label>
-    <input id="login_whatsapp" placeholder="8707XXXXXXX">
+    <input id="login_whatsapp" placeholder="8707XXXXXXX" autocomplete="username">
     <label>Пароль</label>
-    <input id="login_password" type="password">
-    <label style="font-weight:normal"><input type="checkbox" style="width:auto" onclick="login_password.type=this.checked?'text':'password'"> Показать пароль</label>
+    <input id="login_password" type="password" autocomplete="current-password">
+    <label style="font-weight:normal">
+      <input type="checkbox" style="width:auto" onclick="login_password.type=this.checked?'text':'password'">
+      Показать пароль
+    </label>
     <button class="btn blue" onclick="sellerLogin()">Войти</button>
     <div id="loginError" class="error"></div>
     <div class="login-help">
@@ -39,7 +65,16 @@ body{font-family:Arial;background:#f4f5f7;margin:0;color:#222}.back-link{display
   <div class="card hidden" id="requestsBox">
     <div class="top-actions">
       <h1>Заявки</h1>
-      <button class="btn gray" onclick="loadRequests()">Обновить</button>
+      <div class="filters">
+        <span id="requestsCount" class="count-badge">0 заявок</span>
+        <select id="periodFilter" onchange="loadRequests()">
+          <option value="all">Все</option>
+          <option value="today">Сегодня</option>
+          <option value="7d">7 дней</option>
+          <option value="30d">30 дней</option>
+        </select>
+        <button class="btn gray" onclick="loadRequests()">Обновить</button>
+      </div>
     </div>
     <div id="requestsContent">Загрузка...</div>
   </div>
@@ -51,18 +86,41 @@ const API='https://zpt-kz-backend.onrender.com/api';
 function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
 function showLogin(){loginBox.classList.remove('hidden');cabinetBox.classList.add('hidden');requestsBox.classList.add('hidden')}
 function showCabinet(){loginBox.classList.add('hidden');cabinetBox.classList.remove('hidden');requestsBox.classList.remove('hidden')}
+function esc(v){return String(v??'-').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+
+function statusClass(status){
+  if(status==='Новая') return 'status-new';
+  if(status==='Отправлена') return 'status-sent';
+  if(status==='Просмотрена') return 'status-viewed';
+  if(status==='В работе') return 'status-work';
+  if(status==='Закрыта') return 'status-done';
+  return '';
+}
 
 async function sellerLogin(){
   loginError.innerText='';
   let whatsapp=normalizePhone(login_whatsapp.value.trim());
   let password=login_password.value;
+
+  if(!whatsapp || !password){
+    loginError.innerText='Введите WhatsApp и пароль';
+    return;
+  }
+
   try{
-    let r=await fetch(`${API}/seller-login/`,{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({whatsapp,password})});
+    let r=await fetch(`${API}/seller-login/`,{
+      method:'POST',
+      credentials:'include',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({whatsapp,password})
+    });
     let data=await r.json();
     if(data.error){loginError.innerText=data.error;return}
     await loadProfile();
     await loadRequests();
-  }catch(e){loginError.innerText='Ошибка входа. Попробуйте ещё раз.'}
+  }catch(e){
+    loginError.innerText='Ошибка входа. Попробуйте ещё раз.';
+  }
 }
 
 async function loadProfile(){
@@ -73,42 +131,62 @@ async function loadProfile(){
     showCabinet();
     profileBox.innerHTML=`
       <div class="profile-grid">
-        <div class="info"><b>Название:</b><br>${data.name||'-'}</div>
-        <div class="info"><b>WhatsApp:</b><br>${data.whatsapp||'-'}</div>
-        <div class="info"><b>Город:</b><br>${data.city||data.market_location||'-'}</div>
+        <div class="info"><b>Название:</b><br>${esc(data.name)}</div>
+        <div class="info"><b>WhatsApp:</b><br>${esc(data.whatsapp)}</div>
+        <div class="info"><b>Город:</b><br>${esc(data.city||data.market_location||'-')}</div>
         <div class="info"><b>Тип транспорта:</b><br>${data.transport_type==='truck'?'Грузовые':'Легковые'}</div>
         <div class="info"><b>Получает заявки:</b><br>${data.receive_requests?'Да':'Нет'}</div>
         <div class="info"><b>Статус:</b><br>${data.is_paused?'Пауза':'Активен'}</div>
       </div>`;
-  }catch(e){showLogin()}
+  }catch(e){
+    showLogin();
+  }
 }
 
 async function loadRequests(){
   try{
-    let r=await fetch(`${API}/seller-requests/`,{credentials:'include'});
+    let period=document.getElementById('periodFilter')?.value || 'all';
+    requestsContent.innerHTML='Загрузка...';
+
+    let r=await fetch(`${API}/seller-requests/?period=${period}`,{credentials:'include'});
     let data=await r.json();
     if(data.error){showLogin();return}
+
     let items=data.requests||[];
-    if(!items.length){requestsContent.innerHTML='<p>Пока заявок нет.</p>';return}
+    requestsCount.innerText=`${items.length} заявок`;
+
+    if(!items.length){
+      requestsContent.innerHTML='<p>Пока заявок нет.</p>';
+      return;
+    }
+
     let html='<table class="requests-table"><thead><tr><th>ID</th><th>Авто</th><th>Категория</th><th>Описание</th><th>Телефон</th><th>Статус</th></tr></thead><tbody>';
+
     items.forEach(x=>{
       let phone=normalizePhone(x.phone);
+      let cls=statusClass(x.match_status);
       html+=`<tr>
-        <td>${x.id}<br><span class="muted">${x.created_at||''}</span></td>
-        <td>${x.brand||'-'}<br>${x.model||'-'}<br><span class="muted">${x.city||''}</span></td>
-        <td>${x.category||'-'}</td>
-        <td>${x.description||'-'}</td>
+        <td>${esc(x.id)}<br><span class="muted">${esc(x.created_at||'')}</span></td>
+        <td>${esc(x.brand||'-')}<br>${esc(x.model||'-')}<br><span class="muted">${esc(x.city||'')}</span></td>
+        <td>${esc(x.category||'-')}</td>
+        <td>${esc(x.description||'-')}</td>
         <td>${phone?`<a class="wa-link" target="_blank" href="https://wa.me/${phone}">WhatsApp</a><br>${phone}`:'-'}</td>
-        <td><span class="status">${x.match_status||'-'}</span></td>
+        <td><span class="status ${cls}">${esc(x.match_status||'-')}</span></td>
       </tr>`;
     });
+
     html+='</tbody></table>';
     requestsContent.innerHTML=html;
-  }catch(e){requestsContent.innerHTML='<p class="error">Ошибка загрузки заявок.</p>'}
+
+  }catch(e){
+    requestsContent.innerHTML='<p class="error">Ошибка загрузки заявок.</p>';
+  }
 }
 
 async function sellerLogout(){
-  await fetch(`${API}/seller-logout/`,{method:'POST',credentials:'include'});
+  try{
+    await fetch(`${API}/seller-logout/`,{method:'POST',credentials:'include'});
+  }catch(e){}
   showLogin();
 }
 
