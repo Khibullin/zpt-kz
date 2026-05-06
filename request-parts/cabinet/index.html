@@ -308,34 +308,61 @@ function addBrandListeners(){
   document.querySelectorAll('input[data-type="brands"]').forEach(cb=>{
     cb.addEventListener('change',()=>{
       let allBrands=document.getElementById('all_brands');
-      if(allBrands && !allBrands.checked){
-        refreshModelsFromBrands();
+      if(allBrands && allBrands.checked){
+        allBrands.checked=false;
+      }
+      refreshModelsFromBrands();
+    });
+  });
+}
+
+function addCategoryListeners(){
+  document.querySelectorAll('input[data-type="categories"]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      let allCategories=document.getElementById('all_categories');
+      if(allCategories && allCategories.checked){
+        allCategories.checked=false;
       }
     });
   });
 }
+
+function addModelListeners(){
+  document.querySelectorAll('input[data-type="models"]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      let allModels=document.getElementById('all_models');
+      if(allModels && allModels.checked){
+        allModels.checked=false;
+      }
+    });
+  });
+}
+
 
 function addCountryListeners(){
   document.querySelectorAll('input[data-type="countries"]').forEach(cb=>{
     cb.addEventListener('change',()=>{
       let allCountries=document.getElementById('all_countries');
-      if(allCountries && !allCountries.checked){
-        refreshBrandsFromCountries();
+      if(allCountries && allCountries.checked){
+        allCountries.checked=false;
       }
+      refreshBrandsFromCountries();
     });
   });
 }
 
 async function refreshBrandsFromCountries(){
+  let selectedCountryIds=getAllChecked('countries');
   let selectedBrandIds=getAllChecked('brands');
   brandsDict=[];
   modelsDict=[];
-  renderSettingsEdit({keepSearch:true, selectedBrandIds, selectedModelIds:[]});
-  brandsBox.innerHTML='<div class="settings-loading">Загрузка марок...</div>';
+  renderSettingsEdit({keepSearch:true, selectedCountryIds, selectedBrandIds, selectedModelIds:[]});
+  let box=document.getElementById('brandsBox');
+  if(box) box.innerHTML='<div class="settings-loading">Загрузка марок...</div>';
 
   await loadBrandsForSelectedCountries();
 
-  renderSettingsEdit({keepSearch:true, selectedBrandIds, selectedModelIds:[]});
+  renderSettingsEdit({keepSearch:true, selectedCountryIds, selectedBrandIds, selectedModelIds:[]});
 }
 
 async function refreshModelsFromBrands(){
@@ -385,6 +412,7 @@ async function loadModelsForSelectedBrands(){
   let existingSelected=ids(sellerProfileData?.selected_models);
   let selected=allModels ? modelsDict.map(m=>Number(m.id)) : existingSelected;
   modelsBox.innerHTML=renderCheckboxList(modelsDict,'models',selected,allModels,'');
+  addModelListeners();
 }
 
 function rerenderSettingsOnly(){
@@ -445,6 +473,7 @@ function renderSettingsEdit(options={}){
   }
 
   addCountryListeners();
+  addCategoryListeners();
   addBrandListeners();
 
   if(!data.all_brands && selectedBrandIds.length){
