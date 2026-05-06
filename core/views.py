@@ -375,8 +375,9 @@ def _find_matching_sellers(req):
 
         qs = qs.order_by('dispatch_priority', 'id')[:30]
 
-        if qs.exists():
-            return qs, 'matched'
+first_seller = qs.first()
+if first_seller:
+    return qs, 'matched'
 
     return Seller.objects.none(), 'no_match'
 
