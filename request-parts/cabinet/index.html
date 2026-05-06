@@ -159,6 +159,7 @@ let categoriesDict=[];
 let brandsDict=[];
 let modelsDict=[];
 let modelsLoadingTimer=null;
+let editAllFlags={countries:false,categories:false,brands:false,models:false};
 
 function escHtml(v){
   return String(v ?? '').replace(/[&<>"']/g, ch => ({
@@ -183,6 +184,12 @@ async function apiGet(url){
 function renderProfile(data){
   sellerProfileData=data;
   profileEditMode=false;
+  editAllFlags={
+    countries:!!data.all_countries,
+    categories:!!data.all_categories,
+    brands:!!data.all_brands,
+    models:!!data.all_models
+  };
 
   let editBtn=document.getElementById('editProfileBtn');
   if(editBtn) editBtn.classList.remove('hidden');
@@ -224,11 +231,14 @@ async function loadEditDictionaries(){
 async function loadBrandsForSelectedCountries(){
   let transport=document.getElementById('edit_transport_type')?.value || sellerProfileData?.transport_type || 'car';
   let countryIds=getAllChecked('countries');
-  let useAll=document.getElementById('all_countries')?.checked;
+  let useAll=!!editAllFlags.countries;
 
-  let sourceCountries=useAll || !countryIds.length
-    ? countriesDict
-    : countriesDict.filter(c=>countryIds.includes(Number(c.id)));
+  let sourceCountries = useAll ? countriesDict : countriesDict.filter(c=>countryIds.includes(Number(c.id)));
+
+  if(!sourceCountries.length){
+    brandsDict=[];
+    return;
+  }
 
   let lists=await Promise.all(
     sourceCountries.map(c=>apiGet(`${API}/brands-by-country/?country_id=${c.id}&transport_type=${transport}`).catch(()=>[]))
@@ -280,9 +290,10 @@ function renderCheckboxList(items,type,selectedIds,allFlag,searchId=''){
 }
 
 function renderAllCheckbox(type,label,checked){
+  let isChecked = !!editAllFlags[type];
   return `
     <label class="checkbox-item checkbox-all">
-      <input type="checkbox" id="all_${type}" ${checked?'checked':''} onchange="toggleAllGroup('${type}')">
+      <input type="checkbox" id="all_${type}" ${isChecked?'checked':''} onchange="toggleAllGroup('${type}')">
       <span>${label}</span>
     </label>`;
 }
@@ -290,17 +301,36 @@ function renderAllCheckbox(type,label,checked){
 function toggleAllGroup(type){
   let all=document.getElementById(`all_${type}`);
   let checked=!!all?.checked;
+  editAllFlags[type]=checked;
 
   document.querySelectorAll(`input[data-type="${type}"]`).forEach(cb=>{
     cb.checked=checked;
   });
 
   if(type==='countries'){
+    if(!checked){
+      document.querySelectorAll('input[data-type="countries"]').forEach(cb=>cb.checked=false);
+    }
     refreshBrandsFromCountries();
   }
 
+  if(type==='categories'){
+    if(!checked){
+      document.querySelectorAll('input[data-type="categories"]').forEach(cb=>cb.checked=false);
+    }
+  }
+
   if(type==='brands'){
+    if(!checked){
+      document.querySelectorAll('input[data-type="brands"]').forEach(cb=>cb.checked=false);
+    }
     refreshModelsFromBrands();
+  }
+
+  if(type==='models'){
+    if(!checked){
+      document.querySelectorAll('input[data-type="models"]').forEach(cb=>cb.checked=false);
+    }
   }
 }
 
@@ -310,6 +340,7 @@ function addBrandListeners(){
       let allBrands=document.getElementById('all_brands');
       if(allBrands && allBrands.checked){
         allBrands.checked=false;
+        editAllFlags.brands=false;
       }
       refreshModelsFromBrands();
     });
@@ -322,6 +353,7 @@ function addCategoryListeners(){
       let allCategories=document.getElementById('all_categories');
       if(allCategories && allCategories.checked){
         allCategories.checked=false;
+        editAllFlags.categories=false;
       }
     });
   });
@@ -333,6 +365,7 @@ function addModelListeners(){
       let allModels=document.getElementById('all_models');
       if(allModels && allModels.checked){
         allModels.checked=false;
+        editAllFlags.models=false;
       }
     });
   });
@@ -342,9 +375,10 @@ function addModelListeners(){
 function addCountryListeners(){
   document.querySelectorAll('input[data-type="countries"]').forEach(cb=>{
     cb.addEventListener('change',()=>{
-      let allCountries=document.getElementById('all_countries');
-      if(allCountries && allCountries.checked){
-        allCountries.checked=false;
+      if(cb.checked){
+        editAllFlags.countries=false;
+        let allCountries=document.getElementById('all_countries');
+        if(allCountries) allCountries.checked=false;
       }
       refreshBrandsFromCountries();
     });
@@ -374,8 +408,8 @@ async function loadModelsForSelectedBrands(){
   let modelsBox=document.getElementById('modelsBox');
   if(!modelsBox) return;
 
-  let allBrands=document.getElementById('all_brands')?.checked;
-  let allModels=document.getElementById('all_models')?.checked;
+  let allBrands=!!editAllFlags.brands;
+  let allModels=!!editAllFlags.models;
   let selectedBrandIds=allBrands ? [] : getAllChecked('brands');
 
   if(allBrands){
@@ -436,33 +470,33 @@ function renderSettingsEdit(options={}){
   settingsBox.innerHTML=`
     <div class="settings-card">
       <h3>Страны производителей</h3>
-      ${renderCheckboxList(filterItems(countriesDict,countryQuery),'countries',selectedCountryIds,data.all_countries,'searchCountries')}
-      ${renderAllCheckbox('countries','Все страны',data.all_countries)}
+      ${renderCheckboxList(filterItems(countriesDict,countryQuery),'countries',selectedCountryIds,editAllFlags.countries,'searchCountries')}
+      ${renderAllCheckbox('countries','Все страны',editAllFlags.countries)}
     </div>
 
     <div class="settings-card">
       <h3>Категории</h3>
-      ${renderCheckboxList(filterItems(categoriesDict,categoryQuery),'categories',selectedCategoryIds,data.all_categories,'searchCategories')}
-      ${renderAllCheckbox('categories','Все категории',data.all_categories)}
+      ${renderCheckboxList(filterItems(categoriesDict,categoryQuery),'categories',selectedCategoryIds,editAllFlags.categories,'searchCategories')}
+      ${renderAllCheckbox('categories','Все категории',editAllFlags.categories)}
     </div>
 
     <div class="settings-card" id="brandsCard">
       <h3>Марки автомобилей</h3>
       <div id="brandsBox">
-        ${renderCheckboxList(filterItems(brandsDict,brandQuery),'brands',selectedBrandIds,data.all_brands,'searchBrands')}
+        ${renderCheckboxList(filterItems(brandsDict,brandQuery),'brands',selectedBrandIds,editAllFlags.brands,'searchBrands')}
       </div>
-      ${renderAllCheckbox('brands','Все марки',data.all_brands)}
+      ${renderAllCheckbox('brands','Все марки',editAllFlags.brands)}
       <div class="settings-note">Марки загружаются только по выбранным странам.</div>
     </div>
 
     <div class="settings-card">
       <h3>Модели автомобилей</h3>
       <div id="modelsBox">
-        ${data.all_brands
+        ${editAllFlags.brands
           ? '<div class="muted">При выборе “Все марки” модели можно оставить “Все модели”.</div>'
           : '<div class="muted">Выберите марку — модели загрузятся автоматически.</div>'}
       </div>
-      ${renderAllCheckbox('models','Все модели',data.all_models)}
+      ${renderAllCheckbox('models','Все модели',editAllFlags.models)}
       <div class="settings-note">Модели загружаются только для выбранных марок, поэтому кабинет работает быстро.</div>
     </div>`;
 
@@ -476,7 +510,7 @@ function renderSettingsEdit(options={}){
   addCategoryListeners();
   addBrandListeners();
 
-  if(!data.all_brands && selectedBrandIds.length){
+  if(!editAllFlags.brands && selectedBrandIds.length){
     loadModelsForSelectedBrands();
   }
 }
@@ -518,6 +552,8 @@ async function enableEditProfile(){
 async function onTransportChange(){
   brandsDict=[];
   modelsDict=[];
+  editAllFlags.brands=false;
+  editAllFlags.models=false;
   dictionariesLoaded=false;
   await loadEditDictionaries();
   renderSettingsEdit({
@@ -539,10 +575,10 @@ async function saveProfile(){
     transport_type:document.getElementById('edit_transport_type').value,
     receive_requests:document.getElementById('edit_receive_requests').checked,
     is_paused:document.getElementById('edit_is_paused').checked,
-    all_countries:document.getElementById('all_countries')?.checked || false,
-    all_categories:document.getElementById('all_categories')?.checked || false,
-    all_brands:document.getElementById('all_brands')?.checked || false,
-    all_models:document.getElementById('all_models')?.checked || false,
+    all_countries:!!editAllFlags.countries,
+    all_categories:!!editAllFlags.categories,
+    all_brands:!!editAllFlags.brands,
+    all_models:!!editAllFlags.models,
     selected_country_ids:getAllChecked('countries'),
     selected_category_ids:getAllChecked('categories'),
     selected_brand_ids:getAllChecked('brands'),
