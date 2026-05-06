@@ -1,12 +1,14 @@
 import json
 import os
 import re
+import threading
 import urllib.error
 import urllib.request
 from datetime import timedelta
 from urllib.parse import quote
 
 from django.contrib.auth.hashers import make_password, check_password
+from django.db import close_old_connections
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
@@ -487,13 +489,46 @@ def _dispatch_to_json(dispatch, req):
         'buyer_wa_link': _buyer_contact_link(seller.whatsapp, req),
     }
 
+def _send_whatsapp_for_matches_background(req_id, match_ids):
+    close_old_connections()
+
+    try:
+        req = Request.objects.get(id=req_id)
+
+        matches = Match.objects.filter(
+            id__in=match_ids
+        ).select_related('seller')
+
+        for match in matches:
+            seller = match.seller
+
+            try:
+                wa_result = send_whatsapp_template(
+                    seller.whatsapp,
+                    req,
+                    seller.name
+                )
+
+                if wa_result.get('ok'):
+                    match.status = 'sent'
+                    match.save(update_fields=['status'])
+
+            except Exception as e:
+                print('BACKGROUND WA ERROR:', seller.name, str(e))
+
+    except Exception as e:
+        print('BACKGROUND DISPATCH ERROR:', str(e))
+
+    finally:
+        close_old_connections()
+
 
 @csrf_exempt
 def create_request(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
 
-    print('CREATE REQUEST CALLED (NO WAVES MODE)')
+    print('CREATE REQUEST CALLED (NO WAVES BACKGROUND MODE)')
 
     try:
         data = json.loads(request.body)
@@ -517,62 +552,49 @@ def create_request(request):
 
     print('TOTAL MATCHED SELLERS:', len(matched))
 
-    seller_notifications = []
+    matches = []
 
     for seller in matched:
-        print('PROCESS SELLER:', seller.name)
-
-        # создаём Match
-        match = Match.objects.create(
+        match, created = Match.objects.get_or_create(
             request=req,
             seller=seller,
-            status='prepared'
-        )
-
-        try:
-            wa_result = send_whatsapp_template(
-                seller.whatsapp,
-                req,
-                seller.name
-            )
-
-            if wa_result.get('ok'):
-                match.status = 'sent'
-            else:
-                match.status = 'error'
-
-            match.save(update_fields=['status'])
-
-        except Exception as e:
-            print('WA ERROR:', str(e))
-
-            match.status = 'error'
-            match.save(update_fields=['status'])
-
-            wa_result = {
-                'ok': False,
-                'status_code': None,
-                'error': str(e),
+            defaults={
+                'status': 'prepared',
             }
-
-        seller_notifications.append({
-            'seller': seller.name,
-            'wa_link': _seller_notification_link(seller.whatsapp, req),
-            'wa_sent': wa_result.get('ok', False),
-            'wa_status_code': wa_result.get('status_code'),
-            'wa_error': wa_result.get('error'),
-        })
+        )
+        matches.append(match)
 
     req.status = 'sent' if matched else 'no_sellers'
     req.save(update_fields=['status'])
+
+    match_ids = [m.id for m in matches]
+
+    if match_ids:
+        thread = threading.Thread(
+            target=_send_whatsapp_for_matches_background,
+            args=(req.id, match_ids),
+            daemon=True
+        )
+        thread.start()
+
+    sellers_data = [
+        {
+            'seller_id': seller.id,
+            'seller_name': seller.name,
+            'status': 'prepared',
+            'buyer_wa_link': _buyer_contact_link(seller.whatsapp, req),
+        }
+        for seller in matched
+    ]
 
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
         'matches': len(matched),
         'strategy': strategy,
-        'message': 'Заявка отправлена всем продавцам сразу (без волн)',
-        'seller_notifications': seller_notifications,
+        'message': 'Заявка принята. Продавцы получают уведомления в WhatsApp.',
+        'sellers': sellers_data,
+        'all_sellers': sellers_data,
     })
 
 @csrf_exempt
