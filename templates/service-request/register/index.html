@@ -80,7 +80,7 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   result.innerText = "Отправка...";
 
   try {
-    const response = await fetch("/api/service/create-service-seller/", {
+    const response = await fetch(window.location.origin + "/api/service/create-service-seller/", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
