@@ -34,11 +34,11 @@ seller = ServiceSeller.objects.create(
     seller_type=data.get("seller_type", "sto"),
 )
 
-    for name in data.get("services", []):
-        service, _ = Service.objects.get_or_create(name=name)
-        seller.services.add(service)
+for name in data.get("services", []):
+    service, _ = Service.objects.get_or_create(name=name)
+    seller.services.add(service)
 
-    return JsonResponse({"success": True, "seller_id": seller.id})
+return JsonResponse({"success": True, "seller_id": seller.id})
 
 
 @csrf_exempt
