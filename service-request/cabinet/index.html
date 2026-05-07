@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Кабинет исполнителя — ZPT.KZ</title>
+
+<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
+
+/* HEADER */
+.header{background:#fff;border-bottom:1px solid #ececec;box-shadow:0 2px 10px rgba(0,0,0,.04)}
+.header-inner{max-width:1100px;margin:auto;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
+.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
+.nav{display:flex;gap:10px}
+.nav a{padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:14px}
+.nav-main{background:#eef2f7;color:#3478f6}
+.nav-seller{background:#3478f6;color:#fff}
+
+/* WRAP */
+.wrap{max-width:1100px;margin:auto;padding:24px 16px}
+
+/* CARD */
+.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+
+h1{margin:0 0 12px;color:#c62828}
+h2{margin:0 0 10px}
+
+/* LOGIN */
+.field{margin-bottom:12px}
+input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc}
+.btn{background:#3478f6;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:bold;cursor:pointer;width:100%}
+
+/* TABS */
+.tabs{display:flex;gap:10px;margin-bottom:12px}
+.tabs button{flex:1;padding:10px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;background:#eef2f7}
+.tabs button.active{background:#3478f6;color:#fff}
+
+/* REQUESTS */
+.request{border:1px solid #e0e0e0;border-radius:12px;padding:12px;margin-bottom:10px;background:#fafafa}
+.wa-btn{display:inline-block;margin-top:8px;background:#25D366;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:bold}
+
+/* PROFILE */
+.profile-row{margin-bottom:8px}
+
+/* MSG */
+.msg{margin-top:12px;padding:10px;border-radius:10px;display:none}
+.msg.error{display:block;background:#ffebee;color:#b71c1c}
+
+/* MOBILE */
+@media(max-width:760px){
+  .tabs{flex-direction:column}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="/">ZPT.KZ</a>
+    <div class="nav">
+      <a class="nav-main" href="/">Главная</a>
+      <a class="nav-seller" href="/service-request/register/">Регистрация</a>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- LOGIN -->
+  <div class="card" id="loginBox">
+    <h1>Вход исполнителя</h1>
+
+    <div class="field">
+      <label>WhatsApp</label>
+      <input id="phone" placeholder="77071234567">
+    </div>
+
+    <div class="field">
+      <label>Пароль</label>
+      <input id="pass" type="password">
+    </div>
+
+    <button class="btn" onclick="login()">Войти</button>
+
+    <div id="loginError" class="msg error"></div>
+  </div>
+
+  <!-- CABINET -->
+  <div id="cabinetBox" style="display:none">
+
+    <div class="card">
+      <h1>Кабинет исполнителя</h1>
+
+      <div class="tabs">
+        <button id="tabRequests" class="active" onclick="showTab('requests')">Заявки</button>
+        <button id="tabProfile" onclick="showTab('profile')">Профиль</button>
+      </div>
+
+      <!-- REQUESTS -->
+      <div id="requestsTab">
+        <div class="request">
+          <b>СТО заявка</b><br>
+          Услуги: Ходовая, Диагностика<br>
+          Город: Алматы<br>
+          Телефон: 77011234567<br>
+          <a href="#" class="wa-btn">Написать в WhatsApp</a>
+        </div>
+
+        <div class="request">
+          <b>Детейлинг заявка</b><br>
+          Услуги: Полировка, Химчистка<br>
+          Город: Астана<br>
+          Телефон: 77019876543<br>
+          <a href="#" class="wa-btn">Написать в WhatsApp</a>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="profileTab" style="display:none">
+        <div class="profile-row"><b>Тип:</b> СТО</div>
+        <div class="profile-row"><b>Город:</b> Алматы</div>
+        <div class="profile-row"><b>Услуги:</b> Диагностика, Ходовая</div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const API = window.location.origin + '/api/service';
+
+async function login(){
+  loginError.innerText='';
+
+  let whatsapp = phone.value.replace(/\D/g,'');
+  let password = pass.value;
+
+  if(!whatsapp || !password){
+    loginError.style.display='block';
+    loginError.innerText='Введите WhatsApp и пароль';
+    return;
+  }
+
+  try{
+    let r = await fetch(API + '/service-seller-login/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        whatsapp: whatsapp,
+        password: password
+      })
+    });
+
+    let data = await r.json();
+
+    if(data.error){
+      loginError.innerText = data.error;
+      return;
+    }
+
+    localStorage.setItem('seller_id', data.seller_id);
+
+    loginBox.style.display='none';
+    cabinetBox.style.display='block';
+
+    loadRequests();
+
+  }catch(err){
+    loginError.innerText='Ошибка подключения';
+  }
+}
+
+
+async function loadRequests(){
+  let seller_id = localStorage.getItem('seller_id');
+
+  if(!seller_id) return;
+
+  let r = await fetch(API + '/get-requests/?seller_id=' + seller_id);
+  let data = await r.json();
+
+  let container = document.getElementById('requestsTab');
+  container.innerHTML = '';
+
+  if(!data.requests.length){
+    container.innerHTML = '<div class="request">Пока заявок нет</div>';
+    return;
+  }
+
+  data.requests.forEach(req=>{
+    let wa = `https://wa.me/${req.phone}?text=` + encodeURIComponent(
+      `Здравствуйте. По заявке ZPT:\n` +
+      `Услуги: ${req.services.join(', ')}\n` +
+      `Город: ${req.city}`
+    );
+
+    container.innerHTML += `
+      <div class="request">
+        <b>${req.service_type === 'sto' ? 'СТО заявка' : 'Детейлинг заявка'}</b><br>
+        Услуги: ${req.services.join(', ')}<br>
+        Город: ${req.city}<br>
+        Телефон: ${req.phone}<br>
+        <a href="${wa}" target="_blank" class="wa-btn">Написать в WhatsApp</a>
+      </div>
+    `;
+  });
+}
+
+
+function showTab(tab){
+  tabRequests.classList.remove('active');
+  tabProfile.classList.remove('active');
+
+  if(tab==='requests'){
+    tabRequests.classList.add('active');
+    requestsTab.style.display='block';
+    profileTab.style.display='none';
+  }else{
+    tabProfile.classList.add('active');
+    requestsTab.style.display='none';
+    profileTab.style.display='block';
+  }
+}
+
+
+// автологин
+window.onload = function(){
+  let seller_id = localStorage.getItem('seller_id');
+
+  if(seller_id){
+    loginBox.style.display='none';
+    cabinetBox.style.display='block';
+    loadRequests();
+  }
+}
+</script>
+
+</body>
+</html>
