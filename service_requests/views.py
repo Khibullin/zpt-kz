@@ -19,13 +19,20 @@ def create_service_seller(request):
 
     data = read_json(request)
 
-    seller = ServiceSeller.objects.create(
-        name=data.get("name", "").strip(),
-        whatsapp=data.get("whatsapp", "").strip(),
-        password=data.get("password", ""),
-        city=data.get("city", "").strip(),
-        seller_type=data.get("seller_type", "sto"),
-    )
+seller = ServiceSeller.objects.create(
+    name=data.get("name", "").strip(),
+    whatsapp=data.get("whatsapp", "").strip(),
+    password=data.get("password", ""),
+
+    city=data.get("city", "").strip(),
+    district=data.get("district", "").strip(),
+
+    address=data.get("address", "").strip(),
+
+    map_link=data.get("map_link", "").strip(),
+
+    seller_type=data.get("seller_type", "sto"),
+)
 
     for name in data.get("services", []):
         service, _ = Service.objects.get_or_create(name=name)
@@ -58,14 +65,19 @@ def create_service_request(request):
 
     data = read_json(request)
 
-    req = ServiceRequest.objects.create(
-        service_type=data.get("service_type", "sto"),
-        brand=data.get("brand", "").strip(),
-        model=data.get("model", "").strip(),
-        city=data.get("city", "").strip(),
-        phone=data.get("phone", "").strip(),
-        description=data.get("description", "").strip(),
-    )
+req = ServiceRequest.objects.create(
+    service_type=data.get("service_type", "sto"),
+
+    brand=data.get("brand", "").strip(),
+    model=data.get("model", "").strip(),
+
+    city=data.get("city", "").strip(),
+    district=data.get("district", "").strip(),
+
+    phone=data.get("phone", "").strip(),
+
+    description=data.get("description", "").strip(),
+)
 
     for name in data.get("services", []):
         service, _ = Service.objects.get_or_create(name=name)

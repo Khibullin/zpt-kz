@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Регистрация исполнителя — ZPT.KZ</title>
+</head>
+<body>
+
+<h1>Регистрация исполнителя</h1>
+
+<form id="registerForm">
+  <input name="name" placeholder="Имя / название СТО" required><br><br>
+  <input name="whatsapp" placeholder="WhatsApp, например 77011234567" required><br><br>
+  <input name="password" type="password" placeholder="Пароль" required><br><br>
+
+  <select name="seller_type" required>
+    <option value="">Тип исполнителя</option>
+    <option value="sto">СТО</option>
+    <option value="detailing">Детейлинг</option>
+  </select><br><br>
+
+  <input name="city" placeholder="Город" required><br><br>
+  <input name="district" placeholder="Район"><br><br>
+  <input name="address" placeholder="Адрес СТО / бокса"><br><br>
+  <input name="map_link" placeholder="Ссылка на 2GIS"><br><br>
+
+  <label>
+    <input type="checkbox" name="services" value="Замена масла">
+    Замена масла
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="services" value="Ходовая часть">
+    Ходовая часть
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="services" value="Двигатель">
+    Двигатель
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="services" value="Автоэлектрика">
+    Автоэлектрика
+  </label><br>
+
+  <label>
+    <input type="checkbox" name="services" value="Детейлинг">
+    Детейлинг
+  </label><br><br>
+
+  <button type="submit">Зарегистрироваться</button>
+</form>
+
+<p id="result"></p>
+
+<script>
+document.getElementById("registerForm").addEventListener("submit", async function(e) {
+  e.preventDefault();
+
+  const form = e.target;
+
+  const services = Array.from(
+    form.querySelectorAll('input[name="services"]:checked')
+  ).map(item => item.value);
+
+  const data = {
+    name: form.name.value.trim(),
+    whatsapp: form.whatsapp.value.trim(),
+    password: form.password.value.trim(),
+    seller_type: form.seller_type.value,
+    city: form.city.value.trim(),
+    district: form.district.value.trim(),
+    address: form.address.value.trim(),
+    map_link: form.map_link.value.trim(),
+    services: services
+  };
+
+  const result = document.getElementById("result");
+  result.innerText = "Отправка...";
+
+  try {
+    const response = await fetch("/api/service/create-service-seller/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
+
+    const json = await response.json();
+
+    if (!response.ok || json.error) {
+      result.innerText = json.error || "Ошибка регистрации";
+      return;
+    }
+
+    result.innerText = "Исполнитель зарегистрирован";
+
+    localStorage.setItem("service_seller_id", json.seller_id);
+    localStorage.setItem("service_seller_name", data.name);
+
+    window.location.href = "/service-request/cabinet/";
+
+  } catch (error) {
+    result.innerText = "Ошибка соединения с сервером";
+  }
+});
+</script>
+
+</body>
+</html>
