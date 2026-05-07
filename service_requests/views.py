@@ -125,3 +125,84 @@ def get_service_requests(request):
         })
 
     return JsonResponse({"requests": items})
+
+@csrf_exempt
+def get_service_seller_profile(request):
+    seller_id = request.GET.get("seller_id")
+
+    if not seller_id:
+        return JsonResponse({"error": "seller_id required"}, status=400)
+
+    try:
+        seller = ServiceSeller.objects.get(id=seller_id)
+
+        return JsonResponse({
+            "id": seller.id,
+            "name": seller.name,
+            "whatsapp": seller.whatsapp,
+            "city": seller.city,
+            "district": seller.district,
+            "address": seller.address,
+            "map_link": seller.map_link,
+            "seller_type": seller.seller_type,
+            "services": list(
+                seller.services.values_list("name", flat=True)
+            ),
+            "is_active": seller.is_active,
+        })
+
+    except ServiceSeller.DoesNotExist:
+        return JsonResponse({"error": "Исполнитель не найден"}, status=404)
+
+
+@csrf_exempt
+def update_service_seller_profile(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    data = read_json(request)
+
+    seller_id = data.get("seller_id")
+
+    if not seller_id:
+        return JsonResponse({"error": "seller_id required"}, status=400)
+
+    try:
+        seller = ServiceSeller.objects.get(id=seller_id)
+
+        seller.name = data.get("name", seller.name).strip()
+
+        seller.city = data.get("city", seller.city).strip()
+        seller.district = data.get("district", seller.district).strip()
+
+        seller.address = data.get("address", seller.address).strip()
+
+        seller.map_link = data.get("map_link", seller.map_link).strip()
+
+        seller.seller_type = data.get(
+            "seller_type",
+            seller.seller_type
+        )
+
+        seller.is_active = data.get(
+            "is_active",
+            seller.is_active
+        )
+
+        new_password = data.get("password", "").strip()
+
+        if new_password:
+            seller.password = new_password
+
+        seller.services.clear()
+
+        for name in data.get("services", []):
+            service, _ = Service.objects.get_or_create(name=name)
+            seller.services.add(service)
+
+        seller.save()
+
+        return JsonResponse({"success": True})
+
+    except ServiceSeller.DoesNotExist:
+        return JsonResponse({"error": "Исполнитель не найден"}, status=404)
