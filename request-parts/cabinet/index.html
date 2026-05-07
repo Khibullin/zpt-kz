@@ -621,13 +621,13 @@ async function saveProfile(){
 
     let data=await r.json();
 
-    if(data.error){
-      alert(data.error);
-      return;
-    }
+if(data.error){
+  showToast(data.error, 'error');
+  return;
+}
 
-    await loadProfile();
-    alert('Профиль сохранён');
+await loadProfile();
+showToast('Профиль сохранён');
   }catch(e){
     alert('Ошибка сохранения профиля');
   }
@@ -690,6 +690,43 @@ function showTab(tab){
   pageSubtitle.innerText=isRequests?'Здесь отображаются заявки покупателей, которые подходят вашему магазину.':'Проверьте данные вашего магазина и настройки автозапчастей.';
 }
 async function sellerLogout(){await fetch(`${API}/seller-logout/`,{method:'POST',credentials:'include'});showLogin()}
+function showToast(text,type='success'){
+  let old=document.getElementById('toastMessage');
+  if(old) old.remove();
+
+  let toast=document.createElement('div');
+  toast.id='toastMessage';
+
+  toast.style.position='fixed';
+  toast.style.right='20px';
+  toast.style.bottom='20px';
+  toast.style.zIndex='99999';
+  toast.style.padding='14px 18px';
+  toast.style.borderRadius='12px';
+  toast.style.fontWeight='700';
+  toast.style.fontSize='14px';
+  toast.style.color='#fff';
+  toast.style.boxShadow='0 10px 30px rgba(0,0,0,.15)';
+  toast.style.transition='all .25s ease';
+
+  toast.style.background=
+    type==='error'
+      ? '#d92027'
+      : '#22c55e';
+
+  toast.innerText=text;
+
+  document.body.appendChild(toast);
+
+  setTimeout(()=>{
+    toast.style.opacity='0';
+    toast.style.transform='translateY(10px)';
+  },2200);
+
+  setTimeout(()=>{
+    toast.remove();
+  },2600);
+}
 loadProfile().then(()=>loadRequests());
 </script>
 </body>
