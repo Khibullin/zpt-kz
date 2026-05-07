@@ -19,26 +19,22 @@ def create_service_seller(request):
 
     data = read_json(request)
 
-seller = ServiceSeller.objects.create(
-    name=data.get("name", "").strip(),
-    whatsapp=data.get("whatsapp", "").strip(),
-    password=data.get("password", ""),
+    seller = ServiceSeller.objects.create(
+        name=data.get("name", "").strip(),
+        whatsapp=data.get("whatsapp", "").strip(),
+        password=data.get("password", ""),
+        city=data.get("city", "").strip(),
+        district=data.get("district", "").strip(),
+        address=data.get("address", "").strip(),
+        map_link=data.get("map_link", "").strip(),
+        seller_type=data.get("seller_type", "sto"),
+    )
 
-    city=data.get("city", "").strip(),
-    district=data.get("district", "").strip(),
+    for name in data.get("services", []):
+        service, _ = Service.objects.get_or_create(name=name)
+        seller.services.add(service)
 
-    address=data.get("address", "").strip(),
-
-    map_link=data.get("map_link", "").strip(),
-
-    seller_type=data.get("seller_type", "sto"),
-)
-
-for name in data.get("services", []):
-    service, _ = Service.objects.get_or_create(name=name)
-    seller.services.add(service)
-
-return JsonResponse({"success": True, "seller_id": seller.id})
+    return JsonResponse({"success": True, "seller_id": seller.id})
 
 
 @csrf_exempt
@@ -65,27 +61,23 @@ def create_service_request(request):
 
     data = read_json(request)
 
-req = ServiceRequest.objects.create(
-    service_type=data.get("service_type", "sto"),
+    req = ServiceRequest.objects.create(
+        service_type=data.get("service_type", "sto"),
+        brand=data.get("brand", "").strip(),
+        model=data.get("model", "").strip(),
+        city=data.get("city", "").strip(),
+        district=data.get("district", "").strip(),
+        phone=data.get("phone", "").strip(),
+        description=data.get("description", "").strip(),
+    )
 
-    brand=data.get("brand", "").strip(),
-    model=data.get("model", "").strip(),
+    for name in data.get("services", []):
+        service, _ = Service.objects.get_or_create(name=name)
+        req.services.add(service)
 
-    city=data.get("city", "").strip(),
-    district=data.get("district", "").strip(),
+    match_services(req)
 
-    phone=data.get("phone", "").strip(),
-
-    description=data.get("description", "").strip(),
-)
-
-for name in data.get("services", []):
-    service, _ = Service.objects.get_or_create(name=name)
-    req.services.add(service)
-
-match_services(req)
-
-return JsonResponse({"success": True, "request_id": req.id})
+    return JsonResponse({"success": True, "request_id": req.id})
 
 
 def match_services(req):
@@ -126,6 +118,7 @@ def get_service_requests(request):
             "service_type": req.service_type,
             "services": list(req.services.values_list("name", flat=True)),
             "city": req.city,
+            "district": req.district,
             "phone": req.phone,
             "description": req.description,
             "status": match.status,
