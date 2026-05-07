@@ -4,14 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет исполнителя — ZPT.KZ</title>
-
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
 
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
-
-/* HEADER */
 .header{background:#fff;border-bottom:1px solid #ececec;box-shadow:0 2px 10px rgba(0,0,0,.04)}
 .header-inner{max-width:1100px;margin:auto;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
 .logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
@@ -19,41 +16,26 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#2
 .nav a{padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:14px}
 .nav-main{background:#eef2f7;color:#3478f6}
 .nav-seller{background:#3478f6;color:#fff}
-
-/* WRAP */
 .wrap{max-width:1100px;margin:auto;padding:24px 16px}
-
-/* CARD */
 .card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-
 h1{margin:0 0 12px;color:#c62828}
-h2{margin:0 0 10px}
-
-/* LOGIN */
 .field{margin-bottom:12px}
-input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc}
-.btn{background:#3478f6;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:bold;cursor:pointer;width:100%}
-
-/* TABS */
+label{font-weight:bold;font-size:14px}
+input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin-top:5px}
+.btn{background:#3478f6;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
+.btn-gray{background:#eef2f7;color:#222}
 .tabs{display:flex;gap:10px;margin-bottom:12px}
 .tabs button{flex:1;padding:10px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;background:#eef2f7}
 .tabs button.active{background:#3478f6;color:#fff}
-
-/* REQUESTS */
 .request{border:1px solid #e0e0e0;border-radius:12px;padding:12px;margin-bottom:10px;background:#fafafa}
 .wa-btn{display:inline-block;margin-top:8px;background:#25D366;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:bold}
-
-/* PROFILE */
+.map-btn{display:inline-block;margin-top:8px;background:#444;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:bold}
 .profile-row{margin-bottom:8px}
-
-/* MSG */
 .msg{margin-top:12px;padding:10px;border-radius:10px;display:none}
 .msg.error{display:block;background:#ffebee;color:#b71c1c}
-
-/* MOBILE */
-@media(max-width:760px){
-  .tabs{flex-direction:column}
-}
+.msg.success{display:block;background:#e8f5e9;color:#1b5e20}
+.checks label{display:block;font-weight:normal;margin:6px 0}
+@media(max-width:760px){.tabs{flex-direction:column}}
 </style>
 </head>
 
@@ -63,7 +45,7 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc}
   <div class="header-inner">
     <a class="logo" href="/">ZPT.KZ</a>
     <div class="nav">
-      <a class="nav-main" href="/">Главная</a>
+      <a class="nav-main" href="/service-request/">Заявка клиента</a>
       <a class="nav-seller" href="/service-request/register/">Регистрация</a>
     </div>
   </div>
@@ -71,7 +53,6 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc}
 
 <div class="wrap">
 
-  <!-- LOGIN -->
   <div class="card" id="loginBox">
     <h1>Вход исполнителя</h1>
 
@@ -86,58 +67,96 @@ input{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc}
     </div>
 
     <button class="btn" onclick="login()">Войти</button>
-
     <div id="loginError" class="msg error"></div>
   </div>
 
-  <!-- CABINET -->
   <div id="cabinetBox" style="display:none">
-
     <div class="card">
       <h1>Кабинет исполнителя</h1>
 
       <div class="tabs">
         <button id="tabRequests" class="active" onclick="showTab('requests')">Заявки</button>
         <button id="tabProfile" onclick="showTab('profile')">Профиль</button>
+        <button id="tabEdit" onclick="showTab('edit')">Редактировать</button>
       </div>
 
-      <!-- REQUESTS -->
-      <div id="requestsTab">
-        <div class="request">
-          <b>СТО заявка</b><br>
-          Услуги: Ходовая, Диагностика<br>
-          Город: Алматы<br>
-          Телефон: 77011234567<br>
-          <a href="#" class="wa-btn">Написать в WhatsApp</a>
-        </div>
+      <div id="requestsTab"></div>
 
-        <div class="request">
-          <b>Детейлинг заявка</b><br>
-          Услуги: Полировка, Химчистка<br>
-          Город: Астана<br>
-          Телефон: 77019876543<br>
-          <a href="#" class="wa-btn">Написать в WhatsApp</a>
-        </div>
-      </div>
-
-      <!-- PROFILE -->
       <div id="profileTab" style="display:none">
-        <div class="profile-row"><b>Тип:</b> СТО</div>
-        <div class="profile-row"><b>Город:</b> Алматы</div>
-        <div class="profile-row"><b>Услуги:</b> Диагностика, Ходовая</div>
+        <div id="profileView">Загрузка профиля...</div>
       </div>
 
-    </div>
+      <div id="editTab" style="display:none">
+        <div class="field">
+          <label>Имя / название СТО</label>
+          <input id="editName">
+        </div>
 
+        <div class="field">
+          <label>Тип исполнителя</label>
+          <select id="editSellerType">
+            <option value="sto">СТО</option>
+            <option value="detailing">Детейлинг</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Город</label>
+          <input id="editCity">
+        </div>
+
+        <div class="field">
+          <label>Район</label>
+          <input id="editDistrict">
+        </div>
+
+        <div class="field">
+          <label>Адрес СТО / бокса</label>
+          <input id="editAddress">
+        </div>
+
+        <div class="field">
+          <label>Ссылка на 2GIS</label>
+          <input id="editMapLink">
+        </div>
+
+        <div class="field">
+          <label>Новый пароль</label>
+          <input id="editPassword" type="password" placeholder="Оставьте пустым, если не менять">
+        </div>
+
+        <div class="field checks">
+          <label><input type="checkbox" class="serviceCheck" value="Замена масла"> Замена масла</label>
+          <label><input type="checkbox" class="serviceCheck" value="Ходовая часть"> Ходовая часть</label>
+          <label><input type="checkbox" class="serviceCheck" value="Двигатель"> Двигатель</label>
+          <label><input type="checkbox" class="serviceCheck" value="Автоэлектрика"> Автоэлектрика</label>
+          <label><input type="checkbox" class="serviceCheck" value="Детейлинг"> Детейлинг</label>
+        </div>
+
+        <div class="field checks">
+          <label>
+            <input type="checkbox" id="editActive">
+            Получать заявки
+          </label>
+        </div>
+
+        <button class="btn" onclick="saveProfile()">Сохранить профиль</button>
+        <div id="saveMsg" class="msg"></div>
+      </div>
+
+      <button class="btn btn-gray" onclick="logout()">Выйти</button>
+    </div>
   </div>
 
 </div>
 
 <script>
 const API = window.location.origin + '/api/service';
+let currentProfile = null;
 
 async function login(){
-  loginError.innerText='';
+  loginError.innerText = '';
+  loginError.style.display = 'none';
 
   let whatsapp = phone.value.replace(/\D/g,'');
   let password = pass.value;
@@ -152,35 +171,131 @@ async function login(){
     let r = await fetch(API + '/service-seller-login/',{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({
-        whatsapp: whatsapp,
-        password: password
-      })
+      body:JSON.stringify({whatsapp,password})
     });
 
     let data = await r.json();
 
     if(data.error){
+      loginError.style.display='block';
       loginError.innerText = data.error;
       return;
     }
 
     localStorage.setItem('seller_id', data.seller_id);
-
-    loginBox.style.display='none';
-    cabinetBox.style.display='block';
-
-    loadRequests();
+    openCabinet();
 
   }catch(err){
+    loginError.style.display='block';
     loginError.innerText='Ошибка подключения';
   }
 }
 
+function openCabinet(){
+  loginBox.style.display='none';
+  cabinetBox.style.display='block';
+  loadProfile();
+  loadRequests();
+}
+
+async function loadProfile(){
+  let seller_id = localStorage.getItem('seller_id');
+  if(!seller_id) return;
+
+  let r = await fetch(API + '/service-seller-profile/?seller_id=' + seller_id);
+  let data = await r.json();
+
+  if(data.error){
+    profileView.innerHTML = data.error;
+    return;
+  }
+
+  currentProfile = data;
+  renderProfile(data);
+  fillEditForm(data);
+}
+
+function renderProfile(p){
+  let type = p.seller_type === 'sto' ? 'СТО' : 'Детейлинг';
+  let services = p.services && p.services.length ? p.services.join(', ') : 'Не выбраны';
+
+  profileView.innerHTML = `
+    <div class="profile-row"><b>Название:</b> ${p.name || '-'}</div>
+    <div class="profile-row"><b>WhatsApp:</b> ${p.whatsapp || '-'}</div>
+    <div class="profile-row"><b>Тип:</b> ${type}</div>
+    <div class="profile-row"><b>Город:</b> ${p.city || '-'}</div>
+    <div class="profile-row"><b>Район:</b> ${p.district || '-'}</div>
+    <div class="profile-row"><b>Адрес:</b> ${p.address || '-'}</div>
+    <div class="profile-row"><b>Услуги:</b> ${services}</div>
+    <div class="profile-row"><b>Статус:</b> ${p.is_active ? 'Получает заявки' : 'Отключен'}</div>
+    ${p.map_link ? `<a class="map-btn" href="${p.map_link}" target="_blank">Открыть 2GIS</a>` : ''}
+  `;
+}
+
+function fillEditForm(p){
+  editName.value = p.name || '';
+  editSellerType.value = p.seller_type || 'sto';
+  editCity.value = p.city || '';
+  editDistrict.value = p.district || '';
+  editAddress.value = p.address || '';
+  editMapLink.value = p.map_link || '';
+  editPassword.value = '';
+  editActive.checked = !!p.is_active;
+
+  document.querySelectorAll('.serviceCheck').forEach(ch=>{
+    ch.checked = (p.services || []).includes(ch.value);
+  });
+}
+
+async function saveProfile(){
+  saveMsg.style.display='none';
+  saveMsg.className='msg';
+
+  let seller_id = localStorage.getItem('seller_id');
+  let services = Array.from(document.querySelectorAll('.serviceCheck:checked')).map(x=>x.value);
+
+  let payload = {
+    seller_id: seller_id,
+    name: editName.value.trim(),
+    seller_type: editSellerType.value,
+    city: editCity.value.trim(),
+    district: editDistrict.value.trim(),
+    address: editAddress.value.trim(),
+    map_link: editMapLink.value.trim(),
+    password: editPassword.value.trim(),
+    is_active: editActive.checked,
+    services: services
+  };
+
+  try{
+    let r = await fetch(API + '/update-service-seller-profile/',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+
+    let data = await r.json();
+
+    if(data.error){
+      saveMsg.className='msg error';
+      saveMsg.innerText=data.error;
+      return;
+    }
+
+    saveMsg.className='msg success';
+    saveMsg.innerText='Профиль сохранён';
+
+    await loadProfile();
+    showTab('profile');
+
+  }catch(err){
+    saveMsg.className='msg error';
+    saveMsg.innerText='Ошибка сохранения';
+  }
+}
 
 async function loadRequests(){
   let seller_id = localStorage.getItem('seller_id');
-
   if(!seller_id) return;
 
   let r = await fetch(API + '/get-requests/?seller_id=' + seller_id);
@@ -189,7 +304,7 @@ async function loadRequests(){
   let container = document.getElementById('requestsTab');
   container.innerHTML = '';
 
-  if(!data.requests.length){
+  if(!data.requests || !data.requests.length){
     container.innerHTML = '<div class="request">Пока заявок нет</div>';
     return;
   }
@@ -198,46 +313,59 @@ async function loadRequests(){
     let wa = `https://wa.me/${req.phone}?text=` + encodeURIComponent(
       `Здравствуйте. По заявке ZPT:\n` +
       `Услуги: ${req.services.join(', ')}\n` +
-      `Город: ${req.city}`
+      `Город: ${req.city}\n` +
+      `Описание: ${req.description || ''}`
     );
 
     container.innerHTML += `
       <div class="request">
         <b>${req.service_type === 'sto' ? 'СТО заявка' : 'Детейлинг заявка'}</b><br>
         Услуги: ${req.services.join(', ')}<br>
-        Город: ${req.city}<br>
-        Телефон: ${req.phone}<br>
+        Город: ${req.city || '-'}<br>
+        Район: ${req.district || '-'}<br>
+        Телефон: ${req.phone || '-'}<br>
+        Комментарий: ${req.description || '-'}<br>
+        Статус: ${req.status || 'new'}<br>
         <a href="${wa}" target="_blank" class="wa-btn">Написать в WhatsApp</a>
       </div>
     `;
   });
 }
 
-
 function showTab(tab){
   tabRequests.classList.remove('active');
   tabProfile.classList.remove('active');
+  tabEdit.classList.remove('active');
+
+  requestsTab.style.display='none';
+  profileTab.style.display='none';
+  editTab.style.display='none';
 
   if(tab==='requests'){
     tabRequests.classList.add('active');
     requestsTab.style.display='block';
-    profileTab.style.display='none';
-  }else{
+  }
+
+  if(tab==='profile'){
     tabProfile.classList.add('active');
-    requestsTab.style.display='none';
     profileTab.style.display='block';
+  }
+
+  if(tab==='edit'){
+    tabEdit.classList.add('active');
+    editTab.style.display='block';
   }
 }
 
+function logout(){
+  localStorage.removeItem('seller_id');
+  location.reload();
+}
 
-// автологин
 window.onload = function(){
   let seller_id = localStorage.getItem('seller_id');
-
   if(seller_id){
-    loginBox.style.display='none';
-    cabinetBox.style.display='block';
-    loadRequests();
+    openCabinet();
   }
 }
 </script>
