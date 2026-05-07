@@ -86,7 +86,7 @@ class ServiceMatch(models.Model):
         ('sent', 'Отправлена'),
         ('viewed', 'Просмотрена'),
         ('in_work', 'В работе'),
-        ('done', 'Закрыта'),
+        ('done', 'Завершена'),
     ]
 
     request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE)

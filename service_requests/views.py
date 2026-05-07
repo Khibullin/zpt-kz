@@ -206,3 +206,33 @@ def update_service_seller_profile(request):
 
     except ServiceSeller.DoesNotExist:
         return JsonResponse({"error": "Исполнитель не найден"}, status=404)
+
+@csrf_exempt
+def update_service_match_status(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    data = read_json(request)
+
+    seller_id = data.get("seller_id")
+    request_id = data.get("request_id")
+    status = data.get("status")
+
+    allowed = ['new', 'sent', 'viewed', 'in_work', 'done']
+
+    if status not in allowed:
+        return JsonResponse({"error": "Invalid status"}, status=400)
+
+    try:
+        match = ServiceMatch.objects.get(
+            seller_id=seller_id,
+            request_id=request_id
+        )
+
+        match.status = status
+        match.save()
+
+        return JsonResponse({"success": True})
+
+    except ServiceMatch.DoesNotExist:
+        return JsonResponse({"error": "Match not found"}, status=404)

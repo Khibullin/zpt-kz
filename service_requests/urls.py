@@ -10,4 +10,6 @@ urlpatterns = [
 
     path('create-service-request/', create_service_request),
     path('get-requests/', get_service_requests),
+
+    path('update-match-status/', update_service_match_status),
 ]
