@@ -79,13 +79,13 @@ req = ServiceRequest.objects.create(
     description=data.get("description", "").strip(),
 )
 
-    for name in data.get("services", []):
-        service, _ = Service.objects.get_or_create(name=name)
-        req.services.add(service)
+for name in data.get("services", []):
+    service, _ = Service.objects.get_or_create(name=name)
+    req.services.add(service)
 
-    match_services(req)
+match_services(req)
 
-    return JsonResponse({"success": True, "request_id": req.id})
+return JsonResponse({"success": True, "request_id": req.id})
 
 
 def match_services(req):
