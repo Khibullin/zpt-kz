@@ -75,26 +75,32 @@ def create_service_request(request):
         service, _ = Service.objects.get_or_create(name=name)
         req.services.add(service)
 
-matched = match_services(req)
+    matched = match_services(req)
 
-sellers = []
+    sellers = []
 
-for seller in matched:
-    sellers.append({
-        "name": seller.name,
-        "whatsapp": seller.whatsapp,
-        "district": seller.district,
-        "address": seller.address,
-        "map_link": seller.map_link,
+    for seller in matched:
+        sellers.append({
+            "name": seller.name,
+            "whatsapp": seller.whatsapp,
+            "district": seller.district,
+            "address": seller.address,
+            "map_link": seller.map_link,
+        })
+
+    return JsonResponse({
+        "success": True,
+        "request_id": req.id,
+        "sellers": sellers
     })
 
-return JsonResponse({
-    "success": True,
-    "request_id": req.id,
-    "sellers": sellers
-})
 
-    # 1. Сначала район
+def match_services(req):
+    req_services = set(
+        req.services.values_list("name", flat=True)
+    )
+
+    matched_sellers = []
 
     district_sellers = ServiceSeller.objects.filter(
         seller_type=req.service_type,
@@ -104,24 +110,18 @@ return JsonResponse({
     )
 
     for seller in district_sellers:
-
         seller_services = set(
             seller.services.values_list("name", flat=True)
         )
 
         if seller_services & req_services:
-
             ServiceMatch.objects.create(
                 request=req,
                 seller=seller
             )
-
             matched_sellers.append(seller)
 
-    # 2. fallback по городу
-
     if not matched_sellers:
-
         city_sellers = ServiceSeller.objects.filter(
             seller_type=req.service_type,
             city=req.city,
@@ -129,21 +129,19 @@ return JsonResponse({
         )
 
         for seller in city_sellers:
-
             seller_services = set(
                 seller.services.values_list("name", flat=True)
             )
 
             if seller_services & req_services:
-
                 ServiceMatch.objects.create(
                     request=req,
                     seller=seller
                 )
-
                 matched_sellers.append(seller)
 
     return matched_sellers
+
 
 def get_service_requests(request):
     seller_id = request.GET.get("seller_id")
@@ -159,9 +157,11 @@ def get_service_requests(request):
 
     for match in matches:
         req = match.request
+
         if match.status == 'new':
             match.status = 'viewed'
             match.save(update_fields=['status'])
+
         items.append({
             "id": req.id,
             "service_type": req.service_type,
@@ -174,6 +174,7 @@ def get_service_requests(request):
         })
 
     return JsonResponse({"requests": items})
+
 
 @csrf_exempt
 def get_service_seller_profile(request):
@@ -220,23 +221,12 @@ def update_service_seller_profile(request):
         seller = ServiceSeller.objects.get(id=seller_id)
 
         seller.name = data.get("name", seller.name).strip()
-
         seller.city = data.get("city", seller.city).strip()
         seller.district = data.get("district", seller.district).strip()
-
         seller.address = data.get("address", seller.address).strip()
-
         seller.map_link = data.get("map_link", seller.map_link).strip()
-
-        seller.seller_type = data.get(
-            "seller_type",
-            seller.seller_type
-        )
-
-        seller.is_active = data.get(
-            "is_active",
-            seller.is_active
-        )
+        seller.seller_type = data.get("seller_type", seller.seller_type)
+        seller.is_active = data.get("is_active", seller.is_active)
 
         new_password = data.get("password", "").strip()
 
@@ -255,6 +245,7 @@ def update_service_seller_profile(request):
 
     except ServiceSeller.DoesNotExist:
         return JsonResponse({"error": "Исполнитель не найден"}, status=404)
+
 
 @csrf_exempt
 def update_service_match_status(request):
