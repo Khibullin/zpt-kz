@@ -113,6 +113,9 @@ def get_service_requests(request):
 
     for match in matches:
         req = match.request
+        if match.status == 'new':
+            match.status = 'viewed'
+            match.save(update_fields=['status'])
         items.append({
             "id": req.id,
             "service_type": req.service_type,
