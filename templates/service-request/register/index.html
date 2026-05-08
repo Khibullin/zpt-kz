@@ -32,6 +32,8 @@ body{
   display:flex;
   justify-content:space-between;
   align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
 }
 
 .logo{
@@ -44,6 +46,7 @@ body{
 .nav{
   display:flex;
   gap:10px;
+  flex-wrap:wrap;
 }
 
 .nav a{
@@ -52,6 +55,11 @@ body{
   text-decoration:none;
   font-weight:bold;
   font-size:14px;
+}
+
+.nav-home{
+  background:#f0f0f0;
+  color:#333;
 }
 
 .nav-main{
@@ -192,8 +200,15 @@ button{
     <a class="logo" href="/">ZPT.KZ</a>
 
     <div class="nav">
-      <a class="nav-main" href="/service-request/">Заявка клиента</a>
-      <a class="nav-seller" href="/service-request/cabinet/">Кабинет</a>
+      <a class="nav-home" href="/">Главная</a>
+
+      <a class="nav-main" href="/service-request/">
+        Заявка клиента
+      </a>
+
+      <a class="nav-seller" href="/service-request/cabinet/">
+        Кабинет
+      </a>
     </div>
 
   </div>
@@ -211,119 +226,177 @@ button{
 
         <div class="field">
           <label>Название компании / имя мастера</label>
-          <input name="name" placeholder="Например: RH Service" required>
+
+          <input
+            name="name"
+            placeholder="Например: RH Service"
+            required
+          >
         </div>
 
         <div class="field">
           <label>WhatsApp</label>
-          <input name="whatsapp" placeholder="77011234567" required>
+
+          <input
+            name="whatsapp"
+            placeholder="77011234567"
+            required
+          >
         </div>
 
-<div class="field">
+        <div class="field">
 
-  <label>Пароль</label>
+          <label>Пароль</label>
 
-  <div style="display:flex;gap:10px">
+          <div style="display:flex;gap:10px">
 
-    <input
-      id="passwordInput"
-      name="password"
-      type="password"
-      required
-    >
+            <input
+              id="passwordInput"
+              name="password"
+              type="password"
+              required
+            >
 
-    <button
-      type="button"
-      onclick="togglePassword()"
-      style="
-        width:140px;
-        min-height:48px;
-        border:none;
-        border-radius:12px;
-        background:#eef2f7;
-        cursor:pointer;
-        font-weight:bold;
-      "
-    >
-      Показать
-    </button>
+            <button
+              type="button"
+              onclick="togglePassword()"
+              style="
+                width:140px;
+                border:none;
+                background:#eef2f7;
+                cursor:pointer;
+                font-weight:bold;
+              "
+            >
+              Показать
+            </button>
 
-  </div>
+          </div>
 
-</div>
+        </div>
 
         <div class="field">
+
           <label>Тип: СТО / Детейлинг</label>
 
           <select name="seller_type" required>
+
             <option value="">Выберите тип</option>
-            <option value="sto">СТО</option>
-            <option value="detailing">Детейлинг</option>
+
+            <option value="sto">
+              СТО
+            </option>
+
+            <option value="detailing">
+              Детейлинг
+            </option>
+
           </select>
+
         </div>
 
         <div class="field">
+
           <label>Город</label>
+
           <select name="city" required>
-  <option value="">Выберите город</option>
 
-  <option value="Алматы">Алматы</option>
-  <option value="Астана">Астана</option>
-  <option value="Шымкент">Шымкент</option>
-  <option value="Караганда">Караганда</option>
+            <option value="">Выберите город</option>
 
-  <option disabled>──────────</option>
+            <option value="Алматы">Алматы</option>
+            <option value="Астана">Астана</option>
+            <option value="Шымкент">Шымкент</option>
+            <option value="Караганда">Караганда</option>
 
-  <option value="Актобе">Актобе</option>
-  <option value="Атырау">Атырау</option>
-  <option value="Актау">Актау</option>
-  <option value="Павлодар">Павлодар</option>
+            <option disabled>──────────</option>
 
-  <option value="Усть-Каменогорск">Усть-Каменогорск</option>
-  <option value="Семей">Семей</option>
-  <option value="Костанай">Костанай</option>
-  <option value="Петропавловск">Петропавловск</option>
+            <option value="Актобе">Актобе</option>
+            <option value="Атырау">Атырау</option>
+            <option value="Актау">Актау</option>
+            <option value="Павлодар">Павлодар</option>
 
-  <option value="Кокшетау">Кокшетау</option>
-  <option value="Тараз">Тараз</option>
-  <option value="Туркестан">Туркестан</option>
-  <option value="Кызылорда">Кызылорда</option>
+            <option value="Усть-Каменогорск">
+              Усть-Каменогорск
+            </option>
 
-  <option value="Уральск">Уральск</option>
-  <option value="Талдыкорган">Талдыкорган</option>
-  <option value="Жезказган">Жезказган</option>
-  <option value="Экибастуз">Экибастуз</option>
-</select>
+            <option value="Семей">Семей</option>
+            <option value="Костанай">Костанай</option>
+
+            <option value="Петропавловск">
+              Петропавловск
+            </option>
+
+            <option value="Кокшетау">Кокшетау</option>
+            <option value="Тараз">Тараз</option>
+            <option value="Туркестан">Туркестан</option>
+            <option value="Кызылорда">Кызылорда</option>
+            <option value="Уральск">Уральск</option>
+
+            <option value="Талдыкорган">
+              Талдыкорган
+            </option>
+
+            <option value="Жезказган">
+              Жезказган
+            </option>
+
+            <option value="Экибастуз">
+              Экибастуз
+            </option>
+
+          </select>
+
         </div>
 
-<div class="field">
-
-  <label>Район</label>
-
-  <select id="districtSelect" name="district">
-    <option value="">Сначала выберите город</option>
-  </select>
-
-</div>
-
         <div class="field">
-          <label>Адрес СТО</label>
-          <input name="address" placeholder="Муратбаева 94">
+
+          <label>Район</label>
+
+          <select id="districtSelect" name="district">
+            <option value="">
+              Сначала выберите город
+            </option>
+          </select>
+
         </div>
 
         <div class="field">
+
+          <label>Адрес</label>
+
+          <input
+            name="address"
+            placeholder="Муратбаева 94"
+          >
+
+        </div>
+
+        <div class="field">
+
           <label>Ссылка на карту 2GIS</label>
-          <input name="map_link" placeholder="https://2gis.kz/...">
-<div style="font-size:13px;color:#666;margin-top:6px">
-  Откройте вашу точку в 2GIS и вставьте ссылку сюда
-</div>
+
+          <input
+            name="map_link"
+            placeholder="https://2gis.kz/..."
+          >
+
+          <div style="
+            font-size:13px;
+            color:#666;
+            margin-top:6px;
+          ">
+            Откройте вашу точку в 2GIS и вставьте ссылку сюда
+          </div>
+
         </div>
 
         <div class="field full">
 
           <label>Какие услуги оказываете?</label>
 
-          <div class="check-grid">
+          <!-- STO -->
+
+          <div id="stoServices" class="check-grid">
 
             <label><input type="checkbox" name="services" value="Диагностика">Диагностика</label>
 
@@ -353,12 +426,44 @@ button{
 
           </div>
 
+          <!-- DETAILING -->
+
+          <div
+            id="detailingServices"
+            class="check-grid"
+            style="display:none"
+          >
+
+            <label><input type="checkbox" name="services" value="Полировка">Полировка</label>
+
+            <label><input type="checkbox" name="services" value="Химчистка">Химчистка</label>
+
+            <label><input type="checkbox" name="services" value="Керамика">Керамика</label>
+
+            <label><input type="checkbox" name="services" value="Бронепленка">Бронепленка</label>
+
+            <label><input type="checkbox" name="services" value="Тонировка">Тонировка</label>
+
+            <label><input type="checkbox" name="services" value="Шумоизоляция">Шумоизоляция</label>
+
+            <label><input type="checkbox" name="services" value="Мойка">Мойка</label>
+
+            <label><input type="checkbox" name="services" value="Детейлинг салона">Детейлинг салона</label>
+
+            <label><input type="checkbox" name="services" value="Детейлинг кузова">Детейлинг кузова</label>
+
+            <label><input type="checkbox" name="services" value="Другое">Другое</label>
+
+          </div>
+
         </div>
 
         <div class="field full">
+
           <button type="submit" class="submit-btn">
             Зарегистрироваться
           </button>
+
         </div>
 
       </div>
@@ -372,81 +477,129 @@ button{
 </div>
 
 <script>
-document.getElementById("registerForm").addEventListener("submit", async function(e) {
 
-  e.preventDefault();
+document.getElementById(
+  "registerForm"
+).addEventListener(
+  "submit",
+  async function(e){
 
-  const form = e.target;
+    e.preventDefault();
 
-  const services = Array.from(
-    form.querySelectorAll('input[name="services"]:checked')
-  ).map(item => item.value);
+    const form = e.target;
 
-  const data = {
-    name: form.name.value.trim(),
-    whatsapp: form.whatsapp.value.trim(),
-    password: form.password.value.trim(),
-    seller_type: form.seller_type.value,
-    city: form.city.value.trim(),
-    district: form.district.value.trim(),
-    address: form.address.value.trim(),
-    map_link: form.map_link.value.trim(),
-    services: services
-  };
+    const services = Array.from(
+      form.querySelectorAll(
+        'input[name="services"]:checked'
+      )
+    ).map(item => item.value);
 
-  const result = document.getElementById("result");
+    const data = {
+      name: form.name.value.trim(),
+      whatsapp: form.whatsapp.value.trim(),
+      password: form.password.value.trim(),
+      seller_type: form.seller_type.value,
+      city: form.city.value,
+      district: form.district.value,
+      address: form.address.value.trim(),
+      map_link: form.map_link.value.trim(),
+      services: services
+    };
 
-  result.className = 'msg';
-  result.innerHTML = '';
+    const result =
+      document.getElementById("result");
 
-  try {
+    result.className = 'msg';
+    result.innerHTML = '';
 
-    const response = await fetch(
-      window.location.origin + "/api/service/create-service-seller/",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(data)
+    try {
+
+      const response = await fetch(
+        window.location.origin +
+        "/api/service/create-service-seller/",
+        {
+          method:"POST",
+          headers:{
+            "Content-Type":"application/json"
+          },
+          body:JSON.stringify(data)
+        }
+      );
+
+      const json = await response.json();
+
+      if(!response.ok || json.error){
+
+        result.className = 'msg error';
+
+        result.innerHTML =
+          json.error || "Ошибка регистрации";
+
+        return;
       }
-    );
 
-    const json = await response.json();
+      result.className = 'msg success';
 
-    if (!response.ok || json.error) {
+      result.innerHTML =
+        "Исполнитель зарегистрирован";
+
+      localStorage.setItem(
+        "service_seller_id",
+        json.seller_id
+      );
+
+      setTimeout(()=>{
+        window.location.href =
+          "/service-request/cabinet/";
+      },700);
+
+    } catch (error){
 
       result.className = 'msg error';
-      result.innerHTML = json.error || "Ошибка регистрации";
 
-      return;
+      result.innerHTML =
+        "Ошибка соединения с сервером";
     }
 
-    result.className = 'msg success';
-    result.innerHTML = "Исполнитель зарегистрирован";
+});
 
-    localStorage.setItem(
-      "service_seller_id",
-      json.seller_id
-    );
+const sellerTypeSelect =
+  document.querySelector(
+    'select[name="seller_type"]'
+  );
 
-    setTimeout(()=>{
-      window.location.href =
-        "/service-request/cabinet/";
-    },700);
+const stoServices =
+  document.getElementById('stoServices');
 
-  } catch (error) {
+const detailingServices =
+  document.getElementById(
+    'detailingServices'
+  );
 
-    result.className = 'msg error';
-    result.innerHTML =
-      "Ошибка соединения с сервером";
+sellerTypeSelect.addEventListener(
+  'change',
+  function(){
 
-  }
+    if(this.value === 'detailing'){
+
+      stoServices.style.display = 'none';
+
+      detailingServices.style.display =
+        'grid';
+
+    }else{
+
+      stoServices.style.display = 'grid';
+
+      detailingServices.style.display =
+        'none';
+    }
 
 });
+
 const districts = {
 
-  "Алматы": [
+  "Алматы":[
     "Алмалинский",
     "Ауэзовский",
     "Бостандыкский",
@@ -456,7 +609,7 @@ const districts = {
     "Турксибский"
   ],
 
-  "Астана": [
+  "Астана":[
     "Алматы",
     "Байконыр",
     "Есиль",
@@ -467,48 +620,58 @@ const districts = {
 };
 
 const citySelect =
-  document.querySelector('select[name="city"]');
+  document.querySelector(
+    'select[name="city"]'
+  );
 
 const districtSelect =
-  document.getElementById('districtSelect');
+  document.getElementById(
+    'districtSelect'
+  );
 
-citySelect.addEventListener('change', function(){
+citySelect.addEventListener(
+  'change',
+  function(){
 
-  const city = this.value;
+    const city = this.value;
 
-  districtSelect.innerHTML = '';
+    districtSelect.innerHTML = '';
 
-  if(!districts[city]){
+    if(!districts[city]){
+
+      districtSelect.innerHTML =
+        '<option value="">Район не указан</option>';
+
+      return;
+    }
 
     districtSelect.innerHTML =
-      '<option value="">Введите район вручную</option>';
+      '<option value="">Выберите район</option>';
 
-    return;
-  }
+    districts[city].forEach(district => {
 
-  districtSelect.innerHTML =
-    '<option value="">Выберите район</option>';
-
-  districts[city].forEach(district => {
-
-    districtSelect.innerHTML += `
-      <option value="${district}">
-        ${district}
-      </option>
-    `;
-  });
+      districtSelect.innerHTML += `
+        <option value="${district}">
+          ${district}
+        </option>
+      `;
+    });
 
 });
+
 function togglePassword(){
 
   const input =
-    document.getElementById('passwordInput');
+    document.getElementById(
+      'passwordInput'
+    );
 
   input.type =
     input.type === 'password'
       ? 'text'
       : 'password';
 }
+
 </script>
 
 </body>
