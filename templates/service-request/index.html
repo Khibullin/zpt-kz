@@ -268,13 +268,66 @@ document.getElementById('serviceForm').addEventListener('submit', async function
       return;
     }
 
-    setMessage(`
-<b>Заявка принята.</b><br><br>
-Мы уже отправили вашу заявку исполнителям.<br>
-Они сами напишут вам в WhatsApp.<br><br>
-Обычно ответ приходит в течение 5–15 минут.
-    `,'success');
+let sellersHtml = '';
 
+if(data.sellers && data.sellers.length){
+
+  sellersHtml += `
+    <br><br>
+    <b>Заявка отправлена исполнителям:</b><br><br>
+  `;
+
+  data.sellers.forEach(seller => {
+
+    let wa = seller.whatsapp
+      ? `https://wa.me/${seller.whatsapp}`
+      : '#';
+
+    sellersHtml += `
+      <div style="border:1px solid #dfe5df;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;">
+        <div style="font-size:18px;font-weight:bold;color:#3478f6">
+          ${seller.name || 'СТО'}
+        </div>
+
+        <div style="margin-top:6px">
+          Район: ${seller.district || '-'}
+        </div>
+
+        <div style="margin-top:4px">
+          Адрес: ${seller.address || '-'}
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <a href="${wa}" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
+            WhatsApp
+          </a>
+
+          ${seller.map_link ? `
+            <a href="${seller.map_link}" target="_blank" style="background:#444;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
+              2GIS
+            </a>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  });
+}
+
+setMessage(`
+<b>Заявка принята.</b><br><br>
+
+<b>Ваш запрос:</b><br>
+Услуги: ${services.join(', ')}<br>
+Город: ${payload.city}<br>
+Телефон: ${payload.phone}<br>
+${payload.description ? `Описание: ${payload.description}<br>` : ''}
+
+${sellersHtml}
+
+<div style="margin-top:14px">
+Обычно ответ приходит в течение 5–15 минут.
+</div>
+`,'success');
     serviceForm.reset();
     setServiceType('sto');
 
