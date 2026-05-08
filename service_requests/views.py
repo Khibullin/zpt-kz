@@ -75,20 +75,26 @@ def create_service_request(request):
         service, _ = Service.objects.get_or_create(name=name)
         req.services.add(service)
 
-    match_services(req)
+matched = match_services(req)
 
-    return JsonResponse({"success": True, "request_id": req.id})
+sellers = []
 
+for seller in matched:
+    sellers.append({
+        "name": seller.name,
+        "whatsapp": seller.whatsapp,
+        "district": seller.district,
+        "address": seller.address,
+        "map_link": seller.map_link,
+    })
 
-def match_services(req):
+return JsonResponse({
+    "success": True,
+    "request_id": req.id,
+    "sellers": sellers
+})
 
-    req_services = set(
-        req.services.values_list("name", flat=True)
-    )
-
-    matched_sellers = set()
-
-    # 1. Сначала ищем по району
+    # 1. Сначала район
 
     district_sellers = ServiceSeller.objects.filter(
         seller_type=req.service_type,
@@ -110,9 +116,9 @@ def match_services(req):
                 seller=seller
             )
 
-            matched_sellers.add(seller.id)
+            matched_sellers.append(seller)
 
-    # 2. Если никого нет — fallback по всему городу
+    # 2. fallback по городу
 
     if not matched_sellers:
 
@@ -134,6 +140,10 @@ def match_services(req):
                     request=req,
                     seller=seller
                 )
+
+                matched_sellers.append(seller)
+
+    return matched_sellers
 
 def get_service_requests(request):
     seller_id = request.GET.get("seller_id")
