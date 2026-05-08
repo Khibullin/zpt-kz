@@ -81,23 +81,59 @@ def create_service_request(request):
 
 
 def match_services(req):
-    sellers = ServiceSeller.objects.filter(
+
+    req_services = set(
+        req.services.values_list("name", flat=True)
+    )
+
+    matched_sellers = set()
+
+    # 1. Сначала ищем по району
+
+    district_sellers = ServiceSeller.objects.filter(
         seller_type=req.service_type,
         city=req.city,
+        district=req.district,
         is_active=True
     )
 
-    req_services = set(req.services.values_list("name", flat=True))
+    for seller in district_sellers:
 
-    for seller in sellers:
-        seller_services = set(seller.services.values_list("name", flat=True))
+        seller_services = set(
+            seller.services.values_list("name", flat=True)
+        )
 
         if seller_services & req_services:
+
             ServiceMatch.objects.create(
                 request=req,
                 seller=seller
             )
 
+            matched_sellers.add(seller.id)
+
+    # 2. Если никого нет — fallback по всему городу
+
+    if not matched_sellers:
+
+        city_sellers = ServiceSeller.objects.filter(
+            seller_type=req.service_type,
+            city=req.city,
+            is_active=True
+        )
+
+        for seller in city_sellers:
+
+            seller_services = set(
+                seller.services.values_list("name", flat=True)
+            )
+
+            if seller_services & req_services:
+
+                ServiceMatch.objects.create(
+                    request=req,
+                    seller=seller
+                )
 
 def get_service_requests(request):
     seller_id = request.GET.get("seller_id")
