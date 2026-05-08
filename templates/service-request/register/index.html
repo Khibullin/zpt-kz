@@ -296,10 +296,15 @@ button{
 </select>
         </div>
 
-        <div class="field">
-          <label>Район</label>
-          <input name="district" placeholder="Бостандыкский">
-        </div>
+<div class="field">
+
+  <label>Район</label>
+
+  <select id="districtSelect" name="district">
+    <option value="">Сначала выберите город</option>
+  </select>
+
+</div>
 
         <div class="field">
           <label>Адрес СТО</label>
@@ -437,6 +442,61 @@ document.getElementById("registerForm").addEventListener("submit", async functio
       "Ошибка соединения с сервером";
 
   }
+
+});
+const districts = {
+
+  "Алматы": [
+    "Алмалинский",
+    "Ауэзовский",
+    "Бостандыкский",
+    "Жетысуский",
+    "Медеуский",
+    "Наурызбайский",
+    "Турксибский"
+  ],
+
+  "Астана": [
+    "Алматы",
+    "Байконыр",
+    "Есиль",
+    "Нура",
+    "Сарайшык"
+  ]
+
+};
+
+const citySelect =
+  document.querySelector('select[name="city"]');
+
+const districtSelect =
+  document.getElementById('districtSelect');
+
+citySelect.addEventListener('change', function(){
+
+  const city = this.value;
+
+  districtSelect.innerHTML = '';
+
+  if(!districts[city]){
+
+    districtSelect.innerHTML =
+      '<option value="">Введите район вручную</option>';
+
+    return;
+  }
+
+  districtSelect.innerHTML =
+    '<option value="">Выберите район</option>';
+
+  districts[city].forEach(district => {
+
+    districtSelect.innerHTML += `
+      <option value="${district}">
+        ${district}
+      </option>
+    `;
+  });
 
 });
 function togglePassword(){
