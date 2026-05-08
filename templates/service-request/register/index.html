@@ -1,101 +1,314 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <title>Регистрация исполнителя — ZPT.KZ</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Регистрация исполнителя — ZPT.KZ</title>
+
+<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
+
+<style>
+*{
+  box-sizing:border-box;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:#f5f5f5;
+  color:#222;
+}
+
+.header{
+  background:#fff;
+  border-bottom:1px solid #ececec;
+  box-shadow:0 2px 10px rgba(0,0,0,.04);
+}
+
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:14px 16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:bold;
+  color:#c62828;
+  text-decoration:none;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+}
+
+.nav a{
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:bold;
+  font-size:14px;
+}
+
+.nav-main{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.nav-seller{
+  background:#3478f6;
+  color:#fff;
+}
+
+.wrap{
+  max-width:1000px;
+  margin:auto;
+  padding:24px 16px;
+}
+
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+}
+
+h1{
+  margin-top:0;
+  margin-bottom:18px;
+  color:#c62828;
+  font-size:38px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.field{
+  display:flex;
+  flex-direction:column;
+}
+
+.field.full{
+  grid-column:1/-1;
+}
+
+label{
+  font-weight:bold;
+  margin-bottom:6px;
+}
+
+input,
+select,
+button{
+  width:100%;
+  min-height:48px;
+  border-radius:12px;
+  border:1px solid #d7d7d7;
+  padding:0 14px;
+  font-size:15px;
+}
+
+.check-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+}
+
+.check-grid label{
+  font-weight:normal;
+  border:1px solid #e0e0e0;
+  border-radius:12px;
+  padding:12px;
+  background:#fafafa;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:0;
+}
+
+.check-grid input{
+  width:auto;
+  min-height:auto;
+}
+
+.submit-btn{
+  background:#3478f6;
+  color:#fff;
+  border:none;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.msg{
+  margin-top:16px;
+  padding:14px;
+  border-radius:12px;
+  display:none;
+}
+
+.msg.success{
+  display:block;
+  background:#e8f5e9;
+  color:#1b5e20;
+}
+
+.msg.error{
+  display:block;
+  background:#ffebee;
+  color:#b71c1c;
+}
+
+@media(max-width:760px){
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .check-grid{
+    grid-template-columns:1fr;
+  }
+
+  h1{
+    font-size:30px;
+  }
+
+}
+</style>
 </head>
+
 <body>
 
-<h1>Регистрация исполнителя</h1>
+<header class="header">
+  <div class="header-inner">
 
-<form id="registerForm">
-  <input name="name" placeholder="Имя / название СТО" required><br><br>
-  <input name="whatsapp" placeholder="WhatsApp, например 77011234567" required><br><br>
-  <input name="password" type="password" placeholder="Пароль" required><br><br>
+    <a class="logo" href="/">ZPT.KZ</a>
 
-  <select name="seller_type" required>
-    <option value="">Тип исполнителя</option>
-    <option value="sto">СТО</option>
-    <option value="detailing">Детейлинг</option>
-  </select><br><br>
+    <div class="nav">
+      <a class="nav-main" href="/service-request/">Заявка клиента</a>
+      <a class="nav-seller" href="/service-request/cabinet/">Кабинет</a>
+    </div>
 
-  <input name="city" placeholder="Город" required><br><br>
-  <input name="district" placeholder="Район"><br><br>
-  <input name="address" placeholder="Адрес СТО / бокса"><br><br>
-  <input name="map_link" placeholder="Ссылка на 2GIS"><br><br>
+  </div>
+</header>
 
-  <label>
-  <input type="checkbox" name="services" value="Диагностика">
-  Диагностика
-</label><br>
+<div class="wrap">
 
-<label>
-  <input type="checkbox" name="services" value="Двигатель">
-  Двигатель
-</label><br>
+  <div class="card">
 
-<label>
-  <input type="checkbox" name="services" value="Ходовая часть">
-  Ходовая часть
-</label><br>
+    <h1>Регистрация исполнителя</h1>
 
-<label>
-  <input type="checkbox" name="services" value="Тормозная система">
-  Тормозная система
-</label><br>
+    <form id="registerForm">
 
-<label>
-  <input type="checkbox" name="services" value="Рулевое управление">
-  Рулевое управление
-</label><br>
+      <div class="grid">
 
-<label>
-  <input type="checkbox" name="services" value="КПП / АКПП">
-  КПП / АКПП
-</label><br>
+        <div class="field">
+          <label>Название СТО / имя</label>
+          <input name="name" placeholder="Например: RH Service" required>
+        </div>
 
-<label>
-  <input type="checkbox" name="services" value="Электрика">
-  Электрика
-</label><br>
+        <div class="field">
+          <label>WhatsApp</label>
+          <input name="whatsapp" placeholder="77011234567" required>
+        </div>
 
-<label>
-  <input type="checkbox" name="services" value="Кондиционер / печка">
-  Кондиционер / печка
-</label><br>
+        <div class="field">
+          <label>Пароль</label>
+          <input name="password" type="password" required>
+        </div>
 
-<label>
-  <input type="checkbox" name="services" value="Кузовной ремонт">
-  Кузовной ремонт
-</label><br>
+        <div class="field">
+          <label>Тип исполнителя</label>
 
-<label>
-  <input type="checkbox" name="services" value="Сварочные работы">
-  Сварочные работы
-</label><br>
+          <select name="seller_type" required>
+            <option value="">Выберите тип</option>
+            <option value="sto">СТО</option>
+            <option value="detailing">Детейлинг</option>
+          </select>
+        </div>
 
-<label>
-  <input type="checkbox" name="services" value="Замена масел / ТО">
-  Замена масел / ТО
-</label><br>
+        <div class="field">
+          <label>Город</label>
+          <input name="city" placeholder="Алматы" required>
+        </div>
 
-<label>
-  <input type="checkbox" name="services" value="Выездной мастер">
-  Выездной мастер
-</label><br>
+        <div class="field">
+          <label>Район</label>
+          <input name="district" placeholder="Бостандыкский">
+        </div>
 
-<label>
-  <input type="checkbox" name="services" value="Другое">
-  Другое
-</label><br><br>
+        <div class="field">
+          <label>Адрес СТО</label>
+          <input name="address" placeholder="Муратбаева 94">
+        </div>
 
-  <button type="submit">Зарегистрироваться</button>
-</form>
+        <div class="field">
+          <label>Ссылка 2GIS</label>
+          <input name="map_link" placeholder="https://2gis.kz/...">
+        </div>
 
-<p id="result"></p>
+        <div class="field full">
+
+          <label>Какие услуги оказываете?</label>
+
+          <div class="check-grid">
+
+            <label><input type="checkbox" name="services" value="Диагностика">Диагностика</label>
+
+            <label><input type="checkbox" name="services" value="Двигатель">Двигатель</label>
+
+            <label><input type="checkbox" name="services" value="Ходовая часть">Ходовая часть</label>
+
+            <label><input type="checkbox" name="services" value="Тормозная система">Тормозная система</label>
+
+            <label><input type="checkbox" name="services" value="Рулевое управление">Рулевое управление</label>
+
+            <label><input type="checkbox" name="services" value="КПП / АКПП">КПП / АКПП</label>
+
+            <label><input type="checkbox" name="services" value="Электрика">Электрика</label>
+
+            <label><input type="checkbox" name="services" value="Кондиционер / печка">Кондиционер / печка</label>
+
+            <label><input type="checkbox" name="services" value="Кузовной ремонт">Кузовной ремонт</label>
+
+            <label><input type="checkbox" name="services" value="Сварочные работы">Сварочные работы</label>
+
+            <label><input type="checkbox" name="services" value="Замена масел / ТО">Замена масел / ТО</label>
+
+            <label><input type="checkbox" name="services" value="Выездной мастер">Выездной мастер</label>
+
+            <label><input type="checkbox" name="services" value="Другое">Другое</label>
+
+          </div>
+
+        </div>
+
+        <div class="field full">
+          <button type="submit" class="submit-btn">
+            Зарегистрироваться
+          </button>
+        </div>
+
+      </div>
+
+    </form>
+
+    <div id="result" class="msg"></div>
+
+  </div>
+
+</div>
 
 <script>
 document.getElementById("registerForm").addEventListener("submit", async function(e) {
+
   e.preventDefault();
 
   const form = e.target;
@@ -117,34 +330,54 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   };
 
   const result = document.getElementById("result");
-  result.innerText = "Отправка...";
+
+  result.className = 'msg';
+  result.innerHTML = '';
 
   try {
-    const response = await fetch(window.location.origin + "/api/service/create-service-seller/", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    });
+
+    const response = await fetch(
+      window.location.origin + "/api/service/create-service-seller/",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(data)
+      }
+    );
 
     const json = await response.json();
 
     if (!response.ok || json.error) {
-      result.innerText = json.error || "Ошибка регистрации";
+
+      result.className = 'msg error';
+      result.innerHTML = json.error || "Ошибка регистрации";
+
       return;
     }
 
-    result.innerText = "Исполнитель зарегистрирован";
+    result.className = 'msg success';
+    result.innerHTML = "Исполнитель зарегистрирован";
 
-    localStorage.setItem("service_seller_id", json.seller_id);
-    localStorage.setItem("service_seller_name", data.name);
+    localStorage.setItem(
+      "service_seller_id",
+      json.seller_id
+    );
 
-    window.location.href = "/service-request/cabinet/";
+    setTimeout(()=>{
+      window.location.href =
+        "/service-request/cabinet/";
+    },700);
 
   } catch (error) {
-    result.innerText = "Ошибка соединения с сервером";
+
+    result.className = 'msg error';
+    result.innerHTML =
+      "Ошибка соединения с сервером";
+
   }
+
 });
 </script>
 
