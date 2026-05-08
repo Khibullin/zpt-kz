@@ -210,7 +210,7 @@ button{
       <div class="grid">
 
         <div class="field">
-          <label>Название СТО / имя</label>
+          <label>Название компании / имя мастера</label>
           <input name="name" placeholder="Например: RH Service" required>
         </div>
 
@@ -219,13 +219,41 @@ button{
           <input name="whatsapp" placeholder="77011234567" required>
         </div>
 
-        <div class="field">
-          <label>Пароль</label>
-          <input name="password" type="password" required>
-        </div>
+<div class="field">
+
+  <label>Пароль</label>
+
+  <div style="display:flex;gap:10px">
+
+    <input
+      id="passwordInput"
+      name="password"
+      type="password"
+      required
+    >
+
+    <button
+      type="button"
+      onclick="togglePassword()"
+      style="
+        width:140px;
+        min-height:48px;
+        border:none;
+        border-radius:12px;
+        background:#eef2f7;
+        cursor:pointer;
+        font-weight:bold;
+      "
+    >
+      Показать
+    </button>
+
+  </div>
+
+</div>
 
         <div class="field">
-          <label>Тип исполнителя</label>
+          <label>Тип: СТО / Детейлинг</label>
 
           <select name="seller_type" required>
             <option value="">Выберите тип</option>
@@ -236,7 +264,36 @@ button{
 
         <div class="field">
           <label>Город</label>
-          <input name="city" placeholder="Алматы" required>
+          <select name="city" required>
+  <option value="">Выберите город</option>
+
+  <option value="Алматы">Алматы</option>
+  <option value="Астана">Астана</option>
+  <option value="Шымкент">Шымкент</option>
+  <option value="Караганда">Караганда</option>
+
+  <option disabled>──────────</option>
+
+  <option value="Актобе">Актобе</option>
+  <option value="Атырау">Атырау</option>
+  <option value="Актау">Актау</option>
+  <option value="Павлодар">Павлодар</option>
+
+  <option value="Усть-Каменогорск">Усть-Каменогорск</option>
+  <option value="Семей">Семей</option>
+  <option value="Костанай">Костанай</option>
+  <option value="Петропавловск">Петропавловск</option>
+
+  <option value="Кокшетау">Кокшетау</option>
+  <option value="Тараз">Тараз</option>
+  <option value="Туркестан">Туркестан</option>
+  <option value="Кызылорда">Кызылорда</option>
+
+  <option value="Уральск">Уральск</option>
+  <option value="Талдыкорган">Талдыкорган</option>
+  <option value="Жезказган">Жезказган</option>
+  <option value="Экибастуз">Экибастуз</option>
+</select>
         </div>
 
         <div class="field">
@@ -250,8 +307,11 @@ button{
         </div>
 
         <div class="field">
-          <label>Ссылка 2GIS</label>
+          <label>Ссылка на карту 2GIS</label>
           <input name="map_link" placeholder="https://2gis.kz/...">
+<div style="font-size:13px;color:#666;margin-top:6px">
+  Откройте вашу точку в 2GIS и вставьте ссылку сюда
+</div>
         </div>
 
         <div class="field full">
@@ -379,6 +439,16 @@ document.getElementById("registerForm").addEventListener("submit", async functio
   }
 
 });
+function togglePassword(){
+
+  const input =
+    document.getElementById('passwordInput');
+
+  input.type =
+    input.type === 'password'
+      ? 'text'
+      : 'password';
+}
 </script>
 
 </body>
