@@ -277,6 +277,34 @@ input,select{
       </div>
 
       <!-- REQUESTS -->
+
+      <div class="field">
+
+        <select
+          id="statusFilter"
+          onchange="loadRequests()"
+        >
+
+          <option value="all">
+            Все заявки
+          </option>
+
+          <option value="viewed">
+            Просмотренные
+          </option>
+
+          <option value="in_work">
+            В работе
+          </option>
+
+          <option value="done">
+            Завершённые
+          </option>
+
+        </select>
+
+      </div>
+
       <div id="requestsTab"></div>
 
       <!-- PROFILE -->
@@ -425,6 +453,9 @@ async function login(){
     });
 
     let data = await r.json();
+  let filter =
+    document.getElementById('statusFilter')?.value || 'all';
+
 
     if(data.error){
 
@@ -657,6 +688,9 @@ async function loadRequests(){
   }
 
   data.requests.forEach(req=>{
+    if(filter !== 'all' && req.status !== filter){
+      return;
+    }
 
     let statusColor = '#fafafa';
 
