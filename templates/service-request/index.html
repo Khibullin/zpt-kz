@@ -223,7 +223,7 @@ function getSelectedServices(){
   return Array.from(activeBlock.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>cb.value);
 }
 
-const API = window.location.origin + '/api/service';
+const API = 'https://zpt-kz-backend.onrender.com/api/service';
 
 document.getElementById('serviceForm').addEventListener('submit', async function(e){
   e.preventDefault();
