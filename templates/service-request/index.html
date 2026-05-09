@@ -1,343 +1,100 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ZPT.KZ — Заявка на СТО и детейлинг</title>
-<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
-.header{background:#fff;border-bottom:1px solid #ececec;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.header-inner{max-width:1100px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
-.nav{display:flex;gap:10px;flex-wrap:wrap}
-.nav a{text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;font-size:14px}
-.nav-main{background:#eef2f7;color:#3478f6}.nav-seller{background:#3478f6;color:#fff}
-.wrap{max-width:980px;margin:auto;padding:24px 16px 48px}
-.hero{background:#fff;border-radius:18px;padding:24px 22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(0,0,0,.08);text-align:center}
-.hero h1{margin:0 0 10px;color:#c62828;font-size:30px}.hero p{margin:0;color:#555;line-height:1.45;font-size:16px}
-.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.field{display:flex;flex-direction:column}.field.full{grid-column:1/-1}
-label{font-weight:bold;margin-bottom:6px}
-input,select,textarea,button{width:100%;border-radius:10px;border:1px solid #d7d7d7;font-size:15px;padding:0 14px}
-input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;resize:vertical}
-.transport{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.transport button{background:#eef2f7;color:#3478f6;font-weight:bold;cursor:pointer;border:none}
-.transport button.active{background:#3478f6;color:#fff}
-.checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.checkbox-grid label{font-weight:normal;margin:0;padding:12px;border:1px solid #e0e0e0;border-radius:12px;background:#fafafa;cursor:pointer}
-.checkbox-grid input{width:auto;min-height:auto;margin-right:8px}
-.submit-btn{background:#c62828;color:#fff;border:none;font-weight:bold;cursor:pointer}.submit-btn:disabled{background:#999;cursor:not-allowed}
-.msg{display:none;margin-top:16px;padding:14px;border-radius:12px;line-height:1.45}.msg.success{display:block;background:#e8f5e9;color:#1b5e20}.msg.error{display:block;background:#ffebee;color:#b71c1c}
-.hint{font-size:13px;color:#666;margin-top:6px}
-.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.trust-item{background:#fff;border-radius:14px;padding:16px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.05);font-weight:bold;color:#333}
-.bottom-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.action-card{background:#fff;border-radius:16px;padding:18px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.05);display:block}
-.action-card b{display:block;margin-bottom:6px}.action-card span{font-size:13px;color:#666;line-height:1.35}
-.seller-card b{color:#3478f6}.guide-card b{color:#2e7d32}.faq-card b{color:#ef6c00}
-.hidden{display:none}
-@media(max-width:760px){.header-inner{align-items:flex-start;flex-direction:column}.nav{width:100%}.nav a{flex:1;text-align:center}.grid,.transport,.trust,.bottom-actions,.checkbox-grid{grid-template-columns:1fr}.hero h1{font-size:24px}}
-</style>
-</head>
-<body>
-<header class="header">
-  <div class="header-inner">
-    <a class="logo" href="/">ZPT.KZ</a>
-    <nav class="nav">
-      <a class="nav-main" href="/">Главная</a>
-      <a class="nav-seller" href="/service-request/cabinet/">Кабинет исполнителя</a>
-    </nav>
-  </div>
-</header>
+from django.contrib import admin
 
-<div class="wrap">
-  <div class="hero">
-    <h1>Отправьте заявку — получите предложения от СТО и детейлинга</h1>
-    <p>Мастера сами напишут в WhatsApp: цена, сроки и условия.</p>
-  </div>
+from .models import (
+    Service,
+    ServiceSeller,
+    ServiceRequest,
+    ServiceMatch
+)
 
-  <div class="card">
-    <form id="serviceForm">
-      <div class="grid">
-        <div class="field full">
-          <label>Тип услуги</label>
-          <div class="transport">
-            <button type="button" id="stoBtn" class="active" onclick="setServiceType('sto')">СТО / ремонт</button>
-            <button type="button" id="detailingBtn" onclick="setServiceType('detailing')">Детейлинг / тюнинг</button>
-          </div>
-        </div>
 
-        <div class="field">
-          <label for="brand">Марка авто</label>
-          <input id="brand" placeholder="Например: Toyota">
-          <div class="hint">Можно оставить пустым.</div>
-        </div>
+@admin.register(Service)
+class ServiceAdmin(admin.ModelAdmin):
 
-        <div class="field">
-          <label for="model">Модель авто</label>
-          <input id="model" placeholder="Например: Camry">
-          <div class="hint">Можно оставить пустым.</div>
-        </div>
+    list_display = (
+        'id',
+        'name',
+    )
 
-        <div class="field full" id="stoServices">
-          <label>Какие услуги нужны?</label>
-          <div class="checkbox-grid">
-            <label><input type="checkbox" value="Диагностика">Диагностика</label>
-            <label><input type="checkbox" value="Двигатель">Двигатель</label>
-            <label><input type="checkbox" value="Ходовая часть">Ходовая часть</label>
-            <label><input type="checkbox" value="Тормозная система">Тормозная система</label>
-            <label><input type="checkbox" value="Рулевое управление">Рулевое управление</label>
-            <label><input type="checkbox" value="КПП / АКПП">КПП / АКПП</label>
-            <label><input type="checkbox" value="Электрика">Электрика</label>
-            <label><input type="checkbox" value="Кондиционер / печка">Кондиционер / печка</label>
-            <label><input type="checkbox" value="Кузовной ремонт">Кузовной ремонт</label>
-            <label><input type="checkbox" value="Сварочные работы">Сварочные работы</label>
-            <label><input type="checkbox" value="Замена масел / ТО">Замена масел / ТО</label>
-            <label><input type="checkbox" value="Выездной мастер">Выездной мастер</label>
-            <label><input type="checkbox" value="Другое">Другое</label>
-          </div>
-        </div>
+    search_fields = (
+        'name',
+    )
 
-        <div class="field full hidden" id="detailingServices">
-          <label>Какие услуги нужны?</label>
-          <div class="checkbox-grid">
-            <label><input type="checkbox" value="Мойка">Мойка</label>
-            <label><input type="checkbox" value="Химчистка салона">Химчистка салона</label>
-            <label><input type="checkbox" value="Полировка кузова">Полировка кузова</label>
-            <label><input type="checkbox" value="Керамика / защитные покрытия">Керамика / защитные покрытия</label>
-            <label><input type="checkbox" value="Антигравийная плёнка">Антигравийная плёнка</label>
-            <label><input type="checkbox" value="Тонировка">Тонировка</label>
-            <label><input type="checkbox" value="Шумоизоляция">Шумоизоляция</label>
-            <label><input type="checkbox" value="Перетяжка салона">Перетяжка салона</label>
-            <label><input type="checkbox" value="Установка аксессуаров">Установка аксессуаров</label>
-            <label><input type="checkbox" value="Автозвук / мультимедиа">Автозвук / мультимедиа</label>
-            <label><input type="checkbox" value="Свет / оптика">Свет / оптика</label>
-            <label><input type="checkbox" value="Внешний тюнинг">Внешний тюнинг</label>
-            <label><input type="checkbox" value="Другое">Другое</label>
-          </div>
-        </div>
 
-        <div class="field">
-          <label for="city">Город</label>
-          <select id="city" required>
-            <option value="">Выберите город</option>
-            <option value="Алматы">Алматы</option><option value="Астана">Астана</option><option value="Шымкент">Шымкент</option><option value="Караганда">Караганда</option>
-            <option disabled>──────────</option>
-            <option value="Актобе">Актобе</option><option value="Атырау">Атырау</option><option value="Актау">Актау</option><option value="Павлодар">Павлодар</option>
-            <option value="Усть-Каменогорск">Усть-Каменогорск</option><option value="Семей">Семей</option><option value="Костанай">Костанай</option><option value="Петропавловск">Петропавловск</option>
-            <option value="Кокшетау">Кокшетау</option><option value="Тараз">Тараз</option><option value="Туркестан">Туркестан</option><option value="Кызылорда">Кызылорда</option>
-            <option value="Уральск">Уральск</option><option value="Талдыкорган">Талдыкорган</option><option value="Жезказган">Жезказган</option><option value="Экибастуз">Экибастуз</option>
-          </select>
-        </div>
+@admin.register(ServiceSeller)
+class ServiceSellerAdmin(admin.ModelAdmin):
 
-        <div class="field">
-          <label for="phone">Телефон / WhatsApp</label>
-          <input type="text" id="phone" placeholder="+7 701 123 45 67" required>
-        </div>
+    list_display = (
+        'id',
+        'name',
+        'whatsapp',
+        'seller_type',
+        'city',
+        'district',
+        'is_active',
+    )
 
-        <div class="field full">
-          <label for="description">Описание</label>
-          <textarea id="description" placeholder="Например: нужна диагностика ходовой, стук спереди, Toyota Camry 2018"></textarea>
-        </div>
+    list_filter = (
+        'seller_type',
+        'city',
+        'is_active',
+    )
 
-        <div class="field full">
-          <button type="submit" class="submit-btn" id="submitBtn">Отправить заявку</button>
-        </div>
-      </div>
-    </form>
+    search_fields = (
+        'name',
+        'whatsapp',
+        'city',
+        'district',
+    )
 
-    <div id="msg" class="msg"></div>
-  </div>
+    filter_horizontal = (
+        'services',
+    )
 
-  <div class="trust">
-    <div class="trust-item">✓ Заявка уходит исполнителям</div>
-    <div class="trust-item">✓ СТО и детейлинг</div>
-    <div class="trust-item">✓ Бесплатно для клиента</div>
-  </div>
 
-  <div class="bottom-actions">
-    <a href="/service-request/register/" class="action-card seller-card">
-      <b>Зарегистрироваться исполнителем</b>
-      <span>Получайте заявки от клиентов по своим услугам и городу.</span>
-    </a>
-    <a href="/request-parts/guide/" class="action-card guide-card">
-      <b>Гид</b>
-      <span>Как правильно оформить заявку и быстрее получить предложения.</span>
-    </a>
-    <a href="/request-parts/faq/" class="action-card faq-card">
-      <b>Часто задаваемые вопросы</b>
-      <span>Ответы для клиентов, СТО, детейлинга и мастеров.</span>
-    </a>
-  </div>
-</div>
+@admin.register(ServiceRequest)
+class ServiceRequestAdmin(admin.ModelAdmin):
 
-<script>
-let serviceType='sto';
+    list_display = (
+        'id',
+        'service_type',
+        'city',
+        'phone',
+        'created_at',
+    )
 
-const stoBtn=document.getElementById('stoBtn');
-const detailingBtn=document.getElementById('detailingBtn');
-const stoServices=document.getElementById('stoServices');
-const detailingServices=document.getElementById('detailingServices');
+    list_filter = (
+        'service_type',
+        'city',
+    )
 
-const brandEl=document.getElementById('brand');
-const modelEl=document.getElementById('model');
-const cityEl=document.getElementById('city');
-const phoneEl=document.getElementById('phone');
-const descriptionEl=document.getElementById('description');
-const msg=document.getElementById('msg');
-const submitBtn=document.getElementById('submitBtn');
+    search_fields = (
+        'phone',
+        'description',
+        'city',
+    )
 
-function setMessage(text,type){
-  msg.className='msg '+type;
-  msg.innerHTML=text;
-}
+    filter_horizontal = (
+        'services',
+    )
 
-function clearMessage(){
-  msg.className='msg';
-  msg.innerHTML='';
-}
 
-function normalizePhone(v){
-  return String(v||'').replace(/\D/g,'');
-}
+@admin.register(ServiceMatch)
+class ServiceMatchAdmin(admin.ModelAdmin):
 
-function setServiceType(type){
-  serviceType=type;
+    list_display = (
+        'id',
+        'request',
+        'seller',
+        'status',
+        'created_at',
+    )
 
-  stoBtn.classList.toggle('active',type==='sto');
-  detailingBtn.classList.toggle('active',type==='detailing');
+    list_filter = (
+        'status',
+    )
 
-  stoServices.classList.toggle('hidden',type!=='sto');
-  detailingServices.classList.toggle('hidden',type!=='detailing');
-
-  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
-}
-
-function getSelectedServices(){
-  const activeBlock = serviceType==='sto' ? stoServices : detailingServices;
-  return Array.from(activeBlock.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>cb.value);
-}
-
-const API = window.location.origin + '/api/service';
-
-document.getElementById('serviceForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  clearMessage();
-
-  const services = getSelectedServices();
-
-  const payload = {
-    service_type: serviceType,
-    brand: brandEl.value.trim(),
-    model: modelEl.value.trim(),
-    services: services,
-    city: cityEl.value,
-    phone: normalizePhone(phoneEl.value),
-    description: descriptionEl.value.trim()
-  };
-
-  if (!payload.services.length){
-    setMessage('Выберите хотя бы одну услугу.','error');
-    return;
-  }
-
-  if (!payload.city || !payload.phone){
-    setMessage('Заполните город и телефон / WhatsApp.','error');
-    return;
-  }
-
-  submitBtn.disabled = true;
-  submitBtn.innerText = 'Отправляем...';
-
-  try{
-    const r = await fetch(API + '/create-service-request/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-
-    const data = await r.json();
-
-    if(data.error){
-      setMessage(data.error,'error');
-      return;
-    }
-
-let sellersHtml = '';
-
-if(data.sellers && data.sellers.length){
-
-  sellersHtml += `
-    <br><br>
-    <b>Заявка отправлена исполнителям:</b><br><br>
-  `;
-
-  data.sellers.forEach(seller => {
-
-    let wa = seller.whatsapp
-      ? `https://wa.me/${seller.whatsapp}`
-      : '#';
-
-    sellersHtml += `
-      <div style="border:1px solid #dfe5df;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;">
-        <div style="font-size:18px;font-weight:bold;color:#3478f6">
-          ${seller.name || 'СТО'}
-        </div>
-
-        <div style="margin-top:6px">
-          Район: ${seller.district || '-'}
-        </div>
-
-        <div style="margin-top:4px">
-          Адрес: ${seller.address || '-'}
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-          <a href="${wa}" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
-            WhatsApp
-          </a>
-
-          ${seller.map_link ? `
-            <a href="${seller.map_link}" target="_blank" style="background:#444;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
-              2GIS
-            </a>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  });
-}
-
-setMessage(`
-<b>Заявка принята.</b><br><br>
-
-<b>Ваш запрос:</b><br>
-Услуги: ${services.join(', ')}<br>
-Город: ${payload.city}<br>
-Телефон: ${payload.phone}<br>
-${payload.description ? `Описание: ${payload.description}<br>` : ''}
-
-${sellersHtml}
-
-<div style="margin-top:14px">
-Обычно ответ приходит в течение 5–15 минут.
-</div>
-`,'success');
-    serviceForm.reset();
-    setServiceType('sto');
-
-  }catch(err){
-    setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
-  }finally{
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'Отправить заявку';
-  }
-});
-</script>
-</body>
-</html>
+    search_fields = (
+        'seller__name',
+        'request__phone',
+    )
