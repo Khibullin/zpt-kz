@@ -61,11 +61,36 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
       <input id="phone" placeholder="77071234567">
     </div>
 
-    <div class="field">
-      <label>Пароль</label>
-      <input id="pass" type="password">
-    </div>
+<div class="field">
 
+  <label>Пароль</label>
+
+  <div style="display:flex;gap:10px">
+
+    <input
+      id="pass"
+      type="password"
+      style="flex:1"
+    >
+
+    <button
+      type="button"
+      onclick="togglePassword()"
+      style="
+        width:140px;
+        border:none;
+        border-radius:10px;
+        background:#eef2f7;
+        font-weight:bold;
+        cursor:pointer;
+      "
+    >
+      Показать
+    </button>
+
+  </div>
+
+</div>
     <button class="btn" onclick="login()">Войти</button>
     <div id="loginError" class="msg error"></div>
   </div>
@@ -437,6 +462,16 @@ window.onload = function(){
   if(seller_id){
     openCabinet();
   }
+}
+function togglePassword(){
+
+  const input =
+    document.getElementById('pass');
+
+  input.type =
+    input.type === 'password'
+      ? 'text'
+      : 'password';
 }
 </script>
 
