@@ -90,7 +90,7 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     'https://zpt.kz',
     'https://www.zpt.kz',
-    'https://zpt-kz.onrender.com',
+    'https://zpt-kz-backend.onrender.com',
 ]
 
 SESSION_COOKIE_SAMESITE = 'None'
