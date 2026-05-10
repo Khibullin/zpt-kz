@@ -263,20 +263,82 @@ document.getElementById('serviceForm').addEventListener('submit', async function
 
     const data = await r.json();
 
-    if(data.error){
-      setMessage(data.error,'error');
-      return;
-    }
+if(data.error){
+  setMessage(data.error,'error');
+  return;
+}
 
-    setMessage(`
+let sellersHtml = '';
+
+if(data.sellers && data.sellers.length){
+
+  sellersHtml += `
+    <br><br>
+    <b>Заявка отправлена исполнителям:</b><br><br>
+  `;
+
+  data.sellers.forEach(seller => {
+
+    let wa = seller.whatsapp
+      ? `https://wa.me/${seller.whatsapp}`
+      : '#';
+
+    sellersHtml += `
+      <div style="border:1px solid #dfe5df;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;">
+        <div style="font-size:18px;font-weight:bold;color:#3478f6">
+          ${seller.name || 'СТО / Детейлинг'}
+        </div>
+
+        <div style="margin-top:6px">
+          Район: ${seller.district || '-'}
+        </div>
+
+        <div style="margin-top:4px">
+          Адрес: ${seller.address || '-'}
+        </div>
+
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
+          <a href="${wa}" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
+            WhatsApp
+          </a>
+
+          ${seller.map_link ? `
+            <a href="${seller.map_link}" target="_blank" style="background:#444;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
+              2GIS
+            </a>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  });
+
+}else{
+
+  sellersHtml = `
+    <br><br>
+    <b>Исполнители не найдены.</b><br>
+    Мы приняли заявку, но подходящих исполнителей по выбранным услугам и городу пока нет.
+  `;
+}
+
+setMessage(`
 <b>Заявка принята.</b><br><br>
-Мы уже отправили вашу заявку исполнителям.<br>
-Они сами напишут вам в WhatsApp.<br><br>
-Обычно ответ приходит в течение 5–15 минут.
-    `,'success');
 
-    serviceForm.reset();
-    setServiceType('sto');
+<b>Ваш запрос:</b><br>
+Услуги: ${services.join(', ')}<br>
+Город: ${payload.city}<br>
+Телефон: ${payload.phone}<br>
+${payload.description ? `Описание: ${payload.description}<br>` : ''}
+
+${sellersHtml}
+
+<div style="margin-top:14px">
+Обычно ответ приходит в течение 5–15 минут.
+</div>
+`,'success');
+
+document.getElementById('serviceForm').reset();
+setServiceType('sto');
 
   }catch(err){
     setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
