@@ -218,12 +218,13 @@ async function loadModels(){
 }
 
 function renderResult(data){
-  let sellers=data.sellers||[];
-  let notifications=data.seller_notifications||[];
-  let html = `
-<b>Заявка принята.</b><br><br>
+  let sellers = data.seller_notifications || [];
+  let count = data.matches || sellers.length || 0;
 
-Мы уже отправили вашу заявку продавцам.<br>
+  let html = `
+<b>✅ Заявка отправлена ${count} продавцам</b><br><br>
+
+Мы уже отправили вашу заявку продавцам запчастей.<br>
 В ближайшее время они сами напишут вам в WhatsApp с предложениями.<br><br>
 
 Обычно ответы приходят в течение 5–15 минут.<br><br>
@@ -232,14 +233,43 @@ function renderResult(data){
 
 Вы также можете написать продавцу сами, если хотите ускорить ответ.
 `;
+
   if(sellers.length){
-    html+='<div class="result-card"><b>Уже получили вашу заявку:</b>';
-    sellers.forEach((s,index)=>{
-      let wa = s.buyer_wa_link || '#';
-      html+=`<div class="seller-row"><div><b>${s.seller_name||(notifications[index]&&notifications[index].seller)||'Продавец'}</b><br>Волна: ${s.wave_number||1} / статус: ${s.status||'prepared'}</div><a class="wa-btn" href="${wa}" target="_blank" rel="noopener">WhatsApp</a></div>`;
+    html += '<div class="result-card"><b>Продавцы получили заявку:</b>';
+
+    sellers.forEach((s)=>{
+      let wa = s.wa_link || '#';
+
+      html += `
+      <div class="seller-row">
+
+        <div>
+          <b>${s.seller || 'Продавец'}</b><br>
+
+          ${
+            s.wa_sent
+              ? '<span style="color:#2e7d32">✓ Заявка отправлена</span>'
+              : '<span style="color:#c62828">Ошибка отправки WhatsApp</span>'
+          }
+
+        </div>
+
+        <a
+          class="wa-btn"
+          href="${wa}"
+          target="_blank"
+          rel="noopener"
+        >
+          WhatsApp
+        </a>
+
+      </div>
+      `;
     });
-    html+='</div>';
+
+    html += '</div>';
   }
+
   setMessage(html,'success');
 }
 
