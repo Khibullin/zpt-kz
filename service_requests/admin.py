@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 
 from .models import (
     ServiceBroadcastSettings,
@@ -170,11 +171,13 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
 
     list_display = (
         'id',
+        'created_at',
         'seller',
         'phone',
+        'success_icon',
         'message_type',
         'status',
-        'created_at',
+        'meta_message_id',
     )
 
     list_filter = (
@@ -190,3 +193,16 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
         'meta_message_id',
         'error_text',
     )
+
+    def success_icon(self, obj):
+
+        if obj.status == 'sent':
+            return format_html(
+                '<span style="color:#43a047;font-size:18px;">●</span>'
+            )
+
+        return format_html(
+            '<span style="color:#e53935;font-size:18px;">●</span>'
+        )
+
+    success_icon.short_description = 'OK'
