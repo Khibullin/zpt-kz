@@ -10,7 +10,10 @@ from .models import (
     ServiceWhatsAppMessageLog,
 )
 
-from core.views import send_whatsapp_template
+from core.views import (
+    _normalize_whatsapp,
+    _wa_template_param,
+)
 
 
 def read_json(request):
@@ -105,35 +108,143 @@ def create_service_request(request):
 
 def send_service_whatsapp_to_seller(req, seller):
 
+    import os
+    import urllib.request
+    import urllib.error
+
+    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
+    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
+    template_name = os.getenv(
+        'WHATSAPP_TEMPLATE_NAME',
+        'zpt_request_notification'
+    )
+    template_lang = os.getenv(
+        'WHATSAPP_TEMPLATE_LANG',
+        'ru'
+    )
+
+    to_phone = _normalize_whatsapp(seller.whatsapp)
+
+    services_text = ', '.join(
+        req.services.values_list('name', flat=True)
+    ) or '-'
+
+    payload = {
+        'messaging_product': 'whatsapp',
+        'to': to_phone,
+        'type': 'template',
+        'template': {
+            'name': template_name,
+            'language': {
+                'code': template_lang,
+            },
+            'components': [
+                {
+                    'type': 'body',
+                    'parameters': [
+                        _wa_template_param(req.id),
+                        _wa_template_param(req.brand),
+                        _wa_template_param(req.model),
+                        _wa_template_param(services_text),
+                        _wa_template_param(req.city),
+                        _wa_template_param(req.description),
+                        _wa_template_param(req.phone),
+                    ],
+                }
+            ],
+        },
+    }
+
+    url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
+
+    body = json.dumps(
+        payload,
+        ensure_ascii=False
+    ).encode('utf-8')
+
+    http_request = urllib.request.Request(
+        url,
+        data=body,
+        method='POST',
+        headers={
+            'Authorization': f'Bearer {access_token}',
+            'Content-Type': 'application/json',
+        },
+    )
+
     try:
 
-        result = send_whatsapp_template(
-            seller.whatsapp,
-            req,
-            seller.name
-        )
+        with urllib.request.urlopen(
+            http_request,
+            timeout=20
+        ) as response:
+
+            response_body = response.read().decode('utf-8')
+
+            response_json = json.loads(response_body)
+
+            messages = response_json.get('messages') or []
+
+            message_id = (
+                messages[0].get('id', '')
+                if messages else ''
+            )
+
+            ok = 200 <= response.status < 300
+
+            ServiceWhatsAppMessageLog.objects.create(
+                seller=seller,
+                request=req,
+                phone=to_phone,
+                message_type='seller_request',
+                status='sent' if ok else 'failed',
+                meta_message_id=message_id,
+                error_text='' if ok else response_body,
+                response_json=response_body,
+            )
+
+            return {
+                'ok': ok,
+                'message_id': message_id,
+                'response': response_json,
+            }
+
+    except urllib.error.HTTPError as e:
+
+        error_body = e.read().decode('utf-8')
 
         ServiceWhatsAppMessageLog.objects.create(
             seller=seller,
             request=req,
-            phone=seller.whatsapp,
+            phone=to_phone,
             message_type='seller_request',
-            status='sent' if result.get('success') else 'failed',
-            meta_message_id=result.get('message_id', ''),
-            error_text=result.get('error', ''),
-            response_json=json.dumps(result, ensure_ascii=False),
+            status='failed',
+            error_text=error_body,
+            response_json=error_body,
         )
+
+        return {
+            'ok': False,
+            'error': error_body,
+        }
 
     except Exception as e:
 
         ServiceWhatsAppMessageLog.objects.create(
             seller=seller,
             request=req,
-            phone=seller.whatsapp,
+            phone=to_phone,
             message_type='seller_request',
             status='failed',
             error_text=str(e),
         )
+
+        return {
+            'ok': False,
+            'error': str(e),
+        }
+
+
 
 
 def match_services(req):
