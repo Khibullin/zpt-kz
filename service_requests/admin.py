@@ -175,7 +175,7 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
         'seller',
         'phone',
         'message_type',
-        'status_badge',
+        'status',
         'meta_message_id',
     )
 
@@ -193,19 +193,5 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
         'error_text',
     )
 
-    def status_badge(self, obj):
 
-        if obj.status == 'sent':
-            return format_html(
-                '<span style="color:#2e7d32;font-weight:700;">✓ Sent</span>'
-            )
-
-        if obj.status == 'failed':
-            return format_html(
-                '<span style="color:#c62828;font-weight:700;">✕ Failed</span>'
-            )
-
-        return obj.status
-
-    status_badge.short_description = 'STATUS'
 
