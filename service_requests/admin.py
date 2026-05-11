@@ -174,7 +174,6 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
         'created_at',
         'seller',
         'phone',
-        'success_icon',
         'message_type',
         'status',
         'meta_message_id',
@@ -194,15 +193,3 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
         'error_text',
     )
 
-    def success_icon(self, obj):
-
-        if obj.status == 'sent':
-            return format_html(
-                '<span style="color:#43a047;font-size:18px;">●</span>'
-            )
-
-        return format_html(
-            '<span style="color:#e53935;font-size:18px;">●</span>'
-        )
-
-    success_icon.short_description = 'OK'
