@@ -236,31 +236,92 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
           <input id="editPassword" type="password" placeholder="Не менять">
         </div>
 
-        <div class="field checks">
-          <label><input type="checkbox" class="serviceCheck" value="Диагностика"> Диагностика</label>
-          <label><input type="checkbox" class="serviceCheck" value="Двигатель"> Двигатель</label>
-          <label><input type="checkbox" class="serviceCheck" value="Ходовая часть"> Ходовая часть</label>
-          <label><input type="checkbox" class="serviceCheck" value="Тормозная система"> Тормозная система</label>
-          <label><input type="checkbox" class="serviceCheck" value="Рулевое управление"> Рулевое управление</label>
-          <label><input type="checkbox" class="serviceCheck" value="КПП / АКПП"> КПП / АКПП</label>
-          <label><input type="checkbox" class="serviceCheck" value="Электрика"> Электрика</label>
-          <label><input type="checkbox" class="serviceCheck" value="Кондиционер / печка"> Кондиционер / печка</label>
-          <label><input type="checkbox" class="serviceCheck" value="Кузовной ремонт"> Кузовной ремонт</label>
-          <label><input type="checkbox" class="serviceCheck" value="Сварочные работы"> Сварочные работы</label>
-          <label><input type="checkbox" class="serviceCheck" value="Замена масел / ТО"> Замена масел / ТО</label>
-          <label><input type="checkbox" class="serviceCheck" value="Выездной мастер"> Выездной мастер</label>
-          <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
-        </div>
+<div class="field">
 
-        <div class="field checks">
-          <label>
-            <input type="checkbox" id="editActive">
-            Получать заявки
-          </label>
-        </div>
+  <label>Услуги</label>
 
-        <button class="btn" onclick="saveProfile()">Сохранить профиль</button>
-        <div id="saveMsg" class="msg"></div>
+  <!-- STO -->
+
+  <div
+    id="stoServices"
+    class="checks"
+  >
+
+    <label><input type="checkbox" class="serviceCheck" value="Диагностика"> Диагностика</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Двигатель"> Двигатель</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Ходовая часть"> Ходовая часть</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Тормозная система"> Тормозная система</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Рулевое управление"> Рулевое управление</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="КПП / АКПП"> КПП / АКПП</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Электрика"> Электрика</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Кондиционер / печка"> Кондиционер / печка</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Кузовной ремонт"> Кузовной ремонт</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Сварочные работы"> Сварочные работы</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Замена масел / ТО"> Замена масел / ТО</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Выездной мастер"> Выездной мастер</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
+
+  </div>
+
+  <!-- DETAILING -->
+
+  <div
+    id="detailingServices"
+    class="checks"
+    style="display:none"
+  >
+
+    <label><input type="checkbox" class="serviceCheck" value="Мойка"> Мойка</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Химчистка салона"> Химчистка салона</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Полировка кузова"> Полировка кузова</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Керамика / защитные покрытия"> Керамика / защитные покрытия</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Антигравийная плёнка"> Антигравийная плёнка</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Тонировка"> Тонировка</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Шумоизоляция"> Шумоизоляция</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Перетяжка салона"> Перетяжка салона</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Установка аксессуаров"> Установка аксессуаров</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Автозвук / мультимедиа"> Автозвук / мультимедиа</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Свет / оптика"> Свет / оптика</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Внешний тюнинг"> Внешний тюнинг</label>
+
+    <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
+
+  </div>
+
+</div>
+<div class="field checks">
+  <label>
+    <input type="checkbox" id="editActive">
+    Получать заявки
+  </label>
+</div>
+
+<button class="btn" onclick="saveProfile()">Сохранить профиль</button>
+<div id="saveMsg" class="msg"></div>
+
       </div>
 
       <button class="btn btn-gray" onclick="logout()">Выйти</button>
@@ -355,19 +416,45 @@ function renderProfile(p){
 }
 
 function fillEditForm(p){
-  editName.value = p.name || '';
-  editSellerType.value = p.seller_type || 'sto';
-  editCity.value = p.city || '';
-  editDistrict.value = p.district || '';
-  editAddress.value = p.address || '';
-  editMapLink.value = p.map_link || '';
-  editPassword.value = '';
-  editActive.checked = !!p.is_active;
 
-  document.querySelectorAll('.serviceCheck').forEach(ch=>{
-    ch.checked = (p.services || []).includes(ch.value);
-  });
+  editName.value =
+    p.name || '';
+
+  editSellerType.value =
+    p.seller_type || 'sto';
+
+  toggleServiceBlocks();
+
+  editCity.value =
+    p.city || '';
+
+  editDistrict.value =
+    p.district || '';
+
+  editAddress.value =
+    p.address || '';
+
+  editMapLink.value =
+    p.map_link || '';
+
+  editPassword.value =
+    '';
+
+  editActive.checked =
+    !!p.is_active;
+
+  document
+    .querySelectorAll('.serviceCheck')
+    .forEach(ch => {
+
+      ch.checked =
+        (p.services || [])
+          .includes(ch.value);
+
+    });
+
 }
+
 
 async function saveProfile(){
   saveMsg.style.display='none';
@@ -564,6 +651,43 @@ function logout(){
   location.reload();
 }
 
+const editSellerType =
+  document.getElementById('editSellerType');
+
+const stoServices =
+  document.getElementById('stoServices');
+
+const detailingServices =
+  document.getElementById('detailingServices');
+
+function toggleServiceBlocks(){
+
+  if(editSellerType.value === 'detailing'){
+
+    stoServices
+      .querySelectorAll('input[type="checkbox"]')
+      .forEach(ch => ch.checked = false);
+
+    stoServices.style.display = 'none';
+
+    detailingServices.style.display = 'block';
+
+  }else{
+
+    detailingServices
+      .querySelectorAll('input[type="checkbox"]')
+      .forEach(ch => ch.checked = false);
+
+    stoServices.style.display = 'block';
+
+    detailingServices.style.display = 'none';
+  }
+}
+
+editSellerType.addEventListener(
+  'change',
+  toggleServiceBlocks
+);
 window.onload = function(){
   let seller_id = localStorage.getItem('seller_id');
   if(seller_id){
