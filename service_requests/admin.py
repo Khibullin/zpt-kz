@@ -1,12 +1,33 @@
 from django.contrib import admin
 
 from .models import (
+    ServiceBroadcastSettings,
     Service,
     ServiceSeller,
     ServiceRequest,
     ServiceMatch
 )
 
+@admin.register(ServiceBroadcastSettings)
+class ServiceBroadcastSettingsAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'mode',
+        'updated_at',
+    )
+
+    readonly_fields = (
+        'updated_at',
+    )
+
+    def has_add_permission(self, request):
+        if ServiceBroadcastSettings.objects.exists():
+            return False
+        return super().has_add_permission(request)
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 @admin.register(Service)
 class ServiceAdmin(admin.ModelAdmin):
@@ -32,12 +53,26 @@ class ServiceSellerAdmin(admin.ModelAdmin):
         'city',
         'district',
         'is_active',
+        'receive_requests',
+        'is_test_seller',
+        'is_paused',
+        'dispatch_priority',
+    )
+
+    list_editable = (
+        'receive_requests',
+        'is_test_seller',
+        'is_paused',
+        'dispatch_priority',
     )
 
     list_filter = (
         'seller_type',
         'city',
         'is_active',
+        'receive_requests',
+        'is_test_seller',
+        'is_paused',
     )
 
     search_fields = (
@@ -45,6 +80,32 @@ class ServiceSellerAdmin(admin.ModelAdmin):
         'whatsapp',
         'city',
         'district',
+    )
+
+    fieldsets = (
+        ('Основное', {
+            'fields': (
+                'name',
+                'whatsapp',
+                'password',
+                'seller_type',
+                'city',
+                'district',
+                'address',
+                'map_link',
+                'services',
+            )
+        }),
+
+        ('Статусы и рассылка', {
+            'fields': (
+                'is_active',
+                'receive_requests',
+                'is_test_seller',
+                'is_paused',
+                'dispatch_priority',
+            )
+        }),
     )
 
     filter_horizontal = (

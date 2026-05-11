@@ -1,5 +1,47 @@
 from django.db import models
 
+# ================================
+# Настройки рассылки исполнителям
+# ================================
+
+class ServiceBroadcastSettings(models.Model):
+    MODE_OFF = 'off'
+    MODE_TEST = 'test'
+    MODE_LIVE = 'live'
+
+    MODE_CHOICES = [
+        (MODE_OFF, 'OFF — рассылка выключена'),
+        (MODE_TEST, 'TEST — только тестовые исполнители'),
+        (MODE_LIVE, 'LIVE — боевая рассылка'),
+    ]
+
+    mode = models.CharField(
+        max_length=10,
+        choices=MODE_CHOICES,
+        default=MODE_OFF,
+        verbose_name='Режим рассылки исполнителям'
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Обновлено'
+    )
+
+    class Meta:
+        verbose_name = 'Broadcast Control исполнителей'
+        verbose_name_plural = 'Broadcast Control исполнителей'
+
+    def __str__(self):
+        return f"Service Broadcast Control: {self.get_mode_display()}"
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
 
 # ================================
 # Услуги (СТО / детейлинг)
@@ -39,6 +81,31 @@ class ServiceSeller(models.Model):
     services = models.ManyToManyField(Service, blank=True)
 
     is_active = models.BooleanField(default=True)
+
+    receive_requests = models.BooleanField(
+        default=True,
+        verbose_name='Получает заявки',
+        help_text='Участвует в LIVE-рассылке заявок исполнителям.'
+    )
+
+    is_test_seller = models.BooleanField(
+        default=False,
+        verbose_name='Тестовый исполнитель',
+        help_text='Используется только в TEST-режиме рассылки.'
+    )
+
+    is_paused = models.BooleanField(
+        default=False,
+        verbose_name='Пауза',
+        help_text='Если включено, исполнитель временно не получает заявки.'
+    )
+
+    dispatch_priority = models.PositiveIntegerField(
+        default=1000,
+        verbose_name='Приоритет рассылки',
+        help_text='Чем меньше число, тем раньше исполнитель получает заявку.'
+    )
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
