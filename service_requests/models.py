@@ -161,3 +161,82 @@ class ServiceMatch(models.Model):
 
     status = models.CharField(max_length=20, choices=STATUS, default='new')
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# ================================
+# WhatsApp Message Logs исполнителей
+# ================================
+
+class ServiceWhatsAppMessageLog(models.Model):
+
+    STATUS = [
+        ('pending', 'Pending'),
+        ('sent', 'Sent'),
+        ('failed', 'Failed'),
+    ]
+
+    MESSAGE_TYPES = [
+        ('seller_request', 'Заявка исполнителю'),
+        ('buyer_notice', 'Уведомление клиенту'),
+        ('manual', 'Ручная отправка'),
+    ]
+
+    seller = models.ForeignKey(
+        ServiceSeller,
+        on_delete=models.CASCADE,
+        related_name='wa_logs'
+    )
+
+    request = models.ForeignKey(
+        ServiceRequest,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='wa_logs'
+    )
+
+    phone = models.CharField(
+        max_length=30
+    )
+
+    message_type = models.CharField(
+        max_length=30,
+        choices=MESSAGE_TYPES,
+        default='seller_request'
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS,
+        default='pending'
+    )
+
+    meta_message_id = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    error_text = models.TextField(
+        blank=True
+    )
+
+    response_json = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'WhatsApp лог исполнителя'
+        verbose_name_plural = 'WhatsApp логи исполнителей'
+
+    def __str__(self):
+
+        return (
+            f"{self.phone} | "
+            f"{self.get_status_display()} | "
+            f"{self.created_at:%d.%m.%Y %H:%M}"
+        )
