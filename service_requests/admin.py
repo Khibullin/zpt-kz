@@ -5,7 +5,8 @@ from .models import (
     Service,
     ServiceSeller,
     ServiceRequest,
-    ServiceMatch
+    ServiceMatch,
+    ServiceWhatsAppMessageLog,
 )
 
 @admin.register(ServiceBroadcastSettings)
@@ -159,3 +160,78 @@ class ServiceMatchAdmin(admin.ModelAdmin):
         'seller__name',
         'request__phone',
     )
+
+# ================================
+# WhatsApp логи исполнителей
+# ================================
+
+@admin.register(ServiceWhatsAppMessageLog)
+class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
+
+    list_display = (
+        'id',
+        'seller',
+        'phone',
+        'message_type',
+        'status',
+        'created_at',
+    )
+
+    list_filter = (
+        'status',
+        'message_type',
+        'created_at',
+    )
+
+    search_fields = (
+        'phone',
+        'seller__name',
+        'seller__whatsapp',
+        'meta_message_id',
+        'error_text',
+    )
+
+    readonly_fields = (
+        'seller',
+        'request',
+        'phone',
+        'message_type',
+        'status',
+        'meta_message_id',
+        'error_text',
+        'response_json',
+        'created_at',
+    )
+
+    fieldsets = (
+
+        ('Основное', {
+            'fields': (
+                'seller',
+                'request',
+                'phone',
+                'message_type',
+                'status',
+            )
+        }),
+
+        ('Meta / WhatsApp', {
+            'fields': (
+                'meta_message_id',
+                'error_text',
+                'response_json',
+            )
+        }),
+
+        ('Дата', {
+            'fields': (
+                'created_at',
+            )
+        }),
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
