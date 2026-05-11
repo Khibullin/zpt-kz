@@ -12,45 +12,40 @@
 }
 
 :root{
-  --red:#c62828;
+  --red:#e51b23;
   --blue:#3478f6;
   --green:#22c55e;
-  --dark:#111827;
-  --text:#1f2937;
-  --muted:#6b7280;
-  --line:#e5e7eb;
-  --bg:#f3f6fb;
+  --black:#111827;
+  --text:#0f172a;
+  --muted:#64748b;
+  --bg:#f3f5f8;
+  --card:#ffffff;
   --soft:#eef2f7;
-  --white:#fff;
+  --line:#dbe3ef;
+  --yellow:#f6b800;
+  --purple:#5b6cf6;
 }
 
 body{
   margin:0;
   font-family:Arial,Helvetica,sans-serif;
-  background:
-    radial-gradient(circle at top left, rgba(52,120,246,.10), transparent 35%),
-    linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);
+  background:var(--bg);
   color:var(--text);
 }
 
 .header{
-  background:rgba(255,255,255,.92);
-  border-bottom:1px solid var(--line);
-  box-shadow:0 8px 30px rgba(15,23,42,.06);
-  position:sticky;
-  top:0;
-  z-index:20;
-  backdrop-filter:blur(12px);
+  background:#fff;
+  border-bottom:1px solid #e5e7eb;
 }
 
 .header-inner{
-  max-width:1180px;
+  max-width:1200px;
   margin:auto;
-  padding:16px;
+  padding:16px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
-  gap:14px;
+  gap:16px;
 }
 
 .logo{
@@ -58,7 +53,7 @@ body{
   font-weight:900;
   color:var(--red);
   text-decoration:none;
-  letter-spacing:.5px;
+  letter-spacing:.4px;
 }
 
 .nav{
@@ -69,36 +64,34 @@ body{
 
 .nav a{
   padding:12px 18px;
-  border-radius:14px;
+  border-radius:12px;
   text-decoration:none;
-  font-weight:800;
+  font-weight:900;
   font-size:15px;
 }
 
 .nav-main{
-  background:var(--soft);
+  background:#eef2f7;
   color:var(--blue);
 }
 
 .nav-seller{
-  background:linear-gradient(135deg,#3478f6,#2563eb);
+  background:var(--blue);
   color:#fff;
-  box-shadow:0 10px 24px rgba(52,120,246,.25);
 }
 
 .wrap{
-  max-width:1180px;
+  max-width:1200px;
   margin:auto;
-  padding:30px 16px;
+  padding:28px 20px;
 }
 
 .card{
-  background:rgba(255,255,255,.94);
-  border:1px solid rgba(229,231,235,.9);
-  border-radius:28px;
-  padding:28px;
+  background:var(--card);
+  border-radius:22px;
+  padding:26px;
   margin-bottom:22px;
-  box-shadow:0 18px 50px rgba(15,23,42,.10);
+  box-shadow:0 10px 30px rgba(15,23,42,.08);
 }
 
 .hero{
@@ -106,76 +99,152 @@ body{
   justify-content:space-between;
   align-items:flex-start;
   gap:18px;
-  margin-bottom:20px;
+  margin-bottom:18px;
 }
 
 .hero h1{
   margin:0;
   color:var(--red);
-  font-size:42px;
-  line-height:1.05;
+  font-size:38px;
+  line-height:1.1;
 }
 
 .hero p{
   margin:8px 0 0;
   color:var(--muted);
-  font-size:16px;
+  font-size:15px;
 }
 
-.badge{
+.cabinet-badge{
   display:inline-flex;
   align-items:center;
   gap:8px;
-  padding:10px 14px;
+  padding:11px 16px;
   border-radius:999px;
-  background:#ecfdf5;
-  color:#15803d;
-  font-weight:800;
+  font-weight:900;
+  font-size:15px;
   white-space:nowrap;
 }
 
-.badge-dot{
-  width:9px;
-  height:9px;
+.cabinet-badge.active{
+  background:#dcfce7;
+  color:#15803d;
+}
+
+.cabinet-badge.inactive{
+  background:#fee2e2;
+  color:#b91c1c;
+}
+
+.cabinet-badge span{
+  width:8px;
+  height:8px;
   border-radius:50%;
+  background:currentColor;
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  margin-bottom:16px;
+}
+
+.tabs button{
+  min-height:54px;
+  border:none;
+  border-radius:13px;
+  background:#eef2f7;
+  color:#0f172a;
+  font-weight:900;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.tabs button.active{
+  background:var(--blue);
+  color:#fff;
+}
+
+.tabs button.danger-tab{
+  background:#fee2e2;
+  color:var(--red);
+}
+
+.status-buttons{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.status-buttons button{
+  min-height:44px;
+  border:none;
+  border-radius:11px;
+  background:#eef2f7;
+  color:#0f172a;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.status-buttons button.active{
+  color:#fff;
+}
+
+.status-buttons button.all.active{
+  background:var(--black);
+}
+
+.status-buttons button.new.active{
+  background:var(--blue);
+}
+
+.status-buttons button.viewed.active{
+  background:var(--red);
+}
+
+.status-buttons button.work.active{
+  background:#334155;
+}
+
+.status-buttons button.done.active{
   background:var(--green);
 }
 
 .field{
-  margin-bottom:16px;
+  margin-bottom:14px;
 }
 
 label{
   display:block;
-  font-weight:800;
   font-size:14px;
+  font-weight:900;
   margin-bottom:7px;
-  color:#111827;
 }
 
 input,
 select{
   width:100%;
-  min-height:54px;
-  padding:0 16px;
-  border-radius:16px;
-  border:1px solid #d1d5db;
+  min-height:50px;
+  padding:0 14px;
+  border:1px solid #cfd8e3;
+  border-radius:12px;
   background:#fff;
-  font-size:16px;
+  font-size:15px;
   outline:none;
-  transition:.18s;
 }
 
 input:focus,
 select:focus{
   border-color:var(--blue);
-  box-shadow:0 0 0 4px rgba(52,120,246,.12);
+  box-shadow:0 0 0 3px rgba(52,120,246,.12);
 }
 
 .form-grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
-  gap:16px;
+  gap:14px;
 }
 
 .form-grid .full{
@@ -184,286 +253,37 @@ select:focus{
 
 .btn{
   width:100%;
-  min-height:54px;
+  min-height:52px;
   border:none;
-  border-radius:16px;
-  font-weight:900;
+  border-radius:13px;
   font-size:16px;
+  font-weight:900;
   cursor:pointer;
-  transition:.18s;
 }
 
-.btn:hover{
-  transform:translateY(-1px);
-}
-
-.btn-primary{
-  background:linear-gradient(135deg,#3478f6,#2563eb);
+.btn-blue{
+  background:var(--blue);
   color:#fff;
-  box-shadow:0 12px 28px rgba(52,120,246,.25);
+}
+
+.btn-green{
+  background:var(--green);
+  color:#fff;
 }
 
 .btn-gray{
   background:#eef2f7;
-  color:#111827;
+  color:#0f172a;
 }
 
-.btn-green{
-  background:linear-gradient(135deg,#22c55e,#16a34a);
-  color:#fff;
-  box-shadow:0 12px 28px rgba(34,197,94,.22);
-}
-
-.tabs{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:12px;
-  padding:8px;
-  background:#f1f5f9;
-  border-radius:20px;
-  margin-bottom:18px;
-}
-
-.tabs button{
-  min-height:52px;
-  border:none;
-  border-radius:16px;
-  background:transparent;
-  font-weight:900;
-  cursor:pointer;
-  color:#334155;
-  font-size:15px;
-}
-
-.tabs button.active{
-  background:linear-gradient(135deg,#3478f6,#2563eb);
-  color:#fff;
-  box-shadow:0 10px 24px rgba(52,120,246,.22);
-}
-
-.status-buttons{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  gap:10px;
-  margin-bottom:18px;
-}
-
-.status-buttons button{
-  border:none;
-  border-radius:15px;
-  padding:13px;
-  font-weight:900;
-  cursor:pointer;
-  background:#eef2f7;
-  color:#334155;
-}
-
-.status-buttons button.active{
-  background:#111827;
-  color:#fff;
-}
-
-.profile-card{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:14px;
-}
-
-.profile-row{
-  background:#f8fafc;
-  border:1px solid #e5e7eb;
-  border-radius:18px;
-  padding:16px;
-}
-
-.profile-row b{
-  display:block;
-  color:#6b7280;
-  font-size:13px;
-  margin-bottom:6px;
-}
-
-.profile-row span{
-  font-weight:800;
-  color:#111827;
-}
-
-.profile-row.full{
-  grid-column:1/-1;
-}
-
-.checks{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-}
-
-.checks label{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-height:48px;
-  border:1px solid #e5e7eb;
-  border-radius:16px;
-  padding:12px;
-  background:#f8fafc;
-  font-weight:700;
-  cursor:pointer;
-  transition:.15s;
-}
-
-.checks label:hover{
-  border-color:var(--blue);
-  background:#f0f6ff;
-}
-
-.checks input{
-  width:18px;
-  height:18px;
-  min-height:18px;
-  padding:0;
-  accent-color:var(--blue);
-}
-
-.active-row{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  border:1px solid #bbf7d0;
-  background:#f0fdf4;
-  border-radius:18px;
-  padding:15px;
-  font-weight:900;
-  color:#166534;
-}
-
-.active-row input{
-  width:20px;
-  height:20px;
-  min-height:20px;
-  accent-color:var(--green);
-}
-
-.request{
-  border:1px solid #e5e7eb;
-  border-radius:22px;
-  padding:18px;
-  margin-bottom:14px;
-  background:#fff;
-  box-shadow:0 8px 24px rgba(15,23,42,.06);
-}
-
-.request-top{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:14px;
-  margin-bottom:12px;
-}
-
-.request-title{
-  font-size:18px;
-  font-weight:900;
-  color:#111827;
-}
-
-.request-status{
-  padding:8px 12px;
-  border-radius:999px;
-  font-size:13px;
-  font-weight:900;
-  background:#eef2f7;
-  white-space:nowrap;
-}
-
-.request-body{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  margin:14px 0;
-}
-
-.request-info{
-  background:#f8fafc;
-  border-radius:14px;
-  padding:12px;
-  font-size:14px;
-}
-
-.request-info b{
-  display:block;
-  color:#64748b;
-  margin-bottom:4px;
-}
-
-.request.new{
-  border-left:6px solid #f59e0b;
-}
-
-.request.viewed{
-  border-left:6px solid #3b82f6;
-}
-
-.request.in_work{
-  border-left:6px solid #8b5cf6;
-}
-
-.request.done{
-  border-left:6px solid #22c55e;
-}
-
-.wa-btn,
-.map-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:44px;
-  padding:0 16px;
-  border-radius:14px;
-  text-decoration:none;
-  font-weight:900;
-}
-
-.wa-btn{
-  background:#25D366;
-  color:#fff;
-}
-
-.map-btn{
-  background:#111827;
-  color:#fff;
-}
-
-.request-actions{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:10px;
-  align-items:end;
-}
-
-.msg{
-  margin-top:14px;
-  padding:14px;
-  border-radius:16px;
-  display:none;
-  font-weight:800;
-}
-
-.msg.error{
-  display:block;
-  background:#ffebee;
-  color:#b71c1c;
-}
-
-.msg.success{
-  display:block;
-  background:#e8f5e9;
-  color:#1b5e20;
+.btn-red{
+  background:#fee2e2;
+  color:var(--red);
 }
 
 .login-card{
   max-width:520px;
-  margin:50px auto;
+  margin:60px auto;
 }
 
 .password-row{
@@ -478,20 +298,263 @@ select:focus{
 .password-row button{
   width:140px;
   border:none;
-  border-radius:16px;
+  border-radius:12px;
   background:#eef2f7;
   font-weight:900;
   cursor:pointer;
 }
 
-.empty{
+.profile-card{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.profile-row{
   background:#f8fafc;
-  border:1px dashed #cbd5e1;
+  border:1px solid #dbe3ef;
+  border-radius:14px;
+  padding:14px;
+}
+
+.profile-row.full{
+  grid-column:1/-1;
+}
+
+.profile-row b{
+  display:block;
   color:#64748b;
-  border-radius:20px;
-  padding:24px;
-  text-align:center;
+  font-size:13px;
+  margin-bottom:6px;
+}
+
+.profile-row span{
+  font-size:16px;
+  font-weight:900;
+}
+
+.checks{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+}
+
+.checks label{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  min-height:46px;
+  margin:0;
+  padding:10px 12px;
+  border:1px solid #dbe3ef;
+  border-radius:12px;
+  background:#f8fafc;
   font-weight:800;
+  cursor:pointer;
+}
+
+.checks input{
+  width:18px;
+  height:18px;
+  min-height:18px;
+  padding:0;
+  accent-color:var(--blue);
+}
+
+.active-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:52px;
+  padding:12px 14px;
+  background:#f0fdf4;
+  border:1px solid #86efac;
+  border-radius:13px;
+  color:#166534;
+  font-weight:900;
+}
+
+.active-row input{
+  width:20px;
+  height:20px;
+  min-height:20px;
+  accent-color:var(--green);
+}
+
+.request{
+  border:2px solid #dbe3ef;
+  border-radius:16px;
+  padding:14px;
+  margin-bottom:12px;
+  background:#fff;
+}
+
+.request.new{
+  border-color:var(--blue);
+  background:linear-gradient(180deg,#f8fbff,#ffffff);
+}
+
+.request.viewed{
+  border-color:var(--yellow);
+  background:linear-gradient(180deg,#fff9e6,#ffffff);
+}
+
+.request.in_work{
+  border-color:var(--purple);
+  background:linear-gradient(180deg,#f4f5ff,#ffffff);
+}
+
+.request.done{
+  border-color:var(--green);
+  background:linear-gradient(180deg,#f0fdf4,#ffffff);
+}
+
+.request-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:10px;
+}
+
+.request-title{
+  font-size:19px;
+  font-weight:900;
+}
+
+.request-status{
+  padding:8px 13px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  white-space:nowrap;
+}
+
+.request-status.new{
+  background:var(--blue);
+  color:#fff;
+}
+
+.request-status.viewed{
+  background:var(--yellow);
+  color:#111827;
+}
+
+.request-status.in_work{
+  background:var(--purple);
+  color:#fff;
+}
+
+.request-status.done{
+  background:var(--green);
+  color:#fff;
+}
+
+.request-body{
+  display:grid;
+  grid-template-columns:1.2fr 1fr 1fr;
+  gap:8px;
+  margin-bottom:10px;
+}
+
+.request-info{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  min-height:54px;
+  background:rgba(248,250,252,.9);
+  border-radius:12px;
+  padding:10px;
+  font-size:14px;
+  line-height:1.25;
+}
+
+.request-info b{
+  display:block;
+  color:#64748b;
+  font-size:12px;
+  margin-bottom:3px;
+}
+
+.info-icon{
+  flex:0 0 28px;
+  width:28px;
+  height:28px;
+  border-radius:50%;
+  background:#eef4ff;
+  color:var(--blue);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:900;
+  font-size:14px;
+}
+
+.request-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  align-items:end;
+}
+
+.wa-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:50px;
+  border-radius:12px;
+  background:var(--green);
+  color:#fff;
+  text-decoration:none;
+  font-size:16px;
+  font-weight:900;
+}
+
+.map-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  padding:0 14px;
+  border-radius:12px;
+  background:#111827;
+  color:#fff;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.empty{
+  border:1px dashed #cbd5e1;
+  background:#f8fafc;
+  border-radius:16px;
+  padding:22px;
+  text-align:center;
+  color:#64748b;
+  font-weight:900;
+}
+
+.msg{
+  display:none;
+  margin-top:12px;
+  padding:13px;
+  border-radius:12px;
+  font-weight:900;
+}
+
+.msg.error{
+  display:block;
+  background:#fee2e2;
+  color:#b91c1c;
+}
+
+.msg.success{
+  display:block;
+  background:#dcfce7;
+  color:#166534;
+}
+
+.logout-wrap{
+  margin-top:16px;
 }
 
 @media(max-width:900px){
@@ -507,13 +570,13 @@ select:focus{
   }
 
   .status-buttons{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:repeat(2,1fr);
   }
 }
 
 @media(max-width:620px){
-  .header-inner{
-    align-items:flex-start;
+  .header-inner,
+  .hero{
     flex-direction:column;
   }
 
@@ -526,23 +589,11 @@ select:focus{
     text-align:center;
   }
 
-  .card{
-    padding:20px;
-    border-radius:22px;
-  }
-
-  .hero{
-    flex-direction:column;
-  }
-
   .hero h1{
-    font-size:34px;
+    font-size:31px;
   }
 
-  .tabs{
-    grid-template-columns:1fr;
-  }
-
+  .tabs,
   .checks,
   .status-buttons{
     grid-template-columns:1fr;
@@ -555,6 +606,10 @@ select:focus{
   .password-row button{
     width:100%;
     min-height:50px;
+  }
+
+  .card{
+    padding:20px;
   }
 }
 </style>
@@ -580,7 +635,7 @@ select:focus{
     <div class="hero">
       <div>
         <h1>Вход исполнителя</h1>
-        <p>Зайдите в кабинет, чтобы получать заявки и управлять профилем.</p>
+        <p>Войдите в кабинет, чтобы получать заявки и управлять профилем.</p>
       </div>
     </div>
 
@@ -601,7 +656,7 @@ select:focus{
       </div>
     </div>
 
-    <button class="btn btn-primary" onclick="login()">
+    <button class="btn btn-blue" onclick="login()">
       Войти
     </button>
 
@@ -619,8 +674,8 @@ select:focus{
           <p>Управление заявками, профилем и услугами.</p>
         </div>
 
-        <div class="badge">
-          <span class="badge-dot"></span>
+        <div id="cabinetStatus" class="cabinet-badge active">
+          <span></span>
           Активный кабинет
         </div>
       </div>
@@ -634,30 +689,30 @@ select:focus{
           Профиль
         </button>
 
-        <button id="tabEdit" onclick="showTab('edit')">
+        <button id="tabEdit" class="danger-tab" onclick="showTab('edit')">
           Редактировать
         </button>
       </div>
 
       <div class="status-buttons" id="statusFilterBox">
 
-        <button id="filterAll" class="active" onclick="setStatusFilter('all')">
+        <button id="filterAll" class="all active" onclick="setStatusFilter('all')">
           Все
         </button>
 
-        <button id="filterNew" onclick="setStatusFilter('new')">
+        <button id="filterNew" class="new" onclick="setStatusFilter('new')">
           Новые
         </button>
 
-        <button id="filterViewed" onclick="setStatusFilter('viewed')">
+        <button id="filterViewed" class="viewed" onclick="setStatusFilter('viewed')">
           Просмотренные
         </button>
 
-        <button id="filterWork" onclick="setStatusFilter('in_work')">
+        <button id="filterWork" class="work" onclick="setStatusFilter('in_work')">
           В работе
         </button>
 
-        <button id="filterDone" onclick="setStatusFilter('done')">
+        <button id="filterDone" class="done" onclick="setStatusFilter('done')">
           Завершённые
         </button>
 
@@ -772,9 +827,11 @@ select:focus{
 
       </div>
 
-      <button class="btn btn-gray" onclick="logout()">
-        Выйти
-      </button>
+      <div class="logout-wrap">
+        <button class="btn btn-gray" onclick="logout()">
+          Выйти
+        </button>
+      </div>
 
     </div>
 
@@ -824,12 +881,14 @@ async function login(){
       }
     );
 
-    let data = await r.json();
+    let data =
+      await r.json();
 
     if(data.error){
 
       loginError.style.display = 'block';
-      loginError.innerText = data.error;
+      loginError.innerText =
+        data.error;
 
       return;
     }
@@ -870,7 +929,8 @@ async function loadProfile(){
     seller_id
   );
 
-  let data = await r.json();
+  let data =
+    await r.json();
 
   if(data.error){
 
@@ -884,6 +944,27 @@ async function loadProfile(){
 
   renderProfile(data);
   fillEditForm(data);
+  renderCabinetStatus(data);
+}
+
+function renderCabinetStatus(p){
+
+  if(p.is_active){
+
+    cabinetStatus.className =
+      'cabinet-badge active';
+
+    cabinetStatus.innerHTML =
+      '<span></span> Активный кабинет';
+
+  }else{
+
+    cabinetStatus.className =
+      'cabinet-badge inactive';
+
+    cabinetStatus.innerHTML =
+      '<span></span> Кабинет отключён';
+  }
 }
 
 function renderProfile(p){
@@ -1035,17 +1116,23 @@ async function saveProfile(){
       }
     );
 
-    let data = await r.json();
+    let data =
+      await r.json();
 
     if(data.error){
 
-      saveMsg.className = 'msg error';
-      saveMsg.innerText = data.error;
+      saveMsg.className =
+        'msg error';
+
+      saveMsg.innerText =
+        data.error;
 
       return;
     }
 
-    saveMsg.className = 'msg success';
+    saveMsg.className =
+      'msg success';
+
     saveMsg.innerText =
       'Профиль сохранён';
 
@@ -1055,7 +1142,9 @@ async function saveProfile(){
 
   }catch(err){
 
-    saveMsg.className = 'msg error';
+    saveMsg.className =
+      'msg error';
+
     saveMsg.innerText =
       'Ошибка сохранения';
   }
@@ -1073,7 +1162,8 @@ async function loadRequests(){
     seller_id
   );
 
-  let data = await r.json();
+  let data =
+    await r.json();
 
   let filter =
     currentStatusFilter;
@@ -1101,60 +1191,85 @@ async function loadRequests(){
 
     shown += 1;
 
+    let status =
+      req.status || 'new';
+
     let statusText = {
       new:'Новая',
       viewed:'Просмотрена',
       in_work:'В работе',
       done:'Завершена'
-    }[req.status] || 'Новая';
+    }[status] || 'Новая';
+
+    let services =
+      Array.isArray(req.services)
+        ? req.services.join(', ')
+        : '-';
 
     let wa =
       `https://wa.me/${req.phone}?text=` +
       encodeURIComponent(
         `Здравствуйте. По заявке ZPT:\n` +
-        `Услуги: ${req.services.join(', ')}\n` +
-        `Город: ${req.city}\n` +
+        `Услуги: ${services}\n` +
+        `Город: ${req.city || ''}\n` +
         `Описание: ${req.description || ''}`
       );
 
     container.innerHTML += `
-      <div class="request ${req.status || 'new'}">
+      <div class="request ${status}">
 
         <div class="request-top">
+
           <div class="request-title">
             ${req.service_type === 'sto' ? 'СТО заявка' : 'Детейлинг заявка'}
           </div>
 
-          <div class="request-status">
+          <div class="request-status ${status}">
             ${statusText}
           </div>
+
         </div>
 
         <div class="request-body">
 
           <div class="request-info">
-            <b>Услуги</b>
-            ${req.services.join(', ')}
+            <div class="info-icon">↗</div>
+            <div>
+              <b>Услуги</b>
+              ${services}
+            </div>
           </div>
 
           <div class="request-info">
-            <b>Город</b>
-            ${req.city || '-'}
+            <div class="info-icon">⌂</div>
+            <div>
+              <b>Город</b>
+              ${req.city || '-'}
+            </div>
           </div>
 
           <div class="request-info">
-            <b>Район</b>
-            ${req.district || '-'}
+            <div class="info-icon">☎</div>
+            <div>
+              <b>Телефон</b>
+              ${req.phone || '-'}
+            </div>
           </div>
 
           <div class="request-info">
-            <b>Телефон</b>
-            ${req.phone || '-'}
+            <div class="info-icon">⌖</div>
+            <div>
+              <b>Район</b>
+              ${req.district || '-'}
+            </div>
           </div>
 
           <div class="request-info">
-            <b>Комментарий</b>
-            ${req.description || '-'}
+            <div class="info-icon">☰</div>
+            <div>
+              <b>Комментарий</b>
+              ${req.description || '-'}
+            </div>
           </div>
 
         </div>
@@ -1163,11 +1278,12 @@ async function loadRequests(){
 
           <div>
             <label>Статус</label>
+
             <select onchange="updateStatus(${req.id}, this.value)">
-              <option value="new" ${req.status === 'new' ? 'selected' : ''}>Новая</option>
-              <option value="viewed" ${req.status === 'viewed' ? 'selected' : ''}>Просмотрена</option>
-              <option value="in_work" ${req.status === 'in_work' ? 'selected' : ''}>В работе</option>
-              <option value="done" ${req.status === 'done' ? 'selected' : ''}>Завершена</option>
+              <option value="new" ${status === 'new' ? 'selected' : ''}>Новая</option>
+              <option value="viewed" ${status === 'viewed' ? 'selected' : ''}>Просмотрена</option>
+              <option value="in_work" ${status === 'in_work' ? 'selected' : ''}>В работе</option>
+              <option value="done" ${status === 'done' ? 'selected' : ''}>Завершена</option>
             </select>
           </div>
 
@@ -1220,7 +1336,8 @@ async function updateStatus(request_id,status){
 
 function setStatusFilter(status){
 
-  currentStatusFilter = status;
+  currentStatusFilter =
+    status;
 
   document
     .querySelectorAll('.status-buttons button')
@@ -1292,8 +1409,11 @@ function toggleServiceBlocks(clearHidden = true){
         .forEach(ch => ch.checked = false);
     }
 
-    stoServices.style.display = 'none';
-    detailingServices.style.display = 'grid';
+    stoServices.style.display =
+      'none';
+
+    detailingServices.style.display =
+      'grid';
 
   }else{
 
@@ -1304,8 +1424,11 @@ function toggleServiceBlocks(clearHidden = true){
         .forEach(ch => ch.checked = false);
     }
 
-    stoServices.style.display = 'grid';
-    detailingServices.style.display = 'none';
+    stoServices.style.display =
+      'grid';
+
+    detailingServices.style.display =
+      'none';
   }
 }
 
