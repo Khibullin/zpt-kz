@@ -7,80 +7,556 @@
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
 
 <style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
-.header{background:#fff;border-bottom:1px solid #ececec;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.header-inner{max-width:1100px;margin:auto;padding:14px 16px;display:flex;justify-content:space-between;align-items:center}
-.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
-.nav{display:flex;gap:10px}
-.nav a{padding:10px 14px;border-radius:10px;text-decoration:none;font-weight:bold;font-size:14px}
-.nav-main{background:#eef2f7;color:#3478f6}
-.nav-seller{background:#3478f6;color:#fff}
-.wrap{max-width:1100px;margin:auto;padding:24px 16px}
-.card{background:#fff;border-radius:18px;padding:22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-h1{margin:0 0 12px;color:#c62828}
-.field{margin-bottom:12px}
-label{font-weight:bold;font-size:14px}
-input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;margin-top:5px}
-.btn{background:#3478f6;color:#fff;border:none;padding:12px;border-radius:12px;font-weight:bold;cursor:pointer;width:100%;margin-top:8px}
-.btn-gray{background:#eef2f7;color:#222}
-.tabs{display:flex;gap:10px;margin-bottom:12px}
-.tabs button{flex:1;padding:10px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;background:#eef2f7}
-.tabs button.active{background:#3478f6;color:#fff}
-.request{border:1px solid #e0e0e0;border-radius:12px;padding:14px;margin-bottom:12px}
-.wa-btn{display:inline-block;margin-top:10px;background:#25D366;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:bold}
-.map-btn{display:inline-block;margin-top:8px;background:#444;color:#fff;padding:8px 12px;border-radius:8px;text-decoration:none;font-weight:bold}
-.profile-row{margin-bottom:8px}
-.msg{margin-top:12px;padding:10px;border-radius:10px;display:none}
-.msg.error{display:block;background:#ffebee;color:#b71c1c}
-.msg.success{display:block;background:#e8f5e9;color:#1b5e20}
-.checks label{display:block;font-weight:normal;margin:6px 0}
+*{
+  box-sizing:border-box;
+}
+
+:root{
+  --red:#c62828;
+  --blue:#3478f6;
+  --green:#22c55e;
+  --dark:#111827;
+  --text:#1f2937;
+  --muted:#6b7280;
+  --line:#e5e7eb;
+  --bg:#f3f6fb;
+  --soft:#eef2f7;
+  --white:#fff;
+}
+
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  background:
+    radial-gradient(circle at top left, rgba(52,120,246,.10), transparent 35%),
+    linear-gradient(180deg,#f8fafc 0%,#eef2f7 100%);
+  color:var(--text);
+}
+
+.header{
+  background:rgba(255,255,255,.92);
+  border-bottom:1px solid var(--line);
+  box-shadow:0 8px 30px rgba(15,23,42,.06);
+  position:sticky;
+  top:0;
+  z-index:20;
+  backdrop-filter:blur(12px);
+}
+
+.header-inner{
+  max-width:1180px;
+  margin:auto;
+  padding:16px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+}
+
+.logo{
+  font-size:30px;
+  font-weight:900;
+  color:var(--red);
+  text-decoration:none;
+  letter-spacing:.5px;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.nav a{
+  padding:12px 18px;
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:800;
+  font-size:15px;
+}
+
+.nav-main{
+  background:var(--soft);
+  color:var(--blue);
+}
+
+.nav-seller{
+  background:linear-gradient(135deg,#3478f6,#2563eb);
+  color:#fff;
+  box-shadow:0 10px 24px rgba(52,120,246,.25);
+}
+
+.wrap{
+  max-width:1180px;
+  margin:auto;
+  padding:30px 16px;
+}
+
+.card{
+  background:rgba(255,255,255,.94);
+  border:1px solid rgba(229,231,235,.9);
+  border-radius:28px;
+  padding:28px;
+  margin-bottom:22px;
+  box-shadow:0 18px 50px rgba(15,23,42,.10);
+}
+
+.hero{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:18px;
+  margin-bottom:20px;
+}
+
+.hero h1{
+  margin:0;
+  color:var(--red);
+  font-size:42px;
+  line-height:1.05;
+}
+
+.hero p{
+  margin:8px 0 0;
+  color:var(--muted);
+  font-size:16px;
+}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  padding:10px 14px;
+  border-radius:999px;
+  background:#ecfdf5;
+  color:#15803d;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.badge-dot{
+  width:9px;
+  height:9px;
+  border-radius:50%;
+  background:var(--green);
+}
+
+.field{
+  margin-bottom:16px;
+}
+
+label{
+  display:block;
+  font-weight:800;
+  font-size:14px;
+  margin-bottom:7px;
+  color:#111827;
+}
+
+input,
+select{
+  width:100%;
+  min-height:54px;
+  padding:0 16px;
+  border-radius:16px;
+  border:1px solid #d1d5db;
+  background:#fff;
+  font-size:16px;
+  outline:none;
+  transition:.18s;
+}
+
+input:focus,
+select:focus{
+  border-color:var(--blue);
+  box-shadow:0 0 0 4px rgba(52,120,246,.12);
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:16px;
+}
+
+.form-grid .full{
+  grid-column:1/-1;
+}
+
+.btn{
+  width:100%;
+  min-height:54px;
+  border:none;
+  border-radius:16px;
+  font-weight:900;
+  font-size:16px;
+  cursor:pointer;
+  transition:.18s;
+}
+
+.btn:hover{
+  transform:translateY(-1px);
+}
+
+.btn-primary{
+  background:linear-gradient(135deg,#3478f6,#2563eb);
+  color:#fff;
+  box-shadow:0 12px 28px rgba(52,120,246,.25);
+}
+
+.btn-gray{
+  background:#eef2f7;
+  color:#111827;
+}
+
+.btn-green{
+  background:linear-gradient(135deg,#22c55e,#16a34a);
+  color:#fff;
+  box-shadow:0 12px 28px rgba(34,197,94,.22);
+}
+
+.tabs{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+  padding:8px;
+  background:#f1f5f9;
+  border-radius:20px;
+  margin-bottom:18px;
+}
+
+.tabs button{
+  min-height:52px;
+  border:none;
+  border-radius:16px;
+  background:transparent;
+  font-weight:900;
+  cursor:pointer;
+  color:#334155;
+  font-size:15px;
+}
+
+.tabs button.active{
+  background:linear-gradient(135deg,#3478f6,#2563eb);
+  color:#fff;
+  box-shadow:0 10px 24px rgba(52,120,246,.22);
+}
 
 .status-buttons{
   display:grid;
   grid-template-columns:repeat(5,1fr);
   gap:10px;
-  margin-bottom:16px;
+  margin-bottom:18px;
 }
 
 .status-buttons button{
   border:none;
-  border-radius:12px;
-  padding:12px;
-  font-weight:bold;
+  border-radius:15px;
+  padding:13px;
+  font-weight:900;
   cursor:pointer;
   background:#eef2f7;
-  color:#222;
+  color:#334155;
 }
 
 .status-buttons button.active{
-  background:#3478f6;
+  background:#111827;
   color:#fff;
 }
 
+.profile-card{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.profile-row{
+  background:#f8fafc;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  padding:16px;
+}
+
+.profile-row b{
+  display:block;
+  color:#6b7280;
+  font-size:13px;
+  margin-bottom:6px;
+}
+
+.profile-row span{
+  font-weight:800;
+  color:#111827;
+}
+
+.profile-row.full{
+  grid-column:1/-1;
+}
+
+.checks{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.checks label{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-height:48px;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  padding:12px;
+  background:#f8fafc;
+  font-weight:700;
+  cursor:pointer;
+  transition:.15s;
+}
+
+.checks label:hover{
+  border-color:var(--blue);
+  background:#f0f6ff;
+}
+
+.checks input{
+  width:18px;
+  height:18px;
+  min-height:18px;
+  padding:0;
+  accent-color:var(--blue);
+}
+
+.active-row{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  border:1px solid #bbf7d0;
+  background:#f0fdf4;
+  border-radius:18px;
+  padding:15px;
+  font-weight:900;
+  color:#166534;
+}
+
+.active-row input{
+  width:20px;
+  height:20px;
+  min-height:20px;
+  accent-color:var(--green);
+}
+
+.request{
+  border:1px solid #e5e7eb;
+  border-radius:22px;
+  padding:18px;
+  margin-bottom:14px;
+  background:#fff;
+  box-shadow:0 8px 24px rgba(15,23,42,.06);
+}
+
+.request-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:14px;
+  margin-bottom:12px;
+}
+
+.request-title{
+  font-size:18px;
+  font-weight:900;
+  color:#111827;
+}
+
+.request-status{
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:900;
+  background:#eef2f7;
+  white-space:nowrap;
+}
+
+.request-body{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  margin:14px 0;
+}
+
+.request-info{
+  background:#f8fafc;
+  border-radius:14px;
+  padding:12px;
+  font-size:14px;
+}
+
+.request-info b{
+  display:block;
+  color:#64748b;
+  margin-bottom:4px;
+}
+
 .request.new{
-  background:#fff8e1;
+  border-left:6px solid #f59e0b;
 }
 
 .request.viewed{
-  background:#e3f2fd;
+  border-left:6px solid #3b82f6;
 }
 
 .request.in_work{
-  background:#ede7f6;
+  border-left:6px solid #8b5cf6;
 }
 
 .request.done{
-  background:#e8f5e9;
+  border-left:6px solid #22c55e;
 }
 
-@media(max-width:760px){
-  .status-buttons{
+.wa-btn,
+.map-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:44px;
+  padding:0 16px;
+  border-radius:14px;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.wa-btn{
+  background:#25D366;
+  color:#fff;
+}
+
+.map-btn{
+  background:#111827;
+  color:#fff;
+}
+
+.request-actions{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  align-items:end;
+}
+
+.msg{
+  margin-top:14px;
+  padding:14px;
+  border-radius:16px;
+  display:none;
+  font-weight:800;
+}
+
+.msg.error{
+  display:block;
+  background:#ffebee;
+  color:#b71c1c;
+}
+
+.msg.success{
+  display:block;
+  background:#e8f5e9;
+  color:#1b5e20;
+}
+
+.login-card{
+  max-width:520px;
+  margin:50px auto;
+}
+
+.password-row{
+  display:flex;
+  gap:10px;
+}
+
+.password-row input{
+  flex:1;
+}
+
+.password-row button{
+  width:140px;
+  border:none;
+  border-radius:16px;
+  background:#eef2f7;
+  font-weight:900;
+  cursor:pointer;
+}
+
+.empty{
+  background:#f8fafc;
+  border:1px dashed #cbd5e1;
+  color:#64748b;
+  border-radius:20px;
+  padding:24px;
+  text-align:center;
+  font-weight:800;
+}
+
+@media(max-width:900px){
+  .form-grid,
+  .profile-card,
+  .request-body,
+  .request-actions{
     grid-template-columns:1fr;
+  }
+
+  .checks{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .status-buttons{
+    grid-template-columns:1fr 1fr;
   }
 }
 
-@media(max-width:760px){.tabs{flex-direction:column}}
+@media(max-width:620px){
+  .header-inner{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+
+  .nav{
+    width:100%;
+  }
+
+  .nav a{
+    flex:1;
+    text-align:center;
+  }
+
+  .card{
+    padding:20px;
+    border-radius:22px;
+  }
+
+  .hero{
+    flex-direction:column;
+  }
+
+  .hero h1{
+    font-size:34px;
+  }
+
+  .tabs{
+    grid-template-columns:1fr;
+  }
+
+  .checks,
+  .status-buttons{
+    grid-template-columns:1fr;
+  }
+
+  .password-row{
+    flex-direction:column;
+  }
+
+  .password-row button{
+    width:100%;
+    min-height:50px;
+  }
+}
 </style>
 </head>
 
@@ -89,6 +565,7 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
 <header class="header">
   <div class="header-inner">
     <a class="logo" href="https://zpt.kz/">ZPT.KZ</a>
+
     <div class="nav">
       <a class="nav-main" href="/service-request/">Заявка клиента</a>
       <a class="nav-seller" href="https://zpt-kz-backend.onrender.com/service-request/register/">Регистрация</a>
@@ -98,94 +575,89 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
 
 <div class="wrap">
 
-  <div class="card" id="loginBox">
-    <h1>Вход исполнителя</h1>
+  <div class="card login-card" id="loginBox">
+
+    <div class="hero">
+      <div>
+        <h1>Вход исполнителя</h1>
+        <p>Зайдите в кабинет, чтобы получать заявки и управлять профилем.</p>
+      </div>
+    </div>
 
     <div class="field">
       <label>WhatsApp</label>
       <input id="phone" placeholder="77071234567">
     </div>
 
-<div class="field">
+    <div class="field">
+      <label>Пароль</label>
 
-  <label>Пароль</label>
+      <div class="password-row">
+        <input id="pass" type="password">
 
-  <div style="display:flex;gap:10px">
+        <button type="button" onclick="togglePassword()">
+          Показать
+        </button>
+      </div>
+    </div>
 
-    <input
-      id="pass"
-      type="password"
-      style="flex:1"
-    >
-
-    <button
-      type="button"
-      onclick="togglePassword()"
-      style="
-        width:140px;
-        border:none;
-        border-radius:10px;
-        background:#eef2f7;
-        font-weight:bold;
-        cursor:pointer;
-      "
-    >
-      Показать
+    <button class="btn btn-primary" onclick="login()">
+      Войти
     </button>
 
-  </div>
-
-</div>
-    <button class="btn" onclick="login()">Войти</button>
     <div id="loginError" class="msg error"></div>
+
   </div>
 
   <div id="cabinetBox" style="display:none">
+
     <div class="card">
 
-      <h1>Кабинет исполнителя</h1>
+      <div class="hero">
+        <div>
+          <h1>Кабинет исполнителя</h1>
+          <p>Управление заявками, профилем и услугами.</p>
+        </div>
+
+        <div class="badge">
+          <span class="badge-dot"></span>
+          Активный кабинет
+        </div>
+      </div>
 
       <div class="tabs">
-        <button id="tabRequests" class="active" onclick="showTab('requests')">Заявки</button>
-        <button id="tabProfile" onclick="showTab('profile')">Профиль</button>
-        <button id="tabEdit" onclick="showTab('edit')">Редактировать</button>
+        <button id="tabRequests" class="active" onclick="showTab('requests')">
+          Заявки
+        </button>
+
+        <button id="tabProfile" onclick="showTab('profile')">
+          Профиль
+        </button>
+
+        <button id="tabEdit" onclick="showTab('edit')">
+          Редактировать
+        </button>
       </div>
 
       <div class="status-buttons" id="statusFilterBox">
 
-        <button
-          id="filterAll"
-          class="active"
-          onclick="setStatusFilter('all')"
-        >
+        <button id="filterAll" class="active" onclick="setStatusFilter('all')">
           Все
         </button>
 
-        <button
-          id="filterNew"
-          onclick="setStatusFilter('new')"
-        >
+        <button id="filterNew" onclick="setStatusFilter('new')">
           Новые
         </button>
 
-        <button
-          id="filterViewed"
-          onclick="setStatusFilter('viewed')"
-        >
+        <button id="filterViewed" onclick="setStatusFilter('viewed')">
           Просмотренные
         </button>
 
-        <button
-          id="filterWork"
-          onclick="setStatusFilter('in_work')"
-        >
+        <button id="filterWork" onclick="setStatusFilter('in_work')">
           В работе
         </button>
 
-        <button
-          id="filterDone"
-          onclick="setStatusFilter('done')"
-        >
+        <button id="filterDone" onclick="setStatusFilter('done')">
           Завершённые
         </button>
 
@@ -198,220 +670,287 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
       </div>
 
       <div id="editTab" style="display:none">
-        <div class="field">
-          <label>Название</label>
-          <input id="editName">
+
+        <div class="form-grid">
+
+          <div class="field">
+            <label>Название</label>
+            <input id="editName">
+          </div>
+
+          <div class="field">
+            <label>Тип</label>
+            <select id="editSellerType">
+              <option value="sto">СТО</option>
+              <option value="detailing">Детейлинг</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label>Город</label>
+            <input id="editCity">
+          </div>
+
+          <div class="field">
+            <label>Район</label>
+            <input id="editDistrict">
+          </div>
+
+          <div class="field">
+            <label>Адрес</label>
+            <input id="editAddress">
+          </div>
+
+          <div class="field">
+            <label>Ссылка 2GIS</label>
+            <input id="editMapLink">
+          </div>
+
+          <div class="field full">
+            <label>Новый пароль</label>
+            <input id="editPassword" type="password" placeholder="Не менять">
+          </div>
+
+          <div class="field full">
+
+            <label>Услуги</label>
+
+            <div id="stoServices" class="checks">
+
+              <label><input type="checkbox" class="serviceCheck" value="Диагностика"> Диагностика</label>
+              <label><input type="checkbox" class="serviceCheck" value="Двигатель"> Двигатель</label>
+              <label><input type="checkbox" class="serviceCheck" value="Ходовая часть"> Ходовая часть</label>
+              <label><input type="checkbox" class="serviceCheck" value="Тормозная система"> Тормозная система</label>
+              <label><input type="checkbox" class="serviceCheck" value="Рулевое управление"> Рулевое управление</label>
+              <label><input type="checkbox" class="serviceCheck" value="КПП / АКПП"> КПП / АКПП</label>
+              <label><input type="checkbox" class="serviceCheck" value="Электрика"> Электрика</label>
+              <label><input type="checkbox" class="serviceCheck" value="Кондиционер / печка"> Кондиционер / печка</label>
+              <label><input type="checkbox" class="serviceCheck" value="Кузовной ремонт"> Кузовной ремонт</label>
+              <label><input type="checkbox" class="serviceCheck" value="Сварочные работы"> Сварочные работы</label>
+              <label><input type="checkbox" class="serviceCheck" value="Замена масел / ТО"> Замена масел / ТО</label>
+              <label><input type="checkbox" class="serviceCheck" value="Выездной мастер"> Выездной мастер</label>
+              <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
+
+            </div>
+
+            <div id="detailingServices" class="checks" style="display:none">
+
+              <label><input type="checkbox" class="serviceCheck" value="Мойка"> Мойка</label>
+              <label><input type="checkbox" class="serviceCheck" value="Химчистка салона"> Химчистка салона</label>
+              <label><input type="checkbox" class="serviceCheck" value="Полировка кузова"> Полировка кузова</label>
+              <label><input type="checkbox" class="serviceCheck" value="Керамика / защитные покрытия"> Керамика / защитные покрытия</label>
+              <label><input type="checkbox" class="serviceCheck" value="Антигравийная плёнка"> Антигравийная плёнка</label>
+              <label><input type="checkbox" class="serviceCheck" value="Тонировка"> Тонировка</label>
+              <label><input type="checkbox" class="serviceCheck" value="Шумоизоляция"> Шумоизоляция</label>
+              <label><input type="checkbox" class="serviceCheck" value="Перетяжка салона"> Перетяжка салона</label>
+              <label><input type="checkbox" class="serviceCheck" value="Установка аксессуаров"> Установка аксессуаров</label>
+              <label><input type="checkbox" class="serviceCheck" value="Автозвук / мультимедиа"> Автозвук / мультимедиа</label>
+              <label><input type="checkbox" class="serviceCheck" value="Свет / оптика"> Свет / оптика</label>
+              <label><input type="checkbox" class="serviceCheck" value="Внешний тюнинг"> Внешний тюнинг</label>
+              <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
+
+            </div>
+
+          </div>
+
+          <div class="field full">
+            <label class="active-row">
+              <input type="checkbox" id="editActive">
+              Получать заявки
+            </label>
+          </div>
+
+          <div class="field full">
+            <button class="btn btn-green" onclick="saveProfile()">
+              Сохранить профиль
+            </button>
+
+            <div id="saveMsg" class="msg"></div>
+          </div>
+
         </div>
-
-        <div class="field">
-          <label>Тип</label>
-          <select id="editSellerType">
-            <option value="sto">СТО</option>
-            <option value="detailing">Детейлинг</option>
-          </select>
-        </div>
-
-        <div class="field">
-          <label>Город</label>
-          <input id="editCity">
-        </div>
-
-        <div class="field">
-          <label>Район</label>
-          <input id="editDistrict">
-        </div>
-
-        <div class="field">
-          <label>Адрес</label>
-          <input id="editAddress">
-        </div>
-
-        <div class="field">
-          <label>Ссылка 2GIS</label>
-          <input id="editMapLink">
-        </div>
-
-        <div class="field">
-          <label>Новый пароль</label>
-          <input id="editPassword" type="password" placeholder="Не менять">
-        </div>
-
-<div class="field">
-
-  <label>Услуги</label>
-
-  <!-- STO -->
-
-  <div
-    id="stoServices"
-    class="checks"
-  >
-
-    <label><input type="checkbox" class="serviceCheck" value="Диагностика"> Диагностика</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Двигатель"> Двигатель</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Ходовая часть"> Ходовая часть</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Тормозная система"> Тормозная система</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Рулевое управление"> Рулевое управление</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="КПП / АКПП"> КПП / АКПП</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Электрика"> Электрика</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Кондиционер / печка"> Кондиционер / печка</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Кузовной ремонт"> Кузовной ремонт</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Сварочные работы"> Сварочные работы</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Замена масел / ТО"> Замена масел / ТО</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Выездной мастер"> Выездной мастер</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
-
-  </div>
-
-  <!-- DETAILING -->
-
-  <div
-    id="detailingServices"
-    class="checks"
-    style="display:none"
-  >
-
-    <label><input type="checkbox" class="serviceCheck" value="Мойка"> Мойка</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Химчистка салона"> Химчистка салона</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Полировка кузова"> Полировка кузова</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Керамика / защитные покрытия"> Керамика / защитные покрытия</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Антигравийная плёнка"> Антигравийная плёнка</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Тонировка"> Тонировка</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Шумоизоляция"> Шумоизоляция</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Перетяжка салона"> Перетяжка салона</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Установка аксессуаров"> Установка аксессуаров</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Автозвук / мультимедиа"> Автозвук / мультимедиа</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Свет / оптика"> Свет / оптика</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Внешний тюнинг"> Внешний тюнинг</label>
-
-    <label><input type="checkbox" class="serviceCheck" value="Другое"> Другое</label>
-
-  </div>
-
-</div>
-<div class="field checks">
-  <label>
-    <input type="checkbox" id="editActive">
-    Получать заявки
-  </label>
-</div>
-
-<button class="btn" onclick="saveProfile()">Сохранить профиль</button>
-<div id="saveMsg" class="msg"></div>
 
       </div>
 
-      <button class="btn btn-gray" onclick="logout()">Выйти</button>
+      <button class="btn btn-gray" onclick="logout()">
+        Выйти
+      </button>
 
     </div>
+
   </div>
 
 </div>
 
 <script>
 const API = window.location.origin + '/api/service';
+
 let currentProfile = null;
 let currentStatusFilter = 'all';
 
 async function login(){
+
   loginError.innerText = '';
   loginError.style.display = 'none';
 
-  let whatsapp = phone.value.replace(/\D/g,'');
-  let password = pass.value;
+  let whatsapp =
+    phone.value.replace(/\D/g,'');
+
+  let password =
+    pass.value;
 
   if(!whatsapp || !password){
-    loginError.style.display='block';
-    loginError.innerText='Введите WhatsApp и пароль';
+
+    loginError.style.display = 'block';
+    loginError.innerText =
+      'Введите WhatsApp и пароль';
+
     return;
   }
 
   try{
-    let r = await fetch(API + '/service-seller-login/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({whatsapp,password})
-    });
+
+    let r = await fetch(
+      API + '/service-seller-login/',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          whatsapp,
+          password
+        })
+      }
+    );
 
     let data = await r.json();
 
     if(data.error){
-      loginError.style.display='block';
+
+      loginError.style.display = 'block';
       loginError.innerText = data.error;
+
       return;
     }
 
-    localStorage.setItem('seller_id', data.seller_id);
+    localStorage.setItem(
+      'seller_id',
+      data.seller_id
+    );
+
     openCabinet();
 
   }catch(err){
-    loginError.style.display='block';
-    loginError.innerText='Ошибка подключения';
+
+    loginError.style.display = 'block';
+    loginError.innerText =
+      'Ошибка подключения';
   }
 }
 
 function openCabinet(){
-  loginBox.style.display='none';
-  cabinetBox.style.display='block';
+
+  loginBox.style.display = 'none';
+  cabinetBox.style.display = 'block';
 
   loadProfile();
   loadRequests();
 }
 
 async function loadProfile(){
-  let seller_id = localStorage.getItem('seller_id');
+
+  let seller_id =
+    localStorage.getItem('seller_id');
+
   if(!seller_id) return;
 
-  let r = await fetch(API + '/service-seller-profile/?seller_id=' + seller_id);
+  let r = await fetch(
+    API + '/service-seller-profile/?seller_id=' +
+    seller_id
+  );
+
   let data = await r.json();
 
   if(data.error){
-    profileView.innerHTML = data.error;
+
+    profileView.innerHTML =
+      `<div class="empty">${data.error}</div>`;
+
     return;
   }
 
   currentProfile = data;
+
   renderProfile(data);
   fillEditForm(data);
 }
 
 function renderProfile(p){
-  let type = p.seller_type === 'sto' ? 'СТО' : 'Детейлинг';
-  let services = p.services && p.services.length ? p.services.join(', ') : 'Не выбраны';
+
+  let type =
+    p.seller_type === 'sto'
+      ? 'СТО'
+      : 'Детейлинг';
+
+  let services =
+    p.services && p.services.length
+      ? p.services.join(', ')
+      : 'Не выбраны';
 
   profileView.innerHTML = `
-    <div class="profile-row"><b>Название:</b> ${p.name || '-'}</div>
-    <div class="profile-row"><b>WhatsApp:</b> ${p.whatsapp || '-'}</div>
-    <div class="profile-row"><b>Тип:</b> ${type}</div>
-    <div class="profile-row"><b>Город:</b> ${p.city || '-'}</div>
-    <div class="profile-row"><b>Район:</b> ${p.district || '-'}</div>
-    <div class="profile-row"><b>Адрес:</b> ${p.address || '-'}</div>
-    <div class="profile-row"><b>Услуги:</b> ${services}</div>
-    <div class="profile-row"><b>Статус:</b> ${p.is_active ? 'Получает заявки' : 'Отключен'}</div>
-    ${p.map_link ? `<a class="map-btn" href="${p.map_link}" target="_blank">Открыть 2GIS</a>` : ''}
+    <div class="profile-card">
+
+      <div class="profile-row">
+        <b>Название</b>
+        <span>${p.name || '-'}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>WhatsApp</b>
+        <span>${p.whatsapp || '-'}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>Тип</b>
+        <span>${type}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>Город</b>
+        <span>${p.city || '-'}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>Район</b>
+        <span>${p.district || '-'}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>Адрес</b>
+        <span>${p.address || '-'}</span>
+      </div>
+
+      <div class="profile-row full">
+        <b>Услуги</b>
+        <span>${services}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>Статус</b>
+        <span>${p.is_active ? 'Получает заявки' : 'Отключен'}</span>
+      </div>
+
+      <div class="profile-row">
+        <b>2GIS</b>
+        ${
+          p.map_link
+            ? `<a class="map-btn" href="${p.map_link}" target="_blank">Открыть карту</a>`
+            : `<span>Не указано</span>`
+        }
+      </div>
+
+    </div>
   `;
 }
 
@@ -423,7 +962,7 @@ function fillEditForm(p){
   editSellerType.value =
     p.seller_type || 'sto';
 
-  toggleServiceBlocks();
+  toggleServiceBlocks(false);
 
   editCity.value =
     p.city || '';
@@ -452,139 +991,229 @@ function fillEditForm(p){
           .includes(ch.value);
 
     });
-
 }
 
-
 async function saveProfile(){
-  saveMsg.style.display='none';
-  saveMsg.className='msg';
 
-  let seller_id = localStorage.getItem('seller_id');
+  saveMsg.style.display = 'none';
+  saveMsg.className = 'msg';
+
+  let seller_id =
+    localStorage.getItem('seller_id');
+
   let services = Array
-    .from(document.querySelectorAll('.serviceCheck:checked'))
-    .map(x=>x.value);
+    .from(
+      document.querySelectorAll(
+        '.serviceCheck:checked'
+      )
+    )
+    .map(x => x.value);
 
   let payload = {
     seller_id,
-    name: editName.value.trim(),
-    seller_type: editSellerType.value,
-    city: editCity.value.trim(),
-    district: editDistrict.value.trim(),
-    address: editAddress.value.trim(),
-    map_link: editMapLink.value.trim(),
-    password: editPassword.value.trim(),
-    is_active: editActive.checked,
+    name:editName.value.trim(),
+    seller_type:editSellerType.value,
+    city:editCity.value.trim(),
+    district:editDistrict.value.trim(),
+    address:editAddress.value.trim(),
+    map_link:editMapLink.value.trim(),
+    password:editPassword.value.trim(),
+    is_active:editActive.checked,
     services
   };
 
   try{
-    let r = await fetch(API + '/update-service-seller-profile/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
+
+    let r = await fetch(
+      API + '/update-service-seller-profile/',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(payload)
+      }
+    );
 
     let data = await r.json();
 
     if(data.error){
-      saveMsg.className='msg error';
-      saveMsg.innerText=data.error;
+
+      saveMsg.className = 'msg error';
+      saveMsg.innerText = data.error;
+
       return;
     }
 
-    saveMsg.className='msg success';
-    saveMsg.innerText='Профиль сохранён';
+    saveMsg.className = 'msg success';
+    saveMsg.innerText =
+      'Профиль сохранён';
 
     await loadProfile();
+
     showTab('profile');
 
   }catch(err){
-    saveMsg.className='msg error';
-    saveMsg.innerText='Ошибка сохранения';
+
+    saveMsg.className = 'msg error';
+    saveMsg.innerText =
+      'Ошибка сохранения';
   }
 }
 
 async function loadRequests(){
-  let seller_id = localStorage.getItem('seller_id');
+
+  let seller_id =
+    localStorage.getItem('seller_id');
+
   if(!seller_id) return;
 
-  let r = await fetch(API + '/get-requests/?seller_id=' + seller_id);
+  let r = await fetch(
+    API + '/get-requests/?seller_id=' +
+    seller_id
+  );
+
   let data = await r.json();
 
-  let filter = currentStatusFilter;
+  let filter =
+    currentStatusFilter;
 
-  let container = document.getElementById('requestsTab');
+  let container =
+    document.getElementById('requestsTab');
+
   container.innerHTML = '';
 
   if(!data.requests || !data.requests.length){
-    container.innerHTML = '<div class="request">Пока заявок нет</div>';
+
+    container.innerHTML =
+      '<div class="empty">Пока заявок нет</div>';
+
     return;
   }
 
   let shown = 0;
 
-  data.requests.forEach(req=>{
+  data.requests.forEach(req => {
+
     if(filter !== 'all' && req.status !== filter){
       return;
     }
 
     shown += 1;
 
-    let statusColor = '#fafafa';
+    let statusText = {
+      new:'Новая',
+      viewed:'Просмотрена',
+      in_work:'В работе',
+      done:'Завершена'
+    }[req.status] || 'Новая';
 
-    if(req.status === 'new') statusColor = '#fff8e1';
-    if(req.status === 'viewed') statusColor = '#e3f2fd';
-    if(req.status === 'in_work') statusColor = '#ede7f6';
-    if(req.status === 'done') statusColor = '#e8f5e9';
-
-    let wa = `https://wa.me/${req.phone}?text=` + encodeURIComponent(
-      `Здравствуйте. По заявке ZPT:\n` +
-      `Услуги: ${req.services.join(', ')}\n` +
-      `Город: ${req.city}\n` +
-      `Описание: ${req.description || ''}`
-    );
+    let wa =
+      `https://wa.me/${req.phone}?text=` +
+      encodeURIComponent(
+        `Здравствуйте. По заявке ZPT:\n` +
+        `Услуги: ${req.services.join(', ')}\n` +
+        `Город: ${req.city}\n` +
+        `Описание: ${req.description || ''}`
+      );
 
     container.innerHTML += `
-      <div class="request" style="background:${statusColor}">
-        <b>${req.service_type === 'sto' ? 'СТО заявка' : 'Детейлинг заявка'}</b><br><br>
-        Услуги: ${req.services.join(', ')}<br>
-        Город: ${req.city || '-'}<br>
-        Район: ${req.district || '-'}<br>
-        Телефон: ${req.phone || '-'}<br>
-        Комментарий: ${req.description || '-'}<br><br>
+      <div class="request ${req.status || 'new'}">
 
-        <label><b>Статус:</b></label>
-        <select onchange="updateStatus(${req.id}, this.value)">
-          <option value="new" ${req.status==='new'?'selected':''}>Новая</option>
-          <option value="viewed" ${req.status==='viewed'?'selected':''}>Просмотрена</option>
-          <option value="in_work" ${req.status==='in_work'?'selected':''}>В работе</option>
-          <option value="done" ${req.status==='done'?'selected':''}>Завершена</option>
-        </select>
+        <div class="request-top">
+          <div class="request-title">
+            ${req.service_type === 'sto' ? 'СТО заявка' : 'Детейлинг заявка'}
+          </div>
 
-        <a href="${wa}" target="_blank" class="wa-btn">Написать в WhatsApp</a>
+          <div class="request-status">
+            ${statusText}
+          </div>
+        </div>
+
+        <div class="request-body">
+
+          <div class="request-info">
+            <b>Услуги</b>
+            ${req.services.join(', ')}
+          </div>
+
+          <div class="request-info">
+            <b>Город</b>
+            ${req.city || '-'}
+          </div>
+
+          <div class="request-info">
+            <b>Район</b>
+            ${req.district || '-'}
+          </div>
+
+          <div class="request-info">
+            <b>Телефон</b>
+            ${req.phone || '-'}
+          </div>
+
+          <div class="request-info">
+            <b>Комментарий</b>
+            ${req.description || '-'}
+          </div>
+
+        </div>
+
+        <div class="request-actions">
+
+          <div>
+            <label>Статус</label>
+            <select onchange="updateStatus(${req.id}, this.value)">
+              <option value="new" ${req.status === 'new' ? 'selected' : ''}>Новая</option>
+              <option value="viewed" ${req.status === 'viewed' ? 'selected' : ''}>Просмотрена</option>
+              <option value="in_work" ${req.status === 'in_work' ? 'selected' : ''}>В работе</option>
+              <option value="done" ${req.status === 'done' ? 'selected' : ''}>Завершена</option>
+            </select>
+          </div>
+
+          <a href="${wa}" target="_blank" class="wa-btn">
+            Написать в WhatsApp
+          </a>
+
+        </div>
+
       </div>
     `;
   });
 
   if(shown === 0){
-    container.innerHTML = '<div class="request">По выбранному статусу заявок нет</div>';
+
+    container.innerHTML =
+      '<div class="empty">По выбранному статусу заявок нет</div>';
   }
 }
 
-async function updateStatus(request_id, status){
-  let seller_id = localStorage.getItem('seller_id');
+async function updateStatus(request_id,status){
+
+  let seller_id =
+    localStorage.getItem('seller_id');
 
   try{
-    await fetch(API + '/update-match-status/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({seller_id,request_id,status})
-    });
+
+    await fetch(
+      API + '/update-match-status/',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          seller_id,
+          request_id,
+          status
+        })
+      }
+    );
 
     loadRequests();
 
   }catch(err){
+
     alert('Ошибка обновления статуса');
   }
 }
@@ -595,58 +1224,50 @@ function setStatusFilter(status){
 
   document
     .querySelectorAll('.status-buttons button')
-    .forEach(btn=>btn.classList.remove('active'));
+    .forEach(btn => btn.classList.remove('active'));
 
-  if(status === 'all'){
-    filterAll.classList.add('active');
-  }
-
-  if(status === 'new'){
-    filterNew.classList.add('active');
-  }
-
-  if(status === 'viewed'){
-    filterViewed.classList.add('active');
-  }
-
-  if(status === 'in_work'){
-    filterWork.classList.add('active');
-  }
-
-  if(status === 'done'){
-    filterDone.classList.add('active');
-  }
+  if(status === 'all') filterAll.classList.add('active');
+  if(status === 'new') filterNew.classList.add('active');
+  if(status === 'viewed') filterViewed.classList.add('active');
+  if(status === 'in_work') filterWork.classList.add('active');
+  if(status === 'done') filterDone.classList.add('active');
 
   loadRequests();
 }
+
 function showTab(tab){
+
   tabRequests.classList.remove('active');
   tabProfile.classList.remove('active');
   tabEdit.classList.remove('active');
 
-  requestsTab.style.display='none';
-  profileTab.style.display='none';
-  editTab.style.display='none';
-  statusFilterBox.style.display='none';
+  requestsTab.style.display = 'none';
+  profileTab.style.display = 'none';
+  editTab.style.display = 'none';
+  statusFilterBox.style.display = 'none';
 
-  if(tab==='requests'){
+  if(tab === 'requests'){
+
     tabRequests.classList.add('active');
-    statusFilterBox.style.display='block';
-    requestsTab.style.display='block';
+    statusFilterBox.style.display = 'grid';
+    requestsTab.style.display = 'block';
   }
 
-  if(tab==='profile'){
+  if(tab === 'profile'){
+
     tabProfile.classList.add('active');
-    profileTab.style.display='block';
+    profileTab.style.display = 'block';
   }
 
-  if(tab==='edit'){
+  if(tab === 'edit'){
+
     tabEdit.classList.add('active');
-    editTab.style.display='block';
+    editTab.style.display = 'block';
   }
 }
 
 function logout(){
+
   localStorage.removeItem('seller_id');
   location.reload();
 }
@@ -660,40 +1281,49 @@ const stoServices =
 const detailingServices =
   document.getElementById('detailingServices');
 
-function toggleServiceBlocks(){
+function toggleServiceBlocks(clearHidden = true){
 
   if(editSellerType.value === 'detailing'){
 
-    stoServices
-      .querySelectorAll('input[type="checkbox"]')
-      .forEach(ch => ch.checked = false);
+    if(clearHidden){
+
+      stoServices
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach(ch => ch.checked = false);
+    }
 
     stoServices.style.display = 'none';
-
-    detailingServices.style.display = 'block';
+    detailingServices.style.display = 'grid';
 
   }else{
 
-    detailingServices
-      .querySelectorAll('input[type="checkbox"]')
-      .forEach(ch => ch.checked = false);
+    if(clearHidden){
 
-    stoServices.style.display = 'block';
+      detailingServices
+        .querySelectorAll('input[type="checkbox"]')
+        .forEach(ch => ch.checked = false);
+    }
 
+    stoServices.style.display = 'grid';
     detailingServices.style.display = 'none';
   }
 }
 
 editSellerType.addEventListener(
   'change',
-  toggleServiceBlocks
+  () => toggleServiceBlocks(true)
 );
+
 window.onload = function(){
-  let seller_id = localStorage.getItem('seller_id');
+
+  let seller_id =
+    localStorage.getItem('seller_id');
+
   if(seller_id){
     openCabinet();
   }
 }
+
 function togglePassword(){
 
   const input =
