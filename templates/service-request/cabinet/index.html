@@ -35,6 +35,51 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
 .msg.error{display:block;background:#ffebee;color:#b71c1c}
 .msg.success{display:block;background:#e8f5e9;color:#1b5e20}
 .checks label{display:block;font-weight:normal;margin:6px 0}
+
+.status-buttons{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.status-buttons button{
+  border:none;
+  border-radius:12px;
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+  background:#eef2f7;
+  color:#222;
+}
+
+.status-buttons button.active{
+  background:#3478f6;
+  color:#fff;
+}
+
+.request.new{
+  background:#fff8e1;
+}
+
+.request.viewed{
+  background:#e3f2fd;
+}
+
+.request.in_work{
+  background:#ede7f6;
+}
+
+.request.done{
+  background:#e8f5e9;
+}
+
+@media(max-width:760px){
+  .status-buttons{
+    grid-template-columns:1fr;
+  }
+}
+
 @media(max-width:760px){.tabs{flex-direction:column}}
 </style>
 </head>
@@ -106,13 +151,44 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
         <button id="tabEdit" onclick="showTab('edit')">Редактировать</button>
       </div>
 
-      <div class="field" id="statusFilterBox">
-        <select id="statusFilter" onchange="loadRequests()">
-          <option value="all">Все заявки</option>
-          <option value="viewed">Просмотренные</option>
-          <option value="in_work">В работе</option>
-          <option value="done">Завершённые</option>
-        </select>
+      <div class="status-buttons" id="statusFilterBox">
+
+        <button
+          id="filterAll"
+          class="active"
+          onclick="setStatusFilter('all')"
+        >
+          Все
+        </button>
+
+        <button
+          id="filterNew"
+          onclick="setStatusFilter('new')"
+        >
+          Новые
+        </button>
+
+        <button
+          id="filterViewed"
+          onclick="setStatusFilter('viewed')"
+        >
+          Просмотренные
+        </button>
+
+        <button
+          id="filterWork"
+          onclick="setStatusFilter('in_work')"
+        >
+          В работе
+        </button>
+
+        <button
+          id="filterDone"
+          onclick="setStatusFilter('done')"
+        >
+          Завершённые
+        </button>
+
       </div>
 
       <div id="requestsTab"></div>
@@ -197,6 +273,7 @@ input,select{width:100%;padding:12px;border-radius:10px;border:1px solid #ccc;ma
 <script>
 const API = window.location.origin + '/api/service';
 let currentProfile = null;
+let currentStatusFilter = 'all';
 
 async function login(){
   loginError.innerText = '';
@@ -348,7 +425,7 @@ async function loadRequests(){
   let r = await fetch(API + '/get-requests/?seller_id=' + seller_id);
   let data = await r.json();
 
-  let filter = document.getElementById('statusFilter')?.value || 'all';
+  let filter = currentStatusFilter;
 
   let container = document.getElementById('requestsTab');
   container.innerHTML = '';
@@ -425,6 +502,36 @@ async function updateStatus(request_id, status){
   }
 }
 
+function setStatusFilter(status){
+
+  currentStatusFilter = status;
+
+  document
+    .querySelectorAll('.status-buttons button')
+    .forEach(btn=>btn.classList.remove('active'));
+
+  if(status === 'all'){
+    filterAll.classList.add('active');
+  }
+
+  if(status === 'new'){
+    filterNew.classList.add('active');
+  }
+
+  if(status === 'viewed'){
+    filterViewed.classList.add('active');
+  }
+
+  if(status === 'in_work'){
+    filterWork.classList.add('active');
+  }
+
+  if(status === 'done'){
+    filterDone.classList.add('active');
+  }
+
+  loadRequests();
+}
 function showTab(tab){
   tabRequests.classList.remove('active');
   tabProfile.classList.remove('active');
