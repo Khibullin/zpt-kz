@@ -2,7 +2,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 import json
 
-from .models import Service, ServiceSeller, ServiceRequest, ServiceMatch
+from .models import (
+    Service,
+    ServiceSeller,
+    ServiceRequest,
+    ServiceMatch,
+    ServiceWhatsAppMessageLog,
+)
+
+from core.views import send_whatsapp_template
 
 
 def read_json(request):
@@ -95,7 +103,48 @@ def create_service_request(request):
     })
 
 
+def send_service_whatsapp_to_seller(req, seller):
+
+    try:
+
+        result = send_whatsapp_template(
+            to_phone=seller.whatsapp,
+            body_params=[
+                str(req.id),
+                req.brand or '-',
+                req.model or '-',
+                ', '.join(req.services.values_list('name', flat=True)) or '-',
+                req.city or '-',
+                req.description or '-',
+                req.phone or '-',
+            ]
+        )
+
+        ServiceWhatsAppMessageLog.objects.create(
+            seller=seller,
+            request=req,
+            phone=seller.whatsapp,
+            message_type='seller_request',
+            status='sent' if result.get('success') else 'failed',
+            meta_message_id=result.get('message_id', ''),
+            error_text=result.get('error', ''),
+            response_json=json.dumps(result, ensure_ascii=False),
+        )
+
+    except Exception as e:
+
+        ServiceWhatsAppMessageLog.objects.create(
+            seller=seller,
+            request=req,
+            phone=seller.whatsapp,
+            message_type='seller_request',
+            status='failed',
+            error_text=str(e),
+        )
+
+
 def match_services(req):
+
     req_services = set(
         req.services.values_list("name", flat=True)
     )
@@ -110,18 +159,24 @@ def match_services(req):
     )
 
     for seller in district_sellers:
+
         seller_services = set(
             seller.services.values_list("name", flat=True)
         )
 
         if seller_services & req_services:
+
             ServiceMatch.objects.create(
                 request=req,
                 seller=seller
             )
+
+            send_service_whatsapp_to_seller(req, seller)
+
             matched_sellers.append(seller)
 
     if not matched_sellers:
+
         city_sellers = ServiceSeller.objects.filter(
             seller_type=req.service_type,
             city=req.city,
@@ -129,19 +184,23 @@ def match_services(req):
         )
 
         for seller in city_sellers:
+
             seller_services = set(
                 seller.services.values_list("name", flat=True)
             )
 
             if seller_services & req_services:
+
                 ServiceMatch.objects.create(
                     request=req,
                     seller=seller
                 )
+
+                send_service_whatsapp_to_seller(req, seller)
+
                 matched_sellers.append(seller)
 
     return matched_sellers
-
 
 def get_service_requests(request):
     seller_id = request.GET.get("seller_id")
