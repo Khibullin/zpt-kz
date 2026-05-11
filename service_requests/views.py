@@ -108,16 +108,9 @@ def send_service_whatsapp_to_seller(req, seller):
     try:
 
         result = send_whatsapp_template(
-            to_phone=seller.whatsapp,
-            body_params=[
-                str(req.id),
-                req.brand or '-',
-                req.model or '-',
-                ', '.join(req.services.values_list('name', flat=True)) or '-',
-                req.city or '-',
-                req.description or '-',
-                req.phone or '-',
-            ]
+            seller.whatsapp,
+            req,
+            seller.name
         )
 
         ServiceWhatsAppMessageLog.objects.create(
