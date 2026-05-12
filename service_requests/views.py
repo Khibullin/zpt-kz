@@ -265,7 +265,7 @@ def match_services(req):
         is_active=True
     )
 
-    if settings and settings.test_mode:
+    if settings and settings.mode == ServiceBroadcastSettings.MODE_TEST:
         district_sellers = district_sellers.filter(
             is_test_seller=True
         )
@@ -295,7 +295,7 @@ def match_services(req):
             is_active=True
         )
 
-        if settings and settings.test_mode:
+        if settings and settings.mode == ServiceBroadcastSettings.MODE_TEST:
             city_sellers = city_sellers.filter(
                 is_test_seller=True
             )
