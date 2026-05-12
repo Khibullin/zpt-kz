@@ -276,7 +276,28 @@ function renderResult(data){
 document.getElementById('requestForm').addEventListener('submit',async function(e){
   e.preventDefault();clearMessage();
   let payload={transport_type:transportType,country:getSelectedText(countryEl),brand:getSelectedText(brandEl),model:getSelectedText(modelEl),category:categoryEl.value,article:articleEl.value.trim(),description:descriptionEl.value.trim(),city:cityEl.value,phone:normalizePhone(phoneEl.value)};
-  if(!payload.country||!payload.brand||!payload.model||!payload.category||!payload.city||!payload.phone){setMessage('Заполните обязательные поля.','error');return}
+if(
+  !payload.country ||
+  !payload.brand ||
+  !payload.model ||
+  !payload.category ||
+  !payload.city ||
+  !payload.phone
+){
+  setMessage('Заполните обязательные поля.','error');
+  return;
+}
+
+if(
+  payload.phone.length !== 11 ||
+  !payload.phone.startsWith('7')
+){
+  setMessage(
+    'Введите номер WhatsApp корректно: номер должен начинаться с 7, например 77011234567',
+    'error'
+  );
+  return;
+}
   submitBtn.disabled=true;submitBtn.innerText='Отправляем...';
   try{
     let r=await fetch(API+'/create-request/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
