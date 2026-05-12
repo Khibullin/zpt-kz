@@ -352,8 +352,10 @@ def _find_matching_sellers(req):
     strategies = [
         {'city': True, 'country': True, 'brand': True, 'model': True},
         {'city': True, 'country': True, 'brand': True, 'model': False},
-        {'city': True, 'country': False, 'brand': False, 'model': False},
-        {'city': False, 'country': False, 'brand': False, 'model': False},
+        {'city': True, 'country': True, 'brand': False, 'model': False},
+        {'city': False, 'country': True, 'brand': True, 'model': True},
+        {'city': False, 'country': True, 'brand': True, 'model': False},
+        {'city': False, 'country': True, 'brand': False, 'model': False},
     ]
 
     for strategy in strategies:
@@ -395,7 +397,6 @@ def _seller_notification_text(req):
         f"По всем вопросам:\n"
         f"WhatsApp +7 771 360 7040"
     )
-
 def _buyer_to_seller_text(req):
     return (
         f"Здравствуйте!\n\n"
