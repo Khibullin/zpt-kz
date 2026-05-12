@@ -8,6 +8,7 @@ from .models import (
     ServiceRequest,
     ServiceMatch,
     ServiceWhatsAppMessageLog,
+    ServiceBroadcastSettings,
 )
 
 from core.views import (
@@ -255,12 +256,19 @@ def match_services(req):
 
     matched_sellers = []
 
+    settings = ServiceBroadcastSettings.objects.first()
+
     district_sellers = ServiceSeller.objects.filter(
         seller_type=req.service_type,
         city=req.city,
         district=req.district,
         is_active=True
     )
+
+    if settings and settings.test_mode:
+        district_sellers = district_sellers.filter(
+            is_test_seller=True
+        )
 
     for seller in district_sellers:
 
@@ -286,6 +294,11 @@ def match_services(req):
             city=req.city,
             is_active=True
         )
+
+        if settings and settings.test_mode:
+            city_sellers = city_sellers.filter(
+                is_test_seller=True
+            )
 
         for seller in city_sellers:
 
