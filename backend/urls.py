@@ -25,9 +25,9 @@ urlpatterns = [
     ),
 
     path(
-        'service-request/register/',
+        'service-request/result/<int:request_id>/',
         TemplateView.as_view(
-            template_name='service-request/register/index.html'
+            template_name='service-request/result.html'
         )
     ),
 ]
