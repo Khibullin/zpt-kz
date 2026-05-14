@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
+from service_requests.views import service_request_result
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,8 +27,7 @@ urlpatterns = [
 
     path(
         'service-request/result/<int:request_id>/',
-        TemplateView.as_view(
-            template_name='service-request/result.html'
-        )
+        service_request_result,
+        name='service_request_result_page',
     ),
 ]
