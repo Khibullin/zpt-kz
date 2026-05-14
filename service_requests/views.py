@@ -1,5 +1,6 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
 import json
 
 from .models import (
@@ -452,8 +453,6 @@ def update_service_match_status(request):
 
     except ServiceMatch.DoesNotExist:
         return JsonResponse({"error": "Match not found"}, status=404)
-
-from django.shortcuts import render, get_object_or_404
 
 
 def service_request_result(request, request_id):
