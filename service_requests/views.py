@@ -480,11 +480,18 @@ def service_request_result(request, request_id):
             'whatsapp': seller.whatsapp,
         })
 
+    service_type_label = {
+        'sto': 'СТО / ремонт',
+        'detailing': 'Детейлинг / тюнинг',
+    }.get(req.service_type, req.service_type)
+
     return render(
         request,
         'service-request/result.html',
         {
             'req': req,
             'sellers': sellers,
+            'service_type_label': service_type_label,
+            'sellers_count': len(sellers),
         }
     )

@@ -183,7 +183,19 @@ body{
 
     <div class="success">
 
-      <b>✅ Заявка №{{ req.id }} принята и отправлена исполнителям.</b>
+      <b>
+        ✅ Заявка №{{ req.id }} принята и отправлена исполнителям.
+      </b>
+
+      <br><br>
+
+      <b>
+        Отправлено:
+      </b>
+
+      {{ sellers_count }}
+
+      исполнителям.
 
       <br><br>
 
@@ -204,7 +216,7 @@ body{
     <div class="request-box">
 
       <b>Тип:</b>
-      {{ req.service_type }}
+      {{ service_type_label }}
 
       <br>
 
@@ -289,7 +301,16 @@ body{
       {% empty %}
 
       <div class="seller-card">
-        Исполнители пока не найдены.
+
+        <b>
+          Подходящие исполнители пока не найдены.
+        </b>
+
+        <div style="margin-top:10px;line-height:1.6;">
+          Попробуйте изменить район,
+          услуги или отправить заявку позже.
+        </div>
+
       </div>
 
       {% endfor %}
@@ -300,7 +321,8 @@ body{
 
       <a
         class="btn catalog"
-        href="/catalog/services/"
+        href="#"
+        onclick="alert('Каталог исполнителей скоро будет доступен'); return false;"
       >
         Смотреть весь каталог исполнителей
       </a>
