@@ -124,13 +124,52 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
           <label for="city">Город</label>
           <select id="city" required>
             <option value="">Выберите город</option>
-            <option value="Алматы">Алматы</option><option value="Астана">Астана</option><option value="Шымкент">Шымкент</option><option value="Караганда">Караганда</option>
+            <option value="Алматы">Алматы</option>
+            <option value="Астана">Астана</option>
+            <option value="Шымкент">Шымкент</option>
+            <option value="Караганда">Караганда</option>
+
             <option disabled>──────────</option>
-            <option value="Актобе">Актобе</option><option value="Атырау">Атырау</option><option value="Актау">Актау</option><option value="Павлодар">Павлодар</option>
-            <option value="Усть-Каменогорск">Усть-Каменогорск</option><option value="Семей">Семей</option><option value="Костанай">Костанай</option><option value="Петропавловск">Петропавловск</option>
-            <option value="Кокшетау">Кокшетау</option><option value="Тараз">Тараз</option><option value="Туркестан">Туркестан</option><option value="Кызылорда">Кызылорда</option>
-            <option value="Уральск">Уральск</option><option value="Талдыкорган">Талдыкорган</option><option value="Жезказган">Жезказган</option><option value="Экибастуз">Экибастуз</option>
+
+            <option value="Актобе">Актобе</option>
+            <option value="Атырау">Атырау</option>
+            <option value="Актау">Актау</option>
+            <option value="Павлодар">Павлодар</option>
+            <option value="Усть-Каменогорск">Усть-Каменогорск</option>
+            <option value="Семей">Семей</option>
+            <option value="Костанай">Костанай</option>
+            <option value="Петропавловск">Петропавловск</option>
+            <option value="Кокшетау">Кокшетау</option>
+            <option value="Тараз">Тараз</option>
+            <option value="Туркестан">Туркестан</option>
+            <option value="Кызылорда">Кызылорда</option>
+            <option value="Уральск">Уральск</option>
+            <option value="Талдыкорган">Талдыкорган</option>
+            <option value="Жезказган">Жезказган</option>
+            <option value="Экибастуз">Экибастуз</option>
           </select>
+        </div>
+
+        <div class="field">
+          <label for="district">Район</label>
+
+          <select id="district" required>
+            <option value="">Выберите район</option>
+
+            <option value="Алмалинский">Алмалинский</option>
+            <option value="Алатауский">Алатауский</option>
+            <option value="Ауэзовский">Ауэзовский</option>
+            <option value="Бостандыкский">Бостандыкский</option>
+            <option value="Жетысуский">Жетысуский</option>
+            <option value="Медеуский">Медеуский</option>
+            <option value="Наурызбайский">Наурызбайский</option>
+            <option value="Турксибский">Турксибский</option>
+          </select>
+
+          <div class="hint">
+            Пока район используется для Алматы.
+            Позже добавим районы других городов.
+          </div>
         </div>
 
         <div class="field">
@@ -163,11 +202,11 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
       <b>Зарегистрироваться исполнителем</b>
       <span>Получайте заявки от клиентов по своим услугам и городу.</span>
     </a>
-    <a href="/request-parts/guide/" class="action-card guide-card">
+    <a href="/service-request/guide/" class="action-card guide-card">
       <b>Гид</b>
       <span>Как правильно оформить заявку и быстрее получить предложения.</span>
     </a>
-    <a href="/request-parts/faq/" class="action-card faq-card">
+    <a href="/service-request/faq/" class="action-card faq-card">
       <b>Часто задаваемые вопросы</b>
       <span>Ответы для клиентов, СТО, детейлинга и мастеров.</span>
     </a>
@@ -184,9 +223,13 @@ const detailingServices=document.getElementById('detailingServices');
 
 const brandEl=document.getElementById('brand');
 const modelEl=document.getElementById('model');
+
 const cityEl=document.getElementById('city');
+const districtEl=document.getElementById('district');
+
 const phoneEl=document.getElementById('phone');
 const descriptionEl=document.getElementById('description');
+
 const msg=document.getElementById('msg');
 const submitBtn=document.getElementById('submitBtn');
 
@@ -229,25 +272,38 @@ document.getElementById('serviceForm').addEventListener('submit', async function
 
   const services = getSelectedServices();
 
-  const payload = {
-    service_type: serviceType,
-    brand: brandEl.value.trim(),
-    model: modelEl.value.trim(),
-    services: services,
-    city: cityEl.value,
-    phone: normalizePhone(phoneEl.value),
-    description: descriptionEl.value.trim()
-  };
+const payload = {
+  service_type: serviceType,
+
+  brand: brandEl.value.trim(),
+  model: modelEl.value.trim(),
+
+  services: services,
+
+  city: cityEl.value,
+  district: districtEl.value,
+
+  phone: normalizePhone(phoneEl.value),
+
+  description: descriptionEl.value.trim()
+};
 
   if (!payload.services.length){
     setMessage('Выберите хотя бы одну услугу.','error');
     return;
   }
 
-  if (!payload.city || !payload.phone){
-    setMessage('Заполните город и телефон / WhatsApp.','error');
-    return;
-  }
+if (
+  !payload.city ||
+  !payload.district ||
+  !payload.phone
+){
+  setMessage(
+    'Заполните город, район и телефон / WhatsApp.',
+    'error'
+  );
+  return;
+}
 
   submitBtn.disabled = true;
   submitBtn.innerText = 'Отправляем...';
@@ -266,75 +322,60 @@ if(data.error){
   return;
 }
 
-let sellersHtml = '';
-
-if(data.sellers && data.sellers.length){
-
-  sellersHtml += `
-    <br><br>
-    <b>Заявка отправлена исполнителям:</b><br><br>
-  `;
-
-  data.sellers.forEach(seller => {
-
-    let wa = seller.whatsapp
-      ? `https://wa.me/${seller.whatsapp}`
-      : '#';
-
-    sellersHtml += `
-      <div style="border:1px solid #dfe5df;border-radius:12px;padding:14px;margin-bottom:12px;background:#fff;">
-        <div style="font-size:18px;font-weight:bold;color:#3478f6">
-          ${seller.name || 'СТО / Детейлинг'}
-        </div>
-
-        <div style="margin-top:6px">
-          Район: ${seller.district || '-'}
-        </div>
-
-        <div style="margin-top:4px">
-          Адрес: ${seller.address || '-'}
-        </div>
-
-        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-          <a href="${wa}" target="_blank" style="background:#25D366;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
-            WhatsApp
-          </a>
-
-          ${seller.map_link ? `
-            <a href="${seller.map_link}" target="_blank" style="background:#444;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;">
-              2GIS
-            </a>
-          ` : ''}
-        </div>
-      </div>
-    `;
-  });
-
-}else{
-
-  sellersHtml = `
-    <br><br>
-    <b>Исполнители не найдены.</b><br>
-    Мы приняли заявку, но подходящих исполнителей по выбранным услугам и городу пока нет.
-  `;
-}
-
 setMessage(`
-<b>Заявка принята.</b><br><br>
+<b>✅ Заявка принята и отправлена подходящим исполнителям.</b>
+
+<br><br>
+
+<b>Что дальше?</b>
+
+<br><br>
+
+Ничего делать не нужно —
+СТО и мастера сами напишут вам в WhatsApp
+с ценой, сроками и условиями.
+
+<br><br>
+
+Обычно первые ответы приходят
+в течение 5–15 минут.
+
+<br><br>
 
 <b>Ваш запрос:</b><br>
+
 Услуги: ${services.join(', ')}<br>
 Город: ${payload.city}<br>
+Район: ${payload.district}<br>
 Телефон: ${payload.phone}<br>
-${payload.description ? `Описание: ${payload.description}<br>` : ''}
 
-${sellersHtml}
+${payload.description
+  ? `Описание: ${payload.description}<br>`
+  : ''
+}
 
-<div style="margin-top:14px">
-Обычно ответ приходит в течение 5–15 минут.
-</div>
+<br>
+
+Если хотите самостоятельно посмотреть исполнителей —
+можете открыть каталог.
+
+<br><br>
+
+<a
+  href="/catalog/"
+  style="
+    display:inline-block;
+    background:#3478f6;
+    color:#fff;
+    text-decoration:none;
+    padding:12px 18px;
+    border-radius:10px;
+    font-weight:bold;
+  "
+>
+  Открыть каталог исполнителей
+</a>
 `,'success');
-
 document.getElementById('serviceForm').reset();
 setServiceType('sto');
 
