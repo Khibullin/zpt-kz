@@ -1,0 +1,316 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Результат заявки | ZPT.KZ</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#f5f7fb;
+  font-family:Arial,sans-serif;
+  color:#222;
+}
+
+.header{
+  background:#fff;
+  border-bottom:1px solid #e5e5e5;
+}
+
+.header-inner{
+  max-width:1100px;
+  margin:auto;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:bold;
+  color:#c62828;
+  text-decoration:none;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+}
+
+.nav a{
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.nav-main{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.wrap{
+  max-width:1000px;
+  margin:24px auto;
+  padding:0 16px;
+}
+
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+}
+
+.success{
+  background:#e8f5e9;
+  color:#1b5e20;
+  border-radius:14px;
+  padding:18px;
+  margin-bottom:24px;
+  line-height:1.6;
+}
+
+.section-title{
+  font-size:24px;
+  font-weight:bold;
+  margin-bottom:16px;
+}
+
+.request-box{
+  background:#fafafa;
+  border:1px solid #e0e0e0;
+  border-radius:14px;
+  padding:16px;
+  margin-bottom:24px;
+  line-height:1.7;
+}
+
+.sellers{
+  display:grid;
+  gap:16px;
+}
+
+.seller-card{
+  border:1px solid #e0e0e0;
+  border-radius:16px;
+  padding:18px;
+  background:#fff;
+}
+
+.seller-name{
+  font-size:22px;
+  font-weight:bold;
+  color:#3478f6;
+  margin-bottom:12px;
+}
+
+.buttons{
+  display:flex;
+  gap:10px;
+  margin-top:16px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  text-decoration:none;
+  padding:12px 18px;
+  border-radius:10px;
+  font-weight:bold;
+  display:inline-block;
+}
+
+.wa{
+  background:#25D366;
+  color:#fff;
+}
+
+.map{
+  background:#444;
+  color:#fff;
+}
+
+.catalog{
+  background:#3478f6;
+  color:#fff;
+}
+
+.bottom{
+  margin-top:28px;
+  text-align:center;
+}
+
+@media(max-width:760px){
+
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+
+  .buttons{
+    flex-direction:column;
+  }
+
+  .btn{
+    text-align:center;
+  }
+
+}
+
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="/">ZPT.KZ</a>
+
+    <nav class="nav">
+      <a class="nav-main" href="/">Главная</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <div class="card">
+
+    <div class="success">
+
+      <b>✅ Заявка №{{ req.id }} принята и отправлена исполнителям.</b>
+
+      <br><br>
+
+      Ничего делать не нужно —
+      СТО и мастера сами напишут вам в WhatsApp.
+
+      <br><br>
+
+      Обычно первые ответы приходят
+      в течение 5–15 минут.
+
+    </div>
+
+    <div class="section-title">
+      Ваш запрос
+    </div>
+
+    <div class="request-box">
+
+      <b>Тип:</b>
+      {{ req.service_type }}
+
+      <br>
+
+      <b>Город:</b>
+      {{ req.city }}
+
+      <br>
+
+      <b>Район:</b>
+      {{ req.district }}
+
+      <br>
+
+      <b>Телефон:</b>
+      {{ req.phone }}
+
+      <br>
+
+      <b>Описание:</b>
+      {{ req.description }}
+
+      <br><br>
+
+      <b>Услуги:</b>
+
+      {% for service in req.services.all %}
+        {{ service.name }}{% if not forloop.last %}, {% endif %}
+      {% endfor %}
+
+    </div>
+
+    <div class="section-title">
+      Исполнители, которым отправлена заявка
+    </div>
+
+    <div class="sellers">
+
+      {% for seller in sellers %}
+
+      <div class="seller-card">
+
+        <div class="seller-name">
+          {{ seller.name }}
+        </div>
+
+        <div>
+          <b>Район:</b>
+          {{ seller.district }}
+        </div>
+
+        <div style="margin-top:6px;">
+          <b>Адрес:</b>
+          {{ seller.address }}
+        </div>
+
+        <div class="buttons">
+
+          <a
+            class="btn wa"
+            target="_blank"
+            href="https://wa.me/{{ seller.whatsapp }}"
+          >
+            WhatsApp
+          </a>
+
+          {% if seller.map_link %}
+
+          <a
+            class="btn map"
+            target="_blank"
+            href="{{ seller.map_link }}"
+          >
+            2GIS
+          </a>
+
+          {% endif %}
+
+        </div>
+
+      </div>
+
+      {% empty %}
+
+      <div class="seller-card">
+        Исполнители пока не найдены.
+      </div>
+
+      {% endfor %}
+
+    </div>
+
+    <div class="bottom">
+
+      <a
+        class="btn catalog"
+        href="/catalog/services/"
+      >
+        Смотреть весь каталог исполнителей
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
+```

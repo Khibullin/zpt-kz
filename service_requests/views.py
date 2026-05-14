@@ -452,3 +452,40 @@ def update_service_match_status(request):
 
     except ServiceMatch.DoesNotExist:
         return JsonResponse({"error": "Match not found"}, status=404)
+
+from django.shortcuts import render, get_object_or_404
+
+
+def service_request_result(request, request_id):
+
+    req = get_object_or_404(
+        ServiceRequest,
+        id=request_id
+    )
+
+    matches = ServiceMatch.objects.filter(
+        request=req
+    ).select_related('seller')
+
+    sellers = []
+
+    for match in matches:
+
+        seller = match.seller
+
+        sellers.append({
+            'name': seller.name,
+            'district': seller.district,
+            'address': seller.address,
+            'map_link': seller.map_link,
+            'whatsapp': seller.whatsapp,
+        })
+
+    return render(
+        request,
+        'service-request/result.html',
+        {
+            'req': req,
+            'sellers': sellers,
+        }
+    )
