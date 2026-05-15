@@ -30,4 +30,18 @@ urlpatterns = [
         service_request_result,
         name='service_request_result_page',
     ),
+
+    path(
+        'service-request/register/',
+        TemplateView.as_view(
+            template_name='service-request/register/index.html'
+        )
+    ),
+
+    path(
+        'catalog/services/',
+        TemplateView.as_view(
+            template_name='catalog/services/index.html'
+        )
+    ),
 ]
