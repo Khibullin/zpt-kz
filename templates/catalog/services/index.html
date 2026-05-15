@@ -257,93 +257,102 @@ body{
 
   <section class="filters">
 
-    <div style="margin-bottom:20px;">
+    <form method="get">
 
-      <label style="display:block;margin-bottom:8px;font-weight:bold;">
-        Поиск
-      </label>
+      <div style="margin-bottom:20px;">
 
-      <input
-        type="text"
-        placeholder="Название, услуга или район"
-        style="
-          width:100%;
-          padding:14px;
-          border-radius:12px;
-          border:1px solid #dcdcdc;
-          font-size:15px;
-          box-sizing:border-box;
-        "
-      >
-
-    </div>
-
-    <div class="filters-grid">
-
-      <div class="field">
-
-        <label>
-          Тип
+        <label style="display:block;margin-bottom:8px;font-weight:bold;">
+          Поиск
         </label>
 
-        <select>
-          <option>Все</option>
-          <option>СТО / ремонт</option>
-          <option>Детейлинг / тюнинг</option>
-        </select>
+        <input
+          type="text"
+          name="q"
+          value="{{ filters.q }}"
+          placeholder="Название, услуга или район"
+          style="
+            width:100%;
+            padding:14px;
+            border-radius:12px;
+            border:1px solid #dcdcdc;
+            font-size:15px;
+            box-sizing:border-box;
+          "
+        >
 
       </div>
 
-      <div class="field">
+      <div class="filters-grid">
 
-        <label>
-          Город
-        </label>
+        <div class="field">
+          <label>Тип</label>
 
-        <select>
-          <option>Все города</option>
-          <option>Алматы</option>
-          <option>Астана</option>
-          <option>Шымкент</option>
-        </select>
+          <select name="type">
+            <option value="">Все</option>
+            <option value="sto" {% if filters.type == 'sto' %}selected{% endif %}>СТО / ремонт</option>
+            <option value="detailing" {% if filters.type == 'detailing' %}selected{% endif %}>Детейлинг / тюнинг</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Город</label>
+
+          <select name="city">
+            <option value="">Все города</option>
+            <option value="Алматы" {% if filters.city == 'Алматы' %}selected{% endif %}>Алматы</option>
+            <option value="Астана" {% if filters.city == 'Астана' %}selected{% endif %}>Астана</option>
+            <option value="Шымкент" {% if filters.city == 'Шымкент' %}selected{% endif %}>Шымкент</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Район</label>
+
+          <select name="district">
+            <option value="">Все районы</option>
+            <option value="Бостандыкский" {% if filters.district == 'Бостандыкский' %}selected{% endif %}>Бостандыкский</option>
+            <option value="Алмалинский" {% if filters.district == 'Алмалинский' %}selected{% endif %}>Алмалинский</option>
+            <option value="Ауэзовский" {% if filters.district == 'Ауэзовский' %}selected{% endif %}>Ауэзовский</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Услуга</label>
+
+          <select name="service">
+            <option value="">Все услуги</option>
+            <option value="Диагностика" {% if filters.service == 'Диагностика' %}selected{% endif %}>Диагностика</option>
+            <option value="Ходовая часть" {% if filters.service == 'Ходовая часть' %}selected{% endif %}>Ходовая часть</option>
+            <option value="Полировка" {% if filters.service == 'Полировка' %}selected{% endif %}>Полировка</option>
+            <option value="Керамика" {% if filters.service == 'Керамика' %}selected{% endif %}>Керамика</option>
+          </select>
+        </div>
 
       </div>
 
-      <div class="field">
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
 
-        <label>
-          Район
-        </label>
+        <button
+          type="submit"
+          class="btn more"
+          style="border:none;cursor:pointer;"
+        >
+          Найти
+        </button>
 
-        <select>
-          <option>Все районы</option>
-          <option>Бостандыкский</option>
-          <option>Алмалинский</option>
-          <option>Ауэзовский</option>
-        </select>
-
-      </div>
-
-      <div class="field">
-
-        <label>
-          Услуга
-        </label>
-
-        <select>
-          <option>Все услуги</option>
-          <option>Диагностика</option>
-          <option>Ходовая часть</option>
-          <option>Полировка</option>
-          <option>Керамика</option>
-        </select>
+        <a
+          href="/catalog/services/"
+          class="btn"
+          style="background:#eef2f7;color:#3478f6;"
+        >
+          Сбросить
+        </a>
 
       </div>
 
-    </div>
+    </form>
 
   </section>
-
 <section class="cards">
 
   {% for seller in sellers %}

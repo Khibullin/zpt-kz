@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
 import json
 
 from .models import (
@@ -498,11 +499,45 @@ def service_request_result(request, request_id):
 
 def services_catalog(request):
 
+    q = request.GET.get('q', '').strip()
+    seller_type = request.GET.get('type', '').strip()
+    city = request.GET.get('city', '').strip()
+    district = request.GET.get('district', '').strip()
+    service_name = request.GET.get('service', '').strip()
+
     sellers = ServiceSeller.objects.filter(
         is_active=True,
         receive_requests=True,
         is_paused=False,
     ).prefetch_related('services')
+
+    if seller_type:
+        sellers = sellers.filter(
+            seller_type=seller_type
+        )
+
+    if city:
+        sellers = sellers.filter(
+            city=city
+        )
+
+    if district:
+        sellers = sellers.filter(
+            district=district
+        )
+
+    if service_name:
+        sellers = sellers.filter(
+            services__name=service_name
+        )
+
+    if q:
+        sellers = sellers.filter(
+            Q(name__icontains=q) |
+            Q(address__icontains=q) |
+            Q(district__icontains=q) |
+            Q(services__name__icontains=q)
+        ).distinct()
 
     sellers_data = []
 
@@ -576,5 +611,12 @@ def services_catalog(request):
         'catalog/services/index.html',
         {
             'sellers': sellers_data,
+            'filters': {
+                'q': q,
+                'type': seller_type,
+                'city': city,
+                'district': district,
+                'service': service_name,
+            },
         }
     )
