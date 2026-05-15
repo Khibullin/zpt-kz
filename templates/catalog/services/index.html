@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -108,6 +107,15 @@ body{
   font-size:15px;
 }
 
+.search-input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #dcdcdc;
+  font-size:15px;
+  box-sizing:border-box;
+}
+
 .cards{
   display:grid;
   gap:18px;
@@ -190,6 +198,29 @@ body{
   color:#fff;
 }
 
+.reset{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.pagination{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:30px 0;
+  flex-wrap:wrap;
+}
+
+.page-active{
+  background:#3478f6;
+  color:#fff;
+}
+
+.page-link{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
 .footer-space{
   height:40px;
 }
@@ -266,18 +297,11 @@ body{
         </label>
 
         <input
+          class="search-input"
           type="text"
           name="q"
           value="{{ filters.q }}"
           placeholder="Название, услуга или район"
-          style="
-            width:100%;
-            padding:14px;
-            border-radius:12px;
-            border:1px solid #dcdcdc;
-            font-size:15px;
-            box-sizing:border-box;
-          "
         >
 
       </div>
@@ -287,7 +311,11 @@ body{
         <div class="field">
           <label>Тип</label>
 
-          <select name="type">
+          <select
+            name="type"
+            id="typeSelect"
+            onchange="this.form.submit()"
+          >
             <option value="">Все</option>
             <option value="sto" {% if filters.type == 'sto' %}selected{% endif %}>СТО / ремонт</option>
             <option value="detailing" {% if filters.type == 'detailing' %}selected{% endif %}>Детейлинг / тюнинг</option>
@@ -319,12 +347,64 @@ body{
         <div class="field">
           <label>Услуга</label>
 
-          <select name="service">
-            <option value="">Все услуги</option>
-            <option value="Диагностика" {% if filters.service == 'Диагностика' %}selected{% endif %}>Диагностика</option>
-            <option value="Ходовая часть" {% if filters.service == 'Ходовая часть' %}selected{% endif %}>Ходовая часть</option>
-            <option value="Полировка" {% if filters.service == 'Полировка' %}selected{% endif %}>Полировка</option>
-            <option value="Керамика" {% if filters.service == 'Керамика' %}selected{% endif %}>Керамика</option>
+          <select name="service" id="serviceSelect">
+
+            <option value="">
+              Все услуги
+            </option>
+
+            {% if filters.type == 'sto' %}
+
+              {% for service in sto_services %}
+
+              <option
+                value="{{ service }}"
+                {% if filters.service == service %}selected{% endif %}
+              >
+                {{ service }}
+              </option>
+
+              {% endfor %}
+
+            {% elif filters.type == 'detailing' %}
+
+              {% for service in detailing_services %}
+
+              <option
+                value="{{ service }}"
+                {% if filters.service == service %}selected{% endif %}
+              >
+                {{ service }}
+              </option>
+
+              {% endfor %}
+
+            {% else %}
+
+              {% for service in sto_services %}
+
+              <option
+                value="{{ service }}"
+                {% if filters.service == service %}selected{% endif %}
+              >
+                {{ service }}
+              </option>
+
+              {% endfor %}
+
+              {% for service in detailing_services %}
+
+              <option
+                value="{{ service }}"
+                {% if filters.service == service %}selected{% endif %}
+              >
+                {{ service }}
+              </option>
+
+              {% endfor %}
+
+            {% endif %}
+
           </select>
         </div>
 
@@ -342,8 +422,7 @@ body{
 
         <a
           href="/catalog/services/"
-          class="btn"
-          style="background:#eef2f7;color:#3478f6;"
+          class="btn reset"
         >
           Сбросить
         </a>
@@ -353,146 +432,176 @@ body{
     </form>
 
   </section>
-<section class="cards">
 
-  {% for seller in sellers %}
+  <section class="cards">
 
-  <div class="card">
+    {% for seller in sellers %}
 
-    <div class="card-top">
+    <div class="card">
 
-      <div>
+      <div class="card-top">
 
-        <div class="card-title">
-          {{ seller.name }}
-        </div>
+        <div>
 
-        <div class="badges">
-
-          {% if seller.map_link %}
-
-          <div class="badge">
-            ✓ Есть 2GIS
+          <div class="card-title">
+            {{ seller.name }}
           </div>
 
-          {% endif %}
+          <div class="badges">
 
-          <div class="badge">
-            ✓ Принимает заявки
+            {% if seller.map_link %}
+
+            <div class="badge">
+              ✓ Есть 2GIS
+            </div>
+
+            {% endif %}
+
+            <div class="badge">
+              ✓ Принимает заявки
+            </div>
+
           </div>
 
-        </div>
+          <div style="margin-bottom:16px;font-size:15px;color:#444;">
 
-        <div
-          style="
-            margin-bottom:16px;
-            font-size:15px;
-            color:#444;
-          "
-        >
+            <b>Заполненность профиля:</b>
 
-          <b>Заполненность профиля:</b>
+            <span style="color:#f5a623;font-weight:bold;">
+              {{ seller.profile_stars }}
+            </span>
 
-          <span style="color:#f5a623;font-weight:bold;">
-            {{ seller.profile_stars }}
-          </span>
+            <span>
+              {{ seller.profile_percent }}%
+            </span>
 
-          <span>
-            {{ seller.profile_percent }}%
-          </span>
+            <a
+              href="#"
+              onclick="alert('Рейтинг показывает, насколько подробно исполнитель заполнил профиль: адрес, услуги, 2GIS, описание, фото, сайт и график работы. Это не оценка качества работы.'); return false;"
+              style="margin-left:8px;color:#3478f6;text-decoration:none;font-weight:bold;"
+            >
+              Как считается?
+            </a>
 
-          <a
-            href="#"
-            onclick="alert('Рейтинг показывает, насколько подробно исполнитель заполнил профиль: адрес, услуги, 2GIS, описание, фото, сайт и график работы. Это не оценка качества работы.'); return false;"
-            style="
-              margin-left:8px;
-              color:#3478f6;
-              text-decoration:none;
-              font-weight:bold;
-            "
-          >
-            Как считается?
-          </a>
+          </div>
 
         </div>
 
       </div>
 
+      <div class="description">
+        {{ seller.services }}
+      </div>
+
+      <div class="info">
+
+        <b>Тип:</b>
+        {{ seller.seller_type_label }}
+
+        <br>
+
+        <b>Город:</b>
+        {{ seller.city }}
+
+        <br>
+
+        <b>Район:</b>
+        {{ seller.district }}
+
+        <br>
+
+        <b>Адрес:</b>
+        {{ seller.address }}
+
+      </div>
+
+      <div class="buttons">
+
+        <a
+          class="btn wa"
+          target="_blank"
+          href="https://wa.me/{{ seller.whatsapp }}"
+        >
+          WhatsApp
+        </a>
+
+        {% if seller.map_link %}
+
+        <a
+          class="btn map"
+          target="_blank"
+          href="{{ seller.map_link }}"
+        >
+          2GIS
+        </a>
+
+        {% endif %}
+
+        <a
+          class="btn more"
+          href="#"
+        >
+          Подробнее
+        </a>
+
+      </div>
+
     </div>
 
-    <div class="description">
-      {{ seller.services }}
+    {% empty %}
+
+    <div class="card">
+      Исполнители пока не найдены.
     </div>
 
-    <div class="info">
+    {% endfor %}
 
-      <b>Тип:</b>
-      {{ seller.seller_type_label }}
+  </section>
 
-      <br>
+  {% if page_obj.has_other_pages %}
 
-      <b>Город:</b>
-      {{ seller.city }}
+  <div class="pagination">
 
-      <br>
+    {% if page_obj.has_previous %}
 
-      <b>Район:</b>
-      {{ seller.district }}
+    <a
+      class="btn page-link"
+      href="?q={{ filters.q }}&type={{ filters.type }}&city={{ filters.city }}&district={{ filters.district }}&service={{ filters.service }}&page={{ page_obj.previous_page_number }}"
+    >
+      ← Предыдущая
+    </a>
 
-      <br>
+    {% endif %}
 
-      <b>Адрес:</b>
-      {{ seller.address }}
+    {% for num in page_obj.paginator.page_range %}
 
-    </div>
+    <a
+      class="btn {% if page_obj.number == num %}page-active{% else %}page-link{% endif %}"
+      href="?q={{ filters.q }}&type={{ filters.type }}&city={{ filters.city }}&district={{ filters.district }}&service={{ filters.service }}&page={{ num }}"
+    >
+      {{ num }}
+    </a>
 
-    <div class="buttons">
+    {% endfor %}
 
-      <a
-        class="btn wa"
-        target="_blank"
-        href="https://wa.me/{{ seller.whatsapp }}"
-      >
-        WhatsApp
-      </a>
+    {% if page_obj.has_next %}
 
-      {% if seller.map_link %}
+    <a
+      class="btn page-link"
+      href="?q={{ filters.q }}&type={{ filters.type }}&city={{ filters.city }}&district={{ filters.district }}&service={{ filters.service }}&page={{ page_obj.next_page_number }}"
+    >
+      Следующая →
+    </a>
 
-      <a
-        class="btn map"
-        target="_blank"
-        href="{{ seller.map_link }}"
-      >
-        2GIS
-      </a>
-
-      {% endif %}
-
-      <a
-        class="btn more"
-        href="#"
-      >
-        Подробнее
-      </a>
-
-    </div>
+    {% endif %}
 
   </div>
 
-  {% empty %}
+  {% endif %}
 
-  <div class="card">
-    Исполнители пока не найдены.
-  </div>
-
-  {% endfor %}
-
-</section>
-
-<div class="footer-space"></div>
+  <div class="footer-space"></div>
 
 </div>
 
 </body>
 </html>
-```

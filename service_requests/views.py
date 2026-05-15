@@ -2,6 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
+from django.core.paginator import Paginator
 import json
 
 from .models import (
@@ -497,6 +498,7 @@ def service_request_result(request, request_id):
         }
     )
 
+
 def services_catalog(request):
 
     q = request.GET.get('q', '').strip()
@@ -504,11 +506,37 @@ def services_catalog(request):
     city = request.GET.get('city', '').strip()
     district = request.GET.get('district', '').strip()
     service_name = request.GET.get('service', '').strip()
+    page = request.GET.get('page', 1)
+
+    sto_services = [
+        'Диагностика',
+        'Ходовая часть',
+        'Двигатель',
+        'Тормозная система',
+        'Электрика',
+        'Кузовной ремонт',
+        'Ремонт АКПП',
+        'Шиномонтаж',
+        'Развал-схождение',
+        'Автоэлектрик',
+    ]
+
+    detailing_services = [
+        'Мойка',
+        'Химчистка',
+        'Полировка',
+        'Керамика',
+        'Антигравийная плёнка',
+        'Тонировка',
+        'Шумоизоляция',
+        'Перетяжка салона',
+        'Автозвук',
+        'Свет / оптика',
+        'Внешний тюнинг',
+    ]
 
     sellers = ServiceSeller.objects.filter(
         is_active=True,
-        receive_requests=True,
-        is_paused=False,
     ).prefetch_related('services')
 
     if seller_type:
@@ -606,11 +634,20 @@ def services_catalog(request):
             'profile_stars': stars,
         })
 
+    paginator = Paginator(
+        sellers_data,
+        20
+    )
+
+    sellers_page = paginator.get_page(
+        page
+    )
+
     return render(
         request,
         'catalog/services/index.html',
         {
-            'sellers': sellers_data,
+            'sellers': sellers_page,
             'filters': {
                 'q': q,
                 'type': seller_type,
@@ -618,5 +655,8 @@ def services_catalog(request):
                 'district': district,
                 'service': service_name,
             },
+            'sto_services': sto_services,
+            'detailing_services': detailing_services,
+            'page_obj': sellers_page,
         }
     )
