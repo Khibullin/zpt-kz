@@ -1,0 +1,476 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Каталог СТО и детейлинга | ZPT.KZ</title>
+
+<style>
+
+body{
+  margin:0;
+  background:#f5f7fb;
+  font-family:Arial,sans-serif;
+  color:#222;
+}
+
+.header{
+  background:#fff;
+  border-bottom:1px solid #e5e5e5;
+}
+
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:bold;
+  color:#c62828;
+  text-decoration:none;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+}
+
+.nav a{
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.nav-main{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.wrap{
+  max-width:1200px;
+  margin:24px auto;
+  padding:0 16px;
+}
+
+.hero{
+  background:#fff;
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  margin-bottom:24px;
+}
+
+.hero h1{
+  margin:0 0 12px;
+  font-size:40px;
+}
+
+.hero p{
+  margin:0;
+  font-size:18px;
+  color:#555;
+  line-height:1.6;
+}
+
+.filters{
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  margin-bottom:24px;
+}
+
+.filters-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:8px;
+  font-weight:bold;
+}
+
+.field select{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #dcdcdc;
+  font-size:15px;
+}
+
+.cards{
+  display:grid;
+  gap:18px;
+}
+
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+}
+
+.card-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:20px;
+}
+
+.card-title{
+  font-size:30px;
+  font-weight:bold;
+  color:#3478f6;
+  margin-bottom:12px;
+}
+
+.badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:16px;
+}
+
+.badge{
+  background:#e8f5e9;
+  color:#1b5e20;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.description{
+  color:#444;
+  line-height:1.7;
+  margin-bottom:16px;
+}
+
+.info{
+  line-height:1.8;
+  margin-bottom:20px;
+}
+
+.buttons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  text-decoration:none;
+  padding:13px 18px;
+  border-radius:12px;
+  font-weight:bold;
+  display:inline-block;
+}
+
+.wa{
+  background:#25D366;
+  color:#fff;
+}
+
+.map{
+  background:#444;
+  color:#fff;
+}
+
+.more{
+  background:#3478f6;
+  color:#fff;
+}
+
+.footer-space{
+  height:40px;
+}
+
+@media(max-width:760px){
+
+  .hero h1{
+    font-size:30px;
+  }
+
+  .card-top{
+    flex-direction:column;
+  }
+
+  .buttons{
+    flex-direction:column;
+  }
+
+  .btn{
+    text-align:center;
+  }
+
+}
+
+</style>
+</head>
+<body>
+
+<header class="header">
+
+  <div class="header-inner">
+
+    <a class="logo" href="/">
+      ZPT.KZ
+    </a>
+
+    <nav class="nav">
+
+      <a class="nav-main" href="/">
+        Главная
+      </a>
+
+    </nav>
+
+  </div>
+
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+
+    <h1>
+      Каталог СТО и детейлинга
+    </h1>
+
+    <p>
+      СТО, детейлинг, автоэлектрики,
+      диагностика, кузовной ремонт,
+      полировка, керамика и другие
+      услуги по Казахстану.
+    </p>
+
+  </section>
+
+  <section class="filters">
+
+    <div style="margin-bottom:20px;">
+
+      <label style="display:block;margin-bottom:8px;font-weight:bold;">
+        Поиск
+      </label>
+
+      <input
+        type="text"
+        placeholder="Название, услуга или район"
+        style="
+          width:100%;
+          padding:14px;
+          border-radius:12px;
+          border:1px solid #dcdcdc;
+          font-size:15px;
+          box-sizing:border-box;
+        "
+      >
+
+    </div>
+
+    <div class="filters-grid">
+
+      <div class="field">
+
+        <label>
+          Тип
+        </label>
+
+        <select>
+          <option>Все</option>
+          <option>СТО / ремонт</option>
+          <option>Детейлинг / тюнинг</option>
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Город
+        </label>
+
+        <select>
+          <option>Все города</option>
+          <option>Алматы</option>
+          <option>Астана</option>
+          <option>Шымкент</option>
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Район
+        </label>
+
+        <select>
+          <option>Все районы</option>
+          <option>Бостандыкский</option>
+          <option>Алмалинский</option>
+          <option>Ауэзовский</option>
+        </select>
+
+      </div>
+
+      <div class="field">
+
+        <label>
+          Услуга
+        </label>
+
+        <select>
+          <option>Все услуги</option>
+          <option>Диагностика</option>
+          <option>Ходовая часть</option>
+          <option>Полировка</option>
+          <option>Керамика</option>
+        </select>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <section class="cards">
+
+    <div class="card">
+
+      <div class="card-top">
+
+        <div>
+
+          <div class="card-title">
+            ИП Квант СТО
+          </div>
+
+          <div class="badges">
+
+            <div class="badge">
+              ✓ Проверенный
+            </div>
+
+            <div class="badge">
+              ✓ Есть 2GIS
+            </div>
+
+            <div class="badge">
+              ✓ Принимает заявки
+            </div>
+
+          </div>
+
+          <div
+            style="
+              margin-bottom:16px;
+              font-size:15px;
+              color:#444;
+            "
+          >
+            <b>Заполненность профиля:</b>
+
+            <span style="color:#f5a623;font-weight:bold;">
+              ★★★★☆
+            </span>
+
+            <span>
+              80%
+            </span>
+
+            <a
+              href="#"
+              onclick="alert('Рейтинг показывает, насколько подробно исполнитель заполнил профиль: адрес, услуги, 2GIS, описание, фото, сайт и график работы. Это не оценка качества работы.'); return false;"
+              style="
+                margin-left:8px;
+                color:#3478f6;
+                text-decoration:none;
+                font-weight:bold;
+              "
+            >
+              Как считается?
+            </a>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div class="description">
+
+        Ремонт ходовой части,
+        диагностика, двигатель,
+        рулевое управление,
+        замена масел и ТО.
+
+      </div>
+
+      <div class="info">
+
+        <b>Тип:</b>
+        СТО / ремонт
+
+        <br>
+
+        <b>Город:</b>
+        Алматы
+
+        <br>
+
+        <b>Район:</b>
+        Бостандыкский
+
+        <br>
+
+        <b>Адрес:</b>
+        Ул. Мурат дом 94
+
+      </div>
+
+      <div class="buttons">
+
+        <a
+          class="btn wa"
+          href="#"
+        >
+          WhatsApp
+        </a>
+
+        <a
+          class="btn map"
+          href="#"
+        >
+          2GIS
+        </a>
+
+        <a
+          class="btn more"
+          href="#"
+        >
+          Подробнее
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
+
+  <div class="footer-space"></div>
+
+</div>
+
+</body>
+</html>
+```
