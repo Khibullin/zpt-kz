@@ -495,3 +495,86 @@ def service_request_result(request, request_id):
             'sellers_count': len(sellers),
         }
     )
+
+def services_catalog(request):
+
+    sellers = ServiceSeller.objects.filter(
+        is_active=True,
+        receive_requests=True,
+        is_paused=False,
+    ).prefetch_related('services')
+
+    sellers_data = []
+
+    for seller in sellers:
+
+        services_text = ', '.join(
+            seller.services.values_list(
+                'name',
+                flat=True
+            )
+        )
+
+        filled_fields = 0
+        total_fields = 7
+
+        if seller.address:
+            filled_fields += 1
+
+        if seller.district:
+            filled_fields += 1
+
+        if seller.map_link:
+            filled_fields += 1
+
+        if seller.city:
+            filled_fields += 1
+
+        if seller.name:
+            filled_fields += 1
+
+        if services_text:
+            filled_fields += 1
+
+        if seller.whatsapp:
+            filled_fields += 1
+
+        percent = int(
+            (filled_fields / total_fields) * 100
+        )
+
+        stars_count = round(percent / 20)
+
+        stars = (
+            '★' * stars_count
+            + '☆' * (5 - stars_count)
+        )
+
+        seller_type_label = {
+            'sto': 'СТО / ремонт',
+            'detailing': 'Детейлинг / тюнинг',
+        }.get(
+            seller.seller_type,
+            seller.seller_type
+        )
+
+        sellers_data.append({
+            'name': seller.name,
+            'city': seller.city,
+            'district': seller.district,
+            'address': seller.address,
+            'map_link': seller.map_link,
+            'whatsapp': seller.whatsapp,
+            'services': services_text,
+            'seller_type_label': seller_type_label,
+            'profile_percent': percent,
+            'profile_stars': stars,
+        })
+
+    return render(
+        request,
+        'catalog/services/index.html',
+        {
+            'sellers': sellers_data,
+        }
+    )

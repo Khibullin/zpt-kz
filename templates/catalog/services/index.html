@@ -344,130 +344,143 @@ body{
 
   </section>
 
-  <section class="cards">
+<section class="cards">
 
-    <div class="card">
+  {% for seller in sellers %}
 
-      <div class="card-top">
+  <div class="card">
 
-        <div>
+    <div class="card-top">
 
-          <div class="card-title">
-            ИП Квант СТО
+      <div>
+
+        <div class="card-title">
+          {{ seller.name }}
+        </div>
+
+        <div class="badges">
+
+          {% if seller.map_link %}
+
+          <div class="badge">
+            ✓ Есть 2GIS
           </div>
 
-          <div class="badges">
+          {% endif %}
 
-            <div class="badge">
-              ✓ Проверенный
-            </div>
-
-            <div class="badge">
-              ✓ Есть 2GIS
-            </div>
-
-            <div class="badge">
-              ✓ Принимает заявки
-            </div>
-
+          <div class="badge">
+            ✓ Принимает заявки
           </div>
 
-          <div
+        </div>
+
+        <div
+          style="
+            margin-bottom:16px;
+            font-size:15px;
+            color:#444;
+          "
+        >
+
+          <b>Заполненность профиля:</b>
+
+          <span style="color:#f5a623;font-weight:bold;">
+            {{ seller.profile_stars }}
+          </span>
+
+          <span>
+            {{ seller.profile_percent }}%
+          </span>
+
+          <a
+            href="#"
+            onclick="alert('Рейтинг показывает, насколько подробно исполнитель заполнил профиль: адрес, услуги, 2GIS, описание, фото, сайт и график работы. Это не оценка качества работы.'); return false;"
             style="
-              margin-bottom:16px;
-              font-size:15px;
-              color:#444;
+              margin-left:8px;
+              color:#3478f6;
+              text-decoration:none;
+              font-weight:bold;
             "
           >
-            <b>Заполненность профиля:</b>
-
-            <span style="color:#f5a623;font-weight:bold;">
-              ★★★★☆
-            </span>
-
-            <span>
-              80%
-            </span>
-
-            <a
-              href="#"
-              onclick="alert('Рейтинг показывает, насколько подробно исполнитель заполнил профиль: адрес, услуги, 2GIS, описание, фото, сайт и график работы. Это не оценка качества работы.'); return false;"
-              style="
-                margin-left:8px;
-                color:#3478f6;
-                text-decoration:none;
-                font-weight:bold;
-              "
-            >
-              Как считается?
-            </a>
-          </div>
+            Как считается?
+          </a>
 
         </div>
 
       </div>
 
-      <div class="description">
+    </div>
 
-        Ремонт ходовой части,
-        диагностика, двигатель,
-        рулевое управление,
-        замена масел и ТО.
+    <div class="description">
+      {{ seller.services }}
+    </div>
 
-      </div>
+    <div class="info">
 
-      <div class="info">
+      <b>Тип:</b>
+      {{ seller.seller_type_label }}
 
-        <b>Тип:</b>
-        СТО / ремонт
+      <br>
 
-        <br>
+      <b>Город:</b>
+      {{ seller.city }}
 
-        <b>Город:</b>
-        Алматы
+      <br>
 
-        <br>
+      <b>Район:</b>
+      {{ seller.district }}
 
-        <b>Район:</b>
-        Бостандыкский
+      <br>
 
-        <br>
-
-        <b>Адрес:</b>
-        Ул. Мурат дом 94
-
-      </div>
-
-      <div class="buttons">
-
-        <a
-          class="btn wa"
-          href="#"
-        >
-          WhatsApp
-        </a>
-
-        <a
-          class="btn map"
-          href="#"
-        >
-          2GIS
-        </a>
-
-        <a
-          class="btn more"
-          href="#"
-        >
-          Подробнее
-        </a>
-
-      </div>
+      <b>Адрес:</b>
+      {{ seller.address }}
 
     </div>
 
-  </section>
+    <div class="buttons">
 
-  <div class="footer-space"></div>
+      <a
+        class="btn wa"
+        target="_blank"
+        href="https://wa.me/{{ seller.whatsapp }}"
+      >
+        WhatsApp
+      </a>
+
+      {% if seller.map_link %}
+
+      <a
+        class="btn map"
+        target="_blank"
+        href="{{ seller.map_link }}"
+      >
+        2GIS
+      </a>
+
+      {% endif %}
+
+      <a
+        class="btn more"
+        href="#"
+      >
+        Подробнее
+      </a>
+
+    </div>
+
+  </div>
+
+  {% empty %}
+
+  <div class="card">
+    Исполнители пока не найдены.
+  </div>
+
+  {% endfor %}
+
+</section>
+
+<div class="footer-space"></div>
 
 </div>
 

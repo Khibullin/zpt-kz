@@ -1,7 +1,10 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
-from service_requests.views import service_request_result
+from service_requests.views import (
+    service_request_result,
+    services_catalog,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -40,8 +43,7 @@ urlpatterns = [
 
     path(
         'catalog/services/',
-        TemplateView.as_view(
-            template_name='catalog/services/index.html'
-        )
+        services_catalog,
+        name='services_catalog',
     ),
 ]
