@@ -51,4 +51,10 @@ urlpatterns = [
         name='service_request_result'
     ),
 
+    path(
+        'catalog/services/<int:seller_id>/',
+        service_seller_detail,
+        name='service_seller_detail'
+    ),
+
 ]

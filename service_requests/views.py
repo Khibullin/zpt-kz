@@ -622,6 +622,7 @@ def services_catalog(request):
         )
 
         sellers_data.append({
+            'id': seller.id,
             'name': seller.name,
             'city': seller.city,
             'district': seller.district,
@@ -658,5 +659,76 @@ def services_catalog(request):
             'sto_services': sto_services,
             'detailing_services': detailing_services,
             'page_obj': sellers_page,
+        }
+    )
+
+
+def service_seller_detail(request, seller_id):
+
+    seller = get_object_or_404(
+        ServiceSeller,
+        id=seller_id,
+        is_active=True
+    )
+
+    services_text = ', '.join(
+        seller.services.values_list(
+            'name',
+            flat=True
+        )
+    )
+
+    filled_fields = 0
+    total_fields = 7
+
+    if seller.address:
+        filled_fields += 1
+
+    if seller.district:
+        filled_fields += 1
+
+    if seller.map_link:
+        filled_fields += 1
+
+    if seller.city:
+        filled_fields += 1
+
+    if seller.name:
+        filled_fields += 1
+
+    if services_text:
+        filled_fields += 1
+
+    if seller.whatsapp:
+        filled_fields += 1
+
+    percent = int(
+        (filled_fields / total_fields) * 100
+    )
+
+    stars_count = round(percent / 20)
+
+    stars = (
+        '★' * stars_count
+        + '☆' * (5 - stars_count)
+    )
+
+    seller_type_label = {
+        'sto': 'СТО / ремонт',
+        'detailing': 'Детейлинг / тюнинг',
+    }.get(
+        seller.seller_type,
+        seller.seller_type
+    )
+
+    return render(
+        request,
+        'catalog/services/detail.html',
+        {
+            'seller': seller,
+            'services_text': services_text,
+            'profile_percent': percent,
+            'profile_stars': stars,
+            'seller_type_label': seller_type_label,
         }
     )
