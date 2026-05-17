@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 from service_requests.views import (
     service_request_result,
     services_catalog,
+    service_seller_detail,
 )
 
 urlpatterns = [
@@ -45,5 +46,11 @@ urlpatterns = [
         'catalog/services/',
         services_catalog,
         name='services_catalog',
+    ),
+
+    path(
+        'catalog/services/<int:seller_id>/',
+        service_seller_detail,
+        name='service_seller_detail',
     ),
 ]
