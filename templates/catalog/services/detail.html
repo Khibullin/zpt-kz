@@ -269,13 +269,44 @@ h1{
 
           {% endif %}
 
+          {% if seller.instagram %}
+
+          <a
+            class="btn"
+            target="_blank"
+            href="{{ seller.instagram }}"
+            style="
+              background:#E1306C;
+              color:#fff;
+            "
+          >
+            Instagram
+          </a>
+
+          {% endif %}
+
+          {% if seller.website %}
+
+          <a
+            class="btn"
+            target="_blank"
+            href="{{ seller.website }}"
+            style="
+              background:#1565c0;
+              color:#fff;
+            "
+          >
+            Сайт
+          </a>
+
+          {% endif %}
+
           <a
             class="btn back"
             href="/catalog/services/"
           >
             Назад в каталог
           </a>
-
         </div>
 
       </div>
@@ -330,10 +361,41 @@ h1{
         Описание
       </h2>
 
-      <div class="placeholder">
-        Описание исполнителя, фото, график работы, сайт и Instagram
-        будут добавлены на следующем этапе после расширения профиля.
+      {% if seller.description %}
+
+      <div class="info">
+        {{ seller.description|linebreaks }}
       </div>
+
+      {% else %}
+
+      <div class="placeholder">
+        Исполнитель пока не добавил описание.
+      </div>
+
+      {% endif %}
+
+    </div>
+
+    <div class="section">
+
+      <h2>
+        График работы
+      </h2>
+
+      {% if seller.working_hours %}
+
+      <div class="info">
+        {{ seller.working_hours }}
+      </div>
+
+      {% else %}
+
+      <div class="placeholder">
+        График работы не указан.
+      </div>
+
+      {% endif %}
 
     </div>
 

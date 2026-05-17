@@ -82,9 +82,11 @@ class ServiceSellerAdmin(admin.ModelAdmin):
         'whatsapp',
         'city',
         'district',
+        'description',
     )
 
     fieldsets = (
+
         ('Основное', {
             'fields': (
                 'name',
@@ -96,6 +98,16 @@ class ServiceSellerAdmin(admin.ModelAdmin):
                 'address',
                 'map_link',
                 'services',
+            )
+        }),
+
+        ('Профиль исполнителя', {
+            'fields': (
+                'logo',
+                'description',
+                'instagram',
+                'website',
+                'working_hours',
             )
         }),
 
@@ -113,7 +125,6 @@ class ServiceSellerAdmin(admin.ModelAdmin):
     filter_horizontal = (
         'services',
     )
-
 
 @admin.register(ServiceRequest)
 class ServiceRequestAdmin(admin.ModelAdmin):

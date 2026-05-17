@@ -71,10 +71,38 @@ class ServiceSeller(models.Model):
     city = models.CharField(max_length=100)
     district = models.CharField(max_length=100, blank=True)
 
-    address = models.CharField(max_length=255, blank=True)
+    address = models.CharField(
+        max_length=255,
+        blank=True
+    )
+
+    logo = models.ImageField(
+        upload_to='service_sellers/logos/',
+        blank=True,
+        null=True
+    )
+
+    description = models.TextField(
+        blank=True
+    )
+
+    instagram = models.URLField(
+        blank=True
+    )
+
+    website = models.URLField(
+        blank=True
+    )
+
+    working_hours = models.CharField(
+        max_length=255,
+        blank=True
+    )
 
     # ссылка на 2GIS
-    map_link = models.URLField(blank=True)
+    map_link = models.URLField(
+        blank=True
+    )
 
     seller_type = models.CharField(max_length=20, choices=SELLER_TYPES)
 
