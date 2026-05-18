@@ -773,6 +773,48 @@ select:focus{
             <input id="editMapLink">
           </div>
 
+          <div class="field">
+            <label>Instagram</label>
+            <input
+              id="editInstagram"
+              placeholder="https://instagram.com/yourpage"
+            >
+          </div>
+
+          <div class="field">
+            <label>Сайт</label>
+            <input
+              id="editWebsite"
+              placeholder="https://site.kz"
+            >
+          </div>
+
+          <div class="field full">
+            <label>График работы</label>
+            <input
+              id="editWorkingHours"
+              placeholder="Пн–Сб 09:00–19:00"
+            >
+          </div>
+
+          <div class="field full">
+            <label>Описание</label>
+
+            <textarea
+              id="editDescription"
+              rows="5"
+              style="
+                width:100%;
+                border:1px solid #cfd8e3;
+                border-radius:12px;
+                padding:14px;
+                font-size:15px;
+                resize:vertical;
+              "
+              placeholder="Расскажите об услугах, опыте, оборудовании..."
+            ></textarea>
+          </div>
+
           <div class="field full">
             <label>Новый пароль</label>
             <input id="editPassword" type="password" placeholder="Не менять">
@@ -1043,6 +1085,36 @@ function renderProfile(p){
         }
       </div>
 
+      <div class="profile-row">
+        <b>Instagram</b>
+
+        ${
+          p.instagram
+            ? `<a class="map-btn" href="${p.instagram}" target="_blank">Открыть Instagram</a>`
+            : `<span>Не указано</span>`
+        }
+      </div>
+
+      <div class="profile-row">
+        <b>Сайт</b>
+
+        ${
+          p.website
+            ? `<a class="map-btn" href="${p.website}" target="_blank">Открыть сайт</a>`
+            : `<span>Не указано</span>`
+        }
+      </div>
+
+      <div class="profile-row">
+        <b>График работы</b>
+        <span>${p.working_hours || 'Не указано'}</span>
+      </div>
+
+      <div class="profile-row full">
+        <b>Описание</b>
+        <span>${p.description || 'Не указано'}</span>
+      </div>
+
     </div>
   `;
 }
@@ -1068,6 +1140,18 @@ function fillEditForm(p){
 
   editMapLink.value =
     p.map_link || '';
+
+  editInstagram.value =
+    p.instagram || '';
+
+  editWebsite.value =
+    p.website || '';
+
+  editWorkingHours.value =
+    p.working_hours || '';
+
+  editDescription.value =
+    p.description || '';
 
   editPassword.value =
     '';
@@ -1110,8 +1194,25 @@ async function saveProfile(){
     district:editDistrict.value.trim(),
     address:editAddress.value.trim(),
     map_link:editMapLink.value.trim(),
-    password:editPassword.value.trim(),
-    is_active:editActive.checked,
+
+    instagram:
+      editInstagram.value.trim(),
+
+    website:
+      editWebsite.value.trim(),
+
+    working_hours:
+      editWorkingHours.value.trim(),
+
+    description:
+      editDescription.value.trim(),
+
+    password:
+      editPassword.value.trim(),
+
+    is_active:
+      editActive.checked,
+
     services
   };
 

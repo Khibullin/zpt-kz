@@ -373,11 +373,31 @@ def get_service_seller_profile(request):
             "district": seller.district,
             "address": seller.address,
             "map_link": seller.map_link,
-            "seller_type": seller.seller_type,
+
+            "instagram":
+                seller.instagram,
+
+            "website":
+                seller.website,
+
+            "working_hours":
+                seller.working_hours,
+
+            "description":
+                seller.description,
+
+            "seller_type":
+                seller.seller_type,
+
             "services": list(
-                seller.services.values_list("name", flat=True)
+                seller.services.values_list(
+                    "name",
+                    flat=True
+                )
             ),
-            "is_active": seller.is_active,
+
+            "is_active":
+                seller.is_active,
         })
 
     except ServiceSeller.DoesNotExist:
@@ -402,10 +422,46 @@ def update_service_seller_profile(request):
         seller.name = data.get("name", seller.name).strip()
         seller.city = data.get("city", seller.city).strip()
         seller.district = data.get("district", seller.district).strip()
-        seller.address = data.get("address", seller.address).strip()
-        seller.map_link = data.get("map_link", seller.map_link).strip()
-        seller.seller_type = data.get("seller_type", seller.seller_type)
-        seller.is_active = data.get("is_active", seller.is_active)
+
+        seller.address = data.get(
+            "address",
+            seller.address
+        ).strip()
+
+        seller.map_link = data.get(
+            "map_link",
+            seller.map_link
+        ).strip()
+
+        seller.instagram = data.get(
+            "instagram",
+            seller.instagram or ""
+        ).strip()
+
+        seller.website = data.get(
+            "website",
+            seller.website or ""
+        ).strip()
+
+        seller.working_hours = data.get(
+            "working_hours",
+            seller.working_hours or ""
+        ).strip()
+
+        seller.description = data.get(
+            "description",
+            seller.description or ""
+        ).strip()
+
+        seller.seller_type = data.get(
+            "seller_type",
+            seller.seller_type
+        )
+
+        seller.is_active = data.get(
+            "is_active",
+            seller.is_active
+        )
 
         new_password = data.get("password", "").strip()
 
