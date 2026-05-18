@@ -294,8 +294,14 @@ body{
 
           {% endif %}
 
-        </div>
+          <a
+            class="btn catalog"
+            href="/catalog/services/{{ seller.id }}/"
+          >
+            Подробнее
+          </a>
 
+        </div>
       </div>
 
       {% empty %}
@@ -319,7 +325,6 @@ body{
 
     <div class="bottom">
 
-      <a
       <a
         class="btn catalog"
         href="/catalog/services/"
