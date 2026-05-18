@@ -475,6 +475,7 @@ def service_request_result(request, request_id):
         seller = match.seller
 
         sellers.append({
+            'id': seller.id,
             'name': seller.name,
             'district': seller.district,
             'address': seller.address,
