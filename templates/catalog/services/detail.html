@@ -76,6 +76,7 @@ body{
   font-size:42px;
   font-weight:bold;
   flex-shrink:0;
+  overflow:hidden;
 }
 
 h1{
@@ -209,7 +210,26 @@ h1{
     <div class="top">
 
       <div class="logo-box">
+
+        {% if seller.logo %}
+
+        <img
+          src="{{ seller.logo.url }}"
+          alt="{{ seller.name }}"
+          style="
+            width:100%;
+            height:100%;
+            object-fit:cover;
+            border-radius:22px;
+          "
+        >
+
+        {% else %}
+
         {{ seller.name|first }}
+
+        {% endif %}
+
       </div>
 
       <div>
