@@ -124,18 +124,50 @@ class BroadcastSettings(models.Model):
 
 
 class Request(models.Model):
-    transport_type = models.CharField(max_length=10, choices=TRANSPORT_CHOICES)
+    SEARCH_SCOPE_CHOICES = [
+        ('city', 'Только мой город'),
+        ('kazakhstan', 'Весь Казахстан'),
+        ('custom', 'Выбрать города'),
+    ]
+
+    transport_type = models.CharField(
+        max_length=10,
+        choices=TRANSPORT_CHOICES
+    )
+
     country = models.CharField(max_length=100, blank=True)
     brand = models.CharField(max_length=100, blank=True)
     model = models.CharField(max_length=100, blank=True)
     category = models.CharField(max_length=100, blank=True)
     article = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
-    city = models.CharField(max_length=100, blank=True)
+
+    city = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    search_scope = models.CharField(
+        max_length=20,
+        choices=SEARCH_SCOPE_CHOICES,
+        default='city'
+    )
+
+    selected_cities = models.TextField(
+        blank=True,
+        default=''
+    )
+
     phone = models.CharField(max_length=20)
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='new')
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    status = models.CharField(
+        max_length=20,
+        default='new'
+    )
 
     class Meta:
         verbose_name = 'Заявка'
