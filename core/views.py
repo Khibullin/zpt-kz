@@ -349,20 +349,33 @@ def _find_matching_sellers(req):
             Q(selected_categories__name=req.category)
         ).distinct()
 
+    search_scope = req.search_scope or 'city'
+
+    selected_cities = []
+
+    if req.selected_cities:
+        selected_cities = [
+            city.strip()
+            for city in req.selected_cities.split(',')
+            if city.strip()
+        ]
+
     strategies = [
-        {'city': True, 'country': True, 'brand': True, 'model': True},
-        {'city': True, 'country': True, 'brand': True, 'model': False},
-        {'city': True, 'country': True, 'brand': False, 'model': False},
-        {'city': False, 'country': True, 'brand': True, 'model': True},
-        {'city': False, 'country': True, 'brand': True, 'model': False},
-        {'city': False, 'country': True, 'brand': False, 'model': False},
+        {'country': True, 'brand': True, 'model': True},
+        {'country': True, 'brand': True, 'model': False},
+        {'country': True, 'brand': False, 'model': False},
     ]
 
     for strategy in strategies:
         qs = base_qs
 
-        if strategy['city']:
-            qs = _apply_city_filter(qs, req)
+        if search_scope == 'city':
+            if req.city:
+                qs = qs.filter(city=req.city)
+
+        elif search_scope == 'custom':
+            if selected_cities:
+                qs = qs.filter(city__in=selected_cities)
 
         if strategy['country']:
             qs = _apply_country_filter(qs, req)
@@ -373,13 +386,37 @@ def _find_matching_sellers(req):
         if strategy['model']:
             qs = _apply_model_filter(qs, req)
 
-        qs = qs.order_by('dispatch_priority', 'id')
+        qs = qs.order_by(
+            'dispatch_priority',
+            'id'
+        ).distinct()
 
         if qs.exists():
-            return qs, 'matched'
+            return qs[:20], 'matched'
+
+    if search_scope in ['city', 'custom']:
+
+        for strategy in strategies:
+            qs = base_qs
+
+            if strategy['country']:
+                qs = _apply_country_filter(qs, req)
+
+            if strategy['brand']:
+                qs = _apply_brand_filter(qs, req)
+
+            if strategy['model']:
+                qs = _apply_model_filter(qs, req)
+
+            qs = qs.order_by(
+                'dispatch_priority',
+                'id'
+            ).distinct()
+
+            if qs.exists():
+                return qs[:20], 'fallback_kazakhstan'
 
     return Seller.objects.none(), 'no_match'
-
 
 def _seller_notification_text(req):
     return (
@@ -510,6 +547,13 @@ def create_request(request):
         article=data.get('article', ''),
         description=data.get('description', ''),
         city=data.get('city', ''),
+        search_scope=data.get(
+            'search_scope',
+            'city'
+        ),
+        selected_cities=','.join(
+            data.get('selected_cities', [])
+        ),
         phone=data.get('phone', ''),
     )
 
