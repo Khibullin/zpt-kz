@@ -471,7 +471,26 @@ function renderResult(data){
   let sellers = data.seller_notifications || [];
   let count = data.matches || sellers.length || 0;
 
+  let strategyNote = '';
+
+  if(data.strategy === 'fallback_kazakhstan'){
+    strategyNote = `
+<div style="
+  margin-bottom:12px;
+  padding:12px;
+  border-radius:10px;
+  background:#fff3cd;
+  color:#7a5200;
+">
+  В вашем городе продавцы пока не найдены.<br>
+  Мы автоматически расширили поиск на весь Казахстан.
+</div>
+`;
+  }
+
   let html = `
+${strategyNote}
+
 <b>✅ Заявка отправлена ${count} продавцам</b><br><br>
 
 Мы уже отправили вашу заявку продавцам запчастей.<br>
@@ -483,7 +502,6 @@ function renderResult(data){
 
 Вы также можете написать продавцу сами, если хотите ускорить ответ.
 `;
-
   if(sellers.length){
     html += '<div class="result-card"><b>Продавцы получили заявку:</b>';
 
