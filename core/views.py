@@ -9,6 +9,8 @@ from urllib.parse import quote
 from django.contrib.auth.hashers import make_password, check_password
 from django.db.models import Q
 from django.http import JsonResponse
+from django.shortcuts import render, get_object_or_404
+from django.core.paginator import Paginator
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 
@@ -988,3 +990,137 @@ def update_match_status(request):
     match.save(update_fields=['status'])
 
     return JsonResponse({'status': 'ok'})
+
+def parts_sellers_catalog(request):
+    q = request.GET.get('q', '').strip()
+    transport_type = request.GET.get('transport_type', '').strip()
+    city = request.GET.get('city', '').strip()
+    category_id = request.GET.get('category', '').strip()
+    country_id = request.GET.get('country', '').strip()
+    brand_id = request.GET.get('brand', '').strip()
+    model_id = request.GET.get('model', '').strip()
+    page = request.GET.get('page', 1)
+
+    sellers = Seller.objects.filter(
+        is_active=True,
+        is_paused=False,
+    ).prefetch_related(
+        'selected_categories',
+        'selected_countries',
+        'selected_brands',
+        'selected_models',
+    )
+
+    if transport_type:
+        sellers = sellers.filter(
+            transport_type=transport_type
+        )
+
+    if city:
+        sellers = sellers.filter(
+            city=city
+        )
+
+    if category_id:
+        sellers = sellers.filter(
+            Q(all_categories=True) |
+            Q(selected_categories__id=category_id)
+        ).distinct()
+
+    if country_id:
+        sellers = sellers.filter(
+            Q(all_countries=True) |
+            Q(selected_countries__id=country_id) |
+            Q(country_fk_id=country_id)
+        ).distinct()
+
+    if brand_id:
+        sellers = sellers.filter(
+            Q(all_brands=True) |
+            Q(selected_brands__id=brand_id) |
+            Q(brand_fk_id=brand_id)
+        ).distinct()
+
+    if model_id:
+        sellers = sellers.filter(
+            Q(all_models=True) |
+            Q(selected_models__id=model_id) |
+            Q(model_fk_id=model_id)
+        ).distinct()
+
+    if q:
+        sellers = sellers.filter(
+            Q(name__icontains=q) |
+            Q(city__icontains=q) |
+            Q(market_location__icontains=q) |
+            Q(notes__icontains=q)
+        ).distinct()
+
+    paginator = Paginator(
+        sellers,
+        20
+    )
+
+    sellers_page = paginator.get_page(
+        page
+    )
+
+    cities = (
+        Seller.objects.filter(
+            is_active=True,
+            is_paused=False,
+            
+        )
+        .exclude(city='')
+        .values_list(
+            'city',
+            flat=True
+        )
+        .distinct()
+        .order_by('city')
+    )
+
+    return render(
+        request,
+        'catalog/parts_sellers/index.html',
+        {
+            'sellers': sellers_page,
+            'page_obj': sellers_page,
+            'filters': {
+                'q': q,
+                'transport_type': transport_type,
+                'city': city,
+                'category': category_id,
+                'country': country_id,
+                'brand': brand_id,
+                'model': model_id,
+            },
+            'cities': cities,
+            'categories': PartCategory.objects.all(),
+            'countries': Country.objects.all(),
+            'brands': Brand.objects.all(),
+            'models': CarModel.objects.all(),
+        }
+    )
+
+
+def parts_seller_detail(request, seller_id):
+    seller = get_object_or_404(
+        Seller.objects.prefetch_related(
+            'selected_categories',
+            'selected_countries',
+            'selected_brands',
+            'selected_models',
+        ),
+        id=seller_id,
+        is_active=True,
+        is_paused=False,
+    )
+
+    return render(
+        request,
+        'catalog/parts_sellers/detail.html',
+        {
+            'seller': seller,
+        }
+    )

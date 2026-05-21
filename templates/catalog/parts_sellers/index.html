@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Каталог продавцов автозапчастей | ZPT.KZ</title>
+
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
+.header{background:#fff;border-bottom:1px solid #e5e5e5}
+.header-inner{max-width:1200px;margin:auto;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
+.nav{display:flex;gap:10px;flex-wrap:wrap}
+.nav a{text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold}
+.nav-main{background:#eef2f7;color:#3478f6}
+.wrap{max-width:1200px;margin:24px auto;padding:0 16px}
+.hero{background:#fff;border-radius:20px;padding:32px;box-shadow:0 6px 24px rgba(0,0,0,.08);margin-bottom:24px}
+.hero h1{margin:0 0 12px;font-size:40px;color:#c62828}
+.hero p{margin:0;font-size:18px;color:#555;line-height:1.6}
+.filters{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.08);margin-bottom:24px}
+.filters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.field label{display:block;margin-bottom:8px;font-weight:bold}
+.field select,.search-input{width:100%;padding:14px;border-radius:12px;border:1px solid #dcdcdc;font-size:15px;background:#fff}
+.cards{display:grid;gap:18px}
+.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+.card-title{font-size:28px;font-weight:bold;color:#3478f6;margin-bottom:12px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.badge{background:#e8f5e9;color:#1b5e20;padding:8px 12px;border-radius:999px;font-size:14px;font-weight:bold}
+.info{line-height:1.8;margin-bottom:18px;color:#333}
+.text-muted{color:#666}
+.buttons{display:flex;gap:10px;flex-wrap:wrap}
+.btn{text-decoration:none;padding:13px 18px;border-radius:12px;font-weight:bold;display:inline-block;border:none;cursor:pointer;font-size:15px}
+.wa{background:#25D366;color:#fff}
+.more{background:#3478f6;color:#fff}
+.reset{background:#eef2f7;color:#3478f6}
+.pagination{display:flex;justify-content:center;gap:8px;margin:30px 0;flex-wrap:wrap}
+.page-active{background:#3478f6;color:#fff}
+.page-link{background:#eef2f7;color:#3478f6}
+.empty{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+@media(max-width:760px){
+  .header-inner{flex-direction:column;align-items:flex-start}
+  .nav{width:100%}
+  .nav a{flex:1;text-align:center}
+  .hero h1{font-size:30px}
+  .buttons{flex-direction:column}
+  .btn{text-align:center;width:100%}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a class="logo" href="https://zpt.kz">ZPT.KZ</a>
+
+    <nav class="nav">
+      <a class="nav-main" href="https://zpt.kz">Главная</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="hero">
+    <h1>Каталог продавцов автозапчастей</h1>
+    <p>
+      Найдите продавца запчастей по городу, марке автомобиля, категории,
+      стране производителя и напишите напрямую в WhatsApp.
+    </p>
+  </section>
+
+  <section class="filters">
+    <form method="get">
+
+      <div style="margin-bottom:20px;">
+        <label style="display:block;margin-bottom:8px;font-weight:bold;">
+          Поиск
+        </label>
+
+        <input
+          class="search-input"
+          type="text"
+          name="q"
+          value="{{ filters.q }}"
+          placeholder="Например: Toyota, двигатель, Алматы, рынок"
+        >
+      </div>
+
+      <div class="filters-grid">
+
+        <div class="field">
+          <label>Тип транспорта</label>
+          <select name="transport_type">
+            <option value="">Все</option>
+            <option value="car" {% if filters.transport_type == 'car' %}selected{% endif %}>Легковые</option>
+            <option value="truck" {% if filters.transport_type == 'truck' %}selected{% endif %}>Грузовые</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Город</label>
+          <select name="city">
+            <option value="">Все города</option>
+            {% for city in cities %}
+              <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>
+                {{ city }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Категория</label>
+          <select name="category">
+            <option value="">Все категории</option>
+            {% for category in categories %}
+              <option value="{{ category.id }}" {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Страна / производитель</label>
+          <select name="country">
+            <option value="">Все страны</option>
+            {% for country in countries %}
+              <option value="{{ country.id }}" {% if filters.country == country.id|stringformat:"s" %}selected{% endif %}>
+                {{ country.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Марка</label>
+          <select name="brand">
+            <option value="">Все марки</option>
+            {% for brand in brands %}
+              <option value="{{ brand.id }}" {% if filters.brand == brand.id|stringformat:"s" %}selected{% endif %}>
+                {{ brand.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div class="field">
+          <label>Модель</label>
+          <select name="model">
+            <option value="">Все модели</option>
+            {% for model in models %}
+              <option value="{{ model.id }}" {% if filters.model == model.id|stringformat:"s" %}selected{% endif %}>
+                {{ model.name }}
+              </option>
+            {% endfor %}
+          </select>
+        </div>
+
+      </div>
+
+      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
+        <button type="submit" class="btn more">
+          Найти продавцов
+        </button>
+
+        <a href="/api/parts-sellers/" class="btn reset">
+          Сбросить
+        </a>
+      </div>
+
+    </form>
+  </section>
+
+  <section class="cards">
+
+    {% for seller in sellers %}
+
+    <div class="card">
+
+      <div class="card-title">
+        {{ seller.name }}
+      </div>
+
+      <div class="badges">
+        <div class="badge">✓ Продавец запчастей</div>
+
+        {% if seller.transport_type == 'car' %}
+          <div class="badge">Легковые</div>
+        {% elif seller.transport_type == 'truck' %}
+          <div class="badge">Грузовые</div>
+        {% endif %}
+
+        {% if seller.receive_requests %}
+          <div class="badge">✓ Принимает заявки</div>
+        {% endif %}
+      </div>
+
+      <div class="info">
+
+        <b>Город:</b>
+        {{ seller.city|default:"Не указан" }}
+
+        <br>
+
+        <b>Место / рынок:</b>
+        {{ seller.market_location|default:"Не указано" }}
+
+        <br>
+
+        <b>Категории:</b>
+        {% if seller.all_categories %}
+          Все категории
+        {% else %}
+          {% for category in seller.selected_categories.all %}
+            {{ category.name }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+            <span class="text-muted">Не указаны</span>
+          {% endfor %}
+        {% endif %}
+
+        <br>
+
+        <b>Марки:</b>
+        {% if seller.all_brands %}
+          Все марки
+        {% else %}
+          {% for brand in seller.selected_brands.all %}
+            {{ brand.name }}{% if not forloop.last %}, {% endif %}
+          {% empty %}
+            <span class="text-muted">Не указаны</span>
+          {% endfor %}
+        {% endif %}
+
+      </div>
+
+      <div class="buttons">
+
+        <a
+          class="btn wa"
+          target="_blank"
+          href="https://wa.me/{{ seller.whatsapp }}"
+        >
+          Написать в WhatsApp
+        </a>
+
+        <a
+          class="btn more"
+          href="/api/parts-seller/{{ seller.id }}/"
+        >
+          Смотреть профиль
+        </a>
+
+      </div>
+
+    </div>
+
+    {% empty %}
+
+    <div class="empty">
+      Продавцы по выбранным фильтрам пока не найдены.
+    </div>
+
+    {% endfor %}
+
+  </section>
+
+  {% if page_obj.has_other_pages %}
+
+  <div class="pagination">
+
+    {% if page_obj.has_previous %}
+      <a
+        class="btn page-link"
+        href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ page_obj.previous_page_number }}"
+      >
+        ← Предыдущая
+      </a>
+    {% endif %}
+
+    {% for num in page_obj.paginator.page_range %}
+      <a
+        class="btn {% if page_obj.number == num %}page-active{% else %}page-link{% endif %}"
+        href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ num }}"
+      >
+        {{ num }}
+      </a>
+    {% endfor %}
+
+    {% if page_obj.has_next %}
+      <a
+        class="btn page-link"
+        href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ page_obj.next_page_number }}"
+      >
+        Следующая →
+      </a>
+    {% endif %}
+
+  </div>
+
+  {% endif %}
+
+</div>
+
+</body>
+</html>

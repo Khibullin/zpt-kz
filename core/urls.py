@@ -15,6 +15,8 @@ from .views import (
     toggle_seller_pause,
     update_seller_profile,
     update_match_status,
+    parts_sellers_catalog,
+    parts_seller_detail,
 )
 
 
@@ -36,4 +38,16 @@ urlpatterns = [
     path('toggle-seller-pause/', toggle_seller_pause, name='toggle_seller_pause'),
     path('update-seller-profile/', update_seller_profile, name='update_seller_profile'),
     path('update-match-status/', update_match_status, name='update_match_status'),
+
+    path(
+        'parts-sellers/',
+        parts_sellers_catalog,
+        name='parts_sellers_catalog'
+    ),
+
+    path(
+        'parts-seller/<int:seller_id>/',
+        parts_seller_detail,
+        name='parts_seller_detail'
+    ),
 ]
