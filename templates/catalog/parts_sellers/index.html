@@ -8,45 +8,305 @@
 
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
-.header{background:#fff;border-bottom:1px solid #e5e5e5}
-.header-inner{max-width:1200px;margin:auto;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
-.nav{display:flex;gap:10px;flex-wrap:wrap}
-.nav a{text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold}
-.nav-main{background:#eef2f7;color:#3478f6}
-.wrap{max-width:1200px;margin:24px auto;padding:0 16px}
-.hero{background:#fff;border-radius:20px;padding:32px;box-shadow:0 6px 24px rgba(0,0,0,.08);margin-bottom:24px}
-.hero h1{margin:0 0 12px;font-size:40px;color:#c62828}
-.hero p{margin:0;font-size:18px;color:#555;line-height:1.6}
-.filters{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.08);margin-bottom:24px}
-.filters-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
-.field label{display:block;margin-bottom:8px;font-weight:bold}
-.field select,.search-input{width:100%;padding:14px;border-radius:12px;border:1px solid #dcdcdc;font-size:15px;background:#fff}
-.cards{display:grid;gap:18px}
-.card{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-.card-title{font-size:28px;font-weight:bold;color:#3478f6;margin-bottom:12px}
-.badges{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
-.badge{background:#e8f5e9;color:#1b5e20;padding:8px 12px;border-radius:999px;font-size:14px;font-weight:bold}
-.info{line-height:1.8;margin-bottom:18px;color:#333}
-.text-muted{color:#666}
-.buttons{display:flex;gap:10px;flex-wrap:wrap}
-.btn{text-decoration:none;padding:13px 18px;border-radius:12px;font-weight:bold;display:inline-block;border:none;cursor:pointer;font-size:15px}
-.wa{background:#25D366;color:#fff}
-.more{background:#3478f6;color:#fff}
-.reset{background:#eef2f7;color:#3478f6}
-.pagination{display:flex;justify-content:center;gap:8px;margin:30px 0;flex-wrap:wrap}
-.page-active{background:#3478f6;color:#fff}
-.page-link{background:#eef2f7;color:#3478f6}
-.empty{background:#fff;border-radius:20px;padding:24px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-@media(max-width:760px){
-  .header-inner{flex-direction:column;align-items:flex-start}
-  .nav{width:100%}
-  .nav a{flex:1;text-align:center}
-  .hero h1{font-size:30px}
-  .buttons{flex-direction:column}
-  .btn{text-align:center;width:100%}
+
+body{
+  margin:0;
+  background:#f5f7fb;
+  font-family:Arial,Helvetica,sans-serif;
+  color:#222;
 }
+
+.header{
+  background:#fff;
+  border-bottom:1px solid #e5e5e5;
+}
+
+.header-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:bold;
+  color:#c62828;
+  text-decoration:none;
+}
+
+.nav{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.nav a{
+  text-decoration:none;
+  padding:10px 14px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.nav-main{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.wrap{
+  max-width:1200px;
+  margin:24px auto;
+  padding:0 16px;
+}
+
+.hero{
+  background:#fff;
+  border-radius:20px;
+  padding:32px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  margin-bottom:24px;
+}
+
+.hero h1{
+  margin:0 0 12px;
+  font-size:38px;
+  color:#c62828;
+}
+
+.hero p{
+  margin:0;
+  font-size:18px;
+  color:#555;
+  line-height:1.6;
+}
+
+.filters{
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  margin-bottom:24px;
+}
+
+.filters-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:8px;
+  font-weight:bold;
+}
+
+.field select,
+.search-input{
+  width:100%;
+  padding:14px;
+  border-radius:12px;
+  border:1px solid #dcdcdc;
+  font-size:15px;
+  background:#fff;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:18px;
+}
+
+.cards{
+  display:grid;
+  gap:18px;
+}
+
+.card{
+  background:#fff;
+  border-radius:22px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+  display:flex;
+  gap:20px;
+  align-items:flex-start;
+}
+
+.avatar{
+  width:76px;
+  height:76px;
+  border-radius:20px;
+  background:#eef2f7;
+  color:#3478f6;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:32px;
+  font-weight:bold;
+  flex-shrink:0;
+}
+
+.card-body{
+  flex:1;
+  min-width:0;
+}
+
+.card-title{
+  font-size:28px;
+  font-weight:bold;
+  color:#3478f6;
+  margin-bottom:10px;
+  line-height:1.2;
+}
+
+.badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:14px;
+}
+
+.badge{
+  background:#e8f5e9;
+  color:#1b5e20;
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+.badge-blue{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.info{
+  line-height:1.8;
+  margin-bottom:18px;
+  color:#333;
+}
+
+.info-row{
+  margin-bottom:4px;
+}
+
+.text-muted{
+  color:#777;
+}
+
+.buttons{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.btn{
+  text-decoration:none;
+  padding:13px 18px;
+  border-radius:12px;
+  font-weight:bold;
+  display:inline-block;
+  border:none;
+  cursor:pointer;
+  font-size:15px;
+}
+
+.wa{
+  background:#25D366;
+  color:#fff;
+}
+
+.more{
+  background:#3478f6;
+  color:#fff;
+}
+
+.reset{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.pagination{
+  display:flex;
+  justify-content:center;
+  gap:8px;
+  margin:30px 0;
+  flex-wrap:wrap;
+}
+
+.page-active{
+  background:#3478f6;
+  color:#fff;
+}
+
+.page-link{
+  background:#eef2f7;
+  color:#3478f6;
+}
+
+.empty{
+  background:#fff;
+  border-radius:20px;
+  padding:24px;
+  box-shadow:0 6px 24px rgba(0,0,0,.08);
+}
+
+@media(max-width:760px){
+
+  .header-inner{
+    flex-direction:column;
+    align-items:flex-start;
+  }
+
+  .nav{
+    width:100%;
+  }
+
+  .nav a{
+    flex:1;
+    text-align:center;
+  }
+
+  .hero{
+    padding:24px;
+  }
+
+  .hero h1{
+    font-size:28px;
+  }
+
+  .hero p{
+    font-size:16px;
+  }
+
+  .card{
+    flex-direction:column;
+  }
+
+  .avatar{
+    width:64px;
+    height:64px;
+    font-size:28px;
+  }
+
+  .card-title{
+    font-size:25px;
+  }
+
+  .buttons,
+  .actions{
+    flex-direction:column;
+  }
+
+  .btn{
+    width:100%;
+    text-align:center;
+  }
+}
+
 </style>
 </head>
 
@@ -67,8 +327,8 @@ body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
   <section class="hero">
     <h1>Каталог продавцов автозапчастей</h1>
     <p>
-      Найдите продавца запчастей по городу, марке автомобиля, категории,
-      стране производителя и напишите напрямую в WhatsApp.
+      Найдите продавца запчастей по городу, марке автомобиля,
+      категории или стране производителя и напишите напрямую в WhatsApp.
     </p>
   </section>
 
@@ -93,6 +353,7 @@ body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
 
         <div class="field">
           <label>Тип транспорта</label>
+
           <select name="transport_type">
             <option value="">Все</option>
             <option value="car" {% if filters.transport_type == 'car' %}selected{% endif %}>Легковые</option>
@@ -102,74 +363,112 @@ body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
 
         <div class="field">
           <label>Город</label>
+
           <select name="city">
             <option value="">Все города</option>
+
             {% for city in cities %}
-              <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>
+              <option
+                value="{{ city }}"
+                {% if filters.city == city %}selected{% endif %}
+              >
                 {{ city }}
               </option>
             {% endfor %}
+
           </select>
         </div>
 
         <div class="field">
           <label>Категория</label>
+
           <select name="category">
             <option value="">Все категории</option>
+
             {% for category in categories %}
-              <option value="{{ category.id }}" {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}>
+              <option
+                value="{{ category.id }}"
+                {% if filters.category == category.id|stringformat:"s" %}selected{% endif %}
+              >
                 {{ category.name }}
               </option>
             {% endfor %}
+
           </select>
         </div>
 
         <div class="field">
           <label>Страна / производитель</label>
+
           <select name="country">
             <option value="">Все страны</option>
+
             {% for country in countries %}
-              <option value="{{ country.id }}" {% if filters.country == country.id|stringformat:"s" %}selected{% endif %}>
+              <option
+                value="{{ country.id }}"
+                {% if filters.country == country.id|stringformat:"s" %}selected{% endif %}
+              >
                 {{ country.name }}
               </option>
             {% endfor %}
+
           </select>
         </div>
 
         <div class="field">
           <label>Марка</label>
+
           <select name="brand">
             <option value="">Все марки</option>
+
             {% for brand in brands %}
-              <option value="{{ brand.id }}" {% if filters.brand == brand.id|stringformat:"s" %}selected{% endif %}>
+              <option
+                value="{{ brand.id }}"
+                {% if filters.brand == brand.id|stringformat:"s" %}selected{% endif %}
+              >
                 {{ brand.name }}
               </option>
             {% endfor %}
+
           </select>
         </div>
 
         <div class="field">
           <label>Модель</label>
+
           <select name="model">
             <option value="">Все модели</option>
+
             {% for model in models %}
-              <option value="{{ model.id }}" {% if filters.model == model.id|stringformat:"s" %}selected{% endif %}>
+              <option
+                value="{{ model.id }}"
+                {% if filters.model == model.id|stringformat:"s" %}selected{% endif %}
+              >
                 {{ model.name }}
               </option>
             {% endfor %}
+
           </select>
         </div>
 
       </div>
 
-      <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:18px;">
-        <button type="submit" class="btn more">
+      <div class="actions">
+
+        <button
+          type="submit"
+          class="btn more"
+        >
           Найти продавцов
         </button>
 
-        <a href="/api/parts-sellers/" class="btn reset">
+        <a
+          href="/api/parts-sellers/"
+          class="btn reset"
+        >
           Сбросить
         </a>
+
       </div>
 
     </form>
@@ -181,78 +480,103 @@ body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
 
     <div class="card">
 
-      <div class="card-title">
-        {{ seller.name }}
+      <div class="avatar">
+        {{ seller.name|first }}
       </div>
 
-      <div class="badges">
-        <div class="badge">✓ Продавец запчастей</div>
+      <div class="card-body">
 
-        {% if seller.transport_type == 'car' %}
-          <div class="badge">Легковые</div>
-        {% elif seller.transport_type == 'truck' %}
-          <div class="badge">Грузовые</div>
-        {% endif %}
+        <div class="card-title">
+          {{ seller.name }}
+        </div>
 
-        {% if seller.receive_requests %}
-          <div class="badge">✓ Принимает заявки</div>
-        {% endif %}
-      </div>
+        <div class="badges">
 
-      <div class="info">
+          <div class="badge">
+            Продавец запчастей
+          </div>
 
-        <b>Город:</b>
-        {{ seller.city|default:"Не указан" }}
+          {% if seller.transport_type == 'car' %}
 
-        <br>
+          <div class="badge badge-blue">
+            Легковые
+          </div>
 
-        <b>Место / рынок:</b>
-        {{ seller.market_location|default:"Не указано" }}
+          {% elif seller.transport_type == 'truck' %}
 
-        <br>
+          <div class="badge badge-blue">
+            Грузовые
+          </div>
 
-        <b>Категории:</b>
-        {% if seller.all_categories %}
-          Все категории
-        {% else %}
-          {% for category in seller.selected_categories.all %}
-            {{ category.name }}{% if not forloop.last %}, {% endif %}
-          {% empty %}
-            <span class="text-muted">Не указаны</span>
-          {% endfor %}
-        {% endif %}
+          {% endif %}
 
-        <br>
+        </div>
 
-        <b>Марки:</b>
-        {% if seller.all_brands %}
-          Все марки
-        {% else %}
-          {% for brand in seller.selected_brands.all %}
-            {{ brand.name }}{% if not forloop.last %}, {% endif %}
-          {% empty %}
-            <span class="text-muted">Не указаны</span>
-          {% endfor %}
-        {% endif %}
+        <div class="info">
 
-      </div>
+          <div class="info-row">
+            <b>Город:</b>
+            {{ seller.city|default:"Не указан" }}
+          </div>
 
-      <div class="buttons">
+          <div class="info-row">
+            <b>Место / рынок:</b>
+            {{ seller.market_location|default:"Не указано" }}
+          </div>
 
-        <a
-          class="btn wa"
-          target="_blank"
-          href="https://wa.me/{{ seller.whatsapp }}"
-        >
-          Написать в WhatsApp
-        </a>
+          <div class="info-row">
+            <b>Категории:</b>
 
-        <a
-          class="btn more"
-          href="/api/parts-seller/{{ seller.id }}/"
-        >
-          Смотреть профиль
-        </a>
+            {% if seller.all_categories %}
+              Все категории
+            {% else %}
+
+              {% for category in seller.selected_categories.all %}
+                {{ category.name }}{% if not forloop.last %}, {% endif %}
+              {% empty %}
+                <span class="text-muted">Не указаны</span>
+              {% endfor %}
+
+            {% endif %}
+          </div>
+
+          <div class="info-row">
+            <b>Марки:</b>
+
+            {% if seller.all_brands %}
+              Все марки
+            {% else %}
+
+              {% for brand in seller.selected_brands.all %}
+                {{ brand.name }}{% if not forloop.last %}, {% endif %}
+              {% empty %}
+                <span class="text-muted">Не указаны</span>
+              {% endfor %}
+
+            {% endif %}
+          </div>
+
+        </div>
+
+        <div class="buttons">
+
+          <a
+            class="btn wa"
+            target="_blank"
+            rel="noopener"
+            href="https://wa.me/{{ seller.whatsapp }}"
+          >
+            Написать в WhatsApp
+          </a>
+
+          <a
+            class="btn more"
+            href="/api/parts-seller/{{ seller.id }}/"
+          >
+            Смотреть профиль
+          </a>
+
+        </div>
 
       </div>
 
@@ -273,30 +597,36 @@ body{margin:0;background:#f5f7fb;font-family:Arial,sans-serif;color:#222}
   <div class="pagination">
 
     {% if page_obj.has_previous %}
-      <a
-        class="btn page-link"
-        href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ page_obj.previous_page_number }}"
-      >
-        ← Предыдущая
-      </a>
+
+    <a
+      class="btn page-link"
+      href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ page_obj.previous_page_number }}"
+    >
+      ← Предыдущая
+    </a>
+
     {% endif %}
 
     {% for num in page_obj.paginator.page_range %}
-      <a
-        class="btn {% if page_obj.number == num %}page-active{% else %}page-link{% endif %}"
-        href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ num }}"
-      >
-        {{ num }}
-      </a>
+
+    <a
+      class="btn {% if page_obj.number == num %}page-active{% else %}page-link{% endif %}"
+      href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ num }}"
+    >
+      {{ num }}
+    </a>
+
     {% endfor %}
 
     {% if page_obj.has_next %}
-      <a
-        class="btn page-link"
-        href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ page_obj.next_page_number }}"
-      >
-        Следующая →
-      </a>
+
+    <a
+      class="btn page-link"
+      href="?q={{ filters.q }}&transport_type={{ filters.transport_type }}&city={{ filters.city }}&category={{ filters.category }}&country={{ filters.country }}&brand={{ filters.brand }}&model={{ filters.model }}&page={{ page_obj.next_page_number }}"
+    >
+      Следующая →
+    </a>
+
     {% endif %}
 
   </div>
