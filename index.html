@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
   <title>Купить запчасти для легковых и грузовых авто в Казахстане | ZPT.kz</title>
-  <meta name="description" content="Купить запчасти для легковых и грузовых автомобилей в Казахстане. Оставьте одну заявку и получите предложения от продавцов автозапчастей по всей стране." />
-  <meta name="keywords" content="купить запчасти, автозапчасти Казахстан, запчасти для легковых автомобилей, запчасти для грузовых автомобилей, б/у запчасти, новые запчасти, запчасти на авто" />
+  <meta name="description" content="Купить запчасти для легковых и грузовых автомобилей в Казахстане. Один запрос — предложения от продавцов по Казахстану. Поиск в своём городе, регионе или по всей стране." />
+  <meta name="keywords" content="купить запчасти, автозапчасти Казахстан, запчасти для легковых автомобилей, запчасти для грузовых автомобилей, б/у запчасти, новые запчасти, запчасти на авто, услуги СТО, детейлинг, ремонт авто Казахстан" />
 
   <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
@@ -14,8 +14,8 @@
   <link rel="icon" type="image/png" sizes="192x192" href="/static/favicon/android-chrome-192x192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="/static/favicon/android-chrome-512x512.png">
 
-  <meta property="og:title" content="ZPT.kz — купить запчасти для авто">
-  <meta property="og:description" content="Оставьте одну заявку и получите предложения от продавцов автозапчастей по Казахстану.">
+  <meta property="og:title" content="ZPT.kz — купить запчасть">
+  <meta property="og:description" content="Один запрос — предложения от продавцов по Казахстану. Поиск в своём городе, регионе или по всей стране.">
   <meta property="og:image" content="https://zpt.kz/static/favicon/Лого MP.jpeg">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zpt.kz/">
@@ -23,17 +23,25 @@
 <style>
 *{box-sizing:border-box}
 
+html{
+  scroll-behavior:smooth;
+}
+
 body{
   margin:0;
   font-family:Arial,sans-serif;
-  color:#1f2937;
+  color:#111827;
   background:#f8fafc;
   line-height:1.5;
 }
 
+a{
+  -webkit-tap-highlight-color:transparent;
+}
+
 .container{
   width:100%;
-  max-width:1120px;
+  max-width:1160px;
   margin:0 auto;
   padding:0 20px;
 }
@@ -50,15 +58,21 @@ header{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  min-height:72px;
-  gap:16px;
+  min-height:76px;
+  gap:18px;
 }
 
 .logo{
-  font-size:28px;
-  font-weight:800;
-  color:#dc2626;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   text-decoration:none;
+  color:#dc2626;
+  font-size:30px;
+  line-height:1;
+  font-weight:900;
+  letter-spacing:.2px;
+  white-space:nowrap;
 }
 
 .header-actions{
@@ -68,12 +82,17 @@ header{
 }
 
 .header-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   text-decoration:none;
-  padding:12px 18px;
-  border-radius:12px;
+  padding:13px 20px;
+  min-height:48px;
+  border-radius:14px;
   font-weight:800;
-  font-size:14px;
-  transition:.2s;
+  font-size:15px;
+  transition:.2s ease;
+  white-space:nowrap;
 }
 
 .header-btn-primary{
@@ -95,12 +114,17 @@ header{
 }
 
 .btn{
-  display:inline-block;
-  padding:14px 24px;
-  border-radius:12px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:56px;
+  padding:15px 28px;
+  border-radius:14px;
   text-decoration:none;
-  font-weight:700;
+  font-size:18px;
+  font-weight:900;
   transition:.2s ease;
+  text-align:center;
 }
 
 .btn-primary{
@@ -108,171 +132,172 @@ header{
   color:#fff;
 }
 
-.btn-primary:hover{background:#15803d}
+.btn-primary:hover{
+  background:#15803d;
+}
 
 .btn-secondary{
   background:#f59e0b;
   color:#111827;
 }
 
-.btn-secondary:hover{background:#d97706}
+.btn-secondary:hover{
+  background:#d97706;
+}
 
 .hero{
   background:linear-gradient(135deg,#fff 0%,#fef2f2 100%);
-  padding:72px 0 56px;
+  padding:70px 0 58px;
 }
 
 .hero-box{
-  max-width:800px;
+  max-width:850px;
 }
 
 .pretitle{
   display:inline-block;
-  font-size:14px;
+  font-size:15px;
   color:#991b1b;
   background:#fee2e2;
-  padding:8px 12px;
+  padding:8px 13px;
   border-radius:999px;
-  margin-bottom:14px;
-  font-weight:700;
+  margin-bottom:16px;
+  font-weight:800;
 }
 
 h1{
-  font-size:48px;
-  line-height:1.1;
-  margin:0 0 20px;
+  font-size:54px;
+  line-height:1.06;
+  margin:0 0 16px;
   color:#111827;
+  letter-spacing:-1px;
 }
 
 .hero p{
-  font-size:20px;
-  margin:0 0 16px;
+  font-size:22px;
+  margin:0 0 18px;
   color:#374151;
 }
 
-.hero-strong{
-  font-weight:800;
-  color:#111827;
-}
-
 .hero-actions{
-  margin-top:26px;
+  margin-top:28px;
   display:flex;
-  gap:12px;
+  gap:14px;
   flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-start;
 }
 
 .hero-notes{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px 24px;
-  margin-top:22px;
-  color:#4b5563;
-  font-size:15px;
-  font-weight:600;
-}
-
-section{
-  padding:56px 0;
-}
-
-h2{
-  font-size:34px;
-  margin:0 0 24px;
-  color:#111827;
-}
-
-.steps,.advantages{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:20px;
-}
-
-.card{
-  background:#fff;
-  border-radius:18px;
-  padding:24px;
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
-}
-
-.step-number{
-  width:42px;
-  height:42px;
-  border-radius:999px;
-  background:#dc2626;
-  color:#fff;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  font-weight:800;
-  margin-bottom:14px;
-}
-
-.advantages{
-  grid-template-columns:repeat(3,1fr);
-}
-
-.adv-item{
-  background:#fff;
-  border-radius:16px;
-  padding:18px 20px;
-  box-shadow:0 10px 30px rgba(0,0,0,.05);
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px 22px;
+  margin-top:26px;
+  color:#374151;
+  font-size:16px;
   font-weight:700;
 }
 
-.main-message{
-  background:#111827;
-  color:#fff;
-  border-radius:24px;
-  padding:44px 28px;
-  text-align:center;
+.note{
+  display:flex;
+  align-items:flex-start;
+  gap:9px;
 }
 
-.main-message h2,
-.main-message p{
+.note-icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:22px;
+  height:22px;
+  min-width:22px;
+  border-radius:999px;
+  background:#16a34a;
   color:#fff;
+  font-size:14px;
+  line-height:1;
+  font-weight:900;
+  margin-top:1px;
 }
 
-.main-message p{
-  font-size:18px;
-  margin:0;
+section{
+  padding:50px 0;
+}
+
+.service-section{
+  padding-top:46px;
+}
+
+h2{
+  font-size:36px;
+  line-height:1.12;
+  margin:0 0 16px;
+  color:#111827;
+  letter-spacing:-.4px;
 }
 
 .cta{
   background:#fff;
-  text-align:center;
-  border-radius:24px;
-  padding:44px 28px;
-  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  border-radius:26px;
+  padding:44px 34px;
+  box-shadow:0 12px 36px rgba(15,23,42,.07);
+}
+
+.cta p{
+  font-size:21px;
+  margin:0 0 18px;
+  color:#374151;
+}
+
+.cta .hero-notes{
+  margin-top:26px;
+}
+
+.cta .note-icon{
+  background:#f59e0b;
+  color:#111827;
 }
 
 .seller{
   background:#fff7ed;
   border:1px solid #fed7aa;
-  border-radius:24px;
-  padding:40px 28px;
+  border-radius:26px;
+  padding:44px 34px;
   text-align:center;
+  box-shadow:0 12px 36px rgba(15,23,42,.05);
+}
+
+.seller h2{
+  max-width:760px;
+  margin-left:auto;
+  margin-right:auto;
+}
+
+.seller p{
+  font-size:20px;
+  margin:0 0 22px;
+  color:#374151;
+}
+
+.seller .hero-actions{
+  justify-content:center;
 }
 
 .seo-text{
   color:#4b5563;
   font-size:17px;
   background:#fff;
-  border-radius:18px;
-  padding:28px;
+  border-radius:22px;
+  padding:30px;
   box-shadow:0 10px 30px rgba(0,0,0,.05);
 }
 
-.faq{
-  display:grid;
-  gap:14px;
+.seo-text p{
+  margin:0 0 14px;
 }
 
-.faq-item{
-  background:#fff;
-  border-radius:16px;
-  padding:20px;
-  box-shadow:0 8px 24px rgba(0,0,0,.05);
+.seo-text p:last-child{
+  margin-bottom:0;
 }
 
 footer{
@@ -283,33 +308,141 @@ footer{
 }
 
 @media(max-width:900px){
-  h1{font-size:38px}
-  .steps,.advantages{grid-template-columns:1fr}
+  h1{
+    font-size:44px;
+  }
+
+  h2{
+    font-size:32px;
+  }
+
+  .hero-notes{
+    grid-template-columns:1fr;
+  }
 }
 
 @media(max-width:640px){
+  .container{
+    padding:0 16px;
+  }
+
   .header-wrap{
     flex-direction:column;
     align-items:stretch;
     padding:14px 0;
+    gap:12px;
   }
 
-  .logo{text-align:center}
+  .logo{
+    text-align:center;
+    font-size:31px;
+  }
 
   .header-actions{
     width:100%;
     display:grid;
     grid-template-columns:1fr;
+    gap:10px;
   }
 
   .header-btn{
+    width:100%;
     text-align:center;
   }
 
-  h1{font-size:32px}
-  .hero p{font-size:18px}
-  h2{font-size:28px}
-  .btn{width:100%;text-align:center}
+  .hero{
+    padding:34px 0 38px;
+  }
+
+  .hero-box{
+    max-width:none;
+  }
+
+  .pretitle{
+    font-size:14px;
+    line-height:1.35;
+    margin-bottom:14px;
+  }
+
+  h1{
+    font-size:38px;
+    letter-spacing:-.5px;
+    margin-bottom:14px;
+  }
+
+  .hero p{
+    font-size:19px;
+  }
+
+  .btn{
+    width:100%;
+    font-size:17px;
+  }
+
+  .hero-actions{
+    width:100%;
+    gap:10px;
+  }
+
+  .hero-notes{
+    font-size:16px;
+    gap:11px;
+  }
+
+  section{
+    padding:30px 0;
+  }
+
+  .service-section{
+    padding-top:28px;
+  }
+
+  h2{
+    font-size:30px;
+    margin-bottom:14px;
+  }
+
+  .cta,
+  .seller{
+    padding:30px 20px;
+    border-radius:22px;
+  }
+
+  .cta p,
+  .seller p{
+    font-size:18px;
+  }
+
+  .seller{
+    text-align:left;
+  }
+
+  .seller .hero-actions{
+    justify-content:stretch;
+  }
+
+  .seo-text{
+    padding:22px;
+    font-size:16px;
+  }
+}
+
+@media(max-width:390px){
+  h1{
+    font-size:34px;
+  }
+
+  h2{
+    font-size:27px;
+  }
+
+  .logo{
+    font-size:29px;
+  }
+
+  .hero p{
+    font-size:18px;
+  }
 }
 </style>
 </head>
@@ -332,234 +465,160 @@ footer{
   </div>
 </header>
 
-  <main>
-<section class="hero">
-  <div class="container">
-    <div class="hero-box">
-      <div class="pretitle">
-        Автозапчасти, СТО и автоуслуги по Казахстану
-      </div>
+<main>
+  <section class="hero">
+    <div class="container">
+      <div class="hero-box">
+        <div class="pretitle">
+          Автозапчасти для легковых и грузовых авто
+        </div>
 
-      <h1>
-        Купить запчасть<br>
-        Услуги СТО / детейлинг
-      </h1>
-
-      <p>
-        Оставьте заявку — продавцы, СТО и мастера сами напишут вам в WhatsApp.
-      </p>
-
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="/request-parts/">
+        <h1>
           Купить запчасть
-        </a>
+        </h1>
 
-        <a class="btn btn-secondary" href="https://zpt-kz-backend.onrender.com/service-request/">
-          Услуги СТО
-        </a>
-      </div>
+        <p>
+          Подбор по марке и модели автомобиля
+        </p>
 
-      <div class="hero-notes">
-        <span>✔ Запчасти для легковых и грузовых авто</span>
-        <span>✔ СТО, ремонт и детейлинг</span>
-        <span>✔ Заявка бесплатно</span>
-      </div>
-    </div>
-  </div>
-</section>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/request-parts/">
+            Купить запчасть
+          </a>
+        </div>
 
-    <section>
-      <div class="container">
-        <h2>Как это работает</h2>
-
-        <div class="steps">
-          <div class="card">
-            <div class="step-number">1</div>
-
-            <h3>Оставляете заявку</h3>
-
-            <p>
-              Выбираете: запчасть, СТО, детейлинг
-              или нужную автоуслугу.
-            </p>
+        <div class="hero-notes">
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Легковые и грузовые авто</span>
           </div>
 
-          <div class="card">
-            <div class="step-number">2</div>
-
-            <h3>Продавцы и СТО получают запрос</h3>
-
-            <p>
-              Заявка уходит продавцам запчастей,
-              СТО и исполнителям по Казахстану.
-            </p>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Новые и б/у запчасти</span>
           </div>
 
-          <div class="card">
-            <div class="step-number">3</div>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Один запрос — предложения от продавцов по Казахстану</span>
+          </div>
 
-            <h3>Выбираете подходящий вариант</h3>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Поиск в своём городе, регионе или по всему Казахстану</span>
+          </div>
 
-            <p>
-              Сравниваете предложения и связываетесь
-              напрямую через WhatsApp.
-            </p>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Прямое общение с продавцами в WhatsApp</span>
           </div>
         </div>
       </div>
-    </section>
-
-    <section>
-  <div class="container">
-    <div class="main-message">
-      <h2>Одна заявка — ответы от продавцов и СТО</h2>
-
-      <p>
-        Не нужно искать по сайтам, звонить
-        в магазины и СТО.
-        Исполнители сами увидят вашу заявку
-        и предложат варианты.
-      </p>
     </div>
-  </div>
-</section>
+  </section>
 
-<section>
-  <div class="container">
-    <h2>Почему это удобно</h2>
+  <section class="service-section">
+    <div class="container">
+      <div class="cta">
+        <h2>
+          Услуги СТО / детейлинг
+        </h2>
 
-    <div class="advantages">
-      <div class="adv-item">
-        ✔ Быстрый поиск запчастей и СТО
-      </div>
+        <p>
+          Ремонт, обслуживание и детейлинг
+        </p>
 
-      <div class="adv-item">
-        ✔ Ответы в WhatsApp
-      </div>
+        <div class="hero-actions">
+          <a class="btn btn-secondary"
+             href="https://zpt-kz-backend.onrender.com/service-request/">
+            Услуги СТО
+          </a>
+        </div>
 
-      <div class="adv-item">
-        ✔ Без звонков и долгого поиска
-      </div>
+        <div class="hero-notes">
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Ремонт и обслуживание</span>
+          </div>
 
-      <div class="adv-item">
-        ✔ Легковые и грузовые авто
-      </div>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Детейлинг и кузовные работы</span>
+          </div>
 
-      <div class="adv-item">
-        ✔ Запчасти, ремонт и автоуслуги
-      </div>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Один запрос — предложения от СТО и исполнителей</span>
+          </div>
 
-      <div class="adv-item">
-        ✔ Продавцы и СТО по Казахстану
-      </div>
-    </div>
-  </div>
-</section>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Подбор в своём городе, регионе или по всему Казахстану</span>
+          </div>
 
-    <section>
-  <div class="container">
-    <div class="cta">
-      <h2>Нужны запчасти или СТО?</h2>
-
-      <p>
-        Оставьте заявку и получите предложения
-        от продавцов, СТО и исполнителей.
-      </p>
-
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="/request-parts/">
-          Купить запчасть
-        </a>
-
-        <a class="btn btn-secondary"
-           href="https://zpt-kz-backend.onrender.com/service-request/">
-          Услуги СТО
-        </a>
+          <div class="note">
+            <span class="note-icon">✓</span>
+            <span>Прямое общение с исполнителями в WhatsApp</span>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-    <section>
-  <div class="container">
-    <div class="seller">
+  <section>
+    <div class="container">
+      <div class="seller">
+        <h2>
+          Продаёте запчасти или оказываете автоуслуги?
+        </h2>
+
+        <p>
+          Присоединяйтесь к ZPT.KZ
+        </p>
+
+        <div class="hero-actions">
+          <a class="btn btn-secondary"
+             href="/request-parts/register/">
+            Регистрация продавца
+          </a>
+
+          <a class="btn btn-primary"
+             href="https://zpt-kz-backend.onrender.com/service-request/register/">
+            Регистрация СТО
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="container">
       <h2>
-        Вы продаете запчасти
-        или оказываете автоуслуги?
+        Автозапчасти, СТО и автоуслуги по Казахстану
       </h2>
 
-      <p>
-        Получайте заявки от клиентов
-        со всего Казахстана через ZPT.kz.
-      </p>
+      <div class="seo-text">
+        <p>
+          ZPT.kz помогает покупателям искать автозапчасти для легковых и грузовых автомобилей, а также подбирать СТО, детейлинг и автоуслуги по Казахстану.
+        </p>
 
-      <div class="hero-actions">
-        <a class="btn btn-secondary"
-           href="/request-parts/register/">
-          Регистрация продавца
-        </a>
+        <p>
+          Один запрос может быть направлен продавцам, СТО и исполнителям в своём городе, регионе или по всей стране. Общение с продавцом или исполнителем проходит напрямую в WhatsApp.
+        </p>
 
-        <a class="btn btn-primary"
-           href="https://zpt-kz-backend.onrender.com/service-request/register/">
-          Регистрация СТО
-        </a>
+        <p>
+          На ZPT.kz можно искать новые и б/у запчасти, ремонт, обслуживание, детейлинг и кузовные работы.
+        </p>
       </div>
     </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <div><strong>ZPT.kz</strong></div>
+    <div>Автозапчасти, СТО и автоуслуги по Казахстану</div>
   </div>
-</section>
-
-    <section>
-      <div class="container">
-        <h2>Автозапчасти в Казахстане</h2>
-
-        <div class="seo-text">
-          <p>
-            ZPT.kz помогает покупателям выбрать и купить автозапчасти для легковых и грузовых автомобилей в Казахстане.
-            Вы оставляете одну заявку на нужную запчасть, а продавцы автозапчастей получают запрос и предлагают варианты.
-          </p>
-
-          <p>
-            Через ZPT.kz можно искать новые и б/у запчасти на авто: двигатели, коробки передач, кузовные детали,
-            оптику, электронику, ходовую часть, расходники и другие автозапчасти.
-          </p>
-
-          <p>
-            Сервис удобен для тех, кто не хочет тратить время на звонки и поиск по разным сайтам.
-            Одна заявка позволяет получить предложения от продавцов по всему Казахстану.
-          </p>
-        </div>
-      </div>
-    </section>
-
-    <section>
-      <div class="container">
-        <h2>Частые вопросы</h2>
-
-        <div class="faq">
-          <div class="faq-item">
-            <strong>Сколько стоит отправить заявку?</strong>
-            <p>Для покупателя отправка заявки бесплатна.</p>
-          </div>
-
-          <div class="faq-item">
-            <strong>Какие запчасти можно искать?</strong>
-            <p>Новые и б/у автозапчасти для легковых и грузовых автомобилей.</p>
-          </div>
-
-          <div class="faq-item">
-            <strong>Кто отвечает на заявки?</strong>
-            <p>На заявки отвечают зарегистрированные продавцы автозапчастей.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      <div><strong>ZPT.kz</strong></div>
-      <div>Заявки на автозапчасти продавцам по Казахстану</div>
-    </div>
-  </footer>
+</footer>
 </body>
 </html>
