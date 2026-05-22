@@ -89,3 +89,5 @@ urlpatterns = [
         name='service_seller_detail',
     ),
 ]
+
+# parts sellers routes
