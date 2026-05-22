@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Кабинет продавца — Market Parts</title>
+<title>Кабинет продавца — ZPT.kz</title>
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
 <style>
 *{box-sizing:border-box}
@@ -13,10 +13,25 @@ body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f3f4f6;color:#1
 <body>
 <div class="page">
   <div class="topbar">
-    <a class="brand" href="/">Market Parts</a>
+    <a
+  class="brand"
+  href="https://zpt.kz/request-parts/"
+>
+  ZPT.kz
+</a>
     <div class="nav">
-      <a class="home" href="/">Главная</a>
-      <a class="cabinet" href="/request-parts/cabinet/">Кабинет</a>
+      <a
+  class="home"
+  href="https://zpt.kz/request-parts/"
+>
+  Главная
+</a>
+<a
+  class="cabinet"
+  href="https://zpt.kz/request-parts/cabinet/"
+>
+  Кабинет
+</a>
       <button class="logout" onclick="sellerLogout()">Выход</button>
     </div>
   </div>
@@ -385,7 +400,15 @@ function showTab(tab){
   pageTitle.innerText=isRequests?'Кабинет продавца':'Мой профиль';
   pageSubtitle.innerText=isRequests?'Здесь отображаются заявки покупателей, которые подходят вашему магазину.':'Проверьте данные вашего магазина и настройки автозапчастей.';
 }
-async function sellerLogout(){await fetch(`${API}/seller-logout/`,{method:'POST',credentials:'include'});showLogin()}
+async function sellerLogout(){
+  await fetch(`${API}/seller-logout/`,{
+    method:'POST',
+    credentials:'include'
+  });
+
+  window.location.href =
+    'https://zpt.kz/request-parts/';
+}
 
 function showToast(text,type='success'){
   let old=document.getElementById('toastMessage');
