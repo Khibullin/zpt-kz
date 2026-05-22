@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Регистрация продавца — Market Parts</title>
+<title>Регистрация продавца — ZPT.kz</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial;background:#f3f6fb;color:#111;border-top:1px solid #ffd5c7}
@@ -19,10 +19,24 @@ input,select{width:100%;height:38px;border:1px solid #cfd8ea;border-radius:8px;p
 </head>
 <body>
 <header class="header">
-  <div class="logo">Market Parts</div>
-  <div class="nav"><a class="blue" href="/request-parts/">Главная</a><a class="green" href="/request-parts/cabinet/">Кабинет продавца</a></div>
-</header>
-<div class="wrap">
+  <div class="logo">ZPT.kz</div>
+
+  <div class="nav">
+    <a
+      class="blue"
+      href="/request-parts/"
+    >
+      Главная
+    </a>
+
+    <a
+      class="green"
+      href="https://zpt.kz/request-parts/cabinet/"
+    >
+      Кабинет продавца
+    </a>
+  </div>
+</header><div class="wrap">
   <section class="hero"><h1>Регистрация продавца</h1><p>Заполните данные магазина, чтобы получать подходящие заявки.</p></section>
   <section class="card">
     <h2>Данные продавца</h2>
@@ -41,9 +55,22 @@ input,select{width:100%;height:38px;border:1px solid #cfd8ea;border-radius:8px;p
       <div class="block"><h3 class="orange-title">Категории запчастей</h3><div id="categoriesBox" class="checkgrid"></div><div class="all-row"><label><input type="checkbox" id="all_categories"> Все категории</label></div></div>
       <button class="submit" type="submit">Зарегистрироваться</button>
     </form>
+
     <div id="msg" class="msg"></div>
+
   </section>
-  <section class="links"><a href="/request-parts/cabinet/">Уже зарегистрированы? Войти</a><a href="/request-parts/">На главную</a></section>
+
+  <section class="links">
+
+    <a href="https://zpt.kz/request-parts/cabinet/">
+      Уже зарегистрированы? Войти
+    </a>
+
+    <a href="https://zpt.kz/request-parts/">
+      На главную
+    </a>
+
+  </section>
 </div>
 <script>
 const API='https://zpt-kz-backend.onrender.com/api';
