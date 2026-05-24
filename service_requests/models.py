@@ -28,8 +28,8 @@ class ServiceBroadcastSettings(models.Model):
     )
 
     class Meta:
-        verbose_name = 'Broadcast Control исполнителей'
-        verbose_name_plural = 'Broadcast Control исполнителей'
+        verbose_name = 'Управление рассылкой'
+        verbose_name_plural = 'Управление рассылкой'
 
     def __str__(self):
         return f"Service Broadcast Control: {self.get_mode_display()}"
@@ -43,12 +43,17 @@ class ServiceBroadcastSettings(models.Model):
         obj, created = cls.objects.get_or_create(pk=1)
         return obj
 
+
 # ================================
 # Услуги (СТО / детейлинг)
 # ================================
 
 class Service(models.Model):
     name = models.CharField(max_length=100)
+
+    class Meta:
+        verbose_name = 'Услуга'
+        verbose_name_plural = 'Услуги'
 
     def __str__(self):
         return self.name
@@ -99,7 +104,6 @@ class ServiceSeller(models.Model):
         blank=True
     )
 
-    # ссылка на 2GIS
     map_link = models.URLField(
         blank=True
     )
@@ -136,6 +140,10 @@ class ServiceSeller(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        verbose_name = 'Исполнитель'
+        verbose_name_plural = 'Исполнители'
+
     def __str__(self):
         return f"{self.name} ({self.seller_type})"
 
@@ -159,13 +167,16 @@ class ServiceRequest(models.Model):
 
     city = models.CharField(max_length=100)
 
-    # желаемый район клиента
     district = models.CharField(max_length=100, blank=True)
 
     phone = models.CharField(max_length=20)
     description = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Заявка клиента'
+        verbose_name_plural = 'Заявки клиентов'
 
     def __str__(self):
         return f"{self.service_type} | {self.city}"
@@ -184,11 +195,29 @@ class ServiceMatch(models.Model):
         ('done', 'Завершена'),
     ]
 
-    request = models.ForeignKey(ServiceRequest, on_delete=models.CASCADE)
-    seller = models.ForeignKey(ServiceSeller, on_delete=models.CASCADE)
+    request = models.ForeignKey(
+        ServiceRequest,
+        on_delete=models.CASCADE
+    )
 
-    status = models.CharField(max_length=20, choices=STATUS, default='new')
-    created_at = models.DateTimeField(auto_now_add=True)
+    seller = models.ForeignKey(
+        ServiceSeller,
+        on_delete=models.CASCADE
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS,
+        default='new'
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        verbose_name = 'Назначение исполнителю'
+        verbose_name_plural = 'Назначения исполнителям'
 
 
 # ================================
