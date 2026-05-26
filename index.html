@@ -307,6 +307,130 @@ footer{
   font-size:14px;
 }
 
+.model-section{
+  padding:28px 0 10px;
+}
+
+.model-box{
+  background:#fff;
+  border-radius:28px;
+  padding:34px;
+  box-shadow:0 12px 36px rgba(15,23,42,.07);
+}
+
+.model-title{
+  margin:0 0 8px;
+}
+
+.model-subtitle{
+  margin:0 0 26px;
+  color:#6b7280;
+  font-size:18px;
+}
+
+.model-tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  margin-bottom:24px;
+}
+
+.model-tab{
+  border:1.5px solid #e5e7eb;
+  border-radius:18px;
+  min-height:62px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  font-weight:800;
+  background:#fff;
+  color:#6b7280;
+}
+
+.model-tab.active{
+  border-color:#ef4444;
+  color:#dc2626;
+  background:#fff5f5;
+}
+
+.model-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:14px;
+}
+
+.model-card{
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:18px;
+  padding:18px;
+  text-decoration:none;
+  transition:.2s ease;
+}
+
+.model-card:hover{
+  transform:translateY(-2px);
+  border-color:#dc2626;
+  box-shadow:0 10px 24px rgba(220,38,38,.08);
+}
+
+.model-brand{
+  color:#111827;
+  font-size:18px;
+  font-weight:900;
+  margin-bottom:4px;
+}
+
+.model-name{
+  color:#6b7280;
+  font-size:16px;
+  font-weight:700;
+}
+
+.model-footer{
+  margin-top:26px;
+  border-top:1px solid #e5e7eb;
+  padding-top:20px;
+}
+
+.model-footer p{
+  margin:0;
+  color:#374151;
+  font-size:17px;
+  line-height:1.6;
+}
+
+@media(max-width:640px){
+
+  .model-box{
+    padding:24px 18px;
+    border-radius:22px;
+  }
+
+  .model-tabs{
+    grid-template-columns:1fr;
+  }
+
+  .model-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .model-tab{
+    min-height:56px;
+    font-size:16px;
+  }
+
+  .model-brand{
+    font-size:16px;
+  }
+
+  .model-name{
+    font-size:14px;
+  }
+
+}
+
 @media(max-width:900px){
   h1{
     font-size:44px;
@@ -511,6 +635,96 @@ footer{
       </div>
     </div>
   </section>
+
+<section class="model-section">
+  <div class="container">
+
+    <div class="model-box">
+
+      <h2 class="model-title">
+        Подбор по популярным моделям
+      </h2>
+
+      <p class="model-subtitle">
+        Быстрый переход к популярным моделям автомобилей
+      </p>
+
+      <div class="model-tabs">
+
+        <div class="model-tab active">
+          🚗 Легковые автомобили
+        </div>
+
+        <div class="model-tab">
+          🚚 Грузовые автомобили
+        </div>
+
+      </div>
+
+      <div class="model-grid">
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Toyota</div>
+          <div class="model-name">Camry 55</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Toyota</div>
+          <div class="model-name">Prado 150</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Toyota</div>
+          <div class="model-name">Corolla</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Lexus</div>
+          <div class="model-name">RX350</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Lexus</div>
+          <div class="model-name">LX570</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Hyundai</div>
+          <div class="model-name">Tucson</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Kia</div>
+          <div class="model-name">Sportage</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Mercedes</div>
+          <div class="model-name">W221</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">Mercedes</div>
+          <div class="model-name">Sprinter</div>
+        </a>
+
+        <a class="model-card" href="/request-parts/">
+          <div class="model-brand">BMW</div>
+          <div class="model-name">X5</div>
+        </a>
+
+      </div>
+
+      <div class="model-footer">
+        <p>
+          Не нашли свою модель? Оставьте заявку — продавцы автозапчастей по Казахстану сами предложат наличие, цену и сроки в WhatsApp.
+        </p>
+      </div>
+
+    </div>
+
+  </div>
+</section>
 
   <section>
     <div class="container">
