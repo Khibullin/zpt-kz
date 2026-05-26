@@ -648,94 +648,116 @@ footer{
   </section>
 
   <section class="model-section">
-  <div class="container">
+    <div class="container">
 
-    <div class="model-box">
+      <div class="model-box">
 
-      <h2 class="model-title">
-        Подбор по популярным моделям
-      </h2>
+        <h2 class="model-title">
+          Подбор по популярным моделям
+        </h2>
 
-      <p class="model-subtitle">
-        Часто ищут запчасти на эти модели
-      </p>
-
-      <div class="model-tabs">
-
-        <div class="model-tab active">
-          🚗 Легковые автомобили
-        </div>
-
-        <div class="model-tab">
-          🚚 Грузовые автомобили
-        </div>
-
-      </div>
-
-      <div class="model-grid">
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Toyota</div>
-          <div class="model-name">Camry 55</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Toyota</div>
-          <div class="model-name">Prado 150</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Toyota</div>
-          <div class="model-name">Corolla</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Lexus</div>
-          <div class="model-name">RX350</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Lexus</div>
-          <div class="model-name">LX570</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Hyundai</div>
-          <div class="model-name">Tucson</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Kia</div>
-          <div class="model-name">Sportage</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Mercedes</div>
-          <div class="model-name">W221</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">Mercedes</div>
-          <div class="model-name">Sprinter</div>
-        </a>
-
-        <a class="model-card" href="/request-parts/">
-          <div class="model-brand">BMW</div>
-          <div class="model-name">X5</div>
-        </a>
-
-      </div>
-
-      <div class="model-footer">
-        <p>
-          Не нашли свою модель? Оставьте заявку — продавцы автозапчастей по Казахстану сами предложат наличие, цену и сроки в WhatsApp.
+        <p class="model-subtitle">
+          Часто ищут запчасти на эти модели
         </p>
+
+        <div class="model-tabs">
+          <button class="model-tab active" type="button" data-model-type="car">
+            🚗 Легковые автомобили
+          </button>
+
+          <button class="model-tab" type="button" data-model-type="truck">
+            🚚 Грузовые автомобили
+          </button>
+        </div>
+
+        <div class="model-grid" id="modelGrid"></div>
+
+        <div class="model-footer">
+          <p>
+            Не нашли свою модель? Оставьте заявку — продавцы автозапчастей по Казахстану сами предложат наличие, цену и сроки в WhatsApp.
+          </p>
+        </div>
+
       </div>
 
     </div>
-
-  </div>
   </section>
+
+  <script>
+    const popularModels = {
+      car: [
+        { brand: 'Toyota', model: 'Camry 55' },
+        { brand: 'Toyota', model: 'Prado 150' },
+        { brand: 'Toyota', model: 'Corolla' },
+        { brand: 'Lexus', model: 'RX350' },
+        { brand: 'Lexus', model: 'LX570' },
+        { brand: 'Hyundai', model: 'Tucson' },
+        { brand: 'Kia', model: 'Sportage' },
+        { brand: 'Mercedes', model: 'W221' },
+        { brand: 'Mercedes', model: 'Sprinter' },
+        { brand: 'BMW', model: 'X5' }
+      ],
+      truck: [
+        { brand: 'HOWO', model: '' },
+        { brand: 'Shacman', model: '' },
+        { brand: 'КамАЗ', model: '' },
+        { brand: 'MAN', model: '' },
+        { brand: 'DAF', model: '' },
+        { brand: 'Scania', model: '' },
+        { brand: 'Volvo', model: 'FH' },
+        { brand: 'Mercedes', model: 'Actros' },
+        { brand: 'FAW', model: '' },
+        { brand: 'Isuzu', model: '' }
+      ]
+    };
+
+    const modelGrid = document.getElementById('modelGrid');
+    const modelTabs = document.querySelectorAll('.model-tab');
+
+    function buildRequestUrl(type, brand, model){
+      const params = new URLSearchParams();
+
+      params.set('transport', type);
+      params.set('brand', brand);
+
+      if(model){
+        params.set('model', model);
+      }
+
+      return '/request-parts/?' + params.toString();
+    }
+
+    function renderModels(type){
+      modelGrid.innerHTML = '';
+
+      popularModels[type].forEach(function(item){
+        const link = document.createElement('a');
+
+        link.className = 'model-card';
+        link.href = buildRequestUrl(type, item.brand, item.model);
+
+        link.innerHTML = `
+          <div class="model-brand">${item.brand}</div>
+          <div class="model-name">${item.model || 'Запчасти'}</div>
+        `;
+
+        modelGrid.appendChild(link);
+      });
+    }
+
+    modelTabs.forEach(function(tab){
+      tab.addEventListener('click', function(){
+        modelTabs.forEach(function(item){
+          item.classList.remove('active');
+        });
+
+        tab.classList.add('active');
+        renderModels(tab.dataset.modelType);
+      });
+    });
+
+    renderModels('car');
+  </script>
 
   <section>
     <div class="container">
