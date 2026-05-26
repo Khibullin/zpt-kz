@@ -601,10 +601,77 @@ if(
   finally{submitBtn.disabled=false;submitBtn.innerText='Отправить заявку'}
 });
 
+async function applyUrlParams(){
+
+  const params = new URLSearchParams(
+    window.location.search
+  );
+
+  const transport =
+    params.get('transport');
+
+  const brand =
+    params.get('brand');
+
+  const model =
+    params.get('model');
+
+  if(
+    transport &&
+    ['car','truck'].includes(transport)
+  ){
+    setTransport(transport);
+  }
+
+  await loadCountries();
+
+  // Поиск страны по бренду
+  if(brand){
+
+    for(const country of countriesData){
+
+      countryEl.value = country.id;
+
+      await loadBrands();
+
+      const foundBrand =
+        brandsData.find(
+          b =>
+            b.name.toLowerCase()
+            === brand.toLowerCase()
+        );
+
+      if(foundBrand){
+
+        brandEl.value = foundBrand.id;
+
+        await loadModels();
+
+        if(model){
+
+          const foundModel =
+            modelsData.find(
+              m =>
+                m.name.toLowerCase()
+                === model.toLowerCase()
+            );
+
+          if(foundModel){
+            modelEl.value =
+              foundModel.id;
+          }
+        }
+
+        break;
+      }
+    }
+  }
+}
+
 countryEl.addEventListener('change',loadBrands);
 brandEl.addEventListener('change',loadModels);
 loadCategories();
-loadCountries();
+applyUrlParams();
 </script>
 </body>
 </html>
