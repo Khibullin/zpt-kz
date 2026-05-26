@@ -308,41 +308,41 @@ footer{
 }
 
 .model-section{
-  padding:28px 0 10px;
+  padding:14px 0 6px;
 }
 
 .model-box{
   background:#fff;
-  border-radius:28px;
-  padding:34px;
-  box-shadow:0 12px 36px rgba(15,23,42,.07);
+  border-radius:24px;
+  padding:24px 26px;
+  box-shadow:0 8px 24px rgba(15,23,42,.06);
 }
 
 .model-title{
-  margin:0 0 8px;
+  margin:0 0 4px;
 }
 
 .model-subtitle{
-  margin:0 0 26px;
+  margin:0 0 18px;
   color:#6b7280;
-  font-size:18px;
+  font-size:16px;
 }
 
 .model-tabs{
   display:grid;
   grid-template-columns:1fr 1fr;
-  gap:14px;
-  margin-bottom:24px;
+  gap:10px;
+  margin-bottom:18px;
 }
 
 .model-tab{
-  border:1.5px solid #e5e7eb;
-  border-radius:18px;
-  min-height:62px;
+  border:1px solid #e5e7eb;
+  border-radius:16px;
+  min-height:56px;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:18px;
+  font-size:16px;
   font-weight:800;
   background:#fff;
   color:#6b7280;
@@ -351,82 +351,93 @@ footer{
 .model-tab.active{
   border-color:#ef4444;
   color:#dc2626;
-  background:#fff5f5;
+  background:#fff7f7;
 }
 
 .model-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:14px;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
 }
 
 .model-card{
   background:#fff;
   border:1px solid #e5e7eb;
-  border-radius:18px;
-  padding:18px;
+  border-radius:16px;
+  padding:14px 16px;
   text-decoration:none;
-  transition:.2s ease;
+  transition:.18s ease;
 }
 
 .model-card:hover{
   transform:translateY(-2px);
   border-color:#dc2626;
-  box-shadow:0 10px 24px rgba(220,38,38,.08);
+  box-shadow:0 6px 18px rgba(220,38,38,.08);
 }
 
 .model-brand{
   color:#111827;
-  font-size:18px;
+  font-size:15px;
   font-weight:900;
-  margin-bottom:4px;
+  margin-bottom:2px;
+  line-height:1.2;
 }
 
 .model-name{
   color:#6b7280;
-  font-size:16px;
+  font-size:13px;
   font-weight:700;
+  line-height:1.2;
 }
 
 .model-footer{
-  margin-top:26px;
+  margin-top:16px;
   border-top:1px solid #e5e7eb;
-  padding-top:20px;
+  padding-top:14px;
 }
 
 .model-footer p{
   margin:0;
   color:#374151;
-  font-size:17px;
-  line-height:1.6;
+  font-size:15px;
+  line-height:1.5;
+}
+
+@media(max-width:900px){
+
+  .model-grid{
+    grid-template-columns:repeat(3,1fr);
+  }
+
 }
 
 @media(max-width:640px){
 
   .model-box{
-    padding:24px 18px;
-    border-radius:22px;
+    padding:20px 16px;
+    border-radius:20px;
   }
 
   .model-tabs{
     grid-template-columns:1fr;
+    gap:8px;
   }
 
   .model-grid{
     grid-template-columns:1fr 1fr;
+    gap:8px;
   }
 
-  .model-tab{
-    min-height:56px;
-    font-size:16px;
+  .model-card{
+    padding:12px;
   }
 
   .model-brand{
-    font-size:16px;
+    font-size:14px;
   }
 
   .model-name{
-    font-size:14px;
+    font-size:12px;
   }
 
 }
@@ -636,7 +647,7 @@ footer{
     </div>
   </section>
 
-<section class="model-section">
+  <section class="model-section">
   <div class="container">
 
     <div class="model-box">
@@ -646,7 +657,7 @@ footer{
       </h2>
 
       <p class="model-subtitle">
-        Быстрый переход к популярным моделям автомобилей
+        Часто ищут запчасти на эти модели
       </p>
 
       <div class="model-tabs">
@@ -724,7 +735,7 @@ footer{
     </div>
 
   </div>
-</section>
+  </section>
 
   <section>
     <div class="container">
