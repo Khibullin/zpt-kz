@@ -505,36 +505,43 @@ ${strategyNote}
   if(sellers.length){
     html += '<div class="result-card"><b>Продавцы получили заявку:</b>';
 
-    sellers.forEach((s)=>{
-      let wa = s.wa_link || '#';
+sellers.forEach((s)=>{
 
-      html += `
-      <div class="seller-row">
+  let wa = s.buyer_wa_link || '#';
 
-        <div>
-          <b>${s.seller || 'Продавец'}</b><br>
+  html += `
+  <div class="seller-row">
 
-          ${
-            s.wa_sent
-              ? '<span style="color:#2e7d32">✓ Заявка отправлена</span>'
-              : '<span style="color:#c62828">Ошибка отправки WhatsApp</span>'
-          }
+    <div>
 
-        </div>
+      <b>${s.seller_name || 'Продавец'}</b><br>
 
-        <a
-          class="wa-btn"
-          href="${wa}"
-          target="_blank"
-          rel="noopener"
-        >
-          WhatsApp
-        </a>
+      ${
+        s.whatsapp_status === 'sent'
+          ? '<span style="color:#2e7d32">✓ Заявка отправлена продавцу</span>'
+          : '<span style="color:#c62828">Ошибка отправки WhatsApp</span>'
+      }
 
-      </div>
-      `;
-    });
+      ${
+        s.seller_catalog_url
+          ? `<br><a href="${s.seller_catalog_url}" style="color:#3478f6;text-decoration:none;font-size:14px">Открыть профиль продавца</a>`
+          : ''
+      }
 
+    </div>
+
+    <a
+      class="wa-btn"
+      href="${wa}"
+      target="_blank"
+      rel="noopener"
+    >
+      WhatsApp
+    </a>
+
+  </div>
+  `;
+});
     html += '</div>';
   }
 
