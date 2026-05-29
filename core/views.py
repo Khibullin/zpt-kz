@@ -511,12 +511,16 @@ def _dispatch_due_requests():
 def _build_dispatch_queue(req, sellers):
     dispatches = []
     now = timezone.now()
+    settings = BroadcastSettings.load()
+
+    wave_size = settings.wave_size or WAVE_SIZE
+    wave_interval = settings.wave_interval_minutes or WAVE_INTERVAL_MINUTES
 
     for index, seller in enumerate(sellers, start=1):
-        wave_number = ((index - 1) // WAVE_SIZE) + 1
+        wave_number = ((index - 1) // wave_size) + 1
 
         scheduled_at = now + timedelta(
-            minutes=(wave_number - 1) * WAVE_INTERVAL_MINUTES
+            minutes=(wave_number - 1) * wave_interval
         )
 
         dispatch, created = RequestDispatch.objects.get_or_create(
@@ -634,7 +638,7 @@ def create_request(request):
         'id': req.id,
         'matches': len(matched),
         'strategy': strategy,
-        'message': 'Заявка поставлена в очередь: 20 продавцов каждые 5 минут, без общего лимита',
+        'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
         'seller_notifications': seller_notifications,
     })
 
