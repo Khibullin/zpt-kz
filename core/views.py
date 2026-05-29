@@ -564,7 +564,7 @@ def _dispatch_to_json(dispatch, req):
     return {
         'seller_id': seller.id,
         'seller_name': seller_name,
-        'seller_catalog_url': f'/catalog/seller/{seller.id}/',
+        'seller_catalog_url': f'https://zpt-kz-backend.onrender.com/api/parts-seller/{seller.id}/',
         'wave_number': dispatch.wave_number,
         'status': dispatch.status,
         'whatsapp_status': whatsapp_status,
