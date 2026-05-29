@@ -28,7 +28,7 @@ from .models import (
 )
 
 
-WAVE_SIZE = 10
+WAVE_SIZE = 20
 WAVE_INTERVAL_MINUTES = 5
 TEMP_SELLER_PASSWORD = 'zpt2026'
 
@@ -394,7 +394,7 @@ def _find_matching_sellers(req):
         ).distinct()
 
         if qs.exists():
-            return qs[:20], 'matched'
+            return qs, 'matched'
 
     if search_scope in ['city', 'custom']:
 
@@ -416,7 +416,7 @@ def _find_matching_sellers(req):
             ).distinct()
 
             if qs.exists():
-                return qs[:20], 'fallback_kazakhstan'
+                return qs, 'fallback_kazakhstan'
 
     return Seller.objects.none(), 'no_match'
 
@@ -533,7 +533,9 @@ def create_request(request):
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
 
-    print('CREATE REQUEST CALLED (NO WAVES MODE)')
+    print('CREATE REQUEST CALLED (WAVES MODE)')
+
+    _dispatch_due_requests()
 
     try:
         data = json.loads(request.body)
@@ -564,61 +566,28 @@ def create_request(request):
 
     print('TOTAL MATCHED SELLERS:', len(matched))
 
-    seller_notifications = []
-
-    for seller in matched:
-        print('PROCESS SELLER:', seller.name)
-
-        # создаём Match
-        match = Match.objects.create(
-            request=req,
-            seller=seller,
-            status='prepared'
-        )
-
-        try:
-            wa_result = send_whatsapp_template(
-                seller.whatsapp,
-                req,
-                seller.name
-            )
-
-            if wa_result.get('ok'):
-                match.status = 'sent'
-            else:
-                match.status = 'error'
-
-            match.save(update_fields=['status'])
-
-        except Exception as e:
-            print('WA ERROR:', str(e))
-
-            match.status = 'error'
-            match.save(update_fields=['status'])
-
-            wa_result = {
-                'ok': False,
-                'status_code': None,
-                'error': str(e),
-            }
-
-        seller_notifications.append({
-            'seller': seller.name,
-            'wa_link': _seller_notification_link(seller.whatsapp, req),
-            'wa_sent': wa_result.get('ok', False),
-            'wa_status_code': wa_result.get('status_code'),
-            'wa_error': wa_result.get('error'),
-        })
+    dispatches = _build_dispatch_queue(
+        req,
+        matched
+    )
 
     req.status = 'sent' if matched else 'no_sellers'
     req.save(update_fields=['status'])
+
+    seller_notifications = [
+        _dispatch_to_json(
+            dispatch,
+            req
+        )
+        for dispatch in dispatches
+    ]
 
     return JsonResponse({
         'status': 'ok',
         'id': req.id,
         'matches': len(matched),
         'strategy': strategy,
-        'message': 'Заявка отправлена всем продавцам сразу (без волн)',
+        'message': 'Заявка поставлена в очередь: 20 продавцов каждые 5 минут, без общего лимита',
         'seller_notifications': seller_notifications,
     })
 
