@@ -457,10 +457,10 @@ def _buyer_contact_link(phone, req):
     return f"https://wa.me/{_normalize_whatsapp(phone)}?text={quote(_buyer_to_seller_text(req))}"
 
 
-def _mark_dispatch_sent(dispatch):
+def _send_dispatch(dispatch):
     now = timezone.now()
 
-    Match.objects.get_or_create(
+    match, _ = Match.objects.get_or_create(
         request=dispatch.request,
         seller=dispatch.seller,
         defaults={
@@ -469,20 +469,43 @@ def _mark_dispatch_sent(dispatch):
         }
     )
 
-    if dispatch.status != RequestDispatch.STATUS_SENT:
-        dispatch.status = RequestDispatch.STATUS_SENT
-        dispatch.sent_at = now
-        dispatch.save(update_fields=['status', 'sent_at'])
+    try:
+        wa_result = send_whatsapp_template(
+            dispatch.seller.whatsapp,
+            dispatch.request,
+            dispatch.seller.name
+        )
+
+        if wa_result.get('ok'):
+            match.status = 'sent'
+            match.sent_at = now
+
+            dispatch.status = RequestDispatch.STATUS_SENT
+            dispatch.sent_at = now
+
+            match.save(update_fields=['status', 'sent_at'])
+            dispatch.save(update_fields=['status', 'sent_at'])
+
+        else:
+            match.status = 'error'
+            match.save(update_fields=['status'])
+
+    except Exception:
+        match.status = 'error'
+        match.save(update_fields=['status'])
 
 
 def _dispatch_due_requests():
     due = RequestDispatch.objects.filter(
         status=RequestDispatch.STATUS_QUEUED,
         scheduled_at__lte=timezone.now()
+    ).select_related(
+        'request',
+        'seller'
     ).order_by('scheduled_at', 'position_number')
 
     for dispatch in due:
-        _mark_dispatch_sent(dispatch)
+        _send_dispatch(dispatch)
 
 
 def _build_dispatch_queue(req, sellers):
@@ -511,10 +534,9 @@ def _build_dispatch_queue(req, sellers):
 
     for dispatch in dispatches:
         if dispatch.wave_number == 1:
-            _mark_dispatch_sent(dispatch)
+            _send_dispatch(dispatch)
 
     return dispatches
-
 
 def _dispatch_to_json(dispatch, req):
     seller = dispatch.seller
