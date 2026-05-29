@@ -541,12 +541,37 @@ def _build_dispatch_queue(req, sellers):
 def _dispatch_to_json(dispatch, req):
     seller = dispatch.seller
 
+    seller_name = (
+        seller.name.strip()
+        if seller.name
+        else f'Продавец #{seller.id}'
+    )
+
+    whatsapp_status = 'sent'
+
+    try:
+        match = Match.objects.filter(
+            request=req,
+            seller=seller
+        ).first()
+
+        if match and match.status == 'error':
+            whatsapp_status = 'error'
+
+    except Exception:
+        pass
+
     return {
         'seller_id': seller.id,
-        'seller_name': seller.name,
+        'seller_name': seller_name,
+        'seller_catalog_url': f'/catalog/seller/{seller.id}/',
         'wave_number': dispatch.wave_number,
         'status': dispatch.status,
-        'buyer_wa_link': _buyer_contact_link(seller.whatsapp, req),
+        'whatsapp_status': whatsapp_status,
+        'buyer_wa_link': _buyer_contact_link(
+            seller.whatsapp,
+            req
+        ),
     }
 
 
