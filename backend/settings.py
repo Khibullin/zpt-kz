@@ -106,3 +106,25 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# WhatsApp / Meta API
+
+WHATSAPP_TOKEN = (
+    os.getenv("WHATSAPP_TOKEN")
+    or os.getenv("WHATSAPP_ACCESS_TOKEN")
+)
+
+META_PHONE_NUMBER_ID = (
+    os.getenv("META_PHONE_NUMBER_ID")
+    or os.getenv("WHATSAPP_PHONE_NUMBER_ID")
+)
+
+WHATSAPP_TEMPLATE_NAME = os.getenv(
+    "WHATSAPP_TEMPLATE_NAME",
+    "zpt_request_notification"
+)
+
+WHATSAPP_TEMPLATE_LANG = os.getenv(
+    "WHATSAPP_TEMPLATE_LANG",
+    "ru"
+)
