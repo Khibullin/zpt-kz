@@ -36,6 +36,17 @@ TEMP_SELLER_PASSWORD = 'zpt2026'
 def _normalize_whatsapp(phone):
     return ''.join(ch for ch in str(phone or '') if ch.isdigit())
 
+def _format_whatsapp_display(phone):
+    digits = _normalize_whatsapp(phone)
+
+    if digits.startswith('8') and len(digits) == 11:
+        digits = '7' + digits[1:]
+
+    if digits.startswith('7'):
+        return f'+{digits}'
+
+    return digits
+
 
 def _wa_template_param(value):
     text = str(value or '-')
@@ -429,7 +440,7 @@ def _seller_notification_text(req):
         f"Город: {req.city}\n\n"
         f"Комментарий клиента:\n"
         f"{req.description or '-'}\n\n"
-        f"Телефон клиента: {req.phone}\n\n"
+        f"Телефон клиента: {_format_whatsapp_display(req.phone)}\n\n"
         f"Пожалуйста, свяжитесь с клиентом и предложите наличие, цену и сроки поставки.\n\n"
         f"Личный кабинет / просмотр заявок / отписаться:\n"
         f"https://zpt.kz\n\n"
