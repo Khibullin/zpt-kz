@@ -450,11 +450,19 @@ def _buyer_to_seller_text(req):
 
 
 def _seller_notification_link(phone, req):
-    return f"https://wa.me/{_normalize_whatsapp(phone)}?text={quote(_seller_notification_text(req))}"
+    return (
+        f"https://api.whatsapp.com/send"
+        f"?phone={_normalize_whatsapp(phone)}"
+        f"&text={quote(_seller_notification_text(req))}"
+    )
 
 
 def _buyer_contact_link(phone, req):
-    return f"https://wa.me/{_normalize_whatsapp(phone)}?text={quote(_buyer_to_seller_text(req))}"
+    return (
+        f"https://api.whatsapp.com/send"
+        f"?phone={_normalize_whatsapp(phone)}"
+        f"&text={quote(_buyer_to_seller_text(req))}"
+    )
 
 
 def _send_dispatch(dispatch):
