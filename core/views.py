@@ -42,8 +42,14 @@ def _format_whatsapp_display(phone):
     if digits.startswith('8') and len(digits) == 11:
         digits = '7' + digits[1:]
 
-    if digits.startswith('7'):
-        return f'+{digits}'
+    if digits.startswith('7') and len(digits) == 11:
+        return (
+            f"+{digits[0]} "
+            f"{digits[1:4]} "
+            f"{digits[4:7]} "
+            f"{digits[7:9]} "
+            f"{digits[9:11]}"
+        )
 
     return digits
 
