@@ -130,7 +130,7 @@ def send_whatsapp_template(to_phone, req, seller_name=''):
                         _wa_template_param(req.category),
                         _wa_template_param(req.city),
                         _wa_template_param(req.description),
-                        _wa_template_param(req.phone),
+                        _wa_template_param(_format_whatsapp_display(req.phone)),
                     ],
                 }
             ],
