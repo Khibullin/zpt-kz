@@ -47,8 +47,7 @@ def _format_whatsapp_display(phone):
             f"+{digits[0]} "
             f"{digits[1:4]} "
             f"{digits[4:7]} "
-            f"{digits[7:9]} "
-            f"{digits[9:11]}"
+            f"{digits[7:11]}"
         )
 
     return digits
