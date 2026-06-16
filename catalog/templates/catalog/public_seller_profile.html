@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a
+      class="brand"
+      href="https://zpt.kz/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      <img
+        src="{% static 'images/zpt-logo.png' %}"
+        alt="ZPT.KZ"
+      >
+
+      <div class="brand-title">
+        ZPT<span>.KZ</span>
+      </div>
+    </a>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+
+    <div class="seller-page-card" style="max-width:820px;margin:0 auto 24px;">
+
+      <div style="display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;">
+        <div style="width:110px;height:110px;border-radius:22px;border:1px solid #eee;background:#fff;overflow:hidden;flex-shrink:0;">
+          {% if seller.logo %}
+            <img src="{{ seller.logo.url }}" alt="{{ seller.name }}" style="width:100%;height:100%;object-fit:contain;padding:10px;">
+          {% else %}
+            <img src="{% static 'images/logo.jpg' %}" alt="ZPT Market" style="width:100%;height:100%;object-fit:contain;padding:10px;">
+          {% endif %}
+        </div>
+
+        <div style="flex:1;min-width:240px;">
+          <h1 style="margin:0 0 8px;">{{ seller.name }}</h1>
+
+          {% if seller.city %}
+            <p>📍 {{ seller.city }}</p>
+          {% endif %}
+
+          <p>📱 {{ seller.phone }}</p>
+
+          {% if seller.instagram %}
+            <p>
+              Instagram:
+              <a href="{{ seller.instagram }}" target="_blank" rel="noopener noreferrer">
+                {{ seller.instagram }}
+              </a>
+            </p>
+          {% endif %}
+
+          {% if seller.website %}
+            <p>
+              Сайт:
+              <a href="{{ seller.website }}" target="_blank" rel="noopener noreferrer">
+                {{ seller.website }}
+              </a>
+            </p>
+          {% endif %}
+
+          {% if seller.description %}
+            <p style="line-height:1.6;color:#555;">{{ seller.description }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+    <div class="detail-section-card">
+      <h2>Товары продавца</h2>
+
+      {% if products %}
+        <div class="products">
+          {% for product in products %}
+            <article class="product">
+              <a href="{% url 'product_detail' product.pk %}">
+                {% if product.main_image %}
+                  <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                {% else %}
+                  <img src="{% static 'images/product1.jpg' %}" alt="{{ product.title }}">
+                {% endif %}
+
+                <div class="product-title">{{ product.title }}</div>
+                <div class="product-price">{{ product.price }} ₸</div>
+
+                <div class="product-seller">
+                  {{ product.get_condition_display }}
+                  {% if product.city %} · {{ product.city }}{% endif %}
+                </div>
+              </a>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>У продавца пока нет активных товаров.</p>
+      {% endif %}
+    </div>
+
+    <div class="form-action-row" style="margin-top:20px;">
+      <a href="{% url 'catalog_list' %}" class="btn outline">Назад в маркет</a>
+    </div>
+
+  </div>
+</section>
+{% endblock %}

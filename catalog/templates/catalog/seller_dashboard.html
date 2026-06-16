@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Кабинет продавца — ZPT.KZ{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+
+    <a
+      class="brand"
+      href="https://zpt.kz/"
+    >
+      <img
+        src="{% static 'images/logo.png' %}"
+        alt="ZPT.KZ"
+      >
+    </a>
+
+    <div class="dashboard-actions">
+      <a
+        href="{% url 'seller_profile' %}"
+        class="btn outline"
+      >
+        Профиль
+      </a>
+
+      <a
+        href="{% url 'add_product' %}"
+        class="btn red"
+      >
+        Добавить товар
+      </a>
+
+      <a
+        href="{% url 'seller_logout' %}"
+        class="btn outline"
+      >
+        Выйти
+      </a>
+    </div>
+
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <div class="dashboard-header">
+      <div>
+        <h2>Кабинет продавца</h2>
+        <p class="dashboard-subtitle">
+          {{ seller.name }} · {{ seller.phone }}
+          {% if seller.city %} · {{ seller.city }}{% endif %}
+        </p>
+      </div>
+    </div>
+
+    {% if products %}
+      <div class="products">
+        {% for product in products %}
+          <article class="product">
+            <a href="{% url 'product_detail' product.pk %}">
+              {% if product.main_image %}
+                <img
+                  src="{{ product.main_image.url }}"
+                  alt="{{ product.title }}"
+                >
+
+              {% elif product.images.first %}
+                <img
+                  src="{{ product.images.first.image.url }}"
+                  alt="{{ product.title }}"
+                >
+
+              {% else %}
+                <img
+                  src="{% static 'images/product1.jpg' %}"
+                  alt="{{ product.title }}"
+                >
+              {% endif %}
+              {% if product.brand or product.car_model %}
+                <div class="product-seller">
+                  {% if product.brand %}{{ product.brand.name }}{% endif %}
+                  {% if product.car_model %} / {{ product.car_model.name }}{% endif %}
+                </div>
+              {% endif %}
+
+              <div class="product-price">{{ product.price }} ₸</div>
+              <div class="product-seller">
+                {{ product.get_condition_display }} · {{ product.get_status_display }}
+                {% if product.city %} · {{ product.city }}{% endif %}
+              </div>
+
+              <div class="dashboard-card-actions">
+                <a href="{% url 'edit_product' product.pk %}" class="btn outline small-btn">
+                  Редактировать
+                </a>
+
+                <a href="{% url 'delete_product' product.pk %}" class="btn danger small-btn">
+                  Удалить
+                </a>
+              </div>
+
+            </a>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="accent">
+        <h3>Пока товаров нет</h3>
+        <p>Добавьте первый товар в свой маркет.</p>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

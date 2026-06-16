@@ -20,6 +20,7 @@ ALLOWED_HOSTS = [
 
 INSTALLED_APPS = [
     'corsheaders',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -27,8 +28,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    'catalog',
+
     'core',
-    'service_requests',  # 👈 добавили
+    'service_requests',
 ]
 
 MIDDLEWARE = [

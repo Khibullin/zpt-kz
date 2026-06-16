@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Регистрация продавца — ZPT.KZ{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+
+    <a
+      class="brand"
+      href="https://zpt.kz/"
+    >
+      <img
+        src="{% static 'images/logo.png' %}"
+        alt="ZPT.KZ"
+      >
+    </a>
+
+  </div>
+</header>
+<section class="section">
+  <div class="container">
+    <div class="seller-page-card">
+      <h2>Регистрация продавца</h2>
+      <p class="dashboard-subtitle">Создайте кабинет и размещайте товары в маркете</p>
+
+      {% if error_message %}
+        <div class="form-error">{{ error_message }}</div>
+      {% endif %}
+
+      <form method="post" class="seller-form">
+        {% csrf_token %}
+
+        <p>
+          <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
+          {{ form.username }}
+        </p>
+
+        <p>
+          <label for="{{ form.password.id_for_label }}">
+            {{ form.password.label }}
+          </label>
+
+          {{ form.password }}
+
+          <label style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;font-weight:400;color:#555;">
+            <input
+              type="checkbox"
+              onclick="togglePasswordRegister()"
+              style="width:auto;margin:0;"
+            >
+            Показать пароль
+          </label>
+        </p>
+
+        <p>
+          <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
+          {{ form.name }}
+        </p>
+
+        <p>
+          <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+          {{ form.phone }}
+        </p>
+
+        <p>
+          <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
+          {{ form.city }}
+        </p>
+
+<div class="form-action-row">
+  <button type="submit" class="btn red">
+    Зарегистрироваться
+  </button>
+</div>
+
+<div
+  class="register-box"
+  style="
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid #ececec;
+    text-align:center;
+    font-size:15px;
+    color:#666;
+  "
+>
+  Уже есть аккаунт?
+
+  <a
+    href="{% url 'seller_login' %}"
+    style="
+      color:#ef3e2f;
+      font-weight:700;
+      text-decoration:none;
+      margin-left:4px;
+    "
+  >
+    Войти →
+  </a>
+</div>
+      </form>
+    </div>
+  </div>
+</section>
+<script>
+function togglePasswordRegister() {
+
+  const input = document.getElementById("id_password");
+
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+
+}
+</script>
+{% endblock %}

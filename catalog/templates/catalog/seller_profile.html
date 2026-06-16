@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Профиль продавца — ZPT.KZ{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="topbar-inner">
+
+    <a
+      class="brand"
+      href="https://zpt.kz/"
+    >
+      <img
+        src="{% static 'images/logo.png' %}"
+        alt="ZPT.KZ"
+      >
+    </a>
+
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+
+    <div class="seller-page-card" style="max-width:760px;margin:0 auto;">
+
+      <div style="
+        display:flex;
+        align-items:center;
+        gap:18px;
+        margin-bottom:24px;
+        flex-wrap:wrap;
+      ">
+
+        <div style="
+          width:92px;
+          height:92px;
+          border-radius:22px;
+          border:1px solid #eee;
+          background:#fff;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          overflow:hidden;
+          flex-shrink:0;
+        ">
+
+          {% if seller.logo %}
+            <img
+              src="{{ seller.logo.url }}"
+              alt="{{ seller.name }}"
+              style="
+                width:100%;
+                height:100%;
+                object-fit:contain;
+                padding:8px;
+              "
+            >
+          {% else %}
+            <img
+              src="{% static 'images/logo.png' %}"
+              alt="ZPT.KZ"
+              style="
+                width:100%;
+                height:100%;
+                object-fit:contain;
+                padding:8px;
+              "
+            >
+          {% endif %}
+
+        </div>
+
+        <div>
+          <h2 style="margin:0 0 6px;">
+            {{ seller.name }}
+          </h2>
+
+          <p class="dashboard-subtitle" style="margin:0;">
+            Профиль продавца ZPT Market
+          </p>
+        </div>
+
+      </div>
+
+      <div class="detail-grid">
+
+        <div class="detail-box">
+          <div class="detail-label">
+            Телефон / WhatsApp
+          </div>
+
+          <div class="detail-value">
+            {{ seller.phone }}
+          </div>
+        </div>
+
+        <div class="detail-box">
+          <div class="detail-label">
+            Город
+          </div>
+
+          <div class="detail-value">
+            {% if seller.city %}
+              {{ seller.city }}
+            {% else %}
+              Не указан
+            {% endif %}
+          </div>
+        </div>
+
+        {% if seller.instagram %}
+          <div class="detail-box">
+            <div class="detail-label">
+              Instagram
+            </div>
+
+            <div class="detail-value">
+              {{ seller.instagram }}
+            </div>
+          </div>
+        {% endif %}
+
+        {% if seller.website %}
+          <div class="detail-box">
+            <div class="detail-label">
+              Сайт
+            </div>
+
+            <div class="detail-value">
+              <a
+                href="{{ seller.website }}"
+                target="_blank"
+              >
+                {{ seller.website }}
+              </a>
+            </div>
+          </div>
+        {% endif %}
+
+        <div class="detail-box">
+          <div class="detail-label">
+            Товаров в маркете
+          </div>
+
+          <div class="detail-value">
+            {{ products_count }}
+          </div>
+        </div>
+
+      </div>
+
+      {% if seller.description %}
+        <div
+          class="detail-box"
+          style="margin-top:14px;"
+        >
+          <div class="detail-label">
+            Описание маркета
+          </div>
+
+          <div
+            class="detail-value"
+            style="line-height:1.55;"
+          >
+            {{ seller.description }}
+          </div>
+        </div>
+      {% endif %}
+
+      <div
+        class="form-action-row"
+        style="margin-top:24px;"
+      >
+
+        <a
+          href="{% url 'seller_profile_edit' %}"
+          class="btn seller-login-btn"
+        >
+          Редактировать профиль
+        </a>
+
+        <a
+          href="{% url 'seller_change_password' %}"
+          class="btn outline"
+        >
+          Изменить пароль
+        </a>
+
+        <a
+          href="{% url 'seller_dashboard' %}"
+          class="btn outline"
+        >
+          Назад в кабинет
+        </a>
+
+        <a
+          href="{% url 'seller_profile_delete' %}"
+          class="btn danger"
+        >
+          Удалить профиль
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+</section>
+{% endblock %}

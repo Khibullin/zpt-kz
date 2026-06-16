@@ -1,0 +1,39 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Удалить профиль — ZPT Market{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="/">
+      <img src="{% static 'images/logo.jpg' %}" alt="ZPT Market">
+      <div class="brand-title">ZPT <span>Market</span></div>
+    </a>
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <div class="seller-page-card">
+      <h2>Удалить профиль продавца</h2>
+
+      <div class="accent">
+        <h3>{{ seller.name }}</h3>
+        <p>Логин: {{ seller.user.username }}</p>
+        <p>Телефон: {{ seller.phone }}</p>
+        <p>Будут удалены профиль и все товары этого продавца.</p>
+        <p>Это действие нельзя отменить.</p>
+      </div>
+
+      <form method="post" class="seller-form">
+        {% csrf_token %}
+        <div class="form-action-row">
+          <button type="submit" class="btn danger">Удалить профиль</button>
+          <a href="{% url 'seller_profile' %}" class="btn outline">Отмена</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+{% endblock %}

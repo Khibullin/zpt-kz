@@ -1,0 +1,311 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if page_title %}{{ page_title }}{% else %}Добавить товар{% endif %} — ZPT.KZ
+{% endblock %}
+
+{% block content %}
+<style>
+.brand img{
+  height:38px;
+  width:auto;
+  max-width:none;
+  object-fit:contain;
+  display:block;
+  border-radius:0;
+}
+.checkbox-group{
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:8px;
+  margin-top:8px;
+}
+
+.checkbox-group label{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border:1px solid #e5e5e5;
+  border-radius:10px;
+  background:#fff;
+  font-size:14px;
+}
+
+.checkbox-group input{
+  width:auto;
+  margin:0;
+}
+</style>
+<header class="topbar">
+  <div class="container topbar-inner">
+
+    <a
+      class="brand"
+      href="https://zpt.kz/"
+    >
+      <img
+        src="{% static 'images/logo.png' %}"
+        alt="ZPT.KZ"
+      >
+    </a>
+
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <div class="seller-page-card">
+      <h2>{% if page_title %}{{ page_title }}{% else %}Добавить товар{% endif %}</h2>
+      <p class="dashboard-subtitle">
+        Заполните информацию о товаре и загрузите фото
+      </p>
+
+      {% if form.errors %}
+        <div class="form-error">
+          <strong>Проверьте форму.</strong>
+          {{ form.errors }}
+        </div>
+      {% endif %}
+
+      <form method="post" enctype="multipart/form-data" class="seller-form">
+        {% csrf_token %}
+
+        <p>
+          <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
+          {{ form.country }}
+        </p>
+
+        <p>
+          <label for="{{ form.brand.id_for_label }}">{{ form.brand.label }}</label>
+          {{ form.brand }}
+        </p>
+
+        <p>
+          <label for="{{ form.car_model.id_for_label }}">{{ form.car_model.label }}</label>
+          {{ form.car_model }}
+        </p>
+
+        <p>
+          <label>
+            {{ form.selected_models.label }}
+          </label>
+
+          <div class="checkbox-group">
+            {{ form.selected_models }}
+          </div>
+        </p>
+
+        <p>
+          <label for="{{ form.category.id_for_label }}">{{ form.category.label }}</label>
+          {{ form.category }}
+        </p>
+
+        <p>
+          <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+          {{ form.title }}
+        </p>
+
+        <p>
+          <label for="{{ form.article.id_for_label }}">{{ form.article.label }}</label>
+          {{ form.article }}
+        </p>
+
+        <p>
+          <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
+          {{ form.price }}
+        </p>
+
+        <p>
+          <label for="{{ form.condition.id_for_label }}">{{ form.condition.label }}</label>
+          {{ form.condition }}
+        </p>
+
+        <p>
+          <label for="{{ form.status.id_for_label }}">{{ form.status.label }}</label>
+          {{ form.status }}
+        </p>
+
+        <p>
+          <label>Главное фото</label>
+
+          {% if product and product.main_image %}
+            <div class="current-image-box">
+              <div>Текущее главное фото</div>
+              <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+            </div>
+
+            <label style="display:block; margin-bottom:10px;">
+              <input type="checkbox" name="remove_main_image">
+              Удалить текущее главное фото
+            </label>
+          {% endif %}
+
+          {{ form.main_image }}
+        </p>
+
+        <p>
+          <label for="id_extra_images">Дополнительные фото (до 4)</label>
+          <input type="file" name="extra_images" id="id_extra_images" multiple>
+        </p>
+
+        {% if product and product.images.all %}
+          <div class="current-image-box">
+            <div>Текущие дополнительные фото</div>
+
+            <label style="display:block; margin:10px 0 12px;">
+              <input type="checkbox" name="remove_extra_images">
+              Удалить текущие дополнительные фото
+            </label>
+
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              {% for img in product.images.all %}
+                <img
+                  src="{{ img.image.url }}"
+                  alt="{{ product.title }}"
+                  style="width:110px; height:110px; object-fit:contain; background:#fff; border-radius:10px; border:1px solid #e5e5e5; padding:6px;"
+                >
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <p>
+          <label for="{{ form.compatibility.id_for_label }}">{{ form.compatibility.label }}</label>
+          {{ form.compatibility }}
+        </p>
+
+        <p>
+          <label for="{{ form.description.id_for_label }}">{{ form.description.label }}</label>
+          {{ form.description }}
+        </p>
+
+        <div class="form-action-row">
+          <button type="submit" class="btn red">
+            {% if submit_text %}{{ submit_text }}{% else %}Сохранить товар{% endif %}
+          </button>
+          <a href="{% url 'seller_dashboard' %}" class="btn outline">Назад в кабинет</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const countrySelect = document.getElementById("id_country");
+    const brandSelect = document.getElementById("id_brand");
+    const modelSelect = document.getElementById("id_car_model");
+    const compatibleModelsBox = document.getElementById("id_selected_models");
+    let currentModelsData = [];
+
+    if (countrySelect) {
+        countrySelect.addEventListener("change", function () {
+            const countryId = this.value;
+
+            brandSelect.innerHTML = '<option value="">---------</option>';
+            modelSelect.innerHTML = '<option value="">---------</option>';
+
+            if (!countryId) {
+                return;
+            }
+
+            fetch(`/market/ajax/load-brands/?country=${countryId}`)
+                .then(response => response.json())
+                .then(data => {
+                    brandSelect.innerHTML = '<option value="">Выберите марку</option>';
+                    data.forEach(item => {
+                        brandSelect.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                    });
+                });
+        });
+    }
+
+    if (brandSelect) {
+        brandSelect.addEventListener("change", function () {
+            const brandId = this.value;
+
+            modelSelect.innerHTML = '<option value="">---------</option>';
+
+            if (!brandId) {
+                return;
+            }
+
+            fetch(`/market/ajax/load-models/?brand=${brandId}`)
+                .then(response => response.json())
+                .then(data => {
+
+                    modelSelect.innerHTML =
+                        '<option value="">Выберите модель</option>';
+
+                    data.forEach(item => {
+                        modelSelect.innerHTML += `
+                            <option value="${item.id}">
+                                ${item.name}
+                            </option>
+                        `;
+                    });
+
+                });
+
+            fetch(`/market/ajax/load-compatible-models/?brand=${brandId}`)
+                .then(response => response.json())
+                .then(data => {
+
+                    currentModelsData = data;
+
+                    compatibleModelsBox.innerHTML = '';
+
+                    data
+                        .filter(item =>
+                            String(item.id) !==
+                            String(modelSelect.value)
+                        )
+                        .forEach(item => {
+
+                            compatibleModelsBox.innerHTML += `
+                                <label>
+                                    <input
+                                        type="checkbox"
+                                        name="selected_models"
+                                        value="${item.id}"
+                                    >
+                                    ${item.name}
+                                </label>
+                            `;
+
+                        });
+
+                });
+        });
+
+        modelSelect.addEventListener("change", function () {
+
+            compatibleModelsBox.innerHTML = '';
+
+            currentModelsData
+                .filter(item =>
+                    String(item.id) !==
+                    String(modelSelect.value)
+                )
+                .forEach(item => {
+
+                    compatibleModelsBox.innerHTML += `
+                        <label>
+                            <input
+                                type="checkbox"
+                                name="selected_models"
+                                value="${item.id}"
+                            >
+                            ${item.name}
+                        </label>
+                    `;
+
+                });
+
+        });
+    }
+});
+</script>
+{% endblock %}

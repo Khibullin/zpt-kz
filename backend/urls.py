@@ -17,6 +17,10 @@ from service_requests.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    # ZPT MARKET
+    path('', include('catalog.urls')),
+    path('market/', include('catalog.urls')),
+
     # API
     path('api/', include('core.urls')),  # запчасти
     path('api/service/', include('service_requests.urls')),  # СТО / детейлинг

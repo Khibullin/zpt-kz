@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Вход продавца — ZPT.KZ{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+
+    <a
+      class="brand"
+      href="https://zpt.kz/"
+    >
+      <img
+        src="{% static 'images/logo.png' %}"
+        alt="ZPT.KZ"
+      >
+    </a>
+
+  </div>
+</header>
+
+<section class="section">
+  <div class="container">
+    <div class="seller-page-card">
+      <h2>Вход продавца</h2>
+
+      {% if error_message %}
+        <div class="form-error">{{ error_message }}</div>
+      {% endif %}
+
+      <form method="post" class="seller-form" autocomplete="off">
+        {% csrf_token %}
+
+        <p>
+          <label for="username">
+            WhatsApp / Логин
+          </label>
+
+          <input
+            type="text"
+            id="username"
+            name="username"
+            required
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="77713607040"
+            value=""
+          >
+        </p>
+
+        <p>
+          <label for="password">
+            Пароль
+          </label>
+
+          <input
+            type="password"
+            id="password"
+            name="password"
+            required
+            autocomplete="new-password"
+            value=""
+          >
+
+          <label style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;font-weight:400;color:#555;">
+            <input
+              type="checkbox"
+              onclick="togglePasswordLogin()"
+              style="width:auto;margin:0;"
+            >
+            Показать пароль
+          </label>
+        </p>
+
+        <button type="submit" class="btn red">Войти</button>
+      </form>
+
+<div
+  class="register-box"
+  style="
+    margin-top:18px;
+    padding-top:14px;
+    border-top:1px solid #ececec;
+    text-align:center;
+    font-size:15px;
+    color:#666;
+  "
+>
+  Нет аккаунта?
+
+  <a
+    href="{% url 'seller_register' %}"
+    style="
+      color:#ef3e2f;
+      font-weight:700;
+      text-decoration:none;
+      margin-left:4px;
+    "
+  >
+    Зарегистрироваться →
+  </a>
+</div>
+    </div>
+  </div>
+</section>
+<script>
+function togglePasswordLogin() {
+
+  const input = document.getElementById("password");
+
+  if (input.type === "password") {
+    input.type = "text";
+  } else {
+    input.type = "password";
+  }
+
+}
+</script>
+{% endblock %}
