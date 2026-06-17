@@ -18,8 +18,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
 
     # ZPT MARKET
-    path('', include('catalog.urls')),
-    path('market/', include('catalog.urls')),
+
 
     # API
     path('api/', include('core.urls')),  # запчасти
@@ -92,6 +91,10 @@ urlpatterns = [
         service_seller_detail,
         name='service_seller_detail',
     ),
+
+    path('', include('catalog.urls')),
+    path('market/', include('catalog.urls')),
+
 ]
 
 # parts sellers routes
