@@ -131,3 +131,6 @@ WHATSAPP_TEMPLATE_LANG = os.getenv(
     "WHATSAPP_TEMPLATE_LANG",
     "ru"
 )
+
+MEDIA_URL = '/products/'
+MEDIA_ROOT = BASE_DIR / 'products'
