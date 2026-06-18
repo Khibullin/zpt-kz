@@ -13,6 +13,369 @@
 {% endblock %}
 
 {% block content %}
+<style>
+body{
+  background:#f6f6f6;
+  font-family:'Inter',Arial,sans-serif;
+  color:#111;
+}
+
+.topbar{
+  background:#fff;
+  border-bottom:1px solid #ececec;
+}
+
+.container{
+  max-width:1200px;
+  margin:auto;
+  padding:16px;
+}
+
+.topbar-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.section{
+  padding:16px 0 32px;
+}
+
+.breadcrumbs{
+  font-size:14px;
+  color:#777;
+  margin-bottom:14px;
+}
+
+.breadcrumbs a{
+  color:#ef3d2f;
+  text-decoration:none;
+  font-weight:700;
+}
+
+.product-detail{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:22px;
+  align-items:start;
+}
+
+.product-gallery,
+.product-info-card,
+.detail-section-card{
+  background:#fff;
+  border:1px solid #ededed;
+  border-radius:18px;
+  box-shadow:0 8px 24px rgba(0,0,0,.05);
+}
+
+.product-gallery{
+  padding:14px;
+}
+
+.product-main-image{
+  width:100%;
+  height:420px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.product-main-image img{
+  max-width:100%;
+  max-height:100%;
+  width:auto;
+  height:auto;
+  object-fit:contain;
+  display:block;
+}
+
+.product-thumbs{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.product-thumbs img{
+  width:74px;
+  height:74px;
+  object-fit:contain;
+  border:1px solid #eee;
+  border-radius:12px;
+  background:#fff;
+  padding:6px;
+  cursor:pointer;
+}
+
+.product-info-card{
+  padding:18px;
+}
+
+.product-badges{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+
+.badge{
+  background:#fff0f0;
+  color:#ef3d2f;
+  border:1px solid #ffd7d2;
+  border-radius:999px;
+  padding:6px 10px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.badge.muted{
+  background:#f5f5f5;
+  color:#555;
+  border-color:#eee;
+}
+
+.product-detail-title{
+  font-size:28px;
+  line-height:1.15;
+  margin:0;
+}
+
+.detail-price{
+  color:#ef3d2f;
+  font-size:30px;
+  font-weight:900;
+  margin:12px 0;
+}
+
+.detail-article{
+  color:#555;
+  margin-bottom:14px;
+  font-weight:700;
+}
+
+.seller-trust-card{
+  display:flex;
+  gap:14px;
+  background:#f8fff9;
+  border:1px solid #d9f5dd;
+  border-radius:16px;
+  padding:14px;
+  margin:16px 0;
+}
+
+.seller-trust-logo{
+  width:74px;
+  height:74px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+  border-radius:14px;
+  border:1px solid #eee;
+  flex-shrink:0;
+  overflow:hidden;
+}
+
+.seller-trust-logo img{
+  max-width:100%;
+  max-height:100%;
+  object-fit:contain;
+}
+
+.seller-trust-name{
+  font-weight:900;
+  font-size:16px;
+}
+
+.seller-trust-badge{
+  color:#16a34a;
+  font-size:13px;
+  font-weight:800;
+  margin-top:4px;
+}
+
+.seller-trust-city{
+  color:#666;
+  font-size:13px;
+  margin-top:6px;
+}
+
+.seller-trust-links{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+
+.seller-trust-links a{
+  color:#ef3d2f;
+  text-decoration:none;
+  font-weight:800;
+  font-size:13px;
+}
+
+.detail-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-top:14px;
+}
+
+.detail-box{
+  background:#f7f7f7;
+  border-radius:14px;
+  padding:12px;
+}
+
+.detail-label{
+  color:#777;
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.detail-value{
+  font-weight:800;
+  color:#111;
+}
+
+.btn-green{
+  display:block;
+  width:100%;
+  background:#18b63f;
+  color:#fff;
+  text-align:center;
+  text-decoration:none;
+  padding:12px;
+  border-radius:12px;
+  font-weight:900;
+  margin-top:14px;
+  box-shadow:0 6px 16px rgba(24,182,63,.22);
+}
+
+.product-request-box{
+  background:#fff0f0;
+  border-radius:16px;
+  padding:14px;
+  margin-top:16px;
+}
+
+.product-request-title{
+  font-size:17px;
+  font-weight:900;
+  margin-bottom:6px;
+}
+
+.product-request-text{
+  color:#666;
+  font-size:14px;
+  margin-bottom:12px;
+}
+
+.btn.red,
+.product-request-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#ef3d2f;
+  color:#fff;
+  text-decoration:none;
+  padding:12px 18px;
+  border-radius:12px;
+  font-weight:900;
+}
+
+.detail-section-card{
+  padding:18px;
+  margin-top:18px;
+}
+
+.detail-section-card h2{
+  margin-top:0;
+}
+
+.products{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:18px;
+}
+
+.product{
+  background:#fff;
+  border-radius:18px;
+  overflow:hidden;
+  border:1px solid #ededed;
+  box-shadow:0 4px 14px rgba(0,0,0,.04);
+}
+
+.product img{
+  width:100%;
+  height:150px;
+  object-fit:contain;
+  padding:10px;
+  background:#fff;
+}
+
+.product-title{
+  font-size:15px;
+  font-weight:800;
+  line-height:1.28;
+  padding:10px;
+  color:#111;
+}
+
+.product-price{
+  color:#ef3d2f;
+  font-size:18px;
+  font-weight:900;
+  padding:0 10px 8px;
+}
+
+.product-seller{
+  color:#666;
+  padding:0 10px 10px;
+  font-size:14px;
+}
+
+@media(max-width:900px){
+  .product-detail{
+    grid-template-columns:1fr;
+  }
+
+  .product-main-image{
+    height:320px;
+  }
+
+  .products{
+    grid-template-columns:1fr 1fr;
+  }
+}
+
+@media(max-width:640px){
+  .container{
+    padding:10px;
+  }
+
+  .product-main-image{
+    height:260px;
+  }
+
+  .product-detail-title{
+    font-size:22px;
+  }
+
+  .detail-price{
+    font-size:24px;
+  }
+
+  .detail-grid{
+    grid-template-columns:1fr;
+  }
+}
+</style>
 <header class="topbar">
   <div class="container topbar-inner">
     <a
@@ -78,17 +441,22 @@
           {% endif %}
         </div>
 
-        <div class="product-thumbs">
-          {% if product.main_image %}
-            <img src="{{ product.main_image.url }}" alt="{{ product.title }}" onclick="changeImage(this)" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
-          {% else %}
-            <img src="{% static 'images/product-placeholder.svg' %}" alt="{{ product.title }}" onclick="changeImage(this)" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
-          {% endif %}
+{% if product.images.all %}
+  <div class="product-thumbs">
 
-          {% for img in product.images.all %}
-            <img src="{{ img.image.url }}" alt="{{ product.title }}" onclick="changeImage(this)" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
-          {% endfor %}
-        </div>
+    {% for img in product.images.all %}
+
+      <img
+        src="{{ img.image.url }}"
+        alt="{{ product.title }}"
+        onclick="changeImage(this)"
+        onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;"
+      >
+
+    {% endfor %}
+
+  </div>
+{% endif %}
       </div>
 
       <div class="product-info-card">
@@ -465,7 +833,7 @@
           {% for p in seller_products %}
             <article class="product">
 
-              <a href="{% url 'product_detail' p.pk %}">
+              <a href="{% if p.slug %}{% url 'product_detail' p.slug %}{% else %}{% url 'product_detail_old' p.pk %}{% endif %}">
 
                 {% if p.main_image %}
                   <img
