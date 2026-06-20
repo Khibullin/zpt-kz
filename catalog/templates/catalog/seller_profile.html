@@ -146,7 +146,7 @@
 
         <a
           href="{% url 'seller_profile_edit' %}"
-          class="btn seller-login-btn"
+          class="btn red"
         >
           Редактировать профиль
         </a>
@@ -160,14 +160,25 @@
 
         <a
           href="{% url 'seller_dashboard' %}"
-          class="btn outline"
+          class="btn btn-green"
         >
           Назад в кабинет
         </a>
 
+      </div>
+
+      <div
+        class="form-action-row"
+        style="margin-top:12px;"
+      >
+
         <a
           href="{% url 'seller_profile_delete' %}"
-          class="btn danger"
+          class="btn outline"
+          style="
+            color:#ef3d2f;
+            border:1px solid #ef3d2f;
+          "
         >
           Удалить профиль
         </a>
