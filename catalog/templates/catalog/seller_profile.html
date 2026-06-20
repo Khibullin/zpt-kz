@@ -23,159 +23,170 @@
 <section class="section">
   <div class="container">
 
-    <div class="seller-info-card" style="max-width:920px;margin:0 auto;">
+    <div class="seller-profile-page">
 
-      <h2 class="seller-info-title">
-        {{ seller.name }}
-      </h2>
+      <a
+        href="{% url 'seller_dashboard' %}"
+        class="seller-back-link"
+      >
+        ← Назад в личный кабинет
+      </a>
 
-      <p class="dashboard-subtitle" style="margin-bottom:18px;">
-        Магазин на ZPT.KZ
-      </p>
+      <div class="seller-profile-card">
 
-      <div class="seller-info-grid">
+        <div class="seller-profile-head">
 
-        <div class="seller-info-box">
-          <div class="seller-info-label">
-            Телефон / WhatsApp
+          <div class="seller-avatar">
+            {{ seller.name|slice:":2"|upper }}
           </div>
 
-          <div class="seller-info-value">
-            {{ seller.phone }}
+          <div>
+            <h2 class="seller-profile-title">
+              {{ seller.name }}
+            </h2>
+
+            <p class="seller-profile-subtitle">
+              Магазин на ZPT.KZ
+            </p>
           </div>
+
         </div>
 
-        <div class="seller-info-box">
-          <div class="seller-info-label">
-            Города работы
+        <div class="seller-profile-grid">
+
+          <div class="seller-profile-box">
+            <h3 class="seller-profile-box-title">
+              Основная информация
+            </h3>
+
+            <div class="seller-profile-row">
+              <div class="seller-profile-label">
+                Телефон / WhatsApp
+              </div>
+
+              <div class="seller-profile-value">
+                {{ seller.phone }}
+              </div>
+            </div>
+
+            <div class="seller-profile-row">
+              <div class="seller-profile-label">
+                Города работы
+              </div>
+
+              <div class="seller-profile-value">
+                {% if seller.city %}
+                  {{ seller.city }}
+                {% else %}
+                  <span class="seller-profile-placeholder">
+                    Не указаны
+                  </span>
+                {% endif %}
+              </div>
+            </div>
           </div>
 
-          <div class="seller-info-value">
-            {% if seller.city %}
-              {{ seller.city }}
-            {% else %}
-              <span class="seller-muted">
-                Не указаны
-              </span>
-            {% endif %}
-          </div>
-        </div>
+          <div class="seller-profile-box">
+            <h3 class="seller-profile-box-title">
+              Статистика
+            </h3>
 
-        <div class="seller-info-box">
-          <div class="seller-info-label">
-            Товаров на ZPT.KZ
-          </div>
+            <div class="seller-profile-row">
+              <div class="seller-profile-label">
+                Товаров на ZPT.KZ
+              </div>
 
-          <div class="seller-info-value">
-            {{ products_count }}
-          </div>
-        </div>
-
-        <div class="seller-info-box">
-          <div class="seller-info-label">
-            Сайт
+              <div class="seller-profile-value">
+                {{ products_count }} шт.
+              </div>
+            </div>
           </div>
 
-          <div class="seller-info-value">
+          <div class="seller-profile-box full">
+            <h3 class="seller-profile-box-title">
+              Ссылки и соцсети
+            </h3>
+
             {% if seller.website %}
               <a
                 href="{{ seller.website }}"
                 target="_blank"
                 rel="noopener noreferrer"
+                class="seller-profile-add-link"
               >
                 {{ seller.website }}
               </a>
             {% else %}
-              <span class="seller-muted">
-                Не указан
-              </span>
+              <a
+                href="{% url 'seller_profile_edit' %}"
+                class="seller-profile-add-link"
+              >
+                + Добавить сайт
+              </a>
             {% endif %}
-          </div>
-        </div>
 
-        <div class="seller-info-box">
-          <div class="seller-info-label">
-            Instagram
-          </div>
-
-          <div class="seller-info-value">
             {% if seller.instagram %}
               <a
                 href="{{ seller.instagram }}"
                 target="_blank"
                 rel="noopener noreferrer"
+                class="seller-profile-add-link"
               >
                 {{ seller.instagram }}
               </a>
             {% else %}
-              <span class="seller-muted">
-                Не указан
-              </span>
+              <a
+                href="{% url 'seller_profile_edit' %}"
+                class="seller-profile-add-link"
+              >
+                + Привязать Instagram
+              </a>
             {% endif %}
           </div>
-        </div>
 
-        <div class="seller-info-box">
-          <div class="seller-info-label">
-            Описание магазина
-          </div>
+          <div class="seller-profile-box full">
+            <h3 class="seller-profile-box-title">
+              Описание магазина
+            </h3>
 
-          <div class="seller-info-value">
             {% if seller.description %}
-              {{ seller.description }}
+              <div class="seller-profile-value">
+                {{ seller.description }}
+              </div>
             {% else %}
-              <span class="seller-muted">
-                Не заполнено
-              </span>
+              <div class="seller-profile-placeholder">
+                Расскажите покупателям о вашей компании, условиях доставки и гарантии.
+                Нажмите «Редактировать профиль», чтобы добавить описание.
+              </div>
             {% endif %}
           </div>
+
         </div>
 
-      </div>
+        <div class="seller-profile-actions">
 
-      <div
-        class="form-action-row"
-        style="margin-top:24px;"
-      >
+          <a
+            href="{% url 'seller_profile_edit' %}"
+            class="btn btn-green"
+          >
+            Редактировать профиль
+          </a>
 
-        <a
-          href="{% url 'seller_profile_edit' %}"
-          class="btn btn-green"
-        >
-          Редактировать профиль
-        </a>
+          <a
+            href="{% url 'seller_change_password' %}"
+            class="btn outline"
+          >
+            Изменить пароль
+          </a>
 
-        <a
-          href="{% url 'seller_change_password' %}"
-          class="btn outline"
-        >
-          Изменить пароль
-        </a>
+          <a
+            href="{% url 'seller_profile_delete' %}"
+            class="seller-profile-delete"
+          >
+            Удалить профиль
+          </a>
 
-        <a
-          href="{% url 'seller_dashboard' %}"
-          class="btn outline"
-        >
-          Назад в кабинет
-        </a>
-
-      </div>
-
-      <div
-        class="form-action-row"
-        style="margin-top:12px;"
-      >
-
-        <a
-          href="{% url 'seller_profile_delete' %}"
-          class="btn outline"
-          style="
-            color:#ef3d2f;
-            border:1px solid #ef3d2f;
-          "
-        >
-          Удалить профиль
-        </a>
+        </div>
 
       </div>
 
