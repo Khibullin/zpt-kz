@@ -59,6 +59,7 @@
       <div class="products">
         {% for product in products %}
           <article class="product">
+
             <a href="{% url 'product_detail' product.pk %}">
               {% if product.main_image %}
                 <img
@@ -78,33 +79,44 @@
                   alt="{{ product.title }}"
                 >
               {% endif %}
-              {% if product.brand or product.car_model %}
-                <div class="product-seller">
-                  {% if product.brand %}{{ product.brand.name }}{% endif %}
-                  {% if product.car_model %} / {{ product.car_model.name }}{% endif %}
-                </div>
-              {% endif %}
-
-              <div class="product-price">{{ product.price }} ₸</div>
-              <div class="product-seller">
-                {{ product.get_condition_display }} · {{ product.get_status_display }}
-                {% if product.city %} · {{ product.city }}{% endif %}
-              </div>
-
-              <div class="dashboard-card-actions">
-                <a href="{% url 'edit_product' product.pk %}" class="btn outline small-btn">
-                  Редактировать
-                </a>
-
-                <a href="{% url 'delete_product' product.pk %}" class="btn danger small-btn">
-                  Удалить
-                </a>
-              </div>
-
             </a>
+
+            {% if product.brand or product.car_model %}
+              <div class="product-seller">
+                {% if product.brand %}{{ product.brand.name }}{% endif %}
+                {% if product.car_model %} / {{ product.car_model.name }}{% endif %}
+              </div>
+            {% endif %}
+
+            <div class="product-price">
+              {{ product.price }} ₸
+            </div>
+
+            <div class="product-seller">
+              {{ product.get_condition_display }} · {{ product.get_status_display }}
+              {% if product.city %} · {{ product.city }}{% endif %}
+            </div>
+
+            <div class="dashboard-card-actions">
+
+              <a
+                href="{% url 'edit_product' product.pk %}"
+                class="btn outline small-btn"
+              >
+                Редактировать
+              </a>
+
+              <a
+                href="{% url 'delete_product' product.pk %}"
+                class="btn danger small-btn"
+              >
+                Удалить
+              </a>
+
+            </div>
+
           </article>
-        {% endfor %}
-      </div>
+        {% endfor %}      </div>
     {% else %}
       <div class="accent">
         <h3>Пока товаров нет</h3>
