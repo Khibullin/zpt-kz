@@ -5,7 +5,7 @@
 
 {% block content %}
 <header class="topbar">
-  <div class="topbar-inner">
+  <div class="container topbar-inner">
 
     <a
       class="brand"
@@ -23,66 +23,15 @@
 <section class="section">
   <div class="container">
 
-    <div class="seller-page-card" style="max-width:760px;margin:0 auto;">
+    <div class="seller-page-card" style="max-width:820px;margin:0 auto;">
 
-      <div style="
-        display:flex;
-        align-items:center;
-        gap:18px;
-        margin-bottom:24px;
-        flex-wrap:wrap;
-      ">
+      <h2 style="margin:0 0 6px;">
+        {{ seller.name }}
+      </h2>
 
-        <div style="
-          width:92px;
-          height:92px;
-          border-radius:22px;
-          border:1px solid #eee;
-          background:#fff;
-          display:flex;
-          align-items:center;
-          justify-content:center;
-          overflow:hidden;
-          flex-shrink:0;
-        ">
-
-          {% if seller.logo %}
-            <img
-              src="{{ seller.logo.url }}"
-              alt="{{ seller.name }}"
-              style="
-                width:100%;
-                height:100%;
-                object-fit:contain;
-                padding:8px;
-              "
-            >
-          {% else %}
-            <img
-              src="{% static 'images/logo.png' %}"
-              alt="ZPT.KZ"
-              style="
-                width:100%;
-                height:100%;
-                object-fit:contain;
-                padding:8px;
-              "
-            >
-          {% endif %}
-
-        </div>
-
-        <div>
-          <h2 style="margin:0 0 6px;">
-            {{ seller.name }}
-          </h2>
-
-          <p class="dashboard-subtitle" style="margin:0;">
-            Профиль продавца ZPT Market
-          </p>
-        </div>
-
-      </div>
+      <p class="dashboard-subtitle" style="margin:0 0 18px;">
+        Магазин на ZPT.KZ
+      </p>
 
       <div class="detail-grid">
 
@@ -98,50 +47,23 @@
 
         <div class="detail-box">
           <div class="detail-label">
-            Город
+            Города работы
           </div>
 
           <div class="detail-value">
             {% if seller.city %}
               {{ seller.city }}
             {% else %}
-              Не указан
+              <span class="seller-muted">
+                Не указаны
+              </span>
             {% endif %}
           </div>
         </div>
 
-        {% if seller.instagram %}
-          <div class="detail-box">
-            <div class="detail-label">
-              Instagram
-            </div>
-
-            <div class="detail-value">
-              {{ seller.instagram }}
-            </div>
-          </div>
-        {% endif %}
-
-        {% if seller.website %}
-          <div class="detail-box">
-            <div class="detail-label">
-              Сайт
-            </div>
-
-            <div class="detail-value">
-              <a
-                href="{{ seller.website }}"
-                target="_blank"
-              >
-                {{ seller.website }}
-              </a>
-            </div>
-          </div>
-        {% endif %}
-
         <div class="detail-box">
           <div class="detail-label">
-            Товаров в маркете
+            Товаров на ZPT.KZ
           </div>
 
           <div class="detail-value">
@@ -149,25 +71,73 @@
           </div>
         </div>
 
-      </div>
-
-      {% if seller.description %}
-        <div
-          class="detail-box"
-          style="margin-top:14px;"
-        >
+        <div class="detail-box">
           <div class="detail-label">
-            Описание маркета
+            Сайт
           </div>
 
-          <div
-            class="detail-value"
-            style="line-height:1.55;"
-          >
-            {{ seller.description }}
+          <div class="detail-value">
+            {% if seller.website %}
+              <a
+                href="{{ seller.website }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ seller.website }}
+              </a>
+            {% else %}
+              <span class="seller-muted">
+                Не указан
+              </span>
+            {% endif %}
           </div>
         </div>
-      {% endif %}
+
+        <div class="detail-box">
+          <div class="detail-label">
+            Instagram
+          </div>
+
+          <div class="detail-value">
+            {% if seller.instagram %}
+              <a
+                href="{{ seller.instagram }}"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {{ seller.instagram }}
+              </a>
+            {% else %}
+              <span class="seller-muted">
+                Не указан
+              </span>
+            {% endif %}
+          </div>
+        </div>
+
+      </div>
+
+      <div
+        class="detail-box"
+        style="margin-top:14px;"
+      >
+        <div class="detail-label">
+          Описание магазина
+        </div>
+
+        <div
+          class="detail-value"
+          style="line-height:1.55;"
+        >
+          {% if seller.description %}
+            {{ seller.description }}
+          {% else %}
+            <span class="seller-muted">
+              Не заполнено
+            </span>
+          {% endif %}
+        </div>
+      </div>
 
       <div
         class="form-action-row"
