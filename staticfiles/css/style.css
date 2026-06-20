@@ -493,6 +493,7 @@ a{
 
 .seller-back-link{
   display:inline-flex;
+  margin-top:20px;
   margin-bottom:14px;
   color:#475569;
   font-size:14px;
@@ -611,6 +612,7 @@ a{
 .seller-profile-actions{
   display:flex;
   align-items:center;
+  justify-content:space-between;
   gap:10px;
   margin-top:20px;
 }
