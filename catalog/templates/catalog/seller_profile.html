@@ -23,34 +23,34 @@
 <section class="section">
   <div class="container">
 
-    <div class="seller-page-card" style="max-width:820px;margin:0 auto;">
+    <div class="seller-info-card" style="max-width:920px;margin:0 auto;">
 
-      <h2 style="margin:0 0 6px;">
+      <h2 class="seller-info-title">
         {{ seller.name }}
       </h2>
 
-      <p class="dashboard-subtitle" style="margin:0 0 18px;">
+      <p class="dashboard-subtitle" style="margin-bottom:18px;">
         Магазин на ZPT.KZ
       </p>
 
-      <div class="detail-grid">
+      <div class="seller-info-grid">
 
-        <div class="detail-box">
-          <div class="detail-label">
+        <div class="seller-info-box">
+          <div class="seller-info-label">
             Телефон / WhatsApp
           </div>
 
-          <div class="detail-value">
+          <div class="seller-info-value">
             {{ seller.phone }}
           </div>
         </div>
 
-        <div class="detail-box">
-          <div class="detail-label">
+        <div class="seller-info-box">
+          <div class="seller-info-label">
             Города работы
           </div>
 
-          <div class="detail-value">
+          <div class="seller-info-value">
             {% if seller.city %}
               {{ seller.city }}
             {% else %}
@@ -61,22 +61,22 @@
           </div>
         </div>
 
-        <div class="detail-box">
-          <div class="detail-label">
+        <div class="seller-info-box">
+          <div class="seller-info-label">
             Товаров на ZPT.KZ
           </div>
 
-          <div class="detail-value">
+          <div class="seller-info-value">
             {{ products_count }}
           </div>
         </div>
 
-        <div class="detail-box">
-          <div class="detail-label">
+        <div class="seller-info-box">
+          <div class="seller-info-label">
             Сайт
           </div>
 
-          <div class="detail-value">
+          <div class="seller-info-value">
             {% if seller.website %}
               <a
                 href="{{ seller.website }}"
@@ -93,12 +93,12 @@
           </div>
         </div>
 
-        <div class="detail-box">
-          <div class="detail-label">
+        <div class="seller-info-box">
+          <div class="seller-info-label">
             Instagram
           </div>
 
-          <div class="detail-value">
+          <div class="seller-info-value">
             {% if seller.instagram %}
               <a
                 href="{{ seller.instagram }}"
@@ -115,28 +115,22 @@
           </div>
         </div>
 
-      </div>
+        <div class="seller-info-box">
+          <div class="seller-info-label">
+            Описание магазина
+          </div>
 
-      <div
-        class="detail-box"
-        style="margin-top:14px;"
-      >
-        <div class="detail-label">
-          Описание магазина
+          <div class="seller-info-value">
+            {% if seller.description %}
+              {{ seller.description }}
+            {% else %}
+              <span class="seller-muted">
+                Не заполнено
+              </span>
+            {% endif %}
+          </div>
         </div>
 
-        <div
-          class="detail-value"
-          style="line-height:1.55;"
-        >
-          {% if seller.description %}
-            {{ seller.description }}
-          {% else %}
-            <span class="seller-muted">
-              Не заполнено
-            </span>
-          {% endif %}
-        </div>
       </div>
 
       <div
@@ -146,7 +140,7 @@
 
         <a
           href="{% url 'seller_profile_edit' %}"
-          class="btn red"
+          class="btn btn-green"
         >
           Редактировать профиль
         </a>
@@ -160,7 +154,7 @@
 
         <a
           href="{% url 'seller_dashboard' %}"
-          class="btn btn-green"
+          class="btn outline"
         >
           Назад в кабинет
         </a>
