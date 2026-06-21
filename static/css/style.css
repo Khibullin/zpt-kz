@@ -477,13 +477,14 @@ a{
 
 }
 .btn-green{
-  background:#22c55e;
+  background:#ef3d2f;
   color:#fff;
-  border:1px solid #22c55e;
+  border:1px solid #ef3d2f;
 }
 
 .btn-green:hover{
-  opacity:.92;
+  background:#d93628;
+  border-color:#d93628;
 }
 
 .seller-profile-page{
@@ -524,7 +525,7 @@ a{
   width:64px;
   height:64px;
   border-radius:50%;
-  background:#22c55e;
+  background:#1e293b;
   color:#fff;
   display:flex;
   align-items:center;
@@ -555,6 +556,7 @@ a{
 
 .seller-profile-box{
   background:#f8fafc;
+  border:1px solid #eef2f7;
   border-radius:16px;
   padding:16px;
 }
@@ -598,15 +600,16 @@ a{
 
 .seller-profile-add-link{
   display:block;
-  color:#94a3b8;
+  color:#2563eb;
   font-size:15px;
-  font-weight:800;
+  font-weight:700;
   text-decoration:none;
   margin-bottom:8px;
+  transition:.2s;
 }
 
 .seller-profile-add-link:hover{
-  color:#22c55e;
+  color:#ef3d2f;
 }
 
 .seller-profile-actions{
