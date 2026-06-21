@@ -4,123 +4,94 @@
 {% block title %}Кабинет продавца — ZPT.KZ{% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="container topbar-inner">
-
-    <a
-      class="brand"
-      href="https://zpt.kz/"
-    >
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="ZPT.KZ"
-      >
+<header class="market-header">
+  <div class="container market-header-inner">
+    <a class="market-logo" href="https://zpt.kz/">
+      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
     </a>
 
-    <div class="dashboard-actions">
-      <a
-        href="{% url 'seller_profile' %}"
-        class="btn outline"
-      >
+    <nav class="market-nav">
+      <a href="{% url 'add_product' %}" class="btn-add">
+        + Добавить товар
+      </a>
+      <a href="{% url 'seller_profile' %}" class="nav-link">
         Профиль
       </a>
-
-      <a
-        href="{% url 'add_product' %}"
-        class="btn red"
-      >
-        Добавить товар
-      </a>
-
-      <a
-        href="{% url 'seller_logout' %}"
-        class="btn outline"
-      >
+      <a href="{% url 'seller_logout' %}" class="nav-link nav-link-exit">
         Выйти
       </a>
-    </div>
-
+    </nav>
   </div>
 </header>
 
-<section class="section">
+<section class="seller-dashboard">
   <div class="container">
-    <div class="dashboard-header">
-      <div>
-        <h2>Кабинет продавца</h2>
-        <p class="dashboard-subtitle">
-          {{ seller.name }} · {{ seller.phone }}
-          {% if seller.city %} · {{ seller.city }}{% endif %}
-        </p>
+    <div class="seller-dashboard-head">
+      <h1>Кабинет продавца</h1>
+
+      <div class="seller-meta">
+        <span class="seller-name">{{ seller.name }}</span>
+        <span class="seller-phone">{{ seller.phone }}</span>
+        {% if seller.city %}
+          <span class="seller-city">{{ seller.city }}</span>
+        {% endif %}
       </div>
     </div>
 
     {% if products %}
-      <div class="products">
+      <div class="products-container">
         {% for product in products %}
-          <article class="product">
-
-            <a href="{% url 'product_detail' product.pk %}">
+          <article class="product-card">
+            <a href="{% url 'product_detail' product.pk %}" class="product-image-link">
               {% if product.main_image %}
-                <img
-                  src="{{ product.main_image.url }}"
-                  alt="{{ product.title }}"
-                >
-
+                <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
               {% elif product.images.first %}
-                <img
-                  src="{{ product.images.first.image.url }}"
-                  alt="{{ product.title }}"
-                >
-
+                <img src="{{ product.images.first.image.url }}" alt="{{ product.title }}" class="product-image">
               {% else %}
-                <img
-                  src="{% static 'images/product1.jpg' %}"
-                  alt="{{ product.title }}"
-                >
+                <img src="{% static 'images/product1.jpg' %}" alt="{{ product.title }}" class="product-image">
               {% endif %}
             </a>
 
-            {% if product.brand or product.car_model %}
-              <div class="product-seller">
-                {% if product.brand %}{{ product.brand.name }}{% endif %}
-                {% if product.car_model %} / {{ product.car_model.name }}{% endif %}
+            <div class="product-card-body">
+              {% if product.brand or product.car_model %}
+                <div class="product-car">
+                  {% if product.brand %}{{ product.brand.name }}{% endif %}
+                  {% if product.car_model %} / {{ product.car_model.name }}{% endif %}
+                </div>
+              {% endif %}
+
+              <h2 class="product-title">
+                {{ product.title }}
+              </h2>
+
+              <div class="product-price">
+                {{ product.price }} ₸
               </div>
-            {% endif %}
 
-            <div class="product-price">
-              {{ product.price }} ₸
+              <div class="product-status">
+                {{ product.get_condition_display }} · {{ product.get_status_display }}
+                {% if product.city %} · {{ product.city }}{% endif %}
+              </div>
+
+              <div class="product-card-actions">
+                <a href="{% url 'edit_product' product.pk %}" class="btn-edit">
+                  Редактировать
+                </a>
+                <a href="{% url 'delete_product' product.pk %}" class="btn-delete-icon" title="Удалить товар" onclick="return confirm('Вы уверены, что хотите удалить этот товар?');">
+                  Удалить
+                </a>
+              </div>
             </div>
-
-            <div class="product-seller">
-              {{ product.get_condition_display }} · {{ product.get_status_display }}
-              {% if product.city %} · {{ product.city }}{% endif %}
-            </div>
-
-            <div class="dashboard-card-actions">
-
-              <a
-                href="{% url 'edit_product' product.pk %}"
-                class="btn outline small-btn"
-              >
-                Редактировать
-              </a>
-
-              <a
-                href="{% url 'delete_product' product.pk %}"
-                class="btn danger small-btn"
-              >
-                Удалить
-              </a>
-
-            </div>
-
           </article>
-        {% endfor %}      </div>
+        {% endfor %}
+      </div>
     {% else %}
-      <div class="accent">
-        <h3>Пока товаров нет</h3>
-        <p>Добавьте первый товар в свой маркет.</p>
+      <div class="empty-products">
+        <h2>Пока товаров нет</h2>
+        <p>Добавьте первый товар в свой магазин.</p>
+        <a href="{% url 'add_product' %}" class="btn-add">
+          + Добавить товар
+        </a>
       </div>
     {% endif %}
   </div>
