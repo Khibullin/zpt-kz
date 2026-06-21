@@ -791,3 +791,25 @@ a{
     height:130px;
   }
 }
+
+/* Seller dashboard — actions fix */
+
+.product-card-actions{
+  display:grid;
+  grid-template-columns:1fr auto;
+  align-items:center;
+  gap:10px;
+  padding:14px 16px 16px;
+  margin-top:auto;
+}
+
+.btn-edit{
+  width:100%;
+  min-width:0;
+}
+
+.btn-delete-icon{
+  white-space:nowrap;
+  margin:0;
+  padding:0;
+}
