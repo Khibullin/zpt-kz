@@ -525,7 +525,7 @@ a{
   width:64px;
   height:64px;
   border-radius:50%;
-  background:#1e293b;
+  background:#475569;
   color:#fff;
   display:flex;
   align-items:center;
@@ -658,4 +658,9 @@ a{
     padding:10px 0;
   }
 
+}
+
+.seller-profile-box.full .seller-profile-value{
+  font-weight:500;
+  line-height:1.6;
 }
