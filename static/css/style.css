@@ -682,3 +682,29 @@ a{
   color:#64748b;
   font-size:15px;
 }
+
+.seller-profile-head{
+  display:block;
+  margin-bottom:22px;
+}
+
+.seller-profile-title-main{
+  display:block;
+  margin:0 0 6px;
+  color:#334155;
+  font-size:32px;
+  line-height:1.1;
+  font-weight:800;
+}
+
+.seller-profile-subtitle{
+  display:block;
+  margin:0;
+  color:#64748b;
+  font-size:15px;
+}
+
+.seller-profile-box.full .seller-profile-value{
+  font-weight:500;
+  line-height:1.6;
+}
