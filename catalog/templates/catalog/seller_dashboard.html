@@ -4,6 +4,47 @@
 {% block title %}Кабинет продавца — ZPT.KZ{% endblock %}
 
 {% block content %}
+<style>
+  .products-container{
+    display:grid !important;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr)) !important;
+    gap:20px !important;
+  }
+
+  .product-card{
+    display:flex !important;
+    flex-direction:column !important;
+    overflow:hidden !important;
+    background:#fff !important;
+    border:1px solid #e0e0e0 !important;
+    border-radius:12px !important;
+    max-width:100% !important;
+    min-width:0 !important;
+  }
+
+  .product-image-link{
+    display:block !important;
+    width:100% !important;
+    height:180px !important;
+    overflow:hidden !important;
+    background:#f9f9f9 !important;
+  }
+
+  .product-image{
+    display:block !important;
+    width:100% !important;
+    height:180px !important;
+    max-width:100% !important;
+    max-height:180px !important;
+    object-fit:contain !important;
+    padding:10px !important;
+    box-sizing:border-box !important;
+  }
+
+  .product-card-body{
+    padding:14px !important;
+  }
+</style>
 <header class="market-header">
   <div class="container market-header-inner">
     <a class="market-logo" href="https://zpt.kz/">
