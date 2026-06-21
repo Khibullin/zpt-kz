@@ -932,3 +932,13 @@ a{
     max-height:130px !important;
   }
 }
+
+img.product-image{
+  width:100% !important;
+  height:180px !important;
+  max-width:100% !important;
+  max-height:180px !important;
+  object-fit:contain !important;
+  display:block !important;
+  box-sizing:border-box !important;
+}
