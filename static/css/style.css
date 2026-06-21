@@ -640,3 +640,23 @@ a{
   }
 
 }
+
+.seller-profile-heading{
+  display:block;
+}
+
+.seller-profile-title-main{
+  display:block;
+  margin:0 0 6px;
+  color:#334155;
+}
+
+.seller-profile-subtitle{
+  display:block;
+  margin:0;
+}
+
+.seller-profile-box.full .seller-profile-value{
+  font-weight:400;
+  line-height:1.6;
+}
