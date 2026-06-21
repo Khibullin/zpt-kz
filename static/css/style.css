@@ -758,3 +758,74 @@ a{
     height:130px;
   }
 }
+
+/* Seller dashboard — visual polish */
+
+.market-header{
+  padding:10px 0;
+}
+
+.market-header-inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:0 16px;
+}
+
+.market-logo img{
+  height:34px;
+}
+
+.seller-dashboard{
+  padding:14px 0 44px;
+}
+
+.seller-dashboard .container{
+  padding-top:10px;
+}
+
+.seller-dashboard-head{
+  margin-bottom:18px;
+}
+
+.seller-meta{
+  gap:10px;
+}
+
+.seller-meta span:not(:last-child)::after{
+  content:"·";
+  margin-left:10px;
+  color:#b8b8b8;
+}
+
+.product-card-body{
+  padding:14px 16px 16px;
+}
+
+.product-car,
+.product-title,
+.product-card .product-price,
+.product-status{
+  padding-left:0;
+  padding-right:0;
+}
+
+.product-card-actions{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:auto;
+  padding-top:14px;
+}
+
+.btn-edit{
+  flex:1 1 auto;
+  min-width:0;
+  white-space:nowrap;
+}
+
+.btn-delete-icon{
+  flex:0 0 auto;
+  white-space:nowrap;
+  padding-left:4px;
+}
