@@ -664,3 +664,21 @@ a{
   font-weight:500;
   line-height:1.6;
 }
+
+.seller-profile-head{
+  margin-bottom:22px;
+}
+
+.seller-profile-title-main{
+  margin:0 0 6px;
+  font-size:32px;
+  line-height:1.1;
+  font-weight:800;
+  color:#334155;
+}
+
+.seller-profile-subtitle{
+  margin:0;
+  color:#64748b;
+  font-size:15px;
+}
