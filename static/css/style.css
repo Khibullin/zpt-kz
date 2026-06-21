@@ -728,42 +728,53 @@ a{
   margin-bottom:12px;
 }
 
-.product-card-actions{
+.product-card .product-card-actions{
+  display:grid;
+  grid-template-columns:minmax(0, 1fr) max-content;
+  align-items:center;
+  gap:10px;
+  width:100%;
   margin-top:auto;
   padding-top:12px;
   border-top:1px solid #f1f5f9;
-  display:flex;
-  align-items:center;
-  gap:10px;
+  box-sizing:border-box;
 }
 
-.btn-edit{
-  flex:1;
+.product-card .btn-edit{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
   min-width:0;
-  padding:9px 12px;
+  padding:9px 8px;
   border:1px solid #d1d5db;
   border-radius:8px;
+  background:#ffffff;
   color:#374151;
-  background:#fff;
-  font-weight:800;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.2;
   text-align:center;
   text-decoration:none;
   white-space:nowrap;
+  box-sizing:border-box;
 }
 
-.btn-delete-icon{
-  flex:0 0 auto;
+.product-card .btn-delete-icon{
+  display:block;
+  margin:0;
+  padding:9px 0;
   color:#94a3b8;
-  font-size:14px;
-  font-weight:800;
+  font-size:13px;
+  font-weight:700;
+  line-height:1.2;
   text-decoration:none;
   white-space:nowrap;
 }
 
-.btn-delete-icon:hover{
+.product-card .btn-delete-icon:hover{
   color:#e31e24;
 }
-
 @media(max-width:640px){
   .market-header-inner{
     flex-direction:column;
