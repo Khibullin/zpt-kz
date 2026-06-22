@@ -1,4 +1,5 @@
 import os
+import sys
 from pathlib import Path
 
 import dj_database_url
@@ -9,16 +10,21 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
 
 _DEV_SECRET_KEY = 'django-insecure-dev-only-change-me'
+_BUILD_COMMANDS = {'collectstatic', 'migrate', 'check', 'makemigrations'}
+_is_build_command = (
+    len(sys.argv) > 1 and sys.argv[1] in _BUILD_COMMANDS
+)
+
 SECRET_KEY = os.getenv('SECRET_KEY', '').strip()
 
 if not SECRET_KEY:
-    if DEBUG:
+    if DEBUG or _is_build_command:
         SECRET_KEY = _DEV_SECRET_KEY
     else:
         raise ImproperlyConfigured(
             'SECRET_KEY environment variable must be set when DEBUG is False.'
         )
-elif SECRET_KEY == _DEV_SECRET_KEY and not DEBUG:
+elif SECRET_KEY == _DEV_SECRET_KEY and not DEBUG and not _is_build_command:
     raise ImproperlyConfigured(
         'SECRET_KEY must not use the development default in production.'
     )
