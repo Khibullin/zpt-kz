@@ -4,6 +4,82 @@ body{
   color:#111;
 }
 
+.market-topbar{
+  background:#fff;
+  border-bottom:1px solid #ececec;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+
+.market-topbar-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.market-brand{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+  flex-shrink:0;
+}
+
+.market-brand img{
+  height:38px;
+  width:auto;
+  object-fit:contain;
+  display:block;
+}
+
+.market-topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+
+.market-auth-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 14px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:600;
+  text-decoration:none;
+  white-space:nowrap;
+  box-sizing:border-box;
+  transition:border-color .18s ease,color .18s ease,background .18s ease;
+}
+
+.market-auth-btn-outline{
+  color:#222;
+  background:#fff;
+  border:1px solid #d8d8d8;
+}
+
+.market-auth-btn-outline:hover{
+  border-color:#ef3d2f;
+  color:#ef3d2f;
+}
+
+.market-auth-btn-primary{
+  color:#fff;
+  background:#17a531;
+  border:1px solid #17a531;
+}
+
+.market-auth-btn-primary:hover{
+  background:#128728;
+  border-color:#128728;
+}
+
 .topbar{
   background:#fff;
   border-bottom:1px solid #ececec;
@@ -435,33 +511,25 @@ body{
     align-items:flex-start;
   }
 
-  .topbar-seller-btn{
-    font-size:13px;
-    padding:7px 12px;
-  }
-
 }
 
 @media(max-width:640px){
 
-  .topbar-inner{
-    padding:10px;
-    gap:8px;
-    flex-direction:row;
+  .market-topbar-inner{
     flex-wrap:nowrap;
     align-items:center;
-    justify-content:space-between;
   }
 
-  .topbar-seller-btn{
-    width:auto;
-    max-width:48%;
-    font-size:12px;
-    padding:6px 10px;
-    line-height:1.2;
-    text-align:center;
-    box-sizing:border-box;
-    flex-shrink:0;
+  .market-topbar-actions{
+    flex:1;
+    justify-content:flex-end;
+    min-width:0;
+  }
+
+  .market-auth-btn{
+    min-height:32px;
+    padding:0 8px;
+    font-size:11px;
   }
 
   .brand img{

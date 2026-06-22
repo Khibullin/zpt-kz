@@ -3,25 +3,26 @@
 
 {% block title %}ZPT Market — Купить автозапчасти{% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}">
-<header class="topbar">
-  <div class="topbar-inner">
+{% endblock %}
 
-    <a
-      class="brand"
-      href="https://zpt.kz/"
-    >
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="ZPT.KZ"
-      >
+{% block content %}
+<header class="market-topbar">
+  <div class="market-topbar-inner">
 
+    <a class="market-brand" href="/">
+      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
     </a>
 
-    <a class="topbar-seller-btn" href="{% url 'seller_login' %}">
-      Войти / Кабинет
-    </a>
+    <div class="market-topbar-actions">
+      <a class="market-auth-btn market-auth-btn-outline" href="{% url 'seller_login' %}">
+        Войти
+      </a>
+      <a class="market-auth-btn market-auth-btn-primary" href="{% url 'seller_register' %}">
+        Регистрация
+      </a>
+    </div>
 
   </div>
 </header>
