@@ -1,0 +1,151 @@
+{% extends 'base_portal.html' %}
+{% load static %}
+
+{% block title %}Кабинет продавца — ZPT.kz{% endblock %}
+
+{% block portal_css %}
+<link rel="stylesheet" href="{% static 'css/portal-cabinet.css' %}">
+{% endblock %}
+
+{% block portal_header %}{% endblock %}
+
+{% block content %}
+<div class="page">
+  <div class="topbar">
+    <a
+  class="brand"
+  href="/request-parts/"
+>
+  ZPT.kz
+</a>
+    <div class="nav">
+      <a
+  class="home"
+  href="/request-parts/"
+>
+  Главная
+</a>
+<a
+  class="cabinet"
+  href="/request-parts/cabinet/"
+>
+  Кабинет
+</a>
+      <button class="logout" onclick="sellerLogout()">Выход</button>
+    </div>
+  </div>
+
+  <div class="login-card" id="loginBox">
+    <h1>Вход продавца</h1>
+    <div class="login-row">
+      <label>WhatsApp</label>
+      <input id="login_whatsapp" placeholder="7707XXXXXXX">
+      <label>Пароль</label>
+      <input id="login_password" type="password">
+      <label><input type="checkbox" onclick="login_password.type=this.checked?'text':'password'"> Показать пароль</label>
+      <button class="btn btn-blue" onclick="sellerLogin()">Войти</button>
+    </div>
+    <div id="loginError" class="error"></div>
+    <div class="login-help">
+      <b>Нет доступа в кабинет?</b><br>
+      Напишите администратору в WhatsApp — поможем восстановить доступ.<br>
+      <a class="help-btn" href="https://wa.me/77713607040" target="_blank">Написать администратору</a>
+    </div>
+  </div>
+
+  <div id="cabinetApp" class="hidden">
+    <section class="hero">
+      <h1 id="pageTitle">Кабинет продавца</h1>
+      <p id="pageSubtitle">Здесь отображаются заявки покупателей, которые подходят вашему магазину.</p>
+    </section>
+
+    <section class="tabs">
+      <button id="tabRequests" class="tab active" onclick="showTab('requests')">Заявки</button>
+      <button id="tabProfile" class="tab" onclick="showTab('profile')">Мой профиль</button>
+      <button class="tab exit" onclick="sellerLogout()">Выход</button>
+    </section>
+
+    <section id="requestsTab">
+      <section class="panel">
+        <h2>Сводка</h2>
+        <div class="summary">
+          <div class="summary-card"><span>Новых заявок</span><b id="countNew">0</b></div>
+          <div class="summary-card"><span>Всего заявок</span><b id="countAll">0</b></div>
+          <div class="summary-card"><span>За выбранный период</span><b id="countPeriod">0</b></div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Фильтр</h2>
+        <div class="filters">
+          <div class="filter-group">
+            <span class="filter-title">Период:</span>
+            <button class="pill period-pill blue" data-period="today" onclick="setPeriod('today')">Сегодня</button>
+            <button class="pill period-pill blue active" data-period="7d" onclick="setPeriod('7d')">7 дней</button>
+            <button class="pill period-pill blue" data-period="30d" onclick="setPeriod('30d')">30 дней</button>
+            <button class="pill period-pill blue" data-period="all" onclick="setPeriod('all')">Все</button>
+          </div>
+          <div class="filter-group">
+            <span class="filter-title">Статус:</span>
+            <button class="pill status-pill active" data-status="all" onclick="setStatusFilter('all')">Все</button>
+            <button class="pill status-pill" data-status="new" onclick="setStatusFilter('new')">Новые</button>
+            <button class="pill status-pill" data-status="contacted" onclick="setStatusFilter('contacted')">Связался</button>
+            <button class="pill status-pill" data-status="done" onclick="setStatusFilter('done')">Отказ</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="requests-head">
+          <h2>Заявки покупателей</h2>
+          <div style="display:flex;gap:10px;align-items:center"><span class="counter" id="visibleCounter">0 заявок</span><button class="btn btn-gray" onclick="loadRequests()">Обновить</button></div>
+        </div>
+        <div id="requestsContent" class="loading">Загрузка...</div>
+      </section>
+    </section>
+
+    <section id="profileTab" class="hidden">
+      <section class="panel">
+        <div class="profile-header">
+          <div>
+            <h2>Мой профиль</h2>
+            <div class="muted">Проверьте данные вашего магазина и настройки автозапчастей.</div>
+          </div>
+          <button id="editProfileBtn" class="btn btn-red" type="button" onclick="enableEditProfile()">Редактировать профиль</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Данные магазина</h2>
+        <div id="profileBox" class="profile-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Настройки автозапчастей</h2>
+        <div id="settingsBox" class="profile-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Смена пароля</h2>
+        <div class="muted" style="margin-bottom:14px">Пароль нужен для входа в кабинет продавца.</div>
+        <div class="profile-grid">
+          <div class="info-box"><b>Старый пароль</b><input id="old_password" class="profile-input password-field" type="password" autocomplete="current-password"></div>
+          <div class="info-box"><b>Новый пароль</b><input id="new_password" class="profile-input password-field" type="password" autocomplete="new-password"></div>
+          <div class="info-box"><b>Повторите новый пароль</b><input id="new_password_confirm" class="profile-input password-field" type="password" autocomplete="new-password"></div>
+          <div class="info-box">
+            <b>Показать пароль</b>
+            <label class="checkbox-item"><input id="show_passwords" type="checkbox" onchange="togglePasswordVisibility()"><span>Показать введённые пароли</span></label>
+          </div>
+        </div>
+        <div class="profile-actions">
+          <button id="changePasswordBtn" class="btn btn-blue" type="button" onclick="changeSellerPassword()">Сохранить пароль</button>
+        </div>
+      </section>
+    </section>
+  </div>
+</div>
+{% endblock %}
+
+{% block portal_js %}
+<script src="{% static 'js/request-parts-cabinet.js' %}"></script>
+{% endblock %}

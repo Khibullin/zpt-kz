@@ -1,60 +1,18 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ZPT.KZ — Заявка на СТО и детейлинг</title>
-<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
-.header{background:#fff;border-bottom:1px solid #ececec;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.header-inner{max-width:1100px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
-.nav{display:flex;gap:10px;flex-wrap:wrap}
-.nav a{text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;font-size:14px}
-.nav-main{background:#eef2f7;color:#3478f6}.nav-seller{background:#3478f6;color:#fff}
-.wrap{max-width:980px;margin:auto;padding:24px 16px 48px}
-.hero{background:#fff;border-radius:18px;padding:24px 22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(0,0,0,.08);text-align:center}
-.hero h1{margin:0 0 10px;color:#c62828;font-size:30px}.hero p{margin:0;color:#555;line-height:1.45;font-size:16px}
-.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.field{display:flex;flex-direction:column}.field.full{grid-column:1/-1}
-label{font-weight:bold;margin-bottom:6px}
-input,select,textarea,button{width:100%;border-radius:10px;border:1px solid #d7d7d7;font-size:15px;padding:0 14px}
-input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;resize:vertical}
-.transport{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.transport button{background:#eef2f7;color:#3478f6;font-weight:bold;cursor:pointer;border:none}
-.transport button.active{background:#3478f6;color:#fff}
-.checkbox-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.checkbox-grid label{font-weight:normal;margin:0;padding:12px;border:1px solid #e0e0e0;border-radius:12px;background:#fafafa;cursor:pointer}
-.checkbox-grid input{width:auto;min-height:auto;margin-right:8px}
-.submit-btn{background:#c62828;color:#fff;border:none;font-weight:bold;cursor:pointer}.submit-btn:disabled{background:#999;cursor:not-allowed}
-.msg{display:none;margin-top:16px;padding:14px;border-radius:12px;line-height:1.45}.msg.success{display:block;background:#e8f5e9;color:#1b5e20}.msg.error{display:block;background:#ffebee;color:#b71c1c}
-.hint{font-size:13px;color:#666;margin-top:6px}
-.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.trust-item{background:#fff;border-radius:14px;padding:16px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.05);font-weight:bold;color:#333}
-.bottom-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.action-card{background:#fff;border-radius:16px;padding:18px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.05);display:block}
-.action-card b{display:block;margin-bottom:6px}.action-card span{font-size:13px;color:#666;line-height:1.35}
-.seller-card b{color:#3478f6}.guide-card b{color:#2e7d32}.faq-card b{color:#ef6c00}
-.hidden{display:none}
-@media(max-width:760px){.header-inner{align-items:flex-start;flex-direction:column}.nav{width:100%}.nav a{flex:1;text-align:center}.grid,.transport,.trust,.bottom-actions,.checkbox-grid{grid-template-columns:1fr}.hero h1{font-size:24px}}
-</style>
-</head>
-<body>
-<header class="header">
-  <div class="header-inner">
-    <a class="logo" href="https://zpt.kz">ZPT.KZ</a>
-    <nav class="nav">
-      <a class="nav-main" href="https://zpt.kz/">Главная</a>
-      <a class="nav-seller" href="/service-request/cabinet/">Кабинет исполнителя</a>
-    </nav>
-  </div>
-</header>
+{% extends 'base_portal.html' %}
+{% load static %}
 
+{% block title %}ZPT.KZ — Заявка на СТО и детейлинг{% endblock %}
+
+{% block portal_css %}
+<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
+{% endblock %}
+
+{% block header_nav %}
+<a class="nav-main" href="/">Главная</a>
+<a class="nav-seller" href="/service-request/cabinet/">Кабинет исполнителя</a>
+{% endblock %}
+
+{% block content %}
 <div class="wrap">
   <div class="hero">
     <h1>Отправьте заявку — получите предложения от СТО и детейлинга</h1>
@@ -74,12 +32,12 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
 
         <div class="field">
           <label>Марка автомобиля <span style="color:#6b7280;font-weight:400;">(необязательно)</span></label>
-          <input id="brand" placeholder="Например: Toyota">          
+          <input id="brand" placeholder="Например: Toyota">
         </div>
 
         <div class="field">
           <label>Модель <span style="color:#6b7280;font-weight:400;">(необязательно)</span></label>
-          <input id="model" placeholder="Например: Camry">          
+          <input id="model" placeholder="Например: Camry">
         </div>
 
         <div class="field full" id="stoServices">
@@ -128,9 +86,7 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
             <option value="Астана">Астана</option>
             <option value="Шымкент">Шымкент</option>
             <option value="Караганда">Караганда</option>
-
             <option disabled>──────────</option>
-
             <option value="Актобе">Актобе</option>
             <option value="Атырау">Атырау</option>
             <option value="Актау">Актау</option>
@@ -152,10 +108,8 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
 
         <div class="field">
           <label for="district">Район</label>
-
           <select id="district" required>
             <option value="">Выберите район</option>
-
             <option value="Алмалинский">Алмалинский</option>
             <option value="Алатауский">Алатауский</option>
             <option value="Ауэзовский">Ауэзовский</option>
@@ -165,11 +119,7 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
             <option value="Наурызбайский">Наурызбайский</option>
             <option value="Турксибский">Турксибский</option>
           </select>
-
-          <div class="hint">
-            Пока район используется для Алматы.
-            Позже добавим районы других городов.
-          </div>
+          <div class="hint">Пока район используется для Алматы. Позже добавим районы других городов.</div>
         </div>
 
         <div class="field">
@@ -198,7 +148,7 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
   </div>
 
   <div class="bottom-actions">
-    <a href="https://zpt-kz-backend.onrender.com/service-request/register/" class="action-card seller-card">
+    <a href="/service-request/register/" class="action-card seller-card">
       <b>Зарегистрироваться исполнителем</b>
       <span>Получайте заявки от клиентов по своим услугам и городу.</span>
     </a>
@@ -212,181 +162,8 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
     </a>
   </div>
 </div>
+{% endblock %}
 
-<script src="/static/js/dom-safe.js"></script>
-<script>
-let serviceType='sto';
-
-const stoBtn=document.getElementById('stoBtn');
-const detailingBtn=document.getElementById('detailingBtn');
-const stoServices=document.getElementById('stoServices');
-const detailingServices=document.getElementById('detailingServices');
-
-const brandEl=document.getElementById('brand');
-const modelEl=document.getElementById('model');
-
-const cityEl=document.getElementById('city');
-const districtEl=document.getElementById('district');
-
-const phoneEl=document.getElementById('phone');
-const descriptionEl=document.getElementById('description');
-
-const msg=document.getElementById('msg');
-const submitBtn=document.getElementById('submitBtn');
-
-function setMessage(text,type){
-  msg.className='msg '+type;
-  ZPTDom.setText(msg,text);
-}
-
-function clearMessage(){
-  msg.className='msg';
-  ZPTDom.setText(msg,'');
-}
-
-function normalizePhone(v){
-  return String(v||'').replace(/\D/g,'');
-}
-
-function setServiceType(type){
-  serviceType=type;
-
-  stoBtn.classList.toggle('active',type==='sto');
-  detailingBtn.classList.toggle('active',type==='detailing');
-
-  stoServices.classList.toggle('hidden',type!=='sto');
-  detailingServices.classList.toggle('hidden',type!=='detailing');
-
-  document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
-}
-
-function getSelectedServices(){
-  const activeBlock = serviceType==='sto' ? stoServices : detailingServices;
-  return Array.from(activeBlock.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>cb.value);
-}
-
-const API = 'https://zpt-kz-backend.onrender.com/api/service';
-
-document.getElementById('serviceForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  clearMessage();
-
-  const services = getSelectedServices();
-
-const payload = {
-  service_type: serviceType,
-
-  brand: brandEl.value.trim(),
-  model: modelEl.value.trim(),
-
-  services: services,
-
-  city: cityEl.value,
-  district: districtEl.value,
-
-  phone: normalizePhone(phoneEl.value),
-
-  description: descriptionEl.value.trim()
-};
-
-  if (!payload.services.length){
-    setMessage('Выберите хотя бы одну услугу.','error');
-    return;
-  }
-
-if (
-  !payload.city ||
-  !payload.district ||
-  !payload.phone
-){
-  setMessage(
-    'Заполните город, район и телефон / WhatsApp.',
-    'error'
-  );
-  return;
-}
-
-  submitBtn.disabled = true;
-  submitBtn.innerText = 'Отправляем...';
-
-  try{
-    const r = await fetch(API + '/create-service-request/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-
-    const data = await r.json();
-
-if(data.error){
-  setMessage(data.error,'error');
-  return;
-}
-
-setMessage(`
-<b>✅ Заявка принята и отправлена подходящим исполнителям.</b>
-
-<br><br>
-
-<b>Что дальше?</b>
-
-<br><br>
-
-Ничего делать не нужно —
-СТО и мастера сами напишут вам в WhatsApp
-с ценой, сроками и условиями.
-
-<br><br>
-
-Обычно первые ответы приходят
-в течение 5–15 минут.
-
-<br><br>
-
-<b>Ваш запрос:</b><br>
-
-Услуги: ${services.join(', ')}<br>
-Город: ${payload.city}<br>
-Район: ${payload.district}<br>
-Телефон: ${payload.phone}<br>
-
-${payload.description
-  ? `Описание: ${payload.description}<br>`
-  : ''
-}
-
-<br>
-
-Если хотите самостоятельно посмотреть исполнителей —
-можете открыть каталог.
-
-<br><br>
-
-<a
-  href="/service-request/result/${data.request_id}/"
-  style="
-    display:inline-block;
-    background:#3478f6;
-    color:#fff;
-    text-decoration:none;
-    padding:12px 18px;
-    border-radius:10px;
-    font-weight:bold;
-  "
->
-  Посмотреть исполнителей по заявке
-</a>
-`,'success');
-document.getElementById('serviceForm').reset();
-setServiceType('sto');
-
-  }catch(err){
-    setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
-  }finally{
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'Отправить заявку';
-  }
-});
-</script>
-</body>
-</html>
+{% block portal_js %}
+<script src="{% static 'js/service-request-form.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}ZPT.KZ{% endblock %}</title>
+
+  <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
+  <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
+
+  <link rel="stylesheet" href="{% static 'css/portal-common.css' %}">
+  {% block portal_css %}{% endblock %}
+  {% block extra_css %}{% endblock %}
+</head>
+<body
+  data-api-base="/api/"
+  data-service-api-base="/api/service/"
+>
+  {% block portal_header %}
+  <header class="header">
+    <div class="header-inner">
+      <a class="logo" href="{% block logo_url %}/{% endblock %}">ZPT.KZ</a>
+      <nav class="nav">
+        {% block header_nav %}{% endblock %}
+      </nav>
+    </div>
+  </header>
+  {% endblock %}
+
+  {% block content %}{% endblock %}
+
+  <script src="{% static 'js/dom-safe.js' %}"></script>
+  <script src="{% static 'js/portal-config.js' %}"></script>
+  {% block portal_js %}{% endblock %}
+</body>
+</html>

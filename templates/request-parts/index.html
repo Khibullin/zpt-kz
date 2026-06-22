@@ -1,57 +1,18 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>ZPT.KZ — Заявка на запчасти</title>
-<link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
-<link rel="icon" type="image/png" sizes="32x32" href="/static/favicon/favicon-32x32.png">
-<link rel="apple-touch-icon" href="/static/favicon/apple-touch-icon.png">
-<style>
-*{box-sizing:border-box}
-body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f5f5f5;color:#222}
-.header{background:#fff;border-bottom:1px solid #ececec;box-shadow:0 2px 10px rgba(0,0,0,.04)}
-.header-inner{max-width:1100px;margin:auto;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{font-size:24px;font-weight:bold;color:#c62828;text-decoration:none}
-.nav{display:flex;gap:10px;flex-wrap:wrap}
-.nav a{text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;font-size:14px}
-.nav-main{background:#eef2f7;color:#3478f6}.nav-seller{background:#3478f6;color:#fff}
-.wrap{max-width:980px;margin:auto;padding:24px 16px 48px}
-.hero{background:#fff;border-radius:18px;padding:24px 22px;margin-bottom:18px;box-shadow:0 6px 24px rgba(0,0,0,.08);text-align:center}
-.hero h1{margin:0 0 10px;color:#c62828;font-size:30px}.hero p{margin:0;color:#555;line-height:1.45;font-size:16px}
-.card{background:#fff;border-radius:18px;padding:22px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
-.field{display:flex;flex-direction:column}.field.full{grid-column:1/-1}
-label{font-weight:bold;margin-bottom:6px}
-input,select,textarea,button{width:100%;border-radius:10px;border:1px solid #d7d7d7;font-size:15px;padding:0 14px}
-input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;resize:vertical}
-.transport{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.transport button{background:#eef2f7;color:#3478f6;font-weight:bold;cursor:pointer;border:none}
-.transport button.active{background:#3478f6;color:#fff}
-.submit-btn{background:#c62828;color:#fff;border:none;font-weight:bold;cursor:pointer}.submit-btn:disabled{background:#999;cursor:not-allowed}
-.msg{display:none;margin-top:16px;padding:14px;border-radius:12px;line-height:1.45}.msg.success{display:block;background:#e8f5e9;color:#1b5e20}.msg.error{display:block;background:#ffebee;color:#b71c1c}
-.result-card{margin-top:14px;border:1px solid #e0e0e0;border-radius:14px;padding:14px;background:#fafafa}.seller-row{display:flex;justify-content:space-between;gap:12px;align-items:center;border-top:1px solid #eee;padding-top:10px;margin-top:10px}
-.wa-btn{display:inline-block;background:#25D366;color:#fff;text-decoration:none;padding:10px 14px;border-radius:10px;font-weight:bold;white-space:nowrap}.hint{font-size:13px;color:#666;margin-top:6px}
-.trust{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.trust-item{background:#fff;border-radius:14px;padding:16px;text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.05);font-weight:bold;color:#333}
-.bottom-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:18px}
-.action-card{background:#fff;border-radius:16px;padding:18px;text-decoration:none;box-shadow:0 4px 14px rgba(0,0,0,.05);display:block}
-.action-card b{display:block;margin-bottom:6px}.action-card span{font-size:13px;color:#666;line-height:1.35}
-.seller-card b{color:#3478f6}.guide-card b{color:#2e7d32}.faq-card b{color:#ef6c00}
-@media(max-width:760px){.header-inner{align-items:flex-start;flex-direction:column}.nav{width:100%}.nav a{flex:1;text-align:center}.grid,.transport,.trust,.bottom-actions{grid-template-columns:1fr}.seller-row{display:block}.wa-btn{margin-top:10px}.hero h1{font-size:24px}}
-</style>
-</head>
-<body>
-<header class="header">
-  <div class="header-inner">
-    <a class="logo" href="/">ZPT.KZ</a>
-    <nav class="nav">
-      <a class="nav-main" href="/">Главная</a>
-      <a class="nav-seller" href="/request-parts/cabinet/">Кабинет продавца</a>
-    </nav>
-  </div>
-</header>
+{% extends 'base_portal.html' %}
+{% load static %}
 
+{% block title %}ZPT.KZ — Заявка на запчасти{% endblock %}
+
+{% block portal_css %}
+<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
+{% endblock %}
+
+{% block header_nav %}
+<a class="nav-main" href="/">Главная</a>
+<a class="nav-seller" href="/request-parts/cabinet/">Кабинет продавца</a>
+{% endblock %}
+
+{% block content %}
 <div class="wrap">
   <div class="hero">
     <h1>Отправьте заявку — получите предложения на запчасти</h1>
@@ -108,227 +69,47 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
           </select>
         </div>
 
-<div class="field full">
-  <label>Где искать продавцов?</label>
-
-  <div style="
-    border:1px solid #ddd;
-    border-radius:12px;
-    padding:16px;
-    background:#fafafa;
-  ">
-
-    <label style="
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:14px;
-      font-weight:normal;
-      cursor:pointer;
-    ">
-      <input
-        type="radio"
-        name="search_scope"
-        value="city"
-        checked
-        onchange="toggleCitiesSelection()"
-        style="
-          width:18px;
-          height:18px;
-          min-height:auto;
-          flex:none;
-        "
-      >
-      Только мой город
-    </label>
-
-    <label style="
-      display:flex;
-      align-items:center;
-      gap:10px;
-      margin-bottom:14px;
-      font-weight:normal;
-      cursor:pointer;
-    ">
-      <input
-        type="radio"
-        name="search_scope"
-        value="kazakhstan"
-        onchange="toggleCitiesSelection()"
-        style="
-          width:18px;
-          height:18px;
-          min-height:auto;
-          flex:none;
-        "
-      >
-      Весь Казахстан
-    </label>
-
-    <label style="
-      display:flex;
-      align-items:center;
-      gap:10px;
-      font-weight:normal;
-      cursor:pointer;
-    ">
-      <input
-        type="radio"
-        name="search_scope"
-        value="custom"
-        onchange="toggleCitiesSelection()"
-        style="
-          width:18px;
-          height:18px;
-          min-height:auto;
-          flex:none;
-        "
-      >
-      Выбрать города
-    </label>
-
-    <div
-      id="citiesSelection"
-      style="
-        display:none;
-        margin-top:16px;
-        padding-top:16px;
-        border-top:1px solid #e0e0e0;
-      "
-    >
-
-      <div style="
-        display:grid;
-        grid-template-columns:repeat(2,1fr);
-        gap:10px;
-      ">
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Алматы"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Алматы
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Астана"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Астана
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Шымкент"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Шымкент
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Караганда"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Караганда
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Актобе"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Актобе
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Атырау"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Атырау
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Актау"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Актау
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Павлодар"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Павлодар
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Усть-Каменогорск"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Усть-Каменогорск
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Семей"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Семей
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Костанай"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Костанай
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Петропавловск"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Петропавловск
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Кокшетау"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Кокшетау
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Тараз"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Тараз
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Туркестан"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Туркестан
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Кызылорда"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Кызылорда
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Уральск"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Уральск
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Талдыкорган"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Талдыкорган
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Жезказган"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Жезказган
-</label>
-
-<label style="display:flex;align-items:center;gap:8px;font-weight:normal">
-  <input type="checkbox" value="Экибастуз"
-    style="width:18px;height:18px;min-height:auto;flex:none">
-  Экибастуз
-</label>
-
-      </div>
-
-    </div>
-
-  </div>
-</div>
+        <div class="field full">
+          <label>Где искать продавцов?</label>
+          <div class="search-scope">
+            <label class="radio-row">
+              <input type="radio" name="search_scope" value="city" checked onchange="toggleCitiesSelection()">
+              Только мой город
+            </label>
+            <label class="radio-row">
+              <input type="radio" name="search_scope" value="kazakhstan" onchange="toggleCitiesSelection()">
+              Весь Казахстан
+            </label>
+            <label class="radio-row">
+              <input type="radio" name="search_scope" value="custom" onchange="toggleCitiesSelection()">
+              Выбрать города
+            </label>
+            <div id="citiesSelection" class="cities-selection">
+              <div class="cities-grid">
+                <label><input type="checkbox" value="Алматы"> Алматы</label>
+                <label><input type="checkbox" value="Астана"> Астана</label>
+                <label><input type="checkbox" value="Шымкент"> Шымкент</label>
+                <label><input type="checkbox" value="Караганда"> Караганда</label>
+                <label><input type="checkbox" value="Актобе"> Актобе</label>
+                <label><input type="checkbox" value="Атырау"> Атырау</label>
+                <label><input type="checkbox" value="Актау"> Актау</label>
+                <label><input type="checkbox" value="Павлодар"> Павлодар</label>
+                <label><input type="checkbox" value="Усть-Каменогорск"> Усть-Каменогорск</label>
+                <label><input type="checkbox" value="Семей"> Семей</label>
+                <label><input type="checkbox" value="Костанай"> Костанай</label>
+                <label><input type="checkbox" value="Петропавловск"> Петропавловск</label>
+                <label><input type="checkbox" value="Кокшетау"> Кокшетау</label>
+                <label><input type="checkbox" value="Тараз"> Тараз</label>
+                <label><input type="checkbox" value="Туркестан"> Туркестан</label>
+                <label><input type="checkbox" value="Кызылорда"> Кызылорда</label>
+                <label><input type="checkbox" value="Уральск"> Уральск</label>
+                <label><input type="checkbox" value="Талдыкорган"> Талдыкорган</label>
+                <label><input type="checkbox" value="Жезказган"> Жезказган</label>
+                <label><input type="checkbox" value="Экибастуз"> Экибастуз</label>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="field">
           <label for="phone">Телефон / WhatsApp</label>
@@ -370,316 +151,8 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
     </a>
   </div>
 </div>
+{% endblock %}
 
-<script src="/static/js/dom-safe.js"></script>
-<script>
-const API='https://zpt-kz-backend.onrender.com/api';
-let transportType='car';
-let countriesData=[];let brandsData=[];let modelsData=[];
-const countryEl=document.getElementById('country');
-const brandEl=document.getElementById('brand');
-const modelEl=document.getElementById('model');
-const categoryEl=document.getElementById('category');
-const articleEl=document.getElementById('article');
-const cityEl=document.getElementById('city');
-const phoneEl=document.getElementById('phone');
-const descriptionEl=document.getElementById('description');
-const msg=document.getElementById('msg');
-const submitBtn=document.getElementById('submitBtn');
-
-function setMessage(text,type){msg.className='msg '+type;ZPTDom.setText(msg,text)}
-function setRichMessage(html,type){msg.className='msg '+type;msg.innerHTML=html}
-function clearMessage(){msg.className='msg';ZPTDom.setText(msg,'')}
-function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
-async function apiGet(url){let r=await fetch(url);if(!r.ok){throw new Error('Ошибка загрузки данных')}return r.json()}
-function getSelectedText(select){if(!select.value)return '';let opt=select.options[select.selectedIndex];return opt?opt.textContent.trim():''}
-function toggleCitiesSelection(){
-  let selected = document.querySelector(
-    'input[name="search_scope"]:checked'
-  )?.value;
-
-  let box = document.getElementById('citiesSelection');
-
-  if(!box){
-    return;
-  }
-
-  box.style.display =
-    selected === 'custom'
-      ? 'block'
-      : 'none';
-}
-
-function getSearchScope(){
-  return document.querySelector(
-    'input[name="search_scope"]:checked'
-  )?.value || 'city';
-}
-
-function getSelectedCities(){
-  return Array.from(
-    document.querySelectorAll('#citiesSelection input[type="checkbox"]:checked')
-  ).map(item => item.value);
-}
-
-function setTransport(type){
-  transportType=type;
-  carBtn.classList.toggle('active',type==='car');
-  truckBtn.classList.toggle('active',type==='truck');
-  ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');
-  ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');
-  loadCountries();
-}
-
-async function loadCategories(){
-  try{
-    let cats=await apiGet(API+'/part-categories/');
-    ZPTDom.fillSelect(categoryEl, cats.map(c=>({id:c.name,name:c.name})), 'Выберите категорию', 'id', 'name');
-  }catch(e){ZPTDom.fillSelect(categoryEl, [], 'Ошибка загрузки категорий')}
-}
-
-async function loadCountries(){
-  try{
-    countriesData=await apiGet(API+'/countries/');
-    ZPTDom.fillSelect(countryEl, countriesData, 'Выберите страну');
-  }catch(e){ZPTDom.fillSelect(countryEl, [], 'Ошибка загрузки стран')}
-}
-
-async function loadBrands(){
-  let countryId=countryEl.value;
-  ZPTDom.fillSelect(brandEl, [], 'Загрузка марок...');
-  ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');
-  if(!countryId){ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');return}
-  try{
-    brandsData=await apiGet(API+'/brands-by-country/?country_id='+encodeURIComponent(countryId)+'&transport_type='+encodeURIComponent(transportType));
-    if(!brandsData.length){ZPTDom.fillSelect(brandEl, [], 'Марок нет в справочнике');return}
-    ZPTDom.fillSelect(brandEl, brandsData, 'Выберите марку');
-  }catch(e){ZPTDom.fillSelect(brandEl, [], 'Ошибка загрузки марок')}
-}
-
-async function loadModels(){
-  let brandId=brandEl.value;
-  ZPTDom.fillSelect(modelEl, [], 'Загрузка моделей...');
-  if(!brandId){ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');return}
-  try{
-    modelsData=await apiGet(API+'/models-by-brand/?brand_id='+encodeURIComponent(brandId)+'&transport_type='+encodeURIComponent(transportType));
-    if(!modelsData.length){ZPTDom.fillSelect(modelEl, [], 'Моделей нет в справочнике');return}
-    ZPTDom.fillSelect(modelEl, modelsData, 'Выберите модель');
-  }catch(e){ZPTDom.fillSelect(modelEl, [], 'Ошибка загрузки моделей')}
-}
-
-function renderResult(data){
-  let sellers = data.seller_notifications || [];
-  let count = data.matches || sellers.length || 0;
-
-  let strategyNote = '';
-
-  if(data.strategy === 'fallback_kazakhstan'){
-    strategyNote = `
-<div style="
-  margin-bottom:12px;
-  padding:12px;
-  border-radius:10px;
-  background:#fff3cd;
-  color:#7a5200;
-">
-  В вашем городе продавцы пока не найдены.<br>
-  Мы автоматически расширили поиск на весь Казахстан.
-</div>
-`;
-  }
-
-  let html = `
-${strategyNote}
-
-<b>✅ Заявка отправлена ${count} продавцам</b><br><br>
-
-Мы уже отправили вашу заявку продавцам запчастей.<br>
-В ближайшее время они сами напишут вам в WhatsApp с предложениями.<br><br>
-
-Обычно ответы приходят в течение 5–15 минут.<br><br>
-
-Не нужно отправлять заявку повторно — продавцы уже её получили.<br><br>
-
-Вы также можете написать продавцу сами, если хотите ускорить ответ.
-`;
-  if(sellers.length){
-    html += '<div class="result-card"><b>Продавцы получили заявку:</b>';
-
-sellers.forEach((s)=>{
-
-  let wa = s.buyer_wa_link || '#';
-
-  html += `
-  <div class="seller-row">
-
-    <div>
-
-      <b>${ZPTDom.escapeHtml(s.seller_name || 'Продавец')}</b><br>
-
-      ${
-        s.whatsapp_status === 'sent'
-          ? '<span style="color:#2e7d32">✓ Заявка отправлена продавцу</span>'
-          : '<span style="color:#c62828">Ошибка отправки WhatsApp</span>'
-      }
-
-      ${
-        s.seller_catalog_url
-          ? `<br><a href="${ZPTDom.escapeHtml(s.seller_catalog_url)}" style="color:#3478f6;text-decoration:none;font-size:14px">Открыть профиль продавца</a>`
-          : ''
-      }
-
-    </div>
-
-    <a
-      class="wa-btn"
-      href="${ZPTDom.escapeHtml(wa)}"
-      target="_blank"
-      rel="noopener"
-    >
-      WhatsApp
-    </a>
-
-  </div>
-  `;
-});
-    html += '</div>';
-  }
-
-  setRichMessage(html,'success');
-}
-
-document.getElementById('requestForm').addEventListener('submit',async function(e){
-  e.preventDefault();clearMessage();
-  let payload={
-    transport_type:transportType,
-    country:getSelectedText(countryEl),
-    brand:getSelectedText(brandEl),
-    model:getSelectedText(modelEl),
-    category:categoryEl.value,
-    article:articleEl.value.trim(),
-    description:descriptionEl.value.trim(),
-    city:cityEl.value,
-    search_scope:getSearchScope(),
-    selected_cities:getSelectedCities(),
-    phone:normalizePhone(phoneEl.value)
-  };
-
-if(
-  !payload.country ||
-  !payload.brand ||
-  !payload.model ||
-  !payload.category ||
-  !payload.city ||
-  !payload.phone
-){
-  setMessage('Заполните обязательные поля.','error');
-  return;
-}
-
-if(
-  payload.search_scope === 'custom' &&
-  !payload.selected_cities.length
-){
-  setMessage(
-    'Выберите хотя бы один город для поиска продавцов.',
-    'error'
-  );
-  return;
-}
-
-if(
-  payload.phone.length !== 11 ||
-  !payload.phone.startsWith('7')
-){
-  setMessage(
-    'Введите номер WhatsApp корректно: номер должен начинаться с 7, например 77011234567',
-    'error'
-  );
-  return;
-}
-  submitBtn.disabled=true;submitBtn.innerText='Отправляем...';
-  try{
-    let r=await fetch(API+'/create-request/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
-    let data=await r.json();
-    if(data.error){setMessage(data.error,'error');return}
-    renderResult(data);
-    requestForm.reset();setTransport('car');await loadCategories();
-  }catch(err){setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error')}
-  finally{submitBtn.disabled=false;submitBtn.innerText='Отправить заявку'}
-});
-
-async function applyUrlParams(){
-
-  const params = new URLSearchParams(
-    window.location.search
-  );
-
-  const transport =
-    params.get('transport');
-
-  const brand =
-    params.get('brand');
-
-  const model =
-    params.get('model');
-
-  if(
-    transport &&
-    ['car','truck'].includes(transport)
-  ){
-    setTransport(transport);
-  }
-
-  await loadCountries();
-
-  // Поиск страны по бренду
-  if(brand){
-
-    for(const country of countriesData){
-
-      countryEl.value = country.id;
-
-      await loadBrands();
-
-      const foundBrand =
-        brandsData.find(
-          b =>
-            b.name.toLowerCase()
-            === brand.toLowerCase()
-        );
-
-      if(foundBrand){
-
-        brandEl.value = foundBrand.id;
-
-        await loadModels();
-
-        if(model){
-
-          const foundModel =
-            modelsData.find(
-              m =>
-                m.name.toLowerCase()
-                === model.toLowerCase()
-            );
-
-          if(foundModel){
-            modelEl.value =
-              foundModel.id;
-          }
-        }
-
-        break;
-      }
-    }
-  }
-}
-
-countryEl.addEventListener('change',loadBrands);
-brandEl.addEventListener('change',loadModels);
-loadCategories();
-applyUrlParams();
-</script>
-</body>
-</html>
+{% block portal_js %}
+<script src="{% static 'js/request-parts-form.js' %}"></script>
+{% endblock %}
