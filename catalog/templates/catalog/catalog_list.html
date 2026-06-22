@@ -960,6 +960,7 @@ body{
 
 </div>
 
+<script src="{% static 'js/dom-safe.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
@@ -971,53 +972,29 @@ document.addEventListener('DOMContentLoaded', function () {
 
   country.addEventListener('change', function () {
 
-    brand.innerHTML =
-      '<option value="">Марка</option>';
-
-    model.innerHTML =
-      '<option value="">Модель</option>';
+    ZPTDom.fillSelect(brand, [], 'Марка');
+    ZPTDom.fillSelect(model, [], 'Модель');
 
     if (!this.value) return;
 
-    fetch(`/market/ajax/load-brands/?country=${this.value}`)
+    fetch(`/market/ajax/load-brands/?country=${encodeURIComponent(this.value)}`)
       .then(response => response.json())
       .then(data => {
-
-        data.forEach(item => {
-
-          brand.innerHTML += `
-            <option value="${item.id}">
-              ${item.name}
-            </option>
-          `;
-
-        });
-
+        ZPTDom.fillSelect(brand, data, 'Марка');
       });
 
   });
 
   brand.addEventListener('change', function () {
 
-    model.innerHTML =
-      '<option value="">Модель</option>';
+    ZPTDom.fillSelect(model, [], 'Модель');
 
     if (!this.value) return;
 
-    fetch(`/market/ajax/load-models/?brand=${this.value}`)
+    fetch(`/market/ajax/load-models/?brand=${encodeURIComponent(this.value)}`)
       .then(response => response.json())
       .then(data => {
-
-        data.forEach(item => {
-
-          model.innerHTML += `
-            <option value="${item.id}">
-              ${item.name}
-            </option>
-          `;
-
-        });
-
+        ZPTDom.fillSelect(model, data, 'Модель');
       });
 
   });

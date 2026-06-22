@@ -165,15 +165,22 @@ footer{padding:32px 0 48px;color:#6b7280;text-align:center;font-size:14px}
     }
 
     function renderModels(type){
-      modelGrid.innerHTML = '';
+      modelGrid.replaceChildren();
       popularModels[type].forEach(function(item){
         const link = document.createElement('a');
         link.className = 'model-card';
         link.href = buildRequestUrl(type, item.brand, item.model);
-        link.innerHTML = `
-          <div class="model-brand">${item.brand}</div>
-          <div class="model-name">${item.model || 'Запчасти'}</div>
-        `;
+
+        const brand = document.createElement('div');
+        brand.className = 'model-brand';
+        brand.textContent = item.brand;
+
+        const model = document.createElement('div');
+        model.className = 'model-name';
+        model.textContent = item.model || 'Запчасти';
+
+        link.appendChild(brand);
+        link.appendChild(model);
         modelGrid.appendChild(link);
       });
     }

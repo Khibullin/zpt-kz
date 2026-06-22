@@ -371,6 +371,7 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
   </div>
 </div>
 
+<script src="/static/js/dom-safe.js"></script>
 <script>
 const API='https://zpt-kz-backend.onrender.com/api';
 let transportType='car';
@@ -386,11 +387,11 @@ const descriptionEl=document.getElementById('description');
 const msg=document.getElementById('msg');
 const submitBtn=document.getElementById('submitBtn');
 
-function setMessage(text,type){msg.className='msg '+type;msg.innerHTML=text}
-function clearMessage(){msg.className='msg';msg.innerHTML=''}
+function setMessage(text,type){msg.className='msg '+type;ZPTDom.setText(msg,text)}
+function setRichMessage(html,type){msg.className='msg '+type;msg.innerHTML=html}
+function clearMessage(){msg.className='msg';ZPTDom.setText(msg,'')}
 function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
 async function apiGet(url){let r=await fetch(url);if(!r.ok){throw new Error('Ошибка загрузки данных')}return r.json()}
-function optionHtml(value,label){return `<option value="${value}">${label}</option>`}
 function getSelectedText(select){if(!select.value)return '';let opt=select.options[select.selectedIndex];return opt?opt.textContent.trim():''}
 function toggleCitiesSelection(){
   let selected = document.querySelector(
@@ -425,46 +426,46 @@ function setTransport(type){
   transportType=type;
   carBtn.classList.toggle('active',type==='car');
   truckBtn.classList.toggle('active',type==='truck');
-  brandEl.innerHTML='<option value="">Сначала выберите страну</option>';
-  modelEl.innerHTML='<option value="">Сначала выберите марку</option>';
+  ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');
+  ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');
   loadCountries();
 }
 
 async function loadCategories(){
   try{
     let cats=await apiGet(API+'/part-categories/');
-    categoryEl.innerHTML='<option value="">Выберите категорию</option>'+cats.map(c=>optionHtml(c.name,c.name)).join('');
-  }catch(e){categoryEl.innerHTML='<option value="">Ошибка загрузки категорий</option>'}
+    ZPTDom.fillSelect(categoryEl, cats.map(c=>({id:c.name,name:c.name})), 'Выберите категорию', 'id', 'name');
+  }catch(e){ZPTDom.fillSelect(categoryEl, [], 'Ошибка загрузки категорий')}
 }
 
 async function loadCountries(){
   try{
     countriesData=await apiGet(API+'/countries/');
-    countryEl.innerHTML='<option value="">Выберите страну</option>'+countriesData.map(c=>optionHtml(c.id,c.name)).join('');
-  }catch(e){countryEl.innerHTML='<option value="">Ошибка загрузки стран</option>'}
+    ZPTDom.fillSelect(countryEl, countriesData, 'Выберите страну');
+  }catch(e){ZPTDom.fillSelect(countryEl, [], 'Ошибка загрузки стран')}
 }
 
 async function loadBrands(){
   let countryId=countryEl.value;
-  brandEl.innerHTML='<option value="">Загрузка марок...</option>';
-  modelEl.innerHTML='<option value="">Сначала выберите марку</option>';
-  if(!countryId){brandEl.innerHTML='<option value="">Сначала выберите страну</option>';return}
+  ZPTDom.fillSelect(brandEl, [], 'Загрузка марок...');
+  ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');
+  if(!countryId){ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');return}
   try{
-    brandsData=await apiGet(API+'/brands-by-country/?country_id='+countryId+'&transport_type='+transportType);
-    brandEl.innerHTML='<option value="">Выберите марку</option>'+brandsData.map(b=>optionHtml(b.id,b.name)).join('');
-    if(!brandsData.length){brandEl.innerHTML='<option value="">Марок нет в справочнике</option>'}
-  }catch(e){brandEl.innerHTML='<option value="">Ошибка загрузки марок</option>'}
+    brandsData=await apiGet(API+'/brands-by-country/?country_id='+encodeURIComponent(countryId)+'&transport_type='+encodeURIComponent(transportType));
+    if(!brandsData.length){ZPTDom.fillSelect(brandEl, [], 'Марок нет в справочнике');return}
+    ZPTDom.fillSelect(brandEl, brandsData, 'Выберите марку');
+  }catch(e){ZPTDom.fillSelect(brandEl, [], 'Ошибка загрузки марок')}
 }
 
 async function loadModels(){
   let brandId=brandEl.value;
-  modelEl.innerHTML='<option value="">Загрузка моделей...</option>';
-  if(!brandId){modelEl.innerHTML='<option value="">Сначала выберите марку</option>';return}
+  ZPTDom.fillSelect(modelEl, [], 'Загрузка моделей...');
+  if(!brandId){ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');return}
   try{
-    modelsData=await apiGet(API+'/models-by-brand/?brand_id='+brandId+'&transport_type='+transportType);
-    modelEl.innerHTML='<option value="">Выберите модель</option>'+modelsData.map(m=>optionHtml(m.id,m.name)).join('');
-    if(!modelsData.length){modelEl.innerHTML='<option value="">Моделей нет в справочнике</option>'}
-  }catch(e){modelEl.innerHTML='<option value="">Ошибка загрузки моделей</option>'}
+    modelsData=await apiGet(API+'/models-by-brand/?brand_id='+encodeURIComponent(brandId)+'&transport_type='+encodeURIComponent(transportType));
+    if(!modelsData.length){ZPTDom.fillSelect(modelEl, [], 'Моделей нет в справочнике');return}
+    ZPTDom.fillSelect(modelEl, modelsData, 'Выберите модель');
+  }catch(e){ZPTDom.fillSelect(modelEl, [], 'Ошибка загрузки моделей')}
 }
 
 function renderResult(data){
@@ -514,7 +515,7 @@ sellers.forEach((s)=>{
 
     <div>
 
-      <b>${s.seller_name || 'Продавец'}</b><br>
+      <b>${ZPTDom.escapeHtml(s.seller_name || 'Продавец')}</b><br>
 
       ${
         s.whatsapp_status === 'sent'
@@ -524,7 +525,7 @@ sellers.forEach((s)=>{
 
       ${
         s.seller_catalog_url
-          ? `<br><a href="${s.seller_catalog_url}" style="color:#3478f6;text-decoration:none;font-size:14px">Открыть профиль продавца</a>`
+          ? `<br><a href="${ZPTDom.escapeHtml(s.seller_catalog_url)}" style="color:#3478f6;text-decoration:none;font-size:14px">Открыть профиль продавца</a>`
           : ''
       }
 
@@ -532,7 +533,7 @@ sellers.forEach((s)=>{
 
     <a
       class="wa-btn"
-      href="${wa}"
+      href="${ZPTDom.escapeHtml(wa)}"
       target="_blank"
       rel="noopener"
     >
@@ -545,7 +546,7 @@ sellers.forEach((s)=>{
     html += '</div>';
   }
 
-  setMessage(html,'success');
+  setRichMessage(html,'success');
 }
 
 document.getElementById('requestForm').addEventListener('submit',async function(e){

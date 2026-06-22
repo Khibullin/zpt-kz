@@ -3,6 +3,9 @@ from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError
 import json
 
 from .models import (
@@ -27,6 +30,36 @@ def read_json(request):
         return {}
 
 
+def _password_validation_error(password):
+    if not password:
+        return 'Укажите пароль'
+
+    try:
+        validate_password(password)
+    except ValidationError as exc:
+        return '; '.join(exc.messages)
+
+    return None
+
+
+def _authenticate_service_seller(whatsapp, password):
+    normalized = _normalize_whatsapp(whatsapp)
+
+    if not normalized or not password:
+        return None
+
+    sellers = ServiceSeller.objects.filter(whatsapp=whatsapp.strip())
+
+    if not sellers.exists() and normalized != whatsapp.strip():
+        sellers = ServiceSeller.objects.filter(whatsapp=normalized)
+
+    for seller in sellers:
+        if check_password(password, seller.password):
+            return seller
+
+    return None
+
+
 @csrf_exempt
 def create_service_seller(request):
     if request.method != "POST":
@@ -34,10 +67,24 @@ def create_service_seller(request):
 
     data = read_json(request)
 
+    password = (data.get("password") or "").strip()
+    password_error = _password_validation_error(password)
+
+    if password_error:
+        return JsonResponse({"error": password_error}, status=400)
+
+    whatsapp = data.get("whatsapp", "").strip()
+
+    if ServiceSeller.objects.filter(whatsapp=whatsapp).exists():
+        return JsonResponse(
+            {"error": "Исполнитель с таким WhatsApp уже зарегистрирован"},
+            status=400,
+        )
+
     seller = ServiceSeller.objects.create(
         name=data.get("name", "").strip(),
-        whatsapp=data.get("whatsapp", "").strip(),
-        password=data.get("password", ""),
+        whatsapp=whatsapp,
+        password=make_password(password),
         city=data.get("city", "").strip(),
         district=data.get("district", "").strip(),
         address=data.get("address", "").strip(),
@@ -59,14 +106,15 @@ def service_seller_login(request):
 
     data = read_json(request)
 
-    try:
-        seller = ServiceSeller.objects.get(
-            whatsapp=data.get("whatsapp", "").strip(),
-            password=data.get("password", "")
-        )
+    seller = _authenticate_service_seller(
+        data.get("whatsapp", ""),
+        data.get("password", ""),
+    )
+
+    if seller:
         return JsonResponse({"success": True, "seller_id": seller.id})
-    except ServiceSeller.DoesNotExist:
-        return JsonResponse({"error": "Неверный WhatsApp или пароль"}, status=400)
+
+    return JsonResponse({"error": "Неверный WhatsApp или пароль"}, status=400)
 
 
 @csrf_exempt
@@ -466,7 +514,12 @@ def update_service_seller_profile(request):
         new_password = data.get("password", "").strip()
 
         if new_password:
-            seller.password = new_password
+            password_error = _password_validation_error(new_password)
+
+            if password_error:
+                return JsonResponse({"error": password_error}, status=400)
+
+            seller.password = make_password(new_password)
 
         seller.services.clear()
 

@@ -893,7 +893,9 @@ select:focus{
 
 </div>
 
+<script src="/static/js/dom-safe.js"></script>
 <script>
+const escapeHtml = ZPTDom.escapeHtml;
 const API = window.location.origin + '/api/service';
 
 let currentProfile = null;
@@ -988,8 +990,11 @@ async function loadProfile(){
 
   if(data.error){
 
-    profileView.innerHTML =
-      `<div class="empty">${data.error}</div>`;
+    profileView.replaceChildren();
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = data.error;
+    profileView.appendChild(empty);
 
     return;
   }
@@ -1038,12 +1043,12 @@ function renderProfile(p){
 
       <div class="profile-row">
         <b>Название</b>
-        <span>${p.name || '-'}</span>
+        <span>${escapeHtml(p.name || '-')}</span>
       </div>
 
       <div class="profile-row">
         <b>WhatsApp</b>
-        <span>${p.whatsapp || '-'}</span>
+        <span>${escapeHtml(p.whatsapp || '-')}</span>
       </div>
 
       <div class="profile-row">
@@ -1053,22 +1058,22 @@ function renderProfile(p){
 
       <div class="profile-row">
         <b>Город</b>
-        <span>${p.city || '-'}</span>
+        <span>${escapeHtml(p.city || '-')}</span>
       </div>
 
       <div class="profile-row">
         <b>Район</b>
-        <span>${p.district || '-'}</span>
+        <span>${escapeHtml(p.district || '-')}</span>
       </div>
 
       <div class="profile-row">
         <b>Адрес</b>
-        <span>${p.address || '-'}</span>
+        <span>${escapeHtml(p.address || '-')}</span>
       </div>
 
       <div class="profile-row full">
         <b>Услуги</b>
-        <span>${services}</span>
+        <span>${escapeHtml(services)}</span>
       </div>
 
       <div class="profile-row">
@@ -1080,7 +1085,7 @@ function renderProfile(p){
         <b>2GIS</b>
         ${
           p.map_link
-            ? `<a class="map-btn" href="${p.map_link}" target="_blank">Открыть карту</a>`
+            ? `<a class="map-btn" href="${escapeHtml(p.map_link)}" target="_blank" rel="noopener">Открыть карту</a>`
             : `<span>Не указано</span>`
         }
       </div>
@@ -1090,7 +1095,7 @@ function renderProfile(p){
 
         ${
           p.instagram
-            ? `<a class="map-btn" href="${p.instagram}" target="_blank">Открыть Instagram</a>`
+            ? `<a class="map-btn" href="${escapeHtml(p.instagram)}" target="_blank" rel="noopener">Открыть Instagram</a>`
             : `<span>Не указано</span>`
         }
       </div>
@@ -1100,19 +1105,19 @@ function renderProfile(p){
 
         ${
           p.website
-            ? `<a class="map-btn" href="${p.website}" target="_blank">Открыть сайт</a>`
+            ? `<a class="map-btn" href="${escapeHtml(p.website)}" target="_blank" rel="noopener">Открыть сайт</a>`
             : `<span>Не указано</span>`
         }
       </div>
 
       <div class="profile-row">
         <b>График работы</b>
-        <span>${p.working_hours || 'Не указано'}</span>
+        <span>${escapeHtml(p.working_hours || 'Не указано')}</span>
       </div>
 
       <div class="profile-row full">
         <b>Описание</b>
-        <span>${p.description || 'Не указано'}</span>
+        <span>${escapeHtml(p.description || 'Не указано')}</span>
       </div>
 
     </div>
@@ -1284,12 +1289,14 @@ async function loadRequests(){
   let container =
     document.getElementById('requestsTab');
 
-  container.innerHTML = '';
+  container.replaceChildren();
 
   if(!data.requests || !data.requests.length){
 
-    container.innerHTML =
-      '<div class="empty">Пока заявок нет</div>';
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'Пока заявок нет';
+    container.appendChild(empty);
 
     return;
   }
@@ -1316,7 +1323,7 @@ async function loadRequests(){
 
     let services =
       Array.isArray(req.services)
-        ? req.services.join(', ')
+        ? escapeHtml(req.services.join(', '))
         : '-';
 
     let wa =
@@ -1328,7 +1335,7 @@ async function loadRequests(){
         `Описание: ${req.description || ''}`
       );
 
-    container.innerHTML += `
+    container.insertAdjacentHTML('beforeend', `
       <div class="request ${status}">
 
         <div class="request-top">
@@ -1357,7 +1364,7 @@ async function loadRequests(){
             <div class="info-icon">⌂</div>
             <div>
               <b>Город</b>
-              ${req.city || '-'}
+              ${escapeHtml(req.city || '-')}
             </div>
           </div>
 
@@ -1365,7 +1372,7 @@ async function loadRequests(){
             <div class="info-icon">☎</div>
             <div>
               <b>Телефон</b>
-              ${req.phone || '-'}
+              ${escapeHtml(req.phone || '-')}
             </div>
           </div>
 
@@ -1373,7 +1380,7 @@ async function loadRequests(){
             <div class="info-icon">⌖</div>
             <div>
               <b>Район</b>
-              ${req.district || '-'}
+              ${escapeHtml(req.district || '-')}
             </div>
           </div>
 
@@ -1381,7 +1388,7 @@ async function loadRequests(){
             <div class="info-icon">☰</div>
             <div>
               <b>Комментарий</b>
-              ${req.description || '-'}
+              ${escapeHtml(req.description || '-')}
             </div>
           </div>
 
@@ -1392,7 +1399,7 @@ async function loadRequests(){
           <div>
             <label>Статус</label>
 
-            <select onchange="updateStatus(${req.id}, this.value)">
+            <select onchange="updateStatus(${Number(req.id)}, this.value)">
               <option value="new" ${status === 'new' ? 'selected' : ''}>Новая</option>
               <option value="viewed" ${status === 'viewed' ? 'selected' : ''}>Просмотрена</option>
               <option value="in_work" ${status === 'in_work' ? 'selected' : ''}>В работе</option>
@@ -1400,20 +1407,21 @@ async function loadRequests(){
             </select>
           </div>
 
-          <a href="${wa}" target="_blank" class="wa-btn">
+          <a href="${escapeHtml(wa)}" target="_blank" rel="noopener" class="wa-btn">
             Написать в WhatsApp
           </a>
 
         </div>
 
       </div>
-    `;
+    `);
   });
 
   if(shown === 0){
-
-    container.innerHTML =
-      '<div class="empty">По выбранному статусу заявок нет</div>';
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'По выбранному статусу заявок нет';
+    container.appendChild(empty);
   }
 }
 

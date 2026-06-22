@@ -492,6 +492,7 @@ button{
 
 </div>
 
+<script src="/static/js/dom-safe.js"></script>
 <script>
 
 document.getElementById(
@@ -526,7 +527,7 @@ document.getElementById(
       document.getElementById("result");
 
     result.className = 'msg';
-    result.innerHTML = '';
+    ZPTDom.setText(result, '');
 
     try {
 
@@ -547,17 +548,13 @@ document.getElementById(
       if(!response.ok || json.error){
 
         result.className = 'msg error';
-
-        result.innerHTML =
-          json.error || "Ошибка регистрации";
+        ZPTDom.setText(result, json.error || "Ошибка регистрации");
 
         return;
       }
 
       result.className = 'msg success';
-
-      result.innerHTML =
-        "Исполнитель зарегистрирован";
+      ZPTDom.setText(result, "Исполнитель зарегистрирован");
 
       localStorage.setItem(
         "service_seller_id",
@@ -572,9 +569,7 @@ document.getElementById(
     } catch (error){
 
       result.className = 'msg error';
-
-      result.innerHTML =
-        "Ошибка соединения с сервером";
+      ZPTDom.setText(result, "Ошибка соединения с сервером");
     }
 
 });
@@ -651,27 +646,22 @@ citySelect.addEventListener(
 
     const city = this.value;
 
-    districtSelect.innerHTML = '';
+    districtSelect.replaceChildren();
 
     if(!districts[city]){
-
-      districtSelect.innerHTML =
-        '<option value="">Район не указан</option>';
-
+      ZPTDom.fillSelectFromStrings(
+        districtSelect,
+        [],
+        'Район не указан'
+      );
       return;
     }
 
-    districtSelect.innerHTML =
-      '<option value="">Выберите район</option>';
-
-    districts[city].forEach(district => {
-
-      districtSelect.innerHTML += `
-        <option value="${district}">
-          ${district}
-        </option>
-      `;
-    });
+    ZPTDom.fillSelectFromStrings(
+      districtSelect,
+      districts[city],
+      'Выберите район'
+    );
 
 });
 

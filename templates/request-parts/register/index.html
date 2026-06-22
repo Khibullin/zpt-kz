@@ -72,6 +72,7 @@ input,select{width:100%;height:38px;border:1px solid #cfd8ea;border-radius:8px;p
 
   </section>
 </div>
+<script src="/static/js/dom-safe.js"></script>
 <script>
 const API='https://zpt-kz-backend.onrender.com/api';
 const cities=['Алматы','Астана','Шымкент','Караганда','Актобе','Атырау','Актау','Павлодар','Усть-Каменогорск','Семей','Костанай','Петропавловск','Кокшетау','Тараз','Туркестан','Кызылорда','Уральск','Талдыкорган'];
@@ -79,9 +80,20 @@ const el=id=>document.getElementById(id);
 function setMessage(text,type){el('msg').className='msg '+type;el('msg').innerText=text;}
 function normalizePhone(v){return (v||'').replace(/\D/g,'');}
 function checkedIds(cls){return [...document.querySelectorAll('.'+cls+':checked')].map(x=>parseInt(x.value));}
-function renderChecks(box,data,cls){el(box).innerHTML=(data||[]).map(x=>`<label><input type="checkbox" class="${cls}" value="${x.id}"> ${x.name}</label>`).join('')||'<div class="hint">Нет данных</div>';}
+function renderChecks(box,data,cls){
+  const container=el(box);
+  ZPTDom.clearElement(container);
+  if(!data||!data.length){
+    const hint=document.createElement('div');
+    hint.className='hint';
+    hint.textContent='Нет данных';
+    container.appendChild(hint);
+    return;
+  }
+  ZPTDom.renderCheckboxLabels(container,data,{inputClass:cls});
+}
 async function getJson(url){let r=await fetch(url);return await r.json();}
-async function loadBase(){el('city').innerHTML='<option value="">Выберите город</option>'+cities.map(c=>`<option>${c}</option>`).join('');let countries=await getJson(API+'/countries/');let cats=await getJson(API+'/part-categories/');renderChecks('countriesBox',countries,'countrycheck');renderChecks('categoriesBox',cats,'catcheck');document.querySelectorAll('.countrycheck').forEach(x=>x.onchange=loadBrands);await loadBrands();}
+async function loadBase(){ZPTDom.fillSelectFromStrings(el('city'),cities,'Выберите город');let countries=await getJson(API+'/countries/');let cats=await getJson(API+'/part-categories/');renderChecks('countriesBox',countries,'countrycheck');renderChecks('categoriesBox',cats,'catcheck');document.querySelectorAll('.countrycheck').forEach(x=>x.onchange=loadBrands);await loadBrands();}
 async function loadBrands(){let tt=el('transport_type').value;let countryIds=checkedIds('countrycheck');let brands=[];if(el('all_countries').checked||countryIds.length===0){brands=await getJson(API+'/brands-by-country/?transport_type='+tt);}else{for(let id of countryIds){let d=await getJson(API+'/brands-by-country/?country_id='+id+'&transport_type='+tt);brands=brands.concat(d);}}let map=new Map();brands.forEach(b=>map.set(b.id,b));renderChecks('brandsBox',[...map.values()],'brandcheck');document.querySelectorAll('.brandcheck').forEach(x=>x.onchange=loadModels);await loadModels();}
 async function loadModels(){let tt=el('transport_type').value;let ids=checkedIds('brandcheck');let models=[];if(ids.length===0||el('all_brands').checked){renderChecks('modelsBox',[],'modelcheck');return;}for(let id of ids){let d=await getJson(API+'/models-by-brand/?brand_id='+id+'&transport_type='+tt);models=models.concat(d);}let map=new Map();models.forEach(m=>map.set(m.id,m));renderChecks('modelsBox',[...map.values()],'modelcheck');}
 el('all_countries').onchange=()=>{el('countriesBox').classList.toggle('disabled',el('all_countries').checked);loadBrands();};el('all_brands').onchange=()=>{el('brandsBox').classList.toggle('disabled',el('all_brands').checked);loadModels();};el('all_models').onchange=()=>el('modelsBox').classList.toggle('disabled',el('all_models').checked);el('all_categories').onchange=()=>el('categoriesBox').classList.toggle('disabled',el('all_categories').checked);el('transport_type').onchange=loadBrands;el('showPass').onclick=()=>{let show=el('password').type==='password';el('password').type=show?'text':'password';el('password2').type=show?'text':'password';el('showPass').innerText=show?'Скрыть':'Показать';};

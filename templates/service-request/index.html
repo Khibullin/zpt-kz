@@ -213,6 +213,7 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
   </div>
 </div>
 
+<script src="/static/js/dom-safe.js"></script>
 <script>
 let serviceType='sto';
 
@@ -235,12 +236,12 @@ const submitBtn=document.getElementById('submitBtn');
 
 function setMessage(text,type){
   msg.className='msg '+type;
-  msg.innerHTML=text;
+  ZPTDom.setText(msg,text);
 }
 
 function clearMessage(){
   msg.className='msg';
-  msg.innerHTML='';
+  ZPTDom.setText(msg,'');
 }
 
 function normalizePhone(v){
