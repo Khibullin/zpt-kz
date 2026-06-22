@@ -104,8 +104,9 @@ def catalog_list(request):
         products = products.filter(category_id=category_id)
 
     has_filters = any([query, country_id, brand_id, model_id, category_id])
+    show_all = request.GET.get('all') == '1'
 
-    if has_filters:
+    if has_filters or show_all:
         products = products.order_by('-created_at')
     else:
         products = products.order_by('?')[:12]
@@ -115,6 +116,7 @@ def catalog_list(request):
     context = {
         'products': products,
         'has_filters': has_filters,
+        'show_all': show_all,
         'countries': countries,
         'brands': brands,
         'models': models,
