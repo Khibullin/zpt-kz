@@ -4,28 +4,74 @@
 {% block title %}ZPT Market — Купить автозапчасти{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=20260622">
+<style>
+.market-topbar{
+  position:sticky;
+  top:0;
+  z-index:100;
+  background:#fff;
+  border-bottom:1px solid #ececec;
+}
+.market-topbar-inner{
+  max-width:1200px;
+  margin:0 auto;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.market-topbar-actions{
+  display:flex !important;
+  align-items:center;
+  gap:8px;
+  flex-shrink:0;
+}
+.market-auth-btn{
+  display:inline-flex !important;
+  align-items:center;
+  justify-content:center;
+  min-height:38px;
+  padding:0 14px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:600;
+  text-decoration:none;
+  white-space:nowrap;
+  box-sizing:border-box;
+}
+.market-auth-btn-outline{
+  color:#222 !important;
+  background:#fff !important;
+  border:1px solid #d8d8d8 !important;
+}
+.market-auth-btn-primary{
+  color:#fff !important;
+  background:#17a531 !important;
+  border:1px solid #17a531 !important;
+}
+@media (max-width:640px){
+  .market-topbar-inner{
+    flex-wrap:nowrap;
+    align-items:center;
+  }
+  .market-topbar-actions{
+    flex:1;
+    justify-content:flex-end;
+    min-width:0;
+  }
+  .market-auth-btn{
+    min-height:32px;
+    padding:0 10px;
+    font-size:12px;
+  }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<header class="market-topbar">
-  <div class="market-topbar-inner">
-
-    <a class="market-brand" href="/">
-      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
-    </a>
-
-    <div class="market-topbar-actions">
-      <a class="market-auth-btn market-auth-btn-outline" href="{% url 'seller_login' %}">
-        Войти
-      </a>
-      <a class="market-auth-btn market-auth-btn-primary" href="{% url 'seller_register' %}">
-        Регистрация
-      </a>
-    </div>
-
-  </div>
-</header>
+{% include 'catalog/includes/market_header.html' %}
 
 <div class="container">
 
