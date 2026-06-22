@@ -98,3 +98,20 @@
   }
 
 }
+
+@media (max-width:640px){
+  .wrap{
+    padding:16px 12px 36px;
+  }
+
+  .hero h1{
+    font-size:22px;
+  }
+
+  .back-btn{
+    display:block;
+    width:100%;
+    box-sizing:border-box;
+    text-align:center;
+  }
+}

@@ -76,3 +76,20 @@ body{
     text-align:center;
   }
 }
+
+@media (max-width:640px){
+  .header-inner{
+    padding:12px;
+  }
+
+  .nav{
+    flex-direction:column;
+  }
+
+  .nav a{
+    flex:none;
+    width:100%;
+    box-sizing:border-box;
+    text-align:center;
+  }
+}

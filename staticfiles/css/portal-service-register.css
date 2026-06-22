@@ -115,3 +115,25 @@ button{
   }
 
 }
+
+@media(max-width:640px){
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .check-grid{
+    grid-template-columns:1fr;
+  }
+
+  .check-grid label{
+    width:100%;
+    box-sizing:border-box;
+  }
+
+  input,
+  select,
+  button{
+    min-height:44px;
+    height:auto;
+  }
+}

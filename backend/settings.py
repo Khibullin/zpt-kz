@@ -123,6 +123,20 @@ STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
 
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedStaticFilesStorage',
+    },
+}
+
+WHITENOISE_MAX_AGE = 31536000 if not DEBUG else 0
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = (
+    'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'ico', 'woff', 'woff2',
+)
+
 CORS_ALLOW_ALL_ORIGINS = False
 CORS_ALLOW_CREDENTIALS = True
 
@@ -170,3 +184,10 @@ WHATSAPP_TEMPLATE_LANG = os.getenv(
 
 MEDIA_URL = '/products/'
 MEDIA_ROOT = BASE_DIR / 'products'
+
+if not DEBUG:
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_REFERRER_POLICY = 'same-origin'

@@ -36,4 +36,4 @@ input,select,button{min-height:46px}textarea{min-height:110px;padding-top:12px;r
 .checkbox-grid label{font-weight:normal;margin:0;padding:12px;border:1px solid #e0e0e0;border-radius:12px;background:#fafafa;cursor:pointer}
 .checkbox-grid input{width:auto;min-height:auto;margin-right:8px}
 .hidden{display:none}
-@media(max-width:760px){.checkbox-grid{grid-template-columns:1fr}}
+@media(max-width:760px){.checkbox-grid{grid-template-columns:1fr}}@media(max-width:640px){.wrap{padding:16px 12px 36px}.grid,.transport,.trust,.bottom-actions,.cities-grid,.checkbox-grid{grid-template-columns:1fr}.transport{display:flex;flex-direction:column}.transport button{width:100%}.search-scope label.radio-row{width:100%;box-sizing:border-box}.cities-grid label{width:100%;box-sizing:border-box}.seller-row{display:block}.wa-btn{display:block;width:100%;margin-top:10px;text-align:center;box-sizing:border-box}.hero h1{font-size:22px}input,select,button{min-height:44px;height:auto}textarea{min-height:96px}}
