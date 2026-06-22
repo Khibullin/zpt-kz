@@ -17,6 +17,36 @@ from .models import (
 )
 
 
+def attach_sellers_to_products(products):
+    products = list(products)
+    if not products:
+        return products
+
+    profiles = list(SellerProfile.objects.all())
+    by_name = {profile.name.lower(): profile for profile in profiles}
+    by_phone_suffix = {}
+
+    for profile in profiles:
+        digits = ''.join(filter(str.isdigit, profile.phone))
+        if len(digits) >= 10:
+            by_phone_suffix[digits[-10:]] = profile
+
+    for product in products:
+        seller = None
+
+        if product.whatsapp_number:
+            digits = ''.join(filter(str.isdigit, product.whatsapp_number))
+            if len(digits) >= 10:
+                seller = by_phone_suffix.get(digits[-10:])
+
+        if not seller and product.seller_name:
+            seller = by_name.get(product.seller_name.strip().lower())
+
+        product.seller = seller
+
+    return products
+
+
 def catalog_list(request):
     query = request.GET.get('q', '').strip()
     country_id = request.GET.get('country', '').strip()
@@ -73,8 +103,18 @@ def catalog_list(request):
     if category_id:
         products = products.filter(category_id=category_id)
 
+    has_filters = any([query, country_id, brand_id, model_id, category_id])
+
+    if has_filters:
+        products = products.order_by('-created_at')
+    else:
+        products = products.order_by('?')[:12]
+
+    products = attach_sellers_to_products(products)
+
     context = {
         'products': products,
+        'has_filters': has_filters,
         'countries': countries,
         'brands': brands,
         'models': models,
