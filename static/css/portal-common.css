@@ -15,14 +15,61 @@ body{
   box-shadow:0 2px 10px rgba(0,0,0,.04);
 }
 
-.header-inner{
+.header-inner,
+.topbar-inner,
+.market-header-inner,
+.header-wrap,
+.market-topbar-inner{
   max-width:1100px;
   margin:auto;
   padding:14px 16px;
+  display:flex !important;
+  justify-content:space-between !important;
+  align-items:center !important;
+  gap:12px;
+}
+
+.dashboard-actions{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:12px;
+  gap:8px;
+  flex-shrink:0;
+  margin-left:auto;
+}
+
+.dashboard-actions .btn{
+  min-height:36px !important;
+  padding:0 16px !important;
+  font-size:14px !important;
+  font-weight:700 !important;
+  border-radius:10px !important;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  white-space:nowrap;
+  box-sizing:border-box;
+  border:1px solid #ddd;
+  background:#fff;
+  color:#111;
+}
+
+.dashboard-actions .btn.outline{
+  background:#fff;
+  color:#111;
+  border-color:#ddd;
+}
+
+.dashboard-actions .btn.outline:hover{
+  border-color:#c62828;
+  color:#c62828;
+}
+
+.dashboard-actions .btn.small-btn{
+  min-height:36px;
+  padding:0 16px;
+  font-size:14px;
+  border-radius:10px;
 }
 
 .logo{
@@ -62,33 +109,53 @@ body{
 }
 
 @media(max-width:760px){
-  .header-inner{
-    align-items:flex-start;
-    flex-direction:column;
+  .header-inner,
+  .topbar-inner,
+  .market-header-inner,
+  .header-wrap,
+  .market-topbar-inner{
+    flex-direction:row !important;
+    align-items:center !important;
+    justify-content:space-between !important;
   }
 
   .nav{
-    width:100%;
+    width:auto;
+    flex-wrap:wrap;
+    justify-content:flex-end;
   }
 
   .nav a{
-    flex:1;
+    flex:0 0 auto;
     text-align:center;
   }
 }
 
 @media (max-width:640px){
-  .header-inner{
+  .header-inner,
+  .topbar-inner,
+  .market-header-inner,
+  .header-wrap,
+  .market-topbar-inner{
     padding:12px;
+    flex-wrap:nowrap;
+  }
+
+  .dashboard-actions .btn{
+    min-height:32px !important;
+    padding:0 10px !important;
+    font-size:12px !important;
   }
 
   .nav{
-    flex-direction:column;
+    flex-direction:row;
+    flex-wrap:wrap;
+    justify-content:flex-end;
   }
 
   .nav a{
-    flex:none;
-    width:100%;
+    flex:0 0 auto;
+    width:auto;
     box-sizing:border-box;
     text-align:center;
   }
