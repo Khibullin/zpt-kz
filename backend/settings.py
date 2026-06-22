@@ -2,12 +2,26 @@ import os
 from pathlib import Path
 
 import dj_database_url
+from django.core.exceptions import ImproperlyConfigured
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-change-me')
-
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+
+_DEV_SECRET_KEY = 'django-insecure-dev-only-change-me'
+SECRET_KEY = os.getenv('SECRET_KEY', '').strip()
+
+if not SECRET_KEY:
+    if DEBUG:
+        SECRET_KEY = _DEV_SECRET_KEY
+    else:
+        raise ImproperlyConfigured(
+            'SECRET_KEY environment variable must be set when DEBUG is False.'
+        )
+elif SECRET_KEY == _DEV_SECRET_KEY and not DEBUG:
+    raise ImproperlyConfigured(
+        'SECRET_KEY must not use the development default in production.'
+    )
 
 ALLOWED_HOSTS = [
     host.strip()

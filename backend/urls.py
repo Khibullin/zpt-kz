@@ -39,6 +39,30 @@ urlpatterns = [
         )
     ),
 
+    path(
+        'request-parts/register/',
+        TemplateView.as_view(
+            template_name='request-parts/register/index.html'
+        ),
+        name='request_parts_register',
+    ),
+
+    path(
+        'request-parts/guide/',
+        TemplateView.as_view(
+            template_name='request-parts/guide/index.html'
+        ),
+        name='request_parts_guide',
+    ),
+
+    path(
+        'request-parts/faq/',
+        TemplateView.as_view(
+            template_name='request-parts/faq/index.html'
+        ),
+        name='request_parts_faq',
+    ),
+
     # КАТАЛОГ ПРОДАВЦОВ ЗАПЧАСТЕЙ (НОВЫЙ КРАСИВЫЙ URL)
     path(
         'parts-sellers/',
@@ -78,6 +102,22 @@ urlpatterns = [
         TemplateView.as_view(
             template_name='service-request/register/index.html'
         )
+    ),
+
+    path(
+        'service-request/guide/',
+        TemplateView.as_view(
+            template_name='service-request/guide/index.html'
+        ),
+        name='service_request_guide',
+    ),
+
+    path(
+        'service-request/faq/',
+        TemplateView.as_view(
+            template_name='service-request/faq/index.html'
+        ),
+        name='service_request_faq',
     ),
 
     path(
