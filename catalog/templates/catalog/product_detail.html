@@ -360,26 +360,30 @@
 
             <p>📱 {{ seller.phone|format_phone }}</p>
 
-            {% if seller.instagram %}
-              <p>
-                Instagram:
-                <a
-                  href="{{ seller.instagram }}"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {{ seller.instagram }}
-                </a>
-              </p>
-            {% endif %}
+            {% if seller.instagram or seller.website %}
+              <div class="public-seller-socials">
+                {% if seller.instagram %}
+                  <a
+                    href="{{ seller.instagram }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="seller-social-chip seller-social-chip-instagram"
+                  >
+                    Instagram
+                  </a>
+                {% endif %}
 
-            {% if seller.website %}
-              <p>
-                Сайт:
-                <a href="{{ seller.website }}" target="_blank">
-                  {{ seller.website }}
-                </a>
-              </p>
+                {% if seller.website %}
+                  <a
+                    href="{{ seller.website }}"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="seller-social-chip seller-social-chip-website"
+                  >
+                    Сайт
+                  </a>
+                {% endif %}
+              </div>
             {% endif %}
 
             {% if seller.description %}
