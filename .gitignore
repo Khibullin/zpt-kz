@@ -14,6 +14,13 @@ db.sqlite3
 db.sqlite3-journal
 products/
 media/
+staticfiles/
+
+# Build artifacts
+*.gz
+
+# Data dumps
+market_backup.json
 
 # Virtual environments
 .venv/
