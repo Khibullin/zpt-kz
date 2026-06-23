@@ -101,13 +101,16 @@ a{
   font-size:15px;
 }
 
-.products{
+/* Legacy product grid: seller profile & product detail sections only.
+   Catalog homepage (.products / .product-v2) is styled in market-catalog.css. */
+
+.detail-section-card .products{
   display:grid;
   grid-template-columns:repeat(auto-fill, minmax(240px, 1fr));
   gap:18px;
 }
 
-.product{
+.detail-section-card .product{
   background:#fff;
   border:1px solid #ededed;
   border-radius:18px;
@@ -120,7 +123,7 @@ a{
   box-sizing:border-box;
 }
 
-.product > a{
+.detail-section-card .product > a{
   display:block;
   text-decoration:none;
   color:#111;
@@ -129,7 +132,7 @@ a{
   overflow:hidden;
 }
 
-.product img{
+.detail-section-card .product img{
   width:100%;
   height:100%;
   max-width:100%;
@@ -143,7 +146,7 @@ a{
   border-bottom:1px solid #f1f1f1;
 }
 
-.product-seller{
+.detail-section-card .product-seller{
   color:#666;
   font-size:14px;
   line-height:1.35;
@@ -151,7 +154,7 @@ a{
   margin-top:8px;
 }
 
-.product-price{
+.detail-section-card .product-price{
   color:#ef3d2f;
   font-size:20px;
   font-weight:800;
@@ -308,7 +311,6 @@ a{
   margin-top:10px;
 }
 
-.form-actions,
 .form-action-row{
   display:flex;
   gap:10px;
@@ -455,105 +457,7 @@ a{
   color:#ef3d2f;
 }
 
-@media(max-width:900px){
-  .products{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .seller-form .checkbox-group{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media(max-width:640px){
-  .container{
-    padding:10px;
-  }
-
-  .topbar-inner:not(.market-topbar-inner){
-    flex-direction:column;
-    align-items:flex-start;
-    gap:12px;
-  }
-
-  .brand img{
-    height:30px;
-  }
-
-  .dashboard-subtitle{
-    font-size:14px;
-  }
-
-  .seller-form .checkbox-group{
-    grid-template-columns:1fr;
-  }
-
-  .current-image-box img{
-    width:100%;
-    height:200px;
-  }
-
-  .seller-profile-grid{
-    grid-template-columns:1fr;
-  }
-
-  .seller-profile-title-main{
-    font-size:26px;
-  }
-
-  .seller-profile-actions{
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .seller-profile-delete{
-    margin-left:0;
-    text-align:center;
-  }
-
-  .products{
-    grid-template-columns:1fr 1fr;
-    gap:10px;
-  }
-
-  .product{
-    border-radius:14px;
-  }
-
-  .product img{
-    height:95px;
-    padding:6px;
-  }
-
-  .product-price{
-    font-size:18px;
-  }
-
-  .product-seller{
-    font-size:12px;
-  }
-
-  .seller-page-card{
-    margin:16px auto;
-    padding:16px;
-    border-radius:14px;
-  }
-
-  .seller-page-card h1,
-  .seller-page-card h2{
-    font-size:20px;
-  }
-
-  .form-action-row{
-    flex-direction:column;
-  }
-
-  .form-action-row .btn{
-    width:100%;
-  }
-}
-
-/* Seller dashboard */
+/* Seller dashboard (cabinet) */
 
 .market-header{
   background:#fff;
@@ -664,7 +568,7 @@ a{
   margin-bottom:6px;
 }
 
-.product-title{
+.product-card .product-title{
   margin:0 0 10px;
   font-size:18px;
   line-height:1.25;
@@ -758,7 +662,93 @@ a{
   font-size:15px;
 }
 
-@media(max-width:640px){
+@media (max-width:640px){
+  .container{
+    padding:10px;
+  }
+
+  .topbar-inner:not(.market-topbar-inner){
+    flex-direction:column;
+    align-items:flex-start;
+    gap:12px;
+  }
+
+  .brand img{
+    height:30px;
+  }
+
+  .dashboard-subtitle{
+    font-size:14px;
+  }
+
+  .seller-form .checkbox-group{
+    grid-template-columns:1fr;
+  }
+
+  .current-image-box img{
+    width:100%;
+    height:200px;
+  }
+
+  .seller-profile-grid{
+    grid-template-columns:1fr;
+  }
+
+  .seller-profile-title-main{
+    font-size:26px;
+  }
+
+  .seller-profile-actions{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .seller-profile-delete{
+    margin-left:0;
+    text-align:center;
+  }
+
+  .detail-section-card .products{
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+
+  .detail-section-card .product{
+    border-radius:14px;
+  }
+
+  .detail-section-card .product img{
+    height:95px;
+    padding:6px;
+  }
+
+  .detail-section-card .product-price{
+    font-size:18px;
+  }
+
+  .detail-section-card .product-seller{
+    font-size:12px;
+  }
+
+  .seller-page-card{
+    margin:16px auto;
+    padding:16px;
+    border-radius:14px;
+  }
+
+  .seller-page-card h1,
+  .seller-page-card h2{
+    font-size:20px;
+  }
+
+  .form-action-row{
+    flex-direction:column;
+  }
+
+  .form-action-row .btn{
+    width:100%;
+  }
+
   .market-header-inner{
     flex-direction:column;
     align-items:flex-start;
@@ -792,13 +782,13 @@ a{
   }
 
   .products-container{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr;
     gap:10px;
   }
 
   .product-image-link,
   .product-image{
-    height:120px;
+    height:160px;
   }
 
   .product-card-body{
@@ -810,7 +800,7 @@ a{
     margin-bottom:4px;
   }
 
-  .product-title{
+  .product-card .product-title{
     font-size:14px;
     margin-bottom:6px;
   }
@@ -854,20 +844,5 @@ a{
 
   .empty-products p{
     font-size:14px;
-  }
-}
-
-@media(max-width:400px){
-  .products-container{
-    grid-template-columns:1fr;
-  }
-
-  .product-image-link,
-  .product-image{
-    height:160px;
-  }
-
-  .product-card .product-card-actions{
-    grid-template-columns:minmax(0, 1fr) max-content;
   }
 }
