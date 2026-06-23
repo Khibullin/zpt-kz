@@ -498,7 +498,7 @@ body{
   }
 
   .filter-grid{
-    grid-template-columns:1fr;
+    grid-template-columns:1fr 1fr;
   }
 
   .products{
@@ -588,6 +588,11 @@ body{
 
   .filter-title{
     font-size:16px;
+  }
+
+  .filter-grid{
+    grid-template-columns:1fr 1fr;
+    gap:8px;
   }
 
   .filter-grid select{
