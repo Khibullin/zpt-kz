@@ -229,7 +229,7 @@ body{
 .btn-green{
   display:block;
   width:100%;
-  background:#18b63f;
+  background:#25D366;
   color:#fff;
   text-align:center;
   text-decoration:none;
@@ -237,7 +237,13 @@ body{
   border-radius:12px;
   font-weight:900;
   margin-top:14px;
-  box-shadow:0 6px 16px rgba(24,182,63,.22);
+  box-shadow:0 6px 16px rgba(37,211,102,.22);
+  border:1px solid #25D366;
+}
+
+.btn-green:hover{
+  background:#20bd5a;
+  border-color:#20bd5a;
 }
 
 .product-request-box{

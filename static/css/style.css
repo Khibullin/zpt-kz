@@ -60,15 +60,39 @@ a{
 }
 
 .btn.red,
-.btn.danger,
-.btn-green{
+.btn.danger{
   background:#ef3d2f;
   color:#fff;
   border-color:#ef3d2f;
 }
 
 .btn.red:hover,
-.btn.danger:hover,
+.btn.danger:hover{
+  background:#d93628;
+  border-color:#d93628;
+}
+
+.product-wa-btn.btn-green,
+a.btn-green.product-wa-btn,
+.product.product-v2 .product-wa-btn{
+  background:#25D366;
+  border-color:#25D366;
+  color:#fff;
+}
+
+.product-wa-btn.btn-green:hover,
+a.btn-green.product-wa-btn:hover,
+.product.product-v2 .product-wa-btn:hover{
+  background:#20bd5a;
+  border-color:#20bd5a;
+}
+
+.btn-green{
+  background:#ef3d2f;
+  color:#fff;
+  border-color:#ef3d2f;
+}
+
 .btn-green:hover{
   background:#d93628;
   border-color:#d93628;
@@ -1166,5 +1190,40 @@ a{
 
   .detail-box-whatsapp{
     display:none !important;
+  }
+
+  /* Header, search, WhatsApp polish */
+  .market-brand img,
+  .logo img{
+    height:24px !important;
+    width:auto !important;
+  }
+
+  .market-topbar-inner,
+  .header-inner.market-topbar-inner{
+    padding:8px 10px !important;
+  }
+
+  .search-row{
+    gap:8px !important;
+  }
+
+  .search-row input,
+  .search-btn{
+    height:42px !important;
+    min-height:42px !important;
+  }
+
+  .product.product-v2 .product-wa-btn,
+  .product.product-v2 .btn-green.product-wa-btn{
+    background:#25D366 !important;
+    border-color:#25D366 !important;
+    color:#fff !important;
+  }
+
+  .product.product-v2 .product-wa-btn:hover,
+  .product.product-v2 .btn-green.product-wa-btn:hover{
+    background:#20bd5a !important;
+    border-color:#20bd5a !important;
   }
 }

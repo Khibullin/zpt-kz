@@ -20,6 +20,8 @@
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://zpt.kz/">
 
+  <link rel="stylesheet" href="/static/css/portal-common.css">
+
 <style>
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -27,8 +29,8 @@ body{margin:0;font-family:Arial,sans-serif;color:#111827;background:#f8fafc;line
 a{-webkit-tap-highlight-color:transparent}
 .container{width:100%;max-width:1160px;margin:0 auto;padding:0 20px}
 header{background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:0;z-index:10}
-.header-wrap{display:flex;align-items:center;justify-content:space-between;min-height:76px;gap:18px}
-.logo{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:#dc2626;font-size:30px;line-height:1;font-weight:900;letter-spacing:.2px;white-space:nowrap}
+.header-wrap{display:flex;align-items:center;justify-content:space-between;min-height:56px;gap:18px}
+.logo{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;color:#dc2626;font-size:24px;line-height:1;font-weight:900;letter-spacing:.2px;white-space:nowrap}
 .header-actions{display:flex;gap:12px;align-items:center}
 .header-btn{display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:13px 20px;min-height:48px;border-radius:14px;font-weight:800;font-size:15px;transition:.2s ease;white-space:nowrap}
 .header-btn-primary{background:#dc2626;color:#fff}.header-btn-primary:hover{background:#b91c1c}
@@ -49,18 +51,21 @@ footer{padding:32px 0 48px;color:#6b7280;text-align:center;font-size:14px}
 .model-tabs{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}.model-tab{border:1px solid #e5e7eb;border-radius:16px;min-height:56px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;background:#fff;color:#6b7280;cursor:pointer}.model-tab.active{border-color:#ef4444;color:#dc2626;background:#fff7f7}
 .model-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.model-card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:14px 16px;text-decoration:none;transition:.18s ease}.model-card:hover{transform:translateY(-2px);border-color:#dc2626;box-shadow:0 6px 18px rgba(220,38,38,.08)}.model-brand{color:#111827;font-size:15px;font-weight:900;margin-bottom:2px;line-height:1.2}.model-name{color:#6b7280;font-size:13px;font-weight:700;line-height:1.2}.model-footer{margin-top:16px;border-top:1px solid #e5e7eb;padding-top:14px}.model-footer p{margin:0;color:#374151;font-size:15px;line-height:1.5}
 @media(max-width:900px){h1{font-size:44px}h2{font-size:32px}.hero-notes{grid-template-columns:1fr}.model-grid{grid-template-columns:repeat(3,1fr)}}
-@media(max-width:640px){.container{padding:0 16px}.header-wrap{flex-direction:row;align-items:center;justify-content:space-between;padding:12px 0;gap:10px}.logo{text-align:left;font-size:24px;flex-shrink:0}.header-actions{width:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:1;min-width:0}.header-btn{width:auto;max-width:100%;font-size:12px;padding:8px 10px;min-height:36px;border-radius:10px}.header-btn-outline{order:-1}.hero{padding:34px 0 38px}.hero-box{max-width:none}.pretitle{font-size:14px;line-height:1.35;margin-bottom:14px}h1{font-size:38px;letter-spacing:-.5px;margin-bottom:14px}.hero p{font-size:19px}.btn{width:100%;font-size:17px}.hero-actions{width:100%;gap:10px}.hero-notes{font-size:16px;gap:11px}section{padding:30px 0}h2{font-size:30px;margin-bottom:14px}.seo-text{padding:22px;font-size:16px}.model-box{padding:20px 16px;border-radius:20px}.model-tabs{grid-template-columns:1fr;gap:8px}.model-grid{grid-template-columns:1fr 1fr;gap:8px}.model-card{padding:12px}.model-brand{font-size:14px}.model-name{font-size:12px}}
+@media(max-width:640px){.container{padding:0 16px}.header-wrap{flex-direction:row;align-items:center;justify-content:space-between;padding:8px 0;gap:10px;min-height:auto}.logo{text-align:left;font-size:20px;flex-shrink:0}.header-actions{width:auto;display:flex;flex-direction:column;gap:6px;align-items:flex-end;flex:1;min-width:0}.header-btn{width:auto;max-width:100%;font-size:12px;padding:8px 10px;min-height:36px;border-radius:10px}.header-btn-outline{order:-1}.hero{padding:34px 0 38px}.hero-box{max-width:none}.pretitle{font-size:14px;line-height:1.35;margin-bottom:14px}h1{font-size:38px;letter-spacing:-.5px;margin-bottom:14px}.hero p{font-size:19px}.btn{width:100%;font-size:17px}.hero-actions{width:100%;gap:10px}.hero-notes{font-size:16px;gap:11px}section{padding:30px 0}h2{font-size:30px;margin-bottom:14px}.seo-text{padding:22px;font-size:16px}.model-box{padding:20px 16px;border-radius:20px}.model-tabs{grid-template-columns:1fr;gap:8px}.model-grid{grid-template-columns:1fr 1fr;gap:8px}.model-card{padding:12px}.model-brand{font-size:14px}.model-name{font-size:12px}}
 @media(max-width:390px){h1{font-size:34px}h2{font-size:27px}.logo{font-size:29px}.hero p{font-size:18px}}
 </style>
 </head>
 <body>
-<header>
-  <div class="container header-wrap">
+<header class="header">
+  <div class="header-inner header-wrap container">
     <a href="/" class="logo">ZPT.kz</a>
-    <div class="header-actions">
-      <a href="/seller/login/" class="header-btn header-btn-outline">Войти</a>
-      <a href="/seller/register/" class="header-btn header-btn-outline">Регистрация</a>
-      <a href="/request-parts/" class="header-btn header-btn-primary">Запчасти на все марки</a>
+    <div class="dashboard-actions">
+      <a href="/seller/login/" class="seller-cabinet-btn">
+        <svg class="seller-cabinet-icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
+          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+        </svg>
+        Кабинет продавца
+      </a>
     </div>
   </div>
 </header>
