@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=20260622">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=20260623">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=20260624">
 <style>
 .market-topbar{
   position:sticky;
@@ -244,7 +244,7 @@
 <div class="product-meta-row muted product-meta-details">
   <span>{{ product.get_condition_display }}</span>
   {% if product.article %}
-    <span class="meta-sep">·</span>
+    <span class="meta-sep">•</span>
     <span>Арт. {{ product.article }}</span>
   {% endif %}
 </div>
