@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static phone_extras %}
 
 {% block title %}
 {{ product.title }}
@@ -272,9 +272,9 @@
             <div class="detail-value">{{ product.seller_name }}</div>
           </div>
 
-          <div class="detail-box">
+          <div class="detail-box detail-box-whatsapp">
             <div class="detail-label">WhatsApp</div>
-            <div class="detail-value">{{ product.whatsapp_number }}</div>
+            <div class="detail-value">{{ product.whatsapp_number|format_phone }}</div>
           </div>
         </div>
 
@@ -358,7 +358,7 @@
               <p>📍 {{ seller.city }}</p>
             {% endif %}
 
-            <p>📱 {{ seller.phone }}</p>
+            <p>📱 {{ seller.phone|format_phone }}</p>
 
             {% if seller.instagram %}
               <p>

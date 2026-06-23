@@ -924,4 +924,52 @@ a{
   .product.product-v2 .product-meta-details .meta-sep{
     padding:0 4px !important;
   }
+
+  /* Product detail page: compact specs + hide duplicate WhatsApp row */
+  .product-info-card .detail-grid,
+  .detail-section-card .detail-grid{
+    display:block !important;
+    grid-template-columns:none !important;
+    gap:0 !important;
+    margin-top:12px;
+    background:#fff;
+    border:1px solid #eee;
+    border-radius:12px;
+    overflow:hidden;
+  }
+
+  .product-info-card .detail-grid .detail-box,
+  .detail-section-card .detail-grid .detail-box{
+    display:flex !important;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    background:transparent !important;
+    border-radius:0 !important;
+    padding:8px !important;
+    border-bottom:1px solid #f0f0f0;
+  }
+
+  .product-info-card .detail-grid .detail-box:last-child,
+  .detail-section-card .detail-grid .detail-box:last-child{
+    border-bottom:none;
+  }
+
+  .product-info-card .detail-label,
+  .detail-section-card .detail-label{
+    font-size:14px;
+    margin-bottom:0;
+    color:#666;
+  }
+
+  .product-info-card .detail-value,
+  .detail-section-card .detail-value{
+    font-size:14px;
+    font-weight:600;
+    text-align:right;
+  }
+
+  .detail-box-whatsapp{
+    display:none !important;
+  }
 }
