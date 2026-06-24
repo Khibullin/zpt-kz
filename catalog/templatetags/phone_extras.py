@@ -38,3 +38,8 @@ def format_phone(value):
         )
 
     return value or ''
+
+
+@register.filter
+def comma_to_space(value):
+    return str(value).replace(',', ' ')
