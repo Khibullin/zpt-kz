@@ -246,11 +246,30 @@ def seller_logout(request):
 @login_required
 def seller_dashboard(request):
     seller = get_object_or_404(SellerProfile, user=request.user)
-    products = Product.objects.filter(seller_name=seller.name).order_by('-created_at')
+    products = Product.objects.filter(seller_name=seller.name)
+
+    query = request.GET.get('q_dashboard', '').strip()
+    status_filter = request.GET.get('status_filter', '').strip()
+
+    if query:
+        products = products.filter(
+            Q(title__icontains=query) |
+            Q(article__icontains=query)
+        )
+
+    if status_filter == 'active':
+        products = products.filter(status='active')
+    elif status_filter == 'hidden':
+        products = products.filter(status='hidden')
+
+    products = products.order_by('-created_at')
 
     return render(request, 'catalog/seller_dashboard.html', {
         'seller': seller,
         'products': products,
+        'query': query,
+        'status_filter': status_filter,
+        'has_any_products': Product.objects.filter(seller_name=seller.name).exists(),
     })
 
 

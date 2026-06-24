@@ -38,6 +38,23 @@
       </div>
     </div>
 
+    <div class="seller-dashboard-search">
+      <form class="seller-dashboard-search-form" method="get" action="">
+        <input
+          type="text"
+          name="q_dashboard"
+          value="{{ query }}"
+          placeholder="Поиск по артикулу или названию..."
+        >
+        <select name="status_filter">
+          <option value="" {% if not status_filter %}selected{% endif %}>Все</option>
+          <option value="active" {% if status_filter == 'active' %}selected{% endif %}>В наличии</option>
+          <option value="hidden" {% if status_filter == 'hidden' %}selected{% endif %}>Под заказ</option>
+        </select>
+        <button type="submit" class="seller-dashboard-search-btn">Найти</button>
+      </form>
+    </div>
+
     {% if products %}
       <div class="products-container">
         {% for product in products %}
@@ -73,7 +90,7 @@
                 {% if product.city %} · {{ product.city }}{% endif %}
               </div>
 
-              <div class="product-card-actions">
+              <div class="product-card-actions dashboard-card-actions">
                 <a href="{% url 'edit_product' product.pk %}" class="btn-edit">
                   Редактировать
                 </a>
@@ -87,11 +104,17 @@
       </div>
     {% else %}
       <div class="empty-products">
-        <h2>Пока товаров нет</h2>
-        <p>Добавьте первый товар в свой магазин.</p>
-        <a href="{% url 'add_product' %}" class="btn-add">
-          + Добавить товар
-        </a>
+        {% if has_any_products %}
+          <h2>Ничего не найдено</h2>
+          <p>Попробуйте изменить запрос или сбросить фильтры.</p>
+          <a href="{% url 'seller_dashboard' %}" class="btn-add">Сбросить поиск</a>
+        {% else %}
+          <h2>Пока товаров нет</h2>
+          <p>Добавьте первый товар в свой магазин.</p>
+          <a href="{% url 'add_product' %}" class="btn-add">
+            + Добавить товар
+          </a>
+        {% endif %}
       </div>
     {% endif %}
   </div>
