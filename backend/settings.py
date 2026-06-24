@@ -33,7 +33,7 @@ ALLOWED_HOSTS = [
     host.strip()
     for host in os.getenv(
         'ALLOWED_HOSTS',
-        '127.0.0.1,localhost,.onrender.com,zpt.kz,www.zpt.kz'
+        'zpt.kz,www.zpt.kz,.onrender.com,127.0.0.1,localhost',
     ).split(',')
     if host.strip()
 ]
@@ -148,13 +148,16 @@ CORS_ALLOWED_ORIGINS = [
 
 SESSION_COOKIE_SAMESITE = 'None'
 SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
 
 CSRF_COOKIE_SAMESITE = 'None'
 CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_HTTPONLY = True
 
 CSRF_TRUSTED_ORIGINS = [
     'https://zpt.kz',
     'https://www.zpt.kz',
+    'https://zpt-kz-backend.onrender.com',
     'https://zpt-kz.onrender.com',
 ]
 
