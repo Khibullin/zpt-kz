@@ -5,8 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=force_refresh_12">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=force_refresh_13">
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=force_refresh_13">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=chips_refresh_77">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=chips_refresh_77">
 <style>
 .market-topbar{
   position:sticky;
@@ -211,14 +211,18 @@
 
     {% if product.seller %}
       {% if product.seller.instagram or product.seller.website %}
-        <span class="card-seller-socials">
+        <span
+          class="card-seller-socials"
+          style="display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;"
+        >
           {% if product.seller.instagram %}
             <a
               href="{{ product.seller.instagram }}"
               target="_blank"
               rel="noopener noreferrer"
-              class="seller-mini-chip insta"
+              class="seller-mini-chip insta-chip"
               title="Instagram продавца"
+              style="text-decoration: none !important;"
             >Inst</a>
           {% endif %}
           {% if product.seller.website %}
@@ -226,8 +230,9 @@
               href="{{ product.seller.website }}"
               target="_blank"
               rel="noopener noreferrer"
-              class="seller-mini-chip site"
+              class="seller-mini-chip site-chip"
               title="Сайт продавца"
+              style="text-decoration: none !important;"
             >Сайт</a>
           {% endif %}
         </span>
