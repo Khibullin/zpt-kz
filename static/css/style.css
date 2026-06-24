@@ -40,6 +40,25 @@ a{
   display:block;
 }
 
+.seller-auth-header .topbar-inner{
+  padding:14px 16px;
+  flex-direction:row;
+  align-items:center;
+  gap:12px;
+}
+
+.seller-auth-header .brand{
+  margin:0;
+  padding:0;
+}
+
+.seller-auth-header .brand img{
+  height:32px;
+  width:auto;
+  margin:0;
+  padding:0;
+}
+
 .section{
   padding:18px 0 32px;
 }
@@ -916,8 +935,21 @@ a.btn-green.product-wa-btn:hover,
     gap:12px;
   }
 
+  .seller-auth-header .topbar-inner{
+    flex-direction:row !important;
+    align-items:center !important;
+    gap:12px !important;
+    padding:8px 10px !important;
+  }
+
   .brand img{
     height:30px;
+  }
+
+  .seller-auth-header .brand img{
+    height:24px !important;
+    width:auto !important;
+    max-width:none !important;
   }
 
   .dashboard-subtitle{
