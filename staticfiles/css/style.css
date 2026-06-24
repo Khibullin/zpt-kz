@@ -580,38 +580,58 @@ a.btn-green.product-wa-btn:hover,
 }
 
 .public-seller-socials,
-.seller-profile-socials{
+.seller-profile-socials,
+.seller-trust-socials{
   display:flex;
   flex-wrap:wrap;
-  gap:8px;
+  gap:10px;
+}
+
+.seller-catalog-link{
+  display:inline-block;
+  margin-bottom:12px;
+  color:#374151;
+  font-size:14px;
+  font-weight:700;
+  text-decoration:none;
+  line-height:1.4;
+}
+
+.seller-catalog-link:hover{
+  color:#ef3d2f;
+}
+
+.seller-trust-actions{
+  margin-top:10px;
 }
 
 .seller-social-chip{
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:36px;
-  padding:0 14px;
-  border-radius:10px;
-  font-size:14px;
-  font-weight:700;
+  min-height:28px;
+  height:30px;
+  padding:4px 12px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:600;
   text-decoration:none;
-  border:1px solid #e5e7eb;
+  border:none;
   background:#fff;
   color:#222;
-  transition:border-color .18s ease,background .18s ease,color .18s ease;
+  transition:background .18s ease,color .18s ease,transform .18s ease;
+  box-sizing:border-box;
+  white-space:nowrap;
 }
 
 .seller-social-chip-instagram{
-  border-color:#fbcfe8;
   background:#fdf2f8;
-  color:#be185d;
+  color:#db2777;
 }
 
 .seller-social-chip-website{
-  border-color:#bfdbfe;
-  background:#eff6ff;
-  color:#1d4ed8;
+  background:#f0f9ff;
+  color:#0284c7;
 }
 
 .seller-social-chip:hover{
@@ -1360,5 +1380,18 @@ a.btn-green.product-wa-btn:hover,
   .product.product-v2 .btn-green.product-wa-btn:hover{
     background:#20bd5a !important;
     border-color:#20bd5a !important;
+  }
+
+  .seller-auth-header .brand img,
+  .seller-cabinet-header .market-logo img{
+    height:24px !important;
+    width:auto !important;
+    max-width:none !important;
+  }
+
+  .seller-cabinet-header .market-header-inner,
+  .seller-auth-header .topbar-inner{
+    padding-top:8px !important;
+    padding-bottom:8px !important;
   }
 }

@@ -7,6 +7,14 @@
 
     <title>{% block title %}ZPT Market{% endblock %}</title>
 
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="ZPT.KZ — Автомобильная платформа Казахстана">
+    <meta property="og:description" content="Поиск автозапчастей, маркетплейс товаров от проверенных продавцов и подбор СТО/детейлинга.">
+    <meta property="og:url" content="https://zpt.kz">
+    <meta property="og:image" content="https://zpt.kz{% static 'images/logo.png' %}">
+    <meta property="og:image:width" content="300">
+    <meta property="og:image:height" content="300">
+
     <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=3">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=3">
     <link rel="apple-touch-icon" href="{% static 'images/apple-touch-icon.png' %}?v=3">
@@ -17,7 +25,8 @@
 <link
   href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
   rel="stylesheet"
->   <link rel="stylesheet" href="{% static 'css/style.css' %}?v=force_refresh_11">
+>
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=force_refresh_12">
     {% block extra_css %}{% endblock %}
 </head>
 <body>

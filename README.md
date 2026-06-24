@@ -42,7 +42,8 @@ backend/                 — settings, urls, wsgi
 - **CRM-функции кабинета:**
   - внутренний поиск по артикулу и названию (`q_dashboard`);
   - фильтр по статусу склада: «В наличии» (`active`) / «Под заказ» (`hidden`);
-  - мобильная сетка карточек **2×2** (`.products-container`).
+  - мобильная сетка карточек **2×2** (`.products-container`);
+  - вертикальные кнопки «Редактировать» / «Удалить» в узких карточках.
 - **CSS:** `market-catalog.css` (главная), `style.css` (кабинет, формы), cache-bust через query-параметры `?v=...`.
 
 ### 3. Service Requests — гео-подбор СТО и детейлинга
@@ -110,8 +111,19 @@ SECURE_HSTS_SECONDS = 31536000  # при DEBUG=False
 Браузеры агрессивно кэшируют CSS (WhiteNoise `max-age=31536000`). В шаблонах используются версионные query-параметры:
 
 - `style.css?v=force_refresh_12` — главная / base
-- `style.css?v=dashboard_refresh_11` — кабинет продавца
+- `style.css?v=dashboard_refresh_12` — кабинет продавца
 - `market-catalog.css?v=force_refresh_12` — витрина каталога
+
+### Open Graph (WhatsApp / соцсети)
+
+В `templates/base.html` заданы OG-теги для корректного превью ссылок **zpt.kz** при пересылке в WhatsApp и мессенджерах:
+
+- `og:title`, `og:description`, `og:url`, `og:image` (логотип платформы)
+
+### UI продавца на карточке товара
+
+- Ссылка «Все товары продавца →» отделена от соцсетей (`margin-bottom: 12px`).
+- Instagram и Сайт — компактные чипы `.seller-social-chip` (пастельные цвета, без красных ссылок в одну строку).
 
 ### XSS
 

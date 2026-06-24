@@ -213,27 +213,35 @@
             {% endif %}
 
             {% if seller %}
-              <div class="seller-trust-links">
-                <a href="{% url 'public_seller_profile' seller.id %}">Все товары продавца</a>
+              <div class="seller-trust-actions">
+                <a href="{% url 'public_seller_profile' seller.id %}" class="seller-catalog-link">
+                  Все товары продавца →
+                </a>
 
-                {% if seller.instagram %}
-                  <a
-                    href="{{ seller.instagram }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Instagram
-                  </a>
-                {% endif %}
+                {% if seller.instagram or seller.website %}
+                  <div class="seller-trust-socials">
+                    {% if seller.instagram %}
+                      <a
+                        href="{{ seller.instagram }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="seller-social-chip seller-social-chip-instagram"
+                      >
+                        Instagram
+                      </a>
+                    {% endif %}
 
-                {% if seller.website %}
-                  <a
-                    href="{{ seller.website }}"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Сайт
-                  </a>
+                    {% if seller.website %}
+                      <a
+                        href="{{ seller.website }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="seller-social-chip seller-social-chip-website"
+                      >
+                        Сайт
+                      </a>
+                    {% endif %}
+                  </div>
                 {% endif %}
               </div>
             {% endif %}
@@ -360,8 +368,12 @@
 
             <p>📱 {{ seller.phone|format_phone }}</p>
 
+            <a href="{% url 'public_seller_profile' seller.id %}" class="seller-catalog-link">
+              Все товары продавца →
+            </a>
+
             {% if seller.instagram or seller.website %}
-              <div class="public-seller-socials">
+              <div class="public-seller-socials seller-trust-socials">
                 {% if seller.instagram %}
                   <a
                     href="{{ seller.instagram }}"
