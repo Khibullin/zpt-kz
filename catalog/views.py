@@ -221,20 +221,29 @@ def seller_register(request):
 
 def seller_login(request):
     error_message = None
+    username = ''
+    remember_me = False
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
         password = request.POST.get('password', '').strip()
+        remember_me = bool(request.POST.get('remember_me'))
 
         user = authenticate(request, username=username, password=password)
         if user:
             login(request, user)
+            if remember_me:
+                request.session.set_expiry(1209600)
+            else:
+                request.session.set_expiry(0)
             return redirect('seller_dashboard')
         else:
             error_message = 'Неверный логин или пароль.'
 
     return render(request, 'catalog/seller_login.html', {
         'error_message': error_message,
+        'username': username,
+        'remember_me': remember_me,
     })
 
 

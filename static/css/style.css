@@ -262,6 +262,44 @@ a.btn-green.product-wa-btn:hover,
   margin-right:8px;
 }
 
+.seller-form-show-password{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:8px;
+  font-size:14px;
+  font-weight:500;
+  color:#555;
+  cursor:pointer;
+}
+
+.seller-form-show-password input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  min-height:16px;
+  margin:0;
+  accent-color:#ef3d2f;
+}
+
+.seller-form-remember{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin:0 0 14px;
+  font-size:14px;
+  font-weight:500;
+  color:#555;
+  cursor:pointer;
+}
+
+.seller-form-remember input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  min-height:16px;
+  margin:0;
+  accent-color:#ef3d2f;
+}
+
 .seller-form button,
 .seller-form .btn{
   margin-top:6px;

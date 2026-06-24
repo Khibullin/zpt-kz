@@ -29,7 +29,7 @@
         <div class="form-error">{{ error_message }}</div>
       {% endif %}
 
-      <form method="post" class="seller-form" autocomplete="off">
+      <form method="post" class="seller-form" action="" autocomplete="on">
         {% csrf_token %}
 
         <p>
@@ -42,12 +42,13 @@
             id="username"
             name="username"
             required
-            autocomplete="off"
+            autocomplete="username"
+            inputmode="tel"
             autocorrect="off"
             autocapitalize="off"
             spellcheck="false"
             placeholder="77713607040"
-            value=""
+            value="{{ username|default:'' }}"
           >
         </p>
 
@@ -61,19 +62,26 @@
             id="password"
             name="password"
             required
-            autocomplete="new-password"
-            value=""
+            autocomplete="current-password"
           >
 
-          <label style="display:inline-flex;align-items:center;gap:6px;margin-top:6px;font-size:14px;font-weight:400;color:#555;">
+          <label class="seller-form-show-password">
             <input
               type="checkbox"
               onclick="togglePasswordLogin()"
-              style="width:auto;margin:0;"
             >
             Показать пароль
           </label>
         </p>
+
+        <label class="seller-form-remember">
+          <input
+            type="checkbox"
+            name="remember_me"
+            {% if remember_me %}checked{% endif %}
+          >
+          Запомнить меня
+        </label>
 
         <button type="submit" class="btn red">Войти</button>
       </form>
