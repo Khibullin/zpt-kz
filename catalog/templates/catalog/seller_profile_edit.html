@@ -50,6 +50,28 @@
           {{ form.city }}
         </p>
 
+        <div class="seller-form-section">
+          <h3>Контакты и условия для покупателей</h3>
+          <p class="dashboard-subtitle seller-form-section-hint">
+            Эти данные отображаются в публичном профиле магазина на ZPT.KZ
+          </p>
+
+          <p>
+            <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+            {{ form.address }}
+          </p>
+
+          <p>
+            <label for="{{ form.work_hours.id_for_label }}">{{ form.work_hours.label }}</label>
+            {{ form.work_hours }}
+          </p>
+
+          <p>
+            <label for="{{ form.delivery_info.id_for_label }}">{{ form.delivery_info.label }}</label>
+            {{ form.delivery_info }}
+          </p>
+        </div>
+
         <p>
           <label for="{{ form.instagram.id_for_label }}">
             {{ form.instagram.label }}

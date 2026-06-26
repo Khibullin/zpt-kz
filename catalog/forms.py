@@ -13,6 +13,9 @@ class SellerRegisterForm(forms.ModelForm):
             'name',
             'phone',
             'city',
+            'address',
+            'work_hours',
+            'delivery_info',
             'instagram',
             'website',
             'description',
@@ -23,6 +26,9 @@ class SellerRegisterForm(forms.ModelForm):
             'name': 'Название маркета',
             'phone': 'Телефон / WhatsApp',
             'city': 'Город',
+            'address': 'Адрес склада',
+            'work_hours': 'График работы',
+            'delivery_info': 'Доставка и оплата',
             'instagram': 'Instagram',
             'website': 'Сайт',
             'description': 'Описание маркета',
@@ -40,6 +46,19 @@ class SellerRegisterForm(forms.ModelForm):
 
             'city': forms.TextInput(attrs={
                 'placeholder': 'Например: Алматы'
+            }),
+
+            'address': forms.TextInput(attrs={
+                'placeholder': 'г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5'
+            }),
+
+            'work_hours': forms.TextInput(attrs={
+                'placeholder': 'Пн–Сб: 09:00 – 19:00, Вс: выходной'
+            }),
+
+            'delivery_info': forms.Textarea(attrs={
+                'placeholder': 'Самовывоз, курьер, отправка в регионы',
+                'rows': 3
             }),
 
             'instagram': forms.TextInput(attrs={

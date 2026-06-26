@@ -29,7 +29,7 @@
         <div class="form-error">{{ error_message }}</div>
       {% endif %}
 
-      <form method="post" class="seller-form">
+      <form method="post" class="seller-form" enctype="multipart/form-data">
         {% csrf_token %}
 
         <p>
@@ -68,6 +68,28 @@
           <label for="{{ form.city.id_for_label }}">{{ form.city.label }}</label>
           {{ form.city }}
         </p>
+
+        <div class="seller-form-section">
+          <h3>Контакты и условия для покупателей</h3>
+          <p class="dashboard-subtitle seller-form-section-hint">
+            Заполните адрес, график и доставку — они появятся в вашем публичном профиле
+          </p>
+
+          <p>
+            <label for="{{ form.address.id_for_label }}">{{ form.address.label }}</label>
+            {{ form.address }}
+          </p>
+
+          <p>
+            <label for="{{ form.work_hours.id_for_label }}">{{ form.work_hours.label }}</label>
+            {{ form.work_hours }}
+          </p>
+
+          <p>
+            <label for="{{ form.delivery_info.id_for_label }}">{{ form.delivery_info.label }}</label>
+            {{ form.delivery_info }}
+          </p>
+        </div>
 
 <div class="form-action-row">
   <button type="submit" class="btn red">

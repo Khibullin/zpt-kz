@@ -336,6 +336,25 @@ a.btn-green.product-wa-btn:hover,
   margin-top:6px;
 }
 
+.seller-form-section{
+  margin:20px 0 8px;
+  padding-top:18px;
+  border-top:1px solid #ececec;
+}
+
+.seller-form-section h3{
+  margin:0 0 6px;
+  font-size:16px;
+  font-weight:800;
+  color:#111;
+}
+
+.seller-form-section-hint{
+  margin:0 0 14px !important;
+  font-size:13px !important;
+  color:#64748b !important;
+}
+
 .checkbox-group{
   display:grid;
   gap:8px;

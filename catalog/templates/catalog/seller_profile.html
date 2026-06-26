@@ -102,6 +102,51 @@
 
           <div class="seller-profile-box full">
             <h3 class="seller-profile-box-title">
+              Контакты и условия
+            </h3>
+
+            <div class="seller-profile-row">
+              <div class="seller-profile-label">
+                Адрес склада
+              </div>
+              <div class="seller-profile-value">
+                {% if seller.address %}
+                  {{ seller.address }}
+                {% else %}
+                  <span class="seller-profile-placeholder">Не указан</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="seller-profile-row">
+              <div class="seller-profile-label">
+                График работы
+              </div>
+              <div class="seller-profile-value">
+                {% if seller.work_hours %}
+                  {{ seller.work_hours }}
+                {% else %}
+                  <span class="seller-profile-placeholder">Не указан</span>
+                {% endif %}
+              </div>
+            </div>
+
+            <div class="seller-profile-row">
+              <div class="seller-profile-label">
+                Доставка и оплата
+              </div>
+              <div class="seller-profile-value">
+                {% if seller.delivery_info %}
+                  {{ seller.delivery_info }}
+                {% else %}
+                  <span class="seller-profile-placeholder">Не указано</span>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="seller-profile-box full">
+            <h3 class="seller-profile-box-title">
               Ссылки и соцсети
             </h3>
 
