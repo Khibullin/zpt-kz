@@ -22,15 +22,6 @@ from .views import (
 urlpatterns = [
     path('', catalog_list, name='catalog_list'),
 
-    path('<int:pk>/', product_detail, name='product_detail_old'),
-    path('<slug:slug>/', product_detail, name='product_detail'),
-
-    path(
-        'seller/<slug:slug>/',
-        public_seller_profile,
-        name='public_seller_profile'
-    ),
-
     path('seller/register/', seller_register, name='seller_register'),
     path('seller/login/', seller_login, name='seller_login'),
     path('seller/logout/', seller_logout, name='seller_logout'),
@@ -50,10 +41,18 @@ urlpatterns = [
 
     path('ajax/load-brands/', load_brands, name='ajax_load_brands'),
     path('ajax/load-models/', load_models, name='ajax_load_models'),
-
     path(
         'ajax/load-compatible-models/',
         load_compatible_models,
         name='ajax_load_compatible_models'
+    ),
+
+    path('<int:pk>/', product_detail, name='product_detail_old'),
+    path('<slug:slug>/', product_detail, name='product_detail'),
+
+    path(
+        'seller/<slug:slug>/',
+        public_seller_profile,
+        name='public_seller_profile'
     ),
 ]
