@@ -703,9 +703,12 @@ body{
 
   .card-seller-logo-mini,
   .card-seller-icon-placeholder{
-    width:16px !important;
-    height:16px !important;
-    margin-right:5px !important;
+    width:20px !important;
+    height:20px !important;
+    min-width:20px !important;
+    min-height:20px !important;
+    margin-right:6px !important;
+    border-radius:4px !important;
   }
 
   .meta-city{
@@ -934,21 +937,26 @@ body{
 .card-seller-link{
   display:inline-flex !important;
   align-items:center !important;
+  vertical-align:middle !important;
   text-decoration:none !important;
-  color:#1a1a1a !important;
+  color:#0066cc !important;
+  cursor:pointer !important;
   font-weight:600;
   font-size:13px;
   transition:color .2s ease;
   min-width:0;
   max-width:100%;
   flex:1;
+  gap:0;
 }
 
-.card-seller-link:hover,
-.card-seller-link:hover .card-seller-name-text{
-  color:#ef3d2f !important;
+.card-seller-link:hover{
   text-decoration:underline !important;
-  text-underline-offset:2px;
+  color:#004499 !important;
+}
+
+.card-seller-link:hover .card-seller-name-text{
+  color:#004499 !important;
 }
 
 .card-seller-name-text{
@@ -956,26 +964,39 @@ body{
   overflow:hidden;
   text-overflow:ellipsis;
   min-width:0;
+  color:inherit;
 }
 
 .verification-badge{
+  display:inline-flex !important;
+  align-items:center !important;
   flex-shrink:0;
-  margin-left:3px;
-  color:#16a34a;
+  margin-left:4px;
+  color:#0066cc;
   font-size:12px;
+  font-weight:700;
   line-height:1;
 }
 
+.card-seller-link:hover .verification-badge{
+  color:#004499 !important;
+}
+
+.product-v2 .card-seller-link .card-seller-logo-mini,
 .card-seller-logo-mini{
-  width:18px !important;
-  height:18px !important;
-  border-radius:50% !important;
+  width:20px !important;
+  height:20px !important;
+  min-width:20px !important;
+  min-height:20px !important;
+  border-radius:4px !important;
   object-fit:contain !important;
-  background:#ffffff;
+  background-color:#ffffff !important;
   margin-right:6px !important;
+  display:inline-block !important;
+  vertical-align:middle !important;
   border:1px solid #eee;
-  flex-shrink:0;
-  box-sizing:border-box;
+  flex-shrink:0 !important;
+  box-sizing:border-box !important;
   padding:1px;
 }
 
@@ -983,15 +1004,18 @@ body{
   display:inline-flex !important;
   align-items:center !important;
   justify-content:center !important;
-  width:18px !important;
-  height:18px !important;
-  border-radius:50% !important;
-  background:#ffffff;
+  width:20px !important;
+  height:20px !important;
+  min-width:20px !important;
+  min-height:20px !important;
+  border-radius:4px !important;
+  background-color:#ffffff !important;
   margin-right:6px !important;
   border:1px solid #eee;
-  flex-shrink:0;
+  flex-shrink:0 !important;
   color:#9ca3af;
-  box-sizing:border-box;
+  box-sizing:border-box !important;
+  vertical-align:middle !important;
 }
 
 .card-seller-socials{
