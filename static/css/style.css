@@ -1598,37 +1598,48 @@ a.btn-green.product-wa-btn:hover,
   }
 
   .public-seller-products-toolbar{
-    padding:12px;
+    padding:14px;
+    gap:14px;
   }
 
-  .public-seller-search-form{
-    flex-direction:column;
-    align-items:stretch;
+  .public-seller-products-head h2{
+    font-size:20px;
   }
 
-  .public-seller-search-form input[type="text"],
+  .public-seller-count-badge{
+    font-size:12px;
+    padding:3px 10px;
+  }
+
+  .public-seller-input-group input[type="text"]{
+    font-size:13px;
+    padding:0 12px;
+  }
+
   .public-seller-search-btn{
-    width:100%;
-  }
-
-  .public-seller-category-chips{
-    gap:6px;
+    padding:0 16px;
+    font-size:13px;
   }
 
   .public-seller-category-chip{
     font-size:12px;
-    min-height:30px;
-    padding:0 10px;
+    padding:6px 12px;
   }
 
   .public-seller-pagination{
-    gap:8px;
+    gap:6px;
+    margin-top:26px;
   }
 
   .public-seller-page-link,
   .public-seller-page-num{
-    min-height:34px;
+    min-width:36px;
+    height:36px;
     font-size:13px;
+  }
+
+  .public-seller-back{
+    margin-top:24px;
   }
 
   .seller-profile-title-main{
