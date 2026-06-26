@@ -38,7 +38,7 @@ def _send_feedback_notification(feedback):
             fail_silently=False,
         )
     except Exception as e:
-        print(f"SMTP Error occurred: {e}")
+        print("ПОЧТА ОШИБКА:", str(e))
 
 
 def _parse_filter_id(value):
