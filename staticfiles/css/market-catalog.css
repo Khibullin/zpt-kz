@@ -694,9 +694,18 @@ body{
     min-width:0;
   }
 
-  .seller-name{
+  .seller-name,
+  .card-seller-link{
     flex:1;
     min-width:0;
+    font-size:12px;
+  }
+
+  .card-seller-logo-mini,
+  .card-seller-icon-placeholder{
+    width:16px !important;
+    height:16px !important;
+    margin-right:5px !important;
   }
 
   .meta-city{
@@ -920,6 +929,69 @@ body{
   white-space:nowrap;
   overflow:hidden;
   text-overflow:ellipsis;
+}
+
+.card-seller-link{
+  display:inline-flex !important;
+  align-items:center !important;
+  text-decoration:none !important;
+  color:#1a1a1a !important;
+  font-weight:600;
+  font-size:13px;
+  transition:color .2s ease;
+  min-width:0;
+  max-width:100%;
+  flex:1;
+}
+
+.card-seller-link:hover,
+.card-seller-link:hover .card-seller-name-text{
+  color:#ef3d2f !important;
+  text-decoration:underline !important;
+  text-underline-offset:2px;
+}
+
+.card-seller-name-text{
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  min-width:0;
+}
+
+.verification-badge{
+  flex-shrink:0;
+  margin-left:3px;
+  color:#16a34a;
+  font-size:12px;
+  line-height:1;
+}
+
+.card-seller-logo-mini{
+  width:18px !important;
+  height:18px !important;
+  border-radius:50% !important;
+  object-fit:contain !important;
+  background:#ffffff;
+  margin-right:6px !important;
+  border:1px solid #eee;
+  flex-shrink:0;
+  box-sizing:border-box;
+  padding:1px;
+}
+
+.card-seller-icon-placeholder{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  width:18px !important;
+  height:18px !important;
+  border-radius:50% !important;
+  background:#ffffff;
+  margin-right:6px !important;
+  border:1px solid #eee;
+  flex-shrink:0;
+  color:#9ca3af;
+  box-sizing:border-box;
 }
 
 .card-seller-socials{
