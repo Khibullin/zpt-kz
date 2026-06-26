@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_links_fixed_102">
 <header class="topbar">
   <div class="container topbar-inner">
     <a
@@ -163,37 +163,50 @@
         {% endif %}
 
         <div class="seller-trust-card">
-          <div class="seller-trust-logo">
-            {% if seller and seller.logo %}
+          {% if seller %}
+            <a
+              href="{% url 'public_seller_profile' seller.slug %}"
+              class="seller-trust-logo seller-trust-profile-link"
+              title="Профиль продавца {{ seller.name }}"
+            >
+              {% if seller.logo %}
+                <img
+                  class="seller-trust-logo-img"
+                  src="{{ seller.logo.url }}"
+                  alt="{{ seller.name }}"
+                  onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
+                >
+              {% else %}
+                <img
+                  class="seller-trust-logo-img seller-trust-logo-img--fallback"
+                  src="{% static 'images/logo.png' %}"
+                  alt="{{ seller.name }}"
+                >
+              {% endif %}
+            </a>
+          {% else %}
+            <div class="seller-trust-logo">
               <img
-                src="{{ seller.logo.url }}"
-                alt="{{ seller.name }}"
-                onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
-              >
-            {% else %}
-              <img
+                class="seller-trust-logo-img seller-trust-logo-img--fallback"
                 src="{% static 'images/logo.png' %}"
                 alt="ZPT Market"
-                style="
-                  width:70px;
-                  height:auto;
-                  object-fit:contain;
-                  opacity:.9;
-                  display:block;
-                  margin:auto;
-                "
               >
-            {% endif %}
-          </div>
+            </div>
+          {% endif %}
 
           <div class="seller-trust-info">
-            <div class="seller-trust-name">
-              {% if seller %}
+            {% if seller %}
+              <a
+                href="{% url 'public_seller_profile' seller.slug %}"
+                class="seller-trust-name seller-trust-profile-link"
+              >
                 {{ seller.name }} ✓
-              {% else %}
+              </a>
+            {% else %}
+              <div class="seller-trust-name">
                 {{ product.seller_name }} ✓
-              {% endif %}
-            </div>
+              </div>
+            {% endif %}
 
             <div class="seller-trust-badge">⭐ Проверенный продавец ZPT</div>
 
@@ -316,51 +329,39 @@
       <div class="detail-section-card">
         <h2>Продавец</h2>
 
-        <div style="
-          display:flex;
-          gap:18px;
-          flex-wrap:wrap;
-          align-items:flex-start;
-        ">
-          <div style="
-            width:110px;
-            height:110px;
-            border-radius:20px;
-            overflow:hidden;
-            border:1px solid #eee;
-            background:#fff;
-            flex-shrink:0;
-          ">
-            {% if seller.logo %}
-              <img
-                src="{{ seller.logo.url }}"
-                alt="{{ seller.name }}"
-                style="
-                  width:100%;
-                  height:100%;
-                  object-fit:contain;
-                  padding:10px;
-                "
-              >
-            {% else %}
-              <img
-                src="{% static 'images/logo.png' %}"
-                alt="ZPT.KZ"
-                style="
-                  width:70px;
-                  height:auto;
-                  object-fit:contain;
-                  display:block;
-                  margin:auto;
-                "
-              >
-            {% endif %}
-          </div>
+        <div class="detail-seller-layout">
+          {% if seller %}
+            <a
+              href="{% url 'public_seller_profile' seller.slug %}"
+              class="detail-seller-logo detail-seller-profile-link"
+              title="Профиль продавца {{ seller.name }}"
+            >
+              {% if seller.logo %}
+                <img
+                  class="detail-seller-logo-img"
+                  src="{{ seller.logo.url }}"
+                  alt="{{ seller.name }}"
+                  onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
+                >
+              {% else %}
+                <img
+                  class="detail-seller-logo-img detail-seller-logo-img--fallback"
+                  src="{% static 'images/logo.png' %}"
+                  alt="{{ seller.name }}"
+                >
+              {% endif %}
+            </a>
+          {% endif %}
 
-          <div style="flex:1;min-width:260px;">
-            <h3 style="margin-top:0;">
-              {{ seller.name }}
-            </h3>
+          <div class="detail-seller-body">
+            {% if seller %}
+              <a
+                href="{% url 'public_seller_profile' seller.slug %}"
+                class="detail-seller-title-link"
+              >
+                <h3>{{ seller.name }}</h3>
+              </a>
+            {% endif %}
 
             {% if seller.city %}
               <p>📍 {{ seller.city }}</p>
@@ -408,15 +409,13 @@
               </div>
             {% endif %}
 
-            <div style="margin-top:18px;">
-
+            <div class="detail-seller-profile-action">
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"
                 class="btn outline"
               >
                 Смотреть профиль продавца
               </a>
-
             </div>
 
           </div>
