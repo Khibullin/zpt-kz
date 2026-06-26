@@ -4,7 +4,7 @@
 {% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=profile_products_82">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=b2b_layout_final_99">
 {% endblock %}
 
 {% block content %}
@@ -147,53 +147,45 @@
       </div>
 
       <div class="detail-section-card public-seller-products">
-        <div class="public-seller-products-toolbar">
-          <div class="public-seller-products-head">
-            <h2>Товары продавца</h2>
-            {% if page_obj.paginator.count %}
-              <span class="public-seller-count-badge">
-                Найдено: {{ page_obj.paginator.count }}
-                {% if q_seller or category_id %} · фильтр{% endif %}
-              </span>
-            {% endif %}
-          </div>
+        <div class="seller-products-header">
+          <h2>
+            Товары продавца
+            <span class="products-badge">Найдено: {{ products_count }}</span>
+          </h2>
+        </div>
 
-          <form class="public-seller-search-form" method="get" action="">
-            <div class="public-seller-input-group">
-              <input
-                type="text"
-                name="q_seller"
-                value="{{ q_seller }}"
-                placeholder="Поиск по названию или артикулу..."
-                aria-label="Поиск товаров продавца"
-              >
-              {% if category_id %}
-                <input type="hidden" name="category" value="{{ category_id }}">
-              {% endif %}
-              <button type="submit" class="public-seller-search-btn">Найти</button>
-            </div>
-          </form>
-
-          {% if seller_categories %}
-            <div class="public-seller-category-chips-wrap">
-              <div class="public-seller-category-chips">
-                <a
-                  href="{% url 'public_seller_profile' seller.slug %}{% if q_seller %}?q_seller={{ q_seller|urlencode }}{% endif %}"
-                  class="public-seller-category-chip{% if not category_id %} is-active{% endif %}"
-                >
-                  Все
-                </a>
-                {% for category in seller_categories %}
-                  <a
-                    href="{% url 'public_seller_profile' seller.slug %}?category={{ category.id }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}"
-                    class="public-seller-category-chip{% if category_id == category.id %} is-active{% endif %}"
-                  >
-                    {{ category.name }}
-                  </a>
-                {% endfor %}
-              </div>
-            </div>
+        <form method="get" class="seller-search-form">
+          {% if request.GET.category %}
+            <input type="hidden" name="category" value="{{ request.GET.category }}">
           {% endif %}
+          <div class="search-input-group">
+            <input
+              type="text"
+              name="q_seller"
+              value="{{ request.GET.q_seller|default:'' }}"
+              placeholder="Поиск по названию или артикулу"
+            >
+            <button type="submit">Найти</button>
+          </div>
+        </form>
+
+        <div class="seller-chips-container">
+          <div class="seller-chips-scroll">
+            <a
+              href="?{% if request.GET.q_seller %}q_seller={{ request.GET.q_seller }}{% endif %}"
+              class="chip{% if not request.GET.category %} active{% endif %}"
+            >
+              Все
+            </a>
+            {% for cat in seller_categories %}
+              <a
+                href="?category={{ cat.id }}{% if request.GET.q_seller %}&amp;q_seller={{ request.GET.q_seller }}{% endif %}"
+                class="chip{% if request.GET.category == cat.id|stringformat:'s' %} active{% endif %}"
+              >
+                {{ cat.name }}
+              </a>
+            {% endfor %}
+          </div>
         </div>
 
         {% if page_obj.paginator.count %}
