@@ -1151,13 +1151,6 @@ a.btn-green.product-wa-btn:hover,
   transform:translateY(-1px);
 }
 
-.public-seller-back{
-  display:flex;
-  justify-content:center;
-  margin-top:32px;
-  padding-top:8px;
-}
-
 @media (max-width:900px){
   .seller-profile-grid{
     grid-template-columns:1fr;
