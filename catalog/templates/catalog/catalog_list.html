@@ -5,8 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=force_refresh_12">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=seller_link_78">
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_link_78">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=seller_link_79">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_link_79">
 <style>
 .market-topbar{
   position:sticky;
@@ -216,6 +216,7 @@
             src="{{ product.seller.logo.url }}"
             class="card-seller-logo-mini"
             alt="{{ product.seller.name }}"
+            loading="lazy"
           >
         {% else %}
           <span class="card-seller-icon-placeholder" aria-hidden="true">
