@@ -8,7 +8,6 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.http import JsonResponse
 from urllib.parse import urlencode
-import logging
 
 from core.forms import FeedbackForm
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
@@ -22,26 +21,21 @@ from .models import (
     SellerProfile,
 )
 
-logger = logging.getLogger(__name__)
-
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
 
 
 def _send_feedback_notification(feedback):
-    try:
-        send_mail(
-            subject='Новая заявка с сайта ZPT.KZ',
-            message=(
-                f'Имя: {feedback.name}\n'
-                f'Телефон / WhatsApp: {feedback.phone}\n\n'
-                f'Сообщение:\n{feedback.message}'
-            ),
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[FEEDBACK_NOTIFY_EMAIL],
-            fail_silently=False,
-        )
-    except Exception:
-        logger.exception('Failed to send feedback notification email')
+    send_mail(
+        subject='Новая заявка с сайта ZPT.KZ',
+        message=(
+            f'Имя: {feedback.name}\n'
+            f'Телефон / WhatsApp: {feedback.phone}\n\n'
+            f'Сообщение:\n{feedback.message}'
+        ),
+        from_email=settings.DEFAULT_FROM_EMAIL,
+        recipient_list=[FEEDBACK_NOTIFY_EMAIL],
+        fail_silently=False,
+    )
 
 
 def _parse_filter_id(value):
