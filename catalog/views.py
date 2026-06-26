@@ -25,17 +25,20 @@ FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
 
 
 def _send_feedback_notification(feedback):
-    send_mail(
-        subject='Новая заявка с сайта ZPT.KZ',
-        message=(
-            f'Имя: {feedback.name}\n'
-            f'Телефон / WhatsApp: {feedback.phone}\n\n'
-            f'Сообщение:\n{feedback.message}'
-        ),
-        from_email=settings.DEFAULT_FROM_EMAIL,
-        recipient_list=[FEEDBACK_NOTIFY_EMAIL],
-        fail_silently=False,
-    )
+    try:
+        send_mail(
+            subject='Новая заявка с сайта ZPT.KZ',
+            message=(
+                f'Имя: {feedback.name}\n'
+                f'Телефон / WhatsApp: {feedback.phone}\n\n'
+                f'Сообщение:\n{feedback.message}'
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[FEEDBACK_NOTIFY_EMAIL],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print(f"SMTP Error occurred: {e}")
 
 
 def _parse_filter_id(value):
