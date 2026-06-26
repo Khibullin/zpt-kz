@@ -1,4 +1,4 @@
-/* FAQ & Feedback Modal — independent bundle (bypass style.css cache) */
+/* FAQ & feedback modal — canonical styles (loaded from base.html) */
 
 .faq-page-wrap {
   padding: 28px 16px 56px;
@@ -163,6 +163,22 @@
 
 .faq-btn-primary:hover {
   background: #0f172a;
+}
+
+.feedback-landing-card {
+  background: #fff;
+  border: 1px solid #eef0f3;
+  border-radius: 16px;
+  box-shadow: 0 4px 18px rgba(15, 23, 42, 0.07);
+  padding: 28px 24px;
+  text-align: center;
+}
+
+.feedback-landing-card p {
+  margin: 0 0 18px;
+  color: #6b7280;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
 .feedback-modal {

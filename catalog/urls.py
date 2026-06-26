@@ -52,12 +52,12 @@ urlpatterns = [
     path('faq/', faq_view, name='faq'),
     path('feedback/', feedback_view, name='feedback'),
 
-    path('<int:pk>/', product_detail, name='product_detail_old'),
-    path('<slug:slug>/', product_detail, name='product_detail'),
-
     path(
         'seller/<slug:slug>/',
         public_seller_profile,
         name='public_seller_profile'
     ),
+
+    path('<int:pk>/', product_detail, name='product_detail_old'),
+    path('<slug:slug>/', product_detail, name='product_detail'),
 ]
