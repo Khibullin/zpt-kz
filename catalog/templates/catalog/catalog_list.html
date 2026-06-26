@@ -5,8 +5,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=force_refresh_12">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=chips_refresh_77">
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=chips_refresh_77">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=seller_link_78">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_link_78">
 <style>
 .market-topbar{
   position:sticky;
@@ -205,9 +205,33 @@
 
   <div class="seller-line">
 
-    <span class="seller-name">
-      {{ product.seller_name }} ✓
-    </span>
+    {% if product.seller and product.seller.slug %}
+      <a
+        href="{% url 'public_seller_profile' product.seller.slug %}"
+        class="card-seller-link"
+        title="Посмотреть профиль и все товары {{ product.seller.name }}"
+      >
+        {% if product.seller.logo %}
+          <img
+            src="{{ product.seller.logo.url }}"
+            class="card-seller-logo-mini"
+            alt="{{ product.seller.name }}"
+          >
+        {% else %}
+          <span class="card-seller-icon-placeholder" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="10" height="10" focusable="false">
+              <path fill="currentColor" d="M4 4h16v2H4V4zm0 4h16l-1 10H5L4 8zm4 2v6h2v-6H8zm4 0v6h2v-6h-2z"/>
+            </svg>
+          </span>
+        {% endif %}
+        <span class="card-seller-name-text">{{ product.seller.name }}</span>
+        <span class="verification-badge">✓</span>
+      </a>
+    {% else %}
+      <span class="seller-name">
+        {{ product.seller_name }} ✓
+      </span>
+    {% endif %}
 
     {% if product.seller %}
       {% if product.seller.instagram or product.seller.website %}
