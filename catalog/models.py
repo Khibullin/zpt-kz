@@ -83,6 +83,26 @@ class SellerProfile(models.Model):
     phone = models.CharField(max_length=30, verbose_name='Телефон / WhatsApp')
     city = models.CharField(max_length=120, blank=True, default='', verbose_name='Город')
 
+    address = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Адрес склада',
+    )
+
+    work_hours = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='График работы',
+    )
+
+    delivery_info = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Доставка и оплата',
+    )
+
     instagram = models.CharField(
         max_length=255,
         blank=True,

@@ -566,11 +566,16 @@ def public_seller_profile(request, slug):
         status='active'
     ).order_by('-created_at')
 
+    products_count = products.count()
+    platform_year = seller.user.date_joined.year
+
     return render(
         request,
         'catalog/public_seller_profile.html',
         {
             'seller': seller,
             'products': products,
+            'products_count': products_count,
+            'platform_year': platform_year,
         }
     )
