@@ -4,7 +4,7 @@
 {% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=b2b_refresh_perfect_v99">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=warehouse_filters_v1">
 {% endblock %}
 
 {% block content %}
@@ -150,43 +150,34 @@
         <div class="seller-products-header">
           <h2>
             Товары продавца
-            <span class="products-badge">Найдено: {{ products_count }}</span>
+            <span class="products-badge">
+              Найдено: {% if has_active_filters %}{{ filtered_count }}{% else %}{{ products_count }}{% endif %}
+            </span>
           </h2>
         </div>
 
         <form method="get" class="seller-search-form">
-          {% if request.GET.category %}
-            <input type="hidden" name="category" value="{{ request.GET.category }}">
+          {% if category_id %}
+            <input type="hidden" name="category" value="{{ category_id }}">
+          {% endif %}
+          {% if brand_id %}
+            <input type="hidden" name="brand" value="{{ brand_id }}">
+          {% endif %}
+          {% if model_id %}
+            <input type="hidden" name="model" value="{{ model_id }}">
           {% endif %}
           <div class="search-input-group">
             <input
               type="text"
               name="q_seller"
-              value="{{ request.GET.q_seller|default:'' }}"
+              value="{{ q_seller }}"
               placeholder="Поиск по названию или артикулу"
             >
             <button type="submit">Найти</button>
           </div>
         </form>
 
-        <div class="seller-chips-container">
-          <div class="seller-chips-scroll">
-            <a
-              href="?{% if request.GET.q_seller %}q_seller={{ request.GET.q_seller }}{% endif %}"
-              class="chip{% if not request.GET.category %} active{% endif %}"
-            >
-              Все
-            </a>
-            {% for cat in seller_categories %}
-              <a
-                href="?category={{ cat.id }}{% if request.GET.q_seller %}&amp;q_seller={{ request.GET.q_seller }}{% endif %}"
-                class="chip{% if request.GET.category == cat.id|stringformat:'s' %} active{% endif %}"
-              >
-                {{ cat.name }}
-              </a>
-            {% endfor %}
-          </div>
-        </div>
+        {% include 'catalog/includes/seller_warehouse_filters.html' with search_name='q_seller' search_value=q_seller %}
 
         {% if page_obj.paginator.count %}
           <div class="products">
@@ -216,7 +207,7 @@
               {% if page_obj.has_previous %}
                 <a
                   class="public-seller-page-link"
-                  href="?page={{ page_obj.previous_page_number }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}{% if category_id %}&amp;category={{ category_id }}{% endif %}"
+                  href="?page={{ page_obj.previous_page_number }}{% if filter_qs %}&amp;{{ filter_qs }}{% endif %}"
                 >
                   Назад
                 </a>
@@ -231,7 +222,7 @@
                   {% else %}
                     <a
                       class="public-seller-page-num"
-                      href="?page={{ num }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}{% if category_id %}&amp;category={{ category_id }}{% endif %}"
+                      href="?page={{ num }}{% if filter_qs %}&amp;{{ filter_qs }}{% endif %}"
                     >
                       {{ num }}
                     </a>
@@ -242,7 +233,7 @@
               {% if page_obj.has_next %}
                 <a
                   class="public-seller-page-link"
-                  href="?page={{ page_obj.next_page_number }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}{% if category_id %}&amp;category={{ category_id }}{% endif %}"
+                  href="?page={{ page_obj.next_page_number }}{% if filter_qs %}&amp;{{ filter_qs }}{% endif %}"
                 >
                   Вперед
                 </a>
@@ -253,7 +244,7 @@
           {% endif %}
         {% else %}
           <p class="public-seller-products-empty">
-            {% if q_seller or category_id %}
+            {% if has_active_filters %}
               По вашему запросу товары не найдены. Попробуйте изменить фильтры.
             {% else %}
               У продавца пока нет активных товаров.

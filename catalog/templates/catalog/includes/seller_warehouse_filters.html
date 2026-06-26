@@ -1,0 +1,61 @@
+<div class="seller-vehicle-filters">
+  <form method="get" class="seller-vehicle-filters-form">
+    {% if search_name and search_value %}
+      <input type="hidden" name="{{ search_name }}" value="{{ search_value }}">
+    {% endif %}
+    {% if category_id %}
+      <input type="hidden" name="category" value="{{ category_id }}">
+    {% endif %}
+    {% if status_filter %}
+      <input type="hidden" name="status_filter" value="{{ status_filter }}">
+    {% endif %}
+
+    <label class="seller-filter-field">
+      <span class="seller-filter-label">Марка</span>
+      <select name="brand" class="seller-filter-select{% if brand_id %} is-active{% endif %}" onchange="this.form.submit()">
+        <option value="">Все марки</option>
+        {% for brand in seller_brands %}
+          <option value="{{ brand.id }}"{% if brand_id == brand.id %} selected{% endif %}>
+            {{ brand.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label class="seller-filter-field">
+      <span class="seller-filter-label">Модель</span>
+      <select
+        name="model"
+        class="seller-filter-select{% if model_id %} is-active{% endif %}"
+        onchange="this.form.submit()"
+        {% if not brand_id %}disabled{% endif %}
+      >
+        <option value="">{% if brand_id %}Все модели{% else %}Сначала марку{% endif %}</option>
+        {% for car_model in seller_models %}
+          <option value="{{ car_model.id }}"{% if model_id == car_model.id %} selected{% endif %}>
+            {{ car_model.name }}
+          </option>
+        {% endfor %}
+      </select>
+    </label>
+  </form>
+</div>
+
+<div class="seller-chips-container">
+  <div class="seller-chips-scroll">
+    <a
+      href="?{% if filter_qs %}{{ filter_qs }}{% endif %}"
+      class="chip{% if not category_id %} active{% endif %}"
+    >
+      Все категории
+    </a>
+    {% for cat in seller_categories %}
+      <a
+        href="?{% if filter_qs %}{{ filter_qs }}&amp;{% endif %}category={{ cat.id }}"
+        class="chip{% if category_id == cat.id %} active{% endif %}"
+      >
+        {{ cat.name }}
+      </a>
+    {% endfor %}
+  </div>
+</div>

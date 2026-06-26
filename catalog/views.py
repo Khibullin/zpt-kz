@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
+from urllib.parse import urlencode
 
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
@@ -16,6 +17,114 @@ from .models import (
     Category,
     SellerProfile,
 )
+
+
+def _parse_filter_id(value):
+    value = (value or '').strip()
+    return int(value) if value.isdigit() else None
+
+
+def _seller_filter_query(**params):
+    clean = {}
+    for key, value in params.items():
+        if value not in (None, '', False):
+            clean[key] = value
+    return urlencode(clean)
+
+
+def _apply_seller_warehouse_filters(
+    base_products,
+    *,
+    q='',
+    category_id=None,
+    brand_id=None,
+    model_id=None,
+):
+    if brand_id and model_id:
+        if not CarModel.objects.filter(pk=model_id, brand_id=brand_id).exists():
+            model_id = None
+
+    if brand_id:
+        valid_brand_ids = base_products.exclude(
+            brand__isnull=True
+        ).values_list('brand_id', flat=True)
+        if brand_id not in set(valid_brand_ids):
+            brand_id = None
+            model_id = None
+
+    if model_id:
+        valid_model_ids = base_products.exclude(
+            car_model__isnull=True
+        ).values_list('car_model_id', flat=True)
+        if model_id not in set(valid_model_ids):
+            model_id = None
+
+    products = base_products
+
+    if q:
+        products = products.filter(
+            Q(title__icontains=q) |
+            Q(article__icontains=q)
+        )
+
+    if category_id:
+        products = products.filter(category_id=category_id)
+
+    if brand_id:
+        products = products.filter(brand_id=brand_id)
+
+    if model_id:
+        products = products.filter(car_model_id=model_id)
+
+    brand_scope = base_products
+    if category_id:
+        brand_scope = brand_scope.filter(category_id=category_id)
+    if model_id:
+        brand_scope = brand_scope.filter(car_model_id=model_id)
+
+    seller_brands = Brand.objects.filter(
+        pk__in=brand_scope.exclude(
+            brand__isnull=True
+        ).values_list('brand_id', flat=True)
+    ).order_by('name')
+
+    model_scope = base_products
+    if category_id:
+        model_scope = model_scope.filter(category_id=category_id)
+    if brand_id:
+        model_scope = model_scope.filter(brand_id=brand_id)
+
+    if brand_id:
+        seller_models = CarModel.objects.filter(
+            brand_id=brand_id,
+            pk__in=model_scope.exclude(
+                car_model__isnull=True
+            ).values_list('car_model_id', flat=True),
+        ).order_by('name')
+    else:
+        seller_models = CarModel.objects.none()
+
+    category_scope = base_products
+    if brand_id:
+        category_scope = category_scope.filter(brand_id=brand_id)
+    if model_id:
+        category_scope = category_scope.filter(car_model_id=model_id)
+
+    seller_categories = Category.objects.filter(
+        pk__in=category_scope.exclude(
+            category__isnull=True
+        ).values_list('category_id', flat=True)
+    ).order_by('name')
+
+    return {
+        'products': products,
+        'category_id': category_id,
+        'brand_id': brand_id,
+        'model_id': model_id,
+        'seller_brands': seller_brands,
+        'seller_models': seller_models,
+        'seller_categories': seller_categories,
+    }
 
 
 def attach_sellers_to_products(products):
@@ -259,30 +368,62 @@ def seller_logout(request):
 @login_required
 def seller_dashboard(request):
     seller = get_object_or_404(SellerProfile, user=request.user)
-    products = Product.objects.filter(seller_name=seller.name)
+    base_products = Product.objects.filter(seller_name=seller.name)
 
     query = request.GET.get('q_dashboard', '').strip()
     status_filter = request.GET.get('status_filter', '').strip()
+    category_id = _parse_filter_id(request.GET.get('category'))
+    brand_id = _parse_filter_id(request.GET.get('brand'))
+    model_id = _parse_filter_id(request.GET.get('model'))
 
-    if query:
-        products = products.filter(
-            Q(title__icontains=query) |
-            Q(article__icontains=query)
-        )
+    products = base_products
 
     if status_filter == 'active':
         products = products.filter(status='active')
     elif status_filter == 'hidden':
         products = products.filter(status='hidden')
 
-    products = products.order_by('-created_at')
+    warehouse = _apply_seller_warehouse_filters(
+        products,
+        q=query,
+        category_id=category_id,
+        brand_id=brand_id,
+        model_id=model_id,
+    )
+
+    products = warehouse['products'].select_related(
+        'brand',
+        'car_model',
+        'category',
+    ).order_by('-created_at')
+
+    filter_qs = _seller_filter_query(
+        q_dashboard=query,
+        status_filter=status_filter,
+        brand=warehouse['brand_id'],
+        model=warehouse['model_id'],
+    )
 
     return render(request, 'catalog/seller_dashboard.html', {
         'seller': seller,
         'products': products,
         'query': query,
         'status_filter': status_filter,
+        'category_id': warehouse['category_id'],
+        'brand_id': warehouse['brand_id'],
+        'model_id': warehouse['model_id'],
+        'seller_brands': warehouse['seller_brands'],
+        'seller_models': warehouse['seller_models'],
+        'seller_categories': warehouse['seller_categories'],
+        'filter_qs': filter_qs,
         'has_any_products': Product.objects.filter(seller_name=seller.name).exists(),
+        'has_active_filters': any([
+            query,
+            status_filter,
+            warehouse['category_id'],
+            warehouse['brand_id'],
+            warehouse['model_id'],
+        ]),
     })
 
 
@@ -564,26 +705,28 @@ def public_seller_profile(request, slug):
     platform_year = seller.user.date_joined.year
 
     q_seller = request.GET.get('q_seller', '').strip()
-    category_filter = request.GET.get('category', '').strip()
-    category_id = None
+    category_id = _parse_filter_id(request.GET.get('category'))
+    brand_id = _parse_filter_id(request.GET.get('brand'))
+    model_id = _parse_filter_id(request.GET.get('model'))
     page_number = request.GET.get('page', '1')
 
-    products = base_products.select_related('category').order_by('-created_at')
+    warehouse = _apply_seller_warehouse_filters(
+        base_products,
+        q=q_seller,
+        category_id=category_id,
+        brand_id=brand_id,
+        model_id=model_id,
+    )
 
-    if q_seller:
-        products = products.filter(
-            Q(title__icontains=q_seller) |
-            Q(article__icontains=q_seller)
-        )
+    products = warehouse['products'].select_related(
+        'category',
+        'brand',
+        'car_model',
+    ).order_by('-created_at')
 
-    if category_filter.isdigit():
-        category_id = int(category_filter)
-        products = products.filter(category_id=category_id)
-
-    seller_categories = Category.objects.filter(
-        products__seller_name=seller.name,
-        products__status='active',
-    ).distinct().order_by('name')
+    category_id = warehouse['category_id']
+    brand_id = warehouse['brand_id']
+    model_id = warehouse['model_id']
 
     paginator = Paginator(products, 12)
     try:
@@ -593,6 +736,12 @@ def public_seller_profile(request, slug):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
+    filter_qs = _seller_filter_query(
+        q_seller=q_seller,
+        brand=brand_id,
+        model=model_id,
+    )
+
     return render(
         request,
         'catalog/public_seller_profile.html',
@@ -600,9 +749,21 @@ def public_seller_profile(request, slug):
             'seller': seller,
             'page_obj': page_obj,
             'products_count': products_count,
+            'filtered_count': paginator.count,
             'platform_year': platform_year,
             'q_seller': q_seller,
             'category_id': category_id,
-            'seller_categories': seller_categories,
+            'brand_id': brand_id,
+            'model_id': model_id,
+            'seller_categories': warehouse['seller_categories'],
+            'seller_brands': warehouse['seller_brands'],
+            'seller_models': warehouse['seller_models'],
+            'filter_qs': filter_qs,
+            'has_active_filters': any([
+                q_seller,
+                category_id,
+                brand_id,
+                model_id,
+            ]),
         }
     )

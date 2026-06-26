@@ -4,7 +4,7 @@
 {% block title %}Кабинет продавца — ZPT.KZ{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=dashboard_refresh_12">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=warehouse_filters_v1">
 {% endblock %}
 
 {% block content %}
@@ -44,6 +44,15 @@
 
     <div class="seller-dashboard-search">
       <form class="seller-dashboard-search-form" method="get" action="">
+        {% if category_id %}
+          <input type="hidden" name="category" value="{{ category_id }}">
+        {% endif %}
+        {% if brand_id %}
+          <input type="hidden" name="brand" value="{{ brand_id }}">
+        {% endif %}
+        {% if model_id %}
+          <input type="hidden" name="model" value="{{ model_id }}">
+        {% endif %}
         <input
           type="text"
           name="q_dashboard"
@@ -51,13 +60,15 @@
           placeholder="Поиск по артикулу или названию..."
         >
         <select name="status_filter">
-          <option value="" {% if not status_filter %}selected{% endif %}>Все</option>
+          <option value="" {% if not status_filter %}selected{% endif %}>Все статусы</option>
           <option value="active" {% if status_filter == 'active' %}selected{% endif %}>В наличии</option>
           <option value="hidden" {% if status_filter == 'hidden' %}selected{% endif %}>Под заказ</option>
         </select>
         <button type="submit" class="seller-dashboard-search-btn">Найти</button>
       </form>
     </div>
+
+    {% include 'catalog/includes/seller_warehouse_filters.html' with search_name='q_dashboard' search_value=query status_filter=status_filter %}
 
     {% if products %}
       <div class="products-container">
@@ -111,7 +122,7 @@
         {% if has_any_products %}
           <h2>Ничего не найдено</h2>
           <p>Попробуйте изменить запрос или сбросить фильтры.</p>
-          <a href="{% url 'seller_dashboard' %}" class="btn-add">Сбросить поиск</a>
+          <a href="{% url 'seller_dashboard' %}" class="btn-add">Сбросить фильтры</a>
         {% else %}
           <h2>Пока товаров нет</h2>
           <p>Добавьте первый товар в свой магазин.</p>
