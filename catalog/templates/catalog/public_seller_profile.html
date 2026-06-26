@@ -4,7 +4,7 @@
 {% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=profile_b2b_80">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=profile_products_81">
 {% endblock %}
 
 {% block content %}
@@ -147,11 +147,53 @@
       </div>
 
       <div class="detail-section-card public-seller-products">
-        <h2>Товары продавца</h2>
+        <div class="public-seller-products-head">
+          <h2>Товары продавца</h2>
+          {% if page_obj.paginator.count %}
+            <p class="public-seller-products-meta">
+              Найдено: {{ page_obj.paginator.count }}
+              {% if q_seller or category_id %} (с учётом фильтров){% endif %}
+            </p>
+          {% endif %}
+        </div>
 
-        {% if products %}
+        <div class="public-seller-products-toolbar">
+          <form class="public-seller-search-form" method="get" action="">
+            <input
+              type="text"
+              name="q_seller"
+              value="{{ q_seller }}"
+              placeholder="Поиск по названию или артикулу..."
+            >
+            {% if category_id %}
+              <input type="hidden" name="category" value="{{ category_id }}">
+            {% endif %}
+            <button type="submit" class="public-seller-search-btn">Найти</button>
+          </form>
+
+          {% if seller_categories %}
+            <div class="public-seller-category-chips">
+              <a
+                href="{% url 'public_seller_profile' seller.slug %}{% if q_seller %}?q_seller={{ q_seller|urlencode }}{% endif %}"
+                class="public-seller-category-chip{% if not category_id %} is-active{% endif %}"
+              >
+                Все
+              </a>
+              {% for category in seller_categories %}
+                <a
+                  href="{% url 'public_seller_profile' seller.slug %}?category={{ category.id }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}"
+                  class="public-seller-category-chip{% if category_id == category.id %} is-active{% endif %}"
+                >
+                  {{ category.name }}
+                </a>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        {% if page_obj.paginator.count %}
           <div class="products">
-            {% for product in products %}
+            {% for product in page_obj %}
               <article class="product">
                 <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}">
                   {% if product.main_image %}
@@ -171,8 +213,55 @@
               </article>
             {% endfor %}
           </div>
+
+          {% if page_obj.has_other_pages %}
+            <nav class="public-seller-pagination" aria-label="Пагинация товаров">
+              {% if page_obj.has_previous %}
+                <a
+                  class="public-seller-page-link"
+                  href="?page={{ page_obj.previous_page_number }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}{% if category_id %}&amp;category={{ category_id }}{% endif %}"
+                >
+                  Назад
+                </a>
+              {% else %}
+                <span class="public-seller-page-link is-disabled">Назад</span>
+              {% endif %}
+
+              <span class="public-seller-page-numbers">
+                {% for num in page_obj.paginator.page_range %}
+                  {% if num == page_obj.number %}
+                    <span class="public-seller-page-num is-current">{{ num }}</span>
+                  {% else %}
+                    <a
+                      class="public-seller-page-num"
+                      href="?page={{ num }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}{% if category_id %}&amp;category={{ category_id }}{% endif %}"
+                    >
+                      {{ num }}
+                    </a>
+                  {% endif %}
+                {% endfor %}
+              </span>
+
+              {% if page_obj.has_next %}
+                <a
+                  class="public-seller-page-link"
+                  href="?page={{ page_obj.next_page_number }}{% if q_seller %}&amp;q_seller={{ q_seller|urlencode }}{% endif %}{% if category_id %}&amp;category={{ category_id }}{% endif %}"
+                >
+                  Вперед
+                </a>
+              {% else %}
+                <span class="public-seller-page-link is-disabled">Вперед</span>
+              {% endif %}
+            </nav>
+          {% endif %}
         {% else %}
-          <p>У продавца пока нет активных товаров.</p>
+          <p class="public-seller-products-empty">
+            {% if q_seller or category_id %}
+              По вашему запросу товары не найдены. Попробуйте изменить фильтры.
+            {% else %}
+              У продавца пока нет активных товаров.
+            {% endif %}
+          </p>
         {% endif %}
       </div>
 

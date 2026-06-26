@@ -3,6 +3,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
@@ -555,21 +556,53 @@ def public_seller_profile(request, slug):
         slug=slug
     )
 
-    products = Product.objects.filter(
+    base_products = Product.objects.filter(
         seller_name=seller.name,
         status='active'
-    ).order_by('-created_at')
-
-    products_count = products.count()
+    )
+    products_count = base_products.count()
     platform_year = seller.user.date_joined.year
+
+    q_seller = request.GET.get('q_seller', '').strip()
+    category_filter = request.GET.get('category', '').strip()
+    category_id = None
+    page_number = request.GET.get('page', '1')
+
+    products = base_products.select_related('category').order_by('-created_at')
+
+    if q_seller:
+        products = products.filter(
+            Q(title__icontains=q_seller) |
+            Q(article__icontains=q_seller)
+        )
+
+    if category_filter.isdigit():
+        category_id = int(category_filter)
+        products = products.filter(category_id=category_id)
+
+    seller_categories = Category.objects.filter(
+        products__seller_name=seller.name,
+        products__status='active',
+    ).distinct().order_by('name')
+
+    paginator = Paginator(products, 12)
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
 
     return render(
         request,
         'catalog/public_seller_profile.html',
         {
             'seller': seller,
-            'products': products,
+            'page_obj': page_obj,
             'products_count': products_count,
             'platform_year': platform_year,
+            'q_seller': q_seller,
+            'category_id': category_id,
+            'seller_categories': seller_categories,
         }
     )
