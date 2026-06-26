@@ -4,8 +4,11 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.mail import send_mail
+from django.conf import settings
 from django.http import JsonResponse
 from urllib.parse import urlencode
+import logging
 
 from core.forms import FeedbackForm
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
@@ -18,6 +21,27 @@ from .models import (
     Category,
     SellerProfile,
 )
+
+logger = logging.getLogger(__name__)
+
+FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
+
+
+def _send_feedback_notification(feedback):
+    try:
+        send_mail(
+            subject='Новая заявка с сайта ZPT.KZ',
+            message=(
+                f'Имя: {feedback.name}\n'
+                f'Телефон / WhatsApp: {feedback.phone}\n\n'
+                f'Сообщение:\n{feedback.message}'
+            ),
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[FEEDBACK_NOTIFY_EMAIL],
+            fail_silently=False,
+        )
+    except Exception:
+        logger.exception('Failed to send feedback notification email')
 
 
 def _parse_filter_id(value):
@@ -781,7 +805,8 @@ def feedback_view(request):
     if request.method == 'POST':
         form = FeedbackForm(request.POST)
         if form.is_valid():
-            form.save()
+            feedback = form.save()
+            _send_feedback_notification(feedback)
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
