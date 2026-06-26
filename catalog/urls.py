@@ -26,7 +26,7 @@ urlpatterns = [
     path('<slug:slug>/', product_detail, name='product_detail'),
 
     path(
-        'seller/<int:seller_id>/',
+        'seller/<slug:slug>/',
         public_seller_profile,
         name='public_seller_profile'
     ),

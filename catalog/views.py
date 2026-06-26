@@ -546,10 +546,10 @@ def load_compatible_models(request):
     return JsonResponse(data, safe=False)
 
 
-def public_seller_profile(request, seller_id):
+def public_seller_profile(request, slug):
     seller = get_object_or_404(
         SellerProfile,
-        pk=seller_id
+        slug=slug
     )
 
     products = Product.objects.filter(

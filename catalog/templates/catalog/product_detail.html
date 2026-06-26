@@ -214,7 +214,7 @@
 
             {% if seller %}
               <div class="seller-trust-actions">
-                <a href="{% url 'public_seller_profile' seller.id %}" class="seller-catalog-link">
+                <a href="{% url 'public_seller_profile' seller.slug %}" class="seller-catalog-link">
                   Все товары продавца →
                 </a>
 
@@ -368,7 +368,7 @@
 
             <p>📱 {{ seller.phone|format_phone }}</p>
 
-            <a href="{% url 'public_seller_profile' seller.id %}" class="seller-catalog-link">
+            <a href="{% url 'public_seller_profile' seller.slug %}" class="seller-catalog-link">
               Все товары продавца →
             </a>
 
@@ -411,7 +411,7 @@
             <div style="margin-top:18px;">
 
               <a
-                href="{% url 'public_seller_profile' seller.id %}"
+                href="{% url 'public_seller_profile' seller.slug %}"
                 class="btn outline"
               >
                 Смотреть профиль продавца

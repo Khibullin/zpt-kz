@@ -73,6 +73,13 @@ class SellerProfile(models.Model):
         verbose_name='Пользователь'
     )
     name = models.CharField(max_length=255, verbose_name='Название маркета')
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        blank=True,
+        null=True,
+        verbose_name='URL-адрес магазина',
+    )
     phone = models.CharField(max_length=30, verbose_name='Телефон / WhatsApp')
     city = models.CharField(max_length=120, blank=True, default='', verbose_name='Город')
 
@@ -109,6 +116,27 @@ class SellerProfile(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug and self.name:
+            base_slug = slugify(self.name, allow_unicode=True)
+            if not base_slug:
+                base_slug = 'seller'
+
+            slug = base_slug
+            counter = 1
+
+            while SellerProfile.objects.filter(
+                slug=slug
+            ).exclude(
+                pk=self.pk
+            ).exists():
+                counter += 1
+                slug = f'{base_slug}-{counter}'
+
+            self.slug = slug
+
+        super().save(*args, **kwargs)
 
 
 class Product(models.Model):
