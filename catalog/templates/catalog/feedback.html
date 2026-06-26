@@ -4,8 +4,7 @@
 {% block title %}Обратная связь — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=faq_feedback_modal_v105">
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_modal_v105">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=force_fresh_v999">
 {% endblock %}
 
 {% block content %}
@@ -34,8 +33,6 @@
   </section>
 </div>
 
-{% include 'catalog/includes/feedback_modal.html' %}
-<script src="{% static 'js/feedback-modal.js' %}?v=faq_feedback_modal_v105"></script>
 <script>
   document.addEventListener('DOMContentLoaded', function () {
     if (window.ZPTFeedbackModal) {

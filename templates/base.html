@@ -27,9 +27,12 @@
   rel="stylesheet"
 >
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_modal_v105">
+<link rel="stylesheet" href="{% static 'css/faq-feedback.css' %}?v=force_fresh_v999">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
 {% block content %}{% endblock %}
+{% include 'catalog/includes/feedback_modal.html' %}
+<script src="{% static 'js/feedback-modal.js' %}?v=force_fresh_v999"></script>
 </body>
 </html>

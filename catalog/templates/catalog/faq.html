@@ -4,7 +4,6 @@
 {% block title %}Частые вопросы — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/faq-feedback.css' %}?v=force_fresh_v999">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=force_fresh_v999">
 {% endblock %}
 
@@ -109,94 +108,4 @@
     </div>
   </section>
 </div>
-
-{% include 'catalog/includes/feedback_modal.html' %}
-
-<script>
-(function () {
-  var modal = document.getElementById('feedbackModal');
-  var form = document.getElementById('feedbackModalForm');
-  var successBox = document.getElementById('feedbackModalSuccess');
-  var errorBox = document.getElementById('feedbackModalError');
-
-  function openModal(event) {
-    if (event) event.preventDefault();
-    if (!modal) return;
-    if (form) form.hidden = false;
-    if (successBox) successBox.hidden = true;
-    if (errorBox) errorBox.hidden = true;
-    modal.classList.add('is-open');
-    modal.setAttribute('aria-hidden', 'false');
-    document.body.classList.add('feedback-modal-open');
-    var firstInput = document.getElementById('feedbackModalName');
-    if (firstInput) firstInput.focus();
-  }
-
-  function closeModal() {
-    if (!modal) return;
-    modal.classList.remove('is-open');
-    modal.setAttribute('aria-hidden', 'true');
-    document.body.classList.remove('feedback-modal-open');
-  }
-
-  document.querySelectorAll('[data-feedback-open]').forEach(function (el) {
-    el.addEventListener('click', openModal);
-  });
-
-  if (modal) {
-    modal.querySelectorAll('[data-feedback-close]').forEach(function (el) {
-      el.addEventListener('click', closeModal);
-    });
-  }
-
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && modal && modal.classList.contains('is-open')) {
-      closeModal();
-    }
-  });
-
-  if (form && modal) {
-    form.addEventListener('submit', function (event) {
-      event.preventDefault();
-      if (errorBox) {
-        errorBox.hidden = true;
-        errorBox.textContent = '';
-      }
-
-      var submitUrl = modal.getAttribute('data-feedback-url') || '{% url "feedback" %}';
-
-      fetch(submitUrl, {
-        method: 'POST',
-        headers: { 'X-Requested-With': 'XMLHttpRequest' },
-        body: new FormData(form),
-      })
-        .then(function (response) {
-          return response.json().then(function (data) {
-            return { ok: response.ok, data: data };
-          });
-        })
-        .then(function (result) {
-          if (result.ok && result.data.success) {
-            form.hidden = true;
-            if (successBox) {
-              successBox.hidden = false;
-              successBox.textContent = result.data.message;
-            }
-            return;
-          }
-          if (errorBox) {
-            errorBox.hidden = false;
-            errorBox.textContent = result.data.message || 'Не удалось отправить сообщение.';
-          }
-        })
-        .catch(function () {
-          if (errorBox) {
-            errorBox.hidden = false;
-            errorBox.textContent = 'Ошибка сети. Попробуйте ещё раз.';
-          }
-        });
-    });
-  }
-})();
-</script>
 {% endblock %}
