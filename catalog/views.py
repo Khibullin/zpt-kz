@@ -4,7 +4,6 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import JsonResponse
-from django.utils.text import slugify
 
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
@@ -49,14 +48,6 @@ def attach_sellers_to_products(products):
 
 
 def catalog_list(request):
-    # Временный автоматический фикс пустых слагов
-    for seller in SellerProfile.objects.all():
-        if not seller.slug:
-            seller.slug = (
-                slugify(seller.name) if seller.name else f'seller-{seller.id}'
-            )
-            seller.save()
-
     query = request.GET.get('q', '').strip()
     country_id = request.GET.get('country', '').strip()
     brand_id = request.GET.get('brand', '').strip()

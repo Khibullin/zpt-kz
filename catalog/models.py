@@ -138,8 +138,8 @@ class SellerProfile(models.Model):
         return self.name
 
     def save(self, *args, **kwargs):
-        if not self.slug and self.name:
-            base_slug = slugify(self.name, allow_unicode=True)
+        if not self.slug:
+            base_slug = slugify(self.name, allow_unicode=True) if self.name else ''
             if not base_slug:
                 base_slug = 'seller'
 
