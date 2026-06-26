@@ -1,7 +1,13 @@
-<div class="feedback-modal" id="feedbackModal" hidden aria-hidden="true">
-  <div class="feedback-modal-backdrop" data-feedback-close></div>
+<div
+  class="feedback-modal"
+  id="feedbackModal"
+  data-feedback-url="{% url 'feedback' %}"
+  aria-hidden="true"
+>
+  <div class="feedback-modal-overlay" data-feedback-close></div>
+
   <div
-    class="feedback-modal-dialog"
+    class="feedback-modal-window"
     role="dialog"
     aria-modal="true"
     aria-labelledby="feedbackModalTitle"
@@ -12,54 +18,51 @@
 
     <h2 id="feedbackModalTitle">Обратная связь</h2>
     <p class="feedback-modal-lead">
-      Оставьте сообщение — мы свяжемся с вами.
+      Оставьте сообщение — мы свяжемся с вами в ближайшее время.
     </p>
 
-    <div class="feedback-modal-success" id="feedbackModalSuccess" hidden role="status">
-      Спасибо! Мы получили ваше сообщение.
-    </div>
+    <div class="feedback-modal-success" id="feedbackModalSuccess" hidden role="status"></div>
+    <div class="feedback-modal-error" id="feedbackModalError" hidden role="alert"></div>
 
-    <form class="feedback-form feedback-modal-form" id="feedbackModalForm" novalidate>
+    <form class="feedback-modal-form" id="feedbackModalForm" novalidate>
       {% csrf_token %}
-      <input type="hidden" name="name" id="feedbackModalName">
-      <input type="hidden" name="phone" id="feedbackModalPhoneHidden">
-      <input type="hidden" name="message" id="feedbackModalMessageHidden">
 
-      <div class="feedback-field">
-        <label for="feedbackModalNameInput">Ваше имя</label>
+      <div class="feedback-modal-field">
+        <label for="feedbackModalName">Ваше имя</label>
         <input
           type="text"
-          id="feedbackModalNameInput"
+          id="feedbackModalName"
+          name="name"
           placeholder="Как к вам обращаться"
           autocomplete="name"
           required
         >
       </div>
 
-      <div class="feedback-field">
-        <label for="feedbackModalPhoneInput">Телефон / WhatsApp</label>
+      <div class="feedback-modal-field">
+        <label for="feedbackModalPhone">Телефон / WhatsApp</label>
         <input
           type="tel"
-          id="feedbackModalPhoneInput"
+          id="feedbackModalPhone"
+          name="phone"
           placeholder="Например: 7771234567"
           autocomplete="tel"
           required
         >
       </div>
 
-      <div class="feedback-field">
-        <label for="feedbackModalMessageInput">Сообщение</label>
+      <div class="feedback-modal-field">
+        <label for="feedbackModalMessage">Сообщение</label>
         <textarea
-          id="feedbackModalMessageInput"
+          id="feedbackModalMessage"
+          name="message"
           rows="4"
           placeholder="Опишите вопрос или предложение"
           required
         ></textarea>
       </div>
 
-      <div class="feedback-modal-error" id="feedbackModalError" hidden></div>
-
-      <button type="submit" class="btn feedback-submit-btn">Отправить</button>
+      <button type="submit" class="feedback-modal-submit">Отправить</button>
     </form>
   </div>
 </div>

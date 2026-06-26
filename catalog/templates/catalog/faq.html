@@ -4,24 +4,29 @@
 {% block title %}Частые вопросы — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=faq_feedback_v1">
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_v1">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=faq_feedback_modal_v105">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_modal_v105">
 {% endblock %}
 
 {% block content %}
 {% include 'catalog/includes/market_header.html' %}
 
-<div class="container market-page-wrap">
-  <section class="market-info-page">
-    <div class="market-info-card">
+<div class="container faq-page-wrap">
+  <section class="faq-page">
+    <header class="faq-page-header">
       <h1>Частые вопросы</h1>
-      <p class="market-info-lead">
+      <p class="faq-page-lead">
         Ответы на популярные вопросы о покупке автозапчастей и работе маркетплейса ZPT Market.
       </p>
+    </header>
 
-      <div class="faq-accordion">
-        <details class="faq-item">
-          <summary>Как сделать заказ на ZPT Market?</summary>
+    <div class="faq-list">
+      <div class="faq-card">
+        <details>
+          <summary class="faq-summary">
+            <span>Как сделать заказ на ZPT Market?</span>
+            <span class="faq-icon" aria-hidden="true">↓</span>
+          </summary>
           <div class="faq-answer">
             <p>
               Найдите нужную запчасть через поиск или фильтры по марке, модели и категории.
@@ -30,9 +35,14 @@
             </p>
           </div>
         </details>
+      </div>
 
-        <details class="faq-item">
-          <summary>Как зарегистрироваться продавцу?</summary>
+      <div class="faq-card">
+        <details>
+          <summary class="faq-summary">
+            <span>Как зарегистрироваться продавцу?</span>
+            <span class="faq-icon" aria-hidden="true">↓</span>
+          </summary>
           <div class="faq-answer">
             <p>
               Перейдите в раздел
@@ -42,9 +52,14 @@
             </p>
           </div>
         </details>
+      </div>
 
-        <details class="faq-item">
-          <summary>Есть ли доставка по Казахстану?</summary>
+      <div class="faq-card">
+        <details>
+          <summary class="faq-summary">
+            <span>Есть ли доставка по Казахстану?</span>
+            <span class="faq-icon" aria-hidden="true">↓</span>
+          </summary>
           <div class="faq-answer">
             <p>
               Условия доставки определяет каждый продавец индивидуально: самовывоз со склада,
@@ -53,9 +68,14 @@
             </p>
           </div>
         </details>
+      </div>
 
-        <details class="faq-item">
-          <summary>Что делать, если не нашёл нужную запчасть?</summary>
+      <div class="faq-card">
+        <details>
+          <summary class="faq-summary">
+            <span>Что делать, если не нашёл нужную запчасть?</span>
+            <span class="faq-icon" aria-hidden="true">↓</span>
+          </summary>
           <div class="faq-answer">
             <p>
               Оставьте заявку в сервисе
@@ -64,9 +84,14 @@
             </p>
           </div>
         </details>
+      </div>
 
-        <details class="faq-item">
-          <summary>Как проверить продавца?</summary>
+      <div class="faq-card">
+        <details>
+          <summary class="faq-summary">
+            <span>Как проверить продавца?</span>
+            <span class="faq-icon" aria-hidden="true">↓</span>
+          </summary>
           <div class="faq-answer">
             <p>
               На карточках товаров и в профиле продавца отображается бейдж «Проверенный продавец ZPT».
@@ -76,12 +101,15 @@
           </div>
         </details>
       </div>
+    </div>
 
-      <div class="market-info-actions">
-        <a href="{% url 'catalog_list' %}" class="btn outline">← Вернуться в маркет</a>
-        <a href="{% url 'feedback' %}" class="btn">Обратная связь</a>
-      </div>
+    <div class="faq-page-actions">
+      <a href="{% url 'catalog_list' %}" class="faq-btn faq-btn-outline">← Вернуться в маркет</a>
+      <a href="{% url 'feedback' %}" class="faq-btn faq-btn-primary" data-feedback-open>Обратная связь</a>
     </div>
   </section>
 </div>
+
+{% include 'catalog/includes/feedback_modal.html' %}
+<script src="{% static 'js/feedback-modal.js' %}?v=faq_feedback_modal_v105"></script>
 {% endblock %}

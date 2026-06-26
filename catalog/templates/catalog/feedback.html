@@ -4,66 +4,43 @@
 {% block title %}Обратная связь — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=faq_feedback_v1">
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_v1">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=faq_feedback_modal_v105">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_modal_v105">
 {% endblock %}
 
 {% block content %}
 {% include 'catalog/includes/market_header.html' %}
 
-<div class="container market-page-wrap">
-  <section class="market-info-page">
-    <div class="market-info-card feedback-page-card">
+<div class="container faq-page-wrap">
+  <section class="faq-page feedback-landing">
+    <header class="faq-page-header">
       <h1>Обратная связь</h1>
-      <p class="market-info-lead">
+      <p class="faq-page-lead">
         Есть вопрос, предложение или нашли ошибку? Напишите нам — мы ответим в ближайшее время.
       </p>
+    </header>
 
-      {% if success %}
-        <div class="feedback-success" role="status">
-          Спасибо! Мы получили ваше сообщение и скоро свяжемся с вами.
-        </div>
-      {% endif %}
+    <div class="feedback-landing-card">
+      <p>Нажмите кнопку ниже, чтобы открыть форму обратной связи.</p>
+      <button type="button" class="faq-btn faq-btn-primary" data-feedback-open>
+        Написать сообщение
+      </button>
+    </div>
 
-      <form method="post" class="feedback-form" novalidate>
-        {% csrf_token %}
-
-        {% if form.non_field_errors %}
-          <div class="form-error">{{ form.non_field_errors }}</div>
-        {% endif %}
-
-        <div class="feedback-field">
-          <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
-          {{ form.name }}
-          {% if form.name.errors %}
-            <div class="field-error">{{ form.name.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <div class="feedback-field">
-          <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
-          {{ form.phone }}
-          {% if form.phone.errors %}
-            <div class="field-error">{{ form.phone.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <div class="feedback-field">
-          <label for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
-          {{ form.message }}
-          {% if form.message.errors %}
-            <div class="field-error">{{ form.message.errors.0 }}</div>
-          {% endif %}
-        </div>
-
-        <button type="submit" class="btn feedback-submit-btn">Отправить сообщение</button>
-      </form>
-
-      <div class="market-info-actions">
-        <a href="{% url 'faq' %}" class="btn outline">Частые вопросы</a>
-        <a href="{% url 'catalog_list' %}" class="btn outline">← В маркет</a>
-      </div>
+    <div class="faq-page-actions">
+      <a href="{% url 'faq' %}" class="faq-btn faq-btn-outline">Частые вопросы</a>
+      <a href="{% url 'catalog_list' %}" class="faq-btn faq-btn-outline">← В маркет</a>
     </div>
   </section>
 </div>
+
+{% include 'catalog/includes/feedback_modal.html' %}
+<script src="{% static 'js/feedback-modal.js' %}?v=faq_feedback_modal_v105"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    if (window.ZPTFeedbackModal) {
+      window.ZPTFeedbackModal.open();
+    }
+  });
+</script>
 {% endblock %}
