@@ -17,6 +17,8 @@ from .views import (
     load_brands,
     load_models,
     load_compatible_models,
+    faq_view,
+    feedback_view,
 )
 
 urlpatterns = [
@@ -46,6 +48,9 @@ urlpatterns = [
         load_compatible_models,
         name='ajax_load_compatible_models'
     ),
+
+    path('faq/', faq_view, name='faq'),
+    path('feedback/', feedback_view, name='feedback'),
 
     path('<int:pk>/', product_detail, name='product_detail_old'),
     path('<slug:slug>/', product_detail, name='product_detail'),

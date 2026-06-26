@@ -7,6 +7,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.http import JsonResponse
 from urllib.parse import urlencode
 
+from core.forms import FeedbackForm
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
     Product,
@@ -767,3 +768,35 @@ def public_seller_profile(request, slug):
             ]),
         }
     )
+
+
+def faq_view(request):
+    return render(request, 'catalog/faq.html')
+
+
+def feedback_view(request):
+    form = FeedbackForm()
+    success = False
+
+    if request.method == 'POST':
+        form = FeedbackForm(request.POST)
+        if form.is_valid():
+            form.save()
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': 'Спасибо! Мы получили ваше сообщение и скоро свяжемся с вами.',
+                })
+            success = True
+            form = FeedbackForm()
+        elif request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'message': 'Проверьте правильность заполнения полей.',
+                'errors': form.errors,
+            }, status=400)
+
+    return render(request, 'catalog/feedback.html', {
+        'form': form,
+        'success': success,
+    })

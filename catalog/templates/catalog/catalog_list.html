@@ -342,11 +342,11 @@
         СТО и детейлинг
       </a>
 
-      <a href="#">
+      <a href="{% url 'faq' %}">
         Частые вопросы
       </a>
 
-      <a href="#">
+      <a href="{% url 'feedback' %}" id="feedbackFooterLink" data-feedback-open>
         Обратная связь
       </a>
 
@@ -355,6 +355,8 @@
   </footer>
 
 </div>
+
+{% include 'catalog/includes/feedback_modal.html' %}
 
 <script src="{% static 'js/dom-safe.js' %}"></script>
 <script>
@@ -394,6 +396,100 @@ document.addEventListener('DOMContentLoaded', function () {
       });
 
   });
+
+  const feedbackLink = document.getElementById('feedbackFooterLink');
+  const feedbackModal = document.getElementById('feedbackModal');
+  const feedbackForm = document.getElementById('feedbackModalForm');
+  const feedbackSuccess = document.getElementById('feedbackModalSuccess');
+  const feedbackError = document.getElementById('feedbackModalError');
+
+  function openFeedbackModal(event) {
+    if (!feedbackModal || !feedbackLink) return;
+
+    event.preventDefault();
+    feedbackModal.hidden = false;
+    feedbackModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('feedback-modal-open');
+    const firstInput = document.getElementById('feedbackModalNameInput');
+    if (firstInput) firstInput.focus();
+  }
+
+  function closeFeedbackModal() {
+    if (!feedbackModal) return;
+
+    feedbackModal.hidden = true;
+    feedbackModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('feedback-modal-open');
+  }
+
+  if (feedbackLink && feedbackModal) {
+    feedbackLink.addEventListener('click', openFeedbackModal);
+
+    feedbackModal.querySelectorAll('[data-feedback-close]').forEach(function (el) {
+      el.addEventListener('click', closeFeedbackModal);
+    });
+
+    document.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && !feedbackModal.hidden) {
+        closeFeedbackModal();
+      }
+    });
+  }
+
+  if (feedbackForm) {
+    feedbackForm.addEventListener('submit', function (event) {
+      event.preventDefault();
+
+      const nameInput = document.getElementById('feedbackModalNameInput');
+      const phoneInput = document.getElementById('feedbackModalPhoneInput');
+      const messageInput = document.getElementById('feedbackModalMessageInput');
+
+      document.getElementById('feedbackModalName').value = nameInput.value.trim();
+      document.getElementById('feedbackModalPhoneHidden').value = phoneInput.value.trim();
+      document.getElementById('feedbackModalMessageHidden').value = messageInput.value.trim();
+
+      if (feedbackError) {
+        feedbackError.hidden = true;
+        feedbackError.textContent = '';
+      }
+
+      const formData = new FormData(feedbackForm);
+
+      fetch('{% url "feedback" %}', {
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: formData,
+      })
+        .then(function (response) {
+          return response.json().then(function (data) {
+            return { ok: response.ok, data: data };
+          });
+        })
+        .then(function (result) {
+          if (result.ok && result.data.success) {
+            feedbackForm.hidden = true;
+            if (feedbackSuccess) {
+              feedbackSuccess.hidden = false;
+              feedbackSuccess.textContent = result.data.message;
+            }
+            return;
+          }
+
+          if (feedbackError) {
+            feedbackError.hidden = false;
+            feedbackError.textContent = result.data.message || 'Не удалось отправить сообщение.';
+          }
+        })
+        .catch(function () {
+          if (feedbackError) {
+            feedbackError.hidden = false;
+            feedbackError.textContent = 'Ошибка сети. Попробуйте ещё раз или откройте страницу обратной связи.';
+          }
+        });
+    });
+  }
 
 });
 </script>

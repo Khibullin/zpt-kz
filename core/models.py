@@ -394,3 +394,18 @@ class WhatsAppMessageLog(models.Model):
 
     def __str__(self):
         return f"{self.seller_name} - {self.phone_clean}"
+
+
+class Feedback(models.Model):
+    name = models.CharField(max_length=120, verbose_name='Имя')
+    phone = models.CharField(max_length=30, verbose_name='Телефон')
+    message = models.TextField(verbose_name='Сообщение')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Обратная связь'
+        verbose_name_plural = 'Обратная связь'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'{self.name} ({self.phone})'

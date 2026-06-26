@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Частые вопросы — ZPT Market{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=faq_feedback_v1">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=faq_feedback_v1">
+{% endblock %}
+
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+
+<div class="container market-page-wrap">
+  <section class="market-info-page">
+    <div class="market-info-card">
+      <h1>Частые вопросы</h1>
+      <p class="market-info-lead">
+        Ответы на популярные вопросы о покупке автозапчастей и работе маркетплейса ZPT Market.
+      </p>
+
+      <div class="faq-accordion">
+        <details class="faq-item">
+          <summary>Как сделать заказ на ZPT Market?</summary>
+          <div class="faq-answer">
+            <p>
+              Найдите нужную запчасть через поиск или фильтры по марке, модели и категории.
+              На карточке товара нажмите «WhatsApp продавцу» — вы свяжетесь напрямую с продавцом,
+              уточните наличие, цену и способ получения.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Как зарегистрироваться продавцу?</summary>
+          <div class="faq-answer">
+            <p>
+              Перейдите в раздел
+              <a href="{% url 'seller_register' %}">регистрации продавца</a>,
+              заполните данные магазина и создайте пароль. После входа в кабинет вы сможете
+              добавлять товары, редактировать профиль и управлять складом.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Есть ли доставка по Казахстану?</summary>
+          <div class="faq-answer">
+            <p>
+              Условия доставки определяет каждый продавец индивидуально: самовывоз со склада,
+              курьер по городу или отправка в регионы (Казпочта, транспортные компании).
+              Уточняйте детали в переписке с продавцом на странице товара или в его публичном профиле.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Что делать, если не нашёл нужную запчасть?</summary>
+          <div class="faq-answer">
+            <p>
+              Оставьте заявку в сервисе
+              <a href="/request-parts/">Request Parts</a> — продавцы получат запрос
+              и предложат подходящие варианты. Это бесплатно и не обязывает к покупке.
+            </p>
+          </div>
+        </details>
+
+        <details class="faq-item">
+          <summary>Как проверить продавца?</summary>
+          <div class="faq-answer">
+            <p>
+              На карточках товаров и в профиле продавца отображается бейдж «Проверенный продавец ZPT».
+              Вы можете посмотреть все товары магазина, контакты, график работы и условия доставки
+              на его публичной странице перед тем, как написать в WhatsApp.
+            </p>
+          </div>
+        </details>
+      </div>
+
+      <div class="market-info-actions">
+        <a href="{% url 'catalog_list' %}" class="btn outline">← Вернуться в маркет</a>
+        <a href="{% url 'feedback' %}" class="btn">Обратная связь</a>
+      </div>
+    </div>
+  </section>
+</div>
+{% endblock %}

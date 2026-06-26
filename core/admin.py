@@ -17,6 +17,7 @@ from .models import (
     Seller,
     Match,
     RequestDispatch,
+    Feedback,
 )
 
 
@@ -635,7 +636,14 @@ class RequestDispatchAdmin(admin.ModelAdmin):
         queue_dispatches,
     )
 
-from .models import WhatsAppMessageLog
+
+@admin.register(Feedback)
+class FeedbackAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name', 'phone', 'created_at')
+    search_fields = ('name', 'phone', 'message')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
+
 
 @admin.register(WhatsAppMessageLog)
 class WhatsAppMessageLogAdmin(admin.ModelAdmin):
