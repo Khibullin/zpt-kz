@@ -565,19 +565,20 @@ a.btn-green.product-wa-btn:hover,
 .public-seller-logo{
   width:110px;
   height:110px;
-  border-radius:22px;
+  border-radius:50%;
   border:1px solid #eee;
-  background:#fff;
+  background-color:#ffffff !important;
   overflow:hidden;
   flex-shrink:0;
 }
 
 .public-seller-logo img{
+  display:block !important;
   width:100% !important;
   height:100% !important;
   object-fit:contain !important;
-  padding:6px !important;
-  display:block;
+  padding:12px !important;
+  box-sizing:border-box !important;
 }
 
 .public-seller-info{
@@ -1048,7 +1049,8 @@ a.btn-green.product-wa-btn:hover,
   .public-seller-logo{
     width:80px;
     height:80px;
-    border-radius:16px;
+    border-radius:50%;
+    background-color:#ffffff !important;
   }
 
   .public-seller-info h1{
