@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from core.views import (
     parts_sellers_catalog,
     parts_seller_detail,
+    view_request_status,
 )
 
 from service_requests.views import (
@@ -61,6 +62,12 @@ urlpatterns = [
             template_name='request-parts/faq/index.html'
         ),
         name='request_parts_faq',
+    ),
+
+    path(
+        'my-request/<int:req_id>/',
+        view_request_status,
+        name='view_request_status_public',
     ),
 
     # КАТАЛОГ ПРОДАВЦОВ ЗАПЧАСТЕЙ (НОВЫЙ КРАСИВЫЙ URL)

@@ -17,11 +17,13 @@ from .views import (
     update_match_status,
     parts_sellers_catalog,
     parts_seller_detail,
+    view_request_status,
 )
 
 
 urlpatterns = [
     path('create-request/', create_request, name='create_request'),
+    path('my-request/<int:req_id>/', view_request_status, name='view_request_status'),
     path('create-seller/', create_seller, name='create_seller'),
 
     path('seller-login/', seller_login, name='seller_login'),

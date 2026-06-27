@@ -79,6 +79,11 @@ def _public_media_url(relative_url):
     return f'{base}{path}'
 
 
+def _request_page_url(req):
+    base = os.getenv('PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    return f'{base}/my-request/{req.id}/'
+
+
 def _seller_template_body_params(req):
     return [
         _wa_template_param(req.id),
@@ -88,6 +93,7 @@ def _seller_template_body_params(req):
         _wa_template_param(req.city),
         _wa_template_param(req.description),
         _wa_template_param(_format_whatsapp_display(req.phone)),
+        _wa_template_param(_request_page_url(req)),
     ]
 
 
@@ -100,6 +106,7 @@ def _buyer_template_body_params(req):
         _wa_template_param(req.article or '-'),
         _wa_template_param(req.description),
         _wa_template_param(req.city),
+        _wa_template_param(_request_page_url(req)),
     ]
 
 
@@ -149,7 +156,6 @@ def send_whatsapp_template(
     seller_name='',
     *,
     template_name=None,
-    include_photo_header=True,
     body_parameters=None,
 ):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
@@ -202,27 +208,10 @@ def send_whatsapp_template(
 
     url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
 
-    components = []
-
-    if include_photo_header:
-        first_photo = req.photos.order_by('created_at').first()
-        if first_photo and first_photo.image:
-            components.append({
-                'type': 'header',
-                'parameters': [
-                    {
-                        'type': 'image',
-                        'image': {
-                            'link': _public_media_url(first_photo.image.url),
-                        },
-                    },
-                ],
-            })
-
-    components.append({
+    components = [{
         'type': 'body',
         'parameters': body_parameters or _seller_template_body_params(req),
-    })
+    }]
 
     payload = {
         'messaging_product': 'whatsapp',
@@ -668,7 +657,6 @@ def _build_dispatch_queue(req, sellers):
                     req,
                     'Покупатель',
                     template_name=buyer_template,
-                    include_photo_header=False,
                     body_parameters=_buyer_template_body_params(req),
                 )
                 buyer_notified = True
@@ -766,8 +754,30 @@ def create_request(request):
         'matches': len(matched),
         'strategy': strategy,
         'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
+        'photo_view_url': _request_page_url(req),
         'seller_notifications': seller_notifications,
     })
+
+
+REQUEST_STATUS_LABELS = {
+    'new': 'Новая',
+    'sent': 'Отправлена продавцам',
+    'no_sellers': 'Продавцы не найдены',
+}
+
+
+def view_request_status(request, req_id):
+    req = get_object_or_404(
+        Request.objects.prefetch_related('photos'),
+        pk=req_id,
+    )
+
+    return render(request, 'request_status.html', {
+        'req': req,
+        'photos': req.photos.all(),
+        'status_label': REQUEST_STATUS_LABELS.get(req.status, req.status),
+    })
+
 
 @csrf_exempt
 def create_seller(request):

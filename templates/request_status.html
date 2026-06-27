@@ -1,0 +1,185 @@
+{% extends 'base_portal.html' %}
+{% load static %}
+
+{% block title %}ZPT.KZ — Заявка №{{ req.id }}{% endblock %}
+
+{% block portal_css %}
+<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
+<style>
+  .status-badge {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: bold;
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  .status-badge.is-waiting {
+    background: #fff3e0;
+    color: #e65100;
+  }
+  .status-badge.is-empty {
+    background: #ffebee;
+    color: #b71c1c;
+  }
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .detail-item {
+    background: #fafafa;
+    border: 1px solid #ececec;
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+  .detail-item.full {
+    grid-column: 1 / -1;
+  }
+  .detail-label {
+    font-size: 12px;
+    color: #777;
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: .03em;
+  }
+  .detail-value {
+    font-size: 15px;
+    line-height: 1.45;
+    word-break: break-word;
+  }
+  .photos-section {
+    margin-top: 20px;
+  }
+  .photos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .photo-card {
+    border-radius: 14px;
+    overflow: hidden;
+    border: 1px solid #e0e0e0;
+    background: #fff;
+    aspect-ratio: 1;
+  }
+  .photo-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .photos-empty {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-top: 8px;
+  }
+  .page-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .page-actions a {
+    display: inline-block;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: bold;
+  }
+  .btn-primary {
+    background: #c62828;
+    color: #fff;
+  }
+  .btn-secondary {
+    background: #eef2f7;
+    color: #3478f6;
+  }
+  @media (max-width: 760px) {
+    .details-grid,
+    .photos-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block header_nav %}
+<a class="nav-main" href="/">Главная</a>
+<a class="nav-seller" href="/request-parts/">Новая заявка</a>
+{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <div class="hero">
+    <h1>Заявка №{{ req.id }}</h1>
+    <p>
+      {% if req.brand or req.model %}
+        {{ req.brand }} {{ req.model }}
+      {% else %}
+        Запрос на автозапчасть
+      {% endif %}
+    </p>
+  </div>
+
+  <div class="card">
+    <div class="field full">
+      <label>Статус</label>
+      <span class="status-badge{% if req.status == 'no_sellers' %} is-empty{% elif req.status == 'new' %} is-waiting{% endif %}">
+        {{ status_label }}
+      </span>
+    </div>
+
+    <div class="details-grid">
+      <div class="detail-item">
+        <div class="detail-label">Категория</div>
+        <div class="detail-value">{{ req.category|default:"—" }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Город</div>
+        <div class="detail-value">{{ req.city|default:"—" }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Страна</div>
+        <div class="detail-value">{{ req.country|default:"—" }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Артикул</div>
+        <div class="detail-value">{{ req.article|default:"—" }}</div>
+      </div>
+      <div class="detail-item full">
+        <div class="detail-label">Описание</div>
+        <div class="detail-value">{{ req.description|default:"—" }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Создана</div>
+        <div class="detail-value">{{ req.created_at|date:"d.m.Y H:i" }}</div>
+      </div>
+    </div>
+
+    <div class="photos-section">
+      <label>Фото запчасти</label>
+      {% if photos %}
+        <div class="photos-grid">
+          {% for photo in photos %}
+            <div class="photo-card">
+              <img src="{{ photo.image.url }}" alt="Фото заявки №{{ req.id }}">
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="photos-empty">Фото не прикреплены. Продавцы получат текстовое описание заявки.</p>
+      {% endif %}
+    </div>
+
+    <div class="page-actions">
+      <a class="btn-primary" href="/request-parts/">Отправить новую заявку</a>
+      <a class="btn-secondary" href="/">На главную ZPT.KZ</a>
+    </div>
+  </div>
+</div>
+{% endblock %}
