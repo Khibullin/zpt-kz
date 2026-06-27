@@ -87,6 +87,13 @@ def _request_page_url(req):
     return f'{base}/my-request/{req.id}/'
 
 
+def _description_with_request_link(req):
+    page_url = _request_page_url(req)
+    description = (req.description or '-').strip()
+    combined = f'{description} Смотреть заявку: {page_url}'
+    return combined[:500]
+
+
 def _seller_template_body_params(req):
     return [
         _wa_template_param(req.id),
@@ -94,9 +101,8 @@ def _seller_template_body_params(req):
         _wa_template_param(req.model),
         _wa_template_param(req.category),
         _wa_template_param(req.city),
-        _wa_template_param(req.description),
+        _wa_template_param(_description_with_request_link(req)),
         _wa_template_param(_format_whatsapp_display(req.phone)),
-        _wa_template_param(_request_page_url(req)),
     ]
 
 
@@ -107,9 +113,8 @@ def _buyer_template_body_params(req):
         _wa_template_param(req.model),
         _wa_template_param(req.category),
         _wa_template_param(req.article or '-'),
-        _wa_template_param(req.description),
+        _wa_template_param(_description_with_request_link(req)),
         _wa_template_param(req.city),
-        _wa_template_param(_request_page_url(req)),
     ]
 
 
@@ -746,7 +751,7 @@ def _dispatch_to_json(dispatch, req):
         else f'Продавец #{seller.id}'
     )
 
-    whatsapp_status = 'sent'
+    whatsapp_status = 'pending'
 
     try:
         match = Match.objects.filter(
@@ -754,7 +759,9 @@ def _dispatch_to_json(dispatch, req):
             seller=seller
         ).first()
 
-        if match and match.status == 'error':
+        if match and match.status == 'sent':
+            whatsapp_status = 'sent'
+        elif match and match.status == 'error':
             whatsapp_status = 'error'
 
     except Exception:
