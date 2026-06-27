@@ -8,6 +8,7 @@ const categoryEl=document.getElementById('category');
 const articleEl=document.getElementById('article');
 const cityEl=document.getElementById('city');
 const phoneEl=document.getElementById('phone');
+const photosEl=document.getElementById('photos');
 const descriptionEl=document.getElementById('description');
 const msg=document.getElementById('msg');
 const submitBtn=document.getElementById('submitBtn');
@@ -176,35 +177,32 @@ sellers.forEach((s)=>{
 
 document.getElementById('requestForm').addEventListener('submit',async function(e){
   e.preventDefault();clearMessage();
-  let payload={
-    transport_type:transportType,
-    country:getSelectedText(countryEl),
-    brand:getSelectedText(brandEl),
-    model:getSelectedText(modelEl),
-    category:categoryEl.value,
-    article:articleEl.value.trim(),
-    description:descriptionEl.value.trim(),
-    city:cityEl.value,
-    search_scope:getSearchScope(),
-    selected_cities:getSelectedCities(),
-    phone:normalizePhone(phoneEl.value)
-  };
+  let country=getSelectedText(countryEl);
+  let brand=getSelectedText(brandEl);
+  let model=getSelectedText(modelEl);
+  let category=categoryEl.value;
+  let article=articleEl.value.trim();
+  let description=descriptionEl.value.trim();
+  let city=cityEl.value;
+  let searchScope=getSearchScope();
+  let selectedCities=getSelectedCities();
+  let phone=normalizePhone(phoneEl.value);
 
 if(
-  !payload.country ||
-  !payload.brand ||
-  !payload.model ||
-  !payload.category ||
-  !payload.city ||
-  !payload.phone
+  !country ||
+  !brand ||
+  !model ||
+  !category ||
+  !city ||
+  !phone
 ){
   setMessage('Заполните обязательные поля.','error');
   return;
 }
 
 if(
-  payload.search_scope === 'custom' &&
-  !payload.selected_cities.length
+  searchScope === 'custom' &&
+  !selectedCities.length
 ){
   setMessage(
     'Выберите хотя бы один город для поиска продавцов.',
@@ -214,8 +212,8 @@ if(
 }
 
 if(
-  payload.phone.length !== 11 ||
-  !payload.phone.startsWith('7')
+  phone.length !== 11 ||
+  !phone.startsWith('7')
 ){
   setMessage(
     'Введите номер WhatsApp корректно: номер должен начинаться с 7, например 77011234567',
@@ -223,9 +221,31 @@ if(
   );
   return;
 }
+
+  let formData=new FormData();
+  formData.append('transport_type',transportType);
+  formData.append('country',country);
+  formData.append('brand',brand);
+  formData.append('model',model);
+  formData.append('category',category);
+  formData.append('article',article);
+  formData.append('description',description);
+  formData.append('city',city);
+  formData.append('search_scope',searchScope);
+  selectedCities.forEach(function(cityName){
+    formData.append('selected_cities',cityName);
+  });
+  formData.append('phone',phone);
+
+  if(photosEl && photosEl.files){
+    Array.from(photosEl.files).forEach(function(file){
+      formData.append('photos',file);
+    });
+  }
+
   submitBtn.disabled=true;submitBtn.innerText='Отправляем...';
   try{
-    let r=await fetch(API+'/create-request/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    let r=await fetch(API+'/create-request/',{method:'POST',body:formData});
     let data=await r.json();
     if(data.error){setMessage(data.error,'error');return}
     renderResult(data);

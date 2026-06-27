@@ -1,21 +1,26 @@
+import io
 import json
 import os
 import re
+import uuid
 import urllib.error
 import urllib.request
 from datetime import timedelta
 from urllib.parse import quote
 
 from django.contrib.auth.hashers import make_password, check_password
+from django.core.files.base import ContentFile
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
-from django.core.paginator import Paginator
+from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
+from PIL import Image, ImageOps
 
 from .models import (
     Request,
+    RequestPhoto,
     Country,
     Brand,
     CarModel,
@@ -68,10 +73,91 @@ def _wa_template_param(value):
     }
 
 
-def send_whatsapp_template(to_phone, req, seller_name=''):
+def _public_media_url(relative_url):
+    base = os.getenv('PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    path = relative_url if relative_url.startswith('/') else f'/{relative_url}'
+    return f'{base}{path}'
+
+
+def _seller_template_body_params(req):
+    return [
+        _wa_template_param(req.id),
+        _wa_template_param(req.brand),
+        _wa_template_param(req.model),
+        _wa_template_param(req.category),
+        _wa_template_param(req.city),
+        _wa_template_param(req.description),
+        _wa_template_param(_format_whatsapp_display(req.phone)),
+    ]
+
+
+def _buyer_template_body_params(req):
+    return [
+        _wa_template_param(req.id),
+        _wa_template_param(req.brand),
+        _wa_template_param(req.model),
+        _wa_template_param(req.category),
+        _wa_template_param(req.article or '-'),
+        _wa_template_param(req.description),
+        _wa_template_param(req.city),
+    ]
+
+
+def _process_and_save_request_photo(req, uploaded_file):
+    img = Image.open(uploaded_file)
+    img = ImageOps.exif_transpose(img)
+    img = img.convert('RGB')
+
+    max_size = 1200
+    width, height = img.size
+    if max(width, height) > max_size:
+        ratio = max_size / max(width, height)
+        img = img.resize(
+            (int(width * ratio), int(height * ratio)),
+            Image.Resampling.LANCZOS,
+        )
+
+    buffer = io.BytesIO()
+    img.save(buffer, format='WEBP', quality=80)
+    buffer.seek(0)
+
+    filename = f'{uuid.uuid4().hex}.webp'
+    photo = RequestPhoto(request=req)
+    photo.image.save(filename, ContentFile(buffer.read()), save=True)
+    return photo
+
+
+def _save_request_photos(req, uploaded_files):
+    saved = []
+
+    for uploaded in uploaded_files:
+        content_type = getattr(uploaded, 'content_type', '') or ''
+        if not content_type.startswith('image/'):
+            continue
+
+        try:
+            saved.append(_process_and_save_request_photo(req, uploaded))
+        except Exception as exc:
+            print('PHOTO PROCESS ERROR:', str(exc))
+
+    return saved
+
+
+def send_whatsapp_template(
+    to_phone,
+    req,
+    seller_name='',
+    *,
+    template_name=None,
+    include_photo_header=True,
+    body_parameters=None,
+):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
-    template_name = os.getenv('WHATSAPP_TEMPLATE_NAME', 'zpt_request_notification')
+    template_name = template_name or os.getenv(
+        'WHATSAPP_TEMPLATE_NAME',
+        'zpt_request_notification',
+    )
     template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
 
     to_phone = _normalize_whatsapp(to_phone)
@@ -96,7 +182,7 @@ def send_whatsapp_template(to_phone, req, seller_name=''):
         }
 
     if not to_phone:
-        error_text = 'Seller WhatsApp phone is empty'
+        error_text = 'Recipient WhatsApp phone is empty'
 
         WhatsAppMessageLog.objects.create(
             request_id=req.id,
@@ -116,6 +202,28 @@ def send_whatsapp_template(to_phone, req, seller_name=''):
 
     url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
 
+    components = []
+
+    if include_photo_header:
+        first_photo = req.photos.order_by('created_at').first()
+        if first_photo and first_photo.image:
+            components.append({
+                'type': 'header',
+                'parameters': [
+                    {
+                        'type': 'image',
+                        'image': {
+                            'link': _public_media_url(first_photo.image.url),
+                        },
+                    },
+                ],
+            })
+
+    components.append({
+        'type': 'body',
+        'parameters': body_parameters or _seller_template_body_params(req),
+    })
+
     payload = {
         'messaging_product': 'whatsapp',
         'to': to_phone,
@@ -125,20 +233,7 @@ def send_whatsapp_template(to_phone, req, seller_name=''):
             'language': {
                 'code': template_lang,
             },
-            'components': [
-                {
-                    'type': 'body',
-                    'parameters': [
-                        _wa_template_param(req.id),
-                        _wa_template_param(req.brand),
-                        _wa_template_param(req.model),
-                        _wa_template_param(req.category),
-                        _wa_template_param(req.city),
-                        _wa_template_param(req.description),
-                        _wa_template_param(_format_whatsapp_display(req.phone)),
-                    ],
-                }
-            ],
+            'components': components,
         },
     }
 
@@ -562,8 +657,22 @@ def _build_dispatch_queue(req, sellers):
 
         dispatches.append(dispatch)
 
+    buyer_template = os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME')
+    buyer_notified = False
+
     for dispatch in dispatches:
         if dispatch.wave_number == 1:
+            if not buyer_notified and buyer_template:
+                send_whatsapp_template(
+                    req.phone,
+                    req,
+                    'Покупатель',
+                    template_name=buyer_template,
+                    include_photo_header=False,
+                    body_parameters=_buyer_template_body_params(req),
+                )
+                buyer_notified = True
+
             _send_dispatch(dispatch)
 
     return dispatches
@@ -614,29 +723,21 @@ def create_request(request):
 
     _dispatch_due_requests()
 
-    try:
-        data = json.loads(request.body)
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'invalid json'}, status=400)
-
     req = Request.objects.create(
-        transport_type=data.get('transport_type'),
-        country=data.get('country', ''),
-        brand=data.get('brand', ''),
-        model=data.get('model', ''),
-        category=data.get('category', ''),
-        article=data.get('article', ''),
-        description=data.get('description', ''),
-        city=data.get('city', ''),
-        search_scope=data.get(
-            'search_scope',
-            'city'
-        ),
-        selected_cities=','.join(
-            data.get('selected_cities', [])
-        ),
-        phone=data.get('phone', ''),
+        transport_type=request.POST.get('transport_type'),
+        country=request.POST.get('country', ''),
+        brand=request.POST.get('brand', ''),
+        model=request.POST.get('model', ''),
+        category=request.POST.get('category', ''),
+        article=request.POST.get('article', ''),
+        description=request.POST.get('description', ''),
+        city=request.POST.get('city', ''),
+        search_scope=request.POST.get('search_scope', 'city'),
+        selected_cities=','.join(request.POST.getlist('selected_cities')),
+        phone=request.POST.get('phone', ''),
     )
+
+    _save_request_photos(req, request.FILES.getlist('photos'))
 
     sellers, strategy = _find_matching_sellers(req)
     matched = list(sellers)

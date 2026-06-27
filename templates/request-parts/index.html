@@ -20,7 +20,7 @@
   </div>
 
   <div class="card">
-    <form id="requestForm">
+    <form id="requestForm" enctype="multipart/form-data">
       <div class="grid">
         <div class="field full">
           <label>Тип транспорта</label>
@@ -114,6 +114,12 @@
         <div class="field">
           <label for="phone">Телефон / WhatsApp</label>
           <input type="text" id="phone" placeholder="+7 701 123 45 67" required>
+        </div>
+
+        <div class="field full">
+          <label for="photos">Фото запчасти</label>
+          <input type="file" id="photos" name="photos" multiple accept="image/*">
+          <div class="hint">Можно прикрепить несколько фото. Первое фото будет отправлено продавцам в WhatsApp.</div>
         </div>
 
         <div class="field full">

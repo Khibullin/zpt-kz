@@ -178,6 +178,31 @@ class Request(models.Model):
         return f"{self.brand} {self.model} ({self.phone})"
 
 
+class RequestPhoto(models.Model):
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.CASCADE,
+        related_name='photos',
+        verbose_name='Заявка',
+    )
+    image = models.ImageField(
+        upload_to='request_photos/',
+        verbose_name='Фото',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Загружено',
+    )
+
+    class Meta:
+        verbose_name = 'Фото заявки'
+        verbose_name_plural = 'Фото заявок'
+        ordering = ['created_at']
+
+    def __str__(self):
+        return f'Фото #{self.pk} → заявка #{self.request_id}'
+
+
 class Seller(models.Model):
     name = models.CharField(max_length=255)
     whatsapp = models.CharField(max_length=20)
