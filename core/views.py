@@ -1,5 +1,6 @@
 import io
 import json
+import logging
 import os
 import re
 import uuid
@@ -8,7 +9,8 @@ import urllib.request
 from datetime import timedelta
 from urllib.parse import quote
 
-from django.contrib.auth.hashers import make_password, check_password
+from django.conf import settings
+from django.contrib.auth.hashers import check_password, make_password
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -36,6 +38,7 @@ from .models import (
 WAVE_SIZE = 20
 WAVE_INTERVAL_MINUTES = 5
 TEMP_SELLER_PASSWORD = 'zpt2026'
+logger = logging.getLogger(__name__)
 
 
 def _normalize_whatsapp(phone):
@@ -137,6 +140,13 @@ def _process_and_save_request_photo(req, uploaded_file):
 def _save_request_photos(req, uploaded_files):
     saved = []
 
+    if not uploaded_files:
+        return saved
+
+    media_root = settings.MEDIA_ROOT
+    os.makedirs(media_root, exist_ok=True)
+    os.makedirs(media_root / 'request_photos', exist_ok=True)
+
     for uploaded in uploaded_files:
         content_type = getattr(uploaded, 'content_type', '') or ''
         if not content_type.startswith('image/'):
@@ -148,6 +158,68 @@ def _save_request_photos(req, uploaded_files):
             print('PHOTO PROCESS ERROR:', str(exc))
 
     return saved
+
+
+def _parse_create_request_data(request):
+    content_type = request.content_type or ''
+
+    if 'multipart/form-data' in content_type:
+        return {
+            'transport_type': request.POST.get('transport_type'),
+            'country': request.POST.get('country', ''),
+            'brand': request.POST.get('brand', ''),
+            'model': request.POST.get('model', ''),
+            'category': request.POST.get('category', ''),
+            'article': request.POST.get('article', ''),
+            'description': request.POST.get('description', ''),
+            'city': request.POST.get('city', ''),
+            'search_scope': request.POST.get('search_scope', 'city'),
+            'selected_cities': request.POST.getlist('selected_cities'),
+            'phone': request.POST.get('phone', ''),
+        }, request.FILES.getlist('photos')
+
+    if request.body:
+        try:
+            data = json.loads(request.body)
+        except json.JSONDecodeError:
+            data = None
+
+        if isinstance(data, dict):
+            selected_cities = data.get('selected_cities', [])
+            if isinstance(selected_cities, str):
+                selected_cities = [
+                    city.strip()
+                    for city in selected_cities.split(',')
+                    if city.strip()
+                ]
+
+            return {
+                'transport_type': data.get('transport_type'),
+                'country': data.get('country', ''),
+                'brand': data.get('brand', ''),
+                'model': data.get('model', ''),
+                'category': data.get('category', ''),
+                'article': data.get('article', ''),
+                'description': data.get('description', ''),
+                'city': data.get('city', ''),
+                'search_scope': data.get('search_scope', 'city'),
+                'selected_cities': selected_cities,
+                'phone': data.get('phone', ''),
+            }, []
+
+    return {
+        'transport_type': request.POST.get('transport_type'),
+        'country': request.POST.get('country', ''),
+        'brand': request.POST.get('brand', ''),
+        'model': request.POST.get('model', ''),
+        'category': request.POST.get('category', ''),
+        'article': request.POST.get('article', ''),
+        'description': request.POST.get('description', ''),
+        'city': request.POST.get('city', ''),
+        'search_scope': request.POST.get('search_scope', 'city'),
+        'selected_cities': request.POST.getlist('selected_cities'),
+        'phone': request.POST.get('phone', ''),
+    }, request.FILES.getlist('photos')
 
 
 def send_whatsapp_template(
@@ -709,54 +781,80 @@ def create_request(request):
 
     print('CREATE REQUEST CALLED (WAVES MODE)')
 
-    _dispatch_due_requests()
+    try:
+        _dispatch_due_requests()
 
-    req = Request.objects.create(
-        transport_type=request.POST.get('transport_type'),
-        country=request.POST.get('country', ''),
-        brand=request.POST.get('brand', ''),
-        model=request.POST.get('model', ''),
-        category=request.POST.get('category', ''),
-        article=request.POST.get('article', ''),
-        description=request.POST.get('description', ''),
-        city=request.POST.get('city', ''),
-        search_scope=request.POST.get('search_scope', 'city'),
-        selected_cities=','.join(request.POST.getlist('selected_cities')),
-        phone=request.POST.get('phone', ''),
-    )
+        data, uploaded_photos = _parse_create_request_data(request)
 
-    _save_request_photos(req, request.FILES.getlist('photos'))
+        transport_type = data.get('transport_type') or 'car'
+        if transport_type not in ('car', 'truck'):
+            return JsonResponse(
+                {'error': 'Некорректный тип транспорта'},
+                status=400,
+            )
 
-    sellers, strategy = _find_matching_sellers(req)
-    matched = list(sellers)
+        selected_cities = data.get('selected_cities') or []
+        if isinstance(selected_cities, str):
+            selected_cities = [
+                city.strip()
+                for city in selected_cities.split(',')
+                if city.strip()
+            ]
 
-    print('TOTAL MATCHED SELLERS:', len(matched))
-
-    dispatches = _build_dispatch_queue(
-        req,
-        matched
-    )
-
-    req.status = 'sent' if matched else 'no_sellers'
-    req.save(update_fields=['status'])
-
-    seller_notifications = [
-        _dispatch_to_json(
-            dispatch,
-            req
+        req = Request.objects.create(
+            transport_type=transport_type,
+            country=data.get('country', ''),
+            brand=data.get('brand', ''),
+            model=data.get('model', ''),
+            category=data.get('category', ''),
+            article=data.get('article', ''),
+            description=data.get('description', ''),
+            city=data.get('city', ''),
+            search_scope=data.get('search_scope', 'city'),
+            selected_cities=','.join(selected_cities),
+            phone=data.get('phone', ''),
         )
-        for dispatch in dispatches
-    ]
 
-    return JsonResponse({
-        'status': 'ok',
-        'id': req.id,
-        'matches': len(matched),
-        'strategy': strategy,
-        'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
-        'photo_view_url': _request_page_url(req),
-        'seller_notifications': seller_notifications,
-    })
+        _save_request_photos(req, uploaded_photos)
+
+        sellers, strategy = _find_matching_sellers(req)
+        matched = list(sellers)
+
+        print('TOTAL MATCHED SELLERS:', len(matched))
+
+        dispatches = _build_dispatch_queue(
+            req,
+            matched
+        )
+
+        req.status = 'sent' if matched else 'no_sellers'
+        req.save(update_fields=['status'])
+
+        seller_notifications = [
+            _dispatch_to_json(
+                dispatch,
+                req
+            )
+            for dispatch in dispatches
+        ]
+
+        return JsonResponse({
+            'status': 'ok',
+            'id': req.id,
+            'matches': len(matched),
+            'strategy': strategy,
+            'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
+            'photo_view_url': _request_page_url(req),
+            'seller_notifications': seller_notifications,
+        })
+
+    except Exception as exc:
+        logger.exception('create_request failed')
+        print('CREATE REQUEST ERROR:', str(exc))
+        return JsonResponse(
+            {'error': 'Не удалось создать заявку. Попробуйте ещё раз.'},
+            status=500,
+        )
 
 
 REQUEST_STATUS_LABELS = {

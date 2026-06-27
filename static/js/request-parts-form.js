@@ -246,8 +246,18 @@ if(
   submitBtn.disabled=true;submitBtn.innerText='Отправляем...';
   try{
     let r=await fetch(API+'/create-request/',{method:'POST',body:formData});
-    let data=await r.json();
-    if(data.error){setMessage(data.error,'error');return}
+    let raw=await r.text();
+    let data;
+    try{
+      data=JSON.parse(raw);
+    }catch(parseErr){
+      setMessage('Ошибка отправки заявки. Сервер вернул неожиданный ответ.','error');
+      return;
+    }
+    if(!r.ok || data.error){
+      setMessage(data.error || 'Ошибка отправки заявки. Попробуйте ещё раз.','error');
+      return;
+    }
     renderResult(data);
     requestForm.reset();setTransport('car');await loadCategories();
   }catch(err){setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error')}

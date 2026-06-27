@@ -9,4 +9,4 @@ fi
 "$PYTHON" -m pip install --upgrade pip
 "$PYTHON" -m pip install -r requirements.txt
 "$PYTHON" manage.py migrate --noinput
-"$PYTHON" manage.py collectstatic --noinput
+"$PYTHON" manage.py collectstatic --clear --noinput
