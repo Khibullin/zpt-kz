@@ -129,6 +129,18 @@ ${strategyNote}
 
 Вы также можете написать продавцу сами, если хотите ускорить ответ.
 `;
+  if(data.photo_view_url){
+    html += `<br><br><a href="${ZPTDom.escapeHtml(data.photo_view_url)}" style="color:#3478f6">Открыть страницу заявки</a>`;
+  }
+
+  if(photosEl && photosEl.files && photosEl.files.length){
+    if(!data.photos_saved){
+      html += `<br><br><span style="color:#e65100">Фото не загрузились на сервер. Обновите страницу (Ctrl+F5) и отправьте заявку снова.</span>`;
+    }else{
+      html += `<br><br>Фото заявки: ${data.photos_saved} шт.`;
+    }
+  }
+
   if(sellers.length){
     html += '<div class="result-card"><b>Продавцы получили заявку:</b>';
 

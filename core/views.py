@@ -118,28 +118,55 @@ def _buyer_template_body_params(req):
     ]
 
 
+def _is_probably_image(uploaded_file):
+    content_type = getattr(uploaded_file, 'content_type', '') or ''
+    if content_type.startswith('image/'):
+        return True
+
+    name = (getattr(uploaded_file, 'name', '') or '').lower()
+    return name.endswith((
+        '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif', '.bmp',
+    ))
+
+
 def _process_and_save_request_photo(req, uploaded_file):
-    img = Image.open(uploaded_file)
-    img = ImageOps.exif_transpose(img)
-    img = img.convert('RGB')
+    try:
+        uploaded_file.seek(0)
+        img = Image.open(uploaded_file)
+        img = ImageOps.exif_transpose(img)
+        img = img.convert('RGB')
 
-    max_size = 1200
-    width, height = img.size
-    if max(width, height) > max_size:
-        ratio = max_size / max(width, height)
-        img = img.resize(
-            (int(width * ratio), int(height * ratio)),
-            Image.Resampling.LANCZOS,
+        max_size = 1200
+        width, height = img.size
+        if max(width, height) > max_size:
+            ratio = max_size / max(width, height)
+            img = img.resize(
+                (int(width * ratio), int(height * ratio)),
+                Image.Resampling.LANCZOS,
+            )
+
+        buffer = io.BytesIO()
+        img.save(buffer, format='WEBP', quality=80)
+        buffer.seek(0)
+
+        filename = f'{uuid.uuid4().hex}.webp'
+        photo = RequestPhoto(request=req)
+        photo.image.save(filename, ContentFile(buffer.read()), save=True)
+        return photo
+    except Exception as exc:
+        logger.warning(
+            'WebP conversion failed for request #%s, saving original: %s',
+            req.id,
+            exc,
         )
-
-    buffer = io.BytesIO()
-    img.save(buffer, format='WEBP', quality=80)
-    buffer.seek(0)
-
-    filename = f'{uuid.uuid4().hex}.webp'
-    photo = RequestPhoto(request=req)
-    photo.image.save(filename, ContentFile(buffer.read()), save=True)
-    return photo
+        uploaded_file.seek(0)
+        extension = os.path.splitext(uploaded_file.name or '')[1].lower()
+        if extension not in ('.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif'):
+            extension = '.jpg'
+        filename = f'{uuid.uuid4().hex}{extension}'
+        photo = RequestPhoto(request=req)
+        photo.image.save(filename, uploaded_file, save=True)
+        return photo
 
 
 def _save_request_photos(req, uploaded_files):
@@ -153,22 +180,31 @@ def _save_request_photos(req, uploaded_files):
     os.makedirs(media_root / 'request_photos', exist_ok=True)
 
     for uploaded in uploaded_files:
-        content_type = getattr(uploaded, 'content_type', '') or ''
-        if not content_type.startswith('image/'):
+        if not _is_probably_image(uploaded):
+            logger.warning(
+                'Skipped non-image upload for request #%s: %s',
+                req.id,
+                getattr(uploaded, 'name', '-'),
+            )
             continue
 
         try:
             saved.append(_process_and_save_request_photo(req, uploaded))
         except Exception as exc:
-            print('PHOTO PROCESS ERROR:', str(exc))
+            logger.exception(
+                'Failed to save request photo for request #%s: %s',
+                req.id,
+                exc,
+            )
 
     return saved
 
 
 def _parse_create_request_data(request):
+    uploaded_photos = request.FILES.getlist('photos')
     content_type = request.content_type or ''
 
-    if 'multipart/form-data' in content_type:
+    if uploaded_photos or 'multipart/form-data' in content_type:
         return {
             'transport_type': request.POST.get('transport_type'),
             'country': request.POST.get('country', ''),
@@ -181,7 +217,7 @@ def _parse_create_request_data(request):
             'search_scope': request.POST.get('search_scope', 'city'),
             'selected_cities': request.POST.getlist('selected_cities'),
             'phone': request.POST.get('phone', ''),
-        }, request.FILES.getlist('photos')
+        }, uploaded_photos
 
     if request.body:
         try:
@@ -234,6 +270,7 @@ def send_whatsapp_template(
     *,
     template_name=None,
     body_parameters=None,
+    include_image_header=None,
 ):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
@@ -285,10 +322,33 @@ def send_whatsapp_template(
 
     url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
 
-    components = [{
+    if include_image_header is None:
+        include_image_header = (
+            os.getenv('WHATSAPP_TEMPLATE_HAS_IMAGE_HEADER', 'false').lower()
+            == 'true'
+        )
+
+    components = []
+
+    if include_image_header:
+        first_photo = req.photos.order_by('created_at').first()
+        if first_photo and first_photo.image:
+            components.append({
+                'type': 'header',
+                'parameters': [
+                    {
+                        'type': 'image',
+                        'image': {
+                            'link': _public_media_url(first_photo.image.url),
+                        },
+                    },
+                ],
+            })
+
+    components.append({
         'type': 'body',
         'parameters': body_parameters or _seller_template_body_params(req),
-    }]
+    })
 
     payload = {
         'messaging_product': 'whatsapp',
@@ -660,7 +720,7 @@ def _send_dispatch(dispatch):
         wa_result = send_whatsapp_template(
             dispatch.seller.whatsapp,
             dispatch.request,
-            dispatch.seller.name
+            dispatch.seller.name,
         )
 
         if wa_result.get('ok'):
@@ -822,7 +882,15 @@ def create_request(request):
             phone=data.get('phone', ''),
         )
 
-        _save_request_photos(req, uploaded_photos)
+        saved_photos = _save_request_photos(req, uploaded_photos)
+        photos_saved = len(saved_photos)
+
+        if uploaded_photos and photos_saved == 0:
+            logger.error(
+                'Request #%s received %s photo(s) but none were saved',
+                req.id,
+                len(uploaded_photos),
+            )
 
         sellers, strategy = _find_matching_sellers(req)
         matched = list(sellers)
@@ -852,6 +920,8 @@ def create_request(request):
             'strategy': strategy,
             'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
             'photo_view_url': _request_page_url(req),
+            'photos_received': len(uploaded_photos),
+            'photos_saved': photos_saved,
             'seller_notifications': seller_notifications,
         })
 
