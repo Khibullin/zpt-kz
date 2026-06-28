@@ -123,31 +123,33 @@ REFERENCE_DATA = {
     },
 
     "Китай": {
-        "Chery": [
-            "Arrizo 5", "Arrizo 8", "Tiggo 2", "Tiggo 4", "Tiggo 7 Pro",
-            "Tiggo 8", "Tiggo 8 Pro"
-        ],
-        "Haval": [
-            "Dargo", "F7", "F7x", "H5", "H6", "Jolion", "M6"
-        ],
-        "Geely": [
-            "Atlas", "Coolray", "Emgrand", "Monjaro", "Tugella"
+        "Zeekr": ["001", "007", "009", "X"],
+        "BYD": [
+            "Song Plus (DM-i/EV)", "Yuan Up", "Destroyer 05", "Qin L DM-i",
+            "Han", "Tang", "Seal", "Song Plus", "F3",
         ],
         "Changan": [
-            "Alsvin", "CS35", "CS55", "CS75", "UNI-K", "UNI-T", "UNI-V"
+            "CS55 Plus", "CS75 Plus", "X5 Plus", "UNI-K", "UNI-V", "UNI-T",
+            "Alsvin", "CS35", "CS55", "CS75",
         ],
-        "Jetour": [
-            "Dashing", "X70", "X90"
+        "Deepal": ["S07", "L07"],
+        "Li Auto": ["L6", "L7", "L8", "L9"],
+        "Haval": ["Jolion", "M6", "F7", "F7x", "H6", "Dargo", "H9", "H5"],
+        "Chery": [
+            "Tiggo 2", "Tiggo 4 Pro", "Tiggo 7 Pro Max", "Tiggo 8 Pro Max",
+            "Arrizo 8", "Arrizo 5", "Tiggo 4", "Tiggo 7 Pro", "Tiggo 8",
+            "Tiggo 8 Pro",
         ],
-        "Exeed": [
-            "LX", "TXL", "VX"
-        ],
-        "JAC": [
-            "J7", "S3", "S5", "S7"
-        ],
-        "BYD": [
-            "F3", "Han", "Song Plus", "Tang"
-        ]
+        "Jetour": ["X70", "X70 Plus", "Dashing", "T2", "X90"],
+        "Geely": ["Monjaro", "Coolray", "Atlas", "Tugella", "Emgrand"],
+        "Tank": ["300", "500"],
+        "Voyah": ["Free"],
+        "Omoda": ["C5"],
+        "Jaecoo": ["J7"],
+        "Exeed": ["TXL", "VX", "LX"],
+        "JAC": ["JS6", "J7", "S3", "S5", "S7"],
+        "GAC": ["GS8"],
+        "Hongqi": ["H5"],
     },
 
     "Россия": {
