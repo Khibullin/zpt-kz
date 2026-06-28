@@ -172,6 +172,11 @@ def _process_and_save_request_photo(req, uploaded_file):
 def _save_request_photos(req, uploaded_files):
     saved = []
 
+    print(
+        f'REQUEST_PHOTO_SAVE start: request_id={req.id} '
+        f'incoming_files={len(uploaded_files)}',
+    )
+
     if not uploaded_files:
         return saved
 
@@ -189,7 +194,12 @@ def _save_request_photos(req, uploaded_files):
             continue
 
         try:
-            saved.append(_process_and_save_request_photo(req, uploaded))
+            photo = _process_and_save_request_photo(req, uploaded)
+            saved.append(photo)
+            print(
+                f'REQUEST_PHOTO_SAVE ok: request_id={req.id} '
+                f'file={photo.image.name}',
+            )
         except Exception as exc:
             logger.exception(
                 'Failed to save request photo for request #%s: %s',
@@ -197,29 +207,74 @@ def _save_request_photos(req, uploaded_files):
                 exc,
             )
 
+    print(
+        f'REQUEST_PHOTO_SAVE done: request_id={req.id} '
+        f'saved={len(saved)}/{len(uploaded_files)}',
+    )
     return saved
 
 
+def _collect_request_uploads(request):
+    """Collect uploaded images from all common FormData keys and any FILES entries."""
+    collected = []
+    seen_ids = set()
+
+    preferred_keys = ('photos', 'photo', 'images', 'image', 'files')
+    for key in preferred_keys:
+        for uploaded in request.FILES.getlist(key):
+            object_id = id(uploaded)
+            if object_id not in seen_ids:
+                seen_ids.add(object_id)
+                collected.append(uploaded)
+
+    if not collected:
+        for key in request.FILES:
+            for uploaded in request.FILES.getlist(key):
+                object_id = id(uploaded)
+                if object_id not in seen_ids:
+                    seen_ids.add(object_id)
+                    collected.append(uploaded)
+
+    return collected
+
+
+def _post_fields_from_request(request):
+    return {
+        'transport_type': request.POST.get('transport_type'),
+        'country': request.POST.get('country', ''),
+        'brand': request.POST.get('brand', ''),
+        'model': request.POST.get('model', ''),
+        'category': request.POST.get('category', ''),
+        'article': request.POST.get('article', ''),
+        'description': request.POST.get('description', ''),
+        'city': request.POST.get('city', ''),
+        'search_scope': request.POST.get('search_scope', 'city'),
+        'selected_cities': request.POST.getlist('selected_cities'),
+        'phone': request.POST.get('phone', ''),
+    }
+
+
 def _parse_create_request_data(request):
-    uploaded_photos = request.FILES.getlist('photos')
-    content_type = request.content_type or ''
+    content_type = (request.content_type or '').lower()
+    uploaded_photos = _collect_request_uploads(request)
+    file_keys = list(request.FILES.keys())
+    is_multipart = (
+        'multipart/form-data' in content_type
+        or bool(file_keys)
+    )
 
-    if uploaded_photos or 'multipart/form-data' in content_type:
-        return {
-            'transport_type': request.POST.get('transport_type'),
-            'country': request.POST.get('country', ''),
-            'brand': request.POST.get('brand', ''),
-            'model': request.POST.get('model', ''),
-            'category': request.POST.get('category', ''),
-            'article': request.POST.get('article', ''),
-            'description': request.POST.get('description', ''),
-            'city': request.POST.get('city', ''),
-            'search_scope': request.POST.get('search_scope', 'city'),
-            'selected_cities': request.POST.getlist('selected_cities'),
-            'phone': request.POST.get('phone', ''),
-        }, uploaded_photos
+    print(
+        'CREATE REQUEST PARSE:',
+        f'content_type={content_type!r}',
+        f'file_keys={file_keys}',
+        f'photos_in_request={len(uploaded_photos)}',
+        f'is_multipart={is_multipart}',
+    )
 
-    if request.body:
+    if is_multipart:
+        return _post_fields_from_request(request), uploaded_photos, 'multipart'
+
+    if request.body and 'application/json' in content_type:
         try:
             data = json.loads(request.body)
         except json.JSONDecodeError:
@@ -234,6 +289,10 @@ def _parse_create_request_data(request):
                     if city.strip()
                 ]
 
+            print(
+                'CREATE REQUEST PARSE: JSON mode — photos cannot be uploaded',
+            )
+
             return {
                 'transport_type': data.get('transport_type'),
                 'country': data.get('country', ''),
@@ -246,21 +305,10 @@ def _parse_create_request_data(request):
                 'search_scope': data.get('search_scope', 'city'),
                 'selected_cities': selected_cities,
                 'phone': data.get('phone', ''),
-            }, []
+            }, [], 'json'
 
-    return {
-        'transport_type': request.POST.get('transport_type'),
-        'country': request.POST.get('country', ''),
-        'brand': request.POST.get('brand', ''),
-        'model': request.POST.get('model', ''),
-        'category': request.POST.get('category', ''),
-        'article': request.POST.get('article', ''),
-        'description': request.POST.get('description', ''),
-        'city': request.POST.get('city', ''),
-        'search_scope': request.POST.get('search_scope', 'city'),
-        'selected_cities': request.POST.getlist('selected_cities'),
-        'phone': request.POST.get('phone', ''),
-    }, request.FILES.getlist('photos')
+    print('CREATE REQUEST PARSE: fallback POST mode')
+    return _post_fields_from_request(request), uploaded_photos, 'post'
 
 
 def send_whatsapp_template(
@@ -851,7 +899,7 @@ def create_request(request):
     try:
         _dispatch_due_requests()
 
-        data, uploaded_photos = _parse_create_request_data(request)
+        data, uploaded_photos, upload_mode = _parse_create_request_data(request)
 
         transport_type = data.get('transport_type') or 'car'
         if transport_type not in ('car', 'truck'):
@@ -920,6 +968,8 @@ def create_request(request):
             'strategy': strategy,
             'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
             'photo_view_url': _request_page_url(req),
+            'upload_mode': upload_mode,
+            'files_keys': list(request.FILES.keys()),
             'photos_received': len(uploaded_photos),
             'photos_saved': photos_saved,
             'seller_notifications': seller_notifications,

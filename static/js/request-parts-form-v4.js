@@ -188,7 +188,7 @@ sellers.forEach((s)=>{
   setRichMessage(html,'success');
 }
 
-document.getElementById('requestForm').addEventListener('submit',async function(e){
+requestForm.addEventListener('submit',async function(e){
   e.preventDefault();clearMessage();
   let country=getSelectedText(countryEl);
   let brand=getSelectedText(brandEl);
@@ -304,7 +304,6 @@ async function applyUrlParams(){
 
   await loadCountries();
 
-  // Поиск страны по бренду
   if(brand){
 
     for(const country of countriesData){
