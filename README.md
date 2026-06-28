@@ -78,7 +78,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://zpt.kz',
     'https://www.zpt.kz',
     'https://zpt-kz-backend.onrender.com',
-    'https://zpt-kz.onrender.com',
 ]
 ```
 

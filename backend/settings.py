@@ -159,7 +159,6 @@ CSRF_TRUSTED_ORIGINS = [
     'https://zpt.kz',
     'https://www.zpt.kz',
     'https://zpt-kz-backend.onrender.com',
-    'https://zpt-kz.onrender.com',
 ]
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
