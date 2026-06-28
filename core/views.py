@@ -13,7 +13,7 @@ from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Prefetch, Q
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.utils import timezone
@@ -942,14 +942,19 @@ REQUEST_STATUS_LABELS = {
 
 
 def view_request_status(request, req_id):
+    photo_qs = RequestPhoto.objects.order_by('created_at')
     req = get_object_or_404(
-        Request.objects.prefetch_related('photos'),
+        Request.objects.prefetch_related(
+            Prefetch('photos', queryset=photo_qs),
+        ),
         pk=req_id,
     )
+    photos = list(req.photos.all())
 
     return render(request, 'request_status.html', {
         'req': req,
-        'photos': req.photos.all(),
+        'photos': photos,
+        'photos_count': len(photos),
         'status_label': REQUEST_STATUS_LABELS.get(req.status, req.status),
     })
 

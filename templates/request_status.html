@@ -60,11 +60,18 @@
     margin-top: 12px;
   }
   .photo-card {
+    display: block;
     border-radius: 14px;
     overflow: hidden;
     border: 1px solid #e0e0e0;
     background: #fff;
     aspect-ratio: 1;
+    text-decoration: none;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .photo-card:hover {
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
   }
   .photo-card img {
     width: 100%;
@@ -162,13 +169,23 @@
     </div>
 
     <div class="photos-section">
-      <label>Фото запчасти</label>
+      <label>Фото запчасти{% if photos_count %} ({{ photos_count }}){% endif %}</label>
       {% if photos %}
         <div class="photos-grid">
           {% for photo in photos %}
-            <div class="photo-card">
-              <img src="{{ photo.image.url }}" alt="Фото заявки №{{ req.id }}">
-            </div>
+            <a
+              class="photo-card"
+              href="{{ photo.image.url }}"
+              target="_blank"
+              rel="noopener"
+              title="Открыть фото в полном размере"
+            >
+              <img
+                src="{{ photo.image.url }}"
+                alt="Фото заявки №{{ req.id }}"
+                loading="lazy"
+              >
+            </a>
           {% endfor %}
         </div>
       {% else %}
