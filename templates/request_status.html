@@ -5,6 +5,7 @@
 
 {% block portal_css %}
 <link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
 <style>
   .status-badge {
     display: inline-block;
@@ -174,11 +175,10 @@
         <div class="photos-grid">
           {% for photo in photos %}
             <a
-              class="photo-card"
+              class="photo-card glightbox"
               href="{{ photo.image.url }}"
-              target="_blank"
-              rel="noopener"
-              title="Открыть фото в полном размере"
+              data-gallery="request-gallery"
+              title="Фото заявки №{{ req.id }}"
             >
               <img
                 src="{{ photo.image.url }}"
@@ -199,4 +199,11 @@
     </div>
   </div>
 </div>
+{% endblock %}
+
+{% block portal_js %}
+<script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
+<script>
+  const lightbox = GLightbox({ selector: '.glightbox' });
+</script>
 {% endblock %}
