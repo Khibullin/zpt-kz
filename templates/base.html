@@ -4,8 +4,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#000000">
 
     <title>{% block title %}ZPT Market{% endblock %}</title>
+
+    <link rel="manifest" href="/manifest.json">
 
     <meta property="og:type" content="website">
     <meta property="og:title" content="ZPT.KZ — Автомобильная платформа Казахстана">
@@ -34,5 +37,10 @@
 {% block content %}{% endblock %}
 {% include 'catalog/includes/feedback_modal.html' %}
 <script src="{% static 'js/feedback-modal.js' %}?v=market_v110"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+}
+</script>
 </body>
 </html>

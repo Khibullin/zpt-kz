@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView
 
+from backend.pwa_views import manifest_json, service_worker_js
 from core.views import (
     parts_sellers_catalog,
     parts_seller_detail,
@@ -17,6 +18,10 @@ from service_requests.views import (
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+
+    # PWA
+    path('manifest.json', manifest_json, name='pwa_manifest'),
+    path('service-worker.js', service_worker_js, name='pwa_service_worker'),
 
     # ZPT MARKET
 
