@@ -154,9 +154,19 @@ python manage.py runserver
 ## Деплой (Render)
 
 1. Push в `main` → автодеплой `zpt-kz-backend`.
-2. `build.sh`: `pip install` → `migrate` → `collectstatic`.
+2. `build.sh`: `pip install` → `migrate` → `import_car_catalog_kz` → `collectstatic`.
 3. Start: `gunicorn backend.wsgi:application`.
 4. Custom domain: **zpt.kz** → Render service.
+
+## Справочник марок и моделей
+
+Единый источник данных: `core/vehicle_catalog.py` (в т.ч. блок `CHINA_VEHICLE_BRANDS`).
+
+Команда `python manage.py import_car_catalog_kz` синхронизирует справочник в:
+- **core** — форма заявок, кабинет продавца request-parts, матчинг волн;
+- **catalog** — карточки товаров ZPT Market, фильтры на главной и в кабинете продавца.
+
+Альias для Market: `python manage.py load_catalog_reference` (тот же источник, только catalog).
 
 ## Структура статики
 
