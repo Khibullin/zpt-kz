@@ -1,13 +1,20 @@
 # КОНТЕКСТ ПРОЕКТА ZPT.KZ
-- Бэкенд: Монолит на Django 6.
-- Фронтенд: Ванильный JavaScript (static/js/request-parts-form.js), общение через FormData.
-- Деплой: Платформа Render, медиафайлы раздаются через префикс `/products/` (MEDIA_ROOT = 'products').
-- Рассылка: Волновая рассылка продавцам через Meta WhatsApp Business API (urllib.request).
+- Бэкенд: Монолит на Django 6 (Python).
+- Фронтенд: Ванильный JavaScript, общение с бэкендом через FormData и multipart/form-data запросы. Основной скрипт формы заявок: `static/js/request-parts-form-v5.js`.
+- Деплой: Платформа Render (`zpt-kz-backend` + `zpt-kz-dispatch-worker`). Custom domain: `zpt.kz`.
+- Медиафайлы: Раздаются через префикс `/products/` (настройки в settings: MEDIA_ROOT = 'products').
+- Рассылка уведомлений: Волновая рассылка продавцам через Meta WhatsApp Business API с использованием стандартной библиотеки `urllib.request`.
+- Справочник марок/моделей: Единый источник `core/vehicle_catalog.py`, синхронизация в `core` и `catalog` через `manage.py import_car_catalog_kz`.
+- PWA: `static/manifest.json`, `static/service-worker.js`, раздача с корня через `backend/pwa_views.py` и `backend/urls.py`.
 
 # ТЕКУЩИЙ СТАТУС ВЫПОЛНЕННОЙ РАБОТЫ (ИЮНЬ 2026)
-1. Успешно реализован ШАГ 1: Создана модель `RequestPhoto`, эндпоинт `create_request` переведён на Multipart/Form-data, картинки покупателя сжимаются Pillow в WebP и сохраняются в папку `request_photos/`.
-2. Успешно реализован ШАГ 2: В функции `send_whatsapp_template` добавлен 8-й текстовый параметр (`{{8}}`) для Meta API, который передаёт ссылку на страницу заказа.
-3. Успешно реализован ШАГ 3: Создана страница статуса заказа по адресу `https://zpt.kz<int:req_id>/` (шаблон templates/request_status.html) для генерации целевого трафика. В момент старта 1-й волны покупателю улетает WhatsApp-квитанция.
+1. Фотографии заявок: Бэкенд стабильно принимает multipart FormData, Pillow сжимает фото в WebP в папку `request_photos/`. На странице статуса (`/my-request/<id>/`) QuerySet оптимизирован через Prefetch, а в шаблоне `request_status.html` развернута удобная JS-галерея GLightbox со стрелками и свайпами.
+2. Каталог китайских авто: В экосистему ZPT.KZ (формы заявок v5, кабинет продавца, карточки товаров ZPT Market и поисковые фильтры) внедрен полный актуальный список китайских марок и моделей (Zeekr, BYD, Lixiang, Changan, Deepal, Tank и др.). Синхронизация каталогов в core и catalog настроена.
+3. Архитектура PWA: Сайт полностью переведен на рельсы Progressive Web App. Созданы `manifest.json` и `service-worker.js`, настроена их корректная раздача через `urls.py` и `pwa_views.py`. Подключение добавлено в `base.html` и `base_portal.html`.
+4. Очистка инфраструктуры: Все старые legacy-сервисы (`zpt-store` и статический `zpt-kz`) полностью удалены из панели Render. Настройки `ALLOWED_HOSTS` и `CSRF_TRUSTED_ORIGINS` в `settings.py` очищены от старых доменов.
 
-# ПРАВИЛО ДЛЯ ИИ
-При каждом новом запросе в чате строго руководствуйся этим файлом. Не предлагай решения на FastAPI или Pydantic. Пиши код только в рамках этой архитектуры.
+# СТРОГИЕ ПРАВИЛА ДЛЯ ИИ (ПРАВИЛО ДЛЯ ИИ)
+- Всегда пиши код строго в рамках монолита Django 6.
+- Категорически запрещено предлагать решения на FastAPI, Pydantic, Asyncio (если это не требуется явно) или других сторонних фреймворках.
+- При изменении фронтенд-скриптов всегда инкрементируй версию файла (например, v5, v6) в шаблонах, чтобы обходить жесткое кэширование Render у пользователей.
+- Помни, что файловая система на Render эфемерна. При работе с медиафайлами всегда учитывай префикс `/products/`.
