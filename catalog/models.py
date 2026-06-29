@@ -304,6 +304,13 @@ class Product(models.Model):
             return f'{self.title} ({self.article})'
         return self.title
 
+    def get_absolute_url(self):
+        from django.urls import reverse
+
+        if self.slug:
+            return reverse('product_detail', kwargs={'slug': self.slug})
+        return reverse('product_detail_old', kwargs={'pk': self.pk})
+
     def save(self, *args, **kwargs):
         if not self.slug:
             parts = [self.title]

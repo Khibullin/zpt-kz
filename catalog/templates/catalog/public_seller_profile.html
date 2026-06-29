@@ -4,7 +4,7 @@
 {% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=warehouse_filters_v1">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_profile_cards_v1">
 {% endblock %}
 
 {% block content %}
@@ -180,22 +180,38 @@
         {% include 'catalog/includes/seller_warehouse_filters.html' with search_name='q_seller' search_value=q_seller %}
 
         {% if page_obj.paginator.count %}
-          <div class="products">
+          <div class="products public-seller-product-grid">
             {% for product in page_obj %}
-              <article class="product">
-                <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}">
+              <article class="product seller-product-card">
+                <a href="{{ product.get_absolute_url }}" class="seller-product-card-link">
                   {% if product.main_image %}
-                    <img src="{{ product.main_image.url }}" alt="{{ product.title }}">
+                    <img
+                      src="{{ product.main_image.url }}"
+                      alt="{{ product.title }}"
+                      loading="lazy"
+                    >
                   {% else %}
-                    <img src="{% static 'images/product1.jpg' %}" alt="{{ product.title }}">
+                    <img
+                      src="{% static 'images/product1.jpg' %}"
+                      alt="{{ product.title }}"
+                      loading="lazy"
+                    >
                   {% endif %}
 
-                  <div class="product-title">{{ product.title }}</div>
-                  <div class="product-price">{{ product.price|intcomma|comma_to_space }} ₸</div>
+                  <div class="seller-product-card-body">
+                    <div class="product-title">
+                      {{ product.title|truncatechars:50 }}
+                    </div>
 
-                  <div class="product-seller">
-                    {{ product.get_condition_display }}
-                    {% if product.city %} · {{ product.city }}{% endif %}
+                    <div class="product-price">
+                      {{ product.price|intcomma|comma_to_space }} ₸
+                    </div>
+
+                    {% if product.article %}
+                      <div class="product-article">
+                        Арт: {{ product.article }}
+                      </div>
+                    {% endif %}
                   </div>
                 </a>
               </article>
