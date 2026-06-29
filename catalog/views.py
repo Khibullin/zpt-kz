@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.decorators import login_required
@@ -303,7 +303,15 @@ def product_detail(request, slug=None, pk=None):
     seller_products = Product.objects.filter(
         seller_name=product.seller_name,
         status='active'
-    ).exclude(pk=product.pk)[:8]
+    ).exclude(pk=product.pk).select_related(
+        'brand',
+        'car_model',
+    ).prefetch_related(
+        Prefetch(
+            'selected_models',
+            queryset=CarModel.objects.select_related('brand'),
+        ),
+    )[:8]
 
     return render(request, 'catalog/product_detail.html', {
         'product': product,
@@ -744,6 +752,11 @@ def public_seller_profile(request, slug):
         'category',
         'brand',
         'car_model',
+    ).prefetch_related(
+        Prefetch(
+            'selected_models',
+            queryset=CarModel.objects.select_related('brand'),
+        ),
     ).order_by('-created_at')
 
     category_id = warehouse['category_id']

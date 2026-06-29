@@ -1,0 +1,57 @@
+{% load humanize phone_extras product_extras %}
+{% with extra_models=card_product.selected_models.all %}
+<div style="display: block !important; visibility: visible !important; height: auto !important; overflow: visible !important; color: #000 !important; font-size: 14px !important; padding: 10px 12px;">
+  <span style="font-weight: bold; display: block; line-height: 1.35;">
+    {{ card_product.title|truncatechars:40 }}
+    {% if card_product.brand %}
+      {% if not card_product.title|contains_icase:card_product.brand.name %}
+        для {{ card_product.brand.name }}{% if card_product.car_model %} {{ card_product.car_model.name }}{% endif %}
+      {% elif card_product.car_model and not card_product.title|contains_icase:card_product.car_model.name %}
+        для {{ card_product.car_model.name }}
+      {% endif %}
+    {% elif card_product.car_model and not card_product.title|contains_icase:card_product.car_model.name %}
+      для {{ card_product.car_model.name }}
+    {% endif %}
+  </span>
+
+  {% if card_product.brand %}
+    {% if card_product.title|contains_icase:card_product.brand.name %}
+      <span style="display: block !important; visibility: visible !important; font-size: 12px; color: #444; font-weight: 600; margin-top: 2px; line-height: 1.35;">
+        {{ card_product.brand.name }}{% if card_product.car_model %} {{ card_product.car_model.name }}{% endif %}
+      </span>
+    {% endif %}
+  {% elif card_product.car_model %}
+    {% if card_product.title|contains_icase:card_product.car_model.name %}
+      <span style="display: block !important; visibility: visible !important; font-size: 12px; color: #444; font-weight: 600; margin-top: 2px; line-height: 1.35;">
+        {{ card_product.car_model.name }}
+      </span>
+    {% endif %}
+  {% endif %}
+
+  {% if extra_models and not card_product.brand and not card_product.car_model %}
+    <span style="display: block !important; visibility: visible !important; font-size: 11px; color: #666; margin-top: 2px; line-height: 1.35;">
+      {% for car in extra_models %}{% if not forloop.first %}, {% endif %}{{ car.brand.name }} {{ car.name }}{% endfor %}
+    </span>
+  {% elif extra_models|length > 1 %}
+    <span style="display: block !important; visibility: visible !important; font-size: 11px; color: #666; margin-top: 2px; line-height: 1.35;">
+      Также: {% for car in extra_models %}{% if not forloop.first %}, {% endif %}{{ car.brand.name }} {{ car.name }}{% endfor %}
+    </span>
+  {% endif %}
+
+  {% if card_product.compatibility %}
+    {% if not card_product.brand and not card_product.car_model and not extra_models %}
+      <span style="display: block !important; visibility: visible !important; font-size: 11px; color: #666; margin-top: 2px; line-height: 1.35;">
+        {{ card_product.compatibility|truncatechars:60 }}
+      </span>
+    {% elif card_product.brand or card_product.car_model %}
+      <span style="display: block !important; visibility: visible !important; font-size: 11px; color: #777; margin-top: 2px; line-height: 1.35;">
+        {{ card_product.compatibility|truncatechars:55 }}
+      </span>
+    {% endif %}
+  {% endif %}
+
+  <span style="color: #ff5722; font-weight: 800; display: block; margin-top: 5px;">
+    {{ card_product.price|intcomma|comma_to_space }} ₸
+  </span>
+</div>
+{% endwith %}

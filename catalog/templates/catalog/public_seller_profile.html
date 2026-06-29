@@ -198,14 +198,7 @@
                     >
                   {% endif %}
 
-                  <div style="display: block !important; visibility: visible !important; height: auto !important; overflow: visible !important; color: #000 !important; font-size: 14px !important; padding: 10px 12px;">
-                    <span style="font-weight: bold; display: block;">
-                      {{ product.title|truncatechars:40 }}
-                    </span>
-                    <span style="color: #ff5722; font-weight: 800; display: block; margin-top: 5px;">
-                      {{ product.price|intcomma|comma_to_space }} ₸
-                    </span>
-                  </div>
+                  {% include 'catalog/includes/seller_product_card_info.html' with card_product=product %}
 
                   {% if product.article %}
                     <div style="display: block !important; font-size: 12px; color: #6b7280; padding: 0 12px 12px;">
