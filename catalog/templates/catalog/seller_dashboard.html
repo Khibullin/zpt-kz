@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize phone_extras %}
 
 {% block title %}Кабинет продавца — ZPT.KZ{% endblock %}
 
@@ -97,7 +97,7 @@
               </h2>
 
               <div class="product-price">
-                {{ product.price }} ₸
+                {{ product.price|intcomma|comma_to_space }} ₸
               </div>
 
               <div class="product-status">

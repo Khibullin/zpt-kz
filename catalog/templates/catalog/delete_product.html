@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static humanize phone_extras %}
 
 {% block title %}Удалить товар — ZPT Market{% endblock %}
 
@@ -22,7 +22,7 @@
       <div class="accent">
         <h3>{{ product.title }}</h3>
         <p>Артикул: {{ product.article }}</p>
-        <p>Цена: {{ product.price }} ₸</p>
+        <p>Цена: {{ product.price|intcomma|comma_to_space }} ₸</p>
         <p>Это действие нельзя отменить.</p>
       </div>
 

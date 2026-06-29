@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static phone_extras %}
+{% load static humanize phone_extras %}
 
 {% block title %}
 {{ product.title }}
@@ -134,7 +134,7 @@
   Новые, б/у и контрактные запчасти
 </div>
 
-        <div class="detail-price">{{ product.price }} ₸</div>
+        <div class="detail-price">{{ product.price|intcomma|comma_to_space }} ₸</div>
 
 <div
   style="
@@ -515,7 +515,7 @@
 </div>
 
                 <div class="product-price">
-                  {{ p.price }} ₸
+                  {{ p.price|intcomma|comma_to_space }} ₸
                 </div>
 
                 <div class="product-seller">

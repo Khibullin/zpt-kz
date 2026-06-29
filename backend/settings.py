@@ -116,6 +116,8 @@ LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Asia/Almaty'
 USE_I18N = True
 USE_TZ = True
+USE_THOUSAND_SEPARATOR = True
+NUMBER_GROUPING = 3
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
