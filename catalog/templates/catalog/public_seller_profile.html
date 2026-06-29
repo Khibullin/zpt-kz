@@ -183,7 +183,7 @@
           <div class="products public-seller-product-grid">
             {% for product in page_obj %}
               <article class="product seller-product-card">
-                <a href="{{ product.get_absolute_url }}" class="seller-product-card-link">
+                <a href="{{ product.get_absolute_url }}" class="seller-product-card-link" style="display: flex !important; flex-direction: column !important; height: auto !important; max-height: none !important; overflow: visible !important; text-decoration: none;">
                   {% if product.main_image %}
                     <img
                       src="{{ product.main_image.url }}"
@@ -198,21 +198,20 @@
                     >
                   {% endif %}
 
-                  <div class="seller-product-card-body">
-                    <div class="product-title">
+                  <div style="display: block !important; visibility: visible !important; height: auto !important; overflow: visible !important; color: #000 !important; font-size: 14px !important; padding: 10px 12px;">
+                    <span style="font-weight: bold; display: block;">
                       {{ product.title|truncatechars:40 }}
-                    </div>
-
-                    <div class="product-price" style="font-weight: bold; margin-top: 5px;">
+                    </span>
+                    <span style="color: #ff5722; font-weight: 800; display: block; margin-top: 5px;">
                       {{ product.price|intcomma|comma_to_space }} ₸
-                    </div>
-
-                    {% if product.article %}
-                      <div class="product-article">
-                        Арт: {{ product.article }}
-                      </div>
-                    {% endif %}
+                    </span>
                   </div>
+
+                  {% if product.article %}
+                    <div style="display: block !important; font-size: 12px; color: #6b7280; padding: 0 12px 12px;">
+                      Арт: {{ product.article }}
+                    </div>
+                  {% endif %}
                 </a>
               </article>
             {% endfor %}
