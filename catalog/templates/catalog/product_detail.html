@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_links_fixed_102">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_related_v103">
 <header class="topbar">
   <div class="container topbar-inner">
     <a
@@ -485,49 +485,32 @@
 
           {% for p in seller_products %}
             <article class="product">
-
-              <a href="{% if p.slug %}{% url 'product_detail' p.slug %}{% else %}{% url 'product_detail_old' p.pk %}{% endif %}">
-
+              <a
+                class="seller-related-product-link"
+                href="{% if p.slug %}{% url 'product_detail' p.slug %}{% else %}{% url 'product_detail_old' p.pk %}{% endif %}"
+              >
                 {% if p.main_image %}
                   <img
                     src="{{ p.main_image.url }}"
                     alt="{{ p.title }}"
+                    loading="lazy"
                   >
                 {% else %}
                   <img
                     src="{% static 'images/product-placeholder.svg' %}"
                     alt="{{ p.title }}"
+                    loading="lazy"
                   >
                 {% endif %}
 
-<div class="product-title">
-
-  {{ p.title }}
-
-  {% if p.brand %}
-    {{ p.brand.name }}
-  {% endif %}
-
-  {% if p.car_model %}
-    {{ p.car_model.name }}
-  {% endif %}
-
-</div>
+                <div class="product-title">
+                  {{ p.title|truncatechars:50 }}
+                </div>
 
                 <div class="product-price">
                   {{ p.price|intcomma|comma_to_space }} ₸
                 </div>
-
-                <div class="product-seller">
-                  {{ p.get_condition_display }}
-
-                  {% if p.city %}
-                    · {{ p.city }}
-                  {% endif %}
-                </div>
-
               </a>
-
             </article>
           {% endfor %}
 
