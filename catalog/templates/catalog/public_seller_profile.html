@@ -4,7 +4,7 @@
 {% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_profile_cards_v1">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_profile_cards_v2">
 {% endblock %}
 
 {% block content %}
@@ -200,10 +200,10 @@
 
                   <div class="seller-product-card-body">
                     <div class="product-title">
-                      {{ product.title|truncatechars:50 }}
+                      {{ product.title|truncatechars:40 }}
                     </div>
 
-                    <div class="product-price">
+                    <div class="product-price" style="font-weight: bold; margin-top: 5px;">
                       {{ product.price|intcomma|comma_to_space }} ₸
                     </div>
 

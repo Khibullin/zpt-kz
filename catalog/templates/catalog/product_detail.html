@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_related_v103">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_related_v104">
 <header class="topbar">
   <div class="container topbar-inner">
     <a
@@ -504,10 +504,10 @@
                 {% endif %}
 
                 <div class="product-title">
-                  {{ p.title|truncatechars:50 }}
+                  {{ p.title|truncatechars:40 }}
                 </div>
 
-                <div class="product-price">
+                <div class="product-price" style="font-weight: bold; margin-top: 5px;">
                   {{ p.price|intcomma|comma_to_space }} ₸
                 </div>
               </a>

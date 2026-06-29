@@ -372,6 +372,27 @@ a.seller-trust-name.seller-trust-profile-link:hover{
   padding:0 10px 8px;
 }
 
+.detail-section-card .product .seller-related-product-link{
+  display:flex;
+  flex-direction:column;
+  height:auto;
+  max-height:none;
+  overflow:visible;
+  text-decoration:none;
+  color:inherit;
+}
+
+.detail-section-card .product .seller-related-product-link img{
+  height:150px;
+  flex-shrink:0;
+}
+
+.detail-section-card .product .seller-related-product-link .product-title,
+.detail-section-card .product .seller-related-product-link .product-price{
+  display:block;
+  flex-shrink:0;
+}
+
 .product-seller{
   color:#666;
   padding:0 10px 10px;
