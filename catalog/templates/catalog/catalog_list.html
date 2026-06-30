@@ -6,7 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v1">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 <style>
 .market-topbar{
   position:sticky;
@@ -15,6 +15,10 @@
 }
 .market-topbar-inner{
   max-width:1200px;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
 }
 @media (max-width:640px){
   .filter-grid{
@@ -367,7 +371,7 @@
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v4"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v5"></script>
 <script src="{% static 'js/dom-safe.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

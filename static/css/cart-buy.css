@@ -1,14 +1,29 @@
 .market-topbar-inner{
   display:flex;
+  flex-wrap:wrap;
   align-items:center;
   justify-content:space-between;
-  gap:16px;
+  gap:8px;
+  padding:12px 16px;
+}
+
+.market-header-logo{
+  flex:0 1 auto;
+  min-width:0;
+  max-width:48%;
+}
+
+.market-header-actions{
+  flex:1 1 auto;
+  min-width:0;
+  justify-content:flex-end;
 }
 
 .market-topbar-actions{
   display:flex;
   align-items:center;
   gap:10px;
+  flex-wrap:wrap;
 }
 
 .market-cart-link{
@@ -137,4 +152,83 @@
 
 .product-detail-buy .product-buy-controls{
   max-width:320px;
+}
+
+@media (max-width:767px){
+  .market-topbar-inner,
+  .market-header-flex{
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:8px 10px;
+  }
+
+  .market-header-logo,
+  .market-brand{
+    flex:0 1 auto;
+    min-width:0;
+    max-width:42%;
+  }
+
+  .market-brand img,
+  .market-header-logo img{
+    height:24px !important;
+    width:auto !important;
+    max-width:100%;
+  }
+
+  .market-header-actions,
+  .market-topbar-actions{
+    flex:1 1 auto;
+    min-width:0;
+    justify-content:flex-end;
+    gap:6px;
+    flex-wrap:nowrap;
+  }
+
+  .market-cart-label,
+  .seller-cabinet-label{
+    display:none;
+  }
+
+  .market-cart-link{
+    min-height:32px;
+    padding:6px 8px;
+    font-size:12px;
+    gap:4px;
+  }
+
+  .seller-cabinet-btn,
+  .market-header-cabinet{
+    padding:6px 8px !important;
+    font-size:12px !important;
+    gap:4px !important;
+    min-height:32px;
+  }
+
+  .topbar-inner{
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:space-between;
+    gap:8px;
+    padding:8px 10px !important;
+  }
+
+  .topbar-inner .brand{
+    flex:0 1 auto;
+    min-width:0;
+    max-width:42%;
+  }
+
+  .topbar-inner .brand img{
+    width:auto !important;
+    max-width:100% !important;
+    height:24px !important;
+    margin:0 !important;
+  }
+
+  .topbar-inner .market-cart-link span:not(.market-cart-badge):not(.market-cart-icon){
+    display:none;
+  }
 }

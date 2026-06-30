@@ -11,7 +11,12 @@
     >
     <button type="button" class="qty-btn" data-qty-plus aria-label="Увеличить количество">+</button>
   </div>
-  <button type="button" class="product-buy-btn" data-cart-add>
+  <button
+    type="button"
+    class="product-buy-btn btn-buy-catalog"
+    data-cart-add
+    data-product-id="{{ product.id }}"
+  >
     <span class="product-buy-btn-icon" aria-hidden="true">🛒</span>
     <span class="product-buy-btn-text">Купить</span>
   </button>

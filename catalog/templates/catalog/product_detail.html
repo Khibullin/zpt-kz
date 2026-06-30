@@ -14,7 +14,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_related_v104">
-<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v1">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 {% endblock %}
 
 {% block content %}
@@ -41,8 +41,8 @@
     </a>
 
     <a href="{% url 'orders:cart' %}" class="market-cart-link" title="Корзина">
-      <span aria-hidden="true">🛒</span>
-      <span>Корзина</span>
+      <span class="market-cart-icon" aria-hidden="true">🛒</span>
+      <span class="market-cart-label">Корзина</span>
       <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
         {{ cart_count|default:0 }}
       </span>
@@ -575,7 +575,7 @@
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v4"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v5"></script>
 <script>
 function changeImage(el) {
   document.getElementById('mainImage').src = el.src;

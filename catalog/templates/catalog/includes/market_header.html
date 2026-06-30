@@ -1,25 +1,25 @@
 {% load static %}
 <header class="market-topbar header">
-  <div class="market-topbar-inner topbar-inner header-inner">
+  <div class="market-topbar-inner topbar-inner header-inner market-header-flex">
 
-    <a class="market-brand logo" href="/">
+    <a class="market-brand logo market-header-logo" href="/">
       <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
     </a>
 
-    <div class="market-topbar-actions">
+    <div class="market-topbar-actions market-header-actions">
       <a href="{% url 'orders:cart' %}" class="market-cart-link" title="Корзина">
-        <span aria-hidden="true">🛒</span>
-        <span>Корзина</span>
+        <span class="market-cart-icon" aria-hidden="true">🛒</span>
+        <span class="market-cart-label">Корзина</span>
         <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
           {{ cart_count|default:0 }}
         </span>
       </a>
 
-      <a href="{% url 'seller_login' %}" class="seller-cabinet-btn">
+      <a href="{% url 'seller_login' %}" class="seller-cabinet-btn market-header-cabinet">
         <svg class="seller-cabinet-icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
           <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
         </svg>
-        Кабинет продавца
+        <span class="seller-cabinet-label">Кабинет продавца</span>
       </a>
     </div>
 

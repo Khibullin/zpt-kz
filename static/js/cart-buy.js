@@ -57,6 +57,20 @@
     }, 1800);
   }
 
+  function readProductIdFromButton(button) {
+    const idRaw = button.getAttribute('data-product-id');
+    if (idRaw) {
+      return idRaw;
+    }
+
+    const controls = button.closest('.product-buy-controls');
+    if (controls) {
+      return controls.getAttribute('data-product-id');
+    }
+
+    return '';
+  }
+
   function bindQtyControls(root) {
     const input = root.querySelector('.qty-input');
     const minus = root.querySelector('[data-qty-minus]');
@@ -80,16 +94,25 @@
   }
 
   function bindBuyButton(root) {
-    const productIdRaw = root.dataset.productId;
-    const productId = parseInt(productIdRaw, 10);
-    const buyButton = root.querySelector('[data-cart-add]');
+    const buyButton = root.querySelector('[data-cart-add], .btn-buy-catalog');
     const qtyInput = root.querySelector('.qty-input');
 
-    if (!productIdRaw || !Number.isFinite(productId) || productId <= 0 || !buyButton) {
+    if (!buyButton) {
       return;
     }
 
-    buyButton.addEventListener('click', function () {
+    buyButton.addEventListener('click', function (event) {
+      const button = event.currentTarget;
+      const idRaw = readProductIdFromButton(button);
+      const productId = parseInt(String(idRaw || '').trim(), 10);
+
+      console.log('Добавляем ID:', productId);
+
+      if (!Number.isFinite(productId) || productId <= 0) {
+        window.alert('Не удалось определить ID товара. Обновите страницу и попробуйте снова.');
+        return;
+      }
+
       const csrfToken = getCsrfToken();
       if (!csrfToken) {
         window.alert('Не удалось получить CSRF-токен. Обновите страницу и попробуйте снова.');
@@ -98,7 +121,7 @@
 
       const quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
 
-      buyButton.disabled = true;
+      button.disabled = true;
 
       fetch(addUrl, {
         method: 'POST',
@@ -122,13 +145,13 @@
             );
           }
           updateCartBadge(data.cart_count != null ? data.cart_count : data.total_items);
-          setBuyButtonSuccess(buyButton);
+          setBuyButtonSuccess(button);
         })
         .catch(function (error) {
           window.alert(error.message || 'Ошибка добавления в корзину');
         })
         .finally(function () {
-          buyButton.disabled = false;
+          button.disabled = false;
         });
     });
   }
