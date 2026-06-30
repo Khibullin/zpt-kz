@@ -12,8 +12,12 @@
 — Купить в Казахстане | ZPT Market
 {% endblock %}
 
-{% block content %}
+{% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_related_v104">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v1">
+{% endblock %}
+
+{% block content %}
 <header class="topbar">
   <div class="container topbar-inner">
     <a
@@ -33,6 +37,14 @@
           margin:auto;
         "
       >
+    </a>
+
+    <a href="{% url 'orders:cart' %}" class="market-cart-link" title="Корзина">
+      <span aria-hidden="true">🛒</span>
+      <span>Корзина</span>
+      <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
+        {{ cart_count|default:0 }}
+      </span>
     </a>
   </div>
 </header>
@@ -309,18 +321,12 @@
 </a>
 
         {% if product.status != 'sold' %}
-          <form
-            method="post"
-            action="{% url 'orders:cart_add' product.pk %}"
-            style="margin-top:12px;"
-          >
-            {% csrf_token %}
-            <input type="hidden" name="quantity" value="1">
-            <input type="hidden" name="next" value="{% url 'orders:cart' %}">
-            <button type="submit" class="btn red" style="width:100%;">
-              В корзину — оформить на ZPT
-            </button>
-          </form>
+          <div class="product-detail-buy">
+            {% include 'catalog/includes/product_buy_controls.html' with product=product %}
+            <a href="{% url 'orders:cart' %}" class="btn outline" style="width:100%;margin-top:8px;text-align:center;">
+              Перейти в корзину
+            </a>
+          </div>
         {% endif %}
 
         <div class="product-request-box">
@@ -562,6 +568,7 @@
   </div>
 </section>
 
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v1"></script>
 <script>
 function changeImage(el) {
   document.getElementById('mainImage').src = el.src;

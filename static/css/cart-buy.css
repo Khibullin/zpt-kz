@@ -1,0 +1,140 @@
+.market-topbar-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+}
+
+.market-topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+.market-cart-link{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:38px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  color:#111827;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:700;
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+
+.market-cart-link:hover{
+  border-color:#ef3d2f;
+  box-shadow:0 0 0 3px rgba(239,61,47,.1);
+}
+
+.market-cart-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:#ef3d2f;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+}
+
+.market-cart-badge[hidden]{
+  display:none !important;
+}
+
+.product-buy-controls{
+  display:grid;
+  gap:8px;
+  margin-top:8px;
+}
+
+.product-qty-row{
+  display:grid;
+  grid-template-columns:36px 1fr 36px;
+  gap:6px;
+  align-items:center;
+}
+
+.qty-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:36px;
+  height:36px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  background:#fff;
+  color:#111827;
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.qty-btn:hover{
+  border-color:#ef3d2f;
+  color:#ef3d2f;
+}
+
+.qty-input{
+  width:100%;
+  height:36px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  text-align:center;
+  font-size:14px;
+  font-weight:700;
+  color:#111827;
+  background:#fafafa;
+}
+
+.product-buy-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  width:100%;
+  min-height:38px;
+  border:none;
+  border-radius:10px;
+  background:#ef3d2f;
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  transition:background .18s ease, transform .18s ease;
+}
+
+.product-buy-btn:hover{
+  background:#d93628;
+}
+
+.product-buy-btn.is-success{
+  background:#15803d;
+}
+
+.product-buy-btn:disabled{
+  opacity:.75;
+  cursor:wait;
+}
+
+.product-buy-btn-icon{
+  font-size:15px;
+  line-height:1;
+}
+
+.product-detail-buy{
+  margin-top:12px;
+}
+
+.product-detail-buy .product-buy-controls{
+  max-width:320px;
+}

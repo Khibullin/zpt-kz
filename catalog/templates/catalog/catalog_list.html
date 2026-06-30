@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v1">
 <style>
 .market-topbar{
   position:sticky;
@@ -296,6 +297,10 @@
             >
               Подробнее
             </a>
+
+            {% if product.status != 'sold' %}
+              {% include 'catalog/includes/product_buy_controls.html' with product=product %}
+            {% endif %}
           </div>
 
         </div>
@@ -355,6 +360,7 @@
 
 </div>
 
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v1"></script>
 <script src="{% static 'js/dom-safe.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

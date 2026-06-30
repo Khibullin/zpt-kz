@@ -171,6 +171,14 @@ class Product(models.Model):
         ('sold', 'Продан'),
     ]
 
+    SUPPLIER_LOCAL = 'local'
+    SUPPLIER_PHAETON = 'phaeton'
+
+    SUPPLIER_CHOICES = [
+        (SUPPLIER_LOCAL, 'Локальный склад'),
+        (SUPPLIER_PHAETON, 'Phaeton (внешний API)'),
+    ]
+
     title = models.CharField(
         max_length=255,
         verbose_name='Название товара'
@@ -284,6 +292,13 @@ class Product(models.Model):
         verbose_name='Описание'
     )
 
+    supplier = models.CharField(
+        max_length=32,
+        choices=SUPPLIER_CHOICES,
+        default=SUPPLIER_LOCAL,
+        verbose_name='Поставщик',
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         verbose_name='Создано'
@@ -298,6 +313,13 @@ class Product(models.Model):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['article', 'brand', 'supplier'],
+                condition=models.Q(article__gt=''),
+                name='unique_product_article_brand_supplier',
+            ),
+        ]
 
     def __str__(self):
         if self.article:

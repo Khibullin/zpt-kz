@@ -123,3 +123,33 @@ class KaspiTransaction(models.Model):
 
     def __str__(self):
         return f'Kaspi {self.kaspi_id or "—"} для заказа #{self.order_id}'
+
+
+class CartItem(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        verbose_name='Пользователь',
+    )
+    product = models.ForeignKey(
+        'catalog.Product',
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        verbose_name='Товар',
+    )
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Корзина'
+        verbose_name_plural = 'Корзины пользователей'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'product'],
+                name='unique_user_cart_product',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.user_id}: {self.product_id} × {self.quantity}'

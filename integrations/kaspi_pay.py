@@ -1,10 +1,11 @@
+import json
 import uuid
 from typing import Any
 
 from django.conf import settings
 from django.urls import reverse
 
-from orders.models import Order
+from orders.models import KaspiTransaction, Order
 
 
 class KaspiPayClient:
@@ -24,12 +25,31 @@ class KaspiPayClient:
         self.api_token = api_token or getattr(settings, 'KASPI_API_TOKEN', '')
 
     def create_payment_ticket(self, order: Order) -> str:
-        """
-        Create a payment session in Kaspi and return redirect URL.
+        """Return the URL where the buyer waits for Kaspi payment."""
+        return reverse('orders:order_payment', kwargs={'order_id': order.pk})
 
-        TODO: POST to Kaspi API with order amount and metadata.
+    def create_invoice(self, order: Order) -> KaspiTransaction:
         """
-        return reverse('orders:mock_kaspi_payment', kwargs={'order_id': order.pk})
+        Send invoice to Kaspi app (mock).
+
+        TODO: POST invoice to Kaspi API for order.customer_phone.
+        """
+        payload = {
+            'mode': 'mock',
+            'action': 'create_invoice',
+            'order_id': order.pk,
+            'amount': order.total_price,
+            'phone': order.customer_phone,
+            'status': 'PENDING',
+            'transaction_id': f'MOCK-INV-{uuid.uuid4().hex[:12].upper()}',
+            'merchant_id': self.merchant_id or 'mock-merchant',
+        }
+        return KaspiTransaction.objects.create(
+            order=order,
+            kaspi_id=payload['transaction_id'],
+            status='PENDING',
+            raw_response=payload,
+        )
 
     def check_payment_status(self, order: Order) -> bool:
         """
@@ -40,9 +60,10 @@ class KaspiPayClient:
         return order.status == Order.STATUS_PAID
 
     def build_mock_success_payload(self, order: Order) -> dict[str, Any]:
-        """Helper payload for logging mock transactions in KaspiTransaction."""
+        """Helper payload for logging mock callback transactions."""
         return {
             'mode': 'mock',
+            'action': 'payment_callback',
             'order_id': order.pk,
             'amount': order.total_price,
             'status': 'SUCCESS',

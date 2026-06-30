@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static humanize phone_extras %}
+
+{% block title %}Ожидание оплаты — ZPT Market{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
+{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="{% url 'catalog_list' %}">
+      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
+    </a>
+  </div>
+</header>
+
+<section class="section checkout-page">
+  <div class="container">
+    <div class="order-success-card">
+      <div class="order-success-badge" style="background:#fff7ed;color:#c2410c;">
+        Ожидает оплаты Kaspi
+      </div>
+
+      <h1>Заказ №{{ order.id }} создан</h1>
+
+      <p style="color:#444;line-height:1.7;font-size:16px;margin:16px 0 24px;">
+        Мы отправили счёт в ваше приложение <strong>Kaspi.kz</strong> на номер
+        <strong>{{ formatted_phone|default:order.customer_phone }}</strong>.
+        Оплатите его для завершения заказа.
+      </p>
+
+      <div class="checkout-card" style="padding:18px;margin-bottom:20px;">
+        <div class="checkout-summary-total" style="border:none;padding:0;">
+          <span>Сумма к оплате</span>
+          <span>{{ order.total_price|intcomma|comma_to_space }} ₸</span>
+        </div>
+        <p style="margin:12px 0 0;color:#666;font-size:14px;line-height:1.5;">
+          {{ order.customer_name }} · {{ order.delivery_method_label }}
+        </p>
+      </div>
+
+      <div class="checkout-card" style="padding:18px;border-color:#fecaca;background:#fff7f7;">
+        <h2 style="margin:0 0 10px;font-size:16px;color:#991b1b;">
+          Панель разработчика (Mock Kaspi)
+        </h2>
+        <p style="margin:0 0 14px;color:#7f1d1d;font-size:13px;line-height:1.5;">
+          Только для тестирования до подключения боевого API банка.
+        </p>
+        <form method="post">
+          {% csrf_token %}
+          <button type="submit" class="kaspi-pay-btn" style="max-width:100%;">
+            Симулировать успешную оплату (Callback от банка)
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

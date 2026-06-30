@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Order, OrderItem, KaspiTransaction
+from .models import Order, OrderItem, KaspiTransaction, CartItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -37,3 +37,9 @@ class KaspiTransactionAdmin(admin.ModelAdmin):
     list_display = ('id', 'order', 'kaspi_id', 'status', 'created_at')
     list_filter = ('status', 'created_at')
     search_fields = ('kaspi_id', 'order__id')
+
+
+@admin.register(CartItem)
+class CartItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'product', 'quantity', 'updated_at')
+    search_fields = ('user__username', 'product__title', 'product__article')

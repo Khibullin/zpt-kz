@@ -1,9 +1,13 @@
+import json
+
 from django.contrib import messages
 from django.db import transaction
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_http_methods, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from catalog.models import Product
+from catalog.templatetags.phone_extras import format_phone
 from integrations.kaspi_pay import KaspiPayClient
 
 from .cart import CartManager
@@ -15,6 +19,22 @@ from .models import Order, OrderItem, KaspiTransaction
 def _warehouse_address():
     from django.conf import settings
     return getattr(settings, 'ZPT_WAREHOUSE_ADDRESS', DEFAULT_WAREHOUSE_ADDRESS)
+
+
+def _wants_json(request):
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return True
+    accept = request.headers.get('Accept', '')
+    return 'application/json' in accept
+
+
+def _cart_json(cart, message=''):
+    return {
+        'ok': True,
+        'message': message,
+        'cart_count': cart.get_count(),
+        'cart_total': cart.get_total(),
+    }
 
 
 def cart_view(request):
@@ -30,19 +50,73 @@ def cart_view(request):
     })
 
 
+@require_GET
+def cart_count_api(request):
+    cart = CartManager(request)
+    return JsonResponse({
+        'ok': True,
+        'cart_count': cart.get_count(),
+        'cart_total': cart.get_total(),
+    })
+
+
 @require_POST
-def cart_add(request, product_id):
-    product = get_object_or_404(Product, pk=product_id, status='active')
+def cart_add(request, product_id=None):
+    cart = CartManager(request)
     quantity = max(1, int(request.POST.get('quantity', 1)))
-    CartManager(request).add(product.id, quantity)
-    messages.success(request, f'«{product.title}» добавлен в корзину.')
+
+    if product_id is None:
+        product_id = request.POST.get('product_id')
+
+    if not product_id:
+        return JsonResponse({'ok': False, 'message': 'product_id is required'}, status=400)
+
+    product = get_object_or_404(Product, pk=product_id, status='active')
+    message = f'«{product.title}» добавлен в корзину.'
+
+    if _wants_json(request):
+        return JsonResponse(_cart_json(cart, message))
+
+    messages.success(request, message)
     next_url = request.POST.get('next') or product.get_absolute_url()
     return redirect(next_url)
 
 
 @require_POST
+def cart_add_virtual(request):
+    cart = CartManager(request)
+
+    try:
+        if request.content_type == 'application/json':
+            payload = json.loads(request.body.decode('utf-8'))
+        else:
+            payload = request.POST.dict()
+    except json.JSONDecodeError:
+        return JsonResponse({'ok': False, 'message': 'Invalid JSON'}, status=400)
+
+    quantity = max(1, int(payload.get('quantity', 1)))
+
+    try:
+        product = CartManager.get_or_create_virtual_product(payload)
+    except ValueError as exc:
+        return JsonResponse({'ok': False, 'message': str(exc)}, status=400)
+
+    cart.add(product.id, quantity)
+    message = f'«{product.title}» добавлен в корзину.'
+
+    response = _cart_json(cart, message)
+    response['product_id'] = product.id
+    return JsonResponse(response)
+
+
+@require_POST
 def cart_remove(request, product_id):
-    CartManager(request).remove(product_id)
+    cart = CartManager(request)
+    cart.remove(product_id)
+
+    if _wants_json(request):
+        return JsonResponse(_cart_json(cart, 'Товар удалён из корзины.'))
+
     messages.info(request, 'Товар удалён из корзины.')
     return redirect('orders:cart')
 
@@ -81,8 +155,8 @@ def checkout(request):
                 ])
 
             cart.clear()
-            payment_url = KaspiPayClient().create_payment_ticket(order)
-            return redirect(payment_url)
+            KaspiPayClient().create_invoice(order)
+            return redirect('orders:order_payment', order_id=order.pk)
     else:
         initial = {}
         if request.user.is_authenticated:
@@ -102,7 +176,7 @@ def checkout(request):
 
 
 @require_http_methods(['GET', 'POST'])
-def mock_kaspi_payment(request, order_id):
+def order_payment(request, order_id):
     order = get_object_or_404(Order, pk=order_id)
 
     if order.status == Order.STATUS_PAID:
@@ -125,8 +199,10 @@ def mock_kaspi_payment(request, order_id):
         messages.success(request, 'Оплата прошла успешно. Заказ передан на сборку.')
         return redirect('orders:order_success', order_id=order.pk)
 
-    return render(request, 'orders/mock_kaspi_payment.html', {
+    formatted_phone = format_phone(order.customer_phone)
+    return render(request, 'orders/order_payment.html', {
         'order': order,
+        'formatted_phone': formatted_phone,
     })
 
 

@@ -6,13 +6,16 @@ app_name = 'orders'
 
 urlpatterns = [
     path('cart/', views.cart_view, name='cart'),
+    path('cart/count/', views.cart_count_api, name='cart_count'),
+    path('cart/add/', views.cart_add, name='cart_add_api'),
     path('cart/add/<int:product_id>/', views.cart_add, name='cart_add'),
+    path('cart/add/virtual/', views.cart_add_virtual, name='cart_add_virtual'),
     path('cart/remove/<int:product_id>/', views.cart_remove, name='cart_remove'),
     path('cart/checkout/', views.checkout, name='checkout'),
     path(
-        'orders/<int:order_id>/mock-kaspi-payment/',
-        views.mock_kaspi_payment,
-        name='mock_kaspi_payment',
+        'orders/<int:order_id>/payment/',
+        views.order_payment,
+        name='order_payment',
     ),
     path(
         'orders/<int:order_id>/success/',

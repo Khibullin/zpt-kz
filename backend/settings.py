@@ -80,6 +80,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'orders.context_processors.cart_count',
             ],
         },
     },
@@ -209,6 +210,9 @@ ZPT_WAREHOUSE_ADDRESS = os.getenv(
 )
 KASPI_MERCHANT_ID = os.getenv('KASPI_MERCHANT_ID', '')
 KASPI_API_TOKEN = os.getenv('KASPI_API_TOKEN', '')
+PHAETON_PRICE_MARKUP_PERCENT = int(os.getenv('PHAETON_PRICE_MARKUP_PERCENT', '15'))
+ZPT_DEFAULT_WHATSAPP = os.getenv('ZPT_DEFAULT_WHATSAPP', '+77713607040')
+ZPT_WAREHOUSE_CITY = os.getenv('ZPT_WAREHOUSE_CITY', 'Алматы')
 
 MEDIA_URL = '/products/'
 MEDIA_ROOT = BASE_DIR / 'products'
