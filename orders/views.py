@@ -64,17 +64,31 @@ def cart_count_api(request):
 def cart_add(request, product_id=None):
     cart = CartManager(request)
     quantity = max(1, int(request.POST.get('quantity', 1)))
+    wants_json = _wants_json(request)
 
     if product_id is None:
         product_id = request.POST.get('product_id')
 
     if not product_id:
-        return JsonResponse({'ok': False, 'message': 'product_id is required'}, status=400)
+        message = 'product_id is required'
+        if wants_json:
+            return JsonResponse({'ok': False, 'message': message}, status=400)
+        messages.error(request, message)
+        return redirect('catalog_list')
 
-    product = get_object_or_404(Product, pk=product_id, status='active')
+    try:
+        product = Product.objects.get(pk=product_id, status='active')
+    except (Product.DoesNotExist, ValueError, TypeError):
+        message = 'Товар не найден'
+        if wants_json:
+            return JsonResponse({'ok': False, 'message': message}, status=404)
+        messages.error(request, message)
+        return redirect('catalog_list')
+
+    cart.add(product.id, quantity)
     message = f'«{product.title}» добавлен в корзину.'
 
-    if _wants_json(request):
+    if wants_json:
         return JsonResponse(_cart_json(cart, message))
 
     messages.success(request, message)

@@ -33,6 +33,7 @@
 {% endblock %}
 
 {% block content %}
+{% csrf_token %}
 {% include 'catalog/includes/market_header.html' %}
 
 <div class="container">
@@ -360,7 +361,13 @@
 
 </div>
 
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v1"></script>
+<script>
+  window.ZPT_CART = {
+    addUrl: '{% url "orders:cart_add_api" %}',
+    countUrl: '{% url "orders:cart_count" %}',
+  };
+</script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v2"></script>
 <script src="{% static 'js/dom-safe.js' %}"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

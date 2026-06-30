@@ -1,7 +1,32 @@
 (function () {
+  const config = window.ZPT_CART || {};
+  const addUrl = config.addUrl || '/cart/add/';
+  const countUrl = config.countUrl || '/cart/count/';
+
   function getCookie(name) {
     const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
     return match ? decodeURIComponent(match[2]) : '';
+  }
+
+  function getCsrfToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    if (meta && meta.content) {
+      return meta.content;
+    }
+    return getCookie('csrftoken');
+  }
+
+  function parseJsonResponse(response) {
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      return response.text().then(function (body) {
+        const snippet = (body || '').replace(/\s+/g, ' ').slice(0, 120);
+        throw new Error(
+          'Сервер вернул не JSON (код ' + response.status + '): ' + snippet
+        );
+      });
+    }
+    return response.json();
   }
 
   function updateCartBadge(count) {
@@ -64,6 +89,12 @@
     }
 
     buyButton.addEventListener('click', function () {
+      const csrfToken = getCsrfToken();
+      if (!csrfToken) {
+        window.alert('Не удалось получить CSRF-токен. Обновите страницу и попробуйте снова.');
+        return;
+      }
+
       const quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
       const formData = new FormData();
       formData.append('product_id', productId);
@@ -71,23 +102,21 @@
 
       buyButton.disabled = true;
 
-      fetch('/cart/add/', {
+      fetch(addUrl, {
         method: 'POST',
+        credentials: 'same-origin',
         headers: {
           'X-Requested-With': 'XMLHttpRequest',
-          'X-CSRFToken': getCookie('csrftoken'),
+          'Accept': 'application/json',
+          'X-CSRFToken': csrfToken,
         },
         body: formData,
       })
-        .then(function (response) {
-          return response.json().then(function (data) {
-            if (!response.ok || !data.ok) {
-              throw new Error(data.message || 'Не удалось добавить товар в корзину');
-            }
-            return data;
-          });
-        })
+        .then(parseJsonResponse)
         .then(function (data) {
+          if (!data.ok) {
+            throw new Error(data.message || 'Не удалось добавить товар в корзину');
+          }
           updateCartBadge(data.cart_count);
           setBuyButtonSuccess(buyButton);
         })
@@ -105,14 +134,14 @@
     bindBuyButton(root);
   });
 
-  fetch('/cart/count/', {
+  fetch(countUrl, {
+    credentials: 'same-origin',
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
+      'Accept': 'application/json',
     },
   })
-    .then(function (response) {
-      return response.json();
-    })
+    .then(parseJsonResponse)
     .then(function (data) {
       if (data && data.ok) {
         updateCartBadge(data.cart_count);

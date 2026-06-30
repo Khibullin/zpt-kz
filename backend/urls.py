@@ -19,6 +19,8 @@ from service_requests.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('', include('orders.urls')),
+
     # PWA
     path('manifest.json', manifest_json, name='pwa_manifest'),
     path('service-worker.js', service_worker_js, name='pwa_service_worker'),
@@ -144,7 +146,6 @@ urlpatterns = [
         name='service_seller_detail',
     ),
 
-    path('', include('orders.urls')),
     path('market/', include('catalog.urls')),
     path('', include('catalog.urls')),
 

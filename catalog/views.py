@@ -7,6 +7,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
 from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
 from urllib.parse import urlencode
 
 from core.forms import FeedbackForm
@@ -179,6 +180,7 @@ def attach_sellers_to_products(products):
     return products
 
 
+@ensure_csrf_cookie
 def catalog_list(request):
     query = request.GET.get('q', '').strip()
     country_id = request.GET.get('country', '').strip()
@@ -262,6 +264,7 @@ def catalog_list(request):
     return render(request, 'catalog/catalog_list.html', context)
 
 
+@ensure_csrf_cookie
 def product_detail(request, slug=None, pk=None):
 
     if slug:
