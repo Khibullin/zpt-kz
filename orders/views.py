@@ -243,11 +243,25 @@ def cart_remove(request, product_id):
 
 @require_POST
 def cart_update_quantity(request):
+    body_product_id = None
     try:
-        data = json.loads(request.body.decode('utf-8') or '{}')
-        product_id = int(data.get('product_id'))
-        quantity = int(data.get('quantity'))
-    except (TypeError, ValueError, json.JSONDecodeError):
+        payload = json.loads(request.body.decode('utf-8') or '{}')
+        body_product_id = payload.get('product_id')
+    except json.JSONDecodeError:
+        payload = {}
+
+    print(
+        f'--- DEBUG КОРЗИНЫ: Пришел ID {request.POST.get("product_id")} '
+        f'или {body_product_id}'
+    )
+    print(f'--- DEBUG КОРЗИНЫ: Полный payload: {payload}')
+
+    try:
+        product_id_raw = payload.get('product_id')
+        article = payload.get('article') or payload.get('sku')
+        supplier = payload.get('supplier')
+        quantity = int(payload.get('quantity'))
+    except (TypeError, ValueError):
         return JsonResponse(
             {
                 'success': False,
@@ -267,7 +281,26 @@ def cart_update_quantity(request):
             status=400,
         )
 
-    product = Product.objects.filter(pk=product_id).first()
+    if not product_id_raw and not article:
+        return JsonResponse(
+            {
+                'success': False,
+                'ok': False,
+                'error': 'Укажите product_id или article',
+            },
+            status=400,
+        )
+
+    product, matched_by = _find_local_product(
+        product_id=product_id_raw,
+        article=article,
+        supplier=supplier,
+    )
+    print(
+        f'--- DEBUG КОРЗИНЫ: Найден product_id={getattr(product, "pk", None)}, '
+        f'matched_by={matched_by}'
+    )
+
     if product is None:
         return JsonResponse(
             {
@@ -279,7 +312,18 @@ def cart_update_quantity(request):
         )
 
     cart = CartManager(request)
-    cart.set_quantity(product_id, quantity)
+
+    request_product_id = None
+    if product_id_raw is not None and str(product_id_raw).strip() != '':
+        try:
+            request_product_id = int(product_id_raw)
+        except (TypeError, ValueError):
+            request_product_id = None
+
+    if request_product_id and request_product_id != product.id:
+        cart.remove(request_product_id)
+
+    cart.set_quantity(product.id, quantity)
 
     item_total = product.price * quantity
     cart_total = cart.get_total()
@@ -288,6 +332,7 @@ def cart_update_quantity(request):
     return JsonResponse({
         'success': True,
         'ok': True,
+        'product_id': product.id,
         'quantity': quantity,
         'item_total_price': item_total,
         'item_total_price_display': _format_price_kzt(item_total),

@@ -39,6 +39,33 @@
     });
   }
 
+  function readDataAttr(element, attrName) {
+    if (!element) {
+      return '';
+    }
+
+    const value = element.getAttribute(attrName);
+    if (value) {
+      return value;
+    }
+
+    const lineItem = element.closest('.cart-line-item');
+    if (lineItem && lineItem.getAttribute(attrName)) {
+      return lineItem.getAttribute(attrName);
+    }
+
+    const controls = element.closest('.cart-qty-controls');
+    if (controls && controls.getAttribute(attrName)) {
+      return controls.getAttribute(attrName);
+    }
+
+    return '';
+  }
+
+  function readProductIdFromButton(button) {
+    return readDataAttr(button, 'data-product-id');
+  }
+
   function findLineItem(button) {
     return button.closest('.cart-line-item');
   }
@@ -90,7 +117,7 @@
     }
   }
 
-  function sendQuantityUpdate(productId, quantity, controls, lineItem) {
+  function sendQuantityUpdate(payload, controls, lineItem) {
     const csrfToken = getCsrfToken();
     if (!csrfToken) {
       window.alert('Не удалось получить CSRF-токен. Обновите страницу и попробуйте снова.');
@@ -111,15 +138,16 @@
         'Accept': 'application/json',
         'X-CSRFToken': csrfToken,
       },
-      body: JSON.stringify({
-        product_id: productId,
-        quantity: quantity,
-      }),
+      body: JSON.stringify(payload),
     })
       .then(parseJsonResponse)
       .then(function (data) {
         if (!data.success && !data.ok) {
           throw new Error(data.error || data.message || 'Не удалось обновить количество');
+        }
+
+        if (data.product_id && lineItem) {
+          lineItem.setAttribute('data-product-id', String(data.product_id));
         }
 
         setQuantityInput(controls, data.quantity);
@@ -148,9 +176,14 @@
       return;
     }
 
-    const productId = parseInt(button.getAttribute('data-product-id'), 10);
+    const idRaw = button.getAttribute('data-product-id') || readProductIdFromButton(button);
+    const productId = parseInt(String(idRaw || '').trim(), 10);
+    const article = readDataAttr(button, 'data-product-article').trim();
+    const supplier = readDataAttr(button, 'data-product-supplier').trim();
     const currentQty = readQuantity(controls);
     let nextQty = currentQty;
+
+    console.log('Корзина - меняем количество для ID:', productId, 'артикул:', article || '(нет)');
 
     if (button.classList.contains('cart-minus')) {
       if (currentQty <= 1) {
@@ -163,7 +196,21 @@
       return;
     }
 
-    sendQuantityUpdate(productId, nextQty, controls, lineItem).catch(function (error) {
+    if ((!Number.isFinite(productId) || productId <= 0) && !article) {
+      window.alert('Не удалось определить товар. Обновите страницу и попробуйте снова.');
+      return;
+    }
+
+    sendQuantityUpdate(
+      {
+        product_id: Number.isFinite(productId) && productId > 0 ? productId : null,
+        article: article || null,
+        supplier: supplier || null,
+        quantity: nextQty,
+      },
+      controls,
+      lineItem
+    ).catch(function (error) {
       window.alert(error.message || 'Ошибка обновления корзины');
     });
   }

@@ -41,6 +41,8 @@
               <li
                 class="checkout-summary-item cart-line-item"
                 data-product-id="{{ item.product.id }}"
+                data-product-article="{{ item.product.article|default:'' }}"
+                data-product-supplier="{{ item.product.supplier|default:'local' }}"
               >
                 {% if item.product.main_image %}
                   <img class="checkout-summary-thumb" src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}">
@@ -53,12 +55,16 @@
                   <div
                     class="cart-qty-controls product-qty-row"
                     data-product-id="{{ item.product.id }}"
+                    data-product-article="{{ item.product.article|default:'' }}"
+                    data-product-supplier="{{ item.product.supplier|default:'local' }}"
                     data-price="{{ item.product.price }}"
                   >
                     <button
                       type="button"
                       class="cart-minus qty-btn"
                       data-product-id="{{ item.product.id }}"
+                      data-product-article="{{ item.product.article|default:'' }}"
+                      data-product-supplier="{{ item.product.supplier|default:'local' }}"
                       data-price="{{ item.product.price }}"
                       aria-label="Уменьшить количество"
                       {% if item.quantity <= 1 %}disabled{% endif %}
@@ -71,11 +77,15 @@
                       tabindex="-1"
                       aria-label="Количество"
                       data-product-id="{{ item.product.id }}"
+                      data-product-article="{{ item.product.article|default:'' }}"
+                      data-product-supplier="{{ item.product.supplier|default:'local' }}"
                     >
                     <button
                       type="button"
                       class="cart-plus qty-btn"
                       data-product-id="{{ item.product.id }}"
+                      data-product-article="{{ item.product.article|default:'' }}"
+                      data-product-supplier="{{ item.product.supplier|default:'local' }}"
                       data-price="{{ item.product.price }}"
                       aria-label="Увеличить количество"
                     >+</button>
@@ -128,6 +138,6 @@
     updateUrl: '{% url "orders:cart_update_quantity" %}',
   };
 </script>
-<script src="{% static 'js/cart-page.js' %}?v=cart_page_v1"></script>
+<script src="{% static 'js/cart-page.js' %}?v=cart_page_v2"></script>
 {% endif %}
 {% endblock %}
