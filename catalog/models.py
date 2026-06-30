@@ -334,6 +334,18 @@ class Product(models.Model):
             return reverse('product_detail', kwargs={'slug': self.slug})
         return reverse('product_detail_old', kwargs={'pk': self.pk})
 
+    def get_whatsapp_inquiry_message(self):
+        brand = self.brand.name if self.brand else 'не указан'
+        article = self.article or 'не указан'
+        product_url = f'https://zpt.kz{self.get_absolute_url()}'
+        return (
+            'Здравствуйте! Я пишу с сайта ZPT.kz. '
+            f'Меня интересует деталь: {self.title} '
+            f'(Арт. {article}, Бренд: {brand}). '
+            'Подскажите, пожалуйста, по наличию и доставке. '
+            f'Ссылка на товар: {product_url}'
+        )
+
     def save(self, *args, **kwargs):
         if not self.slug:
             parts = [self.title]

@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras %}
+{% load static humanize phone_extras product_extras %}
 
 {% block title %}ZPT Market — Купить автозапчасти{% endblock %}
 
@@ -286,15 +286,7 @@
 </div>
 
           <div class="product-actions-v2">
-            <a
-              class="btn-green product-wa-btn"
-              href="https://wa.me/{{ product.whatsapp_number|cut:'+'|cut:' ' }}"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <span class="wa-label-full">WhatsApp продавцу</span>
-              <span class="wa-label-short">WhatsApp</span>
-            </a>
+            {% include 'catalog/includes/product_whatsapp_link.html' with product=product %}
 
             <a
               class="product-detail-link"

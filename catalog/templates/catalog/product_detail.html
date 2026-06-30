@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras %}
+{% load static humanize phone_extras product_extras %}
 
 {% block title %}
 {{ product.title }}
@@ -312,14 +312,7 @@
           </div>
         </div>
 
-<a
-  class="btn-green detail-wa-btn"
-  href="https://wa.me/{{ product.whatsapp_number|cut:'+'|cut:' ' }}"
-  target="_blank"
-  rel="noopener noreferrer"
->
-  WhatsApp продавцу
-</a>
+{% include 'catalog/includes/product_whatsapp_link.html' with product=product detail=True %}
 
         {% if product.status != 'sold' %}
           <div class="product-detail-buy">
