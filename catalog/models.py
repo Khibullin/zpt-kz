@@ -196,6 +196,7 @@ class Product(models.Model):
         max_length=100,
         blank=True,
         default='',
+        db_index=True,
         verbose_name='Артикул'
     )
 
@@ -296,6 +297,7 @@ class Product(models.Model):
         max_length=32,
         choices=SUPPLIER_CHOICES,
         default=SUPPLIER_LOCAL,
+        db_index=True,
         verbose_name='Поставщик',
     )
 
@@ -313,11 +315,10 @@ class Product(models.Model):
         verbose_name = 'Товар'
         verbose_name_plural = 'Товары'
         ordering = ['-created_at']
-        constraints = [
-            models.UniqueConstraint(
+        indexes = [
+            models.Index(
                 fields=['article', 'brand', 'supplier'],
-                condition=models.Q(article__gt=''),
-                name='unique_product_article_brand_supplier',
+                name='cat_prod_lookup_idx',
             ),
         ]
 

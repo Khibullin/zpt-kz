@@ -13,10 +13,15 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='product',
             name='supplier',
-            field=models.CharField(choices=[('local', 'Локальный склад'), ('phaeton', 'Phaeton (внешний API)')], default='local', max_length=32, verbose_name='Поставщик'),
-        ),
-        migrations.AddConstraint(
-            model_name='product',
-            constraint=models.UniqueConstraint(condition=models.Q(('article__gt', '')), fields=('article', 'brand', 'supplier'), name='unique_product_article_brand_supplier'),
+            field=models.CharField(
+                choices=[
+                    ('local', 'Локальный склад'),
+                    ('phaeton', 'Phaeton (внешний API)'),
+                ],
+                db_index=True,
+                default='local',
+                max_length=32,
+                verbose_name='Поставщик',
+            ),
         ),
     ]
