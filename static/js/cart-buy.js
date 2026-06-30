@@ -97,9 +97,6 @@
       }
 
       const quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
-      const formData = new FormData();
-      formData.append('product_id', String(productId));
-      formData.append('quantity', String(quantity));
 
       buyButton.disabled = true;
 
@@ -107,18 +104,24 @@
         method: 'POST',
         credentials: 'same-origin',
         headers: {
+          'Content-Type': 'application/json',
           'X-Requested-With': 'XMLHttpRequest',
           'Accept': 'application/json',
           'X-CSRFToken': csrfToken,
         },
-        body: formData,
+        body: JSON.stringify({
+          product_id: productId,
+          quantity: quantity,
+        }),
       })
         .then(parseJsonResponse)
         .then(function (data) {
-          if (!data.ok) {
-            throw new Error(data.message || 'Не удалось добавить товар в корзину');
+          if (!data.ok && !data.success) {
+            throw new Error(
+              data.message || data.error || 'Не удалось добавить товар в корзину'
+            );
           }
-          updateCartBadge(data.cart_count);
+          updateCartBadge(data.cart_count != null ? data.cart_count : data.total_items);
           setBuyButtonSuccess(buyButton);
         })
         .catch(function (error) {

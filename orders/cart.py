@@ -43,7 +43,11 @@ class CartManager:
         self.request.session.pop(SESSION_CART_KEY, None)
         self.request.session.modified = True
 
+    def _normalize_product_id(self, product_id):
+        return int(product_id)
+
     def add(self, product_id, quantity=1, accumulate=True):
+        product_id = self._normalize_product_id(product_id)
         quantity = max(1, int(quantity))
         if self.user:
             item, created = CartItem.objects.get_or_create(
@@ -65,6 +69,7 @@ class CartManager:
         self.request.session.modified = True
 
     def set_quantity(self, product_id, quantity):
+        product_id = self._normalize_product_id(product_id)
         quantity = int(quantity)
         if quantity <= 0:
             self.remove(product_id)
@@ -82,6 +87,7 @@ class CartManager:
         self.request.session.modified = True
 
     def remove(self, product_id):
+        product_id = self._normalize_product_id(product_id)
         if self.user:
             CartItem.objects.filter(user=self.user, product_id=product_id).delete()
             return
@@ -104,6 +110,9 @@ class CartManager:
                 total=Sum('quantity')
             )['total'] or 0
         return sum(self._session_cart().values())
+
+    def get_total_items(self):
+        return self.get_count()
 
     def get_product_quantities(self):
         if self.user:
@@ -140,6 +149,9 @@ class CartManager:
 
     def get_total(self):
         return sum(item['line_total'] for item in self.get_items())
+
+    def get_or_create_virtual_product(self, product_data):
+        return CartManager.get_or_create_virtual_product(product_data)
 
     def prune_invalid(self):
         valid_ids = {
