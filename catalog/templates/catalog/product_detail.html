@@ -308,6 +308,21 @@
   WhatsApp продавцу
 </a>
 
+        {% if product.status != 'sold' %}
+          <form
+            method="post"
+            action="{% url 'orders:cart_add' product.pk %}"
+            style="margin-top:12px;"
+          >
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="next" value="{% url 'orders:cart' %}">
+            <button type="submit" class="btn red" style="width:100%;">
+              В корзину — оформить на ZPT
+            </button>
+          </form>
+        {% endif %}
+
         <div class="product-request-box">
 <div class="product-request-title">
   Нет в наличии или нужна другая запчасть?

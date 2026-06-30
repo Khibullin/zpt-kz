@@ -144,6 +144,7 @@ urlpatterns = [
         name='service_seller_detail',
     ),
 
+    path('', include('orders.urls')),
     path('market/', include('catalog.urls')),
     path('', include('catalog.urls')),
 

@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}Корзина — ZPT Market{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v1">
+{% endblock %}
+
+{% block content %}
+<header class="topbar">
+  <div class="container topbar-inner">
+    <a class="brand" href="{% url 'catalog_list' %}">
+      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
+    </a>
+  </div>
+</header>
+
+<section class="section checkout-page">
+  <div class="container">
+    {% if messages %}
+      {% for message in messages %}
+        <div class="form-error" style="margin-bottom:16px;">{{ message }}</div>
+      {% endfor %}
+    {% endif %}
+
+    {% if items %}
+      <div class="checkout-layout">
+        <div class="checkout-card">
+          <h1>Корзина</h1>
+          <ul class="checkout-summary-list">
+            {% for item in items %}
+              <li class="checkout-summary-item">
+                {% if item.product.main_image %}
+                  <img class="checkout-summary-thumb" src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}">
+                {% else %}
+                  <img class="checkout-summary-thumb" src="{% static 'images/product-placeholder.svg' %}" alt="{{ item.product.title }}">
+                {% endif %}
+                <div class="checkout-summary-body">
+                  <div class="checkout-summary-title">{{ item.product.title }}</div>
+                  <div class="checkout-summary-meta">
+                    {{ item.quantity }} × {{ item.product.price|intcomma }} ₸
+                  </div>
+                  <form method="post" action="{% url 'orders:cart_remove' item.product.id %}" style="margin-top:8px;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn outline" style="min-height:34px;padding:0 12px;font-size:13px;">Удалить</button>
+                  </form>
+                </div>
+              </li>
+            {% endfor %}
+          </ul>
+          <div class="checkout-actions">
+            <a href="{% url 'catalog_list' %}" class="btn outline">Продолжить покупки</a>
+            <a href="{% url 'orders:checkout' %}" class="btn red">Оформить заказ</a>
+          </div>
+        </div>
+
+        <aside class="checkout-summary">
+          <h2>Итого</h2>
+          <div class="checkout-summary-total">
+            <span>К оплате</span>
+            <span>{{ cart_total|intcomma }} ₸</span>
+          </div>
+        </aside>
+      </div>
+    {% else %}
+      <div class="checkout-card cart-empty">
+        <h1>Корзина пуста</h1>
+        <p style="color:#666;margin:12px 0 20px;">Добавьте запчасти из каталога, чтобы оформить заказ.</p>
+        <a href="{% url 'catalog_list' %}" class="btn red">Перейти в каталог</a>
+      </div>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

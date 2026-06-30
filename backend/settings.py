@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 
     'core',
     'service_requests',
+    'orders',
 ]
 
 MIDDLEWARE = [
@@ -200,6 +201,14 @@ WHATSAPP_TEMPLATE_LANG = os.getenv(
 WHATSAPP_BUYER_TEMPLATE_NAME = os.getenv("WHATSAPP_BUYER_TEMPLATE_NAME", "")
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
+
+# Checkout / Kaspi (mock until bank credentials are issued)
+ZPT_WAREHOUSE_ADDRESS = os.getenv(
+    'ZPT_WAREHOUSE_ADDRESS',
+    'г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5',
+)
+KASPI_MERCHANT_ID = os.getenv('KASPI_MERCHANT_ID', '')
+KASPI_API_TOKEN = os.getenv('KASPI_API_TOKEN', '')
 
 MEDIA_URL = '/products/'
 MEDIA_ROOT = BASE_DIR / 'products'
