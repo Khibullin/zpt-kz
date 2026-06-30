@@ -40,6 +40,112 @@ def _cart_json(cart, message=''):
     }
 
 
+def _cart_error(message, wants_json, request, status=400):
+    if wants_json:
+        return JsonResponse({'ok': False, 'message': message}, status=status)
+    messages.error(request, message)
+    return redirect('catalog_list')
+
+
+def _parse_json_field(raw_value):
+    if raw_value is None or raw_value == '':
+        return None
+    if isinstance(raw_value, dict):
+        return raw_value
+    try:
+        parsed = json.loads(raw_value)
+    except (TypeError, json.JSONDecodeError):
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _looks_like_virtual_payload(payload):
+    if not isinstance(payload, dict):
+        return False
+    sku = str(payload.get('sku') or payload.get('article') or '').strip()
+    brand = str(payload.get('brand') or '').strip()
+    return bool(sku and brand)
+
+
+def _parse_cart_add_request(request, path_product_id=None):
+    """
+    Normalize cart add input from JSON body, form POST, or URL path.
+    Returns (raw_product_id, product_data, quantity).
+    """
+    raw_product_id = path_product_id
+    product_data = None
+    quantity = 1
+    payload = {}
+
+    content_type = request.content_type or ''
+    if 'application/json' in content_type:
+        try:
+            payload = json.loads(request.body.decode('utf-8') or '{}')
+        except json.JSONDecodeError:
+            raise ValueError('Invalid JSON')
+        if not isinstance(payload, dict):
+            raise ValueError('Invalid JSON payload')
+
+        raw_product_id = raw_product_id if raw_product_id is not None else payload.get('product_id')
+        product_data = _parse_json_field(payload.get('product_data'))
+        if product_data is None and _looks_like_virtual_payload(payload):
+            product_data = payload
+        quantity = payload.get('quantity', 1)
+    else:
+        if raw_product_id is None:
+            raw_product_id = request.POST.get('product_id')
+        product_data = _parse_json_field(request.POST.get('product_data'))
+        if product_data is None and _looks_like_virtual_payload(request.POST.dict()):
+            product_data = request.POST.dict()
+        quantity = request.POST.get('quantity', 1)
+
+    try:
+        quantity = max(1, int(quantity))
+    except (TypeError, ValueError):
+        quantity = 1
+
+    return raw_product_id, product_data, quantity
+
+
+def _resolve_cart_product(raw_product_id, product_data):
+    """
+    Resolve a Product from a local id or virtual supplier payload.
+    Returns (product, error_message).
+    """
+    if raw_product_id is not None and str(raw_product_id).strip() != '':
+        try:
+            product_id_int = int(str(raw_product_id).strip())
+        except (TypeError, ValueError):
+            logger.error('cart_add: invalid product_id=%r', raw_product_id)
+            return None, 'Товар не найден'
+
+        product = Product.objects.filter(id=product_id_int).first()
+        if product is None:
+            logger.error(
+                'cart_add: local product not found id=%s',
+                product_id_int,
+            )
+            return None, f'Товар с id={product_id_int} не найден'
+
+        return product, None
+
+    if product_data:
+        sku = str(product_data.get('sku') or product_data.get('article') or '').strip()
+        brand = str(product_data.get('brand') or '').strip()
+        if not sku or not brand:
+            return None, 'product_data requires sku and brand'
+
+        try:
+            product = CartManager.get_or_create_virtual_product(product_data)
+        except ValueError as exc:
+            logger.error('cart_add: virtual product error=%s data=%r', exc, product_data)
+            return None, str(exc)
+
+        return product, None
+
+    return None, 'Укажите product_id или product_data'
+
+
 def cart_view(request):
     cart = CartManager(request)
     cart.prune_invalid()
@@ -65,67 +171,46 @@ def cart_count_api(request):
 
 @require_POST
 def cart_add(request, product_id=None):
+    """Universal cart add: local product_id or virtual product_data."""
     cart = CartManager(request)
     wants_json = _wants_json(request)
 
-    raw_product_id = (
-        product_id
-        if product_id is not None
-        else request.POST.get('product_id')
-    )
     logger.error(
-        'cart_add: incoming product_id=%r (path=%r), POST keys=%s',
-        raw_product_id,
+        'cart_add: path_product_id=%r content_type=%r POST=%r body=%r',
         product_id,
-        list(request.POST.keys()),
+        request.content_type,
+        request.POST.dict() if request.POST else {},
+        (request.body[:500].decode('utf-8', errors='replace') if request.body else ''),
     )
 
     try:
-        quantity = max(1, int(request.POST.get('quantity', 1)))
-    except (TypeError, ValueError):
-        quantity = 1
-
-    if raw_product_id is None or str(raw_product_id).strip() == '':
-        message = 'product_id is required'
-        if wants_json:
-            return JsonResponse({'ok': False, 'message': message}, status=400)
-        messages.error(request, message)
-        return redirect('catalog_list')
-
-    try:
-        product_id_int = int(str(raw_product_id).strip())
-    except (TypeError, ValueError):
-        logger.error('cart_add: invalid product_id=%r', raw_product_id)
-        message = 'Товар не найден'
-        if wants_json:
-            return JsonResponse({'ok': False, 'message': message}, status=404)
-        messages.error(request, message)
-        return redirect('catalog_list')
-
-    try:
-        product = Product.objects.get(id=product_id_int, status='active')
-    except Product.DoesNotExist:
-        exists = Product.objects.filter(id=product_id_int).exists()
-        status = Product.objects.filter(id=product_id_int).values_list(
-            'status', flat=True
-        ).first()
-        logger.error(
-            'cart_add: product not found id=%s exists=%s status=%s',
-            product_id_int,
-            exists,
-            status,
+        raw_product_id, product_data, quantity = _parse_cart_add_request(
+            request,
+            path_product_id=product_id,
         )
-        message = 'Товар не найден'
-        if wants_json:
-            return JsonResponse({'ok': False, 'message': message}, status=404)
-        messages.error(request, message)
-        return redirect('catalog_list')
+    except ValueError as exc:
+        logger.error('cart_add: parse error=%s', exc)
+        return _cart_error(str(exc), wants_json, request, status=400)
+
+    logger.error(
+        'cart_add: parsed product_id=%r product_data=%r quantity=%s',
+        raw_product_id,
+        product_data,
+        quantity,
+    )
+
+    product, error_message = _resolve_cart_product(raw_product_id, product_data)
+    if product is None:
+        status = 404 if 'не найден' in (error_message or '') else 400
+        return _cart_error(error_message, wants_json, request, status=status)
 
     cart.add(product.id, quantity)
     message = f'«{product.title}» добавлен в корзину.'
 
     if wants_json:
-        return JsonResponse(_cart_json(cart, message))
+        response = _cart_json(cart, message)
+        response['product_id'] = product.id
+        return JsonResponse(response)
 
     messages.success(request, message)
     next_url = request.POST.get('next') or product.get_absolute_url()
@@ -134,29 +219,8 @@ def cart_add(request, product_id=None):
 
 @require_POST
 def cart_add_virtual(request):
-    cart = CartManager(request)
-
-    try:
-        if request.content_type == 'application/json':
-            payload = json.loads(request.body.decode('utf-8'))
-        else:
-            payload = request.POST.dict()
-    except json.JSONDecodeError:
-        return JsonResponse({'ok': False, 'message': 'Invalid JSON'}, status=400)
-
-    quantity = max(1, int(payload.get('quantity', 1)))
-
-    try:
-        product = CartManager.get_or_create_virtual_product(payload)
-    except ValueError as exc:
-        return JsonResponse({'ok': False, 'message': str(exc)}, status=400)
-
-    cart.add(product.id, quantity)
-    message = f'«{product.title}» добавлен в корзину.'
-
-    response = _cart_json(cart, message)
-    response['product_id'] = product.id
-    return JsonResponse(response)
+    """Backward-compatible alias for virtual products via /cart/add/virtual/."""
+    return cart_add(request)
 
 
 @require_POST
