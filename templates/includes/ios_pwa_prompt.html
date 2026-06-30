@@ -1,0 +1,43 @@
+{% load static %}
+<div
+  id="ios-pwa-prompt"
+  class="ios-pwa-prompt"
+  role="dialog"
+  aria-live="polite"
+  aria-label="Установка ZPT.kz на экран Домой"
+  aria-hidden="true"
+>
+  <img
+    class="ios-pwa-prompt-icon"
+    src="{% static 'images/pwa-icon-180.png' %}"
+    alt="ZPT.kz"
+    width="40"
+    height="40"
+  >
+  <div class="ios-pwa-prompt-body">
+    <p class="ios-pwa-prompt-title">Установите ZPT.kz на экран «Домой»</p>
+    <p class="ios-pwa-prompt-text">
+      Нажмите «Поделиться»
+      <span class="ios-pwa-prompt-inline-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 3v10" stroke="#007AFF" stroke-width="2" stroke-linecap="round"/>
+          <path d="M8 7l4-4 4 4" stroke="#007AFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4" stroke="#007AFF" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </span>
+      в меню Safari, затем выберите «На экран Домой»
+      <span class="ios-pwa-prompt-inline-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="16" height="16" rx="3" stroke="#111827" stroke-width="1.8"/>
+          <path d="M12 8v8M8 12h8" stroke="#111827" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+    </p>
+  </div>
+  <button
+    type="button"
+    class="ios-pwa-prompt-close"
+    data-ios-pwa-close
+    aria-label="Закрыть подсказку"
+  >&times;</button>
+</div>
