@@ -158,6 +158,23 @@
   color:#6b7280;
 }
 
+.cart-qty-controls{
+  max-width:140px;
+  margin-top:8px;
+}
+
+.cart-line-meta{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:6px;
+}
+
+.cart-line-total{
+  font-weight:700;
+  color:#111827;
+}
+
 .checkout-summary-total{
   display:flex;
   align-items:center;

@@ -38,6 +38,10 @@ def _cart_json(cart, message=''):
     }
 
 
+def _format_price_kzt(value):
+    return f'{int(value):,}'.replace(',', ' ')
+
+
 def _read_cart_add_payload(request, path_product_id=None):
     """Read cart add payload from JSON body or form POST."""
     content_type = request.content_type or ''
@@ -235,6 +239,64 @@ def cart_remove(request, product_id):
 
     messages.info(request, 'Товар удалён из корзины.')
     return redirect('orders:cart')
+
+
+@require_POST
+def cart_update_quantity(request):
+    try:
+        data = json.loads(request.body.decode('utf-8') or '{}')
+        product_id = int(data.get('product_id'))
+        quantity = int(data.get('quantity'))
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JsonResponse(
+            {
+                'success': False,
+                'ok': False,
+                'error': 'Некорректные product_id или quantity',
+            },
+            status=400,
+        )
+
+    if quantity < 1:
+        return JsonResponse(
+            {
+                'success': False,
+                'ok': False,
+                'error': 'Количество должно быть не меньше 1',
+            },
+            status=400,
+        )
+
+    product = Product.objects.filter(pk=product_id).first()
+    if product is None:
+        return JsonResponse(
+            {
+                'success': False,
+                'ok': False,
+                'error': 'Товар не найден',
+            },
+            status=404,
+        )
+
+    cart = CartManager(request)
+    cart.set_quantity(product_id, quantity)
+
+    item_total = product.price * quantity
+    cart_total = cart.get_total()
+    total_items = cart.get_total_items()
+
+    return JsonResponse({
+        'success': True,
+        'ok': True,
+        'quantity': quantity,
+        'item_total_price': item_total,
+        'item_total_price_display': _format_price_kzt(item_total),
+        'cart_total_price': cart_total,
+        'cart_total_price_display': _format_price_kzt(cart_total),
+        'total_items': total_items,
+        'cart_count': total_items,
+        'unit_price_display': _format_price_kzt(product.price),
+    })
 
 
 @require_http_methods(['GET', 'POST'])

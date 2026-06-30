@@ -4,7 +4,8 @@
 {% block title %}Корзина — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v1">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_page_v1">
 {% endblock %}
 
 {% block content %}
@@ -12,6 +13,13 @@
   <div class="container topbar-inner">
     <a class="brand" href="{% url 'catalog_list' %}">
       <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
+    </a>
+    <a href="{% url 'orders:cart' %}" class="market-cart-link" title="Корзина">
+      <span class="market-cart-icon" aria-hidden="true">🛒</span>
+      <span class="market-cart-label">Корзина</span>
+      <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
+        {{ cart_count|default:0 }}
+      </span>
     </a>
   </div>
 </header>
@@ -28,9 +36,12 @@
       <div class="checkout-layout">
         <div class="checkout-card">
           <h1>Корзина</h1>
-          <ul class="checkout-summary-list">
+          <ul class="checkout-summary-list" id="cart-items-list">
             {% for item in items %}
-              <li class="checkout-summary-item">
+              <li
+                class="checkout-summary-item cart-line-item"
+                data-product-id="{{ item.product.id }}"
+              >
                 {% if item.product.main_image %}
                   <img class="checkout-summary-thumb" src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}">
                 {% else %}
@@ -38,9 +49,47 @@
                 {% endif %}
                 <div class="checkout-summary-body">
                   <div class="checkout-summary-title">{{ item.product.title }}</div>
-                  <div class="checkout-summary-meta">
-                    {{ item.quantity }} × {{ item.product.price|intcomma }} ₸
+
+                  <div
+                    class="cart-qty-controls product-qty-row"
+                    data-product-id="{{ item.product.id }}"
+                    data-price="{{ item.product.price }}"
+                  >
+                    <button
+                      type="button"
+                      class="cart-minus qty-btn"
+                      data-product-id="{{ item.product.id }}"
+                      data-price="{{ item.product.price }}"
+                      aria-label="Уменьшить количество"
+                      {% if item.quantity <= 1 %}disabled{% endif %}
+                    >−</button>
+                    <input
+                      type="text"
+                      class="cart-qty-input qty-input"
+                      value="{{ item.quantity }}"
+                      readonly
+                      tabindex="-1"
+                      aria-label="Количество"
+                      data-product-id="{{ item.product.id }}"
+                    >
+                    <button
+                      type="button"
+                      class="cart-plus qty-btn"
+                      data-product-id="{{ item.product.id }}"
+                      data-price="{{ item.product.price }}"
+                      aria-label="Увеличить количество"
+                    >+</button>
                   </div>
+
+                  <div class="checkout-summary-meta cart-line-meta">
+                    <span class="cart-line-qty-price">
+                      {{ item.quantity }} × {{ item.product.price|intcomma }} ₸
+                    </span>
+                    <span class="cart-line-total">
+                      = {{ item.line_total|intcomma }} ₸
+                    </span>
+                  </div>
+
                   <form method="post" action="{% url 'orders:cart_remove' item.product.id %}" style="margin-top:8px;">
                     {% csrf_token %}
                     <button type="submit" class="btn outline" style="min-height:34px;padding:0 12px;font-size:13px;">Удалить</button>
@@ -59,7 +108,7 @@
           <h2>Итого</h2>
           <div class="checkout-summary-total">
             <span>К оплате</span>
-            <span>{{ cart_total|intcomma }} ₸</span>
+            <span id="cart-total-price" data-cart-total>{{ cart_total|intcomma }} ₸</span>
           </div>
         </aside>
       </div>
@@ -72,4 +121,13 @@
     {% endif %}
   </div>
 </section>
+
+{% if items %}
+<script>
+  window.ZPT_CART_PAGE = {
+    updateUrl: '{% url "orders:cart_update_quantity" %}',
+  };
+</script>
+<script src="{% static 'js/cart-page.js' %}?v=cart_page_v1"></script>
+{% endif %}
 {% endblock %}
