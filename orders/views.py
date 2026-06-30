@@ -60,19 +60,79 @@ def _read_cart_add_payload(request, path_product_id=None):
     return data
 
 
+def _find_local_product(product_id=None, article=None, supplier=None):
+    """
+    Resolve a catalog product by primary key, with article fallback for
+    environments where rendered page IDs may not match the server DB.
+    """
+    article_str = str(article or '').strip()
+    supplier_str = str(supplier or '').strip() or Product.SUPPLIER_LOCAL
+
+    if product_id is not None and str(product_id).strip() != '':
+        try:
+            pk = int(product_id)
+        except (TypeError, ValueError):
+            pk = None
+
+        if pk is not None:
+            product = Product.objects.filter(pk=pk).first()
+            if product:
+                return product, 'pk'
+
+    if article_str:
+        lookup = Product.objects.filter(article=article_str, supplier=supplier_str)
+        product = lookup.filter(status='active').first() or lookup.first()
+        if product:
+            return product, 'article'
+
+    return None, None
+
+
 @require_POST
 def api_cart_add(request, product_id=None):
     try:
         data = _read_cart_add_payload(request, path_product_id=product_id)
         print('--- DEBUG: Пришли данные в корзину:', data)
 
-        product_id = data.get('product_id')
+        product_id_raw = data.get('product_id')
+        article = data.get('article') or data.get('sku')
+        supplier = data.get('supplier')
         quantity = int(data.get('quantity', 1))
+
+        print(
+            f'--- DEBUG: Ищем товар с ID: {product_id_raw} '
+            f'(тип: {type(product_id_raw).__name__})'
+        )
+        print(f'--- DEBUG: Артикул из запроса: {article!r}, supplier: {supplier!r}')
+        print(f'--- DEBUG: Всего товаров в БД Render: {Product.objects.count()}')
+
+        if product_id_raw is not None and str(product_id_raw).strip() != '':
+            try:
+                pk = int(product_id_raw)
+                exists = Product.objects.filter(pk=pk).exists()
+                print(f'--- DEBUG: Product.objects.filter(pk={pk}).exists() = {exists}')
+            except (TypeError, ValueError) as exc:
+                print(f'--- DEBUG: Не удалось привести product_id к int: {exc}')
+
+        if article:
+            article_str = str(article).strip()
+            matches = Product.objects.filter(article=article_str).count()
+            print(
+                f'--- DEBUG: Товаров с article={article_str!r}: {matches}'
+            )
 
         cart_manager = CartManager(request)
 
-        if product_id:
-            product = Product.objects.filter(id=product_id).first()
+        if product_id_raw or article:
+            product, matched_by = _find_local_product(
+                product_id=product_id_raw,
+                article=article,
+                supplier=supplier,
+            )
+            print(
+                f'--- DEBUG: Результат поиска: product={getattr(product, "pk", None)}, '
+                f'matched_by={matched_by}'
+            )
             if not product:
                 return JsonResponse(
                     {

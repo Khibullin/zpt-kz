@@ -71,6 +71,20 @@
     return '';
   }
 
+  function readDataAttrFromButton(button, attrName) {
+    const value = button.getAttribute(attrName);
+    if (value) {
+      return value;
+    }
+
+    const controls = button.closest('.product-buy-controls');
+    if (controls) {
+      return controls.getAttribute(attrName) || '';
+    }
+
+    return '';
+  }
+
   function bindQtyControls(root) {
     const input = root.querySelector('.qty-input');
     const minus = root.querySelector('[data-qty-minus]');
@@ -105,11 +119,13 @@
       const button = event.currentTarget;
       const idRaw = readProductIdFromButton(button);
       const productId = parseInt(String(idRaw || '').trim(), 10);
+      const article = readDataAttrFromButton(button, 'data-product-article').trim();
+      const supplier = readDataAttrFromButton(button, 'data-product-supplier').trim();
 
-      console.log('Добавляем ID:', productId);
+      console.log('Добавляем ID:', productId, 'артикул:', article || '(нет)');
 
-      if (!Number.isFinite(productId) || productId <= 0) {
-        window.alert('Не удалось определить ID товара. Обновите страницу и попробуйте снова.');
+      if ((!Number.isFinite(productId) || productId <= 0) && !article) {
+        window.alert('Не удалось определить товар. Обновите страницу и попробуйте снова.');
         return;
       }
 
@@ -133,7 +149,9 @@
           'X-CSRFToken': csrfToken,
         },
         body: JSON.stringify({
-          product_id: productId,
+          product_id: Number.isFinite(productId) && productId > 0 ? productId : null,
+          article: article || null,
+          supplier: supplier || null,
           quantity: quantity,
         }),
       })

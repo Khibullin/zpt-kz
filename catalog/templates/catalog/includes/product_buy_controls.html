@@ -1,4 +1,9 @@
-<div class="product-buy-controls" data-product-id="{{ product.id }}">
+<div
+  class="product-buy-controls"
+  data-product-id="{{ product.id }}"
+  data-product-article="{{ product.article|default:'' }}"
+  data-product-supplier="{{ product.supplier|default:'local' }}"
+>
   <div class="product-qty-row">
     <button type="button" class="qty-btn" data-qty-minus aria-label="Уменьшить количество">−</button>
     <input
@@ -16,6 +21,8 @@
     class="product-buy-btn btn-buy-catalog"
     data-cart-add
     data-product-id="{{ product.id }}"
+    data-product-article="{{ product.article|default:'' }}"
+    data-product-supplier="{{ product.supplier|default:'local' }}"
   >
     <span class="product-buy-btn-icon" aria-hidden="true">🛒</span>
     <span class="product-buy-btn-text">Купить</span>
