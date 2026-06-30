@@ -80,11 +80,12 @@
   }
 
   function bindBuyButton(root) {
-    const productId = root.dataset.productId;
+    const productIdRaw = root.dataset.productId;
+    const productId = parseInt(productIdRaw, 10);
     const buyButton = root.querySelector('[data-cart-add]');
     const qtyInput = root.querySelector('.qty-input');
 
-    if (!productId || !buyButton) {
+    if (!productIdRaw || !Number.isFinite(productId) || productId <= 0 || !buyButton) {
       return;
     }
 
@@ -97,7 +98,7 @@
 
       const quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
       const formData = new FormData();
-      formData.append('product_id', productId);
+      formData.append('product_id', String(productId));
       formData.append('quantity', String(quantity));
 
       buyButton.disabled = true;

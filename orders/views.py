@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.contrib import messages
 from django.db import transaction
@@ -14,6 +15,8 @@ from .cart import CartManager
 from .constants import DEFAULT_WAREHOUSE_ADDRESS, TRANSPORT_COMPANIES
 from .forms import CheckoutForm
 from .models import Order, OrderItem, KaspiTransaction
+
+logger = logging.getLogger(__name__)
 
 
 def _warehouse_address():
@@ -63,13 +66,26 @@ def cart_count_api(request):
 @require_POST
 def cart_add(request, product_id=None):
     cart = CartManager(request)
-    quantity = max(1, int(request.POST.get('quantity', 1)))
     wants_json = _wants_json(request)
 
-    if product_id is None:
-        product_id = request.POST.get('product_id')
+    raw_product_id = (
+        product_id
+        if product_id is not None
+        else request.POST.get('product_id')
+    )
+    logger.error(
+        'cart_add: incoming product_id=%r (path=%r), POST keys=%s',
+        raw_product_id,
+        product_id,
+        list(request.POST.keys()),
+    )
 
-    if not product_id:
+    try:
+        quantity = max(1, int(request.POST.get('quantity', 1)))
+    except (TypeError, ValueError):
+        quantity = 1
+
+    if raw_product_id is None or str(raw_product_id).strip() == '':
         message = 'product_id is required'
         if wants_json:
             return JsonResponse({'ok': False, 'message': message}, status=400)
@@ -77,8 +93,28 @@ def cart_add(request, product_id=None):
         return redirect('catalog_list')
 
     try:
-        product = Product.objects.get(pk=product_id, status='active')
-    except (Product.DoesNotExist, ValueError, TypeError):
+        product_id_int = int(str(raw_product_id).strip())
+    except (TypeError, ValueError):
+        logger.error('cart_add: invalid product_id=%r', raw_product_id)
+        message = 'Товар не найден'
+        if wants_json:
+            return JsonResponse({'ok': False, 'message': message}, status=404)
+        messages.error(request, message)
+        return redirect('catalog_list')
+
+    try:
+        product = Product.objects.get(id=product_id_int, status='active')
+    except Product.DoesNotExist:
+        exists = Product.objects.filter(id=product_id_int).exists()
+        status = Product.objects.filter(id=product_id_int).values_list(
+            'status', flat=True
+        ).first()
+        logger.error(
+            'cart_add: product not found id=%s exists=%s status=%s',
+            product_id_int,
+            exists,
+            status,
+        )
         message = 'Товар не найден'
         if wants_json:
             return JsonResponse({'ok': False, 'message': message}, status=404)
