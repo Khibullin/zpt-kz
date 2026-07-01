@@ -326,7 +326,7 @@ def send_whatsapp_template(
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
     template_name = template_name or os.getenv(
         'WHATSAPP_TEMPLATE_NAME',
-        'zpt_request_notification',
+        'mp_request_v1',
     )
     template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
 

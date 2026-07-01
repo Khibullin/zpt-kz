@@ -191,7 +191,7 @@ META_PHONE_NUMBER_ID = (
 
 WHATSAPP_TEMPLATE_NAME = os.getenv(
     "WHATSAPP_TEMPLATE_NAME",
-    "zpt_request_notification"
+    "mp_request_v1",
 )
 
 WHATSAPP_TEMPLATE_LANG = os.getenv(
