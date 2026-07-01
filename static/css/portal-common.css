@@ -39,7 +39,7 @@ body{
 
 .market-brand img,
 .logo img{
-  height:32px;
+  height:24px;
   width:auto;
   max-width:none;
   object-fit:contain;
@@ -183,7 +183,7 @@ body{
 
   .market-brand img,
   .logo img{
-    height:24px !important;
+    height:20px !important;
     width:auto !important;
   }
 

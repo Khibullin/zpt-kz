@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v114">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v115">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 <style>
 .market-topbar{
@@ -25,11 +25,11 @@
 .market-brand-subtitle{
   display:block;
   margin-top:2px;
-  font-size:11px;
+  font-size:10px;
   line-height:1.2;
-  font-weight:600;
-  color:#666;
-  letter-spacing:.01em;
+  font-weight:500;
+  color:#6b7280;
+  letter-spacing:0;
 }
 .market-header-logo{
   flex-direction:column;
@@ -58,18 +58,18 @@
 .hero .b2c-request-banner-title{
   margin:0;
   padding:0;
-  font-size:18px;
+  font-size:1rem;
   line-height:1.35;
-  font-weight:800;
-  color:#111;
+  font-weight:700;
+  color:#111827;
   text-decoration:none;
 }
 .hero .b2c-request-banner-text{
   margin:0;
   padding:0;
-  font-size:14px;
+  font-size:.75rem;
   line-height:1.5;
-  color:#555;
+  color:#4b5563;
   text-decoration:none;
 }
 .hero .b2c-request-banner-action{
@@ -79,25 +79,28 @@
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-width:170px;
-  height:44px;
-  padding:0 24px;
+  min-width:0;
+  padding:10px 20px;
   border:none;
-  border-radius:14px;
-  background:#ef3d2f;
+  border-radius:12px;
+  background:#ff3b30;
   color:#fff !important;
-  font-size:16px;
-  font-weight:800;
+  font-size:.75rem;
+  font-weight:500;
   text-decoration:none !important;
   white-space:nowrap;
-  box-shadow:0 4px 14px rgba(239,61,47,.22);
-  transition:background .15s ease, transform .15s ease;
+  box-shadow:0 2px 8px rgba(255,59,48,.2);
+  transition:background .15s ease;
 }
 .hero a.b2c-request-banner-btn:hover{
-  background:#d9362b;
+  background:#e6342a;
   color:#fff !important;
   text-decoration:none !important;
-  transform:translateY(-1px);
+}
+@media (min-width:768px){
+  .hero a.b2c-request-banner-btn{
+    font-size:.875rem;
+  }
 }
 
 /* B2B seller banner — below product grid */
@@ -120,9 +123,9 @@
   min-width:0;
 }
 .home-b2b-banner-title{
-  margin:0 0 10px;
-  font-size:24px;
-  line-height:1.25;
+  margin:0 0 8px;
+  font-size:1.125rem;
+  line-height:1.3;
   font-weight:800;
   color:#fff;
   text-decoration:none;
@@ -130,8 +133,8 @@
 .home-b2b-banner-text{
   margin:0;
   max-width:760px;
-  font-size:15px;
-  line-height:1.55;
+  font-size:.875rem;
+  line-height:1.5;
   color:rgba(255,255,255,.85);
   text-decoration:none;
 }
@@ -140,24 +143,27 @@
   align-items:center;
   justify-content:center;
   flex-shrink:0;
-  min-width:220px;
-  height:48px;
-  padding:0 24px;
-  border-radius:14px;
-  background:#ef3d2f;
+  min-width:0;
+  padding:10px 20px;
+  border-radius:12px;
+  background:#ff3b30;
   color:#fff !important;
   text-decoration:none !important;
-  font-size:16px;
-  font-weight:800;
+  font-size:.875rem;
+  font-weight:600;
   white-space:nowrap;
-  box-shadow:0 10px 24px rgba(239,61,47,.35);
-  transition:background .15s ease, transform .15s ease;
+  box-shadow:0 4px 12px rgba(255,59,48,.3);
+  transition:background .15s ease;
 }
 .home-b2b-banner a.home-b2b-banner-btn:hover{
-  background:#d9362b;
+  background:#e6342a;
   color:#fff !important;
   text-decoration:none !important;
-  transform:translateY(-1px);
+}
+@media (min-width:768px){
+  .home-b2b-banner-title{
+    font-size:1.5rem;
+  }
 }
 
 @media (min-width:768px){
@@ -173,15 +179,16 @@
   border-top:1px solid #ececec;
 }
 .home-seo-block h2{
-  font-size:22px;
-  font-weight:900;
-  margin:0 0 14px;
-  line-height:1.25;
+  font-size:1.125rem;
+  font-weight:800;
+  margin:0 0 12px;
+  line-height:1.3;
+  color:#111827;
 }
 .home-seo-block p{
-  font-size:15px;
-  line-height:1.55;
-  color:#444;
+  font-size:.875rem;
+  line-height:1.5;
+  color:#4b5563;
   margin:0 0 12px;
 }
 .home-seo-links{
@@ -192,9 +199,10 @@
   margin-bottom:20px;
 }
 .home-seo-links-section h3{
-  font-size:17px;
-  font-weight:800;
-  margin:0 0 10px;
+  font-size:.875rem;
+  font-weight:700;
+  margin:0 0 8px;
+  color:#111827;
 }
 .home-seo-links-list{
   display:flex;
@@ -205,10 +213,18 @@
   padding:0;
 }
 .home-seo-links-list a{
-  color:#ef3d2f;
+  color:#ff3b30;
   text-decoration:none;
-  font-size:14px;
-  font-weight:600;
+  font-size:.75rem;
+  font-weight:500;
+}
+@media (min-width:768px){
+  .home-seo-block h2{
+    font-size:1.5rem;
+  }
+  .home-seo-links-list a{
+    font-size:.875rem;
+  }
 }
 .home-seo-links-list a:hover{
   text-decoration:underline;
