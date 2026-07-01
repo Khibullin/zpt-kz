@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 <style>
 .market-topbar{
@@ -34,19 +34,6 @@
 .market-header-logo{
   flex-direction:column;
   align-items:flex-start;
-}
-.action-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  background:#ef3d2f;
-  color:#fff;
-  font-size:13px;
-  font-weight:800;
-  padding:10px 14px;
-  border-radius:10px;
-  white-space:nowrap;
-  flex-shrink:0;
 }
 .home-seo-block{
   margin-top:28px;
@@ -109,11 +96,6 @@
   .market-brand-subtitle{
     font-size:10px;
   }
-  .action-card{
-    flex-direction:column;
-    align-items:flex-start !important;
-    gap:10px;
-  }
   .seller-block,
   .cta{
     flex-direction:column;
@@ -131,93 +113,86 @@
 
   <section class="hero">
 
-    <div class="hero-grid">
+    <div class="hero-main">
 
-      <div>
+      <h1 class="hero-title">Купить автозапчасти в Казахстане</h1>
 
-        <h1 class="hero-title">Купить автозапчасти в Казахстане</h1>
+      <p class="hero-sub">
+        Новые, б/у и контрактные запчасти для легковых и грузовых автомобилей. Найдите товар в наличии или оставьте одну заявку продавцам по всему Казахстану.
+      </p>
 
-        <p class="hero-sub">
-          Новые, б/у и контрактные запчасти для легковых и грузовых автомобилей. Найдите товар в наличии или оставьте одну заявку продавцам по всему Казахстану.
-        </p>
+      <div class="search-box">
 
-      </div>
+        <form method="get">
 
-      <div class="hero-actions">
+          <div class="search-row">
 
-        <a href="https://zpt.kz/request-parts/" class="action-card">
-          <div>
-            <div class="action-title">Не нашли нужную запчасть?</div>
-            <div class="action-sub">
-              Оставьте одну заявку — продавцы отправят предложения с ценой и наличием напрямую в WhatsApp.
+            <input
+              type="text"
+              name="q"
+              value="{{ query }}"
+              placeholder="Поиск запчасти по названию или артикулу"
+            >
+
+            <button type="submit" class="search-btn">
+              Найти
+            </button>
+
+          </div>
+
+          <div class="filter-box">
+
+            <div class="filter-title">
+              Подбор запчастей по марке автомобиля
             </div>
+
+            <div class="filter-grid">
+
+              <select id="country" name="country">
+                <option value="">Страна</option>
+                {% for country in countries %}
+                  <option value="{{ country.id }}"{% if selected_country == country.id|stringformat:"s" %} selected{% endif %}>
+                    {{ country.name }}
+                  </option>
+                {% endfor %}
+              </select>
+
+              <select id="brand" name="brand">
+                <option value="">Марка</option>
+              </select>
+
+              <select id="model" name="model">
+                <option value="">Модель</option>
+              </select>
+
+              <select id="category" name="category">
+                <option value="">Категория запчасти</option>
+                {% for category in categories %}
+                  <option value="{{ category.id }}"{% if selected_category == category.id|stringformat:"s" %} selected{% endif %}>
+                    {{ category.name }}
+                  </option>
+                {% endfor %}
+              </select>
+
+            </div>
+
           </div>
-          <span class="action-btn">Оставить заявку</span>
-        </a>
+
+        </form>
 
       </div>
-    </div>
-
-    <div class="search-box">
-
-      <form method="get">
-
-        <div class="search-row">
-
-          <input
-            type="text"
-            name="q"
-            value="{{ query }}"
-            placeholder="Поиск запчасти по названию или артикулу"
-          >
-
-          <button type="submit" class="search-btn">
-            Найти
-          </button>
-
-        </div>
-
-        <div class="filter-box">
-
-          <div class="filter-title">
-            Подбор запчастей по марке автомобиля
-          </div>
-
-          <div class="filter-grid">
-
-            <select id="country" name="country">
-              <option value="">Страна</option>
-              {% for country in countries %}
-                <option value="{{ country.id }}"{% if selected_country == country.id|stringformat:"s" %} selected{% endif %}>
-                  {{ country.name }}
-                </option>
-              {% endfor %}
-            </select>
-
-            <select id="brand" name="brand">
-              <option value="">Марка</option>
-            </select>
-
-            <select id="model" name="model">
-              <option value="">Модель</option>
-            </select>
-
-            <select id="category" name="category">
-              <option value="">Категория запчасти</option>
-              {% for category in categories %}
-                <option value="{{ category.id }}"{% if selected_category == category.id|stringformat:"s" %} selected{% endif %}>
-                  {{ category.name }}
-                </option>
-              {% endfor %}
-            </select>
-
-          </div>
-
-        </div>
-
-      </form>
 
     </div>
+
+    <a href="https://zpt.kz/request-parts/" class="hero-request-banner">
+      <div class="hero-request-banner-copy">
+        <p class="hero-request-banner-title">Не нашли нужную запчасть?</p>
+        <p class="hero-request-banner-text">
+          Оставьте одну заявку — продавцы отправят предложения с ценой и наличием напрямую в WhatsApp.
+        </p>
+      </div>
+      <span class="hero-request-banner-btn">Оставить заявку</span>
+    </a>
 
   </section>
 
