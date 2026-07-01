@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v112">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v113">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 <style>
 .market-topbar{
@@ -191,17 +191,21 @@
 
       </div>
 
-    </div>
-
-    <a href="https://zpt.kz/request-parts/" class="hero-request-banner">
-      <div class="hero-request-banner-copy">
-        <p class="hero-request-banner-title">Не нашли нужную запчасть?</p>
-        <p class="hero-request-banner-text">
-          Оставьте одну заявку — продавцы отправят предложения с ценой и наличием напрямую в WhatsApp.
-        </p>
+      <div class="b2c-request-banner">
+        <div class="b2c-request-banner-copy">
+          <h3 class="b2c-request-banner-title">Не нашли нужную запчасть?</h3>
+          <p class="b2c-request-banner-text">
+            Оставьте одну заявку — продавцы отправят предложения с ценой и наличием напрямую в WhatsApp.
+          </p>
+        </div>
+        <div class="b2c-request-banner-action">
+          <a href="https://zpt.kz/request-parts/" class="b2c-request-banner-btn">
+            Оставить заявку
+          </a>
+        </div>
       </div>
-      <span class="hero-request-banner-btn">Оставить заявку</span>
-    </a>
+
+    </div>
 
   </section>
 
