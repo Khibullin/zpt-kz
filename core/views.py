@@ -106,14 +106,16 @@ def _seller_template_body_params(req):
     ]
 
 
-def _buyer_template_body_params(req):
+def _buyer_template_body_params(req, sellers_count=0):
+    public_base_url = os.getenv('PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    request_url = f'{public_base_url}/my-request/{req.id}/'
     return [
         _wa_template_param(req.id),
         _wa_template_param(req.brand),
         _wa_template_param(req.model),
         _wa_template_param(req.category),
-        _wa_template_param(req.article or '-'),
-        _wa_template_param(_description_with_request_link(req)),
+        _wa_template_param(sellers_count),
+        _wa_template_param(request_url),
         _wa_template_param(req.city),
     ]
 
@@ -320,13 +322,10 @@ def send_whatsapp_template(
     body_parameters=None,
     include_image_header=None,
 ):
-    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
-    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
-    template_name = template_name or os.getenv(
-        'WHATSAPP_TEMPLATE_NAME',
-        'zpt_request_notification',
-    )
-    template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
+    phone_number_id = settings.WHATSAPP_PHONE_NUMBER_ID
+    access_token = settings.WHATSAPP_ACCESS_TOKEN
+    template_name = template_name or settings.WHATSAPP_TEMPLATE_NAME
+    template_lang = settings.WHATSAPP_TEMPLATE_LANG
 
     to_phone = _normalize_whatsapp(to_phone)
 
@@ -831,21 +830,8 @@ def _build_dispatch_queue(req, sellers):
 
         dispatches.append(dispatch)
 
-    buyer_template = os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME')
-    buyer_notified = False
-
     for dispatch in dispatches:
         if dispatch.wave_number == 1:
-            if not buyer_notified and buyer_template:
-                send_whatsapp_template(
-                    req.phone,
-                    req,
-                    'Покупатель',
-                    template_name=buyer_template,
-                    body_parameters=_buyer_template_body_params(req),
-                )
-                buyer_notified = True
-
             _send_dispatch(dispatch)
 
     return dispatches
@@ -942,13 +928,35 @@ def create_request(request):
 
         sellers, strategy = _find_matching_sellers(req)
         matched = list(sellers)
+        sellers_count = len(matched)
 
-        print('TOTAL MATCHED SELLERS:', len(matched))
+        print('TOTAL MATCHED SELLERS:', sellers_count)
 
         dispatches = _build_dispatch_queue(
             req,
             matched
         )
+
+        try:
+            buyer_template = os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME')
+            if buyer_template:
+                send_whatsapp_template(
+                    req.phone,
+                    req,
+                    'Покупатель',
+                    template_name=buyer_template,
+                    body_parameters=_buyer_template_body_params(
+                        req,
+                        sellers_count=sellers_count,
+                    ),
+                )
+        except Exception as exc:
+            logger.error(
+                'Buyer WhatsApp notification failed for request #%s: %s',
+                req.id,
+                exc,
+                exc_info=True,
+            )
 
         req.status = 'sent' if matched else 'no_sellers'
         req.save(update_fields=['status'])
