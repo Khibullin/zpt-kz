@@ -6,7 +6,7 @@
 {% block meta_description %}Подключите автомагазин или СТО к ZPT.KZ: размещайте товары в каталоге и получайте заявки от автовладельцев напрямую в WhatsApp.{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/seller-landing.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/seller-landing.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -71,11 +71,19 @@
       <h3>Стать партнёром ZPT.KZ</h3>
       <p class="seller-landing-form-note">Заполните форму, чтобы начать получать заказы</p>
 
-      <form method="post" action="{% url 'seller_register' %}" class="seller-landing-form">
+      {% if messages %}
+        <div class="seller-landing-messages">
+          {% for message in messages %}
+            <p class="seller-landing-message seller-landing-message--{{ message.tags|default:'info' }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+
+      <form method="post" action="{% url 'register_seller' %}" class="seller-landing-form">
         {% csrf_token %}
         <div class="seller-landing-field">
-          <label for="seller-name">Название магазина или СТО</label>
-          <input id="seller-name" type="text" name="name" required placeholder="Например: AutoParts Almaty">
+          <label for="seller-company-name">Название магазина или СТО</label>
+          <input id="seller-company-name" type="text" name="company_name" required placeholder="Например: AutoParts Almaty">
         </div>
         <div class="seller-landing-field">
           <label for="seller-city">Город работы</label>
@@ -88,12 +96,12 @@
           </select>
         </div>
         <div class="seller-landing-field">
-          <label for="seller-phone">Номер WhatsApp</label>
-          <input id="seller-phone" type="tel" name="phone" required placeholder="+7 (707) 123-45-67">
+          <label for="seller-whatsapp">Номер WhatsApp</label>
+          <input id="seller-whatsapp" type="tel" name="whatsapp_phone" required placeholder="+7 (707) 123-45-67">
         </div>
         <div class="seller-landing-field">
           <label for="seller-password">Придумайте пароль</label>
-          <input id="seller-password" type="password" name="password" required placeholder="••••••••">
+          <input id="seller-password" type="password" name="password" required placeholder="••••••••" minlength="8">
         </div>
         <button type="submit" class="seller-landing-form-submit">
           Создать личный кабинет

@@ -239,6 +239,47 @@
   background:#d9362b;
 }
 
+.seller-landing-messages{
+  margin-bottom:16px;
+}
+
+.seller-landing-message{
+  margin:0 0 8px;
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:13px;
+  line-height:1.45;
+}
+
+.seller-landing-message:last-child{
+  margin-bottom:0;
+}
+
+.seller-landing-message--error,
+.seller-landing-message--danger{
+  background:#fef2f2;
+  color:#991b1b;
+  border:1px solid #fecaca;
+}
+
+.seller-landing-message--success{
+  background:#ecfdf5;
+  color:#065f46;
+  border:1px solid #a7f3d0;
+}
+
+.seller-landing-message--warning{
+  background:#fffbeb;
+  color:#92400e;
+  border:1px solid #fde68a;
+}
+
+.seller-landing-message--info{
+  background:#eff6ff;
+  color:#1e40af;
+  border:1px solid #bfdbfe;
+}
+
 @media (min-width:640px){
   .seller-landing-hero-actions{
     flex-direction:row;

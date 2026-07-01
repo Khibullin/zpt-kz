@@ -11,11 +11,16 @@ from urllib.parse import quote
 
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth import authenticate, login
+from django.contrib.auth.models import User
+from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
+from django.db import transaction
 from django.db.models import Prefetch, Q
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, ImageOps
@@ -33,6 +38,8 @@ from .models import (
     BroadcastSettings,
     WhatsAppMessageLog,
 )
+
+from catalog.models import SellerProfile
 
 
 WAVE_SIZE = 20
@@ -1526,3 +1533,90 @@ def parts_seller_detail(request, seller_id):
 
 def seller_landing(request):
     return render(request, 'core/seller_landing.html')
+
+
+def _seller_landing_form_redirect():
+    return redirect(f"{reverse('seller_landing')}#register-form")
+
+
+def register_seller(request):
+    if request.method != 'POST':
+        return redirect('seller_landing')
+
+    company_name = (request.POST.get('company_name') or '').strip()
+    city = (request.POST.get('city') or '').strip()
+    whatsapp_phone = _normalize_whatsapp(request.POST.get('whatsapp_phone'))
+    password = request.POST.get('password') or ''
+
+    if not company_name:
+        messages.error(request, 'Укажите название магазина или СТО.')
+        return _seller_landing_form_redirect()
+
+    if not city:
+        messages.error(request, 'Выберите город работы.')
+        return _seller_landing_form_redirect()
+
+    if not whatsapp_phone:
+        messages.error(request, 'Укажите номер WhatsApp.')
+        return _seller_landing_form_redirect()
+
+    if len(password) < 8:
+        messages.error(request, 'Пароль должен быть не короче 8 символов.')
+        return _seller_landing_form_redirect()
+
+    phone_exists = (
+        User.objects.filter(username=whatsapp_phone).exists()
+        or SellerProfile.objects.filter(phone=whatsapp_phone).exists()
+        or Seller.objects.filter(whatsapp=whatsapp_phone).exists()
+    )
+    if phone_exists:
+        messages.error(
+            request,
+            'Продавец с таким номером WhatsApp уже зарегистрирован. Войдите в личный кабинет.',
+        )
+        return _seller_landing_form_redirect()
+
+    try:
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username=whatsapp_phone,
+                password=password,
+            )
+            SellerProfile.objects.create(
+                user=user,
+                name=company_name,
+                phone=whatsapp_phone,
+                city=city,
+            )
+            Seller.objects.create(
+                name=company_name,
+                whatsapp=whatsapp_phone,
+                password_hash=make_password(password),
+                must_change_password=False,
+                seller_type='seller',
+                transport_type='car',
+                city=city,
+                is_active=True,
+                is_paused=False,
+                receive_requests=False,
+                is_test_seller=False,
+            )
+    except Exception:
+        logger.exception('register_seller failed for whatsapp=%s', whatsapp_phone)
+        messages.error(
+            request,
+            'Не удалось завершить регистрацию. Попробуйте ещё раз или свяжитесь с поддержкой.',
+        )
+        return _seller_landing_form_redirect()
+
+    user = authenticate(request, username=whatsapp_phone, password=password)
+    if user is not None:
+        login(request, user)
+        messages.success(request, 'Регистрация завершена. Добро пожаловать в личный кабинет!')
+        return redirect('seller_dashboard')
+
+    messages.warning(
+        request,
+        'Аккаунт создан. Войдите в личный кабинет, используя номер WhatsApp и пароль.',
+    )
+    return redirect('seller_login')
