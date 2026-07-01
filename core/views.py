@@ -328,7 +328,7 @@ def send_whatsapp_template(
         'WHATSAPP_TEMPLATE_NAME',
         'mp_request_v1',
     )
-    template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
+    template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru').strip() or 'ru'
 
     to_phone = _normalize_whatsapp(to_phone)
 
@@ -1522,3 +1522,7 @@ def parts_seller_detail(request, seller_id):
             'seller': seller,
         }
     )
+
+
+def seller_landing(request):
+    return render(request, 'core/seller_landing.html')

@@ -1,0 +1,258 @@
+.seller-landing-page{
+  background:#f9fafb;
+  min-height:100vh;
+  padding:48px 16px 64px;
+  font-family:'Inter', Arial, sans-serif;
+}
+
+.seller-landing-wrap{
+  max-width:72rem;
+  margin:0 auto;
+}
+
+.seller-landing-hero{
+  text-align:center;
+  padding:48px 0 56px;
+}
+
+.seller-landing-hero h1{
+  margin:0 0 16px;
+  font-size:clamp(1.75rem, 4vw, 3rem);
+  line-height:1.1;
+  font-weight:900;
+  color:#030712;
+  letter-spacing:-.02em;
+}
+
+.seller-landing-hero-lead{
+  margin:0 auto 32px;
+  max-width:48rem;
+  font-size:18px;
+  line-height:1.6;
+  color:#4b5563;
+}
+
+.seller-landing-hero-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+}
+
+.seller-landing-btn-primary,
+.seller-landing-btn-secondary{
+  display:inline-block;
+  min-width:240px;
+  padding:16px 32px;
+  border-radius:14px;
+  font-size:16px;
+  font-weight:800;
+  text-align:center;
+  text-decoration:none;
+  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
+}
+
+.seller-landing-btn-primary{
+  background:#ef3d2f;
+  color:#fff !important;
+  box-shadow:0 8px 20px rgba(239,61,47,.25);
+}
+
+.seller-landing-btn-primary:hover{
+  background:#d9362b;
+  color:#fff !important;
+  text-decoration:none;
+  transform:translateY(-1px);
+}
+
+.seller-landing-btn-secondary{
+  background:#fff;
+  color:#111 !important;
+  border:1px solid #e5e7eb;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+
+.seller-landing-btn-secondary:hover{
+  background:#f9fafb;
+  color:#111 !important;
+  text-decoration:none;
+}
+
+.seller-landing-section{
+  padding:48px 0;
+  border-top:1px solid rgba(229,231,235,.8);
+  border-bottom:1px solid rgba(229,231,235,.8);
+  margin:32px 0;
+}
+
+.seller-landing-section h2{
+  margin:0 0 40px;
+  text-align:center;
+  font-size:clamp(1.5rem, 3vw, 1.875rem);
+  font-weight:800;
+  color:#111827;
+}
+
+.seller-landing-steps,
+.seller-landing-benefits{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:24px;
+}
+
+.seller-landing-step-card,
+.seller-landing-benefit-card{
+  background:#fff;
+  border:1px solid #f3f4f6;
+  border-radius:16px;
+  box-shadow:0 2px 8px rgba(0,0,0,.04);
+}
+
+.seller-landing-step-card{
+  padding:24px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+}
+
+.seller-landing-step-num{
+  width:48px;
+  height:48px;
+  margin-bottom:16px;
+  border-radius:12px;
+  background:#fef2f2;
+  color:#ef3d2f;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  font-weight:800;
+}
+
+.seller-landing-step-card h3,
+.seller-landing-benefit-card h4{
+  margin:0 0 8px;
+  font-size:18px;
+  font-weight:800;
+  color:#111827;
+}
+
+.seller-landing-step-card p,
+.seller-landing-benefit-card p{
+  margin:0;
+  font-size:14px;
+  line-height:1.55;
+  color:#4b5563;
+}
+
+.seller-landing-benefit-card{
+  padding:20px;
+  border-left:4px solid #ef3d2f;
+  border-radius:0 14px 14px 0;
+}
+
+.seller-landing-benefit-card h4{
+  font-size:16px;
+}
+
+.seller-landing-benefit-card p{
+  font-size:13px;
+}
+
+.seller-landing-form-wrap{
+  max-width:28rem;
+  margin:64px auto 0;
+  padding:32px;
+  background:#fff;
+  border:1px solid #f3f4f6;
+  border-radius:16px;
+  box-shadow:0 16px 40px rgba(0,0,0,.08);
+}
+
+.seller-landing-form-wrap h3{
+  margin:0 0 8px;
+  text-align:center;
+  font-size:20px;
+  font-weight:800;
+  color:#111827;
+}
+
+.seller-landing-form-note{
+  margin:0 0 24px;
+  text-align:center;
+  font-size:13px;
+  color:#6b7280;
+}
+
+.seller-landing-form{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.seller-landing-field label{
+  display:block;
+  margin-bottom:6px;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  color:#374151;
+}
+
+.seller-landing-field input,
+.seller-landing-field select{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px 16px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  font-size:14px;
+  font-family:inherit;
+  background:#fff;
+}
+
+.seller-landing-field input:focus,
+.seller-landing-field select:focus{
+  outline:none;
+  border-color:#ef3d2f;
+}
+
+.seller-landing-form-submit{
+  width:100%;
+  margin-top:8px;
+  padding:14px 16px;
+  border:none;
+  border-radius:12px;
+  background:#ef3d2f;
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  cursor:pointer;
+  box-shadow:0 4px 14px rgba(239,61,47,.22);
+  transition:background .15s ease;
+}
+
+.seller-landing-form-submit:hover{
+  background:#d9362b;
+}
+
+@media (min-width:640px){
+  .seller-landing-hero-actions{
+    flex-direction:row;
+  }
+}
+
+@media (min-width:768px){
+  .seller-landing-steps,
+  .seller-landing-benefits{
+    grid-template-columns:repeat(3, 1fr);
+  }
+
+  .seller-landing-page{
+    padding-left:24px;
+    padding-right:24px;
+  }
+}
