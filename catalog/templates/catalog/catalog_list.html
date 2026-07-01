@@ -1,7 +1,9 @@
 {% extends 'base.html' %}
 {% load static humanize phone_extras product_extras %}
 
-{% block title %}ZPT Market — Купить автозапчасти{% endblock %}
+{% block title %}Купить автозапчасти в Казахстане — новые и б/у запчасти | ZPT.KZ{% endblock %}
+
+{% block meta_description %}Купить автозапчасти для легковых и грузовых автомобилей в Казахстане. Новые, б/у и контрактные запчасти. Поиск по марке, модели и артикулу или одна заявка продавцам.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
@@ -20,6 +22,78 @@
   justify-content:space-between;
   gap:8px;
 }
+.market-brand-subtitle{
+  display:block;
+  margin-top:2px;
+  font-size:11px;
+  line-height:1.2;
+  font-weight:600;
+  color:#666;
+  letter-spacing:.01em;
+}
+.market-header-logo{
+  flex-direction:column;
+  align-items:flex-start;
+}
+.action-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#ef3d2f;
+  color:#fff;
+  font-size:13px;
+  font-weight:800;
+  padding:10px 14px;
+  border-radius:10px;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+.home-seo-block{
+  margin-top:28px;
+  padding:20px 0 8px;
+  border-top:1px solid #ececec;
+}
+.home-seo-block h2{
+  font-size:22px;
+  font-weight:900;
+  margin:0 0 14px;
+  line-height:1.25;
+}
+.home-seo-block p{
+  font-size:15px;
+  line-height:1.55;
+  color:#444;
+  margin:0 0 12px;
+}
+.home-seo-links{
+  margin-top:24px;
+  padding-top:8px;
+}
+.home-seo-links-section{
+  margin-bottom:20px;
+}
+.home-seo-links-section h3{
+  font-size:17px;
+  font-weight:800;
+  margin:0 0 10px;
+}
+.home-seo-links-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 16px;
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.home-seo-links-list a{
+  color:#ef3d2f;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:600;
+}
+.home-seo-links-list a:hover{
+  text-decoration:underline;
+}
 @media (max-width:640px){
   .filter-grid{
     display:grid !important;
@@ -31,6 +105,19 @@
     min-height:38px !important;
     font-size:13px !important;
     padding:0 10px !important;
+  }
+  .market-brand-subtitle{
+    font-size:10px;
+  }
+  .action-card{
+    flex-direction:column;
+    align-items:flex-start !important;
+    gap:10px;
+  }
+  .seller-block,
+  .cta{
+    flex-direction:column;
+    align-items:flex-start;
   }
 }
 </style>
@@ -48,34 +135,24 @@
 
       <div>
 
-<div class="hero-title">
-  Купить <span>автозапчасти</span>
-</div>
+        <h1 class="hero-title">Купить автозапчасти в Казахстане</h1>
 
-<div class="hero-sub">
-  Новые, б/у и контрактные запчасти, большой выбор запчастей на все марки авто
-</div>
+        <p class="hero-sub">
+          Новые, б/у и контрактные запчасти для легковых и грузовых автомобилей. Найдите товар в наличии или оставьте одну заявку продавцам по всему Казахстану.
+        </p>
 
       </div>
 
       <div class="hero-actions">
 
-        <a
-          href="https://zpt.kz/request-parts/"
-          class="action-card"
-        >
+        <a href="https://zpt.kz/request-parts/" class="action-card">
           <div>
-            <div class="action-title">
-              Оставить заявку
-            </div>
-
+            <div class="action-title">Не нашли нужную запчасть?</div>
             <div class="action-sub">
-              если товара нет в наличии
-              <br>
-              продавцы предложат варианты
+              Оставьте одну заявку — продавцы отправят предложения с ценой и наличием напрямую в WhatsApp.
             </div>
           </div>
-          
+          <span class="action-btn">Оставить заявку</span>
         </a>
 
       </div>
@@ -91,7 +168,7 @@
             type="text"
             name="q"
             value="{{ query }}"
-            placeholder="Поиск по названию или артикулу"
+            placeholder="Поиск запчасти по названию или артикулу"
           >
 
           <button type="submit" class="search-btn">
@@ -106,35 +183,35 @@
             Подбор запчастей по марке автомобиля
           </div>
 
-<div class="filter-grid">
+          <div class="filter-grid">
 
-  <select id="country" name="country">
-    <option value="">Страна</option>
-    {% for country in countries %}
-      <option value="{{ country.id }}">
-        {{ country.name }}
-      </option>
-    {% endfor %}
-  </select>
+            <select id="country" name="country">
+              <option value="">Страна</option>
+              {% for country in countries %}
+                <option value="{{ country.id }}"{% if selected_country == country.id|stringformat:"s" %} selected{% endif %}>
+                  {{ country.name }}
+                </option>
+              {% endfor %}
+            </select>
 
-  <select id="brand" name="brand">
-    <option value="">Марка</option>
-  </select>
+            <select id="brand" name="brand">
+              <option value="">Марка</option>
+            </select>
 
-  <select id="model" name="model">
-    <option value="">Модель</option>
-  </select>
+            <select id="model" name="model">
+              <option value="">Модель</option>
+            </select>
 
-  <select id="category" name="category">
-    <option value="">Категория запчасти</option>
-    {% for category in categories %}
-      <option value="{{ category.id }}">
-        {{ category.name }}
-      </option>
-    {% endfor %}
-  </select>
+            <select id="category" name="category">
+              <option value="">Категория запчасти</option>
+              {% for category in categories %}
+                <option value="{{ category.id }}"{% if selected_category == category.id|stringformat:"s" %} selected{% endif %}>
+                  {{ category.name }}
+                </option>
+              {% endfor %}
+            </select>
 
-</div>
+          </div>
 
         </div>
 
@@ -188,17 +265,15 @@
 
           <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" class="product-title-link">
 
-<div class="product-title">
-
-  {{ product.title }}
-  {% if product.brand %}
-    {{ product.brand.name }}
-  {% endif %}
-  {% if product.car_model %}
-    {{ product.car_model.name }}
-  {% endif %}
-
-</div>
+            <div class="product-title">
+              {{ product.title }}
+              {% if product.brand %}
+                {{ product.brand.name }}
+              {% endif %}
+              {% if product.car_model %}
+                {{ product.car_model.name }}
+              {% endif %}
+            </div>
 
           </a>
 
@@ -206,84 +281,84 @@
             {{ product.price|intcomma|comma_to_space }} ₸
           </div>
 
-<div class="product-meta-row product-meta-seller">
+          <div class="product-meta-row product-meta-seller">
 
-  <div class="seller-line">
+            <div class="seller-line">
 
-    {% if product.seller and product.seller.slug %}
-      <a
-        href="{% url 'public_seller_profile' product.seller.slug %}"
-        class="card-seller-link"
-        title="Посмотреть профиль и все товары {{ product.seller.name }}"
-      >
-        {% if product.seller.logo %}
-          <img
-            src="{{ product.seller.logo.url }}"
-            class="card-seller-logo-mini"
-            alt="{{ product.seller.name }}"
-            loading="lazy"
-          >
-        {% else %}
-          <span class="card-seller-icon-placeholder" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="10" height="10" focusable="false">
-              <path fill="currentColor" d="M4 4h16v2H4V4zm0 4h16l-1 10H5L4 8zm4 2v6h2v-6H8zm4 0v6h2v-6h-2z"/>
-            </svg>
-          </span>
-        {% endif %}
-        <span class="card-seller-name-text">{{ product.seller.name }}</span>
-        <span class="verification-badge">✓</span>
-      </a>
-    {% else %}
-      <span class="seller-name">
-        {{ product.seller_name }} ✓
-      </span>
-    {% endif %}
+              {% if product.seller and product.seller.slug %}
+                <a
+                  href="{% url 'public_seller_profile' product.seller.slug %}"
+                  class="card-seller-link"
+                  title="Посмотреть профиль и все товары {{ product.seller.name }}"
+                >
+                  {% if product.seller.logo %}
+                    <img
+                      src="{{ product.seller.logo.url }}"
+                      class="card-seller-logo-mini"
+                      alt="{{ product.seller.name }}"
+                      loading="lazy"
+                    >
+                  {% else %}
+                    <span class="card-seller-icon-placeholder" aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="10" height="10" focusable="false">
+                        <path fill="currentColor" d="M4 4h16v2H4V4zm0 4h16l-1 10H5L4 8zm4 2v6h2v-6H8zm4 0v6h2v-6h-2z"/>
+                      </svg>
+                    </span>
+                  {% endif %}
+                  <span class="card-seller-name-text">{{ product.seller.name }}</span>
+                  <span class="verification-badge">✓</span>
+                </a>
+              {% else %}
+                <span class="seller-name">
+                  {{ product.seller_name }} ✓
+                </span>
+              {% endif %}
 
-    {% if product.seller %}
-      {% if product.seller.instagram or product.seller.website %}
-        <span
-          class="card-seller-socials"
-          style="display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;"
-        >
-          {% if product.seller.instagram %}
-            <a
-              href="{{ product.seller.instagram }}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="seller-mini-chip insta-chip"
-              title="Instagram продавца"
-              style="text-decoration: none !important;"
-            >Inst</a>
-          {% endif %}
-          {% if product.seller.website %}
-            <a
-              href="{{ product.seller.website }}"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="seller-mini-chip site-chip"
-              title="Сайт продавца"
-              style="text-decoration: none !important;"
-            >Сайт</a>
-          {% endif %}
-        </span>
-      {% endif %}
-    {% endif %}
+              {% if product.seller %}
+                {% if product.seller.instagram or product.seller.website %}
+                  <span
+                    class="card-seller-socials"
+                    style="display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;"
+                  >
+                    {% if product.seller.instagram %}
+                      <a
+                        href="{{ product.seller.instagram }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="seller-mini-chip insta-chip"
+                        title="Instagram продавца"
+                        style="text-decoration: none !important;"
+                      >Inst</a>
+                    {% endif %}
+                    {% if product.seller.website %}
+                      <a
+                        href="{{ product.seller.website }}"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="seller-mini-chip site-chip"
+                        title="Сайт продавца"
+                        style="text-decoration: none !important;"
+                      >Сайт</a>
+                    {% endif %}
+                  </span>
+                {% endif %}
+              {% endif %}
 
-  </div>
+            </div>
 
-  {% if product.city %}
-    <span class="meta-city">{{ product.city }}</span>
-  {% endif %}
+            {% if product.city %}
+              <span class="meta-city">{{ product.city }}</span>
+            {% endif %}
 
-</div>
+          </div>
 
-<div class="product-meta-row muted product-meta-details">
-  <span>{{ product.get_condition_display }}</span>
-  {% if product.article %}
-    <span class="meta-sep">•</span>
-    <span>Арт. {{ product.article }}</span>
-  {% endif %}
-</div>
+          <div class="product-meta-row muted product-meta-details">
+            <span>{{ product.get_condition_display }}</span>
+            {% if product.article %}
+              <span class="meta-sep">•</span>
+              <span>Арт. {{ product.article }}</span>
+            {% endif %}
+          </div>
 
           <div class="product-actions-v2">
             {% include 'catalog/includes/product_whatsapp_link.html' with product=product %}
@@ -310,26 +385,56 @@
 
   {% endif %}
 
-  <div class="cta">
-
+  <section class="seller-block" aria-labelledby="seller-block-title">
     <div>
-      <div class="cta-title">
-        Не нашли нужную запчасть?
-      </div>
+      <div class="seller-title" id="seller-block-title">Продаёте автозапчасти?</div>
+      <p class="seller-text">
+        Размещайте товары на ZPT.KZ, получайте заказы и заявки покупателей напрямую в WhatsApp.
+      </p>
+    </div>
+    <a class="seller-btn" href="{% url 'seller_register' %}">Начать продавать</a>
+  </section>
 
-      <div class="cta-text">
-        Оставьте заявку — продавцы предложат варианты
-      </div>
+  <section class="home-seo-block" aria-labelledby="home-seo-heading">
+    <h2 id="home-seo-heading">Автозапчасти для автомобилей в Казахстане</h2>
+    <p>
+      На ZPT.KZ можно найти и купить автозапчасти для легковых и грузовых автомобилей. На платформе размещаются новые, оригинальные, аналоговые, контрактные и б/у запчасти от продавцов из разных городов Казахстана.
+    </p>
+    <p>
+      Используйте поиск по названию или артикулу, выберите страну производства, марку, модель автомобиля и категорию запчасти. Если нужного товара пока нет в каталоге, оставьте заявку — продавцы свяжутся с вами через WhatsApp и предложат доступные варианты.
+    </p>
+  </section>
+
+  <nav class="home-seo-links" aria-label="Популярные разделы каталога">
+
+    <div class="home-seo-links-section">
+      <h3>Популярные марки</h3>
+      <ul class="home-seo-links-list">
+        {% for link in seo_brand_links %}
+          <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
     </div>
 
-    <a
-      class="cta-btn"
-      href="https://zpt.kz/request-parts/"
-    >
-      Оставить заявку
-    </a>
+    <div class="home-seo-links-section">
+      <h3>Популярные категории</h3>
+      <ul class="home-seo-links-list">
+        {% for link in seo_category_links %}
+          <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
 
-  </div>
+    <div class="home-seo-links-section">
+      <h3>Автозапчасти по городам</h3>
+      <ul class="home-seo-links-list">
+        {% for link in seo_city_links %}
+          <li><a href="{{ link.url }}">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </div>
+
+  </nav>
 
   <footer class="footer">
 

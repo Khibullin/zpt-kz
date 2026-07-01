@@ -8,7 +8,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
-from urllib.parse import urlencode
+from django.urls import reverse
+from urllib.parse import quote, urlencode
 
 from core.forms import FeedbackForm
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
@@ -23,6 +24,60 @@ from .models import (
 )
 
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
+
+POPULAR_SEO_BRANDS = [
+    'Toyota', 'Lexus', 'Hyundai', 'Kia', 'Chevrolet', 'Nissan',
+    'Mercedes-Benz', 'BMW', 'Changan', 'Geely', 'Haval',
+]
+POPULAR_SEO_CATEGORIES = [
+    ('Ходовая часть', 'Ходовая часть'),
+    ('фильтры', 'Фильтры'),
+    ('амортизаторы', 'Амортизаторы'),
+    ('двигатель', 'Двигатель'),
+    ('кузовные детали', 'Кузовные детали'),
+    ('электрика', 'Электрика'),
+    ('тормозная система', 'Тормозная система'),
+    ('трансмиссия', 'Трансмиссия'),
+]
+POPULAR_SEO_CITIES = [
+    'Алматы', 'Астана', 'Шымкент', 'Караганда', 'Актобе', 'Павлодар',
+    'Усть-Каменогорск',
+]
+
+
+def _build_home_seo_links():
+    catalog_url = reverse('catalog_list')
+
+    brand_links = []
+    for name in POPULAR_SEO_BRANDS:
+        brand = Brand.objects.filter(name__iexact=name).first()
+        if brand:
+            url = f'{catalog_url}?brand={brand.pk}'
+        else:
+            url = f'{catalog_url}?q={quote(name)}'
+        brand_links.append({'label': name, 'url': url})
+
+    category_links = []
+    for label, lookup in POPULAR_SEO_CATEGORIES:
+        category = Category.objects.filter(name__icontains=lookup).first()
+        if category:
+            url = f'{catalog_url}?category={category.pk}'
+        else:
+            url = f'{catalog_url}?q={quote(lookup)}'
+        category_links.append({'label': label, 'url': url})
+
+    city_links = []
+    for name in POPULAR_SEO_CITIES:
+        city_links.append({
+            'label': name,
+            'url': f'{catalog_url}?city={quote(name)}',
+        })
+
+    return {
+        'seo_brand_links': brand_links,
+        'seo_category_links': category_links,
+        'seo_city_links': city_links,
+    }
 
 
 def _send_feedback_notification(feedback):
@@ -187,6 +242,7 @@ def catalog_list(request):
     brand_id = request.GET.get('brand', '').strip()
     model_id = request.GET.get('model', '').strip()
     category_id = request.GET.get('category', '').strip()
+    city = request.GET.get('city', '').strip()
 
     countries = Country.objects.all().order_by('name')
     categories = Category.objects.all().order_by('name')
@@ -237,7 +293,10 @@ def catalog_list(request):
     if category_id:
         products = products.filter(category_id=category_id)
 
-    has_filters = any([query, country_id, brand_id, model_id, category_id])
+    if city:
+        products = products.filter(city__icontains=city)
+
+    has_filters = any([query, country_id, brand_id, model_id, category_id, city])
     show_all = request.GET.get('all') == '1'
 
     if has_filters or show_all:
@@ -260,6 +319,8 @@ def catalog_list(request):
         'selected_brand': brand_id,
         'selected_model': model_id,
         'selected_category': category_id,
+        'selected_city': city,
+        **_build_home_seo_links(),
     }
     return render(request, 'catalog/catalog_list.html', context)
 
