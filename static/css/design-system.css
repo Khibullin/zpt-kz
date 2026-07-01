@@ -83,6 +83,38 @@ a.site-logo-link.market-brand,
   align-items:flex-start;
 }
 
+/* Market header: logo column + mobile-only seller CTA */
+.market-brand-block{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  flex-shrink:0;
+  min-width:0;
+  gap:0;
+}
+
+.market-mobile-seller-cta{
+  display:block;
+  margin-top:2px;
+  font-size:.75rem;
+  font-weight:600;
+  line-height:1.2;
+  color:#ff3b30;
+  text-decoration:none;
+  max-width:100%;
+}
+
+.market-mobile-seller-cta:hover{
+  color:#ff3b30;
+  text-decoration:underline;
+}
+
+@media (min-width:768px){
+  .market-mobile-seller-cta{
+    display:none !important;
+  }
+}
+
 /* ---- Site header shell ---- */
 .site-header,
 .market-topbar.header{
@@ -315,8 +347,14 @@ button.btn-secondary:hover,
   }
 
   .market-brand.site-logo-link--with-subtitle,
-  .market-header-logo:has(.market-brand-subtitle){
-    max-width:42%;
+  .market-header-logo:has(.market-brand-subtitle),
+  .market-brand-block{
+    max-width:48%;
     min-width:0;
+  }
+
+  .market-brand-block .site-logo-link,
+  .market-brand-block .market-header-logo{
+    max-width:100%;
   }
 }

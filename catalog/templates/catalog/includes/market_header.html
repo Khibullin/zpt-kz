@@ -2,7 +2,12 @@
 <header class="market-topbar header site-header">
   <div class="market-topbar-inner topbar-inner header-inner market-header-flex site-container">
 
-    {% include 'includes/site_logo.html' with show_subtitle=True %}
+    <div class="market-brand-block">
+      {% include 'includes/site_logo.html' with show_subtitle=True %}
+      <a href="{% url 'seller_landing' %}" class="market-mobile-seller-cta no-underline">
+        Продавцам и СТО: получать заказы в WhatsApp →
+      </a>
+    </div>
 
     <div class="market-topbar-actions market-header-actions">
       <a href="{% url 'orders:cart' %}" class="market-cart-link no-underline" title="Корзина">

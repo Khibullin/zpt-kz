@@ -165,10 +165,16 @@
   }
 
   .market-header-logo,
-  .market-brand{
+  .market-brand,
+  .market-brand-block{
     flex:0 1 auto;
     min-width:0;
-    max-width:42%;
+    max-width:48%;
+  }
+
+  .market-brand-block .market-header-logo,
+  .market-brand-block .market-brand{
+    max-width:100%;
   }
 
   .market-brand img,
