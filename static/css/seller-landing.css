@@ -10,6 +10,20 @@
   margin:0 auto;
 }
 
+.seller-landing-header{
+  padding:0 0 8px;
+}
+
+.seller-landing-logo{
+  display:inline-block;
+}
+
+.seller-landing-logo img{
+  width:110px;
+  height:auto;
+  display:block;
+}
+
 .seller-landing-hero{
   text-align:center;
   padding:48px 0 56px;

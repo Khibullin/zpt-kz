@@ -22,10 +22,8 @@
 <header class="topbar">
   <div class="container topbar-inner">
     <a
-      class="brand"
-      href="https://zpt.kz/"
-      target="_blank"
-      rel="noopener noreferrer"
+      class="brand no-underline"
+      href="{% url 'home' %}"
     >
       <img
         src="{% static 'images/logo.png' %}"
@@ -54,7 +52,7 @@
   <div class="container">
 <div class="breadcrumbs">
 
-  <a href="https://zpt.kz/">
+  <a href="{% url 'home' %}">
     ZPT.KZ
   </a>
 

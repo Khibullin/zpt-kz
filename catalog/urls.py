@@ -22,6 +22,7 @@ from .views import (
 )
 
 urlpatterns = [
+    path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
 
     path('seller/register/', seller_register, name='seller_register'),
