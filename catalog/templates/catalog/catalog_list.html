@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v111">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v112">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 <style>
 .market-topbar{
@@ -100,6 +100,15 @@
   .cta{
     flex-direction:column;
     align-items:flex-start;
+  }
+  .home-b2b-banner{
+    flex-direction:column;
+    align-items:stretch;
+    text-align:center;
+    padding:20px 16px;
+  }
+  .home-b2b-banner-btn{
+    width:100%;
   }
 }
 </style>
@@ -360,14 +369,18 @@
 
   {% endif %}
 
-  <section class="seller-block" aria-labelledby="seller-block-title">
-    <div>
-      <div class="seller-title" id="seller-block-title">Продаёте автозапчасти?</div>
-      <p class="seller-text">
-        Размещайте товары на ZPT.KZ, получайте заказы и заявки покупателей напрямую в WhatsApp.
+  <section class="home-b2b-banner" aria-labelledby="home-b2b-banner-title">
+    <div class="home-b2b-banner-copy">
+      <h2 class="home-b2b-banner-title" id="home-b2b-banner-title">
+        Продаёте автозапчасти или управляете СТО в Казахстане?
+      </h2>
+      <p class="home-b2b-banner-text">
+        Размещайте свои товары на маркетплейсе ZPT.KZ и получайте поток готовых заказов и заявок от автовладельцев вашего города напрямую в WhatsApp. Настройте марки машин и регионы работы за 5 минут.
       </p>
     </div>
-    <a class="seller-btn" href="{% url 'seller_register' %}">Начать продавать</a>
+    <a class="home-b2b-banner-btn" href="{% url 'seller_register' %}">
+      Начать продавать бесплатно
+    </a>
   </section>
 
   <section class="home-seo-block" aria-labelledby="home-seo-heading">
