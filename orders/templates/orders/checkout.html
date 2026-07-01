@@ -8,13 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="container topbar-inner">
-    <a class="brand" href="{% url 'home' %}">
-      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
-    </a>
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 
 <section class="section checkout-page">
   <div class="container">

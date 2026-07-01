@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,6 +6,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет исполнителя — ZPT.KZ</title>
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
+<link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=1">
 
 <style>
 *{
@@ -629,9 +632,9 @@ select:focus{
 
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <a class="logo no-underline" href="{% url 'home' %}">ZPT.KZ</a>
+<header class="header site-header">
+  <div class="header-inner site-container">
+    {% include 'includes/site_logo.html' %}
 
     <div class="nav">
       <a class="nav-main" href="/service-request/">Заявка клиента</a>

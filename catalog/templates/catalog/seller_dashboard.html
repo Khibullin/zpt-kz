@@ -8,11 +8,9 @@
 {% endblock %}
 
 {% block content %}
-<header class="market-header seller-cabinet-header">
-  <div class="container market-header-inner">
-    <a class="market-logo no-underline" href="{% url 'home' %}">
-      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
-    </a>
+<header class="market-header seller-cabinet-header site-header">
+  <div class="site-container market-header-inner">
+    {% include 'includes/site_logo.html' %}
 
     <nav class="market-nav">
       <a href="{% url 'add_product' %}" class="btn-add">
@@ -29,9 +27,9 @@
 </header>
 
 <section class="seller-dashboard">
-  <div class="container">
+  <div class="site-container">
     <div class="seller-dashboard-head">
-      <h1>Кабинет продавца</h1>
+      <h1 class="ds-page-title">Кабинет продавца</h1>
 
       <div class="seller-meta">
         <span class="seller-name">{{ seller.name }}</span>

@@ -1,0 +1,11 @@
+{% load static %}
+<a
+  class="site-logo-link market-brand logo market-header-logo no-underline{% if show_subtitle %} site-logo-link--with-subtitle{% endif %}{% if extra_classes %} {{ extra_classes }}{% endif %}"
+  href="{% url 'home' %}"
+  title="ZPT.KZ — главная"
+>
+  <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
+  {% if show_subtitle %}
+  <span class="market-brand-subtitle">{{ subtitle|default:"Маркетплейс автозапчастей Казахстана" }}</span>
+  {% endif %}
+</a>

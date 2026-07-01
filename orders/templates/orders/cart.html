@@ -9,20 +9,7 @@
 {% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="container topbar-inner">
-    <a class="brand" href="{% url 'home' %}">
-      <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
-    </a>
-    <a href="{% url 'orders:cart' %}" class="market-cart-link" title="Корзина">
-      <span class="market-cart-icon" aria-hidden="true">🛒</span>
-      <span class="market-cart-label">Корзина</span>
-      <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
-        {{ cart_count|default:0 }}
-      </span>
-    </a>
-  </div>
-</header>
+{% include 'includes/site_header_with_cart.html' with show_cart=True %}
 
 <section class="section checkout-page">
   <div class="container">

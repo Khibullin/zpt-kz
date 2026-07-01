@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,6 +6,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>{{ seller.name }} | Продавец автозапчастей ZPT.KZ</title>
+
+<link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=1">
 
 <style>
 *{box-sizing:border-box}
@@ -41,12 +45,12 @@ h1{margin:0 0 12px;font-size:38px;color:#3478f6}
 
 <body>
 
-<header class="header">
-  <div class="header-inner">
-    <a class="logo no-underline" href="{% url 'home' %}">ZPT.KZ</a>
+<header class="header site-header">
+  <div class="header-inner site-container">
+    {% include 'includes/site_logo.html' %}
 
     <nav class="nav">
-      <a href="{% url 'home' %}">← Главная ZPT.KZ</a>
+      <a class="no-underline" href="{% url 'home' %}">← Главная ZPT.KZ</a>
     </nav>
   </div>
 </header>

@@ -8,19 +8,7 @@
 {% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="container topbar-inner">
-    <a
-      class="brand no-underline"
-      href="{% url 'home' %}"
-    >
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt=""
-      >
-    </a>
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 
 <div class="public-seller-page">
   <div class="seller-cover-banner" aria-hidden="true"></div>

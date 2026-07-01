@@ -6,77 +6,75 @@
 {% block meta_description %}Подключите автомагазин или СТО к ZPT.KZ: размещайте товары в каталоге и получайте заявки от автовладельцев напрямую в WhatsApp.{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/seller-landing.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/seller-landing.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
 <div class="seller-landing-page">
-  <header class="market-topbar header seller-landing-topbar">
-    <div class="market-topbar-inner topbar-inner header-inner market-header-flex">
-      <a class="market-brand logo market-header-logo no-underline" href="{% url 'home' %}">
-        <img src="{% static 'images/logo.png' %}" alt="ZPT.KZ">
-      </a>
+  <header class="market-topbar header site-header seller-landing-topbar">
+    <div class="market-topbar-inner topbar-inner header-inner market-header-flex site-container">
+      {% include 'includes/site_logo.html' %}
     </div>
   </header>
-  <div class="seller-landing-wrap">
+  <div class="seller-landing-wrap site-container site-container--wide">
 
-    <section class="seller-landing-hero">
-      <h1>Получайте клиентов для вашего автобизнеса в Казахстане</h1>
-      <p class="seller-landing-hero-lead">
+    <section class="seller-landing-hero ds-section">
+      <h1 class="ds-h1">Получайте клиентов для вашего автобизнеса в Казахстане</h1>
+      <p class="seller-landing-hero-lead ds-body">
         Подключите свой магазин запчастей или СТО к платформе ZPT.KZ, размещайте товары в каталоге и получайте готовые заявки от автовладельцев напрямую в WhatsApp.
       </p>
       <div class="seller-landing-hero-actions">
-        <a href="#register-form" class="seller-landing-btn-primary">
+        <a href="#register-form" class="btn-primary seller-landing-btn-primary">
           Зарегистрироваться как продавец
         </a>
-        <a href="{% url 'seller_login' %}" class="seller-landing-btn-secondary">
+        <a href="{% url 'seller_login' %}" class="btn-secondary seller-landing-btn-secondary">
           Войти в личный кабинет
         </a>
       </div>
     </section>
 
-    <section class="seller-landing-section">
-      <h2>Как это работает для бизнеса?</h2>
+    <section class="seller-landing-section ds-section">
+      <h2 class="ds-h2">Как это работает для бизнеса?</h2>
       <div class="seller-landing-steps">
         <article class="seller-landing-step-card">
           <div class="seller-landing-step-num">1</div>
-          <h3>Быстрая регистрация</h3>
-          <p>Создайте профиль компании, укажите ваш город и номер WhatsApp для связи с клиентами.</p>
+          <h3 class="ds-h3">Быстрая регистрация</h3>
+          <p class="ds-body">Создайте профиль компании, укажите ваш город и номер WhatsApp для связи с клиентами.</p>
         </article>
         <article class="seller-landing-step-card">
           <div class="seller-landing-step-num">2</div>
-          <h3>Настройка фильтров</h3>
-          <p>Выберите марки машин и категории запчастей/услуг. Загрузите прайс, чтобы товары появились в поиске.</p>
+          <h3 class="ds-h3">Настройка фильтров</h3>
+          <p class="ds-body">Выберите марки машин и категории запчастей/услуг. Загрузите прайс, чтобы товары появились в поиске.</p>
         </article>
         <article class="seller-landing-step-card">
           <div class="seller-landing-step-num">3</div>
-          <h3>Продажи в WhatsApp</h3>
-          <p>Система автоматически подберёт ваши заявки. Отвечайте клиентам напрямую в мессенджер без комиссий.</p>
+          <h3 class="ds-h3">Продажи в WhatsApp</h3>
+          <p class="ds-body">Система автоматически подберёт ваши заявки. Отвечайте клиентам напрямую в мессенджер без комиссий.</p>
         </article>
       </div>
     </section>
 
-    <section class="seller-landing-section" style="border-bottom:none;">
-      <h2>Преимущества платформы ZPT.KZ</h2>
+    <section class="seller-landing-section ds-section" style="border-bottom:none;">
+      <h2 class="ds-h2">Преимущества платформы ZPT.KZ</h2>
       <div class="seller-landing-benefits">
         <article class="seller-landing-benefit-card">
-          <h4>Прямые сделки без комиссии</h4>
-          <p>Вы общаетесь с покупателем напрямую в WhatsApp и не платите сайту проценты с проданных запчастей.</p>
+          <h3 class="ds-h3">Прямые сделки без комиссии</h3>
+          <p class="ds-body">Вы общаетесь с покупателем напрямую в WhatsApp и не платите сайту проценты с проданных запчастей.</p>
         </article>
         <article class="seller-landing-benefit-card">
-          <h4>Только целевые клиенты</h4>
-          <p>Благодаря умным фильтрам, вы получаете заявки только по тем маркам и городам, которые настроили сами.</p>
+          <h3 class="ds-h3">Только целевые клиенты</h3>
+          <p class="ds-body">Благодаря умным фильтрам, вы получаете заявки только по тем маркам и городам, которые настроили сами.</p>
         </article>
         <article class="seller-landing-benefit-card">
-          <h4>Готовый магазин за 5 минут</h4>
-          <p>Ваш личный каталог товаров полностью доступен для поиска по артикулам и наименованиям в Казахстане 24/7.</p>
+          <h3 class="ds-h3">Готовый магазин за 5 минут</h3>
+          <p class="ds-body">Ваш личный каталог товаров полностью доступен для поиска по артикулам и наименованиям в Казахстане 24/7.</p>
         </article>
       </div>
     </section>
 
-    <section id="register-form" class="seller-landing-form-wrap">
-      <h3>Стать партнёром ZPT.KZ</h3>
-      <p class="seller-landing-form-note">Заполните форму, чтобы начать получать заказы</p>
+    <section id="register-form" class="seller-landing-form-wrap site-container site-container--narrow">
+      <h3 class="ds-h3">Стать партнёром ZPT.KZ</h3>
+      <p class="seller-landing-form-note ds-body">Заполните форму, чтобы начать получать заказы</p>
 
       {% if messages %}
         <div class="seller-landing-messages">
@@ -110,7 +108,7 @@
           <label for="seller-password">Придумайте пароль</label>
           <input id="seller-password" type="password" name="password" required placeholder="••••••••" minlength="8">
         </div>
-        <button type="submit" class="seller-landing-form-submit">
+        <button type="submit" class="btn-primary seller-landing-form-submit">
           Создать личный кабинет
         </button>
       </form>

@@ -1,0 +1,14 @@
+<header class="topbar site-header">
+  <div class="site-container topbar-inner">
+    {% include 'includes/site_logo.html' %}
+    {% if show_cart %}
+    <a href="{% url 'orders:cart' %}" class="market-cart-link no-underline" title="Корзина">
+      <span class="market-cart-icon" aria-hidden="true">🛒</span>
+      <span class="market-cart-label">Корзина</span>
+      <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
+        {{ cart_count|default:0 }}
+      </span>
+    </a>
+    {% endif %}
+  </div>
+</header>

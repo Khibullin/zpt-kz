@@ -4,19 +4,12 @@
 {% block title %}Удалить профиль — ZPT Market{% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="container topbar-inner">
-    <a class="brand" href="{% url 'home' %}">
-      <img src="{% static 'images/logo.jpg' %}" alt="ZPT Market">
-      <div class="brand-title">ZPT <span>Market</span></div>
-    </a>
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 
 <section class="section">
-  <div class="container">
+  <div class="site-container">
     <div class="seller-page-card">
-      <h2>Удалить профиль продавца</h2>
+      <h1 class="ds-page-title">Удалить профиль продавца</h1>
 
       <div class="accent">
         <h3>{{ seller.name }}</h3>

@@ -13,6 +13,11 @@
   <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
   <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
 
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=1">
   <link rel="stylesheet" href="{% static 'css/portal-common.css' %}">
   {% block portal_css %}{% endblock %}
   {% block extra_css %}{% endblock %}
@@ -22,9 +27,9 @@
   data-service-api-base="/api/service/"
 >
   {% block portal_header %}
-  <header class="header">
-    <div class="header-inner">
-      <a class="logo no-underline" href="{% url 'home' %}">ZPT.KZ</a>
+  <header class="header site-header">
+    <div class="header-inner site-container">
+      {% include 'includes/site_logo.html' %}
       <nav class="nav">
         {% block header_nav %}{% endblock %}
       </nav>

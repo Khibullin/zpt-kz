@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -5,6 +6,9 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>{{ seller.name }} | Каталог услуг ZPT.KZ</title>
+
+<link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=1">
 
 <style>
 
@@ -182,19 +186,14 @@ h1{
 </head>
 <body>
 
-<header class="header">
+<header class="header site-header">
 
-  <div class="header-inner">
+  <div class="header-inner site-container">
 
-    <a
-      class="logo no-underline"
-      href="{% url 'home' %}"
-    >
-      ZPT.KZ
-    </a>
+    {% include 'includes/site_logo.html' %}
 
     <nav class="nav">
-      <a href="{% url 'home' %}">
+      <a class="no-underline" href="{% url 'home' %}">
         ← Главная ZPT.KZ
       </a>
     </nav>

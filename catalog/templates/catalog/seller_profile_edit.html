@@ -4,29 +4,13 @@
 {% block title %}Редактировать профиль — ZPT.KZ{% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="topbar-inner">
-
-    <a
-      class="brand no-underline"
-      href="{% url 'home' %}"
-    >
-
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="ZPT.KZ"
-      >
-
-    </a>
-
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 
 <section class="section">
-  <div class="container">
+  <div class="site-container">
     <div class="seller-page-card">
-      <h2>Редактировать профиль</h2>
-      <p class="dashboard-subtitle">Обновите информацию о вашем маркете</p>
+      <h1 class="ds-page-title">Редактировать профиль</h1>
+      <p class="dashboard-subtitle ds-body">Обновите информацию о вашем маркете</p>
 
       <form
         method="post"

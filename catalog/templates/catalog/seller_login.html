@@ -4,26 +4,12 @@
 {% block title %}Вход продавца — ZPT.KZ{% endblock %}
 
 {% block content %}
-<header class="topbar seller-auth-header">
-  <div class="container topbar-inner">
-
-    <a
-      class="brand no-underline"
-      href="{% url 'home' %}"
-    >
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="ZPT.KZ"
-      >
-    </a>
-
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 
 <section class="section">
-  <div class="container">
+  <div class="site-container">
     <div class="seller-page-card">
-      <h2>Вход продавца</h2>
+      <h1 class="ds-page-title">Вход продавца</h1>
 
       {% if error_message %}
         <div class="form-error">{{ error_message }}</div>

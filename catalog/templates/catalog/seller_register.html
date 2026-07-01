@@ -4,26 +4,12 @@
 {% block title %}Регистрация продавца — ZPT.KZ{% endblock %}
 
 {% block content %}
-<header class="topbar seller-auth-header">
-  <div class="container topbar-inner">
-
-    <a
-      class="brand no-underline"
-      href="{% url 'home' %}"
-    >
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="ZPT.KZ"
-      >
-    </a>
-
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 <section class="section">
-  <div class="container">
+  <div class="site-container">
     <div class="seller-page-card">
-      <h2>Регистрация продавца</h2>
-      <p class="dashboard-subtitle">Создайте кабинет и размещайте товары в маркете</p>
+      <h1 class="ds-page-title">Регистрация продавца</h1>
+      <p class="dashboard-subtitle ds-body">Создайте кабинет и размещайте товары в маркете</p>
 
       {% if error_message %}
         <div class="form-error">{{ error_message }}</div>

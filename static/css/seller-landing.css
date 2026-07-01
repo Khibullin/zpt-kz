@@ -1,71 +1,30 @@
 .seller-landing-page{
   background:#f9fafb;
   min-height:100vh;
-  padding:0 16px 64px;
+  padding:0 0 64px;
   font-family:'Inter', Arial, sans-serif;
 }
 
 .seller-landing-wrap{
-  max-width:72rem;
-  margin:0 auto;
+  padding-left:16px;
+  padding-right:16px;
 }
 
-/* Match main catalog header logo sizing (market-catalog.css) */
-.seller-landing-topbar.market-topbar{
-  background:#fff;
-  border-bottom:1px solid #ececec;
-  position:sticky;
-  top:0;
-  z-index:20;
-  margin:0 -16px 0;
-}
-
-.seller-landing-topbar .market-topbar-inner{
-  max-width:1200px;
-  margin:auto;
-  padding:14px 16px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
-
-.seller-landing-topbar .market-brand{
-  display:inline-flex;
-  align-items:center;
-  text-decoration:none;
-  flex-shrink:0;
-  font-size:0;
-  line-height:0;
-}
-
-.seller-landing-topbar .market-brand img{
-  height:32px;
-  width:auto;
-  object-fit:contain;
-  display:block;
+.seller-landing-topbar{
+  margin-bottom:0;
 }
 
 .seller-landing-hero{
   text-align:center;
-  padding:40px 0 56px;
 }
 
-.seller-landing-hero h1{
-  margin:0 0 16px;
-  font-size:clamp(1.75rem, 5vw, 2.25rem);
-  line-height:1.15;
-  font-weight:900;
-  color:#030712;
-  letter-spacing:-.03em;
+.seller-landing-hero .ds-h1{
+  text-align:center;
 }
 
 .seller-landing-hero-lead{
   margin:0 auto 32px;
   max-width:48rem;
-  font-size:18px;
-  line-height:1.6;
-  color:#4b5563;
 }
 
 .seller-landing-hero-actions{
@@ -76,60 +35,14 @@
   gap:16px;
 }
 
-.seller-landing-btn-primary,
-.seller-landing-btn-secondary{
-  display:inline-block;
-  min-width:240px;
-  padding:16px 32px;
-  border-radius:14px;
-  font-size:16px;
-  font-weight:800;
-  text-align:center;
-  text-decoration:none;
-  transition:background .15s ease, transform .15s ease, box-shadow .15s ease;
-}
-
-.seller-landing-btn-primary{
-  background:#ef3d2f;
-  color:#fff !important;
-  box-shadow:0 8px 20px rgba(239,61,47,.25);
-}
-
-.seller-landing-btn-primary:hover{
-  background:#d9362b;
-  color:#fff !important;
-  text-decoration:none;
-  transform:translateY(-1px);
-}
-
-.seller-landing-btn-secondary{
-  background:#fff;
-  color:#111 !important;
-  border:1px solid #e5e7eb;
-  box-shadow:0 2px 8px rgba(0,0,0,.04);
-}
-
-.seller-landing-btn-secondary:hover{
-  background:#f9fafb;
-  color:#111 !important;
-  text-decoration:none;
-}
-
 .seller-landing-section{
-  padding:48px 0;
   border-top:1px solid rgba(229,231,235,.8);
   border-bottom:1px solid rgba(229,231,235,.8);
   margin:32px 0;
 }
 
-.seller-landing-section h2{
-  margin:0 0 40px;
+.seller-landing-section .ds-h2{
   text-align:center;
-  font-size:clamp(1.375rem, 4vw, 1.75rem);
-  line-height:1.2;
-  font-weight:800;
-  color:#111827;
-  letter-spacing:-.02em;
 }
 
 .seller-landing-steps,
@@ -161,7 +74,7 @@
   margin-bottom:16px;
   border-radius:12px;
   background:#fef2f2;
-  color:#ef3d2f;
+  color:var(--zpt-brand, #ef3d2f);
   display:flex;
   align-items:center;
   justify-content:center;
@@ -169,38 +82,13 @@
   font-weight:800;
 }
 
-.seller-landing-step-card h3,
-.seller-landing-benefit-card h4{
-  margin:0 0 8px;
-  font-size:18px;
-  font-weight:800;
-  color:#111827;
-}
-
-.seller-landing-step-card p,
-.seller-landing-benefit-card p{
-  margin:0;
-  font-size:14px;
-  line-height:1.55;
-  color:#4b5563;
-}
-
 .seller-landing-benefit-card{
   padding:20px;
-  border-left:4px solid #ef3d2f;
+  border-left:4px solid var(--zpt-brand, #ef3d2f);
   border-radius:0 14px 14px 0;
 }
 
-.seller-landing-benefit-card h4{
-  font-size:16px;
-}
-
-.seller-landing-benefit-card p{
-  font-size:13px;
-}
-
 .seller-landing-form-wrap{
-  max-width:28rem;
   margin:64px auto 0;
   padding:32px;
   background:#fff;
@@ -209,19 +97,13 @@
   box-shadow:0 16px 40px rgba(0,0,0,.08);
 }
 
-.seller-landing-form-wrap h3{
-  margin:0 0 8px;
+.seller-landing-form-wrap .ds-h3{
   text-align:center;
-  font-size:20px;
-  font-weight:800;
-  color:#111827;
 }
 
 .seller-landing-form-note{
   margin:0 0 24px;
   text-align:center;
-  font-size:13px;
-  color:#6b7280;
 }
 
 .seller-landing-form{
@@ -246,7 +128,7 @@
   box-sizing:border-box;
   padding:12px 16px;
   border:1px solid #e5e7eb;
-  border-radius:12px;
+  border-radius:var(--zpt-radius, 12px);
   font-size:14px;
   font-family:inherit;
   background:#fff;
@@ -255,26 +137,12 @@
 .seller-landing-field input:focus,
 .seller-landing-field select:focus{
   outline:none;
-  border-color:#ef3d2f;
+  border-color:var(--zpt-brand, #ef3d2f);
 }
 
 .seller-landing-form-submit{
   width:100%;
   margin-top:8px;
-  padding:14px 16px;
-  border:none;
-  border-radius:12px;
-  background:#ef3d2f;
-  color:#fff;
-  font-size:14px;
-  font-weight:800;
-  cursor:pointer;
-  box-shadow:0 4px 14px rgba(239,61,47,.22);
-  transition:background .15s ease;
-}
-
-.seller-landing-form-submit:hover{
-  background:#d9362b;
 }
 
 .seller-landing-messages{
@@ -322,15 +190,6 @@
   .seller-landing-hero-actions{
     flex-direction:row;
   }
-
-  .seller-landing-hero h1{
-    font-size:clamp(2.25rem, 4.5vw, 3rem);
-    line-height:1.1;
-  }
-
-  .seller-landing-section h2{
-    font-size:clamp(1.875rem, 3.5vw, 2.25rem);
-  }
 }
 
 @media (min-width:768px){
@@ -339,52 +198,8 @@
     grid-template-columns:repeat(3, 1fr);
   }
 
-  .seller-landing-page{
+  .seller-landing-wrap{
     padding-left:24px;
     padding-right:24px;
-  }
-
-  .seller-landing-topbar.market-topbar{
-    margin-left:-24px;
-    margin-right:-24px;
-  }
-
-  .seller-landing-hero{
-    padding:56px 0 64px;
-  }
-
-  .seller-landing-hero h1{
-    font-size:clamp(2.75rem, 5vw, 3.75rem);
-    line-height:1.05;
-    letter-spacing:-.035em;
-  }
-
-  .seller-landing-section h2{
-    font-size:clamp(2rem, 3.5vw, 2.5rem);
-  }
-}
-
-@media (min-width:1024px){
-  .seller-landing-hero h1{
-    font-size:4.5rem;
-    line-height:1.02;
-  }
-
-  .seller-landing-section h2{
-    font-size:3rem;
-    line-height:1.15;
-  }
-}
-
-@media (max-width:767px){
-  .seller-landing-topbar .market-topbar-inner{
-    padding:8px 10px;
-  }
-
-  .seller-landing-topbar .market-brand img,
-  .seller-landing-topbar .market-header-logo img{
-    height:24px !important;
-    width:auto !important;
-    max-width:100%;
   }
 }

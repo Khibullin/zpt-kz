@@ -8,15 +8,15 @@
 {% endblock %}
 
 {% block header_nav %}
-<a class="nav-main" href="/">Главная</a>
-<a class="nav-seller" href="/service-request/cabinet/">Кабинет исполнителя</a>
+<a class="nav-main no-underline" href="{% url 'home' %}">Главная</a>
+<a class="nav-seller no-underline" href="/service-request/cabinet/">Кабинет исполнителя</a>
 {% endblock %}
 
 {% block content %}
 <div class="wrap">
   <div class="hero">
-    <h1>Отправьте заявку — получите предложения от СТО и детейлинга</h1>
-    <p>Мастера сами напишут в WhatsApp: цена, сроки и условия.</p>
+    <h1 class="ds-h1">Отправьте заявку — получите предложения от СТО и детейлинга</h1>
+    <p class="ds-body">Мастера сами напишут в WhatsApp: цена, сроки и условия.</p>
   </div>
 
   <div class="card">

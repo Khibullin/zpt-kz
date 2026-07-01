@@ -8,15 +8,15 @@
 {% endblock %}
 
 {% block header_nav %}
-<a class="nav-main" href="/">Главная</a>
+<a class="nav-main no-underline" href="{% url 'home' %}">Главная</a>
 <a class="nav-seller" href="/request-parts/cabinet/">Кабинет продавца</a>
 {% endblock %}
 
 {% block content %}
 <div class="wrap">
   <div class="hero">
-    <h1>Отправьте заявку — получите предложения на запчасти</h1>
-    <p>Продавцы сами напишут в WhatsApp: наличие, цена и сроки.</p>
+    <h1 class="ds-h1">Отправьте заявку — получите предложения на запчасти</h1>
+    <p class="ds-body">Продавцы сами напишут в WhatsApp: наличие, цена и сроки.</p>
   </div>
 
   <div class="card">

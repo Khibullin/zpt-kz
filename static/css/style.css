@@ -9,10 +9,13 @@ a{
   color:inherit;
 }
 
-.container{
-  max-width:1200px;
-  margin:auto;
+.container,
+.site-container{
+  max-width:var(--zpt-container, 1200px);
+  margin-left:auto;
+  margin-right:auto;
   padding:16px;
+  box-sizing:border-box;
 }
 
 .topbar{
@@ -34,7 +37,7 @@ a{
 }
 
 .brand img{
-  height:38px;
+  height:32px;
   width:auto;
   object-fit:contain;
   display:block;

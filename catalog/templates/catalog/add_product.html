@@ -6,27 +6,13 @@
 {% endblock %}
 
 {% block content %}
-<header class="topbar">
-  <div class="container topbar-inner">
-
-    <a
-      class="brand no-underline"
-      href="{% url 'home' %}"
-    >
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="ZPT.KZ"
-      >
-    </a>
-
-  </div>
-</header>
+{% include 'includes/site_header_simple.html' %}
 
 <section class="section">
-  <div class="container">
+  <div class="site-container">
     <div class="seller-page-card">
-      <h2>{% if page_title %}{{ page_title }}{% else %}Добавить товар{% endif %}</h2>
-      <p class="dashboard-subtitle">
+      <h1 class="ds-page-title">{% if page_title %}{{ page_title }}{% else %}Добавить товар{% endif %}</h1>
+      <p class="dashboard-subtitle ds-body">
         Заполните информацию о товаре и загрузите фото
       </p>
 
