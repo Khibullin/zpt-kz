@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v113">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v114">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v2">
 <style>
 .market-topbar{
@@ -35,6 +35,138 @@
   flex-direction:column;
   align-items:flex-start;
 }
+
+/* B2C request banner — bottom of hero card */
+.hero .b2c-request-banner{
+  margin-top:24px;
+  padding:20px 22px;
+  background:#f9fafb;
+  border:1px solid #ececec;
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:space-between;
+  gap:16px;
+}
+.hero .b2c-request-banner-copy{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  max-width:42rem;
+}
+.hero .b2c-request-banner-title{
+  margin:0;
+  padding:0;
+  font-size:18px;
+  line-height:1.35;
+  font-weight:800;
+  color:#111;
+  text-decoration:none;
+}
+.hero .b2c-request-banner-text{
+  margin:0;
+  padding:0;
+  font-size:14px;
+  line-height:1.5;
+  color:#555;
+  text-decoration:none;
+}
+.hero .b2c-request-banner-action{
+  flex-shrink:0;
+}
+.hero a.b2c-request-banner-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:170px;
+  height:44px;
+  padding:0 24px;
+  border:none;
+  border-radius:14px;
+  background:#ef3d2f;
+  color:#fff !important;
+  font-size:16px;
+  font-weight:800;
+  text-decoration:none !important;
+  white-space:nowrap;
+  box-shadow:0 4px 14px rgba(239,61,47,.22);
+  transition:background .15s ease, transform .15s ease;
+}
+.hero a.b2c-request-banner-btn:hover{
+  background:#d9362b;
+  color:#fff !important;
+  text-decoration:none !important;
+  transform:translateY(-1px);
+}
+
+/* B2B seller banner — below product grid */
+.home-b2b-banner{
+  margin-top:32px;
+  margin-bottom:8px;
+  padding:28px 32px;
+  border-radius:20px;
+  background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:28px;
+  box-shadow:0 18px 40px rgba(15,23,42,.18);
+  border:1px solid rgba(255,255,255,.08);
+}
+.home-b2b-banner-copy{
+  flex:1;
+  min-width:0;
+}
+.home-b2b-banner-title{
+  margin:0 0 10px;
+  font-size:24px;
+  line-height:1.25;
+  font-weight:800;
+  color:#fff;
+  text-decoration:none;
+}
+.home-b2b-banner-text{
+  margin:0;
+  max-width:760px;
+  font-size:15px;
+  line-height:1.55;
+  color:rgba(255,255,255,.85);
+  text-decoration:none;
+}
+.home-b2b-banner a.home-b2b-banner-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  min-width:220px;
+  height:48px;
+  padding:0 24px;
+  border-radius:14px;
+  background:#ef3d2f;
+  color:#fff !important;
+  text-decoration:none !important;
+  font-size:16px;
+  font-weight:800;
+  white-space:nowrap;
+  box-shadow:0 10px 24px rgba(239,61,47,.35);
+  transition:background .15s ease, transform .15s ease;
+}
+.home-b2b-banner a.home-b2b-banner-btn:hover{
+  background:#d9362b;
+  color:#fff !important;
+  text-decoration:none !important;
+  transform:translateY(-1px);
+}
+
+@media (min-width:768px){
+  .hero .b2c-request-banner{
+    flex-direction:row;
+    align-items:center;
+  }
+}
+
 .home-seo-block{
   margin-top:28px;
   padding:20px 0 8px;
@@ -80,6 +212,26 @@
 }
 .home-seo-links-list a:hover{
   text-decoration:underline;
+}
+@media (max-width:900px){
+  .home-b2b-banner{
+    flex-direction:column;
+    align-items:stretch;
+    text-align:left;
+    padding:22px 18px;
+    gap:18px;
+  }
+  .home-b2b-banner a.home-b2b-banner-btn{
+    width:100%;
+    min-width:0;
+  }
+  .hero .b2c-request-banner{
+    padding:18px 16px;
+  }
+  .hero a.b2c-request-banner-btn{
+    width:100%;
+    min-width:0;
+  }
 }
 @media (max-width:640px){
   .filter-grid{
