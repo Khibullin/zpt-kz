@@ -160,15 +160,20 @@ def create_service_request(request):
 
 def send_service_whatsapp_to_seller(req, seller):
 
+    import os
     import urllib.request
     import urllib.error
 
-    from django.conf import settings
-
-    phone_number_id = settings.WHATSAPP_PHONE_NUMBER_ID
-    access_token = settings.WHATSAPP_ACCESS_TOKEN
-    template_name = settings.WHATSAPP_TEMPLATE_NAME
-    template_lang = settings.WHATSAPP_TEMPLATE_LANG
+    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
+    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
+    template_name = os.getenv(
+        'WHATSAPP_TEMPLATE_NAME',
+        'zpt_request_notification'
+    )
+    template_lang = os.getenv(
+        'WHATSAPP_TEMPLATE_LANG',
+        'ru'
+    )
 
     to_phone = _normalize_whatsapp(seller.whatsapp)
 

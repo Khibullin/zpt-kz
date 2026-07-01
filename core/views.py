@@ -322,10 +322,13 @@ def send_whatsapp_template(
     body_parameters=None,
     include_image_header=None,
 ):
-    phone_number_id = settings.WHATSAPP_PHONE_NUMBER_ID
-    access_token = settings.WHATSAPP_ACCESS_TOKEN
-    template_name = template_name or settings.WHATSAPP_TEMPLATE_NAME
-    template_lang = settings.WHATSAPP_TEMPLATE_LANG
+    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
+    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
+    template_name = template_name or os.getenv(
+        'WHATSAPP_TEMPLATE_NAME',
+        'zpt_request_notification',
+    )
+    template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
 
     to_phone = _normalize_whatsapp(to_phone)
 
@@ -938,7 +941,7 @@ def create_request(request):
         )
 
         try:
-            buyer_template = settings.WHATSAPP_BUYER_TEMPLATE_NAME
+            buyer_template = os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME', 'zpt_buyer_request_re')
             if buyer_template:
                 send_whatsapp_template(
                     req.phone,
