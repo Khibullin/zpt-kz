@@ -938,7 +938,7 @@ def create_request(request):
         )
 
         try:
-            buyer_template = os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME')
+            buyer_template = settings.WHATSAPP_BUYER_TEMPLATE_NAME
             if buyer_template:
                 send_whatsapp_template(
                     req.phone,

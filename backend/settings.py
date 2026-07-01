@@ -205,7 +205,10 @@ WHATSAPP_TEMPLATE_LANG = os.getenv(
     "ru"
 )
 
-WHATSAPP_BUYER_TEMPLATE_NAME = os.getenv("WHATSAPP_BUYER_TEMPLATE_NAME", "")
+WHATSAPP_BUYER_TEMPLATE_NAME = os.getenv(
+    "WHATSAPP_BUYER_TEMPLATE_NAME",
+    "zpt_buyer_request_re",
+)
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
 
