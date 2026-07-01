@@ -1,7 +1,7 @@
 .seller-landing-page{
   background:#f9fafb;
   min-height:100vh;
-  padding:48px 16px 64px;
+  padding:0 16px 64px;
   font-family:'Inter', Arial, sans-serif;
 }
 
@@ -10,32 +10,54 @@
   margin:0 auto;
 }
 
-.seller-landing-header{
-  padding:0 0 8px;
+/* Match main catalog header logo sizing (market-catalog.css) */
+.seller-landing-topbar.market-topbar{
+  background:#fff;
+  border-bottom:1px solid #ececec;
+  position:sticky;
+  top:0;
+  z-index:20;
+  margin:0 -16px 0;
 }
 
-.seller-landing-logo{
-  display:inline-block;
+.seller-landing-topbar .market-topbar-inner{
+  max-width:1200px;
+  margin:auto;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
 }
 
-.seller-landing-logo img{
-  width:110px;
-  height:auto;
+.seller-landing-topbar .market-brand{
+  display:inline-flex;
+  align-items:center;
+  text-decoration:none;
+  flex-shrink:0;
+  font-size:0;
+  line-height:0;
+}
+
+.seller-landing-topbar .market-brand img{
+  height:32px;
+  width:auto;
+  object-fit:contain;
   display:block;
 }
 
 .seller-landing-hero{
   text-align:center;
-  padding:48px 0 56px;
+  padding:40px 0 56px;
 }
 
 .seller-landing-hero h1{
   margin:0 0 16px;
-  font-size:clamp(1.75rem, 4vw, 3rem);
-  line-height:1.1;
+  font-size:clamp(1.75rem, 5vw, 2.25rem);
+  line-height:1.15;
   font-weight:900;
   color:#030712;
-  letter-spacing:-.02em;
+  letter-spacing:-.03em;
 }
 
 .seller-landing-hero-lead{
@@ -103,9 +125,11 @@
 .seller-landing-section h2{
   margin:0 0 40px;
   text-align:center;
-  font-size:clamp(1.5rem, 3vw, 1.875rem);
+  font-size:clamp(1.375rem, 4vw, 1.75rem);
+  line-height:1.2;
   font-weight:800;
   color:#111827;
+  letter-spacing:-.02em;
 }
 
 .seller-landing-steps,
@@ -298,6 +322,15 @@
   .seller-landing-hero-actions{
     flex-direction:row;
   }
+
+  .seller-landing-hero h1{
+    font-size:clamp(2.25rem, 4.5vw, 3rem);
+    line-height:1.1;
+  }
+
+  .seller-landing-section h2{
+    font-size:clamp(1.875rem, 3.5vw, 2.25rem);
+  }
 }
 
 @media (min-width:768px){
@@ -309,5 +342,49 @@
   .seller-landing-page{
     padding-left:24px;
     padding-right:24px;
+  }
+
+  .seller-landing-topbar.market-topbar{
+    margin-left:-24px;
+    margin-right:-24px;
+  }
+
+  .seller-landing-hero{
+    padding:56px 0 64px;
+  }
+
+  .seller-landing-hero h1{
+    font-size:clamp(2.75rem, 5vw, 3.75rem);
+    line-height:1.05;
+    letter-spacing:-.035em;
+  }
+
+  .seller-landing-section h2{
+    font-size:clamp(2rem, 3.5vw, 2.5rem);
+  }
+}
+
+@media (min-width:1024px){
+  .seller-landing-hero h1{
+    font-size:4.5rem;
+    line-height:1.02;
+  }
+
+  .seller-landing-section h2{
+    font-size:3rem;
+    line-height:1.15;
+  }
+}
+
+@media (max-width:767px){
+  .seller-landing-topbar .market-topbar-inner{
+    padding:8px 10px;
+  }
+
+  .seller-landing-topbar .market-brand img,
+  .seller-landing-topbar .market-header-logo img{
+    height:24px !important;
+    width:auto !important;
+    max-width:100%;
   }
 }
