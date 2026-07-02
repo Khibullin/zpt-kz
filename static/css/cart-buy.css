@@ -242,9 +242,15 @@
   .market-mobile-business-btn{
     display:inline-flex;
     min-height:32px;
-    padding:6px 10px;
-    font-size:11px;
-    gap:4px;
+    min-width:32px;
+    padding:6px 8px;
+    justify-content:center;
+    gap:0;
+  }
+
+  .market-mobile-business-icon{
+    font-size:14px;
+    line-height:1;
   }
 
   .market-header-cabinet--desktop{

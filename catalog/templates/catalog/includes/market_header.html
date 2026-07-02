@@ -7,17 +7,16 @@
     </div>
 
     <div class="market-topbar-actions market-header-actions">
-      <a href="{% url 'business_gateway' %}" class="market-mobile-business-btn no-underline" aria-label="Автобизнес">
-        <span class="market-mobile-business-icon" aria-hidden="true">💼</span>
-        <span class="market-mobile-business-label">Бизнес</span>
-      </a>
-
       <a href="{% url 'orders:cart' %}" class="market-cart-link no-underline" title="Корзина">
         <span class="market-cart-icon" aria-hidden="true">🛒</span>
         <span class="market-cart-label">Корзина</span>
         <span class="market-cart-badge" data-cart-count {% if not cart_count %}hidden{% endif %}>
           {{ cart_count|default:0 }}
         </span>
+      </a>
+
+      <a href="{% url 'business_gateway' %}" class="market-mobile-business-btn no-underline" aria-label="Автобизнес: войти / начать" title="Автобизнес">
+        <span class="market-mobile-business-icon" aria-hidden="true">💼</span>
       </a>
 
       <a href="{% url 'business_gateway' %}" class="seller-cabinet-btn market-header-cabinet market-header-cabinet--desktop no-underline">
