@@ -3,6 +3,10 @@
 
 {% block title %}ZPT.KZ — Заявка №{{ req.id }}{% endblock %}
 
+{% block extra_head %}
+<meta name="robots" content="noindex,nofollow">
+{% endblock %}
+
 {% block portal_css %}
 <link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/glightbox/dist/css/glightbox.min.css">
@@ -51,12 +55,13 @@
     line-height: 1.45;
     word-break: break-word;
   }
-  .photos-section {
+  .photos-section,
+  .sellers-section {
     margin-top: 20px;
   }
   .photos-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
     gap: 12px;
     margin-top: 12px;
   }
@@ -80,20 +85,82 @@
     object-fit: cover;
     display: block;
   }
-  .photos-empty {
+  .photos-empty,
+  .sellers-empty {
     color: #666;
     font-size: 15px;
     line-height: 1.5;
     margin-top: 8px;
   }
-  .page-actions {
-    margin-top: 20px;
+  .seller-card {
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 12px;
+    background: #fafafa;
+  }
+  .seller-name {
+    font-size: 16px;
+    font-weight: 700;
+    word-break: break-word;
+    line-height: 1.35;
+  }
+  .seller-meta {
+    margin-top: 6px;
+    color: #666;
+    font-size: 14px;
+  }
+  .seller-status {
+    display: inline-block;
+    margin-top: 8px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #eef2f7;
+    color: #334155;
+  }
+  .seller-status.is-sent {
+    background: #e8f5e9;
+    color: #1b5e20;
+  }
+  .seller-status.is-error {
+    background: #ffebee;
+    color: #b71c1c;
+  }
+  .seller-actions {
+    margin-top: 12px;
     display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .seller-actions a {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: bold;
+    word-break: break-word;
+  }
+  .btn-wa {
+    background: #25d366;
+    color: #fff;
+    font-size: 16px;
+  }
+  .btn-profile {
+    background: #eef2f7;
+    color: #3478f6;
+  }
+  .page-actions {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
   }
   .page-actions a {
-    display: inline-block;
+    display: block;
+    text-align: center;
     text-decoration: none;
     border-radius: 10px;
     padding: 12px 16px;
@@ -107,6 +174,28 @@
     background: #eef2f7;
     color: #3478f6;
   }
+  .btn-outline {
+    background: #fff;
+    color: #334155;
+    border: 1px solid #d0d7de;
+  }
+  @media (min-width: 640px) {
+    .page-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .page-actions a {
+      display: inline-block;
+      flex: 1 1 auto;
+    }
+    .seller-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .seller-actions a {
+      flex: 1 1 180px;
+    }
+  }
   @media (max-width: 760px) {
     .details-grid,
     .photos-grid {
@@ -117,7 +206,7 @@
 {% endblock %}
 
 {% block header_nav %}
-<a class="nav-main" href="/">Главная</a>
+<a class="nav-main" href="{% url 'home' %}">Главная</a>
 <a class="nav-seller" href="/request-parts/">Новая заявка</a>
 {% endblock %}
 
@@ -144,6 +233,14 @@
 
     <div class="details-grid">
       <div class="detail-item">
+        <div class="detail-label">Марка</div>
+        <div class="detail-value">{{ req.brand|default:"—" }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Модель</div>
+        <div class="detail-value">{{ req.model|default:"—" }}</div>
+      </div>
+      <div class="detail-item">
         <div class="detail-label">Категория</div>
         <div class="detail-value">{{ req.category|default:"—" }}</div>
       </div>
@@ -166,6 +263,10 @@
       <div class="detail-item">
         <div class="detail-label">Создана</div>
         <div class="detail-value">{{ req.created_at|date:"d.m.Y H:i" }}</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Продавцов</div>
+        <div class="detail-value">{{ sellers_count }}</div>
       </div>
     </div>
 
@@ -193,9 +294,37 @@
       {% endif %}
     </div>
 
+    <div class="sellers-section">
+      <label>Продавцы, которым отправлена заявка{% if sellers_count %} ({{ sellers_count }}){% endif %}</label>
+      {% if sellers %}
+        {% for seller in sellers %}
+          <div class="seller-card">
+            <div class="seller-name">{{ seller.name }}</div>
+            {% if seller.city %}
+              <div class="seller-meta">{{ seller.city }}</div>
+            {% endif %}
+            <span class="seller-status{% if seller.status_label == 'Заявка отправлена продавцу' %} is-sent{% elif seller.status_label == 'Ошибка отправки' %} is-error{% endif %}">
+              {{ seller.status_label }}
+            </span>
+            <div class="seller-actions">
+              <a class="btn-wa" href="{{ seller.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a>
+              <a class="btn-profile" href="{{ seller.profile_url }}">Открыть профиль продавца</a>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p class="sellers-empty">Подходящие продавцы пока не найдены. Мы продолжаем обработку заявки.</p>
+      {% endif %}
+    </div>
+
     <div class="page-actions">
-      <a class="btn-primary" href="/request-parts/">Отправить новую заявку</a>
-      <a class="btn-secondary" href="{% url 'home' %}">На главную ZPT.KZ</a>
+      <a class="btn-primary" href="{{ repeat_url }}">Повторить заявку</a>
+      <a class="btn-secondary" href="{{ new_request_url }}">Подать новую заявку</a>
+      {% if history_url %}
+        <a class="btn-outline" href="{{ history_url }}">Мои заявки</a>
+      {% endif %}
+      <a class="btn-outline" href="{% url 'parts_sellers_catalog_public' %}">Каталог продавцов</a>
+      <a class="btn-outline" href="{{ home_url }}">На главную ZPT.KZ</a>
     </div>
   </div>
 </div>

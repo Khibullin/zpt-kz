@@ -7,6 +7,8 @@ from core.views import (
     parts_sellers_catalog,
     parts_seller_detail,
     view_request_status,
+    view_request_status_secure,
+    view_buyer_request_history,
     seller_landing,
     register_seller,
     business_gateway,
@@ -79,9 +81,21 @@ urlpatterns = [
     ),
 
     path(
+        'my-request/<int:req_id>/<uuid:access_token>/',
+        view_request_status_secure,
+        name='view_request_status_public',
+    ),
+
+    path(
         'my-request/<int:req_id>/',
         view_request_status,
-        name='view_request_status_public',
+        name='view_request_status_legacy_public',
+    ),
+
+    path(
+        'my-requests/<uuid:access_token>/',
+        view_buyer_request_history,
+        name='view_buyer_request_history_public',
     ),
 
     # КАТАЛОГ ПРОДАВЦОВ ЗАПЧАСТЕЙ (НОВЫЙ КРАСИВЫЙ URL)

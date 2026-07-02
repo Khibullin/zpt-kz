@@ -296,6 +296,30 @@ async function applyUrlParams(){
   const model =
     params.get('model');
 
+  const countryName =
+    params.get('country');
+
+  const categoryName =
+    params.get('category');
+
+  const cityName =
+    params.get('city');
+
+  const phoneValue =
+    params.get('phone');
+
+  const articleValue =
+    params.get('article');
+
+  const descriptionValue =
+    params.get('description');
+
+  const searchScope =
+    params.get('search_scope');
+
+  const selectedCitiesRaw =
+    params.get('selected_cities');
+
   if(
     transport &&
     ['car','truck'].includes(transport)
@@ -305,45 +329,120 @@ async function applyUrlParams(){
 
   await loadCountries();
 
+  if(countryName){
+    const foundCountry = countriesData.find(
+      c => c.name.toLowerCase() === countryName.toLowerCase()
+    );
+    if(foundCountry){
+      countryEl.value = foundCountry.id;
+      await loadBrands();
+    }
+  }
+
   if(brand){
 
-    for(const country of countriesData){
+    if(!countryEl.value){
+      for(const country of countriesData){
 
-      countryEl.value = country.id;
+        countryEl.value = country.id;
 
+        await loadBrands();
+
+        const foundBrand =
+          brandsData.find(
+            b =>
+              b.name.toLowerCase()
+              === brand.toLowerCase()
+          );
+
+        if(foundBrand){
+          brandEl.value = foundBrand.id;
+          break;
+        }
+
+        ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');
+      }
+    }
+
+    if(countryEl.value && !brandEl.value){
       await loadBrands();
-
       const foundBrand =
         brandsData.find(
           b =>
             b.name.toLowerCase()
             === brand.toLowerCase()
         );
-
       if(foundBrand){
-
         brandEl.value = foundBrand.id;
-
-        await loadModels();
-
-        if(model){
-
-          const foundModel =
-            modelsData.find(
-              m =>
-                m.name.toLowerCase()
-                === model.toLowerCase()
-            );
-
-          if(foundModel){
-            modelEl.value =
-              foundModel.id;
-          }
-        }
-
-        break;
       }
     }
+
+    if(brandEl.value){
+      await loadModels();
+
+      if(model){
+
+        const foundModel =
+          modelsData.find(
+            m =>
+              m.name.toLowerCase()
+              === model.toLowerCase()
+          );
+
+        if(foundModel){
+          modelEl.value =
+            foundModel.id;
+        }
+      }
+    }
+  }
+
+  if(categoryName){
+    const categoryOptions = Array.from(categoryEl.options);
+    const foundCategory = categoryOptions.find(
+      opt => opt.textContent.trim().toLowerCase() === categoryName.toLowerCase()
+    );
+    if(foundCategory){
+      categoryEl.value = foundCategory.value;
+    }
+  }
+
+  if(cityName && cityEl){
+    cityEl.value = cityName;
+  }
+
+  if(phoneValue && phoneEl){
+    phoneEl.value = phoneValue;
+  }
+
+  if(articleValue && articleEl){
+    articleEl.value = articleValue;
+  }
+
+  if(descriptionValue && descriptionEl){
+    descriptionEl.value = descriptionValue;
+  }
+
+  if(searchScope){
+    const scopeInput = document.querySelector(
+      `input[name="search_scope"][value="${searchScope}"]`
+    );
+    if(scopeInput){
+      scopeInput.checked = true;
+      toggleCitiesSelection();
+    }
+  }
+
+  if(selectedCitiesRaw){
+    const cityNames = selectedCitiesRaw.split(',').map(v => v.trim()).filter(Boolean);
+    cityNames.forEach(function(cityNameItem){
+      const checkbox = document.querySelector(
+        `#citiesSelection input[type="checkbox"][value="${cityNameItem}"]`
+      );
+      if(checkbox){
+        checkbox.checked = true;
+      }
+    });
   }
 }
 

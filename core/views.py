@@ -19,13 +19,24 @@ from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.db import transaction
 from django.db.models import Prefetch, Q
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, ImageOps
 
+from .buyer_portal import (
+    REQUEST_STATUS_LABELS,
+    build_request_sellers,
+    buyer_history_url,
+    buyer_requests_queryset,
+    ensure_buyer_portal_access,
+    home_page_url,
+    new_request_url,
+    repeat_request_url,
+    request_page_url,
+)
 from .models import (
     Request,
     RequestPhoto,
@@ -38,6 +49,7 @@ from .models import (
     RequestDispatch,
     BroadcastSettings,
     WhatsAppMessageLog,
+    BuyerPortalAccess,
 )
 
 from catalog.models import SellerProfile
@@ -91,8 +103,7 @@ def _public_media_url(relative_url):
 
 
 def _request_page_url(req):
-    base = os.getenv('PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
-    return f'{base}/my-request/{req.id}/'
+    return request_page_url(req)
 
 
 def _description_with_request_link(req):
@@ -966,6 +977,8 @@ def create_request(request):
             phone=data.get('phone', ''),
         )
 
+        ensure_buyer_portal_access(req.phone)
+
         saved_photos = _save_request_photos(req, uploaded_photos)
         photos_saved = len(saved_photos)
 
@@ -1014,7 +1027,8 @@ def create_request(request):
             'matches': len(matched),
             'strategy': strategy,
             'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
-            'photo_view_url': _request_page_url(req),
+            'photo_view_url': request_page_url(req),
+            'history_url': buyer_history_url(req),
             'upload_mode': upload_mode,
             'files_keys': list(request.FILES.keys()),
             'photos_received': len(uploaded_photos),
@@ -1031,28 +1045,66 @@ def create_request(request):
         )
 
 
-REQUEST_STATUS_LABELS = {
-    'new': 'Новая',
-    'sent': 'Отправлена продавцам',
-    'no_sellers': 'Продавцы не найдены',
-}
-
-
-def view_request_status(request, req_id):
+def _render_request_status(request, req):
     photo_qs = RequestPhoto.objects.order_by('created_at')
-    req = get_object_or_404(
+    req = (
         Request.objects.prefetch_related(
             Prefetch('photos', queryset=photo_qs),
-        ),
-        pk=req_id,
+        )
+        .filter(pk=req.pk)
+        .first()
     )
     photos = list(req.photos.all())
+    sellers = build_request_sellers(req)
+    for seller in sellers:
+        seller['whatsapp_url'] = _buyer_contact_link(
+            seller.pop('whatsapp'),
+            req,
+        )
+        seller['profile_url'] = reverse(
+            'parts_seller_detail_public',
+            kwargs={'seller_id': seller['seller_id']},
+        )
+    portal = ensure_buyer_portal_access(req.phone)
 
     return render(request, 'request_status.html', {
         'req': req,
         'photos': photos,
         'photos_count': len(photos),
         'status_label': REQUEST_STATUS_LABELS.get(req.status, req.status),
+        'sellers': sellers,
+        'sellers_count': len(sellers),
+        'history_url': buyer_history_url(req) if portal else None,
+        'repeat_url': repeat_request_url(req),
+        'new_request_url': new_request_url(),
+        'home_url': home_page_url(),
+    })
+
+
+def view_request_status(request, req_id):
+    raise Http404
+
+
+def view_request_status_secure(request, req_id, access_token):
+    req = get_object_or_404(Request, pk=req_id, access_token=access_token)
+    return _render_request_status(request, req)
+
+
+def view_buyer_request_history(request, access_token):
+    portal = get_object_or_404(BuyerPortalAccess, access_token=access_token)
+    buyer_requests = []
+    for item in buyer_requests_queryset(portal):
+        buyer_requests.append({
+            'request': item,
+            'open_url': request_page_url(item),
+            'repeat_url': repeat_request_url(item),
+            'status_label': REQUEST_STATUS_LABELS.get(item.status, item.status),
+        })
+
+    return render(request, 'buyer_request_history.html', {
+        'buyer_requests': buyer_requests,
+        'new_request_url': new_request_url(),
+        'home_url': home_page_url(),
     })
 
 

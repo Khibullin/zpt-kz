@@ -1,0 +1,155 @@
+{% extends 'base_portal.html' %}
+{% load static %}
+
+{% block title %}ZPT.KZ — Мои заявки{% endblock %}
+
+{% block extra_head %}
+<meta name="robots" content="noindex,nofollow">
+{% endblock %}
+
+{% block portal_css %}
+<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
+<style>
+  .history-card {
+    border: 1px solid #ececec;
+    border-radius: 14px;
+    padding: 16px;
+    margin-top: 14px;
+    background: #fafafa;
+  }
+  .history-title {
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+  .history-meta {
+    margin-top: 8px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  .history-stats {
+    margin-top: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    font-size: 14px;
+    color: #334155;
+  }
+  .history-actions {
+    margin-top: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .history-actions a {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: bold;
+  }
+  .btn-primary {
+    background: #c62828;
+    color: #fff;
+  }
+  .btn-secondary {
+    background: #eef2f7;
+    color: #3478f6;
+  }
+  .btn-outline {
+    background: #fff;
+    color: #334155;
+    border: 1px solid #d0d7de;
+  }
+  .page-actions {
+    margin-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .page-actions a {
+    display: block;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-weight: bold;
+  }
+  .history-empty {
+    color: #666;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-top: 12px;
+  }
+  @media (min-width: 640px) {
+    .history-actions,
+    .page-actions {
+      flex-direction: row;
+      flex-wrap: wrap;
+    }
+    .history-actions a,
+    .page-actions a {
+      display: inline-block;
+      flex: 1 1 auto;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block header_nav %}
+<a class="nav-main" href="{% url 'home' %}">Главная</a>
+<a class="nav-seller" href="/request-parts/">Новая заявка</a>
+{% endblock %}
+
+{% block content %}
+<div class="wrap">
+  <div class="hero">
+    <h1>Мои заявки</h1>
+    <p>История ваших обращений на ZPT.KZ</p>
+  </div>
+
+  <div class="card">
+    {% if buyer_requests %}
+      {% for item in buyer_requests %}
+        {% with req=item.request %}
+        <div class="history-card">
+          <div class="history-title">Заявка №{{ req.id }}</div>
+          <div class="history-meta">
+            {{ req.created_at|date:"d.m.Y H:i" }}
+            {% if req.brand or req.model %}
+              · {{ req.brand }} {{ req.model }}
+            {% endif %}
+            {% if req.category %}
+              · {{ req.category }}
+            {% endif %}
+            {% if req.city %}
+              · {{ req.city }}
+            {% endif %}
+          </div>
+          <div class="history-stats">
+            <span>Статус: {{ item.status_label }}</span>
+            <span>Фото: {{ req.photos_count }}</span>
+            <span>Продавцов: {{ req.sellers_count }}</span>
+          </div>
+          <div class="history-actions">
+            <a class="btn-primary" href="{{ item.open_url }}">Открыть заявку</a>
+            <a class="btn-secondary" href="{{ item.repeat_url }}">Повторить заявку</a>
+          </div>
+        </div>
+        {% endwith %}
+      {% endfor %}
+    {% else %}
+      <p class="history-empty">Заявок пока нет. Подайте первую заявку на запчасти.</p>
+    {% endif %}
+
+    <div class="page-actions">
+      <a class="btn-primary" href="{{ new_request_url }}">Подать новую заявку</a>
+      <a class="btn-outline" href="{% url 'parts_sellers_catalog_public' %}">Каталог продавцов</a>
+      <a class="btn-secondary" href="{{ home_url }}">На главную ZPT.KZ</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

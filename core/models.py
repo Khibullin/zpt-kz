@@ -1,3 +1,5 @@
+import uuid
+
 from django.db import models
 
 
@@ -169,6 +171,14 @@ class Request(models.Model):
         default='new'
     )
 
+    access_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        db_index=True,
+        verbose_name='Токен доступа покупателя',
+    )
+
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
@@ -176,6 +186,30 @@ class Request(models.Model):
 
     def __str__(self):
         return f"{self.brand} {self.model} ({self.phone})"
+
+
+class BuyerPortalAccess(models.Model):
+    phone_normalized = models.CharField(
+        max_length=20,
+        unique=True,
+        db_index=True,
+        verbose_name='Нормализованный телефон',
+    )
+    access_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        db_index=True,
+        verbose_name='Токен истории заявок',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Доступ покупателя к истории'
+        verbose_name_plural = 'Доступы покупателей к истории'
+
+    def __str__(self):
+        return f'Покупатель {self.phone_normalized}'
 
 
 class RequestPhoto(models.Model):
