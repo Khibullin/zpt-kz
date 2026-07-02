@@ -4,69 +4,101 @@
 {% block title %}Личные кабинеты автобизнеса — ZPT.KZ{% endblock %}
 
 {% block extra_css %}
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    important: '#business-gateway',
-  };
-</script>
+<style>
+  #business-gateway-grid {
+    display: grid;
+    gap: 10px;
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 768px) {
+    #business-gateway-grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    #business-gateway-title {
+      font-size: 22px;
+    }
+  }
+  #business-gateway a:hover {
+    opacity: 0.92;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
 {% include 'includes/site_header_simple.html' %}
 
-<div id="business-gateway" class="bg-[#f2f4f7] min-h-0 py-4 md:py-6 px-3 md:px-4">
-  <div class="max-w-5xl mx-auto w-full">
+<div id="business-gateway" style="background-color: #f2f4f7; min-height: 85vh; padding: 16px 12px; font-family: sans-serif; display: flex; flex-direction: column; justify-content: start; box-sizing: border-box;">
+  <div style="max-width: 1000px; margin: 0 auto; width: 100%; box-sizing: border-box;">
 
-    <header class="text-center mb-6">
-      <h1 class="text-xl md:text-3xl font-black text-gray-900 tracking-tight text-center">
+    <div style="margin-bottom: 16px; text-align: center;">
+      <h1 id="business-gateway-title" style="font-size: 18px; font-weight: 900; color: #030712; letter-spacing: -0.025em; margin: 0; padding: 0; line-height: 1.25;">
         Личные кабинеты автобизнеса ZPT.KZ
       </h1>
-      <p class="text-[11px] md:text-xs text-gray-500 text-center mt-1 mb-8 max-w-md mx-auto leading-normal">
+      <p style="font-size: 11px; color: #6b7280; font-weight: 500; margin-top: 4px; margin-bottom: 0; padding: 0; line-height: 1.4;">
         Выберите нужное направление для работы, авторизации или регистрации вашей компании на платформе.
       </p>
-    </header>
+    </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto w-full items-stretch">
+    <div id="business-gateway-grid">
 
-      <article class="p-3 md:p-5 bg-white border border-gray-200/50 rounded-xl shadow-sm flex flex-col justify-between min-w-0">
+      <div style="background-color: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid rgba(229, 231, 235, 0.7); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
         <div>
-          <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-base mb-3" aria-hidden="true">📬</div>
-          <h2 class="text-sm md:text-base font-black text-gray-950 mb-1">Получать заявки покупателей</h2>
-          <p class="text-[11px] md:text-xs text-gray-500 leading-normal mb-4">
+          <div style="width: 36px; height: 36px; background-color: #eff6ff; color: #2563eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; margin-bottom: 8px;">
+            📬
+          </div>
+          <h2 style="font-size: 13px; font-weight: 900; color: #030712; margin: 0 0 4px 0; padding: 0; line-height: 1.2;">
+            Получать заявки покупателей
+          </h2>
+          <p style="font-size: 11px; color: #6b7280; line-height: 1.4; margin: 0 0 12px 0; padding: 0; font-weight: 400;">
             Для продавцов запчастей, которые хотят оперативно получать горячие запросы от автовладельцев вашего города в мессенджер и продавать товары «здесь и сейчас».
           </p>
         </div>
-        <a href="/request-parts/cabinet/" class="w-full text-center py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all shadow-sm no-underline block bg-[#ff3b30] hover:bg-[#e03126] text-white">
-          Подключить заявки
-        </a>
-      </article>
-
-      <article class="p-3 md:p-5 bg-white border border-gray-200/50 rounded-xl shadow-sm flex flex-col justify-between min-w-0">
         <div>
-          <div class="w-10 h-10 bg-red-50 text-[#ff3b30] rounded-full flex items-center justify-center text-base mb-3" aria-hidden="true">📦</div>
-          <h2 class="text-sm md:text-base font-black text-gray-950 mb-1">Продавать автозапчасти</h2>
-          <p class="text-[11px] md:text-xs text-gray-500 leading-normal mb-4">
+          <a href="/request-parts/cabinet/" style="display: block; width: 100%; text-align: center; padding: 10px 0; background-color: #ff3b30; color: #ffffff; font-weight: bold; font-size: 11px; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); box-sizing: border-box;">
+            Подключить заявки
+          </a>
+        </div>
+      </div>
+
+      <div style="background-color: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid rgba(229, 231, 235, 0.7); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
+        <div>
+          <div style="width: 36px; height: 36px; background-color: #fef2f2; color: #ff3b30; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; margin-bottom: 8px;">
+            📦
+          </div>
+          <h2 style="font-size: 13px; font-weight: 900; color: #030712; margin: 0 0 4px 0; padding: 0; line-height: 1.2;">
+            Продавать автозапчасти
+          </h2>
+          <p style="font-size: 11px; color: #6b7280; line-height: 1.4; margin: 0 0 12px 0; padding: 0; font-weight: 400;">
             Для магазинов и складов, которые хотят загружать прайс-листы, выставлять товары по артикулам и продавать запчасти напрямую через онлайн-каталог и корзину сайта.
           </p>
         </div>
-        <a href="{% url 'seller_login' %}" class="w-full text-center py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all shadow-sm no-underline block bg-gray-900 hover:bg-gray-800 text-white">
-          Открыть магазин
-        </a>
-      </article>
-
-      <article class="p-3 md:p-5 bg-white border border-gray-200/50 rounded-xl shadow-sm flex flex-col justify-between min-w-0">
         <div>
-          <div class="w-10 h-10 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-base mb-3" aria-hidden="true">🛠️</div>
-          <h2 class="text-sm md:text-base font-black text-gray-950 mb-1">Получать клиентов на услуги</h2>
-          <p class="text-[11px] md:text-xs text-gray-500 leading-normal mb-4">
+          <a href="{% url 'seller_login' %}" style="display: block; width: 100%; text-align: center; padding: 10px 0; background-color: #111827; color: #ffffff; font-weight: bold; font-size: 11px; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); box-sizing: border-box;">
+            Открыть магазин
+          </a>
+        </div>
+      </div>
+
+      <div style="background-color: #ffffff; padding: 12px; border-radius: 12px; border: 1px solid rgba(229, 231, 235, 0.7); box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box;">
+        <div>
+          <div style="width: 36px; height: 36px; background-color: #f3f4f6; color: #374151; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 16px; margin-bottom: 8px;">
+            🛠️
+          </div>
+          <h2 style="font-size: 13px; font-weight: 900; color: #030712; margin: 0 0 4px 0; padding: 0; line-height: 1.2;">
+            Получать клиентов на услуги
+          </h2>
+          <p style="font-size: 11px; color: #6b7280; line-height: 1.4; margin: 0 0 12px 0; padding: 0; font-weight: 400;">
             Для СТО, автомастерских, малярных цехов и студий детейлинга, которые хотят принимать целевые заказы на ремонт, техническое обслуживание и уход за автомобилями.
           </p>
         </div>
-        <a href="/service-request/cabinet/" class="w-full text-center py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all shadow-sm no-underline block bg-slate-700 hover:bg-slate-800 text-white">
-          Стать исполнителем
-        </a>
-      </article>
+        <div>
+          <a href="/service-request/cabinet/" style="display: block; width: 100%; text-align: center; padding: 10px 0; background-color: #334155; color: #ffffff; font-weight: bold; font-size: 11px; border-radius: 8px; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05); box-sizing: border-box;">
+            Стать исполнителем
+          </a>
+        </div>
+      </div>
 
     </div>
   </div>
