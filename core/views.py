@@ -1536,6 +1536,11 @@ def seller_landing(request):
     return render(request, 'core/seller_landing.html')
 
 
+def redirect_after_seller_auth():
+    """Unified post-login/register destination for marketplace sellers."""
+    return redirect('dashboard_gateway')
+
+
 @login_required
 def dashboard_gateway(request):
     is_seller = (
@@ -1626,7 +1631,7 @@ def register_seller(request):
     if user is not None:
         login(request, user)
         messages.success(request, 'Регистрация завершена. Добро пожаловать в личный кабинет!')
-        return redirect('dashboard_gateway')
+        return redirect_after_seller_auth()
 
     messages.warning(
         request,

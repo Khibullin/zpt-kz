@@ -12,6 +12,7 @@ from django.urls import reverse
 from urllib.parse import quote, urlencode
 
 from core.forms import FeedbackForm
+from core.views import redirect_after_seller_auth
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
     Product,
@@ -427,6 +428,9 @@ def seller_register(request):
 
 
 def seller_login(request):
+    if request.user.is_authenticated:
+        return redirect_after_seller_auth()
+
     error_message = None
     username = ''
     remember_me = False
@@ -443,7 +447,7 @@ def seller_login(request):
                 request.session.set_expiry(1209600)
             else:
                 request.session.set_expiry(0)
-            return redirect('dashboard_gateway')
+            return redirect_after_seller_auth()
         else:
             error_message = 'Неверный логин или пароль.'
 

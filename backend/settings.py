@@ -121,6 +121,9 @@ USE_TZ = True
 USE_THOUSAND_SEPARATOR = True
 NUMBER_GROUPING = 3
 
+LOGIN_URL = '/seller/login/'
+LOGIN_REDIRECT_URL = '/cabinet/select/'
+
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
