@@ -31,14 +31,14 @@
         <!-- Three Cards Grid -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
 
-            <!-- CARD 1: WHATSAPP LEADS -->
+            <!-- CARD 1: REQUESTS / CORE -->
             <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col justify-between group">
                 <div>
                     <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:scale-105 transition-transform">
                         📬
                     </div>
                     <h2 class="text-xl font-extrabold text-gray-950 mb-3">
-                        Заявки из WhatsApp
+                        Получать заявки покупателей
                     </h2>
                     <p class="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
                         Для продавцов запчастей, которые хотят оперативно получать горячие запросы от автовладельцев вашего города в мессенджер и продавать товары «здесь и сейчас».
@@ -46,19 +46,19 @@
                 </div>
                 <div class="mt-4">
                     <a href="/request-parts/cabinet/" class="block w-full bg-[#ff3b30] hover:bg-[#e03126] text-white font-bold text-sm text-center py-3.5 rounded-xl transition-colors no-underline shadow-sm">
-                        Открыть кабинет заявок
+                        Подключить заявки
                     </a>
                 </div>
             </div>
 
-            <!-- CARD 2: MARKETPLACE -->
+            <!-- CARD 2: MARKETPLACE / CATALOG -->
             <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col justify-between group">
                 <div>
                     <div class="w-14 h-14 bg-red-50 text-[#ff3b30] rounded-xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:scale-105 transition-transform">
                         📦
                     </div>
                     <h2 class="text-xl font-extrabold text-gray-950 mb-3">
-                        Маркетплейс
+                        Продавать автозапчасти
                     </h2>
                     <p class="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
                         Для магазинов и складов, которые хотят загружать прайс-листы, выставлять товары по артикулам и продавать запчасти напрямую через онлайн-каталог и корзину сайта.
@@ -66,33 +66,28 @@
                 </div>
                 <div class="mt-4">
                     <a href="{% url 'seller_login' %}" class="block w-full bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm text-center py-3.5 rounded-xl transition-colors no-underline shadow-sm">
-                        Управлять магазином
+                        Открыть магазин
                     </a>
                 </div>
             </div>
 
-            <!-- CARD 3: STO / DETAILING -->
-            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm opacity-85 relative flex flex-col justify-between group overflow-hidden">
-                <!-- Badge for development status -->
-                <div class="absolute top-3 right-3 bg-amber-50 text-amber-700 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200 shadow-sm">
-                    Скоро запуск
-                </div>
-
+            <!-- CARD 3: SERVICES / STO -->
+            <div class="bg-white p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col justify-between group">
                 <div>
-                    <div class="w-14 h-14 bg-gray-50 text-gray-500 rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 grayscale group-hover:grayscale-0 transition-all">
+                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:scale-105 transition-transform">
                         🛠️
                     </div>
-                    <h2 class="text-xl font-extrabold text-gray-400 mb-3">
-                        Автосервис и детейлинг
+                    <h2 class="text-xl font-extrabold text-gray-950 mb-3">
+                        Получать клиентов на услуги
                     </h2>
-                    <p class="text-xs md:text-sm text-gray-400 leading-relaxed mb-6">
+                    <p class="text-xs md:text-sm text-gray-600 leading-relaxed mb-6">
                         Для СТО, автомастерских, малярных цехов и студий детейлинга, которые хотят принимать целевые заказы на ремонт, техническое обслуживание и уход за автомобилями.
                     </p>
                 </div>
                 <div class="mt-4">
-                    <button type="button" disabled class="block w-full bg-gray-100 text-gray-400 font-bold text-sm text-center py-3.5 rounded-xl cursor-not-allowed shadow-none border-none">
-                        Кабинет исполнителя
-                    </button>
+                    <a href="/service-request/cabinet/" class="block w-full bg-indigo-700 hover:bg-indigo-800 text-white font-bold text-sm text-center py-3.5 rounded-xl transition-colors no-underline shadow-sm">
+                        Стать исполнителем
+                    </a>
                 </div>
             </div>
 
