@@ -443,7 +443,7 @@ def seller_login(request):
                 request.session.set_expiry(1209600)
             else:
                 request.session.set_expiry(0)
-            return redirect('seller_dashboard')
+            return redirect('dashboard_gateway')
         else:
             error_message = 'Неверный логин или пароль.'
 

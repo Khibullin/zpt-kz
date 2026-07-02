@@ -12,6 +12,7 @@ from urllib.parse import quote
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.files.base import ContentFile
@@ -1535,6 +1536,18 @@ def seller_landing(request):
     return render(request, 'core/seller_landing.html')
 
 
+@login_required
+def dashboard_gateway(request):
+    is_seller = (
+        SellerProfile.objects.filter(user=request.user).exists()
+        or Seller.objects.filter(whatsapp=request.user.username).exists()
+    )
+    if not is_seller:
+        messages.error(request, 'Доступ только для зарегистрированных продавцов.')
+        return redirect('seller_login')
+    return render(request, 'core/dashboard_gateway.html')
+
+
 def _seller_landing_form_redirect():
     return redirect(f"{reverse('seller_landing')}#register-form")
 
@@ -1613,7 +1626,7 @@ def register_seller(request):
     if user is not None:
         login(request, user)
         messages.success(request, 'Регистрация завершена. Добро пожаловать в личный кабинет!')
-        return redirect('seller_dashboard')
+        return redirect('dashboard_gateway')
 
     messages.warning(
         request,

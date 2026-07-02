@@ -9,6 +9,7 @@ from core.views import (
     view_request_status,
     seller_landing,
     register_seller,
+    dashboard_gateway,
 )
 
 from service_requests.views import (
@@ -25,6 +26,7 @@ urlpatterns = [
 
     path('prodavat/', seller_landing, name='seller_landing'),
     path('register/', register_seller, name='register_seller'),
+    path('cabinet/select/', dashboard_gateway, name='dashboard_gateway'),
 
     # PWA
     path('manifest.json', manifest_json, name='pwa_manifest'),
@@ -49,7 +51,8 @@ urlpatterns = [
         'request-parts/cabinet/',
         TemplateView.as_view(
             template_name='request-parts/cabinet/index.html'
-        )
+        ),
+        name='request_parts_cabinet',
     ),
 
     path(
