@@ -1538,18 +1538,11 @@ def seller_landing(request):
 
 def redirect_after_seller_auth():
     """Unified post-login/register destination for marketplace sellers."""
-    return redirect('dashboard_gateway')
+    return redirect(settings.SELLER_GATEWAY_URL)
 
 
-@login_required
+@login_required(login_url='/seller/login/')
 def dashboard_gateway(request):
-    is_seller = (
-        SellerProfile.objects.filter(user=request.user).exists()
-        or Seller.objects.filter(whatsapp=request.user.username).exists()
-    )
-    if not is_seller:
-        messages.error(request, 'Доступ только для зарегистрированных продавцов.')
-        return redirect('seller_login')
     return render(request, 'core/dashboard_gateway.html')
 
 
@@ -1631,7 +1624,7 @@ def register_seller(request):
     if user is not None:
         login(request, user)
         messages.success(request, 'Регистрация завершена. Добро пожаловать в личный кабинет!')
-        return redirect_after_seller_auth()
+        return redirect('/cabinet/select/')
 
     messages.warning(
         request,
