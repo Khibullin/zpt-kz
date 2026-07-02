@@ -15,83 +15,54 @@
 {% block content %}
 {% include 'includes/site_header_simple.html' %}
 
-<div id="business-gateway" class="bg-gray-50 min-h-[85vh] font-sans py-8 md:py-12 px-4 sm:px-6 lg:px-8 flex flex-col justify-center">
-    <div class="max-w-6xl mx-auto w-full min-w-0">
+<main id="business-gateway" class="bg-[#f2f4f7] min-h-[calc(100vh-56px)] font-sans py-4 md:py-8 px-3 sm:px-5 lg:px-8">
+  <div class="max-w-6xl mx-auto w-full min-w-0">
 
-        <!-- Header -->
-        <div class="text-center mb-8 md:mb-16 px-1">
-            <h1 class="text-2xl sm:text-3xl md:text-5xl font-black text-gray-950 tracking-tight mb-4">
-                Личные кабинеты автобизнеса ZPT.KZ
-            </h1>
-            <p class="text-sm md:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                Выберите нужное направление для работы, авторизации или регистрации вашей компании на платформе.
-            </p>
-        </div>
+    <header class="text-center mb-4 md:mb-6">
+      <h1 class="text-2xl md:text-4xl font-black text-gray-900 tracking-tight">
+        Личные кабинеты автобизнеса ZPT.KZ
+      </h1>
+      <p class="text-xs md:text-sm text-gray-500 max-w-lg mt-1 mx-auto leading-snug">
+        Выберите нужное направление для работы, авторизации или регистрации вашей компании на платформе.
+      </p>
+    </header>
 
-        <!-- Three Cards Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 items-stretch w-full min-w-0">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch w-full min-w-0">
 
-            <!-- CARD 1: REQUESTS / CORE -->
-            <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col justify-between group min-w-0 w-full box-border">
-                <div class="min-w-0">
-                    <div class="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:scale-105 transition-transform">
-                        📬
-                    </div>
-                    <h2 class="text-xl font-extrabold text-gray-950 mb-3 break-words">
-                        Получать заявки покупателей
-                    </h2>
-                    <p class="text-xs md:text-sm text-gray-600 leading-relaxed mb-6 break-words">
-                        Для продавцов запчастей, которые хотят оперативно получать горячие запросы от автовладельцев вашего города в мессенджер и продавать товары «здесь и сейчас».
-                    </p>
-                </div>
-                <div class="mt-4 w-full">
-                    <a href="/request-parts/cabinet/" class="block w-full text-center py-4 text-sm font-bold bg-[#ff3b30] hover:bg-[#e03126] text-white rounded-xl transition-colors no-underline shadow-sm box-border">
-                        Подключить заявки
-                    </a>
-                </div>
-            </div>
+      <article class="bg-white border border-gray-200/60 shadow-sm rounded-xl p-4 md:p-5 flex flex-col min-w-0 box-border">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-600 text-lg mb-3" aria-hidden="true">📬</span>
+        <h2 class="text-lg font-black text-gray-950 mb-1">Получать заявки покупателей</h2>
+        <p class="text-xs text-gray-600 leading-normal mb-4 flex-1">
+          Для продавцов запчастей, которые хотят оперативно получать горячие запросы от автовладельцев вашего города в мессенджер и продавать товары «здесь и сейчас».
+        </p>
+        <a href="/request-parts/cabinet/" class="mt-auto block w-full text-center py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide bg-[#ff3b30] hover:bg-[#e03126] text-white no-underline transition-colors">
+          Подключить заявки
+        </a>
+      </article>
 
-            <!-- CARD 2: MARKETPLACE / CATALOG -->
-            <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col justify-between group min-w-0 w-full box-border">
-                <div class="min-w-0">
-                    <div class="w-14 h-14 bg-red-50 text-[#ff3b30] rounded-xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:scale-105 transition-transform">
-                        📦
-                    </div>
-                    <h2 class="text-xl font-extrabold text-gray-950 mb-3 break-words">
-                        Продавать автозапчасти
-                    </h2>
-                    <p class="text-xs md:text-sm text-gray-600 leading-relaxed mb-6 break-words">
-                        Для магазинов и складов, которые хотят загружать прайс-листы, выставлять товары по артикулам и продавать запчасти напрямую через онлайн-каталог и корзину сайта.
-                    </p>
-                </div>
-                <div class="mt-4 w-full">
-                    <a href="{% url 'seller_login' %}" class="block w-full text-center py-4 text-sm font-bold bg-gray-900 hover:bg-gray-800 text-white rounded-xl transition-colors no-underline shadow-sm box-border">
-                        Открыть магазин
-                    </a>
-                </div>
-            </div>
+      <article class="bg-white border border-gray-200/60 shadow-sm rounded-xl p-4 md:p-5 flex flex-col min-w-0 box-border">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-[#ff3b30] text-lg mb-3" aria-hidden="true">📦</span>
+        <h2 class="text-lg font-black text-gray-950 mb-1">Продавать автозапчасти</h2>
+        <p class="text-xs text-gray-600 leading-normal mb-4 flex-1">
+          Для магазинов и складов, которые хотят загружать прайс-листы, выставлять товары по артикулам и продавать запчасти напрямую через онлайн-каталог и корзину сайта.
+        </p>
+        <a href="{% url 'seller_login' %}" class="mt-auto block w-full text-center py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide bg-gray-900 hover:bg-gray-800 text-white no-underline transition-colors">
+          Открыть магазин
+        </a>
+      </article>
 
-            <!-- CARD 3: SERVICES / STO -->
-            <div class="bg-white p-6 md:p-8 rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:border-gray-200 transition-all duration-300 flex flex-col justify-between group min-w-0 w-full box-border">
-                <div class="min-w-0">
-                    <div class="w-14 h-14 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:scale-105 transition-transform">
-                        🛠️
-                    </div>
-                    <h2 class="text-xl font-extrabold text-gray-950 mb-3 break-words">
-                        Получать клиентов на услуги
-                    </h2>
-                    <p class="text-xs md:text-sm text-gray-600 leading-relaxed mb-6 break-words">
-                        Для СТО, автомастерских, малярных цехов и студий детейлинга, которые хотят принимать целевые заказы на ремонт, техническое обслуживание и уход за автомобилями.
-                    </p>
-                </div>
-                <div class="mt-4 w-full">
-                    <a href="/service-request/cabinet/" class="block w-full text-center py-4 text-sm font-bold bg-indigo-700 hover:bg-indigo-800 text-white rounded-xl transition-colors no-underline shadow-sm box-border">
-                        Стать исполнителем
-                    </a>
-                </div>
-            </div>
+      <article class="bg-white border border-gray-200/60 shadow-sm rounded-xl p-4 md:p-5 flex flex-col min-w-0 box-border">
+        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 text-gray-700 text-lg mb-3" aria-hidden="true">🛠️</span>
+        <h2 class="text-lg font-black text-gray-950 mb-1">Получать клиентов на услуги</h2>
+        <p class="text-xs text-gray-600 leading-normal mb-4 flex-1">
+          Для СТО, автомастерских, малярных цехов и студий детейлинга, которые хотят принимать целевые заказы на ремонт, техническое обслуживание и уход за автомобилями.
+        </p>
+        <a href="/service-request/cabinet/" class="mt-auto block w-full text-center py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide bg-slate-800 hover:bg-slate-900 text-white no-underline transition-colors">
+          Стать исполнителем
+        </a>
+      </article>
 
-        </div>
     </div>
-</div>
+  </div>
+</main>
 {% endblock %}
