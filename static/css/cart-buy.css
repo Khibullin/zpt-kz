@@ -237,4 +237,17 @@
   .topbar-inner .market-cart-link span:not(.market-cart-badge):not(.market-cart-icon){
     display:none;
   }
+
+  .market-header-cabinet .seller-cabinet-icon{
+    display:none;
+  }
+
+  .market-header-cabinet .seller-cabinet-label{
+    display:inline !important;
+    font-size:10px;
+    line-height:1.25;
+    white-space:normal;
+    max-width:118px;
+    text-align:center;
+  }
 }

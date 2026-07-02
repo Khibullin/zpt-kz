@@ -1535,6 +1535,10 @@ def seller_landing(request):
     return render(request, 'core/seller_landing.html')
 
 
+def business_gateway(request):
+    return render(request, 'core/business_gateway.html')
+
+
 def _seller_landing_form_redirect():
     return redirect(f"{reverse('seller_landing')}#register-form")
 

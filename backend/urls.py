@@ -9,6 +9,7 @@ from core.views import (
     view_request_status,
     seller_landing,
     register_seller,
+    business_gateway,
 )
 
 from service_requests.views import (
@@ -25,6 +26,7 @@ urlpatterns = [
 
     path('prodavat/', seller_landing, name='seller_landing'),
     path('register/', register_seller, name='register_seller'),
+    path('business/', business_gateway, name='business_gateway'),
 
     # PWA
     path('manifest.json', manifest_json, name='pwa_manifest'),
