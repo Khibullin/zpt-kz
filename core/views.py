@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import re
+import threading
 import uuid
 import urllib.error
 import urllib.request
@@ -114,17 +115,56 @@ def _seller_template_body_params(req):
 
 
 def _buyer_template_body_params(req, sellers_count=0):
-    public_base_url = os.getenv('PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
-    request_url = f'{public_base_url}/my-request/{req.id}/'
+    car_info = ' '.join(
+        part for part in (req.brand or '', req.model or '') if part
+    ).strip() or '-'
     return [
-        _wa_template_param(req.id),
-        _wa_template_param(req.brand),
-        _wa_template_param(req.model),
-        _wa_template_param(req.category),
         _wa_template_param(sellers_count),
-        _wa_template_param(request_url),
         _wa_template_param(req.city),
+        _wa_template_param(car_info),
     ]
+
+
+def _send_buyer_whatsapp_notification(req, sellers_count):
+    buyer_template = getattr(
+        settings,
+        'WHATSAPP_BUYER_TEMPLATE_NAME',
+        None,
+    ) or os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME', 'zpt_buyer_request_created')
+    if not buyer_template:
+        return
+
+    send_whatsapp_template(
+        req.phone,
+        req,
+        'Покупатель',
+        template_name=buyer_template,
+        body_parameters=_buyer_template_body_params(
+            req,
+            sellers_count=sellers_count,
+        ),
+        include_image_header=False,
+    )
+
+
+def _send_buyer_whatsapp_notification_async(req, sellers_count):
+    request_id = req.id
+    buyer_phone = req.phone
+
+    def _worker():
+        try:
+            fresh_req = Request.objects.get(pk=request_id)
+            _send_buyer_whatsapp_notification(fresh_req, sellers_count)
+        except Exception as exc:
+            logger.error(
+                'Buyer WhatsApp notification failed for request #%s (%s): %s',
+                request_id,
+                buyer_phone,
+                exc,
+                exc_info=True,
+            )
+
+    threading.Thread(target=_worker, daemon=True).start()
 
 
 def _is_probably_image(uploaded_file):
@@ -948,21 +988,10 @@ def create_request(request):
         )
 
         try:
-            buyer_template = os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME', 'zpt_buyer_request_re')
-            if buyer_template:
-                send_whatsapp_template(
-                    req.phone,
-                    req,
-                    'Покупатель',
-                    template_name=buyer_template,
-                    body_parameters=_buyer_template_body_params(
-                        req,
-                        sellers_count=sellers_count,
-                    ),
-                )
+            _send_buyer_whatsapp_notification_async(req, sellers_count)
         except Exception as exc:
             logger.error(
-                'Buyer WhatsApp notification failed for request #%s: %s',
+                'Buyer WhatsApp background dispatch failed for request #%s: %s',
                 req.id,
                 exc,
                 exc_info=True,
