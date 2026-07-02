@@ -66,6 +66,40 @@
   display:none !important;
 }
 
+.market-mobile-business-btn{
+  display:none;
+  align-items:center;
+  gap:6px;
+  min-height:38px;
+  padding:0 12px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  color:#111827;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+  flex-shrink:0;
+  transition:border-color .18s ease, box-shadow .18s ease;
+}
+
+.market-mobile-business-btn:hover{
+  border-color:#ef3d2f;
+  box-shadow:0 0 0 3px rgba(239,61,47,.1);
+  color:#111827;
+}
+
+.market-mobile-business-icon{
+  font-size:14px;
+  line-height:1;
+}
+
+.market-header-cabinet--desktop{
+  display:inline-flex;
+}
+
 .product-buy-controls{
   display:grid;
   gap:8px;
@@ -205,6 +239,18 @@
     gap:4px;
   }
 
+  .market-mobile-business-btn{
+    display:inline-flex;
+    min-height:32px;
+    padding:6px 10px;
+    font-size:11px;
+    gap:4px;
+  }
+
+  .market-header-cabinet--desktop{
+    display:none !important;
+  }
+
   .seller-cabinet-btn,
   .market-header-cabinet{
     padding:6px 8px !important;
@@ -236,18 +282,5 @@
 
   .topbar-inner .market-cart-link span:not(.market-cart-badge):not(.market-cart-icon){
     display:none;
-  }
-
-  .market-header-cabinet .seller-cabinet-icon{
-    display:none;
-  }
-
-  .market-header-cabinet .seller-cabinet-label{
-    display:inline !important;
-    font-size:10px;
-    line-height:1.25;
-    white-space:normal;
-    max-width:118px;
-    text-align:center;
   }
 }

@@ -282,6 +282,45 @@ body{
   .b2c-request-banner{
     flex-direction:row;
     align-items:center;
+    text-align:left;
+  }
+}
+
+@media (max-width:767px){
+  .b2c-request-banner{
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:16px;
+    margin-bottom:16px;
+    gap:16px;
+    overflow:visible;
+  }
+
+  .b2c-request-banner-copy{
+    align-items:center;
+    text-align:center;
+    max-width:100%;
+    width:100%;
+  }
+
+  .b2c-request-banner-action{
+    width:100%;
+    margin:0;
+  }
+
+  .b2c-request-banner-btn{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:100%;
+    box-sizing:border-box;
+    white-space:normal;
+    padding:14px 16px;
+    min-height:48px;
+    font-size:.875rem;
+    font-weight:700;
   }
 }
 
@@ -670,9 +709,18 @@ body{
 
   .b2c-request-banner{
     flex-direction:column;
-    align-items:stretch;
-    text-align:left;
-    padding:18px 16px;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:16px;
+    gap:16px;
+  }
+
+  .b2c-request-banner-copy{
+    align-items:center;
+    text-align:center;
+    max-width:100%;
+    width:100%;
   }
 
   .b2c-request-banner-action{
@@ -680,8 +728,12 @@ body{
   }
 
   .b2c-request-banner-btn{
-    display:block;
+    display:flex;
     width:100%;
+    min-height:48px;
+    padding:14px 16px;
+    white-space:normal;
+    box-sizing:border-box;
   }
 
   .action-card{

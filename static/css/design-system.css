@@ -93,24 +93,8 @@ a.site-logo-link.market-brand,
   gap:0;
 }
 
-.market-mobile-seller-cta{
-  display:block;
-  margin-top:2px;
-  font-size:.75rem;
-  font-weight:600;
-  line-height:1.2;
-  color:#ff3b30;
-  text-decoration:none;
-  max-width:100%;
-}
-
-.market-mobile-seller-cta:hover{
-  color:#ff3b30;
-  text-decoration:underline;
-}
-
 @media (min-width:768px){
-  .market-mobile-seller-cta{
+  .market-mobile-business-btn{
     display:none !important;
   }
 }
