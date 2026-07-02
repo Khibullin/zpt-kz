@@ -12,7 +12,6 @@ from urllib.parse import quote
 from django.conf import settings
 from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.files.base import ContentFile
@@ -1536,16 +1535,6 @@ def seller_landing(request):
     return render(request, 'core/seller_landing.html')
 
 
-def redirect_after_seller_auth():
-    """Unified post-login/register destination for marketplace sellers."""
-    return redirect(settings.SELLER_GATEWAY_URL)
-
-
-@login_required(login_url='/seller/login/')
-def dashboard_gateway(request):
-    return render(request, 'core/dashboard_gateway.html')
-
-
 def _seller_landing_form_redirect():
     return redirect(f"{reverse('seller_landing')}#register-form")
 
@@ -1624,7 +1613,7 @@ def register_seller(request):
     if user is not None:
         login(request, user)
         messages.success(request, 'Регистрация завершена. Добро пожаловать в личный кабинет!')
-        return redirect('/cabinet/select/')
+        return redirect('seller_dashboard')
 
     messages.warning(
         request,

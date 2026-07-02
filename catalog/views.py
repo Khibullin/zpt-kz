@@ -427,9 +427,6 @@ def seller_register(request):
 
 
 def seller_login(request):
-    if request.user.is_authenticated:
-        return redirect('/cabinet/select/')
-
     error_message = None
     username = ''
     remember_me = False
@@ -446,7 +443,7 @@ def seller_login(request):
                 request.session.set_expiry(1209600)
             else:
                 request.session.set_expiry(0)
-            return redirect('/cabinet/select/')
+            return redirect('seller_dashboard')
         else:
             error_message = 'Неверный логин или пароль.'
 

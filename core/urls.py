@@ -26,7 +26,7 @@ urlpatterns = [
     path('my-request/<int:req_id>/', view_request_status, name='view_request_status'),
     path('create-seller/', create_seller, name='create_seller'),
 
-    path('seller-login/', seller_login, name='api_seller_login'),
+    path('seller-login/', seller_login, name='seller_login'),
     path('seller-logout/', seller_logout, name='seller_logout'),
     path('change-seller-password/', change_seller_password, name='change_seller_password'),
 
