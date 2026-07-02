@@ -15,54 +15,60 @@
 {% block content %}
 {% include 'includes/site_header_simple.html' %}
 
-<main id="business-gateway" class="bg-[#f2f4f7] min-h-[calc(100vh-56px)] font-sans py-4 md:py-8 px-3 sm:px-5 lg:px-8">
-  <div class="max-w-6xl mx-auto w-full min-w-0">
+<div id="business-gateway" class="bg-[#f2f4f7] min-h-0 py-4 md:py-6 px-3 md:px-4">
+  <div class="max-w-5xl mx-auto w-full">
 
-    <header class="text-center mb-4 md:mb-6">
-      <h1 class="text-2xl md:text-4xl font-black text-gray-900 tracking-tight">
+    <header class="text-center mb-6">
+      <h1 class="text-xl md:text-3xl font-black text-gray-900 tracking-tight text-center">
         Личные кабинеты автобизнеса ZPT.KZ
       </h1>
-      <p class="text-xs md:text-sm text-gray-500 max-w-lg mt-1 mx-auto leading-snug">
+      <p class="text-[11px] md:text-xs text-gray-500 text-center mt-1 mb-8 max-w-md mx-auto leading-normal">
         Выберите нужное направление для работы, авторизации или регистрации вашей компании на платформе.
       </p>
     </header>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch w-full min-w-0">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 max-w-5xl mx-auto w-full items-stretch">
 
-      <article class="bg-white border border-gray-200/60 shadow-sm rounded-xl p-4 md:p-5 flex flex-col min-w-0 box-border">
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-blue-50 text-blue-600 text-lg mb-3" aria-hidden="true">📬</span>
-        <h2 class="text-lg font-black text-gray-950 mb-1">Получать заявки покупателей</h2>
-        <p class="text-xs text-gray-600 leading-normal mb-4 flex-1">
-          Для продавцов запчастей, которые хотят оперативно получать горячие запросы от автовладельцев вашего города в мессенджер и продавать товары «здесь и сейчас».
-        </p>
-        <a href="/request-parts/cabinet/" class="mt-auto block w-full text-center py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide bg-[#ff3b30] hover:bg-[#e03126] text-white no-underline transition-colors">
+      <article class="p-3 md:p-5 bg-white border border-gray-200/50 rounded-xl shadow-sm flex flex-col justify-between min-w-0">
+        <div>
+          <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center text-base mb-3" aria-hidden="true">📬</div>
+          <h2 class="text-sm md:text-base font-black text-gray-950 mb-1">Получать заявки покупателей</h2>
+          <p class="text-[11px] md:text-xs text-gray-500 leading-normal mb-4">
+            Для продавцов запчастей, которые хотят оперативно получать горячие запросы от автовладельцев вашего города в мессенджер и продавать товары «здесь и сейчас».
+          </p>
+        </div>
+        <a href="/request-parts/cabinet/" class="w-full text-center py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all shadow-sm no-underline block bg-[#ff3b30] hover:bg-[#e03126] text-white">
           Подключить заявки
         </a>
       </article>
 
-      <article class="bg-white border border-gray-200/60 shadow-sm rounded-xl p-4 md:p-5 flex flex-col min-w-0 box-border">
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-red-50 text-[#ff3b30] text-lg mb-3" aria-hidden="true">📦</span>
-        <h2 class="text-lg font-black text-gray-950 mb-1">Продавать автозапчасти</h2>
-        <p class="text-xs text-gray-600 leading-normal mb-4 flex-1">
-          Для магазинов и складов, которые хотят загружать прайс-листы, выставлять товары по артикулам и продавать запчасти напрямую через онлайн-каталог и корзину сайта.
-        </p>
-        <a href="{% url 'seller_login' %}" class="mt-auto block w-full text-center py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide bg-gray-900 hover:bg-gray-800 text-white no-underline transition-colors">
+      <article class="p-3 md:p-5 bg-white border border-gray-200/50 rounded-xl shadow-sm flex flex-col justify-between min-w-0">
+        <div>
+          <div class="w-10 h-10 bg-red-50 text-[#ff3b30] rounded-full flex items-center justify-center text-base mb-3" aria-hidden="true">📦</div>
+          <h2 class="text-sm md:text-base font-black text-gray-950 mb-1">Продавать автозапчасти</h2>
+          <p class="text-[11px] md:text-xs text-gray-500 leading-normal mb-4">
+            Для магазинов и складов, которые хотят загружать прайс-листы, выставлять товары по артикулам и продавать запчасти напрямую через онлайн-каталог и корзину сайта.
+          </p>
+        </div>
+        <a href="{% url 'seller_login' %}" class="w-full text-center py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all shadow-sm no-underline block bg-gray-900 hover:bg-gray-800 text-white">
           Открыть магазин
         </a>
       </article>
 
-      <article class="bg-white border border-gray-200/60 shadow-sm rounded-xl p-4 md:p-5 flex flex-col min-w-0 box-border">
-        <span class="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gray-50 text-gray-700 text-lg mb-3" aria-hidden="true">🛠️</span>
-        <h2 class="text-lg font-black text-gray-950 mb-1">Получать клиентов на услуги</h2>
-        <p class="text-xs text-gray-600 leading-normal mb-4 flex-1">
-          Для СТО, автомастерских, малярных цехов и студий детейлинга, которые хотят принимать целевые заказы на ремонт, техническое обслуживание и уход за автомобилями.
-        </p>
-        <a href="/service-request/cabinet/" class="mt-auto block w-full text-center py-3 rounded-xl text-xs sm:text-sm font-bold tracking-wide bg-slate-800 hover:bg-slate-900 text-white no-underline transition-colors">
+      <article class="p-3 md:p-5 bg-white border border-gray-200/50 rounded-xl shadow-sm flex flex-col justify-between min-w-0">
+        <div>
+          <div class="w-10 h-10 bg-gray-100 text-gray-700 rounded-full flex items-center justify-center text-base mb-3" aria-hidden="true">🛠️</div>
+          <h2 class="text-sm md:text-base font-black text-gray-950 mb-1">Получать клиентов на услуги</h2>
+          <p class="text-[11px] md:text-xs text-gray-500 leading-normal mb-4">
+            Для СТО, автомастерских, малярных цехов и студий детейлинга, которые хотят принимать целевые заказы на ремонт, техническое обслуживание и уход за автомобилями.
+          </p>
+        </div>
+        <a href="/service-request/cabinet/" class="w-full text-center py-2.5 rounded-lg text-xs font-bold tracking-wide transition-all shadow-sm no-underline block bg-slate-700 hover:bg-slate-800 text-white">
           Стать исполнителем
         </a>
       </article>
 
     </div>
   </div>
-</main>
+</div>
 {% endblock %}
