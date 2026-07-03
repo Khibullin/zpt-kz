@@ -1277,6 +1277,14 @@ body{
   color:#004499 !important;
 }
 
+.seller-line{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  max-width:100%;
+}
+
 .product-v2 .card-seller-link .seller-card-logo,
 .card-seller-link .seller-card-logo{
   display:inline-flex !important;

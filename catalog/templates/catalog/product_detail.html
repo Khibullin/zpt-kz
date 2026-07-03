@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v1">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v2">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v3">
 {% endblock %}
 
@@ -152,16 +152,14 @@
               {% url 'public_seller_profile' seller.slug as seller_profile_url %}
               {% seller_avatar seller size="lg" link=seller_profile_url wrapper_class="seller-trust-profile-link" %}
             {% else %}
-              <div class="seller-card-logo">
-                <div class="seller-avatar seller-avatar--initials seller-avatar--lg" aria-label="{{ product.seller_name }}">{{ product.seller_name|seller_initials }}</div>
-              </div>
+              <div class="seller-avatar seller-avatar--initials seller-avatar--lg" aria-label="{{ product.seller_name }}">{{ product.seller_name|seller_initials }}</div>
             {% endif %}
 
             <div class="seller-card-info seller-trust-info">
             {% if seller %}
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"
-                class="seller-trust-name seller-trust-profile-link"
+                class="seller-card-name seller-trust-name seller-trust-profile-link"
               >
                 {{ seller.name }} ✓
               </a>
@@ -303,7 +301,7 @@
             <div class="seller-card-info detail-seller-body">
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"
-                class="detail-seller-title-link"
+                class="seller-card-name detail-seller-title-link"
               >
                 <h3>{{ seller.name }}</h3>
               </a>

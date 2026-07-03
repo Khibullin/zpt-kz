@@ -1,23 +1,27 @@
 {% load seller_extras %}
-{% if link %}
-<a href="{{ link }}" class="seller-card-logo{% if wrapper_class %} {{ wrapper_class }}{% endif %}"{% if title %} title="{{ title }}"{% endif %}>
-{% else %}
-<div class="seller-card-logo{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
-{% endif %}
-  {% if seller.logo %}
+{% if seller.logo %}
+  {% if link %}
+  <a
+    href="{{ link }}"
+    class="seller-card-logo seller-avatar-link{% if wrapper_class %} {{ wrapper_class }}{% endif %}"
+    {% if title %} title="{{ title }}"{% endif %}
+  >
+  {% else %}
+  <div class="seller-card-logo{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+  {% endif %}
     <img
       class="seller-avatar seller-avatar--logo seller-avatar--{{ size }}"
       src="{{ seller.logo.url }}"
       alt="Логотип {{ seller.name }}"
     >
+  {% if link %}
+  </a>
   {% else %}
-    <div
-      class="seller-avatar seller-avatar--initials seller-avatar--{{ size }}"
-      aria-label="{{ seller.name }}"
-    >{{ seller.name|seller_initials }}</div>
+  </div>
   {% endif %}
-{% if link %}
-</a>
 {% else %}
-</div>
+  <div
+    class="seller-avatar seller-avatar--initials seller-avatar--{{ size }}"
+    aria-label="{{ seller.name }}"
+  >{{ seller.name|seller_initials }}</div>
 {% endif %}

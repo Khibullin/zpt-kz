@@ -485,12 +485,12 @@
             <div class="seller-line">
 
               {% if product.seller and product.seller.slug %}
+                {% seller_avatar product.seller size="sm" %}
                 <a
                   href="{% url 'public_seller_profile' product.seller.slug %}"
                   class="card-seller-link"
                   title="Посмотреть профиль и все товары {{ product.seller.name }}"
                 >
-                  {% seller_avatar product.seller size="sm" %}
                   <span class="card-seller-name-text">{{ product.seller.name }}</span>
                   <span class="verification-badge">✓</span>
                 </a>

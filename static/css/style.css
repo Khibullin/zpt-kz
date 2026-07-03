@@ -648,7 +648,7 @@ a.btn-green.product-wa-btn:hover,
 }
 
 .seller-card-logo{
-  flex-shrink:0;
+  flex:0 0 auto;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -657,61 +657,82 @@ a.btn-green.product-wa-btn:hover,
 }
 
 .seller-avatar{
+  width:72px;
+  height:72px;
+  flex:0 0 72px;
   display:flex;
   align-items:center;
   justify-content:center;
-  box-sizing:border-box;
+  border-radius:18px;
   overflow:hidden;
+  box-sizing:border-box;
 }
 
-.seller-avatar--lg{
-  width:72px;
-  height:72px;
-  border-radius:16px;
+.seller-avatar--initials{
+  background:#fff1f0;
+  color:#ef3124;
+  font-size:26px;
+  line-height:1;
+  font-weight:800;
+  text-decoration:none;
+  letter-spacing:.02em;
+  border:1px solid #fde2e0;
 }
 
-.seller-avatar--sm{
-  width:20px;
-  height:20px;
-  min-width:20px;
-  min-height:20px;
-  border-radius:4px;
-}
-
-.seller-avatar--logo{
+.seller-avatar--logo,
+.seller-avatar img{
+  width:100%;
+  height:100%;
   object-fit:contain;
   object-position:center;
   background:#fff;
   border:1px solid #eee;
   padding:6px;
+  box-sizing:border-box;
 }
 
-.seller-avatar--initials{
-  background:#f8fafc;
-  border:1px solid #e2e8f0;
-  color:#c62828;
-  font-weight:800;
-  line-height:1;
-  letter-spacing:-0.02em;
-}
-
-.seller-avatar--lg.seller-avatar--initials{
-  font-size:24px;
+.seller-avatar--sm{
+  width:20px;
+  height:20px;
+  flex:0 0 20px;
+  border-radius:4px;
 }
 
 .seller-avatar--sm.seller-avatar--initials{
   font-size:9px;
+  letter-spacing:0;
+  border-width:1px;
+}
+
+.seller-card-name,
+a.seller-card-name{
+  display:inline-block;
+  font-weight:900;
+  font-size:16px;
+  color:inherit;
+  text-decoration:none;
+}
+
+a.seller-card-name:hover{
+  color:#2563eb;
+  text-decoration:none;
 }
 
 .seller-profile-logo-lg.public-seller-logo.seller-card-logo,
 .seller-profile-logo-lg.public-seller-logo{
   width:72px;
   height:72px;
-  border-radius:16px;
+  flex:0 0 72px;
+  border-radius:18px;
   border:1px solid #eee;
   background-color:#ffffff !important;
   overflow:hidden;
-  flex-shrink:0;
+}
+
+.seller-profile-logo-lg .seller-avatar--logo,
+.seller-profile-logo-lg .seller-avatar img{
+  border:none;
+  padding:6px;
 }
 
 .seller-profile-phone{
@@ -1700,15 +1721,17 @@ a.btn-green.product-wa-btn:hover,
   .seller-profile-logo-lg.public-seller-logo.seller-card-logo{
     width:64px;
     height:64px;
+    flex-basis:64px;
   }
 
-  .seller-avatar--lg{
+  .seller-avatar:not(.seller-avatar--sm){
     width:64px;
     height:64px;
+    flex-basis:64px;
   }
 
-  .seller-avatar--lg.seller-avatar--initials{
-    font-size:21px;
+  .seller-avatar--initials:not(.seller-avatar--sm){
+    font-size:23px;
   }
 
   .public-seller-profile-card,

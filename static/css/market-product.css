@@ -156,15 +156,21 @@ body{
   gap:14px;
 }
 
-.seller-trust-card .seller-card-logo.seller-trust-profile-link{
-  border-radius:16px;
+.seller-trust-card .seller-card-logo.seller-trust-profile-link,
+.seller-trust-card .seller-card-logo.seller-avatar-link{
+  border-radius:18px;
   border:1px solid #eee;
   transition:border-color .18s ease, box-shadow .18s ease;
 }
 
-.seller-trust-card .seller-card-logo.seller-trust-profile-link:hover{
+.seller-trust-card .seller-card-logo.seller-trust-profile-link:hover,
+.seller-trust-card .seller-card-logo.seller-avatar-link:hover{
   border-color:#2563eb;
   box-shadow:0 0 0 3px rgba(37,99,235,.12);
+}
+
+.seller-trust-card .seller-avatar--initials{
+  text-decoration:none;
 }
 
 .seller-trust-card .seller-trust-info{
@@ -467,13 +473,15 @@ a.seller-trust-name.seller-trust-profile-link:hover{
   align-items:flex-start;
 }
 
-.detail-seller-layout .seller-card-logo.detail-seller-profile-link{
+.detail-seller-layout .seller-card-logo.detail-seller-profile-link,
+.detail-seller-layout .seller-card-logo.seller-avatar-link{
   border:1px solid #eee;
-  border-radius:16px;
+  border-radius:18px;
   transition:border-color .18s ease, box-shadow .18s ease;
 }
 
-.detail-seller-layout .seller-card-logo.detail-seller-profile-link:hover{
+.detail-seller-layout .seller-card-logo.detail-seller-profile-link:hover,
+.detail-seller-layout .seller-card-logo.seller-avatar-link:hover{
   border-color:#2563eb;
   box-shadow:0 0 0 3px rgba(37,99,235,.12);
 }

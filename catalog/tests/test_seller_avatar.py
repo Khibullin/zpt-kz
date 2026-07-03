@@ -22,11 +22,17 @@ ZPT_LOGO_MARKERS = (
 
 
 def seller_avatar_blocks(html):
-    return re.findall(
-        r'<(?:a|div)\b[^>]*\bseller-card-logo\b[^>]*>.*?</(?:a|div)>',
+    blocks = re.findall(
+        r'<div\b[^>]*\bseller-avatar--initials\b[^>]*>.*?</div>',
         html,
         flags=re.S,
     )
+    blocks.extend(re.findall(
+        r'<(?:a|div)\b[^>]*\bseller-card-logo\b[^>]*>.*?</(?:a|div)>',
+        html,
+        flags=re.S,
+    ))
+    return blocks
 
 
 def assert_seller_blocks_have_no_zpt_logo(test_case, response):
