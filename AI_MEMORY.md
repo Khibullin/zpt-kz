@@ -14,7 +14,7 @@
 | **Request Parts** | `core` | Заявки покупателей на запчасти, волновая рассылка продавцам через Meta WhatsApp |
 | **ZPT Market** | `catalog` | Витрина запчастей, CRM продавца |
 | **Service Requests** | `service_requests` | Заявки на СТО / детейлинг |
-| **Orders** | `orders` | Корзина, checkout (Kaspi — mock) |
+| **Orders** | `orders` | Корзина, ручное оформление заказа, email администратору (без mock Kaspi и без WhatsApp для заказов) |
 
 Фронтенд: Django templates + vanilla JS + CSS в `static/`.  
 API: `/api/` (core), `/api/service/` (service_requests).
@@ -169,7 +169,19 @@ UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_cr
 
 ---
 
-## 6. Catalog — ZPT Market
+## 6b. Orders — ручное оформление (июль 2026)
+
+- **Правило корзины:** один продавец = одна корзина = один заказ (`Product.whatsapp_number` нормализуется)
+- **Checkout:** кнопка «Оформить заказ», статус `Order.STATUS_NEW`, без Kaspi mock
+- **Email:** `orders/email_notifications.py` → `send_order_admin_email()` на `ORDER_ADMIN_EMAIL`
+- **Страница успеха:** `/orders/<id>/<uuid>/success/` — защищена `access_token`, `noindex`
+- **Admin:** ручная смена статусов `new → confirmed → awaiting_payment → paid` или `cancelled`
+- **Не использовать:** Meta WhatsApp для заказов, `KaspiPayClient` в checkout, публичный mock payment URL
+- **Тесты:** `py manage.py test orders`
+
+---
+
+## 7. Catalog — ZPT Market
 
 - Главная, фильтры, карточки товаров
 - Кабинет продавца: `/seller/dashboard/`
@@ -180,7 +192,7 @@ UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_cr
 
 ---
 
-## 7. Service Requests
+## 8. Service Requests
 
 - API: `/api/service/`
 - WhatsApp шаблон исполнителям: `mp_request_v1` (отдельный flow)
@@ -188,7 +200,7 @@ UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_cr
 
 ---
 
-## 8. Frontend / JS
+## 9. Frontend / JS
 
 | Файл | Назначение |
 |------|------------|
@@ -203,7 +215,7 @@ UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_cr
 
 ---
 
-## 9. Безопасность
+## 10. Безопасность
 
 - CSRF на всех POST-формах
 - `SESSION_COOKIE_SECURE`, `CSRF_COOKIE_SECURE`, `SameSite=None` (prod)
@@ -214,7 +226,7 @@ UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_cr
 
 ---
 
-## 10. Git и деплой — правила для AI
+## 11. Git и деплой — правила для AI
 
 ### Commit
 
@@ -241,7 +253,7 @@ py manage.py test core
 
 ---
 
-## 11. Строгие запреты для AI
+## 12. Строгие запреты для AI
 
 - ❌ FastAPI, Pydantic, asyncio-фреймворки (если не просят явно)
 - ❌ Менять Meta WhatsApp-шаблон покупателя без согласования
@@ -254,7 +266,7 @@ py manage.py test core
 
 ---
 
-## 12. Структура файлов (шпаргалка)
+## 13. Структура файлов (шпаргалка)
 
 ```
 backend/           settings.py, urls.py, wsgi.py, pwa_views.py
@@ -275,10 +287,11 @@ products/          медиафайлы (gitignored)
 
 ---
 
-## 13. Недавние изменения (хронология)
+## 14. Недавние изменения (хронология)
 
 | Commit | Суть |
 |--------|------|
+| `6da6645` | AI_MEMORY.md — контекст проекта для AI-сессий |
 | `beee15a` | Buyer portal: UUID-ссылки, история заявок, список продавцов на странице заявки |
 | `c173abb` | Buyer WhatsApp `zpt_buyer_request_created` при создании заявки |
 | `d896cb1` | Mobile header: иконка business gateway |
@@ -286,7 +299,7 @@ products/          медиафайлы (gitignored)
 
 ---
 
-## 14. Следующий шаг (не реализовано)
+## 15. Следующий шаг (не реализовано)
 
 Когда Meta согласует **4-й body-параметр** или URL-кнопку в шаблоне `zpt_buyer_request_created`:
 
@@ -302,7 +315,7 @@ return [
 
 ---
 
-## 15. Локальная разработка
+## 16. Локальная разработка
 
 ```powershell
 python -m venv .venv

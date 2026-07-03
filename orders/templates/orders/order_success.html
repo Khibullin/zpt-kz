@@ -1,10 +1,14 @@
 {% extends 'base.html' %}
 {% load static humanize %}
 
-{% block title %}Заказ оформлен — ZPT Market{% endblock %}
+{% block title %}Заказ принят — ZPT Market{% endblock %}
+
+{% block extra_head %}
+<meta name="robots" content="noindex,nofollow">
+{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v1">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
 {% endblock %}
 
 {% block content %}
@@ -13,45 +17,58 @@
 <section class="section checkout-page">
   <div class="container">
     <div class="order-success-card">
-      <div class="order-success-badge">Оплата прошла успешно</div>
-      <h1>Спасибо за заказ!</h1>
-      <p style="color:#666;line-height:1.6;margin:12px 0 20px;">
-        Заказ №{{ order.id }} оплачен и передан на сборку поставщику.
-        Мы свяжемся с вами по номеру {{ order.customer_phone }}.
+      <div class="order-success-badge">Заказ принят</div>
+      <h1>Заказ №{{ order.id }} принят</h1>
+      <p class="order-success-lead">
+        Мы получили ваш заказ.<br>
+        Продавец свяжется с вами в WhatsApp, чтобы подтвердить наличие товара,
+        условия доставки и порядок оплаты.
       </p>
 
-      <div class="checkout-card" style="padding:18px;margin-bottom:20px;">
-        <h2 style="margin:0 0 12px;font-size:18px;">Доставка</h2>
-        <p style="margin:0;color:#444;line-height:1.6;">
-          <strong>{{ order.delivery_method_label }}</strong><br>
+      <div class="order-success-warning">
+        Не оплачивайте товар до подтверждения заказа продавцом.
+      </div>
+
+      <div class="checkout-card order-success-section">
+        <h2>Информация о заказе</h2>
+        <p class="order-success-meta">
+          <strong>Продавец:</strong> {{ order.seller_name|default:"—" }}<br>
+          <strong>Способ доставки:</strong> {{ order.delivery_method_label }}<br>
           {% if order.delivery_method == 'pickup' %}
-            Самовывоз: {{ warehouse_address }}
+            <strong>Адрес:</strong> {{ warehouse_address }}
           {% elif order.delivery_method == 'courier' %}
+            <strong>Адрес:</strong>
             {{ order.delivery_address.street }}, д. {{ order.delivery_address.house }}
             {% if order.delivery_address.apartment %}, кв. {{ order.delivery_address.apartment }}{% endif %}
           {% elif order.delivery_method == 'kz_delivery' %}
+            <strong>Доставка:</strong>
             {{ order.delivery_address.city }},
             {{ order.delivery_address.transport_company_label }}
           {% endif %}
         </p>
       </div>
 
-      <ul class="checkout-summary-list">
-        {% for item in order.items.all %}
-          <li class="checkout-summary-item">
-            <div class="checkout-summary-body">
-              <div class="checkout-summary-title">{{ item.product.title }}</div>
-              <div class="checkout-summary-meta">
-                {{ item.quantity }} × {{ item.price_at_purchase|intcomma }} ₸
+      <div class="checkout-card order-success-section">
+        <h2>Товары</h2>
+        <ul class="checkout-summary-list order-success-items">
+          {% for item in order.items.all %}
+            <li class="checkout-summary-item order-success-item">
+              <div class="checkout-summary-body">
+                <div class="checkout-summary-title">{{ item.product.title }}</div>
+                <div class="checkout-summary-meta">
+                  Артикул: {{ item.product.article|default:"—" }}<br>
+                  {{ item.quantity }} × {{ item.price_at_purchase|intcomma }} ₸ =
+                  {{ item.line_total|intcomma }} ₸
+                </div>
               </div>
-            </div>
-          </li>
-        {% endfor %}
-      </ul>
+            </li>
+          {% endfor %}
+        </ul>
 
-      <div class="checkout-summary-total">
-        <span>Оплачено</span>
-        <span>{{ order.total_price|intcomma }} ₸</span>
+        <div class="checkout-summary-total">
+          <span>Итого</span>
+          <span>{{ order.total_price|intcomma }} ₸</span>
+        </div>
       </div>
 
       <div class="checkout-actions">

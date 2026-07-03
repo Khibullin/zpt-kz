@@ -1,4 +1,5 @@
 import json
+import logging
 import traceback
 
 from django.contrib import messages
@@ -8,13 +9,15 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from catalog.models import Product
-from catalog.templatetags.phone_extras import format_phone
-from integrations.kaspi_pay import KaspiPayClient
 
 from .cart import CartManager
 from .constants import DEFAULT_WAREHOUSE_ADDRESS, TRANSPORT_COMPANIES
+from .email_notifications import send_order_admin_email
 from .forms import CheckoutForm
-from .models import Order, OrderItem, KaspiTransaction
+from .models import Order, OrderItem
+from .seller_utils import CartSellerConflictError, get_seller_snapshot_from_items
+
+logger = logging.getLogger(__name__)
 
 
 def _warehouse_address():
@@ -40,6 +43,22 @@ def _cart_json(cart, message=''):
 
 def _format_price_kzt(value):
     return f'{int(value):,}'.replace(',', ' ')
+
+
+def _seller_conflict_response(seller_name):
+    message = (
+        f'В корзине уже есть товары продавца «{seller_name}». '
+        f'Сначала оформите текущий заказ или очистите корзину.'
+    )
+    return JsonResponse(
+        {
+            'success': False,
+            'ok': False,
+            'error': 'В корзине уже есть товары другого продавца.',
+            'message': message,
+        },
+        status=409,
+    )
 
 
 def _read_cart_add_payload(request, path_product_id=None):
@@ -148,7 +167,10 @@ def api_cart_add(request, product_id=None):
                     status=404,
                 )
 
-            cart_manager.add(product_id=product.id, quantity=quantity)
+            try:
+                cart_manager.add(product_id=product.id, quantity=quantity)
+            except CartSellerConflictError as exc:
+                return _seller_conflict_response(exc.seller_name)
         else:
             product_data = data.get('product_data')
             if not product_data:
@@ -168,7 +190,10 @@ def api_cart_add(request, product_id=None):
                 )
 
             product = cart_manager.get_or_create_virtual_product(product_data)
-            cart_manager.add(product_id=product.id, quantity=quantity)
+            try:
+                cart_manager.add(product_id=product.id, quantity=quantity)
+            except CartSellerConflictError as exc:
+                return _seller_conflict_response(exc.seller_name)
 
         total_items = cart_manager.get_total_items()
         return JsonResponse({
@@ -323,7 +348,10 @@ def cart_update_quantity(request):
     if request_product_id and request_product_id != product.id:
         cart.remove(request_product_id)
 
-    cart.set_quantity(product.id, quantity)
+    try:
+        cart.set_quantity(product.id, quantity)
+    except CartSellerConflictError as exc:
+        return _seller_conflict_response(exc.seller_name)
 
     item_total = product.price * quantity
     cart_total = cart.get_total()
@@ -357,7 +385,26 @@ def checkout(request):
     if request.method == 'POST':
         form = CheckoutForm(request.POST)
         if form.is_valid():
+            try:
+                seller_snapshot = get_seller_snapshot_from_items(items)
+            except CartSellerConflictError as exc:
+                messages.error(
+                    request,
+                    (
+                        f'В корзине уже есть товары продавца «{exc.seller_name}». '
+                        f'Сначала оформите текущий заказ или очистите корзину.'
+                    ),
+                )
+                return redirect('orders:cart')
+
+            order = None
             with transaction.atomic():
+                current_items = cart.get_items()
+                if not current_items:
+                    messages.warning(request, 'Корзина пуста. Добавьте товары перед оформлением заказа.')
+                    return redirect('catalog_list')
+
+                seller_snapshot = get_seller_snapshot_from_items(current_items)
                 order = Order.objects.create(
                     user=request.user if request.user.is_authenticated else None,
                     customer_name=form.cleaned_data['customer_name'],
@@ -365,7 +412,9 @@ def checkout(request):
                     delivery_method=form.cleaned_data['delivery_method'],
                     delivery_address=form.build_delivery_address(),
                     total_price=cart.get_total(),
-                    status=Order.STATUS_PENDING_PAYMENT,
+                    seller_name=seller_snapshot['seller_name'],
+                    seller_whatsapp=seller_snapshot['seller_whatsapp'],
+                    status=Order.STATUS_NEW,
                 )
                 OrderItem.objects.bulk_create([
                     OrderItem(
@@ -374,12 +423,18 @@ def checkout(request):
                         quantity=item['quantity'],
                         price_at_purchase=item['product'].price,
                     )
-                    for item in items
+                    for item in current_items
                 ])
 
+            order_id = order.pk
+            access_token = order.access_token
+            transaction.on_commit(lambda: send_order_admin_email(order_id))
             cart.clear()
-            KaspiPayClient().create_invoice(order)
-            return redirect('orders:order_payment', order_id=order.pk)
+            return redirect(
+                'orders:order_success',
+                order_id=order_id,
+                access_token=access_token,
+            )
     else:
         initial = {}
         if request.user.is_authenticated:
@@ -398,41 +453,11 @@ def checkout(request):
     })
 
 
-@require_http_methods(['GET', 'POST'])
-def order_payment(request, order_id):
-    order = get_object_or_404(Order, pk=order_id)
-
-    if order.status == Order.STATUS_PAID:
-        return redirect('orders:order_success', order_id=order.pk)
-
-    if request.method == 'POST':
-        client = KaspiPayClient()
-        payload = client.build_mock_success_payload(order)
-
-        with transaction.atomic():
-            order.status = Order.STATUS_PAID
-            order.save(update_fields=['status', 'updated_at'])
-            KaspiTransaction.objects.create(
-                order=order,
-                kaspi_id=payload['transaction_id'],
-                status='SUCCESS',
-                raw_response=payload,
-            )
-
-        messages.success(request, 'Оплата прошла успешно. Заказ передан на сборку.')
-        return redirect('orders:order_success', order_id=order.pk)
-
-    formatted_phone = format_phone(order.customer_phone)
-    return render(request, 'orders/order_payment.html', {
-        'order': order,
-        'formatted_phone': formatted_phone,
-    })
-
-
-def order_success(request, order_id):
+def order_success(request, order_id, access_token):
     order = get_object_or_404(
         Order.objects.prefetch_related('items__product'),
         pk=order_id,
+        access_token=access_token,
     )
     return render(request, 'orders/order_success.html', {
         'order': order,

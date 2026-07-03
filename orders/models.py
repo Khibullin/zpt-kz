@@ -1,4 +1,5 @@
-from django.conf import settings
+import uuid
+
 from django.db import models
 from django.contrib.auth import get_user_model
 
@@ -7,15 +8,17 @@ User = get_user_model()
 
 class Order(models.Model):
     STATUS_NEW = 'new'
-    STATUS_PENDING_PAYMENT = 'pending_payment'
+    STATUS_CONFIRMED = 'confirmed'
+    STATUS_AWAITING_PAYMENT = 'awaiting_payment'
     STATUS_PAID = 'paid'
-    STATUS_CANCELED = 'canceled'
+    STATUS_CANCELLED = 'cancelled'
 
     STATUS_CHOICES = [
-        (STATUS_NEW, 'Новый / Создан'),
-        (STATUS_PENDING_PAYMENT, 'Ожидает оплаты Kaspi'),
-        (STATUS_PAID, 'Оплачен / Передан на сборку поставщику'),
-        (STATUS_CANCELED, 'Отменен'),
+        (STATUS_NEW, 'Новый'),
+        (STATUS_CONFIRMED, 'Подтверждён продавцом'),
+        (STATUS_AWAITING_PAYMENT, 'Ожидает оплаты'),
+        (STATUS_PAID, 'Оплачен'),
+        (STATUS_CANCELLED, 'Отменён'),
     ]
 
     DELIVERY_PICKUP = 'pickup'
@@ -38,6 +41,18 @@ class Order(models.Model):
     )
     customer_name = models.CharField(max_length=255, verbose_name='Имя покупателя')
     customer_phone = models.CharField(max_length=30, verbose_name='Телефон')
+    seller_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Продавец',
+    )
+    seller_whatsapp = models.CharField(
+        max_length=30,
+        blank=True,
+        default='',
+        verbose_name='WhatsApp продавца',
+    )
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -54,6 +69,12 @@ class Order(models.Model):
         default=dict,
         blank=True,
         verbose_name='Данные доставки',
+    )
+    access_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        verbose_name='Токен доступа',
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлен')

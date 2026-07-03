@@ -8,6 +8,7 @@ from catalog.models import Brand, Country, Product
 
 from .constants import SESSION_CART_KEY
 from .models import CartItem
+from .seller_utils import CartSellerConflictError, validate_product_for_cart
 
 
 class CartManager:
@@ -49,6 +50,13 @@ class CartManager:
     def add(self, product_id, quantity=1, accumulate=True):
         product_id = self._normalize_product_id(product_id)
         quantity = max(1, int(quantity))
+
+        product = Product.objects.filter(pk=product_id, status='active').first()
+        if not product:
+            raise ValueError('Product not found')
+
+        validate_product_for_cart(self.get_items(), product)
+
         if self.user:
             item, created = CartItem.objects.get_or_create(
                 user=self.user,
@@ -74,6 +82,13 @@ class CartManager:
         if quantity <= 0:
             self.remove(product_id)
             return
+
+        product = Product.objects.filter(pk=product_id, status='active').first()
+        if not product:
+            raise ValueError('Product not found')
+
+        if product_id not in self.get_product_quantities():
+            validate_product_for_cart(self.get_items(), product)
 
         if self.user:
             CartItem.objects.update_or_create(

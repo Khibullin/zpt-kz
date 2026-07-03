@@ -4,7 +4,7 @@
 {% block title %}Оформление заказа — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v1">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
 {% endblock %}
 
 {% block content %}
@@ -99,9 +99,14 @@
             </div>
           </div>
 
+          <p class="checkout-note">
+            После оформления продавец свяжется с вами в WhatsApp, подтвердит наличие товара,
+            доставку и порядок оплаты.
+          </p>
+
           <div class="checkout-actions">
             <a href="{% url 'orders:cart' %}" class="btn outline">Назад в корзину</a>
-            <button type="submit" class="btn red">Перейти к оплате Kaspi</button>
+            <button type="submit" class="btn red">Оформить заказ</button>
           </div>
         </form>
       </div>
@@ -126,7 +131,7 @@
           {% endfor %}
         </ul>
         <div class="checkout-summary-total">
-          <span>К оплате</span>
+          <span>Итого</span>
           <span>{{ cart_total|intcomma }} ₸</span>
         </div>
       </aside>

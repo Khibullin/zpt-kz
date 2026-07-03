@@ -176,6 +176,10 @@ EMAIL_USE_SSL = True
 EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', 'rkhaibullin@gmail.com')
 EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+ORDER_ADMIN_EMAIL = os.getenv(
+    'ORDER_ADMIN_EMAIL',
+    EMAIL_HOST_USER,
+)
 
 # WhatsApp / Meta API
 

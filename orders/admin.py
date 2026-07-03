@@ -19,16 +19,31 @@ class KaspiTransactionInline(admin.TabularInline):
 class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'created_at',
+        'seller_name',
         'customer_name',
         'customer_phone',
         'status',
         'total_price',
         'delivery_method',
-        'created_at',
     )
-    list_filter = ('status', 'delivery_method', 'created_at')
-    search_fields = ('customer_name', 'customer_phone', 'id')
-    readonly_fields = ('created_at', 'updated_at')
+    list_filter = ('status', 'seller_name', 'delivery_method', 'created_at')
+    search_fields = (
+        'id',
+        'seller_name',
+        'seller_whatsapp',
+        'customer_name',
+        'customer_phone',
+        'items__product__title',
+        'items__product__article',
+    )
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'access_token',
+        'seller_name',
+        'seller_whatsapp',
+    )
     inlines = [OrderItemInline, KaspiTransactionInline]
 
 
