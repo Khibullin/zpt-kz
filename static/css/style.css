@@ -647,7 +647,8 @@ a.btn-green.product-wa-btn:hover,
   overflow-wrap:anywhere;
 }
 
-.seller-card-logo{
+.seller-card-logo,
+.seller-logo-link{
   flex:0 0 auto;
   display:flex;
   align-items:center;
@@ -656,52 +657,37 @@ a.btn-green.product-wa-btn:hover,
   color:inherit;
 }
 
-.seller-avatar{
+.seller-logo{
+  display:block;
+  object-fit:contain;
+  object-position:center;
+  box-sizing:border-box;
+  background:#fff;
+  border:1px solid #eee;
+}
+
+.seller-logo--lg{
   width:72px;
   height:72px;
   flex:0 0 72px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
   border-radius:18px;
-  overflow:hidden;
-  box-sizing:border-box;
-}
-
-.seller-avatar--initials{
-  background:#fff1f0;
-  color:#ef3124;
-  font-size:26px;
-  line-height:1;
-  font-weight:800;
-  text-decoration:none;
-  letter-spacing:.02em;
-  border:1px solid #fde2e0;
-}
-
-.seller-avatar--logo,
-.seller-avatar img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  background:#fff;
-  border:1px solid #eee;
   padding:6px;
-  box-sizing:border-box;
 }
 
-.seller-avatar--sm{
+.seller-logo--sm{
   width:20px;
   height:20px;
   flex:0 0 20px;
   border-radius:4px;
+  padding:1px;
 }
 
-.seller-avatar--sm.seller-avatar--initials{
-  font-size:9px;
-  letter-spacing:0;
-  border-width:1px;
+.seller-logo--trust{
+  width:64px;
+  height:64px;
+  flex:0 0 64px;
+  border-radius:16px;
+  padding:4px;
 }
 
 .seller-card-name,
@@ -719,7 +705,8 @@ a.seller-card-name:hover{
 }
 
 .seller-profile-logo-lg.public-seller-logo.seller-card-logo,
-.seller-profile-logo-lg.public-seller-logo{
+.seller-profile-logo-lg.public-seller-logo,
+.seller-profile-logo-lg.public-seller-logo.seller-logo-link{
   width:72px;
   height:72px;
   flex:0 0 72px;
@@ -729,8 +716,9 @@ a.seller-card-name:hover{
   overflow:hidden;
 }
 
-.seller-profile-logo-lg .seller-avatar--logo,
-.seller-profile-logo-lg .seller-avatar img{
+.seller-profile-logo-lg .seller-logo--lg{
+  width:100%;
+  height:100%;
   border:none;
   padding:6px;
 }
@@ -1718,20 +1706,24 @@ a.seller-card-name:hover{
   }
 
   .seller-profile-logo-lg.public-seller-logo,
-  .seller-profile-logo-lg.public-seller-logo.seller-card-logo{
+  .seller-profile-logo-lg.public-seller-logo.seller-card-logo,
+  .seller-profile-logo-lg.public-seller-logo.seller-logo-link{
     width:64px;
     height:64px;
     flex-basis:64px;
   }
 
-  .seller-avatar:not(.seller-avatar--sm){
+  .seller-logo--lg{
     width:64px;
     height:64px;
     flex-basis:64px;
   }
 
-  .seller-avatar--initials:not(.seller-avatar--sm){
-    font-size:23px;
+  .seller-logo--trust{
+    width:56px;
+    height:56px;
+    flex-basis:56px;
+    border-radius:14px;
   }
 
   .public-seller-profile-card,

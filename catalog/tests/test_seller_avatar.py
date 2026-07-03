@@ -6,7 +6,6 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from catalog.models import Product, SellerProfile
-from catalog.seller_initials import seller_initials
 
 MINIMAL_PNG = (
     b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01'
@@ -20,53 +19,24 @@ ZPT_LOGO_MARKERS = (
     'images/logo.jpg',
 )
 
+INITIALS_MARKERS = (
+    'seller-avatar--initials',
+    'product-seller-avatar--initials',
+    'seller_initials',
+    '>GG<',
+    '>AP<',
+)
 
-def seller_avatar_blocks(html):
-    blocks = re.findall(
-        r'<div\b[^>]*\bseller-avatar--initials\b[^>]*>.*?</div>',
+
+def seller_logo_blocks(html):
+    return re.findall(
+        r'<img\b[^>]*\bseller-logo\b[^>]*>',
         html,
-        flags=re.S,
+        flags=re.I,
     )
-    blocks.extend(re.findall(
-        r'<(?:a|div)\b[^>]*\bseller-card-logo\b[^>]*>.*?</(?:a|div)>',
-        html,
-        flags=re.S,
-    ))
-    return blocks
 
 
-def assert_seller_blocks_have_no_zpt_logo(test_case, response):
-    blocks = seller_avatar_blocks(response.content.decode())
-    test_case.assertTrue(blocks, 'Expected at least one seller avatar block')
-    for block in blocks:
-        for marker in ZPT_LOGO_MARKERS:
-            test_case.assertNotIn(
-                marker,
-                block,
-                msg=f'ZPT logo marker {marker!r} found in seller avatar block',
-            )
-
-
-class SellerInitialsHelperTests(TestCase):
-    def test_gigant_group_initials(self):
-        self.assertEqual(seller_initials('Gigant Group'), 'GG')
-
-    def test_single_word_initials(self):
-        self.assertEqual(seller_initials('grm4x4'), 'G')
-
-    def test_cyrillic_initials(self):
-        self.assertEqual(seller_initials('Авто Мир'), 'АМ')
-
-    def test_skips_legal_prefix(self):
-        self.assertEqual(seller_initials('ТОО Gigant Group Kazakhstan'), 'GG')
-
-    def test_empty_name_returns_neutral_initial(self):
-        self.assertEqual(seller_initials(''), 'M')
-        self.assertEqual(seller_initials('   '), 'M')
-        self.assertEqual(seller_initials(None), 'M')
-
-
-class SellerAvatarDisplayTests(TestCase):
+class SellerLogoDisplayTests(TestCase):
     def setUp(self):
         self.client = Client()
 
@@ -106,6 +76,42 @@ class SellerAvatarDisplayTests(TestCase):
             city='Алматы',
         )
 
+    def _assert_no_initials(self, html):
+        for marker in INITIALS_MARKERS:
+            self.assertNotIn(
+                marker,
+                html,
+                msg=f'Unexpected initials marker {marker!r}',
+            )
+
+    def _assert_trust_card_has_no_zpt_logo(self, html):
+        match = re.search(
+            r'<div class="seller-trust-card">.*?</div>\s*</div>\s*</div>',
+            html,
+            flags=re.S,
+        )
+        if not match:
+            return
+        trust_card = match.group(0)
+        for marker in ZPT_LOGO_MARKERS:
+            self.assertNotIn(
+                marker,
+                trust_card,
+                msg=f'ZPT logo marker {marker!r} found in seller trust card',
+            )
+
+    def _assert_no_empty_avatar_containers(self, html):
+        self.assertNotRegex(
+            html,
+            r'product-seller-avatar',
+            msg='Empty product seller avatar container found',
+        )
+        self.assertNotRegex(
+            html,
+            r'seller-avatar--initials',
+            msg='Seller initials avatar container found',
+        )
+
     def test_seller_with_logo_shows_logo_on_product_page(self):
         seller = self._create_seller('grm4x4 Shop', '77001110001', with_logo=True)
         product = self._create_product(seller, 'logo-case')
@@ -115,11 +121,12 @@ class SellerAvatarDisplayTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'seller-avatar--logo')
-        self.assertContains(response, seller.logo.url)
-        self.assertNotContains(response, 'seller-avatar--initials')
+        html = response.content.decode()
+        self.assertIn('seller-logo', html)
+        self.assertIn(seller.logo.url, html)
+        self._assert_no_initials(html)
 
-    def test_seller_without_logo_shows_initials_not_zpt_logo(self):
+    def test_seller_without_logo_shows_no_logo_block_on_product_page(self):
         seller = self._create_seller('Gigant Group', '77001110002')
         product = self._create_product(seller, 'no-logo-case')
 
@@ -128,12 +135,14 @@ class SellerAvatarDisplayTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'seller-avatar--initials')
-        self.assertContains(response, '>GG<')
-        self.assertContains(response, 'aria-label="Gigant Group"')
-        assert_seller_blocks_have_no_zpt_logo(self, response)
+        html = response.content.decode()
+        self.assertIn('Gigant Group', html)
+        self.assertNotIn('seller-logo', html)
+        self._assert_no_initials(html)
+        self._assert_trust_card_has_no_zpt_logo(html)
+        self._assert_no_empty_avatar_containers(html)
 
-    def test_public_profile_without_logo_returns_200_with_initials(self):
+    def test_public_profile_without_logo_returns_200_without_logo(self):
         seller = self._create_seller('Gigant Group', '77001110003')
 
         response = self.client.get(
@@ -141,22 +150,31 @@ class SellerAvatarDisplayTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'seller-avatar--initials')
-        self.assertContains(response, '>GG<')
-        assert_seller_blocks_have_no_zpt_logo(self, response)
+        html = response.content.decode()
+        self.assertIn('Gigant Group', html)
+        self.assertNotIn('seller-logo', html)
+        self._assert_no_initials(html)
+        self._assert_trust_card_has_no_zpt_logo(html)
+        self._assert_no_empty_avatar_containers(html)
 
-    def test_catalog_list_without_logo_uses_initials_not_zpt_logo(self):
+    def test_catalog_list_without_logo_shows_name_without_logo(self):
         seller = self._create_seller('AG Parts', '77001110004')
         self._create_product(seller, 'catalog-case')
 
         response = self.client.get(reverse('home'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'seller-avatar--initials')
-        self.assertContains(response, '>AP<')
-        assert_seller_blocks_have_no_zpt_logo(self, response)
+        html = response.content.decode()
+        self.assertIn('AG Parts', html)
+        logo_blocks = seller_logo_blocks(html)
+        self.assertFalse(
+            any('AG Parts' in block for block in logo_blocks),
+            msg='Unexpected seller logo img for seller without logo',
+        )
+        self._assert_no_initials(html)
+        self._assert_no_empty_avatar_containers(html)
 
-    def test_seller_with_logo_still_renders_on_public_profile(self):
+    def test_seller_with_logo_still_renders_on_public_profile_and_product_page(self):
         seller = self._create_seller('Logo Seller', '77001110005', with_logo=True)
         product = self._create_product(seller, 'public-logo-case')
 
@@ -168,9 +186,12 @@ class SellerAvatarDisplayTests(TestCase):
         )
 
         self.assertEqual(profile_response.status_code, 200)
-        self.assertContains(profile_response, 'seller-avatar--logo')
+        self.assertContains(profile_response, 'seller-logo')
         self.assertContains(profile_response, seller.logo.url)
 
         self.assertEqual(product_response.status_code, 200)
-        self.assertContains(product_response, 'seller-avatar--logo')
+        self.assertContains(product_response, 'seller-logo')
         self.assertContains(product_response, seller.logo.url)
+
+        self._assert_no_initials(profile_response.content.decode())
+        self._assert_no_initials(product_response.content.decode())

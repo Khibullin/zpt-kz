@@ -1,41 +1,22 @@
-{% load seller_extras %}
-{% if bare %}
-  {% if seller.logo %}
-    <div class="seller-avatar seller-avatar--logo" aria-hidden="true">
-      <img
-        src="{{ seller.logo.url }}"
-        alt="Логотип {{ seller.name }}"
-      >
-    </div>
-  {% else %}
-    <div
-      class="seller-avatar seller-avatar--initials"
-      aria-label="{{ seller.name }}"
-    >{{ seller.name|seller_initials }}</div>
-  {% endif %}
-{% elif seller.logo %}
+{% if seller.logo %}
   {% if link %}
   <a
     href="{{ link }}"
-    class="seller-card-logo seller-avatar-link{% if wrapper_class %} {{ wrapper_class }}{% endif %}"
+    class="seller-logo-link{% if wrapper_class %} {{ wrapper_class }}{% endif %}"
     {% if title %} title="{{ title }}"{% endif %}
   >
-  {% else %}
-  <div class="seller-card-logo{% if wrapper_class %} {{ wrapper_class }}{% endif %}">
+  {% elif wrapper_class %}
+  <div class="{{ wrapper_class }}">
   {% endif %}
     <img
-      class="seller-avatar seller-avatar--logo seller-avatar--{{ size }}"
+      class="seller-logo seller-logo--{{ size }}"
       src="{{ seller.logo.url }}"
       alt="Логотип {{ seller.name }}"
+      {% if size == 'sm' %}loading="lazy"{% endif %}
     >
   {% if link %}
   </a>
-  {% else %}
+  {% elif wrapper_class %}
   </div>
   {% endif %}
-{% else %}
-  <div
-    class="seller-avatar seller-avatar--initials seller-avatar--{{ size }}"
-    aria-label="{{ seller.name }}"
-  >{{ seller.name|seller_initials }}</div>
 {% endif %}

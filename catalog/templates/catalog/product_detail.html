@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v4">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_logo_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v3">
 {% endblock %}
 
@@ -148,20 +148,12 @@
 
         <div class="seller-trust-card">
           <div class="product-seller-head">
-            {% if seller %}
-              {% if seller.logo %}
-                <div class="product-seller-avatar product-seller-avatar--logo" aria-hidden="true">
-                  <img src="{{ seller.logo.url }}" alt="Логотип {{ seller.name }}">
-                </div>
-              {% else %}
-                <div class="product-seller-avatar product-seller-avatar--initials" aria-label="{{ seller.name }}">
-                  {{ seller.name|seller_initials }}
-                </div>
-              {% endif %}
-            {% else %}
-              <div class="product-seller-avatar product-seller-avatar--initials" aria-label="{{ product.seller_name }}">
-                {{ product.seller_name|seller_initials }}
-              </div>
+            {% if seller and seller.logo %}
+              <img
+                class="seller-logo seller-logo--trust"
+                src="{{ seller.logo.url }}"
+                alt="Логотип {{ seller.name }}"
+              >
             {% endif %}
 
             <div class="product-seller-content">
