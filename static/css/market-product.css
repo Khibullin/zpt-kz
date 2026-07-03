@@ -152,54 +152,6 @@ body{
   margin:16px 0;
 }
 
-.seller-trust-card .product-seller-head{
-  display:flex;
-  align-items:flex-start;
-  gap:14px;
-  min-width:0;
-  width:100%;
-}
-
-.seller-trust-card .product-seller-head .seller-avatar{
-  width:64px;
-  height:64px;
-  flex:0 0 64px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border-radius:16px;
-  overflow:hidden;
-  box-sizing:border-box;
-}
-
-.seller-trust-card .product-seller-head .seller-avatar--initials{
-  background:#fff1f0;
-  color:#ef3124;
-  font-size:24px;
-  font-weight:800;
-  line-height:1;
-  text-decoration:none;
-  letter-spacing:.02em;
-  border:1px solid #fde2e0;
-}
-
-.seller-trust-card .product-seller-head .seller-avatar--logo,
-.seller-trust-card .product-seller-head .seller-avatar img{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  background:#fff;
-  border:1px solid #eee;
-  padding:4px;
-  box-sizing:border-box;
-}
-
-.seller-trust-card .product-seller-info{
-  flex:1;
-  min-width:0;
-}
-
 .seller-trust-card .seller-card-head{
   gap:14px;
 }
@@ -561,4 +513,74 @@ a.seller-trust-name.seller-trust-profile-link:hover{
 
 .detail-seller-profile-action{
   margin-top:18px;
+}
+
+/* Product page seller trust card — unique selectors (do not reuse seller-avatar) */
+.product-seller-head{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+}
+
+.product-seller-avatar{
+  width:64px;
+  height:64px;
+  min-width:64px;
+  flex:0 0 64px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  border-radius:16px;
+  background:#fff1f0;
+  box-sizing:border-box;
+}
+
+.product-seller-avatar--initials{
+  color:#ef3124;
+  font-size:24px;
+  line-height:1;
+  font-weight:800;
+  letter-spacing:.02em;
+  text-decoration:none;
+}
+
+.product-seller-avatar img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+}
+
+.product-seller-content{
+  min-width:0;
+  flex:1;
+}
+
+.product-seller-name{
+  display:inline-block;
+  font-weight:900;
+  font-size:16px;
+  color:inherit;
+  text-decoration:none;
+}
+
+a.product-seller-name:hover{
+  color:#2563eb;
+  text-decoration:none;
+}
+
+@media (max-width:640px){
+  .product-seller-avatar{
+    width:56px;
+    height:56px;
+    min-width:56px;
+    flex-basis:56px;
+    border-radius:14px;
+  }
+
+  .product-seller-avatar--initials{
+    font-size:21px;
+  }
 }

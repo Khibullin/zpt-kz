@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v3">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v4">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v3">
 {% endblock %}
 
@@ -149,16 +149,26 @@
         <div class="seller-trust-card">
           <div class="product-seller-head">
             {% if seller %}
-              {% seller_avatar seller bare=True %}
+              {% if seller.logo %}
+                <div class="product-seller-avatar product-seller-avatar--logo" aria-hidden="true">
+                  <img src="{{ seller.logo.url }}" alt="Логотип {{ seller.name }}">
+                </div>
+              {% else %}
+                <div class="product-seller-avatar product-seller-avatar--initials" aria-label="{{ seller.name }}">
+                  {{ seller.name|seller_initials }}
+                </div>
+              {% endif %}
             {% else %}
-              <div class="seller-avatar seller-avatar--initials" aria-label="{{ product.seller_name }}">{{ product.seller_name|seller_initials }}</div>
+              <div class="product-seller-avatar product-seller-avatar--initials" aria-label="{{ product.seller_name }}">
+                {{ product.seller_name|seller_initials }}
+              </div>
             {% endif %}
 
-            <div class="product-seller-info">
+            <div class="product-seller-content">
             {% if seller %}
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"
-                class="seller-card-name seller-trust-name seller-trust-profile-link"
+                class="product-seller-name"
               >
                 {{ seller.name }} ✓
               </a>
