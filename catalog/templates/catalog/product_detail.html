@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v2">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v3">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v3">
 {% endblock %}
 
@@ -147,15 +147,14 @@
         {% endif %}
 
         <div class="seller-trust-card">
-          <div class="seller-card-head">
+          <div class="product-seller-head">
             {% if seller %}
-              {% url 'public_seller_profile' seller.slug as seller_profile_url %}
-              {% seller_avatar seller size="lg" link=seller_profile_url wrapper_class="seller-trust-profile-link" %}
+              {% seller_avatar seller bare=True %}
             {% else %}
-              <div class="seller-avatar seller-avatar--initials seller-avatar--lg" aria-label="{{ product.seller_name }}">{{ product.seller_name|seller_initials }}</div>
+              <div class="seller-avatar seller-avatar--initials" aria-label="{{ product.seller_name }}">{{ product.seller_name|seller_initials }}</div>
             {% endif %}
 
-            <div class="seller-card-info seller-trust-info">
+            <div class="product-seller-info">
             {% if seller %}
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"

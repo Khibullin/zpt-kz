@@ -152,6 +152,54 @@ body{
   margin:16px 0;
 }
 
+.seller-trust-card .product-seller-head{
+  display:flex;
+  align-items:flex-start;
+  gap:14px;
+  min-width:0;
+  width:100%;
+}
+
+.seller-trust-card .product-seller-head .seller-avatar{
+  width:64px;
+  height:64px;
+  flex:0 0 64px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:16px;
+  overflow:hidden;
+  box-sizing:border-box;
+}
+
+.seller-trust-card .product-seller-head .seller-avatar--initials{
+  background:#fff1f0;
+  color:#ef3124;
+  font-size:24px;
+  font-weight:800;
+  line-height:1;
+  text-decoration:none;
+  letter-spacing:.02em;
+  border:1px solid #fde2e0;
+}
+
+.seller-trust-card .product-seller-head .seller-avatar--logo,
+.seller-trust-card .product-seller-head .seller-avatar img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  background:#fff;
+  border:1px solid #eee;
+  padding:4px;
+  box-sizing:border-box;
+}
+
+.seller-trust-card .product-seller-info{
+  flex:1;
+  min-width:0;
+}
+
 .seller-trust-card .seller-card-head{
   gap:14px;
 }

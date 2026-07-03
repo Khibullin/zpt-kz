@@ -1,5 +1,19 @@
 {% load seller_extras %}
-{% if seller.logo %}
+{% if bare %}
+  {% if seller.logo %}
+    <div class="seller-avatar seller-avatar--logo" aria-hidden="true">
+      <img
+        src="{{ seller.logo.url }}"
+        alt="Логотип {{ seller.name }}"
+      >
+    </div>
+  {% else %}
+    <div
+      class="seller-avatar seller-avatar--initials"
+      aria-label="{{ seller.name }}"
+    >{{ seller.name|seller_initials }}</div>
+  {% endif %}
+{% elif seller.logo %}
   {% if link %}
   <a
     href="{{ link }}"
