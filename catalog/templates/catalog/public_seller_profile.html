@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras %}
+{% load static humanize phone_extras seller_extras %}
 
 {% block title %}{{ seller.name }} — продавец ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_profile_cards_v2">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_avatar_v1">
 {% endblock %}
 
 {% block content %}
@@ -18,21 +18,17 @@
 
       <div class="seller-profile-card public-seller-profile-card">
         <div class="seller-profile-top-grid">
-          <div class="seller-profile-main">
-            <div class="public-seller-logo seller-profile-logo-lg">
-              {% if seller.logo %}
-                <img src="{{ seller.logo.url }}" alt="{{ seller.name }}">
-              {% else %}
-                <img src="{% static 'images/logo.jpg' %}" alt="{{ seller.name }}">
-              {% endif %}
-            </div>
+          <div class="seller-profile-main seller-card-head">
+            {% seller_avatar seller size="lg" wrapper_class="public-seller-logo seller-profile-logo-lg" %}
 
-            <div class="seller-profile-identity">
+            <div class="seller-card-info seller-profile-identity">
               <h1>{{ seller.name }}</h1>
 
               {% if seller.city %}
                 <p class="seller-profile-city">📍 {{ seller.city }}</p>
               {% endif %}
+
+              <p class="seller-profile-phone">📱 {{ seller.phone|format_phone }}</p>
 
               {% if seller.instagram or seller.website %}
                 <div class="public-seller-socials seller-trust-socials">

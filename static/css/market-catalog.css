@@ -1277,6 +1277,19 @@ body{
   color:#004499 !important;
 }
 
+.product-v2 .card-seller-link .seller-card-logo,
+.card-seller-link .seller-card-logo{
+  display:inline-flex !important;
+  vertical-align:middle !important;
+  margin-right:6px !important;
+  flex-shrink:0 !important;
+}
+
+.product-v2 .card-seller-link .seller-avatar--sm,
+.card-seller-link .seller-avatar--sm{
+  margin-right:0 !important;
+}
+
 .product-v2 .card-seller-link .card-seller-logo-mini,
 .card-seller-logo-mini{
   width:20px !important;

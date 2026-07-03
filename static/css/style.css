@@ -632,14 +632,93 @@ a.btn-green.product-wa-btn:hover,
   min-width:0;
 }
 
+.seller-card-head{
+  display:flex;
+  gap:14px;
+  align-items:flex-start;
+  min-width:0;
+  width:100%;
+}
+
+.seller-card-info{
+  flex:1;
+  min-width:0;
+  word-break:break-word;
+  overflow-wrap:anywhere;
+}
+
+.seller-card-logo{
+  flex-shrink:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-decoration:none;
+  color:inherit;
+}
+
+.seller-avatar{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  overflow:hidden;
+}
+
+.seller-avatar--lg{
+  width:72px;
+  height:72px;
+  border-radius:16px;
+}
+
+.seller-avatar--sm{
+  width:20px;
+  height:20px;
+  min-width:20px;
+  min-height:20px;
+  border-radius:4px;
+}
+
+.seller-avatar--logo{
+  object-fit:contain;
+  object-position:center;
+  background:#fff;
+  border:1px solid #eee;
+  padding:6px;
+}
+
+.seller-avatar--initials{
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  color:#c62828;
+  font-weight:800;
+  line-height:1;
+  letter-spacing:-0.02em;
+}
+
+.seller-avatar--lg.seller-avatar--initials{
+  font-size:24px;
+}
+
+.seller-avatar--sm.seller-avatar--initials{
+  font-size:9px;
+}
+
+.seller-profile-logo-lg.public-seller-logo.seller-card-logo,
 .seller-profile-logo-lg.public-seller-logo{
-  width:120px;
-  height:120px;
-  border-radius:50%;
+  width:72px;
+  height:72px;
+  border-radius:16px;
   border:1px solid #eee;
   background-color:#ffffff !important;
   overflow:hidden;
   flex-shrink:0;
+}
+
+.seller-profile-phone{
+  margin:0 0 10px;
+  color:#475569;
+  font-size:15px;
+  line-height:1.4;
 }
 
 .seller-profile-identity{
@@ -1617,9 +1696,19 @@ a.btn-green.product-wa-btn:hover,
     justify-content:center;
   }
 
-  .seller-profile-logo-lg.public-seller-logo{
-    width:96px;
-    height:96px;
+  .seller-profile-logo-lg.public-seller-logo,
+  .seller-profile-logo-lg.public-seller-logo.seller-card-logo{
+    width:64px;
+    height:64px;
+  }
+
+  .seller-avatar--lg{
+    width:64px;
+    height:64px;
+  }
+
+  .seller-avatar--lg.seller-avatar--initials{
+    font-size:21px;
   }
 
   .public-seller-profile-card,

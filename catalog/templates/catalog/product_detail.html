@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras product_extras %}
+{% load static humanize phone_extras product_extras seller_extras %}
 
 {% block title %}
 {{ product.title }}
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_related_v104">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_avatar_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v3">
 {% endblock %}
 
@@ -147,38 +147,17 @@
         {% endif %}
 
         <div class="seller-trust-card">
-          {% if seller %}
-            <a
-              href="{% url 'public_seller_profile' seller.slug %}"
-              class="seller-trust-logo seller-trust-profile-link"
-              title="Профиль продавца {{ seller.name }}"
-            >
-              {% if seller.logo %}
-                <img
-                  class="seller-trust-logo-img"
-                  src="{{ seller.logo.url }}"
-                  alt="{{ seller.name }}"
-                  onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
-                >
-              {% else %}
-                <img
-                  class="seller-trust-logo-img seller-trust-logo-img--fallback"
-                  src="{% static 'images/logo.png' %}"
-                  alt="{{ seller.name }}"
-                >
-              {% endif %}
-            </a>
-          {% else %}
-            <div class="seller-trust-logo">
-              <img
-                class="seller-trust-logo-img seller-trust-logo-img--fallback"
-                src="{% static 'images/logo.png' %}"
-                alt="ZPT Market"
-              >
-            </div>
-          {% endif %}
+          <div class="seller-card-head">
+            {% if seller %}
+              {% url 'public_seller_profile' seller.slug as seller_profile_url %}
+              {% seller_avatar seller size="lg" link=seller_profile_url wrapper_class="seller-trust-profile-link" %}
+            {% else %}
+              <div class="seller-card-logo">
+                <div class="seller-avatar seller-avatar--initials seller-avatar--lg" aria-label="{{ product.seller_name }}">{{ product.seller_name|seller_initials }}</div>
+              </div>
+            {% endif %}
 
-          <div class="seller-trust-info">
+            <div class="seller-card-info seller-trust-info">
             {% if seller %}
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"
@@ -242,6 +221,7 @@
                 {% endif %}
               </div>
             {% endif %}
+            </div>
           </div>
         </div>
 
@@ -316,45 +296,27 @@
         <h2>Продавец</h2>
 
         <div class="detail-seller-layout">
-          {% if seller %}
-            <a
-              href="{% url 'public_seller_profile' seller.slug %}"
-              class="detail-seller-logo detail-seller-profile-link"
-              title="Профиль продавца {{ seller.name }}"
-            >
-              {% if seller.logo %}
-                <img
-                  class="detail-seller-logo-img"
-                  src="{{ seller.logo.url }}"
-                  alt="{{ seller.name }}"
-                  onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
-                >
-              {% else %}
-                <img
-                  class="detail-seller-logo-img detail-seller-logo-img--fallback"
-                  src="{% static 'images/logo.png' %}"
-                  alt="{{ seller.name }}"
-                >
-              {% endif %}
-            </a>
-          {% endif %}
+          <div class="seller-card-head seller-card-head--detail">
+            {% url 'public_seller_profile' seller.slug as seller_profile_url %}
+            {% seller_avatar seller size="lg" link=seller_profile_url wrapper_class="detail-seller-profile-link" %}
 
-          <div class="detail-seller-body">
-            {% if seller %}
+            <div class="seller-card-info detail-seller-body">
               <a
                 href="{% url 'public_seller_profile' seller.slug %}"
                 class="detail-seller-title-link"
               >
                 <h3>{{ seller.name }}</h3>
               </a>
-            {% endif %}
 
-            {% if seller.city %}
-              <p>📍 {{ seller.city }}</p>
-            {% endif %}
+              {% if seller.city %}
+                <p>📍 {{ seller.city }}</p>
+              {% endif %}
 
-            <p>📱 {{ seller.phone|format_phone }}</p>
+              <p>📱 {{ seller.phone|format_phone }}</p>
+            </div>
+          </div>
 
+          <div class="detail-seller-extra">
             <a href="{% url 'public_seller_profile' seller.slug %}" class="seller-catalog-link">
               Все товары продавца →
             </a>
@@ -403,7 +365,6 @@
                 Смотреть профиль продавца
               </a>
             </div>
-
           </div>
         </div>
       </div>

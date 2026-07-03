@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras product_extras %}
+{% load static humanize phone_extras product_extras seller_extras %}
 
 {% block title %}Купить автозапчасти в Казахстане — новые и б/у запчасти | ZPT.KZ{% endblock %}
 
@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v116">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v117">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v5">
 <style>
 .market-topbar{
@@ -490,20 +490,7 @@
                   class="card-seller-link"
                   title="Посмотреть профиль и все товары {{ product.seller.name }}"
                 >
-                  {% if product.seller.logo %}
-                    <img
-                      src="{{ product.seller.logo.url }}"
-                      class="card-seller-logo-mini"
-                      alt="{{ product.seller.name }}"
-                      loading="lazy"
-                    >
-                  {% else %}
-                    <span class="card-seller-icon-placeholder" aria-hidden="true">
-                      <svg viewBox="0 0 24 24" width="10" height="10" focusable="false">
-                        <path fill="currentColor" d="M4 4h16v2H4V4zm0 4h16l-1 10H5L4 8zm4 2v6h2v-6H8zm4 0v6h2v-6h-2z"/>
-                      </svg>
-                    </span>
-                  {% endif %}
+                  {% seller_avatar product.seller size="sm" %}
                   <span class="card-seller-name-text">{{ product.seller.name }}</span>
                   <span class="verification-badge">✓</span>
                 </a>
