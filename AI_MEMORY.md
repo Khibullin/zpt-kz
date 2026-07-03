@@ -1,6 +1,6 @@
 # AI_MEMORY — ZPT.KZ
 
-> Памятка для AI-ассистентов и разработчиков. Обновлено: июнь 2026.  
+> Памятка для AI-ассистентов и разработчиков. Обновлено: июль 2026.
 > Репозиторий: `Khibullin/zpt-kz`. Продакшн: **https://zpt.kz** (Render: `zpt-kz-backend`).
 
 ---
@@ -42,8 +42,8 @@ API: `/api/` (core), `/api/service/` (service_requests).
 - `DATABASE_URL`
 - `WHATSAPP_ACCESS_TOKEN` / `WHATSAPP_TOKEN`
 - `WHATSAPP_PHONE_NUMBER_ID` / `META_PHONE_NUMBER_ID`
-- `WHATSAPP_TEMPLATE_NAME` — продавцам (default: `mp_request_v1`)
-- `WHATSAPP_BUYER_TEMPLATE_NAME` — покупателю (default: `zpt_buyer_request_created`)
+- `WHATSAPP_TEMPLATE_NAME` — продавцам (default в коде: `mp_request_v1`; **prod Render:** `zpt_request_notification`)
+- `WHATSAPP_BUYER_TEMPLATE_NAME` — покупателю (default: `zpt_buyer_request_receipt`; **prod Render:** `zpt_buyer_request_receipt`)
 - `WHATSAPP_TEMPLATE_LANG` — locale шаблона Meta (default: `ru`)
 - `PUBLIC_BASE_URL` — default: `https://zpt.kz`
 
@@ -97,33 +97,56 @@ API: `/api/` (core), `/api/service/` (service_requests).
 - **Только для продавцов.** Не использовать для buyer-уведомлений.
 - **Не менять без явной необходимости.**
 
+### WhatsApp — Meta (аккаунт **Market Parts**)
+
 ### WhatsApp — продавцы
 
 - `send_whatsapp_template()` — Meta Cloud API через `urllib.request`
-- Шаблон: `WHATSAPP_TEMPLATE_NAME` (`mp_request_v1`)
+- Шаблон на prod (Render `zpt-kz-backend`): **`zpt_request_notification`** (`WHATSAPP_TEMPLATE_NAME`)
+- Default в коде: `mp_request_v1` — на prod переопределяется ENV
 - Параметры: `_seller_template_body_params()` — 7 body params
+- Рассылка: `_build_dispatch_queue()` + `dispatch_request_waves.py` — **только продавцы**
+- **Не изменялся** при интеграции buyer receipt (commit `2fc055d`)
 
-### WhatsApp — покупатель
+### WhatsApp — покупатель (✅ prod, заявка №349, июль 2026)
 
-- Шаблон: `zpt_buyer_request_created` (`WHATSAPP_BUYER_TEMPLATE_NAME`)
-- Функция: `_buyer_template_body_params(req, sellers_count)` — **3 body params**:
-  1. `sellers_count`
-  2. `city`
-  3. `brand + model`
+- Аккаунт Meta: **Market Parts**
+- Шаблон: **`zpt_buyer_request_receipt`** (`WHATSAPP_BUYER_TEMPLATE_NAME`)
+- Язык шаблона: **`ru`** (`WHATSAPP_TEMPLATE_LANG`)
+- Render ENV (`zpt-kz-backend`): `WHATSAPP_BUYER_TEMPLATE_NAME=zpt_buyer_request_receipt`
+- Триггер: `create_request()` → `_send_buyer_whatsapp_notification_async()` (фоновый thread)
+- Функции: `_buyer_template_body_params()`, `_buyer_template_button_components()` в `core/views.py`
+- **Production-проверка:** заявка **№349** — все 5 body-параметров и обе URL-кнопки работают корректно
+- Seller-рассылка и `dispatch_request_waves.py` **не затрагивались**
 
-**⚠️ СТРОГО: не менять Meta-шаблон и `_buyer_template_body_params()` без отдельного согласования пользователя:**
-- название шаблона, язык, категорию, количество компонентов, текст
-- не добавлять HEADER, BUTTON и другие компоненты
-- не отправлять новые ссылки в WhatsApp до согласования
+**Body-параметры (5):**
 
-Подготовленные URL-хелперы (для будущего WhatsApp) — `core/buyer_portal.py`:
-- `request_page_url(req, with_utm=True)`
-- `buyer_history_url(req, with_utm=True)`
-- `home_page_url(with_utm=True)`
-- `new_request_url(with_utm=True)`
-- `repeat_request_url(req, with_utm=True)`
+1. ID заявки (`req.id`)
+2. Автомобиль (`brand + model`)
+3. Категория (`req.category`)
+4. Город (`req.city`)
+5. Количество продавцов (`sellers_count`)
+
+**Dynamic URL-кнопки в payload:**
+
+| Кнопка | index | suffix | Итоговый URL |
+|--------|-------|--------|--------------|
+| «Открыть заявку» | 0 | `{request_id}/{buyer_access_uuid}/` | `/my-request/<request_id>/<buyer_access_uuid>/` |
+| «Мои заявки» | 1 | `{buyer_access_uuid}/` | `/my-requests/<buyer_access_uuid>/` |
+
+Helpers (`core/buyer_portal.py`):
+
+- `buyer_request_whatsapp_url_suffix(req)` — suffix для кнопки заявки
+- `buyer_history_whatsapp_url_suffix(req)` — suffix для истории (через `ensure_buyer_portal_access`)
+- `request_page_url(req, with_utm=True)` — полный URL страницы заявки
+- `buyer_history_url(req, with_utm=True)` — полный URL истории
+- `home_page_url(with_utm=True)`, `new_request_url(...)`, `repeat_request_url(req, with_utm=True)`
 
 UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_created`
+
+**⚠️ СТРОГО: не менять Meta-шаблон покупателя и `_buyer_template_body_params()` / URL-кнопки без отдельного согласования пользователя.**
+
+Подготовленные URL-хелперы — `core/buyer_portal.py` (см. выше).
 
 ---
 
@@ -185,10 +208,50 @@ UTM: `utm_source=whatsapp&utm_medium=transactional&utm_campaign=buyer_request_cr
 
 - Главная, фильтры, карточки товаров
 - Кабинет продавца: `/seller/dashboard/`
-- CSS: `market-catalog.css`, `style.css`, `design-system.css`
-- Cache-bust: `?v=...` в шаблонах
+- Публичный профиль продавца: route `public_seller_profile` (slug)
+- CSS: `market-catalog.css`, `market-product.css`, `style.css`, `design-system.css`
+- Cache-bust: `?v=...` в шаблонах (см. ниже)
 - Справочник марок/моделей: `core/vehicle_catalog.py`
 - Синхронизация: `python manage.py import_car_catalog_kz`
+
+### Отображение логотипа продавца (commit `6006861`, июль 2026)
+
+**Финальное правило — «логотип или ничего»:**
+
+| Условие | Поведение |
+|---------|-----------|
+| `seller.logo` есть | Показать `<img class="seller-logo seller-logo--{size}">` |
+| `seller.logo` нет | Ничего не показывать: без инициалов, без ZPT-заглушки, без пустого div/колонки |
+
+**Удалено (не восстанавливать без явного запроса):**
+
+- `catalog/seller_initials.py` — helper инициалов (GG, AP и т.д.)
+- filter `seller_initials` в templatetags
+- CSS-классы: `.seller-avatar--initials`, `.product-seller-avatar--initials`, `.card-seller-icon-placeholder`
+- fallback с логотипом ZPT.KZ вместо отсутствующего логотипа продавца
+
+**Актуальная реализация:**
+
+- Inclusion tag: `{% seller_avatar seller size="lg|sm" link=... wrapper_class=... %}` в `catalog/templatetags/seller_extras.py`
+- Шаблон: `catalog/templates/catalog/includes/seller_avatar.html` — выводит только img при наличии `seller.logo`
+- Trust card на странице товара (`product_detail.html`): inline `{% if seller.logo %}<img class="seller-logo seller-logo--trust">{% endif %}`
+- Места использования: карточка каталога (`catalog_list.html`), страница товара, публичный профиль (`public_seller_profile.html`)
+
+**CSS-классы логотипа (компактно, `object-fit: contain`):**
+
+| Класс | Размер | Где |
+|-------|--------|-----|
+| `.seller-logo--trust` | 64×64 (56 mobile) | Trust card на странице товара |
+| `.seller-logo--lg` | 72×72 (64 mobile) | Профиль, блок «Продавец» на detail |
+| `.seller-logo--sm` | 20×20 | Строка продавца в карточке каталога |
+
+**Cache-bust (актуальные версии):**
+
+- `style.css?v=seller_logo_v1` — `base.html`, `public_seller_profile.html`
+- `market-product.css?v=seller_logo_v1` — `product_detail.html`
+- `market-catalog.css?v=market_v118` — `catalog_list.html`
+
+**Тесты:** `catalog/tests/test_seller_avatar.py` — логотип показывается только при `seller.logo`; без логотипа нет img, инициалов и пустых контейнеров. Запуск: `py manage.py test catalog` (нужен `DEBUG=true` или `SECRET_KEY` локально).
 
 ---
 
@@ -277,6 +340,9 @@ core/
   urls.py          /api/* routes
   tests/           test_buyer_portal.py
 catalog/           Market, seller CRM
+  templatetags/seller_extras.py   inclusion tag seller_avatar (только logo)
+  templates/catalog/includes/seller_avatar.html
+  tests/test_seller_avatar.py
 service_requests/  СТО / детейлинг
 orders/            корзина, checkout
 templates/         request-parts/, service-request/, request_status.html, ...
@@ -291,6 +357,8 @@ products/          медиафайлы (gitignored)
 
 | Commit | Суть |
 |--------|------|
+| `2fc055d` | Buyer WhatsApp `zpt_buyer_request_receipt`: 5 body params + 2 URL-кнопки; prod OK на заявке №349 |
+| `6006861` | Удалены fallback-инициалы продавца; правило «логотип или ничего»; удалён `seller_initials.py`; CSS `.seller-logo--*` |
 | `6da6645` | AI_MEMORY.md — контекст проекта для AI-сессий |
 | `beee15a` | Buyer portal: UUID-ссылки, история заявок, список продавцов на странице заявки |
 | `c173abb` | Buyer WhatsApp `zpt_buyer_request_created` при создании заявки |
@@ -301,10 +369,12 @@ products/          медиафайлы (gitignored)
 
 ## 15. Следующий шаг (не реализовано)
 
-Когда Meta согласует **4-й body-параметр** или URL-кнопку в шаблоне `zpt_buyer_request_created`:
+Buyer WhatsApp receipt (`zpt_buyer_request_receipt`, 5 params + 2 URL-кнопки) — **реализовано и проверено на prod** (commit `2fc055d`, заявка №349). Дальнейшие изменения Meta-шаблона покупателя — только по согласованию.
+
+Историческая заметка (до `2fc055d`): планировался 4-й body-параметр со ссылкой на страницу заявки — вместо этого одобрены dynamic URL-кнопки в шаблоне Meta.
 
 ```python
-# Пример будущего изменения _buyer_template_body_params() — НЕ ПРИМЕНЯТЬ БЕЗ СОГЛАСОВАНИЯ
+# Устаревший пример — НЕ ПРИМЕНЯТЬ (заменён на URL-кнопки в zpt_buyer_request_receipt)
 return [
     _wa_template_param(sellers_count),
     _wa_template_param(req.city),
