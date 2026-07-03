@@ -129,6 +129,17 @@ def buyer_history_url(req, with_utm=False):
     return _absolute_url(relative, with_utm=with_utm)
 
 
+def buyer_request_whatsapp_url_suffix(req):
+    return f'{req.id}/{req.access_token}/'
+
+
+def buyer_history_whatsapp_url_suffix(req):
+    portal = ensure_buyer_portal_access(req.phone)
+    if not portal:
+        return '-'
+    return f'{portal.access_token}/'
+
+
 def home_page_url(with_utm=False):
     return _absolute_url(reverse('home'), with_utm=with_utm)
 

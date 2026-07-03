@@ -30,6 +30,8 @@ from .buyer_portal import (
     REQUEST_STATUS_LABELS,
     build_request_sellers,
     buyer_history_url,
+    buyer_history_whatsapp_url_suffix,
+    buyer_request_whatsapp_url_suffix,
     buyer_requests_queryset,
     ensure_buyer_portal_access,
     home_page_url,
@@ -130,9 +132,32 @@ def _buyer_template_body_params(req, sellers_count=0):
         part for part in (req.brand or '', req.model or '') if part
     ).strip() or '-'
     return [
-        _wa_template_param(sellers_count),
-        _wa_template_param(req.city),
+        _wa_template_param(req.id),
         _wa_template_param(car_info),
+        _wa_template_param(req.category),
+        _wa_template_param(req.city),
+        _wa_template_param(sellers_count),
+    ]
+
+
+def _buyer_template_button_components(req):
+    return [
+        {
+            'type': 'button',
+            'sub_type': 'url',
+            'index': '0',
+            'parameters': [
+                _wa_template_param(buyer_request_whatsapp_url_suffix(req)),
+            ],
+        },
+        {
+            'type': 'button',
+            'sub_type': 'url',
+            'index': '1',
+            'parameters': [
+                _wa_template_param(buyer_history_whatsapp_url_suffix(req)),
+            ],
+        },
     ]
 
 
@@ -141,7 +166,7 @@ def _send_buyer_whatsapp_notification(req, sellers_count):
         settings,
         'WHATSAPP_BUYER_TEMPLATE_NAME',
         None,
-    ) or os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME', 'zpt_buyer_request_created')
+    ) or os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME', 'zpt_buyer_request_receipt')
     if not buyer_template:
         return
 
@@ -154,6 +179,7 @@ def _send_buyer_whatsapp_notification(req, sellers_count):
             req,
             sellers_count=sellers_count,
         ),
+        button_components=_buyer_template_button_components(req),
         include_image_header=False,
     )
 
@@ -378,6 +404,7 @@ def send_whatsapp_template(
     *,
     template_name=None,
     body_parameters=None,
+    button_components=None,
     include_image_header=None,
 ):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
@@ -457,6 +484,9 @@ def send_whatsapp_template(
         'type': 'body',
         'parameters': body_parameters or _seller_template_body_params(req),
     })
+
+    if button_components:
+        components.extend(button_components)
 
     payload = {
         'messaging_product': 'whatsapp',
