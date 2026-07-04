@@ -111,7 +111,7 @@ def _request_page_url(req):
 def _description_with_request_link(req):
     page_url = _request_page_url(req)
     description = (req.description or '-').strip()
-    combined = f'{description} Смотреть заявку: {page_url}'
+    combined = f'{description}\n\n👉 Смотреть заявку:\n{page_url}'
     return combined[:500]
 
 
