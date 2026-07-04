@@ -98,22 +98,6 @@ def _wa_template_param(value):
     }
 
 
-def _wa_template_param_multiline(value):
-    text = str(value or '-')
-    text = text.replace('\r\n', '\n').replace('\r', '\n')
-    lines = []
-    for line in text.split('\n'):
-        line = re.sub(r'[ \t]+', ' ', line).strip()
-        lines.append(line)
-    text = '\r\n'.join(lines).strip()
-    text = text[:500]
-
-    return {
-        'type': 'text',
-        'text': text if text else '-',
-    }
-
-
 def _public_media_url(relative_url):
     base = os.getenv('PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
     path = relative_url if relative_url.startswith('/') else f'/{relative_url}'
@@ -127,7 +111,7 @@ def _request_page_url(req):
 def _description_with_request_link(req):
     page_url = _request_page_url(req)
     description = (req.description or '-').strip()
-    combined = f'{description}\r\n\r\n👉 Смотреть заявку:\r\n{page_url}'
+    combined = f'{description} | 🔗 Открыть заявку: {page_url}'
     return combined[:500]
 
 
@@ -138,7 +122,7 @@ def _seller_template_body_params(req):
         _wa_template_param(req.model),
         _wa_template_param(req.category),
         _wa_template_param(req.city),
-        _wa_template_param_multiline(_description_with_request_link(req)),
+        _wa_template_param(_description_with_request_link(req)),
         _wa_template_param(_format_whatsapp_display(req.phone)),
     ]
 
