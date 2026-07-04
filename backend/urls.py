@@ -12,6 +12,7 @@ from core.views import (
     seller_landing,
     register_seller,
     business_gateway,
+    short_request_redirect,
 )
 
 from service_requests.views import (
@@ -29,6 +30,12 @@ urlpatterns = [
     path('prodavat/', seller_landing, name='seller_landing'),
     path('register/', register_seller, name='register_seller'),
     path('business/', business_gateway, name='business_gateway'),
+
+    path(
+        'r/<int:pk>/<str:token>/',
+        short_request_redirect,
+        name='short_request_redirect',
+    ),
 
     # PWA
     path('manifest.json', manifest_json, name='pwa_manifest'),

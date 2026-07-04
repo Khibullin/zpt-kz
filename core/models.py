@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils.crypto import get_random_string
 
 
 TRANSPORT_CHOICES = [
@@ -179,6 +180,14 @@ class Request(models.Model):
         verbose_name='Токен доступа покупателя',
     )
 
+    short_token = models.CharField(
+        max_length=12,
+        unique=True,
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
@@ -186,6 +195,19 @@ class Request(models.Model):
 
     def __str__(self):
         return f"{self.brand} {self.model} ({self.phone})"
+
+    def save(self, *args, **kwargs):
+        if not self.short_token:
+            allowed_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+            while True:
+                token = get_random_string(6, allowed_chars=allowed_chars)
+                qs = Request.objects.filter(short_token=token)
+                if self.pk:
+                    qs = qs.exclude(pk=self.pk)
+                if not qs.exists():
+                    self.short_token = token
+                    break
+        super().save(*args, **kwargs)
 
 
 class BuyerPortalAccess(models.Model):

@@ -20,11 +20,16 @@ from .views import (
     view_request_status,
     view_request_status_secure,
     view_buyer_request_history,
+    short_request_redirect,
 )
 
 
 urlpatterns = [
     path('create-request/', create_request, name='create_request'),
+    path(
+        'r/<int:pk>/<str:token>/',
+        short_request_redirect,
+    ),
     path(
         'my-request/<int:req_id>/<uuid:access_token>/',
         view_request_status_secure,

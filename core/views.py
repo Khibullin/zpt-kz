@@ -109,9 +109,12 @@ def _request_page_url(req):
 
 
 def _description_with_request_link(req):
-    page_url = _request_page_url(req)
+    if not req.short_token:
+        req.save(update_fields=['short_token'])
+    base = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    short_url = f'{base}/r/{req.id}/{req.short_token}/'
     description = (req.description or '-').strip()
-    combined = f'{description} | 🔗 Открыть заявку: {page_url}'
+    combined = f'{description} | 🔗 Открыть заявку: {short_url}'
     return combined[:500]
 
 
@@ -1113,6 +1116,15 @@ def _render_request_status(request, req):
 
 def view_request_status(request, req_id):
     raise Http404
+
+
+def short_request_redirect(request, pk, token):
+    req = get_object_or_404(Request, pk=pk, short_token=token)
+    return redirect(
+        'view_request_status_public',
+        req_id=req.id,
+        access_token=req.access_token,
+    )
 
 
 def view_request_status_secure(request, req_id, access_token):
