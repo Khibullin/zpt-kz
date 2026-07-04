@@ -5,46 +5,62 @@
 
 {% block portal_css %}
 <link rel="stylesheet" href="{% static 'css/portal-cabinet.css' %}">
+<link rel="stylesheet" href="{% static 'css/b2b-auth.css' %}">
 {% endblock %}
 
-{% block portal_header %}{% endblock %}
+{% block portal_header %}
+{% include 'includes/b2b_auth_header.html' %}
+{% endblock %}
 
 {% block content %}
 <div class="page">
-  <div class="topbar site-header">
-    {% include 'includes/site_logo.html' %}
-    <div class="nav">
-      <a
-  class="home"
-  href="/request-parts/"
->
-  Главная
-</a>
-<a
-  class="cabinet"
-  href="/request-parts/cabinet/"
->
-  Кабинет
-</a>
-      <button class="logout" onclick="sellerLogout()">Выход</button>
-    </div>
-  </div>
+  <div class="b2b-auth-shell" id="loginBox">
+    <div class="b2b-auth-card">
+      <h1 class="b2b-auth-title">Вход продавца</h1>
 
-  <div class="login-card" id="loginBox">
-    <h1>Вход продавца</h1>
-    <div class="login-row">
-      <label>WhatsApp</label>
-      <input id="login_whatsapp" placeholder="7707XXXXXXX">
-      <label>Пароль</label>
-      <input id="login_password" type="password">
-      <label><input type="checkbox" onclick="login_password.type=this.checked?'text':'password'"> Показать пароль</label>
-      <button class="btn btn-blue" onclick="sellerLogin()">Войти</button>
-    </div>
-    <div id="loginError" class="error"></div>
-    <div class="login-help">
-      <b>Нет доступа в кабинет?</b><br>
-      Напишите администратору в WhatsApp — поможем восстановить доступ.<br>
-      <a class="help-btn" href="https://wa.me/77713607040" target="_blank">Написать администратору</a>
+      <div class="b2b-auth-form">
+        <div class="b2b-auth-field">
+          <label for="login_whatsapp">WhatsApp</label>
+          <input
+            id="login_whatsapp"
+            type="tel"
+            inputmode="tel"
+            autocomplete="username"
+            placeholder="7707XXXXXXX"
+          >
+        </div>
+
+        <div class="b2b-auth-field">
+          <label for="login_password">Пароль</label>
+          <input
+            id="login_password"
+            type="password"
+            autocomplete="current-password"
+          >
+          <label class="b2b-auth-checkbox">
+            <input
+              type="checkbox"
+              onchange="login_password.type=this.checked?'text':'password'"
+            >
+            Показать пароль
+          </label>
+        </div>
+
+        <button type="button" class="b2b-auth-submit" onclick="sellerLogin()">Войти</button>
+      </div>
+
+      <div id="loginError" class="b2b-auth-error"></div>
+
+      <div class="b2b-auth-footer">
+        <p class="b2b-auth-register">
+          Нет аккаунта?
+          <a href="{% url 'request_parts_register' %}">Зарегистрироваться →</a>
+        </p>
+        <p class="b2b-auth-help">
+          Не можете войти?
+          <a href="https://wa.me/77713607040" target="_blank" rel="noopener noreferrer">Написать администратору в WhatsApp</a>
+        </p>
+      </div>
     </div>
   </div>
 

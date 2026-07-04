@@ -3,114 +3,87 @@
 
 {% block title %}Вход продавца — ZPT.KZ{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/b2b-auth.css' %}">
+{% endblock %}
+
 {% block content %}
-{% include 'includes/site_header_simple.html' %}
+{% include 'includes/b2b_auth_header.html' %}
 
-<section class="section">
-  <div class="site-container">
-    <div class="seller-page-card">
-      <h1 class="ds-page-title">Вход продавца</h1>
+<div class="b2b-auth-shell">
+  <div class="b2b-auth-card">
+    <h1 class="b2b-auth-title">Вход продавца</h1>
 
-      {% if error_message %}
-        <div class="form-error">{{ error_message }}</div>
-      {% endif %}
+    {% if error_message %}
+      <div class="form-error">{{ error_message }}</div>
+    {% endif %}
 
-      <form method="post" class="seller-form" action="" autocomplete="on">
-        {% csrf_token %}
+    <form method="post" class="b2b-auth-form seller-form" action="" autocomplete="on">
+      {% csrf_token %}
 
-        <p>
-          <label for="username">
-            WhatsApp / Логин
-          </label>
+      <div class="b2b-auth-field">
+        <label for="username">WhatsApp</label>
+        <input
+          type="text"
+          id="username"
+          name="username"
+          required
+          autocomplete="username"
+          inputmode="tel"
+          autocorrect="off"
+          autocapitalize="off"
+          spellcheck="false"
+          placeholder="77713607040"
+          value="{{ username|default:'' }}"
+        >
+      </div>
 
-          <input
-            type="text"
-            id="username"
-            name="username"
-            required
-            autocomplete="username"
-            inputmode="tel"
-            autocorrect="off"
-            autocapitalize="off"
-            spellcheck="false"
-            placeholder="77713607040"
-            value="{{ username|default:'' }}"
-          >
-        </p>
-
-        <p>
-          <label for="password">
-            Пароль
-          </label>
-
-          <input
-            type="password"
-            id="password"
-            name="password"
-            required
-            autocomplete="current-password"
-          >
-
-          <label class="seller-form-show-password">
-            <input
-              type="checkbox"
-              onclick="togglePasswordLogin()"
-            >
-            Показать пароль
-          </label>
-        </p>
-
-        <label class="seller-form-remember">
+      <div class="b2b-auth-field">
+        <label for="password">Пароль</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+          autocomplete="current-password"
+        >
+        <label class="b2b-auth-checkbox">
           <input
             type="checkbox"
-            name="remember_me"
-            {% if remember_me %}checked{% endif %}
+            onchange="togglePasswordLogin()"
           >
-          Запомнить меня
+          Показать пароль
         </label>
+      </div>
 
-        <button type="submit" class="btn red">Войти</button>
-      </form>
+      <label class="b2b-auth-checkbox seller-form-remember">
+        <input
+          type="checkbox"
+          name="remember_me"
+          {% if remember_me %}checked{% endif %}
+        >
+        Запомнить меня
+      </label>
 
-<div
-  class="register-box"
-  style="
-    margin-top:18px;
-    padding-top:14px;
-    border-top:1px solid #ececec;
-    text-align:center;
-    font-size:15px;
-    color:#666;
-  "
->
-  Нет аккаунта?
+      <button type="submit" class="b2b-auth-submit">Войти</button>
+    </form>
 
-  <a
-    href="{% url 'seller_register' %}"
-    style="
-      color:#ef3e2f;
-      font-weight:700;
-      text-decoration:none;
-      margin-left:4px;
-    "
-  >
-    Зарегистрироваться →
-  </a>
-</div>
+    <div class="b2b-auth-footer">
+      <p class="b2b-auth-register">
+        Нет аккаунта?
+        <a href="{% url 'seller_register' %}">Зарегистрироваться →</a>
+      </p>
+      <p class="b2b-auth-help">
+        Не можете войти?
+        <a href="https://wa.me/77713607040" target="_blank" rel="noopener noreferrer">Написать администратору в WhatsApp</a>
+      </p>
     </div>
   </div>
-</section>
+</div>
 <script>
 function togglePasswordLogin() {
-
   const input = document.getElementById("password");
-
-  if (input.type === "password") {
-    input.type = "text";
-  } else {
-    input.type = "password";
-  }
-
+  input.type = input.type === "password" ? "text" : "password";
 }
 </script>
 {% endblock %}

@@ -1,0 +1,191 @@
+/* B2B login pages — shared header nav, centered card, form controls */
+
+.b2b-auth-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.b2b-auth-nav-link {
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+  padding: 6px 4px;
+  border-radius: 6px;
+  transition: color 0.15s ease;
+}
+
+.b2b-auth-nav-link:hover {
+  color: #ef3d2f;
+}
+
+.b2b-auth-shell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 24px 18px;
+}
+
+.b2b-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  padding: 28px 24px;
+}
+
+.b2b-auth-title {
+  margin: 0 0 20px;
+  font-size: 26px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1.2;
+}
+
+.b2b-auth-subtitle {
+  margin: -12px 0 20px;
+  font-size: 15px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.b2b-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.b2b-auth-field > label:first-child {
+  display: block;
+  font-weight: 700;
+  font-size: 14px;
+  margin-bottom: 6px;
+  color: #334155;
+}
+
+.b2b-auth-field input[type="text"],
+.b2b-auth-field input[type="password"],
+.b2b-auth-field input[type="tel"] {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #cfd6df;
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fff;
+}
+
+.b2b-auth-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #555;
+  cursor: pointer;
+}
+
+.b2b-auth-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #ef3d2f;
+}
+
+.b2b-auth-submit {
+  width: 100%;
+  margin-top: 4px;
+  min-height: 46px;
+  border: 0;
+  border-radius: 11px;
+  background: #ef3d2f;
+  color: #fff;
+  font-size: 15px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.b2b-auth-submit:hover {
+  background: #d93628;
+}
+
+.b2b-auth-error {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #b91c1c;
+  line-height: 1.4;
+}
+
+.b2b-auth-error:empty {
+  display: none;
+}
+
+.b2b-auth-card .form-error {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  margin: 0 0 12px;
+  color: #b91c1c;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.b2b-auth-footer {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #ececec;
+  text-align: center;
+}
+
+.b2b-auth-register,
+.b2b-auth-help {
+  margin: 0 0 10px;
+  font-size: 14px;
+  color: #64748b;
+  line-height: 1.45;
+}
+
+.b2b-auth-help:last-child {
+  margin-bottom: 0;
+}
+
+.b2b-auth-footer a {
+  color: #ef3d2f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.b2b-auth-footer a:hover {
+  text-decoration: underline;
+}
+
+.b2b-auth-shell.hidden {
+  display: none !important;
+}
+
+@media (max-width: 640px) {
+  .b2b-auth-shell {
+    min-height: calc(100vh - 60px);
+    padding: 16px;
+  }
+
+  .b2b-auth-card {
+    padding: 22px 18px;
+  }
+
+  .b2b-auth-title {
+    font-size: 22px;
+  }
+}

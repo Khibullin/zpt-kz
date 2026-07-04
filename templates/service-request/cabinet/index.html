@@ -8,6 +8,7 @@
 <link rel="icon" href="/static/favicon/favicon.ico" sizes="any">
 <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/b2b-auth.css' %}?v=1">
 
 <style>
 *{
@@ -632,54 +633,62 @@ select:focus{
 
 <body>
 
-<header class="header site-header">
-  <div class="header-inner site-container">
-    {% include 'includes/site_logo.html' %}
+{% include 'includes/b2b_auth_header.html' %}
 
-    <div class="nav">
-      <a class="nav-main" href="/service-request/">Заявка клиента</a>
-      <a class="nav-seller" href="/service-request/register/">Регистрация</a>
+<div class="b2b-auth-shell" id="loginBox">
+  <div class="b2b-auth-card">
+    <h1 class="b2b-auth-title">Вход исполнителя</h1>
+    <p class="b2b-auth-subtitle">Войдите в кабинет, чтобы получать заявки и управлять профилем.</p>
+
+    <div class="b2b-auth-form">
+      <div class="b2b-auth-field">
+        <label for="phone">WhatsApp</label>
+        <input
+          id="phone"
+          type="tel"
+          inputmode="tel"
+          autocomplete="username"
+          placeholder="77071234567"
+        >
+      </div>
+
+      <div class="b2b-auth-field">
+        <label for="pass">Пароль</label>
+        <input
+          id="pass"
+          type="password"
+          autocomplete="current-password"
+        >
+        <label class="b2b-auth-checkbox">
+          <input
+            type="checkbox"
+            onchange="pass.type=this.checked?'text':'password'"
+          >
+          Показать пароль
+        </label>
+      </div>
+
+      <button type="button" class="b2b-auth-submit" onclick="login()">Войти</button>
+    </div>
+
+    <div id="loginError" class="b2b-auth-error"></div>
+
+    <div class="b2b-auth-footer">
+      <p class="b2b-auth-register">
+        Нет аккаунта?
+        <a href="/service-request/register/">Зарегистрироваться →</a>
+      </p>
+      <p class="b2b-auth-help">
+        Не можете войти?
+        <a href="https://wa.me/77713607040" target="_blank" rel="noopener noreferrer">Написать администратору в WhatsApp</a>
+      </p>
     </div>
   </div>
-</header>
+</div>
 
-<div class="wrap">
+<div class="wrap" id="cabinetWrap" style="display:none">
 
-  <div class="card login-card" id="loginBox">
-
-    <div class="hero">
-      <div>
-        <h1>Вход исполнителя</h1>
-        <p>Войдите в кабинет, чтобы получать заявки и управлять профилем.</p>
-      </div>
-    </div>
-
-    <div class="field">
-      <label>WhatsApp</label>
-      <input id="phone" placeholder="77071234567">
-    </div>
-
-    <div class="field">
-      <label>Пароль</label>
-
-      <div class="password-row">
-        <input id="pass" type="password">
-
-        <button type="button" onclick="togglePassword()">
-          Показать
-        </button>
-      </div>
-    </div>
-
-    <button class="btn btn-blue" onclick="login()">
-      Войти
-    </button>
-
-    <div id="loginError" class="msg error"></div>
-
-  </div>
-
-  <div id="cabinetBox" style="display:none">
+  <div id="cabinetBox">
 
     <div class="card">
 
@@ -907,7 +916,6 @@ let currentStatusFilter = 'all';
 async function login(){
 
   loginError.innerText = '';
-  loginError.style.display = 'none';
 
   let whatsapp =
     phone.value.replace(/\D/g,'');
@@ -916,8 +924,6 @@ async function login(){
     pass.value;
 
   if(!whatsapp || !password){
-
-    loginError.style.display = 'block';
     loginError.innerText =
       'Введите WhatsApp и пароль';
 
@@ -944,8 +950,6 @@ async function login(){
       await r.json();
 
     if(data.error){
-
-      loginError.style.display = 'block';
       loginError.innerText =
         data.error;
 
@@ -960,8 +964,6 @@ async function login(){
     openCabinet();
 
   }catch(err){
-
-    loginError.style.display = 'block';
     loginError.innerText =
       'Ошибка подключения';
   }
@@ -970,7 +972,7 @@ async function login(){
 function openCabinet(){
 
   loginBox.style.display = 'none';
-  cabinetBox.style.display = 'block';
+  cabinetWrap.style.display = 'block';
 
   loadProfile();
   loadRequests();
@@ -1569,17 +1571,6 @@ window.onload = function(){
   if(seller_id){
     openCabinet();
   }
-}
-
-function togglePassword(){
-
-  const input =
-    document.getElementById('pass');
-
-  input.type =
-    input.type === 'password'
-      ? 'text'
-      : 'password';
 }
 </script>
 
