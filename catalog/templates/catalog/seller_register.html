@@ -15,12 +15,15 @@
         <div class="form-error">{{ error_message }}</div>
       {% endif %}
 
-      <form method="post" class="seller-form" enctype="multipart/form-data">
+      <form method="post" class="seller-form">
         {% csrf_token %}
 
         <p>
-          <label for="{{ form.username.id_for_label }}">{{ form.username.label }}</label>
-          {{ form.username }}
+          <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+          {{ form.phone }}
+          <span class="dashboard-subtitle seller-form-section-hint" style="display:block;margin-top:4px;">
+            Номер WhatsApp — он же логин для входа в кабинет
+          </span>
         </p>
 
         <p>
@@ -43,11 +46,6 @@
         <p>
           <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
           {{ form.name }}
-        </p>
-
-        <p>
-          <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
-          {{ form.phone }}
         </p>
 
         <p>

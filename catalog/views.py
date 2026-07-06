@@ -388,7 +388,7 @@ def seller_register(request):
     error_message = None
 
     if request.method == 'POST':
-        form = SellerRegisterForm(request.POST, request.FILES)
+        form = SellerRegisterForm(request.POST)
         if form.is_valid():
             phone = ''.join(filter(str.isdigit, form.cleaned_data['phone']))
             username = phone
@@ -413,7 +413,6 @@ def seller_register(request):
                     instagram=form.cleaned_data.get('instagram', ''),
                     website=form.cleaned_data.get('website', ''),
                     description=form.cleaned_data.get('description', ''),
-                    logo=form.cleaned_data.get('logo')
                 )
 
                 return redirect('seller_login')
@@ -571,7 +570,7 @@ def seller_profile_edit(request):
     old_name = seller.name
 
     if request.method == 'POST':
-        form = SellerProfileForm(request.POST, request.FILES, instance=seller)
+        form = SellerProfileForm(request.POST, instance=seller)
         if form.is_valid():
             updated_seller = form.save()
 

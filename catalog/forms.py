@@ -20,7 +20,6 @@ class SellerRegisterForm(forms.ModelForm):
             'instagram',
             'website',
             'description',
-            'logo',
         ]
 
         labels = {
@@ -33,7 +32,6 @@ class SellerRegisterForm(forms.ModelForm):
             'instagram': 'Instagram',
             'website': 'Сайт',
             'description': 'Описание маркета',
-            'logo': 'Логотип маркета',
         }
 
         widgets = {
@@ -75,6 +73,19 @@ class SellerRegisterForm(forms.ModelForm):
                 'rows': 4
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name = (cleaned_data.get('name') or '').strip()
+        if not name:
+            self.add_error('name', 'Укажите название маркета.')
+        else:
+            cleaned_data['name'] = name
+        return cleaned_data
 
 
 class SellerProfileForm(forms.ModelForm):
@@ -91,7 +102,6 @@ class SellerProfileForm(forms.ModelForm):
             'instagram',
             'website',
             'description',
-            'logo',
         ]
 
         labels = {
@@ -104,7 +114,6 @@ class SellerProfileForm(forms.ModelForm):
             'instagram': 'Instagram',
             'website': 'Сайт',
             'description': 'Описание маркета',
-            'logo': 'Логотип маркета',
         }
 
         widgets = {
@@ -146,6 +155,19 @@ class SellerProfileForm(forms.ModelForm):
                 'rows': 4
             }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['name'].required = True
+
+    def clean(self):
+        cleaned_data = super().clean()
+        name = (cleaned_data.get('name') or '').strip()
+        if not name:
+            self.add_error('name', 'Укажите название маркета.')
+        else:
+            cleaned_data['name'] = name
+        return cleaned_data
 
 class ProductForm(forms.ModelForm):
     country = forms.ModelChoiceField(

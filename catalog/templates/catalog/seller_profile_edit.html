@@ -15,7 +15,6 @@
       <form
         method="post"
         class="seller-form"
-        enctype="multipart/form-data"
       >
         {% csrf_token %}
 
@@ -75,13 +74,6 @@
             {{ form.description.label }}
           </label>
           {{ form.description }}
-        </p>
-
-        <p>
-          <label for="{{ form.logo.id_for_label }}">
-            {{ form.logo.label }}
-          </label>
-          {{ form.logo }}
         </p>
 
         <div class="form-action-row">
