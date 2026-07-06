@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras product_extras seller_extras %}
+{% load static humanize phone_extras product_extras %}
 
 {% block title %}Все продавцы и запчасти Казахстана — маркетплейс ZPT.KZ{% endblock %}
 
@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v130">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v131">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v5">
 <style>
 .market-topbar{
@@ -408,7 +408,6 @@ a.hero-b2b-strip-btn:hover,
             <div class="seller-line">
 
               {% if product.seller and product.seller.slug %}
-                {% seller_avatar product.seller size="sm" %}
                 <a
                   href="{% url 'public_seller_profile' product.seller.slug %}"
                   class="card-seller-link"
@@ -419,16 +418,13 @@ a.hero-b2b-strip-btn:hover,
                 </a>
               {% else %}
                 <span class="seller-name">
-                  {{ product.seller_name }} ✓
+                  {{ product.seller_name }} <span class="verification-badge">✓</span>
                 </span>
               {% endif %}
 
               {% if product.seller %}
                 {% if product.seller.instagram or product.seller.website %}
-                  <span
-                    class="card-seller-socials"
-                    style="display: inline-flex; align-items: center; gap: 6px; margin-left: 8px;"
-                  >
+                  <span class="card-seller-socials">
                     {% if product.seller.instagram %}
                       <a
                         href="{{ product.seller.instagram }}"
@@ -436,7 +432,6 @@ a.hero-b2b-strip-btn:hover,
                         rel="noopener noreferrer"
                         class="seller-mini-chip insta-chip"
                         title="Instagram продавца"
-                        style="text-decoration: none !important;"
                       >Inst</a>
                     {% endif %}
                     {% if product.seller.website %}
@@ -446,7 +441,6 @@ a.hero-b2b-strip-btn:hover,
                         rel="noopener noreferrer"
                         class="seller-mini-chip site-chip"
                         title="Сайт продавца"
-                        style="text-decoration: none !important;"
                       >Сайт</a>
                     {% endif %}
                   </span>

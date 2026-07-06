@@ -1095,10 +1095,12 @@ body{
     font-size:12px;
   }
 
-  .product-meta-seller{
-    flex-direction:column;
-    align-items:flex-start;
-    gap:2px;
+  .product.product-v2 .product-meta-seller{
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:6px;
+    flex-wrap:nowrap;
   }
 
   .seller-line{
@@ -1564,4 +1566,84 @@ a.site-chip.seller-mini-chip{
     max-width:68px !important;
     max-height:44px !important;
   }
+}
+
+/* Catalog cards: text-only seller row (no logo avatars) */
+.product.product-v2 .product-meta-seller{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:6px;
+  flex-wrap:nowrap;
+  margin-bottom:4px;
+  min-height:0;
+  line-height:1.2;
+}
+
+.product.product-v2 .product-meta-seller .seller-line{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  flex:1 1 auto;
+  flex-wrap:nowrap;
+}
+
+.product.product-v2 .product-meta-seller .card-seller-link{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:3px !important;
+  color:#374151 !important;
+  font-weight:600 !important;
+  font-size:12px !important;
+  text-decoration:none !important;
+  flex:0 1 auto !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+.product.product-v2 .product-meta-seller .card-seller-link:hover{
+  text-decoration:none !important;
+}
+
+.product.product-v2 .product-meta-seller .card-seller-link:hover .card-seller-name-text{
+  color:#111827 !important;
+  text-decoration:underline !important;
+}
+
+.product.product-v2 .product-meta-seller .card-seller-name-text{
+  color:#374151;
+  font-weight:600;
+}
+
+.product.product-v2 .product-meta-seller .seller-name{
+  display:inline-flex;
+  align-items:center;
+  gap:3px;
+  color:#374151;
+  font-weight:600;
+  font-size:12px;
+}
+
+.product.product-v2 .product-meta-seller .verification-badge{
+  color:#2563eb;
+  font-size:11px;
+  font-weight:700;
+  line-height:1;
+  flex-shrink:0;
+}
+
+.product.product-v2 .product-meta-seller .card-seller-socials{
+  display:inline-flex !important;
+  align-items:center !important;
+  gap:4px !important;
+  flex-shrink:0 !important;
+  margin-left:4px !important;
+}
+
+.product.product-v2 .product-meta-seller .meta-city{
+  flex-shrink:0;
+  font-size:11px;
+  color:#6b7280;
+  white-space:nowrap;
 }
