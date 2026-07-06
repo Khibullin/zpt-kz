@@ -7,16 +7,20 @@
   >
   {% elif wrapper_class %}
   <div class="{{ wrapper_class }}">
+  {% elif size == 'sm' %}
+  <span class="product-seller-logo-wrap">
   {% endif %}
     <img
       class="seller-logo seller-logo--{{ size }}"
       src="{{ seller.logo.url }}"
       alt="Логотип {{ seller.name }}"
-      {% if size == 'sm' %}width="70" height="32" style="object-fit: contain;" loading="lazy"{% endif %}
+      {% if size == 'sm' %}loading="lazy"{% endif %}
     >
   {% if link %}
   </a>
   {% elif wrapper_class %}
   </div>
+  {% elif size == 'sm' %}
+  </span>
   {% endif %}
 {% endif %}
