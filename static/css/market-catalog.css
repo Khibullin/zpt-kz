@@ -1647,3 +1647,51 @@ a.site-chip.seller-mini-chip{
   color:#6b7280;
   white-space:nowrap;
 }
+
+@media (max-width:767px){
+  .product.product-v2 .product-meta-seller{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    align-items:flex-start !important;
+    justify-content:flex-start !important;
+    gap:4px !important;
+  }
+
+  .product.product-v2 .product-meta-seller .seller-line{
+    display:flex !important;
+    flex:0 0 100% !important;
+    width:100% !important;
+    flex-wrap:wrap !important;
+    align-items:center !important;
+    gap:4px !important;
+    min-width:0 !important;
+  }
+
+  .product.product-v2 .product-meta-seller .card-seller-link,
+  .product.product-v2 .product-meta-seller .seller-name{
+    flex:0 0 100% !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+  }
+
+  .product.product-v2 .product-meta-seller .card-seller-name-text{
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    word-break:break-word !important;
+  }
+
+  .product.product-v2 .product-meta-seller .card-seller-socials{
+    margin-left:0 !important;
+    flex:0 0 auto !important;
+  }
+
+  .product.product-v2 .product-meta-seller .meta-city{
+    flex:0 0 auto !important;
+    margin-left:auto !important;
+  }
+}
