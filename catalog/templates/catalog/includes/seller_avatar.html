@@ -8,13 +8,13 @@
   {% elif wrapper_class %}
   <div class="{{ wrapper_class }}">
   {% elif size == 'sm' %}
-  <span class="product-seller-logo-wrap">
+  <span class="product-seller-logo-wrap" style="display: inline-flex; align-items: center; justify-content: center; width: 55px !important; height: 26px !important; max-width: 55px !important; max-height: 26px !important; min-height: 0 !important; padding: 0 !important; margin: 0 6px 0 0 !important; overflow: hidden; vertical-align: middle; box-sizing: border-box;">
   {% endif %}
     <img
       class="seller-logo seller-logo--{{ size }}"
       src="{{ seller.logo.url }}"
       alt="Логотип {{ seller.name }}"
-      {% if size == 'sm' %}loading="lazy"{% endif %}
+      {% if size == 'sm' %}style="width: 55px !important; height: 24px !important; max-width: 55px !important; max-height: 24px !important; object-fit: contain !important; display: inline-block !important; vertical-align: middle;" loading="lazy"{% endif %}
     >
   {% if link %}
   </a>
