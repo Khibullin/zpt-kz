@@ -1096,25 +1096,17 @@ body{
   }
 
   .product.product-v2 .product-meta-seller{
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:6px;
-    flex-wrap:nowrap;
+    display:block;
+    width:100%;
   }
 
   .seller-line{
-    display:flex;
-    align-items:center;
-    gap:6px;
+    display:block;
     width:100%;
-    min-width:0;
   }
 
   .seller-name,
   .card-seller-link{
-    flex:1;
-    min-width:0;
     font-size:12px;
   }
 
@@ -1650,48 +1642,28 @@ a.site-chip.seller-mini-chip{
 
 @media (max-width:767px){
   .product.product-v2 .product-meta-seller{
-    display:flex !important;
-    flex-wrap:wrap !important;
-    align-items:flex-start !important;
-    justify-content:flex-start !important;
-    gap:4px !important;
+    display:block !important;
+    width:100% !important;
   }
 
   .product.product-v2 .product-meta-seller .seller-line{
-    display:flex !important;
-    flex:0 0 100% !important;
+    display:block !important;
     width:100% !important;
-    flex-wrap:wrap !important;
-    align-items:center !important;
-    gap:4px !important;
-    min-width:0 !important;
   }
 
   .product.product-v2 .product-meta-seller .card-seller-link,
-  .product.product-v2 .product-meta-seller .seller-name{
-    flex:0 0 100% !important;
-    width:100% !important;
-    max-width:100% !important;
-    min-width:0 !important;
-    white-space:normal !important;
-    overflow:visible !important;
-    text-overflow:clip !important;
-  }
-
+  .product.product-v2 .product-meta-seller .seller-name,
   .product.product-v2 .product-meta-seller .card-seller-name-text{
+    display:block !important;
+    width:100% !important;
+    text-overflow:clip !important;
     white-space:normal !important;
     overflow:visible !important;
-    text-overflow:clip !important;
-    word-break:break-word !important;
   }
 
-  .product.product-v2 .product-meta-seller .card-seller-socials{
-    margin-left:0 !important;
-    flex:0 0 auto !important;
-  }
-
+  .product.product-v2 .product-meta-seller .card-seller-socials,
   .product.product-v2 .product-meta-seller .meta-city{
-    flex:0 0 auto !important;
-    margin-left:auto !important;
+    display:block !important;
+    margin-top:4px !important;
   }
 }
