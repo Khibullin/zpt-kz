@@ -1,7 +1,15 @@
 from django import forms
 from django.core.exceptions import ValidationError
 
-from .models import SellerProfile, Product, Country, Brand, CarModel
+from .models import (
+    SellerProfile,
+    Product,
+    Country,
+    Brand,
+    CarModel,
+    DEFAULT_SELLER_WORK_HOURS,
+    DEFAULT_SELLER_DELIVERY_INFO,
+)
 
 
 class SellerRegisterForm(forms.ModelForm):
@@ -54,11 +62,11 @@ class SellerRegisterForm(forms.ModelForm):
             }),
 
             'work_hours': forms.TextInput(attrs={
-                'placeholder': 'Пн–Сб: 09:00 – 19:00, Вс: выходной'
+                'placeholder': DEFAULT_SELLER_WORK_HOURS,
             }),
 
             'delivery_info': forms.Textarea(attrs={
-                'placeholder': 'Самовывоз, курьер, отправка в регионы',
+                'placeholder': DEFAULT_SELLER_DELIVERY_INFO,
                 'rows': 3
             }),
 
@@ -81,6 +89,9 @@ class SellerRegisterForm(forms.ModelForm):
         self.fields['name'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
+        if not self.is_bound and not getattr(self.instance, 'pk', None):
+            self.initial.setdefault('work_hours', DEFAULT_SELLER_WORK_HOURS)
+            self.initial.setdefault('delivery_info', DEFAULT_SELLER_DELIVERY_INFO)
 
     def clean(self):
         cleaned_data = super().clean()

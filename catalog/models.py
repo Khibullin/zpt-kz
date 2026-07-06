@@ -65,6 +65,13 @@ class Category(models.Model):
         return self.name
 
 
+DEFAULT_SELLER_WORK_HOURS = 'Пн–Сб: 09:00 – 18:00, Вс: выходной'
+DEFAULT_SELLER_DELIVERY_INFO = (
+    'Самовывоз, Доставка курьером по городу, '
+    'Доставка по регионам Казахстана (ТК, Казпочта, попутный транспорт)'
+)
+
+
 class SellerProfile(models.Model):
     user = models.OneToOneField(
         User,
@@ -93,13 +100,13 @@ class SellerProfile(models.Model):
     work_hours = models.CharField(
         max_length=255,
         blank=True,
-        default='',
+        default=DEFAULT_SELLER_WORK_HOURS,
         verbose_name='График работы',
     )
 
     delivery_info = models.TextField(
         blank=True,
-        default='',
+        default=DEFAULT_SELLER_DELIVERY_INFO,
         verbose_name='Доставка и оплата',
     )
 
