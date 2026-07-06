@@ -1,13 +1,13 @@
 {% extends 'base.html' %}
 {% load static humanize phone_extras product_extras seller_extras %}
 
-{% block title %}Купить автозапчасти в Казахстане — новые и б/у запчасти | ZPT.KZ{% endblock %}
+{% block title %}Все продавцы и запчасти Казахстана — маркетплейс ZPT.KZ{% endblock %}
 
-{% block meta_description %}Купить автозапчасти для легковых и грузовых автомобилей в Казахстане. Новые, б/у и контрактные запчасти. Поиск по марке, модели и артикулу или одна заявка продавцам.{% endblock %}
+{% block meta_description %}Маркетплейс автозапчастей Казахстана: оставьте одну заявку и получите предложения от сотен магазинов в WhatsApp. Поиск по марке, модели и артикулу.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v118">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v119">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v5">
 <style>
 .market-topbar{
@@ -34,186 +34,6 @@
 .market-header-logo{
   flex-direction:column;
   align-items:flex-start;
-}
-
-/* B2C request banner — bottom of hero card */
-.hero .b2c-request-banner{
-  margin-top:24px;
-  padding:20px 22px;
-  background:#f9fafb;
-  border:1px solid #ececec;
-  border-radius:16px;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:space-between;
-  gap:16px;
-}
-.hero .b2c-request-banner-copy{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  max-width:42rem;
-}
-.hero .b2c-request-banner-title{
-  margin:0;
-  padding:0;
-  font-size:1rem;
-  line-height:1.35;
-  font-weight:700;
-  color:#111827;
-  text-decoration:none;
-}
-.hero .b2c-request-banner-text{
-  margin:0;
-  padding:0;
-  font-size:.75rem;
-  line-height:1.5;
-  color:#4b5563;
-  text-decoration:none;
-}
-.hero .b2c-request-banner-action{
-  flex-shrink:0;
-}
-.hero a.b2c-request-banner-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-width:0;
-  padding:10px 20px;
-  border:none;
-  border-radius:12px;
-  background:#ff3b30;
-  color:#fff !important;
-  font-size:.75rem;
-  font-weight:500;
-  text-decoration:none !important;
-  white-space:nowrap;
-  box-shadow:0 2px 8px rgba(255,59,48,.2);
-  transition:background .15s ease;
-}
-.hero a.b2c-request-banner-btn:hover{
-  background:#e6342a;
-  color:#fff !important;
-  text-decoration:none !important;
-}
-@media (min-width:768px){
-  .hero a.b2c-request-banner-btn{
-    font-size:.875rem;
-  }
-}
-
-/* B2B seller banner — below product grid */
-.home-b2b-banner{
-  margin-top:32px;
-  margin-bottom:8px;
-  padding:28px 32px;
-  border-radius:20px;
-  background:linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  color:#fff;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:28px;
-  box-shadow:0 18px 40px rgba(15,23,42,.18);
-  border:1px solid rgba(255,255,255,.08);
-}
-.home-b2b-banner-copy{
-  flex:1;
-  min-width:0;
-}
-.home-b2b-banner-title{
-  margin:0 0 8px;
-  font-size:1.125rem;
-  line-height:1.3;
-  font-weight:800;
-  color:#fff;
-  text-decoration:none;
-}
-.home-b2b-banner-text{
-  margin:0;
-  max-width:760px;
-  font-size:.875rem;
-  line-height:1.5;
-  color:rgba(255,255,255,.85);
-  text-decoration:none;
-}
-.home-b2b-banner a.home-b2b-banner-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  flex-shrink:0;
-  min-width:0;
-  padding:10px 20px;
-  border-radius:12px;
-  background:#ff3b30;
-  color:#fff !important;
-  text-decoration:none !important;
-  font-size:.875rem;
-  font-weight:600;
-  white-space:nowrap;
-  box-shadow:0 4px 12px rgba(255,59,48,.3);
-  transition:background .15s ease;
-}
-.home-b2b-banner a.home-b2b-banner-btn:hover{
-  background:#e6342a;
-  color:#fff !important;
-  text-decoration:none !important;
-}
-@media (min-width:768px){
-  .home-b2b-banner-title{
-    font-size:1.5rem;
-  }
-}
-
-@media (min-width:768px){
-  .hero .b2c-request-banner{
-    flex-direction:row;
-    align-items:center;
-    text-align:left;
-  }
-}
-
-@media (max-width:767px){
-  .hero .b2c-request-banner{
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:16px;
-    margin-bottom:16px;
-    gap:16px;
-    overflow:visible;
-  }
-
-  .hero .b2c-request-banner-copy{
-    align-items:center;
-    text-align:center;
-    max-width:100%;
-    width:100%;
-  }
-
-  .hero .b2c-request-banner-title{
-    margin-bottom:4px;
-  }
-
-  .hero .b2c-request-banner-action{
-    width:100%;
-    margin:0;
-  }
-
-  .hero a.b2c-request-banner-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    width:100%;
-    box-sizing:border-box;
-    white-space:normal;
-    padding:14px 16px;
-    min-height:48px;
-    font-size:.875rem;
-    font-weight:700;
-  }
 }
 
 .home-seo-block{
@@ -272,26 +92,6 @@
 .home-seo-links-list a:hover{
   text-decoration:underline;
 }
-@media (max-width:900px){
-  .home-b2b-banner{
-    flex-direction:column;
-    align-items:stretch;
-    text-align:left;
-    padding:22px 18px;
-    gap:18px;
-  }
-  .home-b2b-banner a.home-b2b-banner-btn{
-    width:100%;
-    min-width:0;
-  }
-  .hero .b2c-request-banner{
-    padding:18px 16px;
-  }
-  .hero a.b2c-request-banner-btn{
-    width:100%;
-    min-width:0;
-  }
-}
 @media (max-width:640px){
   .filter-grid{
     display:grid !important;
@@ -312,15 +112,6 @@
     flex-direction:column;
     align-items:flex-start;
   }
-  .home-b2b-banner{
-    flex-direction:column;
-    align-items:stretch;
-    text-align:center;
-    padding:20px 16px;
-  }
-  .home-b2b-banner-btn{
-    width:100%;
-  }
 }
 </style>
 {% endblock %}
@@ -335,11 +126,17 @@
 
     <div class="hero-main">
 
-      <h1 class="hero-title ds-h1">Купить автозапчасти в Казахстане</h1>
+      <h1 class="hero-title ds-h1">Все продавцы и запчасти Казахстана на одном маркетплейсе</h1>
 
       <p class="hero-sub ds-body">
-        Новые, б/у и контрактные запчасти для легковых и грузовых автомобилей. Найдите товар в наличии или оставьте одну заявку продавцам по всему Казахстану.
+        Зачем искать часами? Оставьте одну заявку — её увидят сотни авторазборов и магазинов. Получайте лучшие предложения и выбирайте выгодную цену прямо в WhatsApp!
       </p>
+
+      <div class="hero-cta">
+        <a href="/request-parts/" class="hero-cta-btn">
+          Оставить заявку и получить цены
+        </a>
+      </div>
 
       <div class="search-box">
 
@@ -402,18 +199,13 @@
 
       </div>
 
-      <div class="b2c-request-banner">
-        <div class="b2c-request-banner-copy">
-          <h3 class="b2c-request-banner-title">Не нашли нужную запчасть?</h3>
-          <p class="b2c-request-banner-text">
-            Оставьте одну заявку — продавцы отправят предложения с ценой и наличием напрямую в WhatsApp.
-          </p>
-        </div>
-        <div class="b2c-request-banner-action">
-          <a href="https://zpt.kz/request-parts/" class="b2c-request-banner-btn">
-            Оставить заявку
-          </a>
-        </div>
+      <div class="hero-b2b-strip">
+        <p class="hero-b2b-strip-text">
+          💼 Продаете запчасти в Казахстане? Регистрируйтесь, выкладывайте товары и получайте поток готовых заявок покупателей в WhatsApp!
+        </p>
+        <a href="{% url 'business_gateway' %}" class="hero-b2b-strip-btn">
+          Стать продавцом
+        </a>
       </div>
 
     </div>
@@ -568,20 +360,6 @@
     </div>
 
   {% endif %}
-
-  <section class="home-b2b-banner" aria-labelledby="home-b2b-banner-title">
-    <div class="home-b2b-banner-copy">
-      <h2 class="home-b2b-banner-title" id="home-b2b-banner-title">
-        Продаёте автозапчасти или управляете СТО в Казахстане?
-      </h2>
-      <p class="home-b2b-banner-text">
-        Размещайте свои товары на маркетплейсе ZPT.KZ и получайте поток готовых заказов и заявок от автовладельцев вашего города напрямую в WhatsApp. Настройте марки машин и регионы работы за 5 минут.
-      </p>
-    </div>
-    <a class="home-b2b-banner-btn" href="{% url 'business_gateway' %}">
-      Автобизнесу: войти / начать
-    </a>
-  </section>
 
   <section class="home-seo-block" aria-labelledby="home-seo-heading">
     <h2 class="ds-h2" id="home-seo-heading">Автозапчасти для автомобилей в Казахстане</h2>

@@ -179,11 +179,90 @@ body{
 
 .hero-sub,
 .hero-sub.ds-body{
-  margin:0 0 12px;
-  max-width:36rem;
-  font-size:.75rem;
-  line-height:1.5;
+  margin:0 0 18px;
+  max-width:42rem;
+  font-size:.8125rem;
+  line-height:1.55;
   color:#4b5563;
+}
+
+.hero-cta{
+  margin:0 0 22px;
+}
+
+.hero-cta-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  max-width:420px;
+  min-height:52px;
+  padding:14px 24px;
+  border:none;
+  border-radius:14px;
+  background:#ff3b30;
+  color:#fff;
+  font-size:1rem;
+  font-weight:800;
+  line-height:1.2;
+  text-decoration:none;
+  text-align:center;
+  box-shadow:0 8px 22px rgba(255,59,48,.24);
+  transition:background .15s ease, transform .15s ease;
+  box-sizing:border-box;
+}
+
+.hero-cta-btn:hover{
+  background:#e6342a;
+  color:#fff;
+  text-decoration:none;
+  transform:translateY(-1px);
+}
+
+.hero-b2b-strip{
+  margin-top:20px;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#f3f4f6;
+  border:1px solid #e5e7eb;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+}
+
+.hero-b2b-strip-text{
+  margin:0;
+  flex:1 1 auto;
+  min-width:0;
+  font-size:.8125rem;
+  line-height:1.45;
+  color:#4b5563;
+}
+
+.hero-b2b-strip-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  min-height:38px;
+  padding:8px 16px;
+  border-radius:10px;
+  border:1px solid #d1d5db;
+  background:#fff;
+  color:#111827;
+  font-size:.8125rem;
+  font-weight:700;
+  text-decoration:none;
+  white-space:nowrap;
+  transition:border-color .15s ease, color .15s ease, background .15s ease;
+}
+
+.hero-b2b-strip-btn:hover{
+  border-color:#ff3b30;
+  color:#ff3b30;
+  background:#fff;
+  text-decoration:none;
 }
 
 @media (min-width:768px){
@@ -195,8 +274,29 @@ body{
 
   .hero-sub,
   .hero-sub.ds-body{
+    font-size:.9375rem;
+    line-height:1.6;
+    margin-bottom:20px;
+  }
+
+  .hero-cta-btn{
+    width:auto;
+    min-width:320px;
+    font-size:1.0625rem;
+  }
+
+  .hero-b2b-strip{
+    padding:16px 20px;
+    gap:20px;
+  }
+
+  .hero-b2b-strip-text{
     font-size:.875rem;
-    line-height:1.625;
+  }
+
+  .hero-b2b-strip-btn{
+    font-size:.875rem;
+    padding:10px 18px;
   }
 }
 
@@ -321,6 +421,28 @@ body{
     min-height:48px;
     font-size:.875rem;
     font-weight:700;
+  }
+
+  .hero-cta{
+    margin-bottom:18px;
+  }
+
+  .hero-cta-btn{
+    max-width:none;
+    width:100%;
+  }
+
+  .hero-b2b-strip{
+    flex-direction:column;
+    align-items:stretch;
+    text-align:center;
+    gap:12px;
+    padding:14px;
+  }
+
+  .hero-b2b-strip-btn{
+    width:100%;
+    white-space:normal;
   }
 }
 
