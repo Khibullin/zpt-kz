@@ -210,6 +210,10 @@ WHATSAPP_BUYER_TEMPLATE_NAME = os.getenv(
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
 
+INSTAGRAM_BUSINESS_ACCOUNT_ID = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
+FACEBOOK_ACCESS_TOKEN = os.getenv("FACEBOOK_ACCESS_TOKEN", "")
+META_GRAPH_API_VERSION = os.getenv("META_GRAPH_API_VERSION", "v20.0")
+
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(
     'ZPT_WAREHOUSE_ADDRESS',

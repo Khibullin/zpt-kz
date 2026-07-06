@@ -30,16 +30,25 @@ class TryGenerateInstagramStoryTests(TestCase):
             status='sent',
         )
 
-    def test_try_generate_returns_path_on_success(self):
+    @patch('catalog.instagram_api.try_publish_story_to_instagram')
+    def test_try_generate_returns_path_on_success(self, publish_mock):
+        publish_mock.return_value = 'media_123'
         output_path = try_generate_instagram_story(self.request)
         self.assertIsNotNone(output_path)
         self.assertTrue(output_path.is_file())
+        publish_mock.assert_called_once()
 
     @patch('catalog.image_generator.generate_instagram_story')
     def test_try_generate_swallows_generation_error(self, generate_mock):
         generate_mock.side_effect = InstagramStoryGenerationError('boom')
         result = try_generate_instagram_story(self.request)
         self.assertIsNone(result)
+
+    @patch('catalog.instagram_api.try_publish_story_to_instagram', side_effect=RuntimeError('api down'))
+    def test_try_generate_returns_image_when_publish_fails(self, publish_mock):
+        output_path = try_generate_instagram_story(self.request)
+        self.assertIsNotNone(output_path)
+        self.assertTrue(output_path.is_file())
 
 
 class GenerateStoryCommandTests(TestCase):

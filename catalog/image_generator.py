@@ -390,9 +390,10 @@ def try_generate_instagram_story(product_request: Request) -> Path | None:
     Безопасно генерирует Instagram Story для заявки.
 
     Ошибки генерации логируются и не пробрасываются наружу.
+    После успешной генерации файла пытается опубликовать Story в Instagram.
     """
     try:
-        return generate_instagram_story(product_request)
+        output_path = generate_instagram_story(product_request)
     except InstagramStoryGenerationError as exc:
         logger.warning(
             'Instagram Story не создана для заявки #%s: %s',
@@ -400,3 +401,19 @@ def try_generate_instagram_story(product_request: Request) -> Path | None:
             exc,
         )
         return None
+
+    try:
+        from catalog.instagram_api import (
+            absolute_media_path_to_relative,
+            try_publish_story_to_instagram,
+        )
+
+        relative_path = absolute_media_path_to_relative(output_path)
+        try_publish_story_to_instagram(relative_path)
+    except Exception:
+        logger.exception(
+            'Instagram publish завершился с ошибкой для заявки #%s',
+            getattr(product_request, 'pk', '?'),
+        )
+
+    return output_path
