@@ -1531,10 +1531,10 @@ a.site-chip.seller-mini-chip{
   color:#ef3d2f;
 }
 
-/* Карточки каталога: компактные логотипы продавцов (AG PARTS, LETO и др.) */
-.product.product-v2 .seller-line .seller-logo,
-.product.product-v2 .seller-line .seller-logo--sm{
-  max-width:70px !important;
+/* Карточки каталога: логотип продавца — img.seller-logo.seller-logo--sm в seller_avatar */
+.product.product-v2 .seller-line img.seller-logo.seller-logo--sm{
+  width:70px !important;
+  height:auto !important;
   max-height:32px !important;
   object-fit:contain !important;
 }
