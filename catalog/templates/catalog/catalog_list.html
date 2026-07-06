@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v127">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v128">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v5">
 <style>
 .market-topbar{
@@ -420,31 +420,6 @@ a.hero-b2b-strip-btn:hover,
                 <span class="seller-name">
                   {{ product.seller_name }} <span class="verification-badge">✓</span>
                 </span>
-              {% endif %}
-
-              {% if product.seller %}
-                {% if product.seller.instagram or product.seller.website %}
-                  <span class="card-seller-socials">
-                    {% if product.seller.instagram %}
-                      <a
-                        href="{{ product.seller.instagram }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="seller-mini-chip insta-chip"
-                        title="Instagram продавца"
-                      >Inst</a>
-                    {% endif %}
-                    {% if product.seller.website %}
-                      <a
-                        href="{{ product.seller.website }}"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        class="seller-mini-chip site-chip"
-                        title="Сайт продавца"
-                      >Сайт</a>
-                    {% endif %}
-                  </span>
-                {% endif %}
               {% endif %}
 
             </div>

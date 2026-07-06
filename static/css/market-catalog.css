@@ -1625,19 +1625,9 @@ a.site-chip.seller-mini-chip{
   flex-shrink:0;
 }
 
-.product.product-v2 .product-meta-seller .card-seller-socials{
-  display:inline-flex !important;
-  align-items:center !important;
-  gap:4px !important;
-  flex-shrink:0 !important;
-  margin-left:4px !important;
-}
-
 .product.product-v2 .product-meta-seller .meta-city{
-  flex-shrink:0;
   font-size:11px;
   color:#6b7280;
-  white-space:nowrap;
 }
 
 @media (max-width:767px){
@@ -1656,14 +1646,21 @@ a.site-chip.seller-mini-chip{
   .product.product-v2 .product-meta-seller .card-seller-name-text{
     display:block !important;
     width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
     text-overflow:clip !important;
     white-space:normal !important;
     overflow:visible !important;
   }
 
-  .product.product-v2 .product-meta-seller .card-seller-socials,
   .product.product-v2 .product-meta-seller .meta-city{
     display:block !important;
+    width:100% !important;
+    max-width:100% !important;
     margin-top:4px !important;
+    white-space:normal !important;
+    overflow:visible !important;
+    text-overflow:clip !important;
+    flex:none !important;
   }
 }
