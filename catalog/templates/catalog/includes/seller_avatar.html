@@ -12,7 +12,7 @@
       class="seller-logo seller-logo--{{ size }}"
       src="{{ seller.logo.url }}"
       alt="Логотип {{ seller.name }}"
-      {% if size == 'sm' %}loading="lazy"{% endif %}
+      {% if size == 'sm' %}width="70" height="32" style="object-fit: contain;" loading="lazy"{% endif %}
     >
   {% if link %}
   </a>
