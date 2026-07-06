@@ -1117,11 +1117,17 @@ body{
   }
 
   .seller-line .seller-logo--sm{
-    width:20px !important;
-    height:20px !important;
-    min-width:20px !important;
-    min-height:20px !important;
+    width:8px !important;
+    height:8px !important;
+    min-width:8px !important;
+    min-height:8px !important;
+    max-width:8px !important;
+    max-height:8px !important;
     margin-right:0 !important;
+    padding:0 !important;
+    border-radius:2px !important;
+    object-fit:contain !important;
+    object-position:center !important;
   }
 
   .meta-city{
@@ -1438,20 +1444,24 @@ body{
 .product-v2 .card-seller-link .seller-logo--sm,
 .card-seller-link .seller-logo--sm,
 .seller-line > .seller-logo--sm{
-  width:20px !important;
-  height:20px !important;
-  min-width:20px !important;
-  min-height:20px !important;
+  width:28px !important;
+  height:13px !important;
+  min-width:28px !important;
+  max-width:28px !important;
+  min-height:0 !important;
+  max-height:13px !important;
   border-radius:4px !important;
   object-fit:contain !important;
+  object-position:center !important;
   background-color:#ffffff !important;
   margin-right:6px !important;
   display:inline-block !important;
   vertical-align:middle !important;
   border:1px solid #eee;
+  flex:0 0 28px !important;
   flex-shrink:0 !important;
   box-sizing:border-box !important;
-  padding:1px;
+  padding:0 !important;
 }
 
 .card-seller-socials{
@@ -1531,10 +1541,34 @@ a.site-chip.seller-mini-chip{
   color:#ef3d2f;
 }
 
-/* Карточки каталога: логотип продавца — img.seller-logo.seller-logo--sm в seller_avatar */
-.product.product-v2 .seller-line img.seller-logo.seller-logo--sm{
-  width:70px !important;
-  height:auto !important;
-  max-height:32px !important;
+/* Карточки каталога: логотип продавца img.seller-logo--sm (70×32 → 28×13, /2.5) */
+.product.product-v2 .seller-line > img.seller-logo.seller-logo--sm{
+  width:28px !important;
+  height:13px !important;
+  min-width:28px !important;
+  max-width:28px !important;
+  min-height:0 !important;
+  max-height:13px !important;
   object-fit:contain !important;
+  object-position:center !important;
+  display:inline-block !important;
+  flex:0 0 28px !important;
+  padding:0 !important;
+  border-radius:4px !important;
+  box-sizing:border-box !important;
+}
+
+@media (max-width:640px){
+  .product.product-v2 .seller-line > img.seller-logo.seller-logo--sm,
+  .product.product-v2 .seller-line .seller-logo--sm,
+  .seller-line > .seller-logo--sm{
+    width:8px !important;
+    height:8px !important;
+    min-width:8px !important;
+    max-width:8px !important;
+    min-height:0 !important;
+    max-height:8px !important;
+    flex:0 0 8px !important;
+    border-radius:2px !important;
+  }
 }
