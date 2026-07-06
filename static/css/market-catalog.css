@@ -529,6 +529,10 @@ body{
   flex:1 1 auto;
 }
 
+.product-v2 .product-actions-v2--price-request{
+  margin-top:14px;
+}
+
 .product-seller{
   color:#666;
   margin-bottom:6px;
@@ -1006,6 +1010,10 @@ body{
     grid-template-columns:1fr 1fr;
     gap:6px;
     margin-top:auto;
+  }
+
+  .product-actions-v2--price-request{
+    margin-top:14px;
   }
 
   .btn-green,

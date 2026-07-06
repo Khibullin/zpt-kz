@@ -544,7 +544,7 @@
             {% endif %}
           </div>
 
-          <div class="product-actions-v2">
+          <div class="product-actions-v2{% if product.price_on_request %} product-actions-v2--price-request{% endif %}">
             {% include 'catalog/includes/product_whatsapp_link.html' with product=product %}
 
             <a
