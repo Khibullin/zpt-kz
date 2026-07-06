@@ -66,9 +66,16 @@
           {{ form.article }}
         </p>
 
-        <p>
+        <p class="product-price-field">
           <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
           {{ form.price }}
+        </p>
+
+        <p class="product-price-on-request-field">
+          <label class="price-on-request-checkbox" for="{{ form.price_on_request.id_for_label }}">
+            {{ form.price_on_request }}
+            {{ form.price_on_request.label }}
+          </label>
         </p>
 
         <p>
@@ -212,6 +219,28 @@ document.addEventListener("DOMContentLoaded", function () {
         modelSelect.addEventListener("change", function () {
             renderCompatibleModels(this.value);
         });
+    }
+
+    const priceOnRequestCheckbox = document.getElementById("id_price_on_request");
+    const priceInput = document.getElementById("id_price");
+
+    function syncPriceOnRequestField() {
+        if (!priceOnRequestCheckbox || !priceInput) {
+            return;
+        }
+
+        const enabled = priceOnRequestCheckbox.checked;
+        priceInput.disabled = enabled;
+        priceInput.required = !enabled;
+
+        if (enabled) {
+            priceInput.value = "";
+        }
+    }
+
+    if (priceOnRequestCheckbox) {
+        priceOnRequestCheckbox.addEventListener("change", syncPriceOnRequestField);
+        syncPriceOnRequestField();
     }
 });
 </script>

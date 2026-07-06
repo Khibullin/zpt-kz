@@ -50,8 +50,14 @@
     {% endif %}
   {% endif %}
 
+  {% if card_product.price_on_request %}
+  <span style="color: #475569; font-weight: 800; display: block; margin-top: 5px;">
+    Цена по запросу
+  </span>
+  {% elif card_product.price is not None %}
   <span style="color: #ff5722; font-weight: 800; display: block; margin-top: 5px;">
     {{ card_product.price|intcomma|comma_to_space }} ₸
   </span>
+  {% endif %}
 </div>
 {% endwith %}

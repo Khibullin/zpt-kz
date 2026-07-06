@@ -118,7 +118,7 @@
   Новые, б/у и контрактные запчасти
 </div>
 
-        <div class="detail-price">{{ product.price|intcomma|comma_to_space }} ₸</div>
+        {% include 'catalog/includes/product_price_display.html' with product=product price_class='detail-price' %}
 
 <div
   style="

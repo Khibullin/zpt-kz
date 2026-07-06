@@ -55,6 +55,9 @@ class CartManager:
         if not product:
             raise ValueError('Product not found')
 
+        if product.price_on_request:
+            raise ValueError('Этот товар доступен только по запросу цены через WhatsApp')
+
         validate_product_for_cart(self.get_items(), product)
 
         if self.user:
@@ -86,6 +89,9 @@ class CartManager:
         product = Product.objects.filter(pk=product_id, status='active').first()
         if not product:
             raise ValueError('Product not found')
+
+        if product.price_on_request:
+            raise ValueError('Этот товар доступен только по запросу цены через WhatsApp')
 
         if product_id not in self.get_product_quantities():
             validate_product_for_cart(self.get_items(), product)

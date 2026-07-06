@@ -1,11 +1,13 @@
 {% load product_extras %}
 <a
-  class="{% if detail %}btn-green detail-wa-btn{% else %}btn-green product-wa-btn{% endif %}"
+  class="{% if detail %}btn-green detail-wa-btn{% else %}btn-green product-wa-btn{% endif %}{% if product.price_on_request %} product-wa-btn--price-request{% endif %}"
   href="https://wa.me/{{ product.whatsapp_number|whatsapp_phone }}?text={{ product.get_whatsapp_inquiry_message|urlencode }}"
   target="_blank"
   rel="noopener noreferrer"
 >
-  {% if detail %}
+  {% if product.price_on_request %}
+    Узнать цену
+  {% elif detail %}
     WhatsApp продавцу
   {% else %}
     <span class="wa-label-full">WhatsApp продавцу</span>

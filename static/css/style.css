@@ -349,6 +349,29 @@ a.btn-green.product-wa-btn:hover,
   accent-color:#ef3d2f;
 }
 
+.price-on-request-checkbox{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  font-size:14px;
+  font-weight:600;
+  color:#555;
+  cursor:pointer;
+}
+
+.price-on-request-checkbox input[type="checkbox"]{
+  width:16px;
+  height:16px;
+  min-height:16px;
+  margin:0;
+  accent-color:#ef3d2f;
+}
+
+.seller-form input[disabled]{
+  background:#f5f5f5;
+  color:#888;
+}
+
 .seller-form button,
 .seller-form .btn{
   margin-top:6px;

@@ -519,6 +519,16 @@ body{
   margin-bottom:6px;
 }
 
+.product-price--on-request{
+  color:#475569;
+  font-size:16px;
+  font-weight:800;
+}
+
+.product-wa-btn--price-request{
+  flex:1 1 auto;
+}
+
 .product-seller{
   color:#666;
   margin-bottom:6px;

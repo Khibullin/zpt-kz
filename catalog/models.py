@@ -201,7 +201,14 @@ class Product(models.Model):
     )
 
     price = models.PositiveIntegerField(
-        verbose_name='Цена'
+        null=True,
+        blank=True,
+        verbose_name='Цена',
+    )
+
+    price_on_request = models.BooleanField(
+        default=False,
+        verbose_name='Цена по запросу',
     )
 
     condition = models.CharField(
@@ -338,6 +345,14 @@ class Product(models.Model):
         brand = self.brand.name if self.brand else 'не указан'
         article = self.article or 'не указан'
         product_url = f'https://zpt.kz{self.get_absolute_url()}'
+        if self.price_on_request:
+            return (
+                'Здравствуйте! Я пишу с сайта ZPT.kz. '
+                f'Меня интересует товар «{self.title}» '
+                f'(Арт. {article}, Бренд: {brand}). '
+                'Подскажите, пожалуйста, актуальную цену и наличие. '
+                f'Ссылка на товар: {product_url}'
+            )
         return (
             'Здравствуйте! Я пишу с сайта ZPT.kz. '
             f'Меня интересует деталь: {self.title} '

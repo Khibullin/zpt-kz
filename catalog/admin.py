@@ -121,6 +121,7 @@ class ProductAdmin(admin.ModelAdmin):
         'title',
         'article',
         'price',
+        'price_on_request',
         'seller_name',
         'whatsapp_number',
         'city',
@@ -135,6 +136,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_filter = (
         'status',
         'condition',
+        'price_on_request',
         'brand__country',
         'brand',
         'car_model',
@@ -168,6 +170,7 @@ class ProductAdmin(admin.ModelAdmin):
                     'article',
                     'category',
                     'price',
+                    'price_on_request',
                     'condition',
                     'status',
                 )

@@ -1,3 +1,4 @@
+{% if not product.price_on_request %}
 <div
   class="product-buy-controls"
   data-product-id="{{ product.id }}"
@@ -28,3 +29,4 @@
     <span class="product-buy-btn-text">Купить</span>
   </button>
 </div>
+{% endif %}

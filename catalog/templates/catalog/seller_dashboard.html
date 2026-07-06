@@ -94,9 +94,7 @@
                 {{ product.title }}
               </h2>
 
-              <div class="product-price">
-                {{ product.price|intcomma|comma_to_space }} ₸
-              </div>
+              {% include 'catalog/includes/product_price_display.html' with product=product %}
 
               <div class="product-status">
                 {{ product.get_condition_display }} · {{ product.get_status_display }}

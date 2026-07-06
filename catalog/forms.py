@@ -1,4 +1,5 @@
 from django import forms
+from django.core.exceptions import ValidationError
 
 from .models import SellerProfile, Product, Country, Brand, CarModel
 
@@ -172,6 +173,7 @@ class ProductForm(forms.ModelForm):
             'title',
             'article',
             'price',
+            'price_on_request',
             'condition',
             'status',
             'main_image',
@@ -187,6 +189,7 @@ class ProductForm(forms.ModelForm):
             'title': 'Название товара',
             'article': 'Артикул',
             'price': 'Цена',
+            'price_on_request': 'Цена по запросу',
             'condition': 'Состояние',
             'status': 'Статус',
             'main_image': 'Главное фото',
@@ -211,7 +214,25 @@ class ProductForm(forms.ModelForm):
                 'placeholder': 'Опишите состояние, оригинал или аналог, комплектность',
                 'rows': 5
             }),
+            'price_on_request': forms.CheckboxInput(attrs={
+                'id': 'id_price_on_request',
+            }),
         }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        price_on_request = cleaned_data.get('price_on_request')
+        price = cleaned_data.get('price')
+
+        if price_on_request:
+            cleaned_data['price'] = None
+        elif not price or price <= 0:
+            self.add_error(
+                'price',
+                'Укажите цену больше 0 или включите «Цена по запросу».',
+            )
+
+        return cleaned_data
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

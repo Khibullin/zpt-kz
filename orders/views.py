@@ -167,6 +167,17 @@ def api_cart_add(request, product_id=None):
                     status=404,
                 )
 
+            if product.price_on_request:
+                return JsonResponse(
+                    {
+                        'success': False,
+                        'ok': False,
+                        'error': 'Этот товар доступен только по запросу цены через WhatsApp',
+                        'message': 'Этот товар доступен только по запросу цены через WhatsApp',
+                    },
+                    status=400,
+                )
+
             try:
                 cart_manager.add(product_id=product.id, quantity=quantity)
             except CartSellerConflictError as exc:

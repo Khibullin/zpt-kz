@@ -1,0 +1,6 @@
+{% load humanize phone_extras %}
+{% if product.price_on_request %}
+  <div class="{{ price_class|default:'product-price' }} product-price--on-request">Цена по запросу</div>
+{% elif product.price is not None %}
+  <div class="{{ price_class|default:'product-price' }}">{{ product.price|intcomma|comma_to_space }} ₸</div>
+{% endif %}
