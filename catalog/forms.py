@@ -20,6 +20,7 @@ class SellerRegisterForm(forms.ModelForm):
             'instagram',
             'website',
             'description',
+            'logo',
         ]
 
         labels = {
@@ -32,6 +33,7 @@ class SellerRegisterForm(forms.ModelForm):
             'instagram': 'Instagram',
             'website': 'Сайт',
             'description': 'Описание маркета',
+            'logo': 'Логотип маркета',
         }
 
         widgets = {
@@ -77,6 +79,8 @@ class SellerRegisterForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].required = True
+        if 'logo' in self.fields:
+            self.fields['logo'].required = False
 
     def clean(self):
         cleaned_data = super().clean()
@@ -102,6 +106,7 @@ class SellerProfileForm(forms.ModelForm):
             'instagram',
             'website',
             'description',
+            'logo',
         ]
 
         labels = {
@@ -114,6 +119,7 @@ class SellerProfileForm(forms.ModelForm):
             'instagram': 'Instagram',
             'website': 'Сайт',
             'description': 'Описание маркета',
+            'logo': 'Логотип маркета',
         }
 
         widgets = {
@@ -159,6 +165,8 @@ class SellerProfileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].required = True
+        if 'logo' in self.fields:
+            self.fields['logo'].required = False
 
     def clean(self):
         cleaned_data = super().clean()

@@ -15,6 +15,7 @@
       <form
         method="post"
         class="seller-form"
+        enctype="multipart/form-data"
       >
         {% csrf_token %}
 
@@ -74,6 +75,22 @@
             {{ form.description.label }}
           </label>
           {{ form.description }}
+        </p>
+
+        <p>
+          <label for="{{ form.logo.id_for_label }}">
+            {{ form.logo.label }}
+          </label>
+          {{ form.logo }}
+          {% if seller.logo %}
+            <span class="dashboard-subtitle seller-form-section-hint" style="display:block;margin-top:4px;">
+              Текущий логотип загружен. Выберите новый файл, чтобы заменить его.
+            </span>
+          {% else %}
+            <span class="dashboard-subtitle seller-form-section-hint" style="display:block;margin-top:4px;">
+              Необязательно. Логотип отображается в карточке товара и публичном профиле магазина.
+            </span>
+          {% endif %}
         </p>
 
         <div class="form-action-row">

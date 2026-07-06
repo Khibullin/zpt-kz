@@ -15,7 +15,7 @@
         <div class="form-error">{{ error_message }}</div>
       {% endif %}
 
-      <form method="post" class="seller-form">
+      <form method="post" class="seller-form" enctype="multipart/form-data">
         {% csrf_token %}
 
         <p>
@@ -46,6 +46,14 @@
         <p>
           <label for="{{ form.name.id_for_label }}">{{ form.name.label }}</label>
           {{ form.name }}
+        </p>
+
+        <p>
+          <label for="{{ form.logo.id_for_label }}">{{ form.logo.label }}</label>
+          {{ form.logo }}
+          <span class="dashboard-subtitle seller-form-section-hint" style="display:block;margin-top:4px;">
+            Необязательно. Логотип отображается в карточке товара и публичном профиле магазина.
+          </span>
         </p>
 
         <p>
