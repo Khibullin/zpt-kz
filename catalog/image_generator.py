@@ -27,23 +27,26 @@ STORY_WIDTH = 1080
 STORY_HEIGHT = 1920
 OUTPUT_SUBDIR = 'instagram_stories'
 
-TITLE_TEXT = 'Новая заявка на ZPT.kz!'
-FOOTER_TEXT = 'Продавцы, пишите клиенту в WhatsApp через сайт ZPT.kz'
+FOOTER_TEXT = 'Продавцы, пишите клиенту в WhatsApp через сайт ZPT.KZ'
+CTA_LINE_1 = 'Есть эта запчасть?'
+CTA_LINE_2 = 'Зарегистрируйтесь на ZPT.KZ'
+SITE_MARK = 'ZPT.KZ'
 
-PADDING_X = 80
-PADDING_TOP = 140
-PADDING_BOTTOM = 160
+PADDING_X = 56
 CONTENT_WIDTH = STORY_WIDTH - PADDING_X * 2
-LINE_GAP = 12
-SECTION_GAP = 44
+LINE_GAP = 10
+BLOCK_GAP = 28
+LABEL_BODY_GAP = 8
 
-COLOR_BG_FALLBACK = (245, 246, 248)
-COLOR_BRAND = (255, 59, 48)
+COLOR_WHITE = (255, 255, 255)
+COLOR_BG = (255, 255, 255)
+COLOR_BG_SOFT = (255, 247, 247)
+COLOR_BRAND = (239, 61, 47)
+COLOR_BRAND_DARK = (198, 40, 40)
 COLOR_TITLE = (17, 24, 39)
-COLOR_LABEL = (107, 114, 128)
+COLOR_LABEL = (120, 128, 138)
 COLOR_BODY = (31, 41, 55)
-COLOR_FOOTER = (75, 85, 99)
-COLOR_ACCENT_BAR = (255, 59, 48)
+COLOR_FOOTER = (55, 65, 81)
 
 
 class InstagramStoryGenerationError(Exception):
@@ -102,10 +105,16 @@ def _load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | Ima
 
 
 def _create_fallback_background() -> Image.Image:
-    image = Image.new('RGB', (STORY_WIDTH, STORY_HEIGHT), COLOR_BG_FALLBACK)
+    image = Image.new('RGB', (STORY_WIDTH, STORY_HEIGHT), COLOR_BG)
     draw = ImageDraw.Draw(image)
-    draw.rectangle((0, 0, STORY_WIDTH, 18), fill=COLOR_ACCENT_BAR)
-    draw.rectangle((0, STORY_HEIGHT - 18, STORY_WIDTH, STORY_HEIGHT), fill=COLOR_ACCENT_BAR)
+    draw.rectangle((0, 0, STORY_WIDTH, 24), fill=COLOR_BRAND)
+    draw.rectangle((0, STORY_HEIGHT - 24, STORY_WIDTH, STORY_HEIGHT), fill=COLOR_BRAND)
+    draw.rectangle(
+        (PADDING_X, 420, STORY_WIDTH - PADDING_X, 1180),
+        fill=COLOR_BG_SOFT,
+        outline=(255, 220, 220),
+        width=3,
+    )
     return image
 
 
@@ -205,6 +214,137 @@ def _measure_text(draw: ImageDraw.ImageDraw, text: str, font: ImageFont.ImageFon
     return bbox[2] - bbox[0], bbox[3] - bbox[1]
 
 
+def _draw_centered_text(
+    draw: ImageDraw.ImageDraw,
+    *,
+    text: str,
+    y: int,
+    font: ImageFont.ImageFont,
+    fill: tuple[int, int, int],
+) -> int:
+    width, height = _measure_text(draw, text, font)
+    x = (STORY_WIDTH - width) // 2
+    draw.text((x, y), text, font=font, fill=fill)
+    return y + height
+
+
+def _draw_centered_lines(
+    draw: ImageDraw.ImageDraw,
+    *,
+    lines: list[str],
+    y: int,
+    font: ImageFont.ImageFont,
+    fill: tuple[int, int, int],
+    line_gap: int = LINE_GAP,
+) -> int:
+    cursor_y = y
+    for line in lines:
+        cursor_y = _draw_centered_text(
+            draw,
+            text=line,
+            y=cursor_y,
+            font=font,
+            fill=fill,
+        ) + line_gap
+    return cursor_y - line_gap
+
+
+def _estimate_centered_block_height(
+    draw: ImageDraw.ImageDraw,
+    sections: list[tuple[str, list[str], ImageFont.ImageFont, ImageFont.ImageFont]],
+    *,
+    max_width: int,
+) -> int:
+    total = 0
+    for index, (_label, body_lines, label_font, body_font) in enumerate(sections):
+        if index:
+            total += BLOCK_GAP
+        _, label_height = _measure_text(draw, _label, label_font)
+        total += label_height + LABEL_BODY_GAP
+        for line in body_lines:
+            _, line_height = _measure_text(draw, line, body_font)
+            total += line_height + LINE_GAP
+        if body_lines:
+            total -= LINE_GAP
+    return total
+
+
+def _draw_centered_info_block(
+    draw: ImageDraw.ImageDraw,
+    *,
+    y_start: int,
+    sections: list[tuple[str, list[str], ImageFont.ImageFont, ImageFont.ImageFont, tuple[int, int, int]]],
+    max_width: int,
+) -> int:
+    cursor_y = y_start
+    for index, (label, body_lines, label_font, body_font, body_color) in enumerate(sections):
+        if index:
+            cursor_y += BLOCK_GAP
+        cursor_y = _draw_centered_text(
+            draw,
+            text=label,
+            y=cursor_y,
+            font=label_font,
+            fill=COLOR_LABEL,
+        ) + LABEL_BODY_GAP
+        cursor_y = _draw_centered_lines(
+            draw,
+            lines=body_lines,
+            y=cursor_y,
+            font=body_font,
+            fill=body_color,
+            line_gap=LINE_GAP,
+        )
+    return cursor_y
+
+
+def _draw_cta_banner(
+    draw: ImageDraw.ImageDraw,
+    *,
+    y: int,
+    primary_font: ImageFont.ImageFont,
+    secondary_font: ImageFont.ImageFont,
+) -> int:
+    line1_height = _measure_text(draw, CTA_LINE_1, primary_font)[1]
+    line2_height = _measure_text(draw, CTA_LINE_2, secondary_font)[1]
+    banner_height = 36 + line1_height + 18 + line2_height + 36
+    draw.rounded_rectangle(
+        (PADDING_X, y, STORY_WIDTH - PADDING_X, y + banner_height),
+        radius=28,
+        fill=COLOR_BRAND,
+    )
+    text_y = y + 36
+    text_y = _draw_centered_text(
+        draw,
+        text=CTA_LINE_1,
+        y=text_y,
+        font=primary_font,
+        fill=COLOR_WHITE,
+    ) + 18
+    _draw_centered_text(
+        draw,
+        text=CTA_LINE_2,
+        y=text_y,
+        font=secondary_font,
+        fill=COLOR_WHITE,
+    )
+    return y + banner_height
+
+
+def _draw_footer(
+    draw: ImageDraw.ImageDraw,
+    *,
+    font: ImageFont.ImageFont,
+    max_width: int,
+) -> None:
+    lines = _wrap_paragraph(draw, FOOTER_TEXT, font, max_width, max_lines=3)
+    total_height = sum(_measure_text(draw, line, font)[1] + LINE_GAP for line in lines) - LINE_GAP
+    footer_y = STORY_HEIGHT - 72 - total_height
+    for line in lines:
+        _draw_centered_text(draw, text=line, y=footer_y, font=font, fill=COLOR_FOOTER)
+        footer_y += _measure_text(draw, line, font)[1] + LINE_GAP
+
+
 def _wrap_paragraph(
     draw: ImageDraw.ImageDraw,
     text: str,
@@ -258,43 +398,6 @@ def _wrap_paragraph(
     return lines or ['Не указано']
 
 
-def _draw_text_block(
-    draw: ImageDraw.ImageDraw,
-    *,
-    x: int,
-    y: int,
-    label: str,
-    body: str,
-    label_font: ImageFont.ImageFont,
-    body_font: ImageFont.ImageFont,
-    max_width: int,
-) -> int:
-    draw.text((x, y), label, font=label_font, fill=COLOR_LABEL)
-    _, label_height = _measure_text(draw, label, label_font)
-    cursor_y = y + label_height + 10
-
-    for line in _wrap_paragraph(draw, body, body_font, max_width):
-        draw.text((x, cursor_y), line, font=body_font, fill=COLOR_BODY)
-        _, line_height = _measure_text(draw, line, body_font)
-        cursor_y += line_height + LINE_GAP
-
-    return cursor_y + SECTION_GAP - LINE_GAP
-
-
-def _draw_footer(
-    draw: ImageDraw.ImageDraw,
-    *,
-    font: ImageFont.ImageFont,
-    max_width: int,
-) -> None:
-    footer_y = STORY_HEIGHT - PADDING_BOTTOM
-    for line in reversed(_wrap_paragraph(draw, FOOTER_TEXT, font, max_width, max_lines=3)):
-        _, line_height = _measure_text(draw, line, font)
-        footer_y -= line_height
-        draw.text((PADDING_X, footer_y), line, font=font, fill=COLOR_FOOTER)
-        footer_y -= LINE_GAP
-
-
 def _build_output_filename(product_request: Request) -> str:
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
     return f'request_{product_request.pk}_{timestamp}.png'
@@ -318,55 +421,88 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         image = _load_background()
         draw = ImageDraw.Draw(image)
 
-        title_font = _load_font(64, bold=True)
+        header_font = _load_font(52, bold=True)
         label_font = _load_font(30, bold=True)
-        body_font = _load_font(42, bold=False)
-        footer_font = _load_font(30, bold=False)
+        vehicle_font = _load_font(76, bold=True)
+        part_font = _load_font(58, bold=True)
+        city_font = _load_font(68, bold=True)
+        cta_primary_font = _load_font(54, bold=True)
+        cta_secondary_font = _load_font(44, bold=True)
+        footer_font = _load_font(38, bold=False)
 
-        cursor_y = PADDING_TOP
+        draw.rectangle((0, 0, STORY_WIDTH, 24), fill=COLOR_BRAND)
+        draw.rectangle((0, STORY_HEIGHT - 24, STORY_WIDTH, STORY_HEIGHT), fill=COLOR_BRAND)
 
-        for line in _wrap_paragraph(draw, TITLE_TEXT, title_font, CONTENT_WIDTH, max_lines=2):
-            draw.text((PADDING_X, cursor_y), line, font=title_font, fill=COLOR_BRAND)
-            _, line_height = _measure_text(draw, line, title_font)
-            cursor_y += line_height + LINE_GAP
+        header_y = 56
+        _draw_centered_text(
+            draw,
+            text=SITE_MARK,
+            y=header_y,
+            font=header_font,
+            fill=COLOR_BRAND,
+        )
 
-        cursor_y += 28
-        draw.line(
-            (PADDING_X, cursor_y, STORY_WIDTH - PADDING_X, cursor_y),
-            fill=(229, 231, 235),
+        vehicle_lines = _wrap_paragraph(
+            draw,
+            _format_vehicle_line(product_request),
+            vehicle_font,
+            CONTENT_WIDTH,
+            max_lines=2,
+        )
+        part_lines = _wrap_paragraph(
+            draw,
+            _format_part_line(product_request, safe_description=safe_description),
+            part_font,
+            CONTENT_WIDTH,
+            max_lines=4,
+        )
+        city_lines = _wrap_paragraph(
+            draw,
+            _format_city_line(product_request),
+            city_font,
+            CONTENT_WIDTH,
+            max_lines=2,
+        )
+
+        info_sections = [
+            ('АВТО', vehicle_lines, label_font, vehicle_font, COLOR_TITLE),
+            ('ДЕТАЛЬ', part_lines, label_font, part_font, COLOR_BODY),
+            ('ГОРОД', city_lines, label_font, city_font, COLOR_BRAND),
+        ]
+
+        info_height = _estimate_centered_block_height(
+            draw,
+            [(label, lines, label_font, body_font) for label, lines, label_font, body_font, _ in info_sections],
+            max_width=CONTENT_WIDTH,
+        )
+        cta_height = 36 + _measure_text(draw, CTA_LINE_1, cta_primary_font)[1] + 18
+        cta_height += _measure_text(draw, CTA_LINE_2, cta_secondary_font)[1] + 36
+
+        info_top = 250
+        info_bottom_limit = STORY_HEIGHT - 260
+        available_height = info_bottom_limit - info_top - cta_height - 36
+        info_y = info_top + max(0, (available_height - info_height) // 2)
+
+        draw.rounded_rectangle(
+            (PADDING_X - 8, info_y - 28, STORY_WIDTH - PADDING_X + 8, info_y + info_height + 28),
+            radius=32,
+            fill=COLOR_WHITE,
+            outline=(255, 220, 220),
             width=3,
         )
-        cursor_y += 36
 
-        cursor_y = _draw_text_block(
+        content_bottom = _draw_centered_info_block(
             draw,
-            x=PADDING_X,
-            y=cursor_y,
-            label='АВТО',
-            body=_format_vehicle_line(product_request),
-            label_font=label_font,
-            body_font=body_font,
+            y_start=info_y,
+            sections=info_sections,
             max_width=CONTENT_WIDTH,
         )
-        cursor_y = _draw_text_block(
+
+        _draw_cta_banner(
             draw,
-            x=PADDING_X,
-            y=cursor_y,
-            label='ДЕТАЛЬ',
-            body=_format_part_line(product_request, safe_description=safe_description),
-            label_font=label_font,
-            body_font=body_font,
-            max_width=CONTENT_WIDTH,
-        )
-        _draw_text_block(
-            draw,
-            x=PADDING_X,
-            y=cursor_y,
-            label='ГОРОД',
-            body=_format_city_line(product_request),
-            label_font=label_font,
-            body_font=body_font,
-            max_width=CONTENT_WIDTH,
+            y=content_bottom + 36,
+            primary_font=cta_primary_font,
+            secondary_font=cta_secondary_font,
         )
 
         _draw_footer(draw, font=footer_font, max_width=CONTENT_WIDTH)
