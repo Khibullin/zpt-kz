@@ -156,6 +156,24 @@ class InstagramLivePublishTests(TestCase):
         publish_instagram_publication(publication)
         publish_mock.assert_not_called()
 
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_publish_failure_saves_image_url_validation_error(self, publish_mock):
+        from catalog.instagram_api import InstagramPublishError
+
+        publish_mock.side_effect = InstagramPublishError(
+            'image_url недоступен для Meta API: HTTP 404 '
+            '(https://zpt.kz/products/instagram_stories/missing.jpg)'
+        )
+        publication = process_instagram_publication_for_request(self.request.pk)
+        publish_mock.reset_mock()
+
+        publish_instagram_publication(publication)
+        publication.refresh_from_db()
+
+        self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertIn('HTTP 404', publication.error_message)
+        self.assertIn('https://zpt.kz/products/', publication.error_message)
+
 
 class CreateRequestInstagramOnCommitTests(TestCase):
     def setUp(self):

@@ -5,9 +5,11 @@
 from __future__ import annotations
 
 import logging
+import re
 import time
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any
+from urllib.parse import urlparse
 
 import requests
 from django.conf import settings
@@ -18,6 +20,13 @@ GRAPH_API_BASE = 'https://graph.facebook.com'
 CONTAINER_POLL_INTERVAL_SEC = 2
 CONTAINER_POLL_TIMEOUT_SEC = 60
 REQUEST_TIMEOUT_SEC = 30
+IMAGE_URL_USER_AGENT = 'ZPT.KZ-Instagram-Validator/1.0'
+BLOCKED_URL_PATH_MARKERS = (
+    '/admin/',
+    '/login/',
+    '/accounts/login/',
+    '/auth/',
+)
 
 
 class InstagramPublishError(Exception):
@@ -63,11 +72,126 @@ def _instagram_access_token() -> str:
 
 
 def build_public_media_url(image_relative_path: str) -> str:
-    """Собирает абсолютный публичный URL файла из MEDIA_ROOT."""
-    base_url = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
+    """Собирает абсолютный публичный HTTPS URL файла из MEDIA_ROOT."""
+    clean_path = normalize_media_relative_path(image_relative_path)
+    base_url = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').strip().rstrip('/')
+    if base_url.startswith('http://'):
+        base_url = f'https://{base_url[len("http://"):]}'
+    elif not base_url.startswith('https://'):
+        base_url = f'https://{base_url.lstrip("/")}'
+
     media_url = getattr(settings, 'MEDIA_URL', '/products/').strip('/')
-    clean_path = image_relative_path.replace('\\', '/').lstrip('/')
     return f'{base_url}/{media_url}/{clean_path}'
+
+
+def normalize_media_relative_path(image_path: str) -> str:
+    """
+    Приводит путь к виду ``instagram_stories/file.jpg`` относительно MEDIA_ROOT.
+
+    :raises InstagramPublishError: если передан локальный путь вне MEDIA_ROOT,
+        URL admin/login или другой недопустимый путь.
+    """
+    raw = str(image_path or '').strip().replace('\\', '/')
+    if not raw:
+        raise InstagramPublishError('Путь к изображению Story не указан.')
+
+    lowered = raw.lower()
+    if raw.startswith(('http://', 'https://')):
+        raise InstagramPublishError(
+            'В Instagram API нужно передавать путь в MEDIA_ROOT, а не готовый URL.'
+        )
+    if any(marker in lowered for marker in BLOCKED_URL_PATH_MARKERS):
+        raise InstagramPublishError(
+            'Путь к изображению указывает на защищённую страницу, а не на media-файл.'
+        )
+    if re.match(r'^[a-zA-Z]:', raw) or raw.startswith('//'):
+        raw = absolute_media_path_to_relative(raw)
+
+    clean_path = raw.lstrip('/')
+    if '..' in PurePosixPath(clean_path).parts:
+        raise InstagramPublishError('Недопустимый путь к изображению Story.')
+
+    return clean_path
+
+
+def validate_public_image_url(image_url: str) -> None:
+    """
+    Проверяет, что Meta сможет скачать JPEG по публичному URL без авторизации.
+
+    :raises InstagramPublishError: если URL недоступен или ответ не является JPEG.
+    """
+    parsed = urlparse(image_url)
+    if parsed.scheme != 'https' or not parsed.netloc:
+        raise InstagramPublishError(
+            f'image_url должен быть абсолютным HTTPS-адресом, получено: {image_url}'
+        )
+    if _url_looks_like_blocked_destination(image_url):
+        raise InstagramPublishError(
+            f'image_url ведёт на защищённую страницу, а не на media-файл: {image_url}'
+        )
+
+    try:
+        response = requests.get(
+            image_url,
+            timeout=REQUEST_TIMEOUT_SEC,
+            allow_redirects=True,
+            headers={'User-Agent': IMAGE_URL_USER_AGENT},
+        )
+    except requests.RequestException as exc:
+        raise InstagramPublishError(
+            f'Не удалось проверить доступность image_url {image_url}: {exc}'
+        ) from exc
+
+    if _url_looks_like_blocked_destination(response.url):
+        raise InstagramPublishError(
+            f'image_url перенаправлен на защищённую страницу: {response.url}'
+        )
+    if response.status_code != 200:
+        raise InstagramPublishError(
+            f'image_url недоступен для Meta API: HTTP {response.status_code} ({image_url})'
+        )
+
+    content_type = (response.headers.get('Content-Type') or '').split(';', 1)[0].strip().lower()
+    if not content_type.startswith('image/jpeg'):
+        raise InstagramPublishError(
+            f'image_url должен отдавать image/jpeg, получено {content_type or "unknown"} '
+            f'({image_url})'
+        )
+
+    content_length_header = response.headers.get('Content-Length')
+    if content_length_header is not None:
+        try:
+            content_length = int(content_length_header)
+        except ValueError as exc:
+            raise InstagramPublishError(
+                f'image_url вернул некорректный Content-Length ({image_url})'
+            ) from exc
+        if content_length <= 0:
+            raise InstagramPublishError(
+                f'image_url вернул пустой JPEG (Content-Length={content_length}).'
+            )
+    elif not response.content:
+        raise InstagramPublishError(
+            f'image_url вернул пустой ответ без JPEG-данных ({image_url}).'
+        )
+
+    if _response_looks_like_html(response):
+        raise InstagramPublishError(
+            f'image_url вернул HTML вместо JPEG, вероятно требуется авторизация ({image_url}).'
+        )
+
+
+def _url_looks_like_blocked_destination(url: str) -> bool:
+    path = urlparse(url).path.lower()
+    return any(marker in path for marker in BLOCKED_URL_PATH_MARKERS)
+
+
+def _response_looks_like_html(response: requests.Response) -> bool:
+    content_type = (response.headers.get('Content-Type') or '').lower()
+    if 'text/html' in content_type:
+        return True
+    sample = response.content[:512].lstrip().lower()
+    return sample.startswith(b'<!doctype html') or sample.startswith(b'<html')
 
 
 def absolute_media_path_to_relative(path: Path | str) -> str:
@@ -184,7 +308,7 @@ def publish_story_to_instagram(image_relative_path: str) -> dict[str, str]:
     Публикует изображение в Instagram Stories через Meta Graph API.
 
     :param image_relative_path: путь относительно MEDIA_ROOT, например
-        ``instagram_stories/request_12_20260706_150000.png``.
+        ``instagram_stories/request_<uuid>_20260706_150000.jpg``.
     :returns: dict с ключами ``container_id`` и ``media_id``.
     :raises InstagramPublishError: если публикация не удалась.
     """
@@ -198,10 +322,12 @@ def publish_story_to_instagram(image_relative_path: str) -> dict[str, str]:
     access_token = _instagram_access_token()
     image_url = build_public_media_url(image_relative_path)
 
+    logger.info('Instagram publish: image_url=%s', image_url)
+    validate_public_image_url(image_url)
+
     logger.info(
-        'Instagram publish: создаём Story container (account=%s, image=%s)',
+        'Instagram publish: создаём Story container (account=%s)',
         ig_account_id,
-        image_url,
     )
 
     container_id = _create_story_container(
