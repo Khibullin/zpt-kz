@@ -72,16 +72,19 @@ class InstagramStoryGeneratorTests(TestCase):
         self.assertEqual(len(lines), 3)
         self.assertTrue(lines[-1].endswith('\u2026'))
 
-    def test_generate_instagram_story_creates_png(self):
+    def test_generate_instagram_story_creates_jpeg(self):
         output_path, caption = generate_instagram_story(self.request)
 
         self.assertTrue(output_path.is_file())
-        self.assertEqual(output_path.suffix, '.png')
+        self.assertEqual(output_path.suffix, '.jpg')
         self.assertIn('instagram_stories', output_path.as_posix())
+        self.assertIn(str(self.request.access_token), output_path.name)
         self.assertIn('АВТО:', caption)
 
         with Image.open(output_path) as image:
             self.assertEqual(image.size, (1080, 1920))
+            self.assertEqual(image.mode, 'RGB')
+            self.assertEqual(image.format, 'JPEG')
 
     def test_generate_instagram_story_uses_fallback_background(self):
         with patch('catalog.image_generator._background_path') as bg_mock:

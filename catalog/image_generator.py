@@ -445,12 +445,12 @@ def _wrap_paragraph(
 
 def _build_output_filename(product_request: Request) -> str:
     timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    return f'request_{product_request.pk}_{timestamp}.png'
+    return f'request_{product_request.access_token}_{timestamp}.jpg'
 
 
 def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
     """
-    Создаёт PNG-карточку 1080×1920 для Instagram Stories и сохраняет её
+    Создаёт JPEG-карточку 1080×1920 для Instagram Stories и сохраняет её
     в ``MEDIA_ROOT/instagram_stories/``.
 
     :returns: (абсолютный путь к файлу, безопасный caption).
@@ -589,7 +589,8 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         output_dir = _output_dir()
         output_dir.mkdir(parents=True, exist_ok=True)
         output_path = output_dir / _build_output_filename(product_request)
-        image.save(output_path, format='PNG', optimize=True)
+        image = image.convert('RGB')
+        image.save(output_path, format='JPEG', quality=92, optimize=True)
 
         logger.info('Instagram Story сохранена: %s (request_id=%s)', output_path, product_request.pk)
         return output_path.resolve(), caption
@@ -609,7 +610,7 @@ ACTIVE_REQUEST_STATUSES = ('new', 'sent')
 
 def instagram_story_exists(request_id: int) -> bool:
     """Проверяет, есть ли уже публикация Instagram для заявки."""
-    from core.models import InstagramPublication
+    from core.models import InstagramPublication, Request
 
     if InstagramPublication.objects.filter(request_id=request_id).exists():
         return True
@@ -617,7 +618,11 @@ def instagram_story_exists(request_id: int) -> bool:
     output_dir = _output_dir()
     if not output_dir.is_dir():
         return False
-    return any(output_dir.glob(f'request_{request_id}_*.png'))
+    try:
+        access_token = Request.objects.values_list('access_token', flat=True).get(pk=request_id)
+    except Request.DoesNotExist:
+        return False
+    return any(output_dir.glob(f'request_{access_token}_*.jpg'))
 
 
 def try_generate_instagram_story(product_request: Request) -> Path | None:
