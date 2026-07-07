@@ -27,26 +27,30 @@ STORY_WIDTH = 1080
 STORY_HEIGHT = 1920
 OUTPUT_SUBDIR = 'instagram_stories'
 
-FOOTER_TEXT = 'Продавцы, пишите клиенту в WhatsApp через сайт ZPT.KZ'
+FOOTER_TEXT = 'Получите контакт покупателя после регистрации на ZPT.KZ'
 CTA_LINE_1 = 'Есть эта запчасть?'
 CTA_LINE_2 = 'Зарегистрируйтесь на ZPT.KZ'
 SITE_MARK = 'ZPT.KZ'
+HEADLINE_TEXT = 'Новая заявка на запчасть'
 
-PADDING_X = 56
+PADDING_X = 48
 CONTENT_WIDTH = STORY_WIDTH - PADDING_X * 2
-LINE_GAP = 10
-BLOCK_GAP = 28
-LABEL_BODY_GAP = 8
+LINE_GAP = 14
+BLOCK_GAP = 38
+LABEL_BODY_GAP = 12
+CARD_PAD_X = 20
+CARD_PAD_Y = 40
 
 COLOR_WHITE = (255, 255, 255)
 COLOR_BG = (255, 255, 255)
-COLOR_BG_SOFT = (255, 247, 247)
+COLOR_BG_SOFT = (255, 251, 251)
 COLOR_BRAND = (239, 61, 47)
-COLOR_BRAND_DARK = (198, 40, 40)
 COLOR_TITLE = (17, 24, 39)
 COLOR_LABEL = (120, 128, 138)
 COLOR_BODY = (31, 41, 55)
 COLOR_FOOTER = (55, 65, 81)
+COLOR_DECO = (220, 224, 230)
+COLOR_DECO_SOFT = (236, 239, 244)
 
 
 class InstagramStoryGenerationError(Exception):
@@ -106,16 +110,54 @@ def _load_font(size: int, *, bold: bool = False) -> ImageFont.FreeTypeFont | Ima
 
 def _create_fallback_background() -> Image.Image:
     image = Image.new('RGB', (STORY_WIDTH, STORY_HEIGHT), COLOR_BG)
-    draw = ImageDraw.Draw(image)
-    draw.rectangle((0, 0, STORY_WIDTH, 24), fill=COLOR_BRAND)
-    draw.rectangle((0, STORY_HEIGHT - 24, STORY_WIDTH, STORY_HEIGHT), fill=COLOR_BRAND)
-    draw.rectangle(
-        (PADDING_X, 420, STORY_WIDTH - PADDING_X, 1180),
-        fill=COLOR_BG_SOFT,
-        outline=(255, 220, 220),
-        width=3,
-    )
     return image
+
+
+def _draw_decorative_pattern(draw: ImageDraw.ImageDraw) -> None:
+    """Лёгкие серые контуры автозапчастей и геометрия в стиле сайта."""
+    stroke = 2
+
+    draw.ellipse((70, 260, 210, 400), outline=COLOR_DECO, width=stroke)
+    draw.ellipse((110, 300, 170, 360), outline=COLOR_DECO_SOFT, width=stroke)
+    draw.line((140, 260, 140, 400), fill=COLOR_DECO_SOFT, width=stroke)
+
+    draw.rounded_rectangle((860, 220, 1010, 320), radius=18, outline=COLOR_DECO, width=stroke)
+    draw.line((885, 250, 985, 250), fill=COLOR_DECO_SOFT, width=stroke)
+    draw.line((885, 285, 960, 285), fill=COLOR_DECO_SOFT, width=stroke)
+
+    draw.polygon(
+        [(120, 1500), (190, 1450), (260, 1500), (260, 1580), (120, 1580)],
+        outline=COLOR_DECO,
+    )
+    draw.ellipse((175, 1520, 205, 1550), outline=COLOR_DECO_SOFT, width=stroke)
+
+    draw.rounded_rectangle((820, 1460, 980, 1560), radius=24, outline=COLOR_DECO, width=stroke)
+    draw.ellipse((870, 1495, 930, 1555), outline=COLOR_DECO_SOFT, width=stroke)
+
+    for cx, cy, radius in (
+        (180, 620, 28),
+        (920, 720, 22),
+        (140, 1180, 18),
+        (940, 1120, 24),
+        (260, 860, 16),
+        (800, 980, 20),
+    ):
+        draw.ellipse(
+            (cx - radius, cy - radius, cx + radius, cy + radius),
+            outline=COLOR_DECO_SOFT,
+            width=1,
+        )
+
+    for x1, y1, x2, y2 in (
+        (60, 520, 180, 520),
+        (900, 560, 1020, 560),
+        (80, 1320, 220, 1320),
+        (860, 1280, 1000, 1280),
+    ):
+        draw.line((x1, y1, x2, y2), fill=COLOR_DECO_SOFT, width=1)
+
+    draw.arc((430, 1700, 650, 1820), start=200, end=340, fill=COLOR_DECO, width=stroke)
+    draw.arc((470, 1720, 610, 1800), start=200, end=340, fill=COLOR_DECO_SOFT, width=1)
 
 
 def _load_background() -> Image.Image:
@@ -305,22 +347,24 @@ def _draw_cta_banner(
     primary_font: ImageFont.ImageFont,
     secondary_font: ImageFont.ImageFont,
 ) -> int:
+    vertical_pad = 48
+    line_spacing = 22
     line1_height = _measure_text(draw, CTA_LINE_1, primary_font)[1]
     line2_height = _measure_text(draw, CTA_LINE_2, secondary_font)[1]
-    banner_height = 36 + line1_height + 18 + line2_height + 36
+    banner_height = vertical_pad + line1_height + line_spacing + line2_height + vertical_pad
     draw.rounded_rectangle(
-        (PADDING_X, y, STORY_WIDTH - PADDING_X, y + banner_height),
-        radius=28,
+        (PADDING_X - 4, y, STORY_WIDTH - PADDING_X + 4, y + banner_height),
+        radius=34,
         fill=COLOR_BRAND,
     )
-    text_y = y + 36
+    text_y = y + vertical_pad
     text_y = _draw_centered_text(
         draw,
         text=CTA_LINE_1,
         y=text_y,
         font=primary_font,
         fill=COLOR_WHITE,
-    ) + 18
+    ) + line_spacing
     _draw_centered_text(
         draw,
         text=CTA_LINE_2,
@@ -336,10 +380,11 @@ def _draw_footer(
     *,
     font: ImageFont.ImageFont,
     max_width: int,
+    cta_bottom: int,
 ) -> None:
     lines = _wrap_paragraph(draw, FOOTER_TEXT, font, max_width, max_lines=3)
     total_height = sum(_measure_text(draw, line, font)[1] + LINE_GAP for line in lines) - LINE_GAP
-    footer_y = STORY_HEIGHT - 72 - total_height
+    footer_y = max(cta_bottom + 42, STORY_HEIGHT - 150 - total_height)
     for line in lines:
         _draw_centered_text(draw, text=line, y=footer_y, font=font, fill=COLOR_FOOTER)
         footer_y += _measure_text(draw, line, font)[1] + LINE_GAP
@@ -421,46 +466,58 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         image = _load_background()
         draw = ImageDraw.Draw(image)
 
-        header_font = _load_font(52, bold=True)
-        label_font = _load_font(30, bold=True)
-        vehicle_font = _load_font(76, bold=True)
-        part_font = _load_font(58, bold=True)
-        city_font = _load_font(68, bold=True)
-        cta_primary_font = _load_font(54, bold=True)
-        cta_secondary_font = _load_font(44, bold=True)
-        footer_font = _load_font(38, bold=False)
+        _draw_decorative_pattern(draw)
+
+        site_font = _load_font(44, bold=True)
+        headline_font = _load_font(64, bold=True)
+        label_font = _load_font(42, bold=True)
+        vehicle_font = _load_font(106, bold=True)
+        part_font = _load_font(82, bold=True)
+        city_font = _load_font(96, bold=True)
+        cta_primary_font = _load_font(72, bold=True)
+        cta_secondary_font = _load_font(58, bold=True)
+        footer_font = _load_font(48, bold=False)
 
         draw.rectangle((0, 0, STORY_WIDTH, 24), fill=COLOR_BRAND)
         draw.rectangle((0, STORY_HEIGHT - 24, STORY_WIDTH, STORY_HEIGHT), fill=COLOR_BRAND)
 
-        header_y = 56
-        _draw_centered_text(
+        cursor_y = 48
+        cursor_y = _draw_centered_text(
             draw,
             text=SITE_MARK,
-            y=header_y,
-            font=header_font,
+            y=cursor_y,
+            font=site_font,
             fill=COLOR_BRAND,
-        )
+        ) + 18
+
+        for line in _wrap_paragraph(draw, HEADLINE_TEXT, headline_font, CONTENT_WIDTH, max_lines=2):
+            cursor_y = _draw_centered_text(
+                draw,
+                text=line,
+                y=cursor_y,
+                font=headline_font,
+                fill=COLOR_TITLE,
+            ) + 10
 
         vehicle_lines = _wrap_paragraph(
             draw,
             _format_vehicle_line(product_request),
             vehicle_font,
-            CONTENT_WIDTH,
+            CONTENT_WIDTH - CARD_PAD_X * 2,
             max_lines=2,
         )
         part_lines = _wrap_paragraph(
             draw,
             _format_part_line(product_request, safe_description=safe_description),
             part_font,
-            CONTENT_WIDTH,
+            CONTENT_WIDTH - CARD_PAD_X * 2,
             max_lines=4,
         )
         city_lines = _wrap_paragraph(
             draw,
             _format_city_line(product_request),
             city_font,
-            CONTENT_WIDTH,
+            CONTENT_WIDTH - CARD_PAD_X * 2,
             max_lines=2,
         )
 
@@ -475,37 +532,59 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
             [(label, lines, label_font, body_font) for label, lines, label_font, body_font, _ in info_sections],
             max_width=CONTENT_WIDTH,
         )
-        cta_height = 36 + _measure_text(draw, CTA_LINE_1, cta_primary_font)[1] + 18
-        cta_height += _measure_text(draw, CTA_LINE_2, cta_secondary_font)[1] + 36
+        cta_height = (
+            48
+            + _measure_text(draw, CTA_LINE_1, cta_primary_font)[1]
+            + 22
+            + _measure_text(draw, CTA_LINE_2, cta_secondary_font)[1]
+            + 48
+        )
 
-        info_top = 250
-        info_bottom_limit = STORY_HEIGHT - 260
-        available_height = info_bottom_limit - info_top - cta_height - 36
-        info_y = info_top + max(0, (available_height - info_height) // 2)
+        card_height = info_height + CARD_PAD_Y * 2
+        stack_height = card_height + 40 + cta_height
+        anchor_y = int(STORY_HEIGHT * 0.40)
+        stack_top = max(cursor_y + 36, anchor_y - stack_height // 2)
+        info_y = stack_top + CARD_PAD_Y
+
+        card_left = PADDING_X - CARD_PAD_X
+        card_right = STORY_WIDTH - PADDING_X + CARD_PAD_X
+        card_top = stack_top
+        card_bottom = stack_top + card_height
 
         draw.rounded_rectangle(
-            (PADDING_X - 8, info_y - 28, STORY_WIDTH - PADDING_X + 8, info_y + info_height + 28),
-            radius=32,
+            (card_left, card_top, card_right, card_bottom),
+            radius=40,
             fill=COLOR_WHITE,
-            outline=(255, 220, 220),
-            width=3,
+            outline=(255, 214, 214),
+            width=4,
+        )
+        draw.rounded_rectangle(
+            (card_left + 6, card_top + 6, card_right - 6, card_bottom - 6),
+            radius=34,
+            outline=COLOR_DECO_SOFT,
+            width=2,
         )
 
         content_bottom = _draw_centered_info_block(
             draw,
             y_start=info_y,
             sections=info_sections,
-            max_width=CONTENT_WIDTH,
+            max_width=CONTENT_WIDTH - CARD_PAD_X * 2,
         )
 
-        _draw_cta_banner(
+        cta_bottom = _draw_cta_banner(
             draw,
-            y=content_bottom + 36,
+            y=card_bottom + 40,
             primary_font=cta_primary_font,
             secondary_font=cta_secondary_font,
         )
 
-        _draw_footer(draw, font=footer_font, max_width=CONTENT_WIDTH)
+        _draw_footer(
+            draw,
+            font=footer_font,
+            max_width=CONTENT_WIDTH,
+            cta_bottom=cta_bottom,
+        )
 
         output_dir = _output_dir()
         output_dir.mkdir(parents=True, exist_ok=True)
