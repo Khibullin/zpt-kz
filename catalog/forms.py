@@ -89,9 +89,24 @@ class SellerRegisterForm(forms.ModelForm):
         self.fields['name'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
+        for optional_field in ('instagram', 'website'):
+            if optional_field in self.fields:
+                self.fields[optional_field].required = False
         if not self.is_bound and not getattr(self.instance, 'pk', None):
             self.initial.setdefault('work_hours', DEFAULT_SELLER_WORK_HOURS)
             self.initial.setdefault('delivery_info', DEFAULT_SELLER_DELIVERY_INFO)
+
+    def clean_instagram(self):
+        instagram = (self.cleaned_data.get('instagram') or '').strip()
+        if not instagram:
+            return ''
+        if '://' not in instagram and not instagram.startswith('//'):
+            instagram = f'https://{instagram.lstrip("/")}'
+        return instagram
+
+    def clean_website(self):
+        website = (self.cleaned_data.get('website') or '').strip()
+        return website
 
     def clean(self):
         cleaned_data = super().clean()
