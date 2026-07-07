@@ -490,3 +490,77 @@ class Feedback(models.Model):
 
     def __str__(self):
         return f'{self.name} ({self.phone})'
+
+
+class InstagramPublication(models.Model):
+    STATUS_DRAFT = 'draft'
+    STATUS_APPROVED = 'approved'
+    STATUS_PUBLISHING = 'publishing'
+    STATUS_PUBLISHED = 'published'
+    STATUS_FAILED = 'failed'
+    STATUS_CANCELLED = 'cancelled'
+
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, 'Черновик'),
+        (STATUS_APPROVED, 'Одобрено'),
+        (STATUS_PUBLISHING, 'Публикуется'),
+        (STATUS_PUBLISHED, 'Опубликовано'),
+        (STATUS_FAILED, 'Ошибка'),
+        (STATUS_CANCELLED, 'Отменено'),
+    ]
+
+    request = models.OneToOneField(
+        Request,
+        on_delete=models.CASCADE,
+        related_name='instagram_publication',
+        verbose_name='Заявка',
+    )
+    image = models.ImageField(
+        upload_to='instagram_stories/',
+        verbose_name='Карточка Story',
+    )
+    caption = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Безопасный текст',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_DRAFT,
+        verbose_name='Статус',
+    )
+    instagram_container_id = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Instagram container ID',
+    )
+    instagram_media_id = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Instagram media ID',
+    )
+    error_message = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Текст ошибки',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создано',
+    )
+    published_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Опубликовано',
+    )
+
+    class Meta:
+        verbose_name = 'Публикация Instagram'
+        verbose_name_plural = 'Публикации Instagram'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Instagram #{self.pk} — заявка #{self.request_id} ({self.get_status_display()})'

@@ -45,7 +45,8 @@ class InstagramApiTests(TestCase):
 
         media_id = publish_story_to_instagram('instagram_stories/request_1.png')
 
-        self.assertEqual(media_id, 'media_456')
+        self.assertEqual(media_id['media_id'], 'media_456')
+        self.assertEqual(media_id['container_id'], 'container_123')
         self.assertEqual(post_mock.call_count, 2)
 
         create_call = post_mock.call_args_list[0]

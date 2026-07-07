@@ -7,6 +7,11 @@ from .models import WhatsAppMessageLog
 
 from openpyxl import load_workbook
 
+from catalog.instagram_service import (
+    approve_instagram_publication,
+    cancel_instagram_publication,
+    publish_instagram_publication,
+)
 from .models import (
     Country,
     Brand,
@@ -18,6 +23,7 @@ from .models import (
     Match,
     RequestDispatch,
     Feedback,
+    InstagramPublication,
 )
 
 
@@ -658,3 +664,121 @@ class WhatsAppMessageLogAdmin(admin.ModelAdmin):
     )
     search_fields = ('seller_name', 'phone_clean', 'message_id')
     list_filter = ('is_success', 'status_text')
+
+
+@admin.action(description='Одобрить выбранные публикации')
+def approve_instagram_publications(modeladmin, request, queryset):
+    updated = 0
+    for publication in queryset:
+        approve_instagram_publication(publication)
+        updated += 1
+    modeladmin.message_user(request, f'Одобрено публикаций: {updated}')
+
+
+@admin.action(description='Опубликовать выбранные карточки')
+def publish_instagram_publications(modeladmin, request, queryset):
+    published = 0
+    skipped = 0
+    for publication in queryset:
+        before = publication.status
+        publish_instagram_publication(publication)
+        publication.refresh_from_db()
+        if publication.status == InstagramPublication.STATUS_PUBLISHED:
+            published += 1
+        elif before == InstagramPublication.STATUS_PUBLISHED:
+            skipped += 1
+    modeladmin.message_user(
+        request,
+        f'Опубликовано: {published}. Пропущено (уже опубликовано): {skipped}.',
+    )
+
+
+@admin.action(description='Повторить публикацию для выбранных')
+def retry_instagram_publications(modeladmin, request, queryset):
+    retried = 0
+    for publication in queryset.exclude(status=InstagramPublication.STATUS_PUBLISHED):
+        if publication.status == InstagramPublication.STATUS_CANCELLED:
+            publication.status = InstagramPublication.STATUS_DRAFT
+            publication.save(update_fields=['status'])
+        publish_instagram_publication(publication)
+        retried += 1
+    modeladmin.message_user(request, f'Повторена публикация для: {retried}')
+
+
+@admin.action(description='Отменить выбранные публикации')
+def cancel_instagram_publications(modeladmin, request, queryset):
+    cancelled = 0
+    for publication in queryset:
+        if publication.status != InstagramPublication.STATUS_PUBLISHED:
+            cancel_instagram_publication(publication)
+            cancelled += 1
+    modeladmin.message_user(request, f'Отменено публикаций: {cancelled}')
+
+
+@admin.register(InstagramPublication)
+class InstagramPublicationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'request',
+        'status',
+        'image_preview_list',
+        'created_at',
+        'published_at',
+    )
+    list_filter = ('status', 'created_at', 'published_at')
+    search_fields = (
+        'request__id',
+        'request__brand',
+        'request__model',
+        'caption',
+        'instagram_media_id',
+        'error_message',
+    )
+    readonly_fields = (
+        'request',
+        'image',
+        'image_preview',
+        'caption',
+        'instagram_container_id',
+        'instagram_media_id',
+        'created_at',
+        'published_at',
+    )
+    fields = (
+        'request',
+        'status',
+        'image_preview',
+        'image',
+        'caption',
+        'instagram_container_id',
+        'instagram_media_id',
+        'error_message',
+        'created_at',
+        'published_at',
+    )
+    actions = (
+        approve_instagram_publications,
+        publish_instagram_publications,
+        retry_instagram_publications,
+        cancel_instagram_publications,
+    )
+
+    @admin.display(description='Превью')
+    def image_preview_list(self, obj):
+        return self._render_preview(obj, max_height=48)
+
+    @admin.display(description='Превью карточки')
+    def image_preview(self, obj):
+        return self._render_preview(obj, max_height=320)
+
+    def _render_preview(self, obj, *, max_height: int):
+        from django.utils.html import format_html
+
+        if not obj.image:
+            return '—'
+        return format_html(
+            '<img src="{}" alt="Instagram story preview" '
+            'style="max-height:{}px;border-radius:8px;border:1px solid #e5e7eb;" />',
+            obj.image.url,
+            max_height,
+        )

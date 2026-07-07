@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from catalog.image_generator import (
     InstagramStoryGenerationError,
+    generate_instagram_story,
     instagram_story_exists,
     try_generate_instagram_story,
 )
@@ -33,20 +34,22 @@ class TryGenerateInstagramStoryTests(TestCase):
     @patch('catalog.instagram_api.try_publish_story_to_instagram')
     def test_try_generate_returns_path_on_success(self, publish_mock):
         publish_mock.return_value = 'media_123'
-        output_path = try_generate_instagram_story(self.request)
+        with self.settings(INSTAGRAM_PUBLISH_MODE='TEST'):
+            output_path = try_generate_instagram_story(self.request)
         self.assertIsNotNone(output_path)
         self.assertTrue(output_path.is_file())
-        publish_mock.assert_called_once()
 
-    @patch('catalog.image_generator.generate_instagram_story')
+    @patch('catalog.instagram_service.generate_instagram_story')
     def test_try_generate_swallows_generation_error(self, generate_mock):
         generate_mock.side_effect = InstagramStoryGenerationError('boom')
-        result = try_generate_instagram_story(self.request)
+        with self.settings(INSTAGRAM_PUBLISH_MODE='TEST'):
+            result = try_generate_instagram_story(self.request)
         self.assertIsNone(result)
 
-    @patch('catalog.instagram_api.try_publish_story_to_instagram', side_effect=RuntimeError('api down'))
+    @patch('catalog.instagram_service.publish_story_to_instagram', side_effect=RuntimeError('api down'))
     def test_try_generate_returns_image_when_publish_fails(self, publish_mock):
-        output_path = try_generate_instagram_story(self.request)
+        with self.settings(INSTAGRAM_PUBLISH_MODE='LIVE'):
+            output_path = try_generate_instagram_story(self.request)
         self.assertIsNotNone(output_path)
         self.assertTrue(output_path.is_file())
 
@@ -81,9 +84,10 @@ class GenerateStoryCommandTests(TestCase):
         self.assertIn(f'Заявка #{target.pk}', stdout.getvalue())
 
     def test_command_skips_existing_story_in_batch_mode(self):
-        from catalog.image_generator import generate_instagram_story
+        from catalog.instagram_service import process_instagram_publication_for_request
 
-        generate_instagram_story(self.requests[0])
+        with self.settings(INSTAGRAM_PUBLISH_MODE='TEST'):
+            process_instagram_publication_for_request(self.requests[0].pk)
 
         stdout = StringIO()
         call_command('generate_story', stdout=stdout)

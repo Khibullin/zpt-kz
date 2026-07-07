@@ -55,7 +55,7 @@ from .models import (
 )
 
 from catalog.models import SellerProfile
-from catalog.image_generator import try_generate_instagram_story
+from catalog.instagram_service import schedule_instagram_publication_for_request
 
 
 WAVE_SIZE = 20
@@ -1047,7 +1047,10 @@ def create_request(request):
         req.status = 'sent' if matched else 'no_sellers'
         req.save(update_fields=['status'])
 
-        try_generate_instagram_story(req)
+        request_id = req.id
+        transaction.on_commit(
+            lambda: schedule_instagram_publication_for_request(request_id)
+        )
 
         seller_notifications = [
             _dispatch_to_json(

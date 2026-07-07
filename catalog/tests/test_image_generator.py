@@ -10,8 +10,10 @@ from catalog.image_generator import (
     _format_part_line,
     _format_vehicle_line,
     _wrap_paragraph,
+    build_publication_caption,
     generate_instagram_story,
 )
+from core.instagram_sanitize import sanitize_description
 from core.models import Request
 from PIL import Image, ImageDraw, ImageFont
 
@@ -41,11 +43,17 @@ class InstagramStoryGeneratorTests(TestCase):
         self.assertEqual(line, 'Chery · Tiggo 7')
 
     def test_format_part_line_combines_category_and_description(self):
-        line = _format_part_line(self.request)
+        safe = sanitize_description(self.request.description)
+        line = _format_part_line(self.request, safe_description=safe)
         self.assertIn('Двигатель', line)
         self.assertIn('масляный фильтр', line)
         self.assertIn('Арт. CH-123', line)
         self.assertNotIn('77001112233', line)
+
+    def test_build_publication_caption_excludes_phone_from_description(self):
+        self.request.description = 'Фильтр, звоните 77001112233'
+        caption = build_publication_caption(self.request)
+        self.assertNotIn('77001112233', caption)
 
     def test_format_city_line_for_kazakhstan_scope(self):
         self.request.search_scope = 'kazakhstan'
@@ -65,11 +73,12 @@ class InstagramStoryGeneratorTests(TestCase):
         self.assertTrue(lines[-1].endswith('\u2026'))
 
     def test_generate_instagram_story_creates_png(self):
-        output_path = generate_instagram_story(self.request)
+        output_path, caption = generate_instagram_story(self.request)
 
         self.assertTrue(output_path.is_file())
         self.assertEqual(output_path.suffix, '.png')
         self.assertIn('instagram_stories', output_path.as_posix())
+        self.assertIn('АВТО:', caption)
 
         with Image.open(output_path) as image:
             self.assertEqual(image.size, (1080, 1920))
@@ -77,7 +86,7 @@ class InstagramStoryGeneratorTests(TestCase):
     def test_generate_instagram_story_uses_fallback_background(self):
         with patch('catalog.image_generator._background_path') as bg_mock:
             bg_mock.return_value = Path('/nonexistent/instagram_bg.png')
-            output_path = generate_instagram_story(self.request)
+            output_path, _caption = generate_instagram_story(self.request)
 
         self.assertTrue(output_path.is_file())
 

@@ -16,6 +16,8 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont
 
+from core.instagram_sanitize import sanitize_description
+
 if TYPE_CHECKING:
     from core.models import Request
 
@@ -157,10 +159,10 @@ def _format_vehicle_line(product_request: Request) -> str:
     return ' · '.join(parts) if parts else 'Не указано'
 
 
-def _format_part_line(product_request: Request) -> str:
+def _format_part_line(product_request: Request, *, safe_description: str = '') -> str:
     bits: list[str] = []
     category = _normalize_text(product_request.category)
-    description = _normalize_text(product_request.description)
+    description = _normalize_text(safe_description)
     article = _normalize_text(product_request.article)
 
     if category:
@@ -171,6 +173,17 @@ def _format_part_line(product_request: Request) -> str:
         bits.append(f'Арт. {article}')
 
     return ' — '.join(bits) if bits else 'Не указано'
+
+
+def build_publication_caption(product_request: Request) -> str:
+    """Безопасный текст карточки для хранения и превью в админке."""
+    safe_description = sanitize_description(product_request.description)
+    lines = [
+        f'АВТО: {_format_vehicle_line(product_request)}',
+        f'ДЕТАЛЬ: {_format_part_line(product_request, safe_description=safe_description)}',
+        f'ГОРОД: {_format_city_line(product_request)}',
+    ]
+    return '\n'.join(lines)
 
 
 def _format_city_line(product_request: Request) -> str:
@@ -287,17 +300,19 @@ def _build_output_filename(product_request: Request) -> str:
     return f'request_{product_request.pk}_{timestamp}.png'
 
 
-def generate_instagram_story(product_request: Request) -> Path:
+def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
     """
     Создаёт PNG-карточку 1080×1920 для Instagram Stories и сохраняет её
     в ``MEDIA_ROOT/instagram_stories/``.
 
-    :param product_request: заявка ``core.models.Request`` (без персональных данных на картинке).
-    :returns: абсолютный путь к сохранённому файлу.
+    :returns: (абсолютный путь к файлу, безопасный caption).
     :raises InstagramStoryGenerationError: если сохранить изображение не удалось.
     """
     if product_request is None or product_request.pk is None:
         raise InstagramStoryGenerationError('Для генерации нужна сохранённая заявка.')
+
+    safe_description = sanitize_description(product_request.description)
+    caption = build_publication_caption(product_request)
 
     try:
         image = _load_background()
@@ -338,7 +353,7 @@ def generate_instagram_story(product_request: Request) -> Path:
             x=PADDING_X,
             y=cursor_y,
             label='ДЕТАЛЬ',
-            body=_format_part_line(product_request),
+            body=_format_part_line(product_request, safe_description=safe_description),
             label_font=label_font,
             body_font=body_font,
             max_width=CONTENT_WIDTH,
@@ -362,7 +377,7 @@ def generate_instagram_story(product_request: Request) -> Path:
         image.save(output_path, format='PNG', optimize=True)
 
         logger.info('Instagram Story сохранена: %s (request_id=%s)', output_path, product_request.pk)
-        return output_path.resolve()
+        return output_path.resolve(), caption
 
     except InstagramStoryGenerationError:
         raise
@@ -378,7 +393,12 @@ ACTIVE_REQUEST_STATUSES = ('new', 'sent')
 
 
 def instagram_story_exists(request_id: int) -> bool:
-    """Проверяет, есть ли уже сгенерированная карточка для заявки."""
+    """Проверяет, есть ли уже публикация Instagram для заявки."""
+    from core.models import InstagramPublication
+
+    if InstagramPublication.objects.filter(request_id=request_id).exists():
+        return True
+
     output_dir = _output_dir()
     if not output_dir.is_dir():
         return False
@@ -387,33 +407,18 @@ def instagram_story_exists(request_id: int) -> bool:
 
 def try_generate_instagram_story(product_request: Request) -> Path | None:
     """
-    Безопасно генерирует Instagram Story для заявки.
-
-    Ошибки генерации логируются и не пробрасываются наружу.
-    После успешной генерации файла пытается опубликовать Story в Instagram.
+    Устаревшая обёртка: делегирует в ``schedule_instagram_publication_for_request``.
     """
-    try:
-        output_path = generate_instagram_story(product_request)
-    except InstagramStoryGenerationError as exc:
-        logger.warning(
-            'Instagram Story не создана для заявки #%s: %s',
-            getattr(product_request, 'pk', '?'),
-            exc,
-        )
+    from catalog.instagram_service import schedule_instagram_publication_for_request
+
+    if product_request is None or product_request.pk is None:
         return None
 
-    try:
-        from catalog.instagram_api import (
-            absolute_media_path_to_relative,
-            try_publish_story_to_instagram,
-        )
+    schedule_instagram_publication_for_request(product_request.pk)
 
-        relative_path = absolute_media_path_to_relative(output_path)
-        try_publish_story_to_instagram(relative_path)
-    except Exception:
-        logger.exception(
-            'Instagram publish завершился с ошибкой для заявки #%s',
-            getattr(product_request, 'pk', '?'),
-        )
+    from core.models import InstagramPublication
 
-    return output_path
+    publication = InstagramPublication.objects.filter(request_id=product_request.pk).first()
+    if publication and publication.image:
+        return Path(settings.MEDIA_ROOT) / publication.image.name
+    return None

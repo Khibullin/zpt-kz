@@ -33,9 +33,33 @@ def _graph_api_root() -> str:
 
 
 def instagram_credentials_configured() -> bool:
-    account_id = getattr(settings, 'INSTAGRAM_BUSINESS_ACCOUNT_ID', '') or ''
-    access_token = getattr(settings, 'FACEBOOK_ACCESS_TOKEN', '') or ''
+    account_id = (
+        getattr(settings, 'INSTAGRAM_ACCOUNT_ID', '')
+        or getattr(settings, 'INSTAGRAM_BUSINESS_ACCOUNT_ID', '')
+        or ''
+    )
+    access_token = (
+        getattr(settings, 'INSTAGRAM_ACCESS_TOKEN', '')
+        or getattr(settings, 'FACEBOOK_ACCESS_TOKEN', '')
+        or ''
+    )
     return bool(str(account_id).strip() and str(access_token).strip())
+
+
+def _instagram_account_id() -> str:
+    return str(
+        getattr(settings, 'INSTAGRAM_ACCOUNT_ID', '')
+        or getattr(settings, 'INSTAGRAM_BUSINESS_ACCOUNT_ID', '')
+        or ''
+    ).strip()
+
+
+def _instagram_access_token() -> str:
+    return str(
+        getattr(settings, 'INSTAGRAM_ACCESS_TOKEN', '')
+        or getattr(settings, 'FACEBOOK_ACCESS_TOKEN', '')
+        or ''
+    ).strip()
 
 
 def build_public_media_url(image_relative_path: str) -> str:
@@ -155,23 +179,23 @@ def _publish_story_container(
     return str(media_id)
 
 
-def publish_story_to_instagram(image_relative_path: str) -> str:
+def publish_story_to_instagram(image_relative_path: str) -> dict[str, str]:
     """
     Публикует изображение в Instagram Stories через Meta Graph API.
 
     :param image_relative_path: путь относительно MEDIA_ROOT, например
         ``instagram_stories/request_12_20260706_150000.png``.
-    :returns: ID опубликованного media в Instagram.
+    :returns: dict с ключами ``container_id`` и ``media_id``.
     :raises InstagramPublishError: если публикация не удалась.
     """
     if not instagram_credentials_configured():
         raise InstagramPublishError(
-            'Instagram API не настроен: отсутствуют INSTAGRAM_BUSINESS_ACCOUNT_ID '
-            'или FACEBOOK_ACCESS_TOKEN.'
+            'Instagram API не настроен: отсутствуют INSTAGRAM_ACCOUNT_ID '
+            'или INSTAGRAM_ACCESS_TOKEN.'
         )
 
-    ig_account_id = str(settings.INSTAGRAM_BUSINESS_ACCOUNT_ID).strip()
-    access_token = str(settings.FACEBOOK_ACCESS_TOKEN).strip()
+    ig_account_id = _instagram_account_id()
+    access_token = _instagram_access_token()
     image_url = build_public_media_url(image_relative_path)
 
     logger.info(
@@ -199,7 +223,10 @@ def publish_story_to_instagram(image_relative_path: str) -> str:
         container_id=container_id,
     )
     logger.info('Instagram publish: Story опубликована (media_id=%s)', media_id)
-    return media_id
+    return {
+        'container_id': container_id,
+        'media_id': media_id,
+    }
 
 
 def try_publish_story_to_instagram(image_relative_path: str) -> str | None:
@@ -216,7 +243,8 @@ def try_publish_story_to_instagram(image_relative_path: str) -> str | None:
         return None
 
     try:
-        return publish_story_to_instagram(image_relative_path)
+        result = publish_story_to_instagram(image_relative_path)
+        return result.get('media_id')
     except InstagramPublishError as exc:
         logger.warning('Instagram publish не выполнен: %s', exc)
         return None

@@ -94,7 +94,7 @@ class Command(BaseCommand):
             return False
 
         try:
-            output_path = generate_instagram_story(product_request)
+            output_path, _caption = generate_instagram_story(product_request)
         except InstagramStoryGenerationError as exc:
             self.stdout.write(
                 self.style.ERROR(
