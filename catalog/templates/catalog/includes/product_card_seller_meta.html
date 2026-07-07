@@ -1,0 +1,28 @@
+<div class="product-meta-row product-meta-seller">
+
+  <div class="seller-line">
+
+    {% if product.seller and product.seller.slug %}
+      <a
+        href="{% url 'public_seller_profile' product.seller.slug %}"
+        class="card-seller-link"
+        title="Посмотреть профиль и все товары {{ product.seller.name }}"
+      >
+        <span class="card-seller-name-text">{{ product.seller.name }}</span>
+        <span class="verification-badge">✓</span>
+      </a>
+    {% else %}
+      <span class="seller-name">
+        {{ product.seller_name }} <span class="verification-badge">✓</span>
+      </span>
+    {% endif %}
+
+    {% include 'catalog/includes/seller_social_chips.html' with seller=product.seller show_seller_socials=show_seller_socials compact=True wrapper_class='card-seller-socials' only %}
+
+  </div>
+
+  {% if product.city %}
+    <span class="meta-city">{{ product.city }}</span>
+  {% endif %}
+
+</div>

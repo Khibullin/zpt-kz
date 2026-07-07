@@ -223,6 +223,39 @@ a.seller-trust-name.seller-trust-profile-link:hover{
   gap:10px;
 }
 
+.seller-social-chip{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:28px;
+  height:30px;
+  padding:4px 12px;
+  border-radius:6px;
+  font-size:13px;
+  font-weight:600;
+  text-decoration:none;
+  border:none;
+  background:#fff;
+  color:#222;
+  transition:background .18s ease,color .18s ease,transform .18s ease;
+  box-sizing:border-box;
+  white-space:nowrap;
+}
+
+.seller-social-chip-instagram{
+  background:#fdf2f8;
+  color:#db2777;
+}
+
+.seller-social-chip-website{
+  background:#f0f9ff;
+  color:#0284c7;
+}
+
+.seller-social-chip:hover{
+  transform:translateY(-1px);
+}
+
 .seller-trust-links a:not(.seller-social-chip),
 .seller-catalog-link{
   display:inline-block;

@@ -403,32 +403,7 @@ a.hero-b2b-strip-btn:hover,
 
           {% include 'catalog/includes/product_price_display.html' with product=product %}
 
-          <div class="product-meta-row product-meta-seller">
-
-            <div class="seller-line">
-
-              {% if product.seller and product.seller.slug %}
-                <a
-                  href="{% url 'public_seller_profile' product.seller.slug %}"
-                  class="card-seller-link"
-                  title="Посмотреть профиль и все товары {{ product.seller.name }}"
-                >
-                  <span class="card-seller-name-text">{{ product.seller.name }}</span>
-                  <span class="verification-badge">✓</span>
-                </a>
-              {% else %}
-                <span class="seller-name">
-                  {{ product.seller_name }} <span class="verification-badge">✓</span>
-                </span>
-              {% endif %}
-
-            </div>
-
-            {% if product.city %}
-              <span class="meta-city">{{ product.city }}</span>
-            {% endif %}
-
-          </div>
+          {% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
 
           <div class="product-meta-row muted product-meta-details">
             <span>{{ product.get_condition_display }}</span>
