@@ -556,6 +556,11 @@ class InstagramPublication(models.Model):
         blank=True,
         verbose_name='Опубликовано',
     )
+    publishing_started_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Начало публикации',
+    )
 
     class Meta:
         verbose_name = 'Публикация Instagram'

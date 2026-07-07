@@ -5,7 +5,9 @@
 from __future__ import annotations
 
 import logging
+from datetime import timedelta
 
+import requests
 from django.conf import settings
 from django.db import IntegrityError
 from django.utils import timezone
@@ -23,6 +25,8 @@ from catalog.instagram_api import (
 from core.models import InstagramPublication, Request
 
 logger = logging.getLogger(__name__)
+
+STUCK_PUBLISHING_TIMEOUT = timedelta(minutes=5)
 
 
 def get_instagram_publish_mode() -> str:
@@ -112,6 +116,46 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
     return publication
 
 
+def is_publication_stuck_publishing(publication: InstagramPublication) -> bool:
+    if publication.status != InstagramPublication.STATUS_PUBLISHING:
+        return False
+    started_at = publication.publishing_started_at
+    if started_at is None:
+        return False
+    return timezone.now() - started_at >= STUCK_PUBLISHING_TIMEOUT
+
+
+def mark_stuck_instagram_publication_failed(
+    publication: InstagramPublication,
+    *,
+    message: str = 'Публикация зависла в статусе «Публикуется» более 5 минут.',
+) -> InstagramPublication:
+    if publication.status != InstagramPublication.STATUS_PUBLISHING:
+        return publication
+    if not is_publication_stuck_publishing(publication):
+        return publication
+    publication.status = InstagramPublication.STATUS_FAILED
+    publication.error_message = message
+    publication.publishing_started_at = None
+    publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+    logger.warning(
+        'Instagram publication #%s marked failed after stuck publishing',
+        publication.pk,
+    )
+    return publication
+
+
+def _mark_publication_failed(
+    publication: InstagramPublication,
+    message: str,
+) -> InstagramPublication:
+    publication.status = InstagramPublication.STATUS_FAILED
+    publication.error_message = message
+    publication.publishing_started_at = None
+    publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+    return publication
+
+
 def publish_instagram_publication(publication: InstagramPublication) -> InstagramPublication:
     if publication.status == InstagramPublication.STATUS_PUBLISHED:
         logger.info(
@@ -128,38 +172,55 @@ def publish_instagram_publication(publication: InstagramPublication) -> Instagra
         return publication
 
     if publication.status == InstagramPublication.STATUS_PUBLISHING:
-        logger.info(
-            'Instagram publication #%s already publishing, skip',
-            publication.pk,
-        )
+        if is_publication_stuck_publishing(publication):
+            logger.warning(
+                'Instagram publication #%s stuck in publishing, waiting for admin reset',
+                publication.pk,
+            )
+        else:
+            logger.info(
+                'Instagram publication #%s already publishing, skip',
+                publication.pk,
+            )
         return publication
 
     if not publication.image:
-        publication.status = InstagramPublication.STATUS_FAILED
-        publication.error_message = 'Не загружено изображение карточки.'
-        publication.save(update_fields=['status', 'error_message'])
-        return publication
+        return _mark_publication_failed(
+            publication,
+            'Не загружено изображение карточки.',
+        )
 
+    logger.info('Instagram publication #%s: начало публикации', publication.pk)
     publication.status = InstagramPublication.STATUS_PUBLISHING
     publication.error_message = ''
-    publication.save(update_fields=['status', 'error_message'])
+    publication.publishing_started_at = timezone.now()
+    publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
 
     try:
-        result = publish_story_to_instagram(publication.image.name)
+        result = publish_story_to_instagram(
+            publication.image.name,
+            publication_id=publication.pk,
+        )
     except InstagramPublishError as exc:
-        publication.status = InstagramPublication.STATUS_FAILED
-        publication.error_message = str(exc)
-        publication.save(update_fields=['status', 'error_message'])
+        _mark_publication_failed(publication, str(exc))
         logger.warning(
             'Instagram publish failed for publication #%s: %s',
             publication.pk,
             exc,
         )
         return publication
+    except requests.RequestException as exc:
+        _mark_publication_failed(
+            publication,
+            f'Сетевая ошибка Meta API: {exc}',
+        )
+        logger.exception(
+            'Instagram publish network error for publication #%s',
+            publication.pk,
+        )
+        return publication
     except Exception as exc:
-        publication.status = InstagramPublication.STATUS_FAILED
-        publication.error_message = str(exc)
-        publication.save(update_fields=['status', 'error_message'])
+        _mark_publication_failed(publication, str(exc))
         logger.exception(
             'Unexpected Instagram publish error for publication #%s',
             publication.pk,
@@ -171,6 +232,7 @@ def publish_instagram_publication(publication: InstagramPublication) -> Instagra
     publication.status = InstagramPublication.STATUS_PUBLISHED
     publication.published_at = timezone.now()
     publication.error_message = ''
+    publication.publishing_started_at = None
     publication.save(
         update_fields=[
             'instagram_container_id',
@@ -178,6 +240,7 @@ def publish_instagram_publication(publication: InstagramPublication) -> Instagra
             'status',
             'published_at',
             'error_message',
+            'publishing_started_at',
         ]
     )
     logger.info(

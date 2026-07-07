@@ -7,9 +7,10 @@ from __future__ import annotations
 import logging
 import re
 import time
+from dataclasses import dataclass
 from pathlib import Path, PurePosixPath
 from typing import Any
-from urllib.parse import urlparse
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 import requests
 from django.conf import settings
@@ -27,10 +28,60 @@ BLOCKED_URL_PATH_MARKERS = (
     '/accounts/login/',
     '/auth/',
 )
+SENSITIVE_LOG_KEYS = ('access_token', 'token', 'client_secret', 'appsecret_proof')
 
 
 class InstagramPublishError(Exception):
     """Ошибка публикации Instagram Story через Meta Graph API."""
+
+
+@dataclass(frozen=True)
+class ImageUrlValidationResult:
+    status_code: int
+    content_type: str
+    final_url: str
+
+
+def _pub_log(
+    publication_id: int | None,
+    level: int,
+    message: str,
+    *args: Any,
+    **kwargs: Any,
+) -> None:
+    prefix = (
+        f'Instagram publication #{publication_id}'
+        if publication_id is not None
+        else 'Instagram publish'
+    )
+    logger.log(level, '%s: ' + message, prefix, *args, **kwargs)
+
+
+def _sanitize_for_log(value: Any) -> Any:
+    if isinstance(value, dict):
+        sanitized: dict[str, Any] = {}
+        for key, item in value.items():
+            if str(key).lower() in SENSITIVE_LOG_KEYS:
+                sanitized[str(key)] = '***'
+            else:
+                sanitized[str(key)] = _sanitize_for_log(item)
+        return sanitized
+    if isinstance(value, list):
+        return [_sanitize_for_log(item) for item in value]
+    if isinstance(value, str) and 'access_token=' in value:
+        return _redact_url(value)
+    return value
+
+
+def _redact_url(url: str) -> str:
+    parsed = urlparse(url)
+    if not parsed.query:
+        return url
+    safe_query = [
+        (key, '***' if key.lower() in SENSITIVE_LOG_KEYS else value)
+        for key, value in parse_qsl(parsed.query, keep_blank_values=True)
+    ]
+    return urlunparse(parsed._replace(query=urlencode(safe_query)))
 
 
 def _graph_api_version() -> str:
@@ -114,10 +165,11 @@ def normalize_media_relative_path(image_path: str) -> str:
     return clean_path
 
 
-def validate_public_image_url(image_url: str) -> None:
+def validate_public_image_url(image_url: str) -> ImageUrlValidationResult:
     """
     Проверяет, что Meta сможет скачать JPEG по публичному URL без авторизации.
 
+    :returns: HTTP status и Content-Type успешной проверки.
     :raises InstagramPublishError: если URL недоступен или ответ не является JPEG.
     """
     parsed = urlparse(image_url)
@@ -142,6 +194,8 @@ def validate_public_image_url(image_url: str) -> None:
             f'Не удалось проверить доступность image_url {image_url}: {exc}'
         ) from exc
 
+    content_type = (response.headers.get('Content-Type') or '').split(';', 1)[0].strip().lower()
+
     if _url_looks_like_blocked_destination(response.url):
         raise InstagramPublishError(
             f'image_url перенаправлен на защищённую страницу: {response.url}'
@@ -151,7 +205,6 @@ def validate_public_image_url(image_url: str) -> None:
             f'image_url недоступен для Meta API: HTTP {response.status_code} ({image_url})'
         )
 
-    content_type = (response.headers.get('Content-Type') or '').split(';', 1)[0].strip().lower()
     if not content_type.startswith('image/jpeg'):
         raise InstagramPublishError(
             f'image_url должен отдавать image/jpeg, получено {content_type or "unknown"} '
@@ -180,6 +233,12 @@ def validate_public_image_url(image_url: str) -> None:
             f'image_url вернул HTML вместо JPEG, вероятно требуется авторизация ({image_url}).'
         )
 
+    return ImageUrlValidationResult(
+        status_code=response.status_code,
+        content_type=content_type,
+        final_url=response.url,
+    )
+
 
 def _url_looks_like_blocked_destination(url: str) -> bool:
     path = urlparse(url).path.lower()
@@ -202,13 +261,35 @@ def absolute_media_path_to_relative(path: Path | str) -> str:
     return str(relative).replace('\\', '/')
 
 
-def _parse_graph_response(response: requests.Response, *, action: str) -> dict[str, Any]:
+def _parse_graph_response(
+    response: requests.Response,
+    *,
+    action: str,
+    publication_id: int | None = None,
+) -> dict[str, Any]:
     try:
         payload = response.json()
     except ValueError as exc:
+        _pub_log(
+            publication_id,
+            logging.ERROR,
+            '%s: HTTP %s non-JSON response=%s',
+            action,
+            response.status_code,
+            response.text[:500],
+        )
         raise InstagramPublishError(
             f'{action}: Meta API вернул не-JSON ответ (HTTP {response.status_code}).'
         ) from exc
+
+    _pub_log(
+        publication_id,
+        logging.INFO,
+        '%s: HTTP %s response=%s',
+        action,
+        response.status_code,
+        _sanitize_for_log(payload),
+    )
 
     if response.status_code >= 400 or 'error' in payload:
         error = payload.get('error', {})
@@ -224,10 +305,17 @@ def _create_story_container(
     ig_account_id: str,
     access_token: str,
     image_url: str,
+    publication_id: int | None = None,
 ) -> str:
-    endpoint = f'{_graph_api_root()}/{ig_account_id}/media'
-    response = requests.post(
+    endpoint = _redact_url(f'{_graph_api_root()}/{ig_account_id}/media')
+    _pub_log(
+        publication_id,
+        logging.INFO,
+        'создаём media container endpoint=%s media_type=STORIES',
         endpoint,
+    )
+    response = requests.post(
+        f'{_graph_api_root()}/{ig_account_id}/media',
         data={
             'image_url': image_url,
             'media_type': 'STORIES',
@@ -235,16 +323,27 @@ def _create_story_container(
         },
         timeout=REQUEST_TIMEOUT_SEC,
     )
-    payload = _parse_graph_response(response, action='Создание media container')
+    payload = _parse_graph_response(
+        response,
+        action='Создание media container',
+        publication_id=publication_id,
+    )
     container_id = payload.get('id')
     if not container_id:
         raise InstagramPublishError(
             'Создание media container: Meta API не вернул ID контейнера.'
         )
-    return str(container_id)
+    container_id = str(container_id)
+    _pub_log(publication_id, logging.INFO, 'получен container_id=%s', container_id)
+    return container_id
 
 
-def _wait_for_container_ready(*, container_id: str, access_token: str) -> None:
+def _wait_for_container_ready(
+    *,
+    container_id: str,
+    access_token: str,
+    publication_id: int | None = None,
+) -> None:
     endpoint = f'{_graph_api_root()}/{container_id}'
     deadline = time.monotonic() + CONTAINER_POLL_TIMEOUT_SEC
 
@@ -257,8 +356,19 @@ def _wait_for_container_ready(*, container_id: str, access_token: str) -> None:
             },
             timeout=REQUEST_TIMEOUT_SEC,
         )
-        payload = _parse_graph_response(response, action='Проверка статуса контейнера')
+        payload = _parse_graph_response(
+            response,
+            action='Polling media container',
+            publication_id=publication_id,
+        )
         status_code = (payload.get('status_code') or '').upper()
+        _pub_log(
+            publication_id,
+            logging.INFO,
+            'polling container_id=%s status_code=%s',
+            container_id,
+            status_code or 'EMPTY',
+        )
 
         if status_code in ('', 'FINISHED'):
             return
@@ -284,26 +394,44 @@ def _publish_story_container(
     ig_account_id: str,
     access_token: str,
     container_id: str,
+    publication_id: int | None = None,
 ) -> str:
-    endpoint = f'{_graph_api_root()}/{ig_account_id}/media_publish'
-    response = requests.post(
+    endpoint = _redact_url(f'{_graph_api_root()}/{ig_account_id}/media_publish')
+    _pub_log(
+        publication_id,
+        logging.INFO,
+        'вызываем media_publish endpoint=%s container_id=%s',
         endpoint,
+        container_id,
+    )
+    response = requests.post(
+        f'{_graph_api_root()}/{ig_account_id}/media_publish',
         data={
             'creation_id': container_id,
             'access_token': access_token,
         },
         timeout=REQUEST_TIMEOUT_SEC,
     )
-    payload = _parse_graph_response(response, action='Публикация media container')
+    payload = _parse_graph_response(
+        response,
+        action='Публикация media container',
+        publication_id=publication_id,
+    )
     media_id = payload.get('id')
     if not media_id:
         raise InstagramPublishError(
             'Публикация media container: Meta API не вернул ID опубликованного media.'
         )
-    return str(media_id)
+    media_id = str(media_id)
+    _pub_log(publication_id, logging.INFO, 'получен media_id=%s', media_id)
+    return media_id
 
 
-def publish_story_to_instagram(image_relative_path: str) -> dict[str, str]:
+def publish_story_to_instagram(
+    image_relative_path: str,
+    *,
+    publication_id: int | None = None,
+) -> dict[str, str]:
     """
     Публикует изображение в Instagram Stories через Meta Graph API.
 
@@ -312,47 +440,61 @@ def publish_story_to_instagram(image_relative_path: str) -> dict[str, str]:
     :returns: dict с ключами ``container_id`` и ``media_id``.
     :raises InstagramPublishError: если публикация не удалась.
     """
-    if not instagram_credentials_configured():
-        raise InstagramPublishError(
-            'Instagram API не настроен: отсутствуют INSTAGRAM_ACCOUNT_ID '
-            'или INSTAGRAM_ACCESS_TOKEN.'
+    try:
+        if not instagram_credentials_configured():
+            raise InstagramPublishError(
+                'Instagram API не настроен: отсутствуют INSTAGRAM_ACCOUNT_ID '
+                'или INSTAGRAM_ACCESS_TOKEN.'
+            )
+
+        ig_account_id = _instagram_account_id()
+        access_token = _instagram_access_token()
+        image_url = build_public_media_url(image_relative_path)
+
+        _pub_log(publication_id, logging.INFO, 'начало публикации')
+        _pub_log(publication_id, logging.INFO, 'image_url=%s', image_url)
+
+        validation = validate_public_image_url(image_url)
+        _pub_log(
+            publication_id,
+            logging.INFO,
+            'проверка image_url: HTTP %s Content-Type=%s',
+            validation.status_code,
+            validation.content_type,
         )
 
-    ig_account_id = _instagram_account_id()
-    access_token = _instagram_access_token()
-    image_url = build_public_media_url(image_relative_path)
+        container_id = _create_story_container(
+            ig_account_id=ig_account_id,
+            access_token=access_token,
+            image_url=image_url,
+            publication_id=publication_id,
+        )
 
-    logger.info('Instagram publish: image_url=%s', image_url)
-    validate_public_image_url(image_url)
+        _wait_for_container_ready(
+            container_id=container_id,
+            access_token=access_token,
+            publication_id=publication_id,
+        )
 
-    logger.info(
-        'Instagram publish: создаём Story container (account=%s)',
-        ig_account_id,
-    )
-
-    container_id = _create_story_container(
-        ig_account_id=ig_account_id,
-        access_token=access_token,
-        image_url=image_url,
-    )
-    logger.info('Instagram publish: container создан (id=%s)', container_id)
-
-    _wait_for_container_ready(
-        container_id=container_id,
-        access_token=access_token,
-    )
-    logger.info('Instagram publish: container готов (id=%s)', container_id)
-
-    media_id = _publish_story_container(
-        ig_account_id=ig_account_id,
-        access_token=access_token,
-        container_id=container_id,
-    )
-    logger.info('Instagram publish: Story опубликована (media_id=%s)', media_id)
-    return {
-        'container_id': container_id,
-        'media_id': media_id,
-    }
+        media_id = _publish_story_container(
+            ig_account_id=ig_account_id,
+            access_token=access_token,
+            container_id=container_id,
+            publication_id=publication_id,
+        )
+        return {
+            'container_id': container_id,
+            'media_id': media_id,
+        }
+    except InstagramPublishError:
+        _pub_log(publication_id, logging.ERROR, 'ошибка публикации', exc_info=True)
+        raise
+    except requests.RequestException:
+        _pub_log(publication_id, logging.ERROR, 'сетевая ошибка Meta API', exc_info=True)
+        raise
+    except Exception:
+        _pub_log(publication_id, logging.ERROR, 'непредвиденная ошибка публикации', exc_info=True)
+        raise
 
 
 def try_publish_story_to_instagram(image_relative_path: str) -> str | None:

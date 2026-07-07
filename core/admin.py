@@ -10,6 +10,7 @@ from openpyxl import load_workbook
 from catalog.instagram_service import (
     approve_instagram_publication,
     cancel_instagram_publication,
+    mark_stuck_instagram_publication_failed,
     publish_instagram_publication,
 )
 from .models import (
@@ -705,6 +706,24 @@ def retry_instagram_publications(modeladmin, request, queryset):
     modeladmin.message_user(request, f'Повторена публикация для: {retried}')
 
 
+@admin.action(description='Пометить зависшие публикации как ошибку (>5 мин)')
+def mark_stuck_instagram_publications_failed(modeladmin, request, queryset):
+    updated = 0
+    skipped = 0
+    for publication in queryset.filter(status=InstagramPublication.STATUS_PUBLISHING):
+        before = publication.status
+        mark_stuck_instagram_publication_failed(publication)
+        publication.refresh_from_db()
+        if publication.status == InstagramPublication.STATUS_FAILED and before != publication.status:
+            updated += 1
+        else:
+            skipped += 1
+    modeladmin.message_user(
+        request,
+        f'Помечено как ошибка: {updated}. Пропущено (ещё не зависли): {skipped}.',
+    )
+
+
 @admin.action(description='Отменить выбранные публикации')
 def cancel_instagram_publications(modeladmin, request, queryset):
     cancelled = 0
@@ -742,6 +761,7 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
         'instagram_container_id',
         'instagram_media_id',
         'created_at',
+        'publishing_started_at',
         'published_at',
     )
     fields = (
@@ -754,12 +774,14 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
         'instagram_media_id',
         'error_message',
         'created_at',
+        'publishing_started_at',
         'published_at',
     )
     actions = (
         approve_instagram_publications,
         publish_instagram_publications,
         retry_instagram_publications,
+        mark_stuck_instagram_publications_failed,
         cancel_instagram_publications,
     )
 

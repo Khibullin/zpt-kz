@@ -9,12 +9,15 @@ from catalog.image_generator import (
     generate_instagram_story,
 )
 from catalog.instagram_service import (
+    is_publication_stuck_publishing,
+    mark_stuck_instagram_publication_failed,
     process_instagram_publication_for_request,
     publish_instagram_publication,
     schedule_instagram_publication_for_request,
 )
 from core.instagram_sanitize import sanitize_description
 from core.models import InstagramPublication, Request
+from django.utils import timezone
 
 
 @override_settings(INSTAGRAM_PUBLISH_MODE='OFF')
@@ -173,6 +176,59 @@ class InstagramLivePublishTests(TestCase):
         self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
         self.assertIn('HTTP 404', publication.error_message)
         self.assertIn('https://zpt.kz/products/', publication.error_message)
+        self.assertIsNone(publication.publishing_started_at)
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_publish_failure_does_not_leave_publishing_status(self, publish_mock):
+        from catalog.instagram_api import InstagramPublishError
+
+        publish_mock.side_effect = InstagramPublishError('Meta API down')
+        publication = process_instagram_publication_for_request(self.request.pk)
+
+        publish_instagram_publication(publication)
+        publication.refresh_from_db()
+
+        self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertNotEqual(publication.status, InstagramPublication.STATUS_PUBLISHING)
+        self.assertIsNone(publication.publishing_started_at)
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_publish_network_error_sets_failed_status(self, publish_mock):
+        import requests
+
+        publish_mock.side_effect = requests.Timeout('timeout')
+        publication = process_instagram_publication_for_request(self.request.pk)
+
+        publish_instagram_publication(publication)
+        publication.refresh_from_db()
+
+        self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertIn('Сетевая ошибка Meta API', publication.error_message)
+
+    def test_mark_stuck_publication_failed_after_five_minutes(self):
+        publication = process_instagram_publication_for_request(self.request.pk)
+        publication.status = InstagramPublication.STATUS_PUBLISHING
+        publication.publishing_started_at = timezone.now() - timezone.timedelta(minutes=6)
+        publication.save(update_fields=['status', 'publishing_started_at'])
+
+        self.assertTrue(is_publication_stuck_publishing(publication))
+        mark_stuck_instagram_publication_failed(publication)
+        publication.refresh_from_db()
+
+        self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertIn('5 минут', publication.error_message)
+
+    def test_recent_publishing_is_not_marked_stuck(self):
+        publication = process_instagram_publication_for_request(self.request.pk)
+        publication.status = InstagramPublication.STATUS_PUBLISHING
+        publication.publishing_started_at = timezone.now() - timezone.timedelta(minutes=2)
+        publication.save(update_fields=['status', 'publishing_started_at'])
+
+        self.assertFalse(is_publication_stuck_publishing(publication))
+        mark_stuck_instagram_publication_failed(publication)
+        publication.refresh_from_db()
+
+        self.assertEqual(publication.status, InstagramPublication.STATUS_PUBLISHING)
 
 
 class CreateRequestInstagramOnCommitTests(TestCase):

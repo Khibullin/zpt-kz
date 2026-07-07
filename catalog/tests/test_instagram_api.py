@@ -9,6 +9,7 @@ from catalog.instagram_api import (
     publish_story_to_instagram,
     try_publish_story_to_instagram,
     validate_public_image_url,
+    _sanitize_for_log,
 )
 
 VALID_JPEG_BODY = b'\xff\xd8\xff' + b'fake-jpeg-body'
@@ -55,14 +56,27 @@ class InstagramApiTests(TestCase):
     def test_validate_public_image_url_accepts_jpeg(self, get_mock):
         get_mock.return_value = _valid_image_response()
 
-        validate_public_image_url(PUBLIC_IMAGE_URL)
+        result = validate_public_image_url(PUBLIC_IMAGE_URL)
 
+        self.assertEqual(result.status_code, 200)
+        self.assertEqual(result.content_type, 'image/jpeg')
         get_mock.assert_called_once_with(
             PUBLIC_IMAGE_URL,
             timeout=30,
             allow_redirects=True,
             headers={'User-Agent': 'ZPT.KZ-Instagram-Validator/1.0'},
         )
+
+    def test_sanitize_for_log_redacts_access_token(self):
+        payload = {
+            'id': 'container_123',
+            'access_token': 'secret-token',
+            'nested': {'token': 'nested-secret'},
+        }
+        sanitized = _sanitize_for_log(payload)
+        self.assertEqual(sanitized['access_token'], '***')
+        self.assertEqual(sanitized['nested']['token'], '***')
+        self.assertEqual(sanitized['id'], 'container_123')
 
     @patch('catalog.instagram_api.requests.get')
     def test_validate_public_image_url_rejects_html(self, get_mock):
@@ -124,6 +138,7 @@ class InstagramApiTests(TestCase):
         wait_mock.assert_called_once_with(
             container_id='container_123',
             access_token='test-token',
+            publication_id=None,
         )
 
     @patch('catalog.instagram_api.requests.get')
