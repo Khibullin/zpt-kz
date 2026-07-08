@@ -20,6 +20,7 @@ from catalog.image_generator import (
 )
 from catalog.instagram_api import (
     InstagramPublishError,
+    InstagramTemporaryImageUrlError,
     absolute_media_path_to_relative,
     publish_story_to_instagram,
 )
@@ -29,6 +30,7 @@ from core.models import InstagramPublication, Request
 logger = logging.getLogger(__name__)
 
 STUCK_PUBLISHING_TIMEOUT = timedelta(minutes=5)
+MAX_IMAGE_URL_RETRIES = 3
 
 
 def get_instagram_publish_mode() -> str:
@@ -141,7 +143,17 @@ def queue_instagram_publication_for_processing(
     publication.status = InstagramPublication.STATUS_QUEUED
     publication.publishing_started_at = None
     publication.error_message = ''
-    publication.save(update_fields=['status', 'publishing_started_at', 'error_message'])
+    publication.retry_count = 0
+    publication.last_attempt_at = None
+    publication.save(
+        update_fields=[
+            'status',
+            'publishing_started_at',
+            'error_message',
+            'retry_count',
+            'last_attempt_at',
+        ]
+    )
     logger.info('Instagram publication #%s: queued', publication.pk)
     return publication
 
@@ -257,7 +269,62 @@ def _mark_publication_failed(
     publication.status = InstagramPublication.STATUS_FAILED
     publication.error_message = message
     publication.publishing_started_at = None
-    publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+    publication.last_attempt_at = timezone.now()
+    publication.save(
+        update_fields=[
+            'status',
+            'error_message',
+            'publishing_started_at',
+            'last_attempt_at',
+        ]
+    )
+    return publication
+
+
+def _requeue_publication_for_temporary_image_url_error(
+    publication: InstagramPublication,
+    *,
+    status_code: int,
+) -> InstagramPublication:
+    new_retry_count = publication.retry_count + 1
+    now = timezone.now()
+
+    if new_retry_count >= MAX_IMAGE_URL_RETRIES:
+        publication.status = InstagramPublication.STATUS_FAILED
+        publication.error_message = (
+            f'Временная недоступность image_url: HTTP {status_code}. '
+            f'Превышено число попыток ({MAX_IMAGE_URL_RETRIES}).'
+        )
+        logger.warning(
+            'Instagram publication #%s: temporary image_url error HTTP %s, failed after %s attempts',
+            publication.pk,
+            status_code,
+            new_retry_count,
+        )
+    else:
+        publication.status = InstagramPublication.STATUS_QUEUED
+        publication.error_message = (
+            f'Временная недоступность image_url: HTTP {status_code}. '
+            'Будет повторено позже.'
+        )
+        logger.warning(
+            'Instagram publication #%s: temporary image_url error HTTP %s, requeued',
+            publication.pk,
+            status_code,
+        )
+
+    publication.retry_count = new_retry_count
+    publication.last_attempt_at = now
+    publication.publishing_started_at = None
+    publication.save(
+        update_fields=[
+            'status',
+            'error_message',
+            'retry_count',
+            'last_attempt_at',
+            'publishing_started_at',
+        ]
+    )
     return publication
 
 
@@ -331,6 +398,11 @@ def publish_instagram_publication(
             publication_id=publication.pk,
             validate_image_url=validate_image_url,
         )
+    except InstagramTemporaryImageUrlError as exc:
+        return _requeue_publication_for_temporary_image_url_error(
+            publication,
+            status_code=exc.status_code,
+        )
     except InstagramPublishError as exc:
         _mark_publication_failed(publication, str(exc))
         logger.warning(
@@ -363,6 +435,8 @@ def publish_instagram_publication(
     publication.published_at = timezone.now()
     publication.error_message = ''
     publication.publishing_started_at = None
+    publication.retry_count = 0
+    publication.last_attempt_at = timezone.now()
     publication.save(
         update_fields=[
             'instagram_container_id',
@@ -371,6 +445,8 @@ def publish_instagram_publication(
             'published_at',
             'error_message',
             'publishing_started_at',
+            'retry_count',
+            'last_attempt_at',
         ]
     )
     logger.info(

@@ -8,7 +8,7 @@ from django.core.management import call_command
 from django.test import RequestFactory, TestCase, override_settings
 from django.utils import timezone
 
-from catalog.instagram_api import InstagramPublishError
+from catalog.instagram_api import InstagramPublishError, InstagramTemporaryImageUrlError
 from catalog.instagram_service import (
     process_queued_instagram_publications,
     process_instagram_publication_for_request,
@@ -190,3 +190,118 @@ class InstagramManagementCommandTests(TestCase):
 
         self.assertEqual(stats['stuck_reset'], 1)
         self.assertEqual(self.publication.status, InstagramPublication.STATUS_FAILED)
+
+
+@override_settings(
+    INSTAGRAM_PUBLISH_MODE='TEST',
+    INSTAGRAM_ACCOUNT_ID='17841400000000000',
+    INSTAGRAM_ACCESS_TOKEN='test-token',
+    PUBLIC_BASE_URL='https://zpt.kz',
+    MEDIA_URL='/products/',
+)
+class InstagramTemporaryImageUrlRetryTests(TestCase):
+    def setUp(self):
+        self._media_tmp = TemporaryDirectory()
+        self.addCleanup(self._media_tmp.cleanup)
+        self.settings_override = self.settings(MEDIA_ROOT=self._media_tmp.name)
+        self.settings_override.enable()
+
+        self.request_obj = Request.objects.create(
+            transport_type='car',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            city='Алматы',
+            phone='77001112233',
+            status='sent',
+        )
+        self.publication = process_instagram_publication_for_request(self.request_obj.pk)
+        self.publication.status = InstagramPublication.STATUS_QUEUED
+        self.publication.save(update_fields=['status'])
+
+    def _temporary_502_error(self):
+        return InstagramTemporaryImageUrlError(
+            502,
+            'https://zpt.kz/products/instagram_stories/request.jpg',
+        )
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_http_502_returns_publication_to_queued(self, publish_mock):
+        publish_mock.side_effect = self._temporary_502_error()
+
+        publish_instagram_publication(
+            self.publication,
+            validate_image_url=True,
+            source='management',
+        )
+        self.publication.refresh_from_db()
+
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_QUEUED)
+        self.assertEqual(self.publication.retry_count, 1)
+        self.assertIn('HTTP 502', self.publication.error_message)
+        self.assertIn('Будет повторено позже', self.publication.error_message)
+        self.assertIsNone(self.publication.publishing_started_at)
+        self.assertIsNotNone(self.publication.last_attempt_at)
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_http_502_fails_after_three_attempts(self, publish_mock):
+        publish_mock.side_effect = self._temporary_502_error()
+
+        for expected_retry in (1, 2):
+            publish_instagram_publication(
+                self.publication,
+                validate_image_url=True,
+                source='management',
+            )
+            self.publication.refresh_from_db()
+            self.assertEqual(self.publication.status, InstagramPublication.STATUS_QUEUED)
+            self.assertEqual(self.publication.retry_count, expected_retry)
+
+        publish_instagram_publication(
+            self.publication,
+            validate_image_url=True,
+            source='management',
+        )
+        self.publication.refresh_from_db()
+
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertEqual(self.publication.retry_count, 3)
+        self.assertIn('HTTP 502', self.publication.error_message)
+        self.assertIn('Превышено число попыток', self.publication.error_message)
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_http_404_fails_immediately(self, publish_mock):
+        publish_mock.side_effect = InstagramPublishError(
+            'image_url недоступен для Meta API: HTTP 404 '
+            '(https://zpt.kz/products/instagram_stories/missing.jpg)'
+        )
+
+        publish_instagram_publication(
+            self.publication,
+            validate_image_url=True,
+            source='management',
+        )
+        self.publication.refresh_from_db()
+
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertEqual(self.publication.retry_count, 0)
+        self.assertIn('HTTP 404', self.publication.error_message)
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_http_200_jpeg_publishes_successfully(self, publish_mock):
+        publish_mock.return_value = {
+            'container_id': 'container_ok',
+            'media_id': 'media_ok',
+        }
+
+        publish_instagram_publication(
+            self.publication,
+            validate_image_url=True,
+            source='management',
+        )
+        self.publication.refresh_from_db()
+
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_PUBLISHED)
+        self.assertEqual(self.publication.retry_count, 0)
+        self.assertEqual(self.publication.instagram_media_id, 'media_ok')
+        publish_mock.assert_called_once()

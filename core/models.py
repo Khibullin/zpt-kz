@@ -563,6 +563,15 @@ class InstagramPublication(models.Model):
         blank=True,
         verbose_name='Начало публикации',
     )
+    retry_count = models.PositiveSmallIntegerField(
+        default=0,
+        verbose_name='Число попыток публикации',
+    )
+    last_attempt_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя попытка',
+    )
 
     class Meta:
         verbose_name = 'Публикация Instagram'

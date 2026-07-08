@@ -31,10 +31,22 @@ BLOCKED_URL_PATH_MARKERS = (
     '/auth/',
 )
 SENSITIVE_LOG_KEYS = ('access_token', 'token', 'client_secret', 'appsecret_proof')
+TEMPORARY_IMAGE_URL_STATUS_CODES = frozenset({502, 503, 504})
 
 
 class InstagramPublishError(Exception):
     """Ошибка публикации Instagram Story через Meta Graph API."""
+
+
+class InstagramTemporaryImageUrlError(InstagramPublishError):
+    """Временная недоступность публичного image_url (HTTP 502/503/504)."""
+
+    def __init__(self, status_code: int, image_url: str) -> None:
+        self.status_code = status_code
+        self.image_url = image_url
+        super().__init__(
+            f'Временная недоступность image_url: HTTP {status_code} ({image_url})'
+        )
 
 
 @dataclass(frozen=True)
@@ -206,6 +218,8 @@ def validate_public_image_url(image_url: str) -> ImageUrlValidationResult:
         raise InstagramPublishError(
             f'image_url перенаправлен на защищённую страницу: {response.url}'
         )
+    if response.status_code in TEMPORARY_IMAGE_URL_STATUS_CODES:
+        raise InstagramTemporaryImageUrlError(response.status_code, image_url)
     if response.status_code != 200:
         raise InstagramPublishError(
             f'image_url недоступен для Meta API: HTTP {response.status_code} ({image_url})'

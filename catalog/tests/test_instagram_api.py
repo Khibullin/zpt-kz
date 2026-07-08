@@ -4,6 +4,7 @@ from django.test import TestCase, override_settings
 
 from catalog.instagram_api import (
     InstagramPublishError,
+    InstagramTemporaryImageUrlError,
     build_public_media_url,
     normalize_media_relative_path,
     publish_story_to_instagram,
@@ -98,6 +99,43 @@ class InstagramApiTests(TestCase):
             validate_public_image_url(PUBLIC_IMAGE_URL)
 
         self.assertIn('404', str(ctx.exception))
+
+    @patch('catalog.instagram_api.requests.get')
+    def test_validate_public_image_url_raises_temporary_error_for_502(self, get_mock):
+        get_mock.return_value = _valid_image_response(status_code=502)
+
+        with self.assertRaises(InstagramTemporaryImageUrlError) as ctx:
+            validate_public_image_url(PUBLIC_IMAGE_URL)
+
+        self.assertEqual(ctx.exception.status_code, 502)
+
+    @patch('catalog.instagram_api._wait_for_container_ready')
+    @patch('catalog.instagram_api.requests.get')
+    @patch('catalog.instagram_api.requests.post')
+    def test_publish_story_continues_after_successful_jpeg_validation(
+        self,
+        post_mock,
+        get_mock,
+        wait_mock,
+    ):
+        get_mock.return_value = _valid_image_response()
+
+        create_response = MagicMock()
+        create_response.status_code = 200
+        create_response.json.return_value = {'id': 'container_123'}
+
+        publish_response = MagicMock()
+        publish_response.status_code = 200
+        publish_response.json.return_value = {'id': 'media_456'}
+
+        post_mock.side_effect = [create_response, publish_response]
+
+        result = publish_story_to_instagram(IMAGE_RELATIVE_PATH, validate_image_url=True)
+
+        self.assertEqual(result['media_id'], 'media_456')
+        get_mock.assert_called_once()
+        self.assertEqual(post_mock.call_count, 2)
+        wait_mock.assert_called_once()
 
     @patch('catalog.instagram_api.requests.get')
     def test_validate_public_image_url_timeout(self, get_mock):
