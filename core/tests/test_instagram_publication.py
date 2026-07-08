@@ -140,7 +140,7 @@ class InstagramLivePublishTests(TestCase):
         publication = process_instagram_publication_for_request(self.request.pk)
         publication.refresh_from_db()
 
-        self.assertEqual(publication.status, InstagramPublication.STATUS_APPROVED)
+        self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
         publish_mock.assert_not_called()
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
@@ -163,7 +163,7 @@ class InstagramLivePublishTests(TestCase):
             '(https://zpt.kz/products/instagram_stories/missing.jpg)'
         )
         publication = process_instagram_publication_for_request(self.request.pk)
-        publication.status = InstagramPublication.STATUS_APPROVED
+        publication.status = InstagramPublication.STATUS_QUEUED
         publication.save(update_fields=['status'])
         publish_mock.reset_mock()
 
@@ -181,7 +181,7 @@ class InstagramLivePublishTests(TestCase):
 
         publish_mock.side_effect = InstagramPublishError('Meta API down')
         publication = process_instagram_publication_for_request(self.request.pk)
-        publication.status = InstagramPublication.STATUS_APPROVED
+        publication.status = InstagramPublication.STATUS_QUEUED
         publication.save(update_fields=['status'])
 
         publish_instagram_publication(publication)
@@ -197,7 +197,7 @@ class InstagramLivePublishTests(TestCase):
 
         publish_mock.side_effect = requests.Timeout('timeout')
         publication = process_instagram_publication_for_request(self.request.pk)
-        publication.status = InstagramPublication.STATUS_APPROVED
+        publication.status = InstagramPublication.STATUS_QUEUED
         publication.save(update_fields=['status'])
 
         publish_instagram_publication(publication)

@@ -495,6 +495,7 @@ class Feedback(models.Model):
 class InstagramPublication(models.Model):
     STATUS_DRAFT = 'draft'
     STATUS_APPROVED = 'approved'
+    STATUS_QUEUED = 'queued'
     STATUS_PUBLISHING = 'publishing'
     STATUS_PUBLISHED = 'published'
     STATUS_FAILED = 'failed'
@@ -503,6 +504,7 @@ class InstagramPublication(models.Model):
     STATUS_CHOICES = [
         (STATUS_DRAFT, 'Черновик'),
         (STATUS_APPROVED, 'Одобрено'),
+        (STATUS_QUEUED, 'В очереди'),
         (STATUS_PUBLISHING, 'Публикуется'),
         (STATUS_PUBLISHED, 'Опубликовано'),
         (STATUS_FAILED, 'Ошибка'),

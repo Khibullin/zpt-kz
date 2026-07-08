@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from catalog.instagram_api import InstagramPublishError
 from catalog.instagram_service import (
-    process_approved_instagram_publications,
+    process_queued_instagram_publications,
     process_instagram_publication_for_request,
     publish_instagram_publication,
 )
@@ -56,13 +56,13 @@ class InstagramAdminQueueTests(TestCase):
         self.modeladmin = InstagramPublicationAdmin(InstagramPublication, AdminSite())
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
-    def test_publish_admin_action_only_queues_approved(self, publish_mock):
+    def test_publish_admin_action_only_queues_queued(self, publish_mock):
         queryset = InstagramPublication.objects.filter(pk=self.publication.pk)
 
         publish_instagram_publications(self.modeladmin, self.admin_request, queryset)
         self.publication.refresh_from_db()
 
-        self.assertEqual(self.publication.status, InstagramPublication.STATUS_APPROVED)
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_QUEUED)
         self.assertEqual(self.publication.error_message, '')
         self.assertIsNone(self.publication.publishing_started_at)
         publish_mock.assert_not_called()
@@ -77,7 +77,7 @@ class InstagramAdminQueueTests(TestCase):
         retry_instagram_publications(self.modeladmin, self.admin_request, queryset)
         self.publication.refresh_from_db()
 
-        self.assertEqual(self.publication.status, InstagramPublication.STATUS_APPROVED)
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_QUEUED)
         self.assertEqual(self.publication.error_message, '')
         publish_mock.assert_not_called()
 
@@ -104,17 +104,17 @@ class InstagramManagementCommandTests(TestCase):
             status='sent',
         )
         self.publication = process_instagram_publication_for_request(self.request_obj.pk)
-        self.publication.status = InstagramPublication.STATUS_APPROVED
+        self.publication.status = InstagramPublication.STATUS_QUEUED
         self.publication.save(update_fields=['status'])
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
-    def test_management_command_processes_approved_publication(self, publish_mock):
+    def test_management_command_processes_queued_publication(self, publish_mock):
         publish_mock.return_value = {
             'container_id': 'container_99',
             'media_id': 'media_99',
         }
 
-        stats = process_approved_instagram_publications()
+        stats = process_queued_instagram_publications()
         self.publication.refresh_from_db()
 
         self.assertEqual(stats['processed'], 1)
@@ -124,12 +124,24 @@ class InstagramManagementCommandTests(TestCase):
         self.assertTrue(publish_mock.call_args.kwargs.get('validate_image_url'))
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_approved_status_is_not_processed_by_cron(self, publish_mock):
+        self.publication.status = InstagramPublication.STATUS_APPROVED
+        self.publication.save(update_fields=['status'])
+
+        stats = process_queued_instagram_publications()
+        self.publication.refresh_from_db()
+
+        self.assertEqual(stats['processed'], 0)
+        self.assertEqual(self.publication.status, InstagramPublication.STATUS_APPROVED)
+        publish_mock.assert_not_called()
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
     def test_management_command_handles_validation_timeout(self, publish_mock):
         publish_mock.side_effect = InstagramPublishError(
             'Не удалось проверить публичный URL изображения: timeout'
         )
 
-        stats = process_approved_instagram_publications()
+        stats = process_queued_instagram_publications()
         self.publication.refresh_from_db()
 
         self.assertEqual(stats['failed'], 1)
@@ -148,6 +160,9 @@ class InstagramManagementCommandTests(TestCase):
         call_command('process_instagram_publications', stdout=stdout)
         output = stdout.getvalue()
 
+        self.assertIn('InstagramPublication total=', output)
+        self.assertIn('queued (В очереди):', output)
+        self.assertIn('Recent publications:', output)
         self.assertIn('published=1', output)
         self.publication.refresh_from_db()
         self.assertEqual(self.publication.status, InstagramPublication.STATUS_PUBLISHED)
@@ -170,7 +185,7 @@ class InstagramManagementCommandTests(TestCase):
         self.publication.publishing_started_at = timezone.now() - timezone.timedelta(minutes=6)
         self.publication.save(update_fields=['status', 'publishing_started_at'])
 
-        stats = process_approved_instagram_publications()
+        stats = process_queued_instagram_publications()
         self.publication.refresh_from_db()
 
         self.assertEqual(stats['stuck_reset'], 1)

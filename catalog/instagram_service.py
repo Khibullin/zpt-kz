@@ -10,6 +10,7 @@ from datetime import timedelta
 import requests
 from django.conf import settings
 from django.db import IntegrityError
+from django.db.models import Count
 from django.utils import timezone
 
 from catalog.image_generator import (
@@ -66,7 +67,6 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
         )
         if mode == 'LIVE' and existing.status in (
             InstagramPublication.STATUS_DRAFT,
-            InstagramPublication.STATUS_APPROVED,
             InstagramPublication.STATUS_FAILED,
         ):
             queue_instagram_publication_for_processing(existing)
@@ -125,7 +125,7 @@ def queue_instagram_publication_for_processing(
     if publication.status == InstagramPublication.STATUS_PUBLISHED:
         return publication
 
-    publication.status = InstagramPublication.STATUS_APPROVED
+    publication.status = InstagramPublication.STATUS_QUEUED
     publication.publishing_started_at = None
     publication.error_message = ''
     publication.save(update_fields=['status', 'publishing_started_at', 'error_message'])
@@ -133,9 +133,35 @@ def queue_instagram_publication_for_processing(
     return publication
 
 
-def process_approved_instagram_publications() -> dict[str, int]:
+def get_instagram_publication_queue_diagnostics() -> dict:
+    """Диагностика очереди Instagram-публикаций для cron / management-команды."""
+    total = InstagramPublication.objects.count()
+    status_counts = {
+        status_value: 0
+        for status_value, _label in InstagramPublication.STATUS_CHOICES
+    }
+    for row in InstagramPublication.objects.values('status').annotate(
+        count=Count('id'),
+    ):
+        status_counts[row['status']] = row['count']
+
+    recent = list(
+        InstagramPublication.objects.order_by('-created_at').values(
+            'id',
+            'status',
+            'created_at',
+        )[:5]
+    )
+    return {
+        'total': total,
+        'by_status': status_counts,
+        'recent': recent,
+    }
+
+
+def process_queued_instagram_publications() -> dict[str, int]:
     """
-    Обрабатывает очередь approved-публикаций (для management-команды / cron).
+    Обрабатывает очередь queued-публикаций (для management-команды / cron).
 
     :returns: счётчики processed, published, failed, stuck_reset.
     """
@@ -156,13 +182,13 @@ def process_approved_instagram_publications() -> dict[str, int]:
         if publication.status == InstagramPublication.STATUS_FAILED and before_status != publication.status:
             stats['stuck_reset'] += 1
 
-    approved_publications = list(
+    queued_publications = list(
         InstagramPublication.objects.filter(
-            status=InstagramPublication.STATUS_APPROVED,
+            status=InstagramPublication.STATUS_QUEUED,
         ).order_by('created_at')
     )
 
-    for publication in approved_publications:
+    for publication in queued_publications:
         stats['processed'] += 1
         before_status = publication.status
         publish_instagram_publication(
@@ -256,7 +282,7 @@ def publish_instagram_publication(
         return publication
 
     if publication.status not in (
-        InstagramPublication.STATUS_APPROVED,
+        InstagramPublication.STATUS_QUEUED,
         InstagramPublication.STATUS_FAILED,
         InstagramPublication.STATUS_DRAFT,
     ):
