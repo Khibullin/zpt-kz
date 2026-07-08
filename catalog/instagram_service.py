@@ -23,6 +23,7 @@ from catalog.instagram_api import (
     absolute_media_path_to_relative,
     publish_story_to_instagram,
 )
+from core.instagram_sanitize import is_junk_only_description
 from core.models import InstagramPublication, Request
 
 logger = logging.getLogger(__name__)
@@ -69,7 +70,12 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
             InstagramPublication.STATUS_DRAFT,
             InstagramPublication.STATUS_FAILED,
         ):
-            queue_instagram_publication_for_processing(existing)
+            try:
+                product_request = Request.objects.get(pk=request_id)
+            except Request.DoesNotExist:
+                return existing
+            if not is_junk_only_description(product_request.description):
+                queue_instagram_publication_for_processing(existing)
             return existing
         return existing
 
@@ -78,6 +84,13 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
     except Request.DoesNotExist:
         logger.warning('Request #%s not found for Instagram publication', request_id)
         return None
+
+    junk_only_description = is_junk_only_description(product_request.description)
+    if junk_only_description:
+        logger.info(
+            'Request #%s has junk-only description, Instagram publication will stay draft',
+            request_id,
+        )
 
     try:
         output_path, caption = generate_instagram_story(product_request)
@@ -111,7 +124,7 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
         publication.pk,
     )
 
-    if mode == 'LIVE':
+    if mode == 'LIVE' and not junk_only_description:
         queue_instagram_publication_for_processing(publication)
         return publication
 

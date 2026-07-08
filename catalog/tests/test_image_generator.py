@@ -13,7 +13,7 @@ from catalog.image_generator import (
     build_publication_caption,
     generate_instagram_story,
 )
-from core.instagram_sanitize import sanitize_description
+from core.instagram_sanitize import is_junk_only_description, sanitize_description
 from core.models import Request
 from PIL import Image, ImageDraw, ImageFont
 
@@ -105,3 +105,7 @@ class InstagramStoryGeneratorTests(TestCase):
         with patch.object(Image.Image, 'save', side_effect=OSError('disk full')):
             with self.assertRaises(InstagramStoryGenerationError):
                 generate_instagram_story(self.request)
+
+    def test_is_junk_only_description_helper(self):
+        self.assertTrue(is_junk_only_description('qwerty'))
+        self.assertFalse(is_junk_only_description('Нужен масляный фильтр'))

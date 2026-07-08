@@ -6,18 +6,23 @@ from django.test import Client, TestCase, override_settings
 
 from catalog.image_generator import (
     InstagramStoryGenerationError,
+    build_publication_caption,
     generate_instagram_story,
 )
 from catalog.instagram_service import (
     is_publication_stuck_publishing,
     mark_stuck_instagram_publication_failed,
     process_instagram_publication_for_request,
+    process_queued_instagram_publications,
     publish_instagram_publication,
     schedule_instagram_publication_for_request,
 )
-from core.instagram_sanitize import sanitize_description
+from core.instagram_sanitize import is_junk_only_description, sanitize_description
 from core.models import InstagramPublication, Request
 from django.utils import timezone
+
+
+INSTAGRAM_TEST_PHONES = ('77011910000', '77713607040')
 
 
 @override_settings(INSTAGRAM_PUBLISH_MODE='OFF')
@@ -310,3 +315,208 @@ class CreateRequestInstagramOnCommitTests(TestCase):
     def test_schedule_wrapper_swallows_instagram_errors(self, process_mock):
         process_mock.side_effect = RuntimeError('instagram down')
         schedule_instagram_publication_for_request(1)
+
+
+class InstagramJunkDescriptionTests(TestCase):
+    def test_is_junk_only_description_detects_garbage(self):
+        for value in ('test', 'тест', 'qwerty', 'asdf', '123', 'TEST, qwerty'):
+            self.assertTrue(is_junk_only_description(value), value)
+
+    def test_is_junk_only_description_allows_real_text(self):
+        self.assertFalse(is_junk_only_description(''))
+        self.assertFalse(is_junk_only_description('Нужны колодки'))
+        self.assertFalse(is_junk_only_description('test колодки'))
+
+
+@override_settings(INSTAGRAM_PUBLISH_MODE='TEST')
+class InstagramTestPhonePublicationTests(TestCase):
+    def setUp(self):
+        self._media_tmp = TemporaryDirectory()
+        self.addCleanup(self._media_tmp.cleanup)
+        self.settings_override = self.settings(MEDIA_ROOT=self._media_tmp.name)
+        self.settings_override.enable()
+
+    def test_test_mode_creates_draft_for_test_phones(self):
+        for phone in INSTAGRAM_TEST_PHONES:
+            with self.subTest(phone=phone):
+                request = Request.objects.create(
+                    transport_type='car',
+                    brand='Toyota',
+                    model='Camry',
+                    category='Тормоза',
+                    city='Алматы',
+                    phone=phone,
+                    status='sent',
+                )
+                publication = process_instagram_publication_for_request(request.pk)
+                self.assertIsNotNone(publication)
+                publication.refresh_from_db()
+                self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
+
+
+@override_settings(
+    INSTAGRAM_PUBLISH_MODE='LIVE',
+    INSTAGRAM_ACCOUNT_ID='17841400000000000',
+    INSTAGRAM_ACCESS_TOKEN='test-token',
+)
+class InstagramLiveTestPhonePublicationTests(TestCase):
+    def setUp(self):
+        self._media_tmp = TemporaryDirectory()
+        self.addCleanup(self._media_tmp.cleanup)
+        self.settings_override = self.settings(MEDIA_ROOT=self._media_tmp.name)
+        self.settings_override.enable()
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_live_mode_queues_publication_for_test_phones(self, publish_mock):
+        for phone in INSTAGRAM_TEST_PHONES:
+            with self.subTest(phone=phone):
+                request = Request.objects.create(
+                    transport_type='car',
+                    brand='Kia',
+                    model='Rio',
+                    category='Кузов',
+                    city='Астана',
+                    phone=phone,
+                    status='sent',
+                )
+                publication = process_instagram_publication_for_request(request.pk)
+                publication.refresh_from_db()
+                self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+                publish_mock.assert_not_called()
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_junk_description_stays_draft_in_live_mode(self, publish_mock):
+        request = Request.objects.create(
+            transport_type='car',
+            brand='Hyundai',
+            model='Sonata',
+            category='Двигатель',
+            description='test',
+            city='Алматы',
+            phone='77001112233',
+            status='sent',
+        )
+        publication = process_instagram_publication_for_request(request.pk)
+        publication.refresh_from_db()
+        self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
+        publish_mock.assert_not_called()
+
+
+@override_settings(
+    INSTAGRAM_PUBLISH_MODE='LIVE',
+    INSTAGRAM_ACCOUNT_ID='17841400000000000',
+    INSTAGRAM_ACCESS_TOKEN='test-token',
+)
+class InstagramBuyerPhonePrivacyTests(TestCase):
+    def setUp(self):
+        self._media_tmp = TemporaryDirectory()
+        self.addCleanup(self._media_tmp.cleanup)
+        self.settings_override = self.settings(MEDIA_ROOT=self._media_tmp.name)
+        self.settings_override.enable()
+
+    def test_buyer_phone_not_in_story_caption_or_access_token(self):
+        request = Request.objects.create(
+            transport_type='car',
+            brand='Mercedes-Benz',
+            model='GLE',
+            category='Топливная система',
+            description='Нужен насос',
+            city='Алматы',
+            phone='77011910000',
+            status='sent',
+        )
+        _path, caption = generate_instagram_story(request)
+        self.assertNotIn(request.phone, caption)
+        self.assertNotIn(str(request.access_token), caption)
+        self.assertNotIn(request.phone, build_publication_caption(request))
+
+
+@override_settings(
+    INSTAGRAM_PUBLISH_MODE='LIVE',
+    INSTAGRAM_ACCOUNT_ID='17841400000000000',
+    INSTAGRAM_ACCESS_TOKEN='test-token',
+)
+class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.payload = {
+            'transport_type': 'car',
+            'country': 'Япония',
+            'brand': 'Toyota',
+            'model': 'Camry',
+            'category': 'Тормоза',
+            'article': '',
+            'description': 'Нужны передние колодки',
+            'city': 'Алматы',
+            'search_scope': 'city',
+            'selected_cities': [],
+            'phone': '77713607040',
+        }
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    @patch('core.views._dispatch_due_requests')
+    @patch('core.views._find_matching_sellers', return_value=([], 'none'))
+    @patch('core.views._build_dispatch_queue', return_value=[])
+    @patch('core.views._send_buyer_whatsapp_notification_async')
+    def test_create_request_queues_instagram_without_meta_api(
+        self,
+        buyer_whatsapp_mock,
+        dispatch_queue_mock,
+        matching_mock,
+        due_mock,
+        publish_mock,
+    ):
+        with TemporaryDirectory() as media_root:
+            with self.settings(MEDIA_ROOT=media_root):
+                with self.captureOnCommitCallbacks(execute=True):
+                    response = self.client.post(
+                        '/api/create-request/',
+                        data=json.dumps(self.payload),
+                        content_type='application/json',
+                    )
+
+        self.assertEqual(response.status_code, 200)
+        request_id = response.json()['id']
+        publication = InstagramPublication.objects.get(request_id=request_id)
+        self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+        publish_mock.assert_not_called()
+
+
+@override_settings(
+    INSTAGRAM_PUBLISH_MODE='LIVE',
+    INSTAGRAM_ACCOUNT_ID='17841400000000000',
+    INSTAGRAM_ACCESS_TOKEN='test-token',
+)
+class InstagramCronPublishesQueuedTests(TestCase):
+    def setUp(self):
+        self._media_tmp = TemporaryDirectory()
+        self.addCleanup(self._media_tmp.cleanup)
+        self.settings_override = self.settings(MEDIA_ROOT=self._media_tmp.name)
+        self.settings_override.enable()
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_cron_publishes_queued_publication(self, publish_mock):
+        publish_mock.return_value = {
+            'container_id': 'container_live',
+            'media_id': 'media_live',
+        }
+        request = Request.objects.create(
+            transport_type='car',
+            brand='BMW',
+            model='X5',
+            category='Подвеска',
+            city='Алматы',
+            phone='77713607040',
+            status='sent',
+        )
+        publication = process_instagram_publication_for_request(request.pk)
+        publication.refresh_from_db()
+        self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+        publish_mock.reset_mock()
+
+        stats = process_queued_instagram_publications()
+        publication.refresh_from_db()
+
+        self.assertEqual(stats['published'], 1)
+        self.assertEqual(publication.status, InstagramPublication.STATUS_PUBLISHED)
+        publish_mock.assert_called_once()
