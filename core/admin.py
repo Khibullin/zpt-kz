@@ -11,7 +11,7 @@ from catalog.instagram_service import (
     approve_instagram_publication,
     cancel_instagram_publication,
     mark_stuck_instagram_publication_failed,
-    publish_instagram_publication,
+    queue_instagram_publication_for_processing,
 )
 from .models import (
     Country,
@@ -678,32 +678,27 @@ def approve_instagram_publications(modeladmin, request, queryset):
 
 @admin.action(description='Опубликовать выбранные карточки')
 def publish_instagram_publications(modeladmin, request, queryset):
-    published = 0
+    queued = 0
     skipped = 0
     for publication in queryset:
-        before = publication.status
-        publish_instagram_publication(publication)
-        publication.refresh_from_db()
         if publication.status == InstagramPublication.STATUS_PUBLISHED:
-            published += 1
-        elif before == InstagramPublication.STATUS_PUBLISHED:
             skipped += 1
+            continue
+        queue_instagram_publication_for_processing(publication)
+        queued += 1
     modeladmin.message_user(
         request,
-        f'Опубликовано: {published}. Пропущено (уже опубликовано): {skipped}.',
+        f'Публикация поставлена в очередь: {queued}. Пропущено (уже опубликовано): {skipped}.',
     )
 
 
 @admin.action(description='Повторить публикацию для выбранных')
 def retry_instagram_publications(modeladmin, request, queryset):
-    retried = 0
+    queued = 0
     for publication in queryset.exclude(status=InstagramPublication.STATUS_PUBLISHED):
-        if publication.status == InstagramPublication.STATUS_CANCELLED:
-            publication.status = InstagramPublication.STATUS_DRAFT
-            publication.save(update_fields=['status'])
-        publish_instagram_publication(publication)
-        retried += 1
-    modeladmin.message_user(request, f'Повторена публикация для: {retried}')
+        queue_instagram_publication_for_processing(publication)
+        queued += 1
+    modeladmin.message_user(request, f'Публикация поставлена в очередь: {queued}.')
 
 
 @admin.action(description='Пометить зависшие публикации как ошибку (>5 мин)')

@@ -136,24 +136,19 @@ class InstagramLivePublishTests(TestCase):
         )
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
-    def test_live_mode_publishes_after_draft(self, publish_mock):
-        publish_mock.return_value = {
-            'container_id': 'container_1',
-            'media_id': 'media_1',
-        }
+    def test_live_mode_queues_publication_for_processing(self, publish_mock):
         publication = process_instagram_publication_for_request(self.request.pk)
         publication.refresh_from_db()
-        self.assertEqual(publication.status, InstagramPublication.STATUS_PUBLISHED)
-        self.assertEqual(publication.instagram_media_id, 'media_1')
-        publish_mock.assert_called_once()
+
+        self.assertEqual(publication.status, InstagramPublication.STATUS_APPROVED)
+        publish_mock.assert_not_called()
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
     def test_published_is_not_republished(self, publish_mock):
-        publish_mock.return_value = {
-            'container_id': 'container_1',
-            'media_id': 'media_1',
-        }
         publication = process_instagram_publication_for_request(self.request.pk)
+        publication.status = InstagramPublication.STATUS_PUBLISHED
+        publication.instagram_media_id = 'media_1'
+        publication.save(update_fields=['status', 'instagram_media_id'])
         publish_mock.reset_mock()
 
         publish_instagram_publication(publication)
@@ -168,6 +163,8 @@ class InstagramLivePublishTests(TestCase):
             '(https://zpt.kz/products/instagram_stories/missing.jpg)'
         )
         publication = process_instagram_publication_for_request(self.request.pk)
+        publication.status = InstagramPublication.STATUS_APPROVED
+        publication.save(update_fields=['status'])
         publish_mock.reset_mock()
 
         publish_instagram_publication(publication)
@@ -184,6 +181,8 @@ class InstagramLivePublishTests(TestCase):
 
         publish_mock.side_effect = InstagramPublishError('Meta API down')
         publication = process_instagram_publication_for_request(self.request.pk)
+        publication.status = InstagramPublication.STATUS_APPROVED
+        publication.save(update_fields=['status'])
 
         publish_instagram_publication(publication)
         publication.refresh_from_db()
@@ -198,6 +197,8 @@ class InstagramLivePublishTests(TestCase):
 
         publish_mock.side_effect = requests.Timeout('timeout')
         publication = process_instagram_publication_for_request(self.request.pk)
+        publication.status = InstagramPublication.STATUS_APPROVED
+        publication.save(update_fields=['status'])
 
         publish_instagram_publication(publication)
         publication.refresh_from_db()

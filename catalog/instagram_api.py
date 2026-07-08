@@ -22,6 +22,8 @@ CONTAINER_POLL_INTERVAL_SEC = 2
 CONTAINER_POLL_TIMEOUT_SEC = 60
 REQUEST_TIMEOUT_SEC = 30
 IMAGE_URL_USER_AGENT = 'ZPT.KZ-Instagram-Validator/1.0'
+IMAGE_URL_CONNECT_TIMEOUT_SEC = 5
+IMAGE_URL_READ_TIMEOUT_SEC = 15
 BLOCKED_URL_PATH_MARKERS = (
     '/admin/',
     '/login/',
@@ -185,10 +187,14 @@ def validate_public_image_url(image_url: str) -> ImageUrlValidationResult:
     try:
         response = requests.get(
             image_url,
-            timeout=REQUEST_TIMEOUT_SEC,
+            timeout=(IMAGE_URL_CONNECT_TIMEOUT_SEC, IMAGE_URL_READ_TIMEOUT_SEC),
             allow_redirects=True,
             headers={'User-Agent': IMAGE_URL_USER_AGENT},
         )
+    except requests.Timeout as exc:
+        raise InstagramPublishError(
+            'Не удалось проверить публичный URL изображения: timeout'
+        ) from exc
     except requests.RequestException as exc:
         raise InstagramPublishError(
             f'Не удалось проверить доступность image_url {image_url}: {exc}'
@@ -311,7 +317,7 @@ def _create_story_container(
     _pub_log(
         publication_id,
         logging.INFO,
-        'создаём media container endpoint=%s media_type=STORIES',
+        'create container endpoint=%s media_type=STORIES',
         endpoint,
     )
     response = requests.post(
@@ -431,6 +437,7 @@ def publish_story_to_instagram(
     image_relative_path: str,
     *,
     publication_id: int | None = None,
+    validate_image_url: bool = False,
 ) -> dict[str, str]:
     """
     Публикует изображение в Instagram Stories через Meta Graph API.
@@ -454,14 +461,15 @@ def publish_story_to_instagram(
         _pub_log(publication_id, logging.INFO, 'начало публикации')
         _pub_log(publication_id, logging.INFO, 'image_url=%s', image_url)
 
-        validation = validate_public_image_url(image_url)
-        _pub_log(
-            publication_id,
-            logging.INFO,
-            'проверка image_url: HTTP %s Content-Type=%s',
-            validation.status_code,
-            validation.content_type,
-        )
+        if validate_image_url:
+            validation = validate_public_image_url(image_url)
+            _pub_log(
+                publication_id,
+                logging.INFO,
+                'image URL validation result: HTTP %s Content-Type=%s',
+                validation.status_code,
+                validation.content_type,
+            )
 
         container_id = _create_story_container(
             ig_account_id=ig_account_id,

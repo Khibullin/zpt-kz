@@ -69,7 +69,8 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
             InstagramPublication.STATUS_APPROVED,
             InstagramPublication.STATUS_FAILED,
         ):
-            return publish_instagram_publication(existing)
+            queue_instagram_publication_for_processing(existing)
+            return existing
         return existing
 
     try:
@@ -111,9 +112,74 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
     )
 
     if mode == 'LIVE':
-        return publish_instagram_publication(publication)
+        queue_instagram_publication_for_processing(publication)
+        return publication
 
     return publication
+
+
+def queue_instagram_publication_for_processing(
+    publication: InstagramPublication,
+) -> InstagramPublication:
+    """Ставит публикацию в очередь без синхронного вызова Meta API."""
+    if publication.status == InstagramPublication.STATUS_PUBLISHED:
+        return publication
+
+    publication.status = InstagramPublication.STATUS_APPROVED
+    publication.publishing_started_at = None
+    publication.error_message = ''
+    publication.save(update_fields=['status', 'publishing_started_at', 'error_message'])
+    logger.info('Instagram publication #%s: queued', publication.pk)
+    return publication
+
+
+def process_approved_instagram_publications() -> dict[str, int]:
+    """
+    Обрабатывает очередь approved-публикаций (для management-команды / cron).
+
+    :returns: счётчики processed, published, failed, stuck_reset.
+    """
+    stats = {
+        'processed': 0,
+        'published': 0,
+        'failed': 0,
+        'stuck_reset': 0,
+    }
+
+    stuck_publications = InstagramPublication.objects.filter(
+        status=InstagramPublication.STATUS_PUBLISHING,
+    )
+    for publication in stuck_publications:
+        before_status = publication.status
+        mark_stuck_instagram_publication_failed(publication)
+        publication.refresh_from_db()
+        if publication.status == InstagramPublication.STATUS_FAILED and before_status != publication.status:
+            stats['stuck_reset'] += 1
+
+    approved_publications = list(
+        InstagramPublication.objects.filter(
+            status=InstagramPublication.STATUS_APPROVED,
+        ).order_by('created_at')
+    )
+
+    for publication in approved_publications:
+        stats['processed'] += 1
+        before_status = publication.status
+        publish_instagram_publication(
+            publication,
+            validate_image_url=True,
+            source='management',
+        )
+        publication.refresh_from_db()
+        if publication.status == InstagramPublication.STATUS_PUBLISHED:
+            stats['published'] += 1
+        elif (
+            publication.status == InstagramPublication.STATUS_FAILED
+            and before_status != publication.status
+        ):
+            stats['failed'] += 1
+
+    return stats
 
 
 def is_publication_stuck_publishing(publication: InstagramPublication) -> bool:
@@ -156,7 +222,12 @@ def _mark_publication_failed(
     return publication
 
 
-def publish_instagram_publication(publication: InstagramPublication) -> InstagramPublication:
+def publish_instagram_publication(
+    publication: InstagramPublication,
+    *,
+    validate_image_url: bool = False,
+    source: str = 'direct',
+) -> InstagramPublication:
     if publication.status == InstagramPublication.STATUS_PUBLISHED:
         logger.info(
             'Instagram publication #%s already published, skip',
@@ -174,7 +245,7 @@ def publish_instagram_publication(publication: InstagramPublication) -> Instagra
     if publication.status == InstagramPublication.STATUS_PUBLISHING:
         if is_publication_stuck_publishing(publication):
             logger.warning(
-                'Instagram publication #%s stuck in publishing, waiting for admin reset',
+                'Instagram publication #%s stuck in publishing, waiting for reset',
                 publication.pk,
             )
         else:
@@ -184,13 +255,32 @@ def publish_instagram_publication(publication: InstagramPublication) -> Instagra
             )
         return publication
 
+    if publication.status not in (
+        InstagramPublication.STATUS_APPROVED,
+        InstagramPublication.STATUS_FAILED,
+        InstagramPublication.STATUS_DRAFT,
+    ):
+        logger.info(
+            'Instagram publication #%s status=%s, skip publish',
+            publication.pk,
+            publication.status,
+        )
+        return publication
+
     if not publication.image:
         return _mark_publication_failed(
             publication,
             'Не загружено изображение карточки.',
         )
 
-    logger.info('Instagram publication #%s: начало публикации', publication.pk)
+    if source == 'management':
+        logger.info(
+            'Instagram publication #%s: started by management command',
+            publication.pk,
+        )
+    else:
+        logger.info('Instagram publication #%s: начало публикации', publication.pk)
+
     publication.status = InstagramPublication.STATUS_PUBLISHING
     publication.error_message = ''
     publication.publishing_started_at = timezone.now()
@@ -200,6 +290,7 @@ def publish_instagram_publication(publication: InstagramPublication) -> Instagra
         result = publish_story_to_instagram(
             publication.image.name,
             publication_id=publication.pk,
+            validate_image_url=validate_image_url,
         )
     except InstagramPublishError as exc:
         _mark_publication_failed(publication, str(exc))
@@ -258,7 +349,8 @@ def approve_instagram_publication(publication: InstagramPublication) -> Instagra
     ):
         publication.status = InstagramPublication.STATUS_APPROVED
         publication.error_message = ''
-        publication.save(update_fields=['status', 'error_message'])
+        publication.publishing_started_at = None
+        publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
     return publication
 
 

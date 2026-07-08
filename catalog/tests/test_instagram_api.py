@@ -62,7 +62,7 @@ class InstagramApiTests(TestCase):
         self.assertEqual(result.content_type, 'image/jpeg')
         get_mock.assert_called_once_with(
             PUBLIC_IMAGE_URL,
-            timeout=30,
+            timeout=(5, 15),
             allow_redirects=True,
             headers={'User-Agent': 'ZPT.KZ-Instagram-Validator/1.0'},
         )
@@ -99,17 +99,25 @@ class InstagramApiTests(TestCase):
 
         self.assertIn('404', str(ctx.exception))
 
+    @patch('catalog.instagram_api.requests.get')
+    def test_validate_public_image_url_timeout(self, get_mock):
+        import requests
+
+        get_mock.side_effect = requests.Timeout('timeout')
+
+        with self.assertRaises(InstagramPublishError) as ctx:
+            validate_public_image_url(PUBLIC_IMAGE_URL)
+
+        self.assertIn('timeout', str(ctx.exception))
+
     @override_settings(INSTAGRAM_BUSINESS_ACCOUNT_ID='', FACEBOOK_ACCESS_TOKEN='')
     def test_try_publish_skips_without_credentials(self):
         result = try_publish_story_to_instagram(IMAGE_RELATIVE_PATH)
         self.assertIsNone(result)
 
     @patch('catalog.instagram_api._wait_for_container_ready')
-    @patch('catalog.instagram_api.requests.get')
     @patch('catalog.instagram_api.requests.post')
-    def test_publish_story_to_instagram_success(self, post_mock, get_mock, wait_mock):
-        get_mock.return_value = _valid_image_response()
-
+    def test_publish_story_to_instagram_success(self, post_mock, wait_mock):
         create_response = MagicMock()
         create_response.status_code = 200
         create_response.json.return_value = {'id': 'container_123'}
@@ -125,7 +133,6 @@ class InstagramApiTests(TestCase):
         self.assertEqual(media_id['media_id'], 'media_456')
         self.assertEqual(media_id['container_id'], 'container_123')
         self.assertEqual(post_mock.call_count, 2)
-        get_mock.assert_called_once()
 
         create_call = post_mock.call_args_list[0]
         self.assertIn('/17841400000000000/media', create_call.args[0])
@@ -147,7 +154,7 @@ class InstagramApiTests(TestCase):
         get_mock.return_value = _valid_image_response(status_code=404)
 
         with self.assertRaises(InstagramPublishError):
-            publish_story_to_instagram(IMAGE_RELATIVE_PATH)
+            publish_story_to_instagram(IMAGE_RELATIVE_PATH, validate_image_url=True)
 
         post_mock.assert_not_called()
 
@@ -160,23 +167,22 @@ class InstagramApiTests(TestCase):
         )
 
         with self.assertRaises(InstagramPublishError):
-            publish_story_to_instagram(IMAGE_RELATIVE_PATH)
+            publish_story_to_instagram(IMAGE_RELATIVE_PATH, validate_image_url=True)
 
         post_mock.assert_not_called()
 
     @patch('catalog.instagram_api.requests.post')
     def test_publish_story_raises_on_graph_error(self, post_mock):
-        with patch('catalog.instagram_api.requests.get', return_value=_valid_image_response()):
-            error_response = MagicMock()
-            error_response.status_code = 400
-            error_response.text = 'bad request'
-            error_response.json.return_value = {
-                'error': {'message': 'Invalid OAuth access token', 'code': 190},
-            }
-            post_mock.return_value = error_response
+        error_response = MagicMock()
+        error_response.status_code = 400
+        error_response.text = 'bad request'
+        error_response.json.return_value = {
+            'error': {'message': 'Invalid OAuth access token', 'code': 190},
+        }
+        post_mock.return_value = error_response
 
-            with self.assertRaises(InstagramPublishError):
-                publish_story_to_instagram(IMAGE_RELATIVE_PATH)
+        with self.assertRaises(InstagramPublishError):
+            publish_story_to_instagram(IMAGE_RELATIVE_PATH)
 
     @patch('catalog.instagram_api.publish_story_to_instagram')
     def test_try_publish_swallows_publish_error(self, publish_mock):
