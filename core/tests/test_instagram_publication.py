@@ -82,7 +82,7 @@ class InstagramPublishModeTestTests(TestCase):
         self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
         self.assertTrue(publication.image.name)
         self.assertIn('АВТО:', publication.caption)
-        self.assertIn('Город покупателя:', publication.caption)
+        self.assertIn('Город:', publication.caption)
 
     def test_duplicate_publication_is_not_created(self):
         first = process_instagram_publication_for_request(self.request.pk)

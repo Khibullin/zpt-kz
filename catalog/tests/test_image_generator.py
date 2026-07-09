@@ -30,6 +30,21 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 class InstagramSanitizeHelperTests(TestCase):
+    def test_fuel_system_benzostantsiya_typo(self):
+        display = build_instagram_part_display(
+            category='Топливная система',
+            description='бензостанция',
+        )
+        self.assertEqual(display.detail, 'Бензонасос')
+        self.assertEqual(display.category_line, 'Категория: Топливная система')
+
+    def test_fuel_system_benzo_nasos_typo(self):
+        display = build_instagram_part_display(
+            category='Топливная система',
+            description='бензо насос',
+        )
+        self.assertEqual(display.detail, 'Бензонасос')
+
     def test_body_category_description_becomes_clean_detail(self):
         display = build_instagram_part_display(
             category='Кузов',
@@ -145,8 +160,8 @@ class InstagramStoryGeneratorTests(TestCase):
     def test_build_publication_caption_contains_new_geography_lines(self):
         self.request.search_scope = 'kazakhstan'
         caption = build_publication_caption(self.request)
-        self.assertIn('Город покупателя: Алматы', caption)
-        self.assertIn('Поиск продавцов: весь Казахстан', caption)
+        self.assertIn('Город: Алматы', caption)
+        self.assertIn('Поиск: весь Казахстан', caption)
         self.assertIn('ДЕТАЛЬ:', caption)
 
     def test_build_publication_caption_excludes_phone_from_description(self):
@@ -158,13 +173,13 @@ class InstagramStoryGeneratorTests(TestCase):
         self.request.search_scope = 'city'
         self.assertEqual(
             _format_seller_search_line(self.request),
-            'Поиск продавцов: только город покупателя',
+            'Поиск: только город покупателя',
         )
 
     def test_format_buyer_city_line(self):
         self.assertEqual(
             _format_buyer_city_line(self.request),
-            'Город покупателя: Алматы',
+            'Город: Алматы',
         )
 
     def test_wrap_paragraph_truncates_very_long_text(self):
@@ -183,7 +198,7 @@ class InstagramStoryGeneratorTests(TestCase):
         self.assertIn('instagram_stories', output_path.as_posix())
         self.assertIn(str(self.request.access_token), output_path.name)
         self.assertIn('АВТО:', caption)
-        self.assertIn('Город покупателя:', caption)
+        self.assertIn('Город:', caption)
 
         with Image.open(output_path) as image:
             self.assertEqual(image.size, (1080, 1920))

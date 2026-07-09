@@ -45,7 +45,7 @@ PADDING_X = 56
 CONTENT_WIDTH = STORY_WIDTH - PADDING_X * 2
 LINE_GAP = 12
 BLOCK_GAP = 30
-META_GAP = 18
+META_GAP = 24
 LABEL_BODY_GAP = 10
 CARD_PAD_X = 36
 CARD_PAD_Y = 36
@@ -58,7 +58,8 @@ COLOR_BRAND = (239, 49, 36)
 COLOR_TITLE = (17, 24, 39)
 COLOR_BODY = (31, 41, 55)
 COLOR_LABEL = (107, 114, 128)
-COLOR_FOOTER = (107, 114, 128)
+COLOR_META = (75, 85, 99)
+COLOR_FOOTER = (75, 85, 99)
 COLOR_BORDER = (254, 226, 226)
 COLOR_CARD_OUTLINE = (229, 231, 235)
 COLOR_DECO = (243, 244, 246)
@@ -200,12 +201,12 @@ def _format_part_display(product_request: Request):
 
 
 def _format_buyer_city_line(product_request: Request) -> str:
-    return f'Город покупателя: {build_instagram_buyer_city_text(city=product_request.city)}'
+    return f'Город: {build_instagram_buyer_city_text(city=product_request.city)}'
 
 
 def _format_seller_search_line(product_request: Request) -> str:
     return (
-        'Поиск продавцов: '
+        'Поиск: '
         f'{build_instagram_seller_search_text(
             search_scope=getattr(product_request, "search_scope", "city"),
             city=product_request.city,
@@ -373,7 +374,7 @@ def _draw_centered_meta_lines(
             text=line,
             y=cursor_y,
             font=font,
-            fill=COLOR_LABEL,
+            fill=COLOR_META,
         )
     return cursor_y
 
@@ -543,8 +544,8 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
 
         inner_width = CONTENT_WIDTH - CARD_PAD_X * 2
 
-        label_font = _load_font(28, bold=True)
-        meta_font = _load_font(26, bold=False)
+        label_font = _load_font(30, bold=True)
+        meta_font = _load_font(34, bold=False)
         vehicle_lines, vehicle_font = _wrap_lines_fitted(
             draw,
             _format_vehicle_line(product_request),
@@ -563,8 +564,8 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         )
 
         cta_primary_font = _load_font(42, bold=True)
-        cta_secondary_font = _load_font(34, bold=False)
-        footer_font = _load_font(28, bold=False)
+        cta_secondary_font = _load_font(36, bold=False)
+        footer_font = _load_font(36, bold=False)
 
         info_sections = [
             ('АВТО', vehicle_lines, label_font, vehicle_font, COLOR_TITLE),
