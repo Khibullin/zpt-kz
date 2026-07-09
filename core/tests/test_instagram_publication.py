@@ -18,9 +18,11 @@ from catalog.instagram_service import (
     schedule_instagram_publication_for_request,
 )
 from core.instagram_sanitize import (
+    build_instagram_part_display,
     build_instagram_part_text,
+    build_instagram_seller_search_text,
+    is_garbage_text,
     is_junk_only_description,
-    is_junk_text_fragment,
     sanitize_description,
 )
 from core.models import InstagramPublication, Request
@@ -80,7 +82,7 @@ class InstagramPublishModeTestTests(TestCase):
         self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
         self.assertTrue(publication.image.name)
         self.assertIn('АВТО:', publication.caption)
-        self.assertIn('ГЕОГРАФИЯ:', publication.caption)
+        self.assertIn('Город покупателя:', publication.caption)
 
     def test_duplicate_publication_is_not_created(self):
         first = process_instagram_publication_for_request(self.request.pk)
@@ -107,11 +109,9 @@ class InstagramSanitizerTests(TestCase):
         self.assertIn('фильтр', cleaned)
 
     def test_junk_fragment_not_shown_in_part_text(self):
-        from core.instagram_sanitize import build_instagram_part_text
-
-        part = build_instagram_part_text(category='Двигатель', description='.ждлорпавы')
-        self.assertEqual(part, 'Двигатель')
-        self.assertNotIn('ждлорпавы', part)
+        display = build_instagram_part_display(category='Двигатель', description='.ждлорпавы')
+        self.assertEqual(display.detail, 'Двигатель')
+        self.assertNotIn('ждлорпавы', display.detail)
 
     def test_raw_description_not_used_on_image_caption(self):
         request = Request.objects.create(
@@ -330,9 +330,9 @@ class CreateRequestInstagramOnCommitTests(TestCase):
 
 
 class InstagramJunkDescriptionTests(TestCase):
-    def test_is_junk_text_fragment_detects_garbage(self):
+    def test_is_garbage_text_detects_garbage(self):
         for value in ('test', 'тест', 'qwerty', 'asdf', '123', '.ждлорпавы'):
-            self.assertTrue(is_junk_text_fragment(value), value)
+            self.assertTrue(is_garbage_text(value), value)
 
     def test_is_junk_only_description_detects_garbage(self):
         for value in ('test', 'тест', 'qwerty', 'asdf', '123', 'TEST, qwerty'):
@@ -343,10 +343,33 @@ class InstagramJunkDescriptionTests(TestCase):
         self.assertFalse(is_junk_only_description('Нужны колодки'))
         self.assertFalse(is_junk_only_description('test колодки'))
 
-    def test_build_instagram_part_text_keeps_category_only_for_junk_description(self):
+    def test_build_instagram_part_display_keeps_category_only_for_junk_description(self):
+        display = build_instagram_part_display(category='Двигатель', description='.ждлорпавы')
+        self.assertEqual(display.detail, 'Двигатель')
+        self.assertEqual(display.category_line, '')
+
+    def test_seller_search_scope_examples(self):
         self.assertEqual(
-            build_instagram_part_text(category='Двигатель', description='.ждлорпавы'),
-            'Двигатель',
+            build_instagram_seller_search_text(search_scope='kazakhstan'),
+            'весь Казахстан',
+        )
+        self.assertEqual(
+            build_instagram_seller_search_text(search_scope='city', city='Астана'),
+            'только город покупателя',
+        )
+        self.assertEqual(
+            build_instagram_seller_search_text(
+                search_scope='custom',
+                selected_cities='Алматы',
+            ),
+            'Алматы',
+        )
+        self.assertEqual(
+            build_instagram_seller_search_text(
+                search_scope='custom',
+                selected_cities='Алматы, Астана',
+            ),
+            'выбранные города',
         )
 
 

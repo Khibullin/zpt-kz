@@ -17,9 +17,9 @@ from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont
 
 from core.instagram_sanitize import (
-    build_instagram_geography_text,
-    build_instagram_part_text,
-    sanitize_description,
+    build_instagram_buyer_city_text,
+    build_instagram_part_display,
+    build_instagram_seller_search_text,
 )
 
 if TYPE_CHECKING:
@@ -33,11 +33,10 @@ OUTPUT_SUBDIR = 'instagram_stories'
 
 SITE_MARK = 'ZPT.KZ'
 SITE_TAGLINE = 'заявки на автозапчасти'
-HEADLINE_TEXT = 'Новая заявка'
+HEADLINE_TEXT = 'Покупатель ищет запчасть'
 CTA_LINE_1 = 'Есть эта запчасть?'
-CTA_LINE_2 = 'Зарегистрируйтесь на ZPT.KZ'
-FOOTER_LINE_1 = 'Контакт покупателя доступен после регистрации'
-FOOTER_LINE_2 = 'zpt.kz'
+CTA_LINE_2 = 'Получите контакт покупателя'
+FOOTER_TEXT = 'Профиль → ссылка ZPT.KZ'
 
 SAFE_ZONE_TOP = 220
 SAFE_ZONE_BOTTOM = 1550
@@ -46,6 +45,7 @@ PADDING_X = 56
 CONTENT_WIDTH = STORY_WIDTH - PADDING_X * 2
 LINE_GAP = 12
 BLOCK_GAP = 30
+META_GAP = 18
 LABEL_BODY_GAP = 10
 CARD_PAD_X = 36
 CARD_PAD_Y = 36
@@ -191,29 +191,42 @@ def _format_vehicle_line(product_request: Request) -> str:
     return ' '.join(parts) if parts else 'Не указано'
 
 
-def _format_part_line(product_request: Request) -> str:
-    return build_instagram_part_text(
+def _format_part_display(product_request: Request):
+    return build_instagram_part_display(
         category=product_request.category,
         description=product_request.description,
         article=product_request.article,
     )
 
 
-def _format_city_line(product_request: Request) -> str:
-    return build_instagram_geography_text(
-        search_scope=getattr(product_request, 'search_scope', 'city'),
-        city=product_request.city,
-        selected_cities=product_request.selected_cities,
+def _format_buyer_city_line(product_request: Request) -> str:
+    return f'Город покупателя: {build_instagram_buyer_city_text(city=product_request.city)}'
+
+
+def _format_seller_search_line(product_request: Request) -> str:
+    return (
+        'Поиск продавцов: '
+        f'{build_instagram_seller_search_text(
+            search_scope=getattr(product_request, "search_scope", "city"),
+            city=product_request.city,
+            selected_cities=product_request.selected_cities,
+        )}'
     )
 
 
 def build_publication_caption(product_request: Request) -> str:
     """Безопасный текст карточки для хранения и превью в админке."""
+    part_display = _format_part_display(product_request)
     lines = [
         f'АВТО: {_format_vehicle_line(product_request)}',
-        f'ДЕТАЛЬ: {_format_part_line(product_request)}',
-        f'ГЕОГРАФИЯ: {_format_city_line(product_request)}',
+        f'ДЕТАЛЬ: {part_display.detail}',
     ]
+    if part_display.category_line:
+        lines.append(part_display.category_line)
+    lines.extend([
+        _format_buyer_city_line(product_request),
+        _format_seller_search_line(product_request),
+    ])
     return '\n'.join(lines)
 
 
@@ -327,6 +340,42 @@ def _wrap_lines_fitted(
 
     font = _load_font(sizes[-1], bold=bold)
     return _wrap_paragraph(draw, text, font, max_width, max_lines=max_lines), font
+
+
+def _estimate_meta_lines_height(
+    draw: ImageDraw.ImageDraw,
+    lines: list[str],
+    font: ImageFont.ImageFont,
+) -> int:
+    if not lines:
+        return 0
+    total = 0
+    for index, line in enumerate(lines):
+        if index:
+            total += META_GAP
+        total += _measure_text(draw, line, font)[1]
+    return total
+
+
+def _draw_centered_meta_lines(
+    draw: ImageDraw.ImageDraw,
+    *,
+    lines: list[str],
+    y_start: int,
+    font: ImageFont.ImageFont,
+) -> int:
+    cursor_y = y_start
+    for index, line in enumerate(lines):
+        if index:
+            cursor_y += META_GAP
+        cursor_y = _draw_centered_text(
+            draw,
+            text=line,
+            y=cursor_y,
+            font=font,
+            fill=COLOR_LABEL,
+        )
+    return cursor_y
 
 
 def _estimate_centered_block_height(
@@ -450,23 +499,14 @@ def _draw_footer(
     draw: ImageDraw.ImageDraw,
     *,
     font: ImageFont.ImageFont,
-    small_font: ImageFont.ImageFont,
     y_start: int,
 ) -> None:
-    cursor_y = y_start
-    cursor_y = _draw_centered_text(
-        draw,
-        text=FOOTER_LINE_1,
-        y=cursor_y,
-        font=font,
-        fill=COLOR_FOOTER,
-    ) + 10
     _draw_centered_text(
         draw,
-        text=FOOTER_LINE_2,
-        y=cursor_y,
-        font=small_font,
-        fill=COLOR_BRAND,
+        text=FOOTER_TEXT,
+        y=y_start,
+        font=font,
+        fill=COLOR_FOOTER,
     )
 
 
@@ -493,9 +533,18 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         draw = ImageDraw.Draw(image)
         _draw_decorative_pattern(draw)
 
+        part_display = _format_part_display(product_request)
+        meta_lines = [
+            part_display.category_line,
+            _format_buyer_city_line(product_request),
+            _format_seller_search_line(product_request),
+        ]
+        meta_lines = [line for line in meta_lines if line]
+
         inner_width = CONTENT_WIDTH - CARD_PAD_X * 2
 
         label_font = _load_font(28, bold=True)
+        meta_font = _load_font(26, bold=False)
         vehicle_lines, vehicle_font = _wrap_lines_fitted(
             draw,
             _format_vehicle_line(product_request),
@@ -506,36 +555,29 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         )
         part_lines, part_font = _wrap_lines_fitted(
             draw,
-            _format_part_line(product_request),
+            part_display.detail,
             max_width=inner_width,
             sizes=[60, 54, 48],
             max_lines=3,
-            bold=True,
-        )
-        city_lines, city_font = _wrap_lines_fitted(
-            draw,
-            _format_city_line(product_request),
-            max_width=inner_width,
-            sizes=[52, 46, 40],
-            max_lines=2,
             bold=True,
         )
 
         cta_primary_font = _load_font(42, bold=True)
         cta_secondary_font = _load_font(34, bold=False)
         footer_font = _load_font(28, bold=False)
-        footer_small_font = _load_font(30, bold=True)
 
         info_sections = [
             ('АВТО', vehicle_lines, label_font, vehicle_font, COLOR_TITLE),
             ('ДЕТАЛЬ', part_lines, label_font, part_font, COLOR_BODY),
-            ('ГЕОГРАФИЯ', city_lines, label_font, city_font, COLOR_BRAND),
         ]
 
         info_height = _estimate_centered_block_height(
             draw,
             [(label, lines, label_font, body_font) for label, lines, label_font, body_font, _ in info_sections],
         )
+        meta_height = _estimate_meta_lines_height(draw, meta_lines, meta_font)
+        if meta_lines:
+            info_height += BLOCK_GAP + meta_height
         cta_height = (
             28
             + _measure_text(draw, CTA_LINE_1, cta_primary_font)[1]
@@ -543,11 +585,7 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
             + _measure_text(draw, CTA_LINE_2, cta_secondary_font)[1]
             + 28
         )
-        footer_height = (
-            _measure_text(draw, FOOTER_LINE_1, footer_font)[1]
-            + 10
-            + _measure_text(draw, FOOTER_LINE_2, footer_small_font)[1]
-        )
+        footer_height = _measure_text(draw, FOOTER_TEXT, footer_font)[1]
 
         card_height = info_height + CARD_PAD_Y * 2
         stack_height = card_height + 28 + cta_height + 28 + footer_height
@@ -576,11 +614,18 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
             width=1,
         )
 
-        _draw_centered_info_block(
+        content_bottom = _draw_centered_info_block(
             draw,
             y_start=card_top + CARD_PAD_Y,
             sections=info_sections,
         )
+        if meta_lines:
+            content_bottom = _draw_centered_meta_lines(
+                draw,
+                lines=meta_lines,
+                y_start=content_bottom + BLOCK_GAP,
+                font=meta_font,
+            )
 
         cta_bottom = _draw_cta_card(
             draw,
@@ -593,7 +638,6 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
         _draw_footer(
             draw,
             font=footer_font,
-            small_font=footer_small_font,
             y_start=footer_y,
         )
 

@@ -5,6 +5,7 @@
 from __future__ import annotations
 
 import re
+from dataclasses import dataclass
 
 DEFAULT_MAX_DESCRIPTION_LENGTH = 200
 INSTAGRAM_PART_FALLBACK = 'Запчасть по заявке'
@@ -20,6 +21,46 @@ JUNK_DESCRIPTION_TOKENS = frozenset({
     'фыва',
     'ячсм',
 })
+
+_UPPERCASE_WORDS = {
+    'акп': 'АКПП',
+    'акпп': 'АКПП',
+    'мкп': 'МКПП',
+    'мкпп': 'МКПП',
+}
+
+_PREFIX_WORDS_RE = re.compile(
+    r'^(?:'
+    r'нужен срочно|нужна срочно|'
+    r'нужен|нужна|нужно|нужны|'
+    r'ищу|надо|требуется|куплю'
+    r')\s+',
+    flags=re.IGNORECASE,
+)
+
+_PHRASE_TYPOS: tuple[tuple[str, str], ...] = (
+    ('ищу фару перднию', 'передняя фара'),
+    ('фару перднию', 'передняя фара'),
+    ('фара перднию', 'передняя фара'),
+    ('коробка автомат', 'акпп'),
+)
+
+_WORD_TYPOS: dict[str, str] = {
+    'бампр': 'бампер',
+    'бамперр': 'бампер',
+    'передни': 'передний',
+    'перадний': 'передний',
+    'пердний': 'передний',
+    'переднею': 'переднюю',
+    'перднию': 'переднюю',
+    'двегатель': 'двигатель',
+    'двигател': 'двигатель',
+    'движок': 'двигатель',
+    'каробка': 'коробка',
+    'капотт': 'капот',
+    'крылоо': 'крыло',
+    'радиаторр': 'радиатор',
+}
 
 _VOWELS = frozenset('aeiouyаеёиоуыэюя')
 
@@ -50,6 +91,12 @@ _VIN_PATTERN = re.compile(r'\b[A-HJ-NPR-Z0-9]{17}\b', flags=re.IGNORECASE)
 _FRAGMENT_SPLIT_RE = re.compile(r'[—\-|/,;]+')
 
 
+@dataclass(frozen=True)
+class InstagramPartDisplay:
+    detail: str
+    category_line: str = ''
+
+
 def _normalize_spaces(value: str | None) -> str:
     return ' '.join(str(value or '').split())
 
@@ -65,7 +112,8 @@ def _has_low_word_likeness(text: str) -> bool:
 
     common_markers = (
         'ие', 'ия', 'ная', 'ный', 'ель', 'тор', 'атель', 'система',
-        'колод', 'фильтр', 'двиг', 'кузов', 'тормоз', 'подвес',
+        'колод', 'фильтр', 'двиг', 'кузов', 'тормоз', 'подвес', 'бампер', 'фара',
+        'оптик',
     )
     lowered = compact.lower()
     if any(marker in lowered for marker in common_markers):
@@ -78,7 +126,7 @@ def _has_low_word_likeness(text: str) -> bool:
     return False
 
 
-def is_junk_text_fragment(value: str | None) -> bool:
+def is_garbage_text(value: str | None) -> bool:
     """True, если фрагмент текста выглядит как мусор или случайный набор символов."""
     text = _normalize_spaces(value).lower()
     if not text:
@@ -124,6 +172,9 @@ def is_junk_text_fragment(value: str | None) -> bool:
     return False
 
 
+is_junk_text_fragment = is_garbage_text
+
+
 def is_junk_only_description(value: str | None) -> bool:
     """
     True, если description целиком состоит из мусора.
@@ -139,7 +190,7 @@ def is_junk_only_description(value: str | None) -> bool:
         return True
 
     for fragment in _split_description_fragments(sanitized):
-        if not is_junk_text_fragment(fragment):
+        if not is_garbage_text(fragment):
             return False
 
     return True
@@ -178,14 +229,113 @@ def _split_description_fragments(description: str) -> list[str]:
     return fragments or [_normalize_spaces(description)]
 
 
-def _description_adds_value(category: str, description: str) -> bool:
-    category_lower = category.lower()
-    description_lower = description.lower()
-    if description_lower == category_lower:
-        return False
-    if category_lower in description_lower or description_lower in category_lower:
-        return False
-    return True
+def fix_common_part_typos(value: str) -> str:
+    """Исправляет частые опечатки в описании детали."""
+    text = _normalize_spaces(value).lower()
+    if not text:
+        return ''
+
+    for source, replacement in sorted(_PHRASE_TYPOS, key=lambda item: -len(item[0])):
+        text = text.replace(source, replacement)
+
+    words = text.split()
+    fixed_words = [_WORD_TYPOS.get(word, word) for word in words]
+    return _normalize_spaces(' '.join(fixed_words))
+
+
+def _strip_leading_service_words(value: str) -> str:
+    text = _normalize_spaces(value)
+    while text:
+        updated = _PREFIX_WORDS_RE.sub('', text, count=1).strip()
+        if updated == text:
+            break
+        text = updated
+    return text
+
+
+def normalize_instagram_part_text(value: str | None) -> str:
+    """Нормализует публичный текст детали: опечатки, служебные слова, капитализация."""
+    text = fix_common_part_typos(_strip_leading_service_words(_normalize_spaces(value)))
+    if not text:
+        return ''
+
+    words = text.split()
+    normalized_words: list[str] = []
+    for index, word in enumerate(words):
+        lowered = word.lower()
+        if lowered in _UPPERCASE_WORDS:
+            normalized_words.append(_UPPERCASE_WORDS[lowered])
+            continue
+        if word.isupper() and len(word) <= 5:
+            normalized_words.append(word)
+            continue
+        if index == 0:
+            normalized_words.append(word[:1].upper() + word[1:].lower() if word else word)
+        else:
+            normalized_words.append(word.lower())
+
+    return _normalize_spaces(' '.join(normalized_words))
+
+
+def clean_public_part_description(value: str | None) -> str:
+    """Очищает описание детали для публичного Instagram-баннера."""
+    sanitized = sanitize_description(value)
+    if not sanitized:
+        return ''
+
+    useful_parts: list[str] = []
+    for fragment in _split_description_fragments(sanitized):
+        cleaned_fragment = _clean_fragment(fragment)
+        if cleaned_fragment and not is_garbage_text(cleaned_fragment):
+            useful_parts.append(cleaned_fragment)
+
+    return _normalize_spaces(' '.join(useful_parts))
+
+
+def build_instagram_part_display(
+    *,
+    category: str | None = None,
+    description: str | None = None,
+    article: str | None = None,
+) -> InstagramPartDisplay:
+    """
+    Формирует публичный текст детали и строку категории для Instagram Story.
+    """
+    category_text = _normalize_spaces(category)
+
+    cleaned_description = clean_public_part_description(description)
+    normalized_description = ''
+    if cleaned_description:
+        normalized_description = normalize_instagram_part_text(cleaned_description)
+
+    if (
+        category_text
+        and normalized_description
+        and normalized_description.lower() == category_text.lower()
+    ):
+        normalized_description = ''
+
+    detail = ''
+    if normalized_description:
+        detail = normalized_description
+    elif category_text:
+        detail = normalize_instagram_part_text(category_text)
+    else:
+        detail = INSTAGRAM_PART_FALLBACK
+
+    category_line = ''
+    if (
+        category_text
+        and detail.lower() != category_text.lower()
+        and detail != INSTAGRAM_PART_FALLBACK
+    ):
+        category_line = f'Категория: {normalize_instagram_part_text(category_text)}'
+
+    article_text = _normalize_spaces(article)
+    if article_text and not is_garbage_text(article_text):
+        detail = f'{detail} · Арт. {article_text}'
+
+    return InstagramPartDisplay(detail=detail, category_line=category_line)
 
 
 def build_instagram_part_text(
@@ -194,52 +344,37 @@ def build_instagram_part_text(
     description: str | None = None,
     article: str | None = None,
 ) -> str:
-    """
-    Формирует безопасный текст детали для Instagram Story.
-
-    Приоритет: категория → нормальное описание → fallback «Запчасть по заявке».
-    Мусорные фрагменты описания игнорируются.
-    """
-    category_text = _normalize_spaces(category)
-    sanitized_description = sanitize_description(description)
-
-    useful_parts: list[str] = []
-    if sanitized_description:
-        for fragment in _split_description_fragments(sanitized_description):
-            cleaned_fragment = _clean_fragment(fragment)
-            if cleaned_fragment and not is_junk_text_fragment(cleaned_fragment):
-                useful_parts.append(cleaned_fragment)
-
-    useful_description = _normalize_spaces(' '.join(useful_parts))
-
-    if category_text and not is_junk_text_fragment(category_text):
-        if useful_description and _description_adds_value(category_text, useful_description):
-            part_text = f'{category_text} — {useful_description}'
-        else:
-            part_text = category_text
-    elif useful_description:
-        part_text = useful_description
-    else:
-        part_text = INSTAGRAM_PART_FALLBACK
-
-    article_text = _normalize_spaces(article)
-    if article_text and not is_junk_text_fragment(article_text):
-        part_text = f'{part_text} · Арт. {article_text}'
-
-    return part_text
+    """Краткий текст детали для caption и обратной совместимости."""
+    display = build_instagram_part_display(
+        category=category,
+        description=description,
+        article=article,
+    )
+    if display.category_line:
+        return f'{display.detail} ({display.category_line})'
+    return display.detail
 
 
-def build_instagram_geography_text(
+def build_instagram_buyer_city_text(*, city: str | None = None) -> str:
+    """Город покупателя для Instagram Story."""
+    city_text = _normalize_spaces(city)
+    return city_text or 'Казахстан'
+
+
+def build_instagram_seller_search_text(
     *,
     search_scope: str | None = None,
     city: str | None = None,
     selected_cities: str | None = None,
 ) -> str:
-    """Формирует строку географии для Instagram Story."""
+    """Где ищем продавцов для Instagram Story."""
     scope = (search_scope or 'city').strip().lower()
 
     if scope == 'kazakhstan':
-        return 'Весь Казахстан'
+        return 'весь Казахстан'
+
+    if scope == 'city':
+        return 'только город покупателя'
 
     if scope == 'custom':
         cities = [
@@ -250,10 +385,26 @@ def build_instagram_geography_text(
         if len(cities) == 1:
             return cities[0]
         if len(cities) > 1:
-            return 'Выбранные города'
+            return 'выбранные города'
 
     city_text = _normalize_spaces(city)
     if city_text:
         return city_text
 
     return 'Казахстан'
+
+
+def build_instagram_geography_text(
+    *,
+    search_scope: str | None = None,
+    city: str | None = None,
+    selected_cities: str | None = None,
+) -> str:
+    """Обратная совместимость: краткая география в одной строке."""
+    buyer_city = build_instagram_buyer_city_text(city=city)
+    seller_search = build_instagram_seller_search_text(
+        search_scope=search_scope,
+        city=city,
+        selected_cities=selected_cities,
+    )
+    return f'{buyer_city} / {seller_search}'

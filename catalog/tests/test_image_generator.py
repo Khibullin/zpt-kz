@@ -6,18 +6,23 @@ from django.test import TestCase
 
 from catalog.image_generator import (
     InstagramStoryGenerationError,
-    _format_city_line,
-    _format_part_line,
+    _format_buyer_city_line,
+    _format_seller_search_line,
     _format_vehicle_line,
     _wrap_paragraph,
     build_publication_caption,
     generate_instagram_story,
 )
 from core.instagram_sanitize import (
-    build_instagram_geography_text,
+    build_instagram_buyer_city_text,
+    build_instagram_part_display,
     build_instagram_part_text,
+    build_instagram_seller_search_text,
+    clean_public_part_description,
+    fix_common_part_typos,
+    is_garbage_text,
     is_junk_only_description,
-    is_junk_text_fragment,
+    normalize_instagram_part_text,
     sanitize_description,
 )
 from core.models import Request
@@ -25,34 +30,92 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 class InstagramSanitizeHelperTests(TestCase):
-    def test_is_junk_text_fragment_detects_keyboard_mash(self):
-        self.assertTrue(is_junk_text_fragment('.ждлорпавы'))
-        self.assertTrue(is_junk_text_fragment('qwerty'))
-        self.assertFalse(is_junk_text_fragment('Двигатель'))
+    def test_body_category_description_becomes_clean_detail(self):
+        display = build_instagram_part_display(
+            category='Кузов',
+            description='Нужен передний бампер',
+        )
+        self.assertEqual(display.detail, 'Передний бампер')
+        self.assertEqual(display.category_line, 'Категория: Кузов')
 
-    def test_build_instagram_part_text_ignores_junk_description(self):
-        part = build_instagram_part_text(
+    def test_engine_category_with_junk_description(self):
+        display = build_instagram_part_display(
             category='Двигатель',
             description='.ждлорпавы',
         )
-        self.assertEqual(part, 'Двигатель')
+        self.assertEqual(display.detail, 'Двигатель')
+        self.assertEqual(display.category_line, '')
 
-    def test_build_instagram_part_text_uses_fallback_without_data(self):
-        part = build_instagram_part_text(category='', description='test')
-        self.assertEqual(part, 'Запчасть по заявке')
-
-    def test_build_instagram_geography_custom_multiple_cities(self):
-        text = build_instagram_geography_text(
-            search_scope='custom',
-            selected_cities='Алматы, Астана',
+    def test_optics_category_fixes_headlight_typos(self):
+        display = build_instagram_part_display(
+            category='Оптика',
+            description='ищу фару перднию',
         )
-        self.assertEqual(text, 'Выбранные города')
+        self.assertEqual(display.detail, 'Передняя фара')
+        self.assertEqual(display.category_line, 'Категория: Оптика')
 
-    def test_build_instagram_geography_defaults_to_kazakhstan(self):
+    def test_description_only_typos_without_category(self):
+        display = build_instagram_part_display(
+            category='',
+            description='нужен передни бампр',
+        )
+        self.assertEqual(display.detail, 'Передний бампер')
+        self.assertEqual(display.category_line, '')
+
+    def test_garbage_description_uses_fallback(self):
+        display = build_instagram_part_display(category='', description='test')
+        self.assertEqual(display.detail, 'Запчасть по заявке')
+
+    def test_is_garbage_text_detects_keyboard_mash(self):
+        self.assertTrue(is_garbage_text('.ждлорпавы'))
+        self.assertTrue(is_garbage_text('qwerty'))
+        self.assertFalse(is_garbage_text('Двигатель'))
+
+    def test_normalize_instagram_part_text_strips_service_words(self):
         self.assertEqual(
-            build_instagram_geography_text(search_scope='city', city=''),
-            'Казахстан',
+            normalize_instagram_part_text('нужен передний бампер'),
+            'Передний бампер',
         )
+
+    def test_fix_common_part_typos_dictionary(self):
+        self.assertEqual(fix_common_part_typos('нужын двегатель'), 'нужын двигатель')
+
+    def test_clean_public_part_description_removes_pii(self):
+        cleaned = clean_public_part_description('Фильтр 77001112233')
+        self.assertNotIn('77001112233', cleaned)
+
+    def test_seller_search_kazakhstan_scope(self):
+        self.assertEqual(
+            build_instagram_seller_search_text(search_scope='kazakhstan'),
+            'весь Казахстан',
+        )
+
+    def test_seller_search_city_scope(self):
+        self.assertEqual(
+            build_instagram_seller_search_text(search_scope='city', city='Астана'),
+            'только город покупателя',
+        )
+
+    def test_seller_search_custom_single_city(self):
+        self.assertEqual(
+            build_instagram_seller_search_text(
+                search_scope='custom',
+                selected_cities='Шымкент',
+            ),
+            'Шымкент',
+        )
+
+    def test_seller_search_custom_multiple_cities(self):
+        self.assertEqual(
+            build_instagram_seller_search_text(
+                search_scope='custom',
+                selected_cities='Алматы, Астана',
+            ),
+            'выбранные города',
+        )
+
+    def test_buyer_city_defaults_to_kazakhstan(self):
+        self.assertEqual(build_instagram_buyer_city_text(city=''), 'Казахстан')
 
 
 class InstagramStoryGeneratorTests(TestCase):
@@ -79,37 +142,30 @@ class InstagramStoryGeneratorTests(TestCase):
         line = _format_vehicle_line(self.request)
         self.assertEqual(line, 'Chery Tiggo 7')
 
-    def test_format_part_line_uses_category_and_description(self):
-        line = _format_part_line(self.request)
-        self.assertIn('Двигатель', line)
-        self.assertIn('масляный фильтр', line)
-        self.assertIn('Арт. CH-123', line)
-        self.assertNotIn('77001112233', line)
-
-    def test_format_part_line_filters_junk_description(self):
-        self.request.description = '.ждлорпавы'
-        line = _format_part_line(self.request)
-        self.assertEqual(line, 'Двигатель · Арт. CH-123')
+    def test_build_publication_caption_contains_new_geography_lines(self):
+        self.request.search_scope = 'kazakhstan'
+        caption = build_publication_caption(self.request)
+        self.assertIn('Город покупателя: Алматы', caption)
+        self.assertIn('Поиск продавцов: весь Казахстан', caption)
+        self.assertIn('ДЕТАЛЬ:', caption)
 
     def test_build_publication_caption_excludes_phone_from_description(self):
         self.request.description = 'Фильтр, звоните 77001112233'
         caption = build_publication_caption(self.request)
         self.assertNotIn('77001112233', caption)
-        self.assertIn('ГЕОГРАФИЯ:', caption)
 
-    def test_format_city_line_for_kazakhstan_scope(self):
-        self.request.search_scope = 'kazakhstan'
-        self.assertEqual(_format_city_line(self.request), 'Весь Казахстан')
+    def test_format_seller_search_line_for_city_scope(self):
+        self.request.search_scope = 'city'
+        self.assertEqual(
+            _format_seller_search_line(self.request),
+            'Поиск продавцов: только город покупателя',
+        )
 
-    def test_format_city_line_for_custom_scope_single_city(self):
-        self.request.search_scope = 'custom'
-        self.request.selected_cities = 'Алматы'
-        self.assertEqual(_format_city_line(self.request), 'Алматы')
-
-    def test_format_city_line_for_custom_scope_multiple_cities(self):
-        self.request.search_scope = 'custom'
-        self.request.selected_cities = 'Алматы, Астана'
-        self.assertEqual(_format_city_line(self.request), 'Выбранные города')
+    def test_format_buyer_city_line(self):
+        self.assertEqual(
+            _format_buyer_city_line(self.request),
+            'Город покупателя: Алматы',
+        )
 
     def test_wrap_paragraph_truncates_very_long_text(self):
         draw = ImageDraw.Draw(Image.new('RGB', (1080, 1920)))
@@ -127,7 +183,7 @@ class InstagramStoryGeneratorTests(TestCase):
         self.assertIn('instagram_stories', output_path.as_posix())
         self.assertIn(str(self.request.access_token), output_path.name)
         self.assertIn('АВТО:', caption)
-        self.assertIn('ГЕОГРАФИЯ:', caption)
+        self.assertIn('Город покупателя:', caption)
 
         with Image.open(output_path) as image:
             self.assertEqual(image.size, (1080, 1920))
@@ -157,3 +213,10 @@ class InstagramStoryGeneratorTests(TestCase):
     def test_is_junk_only_description_helper(self):
         self.assertTrue(is_junk_only_description('qwerty'))
         self.assertFalse(is_junk_only_description('Нужен масляный фильтр'))
+
+    def test_build_instagram_part_text_backward_compatible(self):
+        text = build_instagram_part_text(
+            category='Кузов',
+            description='Нужен передний бампер',
+        )
+        self.assertIn('Передний бампер', text)
