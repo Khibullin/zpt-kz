@@ -30,6 +30,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 
 class InstagramSanitizeHelperTests(TestCase):
+    def test_optics_farra_typo(self):
+        display = build_instagram_part_display(
+            category='Оптика',
+            description='фарра',
+        )
+        self.assertEqual(display.detail, 'Фара')
+        self.assertEqual(display.category_line, 'Категория: Оптика')
+
     def test_fuel_system_benzostantsiya_typo(self):
         display = build_instagram_part_display(
             category='Топливная система',
@@ -108,7 +116,15 @@ class InstagramSanitizeHelperTests(TestCase):
     def test_seller_search_city_scope(self):
         self.assertEqual(
             build_instagram_seller_search_text(search_scope='city', city='Астана'),
-            'только город покупателя',
+            'Астана',
+        )
+        self.assertEqual(
+            build_instagram_seller_search_text(search_scope='city', city='Павлодар'),
+            'Павлодар',
+        )
+        self.assertEqual(
+            build_instagram_seller_search_text(search_scope='city', city=''),
+            'город покупателя',
         )
 
     def test_seller_search_custom_single_city(self):
@@ -173,7 +189,7 @@ class InstagramStoryGeneratorTests(TestCase):
         self.request.search_scope = 'city'
         self.assertEqual(
             _format_seller_search_line(self.request),
-            'Поиск: только город покупателя',
+            'Поиск: Алматы',
         )
 
     def test_format_buyer_city_line(self):

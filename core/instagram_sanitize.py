@@ -42,6 +42,9 @@ _PHRASE_TYPOS: tuple[tuple[str, str], ...] = (
     ('ищу фару перднию', 'передняя фара'),
     ('фару перднию', 'передняя фара'),
     ('фара перднию', 'передняя фара'),
+    ('переднию фару', 'передняя фара'),
+    ('перднию фару', 'передняя фара'),
+    ('пераднию фару', 'передняя фара'),
     ('коробка автомат', 'акпп'),
     ('топливный насос', 'бензонасос'),
     ('бензо насос', 'бензонасос'),
@@ -65,6 +68,12 @@ _WORD_TYPOS: dict[str, str] = {
     'бензостанция': 'бензонасос',
     'бензанасос': 'бензонасос',
     'бензонассос': 'бензонасос',
+    'фарра': 'фара',
+}
+
+_SINGLE_WORD_REPLACEMENTS: dict[str, str] = {
+    'фару': 'фара',
+    'фары': 'фара',
 }
 
 _VOWELS = frozenset('aeiouyаеёиоуыэюя')
@@ -245,7 +254,13 @@ def fix_common_part_typos(value: str) -> str:
 
     words = text.split()
     fixed_words = [_WORD_TYPOS.get(word, word) for word in words]
-    return _normalize_spaces(' '.join(fixed_words))
+    text = _normalize_spaces(' '.join(fixed_words))
+
+    words = text.split()
+    if len(words) == 1 and words[0] in _SINGLE_WORD_REPLACEMENTS:
+        return _SINGLE_WORD_REPLACEMENTS[words[0]]
+
+    return text
 
 
 def _strip_leading_service_words(value: str) -> str:
@@ -379,7 +394,10 @@ def build_instagram_seller_search_text(
         return 'весь Казахстан'
 
     if scope == 'city':
-        return 'только город покупателя'
+        city_text = _normalize_spaces(city)
+        if city_text:
+            return city_text
+        return 'город покупателя'
 
     if scope == 'custom':
         cities = [

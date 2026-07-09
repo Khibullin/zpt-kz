@@ -355,7 +355,11 @@ class InstagramJunkDescriptionTests(TestCase):
         )
         self.assertEqual(
             build_instagram_seller_search_text(search_scope='city', city='Астана'),
-            'только город покупателя',
+            'Астана',
+        )
+        self.assertEqual(
+            build_instagram_seller_search_text(search_scope='city', city=''),
+            'город покупателя',
         )
         self.assertEqual(
             build_instagram_seller_search_text(
