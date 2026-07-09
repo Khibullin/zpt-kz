@@ -17,7 +17,12 @@ from catalog.instagram_service import (
     publish_instagram_publication,
     schedule_instagram_publication_for_request,
 )
-from core.instagram_sanitize import is_junk_only_description, sanitize_description
+from core.instagram_sanitize import (
+    build_instagram_part_text,
+    is_junk_only_description,
+    is_junk_text_fragment,
+    sanitize_description,
+)
 from core.models import InstagramPublication, Request
 from django.utils import timezone
 
@@ -75,7 +80,7 @@ class InstagramPublishModeTestTests(TestCase):
         self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
         self.assertTrue(publication.image.name)
         self.assertIn('АВТО:', publication.caption)
-        self.assertIn('ГОРОД:', publication.caption)
+        self.assertIn('ГЕОГРАФИЯ:', publication.caption)
 
     def test_duplicate_publication_is_not_created(self):
         first = process_instagram_publication_for_request(self.request.pk)
@@ -100,6 +105,13 @@ class InstagramSanitizerTests(TestCase):
         self.assertNotIn('https://', cleaned)
         self.assertNotIn('1HGCM82633A004352', cleaned)
         self.assertIn('фильтр', cleaned)
+
+    def test_junk_fragment_not_shown_in_part_text(self):
+        from core.instagram_sanitize import build_instagram_part_text
+
+        part = build_instagram_part_text(category='Двигатель', description='.ждлорпавы')
+        self.assertEqual(part, 'Двигатель')
+        self.assertNotIn('ждлорпавы', part)
 
     def test_raw_description_not_used_on_image_caption(self):
         request = Request.objects.create(
@@ -318,6 +330,10 @@ class CreateRequestInstagramOnCommitTests(TestCase):
 
 
 class InstagramJunkDescriptionTests(TestCase):
+    def test_is_junk_text_fragment_detects_garbage(self):
+        for value in ('test', 'тест', 'qwerty', 'asdf', '123', '.ждлорпавы'):
+            self.assertTrue(is_junk_text_fragment(value), value)
+
     def test_is_junk_only_description_detects_garbage(self):
         for value in ('test', 'тест', 'qwerty', 'asdf', '123', 'TEST, qwerty'):
             self.assertTrue(is_junk_only_description(value), value)
@@ -326,6 +342,12 @@ class InstagramJunkDescriptionTests(TestCase):
         self.assertFalse(is_junk_only_description(''))
         self.assertFalse(is_junk_only_description('Нужны колодки'))
         self.assertFalse(is_junk_only_description('test колодки'))
+
+    def test_build_instagram_part_text_keeps_category_only_for_junk_description(self):
+        self.assertEqual(
+            build_instagram_part_text(category='Двигатель', description='.ждлорпавы'),
+            'Двигатель',
+        )
 
 
 @override_settings(INSTAGRAM_PUBLISH_MODE='TEST')
