@@ -40,6 +40,51 @@
   margin:0 0 22px;
 }
 
+.hero-perks{
+  list-style:none;
+  margin:0 0 16px;
+  padding:0;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px 14px;
+}
+
+.hero-perk-item{
+  display:inline-flex;
+  align-items:flex-start;
+  gap:6px;
+  font-size:.75rem;
+  line-height:1.4;
+  color:#4b5563;
+}
+
+.hero-perk-icon{
+  flex-shrink:0;
+  color:#ff3b30;
+  font-weight:700;
+  font-size:.8125rem;
+  line-height:1.35;
+}
+
+.hero-search-intro{
+  margin:0 0 10px;
+}
+
+.hero-search-title{
+  margin:0 0 4px;
+  font-size:.875rem;
+  line-height:1.35;
+  font-weight:700;
+  color:#111827;
+}
+
+.hero-search-note{
+  margin:0;
+  font-size:.75rem;
+  line-height:1.4;
+  color:#6b7280;
+}
+
 a.hero-cta-btn,
 .hero-cta-btn{
   display:inline-flex;
@@ -127,6 +172,14 @@ a.hero-b2b-strip-btn:hover,
     font-size:1.0625rem;
   }
 
+  .hero-perk-item{
+    font-size:.8125rem;
+  }
+
+  .hero-search-title{
+    font-size:.9375rem;
+  }
+
   .hero-b2b-strip{
     padding:16px 20px;
     gap:20px;
@@ -146,6 +199,11 @@ a.hero-b2b-strip-btn:hover,
 @media (max-width:767px){
   .hero-cta{
     margin-bottom:18px;
+  }
+
+  .hero-perks{
+    gap:6px 12px;
+    margin-bottom:14px;
   }
 
   a.hero-cta-btn,
@@ -225,6 +283,12 @@ a.hero-b2b-strip-btn:hover,
 .home-seo-links-list a:hover{
   text-decoration:underline;
 }
+@media (max-width:359px){
+  .hero-perks{
+    flex-direction:column;
+    gap:6px;
+  }
+}
 @media (max-width:640px){
   .filter-grid{
     display:grid !important;
@@ -259,19 +323,39 @@ a.hero-b2b-strip-btn:hover,
 
     <div class="hero-main">
 
-      <h1 class="hero-title ds-h1">Все продавцы и запчасти Казахстана на одном маркетплейсе</h1>
+      <h1 class="hero-title ds-h1">Автозапчасти и продавцы по всему Казахстану</h1>
 
       <p class="hero-sub ds-body">
-        Зачем искать часами? Оставьте одну заявку — её увидят сотни авторазборов и магазинов. Получайте лучшие предложения и выбирайте выгодную цену прямо в WhatsApp!
+        Найдите нужную запчасть в каталоге или оставьте одну заявку — более 300 продавцов по Казахстану сами предложат варианты и цены в WhatsApp.
       </p>
+
+      <ul class="hero-perks" aria-label="Преимущества ZPT.KZ">
+        <li class="hero-perk-item">
+          <span class="hero-perk-icon" aria-hidden="true">✓</span>
+          <span class="hero-perk-text">Более 300 продавцов</span>
+        </li>
+        <li class="hero-perk-item">
+          <span class="hero-perk-icon" aria-hidden="true">✓</span>
+          <span class="hero-perk-text">Продавцы по всему Казахстану</span>
+        </li>
+        <li class="hero-perk-item">
+          <span class="hero-perk-icon" aria-hidden="true">✓</span>
+          <span class="hero-perk-text">Прямые предложения в WhatsApp</span>
+        </li>
+      </ul>
 
       <div class="hero-cta">
         <a href="/request-parts/" class="btn-primary hero-cta-btn">
-          Оставить заявку и получить цены
+          Получить предложения от продавцов
         </a>
       </div>
 
       <div class="search-box">
+
+        <div class="hero-search-intro">
+          <p class="hero-search-title">Найдите готовую запчасть в каталоге</p>
+          <p class="hero-search-note">Поиск по названию товара или артикулу</p>
+        </div>
 
         <form method="get">
 
