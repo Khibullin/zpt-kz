@@ -607,6 +607,12 @@ SELLER_LEAD_SOURCE_TYPE_CHOICES = [
     ('other', 'Другое'),
 ]
 
+WHATSAPP_CONFIDENCE_CHOICES = [
+    ('high', 'Высокая'),
+    ('medium', 'Средняя'),
+    ('low', 'Низкая'),
+]
+
 
 def normalize_seller_lead_instagram_username(value: str | None) -> str:
     username = str(value or '').strip()
@@ -653,6 +659,29 @@ class SellerLead(models.Model):
         blank=True,
         default='',
         verbose_name='WhatsApp',
+    )
+    whatsapp_source_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Источник WhatsApp',
+    )
+    whatsapp_source_text = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Фрагмент текста с WhatsApp',
+    )
+    whatsapp_confidence = models.CharField(
+        max_length=10,
+        choices=WHATSAPP_CONFIDENCE_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Уверенность WhatsApp',
+    )
+    whatsapp_found_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата обнаружения WhatsApp',
     )
     city = models.CharField(max_length=100, blank=True, default='', verbose_name='Город')
     category = models.CharField(
