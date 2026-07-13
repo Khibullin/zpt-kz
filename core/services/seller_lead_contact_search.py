@@ -4,9 +4,8 @@ import logging
 import re
 from dataclasses import dataclass, field
 from typing import Any, Iterable
-from urllib import parse
 
-from django.db.models import Q
+from django.db import transaction
 from django.utils import timezone
 
 from core.models import (
@@ -28,6 +27,11 @@ CONFIDENCE_HIGH = 'high'
 CONFIDENCE_MEDIUM = 'medium'
 CONFIDENCE_LOW = 'low'
 AUTO_SAVE_CONFIDENCE = frozenset({CONFIDENCE_HIGH, CONFIDENCE_MEDIUM})
+CONFIDENCE_RANK = {
+    CONFIDENCE_HIGH: 3,
+    CONFIDENCE_MEDIUM: 2,
+    CONFIDENCE_LOW: 1,
+}
 SOURCE_TEXT_LIMIT = 400
 DEFAULT_MAX_QUERIES_PER_LEAD = 3
 DEFAULT_SEARCH_RESULT_COUNT = 5
@@ -105,6 +109,7 @@ class ConflictContactOutcome:
     source_url: str
     source_text: str
     reason: str
+    action: str = ''
 
 
 @dataclass
@@ -135,6 +140,190 @@ def normalize_kz_whatsapp_phone(raw_value: str) -> str | None:
     if len(set(digits)) == 1:
         return None
     return digits
+
+
+def _confidence_rank(confidence: str) -> int:
+    return CONFIDENCE_RANK.get(confidence, 0)
+
+
+def _is_conflict_rejection(reason: str) -> bool:
+    return reason.startswith((
+        'найдено несколько',
+        'несколько номеров',
+        'high и medium',
+    ))
+
+
+def _filter_usable_candidates(
+    candidates: Iterable[WhatsAppCandidate],
+    *,
+    lead: SellerLead,
+) -> list[WhatsAppCandidate]:
+    filtered: list[WhatsAppCandidate] = []
+    for candidate in candidates:
+        if _phone_used_by_other_lead(candidate.phone, lead_id=lead.pk):
+            continue
+        if _phone_used_by_registered_seller(candidate.phone):
+            continue
+        filtered.append(candidate)
+    return filtered
+
+
+def _merge_candidate_evidence(
+    existing: WhatsAppCandidate,
+    new: WhatsAppCandidate,
+) -> WhatsAppCandidate:
+    if _confidence_rank(new.confidence) > _confidence_rank(existing.confidence):
+        return new
+    if _confidence_rank(new.confidence) < _confidence_rank(existing.confidence):
+        return existing
+    if len(new.source_text) > len(existing.source_text):
+        return new
+    if len(new.evidence) > len(existing.evidence):
+        return new
+    return existing
+
+
+def _dedupe_candidates_by_phone(
+    candidates: Iterable[WhatsAppCandidate],
+) -> list[WhatsAppCandidate]:
+    unique_by_phone: dict[str, WhatsAppCandidate] = {}
+    for candidate in candidates:
+        if candidate.phone in unique_by_phone:
+            unique_by_phone[candidate.phone] = _merge_candidate_evidence(
+                unique_by_phone[candidate.phone],
+                candidate,
+            )
+        else:
+            unique_by_phone[candidate.phone] = candidate
+    return list(unique_by_phone.values())
+
+
+def _normalize_source_url(source_url: str) -> str:
+    return (source_url or '').strip().lower().rstrip('/')
+
+
+def _is_lead_profile_source(source_url: str, lead: SellerLead) -> bool:
+    username = (lead.instagram_username or '').strip().lower()
+    if not username:
+        return False
+    normalized = _normalize_source_url(source_url)
+    return f'instagram.com/{username}' in normalized
+
+
+def _candidate_appears_in_readable_text(phone: str, result: SearchResultPayload) -> bool:
+    readable = f'{result.title}\n{result.description}'
+    for match in PHONE_IN_TEXT_RE.finditer(readable):
+        normalized = normalize_kz_whatsapp_phone(match.group(0))
+        if normalized == phone:
+            return True
+    return False
+
+
+def _is_2gis_catalog_entity_phone(
+    phone: str,
+    *,
+    result: SearchResultPayload,
+    source_kind: str,
+) -> bool:
+    source_url = _normalize_source_url(result.url)
+    if '2gis' not in source_url:
+        return False
+    if _candidate_appears_in_readable_text(phone, result):
+        return False
+    if source_kind == 'wa_url':
+        return False
+    if '/firm/' not in source_url and '/geo/' not in source_url:
+        return False
+    url_digits = re.sub(r'\D', '', result.url)
+    return phone in url_digits
+
+
+def _infer_role_from_candidate(candidate: WhatsAppCandidate) -> str:
+    text = f'{candidate.source_text} {candidate.evidence}'.lower()
+    if any(marker in text for marker in ('сервис', 'service', 'сто', 'autoservice')):
+        return SellerLeadContactCandidate.ROLE_SERVICE
+    if any(marker in text for marker in ('магазин', 'shop', 'store', 'бутик')):
+        return SellerLeadContactCandidate.ROLE_SHOP
+    return SellerLeadContactCandidate.ROLE_UNKNOWN
+
+
+def _detect_saveable_conflict(
+    unique_candidates: list[WhatsAppCandidate],
+    *,
+    lead: SellerLead,
+) -> tuple[str, list[WhatsAppCandidate]]:
+    saveable = [
+        candidate
+        for candidate in unique_candidates
+        if candidate.confidence in AUTO_SAVE_CONFIDENCE
+    ]
+    if len(saveable) < 2:
+        return '', []
+
+    by_source: dict[str, list[WhatsAppCandidate]] = {}
+    for candidate in saveable:
+        by_source.setdefault(_normalize_source_url(candidate.source_url), []).append(candidate)
+
+    for source_url, source_candidates in by_source.items():
+        source_phones = _dedupe_candidates_by_phone(source_candidates)
+        if len(source_phones) > 1 and (
+            _is_lead_profile_source(source_url, lead)
+            or source_url.startswith('http')
+        ):
+            return (
+                f'несколько номеров в одном источнике ({source_url or "без URL"})',
+                saveable,
+            )
+
+    max_rank = max(_confidence_rank(candidate.confidence) for candidate in saveable)
+    top_tier = [
+        candidate
+        for candidate in saveable
+        if _confidence_rank(candidate.confidence) == max_rank
+    ]
+    top_unique = _dedupe_candidates_by_phone(top_tier)
+    if len(top_unique) > 1:
+        return (
+            f'найдено несколько разных номеров с уверенностью {top_unique[0].confidence}',
+            top_unique,
+        )
+
+    highs = [candidate for candidate in saveable if candidate.confidence == CONFIDENCE_HIGH]
+    mediums = [candidate for candidate in saveable if candidate.confidence == CONFIDENCE_MEDIUM]
+    if len(highs) == 1 and mediums:
+        high_candidate = highs[0]
+        for medium_candidate in mediums:
+            if (
+                _normalize_source_url(high_candidate.source_url)
+                == _normalize_source_url(medium_candidate.source_url)
+                or (
+                    _is_lead_profile_source(high_candidate.source_url, lead)
+                    and _is_lead_profile_source(medium_candidate.source_url, lead)
+                )
+            ):
+                return (
+                    'high и medium из одного профиля требуют ручной проверки',
+                    _dedupe_candidates_by_phone(saveable),
+                )
+
+    return '', []
+
+
+def _should_stop_queries_after_current(
+    candidates: Iterable[WhatsAppCandidate],
+    *,
+    lead: SellerLead,
+) -> bool:
+    unique = _dedupe_candidates_by_phone(_filter_usable_candidates(candidates, lead=lead))
+    saveable = [
+        candidate
+        for candidate in unique
+        if candidate.confidence in AUTO_SAVE_CONFIDENCE
+    ]
+    if len(saveable) != 1:
+        return False
+    return saveable[0].confidence == CONFIDENCE_HIGH
 
 
 def _safe_source_text(*parts: str) -> str:
@@ -311,6 +500,12 @@ def extract_candidates_from_result(
         description=result.description,
         url=result.url,
     ):
+        if _is_2gis_catalog_entity_phone(
+            phone,
+            result=result,
+            source_kind=source_kind,
+        ):
+            continue
         confidence = determine_whatsapp_confidence(
             phone=phone,
             source_kind=source_kind,
@@ -350,12 +545,14 @@ def upsert_contact_candidate_from_whatsapp(
     candidate: WhatsAppCandidate,
     *,
     status: str,
+    role: str | None = None,
 ) -> tuple[bool, bool]:
     """Возвращает (created, updated)."""
     value = normalize_kz_whatsapp_phone(candidate.phone)
     if not value:
         return False, False
 
+    resolved_role = role or _infer_role_from_candidate(candidate)
     existing = SellerLeadContactCandidate.objects.filter(
         seller_lead=lead,
         contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
@@ -369,6 +566,7 @@ def upsert_contact_candidate_from_whatsapp(
         existing.source_type = source_type
         existing.status = status
         existing.is_primary = False
+        existing.role = resolved_role
         existing.save(
             update_fields=[
                 'confidence',
@@ -377,6 +575,7 @@ def upsert_contact_candidate_from_whatsapp(
                 'source_type',
                 'status',
                 'is_primary',
+                'role',
                 'updated_at',
             ],
         )
@@ -386,6 +585,7 @@ def upsert_contact_candidate_from_whatsapp(
         seller_lead=lead,
         contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
         value=value,
+        role=resolved_role,
         confidence=candidate.confidence,
         source_url=candidate.source_url[:500],
         source_text=candidate.source_text[:SOURCE_TEXT_LIMIT],
@@ -402,30 +602,25 @@ def _select_best_candidate(
     *,
     lead: SellerLead,
 ) -> tuple[WhatsAppCandidate | None, str, list[WhatsAppCandidate]]:
-    filtered: list[WhatsAppCandidate] = []
-    for candidate in candidates:
-        if _phone_used_by_other_lead(candidate.phone, lead_id=lead.pk):
-            continue
-        if _phone_used_by_registered_seller(candidate.phone):
-            continue
-        filtered.append(candidate)
-
-    if not filtered:
+    unique = _dedupe_candidates_by_phone(_filter_usable_candidates(candidates, lead=lead))
+    if not unique:
         return None, 'подходящий номер не найден', []
 
-    for confidence in (CONFIDENCE_HIGH, CONFIDENCE_MEDIUM, CONFIDENCE_LOW):
-        level_candidates = [item for item in filtered if item.confidence == confidence]
-        if not level_candidates:
-            continue
-        unique_by_phone: dict[str, WhatsAppCandidate] = {}
-        for item in level_candidates:
-            unique_by_phone.setdefault(item.phone, item)
-        if len(unique_by_phone) > 1:
-            return None, f'найдено несколько разных номеров с уверенностью {confidence}', list(unique_by_phone.values())
-        best = level_candidates[0]
-        if confidence not in AUTO_SAVE_CONFIDENCE:
-            return None, f'уверенность {confidence} слишком низкая для автосохранения', []
-        return best, '', []
+    conflict_reason, conflict_candidates = _detect_saveable_conflict(unique, lead=lead)
+    if conflict_reason:
+        return None, conflict_reason, conflict_candidates
+
+    saveable = [
+        candidate
+        for candidate in unique
+        if candidate.confidence in AUTO_SAVE_CONFIDENCE
+    ]
+    if len(saveable) == 1:
+        return saveable[0], '', []
+
+    if not saveable:
+        lowest = min(unique, key=lambda item: _confidence_rank(item.confidence))
+        return None, f'уверенность {lowest.confidence} слишком низкая для автосохранения', []
 
     return None, 'подходящий номер не найден', []
 
@@ -479,8 +674,6 @@ def enrich_seller_lead_contacts(
             for query in queries:
                 if queries_executed_for_lead >= max(1, max_queries_per_lead):
                     break
-                if any(item.confidence == CONFIDENCE_HIGH for item in lead_candidates):
-                    break
                 results = search_client.search(query, count=DEFAULT_SEARCH_RESULT_COUNT)
                 stats.queries_executed += 1
                 queries_executed_for_lead += 1
@@ -491,7 +684,7 @@ def enrich_seller_lead_contacts(
                         description=row.get('description', ''),
                     )
                     lead_candidates.extend(extract_candidates_from_result(payload, lead))
-                if any(item.confidence == CONFIDENCE_HIGH for item in lead_candidates):
+                if _should_stop_queries_after_current(lead_candidates, lead=lead):
                     break
         except SellerLeadSearchError:
             stats.errors += 1
@@ -523,44 +716,60 @@ def enrich_seller_lead_contacts(
                 stats.low_confidence += 1
 
         selected, rejection_reason, conflict_candidates = _select_best_candidate(lead_candidates, lead=lead)
-        if rejection_reason.startswith('найдено несколько'):
+        is_conflict = _is_conflict_rejection(rejection_reason)
+        if is_conflict:
             stats.conflicts += 1
+            conflict_candidates = _dedupe_candidates_by_phone(conflict_candidates)
             if not dry_run:
-                for conflict_candidate in conflict_candidates:
-                    created, updated = upsert_contact_candidate_from_whatsapp(
-                        lead,
-                        conflict_candidate,
-                        status=SellerLeadContactCandidate.STATUS_CONFLICT,
+                try:
+                    with transaction.atomic():
+                        for conflict_candidate in conflict_candidates:
+                            created, updated = upsert_contact_candidate_from_whatsapp(
+                                lead,
+                                conflict_candidate,
+                                status=SellerLeadContactCandidate.STATUS_CONFLICT,
+                            )
+                            if created:
+                                stats.contact_candidates_created += 1
+                                action = 'создан'
+                            elif updated:
+                                stats.contact_candidates_updated += 1
+                                action = 'обновлён'
+                            else:
+                                action = 'пропущен'
+                            stats.conflict_candidates += 1
+                            stats.conflict_outcomes.append(
+                                ConflictContactOutcome(
+                                    username=lead.instagram_username,
+                                    phone=conflict_candidate.phone,
+                                    role=_infer_role_from_candidate(conflict_candidate),
+                                    label='',
+                                    confidence=conflict_candidate.confidence,
+                                    source_url=conflict_candidate.source_url,
+                                    source_text=conflict_candidate.source_text[:200],
+                                    reason=rejection_reason,
+                                    action=action,
+                                ),
+                            )
+                except Exception:
+                    logger.exception(
+                        'Failed to persist conflict candidates for username=%r',
+                        lead.instagram_username,
                     )
-                    if created:
-                        stats.contact_candidates_created += 1
-                    elif updated:
-                        stats.contact_candidates_updated += 1
-                    stats.conflict_candidates += 1
-                    stats.conflict_outcomes.append(
-                        ConflictContactOutcome(
-                            username=lead.instagram_username,
-                            phone=conflict_candidate.phone,
-                            role=SellerLeadContactCandidate.ROLE_UNKNOWN,
-                            label='',
-                            confidence=conflict_candidate.confidence,
-                            source_url=conflict_candidate.source_url,
-                            source_text=conflict_candidate.source_text[:200],
-                            reason=rejection_reason,
-                        ),
-                    )
+                    raise
             else:
                 for conflict_candidate in conflict_candidates:
                     stats.conflict_outcomes.append(
                         ConflictContactOutcome(
                             username=lead.instagram_username,
                             phone=conflict_candidate.phone,
-                            role=SellerLeadContactCandidate.ROLE_UNKNOWN,
+                            role=_infer_role_from_candidate(conflict_candidate),
                             label='',
                             confidence=conflict_candidate.confidence,
                             source_url=conflict_candidate.source_url,
                             source_text=conflict_candidate.source_text[:200],
                             reason=rejection_reason,
+                            action='dry-run',
                         ),
                     )
 

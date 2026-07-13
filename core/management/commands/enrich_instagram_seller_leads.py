@@ -74,12 +74,17 @@ class Command(BaseCommand):
             self.stdout.write(f'Глобальных конфликтов номеров: {stats.global_phone_conflicts}')
 
         if stats.conflict_outcomes:
-            self.stdout.write('Конфликтующие номера:')
+            self.stdout.write('Конфликт: основной WhatsApp не сохранён.')
+            self.stdout.write(
+                f'Конфликтующих номеров: {len(stats.conflict_outcomes)}',
+            )
             for outcome in stats.conflict_outcomes:
+                action_label = outcome.action or ('dry-run' if dry_run else 'неизвестно')
                 self.stdout.write(
                     f"  @{outcome.username} | {outcome.phone} | {outcome.role or 'unknown'} | "
                     f"{outcome.label or '(без описания)'} | {outcome.confidence} | "
-                    f"{outcome.source_url or '(нет URL)'} | {outcome.reason}",
+                    f"candidate {action_label} | {outcome.source_url or '(нет URL)'} | "
+                    f"{outcome.reason}",
                 )
                 if outcome.source_text:
                     self.stdout.write(f"    source_text: {outcome.source_text[:200]}")
@@ -87,9 +92,17 @@ class Command(BaseCommand):
         if stats.lead_outcomes:
             self.stdout.write('Результаты по лидам:')
             for outcome in stats.lead_outcomes:
-                status_label = 'сохранён' if outcome.accepted and not dry_run else (
-                    'готов к сохранению' if outcome.accepted else 'отклонён'
-                )
+                if outcome.accepted and not dry_run:
+                    status_label = 'сохранён'
+                elif outcome.accepted:
+                    status_label = 'готов к сохранению'
+                elif any(
+                    conflict.phone == outcome.phone and conflict.username == outcome.username
+                    for conflict in stats.conflict_outcomes
+                ):
+                    status_label = 'конфликт'
+                else:
+                    status_label = 'отклонён'
                 phone_label = outcome.phone or '(нет)'
                 confidence_label = outcome.confidence or '(нет)'
                 self.stdout.write(
