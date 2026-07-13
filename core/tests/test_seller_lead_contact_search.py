@@ -296,6 +296,44 @@ class EnrichSellerLeadContactsTests(TestCase):
         BRAVE_SEARCH_API_KEY='test-key',
         SELLER_SEARCH_ENABLED=True,
     )
+    def test_skips_lead_with_existing_whatsapp(self):
+        lead = self._lead('omega_auto_parts')
+        SellerLead.objects.filter(pk=lead.pk).update(
+            whatsapp='77011234567',
+            whatsapp_source_url='https://www.instagram.com/omega_auto_parts/',
+            whatsapp_source_text='wa.me/77011234567',
+            whatsapp_confidence=CONFIDENCE_HIGH,
+        )
+        lead.refresh_from_db()
+        client = self._mock_client({
+            'site:instagram.com/omega_auto_parts WhatsApp': [
+                {
+                    'title': 'Omega WhatsApp',
+                    'url': 'https://wa.me/77019876543',
+                    'description': 'WhatsApp Business',
+                },
+            ],
+        })
+        stats = enrich_seller_lead_contacts(
+            username='omega_auto_parts',
+            max_queries_per_lead=1,
+            dry_run=False,
+            client=client,
+        )
+        lead.refresh_from_db()
+        self.assertEqual(stats.leads_processed, 0)
+        self.assertEqual(stats.queries_executed, 0)
+        self.assertEqual(stats.saved, 0)
+        self.assertEqual(lead.whatsapp, '77011234567')
+        self.assertEqual(lead.whatsapp_confidence, CONFIDENCE_HIGH)
+        self.assertEqual(lead.whatsapp_source_text, 'wa.me/77011234567')
+        self.assertEqual(lead.whatsapp_source_url, 'https://www.instagram.com/omega_auto_parts/')
+
+    @override_settings(
+        SELLER_SEARCH_PROVIDER='brave',
+        BRAVE_SEARCH_API_KEY='test-key',
+        SELLER_SEARCH_ENABLED=True,
+    )
     def test_duplicate_phone_registered_seller(self):
         Seller.objects.create(name='Registered', whatsapp='77011234567')
         lead = self._lead('omega_auto_parts')
