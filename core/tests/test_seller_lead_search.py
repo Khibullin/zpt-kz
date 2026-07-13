@@ -1,8 +1,11 @@
+import gzip
 import io
 import json
 import logging
+from email.message import Message
 from unittest.mock import patch
 from urllib import error
+from urllib.parse import parse_qs
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
@@ -11,11 +14,15 @@ from django.test import SimpleTestCase, TestCase, override_settings
 from core.models import SellerLead
 from core.services.seller_lead_search import (
     BraveSearchClient,
+    INVALID_BRAVE_API_KEY_MESSAGE,
     SellerLeadSearchConfigError,
+    SellerLeadSearchError,
     SellerLeadSearchHTTPError,
     SellerLeadSearchTimeoutError,
+    _sanitize_api_key,
     build_search_queries,
     collect_instagram_seller_leads,
+    get_api_key_validation_metadata,
     normalize_instagram_username,
     parse_instagram_profile_url,
 )
@@ -63,14 +70,113 @@ class InstagramProfileParsingTests(SimpleTestCase):
         self.assertEqual(normalize_instagram_username('bad username!'), '')
 
 
+class ApiKeyValidationTests(SimpleTestCase):
+    VALID_KEY = 'BSA-valid-key-0123456789'
+
+    def test_valid_ascii_key_is_unchanged(self):
+        self.assertEqual(_sanitize_api_key(self.VALID_KEY), self.VALID_KEY)
+
+    def test_surrounding_whitespace_is_stripped(self):
+        self.assertEqual(_sanitize_api_key(f'  {self.VALID_KEY}  '), self.VALID_KEY)
+
+    def test_surrounding_double_quotes_are_stripped(self):
+        self.assertEqual(_sanitize_api_key(f'"{self.VALID_KEY}"'), self.VALID_KEY)
+
+    def test_surrounding_single_quotes_are_stripped(self):
+        self.assertEqual(_sanitize_api_key(f"'{self.VALID_KEY}'"), self.VALID_KEY)
+
+    def test_cyrillic_key_is_rejected(self):
+        with self.assertRaises(SellerLeadSearchConfigError) as ctx:
+            _sanitize_api_key('йцукенгшщзхъфывапролджэячсмитьбюё')
+        self.assertEqual(str(ctx.exception), INVALID_BRAVE_API_KEY_MESSAGE)
+
+    def test_internal_space_is_rejected(self):
+        with self.assertRaises(SellerLeadSearchConfigError) as ctx:
+            _sanitize_api_key('BSA-key with-space')
+        self.assertEqual(str(ctx.exception), INVALID_BRAVE_API_KEY_MESSAGE)
+
+    def test_internal_newline_is_rejected(self):
+        with self.assertRaises(SellerLeadSearchConfigError) as ctx:
+            _sanitize_api_key('BSA-key\nwith-newline')
+        self.assertEqual(str(ctx.exception), INVALID_BRAVE_API_KEY_MESSAGE)
+
+    def test_no_russian_keyboard_layout_conversion(self):
+        mistyped = 'иьфыз01234567890123456789012'
+        with self.assertRaises(SellerLeadSearchConfigError) as ctx:
+            _sanitize_api_key(mistyped)
+        self.assertEqual(str(ctx.exception), INVALID_BRAVE_API_KEY_MESSAGE)
+
+    def test_api_key_not_in_exception_message(self):
+        secret = 'BSA-secret-not-in-error-message-01'
+        with self.assertRaises(SellerLeadSearchConfigError) as ctx:
+            _sanitize_api_key(f'{secret[:4]} ключ {secret[4:]}')
+        self.assertNotIn(secret, str(ctx.exception))
+
+    def test_api_key_not_logged_by_client(self):
+        payload = {'web': {'results': []}}
+
+        def fake_urlopen(req, timeout=10):
+            class FakeResponse(io.BytesIO):
+                status = 200
+                headers = Message()
+
+            response = FakeResponse(json.dumps(payload).encode('utf-8'))
+            response.headers['Content-Type'] = 'application/json'
+            return response
+
+        client = BraveSearchClient(self.VALID_KEY, urlopen=fake_urlopen)
+        with self.assertLogs('core.services.seller_lead_search', level='INFO') as logs:
+            client.search('site:instagram.com test')
+        joined = '\n'.join(logs.output)
+        self.assertNotIn(self.VALID_KEY, joined)
+
+
 class BraveSearchClientTests(SimpleTestCase):
-    def _mock_response(self, payload: dict, *, status: int = 200):
-        body = json.dumps(payload).encode('utf-8')
+    SECRET_KEY = 'BSA-valid-key-0123456789'
+
+    def _mock_response(
+        self,
+        body: bytes,
+        *,
+        status: int = 200,
+        content_type: str = 'application/json',
+        content_encoding: str = '',
+    ):
+        headers = Message()
+        headers['Content-Type'] = content_type
+        if content_encoding:
+            headers['Content-Encoding'] = content_encoding
 
         class FakeResponse(io.BytesIO):
-            status = 200
+            pass
 
-        return FakeResponse(body)
+        response = FakeResponse(body)
+        response.status = status
+        response.headers = headers
+        return response
+
+    def _mock_json_response(self, payload: dict, **kwargs):
+        return self._mock_response(json.dumps(payload).encode('utf-8'), **kwargs)
+
+    def _mock_http_error(
+        self,
+        status: int,
+        body: bytes = b'',
+        *,
+        content_type: str = 'application/json',
+        content_encoding: str = '',
+    ):
+        headers = Message()
+        headers['Content-Type'] = content_type
+        if content_encoding:
+            headers['Content-Encoding'] = content_encoding
+        return error.HTTPError(
+            'https://api.search.brave.com/res/v1/web/search',
+            status,
+            'HTTP Error',
+            hdrs=headers,
+            fp=io.BytesIO(body),
+        )
 
     def test_search_returns_unified_results(self):
         payload = {
@@ -86,59 +192,205 @@ class BraveSearchClientTests(SimpleTestCase):
         }
 
         def fake_urlopen(req, timeout=10):
-            return self._mock_response(payload)
+            return self._mock_json_response(payload)
 
-        client = BraveSearchClient('secret-key', urlopen=fake_urlopen)
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
         results = client.search('site:instagram.com автозапчасти Алматы', count=5)
         self.assertEqual(len(results), 1)
         self.assertEqual(results[0]['title'], 'Shop title')
         self.assertEqual(results[0]['url'], 'https://www.instagram.com/example_shop/')
         self.assertEqual(results[0]['description'], 'Snippet text')
 
-    def test_missing_api_key_raises_config_error(self):
-        client = BraveSearchClient('')
-        with self.assertRaises(SellerLeadSearchConfigError):
+    def test_search_uses_expected_request_shape(self):
+        captured: dict[str, object] = {}
+
+        def fake_urlopen(req, timeout=10):
+            captured['method'] = req.method
+            captured['url'] = req.full_url.split('?', 1)[0]
+            captured['headers'] = dict(req.header_items())
+            captured['params'] = parse_qs(req.full_url.split('?', 1)[1])
+            return self._mock_json_response({'web': {'results': []}})
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        client.search('site:instagram.com автозапчасти Алматы', count=5)
+
+        headers = {name.lower(): value for name, value in captured['headers'].items()}
+        self.assertEqual(captured['method'], 'GET')
+        self.assertEqual(captured['url'], 'https://api.search.brave.com/res/v1/web/search')
+        self.assertTrue(str(captured['url']).isascii())
+        self.assertEqual(headers['accept'], 'application/json')
+        self.assertEqual(headers['x-subscription-token'], self.SECRET_KEY)
+        self.assertNotIn('accept-encoding', headers)
+        self.assertEqual(
+            captured['params']['q'],
+            ['site:instagram.com автозапчасти Алматы'],
+        )
+        self.assertEqual(captured['params']['count'], ['5'])
+
+    def test_search_url_encodes_non_ascii_query_as_ascii(self):
+        captured: dict[str, str] = {}
+
+        def fake_urlopen(req, timeout=10):
+            captured['full_url'] = req.full_url
+            return self._mock_json_response({'web': {'results': []}})
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        client.search('site:instagram.com автозапчасти Алматы WhatsApp', count=10)
+        self.assertTrue(captured['full_url'].isascii())
+        self.assertIn('/res/v1/web/search?', captured['full_url'])
+        self.assertIn('q=site%3Ainstagram.com', captured['full_url'])
+
+    def test_search_handles_gzip_encoded_json(self):
+        payload = {
+            'web': {
+                'results': [
+                    {
+                        'title': 'Gzip shop',
+                        'url': 'https://www.instagram.com/gzip_shop/',
+                        'description': 'gzip',
+                    },
+                ],
+            },
+        }
+        raw_body = gzip.compress(json.dumps(payload).encode('utf-8'))
+
+        def fake_urlopen(req, timeout=10):
+            return self._mock_response(
+                raw_body,
+                content_type='application/json',
+                content_encoding='gzip',
+            )
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        results = client.search('query', count=3)
+        self.assertEqual(results[0]['url'], 'https://www.instagram.com/gzip_shop/')
+
+    def test_http_200_html_raises_invalid_json_with_preview(self):
+        body = b'<html><body>Not JSON</body></html>'
+
+        def fake_urlopen(req, timeout=10):
+            return self._mock_response(body, content_type='text/html')
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchError) as ctx:
             client.search('query')
+        message = str(ctx.exception)
+        self.assertIn('invalid JSON', message)
+        self.assertIn('status=200', message)
+        self.assertIn('content_type=text/html', message)
+        self.assertIn('body_preview=', message)
+        self.assertNotIn(self.SECRET_KEY, message)
+
+    def test_http_200_empty_body_raises_empty_body_error(self):
+        def fake_urlopen(req, timeout=10):
+            return self._mock_response(b'', content_type='application/json')
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchError) as ctx:
+            client.search('query')
+        self.assertIn('empty body', str(ctx.exception))
+        self.assertIn('status=200', str(ctx.exception))
+
+    def test_http_200_invalid_content_type_raises_invalid_json(self):
+        body = b'plain text response'
+
+        def fake_urlopen(req, timeout=10):
+            return self._mock_response(body, content_type='text/plain')
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchError) as ctx:
+            client.search('query')
+        self.assertIn('content_type=text/plain', str(ctx.exception))
+
+    def test_http_401_error(self):
+        body = json.dumps({'message': 'Unauthorized'}).encode('utf-8')
+
+        def fake_urlopen(req, timeout=10):
+            raise self._mock_http_error(401, body)
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchHTTPError) as ctx:
+            client.search('query')
+        self.assertEqual(ctx.exception.status_code, 401)
+        self.assertIn('HTTP 401', str(ctx.exception))
+        self.assertNotIn(self.SECRET_KEY, str(ctx.exception))
+
+    def test_http_403_error(self):
+        def fake_urlopen(req, timeout=10):
+            raise self._mock_http_error(403, b'{"message":"Forbidden"}')
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchHTTPError) as ctx:
+            client.search('query')
+        self.assertEqual(ctx.exception.status_code, 403)
+        self.assertIn('HTTP 403', str(ctx.exception))
+
+    def test_http_422_error(self):
+        def fake_urlopen(req, timeout=10):
+            raise self._mock_http_error(422, b'{"message":"Invalid count"}')
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchHTTPError) as ctx:
+            client.search('query')
+        self.assertEqual(ctx.exception.status_code, 422)
+        self.assertIn('HTTP 422', str(ctx.exception))
+
+    def test_missing_api_key_raises_config_error(self):
+        with self.assertRaises(SellerLeadSearchConfigError):
+            BraveSearchClient('')
 
     def test_timeout_error(self):
         def fake_urlopen(req, timeout=10):
             raise error.URLError('timed out')
 
-        client = BraveSearchClient('secret-key', urlopen=fake_urlopen)
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
         with self.assertRaises(SellerLeadSearchTimeoutError):
             client.search('query')
 
     def test_http_429_error(self):
         def fake_urlopen(req, timeout=10):
-            raise error.HTTPError(req.full_url, 429, 'Too Many Requests', hdrs=None, fp=None)
+            raise self._mock_http_error(429, b'{"message":"Too Many Requests"}')
 
-        client = BraveSearchClient('secret-key', urlopen=fake_urlopen)
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
         with self.assertRaises(SellerLeadSearchHTTPError) as ctx:
             client.search('query')
         self.assertEqual(ctx.exception.status_code, 429)
+        self.assertIn('rate limit', str(ctx.exception))
 
     def test_http_500_error(self):
         def fake_urlopen(req, timeout=10):
-            raise error.HTTPError(req.full_url, 500, 'Server Error', hdrs=None, fp=None)
+            raise self._mock_http_error(500, b'{"message":"Server Error"}')
 
-        client = BraveSearchClient('secret-key', urlopen=fake_urlopen)
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
         with self.assertRaises(SellerLeadSearchHTTPError) as ctx:
             client.search('query')
         self.assertEqual(ctx.exception.status_code, 500)
+        self.assertIn('HTTP 500', str(ctx.exception))
 
     def test_api_key_not_logged(self):
         payload = {'web': {'results': []}}
 
         def fake_urlopen(req, timeout=10):
-            return self._mock_response(payload)
+            return self._mock_json_response(payload)
 
-        client = BraveSearchClient('super-secret-key', urlopen=fake_urlopen)
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
         with self.assertLogs('core.services.seller_lead_search', level='INFO') as logs:
             client.search('site:instagram.com автозапчасти Алматы')
 
         joined = '\n'.join(logs.output)
         self.assertIn('site:instagram.com автозапчасти Алматы', joined)
-        self.assertNotIn('super-secret-key', joined)
+        self.assertNotIn(self.SECRET_KEY, joined)
+
+    def test_api_key_not_in_exception_message(self):
+        body = b'<html>secret page</html>'
+
+        def fake_urlopen(req, timeout=10):
+            return self._mock_response(body, content_type='text/html')
+
+        client = BraveSearchClient(self.SECRET_KEY, urlopen=fake_urlopen)
+        with self.assertRaises(SellerLeadSearchError) as ctx:
+            client.search('query')
+        self.assertNotIn(self.SECRET_KEY, str(ctx.exception))
 
 
 class CollectInstagramSellerLeadsTests(TestCase):
@@ -284,6 +536,8 @@ class CollectInstagramSellerLeadsCommandTests(TestCase):
             'links_rejected': 0,
             'errors': 0,
             'dry_run_profiles': [],
+            'dry_run_result_details': [],
+            'api_response_info': None,
         })()
         call_command(
             'collect_instagram_seller_leads',

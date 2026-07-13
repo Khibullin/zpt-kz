@@ -65,6 +65,25 @@ class Command(BaseCommand):
         self.stdout.write(f"Отклонено ссылок: {stats.links_rejected}")
         self.stdout.write(f"Ошибок: {stats.errors}")
 
+        if dry_run and stats.api_response_info is not None:
+            info = stats.api_response_info
+            self.stdout.write(
+                'Brave API response: '
+                f'status={info.status_code}, '
+                f'content_type={info.content_type or "unknown"}, '
+                f'content_encoding={info.content_encoding or "none"}, '
+                f'body_length={info.body_length}',
+            )
+
+        if dry_run and stats.dry_run_result_details:
+            self.stdout.write('Результаты поиска (dry-run):')
+            for item in stats.dry_run_result_details:
+                status_label = 'принят' if item.accepted else 'отклонён'
+                username_label = f'@{item.username}' if item.username else '(нет username)'
+                self.stdout.write(
+                    f"  [{status_label}] {item.title} | {item.url} | {username_label} | {item.reason}",
+                )
+
         if dry_run and stats.dry_run_profiles:
             self.stdout.write('Найденные профили (dry-run):')
             for profile in stats.dry_run_profiles:
