@@ -218,6 +218,11 @@ INSTAGRAM_BUSINESS_ACCOUNT_ID = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
 FACEBOOK_ACCESS_TOKEN = os.getenv("FACEBOOK_ACCESS_TOKEN", "")
 META_GRAPH_API_VERSION = os.getenv("META_GRAPH_API_VERSION", "v20.0")
 
+# Seller lead search (Brave Search API)
+SELLER_SEARCH_PROVIDER = (os.getenv('SELLER_SEARCH_PROVIDER', 'brave') or 'brave').strip().lower()
+BRAVE_SEARCH_API_KEY = (os.getenv('BRAVE_SEARCH_API_KEY', '') or '').strip()
+SELLER_SEARCH_ENABLED = os.getenv('SELLER_SEARCH_ENABLED', 'False').lower() == 'true'
+
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(
     'ZPT_WAREHOUSE_ADDRESS',
