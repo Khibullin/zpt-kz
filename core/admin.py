@@ -21,6 +21,7 @@ from .models import (
     BroadcastSettings,
     Request,
     Seller,
+    SellerLead,
     Match,
     RequestDispatch,
     Feedback,
@@ -799,3 +800,167 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
             obj.image.url,
             max_height,
         )
+
+
+def _seller_lead_external_link(url: str, label: str):
+    from django.utils.html import format_html
+
+    if not url:
+        return '—'
+    return format_html(
+        '<a href="{}" target="_blank" rel="noopener noreferrer">{}</a>',
+        url,
+        label,
+    )
+
+
+@admin.action(description='Пометить как проверенные')
+def mark_seller_leads_verified(modeladmin, request, queryset):
+    from django.utils import timezone
+
+    now = timezone.now()
+    updated = 0
+    for lead in queryset:
+        lead.status = SellerLead.STATUS_VERIFIED
+        if not lead.checked_at:
+            lead.checked_at = now
+        lead.save(update_fields=['status', 'checked_at', 'updated_at'])
+        updated += 1
+    messages.success(request, f'Помечено как проверенные: {updated}.')
+
+
+@admin.action(description='Пометить как дубликаты')
+def mark_seller_leads_duplicate(modeladmin, request, queryset):
+    updated = queryset.update(status=SellerLead.STATUS_DUPLICATE)
+    messages.warning(request, f'Помечено как дубликаты: {updated}.')
+
+
+@admin.action(description='Пометить как не продавцов')
+def mark_seller_leads_not_seller(modeladmin, request, queryset):
+    updated = queryset.update(status=SellerLead.STATUS_NOT_SELLER)
+    messages.warning(request, f'Помечено как не продавцы: {updated}.')
+
+
+@admin.action(description='Пометить как «Нет WhatsApp»')
+def mark_seller_leads_no_whatsapp(modeladmin, request, queryset):
+    updated = queryset.update(status=SellerLead.STATUS_NO_WHATSAPP)
+    messages.warning(request, f'Помечено как «Нет WhatsApp»: {updated}.')
+
+
+@admin.action(description='Пометить как «Написали»')
+def mark_seller_leads_contacted(modeladmin, request, queryset):
+    updated = queryset.update(status=SellerLead.STATUS_CONTACTED)
+    messages.success(request, f'Помечено как «Написали»: {updated}.')
+
+
+@admin.register(SellerLead)
+class SellerLeadAdmin(admin.ModelAdmin):
+    list_display = (
+        'name',
+        'instagram_username',
+        'whatsapp',
+        'city',
+        'category',
+        'status',
+        'source_type',
+        'collected_at',
+        'checked_at',
+    )
+    list_filter = (
+        'status',
+        'source_type',
+        'city',
+        'category',
+        'collected_at',
+        'checked_at',
+    )
+    search_fields = (
+        'name',
+        'instagram_username',
+        'whatsapp',
+        'city',
+        'category',
+        'car_brands',
+        'notes',
+        'profile_description',
+    )
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'instagram_profile_link',
+        'whatsapp_link',
+        'website_link',
+        'source_link',
+    )
+    actions = (
+        mark_seller_leads_verified,
+        mark_seller_leads_duplicate,
+        mark_seller_leads_not_seller,
+        mark_seller_leads_no_whatsapp,
+        mark_seller_leads_contacted,
+    )
+    fieldsets = (
+        ('Основное', {
+            'fields': (
+                'name',
+                'status',
+                'source_type',
+                'collected_at',
+                'checked_at',
+            ),
+        }),
+        ('Контакты', {
+            'fields': (
+                'instagram_username',
+                'instagram_url',
+                'instagram_profile_link',
+                'whatsapp',
+                'whatsapp_link',
+                'website_url',
+                'website_link',
+            ),
+        }),
+        ('Профиль', {
+            'fields': (
+                'city',
+                'category',
+                'car_brands',
+                'profile_description',
+            ),
+        }),
+        ('Источник', {
+            'fields': (
+                'source_url',
+                'source_link',
+                'notes',
+            ),
+        }),
+        ('Служебное', {
+            'fields': (
+                'created_at',
+                'updated_at',
+            ),
+        }),
+    )
+
+    @admin.display(description='Instagram')
+    def instagram_profile_link(self, obj):
+        return _seller_lead_external_link(
+            obj.get_instagram_profile_url(),
+            'Открыть Instagram',
+        )
+
+    @admin.display(description='WhatsApp')
+    def whatsapp_link(self, obj):
+        return _seller_lead_external_link(
+            obj.get_whatsapp_url(),
+            'Открыть WhatsApp',
+        )
+
+    @admin.display(description='Сайт')
+    def website_link(self, obj):
+        return _seller_lead_external_link(obj.website_url, 'Открыть сайт')
+
+    @admin.display(description='Источник')
+    def source_link(self, obj):
+        return _seller_lead_external_link(obj.source_url, 'Открыть источник')

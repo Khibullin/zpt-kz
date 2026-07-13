@@ -1,6 +1,7 @@
 import uuid
 
 from django.db import models
+from django.utils import timezone
 from django.utils.crypto import get_random_string
 
 
@@ -580,3 +581,201 @@ class InstagramPublication(models.Model):
 
     def __str__(self):
         return f'Instagram #{self.pk} — заявка #{self.request_id} ({self.get_status_display()})'
+
+
+SELLER_LEAD_STATUS_CHOICES = [
+    ('new', 'Найден'),
+    ('needs_review', 'Требует проверки'),
+    ('verified', 'Проверен'),
+    ('no_whatsapp', 'Нет WhatsApp'),
+    ('contacted', 'Написали'),
+    ('replied', 'Ответил'),
+    ('interested', 'Заинтересован'),
+    ('registered', 'Зарегистрирован'),
+    ('rejected', 'Отказался'),
+    ('duplicate', 'Дубликат'),
+    ('not_seller', 'Не продавец'),
+]
+
+SELLER_LEAD_SOURCE_TYPE_CHOICES = [
+    ('instagram_search', 'Поиск в Instagram'),
+    ('instagram_hashtag', 'Хэштег Instagram'),
+    ('instagram_profile', 'Профиль Instagram'),
+    ('instagram_post', 'Публикация Instagram'),
+    ('web_search', 'Веб-поиск'),
+    ('manual', 'Вручную'),
+    ('other', 'Другое'),
+]
+
+
+def normalize_seller_lead_instagram_username(value: str | None) -> str:
+    username = str(value or '').strip()
+    if username.startswith('@'):
+        username = username[1:].strip()
+    return username
+
+
+def normalize_seller_lead_whatsapp(value: str | None) -> str:
+    digits = ''.join(char for char in str(value or '') if char.isdigit())
+    if digits.startswith('8') and len(digits) == 11:
+        digits = '7' + digits[1:]
+    return digits
+
+
+class SellerLead(models.Model):
+    STATUS_NEW = 'new'
+    STATUS_NEEDS_REVIEW = 'needs_review'
+    STATUS_VERIFIED = 'verified'
+    STATUS_NO_WHATSAPP = 'no_whatsapp'
+    STATUS_CONTACTED = 'contacted'
+    STATUS_REPLIED = 'replied'
+    STATUS_INTERESTED = 'interested'
+    STATUS_REGISTERED = 'registered'
+    STATUS_REJECTED = 'rejected'
+    STATUS_DUPLICATE = 'duplicate'
+    STATUS_NOT_SELLER = 'not_seller'
+
+    name = models.CharField(max_length=255, verbose_name='Название')
+    instagram_username = models.CharField(
+        max_length=150,
+        blank=True,
+        default='',
+        verbose_name='Instagram username',
+    )
+    instagram_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Ссылка на Instagram',
+    )
+    whatsapp = models.CharField(
+        max_length=20,
+        blank=True,
+        default='',
+        verbose_name='WhatsApp',
+    )
+    city = models.CharField(max_length=100, blank=True, default='', verbose_name='Город')
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Категория запчастей',
+    )
+    car_brands = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Марки автомобилей',
+    )
+    profile_description = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Описание профиля Instagram',
+    )
+    website_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Сайт / Taplink / Linktree',
+    )
+    source_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Источник контакта',
+    )
+    source_type = models.CharField(
+        max_length=32,
+        choices=SELLER_LEAD_SOURCE_TYPE_CHOICES,
+        default='manual',
+        verbose_name='Тип источника',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=SELLER_LEAD_STATUS_CHOICES,
+        default=STATUS_NEEDS_REVIEW,
+        verbose_name='Статус',
+    )
+    notes = models.TextField(blank=True, default='', verbose_name='Комментарий оператора')
+    collected_at = models.DateTimeField(
+        default=timezone.now,
+        verbose_name='Дата обнаружения',
+    )
+    checked_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата проверки',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Потенциальный продавец'
+        verbose_name_plural = 'Потенциальные продавцы'
+        ordering = ['-collected_at', '-created_at']
+        indexes = [
+            models.Index(fields=['status']),
+            models.Index(fields=['city']),
+            models.Index(fields=['category']),
+            models.Index(fields=['instagram_username']),
+            models.Index(fields=['whatsapp']),
+            models.Index(fields=['collected_at']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['instagram_username'],
+                condition=models.Q(instagram_username__gt=''),
+                name='unique_sellerlead_instagram_username',
+            ),
+            models.UniqueConstraint(
+                fields=['whatsapp'],
+                condition=models.Q(whatsapp__gt=''),
+                name='unique_sellerlead_whatsapp',
+            ),
+        ]
+
+    def __str__(self):
+        if self.instagram_username:
+            return f'{self.name} — @{self.instagram_username}'
+        if self.whatsapp:
+            return f'{self.name} — {self.whatsapp}'
+        return self.name
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        self.instagram_username = normalize_seller_lead_instagram_username(self.instagram_username)
+        self.whatsapp = normalize_seller_lead_whatsapp(self.whatsapp)
+
+        duplicate_filter = SellerLead.objects.exclude(pk=self.pk)
+        if self.instagram_username and duplicate_filter.filter(
+            instagram_username=self.instagram_username,
+        ).exists():
+            raise ValidationError({
+                'instagram_username': 'Потенциальный продавец с таким Instagram username уже существует.',
+            })
+        if self.whatsapp and duplicate_filter.filter(whatsapp=self.whatsapp).exists():
+            raise ValidationError({
+                'whatsapp': 'Потенциальный продавец с таким WhatsApp уже существует.',
+            })
+
+    def save(self, *args, **kwargs):
+        from django.utils import timezone
+
+        self.instagram_username = normalize_seller_lead_instagram_username(self.instagram_username)
+        self.whatsapp = normalize_seller_lead_whatsapp(self.whatsapp)
+        if self.status == self.STATUS_VERIFIED and not self.checked_at:
+            self.checked_at = timezone.now()
+        super().save(*args, **kwargs)
+
+    def get_instagram_profile_url(self) -> str:
+        if self.instagram_url:
+            return self.instagram_url
+        if self.instagram_username:
+            return f'https://www.instagram.com/{self.instagram_username}/'
+        return ''
+
+    def get_whatsapp_url(self) -> str:
+        if self.whatsapp:
+            return f'https://wa.me/{self.whatsapp}'
+        return ''
