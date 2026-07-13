@@ -808,3 +808,222 @@ class SellerLead(models.Model):
         if self.whatsapp:
             return f'https://wa.me/{self.whatsapp}'
         return ''
+
+
+CONTACT_CANDIDATE_TYPE_CHOICES = [
+    ('whatsapp', 'WhatsApp'),
+    ('phone', 'Телефон'),
+]
+
+CONTACT_CANDIDATE_ROLE_CHOICES = [
+    ('unknown', 'Не указано'),
+    ('shop', 'Магазин'),
+    ('service', 'Сервис'),
+    ('sales', 'Продажи'),
+    ('warehouse', 'Склад'),
+    ('administration', 'Администрация'),
+]
+
+CONTACT_CANDIDATE_SOURCE_TYPE_CHOICES = [
+    ('instagram_snippet', 'Сниппет Instagram'),
+    ('wa_me', 'wa.me'),
+    ('website', 'Сайт'),
+    ('directory', 'Справочник'),
+    ('facebook', 'Facebook'),
+    ('manual', 'Вручную'),
+    ('other', 'Другое'),
+]
+
+CONTACT_CANDIDATE_STATUS_CHOICES = [
+    ('pending', 'Ожидает проверки'),
+    ('approved', 'Подтверждён'),
+    ('rejected', 'Отклонён'),
+    ('conflict', 'Конфликт'),
+]
+
+CONTACT_CANDIDATE_SOURCE_TEXT_LIMIT = 400
+
+
+def normalize_contact_candidate_value(value: str | None) -> str:
+    return normalize_seller_lead_whatsapp(value)
+
+
+class SellerLeadContactCandidate(models.Model):
+    CONTACT_TYPE_WHATSAPP = 'whatsapp'
+    CONTACT_TYPE_PHONE = 'phone'
+
+    ROLE_UNKNOWN = 'unknown'
+    ROLE_SHOP = 'shop'
+    ROLE_SERVICE = 'service'
+    ROLE_SALES = 'sales'
+    ROLE_WAREHOUSE = 'warehouse'
+    ROLE_ADMINISTRATION = 'administration'
+
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CONFLICT = 'conflict'
+
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='contact_candidates',
+        verbose_name='Потенциальный продавец',
+    )
+    contact_type = models.CharField(
+        max_length=16,
+        choices=CONTACT_CANDIDATE_TYPE_CHOICES,
+        default=CONTACT_TYPE_WHATSAPP,
+        verbose_name='Тип контакта',
+    )
+    value = models.CharField(max_length=20, verbose_name='Значение')
+    role = models.CharField(
+        max_length=20,
+        choices=CONTACT_CANDIDATE_ROLE_CHOICES,
+        default=ROLE_UNKNOWN,
+        verbose_name='Назначение',
+    )
+    label = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Описание',
+    )
+    confidence = models.CharField(
+        max_length=10,
+        choices=WHATSAPP_CONFIDENCE_CHOICES,
+        verbose_name='Уверенность',
+    )
+    source_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='URL источника',
+    )
+    source_text = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Фрагмент доказательства',
+    )
+    source_type = models.CharField(
+        max_length=32,
+        choices=CONTACT_CANDIDATE_SOURCE_TYPE_CHOICES,
+        default='other',
+        verbose_name='Тип источника',
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=CONTACT_CANDIDATE_STATUS_CHOICES,
+        default=STATUS_PENDING,
+        verbose_name='Статус',
+    )
+    is_primary = models.BooleanField(default=False, verbose_name='Основной контакт')
+    found_at = models.DateTimeField(default=timezone.now, verbose_name='Дата обнаружения')
+    reviewed_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата проверки')
+    notes = models.TextField(blank=True, default='', verbose_name='Комментарий')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Кандидат контакта'
+        verbose_name_plural = 'Кандидаты контактов'
+        ordering = ['-found_at', '-created_at']
+        indexes = [
+            models.Index(fields=['seller_lead', 'status']),
+            models.Index(fields=['value']),
+            models.Index(fields=['confidence']),
+            models.Index(fields=['is_primary']),
+            models.Index(fields=['found_at']),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_lead', 'contact_type', 'value'],
+                name='unique_sellerlead_contact_candidate_value',
+            ),
+            models.UniqueConstraint(
+                fields=['seller_lead'],
+                condition=models.Q(is_primary=True),
+                name='unique_sellerlead_primary_contact_candidate',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        username = self.seller_lead.instagram_username or self.seller_lead.name
+        role_label = self.get_role_display()
+        return f'@{username} — {self.value} — {role_label}'
+
+    def clean(self):
+        from django.core.exceptions import ValidationError
+
+        normalized = normalize_contact_candidate_value(self.value)
+        if not normalized:
+            raise ValidationError({'value': 'Номер контакта не может быть пустым.'})
+        if self.contact_type == self.CONTACT_TYPE_WHATSAPP:
+            if len(normalized) != 11 or not normalized.startswith('7'):
+                raise ValidationError({'value': 'WhatsApp должен содержать 11 цифр и начинаться с 7.'})
+            if len(set(normalized)) == 1:
+                raise ValidationError({'value': 'Недопустимый номер WhatsApp.'})
+        self.value = normalized
+        if self.source_text:
+            self.source_text = self.source_text[:CONTACT_CANDIDATE_SOURCE_TEXT_LIMIT]
+        if self.source_url:
+            self.source_url = self.source_url[:500]
+
+    def save(self, *args, **kwargs):
+        normalized = normalize_contact_candidate_value(self.value)
+        if normalized:
+            self.value = normalized
+        if self.source_text:
+            self.source_text = self.source_text[:CONTACT_CANDIDATE_SOURCE_TEXT_LIMIT]
+        if self.source_url:
+            self.source_url = self.source_url[:500]
+        super().save(*args, **kwargs)
+
+    def get_whatsapp_url(self) -> str:
+        if self.contact_type == self.CONTACT_TYPE_WHATSAPP and self.value:
+            return f'https://wa.me/{self.value}'
+        return ''
+
+    def approve_as_primary(self) -> None:
+        from django.db import transaction
+
+        if self.status == self.STATUS_REJECTED:
+            raise ValueError('Отклонённый кандидат не может стать основным контактом.')
+        if not self.value:
+            raise ValueError('Пустой номер не может стать основным контактом.')
+
+        with transaction.atomic():
+            now = timezone.now()
+            SellerLeadContactCandidate.objects.filter(
+                seller_lead=self.seller_lead,
+                is_primary=True,
+            ).exclude(pk=self.pk).update(is_primary=False)
+
+            self.status = self.STATUS_APPROVED
+            self.is_primary = True
+            self.reviewed_at = now
+            self.save(
+                update_fields=[
+                    'status',
+                    'is_primary',
+                    'reviewed_at',
+                    'updated_at',
+                ],
+            )
+
+            lead = self.seller_lead
+            lead.whatsapp = self.value
+            lead.whatsapp_confidence = self.confidence
+            lead.whatsapp_source_url = self.source_url
+            lead.whatsapp_source_text = self.source_text
+            lead.whatsapp_found_at = self.found_at
+            lead.save(
+                update_fields=[
+                    'whatsapp',
+                    'whatsapp_confidence',
+                    'whatsapp_source_url',
+                    'whatsapp_source_text',
+                    'whatsapp_found_at',
+                    'updated_at',
+                ],
+            )

@@ -9,7 +9,12 @@ from urllib import parse
 from django.db.models import Q
 from django.utils import timezone
 
-from core.models import Seller, SellerLead, normalize_seller_lead_whatsapp
+from core.models import (
+    Seller,
+    SellerLead,
+    SellerLeadContactCandidate,
+    normalize_seller_lead_whatsapp,
+)
 from core.services.seller_lead_search import (
     BraveSearchClient,
     SellerLeadSearchConfigError,
@@ -90,6 +95,18 @@ class LeadContactEnrichmentOutcome:
     rejection_reason: str = ''
 
 
+@dataclass(frozen=True)
+class ConflictContactOutcome:
+    username: str
+    phone: str
+    role: str
+    label: str
+    confidence: str
+    source_url: str
+    source_text: str
+    reason: str
+
+
 @dataclass
 class ContactEnrichmentStats:
     leads_processed: int = 0
@@ -102,7 +119,13 @@ class ContactEnrichmentStats:
     ready_to_save: int = 0
     saved: int = 0
     errors: int = 0
+    contact_candidates_created: int = 0
+    contact_candidates_updated: int = 0
+    conflict_candidates: int = 0
+    pending_review_candidates: int = 0
+    global_phone_conflicts: int = 0
     lead_outcomes: list[LeadContactEnrichmentOutcome] = field(default_factory=list)
+    conflict_outcomes: list[ConflictContactOutcome] = field(default_factory=list)
 
 
 def normalize_kz_whatsapp_phone(raw_value: str) -> str | None:
@@ -307,11 +330,78 @@ def extract_candidates_from_result(
     return candidates
 
 
+def _infer_contact_source_type(source_url: str) -> str:
+    lower = (source_url or '').lower()
+    if 'instagram.com/' in lower:
+        return 'instagram_snippet'
+    if 'wa.me/' in lower or 'api.whatsapp.com' in lower:
+        return 'wa_me'
+    if 'facebook.com/' in lower:
+        return 'facebook'
+    if any(marker in lower for marker in ('2gis', 'orgs.biz', 'yellowpages', 'olx.kz')):
+        return 'directory'
+    if lower.startswith('http'):
+        return 'website'
+    return 'other'
+
+
+def upsert_contact_candidate_from_whatsapp(
+    lead: SellerLead,
+    candidate: WhatsAppCandidate,
+    *,
+    status: str,
+) -> tuple[bool, bool]:
+    """Возвращает (created, updated)."""
+    value = normalize_kz_whatsapp_phone(candidate.phone)
+    if not value:
+        return False, False
+
+    existing = SellerLeadContactCandidate.objects.filter(
+        seller_lead=lead,
+        contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+        value=value,
+    ).first()
+    source_type = _infer_contact_source_type(candidate.source_url)
+    if existing:
+        existing.confidence = candidate.confidence
+        existing.source_url = candidate.source_url[:500]
+        existing.source_text = candidate.source_text[:SOURCE_TEXT_LIMIT]
+        existing.source_type = source_type
+        existing.status = status
+        existing.is_primary = False
+        existing.save(
+            update_fields=[
+                'confidence',
+                'source_url',
+                'source_text',
+                'source_type',
+                'status',
+                'is_primary',
+                'updated_at',
+            ],
+        )
+        return False, True
+
+    SellerLeadContactCandidate.objects.create(
+        seller_lead=lead,
+        contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+        value=value,
+        confidence=candidate.confidence,
+        source_url=candidate.source_url[:500],
+        source_text=candidate.source_text[:SOURCE_TEXT_LIMIT],
+        source_type=source_type,
+        status=status,
+        is_primary=False,
+        found_at=timezone.now(),
+    )
+    return True, False
+
+
 def _select_best_candidate(
     candidates: Iterable[WhatsAppCandidate],
     *,
     lead: SellerLead,
-) -> tuple[WhatsAppCandidate | None, str]:
+) -> tuple[WhatsAppCandidate | None, str, list[WhatsAppCandidate]]:
     filtered: list[WhatsAppCandidate] = []
     for candidate in candidates:
         if _phone_used_by_other_lead(candidate.phone, lead_id=lead.pk):
@@ -321,21 +411,23 @@ def _select_best_candidate(
         filtered.append(candidate)
 
     if not filtered:
-        return None, 'подходящий номер не найден'
+        return None, 'подходящий номер не найден', []
 
     for confidence in (CONFIDENCE_HIGH, CONFIDENCE_MEDIUM, CONFIDENCE_LOW):
         level_candidates = [item for item in filtered if item.confidence == confidence]
         if not level_candidates:
             continue
-        unique_phones = {item.phone for item in level_candidates}
-        if len(unique_phones) > 1:
-            return None, f'найдено несколько разных номеров с уверенностью {confidence}'
+        unique_by_phone: dict[str, WhatsAppCandidate] = {}
+        for item in level_candidates:
+            unique_by_phone.setdefault(item.phone, item)
+        if len(unique_by_phone) > 1:
+            return None, f'найдено несколько разных номеров с уверенностью {confidence}', list(unique_by_phone.values())
         best = level_candidates[0]
         if confidence not in AUTO_SAVE_CONFIDENCE:
-            return None, f'уверенность {confidence} слишком низкая для автосохранения'
-        return best, ''
+            return None, f'уверенность {confidence} слишком низкая для автосохранения', []
+        return best, '', []
 
-    return None, 'подходящий номер не найден'
+    return None, 'подходящий номер не найден', []
 
 
 def enrich_seller_lead_contacts(
@@ -430,9 +522,54 @@ def enrich_seller_lead_contacts(
             else:
                 stats.low_confidence += 1
 
-        selected, rejection_reason = _select_best_candidate(lead_candidates, lead=lead)
+        selected, rejection_reason, conflict_candidates = _select_best_candidate(lead_candidates, lead=lead)
         if rejection_reason.startswith('найдено несколько'):
             stats.conflicts += 1
+            if not dry_run:
+                for conflict_candidate in conflict_candidates:
+                    created, updated = upsert_contact_candidate_from_whatsapp(
+                        lead,
+                        conflict_candidate,
+                        status=SellerLeadContactCandidate.STATUS_CONFLICT,
+                    )
+                    if created:
+                        stats.contact_candidates_created += 1
+                    elif updated:
+                        stats.contact_candidates_updated += 1
+                    stats.conflict_candidates += 1
+                    stats.conflict_outcomes.append(
+                        ConflictContactOutcome(
+                            username=lead.instagram_username,
+                            phone=conflict_candidate.phone,
+                            role=SellerLeadContactCandidate.ROLE_UNKNOWN,
+                            label='',
+                            confidence=conflict_candidate.confidence,
+                            source_url=conflict_candidate.source_url,
+                            source_text=conflict_candidate.source_text[:200],
+                            reason=rejection_reason,
+                        ),
+                    )
+            else:
+                for conflict_candidate in conflict_candidates:
+                    stats.conflict_outcomes.append(
+                        ConflictContactOutcome(
+                            username=lead.instagram_username,
+                            phone=conflict_candidate.phone,
+                            role=SellerLeadContactCandidate.ROLE_UNKNOWN,
+                            label='',
+                            confidence=conflict_candidate.confidence,
+                            source_url=conflict_candidate.source_url,
+                            source_text=conflict_candidate.source_text[:200],
+                            reason=rejection_reason,
+                        ),
+                    )
+
+        global_conflict_phones = {
+            candidate.phone
+            for candidate in lead_candidates
+            if _phone_used_by_other_lead(candidate.phone, lead_id=lead.pk)
+        }
+        stats.global_phone_conflicts += len(global_conflict_phones)
 
         accepted = selected is not None
         if accepted:

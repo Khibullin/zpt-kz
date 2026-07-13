@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls import path
+from django.utils import timezone
 from .models import WhatsAppMessageLog
 
 from openpyxl import load_workbook
@@ -22,6 +23,7 @@ from .models import (
     Request,
     Seller,
     SellerLead,
+    SellerLeadContactCandidate,
     Match,
     RequestDispatch,
     Feedback,
@@ -853,8 +855,173 @@ def mark_seller_leads_contacted(modeladmin, request, queryset):
     messages.success(request, f'Помечено как «Написали»: {updated}.')
 
 
+class SellerLeadContactCandidateInline(admin.TabularInline):
+    model = SellerLeadContactCandidate
+    extra = 0
+    fields = (
+        'value',
+        'contact_type',
+        'role',
+        'label',
+        'confidence',
+        'status',
+        'is_primary',
+        'source_type',
+        'source_url',
+        'found_at',
+        'reviewed_at',
+    )
+    readonly_fields = ('found_at', 'reviewed_at')
+    show_change_link = True
+
+
+@admin.action(description='Подтвердить кандидата как основной контакт')
+def approve_contact_candidates_as_primary(modeladmin, request, queryset):
+    lead_ids = set(queryset.values_list('seller_lead_id', flat=True))
+    if len(lead_ids) > 1:
+        messages.error(
+            request,
+            'Нельзя подтвердить кандидатов из разных SellerLead одновременно. Выберите кандидатов одного лида.',
+        )
+        return
+    if queryset.count() > 1:
+        messages.error(
+            request,
+            'Нельзя подтвердить несколько кандидатов одновременно. Выберите одного кандидата для основного контакта.',
+        )
+        return
+    candidate = queryset.first()
+    if candidate is None:
+        return
+    try:
+        candidate.approve_as_primary()
+    except ValueError as exc:
+        messages.error(request, str(exc))
+        return
+    messages.success(request, f'Основной контакт подтверждён: {candidate.value}.')
+
+
+@admin.action(description='Пометить кандидата как отклонённый')
+def reject_contact_candidates(modeladmin, request, queryset):
+    updated = queryset.update(
+        status=SellerLeadContactCandidate.STATUS_REJECTED,
+        is_primary=False,
+        reviewed_at=timezone.now(),
+    )
+    messages.warning(request, f'Отклонено кандидатов: {updated}.')
+
+
+@admin.action(description='Пометить кандидата как конфликтующий')
+def mark_contact_candidates_conflict(modeladmin, request, queryset):
+    updated = queryset.update(
+        status=SellerLeadContactCandidate.STATUS_CONFLICT,
+        is_primary=False,
+        reviewed_at=timezone.now(),
+    )
+    messages.warning(request, f'Помечено как конфликт: {updated}.')
+
+
+@admin.action(description='Вернуть кандидата в ожидание проверки')
+def mark_contact_candidates_pending(modeladmin, request, queryset):
+    updated = queryset.update(
+        status=SellerLeadContactCandidate.STATUS_PENDING,
+        is_primary=False,
+        reviewed_at=None,
+    )
+    messages.info(request, f'Возвращено в ожидание проверки: {updated}.')
+
+
+@admin.register(SellerLeadContactCandidate)
+class SellerLeadContactCandidateAdmin(admin.ModelAdmin):
+    list_display = (
+        'seller_lead',
+        'value',
+        'contact_type',
+        'role',
+        'label',
+        'confidence',
+        'status',
+        'is_primary',
+        'source_type',
+        'found_at',
+        'reviewed_at',
+    )
+    list_filter = (
+        'contact_type',
+        'role',
+        'confidence',
+        'status',
+        'is_primary',
+        'source_type',
+        'found_at',
+    )
+    search_fields = (
+        'seller_lead__name',
+        'seller_lead__instagram_username',
+        'value',
+        'label',
+        'notes',
+    )
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'whatsapp_link',
+        'source_link',
+    )
+    actions = (
+        approve_contact_candidates_as_primary,
+        reject_contact_candidates,
+        mark_contact_candidates_conflict,
+        mark_contact_candidates_pending,
+    )
+    fieldsets = (
+        ('Контакт', {
+            'fields': (
+                'seller_lead',
+                'contact_type',
+                'value',
+                'role',
+                'label',
+                'confidence',
+                'status',
+                'is_primary',
+                'whatsapp_link',
+            ),
+        }),
+        ('Источник', {
+            'fields': (
+                'source_type',
+                'source_url',
+                'source_link',
+                'source_text',
+                'found_at',
+                'reviewed_at',
+            ),
+        }),
+        ('Служебное', {
+            'fields': (
+                'notes',
+                'created_at',
+                'updated_at',
+            ),
+        }),
+    )
+
+    @admin.display(description='WhatsApp')
+    def whatsapp_link(self, obj):
+        return _seller_lead_external_link(
+            obj.get_whatsapp_url(),
+            'Открыть WhatsApp',
+        )
+
+    @admin.display(description='Источник')
+    def source_link(self, obj):
+        return _seller_lead_external_link(obj.source_url, 'Открыть источник')
+
+
 @admin.register(SellerLead)
 class SellerLeadAdmin(admin.ModelAdmin):
+    inlines = (SellerLeadContactCandidateInline,)
     list_display = (
         'name',
         'instagram_username',

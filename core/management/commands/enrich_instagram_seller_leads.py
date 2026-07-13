@@ -66,6 +66,23 @@ class Command(BaseCommand):
         self.stdout.write(f'Готово к сохранению: {stats.ready_to_save}')
         self.stdout.write(f'Сохранено: {stats.saved}')
         self.stdout.write(f'Ошибок: {stats.errors}')
+        self.stdout.write(f'Создано кандидатов контактов: {stats.contact_candidates_created}')
+        self.stdout.write(f'Обновлено кандидатов: {stats.contact_candidates_updated}')
+        self.stdout.write(f'Конфликтующих кандидатов: {stats.conflict_candidates}')
+        self.stdout.write(f'Кандидатов на ручную проверку: {stats.pending_review_candidates}')
+        if stats.global_phone_conflicts:
+            self.stdout.write(f'Глобальных конфликтов номеров: {stats.global_phone_conflicts}')
+
+        if stats.conflict_outcomes:
+            self.stdout.write('Конфликтующие номера:')
+            for outcome in stats.conflict_outcomes:
+                self.stdout.write(
+                    f"  @{outcome.username} | {outcome.phone} | {outcome.role or 'unknown'} | "
+                    f"{outcome.label or '(без описания)'} | {outcome.confidence} | "
+                    f"{outcome.source_url or '(нет URL)'} | {outcome.reason}",
+                )
+                if outcome.source_text:
+                    self.stdout.write(f"    source_text: {outcome.source_text[:200]}")
 
         if stats.lead_outcomes:
             self.stdout.write('Результаты по лидам:')
