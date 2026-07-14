@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 
+from core.models import SellerLeadPipelineRun
 from core.services.seller_lead_pipeline import (
     DEFAULT_CATEGORY,
     DEFAULT_CITY,
@@ -8,6 +9,16 @@ from core.services.seller_lead_pipeline import (
     DEFAULT_SEARCH_LIMIT,
     SellerLeadPipelineConfigError,
     run_seller_lead_pipeline,
+)
+from core.services.seller_lead_pipeline_execution import (
+    execute_managed_seller_lead_pipeline,
+    format_run_duration,
+)
+from core.services.seller_lead_pipeline_guard import (
+    DEFAULT_COOLDOWN_MINUTES,
+    PipelineLockBusy,
+    PipelineRunLock,
+    validate_cooldown_minutes,
 )
 from core.services.seller_lead_search import (
     SellerLeadSearchConfigError,
@@ -44,6 +55,24 @@ class Command(BaseCommand):
             help='Максимум поисковых запросов WhatsApp на один лид',
         )
         parser.add_argument(
+            '--cooldown-minutes',
+            type=int,
+            default=DEFAULT_COOLDOWN_MINUTES,
+            help='Минимальный интервал между live-запусками (0 отключает)',
+        )
+        parser.add_argument(
+            '--force',
+            action='store_true',
+            help='Обойти cooldown, но не активную блокировку',
+        )
+        parser.add_argument(
+            '--trigger',
+            type=str,
+            choices=[SellerLeadPipelineRun.TRIGGER_MANUAL, SellerLeadPipelineRun.TRIGGER_CRON],
+            default=SellerLeadPipelineRun.TRIGGER_MANUAL,
+            help='Источник запуска: manual или cron',
+        )
+        parser.add_argument(
             '--dry-run',
             action='store_true',
             help='Полная проверка pipeline без записи в базу',
@@ -77,15 +106,34 @@ class Command(BaseCommand):
             )
 
         try:
-            stats = run_seller_lead_pipeline(
+            validate_cooldown_minutes(options['cooldown_minutes'])
+        except ValueError as exc:
+            raise CommandError(str(exc)) from exc
+
+        valid_triggers = {
+            SellerLeadPipelineRun.TRIGGER_MANUAL,
+            SellerLeadPipelineRun.TRIGGER_CRON,
+        }
+        if options['trigger'] not in valid_triggers:
+            raise CommandError(f"Недопустимый trigger: {options['trigger']}")
+
+        if dry_run:
+            self._run_dry_pipeline(options, settings_data)
+            return
+
+        self._write_live_header(options)
+        try:
+            managed = execute_managed_seller_lead_pipeline(
                 city=options['city'],
                 category=options['category'],
                 search_limit=options['search_limit'],
                 lead_limit=options['lead_limit'],
                 max_queries_per_lead=options['max_queries_per_lead'],
-                dry_run=dry_run,
                 skip_discovery=options['skip_discovery'],
                 skip_enrichment=options['skip_enrichment'],
+                cooldown_minutes=options['cooldown_minutes'],
+                force_run=options['force'],
+                trigger=options['trigger'],
                 search_settings=settings_data,
             )
         except SellerLeadPipelineConfigError as exc:
@@ -94,7 +142,84 @@ class Command(BaseCommand):
             raise CommandError(str(exc)) from exc
         except SellerLeadSearchError as exc:
             raise CommandError(str(exc)) from exc
+        except Exception as exc:
+            raise CommandError(str(exc)) from exc
 
+        if managed.lock_busy:
+            self.stdout.write(
+                'Pipeline уже выполняется другим процессом. Запуск пропущен.',
+            )
+            return
+
+        if managed.cooldown_blocked and managed.run is not None:
+            previous = managed.cooldown_check.previous_run if managed.cooldown_check else None
+            self.stdout.write('STATUS: skipped')
+            self.stdout.write(f'RUN UUID: {managed.run.run_uuid}')
+            self.stdout.write(f'Причина: {managed.run.skip_reason}')
+            if previous is not None and managed.cooldown_check is not None:
+                self.stdout.write(f'Предыдущий run UUID: {previous.run_uuid}')
+                self.stdout.write(f'Предыдущий запуск: {previous.started_at:%Y-%m-%d %H:%M}')
+                self.stdout.write(
+                    f'Осталось cooldown: ~{managed.cooldown_check.minutes_remaining} мин.',
+                )
+            return
+
+        if managed.run is None or managed.stats is None:
+            raise CommandError('Pipeline завершился без результата.')
+
+        self._write_pipeline_stats(managed.stats)
+        self._write_live_footer(managed.run)
+        self.stdout.write(self.style.SUCCESS('Pipeline завершён.'))
+
+    def _run_dry_pipeline(self, options, settings_data):
+        try:
+            with PipelineRunLock():
+                stats = run_seller_lead_pipeline(
+                    city=options['city'],
+                    category=options['category'],
+                    search_limit=options['search_limit'],
+                    lead_limit=options['lead_limit'],
+                    max_queries_per_lead=options['max_queries_per_lead'],
+                    dry_run=True,
+                    skip_discovery=options['skip_discovery'],
+                    skip_enrichment=options['skip_enrichment'],
+                    search_settings=settings_data,
+                )
+        except PipelineLockBusy:
+            self.stdout.write(
+                'Pipeline уже выполняется другим процессом. Запуск пропущен.',
+            )
+            return
+        except SellerLeadPipelineConfigError as exc:
+            raise CommandError(str(exc)) from exc
+        except SellerLeadSearchConfigError as exc:
+            raise CommandError(str(exc)) from exc
+        except SellerLeadSearchError as exc:
+            raise CommandError(str(exc)) from exc
+
+        self._write_pipeline_stats(stats)
+        self.stdout.write(self.style.WARNING('Dry-run: база данных не изменялась.'))
+
+    def _write_live_header(self, options):
+        self.stdout.write('PIPELINE RUN:')
+        self.stdout.write(f"  trigger: {options['trigger']}")
+        self.stdout.write(f"  city/category: {options['city']} / {options['category']}")
+        self.stdout.write(f"  search-limit: {options['search_limit']}")
+        self.stdout.write(f"  lead-limit: {options['lead_limit']}")
+        self.stdout.write(f"  max-queries-per-lead: {options['max_queries_per_lead']}")
+        self.stdout.write(f"  cooldown-minutes: {options['cooldown_minutes']}")
+        self.stdout.write(f"  force: {options['force']}")
+
+    def _write_live_footer(self, run: SellerLeadPipelineRun):
+        self.stdout.write('RUN RESULT:')
+        self.stdout.write(f'  run UUID: {run.run_uuid}')
+        self.stdout.write(f'  status: {run.status}')
+        self.stdout.write(f'  started_at: {run.started_at:%Y-%m-%d %H:%M:%S}')
+        if run.finished_at:
+            self.stdout.write(f'  finished_at: {run.finished_at:%Y-%m-%d %H:%M:%S}')
+        self.stdout.write(f'  duration: {format_run_duration(run)}')
+
+    def _write_pipeline_stats(self, stats):
         discovery = stats.discovery
         enrichment = stats.enrichment
 
@@ -136,8 +261,3 @@ class Command(BaseCommand):
                     f"  @{report.username} | {phones_label} | {confidence_label} | "
                     f"{report.source_url or '(нет URL)'} | {report.action} | {report.reason}",
                 )
-
-        if dry_run:
-            self.stdout.write(self.style.WARNING('Dry-run: база данных не изменялась.'))
-        else:
-            self.stdout.write(self.style.SUCCESS('Pipeline завершён.'))

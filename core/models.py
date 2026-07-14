@@ -1027,3 +1027,59 @@ class SellerLeadContactCandidate(models.Model):
                     'updated_at',
                 ],
             )
+
+
+class SellerLeadPipelineRun(models.Model):
+    TRIGGER_MANUAL = 'manual'
+    TRIGGER_CRON = 'cron'
+    TRIGGER_CHOICES = [
+        (TRIGGER_MANUAL, 'Ручной'),
+        (TRIGGER_CRON, 'Cron'),
+    ]
+
+    STATUS_RUNNING = 'running'
+    STATUS_SUCCESS = 'success'
+    STATUS_PARTIAL = 'partial'
+    STATUS_FAILED = 'failed'
+    STATUS_SKIPPED = 'skipped'
+    STATUS_CHOICES = [
+        (STATUS_RUNNING, 'Выполняется'),
+        (STATUS_SUCCESS, 'Успешно'),
+        (STATUS_PARTIAL, 'Частично'),
+        (STATUS_FAILED, 'Ошибка'),
+        (STATUS_SKIPPED, 'Пропущен'),
+    ]
+
+    run_uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False, verbose_name='UUID запуска')
+    trigger = models.CharField(max_length=16, choices=TRIGGER_CHOICES, default=TRIGGER_MANUAL, verbose_name='Источник')
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_RUNNING,
+        verbose_name='Статус',
+    )
+    is_dry_run = models.BooleanField(default=False, verbose_name='Dry-run')
+    city = models.CharField(max_length=100, verbose_name='Город')
+    category = models.CharField(max_length=100, verbose_name='Категория')
+    search_limit = models.PositiveSmallIntegerField(verbose_name='Лимит поиска')
+    lead_limit = models.PositiveSmallIntegerField(verbose_name='Лимит лидов')
+    max_queries_per_lead = models.PositiveSmallIntegerField(verbose_name='Лимит запросов на лид')
+    skip_discovery = models.BooleanField(default=False, verbose_name='Пропуск discovery')
+    skip_enrichment = models.BooleanField(default=False, verbose_name='Пропуск enrichment')
+    cooldown_minutes = models.PositiveIntegerField(default=0, verbose_name='Cooldown (мин)')
+    force_run = models.BooleanField(default=False, verbose_name='Force run')
+    started_at = models.DateTimeField(default=timezone.now, verbose_name='Начало')
+    finished_at = models.DateTimeField(null=True, blank=True, verbose_name='Окончание')
+    discovery_stats = models.JSONField(default=dict, blank=True, verbose_name='Статистика discovery')
+    enrichment_stats = models.JSONField(default=dict, blank=True, verbose_name='Статистика enrichment')
+    created_lead_ids = models.JSONField(default=list, blank=True, verbose_name='Созданные лиды (ID)')
+    error_message = models.TextField(blank=True, default='', verbose_name='Сообщение об ошибке')
+    skip_reason = models.TextField(blank=True, default='', verbose_name='Причина пропуска')
+
+    class Meta:
+        verbose_name = 'Запуск SellerLead pipeline'
+        verbose_name_plural = 'Запуски SellerLead pipeline'
+        ordering = ['-started_at']
+
+    def __str__(self) -> str:
+        return f'{self.run_uuid} ({self.status})'

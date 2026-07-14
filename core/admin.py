@@ -4,6 +4,8 @@ from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.urls import path
 from django.utils import timezone
+from django.utils.html import escape
+from django.utils.safestring import mark_safe
 from .models import WhatsAppMessageLog
 
 from openpyxl import load_workbook
@@ -24,6 +26,7 @@ from .models import (
     Seller,
     SellerLead,
     SellerLeadContactCandidate,
+    SellerLeadPipelineRun,
     Match,
     RequestDispatch,
     Feedback,
@@ -1135,3 +1138,89 @@ class SellerLeadAdmin(admin.ModelAdmin):
     @admin.display(description='Источник')
     def source_link(self, obj):
         return _seller_lead_external_link(obj.source_url, 'Открыть источник')
+
+
+def _format_json_for_admin(value) -> str:
+    import json
+
+    if not value:
+        return '—'
+    try:
+        rendered = json.dumps(value, ensure_ascii=False, indent=2, sort_keys=True)
+    except TypeError:
+        rendered = str(value)
+    return mark_safe(f'<pre style="white-space:pre-wrap;">{escape(rendered)}</pre>')
+
+
+@admin.register(SellerLeadPipelineRun)
+class SellerLeadPipelineRunAdmin(admin.ModelAdmin):
+    list_display = (
+        'started_at',
+        'finished_at',
+        'trigger',
+        'status',
+        'city',
+        'category',
+        'lead_limit',
+        'discovery_new_profiles',
+        'enrichment_saved_contacts',
+        'enrichment_conflicts',
+    )
+    list_filter = ('status', 'trigger', 'city', 'category')
+    search_fields = ('run_uuid',)
+    ordering = ('-started_at',)
+    readonly_fields = (
+        'run_uuid',
+        'trigger',
+        'status',
+        'is_dry_run',
+        'city',
+        'category',
+        'search_limit',
+        'lead_limit',
+        'max_queries_per_lead',
+        'skip_discovery',
+        'skip_enrichment',
+        'cooldown_minutes',
+        'force_run',
+        'started_at',
+        'finished_at',
+        'discovery_stats_display',
+        'enrichment_stats_display',
+        'created_lead_ids_display',
+        'error_message',
+        'skip_reason',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description='Новых профилей')
+    def discovery_new_profiles(self, obj):
+        return int((obj.discovery_stats or {}).get('new_profiles', 0))
+
+    @admin.display(description='Сохранено WhatsApp')
+    def enrichment_saved_contacts(self, obj):
+        return int((obj.enrichment_stats or {}).get('saved_primary_whatsapp', 0))
+
+    @admin.display(description='Конфликтов')
+    def enrichment_conflicts(self, obj):
+        return int((obj.enrichment_stats or {}).get('conflicts', 0))
+
+    @admin.display(description='Discovery stats')
+    def discovery_stats_display(self, obj):
+        return _format_json_for_admin(obj.discovery_stats)
+
+    @admin.display(description='Enrichment stats')
+    def enrichment_stats_display(self, obj):
+        return _format_json_for_admin(obj.enrichment_stats)
+
+    @admin.display(description='Созданные лиды (ID)')
+    def created_lead_ids_display(self, obj):
+        return _format_json_for_admin(obj.created_lead_ids)

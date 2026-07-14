@@ -76,6 +76,7 @@ class SellerLeadPipelineStats:
     dry_run: bool = False
     discovery: PipelineDiscoveryStats = field(default_factory=PipelineDiscoveryStats)
     enrichment: PipelineEnrichmentStats = field(default_factory=PipelineEnrichmentStats)
+    created_lead_ids: list[int] = field(default_factory=list)
 
 
 def validate_pipeline_limits(
@@ -301,4 +302,5 @@ def run_seller_lead_pipeline(
         contact_stats = ContactEnrichmentStats()
 
     pipeline_stats.enrichment = _enrichment_stats_from_contact(contact_stats, dry_run=dry_run)
+    pipeline_stats.created_lead_ids = created_lead_ids
     return pipeline_stats
