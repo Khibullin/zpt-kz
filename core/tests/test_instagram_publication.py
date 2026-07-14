@@ -267,7 +267,6 @@ class CreateRequestInstagramOnCommitTests(TestCase):
         }
 
     @override_settings(INSTAGRAM_PUBLISH_MODE='TEST')
-    @patch('core.views._dispatch_due_requests')
     @patch('core.views._find_matching_sellers', return_value=([], 'none'))
     @patch('core.views._build_dispatch_queue', return_value=[])
     @patch('core.views._send_buyer_whatsapp_notification_async')
@@ -276,7 +275,6 @@ class CreateRequestInstagramOnCommitTests(TestCase):
         buyer_whatsapp_mock,
         dispatch_queue_mock,
         matching_mock,
-        due_mock,
     ):
         with TemporaryDirectory() as media_root:
             with self.settings(MEDIA_ROOT=media_root):
@@ -294,7 +292,6 @@ class CreateRequestInstagramOnCommitTests(TestCase):
         )
 
     @override_settings(INSTAGRAM_PUBLISH_MODE='TEST')
-    @patch('core.views._dispatch_due_requests')
     @patch('core.views._find_matching_sellers', return_value=([], 'none'))
     @patch('core.views._build_dispatch_queue', return_value=[])
     @patch('core.views._send_buyer_whatsapp_notification_async')
@@ -308,7 +305,6 @@ class CreateRequestInstagramOnCommitTests(TestCase):
         buyer_whatsapp_mock,
         dispatch_queue_mock,
         matching_mock,
-        due_mock,
     ):
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post(
@@ -503,7 +499,6 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
         }
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
-    @patch('core.views._dispatch_due_requests')
     @patch('core.views._find_matching_sellers', return_value=([], 'none'))
     @patch('core.views._build_dispatch_queue', return_value=[])
     @patch('core.views._send_buyer_whatsapp_notification_async')
@@ -512,7 +507,6 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
         buyer_whatsapp_mock,
         dispatch_queue_mock,
         matching_mock,
-        due_mock,
         publish_mock,
     ):
         with TemporaryDirectory() as media_root:

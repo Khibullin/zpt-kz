@@ -1,97 +1,20 @@
 from django.core.management.base import BaseCommand
-from django.utils import timezone
 
-from core.models import RequestDispatch, Match
-from core.views import send_whatsapp_template
+from core.request_dispatch_service import process_due_dispatch_waves
 
 
 class Command(BaseCommand):
-    help = 'Отправка волн заявок продавцам'
+    help = 'Отправка волн заявок продавцам (не более одной волны на заявку за запуск)'
 
-    def handle(self, *args, **kwargs):
-        now = timezone.now()
+    def handle(self, *args, **options):
+        def writer(message, style=None):
+            if style == 'SUCCESS':
+                self.stdout.write(self.style.SUCCESS(message))
+            elif style == 'ERROR':
+                self.stdout.write(self.style.ERROR(message))
+            elif style == 'WARNING':
+                self.stdout.write(self.style.WARNING(message))
+            else:
+                self.stdout.write(message)
 
-        due_dispatches = RequestDispatch.objects.filter(
-            status=RequestDispatch.STATUS_QUEUED,
-            scheduled_at__lte=now
-        ).select_related(
-            'request',
-            'seller'
-        ).order_by(
-            'scheduled_at',
-            'position_number'
-        )
-
-        total_sent = 0
-
-        for dispatch in due_dispatches:
-            req = dispatch.request
-            seller = dispatch.seller
-
-            try:
-                match, _ = Match.objects.get_or_create(
-                    request=req,
-                    seller=seller,
-                    defaults={
-                        'status': 'prepared'
-                    }
-                )
-
-                wa_result = send_whatsapp_template(
-                    seller.whatsapp,
-                    req,
-                    seller.name
-                )
-
-                if wa_result.get('ok'):
-                    match.status = 'sent'
-                    dispatch.status = RequestDispatch.STATUS_SENT
-                    dispatch.sent_at = now
-
-                    dispatch.save(
-                        update_fields=[
-                            'status',
-                            'sent_at'
-                        ]
-                    )
-
-                    match.save(
-                        update_fields=[
-                            'status'
-                        ]
-                    )
-
-                    total_sent += 1
-
-                    self.stdout.write(
-                        self.style.SUCCESS(
-                            f'SENT: {seller.name}'
-                        )
-                    )
-
-                else:
-                    match.status = 'error'
-                    match.save(
-                        update_fields=[
-                            'status'
-                        ]
-                    )
-
-                    self.stdout.write(
-                        self.style.ERROR(
-                            f'ERROR: {seller.name}'
-                        )
-                    )
-
-            except Exception as e:
-                self.stdout.write(
-                    self.style.ERROR(
-                        f'FAILED {seller.name}: {str(e)}'
-                    )
-                )
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f'Finished. Sent: {total_sent}'
-            )
-        )
+        process_due_dispatch_waves(writer=writer)

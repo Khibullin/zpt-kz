@@ -9,3 +9,6 @@ services:
         value: "False"
       - key: PYTHON_VERSION
         value: 3.12.8
+
+  # zpt-kz-dispatch-worker cron is managed manually in Render Dashboard (schedule: * * * * *).
+  # Do not add a cron service here — Blueprint would create a duplicate worker.

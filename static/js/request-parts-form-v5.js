@@ -120,14 +120,14 @@ function renderResult(data){
   let html = `
 ${strategyNote}
 
-<b>✅ Заявка отправлена ${count} продавцам</b><br><br>
+<b>✅ Заявка направлена ${count} продавцам</b><br><br>
 
-Мы уже отправили вашу заявку продавцам запчастей.<br>
-В ближайшее время они сами напишут вам в WhatsApp с предложениями.<br><br>
+Заявка принята. Уведомления продавцам отправляются поэтапно.<br>
+В ближайшее время продавцы сами напишут вам в WhatsApp с предложениями.<br><br>
 
 Обычно ответы приходят в течение 5–15 минут.<br><br>
 
-Не нужно отправлять заявку повторно — продавцы уже её получили.<br><br>
+Не нужно отправлять заявку повторно — она уже принята и направляется подходящим продавцам.<br><br>
 
 Вы также можете написать продавцу сами, если хотите ускорить ответ.
 `;
@@ -144,11 +144,19 @@ ${strategyNote}
   }
 
   if(sellers.length){
-    html += '<div class="result-card"><b>Продавцы получили заявку:</b>';
+    html += '<div class="result-card"><b>Продавцы, которым направлена заявка:</b>';
 
 sellers.forEach((s)=>{
 
   let wa = s.buyer_wa_link || '#';
+  let statusHtml;
+  if(s.whatsapp_status === 'sent'){
+    statusHtml = '<span style="color:#2e7d32">✓ Заявка отправлена продавцу</span>';
+  }else if(s.whatsapp_status === 'error'){
+    statusHtml = '<span style="color:#c62828">Ошибка отправки WhatsApp</span>';
+  }else{
+    statusHtml = '<span style="color:#616161">Ожидает отправки</span>';
+  }
 
   html += `
   <div class="seller-row">
@@ -157,11 +165,7 @@ sellers.forEach((s)=>{
 
       <b>${ZPTDom.escapeHtml(s.seller_name || 'Продавец')}</b><br>
 
-      ${
-        s.whatsapp_status === 'sent'
-          ? '<span style="color:#2e7d32">✓ Заявка отправлена продавцу</span>'
-          : '<span style="color:#c62828">Ошибка отправки WhatsApp</span>'
-      }
+      ${statusHtml}
 
       ${
         s.seller_catalog_url

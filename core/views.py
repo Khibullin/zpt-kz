@@ -531,6 +531,8 @@ def send_whatsapp_template(
             message_id = messages[0].get('id', '') if messages else ''
             is_ok = 200 <= response.status < 300
 
+            # status_text='sent' means Meta accepted the HTTP request (wamid issued),
+            # not WhatsApp delivered/read confirmation (no delivery webhook yet).
             WhatsAppMessageLog.objects.create(
                 request_id=req.id,
                 seller_name=seller_name or '-',
@@ -847,54 +849,9 @@ def _buyer_contact_link(phone, req):
 
 
 def _send_dispatch(dispatch):
-    now = timezone.now()
+    from core.request_dispatch_service import send_single_dispatch
 
-    match, _ = Match.objects.get_or_create(
-        request=dispatch.request,
-        seller=dispatch.seller,
-        defaults={
-            'status': 'prepared',
-            'sent_at': now,
-        }
-    )
-
-    try:
-        wa_result = send_whatsapp_template(
-            dispatch.seller.whatsapp,
-            dispatch.request,
-            dispatch.seller.name,
-        )
-
-        if wa_result.get('ok'):
-            match.status = 'sent'
-            match.sent_at = now
-
-            dispatch.status = RequestDispatch.STATUS_SENT
-            dispatch.sent_at = now
-
-            match.save(update_fields=['status', 'sent_at'])
-            dispatch.save(update_fields=['status', 'sent_at'])
-
-        else:
-            match.status = 'error'
-            match.save(update_fields=['status'])
-
-    except Exception:
-        match.status = 'error'
-        match.save(update_fields=['status'])
-
-
-def _dispatch_due_requests():
-    due = RequestDispatch.objects.filter(
-        status=RequestDispatch.STATUS_QUEUED,
-        scheduled_at__lte=timezone.now()
-    ).select_related(
-        'request',
-        'seller'
-    ).order_by('scheduled_at', 'position_number')
-
-    for dispatch in due:
-        _send_dispatch(dispatch)
+    return send_single_dispatch(dispatch)
 
 
 def _build_dispatch_queue(req, sellers):
@@ -932,6 +889,8 @@ def _build_dispatch_queue(req, sellers):
     return dispatches
 
 def _dispatch_to_json(dispatch, req):
+    from core.request_dispatch_service import resolve_whatsapp_status
+
     seller = dispatch.seller
 
     seller_name = (
@@ -940,21 +899,11 @@ def _dispatch_to_json(dispatch, req):
         else f'Продавец #{seller.id}'
     )
 
-    whatsapp_status = 'pending'
-
-    try:
-        match = Match.objects.filter(
-            request=req,
-            seller=seller
-        ).first()
-
-        if match and match.status == 'sent':
-            whatsapp_status = 'sent'
-        elif match and match.status == 'error':
-            whatsapp_status = 'error'
-
-    except Exception:
-        pass
+    match = Match.objects.filter(
+        request=req,
+        seller=seller,
+    ).first()
+    whatsapp_status = resolve_whatsapp_status(dispatch, match)
 
     return {
         'seller_id': seller.id,
@@ -978,8 +927,6 @@ def create_request(request):
     print('CREATE REQUEST CALLED (WAVES MODE)')
 
     try:
-        _dispatch_due_requests()
-
         data, uploaded_photos, upload_mode = _parse_create_request_data(request)
 
         transport_type = data.get('transport_type') or 'car'
