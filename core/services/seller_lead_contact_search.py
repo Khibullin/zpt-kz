@@ -462,8 +462,11 @@ def build_contact_search_queries(
     return queries
 
 
-def _phone_used_by_other_lead(phone: str, *, lead_id: int) -> bool:
-    return SellerLead.objects.filter(whatsapp=phone).exclude(pk=lead_id).exists()
+def _phone_used_by_other_lead(phone: str, *, lead_id: int | None) -> bool:
+    queryset = SellerLead.objects.filter(whatsapp=phone)
+    if lead_id is not None:
+        queryset = queryset.exclude(pk=lead_id)
+    return queryset.exists()
 
 
 def _phone_used_by_registered_seller(phone: str) -> bool:
@@ -629,6 +632,8 @@ def enrich_seller_lead_contacts(
     *,
     username: str | None = None,
     limit: int | None = None,
+    lead_ids: Iterable[int] | None = None,
+    leads: Iterable[SellerLead] | None = None,
     max_queries_per_lead: int = DEFAULT_MAX_QUERIES_PER_LEAD,
     dry_run: bool = False,
     client: BraveSearchClient | None = None,
@@ -652,16 +657,27 @@ def enrich_seller_lead_contacts(
         )
 
     search_client = client or BraveSearchClient(api_key=api_key)
-    leads_qs = SellerLead.objects.filter(
-        status=SellerLead.STATUS_NEEDS_REVIEW,
-        whatsapp='',
-    ).exclude(instagram_username='').order_by('id')
-    if username:
-        leads_qs = leads_qs.filter(instagram_username=username)
-    if limit is not None:
-        leads_qs = leads_qs[: max(1, limit)]
+    if leads is not None:
+        lead_list = list(leads)
+        if limit is not None:
+            lead_list = lead_list[: max(1, limit)]
+    else:
+        leads_qs = SellerLead.objects.filter(
+            status=SellerLead.STATUS_NEEDS_REVIEW,
+            whatsapp='',
+        ).exclude(instagram_username='').order_by('id')
+        if username:
+            leads_qs = leads_qs.filter(instagram_username=username)
+        if lead_ids is not None:
+            lead_ids_list = list(lead_ids)
+            if not lead_ids_list:
+                return stats
+            leads_qs = leads_qs.filter(pk__in=lead_ids_list)
+        if limit is not None:
+            leads_qs = leads_qs[: max(1, limit)]
+        lead_list = list(leads_qs)
 
-    for lead in leads_qs:
+    for lead in lead_list:
         stats.leads_processed += 1
         lead_candidates: list[WhatsAppCandidate] = []
         queries = build_contact_search_queries(

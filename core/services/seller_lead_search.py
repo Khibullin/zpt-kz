@@ -116,9 +116,11 @@ class DryRunResultDetail:
 
 @dataclass
 class SellerLeadCollectStats:
+    queries_executed: int = 0
     results_found: int = 0
     profiles_parsed: int = 0
     created: int = 0
+    created_lead_ids: list[int] = field(default_factory=list)
     duplicates_skipped: int = 0
     links_rejected: int = 0
     errors: int = 0
@@ -528,6 +530,7 @@ def collect_instagram_seller_leads(
     city: str | None = None,
     category: str | None = None,
     limit: int = 10,
+    max_new_leads: int | None = None,
     dry_run: bool = False,
     client: BraveSearchClient | None = None,
     search_settings: dict[str, Any] | None = None,
@@ -556,6 +559,8 @@ def collect_instagram_seller_leads(
     seen_usernames: set[str] = set()
 
     for query, query_city, query_category in queries:
+        if max_new_leads is not None and not dry_run and stats.created >= max_new_leads:
+            break
         try:
             results = search_client.search(query, count=limit)
         except SellerLeadSearchError:
@@ -563,12 +568,16 @@ def collect_instagram_seller_leads(
             logger.exception('Seller lead search failed for query=%r', query)
             continue
 
+        stats.queries_executed += 1
+
         if getattr(search_client, 'last_response_info', None) is not None:
             stats.api_response_info = search_client.last_response_info
 
         stats.results_found += len(results)
 
         for result in results:
+            if max_new_leads is not None and not dry_run and stats.created >= max_new_leads:
+                break
             profile = parse_instagram_profile_url(result['url'])
             if not profile:
                 if dry_run:
@@ -629,6 +638,8 @@ def collect_instagram_seller_leads(
             )
 
             if dry_run:
+                if max_new_leads is not None and len(stats.dry_run_profiles) >= max_new_leads:
+                    continue
                 stats.dry_run_result_details.append(
                     DryRunResultDetail(
                         title=result['title'],
@@ -642,7 +653,7 @@ def collect_instagram_seller_leads(
                 continue
 
             display_name = result['title'].strip() or username
-            SellerLead.objects.create(
+            lead = SellerLead.objects.create(
                 name=display_name[:255],
                 instagram_username=username,
                 instagram_url=profile_url,
@@ -654,5 +665,6 @@ def collect_instagram_seller_leads(
                 status=SellerLead.STATUS_NEEDS_REVIEW,
             )
             stats.created += 1
+            stats.created_lead_ids.append(lead.pk)
 
     return stats
