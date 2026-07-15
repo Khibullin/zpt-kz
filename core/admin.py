@@ -364,6 +364,8 @@ class RequestAdmin(admin.ModelAdmin):
         'phone'
     )
 
+    readonly_fields = ('buyer_contact',)
+
 
 BUYER_INLINE_AGGREGATE_READONLY = (
     'first_seen_at',

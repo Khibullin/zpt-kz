@@ -268,6 +268,15 @@ class Request(models.Model):
         db_index=True,
     )
 
+    buyer_contact = models.ForeignKey(
+        'BuyerContact',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='requests',
+        verbose_name='Покупатель',
+    )
+
     class Meta:
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
