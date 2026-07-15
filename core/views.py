@@ -57,6 +57,11 @@ from .models import (
 from catalog.models import SellerProfile
 from catalog.instagram_service import schedule_instagram_publication_for_request
 
+from .services.buyer_contact_service import (
+    SYNC_STATUS_SYNCED,
+    sync_buyer_contact_from_request,
+)
+
 
 WAVE_SIZE = 20
 WAVE_INTERVAL_MINUTES = 5
@@ -919,6 +924,34 @@ def _dispatch_to_json(dispatch, req):
     }
 
 
+def _sync_buyer_contact_safely(request_id: int) -> None:
+    try:
+        request_obj = Request.objects.get(pk=request_id)
+        result = sync_buyer_contact_from_request(request_obj)
+        if result.status != SYNC_STATUS_SYNCED:
+            logger.warning(
+                'Buyer contact sync skipped for request #%s: status=%s reason=%s',
+                request_id,
+                result.status,
+                result.reason,
+            )
+        if result.portal_conflict:
+            logger.warning(
+                'Buyer contact sync portal conflict for request #%s',
+                request_id,
+            )
+    except Request.DoesNotExist:
+        logger.warning(
+            'Buyer contact sync skipped: request #%s does not exist',
+            request_id,
+        )
+    except Exception:
+        logger.exception(
+            'Buyer contact sync failed for request #%s',
+            request_id,
+        )
+
+
 @csrf_exempt
 def create_request(request):
     if request.method != 'POST':
@@ -995,6 +1028,9 @@ def create_request(request):
         req.save(update_fields=['status'])
 
         request_id = req.id
+        transaction.on_commit(
+            lambda request_id=request_id: _sync_buyer_contact_safely(request_id)
+        )
         transaction.on_commit(
             lambda: schedule_instagram_publication_for_request(request_id)
         )
