@@ -52,6 +52,25 @@ def determine_final_status(stats: SellerLeadPipelineStats) -> str:
     return SellerLeadPipelineRun.STATUS_SUCCESS
 
 
+from core.services.seller_lead_search_rotation import ResolvedPipelineSearch
+
+
+def _rotation_fields(resolved_search: ResolvedPipelineSearch | None) -> dict[str, Any]:
+    if resolved_search is None:
+        return {
+            'search_term': '',
+            'rotation_enabled': False,
+            'rotation_slug': '',
+            'rotation_index': None,
+        }
+    return {
+        'search_term': resolved_search.search_term,
+        'rotation_enabled': resolved_search.rotation_enabled,
+        'rotation_slug': resolved_search.rotation_slug,
+        'rotation_index': resolved_search.rotation_index,
+    }
+
+
 def create_running_pipeline_run(
     *,
     trigger: str,
@@ -64,6 +83,7 @@ def create_running_pipeline_run(
     skip_enrichment: bool,
     cooldown_minutes: int,
     force_run: bool,
+    resolved_search: ResolvedPipelineSearch | None = None,
 ) -> SellerLeadPipelineRun:
     return SellerLeadPipelineRun.objects.create(
         trigger=trigger,
@@ -79,6 +99,7 @@ def create_running_pipeline_run(
         cooldown_minutes=cooldown_minutes,
         force_run=force_run,
         started_at=timezone.now(),
+        **_rotation_fields(resolved_search),
     )
 
 
@@ -122,6 +143,7 @@ def create_skipped_pipeline_run(
     cooldown_minutes: int,
     force_run: bool,
     skip_reason: str,
+    resolved_search: ResolvedPipelineSearch | None = None,
 ) -> SellerLeadPipelineRun:
     now = timezone.now()
     return SellerLeadPipelineRun.objects.create(
@@ -140,6 +162,7 @@ def create_skipped_pipeline_run(
         started_at=now,
         finished_at=now,
         skip_reason=truncate_safe_message(skip_reason),
+        **_rotation_fields(resolved_search),
     )
 
 

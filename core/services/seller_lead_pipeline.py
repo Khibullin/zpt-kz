@@ -226,6 +226,7 @@ def run_seller_lead_pipeline(
     *,
     city: str = DEFAULT_CITY,
     category: str = DEFAULT_CATEGORY,
+    search_term: str | None = None,
     search_limit: int = DEFAULT_SEARCH_LIMIT,
     lead_limit: int = DEFAULT_LEAD_LIMIT,
     max_queries_per_lead: int = DEFAULT_MAX_QUERIES_PER_LEAD,
@@ -258,6 +259,7 @@ def run_seller_lead_pipeline(
     pipeline_stats = SellerLeadPipelineStats(dry_run=dry_run)
     created_lead_ids: list[int] = []
     dry_run_profiles: list[InstagramProfileCandidate] = []
+    resolved_search_term = search_term if search_term is not None else category
 
     if skip_discovery:
         pipeline_stats.discovery.skipped = True
@@ -265,6 +267,7 @@ def run_seller_lead_pipeline(
         collect_stats = collect_instagram_seller_leads(
             city=city,
             category=category,
+            search_term=resolved_search_term,
             limit=search_limit,
             max_new_leads=lead_limit,
             dry_run=dry_run,

@@ -1064,6 +1064,14 @@ class SellerLeadPipelineRun(models.Model):
     search_limit = models.PositiveSmallIntegerField(verbose_name='Лимит поиска')
     lead_limit = models.PositiveSmallIntegerField(verbose_name='Лимит лидов')
     max_queries_per_lead = models.PositiveSmallIntegerField(verbose_name='Лимит запросов на лид')
+    search_term = models.CharField(max_length=200, blank=True, default='', verbose_name='Поисковый термин')
+    rotation_enabled = models.BooleanField(default=False, verbose_name='Ротация включена')
+    rotation_slug = models.CharField(max_length=100, blank=True, default='', verbose_name='Профиль ротации')
+    rotation_index = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Индекс ротации',
+    )
     skip_discovery = models.BooleanField(default=False, verbose_name='Пропуск discovery')
     skip_enrichment = models.BooleanField(default=False, verbose_name='Пропуск enrichment')
     cooldown_minutes = models.PositiveIntegerField(default=0, verbose_name='Cooldown (мин)')

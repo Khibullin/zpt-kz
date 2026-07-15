@@ -24,6 +24,9 @@ from core.services.seller_lead_pipeline_journal import (
 )
 
 
+from core.services.seller_lead_search_rotation import ResolvedPipelineSearch
+
+
 @dataclass
 class ManagedPipelineResult:
     stats: SellerLeadPipelineStats | None = None
@@ -37,6 +40,7 @@ def execute_managed_seller_lead_pipeline(
     *,
     city: str,
     category: str,
+    search_term: str | None = None,
     search_limit: int,
     lead_limit: int,
     max_queries_per_lead: int,
@@ -45,9 +49,16 @@ def execute_managed_seller_lead_pipeline(
     cooldown_minutes: int,
     force_run: bool,
     trigger: str,
+    resolved_search: ResolvedPipelineSearch | None = None,
     client: Any | None = None,
     search_settings: dict[str, Any] | None = None,
 ) -> ManagedPipelineResult:
+    effective_search_term = search_term if search_term is not None else category
+    if resolved_search is None:
+        resolved_search = ResolvedPipelineSearch(
+            search_term=effective_search_term,
+            category=category,
+        )
     try:
         with PipelineRunLock():
             cooldown_check = check_pipeline_cooldown(
@@ -73,6 +84,7 @@ def execute_managed_seller_lead_pipeline(
                     cooldown_minutes=cooldown_minutes,
                     force_run=force_run,
                     skip_reason=skip_reason,
+                    resolved_search=resolved_search,
                 )
                 return ManagedPipelineResult(
                     run=skipped_run,
@@ -91,11 +103,13 @@ def execute_managed_seller_lead_pipeline(
                 skip_enrichment=skip_enrichment,
                 cooldown_minutes=cooldown_minutes,
                 force_run=force_run,
+                resolved_search=resolved_search,
             )
             try:
                 stats = run_seller_lead_pipeline(
                     city=city,
                     category=category,
+                    search_term=effective_search_term,
                     search_limit=search_limit,
                     lead_limit=lead_limit,
                     max_queries_per_lead=max_queries_per_lead,

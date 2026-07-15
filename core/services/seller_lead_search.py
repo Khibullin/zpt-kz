@@ -133,6 +133,7 @@ def build_search_queries(
     *,
     city: str | None = None,
     category: str | None = None,
+    search_term: str | None = None,
     cities: tuple[str, ...] | list[str] | None = None,
     categories: tuple[str, ...] | list[str] | None = None,
 ) -> list[tuple[str, str, str]]:
@@ -140,7 +141,13 @@ def build_search_queries(
     Формирует поисковые запросы.
 
     Возвращает список кортежей (query, city, category).
+    search_term используется в тексте Brave-запроса, category — в SellerLead.category.
     """
+    if city and (category is not None or search_term is not None):
+        query_term = search_term if search_term is not None else category
+        stored_category = category if category is not None else (search_term or '')
+        return [_build_single_search_query(city, query_term, stored_category)]
+
     selected_cities = [city] if city else list(cities or DEFAULT_SELLER_LEAD_CITIES)
     selected_categories = (
         [category] if category else list(categories or DEFAULT_SELLER_LEAD_CATEGORIES)
@@ -149,12 +156,22 @@ def build_search_queries(
     queries: list[tuple[str, str, str]] = []
     for category_name in selected_categories:
         for city_name in selected_cities:
-            location = 'Казахстан' if category_name == 'грузовые запчасти' else city_name
-            query = f'site:instagram.com {category_name} {location}'
-            if category_name == 'автозапчасти' and city_name == 'Алматы':
-                query = f'{query} WhatsApp'
-            queries.append((query, city_name, category_name))
+            queries.append(
+                _build_single_search_query(city_name, category_name, category_name),
+            )
     return queries
+
+
+def _build_single_search_query(
+    city_name: str,
+    search_term: str,
+    stored_category: str,
+) -> tuple[str, str, str]:
+    location = 'Казахстан' if stored_category == 'грузовые запчасти' else city_name
+    query = f'site:instagram.com {search_term} {location}'
+    if stored_category == 'автозапчасти' and city_name == 'Алматы':
+        query = f'{query} WhatsApp'
+    return query, city_name, stored_category
 
 
 def normalize_instagram_username(username: str) -> str:
@@ -529,6 +546,7 @@ def collect_instagram_seller_leads(
     *,
     city: str | None = None,
     category: str | None = None,
+    search_term: str | None = None,
     limit: int = 10,
     max_new_leads: int | None = None,
     dry_run: bool = False,
@@ -555,7 +573,7 @@ def collect_instagram_seller_leads(
         )
 
     search_client = client or BraveSearchClient(api_key=api_key)
-    queries = build_search_queries(city=city, category=category)
+    queries = build_search_queries(city=city, category=category, search_term=search_term)
     seen_usernames: set[str] = set()
 
     for query, query_city, query_category in queries:

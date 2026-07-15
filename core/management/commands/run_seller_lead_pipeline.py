@@ -25,6 +25,11 @@ from core.services.seller_lead_search import (
     SellerLeadSearchError,
     get_seller_search_settings,
 )
+from core.services.seller_lead_search_rotation import (
+    PipelineSearchConfigError,
+    SEARCH_ROTATION_PROFILES,
+    resolve_pipeline_search,
+)
 
 
 class Command(BaseCommand):
@@ -35,7 +40,18 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('--city', type=str, default=DEFAULT_CITY, help='Город поиска')
-        parser.add_argument('--category', type=str, default=DEFAULT_CATEGORY, help='Категория поиска')
+        parser.add_argument('--category', type=str, default=DEFAULT_CATEGORY, help='Категория лида')
+        parser.add_argument(
+            '--search-term',
+            type=str,
+            default=None,
+            help='Явный поисковый термин для Brave (без ротации)',
+        )
+        parser.add_argument(
+            '--rotate-search-term',
+            action='store_true',
+            help='Выбрать search_term и category по ежедневной ротации',
+        )
         parser.add_argument(
             '--search-limit',
             type=int,
@@ -89,6 +105,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        try:
+            resolved_search = resolve_pipeline_search(
+                category=options['category'],
+                search_term=options['search_term'],
+                rotate_search_term=options['rotate_search_term'],
+            )
+        except PipelineSearchConfigError as exc:
+            raise CommandError(str(exc)) from exc
+
         settings_data = get_seller_search_settings()
         dry_run = options['dry_run']
 
@@ -118,14 +143,16 @@ class Command(BaseCommand):
             raise CommandError(f"Недопустимый trigger: {options['trigger']}")
 
         if dry_run:
-            self._run_dry_pipeline(options, settings_data)
+            self._write_pipeline_run_header(options, resolved_search)
+            self._run_dry_pipeline(options, settings_data, resolved_search)
             return
 
-        self._write_live_header(options)
+        self._write_pipeline_run_header(options, resolved_search)
         try:
             managed = execute_managed_seller_lead_pipeline(
                 city=options['city'],
-                category=options['category'],
+                category=resolved_search.category,
+                search_term=resolved_search.search_term,
                 search_limit=options['search_limit'],
                 lead_limit=options['lead_limit'],
                 max_queries_per_lead=options['max_queries_per_lead'],
@@ -134,6 +161,7 @@ class Command(BaseCommand):
                 cooldown_minutes=options['cooldown_minutes'],
                 force_run=options['force'],
                 trigger=options['trigger'],
+                resolved_search=resolved_search,
                 search_settings=settings_data,
             )
         except SellerLeadPipelineConfigError as exc:
@@ -167,16 +195,17 @@ class Command(BaseCommand):
         if managed.run is None or managed.stats is None:
             raise CommandError('Pipeline завершился без результата.')
 
-        self._write_pipeline_stats(managed.stats)
+        self._write_pipeline_stats(managed.stats, resolved_search.search_term)
         self._write_live_footer(managed.run)
         self.stdout.write(self.style.SUCCESS('Pipeline завершён.'))
 
-    def _run_dry_pipeline(self, options, settings_data):
+    def _run_dry_pipeline(self, options, settings_data, resolved_search):
         try:
             with PipelineRunLock():
                 stats = run_seller_lead_pipeline(
                     city=options['city'],
-                    category=options['category'],
+                    category=resolved_search.category,
+                    search_term=resolved_search.search_term,
                     search_limit=options['search_limit'],
                     lead_limit=options['lead_limit'],
                     max_queries_per_lead=options['max_queries_per_lead'],
@@ -197,13 +226,23 @@ class Command(BaseCommand):
         except SellerLeadSearchError as exc:
             raise CommandError(str(exc)) from exc
 
-        self._write_pipeline_stats(stats)
+        self._write_pipeline_stats(stats, resolved_search.search_term)
         self.stdout.write(self.style.WARNING('Dry-run: база данных не изменялась.'))
 
-    def _write_live_header(self, options):
+    def _write_pipeline_run_header(self, options, resolved_search):
         self.stdout.write('PIPELINE RUN:')
         self.stdout.write(f"  trigger: {options['trigger']}")
-        self.stdout.write(f"  city/category: {options['city']} / {options['category']}")
+        self.stdout.write(f"  city: {options['city']}")
+        self.stdout.write(f"  search term: {resolved_search.search_term}")
+        self.stdout.write(f"  stored category: {resolved_search.category}")
+        if resolved_search.rotation_enabled:
+            position = (resolved_search.rotation_index or 0) + 1
+            total = len(SEARCH_ROTATION_PROFILES)
+            self.stdout.write('  rotation: enabled')
+            self.stdout.write(f"  rotation profile: {resolved_search.rotation_slug}")
+            self.stdout.write(f"  rotation position: {position}/{total}")
+        else:
+            self.stdout.write('  rotation: disabled')
         self.stdout.write(f"  search-limit: {options['search_limit']}")
         self.stdout.write(f"  lead-limit: {options['lead_limit']}")
         self.stdout.write(f"  max-queries-per-lead: {options['max_queries_per_lead']}")
@@ -219,11 +258,12 @@ class Command(BaseCommand):
             self.stdout.write(f'  finished_at: {run.finished_at:%Y-%m-%d %H:%M:%S}')
         self.stdout.write(f'  duration: {format_run_duration(run)}')
 
-    def _write_pipeline_stats(self, stats):
+    def _write_pipeline_stats(self, stats, search_term: str):
         discovery = stats.discovery
         enrichment = stats.enrichment
 
         self.stdout.write('DISCOVERY:')
+        self.stdout.write(f'  search term: {search_term}')
         if discovery.skipped:
             self.stdout.write('  пропущен (--skip-discovery)')
         else:

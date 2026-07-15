@@ -1156,17 +1156,17 @@ def _format_json_for_admin(value) -> str:
 class SellerLeadPipelineRunAdmin(admin.ModelAdmin):
     list_display = (
         'started_at',
-        'finished_at',
         'trigger',
         'status',
         'city',
+        'search_term',
         'category',
         'lead_limit',
         'discovery_new_profiles',
         'enrichment_saved_contacts',
         'enrichment_conflicts',
     )
-    list_filter = ('status', 'trigger', 'city', 'category')
+    list_filter = ('status', 'trigger', 'city', 'category', 'rotation_enabled')
     search_fields = ('run_uuid',)
     ordering = ('-started_at',)
     readonly_fields = (
@@ -1176,6 +1176,10 @@ class SellerLeadPipelineRunAdmin(admin.ModelAdmin):
         'is_dry_run',
         'city',
         'category',
+        'search_term',
+        'rotation_enabled',
+        'rotation_slug',
+        'rotation_index',
         'search_limit',
         'lead_limit',
         'max_queries_per_lead',
