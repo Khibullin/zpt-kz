@@ -386,6 +386,13 @@ class BuyerContact(models.Model):
         default=BUYER_CONTACT_SOURCE_REQUEST,
         verbose_name='Источник',
     )
+    is_test_contact = models.BooleanField(
+        default=False,
+        verbose_name='Тестовый контакт',
+        help_text=(
+            'Тестовые контакты должны исключаться из будущих рекламных аудиторий.'
+        ),
+    )
     portal_access = models.OneToOneField(
         'BuyerPortalAccess',
         null=True,

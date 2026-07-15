@@ -40,6 +40,19 @@ from .models import (
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
 )
+from core.buyer_contact_admin_filters import (
+    BuyerActivityFilter,
+    BuyerBrandFilter,
+    BuyerCategoryFilter,
+    BuyerMarketingConsentFilter,
+    BuyerModelFilter,
+    BuyerPrimaryCityFilter,
+    BuyerRequestCountFilter,
+    BuyerTransportTypeFilter,
+    build_category_summary,
+    build_vehicle_summary,
+    marketing_consent_label,
+)
 from core.services.buyer_contact_utils import mask_phone
 
 
@@ -438,39 +451,98 @@ class ContactConsentInline(admin.TabularInline):
     )
 
 
+@admin.action(description='Отметить как тестовые контакты')
+def mark_buyer_contacts_as_test(modeladmin, request, queryset):
+    updated = queryset.update(is_test_contact=True)
+    messages.success(request, f'Отмечено как тестовые контакты: {updated}.')
+
+
+@admin.action(description='Снять признак тестового контакта')
+def unmark_buyer_contacts_as_test(modeladmin, request, queryset):
+    updated = queryset.update(is_test_contact=False)
+    messages.success(request, f'Снят признак тестового контакта: {updated}.')
+
+
 @admin.register(BuyerContact)
 class BuyerContactAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
         'masked_phone',
         'primary_city',
+        'vehicles_summary',
+        'categories_summary',
         'requests_count',
-        'first_request_at',
         'last_request_at',
         'last_search_scope',
-        'status',
         'marketing_consent_status',
+        'is_test_contact',
+        'status',
     )
     list_filter = (
+        'is_test_contact',
         'status',
+        BuyerMarketingConsentFilter,
+        BuyerActivityFilter,
+        BuyerRequestCountFilter,
         'primary_country',
-        'primary_city',
+        BuyerPrimaryCityFilter,
+        BuyerTransportTypeFilter,
+        BuyerBrandFilter,
+        BuyerModelFilter,
+        BuyerCategoryFilter,
         'last_search_scope',
-        'last_request_at',
     )
     search_fields = (
         'phone_normalized',
+        'primary_country',
         'primary_city',
         'vehicles__brand',
         'vehicles__model',
         'category_interests__category',
     )
-    date_hierarchy = 'last_request_at'
+    ordering = ('-last_request_at', '-id')
+    list_select_related = ('portal_access',)
+    readonly_fields = (
+        'phone_normalized',
+        'primary_country',
+        'primary_city',
+        'first_request_at',
+        'last_request_at',
+        'requests_count',
+        'last_search_scope',
+        'city_scope_requests_count',
+        'kazakhstan_scope_requests_count',
+        'custom_scope_requests_count',
+        'portal_access',
+        'created_at',
+        'updated_at',
+    )
+    fields = (
+        'phone_normalized',
+        'status',
+        'is_test_contact',
+        'primary_country',
+        'primary_city',
+        'first_request_at',
+        'last_request_at',
+        'requests_count',
+        'last_search_scope',
+        'city_scope_requests_count',
+        'kazakhstan_scope_requests_count',
+        'custom_scope_requests_count',
+        'portal_access',
+        'source',
+        'created_at',
+        'updated_at',
+    )
     inlines = (
         BuyerVehicleInline,
         BuyerCategoryInterestInline,
         BuyerCityInterestInline,
         ContactConsentInline,
+    )
+    actions = (
+        mark_buyer_contacts_as_test,
+        unmark_buyer_contacts_as_test,
     )
 
     def get_queryset(self, request):
@@ -478,20 +550,65 @@ class BuyerContactAdmin(admin.ModelAdmin):
             channel=CONTACT_CONSENT_CHANNEL_WHATSAPP,
             purpose=CONTACT_CONSENT_PURPOSE_MARKETING,
         )
-        return super().get_queryset(request).prefetch_related(
-            Prefetch('consents', queryset=marketing_consents, to_attr='marketing_consents'),
+        return super().get_queryset(request).select_related(
+            'portal_access',
+        ).prefetch_related(
+            Prefetch(
+                'vehicles',
+                queryset=BuyerVehicle.objects.order_by('-last_seen_at', '-id'),
+            ),
+            Prefetch(
+                'category_interests',
+                queryset=BuyerCategoryInterest.objects.order_by(
+                    '-last_seen_at',
+                    '-id',
+                ),
+            ),
+            Prefetch(
+                'city_interests',
+                queryset=BuyerCityInterest.objects.order_by('-last_seen_at', '-id'),
+            ),
+            Prefetch(
+                'consents',
+                queryset=marketing_consents,
+                to_attr='marketing_consents',
+            ),
         )
 
-    @admin.display(description='Телефон')
+    def get_search_results(self, request, queryset, search_term):
+        queryset, may_have_duplicates = super().get_search_results(
+            request,
+            queryset,
+            search_term,
+        )
+        return queryset.distinct(), True
+
+    @admin.display(description='Телефон', ordering='phone_normalized')
     def masked_phone(self, obj):
         return mask_phone(obj.phone_normalized)
+
+    @admin.display(description='Автомобили')
+    def vehicles_summary(self, obj):
+        prefetched = getattr(obj, '_prefetched_objects_cache', {})
+        vehicles = prefetched.get('vehicles')
+        if vehicles is None:
+            vehicles = obj.vehicles.all()
+        return build_vehicle_summary(vehicles)
+
+    @admin.display(description='Категории')
+    def categories_summary(self, obj):
+        prefetched = getattr(obj, '_prefetched_objects_cache', {})
+        interests = prefetched.get('category_interests')
+        if interests is None:
+            interests = obj.category_interests.all()
+        return build_category_summary(interests)
 
     @admin.display(description='Рекламное согласие')
     def marketing_consent_status(self, obj):
         consents = getattr(obj, 'marketing_consents', None)
         if consents:
-            return consents[0].get_status_display()
-        return 'Неизвестно'
+            return marketing_consent_label(consents[0].status)
+        return marketing_consent_label(None)
 
 
 @admin.register(BuyerVehicle)
