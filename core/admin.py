@@ -1,3 +1,4 @@
+from django.db.models import Prefetch
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
@@ -31,7 +32,15 @@ from .models import (
     RequestDispatch,
     Feedback,
     InstagramPublication,
+    BuyerContact,
+    BuyerVehicle,
+    BuyerCategoryInterest,
+    BuyerCityInterest,
+    ContactConsent,
+    CONTACT_CONSENT_CHANNEL_WHATSAPP,
+    CONTACT_CONSENT_PURPOSE_MARKETING,
 )
+from core.services.buyer_contact_utils import mask_phone
 
 
 class SellerImportForm(forms.Form):
@@ -354,6 +363,225 @@ class RequestAdmin(admin.ModelAdmin):
         'description',
         'phone'
     )
+
+
+BUYER_INLINE_AGGREGATE_READONLY = (
+    'first_seen_at',
+    'last_seen_at',
+    'requests_count',
+    'created_at',
+    'updated_at',
+)
+
+
+class BuyerVehicleInline(admin.TabularInline):
+    model = BuyerVehicle
+    extra = 0
+    readonly_fields = BUYER_INLINE_AGGREGATE_READONLY + (
+        'brand_normalized',
+        'model_normalized',
+    )
+    fields = (
+        'transport_type',
+        'brand',
+        'model',
+        'brand_normalized',
+        'model_normalized',
+        'first_seen_at',
+        'last_seen_at',
+        'requests_count',
+    )
+
+
+class BuyerCategoryInterestInline(admin.TabularInline):
+    model = BuyerCategoryInterest
+    extra = 0
+    readonly_fields = BUYER_INLINE_AGGREGATE_READONLY + ('category_normalized',)
+    fields = (
+        'category',
+        'category_normalized',
+        'first_seen_at',
+        'last_seen_at',
+        'requests_count',
+    )
+
+
+class BuyerCityInterestInline(admin.TabularInline):
+    model = BuyerCityInterest
+    extra = 0
+    readonly_fields = BUYER_INLINE_AGGREGATE_READONLY + ('city_normalized',)
+    fields = (
+        'city',
+        'city_normalized',
+        'interest_type',
+        'first_seen_at',
+        'last_seen_at',
+        'requests_count',
+    )
+
+
+class ContactConsentInline(admin.TabularInline):
+    model = ContactConsent
+    extra = 0
+    readonly_fields = ('created_at', 'updated_at')
+    fields = (
+        'channel',
+        'purpose',
+        'status',
+        'source',
+        'consent_text_version',
+        'evidence_reference',
+        'consented_at',
+        'revoked_at',
+    )
+
+
+@admin.register(BuyerContact)
+class BuyerContactAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'masked_phone',
+        'primary_city',
+        'requests_count',
+        'first_request_at',
+        'last_request_at',
+        'last_search_scope',
+        'status',
+        'marketing_consent_status',
+    )
+    list_filter = (
+        'status',
+        'primary_country',
+        'primary_city',
+        'last_search_scope',
+        'last_request_at',
+    )
+    search_fields = (
+        'phone_normalized',
+        'primary_city',
+        'vehicles__brand',
+        'vehicles__model',
+        'category_interests__category',
+    )
+    date_hierarchy = 'last_request_at'
+    inlines = (
+        BuyerVehicleInline,
+        BuyerCategoryInterestInline,
+        BuyerCityInterestInline,
+        ContactConsentInline,
+    )
+
+    def get_queryset(self, request):
+        marketing_consents = ContactConsent.objects.filter(
+            channel=CONTACT_CONSENT_CHANNEL_WHATSAPP,
+            purpose=CONTACT_CONSENT_PURPOSE_MARKETING,
+        )
+        return super().get_queryset(request).prefetch_related(
+            Prefetch('consents', queryset=marketing_consents, to_attr='marketing_consents'),
+        )
+
+    @admin.display(description='Телефон')
+    def masked_phone(self, obj):
+        return mask_phone(obj.phone_normalized)
+
+    @admin.display(description='Рекламное согласие')
+    def marketing_consent_status(self, obj):
+        consents = getattr(obj, 'marketing_consents', None)
+        if consents:
+            return consents[0].get_status_display()
+        return 'Неизвестно'
+
+
+@admin.register(BuyerVehicle)
+class BuyerVehicleAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'buyer',
+        'transport_type',
+        'brand',
+        'model',
+        'requests_count',
+        'last_seen_at',
+    )
+    list_filter = ('transport_type',)
+    search_fields = (
+        'brand',
+        'model',
+        'brand_normalized',
+        'model_normalized',
+        'buyer__phone_normalized',
+    )
+    autocomplete_fields = ('buyer',)
+    readonly_fields = (
+        'brand_normalized',
+        'model_normalized',
+        'created_at',
+        'updated_at',
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('buyer')
+
+
+@admin.register(BuyerCategoryInterest)
+class BuyerCategoryInterestAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'buyer',
+        'category',
+        'requests_count',
+        'last_seen_at',
+    )
+    search_fields = ('category', 'category_normalized', 'buyer__phone_normalized')
+    autocomplete_fields = ('buyer',)
+    readonly_fields = ('category_normalized', 'created_at', 'updated_at')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('buyer')
+
+
+@admin.register(BuyerCityInterest)
+class BuyerCityInterestAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'buyer',
+        'city',
+        'interest_type',
+        'requests_count',
+        'last_seen_at',
+    )
+    list_filter = ('interest_type',)
+    search_fields = ('city', 'city_normalized', 'buyer__phone_normalized')
+    autocomplete_fields = ('buyer',)
+    readonly_fields = ('city_normalized', 'created_at', 'updated_at')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('buyer')
+
+
+@admin.register(ContactConsent)
+class ContactConsentAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'buyer',
+        'channel',
+        'purpose',
+        'status',
+        'source',
+        'consented_at',
+        'revoked_at',
+    )
+    list_filter = ('channel', 'purpose', 'status', 'source')
+    search_fields = (
+        'buyer__phone_normalized',
+        'consent_text_version',
+        'evidence_reference',
+    )
+    autocomplete_fields = ('buyer',)
+    readonly_fields = ('created_at', 'updated_at')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('buyer')
 
 
 @admin.action(description='Включить получение заявок')

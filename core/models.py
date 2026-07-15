@@ -1,8 +1,11 @@
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
+
+from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 
 
 TRANSPORT_CHOICES = [
@@ -15,6 +18,86 @@ SELLER_TYPE_CHOICES = [
     ('seller', 'Продавец запчастей'),
     ('service', 'Сервис / СТО'),
     ('both', 'Продавец + сервис'),
+]
+
+REQUEST_SEARCH_SCOPE_CHOICES = [
+    ('city', 'Только мой город'),
+    ('kazakhstan', 'Весь Казахстан'),
+    ('custom', 'Выбрать города'),
+]
+
+BUYER_CONTACT_STATUS_ACTIVE = 'active'
+BUYER_CONTACT_STATUS_INVALID_PHONE = 'invalid_phone'
+BUYER_CONTACT_STATUS_WHATSAPP_UNAVAILABLE = 'whatsapp_unavailable'
+BUYER_CONTACT_STATUS_UNSUBSCRIBED = 'unsubscribed'
+BUYER_CONTACT_STATUS_BLOCKED = 'blocked'
+
+BUYER_CONTACT_STATUS_CHOICES = [
+    (BUYER_CONTACT_STATUS_ACTIVE, 'Активный'),
+    (BUYER_CONTACT_STATUS_INVALID_PHONE, 'Некорректный телефон'),
+    (BUYER_CONTACT_STATUS_WHATSAPP_UNAVAILABLE, 'WhatsApp недоступен'),
+    (BUYER_CONTACT_STATUS_UNSUBSCRIBED, 'Отписался'),
+    (BUYER_CONTACT_STATUS_BLOCKED, 'Заблокирован'),
+]
+
+BUYER_CONTACT_SOURCE_REQUEST = 'request'
+BUYER_CONTACT_SOURCE_IMPORT = 'import'
+BUYER_CONTACT_SOURCE_ADMIN = 'admin'
+
+BUYER_CONTACT_SOURCE_CHOICES = [
+    (BUYER_CONTACT_SOURCE_REQUEST, 'Заявка'),
+    (BUYER_CONTACT_SOURCE_IMPORT, 'Импорт'),
+    (BUYER_CONTACT_SOURCE_ADMIN, 'Админ'),
+]
+
+BUYER_CITY_INTEREST_REQUEST_CITY = 'request_city'
+BUYER_CITY_INTEREST_SELECTED_CITY = 'selected_city'
+
+BUYER_CITY_INTEREST_TYPE_CHOICES = [
+    (BUYER_CITY_INTEREST_REQUEST_CITY, 'Город заявки'),
+    (BUYER_CITY_INTEREST_SELECTED_CITY, 'Выбранный город'),
+]
+
+CONTACT_CONSENT_CHANNEL_WHATSAPP = 'whatsapp'
+
+CONTACT_CONSENT_CHANNEL_CHOICES = [
+    (CONTACT_CONSENT_CHANNEL_WHATSAPP, 'WhatsApp'),
+]
+
+CONTACT_CONSENT_PURPOSE_SERVICE = 'service'
+CONTACT_CONSENT_PURPOSE_INFORMATION = 'information'
+CONTACT_CONSENT_PURPOSE_MARKETING = 'marketing'
+
+CONTACT_CONSENT_PURPOSE_CHOICES = [
+    (CONTACT_CONSENT_PURPOSE_SERVICE, 'Сервисные'),
+    (CONTACT_CONSENT_PURPOSE_INFORMATION, 'Информационные'),
+    (CONTACT_CONSENT_PURPOSE_MARKETING, 'Рекламные'),
+]
+
+CONTACT_CONSENT_STATUS_UNKNOWN = 'unknown'
+CONTACT_CONSENT_STATUS_GRANTED = 'granted'
+CONTACT_CONSENT_STATUS_REVOKED = 'revoked'
+
+CONTACT_CONSENT_STATUS_CHOICES = [
+    (CONTACT_CONSENT_STATUS_UNKNOWN, 'Неизвестно'),
+    (CONTACT_CONSENT_STATUS_GRANTED, 'Дано'),
+    (CONTACT_CONSENT_STATUS_REVOKED, 'Отозвано'),
+]
+
+CONTACT_CONSENT_SOURCE_REQUEST_FORM = 'request_form'
+CONTACT_CONSENT_SOURCE_REGISTRATION = 'registration'
+CONTACT_CONSENT_SOURCE_BUYER_PORTAL = 'buyer_portal'
+CONTACT_CONSENT_SOURCE_WHATSAPP = 'whatsapp'
+CONTACT_CONSENT_SOURCE_ADMIN = 'admin'
+CONTACT_CONSENT_SOURCE_IMPORT = 'import'
+
+CONTACT_CONSENT_SOURCE_CHOICES = [
+    (CONTACT_CONSENT_SOURCE_REQUEST_FORM, 'Форма заявки'),
+    (CONTACT_CONSENT_SOURCE_REGISTRATION, 'Регистрация'),
+    (CONTACT_CONSENT_SOURCE_BUYER_PORTAL, 'Buyer portal'),
+    (CONTACT_CONSENT_SOURCE_WHATSAPP, 'WhatsApp'),
+    (CONTACT_CONSENT_SOURCE_ADMIN, 'Админ'),
+    (CONTACT_CONSENT_SOURCE_IMPORT, 'Импорт'),
 ]
 
 
@@ -128,11 +211,7 @@ class BroadcastSettings(models.Model):
 
 
 class Request(models.Model):
-    SEARCH_SCOPE_CHOICES = [
-        ('city', 'Только мой город'),
-        ('kazakhstan', 'Весь Казахстан'),
-        ('custom', 'Выбрать города'),
-    ]
+    SEARCH_SCOPE_CHOICES = REQUEST_SEARCH_SCOPE_CHOICES
 
     transport_type = models.CharField(
         max_length=10,
@@ -153,7 +232,7 @@ class Request(models.Model):
 
     search_scope = models.CharField(
         max_length=20,
-        choices=SEARCH_SCOPE_CHOICES,
+        choices=REQUEST_SEARCH_SCOPE_CHOICES,
         default='city'
     )
 
@@ -233,6 +312,383 @@ class BuyerPortalAccess(models.Model):
 
     def __str__(self):
         return f'Покупатель {self.phone_normalized}'
+
+
+class BuyerContact(models.Model):
+    phone_normalized = models.CharField(
+        max_length=11,
+        unique=True,
+        verbose_name='Нормализованный телефон',
+    )
+    primary_country = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Основная страна',
+    )
+    primary_city = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Основной город',
+    )
+    first_request_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Первая заявка',
+    )
+    last_request_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя заявка',
+    )
+    requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Количество заявок',
+    )
+    last_search_scope = models.CharField(
+        max_length=20,
+        choices=REQUEST_SEARCH_SCOPE_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Последний режим поиска',
+    )
+    city_scope_requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Заявок: только город',
+    )
+    kazakhstan_scope_requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Заявок: весь Казахстан',
+    )
+    custom_scope_requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Заявок: выбранные города',
+    )
+    status = models.CharField(
+        max_length=32,
+        choices=BUYER_CONTACT_STATUS_CHOICES,
+        default=BUYER_CONTACT_STATUS_ACTIVE,
+        verbose_name='Статус',
+    )
+    source = models.CharField(
+        max_length=16,
+        choices=BUYER_CONTACT_SOURCE_CHOICES,
+        default=BUYER_CONTACT_SOURCE_REQUEST,
+        verbose_name='Источник',
+    )
+    portal_access = models.OneToOneField(
+        'BuyerPortalAccess',
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='buyer_contact',
+        verbose_name='Доступ buyer portal',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Контакт покупателя'
+        verbose_name_plural = 'Контакты покупателей'
+        ordering = ('-last_request_at', '-id')
+
+    def __str__(self) -> str:
+        return mask_phone(self.phone_normalized)
+
+
+class BuyerVehicle(models.Model):
+    buyer = models.ForeignKey(
+        BuyerContact,
+        on_delete=models.CASCADE,
+        related_name='vehicles',
+        verbose_name='Покупатель',
+    )
+    transport_type = models.CharField(
+        max_length=10,
+        choices=TRANSPORT_CHOICES,
+        verbose_name='Тип транспорта',
+    )
+    brand = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Марка',
+    )
+    model = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Модель',
+    )
+    brand_normalized = models.CharField(
+        max_length=100,
+        verbose_name='Марка (нормализованная)',
+    )
+    model_normalized = models.CharField(
+        max_length=100,
+        verbose_name='Модель (нормализованная)',
+    )
+    first_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Первое появление',
+    )
+    last_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последнее появление',
+    )
+    requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Количество заявок',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Автомобиль покупателя'
+        verbose_name_plural = 'Автомобили покупателей'
+        ordering = ('-last_seen_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=[
+                    'buyer',
+                    'transport_type',
+                    'brand_normalized',
+                    'model_normalized',
+                ],
+                name='unique_buyer_vehicle',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['brand_normalized', 'model_normalized'],
+                name='buyer_vehicle_brand_model_idx',
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.brand = str(self.brand or '').strip()
+        self.model = str(self.model or '').strip()
+        self.brand_normalized = normalize_buyer_text(self.brand)
+        self.model_normalized = normalize_buyer_text(self.model)
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f'{self.brand} {self.model}'.strip() or f'Авто #{self.pk}'
+
+
+class BuyerCategoryInterest(models.Model):
+    buyer = models.ForeignKey(
+        BuyerContact,
+        on_delete=models.CASCADE,
+        related_name='category_interests',
+        verbose_name='Покупатель',
+    )
+    category = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Категория',
+    )
+    category_normalized = models.CharField(
+        max_length=100,
+        verbose_name='Категория (нормализованная)',
+    )
+    first_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Первое появление',
+    )
+    last_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последнее появление',
+    )
+    requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Количество заявок',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Интерес к категории'
+        verbose_name_plural = 'Интересы к категориям'
+        ordering = ('-last_seen_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['buyer', 'category_normalized'],
+                name='unique_buyer_category_interest',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['category_normalized'],
+                name='buyer_category_norm_idx',
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.category = str(self.category or '').strip()
+        self.category_normalized = normalize_buyer_text(self.category)
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.category or f'Категория #{self.pk}'
+
+
+class BuyerCityInterest(models.Model):
+    buyer = models.ForeignKey(
+        BuyerContact,
+        on_delete=models.CASCADE,
+        related_name='city_interests',
+        verbose_name='Покупатель',
+    )
+    city = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='Город',
+    )
+    city_normalized = models.CharField(
+        max_length=100,
+        verbose_name='Город (нормализованный)',
+    )
+    interest_type = models.CharField(
+        max_length=20,
+        choices=BUYER_CITY_INTEREST_TYPE_CHOICES,
+        verbose_name='Тип интереса',
+    )
+    first_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Первое появление',
+    )
+    last_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последнее появление',
+    )
+    requests_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Количество заявок',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Интерес к городу'
+        verbose_name_plural = 'Интересы к городам'
+        ordering = ('-last_seen_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['buyer', 'city_normalized', 'interest_type'],
+                name='unique_buyer_city_interest',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['city_normalized', 'interest_type'],
+                name='buyer_city_norm_type_idx',
+            ),
+        ]
+
+    def save(self, *args, **kwargs):
+        self.city = str(self.city or '').strip()
+        self.city_normalized = normalize_buyer_text(self.city)
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return self.city or f'Город #{self.pk}'
+
+
+class ContactConsent(models.Model):
+    buyer = models.ForeignKey(
+        BuyerContact,
+        on_delete=models.CASCADE,
+        related_name='consents',
+        verbose_name='Покупатель',
+    )
+    channel = models.CharField(
+        max_length=16,
+        choices=CONTACT_CONSENT_CHANNEL_CHOICES,
+        verbose_name='Канал',
+    )
+    purpose = models.CharField(
+        max_length=16,
+        choices=CONTACT_CONSENT_PURPOSE_CHOICES,
+        verbose_name='Цель',
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=CONTACT_CONSENT_STATUS_CHOICES,
+        default=CONTACT_CONSENT_STATUS_UNKNOWN,
+        verbose_name='Статус',
+    )
+    source = models.CharField(
+        max_length=20,
+        choices=CONTACT_CONSENT_SOURCE_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Источник',
+    )
+    consent_text_version = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        verbose_name='Версия текста согласия',
+    )
+    evidence_reference = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Ссылка на доказательство',
+    )
+    consented_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата согласия',
+    )
+    revoked_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата отзыва',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Согласие на контакт'
+        verbose_name_plural = 'Согласия на контакт'
+        ordering = ('-updated_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['buyer', 'channel', 'purpose'],
+                name='unique_buyer_consent_purpose',
+            ),
+        ]
+
+    def clean(self):
+        errors = {}
+        if self.status == CONTACT_CONSENT_STATUS_GRANTED and not self.consented_at:
+            errors['consented_at'] = (
+                'Для статуса «Дано» необходимо указать дату согласия.'
+            )
+        if self.status == CONTACT_CONSENT_STATUS_REVOKED and not self.revoked_at:
+            errors['revoked_at'] = (
+                'Для статуса «Отозвано» необходимо указать дату отзыва.'
+            )
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f'{self.get_channel_display()} / {self.get_purpose_display()}'
 
 
 class RequestPhoto(models.Model):
