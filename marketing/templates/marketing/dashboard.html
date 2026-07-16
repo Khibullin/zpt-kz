@@ -1,0 +1,114 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Обзор — Рассылки и уведомления ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <h1 class="marketing-page-title">Обзор</h1>
+
+  <div class="marketing-stats-grid">
+    <article class="marketing-stat-card">
+      <h2>Всего уникальных телефонов</h2>
+      <p class="marketing-stat-value">{{ overview_stats.unique_phones }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Доступно для маркетинговых рассылок</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_available }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Тестовых контактов</h2>
+      <p class="marketing-stat-value">{{ overview_stats.test_contacts }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Marketing consent = granted</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_granted }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Marketing consent = unknown</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_unknown }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Marketing consent = revoked</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_revoked }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Отписавшихся</h2>
+      <p class="marketing-stat-value">{{ overview_stats.unsubscribed }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Кампаний в черновике</h2>
+      <p class="marketing-stat-value">{{ overview_stats.draft_campaigns }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Подготовленных кампаний</h2>
+      <p class="marketing-stat-value">{{ overview_stats.prepared_campaigns }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Завершённых кампаний</h2>
+      <p class="marketing-stat-value">{{ overview_stats.completed_campaigns }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Ошибок отправки</h2>
+      <p class="marketing-stat-value">{{ overview_stats.send_errors }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2 class="marketing-section-title">Покупатели</h2>
+  <div class="marketing-cards-grid">
+    {% for card in group_cards %}
+      {% if card.section == 'buyers' %}
+        {% include 'marketing/includes/group_card.html' with card=card %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2 class="marketing-section-title">Продавцы</h2>
+  <div class="marketing-cards-grid">
+    {% for card in group_cards %}
+      {% if card.section == 'sellers' %}
+        {% include 'marketing/includes/group_card.html' with card=card %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2 class="marketing-section-title">Исполнители</h2>
+  <div class="marketing-cards-grid">
+    {% for card in group_cards %}
+      {% if card.section == 'executors' %}
+        {% include 'marketing/includes/group_card.html' with card=card %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2 class="marketing-section-title">Дополнительно</h2>
+  <div class="marketing-cards-grid">
+    {% for card in group_cards %}
+      {% if card.section == 'extra' %}
+        {% include 'marketing/includes/group_card.html' with card=card %}
+      {% endif %}
+    {% endfor %}
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2 class="marketing-section-title">Быстрые действия</h2>
+  <div class="marketing-actions">
+    <a class="marketing-btn marketing-btn--primary" href="{% url 'marketing:contacts' %}">Открыть контакты</a>
+    <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:audiences' %}">Открыть аудитории</a>
+    <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:campaigns' %}">Открыть кампании</a>
+    <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:templates' %}">Открыть шаблоны</a>
+    <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:unsubscribes' %}">Посмотреть ошибки</a>
+    <button type="button" class="marketing-btn marketing-btn--disabled" disabled>
+      Создать кампанию — будет доступно на следующем этапе
+    </button>
+  </div>
+</section>
+{% endblock %}

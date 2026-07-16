@@ -25,6 +25,8 @@ from service_requests.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
 
+    path('marketing/', include('marketing.urls')),
+
     path('', include('orders.urls')),
 
     path('prodavat/', seller_landing, name='seller_landing'),

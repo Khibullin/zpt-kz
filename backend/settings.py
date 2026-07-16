@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'core',
     'service_requests',
     'orders',
+    'marketing',
 ]
 
 MIDDLEWARE = [

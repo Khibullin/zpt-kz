@@ -1,0 +1,221 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Контакты — Рассылки и уведомления ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <h1 class="marketing-page-title">Контакты</h1>
+
+  <nav class="marketing-tabs" aria-label="Вкладки контактов">
+    {% for tab_key, tab_label in contact_tabs %}
+      <a
+        class="marketing-tabs__link{% if filters.tab == tab_key %} is-active{% endif %}"
+        href="?tab={{ tab_key }}"
+      >{{ tab_label }}</a>
+    {% endfor %}
+  </nav>
+
+  <form method="get" class="marketing-filters">
+    <input type="hidden" name="tab" value="{{ filters.tab }}">
+
+    <div class="marketing-filters__grid">
+      <label>
+        Поиск
+        <input type="search" name="q" value="{{ filters.q }}" placeholder="Телефон или название">
+      </label>
+      <label>
+        Тип контакта
+        <select name="contact_type">
+          <option value="">Все</option>
+          <option value="real"{% if filters.contact_type == 'real' %} selected{% endif %}>Реальный</option>
+          <option value="test"{% if filters.contact_type == 'test' %} selected{% endif %}>Тестовый</option>
+        </select>
+      </label>
+      <label>
+        Роль
+        <select name="role">
+          <option value="">Все</option>
+          {% for role_key, role_label in role_labels.items %}
+            <option value="{{ role_key }}"{% if filters.role == role_key %} selected{% endif %}>{{ role_label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Страна
+        <select name="country">
+          <option value="">Все</option>
+          {% for country in filter_options.countries %}
+            <option value="{{ country }}"{% if filters.country == country %} selected{% endif %}>{{ country }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Город
+        <select name="city">
+          <option value="">Все</option>
+          {% for city in filter_options.cities %}
+            <option value="{{ city }}"{% if filters.city == city %} selected{% endif %}>{{ city }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Статус активности
+        <select name="activity_status">
+          <option value="">Все</option>
+          <option value="active"{% if filters.activity_status == 'active' %} selected{% endif %}>Активный</option>
+          <option value="inactive"{% if filters.activity_status == 'inactive' %} selected{% endif %}>Неактивный</option>
+        </select>
+      </label>
+      <label>
+        Рекламное согласие
+        <select name="marketing_consent">
+          <option value="">Все</option>
+          <option value="granted"{% if filters.marketing_consent == 'granted' %} selected{% endif %}>Разрешено</option>
+          <option value="unknown"{% if filters.marketing_consent == 'unknown' %} selected{% endif %}>Не подтверждено</option>
+          <option value="revoked"{% if filters.marketing_consent == 'revoked' %} selected{% endif %}>Отозвано</option>
+          <option value="missing"{% if filters.marketing_consent == 'missing' %} selected{% endif %}>Нет записи</option>
+        </select>
+      </label>
+      <label>
+        Активность с
+        <input type="date" name="last_activity_from" value="{{ filters.last_activity_from }}">
+      </label>
+      <label>
+        Активность по
+        <input type="date" name="last_activity_to" value="{{ filters.last_activity_to }}">
+      </label>
+      <label>
+        Тестовый / реальный
+        <select name="is_test">
+          <option value="">Все</option>
+          <option value="yes"{% if filters.is_test == 'yes' %} selected{% endif %}>Тестовый</option>
+          <option value="no"{% if filters.is_test == 'no' %} selected{% endif %}>Реальный</option>
+        </select>
+      </label>
+      <label>
+        Транспорт
+        <select name="transport_type">
+          <option value="">Все</option>
+          <option value="car"{% if filters.transport_type == 'car' %} selected{% endif %}>Легковой</option>
+          <option value="truck"{% if filters.transport_type == 'truck' %} selected{% endif %}>Грузовой</option>
+        </select>
+      </label>
+      <label>
+        Марка
+        <select name="brand">
+          <option value="">Все</option>
+          {% for brand in filter_options.brands %}
+            <option value="{{ brand }}"{% if filters.brand == brand %} selected{% endif %}>{{ brand }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Модель
+        <select name="model">
+          <option value="">Все</option>
+          {% for model in filter_options.models %}
+            <option value="{{ model }}"{% if filters.model == model %} selected{% endif %}>{{ model }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <details class="marketing-filters__advanced">
+      <summary>Дополнительные фильтры</summary>
+      <div class="marketing-filters__grid">
+        <label>
+          Категория
+          <select name="category">
+            <option value="">Все</option>
+            {% for category in filter_options.categories %}
+              <option value="{{ category }}"{% if filters.category == category %} selected{% endif %}>{{ category }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Источник интереса
+          <select name="category_source">
+            <option value="">Любой</option>
+            {% for value, label in category_source_choices %}
+              <option value="{{ value }}"{% if filters.category_source == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label>
+          Период
+          <select name="category_period">
+            <option value="">Не фильтровать</option>
+            {% for value, label in category_period_choices %}
+              <option value="{{ value }}"{% if filters.category_period == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+      </div>
+    </details>
+
+    <div class="marketing-filters__actions">
+      <button type="submit" class="marketing-btn marketing-btn--primary">Применить фильтры</button>
+      <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:contacts' %}?tab={{ filters.tab }}">Сбросить</a>
+    </div>
+  </form>
+
+  <div class="marketing-table-wrap">
+    <table class="marketing-table">
+      <thead>
+        <tr>
+          <th>Телефон</th>
+          <th>Название</th>
+          <th>Город</th>
+          <th>Роли</th>
+          <th>Последняя активность</th>
+          <th>Заявок</th>
+          <th>Покупок</th>
+          <th>Товаров</th>
+          <th>Согласие</th>
+          <th>Статус</th>
+          <th>Тест</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for contact in contacts %}
+          <tr>
+            <td>{{ contact.masked_phone }}</td>
+            <td>{% if contact.name %}{{ contact.name }}{% else %}—{% endif %}</td>
+            <td>{% if contact.city %}{{ contact.city }}{% else %}—{% endif %}</td>
+            <td>
+              <ul class="marketing-role-list">
+                {% for role in contact.display_roles %}
+                  <li>{{ role }}</li>
+                {% endfor %}
+              </ul>
+            </td>
+            <td>{% if contact.last_activity %}{{ contact.last_activity|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
+            <td>{% if contact.requests_count is not None %}{{ contact.requests_count }}{% else %}—{% endif %}</td>
+            <td>{% if contact.orders_count is not None %}{{ contact.orders_count }}{% else %}—{% endif %}</td>
+            <td>{% if contact.products_count is not None %}{{ contact.products_count }}{% else %}—{% endif %}</td>
+            <td>{% if contact.marketing_consent %}{{ contact.marketing_consent_label }}{% else %}—{% endif %}</td>
+            <td>{% if contact.contact_status %}{{ contact.contact_status_label }}{% else %}—{% endif %}</td>
+            <td>{% if contact.is_test %}Да{% else %}Нет{% endif %}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="11" class="marketing-table__empty">Контакты не найдены</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="marketing-pagination" aria-label="Пагинация">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if pagination_querystring %}&{{ pagination_querystring }}{% endif %}">Назад</a>
+      {% endif %}
+      <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if pagination_querystring %}&{{ pagination_querystring }}{% endif %}">Вперёд</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

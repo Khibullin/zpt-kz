@@ -1,0 +1,59 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Рассылки и уведомления ZPT.KZ{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
+  <link rel="stylesheet" href="{% static 'marketing/marketing.css' %}">
+</head>
+<body class="marketing-body">
+  <header class="marketing-header">
+    <div class="marketing-header__inner">
+      <div class="marketing-header__brand">
+        <span class="marketing-header__logo">ZPT.KZ</span>
+        <span class="marketing-header__title">Рассылки и уведомления</span>
+      </div>
+      <div class="marketing-header__meta">
+        <span class="marketing-mode-badge marketing-mode-badge--{{ broadcast_mode|lower }}">
+          Режим: {{ broadcast_mode_label }}
+        </span>
+        <span class="marketing-user">{{ request.user.get_username }}</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="marketing-layout">
+    <aside class="marketing-sidebar" id="marketing-sidebar">
+      <nav class="marketing-nav" aria-label="Меню кабинета">
+        {% for nav_key, nav_label, nav_url in nav_items %}
+          <a
+            class="marketing-nav__link{% if active_nav == nav_key %} is-active{% endif %}"
+            href="{% url nav_url %}"
+          >{{ nav_label }}</a>
+        {% endfor %}
+      </nav>
+    </aside>
+
+    <main class="marketing-main">
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+
+  <button type="button" class="marketing-menu-toggle" id="marketing-menu-toggle" aria-label="Меню">
+    ☰
+  </button>
+
+  <script>
+    (function () {
+      var toggle = document.getElementById('marketing-menu-toggle');
+      var sidebar = document.getElementById('marketing-sidebar');
+      if (!toggle || !sidebar) return;
+      toggle.addEventListener('click', function () {
+        sidebar.classList.toggle('is-open');
+      });
+    })();
+  </script>
+</body>
+</html>

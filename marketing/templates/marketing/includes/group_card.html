@@ -1,0 +1,28 @@
+<article class="marketing-group-card">
+  <h3>{{ card.title }}</h3>
+  <dl class="marketing-group-card__stats">
+    <div><dt>Всего</dt><dd>{{ card.total }}</dd></div>
+    <div><dt>Активных</dt><dd>{{ card.active }}</dd></div>
+    <div><dt>С рекламным согласием</dt><dd>{{ card.with_marketing_consent }}</dd></div>
+    <div><dt>Без рекламного согласия</dt><dd>{{ card.without_marketing_consent }}</dd></div>
+  </dl>
+  {% if card.top_cities %}
+    <p class="marketing-group-card__cities">
+      <strong>По городам:</strong>
+      {% for city, count in card.top_cities %}
+        {{ city }} ({{ count }}){% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </p>
+  {% endif %}
+  <p class="marketing-group-card__activity">
+    <strong>Последняя активность:</strong>
+    {% if card.last_activity %}
+      {{ card.last_activity|date:"d.m.Y H:i" }}
+    {% else %}
+      —
+    {% endif %}
+  </p>
+  {% if card.note %}
+    <p class="marketing-group-card__note">{{ card.note }}</p>
+  {% endif %}
+</article>
