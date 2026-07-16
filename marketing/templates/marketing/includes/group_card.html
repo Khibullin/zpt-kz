@@ -1,10 +1,21 @@
 <article class="marketing-group-card">
   <h3>{{ card.title }}</h3>
   <dl class="marketing-group-card__stats">
-    <div><dt>Всего</dt><dd>{{ card.total }}</dd></div>
+    {% if card.show_marketplace_buyer_split %}
+      <div><dt>Реальных покупателей товаров</dt><dd>{{ card.real_total }}</dd></div>
+      <div><dt>Тестовых покупателей товаров</dt><dd>{{ card.test_total }}</dd></div>
+    {% else %}
+      <div><dt>Всего</dt><dd>{{ card.total }}</dd></div>
+    {% endif %}
     <div><dt>Активных</dt><dd>{{ card.active }}</dd></div>
-    <div><dt>С рекламным согласием</dt><dd>{{ card.with_marketing_consent }}</dd></div>
-    <div><dt>Без рекламного согласия</dt><dd>{{ card.without_marketing_consent }}</dd></div>
+    {% if card.consent_note %}
+      <div class="marketing-group-card__consent-note">
+        <dd>{{ card.consent_note }}</dd>
+      </div>
+    {% else %}
+      <div><dt>С рекламным согласием</dt><dd>{{ card.with_marketing_consent }}</dd></div>
+      <div><dt>Без рекламного согласия</dt><dd>{{ card.without_marketing_consent }}</dd></div>
+    {% endif %}
   </dl>
   {% if card.top_cities %}
     <p class="marketing-group-card__cities">

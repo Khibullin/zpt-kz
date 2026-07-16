@@ -23,7 +23,10 @@ from core.models import (
 )
 from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 from marketing.services.phone_utils import normalize_phone_key
-from orders.models import Order
+from marketing.services.marketplace_orders import (
+    get_test_marketplace_phone_keys,
+    iter_marketplace_order_phone_stats,
+)
 from service_requests.models import ServiceRequest, ServiceSeller
 
 ROLE_PARTS_BUYER = 'parts_buyer'
@@ -337,15 +340,8 @@ def build_contact_registry() -> dict[str, MarketingContact]:
         if builder:
             builder.merge_buyer_contact(buyer)
 
-    order_stats = (
-        Order.objects.exclude(customer_phone='')
-        .values('customer_phone')
-        .annotate(
-            orders_count=Count('id'),
-            last_activity=Max('created_at'),
-            customer_name=Max('customer_name'),
-        )
-    )
+    test_phone_keys = get_test_marketplace_phone_keys()
+    order_stats = iter_marketplace_order_phone_stats()
     for row in order_stats:
         builder = get_builder(row['customer_phone'])
         if builder:
@@ -354,6 +350,9 @@ def build_contact_registry() -> dict[str, MarketingContact]:
                 last_activity=row['last_activity'],
                 name=row['customer_name'] or '',
             )
+            phone_key = normalize_phone_key(row['customer_phone'])
+            if phone_key and phone_key in test_phone_keys:
+                builder.is_test = True
 
     service_stats = (
         ServiceRequest.objects.exclude(phone='')

@@ -37,6 +37,15 @@ from marketing.services.contacts import (
     _has_combined_seller_roles,
     build_contact_registry,
 )
+from marketing.services.marketplace_orders import (
+    MARKETPLACE_BUYERS_CARD_TITLE,
+    MARKETPLACE_BUYERS_EMPTY_NOTE,
+    MARKETPLACE_BUYERS_FILTER_NOTE,
+    MARKETPLACE_BUYERS_PAID_NOTE,
+    SELLER_EXECUTOR_CONSENT_NOTE,
+    get_marketplace_buyer_counts,
+    has_non_countable_marketplace_orders,
+)
 
 
 @dataclass(frozen=True)
@@ -66,6 +75,10 @@ class ContactGroupCard:
     top_cities: tuple[tuple[str, int], ...]
     last_activity: datetime | None
     note: str = ''
+    consent_note: str = ''
+    show_marketplace_buyer_split: bool = False
+    real_total: int | None = None
+    test_total: int | None = None
 
 
 def _marketing_consent_exists(**status_kwargs) -> Exists:
@@ -145,6 +158,7 @@ def _card_from_contacts(
     section: str,
     contacts: list[MarketingContact],
     note: str = '',
+    consent_note: str = '',
 ) -> ContactGroupCard:
     total = len(contacts)
     active = sum(1 for contact in contacts if contact.is_active)
@@ -174,20 +188,64 @@ def _card_from_contacts(
         top_cities=tuple(city_counter.most_common(5)),
         last_activity=last_activity,
         note=note,
+        consent_note=consent_note,
+        show_marketplace_buyer_split=False,
+        real_total=None,
+        test_total=None,
+    )
+
+
+def _marketplace_buyers_card(
+    contacts: list[MarketingContact],
+) -> ContactGroupCard:
+    buyer_counts = get_marketplace_buyer_counts()
+    marketplace_contacts = [
+        contact for contact in contacts if ROLE_MARKETPLACE_BUYER in contact.roles
+    ]
+    active = sum(1 for contact in marketplace_contacts if contact.is_active)
+    with_consent = sum(
+        1
+        for contact in marketplace_contacts
+        if contact.marketing_consent == CONTACT_CONSENT_STATUS_GRANTED
+    )
+    without_consent = len(marketplace_contacts) - with_consent
+    city_counter = Counter(
+        contact.city for contact in marketplace_contacts if contact.city.strip()
+    )
+    last_activity = None
+    for contact in marketplace_contacts:
+        if contact.last_activity and (
+            last_activity is None or contact.last_activity > last_activity
+        ):
+            last_activity = contact.last_activity
+
+    note = MARKETPLACE_BUYERS_PAID_NOTE
+    if buyer_counts.real_total == 0 and buyer_counts.test_total == 0:
+        if has_non_countable_marketplace_orders():
+            note = MARKETPLACE_BUYERS_FILTER_NOTE
+        else:
+            note = f'{MARKETPLACE_BUYERS_PAID_NOTE}. {MARKETPLACE_BUYERS_EMPTY_NOTE}'
+
+    return ContactGroupCard(
+        key='marketplace_buyers',
+        title=MARKETPLACE_BUYERS_CARD_TITLE,
+        section='buyers',
+        total=buyer_counts.real_total + buyer_counts.test_total,
+        active=active,
+        with_marketing_consent=with_consent,
+        without_marketing_consent=without_consent,
+        top_cities=tuple(city_counter.most_common(5)),
+        last_activity=last_activity,
+        note=note,
+        show_marketplace_buyer_split=True,
+        real_total=buyer_counts.real_total,
+        test_total=buyer_counts.test_total,
     )
 
 
 def get_group_cards() -> list[ContactGroupCard]:
     contacts = list(build_contact_registry().values())
-
-    marketplace_buyers = [
-        contact for contact in contacts if ROLE_MARKETPLACE_BUYER in contact.roles
-    ]
-    marketplace_note = ''
-    if not marketplace_buyers:
-        marketplace_note = (
-            'Данные появятся после начала оформления покупок через маркетплейс'
-        )
+    seller_consent_note = SELLER_EXECUTOR_CONSENT_NOTE
 
     return [
         _card_from_contacts(
@@ -196,13 +254,7 @@ def get_group_cards() -> list[ContactGroupCard]:
             section='buyers',
             contacts=[c for c in contacts if ROLE_PARTS_BUYER in c.roles],
         ),
-        _card_from_contacts(
-            key='marketplace_buyers',
-            title='Покупатели товаров маркетплейса',
-            section='buyers',
-            contacts=marketplace_buyers,
-            note=marketplace_note,
-        ),
+        _marketplace_buyers_card(contacts),
         _card_from_contacts(
             key='service_customers',
             title='Заказчики услуг СТО и детейлинга',
@@ -214,30 +266,35 @@ def get_group_cards() -> list[ContactGroupCard]:
             title='Получают заявки покупателей',
             section='sellers',
             contacts=[c for c in contacts if ROLE_PARTS_SELLER in c.roles],
+            consent_note=seller_consent_note,
         ),
         _card_from_contacts(
             key='marketplace_sellers',
             title='Размещают товары в маркетплейсе',
             section='sellers',
             contacts=[c for c in contacts if ROLE_MARKETPLACE_SELLER in c.roles],
+            consent_note=seller_consent_note,
         ),
         _card_from_contacts(
             key='combined_sellers',
             title='Совмещают оба направления',
             section='sellers',
             contacts=[c for c in contacts if _has_combined_seller_roles(c)],
+            consent_note=seller_consent_note,
         ),
         _card_from_contacts(
             key='sto',
             title='Исполнители СТО',
             section='executors',
             contacts=[c for c in contacts if ROLE_STO in c.roles],
+            consent_note=seller_consent_note,
         ),
         _card_from_contacts(
             key='detailing',
             title='Исполнители детейлинга',
             section='executors',
             contacts=[c for c in contacts if ROLE_DETAILING in c.roles],
+            consent_note=seller_consent_note,
         ),
         _card_from_contacts(
             key='test_contacts',

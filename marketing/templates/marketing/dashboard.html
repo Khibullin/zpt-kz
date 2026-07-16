@@ -14,22 +14,11 @@
     <article class="marketing-stat-card">
       <h2>Доступно для маркетинговых рассылок</h2>
       <p class="marketing-stat-value">{{ overview_stats.marketing_available }}</p>
+      <p class="marketing-stat-note">Только покупатели с рекламным согласием, без тестовых контактов</p>
     </article>
     <article class="marketing-stat-card">
       <h2>Тестовых контактов</h2>
       <p class="marketing-stat-value">{{ overview_stats.test_contacts }}</p>
-    </article>
-    <article class="marketing-stat-card">
-      <h2>Marketing consent = granted</h2>
-      <p class="marketing-stat-value">{{ overview_stats.marketing_granted }}</p>
-    </article>
-    <article class="marketing-stat-card">
-      <h2>Marketing consent = unknown</h2>
-      <p class="marketing-stat-value">{{ overview_stats.marketing_unknown }}</p>
-    </article>
-    <article class="marketing-stat-card">
-      <h2>Marketing consent = revoked</h2>
-      <p class="marketing-stat-value">{{ overview_stats.marketing_revoked }}</p>
     </article>
     <article class="marketing-stat-card">
       <h2>Отписавшихся</h2>
@@ -50,6 +39,25 @@
     <article class="marketing-stat-card">
       <h2>Ошибок отправки</h2>
       <p class="marketing-stat-value">{{ overview_stats.send_errors }}</p>
+    </article>
+  </div>
+</section>
+
+<section class="marketing-section">
+  <h2 class="marketing-section-title">Согласия покупателей</h2>
+  <p class="marketing-section-note">Статистика относится только к покупателям по заявкам на запчасти, а не ко всем телефонам кабинета.</p>
+  <div class="marketing-stats-grid marketing-stats-grid--consents">
+    <article class="marketing-stat-card">
+      <h2>Рекламное согласие дано</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_granted }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Согласие не подтверждено</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_unknown }}</p>
+    </article>
+    <article class="marketing-stat-card">
+      <h2>Согласие отозвано</h2>
+      <p class="marketing-stat-value">{{ overview_stats.marketing_revoked }}</p>
     </article>
   </div>
 </section>
