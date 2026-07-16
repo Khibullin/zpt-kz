@@ -26,6 +26,11 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, ImageOps
 
+from core.whatsapp_template_sender import (
+    normalize_whatsapp_phone,
+    send_whatsapp_template_message,
+    wa_template_param,
+)
 from .buyer_portal import (
     REQUEST_STATUS_LABELS,
     build_request_sellers,
@@ -70,7 +75,7 @@ logger = logging.getLogger(__name__)
 
 
 def _normalize_whatsapp(phone):
-    return ''.join(ch for ch in str(phone or '') if ch.isdigit())
+    return normalize_whatsapp_phone(phone)
 
 def _format_whatsapp_display(phone):
     digits = _normalize_whatsapp(phone)
@@ -90,18 +95,7 @@ def _format_whatsapp_display(phone):
 
 
 def _wa_template_param(value):
-    text = str(value or '-')
-
-    text = text.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
-    text = re.sub(r'\s+', ' ', text)
-
-    text = text.strip()
-    text = text[:500]
-
-    return {
-        'type': 'text',
-        'text': text if text else '-',
-    }
+    return wa_template_param(value)
 
 
 def _public_media_url(relative_url):
@@ -464,8 +458,6 @@ def send_whatsapp_template(
             'error': error_text,
         }
 
-    url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
-
     if include_image_header is None:
         include_image_header = (
             os.getenv('WHATSAPP_TEMPLATE_HAS_IMAGE_HEADER', 'false').lower()
@@ -473,17 +465,19 @@ def send_whatsapp_template(
         )
 
     components = []
+    header_image_url = None
 
     if include_image_header:
         first_photo = req.photos.order_by('created_at').first()
         if first_photo and first_photo.image:
+            header_image_url = _public_media_url(first_photo.image.url)
             components.append({
                 'type': 'header',
                 'parameters': [
                     {
                         'type': 'image',
                         'image': {
-                            'link': _public_media_url(first_photo.image.url),
+                            'link': header_image_url,
                         },
                     },
                 ],
@@ -497,102 +491,45 @@ def send_whatsapp_template(
     if button_components:
         components.extend(button_components)
 
-    payload = {
-        'messaging_product': 'whatsapp',
-        'to': to_phone,
-        'type': 'template',
-        'template': {
-            'name': template_name,
-            'language': {
-                'code': template_lang,
-            },
-            'components': components,
-        },
-    }
-
-    body = json.dumps(payload, ensure_ascii=False).encode('utf-8')
-
-    http_request = urllib.request.Request(
-        url,
-        data=body,
-        method='POST',
-        headers={
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json',
-        },
+    wa_result = send_whatsapp_template_message(
+        to_phone,
+        template_name=template_name,
+        template_language=template_lang,
+        components=components,
     )
 
-    try:
-        with urllib.request.urlopen(http_request, timeout=20) as response:
-            response_body = response.read().decode('utf-8')
-            response_json = {}
-
-            try:
-                response_json = json.loads(response_body)
-            except Exception:
-                response_json = {}
-
-            messages = response_json.get('messages') or []
-            message_id = messages[0].get('id', '') if messages else ''
-            is_ok = 200 <= response.status < 300
-
-            # status_text='sent' means Meta accepted the HTTP request (wamid issued),
-            # not WhatsApp delivered/read confirmation (no delivery webhook yet).
-            WhatsAppMessageLog.objects.create(
-                request_id=req.id,
-                seller_name=seller_name or '-',
-                phone_clean=to_phone,
-                is_success=is_ok,
-                status_text='sent' if is_ok else 'error',
-                message_id=message_id,
-                error_text='' if is_ok else response_body,
-            )
-
-            return {
-                'ok': is_ok,
-                'status_code': response.status,
-                'response': response_json or response_body,
-                'message_id': message_id,
-                'error': None if is_ok else (response_json or response_body),
-            }
-
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode('utf-8')
-
-        WhatsAppMessageLog.objects.create(
-            request_id=req.id,
-            seller_name=seller_name or '-',
-            phone_clean=to_phone,
-            is_success=False,
-            status_text='http_error',
-            message_id='',
-            error_text=error_body,
+    is_ok = bool(wa_result.get('ok'))
+    message_id = wa_result.get('message_id') or ''
+    status_code = wa_result.get('status_code')
+    error_text = ''
+    if not is_ok:
+        error_value = wa_result.get('error')
+        error_text = error_value if isinstance(error_value, str) else json.dumps(
+            error_value,
+            ensure_ascii=False,
         )
 
-        return {
-            'ok': False,
-            'status_code': e.code,
-            'error': error_body,
-        }
+    status_text = 'sent' if is_ok else (
+        'http_error' if status_code else 'error'
+    )
+    WhatsAppMessageLog.objects.create(
+        request_id=req.id,
+        seller_name=seller_name or '-',
+        phone_clean=to_phone,
+        is_success=is_ok,
+        status_text=status_text,
+        message_id=message_id,
+        error_text=error_text,
+    )
 
-    except Exception as e:
-        error_text = str(e)
+    return {
+        'ok': is_ok,
+        'status_code': status_code,
+        'response': wa_result.get('response'),
+        'message_id': message_id,
+        'error': None if is_ok else wa_result.get('error'),
+    }
 
-        WhatsAppMessageLog.objects.create(
-            request_id=req.id,
-            seller_name=seller_name or '-',
-            phone_clean=to_phone,
-            is_success=False,
-            status_text='error',
-            message_id='',
-            error_text=error_text,
-        )
-
-        return {
-            'ok': False,
-            'status_code': None,
-            'error': error_text,
-        }
 
 def countries_list(request):
     countries = Country.objects.all().order_by('name')

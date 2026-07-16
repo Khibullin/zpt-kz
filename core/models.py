@@ -1,5 +1,6 @@
 import uuid
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
@@ -743,6 +744,224 @@ class BuyerAudience(models.Model):
 
     def __str__(self) -> str:
         return self.name
+
+
+BUYER_BROADCAST_MODE_TEST = 'test'
+
+BUYER_BROADCAST_STATUS_DRAFT = 'draft'
+BUYER_BROADCAST_STATUS_READY = 'ready'
+BUYER_BROADCAST_STATUS_QUEUED = 'queued'
+BUYER_BROADCAST_STATUS_SENDING = 'sending'
+BUYER_BROADCAST_STATUS_COMPLETED = 'completed'
+BUYER_BROADCAST_STATUS_COMPLETED_WITH_ERRORS = 'completed_with_errors'
+BUYER_BROADCAST_STATUS_CANCELLED = 'cancelled'
+
+BUYER_BROADCAST_STATUS_CHOICES = [
+    (BUYER_BROADCAST_STATUS_DRAFT, 'Черновик'),
+    (BUYER_BROADCAST_STATUS_READY, 'Готова к тесту'),
+    (BUYER_BROADCAST_STATUS_QUEUED, 'Поставлена в очередь'),
+    (BUYER_BROADCAST_STATUS_SENDING, 'Отправляется'),
+    (BUYER_BROADCAST_STATUS_COMPLETED, 'Завершена'),
+    (BUYER_BROADCAST_STATUS_COMPLETED_WITH_ERRORS, 'Завершена с ошибками'),
+    (BUYER_BROADCAST_STATUS_CANCELLED, 'Отменена'),
+]
+
+BUYER_BROADCAST_RECIPIENT_QUEUED = 'queued'
+BUYER_BROADCAST_RECIPIENT_SENDING = 'sending'
+BUYER_BROADCAST_RECIPIENT_SENT = 'sent'
+BUYER_BROADCAST_RECIPIENT_FAILED = 'failed'
+BUYER_BROADCAST_RECIPIENT_SKIPPED = 'skipped'
+
+BUYER_BROADCAST_RECIPIENT_STATUS_CHOICES = [
+    (BUYER_BROADCAST_RECIPIENT_QUEUED, 'В очереди'),
+    (BUYER_BROADCAST_RECIPIENT_SENDING, 'Отправляется'),
+    (BUYER_BROADCAST_RECIPIENT_SENT, 'Отправлено'),
+    (BUYER_BROADCAST_RECIPIENT_FAILED, 'Ошибка'),
+    (BUYER_BROADCAST_RECIPIENT_SKIPPED, 'Пропущено'),
+]
+
+
+class BuyerBroadcastCampaign(models.Model):
+    name = models.CharField(
+        max_length=200,
+        verbose_name='Название кампании',
+    )
+    description = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Описание',
+    )
+    mode = models.CharField(
+        max_length=20,
+        choices=[(BUYER_BROADCAST_MODE_TEST, 'Тестовая')],
+        default=BUYER_BROADCAST_MODE_TEST,
+        verbose_name='Режим',
+    )
+    status = models.CharField(
+        max_length=30,
+        choices=BUYER_BROADCAST_STATUS_CHOICES,
+        default=BUYER_BROADCAST_STATUS_DRAFT,
+        verbose_name='Статус',
+    )
+    template_name = models.CharField(
+        max_length=150,
+        verbose_name='Имя шаблона WhatsApp',
+    )
+    template_language = models.CharField(
+        max_length=20,
+        default='ru',
+        verbose_name='Язык шаблона',
+    )
+    template_body_parameters = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Параметры шаблона',
+    )
+    message_preview = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Текст для предварительного просмотра',
+        help_text=(
+            'Используется только для проверки администратором '
+            'и не отправляется как свободный текст.'
+        ),
+    )
+    test_contacts = models.ManyToManyField(
+        BuyerContact,
+        blank=True,
+        related_name='test_broadcast_campaigns',
+        verbose_name='Тестовые получатели',
+    )
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='buyer_broadcast_campaigns',
+        verbose_name='Создал',
+    )
+    queued_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    started_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Тестовая WhatsApp-кампания покупателей'
+        verbose_name_plural = 'Тестовые WhatsApp-кампании покупателей'
+        ordering = ('-created_at', '-id')
+
+    def __str__(self) -> str:
+        return self.name
+
+    def clean(self):
+        errors: dict[str, str] = {}
+        if self.mode != BUYER_BROADCAST_MODE_TEST:
+            errors['mode'] = 'На этом этапе поддерживается только тестовый режим.'
+        if not str(self.template_name or '').strip():
+            errors['template_name'] = 'Имя шаблона WhatsApp обязательно.'
+        if not isinstance(self.template_body_parameters, list):
+            errors['template_body_parameters'] = 'Параметры шаблона должны быть списком.'
+        else:
+            for index, value in enumerate(self.template_body_parameters):
+                if isinstance(value, (dict, list, tuple, set)):
+                    errors['template_body_parameters'] = (
+                        'Параметры шаблона не должны содержать вложенные структуры.'
+                    )
+                    break
+                if not isinstance(value, (str, int, float, bool)) and value is not None:
+                    errors['template_body_parameters'] = (
+                        'Каждый параметр шаблона должен быть строкой или числом.'
+                    )
+                    break
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
+class BuyerBroadcastRecipient(models.Model):
+    campaign = models.ForeignKey(
+        BuyerBroadcastCampaign,
+        on_delete=models.CASCADE,
+        related_name='recipients',
+    )
+    buyer = models.ForeignKey(
+        BuyerContact,
+        on_delete=models.PROTECT,
+        related_name='broadcast_recipients',
+    )
+    phone_snapshot = models.CharField(max_length=11)
+    masked_phone_snapshot = models.CharField(max_length=20)
+    status = models.CharField(
+        max_length=20,
+        choices=BUYER_BROADCAST_RECIPIENT_STATUS_CHOICES,
+        default=BUYER_BROADCAST_RECIPIENT_QUEUED,
+    )
+    skip_reason = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+    )
+    provider_message_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+    )
+    error_message = models.TextField(
+        blank=True,
+        default='',
+    )
+    attempts_count = models.PositiveIntegerField(default=0)
+    queued_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    last_attempt_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    sent_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Получатель тестовой рассылки'
+        verbose_name_plural = 'Получатели тестовых рассылок'
+        ordering = ('campaign_id', 'id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['campaign', 'buyer'],
+                name='unique_buyer_broadcast_recipient',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['campaign', 'status'],
+                name='bb_rec_campaign_status',
+            ),
+            models.Index(
+                fields=['status', 'queued_at'],
+                name='bb_rec_status_queued',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.campaign_id} → {self.masked_phone_snapshot}'
 
 
 class RequestPhoto(models.Model):

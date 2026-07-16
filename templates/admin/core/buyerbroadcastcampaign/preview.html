@@ -1,0 +1,88 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Предпросмотр кампании | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Главная</a>
+  &rsaquo; <a href="{% url 'admin:core_buyerbroadcastcampaign_changelist' %}">Тестовые WhatsApp-кампании покупателей</a>
+  &rsaquo; <a href="{% url 'admin:core_buyerbroadcastcampaign_change' campaign.pk %}">{{ campaign.name }}</a>
+  &rsaquo; Предпросмотр
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Предпросмотр тестовой кампании</h1>
+
+<div class="module">
+  <h2>Кампания</h2>
+  <table>
+    <tbody>
+      <tr><th>Название</th><td>{{ campaign.name }}</td></tr>
+      <tr><th>Режим</th><td>{{ campaign.get_mode_display }}</td></tr>
+      <tr><th>Статус</th><td>{{ campaign.get_status_display }}</td></tr>
+      <tr><th>Шаблон</th><td>{{ campaign.template_name }} ({{ campaign.template_language }})</td></tr>
+      <tr><th>Параметры</th><td>{{ campaign.template_body_parameters }}</td></tr>
+      <tr><th>Текст для просмотра</th><td>{{ campaign.message_preview|default:"—" }}</td></tr>
+      <tr><th>BUYER_BROADCAST_MODE</th><td>{{ broadcast_mode }}</td></tr>
+      <tr><th>Лимит TEST</th><td>{{ max_recipients }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="module">
+  <h2>Статистика</h2>
+  <table>
+    <tbody>
+      <tr><th>Выбрано</th><td>{{ preview.selected_count }}</td></tr>
+      <tr><th>Допущено</th><td>{{ preview.eligible_count }}</td></tr>
+      <tr><th>Пропущено (не тест)</th><td>{{ preview.skipped_test_flag_count }}</td></tr>
+      <tr><th>Пропущено (статус)</th><td>{{ preview.skipped_status_count }}</td></tr>
+      <tr><th>Пропущено (согласие)</th><td>{{ preview.skipped_consent_count }}</td></tr>
+    </tbody>
+  </table>
+  {% if preview.errors %}
+  <p><strong>Ошибки:</strong></p>
+  <ul>
+    {% for error in preview.errors %}
+    <li>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</div>
+
+<div class="module">
+  <h2>Выбранные контакты</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>WhatsApp</th>
+        <th>Город</th>
+        <th>Заявок</th>
+        <th>Marketing</th>
+        <th>Результат</th>
+        <th>Причина</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contact in preview.contacts %}
+      <tr>
+        <td>{{ contact.masked_phone }}</td>
+        <td>{{ contact.primary_city|default:"—" }}</td>
+        <td>{{ contact.requests_count }}</td>
+        <td>{{ contact.marketing_consent_status }}</td>
+        <td>{% if contact.eligible %}Допущен{% else %}Пропущен{% endif %}</td>
+        <td>{{ contact.skip_reason|default:"—" }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="6">Контакты не выбраны.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p>
+  <a class="button" href="{% url 'admin:core_buyerbroadcastcampaign_change' campaign.pk %}">Вернуться к кампании</a>
+  <a class="button" href="{% url 'admin:core_buyerbroadcastcampaign_prepare' campaign.pk %}">Подготовить тестовую очередь</a>
+</p>
+{% endblock %}

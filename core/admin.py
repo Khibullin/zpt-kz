@@ -38,6 +38,11 @@ from .models import (
     BuyerCityInterest,
     ContactConsent,
     BuyerAudience,
+    BuyerBroadcastCampaign,
+    BuyerBroadcastRecipient,
+    BUYER_BROADCAST_RECIPIENT_SENT,
+    BUYER_BROADCAST_RECIPIENT_FAILED,
+    BUYER_BROADCAST_RECIPIENT_SKIPPED,
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
 )
@@ -46,6 +51,7 @@ from core.buyer_audience_admin_forms import (
     format_criteria_details,
     format_criteria_summary,
 )
+from core.buyer_broadcast_admin_forms import BuyerBroadcastCampaignAdminForm
 from core.buyer_contact_admin_filters import (
     BuyerActivityFilter,
     BuyerBrandFilter,
@@ -63,6 +69,14 @@ from core.services.buyer_contact_utils import mask_phone
 from core.services.buyer_audience_service import (
     audience_criteria_has_filters,
     preview_buyer_audience,
+)
+from core.services.buyer_broadcast_service import (
+    prepare_test_campaign,
+    preview_test_campaign,
+)
+from core.services.buyer_broadcast_settings import (
+    get_buyer_broadcast_mode,
+    get_buyer_broadcast_test_max_recipients,
 )
 
 
@@ -791,6 +805,215 @@ class BuyerAudienceAdmin(admin.ModelAdmin):
             return '—'
         url = reverse('admin:core_buyeraudience_preview', args=[obj.pk])
         return mark_safe(f'<a href="{escape(url)}">Предпросмотр</a>')
+
+
+@admin.register(BuyerBroadcastCampaign)
+class BuyerBroadcastCampaignAdmin(admin.ModelAdmin):
+    form = BuyerBroadcastCampaignAdminForm
+    filter_horizontal = ('test_contacts',)
+    list_display = (
+        'name',
+        'mode',
+        'status',
+        'template_name',
+        'selected_test_contacts_count',
+        'queued_recipients_count',
+        'sent_count',
+        'failed_count',
+        'created_at',
+        'updated_at',
+    )
+    list_filter = ('mode', 'status', 'created_at')
+    search_fields = ('name', 'description', 'template_name')
+    readonly_fields = (
+        'created_by',
+        'queued_at',
+        'started_at',
+        'completed_at',
+        'created_at',
+        'updated_at',
+        'test_preview',
+        'recipient_statistics',
+    )
+    fields = (
+        'name',
+        'description',
+        'mode',
+        'status',
+        'template_name',
+        'template_language',
+        'template_body_parameters',
+        'message_preview',
+        'test_contacts',
+        'test_preview',
+        'recipient_statistics',
+        'created_by',
+        'queued_at',
+        'started_at',
+        'completed_at',
+        'created_at',
+        'updated_at',
+    )
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.created_by = request.user
+        super().save_model(request, obj, form, change)
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<path:object_id>/preview/',
+                self.admin_site.admin_view(self.preview_view),
+                name='core_buyerbroadcastcampaign_preview',
+            ),
+            path(
+                '<path:object_id>/prepare/',
+                self.admin_site.admin_view(self.prepare_view),
+                name='core_buyerbroadcastcampaign_prepare',
+            ),
+        ]
+        return custom_urls + urls
+
+    def preview_view(self, request, object_id):
+        campaign = get_object_or_404(BuyerBroadcastCampaign, pk=object_id)
+        preview = preview_test_campaign(campaign)
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'campaign': campaign,
+            'preview': preview,
+            'broadcast_mode': get_buyer_broadcast_mode(),
+            'max_recipients': get_buyer_broadcast_test_max_recipients(),
+            'title': f'Предпросмотр: {campaign.name}',
+        }
+        return render(
+            request,
+            'admin/core/buyerbroadcastcampaign/preview.html',
+            context,
+        )
+
+    def prepare_view(self, request, object_id):
+        campaign = get_object_or_404(BuyerBroadcastCampaign, pk=object_id)
+        preview = preview_test_campaign(campaign)
+        if request.method == 'POST' and request.POST.get('confirm') == '1':
+            result = prepare_test_campaign(campaign)
+            if result.errors:
+                for error in result.errors:
+                    messages.error(request, error)
+            else:
+                messages.success(
+                    request,
+                    (
+                        f'Очередь подготовлена: создано {result.created_recipient_count}, '
+                        f'допущено {result.eligible_count}.'
+                    ),
+                )
+                return redirect('admin:core_buyerbroadcastcampaign_change', campaign.pk)
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'campaign': campaign,
+            'preview': preview,
+            'broadcast_mode': get_buyer_broadcast_mode(),
+            'title': f'Подготовка очереди: {campaign.name}',
+        }
+        return render(
+            request,
+            'admin/core/buyerbroadcastcampaign/prepare_confirm.html',
+            context,
+        )
+
+    @admin.display(description='Тестовых контактов')
+    def selected_test_contacts_count(self, obj):
+        return obj.test_contacts.count()
+
+    @admin.display(description='В очереди')
+    def queued_recipients_count(self, obj):
+        return obj.recipients.filter(status='queued').count()
+
+    @admin.display(description='Отправлено')
+    def sent_count(self, obj):
+        return obj.recipients.filter(status=BUYER_BROADCAST_RECIPIENT_SENT).count()
+
+    @admin.display(description='Ошибок')
+    def failed_count(self, obj):
+        return obj.recipients.filter(status=BUYER_BROADCAST_RECIPIENT_FAILED).count()
+
+    @admin.display(description='Предпросмотр')
+    def test_preview(self, obj):
+        if not obj.pk:
+            return '—'
+        url = reverse('admin:core_buyerbroadcastcampaign_preview', args=[obj.pk])
+        return mark_safe(f'<a href="{escape(url)}">Предпросмотр</a>')
+
+    @admin.display(description='Статистика получателей')
+    def recipient_statistics(self, obj):
+        if not obj.pk:
+            return '—'
+        preview = preview_test_campaign(obj)
+        return mark_safe(
+            f'Выбрано: {preview.selected_count}<br>'
+            f'Допущено: {preview.eligible_count}<br>'
+            f'Пропущено (согласие): {preview.skipped_consent_count}',
+        )
+
+
+@admin.register(BuyerBroadcastRecipient)
+class BuyerBroadcastRecipientAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'campaign',
+        'masked_phone_snapshot',
+        'buyer_link',
+        'status',
+        'skip_reason',
+        'attempts_count',
+        'provider_message_id_short',
+        'queued_at',
+        'last_attempt_at',
+        'sent_at',
+    )
+    list_filter = ('campaign', 'status', 'skip_reason', 'sent_at')
+    search_fields = (
+        'campaign__name',
+        'buyer__phone_normalized',
+        'provider_message_id',
+    )
+    readonly_fields = (
+        'campaign',
+        'buyer',
+        'phone_snapshot',
+        'masked_phone_snapshot',
+        'status',
+        'skip_reason',
+        'provider_message_id',
+        'error_message',
+        'attempts_count',
+        'queued_at',
+        'last_attempt_at',
+        'sent_at',
+        'created_at',
+        'updated_at',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    @admin.display(description='Покупатель')
+    def buyer_link(self, obj):
+        url = reverse('admin:core_buyercontact_change', args=[obj.buyer_id])
+        return mark_safe(
+            f'<a href="{escape(url)}">{escape(mask_phone(obj.buyer.phone_normalized))}</a>',
+        )
+
+    @admin.display(description='Message ID')
+    def provider_message_id_short(self, obj):
+        value = obj.provider_message_id or '—'
+        if len(value) > 24:
+            return f'{value[:24]}…'
+        return value
 
 
 @admin.action(description='Включить получение заявок')

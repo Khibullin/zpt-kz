@@ -1,0 +1,62 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Подтверждение подготовки | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Главная</a>
+  &rsaquo; <a href="{% url 'admin:core_buyerbroadcastcampaign_changelist' %}">Тестовые WhatsApp-кампании покупателей</a>
+  &rsaquo; <a href="{% url 'admin:core_buyerbroadcastcampaign_change' campaign.pk %}">{{ campaign.name }}</a>
+  &rsaquo; Подготовка очереди
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Подготовить тестовую очередь</h1>
+
+<p><strong>TEST MODE.</strong> Сообщения пока не отправляются — создаётся только очередь получателей.</p>
+
+<div class="module">
+  <table>
+    <tbody>
+      <tr><th>Кампания</th><td>{{ campaign.name }}</td></tr>
+      <tr><th>Выбрано контактов</th><td>{{ preview.selected_count }}</td></tr>
+      <tr><th>Разрешено к очереди</th><td>{{ preview.eligible_count }}</td></tr>
+      <tr><th>Шаблон WhatsApp</th><td>{{ campaign.template_name }}</td></tr>
+      <tr><th>BUYER_BROADCAST_MODE</th><td>{{ broadcast_mode }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="module">
+  <h2>Разрешённые получатели</h2>
+  <ul>
+    {% for contact in preview.contacts %}
+      {% if contact.eligible %}
+      <li>{{ contact.masked_phone }} — {{ contact.primary_city|default:"—" }}</li>
+      {% endif %}
+    {% empty %}
+    <li>Нет выбранных контактов.</li>
+    {% endfor %}
+  </ul>
+</div>
+
+{% if preview.errors %}
+<p><strong>Нельзя подготовить очередь:</strong></p>
+<ul>
+  {% for error in preview.errors %}
+  <li>{{ error }}</li>
+  {% endfor %}
+</ul>
+<p><a class="button" href="{% url 'admin:core_buyerbroadcastcampaign_change' campaign.pk %}">Вернуться</a></p>
+{% else %}
+<form method="post">
+  {% csrf_token %}
+  <input type="hidden" name="confirm" value="1">
+  <p>
+    <input type="submit" class="default" value="Подтвердить подготовку очереди">
+    <a class="button" href="{% url 'admin:core_buyerbroadcastcampaign_change' campaign.pk %}">Отмена</a>
+  </p>
+</form>
+{% endif %}
+{% endblock %}
