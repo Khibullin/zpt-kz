@@ -2,8 +2,8 @@ from django.db.models import Prefetch
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
-from django.shortcuts import redirect, render
-from django.urls import path
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import escape
 from django.utils.safestring import mark_safe
@@ -37,8 +37,14 @@ from .models import (
     BuyerCategoryInterest,
     BuyerCityInterest,
     ContactConsent,
+    BuyerAudience,
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
+)
+from core.buyer_audience_admin_forms import (
+    BuyerAudienceAdminForm,
+    format_criteria_details,
+    format_criteria_summary,
 )
 from core.buyer_contact_admin_filters import (
     BuyerActivityFilter,
@@ -54,6 +60,10 @@ from core.buyer_contact_admin_filters import (
     marketing_consent_label,
 )
 from core.services.buyer_contact_utils import mask_phone
+from core.services.buyer_audience_service import (
+    audience_criteria_has_filters,
+    preview_buyer_audience,
+)
 
 
 class SellerImportForm(forms.Form):
@@ -701,6 +711,86 @@ class ContactConsentAdmin(admin.ModelAdmin):
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related('buyer')
+
+
+@admin.register(BuyerAudience)
+class BuyerAudienceAdmin(admin.ModelAdmin):
+    form = BuyerAudienceAdminForm
+    list_display = (
+        'name',
+        'is_active',
+        'criteria_summary',
+        'preview_link',
+        'updated_at',
+    )
+    list_filter = ('is_active', 'updated_at')
+    search_fields = ('name', 'description')
+    readonly_fields = (
+        'created_at',
+        'updated_at',
+        'criteria_readonly_summary',
+    )
+    fields = (
+        'name',
+        'description',
+        'is_active',
+        'countries',
+        'cities',
+        'transport_types',
+        'brands',
+        'models',
+        'categories',
+        'search_scopes',
+        'activity_period',
+        'request_count_min',
+        'request_count_max',
+        'criteria_readonly_summary',
+        'created_at',
+        'updated_at',
+    )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom_urls = [
+            path(
+                '<path:object_id>/preview/',
+                self.admin_site.admin_view(self.preview_view),
+                name='core_buyeraudience_preview',
+            ),
+        ]
+        return custom_urls + urls
+
+    def preview_view(self, request, object_id):
+        audience = get_object_or_404(BuyerAudience, pk=object_id)
+        preview = preview_buyer_audience(audience)
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'audience': audience,
+            'preview': preview,
+            'sample_contacts': preview.sample_contacts,
+            'criteria_rows': format_criteria_details(audience.criteria),
+            'no_criteria': not audience_criteria_has_filters(audience.criteria),
+            'calculated_at': timezone.now(),
+            'title': f'Предпросмотр: {audience.name}',
+        }
+        return render(request, 'admin/core/buyeraudience/preview.html', context)
+
+    @admin.display(description='Критерии')
+    def criteria_summary(self, obj):
+        return format_criteria_summary(obj.criteria)
+
+    @admin.display(description='Критерии')
+    def criteria_readonly_summary(self, obj):
+        rows = format_criteria_details(obj.criteria)
+        return mark_safe('<br>'.join(f'<strong>{label}:</strong> {escape(value)}' for label, value in rows))
+
+    @admin.display(description='Предпросмотр')
+    def preview_link(self, obj):
+        if not obj.pk:
+            return '—'
+        url = reverse('admin:core_buyeraudience_preview', args=[obj.pk])
+        return mark_safe(f'<a href="{escape(url)}">Предпросмотр</a>')
 
 
 @admin.action(description='Включить получение заявок')

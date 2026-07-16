@@ -707,6 +707,44 @@ class ContactConsent(models.Model):
         return f'{self.get_channel_display()} / {self.get_purpose_display()}'
 
 
+class BuyerAudience(models.Model):
+    name = models.CharField(
+        max_length=200,
+        unique=True,
+        verbose_name='Название аудитории',
+    )
+    description = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Описание',
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Активна',
+    )
+    criteria = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Критерии аудитории',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создана',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Обновлена',
+    )
+
+    class Meta:
+        verbose_name = 'Сохранённая аудитория покупателей'
+        verbose_name_plural = 'Сохранённые аудитории покупателей'
+        ordering = ('name',)
+
+    def __str__(self) -> str:
+        return self.name
+
+
 class RequestPhoto(models.Model):
     request = models.ForeignKey(
         Request,

@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+
+{% block title %}Предпросмотр аудитории | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <a href="{% url 'admin:index' %}">Главная</a>
+  &rsaquo; <a href="{% url 'admin:core_buyeraudience_changelist' %}">Сохранённые аудитории покупателей</a>
+  &rsaquo; <a href="{% url 'admin:core_buyeraudience_change' audience.pk %}">{{ audience.name }}</a>
+  &rsaquo; Предпросмотр
+</div>
+{% endblock %}
+
+{% block content %}
+<h1>Предпросмотр аудитории</h1>
+
+<div class="module">
+  <h2>Данные аудитории</h2>
+  <table>
+    <tbody>
+      <tr><th>Название</th><td>{{ audience.name }}</td></tr>
+      <tr><th>Описание</th><td>{{ audience.description|default:"—" }}</td></tr>
+      <tr><th>Активна</th><td>{% if audience.is_active %}Да{% else %}Нет{% endif %}</td></tr>
+      <tr><th>Время расчёта</th><td>{{ calculated_at }}</td></tr>
+    </tbody>
+  </table>
+</div>
+
+{% if no_criteria %}
+<p><strong>Критерии не заданы — выбраны все покупатели базы.</strong></p>
+{% endif %}
+
+<div class="module">
+  <h2>Критерии</h2>
+  <table>
+    <tbody>
+      {% for label, value in criteria_rows %}
+      <tr><th>{{ label }}</th><td>{{ value }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="module">
+  <h2>Статистика</h2>
+  <table>
+    <tbody>
+      <tr><th>Найдено по критериям</th><td>{{ preview.matched_count }}</td></tr>
+      <tr><th>Исключено тестовых</th><td>{{ preview.excluded_test_count }}</td></tr>
+      <tr><th>Исключено по статусу</th><td>{{ preview.excluded_status_count }}</td></tr>
+      <tr><th>Доступно после технических исключений</th><td>{{ preview.base_eligible_count }}</td></tr>
+      <tr><th>Marketing granted</th><td>{{ preview.marketing_granted_count }}</td></tr>
+      <tr><th>Marketing unknown</th><td>{{ preview.marketing_unknown_count }}</td></tr>
+      <tr><th>Marketing revoked</th><td>{{ preview.marketing_revoked_count }}</td></tr>
+      <tr><th>Marketing missing</th><td>{{ preview.marketing_missing_count }}</td></tr>
+      <tr><th>Итоговых потенциальных получателей</th><td>{{ preview.final_recipient_count }}</td></tr>
+    </tbody>
+  </table>
+  <p><strong>В будущую рекламную отправку могут попасть только контакты с marketing consent = granted.</strong></p>
+</div>
+
+<div class="module">
+  <h2>Пример получателей (до 50)</h2>
+  {% if sample_contacts %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>WhatsApp</th>
+        <th>Город</th>
+        <th>Автомобили</th>
+        <th>Категории</th>
+        <th>Заявок</th>
+        <th>Последняя активность</th>
+        <th>Marketing</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for contact in sample_contacts %}
+      <tr>
+        <td>{{ contact.id }}</td>
+        <td>{{ contact.masked_phone }}</td>
+        <td>{{ contact.primary_city|default:"—" }}</td>
+        <td>{{ contact.vehicles_summary|default:"—" }}</td>
+        <td>{{ contact.categories_summary|default:"—" }}</td>
+        <td>{{ contact.requests_count }}</td>
+        <td>{% if contact.last_request_at %}{{ contact.last_request_at }}{% else %}—{% endif %}</td>
+        <td>{{ contact.marketing_consent_status }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>Потенциальные получатели не найдены.</p>
+  {% endif %}
+</div>
+
+<p>
+  <a class="button" href="{% url 'admin:core_buyeraudience_change' audience.pk %}">Вернуться к аудитории</a>
+</p>
+{% endblock %}
