@@ -22,6 +22,7 @@ from core.services.seller_lead_pipeline_journal import (
     finalize_pipeline_run,
     mark_pipeline_run_failed,
 )
+from core.services.seller_lead_pipeline_email import notify_pipeline_run_safely
 
 
 from core.services.seller_lead_search_rotation import ResolvedPipelineSearch
@@ -86,6 +87,7 @@ def execute_managed_seller_lead_pipeline(
                     skip_reason=skip_reason,
                     resolved_search=resolved_search,
                 )
+                notify_pipeline_run_safely(skipped_run)
                 return ManagedPipelineResult(
                     run=skipped_run,
                     cooldown_blocked=True,
@@ -122,9 +124,13 @@ def execute_managed_seller_lead_pipeline(
             except Exception as exc:
                 safe_message = truncate_safe_message(str(exc))
                 mark_pipeline_run_failed(run, error_message=safe_message)
+                run.refresh_from_db()
+                notify_pipeline_run_safely(run)
                 raise
 
             finalize_pipeline_run(run, stats=stats)
+            run.refresh_from_db()
+            notify_pipeline_run_safely(run)
             return ManagedPipelineResult(stats=stats, run=run)
     except PipelineLockBusy:
         return ManagedPipelineResult(lock_busy=True)
