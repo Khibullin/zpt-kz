@@ -1,0 +1,42 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{{ audience.name }} — Аудитории ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">{{ audience.name }}</h1>
+    <div class="marketing-page-actions">
+      <a class="marketing-btn" href="{% url 'marketing:audience_edit' audience.pk %}">Изменить</a>
+      <form method="post" action="{% url 'marketing:audience_calculate' audience.pk %}" class="marketing-inline-form">
+        {% csrf_token %}
+        <button type="submit" class="marketing-btn">Пересчитать</button>
+      </form>
+      <a class="marketing-btn" href="{% url 'marketing:audiences' %}">К списку</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <dl class="marketing-meta-grid">
+    <dt>Тип</dt><dd>{{ audience.contact_group_label }}</dd>
+    <dt>Подтип</dt><dd>{{ audience.contact_subtype_label }}</dd>
+    <dt>Критерии</dt><dd>{{ criteria_summary }}</dd>
+    <dt>Автор</dt><dd>{% if audience.created_by %}{{ audience.created_by.username }}{% else %}—{% endif %}</dd>
+    <dt>Статус</dt><dd>{% if audience.is_active %}Активна{% else %}Неактивна{% endif %}</dd>
+    <dt>Последний расчёт</dt><dd>{% if audience.last_calculated_at %}{{ audience.last_calculated_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+  </dl>
+
+  {% if audience.description %}
+    <p class="marketing-section-note">{{ audience.description }}</p>
+  {% endif %}
+
+  {% include 'marketing/audiences/includes/calculation.html' %}
+</section>
+{% endblock %}

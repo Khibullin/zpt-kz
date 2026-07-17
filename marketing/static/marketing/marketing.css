@@ -421,3 +421,182 @@
     font-size: 22px;
   }
 }
+
+.marketing-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.marketing-page-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.marketing-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--marketing-border);
+  background: var(--marketing-white);
+  color: var(--marketing-text);
+  text-decoration: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.marketing-btn--primary {
+  background: var(--marketing-red);
+  border-color: var(--marketing-red);
+  color: #fff;
+}
+
+.marketing-btn--danger {
+  background: #b42318;
+  border-color: #b42318;
+  color: #fff;
+}
+
+.marketing-link-btn {
+  background: none;
+  border: none;
+  color: var(--marketing-red);
+  cursor: pointer;
+  padding: 0;
+  font-size: inherit;
+}
+
+.marketing-inline-form {
+  display: inline;
+}
+
+.marketing-wizard-steps.is-hidden {
+  display: none;
+}
+
+.marketing-choice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.marketing-choice-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px;
+  border: 2px solid var(--marketing-border);
+  border-radius: 12px;
+  background: var(--marketing-white);
+  cursor: pointer;
+}
+
+.marketing-choice-card:has(input:checked) {
+  border-color: var(--marketing-red);
+}
+
+.marketing-filters-panel {
+  margin-bottom: 20px;
+}
+
+.marketing-filters__toolbar {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.marketing-multi-select {
+  border: 1px solid var(--marketing-border);
+  border-radius: 8px;
+  padding: 10px;
+  max-height: 180px;
+  overflow: auto;
+}
+
+.marketing-multi-select label {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.marketing-form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.marketing-stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.marketing-stats-list li {
+  padding: 4px 0;
+}
+
+.marketing-meta-grid {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 8px 16px;
+  margin-bottom: 20px;
+}
+
+.marketing-table__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.marketing-messages {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 16px;
+}
+
+.marketing-message {
+  padding: 8px 12px;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.marketing-message--success {
+  background: #ecfdf3;
+  color: #067647;
+}
+
+.marketing-message--error {
+  background: #fef3f2;
+  color: #b42318;
+}
+
+.marketing-subtitle {
+  font-size: 16px;
+  margin: 16px 0 8px;
+}
+
+.marketing-muted {
+  color: var(--marketing-muted);
+  font-size: 13px;
+}
+
+.marketing-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.marketing-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}

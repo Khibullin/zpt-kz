@@ -1,0 +1,48 @@
+<section class="marketing-section marketing-calculation">
+  <h2 class="marketing-section-title">Результат расчёта</h2>
+  <ul class="marketing-stats-list">
+    {% for label, value in calculation_lines %}
+      <li><strong>{{ label }}:</strong> {{ value }}</li>
+    {% endfor %}
+  </ul>
+  {% if calculation.marketplace_real_count or calculation.marketplace_test_count %}
+    <p class="marketing-section-note">
+      Реальные оплаченные покупатели: {{ calculation.marketplace_real_count }};
+      тестовые оплаченные: {{ calculation.marketplace_test_count }}.
+    </p>
+  {% endif %}
+
+  <h3 class="marketing-subtitle">Предварительный список (до 50)</h3>
+  <div class="marketing-table-wrap">
+    <table class="marketing-table">
+      <thead>
+        <tr>
+          <th>Телефон</th>
+          <th>Имя</th>
+          <th>Город</th>
+          <th>Роли</th>
+          <th>Марка / модель</th>
+          <th>Активность</th>
+          <th>Согласие</th>
+          <th>Статус</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in calculation.preview_rows %}
+          <tr>
+            <td>{{ row.masked_phone }}</td>
+            <td>{{ row.name }}</td>
+            <td>{{ row.city }}</td>
+            <td>{{ row.roles_display }}</td>
+            <td>{{ row.brand_model }}</td>
+            <td>{{ row.last_activity }}</td>
+            <td>{{ row.consent_label }}</td>
+            <td>{{ row.eligibility_label }}</td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="8">Контакты не найдены по выбранным критериям.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>

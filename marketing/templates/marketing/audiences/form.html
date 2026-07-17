@@ -1,0 +1,181 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{% if audience %}Изменение аудитории{% else %}Новая аудитория{% endif %} — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section marketing-audience-form">
+  <h1 class="marketing-page-title">{% if audience %}Изменение аудитории{% else %}Конструктор аудитории{% endif %}</h1>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" id="audience-builder-form" class="marketing-form">
+    {% csrf_token %}
+    <input type="hidden" name="step" id="audience-step" value="{{ step|default:1 }}">
+
+    <div class="marketing-wizard-steps{% if step != 1 %} is-hidden{% endif %}" data-step="1">
+      <h2 class="marketing-section-title">Шаг 1. Кого выбираем</h2>
+      <div class="marketing-choice-grid">
+        {% for group_key, group_label in contact_groups %}
+          <label class="marketing-choice-card">
+            <input type="radio" name="contact_group" value="{{ group_key }}"{% if contact_group == group_key %} checked{% endif %}>
+            <span>{{ group_label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <button type="button" class="marketing-btn" data-next-step="2">Далее</button>
+    </div>
+
+    <div class="marketing-wizard-steps{% if step != 2 %} is-hidden{% endif %}" data-step="2">
+      <h2 class="marketing-section-title">Шаг 2. Подтип</h2>
+      <div class="marketing-choice-grid" id="subtype-options">
+        {% for subtype_key, subtype_label in current_subtypes %}
+          <label class="marketing-choice-card">
+            <input type="radio" name="contact_subtype" value="{{ subtype_key }}"{% if contact_subtype == subtype_key %} checked{% endif %}>
+            <span>{{ subtype_label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+      <template id="subtype-template">
+        {% for group_key, subtypes in group_subtypes.items %}
+          <div data-group="{{ group_key }}">
+            {% for subtype_key, subtype_label in subtypes %}
+              <label class="marketing-choice-card">
+                <input type="radio" name="contact_subtype" value="{{ subtype_key }}"{% if contact_subtype == subtype_key %} checked{% endif %}>
+                <span>{{ subtype_label }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </template>
+      <label class="marketing-field">
+        Название аудитории
+        <input type="text" name="name" value="{{ name }}" required maxlength="200">
+      </label>
+      <label class="marketing-field">
+        Описание
+        <textarea name="description" rows="2">{{ description }}</textarea>
+      </label>
+      <label class="marketing-checkbox">
+        <input type="checkbox" name="is_active"{% if is_active %} checked{% endif %}>
+        Активна
+      </label>
+      <button type="button" class="marketing-btn" data-next-step="3">Далее к фильтрам</button>
+    </div>
+
+    <div class="marketing-wizard-steps{% if step != 3 %} is-hidden{% endif %}" data-step="3">
+      <h2 class="marketing-section-title">Шаг 3. Фильтры и расчёт</h2>
+      {% include 'marketing/audiences/includes/filters.html' %}
+
+      <div class="marketing-form-actions">
+        <button type="submit" name="action" value="calculate" class="marketing-btn">Рассчитать аудиторию</button>
+        <button type="submit" name="action" value="save" class="marketing-btn marketing-btn--primary">Сохранить аудиторию</button>
+      </div>
+    </div>
+  </form>
+
+  {% if calculation %}
+    {% include 'marketing/audiences/includes/calculation.html' %}
+  {% endif %}
+</section>
+
+<script>
+  (function () {
+    var form = document.getElementById('audience-builder-form');
+    var subtypeContainer = document.getElementById('subtype-options');
+    var template = document.getElementById('subtype-template');
+    var wizardBaseUrl = window.location.pathname;
+
+    function renderSubtypes(group) {
+      if (!subtypeContainer || !template) return;
+      subtypeContainer.innerHTML = '';
+      var block = template.content.querySelector('[data-group="' + group + '"]');
+      if (block) {
+        subtypeContainer.appendChild(block.cloneNode(true));
+      }
+    }
+
+    function buildWizardUrl(params) {
+      var url = new URL(wizardBaseUrl, window.location.origin);
+      Object.keys(params).forEach(function (key) {
+        var value = params[key];
+        if (value !== undefined && value !== null && value !== '') {
+          url.searchParams.set(key, value);
+        }
+      });
+      return url.toString();
+    }
+
+    function selectedGroup() {
+      var input = form.querySelector('input[name="contact_group"]:checked');
+      return input ? input.value : '';
+    }
+
+    function selectedSubtype() {
+      var input = form.querySelector('input[name="contact_subtype"]:checked');
+      return input ? input.value : '';
+    }
+
+    var checkedGroup = form.querySelector('input[name="contact_group"]:checked');
+    if (checkedGroup) renderSubtypes(checkedGroup.value);
+
+    form.querySelectorAll('input[name="contact_group"]').forEach(function (input) {
+      input.addEventListener('change', function () {
+        renderSubtypes(input.value);
+      });
+    });
+
+    form.querySelectorAll('[data-next-step]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var nextStep = parseInt(btn.getAttribute('data-next-step'), 10);
+        if (nextStep === 2) {
+          var group = selectedGroup();
+          if (!group) {
+            window.alert('Выберите группу контактов.');
+            return;
+          }
+          window.location.href = buildWizardUrl({
+            step: 2,
+            contact_group: group,
+          });
+          return;
+        }
+        if (nextStep === 3) {
+          var groupValue = selectedGroup();
+          var subtypeValue = selectedSubtype();
+          var nameInput = form.querySelector('input[name="name"]');
+          var nameValue = nameInput ? nameInput.value.trim() : '';
+          if (!groupValue) {
+            window.alert('Выберите группу контактов.');
+            return;
+          }
+          if (!subtypeValue) {
+            window.alert('Выберите подтип аудитории.');
+            return;
+          }
+          if (!nameValue) {
+            window.alert('Укажите название аудитории.');
+            if (nameInput) nameInput.focus();
+            return;
+          }
+          var descriptionInput = form.querySelector('textarea[name="description"]');
+          var isActiveInput = form.querySelector('input[name="is_active"]');
+          window.location.href = buildWizardUrl({
+            step: 3,
+            contact_group: groupValue,
+            contact_subtype: subtypeValue,
+            name: nameValue,
+            description: descriptionInput ? descriptionInput.value : '',
+            is_active: isActiveInput && isActiveInput.checked ? 'on' : 'off',
+          });
+        }
+      });
+    });
+  })();
+</script>
+{% endblock %}

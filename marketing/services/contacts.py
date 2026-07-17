@@ -122,6 +122,10 @@ class MarketingContact:
         default_factory=tuple,
         repr=False,
     )
+    primary_city: str = ''
+    search_cities: frozenset[str] = frozenset()
+    service_ids: frozenset[int] = frozenset()
+    districts: frozenset[str] = frozenset()
 
 
 @dataclass
@@ -166,6 +170,10 @@ class _ContactBuilder:
         self.models: set[str] = set()
         self.categories: set[str] = set()
         self.category_interests: list[BuyerCategoryInterest] = []
+        self.primary_city = ''
+        self.search_cities: set[str] = set()
+        self.service_ids: set[int] = set()
+        self.districts: set[str] = set()
         self._has_parts_seller = False
         self._has_marketplace_seller = False
 
@@ -178,6 +186,7 @@ class _ContactBuilder:
     def merge_buyer_contact(self, buyer: BuyerContact) -> None:
         self.roles.add(ROLE_PARTS_BUYER)
         self.country = buyer.primary_country or self.country
+        self.primary_city = buyer.primary_city or self.primary_city
         self.city = buyer.primary_city or self.city
         self.requests_count = buyer.requests_count
         self.contact_status = buyer.status
@@ -206,6 +215,10 @@ class _ContactBuilder:
             if interest.category:
                 self.categories.add(interest.category)
             self.category_interests.append(interest)
+
+        for interest in buyer.city_interests.all():
+            if interest.city:
+                self.search_cities.add(interest.city)
 
     def add_marketplace_buyer(
         self,
@@ -242,6 +255,19 @@ class _ContactBuilder:
             self.models.add(model)
         self._touch_activity(last_activity)
 
+    def add_service_request_detail(
+        self,
+        *,
+        city: str,
+        district: str,
+        service_ids: set[int],
+    ) -> None:
+        if city and not self.city:
+            self.city = city
+        if district:
+            self.districts.add(district)
+        self.service_ids.update(service_ids)
+
     def add_parts_seller(self, seller: Seller) -> None:
         self.roles.add(ROLE_PARTS_SELLER)
         self._has_parts_seller = True
@@ -249,6 +275,14 @@ class _ContactBuilder:
             self.name = seller.name
         if seller.city and not self.city:
             self.city = seller.city
+        if seller.transport_type:
+            self.transport_types.add(seller.transport_type)
+        if seller.brand:
+            self.brands.add(seller.brand)
+        if seller.model:
+            self.models.add(seller.model)
+        if seller.category:
+            self.categories.add(seller.category)
         seller_active = seller.is_active and not seller.is_paused
         self.is_active = self.is_active or seller_active
 
@@ -267,13 +301,16 @@ class _ContactBuilder:
             self.city = seller_profile.city
         self.is_active = True
 
-    def add_service_seller(self, seller: ServiceSeller) -> None:
+    def add_service_seller(self, seller: ServiceSeller, *, service_ids: set[int]) -> None:
         role = ROLE_STO if seller.seller_type == 'sto' else ROLE_DETAILING
         self.roles.add(role)
         if seller.name and not self.name:
             self.name = seller.name
         if seller.city and not self.city:
             self.city = seller.city
+        if seller.district:
+            self.districts.add(seller.district)
+        self.service_ids.update(service_ids)
         seller_active = seller.is_active and not seller.is_paused
         self.is_active = self.is_active or seller_active
 
@@ -305,6 +342,10 @@ class _ContactBuilder:
             categories=frozenset(self.categories),
             display_roles=display_roles,
             category_interests=tuple(self.category_interests),
+            primary_city=self.primary_city,
+            search_cities=frozenset(self.search_cities),
+            service_ids=frozenset(self.service_ids),
+            districts=frozenset(self.districts),
         )
 
 
@@ -334,6 +375,7 @@ def build_contact_registry() -> dict[str, MarketingContact]:
         Prefetch('consents', queryset=marketing_consent_qs),
         'vehicles',
         'category_interests',
+        'city_interests',
     )
     for buyer in buyer_qs:
         builder = get_builder(buyer.phone_normalized)
@@ -376,6 +418,15 @@ def build_contact_registry() -> dict[str, MarketingContact]:
                 model=row['model'] or '',
             )
 
+    for request in ServiceRequest.objects.prefetch_related('services'):
+        builder = get_builder(request.phone)
+        if builder:
+            builder.add_service_request_detail(
+                city=request.city or '',
+                district=request.district or '',
+                service_ids={service.id for service in request.services.all()},
+            )
+
     for seller in Seller.objects.only(
         'whatsapp',
         'name',
@@ -404,17 +455,21 @@ def build_contact_registry() -> dict[str, MarketingContact]:
                 products_count=product_counts.get(phone_key or '', 0),
             )
 
-    for seller in ServiceSeller.objects.only(
+    for seller in ServiceSeller.objects.prefetch_related('services').only(
         'whatsapp',
         'name',
         'city',
+        'district',
         'seller_type',
         'is_active',
         'is_paused',
     ):
         builder = get_builder(seller.whatsapp)
         if builder:
-            builder.add_service_seller(seller)
+            builder.add_service_seller(
+                seller,
+                service_ids={service.id for service in seller.services.all()},
+            )
 
     return {key: builder.finalize() for key, builder in registry.items()}
 

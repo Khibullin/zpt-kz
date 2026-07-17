@@ -1,0 +1,224 @@
+<div class="marketing-filters-panel">
+  <div class="marketing-filters__toolbar">
+    <button type="button" class="marketing-link-btn" onclick="document.querySelectorAll('.marketing-multi-select input[type=checkbox]').forEach(function(i){i.checked=true;})">Выбрать все</button>
+    <button type="button" class="marketing-link-btn" onclick="document.querySelectorAll('.marketing-multi-select input[type=checkbox]').forEach(function(i){i.checked=false;})">Снять выбор</button>
+    {% if filter_options.show_primary_cities %}
+      <button type="button" class="marketing-link-btn" onclick="document.querySelectorAll('[name=primary_cities]').forEach(function(i){i.checked=true;})">Все основные города</button>
+    {% endif %}
+    {% if filter_options.show_search_cities %}
+      <button type="button" class="marketing-link-btn" onclick="document.querySelectorAll('[name=search_cities]').forEach(function(i){i.checked=true;})">Все города поиска</button>
+    {% endif %}
+    {% if filter_options.show_cities %}
+      <button type="button" class="marketing-link-btn" onclick="document.querySelectorAll('[name=cities]').forEach(function(i){i.checked=true;})">Все города</button>
+    {% endif %}
+    <button type="button" class="marketing-link-btn" onclick="document.getElementById('audience-builder-form').reset()">Очистить фильтры</button>
+  </div>
+
+  <div class="marketing-filters__grid">
+    {% if filter_options.show_primary_cities %}
+      <fieldset class="marketing-multi-select">
+        <legend>Основной город</legend>
+        {% for city in filter_options.primary_cities %}
+          <label><input type="checkbox" name="primary_cities" value="{{ city }}"{% if city in criteria.primary_cities %} checked{% endif %}> {{ city }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет данных по основным городам</p>
+        {% endfor %}
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_search_cities %}
+      <fieldset class="marketing-multi-select">
+        <legend>Города поиска</legend>
+        {% for city in filter_options.search_cities %}
+          <label><input type="checkbox" name="search_cities" value="{{ city }}"{% if city in criteria.search_cities %} checked{% endif %}> {{ city }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет данных по городам поиска</p>
+        {% endfor %}
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_cities %}
+      <fieldset class="marketing-multi-select">
+        <legend>Города</legend>
+        {% for city in filter_options.cities %}
+          <label><input type="checkbox" name="cities" value="{{ city }}"{% if city in criteria.cities %} checked{% endif %}> {{ city }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет данных по городам</p>
+        {% endfor %}
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_search_scopes %}
+      <fieldset class="marketing-multi-select">
+        <legend>Область поиска</legend>
+        <label><input type="checkbox" name="search_scopes" value="city"{% if 'city' in criteria.search_scopes %} checked{% endif %}> Город</label>
+        <label><input type="checkbox" name="search_scopes" value="kazakhstan"{% if 'kazakhstan' in criteria.search_scopes %} checked{% endif %}> Казахстан</label>
+        <label><input type="checkbox" name="search_scopes" value="custom"{% if 'custom' in criteria.search_scopes %} checked{% endif %}> Выбранные города</label>
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_transport_types %}
+      <fieldset class="marketing-multi-select">
+        <legend>Транспорт</legend>
+        <label><input type="checkbox" name="transport_types" value="car"{% if 'car' in criteria.transport_types %} checked{% endif %}> Легковой</label>
+        <label><input type="checkbox" name="transport_types" value="truck"{% if 'truck' in criteria.transport_types %} checked{% endif %}> Грузовой</label>
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_brands %}
+      <fieldset class="marketing-multi-select">
+        <legend>Марки</legend>
+        {% for brand in filter_options.brands %}
+          <label><input type="checkbox" name="brands" value="{{ brand }}"{% if brand in criteria.brands %} checked{% endif %}> {{ brand }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет данных по маркам</p>
+        {% endfor %}
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_models %}
+      <fieldset class="marketing-multi-select">
+        <legend>Модели</legend>
+        {% for model in filter_options.models %}
+          <label><input type="checkbox" name="models" value="{{ model }}"{% if model in criteria.models %} checked{% endif %}> {{ model }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет данных по моделям</p>
+        {% endfor %}
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_categories %}
+      <fieldset class="marketing-multi-select">
+        <legend>Категории запчастей</legend>
+        {% for category in filter_options.categories %}
+          <label><input type="checkbox" name="categories" value="{{ category }}"{% if category in criteria.categories %} checked{% endif %}> {{ category }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет данных по категориям</p>
+        {% endfor %}
+      </fieldset>
+      <label>
+        Период интереса (категория)
+        <select name="category_period">
+          <option value="">Без ограничения</option>
+          <option value="30"{% if criteria.category_period == '30' %} selected{% endif %}>30 дней</option>
+          <option value="90"{% if criteria.category_period == '90' %} selected{% endif %}>90 дней</option>
+          <option value="180"{% if criteria.category_period == '180' %} selected{% endif %}>180 дней</option>
+          <option value="all"{% if criteria.category_period == 'all' %} selected{% endif %}>За всё время</option>
+        </select>
+      </label>
+    {% endif %}
+
+    {% if filter_options.show_service_type %}
+      <label>
+        Тип услуги
+        <select name="service_type">
+          <option value="">Все</option>
+          <option value="sto"{% if criteria.service_type == 'sto' %} selected{% endif %}>СТО</option>
+          <option value="detailing"{% if criteria.service_type == 'detailing' %} selected{% endif %}>Детейлинг</option>
+        </select>
+      </label>
+    {% endif %}
+
+    {% if filter_options.show_district %}
+      <label>Район <input type="text" name="district" value="{{ criteria.district|default:'' }}"></label>
+    {% endif %}
+
+    {% if filter_options.show_services %}
+      <fieldset class="marketing-multi-select">
+        <legend>Конкретные услуги</legend>
+        {% if filter_options.show_services_sto_only %}
+          {% for service in filter_options.services_sto %}
+            <label><input type="checkbox" name="services" value="{{ service.id }}"{% if service.id in criteria.services %} checked{% endif %}> {{ service.name }}</label>
+          {% empty %}
+            <p class="marketing-muted">Нет услуг СТО</p>
+          {% endfor %}
+        {% elif filter_options.show_services_detailing_only %}
+          {% for service in filter_options.services_detailing %}
+            <label><input type="checkbox" name="services" value="{{ service.id }}"{% if service.id in criteria.services %} checked{% endif %}> {{ service.name }}</label>
+          {% empty %}
+            <p class="marketing-muted">Нет услуг детейлинга</p>
+          {% endfor %}
+        {% elif filter_options.show_all_services %}
+          {% for service in filter_options.services_sto %}
+            <label><input type="checkbox" name="services" value="{{ service.id }}"{% if service.id in criteria.services %} checked{% endif %}> [СТО] {{ service.name }}</label>
+          {% endfor %}
+          {% for service in filter_options.services_detailing %}
+            <label><input type="checkbox" name="services" value="{{ service.id }}"{% if service.id in criteria.services %} checked{% endif %}> [Детейлинг] {{ service.name }}</label>
+          {% endfor %}
+        {% endif %}
+      </fieldset>
+    {% endif %}
+
+    {% if filter_options.show_request_counts %}
+      <label>Заявок от <input type="number" min="0" name="request_count_min" value="{{ criteria.request_count_min|default:'' }}"></label>
+      <label>Заявок до <input type="number" min="0" name="request_count_max" value="{{ criteria.request_count_max|default:'' }}"></label>
+    {% endif %}
+
+    {% if filter_options.show_orders_counts %}
+      <label>Оплаченных заказов от <input type="number" min="0" name="orders_count_min" value="{{ criteria.orders_count_min|default:'' }}"></label>
+      <label>Оплаченных заказов до <input type="number" min="0" name="orders_count_max" value="{{ criteria.orders_count_max|default:'' }}"></label>
+    {% endif %}
+
+    {% if filter_options.show_products %}
+      <label><input type="checkbox" name="has_products" value="true"{% if criteria.has_products %} checked{% endif %}> Есть товары</label>
+      <label><input type="checkbox" name="has_active_products" value="true"{% if criteria.has_active_products %} checked{% endif %}> Есть активные товары</label>
+      <label>Товаров от <input type="number" min="0" name="products_count_min" value="{{ criteria.products_count_min|default:'' }}"></label>
+      <label>Товаров до <input type="number" min="0" name="products_count_max" value="{{ criteria.products_count_max|default:'' }}"></label>
+    {% endif %}
+
+    {% if filter_options.show_receive_requests %}
+      <label><input type="checkbox" name="receive_requests" value="true"{% if criteria.receive_requests %} checked{% endif %}> Получает заявки</label>
+    {% endif %}
+
+    {% if filter_options.show_is_paused %}
+      <label><input type="checkbox" name="is_paused" value="true"{% if criteria.is_paused %} checked{% endif %}> На паузе</label>
+    {% endif %}
+
+    {% if filter_options.show_profile %}
+      <label><input type="checkbox" name="has_logo" value="true"{% if criteria.has_logo %} checked{% endif %}> Есть логотип</label>
+      <label><input type="checkbox" name="has_instagram" value="true"{% if criteria.has_instagram %} checked{% endif %}> Есть Instagram</label>
+      <label><input type="checkbox" name="has_website" value="true"{% if criteria.has_website %} checked{% endif %}> Есть сайт</label>
+      <label><input type="checkbox" name="has_address" value="true"{% if criteria.has_address %} checked{% endif %}> Есть адрес</label>
+      <label><input type="checkbox" name="has_map_link" value="true"{% if criteria.has_map_link %} checked{% endif %}> Есть карта</label>
+    {% endif %}
+
+    <label>
+      Активность
+      <select name="activity_period">
+        <option value="">Без ограничения</option>
+        <option value="last_30_days"{% if criteria.activity_period == 'last_30_days' %} selected{% endif %}>30 дней</option>
+        <option value="last_90_days"{% if criteria.activity_period == 'last_90_days' %} selected{% endif %}>90 дней</option>
+        <option value="last_180_days"{% if criteria.activity_period == 'last_180_days' %} selected{% endif %}>180 дней</option>
+      </select>
+    </label>
+
+    <label>
+      Активность с
+      <input type="date" name="activity_from" value="{{ criteria.activity_from|default:'' }}">
+    </label>
+    <label>
+      Активность до
+      <input type="date" name="activity_to" value="{{ criteria.activity_to|default:'' }}">
+    </label>
+
+    <label>
+      Статус активности
+      <select name="is_active">
+        <option value="">Все</option>
+        <option value="true"{% if criteria.is_active %} selected{% endif %}>Активные</option>
+        <option value="false"{% if criteria.is_active == False %} selected{% endif %}>Неактивные</option>
+      </select>
+    </label>
+
+    {% if contact_group != 'test_contacts' %}
+      <label>
+        Тип контакта
+        <select name="is_test">
+          <option value="">Все</option>
+          <option value="false"{% if criteria.is_test == False %} selected{% endif %}>Реальные</option>
+          <option value="true"{% if criteria.is_test %} selected{% endif %}>Тестовые</option>
+        </select>
+      </label>
+    {% endif %}
+  </div>
+</div>

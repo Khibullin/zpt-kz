@@ -1,0 +1,81 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Аудитории — Рассылки и уведомления ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Аудитории</h1>
+    <a class="marketing-btn marketing-btn--primary" href="{% url 'marketing:audience_create' %}">Создать аудиторию</a>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <div class="marketing-table-wrap">
+    <table class="marketing-table">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Тип</th>
+          <th>Подтип</th>
+          <th>Найдено</th>
+          <th>Допустимо</th>
+          <th>Расчёт</th>
+          <th>Автор</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for audience in page_obj.object_list %}
+          <tr>
+            <td><a href="{% url 'marketing:audience_detail' audience.pk %}">{{ audience.name }}</a></td>
+            <td>{{ audience.contact_group_label }}</td>
+            <td>{{ audience.contact_subtype_label }}</td>
+            <td>{{ audience.last_matched_count }}</td>
+            <td>{{ audience.last_eligible_count }}</td>
+            <td>{% if audience.last_calculated_at %}{{ audience.last_calculated_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</td>
+            <td>{% if audience.created_by %}{{ audience.created_by.username }}{% else %}—{% endif %}</td>
+            <td>{% if audience.is_active %}Активна{% else %}Неактивна{% endif %}</td>
+            <td class="marketing-table__actions">
+              <a href="{% url 'marketing:audience_detail' audience.pk %}">Открыть</a>
+              <a href="{% url 'marketing:audience_edit' audience.pk %}">Изменить</a>
+              <form method="post" action="{% url 'marketing:audience_calculate' audience.pk %}" class="marketing-inline-form">
+                {% csrf_token %}
+                <button type="submit" class="marketing-link-btn">Пересчитать</button>
+              </form>
+              <form method="post" action="{% url 'marketing:audience_copy' audience.pk %}" class="marketing-inline-form">
+                {% csrf_token %}
+                <button type="submit" class="marketing-link-btn">Копировать</button>
+              </form>
+              <a href="{% url 'marketing:audience_delete' audience.pk %}">Удалить</a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="9">Сохранённых аудиторий пока нет.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="marketing-pagination" aria-label="Страницы">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}">Назад</a>
+      {% endif %}
+      <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}">Вперёд</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}
