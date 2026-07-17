@@ -179,7 +179,11 @@ def _parse_audience_post(request, *, contact_group: str, contact_subtype: str) -
         contact_group=contact_group,
         contact_subtype=contact_subtype,
     )
-    raw = criteria_raw_from_request_post(request.POST)
+    raw = criteria_raw_from_request_post(
+        request.POST,
+        contact_group=contact_group,
+        contact_subtype=contact_subtype,
+    )
     return validate_and_normalize_criteria(
         raw,
         contact_group=contact_group,

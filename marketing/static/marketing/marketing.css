@@ -587,6 +587,16 @@
   font-size: 13px;
 }
 
+.marketing-test-audience-info {
+  margin: 16px 0 24px;
+  padding: 16px 18px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #f9fafb;
+  color: var(--marketing-text);
+  line-height: 1.5;
+}
+
 .marketing-field {
   display: flex;
   flex-direction: column;

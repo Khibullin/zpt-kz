@@ -343,16 +343,25 @@ CRITERIA_SCALAR_FIELDS = (
 )
 
 
-def criteria_raw_from_request_post(post_data) -> dict:
+def criteria_raw_from_request_post(
+    post_data,
+    *,
+    contact_group: str = '',
+    contact_subtype: str = '',
+) -> dict:
+    from marketing.services.audiences.validation import allowed_criteria_keys
+
+    allowed = allowed_criteria_keys(contact_group, contact_subtype)
+
     def getlist(name: str) -> list[str]:
         return [value.strip() for value in post_data.getlist(name) if str(value).strip()]
 
     raw: dict = {}
     for name in CRITERIA_MULTISELECT_FIELDS:
-        if name in post_data:
+        if name in post_data and name in allowed:
             raw[name] = getlist(name)
     for name in CRITERIA_SCALAR_FIELDS:
-        if name in post_data:
+        if name in post_data and name in allowed:
             raw[name] = post_data.get(name, '')
     return raw
 
@@ -364,7 +373,11 @@ def criteria_from_request_post(
     contact_subtype: str = '',
 ) -> dict:
     return normalize_marketing_criteria(
-        criteria_raw_from_request_post(post_data),
+        criteria_raw_from_request_post(
+            post_data,
+            contact_group=contact_group,
+            contact_subtype=contact_subtype,
+        ),
         contact_group=contact_group,
         contact_subtype=contact_subtype,
     )

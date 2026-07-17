@@ -1,3 +1,8 @@
+{% if filter_options.show_test_info %}
+  <div class="marketing-test-audience-info">
+    <p>В аудиторию входят только активные тестовые контакты с подтверждённым рекламным согласием.</p>
+  </div>
+{% else %}
 <div class="marketing-filters-panel">
   <div class="marketing-filters__toolbar">
     <button type="button" class="marketing-link-btn" onclick="document.querySelectorAll('.marketing-multi-select input[type=checkbox]').forEach(function(i){i.checked=true;})">Выбрать все</button>
@@ -182,35 +187,37 @@
       <label><input type="checkbox" name="has_map_link" value="true"{% if criteria.has_map_link %} checked{% endif %}> Есть карта</label>
     {% endif %}
 
-    <label>
-      Активность
-      <select name="activity_period">
-        <option value="">Без ограничения</option>
-        <option value="last_30_days"{% if criteria.activity_period == 'last_30_days' %} selected{% endif %}>30 дней</option>
-        <option value="last_90_days"{% if criteria.activity_period == 'last_90_days' %} selected{% endif %}>90 дней</option>
-        <option value="last_180_days"{% if criteria.activity_period == 'last_180_days' %} selected{% endif %}>180 дней</option>
-      </select>
-    </label>
+    {% if filter_options.show_activity_filters %}
+      <label>
+        Активность
+        <select name="activity_period">
+          <option value="">Без ограничения</option>
+          <option value="last_30_days"{% if criteria.activity_period == 'last_30_days' %} selected{% endif %}>30 дней</option>
+          <option value="last_90_days"{% if criteria.activity_period == 'last_90_days' %} selected{% endif %}>90 дней</option>
+          <option value="last_180_days"{% if criteria.activity_period == 'last_180_days' %} selected{% endif %}>180 дней</option>
+        </select>
+      </label>
 
-    <label>
-      Активность с
-      <input type="date" name="activity_from" value="{{ criteria.activity_from|default:'' }}">
-    </label>
-    <label>
-      Активность до
-      <input type="date" name="activity_to" value="{{ criteria.activity_to|default:'' }}">
-    </label>
+      <label>
+        Активность с
+        <input type="date" name="activity_from" value="{{ criteria.activity_from|default:'' }}">
+      </label>
+      <label>
+        Активность до
+        <input type="date" name="activity_to" value="{{ criteria.activity_to|default:'' }}">
+      </label>
+    {% endif %}
 
-    <label>
-      Статус активности
-      <select name="is_active">
-        <option value="">Все</option>
-        <option value="true"{% if criteria.is_active %} selected{% endif %}>Активные</option>
-        <option value="false"{% if criteria.is_active == False %} selected{% endif %}>Неактивные</option>
-      </select>
-    </label>
+    {% if filter_options.show_contact_status_filters %}
+      <label>
+        Статус активности
+        <select name="is_active">
+          <option value="">Все</option>
+          <option value="true"{% if criteria.is_active %} selected{% endif %}>Активные</option>
+          <option value="false"{% if criteria.is_active == False %} selected{% endif %}>Неактивные</option>
+        </select>
+      </label>
 
-    {% if contact_group != 'test_contacts' %}
       <label>
         Тип контакта
         <select name="is_test">
@@ -222,3 +229,4 @@
     {% endif %}
   </div>
 </div>
+{% endif %}

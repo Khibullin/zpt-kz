@@ -5,6 +5,7 @@ from marketing.services.audiences.constants import (
     GROUP_BUYERS,
     GROUP_SELLERS,
     GROUP_SERVICE_PROVIDERS,
+    GROUP_TEST,
     SUBTYPE_DETAILING,
     SUBTYPE_MARKETPLACE_PAID,
     SUBTYPE_MARKETPLACE_SELLERS,
@@ -12,6 +13,7 @@ from marketing.services.audiences.constants import (
     SUBTYPE_REQUEST_SELLERS,
     SUBTYPE_SERVICE_REQUESTS,
     SUBTYPE_STO,
+    SUBTYPE_TEST_CONTACTS,
 )
 from marketing.services.audiences.filters import service_ids_for_seller_type
 from marketing.services.contacts import MarketingContact, filter_options
@@ -122,6 +124,12 @@ def build_audience_filter_options(
         options['show_receive_requests'] = True
         options['show_is_paused'] = True
         options['show_profile'] = True
+    elif contact_group == GROUP_TEST and contact_subtype == SUBTYPE_TEST_CONTACTS:
+        options['show_test_info'] = True
+
+    if not options.get('show_test_info'):
+        options.setdefault('show_activity_filters', True)
+        options.setdefault('show_contact_status_filters', True)
 
     return options
 

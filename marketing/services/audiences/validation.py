@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from marketing.services.audiences.builders import subtype_matches_group
+from marketing.services.audiences.builders import is_test_audience, subtype_matches_group
 from marketing.services.audiences.constants import (
     GROUP_BUYERS,
     GROUP_SELLERS,
@@ -96,7 +96,7 @@ SERVICE_PROVIDER_KEYS = COMMON_KEYS | {
     'has_website',
 }
 
-TEST_KEYS = frozenset({'is_active'})
+TEST_KEYS: frozenset[str] = frozenset()
 
 ALLOWED_KEYS_BY_SUBTYPE: dict[tuple[str, str], frozenset[str]] = {
     (GROUP_BUYERS, SUBTYPE_PARTS_REQUESTS): PARTS_BUYER_KEYS,
@@ -198,8 +198,15 @@ def validate_and_normalize_criteria(
     )
 
     allowed = allowed_criteria_keys(contact_group, contact_subtype)
-    if not allowed:
+    if not allowed and not is_test_audience(contact_group, contact_subtype):
         raise CriteriaValidationError('Недопустимая комбинация группы и подтипа аудитории.')
+
+    if is_test_audience(contact_group, contact_subtype):
+        if reject_unknown and raw:
+            raise CriteriaValidationError(
+                'Для тестовых аудиторий нельзя задавать критерии отбора вручную.',
+            )
+        return {}
 
     if reject_unknown:
         unknown = {

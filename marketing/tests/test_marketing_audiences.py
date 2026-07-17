@@ -9,6 +9,7 @@ from django.utils import timezone
 from catalog.models import Product, SellerProfile
 from core.models import (
     BUYER_CONTACT_STATUS_ACTIVE,
+    BUYER_CONTACT_STATUS_BLOCKED,
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
     CONTACT_CONSENT_STATUS_GRANTED,
@@ -730,12 +731,20 @@ class MarketingAudienceServiceOptionsTests(TestCase):
         post_data.setlist('services', [str(sto_service.id), str(detailing_service.id)])
 
         sto_criteria = validate_and_normalize_criteria(
-            criteria_raw_from_request_post(post_data),
+            criteria_raw_from_request_post(
+                post_data,
+                contact_group=GROUP_SERVICE_PROVIDERS,
+                contact_subtype=SUBTYPE_STO,
+            ),
             contact_group=GROUP_SERVICE_PROVIDERS,
             contact_subtype=SUBTYPE_STO,
         )
         detailing_criteria = validate_and_normalize_criteria(
-            criteria_raw_from_request_post(post_data),
+            criteria_raw_from_request_post(
+                post_data,
+                contact_group=GROUP_SERVICE_PROVIDERS,
+                contact_subtype=SUBTYPE_DETAILING,
+            ),
             contact_group=GROUP_SERVICE_PROVIDERS,
             contact_subtype=SUBTYPE_DETAILING,
         )
@@ -986,3 +995,192 @@ class MarketingAudienceWizardTests(TestCase):
         content = response.content.decode('utf-8').lower()
         self.assertNotIn('send_whatsapp', content)
         self.assertNotIn('buyerbroadcastrecipient', content)
+
+
+class MarketingAudienceTestContactsTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('test-audience', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='test-audience', password='secret')
+        self.create_url = reverse('marketing:audience_create')
+
+    def _get_step3(self, **extra):
+        params = {
+            'step': 3,
+            'contact_group': GROUP_TEST,
+            'contact_subtype': SUBTYPE_TEST_CONTACTS,
+            'name': 'Тестовая аудитория',
+            **extra,
+        }
+        return self.client.get(self.create_url, params)
+
+    def test_step3_does_not_render_activity_or_is_test_fields(self):
+        response = self._get_step3()
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertNotIn('name="activity_period"', content)
+        self.assertNotIn('name="activity_from"', content)
+        self.assertNotIn('name="activity_to"', content)
+        self.assertNotIn('name="is_test"', content)
+        self.assertIn(
+            'В аудиторию входят только активные тестовые контакты с подтверждённым рекламным согласием.',
+            content,
+        )
+
+    def test_create_test_contacts_audience_succeeds(self):
+        response = self.client.post(
+            self.create_url,
+            data={
+                'action': 'save',
+                'contact_group': GROUP_TEST,
+                'contact_subtype': SUBTYPE_TEST_CONTACTS,
+                'name': 'Тестовые контакты',
+                'description': 'Проверка',
+                'is_active': 'on',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        audience = MarketingAudience.objects.get(name='Тестовые контакты')
+        self.assertEqual(audience.criteria, {})
+
+    def test_create_rejects_manual_activity_fields(self):
+        response = self.client.post(
+            self.create_url,
+            data={
+                'action': 'save',
+                'contact_group': GROUP_TEST,
+                'contact_subtype': SUBTYPE_TEST_CONTACTS,
+                'name': 'Bad test audience',
+                'activity_period': 'last_30_days',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(MarketingAudience.objects.filter(name='Bad test audience').exists())
+
+    def test_create_rejects_manual_is_test_false(self):
+        response = self.client.post(
+            self.create_url,
+            data={
+                'action': 'save',
+                'contact_group': GROUP_TEST,
+                'contact_subtype': SUBTYPE_TEST_CONTACTS,
+                'name': 'Injected is_test',
+                'is_test': 'false',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(MarketingAudience.objects.filter(name='Injected is_test').exists())
+
+    def test_new_audience_is_active_checked_by_default(self):
+        response = self.client.get(self.create_url)
+        self.assertContains(response, 'name="is_active" checked')
+
+    def test_calculation_includes_only_test_contacts(self):
+        test_buyer = make_buyer(is_test_contact=True)
+        grant_consent(test_buyer, CONTACT_CONSENT_STATUS_GRANTED)
+        make_buyer(is_test_contact=False)
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 1)
+        self.assertEqual(result.eligible_count, 1)
+
+    def test_real_contact_not_in_test_audience(self):
+        real_buyer = make_buyer(is_test_contact=False)
+        grant_consent(real_buyer, CONTACT_CONSENT_STATUS_GRANTED)
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 0)
+        self.assertEqual(result.eligible_count, 0)
+
+    def test_test_unknown_not_eligible(self):
+        buyer = make_buyer(is_test_contact=True)
+        grant_consent(buyer, CONTACT_CONSENT_STATUS_UNKNOWN)
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 1)
+        self.assertEqual(result.eligible_count, 0)
+
+    def test_test_revoked_not_eligible(self):
+        buyer = make_buyer(is_test_contact=True)
+        grant_consent(buyer, CONTACT_CONSENT_STATUS_REVOKED)
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 1)
+        self.assertEqual(result.eligible_count, 0)
+
+    def test_test_inactive_not_eligible(self):
+        buyer = make_buyer(
+            is_test_contact=True,
+            status=BUYER_CONTACT_STATUS_BLOCKED,
+        )
+        grant_consent(buyer, CONTACT_CONSENT_STATUS_GRANTED)
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 1)
+        self.assertEqual(result.eligible_count, 0)
+
+    def test_manual_is_test_false_criteria_ignored_for_calculation(self):
+        test_buyer = make_buyer(is_test_contact=True)
+        grant_consent(test_buyer, CONTACT_CONSENT_STATUS_GRANTED)
+        make_buyer(is_test_contact=False)
+        with self.assertRaises(CriteriaValidationError):
+            validate_and_normalize_criteria(
+                {'is_test': False},
+                contact_group=GROUP_TEST,
+                contact_subtype=SUBTYPE_TEST_CONTACTS,
+            )
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={'is_test': False},
+        )
+        self.assertEqual(result.matched_count, 1)
+        self.assertEqual(result.eligible_count, 1)
+
+    def test_detail_html_no_full_phone_for_test_audience(self):
+        buyer = make_buyer(is_test_contact=True)
+        grant_consent(buyer)
+        audience = MarketingAudience.objects.create(
+            name='Test detail',
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+            created_by=self.user,
+        )
+        response = self.client.get(reverse('marketing:audience_detail', kwargs={'pk': audience.pk}))
+        self.assertNotIn(buyer.phone_normalized, response.content.decode('utf-8'))
+
+    def test_create_and_calculate_have_no_send_actions(self):
+        urls = [self.create_url]
+        response = self.client.post(
+            self.create_url,
+            data={
+                'action': 'calculate',
+                'contact_group': GROUP_TEST,
+                'contact_subtype': SUBTYPE_TEST_CONTACTS,
+                'name': 'Calc test',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        urls.append(response.request['PATH_INFO'])
+        content = response.content.decode('utf-8').lower()
+        self.assertNotIn('send_whatsapp', content)
+        for url in urls:
+            page = self.client.get(url)
+            self.assertNotIn('send_whatsapp', page.content.decode('utf-8').lower())
