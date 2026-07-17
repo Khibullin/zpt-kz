@@ -549,6 +549,11 @@
   margin-bottom: 20px;
 }
 
+.marketing-meta-grid dd {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .marketing-table__actions {
   display: flex;
   flex-wrap: wrap;

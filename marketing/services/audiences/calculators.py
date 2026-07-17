@@ -452,10 +452,12 @@ def calculate_audience(
             contact_subtype=contact_subtype,
             test_marketplace_keys=test_marketplace_keys,
         )
+        if contact.is_test:
+            counts['test_count'] += 1
         if eligibility == 'invalid_phone':
             counts['invalid_phones'] += 1
         elif eligibility == 'test_contact':
-            counts['test_count'] += 1
+            pass
         elif eligibility == 'inactive':
             counts['inactive_count'] += 1
         elif eligibility == 'consent_revoked':
@@ -629,12 +631,14 @@ def collect_audience_snapshot(
             contact_subtype=contact_subtype,
             test_marketplace_keys=test_marketplace_keys,
         )
+        if contact.is_test:
+            counts['test_count'] += 1
         if eligibility == 'invalid_phone':
             counts['invalid_phone_count'] += 1
             if not _safe_phone_key(contact.phone_key):
                 continue
         elif eligibility == 'test_contact':
-            counts['test_count'] += 1
+            pass
         elif eligibility == 'inactive':
             counts['inactive_count'] += 1
         elif eligibility == 'consent_revoked':

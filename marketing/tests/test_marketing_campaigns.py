@@ -315,6 +315,7 @@ class MarketingCampaignEligibilityTests(TestCase):
         self._prepare()
         recipient = self.campaign.recipients.get(phone_normalized=buyer.phone_normalized)
         self.assertEqual(recipient.exclusion_reason, 'test_contact')
+        self.assertEqual(self.campaign.test_count, 1)
         self.assertEqual(self.campaign.eligible_count, 0)
 
     def test_test_campaign_only_test_granted_active(self):
@@ -339,6 +340,68 @@ class MarketingCampaignEligibilityTests(TestCase):
         self.assertIn(test_buyer.phone_normalized, phones)
         self.assertNotIn(real_buyer.phone_normalized, phones)
         self.assertEqual(campaign.eligible_count, 1)
+        self.assertEqual(campaign.test_count, 1)
+        self.assertEqual(campaign.excluded_count, 0)
+
+    def test_test_campaign_snapshot_test_count_two(self):
+        test_audience = make_audience(
+            name='Test audience',
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+        )
+        campaign = make_campaign(
+            test_audience,
+            self.user,
+            purpose=PURPOSE_TEST_CAMPAIGN,
+            name='Test campaign two',
+        )
+        for _ in range(2):
+            buyer = make_buyer(is_test_contact=True)
+            grant_consent(buyer)
+        prepare_campaign_snapshot(campaign.pk)
+        campaign.refresh_from_db()
+        self.assertEqual(campaign.matched_count, 2)
+        self.assertEqual(campaign.unique_count, 2)
+        self.assertEqual(campaign.test_count, 2)
+        self.assertEqual(campaign.eligible_count, 2)
+        self.assertEqual(campaign.excluded_count, 0)
+
+    def test_regular_campaign_test_count_excludes_from_eligible(self):
+        self.audience.contact_group = GROUP_BUYERS
+        self.audience.contact_subtype = SUBTYPE_PARTS_REQUESTS
+        self.audience.save()
+        buyer = make_buyer(is_test_contact=True)
+        grant_consent(buyer)
+        self._prepare()
+        recipient = self.campaign.recipients.get(phone_normalized=buyer.phone_normalized)
+        self.assertEqual(self.campaign.test_count, 1)
+        self.assertEqual(self.campaign.eligible_count, 0)
+        self.assertEqual(recipient.exclusion_reason, 'test_contact')
+
+    def test_repeat_prepare_does_not_double_test_count(self):
+        test_audience = make_audience(
+            name='Test audience repeat',
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+        )
+        campaign = make_campaign(
+            test_audience,
+            self.user,
+            purpose=PURPOSE_TEST_CAMPAIGN,
+            name='Repeat prepare',
+        )
+        buyer = make_buyer(is_test_contact=True)
+        grant_consent(buyer)
+        prepare_campaign_snapshot(campaign.pk)
+        campaign.refresh_from_db()
+        self.assertEqual(campaign.test_count, 1)
+        prepare_campaign_snapshot(campaign.pk)
+        campaign.refresh_from_db()
+        self.assertEqual(campaign.test_count, 1)
+        self.assertEqual(
+            campaign.eligible_count + campaign.excluded_count,
+            campaign.unique_count,
+        )
 
     def test_seller_without_consent_not_eligible(self):
         audience = make_audience(

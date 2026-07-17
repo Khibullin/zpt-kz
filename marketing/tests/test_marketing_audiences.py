@@ -1087,6 +1087,35 @@ class MarketingAudienceTestContactsTests(TestCase):
         )
         self.assertEqual(result.matched_count, 1)
         self.assertEqual(result.eligible_count, 1)
+        self.assertEqual(result.test_count, 1)
+
+    def test_test_contacts_audience_counts_test_contacts(self):
+        test_buyer_one = make_buyer(is_test_contact=True)
+        test_buyer_two = make_buyer(is_test_contact=True)
+        grant_consent(test_buyer_one, CONTACT_CONSENT_STATUS_GRANTED)
+        grant_consent(test_buyer_two, CONTACT_CONSENT_STATUS_GRANTED)
+        result = calculate_audience(
+            contact_group=GROUP_TEST,
+            contact_subtype=SUBTYPE_TEST_CONTACTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 2)
+        self.assertEqual(result.unique_phones, 2)
+        self.assertEqual(result.test_count, 2)
+        self.assertEqual(result.eligible_count, 2)
+        self.assertEqual(result.granted_count, 2)
+
+    def test_regular_audience_counts_test_contact_but_excludes_from_eligible(self):
+        test_buyer = make_buyer(is_test_contact=True)
+        grant_consent(test_buyer, CONTACT_CONSENT_STATUS_GRANTED)
+        result = calculate_audience(
+            contact_group=GROUP_BUYERS,
+            contact_subtype=SUBTYPE_PARTS_REQUESTS,
+            criteria={},
+        )
+        self.assertEqual(result.matched_count, 1)
+        self.assertEqual(result.test_count, 1)
+        self.assertEqual(result.eligible_count, 0)
 
     def test_real_contact_not_in_test_audience(self):
         real_buyer = make_buyer(is_test_contact=False)
