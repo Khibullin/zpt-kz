@@ -610,3 +610,118 @@
   gap: 8px;
   margin-bottom: 12px;
 }
+
+.marketing-form {
+  background: var(--marketing-white);
+  border: 1px solid var(--marketing-border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.marketing-form__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.marketing-form__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.marketing-form__field--full {
+  grid-column: 1 / -1;
+}
+
+.marketing-form__field input,
+.marketing-form__field select,
+.marketing-form__field textarea {
+  border: 1px solid var(--marketing-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: inherit;
+}
+
+.marketing-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.marketing-form__actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 20px;
+}
+
+.marketing-info-card {
+  margin: 16px 0;
+  padding: 16px;
+  border: 1px solid var(--marketing-border);
+  border-radius: 12px;
+  background: var(--marketing-white);
+}
+
+.marketing-info-card--muted {
+  background: #f9fafb;
+  color: var(--marketing-muted);
+}
+
+.marketing-info-card__title {
+  margin: 0 0 12px;
+  font-size: 16px;
+}
+
+.marketing-warning {
+  margin: 12px 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fffaeb;
+  color: #b54708;
+  border: 1px solid #fedf89;
+}
+
+.marketing-stat {
+  background: var(--marketing-white);
+  border: 1px solid var(--marketing-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+}
+
+.marketing-stat__label {
+  display: block;
+  font-size: 12px;
+  color: var(--marketing-muted);
+  margin-bottom: 4px;
+}
+
+.marketing-stat__value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--marketing-red);
+}
+
+.marketing-page-header--compact {
+  margin-top: 24px;
+  align-items: center;
+}
+
+.marketing-preview-filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.marketing-preview-filters .marketing-btn.is-active {
+  background: var(--marketing-red);
+  border-color: var(--marketing-red);
+  color: #fff;
+}
+
+.marketing-page-actions--footer {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--marketing-border);
+}

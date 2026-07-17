@@ -1,0 +1,142 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{{ campaign.name }} — Кампании ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">{{ campaign.name }}</h1>
+    <div class="marketing-page-actions">
+      {% if campaign.is_editable %}
+        <a class="marketing-btn" href="{% url 'marketing:campaign_edit' campaign.pk %}">Изменить</a>
+      {% endif %}
+      {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
+        <form method="post" action="{% url 'marketing:campaign_prepare' campaign.pk %}" class="marketing-inline-form">
+          {% csrf_token %}
+          <button type="submit" class="marketing-btn">{% if campaign.has_prepared_snapshot %}Подготовить заново{% else %}Подготовить получателей{% endif %}</button>
+        </form>
+      {% endif %}
+      <a class="marketing-btn" href="{% url 'marketing:campaigns' %}">К списку</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if snapshot_stale %}
+    <p class="marketing-warning">Критерии аудитории изменились после подготовки получателей. Подготовьте снимок заново перед дальнейшими действиями.</p>
+  {% endif %}
+
+  <dl class="marketing-meta-grid">
+    <dt>Назначение</dt><dd>{{ campaign.purpose_label }}</dd>
+    <dt>Аудитория</dt><dd><a href="{% url 'marketing:audience_detail' campaign.audience.pk %}">{{ campaign.audience.name }}</a></dd>
+    <dt>Статус</dt><dd>{{ display_status_label }}</dd>
+    <dt>Автор</dt><dd>{% if campaign.created_by %}{{ campaign.created_by.username }}{% else %}—{% endif %}</dd>
+    <dt>Создана</dt><dd>{{ campaign.created_at|date:'d.m.Y H:i' }}</dd>
+    <dt>Обновлена</dt><dd>{{ campaign.updated_at|date:'d.m.Y H:i' }}</dd>
+    <dt>Подготовка</dt><dd>{% if campaign.audience_prepared_at %}{{ campaign.audience_prepared_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+    <dt>Критерии аудитории</dt><dd>{{ criteria_summary }}</dd>
+    <dt>Активна</dt><dd>{% if campaign.is_active %}Да{% else %}Нет{% endif %}</dd>
+  </dl>
+
+  {% if campaign.description %}
+    <p class="marketing-section-note">{{ campaign.description }}</p>
+  {% endif %}
+
+  <div class="marketing-info-card marketing-info-card--muted">
+    <p>Шаблон сообщения будет выбран на следующем этапе. Подготовка получателей не отправляет сообщения.</p>
+  </div>
+
+  {% if campaign.has_prepared_snapshot %}
+    <h2 class="marketing-section-title">Результат подготовки</h2>
+    <div class="marketing-stats-grid">
+      <div class="marketing-stat"><span class="marketing-stat__label">Найдено</span><span class="marketing-stat__value">{{ campaign.matched_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Уникальных</span><span class="marketing-stat__value">{{ campaign.unique_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Допустимо</span><span class="marketing-stat__value">{{ campaign.eligible_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Исключено</span><span class="marketing-stat__value">{{ campaign.excluded_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Тестовых</span><span class="marketing-stat__value">{{ campaign.test_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Неактивных</span><span class="marketing-stat__value">{{ campaign.inactive_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Некорректных</span><span class="marketing-stat__value">{{ campaign.invalid_phone_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Согласие дано</span><span class="marketing-stat__value">{{ campaign.consent_granted_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Согласие не подтверждено</span><span class="marketing-stat__value">{{ campaign.consent_unknown_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Согласие отозвано</span><span class="marketing-stat__value">{{ campaign.consent_revoked_count }}</span></div>
+      <div class="marketing-stat"><span class="marketing-stat__label">Согласие не зафиксировано</span><span class="marketing-stat__value">{{ campaign.consent_not_recorded_count }}</span></div>
+    </div>
+
+    <div class="marketing-page-header marketing-page-header--compact">
+      <h2 class="marketing-section-title">Предварительный список (до {{ preview_limit }})</h2>
+      <div class="marketing-preview-filters">
+        <a class="marketing-btn{% if preview_filter == 'all' %} is-active{% endif %}" href="?preview=all">Все</a>
+        <a class="marketing-btn{% if preview_filter == 'eligible' %} is-active{% endif %}" href="?preview=eligible">Допустимые</a>
+        <a class="marketing-btn{% if preview_filter == 'excluded' %} is-active{% endif %}" href="?preview=excluded">Исключённые</a>
+      </div>
+    </div>
+
+    <div class="marketing-table-wrap">
+      <table class="marketing-table">
+        <thead>
+          <tr>
+            <th>Телефон</th>
+            <th>Имя</th>
+            <th>Город</th>
+            <th>Роли</th>
+            <th>Автомобиль</th>
+            <th>Активность</th>
+            <th>Согласие</th>
+            <th>Статус</th>
+            <th>Исключение</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for recipient in preview_recipients %}
+            <tr>
+              <td>{{ recipient.masked_phone }}</td>
+              <td>{{ recipient.display_name }}</td>
+              <td>{{ recipient.city }}</td>
+              <td>{{ recipient.roles_display }}</td>
+              <td>{{ recipient.vehicle_summary }}</td>
+              <td>{% if recipient.last_activity_at %}{{ recipient.last_activity_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</td>
+              <td>{{ recipient.consent_status_label }}</td>
+              <td>{% if recipient.eligibility_status == 'eligible' %}Допустим{% else %}Исключён{% endif %}</td>
+              <td>{{ recipient.exclusion_reason_label }}</td>
+            </tr>
+          {% empty %}
+            <tr>
+              <td colspan="9">Нет получателей для выбранного фильтра.</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <p class="marketing-section-note">Снимок получателей ещё не подготовлен. Нажмите «Подготовить получателей», чтобы пересчитать аудиторию и зафиксировать состав.</p>
+  {% endif %}
+
+  <div class="marketing-page-actions marketing-page-actions--footer">
+    <form method="post" action="{% url 'marketing:campaign_copy' campaign.pk %}" class="marketing-inline-form">
+      {% csrf_token %}
+      <button type="submit" class="marketing-btn">Копировать</button>
+    </form>
+    {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
+      <form method="post" action="{% url 'marketing:campaign_cancel' campaign.pk %}" class="marketing-inline-form">
+        {% csrf_token %}
+        <button type="submit" class="marketing-btn">Отменить</button>
+      </form>
+    {% endif %}
+    {% if campaign.status != 'archived' %}
+      <form method="post" action="{% url 'marketing:campaign_archive' campaign.pk %}" class="marketing-inline-form">
+        {% csrf_token %}
+        <button type="submit" class="marketing-btn">Архивировать</button>
+      </form>
+    {% endif %}
+    {% if campaign.status == 'draft' and not campaign.has_prepared_snapshot %}
+      <a class="marketing-btn marketing-btn--danger" href="{% url 'marketing:campaign_delete' campaign.pk %}">Удалить</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

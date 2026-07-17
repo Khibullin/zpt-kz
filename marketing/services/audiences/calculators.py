@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, datetime
 
 from django.utils import timezone
 
@@ -41,6 +41,7 @@ from marketing.services.audiences.filters import (
     values_intersect,
 )
 from marketing.services.audiences.validation import validate_and_normalize_criteria
+from marketing.services.campaigns.purpose import apply_purpose_to_snapshot_status
 
 
 @dataclass(frozen=True)
@@ -71,6 +72,39 @@ class AudienceCalculationResult:
     marketplace_real_count: int
     marketplace_test_count: int
     preview_rows: tuple[AudiencePreviewRow, ...]
+
+
+@dataclass(frozen=True)
+class AudienceSnapshotContact:
+    phone_normalized: str
+    display_name: str
+    city: str
+    roles: list[str]
+    vehicle_summary: str
+    last_activity_at: datetime | None
+    is_test_contact: bool
+    consent_status: str
+    eligibility_status: str
+    exclusion_reason: str
+    source_summary: dict[str, object]
+
+
+@dataclass(frozen=True)
+class AudienceSnapshotResult:
+    contacts: tuple[AudienceSnapshotContact, ...]
+    matched_count: int
+    unique_count: int
+    eligible_count: int
+    excluded_count: int
+    test_count: int
+    invalid_phone_count: int
+    duplicate_count: int
+    inactive_count: int
+    consent_granted_count: int
+    consent_unknown_count: int
+    consent_revoked_count: int
+    consent_not_recorded_count: int
+    calculation: AudienceCalculationResult
 
 
 def _parse_date(value: str | None) -> date | None:
@@ -474,4 +508,197 @@ def calculate_audience(
         marketplace_real_count=counts['marketplace_real_count'],
         marketplace_test_count=counts['marketplace_test_count'],
         preview_rows=tuple(preview_rows),
+    )
+
+
+def _safe_phone_key(phone_key: str) -> bool:
+    return len(phone_key) == 11 and phone_key.isdigit()
+
+
+def _eligibility_to_snapshot_fields(eligibility: str) -> tuple[str, str]:
+    if eligibility == 'eligible':
+        return 'eligible', ''
+    return 'excluded', eligibility
+
+
+def _build_source_summary(contact: MarketingContact) -> dict[str, object]:
+    return {
+        'roles': sorted(contact.roles),
+        'contact_status': contact.contact_status,
+        'is_test': contact.is_test,
+        'is_active': contact.is_active,
+    }
+
+
+def _match_audience_contacts(
+    *,
+    contact_group: str,
+    contact_subtype: str,
+    criteria: dict,
+    registry: dict[str, MarketingContact] | None = None,
+    seller_index: dict[str, SellerSourceFlags] | None = None,
+) -> list[MarketingContact]:
+    criteria = validate_and_normalize_criteria(
+        criteria,
+        contact_group=contact_group,
+        contact_subtype=contact_subtype,
+        reject_unknown=False,
+    )
+    registry = registry or build_registry()
+    seller_index = seller_index or build_seller_source_index()
+    parts_keys = (
+        _parts_request_phone_keys(criteria)
+        if contact_subtype == SUBTYPE_PARTS_REQUESTS
+        else None
+    )
+
+    matched: list[MarketingContact] = []
+    for phone_key, contact in registry.items():
+        if not contact_matches_subtype(
+            contact,
+            contact_group=contact_group,
+            contact_subtype=contact_subtype,
+        ):
+            continue
+        if parts_keys is not None and phone_key not in parts_keys:
+            continue
+        seller_flags = seller_index.get(phone_key)
+        if not _matches_general_criteria(
+            contact,
+            criteria,
+            seller_flags=seller_flags,
+            contact_subtype=contact_subtype,
+            parts_db_filtered=parts_keys is not None,
+        ):
+            continue
+        matched.append(contact)
+    return matched
+
+
+def collect_audience_snapshot(
+    *,
+    contact_group: str,
+    contact_subtype: str,
+    criteria: dict,
+    purpose: str,
+    registry: dict[str, MarketingContact] | None = None,
+    seller_index: dict[str, SellerSourceFlags] | None = None,
+) -> AudienceSnapshotResult:
+    calculation = calculate_audience(
+        contact_group=contact_group,
+        contact_subtype=contact_subtype,
+        criteria=criteria,
+        registry=registry,
+        seller_index=seller_index,
+    )
+    matched = _match_audience_contacts(
+        contact_group=contact_group,
+        contact_subtype=contact_subtype,
+        criteria=criteria,
+        registry=registry,
+        seller_index=seller_index,
+    )
+    test_marketplace_keys = marketplace_test_phone_keys()
+
+    snapshot_rows: list[AudienceSnapshotContact] = []
+    seen_phones: set[str] = set()
+    duplicate_count = 0
+
+    counts = {
+        'eligible_count': 0,
+        'test_count': 0,
+        'invalid_phone_count': 0,
+        'inactive_count': 0,
+        'consent_granted_count': 0,
+        'consent_unknown_count': 0,
+        'consent_revoked_count': 0,
+        'consent_not_recorded_count': 0,
+    }
+
+    for contact in sorted(
+        matched,
+        key=lambda item: (
+            item.last_activity is None,
+            -(item.last_activity.timestamp() if item.last_activity else 0),
+            item.phone_key,
+        ),
+    ):
+        eligibility = _classify_eligibility(
+            contact,
+            contact_group=contact_group,
+            contact_subtype=contact_subtype,
+            test_marketplace_keys=test_marketplace_keys,
+        )
+        if eligibility == 'invalid_phone':
+            counts['invalid_phone_count'] += 1
+            if not _safe_phone_key(contact.phone_key):
+                continue
+        elif eligibility == 'test_contact':
+            counts['test_count'] += 1
+        elif eligibility == 'inactive':
+            counts['inactive_count'] += 1
+        elif eligibility == 'consent_revoked':
+            counts['consent_revoked_count'] += 1
+        elif eligibility == 'consent_unknown':
+            counts['consent_unknown_count'] += 1
+        elif eligibility == 'consent_not_recorded':
+            counts['consent_not_recorded_count'] += 1
+        elif eligibility == 'eligible':
+            counts['eligible_count'] += 1
+            if contact.marketing_consent == CONTACT_CONSENT_STATUS_GRANTED:
+                counts['consent_granted_count'] += 1
+
+        if not _safe_phone_key(contact.phone_key):
+            continue
+
+        if contact.phone_key in seen_phones:
+            duplicate_count += 1
+            eligibility_status, exclusion_reason = 'excluded', 'duplicate'
+        else:
+            seen_phones.add(contact.phone_key)
+            eligibility_status, exclusion_reason = _eligibility_to_snapshot_fields(eligibility)
+            eligibility_status, exclusion_reason = apply_purpose_to_snapshot_status(
+                contact,
+                purpose,
+                test_marketplace_keys=test_marketplace_keys,
+                eligibility_status=eligibility_status,
+                exclusion_reason=exclusion_reason,
+            )
+
+        snapshot_rows.append(
+            AudienceSnapshotContact(
+                phone_normalized=contact.phone_key,
+                display_name=contact.name or '—',
+                city=contact.city or '—',
+                roles=list(role_labels(contact)),
+                vehicle_summary=_format_brand_model(contact),
+                last_activity_at=contact.last_activity,
+                is_test_contact=contact.is_test,
+                consent_status=contact.marketing_consent or '',
+                eligibility_status=eligibility_status,
+                exclusion_reason=exclusion_reason,
+                source_summary=_build_source_summary(contact),
+            ),
+        )
+
+    unique_count = len(seen_phones)
+    eligible_count = sum(
+        1 for row in snapshot_rows if row.eligibility_status == 'eligible'
+    )
+    excluded_count = unique_count - eligible_count
+    return AudienceSnapshotResult(
+        contacts=tuple(snapshot_rows),
+        matched_count=len(matched),
+        unique_count=unique_count,
+        eligible_count=eligible_count,
+        excluded_count=excluded_count,
+        test_count=counts['test_count'],
+        invalid_phone_count=counts['invalid_phone_count'],
+        duplicate_count=duplicate_count,
+        inactive_count=counts['inactive_count'],
+        consent_granted_count=counts['consent_granted_count'],
+        consent_unknown_count=counts['consent_unknown_count'],
+        consent_revoked_count=counts['consent_revoked_count'],
+        consent_not_recorded_count=counts['consent_not_recorded_count'],
+        calculation=calculation,
     )

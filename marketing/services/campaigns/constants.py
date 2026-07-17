@@ -1,0 +1,131 @@
+from __future__ import annotations
+
+from marketing.services.audiences.constants import (
+    GROUP_BUYERS,
+    GROUP_SELLERS,
+    GROUP_SERVICE_PROVIDERS,
+    GROUP_TEST,
+    SUBTYPE_ALL_BUYERS,
+    SUBTYPE_ALL_SELLERS,
+    SUBTYPE_ALL_SERVICE_PROVIDERS,
+    SUBTYPE_COMBINED_SELLERS,
+    SUBTYPE_DETAILING,
+    SUBTYPE_MARKETPLACE_PAID,
+    SUBTYPE_MARKETPLACE_SELLERS,
+    SUBTYPE_PARTS_REQUESTS,
+    SUBTYPE_REQUEST_SELLERS,
+    SUBTYPE_SERVICE_REQUESTS,
+    SUBTYPE_STO,
+    SUBTYPE_TEST_CONTACTS,
+)
+
+CAMPAIGN_LIST_PAGE_SIZE = 25
+CAMPAIGN_PREVIEW_LIMIT = 50
+
+CHANNEL_WHATSAPP = 'whatsapp'
+
+STATUS_DRAFT = 'draft'
+STATUS_AUDIENCE_PREPARED = 'audience_prepared'
+STATUS_AUDIENCE_STALE = 'audience_stale'
+STATUS_CANCELLED = 'cancelled'
+STATUS_ARCHIVED = 'archived'
+
+CAMPAIGN_STATUS_CHOICES = (
+    (STATUS_DRAFT, 'Черновик'),
+    (STATUS_AUDIENCE_PREPARED, 'Получатели подготовлены'),
+    (STATUS_AUDIENCE_STALE, 'Аудитория изменилась'),
+    (STATUS_CANCELLED, 'Отменена'),
+    (STATUS_ARCHIVED, 'В архиве'),
+)
+
+PURPOSE_PARTS_BUYERS = 'parts_buyers'
+PURPOSE_MARKETPLACE_BUYERS = 'marketplace_buyers'
+PURPOSE_SERVICE_CUSTOMERS = 'service_customers'
+PURPOSE_REQUEST_SELLERS = 'request_sellers'
+PURPOSE_MARKETPLACE_SELLERS = 'marketplace_sellers'
+PURPOSE_COMBINED_SELLERS = 'combined_sellers'
+PURPOSE_STO_PROVIDERS = 'sto_providers'
+PURPOSE_DETAILING_PROVIDERS = 'detailing_providers'
+PURPOSE_TEST_CAMPAIGN = 'test_campaign'
+
+CAMPAIGN_PURPOSE_CHOICES = (
+    (PURPOSE_PARTS_BUYERS, 'Покупатели запчастей'),
+    (PURPOSE_MARKETPLACE_BUYERS, 'Покупатели маркетплейса'),
+    (PURPOSE_SERVICE_CUSTOMERS, 'Заказчики услуг'),
+    (PURPOSE_REQUEST_SELLERS, 'Продавцы по заявкам'),
+    (PURPOSE_MARKETPLACE_SELLERS, 'Продавцы маркетплейса'),
+    (PURPOSE_COMBINED_SELLERS, 'Продавцы обоих направлений'),
+    (PURPOSE_STO_PROVIDERS, 'СТО'),
+    (PURPOSE_DETAILING_PROVIDERS, 'Детейлинг'),
+    (PURPOSE_TEST_CAMPAIGN, 'Тестовая кампания'),
+)
+
+CAMPAIGN_CHANNEL_CHOICES = (
+    (CHANNEL_WHATSAPP, 'WhatsApp'),
+)
+
+ELIGIBILITY_ELIGIBLE = 'eligible'
+ELIGIBILITY_EXCLUDED = 'excluded'
+
+EXCLUSION_INVALID_PHONE = 'invalid_phone'
+EXCLUSION_DUPLICATE = 'duplicate'
+EXCLUSION_TEST_CONTACT = 'test_contact'
+EXCLUSION_INACTIVE = 'inactive'
+EXCLUSION_CONSENT_UNKNOWN = 'consent_unknown'
+EXCLUSION_CONSENT_REVOKED = 'consent_revoked'
+EXCLUSION_CONSENT_NOT_RECORDED = 'consent_not_recorded'
+EXCLUSION_AUDIENCE_RULE = 'audience_rule'
+EXCLUSION_OTHER = 'other'
+
+EXCLUSION_REASON_CHOICES = (
+    ('', '—'),
+    (EXCLUSION_INVALID_PHONE, 'Некорректный телефон'),
+    (EXCLUSION_DUPLICATE, 'Дубликат'),
+    (EXCLUSION_TEST_CONTACT, 'Тестовый контакт'),
+    (EXCLUSION_INACTIVE, 'Неактивный'),
+    (EXCLUSION_CONSENT_UNKNOWN, 'Согласие не подтверждено'),
+    (EXCLUSION_CONSENT_REVOKED, 'Согласие отозвано'),
+    (EXCLUSION_CONSENT_NOT_RECORDED, 'Рекламное согласие не зафиксировано'),
+    (EXCLUSION_AUDIENCE_RULE, 'Правило аудитории'),
+    (EXCLUSION_OTHER, 'Другое'),
+)
+
+PURPOSE_COMPATIBILITY: dict[str, frozenset[tuple[str, str]]] = {
+    PURPOSE_PARTS_BUYERS: frozenset({
+        (GROUP_BUYERS, SUBTYPE_PARTS_REQUESTS),
+        (GROUP_BUYERS, SUBTYPE_ALL_BUYERS),
+    }),
+    PURPOSE_MARKETPLACE_BUYERS: frozenset({
+        (GROUP_BUYERS, SUBTYPE_MARKETPLACE_PAID),
+        (GROUP_BUYERS, SUBTYPE_ALL_BUYERS),
+    }),
+    PURPOSE_SERVICE_CUSTOMERS: frozenset({
+        (GROUP_BUYERS, SUBTYPE_SERVICE_REQUESTS),
+        (GROUP_BUYERS, SUBTYPE_ALL_BUYERS),
+    }),
+    PURPOSE_REQUEST_SELLERS: frozenset({
+        (GROUP_SELLERS, SUBTYPE_REQUEST_SELLERS),
+        (GROUP_SELLERS, SUBTYPE_COMBINED_SELLERS),
+        (GROUP_SELLERS, SUBTYPE_ALL_SELLERS),
+    }),
+    PURPOSE_MARKETPLACE_SELLERS: frozenset({
+        (GROUP_SELLERS, SUBTYPE_MARKETPLACE_SELLERS),
+        (GROUP_SELLERS, SUBTYPE_COMBINED_SELLERS),
+        (GROUP_SELLERS, SUBTYPE_ALL_SELLERS),
+    }),
+    PURPOSE_COMBINED_SELLERS: frozenset({
+        (GROUP_SELLERS, SUBTYPE_COMBINED_SELLERS),
+        (GROUP_SELLERS, SUBTYPE_ALL_SELLERS),
+    }),
+    PURPOSE_STO_PROVIDERS: frozenset({
+        (GROUP_SERVICE_PROVIDERS, SUBTYPE_STO),
+        (GROUP_SERVICE_PROVIDERS, SUBTYPE_ALL_SERVICE_PROVIDERS),
+    }),
+    PURPOSE_DETAILING_PROVIDERS: frozenset({
+        (GROUP_SERVICE_PROVIDERS, SUBTYPE_DETAILING),
+        (GROUP_SERVICE_PROVIDERS, SUBTYPE_ALL_SERVICE_PROVIDERS),
+    }),
+    PURPOSE_TEST_CAMPAIGN: frozenset({
+        (GROUP_TEST, SUBTYPE_TEST_CONTACTS),
+    }),
+}

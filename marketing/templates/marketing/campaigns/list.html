@@ -1,0 +1,148 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Кампании — Рассылки и уведомления ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Кампании</h1>
+    <a class="marketing-btn marketing-btn--primary" href="{% url 'marketing:campaign_create' %}">Создать кампанию</a>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="get" class="marketing-filters">
+    <label>
+      Статус
+      <select name="status">
+        <option value="">Все</option>
+        {% for value, label in status_choices %}
+          <option value="{{ value }}"{% if filters.status == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Назначение
+      <select name="purpose">
+        <option value="">Все</option>
+        {% for value, label in purpose_choices %}
+          <option value="{{ value }}"{% if filters.purpose == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Аудитория
+      <select name="audience">
+        <option value="">Все</option>
+        {% for audience in audiences %}
+          <option value="{{ audience.pk }}"{% if filters.audience == audience.pk|stringformat:'s' %} selected{% endif %}>{{ audience.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Автор
+      <select name="author">
+        <option value="">Все</option>
+        {% for author in authors %}
+          <option value="{{ author.pk }}"{% if filters.author == author.pk|stringformat:'s' %} selected{% endif %}>{{ author.username }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      Создана с
+      <input type="date" name="created_from" value="{{ filters.created_from }}">
+    </label>
+    <label>
+      Создана по
+      <input type="date" name="created_to" value="{{ filters.created_to }}">
+    </label>
+    <button type="submit" class="marketing-btn">Применить</button>
+  </form>
+
+  <div class="marketing-table-wrap">
+    <table class="marketing-table">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Назначение</th>
+          <th>Аудитория</th>
+          <th>Статус</th>
+          <th>Найдено</th>
+          <th>Допустимо</th>
+          <th>Исключено</th>
+          <th>Подготовка</th>
+          <th>Автор</th>
+          <th>Создана</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for campaign in page_obj.object_list %}
+          <tr>
+            <td><a href="{% url 'marketing:campaign_detail' campaign.pk %}">{{ campaign.name }}</a></td>
+            <td>{{ campaign.purpose_label }}</td>
+            <td>{{ campaign.audience.name }}</td>
+            <td>{{ campaign.status_label }}</td>
+            <td>{{ campaign.matched_count }}</td>
+            <td>{{ campaign.eligible_count }}</td>
+            <td>{{ campaign.excluded_count }}</td>
+            <td>{% if campaign.audience_prepared_at %}{{ campaign.audience_prepared_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</td>
+            <td>{% if campaign.created_by %}{{ campaign.created_by.username }}{% else %}—{% endif %}</td>
+            <td>{{ campaign.created_at|date:'d.m.Y H:i' }}</td>
+            <td class="marketing-table__actions">
+              <a href="{% url 'marketing:campaign_detail' campaign.pk %}">Открыть</a>
+              {% if campaign.is_editable %}
+                <a href="{% url 'marketing:campaign_edit' campaign.pk %}">Изменить</a>
+              {% endif %}
+              <form method="post" action="{% url 'marketing:campaign_copy' campaign.pk %}" class="marketing-inline-form">
+                {% csrf_token %}
+                <button type="submit" class="marketing-link-btn">Копировать</button>
+              </form>
+              {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
+                <form method="post" action="{% url 'marketing:campaign_prepare' campaign.pk %}" class="marketing-inline-form">
+                  {% csrf_token %}
+                  <button type="submit" class="marketing-link-btn">Подготовить получателей</button>
+                </form>
+              {% endif %}
+              {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
+                <form method="post" action="{% url 'marketing:campaign_cancel' campaign.pk %}" class="marketing-inline-form">
+                  {% csrf_token %}
+                  <button type="submit" class="marketing-link-btn">Отменить</button>
+                </form>
+              {% endif %}
+              {% if campaign.status != 'archived' %}
+                <form method="post" action="{% url 'marketing:campaign_archive' campaign.pk %}" class="marketing-inline-form">
+                  {% csrf_token %}
+                  <button type="submit" class="marketing-link-btn">Архивировать</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="11">Кампаний пока нет.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="marketing-pagination" aria-label="Страницы">
+      {% if page_obj.has_previous %}
+        <a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">Назад</a>
+      {% endif %}
+      <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?{% if pagination_querystring %}{{ pagination_querystring }}&{% endif %}page={{ page_obj.next_page_number }}">Вперёд</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

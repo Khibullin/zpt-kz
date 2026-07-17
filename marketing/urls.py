@@ -9,6 +9,17 @@ from marketing.audience_views import (
     AudienceListView,
     AudienceUpdateView,
 )
+from marketing.campaign_views import (
+    CampaignArchiveView,
+    CampaignCancelView,
+    CampaignCopyView,
+    CampaignCreateView,
+    CampaignDeleteView,
+    CampaignDetailView,
+    CampaignListView,
+    CampaignPrepareView,
+    CampaignUpdateView,
+)
 from marketing.views import ContactsView, DashboardView, StubView
 
 app_name = 'marketing'
@@ -27,12 +38,15 @@ urlpatterns = [
     ),
     path('audiences/<int:pk>/copy/', AudienceCopyView.as_view(), name='audience_copy'),
     path('audiences/<int:pk>/delete/', AudienceDeleteView.as_view(), name='audience_delete'),
-    path(
-        'campaigns/',
-        StubView.as_view(),
-        {'section': 'campaigns'},
-        name='campaigns',
-    ),
+    path('campaigns/', CampaignListView.as_view(), name='campaigns'),
+    path('campaigns/new/', CampaignCreateView.as_view(), name='campaign_create'),
+    path('campaigns/<int:pk>/', CampaignDetailView.as_view(), name='campaign_detail'),
+    path('campaigns/<int:pk>/edit/', CampaignUpdateView.as_view(), name='campaign_edit'),
+    path('campaigns/<int:pk>/prepare/', CampaignPrepareView.as_view(), name='campaign_prepare'),
+    path('campaigns/<int:pk>/copy/', CampaignCopyView.as_view(), name='campaign_copy'),
+    path('campaigns/<int:pk>/cancel/', CampaignCancelView.as_view(), name='campaign_cancel'),
+    path('campaigns/<int:pk>/archive/', CampaignArchiveView.as_view(), name='campaign_archive'),
+    path('campaigns/<int:pk>/delete/', CampaignDeleteView.as_view(), name='campaign_delete'),
     path(
         'templates/',
         StubView.as_view(),

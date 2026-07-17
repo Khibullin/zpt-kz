@@ -1,0 +1,103 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{% if is_edit %}Изменение кампании{% else %}Новая кампания{% endif %} — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">{% if is_edit %}Изменение кампании{% else %}Новая кампания{% endif %}</h1>
+    <a class="marketing-btn" href="{% url 'marketing:campaigns' %}">К списку</a>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" class="marketing-form">
+    {% csrf_token %}
+    <div class="marketing-form__grid">
+      <label class="marketing-form__field">
+        <span>Название *</span>
+        <input type="text" name="name" value="{{ form_values.name }}" required maxlength="200">
+      </label>
+      <label class="marketing-form__field">
+        <span>Назначение *</span>
+        <select name="purpose" id="campaign-purpose" required>
+          <option value="">— выберите —</option>
+          {% for value, label in purpose_choices %}
+            <option value="{{ value }}"{% if selected_purpose == value %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="marketing-form__field marketing-form__field--full">
+        <span>Внутреннее описание</span>
+        <textarea name="description" rows="3">{{ form_values.description }}</textarea>
+      </label>
+      <label class="marketing-form__field marketing-form__field--full">
+        <span>Сохранённая аудитория *</span>
+        <select name="audience" id="campaign-audience" required{% if not selected_purpose %} disabled{% endif %}>
+          <option value="">— выберите —</option>
+          {% for audience in compatible_audiences %}
+            <option value="{{ audience.pk }}"{% if selected_audience_id == audience.pk|stringformat:'s' %} selected{% endif %}>{{ audience.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="marketing-form__checkbox">
+        <input type="checkbox" name="is_active"{% if form_values.is_active %} checked{% endif %}>
+        <span>Активна</span>
+      </label>
+    </div>
+
+    {% if selected_audience %}
+      <div class="marketing-info-card" id="audience-info">
+        <h2 class="marketing-info-card__title">Выбранная аудитория</h2>
+        <dl class="marketing-meta-grid">
+          <dt>Тип</dt><dd>{{ selected_audience.contact_group_label }}</dd>
+          <dt>Подтип</dt><dd>{{ selected_audience.contact_subtype_label }}</dd>
+          <dt>Последний расчёт</dt>
+          <dd>{% if selected_audience.last_calculated_at %}{{ selected_audience.last_calculated_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+          <dt>Найдено</dt><dd>{{ selected_audience.last_matched_count }}</dd>
+          <dt>Допустимо</dt><dd>{{ selected_audience.last_eligible_count }}</dd>
+          <dt>Изменена</dt><dd>{{ selected_audience.updated_at|date:'d.m.Y H:i' }}</dd>
+        </dl>
+        {% if not selected_audience.last_calculated_at %}
+          <p class="marketing-warning">Аудитория ещё не рассчитывалась. Перед подготовкой получателей рекомендуется пересчитать аудиторию.</p>
+        {% endif %}
+      </div>
+    {% elif selected_purpose %}
+      <p class="marketing-section-note">Выберите совместимую аудиторию для выбранного назначения.</p>
+    {% endif %}
+
+    <div class="marketing-info-card marketing-info-card--muted">
+      <p>Шаблон сообщения будет выбран на следующем этапе. Подготовка получателей не отправляет сообщения.</p>
+    </div>
+
+    <div class="marketing-form__actions">
+      <button type="submit" class="marketing-btn marketing-btn--primary">Сохранить</button>
+      {% if campaign %}
+        <a class="marketing-btn" href="{% url 'marketing:campaign_detail' campaign.pk %}">Отмена</a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+<script>
+  (function () {
+    var purposeSelect = document.getElementById('campaign-purpose');
+    if (!purposeSelect) return;
+    purposeSelect.addEventListener('change', function () {
+      var url = new URL(window.location.href);
+      if (this.value) {
+        url.searchParams.set('purpose', this.value);
+      } else {
+        url.searchParams.delete('purpose');
+      }
+      window.location.href = url.toString();
+    });
+  })();
+</script>
+{% endblock %}
