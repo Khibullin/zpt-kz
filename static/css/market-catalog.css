@@ -315,14 +315,15 @@ a.b2c-request-banner-btn,
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  min-height:44px;
-  height:44px;
-  min-width:0;
-  padding:0 22px;
-  border:1px solid #ff3b30;
+  min-height:46px;
+  height:46px;
+  min-width:180px;
+  max-width:220px;
+  padding:0 24px;
+  border:none;
   border-radius:12px;
-  background:#fff;
-  color:#ff3b30 !important;
+  background:#ff3b30;
+  color:#fff !important;
   font-size:15px;
   font-weight:700;
   line-height:1.2;
@@ -331,14 +332,13 @@ a.b2c-request-banner-btn,
   box-shadow:none;
   box-sizing:border-box;
   cursor:pointer;
-  transition:background .15s ease, color .15s ease, border-color .15s ease;
+  transition:background .15s ease, color .15s ease;
 }
 
 a.b2c-request-banner-btn:hover,
 .b2c-request-banner-btn:hover{
-  background:#fff;
-  border-color:#e6342a;
-  color:#e6342a !important;
+  background:#e6342a;
+  color:#fff !important;
   text-decoration:none !important;
   transform:none;
 }
@@ -360,6 +360,12 @@ a.b2c-request-banner-btn:hover,
 
   .b2c-request-banner-text{
     font-size:15px;
+  }
+
+  a.b2c-request-banner-btn,
+  .b2c-request-banner-btn{
+    width:auto;
+    flex-shrink:0;
   }
 }
 
@@ -390,6 +396,8 @@ a.b2c-request-banner-btn:hover,
   a.b2c-request-banner-btn,
   .b2c-request-banner-btn{
     width:100%;
+    max-width:none;
+    min-width:0;
     white-space:normal;
   }
 
