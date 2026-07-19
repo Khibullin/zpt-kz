@@ -1342,6 +1342,19 @@ WHATSAPP_CONFIDENCE_CHOICES = [
     ('low', 'Низкая'),
 ]
 
+SELLER_LEAD_REVIEW_STATUS_CHOICES = [
+    ('needs_review', 'Требует проверки'),
+    ('converted_requests', 'Добавлен в продавцы заявок'),
+    ('marketplace_planned', 'Отмечен для приглашения в маркетплейс'),
+    ('converted_and_marketplace_planned', 'Заявки + маркетплейс'),
+    ('rejected', 'Отклонён'),
+]
+
+SELLER_LEAD_MARKETPLACE_INVITATION_STATUS_CHOICES = [
+    ('', 'Не запланировано'),
+    ('planned', 'Приглашение запланировано'),
+]
+
 
 def normalize_seller_lead_instagram_username(value: str | None) -> str:
     username = str(value or '').strip()
@@ -1369,6 +1382,15 @@ class SellerLead(models.Model):
     STATUS_REJECTED = 'rejected'
     STATUS_DUPLICATE = 'duplicate'
     STATUS_NOT_SELLER = 'not_seller'
+
+    REVIEW_NEEDS_REVIEW = 'needs_review'
+    REVIEW_CONVERTED_REQUESTS = 'converted_requests'
+    REVIEW_MARKETPLACE_PLANNED = 'marketplace_planned'
+    REVIEW_CONVERTED_AND_MARKETPLACE_PLANNED = 'converted_and_marketplace_planned'
+    REVIEW_REJECTED = 'rejected'
+
+    MARKETPLACE_INVITATION_NONE = ''
+    MARKETPLACE_INVITATION_PLANNED = 'planned'
 
     name = models.CharField(max_length=255, verbose_name='Название')
     instagram_username = models.CharField(
@@ -1453,6 +1475,50 @@ class SellerLead(models.Model):
         choices=SELLER_LEAD_STATUS_CHOICES,
         default=STATUS_NEEDS_REVIEW,
         verbose_name='Статус',
+    )
+    review_status = models.CharField(
+        max_length=40,
+        choices=SELLER_LEAD_REVIEW_STATUS_CHOICES,
+        default=REVIEW_NEEDS_REVIEW,
+        verbose_name='Статус обработки',
+    )
+    request_seller = models.ForeignKey(
+        'Seller',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='seller_leads',
+        verbose_name='Продавец заявок',
+    )
+    request_seller_transport_type = models.CharField(
+        max_length=10,
+        choices=TRANSPORT_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Тип транспорта для продавца заявок',
+        help_text='Обязателен перед созданием нового продавца заявок из SellerLead.',
+    )
+    marketplace_invitation_status = models.CharField(
+        max_length=16,
+        choices=SELLER_LEAD_MARKETPLACE_INVITATION_STATUS_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Приглашение в маркетплейс',
+    )
+    marketplace_invitation_planned_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата планирования приглашения в маркетплейс',
+    )
+    reviewed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата обработки администратором',
+    )
+    rejected_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата отклонения',
     )
     notes = models.TextField(blank=True, default='', verbose_name='Комментарий оператора')
     collected_at = models.DateTimeField(

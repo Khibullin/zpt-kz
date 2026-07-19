@@ -1518,6 +1518,127 @@ def mark_seller_leads_contacted(modeladmin, request, queryset):
     messages.success(request, f'Помечено как «Написали»: {updated}.')
 
 
+def _apply_workflow_action(modeladmin, request, queryset, action_callable):
+    from core.services.seller_lead_admin_workflow import WorkflowResultKind
+
+    success_count = 0
+    warning_count = 0
+    error_count = 0
+
+    for lead in queryset:
+        lead.refresh_from_db()
+        result = action_callable(lead)
+        if result.kind == WorkflowResultKind.SUCCESS:
+            success_count += 1
+            messages.success(request, result.message)
+        elif result.kind == WorkflowResultKind.WARNING:
+            warning_count += 1
+            messages.warning(request, result.message)
+        else:
+            error_count += 1
+            messages.error(request, result.message)
+
+    if success_count:
+        messages.success(request, f'Успешно обработано: {success_count}.')
+    if warning_count:
+        messages.warning(request, f'С предупреждениями: {warning_count}.')
+    if error_count:
+        messages.error(request, f'С ошибками: {error_count}.')
+
+
+@admin.action(description='Добавить в продавцы заявок')
+def convert_seller_leads_to_request_sellers(modeladmin, request, queryset):
+    from core.services.seller_lead_admin_workflow import convert_lead_to_request_seller
+
+    _apply_workflow_action(modeladmin, request, queryset, convert_lead_to_request_seller)
+
+
+@admin.action(description='Отметить для приглашения в маркетплейс')
+def mark_seller_leads_marketplace_planned(modeladmin, request, queryset):
+    from core.services.seller_lead_admin_workflow import mark_marketplace_invitation_planned
+
+    _apply_workflow_action(modeladmin, request, queryset, mark_marketplace_invitation_planned)
+
+
+@admin.action(description='Добавить в продавцы заявок + отметить для маркетплейса')
+def convert_seller_leads_to_both(modeladmin, request, queryset):
+    from core.services.seller_lead_admin_workflow import convert_lead_and_mark_marketplace_planned
+
+    _apply_workflow_action(modeladmin, request, queryset, convert_lead_and_mark_marketplace_planned)
+
+
+@admin.action(description='Отклонить')
+def reject_seller_leads(modeladmin, request, queryset):
+    from core.services.seller_lead_admin_workflow import reject_lead
+
+    _apply_workflow_action(modeladmin, request, queryset, reject_lead)
+
+
+@admin.action(description='Вернуть на проверку')
+def return_seller_leads_to_review(modeladmin, request, queryset):
+    from core.services.seller_lead_admin_workflow import return_lead_to_review
+
+    _apply_workflow_action(modeladmin, request, queryset, return_lead_to_review)
+
+
+class SellerLeadHasWhatsAppFilter(admin.SimpleListFilter):
+    title = 'Наличие WhatsApp'
+    parameter_name = 'has_whatsapp'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Есть WhatsApp'),
+            ('no', 'Нет WhatsApp'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.exclude(whatsapp='')
+        if self.value() == 'no':
+            return queryset.filter(whatsapp='')
+        return queryset
+
+
+class SellerLeadHasRequestSellerFilter(admin.SimpleListFilter):
+    title = 'Связь с продавцом заявок'
+    parameter_name = 'has_request_seller'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Связан'),
+            ('no', 'Не связан'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(request_seller__isnull=False)
+        if self.value() == 'no':
+            return queryset.filter(request_seller__isnull=True)
+        return queryset
+
+
+class SellerLeadMarketplacePlannedFilter(admin.SimpleListFilter):
+    title = 'Приглашение в маркетплейс'
+    parameter_name = 'marketplace_planned'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('yes', 'Запланировано'),
+            ('no', 'Не запланировано'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'yes':
+            return queryset.filter(
+                marketplace_invitation_status=SellerLead.MARKETPLACE_INVITATION_PLANNED,
+            )
+        if self.value() == 'no':
+            return queryset.exclude(
+                marketplace_invitation_status=SellerLead.MARKETPLACE_INVITATION_PLANNED,
+            )
+        return queryset
+
+
 class SellerLeadContactCandidateInline(admin.TabularInline):
     model = SellerLeadContactCandidate
     extra = 0
@@ -1691,16 +1812,24 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'whatsapp',
         'city',
         'category',
+        'request_seller_transport_type',
+        'review_status',
+        'request_seller',
+        'marketplace_invitation_status',
         'status',
         'source_type',
-        'collected_at',
-        'checked_at',
+        'created_at',
     )
     list_filter = (
+        'review_status',
         'status',
         'source_type',
         'city',
         'category',
+        'request_seller_transport_type',
+        SellerLeadHasWhatsAppFilter,
+        SellerLeadHasRequestSellerFilter,
+        SellerLeadMarketplacePlannedFilter,
         'collected_at',
         'checked_at',
     )
@@ -1723,6 +1852,11 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'source_link',
     )
     actions = (
+        convert_seller_leads_to_request_sellers,
+        mark_seller_leads_marketplace_planned,
+        convert_seller_leads_to_both,
+        reject_seller_leads,
+        return_seller_leads_to_review,
         mark_seller_leads_verified,
         mark_seller_leads_duplicate,
         mark_seller_leads_not_seller,
@@ -1737,6 +1871,17 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'source_type',
                 'collected_at',
                 'checked_at',
+            ),
+        }),
+        ('Обработка администратором', {
+            'fields': (
+                'review_status',
+                'request_seller_transport_type',
+                'request_seller',
+                'marketplace_invitation_status',
+                'marketplace_invitation_planned_at',
+                'reviewed_at',
+                'rejected_at',
             ),
         }),
         ('Контакты', {
