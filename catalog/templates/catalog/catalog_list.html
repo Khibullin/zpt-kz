@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v131">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v132">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v5">
 <style>
 .market-topbar{
@@ -79,6 +79,113 @@
   font-size:.75rem;
   line-height:1.4;
   color:#6b7280;
+}
+
+.hero .b2c-request-banner{
+  margin-top:18px;
+  padding:17px 18px;
+  background:#fff5f5;
+  border:1px solid #ffd1d1;
+  border-radius:15px;
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  justify-content:flex-start;
+  gap:12px;
+  box-sizing:border-box;
+}
+
+.hero .b2c-request-banner-content{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.hero .b2c-request-banner-title{
+  margin:0;
+  padding:0;
+  font-size:17px;
+  line-height:1.35;
+  font-weight:700;
+  color:#111827;
+}
+
+.hero .b2c-request-banner-text{
+  margin:0;
+  padding:0;
+  font-size:14px;
+  line-height:1.45;
+  font-weight:400;
+  color:#4b5563;
+}
+
+.hero a.b2c-request-banner-btn,
+.hero .b2c-request-banner-btn{
+  display:inline-flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  min-height:46px !important;
+  height:46px !important;
+  min-width:180px;
+  max-width:220px;
+  padding:0 24px !important;
+  border:none !important;
+  border-radius:12px !important;
+  background:#ff3b30 !important;
+  color:#fff !important;
+  font-size:15px !important;
+  font-weight:700 !important;
+  line-height:1.2 !important;
+  text-decoration:none !important;
+  white-space:nowrap;
+  box-shadow:none !important;
+  box-sizing:border-box;
+  cursor:pointer;
+}
+
+.hero a.b2c-request-banner-btn:hover,
+.hero .b2c-request-banner-btn:hover{
+  background:#e6342a !important;
+  color:#fff !important;
+  text-decoration:none !important;
+}
+
+@media (min-width:768px){
+  .hero .b2c-request-banner{
+    flex-direction:row;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    margin-top:20px;
+    padding:18px 20px;
+  }
+
+  .hero .b2c-request-banner-title{
+    font-size:18px;
+  }
+
+  .hero .b2c-request-banner-text{
+    font-size:15px;
+  }
+}
+
+@media (max-width:767px){
+  .hero .b2c-request-banner{
+    margin-top:16px;
+    padding:16px;
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .hero a.b2c-request-banner-btn,
+  .hero .b2c-request-banner-btn{
+    width:100%;
+    max-width:none;
+    min-width:0;
+    white-space:normal;
+  }
 }
 
 .hero-b2b-strip{
@@ -358,14 +465,12 @@ a.hero-b2b-strip-btn:hover,
 
       </div>
 
-      <div class="hero-request-cta b2c-request-banner">
-        <div class="b2c-request-banner-copy">
+      <div class="b2c-request-banner">
+        <div class="b2c-request-banner-content">
           <p class="b2c-request-banner-title">Не нашли нужную запчасть в каталоге?</p>
           <p class="b2c-request-banner-text">Оставьте заявку — продавцы сами найдут деталь и напишут в WhatsApp.</p>
         </div>
-        <div class="b2c-request-banner-action">
-          <a href="/request-parts/" class="hero-request-cta-btn b2c-request-banner-btn">Оставить заявку</a>
-        </div>
+        <a href="/request-parts/" class="b2c-request-banner-btn">Оставить заявку</a>
       </div>
 
       <div class="hero-b2b-strip">
