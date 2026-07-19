@@ -186,39 +186,6 @@ body{
   color:#4b5563;
 }
 
-.hero-cta{
-  margin:0 0 22px;
-}
-
-.hero-cta-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  max-width:420px;
-  min-height:52px;
-  padding:14px 24px;
-  border:none;
-  border-radius:14px;
-  background:#ff3b30;
-  color:#fff;
-  font-size:1rem;
-  font-weight:800;
-  line-height:1.2;
-  text-decoration:none;
-  text-align:center;
-  box-shadow:0 8px 22px rgba(255,59,48,.24);
-  transition:background .15s ease, transform .15s ease;
-  box-sizing:border-box;
-}
-
-.hero-cta-btn:hover{
-  background:#e6342a;
-  color:#fff;
-  text-decoration:none;
-  transform:translateY(-1px);
-}
-
 .hero-b2b-strip{
   margin-top:20px;
   padding:14px 16px;
@@ -279,12 +246,6 @@ body{
     margin-bottom:20px;
   }
 
-  .hero-cta-btn{
-    width:auto;
-    min-width:320px;
-    font-size:1.0625rem;
-  }
-
   .hero-b2b-strip{
     padding:16px 20px;
     gap:20px;
@@ -305,16 +266,16 @@ body{
 }
 
 .b2c-request-banner{
-  margin-top:24px;
-  padding:20px;
-  background:#f9fafb;
-  border:1px solid #f3f4f6;
+  margin-top:18px;
+  padding:16px 18px;
+  background:#fff;
+  border:1px solid #ececec;
   border-radius:12px;
   display:flex;
   flex-direction:column;
   align-items:stretch;
   justify-content:space-between;
-  gap:16px;
+  gap:12px;
 }
 
 .b2c-request-banner-copy{
@@ -327,55 +288,53 @@ body{
 .b2c-request-banner-title{
   margin:0;
   padding:0;
-  font-size:1rem;
+  font-size:.9375rem;
   line-height:1.35;
   font-weight:700;
   color:#111827;
-  text-decoration:none;
 }
 
 .b2c-request-banner-text{
   margin:0;
   padding:0;
-  font-size:.75rem;
-  line-height:1.5;
-  color:#4b5563;
-  text-decoration:none;
+  font-size:.8125rem;
+  line-height:1.45;
+  color:#6b7280;
 }
 
 .b2c-request-banner-action{
   flex-shrink:0;
 }
 
+a.b2c-request-banner-btn,
 .b2c-request-banner-btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
+  min-height:44px;
   min-width:0;
-  padding:10px 20px;
-  border:none;
-  border-radius:12px;
-  background:#ff3b30;
-  color:#fff;
-  font-size:.75rem;
-  font-weight:500;
-  text-decoration:none;
+  padding:0 20px;
+  border:1px solid #ff3b30;
+  border-radius:10px;
+  background:#fff;
+  color:#ff3b30 !important;
+  font-size:15px;
+  font-weight:600;
+  line-height:1.2;
+  text-decoration:none !important;
   white-space:nowrap;
-  box-shadow:0 2px 8px rgba(255,59,48,.2);
-  transition:background .15s ease;
+  box-shadow:none;
+  box-sizing:border-box;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
 
+a.b2c-request-banner-btn:hover,
 .b2c-request-banner-btn:hover{
-  background:#e6342a;
-  color:#fff;
-  text-decoration:none;
+  background:#fff5f5;
+  border-color:#e6342a;
+  color:#e6342a !important;
+  text-decoration:none !important;
   transform:none;
-}
-
-@media (min-width:768px){
-  .b2c-request-banner-btn{
-    font-size:.875rem;
-  }
 }
 
 @media (min-width:768px){
@@ -383,53 +342,40 @@ body{
     flex-direction:row;
     align-items:center;
     text-align:left;
+    margin-top:20px;
+    padding:16px 20px;
+    gap:16px;
+  }
+
+  .b2c-request-banner-title{
+    font-size:1rem;
+  }
+
+  .b2c-request-banner-text{
+    font-size:.875rem;
   }
 }
 
 @media (max-width:767px){
   .b2c-request-banner{
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:16px;
-    margin-bottom:16px;
-    gap:16px;
-    overflow:visible;
+    margin-top:16px;
+    padding:14px 16px;
+    gap:12px;
   }
 
   .b2c-request-banner-copy{
-    align-items:center;
-    text-align:center;
     max-width:100%;
     width:100%;
   }
 
   .b2c-request-banner-action{
     width:100%;
-    margin:0;
   }
 
+  a.b2c-request-banner-btn,
   .b2c-request-banner-btn{
-    display:flex;
-    align-items:center;
-    justify-content:center;
     width:100%;
-    box-sizing:border-box;
     white-space:normal;
-    padding:14px 16px;
-    min-height:48px;
-    font-size:.875rem;
-    font-weight:700;
-  }
-
-  .hero-cta{
-    margin-bottom:18px;
-  }
-
-  .hero-cta-btn{
-    max-width:none;
-    width:100%;
   }
 
   .hero-b2b-strip{
@@ -866,8 +812,9 @@ body{
   .b2c-request-banner-btn{
     display:flex;
     width:100%;
-    min-height:48px;
-    padding:14px 16px;
+    min-height:44px;
+    padding:0 16px;
+    font-size:15px;
     white-space:normal;
     box-sizing:border-box;
   }

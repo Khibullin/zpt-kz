@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v128">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v129">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v5">
 <style>
 .market-topbar{
@@ -34,10 +34,6 @@
 .market-header-logo{
   flex-direction:column;
   align-items:flex-start;
-}
-
-.hero-cta{
-  margin:0 0 22px;
 }
 
 .hero-perks{
@@ -83,37 +79,6 @@
   font-size:.75rem;
   line-height:1.4;
   color:#6b7280;
-}
-
-a.hero-cta-btn,
-.hero-cta-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  max-width:420px;
-  min-height:52px;
-  padding:14px 24px;
-  border:none;
-  border-radius:14px;
-  background:#ff3b30;
-  color:#fff !important;
-  font-size:1rem;
-  font-weight:800;
-  line-height:1.2;
-  text-decoration:none !important;
-  text-align:center;
-  box-shadow:0 8px 22px rgba(255,59,48,.24);
-  transition:background .15s ease, transform .15s ease;
-  box-sizing:border-box;
-}
-
-a.hero-cta-btn:hover,
-.hero-cta-btn:hover{
-  background:#e6342a;
-  color:#fff !important;
-  text-decoration:none !important;
-  transform:translateY(-1px);
 }
 
 .hero-b2b-strip{
@@ -165,13 +130,6 @@ a.hero-b2b-strip-btn:hover,
 }
 
 @media (min-width:768px){
-  a.hero-cta-btn,
-  .hero-cta-btn{
-    width:auto;
-    min-width:320px;
-    font-size:1.0625rem;
-  }
-
   .hero-perk-item{
     font-size:.8125rem;
   }
@@ -197,19 +155,9 @@ a.hero-b2b-strip-btn:hover,
 }
 
 @media (max-width:767px){
-  .hero-cta{
-    margin-bottom:18px;
-  }
-
   .hero-perks{
     gap:6px 12px;
     margin-bottom:14px;
-  }
-
-  a.hero-cta-btn,
-  .hero-cta-btn{
-    max-width:none;
-    width:100%;
   }
 
   .hero-b2b-strip{
@@ -344,12 +292,6 @@ a.hero-b2b-strip-btn:hover,
         </li>
       </ul>
 
-      <div class="hero-cta">
-        <a href="/request-parts/" class="btn-primary hero-cta-btn">
-          Нужна запчасть? Отправить заявку
-        </a>
-      </div>
-
       <div class="search-box">
 
         <div class="hero-search-intro">
@@ -414,6 +356,16 @@ a.hero-b2b-strip-btn:hover,
 
         </form>
 
+      </div>
+
+      <div class="hero-request-cta b2c-request-banner">
+        <div class="b2c-request-banner-copy">
+          <p class="b2c-request-banner-title">Не нашли нужную запчасть в каталоге?</p>
+          <p class="b2c-request-banner-text">Оставьте заявку — продавцы сами найдут деталь и напишут в WhatsApp.</p>
+        </div>
+        <div class="b2c-request-banner-action">
+          <a href="/request-parts/" class="hero-request-cta-btn b2c-request-banner-btn">Оставить заявку</a>
+        </div>
       </div>
 
       <div class="hero-b2b-strip">
