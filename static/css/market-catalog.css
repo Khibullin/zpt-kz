@@ -267,28 +267,31 @@ body{
 
 .b2c-request-banner{
   margin-top:18px;
-  padding:16px 18px;
-  background:#fff;
-  border:1px solid #ececec;
-  border-radius:12px;
+  padding:17px 18px;
+  background:#fff5f5;
+  border:1px solid #ffd1d1;
+  border-radius:15px;
   display:flex;
   flex-direction:column;
   align-items:stretch;
-  justify-content:space-between;
+  justify-content:flex-start;
   gap:12px;
+  box-sizing:border-box;
 }
 
 .b2c-request-banner-copy{
   display:flex;
   flex-direction:column;
-  gap:4px;
+  gap:6px;
+  flex:1 1 auto;
+  min-width:0;
   max-width:42rem;
 }
 
 .b2c-request-banner-title{
   margin:0;
   padding:0;
-  font-size:.9375rem;
+  font-size:17px;
   line-height:1.35;
   font-weight:700;
   color:#111827;
@@ -297,9 +300,10 @@ body{
 .b2c-request-banner-text{
   margin:0;
   padding:0;
-  font-size:.8125rem;
+  font-size:14px;
   line-height:1.45;
-  color:#6b7280;
+  font-weight:400;
+  color:#4b5563;
 }
 
 .b2c-request-banner-action{
@@ -312,25 +316,27 @@ a.b2c-request-banner-btn,
   align-items:center;
   justify-content:center;
   min-height:44px;
+  height:44px;
   min-width:0;
-  padding:0 20px;
+  padding:0 22px;
   border:1px solid #ff3b30;
-  border-radius:10px;
+  border-radius:12px;
   background:#fff;
   color:#ff3b30 !important;
   font-size:15px;
-  font-weight:600;
+  font-weight:700;
   line-height:1.2;
   text-decoration:none !important;
   white-space:nowrap;
   box-shadow:none;
   box-sizing:border-box;
+  cursor:pointer;
   transition:background .15s ease, color .15s ease, border-color .15s ease;
 }
 
 a.b2c-request-banner-btn:hover,
 .b2c-request-banner-btn:hover{
-  background:#fff5f5;
+  background:#fff;
   border-color:#e6342a;
   color:#e6342a !important;
   text-decoration:none !important;
@@ -341,31 +347,40 @@ a.b2c-request-banner-btn:hover,
   .b2c-request-banner{
     flex-direction:row;
     align-items:center;
+    justify-content:space-between;
     text-align:left;
     margin-top:20px;
-    padding:16px 20px;
+    padding:18px 20px;
     gap:16px;
   }
 
   .b2c-request-banner-title{
-    font-size:1rem;
+    font-size:18px;
   }
 
   .b2c-request-banner-text{
-    font-size:.875rem;
+    font-size:15px;
   }
 }
 
 @media (max-width:767px){
   .b2c-request-banner{
     margin-top:16px;
-    padding:14px 16px;
+    padding:16px;
     gap:12px;
   }
 
   .b2c-request-banner-copy{
     max-width:100%;
     width:100%;
+  }
+
+  .b2c-request-banner-title{
+    font-size:17px;
+  }
+
+  .b2c-request-banner-text{
+    font-size:14px;
   }
 
   .b2c-request-banner-action{
@@ -787,36 +802,6 @@ a.b2c-request-banner-btn:hover,
 
   .hero{
     padding:16px;
-  }
-
-  .b2c-request-banner{
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    text-align:center;
-    padding:16px;
-    gap:16px;
-  }
-
-  .b2c-request-banner-copy{
-    align-items:center;
-    text-align:center;
-    max-width:100%;
-    width:100%;
-  }
-
-  .b2c-request-banner-action{
-    width:100%;
-  }
-
-  .b2c-request-banner-btn{
-    display:flex;
-    width:100%;
-    min-height:44px;
-    padding:0 16px;
-    font-size:15px;
-    white-space:normal;
-    box-sizing:border-box;
   }
 
   .action-card{
