@@ -6,6 +6,29 @@ from django.db.models import Count, Q
 from django.urls import reverse
 
 from core.models import BuyerPortalAccess, Match, Request, RequestDispatch
+from core.request_dispatch_service import (
+    build_successful_whatsapp_log_index,
+    resolve_whatsapp_status,
+)
+
+
+BUYER_SELLERS_VISIBLE_COUNT = 8
+
+BUYER_STATUS_SENT = 'Заявка отправлена продавцу'
+BUYER_STATUS_PENDING = 'Ожидает отправки'
+BUYER_STATUS_DIRECT = 'Можно написать продавцу напрямую'
+
+BUYER_STATUS_LABELS = {
+    'sent': BUYER_STATUS_SENT,
+    'pending': BUYER_STATUS_PENDING,
+    'error': BUYER_STATUS_DIRECT,
+}
+
+BUYER_STATUS_SORT_ORDER = {
+    'sent': 0,
+    'pending': 1,
+    'error': 2,
+}
 
 
 def normalize_buyer_phone(phone):
@@ -64,43 +87,65 @@ def buyer_requests_queryset(portal):
     )
 
 
-DISPATCH_STATUS_LABELS = {
-    RequestDispatch.STATUS_SENT: 'Заявка отправлена продавцу',
-    RequestDispatch.STATUS_FAILED: 'Ошибка отправки',
-}
-
-
-def buyer_dispatch_status_label(dispatch, match=None):
-    if dispatch.status == RequestDispatch.STATUS_FAILED:
-        return 'Ошибка отправки'
-    if match and match.status == 'error':
-        return 'Ошибка отправки'
-    if dispatch.status == RequestDispatch.STATUS_SENT:
-        return DISPATCH_STATUS_LABELS[RequestDispatch.STATUS_SENT]
-    return 'Ожидает отправки'
+def buyer_dispatch_status_label(
+    dispatch,
+    match=None,
+    *,
+    success_log_keys=None,
+):
+    status = resolve_whatsapp_status(
+        dispatch,
+        match,
+        success_log_keys=success_log_keys,
+    )
+    return BUYER_STATUS_LABELS[status]
 
 
 def build_request_sellers(req):
-    dispatches = (
-        req.dispatches.select_related('seller')
-        .order_by('position_number')
+    dispatches = list(
+        req.dispatches.select_related('seller').order_by('position_number')
     )
     match_map = {
         match.seller_id: match
         for match in Match.objects.filter(request=req)
     }
+    success_log_keys = build_successful_whatsapp_log_index(req.id)
+
     sellers = []
     for dispatch in dispatches:
         seller = dispatch.seller
         match = match_map.get(seller.id)
+        whatsapp_status = resolve_whatsapp_status(
+            dispatch,
+            match,
+            success_log_keys=success_log_keys,
+        )
         sellers.append({
-            'name': seller.name.strip() if seller.name else f'Продавец',
+            'name': seller.name.strip() if seller.name else 'Продавец',
             'city': seller.city,
-            'status_label': buyer_dispatch_status_label(dispatch, match),
+            'status_label': BUYER_STATUS_LABELS[whatsapp_status],
+            'whatsapp_status': whatsapp_status,
             'seller_id': seller.id,
             'whatsapp': seller.whatsapp,
+            '_sort_key': (
+                BUYER_STATUS_SORT_ORDER[whatsapp_status],
+                dispatch.position_number,
+            ),
         })
-    return sellers
+
+    sellers.sort(key=lambda item: item['_sort_key'])
+    for seller in sellers:
+        seller.pop('_sort_key', None)
+
+    visible_count = BUYER_SELLERS_VISIBLE_COUNT
+    hidden_count = max(len(sellers) - visible_count, 0)
+    return {
+        'items': sellers,
+        'visible': sellers[:visible_count],
+        'hidden': sellers[visible_count:],
+        'hidden_count': hidden_count,
+        'total': len(sellers),
+    }
 
 
 REQUEST_STATUS_LABELS = {

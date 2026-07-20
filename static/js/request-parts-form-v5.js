@@ -153,7 +153,7 @@ sellers.forEach((s)=>{
   if(s.whatsapp_status === 'sent'){
     statusHtml = '<span style="color:#2e7d32">✓ Заявка отправлена продавцу</span>';
   }else if(s.whatsapp_status === 'error'){
-    statusHtml = '<span style="color:#c62828">Ошибка отправки WhatsApp</span>';
+    statusHtml = '<span style="color:#6d4c00">Можно написать продавцу напрямую</span>';
   }else{
     statusHtml = '<span style="color:#616161">Ожидает отправки</span>';
   }

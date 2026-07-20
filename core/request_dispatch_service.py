@@ -19,14 +19,48 @@ SQLITE_WAVE_LOCKS: dict[tuple[int, int], threading.Lock] = {}
 SQLITE_WAVE_LOCKS_GUARD = threading.Lock()
 
 
+def build_successful_whatsapp_log_index(request_id: int) -> set[tuple[str, str]]:
+    return {
+        (seller_name, phone_clean)
+        for seller_name, phone_clean in WhatsAppMessageLog.objects.filter(
+            request_id=request_id,
+            is_success=True,
+        )
+        .exclude(seller_name=BUYER_WHATSAPP_LOG_SELLER_NAME)
+        .values_list('seller_name', 'phone_clean')
+    }
+
+
+def has_successful_whatsapp_log(
+    dispatch: RequestDispatch,
+    *,
+    success_log_keys: set[tuple[str, str]] | None = None,
+) -> bool:
+    key = (dispatch.seller.name, _normalize_phone(dispatch.seller.whatsapp))
+    if success_log_keys is not None:
+        return key in success_log_keys
+    return WhatsAppMessageLog.objects.filter(
+        request_id=dispatch.request_id,
+        phone_clean=key[1],
+        seller_name=key[0],
+        is_success=True,
+    ).exclude(
+        seller_name=BUYER_WHATSAPP_LOG_SELLER_NAME,
+    ).exists()
+
+
 def resolve_whatsapp_status(
     dispatch: RequestDispatch,
     match: Match | None = None,
+    *,
+    success_log_keys: set[tuple[str, str]] | None = None,
 ) -> str:
     """UI status: sent / pending / error."""
     if dispatch.status == RequestDispatch.STATUS_SENT:
         return 'sent'
     if match is not None and match.status == 'sent':
+        return 'sent'
+    if has_successful_whatsapp_log(dispatch, success_log_keys=success_log_keys):
         return 'sent'
     if dispatch.status == RequestDispatch.STATUS_FAILED:
         return 'error'
@@ -256,6 +290,32 @@ def record_dispatch_failure(dispatch: RequestDispatch, match: Match) -> None:
         dispatch.save(update_fields=['status'])
 
 
+def _mark_dispatch_sent(
+    dispatch: RequestDispatch,
+    match: Match,
+    sent_at=None,
+) -> None:
+    """Idempotently mark Match and RequestDispatch as sent after Meta accepted the message."""
+    sent_at = sent_at or timezone.now()
+
+    match_update_fields = ['status']
+    if match.status != 'sent':
+        match.status = 'sent'
+    if match.sent_at is None:
+        match.sent_at = sent_at
+        match_update_fields.append('sent_at')
+
+    dispatch_update_fields = ['status']
+    if dispatch.status != RequestDispatch.STATUS_SENT:
+        dispatch.status = RequestDispatch.STATUS_SENT
+    if dispatch.sent_at is None:
+        dispatch.sent_at = sent_at
+        dispatch_update_fields.append('sent_at')
+
+    match.save(update_fields=match_update_fields)
+    dispatch.save(update_fields=dispatch_update_fields)
+
+
 def send_single_dispatch(dispatch: RequestDispatch) -> dict:
     """Send one dispatch via Meta API. sent_at is set only after success."""
     from core.views import send_whatsapp_template
@@ -309,15 +369,12 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
         sent_at = timezone.now()
         with transaction.atomic():
             dispatch = RequestDispatch.objects.select_for_update().get(pk=dispatch.pk)
-            if dispatch.status != RequestDispatch.STATUS_QUEUED:
-                return {'ok': False, 'skipped': True, 'reason': 'status_changed'}
-            match = Match.objects.get(request=dispatch.request, seller=dispatch.seller)
-            match.status = 'sent'
-            match.sent_at = sent_at
-            dispatch.status = RequestDispatch.STATUS_SENT
-            dispatch.sent_at = sent_at
-            match.save(update_fields=['status', 'sent_at'])
-            dispatch.save(update_fields=['status', 'sent_at'])
+            match, _ = Match.objects.get_or_create(
+                request=dispatch.request,
+                seller=dispatch.seller,
+                defaults={'status': 'prepared'},
+            )
+            _mark_dispatch_sent(dispatch, match, sent_at)
         return {'ok': True, 'sent_at': sent_at}
 
     with transaction.atomic():

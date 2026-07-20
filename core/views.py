@@ -1014,12 +1014,14 @@ def _render_request_status(request, req):
         .first()
     )
     photos = list(req.photos.all())
-    sellers = build_request_sellers(req)
-    for seller in sellers:
-        seller['whatsapp_url'] = _buyer_contact_link(
-            seller.pop('whatsapp'),
-            req,
-        )
+    sellers_data = build_request_sellers(req)
+    all_sellers = sellers_data['items']
+    for seller in all_sellers:
+        whatsapp = seller.pop('whatsapp')
+        if whatsapp:
+            seller['whatsapp_url'] = _buyer_contact_link(whatsapp, req)
+        else:
+            seller['whatsapp_url'] = None
         seller['profile_url'] = reverse(
             'parts_seller_detail_public',
             kwargs={'seller_id': seller['seller_id']},
@@ -1031,8 +1033,10 @@ def _render_request_status(request, req):
         'photos': photos,
         'photos_count': len(photos),
         'status_label': REQUEST_STATUS_LABELS.get(req.status, req.status),
-        'sellers': sellers,
-        'sellers_count': len(sellers),
+        'sellers_visible': sellers_data['visible'],
+        'sellers_hidden': sellers_data['hidden'],
+        'sellers_hidden_count': sellers_data['hidden_count'],
+        'sellers_count': sellers_data['total'],
         'history_url': buyer_history_url(req) if portal else None,
         'repeat_url': repeat_request_url(req),
         'new_request_url': new_request_url(),

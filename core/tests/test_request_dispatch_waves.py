@@ -403,6 +403,30 @@ class WhatsAppStatusPresentationTests(TestCase):
         )
         self.assertEqual(resolve_whatsapp_status(dispatch, match), 'sent')
 
+    def test_resolve_whatsapp_status_sent_when_success_log_exists(self):
+        dispatch = RequestDispatch.objects.create(
+            request=self.request,
+            seller=self.seller,
+            wave_number=1,
+            position_number=1,
+            status=RequestDispatch.STATUS_FAILED,
+            scheduled_at=timezone.now(),
+        )
+        match = Match.objects.create(
+            request=self.request,
+            seller=self.seller,
+            status='error',
+        )
+        WhatsAppMessageLog.objects.create(
+            request_id=self.request.id,
+            seller_name=self.seller.name,
+            phone_clean='77005556677',
+            is_success=True,
+            status_text='sent',
+            message_id='wamid.log-success',
+        )
+        self.assertEqual(resolve_whatsapp_status(dispatch, match), 'sent')
+
 
 class SendSingleDispatchResultTests(TestCase):
     def setUp(self):
@@ -759,6 +783,48 @@ class PermanentFailureUnblocksWaveTests(TestCase):
             seller=dispatch.seller,
             status='error',
         )
+
+        result = send_single_dispatch(dispatch)
+        self.assertTrue(result['ok'])
+
+        dispatch.refresh_from_db()
+        match.refresh_from_db()
+        self.assertEqual(dispatch.status, RequestDispatch.STATUS_SENT)
+        self.assertEqual(match.status, 'sent')
+        self.assertEqual(resolve_whatsapp_status(dispatch, match), 'sent')
+
+    @patch('core.views.send_whatsapp_template')
+    def test_success_syncs_dispatch_and_match_when_status_changed_during_meta_call(
+        self,
+        send_mock,
+    ):
+        dispatch = RequestDispatch.objects.create(
+            request=self.request,
+            seller=Seller.objects.create(
+                name='Race seller',
+                whatsapp='77002220005',
+                transport_type='car',
+                city='Алматы',
+            ),
+            wave_number=1,
+            position_number=5,
+            status=RequestDispatch.STATUS_QUEUED,
+            scheduled_at=timezone.now(),
+        )
+        match = Match.objects.create(
+            request=self.request,
+            seller=dispatch.seller,
+            status='prepared',
+        )
+
+        def _mark_failed_then_succeed(*args, **kwargs):
+            dispatch.status = RequestDispatch.STATUS_FAILED
+            dispatch.save(update_fields=['status'])
+            match.status = 'error'
+            match.save(update_fields=['status'])
+            return {'ok': True, 'message_id': 'wamid.race-fix'}
+
+        send_mock.side_effect = _mark_failed_then_succeed
 
         result = send_single_dispatch(dispatch)
         self.assertTrue(result['ok'])

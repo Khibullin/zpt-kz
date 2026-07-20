@@ -124,9 +124,31 @@
     background: #e8f5e9;
     color: #1b5e20;
   }
-  .seller-status.is-error {
-    background: #ffebee;
-    color: #b71c1c;
+  .seller-status.is-direct {
+    background: #fff8e1;
+    color: #6d4c00;
+  }
+  .seller-card.is-hidden {
+    display: none;
+  }
+  .seller-card.is-hidden.is-expanded {
+    display: block;
+  }
+  .btn-show-more-sellers {
+    display: block;
+    width: 100%;
+    margin-top: 12px;
+    padding: 12px 16px;
+    border: 1px solid #d0d7de;
+    border-radius: 10px;
+    background: #fff;
+    color: #334155;
+    font-weight: bold;
+    cursor: pointer;
+    text-align: center;
+  }
+  .btn-show-more-sellers:hover {
+    background: #f8fafc;
   }
   .seller-actions {
     margin-top: 12px;
@@ -295,23 +317,47 @@
     </div>
 
     <div class="sellers-section">
-      <label>Продавцы, которым отправлена заявка{% if sellers_count %} ({{ sellers_count }}){% endif %}</label>
-      {% if sellers %}
-        {% for seller in sellers %}
+      <label>Продавцы по вашей заявке:{% if sellers_count %} ({{ sellers_count }}){% endif %}</label>
+      {% if sellers_count %}
+        {% for seller in sellers_visible %}
           <div class="seller-card">
             <div class="seller-name">{{ seller.name }}</div>
             {% if seller.city %}
               <div class="seller-meta">{{ seller.city }}</div>
             {% endif %}
-            <span class="seller-status{% if seller.status_label == 'Заявка отправлена продавцу' %} is-sent{% elif seller.status_label == 'Ошибка отправки' %} is-error{% endif %}">
+            <span class="seller-status{% if seller.status_label == 'Заявка отправлена продавцу' %} is-sent{% elif seller.status_label == 'Можно написать продавцу напрямую' %} is-direct{% endif %}">
               {{ seller.status_label }}
             </span>
             <div class="seller-actions">
-              <a class="btn-wa" href="{{ seller.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a>
+              {% if seller.whatsapp_url %}
+                <a class="btn-wa" href="{{ seller.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a>
+              {% endif %}
               <a class="btn-profile" href="{{ seller.profile_url }}">Открыть профиль продавца</a>
             </div>
           </div>
         {% endfor %}
+        {% for seller in sellers_hidden %}
+          <div class="seller-card is-hidden">
+            <div class="seller-name">{{ seller.name }}</div>
+            {% if seller.city %}
+              <div class="seller-meta">{{ seller.city }}</div>
+            {% endif %}
+            <span class="seller-status{% if seller.status_label == 'Заявка отправлена продавцу' %} is-sent{% elif seller.status_label == 'Можно написать продавцу напрямую' %} is-direct{% endif %}">
+              {{ seller.status_label }}
+            </span>
+            <div class="seller-actions">
+              {% if seller.whatsapp_url %}
+                <a class="btn-wa" href="{{ seller.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a>
+              {% endif %}
+              <a class="btn-profile" href="{{ seller.profile_url }}">Открыть профиль продавца</a>
+            </div>
+          </div>
+        {% endfor %}
+        {% if sellers_hidden_count %}
+          <button type="button" class="btn-show-more-sellers" id="show-more-sellers-btn">
+            Показать ещё {{ sellers_hidden_count }} продавцов
+          </button>
+        {% endif %}
       {% else %}
         <p class="sellers-empty">Подходящие продавцы пока не найдены. Мы продолжаем обработку заявки.</p>
       {% endif %}
@@ -334,5 +380,15 @@
 <script src="https://cdn.jsdelivr.net/npm/glightbox/dist/js/glightbox.min.js"></script>
 <script>
   const lightbox = GLightbox({ selector: '.glightbox' });
+
+  const showMoreSellersBtn = document.getElementById('show-more-sellers-btn');
+  if (showMoreSellersBtn) {
+    showMoreSellersBtn.addEventListener('click', () => {
+      document.querySelectorAll('.seller-card.is-hidden').forEach((card) => {
+        card.classList.add('is-expanded');
+      });
+      showMoreSellersBtn.remove();
+    });
+  }
 </script>
 {% endblock %}
