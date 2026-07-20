@@ -547,13 +547,13 @@ class ResultPageCopyTests(TestCase):
         payload = response.json()
         self.assertEqual(payload['matches'], 3)
         self.assertIn('очередь', payload['message'].lower())
-        pending_statuses = [
+        statuses = [
             item['whatsapp_status']
             for item in payload['seller_notifications']
-            if item['wave_number'] > 1 or item['whatsapp_status'] != 'sent'
+            if item['whatsapp_status'] != 'sent'
         ]
         self.assertTrue(
-            any(status == 'pending' for status in pending_statuses) or len(sellers) <= 10,
+            any(status == 'pending' for status in statuses) or len(sellers) <= 10,
         )
 
 

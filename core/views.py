@@ -34,6 +34,7 @@ from core.whatsapp_template_sender import (
 from .buyer_portal import (
     REQUEST_STATUS_LABELS,
     build_request_sellers,
+    build_seller_notifications_payload,
     buyer_history_url,
     buyer_history_whatsapp_url_suffix,
     buyer_request_whatsapp_url_suffix,
@@ -972,13 +973,14 @@ def create_request(request):
             lambda: schedule_instagram_publication_for_request(request_id)
         )
 
-        seller_notifications = [
-            _dispatch_to_json(
-                dispatch,
-                req
-            )
-            for dispatch in dispatches
-        ]
+        seller_payload = build_seller_notifications_payload(
+            req,
+            get_buyer_wa_link=_buyer_contact_link,
+            get_profile_url=lambda seller_id: reverse(
+                'parts_seller_detail_public',
+                kwargs={'seller_id': seller_id},
+            ),
+        )
 
         return JsonResponse({
             'status': 'ok',
@@ -987,12 +989,14 @@ def create_request(request):
             'strategy': strategy,
             'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
             'photo_view_url': request_page_url(req),
+            'request_page_url': request_page_url(req),
             'history_url': buyer_history_url(req),
             'upload_mode': upload_mode,
             'files_keys': list(request.FILES.keys()),
             'photos_received': len(uploaded_photos),
             'photos_saved': photos_saved,
-            'seller_notifications': seller_notifications,
+            'seller_notifications': seller_payload['seller_notifications'],
+            'sellers_hidden_count': seller_payload['sellers_hidden_count'],
         })
 
     except Exception as exc:

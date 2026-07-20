@@ -1,5 +1,6 @@
 import os
 import uuid
+from unittest.mock import patch
 
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -366,5 +367,62 @@ class BuyerPortalSellerStatusTests(TestCase):
         )
         self.assertEqual(
             buyer_dispatch_status_label(self.dispatch, match),
+            BUYER_STATUS_SENT,
+        )
+
+
+@override_settings(PUBLIC_BASE_URL='https://zpt.kz')
+class CreateRequestSellerPayloadTests(TestCase):
+    def setUp(self):
+        from core.models import BroadcastSettings
+
+        BroadcastSettings.objects.update_or_create(
+            pk=1,
+            defaults={
+                'mode': BroadcastSettings.MODE_LIVE,
+                'wave_size': 10,
+                'wave_interval_minutes': 5,
+                'emergency_stop': False,
+            },
+        )
+
+    @patch('core.views._send_buyer_whatsapp_notification_async')
+    @patch('core.views.send_whatsapp_template', return_value={'ok': True, 'message_id': 'wamid.test'})
+    @patch('core.views._find_matching_sellers')
+    def test_create_request_returns_unified_seller_payload(
+        self,
+        matching_mock,
+        send_mock,
+        buyer_async_mock,
+    ):
+        from core.tests.test_request_dispatch_waves import _create_sellers
+
+        sellers = _create_sellers(10)
+        matching_mock.return_value = (sellers, 'matched')
+
+        response = Client().post(
+            '/api/create-request/',
+            data={
+                'transport_type': 'car',
+                'brand': 'Toyota',
+                'model': 'Camry',
+                'category': 'Тормоза',
+                'city': 'Алматы',
+                'phone': '77001112233',
+                'search_scope': 'city',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertIn('request_page_url', payload)
+        self.assertEqual(payload['sellers_hidden_count'], 2)
+        self.assertEqual(len(payload['seller_notifications']), 10)
+        for item in payload['seller_notifications']:
+            self.assertIn('status_label', item)
+            self.assertNotIn('Ошибка отправки', item['status_label'])
+            self.assertNotIn('Ошибка отправки WhatsApp', item['status_label'])
+        self.assertEqual(
+            payload['seller_notifications'][0]['status_label'],
             BUYER_STATUS_SENT,
         )

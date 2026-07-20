@@ -96,9 +96,57 @@ async function loadModels(){
   }catch(e){ZPTDom.fillSelect(modelEl, [], 'Ошибка загрузки моделей')}
 }
 
+function sellerStatusHtml(s){
+  let label = s.status_label;
+  if(!label){
+    if(s.whatsapp_status === 'sent'){
+      label = 'Заявка отправлена продавцу';
+    }else if(s.whatsapp_status === 'error'){
+      label = 'Можно написать продавцу напрямую';
+    }else{
+      label = 'Ожидает отправки';
+    }
+  }
+  let color = '#616161';
+  let prefix = '';
+  if(s.whatsapp_status === 'sent'){
+    color = '#2e7d32';
+    prefix = '✓ ';
+  }else if(s.whatsapp_status === 'error'){
+    color = '#6d4c00';
+  }
+  return `<span style="color:${color}">${prefix}${ZPTDom.escapeHtml(label)}</span>`;
+}
+
+function renderSellerRow(s, extraClass){
+  let wa = s.buyer_wa_link || '';
+  let rowClass = 'seller-row' + (extraClass ? ' ' + extraClass : '');
+  let waBtn = wa
+    ? `<a class="wa-btn" href="${ZPTDom.escapeHtml(wa)}" target="_blank" rel="noopener">WhatsApp</a>`
+    : '';
+  return `
+  <div class="${rowClass}">
+    <div>
+      <b>${ZPTDom.escapeHtml(s.seller_name || 'Продавец')}</b><br>
+      ${sellerStatusHtml(s)}
+      ${
+        s.seller_catalog_url
+          ? `<br><a href="${ZPTDom.escapeHtml(s.seller_catalog_url)}" style="color:#3478f6;text-decoration:none;font-size:14px">Открыть профиль продавца</a>`
+          : ''
+      }
+    </div>
+    ${waBtn}
+  </div>
+  `;
+}
+
 function renderResult(data){
   let sellers = data.seller_notifications || [];
-  let count = data.matches || sellers.length || 0;
+  let hiddenCount = typeof data.sellers_hidden_count === 'number'
+    ? data.sellers_hidden_count
+    : Math.max(sellers.length - 8, 0);
+  let visibleSellers = sellers.slice(0, 8);
+  let hiddenSellers = sellers.slice(8);
 
   let strategyNote = '';
 
@@ -117,80 +165,51 @@ function renderResult(data){
 `;
   }
 
+  let requestPageUrl = data.request_page_url || data.photo_view_url || '';
+
   let html = `
 ${strategyNote}
 
-<b>✅ Заявка направлена ${count} продавцам</b><br><br>
-
-Заявка принята. Уведомления продавцам отправляются поэтапно.<br>
-В ближайшее время продавцы сами напишут вам в WhatsApp с предложениями.<br><br>
-
-Обычно ответы приходят в течение 5–15 минут.<br><br>
-
-Не нужно отправлять заявку повторно — она уже принята и направляется подходящим продавцам.<br><br>
-
-Вы также можете написать продавцу сами, если хотите ускорить ответ.
+<b>Заявка №${ZPTDom.escapeHtml(String(data.id || ''))} принята.</b> Мы направили её продавцам. Обычно отвечают в течение 5–15 минут.<br><br>
 `;
-  if(data.photo_view_url){
-    html += `<br><br><a href="${ZPTDom.escapeHtml(data.photo_view_url)}" style="color:#3478f6">Открыть страницу заявки</a>`;
+
+  if(requestPageUrl){
+    html += `<a href="${ZPTDom.escapeHtml(requestPageUrl)}" class="btn-open-request">Открыть страницу заявки</a><br><br>`;
   }
 
   if(data.upload_mode === 'json'){
-    html += `<br><br><span style="color:#e65100">Браузер отправил устаревший запрос без файлов. Нажмите Ctrl+F5 и повторите отправку.</span>`;
+    html += `<span style="color:#e65100">Браузер отправил устаревший запрос без файлов. Нажмите Ctrl+F5 и повторите отправку.</span><br><br>`;
   }else if(data.photos_received > 0 && !data.photos_saved){
-    html += `<br><br><span style="color:#e65100">Фото не сохранились на сервере (${data.photos_received} шт. получено). Попробуйте другой формат (JPG/PNG).</span>`;
+    html += `<span style="color:#e65100">Фото не сохранились на сервере (${data.photos_received} шт. получено). Попробуйте другой формат (JPG/PNG).</span><br><br>`;
   }else if(data.photos_saved){
-    html += `<br><br>Фото заявки: ${data.photos_saved} шт.`;
+    html += `Фото заявки: ${data.photos_saved} шт.<br><br>`;
   }
 
   if(sellers.length){
-    html += '<div class="result-card"><b>Продавцы, которым направлена заявка:</b>';
-
-sellers.forEach((s)=>{
-
-  let wa = s.buyer_wa_link || '#';
-  let statusHtml;
-  if(s.whatsapp_status === 'sent'){
-    statusHtml = '<span style="color:#2e7d32">✓ Заявка отправлена продавцу</span>';
-  }else if(s.whatsapp_status === 'error'){
-    statusHtml = '<span style="color:#6d4c00">Можно написать продавцу напрямую</span>';
-  }else{
-    statusHtml = '<span style="color:#616161">Ожидает отправки</span>';
-  }
-
-  html += `
-  <div class="seller-row">
-
-    <div>
-
-      <b>${ZPTDom.escapeHtml(s.seller_name || 'Продавец')}</b><br>
-
-      ${statusHtml}
-
-      ${
-        s.seller_catalog_url
-          ? `<br><a href="${ZPTDom.escapeHtml(s.seller_catalog_url)}" style="color:#3478f6;text-decoration:none;font-size:14px">Открыть профиль продавца</a>`
-          : ''
-      }
-
-    </div>
-
-    <a
-      class="wa-btn"
-      href="${ZPTDom.escapeHtml(wa)}"
-      target="_blank"
-      rel="noopener"
-    >
-      WhatsApp
-    </a>
-
-  </div>
-  `;
-});
+    html += '<div class="result-card"><b>Продавцы по вашей заявке:</b>';
+    visibleSellers.forEach((s) => {
+      html += renderSellerRow(s);
+    });
+    hiddenSellers.forEach((s) => {
+      html += renderSellerRow(s, 'seller-row-extra is-hidden');
+    });
+    if(hiddenCount > 0){
+      html += `<button type="button" class="btn-show-more-sellers" id="show-more-sellers-btn">Показать ещё ${hiddenCount} продавцов</button>`;
+    }
     html += '</div>';
   }
 
   setRichMessage(html,'success');
+
+  const showMoreBtn = document.getElementById('show-more-sellers-btn');
+  if(showMoreBtn){
+    showMoreBtn.addEventListener('click', () => {
+      document.querySelectorAll('.seller-row-extra.is-hidden').forEach((row) => {
+        row.classList.remove('is-hidden');
+      });
+      showMoreBtn.remove();
+    });
+  }
 }
 
 requestForm.addEventListener('submit',async function(e){

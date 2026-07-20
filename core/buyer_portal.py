@@ -148,6 +148,27 @@ def build_request_sellers(req):
     }
 
 
+def build_seller_notifications_payload(req, *, get_buyer_wa_link, get_profile_url):
+    """Unified seller list for create-request JSON and buyer portal."""
+    sellers_data = build_request_sellers(req)
+    seller_notifications = []
+    for seller in sellers_data['items']:
+        whatsapp = seller.get('whatsapp') or ''
+        seller_notifications.append({
+            'seller_id': seller['seller_id'],
+            'seller_name': seller['name'],
+            'city': seller.get('city') or '',
+            'status_label': seller['status_label'],
+            'whatsapp_status': seller['whatsapp_status'],
+            'seller_catalog_url': get_profile_url(seller['seller_id']),
+            'buyer_wa_link': get_buyer_wa_link(whatsapp, req) if whatsapp else None,
+        })
+    return {
+        'seller_notifications': seller_notifications,
+        'sellers_hidden_count': sellers_data['hidden_count'],
+    }
+
+
 REQUEST_STATUS_LABELS = {
     'new': 'Новая',
     'sent': 'Отправлена продавцам',
