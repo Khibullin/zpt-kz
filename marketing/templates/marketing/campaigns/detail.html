@@ -54,18 +54,51 @@
 
   {% if campaign.has_prepared_snapshot %}
     <h2 class="marketing-section-title">Результат подготовки</h2>
-    <div class="marketing-stats-grid">
-      <div class="marketing-stat"><span class="marketing-stat__label">Найдено</span><span class="marketing-stat__value">{{ campaign.matched_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Уникальных</span><span class="marketing-stat__value">{{ campaign.unique_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Допустимо</span><span class="marketing-stat__value">{{ campaign.eligible_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Исключено</span><span class="marketing-stat__value">{{ campaign.excluded_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Тестовых</span><span class="marketing-stat__value">{{ campaign.test_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Неактивных</span><span class="marketing-stat__value">{{ campaign.inactive_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Некорректных</span><span class="marketing-stat__value">{{ campaign.invalid_phone_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Согласие дано</span><span class="marketing-stat__value">{{ campaign.consent_granted_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Согласие не подтверждено</span><span class="marketing-stat__value">{{ campaign.consent_unknown_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Согласие отозвано</span><span class="marketing-stat__value">{{ campaign.consent_revoked_count }}</span></div>
-      <div class="marketing-stat"><span class="marketing-stat__label">Согласие не зафиксировано</span><span class="marketing-stat__value">{{ campaign.consent_not_recorded_count }}</span></div>
+    <div class="campaign-stats-grid">
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Найдено</span>
+        <strong class="campaign-stat-value">{{ campaign.matched_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Уникальных</span>
+        <strong class="campaign-stat-value">{{ campaign.unique_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Допустимо</span>
+        <strong class="campaign-stat-value">{{ campaign.eligible_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Исключено</span>
+        <strong class="campaign-stat-value">{{ campaign.excluded_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Тестовых</span>
+        <strong class="campaign-stat-value">{{ campaign.test_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Неактивных</span>
+        <strong class="campaign-stat-value">{{ campaign.inactive_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Некорректных</span>
+        <strong class="campaign-stat-value">{{ campaign.invalid_phone_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Согласие дано</span>
+        <strong class="campaign-stat-value">{{ campaign.consent_granted_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Согласие не подтверждено</span>
+        <strong class="campaign-stat-value">{{ campaign.consent_unknown_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Согласие отозвано</span>
+        <strong class="campaign-stat-value">{{ campaign.consent_revoked_count }}</strong>
+      </div>
+      <div class="campaign-stat">
+        <span class="campaign-stat-label">Согласие не зафиксировано</span>
+        <strong class="campaign-stat-value">{{ campaign.consent_not_recorded_count }}</strong>
+      </div>
     </div>
 
     <div class="marketing-page-header marketing-page-header--compact">

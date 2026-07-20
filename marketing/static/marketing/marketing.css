@@ -708,6 +708,51 @@
   color: var(--marketing-red);
 }
 
+.campaign-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.campaign-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--marketing-white);
+  border: 1px solid var(--marketing-border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  min-width: 0;
+}
+
+.campaign-stat-label {
+  display: block;
+  font-size: 12px;
+  line-height: 1.35;
+  color: var(--marketing-muted);
+}
+
+.campaign-stat-value {
+  display: block;
+  font-size: 22px;
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--marketing-red);
+}
+
+@media (max-width: 1024px) {
+  .campaign-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 560px) {
+  .campaign-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .marketing-page-header--compact {
   margin-top: 24px;
   align-items: center;
