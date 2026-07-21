@@ -648,3 +648,183 @@ class MarketingTemplateSecurityTests(TestCase):
         self.assertEqual(response.status_code, 302)
         template = MarketingWhatsAppTemplate.objects.get(name='Category safe')
         self.assertEqual(template.category, 'marketing')
+
+
+def production_form_post_data(**overrides) -> dict:
+    """POST payload matching the HTML create form with default empty placeholders."""
+    data = {
+        'name': 'Production form template',
+        'meta_template_name': 'zpt_production_form',
+        'language_code': 'ru',
+        'meta_status': META_STATUS_APPROVED,
+        'is_active': 'on',
+        'allowed_purposes': PURPOSE_PARTS_BUYERS,
+        'header_text': '',
+        'body_text': 'Здравствуйте!',
+        'footer_text': '',
+        'internal_notes': '',
+        'meta_template_id': '',
+        'variable_key_0': '',
+        'variable_label_0': '',
+        'variable_example_0': '',
+        'button_type_0': 'url',
+        'button_text_0': '',
+        'button_value_0': '',
+    }
+    data.update(overrides)
+    return data
+
+
+class MarketingTemplatePlaceholderRowTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('marketer', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='marketer', password='secret')
+
+    def test_empty_button_placeholder_saves_as_empty_list(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Empty button row',
+                meta_template_name='zpt_empty_button_row',
+            ),
+        )
+        self.assertEqual(response.status_code, 302)
+        template = MarketingWhatsAppTemplate.objects.get(name='Empty button row')
+        self.assertEqual(template.buttons, [])
+
+    def test_empty_variable_placeholder_saves_as_empty_list(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Empty variable row',
+                meta_template_name='zpt_empty_variable_row',
+            ),
+        )
+        self.assertEqual(response.status_code, 302)
+        template = MarketingWhatsAppTemplate.objects.get(name='Empty variable row')
+        self.assertEqual(template.variables, [])
+
+    def test_both_empty_placeholders_do_not_block_save(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Both placeholders empty',
+                meta_template_name='zpt_both_placeholders_empty',
+            ),
+        )
+        self.assertEqual(response.status_code, 302)
+        template = MarketingWhatsAppTemplate.objects.get(name='Both placeholders empty')
+        self.assertEqual(template.buttons, [])
+        self.assertEqual(template.variables, [])
+
+    def test_partially_filled_button_still_errors(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Partial button text',
+                meta_template_name='zpt_partial_button_text',
+                button_text_0='Подробнее',
+                button_value_0='',
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            MarketingWhatsAppTemplate.objects.filter(name='Partial button text').exists(),
+        )
+
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Partial button value',
+                meta_template_name='zpt_partial_button_value',
+                button_text_0='',
+                button_value_0='https://zpt.kz',
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            MarketingWhatsAppTemplate.objects.filter(name='Partial button value').exists(),
+        )
+
+    def test_partially_filled_variable_still_errors(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Partial variable',
+                meta_template_name='zpt_partial_variable',
+                variable_key_0='name',
+                variable_label_0='',
+            ),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            MarketingWhatsAppTemplate.objects.filter(name='Partial variable').exists(),
+        )
+
+    def test_valid_button_saves(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Valid button',
+                meta_template_name='zpt_valid_button',
+                button_text_0='Подробнее',
+                button_value_0='https://zpt.kz',
+            ),
+        )
+        self.assertEqual(response.status_code, 302)
+        template = MarketingWhatsAppTemplate.objects.get(name='Valid button')
+        self.assertEqual(template.buttons, [{
+            'type': 'url',
+            'text': 'Подробнее',
+            'value': 'https://zpt.kz',
+        }])
+
+    def test_valid_variable_saves(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(
+                name='Valid variable',
+                meta_template_name='zpt_valid_variable',
+                variable_key_0='recipient_name',
+                variable_label_0='Имя получателя',
+                variable_example_0='Алексей',
+            ),
+        )
+        self.assertEqual(response.status_code, 302)
+        template = MarketingWhatsAppTemplate.objects.get(name='Valid variable')
+        self.assertEqual(template.variables, [{
+            'key': 'recipient_name',
+            'label': 'Имя получателя',
+            'required': False,
+            'example': 'Алексей',
+        }])
+
+    def test_validate_buttons_skips_empty_placeholder_with_default_type(self):
+        self.assertEqual(
+            validate_buttons([{'type': 'url', 'text': '', 'value': ''}]),
+            [],
+        )
+
+    def test_validate_variables_skips_empty_placeholder(self):
+        self.assertEqual(
+            validate_variables([{
+                'key': '',
+                'label': '',
+                'example': '',
+                'required': False,
+            }]),
+            [],
+        )
+
+    def test_production_form_post_regression(self):
+        response = self.client.post(
+            reverse('marketing:template_create'),
+            production_form_post_data(),
+        )
+        self.assertEqual(response.status_code, 302)
+        template = MarketingWhatsAppTemplate.objects.get(name='Production form template')
+        self.assertEqual(template.meta_template_name, 'zpt_production_form')
+        self.assertEqual(template.buttons, [])
+        self.assertEqual(template.variables, [])

@@ -81,6 +81,20 @@ def validate_allowed_purposes(values: list[str]) -> list[str]:
     return normalized
 
 
+def is_empty_variable_placeholder(item: dict) -> bool:
+    key = str(item.get('key', '')).strip()
+    label = str(item.get('label', '')).strip()
+    example = str(item.get('example', '')).strip()
+    required = bool(item.get('required', False))
+    return not key and not label and not example and not required
+
+
+def is_empty_button_placeholder(item: dict) -> bool:
+    text = str(item.get('text', '')).strip()
+    value = str(item.get('value', '')).strip()
+    return not text and not value
+
+
 def validate_variable_key(key: str) -> str:
     cleaned = (key or '').strip()
     if not cleaned:
@@ -102,14 +116,20 @@ def validate_variables(raw: object) -> list[dict]:
     if not isinstance(raw, list):
         raise TemplateValidationError('Variables должны быть списком объектов.')
 
+    items: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise TemplateValidationError('Variables должны быть списком объектов.')
+        if is_empty_variable_placeholder(item):
+            continue
+        items.append(item)
+
     normalized: list[dict] = []
     seen_keys: set[str] = set()
-    if len(raw) > MAX_VARIABLES:
+    if len(items) > MAX_VARIABLES:
         raise TemplateValidationError(f'Максимум {MAX_VARIABLES} переменных в шаблоне.')
 
-    for index, item in enumerate(raw, start=1):
-        if not isinstance(item, dict):
-            raise TemplateValidationError(f'Переменная #{index} должна быть объектом.')
+    for index, item in enumerate(items, start=1):
         extra_fields = set(item.keys()) - {'key', 'label', 'required', 'example'}
         forbidden = extra_fields & FORBIDDEN_VARIABLE_EXTRA_FIELDS
         if forbidden:
@@ -200,13 +220,19 @@ def validate_buttons(raw: object) -> list[dict]:
     if not isinstance(raw, list):
         raise TemplateValidationError('Buttons должны быть списком объектов.')
 
+    items: list[dict] = []
+    for item in raw:
+        if not isinstance(item, dict):
+            raise TemplateValidationError('Buttons должны быть списком объектов.')
+        if is_empty_button_placeholder(item):
+            continue
+        items.append(item)
+
     normalized: list[dict] = []
-    if len(raw) > MAX_BUTTONS:
+    if len(items) > MAX_BUTTONS:
         raise TemplateValidationError(f'Максимум {MAX_BUTTONS} кнопок в шаблоне.')
 
-    for index, item in enumerate(raw, start=1):
-        if not isinstance(item, dict):
-            raise TemplateValidationError(f'Кнопка #{index} должна быть объектом.')
+    for index, item in enumerate(items, start=1):
         extra_fields = set(item.keys()) - {'type', 'text', 'value'}
         if extra_fields:
             raise TemplateValidationError(
@@ -237,7 +263,7 @@ def validate_buttons(raw: object) -> list[dict]:
     return normalized
 
 
-def variables_from_request_post(post) -> list[dict]:
+def raw_variables_from_post(post) -> list[dict]:
     indices: set[int] = set()
     for key in post.keys():
         if key.startswith('variable_key_'):
@@ -251,18 +277,19 @@ def variables_from_request_post(post) -> list[dict]:
         label = post.get(f'variable_label_{index}', '').strip()
         required = post.get(f'variable_required_{index}') == 'on'
         example = post.get(f'variable_example_{index}', '').strip()
-        if not key and not label and not example and not required:
-            continue
-        raw.append({
+        item = {
             'key': key,
             'label': label,
             'required': required,
             'example': example,
-        })
-    return validate_variables(raw)
+        }
+        if is_empty_variable_placeholder(item):
+            continue
+        raw.append(item)
+    return raw
 
 
-def buttons_from_request_post(post) -> list[dict]:
+def raw_buttons_from_post(post) -> list[dict]:
     indices: set[int] = set()
     for key in post.keys():
         if key.startswith('button_type_'):
@@ -275,14 +302,23 @@ def buttons_from_request_post(post) -> list[dict]:
         button_type = post.get(f'button_type_{index}', '').strip()
         text = post.get(f'button_text_{index}', '').strip()
         value = post.get(f'button_value_{index}', '').strip()
-        if not button_type and not text and not value:
-            continue
-        raw.append({
+        item = {
             'type': button_type,
             'text': text,
             'value': value,
-        })
-    return validate_buttons(raw)
+        }
+        if is_empty_button_placeholder(item):
+            continue
+        raw.append(item)
+    return raw
+
+
+def variables_from_request_post(post) -> list[dict]:
+    return validate_variables(raw_variables_from_post(post))
+
+
+def buttons_from_request_post(post) -> list[dict]:
+    return validate_buttons(raw_buttons_from_post(post))
 
 
 def allowed_purposes_from_request_post(post) -> list[str]:

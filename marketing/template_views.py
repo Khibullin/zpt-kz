@@ -23,6 +23,8 @@ from marketing.services.templates.selectors import (
 )
 from marketing.services.templates.validation import (
     TemplateValidationError,
+    raw_buttons_from_post,
+    raw_variables_from_post,
     validate_allowed_purposes,
     validate_buttons,
     validate_language_code,
@@ -30,52 +32,6 @@ from marketing.services.templates.validation import (
     validate_variables,
 )
 from marketing.views import MarketingCabinetMixin
-
-
-def _raw_variables_from_post(post) -> list[dict]:
-    indices: set[int] = set()
-    for key in post.keys():
-        if key.startswith('variable_key_'):
-            suffix = key.removeprefix('variable_key_')
-            if suffix.isdigit():
-                indices.add(int(suffix))
-    raw: list[dict] = []
-    for index in sorted(indices):
-        key = post.get(f'variable_key_{index}', '').strip()
-        label = post.get(f'variable_label_{index}', '').strip()
-        required = post.get(f'variable_required_{index}') == 'on'
-        example = post.get(f'variable_example_{index}', '').strip()
-        if not key and not label and not example and not required:
-            continue
-        raw.append({
-            'key': key,
-            'label': label,
-            'required': required,
-            'example': example,
-        })
-    return raw
-
-
-def _raw_buttons_from_post(post) -> list[dict]:
-    indices: set[int] = set()
-    for key in post.keys():
-        if key.startswith('button_type_'):
-            suffix = key.removeprefix('button_type_')
-            if suffix.isdigit():
-                indices.add(int(suffix))
-    raw: list[dict] = []
-    for index in sorted(indices):
-        button_type = post.get(f'button_type_{index}', '').strip()
-        text = post.get(f'button_text_{index}', '').strip()
-        value = post.get(f'button_value_{index}', '').strip()
-        if not button_type and not text and not value:
-            continue
-        raw.append({
-            'type': button_type,
-            'text': text,
-            'value': value,
-        })
-    return raw
 
 
 def _template_form_values(request, template: MarketingWhatsAppTemplate | None) -> dict:
@@ -94,8 +50,8 @@ def _template_form_values(request, template: MarketingWhatsAppTemplate | None) -
             'internal_notes': request.POST.get('internal_notes', '').strip(),
             'meta_template_id': request.POST.get('meta_template_id', '').strip(),
             'allowed_purposes': [value.strip() for value in allowed_raw if value.strip()],
-            'variables': _raw_variables_from_post(request.POST),
-            'buttons': _raw_buttons_from_post(request.POST),
+            'variables': raw_variables_from_post(request.POST),
+            'buttons': raw_buttons_from_post(request.POST),
         }
     if template is None:
         return {
