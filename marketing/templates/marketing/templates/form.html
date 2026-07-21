@@ -1,0 +1,183 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{% if is_edit %}Изменение шаблона{% else %}Новый шаблон{% endif %} — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">{% if is_edit %}Изменение шаблона{% else %}Новый шаблон{% endif %}</h1>
+    <a class="marketing-btn" href="{% url 'marketing:templates' %}">К списку</a>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" class="marketing-form" id="template-form">
+    {% csrf_token %}
+    <div class="marketing-form__grid">
+      <label class="marketing-form__field">
+        <span>Внутреннее название *</span>
+        <input type="text" name="name" value="{{ form_values.name }}" required maxlength="200">
+      </label>
+      <label class="marketing-form__field">
+        <span>Meta template name *</span>
+        <input type="text" name="meta_template_name" value="{{ form_values.meta_template_name }}" required maxlength="150" pattern="[a-z0-9_]+">
+      </label>
+      <label class="marketing-form__field">
+        <span>Язык *</span>
+        <input type="text" name="language_code" value="{{ form_values.language_code }}" required maxlength="20" placeholder="ru">
+      </label>
+      <label class="marketing-form__field">
+        <span>Meta status</span>
+        <select name="meta_status">
+          {% for value, label in meta_status_choices %}
+            <option value="{{ value }}"{% if form_values.meta_status == value %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label class="marketing-form__checkbox">
+        <input type="checkbox" name="is_active"{% if form_values.is_active %} checked{% endif %}>
+        <span>Активен</span>
+      </label>
+      <label class="marketing-form__checkbox">
+        <input type="checkbox" name="allow_test_campaign"{% if form_values.allow_test_campaign %} checked{% endif %}>
+        <span>Разрешить тестовую кампанию</span>
+      </label>
+    </div>
+
+    <fieldset class="marketing-fieldset">
+      <legend>Разрешённые назначения кампаний</legend>
+      <div class="marketing-checkbox-grid">
+        {% for value, label in purpose_choices %}
+          <label class="marketing-form__checkbox">
+            <input type="checkbox" name="allowed_purposes" value="{{ value }}"{% if value in form_values.allowed_purposes %} checked{% endif %}>
+            <span>{{ label }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    <label class="marketing-form__field marketing-form__field--full">
+      <span>Header</span>
+      <textarea name="header_text" rows="2">{{ form_values.header_text }}</textarea>
+    </label>
+    <label class="marketing-form__field marketing-form__field--full">
+      <span>Body</span>
+      <textarea name="body_text" rows="5">{{ form_values.body_text }}</textarea>
+    </label>
+    <label class="marketing-form__field marketing-form__field--full">
+      <span>Footer</span>
+      <textarea name="footer_text" rows="2">{{ form_values.footer_text }}</textarea>
+    </label>
+
+    <fieldset class="marketing-fieldset" id="variables-fieldset">
+      <legend>Переменные</legend>
+      <div id="variables-container">
+        {% for variable in form_values.variables %}
+          <div class="marketing-repeat-row" data-variable-row>
+            <input type="text" name="variable_key_{{ forloop.counter0 }}" value="{{ variable.key }}" placeholder="key" maxlength="50">
+            <input type="text" name="variable_label_{{ forloop.counter0 }}" value="{{ variable.label }}" placeholder="label" maxlength="120">
+            <label class="marketing-form__checkbox"><input type="checkbox" name="variable_required_{{ forloop.counter0 }}"{% if variable.required %} checked{% endif %}><span>Обяз.</span></label>
+            <input type="text" name="variable_example_{{ forloop.counter0 }}" value="{{ variable.example }}" placeholder="example" maxlength="200">
+          </div>
+        {% empty %}
+          <div class="marketing-repeat-row" data-variable-row>
+            <input type="text" name="variable_key_0" placeholder="key" maxlength="50">
+            <input type="text" name="variable_label_0" placeholder="label" maxlength="120">
+            <label class="marketing-form__checkbox"><input type="checkbox" name="variable_required_0"><span>Обяз.</span></label>
+            <input type="text" name="variable_example_0" placeholder="example" maxlength="200">
+          </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="marketing-btn" id="add-variable">Добавить переменную</button>
+    </fieldset>
+
+    <fieldset class="marketing-fieldset" id="buttons-fieldset">
+      <legend>Кнопки</legend>
+      <div id="buttons-container">
+        {% for button in form_values.buttons %}
+          <div class="marketing-repeat-row" data-button-row>
+            <select name="button_type_{{ forloop.counter0 }}">
+              <option value="url"{% if button.type == 'url' %} selected{% endif %}>URL</option>
+              <option value="quick_reply"{% if button.type == 'quick_reply' %} selected{% endif %}>Быстрый ответ</option>
+              <option value="phone"{% if button.type == 'phone' %} selected{% endif %}>Телефон</option>
+            </select>
+            <input type="text" name="button_text_{{ forloop.counter0 }}" value="{{ button.text }}" placeholder="text" maxlength="120">
+            <input type="text" name="button_value_{{ forloop.counter0 }}" value="{{ button.value }}" placeholder="value" maxlength="500">
+          </div>
+        {% empty %}
+          <div class="marketing-repeat-row" data-button-row>
+            <select name="button_type_0">
+              <option value="url">URL</option>
+              <option value="quick_reply">Быстрый ответ</option>
+              <option value="phone">Телефон</option>
+            </select>
+            <input type="text" name="button_text_0" placeholder="text" maxlength="120">
+            <input type="text" name="button_value_0" placeholder="value" maxlength="500">
+          </div>
+        {% endfor %}
+      </div>
+      <button type="button" class="marketing-btn" id="add-button">Добавить кнопку</button>
+    </fieldset>
+
+    <label class="marketing-form__field marketing-form__field--full">
+      <span>Внутренние заметки</span>
+      <textarea name="internal_notes" rows="3">{{ form_values.internal_notes }}</textarea>
+    </label>
+    <label class="marketing-form__field">
+      <span>Meta template ID</span>
+      <input type="text" name="meta_template_id" value="{{ form_values.meta_template_id }}" maxlength="64">
+    </label>
+
+    <div class="marketing-form__actions">
+      <button type="submit" class="marketing-btn marketing-btn--primary">Сохранить</button>
+      {% if template_obj %}
+        <a class="marketing-btn" href="{% url 'marketing:template_detail' template_obj.pk %}">Отмена</a>
+      {% endif %}
+    </div>
+  </form>
+</section>
+
+<script>
+  (function () {
+    function nextIndex(container, prefix) {
+      var max = -1;
+      container.querySelectorAll('[name^="' + prefix + '"]').forEach(function (el) {
+        var match = el.name.match(/_(\d+)$/);
+        if (match) max = Math.max(max, parseInt(match[1], 10));
+      });
+      return max + 1;
+    }
+
+    var variablesContainer = document.getElementById('variables-container');
+    document.getElementById('add-variable').addEventListener('click', function () {
+      var index = nextIndex(variablesContainer, 'variable_key_');
+      var row = document.createElement('div');
+      row.className = 'marketing-repeat-row';
+      row.innerHTML =
+        '<input type="text" name="variable_key_' + index + '" placeholder="key" maxlength="50">' +
+        '<input type="text" name="variable_label_' + index + '" placeholder="label" maxlength="120">' +
+        '<label class="marketing-form__checkbox"><input type="checkbox" name="variable_required_' + index + '"><span>Обяз.</span></label>' +
+        '<input type="text" name="variable_example_' + index + '" placeholder="example" maxlength="200">';
+      variablesContainer.appendChild(row);
+    });
+
+    var buttonsContainer = document.getElementById('buttons-container');
+    document.getElementById('add-button').addEventListener('click', function () {
+      var index = nextIndex(buttonsContainer, 'button_type_');
+      var row = document.createElement('div');
+      row.className = 'marketing-repeat-row';
+      row.innerHTML =
+        '<select name="button_type_' + index + '"><option value="url">URL</option><option value="quick_reply">Быстрый ответ</option><option value="phone">Телефон</option></select>' +
+        '<input type="text" name="button_text_' + index + '" placeholder="text" maxlength="120">' +
+        '<input type="text" name="button_value_' + index + '" placeholder="value" maxlength="500">';
+      buttonsContainer.appendChild(row);
+    });
+  })();
+</script>
+{% endblock %}

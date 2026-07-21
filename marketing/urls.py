@@ -20,6 +20,16 @@ from marketing.campaign_views import (
     CampaignPrepareView,
     CampaignUpdateView,
 )
+from marketing.template_views import (
+    TemplateActivateView,
+    TemplateCopyView,
+    TemplateCreateView,
+    TemplateDeactivateView,
+    TemplateDeleteView,
+    TemplateDetailView,
+    TemplateListView,
+    TemplateUpdateView,
+)
 from marketing.views import ContactsView, DashboardView, StubView
 
 app_name = 'marketing'
@@ -49,10 +59,20 @@ urlpatterns = [
     path('campaigns/<int:pk>/delete/', CampaignDeleteView.as_view(), name='campaign_delete'),
     path(
         'templates/',
-        StubView.as_view(),
-        {'section': 'templates'},
+        TemplateListView.as_view(),
         name='templates',
     ),
+    path('templates/new/', TemplateCreateView.as_view(), name='template_create'),
+    path('templates/<int:pk>/', TemplateDetailView.as_view(), name='template_detail'),
+    path('templates/<int:pk>/edit/', TemplateUpdateView.as_view(), name='template_edit'),
+    path('templates/<int:pk>/copy/', TemplateCopyView.as_view(), name='template_copy'),
+    path('templates/<int:pk>/activate/', TemplateActivateView.as_view(), name='template_activate'),
+    path(
+        'templates/<int:pk>/deactivate/',
+        TemplateDeactivateView.as_view(),
+        name='template_deactivate',
+    ),
+    path('templates/<int:pk>/delete/', TemplateDeleteView.as_view(), name='template_delete'),
     path(
         'service-notifications/',
         StubView.as_view(),

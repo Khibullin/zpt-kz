@@ -1,0 +1,16 @@
+<div class="wa-template-preview">
+  {% if preview.header %}
+    <div class="wa-template-preview__header">{{ preview.header }}</div>
+  {% endif %}
+  <div class="wa-template-preview__body">{{ preview.body|linebreaksbr }}</div>
+  {% if preview.footer %}
+    <div class="wa-template-preview__footer">{{ preview.footer }}</div>
+  {% endif %}
+  {% if preview.buttons %}
+    <div class="wa-template-preview__buttons">
+      {% for button in preview.buttons %}
+        <span class="wa-template-preview__button">{{ button.text }}</span>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>

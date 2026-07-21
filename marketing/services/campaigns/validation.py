@@ -14,6 +14,9 @@ from marketing.services.campaigns.constants import (
     STATUS_DRAFT,
     STATUS_AUDIENCE_PREPARED,
 )
+from marketing.services.templates.selectors import (
+    template_is_compatible_with_campaign,
+)
 
 if TYPE_CHECKING:
     from marketing.models import MarketingAudience, MarketingCampaign
@@ -29,6 +32,7 @@ def validate_campaign_form_fields(
     purpose: str,
     audience: MarketingAudience | None,
     audience_id: str,
+    message_template=None,
 ) -> None:
     if not name.strip():
         raise CampaignValidationError('Укажите название кампании.')
@@ -43,6 +47,13 @@ def validate_campaign_form_fields(
     if not is_audience_compatible_with_purpose(audience, purpose):
         raise CampaignValidationError(
             'Выбранная аудитория несовместима с назначением кампании.',
+        )
+    if message_template is not None and not template_is_compatible_with_campaign(
+        message_template,
+        purpose=purpose,
+    ):
+        raise CampaignValidationError(
+            'Выбранный шаблон недоступен для назначения кампании.',
         )
 
 

@@ -17,10 +17,27 @@ from marketing.services.campaigns.constants import (
     ELIGIBILITY_ELIGIBLE,
     ELIGIBILITY_EXCLUDED,
     EXCLUSION_REASON_CHOICES,
+    PURPOSE_TEST_CAMPAIGN,
     STATUS_ARCHIVED,
     STATUS_AUDIENCE_PREPARED,
     STATUS_CANCELLED,
     STATUS_DRAFT,
+)
+from marketing.services.templates.constants import (
+    CATEGORY_MARKETING,
+    META_STATUS_CHOICES,
+    META_STATUS_UNKNOWN,
+    TEMPLATE_BUSINESS_PURPOSE_CHOICES,
+    USABLE_META_STATUSES,
+)
+from marketing.services.templates.validation import (
+    TemplateValidationError,
+    is_reserved_service_template_name,
+    validate_allowed_purposes,
+    validate_buttons,
+    validate_language_code,
+    validate_meta_template_name,
+    validate_variables,
 )
 
 
@@ -133,6 +150,122 @@ class MarketingAudience(models.Model):
         super().save(*args, **kwargs)
 
 
+class MarketingWhatsAppTemplate(models.Model):
+    name = models.CharField(max_length=200, verbose_name='Внутреннее название')
+    meta_template_name = models.CharField(max_length=150, verbose_name='Meta template name')
+    language_code = models.CharField(max_length=20, default='ru', verbose_name='Код языка')
+    category = models.CharField(
+        max_length=32,
+        default=CATEGORY_MARKETING,
+        verbose_name='Категория',
+    )
+    meta_status = models.CharField(
+        max_length=16,
+        choices=META_STATUS_CHOICES,
+        default=META_STATUS_UNKNOWN,
+        verbose_name='Статус в Meta (локально)',
+    )
+    is_active = models.BooleanField(default=True, verbose_name='Активен')
+    allowed_purposes = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Разрешённые назначения кампаний',
+    )
+    allow_test_campaign = models.BooleanField(
+        default=False,
+        verbose_name='Разрешить тестовую кампанию',
+    )
+    header_text = models.TextField(blank=True, default='', verbose_name='Header')
+    body_text = models.TextField(blank=True, default='', verbose_name='Body')
+    footer_text = models.TextField(blank=True, default='', verbose_name='Footer')
+    buttons = models.JSONField(default=list, blank=True, verbose_name='Кнопки')
+    variables = models.JSONField(default=list, blank=True, verbose_name='Переменные')
+    internal_notes = models.TextField(blank=True, default='', verbose_name='Внутренние заметки')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='marketing_whatsapp_templates',
+        verbose_name='Автор',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+    last_status_checked_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя проверка статуса',
+    )
+    meta_template_id = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Meta template ID',
+    )
+
+    class Meta:
+        verbose_name = 'Маркетинговый WhatsApp-шаблон'
+        verbose_name_plural = 'Маркетинговые WhatsApp-шаблоны'
+        ordering = ('-updated_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=('name',),
+                name='marketing_whatsapp_template_unique_name',
+            ),
+            models.UniqueConstraint(
+                fields=('meta_template_name', 'language_code'),
+                name='marketing_whatsapp_template_unique_meta_lang',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.name
+
+    @property
+    def meta_status_label(self) -> str:
+        return dict(META_STATUS_CHOICES).get(self.meta_status, self.meta_status)
+
+    @property
+    def is_selectable_for_campaign(self) -> bool:
+        return self.is_active and self.meta_status in USABLE_META_STATUSES
+
+    @property
+    def allowed_purposes_labels(self) -> list[str]:
+        labels = dict(TEMPLATE_BUSINESS_PURPOSE_CHOICES)
+        return [labels.get(code, code) for code in self.allowed_purposes]
+
+    def allows_campaign_purpose(self, purpose: str) -> bool:
+        if purpose == PURPOSE_TEST_CAMPAIGN:
+            return self.allow_test_campaign
+        return purpose in self.allowed_purposes
+
+    def clean(self) -> None:
+        super().clean()
+        if not self.name.strip():
+            raise ValidationError({'name': 'Укажите внутреннее название шаблона.'})
+        self.category = CATEGORY_MARKETING
+        try:
+            self.meta_template_name = validate_meta_template_name(self.meta_template_name)
+            self.language_code = validate_language_code(self.language_code)
+            self.allowed_purposes = validate_allowed_purposes(list(self.allowed_purposes or []))
+        except TemplateValidationError as exc:
+            raise ValidationError(str(exc)) from exc
+        if is_reserved_service_template_name(self.meta_template_name):
+            raise ValidationError({
+                'meta_template_name': 'Это имя зарезервировано для сервисных WhatsApp-шаблонов.',
+            })
+        try:
+            self.variables = validate_variables(self.variables)
+            self.buttons = validate_buttons(self.buttons)
+        except TemplateValidationError as exc:
+            raise ValidationError(str(exc)) from exc
+
+    def save(self, *args, **kwargs):
+        self.category = CATEGORY_MARKETING
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+
 class MarketingCampaign(models.Model):
     name = models.CharField(max_length=200, verbose_name='Название кампании')
     description = models.TextField(blank=True, default='', verbose_name='Описание')
@@ -215,6 +348,19 @@ class MarketingCampaign(models.Model):
     )
     archived_at = models.DateTimeField(null=True, blank=True, verbose_name='Архивирована')
     cancelled_at = models.DateTimeField(null=True, blank=True, verbose_name='Отменена')
+    message_template = models.ForeignKey(
+        MarketingWhatsAppTemplate,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        related_name='campaigns',
+        verbose_name='WhatsApp-шаблон',
+    )
+    template_selected_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Шаблон выбран',
+    )
 
     class Meta:
         verbose_name = 'Маркетинговая кампания'
@@ -265,11 +411,27 @@ class MarketingCampaign(models.Model):
             and not self.is_snapshot_stale()
         )
 
+    @property
+    def message_template_allows_purpose(self) -> bool:
+        if not self.message_template_id:
+            return False
+        return self.message_template.allows_campaign_purpose(self.purpose)
+
     def clean(self) -> None:
         super().clean()
         from marketing.services.campaigns.validation import campaign_model_clean
 
         campaign_model_clean(self)
+        if self.message_template_id and self.purpose:
+            template = self.message_template
+            if not template.is_selectable_for_campaign:
+                raise ValidationError({
+                    'message_template': 'Выбранный шаблон недоступен для использования.',
+                })
+            if not template.allows_campaign_purpose(self.purpose):
+                raise ValidationError({
+                    'message_template': 'Шаблон несовместим с назначением кампании.',
+                })
 
     def save(self, *args, **kwargs):
         self.full_clean()

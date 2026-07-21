@@ -12,6 +12,7 @@ from django.views.generic import TemplateView
 
 from marketing.models import MarketingAudience, MarketingCampaign
 from marketing.services.audiences import criteria_summary
+from marketing.services.campaigns.readiness import build_campaign_readiness
 from marketing.services.campaigns.compatibility import compatible_audiences_for_purpose
 from marketing.services.campaigns.constants import (
     CAMPAIGN_LIST_PAGE_SIZE,
@@ -41,7 +42,22 @@ from marketing.services.campaigns.validation import (
     validate_campaign_editable,
     validate_campaign_form_fields,
 )
+from marketing.services.templates.preview import render_template_preview_text
+from marketing.services.templates.selectors import (
+    compatible_templates_for_purpose,
+    resolve_template_from_post,
+)
+from marketing.services.templates.validation import TemplateValidationError
 from marketing.views import MarketingCabinetMixin
+
+
+def _apply_campaign_template(campaign: MarketingCampaign, template, *, selected_at):
+    previous_id = campaign.message_template_id
+    campaign.message_template = template
+    if template is None:
+        campaign.template_selected_at = None
+    elif previous_id != (template.pk if template else None):
+        campaign.template_selected_at = selected_at
 
 
 def _audience_option_payload(audience: MarketingAudience) -> dict:
@@ -143,6 +159,17 @@ class CampaignFormMixin(MarketingCabinetMixin):
                 == 'on'
             ),
         }
+        if selected_purpose:
+            compatible_templates = compatible_templates_for_purpose(selected_purpose)
+        else:
+            compatible_templates = []
+        context['compatible_templates'] = compatible_templates
+        selected_template_id = (
+            self.request.POST.get('message_template')
+            or (str(campaign.message_template_id) if campaign and campaign.message_template_id else '')
+        ).strip()
+        context['selected_template_id'] = selected_template_id
+        context['has_compatible_templates'] = compatible_templates.exists() if selected_purpose else False
         return context
 
 
@@ -151,15 +178,18 @@ class CampaignCreateView(CampaignFormMixin, TemplateView):
         name = request.POST.get('name', '').strip()
         purpose = request.POST.get('purpose', '').strip()
         audience_id = request.POST.get('audience', '').strip()
+        template_id = request.POST.get('message_template', '').strip()
         try:
             audience = resolve_audience_from_post(audience_id, purpose=purpose)
+            message_template = resolve_template_from_post(template_id, purpose=purpose)
             validate_campaign_form_fields(
                 name=name,
                 purpose=purpose,
                 audience=audience,
                 audience_id=audience_id,
+                message_template=message_template,
             )
-        except CampaignValidationError as exc:
+        except (CampaignValidationError, TemplateValidationError) as exc:
             messages.error(request, str(exc))
             return self.render_to_response(self.get_context_data())
 
@@ -171,6 +201,12 @@ class CampaignCreateView(CampaignFormMixin, TemplateView):
             is_active=request.POST.get('is_active', 'on') == 'on',
             created_by=request.user,
         )
+        _apply_campaign_template(
+            campaign,
+            message_template,
+            selected_at=timezone.now(),
+        )
+        campaign.save()
         messages.success(request, f'Кампания «{campaign.name}» создана.')
         return redirect('marketing:campaign_detail', pk=campaign.pk)
 
@@ -184,7 +220,11 @@ class CampaignDetailView(MarketingCabinetMixin, TemplateView):
         context.update(self.get_broadcast_mode_context())
         context.update(self.get_nav_context())
         campaign = get_object_or_404(
-            MarketingCampaign.objects.select_related('audience', 'created_by'),
+            MarketingCampaign.objects.select_related(
+                'audience',
+                'created_by',
+                'message_template',
+            ),
             pk=kwargs['pk'],
         )
         preview_filter = self.request.GET.get('preview', 'all').strip() or 'all'
@@ -204,6 +244,11 @@ class CampaignDetailView(MarketingCabinetMixin, TemplateView):
         )
         context['preview_limit'] = CAMPAIGN_PREVIEW_LIMIT
         context['snapshot_stale'] = campaign.is_snapshot_stale()
+        context['readiness'] = build_campaign_readiness(campaign)
+        if campaign.message_template_id:
+            context['template_preview'] = render_template_preview_text(campaign.message_template)
+        else:
+            context['template_preview'] = None
         return context
 
 
@@ -226,16 +271,19 @@ class CampaignUpdateView(CampaignFormMixin, TemplateView):
         name = request.POST.get('name', '').strip()
         purpose = request.POST.get('purpose', '').strip()
         audience_id = request.POST.get('audience', '').strip()
+        template_id = request.POST.get('message_template', '').strip()
         try:
             validate_campaign_editable(campaign)
             audience = resolve_audience_from_post(audience_id, purpose=purpose)
+            message_template = resolve_template_from_post(template_id, purpose=purpose)
             validate_campaign_form_fields(
                 name=name,
                 purpose=purpose,
                 audience=audience,
                 audience_id=audience_id,
+                message_template=message_template,
             )
-        except CampaignValidationError as exc:
+        except (CampaignValidationError, TemplateValidationError) as exc:
             messages.error(request, str(exc))
             return self.render_to_response(self.get_context_data())
 
@@ -248,6 +296,11 @@ class CampaignUpdateView(CampaignFormMixin, TemplateView):
         campaign.purpose = purpose
         campaign.audience = audience
         campaign.is_active = request.POST.get('is_active', 'on') == 'on'
+        _apply_campaign_template(
+            campaign,
+            message_template,
+            selected_at=timezone.now(),
+        )
         if audience_changed:
             clear_campaign_snapshot(campaign)
         campaign.save()

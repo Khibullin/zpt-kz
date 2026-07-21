@@ -52,6 +52,21 @@
       </label>
     </div>
 
+    <div class="marketing-form__grid">
+      <label class="marketing-form__field marketing-form__field--full">
+        <span>WhatsApp-шаблон</span>
+        <select name="message_template" id="campaign-template"{% if not selected_purpose %} disabled{% endif %}>
+          <option value="">— не выбран —</option>
+          {% for template in compatible_templates %}
+            <option value="{{ template.pk }}"{% if selected_template_id == template.pk|stringformat:'s' %} selected{% endif %}>{{ template.name }} ({{ template.meta_template_name }})</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    {% if selected_purpose and not has_compatible_templates %}
+      <p class="marketing-warning">Нет доступных маркетинговых шаблонов для этого назначения. <a href="{% url 'marketing:template_create' %}">Создать шаблон</a></p>
+    {% endif %}
+
     {% if selected_audience %}
       <div class="marketing-info-card" id="audience-info">
         <h2 class="marketing-info-card__title">Выбранная аудитория</h2>
@@ -73,7 +88,7 @@
     {% endif %}
 
     <div class="marketing-info-card marketing-info-card--muted">
-      <p>Шаблон сообщения будет выбран на следующем этапе. Подготовка получателей не отправляет сообщения.</p>
+      <p>Выбор шаблона не отправляет сообщения. Подготовка получателей также не отправляет сообщения.</p>
     </div>
 
     <div class="marketing-form__actions">

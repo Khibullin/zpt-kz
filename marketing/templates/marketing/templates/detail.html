@@ -1,0 +1,87 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}{{ template_obj.name }} — Шаблоны WhatsApp ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">{{ template_obj.name }}</h1>
+    <div class="marketing-page-actions">
+      <a class="marketing-btn" href="{% url 'marketing:template_edit' template_obj.pk %}">Изменить</a>
+      <form method="post" action="{% url 'marketing:template_copy' template_obj.pk %}" class="marketing-inline-form">
+        {% csrf_token %}
+        <button type="submit" class="marketing-btn">Копировать</button>
+      </form>
+      {% if template_obj.is_active %}
+        <form method="post" action="{% url 'marketing:template_deactivate' template_obj.pk %}" class="marketing-inline-form">
+          {% csrf_token %}
+          <button type="submit" class="marketing-btn">Деактивировать</button>
+        </form>
+      {% else %}
+        <form method="post" action="{% url 'marketing:template_activate' template_obj.pk %}" class="marketing-inline-form">
+          {% csrf_token %}
+          <button type="submit" class="marketing-btn">Активировать</button>
+        </form>
+      {% endif %}
+      <a class="marketing-btn" href="{% url 'marketing:templates' %}">К списку</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <dl class="marketing-meta-grid">
+    <dt>Meta template name</dt><dd>{{ template_obj.meta_template_name }}</dd>
+    <dt>Язык</dt><dd>{{ template_obj.language_code }}</dd>
+    <dt>Статус Meta</dt><dd>{{ template_obj.meta_status_label }}</dd>
+    <dt>Активен</dt><dd>{% if template_obj.is_active %}Да{% else %}Нет{% endif %}</dd>
+    <dt>Разрешённые назначения</dt><dd>{{ template_obj.allowed_purposes_labels|join:', '|default:'—' }}</dd>
+    <dt>Тестовая кампания</dt><dd>{% if template_obj.allow_test_campaign %}Разрешена{% else %}Нет{% endif %}</dd>
+    <dt>Кампаний</dt><dd>{{ campaign_count }}</dd>
+    <dt>Автор</dt><dd>{% if template_obj.created_by %}{{ template_obj.created_by.username }}{% else %}—{% endif %}</dd>
+    <dt>Обновлён</dt><dd>{{ template_obj.updated_at|date:'d.m.Y H:i' }}</dd>
+  </dl>
+
+  {% if template_obj.internal_notes %}
+    <p class="marketing-section-note">{{ template_obj.internal_notes }}</p>
+  {% endif %}
+
+  <h2 class="marketing-section-title">Preview</h2>
+  {% include 'marketing/templates/_preview.html' with preview=preview %}
+
+  {% if template_obj.variables %}
+    <h2 class="marketing-section-title">Переменные</h2>
+    <div class="marketing-table-wrap">
+      <table class="marketing-table">
+        <thead>
+          <tr>
+            <th>Key</th>
+            <th>Label</th>
+            <th>Обязательная</th>
+            <th>Example</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for variable in template_obj.variables %}
+            <tr>
+              <td>{{ variable.key }}</td>
+              <td>{{ variable.label }}</td>
+              <td>{% if variable.required %}Да{% else %}Нет{% endif %}</td>
+              <td>{{ variable.example|default:'—' }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  <div class="marketing-page-actions marketing-page-actions--footer">
+    <a class="marketing-btn marketing-btn--danger" href="{% url 'marketing:template_delete' template_obj.pk %}">Удалить</a>
+  </div>
+</section>
+{% endblock %}

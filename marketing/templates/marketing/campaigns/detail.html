@@ -48,9 +48,51 @@
     <p class="marketing-section-note">{{ campaign.description }}</p>
   {% endif %}
 
-  <div class="marketing-info-card marketing-info-card--muted">
-    <p>Шаблон сообщения будет выбран на следующем этапе. Подготовка получателей не отправляет сообщения.</p>
+  <h2 class="marketing-section-title">Готовность кампании</h2>
+  <div class="campaign-readiness">
+    <p class="campaign-readiness__summary">
+      <strong>Получатели готовы:</strong> {% if readiness.recipients_ready %}Да{% else %}Нет{% endif %}
+      ·
+      <strong>Шаблон готов:</strong> {% if readiness.template_ready %}Да{% else %}Нет{% endif %}
+    </p>
+    {% if readiness.prepared_for_next_stage %}
+      <p class="campaign-readiness__ready">Кампания подготовлена к следующему этапу</p>
+    {% else %}
+      <p class="campaign-readiness__note">«Подготовлена к следующему этапу» не означает «готова к отправке».</p>
+    {% endif %}
+    <ul class="campaign-readiness__list">
+      {% for item in readiness.items %}
+        <li class="campaign-readiness__item{% if item.ok %} is-ok{% else %} is-pending{% endif %}">{{ item.label }}</li>
+      {% endfor %}
+    </ul>
   </div>
+
+  <div class="marketing-page-header marketing-page-header--compact">
+    <h2 class="marketing-section-title">Шаблон WhatsApp</h2>
+    {% if campaign.is_editable %}
+      <a class="marketing-btn" href="{% url 'marketing:campaign_edit' campaign.pk %}">Изменить шаблон</a>
+    {% endif %}
+  </div>
+  {% if campaign.message_template %}
+    {% if readiness.template_unavailable_message %}
+      <p class="marketing-warning">{{ readiness.template_unavailable_message }}</p>
+    {% endif %}
+    <dl class="marketing-meta-grid">
+      <dt>Внутреннее название</dt><dd><a href="{% url 'marketing:template_detail' campaign.message_template.pk %}">{{ campaign.message_template.name }}</a></dd>
+      <dt>Meta template name</dt><dd>{{ campaign.message_template.meta_template_name }}</dd>
+      <dt>Язык</dt><dd>{{ campaign.message_template.language_code }}</dd>
+      <dt>Статус Meta</dt><dd>{{ campaign.message_template.meta_status_label }}</dd>
+      <dt>Активен</dt><dd>{% if campaign.message_template.is_active %}Да{% else %}Нет{% endif %}</dd>
+      <dt>Разрешён для назначения</dt><dd>{% if campaign.message_template_allows_purpose %}Да{% else %}Нет{% endif %}</dd>
+      <dt>Выбран</dt><dd>{% if campaign.template_selected_at %}{{ campaign.template_selected_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+    </dl>
+    {% if template_preview %}
+      <h3 class="marketing-section-subtitle">Preview</h3>
+      {% include 'marketing/templates/_preview.html' with preview=template_preview %}
+    {% endif %}
+  {% else %}
+    <p class="marketing-section-note">Шаблон не выбран. <a href="{% url 'marketing:campaign_edit' campaign.pk %}">Выбрать шаблон</a> · <a href="{% url 'marketing:template_create' %}">Создать шаблон</a></p>
+  {% endif %}
 
   {% if campaign.has_prepared_snapshot %}
     <h2 class="marketing-section-title">Результат подготовки</h2>

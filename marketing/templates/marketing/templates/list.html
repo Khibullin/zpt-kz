@@ -1,0 +1,123 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Шаблоны WhatsApp — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Шаблоны WhatsApp</h1>
+    <a class="marketing-btn marketing-btn--primary" href="{% url 'marketing:template_create' %}">Создать шаблон</a>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="get" class="marketing-filter-form">
+    <label>
+      <span>Статус</span>
+      <select name="meta_status">
+        <option value="">Все</option>
+        {% for value, label in meta_status_choices %}
+          <option value="{{ value }}"{% if filters.meta_status == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>Назначение</span>
+      <select name="purpose">
+        <option value="">Все</option>
+        {% for value, label in purpose_choices %}
+          <option value="{{ value }}"{% if filters.purpose == value %} selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>
+      <span>Язык</span>
+      <input type="text" name="language_code" value="{{ filters.language_code }}" placeholder="ru">
+    </label>
+    <label>
+      <span>Активность</span>
+      <select name="is_active">
+        <option value="">Все</option>
+        <option value="1"{% if filters.is_active == '1' %} selected{% endif %}>Активные</option>
+        <option value="0"{% if filters.is_active == '0' %} selected{% endif %}>Неактивные</option>
+      </select>
+    </label>
+    <button type="submit" class="marketing-btn">Фильтр</button>
+  </form>
+
+  <div class="marketing-table-wrap">
+    <table class="marketing-table">
+      <thead>
+        <tr>
+          <th>Название</th>
+          <th>Meta name</th>
+          <th>Язык</th>
+          <th>Статус</th>
+          <th>Активен</th>
+          <th>Назначения</th>
+          <th>Тест</th>
+          <th>Кампаний</th>
+          <th>Изменён</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for template in page_obj.object_list %}
+          <tr>
+            <td><a href="{% url 'marketing:template_detail' template.pk %}">{{ template.name }}</a></td>
+            <td>{{ template.meta_template_name }}</td>
+            <td>{{ template.language_code }}</td>
+            <td>{{ template.meta_status_label }}</td>
+            <td>{% if template.is_active %}Да{% else %}Нет{% endif %}</td>
+            <td>{{ template.allowed_purposes_labels|join:', '|default:'—' }}</td>
+            <td>{% if template.allow_test_campaign %}Да{% else %}Нет{% endif %}</td>
+            <td>{{ template.campaign_count }}</td>
+            <td>{{ template.updated_at|date:'d.m.Y H:i' }}</td>
+            <td class="marketing-table__actions">
+              <a href="{% url 'marketing:template_detail' template.pk %}">Открыть</a>
+              <a href="{% url 'marketing:template_edit' template.pk %}">Изменить</a>
+              <form method="post" action="{% url 'marketing:template_copy' template.pk %}" class="marketing-inline-form">
+                {% csrf_token %}
+                <button type="submit" class="marketing-link-btn">Копировать</button>
+              </form>
+              {% if template.is_active %}
+                <form method="post" action="{% url 'marketing:template_deactivate' template.pk %}" class="marketing-inline-form">
+                  {% csrf_token %}
+                  <button type="submit" class="marketing-link-btn">Деактивировать</button>
+                </form>
+              {% else %}
+                <form method="post" action="{% url 'marketing:template_activate' template.pk %}" class="marketing-inline-form">
+                  {% csrf_token %}
+                  <button type="submit" class="marketing-link-btn">Активировать</button>
+                </form>
+              {% endif %}
+            </td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspan="10">Маркетинговых шаблонов пока нет.</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="marketing-pagination" aria-label="Страницы">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if pagination_querystring %}&{{ pagination_querystring }}{% endif %}">Назад</a>
+      {% endif %}
+      <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if pagination_querystring %}&{{ pagination_querystring }}{% endif %}">Вперёд</a>
+      {% endif %}
+    </nav>
+  {% endif %}
+</section>
+{% endblock %}

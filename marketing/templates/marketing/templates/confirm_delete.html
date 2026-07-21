@@ -1,0 +1,18 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Удаление шаблона — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <h1 class="marketing-page-title">Удалить шаблон «{{ template_obj.name }}»?</h1>
+  <p class="marketing-section-note">Это действие необратимо.</p>
+  <form method="post" class="marketing-form">
+    {% csrf_token %}
+    <input type="hidden" name="confirm" value="yes">
+    <div class="marketing-form__actions">
+      <button type="submit" class="marketing-btn marketing-btn--danger">Удалить</button>
+      <a class="marketing-btn" href="{% url 'marketing:template_detail' template_obj.pk %}">Отмена</a>
+    </div>
+  </form>
+</section>
+{% endblock %}
