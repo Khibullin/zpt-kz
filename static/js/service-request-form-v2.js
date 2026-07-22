@@ -99,6 +99,8 @@ function setServiceType(type){
   document.querySelectorAll('input[type="checkbox"]').forEach(cb=>cb.checked=false);
 }
 
+window.setServiceType=setServiceType;
+
 function getSelectedServices(){
   const activeBlock = serviceType==='sto' ? stoServices : detailingServices;
   return Array.from(activeBlock.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>cb.value);
@@ -128,19 +130,37 @@ function cityRequiresDistrict(city){
   return Object.prototype.hasOwnProperty.call(districts,city);
 }
 
+function setDistrictFieldVisible(isVisible){
+  if(!districtField){
+    return;
+  }
+  districtField.classList.toggle('hidden',!isVisible);
+  districtField.hidden=!isVisible;
+}
+
 function updateDistrictField(){
+  if(!cityEl || !districtEl || !districtField || !window.ZPTDom){
+    return;
+  }
+
   const city=cityEl.value;
 
-  districtEl.replaceChildren();
+  if(!city){
+    setDistrictFieldVisible(true);
+    districtEl.disabled=true;
+    ZPTDom.fillSelectFromStrings(districtEl,[],'Сначала выберите город');
+    return;
+  }
 
   if(!cityRequiresDistrict(city)){
-    districtField.classList.add('hidden');
+    setDistrictFieldVisible(false);
     districtEl.disabled=true;
+    districtEl.value='';
     ZPTDom.fillSelectFromStrings(districtEl,[],'');
     return;
   }
 
-  districtField.classList.remove('hidden');
+  setDistrictFieldVisible(true);
   districtEl.disabled=false;
   ZPTDom.fillSelectFromStrings(
     districtEl,
@@ -149,89 +169,101 @@ function updateDistrictField(){
   );
 }
 
-cityEl.addEventListener('change',updateDistrictField);
-updateDistrictField();
-
-const API = window.ZPT_CONFIG.serviceApiBase.replace(/\/$/, '');
-
-document.getElementById('serviceForm').addEventListener('submit', async function(e){
-  e.preventDefault();
-  clearMessage();
-
-  const services = getSelectedServices();
-
-const payload = {
-  service_type: serviceType,
-
-  brand: brandEl.value.trim(),
-  model: modelEl.value.trim(),
-
-  services: services,
-
-  city: cityEl.value,
-  district: districtEl.disabled ? '' : districtEl.value,
-
-  phone: normalizePhone(phoneEl.value),
-
-  description: descriptionEl.value.trim()
-};
-
-  if (!payload.services.length){
-    setMessage('Выберите хотя бы одну услугу.','error');
+function initServiceRequestForm(){
+  if(!document.getElementById('serviceForm') || !cityEl || !districtEl || !districtField){
     return;
   }
 
-if (
-  !payload.city ||
-  !payload.phone
-){
-  setMessage(
-    'Заполните город и телефон / WhatsApp.',
-    'error'
-  );
-  return;
+  cityEl.addEventListener('change',updateDistrictField);
+  updateDistrictField();
+
+  const API=(window.ZPT_CONFIG && window.ZPT_CONFIG.serviceApiBase || '/api/service/').replace(/\/$/, '');
+
+  document.getElementById('serviceForm').addEventListener('submit', async function(e){
+    e.preventDefault();
+    clearMessage();
+
+    const services = getSelectedServices();
+
+    const payload = {
+      service_type: serviceType,
+
+      brand: brandEl.value.trim(),
+      model: modelEl.value.trim(),
+
+      services: services,
+
+      city: cityEl.value,
+      district: districtEl.disabled ? '' : districtEl.value,
+
+      phone: normalizePhone(phoneEl.value),
+
+      description: descriptionEl.value.trim()
+    };
+
+    if (!payload.services.length){
+      setMessage('Выберите хотя бы одну услугу.','error');
+      return;
+    }
+
+    if (
+      !payload.city ||
+      !payload.phone
+    ){
+      setMessage(
+        'Заполните город и телефон / WhatsApp.',
+        'error'
+      );
+      return;
+    }
+
+    if(cityRequiresDistrict(payload.city) && !payload.district){
+      setMessage('Выберите район для выбранного города.','error');
+      return;
+    }
+
+    if(!cityRequiresDistrict(payload.city)){
+      payload.district='';
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = 'Отправляем...';
+
+    try{
+      const r = await fetch(API + '/create-service-request/',{
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(payload)
+      });
+
+      const data = await r.json();
+
+      if(data.error){
+        setMessage(data.error,'error');
+        return;
+      }
+
+      if(!data.success){
+        setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
+        return;
+      }
+
+      renderSuccessResult(data);
+      document.getElementById('serviceForm').reset();
+      setServiceType('sto');
+      updateDistrictField();
+
+    }catch(err){
+      setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
+    }finally{
+      submitBtn.disabled = false;
+      submitBtn.innerText = 'Отправить заявку';
+    }
+  });
 }
 
-if(cityRequiresDistrict(payload.city) && !payload.district){
-  setMessage('Выберите район для выбранного города.','error');
-  return;
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',initServiceRequestForm);
+}else{
+  initServiceRequestForm();
 }
-
-if(!cityRequiresDistrict(payload.city)){
-  payload.district='';
-}
-
-  submitBtn.disabled = true;
-  submitBtn.innerText = 'Отправляем...';
-
-  try{
-    const r = await fetch(API + '/create-service-request/',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload)
-    });
-
-    const data = await r.json();
-
-if(data.error){
-  setMessage(data.error,'error');
-  return;
-}
-
-if(!data.success){
-  setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
-  return;
-}
-
-renderSuccessResult(data);
-document.getElementById('serviceForm').reset();
-setServiceType('sto');
-updateDistrictField();
-
-  }catch(err){
-    setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
-  }finally{
-    submitBtn.disabled = false;
-    submitBtn.innerText = 'Отправить заявку';
-  }
-});

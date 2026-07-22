@@ -146,6 +146,20 @@ class ServiceRequestCityDistrictTests(TestCase):
         self.assertEqual(req.city, 'Кокшетау')
         self.assertEqual(req.district, '')
 
+    def test_almaty_without_district_returns_400(self):
+        response = self._post_request(district='')
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('error', response.json())
+
+    def test_template_has_district_field_elements(self):
+        response = self.client.get('/service-request/')
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode('utf-8')
+        self.assertIn('id="districtField"', content)
+        self.assertIn('id="district"', content)
+        self.assertNotIn('id="districtField" class="field hidden"', content)
+        self.assertNotIn('class="field hidden" id="districtField"', content)
+
     def test_template_district_select_has_no_hardcoded_almaty_options(self):
         response = self.client.get('/service-request/')
         self.assertEqual(response.status_code, 200)
@@ -159,9 +173,16 @@ class ServiceRequestCityDistrictTests(TestCase):
         self.assertIsNotNone(js_path)
         content = Path(js_path).read_text(encoding='utf-8')
         self.assertIn('updateDistrictField', content)
+        self.assertIn('initServiceRequestForm', content)
         self.assertIn("cityEl.addEventListener('change',updateDistrictField)", content)
+        self.assertIn('updateDistrictField();', content)
         self.assertIn("'Алматы'", content)
         self.assertIn("'Астана'", content)
+
+    def test_template_uses_service_result_v4_cache_bust(self):
+        response = self.client.get('/service-request/')
+        self.assertContains(response, 'service-request-form-v2.js?v=service_result_v4')
+        self.assertContains(response, 'portal-forms.css?v=service_result_v4')
 
     @patch('service_requests.views.send_service_whatsapp_to_seller')
     def test_match_services_non_almaty_does_not_filter_by_almaty_district(self, mock_send):

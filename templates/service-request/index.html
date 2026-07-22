@@ -4,7 +4,7 @@
 {% block title %}ZPT.KZ — Заявка на СТО и детейлинг{% endblock %}
 
 {% block portal_css %}
-<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}?v=service_result_v3">
+<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}?v=service_result_v4">
 {% endblock %}
 
 {% block header_nav %}
@@ -106,7 +106,7 @@
           </select>
         </div>
 
-        <div class="field hidden" id="districtField">
+        <div class="field" id="districtField">
           <label for="district">Район</label>
           <select id="district" disabled>
             <option value="">Сначала выберите город</option>
@@ -157,5 +157,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/service-request-form-v2.js' %}?v=service_result_v3"></script>
+<script src="{% static 'js/service-request-form-v2.js' %}?v=service_result_v4"></script>
 {% endblock %}
