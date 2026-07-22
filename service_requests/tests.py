@@ -81,10 +81,10 @@ class ServiceRequestFormFrontendTests(TestCase):
     def test_form_page_loads_service_request_script(self):
         response = self.client.get('/service-request/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'service-request-form.js')
+        self.assertContains(response, 'service-request-form-v2.js')
 
     def test_service_request_js_builds_dom_without_html_string_success(self):
-        js_path = find('js/service-request-form.js')
+        js_path = find('js/service-request-form-v2.js')
         self.assertIsNotNone(js_path)
         content = Path(js_path).read_text(encoding='utf-8')
 
