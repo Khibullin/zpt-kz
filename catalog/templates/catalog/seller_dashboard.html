@@ -72,7 +72,7 @@
       <div class="products-container">
         {% for product in products %}
           <article class="product-card">
-            <a href="{% url 'product_detail' product.pk %}" class="product-image-link">
+            <a href="{{ product.get_absolute_url }}" class="product-image-link">
               {% if product.main_image %}
                 <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
               {% elif product.images.first %}
