@@ -24,7 +24,62 @@ function setMessage(text,type){
 
 function clearMessage(){
   msg.className='msg';
-  ZPTDom.setText(msg,'');
+  ZPTDom.clearElement(msg);
+}
+
+function appendSpacer(container){
+  container.appendChild(document.createElement('br'));
+  container.appendChild(document.createElement('br'));
+}
+
+function appendTextBlock(container,text){
+  if(!text){
+    return;
+  }
+  appendSpacer(container);
+  container.appendChild(document.createTextNode(text));
+}
+
+function appendLabeledLine(container,label,value){
+  if(value === undefined || value === null || value === ''){
+    return;
+  }
+  container.appendChild(document.createElement('br'));
+  container.appendChild(document.createTextNode(label + value));
+}
+
+function renderSuccessResult(data){
+  msg.className='msg success';
+  ZPTDom.clearElement(msg);
+
+  const title=document.createElement('strong');
+  title.textContent=data.title || '✅ Заявка принята и отправлена подходящим исполнителям.';
+  msg.appendChild(title);
+
+  appendTextBlock(msg,'Что дальше?');
+  appendTextBlock(msg,data.message);
+  appendTextBlock(msg,data.timing_hint);
+
+  const requestHeading=document.createElement('strong');
+  appendSpacer(msg);
+  requestHeading.textContent='Ваш запрос:';
+  msg.appendChild(requestHeading);
+
+  const services=Array.isArray(data.services) ? data.services.join(', ') : '';
+  appendLabeledLine(msg,'Услуги: ',services);
+  appendLabeledLine(msg,'Город: ',data.city);
+  appendLabeledLine(msg,'Район: ',data.district);
+  appendLabeledLine(msg,'Телефон: ',data.phone);
+  appendLabeledLine(msg,'Описание: ',data.description);
+
+  appendTextBlock(msg,data.catalog_hint);
+
+  const link=document.createElement('a');
+  link.href=data.result_url || ('/service-request/result/' + data.request_id + '/');
+  link.className='service-result-link';
+  link.textContent='Посмотреть исполнителей по заявке';
+  appendSpacer(msg);
+  msg.appendChild(link);
 }
 
 function normalizePhone(v){
@@ -106,60 +161,12 @@ if(data.error){
   return;
 }
 
-setMessage(`
-<b>✅ Заявка принята и отправлена подходящим исполнителям.</b>
-
-<br><br>
-
-<b>Что дальше?</b>
-
-<br><br>
-
-Ничего делать не нужно —
-СТО и мастера сами напишут вам в WhatsApp
-с ценой, сроками и условиями.
-
-<br><br>
-
-Обычно первые ответы приходят
-в течение 5–15 минут.
-
-<br><br>
-
-<b>Ваш запрос:</b><br>
-
-Услуги: ${services.join(', ')}<br>
-Город: ${payload.city}<br>
-Район: ${payload.district}<br>
-Телефон: ${payload.phone}<br>
-
-${payload.description
-  ? `Описание: ${payload.description}<br>`
-  : ''
+if(!data.success){
+  setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
+  return;
 }
 
-<br>
-
-Если хотите самостоятельно посмотреть исполнителей —
-можете открыть каталог.
-
-<br><br>
-
-<a
-  href="/service-request/result/${data.request_id}/"
-  style="
-    display:inline-block;
-    background:#3478f6;
-    color:#fff;
-    text-decoration:none;
-    padding:12px 18px;
-    border-radius:10px;
-    font-weight:bold;
-  "
->
-  Посмотреть исполнителей по заявке
-</a>
-`,'success');
+renderSuccessResult(data);
 document.getElementById('serviceForm').reset();
 setServiceType('sto');
 

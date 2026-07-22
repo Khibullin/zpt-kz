@@ -1,6 +1,7 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.contrib.auth.hashers import make_password, check_password
@@ -151,10 +152,29 @@ def create_service_request(request):
             "map_link": seller.map_link,
         })
 
+    services_names = list(req.services.values_list('name', flat=True))
+
     return JsonResponse({
         "success": True,
         "request_id": req.id,
-        "sellers": sellers
+        "title": "✅ Заявка принята и отправлена подходящим исполнителям.",
+        "message": (
+            "Ничего делать не нужно — СТО и мастера сами напишут вам в WhatsApp "
+            "с ценой, сроками и условиями."
+        ),
+        "timing_hint": "Обычно первые ответы приходят в течение 5–15 минут.",
+        "catalog_hint": (
+            "Если хотите самостоятельно посмотреть исполнителей — "
+            "можете открыть каталог."
+        ),
+        "service_type": req.service_type,
+        "services": services_names,
+        "city": req.city,
+        "district": req.district,
+        "phone": req.phone,
+        "description": req.description,
+        "result_url": reverse('service_request_result_page', args=[req.id]),
+        "sellers": sellers,
     })
 
 
