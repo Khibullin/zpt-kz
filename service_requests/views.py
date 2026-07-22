@@ -44,6 +44,55 @@ def _password_validation_error(password):
     return None
 
 
+def build_service_request_success_payload(
+    req: ServiceRequest,
+    sellers: list[dict],
+) -> dict:
+    sellers_count = len(sellers)
+    services_names = list(req.services.values_list('name', flat=True))
+
+    if sellers_count > 0:
+        title = '✅ Заявка принята и отправлена подходящим исполнителям.'
+        message = (
+            'Ничего делать не нужно — СТО и мастера сами напишут вам в WhatsApp '
+            'с ценой, сроками и условиями.'
+        )
+        timing_hint = 'Обычно первые ответы приходят в течение 5–15 минут.'
+        catalog_hint = (
+            'Если хотите самостоятельно посмотреть исполнителей — '
+            'можете открыть каталог.'
+        )
+        result_button_label = 'Посмотреть исполнителей по заявке'
+    else:
+        title = '✅ Заявка принята.'
+        message = (
+            'В выбранном городе пока нет зарегистрированных исполнителей. '
+            'Мы сохранили вашу заявку.'
+        )
+        timing_hint = ''
+        catalog_hint = 'Вы можете посмотреть каталог исполнителей в других городах.'
+        result_button_label = 'Посмотреть страницу заявки'
+
+    return {
+        'success': True,
+        'request_id': req.id,
+        'title': title,
+        'message': message,
+        'timing_hint': timing_hint,
+        'catalog_hint': catalog_hint,
+        'result_button_label': result_button_label,
+        'sellers_count': sellers_count,
+        'service_type': req.service_type,
+        'services': services_names,
+        'city': req.city,
+        'district': req.district,
+        'phone': req.phone,
+        'description': req.description,
+        'result_url': reverse('service_request_result_page', args=[req.id]),
+        'sellers': sellers,
+    }
+
+
 def _authenticate_service_seller(whatsapp, password):
     normalized = _normalize_whatsapp(whatsapp)
 
@@ -161,30 +210,9 @@ def create_service_request(request):
             "map_link": seller.map_link,
         })
 
-    services_names = list(req.services.values_list('name', flat=True))
-
-    return JsonResponse({
-        "success": True,
-        "request_id": req.id,
-        "title": "✅ Заявка принята и отправлена подходящим исполнителям.",
-        "message": (
-            "Ничего делать не нужно — СТО и мастера сами напишут вам в WhatsApp "
-            "с ценой, сроками и условиями."
-        ),
-        "timing_hint": "Обычно первые ответы приходят в течение 5–15 минут.",
-        "catalog_hint": (
-            "Если хотите самостоятельно посмотреть исполнителей — "
-            "можете открыть каталог."
-        ),
-        "service_type": req.service_type,
-        "services": services_names,
-        "city": req.city,
-        "district": req.district,
-        "phone": req.phone,
-        "description": req.description,
-        "result_url": reverse('service_request_result_page', args=[req.id]),
-        "sellers": sellers,
-    })
+    return JsonResponse(
+        build_service_request_success_payload(req, sellers),
+    )
 
 
 def send_service_whatsapp_to_seller(req, seller):

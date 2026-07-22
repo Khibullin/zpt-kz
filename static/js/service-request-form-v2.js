@@ -54,12 +54,14 @@ function renderSuccessResult(data){
   ZPTDom.clearElement(msg);
 
   const title=document.createElement('strong');
-  title.textContent=data.title || '✅ Заявка принята и отправлена подходящим исполнителям.';
+  title.textContent=data.title || '✅ Заявка принята.';
   msg.appendChild(title);
 
   appendTextBlock(msg,'Что дальше?');
   appendTextBlock(msg,data.message);
-  appendTextBlock(msg,data.timing_hint);
+  if(data.timing_hint){
+    appendTextBlock(msg,data.timing_hint);
+  }
 
   const requestHeading=document.createElement('strong');
   appendSpacer(msg);
@@ -78,7 +80,7 @@ function renderSuccessResult(data){
   const link=document.createElement('a');
   link.href=data.result_url || ('/service-request/result/' + data.request_id + '/');
   link.className='service-result-link';
-  link.textContent='Посмотреть исполнителей по заявке';
+  link.textContent=data.result_button_label || 'Посмотреть страницу заявки';
   appendSpacer(msg);
   msg.appendChild(link);
 }

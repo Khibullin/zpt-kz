@@ -44,6 +44,7 @@ class CreateServiceRequestResponseTests(TestCase):
         self.assertIn('title', data)
         self.assertIn('message', data)
         self.assertIn('result_url', data)
+        self.assertIn('sellers_count', data)
 
         serialized = json.dumps(data, ensure_ascii=False)
         self.assertNotIn('<b>', serialized)
@@ -96,6 +97,82 @@ class ServiceRequestFormFrontendTests(TestCase):
         self.assertIn('textContent', content)
         self.assertNotIn("setMessage(`\n<b>", content)
         self.assertNotIn('<b>✅ Заявка принята', content)
+
+
+class ServiceRequestSuccessMessageTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = '/api/service/create-service-request/'
+
+    def _post_request(self, **overrides):
+        payload = {
+            'service_type': 'sto',
+            'city': 'Алматы',
+            'district': 'Бостандыкский',
+            'phone': '77001234567',
+            'services': ['Диагностика'],
+        }
+        payload.update(overrides)
+        return self.client.post(
+            self.url,
+            data=json.dumps(payload),
+            content_type='application/json',
+        )
+
+    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    def test_city_with_sellers_uses_sent_to_executors_message(self, mock_send):
+        service = Service.objects.create(name='Диагностика')
+        seller = ServiceSeller.objects.create(
+            name='Almaty seller',
+            whatsapp='77001111111',
+            password=make_password('secret'),
+            city='Алматы',
+            district='Бостандыкский',
+            seller_type='sto',
+            is_active=True,
+        )
+        seller.services.add(service)
+
+        response = self._post_request()
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+
+        self.assertEqual(data['sellers_count'], 1)
+        self.assertIn('отправлена подходящим исполнителям', data['title'])
+        self.assertIn('5–15 минут', data['timing_hint'])
+        self.assertEqual(data['result_button_label'], 'Посмотреть исполнителей по заявке')
+
+    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    def test_city_without_sellers_uses_saved_request_message(self, mock_send):
+        response = self._post_request(city='Кызылорда', district='')
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        req = ServiceRequest.objects.get(pk=data['request_id'])
+
+        self.assertEqual(data['sellers_count'], 0)
+        self.assertNotIn('отправлена исполнителям', data['title'])
+        self.assertNotIn('отправлена подходящим', data['title'])
+        self.assertEqual(data['title'], '✅ Заявка принята.')
+        self.assertIn('нет зарегистрированных исполнителей', data['message'])
+        self.assertEqual(data['timing_hint'], '')
+        self.assertNotIn('5–15 минут', json.dumps(data, ensure_ascii=False))
+        self.assertEqual(
+            data['result_url'],
+            reverse('service_request_result_page', args=[req.id]),
+        )
+        self.assertEqual(data['result_button_label'], 'Посмотреть страницу заявки')
+
+    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    def test_result_page_without_sellers_does_not_claim_sent(self, mock_send):
+        response = self._post_request(city='Кызылорда', district='')
+        req_id = response.json()['request_id']
+
+        page = self.client.get(reverse('service_request_result_page', args=[req_id]))
+        self.assertEqual(page.status_code, 200)
+        content = page.content.decode('utf-8')
+        self.assertIn('✅ Заявка №{} принята.'.format(req_id), content)
+        self.assertNotIn('отправлена исполнителям', content)
+        self.assertNotIn('5–15 минут', content)
 
 
 class ServiceRequestCityDistrictTests(TestCase):
@@ -179,9 +256,9 @@ class ServiceRequestCityDistrictTests(TestCase):
         self.assertIn("'Алматы'", content)
         self.assertIn("'Астана'", content)
 
-    def test_template_uses_service_result_v4_cache_bust(self):
+    def test_template_uses_service_result_v5_cache_bust(self):
         response = self.client.get('/service-request/')
-        self.assertContains(response, 'service-request-form-v2.js?v=service_result_v4')
+        self.assertContains(response, 'service-request-form-v2.js?v=service_result_v5')
         self.assertContains(response, 'portal-forms.css?v=service_result_v4')
 
     @patch('service_requests.views.send_service_whatsapp_to_seller')
