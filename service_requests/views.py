@@ -9,6 +9,7 @@ from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 import json
 
+from .location import normalize_service_request_location
 from .models import (
     Service,
     ServiceSeller,
@@ -125,12 +126,20 @@ def create_service_request(request):
 
     data = read_json(request)
 
+    try:
+        city, district = normalize_service_request_location(
+            data.get('city', ''),
+            data.get('district', ''),
+        )
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
     req = ServiceRequest.objects.create(
         service_type=data.get("service_type", "sto"),
         brand=data.get("brand", "").strip(),
         model=data.get("model", "").strip(),
-        city=data.get("city", "").strip(),
-        district=data.get("district", "").strip(),
+        city=city,
+        district=district,
         phone=data.get("phone", "").strip(),
         description=data.get("description", "").strip(),
     )
@@ -329,34 +338,35 @@ def match_services(req):
 
     settings = ServiceBroadcastSettings.objects.first()
 
-    district_sellers = ServiceSeller.objects.filter(
-        seller_type=req.service_type,
-        city=req.city,
-        district=req.district,
-        is_active=True
-    )
-
-    if settings and settings.mode == ServiceBroadcastSettings.MODE_TEST:
-        district_sellers = district_sellers.filter(
-            is_test_seller=True
+    if req.district:
+        district_sellers = ServiceSeller.objects.filter(
+            seller_type=req.service_type,
+            city=req.city,
+            district=req.district,
+            is_active=True
         )
 
-    for seller in district_sellers:
-
-        seller_services = set(
-            seller.services.values_list("name", flat=True)
-        )
-
-        if seller_services & req_services:
-
-            ServiceMatch.objects.create(
-                request=req,
-                seller=seller
+        if settings and settings.mode == ServiceBroadcastSettings.MODE_TEST:
+            district_sellers = district_sellers.filter(
+                is_test_seller=True
             )
 
-            send_service_whatsapp_to_seller(req, seller)
+        for seller in district_sellers:
 
-            matched_sellers.append(seller)
+            seller_services = set(
+                seller.services.values_list("name", flat=True)
+            )
+
+            if seller_services & req_services:
+
+                ServiceMatch.objects.create(
+                    request=req,
+                    seller=seller
+                )
+
+                send_service_whatsapp_to_seller(req, seller)
+
+                matched_sellers.append(seller)
 
     if not matched_sellers:
 

@@ -10,6 +10,7 @@ const modelEl=document.getElementById('model');
 
 const cityEl=document.getElementById('city');
 const districtEl=document.getElementById('district');
+const districtField=document.getElementById('districtField');
 
 const phoneEl=document.getElementById('phone');
 const descriptionEl=document.getElementById('description');
@@ -103,6 +104,54 @@ function getSelectedServices(){
   return Array.from(activeBlock.querySelectorAll('input[type="checkbox"]:checked')).map(cb=>cb.value);
 }
 
+const districts={
+  'Алматы':[
+    'Алмалинский',
+    'Алатауский',
+    'Ауэзовский',
+    'Бостандыкский',
+    'Жетысуский',
+    'Медеуский',
+    'Наурызбайский',
+    'Турксибский',
+  ],
+  'Астана':[
+    'Алматы',
+    'Байконыр',
+    'Есиль',
+    'Нура',
+    'Сарайшык',
+  ],
+};
+
+function cityRequiresDistrict(city){
+  return Object.prototype.hasOwnProperty.call(districts,city);
+}
+
+function updateDistrictField(){
+  const city=cityEl.value;
+
+  districtEl.replaceChildren();
+
+  if(!cityRequiresDistrict(city)){
+    districtField.classList.add('hidden');
+    districtEl.disabled=true;
+    ZPTDom.fillSelectFromStrings(districtEl,[],'');
+    return;
+  }
+
+  districtField.classList.remove('hidden');
+  districtEl.disabled=false;
+  ZPTDom.fillSelectFromStrings(
+    districtEl,
+    districts[city],
+    'Выберите район',
+  );
+}
+
+cityEl.addEventListener('change',updateDistrictField);
+updateDistrictField();
+
 const API = window.ZPT_CONFIG.serviceApiBase.replace(/\/$/, '');
 
 document.getElementById('serviceForm').addEventListener('submit', async function(e){
@@ -120,7 +169,7 @@ const payload = {
   services: services,
 
   city: cityEl.value,
-  district: districtEl.value,
+  district: districtEl.disabled ? '' : districtEl.value,
 
   phone: normalizePhone(phoneEl.value),
 
@@ -134,14 +183,22 @@ const payload = {
 
 if (
   !payload.city ||
-  !payload.district ||
   !payload.phone
 ){
   setMessage(
-    'Заполните город, район и телефон / WhatsApp.',
+    'Заполните город и телефон / WhatsApp.',
     'error'
   );
   return;
+}
+
+if(cityRequiresDistrict(payload.city) && !payload.district){
+  setMessage('Выберите район для выбранного города.','error');
+  return;
+}
+
+if(!cityRequiresDistrict(payload.city)){
+  payload.district='';
 }
 
   submitBtn.disabled = true;
@@ -169,6 +226,7 @@ if(!data.success){
 renderSuccessResult(data);
 document.getElementById('serviceForm').reset();
 setServiceType('sto');
+updateDistrictField();
 
   }catch(err){
     setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
