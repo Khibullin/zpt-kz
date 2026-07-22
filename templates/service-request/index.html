@@ -4,7 +4,7 @@
 {% block title %}ZPT.KZ — Заявка на СТО и детейлинг{% endblock %}
 
 {% block portal_css %}
-<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}">
+<link rel="stylesheet" href="{% static 'css/portal-forms.css' %}?v=service_result_v2">
 {% endblock %}
 
 {% block header_nav %}
@@ -165,5 +165,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/service-request-form.js' %}"></script>
+<script src="{% static 'js/service-request-form.js' %}?v=service_result_v2"></script>
 {% endblock %}
