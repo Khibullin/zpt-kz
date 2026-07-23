@@ -470,8 +470,8 @@ class MarketingTemplateCampaignChangeTests(TestCase):
         response = self.client.get(reverse('marketing:campaign_detail', args=[self.campaign.pk]))
         content = response.content.decode('utf-8')
         self.assertIn('Готовность кампании', content)
-        self.assertIn('Получатели готовы', content)
-        self.assertIn('Шаблон готов', content)
+        self.assertIn('Шаблон выбран', content)
+        self.assertIn('Получатели подготовлены', content)
         self.assertNotIn('Отправить', content)
 
 

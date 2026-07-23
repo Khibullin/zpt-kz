@@ -4,18 +4,20 @@
 
 {% block content %}
 <section class="marketing-section">
-  <div class="marketing-page-header">
-    <h1 class="marketing-page-title">{{ campaign.name }}</h1>
+  <div class="campaign-detail-hero">
+    <div class="campaign-detail-hero__main">
+      <h1 class="marketing-page-title">{{ campaign.name }}</h1>
+      <div class="campaign-detail-hero__badges">
+        <span class="campaign-badge {{ status_badge_class }}">{{ display_status_label }}</span>
+        <span class="campaign-badge {{ type_badge_class }}">{{ type_badge_label }}</span>
+      </div>
+      <dl class="campaign-detail-hero__meta">
+        <div><dt>Назначение</dt><dd>{{ campaign.purpose_label }}</dd></div>
+        <div><dt>Аудитория</dt><dd><a href="{% url 'marketing:audience_detail' campaign.audience.pk %}">{{ campaign.audience.name }}</a></dd></div>
+      </dl>
+    </div>
     <div class="marketing-page-actions">
-      {% if campaign.is_editable %}
-        <a class="marketing-btn" href="{% url 'marketing:campaign_edit' campaign.pk %}">Изменить</a>
-      {% endif %}
-      {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
-        <form method="post" action="{% url 'marketing:campaign_prepare' campaign.pk %}" class="marketing-inline-form">
-          {% csrf_token %}
-          <button type="submit" class="marketing-btn">{% if campaign.has_prepared_snapshot %}Подготовить заново{% else %}Подготовить получателей{% endif %}</button>
-        </form>
-      {% endif %}
+      {% include 'marketing/campaigns/includes/actions_dropdown.html' with actions=campaign_actions %}
       <a class="marketing-btn" href="{% url 'marketing:campaigns' %}">К списку</a>
     </div>
   </div>
@@ -32,119 +34,33 @@
     <p class="marketing-warning">Критерии аудитории изменились после подготовки получателей. Подготовьте снимок заново перед дальнейшими действиями.</p>
   {% endif %}
 
-  <dl class="marketing-meta-grid">
-    <dt>Назначение</dt><dd>{{ campaign.purpose_label }}</dd>
-    <dt>Аудитория</dt><dd><a href="{% url 'marketing:audience_detail' campaign.audience.pk %}">{{ campaign.audience.name }}</a></dd>
-    <dt>Статус</dt><dd>{{ display_status_label }}</dd>
-    <dt>Автор</dt><dd>{% if campaign.created_by %}{{ campaign.created_by.username }}{% else %}—{% endif %}</dd>
-    <dt>Создана</dt><dd>{{ campaign.created_at|date:'d.m.Y H:i' }}</dd>
-    <dt>Обновлена</dt><dd>{{ campaign.updated_at|date:'d.m.Y H:i' }}</dd>
-    <dt>Подготовка</dt><dd>{% if campaign.audience_prepared_at %}{{ campaign.audience_prepared_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
-    <dt>Критерии аудитории</dt><dd>{{ criteria_summary }}</dd>
-    <dt>Активна</dt><dd>{% if campaign.is_active %}Да{% else %}Нет{% endif %}</dd>
-  </dl>
-
   {% if campaign.description %}
     <p class="marketing-section-note">{{ campaign.description }}</p>
   {% endif %}
 
-  <h2 class="marketing-section-title">Готовность кампании</h2>
-  <div class="campaign-readiness">
-    <p class="campaign-readiness__summary">
-      <strong>Получатели готовы:</strong> {% if readiness.recipients_ready %}Да{% else %}Нет{% endif %}
-      ·
-      <strong>Шаблон готов:</strong> {% if readiness.template_ready %}Да{% else %}Нет{% endif %}
-    </p>
-    {% if readiness.prepared_for_next_stage %}
-      <p class="campaign-readiness__ready">Кампания подготовлена к следующему этапу</p>
-    {% else %}
-      <p class="campaign-readiness__note">«Подготовлена к следующему этапу» не означает «готова к отправке».</p>
-    {% endif %}
-    <ul class="campaign-readiness__list">
-      {% for item in readiness.items %}
-        <li class="campaign-readiness__item{% if item.ok %} is-ok{% else %} is-pending{% endif %}">{{ item.label }}</li>
-      {% endfor %}
-    </ul>
+  <h2 class="marketing-section-title">Получатели</h2>
+  <div class="campaign-stats-grid campaign-stats-grid--compact">
+    <div class="campaign-stat">
+      <span class="campaign-stat-label">Найдено</span>
+      <strong class="campaign-stat-value">{% if campaign.has_prepared_snapshot %}{{ campaign.matched_count }}{% else %}—{% endif %}</strong>
+    </div>
+    <div class="campaign-stat">
+      <span class="campaign-stat-label">Допущено</span>
+      <strong class="campaign-stat-value">{% if campaign.has_prepared_snapshot %}{{ campaign.eligible_count }}{% else %}—{% endif %}</strong>
+    </div>
+    <div class="campaign-stat">
+      <span class="campaign-stat-label">Исключено</span>
+      <strong class="campaign-stat-value">{{ excluded_display }}</strong>
+    </div>
+    <div class="campaign-stat">
+      <span class="campaign-stat-label">Дата подготовки</span>
+      <strong class="campaign-stat-value">{% if campaign.audience_prepared_at %}{{ campaign.audience_prepared_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</strong>
+    </div>
   </div>
-
-  <div class="marketing-page-header marketing-page-header--compact">
-    <h2 class="marketing-section-title">Шаблон WhatsApp</h2>
-    {% if campaign.is_editable %}
-      <a class="marketing-btn" href="{% url 'marketing:campaign_edit' campaign.pk %}">Изменить шаблон</a>
-    {% endif %}
-  </div>
-  {% if campaign.message_template %}
-    {% if readiness.template_unavailable_message %}
-      <p class="marketing-warning">{{ readiness.template_unavailable_message }}</p>
-    {% endif %}
-    <dl class="marketing-meta-grid">
-      <dt>Внутреннее название</dt><dd><a href="{% url 'marketing:template_detail' campaign.message_template.pk %}">{{ campaign.message_template.name }}</a></dd>
-      <dt>Meta template name</dt><dd>{{ campaign.message_template.meta_template_name }}</dd>
-      <dt>Язык</dt><dd>{{ campaign.message_template.language_code }}</dd>
-      <dt>Статус Meta</dt><dd>{{ campaign.message_template.meta_status_label }}</dd>
-      <dt>Активен</dt><dd>{% if campaign.message_template.is_active %}Да{% else %}Нет{% endif %}</dd>
-      <dt>Разрешён для назначения</dt><dd>{% if campaign.message_template_allows_purpose %}Да{% else %}Нет{% endif %}</dd>
-      <dt>Выбран</dt><dd>{% if campaign.template_selected_at %}{{ campaign.template_selected_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
-    </dl>
-    {% if template_preview %}
-      <h3 class="marketing-section-subtitle">Preview</h3>
-      {% include 'marketing/templates/_preview.html' with preview=template_preview %}
-    {% endif %}
-  {% else %}
-    <p class="marketing-section-note">Шаблон не выбран. <a href="{% url 'marketing:campaign_edit' campaign.pk %}">Выбрать шаблон</a> · <a href="{% url 'marketing:template_create' %}">Создать шаблон</a></p>
-  {% endif %}
 
   {% if campaign.has_prepared_snapshot %}
-    <h2 class="marketing-section-title">Результат подготовки</h2>
-    <div class="campaign-stats-grid">
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Найдено</span>
-        <strong class="campaign-stat-value">{{ campaign.matched_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Уникальных</span>
-        <strong class="campaign-stat-value">{{ campaign.unique_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Допустимо</span>
-        <strong class="campaign-stat-value">{{ campaign.eligible_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Исключено</span>
-        <strong class="campaign-stat-value">{{ campaign.excluded_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Тестовых</span>
-        <strong class="campaign-stat-value">{{ campaign.test_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Неактивных</span>
-        <strong class="campaign-stat-value">{{ campaign.inactive_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Некорректных</span>
-        <strong class="campaign-stat-value">{{ campaign.invalid_phone_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Согласие дано</span>
-        <strong class="campaign-stat-value">{{ campaign.consent_granted_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Согласие не подтверждено</span>
-        <strong class="campaign-stat-value">{{ campaign.consent_unknown_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Согласие отозвано</span>
-        <strong class="campaign-stat-value">{{ campaign.consent_revoked_count }}</strong>
-      </div>
-      <div class="campaign-stat">
-        <span class="campaign-stat-label">Согласие не зафиксировано</span>
-        <strong class="campaign-stat-value">{{ campaign.consent_not_recorded_count }}</strong>
-      </div>
-    </div>
-
     <div class="marketing-page-header marketing-page-header--compact">
-      <h2 class="marketing-section-title">Предварительный список (до {{ preview_limit }})</h2>
+      <h3 class="marketing-section-subtitle">Предварительный список (до {{ preview_limit }})</h3>
       <div class="marketing-preview-filters">
         <a class="marketing-btn{% if preview_filter == 'all' %} is-active{% endif %}" href="?preview=all">Все</a>
         <a class="marketing-btn{% if preview_filter == 'eligible' %} is-active{% endif %}" href="?preview=eligible">Допустимые</a>
@@ -189,13 +105,46 @@
       </table>
     </div>
   {% else %}
-    <p class="marketing-section-note">Снимок получателей ещё не подготовлен. Нажмите «Подготовить получателей», чтобы пересчитать аудиторию и зафиксировать состав.</p>
+    <p class="marketing-section-note">Снимок получателей ещё не подготовлен.{% if campaign_actions.prepare %} Используйте «Подготовить получателей» в меню «Действия».{% endif %}</p>
   {% endif %}
 
-  <h2 class="marketing-section-title">Тестовая отправка</h2>
+  <h2 class="marketing-section-title">WhatsApp-шаблон</h2>
+  {% if campaign.message_template %}
+    {% if readiness.template_unavailable_message %}
+      <p class="marketing-warning">{{ readiness.template_unavailable_message }}</p>
+    {% endif %}
+    <dl class="marketing-meta-grid">
+      <dt>Название</dt><dd><a href="{% url 'marketing:template_detail' campaign.message_template.pk %}">{{ campaign.message_template.name }}</a></dd>
+      <dt>Meta template</dt><dd>{{ campaign.message_template.meta_template_name }}</dd>
+      <dt>Статус</dt><dd>{{ campaign.message_template.meta_status_label }}</dd>
+      <dt>Совместимость</dt><dd>{% if campaign.message_template_allows_purpose %}Совместим{% else %}Не совместим{% endif %}</dd>
+    </dl>
+    {% if template_preview %}
+      {% include 'marketing/templates/_preview.html' with preview=template_preview %}
+    {% endif %}
+  {% else %}
+    <p class="marketing-section-note">Шаблон не выбран.{% if campaign_actions.edit %} <a href="{% url 'marketing:campaign_edit' campaign.pk %}">Выбрать шаблон</a>{% endif %}</p>
+  {% endif %}
+
+  <h2 class="marketing-section-title">Готовность кампании</h2>
+  <div class="campaign-readiness">
+    <ul class="campaign-readiness__list">
+      {% for item in readiness.items %}
+        <li class="campaign-readiness__item{% if item.ok %} is-ok{% else %} is-pending{% endif %}">{{ item.label }}</li>
+      {% endfor %}
+    </ul>
+    {% if readiness.prepared_for_next_stage %}
+      <p class="campaign-readiness__ready">Кампания подготовлена</p>
+      <p class="campaign-readiness__note">Подготовлена к следующему этапу не означает «готова к отправке», пока режим отправки OFF или LIVE не реализован.</p>
+    {% else %}
+      <p class="campaign-readiness__note">Завершите подготовку кампании перед следующим этапом.</p>
+    {% endif %}
+  </div>
+
+  <h2 class="marketing-section-title">Отправка</h2>
   <div class="campaign-readiness">
     <p class="campaign-readiness__summary">
-      <strong>Режим MARKETING_WHATSAPP_SEND_MODE:</strong> {{ marketing_whatsapp_send_mode_label }}
+      <strong>Режим системы:</strong> {{ marketing_whatsapp_send_mode_label }}
     </p>
     {% if marketing_whatsapp_send_mode != 'TEST' %}
       <p class="marketing-section-note">Отправка отключена настройками.</p>
@@ -203,7 +152,7 @@
       <p class="marketing-warning">Тестовая отправка для этой кампании уже выполнялась. Для повторного теста создайте новую кампанию.</p>
       <p><a class="marketing-btn" href="{% url 'marketing:history' %}">История отправок</a></p>
     {% elif test_send.allowed %}
-      <p class="campaign-readiness__ready">Кампания готова к TEST-отправке (до 2 test contacts).</p>
+      <p class="campaign-readiness__ready">Доступна TEST-отправка (до 2 test contacts).</p>
       <p><a class="marketing-btn" href="{% url 'marketing:campaign_test_send_preflight' campaign.pk %}">Проверить тестовую отправку</a></p>
     {% else %}
       <p class="marketing-warning">TEST-отправка пока недоступна:</p>
@@ -215,26 +164,15 @@
     {% endif %}
   </div>
 
-  <div class="marketing-page-actions marketing-page-actions--footer">
-    <form method="post" action="{% url 'marketing:campaign_copy' campaign.pk %}" class="marketing-inline-form">
-      {% csrf_token %}
-      <button type="submit" class="marketing-btn">Копировать</button>
-    </form>
-    {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
-      <form method="post" action="{% url 'marketing:campaign_cancel' campaign.pk %}" class="marketing-inline-form">
-        {% csrf_token %}
-        <button type="submit" class="marketing-btn">Отменить</button>
-      </form>
-    {% endif %}
-    {% if campaign.status != 'archived' %}
-      <form method="post" action="{% url 'marketing:campaign_archive' campaign.pk %}" class="marketing-inline-form">
-        {% csrf_token %}
-        <button type="submit" class="marketing-btn">Архивировать</button>
-      </form>
-    {% endif %}
-    {% if campaign.status == 'draft' and not campaign.has_prepared_snapshot %}
-      <a class="marketing-btn marketing-btn--danger" href="{% url 'marketing:campaign_delete' campaign.pk %}">Удалить</a>
-    {% endif %}
-  </div>
+  <details class="campaign-detail-more">
+    <summary class="marketing-section-subtitle">Дополнительная информация</summary>
+    <dl class="marketing-meta-grid">
+      <dt>Автор</dt><dd>{% if campaign.created_by %}{{ campaign.created_by.username }}{% else %}—{% endif %}</dd>
+      <dt>Создана</dt><dd>{{ campaign.created_at|date:'d.m.Y H:i' }}</dd>
+      <dt>Обновлена</dt><dd>{{ campaign.updated_at|date:'d.m.Y H:i' }}</dd>
+      <dt>Критерии аудитории</dt><dd>{{ criteria_summary }}</dd>
+      <dt>Активна</dt><dd>{% if campaign.is_active %}Да{% else %}Нет{% endif %}</dd>
+    </dl>
+  </details>
 </section>
 {% endblock %}

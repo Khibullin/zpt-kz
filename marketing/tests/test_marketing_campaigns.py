@@ -27,6 +27,7 @@ from marketing.models import (
     MarketingAudience,
     MarketingCampaign,
     MarketingCampaignRecipient,
+    MarketingCampaignSendRun,
 )
 from marketing.services.audiences.constants import (
     GROUP_BUYERS,
@@ -46,6 +47,10 @@ from marketing.services.audiences.constants import (
 )
 from marketing.services.campaigns.constants import (
     EXCLUSION_AUDIENCE_RULE,
+    CAMPAIGN_VIEW_ALL,
+    CAMPAIGN_VIEW_ARCHIVED,
+    CAMPAIGN_VIEW_ACTIVE,
+    CAMPAIGN_VIEW_CANCELLED,
     PURPOSE_COMBINED_SELLERS,
     PURPOSE_DETAILING_PROVIDERS,
     PURPOSE_MARKETPLACE_BUYERS,
@@ -60,6 +65,8 @@ from marketing.services.campaigns.constants import (
     STATUS_CANCELLED,
     STATUS_DRAFT,
 )
+from marketing.services.campaigns.send_constants import SEND_MODE_TEST, SEND_RUN_STATUS_COMPLETED
+from marketing.services.campaigns.summaries import campaign_list_excluded_display
 from marketing.services.campaigns.signatures import compute_audience_signature
 from marketing.services.campaigns.preparation import prepare_campaign_snapshot
 from marketing.tests.test_marketing_audiences import (
@@ -651,12 +658,20 @@ class MarketingCampaignLifecycleTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertFalse(MarketingCampaign.objects.filter(pk=self.campaign.pk).exists())
 
-    def test_delete_blocked_with_snapshot(self):
+    def test_delete_prepared_without_send_run_allowed(self):
         self._prepare()
+        response = self.client.post(
+            reverse('marketing:campaign_delete', kwargs={'pk': self.campaign.pk}),
+            {'confirm': 'yes'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(MarketingCampaign.objects.filter(pk=self.campaign.pk).exists())
+
+    def test_delete_confirmation_get_does_not_delete(self):
         response = self.client.get(
             reverse('marketing:campaign_delete', kwargs={'pk': self.campaign.pk}),
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(MarketingCampaign.objects.filter(pk=self.campaign.pk).exists())
 
     def test_get_does_not_modify_data(self):
@@ -978,3 +993,268 @@ class MarketingCampaignCounterInvariantTests(TestCase):
         for token in forbidden:
             self.assertNotIn(token, serialized)
         self.assertNotIn(buyer.phone_normalized, serialized)
+
+
+class MarketingCampaignListUITests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('marketer', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='marketer', password='secret')
+        self.audience = make_audience(name='List UI audience')
+        self.draft = make_campaign(self.audience, self.user, name='Draft campaign')
+        self.active = make_campaign(self.audience, self.user, name='Active campaign')
+        self.active.status = STATUS_AUDIENCE_PREPARED
+        self.active.save(update_fields=['status', 'updated_at'])
+        self.cancelled = make_campaign(self.audience, self.user, name='Cancelled campaign')
+        self.cancelled.status = STATUS_CANCELLED
+        self.cancelled.save(update_fields=['status', 'updated_at'])
+        self.archived = make_campaign(self.audience, self.user, name='Archived campaign')
+        self.archived.status = STATUS_ARCHIVED
+        self.archived.save(update_fields=['status', 'updated_at'])
+
+    def test_default_list_shows_workable_campaigns_only(self):
+        response = self.client.get(reverse('marketing:campaigns'))
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('Draft campaign', content)
+        self.assertIn('Active campaign', content)
+        self.assertNotIn('Cancelled campaign', content)
+        self.assertNotIn('Archived campaign', content)
+
+    def test_default_list_hides_archived(self):
+        response = self.client.get(reverse('marketing:campaigns'))
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertNotIn('Archived campaign', content)
+
+    def test_default_list_hides_cancelled(self):
+        response = self.client.get(reverse('marketing:campaigns'))
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertNotIn('Cancelled campaign', content)
+
+    def test_view_active_shows_prepared_not_cancelled(self):
+        response = self.client.get(reverse('marketing:campaigns'), {'view': CAMPAIGN_VIEW_ACTIVE})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('Active campaign', content)
+        self.assertNotIn('Draft campaign', content)
+        self.assertNotIn('Cancelled campaign', content)
+        self.assertNotIn('Archived campaign', content)
+
+    def test_view_active_includes_stale_prepared_campaign(self):
+        buyer = make_buyer()
+        grant_consent(buyer)
+        self.client.post(reverse('marketing:campaign_prepare', kwargs={'pk': self.active.pk}))
+        self.active.refresh_from_db()
+        audience = self.active.audience
+        audience.criteria = {'primary_cities': ['Алматы']}
+        audience.save()
+        response = self.client.get(reverse('marketing:campaigns'), {'view': CAMPAIGN_VIEW_ACTIVE})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('Active campaign', content)
+        self.assertIn('Аудитория устарела', content)
+
+    def test_view_cancelled_shows_only_cancelled(self):
+        response = self.client.get(reverse('marketing:campaigns'), {'view': CAMPAIGN_VIEW_CANCELLED})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('Cancelled campaign', content)
+        self.assertNotIn('Draft campaign', content)
+        self.assertNotIn('Active campaign', content)
+        self.assertNotIn('Archived campaign', content)
+
+    def test_view_archived_shows_only_archived(self):
+        response = self.client.get(reverse('marketing:campaigns'), {'view': CAMPAIGN_VIEW_ARCHIVED})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('Archived campaign', content)
+        self.assertNotIn('Draft campaign', content)
+        self.assertNotIn('Active campaign', content)
+
+    def test_view_all_shows_every_campaign(self):
+        response = self.client.get(reverse('marketing:campaigns'), {'view': CAMPAIGN_VIEW_ALL})
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertIn('Draft campaign', content)
+        self.assertIn('Active campaign', content)
+        self.assertIn('Cancelled campaign', content)
+        self.assertIn('Archived campaign', content)
+
+    def test_archived_campaign_hides_dangerous_actions(self):
+        response = self.client.get(
+            reverse('marketing:campaign_detail', kwargs={'pk': self.archived.pk}),
+        )
+        self.assertEqual(response.status_code, 200)
+        content = response.content.decode()
+        self.assertNotIn('Подготовить получателей', content)
+        self.assertNotIn('Изменить', content)
+        self.assertNotIn('Отменить', content)
+        self.assertIn('Копировать', content)
+
+    def test_archived_without_send_run_shows_delete(self):
+        response = self.client.get(
+            reverse('marketing:campaign_detail', kwargs={'pk': self.archived.pk}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Удалить', response.content.decode())
+
+    def test_archived_without_send_run_delete_post_succeeds(self):
+        archived = make_campaign(self.audience, self.user, name='Empty archived')
+        archived.status = STATUS_ARCHIVED
+        archived.save(update_fields=['status', 'updated_at'])
+        response = self.client.post(
+            reverse('marketing:campaign_delete', kwargs={'pk': archived.pk}),
+            {'confirm': 'yes'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(MarketingCampaign.objects.filter(pk=archived.pk).exists())
+
+    def test_archived_with_send_run_hides_delete(self):
+        archived = make_campaign(self.audience, self.user, name='Archived with history')
+        archived.status = STATUS_ARCHIVED
+        archived.save(update_fields=['status', 'updated_at'])
+        from marketing.tests.test_marketing_templates import make_template
+
+        template = make_template(self.user)
+        MarketingCampaignSendRun.objects.create(
+            campaign=archived,
+            template=template,
+            mode=SEND_MODE_TEST,
+            status=SEND_RUN_STATUS_COMPLETED,
+            total_count=0,
+            created_by=self.user,
+        )
+        response = self.client.get(
+            reverse('marketing:campaign_detail', kwargs={'pk': archived.pk}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn('Удалить', response.content.decode())
+
+    def test_archived_with_send_run_delete_post_blocked(self):
+        archived = make_campaign(self.audience, self.user, name='Archived protected')
+        archived.status = STATUS_ARCHIVED
+        archived.save(update_fields=['status', 'updated_at'])
+        from marketing.tests.test_marketing_templates import make_template
+
+        template = make_template(self.user)
+        MarketingCampaignSendRun.objects.create(
+            campaign=archived,
+            template=template,
+            mode=SEND_MODE_TEST,
+            status=SEND_RUN_STATUS_COMPLETED,
+            total_count=0,
+            created_by=self.user,
+        )
+        response = self.client.post(
+            reverse('marketing:campaign_delete', kwargs={'pk': archived.pk}),
+            {'confirm': 'yes'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(MarketingCampaign.objects.filter(pk=archived.pk).exists())
+
+    def test_delete_post_without_send_run(self):
+        campaign = make_campaign(self.audience, self.user, name='Delete me')
+        response = self.client.post(
+            reverse('marketing:campaign_delete', kwargs={'pk': campaign.pk}),
+            {'confirm': 'yes'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(MarketingCampaign.objects.filter(pk=campaign.pk).exists())
+
+    def test_delete_blocked_when_send_run_exists(self):
+        self._prepare(self.active)
+        template = self.active.message_template
+        if template is None:
+            from marketing.tests.test_marketing_templates import make_template
+
+            template = make_template(self.user)
+            self.active.message_template = template
+            self.active.save(update_fields=['message_template', 'updated_at'])
+        MarketingCampaignSendRun.objects.create(
+            campaign=self.active,
+            template=template,
+            mode=SEND_MODE_TEST,
+            status=SEND_RUN_STATUS_COMPLETED,
+            total_count=0,
+            created_by=self.user,
+        )
+        response = self.client.get(
+            reverse('marketing:campaign_delete', kwargs={'pk': self.active.pk}),
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(MarketingCampaign.objects.filter(pk=self.active.pk).exists())
+
+    def test_get_delete_does_not_remove_campaign(self):
+        campaign = make_campaign(self.audience, self.user, name='Keep on GET')
+        response = self.client.get(
+            reverse('marketing:campaign_delete', kwargs={'pk': campaign.pk}),
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(MarketingCampaign.objects.filter(pk=campaign.pk).exists())
+
+    def test_unauthorized_user_cannot_delete(self):
+        self.client.logout()
+        outsider = User.objects.create_user('outsider', password='secret', is_staff=True)
+        self.client.login(username='outsider', password='secret')
+        campaign = make_campaign(self.audience, self.user, name='Protected delete')
+        response = self.client.post(
+            reverse('marketing:campaign_delete', kwargs={'pk': campaign.pk}),
+            {'confirm': 'yes'},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.assertTrue(MarketingCampaign.objects.filter(pk=campaign.pk).exists())
+
+    def test_successful_test_campaign_with_send_run_stays_protected(self):
+        from marketing.tests.test_marketing_campaign_send import setup_ready_test_campaign
+
+        campaign = setup_ready_test_campaign(self.user, recipient_count=1)
+        template = campaign.message_template
+        recipient = campaign.recipients.first()
+        MarketingCampaignSendRun.objects.create(
+            campaign=campaign,
+            template=template,
+            mode=SEND_MODE_TEST,
+            status=SEND_RUN_STATUS_COMPLETED,
+            total_count=1,
+            sent_count=1,
+            created_by=self.user,
+        )
+        response = self.client.post(
+            reverse('marketing:campaign_delete', kwargs={'pk': campaign.pk}),
+            {'confirm': 'yes'},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(MarketingCampaign.objects.filter(pk=campaign.pk).exists())
+
+    def test_excluded_count_display_uses_matched_minus_eligible(self):
+        campaign = make_campaign(self.audience, self.user)
+        campaign.matched_count = 10
+        campaign.eligible_count = 7
+        campaign.audience_prepared_at = timezone.now()
+        self.assertEqual(campaign_list_excluded_display(campaign), 3)
+
+    def test_excluded_count_display_without_snapshot_is_dash(self):
+        campaign = make_campaign(self.audience, self.user)
+        self.assertEqual(campaign_list_excluded_display(campaign), '—')
+
+    def test_test_send_routes_still_available(self):
+        from marketing.tests.test_marketing_campaign_send import setup_ready_test_campaign
+
+        campaign = setup_ready_test_campaign(self.user, recipient_count=2)
+        preflight = self.client.get(
+            reverse('marketing:campaign_test_send_preflight', kwargs={'pk': campaign.pk}),
+        )
+        self.assertEqual(preflight.status_code, 200)
+        execute = self.client.post(
+            reverse('marketing:campaign_test_send_execute', kwargs={'pk': campaign.pk}),
+        )
+        self.assertIn(execute.status_code, {302, 200})
+
+    def _prepare(self, campaign: MarketingCampaign):
+        buyer = make_buyer()
+        grant_consent(buyer)
+        self.client.post(reverse('marketing:campaign_prepare', kwargs={'pk': campaign.pk}))
+        campaign.refresh_from_db()

@@ -38,17 +38,17 @@ def build_campaign_readiness(campaign: MarketingCampaign) -> dict:
         },
         {
             'key': 'snapshot_prepared',
-            'label': 'Снимок получателей подготовлен',
+            'label': 'Получатели подготовлены',
             'ok': snapshot_prepared,
         },
         {
             'key': 'snapshot_fresh',
-            'label': 'Снимок аудитории не устарел',
+            'label': 'Snapshot актуален',
             'ok': snapshot_fresh,
         },
         {
             'key': 'eligible_recipients',
-            'label': 'Есть хотя бы один eligible recipient',
+            'label': 'Есть допустимые получатели',
             'ok': has_eligible,
         },
         {
@@ -68,7 +68,7 @@ def build_campaign_readiness(campaign: MarketingCampaign) -> dict:
         },
         {
             'key': 'template_compatible',
-            'label': 'Шаблон совместим с purpose',
+            'label': 'Шаблон совместим',
             'ok': template_compatible,
         },
     ]

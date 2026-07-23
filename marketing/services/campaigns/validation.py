@@ -90,11 +90,9 @@ def validate_campaign_preparable(campaign: MarketingCampaign) -> None:
 
 
 def validate_campaign_deletable(campaign: MarketingCampaign) -> None:
-    if campaign.status != STATUS_DRAFT:
-        raise CampaignValidationError('Удалить можно только черновик кампании.')
-    if campaign.audience_prepared_at is not None or campaign.recipients.exists():
+    if campaign.send_runs.exists():
         raise CampaignValidationError(
-            'Нельзя удалить кампанию с подготовленным снимком получателей.',
+            'Кампания имеет историю отправок и не может быть удалена. Используйте архив.',
         )
 
 

@@ -4,13 +4,14 @@
 
 {% block content %}
 <section class="marketing-section">
-  <h1 class="marketing-page-title">Удалить кампанию?</h1>
-  <p>Кампания «{{ campaign.name }}» будет удалена без возможности восстановления.</p>
+  <h1 class="marketing-page-title">Удалить кампанию «{{ campaign.name }}»?</h1>
+  <p>Это действие удалит саму кампанию и подготовленный снимок получателей.</p>
+  <p>История отправок отсутствует.</p>
   <form method="post" class="marketing-form">
     {% csrf_token %}
     <input type="hidden" name="confirm" value="yes">
     <div class="marketing-form__actions">
-      <button type="submit" class="marketing-btn marketing-btn--danger">Удалить</button>
+      <button type="submit" class="marketing-btn marketing-btn--danger">Удалить кампанию</button>
       <a class="marketing-btn" href="{% url 'marketing:campaign_detail' campaign.pk %}">Отмена</a>
     </div>
   </form>

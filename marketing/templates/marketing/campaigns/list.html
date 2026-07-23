@@ -1,4 +1,5 @@
 {% extends 'marketing/base.html' %}
+{% load campaign_ui %}
 
 {% block title %}Кампании — Рассылки и уведомления ZPT.KZ{% endblock %}
 
@@ -17,121 +18,115 @@
     </ul>
   {% endif %}
 
+  <nav class="marketing-tabs" aria-label="Разделы кампаний">
+    {% for tab_key, tab_label in list_view_tabs %}
+      <a
+        class="marketing-tabs__link{% if list_view == tab_key %} is-active{% endif %}"
+        href="?view={{ tab_key }}{% if filters.purpose %}&purpose={{ filters.purpose }}{% endif %}{% if filters.audience %}&audience={{ filters.audience }}{% endif %}{% if filters.author %}&author={{ filters.author }}{% endif %}{% if filters.created_from %}&created_from={{ filters.created_from }}{% endif %}{% if filters.created_to %}&created_to={{ filters.created_to }}{% endif %}"
+      >{{ tab_label }}</a>
+    {% endfor %}
+  </nav>
+
   <form method="get" class="marketing-filters">
-    <label>
-      Статус
-      <select name="status">
-        <option value="">Все</option>
-        {% for value, label in status_choices %}
-          <option value="{{ value }}"{% if filters.status == value %} selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>
-      Назначение
-      <select name="purpose">
-        <option value="">Все</option>
-        {% for value, label in purpose_choices %}
-          <option value="{{ value }}"{% if filters.purpose == value %} selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>
-      Аудитория
-      <select name="audience">
-        <option value="">Все</option>
-        {% for audience in audiences %}
-          <option value="{{ audience.pk }}"{% if filters.audience == audience.pk|stringformat:'s' %} selected{% endif %}>{{ audience.name }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>
-      Автор
-      <select name="author">
-        <option value="">Все</option>
-        {% for author in authors %}
-          <option value="{{ author.pk }}"{% if filters.author == author.pk|stringformat:'s' %} selected{% endif %}>{{ author.username }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>
-      Создана с
-      <input type="date" name="created_from" value="{{ filters.created_from }}">
-    </label>
-    <label>
-      Создана по
-      <input type="date" name="created_to" value="{{ filters.created_to }}">
-    </label>
-    <button type="submit" class="marketing-btn">Применить</button>
+    {% if list_view %}
+      <input type="hidden" name="view" value="{{ list_view }}">
+    {% endif %}
+    <div class="marketing-filters__grid">
+      <label>
+        Назначение
+        <select name="purpose">
+          <option value="">Все</option>
+          {% for value, label in purpose_choices %}
+            <option value="{{ value }}"{% if filters.purpose == value %} selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Аудитория
+        <select name="audience">
+          <option value="">Все</option>
+          {% for audience in audiences %}
+            <option value="{{ audience.pk }}"{% if filters.audience == audience.pk|stringformat:'s' %} selected{% endif %}>{{ audience.name }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Автор
+        <select name="author">
+          <option value="">Все</option>
+          {% for author in authors %}
+            <option value="{{ author.pk }}"{% if filters.author == author.pk|stringformat:'s' %} selected{% endif %}>{{ author.username }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Создана с
+        <input type="date" name="created_from" value="{{ filters.created_from }}">
+      </label>
+      <label>
+        Создана по
+        <input type="date" name="created_to" value="{{ filters.created_to }}">
+      </label>
+    </div>
+    <div class="marketing-filters__actions">
+      <button type="submit" class="marketing-btn">Применить фильтры</button>
+    </div>
   </form>
 
-  <div class="marketing-table-wrap">
-    <table class="marketing-table">
-      <thead>
-        <tr>
-          <th>Название</th>
-          <th>Назначение</th>
-          <th>Аудитория</th>
-          <th>Статус</th>
-          <th>Найдено</th>
-          <th>Допустимо</th>
-          <th>Исключено</th>
-          <th>Подготовка</th>
-          <th>Автор</th>
-          <th>Создана</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for campaign in page_obj.object_list %}
+  {% if page_obj.object_list %}
+    <div class="marketing-table-wrap campaign-list-table">
+      <table class="marketing-table campaign-list-table__table">
+        <thead>
           <tr>
-            <td><a href="{% url 'marketing:campaign_detail' campaign.pk %}">{{ campaign.name }}</a></td>
-            <td>{{ campaign.purpose_label }}</td>
-            <td>{{ campaign.audience.name }}</td>
-            <td>{{ campaign.status_label }}</td>
-            <td>{{ campaign.matched_count }}</td>
-            <td>{{ campaign.eligible_count }}</td>
-            <td>{{ campaign.excluded_count }}</td>
-            <td>{% if campaign.audience_prepared_at %}{{ campaign.audience_prepared_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</td>
-            <td>{% if campaign.created_by %}{{ campaign.created_by.username }}{% else %}—{% endif %}</td>
-            <td>{{ campaign.created_at|date:'d.m.Y H:i' }}</td>
-            <td class="marketing-table__actions">
-              <a href="{% url 'marketing:campaign_detail' campaign.pk %}">Открыть</a>
-              {% if campaign.is_editable %}
-                <a href="{% url 'marketing:campaign_edit' campaign.pk %}">Изменить</a>
-              {% endif %}
-              <form method="post" action="{% url 'marketing:campaign_copy' campaign.pk %}" class="marketing-inline-form">
-                {% csrf_token %}
-                <button type="submit" class="marketing-link-btn">Копировать</button>
-              </form>
-              {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
-                <form method="post" action="{% url 'marketing:campaign_prepare' campaign.pk %}" class="marketing-inline-form">
-                  {% csrf_token %}
-                  <button type="submit" class="marketing-link-btn">Подготовить получателей</button>
-                </form>
-              {% endif %}
-              {% if campaign.status != 'cancelled' and campaign.status != 'archived' %}
-                <form method="post" action="{% url 'marketing:campaign_cancel' campaign.pk %}" class="marketing-inline-form">
-                  {% csrf_token %}
-                  <button type="submit" class="marketing-link-btn">Отменить</button>
-                </form>
-              {% endif %}
-              {% if campaign.status != 'archived' %}
-                <form method="post" action="{% url 'marketing:campaign_archive' campaign.pk %}" class="marketing-inline-form">
-                  {% csrf_token %}
-                  <button type="submit" class="marketing-link-btn">Архивировать</button>
-                </form>
-              {% endif %}
-            </td>
+            <th>Название</th>
+            <th>Тип</th>
+            <th>Назначение</th>
+            <th>Аудитория</th>
+            <th>Статус</th>
+            <th>Найдено</th>
+            <th>Допущено</th>
+            <th>Исключено</th>
+            <th>Создана</th>
+            <th></th>
           </tr>
-        {% empty %}
-          <tr>
-            <td colspan="11">Кампаний пока нет.</td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+        </thead>
+        <tbody>
+          {% for campaign in page_obj.object_list %}
+            {% with actions=campaign|campaign_actions %}
+              <tr class="campaign-list-row">
+                <td data-label="Название">
+                  <a href="{% url 'marketing:campaign_detail' campaign.pk %}">{{ campaign.name }}</a>
+                </td>
+                <td data-label="Тип">
+                  <span class="campaign-badge {{ campaign|campaign_type_class }}">{{ campaign|campaign_type_label }}</span>
+                </td>
+                <td data-label="Назначение">{{ campaign.purpose_label }}</td>
+                <td data-label="Аудитория">{{ campaign.audience.name }}</td>
+                <td data-label="Статус">
+                  <span class="campaign-badge {{ campaign|campaign_status_class }}">{{ campaign|campaign_status_label }}</span>
+                </td>
+                <td data-label="Найдено">{{ campaign|campaign_matched_display }}</td>
+                <td data-label="Допущено">{{ campaign|campaign_eligible_display }}</td>
+                <td data-label="Исключено">{{ campaign|campaign_excluded_display }}</td>
+                <td data-label="Создана">{{ campaign.created_at|date:'d.m.Y H:i' }}</td>
+                <td class="marketing-table__actions campaign-list-row__actions" data-label="">
+                  <a class="marketing-btn" href="{% url 'marketing:campaign_detail' campaign.pk %}">Открыть</a>
+                  {% include 'marketing/campaigns/includes/actions_dropdown.html' %}
+                </td>
+              </tr>
+            {% endwith %}
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% else %}
+    <div class="campaign-empty-state">
+      <p>{{ empty_state_message }}</p>
+      {% if not list_view or list_view == 'drafts' %}
+        <a class="marketing-btn marketing-btn--primary" href="{% url 'marketing:campaign_create' %}">Создать кампанию</a>
+      {% endif %}
+    </div>
+  {% endif %}
 
   {% if page_obj.paginator.num_pages > 1 %}
     <nav class="marketing-pagination" aria-label="Страницы">

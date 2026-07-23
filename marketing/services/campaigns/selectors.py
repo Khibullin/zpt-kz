@@ -1,26 +1,68 @@
 from __future__ import annotations
 
 from django.contrib.auth.models import User
-from django.db.models import QuerySet
+from django.db.models import Count, QuerySet
 from django.utils.dateparse import parse_date
 
 from marketing.models import MarketingCampaign, MarketingCampaignRecipient
 from marketing.services.campaigns.constants import (
     CAMPAIGN_LIST_PAGE_SIZE,
     CAMPAIGN_PREVIEW_LIMIT,
+    CAMPAIGN_VIEW_ACTIVE,
+    CAMPAIGN_VIEW_ALL,
+    CAMPAIGN_VIEW_ARCHIVED,
+    CAMPAIGN_VIEW_CANCELLED,
+    CAMPAIGN_VIEW_DRAFTS,
     ELIGIBILITY_ELIGIBLE,
     ELIGIBILITY_EXCLUDED,
+    STATUS_ARCHIVED,
+    STATUS_AUDIENCE_PREPARED,
+    STATUS_CANCELLED,
+    STATUS_DRAFT,
 )
 
 
 def campaign_list_queryset() -> QuerySet[MarketingCampaign]:
-    return MarketingCampaign.objects.select_related('audience', 'created_by').order_by(
-        '-created_at',
-        '-id',
+    return (
+        MarketingCampaign.objects.select_related('audience', 'created_by')
+        .annotate(send_run_count=Count('send_runs', distinct=True))
+        .order_by('-created_at', '-id')
     )
 
 
+def normalize_campaign_list_view(view: str) -> str:
+    normalized = (view or '').strip()
+    valid = {
+        CAMPAIGN_VIEW_ACTIVE,
+        CAMPAIGN_VIEW_DRAFTS,
+        CAMPAIGN_VIEW_CANCELLED,
+        CAMPAIGN_VIEW_ARCHIVED,
+        CAMPAIGN_VIEW_ALL,
+    }
+    return normalized if normalized in valid else ''
+
+
+def filter_campaign_list_by_view(
+    queryset: QuerySet[MarketingCampaign],
+    view: str,
+) -> QuerySet[MarketingCampaign]:
+    normalized = normalize_campaign_list_view(view)
+    if normalized == CAMPAIGN_VIEW_ACTIVE:
+        return queryset.filter(status=STATUS_AUDIENCE_PREPARED)
+    if normalized == CAMPAIGN_VIEW_DRAFTS:
+        return queryset.filter(status=STATUS_DRAFT)
+    if normalized == CAMPAIGN_VIEW_CANCELLED:
+        return queryset.filter(status=STATUS_CANCELLED)
+    if normalized == CAMPAIGN_VIEW_ARCHIVED:
+        return queryset.filter(status=STATUS_ARCHIVED)
+    if normalized == CAMPAIGN_VIEW_ALL:
+        return queryset
+    return queryset.filter(status__in=[STATUS_DRAFT, STATUS_AUDIENCE_PREPARED])
+
+
 def filter_campaign_list(queryset: QuerySet[MarketingCampaign], params) -> QuerySet[MarketingCampaign]:
+    queryset = filter_campaign_list_by_view(queryset, params.get('view', ''))
+
     status = params.get('status', '').strip()
     if status:
         queryset = queryset.filter(status=status)

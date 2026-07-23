@@ -22,6 +22,20 @@ from marketing.services.audiences.constants import (
 CAMPAIGN_LIST_PAGE_SIZE = 25
 CAMPAIGN_PREVIEW_LIMIT = 50
 
+CAMPAIGN_VIEW_ACTIVE = 'active'
+CAMPAIGN_VIEW_DRAFTS = 'drafts'
+CAMPAIGN_VIEW_CANCELLED = 'cancelled'
+CAMPAIGN_VIEW_ARCHIVED = 'archived'
+CAMPAIGN_VIEW_ALL = 'all'
+
+CAMPAIGN_LIST_VIEW_CHOICES = (
+    (CAMPAIGN_VIEW_ACTIVE, 'Активные'),
+    (CAMPAIGN_VIEW_DRAFTS, 'Черновики'),
+    (CAMPAIGN_VIEW_CANCELLED, 'Отменённые'),
+    (CAMPAIGN_VIEW_ARCHIVED, 'Архив'),
+    (CAMPAIGN_VIEW_ALL, 'Все'),
+)
+
 CHANNEL_WHATSAPP = 'whatsapp'
 
 STATUS_DRAFT = 'draft'

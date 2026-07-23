@@ -17,9 +17,12 @@ from marketing.services.campaigns.send_validation import build_test_send_preflig
 from marketing.services.campaigns.compatibility import compatible_audiences_for_purpose
 from marketing.services.campaigns.constants import (
     CAMPAIGN_LIST_PAGE_SIZE,
+    CAMPAIGN_LIST_VIEW_CHOICES,
     CAMPAIGN_PREVIEW_LIMIT,
     CAMPAIGN_PURPOSE_CHOICES,
     CAMPAIGN_STATUS_CHOICES,
+    CAMPAIGN_VIEW_ARCHIVED,
+    CAMPAIGN_VIEW_CANCELLED,
     STATUS_ARCHIVED,
     STATUS_CANCELLED,
     STATUS_DRAFT,
@@ -34,8 +37,16 @@ from marketing.services.campaigns.selectors import (
     campaign_list_queryset,
     campaign_recipient_preview,
     filter_campaign_list,
+    normalize_campaign_list_view,
 )
-from marketing.services.campaigns.summaries import campaign_display_status_label
+from marketing.services.campaigns.summaries import (
+    build_campaign_actions,
+    campaign_display_status_label,
+    campaign_list_excluded_display,
+    campaign_status_badge_class,
+    campaign_type_badge_class,
+    campaign_type_badge_label,
+)
 from marketing.services.campaigns.validation import (
     CampaignValidationError,
     resolve_audience_from_post,
@@ -96,7 +107,11 @@ class CampaignListView(MarketingCabinetMixin, TemplateView):
         context['purpose_choices'] = CAMPAIGN_PURPOSE_CHOICES
         context['audiences'] = MarketingAudience.objects.filter(is_active=True).order_by('name')
         context['authors'] = campaign_authors_queryset()
+        list_view = normalize_campaign_list_view(self.request.GET.get('view', ''))
+        context['list_view'] = list_view
+        context['list_view_tabs'] = CAMPAIGN_LIST_VIEW_CHOICES
         context['filters'] = {
+            'view': list_view,
             'status': self.request.GET.get('status', ''),
             'purpose': self.request.GET.get('purpose', ''),
             'audience': self.request.GET.get('audience', ''),
@@ -104,6 +119,14 @@ class CampaignListView(MarketingCabinetMixin, TemplateView):
             'created_from': self.request.GET.get('created_from', ''),
             'created_to': self.request.GET.get('created_to', ''),
         }
+        if list_view == CAMPAIGN_VIEW_ARCHIVED:
+            context['empty_state_message'] = 'Архивных кампаний нет.'
+        elif list_view == CAMPAIGN_VIEW_CANCELLED:
+            context['empty_state_message'] = 'Отменённых кампаний нет.'
+        elif list_view:
+            context['empty_state_message'] = 'Кампаний в этом разделе нет.'
+        else:
+            context['empty_state_message'] = 'Кампаний в работе нет.'
         query_params = self.request.GET.copy()
         query_params.pop('page', None)
         context['pagination_querystring'] = query_params.urlencode()
@@ -234,6 +257,11 @@ class CampaignDetailView(MarketingCabinetMixin, TemplateView):
             preview_filter = 'all'
         context['campaign'] = campaign
         context['display_status_label'] = campaign_display_status_label(campaign)
+        context['status_badge_class'] = campaign_status_badge_class(campaign)
+        context['type_badge_label'] = campaign_type_badge_label(campaign)
+        context['type_badge_class'] = campaign_type_badge_class(campaign)
+        context['campaign_actions'] = build_campaign_actions(campaign)
+        context['excluded_display'] = campaign_list_excluded_display(campaign)
         context['criteria_summary'] = criteria_summary(
             campaign.audience.criteria,
             contact_group=campaign.audience.contact_group,
@@ -344,8 +372,8 @@ class CampaignCopyView(MarketingCabinetMixin, View):
 class CampaignCancelView(MarketingCabinetMixin, View):
     def post(self, request, pk):
         campaign = get_object_or_404(MarketingCampaign, pk=pk)
-        if campaign.status == STATUS_CANCELLED:
-            messages.info(request, 'Кампания уже отменена.')
+        if campaign.status in {STATUS_CANCELLED, STATUS_ARCHIVED}:
+            messages.info(request, 'Кампания не может быть отменена в текущем статусе.')
         else:
             campaign.status = STATUS_CANCELLED
             campaign.cancelled_at = timezone.now()
