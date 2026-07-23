@@ -4,6 +4,7 @@ import uuid
 from unittest.mock import patch
 
 from django.contrib.auth.models import User
+from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
@@ -22,6 +23,7 @@ from marketing.models import (
     MarketingCampaignMessage,
     MarketingCampaignSendRun,
 )
+from marketing.services.campaigns.test_send import _lock_campaign_for_test_send
 from marketing.services.audiences.constants import GROUP_TEST, SUBTYPE_TEST_CONTACTS
 from marketing.services.campaigns.constants import PURPOSE_PARTS_BUYERS, PURPOSE_TEST_CAMPAIGN
 from marketing.services.campaigns.preparation import prepare_campaign_snapshot
@@ -33,6 +35,7 @@ from marketing.services.campaigns.send_constants import (
     VARIABLE_KEY_REQUEST_HISTORY_URL,
 )
 from marketing.services.campaigns.send_settings import get_marketing_whatsapp_send_mode
+from marketing.services.campaigns.send_validation import get_eligible_test_recipients
 from marketing.services.campaigns.send_variables import resolve_request_history_url
 from marketing.services.campaigns.test_send import execute_test_campaign_send
 from marketing.services.templates.constants import META_STATUS_APPROVED, META_STATUS_DRAFT
@@ -625,6 +628,198 @@ class MarketingCampaignTestSendTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(mocked.call_count, 2)
         self.assertEqual(MarketingCampaignSendRun.objects.filter(campaign=campaign).count(), 1)
+
+
+class MarketingCampaignTestSendLockQueryTests(TestCase):
+    def test_lock_queryset_has_no_select_related(self):
+        lock_qs = MarketingCampaign.objects.select_for_update().filter(pk=1)
+        self.assertFalse(lock_qs.query.select_related)
+
+    def test_nullable_message_template_select_related_creates_unsafe_lock_query(self):
+        unsafe_qs = (
+            MarketingCampaign.objects.select_for_update()
+            .select_related('message_template')
+            .filter(pk=1)
+        )
+        self.assertTrue(unsafe_qs.query.select_related)
+
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    @patch('marketing.services.campaigns.test_send._lock_campaign_for_test_send')
+    @patch('marketing.services.campaigns.test_send.send_whatsapp_template_message')
+    def test_execute_view_uses_lock_helper_without_select_related(self, mocked_send, mocked_lock):
+        user = User.objects.create_user('locktest', password='secret', is_staff=True)
+        grant_marketing_permission(user)
+        client = Client(enforce_csrf_checks=False)
+        client.login(username='locktest', password='secret')
+        campaign = setup_ready_test_campaign(user, recipient_count=2)
+
+        def lock_and_delegate(campaign_id: int):
+            locked = _lock_campaign_for_test_send(campaign_id)
+            self.assertFalse(
+                MarketingCampaign.objects.select_for_update().filter(pk=campaign_id).query.select_related,
+            )
+            return locked
+
+        mocked_lock.side_effect = lock_and_delegate
+        mocked_send.side_effect = lambda phone, **kwargs: {
+            'ok': True,
+            'status_code': 200,
+            'message_id': f'wamid.test.{phone}',
+            'error': None,
+        }
+
+        response = client.post(
+            reverse('marketing:campaign_test_send_execute', kwargs={'pk': campaign.pk}),
+        )
+        self.assertEqual(response.status_code, 302)
+        mocked_lock.assert_called_once_with(campaign.pk)
+        mocked_send.assert_called()
+
+
+class MarketingCampaignTestSendExecuteViewTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=False)
+        self.user = User.objects.create_user('marketer', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='marketer', password='secret')
+
+    def _mock_send_ok(self, phone, **kwargs):
+        return {
+            'ok': True,
+            'status_code': 200,
+            'message_id': f'wamid.test.{phone}',
+            'error': None,
+        }
+
+    def _post_execute(self, campaign: MarketingCampaign):
+        self.client.get(
+            reverse('marketing:campaign_test_send_preflight', kwargs={'pk': campaign.pk}),
+        )
+        return self.client.post(
+            reverse('marketing:campaign_test_send_execute', kwargs={'pk': campaign.pk}),
+        )
+
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    @patch('marketing.services.campaigns.test_send.send_whatsapp_template_message')
+    def test_execute_view_post_creates_send_run_before_meta_call(self, mocked):
+        send_run_exists_before_meta = {'value': False}
+        campaign_holder = {'campaign': None}
+
+        def track_send(phone, **kwargs):
+            campaign = campaign_holder['campaign']
+            send_run_exists_before_meta['value'] = MarketingCampaignSendRun.objects.filter(
+                campaign=campaign,
+            ).exists()
+            return self._mock_send_ok(phone, **kwargs)
+
+        mocked.side_effect = track_send
+        campaign = setup_ready_test_campaign(self.user, recipient_count=2)
+        campaign_holder['campaign'] = campaign
+
+        response = self._post_execute(campaign)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('marketing:history'))
+        self.assertTrue(send_run_exists_before_meta['value'])
+        self.assertEqual(mocked.call_count, 2)
+        self.assertEqual(MarketingCampaignSendRun.objects.filter(campaign=campaign).count(), 1)
+
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    @patch('marketing.services.campaigns.test_send.send_whatsapp_template_message')
+    def test_execute_post_re_resolves_variables_from_db_not_browser(self, mocked_send):
+        from marketing.services.campaigns import send_variables
+
+        resolve_calls = {'count': 0}
+        real_resolve = send_variables.resolve_template_variables_for_recipient
+
+        def counting_resolve(template, recipient):
+            resolve_calls['count'] += 1
+            return real_resolve(template, recipient)
+
+        mocked_send.side_effect = self._mock_send_ok
+        campaign = setup_ready_test_campaign(self.user, recipient_count=2)
+        send_run_exists_before_meta = {'value': False}
+
+        def track_send(phone, **kwargs):
+            send_run_exists_before_meta['value'] = MarketingCampaignSendRun.objects.filter(
+                campaign=campaign,
+            ).exists()
+            return self._mock_send_ok(phone, **kwargs)
+
+        mocked_send.side_effect = track_send
+
+        with patch(
+            'marketing.services.campaigns.test_send.resolve_template_variables_for_recipient',
+            side_effect=counting_resolve,
+        ):
+            response = self.client.post(
+                reverse('marketing:campaign_test_send_execute', kwargs={'pk': campaign.pk}),
+                {},
+            )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(resolve_calls['count'], 2)
+        self.assertTrue(send_run_exists_before_meta['value'])
+        self.assertEqual(mocked_send.call_count, 2)
+
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    @patch('marketing.services.campaigns.test_send.send_whatsapp_template_message')
+    def test_execute_view_phase1_error_returns_redirect_without_send_run(self, mocked):
+        campaign = setup_ready_test_campaign(self.user, recipient_count=2)
+        with patch(
+            'marketing.services.campaigns.test_send._reserve_test_send_run',
+            side_effect=RuntimeError('phase1 boom'),
+        ):
+            response = self._post_execute(campaign)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse('marketing:campaign_test_send_preflight', kwargs={'pk': campaign.pk}),
+        )
+        mocked.assert_not_called()
+        self.assertEqual(MarketingCampaignSendRun.objects.filter(campaign=campaign).count(), 0)
+
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    @patch('marketing.services.campaigns.test_send.send_whatsapp_template_message')
+    def test_execute_view_stale_recipient_snapshot_returns_redirect_not_500(self, mocked):
+        campaign = setup_ready_test_campaign(self.user, recipient_count=2)
+
+        def partial_eligible(campaign_obj):
+            recipients = get_eligible_test_recipients(campaign_obj)
+            return recipients[:1]
+
+        with patch(
+            'marketing.services.campaigns.test_send.get_eligible_test_recipients',
+            side_effect=partial_eligible,
+        ):
+            response = self._post_execute(campaign)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse('marketing:campaign_test_send_preflight', kwargs={'pk': campaign.pk}),
+        )
+        mocked.assert_not_called()
+        self.assertEqual(MarketingCampaignSendRun.objects.filter(campaign=campaign).count(), 0)
+
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    @patch('marketing.services.campaigns.test_send.send_whatsapp_template_message')
+    def test_execute_view_integrity_error_on_reserve_returns_redirect_not_500(self, mocked):
+        campaign = setup_ready_test_campaign(self.user, recipient_count=2)
+        with patch(
+            'marketing.models.MarketingCampaignSendRun.objects.create',
+            side_effect=IntegrityError('duplicate running test send'),
+        ):
+            response = self._post_execute(campaign)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(
+            response.url,
+            reverse('marketing:campaign_test_send_preflight', kwargs={'pk': campaign.pk}),
+        )
+        mocked.assert_not_called()
+        self.assertEqual(MarketingCampaignSendRun.objects.filter(campaign=campaign).count(), 0)
 
 
 class MarketingCampaignSendRunProtectTests(TestCase):

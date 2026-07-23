@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 from django.contrib import messages
 from django.http import HttpResponseNotAllowed
 from django.shortcuts import get_object_or_404, redirect
@@ -7,12 +9,15 @@ from django.views import View
 from django.views.generic import TemplateView
 
 from marketing.models import MarketingCampaign
+from marketing.services.campaigns.send_settings import get_marketing_whatsapp_send_mode
 from marketing.services.campaigns.send_validation import (
     TestSendValidationError,
     build_test_send_preflight,
 )
 from marketing.services.campaigns.test_send import execute_test_campaign_send
 from marketing.views import MarketingCabinetMixin
+
+logger = logging.getLogger(__name__)
 
 
 class CampaignTestSendPreflightView(MarketingCabinetMixin, TemplateView):
@@ -52,6 +57,18 @@ class CampaignTestSendExecuteView(MarketingCabinetMixin, View):
             )
         except TestSendValidationError as exc:
             messages.error(request, str(exc))
+            return redirect('marketing:campaign_test_send_preflight', pk=campaign.pk)
+        except Exception as exc:
+            logger.exception(
+                'Marketing TEST send unexpected error for campaign #%s (mode=%s): %s',
+                campaign.pk,
+                get_marketing_whatsapp_send_mode(),
+                exc.__class__.__name__,
+            )
+            messages.error(
+                request,
+                'Не удалось выполнить тестовую отправку. Подробности записаны в журнал сервера.',
+            )
             return redirect('marketing:campaign_test_send_preflight', pk=campaign.pk)
 
         if result.sent_count and result.failed_count:

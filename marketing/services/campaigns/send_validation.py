@@ -70,6 +70,10 @@ def _eligible_test_recipients(campaign: MarketingCampaign):
     )
 
 
+def get_eligible_test_recipients(campaign: MarketingCampaign):
+    return _eligible_test_recipients(campaign)
+
+
 def campaign_has_completed_test_send(campaign: MarketingCampaign) -> MarketingCampaignSendRun | None:
     return (
         MarketingCampaignSendRun.objects.filter(

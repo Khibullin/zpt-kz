@@ -4,7 +4,7 @@ import logging
 from dataclasses import dataclass
 from typing import Callable
 
-from django.db import transaction
+from django.db import DatabaseError, IntegrityError, transaction
 from django.utils import timezone
 
 from core.whatsapp_template_sender import (
@@ -30,6 +30,7 @@ from marketing.services.campaigns.send_constants import (
 from marketing.services.campaigns.send_validation import (
     TestSendValidationError,
     ensure_test_send_not_already_executed,
+    get_eligible_test_recipients,
     validate_test_send_executable,
 )
 from marketing.services.campaigns.send_variables import (
@@ -98,6 +99,143 @@ def _recipient_already_sent(campaign_id: int, recipient_id: int) -> bool:
     ).exists()
 
 
+def _lock_campaign_for_test_send(campaign_id: int) -> MarketingCampaign:
+    """Lock campaign row only; load nullable FKs via separate queries."""
+    return MarketingCampaign.objects.select_for_update().get(pk=campaign_id)
+
+
+def _reserve_test_send_run(
+    campaign_id: int,
+    *,
+    created_by,
+) -> tuple[int, object, list[_PendingSendItem], int]:
+    try:
+        with transaction.atomic():
+            campaign = _lock_campaign_for_test_send(campaign_id)
+            preflight = validate_test_send_executable(campaign)
+            ensure_test_send_not_already_executed(campaign)
+
+            template = campaign.message_template
+            if template is None:
+                raise TestSendValidationError('Шаблон не выбран.')
+
+            recipient_by_id = {
+                recipient.pk: recipient
+                for recipient in get_eligible_test_recipients(campaign)
+            }
+            missing_recipient_ids = [
+                preview.recipient_id
+                for preview in preflight.recipients
+                if preview.recipient_id not in recipient_by_id
+            ]
+            if missing_recipient_ids:
+                raise TestSendValidationError(
+                    'Снимок получателей изменился. Обновите preflight и повторите попытку.',
+                )
+
+            send_run = MarketingCampaignSendRun.objects.create(
+                campaign=campaign,
+                template=template,
+                mode=SEND_MODE_TEST,
+                status=SEND_RUN_STATUS_RUNNING,
+                total_count=len(preflight.recipients),
+                created_by=created_by,
+                started_at=timezone.now(),
+            )
+
+            pending_items: list[_PendingSendItem] = []
+            for preview in preflight.recipients:
+                recipient = recipient_by_id[preview.recipient_id]
+                if _recipient_already_sent(campaign.pk, recipient.pk):
+                    MarketingCampaignMessage.objects.create(
+                        send_run=send_run,
+                        campaign_recipient=recipient,
+                        phone_normalized=recipient.phone_normalized,
+                        template_name=template.meta_template_name,
+                        language_code=template.language_code,
+                        variables={},
+                        status=MESSAGE_STATUS_SKIPPED,
+                        error_message='Already sent in previous run.',
+                        attempted_at=timezone.now(),
+                    )
+                    pending_items.append(
+                        _PendingSendItem(
+                            message_id=0,
+                            recipient_id=recipient.pk,
+                            phone_normalized=recipient.phone_normalized,
+                            variables={},
+                            skipped=True,
+                        ),
+                    )
+                    continue
+
+                try:
+                    variables = resolve_template_variables_for_recipient(template, recipient)
+                except VariableResolutionError as exc:
+                    MarketingCampaignMessage.objects.create(
+                        send_run=send_run,
+                        campaign_recipient=recipient,
+                        phone_normalized=recipient.phone_normalized,
+                        template_name=template.meta_template_name,
+                        language_code=template.language_code,
+                        variables={},
+                        status=MESSAGE_STATUS_SKIPPED,
+                        error_message=str(exc)[:2000],
+                        attempted_at=timezone.now(),
+                    )
+                    pending_items.append(
+                        _PendingSendItem(
+                            message_id=0,
+                            recipient_id=recipient.pk,
+                            phone_normalized=recipient.phone_normalized,
+                            variables={},
+                            skipped=True,
+                        ),
+                    )
+                    continue
+
+                message = MarketingCampaignMessage.objects.create(
+                    send_run=send_run,
+                    campaign_recipient=recipient,
+                    phone_normalized=recipient.phone_normalized,
+                    template_name=template.meta_template_name,
+                    language_code=template.language_code,
+                    variables=variables,
+                    status=MESSAGE_STATUS_PENDING,
+                )
+                pending_items.append(
+                    _PendingSendItem(
+                        message_id=message.pk,
+                        recipient_id=recipient.pk,
+                        phone_normalized=recipient.phone_normalized,
+                        variables=variables,
+                        skipped=False,
+                    ),
+                )
+
+            return send_run.pk, template, pending_items, send_run.total_count
+    except TestSendValidationError:
+        raise
+    except IntegrityError as exc:
+        logger.warning(
+            'Marketing TEST send reservation failed for campaign #%s: %s',
+            campaign_id,
+            exc.__class__.__name__,
+        )
+        raise TestSendValidationError(
+            'Не удалось зарезервировать TEST-отправку. Повторите позже или обратитесь к администратору.',
+        ) from exc
+    except DatabaseError as exc:
+        logger.warning(
+            'Marketing TEST send database error during reservation for campaign #%s: %s',
+            campaign_id,
+            exc.__class__.__name__,
+        )
+        raise TestSendValidationError(
+            'TEST-отправка временно недоступна из-за ошибки базы данных. Проверьте миграции marketing 0005–0007.',
+        ) from exc
+
+
 def execute_test_campaign_send(
     campaign_id: int,
     *,
@@ -106,101 +244,10 @@ def execute_test_campaign_send(
 ) -> TestSendExecutionResult:
     send_callable = send_callable or send_whatsapp_template_message
 
-    with transaction.atomic():
-        campaign = (
-            MarketingCampaign.objects.select_for_update()
-            .select_related('message_template')
-            .get(pk=campaign_id)
-        )
-        preflight = validate_test_send_executable(campaign)
-        ensure_test_send_not_already_executed(campaign)
-
-        template = campaign.message_template
-        assert template is not None
-
-        send_run = MarketingCampaignSendRun.objects.create(
-            campaign=campaign,
-            template=template,
-            mode=SEND_MODE_TEST,
-            status=SEND_RUN_STATUS_RUNNING,
-            total_count=len(preflight.recipients),
-            created_by=created_by,
-            started_at=timezone.now(),
-        )
-
-        pending_items: list[_PendingSendItem] = []
-        for preview in preflight.recipients:
-            recipient = campaign.recipients.get(pk=preview.recipient_id)
-            if _recipient_already_sent(campaign.pk, recipient.pk):
-                MarketingCampaignMessage.objects.create(
-                    send_run=send_run,
-                    campaign_recipient=recipient,
-                    phone_normalized=recipient.phone_normalized,
-                    template_name=template.meta_template_name,
-                    language_code=template.language_code,
-                    variables={},
-                    status=MESSAGE_STATUS_SKIPPED,
-                    error_message='Already sent in previous run.',
-                    attempted_at=timezone.now(),
-                )
-                pending_items.append(
-                    _PendingSendItem(
-                        message_id=0,
-                        recipient_id=recipient.pk,
-                        phone_normalized=recipient.phone_normalized,
-                        variables={},
-                        skipped=True,
-                    ),
-                )
-                continue
-
-            try:
-                variables = resolve_template_variables_for_recipient(template, recipient)
-            except VariableResolutionError as exc:
-                MarketingCampaignMessage.objects.create(
-                    send_run=send_run,
-                    campaign_recipient=recipient,
-                    phone_normalized=recipient.phone_normalized,
-                    template_name=template.meta_template_name,
-                    language_code=template.language_code,
-                    variables={},
-                    status=MESSAGE_STATUS_SKIPPED,
-                    error_message=str(exc)[:2000],
-                    attempted_at=timezone.now(),
-                )
-                pending_items.append(
-                    _PendingSendItem(
-                        message_id=0,
-                        recipient_id=recipient.pk,
-                        phone_normalized=recipient.phone_normalized,
-                        variables={},
-                        skipped=True,
-                    ),
-                )
-                continue
-
-            message = MarketingCampaignMessage.objects.create(
-                send_run=send_run,
-                campaign_recipient=recipient,
-                phone_normalized=recipient.phone_normalized,
-                template_name=template.meta_template_name,
-                language_code=template.language_code,
-                variables=variables,
-                status=MESSAGE_STATUS_PENDING,
-            )
-            pending_items.append(
-                _PendingSendItem(
-                    message_id=message.pk,
-                    recipient_id=recipient.pk,
-                    phone_normalized=recipient.phone_normalized,
-                    variables=variables,
-                    skipped=False,
-                ),
-            )
-
-        send_run_id = send_run.pk
-        template_for_send = template
-        total_count = send_run.total_count
+    send_run_id, template_for_send, pending_items, total_count = _reserve_test_send_run(
+        campaign_id,
+        created_by=created_by,
+    )
 
     sent_count = 0
     failed_count = 0
