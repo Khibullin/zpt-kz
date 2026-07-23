@@ -1,0 +1,80 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}История отправок — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">История отправок</h1>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if page_obj.object_list %}
+    {% for run, run_messages in run_entries %}
+      <article class="marketing-section" style="margin-bottom:24px;">
+        <h2 class="marketing-section-title">
+          {{ run.created_at|date:'d.m.Y H:i' }} — {{ run.campaign.name }}
+        </h2>
+        <dl class="marketing-meta-grid">
+          <dt>Шаблон</dt><dd>{{ run.template.meta_template_name }}</dd>
+          <dt>Режим</dt><dd>{{ run.mode }}</dd>
+          <dt>Статус</dt><dd>{{ run.get_status_display }}</dd>
+          <dt>Всего</dt><dd>{{ run.total_count }}</dd>
+          <dt>Отправлено</dt><dd>{{ run.sent_count }}</dd>
+          <dt>Ошибок</dt><dd>{{ run.failed_count }}</dd>
+          <dt>Пропущено</dt><dd>{{ run.skipped_count }}</dd>
+          <dt>Инициатор</dt><dd>{% if run.created_by %}{{ run.created_by.username }}{% else %}—{% endif %}</dd>
+        </dl>
+
+        <div class="marketing-table-wrap">
+          <table class="marketing-table">
+            <thead>
+              <tr>
+                <th>Телефон</th>
+                <th>Статус</th>
+                <th>Meta message ID</th>
+                <th>Ошибка</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for message in run_messages %}
+                <tr>
+                  <td>{{ message.masked_phone }}</td>
+                  <td>{{ message.get_status_display }}</td>
+                  <td>{{ message.meta_message_id|default:'—' }}</td>
+                  <td>{{ message.error_message|default:'—' }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4">Нет сообщений для этого запуска.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </article>
+    {% endfor %}
+
+    {% if page_obj.has_other_pages %}
+      <nav class="marketing-pagination" aria-label="Страницы">
+        {% if page_obj.has_previous %}
+          <a class="marketing-btn" href="?page={{ page_obj.previous_page_number }}{% if pagination_querystring %}&amp;{{ pagination_querystring }}{% endif %}">←</a>
+        {% endif %}
+        <span>Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+          <a class="marketing-btn" href="?page={{ page_obj.next_page_number }}{% if pagination_querystring %}&amp;{{ pagination_querystring }}{% endif %}">→</a>
+        {% endif %}
+      </nav>
+    {% endif %}
+  {% else %}
+    <p class="marketing-section-note">История маркетинговых отправок пока пуста.</p>
+  {% endif %}
+</section>
+{% endblock %}

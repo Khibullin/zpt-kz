@@ -7,6 +7,7 @@ from django.views.generic import TemplateView
 
 from core.services.buyer_broadcast_settings import get_buyer_broadcast_mode
 from marketing.permissions import user_can_access_marketing_cabinet
+from marketing.services.campaigns.send_settings import get_marketing_whatsapp_send_mode
 from marketing.services.contacts import (
     CATEGORY_PERIOD_CHOICES,
     CATEGORY_SOURCE_CHOICES,
@@ -61,6 +62,13 @@ class MarketingCabinetMixin:
         return {
             'broadcast_mode': mode,
             'broadcast_mode_label': mode,
+        }
+
+    def get_marketing_send_mode_context(self) -> dict:
+        mode = get_marketing_whatsapp_send_mode()
+        return {
+            'marketing_whatsapp_send_mode': mode,
+            'marketing_whatsapp_send_mode_label': mode,
         }
 
     def get_nav_context(self) -> dict:

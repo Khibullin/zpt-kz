@@ -23,6 +23,14 @@ from marketing.services.campaigns.constants import (
     STATUS_CANCELLED,
     STATUS_DRAFT,
 )
+from marketing.services.campaigns.send_constants import (
+    MESSAGE_STATUS_CHOICES,
+    MESSAGE_STATUS_PENDING,
+    SEND_MODE_TEST,
+    SEND_RUN_STATUS_CHOICES,
+    SEND_RUN_STATUS_PENDING,
+    SEND_RUN_STATUS_RUNNING,
+)
 from marketing.services.templates.constants import (
     CATEGORY_MARKETING,
     META_STATUS_CHOICES,
@@ -516,3 +524,113 @@ class MarketingCampaignRecipient(models.Model):
         from marketing.services.campaigns.summaries import exclusion_reason_label
 
         return exclusion_reason_label(self.exclusion_reason)
+
+
+class MarketingCampaignSendRun(models.Model):
+    campaign = models.ForeignKey(
+        MarketingCampaign,
+        on_delete=models.PROTECT,
+        related_name='send_runs',
+        verbose_name='Кампания',
+    )
+    template = models.ForeignKey(
+        MarketingWhatsAppTemplate,
+        on_delete=models.PROTECT,
+        related_name='send_runs',
+        verbose_name='Шаблон',
+    )
+    mode = models.CharField(
+        max_length=16,
+        default=SEND_MODE_TEST,
+        verbose_name='Режим',
+    )
+    status = models.CharField(
+        max_length=32,
+        choices=SEND_RUN_STATUS_CHOICES,
+        default=SEND_RUN_STATUS_PENDING,
+        verbose_name='Статус',
+    )
+    total_count = models.PositiveIntegerField(default=0, verbose_name='Всего')
+    sent_count = models.PositiveIntegerField(default=0, verbose_name='Отправлено')
+    failed_count = models.PositiveIntegerField(default=0, verbose_name='Ошибок')
+    skipped_count = models.PositiveIntegerField(default=0, verbose_name='Пропущено')
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='marketing_campaign_send_runs',
+        verbose_name='Инициатор',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    started_at = models.DateTimeField(null=True, blank=True, verbose_name='Начат')
+    finished_at = models.DateTimeField(null=True, blank=True, verbose_name='Завершён')
+
+    class Meta:
+        verbose_name = 'Запуск отправки кампании'
+        verbose_name_plural = 'Запуски отправки кампаний'
+        ordering = ('-created_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=('campaign',),
+                condition=models.Q(mode=SEND_MODE_TEST, status=SEND_RUN_STATUS_RUNNING),
+                name='marketing_campaign_one_running_test_send',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'SendRun #{self.pk} campaign={self.campaign_id} ({self.mode})'
+
+
+class MarketingCampaignMessage(models.Model):
+    send_run = models.ForeignKey(
+        MarketingCampaignSendRun,
+        on_delete=models.CASCADE,
+        related_name='messages',
+        verbose_name='Запуск',
+    )
+    campaign_recipient = models.ForeignKey(
+        MarketingCampaignRecipient,
+        on_delete=models.PROTECT,
+        related_name='send_messages',
+        verbose_name='Получатель снимка',
+    )
+    phone_normalized = models.CharField(max_length=32, verbose_name='Телефон (snapshot)')
+    template_name = models.CharField(max_length=150, verbose_name='Meta template name')
+    language_code = models.CharField(max_length=20, verbose_name='Язык')
+    variables = models.JSONField(default=dict, blank=True, verbose_name='Переменные')
+    status = models.CharField(
+        max_length=16,
+        choices=MESSAGE_STATUS_CHOICES,
+        default=MESSAGE_STATUS_PENDING,
+        verbose_name='Статус',
+    )
+    meta_message_id = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        verbose_name='Meta message ID',
+    )
+    error_code = models.CharField(max_length=64, blank=True, default='', verbose_name='Код ошибки')
+    error_message = models.TextField(blank=True, default='', verbose_name='Ошибка')
+    attempted_at = models.DateTimeField(null=True, blank=True, verbose_name='Попытка')
+    sent_at = models.DateTimeField(null=True, blank=True, verbose_name='Отправлено')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+
+    class Meta:
+        verbose_name = 'Сообщение кампании'
+        verbose_name_plural = 'Сообщения кампаний'
+        ordering = ('id',)
+        constraints = [
+            models.UniqueConstraint(
+                fields=('send_run', 'campaign_recipient'),
+                name='marketing_campaign_message_unique_recipient_run',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'Message #{self.pk} run={self.send_run_id} ({self.status})'
+
+    @property
+    def masked_phone(self) -> str:
+        return mask_phone(self.phone_normalized)

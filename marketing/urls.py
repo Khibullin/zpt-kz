@@ -9,6 +9,10 @@ from marketing.audience_views import (
     AudienceListView,
     AudienceUpdateView,
 )
+from marketing.campaign_send_views import (
+    CampaignTestSendExecuteView,
+    CampaignTestSendPreflightView,
+)
 from marketing.campaign_views import (
     CampaignArchiveView,
     CampaignCancelView,
@@ -20,6 +24,7 @@ from marketing.campaign_views import (
     CampaignPrepareView,
     CampaignUpdateView,
 )
+from marketing.history_views import MarketingHistoryView
 from marketing.template_views import (
     TemplateActivateView,
     TemplateCopyView,
@@ -58,6 +63,16 @@ urlpatterns = [
     path('campaigns/<int:pk>/archive/', CampaignArchiveView.as_view(), name='campaign_archive'),
     path('campaigns/<int:pk>/delete/', CampaignDeleteView.as_view(), name='campaign_delete'),
     path(
+        'campaigns/<int:pk>/test-send/preflight/',
+        CampaignTestSendPreflightView.as_view(),
+        name='campaign_test_send_preflight',
+    ),
+    path(
+        'campaigns/<int:pk>/test-send/execute/',
+        CampaignTestSendExecuteView.as_view(),
+        name='campaign_test_send_execute',
+    ),
+    path(
         'templates/',
         TemplateListView.as_view(),
         name='templates',
@@ -81,8 +96,7 @@ urlpatterns = [
     ),
     path(
         'history/',
-        StubView.as_view(),
-        {'section': 'history'},
+        MarketingHistoryView.as_view(),
         name='history',
     ),
     path(

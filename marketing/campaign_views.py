@@ -13,6 +13,7 @@ from django.views.generic import TemplateView
 from marketing.models import MarketingAudience, MarketingCampaign
 from marketing.services.audiences import criteria_summary
 from marketing.services.campaigns.readiness import build_campaign_readiness
+from marketing.services.campaigns.send_validation import build_test_send_preflight
 from marketing.services.campaigns.compatibility import compatible_audiences_for_purpose
 from marketing.services.campaigns.constants import (
     CAMPAIGN_LIST_PAGE_SIZE,
@@ -218,6 +219,7 @@ class CampaignDetailView(MarketingCabinetMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update(self.get_broadcast_mode_context())
+        context.update(self.get_marketing_send_mode_context())
         context.update(self.get_nav_context())
         campaign = get_object_or_404(
             MarketingCampaign.objects.select_related(
@@ -245,6 +247,7 @@ class CampaignDetailView(MarketingCabinetMixin, TemplateView):
         context['preview_limit'] = CAMPAIGN_PREVIEW_LIMIT
         context['snapshot_stale'] = campaign.is_snapshot_stale()
         context['readiness'] = build_campaign_readiness(campaign)
+        context['test_send'] = build_test_send_preflight(campaign)
         if campaign.message_template_id:
             context['template_preview'] = render_template_preview_text(campaign.message_template)
         else:

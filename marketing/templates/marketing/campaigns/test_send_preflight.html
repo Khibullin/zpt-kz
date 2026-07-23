@@ -1,0 +1,81 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Проверка TEST-отправки — {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Проверка TEST-отправки</h1>
+    <div class="marketing-page-actions">
+      <a class="marketing-btn" href="{% url 'marketing:campaign_detail' campaign.pk %}">← К кампании</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <dl class="marketing-meta-grid">
+    <dt>Кампания</dt><dd>{{ preflight.campaign_name }}</dd>
+    <dt>Шаблон Meta</dt><dd>{{ preflight.template_meta_name }}</dd>
+    <dt>Режим</dt><dd>{{ preflight.mode }}</dd>
+    <dt>Получателей</dt><dd>{{ preflight.recipient_count }}</dd>
+  </dl>
+
+  {% if preflight.blocking_errors %}
+    <h2 class="marketing-section-title">Блокировки</h2>
+    <ul class="campaign-readiness__list">
+      {% for error in preflight.blocking_errors %}
+        <li class="campaign-readiness__item is-pending">{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if preflight.recipients %}
+    <h2 class="marketing-section-title">Получатели</h2>
+    <div class="marketing-table-wrap">
+      <table class="marketing-table">
+        <thead>
+          <tr>
+            <th>Телефон</th>
+            <th>Test contact</th>
+            <th>Consent</th>
+            <th>request_history_url</th>
+            <th>Готовность</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for recipient in preflight.recipients %}
+            <tr>
+              <td>{{ recipient.masked_phone }}</td>
+              <td>{% if recipient.is_test_contact %}Да{% else %}Нет{% endif %}</td>
+              <td>{{ recipient.consent_status_label }}</td>
+              <td>
+                {% if recipient.variables.request_history_url %}
+                  <code>{{ recipient.variables.request_history_url }}</code>
+                {% else %}
+                  —
+                {% endif %}
+              </td>
+              <td>{% if recipient.ready %}Готов{% else %}{{ recipient.error_message|default:'Ошибка' }}{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if preflight.allowed %}
+    <form method="post" action="{% url 'marketing:campaign_test_send_execute' campaign.pk %}" class="marketing-inline-form">
+      {% csrf_token %}
+      <button type="submit" class="marketing-btn">Отправить {{ preflight.recipient_count }} тестовых сообщений</button>
+    </form>
+  {% else %}
+    <p class="marketing-section-note">Отправка заблокирована до устранения проблем выше.</p>
+  {% endif %}
+</section>
+{% endblock %}
