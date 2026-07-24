@@ -1,0 +1,182 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Новая рассылка — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section simple-mailing">
+  <h1 class="marketing-page-title">Новая рассылка</h1>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="post" class="simple-mailing__form" id="simple-mailing-form">
+    {% csrf_token %}
+
+    <fieldset class="simple-mailing__block">
+      <legend class="marketing-section-title">1. Кому отправить?</legend>
+      {% for value, label in recipient_type_choices %}
+        <label class="simple-mailing__radio">
+          <input type="radio"
+                 name="recipient_type"
+                 value="{{ value }}"
+                 {% if recipient_type == value %}checked{% endif %}
+                 data-recipient-type-radio>
+          {{ label }}
+        </label>
+      {% endfor %}
+    </fieldset>
+
+    <fieldset class="simple-mailing__block">
+      <legend class="marketing-section-title">2. Марки автомобилей</legend>
+
+      {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}
+        <p class="marketing-section-note">
+          Для Marketplace фильтрация по марке пока недоступна. Используйте «Все марки».
+        </p>
+      {% endif %}
+
+      <label class="simple-mailing__search">
+        Найти марку
+        <input type="search" id="brand-search" placeholder="Начните вводить название марки">
+      </label>
+
+      <div class="simple-mailing__brand-list" id="brand-list">
+        <label class="simple-mailing__checkbox simple-mailing__checkbox--all">
+          <input type="checkbox"
+                 name="all_brands"
+                 value="1"
+                 id="all-brands-checkbox"
+                 {% if all_brands or recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}checked{% endif %}
+                 {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}disabled{% endif %}>
+          Все марки
+        </label>
+        {% for brand in brand_options %}
+          <label class="simple-mailing__checkbox brand-option"
+                 data-brand-label="{{ brand|lower }}">
+            <input type="checkbox"
+                   name="brands"
+                   value="{{ brand }}"
+                   {% if brand in selected_brands %}checked{% endif %}
+                   {% if not brand_filter_enabled and recipient_type == 'marketplace_buyers' %}disabled{% endif %}
+                   class="brand-checkbox">
+            {{ brand }}
+          </label>
+        {% empty %}
+          <p class="marketing-section-note">Марки для выбранного типа пока не найдены.</p>
+        {% endfor %}
+      </div>
+    </fieldset>
+
+    {% if result %}
+      <div class="simple-mailing__result">
+        <dl class="simple-mailing__summary">
+          <div><dt>Кому</dt><dd>{{ recipient_type_label }}</dd></div>
+          <div><dt>Марки</dt>
+            <dd>
+              {% if result.selection.all_brands %}Все марки{% else %}{{ result.selection.brands|join:", " }}{% endif %}
+            </dd>
+          </div>
+        </dl>
+        <p class="simple-mailing__count">
+          Найдено получателей: <strong>{{ result.count }}</strong>
+        </p>
+      </div>
+
+      {% if show_preview %}
+        <details class="simple-mailing__preview">
+          <summary>Показать получателей</summary>
+          <div class="marketing-table-wrap">
+            <table class="marketing-table">
+              <thead>
+                <tr>
+                  <th>Телефон</th>
+                  <th>Тип</th>
+                  <th>Марка / марки</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in result.preview_rows %}
+                  <tr>
+                    <td>{{ row.masked_phone }}</td>
+                    <td>{{ row.recipient_type_label }}</td>
+                    <td>{{ row.brands_label }}</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      {% endif %}
+    {% endif %}
+
+    <div class="marketing-form-actions simple-mailing__actions">
+      <button type="submit" name="action" value="preview" class="marketing-btn">
+        Показать количество
+      </button>
+      <button type="submit"
+              name="action"
+              value="continue"
+              class="marketing-btn marketing-btn--primary"
+              id="continue-button"
+              {% if not result or result.count <= 0 %}disabled{% endif %}>
+        Продолжить к сообщению
+      </button>
+    </div>
+  </form>
+</section>
+
+<script>
+(function () {
+  var allBrands = document.getElementById('all-brands-checkbox');
+  var brandCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.brand-checkbox'));
+  var brandSearch = document.getElementById('brand-search');
+  var recipientRadios = Array.prototype.slice.call(
+    document.querySelectorAll('[data-recipient-type-radio]')
+  );
+
+  function syncBrandDisabledState() {
+    var disableBrands = allBrands && allBrands.checked;
+    brandCheckboxes.forEach(function (checkbox) {
+      if (checkbox.disabled) {
+        return;
+      }
+      checkbox.disabled = disableBrands;
+      if (disableBrands) {
+        checkbox.checked = false;
+      }
+    });
+  }
+
+  if (allBrands) {
+    allBrands.addEventListener('change', syncBrandDisabledState);
+    syncBrandDisabledState();
+  }
+
+  if (brandSearch) {
+    brandSearch.addEventListener('input', function () {
+      var query = (brandSearch.value || '').trim().toLowerCase();
+      document.querySelectorAll('.brand-option').forEach(function (label) {
+        var text = label.getAttribute('data-brand-label') || '';
+        label.style.display = !query || text.indexOf(query) !== -1 ? '' : 'none';
+      });
+    });
+  }
+
+  recipientRadios.forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      if (!radio.checked) {
+        return;
+      }
+      var url = new URL(window.location.href);
+      url.searchParams.set('recipient_type', radio.value);
+      window.location.href = url.toString();
+    });
+  });
+})();
+</script>
+{% endblock %}

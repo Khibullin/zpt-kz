@@ -1,0 +1,23 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Сообщение рассылки — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section simple-mailing">
+  <h1 class="marketing-page-title">Новая рассылка — сообщение</h1>
+
+  <p class="marketing-section-note">
+    Группа получателей подготовлена. Следующий этап — выбор сообщения.
+  </p>
+
+  <dl class="simple-mailing__summary">
+    <div><dt>Тип</dt><dd>{{ recipient_type_label }}</dd></div>
+    <div><dt>Марки</dt><dd>{{ brands_label }}</dd></div>
+    <div><dt>Получателей</dt><dd>{{ recipient_count }}</dd></div>
+  </dl>
+
+  <div class="marketing-form-actions">
+    <a class="marketing-btn" href="{% url 'marketing:new_mailing' %}">Изменить группу</a>
+  </div>
+</section>
+{% endblock %}

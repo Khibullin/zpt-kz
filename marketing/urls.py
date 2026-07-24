@@ -41,12 +41,15 @@ from marketing.template_views import (
     TemplateUpdateView,
 )
 from marketing.buyer_vehicle_views import BuyerVehiclesView
+from marketing.new_mailing_views import NewMailingMessageView, NewMailingView
 from marketing.views import ContactsView, DashboardView, StubView
 
 app_name = 'marketing'
 
 urlpatterns = [
     path('', DashboardView.as_view(), name='dashboard'),
+    path('new-mailing/', NewMailingView.as_view(), name='new_mailing'),
+    path('new-mailing/message/', NewMailingMessageView.as_view(), name='new_mailing_message'),
     path('contacts/', ContactsView.as_view(), name='contacts'),
     path('audiences/', AudienceListView.as_view(), name='audiences'),
     path('audiences/new/', AudienceCreateView.as_view(), name='audience_create'),

@@ -23,17 +23,35 @@ from marketing.services.dashboard import get_group_cards, get_overview_stats
 
 CONTACTS_PAGE_SIZE = 50
 
-NAV_ITEMS = (
-    ('dashboard', 'Обзор', 'marketing:dashboard'),
-    ('contacts', 'Контакты', 'marketing:contacts'),
-    ('audiences', 'Аудитории', 'marketing:audiences'),
-    ('buyer_vehicles', 'Автомобили покупателей', 'marketing:buyer_vehicles'),
-    ('campaigns', 'Кампании', 'marketing:campaigns'),
-    ('templates', 'Шаблоны WhatsApp', 'marketing:templates'),
-    ('service_notifications', 'Сервисные уведомления', 'marketing:service_notifications'),
-    ('history', 'История отправок', 'marketing:history'),
-    ('unsubscribes', 'Отписки и ошибки', 'marketing:unsubscribes'),
-    ('settings', 'Настройки', 'marketing:settings'),
+NAV_SECTIONS = (
+    {
+        'title': 'Рассылки',
+        'items': (
+            ('new_mailing', 'Новая рассылка', 'marketing:new_mailing'),
+            ('history', 'История отправок', 'marketing:history'),
+        ),
+    },
+    {
+        'title': 'Расширенные настройки',
+        'items': (
+            ('dashboard', 'Обзор', 'marketing:dashboard'),
+            ('contacts', 'Контакты', 'marketing:contacts'),
+            ('audiences', 'Аудитории', 'marketing:audiences'),
+            ('buyer_vehicles', 'Автомобили покупателей', 'marketing:buyer_vehicles'),
+            ('campaigns', 'Кампании', 'marketing:campaigns'),
+            ('templates', 'Шаблоны WhatsApp', 'marketing:templates'),
+            ('service_notifications', 'Сервисные уведомления', 'marketing:service_notifications'),
+            ('unsubscribes', 'Отписки и ошибки', 'marketing:unsubscribes'),
+            ('settings', 'Настройки', 'marketing:settings'),
+        ),
+    },
+)
+
+# Backward-compatible flat list for code that still imports NAV_ITEMS.
+NAV_ITEMS = tuple(
+    item
+    for section in NAV_SECTIONS
+    for item in section['items']
 )
 
 STUB_TITLES = {
@@ -75,6 +93,7 @@ class MarketingCabinetMixin:
     def get_nav_context(self) -> dict:
         return {
             'nav_items': NAV_ITEMS,
+            'nav_sections': NAV_SECTIONS,
             'active_nav': self.active_nav,
         }
 

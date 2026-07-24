@@ -27,11 +27,16 @@
   <div class="marketing-layout">
     <aside class="marketing-sidebar" id="marketing-sidebar">
       <nav class="marketing-nav" aria-label="Меню кабинета">
-        {% for nav_key, nav_label, nav_url in nav_items %}
-          <a
-            class="marketing-nav__link{% if active_nav == nav_key %} is-active{% endif %}"
-            href="{% url nav_url %}"
-          >{{ nav_label }}</a>
+        {% for section in nav_sections %}
+          <div class="marketing-nav__section">
+            <div class="marketing-nav__section-title">{{ section.title }}</div>
+            {% for nav_key, nav_label, nav_url in section.items %}
+              <a
+                class="marketing-nav__link{% if active_nav == nav_key %} is-active{% endif %}"
+                href="{% url nav_url %}"
+              >{{ nav_label }}</a>
+            {% endfor %}
+          </div>
         {% endfor %}
       </nav>
     </aside>
