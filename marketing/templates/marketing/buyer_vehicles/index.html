@@ -1,0 +1,222 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Автомобили покупателей — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section buyer-vehicles">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Автомобили покупателей</h1>
+    <a class="marketing-btn" href="{% url 'marketing:audience_create' %}">Классический конструктор аудиторий</a>
+  </div>
+
+  <p class="marketing-section-note">
+    Формирование аудитории из покупателей с заявками на запчасти по марке и модели автомобиля.
+    Наличие заявки не означает marketing consent — «Доступно LIVE» считается по строгим правилам.
+  </p>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <form method="get" class="buyer-vehicles__toolbar marketing-form-row">
+    <label>
+      Поиск
+      <input type="search" name="search" value="{{ search }}" placeholder="Найти марку или модель">
+    </label>
+    <label>
+      Сортировка
+      <select name="sort" onchange="this.form.submit()">
+        <option value="count_asc" {% if sort == 'count_asc' %}selected{% endif %}>Количество ↑</option>
+        <option value="count_desc" {% if sort == 'count_desc' %}selected{% endif %}>Количество ↓</option>
+        <option value="brand_asc" {% if sort == 'brand_asc' %}selected{% endif %}>Марка А–Я</option>
+        <option value="brand_desc" {% if sort == 'brand_desc' %}selected{% endif %}>Марка Я–А</option>
+      </select>
+    </label>
+    <button type="submit" class="marketing-btn">Применить</button>
+  </form>
+
+  <div class="marketing-table-wrap">
+    <table class="marketing-table">
+      <thead>
+        <tr>
+          <th>Марка</th>
+          <th>Модель</th>
+          <th>Уникальных покупателей</th>
+          <th>Consent Granted</th>
+          <th>Доступно LIVE</th>
+          <th>Последняя заявка</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in stats_rows %}
+          <tr>
+            <td>{{ row.brand }}</td>
+            <td>{{ row.model }}</td>
+            <td>{{ row.unique_buyers }}</td>
+            <td>{{ row.granted_count }}</td>
+            <td>{{ row.live_eligible_count }}</td>
+            <td>{% if row.last_request_at %}{{ row.last_request_at|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+            <td>
+              <a class="marketing-btn marketing-btn--small"
+                 href="{% url 'marketing:buyer_vehicles' %}?preselect_brand={{ row.brand_normalized|urlencode }}&amp;preselect_model={{ row.model_normalized|urlencode }}&amp;search={{ search|urlencode }}&amp;sort={{ sort|urlencode }}#builder">
+                Выбрать
+              </a>
+            </td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="7">Нет данных по автомобилям покупателей.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <form method="post" id="builder" class="buyer-vehicles__builder">
+    {% csrf_token %}
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <input type="hidden" name="search" value="{{ search }}">
+
+    <h2 class="marketing-section-title">Формирование аудитории</h2>
+
+    <div class="buyer-vehicles__brand-groups">
+      {% for state in brand_form_states %}
+        <details class="buyer-vehicles__brand-group" {% if state.checked %}open{% endif %}>
+          <summary>
+            <label class="buyer-vehicles__brand-label">
+              <input type="checkbox"
+                     name="selection_brand"
+                     value="{{ state.brand.brand_normalized }}"
+                     {% if state.checked %}checked{% endif %}>
+              {{ state.brand.brand }} — всего {{ state.brand.total_buyers }}
+            </label>
+          </summary>
+          <div class="buyer-vehicles__models">
+            <label>
+              <input type="checkbox"
+                     name="selection_all_models__{{ state.brand.brand_normalized }}"
+                     value="1"
+                     {% if state.all_models %}checked{% endif %}>
+              Все модели
+            </label>
+            {% for model_state in state.model_states %}
+              <label>
+                <input type="checkbox"
+                       name="selection_model__{{ state.brand.brand_normalized }}"
+                       value="{{ model_state.name }}"
+                       {% if model_state.checked %}checked{% endif %}>
+                {{ model_state.name }}
+              </label>
+            {% endfor %}
+          </div>
+        </details>
+      {% endfor %}
+    </div>
+
+    <h3 class="marketing-section-title">Дополнительные фильтры</h3>
+    <div class="marketing-form-grid">
+      <label>
+        Город заявки
+        <select name="search_cities" multiple size="5">
+          <option value="">Все города</option>
+          {% for city in filter_options.search_cities %}
+            <option value="{{ city }}"
+              {% if city in criteria.search_cities %}selected{% endif %}>{{ city }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Период последней заявки
+        <select name="activity_period">
+          {% for value, label in activity_period_choices %}
+            <option value="{{ value }}" {% if criteria.activity_period == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Категория запчасти
+        <select name="categories" multiple size="5">
+          <option value="">Все категории</option>
+          {% for category in filter_options.categories %}
+            <option value="{{ category }}"
+              {% if category in criteria.categories %}selected{% endif %}>{{ category }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>
+        Период категории
+        <select name="category_period">
+          <option value="">—</option>
+          {% for value, label in category_period_choices %}
+            <option value="{{ value }}" {% if criteria.category_period == value %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+
+    <div class="marketing-form-actions">
+      <button type="submit" name="action" value="calculate" class="marketing-btn marketing-btn--primary">
+        Рассчитать аудиторию
+      </button>
+    </div>
+
+    {% if calculation %}
+      <div class="buyer-vehicles__preview">
+        <h3 class="marketing-section-title">Предпросмотр расчёта</h3>
+        <dl class="marketing-meta-grid">
+          <dt>Найдено по критериям</dt><dd>{{ calculation.matched_count }}</dd>
+          <dt>Уникальных покупателей</dt><dd>{{ calculation.unique_phones }}</dd>
+          <dt>Consent Granted</dt><dd>{{ calculation.granted_count }}</dd>
+          <dt>Не подтверждено</dt><dd>{{ calculation.unknown_count }}</dd>
+          <dt>Revoked</dt><dd>{{ calculation.revoked_count }}</dd>
+          <dt>Test contacts</dt><dd>{{ calculation.test_count }}</dd>
+          <dt>Некорректные телефоны</dt><dd>{{ calculation.invalid_phones }}</dd>
+          <dt>Доступно LIVE</dt><dd>{{ calculation.eligible_count }}</dd>
+        </dl>
+
+        <div class="marketing-table-wrap">
+          <table class="marketing-table">
+            <thead>
+              <tr>
+                <th>Телефон</th>
+                <th>Город</th>
+                <th>Марка / модель</th>
+                <th>Последняя активность</th>
+                <th>Consent</th>
+                <th>LIVE</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in calculation.preview_rows %}
+                <tr>
+                  <td>{{ row.masked_phone }}</td>
+                  <td>{{ row.city }}</td>
+                  <td>{{ row.brand_model }}</td>
+                  <td>{{ row.last_activity }}</td>
+                  <td>{{ row.consent_label }}</td>
+                  <td>{{ row.eligibility_label }}</td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="6">Нет получателей для предпросмотра.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="marketing-form-row">
+          <label>
+            Название аудитории
+            <input type="text" name="audience_name" value="{{ suggested_name }}" maxlength="200" required>
+          </label>
+          <button type="submit" name="action" value="create_audience" class="marketing-btn marketing-btn--primary">
+            Создать аудиторию
+          </button>
+        </div>
+      </div>
+    {% endif %}
+  </form>
+</section>
+{% endblock %}

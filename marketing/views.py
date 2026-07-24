@@ -27,6 +27,7 @@ NAV_ITEMS = (
     ('dashboard', 'Обзор', 'marketing:dashboard'),
     ('contacts', 'Контакты', 'marketing:contacts'),
     ('audiences', 'Аудитории', 'marketing:audiences'),
+    ('buyer_vehicles', 'Автомобили покупателей', 'marketing:buyer_vehicles'),
     ('campaigns', 'Кампании', 'marketing:campaigns'),
     ('templates', 'Шаблоны WhatsApp', 'marketing:templates'),
     ('service_notifications', 'Сервисные уведомления', 'marketing:service_notifications'),

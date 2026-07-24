@@ -12,6 +12,7 @@ from core.services.buyer_audience_service import (
     normalize_audience_criteria,
 )
 from core.services.buyer_contact_utils import normalize_buyer_text
+from core.services.buyer_vehicle_selection import normalize_vehicle_selection
 from marketing.services.audiences.constants import (
     ACTIVITY_PERIOD_CHOICES,
     CATEGORY_PERIOD_CHOICES,
@@ -84,6 +85,7 @@ EMPTY_MARKETING_CRITERIA: dict = {
     'has_website': None,
     'has_address': None,
     'has_map_link': None,
+    'vehicle_selection': [],
 }
 
 
@@ -271,6 +273,7 @@ def normalize_marketing_criteria(
         'cities': cities,
         'brands': _clean_string_list(raw.get('brands')),
         'models': _clean_string_list(raw.get('models')),
+        'vehicle_selection': normalize_vehicle_selection(raw.get('vehicle_selection')),
         'categories': _clean_string_list(raw.get('categories')),
         'search_scopes': search_scopes,
         'transport_types': transport_types,

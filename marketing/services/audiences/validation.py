@@ -39,6 +39,7 @@ PARTS_BUYER_KEYS = COMMON_KEYS | {
     'transport_types',
     'brands',
     'models',
+    'vehicle_selection',
     'categories',
     'category_period',
     'category_source',
@@ -220,6 +221,14 @@ def validate_and_normalize_criteria(
             )
 
     for key, value in raw.items():
+        if key == 'vehicle_selection':
+            if not isinstance(value, list):
+                raise CriteriaValidationError('vehicle_selection должен быть массивом.')
+            if len(value) > MAX_MULTISELECT_VALUES:
+                raise CriteriaValidationError(
+                    f'Слишком много марок в vehicle_selection (максимум {MAX_MULTISELECT_VALUES}).',
+                )
+            continue
         if isinstance(value, list) and len(value) > MAX_MULTISELECT_VALUES:
             raise CriteriaValidationError(
                 f'Слишком много значений в «{key}» (максимум {MAX_MULTISELECT_VALUES}).',

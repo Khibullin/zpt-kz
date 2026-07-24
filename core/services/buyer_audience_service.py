@@ -28,32 +28,26 @@ from core.models import (
     CONTACT_CONSENT_STATUS_UNKNOWN,
 )
 from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
+from core.services.buyer_request_audience_filters import (
+    build_buyer_audience_queryset_via_requests,
+)
+from core.services.buyer_vehicle_selection import (
+    normalize_vehicle_selection,
+    vehicle_selection_has_filters,
+)
 
-AUDIENCE_ACTIVITY_LAST_7_DAYS = 'last_7_days'
-AUDIENCE_ACTIVITY_LAST_30_DAYS = 'last_30_days'
-AUDIENCE_ACTIVITY_LAST_60_DAYS = 'last_60_days'
-AUDIENCE_ACTIVITY_LAST_90_DAYS = 'last_90_days'
-AUDIENCE_ACTIVITY_LAST_180_DAYS = 'last_180_days'
-AUDIENCE_ACTIVITY_OLDER_THAN_180_DAYS = 'older_than_180_days'
-AUDIENCE_ACTIVITY_NO_ACTIVITY_DATE = 'no_activity_date'
-
-AUDIENCE_ACTIVITY_PERIODS = {
-    AUDIENCE_ACTIVITY_LAST_7_DAYS,
+from core.services.buyer_audience_constants import (
+    AUDIENCE_ACTIVITY_DAYS,
+    AUDIENCE_ACTIVITY_LAST_180_DAYS,
+    AUDIENCE_ACTIVITY_LAST_365_DAYS,
     AUDIENCE_ACTIVITY_LAST_30_DAYS,
     AUDIENCE_ACTIVITY_LAST_60_DAYS,
+    AUDIENCE_ACTIVITY_LAST_7_DAYS,
     AUDIENCE_ACTIVITY_LAST_90_DAYS,
-    AUDIENCE_ACTIVITY_LAST_180_DAYS,
-    AUDIENCE_ACTIVITY_OLDER_THAN_180_DAYS,
     AUDIENCE_ACTIVITY_NO_ACTIVITY_DATE,
-}
-
-AUDIENCE_ACTIVITY_DAYS = {
-    AUDIENCE_ACTIVITY_LAST_7_DAYS: 7,
-    AUDIENCE_ACTIVITY_LAST_30_DAYS: 30,
-    AUDIENCE_ACTIVITY_LAST_60_DAYS: 60,
-    AUDIENCE_ACTIVITY_LAST_90_DAYS: 90,
-    AUDIENCE_ACTIVITY_LAST_180_DAYS: 180,
-}
+    AUDIENCE_ACTIVITY_OLDER_THAN_180_DAYS,
+    AUDIENCE_ACTIVITY_PERIODS,
+)
 
 ALLOWED_TRANSPORT_TYPES = {'car', 'truck'}
 ALLOWED_SEARCH_SCOPES = {'city', 'kazakhstan', 'custom'}
@@ -179,6 +173,8 @@ def normalize_audience_criteria(raw_criteria: object) -> dict:
         request_count_min = None
         request_count_max = None
 
+    vehicle_selection = normalize_vehicle_selection(raw_criteria.get('vehicle_selection'))
+
     return {
         'countries': _clean_string_list(raw_criteria.get('countries')),
         'cities': _clean_string_list(raw_criteria.get('cities')),
@@ -190,11 +186,15 @@ def normalize_audience_criteria(raw_criteria: object) -> dict:
         'activity_period': activity_period,
         'request_count_min': request_count_min,
         'request_count_max': request_count_max,
+        'vehicle_selection': vehicle_selection,
     }
 
 
 def audience_criteria_has_filters(criteria: dict) -> bool:
     normalized = normalize_audience_criteria(criteria)
+    if normalized.get('vehicle_selection'):
+        if vehicle_selection_has_filters(normalized['vehicle_selection']):
+            return True
     for key in (
         'countries',
         'cities',
@@ -250,6 +250,10 @@ def _apply_activity_filter(queryset, activity_period: str):
 
 def build_buyer_audience_queryset(criteria: dict):
     normalized = normalize_audience_criteria(criteria)
+    vehicle_selection = normalized.get('vehicle_selection') or []
+    if vehicle_selection_has_filters(vehicle_selection):
+        return build_buyer_audience_queryset_via_requests(criteria, normalized)
+
     queryset = BuyerContact.objects.all()
 
     if normalized['countries']:

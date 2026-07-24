@@ -84,6 +84,7 @@ ACTIVITY_PERIOD_CHOICES = (
     ('last_30_days', '30 дней'),
     ('last_90_days', '90 дней'),
     ('last_180_days', '180 дней'),
+    ('last_365_days', '365 дней'),
     ('all', 'За всё время'),
 )
 

@@ -40,6 +40,7 @@ from marketing.template_views import (
     TemplateListView,
     TemplateUpdateView,
 )
+from marketing.buyer_vehicle_views import BuyerVehiclesView
 from marketing.views import ContactsView, DashboardView, StubView
 
 app_name = 'marketing'
@@ -58,6 +59,7 @@ urlpatterns = [
     ),
     path('audiences/<int:pk>/copy/', AudienceCopyView.as_view(), name='audience_copy'),
     path('audiences/<int:pk>/delete/', AudienceDeleteView.as_view(), name='audience_delete'),
+    path('buyer-vehicles/', BuyerVehiclesView.as_view(), name='buyer_vehicles'),
     path('campaigns/', CampaignListView.as_view(), name='campaigns'),
     path('campaigns/new/', CampaignCreateView.as_view(), name='campaign_create'),
     path('campaigns/<int:pk>/', CampaignDetailView.as_view(), name='campaign_detail'),

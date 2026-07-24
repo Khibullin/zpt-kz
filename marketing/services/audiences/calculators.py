@@ -209,7 +209,12 @@ def _matches_general_criteria(
         return False
     if criteria.get('is_test') is False and contact.is_test:
         return False
-    if not _matches_activity_window(contact, criteria):
+    activity_already_filtered = parts_db_filtered and (
+        criteria.get('activity_period')
+        or criteria.get('activity_from')
+        or criteria.get('activity_to')
+    )
+    if not activity_already_filtered and not _matches_activity_window(contact, criteria):
         return False
 
     orders_min = criteria.get('orders_count_min')
@@ -294,17 +299,22 @@ def _matches_general_criteria(
 
 
 def _parts_request_phone_keys(criteria: dict) -> set[str] | None:
+    vehicle_selection = criteria.get('vehicle_selection') or []
+    uses_linked_requests = bool(vehicle_selection)
     buyer_criteria = {
         'countries': criteria.get('countries'),
         'cities': criteria.get('primary_cities'),
         'transport_types': criteria.get('transport_types'),
         'brands': criteria.get('brands'),
         'models': criteria.get('models'),
+        'vehicle_selection': vehicle_selection,
         'categories': criteria.get('categories'),
         'search_scopes': criteria.get('search_scopes'),
         'activity_period': criteria.get('activity_period') or '',
         'request_count_min': criteria.get('request_count_min'),
         'request_count_max': criteria.get('request_count_max'),
+        'search_cities': criteria.get('search_cities') or [],
+        'category_period': criteria.get('category_period') or '',
     }
     has_buyer_filters = any(
         buyer_criteria.get(key)
@@ -317,13 +327,13 @@ def _parts_request_phone_keys(criteria: dict) -> set[str] | None:
             'categories',
             'search_scopes',
         )
-    ) or buyer_criteria.get('activity_period') or buyer_criteria.get('request_count_min') is not None
-    has_search_city_filters = bool(criteria.get('search_cities'))
+    ) or bool(buyer_criteria.get('vehicle_selection')) or buyer_criteria.get('activity_period') or buyer_criteria.get('request_count_min') is not None
+    has_search_city_filters = bool(criteria.get('search_cities')) and not uses_linked_requests
     if not has_buyer_filters and not has_search_city_filters:
         return None
 
     queryset = build_buyer_audience_queryset(buyer_criteria)
-    if criteria.get('search_cities'):
+    if criteria.get('search_cities') and not uses_linked_requests:
         search_norms = {normalize_buyer_text(city) for city in criteria['search_cities']}
         queryset = queryset.filter(city_interests__city_normalized__in=search_norms).distinct()
 
