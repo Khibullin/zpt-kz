@@ -1,8 +1,11 @@
 from __future__ import annotations
 
+from urllib.parse import urlencode
+
 from django.contrib import messages
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed, JsonResponse
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.views import View
 
 from marketing.models import MarketingAudience
@@ -18,14 +21,21 @@ from marketing.services.buyer_vehicles import (
     BuyerVehicleFormError,
     SORT_COUNT_ASC,
     build_audience_criteria,
+    build_stats_row_index,
+    build_vehicle_selection_from_table_keys,
     build_valid_brand_index,
+    compute_selection_totals,
     get_brand_model_tree,
     get_vehicle_stats_rows,
+    make_table_row_key,
     parse_extra_filters_from_post,
     parse_vehicle_selection_from_post,
     suggest_audience_name,
+    table_selection_to_builder_state,
     validate_audience_criteria,
+    validate_table_row_keys,
 )
+from marketing.services.buyer_vehicles.selection import TableSelectionError
 from marketing.views import MarketingCabinetMixin
 
 
@@ -38,9 +48,50 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
 
     def post(self, request):
         action = request.POST.get('action', '')
+        sort = request.POST.get('sort') or SORT_COUNT_ASC
+        search = (request.POST.get('search') or '').strip()
+        stats_rows = get_vehicle_stats_rows(sort=sort, search=search)
+        row_index = build_stats_row_index(stats_rows)
+
+        if action == 'selection_totals':
+            try:
+                keys = validate_table_row_keys(
+                    request.POST.getlist('table_row'),
+                    row_index,
+                )
+            except TableSelectionError as exc:
+                return JsonResponse({'error': str(exc)}, status=400)
+            totals = compute_selection_totals(keys, row_index)
+            return JsonResponse({
+                'model_count': totals.model_count,
+                'unique_buyers': totals.unique_buyers,
+                'granted_count': totals.granted_count,
+                'live_eligible_count': totals.live_eligible_count,
+            })
+
+        if action == 'prepare_selection':
+            try:
+                keys = validate_table_row_keys(
+                    request.POST.getlist('table_row'),
+                    row_index,
+                )
+            except TableSelectionError as exc:
+                messages.error(request, str(exc))
+                return self._render_page(request, sort=sort, search=search)
+            if not keys:
+                messages.error(request, 'Выберите хотя бы одну модель в таблице.')
+                return self._render_page(request, sort=sort, search=search)
+            params = [('sort', sort)]
+            if search:
+                params.append(('search', search))
+            for key in keys:
+                params.append(('table_select', key))
+            url = reverse('marketing:buyer_vehicles')
+            return redirect(f'{url}?{urlencode(params)}#builder')
+
         if action not in {'calculate', 'create_audience'}:
             messages.error(request, 'Неизвестное действие.')
-            return self._render_page(request)
+            return self._render_page(request, sort=sort, search=search)
 
         brand_tree = get_brand_model_tree(include_test=False)
         brand_index = build_valid_brand_index(brand_tree)
@@ -58,6 +109,8 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
             return self._render_page(
                 request,
                 posted=request.POST,
+                sort=sort,
+                search=search,
             )
 
         calculation = calculate_audience(
@@ -73,6 +126,8 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
                 criteria=criteria,
                 calculation=calculation,
                 suggested_name=suggest_audience_name(criteria.get('vehicle_selection') or []),
+                sort=sort,
+                search=search,
             )
 
         audience_name = (request.POST.get('audience_name') or '').strip()
@@ -97,6 +152,34 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
         )
         return redirect('marketing:audience_detail', pk=audience.pk)
 
+    def _resolve_table_selected_keys(
+        self,
+        request,
+        stats_rows,
+    ) -> list[str]:
+        row_index = build_stats_row_index(stats_rows)
+        keys = [
+            value.strip()
+            for value in request.GET.getlist('table_select')
+            if str(value).strip()
+        ]
+        if not keys:
+            brand = (request.GET.get('preselect_brand') or '').strip()
+            model = (request.GET.get('preselect_model') or '').strip()
+            if brand and model:
+                candidate = make_table_row_key(
+                    brand_normalized=brand,
+                    model_normalized=model,
+                )
+                if candidate in row_index:
+                    keys = [candidate]
+        if not keys:
+            return []
+        try:
+            return validate_table_row_keys(keys, row_index)
+        except TableSelectionError:
+            return []
+
     def _render_page(
         self,
         request,
@@ -105,9 +188,21 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
         criteria=None,
         calculation=None,
         suggested_name='',
+        sort: str | None = None,
+        search: str | None = None,
     ):
-        sort = request.GET.get('sort') or request.POST.get('sort') or SORT_COUNT_ASC
-        search = (request.GET.get('search') or request.POST.get('search') or '').strip()
+        sort = sort or request.GET.get('sort') or request.POST.get('sort') or SORT_COUNT_ASC
+        search = (
+            search
+            if search is not None
+            else (request.GET.get('search') or request.POST.get('search') or '').strip()
+        )
+        stats_rows = get_vehicle_stats_rows(sort=sort, search=search)
+        row_index = build_stats_row_index(stats_rows)
+        table_selected_keys = self._resolve_table_selected_keys(request, stats_rows)
+        selection_totals = compute_selection_totals(table_selected_keys, row_index)
+        builder_from_table = False
+
         brand_tree = get_brand_model_tree(include_test=False)
         brand_index = build_valid_brand_index(brand_tree)
         registry = build_contact_registry()
@@ -117,22 +212,22 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
             registry=registry,
         )
 
-        selected_brands = set()
+        selected_brands: set[str] = set()
         selected_all_models: dict[str, bool] = {}
         selected_models: dict[str, set[str]] = {}
 
-        preselect_brand = (request.GET.get('preselect_brand') or '').strip()
-        preselect_model = (request.GET.get('preselect_model') or '').strip()
-        if preselect_brand and preselect_brand in brand_index:
-            selected_brands.add(preselect_brand)
-            if preselect_model:
-                option = brand_index[preselect_brand]
-                model_map = {model.casefold(): model for model in option.models}
-                matched_model = model_map.get(preselect_model.casefold())
-                if matched_model:
-                    selected_models.setdefault(preselect_brand, set()).add(matched_model)
-            else:
-                selected_all_models[preselect_brand] = True
+        if table_selected_keys:
+            try:
+                vehicle_selection = build_vehicle_selection_from_table_keys(
+                    table_selected_keys,
+                    row_index,
+                )
+                selected_brands, selected_all_models, selected_models = (
+                    table_selection_to_builder_state(vehicle_selection)
+                )
+                builder_from_table = True
+            except TableSelectionError:
+                table_selected_keys = []
 
         if posted is not None:
             selected_brands = {
@@ -177,11 +272,25 @@ class BuyerVehiclesView(MarketingCabinetMixin, View):
                 ],
             })
 
+        stats_rows_with_keys = [
+            {
+                'row': row,
+                'selection_key': make_table_row_key(
+                    brand_normalized=row.brand_normalized,
+                    model_normalized=row.model_normalized,
+                ),
+            }
+            for row in stats_rows
+        ]
+
         context = {
             **self.get_broadcast_mode_context(),
             **self.get_marketing_send_mode_context(),
             **self.get_nav_context(),
-            'stats_rows': get_vehicle_stats_rows(sort=sort, search=search),
+            'stats_rows_with_keys': stats_rows_with_keys,
+            'table_selected_keys': table_selected_keys,
+            'selection_totals': selection_totals,
+            'builder_from_table': builder_from_table,
             'brand_tree': brand_tree,
             'brand_form_states': brand_form_states,
             'sort': sort,

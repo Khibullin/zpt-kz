@@ -16,8 +16,8 @@
         <span class="marketing-header__title">Рассылки и уведомления</span>
       </div>
       <div class="marketing-header__meta">
-        <span class="marketing-mode-badge marketing-mode-badge--{{ broadcast_mode|lower }}">
-          Режим: {{ broadcast_mode_label }}
+        <span class="marketing-mode-badge marketing-mode-badge--{{ marketing_whatsapp_send_mode|lower }}">
+          Режим: {{ marketing_whatsapp_send_mode_label }}
         </span>
         <span class="marketing-user">{{ request.user.get_username }}</span>
       </div>

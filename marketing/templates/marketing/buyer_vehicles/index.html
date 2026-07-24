@@ -39,41 +39,85 @@
     <button type="submit" class="marketing-btn">Применить</button>
   </form>
 
-  <div class="marketing-table-wrap">
-    <table class="marketing-table">
-      <thead>
-        <tr>
-          <th>Марка</th>
-          <th>Модель</th>
-          <th>Уникальных покупателей</th>
-          <th>Consent Granted</th>
-          <th>Доступно LIVE</th>
-          <th>Последняя заявка</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for row in stats_rows %}
-          <tr>
-            <td>{{ row.brand }}</td>
-            <td>{{ row.model }}</td>
-            <td>{{ row.unique_buyers }}</td>
-            <td>{{ row.granted_count }}</td>
-            <td>{{ row.live_eligible_count }}</td>
-            <td>{% if row.last_request_at %}{{ row.last_request_at|date:'d.m.Y' }}{% else %}—{% endif %}</td>
-            <td>
-              <a class="marketing-btn marketing-btn--small"
-                 href="{% url 'marketing:buyer_vehicles' %}?preselect_brand={{ row.brand_normalized|urlencode }}&amp;preselect_model={{ row.model_normalized|urlencode }}&amp;search={{ search|urlencode }}&amp;sort={{ sort|urlencode }}#builder">
-                Выбрать
-              </a>
-            </td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="7">Нет данных по автомобилям покупателей.</td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
+  <div class="buyer-vehicles__selection-bar" id="selection-summary">
+    <dl class="buyer-vehicles__selection-stats">
+      <div><dt>Выбрано моделей</dt><dd id="summary-model-count">{{ selection_totals.model_count }}</dd></div>
+      <div><dt>Уникальных покупателей</dt><dd id="summary-unique-buyers">{{ selection_totals.unique_buyers }}</dd></div>
+      <div><dt>Consent Granted</dt><dd id="summary-granted">{{ selection_totals.granted_count }}</dd></div>
+      <div><dt>Доступно LIVE</dt><dd id="summary-live">{{ selection_totals.live_eligible_count }}</dd></div>
+    </dl>
+    <div class="buyer-vehicles__selection-actions">
+      <button type="submit"
+              form="table-selection-form"
+              name="action"
+              value="prepare_selection"
+              class="marketing-btn marketing-btn--primary"
+              id="prepare-selection-btn"
+              {% if not table_selected_keys %}disabled{% endif %}>
+        Сформировать аудиторию
+      </button>
+      <a class="marketing-btn"
+         href="{% url 'marketing:buyer_vehicles' %}?sort={{ sort|urlencode }}{% if search %}&amp;search={{ search|urlencode }}{% endif %}">
+        Снять выбор
+      </a>
+    </div>
   </div>
+
+  <form method="post" id="table-selection-form">
+    {% csrf_token %}
+    <input type="hidden" name="sort" value="{{ sort }}">
+    <input type="hidden" name="search" value="{{ search }}">
+
+    <div class="marketing-table-wrap">
+      <table class="marketing-table buyer-vehicles__table">
+        <thead>
+          <tr>
+            <th class="buyer-vehicles__checkbox-col">
+              <label class="buyer-vehicles__select-all" title="Выбрать все на странице">
+                <input type="checkbox" id="table-select-all" aria-label="Выбрать все на странице">
+              </label>
+            </th>
+            <th>Марка</th>
+            <th>Модель</th>
+            <th>Покупателей</th>
+            <th>Consent</th>
+            <th>LIVE</th>
+            <th>Последняя заявка</th>
+            <th>Действие</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in stats_rows_with_keys %}
+            {% with row=item.row %}
+              <tr>
+                <td>
+                  <input type="checkbox"
+                         class="table-row-checkbox"
+                         name="table_row"
+                         value="{{ item.selection_key }}"
+                         {% if item.selection_key in table_selected_keys %}checked{% endif %}>
+                </td>
+                <td>{{ row.brand }}</td>
+                <td>{{ row.model }}</td>
+                <td>{{ row.unique_buyers }}</td>
+                <td>{{ row.granted_count }}</td>
+                <td>{{ row.live_eligible_count }}</td>
+                <td>{% if row.last_request_at %}{{ row.last_request_at|date:'d.m.Y' }}{% else %}—{% endif %}</td>
+                <td>
+                  <a class="marketing-btn marketing-btn--small"
+                     href="{% url 'marketing:buyer_vehicles' %}?table_select={{ item.selection_key|urlencode }}&amp;sort={{ sort|urlencode }}{% if search %}&amp;search={{ search|urlencode }}{% endif %}#builder">
+                    Выбрать
+                  </a>
+                </td>
+              </tr>
+            {% endwith %}
+          {% empty %}
+            <tr><td colspan="8">Нет данных по автомобилям покупателей.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </form>
 
   <form method="post" id="builder" class="buyer-vehicles__builder">
     {% csrf_token %}
@@ -81,6 +125,11 @@
     <input type="hidden" name="search" value="{{ search }}">
 
     <h2 class="marketing-section-title">Формирование аудитории</h2>
+    {% if builder_from_table %}
+      <p class="marketing-section-note">
+        Выбор из таблицы перенесён в форму ниже. Уточните фильтры и нажмите «Рассчитать аудиторию».
+      </p>
+    {% endif %}
 
     <div class="buyer-vehicles__brand-groups">
       {% for state in brand_form_states %}
@@ -219,4 +268,113 @@
     {% endif %}
   </form>
 </section>
+
+<script>
+(function () {
+  var tableForm = document.getElementById('table-selection-form');
+  var selectAll = document.getElementById('table-select-all');
+  var prepareBtn = document.getElementById('prepare-selection-btn');
+  var rowCheckboxes = Array.prototype.slice.call(
+    document.querySelectorAll('.table-row-checkbox')
+  );
+  var summaryModelCount = document.getElementById('summary-model-count');
+  var summaryUniqueBuyers = document.getElementById('summary-unique-buyers');
+  var summaryGranted = document.getElementById('summary-granted');
+  var summaryLive = document.getElementById('summary-live');
+  var csrfInput = tableForm ? tableForm.querySelector('input[name="csrfmiddlewaretoken"]') : null;
+  var totalsTimer = null;
+
+  function checkedRows() {
+    return rowCheckboxes.filter(function (checkbox) { return checkbox.checked; });
+  }
+
+  function syncSelectAllState() {
+    if (!selectAll || !rowCheckboxes.length) {
+      if (selectAll) {
+        selectAll.checked = false;
+        selectAll.indeterminate = false;
+      }
+      return;
+    }
+    var checkedCount = checkedRows().length;
+    selectAll.checked = checkedCount === rowCheckboxes.length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < rowCheckboxes.length;
+  }
+
+  function setPrepareEnabled(enabled) {
+    if (prepareBtn) {
+      prepareBtn.disabled = !enabled;
+    }
+  }
+
+  function updateSummaryFromJson(data) {
+    summaryModelCount.textContent = data.model_count;
+    summaryUniqueBuyers.textContent = data.unique_buyers;
+    summaryGranted.textContent = data.granted_count;
+    summaryLive.textContent = data.live_eligible_count;
+  }
+
+  function refreshTotals() {
+    var checked = checkedRows();
+    setPrepareEnabled(checked.length > 0);
+    syncSelectAllState();
+    if (!tableForm || !csrfInput) {
+      return;
+    }
+    if (!checked.length) {
+      updateSummaryFromJson({
+        model_count: 0,
+        unique_buyers: 0,
+        granted_count: 0,
+        live_eligible_count: 0,
+      });
+      return;
+    }
+    var body = new FormData();
+    body.append('csrfmiddlewaretoken', csrfInput.value);
+    body.append('action', 'selection_totals');
+    body.append('sort', tableForm.querySelector('input[name="sort"]').value || '');
+    body.append('search', tableForm.querySelector('input[name="search"]').value || '');
+    checked.forEach(function (checkbox) {
+      body.append('table_row', checkbox.value);
+    });
+    fetch(window.location.pathname, {
+      method: 'POST',
+      body: body,
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      credentials: 'same-origin',
+    }).then(function (response) {
+      if (!response.ok) {
+        throw new Error('selection totals failed');
+      }
+      return response.json();
+    }).then(updateSummaryFromJson).catch(function () {
+      /* keep previous server-rendered totals on transient errors */
+    });
+  }
+
+  function scheduleRefresh() {
+    if (totalsTimer) {
+      window.clearTimeout(totalsTimer);
+    }
+    totalsTimer = window.setTimeout(refreshTotals, 150);
+  }
+
+  if (selectAll) {
+    selectAll.addEventListener('change', function () {
+      rowCheckboxes.forEach(function (checkbox) {
+        checkbox.checked = selectAll.checked;
+      });
+      scheduleRefresh();
+    });
+  }
+
+  rowCheckboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', scheduleRefresh);
+  });
+
+  syncSelectAllState();
+  setPrepareEnabled(checkedRows().length > 0);
+})();
+</script>
 {% endblock %}

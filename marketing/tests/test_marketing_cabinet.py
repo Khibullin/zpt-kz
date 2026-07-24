@@ -200,14 +200,14 @@ class MarketingCabinetDisplayTests(TestCase):
         self.assertContains(response, 'Покупатели товаров маркетплейса')
         self.assertContains(response, MARKETPLACE_BUYERS_EMPTY_NOTE)
 
-    @override_settings(BUYER_BROADCAST_MODE='TEST')
-    def test_broadcast_mode_test_displayed_from_environment(self):
-        with self.settings(BUYER_BROADCAST_MODE='TEST'):
-            os.environ['BUYER_BROADCAST_MODE'] = 'TEST'
+    @override_settings(MARKETING_WHATSAPP_SEND_MODE='TEST')
+    def test_marketing_send_mode_test_displayed_from_environment(self):
+        with self.settings(MARKETING_WHATSAPP_SEND_MODE='TEST'):
+            os.environ['MARKETING_WHATSAPP_SEND_MODE'] = 'TEST'
             try:
                 response = self.client.get(self.dashboard_url)
             finally:
-                os.environ.pop('BUYER_BROADCAST_MODE', None)
+                os.environ.pop('MARKETING_WHATSAPP_SEND_MODE', None)
         self.assertContains(response, 'Режим: TEST')
 
     def test_no_working_mass_send_button(self):

@@ -71,6 +71,20 @@
 .marketing-mode-badge--off {
   border-color: var(--marketing-muted);
   color: var(--marketing-muted);
+  background: #f3f4f6;
+}
+
+.marketing-mode-badge--test {
+  border-color: var(--marketing-green);
+  color: var(--marketing-green);
+  background: #ecfdf3;
+}
+
+.marketing-mode-badge--live {
+  border-color: #ea580c;
+  color: #ffffff;
+  background: #ea580c;
+  box-shadow: 0 0 0 2px rgba(234, 88, 12, 0.25);
 }
 
 .marketing-user {
@@ -1110,4 +1124,61 @@
     box-shadow: none;
     margin-top: 8px;
   }
+}
+
+.buyer-vehicles__selection-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: var(--marketing-white);
+  border: 1px solid var(--marketing-border);
+  border-radius: 12px;
+}
+
+.buyer-vehicles__selection-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px 24px;
+  margin: 0;
+}
+
+.buyer-vehicles__selection-stats div {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.buyer-vehicles__selection-stats dt {
+  margin: 0;
+  color: var(--marketing-muted);
+  font-size: 13px;
+}
+
+.buyer-vehicles__selection-stats dd {
+  margin: 0;
+  font-weight: 700;
+}
+
+.buyer-vehicles__selection-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.buyer-vehicles__checkbox-col {
+  width: 40px;
+}
+
+.buyer-vehicles__select-all {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buyer-vehicles__builder {
+  margin-top: 24px;
 }
