@@ -16,6 +16,7 @@ from marketing.models import (
     MarketingCampaignMessage,
     MarketingCampaignSendRun,
 )
+from marketing.services.campaigns.campaign_lock import lock_campaign_for_send
 from marketing.services.campaigns.send_constants import (
     MESSAGE_STATUS_FAILED,
     MESSAGE_STATUS_PENDING,
@@ -101,7 +102,7 @@ def _recipient_already_sent(campaign_id: int, recipient_id: int) -> bool:
 
 def _lock_campaign_for_test_send(campaign_id: int) -> MarketingCampaign:
     """Lock campaign row only; load nullable FKs via separate queries."""
-    return MarketingCampaign.objects.select_for_update().get(pk=campaign_id)
+    return lock_campaign_for_send(campaign_id)
 
 
 def _reserve_test_send_run(

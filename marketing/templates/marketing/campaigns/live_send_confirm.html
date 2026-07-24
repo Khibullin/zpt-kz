@@ -1,0 +1,47 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Подтверждение LIVE — {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Запустить LIVE-рассылку?</h1>
+    <div class="marketing-page-actions">
+      <a class="marketing-btn" href="{% url 'marketing:campaign_live_send_preflight' campaign.pk %}">← Назад к preflight</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p class="marketing-warning campaign-live-confirm__banner">
+    <span class="campaign-badge campaign-badge--test">LIVE</span>
+    После подтверждения будет создана очередь реальных WhatsApp-сообщений.
+  </p>
+
+  <dl class="marketing-meta-grid">
+    <dt>Реальных получателей</dt><dd><strong>{{ preflight.eligible_now_count }}</strong></dd>
+    <dt>Шаблон</dt><dd>{{ preflight.template_meta_name }}</dd>
+    <dt>Назначение</dt><dd>{{ preflight.purpose_label }}</dd>
+    <dt>Batch limit</dt><dd>{{ batch_limit }}</dd>
+    <dt>Campaign max</dt><dd>{{ max_recipients }}</dd>
+  </dl>
+
+  <form method="post" class="marketing-form">
+    {% csrf_token %}
+    <label>
+      Для подтверждения введите <strong>LIVE</strong> или точное название кампании
+      <input type="text" name="confirmation_text" autocomplete="off" required>
+    </label>
+    <div class="marketing-form__actions">
+      <button type="submit" class="marketing-btn marketing-btn--danger">Создать LIVE-очередь</button>
+      <a class="marketing-btn" href="{% url 'marketing:campaign_detail' campaign.pk %}">Отмена</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

@@ -13,6 +13,11 @@ from marketing.campaign_send_views import (
     CampaignTestSendExecuteView,
     CampaignTestSendPreflightView,
 )
+from marketing.campaign_live_send_views import (
+    CampaignLiveSendCancelView,
+    CampaignLiveSendConfirmView,
+    CampaignLiveSendPreflightView,
+)
 from marketing.campaign_views import (
     CampaignArchiveView,
     CampaignCancelView,
@@ -71,6 +76,21 @@ urlpatterns = [
         'campaigns/<int:pk>/test-send/execute/',
         CampaignTestSendExecuteView.as_view(),
         name='campaign_test_send_execute',
+    ),
+    path(
+        'campaigns/<int:pk>/live-send/preflight/',
+        CampaignLiveSendPreflightView.as_view(),
+        name='campaign_live_send_preflight',
+    ),
+    path(
+        'campaigns/<int:pk>/live-send/confirm/',
+        CampaignLiveSendConfirmView.as_view(),
+        name='campaign_live_send_confirm',
+    ),
+    path(
+        'campaigns/<int:pk>/live-send/<int:run_id>/cancel/',
+        CampaignLiveSendCancelView.as_view(),
+        name='campaign_live_send_cancel',
     ),
     path(
         'templates/',

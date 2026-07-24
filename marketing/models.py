@@ -26,9 +26,11 @@ from marketing.services.campaigns.constants import (
 from marketing.services.campaigns.send_constants import (
     MESSAGE_STATUS_CHOICES,
     MESSAGE_STATUS_PENDING,
+    SEND_MODE_LIVE,
     SEND_MODE_TEST,
     SEND_RUN_STATUS_CHOICES,
     SEND_RUN_STATUS_PENDING,
+    SEND_RUN_STATUS_QUEUED,
     SEND_RUN_STATUS_RUNNING,
 )
 from marketing.services.templates.constants import (
@@ -551,6 +553,7 @@ class MarketingCampaignSendRun(models.Model):
         verbose_name='Статус',
     )
     total_count = models.PositiveIntegerField(default=0, verbose_name='Всего')
+    queued_count = models.PositiveIntegerField(default=0, verbose_name='В очереди')
     sent_count = models.PositiveIntegerField(default=0, verbose_name='Отправлено')
     failed_count = models.PositiveIntegerField(default=0, verbose_name='Ошибок')
     skipped_count = models.PositiveIntegerField(default=0, verbose_name='Пропущено')
@@ -576,6 +579,22 @@ class MarketingCampaignSendRun(models.Model):
                 condition=models.Q(mode=SEND_MODE_TEST, status=SEND_RUN_STATUS_RUNNING),
                 name='marketing_campaign_one_running_test_send',
             ),
+            models.UniqueConstraint(
+                fields=('campaign',),
+                condition=(
+                    models.Q(mode=SEND_MODE_LIVE)
+                    & models.Q(
+                        status__in=(
+                            SEND_RUN_STATUS_QUEUED,
+                            SEND_RUN_STATUS_RUNNING,
+                        ),
+                    )
+                ),
+                name='uniq_active_live_run_per_campaign',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['mode', 'status', '-created_at'], name='marketing_sendrun_mode_status'),
         ]
 
     def __str__(self) -> str:
@@ -626,6 +645,9 @@ class MarketingCampaignMessage(models.Model):
                 fields=('send_run', 'campaign_recipient'),
                 name='marketing_campaign_message_unique_recipient_run',
             ),
+        ]
+        indexes = [
+            models.Index(fields=['send_run', 'status'], name='marketing_msg_run_status'),
         ]
 
     def __str__(self) -> str:

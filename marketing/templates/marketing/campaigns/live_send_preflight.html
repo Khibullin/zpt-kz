@@ -1,0 +1,85 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Проверка LIVE-отправки — {{ campaign.name }}{% endblock %}
+
+{% block content %}
+<section class="marketing-section">
+  <div class="marketing-page-header">
+    <h1 class="marketing-page-title">Проверка LIVE-отправки</h1>
+    <div class="marketing-page-actions">
+      <a class="marketing-btn" href="{% url 'marketing:campaign_detail' campaign.pk %}">← К кампании</a>
+    </div>
+  </div>
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <p><span class="campaign-badge campaign-badge--test">LIVE</span> <strong>{{ preflight.mode }}</strong></p>
+
+  <dl class="marketing-meta-grid">
+    <dt>Кампания</dt><dd>{{ preflight.campaign_name }}</dd>
+    <dt>Назначение</dt><dd>{{ preflight.purpose_label }}</dd>
+    <dt>Аудитория</dt><dd>{{ preflight.audience_name }}</dd>
+    <dt>Шаблон</dt><dd>{{ preflight.template_meta_name }}</dd>
+    <dt>Найдено</dt><dd>{% if campaign.has_prepared_snapshot %}{{ preflight.matched_count }}{% else %}—{% endif %}</dd>
+    <dt>Snapshot допущено</dt><dd>{{ preflight.snapshot_eligible_count }}</dd>
+    <dt>Допущено прямо сейчас</dt><dd>{{ preflight.eligible_now_count }}</dd>
+    <dt>Исключено</dt><dd>{{ preflight.excluded_count }}</dd>
+    <dt>Batch limit</dt><dd>{{ preflight.batch_limit }}</dd>
+    <dt>Max recipients</dt><dd>{{ preflight.max_recipients }}</dd>
+  </dl>
+
+  {% if preflight.exclusion_breakdown %}
+    <h2 class="marketing-section-title">Разбивка исключений</h2>
+    <dl class="marketing-meta-grid">
+      {% for reason, count in preflight.exclusion_breakdown.items %}
+        <dt>{{ reason }}</dt><dd>{{ count }}</dd>
+      {% endfor %}
+    </dl>
+  {% endif %}
+
+  {% if preflight.blocking_errors %}
+    <h2 class="marketing-section-title">Блокировки</h2>
+    <ul class="campaign-readiness__list">
+      {% for error in preflight.blocking_errors %}
+        <li class="campaign-readiness__item is-pending">{{ error }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  {% if preflight.recipients %}
+    <h2 class="marketing-section-title">Получатели (LIVE eligible сейчас)</h2>
+    <div class="marketing-table-wrap">
+      <table class="marketing-table">
+        <thead>
+          <tr>
+            <th>Телефон</th>
+            <th>Consent</th>
+            <th>URL resolved</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for recipient in preflight.recipients %}
+            <tr>
+              <td>{{ recipient.masked_phone }}</td>
+              <td>{{ recipient.consent_status_label }}</td>
+              <td>{% if recipient.url_resolved %}Да{% else %}Нет{% endif %}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  {% endif %}
+
+  {% if preflight.allowed %}
+    <a class="marketing-btn marketing-btn--primary" href="{% url 'marketing:campaign_live_send_confirm' campaign.pk %}">Перейти к подтверждению LIVE</a>
+  {% else %}
+    <p class="marketing-section-note">LIVE-отправка заблокирована до устранения проблем выше.</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -18,19 +18,25 @@
 
   {% if page_obj.object_list %}
     {% for run, run_messages in run_entries %}
-      <article class="marketing-section" style="margin-bottom:24px;">
-        <h2 class="marketing-section-title">
-          {{ run.created_at|date:'d.m.Y H:i' }} — {{ run.campaign.name }}
-        </h2>
+      <article class="marketing-history-run">
+        <div class="marketing-page-header marketing-page-header--compact">
+          <h2 class="marketing-section-title">
+            {{ run.created_at|date:'d.m.Y H:i' }} — {{ run.campaign.name }}
+          </h2>
+          <span class="campaign-badge {% if run.mode == 'LIVE' %}campaign-badge--test{% else %}campaign-badge--marketing{% endif %}">{{ run.mode }}</span>
+        </div>
         <dl class="marketing-meta-grid">
           <dt>Шаблон</dt><dd>{{ run.template.meta_template_name }}</dd>
-          <dt>Режим</dt><dd>{{ run.mode }}</dd>
           <dt>Статус</dt><dd>{{ run.get_status_display }}</dd>
           <dt>Всего</dt><dd>{{ run.total_count }}</dd>
+          <dt>В очереди</dt><dd>{{ run.queued_count }}</dd>
           <dt>Отправлено</dt><dd>{{ run.sent_count }}</dd>
           <dt>Ошибок</dt><dd>{{ run.failed_count }}</dd>
           <dt>Пропущено</dt><dd>{{ run.skipped_count }}</dd>
           <dt>Инициатор</dt><dd>{% if run.created_by %}{{ run.created_by.username }}{% else %}—{% endif %}</dd>
+          <dt>Создано</dt><dd>{{ run.created_at|date:'d.m.Y H:i' }}</dd>
+          <dt>Начато</dt><dd>{% if run.started_at %}{{ run.started_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+          <dt>Завершено</dt><dd>{% if run.finished_at %}{{ run.finished_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
         </dl>
 
         <div class="marketing-table-wrap">
@@ -39,8 +45,10 @@
               <tr>
                 <th>Телефон</th>
                 <th>Статус</th>
+                <th>Код</th>
                 <th>Meta message ID</th>
                 <th>Ошибка</th>
+                <th>Отправлено</th>
               </tr>
             </thead>
             <tbody>
@@ -48,12 +56,20 @@
                 <tr>
                   <td>{{ message.masked_phone }}</td>
                   <td>{{ message.get_status_display }}</td>
+                  <td>{{ message.error_code|default:'—' }}</td>
                   <td>{{ message.meta_message_id|default:'—' }}</td>
-                  <td>{{ message.error_message|default:'—' }}</td>
+                  <td>
+                    {% if message.error_code == 'delivery_unknown' %}
+                      Результат отправки неизвестен. Автоматический повтор отключён.
+                    {% else %}
+                      {{ message.error_message|default:'—' }}
+                    {% endif %}
+                  </td>
+                  <td>{% if message.sent_at %}{{ message.sent_at|date:'d.m.Y H:i' }}{% elif message.attempted_at %}{{ message.attempted_at|date:'d.m.Y H:i' }} (попытка){% else %}—{% endif %}</td>
                 </tr>
               {% empty %}
                 <tr>
-                  <td colspan="4">Нет сообщений для этого запуска.</td>
+                  <td colspan="6">Нет сообщений для этого запуска.</td>
                 </tr>
               {% endfor %}
             </tbody>

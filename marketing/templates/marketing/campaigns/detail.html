@@ -146,21 +146,58 @@
     <p class="campaign-readiness__summary">
       <strong>Режим системы:</strong> {{ marketing_whatsapp_send_mode_label }}
     </p>
-    {% if marketing_whatsapp_send_mode != 'TEST' %}
-      <p class="marketing-section-note">Отправка отключена настройками.</p>
-    {% elif test_send.already_sent %}
-      <p class="marketing-warning">Тестовая отправка для этой кампании уже выполнялась. Для повторного теста создайте новую кампанию.</p>
-      <p><a class="marketing-btn" href="{% url 'marketing:history' %}">История отправок</a></p>
-    {% elif test_send.allowed %}
-      <p class="campaign-readiness__ready">Доступна TEST-отправка (до 2 test contacts).</p>
-      <p><a class="marketing-btn" href="{% url 'marketing:campaign_test_send_preflight' campaign.pk %}">Проверить тестовую отправку</a></p>
-    {% else %}
-      <p class="marketing-warning">TEST-отправка пока недоступна:</p>
-      <ul class="campaign-readiness__list">
-        {% for error in test_send.blocking_errors %}
-          <li class="campaign-readiness__item is-pending">{{ error }}</li>
-        {% endfor %}
-      </ul>
+    {% if marketing_whatsapp_send_mode == 'OFF' %}
+      <p class="marketing-section-note">Маркетинговая отправка отключена.</p>
+    {% endif %}
+
+    {% if campaign.purpose == 'test_campaign' and marketing_whatsapp_send_mode == 'TEST' %}
+      <h3 class="marketing-section-subtitle">TEST-отправка</h3>
+      {% if test_send.already_sent %}
+        <p class="marketing-warning">Тестовая отправка для этой кампании уже выполнялась. Для повторного теста создайте новую кампанию.</p>
+        <p><a class="marketing-btn" href="{% url 'marketing:history' %}">История отправок</a></p>
+      {% elif test_send.allowed %}
+        <p class="campaign-readiness__ready">Доступна TEST-отправка (до 2 test contacts).</p>
+        <p><a class="marketing-btn" href="{% url 'marketing:campaign_test_send_preflight' campaign.pk %}">Проверить тестовую отправку</a></p>
+      {% else %}
+        <p class="marketing-warning">TEST-отправка пока недоступна:</p>
+        <ul class="campaign-readiness__list">
+          {% for error in test_send.blocking_errors %}
+            <li class="campaign-readiness__item is-pending">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% elif campaign.purpose != 'test_campaign' and marketing_whatsapp_send_mode == 'LIVE' %}
+      <h3 class="marketing-section-subtitle">LIVE-рассылка</h3>
+      {% if live_send_run %}
+        <dl class="marketing-meta-grid">
+          <dt>Очередь</dt><dd>создана</dd>
+          <dt>Run #</dt><dd>{{ live_send_run.pk }}</dd>
+          <dt>Всего</dt><dd>{{ live_send_run.total_count }}</dd>
+          <dt>В очереди</dt><dd>{{ live_send_run.queued_count }}</dd>
+          <dt>Отправлено</dt><dd>{{ live_send_run.sent_count }}</dd>
+          <dt>Ошибок</dt><dd>{{ live_send_run.failed_count }}</dd>
+          <dt>Пропущено</dt><dd>{{ live_send_run.skipped_count }}</dd>
+        </dl>
+        <p><a class="marketing-btn" href="{% url 'marketing:history' %}">История отправок</a></p>
+        {% if live_send_active %}
+          <form method="post" action="{% url 'marketing:campaign_live_send_cancel' campaign.pk live_send_run.pk %}" class="marketing-inline-form">
+            {% csrf_token %}
+            <button type="submit" class="marketing-btn">Отменить LIVE-очередь</button>
+          </form>
+        {% endif %}
+      {% elif live_send.allowed %}
+        <p class="campaign-readiness__ready">Доступна проверка LIVE-отправки.</p>
+        <p><a class="marketing-btn" href="{% url 'marketing:campaign_live_send_preflight' campaign.pk %}">Проверить LIVE-отправку</a></p>
+      {% else %}
+        <p class="marketing-warning">LIVE-отправка пока недоступна:</p>
+        <ul class="campaign-readiness__list">
+          {% for error in live_send.blocking_errors %}
+            <li class="campaign-readiness__item is-pending">{{ error }}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% elif marketing_whatsapp_send_mode == 'TEST' and campaign.purpose != 'test_campaign' %}
+      <p class="marketing-section-note">LIVE-отправка недоступна: активен режим TEST.</p>
     {% endif %}
   </div>
 

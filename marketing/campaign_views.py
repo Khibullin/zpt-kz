@@ -10,9 +10,11 @@ from django.utils import timezone
 from django.views import View
 from django.views.generic import TemplateView
 
-from marketing.models import MarketingAudience, MarketingCampaign
+from marketing.models import MarketingAudience, MarketingCampaign, MarketingCampaignSendRun
 from marketing.services.audiences import criteria_summary
+from marketing.services.campaigns.live_send_validation import build_live_send_preflight
 from marketing.services.campaigns.readiness import build_campaign_readiness
+from marketing.services.campaigns.send_constants import SEND_MODE_LIVE, SEND_RUN_LIVE_ACTIVE_STATUSES
 from marketing.services.campaigns.send_validation import build_test_send_preflight
 from marketing.services.campaigns.compatibility import compatible_audiences_for_purpose
 from marketing.services.campaigns.constants import (
@@ -276,6 +278,20 @@ class CampaignDetailView(MarketingCabinetMixin, TemplateView):
         context['snapshot_stale'] = campaign.is_snapshot_stale()
         context['readiness'] = build_campaign_readiness(campaign)
         context['test_send'] = build_test_send_preflight(campaign)
+        context['live_send'] = build_live_send_preflight(campaign)
+        context['live_send_run'] = (
+            MarketingCampaignSendRun.objects.filter(
+                campaign=campaign,
+                mode=SEND_MODE_LIVE,
+            )
+            .order_by('-created_at', '-id')
+            .first()
+        )
+        context['live_send_active'] = MarketingCampaignSendRun.objects.filter(
+            campaign=campaign,
+            mode=SEND_MODE_LIVE,
+            status__in=SEND_RUN_LIVE_ACTIVE_STATUSES,
+        ).exists()
         if campaign.message_template_id:
             context['template_preview'] = render_template_preview_text(campaign.message_template)
         else:
