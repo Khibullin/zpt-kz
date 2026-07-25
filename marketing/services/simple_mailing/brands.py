@@ -9,6 +9,12 @@ from marketing.services.simple_mailing.constants import (
     RECIPIENT_TYPE_MARKETPLACE_BUYERS,
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
     RECIPIENT_TYPE_SELLERS,
+    TEST_BRAND_RAW_NAMES,
+)
+
+_TEST_BRAND_KEYS = frozenset(
+    normalize_buyer_text(name)
+    for name in TEST_BRAND_RAW_NAMES
 )
 
 
@@ -16,12 +22,46 @@ class SimpleMailingValidationError(ValueError):
     pass
 
 
+def is_test_brand_value(brand: object) -> bool:
+    key = normalize_buyer_text(brand)
+    return bool(key) and key in _TEST_BRAND_KEYS
+
+
+def build_exclude_test_brand_q(*, field_prefix: str = '') -> Q:
+    prefix = f'{field_prefix}__' if field_prefix else ''
+    exclude = Q()
+    for brand in TEST_BRAND_RAW_NAMES:
+        exclude |= Q(**{f'{prefix}brand__iexact': brand})
+    return exclude
+
+
+def normalize_brand_selection(
+    *,
+    all_brands: bool,
+    brands: list[str],
+) -> tuple[bool, list[str]]:
+    if all_brands:
+        return True, []
+    return False, list(brands)
+
+
+def has_brand_selection(
+    *,
+    recipient_type: str,
+    all_brands: bool,
+    brands: list[str],
+) -> bool:
+    if recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS and not MARKETPLACE_BRAND_FILTER_AVAILABLE:
+        return True
+    return all_brands or bool(brands)
+
+
 def _sorted_unique_brands(values) -> list[str]:
     seen: set[str] = set()
     brands: list[str] = []
     for value in values:
         text = str(value or '').strip()
-        if not text:
+        if not text or is_test_brand_value(text):
             continue
         key = normalize_buyer_text(text)
         if not key or key in seen:
@@ -98,6 +138,8 @@ def validate_brand_selection(
     all_brands: bool,
     brands: list[str],
 ) -> list[str]:
+    all_brands, brands = normalize_brand_selection(all_brands=all_brands, brands=brands)
+
     if all_brands:
         return []
 
@@ -119,6 +161,8 @@ def validate_brand_selection(
         key = normalize_buyer_text(brand)
         if not key or key in seen:
             continue
+        if is_test_brand_value(brand):
+            raise SimpleMailingValidationError(f'Недопустимая марка: {brand}.')
         matched = allowed.get(key)
         if matched is None:
             raise SimpleMailingValidationError(f'Недопустимая марка: {brand}.')

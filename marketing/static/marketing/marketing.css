@@ -1198,24 +1198,167 @@
   padding: 0;
 }
 
+.simple-mailing__card {
+  background: var(--marketing-white);
+  border: 1px solid var(--marketing-border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.simple-mailing__card--result {
+  margin-bottom: 0;
+}
+
+.simple-mailing__card-title {
+  margin: 0 0 16px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--marketing-text);
+}
+
+.simple-mailing__fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+
+.simple-mailing__radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .simple-mailing__radio,
 .simple-mailing__checkbox {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin: 8px 0;
+  gap: 10px;
+  margin: 0;
+  cursor: pointer;
 }
 
-.simple-mailing__brand-list {
+.simple-mailing__radio input,
+.simple-mailing__checkbox input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  accent-color: var(--marketing-red);
+}
+
+.simple-mailing__radio span,
+.simple-mailing__checkbox span {
+  line-height: 1.4;
+}
+
+.simple-mailing__hint {
+  margin: 0 0 16px;
+  font-size: 13px;
+  color: var(--marketing-muted);
+  line-height: 1.5;
+}
+
+.simple-mailing__all-brands-wrap {
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--marketing-border);
+}
+
+.simple-mailing__checkbox--all {
+  font-weight: 600;
+}
+
+.simple-mailing__brand-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 4px 16px;
-  margin-top: 12px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.simple-mailing__brand-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 12px;
+  border: 1px solid var(--marketing-border);
+  border-radius: 10px;
+  background: #fafafa;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.simple-mailing__brand-item:hover {
+  border-color: #d1d5db;
+  background: #fff;
+}
+
+.simple-mailing__brand-item:has(input:checked) {
+  border-color: var(--marketing-red);
+  background: #fff5f4;
+}
+
+.simple-mailing__brand-item input:disabled + span {
+  color: var(--marketing-muted);
 }
 
 .simple-mailing__search {
   display: block;
-  margin-top: 8px;
+  margin-bottom: 16px;
+}
+
+.simple-mailing__search-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.simple-mailing__search-input {
+  width: 100%;
+  max-width: 420px;
+  padding: 10px 12px;
+  border: 1px solid var(--marketing-border);
+  border-radius: 10px;
+  font-size: 14px;
+}
+
+.simple-mailing__search-input:focus {
+  outline: 2px solid rgba(255, 59, 48, 0.25);
+  border-color: var(--marketing-red);
+}
+
+.simple-mailing__result-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.simple-mailing__result-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.simple-mailing__result-item--highlight {
+  padding-left: 16px;
+  border-left: 3px solid var(--marketing-red);
+}
+
+.simple-mailing__result-label {
+  font-size: 13px;
+  color: var(--marketing-muted);
+}
+
+.simple-mailing__result-value {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.simple-mailing__result-value--count {
+  font-size: 32px;
+  color: var(--marketing-red);
+  line-height: 1.1;
 }
 
 .simple-mailing__count {
@@ -1246,5 +1389,85 @@
 }
 
 .simple-mailing__actions {
-  margin-top: 24px;
+  margin-top: 8px;
+}
+
+.simple-mailing__actions .marketing-btn--primary:disabled {
+  background: #ececec;
+  color: var(--marketing-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+.simple-mailing__actions .marketing-btn--primary:disabled:hover {
+  background: #ececec;
+  color: var(--marketing-muted);
+}
+
+.simple-mailing__actions .marketing-btn:focus-visible,
+.simple-mailing__radio input:focus-visible,
+.simple-mailing__checkbox input:focus-visible,
+.simple-mailing__search-input:focus-visible {
+  outline: 2px solid var(--marketing-red);
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (max-width: 1200px) {
+  .simple-mailing__brand-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 992px) {
+  .simple-mailing__brand-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .simple-mailing__card {
+    padding: 16px;
+  }
+
+  .simple-mailing__result-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .simple-mailing__result-item--highlight {
+    padding-left: 0;
+    border-left: 0;
+    padding-top: 12px;
+    border-top: 1px solid var(--marketing-border);
+  }
+
+  .simple-mailing__brand-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .simple-mailing__actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .simple-mailing__actions .marketing-btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .simple-mailing__brand-grid {
+    grid-template-columns: 1fr;
+  }
 }

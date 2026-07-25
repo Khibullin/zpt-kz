@@ -17,35 +17,46 @@
   <form method="post" class="simple-mailing__form" id="simple-mailing-form">
     {% csrf_token %}
 
-    <fieldset class="simple-mailing__block">
-      <legend class="marketing-section-title">1. Кому отправить?</legend>
-      {% for value, label in recipient_type_choices %}
-        <label class="simple-mailing__radio">
-          <input type="radio"
-                 name="recipient_type"
-                 value="{{ value }}"
-                 {% if recipient_type == value %}checked{% endif %}
-                 data-recipient-type-radio>
-          {{ label }}
-        </label>
-      {% endfor %}
-    </fieldset>
+    <div class="simple-mailing__card">
+      <h2 class="simple-mailing__card-title">1. Кому отправить?</h2>
+      <fieldset class="simple-mailing__fieldset">
+        <legend class="visually-hidden">Тип получателей</legend>
+        <div class="simple-mailing__radio-group">
+          {% for value, label in recipient_type_choices %}
+            <label class="simple-mailing__radio">
+              <input type="radio"
+                     name="recipient_type"
+                     value="{{ value }}"
+                     {% if recipient_type == value %}checked{% endif %}
+                     data-recipient-type-radio>
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+    </div>
 
-    <fieldset class="simple-mailing__block">
-      <legend class="marketing-section-title">2. Марки автомобилей</legend>
+    <div class="simple-mailing__card">
+      <h2 class="simple-mailing__card-title">2. Марки автомобилей</h2>
 
       {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}
-        <p class="marketing-section-note">
-          Для Marketplace фильтрация по марке пока недоступна. Используйте «Все марки».
+        <p class="simple-mailing__hint">
+          Для покупателей Marketplace сейчас доступна рассылка по всем маркам.
         </p>
       {% endif %}
 
-      <label class="simple-mailing__search">
-        Найти марку
-        <input type="search" id="brand-search" placeholder="Начните вводить название марки">
-      </label>
+      {% if brand_filter_enabled and brand_options %}
+        <label class="simple-mailing__search">
+          <span class="simple-mailing__search-label">Найти марку</span>
+          <input type="search"
+                 id="brand-search"
+                 class="simple-mailing__search-input"
+                 placeholder="Введите название марки"
+                 autocomplete="off">
+        </label>
+      {% endif %}
 
-      <div class="simple-mailing__brand-list" id="brand-list">
+      <div class="simple-mailing__all-brands-wrap">
         <label class="simple-mailing__checkbox simple-mailing__checkbox--all">
           <input type="checkbox"
                  name="all_brands"
@@ -53,38 +64,42 @@
                  id="all-brands-checkbox"
                  {% if all_brands or recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}checked{% endif %}
                  {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}disabled{% endif %}>
-          Все марки
+          <span>Все марки</span>
         </label>
-        {% for brand in brand_options %}
-          <label class="simple-mailing__checkbox brand-option"
-                 data-brand-label="{{ brand|lower }}">
-            <input type="checkbox"
-                   name="brands"
-                   value="{{ brand }}"
-                   {% if brand in selected_brands %}checked{% endif %}
-                   {% if not brand_filter_enabled and recipient_type == 'marketplace_buyers' %}disabled{% endif %}
-                   class="brand-checkbox">
-            {{ brand }}
-          </label>
-        {% empty %}
-          <p class="marketing-section-note">Марки для выбранного типа пока не найдены.</p>
-        {% endfor %}
       </div>
-    </fieldset>
 
-    {% if result %}
-      <div class="simple-mailing__result">
-        <dl class="simple-mailing__summary">
-          <div><dt>Кому</dt><dd>{{ recipient_type_label }}</dd></div>
-          <div><dt>Марки</dt>
-            <dd>
-              {% if result.selection.all_brands %}Все марки{% else %}{{ result.selection.brands|join:", " }}{% endif %}
-            </dd>
-          </div>
-        </dl>
-        <p class="simple-mailing__count">
-          Найдено получателей: <strong>{{ result.count }}</strong>
-        </p>
+      {% if brand_filter_enabled %}
+        <div class="simple-mailing__brand-grid" id="brand-list">
+          {% for brand in brand_options %}
+            <label class="simple-mailing__brand-item brand-option"
+                   data-brand-label="{{ brand|lower }}">
+              <input type="checkbox"
+                     name="brands"
+                     value="{{ brand }}"
+                     {% if brand in selected_brands %}checked{% endif %}
+                     class="brand-checkbox">
+              <span>{{ brand }}</span>
+            </label>
+          {% empty %}
+            <p class="simple-mailing__hint">Марки для выбранного типа пока не найдены.</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <div class="simple-mailing__card simple-mailing__card--result">
+      <h2 class="simple-mailing__card-title">Итог</h2>
+
+      <div class="simple-mailing__result-grid">
+        <div class="simple-mailing__result-item">
+          <span class="simple-mailing__result-label">Выбрано марок</span>
+          <span class="simple-mailing__result-value" id="selected-brands-count">{{ selected_brands_label }}</span>
+        </div>
+        <div class="simple-mailing__result-item simple-mailing__result-item--highlight">
+          <span class="simple-mailing__result-label">Найдено получателей</span>
+          <span class="simple-mailing__result-value simple-mailing__result-value--count"
+                id="recipient-count-display">{{ count_display }}</span>
+        </div>
       </div>
 
       {% if show_preview %}
@@ -112,37 +127,93 @@
           </div>
         </details>
       {% endif %}
-    {% endif %}
 
-    <div class="marketing-form-actions simple-mailing__actions">
-      <button type="submit" name="action" value="preview" class="marketing-btn">
-        Показать количество
-      </button>
-      <button type="submit"
-              name="action"
-              value="continue"
-              class="marketing-btn marketing-btn--primary"
-              id="continue-button"
-              {% if not result or result.count <= 0 %}disabled{% endif %}>
-        Продолжить к сообщению
-      </button>
+      <div class="marketing-form-actions simple-mailing__actions">
+        <button type="submit"
+                name="action"
+                value="preview"
+                class="marketing-btn marketing-btn--secondary"
+                id="preview-button"
+                {% if not can_calculate %}disabled{% endif %}>
+          Показать количество
+        </button>
+        <button type="submit"
+                name="action"
+                value="continue"
+                class="marketing-btn marketing-btn--primary"
+                id="continue-button"
+                {% if not can_continue %}disabled{% endif %}>
+          Продолжить к сообщению
+        </button>
+      </div>
     </div>
   </form>
 </section>
 
 <script>
 (function () {
+  var form = document.getElementById('simple-mailing-form');
   var allBrands = document.getElementById('all-brands-checkbox');
   var brandCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.brand-checkbox'));
   var brandSearch = document.getElementById('brand-search');
   var recipientRadios = Array.prototype.slice.call(
     document.querySelectorAll('[data-recipient-type-radio]')
   );
+  var previewButton = document.getElementById('preview-button');
+  var continueButton = document.getElementById('continue-button');
+  var countDisplay = document.getElementById('recipient-count-display');
+  var selectedCountDisplay = document.getElementById('selected-brands-count');
+  var hasFreshResult = {% if result %}true{% else %}false{% endif %};
+  var marketplaceLocked = {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}true{% else %}false{% endif %};
+
+  function selectedBrandCount() {
+    if (marketplaceLocked || (allBrands && allBrands.checked)) {
+      return 'Все марки';
+    }
+    var count = brandCheckboxes.filter(function (checkbox) {
+      return checkbox.checked;
+    }).length;
+    return String(count);
+  }
+
+  function hasValidSelection() {
+    if (marketplaceLocked) {
+      return true;
+    }
+    if (allBrands && allBrands.checked) {
+      return true;
+    }
+    return brandCheckboxes.some(function (checkbox) {
+      return checkbox.checked;
+    });
+  }
+
+  function invalidateResult() {
+    hasFreshResult = false;
+    if (countDisplay) {
+      countDisplay.textContent = '—';
+    }
+    if (continueButton) {
+      continueButton.disabled = true;
+    }
+  }
+
+  function syncUiState() {
+    if (selectedCountDisplay) {
+      selectedCountDisplay.textContent = selectedBrandCount();
+    }
+    if (previewButton) {
+      previewButton.disabled = !hasValidSelection();
+    }
+    if (!hasFreshResult && continueButton) {
+      continueButton.disabled = true;
+    }
+  }
 
   function syncBrandDisabledState() {
     var disableBrands = allBrands && allBrands.checked;
     brandCheckboxes.forEach(function (checkbox) {
-      if (checkbox.disabled) {
+      if (checkbox.hasAttribute('data-perma-disabled')) {
         return;
       }
       checkbox.disabled = disableBrands;
@@ -152,17 +223,26 @@
     });
   }
 
-  if (allBrands) {
-    allBrands.addEventListener('change', syncBrandDisabledState);
+  function onSelectionChanged() {
+    invalidateResult();
     syncBrandDisabledState();
+    syncUiState();
   }
+
+  if (allBrands) {
+    allBrands.addEventListener('change', onSelectionChanged);
+  }
+
+  brandCheckboxes.forEach(function (checkbox) {
+    checkbox.addEventListener('change', onSelectionChanged);
+  });
 
   if (brandSearch) {
     brandSearch.addEventListener('input', function () {
       var query = (brandSearch.value || '').trim().toLowerCase();
       document.querySelectorAll('.brand-option').forEach(function (label) {
         var text = label.getAttribute('data-brand-label') || '';
-        label.style.display = !query || text.indexOf(query) !== -1 ? '' : 'none';
+        label.hidden = Boolean(query) && text.indexOf(query) === -1;
       });
     });
   }
@@ -177,6 +257,9 @@
       window.location.href = url.toString();
     });
   });
+
+  syncBrandDisabledState();
+  syncUiState();
 })();
 </script>
 {% endblock %}

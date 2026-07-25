@@ -17,3 +17,9 @@ RECIPIENT_TYPE_VALUES = {choice[0] for choice in RECIPIENT_TYPE_CHOICES}
 MARKETPLACE_BRAND_FILTER_AVAILABLE = False
 
 SESSION_DRAFT_KEY = 'marketing_simple_mailing_draft'
+PREVIEW_SESSION_KEY = 'marketing_simple_mailing_preview'
+
+# Explicit test-only brand labels stored in production data (e.g. QA requests).
+TEST_BRAND_RAW_NAMES = (
+    'TestBrand',
+)

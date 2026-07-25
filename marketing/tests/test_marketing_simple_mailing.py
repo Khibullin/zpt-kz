@@ -21,6 +21,9 @@ from core.services.buyer_contact_utils import normalize_buyer_text
 from marketing.services.simple_mailing.brands import (
     SimpleMailingValidationError,
     get_available_brands,
+    is_test_brand_value,
+    normalize_brand_selection,
+    validate_brand_selection,
 )
 from marketing.tests.test_marketing_audiences import grant_marketing_permission, make_buyer, next_phone
 
@@ -110,6 +113,15 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
             all_brands=True,
         )
         self.assertEqual(result.count, 0)
+
+    def test_test_brand_excluded_from_all_brands_count(self):
+        make_request(make_buyer(), brand='TestBrand')
+        make_request(make_buyer(), brand='Toyota')
+        result = resolve_simple_mailing_recipients(
+            recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            all_brands=True,
+        )
+        self.assertEqual(result.count, 1)
 
 
 class SimpleMailingSellerTests(TestCase):
@@ -268,6 +280,23 @@ class SimpleMailingValidationTests(TestCase):
                 brands=['NonexistentBrand'],
             )
 
+    def test_test_brand_rejected(self):
+        make_request(make_buyer(), brand='Toyota')
+        with self.assertRaises(SimpleMailingValidationError):
+            validate_brand_selection(
+                recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                all_brands=False,
+                brands=['TestBrand'],
+            )
+
+    def test_all_brands_clears_concrete_brands(self):
+        all_brands, brands = normalize_brand_selection(
+            all_brands=True,
+            brands=['Toyota', 'BMW'],
+        )
+        self.assertTrue(all_brands)
+        self.assertEqual(brands, [])
+
 
 class SimpleMailingViewTests(TestCase):
     def setUp(self):
@@ -276,6 +305,17 @@ class SimpleMailingViewTests(TestCase):
         grant_marketing_permission(self.user)
         self.client.login(username='marketer', password='secret')
         self.url = reverse('marketing:new_mailing')
+
+    def _preview_then_continue(self, payload):
+        preview_response = self.client.post(self.url, {**payload, 'action': 'preview'})
+        self.assertEqual(preview_response.status_code, 200)
+        return self.client.post(self.url, {**payload, 'action': 'continue'})
+
+    def test_get_initial_continue_disabled(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="continue-button"')
+        self.assertContains(response, 'disabled')
 
     def test_get_does_not_create_entities(self):
         response = self.client.get(self.url)
@@ -288,10 +328,8 @@ class SimpleMailingViewTests(TestCase):
         buyer = make_buyer()
         make_request(buyer, brand='Toyota')
         with mock.patch('core.whatsapp_template_sender.send_whatsapp_template_message') as send_mock:
-            response = self.client.post(
-                self.url,
+            response = self._preview_then_continue(
                 {
-                    'action': 'continue',
                     'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
                     'all_brands': '1',
                 },
@@ -301,13 +339,91 @@ class SimpleMailingViewTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn('/marketing/new-mailing/message/', response.url)
 
-    def test_message_page_shows_summary(self):
+    def test_continue_without_preview_rejected(self):
+        buyer = make_buyer()
+        make_request(buyer, brand='Toyota')
+        response = self.client.post(
+            self.url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Показать количество')
+
+    def test_continue_with_zero_count_rejected(self):
+        make_request(make_buyer(), brand='TestBrand')
+        self.client.post(
+            self.url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'all_brands': '1',
+            },
+        )
+        response = self.client.post(
+            self.url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Получатели не найдены')
+
+    def test_continue_after_brand_change_rejected(self):
+        buyer = make_buyer()
+        make_request(buyer, brand='Toyota')
+        make_request(make_buyer(), brand='BMW')
+        self.client.post(
+            self.url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['Toyota'],
+            },
+        )
+        response = self.client.post(
+            self.url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['Toyota', 'BMW'],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Фильтры изменились')
+
+    def test_fake_client_count_ignored(self):
         buyer = make_buyer()
         make_request(buyer, brand='Toyota')
         self.client.post(
             self.url,
             {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['Toyota'],
+            },
+        )
+        response = self.client.post(
+            self.url,
+            {
                 'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['Toyota'],
+                'count': '999',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+
+    def test_message_page_shows_summary(self):
+        buyer = make_buyer()
+        make_request(buyer, brand='Toyota')
+        self._preview_then_continue(
+            {
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
                 'brands': ['Toyota'],
             },
@@ -387,3 +503,49 @@ class SimpleMailingBrandListTests(TestCase):
         brands = get_available_brands(RECIPIENT_TYPE_SELLERS)
         bmw_variants = [brand for brand in brands if normalize_buyer_text(brand) == normalize_buyer_text('BMW')]
         self.assertEqual(len(bmw_variants), 1)
+
+    def test_test_brand_absent_from_parts_buyer_brand_list(self):
+        make_request(make_buyer(), brand='TestBrand')
+        make_request(make_buyer(), brand='Toyota')
+        brands = get_available_brands(RECIPIENT_TYPE_PARTS_REQUEST_BUYERS)
+        self.assertNotIn('TestBrand', brands)
+        self.assertIn('Toyota', brands)
+        self.assertTrue(is_test_brand_value('TestBrand'))
+
+    def test_test_brand_absent_from_seller_brand_list(self):
+        Seller.objects.create(
+            name='Seller',
+            whatsapp=next_phone(),
+            transport_type='car',
+            city='Алматы',
+            is_active=True,
+            brand='TestBrand',
+        )
+        Seller.objects.create(
+            name='Real seller',
+            whatsapp=next_phone(),
+            transport_type='car',
+            city='Алматы',
+            is_active=True,
+            brand='Toyota',
+        )
+        brands = get_available_brands(RECIPIENT_TYPE_SELLERS)
+        self.assertNotIn('TestBrand', brands)
+        self.assertIn('Toyota', brands)
+
+    def test_manipulated_post_test_brand_rejected(self):
+        make_request(make_buyer(), brand='Toyota')
+        client = Client()
+        user = User.objects.create_user('marketer2', password='secret', is_staff=True)
+        grant_marketing_permission(user)
+        client.login(username='marketer2', password='secret')
+        response = client.post(
+            reverse('marketing:new_mailing'),
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['TestBrand'],
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Недопустимая марка')

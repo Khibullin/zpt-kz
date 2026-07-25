@@ -7,6 +7,7 @@ from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 from marketing.services.marketplace_orders import get_marketplace_buyer_counts
 from marketing.services.phone_utils import normalize_phone_key
 from marketing.services.simple_mailing.brands import (
+    build_exclude_test_brand_q,
     build_request_brand_filter_q,
     build_seller_brand_filter_q,
 )
@@ -62,7 +63,7 @@ def _parts_request_buyers(
     qs = Request.objects.filter(
         buyer_contact__isnull=False,
         buyer_contact__is_test_contact=False,
-    )
+    ).exclude(build_exclude_test_brand_q())
     if not all_brands:
         qs = qs.filter(build_request_brand_filter_q(brands))
 
