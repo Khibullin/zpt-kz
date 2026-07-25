@@ -1301,6 +1301,20 @@
   color: var(--marketing-muted);
 }
 
+.simple-mailing__brand-item.is-search-hidden {
+  display: none !important;
+}
+
+.simple-mailing__brand-search-empty {
+  margin: 12px 0 0;
+  font-size: 13px;
+  color: var(--marketing-muted);
+}
+
+.simple-mailing__brand-search-empty[hidden] {
+  display: none !important;
+}
+
 .simple-mailing__search {
   display: block;
   margin-bottom: 16px;

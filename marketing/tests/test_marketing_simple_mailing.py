@@ -549,3 +549,72 @@ class SimpleMailingBrandListTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Недопустимая марка')
+
+
+class SimpleMailingBrandSearchTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('marketer-search', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='marketer-search', password='secret')
+        self.url = reverse('marketing:new_mailing')
+
+    def test_brand_cards_include_search_data_attribute(self):
+        make_request(make_buyer(), brand='Haval')
+        make_request(make_buyer(), brand='Mercedes-Benz')
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'data-brand-search="haval"')
+        self.assertContains(response, 'data-brand-search="mercedes-benz"')
+        self.assertContains(response, 'id="brand-search"')
+        self.assertContains(response, 'filterBrandCards')
+        self.assertContains(response, 'is-search-hidden')
+
+    def test_haval_present_in_brand_list(self):
+        make_request(make_buyer(), brand='Haval')
+        brands = get_available_brands(RECIPIENT_TYPE_PARTS_REQUEST_BUYERS)
+        self.assertIn('Haval', brands)
+
+    def test_marketplace_does_not_render_brand_search(self):
+        response = self.client.get(
+            self.url,
+            {'recipient_type': RECIPIENT_TYPE_MARKETPLACE_BUYERS},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, 'id="brand-search"')
+        self.assertContains(response, 'Для покупателей Marketplace сейчас доступна рассылка по всем маркам.')
+
+    def test_search_text_not_used_as_recipient_filter(self):
+        buyer = make_buyer()
+        make_request(buyer, brand='Toyota')
+        make_request(make_buyer(), brand='BMW')
+        preview = self.client.post(
+            self.url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['Toyota'],
+                'brand_search': 'BMW',
+            },
+        )
+        self.assertEqual(preview.status_code, 200)
+        self.assertContains(preview, 'id="recipient-count-display">1<')
+        continue_response = self.client.post(
+            self.url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': ['Toyota'],
+                'brand_search': 'BMW',
+            },
+        )
+        self.assertEqual(continue_response.status_code, 302)
+        message = self.client.get(reverse('marketing:new_mailing_message'))
+        self.assertContains(message, 'Toyota')
+        self.assertContains(message, '1')
+
+    def test_brand_search_empty_message_rendered(self):
+        make_request(make_buyer(), brand='Toyota')
+        response = self.client.get(self.url)
+        self.assertContains(response, 'id="brand-search-empty"')
+        self.assertContains(response, 'Марка не найдена')

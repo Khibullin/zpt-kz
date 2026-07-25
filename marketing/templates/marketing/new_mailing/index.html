@@ -72,7 +72,7 @@
         <div class="simple-mailing__brand-grid" id="brand-list">
           {% for brand in brand_options %}
             <label class="simple-mailing__brand-item brand-option"
-                   data-brand-label="{{ brand|lower }}">
+                   data-brand-search="{{ brand|lower }}">
               <input type="checkbox"
                      name="brands"
                      value="{{ brand }}"
@@ -84,6 +84,11 @@
             <p class="simple-mailing__hint">Марки для выбранного типа пока не найдены.</p>
           {% endfor %}
         </div>
+        <p class="simple-mailing__brand-search-empty"
+           id="brand-search-empty"
+           hidden>
+          Марка не найдена
+        </p>
       {% endif %}
     </div>
 
@@ -156,6 +161,8 @@
   var allBrands = document.getElementById('all-brands-checkbox');
   var brandCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.brand-checkbox'));
   var brandSearch = document.getElementById('brand-search');
+  var brandSearchEmpty = document.getElementById('brand-search-empty');
+  var brandOptions = Array.prototype.slice.call(document.querySelectorAll('.brand-option'));
   var recipientRadios = Array.prototype.slice.call(
     document.querySelectorAll('[data-recipient-type-radio]')
   );
@@ -237,14 +244,29 @@
     checkbox.addEventListener('change', onSelectionChanged);
   });
 
-  if (brandSearch) {
-    brandSearch.addEventListener('input', function () {
-      var query = (brandSearch.value || '').trim().toLowerCase();
-      document.querySelectorAll('.brand-option').forEach(function (label) {
-        var text = label.getAttribute('data-brand-label') || '';
-        label.hidden = Boolean(query) && text.indexOf(query) === -1;
-      });
+  function normalizeSearchQuery(value) {
+    return (value || '').trim().toLowerCase();
+  }
+
+  function filterBrandCards() {
+    var query = normalizeSearchQuery(brandSearch ? brandSearch.value : '');
+    var visibleCount = 0;
+    brandOptions.forEach(function (label) {
+      var searchText = label.getAttribute('data-brand-search') || '';
+      var matches = !query || searchText.indexOf(query) !== -1;
+      label.classList.toggle('is-search-hidden', !matches);
+      if (matches) {
+        visibleCount += 1;
+      }
     });
+    if (brandSearchEmpty) {
+      brandSearchEmpty.hidden = !(query && visibleCount === 0);
+    }
+  }
+
+  if (brandSearch) {
+    brandSearch.addEventListener('input', filterBrandCards);
+    brandSearch.addEventListener('search', filterBrandCards);
   }
 
   recipientRadios.forEach(function (radio) {
