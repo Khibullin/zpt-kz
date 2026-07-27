@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
 from marketing.models import MarketingWhatsAppTemplate
+from marketing.services.campaigns.send_settings import marketing_live_whatsapp_send_enabled
 from marketing.services.simple_mailing import (
     RECIPIENT_TYPE_CHOICES,
     RECIPIENT_TYPE_VALUES,
@@ -34,6 +35,12 @@ from marketing.services.simple_mailing.constants import (
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
 )
 from marketing.services.simple_mailing.preview import build_selection_key
+from marketing.services.simple_mailing.draft import ensure_launch_key_in_draft, update_draft_count
+from marketing.services.simple_mailing.launch import (
+    SimpleMailingCountChangedError,
+    SimpleMailingLaunchError,
+    launch_simple_mailing,
+)
 from marketing.services.templates.validation import TemplateValidationError
 from marketing.views import MarketingCabinetMixin
 
@@ -327,6 +334,8 @@ class NewMailingConfirmView(MarketingCabinetMixin, View):
             return redirect('marketing:new_mailing_message')
 
         preview = render_simple_mailing_template_preview(template)
+        launch_key = ensure_launch_key_in_draft(request.session)
+        send_enabled = marketing_live_whatsapp_send_enabled()
         context = {
             **self.get_broadcast_mode_context(),
             **self.get_marketing_send_mode_context(),
@@ -335,8 +344,70 @@ class NewMailingConfirmView(MarketingCabinetMixin, View):
             'current_step': 3,
             'template': template,
             'template_preview': preview,
+            'send_enabled': send_enabled,
+            'launch_key': launch_key,
         }
         return render(request, self.template_name, context)
 
+    def post(self, request):
+        draft = _require_recipient_draft(request)
+        if draft is None:
+            return redirect('marketing:new_mailing')
+
+        if not marketing_live_whatsapp_send_enabled():
+            messages.error(request, 'Отправка отключена. Режим: OFF.')
+            return redirect('marketing:new_mailing_confirm')
+
+        template_id = load_draft_template_id(request.session)
+        if template_id is None:
+            messages.error(request, 'Сначала выберите сообщение.')
+            return redirect('marketing:new_mailing_message')
+
+        template = get_object_or_404(MarketingWhatsAppTemplate, pk=template_id)
+        recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
+        if not template_still_available(template, recipient_type=recipient_type):
+            messages.error(
+                request,
+                'Выбранный шаблон больше недоступен. Выберите другой.',
+            )
+            return redirect('marketing:new_mailing_message')
+
+        launch_key = ensure_launch_key_in_draft(request.session)
+        try:
+            result = launch_simple_mailing(
+                draft=draft,
+                template=template,
+                created_by=request.user,
+                launch_key=launch_key,
+            )
+        except SimpleMailingCountChangedError as exc:
+            update_draft_count(request.session, exc.actual)
+            messages.error(
+                request,
+                (
+                    f'Состав получателей изменился. Было: {exc.expected}. '
+                    f'Сейчас: {exc.actual}. Проверьте рассылку ещё раз.'
+                ),
+            )
+            return redirect('marketing:new_mailing_confirm')
+        except SimpleMailingLaunchError as exc:
+            messages.error(request, str(exc))
+            return redirect('marketing:new_mailing_confirm')
+
+        if result.idempotent_replay:
+            messages.info(
+                request,
+                f'Рассылка уже была создана (run #{result.send_run_id}).',
+            )
+        else:
+            messages.success(
+                request,
+                (
+                    f'Рассылка запущена (run #{result.send_run_id}): '
+                    f'{result.queued_count} сообщений в очереди.'
+                ),
+            )
+        return redirect('marketing:history')
+
     def http_method_not_allowed(self, request, *args, **kwargs):
-        return HttpResponseNotAllowed(['GET'])
+        return HttpResponseNotAllowed(['GET', 'POST'])

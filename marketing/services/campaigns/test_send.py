@@ -145,7 +145,8 @@ def _reserve_test_send_run(
             )
 
             pending_items: list[_PendingSendItem] = []
-            for preview in preflight.recipients:
+            queue_started_at = timezone.now()
+            for position, preview in enumerate(preflight.recipients, start=1):
                 recipient = recipient_by_id[preview.recipient_id]
                 if _recipient_already_sent(campaign.pk, recipient.pk):
                     MarketingCampaignMessage.objects.create(
@@ -157,6 +158,9 @@ def _reserve_test_send_run(
                         variables={},
                         status=MESSAGE_STATUS_SKIPPED,
                         error_message='Already sent in previous run.',
+                        wave_number=1,
+                        position_number=position,
+                        scheduled_at=queue_started_at,
                         attempted_at=timezone.now(),
                     )
                     pending_items.append(
@@ -182,6 +186,9 @@ def _reserve_test_send_run(
                         variables={},
                         status=MESSAGE_STATUS_SKIPPED,
                         error_message=str(exc)[:2000],
+                        wave_number=1,
+                        position_number=position,
+                        scheduled_at=queue_started_at,
                         attempted_at=timezone.now(),
                     )
                     pending_items.append(
@@ -203,6 +210,9 @@ def _reserve_test_send_run(
                     language_code=template.language_code,
                     variables=variables,
                     status=MESSAGE_STATUS_PENDING,
+                    wave_number=1,
+                    position_number=position,
+                    scheduled_at=queue_started_at,
                 )
                 pending_items.append(
                     _PendingSendItem(

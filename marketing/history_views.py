@@ -4,6 +4,7 @@ from django.core.paginator import Paginator
 from django.views.generic import TemplateView
 
 from marketing.models import MarketingCampaignMessage, MarketingCampaignSendRun
+from marketing.services.campaigns.live_simple_waves import get_simple_mailing_wave_display
 from marketing.views import MarketingCabinetMixin
 
 HISTORY_PAGE_SIZE = 25
@@ -39,10 +40,10 @@ class MarketingHistoryView(MarketingCabinetMixin, TemplateView):
             ):
                 messages_by_run.setdefault(message.send_run_id, []).append(message)
 
-        run_entries = [
-            (run, messages_by_run.get(run.pk, []))
-            for run in page_obj.object_list
-        ]
+        run_entries = []
+        for run in page_obj.object_list:
+            wave_info = get_simple_mailing_wave_display(run)
+            run_entries.append((run, messages_by_run.get(run.pk, []), wave_info))
 
         context['page_obj'] = page_obj
         context['run_entries'] = run_entries

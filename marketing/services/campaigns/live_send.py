@@ -22,6 +22,7 @@ from marketing.services.campaigns.send_constants import (
     MESSAGE_STATUS_SKIPPED,
     SEND_MODE_LIVE,
     SEND_RUN_STATUS_QUEUED,
+    WORKFLOW_TYPE_LEGACY,
 )
 from marketing.services.campaigns.send_variables import (
     VariableResolutionError,
@@ -68,6 +69,7 @@ def create_live_send_queue(
                 template=template,
                 mode=SEND_MODE_LIVE,
                 status=SEND_RUN_STATUS_QUEUED,
+                workflow_type=WORKFLOW_TYPE_LEGACY,
                 total_count=0,
                 queued_count=0,
                 sent_count=0,
@@ -80,8 +82,9 @@ def create_live_send_queue(
             queued_count = 0
             skipped_count = 0
             recipient_ids = {item.recipient_id for item in preflight.recipients}
+            queue_started_at = timezone.now()
 
-            for preview in preflight.recipients:
+            for position, preview in enumerate(preflight.recipients, start=1):
                 recipient = campaign.recipients.get(pk=preview.recipient_id)
                 if recipient.pk not in recipient_ids:
                     raise LiveSendValidationError(
@@ -99,6 +102,9 @@ def create_live_send_queue(
                         status=MESSAGE_STATUS_SKIPPED,
                         error_code='already_sent',
                         error_message='Already sent in previous LIVE run.',
+                        wave_number=1,
+                        position_number=position,
+                        scheduled_at=queue_started_at,
                         attempted_at=timezone.now(),
                     )
                     skipped_count += 1
@@ -115,6 +121,9 @@ def create_live_send_queue(
                         status=MESSAGE_STATUS_SKIPPED,
                         error_code='already_queued',
                         error_message='Already queued in another LIVE run.',
+                        wave_number=1,
+                        position_number=position,
+                        scheduled_at=queue_started_at,
                         attempted_at=timezone.now(),
                     )
                     skipped_count += 1
@@ -132,6 +141,9 @@ def create_live_send_queue(
                         status=MESSAGE_STATUS_SKIPPED,
                         error_code=_skip_reason_to_error_code(skip_reason),
                         error_message=skip_reason,
+                        wave_number=1,
+                        position_number=position,
+                        scheduled_at=queue_started_at,
                         attempted_at=timezone.now(),
                     )
                     skipped_count += 1
@@ -150,6 +162,9 @@ def create_live_send_queue(
                         status=MESSAGE_STATUS_SKIPPED,
                         error_code='missing_variable',
                         error_message=str(exc)[:2000],
+                        wave_number=1,
+                        position_number=position,
+                        scheduled_at=queue_started_at,
                         attempted_at=timezone.now(),
                     )
                     skipped_count += 1
@@ -163,6 +178,9 @@ def create_live_send_queue(
                     language_code=template.language_code,
                     variables=variables,
                     status=MESSAGE_STATUS_QUEUED,
+                    wave_number=1,
+                    position_number=position,
+                    scheduled_at=queue_started_at,
                 )
                 queued_count += 1
 

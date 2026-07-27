@@ -17,7 +17,7 @@
   {% endif %}
 
   {% if page_obj.object_list %}
-    {% for run, run_messages in run_entries %}
+    {% for run, run_messages, wave_info in run_entries %}
       <article class="marketing-history-run">
         <div class="marketing-page-header marketing-page-header--compact">
           <h2 class="marketing-section-title">
@@ -37,6 +37,12 @@
           <dt>Создано</dt><dd>{{ run.created_at|date:'d.m.Y H:i' }}</dd>
           <dt>Начато</dt><dd>{% if run.started_at %}{{ run.started_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
           <dt>Завершено</dt><dd>{% if run.finished_at %}{{ run.finished_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+          {% if wave_info %}
+            <dt>Волны</dt>
+            <dd>{{ wave_info.current_wave }} из {{ wave_info.total_waves }}</dd>
+            <dt>Следующая волна не ранее</dt>
+            <dd>{{ wave_info.next_not_before|date:'d.m.Y H:i' }}</dd>
+          {% endif %}
         </dl>
 
         <div class="marketing-table-wrap">

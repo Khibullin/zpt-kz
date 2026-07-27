@@ -8,6 +8,7 @@ from django.db import IntegrityError
 from django.db.models.deletion import ProtectedError
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+from django.utils import timezone
 
 from core.models import (
     CONTACT_CONSENT_STATUS_GRANTED,
@@ -848,6 +849,9 @@ class MarketingCampaignSendRunProtectTests(TestCase):
             language_code=template.language_code,
             variables={},
             status=MESSAGE_STATUS_SENT,
+            wave_number=1,
+            position_number=1,
+            scheduled_at=timezone.now(),
         )
         campaign_id = campaign.pk
         send_run_id = send_run.pk

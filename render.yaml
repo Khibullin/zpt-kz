@@ -12,3 +12,10 @@ services:
 
   # zpt-kz-dispatch-worker cron is managed manually in Render Dashboard (schedule: * * * * *).
   # Do not add a cron service here — Blueprint would create a duplicate worker.
+  #
+  # Marketing LIVE processor (after deploy, add manually in Render Dashboard):
+  #   Name: zpt-kz-marketing-live-processor
+  #   Type: Cron Job
+  #   Schedule: * * * * *
+  #   Command: python manage.py process_marketing_live_sends
+  #   Note: safe while MARKETING_WHATSAPP_SEND_MODE=OFF (command exits immediately).

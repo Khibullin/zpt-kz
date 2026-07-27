@@ -10,6 +10,10 @@ from django.utils import timezone
 from core.whatsapp_template_sender import send_whatsapp_template_message, wa_template_param
 from marketing.models import MarketingCampaignMessage, MarketingCampaignSendRun
 from marketing.services.campaigns.live_consent import recheck_live_recipient_consent
+from marketing.services.campaigns.live_simple_waves import (
+    find_active_simple_mailing_run,
+    get_next_eligible_simple_mailing_wave,
+)
 from marketing.services.campaigns.send_constants import (
     ERROR_CODE_DELIVERY_UNKNOWN,
     MESSAGE_STATUS_CANCELLED,
@@ -25,14 +29,21 @@ from marketing.services.campaigns.send_constants import (
     SEND_RUN_STATUS_PARTIAL,
     SEND_RUN_STATUS_QUEUED,
     SEND_RUN_STATUS_RUNNING,
+    SEND_RUN_TERMINAL_STATUSES,
+    WORKFLOW_TYPE_LEGACY,
+    WORKFLOW_TYPE_SIMPLE_MAILING,
 )
 from marketing.services.campaigns.send_settings import (
     get_marketing_live_batch_size,
     get_marketing_live_send_interval_seconds,
     marketing_live_whatsapp_send_enabled,
 )
+from marketing.services.campaigns.send_variables import (
+    VariableResolutionError,
+    resolve_template_variables_for_recipient,
+)
 from marketing.services.campaigns.test_send import _extract_meta_error
-
+from marketing.services.simple_mailing.consent import recheck_simple_mailing_recipient
 from marketing.services.templates.constants import META_STATUS_APPROVED
 
 logger = logging.getLogger(__name__)
@@ -55,42 +66,97 @@ def _build_body_parameters(template, variables: dict) -> list:
     return parameters
 
 
-def _reserve_queued_messages(limit: int) -> list[int]:
+def _mark_run_running(send_run: MarketingCampaignSendRun) -> None:
+    if send_run.status == SEND_RUN_STATUS_QUEUED:
+        send_run.status = SEND_RUN_STATUS_RUNNING
+        send_run.save(update_fields=['status'])
+
+
+def _reserve_message_batch(base_qs, *, limit: int) -> list[int]:
     message_ids: list[int] = []
     with transaction.atomic():
-        base_qs = MarketingCampaignMessage.objects.filter(
-            status=MESSAGE_STATUS_QUEUED,
-            send_run__mode=SEND_MODE_LIVE,
-            send_run__status__in=[SEND_RUN_STATUS_QUEUED, SEND_RUN_STATUS_RUNNING],
-        ).order_by('id')[:limit]
+        queryset = base_qs[:limit]
         try:
-            queryset = base_qs.select_for_update(skip_locked=True)
-            messages = list(queryset)
+            locked = queryset.select_for_update(skip_locked=True)
+            messages = list(locked)
         except DatabaseError:
-            queryset = base_qs.select_for_update()
-            messages = list(queryset)
+            locked = queryset.select_for_update()
+            messages = list(locked)
         for message in messages:
             message.status = MESSAGE_STATUS_PROCESSING
             message.attempted_at = timezone.now()
             message.save(update_fields=['status', 'attempted_at'])
             message_ids.append(message.pk)
-            run = message.send_run
-            if run.status == SEND_RUN_STATUS_QUEUED:
-                run.status = SEND_RUN_STATUS_RUNNING
-                run.save(update_fields=['status'])
+            _mark_run_running(message.send_run)
     return message_ids
+
+
+def _reserve_simple_mailing_messages(limit: int) -> list[int]:
+    send_run = find_active_simple_mailing_run()
+    if send_run is None:
+        return []
+    eligible_wave = get_next_eligible_simple_mailing_wave(send_run)
+    if eligible_wave is None:
+        return []
+
+    base_qs = (
+        MarketingCampaignMessage.objects.filter(
+            status=MESSAGE_STATUS_QUEUED,
+            send_run=send_run,
+            send_run__mode=SEND_MODE_LIVE,
+            send_run__workflow_type=WORKFLOW_TYPE_SIMPLE_MAILING,
+            send_run__status__in=[SEND_RUN_STATUS_QUEUED, SEND_RUN_STATUS_RUNNING],
+            wave_number=eligible_wave,
+        )
+        .select_related('send_run')
+        .order_by('position_number', 'id')
+    )
+    return _reserve_message_batch(base_qs, limit=limit)
+
+
+def _reserve_legacy_queued_messages(limit: int) -> list[int]:
+    base_qs = MarketingCampaignMessage.objects.filter(
+        status=MESSAGE_STATUS_QUEUED,
+        send_run__mode=SEND_MODE_LIVE,
+        send_run__workflow_type=WORKFLOW_TYPE_LEGACY,
+        send_run__status__in=[SEND_RUN_STATUS_QUEUED, SEND_RUN_STATUS_RUNNING],
+    ).select_related('send_run').order_by('id')
+    return _reserve_message_batch(base_qs, limit=limit)
+
+
+def _reserve_queued_messages(limit: int) -> list[int]:
+    message_ids = _reserve_simple_mailing_messages(limit)
+    remaining = limit - len(message_ids)
+    if remaining > 0:
+        message_ids.extend(_reserve_legacy_queued_messages(remaining))
+    return message_ids
+
+
+def _clear_simple_mailing_lock(send_run: MarketingCampaignSendRun) -> None:
+    if (
+        send_run.workflow_type == WORKFLOW_TYPE_SIMPLE_MAILING
+        and send_run.active_simple_mailing_lock is not None
+    ):
+        send_run.active_simple_mailing_lock = None
 
 
 def _finalize_send_run(send_run_id: int) -> None:
     with transaction.atomic():
         send_run = MarketingCampaignSendRun.objects.select_for_update().get(pk=send_run_id)
         if send_run.status == SEND_RUN_STATUS_CANCELLED:
+            _clear_simple_mailing_lock(send_run)
+            send_run.save(update_fields=['active_simple_mailing_lock'])
             return
         counts = {
             'queued': send_run.messages.filter(status=MESSAGE_STATUS_QUEUED).count(),
             'processing': send_run.messages.filter(status=MESSAGE_STATUS_PROCESSING).count(),
         }
         if counts['queued'] or counts['processing']:
+            return
+
+        if send_run.status in SEND_RUN_TERMINAL_STATUSES:
+            _clear_simple_mailing_lock(send_run)
+            send_run.save(update_fields=['active_simple_mailing_lock'])
             return
 
         sent_count = send_run.messages.filter(status=MESSAGE_STATUS_SENT).count()
@@ -112,6 +178,7 @@ def _finalize_send_run(send_run_id: int) -> None:
 
         send_run.status = final_status
         send_run.finished_at = timezone.now()
+        _clear_simple_mailing_lock(send_run)
         send_run.save(update_fields=[
             'sent_count',
             'failed_count',
@@ -119,6 +186,7 @@ def _finalize_send_run(send_run_id: int) -> None:
             'queued_count',
             'status',
             'finished_at',
+            'active_simple_mailing_lock',
         ])
 
 
@@ -141,6 +209,7 @@ def _process_single_message(
     send_run = message.send_run
     template = send_run.template
     campaign = send_run.campaign
+    recipient = message.campaign_recipient
 
     if send_run.status == SEND_RUN_STATUS_CANCELLED:
         message.status = MESSAGE_STATUS_CANCELLED
@@ -155,7 +224,10 @@ def _process_single_message(
         message.save(update_fields=['status', 'error_code', 'error_message'])
         return MESSAGE_STATUS_SKIPPED
 
-    live_ok, skip_reason = recheck_live_recipient_consent(message.campaign_recipient)
+    if send_run.workflow_type == WORKFLOW_TYPE_SIMPLE_MAILING:
+        live_ok, skip_reason = recheck_simple_mailing_recipient(recipient)
+    else:
+        live_ok, skip_reason = recheck_live_recipient_consent(recipient)
     if not live_ok:
         message.status = MESSAGE_STATUS_SKIPPED
         message.error_code = skip_reason
@@ -163,7 +235,19 @@ def _process_single_message(
         message.save(update_fields=['status', 'error_code', 'error_message'])
         return MESSAGE_STATUS_SKIPPED
 
-    body_parameters = _build_body_parameters(template, message.variables)
+    if send_run.workflow_type == WORKFLOW_TYPE_SIMPLE_MAILING:
+        try:
+            variables = resolve_template_variables_for_recipient(template, recipient)
+        except VariableResolutionError as exc:
+            message.status = MESSAGE_STATUS_SKIPPED
+            message.error_code = 'missing_variable'
+            message.error_message = str(exc)[:2000]
+            message.save(update_fields=['status', 'error_code', 'error_message'])
+            return MESSAGE_STATUS_SKIPPED
+        body_parameters = _build_body_parameters(template, variables)
+    else:
+        body_parameters = _build_body_parameters(template, message.variables)
+
     try:
         result = send_callable(
             message.phone_normalized,
@@ -299,7 +383,7 @@ def mark_stuck_live_processing_as_delivery_unknown(
     run_ids = list(queryset.values_list('send_run_id', flat=True).distinct())
     updated = queryset.update(
         status=MESSAGE_STATUS_FAILED,
-        error_code=ERROR_CODE_DELIVERY_UNKNOWN,
+        error_code='delivery_unknown',
         error_message='Processing interrupted — manual review required.',
     )
     for run_id in run_ids:
@@ -318,7 +402,13 @@ def cancel_live_send_run(send_run_id: int) -> None:
         send_run.status = SEND_RUN_STATUS_CANCELLED
         send_run.finished_at = timezone.now()
         send_run.queued_count = 0
-        send_run.save(update_fields=['status', 'finished_at', 'queued_count'])
+        _clear_simple_mailing_lock(send_run)
+        send_run.save(update_fields=[
+            'status',
+            'finished_at',
+            'queued_count',
+            'active_simple_mailing_lock',
+        ])
         send_run.messages.filter(status=MESSAGE_STATUS_QUEUED).update(
             status=MESSAGE_STATUS_CANCELLED,
             error_message='Run cancelled before send.',

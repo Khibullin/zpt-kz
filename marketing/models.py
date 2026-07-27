@@ -24,6 +24,7 @@ from marketing.services.campaigns.constants import (
     STATUS_DRAFT,
 )
 from marketing.services.campaigns.send_constants import (
+    ACTIVE_SIMPLE_MAILING_LOCK_VALUE,
     MESSAGE_STATUS_CHOICES,
     MESSAGE_STATUS_PENDING,
     SEND_MODE_LIVE,
@@ -32,6 +33,8 @@ from marketing.services.campaigns.send_constants import (
     SEND_RUN_STATUS_PENDING,
     SEND_RUN_STATUS_QUEUED,
     SEND_RUN_STATUS_RUNNING,
+    WORKFLOW_TYPE_CHOICES,
+    WORKFLOW_TYPE_LEGACY,
 )
 from marketing.services.templates.constants import (
     CATEGORY_MARKETING,
@@ -568,6 +571,24 @@ class MarketingCampaignSendRun(models.Model):
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     started_at = models.DateTimeField(null=True, blank=True, verbose_name='Начат')
     finished_at = models.DateTimeField(null=True, blank=True, verbose_name='Завершён')
+    workflow_type = models.CharField(
+        max_length=32,
+        choices=WORKFLOW_TYPE_CHOICES,
+        default=WORKFLOW_TYPE_LEGACY,
+        verbose_name='Тип workflow',
+    )
+    simple_mailing_key = models.UUIDField(
+        null=True,
+        blank=True,
+        unique=True,
+        verbose_name='Ключ idempotency simple mailing',
+    )
+    active_simple_mailing_lock = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        default=None,
+        verbose_name='Блокировка active simple mailing',
+    )
 
     class Meta:
         verbose_name = 'Запуск отправки кампании'
@@ -591,6 +612,11 @@ class MarketingCampaignSendRun(models.Model):
                     )
                 ),
                 name='uniq_active_live_run_per_campaign',
+            ),
+            models.UniqueConstraint(
+                fields=('active_simple_mailing_lock',),
+                condition=models.Q(active_simple_mailing_lock=ACTIVE_SIMPLE_MAILING_LOCK_VALUE),
+                name='uniq_active_simple_mailing_lock',
             ),
         ]
         indexes = [
@@ -635,6 +661,9 @@ class MarketingCampaignMessage(models.Model):
     attempted_at = models.DateTimeField(null=True, blank=True, verbose_name='Попытка')
     sent_at = models.DateTimeField(null=True, blank=True, verbose_name='Отправлено')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    wave_number = models.PositiveIntegerField(default=1, verbose_name='Номер волны')
+    position_number = models.PositiveIntegerField(default=1, verbose_name='Позиция в snapshot')
+    scheduled_at = models.DateTimeField(verbose_name='Не раньше')
 
     class Meta:
         verbose_name = 'Сообщение кампании'
@@ -645,9 +674,15 @@ class MarketingCampaignMessage(models.Model):
                 fields=('send_run', 'campaign_recipient'),
                 name='marketing_campaign_message_unique_recipient_run',
             ),
+            models.UniqueConstraint(
+                fields=('send_run', 'position_number'),
+                name='marketing_campaign_message_unique_position_run',
+            ),
         ]
         indexes = [
             models.Index(fields=['send_run', 'status'], name='marketing_msg_run_status'),
+            models.Index(fields=['status', 'scheduled_at'], name='marketing_msg_due_queue'),
+            models.Index(fields=['send_run', 'wave_number'], name='marketing_msg_run_wave'),
         ]
 
     def __str__(self) -> str:

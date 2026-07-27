@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import uuid
+
 from marketing.services.simple_mailing.constants import SESSION_DRAFT_KEY
 
 
@@ -41,3 +43,23 @@ def load_draft_template_id(session) -> int | None:
         return int(template_id)
     except (TypeError, ValueError):
         return None
+
+
+def ensure_launch_key_in_draft(session) -> str:
+    draft = load_simple_mailing_draft(session)
+    if not draft:
+        raise ValueError('Simple mailing draft is missing.')
+    launch_key = draft.get('launch_key')
+    if not launch_key:
+        launch_key = str(uuid.uuid4())
+        draft['launch_key'] = launch_key
+        save_simple_mailing_draft(session, draft)
+    return str(launch_key)
+
+
+def update_draft_count(session, count: int) -> None:
+    draft = load_simple_mailing_draft(session)
+    if not draft:
+        return
+    draft['count'] = count
+    save_simple_mailing_draft(session, draft)
