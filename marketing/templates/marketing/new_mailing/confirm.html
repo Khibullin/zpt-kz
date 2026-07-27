@@ -1,0 +1,42 @@
+{% extends 'marketing/base.html' %}
+
+{% block title %}Проверка рассылки — ZPT.KZ{% endblock %}
+
+{% block content %}
+<section class="marketing-section simple-mailing">
+  <h1 class="marketing-page-title">Проверка рассылки</h1>
+
+  {% include 'marketing/new_mailing/_step_indicator.html' %}
+
+  {% if messages %}
+    <ul class="marketing-messages">
+      {% for message in messages %}
+        <li class="marketing-message marketing-message--{{ message.tags }}">{{ message }}</li>
+      {% endfor %}
+    </ul>
+  {% endif %}
+
+  <div class="simple-mailing__card">
+    <dl class="simple-mailing__summary simple-mailing__summary--confirm">
+      <div><dt>Кому</dt><dd>{{ recipient_type_label }}</dd></div>
+      <div><dt>Марки</dt><dd>{{ brands_label }}</dd></div>
+      <div><dt>Получателей</dt><dd>{{ recipient_count }}</dd></div>
+      <div><dt>Сообщение</dt><dd>{{ template.name }}</dd></div>
+    </dl>
+
+    <div class="simple-mailing__confirm-preview">
+      <h2 class="simple-mailing__card-title">Текст</h2>
+      {% include 'marketing/templates/_preview.html' with preview=template_preview %}
+    </div>
+
+    <p class="simple-mailing__future-note">
+      Отправка будет подключена на следующем этапе.
+    </p>
+
+    <div class="marketing-form-actions simple-mailing__actions">
+      <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:new_mailing_message' %}">Назад к сообщению</a>
+      <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:new_mailing' %}">Изменить получателей</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

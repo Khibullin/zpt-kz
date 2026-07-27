@@ -8,15 +8,39 @@ from django.urls import reverse
 
 from core.models import Brand, Country, Request, Seller
 from core.services.buyer_contact_service import rebuild_buyer_contact
-from marketing.models import MarketingAudience, MarketingCampaign, MarketingCampaignSendRun
+from marketing.models import (
+    MarketingAudience,
+    MarketingCampaign,
+    MarketingCampaignMessage,
+    MarketingCampaignSendRun,
+    MarketingWhatsAppTemplate,
+)
+from marketing.services.campaigns.constants import (
+    PURPOSE_COMBINED_SELLERS,
+    PURPOSE_MARKETPLACE_BUYERS,
+    PURPOSE_PARTS_BUYERS,
+    PURPOSE_REQUEST_SELLERS,
+)
+from marketing.services.campaigns.send_constants import (
+    FORBIDDEN_SAMPLE_ACCESS_TOKEN,
+    VARIABLE_KEY_REQUEST_HISTORY_URL,
+)
 from marketing.services.simple_mailing import (
     MARKETPLACE_BRAND_FILTER_AVAILABLE,
     RECIPIENT_TYPE_MARKETPLACE_BUYERS,
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
     RECIPIENT_TYPE_SELLERS,
+    load_simple_mailing_draft,
+    recipient_type_to_campaign_purpose,
+    render_simple_mailing_template_preview,
     resolve_simple_mailing_recipients,
-    validate_brand_selection,
 )
+from marketing.services.templates.constants import (
+    META_STATUS_APPROVED,
+    META_STATUS_DRAFT,
+    META_STATUS_PENDING,
+)
+from marketing.tests.test_marketing_templates import make_template
 from core.services.buyer_contact_utils import normalize_buyer_text
 from marketing.services.simple_mailing.brands import (
     SimpleMailingValidationError,
@@ -430,7 +454,7 @@ class SimpleMailingViewTests(TestCase):
         )
         response = self.client.get(reverse('marketing:new_mailing_message'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Группа получателей подготовлена')
+        self.assertContains(response, '2. Выберите сообщение')
         self.assertContains(response, 'Toyota')
 
     def test_unauthorized_blocked(self):
@@ -618,3 +642,402 @@ class SimpleMailingBrandSearchTests(TestCase):
         response = self.client.get(self.url)
         self.assertContains(response, 'id="brand-search-empty"')
         self.assertContains(response, 'Марка не найдена')
+
+
+class SimpleMailingTemplateSelectionTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user('marketer-template', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='marketer-template', password='secret')
+        self.new_mailing_url = reverse('marketing:new_mailing')
+        self.message_url = reverse('marketing:new_mailing_message')
+        self.confirm_url = reverse('marketing:new_mailing_confirm')
+
+    def _prepare_parts_buyers_draft(self, *, brand: str = 'Toyota') -> None:
+        buyer = make_buyer()
+        make_request(buyer, brand=brand)
+        preview = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': [brand],
+            },
+        )
+        self.assertEqual(preview.status_code, 200)
+        continue_response = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'brands': [brand],
+            },
+        )
+        self.assertEqual(continue_response.status_code, 302)
+
+    def _make_parts_buyer_template(self, **kwargs) -> MarketingWhatsAppTemplate:
+        defaults = {
+            'name': 'Информация о возможностях ZPT.KZ для покупателей',
+            'meta_template_name': 'zpt_buyer_platform_info',
+            'allowed_purposes': [PURPOSE_PARTS_BUYERS],
+            'body_text': (
+                'Уважаемый покупатель!\n'
+                'Спасибо, что воспользовались ZPT.KZ.\n'
+                'История заявок: {{request_history_url}}'
+            ),
+            'variables': [{
+                'key': VARIABLE_KEY_REQUEST_HISTORY_URL,
+                'label': 'История заявок',
+                'required': True,
+                'example': 'https://zpt.kz/my-requests/example/',
+            }],
+        }
+        defaults.update(kwargs)
+        return make_template(self.user, **defaults)
+
+    def test_message_without_recipient_draft_redirects(self):
+        response = self.client.get(self.message_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.new_mailing_url)
+
+    def test_compatible_active_approved_template_displayed(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, template.name)
+        self.assertContains(response, 'Уважаемый покупатель!')
+
+    def test_inactive_template_not_displayed(self):
+        template = self._make_parts_buyer_template(is_active=False)
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertNotContains(response, template.name)
+
+    def test_non_approved_template_not_displayed(self):
+        template = self._make_parts_buyer_template(meta_status=META_STATUS_PENDING)
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertNotContains(response, template.name)
+
+    def test_incompatible_purpose_template_not_displayed(self):
+        template = make_template(
+            self.user,
+            name='Seller outreach',
+            allowed_purposes=[PURPOSE_REQUEST_SELLERS],
+        )
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertNotContains(response, template.name)
+
+    def test_reserved_service_template_not_displayed(self):
+        template = MarketingWhatsAppTemplate(
+            name='Service receipt',
+            meta_template_name='zpt_buyer_request_receipt',
+            language_code='ru',
+            meta_status=META_STATUS_APPROVED,
+            is_active=True,
+            allowed_purposes=[PURPOSE_PARTS_BUYERS],
+            body_text='Service body',
+            created_by=self.user,
+        )
+        MarketingWhatsAppTemplate.objects.bulk_create([template])
+        template = MarketingWhatsAppTemplate.objects.get(name='Service receipt')
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertNotContains(response, template.name)
+
+    def test_manipulated_incompatible_template_id_rejected(self):
+        seller_template = make_template(
+            self.user,
+            name='Seller only template',
+            allowed_purposes=[PURPOSE_REQUEST_SELLERS],
+        )
+        self._prepare_parts_buyers_draft()
+        response = self.client.post(
+            self.message_url,
+            {'template_id': seller_template.pk},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.message_url)
+        draft = load_simple_mailing_draft(self.client.session)
+        self.assertNotIn('template_id', draft or {})
+
+    def test_valid_template_selection_saves_template_id(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        response = self.client.post(
+            self.message_url,
+            {'template_id': template.pk},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.confirm_url)
+        draft = load_simple_mailing_draft(self.client.session)
+        self.assertEqual(draft['template_id'], template.pk)
+        self.assertEqual(draft['count'], 1)
+        self.assertEqual(draft['brands'], ['Toyota'])
+
+    def test_template_body_not_used_from_post(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.post(
+            self.message_url,
+            {
+                'template_id': template.pk,
+                'body_text': 'Injected body from POST',
+            },
+        )
+        template.body_text = 'Updated body in database'
+        template.save(update_fields=['body_text'])
+        response = self.client.get(self.confirm_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Updated body in database')
+        self.assertNotContains(response, 'Injected body from POST')
+
+    def test_confirm_rereads_template_from_db(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.post(self.message_url, {'template_id': template.pk})
+        template.name = 'Renamed template title'
+        template.save(update_fields=['name'])
+        response = self.client.get(self.confirm_url)
+        self.assertContains(response, 'Renamed template title')
+
+    def test_template_becoming_inactive_before_confirm_rejected(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.post(self.message_url, {'template_id': template.pk})
+        template.is_active = False
+        template.save(update_fields=['is_active'])
+        response = self.client.get(self.confirm_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.message_url)
+
+    def test_template_losing_approved_before_confirm_rejected(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.post(self.message_url, {'template_id': template.pk})
+        template.meta_status = META_STATUS_DRAFT
+        template.save(update_fields=['meta_status'])
+        response = self.client.get(self.confirm_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.message_url)
+
+    def test_no_compatible_templates_empty_state(self):
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Для выбранной группы пока нет доступных WhatsApp-шаблонов.')
+        self.assertContains(response, reverse('marketing:templates'))
+        self.assertContains(response, 'id="continue-to-confirm-button"', count=0)
+
+    def test_continue_disabled_without_selection_render_contract(self):
+        self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertContains(response, 'id="continue-to-confirm-button"')
+        self.assertContains(response, 'disabled')
+
+    def test_zpt_buyer_platform_info_compatible_with_parts_buyers(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.message_url)
+        self.assertContains(response, template.name)
+        self.assertContains(response, 'zpt_buyer_platform_info', count=0)
+
+    def test_variables_preview_safe(self):
+        template = self._make_parts_buyer_template()
+        preview = render_simple_mailing_template_preview(template)
+        self.assertIn('https://zpt.kz/my-requests/example/', preview['body'])
+
+    def test_fake_uuid_not_shown_as_real_recipient_url(self):
+        template = self._make_parts_buyer_template(
+            variables=[{
+                'key': VARIABLE_KEY_REQUEST_HISTORY_URL,
+                'label': 'История заявок',
+                'required': True,
+                'example': f'https://zpt.kz/my-requests/{FORBIDDEN_SAMPLE_ACCESS_TOKEN}/',
+            }],
+        )
+        preview = render_simple_mailing_template_preview(template)
+        self.assertIn('[Персональная ссылка на историю заявок]', preview['body'])
+        self.assertNotIn(FORBIDDEN_SAMPLE_ACCESS_TOKEN, preview['body'])
+
+    def test_get_post_do_not_create_campaign_entities(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.get(self.message_url)
+        self.client.post(self.message_url, {'template_id': template.pk})
+        self.client.get(self.confirm_url)
+        self.assertEqual(MarketingAudience.objects.count(), 0)
+        self.assertEqual(MarketingCampaign.objects.count(), 0)
+        self.assertEqual(MarketingCampaignSendRun.objects.count(), 0)
+        self.assertEqual(MarketingCampaignMessage.objects.count(), 0)
+
+    @mock.patch('core.whatsapp_template_sender.send_whatsapp_template_message')
+    def test_meta_mock_call_count_zero(self, send_mock):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.get(self.message_url)
+        self.client.post(self.message_url, {'template_id': template.pk})
+        self.client.get(self.confirm_url)
+        self.assertEqual(send_mock.call_count, 0)
+
+    def test_recipient_draft_count_preserved(self):
+        template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        self.client.post(self.message_url, {'template_id': template.pk})
+        draft = load_simple_mailing_draft(self.client.session)
+        self.assertEqual(draft['count'], 1)
+        self.assertEqual(draft['recipient_type'], RECIPIENT_TYPE_PARTS_REQUEST_BUYERS)
+
+    def test_seller_page_without_seller_template_does_not_crash(self):
+        Seller.objects.create(
+            name='Seller',
+            whatsapp=next_phone(),
+            transport_type='car',
+            city='Алматы',
+            is_active=True,
+            brand='Toyota',
+        )
+        preview = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(preview.status_code, 200)
+        self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'all_brands': '1',
+            },
+        )
+        response = self.client.get(self.message_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Для выбранной группы пока нет доступных WhatsApp-шаблонов.')
+
+    def _set_draft(self, draft: dict) -> None:
+        session = self.client.session
+        session['marketing_simple_mailing_draft'] = draft
+        session.save()
+
+    def test_marketplace_page_without_compatible_template_does_not_crash(self):
+        make_template(
+            self.user,
+            name='Parts buyers only',
+            allowed_purposes=[PURPOSE_PARTS_BUYERS],
+        )
+        self._set_draft({
+            'recipient_type': RECIPIENT_TYPE_MARKETPLACE_BUYERS,
+            'all_brands': True,
+            'brands': [],
+            'count': 3,
+        })
+        response = self.client.get(self.message_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Для выбранной группы пока нет доступных WhatsApp-шаблонов.')
+
+    def test_confirm_without_template_redirects_to_message(self):
+        self._prepare_parts_buyers_draft()
+        response = self.client.get(self.confirm_url)
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, self.message_url)
+
+    def test_sellers_maps_to_request_sellers_purpose_only(self):
+        self.assertEqual(
+            recipient_type_to_campaign_purpose(RECIPIENT_TYPE_SELLERS),
+            PURPOSE_REQUEST_SELLERS,
+        )
+
+    def test_combined_sellers_only_template_not_shown_for_sellers(self):
+        combined_template = make_template(
+            self.user,
+            name='Combined sellers outreach',
+            allowed_purposes=[PURPOSE_COMBINED_SELLERS],
+        )
+        request_sellers_template = make_template(
+            self.user,
+            name='Request sellers outreach',
+            meta_template_name='zpt_request_sellers_only',
+            allowed_purposes=[PURPOSE_REQUEST_SELLERS],
+        )
+        Seller.objects.create(
+            name='Seller',
+            whatsapp=next_phone(),
+            transport_type='car',
+            city='Алматы',
+            is_active=True,
+            brand='Toyota',
+        )
+        preview = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(preview.status_code, 200)
+        continue_response = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(continue_response.status_code, 302)
+        response = self.client.get(self.message_url)
+        self.assertNotContains(response, combined_template.name)
+        self.assertContains(response, request_sellers_template.name)
+
+    def test_template_id_cleared_when_recipient_draft_recreated(self):
+        buyer_template = self._make_parts_buyer_template()
+        self._prepare_parts_buyers_draft()
+        select_response = self.client.post(
+            self.message_url,
+            {'template_id': buyer_template.pk},
+        )
+        self.assertEqual(select_response.status_code, 302)
+        draft = load_simple_mailing_draft(self.client.session)
+        self.assertEqual(draft['template_id'], buyer_template.pk)
+
+        Seller.objects.create(
+            name='Seller',
+            whatsapp=next_phone(),
+            transport_type='car',
+            city='Алматы',
+            is_active=True,
+            brand='Toyota',
+        )
+        preview = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'preview',
+                'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(preview.status_code, 200)
+        continue_response = self.client.post(
+            self.new_mailing_url,
+            {
+                'action': 'continue',
+                'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'all_brands': '1',
+            },
+        )
+        self.assertEqual(continue_response.status_code, 302)
+        draft = load_simple_mailing_draft(self.client.session)
+        self.assertEqual(draft['recipient_type'], RECIPIENT_TYPE_SELLERS)
+        self.assertNotIn('template_id', draft)
+
+        confirm_response = self.client.get(self.confirm_url)
+        self.assertEqual(confirm_response.status_code, 302)
+        self.assertEqual(confirm_response.url, self.message_url)

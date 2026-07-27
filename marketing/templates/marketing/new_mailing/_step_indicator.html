@@ -1,0 +1,14 @@
+<ol class="simple-mailing__steps" aria-label="Этапы новой рассылки">
+  <li class="simple-mailing__step{% if current_step > 1 %} is-complete{% endif %}{% if current_step == 1 %} is-current{% endif %}">
+    <span class="simple-mailing__step-marker">{% if current_step > 1 %}✓{% else %}1{% endif %}</span>
+    <span class="simple-mailing__step-label">Получатели</span>
+  </li>
+  <li class="simple-mailing__step{% if current_step > 2 %} is-complete{% endif %}{% if current_step == 2 %} is-current{% endif %}">
+    <span class="simple-mailing__step-marker">{% if current_step > 2 %}✓{% else %}2{% endif %}</span>
+    <span class="simple-mailing__step-label">Сообщение</span>
+  </li>
+  <li class="simple-mailing__step{% if current_step == 3 %} is-current{% endif %}">
+    <span class="simple-mailing__step-marker">3</span>
+    <span class="simple-mailing__step-label">Проверка</span>
+  </li>
+</ol>

@@ -42,18 +42,11 @@ def compatible_templates_for_purpose(purpose: str):
         is_active=True,
         meta_status=META_STATUS_APPROVED,
     ).order_by('name')
-    if purpose == PURPOSE_TEST_CAMPAIGN:
-        template_ids = [
-            template.pk
-            for template in queryset
-            if template.allow_test_campaign
-        ]
-    else:
-        template_ids = [
-            template.pk
-            for template in queryset
-            if purpose in template.allowed_purposes
-        ]
+    template_ids = [
+        template.pk
+        for template in queryset
+        if template_is_compatible_with_campaign(template, purpose=purpose)
+    ]
     return MarketingWhatsAppTemplate.objects.filter(pk__in=template_ids).order_by('name')
 
 

@@ -2,23 +2,30 @@ from __future__ import annotations
 
 from django.contrib import messages
 from django.http import HttpResponseNotAllowed
-from django.shortcuts import redirect, render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.views import View
 
+from marketing.models import MarketingWhatsAppTemplate
 from marketing.services.simple_mailing import (
     RECIPIENT_TYPE_CHOICES,
     RECIPIENT_TYPE_VALUES,
     SimpleMailingValidationError,
+    build_template_cards,
     clear_preview_state,
     get_available_brands,
     has_brand_selection,
+    load_draft_template_id,
     load_simple_mailing_draft,
     marketplace_brand_filter_enabled,
     normalize_brand_selection,
     preview_matches,
+    render_simple_mailing_template_preview,
+    resolve_selected_template,
     resolve_simple_mailing_recipients,
     save_preview_state,
     save_simple_mailing_draft,
+    save_template_to_draft,
+    template_still_available,
     validate_brand_selection,
 )
 from marketing.services.simple_mailing.constants import (
@@ -27,9 +34,34 @@ from marketing.services.simple_mailing.constants import (
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
 )
 from marketing.services.simple_mailing.preview import build_selection_key
+from marketing.services.templates.validation import TemplateValidationError
 from marketing.views import MarketingCabinetMixin
 
 DEFAULT_RECIPIENT_TYPE = RECIPIENT_TYPE_PARTS_REQUEST_BUYERS
+
+
+def _draft_summary_context(draft: dict) -> dict:
+    recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
+    type_labels = dict(RECIPIENT_TYPE_CHOICES)
+    brands_label = 'Все марки'
+    if not draft.get('all_brands'):
+        brands = draft.get('brands') or []
+        brands_label = ', '.join(brands) if brands else '—'
+
+    return {
+        'draft': draft,
+        'recipient_type_label': type_labels.get(recipient_type, recipient_type),
+        'brands_label': brands_label,
+        'recipient_count': draft.get('count', 0),
+    }
+
+
+def _require_recipient_draft(request):
+    draft = load_simple_mailing_draft(request.session)
+    if not draft:
+        messages.error(request, 'Сначала выберите получателей.')
+        return None
+    return draft
 
 
 class NewMailingView(MarketingCabinetMixin, View):
@@ -226,26 +258,83 @@ class NewMailingMessageView(MarketingCabinetMixin, View):
     active_nav = 'new_mailing'
 
     def get(self, request):
-        draft = load_simple_mailing_draft(request.session)
-        if not draft:
-            messages.error(request, 'Сначала выберите группу получателей.')
+        draft = _require_recipient_draft(request)
+        if draft is None:
             return redirect('marketing:new_mailing')
 
         recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
-        type_labels = dict(RECIPIENT_TYPE_CHOICES)
-        brands_label = 'Все марки'
-        if not draft.get('all_brands'):
-            brands = draft.get('brands') or []
-            brands_label = ', '.join(brands) if brands else '—'
+        template_cards = build_template_cards(recipient_type)
+        selected_template_id = load_draft_template_id(request.session)
 
         context = {
             **self.get_broadcast_mode_context(),
             **self.get_marketing_send_mode_context(),
             **self.get_nav_context(),
-            'draft': draft,
-            'recipient_type_label': type_labels.get(recipient_type, recipient_type),
-            'brands_label': brands_label,
-            'recipient_count': draft.get('count', 0),
+            **_draft_summary_context(draft),
+            'current_step': 2,
+            'template_cards': template_cards,
+            'selected_template_id': selected_template_id,
+            'has_compatible_templates': bool(template_cards),
+        }
+        return render(request, self.template_name, context)
+
+    def post(self, request):
+        draft = _require_recipient_draft(request)
+        if draft is None:
+            return redirect('marketing:new_mailing')
+
+        recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
+        template_id = (request.POST.get('template_id') or '').strip()
+
+        try:
+            template = resolve_selected_template(template_id, recipient_type=recipient_type)
+        except TemplateValidationError as exc:
+            messages.error(request, str(exc))
+            return redirect('marketing:new_mailing_message')
+
+        if template is None:
+            messages.error(request, 'Выберите сообщение для рассылки.')
+            return redirect('marketing:new_mailing_message')
+
+        save_template_to_draft(request.session, template.pk)
+        return redirect('marketing:new_mailing_confirm')
+
+    def http_method_not_allowed(self, request, *args, **kwargs):
+        return HttpResponseNotAllowed(['GET', 'POST'])
+
+
+class NewMailingConfirmView(MarketingCabinetMixin, View):
+    template_name = 'marketing/new_mailing/confirm.html'
+    active_nav = 'new_mailing'
+
+    def get(self, request):
+        draft = _require_recipient_draft(request)
+        if draft is None:
+            return redirect('marketing:new_mailing')
+
+        template_id = load_draft_template_id(request.session)
+        if template_id is None:
+            messages.error(request, 'Сначала выберите сообщение.')
+            return redirect('marketing:new_mailing_message')
+
+        template = get_object_or_404(MarketingWhatsAppTemplate, pk=template_id)
+        recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
+        if not template_still_available(template, recipient_type=recipient_type):
+            messages.error(
+                request,
+                'Выбранный шаблон больше недоступен. Выберите другой.',
+            )
+            return redirect('marketing:new_mailing_message')
+
+        preview = render_simple_mailing_template_preview(template)
+        context = {
+            **self.get_broadcast_mode_context(),
+            **self.get_marketing_send_mode_context(),
+            **self.get_nav_context(),
+            **_draft_summary_context(draft),
+            'current_step': 3,
+            'template': template,
+            'template_preview': preview,
         }
         return render(request, self.template_name, context)
 
