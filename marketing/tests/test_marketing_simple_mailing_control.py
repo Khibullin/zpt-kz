@@ -9,11 +9,13 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.models import (
+    BUYER_CONTACT_STATUS_ACTIVE,
     BUYER_CONTACT_STATUS_BLOCKED,
     BUYER_CONTACT_STATUS_INVALID_PHONE,
     BUYER_CONTACT_STATUS_UNSUBSCRIBED,
     CONTACT_CONSENT_STATUS_GRANTED,
     BuyerContact,
+    Seller,
 )
 from marketing.models import (
     MarketingCampaign,
@@ -55,7 +57,7 @@ from marketing.services.simple_mailing.launch_recipients import resolve_simple_m
 from marketing.services.simple_mailing.recipients import resolve_simple_mailing_recipients
 from marketing.services.simple_mailing.waves import compute_wave_schedule
 from marketing.tests.test_marketing_campaigns import make_audience
-from marketing.tests.test_marketing_audiences import grant_consent, grant_marketing_permission, make_buyer
+from marketing.tests.test_marketing_audiences import grant_consent, grant_marketing_permission, make_buyer, next_phone
 from marketing.tests.test_marketing_campaign_live_send import LIVE_SETTINGS
 from marketing.tests.test_marketing_campaign_send import ensure_portal_access, make_test_send_template
 from marketing.tests.test_marketing_simple_mailing import make_request
@@ -486,6 +488,101 @@ class ControlSendTimeRecheckTests(TestCase):
         eligible, reason = recheck_simple_mailing_recipient(recipient)
         self.assertTrue(eligible)
         self.assertEqual(reason, '')
+
+
+class ControlTestSellerRecheckTests(TestCase):
+    def _test_seller_phone(self) -> str:
+        phone = next_phone()
+        Seller.objects.create(
+            name='Test seller control',
+            whatsapp=phone,
+            transport_type='car',
+            city='Алматы',
+            is_active=True,
+            is_test_seller=True,
+        )
+        return phone
+
+    def _recipient(self, *, phone: str, is_control: bool, is_test: bool) -> MarketingCampaignRecipient:
+        return MarketingCampaignRecipient(
+            phone_normalized=phone,
+            is_test_contact=is_test,
+            is_control_recipient=is_control,
+        )
+
+    def test_control_test_seller_phone_allowed(self):
+        phone = self._test_seller_phone()
+        make_buyer(
+            phone_normalized=phone,
+            is_test_contact=True,
+            status=BUYER_CONTACT_STATUS_ACTIVE,
+        )
+        grant_consent(
+            BuyerContact.objects.get(phone_normalized=phone),
+            CONTACT_CONSENT_STATUS_GRANTED,
+        )
+        eligible, reason = recheck_simple_mailing_recipient(
+            self._recipient(phone=phone, is_control=True, is_test=True),
+        )
+        self.assertTrue(eligible)
+        self.assertEqual(reason, '')
+
+    def test_non_control_test_seller_phone_skipped(self):
+        phone = self._test_seller_phone()
+        make_buyer(phone_normalized=phone, is_test_contact=False)
+        eligible, reason = recheck_simple_mailing_recipient(
+            self._recipient(phone=phone, is_control=False, is_test=False),
+        )
+        self.assertFalse(eligible)
+        self.assertEqual(reason, SKIP_REASON_TEST_CONTACT)
+
+    def test_control_test_seller_revoked_consent_blocked(self):
+        from core.models import CONTACT_CONSENT_STATUS_REVOKED
+
+        phone = self._test_seller_phone()
+        buyer = make_buyer(
+            phone_normalized=phone,
+            is_test_contact=True,
+            status=BUYER_CONTACT_STATUS_ACTIVE,
+        )
+        grant_consent(buyer, CONTACT_CONSENT_STATUS_REVOKED)
+        eligible, reason = recheck_simple_mailing_recipient(
+            self._recipient(phone=phone, is_control=True, is_test=True),
+        )
+        self.assertFalse(eligible)
+        self.assertEqual(reason, SKIP_REASON_CONSENT_REVOKED)
+
+    def test_control_test_seller_unsubscribed_blocked(self):
+        phone = self._test_seller_phone()
+        make_buyer(
+            phone_normalized=phone,
+            is_test_contact=True,
+            status=BUYER_CONTACT_STATUS_UNSUBSCRIBED,
+        )
+        eligible, reason = recheck_simple_mailing_recipient(
+            self._recipient(phone=phone, is_control=True, is_test=True),
+        )
+        self.assertFalse(eligible)
+        self.assertEqual(reason, SKIP_REASON_UNSUBSCRIBED)
+
+    def test_control_test_seller_blocked_status_blocked(self):
+        phone = self._test_seller_phone()
+        make_buyer(
+            phone_normalized=phone,
+            is_test_contact=True,
+            status=BUYER_CONTACT_STATUS_BLOCKED,
+        )
+        eligible, reason = recheck_simple_mailing_recipient(
+            self._recipient(phone=phone, is_control=True, is_test=True),
+        )
+        self.assertFalse(eligible)
+        self.assertEqual(reason, SKIP_REASON_BLOCKED)
+
+    def test_legacy_recheck_phone_unchanged_for_ordinary_test_contact(self):
+        buyer = make_buyer(is_test_contact=True)
+        eligible, reason = recheck_simple_mailing_phone(phone_normalized=buyer.phone_normalized)
+        self.assertFalse(eligible)
+        self.assertEqual(reason, SKIP_REASON_TEST_CONTACT)
 
 
 class ControlHistoryImmutabilityTests(TestCase):

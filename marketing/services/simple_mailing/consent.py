@@ -105,7 +105,7 @@ def recheck_simple_mailing_recipient(recipient) -> tuple[bool, str]:
     is_control = bool(getattr(recipient, 'is_control_recipient', False))
     if recipient.is_test_contact and not is_control:
         return False, SKIP_REASON_TEST_CONTACT
-    if _is_test_seller_phone(phone):
+    if _is_test_seller_phone(phone) and not is_control:
         return False, SKIP_REASON_TEST_CONTACT
     return evaluate_simple_mailing_phone(
         phone_normalized=phone,
