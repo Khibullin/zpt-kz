@@ -94,6 +94,32 @@ _RECIPIENT_TYPE_AUDIENCE = {
 }
 
 
+_SIMPLE_MAILING_AUDIENCE_PREFIX = '[Simple mailing] '
+_SIMPLE_MAILING_AUDIENCE_NAME_MAX_LENGTH = 200
+_LAUNCH_KEY_SUFFIX_LENGTH = 8
+
+
+def _launch_key_suffix(launch_key: str) -> str:
+    normalized = str(launch_key).replace('-', '').lower()
+    return normalized[:_LAUNCH_KEY_SUFFIX_LENGTH]
+
+
+def build_simple_mailing_audience_name(*, campaign_name: str, launch_key: str) -> str:
+    suffix = _launch_key_suffix(launch_key)
+    suffix_part = f' [{suffix}]'
+    prefix = _SIMPLE_MAILING_AUDIENCE_PREFIX
+    max_campaign_len = (
+        _SIMPLE_MAILING_AUDIENCE_NAME_MAX_LENGTH
+        - len(prefix)
+        - len(suffix_part)
+    )
+    trimmed_campaign = campaign_name[:max(max_campaign_len, 1)]
+    audience_name = f'{prefix}{trimmed_campaign}{suffix_part}'
+    if len(audience_name) > _SIMPLE_MAILING_AUDIENCE_NAME_MAX_LENGTH:
+        audience_name = audience_name[:_SIMPLE_MAILING_AUDIENCE_NAME_MAX_LENGTH]
+    return audience_name
+
+
 def ensure_launch_key(draft: dict) -> str:
     launch_key = draft.get('launch_key')
     if launch_key:
@@ -203,7 +229,10 @@ def launch_simple_mailing(
     try:
         with transaction.atomic():
             audience = MarketingAudience.objects.create(
-                name=f'[Simple mailing] {campaign_name}',
+                name=build_simple_mailing_audience_name(
+                    campaign_name=campaign_name,
+                    launch_key=launch_key,
+                ),
                 description='Автоматическая аудитория simple mailing.',
                 contact_group=contact_group,
                 contact_subtype=contact_subtype,

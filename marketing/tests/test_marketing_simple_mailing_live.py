@@ -17,8 +17,8 @@ from core.models import (
     BuyerContact,
     ContactConsent,
 )
-from marketing.models import MarketingCampaignMessage, MarketingCampaignSendRun
-from marketing.services.campaigns.live_processor import process_marketing_live_send_batch
+from marketing.models import MarketingAudience, MarketingCampaignMessage, MarketingCampaignSendRun
+from marketing.services.campaigns.live_processor import cancel_live_send_run, process_marketing_live_send_batch
 from marketing.services.campaigns.live_send import create_live_send_queue
 from marketing.services.campaigns.live_simple_waves import get_next_eligible_simple_mailing_wave
 from marketing.services.campaigns.live_send_validation import LiveSendValidationError
@@ -29,15 +29,17 @@ from marketing.services.campaigns.send_constants import (
     MESSAGE_STATUS_QUEUED,
     MESSAGE_STATUS_SENT,
     MESSAGE_STATUS_SKIPPED,
+    RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+    RECIPIENT_SCOPE_CONTROL_ONLY,
     WORKFLOW_TYPE_LEGACY,
     WORKFLOW_TYPE_SIMPLE_MAILING,
 )
 from marketing.services.simple_mailing.constants import (
-    RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
 )
 from marketing.services.simple_mailing.launch import (
     SimpleMailingLaunchError,
+    build_simple_mailing_audience_name,
     launch_simple_mailing,
 )
 from marketing.services.simple_mailing.waves import compute_wave_schedule
@@ -72,15 +74,23 @@ def _make_n_request_buyers(
         ensure_portal_access(buyer)
 
 
-def _launch_draft(*, count: int, template_id: int) -> dict:
+def _launch_draft(*, count: int, template_id: int, recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS) -> dict:
     return {
         'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
-        'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+        'recipient_scope': recipient_scope,
         'all_brands': True,
         'brands': [],
         'count': count,
         'template_id': template_id,
     }
+
+
+def _make_control_buyer() -> BuyerContact:
+    buyer = make_buyer(is_control_recipient=True, is_test_contact=False)
+    make_request(buyer, brand='Toyota')
+    grant_consent(buyer, CONTACT_CONSENT_STATUS_GRANTED)
+    ensure_portal_access(buyer)
+    return buyer
 
 
 def _mock_send_ok(phone, **kwargs):
@@ -510,3 +520,139 @@ class SimpleMailingProcessorConcurrencyTests(TransactionTestCase):
         ).count()
         self.assertEqual(processing_count, 0)
         self.assertLessEqual(mocked.call_count, 5)
+
+
+class SimpleMailingAudienceNameHelperTests(TestCase):
+    def test_build_name_includes_launch_key_suffix(self):
+        launch_key = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
+        name = build_simple_mailing_audience_name(
+            campaign_name='Control — All — 21.07.2026',
+            launch_key=launch_key,
+        )
+        self.assertIn('[a1b2c3d4]', name)
+        self.assertTrue(name.startswith('[Simple mailing] '))
+
+    def test_build_name_respects_max_length(self):
+        long_campaign = 'X' * 300
+        launch_key = str(uuid.uuid4())
+        name = build_simple_mailing_audience_name(
+            campaign_name=long_campaign,
+            launch_key=launch_key,
+        )
+        self.assertLessEqual(len(name), 200)
+        self.assertIn(f'[{launch_key.replace("-", "")[:8]}]', name)
+
+
+@override_settings(**LIVE_SIMPLE_SETTINGS)
+class SimpleMailingDuplicateAudienceNameTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user('dup-aud', password='secret', is_staff=True)
+
+    def test_second_control_only_launch_same_day_succeeds(self):
+        _make_control_buyer()
+        template = make_test_send_template(self.user)
+        draft = _launch_draft(
+            count=1,
+            template_id=template.pk,
+            recipient_scope=RECIPIENT_SCOPE_CONTROL_ONLY,
+        )
+        launch_key_1 = str(uuid.uuid4())
+        first = launch_simple_mailing(
+            draft=draft,
+            template=template,
+            created_by=self.user,
+            launch_key=launch_key_1,
+        )
+        cancel_live_send_run(first.send_run_id)
+
+        launch_key_2 = str(uuid.uuid4())
+        second = launch_simple_mailing(
+            draft=draft,
+            template=template,
+            created_by=self.user,
+            launch_key=launch_key_2,
+        )
+
+        self.assertNotEqual(first.send_run_id, second.send_run_id)
+        self.assertEqual(MarketingCampaignSendRun.objects.count(), 2)
+        audiences = list(MarketingAudience.objects.order_by('id'))
+        self.assertEqual(len(audiences), 2)
+        self.assertNotEqual(audiences[0].name, audiences[1].name)
+        self.assertLessEqual(len(audiences[0].name), 200)
+        self.assertLessEqual(len(audiences[1].name), 200)
+        self.assertIn(launch_key_1.replace('-', '')[:8], audiences[0].name)
+        self.assertIn(launch_key_2.replace('-', '')[:8], audiences[1].name)
+
+    def test_same_launch_key_is_idempotent(self):
+        _make_control_buyer()
+        template = make_test_send_template(self.user)
+        draft = _launch_draft(
+            count=1,
+            template_id=template.pk,
+            recipient_scope=RECIPIENT_SCOPE_CONTROL_ONLY,
+        )
+        launch_key = str(uuid.uuid4())
+        first = launch_simple_mailing(
+            draft=draft,
+            template=template,
+            created_by=self.user,
+            launch_key=launch_key,
+        )
+        second = launch_simple_mailing(
+            draft=draft,
+            template=template,
+            created_by=self.user,
+            launch_key=launch_key,
+        )
+        self.assertTrue(second.idempotent_replay)
+        self.assertEqual(first.send_run_id, second.send_run_id)
+        self.assertEqual(MarketingCampaignSendRun.objects.count(), 1)
+        self.assertEqual(MarketingAudience.objects.count(), 1)
+
+
+@override_settings(**LIVE_SIMPLE_SETTINGS)
+class SimpleMailingConfirmDuplicateAudienceNameTests(TestCase):
+    def setUp(self):
+        self.client = Client(enforce_csrf_checks=False)
+        self.user = User.objects.create_user('dup-view', password='secret', is_staff=True)
+        grant_marketing_permission(self.user)
+        self.client.login(username='dup-view', password='secret')
+        self.confirm_url = reverse('marketing:new_mailing_confirm')
+        self.history_url = reverse('marketing:history')
+        self.template = make_test_send_template(self.user)
+        _make_control_buyer()
+
+    def _prepare_confirm_session(self, *, launch_key: str) -> None:
+        session = self.client.session
+        session['marketing_simple_mailing_draft'] = {
+            'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            'recipient_scope': RECIPIENT_SCOPE_CONTROL_ONLY,
+            'all_brands': True,
+            'brands': [],
+            'count': 1,
+            'template_id': self.template.pk,
+            'launch_key': launch_key,
+        }
+        session.save()
+
+    def test_confirm_post_second_launch_same_day_not_500(self):
+        launch_key_1 = str(uuid.uuid4())
+        self._prepare_confirm_session(launch_key=launch_key_1)
+        first_response = self.client.post(self.confirm_url)
+        self.assertEqual(first_response.status_code, 302)
+        self.assertEqual(first_response.url, self.history_url)
+        self.assertEqual(MarketingCampaignSendRun.objects.count(), 1)
+        first_run = MarketingCampaignSendRun.objects.get()
+        cancel_live_send_run(first_run.pk)
+
+        launch_key_2 = str(uuid.uuid4())
+        self._prepare_confirm_session(launch_key=launch_key_2)
+        second_response = self.client.post(self.confirm_url)
+        self.assertEqual(second_response.status_code, 302)
+        self.assertEqual(second_response.url, self.history_url)
+        self.assertEqual(MarketingCampaignSendRun.objects.count(), 2)
+        audiences = list(MarketingAudience.objects.order_by('id'))
+        self.assertEqual(len(audiences), 2)
+        self.assertNotEqual(audiences[0].name, audiences[1].name)
+        self.assertLessEqual(len(audiences[0].name), 200)
+        self.assertLessEqual(len(audiences[1].name), 200)
