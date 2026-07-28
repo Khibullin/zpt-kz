@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 from dataclasses import dataclass
 from typing import Callable
@@ -7,6 +8,7 @@ from typing import Callable
 from django.db import DatabaseError, IntegrityError, transaction
 from django.utils import timezone
 
+from core.whatsapp_redaction import sanitize_persisted_whatsapp_error_message
 from core.whatsapp_template_sender import (
     send_whatsapp_template_message,
     wa_template_param,
@@ -67,20 +69,47 @@ class _PendingSendItem:
 
 def _extract_meta_error(result: dict) -> tuple[str, str]:
     error_payload = result.get('error')
-    error_code = ''
+    error_code = str(result.get('error_code') or '')
     error_message = ''
+
+    if isinstance(error_payload, str):
+        stripped = error_payload.strip()
+        if stripped.startswith('{'):
+            try:
+                parsed = json.loads(stripped)
+                if isinstance(parsed, dict):
+                    error_payload = parsed
+            except json.JSONDecodeError:
+                error_message = stripped
+        else:
+            error_message = stripped
+
     if isinstance(error_payload, dict):
         error_obj = error_payload.get('error') or error_payload
         if isinstance(error_obj, dict):
-            error_code = str(error_obj.get('code') or '')
-            error_message = str(error_obj.get('message') or error_obj.get('error_user_msg') or '')
-        else:
+            if not error_code:
+                error_code = str(error_obj.get('code') or '')
+            message_parts = []
+            for key in ('message', 'error_user_msg'):
+                value = error_obj.get(key)
+                if value:
+                    message_parts.append(str(value))
+            subcode = error_obj.get('error_subcode')
+            if subcode is not None and str(subcode) != '':
+                message_parts.append(f'subcode={subcode}')
+            if message_parts:
+                error_message = ' — '.join(message_parts)
+        elif not error_message:
             error_message = str(error_payload)
-    elif error_payload is not None:
+    elif error_payload is not None and not error_message:
         error_message = str(error_payload)
+
     if not error_message:
         error_message = 'WhatsApp send failed'
-    return error_code[:64], error_message[:2000]
+
+    error_code = sanitize_persisted_whatsapp_error_message(error_code, max_length=64)
+    error_message = sanitize_persisted_whatsapp_error_message(error_message)
+    return error_code, error_message
 
 
 def _build_body_parameters(template, variables: dict[str, str]) -> list[dict]:
@@ -301,8 +330,8 @@ def execute_test_campaign_send(
             error_code, error_message = _extract_meta_error(result)
             MarketingCampaignMessage.objects.filter(pk=item.message_id).update(
                 status=MESSAGE_STATUS_FAILED,
-                error_code=error_code,
-                error_message=error_message,
+                error_code=sanitize_persisted_whatsapp_error_message(error_code, max_length=64),
+                error_message=sanitize_persisted_whatsapp_error_message(error_message),
             )
             failed_count += 1
             logger.warning(

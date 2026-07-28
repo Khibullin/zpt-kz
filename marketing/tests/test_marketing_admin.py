@@ -96,7 +96,7 @@ class MarketingAdminPermissionTests(TestCase):
             'variables',
             'meta_message_id',
             'error_code',
-            'error_message',
+            'safe_error_message_display',
             'wave_number',
             'position_number',
             'scheduled_at',

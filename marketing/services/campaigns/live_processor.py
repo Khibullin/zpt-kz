@@ -7,7 +7,13 @@ from dataclasses import dataclass
 from django.db import DatabaseError, transaction
 from django.utils import timezone
 
-from core.whatsapp_template_sender import send_whatsapp_template_message, wa_template_param
+from core.whatsapp_template_sender import (
+    send_whatsapp_template_message,
+    send_whatsapp_template_message as real_send_whatsapp_template_message,
+    wa_template_param,
+)
+from core.whatsapp_config import is_whatsapp_sender_config_valid
+from core.whatsapp_redaction import sanitize_persisted_whatsapp_error_message
 from marketing.models import MarketingCampaignMessage, MarketingCampaignSendRun
 from marketing.services.campaigns.live_consent import recheck_live_recipient_consent
 from marketing.services.campaigns.live_simple_waves import (
@@ -285,8 +291,8 @@ def _process_single_message(
 
     error_code, error_message = _extract_meta_error(result)
     message.status = MESSAGE_STATUS_FAILED
-    message.error_code = error_code
-    message.error_message = error_message
+    message.error_code = sanitize_persisted_whatsapp_error_message(error_code, max_length=64)
+    message.error_message = sanitize_persisted_whatsapp_error_message(error_message)
     message.save(update_fields=['status', 'error_code', 'error_message'])
     logger.warning(
         'Marketing LIVE send failed for message #%s campaign #%s code=%s',
@@ -295,6 +301,12 @@ def _process_single_message(
         error_code,
     )
     return MESSAGE_STATUS_FAILED
+
+
+def _uses_real_whatsapp_sender(send_callable) -> bool:
+    if send_callable is None:
+        return True
+    return send_callable is real_send_whatsapp_template_message
 
 
 def process_marketing_live_send_batch(
@@ -307,6 +319,10 @@ def process_marketing_live_send_batch(
         send_callable = send_whatsapp_template_message
     if not marketing_live_whatsapp_send_enabled():
         return LiveProcessorResult(0, 0, 0, 0, 0)
+
+    if _uses_real_whatsapp_sender(send_callable) and not is_whatsapp_sender_config_valid():
+        logger.warning('Marketing LIVE sender configuration invalid')
+        return LiveProcessorResult(0, 0, 0, 0, _count_remaining_queued())
 
     limit = batch_size if batch_size is not None else get_marketing_live_batch_size()
     pause = interval_seconds if interval_seconds is not None else get_marketing_live_send_interval_seconds()

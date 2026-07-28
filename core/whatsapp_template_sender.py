@@ -1,10 +1,20 @@
 from __future__ import annotations
 
 import json
-import os
 import re
 import urllib.error
 import urllib.request
+
+from core.whatsapp_config import (
+    WHATSAPP_CONFIG_INVALID_CODE,
+    WHATSAPP_CONFIG_INVALID_MESSAGE,
+    WhatsAppSenderConfigError,
+    validate_whatsapp_sender_config,
+)
+from core.whatsapp_redaction import (
+    redact_whatsapp_sensitive_data,
+    sanitize_whatsapp_error_payload,
+)
 
 
 def normalize_whatsapp_phone(phone: object) -> str:
@@ -49,6 +59,16 @@ def build_template_components(
     return components
 
 
+def _invalid_config_result() -> dict:
+    return {
+        'ok': False,
+        'status_code': None,
+        'error_code': WHATSAPP_CONFIG_INVALID_CODE,
+        'error': WHATSAPP_CONFIG_INVALID_MESSAGE,
+        'message_id': '',
+    }
+
+
 def send_whatsapp_template_message(
     to_phone: str,
     *,
@@ -60,17 +80,12 @@ def send_whatsapp_template_message(
     include_image_header: bool = False,
     header_image_url: str | None = None,
 ) -> dict:
-    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
-    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
-    to_phone = normalize_whatsapp_phone(to_phone)
+    try:
+        phone_number_id, access_token = validate_whatsapp_sender_config()
+    except WhatsAppSenderConfigError:
+        return _invalid_config_result()
 
-    if not phone_number_id or not access_token:
-        return {
-            'ok': False,
-            'status_code': None,
-            'error': 'WhatsApp ENV variables are not configured',
-            'message_id': '',
-        }
+    to_phone = normalize_whatsapp_phone(to_phone)
 
     if not to_phone:
         return {
@@ -120,25 +135,26 @@ def send_whatsapp_template_message(
             messages = response_json.get('messages') or []
             message_id = messages[0].get('id', '') if messages else ''
             is_ok = 200 <= response.status < 300
+            safe_response = redact_whatsapp_sensitive_data(response_json or response_body)
             return {
                 'ok': is_ok,
                 'status_code': response.status,
-                'response': response_json or response_body,
+                'response': safe_response,
                 'message_id': message_id,
-                'error': None if is_ok else (response_json or response_body),
+                'error': None if is_ok else safe_response,
             }
     except urllib.error.HTTPError as error:
         error_body = error.read().decode('utf-8')
         return {
             'ok': False,
             'status_code': error.code,
-            'error': error_body,
+            'error': sanitize_whatsapp_error_payload(error_body),
             'message_id': '',
         }
     except Exception as error:
         return {
             'ok': False,
             'status_code': None,
-            'error': str(error),
+            'error': redact_whatsapp_sensitive_data(str(error)),
             'message_id': '',
         }

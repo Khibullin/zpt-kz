@@ -5,6 +5,7 @@ from django.db.models import Count, Max, Min, Q
 from django.urls import reverse
 from django.utils.html import format_html
 
+from core.whatsapp_redaction import redact_whatsapp_sensitive_data
 from marketing.models import (
     MarketingCabinetPermission,
     MarketingCampaignMessage,
@@ -43,6 +44,13 @@ def _truncate(text: str, *, limit: int = 80) -> str:
     if len(text) <= limit:
         return text
     return f'{text[:limit]}…'
+
+
+def _safe_error_text(text: str) -> str:
+    sanitized = redact_whatsapp_sensitive_data(str(text or ''))
+    if isinstance(sanitized, str):
+        return sanitized
+    return str(sanitized)
 
 
 class RecipientScopeFilter(admin.SimpleListFilter):
@@ -366,7 +374,7 @@ class MarketingCampaignMessageAdmin(ReadOnlyMarketingMessageAdmin):
         'meta_message_id',
         'meta_message_id_short',
         'error_code',
-        'error_message',
+        'safe_error_message_display',
         'attempted_at',
         'sent_at',
         'created_at',
@@ -408,4 +416,9 @@ class MarketingCampaignMessageAdmin(ReadOnlyMarketingMessageAdmin):
 
     @admin.display(description='Ошибка')
     def error_message_short(self, obj: MarketingCampaignMessage) -> str:
-        return _truncate(obj.error_message, limit=80)
+        return _truncate(_safe_error_text(obj.error_message), limit=80)
+
+    @admin.display(description='Ошибка (безопасно)')
+    def safe_error_message_display(self, obj: MarketingCampaignMessage) -> str:
+        safe_text = _safe_error_text(obj.error_message)
+        return safe_text or '—'

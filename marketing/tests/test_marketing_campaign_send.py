@@ -497,7 +497,8 @@ class MarketingCampaignTestSendTests(TestCase):
             body_parameters=[{'type': 'text', 'text': 'hello'}],
         )
         self.assertFalse(result['ok'])
-        self.assertIn('ENV', result['error'])
+        self.assertEqual(result.get('error_code'), 'whatsapp_config_invalid')
+        self.assertEqual(result['error'], 'WhatsApp sender configuration is invalid.')
 
     def test_marketing_permission_required(self):
         outsider = User.objects.create_user('outsider', password='secret', is_staff=True)
