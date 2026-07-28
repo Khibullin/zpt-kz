@@ -18,11 +18,20 @@
 
   <div class="simple-mailing__card">
     <dl class="simple-mailing__summary simple-mailing__summary--confirm">
+      <div><dt>Тип</dt><dd>{{ recipient_scope_label }}</dd></div>
       <div><dt>Кому</dt><dd>{{ recipient_type_label }}</dd></div>
       <div><dt>Марки</dt><dd>{{ brands_label }}</dd></div>
-      <div><dt>Получателей</dt><dd>{{ recipient_count }}</dd></div>
+      <div><dt>Обычных получателей</dt><dd>{{ ordinary_count }}</dd></div>
+      <div><dt>Контрольных</dt><dd>{{ control_count }}</dd></div>
+      <div><dt>Итого к отправке</dt><dd>{{ recipient_count }}</dd></div>
       <div><dt>Сообщение</dt><dd>{{ template.name }}</dd></div>
     </dl>
+
+    {% if is_audience_plus_controls %}
+      <p class="simple-mailing__warning simple-mailing__warning--audience">
+        Рабочая рассылка: сообщения будут отправлены реальным получателям.
+      </p>
+    {% endif %}
 
     <div class="simple-mailing__confirm-preview">
       <h2 class="simple-mailing__card-title">Текст</h2>
@@ -31,7 +40,10 @@
 
     <div class="simple-mailing__launch-block">
       <h2 class="simple-mailing__card-title">Готово к отправке</h2>
-      <p class="simple-mailing__launch-count">Получателей: {{ recipient_count }}</p>
+      <p class="simple-mailing__launch-count">
+        Итого к отправке: {{ recipient_count }}
+        (обычных: {{ ordinary_count }}, контрольных: {{ control_count }})
+      </p>
 
       <form
         method="post"

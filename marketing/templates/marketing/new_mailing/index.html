@@ -37,7 +37,32 @@
     </div>
 
     <div class="simple-mailing__card">
-      <h2 class="simple-mailing__card-title">2. Марки автомобилей</h2>
+      <h2 class="simple-mailing__card-title">2. Получатели рассылки</h2>
+      <fieldset class="simple-mailing__fieldset">
+        <legend class="visually-hidden">Область получателей</legend>
+        <div class="simple-mailing__radio-group">
+          {% for value, label in recipient_scope_choices %}
+            <label class="simple-mailing__radio">
+              <input type="radio"
+                     name="recipient_scope"
+                     value="{{ value }}"
+                     {% if recipient_scope == value %}checked{% endif %}
+                     data-recipient-scope-radio>
+              <span>{{ label }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+      {% if control_only %}
+        <p class="simple-mailing__hint simple-mailing__hint--control">
+          Режим: Контрольная рассылка. Фильтры марок и аудитории не применяются к контрольным номерам.
+        </p>
+      {% endif %}
+    </div>
+
+    <div class="simple-mailing__card{% if control_only %} simple-mailing__card--muted{% endif %}"
+         id="brand-selection-card">
+      <h2 class="simple-mailing__card-title">3. Марки автомобилей</h2>
 
       {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}
         <p class="simple-mailing__hint">
@@ -97,11 +122,23 @@
 
       <div class="simple-mailing__result-grid">
         <div class="simple-mailing__result-item">
+          <span class="simple-mailing__result-label">Режим</span>
+          <span class="simple-mailing__result-value">{{ recipient_scope_label }}</span>
+        </div>
+        <div class="simple-mailing__result-item">
           <span class="simple-mailing__result-label">Выбрано марок</span>
           <span class="simple-mailing__result-value" id="selected-brands-count">{{ selected_brands_label }}</span>
         </div>
+        <div class="simple-mailing__result-item">
+          <span class="simple-mailing__result-label">Обычных получателей</span>
+          <span class="simple-mailing__result-value" id="ordinary-count-display">{{ ordinary_count_display }}</span>
+        </div>
+        <div class="simple-mailing__result-item">
+          <span class="simple-mailing__result-label">Контрольных</span>
+          <span class="simple-mailing__result-value" id="control-count-display">{{ control_count_display }}</span>
+        </div>
         <div class="simple-mailing__result-item simple-mailing__result-item--highlight">
-          <span class="simple-mailing__result-label">Найдено получателей</span>
+          <span class="simple-mailing__result-label">Итого</span>
           <span class="simple-mailing__result-value simple-mailing__result-value--count"
                 id="recipient-count-display">{{ count_display }}</span>
         </div>
@@ -166,6 +203,10 @@
   var recipientRadios = Array.prototype.slice.call(
     document.querySelectorAll('[data-recipient-type-radio]')
   );
+  var recipientScopeRadios = Array.prototype.slice.call(
+    document.querySelectorAll('[data-recipient-scope-radio]')
+  );
+  var brandSelectionCard = document.getElementById('brand-selection-card');
   var previewButton = document.getElementById('preview-button');
   var continueButton = document.getElementById('continue-button');
   var countDisplay = document.getElementById('recipient-count-display');
@@ -183,7 +224,17 @@
     return String(count);
   }
 
+  function isControlOnlyScope() {
+    var checked = recipientScopeRadios.find(function (radio) {
+      return radio.checked;
+    });
+    return checked && checked.value === 'control_only';
+  }
+
   function hasValidSelection() {
+    if (isControlOnlyScope()) {
+      return true;
+    }
     if (marketplaceLocked) {
       return true;
     }
@@ -206,8 +257,12 @@
   }
 
   function syncUiState() {
+    var controlOnly = isControlOnlyScope();
+    if (brandSelectionCard) {
+      brandSelectionCard.classList.toggle('simple-mailing__card--muted', controlOnly);
+    }
     if (selectedCountDisplay) {
-      selectedCountDisplay.textContent = selectedBrandCount();
+      selectedCountDisplay.textContent = controlOnly ? '—' : selectedBrandCount();
     }
     if (previewButton) {
       previewButton.disabled = !hasValidSelection();
@@ -268,6 +323,10 @@
     brandSearch.addEventListener('input', filterBrandCards);
     brandSearch.addEventListener('search', filterBrandCards);
   }
+
+  recipientScopeRadios.forEach(function (radio) {
+    radio.addEventListener('change', onSelectionChanged);
+  });
 
   recipientRadios.forEach(function (radio) {
     radio.addEventListener('change', function () {

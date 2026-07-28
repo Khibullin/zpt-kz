@@ -49,6 +49,7 @@ from marketing.services.simple_mailing.brands import (
     normalize_brand_selection,
     validate_brand_selection,
 )
+from marketing.services.simple_mailing.constants import RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS
 from marketing.tests.test_marketing_audiences import grant_marketing_permission, make_buyer, next_phone
 
 
@@ -71,6 +72,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(make_buyer(), brand='BMW')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=True,
         )
         self.assertEqual(result.count, 2)
@@ -81,6 +83,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(make_buyer(), brand='BMW')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -94,6 +97,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(bmw, brand='BMW')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota', 'BMW'],
         )
@@ -105,6 +109,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(buyer, brand='Toyota', model='RAV4')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -116,6 +121,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(buyer, brand='BMW')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota', 'BMW'],
         )
@@ -125,6 +131,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(make_buyer(), brand='Toyota')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['BMW'],
         )
@@ -134,6 +141,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(make_buyer(is_test_contact=True), brand='Toyota')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=True,
         )
         self.assertEqual(result.count, 0)
@@ -143,6 +151,7 @@ class SimpleMailingPartsRequestBuyersTests(TestCase):
         make_request(make_buyer(), brand='Toyota')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=True,
         )
         self.assertEqual(result.count, 1)
@@ -172,6 +181,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='BMW', whatsapp=next_phone())
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=True,
         )
         self.assertEqual(result.count, 2)
@@ -181,6 +191,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='BMW', whatsapp=next_phone())
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -192,6 +203,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='BMW', whatsapp=next_phone())
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota', 'Lexus'],
         )
@@ -202,6 +214,7 @@ class SimpleMailingSellerTests(TestCase):
         seller.selected_brands.add(self.lexus_brand)
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota', 'Lexus'],
         )
@@ -212,6 +225,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='Toyota', whatsapp=next_phone())
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -223,6 +237,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='Toyota', whatsapp=phone)
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -234,6 +249,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='Toyota', whatsapp=f'+7 {phone_key[1:4]} {phone_key[4:7]} {phone_key[7:9]} {phone_key[9:]}')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -245,6 +261,7 @@ class SimpleMailingSellerTests(TestCase):
         self._seller(brand='Toyota', whatsapp=phone)
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
@@ -271,6 +288,7 @@ class SimpleMailingMarketplaceTests(TestCase):
         )
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_MARKETPLACE_BUYERS,
+            recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=True,
         )
         self.assertEqual(result.count, 1)
@@ -355,6 +373,7 @@ class SimpleMailingViewTests(TestCase):
             response = self._preview_then_continue(
                 {
                     'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                    'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                     'all_brands': '1',
                 },
             )
@@ -371,6 +390,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -384,6 +404,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -392,6 +413,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -407,6 +429,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota'],
             },
         )
@@ -415,6 +438,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota', 'BMW'],
             },
         )
@@ -429,6 +453,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota'],
             },
         )
@@ -437,6 +462,7 @@ class SimpleMailingViewTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota'],
                 'count': '999',
             },
@@ -449,6 +475,7 @@ class SimpleMailingViewTests(TestCase):
         self._preview_then_continue(
             {
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota'],
             },
         )
@@ -568,6 +595,7 @@ class SimpleMailingBrandListTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['TestBrand'],
             },
         )
@@ -617,6 +645,7 @@ class SimpleMailingBrandSearchTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota'],
                 'brand_search': 'BMW',
             },
@@ -628,6 +657,7 @@ class SimpleMailingBrandSearchTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': ['Toyota'],
                 'brand_search': 'BMW',
             },
@@ -662,6 +692,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': [brand],
             },
         )
@@ -671,6 +702,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'brands': [brand],
             },
         )
@@ -906,6 +938,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -915,6 +948,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -980,6 +1014,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -989,6 +1024,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -1021,6 +1057,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'preview',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )
@@ -1030,6 +1067,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             {
                 'action': 'continue',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
+                'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
             },
         )

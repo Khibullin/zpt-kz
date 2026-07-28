@@ -33,6 +33,11 @@ from marketing.services.simple_mailing.constants import (
     MARKETPLACE_BRAND_FILTER_AVAILABLE,
     RECIPIENT_TYPE_MARKETPLACE_BUYERS,
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+    DEFAULT_RECIPIENT_SCOPE,
+    RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+    RECIPIENT_SCOPE_CHOICES,
+    RECIPIENT_SCOPE_CONTROL_ONLY,
+    RECIPIENT_SCOPE_VALUES,
 )
 from marketing.services.simple_mailing.preview import build_selection_key
 from marketing.services.simple_mailing.draft import ensure_launch_key_in_draft, update_draft_count
@@ -49,17 +54,26 @@ DEFAULT_RECIPIENT_TYPE = RECIPIENT_TYPE_PARTS_REQUEST_BUYERS
 
 def _draft_summary_context(draft: dict) -> dict:
     recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
+    recipient_scope = draft.get('recipient_scope') or DEFAULT_RECIPIENT_SCOPE
     type_labels = dict(RECIPIENT_TYPE_CHOICES)
+    scope_labels = dict(RECIPIENT_SCOPE_CHOICES)
     brands_label = 'Все марки'
-    if not draft.get('all_brands'):
+    if recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY:
+        brands_label = '—'
+    elif not draft.get('all_brands'):
         brands = draft.get('brands') or []
         brands_label = ', '.join(brands) if brands else '—'
 
     return {
         'draft': draft,
         'recipient_type_label': type_labels.get(recipient_type, recipient_type),
+        'recipient_scope': recipient_scope,
+        'recipient_scope_label': scope_labels.get(recipient_scope, recipient_scope),
         'brands_label': brands_label,
         'recipient_count': draft.get('count', 0),
+        'ordinary_count': draft.get('ordinary_count', 0),
+        'control_count': draft.get('control_count', 0),
+        'is_audience_plus_controls': recipient_scope == RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
     }
 
 
@@ -82,6 +96,8 @@ class NewMailingView(MarketingCabinetMixin, View):
     def post(self, request):
         action = request.POST.get('action', 'preview')
         recipient_type, all_brands, selected_brands = self._parse_selection(request)
+        recipient_scope = self._parse_recipient_scope(request)
+        control_only = recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY
 
         if recipient_type not in RECIPIENT_TYPE_VALUES:
             messages.error(request, 'Выберите тип получателей.')
@@ -89,11 +105,16 @@ class NewMailingView(MarketingCabinetMixin, View):
             return self._render_page(
                 request,
                 recipient_type=recipient_type,
+                recipient_scope=recipient_scope,
                 all_brands=all_brands,
                 selected_brands=selected_brands,
             )
 
-        if not has_brand_selection(
+        if recipient_scope not in RECIPIENT_SCOPE_VALUES:
+            recipient_scope = DEFAULT_RECIPIENT_SCOPE
+            control_only = recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY
+
+        if not control_only and not has_brand_selection(
             recipient_type=recipient_type,
             all_brands=all_brands,
             brands=selected_brands,
@@ -103,24 +124,31 @@ class NewMailingView(MarketingCabinetMixin, View):
             return self._render_page(
                 request,
                 recipient_type=recipient_type,
+                recipient_scope=recipient_scope,
                 all_brands=all_brands,
                 selected_brands=selected_brands,
             )
 
         selection_key = build_selection_key(
             recipient_type=recipient_type,
+            recipient_scope=recipient_scope,
             all_brands=all_brands,
             brands=selected_brands,
         )
 
         try:
-            validated_brands = validate_brand_selection(
-                recipient_type=recipient_type,
-                all_brands=all_brands,
-                brands=selected_brands,
-            )
+            if control_only:
+                validated_brands: list[str] = []
+                all_brands = True
+            else:
+                validated_brands = validate_brand_selection(
+                    recipient_type=recipient_type,
+                    all_brands=all_brands,
+                    brands=selected_brands,
+                )
             result = resolve_simple_mailing_recipients(
                 recipient_type=recipient_type,
+                recipient_scope=recipient_scope,
                 all_brands=all_brands,
                 brands=validated_brands,
             )
@@ -130,6 +158,7 @@ class NewMailingView(MarketingCabinetMixin, View):
             return self._render_page(
                 request,
                 recipient_type=recipient_type,
+                recipient_scope=recipient_scope,
                 all_brands=all_brands,
                 selected_brands=selected_brands,
             )
@@ -143,15 +172,24 @@ class NewMailingView(MarketingCabinetMixin, View):
                 return self._render_page(
                     request,
                     recipient_type=recipient_type,
+                    recipient_scope=recipient_scope,
                     all_brands=all_brands,
                     selected_brands=selected_brands,
                 )
             if result.count <= 0:
-                messages.error(request, 'Получатели не найдены. Измените фильтры и попробуйте снова.')
+                if control_only:
+                    messages.error(
+                        request,
+                        'Контрольные получатели не найдены. '
+                        'Отметьте контрольные номера в Admin.',
+                    )
+                else:
+                    messages.error(request, 'Получатели не найдены. Измените фильтры и попробуйте снова.')
                 clear_preview_state(request.session)
                 return self._render_page(
                     request,
                     recipient_type=recipient_type,
+                    recipient_scope=recipient_scope,
                     all_brands=all_brands,
                     selected_brands=selected_brands,
                     result=result,
@@ -160,14 +198,22 @@ class NewMailingView(MarketingCabinetMixin, View):
                 request.session,
                 {
                     'recipient_type': recipient_type,
+                    'recipient_scope': recipient_scope,
                     'all_brands': all_brands,
                     'brands': list(result.selection.brands),
                     'count': result.count,
+                    'ordinary_count': result.ordinary_count,
+                    'control_count': result.control_count,
                 },
             )
             clear_preview_state(request.session)
             return redirect('marketing:new_mailing_message')
 
+        selection_key = {
+            **selection_key,
+            'ordinary_count': result.ordinary_count,
+            'control_count': result.control_count,
+        }
         save_preview_state(
             request.session,
             selection_key=selection_key,
@@ -176,10 +222,17 @@ class NewMailingView(MarketingCabinetMixin, View):
         return self._render_page(
             request,
             recipient_type=recipient_type,
+            recipient_scope=recipient_scope,
             all_brands=all_brands,
             selected_brands=selected_brands,
             result=result,
         )
+
+    def _parse_recipient_scope(self, request) -> str:
+        scope = (request.POST.get('recipient_scope') or request.GET.get('recipient_scope') or '').strip()
+        if scope in RECIPIENT_SCOPE_VALUES:
+            return scope
+        return DEFAULT_RECIPIENT_SCOPE
 
     def _parse_selection(self, request) -> tuple[str, bool, list[str]]:
         recipient_type = (request.POST.get('recipient_type') or '').strip()
@@ -205,13 +258,17 @@ class NewMailingView(MarketingCabinetMixin, View):
         request,
         *,
         recipient_type: str | None = None,
+        recipient_scope: str | None = None,
         all_brands: bool = False,
         selected_brands: list[str] | None = None,
         result=None,
     ):
         recipient_type = recipient_type or request.GET.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
+        recipient_scope = recipient_scope or self._parse_recipient_scope(request)
         if recipient_type not in RECIPIENT_TYPE_VALUES:
             recipient_type = DEFAULT_RECIPIENT_TYPE
+
+        control_only = recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY
 
         if recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS and not MARKETPLACE_BRAND_FILTER_AVAILABLE:
             all_brands = True
@@ -221,15 +278,18 @@ class NewMailingView(MarketingCabinetMixin, View):
         brand_filter_enabled = marketplace_brand_filter_enabled(recipient_type)
         selected_brands = selected_brands or []
         type_labels = dict(RECIPIENT_TYPE_CHOICES)
+        scope_labels = dict(RECIPIENT_SCOPE_CHOICES)
 
-        can_calculate = has_brand_selection(
+        can_calculate = control_only or has_brand_selection(
             recipient_type=recipient_type,
             all_brands=all_brands,
             brands=selected_brands,
         )
         can_continue = result is not None and result.count > 0
 
-        if all_brands or (
+        if control_only:
+            selected_brands_label = '—'
+        elif all_brands or (
             recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS and not brand_filter_enabled
         ):
             selected_brands_label = 'Все марки'
@@ -243,6 +303,10 @@ class NewMailingView(MarketingCabinetMixin, View):
             'recipient_type': recipient_type,
             'recipient_type_label': type_labels.get(recipient_type, recipient_type),
             'recipient_type_choices': RECIPIENT_TYPE_CHOICES,
+            'recipient_scope': recipient_scope,
+            'recipient_scope_label': scope_labels.get(recipient_scope, recipient_scope),
+            'recipient_scope_choices': RECIPIENT_SCOPE_CHOICES,
+            'control_only': control_only,
             'brand_options': brand_options,
             'all_brands': all_brands,
             'selected_brands': selected_brands,
@@ -252,6 +316,8 @@ class NewMailingView(MarketingCabinetMixin, View):
             'can_calculate': can_calculate,
             'can_continue': can_continue,
             'count_display': str(result.count) if result is not None else '—',
+            'ordinary_count_display': str(result.ordinary_count) if result is not None else '—',
+            'control_count_display': str(result.control_count) if result is not None else '—',
             'show_preview': result is not None and bool(result.preview_rows),
         }
         return render(request, self.template_name, context)

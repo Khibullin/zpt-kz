@@ -394,6 +394,13 @@ class BuyerContact(models.Model):
             'Тестовые контакты должны исключаться из будущих рекламных аудиторий.'
         ),
     )
+    is_control_recipient = models.BooleanField(
+        default=False,
+        verbose_name='Контрольный получатель',
+        help_text=(
+            'Внутренний контрольный номер для проверки маркетинговых WhatsApp-рассылок.'
+        ),
+    )
     portal_access = models.OneToOneField(
         'BuyerPortalAccess',
         null=True,

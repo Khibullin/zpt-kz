@@ -35,6 +35,7 @@ from marketing.services.campaigns.send_constants import (
     ACTIVE_SIMPLE_MAILING_LOCK_VALUE,
     MESSAGE_STATUS_QUEUED,
     MESSAGE_STATUS_SKIPPED,
+    RECIPIENT_SCOPE_CONTROL_ONLY,
     SEND_MODE_LIVE,
     SEND_RUN_STATUS_QUEUED,
     WORKFLOW_TYPE_SIMPLE_MAILING,
@@ -55,6 +56,10 @@ from marketing.services.simple_mailing.consent import (
 from marketing.services.simple_mailing.launch_recipients import (
     SimpleMailingLaunchRecipient,
     resolve_simple_mailing_launch_recipients,
+)
+from marketing.services.simple_mailing.constants import (
+    DEFAULT_RECIPIENT_SCOPE,
+    RECIPIENT_TYPE_CHOICES,
 )
 from marketing.services.simple_mailing.purpose import recipient_type_to_campaign_purpose
 from marketing.services.simple_mailing.waves import compute_wave_schedule
@@ -142,6 +147,7 @@ def launch_simple_mailing(
         )
 
     recipient_type = draft.get('recipient_type') or ''
+    recipient_scope = draft.get('recipient_scope') or DEFAULT_RECIPIENT_SCOPE
     all_brands = bool(draft.get('all_brands'))
     brands = list(draft.get('brands') or [])
     expected_count = int(draft.get('count') or 0)
@@ -154,6 +160,7 @@ def launch_simple_mailing(
 
     launch_recipients = resolve_simple_mailing_launch_recipients(
         recipient_type=recipient_type,
+        recipient_scope=recipient_scope,
         all_brands=all_brands,
         brands=brands,
     )
@@ -161,6 +168,10 @@ def launch_simple_mailing(
     if actual_count != expected_count:
         raise SimpleMailingCountChangedError(expected=expected_count, actual=actual_count)
     if actual_count <= 0:
+        if recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY:
+            raise SimpleMailingLaunchError(
+                'Контрольные получатели не найдены. Отметьте контрольные номера в Admin.',
+            )
         raise SimpleMailingLaunchError('Получатели не найдены.')
 
     if simple_mailing_has_active_run():
@@ -199,6 +210,7 @@ def launch_simple_mailing(
                 criteria={
                     'simple_mailing': True,
                     'recipient_type': recipient_type,
+                    'recipient_scope': recipient_scope,
                     'all_brands': all_brands,
                     'brands': brands,
                 },
@@ -234,6 +246,7 @@ def launch_simple_mailing(
                         roles=[recipient_label],
                         vehicle_summary=row.brands_label,
                         is_test_contact=row.is_test_contact,
+                        is_control_recipient=row.is_control_recipient,
                         consent_status=consent_status,
                         eligibility_status=ELIGIBILITY_ELIGIBLE,
                         exclusion_reason='',
@@ -253,6 +266,7 @@ def launch_simple_mailing(
                 mode=SEND_MODE_LIVE,
                 status=SEND_RUN_STATUS_QUEUED,
                 workflow_type=WORKFLOW_TYPE_SIMPLE_MAILING,
+                recipient_scope=recipient_scope,
                 simple_mailing_key=uuid.UUID(str(launch_key)),
                 active_simple_mailing_lock=ACTIVE_SIMPLE_MAILING_LOCK_VALUE,
                 total_count=0,
@@ -272,6 +286,7 @@ def launch_simple_mailing(
                 eligible, skip_reason = evaluate_simple_mailing_phone(
                     phone_normalized=launch_row.phone_normalized,
                     is_test=launch_row.is_test_contact,
+                    is_control=launch_row.is_control_recipient,
                 )
                 if not eligible:
                     MarketingCampaignMessage.objects.create(

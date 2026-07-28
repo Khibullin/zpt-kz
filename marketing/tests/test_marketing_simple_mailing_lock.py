@@ -34,7 +34,10 @@ from marketing.services.campaigns.send_constants import (
     SEND_RUN_STATUS_RUNNING,
     WORKFLOW_TYPE_SIMPLE_MAILING,
 )
-from marketing.services.simple_mailing.constants import RECIPIENT_TYPE_PARTS_REQUEST_BUYERS
+from marketing.services.simple_mailing.constants import (
+    RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+    RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+)
 from marketing.services.simple_mailing.launch import SimpleMailingLaunchError, launch_simple_mailing
 from marketing.tests.test_marketing_audiences import grant_consent, make_buyer
 from marketing.tests.test_marketing_campaign_live_send import LIVE_SETTINGS
@@ -53,6 +56,7 @@ LIVE_SIMPLE_SETTINGS = {
 def _launch_draft(*, count: int, template_id: int) -> dict:
     return {
         'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+        'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
         'all_brands': True,
         'brands': [],
         'count': count,

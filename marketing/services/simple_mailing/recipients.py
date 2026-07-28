@@ -13,9 +13,19 @@ from marketing.services.simple_mailing.brands import (
 )
 from marketing.services.simple_mailing.constants import (
     MARKETPLACE_BRAND_FILTER_AVAILABLE,
+    RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+    RECIPIENT_SCOPE_CONTROL_ONLY,
     RECIPIENT_TYPE_MARKETPLACE_BUYERS,
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
     RECIPIENT_TYPE_SELLERS,
+)
+from marketing.services.simple_mailing.control_recipients import (
+    build_control_launch_recipients,
+    list_eligible_control_buyers,
+    merge_ordinary_with_controls,
+)
+from marketing.services.simple_mailing.launch_recipients import (
+    resolve_simple_mailing_launch_recipients,
 )
 
 PREVIEW_LIMIT = 50
@@ -45,6 +55,9 @@ class SimpleMailingSelection:
 @dataclass(frozen=True)
 class SimpleMailingRecipientsResult:
     selection: SimpleMailingSelection
+    recipient_scope: str
+    ordinary_count: int
+    control_count: int
     count: int
     recipient_keys: tuple[str, ...]
     preview_rows: tuple[SimpleMailingPreviewRow, ...]
@@ -94,9 +107,12 @@ def _parts_request_buyers(
                 recipient_key=f'buyer:{buyer_id}',
             ),
         )
-    recipient_keys = ()  # populated only when needed for draft; count is authoritative
+    recipient_keys = ()
     return SimpleMailingRecipientsResult(
         selection=selection,
+        recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+        ordinary_count=count,
+        control_count=0,
         count=count,
         recipient_keys=recipient_keys,
         preview_rows=tuple(preview_rows),
@@ -129,6 +145,9 @@ def _marketplace_buyers(
     ]
     return SimpleMailingRecipientsResult(
         selection=selection,
+        recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+        ordinary_count=counts.real_total,
+        control_count=0,
         count=counts.real_total,
         recipient_keys=(),
         preview_rows=tuple(preview_rows),
@@ -198,6 +217,9 @@ def _sellers(
     preview_rows = _seller_preview_rows(grouped)
     return SimpleMailingRecipientsResult(
         selection=selection,
+        recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+        ordinary_count=count,
+        control_count=0,
         count=count,
         recipient_keys=(),
         preview_rows=preview_rows,
@@ -219,17 +241,113 @@ def _sorted_unique_brands(values) -> list[str]:
     return sorted(brands, key=lambda item: item.casefold())
 
 
+def _control_only_result(*, recipient_type: str) -> SimpleMailingRecipientsResult:
+    controls = build_control_launch_recipients()
+    control_count = len(list_eligible_control_buyers())
+    preview_rows = [
+        SimpleMailingPreviewRow(
+            masked_phone=mask_phone(row.phone_normalized),
+            recipient_type_label='Контрольный получатель',
+            brands_label=row.brands_label,
+            recipient_key=f'control:{row.phone_normalized}',
+        )
+        for row in controls[:PREVIEW_LIMIT]
+    ]
+    selection = SimpleMailingSelection(
+        recipient_type=recipient_type,
+        all_brands=True,
+        brands=(),
+    )
+    return SimpleMailingRecipientsResult(
+        selection=selection,
+        recipient_scope=RECIPIENT_SCOPE_CONTROL_ONLY,
+        ordinary_count=0,
+        control_count=control_count,
+        count=len(controls),
+        recipient_keys=(),
+        preview_rows=tuple(preview_rows),
+    )
+
+
+def _with_scope_counts(
+    base: SimpleMailingRecipientsResult,
+    *,
+    recipient_scope: str,
+) -> SimpleMailingRecipientsResult:
+    if recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY:
+        return _control_only_result(recipient_type=base.selection.recipient_type)
+
+    ordinary_count = base.ordinary_count
+    control_rows = build_control_launch_recipients()
+    control_count = len(list_eligible_control_buyers())
+    if recipient_scope != RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS:
+        return SimpleMailingRecipientsResult(
+            selection=base.selection,
+            recipient_scope=recipient_scope,
+            ordinary_count=ordinary_count,
+            control_count=0,
+            count=base.count,
+            recipient_keys=base.recipient_keys,
+            preview_rows=base.preview_rows,
+        )
+
+    launch_rows = resolve_simple_mailing_launch_recipients(
+        recipient_type=base.selection.recipient_type,
+        recipient_scope=recipient_scope,
+        all_brands=base.selection.all_brands,
+        brands=list(base.selection.brands),
+    )
+    _, duplicate_controls = merge_ordinary_with_controls(
+        [row for row in launch_rows if not row.is_control_recipient],
+        control_rows,
+    )
+    total_count = len(launch_rows)
+    preview_rows = list(base.preview_rows)
+    existing_phones = {
+        row.recipient_key
+        for row in preview_rows
+    }
+    for row in control_rows[:PREVIEW_LIMIT]:
+        key = f'control:{row.phone_normalized}'
+        if key in existing_phones:
+            continue
+        preview_rows.append(
+            SimpleMailingPreviewRow(
+                masked_phone=mask_phone(row.phone_normalized),
+                recipient_type_label='Контрольный получатель',
+                brands_label=row.brands_label,
+                recipient_key=key,
+            ),
+        )
+        if len(preview_rows) >= PREVIEW_LIMIT:
+            break
+    return SimpleMailingRecipientsResult(
+        selection=base.selection,
+        recipient_scope=recipient_scope,
+        ordinary_count=ordinary_count,
+        control_count=control_count,
+        count=total_count,
+        recipient_keys=base.recipient_keys,
+        preview_rows=tuple(preview_rows[:PREVIEW_LIMIT]),
+    )
+
+
 def resolve_simple_mailing_recipients(
     *,
     recipient_type: str,
+    recipient_scope: str = RECIPIENT_SCOPE_CONTROL_ONLY,
     all_brands: bool = False,
     brands: list[str] | None = None,
 ) -> SimpleMailingRecipientsResult:
     brand_list = list(brands or [])
+    if recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY:
+        return _control_only_result(recipient_type=recipient_type)
     if recipient_type == RECIPIENT_TYPE_PARTS_REQUEST_BUYERS:
-        return _parts_request_buyers(all_brands=all_brands, brands=brand_list)
-    if recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS:
-        return _marketplace_buyers(all_brands=all_brands, brands=brand_list)
-    if recipient_type == RECIPIENT_TYPE_SELLERS:
-        return _sellers(all_brands=all_brands, brands=brand_list)
-    raise ValueError(f'Unknown recipient type: {recipient_type}')
+        base = _parts_request_buyers(all_brands=all_brands, brands=brand_list)
+    elif recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS:
+        base = _marketplace_buyers(all_brands=all_brands, brands=brand_list)
+    elif recipient_type == RECIPIENT_TYPE_SELLERS:
+        base = _sellers(all_brands=all_brands, brands=brand_list)
+    else:
+        raise ValueError(f'Unknown recipient type: {recipient_type}')
+    return _with_scope_counts(base, recipient_scope=recipient_scope)

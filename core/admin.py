@@ -487,6 +487,18 @@ def unmark_buyer_contacts_as_test(modeladmin, request, queryset):
     messages.success(request, f'Снят признак тестового контакта: {updated}.')
 
 
+@admin.action(description='Отметить как контрольные получатели')
+def mark_buyer_contacts_as_control(modeladmin, request, queryset):
+    updated = queryset.update(is_control_recipient=True)
+    messages.success(request, f'Отмечено как контрольные получатели: {updated}.')
+
+
+@admin.action(description='Снять признак контрольного получателя')
+def unmark_buyer_contacts_as_control(modeladmin, request, queryset):
+    updated = queryset.update(is_control_recipient=False)
+    messages.success(request, f'Снят признак контрольного получателя: {updated}.')
+
+
 @admin.register(BuyerContact)
 class BuyerContactAdmin(admin.ModelAdmin):
     list_display = (
@@ -499,10 +511,12 @@ class BuyerContactAdmin(admin.ModelAdmin):
         'last_search_scope',
         'marketing_consent_status',
         'is_test_contact',
+        'control_recipient_display',
         'status',
     )
     list_filter = (
         'is_test_contact',
+        'is_control_recipient',
         'status',
         BuyerMarketingConsentFilter,
         BuyerActivityFilter,
@@ -544,6 +558,7 @@ class BuyerContactAdmin(admin.ModelAdmin):
         'phone_normalized',
         'status',
         'is_test_contact',
+        'is_control_recipient',
         'primary_country',
         'primary_city',
         'first_request_at',
@@ -567,6 +582,8 @@ class BuyerContactAdmin(admin.ModelAdmin):
     actions = (
         mark_buyer_contacts_as_test,
         unmark_buyer_contacts_as_test,
+        mark_buyer_contacts_as_control,
+        unmark_buyer_contacts_as_control,
     )
 
     def get_queryset(self, request):
@@ -610,6 +627,10 @@ class BuyerContactAdmin(admin.ModelAdmin):
     @admin.display(description='Телефон', ordering='phone_normalized')
     def masked_phone(self, obj):
         return mask_phone(obj.phone_normalized)
+
+    @admin.display(description='Контрольный', ordering='is_control_recipient')
+    def control_recipient_display(self, obj):
+        return 'CONTROL' if obj.is_control_recipient else '—'
 
     @admin.display(description='Автомобили')
     def vehicles_summary(self, obj):

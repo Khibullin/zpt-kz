@@ -26,6 +26,7 @@ class SimpleMailingLaunchRecipient:
     city: str
     brands_label: str
     is_test_contact: bool
+    is_control_recipient: bool = False
 
 
 def _parts_request_buyer_recipients(
@@ -64,6 +65,7 @@ def _parts_request_buyer_recipients(
                 city=buyer.primary_city or '—',
                 brands_label=', '.join(brand_names) or '—',
                 is_test_contact=buyer.is_test_contact,
+                is_control_recipient=buyer.is_control_recipient,
             ),
         )
     return _dedupe_by_phone(recipients)
@@ -81,6 +83,7 @@ def _marketplace_buyer_recipients() -> list[SimpleMailingLaunchRecipient]:
                 city=(buyer.primary_city if buyer else '') or '—',
                 brands_label='Все марки',
                 is_test_contact=bool(buyer and buyer.is_test_contact),
+                is_control_recipient=bool(buyer and buyer.is_control_recipient),
             ),
         )
     return recipients
@@ -116,6 +119,7 @@ def _seller_recipients(
                 city=sellers[0].city or '—',
                 brands_label=_merged_seller_brands_label(sellers),
                 is_test_contact=False,
+                is_control_recipient=False,
             ),
         )
     return recipients
@@ -167,16 +171,36 @@ def _dedupe_by_phone(
 def resolve_simple_mailing_launch_recipients(
     *,
     recipient_type: str,
+    recipient_scope: str,
     all_brands: bool = False,
     brands: list[str] | None = None,
 ) -> list[SimpleMailingLaunchRecipient]:
+    from marketing.services.simple_mailing.constants import (
+        RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+        RECIPIENT_SCOPE_CONTROL_ONLY,
+    )
+    from marketing.services.simple_mailing.control_recipients import (
+        build_control_launch_recipients,
+        merge_ordinary_with_controls,
+    )
+
     brand_list = list(brands or [])
+    if recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY:
+        return build_control_launch_recipients()
+
     if recipient_type == RECIPIENT_TYPE_PARTS_REQUEST_BUYERS:
-        return _parts_request_buyer_recipients(all_brands=all_brands, brands=brand_list)
-    if recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS:
+        ordinary = _parts_request_buyer_recipients(all_brands=all_brands, brands=brand_list)
+    elif recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS:
         if not all_brands and MARKETPLACE_BRAND_FILTER_AVAILABLE:
             raise NotImplementedError('Marketplace brand filter is not enabled yet.')
-        return _marketplace_buyer_recipients()
-    if recipient_type == RECIPIENT_TYPE_SELLERS:
-        return _seller_recipients(all_brands=all_brands, brands=brand_list)
-    raise ValueError(f'Unknown recipient type: {recipient_type}')
+        ordinary = _marketplace_buyer_recipients()
+    elif recipient_type == RECIPIENT_TYPE_SELLERS:
+        ordinary = _seller_recipients(all_brands=all_brands, brands=brand_list)
+    else:
+        raise ValueError(f'Unknown recipient type: {recipient_type}')
+
+    if recipient_scope == RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS:
+        controls = build_control_launch_recipients()
+        merged, _ = merge_ordinary_with_controls(ordinary, controls)
+        return merged
+    return ordinary

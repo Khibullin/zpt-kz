@@ -27,6 +27,7 @@ from marketing.services.campaigns.send_constants import (
     ACTIVE_SIMPLE_MAILING_LOCK_VALUE,
     MESSAGE_STATUS_CHOICES,
     MESSAGE_STATUS_PENDING,
+    RECIPIENT_SCOPE_CHOICES,
     SEND_MODE_LIVE,
     SEND_MODE_TEST,
     SEND_RUN_STATUS_CHOICES,
@@ -218,7 +219,7 @@ class MarketingWhatsAppTemplate(models.Model):
 
     class Meta:
         verbose_name = 'Маркетинговый WhatsApp-шаблон'
-        verbose_name_plural = 'Маркетинговые WhatsApp-шаблоны'
+        verbose_name_plural = 'WhatsApp-шаблоны маркетинга'
         ordering = ('-updated_at', '-id')
         constraints = [
             models.UniqueConstraint(
@@ -465,6 +466,10 @@ class MarketingCampaignRecipient(models.Model):
     vehicle_summary = models.CharField(max_length=255, default='—', verbose_name='Автомобиль')
     last_activity_at = models.DateTimeField(null=True, blank=True, verbose_name='Активность')
     is_test_contact = models.BooleanField(default=False, verbose_name='Тестовый контакт')
+    is_control_recipient = models.BooleanField(
+        default=False,
+        verbose_name='Контрольный получатель',
+    )
     consent_status = models.CharField(max_length=32, default='', verbose_name='Согласие')
     eligibility_status = models.CharField(
         max_length=16,
@@ -589,10 +594,17 @@ class MarketingCampaignSendRun(models.Model):
         default=None,
         verbose_name='Блокировка active simple mailing',
     )
+    recipient_scope = models.CharField(
+        max_length=32,
+        choices=RECIPIENT_SCOPE_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Область получателей simple mailing',
+    )
 
     class Meta:
-        verbose_name = 'Запуск отправки кампании'
-        verbose_name_plural = 'Запуски отправки кампаний'
+        verbose_name = 'Запуск маркетинговой рассылки'
+        verbose_name_plural = 'Запуски маркетинговых рассылок'
         ordering = ('-created_at', '-id')
         constraints = [
             models.UniqueConstraint(
@@ -666,8 +678,8 @@ class MarketingCampaignMessage(models.Model):
     scheduled_at = models.DateTimeField(verbose_name='Не раньше')
 
     class Meta:
-        verbose_name = 'Сообщение кампании'
-        verbose_name_plural = 'Сообщения кампаний'
+        verbose_name = 'WhatsApp-лог маркетинговой рассылки'
+        verbose_name_plural = 'WhatsApp-логи маркетинговых рассылок'
         ordering = ('id',)
         constraints = [
             models.UniqueConstraint(

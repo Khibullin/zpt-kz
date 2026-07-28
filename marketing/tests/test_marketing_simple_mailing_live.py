@@ -32,7 +32,10 @@ from marketing.services.campaigns.send_constants import (
     WORKFLOW_TYPE_LEGACY,
     WORKFLOW_TYPE_SIMPLE_MAILING,
 )
-from marketing.services.simple_mailing.constants import RECIPIENT_TYPE_PARTS_REQUEST_BUYERS
+from marketing.services.simple_mailing.constants import (
+    RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+    RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+)
 from marketing.services.simple_mailing.launch import (
     SimpleMailingLaunchError,
     launch_simple_mailing,
@@ -72,6 +75,7 @@ def _make_n_request_buyers(
 def _launch_draft(*, count: int, template_id: int) -> dict:
     return {
         'recipient_type': RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+        'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
         'all_brands': True,
         'brands': [],
         'count': count,
