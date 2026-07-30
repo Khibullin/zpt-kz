@@ -63,6 +63,7 @@ VEHICLE_CATALOG = {
         'Peugeot': ['301', '308', '3008'],
         'Citroen': ['C4', 'C5 Aircross'],
         'Volvo': ['XC60', 'XC90', 'S60'],
+        'Land Rover': ['Range Rover'],
     },
     'Япония': {
         'Toyota': ['Camry', 'Corolla', 'RAV4', 'Land Cruiser Prado'],
