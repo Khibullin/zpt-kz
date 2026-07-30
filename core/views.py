@@ -344,6 +344,23 @@ def _post_fields_from_request(request):
     }
 
 
+_CUSTOM_MODEL_MARKERS = frozenset({
+    '__custom_model__',
+    'Моей модели нет в списке',
+})
+
+
+def _normalize_request_model(raw_model: str) -> str:
+    model = (raw_model or '').strip()
+    if not model:
+        raise ValueError('Укажите модель автомобиля.')
+    if len(model) > 100:
+        raise ValueError('Модель автомобиля не должна быть длиннее 100 символов.')
+    if model in _CUSTOM_MODEL_MARKERS:
+        raise ValueError('Укажите модель автомобиля.')
+    return model
+
+
 def _parse_create_request_data(request):
     content_type = (request.content_type or '').lower()
     uploaded_photos = _collect_request_uploads(request)
@@ -907,6 +924,11 @@ def create_request(request):
                 status=400,
             )
 
+        try:
+            model = _normalize_request_model(data.get('model', ''))
+        except ValueError as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
+
         selected_cities = data.get('selected_cities') or []
         if isinstance(selected_cities, str):
             selected_cities = [
@@ -919,7 +941,7 @@ def create_request(request):
             transport_type=transport_type,
             country=data.get('country', ''),
             brand=data.get('brand', ''),
-            model=data.get('model', ''),
+            model=model,
             category=data.get('category', ''),
             article=data.get('article', ''),
             description=data.get('description', ''),

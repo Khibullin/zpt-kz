@@ -45,6 +45,12 @@
           <select id="model" required><option value="">Сначала выберите марку</option></select>
         </div>
 
+        <div class="field full" id="customModelField" hidden>
+          <label for="customModel">Укажите модель автомобиля</label>
+          <input id="customModel" maxlength="100" placeholder="Например: Discovery Sport, Evoque или напишите «не знаю»">
+          <div class="hint" id="customModelHint" hidden>Моделей пока нет в справочнике — укажите модель вручную</div>
+        </div>
+
         <div class="field">
           <label for="category">Категория запчасти</label>
           <select id="category" required><option value="">Загрузка категорий...</option></select>
@@ -160,5 +166,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/request-parts-form-v5.js' %}?v=134"></script>
+<script src="{% static 'js/request-parts-form-v5.js' %}?v=135"></script>
 {% endblock %}

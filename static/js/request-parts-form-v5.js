@@ -1,10 +1,15 @@
 const API = window.ZPT_CONFIG.apiBase.replace(/\/$/, '');
 /* request-parts-form v5 — справочник марок/моделей из /api/ (core/vehicle_catalog.py) */
+const CUSTOM_MODEL_VALUE = '__custom_model__';
+const CUSTOM_MODEL_LABEL = 'Моей модели нет в списке';
 let transportType='car';
 let countriesData=[];let brandsData=[];let modelsData=[];
 const countryEl=document.getElementById('country');
 const brandEl=document.getElementById('brand');
 const modelEl=document.getElementById('model');
+const customModelField=document.getElementById('customModelField');
+const customModelEl=document.getElementById('customModel');
+const customModelHint=document.getElementById('customModelHint');
 const categoryEl=document.getElementById('category');
 const articleEl=document.getElementById('article');
 const cityEl=document.getElementById('city');
@@ -21,6 +26,67 @@ function clearMessage(){msg.className='msg';ZPTDom.setText(msg,'')}
 function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
 async function apiGet(url){let r=await fetch(url);if(!r.ok){throw new Error('Ошибка загрузки данных')}return r.json()}
 function getSelectedText(select){if(!select.value)return '';let opt=select.options[select.selectedIndex];return opt?opt.textContent.trim():''}
+
+function hideCustomModel(){
+  if(!customModelField || !customModelEl){
+    return;
+  }
+  customModelField.hidden=true;
+  customModelEl.value='';
+  customModelEl.required=false;
+  if(customModelHint){
+    customModelHint.hidden=true;
+  }
+}
+
+function showCustomModel(options){
+  if(!customModelField || !customModelEl){
+    return;
+  }
+  customModelField.hidden=false;
+  customModelEl.required=true;
+  if(customModelHint){
+    customModelHint.hidden=!options || !options.auto;
+  }
+}
+
+function appendCustomModelOption(){
+  if(!modelEl){
+    return;
+  }
+  if(modelEl.querySelector('option[value="'+CUSTOM_MODEL_VALUE+'"]')){
+    return;
+  }
+  let opt=document.createElement('option');
+  opt.value=CUSTOM_MODEL_VALUE;
+  opt.textContent=CUSTOM_MODEL_LABEL;
+  modelEl.appendChild(opt);
+}
+
+function fillModelSelect(items, placeholder){
+  ZPTDom.fillSelect(modelEl, items, placeholder);
+  appendCustomModelOption();
+}
+
+function isCustomModelSelected(){
+  return modelEl && modelEl.value===CUSTOM_MODEL_VALUE;
+}
+
+function resolveModelForSubmit(){
+  if(isCustomModelSelected()){
+    return customModelEl ? customModelEl.value.trim() : '';
+  }
+  return getSelectedText(modelEl);
+}
+
+function activateCustomModelMode(modelText, options){
+  appendCustomModelOption();
+  modelEl.value=CUSTOM_MODEL_VALUE;
+  showCustomModel(options || {});
+  if(customModelEl && modelText){
+    customModelEl.value=modelText;
+  }
+}
 function toggleCitiesSelection(){
   let selected = document.querySelector(
     'input[name="search_scope"]:checked'
@@ -54,6 +120,7 @@ function setTransport(type){
   transportType=type;
   carBtn.classList.toggle('active',type==='car');
   truckBtn.classList.toggle('active',type==='truck');
+  hideCustomModel();
   ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');
   ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');
   loadCountries();
@@ -75,6 +142,7 @@ async function loadCountries(){
 
 async function loadBrands(){
   let countryId=countryEl.value;
+  hideCustomModel();
   ZPTDom.fillSelect(brandEl, [], 'Загрузка марок...');
   ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');
   if(!countryId){ZPTDom.fillSelect(brandEl, [], 'Сначала выберите страну');return}
@@ -87,12 +155,17 @@ async function loadBrands(){
 
 async function loadModels(){
   let brandId=brandEl.value;
+  hideCustomModel();
   ZPTDom.fillSelect(modelEl, [], 'Загрузка моделей...');
   if(!brandId){ZPTDom.fillSelect(modelEl, [], 'Сначала выберите марку');return}
   try{
     modelsData=await apiGet(API+'/models-by-brand/?brand_id='+encodeURIComponent(brandId)+'&transport_type='+encodeURIComponent(transportType));
-    if(!modelsData.length){ZPTDom.fillSelect(modelEl, [], 'Моделей нет в справочнике');return}
-    ZPTDom.fillSelect(modelEl, modelsData, 'Выберите модель');
+    if(!modelsData.length){
+      fillModelSelect([], 'Выберите модель');
+      activateCustomModelMode('', {auto:true});
+      return;
+    }
+    fillModelSelect(modelsData, 'Выберите модель');
   }catch(e){ZPTDom.fillSelect(modelEl, [], 'Ошибка загрузки моделей')}
 }
 
@@ -216,7 +289,7 @@ requestForm.addEventListener('submit',async function(e){
   e.preventDefault();clearMessage();
   let country=getSelectedText(countryEl);
   let brand=getSelectedText(brandEl);
-  let model=getSelectedText(modelEl);
+  let model=resolveModelForSubmit();
   let category=categoryEl.value;
   let article=articleEl.value.trim();
   let description=descriptionEl.value.trim();
@@ -234,6 +307,11 @@ if(
   !phone
 ){
   setMessage('Заполните обязательные поля.','error');
+  return;
+}
+
+if(isCustomModelSelected() && model.length>100){
+  setMessage('Модель автомобиля не должна быть длиннее 100 символов.','error');
   return;
 }
 
@@ -299,7 +377,10 @@ if(
       return;
     }
     renderResult(data);
-    requestForm.reset();setTransport('car');await loadCategories();
+    requestForm.reset();
+    hideCustomModel();
+    setTransport('car');
+    await loadCategories();
   }catch(err){setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error')}
   finally{submitBtn.disabled=false;submitBtn.innerText='Отправить заявку'}
 });
@@ -415,6 +496,8 @@ async function applyUrlParams(){
         if(foundModel){
           modelEl.value =
             foundModel.id;
+        }else{
+          activateCustomModelMode(model);
         }
       }
     }
@@ -471,5 +554,12 @@ async function applyUrlParams(){
 
 countryEl.addEventListener('change',loadBrands);
 brandEl.addEventListener('change',loadModels);
+modelEl.addEventListener('change',function(){
+  if(isCustomModelSelected()){
+    showCustomModel();
+    return;
+  }
+  hideCustomModel();
+});
 loadCategories();
 applyUrlParams();
