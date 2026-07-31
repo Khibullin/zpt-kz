@@ -3,6 +3,7 @@ from __future__ import annotations
 from django.contrib import admin
 from django.db.models import Count, Max, Min, Q
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.html import format_html
 
 from core.whatsapp_redaction import redact_whatsapp_sensitive_data
@@ -51,6 +52,11 @@ def _safe_error_text(text: str) -> str:
     if isinstance(sanitized, str):
         return sanitized
     return str(sanitized)
+
+
+def _campaign_display_datetime(send_run, campaign):
+    dt = send_run.started_at or send_run.created_at or campaign.created_at
+    return timezone.localtime(dt)
 
 
 class RecipientScopeFilter(admin.SimpleListFilter):
@@ -320,7 +326,7 @@ class MarketingCampaignMessageAdmin(ReadOnlyMarketingMessageAdmin):
     list_display = (
         'id',
         'send_run_link',
-        'campaign_name',
+        'campaign_short_display',
         'masked_phone_display',
         'control_display',
         'recipient_scope_display',
@@ -362,7 +368,7 @@ class MarketingCampaignMessageAdmin(ReadOnlyMarketingMessageAdmin):
         'send_run',
         'send_run_link',
         'campaign_recipient',
-        'campaign_name',
+        'campaign_name_full',
         'phone_normalized',
         'masked_phone_display',
         'control_display',
@@ -392,8 +398,22 @@ class MarketingCampaignMessageAdmin(ReadOnlyMarketingMessageAdmin):
         )
         return format_html('<a href="{}">#{}</a>', url, obj.send_run_id)
 
-    @admin.display(description='Кампания', ordering='send_run__campaign__name')
-    def campaign_name(self, obj: MarketingCampaignMessage) -> str:
+    @admin.display(description='Кампания', ordering='send_run__campaign_id')
+    def campaign_short_display(self, obj: MarketingCampaignMessage) -> str:
+        campaign = obj.send_run.campaign
+        send_run = obj.send_run
+        date_label = _campaign_display_datetime(send_run, campaign).strftime('%d.%m.%Y')
+        label = f'Кампания №{campaign.pk} — {date_label}'
+        url = reverse('marketing:campaign_detail', args=[campaign.pk])
+        return format_html(
+            '<a href="{}" title="{}">{}</a>',
+            url,
+            campaign.name,
+            label,
+        )
+
+    @admin.display(description='Кампания (полное название)')
+    def campaign_name_full(self, obj: MarketingCampaignMessage) -> str:
         return obj.send_run.campaign.name
 
     @admin.display(description='Телефон')

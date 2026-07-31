@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from datetime import datetime
+
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
@@ -172,6 +174,58 @@ class MarketingAdminDisplayTests(TestCase):
         self.recipient.save(update_fields=['is_control_recipient'])
         self.message.refresh_from_db()
         self.assertEqual(admin_obj.control_display(self.message), '—')
+
+    def test_campaign_short_display_uses_started_at(self):
+        started = timezone.make_aware(datetime(2026, 7, 31, 15, 30))
+        MarketingCampaignSendRun.objects.filter(pk=self.send_run.pk).update(
+            started_at=started,
+        )
+        self.send_run.refresh_from_db()
+        admin_obj = MarketingCampaignMessageAdmin(MarketingCampaignMessage, AdminSite())
+        html = str(admin_obj.campaign_short_display(self.message))
+        expected_date = timezone.localtime(started).strftime('%d.%m.%Y')
+        self.assertIn(f'Кампания №{self.campaign.pk} — {expected_date}', html)
+        self.assertIn(
+            reverse('marketing:campaign_detail', args=[self.campaign.pk]),
+            html,
+        )
+        self.assertIn(f'title="{self.campaign.name}"', html)
+
+    def test_campaign_short_display_falls_back_to_send_run_created_at(self):
+        created = timezone.make_aware(datetime(2026, 6, 15, 9, 0))
+        MarketingCampaignSendRun.objects.filter(pk=self.send_run.pk).update(
+            started_at=None,
+            created_at=created,
+        )
+        self.send_run.refresh_from_db()
+        admin_obj = MarketingCampaignMessageAdmin(MarketingCampaignMessage, AdminSite())
+        html = str(admin_obj.campaign_short_display(self.message))
+        expected_date = timezone.localtime(created).strftime('%d.%m.%Y')
+        self.assertIn(f'Кампания №{self.campaign.pk} — {expected_date}', html)
+
+    def test_message_changelist_shows_short_campaign_display(self):
+        url = reverse('admin:marketing_marketingcampaignmessage_changelist')
+        response = self.client.get(url, {'send_run': str(self.send_run.pk)})
+        self.assertEqual(response.status_code, 200)
+        expected_date = timezone.localtime(self.send_run.started_at).strftime('%d.%m.%Y')
+        self.assertContains(
+            response,
+            f'Кампания №{self.campaign.pk} — {expected_date}',
+        )
+        self.assertContains(
+            response,
+            reverse('marketing:campaign_detail', args=[self.campaign.pk]),
+        )
+        self.assertContains(response, f'title="{self.campaign.name}"')
+
+    def test_message_change_shows_full_campaign_name(self):
+        url = reverse(
+            'admin:marketing_marketingcampaignmessage_change',
+            args=[self.message.pk],
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, self.campaign.name)
 
     def test_search_by_phone_and_meta_message_id(self):
         url = reverse('admin:marketing_marketingcampaignmessage_changelist')
