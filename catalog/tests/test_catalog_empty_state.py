@@ -62,6 +62,9 @@ class CatalogEmptyStateTests(TestCase):
         self.assertContains(response, f'href="{reverse("catalog_list")}"')
         self._assert_single_empty_state(html)
         self.assertNotContains(response, 'Запчасти в наличии')
+        self.assertNotContains(response, 'Не нашли нужную запчасть?')
+        self.assertNotContains(response, 'class="b2c-request-banner"')
+        self.assertContains(response, 'Продаете запчасти в Казахстане?')
 
     def test_home_without_search_hides_empty_state(self):
         self._create_product(
@@ -76,6 +79,8 @@ class CatalogEmptyStateTests(TestCase):
         self.assertNotContains(response, 'Оставить заявку на запчасть')
         self.assertNotContains(response, 'Сбросить поиск')
         self.assertNotContains(response, 'id="catalog-empty-state"')
+        self.assertContains(response, 'Не нашли нужную запчасть?')
+        self.assertContains(response, 'class="b2c-request-banner"')
 
     def test_search_with_results_hides_empty_state(self):
         product = self._create_product(
@@ -103,6 +108,8 @@ class CatalogEmptyStateTests(TestCase):
         self.assertNotContains(response, 'Запчасть не найдена в каталоге')
         self.assertNotContains(response, 'Оставить заявку на запчасть')
         self.assertNotContains(response, 'id="catalog-empty-state"')
+        self.assertContains(response, 'Не нашли нужную запчасть?')
+        self.assertContains(response, 'class="b2c-request-banner"')
 
     def test_home_without_search_does_not_enable_results_autoscroll(self):
         self._create_product(
@@ -157,6 +164,8 @@ class CatalogEmptyStateTests(TestCase):
         self._assert_single_empty_state(html)
         self.assertNotContains(response, 'id="catalog-results"')
         self.assertIn('getElementById(\'catalog-empty-state\')', html)
+        self.assertNotContains(response, 'Не нашли нужную запчасть?')
+        self.assertContains(response, 'Продаете запчасти в Казахстане?')
 
 
 class CatalogHeroLayoutTests(TestCase):
@@ -222,4 +231,6 @@ class CatalogHeroLayoutTests(TestCase):
         self.assertEqual(html.count('id="catalog-empty-state"'), 1)
         self.assertEqual(html.count('Запчасть не найдена в каталоге'), 1)
         self.assertContains(response, 'Найти по авто')
-        self.assertContains(response, 'Не нашли нужную запчасть?')
+        self.assertContains(response, 'Оставить заявку на запчасть')
+        self.assertNotContains(response, 'Не нашли нужную запчасть?')
+        self.assertContains(response, 'Продаете запчасти в Казахстане?')

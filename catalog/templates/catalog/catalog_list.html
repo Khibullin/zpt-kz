@@ -403,6 +403,7 @@ a.hero-b2b-strip-btn:hover,
         </div>
       {% endif %}
 
+      {% if products or not has_filters %}
       <div class="b2c-request-banner">
         <div class="b2c-request-banner-content">
           <p class="b2c-request-banner-title">Не нашли нужную запчасть?</p>
@@ -410,6 +411,7 @@ a.hero-b2b-strip-btn:hover,
         </div>
         <a href="/request-parts/" class="b2c-request-banner-btn">Оставить заявку</a>
       </div>
+      {% endif %}
 
       <div class="hero-b2b-strip">
         <p class="hero-b2b-strip-text">
