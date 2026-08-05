@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v134">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v135">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
 <style>
 .market-topbar{
@@ -425,7 +425,11 @@ a.hero-b2b-strip-btn:hover,
   </section>
 
   {% if products %}
-  <div class="products-head">
+  <div
+    id="catalog-results"
+    class="products-head"
+    {% if has_filters %}data-catalog-scroll="results"{% endif %}
+  >
     <h2 class="ds-h2">Запчасти в наличии</h2>
     {% if not show_all %}
       <a class="products-link" href="{% url 'catalog_list' %}?all=1">Смотреть все →</a>
@@ -593,9 +597,20 @@ a.hero-b2b-strip-btn:hover,
 <script>
 document.addEventListener('DOMContentLoaded', function () {
 
+  function scrollToCatalogTarget(el) {
+    if (el && typeof el.scrollIntoView === 'function') {
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
   const emptyState = document.getElementById('catalog-empty-state');
-  if (emptyState && typeof emptyState.scrollIntoView === 'function') {
-    emptyState.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  if (emptyState) {
+    scrollToCatalogTarget(emptyState);
+  } else {
+    const results = document.querySelector(
+      '#catalog-results[data-catalog-scroll="results"]'
+    );
+    scrollToCatalogTarget(results);
   }
 
   const country = document.getElementById('country');

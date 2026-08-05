@@ -87,13 +87,43 @@ class CatalogEmptyStateTests(TestCase):
             reverse('catalog_list'),
             {'q': 'Амортизатор'},
         )
+        html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, product.title)
         self.assertContains(response, 'Запчасти в наличии')
+        self.assertRegex(
+            html,
+            r'id="catalog-results"[^>]*data-catalog-scroll="results"',
+        )
+        self.assertIn(
+            '#catalog-results[data-catalog-scroll="results"]',
+            html,
+        )
         self.assertNotContains(response, 'Запчасть не найдена в каталоге')
         self.assertNotContains(response, 'Оставить заявку на запчасть')
         self.assertNotContains(response, 'id="catalog-empty-state"')
+
+    def test_home_without_search_does_not_enable_results_autoscroll(self):
+        self._create_product(
+            title='Фара передняя',
+            article='LMP-700',
+            slug='headlight-home-scroll',
+        )
+        response = self.client.get(reverse('catalog_list'))
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="catalog-results"')
+        self.assertNotRegex(
+            html,
+            r'id="catalog-results"[^>]*data-catalog-scroll="results"',
+        )
+        self.assertNotContains(response, 'id="catalog-empty-state"')
+        self.assertIn(
+            '#catalog-results[data-catalog-scroll="results"]',
+            html,
+        )
 
     def test_filters_without_query_show_filter_empty_state(self):
         country = Country.objects.create(name='Япония')
@@ -125,6 +155,8 @@ class CatalogEmptyStateTests(TestCase):
         self.assertContains(response, 'href="/request-parts/"')
         self.assertNotContains(response, 'Вы искали:')
         self._assert_single_empty_state(html)
+        self.assertNotContains(response, 'id="catalog-results"')
+        self.assertIn('getElementById(\'catalog-empty-state\')', html)
 
 
 class CatalogHeroLayoutTests(TestCase):

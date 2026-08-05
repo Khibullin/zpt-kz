@@ -603,6 +603,11 @@ body{
   margin-bottom:12px;
 }
 
+#catalog-results,
+#catalog-empty-state{
+  scroll-margin-top:84px;
+}
+
 .filter-box{
   margin-top:10px;
   background:#fff;
