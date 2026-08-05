@@ -577,6 +577,24 @@ a.hero-b2b-strip-btn:hover,
 
     </div>
 
+  {% else %}
+    {% if has_filters %}
+      <div class="cta">
+        <div>
+          <div class="cta-title">
+            {% if query %}
+              В каталоге пока нет запчасти “{{ query }}”.
+            {% else %}
+              В каталоге пока нет подходящих запчастей по выбранным параметрам.
+            {% endif %}
+          </div>
+          <div class="cta-text">
+            Оставьте одну заявку — продавцы по Казахстану сами проверят наличие и напишут вам в WhatsApp.
+          </div>
+        </div>
+        <a href="/request-parts/" class="cta-btn">Оставить заявку продавцам</a>
+      </div>
+    {% endif %}
   {% endif %}
 
   <section class="home-seo-block" aria-labelledby="home-seo-heading">
