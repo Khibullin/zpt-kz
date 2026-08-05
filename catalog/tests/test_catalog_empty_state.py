@@ -125,3 +125,69 @@ class CatalogEmptyStateTests(TestCase):
         self.assertContains(response, 'href="/request-parts/"')
         self.assertNotContains(response, 'Вы искали:')
         self._assert_single_empty_state(html)
+
+
+class CatalogHeroLayoutTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='hero_layout_seller',
+            password='testpass123',
+        )
+        self.seller = SellerProfile.objects.create(
+            user=self.user,
+            name='Hero Layout Seller',
+            phone='77001112244',
+            city='Алматы',
+        )
+        Product.objects.create(
+            title='Ремень ГРМ',
+            slug='timing-belt-hero',
+            article='BLT-500',
+            price=2500,
+            seller_name=self.seller.name,
+            whatsapp_number=self.seller.phone,
+            status='active',
+            city='Алматы',
+        )
+
+    def test_home_hero_has_compact_action_blocks(self):
+        response = self.client.get(reverse('catalog_list'))
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Автозапчасти для легковых и грузовых автомобилей',
+        )
+        self.assertContains(response, '300+ продавцов по Казахстану')
+        self.assertContains(response, 'Поиск по артикулу или названию')
+        self.assertContains(response, 'class="search-btn"')
+        self.assertContains(response, 'Найти')
+        self.assertContains(response, 'Подбор по марке и модели')
+        self.assertContains(response, 'Найти по авто')
+        self.assertContains(response, 'Не нашли нужную запчасть?')
+        self.assertContains(response, 'class="b2c-request-banner-btn"')
+        self.assertContains(response, 'Оставить заявку')
+        self.assertContains(response, 'href="/request-parts/"')
+
+        self.assertNotContains(response, 'hero-perks')
+        self.assertNotContains(
+            response,
+            'Напишите, какая запчасть нужна — продавцы найдут её для вас',
+        )
+        self.assertEqual(html.count('id="catalog-empty-state"'), 0)
+        self.assertEqual(html.count('Запчасть не найдена в каталоге'), 0)
+
+    def test_empty_state_not_duplicated_on_failed_search(self):
+        response = self.client.get(
+            reverse('catalog_list'),
+            {'q': 'полностью-отсутствующий-товар-zzz'},
+        )
+        html = response.content.decode()
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(html.count('id="catalog-empty-state"'), 1)
+        self.assertEqual(html.count('Запчасть не найдена в каталоге'), 1)
+        self.assertContains(response, 'Найти по авто')
+        self.assertContains(response, 'Не нашли нужную запчасть?')
