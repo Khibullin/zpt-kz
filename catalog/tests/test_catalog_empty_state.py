@@ -32,6 +32,17 @@ class CatalogEmptyStateTests(TestCase):
             brand=brand,
         )
 
+    def _assert_single_empty_state(self, html):
+        self.assertEqual(
+            html.count('id="catalog-empty-state"'),
+            1,
+            msg='Expected exactly one catalog empty-state block',
+        )
+        self.assertEqual(
+            html.count('Запчасть не найдена в каталоге'),
+            1,
+        )
+
     def test_search_without_results_shows_empty_state(self):
         self._create_product(
             title='Фильтр воздушный',
@@ -40,12 +51,17 @@ class CatalogEmptyStateTests(TestCase):
         )
         query = 'несуществующий-артикул-xyz'
         response = self.client.get(reverse('catalog_list'), {'q': query})
+        html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'В каталоге пока нет запчасти')
-        self.assertContains(response, query)
+        self.assertContains(response, 'Запчасть не найдена в каталоге')
+        self.assertContains(response, f'Вы искали: {query}')
+        self.assertContains(response, 'Оставить заявку на запчасть')
         self.assertContains(response, 'href="/request-parts/"')
-        self.assertContains(response, 'Оставить заявку продавцам')
+        self.assertContains(response, 'Сбросить поиск')
+        self.assertContains(response, f'href="{reverse("catalog_list")}"')
+        self._assert_single_empty_state(html)
+        self.assertNotContains(response, 'Запчасти в наличии')
 
     def test_home_without_search_hides_empty_state(self):
         self._create_product(
@@ -56,12 +72,10 @@ class CatalogEmptyStateTests(TestCase):
         response = self.client.get(reverse('catalog_list'))
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'В каталоге пока нет запчасти')
-        self.assertNotContains(
-            response,
-            'В каталоге пока нет подходящих запчастей по выбранным параметрам',
-        )
-        self.assertNotContains(response, 'Оставить заявку продавцам')
+        self.assertNotContains(response, 'Запчасть не найдена в каталоге')
+        self.assertNotContains(response, 'Оставить заявку на запчасть')
+        self.assertNotContains(response, 'Сбросить поиск')
+        self.assertNotContains(response, 'id="catalog-empty-state"')
 
     def test_search_with_results_hides_empty_state(self):
         product = self._create_product(
@@ -76,8 +90,10 @@ class CatalogEmptyStateTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, product.title)
-        self.assertNotContains(response, 'В каталоге пока нет запчасти')
-        self.assertNotContains(response, 'Оставить заявку продавцам')
+        self.assertContains(response, 'Запчасти в наличии')
+        self.assertNotContains(response, 'Запчасть не найдена в каталоге')
+        self.assertNotContains(response, 'Оставить заявку на запчасть')
+        self.assertNotContains(response, 'id="catalog-empty-state"')
 
     def test_filters_without_query_show_filter_empty_state(self):
         country = Country.objects.create(name='Япония')
@@ -100,12 +116,12 @@ class CatalogEmptyStateTests(TestCase):
             reverse('catalog_list'),
             {'brand': str(brand_empty.id)},
         )
+        html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(
-            response,
-            'В каталоге пока нет подходящих запчастей по выбранным параметрам',
-        )
+        self.assertContains(response, 'Запчасть не найдена в каталоге')
+        self.assertContains(response, 'Оставить заявку на запчасть')
+        self.assertContains(response, 'Сбросить поиск')
         self.assertContains(response, 'href="/request-parts/"')
-        self.assertContains(response, 'Оставить заявку продавцам')
-        self.assertNotContains(response, 'В каталоге пока нет запчасти')
+        self.assertNotContains(response, 'Вы искали:')
+        self._assert_single_empty_state(html)

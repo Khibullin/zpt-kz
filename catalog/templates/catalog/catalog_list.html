@@ -7,7 +7,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v132">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v133">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
 <style>
 .market-topbar{
@@ -465,6 +465,32 @@ a.hero-b2b-strip-btn:hover,
 
       </div>
 
+      {% if has_filters and not products %}
+        <div
+          id="catalog-empty-state"
+          class="catalog-empty-state"
+          role="status"
+        >
+          <div class="catalog-empty-state-copy">
+            <p class="catalog-empty-state-title">Запчасть не найдена в каталоге</p>
+            {% if query %}
+              <p class="catalog-empty-state-query">Вы искали: {{ query }}</p>
+            {% endif %}
+            <p class="catalog-empty-state-text">
+              Оставьте заявку — мы отправим её продавцам автозапчастей по Казахстану. Продавцы сами напишут вам в WhatsApp с ценой и наличием.
+            </p>
+          </div>
+          <div class="catalog-empty-state-actions">
+            <a href="/request-parts/" class="catalog-empty-state-btn-primary">
+              Оставить заявку на запчасть
+            </a>
+            <a href="{% url 'catalog_list' %}" class="catalog-empty-state-btn-secondary">
+              Сбросить поиск
+            </a>
+          </div>
+        </div>
+      {% endif %}
+
       <div class="b2c-request-banner">
         <div class="b2c-request-banner-content">
           <p class="b2c-request-banner-title">Не нашли нужную запчасть в каталоге?</p>
@@ -486,14 +512,13 @@ a.hero-b2b-strip-btn:hover,
 
   </section>
 
+  {% if products %}
   <div class="products-head">
     <h2 class="ds-h2">Запчасти в наличии</h2>
     {% if not show_all %}
       <a class="products-link" href="{% url 'catalog_list' %}?all=1">Смотреть все →</a>
     {% endif %}
   </div>
-
-  {% if products %}
 
     <div class="products">
 
@@ -576,25 +601,6 @@ a.hero-b2b-strip-btn:hover,
       {% endfor %}
 
     </div>
-
-  {% else %}
-    {% if has_filters %}
-      <div class="cta">
-        <div>
-          <div class="cta-title">
-            {% if query %}
-              В каталоге пока нет запчасти “{{ query }}”.
-            {% else %}
-              В каталоге пока нет подходящих запчастей по выбранным параметрам.
-            {% endif %}
-          </div>
-          <div class="cta-text">
-            Оставьте одну заявку — продавцы по Казахстану сами проверят наличие и напишут вам в WhatsApp.
-          </div>
-        </div>
-        <a href="/request-parts/" class="cta-btn">Оставить заявку продавцам</a>
-      </div>
-    {% endif %}
   {% endif %}
 
   <section class="home-seo-block" aria-labelledby="home-seo-heading">
@@ -674,6 +680,11 @@ a.hero-b2b-strip-btn:hover,
 <script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+
+  const emptyState = document.getElementById('catalog-empty-state');
+  if (emptyState && typeof emptyState.scrollIntoView === 'function') {
+    emptyState.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   const country = document.getElementById('country');
   const brand = document.getElementById('brand');
