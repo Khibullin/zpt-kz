@@ -19,7 +19,7 @@ from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.db import transaction
-from django.db.models import Prefetch, Q
+from django.db.models import Exists, OuterRef, Prefetch, Q
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -632,10 +632,10 @@ def _base_sellers_queryset(req):
         return Seller.objects.none()
 
     if settings.mode == 'test':
-        return base.filter(is_test_seller=True).distinct()
+        return base.filter(is_test_seller=True)
 
     if settings.mode == 'live':
-        return base.filter(receive_requests=True).distinct()
+        return base.filter(receive_requests=True)
 
     return Seller.objects.none()
 
@@ -644,54 +644,83 @@ def _apply_city_filter(qs, req):
     if req.city:
         qs = qs.filter(city=req.city)
 
-    return qs.distinct()
+    return qs
+
+
+def _apply_category_filter(qs, req):
+    if not req.category:
+        return qs
+
+    selected_category_exists = Exists(
+        Seller.selected_categories.through.objects.filter(
+            seller_id=OuterRef('pk'),
+            partcategory__name=req.category,
+        )
+    )
+    return qs.filter(
+        Q(all_categories=True) |
+        Q(category=req.category) |
+        selected_category_exists
+    )
 
 
 def _apply_country_filter(qs, req):
     if not req.country:
         return qs
 
+    selected_country_exists = Exists(
+        Seller.selected_countries.through.objects.filter(
+            seller_id=OuterRef('pk'),
+            country__name=req.country,
+        )
+    )
     return qs.filter(
         Q(all_countries=True) |
         Q(country_fk__name=req.country) |
-        Q(selected_countries__name=req.country)
-    ).distinct()
+        selected_country_exists
+    )
 
 
 def _apply_brand_filter(qs, req):
     if not req.brand:
         return qs
 
+    selected_brand_exists = Exists(
+        Seller.selected_brands.through.objects.filter(
+            seller_id=OuterRef('pk'),
+            brand__name=req.brand,
+        )
+    )
     return qs.filter(
         Q(all_brands=True) |
         Q(brand=req.brand) |
         Q(brand_fk__name=req.brand) |
-        Q(selected_brands__name=req.brand)
-    ).distinct()
+        selected_brand_exists
+    )
 
 
 def _apply_model_filter(qs, req):
     if not req.model:
         return qs
 
+    selected_model_exists = Exists(
+        Seller.selected_models.through.objects.filter(
+            seller_id=OuterRef('pk'),
+            carmodel__name=req.model,
+        )
+    )
     return qs.filter(
         Q(all_brands=True) |
         Q(all_models=True) |
         Q(model=req.model) |
         Q(model_fk__name=req.model) |
-        Q(selected_models__name=req.model)
-    ).distinct()
+        selected_model_exists
+    )
 
 
 def _find_matching_sellers(req):
     base_qs = _base_sellers_queryset(req)
-
-    if req.category:
-        base_qs = base_qs.filter(
-            Q(all_categories=True) |
-            Q(category=req.category) |
-            Q(selected_categories__name=req.category)
-        ).distinct()
+    base_qs = _apply_category_filter(base_qs, req)
 
     search_scope = req.search_scope or 'city'
 
@@ -733,7 +762,7 @@ def _find_matching_sellers(req):
         qs = qs.order_by(
             'dispatch_priority',
             'id'
-        ).distinct()
+        )
 
         if qs.exists():
             return qs, 'matched'
@@ -755,7 +784,7 @@ def _find_matching_sellers(req):
             qs = qs.order_by(
                 'dispatch_priority',
                 'id'
-            ).distinct()
+            )
 
             if qs.exists():
                 return qs, 'fallback_kazakhstan'
