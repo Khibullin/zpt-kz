@@ -43,16 +43,125 @@ def get_instagram_publish_mode() -> str:
 
 def schedule_instagram_publication_for_request(request_id: int) -> None:
     """
-    Безопасная точка входа после commit транзакции создания заявки.
-    Любые ошибки логируются и не пробрасываются наружу.
+    Лёгкая точка входа после создания заявки: только запись в очередь.
+    Генерация изображения и Meta API выполняются worker/cron.
     """
     try:
-        process_instagram_publication_for_request(request_id)
+        enqueue_instagram_publication_for_request(request_id)
     except Exception:
         logger.exception(
             'Instagram pipeline failed for request #%s',
             request_id,
         )
+
+
+def enqueue_instagram_publication_for_request(
+    request_id: int,
+) -> InstagramPublication | None:
+    """
+    Создаёт/обновляет InstagramPublication без генерации картинки и без Meta API.
+    """
+    mode = get_instagram_publish_mode()
+    if mode == 'OFF':
+        logger.debug('Instagram publish mode OFF — пропуск заявки #%s', request_id)
+        return None
+
+    existing = InstagramPublication.objects.filter(request_id=request_id).first()
+    if existing:
+        logger.info(
+            'Instagram publication already exists for request #%s (status=%s)',
+            request_id,
+            existing.status,
+        )
+        if mode == 'LIVE' and existing.status in (
+            InstagramPublication.STATUS_DRAFT,
+            InstagramPublication.STATUS_FAILED,
+        ):
+            try:
+                product_request = Request.objects.get(pk=request_id)
+            except Request.DoesNotExist:
+                return existing
+            if not is_junk_only_description(product_request.description):
+                queue_instagram_publication_for_processing(existing)
+            return existing
+        return existing
+
+    try:
+        product_request = Request.objects.get(pk=request_id)
+    except Request.DoesNotExist:
+        logger.warning('Request #%s not found for Instagram publication', request_id)
+        return None
+
+    junk_only_description = is_junk_only_description(product_request.description)
+    caption = build_publication_caption(product_request)
+
+    if junk_only_description:
+        status = InstagramPublication.STATUS_DRAFT
+        logger.info(
+            'Request #%s has junk-only description, Instagram publication will stay draft',
+            request_id,
+        )
+    elif mode == 'LIVE':
+        status = InstagramPublication.STATUS_QUEUED
+    else:
+        status = InstagramPublication.STATUS_DRAFT
+
+    try:
+        publication = InstagramPublication.objects.create(
+            request=product_request,
+            caption=caption,
+            status=status,
+        )
+    except IntegrityError:
+        logger.info('Instagram publication race for request #%s', request_id)
+        return InstagramPublication.objects.filter(request_id=request_id).first()
+
+    logger.info(
+        'Instagram publication enqueued for request #%s (publication #%s, status=%s)',
+        request_id,
+        publication.pk,
+        publication.status,
+    )
+    return publication
+
+
+def ensure_instagram_story_image(
+    publication: InstagramPublication,
+) -> InstagramPublication:
+    """Generate and attach story image if missing. Safe for worker/cron path."""
+    if publication.image:
+        return publication
+
+    try:
+        product_request = publication.request
+    except Request.DoesNotExist:
+        return _mark_publication_failed(
+            publication,
+            'Заявка для Instagram-публикации не найдена.',
+        )
+
+    try:
+        output_path, caption = generate_instagram_story(product_request)
+    except InstagramStoryGenerationError as exc:
+        logger.warning(
+            'Instagram Story not generated for publication #%s: %s',
+            publication.pk,
+            exc,
+        )
+        return _mark_publication_failed(publication, str(exc))
+
+    relative_path = absolute_media_path_to_relative(output_path)
+    publication.image.name = relative_path
+    update_fields = ['image']
+    if caption and not publication.caption:
+        publication.caption = caption
+        update_fields.append('caption')
+    publication.save(update_fields=update_fields)
+    logger.info(
+        'Instagram story image generated for publication #%s',
+        publication.pk,
+    )
+    return publication
 
 
 def process_instagram_publication_for_request(request_id: int) -> InstagramPublication | None:
@@ -68,6 +177,9 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
             request_id,
             existing.status,
         )
+        if not existing.image:
+            existing = ensure_instagram_story_image(existing)
+            existing.refresh_from_db()
         if mode == 'LIVE' and existing.status in (
             InstagramPublication.STATUS_DRAFT,
             InstagramPublication.STATUS_FAILED,
@@ -115,6 +227,8 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
     except IntegrityError:
         logger.info('Instagram publication race for request #%s', request_id)
         publication = InstagramPublication.objects.get(request_id=request_id)
+        if not publication.image:
+            publication = ensure_instagram_story_image(publication)
         return publication
 
     publication.image.name = relative_path
@@ -374,10 +488,12 @@ def publish_instagram_publication(
         return publication
 
     if not publication.image:
-        return _mark_publication_failed(
-            publication,
-            'Не загружено изображение карточки.',
-        )
+        publication = ensure_instagram_story_image(publication)
+        publication.refresh_from_db()
+        if not publication.image:
+            return publication
+        if publication.status == InstagramPublication.STATUS_FAILED:
+            return publication
 
     if source == 'management':
         logger.info(

@@ -295,11 +295,8 @@ class CreateRequestInstagramOnCommitTests(TestCase):
     @patch('core.views._find_matching_sellers', return_value=([], 'none'))
     @patch('core.views._build_dispatch_queue', return_value=[])
     @patch('core.views._send_buyer_whatsapp_notification_async')
-    @patch(
-        'catalog.instagram_service.generate_instagram_story',
-        side_effect=InstagramStoryGenerationError('render failed'),
-    )
-    def test_create_request_succeeds_when_instagram_generation_fails(
+    @patch('catalog.instagram_service.generate_instagram_story')
+    def test_create_request_does_not_generate_instagram_image(
         self,
         generate_mock,
         buyer_whatsapp_mock,
@@ -317,11 +314,14 @@ class CreateRequestInstagramOnCommitTests(TestCase):
         body = response.json()
         self.assertEqual(body['status'], 'ok')
         self.assertTrue(body['id'])
-        generate_mock.assert_called_once()
+        generate_mock.assert_not_called()
+        publication = InstagramPublication.objects.get(request_id=body['id'])
+        self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
+        self.assertFalse(publication.image)
 
-    @patch('catalog.instagram_service.process_instagram_publication_for_request')
-    def test_schedule_wrapper_swallows_instagram_errors(self, process_mock):
-        process_mock.side_effect = RuntimeError('instagram down')
+    @patch('catalog.instagram_service.enqueue_instagram_publication_for_request')
+    def test_schedule_wrapper_swallows_instagram_errors(self, enqueue_mock):
+        enqueue_mock.side_effect = RuntimeError('instagram down')
         schedule_instagram_publication_for_request(1)
 
 
@@ -499,6 +499,7 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
         }
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
+    @patch('catalog.instagram_service.generate_instagram_story')
     @patch('core.views._find_matching_sellers', return_value=([], 'none'))
     @patch('core.views._build_dispatch_queue', return_value=[])
     @patch('core.views._send_buyer_whatsapp_notification_async')
@@ -507,6 +508,7 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
         buyer_whatsapp_mock,
         dispatch_queue_mock,
         matching_mock,
+        generate_mock,
         publish_mock,
     ):
         with TemporaryDirectory() as media_root:
@@ -522,6 +524,8 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
         request_id = response.json()['id']
         publication = InstagramPublication.objects.get(request_id=request_id)
         self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+        self.assertFalse(publication.image)
+        generate_mock.assert_not_called()
         publish_mock.assert_not_called()
 
 

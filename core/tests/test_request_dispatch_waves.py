@@ -84,18 +84,96 @@ class RequestDispatchWaveDistributionTests(TestCase):
             wave_counts[dispatch.wave_number] = wave_counts.get(dispatch.wave_number, 0) + 1
 
         self.assertEqual(wave_counts, {1: 10, 2: 10, 3: 10, 4: 10, 5: 7})
-        self.assertEqual(send_mock.call_count, 10)
+        self.assertEqual(send_mock.call_count, 0)
 
         wave_one = RequestDispatch.objects.filter(
             request=self.request,
             wave_number=1,
         )
-        self.assertTrue(all(item.status == RequestDispatch.STATUS_SENT for item in wave_one))
+        self.assertTrue(all(item.status == RequestDispatch.STATUS_QUEUED for item in wave_one))
         wave_two = RequestDispatch.objects.filter(
             request=self.request,
             wave_number=2,
         )
         self.assertTrue(all(item.status == RequestDispatch.STATUS_QUEUED for item in wave_two))
+
+
+class CreateRequestQueuesWaveOneWithoutWhatsAppTests(TestCase):
+    def setUp(self):
+        _ensure_broadcast_settings(
+            mode=BroadcastSettings.MODE_LIVE,
+            wave_size=10,
+            wave_interval_minutes=5,
+            emergency_stop=False,
+        )
+        self.client = Client()
+
+    @patch('core.views._send_buyer_whatsapp_notification_async')
+    @patch('core.views.send_whatsapp_template')
+    @patch('core.views._find_matching_sellers')
+    def test_create_request_queues_wave_one_without_seller_whatsapp(
+        self,
+        matching_mock,
+        send_mock,
+        buyer_async_mock,
+    ):
+        sellers = _create_sellers(3)
+        matching_mock.return_value = (sellers, 'matched')
+
+        response = self.client.post(
+            '/api/create-request/',
+            data={
+                'transport_type': 'car',
+                'brand': 'Toyota',
+                'model': 'Windom',
+                'category': 'Тормоза',
+                'city': 'Алматы',
+                'phone': '77476653398',
+                'search_scope': 'city',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload['status'], 'ok')
+        request_id = payload['id']
+
+        dispatches = list(
+            RequestDispatch.objects.filter(request_id=request_id).order_by('position_number')
+        )
+        self.assertEqual(len(dispatches), 3)
+        self.assertTrue(
+            all(item.status == RequestDispatch.STATUS_QUEUED for item in dispatches)
+        )
+        self.assertTrue(all(item.wave_number == 1 for item in dispatches))
+        send_mock.assert_not_called()
+
+        with patch(
+            'core.request_dispatch_service.send_single_dispatch',
+            wraps=send_single_dispatch,
+        ) as wrapped_send:
+            with patch(
+                'core.views.send_whatsapp_template',
+                return_value={'ok': True, 'message_id': 'wamid.wave1'},
+            ) as wave_send_mock:
+                result = process_due_dispatch_waves()
+
+        self.assertEqual(result['sent'], 3)
+        self.assertEqual(wave_send_mock.call_count, 3)
+        self.assertEqual(wrapped_send.call_count, 3)
+
+        for dispatch in dispatches:
+            dispatch.refresh_from_db()
+            self.assertEqual(dispatch.status, RequestDispatch.STATUS_SENT)
+
+        # Second run must not double-send wave 1.
+        with patch(
+            'core.views.send_whatsapp_template',
+            return_value={'ok': True, 'message_id': 'wamid.again'},
+        ) as second_send_mock:
+            second_result = process_due_dispatch_waves()
+
+        self.assertEqual(second_result['sent'], 0)
+        second_send_mock.assert_not_called()
 
 
 class CreateRequestDoesNotDrainGlobalQueueTests(TestCase):
@@ -168,9 +246,11 @@ class CreateRequestDoesNotDrainGlobalQueueTests(TestCase):
         self.assertEqual(old_dispatch.status, RequestDispatch.STATUS_QUEUED)
         self.assertEqual(
             send_mock.call_count,
-            1,
-            'Only the new request wave 1 should trigger WhatsApp send',
+            0,
+            'create-request must not send WhatsApp to sellers synchronously',
         )
+        new_dispatch = RequestDispatch.objects.get(seller=new_seller)
+        self.assertEqual(new_dispatch.status, RequestDispatch.STATUS_QUEUED)
 
 
 class WorkerWavePacingTests(TestCase):

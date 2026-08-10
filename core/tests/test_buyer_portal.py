@@ -8,6 +8,7 @@ from django.utils import timezone
 
 from core.buyer_portal import (
     BUYER_STATUS_DIRECT,
+    BUYER_STATUS_PENDING,
     BUYER_STATUS_SENT,
     buyer_dispatch_status_label,
     build_request_sellers,
@@ -424,5 +425,5 @@ class CreateRequestSellerPayloadTests(TestCase):
             self.assertNotIn('Ошибка отправки WhatsApp', item['status_label'])
         self.assertEqual(
             payload['seller_notifications'][0]['status_label'],
-            BUYER_STATUS_SENT,
+            BUYER_STATUS_PENDING,
         )

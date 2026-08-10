@@ -1256,6 +1256,7 @@ class InstagramPublication(models.Model):
     )
     image = models.ImageField(
         upload_to='instagram_stories/',
+        blank=True,
         verbose_name='Карточка Story',
     )
     caption = models.TextField(

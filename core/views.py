@@ -4,6 +4,7 @@ import logging
 import os
 import re
 import threading
+import time
 import uuid
 import urllib.error
 import urllib.request
@@ -815,6 +816,7 @@ def _send_dispatch(dispatch):
 
 
 def _build_dispatch_queue(req, sellers):
+    """Create RequestDispatch rows only. Sending is done by dispatch_request_waves."""
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()
@@ -841,10 +843,6 @@ def _build_dispatch_queue(req, sellers):
         )
 
         dispatches.append(dispatch)
-
-    for dispatch in dispatches:
-        if dispatch.wave_number == 1:
-            _send_dispatch(dispatch)
 
     return dispatches
 
@@ -880,6 +878,7 @@ def _dispatch_to_json(dispatch, req):
 
 
 def _sync_buyer_contact_safely(request_id: int) -> None:
+    started = time.perf_counter()
     try:
         request_obj = Request.objects.get(pk=request_id)
         result = sync_buyer_contact_from_request(request_obj)
@@ -905,6 +904,23 @@ def _sync_buyer_contact_safely(request_id: int) -> None:
             'Buyer contact sync failed for request #%s',
             request_id,
         )
+    finally:
+        elapsed_ms = (time.perf_counter() - started) * 1000
+        logger.info(
+            'create_request timing: request_id=%s stage=buyer_contact_sync elapsed_ms=%.1f',
+            request_id,
+            elapsed_ms,
+        )
+
+
+def _log_create_request_timing(request_id: int, stage: str, started: float) -> None:
+    elapsed_ms = (time.perf_counter() - started) * 1000
+    logger.info(
+        'create_request timing: request_id=%s stage=%s elapsed_ms=%.1f',
+        request_id,
+        stage,
+        elapsed_ms,
+    )
 
 
 @csrf_exempt
@@ -913,6 +929,7 @@ def create_request(request):
         return JsonResponse({'error': 'invalid method'}, status=405)
 
     print('CREATE REQUEST CALLED (WAVES MODE)')
+    total_started = time.perf_counter()
 
     try:
         data, uploaded_photos, upload_mode = _parse_create_request_data(request)
@@ -937,6 +954,7 @@ def create_request(request):
                 if city.strip()
             ]
 
+        stage_started = time.perf_counter()
         req = Request.objects.create(
             transport_type=transport_type,
             country=data.get('country', ''),
@@ -950,11 +968,15 @@ def create_request(request):
             selected_cities=','.join(selected_cities),
             phone=data.get('phone', ''),
         )
+        request_id = req.id
+        _log_create_request_timing(request_id, 'request_created', stage_started)
 
         ensure_buyer_portal_access(req.phone)
 
+        stage_started = time.perf_counter()
         saved_photos = _save_request_photos(req, uploaded_photos)
         photos_saved = len(saved_photos)
+        _log_create_request_timing(request_id, 'photos_finished', stage_started)
 
         if uploaded_photos and photos_saved == 0:
             logger.error(
@@ -963,16 +985,20 @@ def create_request(request):
                 len(uploaded_photos),
             )
 
+        stage_started = time.perf_counter()
         sellers, strategy = _find_matching_sellers(req)
         matched = list(sellers)
         sellers_count = len(matched)
+        _log_create_request_timing(request_id, 'seller_matching_finished', stage_started)
 
         print('TOTAL MATCHED SELLERS:', sellers_count)
 
+        stage_started = time.perf_counter()
         dispatches = _build_dispatch_queue(
             req,
             matched
         )
+        _log_create_request_timing(request_id, 'dispatch_queue_created', stage_started)
 
         try:
             _send_buyer_whatsapp_notification_async(req, sellers_count)
@@ -987,13 +1013,17 @@ def create_request(request):
         req.status = 'sent' if matched else 'no_sellers'
         req.save(update_fields=['status'])
 
-        request_id = req.id
+        stage_started = time.perf_counter()
         transaction.on_commit(
             lambda request_id=request_id: _sync_buyer_contact_safely(request_id)
         )
+        _log_create_request_timing(request_id, 'buyer_contact_sync_finished', stage_started)
+
+        stage_started = time.perf_counter()
         transaction.on_commit(
             lambda: schedule_instagram_publication_for_request(request_id)
         )
+        _log_create_request_timing(request_id, 'instagram_scheduling_finished', stage_started)
 
         seller_payload = build_seller_notifications_payload(
             req,
@@ -1004,6 +1034,7 @@ def create_request(request):
             ),
         )
 
+        _log_create_request_timing(request_id, 'response_ready', total_started)
         return JsonResponse({
             'status': 'ok',
             'id': req.id,

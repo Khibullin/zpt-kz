@@ -10,6 +10,7 @@ from core.buyer_portal import (
     BUYER_STATUS_SENT,
 )
 from core.models import BroadcastSettings, Match, Request, RequestDispatch, Seller
+from core.request_dispatch_service import send_single_dispatch
 from core.tests.test_request_dispatch_waves import _create_sellers, _ensure_broadcast_settings
 
 FORBIDDEN_LABELS = ('Ошибка отправки', 'Ошибка отправки WhatsApp')
@@ -73,7 +74,7 @@ class CreateRequestResultVerificationTests(TestCase):
         payload = response.json()
         _assert_common_payload(payload)
         labels = {item['status_label'] for item in payload['seller_notifications']}
-        self.assertEqual(labels, {BUYER_STATUS_SENT})
+        self.assertEqual(labels, {BUYER_STATUS_PENDING})
         self.assertEqual(payload['sellers_hidden_count'], 0)
 
     def test_pending_status_for_later_wave_sellers(self):
@@ -83,8 +84,7 @@ class CreateRequestResultVerificationTests(TestCase):
         payload = response.json()
         _assert_common_payload(payload)
         statuses = {item['whatsapp_status'] for item in payload['seller_notifications']}
-        self.assertIn('sent', statuses)
-        self.assertIn('pending', statuses)
+        self.assertEqual(statuses, {'pending'})
         pending_labels = [
             item['status_label']
             for item in payload['seller_notifications']
@@ -94,14 +94,38 @@ class CreateRequestResultVerificationTests(TestCase):
 
     def test_failed_error_maps_to_direct_contact_label(self):
         sellers = _create_sellers(1)
+        response = _post_create_request(sellers)
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        _assert_common_payload(payload)
+        item = payload['seller_notifications'][0]
+        # Wave 1 is queued at create-request time; failure appears only after worker send.
+        self.assertEqual(item['whatsapp_status'], 'pending')
+        self.assertEqual(item['status_label'], BUYER_STATUS_PENDING)
+
+        request_id = payload['id']
+        dispatch = RequestDispatch.objects.get(request_id=request_id)
 
         def _always_fail(*args, **kwargs):
             return {'ok': False, 'error': 'HTTP 400'}
 
-        response = _post_create_request(sellers, send_side_effect=_always_fail)
-        payload = response.json()
-        _assert_common_payload(payload)
-        item = payload['seller_notifications'][0]
+        with patch('core.views.send_whatsapp_template', side_effect=_always_fail):
+            send_single_dispatch(dispatch)
+
+        from core.buyer_portal import build_seller_notifications_payload
+        from core.views import _buyer_contact_link
+        from django.urls import reverse
+
+        req = Request.objects.get(pk=request_id)
+        rebuilt = build_seller_notifications_payload(
+            req,
+            get_buyer_wa_link=_buyer_contact_link,
+            get_profile_url=lambda seller_id: reverse(
+                'parts_seller_detail_public',
+                kwargs={'seller_id': seller_id},
+            ),
+        )
+        item = rebuilt['seller_notifications'][0]
         self.assertEqual(item['whatsapp_status'], 'error')
         self.assertEqual(item['status_label'], BUYER_STATUS_DIRECT)
 
