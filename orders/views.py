@@ -15,7 +15,12 @@ from .constants import DEFAULT_WAREHOUSE_ADDRESS, TRANSPORT_COMPANIES
 from .email_notifications import send_order_admin_email
 from .forms import CheckoutForm
 from .models import Order, OrderItem
-from .seller_utils import CartSellerConflictError, get_seller_snapshot_from_items
+from .seller_utils import (
+    CartSellerConflictError,
+    get_order_pickup_display_address,
+    get_seller_snapshot_from_items,
+    resolve_pickup_options,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -393,8 +398,19 @@ def checkout(request):
         messages.warning(request, 'Корзина пуста. Добавьте товары перед оформлением заказа.')
         return redirect('catalog_list')
 
+    pickup_options = resolve_pickup_options(items)
+    pickup_available = pickup_options['pickup_available']
+    effective_pickup_address = pickup_options['effective_pickup_address']
+    seller_profile = pickup_options['seller_profile']
+    seller_profile_id = seller_profile.pk if seller_profile else None
+
     if request.method == 'POST':
-        form = CheckoutForm(request.POST)
+        form = CheckoutForm(
+            request.POST,
+            pickup_available=pickup_available,
+            pickup_address=effective_pickup_address,
+            seller_profile_id=seller_profile_id,
+        )
         if form.is_valid():
             try:
                 seller_snapshot = get_seller_snapshot_from_items(items)
@@ -453,13 +469,20 @@ def checkout(request):
             if profile:
                 initial['customer_name'] = profile.name
                 initial['customer_phone'] = profile.phone
-        form = CheckoutForm(initial=initial)
+        form = CheckoutForm(
+            initial=initial,
+            pickup_available=pickup_available,
+            pickup_address=effective_pickup_address,
+            seller_profile_id=seller_profile_id,
+        )
 
     return render(request, 'orders/checkout.html', {
         'form': form,
         'items': items,
         'cart_total': cart.get_total(),
-        'warehouse_address': _warehouse_address(),
+        'pickup_available': pickup_available,
+        'effective_pickup_address': effective_pickup_address,
+        'warehouse_address': effective_pickup_address or _warehouse_address(),
         'transport_companies': TRANSPORT_COMPANIES,
     })
 
@@ -470,7 +493,11 @@ def order_success(request, order_id, access_token):
         pk=order_id,
         access_token=access_token,
     )
+    pickup_address = ''
+    if order.delivery_method == Order.DELIVERY_PICKUP:
+        pickup_address = get_order_pickup_display_address(order)
     return render(request, 'orders/order_success.html', {
         'order': order,
-        'warehouse_address': _warehouse_address(),
+        'pickup_address': pickup_address,
+        'warehouse_address': pickup_address,
     })

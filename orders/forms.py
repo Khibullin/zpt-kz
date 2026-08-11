@@ -63,6 +63,29 @@ class CheckoutForm(forms.Form):
         widget=forms.Select(attrs={'class': 'checkout-input'}),
     )
 
+    def __init__(
+        self,
+        *args,
+        pickup_available=True,
+        pickup_address='',
+        seller_profile_id=None,
+        **kwargs,
+    ):
+        super().__init__(*args, **kwargs)
+        self.pickup_available = bool(pickup_available)
+        self.pickup_address = (pickup_address or '').strip()
+        self.seller_profile_id = seller_profile_id
+
+        if self.pickup_available:
+            self.fields['delivery_method'].choices = Order.DELIVERY_METHOD_CHOICES
+            self.fields['delivery_method'].initial = Order.DELIVERY_PICKUP
+        else:
+            self.fields['delivery_method'].choices = [
+                choice for choice in Order.DELIVERY_METHOD_CHOICES
+                if choice[0] != Order.DELIVERY_PICKUP
+            ]
+            self.fields['delivery_method'].initial = Order.DELIVERY_COURIER
+
     def clean_customer_phone(self):
         phone = re.sub(r'\D', '', self.cleaned_data.get('customer_phone', ''))
         if phone.startswith('8'):
@@ -76,6 +99,13 @@ class CheckoutForm(forms.Form):
     def clean(self):
         cleaned_data = super().clean()
         delivery_method = cleaned_data.get('delivery_method')
+
+        if delivery_method == Order.DELIVERY_PICKUP:
+            if not self.pickup_available or not self.pickup_address:
+                self.add_error(
+                    'delivery_method',
+                    'Самовывоз недоступен для этого продавца.',
+                )
 
         if delivery_method == Order.DELIVERY_COURIER:
             if not cleaned_data.get('courier_street'):
@@ -94,7 +124,13 @@ class CheckoutForm(forms.Form):
     def build_delivery_address(self):
         delivery_method = self.cleaned_data['delivery_method']
         if delivery_method == Order.DELIVERY_PICKUP:
-            return {'type': delivery_method}
+            payload = {
+                'type': delivery_method,
+                'address': self.pickup_address,
+            }
+            if self.seller_profile_id:
+                payload['seller_profile_id'] = self.seller_profile_id
+            return payload
         if delivery_method == Order.DELIVERY_COURIER:
             return {
                 'type': delivery_method,
@@ -108,6 +144,6 @@ class CheckoutForm(forms.Form):
             'transport_company': self.cleaned_data['transport_company'],
             'transport_company_label': dict(TRANSPORT_COMPANIES).get(
                 self.cleaned_data['transport_company'],
-                '',
+                self.cleaned_data['transport_company'],
             ),
         }

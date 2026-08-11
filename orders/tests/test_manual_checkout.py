@@ -8,8 +8,7 @@ from django.urls import NoReverseMatch, reverse
 
 from django.contrib.auth.models import User
 
-from catalog.models import Product
-from orders.cart import CartManager
+from catalog.models import Product, SellerProfile
 from orders.constants import SESSION_CART_KEY
 from orders.email_notifications import (
     build_order_email_body,
@@ -33,6 +32,48 @@ def create_product(**kwargs):
     return Product.objects.create(**defaults)
 
 
+def ensure_seller_profile_for_product(
+    product,
+    *,
+    address='г. Алматы, ул. Тестовая, 1',
+    pickup_address='',
+    pickup_available=True,
+    pickup_same_as_store=True,
+    overwrite=True,
+):
+    digits = normalize_seller_whatsapp(product.whatsapp_number) or '77770000000'
+    user = User.objects.filter(username=digits).first()
+    if user is None:
+        user = User.objects.create_user(username=digits, password='secret12345')
+
+    store_address = address
+    effective_pickup = pickup_address or store_address
+    profile, created = SellerProfile.objects.get_or_create(
+        user=user,
+        defaults={
+            'name': product.seller_name or 'AG Parts',
+            'phone': product.whatsapp_number,
+            'address': store_address,
+            'pickup_address': store_address if pickup_same_as_store else effective_pickup,
+            'pickup_available': pickup_available,
+            'pickup_same_as_store': pickup_same_as_store,
+        },
+    )
+    if created or not overwrite:
+        return profile
+
+    profile.name = product.seller_name or profile.name
+    profile.phone = product.whatsapp_number
+    profile.address = store_address
+    profile.pickup_same_as_store = pickup_same_as_store
+    profile.pickup_available = pickup_available
+    profile.pickup_address = (
+        store_address if pickup_same_as_store else effective_pickup
+    )
+    profile.save()
+    return profile
+
+
 @override_settings(
     EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend',
     ORDER_ADMIN_EMAIL='orders-admin@test.local',
@@ -52,16 +93,31 @@ class ManualCheckoutTests(TestCase):
             content_type='application/json',
         )
 
-    def _checkout_post(self, product=None):
+    def _ensure_pickup_sellers_in_cart(self):
+        cart_data = self.client.session.get(SESSION_CART_KEY, {}) or {}
+        product_ids = []
+        for raw_id in cart_data.keys():
+            try:
+                product_ids.append(int(raw_id))
+            except (TypeError, ValueError):
+                continue
+        for product in Product.objects.filter(pk__in=product_ids):
+            ensure_seller_profile_for_product(product, overwrite=False)
+
+    def _checkout_post(self, product=None, delivery_method=Order.DELIVERY_PICKUP, **extra):
         if product is not None:
             self._add_to_cart(product)
+        if delivery_method == Order.DELIVERY_PICKUP:
+            self._ensure_pickup_sellers_in_cart()
         checkout_url = reverse('orders:checkout')
         self.client.get(checkout_url)
-        return self.client.post(checkout_url, data={
+        data = {
             'customer_name': 'Иван',
             'customer_phone': '+7 (701) 123-45-67',
-            'delivery_method': Order.DELIVERY_PICKUP,
-        })
+            'delivery_method': delivery_method,
+        }
+        data.update(extra)
+        return self.client.post(checkout_url, data=data)
 
     def test_first_product_adds_successfully(self):
         product = create_product()
@@ -173,7 +229,9 @@ class ManualCheckoutTests(TestCase):
         response = self.client.post(checkout_url, data={
             'customer_name': 'Иван',
             'customer_phone': '+7 (701) 123-45-67',
-            'delivery_method': Order.DELIVERY_PICKUP,
+            'delivery_method': Order.DELIVERY_COURIER,
+            'courier_street': 'Абая',
+            'courier_house': '10',
         })
         self.assertEqual(response.status_code, 302)
         self.assertEqual(Order.objects.count(), 0)
@@ -366,10 +424,16 @@ class ManualCheckoutTests(TestCase):
 
     def test_email_delivery_pickup_contains_warehouse_address(self):
         product = create_product()
+        seller = ensure_seller_profile_for_product(
+            product,
+            address='г. Алматы, ул. Складская, 5',
+        )
         self._checkout_post(product)
         order = Order.objects.get()
         delivery_text = format_delivery_block(order)
         self.assertIn('Самовывоз', delivery_text)
+        self.assertIn(seller.get_effective_pickup_address(), delivery_text)
+        self.assertEqual(order.delivery_address.get('address'), seller.get_effective_pickup_address())
 
     def test_email_delivery_courier_contains_address_parts(self):
         product = create_product()

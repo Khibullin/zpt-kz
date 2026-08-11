@@ -29,6 +29,4 @@ TRANSPORT_COMPANIES = [
     ('kazpost', 'Казпочта'),
 ]
 
-DEFAULT_WAREHOUSE_ADDRESS = (
-    'г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5'
-)
+DEFAULT_WAREHOUSE_ADDRESS = 'г. Алматы, ул. Мурат, 94А'

@@ -1,5 +1,4 @@
 from django import forms
-from django.core.exceptions import ValidationError
 
 from .models import (
     SellerProfile,
@@ -11,8 +10,59 @@ from .models import (
     DEFAULT_SELLER_DELIVERY_INFO,
 )
 
+STORE_ADDRESS_PLACEHOLDER = 'г. Алматы, ул. Примерная, 1'
+PICKUP_ADDRESS_PLACEHOLDER = 'г. Алматы, склад / пункт выдачи'
 
-class SellerRegisterForm(forms.ModelForm):
+
+class SellerPickupFieldsMixin:
+    """Shared pickup address UX for seller register/edit forms."""
+
+    def _setup_pickup_fields(self):
+        self.fields['address'].label = 'Адрес магазина / офиса'
+        self.fields['address'].required = False
+        self.fields['address'].widget.attrs.setdefault(
+            'placeholder',
+            STORE_ADDRESS_PLACEHOLDER,
+        )
+
+        self.fields['pickup_same_as_store'].required = False
+        self.fields['pickup_available'].required = False
+        self.fields['pickup_address'].required = False
+        self.fields['pickup_address'].label = 'Адрес самовывоза'
+        self.fields['pickup_address'].widget.attrs.setdefault(
+            'placeholder',
+            PICKUP_ADDRESS_PLACEHOLDER,
+        )
+
+        if not self.is_bound:
+            self.initial.setdefault('pickup_same_as_store', True)
+            self.initial.setdefault('pickup_available', True)
+
+    def clean_pickup_fields(self, cleaned_data):
+        address = (cleaned_data.get('address') or '').strip()
+        cleaned_data['address'] = address
+
+        pickup_same_as_store = bool(cleaned_data.get('pickup_same_as_store'))
+        pickup_available = bool(cleaned_data.get('pickup_available'))
+        pickup_address = (cleaned_data.get('pickup_address') or '').strip()
+
+        if pickup_same_as_store:
+            pickup_address = address
+
+        cleaned_data['pickup_same_as_store'] = pickup_same_as_store
+        cleaned_data['pickup_available'] = pickup_available
+        cleaned_data['pickup_address'] = pickup_address
+
+        if pickup_available and not pickup_same_as_store and not pickup_address:
+            self.add_error(
+                'pickup_address',
+                'Укажите адрес самовывоза или отметьте совпадение с адресом магазина.',
+            )
+
+        return cleaned_data
+
+
+class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
 
     class Meta:
@@ -23,6 +73,9 @@ class SellerRegisterForm(forms.ModelForm):
             'phone',
             'city',
             'address',
+            'pickup_same_as_store',
+            'pickup_address',
+            'pickup_available',
             'work_hours',
             'delivery_info',
             'instagram',
@@ -35,7 +88,10 @@ class SellerRegisterForm(forms.ModelForm):
             'name': 'Название маркета',
             'phone': 'Телефон / WhatsApp',
             'city': 'Город',
-            'address': 'Адрес склада',
+            'address': 'Адрес магазина / офиса',
+            'pickup_same_as_store': 'Адрес самовывоза совпадает с адресом магазина',
+            'pickup_address': 'Адрес самовывоза',
+            'pickup_available': 'Самовывоз доступен',
             'work_hours': 'График работы',
             'delivery_info': 'Доставка и оплата',
             'instagram': 'Instagram',
@@ -58,7 +114,19 @@ class SellerRegisterForm(forms.ModelForm):
             }),
 
             'address': forms.TextInput(attrs={
-                'placeholder': 'г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5'
+                'placeholder': STORE_ADDRESS_PLACEHOLDER,
+            }),
+
+            'pickup_address': forms.TextInput(attrs={
+                'placeholder': PICKUP_ADDRESS_PLACEHOLDER,
+            }),
+
+            'pickup_same_as_store': forms.CheckboxInput(attrs={
+                'class': 'seller-pickup-same-checkbox',
+            }),
+
+            'pickup_available': forms.CheckboxInput(attrs={
+                'class': 'seller-pickup-available-checkbox',
             }),
 
             'work_hours': forms.TextInput(attrs={
@@ -92,6 +160,7 @@ class SellerRegisterForm(forms.ModelForm):
         for optional_field in ('instagram', 'website'):
             if optional_field in self.fields:
                 self.fields[optional_field].required = False
+        self._setup_pickup_fields()
         if not self.is_bound and not getattr(self.instance, 'pk', None):
             self.initial.setdefault('work_hours', DEFAULT_SELLER_WORK_HOURS)
             self.initial.setdefault('delivery_info', DEFAULT_SELLER_DELIVERY_INFO)
@@ -115,10 +184,10 @@ class SellerRegisterForm(forms.ModelForm):
             self.add_error('name', 'Укажите название маркета.')
         else:
             cleaned_data['name'] = name
-        return cleaned_data
+        return self.clean_pickup_fields(cleaned_data)
 
 
-class SellerProfileForm(forms.ModelForm):
+class SellerProfileForm(SellerPickupFieldsMixin, forms.ModelForm):
     class Meta:
         model = SellerProfile
 
@@ -127,6 +196,9 @@ class SellerProfileForm(forms.ModelForm):
             'phone',
             'city',
             'address',
+            'pickup_same_as_store',
+            'pickup_address',
+            'pickup_available',
             'work_hours',
             'delivery_info',
             'instagram',
@@ -139,7 +211,10 @@ class SellerProfileForm(forms.ModelForm):
             'name': 'Название маркета',
             'phone': 'Телефон / WhatsApp',
             'city': 'Город',
-            'address': 'Адрес склада',
+            'address': 'Адрес магазина / офиса',
+            'pickup_same_as_store': 'Адрес самовывоза совпадает с адресом магазина',
+            'pickup_address': 'Адрес самовывоза',
+            'pickup_available': 'Самовывоз доступен',
             'work_hours': 'График работы',
             'delivery_info': 'Доставка и оплата',
             'instagram': 'Instagram',
@@ -162,7 +237,19 @@ class SellerProfileForm(forms.ModelForm):
             }),
 
             'address': forms.TextInput(attrs={
-                'placeholder': 'г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5'
+                'placeholder': STORE_ADDRESS_PLACEHOLDER,
+            }),
+
+            'pickup_address': forms.TextInput(attrs={
+                'placeholder': PICKUP_ADDRESS_PLACEHOLDER,
+            }),
+
+            'pickup_same_as_store': forms.CheckboxInput(attrs={
+                'class': 'seller-pickup-same-checkbox',
+            }),
+
+            'pickup_available': forms.CheckboxInput(attrs={
+                'class': 'seller-pickup-available-checkbox',
             }),
 
             'work_hours': forms.TextInput(attrs={
@@ -193,6 +280,7 @@ class SellerProfileForm(forms.ModelForm):
         self.fields['name'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
+        self._setup_pickup_fields()
 
     def clean(self):
         cleaned_data = super().clean()
@@ -201,7 +289,8 @@ class SellerProfileForm(forms.ModelForm):
             self.add_error('name', 'Укажите название маркета.')
         else:
             cleaned_data['name'] = name
-        return cleaned_data
+        return self.clean_pickup_fields(cleaned_data)
+
 
 class ProductForm(forms.ModelForm):
     country = forms.ModelChoiceField(

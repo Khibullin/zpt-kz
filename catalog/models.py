@@ -94,7 +94,24 @@ class SellerProfile(models.Model):
         max_length=500,
         blank=True,
         default='',
-        verbose_name='Адрес склада',
+        verbose_name='Адрес магазина / офиса',
+    )
+
+    pickup_address = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Адрес самовывоза',
+    )
+
+    pickup_available = models.BooleanField(
+        default=True,
+        verbose_name='Самовывоз доступен',
+    )
+
+    pickup_same_as_store = models.BooleanField(
+        default=True,
+        verbose_name='Адрес самовывоза совпадает с адресом магазина',
     )
 
     work_hours = models.CharField(
@@ -144,7 +161,24 @@ class SellerProfile(models.Model):
     def __str__(self):
         return self.name
 
+    def get_effective_pickup_address(self):
+        """Address shown/used for pickup when self-pickup is available."""
+        if not self.pickup_available:
+            return ''
+        if self.pickup_same_as_store:
+            return (self.address or '').strip()
+        return (self.pickup_address or '').strip()
+
     def save(self, *args, **kwargs):
+        update_fields = kwargs.get('update_fields')
+
+        if self.pickup_same_as_store:
+            synced_pickup = (self.address or '').strip()
+            if self.pickup_address != synced_pickup:
+                self.pickup_address = synced_pickup
+                if update_fields is not None:
+                    kwargs['update_fields'] = list(set(update_fields) | {'pickup_address'})
+
         if not self.slug:
             base_slug = slugify(self.name, allow_unicode=True) if self.name else ''
             if not base_slug:
@@ -162,6 +196,8 @@ class SellerProfile(models.Model):
                 slug = f'{base_slug}-{counter}'
 
             self.slug = slug
+            if kwargs.get('update_fields') is not None:
+                kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
 
         super().save(*args, **kwargs)
 

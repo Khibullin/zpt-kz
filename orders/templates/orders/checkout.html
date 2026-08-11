@@ -4,7 +4,7 @@
 {% block title %}Оформление заказа — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v3">
 {% endblock %}
 
 {% block content %}
@@ -44,7 +44,7 @@
                   <span>
                     <div class="checkout-radio-title">{{ radio.choice_label }}</div>
                     {% if radio.data.value == 'pickup' %}
-                      <div class="checkout-radio-note">Адрес склада: {{ warehouse_address }}</div>
+                      <div class="checkout-radio-note">Адрес самовывоза: {{ effective_pickup_address }}</div>
                     {% elif radio.data.value == 'courier' %}
                       <div class="checkout-radio-note">Оплата доставки курьеру при получении.</div>
                     {% elif radio.data.value == 'kz_delivery' %}
@@ -179,7 +179,7 @@
 
   function syncDeliveryPanels() {
     const selected = document.querySelector('input[name="delivery_method"]:checked');
-    const value = selected ? selected.value : 'pickup';
+    const value = selected ? selected.value : '';
 
     optionLabels.forEach(function (label) {
       label.classList.toggle('is-active', label.dataset.deliveryOption === value);

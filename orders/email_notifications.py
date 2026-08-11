@@ -5,7 +5,6 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 
-from .constants import DEFAULT_WAREHOUSE_ADDRESS
 from .models import Order
 
 logger = logging.getLogger(__name__)
@@ -46,16 +45,13 @@ def build_buyer_whatsapp_url(phone):
 
 
 def format_delivery_block(order):
-    warehouse_address = getattr(
-        settings,
-        'ZPT_WAREHOUSE_ADDRESS',
-        DEFAULT_WAREHOUSE_ADDRESS,
-    )
+    from .seller_utils import get_order_pickup_display_address
+
     lines = [order.delivery_method_label]
 
     address = order.delivery_address or {}
     if order.delivery_method == Order.DELIVERY_PICKUP:
-        lines.append(warehouse_address)
+        lines.append(get_order_pickup_display_address(order))
     elif order.delivery_method == Order.DELIVERY_COURIER:
         street = address.get('street', '')
         house = address.get('house', '')

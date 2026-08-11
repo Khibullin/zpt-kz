@@ -248,7 +248,7 @@ SELLER_SEARCH_ENABLED = os.getenv('SELLER_SEARCH_ENABLED', 'False').lower() == '
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(
     'ZPT_WAREHOUSE_ADDRESS',
-    'г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5',
+    'г. Алматы, ул. Мурат, 94А',
 )
 KASPI_MERCHANT_ID = os.getenv('KASPI_MERCHANT_ID', '')
 KASPI_API_TOKEN = os.getenv('KASPI_API_TOKEN', '')

@@ -45,6 +45,28 @@
             {{ form.address }}
           </p>
 
+          <p style="display:flex;align-items:flex-start;gap:8px;">
+            {{ form.pickup_same_as_store }}
+            <label for="{{ form.pickup_same_as_store.id_for_label }}" style="font-weight:400;margin:0;">
+              {{ form.pickup_same_as_store.label }}
+            </label>
+          </p>
+
+          <p id="sellerPickupAddressRow">
+            <label for="{{ form.pickup_address.id_for_label }}">{{ form.pickup_address.label }}</label>
+            {{ form.pickup_address }}
+            {% if form.pickup_address.errors %}
+              <span class="form-error" style="display:block;margin-top:4px;">{{ form.pickup_address.errors.0 }}</span>
+            {% endif %}
+          </p>
+
+          <p style="display:flex;align-items:flex-start;gap:8px;">
+            {{ form.pickup_available }}
+            <label for="{{ form.pickup_available.id_for_label }}" style="font-weight:400;margin:0;">
+              {{ form.pickup_available.label }}
+            </label>
+          </p>
+
           <p>
             <label for="{{ form.work_hours.id_for_label }}">{{ form.work_hours.label }}</label>
             {{ form.work_hours }}
@@ -101,4 +123,21 @@
     </div>
   </div>
 </section>
+<script>
+(function () {
+  const sameCheckbox = document.getElementById('id_pickup_same_as_store');
+  const pickupRow = document.getElementById('sellerPickupAddressRow');
+  const pickupInput = document.getElementById('id_pickup_address');
+  if (!sameCheckbox || !pickupRow || !pickupInput) return;
+
+  function syncPickupAddressVisibility() {
+    const same = sameCheckbox.checked;
+    pickupRow.style.display = same ? 'none' : '';
+    pickupInput.disabled = same;
+  }
+
+  sameCheckbox.addEventListener('change', syncPickupAddressVisibility);
+  syncPickupAddressVisibility();
+})();
+</script>
 {% endblock %}

@@ -54,12 +54,30 @@
         {% endif %}
 
         <div class="contacts-box seller-contacts-grid">
+          {% if seller.address %}
           <div class="seller-contact-row">
             <span class="seller-contact-icon" aria-hidden="true">📍</span>
             <div class="seller-contact-body">
-              <div class="seller-contact-label">Адрес склада</div>
+              <div class="seller-contact-label">Адрес магазина</div>
               <div class="seller-contact-value">
-                {{ seller.address|default:"г. Алматы, ул. Райымбека, 212б, корпус 3, бокс 5" }}
+                {{ seller.address }}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="seller-contact-row">
+            <span class="seller-contact-icon" aria-hidden="true">📦</span>
+            <div class="seller-contact-body">
+              <div class="seller-contact-label">Самовывоз</div>
+              <div class="seller-contact-value">
+                {% if not seller.pickup_available %}
+                  Самовывоз недоступен
+                {% elif seller.get_effective_pickup_address %}
+                  {{ seller.get_effective_pickup_address }}
+                {% else %}
+                  Не указан
+                {% endif %}
               </div>
             </div>
           </div>
