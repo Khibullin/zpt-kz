@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -326,6 +328,30 @@ class Product(models.Model):
         verbose_name='Город'
     )
 
+    seller_profile = models.ForeignKey(
+        SellerProfile,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='owned_products',
+        verbose_name='Профиль продавца',
+        help_text='Явная привязка к кабинету продавца. Старые товары можно не заполнять.',
+    )
+
+    cost_price = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Себестоимость',
+        help_text='Только для внутреннего учёта. Не показывается на сайте.',
+    )
+
+    stock_qty = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Остаток',
+        help_text='Пустое значение не означает «нет в наличии» у старых товаров.',
+    )
+
     main_image = models.ImageField(
         upload_to='products/',
         null=True,
@@ -371,6 +397,30 @@ class Product(models.Model):
                 name='cat_prod_lookup_idx',
             ),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_profile', 'article'],
+                condition=(
+                    models.Q(seller_profile__isnull=False)
+                    & ~models.Q(article='')
+                ),
+                name='uniq_prod_article_per_seller',
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(stock_qty__isnull=True)
+                    | models.Q(stock_qty__gte=0)
+                ),
+                name='catalog_product_stock_qty_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(cost_price__isnull=True)
+                    | models.Q(cost_price__gte=0)
+                ),
+                name='catalog_product_cost_price_gte_0',
+            ),
+        ]
 
     def __str__(self):
         if self.article:
@@ -403,6 +453,16 @@ class Product(models.Model):
             'Подскажите, пожалуйста, по наличию и доставке. '
             f'Ссылка на товар: {product_url}'
         )
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.stock_qty is not None and self.stock_qty < 0:
+            errors['stock_qty'] = 'Остаток не может быть отрицательным.'
+        if self.cost_price is not None and self.cost_price < 0:
+            errors['cost_price'] = 'Себестоимость не может быть отрицательной.'
+        if errors:
+            raise ValidationError(errors)
 
     def save(self, *args, **kwargs):
         if not self.slug:
@@ -452,9 +512,240 @@ class ProductImage(models.Model):
         verbose_name='Фото'
     )
 
+    sort_order = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Порядок',
+    )
+
+    is_primary = models.BooleanField(
+        default=False,
+        verbose_name='Основное в галерее',
+        help_text='Не заменяет главное фото товара (main_image).',
+    )
+
     class Meta:
         verbose_name = 'Фото товара'
         verbose_name_plural = 'Фото товаров'
+        ordering = ['sort_order', 'id']
 
     def __str__(self):
         return f'Фото для {self.product.title}'
+
+
+class ProductPriceTier(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='price_tiers',
+        verbose_name='Товар',
+    )
+    min_qty = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name='От количества, шт.',
+    )
+    price = models.PositiveIntegerField(
+        verbose_name='Цена за единицу, ₸',
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Активна',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создано',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Обновлено',
+    )
+
+    class Meta:
+        verbose_name = 'Оптовая цена'
+        verbose_name_plural = 'Оптовые цены'
+        ordering = ['min_qty', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'min_qty'],
+                name='unique_product_price_tier_min_qty',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(min_qty__gt=0),
+                name='product_price_tier_min_qty_gt_0',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(price__gte=0),
+                name='product_price_tier_price_gte_0',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.product_id}: от {self.min_qty} шт. — {self.price} ₸'
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.min_qty is not None and self.min_qty <= 0:
+            errors['min_qty'] = 'Минимальное количество должно быть больше 0.'
+        if self.price is not None and self.price < 0:
+            errors['price'] = 'Цена не может быть отрицательной.'
+        if errors:
+            raise ValidationError(errors)
+
+
+class ProductPromotion(models.Model):
+    TYPE_SALE = 'sale'
+    TYPE_PROMO = 'promo'
+
+    PROMOTION_TYPE_CHOICES = [
+        (TYPE_SALE, 'Распродажа'),
+        (TYPE_PROMO, 'Акция'),
+    ]
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='promotions',
+        verbose_name='Товар',
+    )
+    promotion_type = models.CharField(
+        max_length=16,
+        choices=PROMOTION_TYPE_CHOICES,
+        verbose_name='Тип',
+    )
+    price = models.PositiveIntegerField(
+        verbose_name='Специальная цена, ₸',
+    )
+    starts_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Начало',
+    )
+    ends_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Окончание',
+    )
+    qty_limit = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Лимит количества',
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Активна',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создано',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Обновлено',
+    )
+
+    class Meta:
+        verbose_name = 'Акция / распродажа'
+        verbose_name_plural = 'Акции и распродажи'
+        ordering = ['-starts_at', '-id']
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(price__gte=0),
+                name='product_promotion_price_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(qty_limit__isnull=True)
+                    | models.Q(qty_limit__gte=0)
+                ),
+                name='product_promotion_qty_limit_gte_0',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.get_promotion_type_display()} {self.product_id}: {self.price} ₸'
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.price is not None and self.price < 0:
+            errors['price'] = 'Цена не может быть отрицательной.'
+        if (
+            self.starts_at is not None
+            and self.ends_at is not None
+            and self.ends_at < self.starts_at
+        ):
+            errors['ends_at'] = 'Дата окончания не может быть раньше даты начала.'
+        if errors:
+            raise ValidationError(errors)
+
+
+class ProductConsignment(models.Model):
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='consignment',
+        verbose_name='Товар',
+    )
+    enabled = models.BooleanField(
+        default=False,
+        verbose_name='Доступно на реализацию',
+    )
+    max_qty = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Максимальное количество',
+    )
+    settlement_price = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Расчётная цена, ₸',
+    )
+    term_days = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Срок реализации, дней',
+    )
+    conditions = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Дополнительные условия',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создано',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Обновлено',
+    )
+
+    class Meta:
+        verbose_name = 'Реализация'
+        verbose_name_plural = 'Реализация'
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(max_qty__gte=0),
+                name='product_consignment_max_qty_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(settlement_price__gte=0),
+                name='product_consignment_price_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(term_days__gte=0),
+                name='product_consignment_term_days_gte_0',
+            ),
+        ]
+
+    def __str__(self):
+        state = 'доступно' if self.enabled else 'недоступно'
+        return f'Реализация {self.product_id}: {state}'
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.max_qty is not None and self.max_qty < 0:
+            errors['max_qty'] = 'Количество не может быть отрицательным.'
+        if self.settlement_price is not None and self.settlement_price < 0:
+            errors['settlement_price'] = 'Цена не может быть отрицательной.'
+        if self.term_days is not None and self.term_days < 0:
+            errors['term_days'] = 'Срок не может быть отрицательным.'
+        if errors:
+            raise ValidationError(errors)

@@ -7,6 +7,9 @@ from .models import (
     Product,
     SellerProfile,
     ProductImage,
+    ProductPriceTier,
+    ProductPromotion,
+    ProductConsignment,
 )
 
 
@@ -100,17 +103,70 @@ class SellerProfileAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 0
+    fields = ('image', 'sort_order', 'is_primary')
+    ordering = ('sort_order', 'id')
+
+
+class ProductPriceTierInline(admin.TabularInline):
+    model = ProductPriceTier
+    extra = 0
+    fields = ('min_qty', 'price', 'is_active')
+    ordering = ('min_qty', 'id')
+
+
+class ProductPromotionInline(admin.TabularInline):
+    model = ProductPromotion
+    extra = 0
+    fields = (
+        'promotion_type',
+        'price',
+        'starts_at',
+        'ends_at',
+        'qty_limit',
+        'is_active',
+    )
+
+
+class ProductConsignmentInline(admin.StackedInline):
+    model = ProductConsignment
+    extra = 0
+    max_num = 1
+    fields = (
+        'enabled',
+        'max_qty',
+        'settlement_price',
+        'term_days',
+        'conditions',
+    )
+
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'product',
         'image',
+        'sort_order',
+        'is_primary',
+    )
+
+    list_editable = (
+        'sort_order',
+        'is_primary',
     )
 
     search_fields = (
         'product__title',
         'product__article',
+    )
+
+    ordering = (
+        'product',
+        'sort_order',
+        'id',
     )
 
 
@@ -122,6 +178,9 @@ class ProductAdmin(admin.ModelAdmin):
         'article',
         'price',
         'price_on_request',
+        'cost_price',
+        'stock_qty',
+        'seller_profile',
         'seller_name',
         'whatsapp_number',
         'city',
@@ -142,6 +201,7 @@ class ProductAdmin(admin.ModelAdmin):
         'car_model',
         'category',
         'city',
+        'seller_profile',
     )
 
     search_fields = (
@@ -151,10 +211,26 @@ class ProductAdmin(admin.ModelAdmin):
         'whatsapp_number',
         'description',
         'compatibility',
+        'seller_profile__name',
+    )
+
+    autocomplete_fields = (
+        'seller_profile',
+        'brand',
+        'car_model',
+        'category',
     )
 
     readonly_fields = (
         'created_at',
+        'updated_at',
+    )
+
+    inlines = (
+        ProductImageInline,
+        ProductPriceTierInline,
+        ProductPromotionInline,
+        ProductConsignmentInline,
     )
 
     ordering = (
@@ -174,6 +250,21 @@ class ProductAdmin(admin.ModelAdmin):
                     'condition',
                     'status',
                 )
+            }
+        ),
+
+        (
+            'Склад и учёт',
+            {
+                'fields': (
+                    'seller_profile',
+                    'cost_price',
+                    'stock_qty',
+                ),
+                'description': (
+                    'Себестоимость видна только в админке '
+                    'и не публикуется на сайте.'
+                ),
             }
         ),
 
@@ -215,6 +306,7 @@ class ProductAdmin(admin.ModelAdmin):
             {
                 'fields': (
                     'created_at',
+                    'updated_at',
                 )
             }
         ),
