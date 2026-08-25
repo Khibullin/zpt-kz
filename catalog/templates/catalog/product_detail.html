@@ -68,6 +68,58 @@
   color:#444;
   line-height:1.45;
 }
+.b2b-price-preview{
+  margin:10px 0 4px;
+  padding:10px 12px;
+  border:1px solid #ececec;
+  border-radius:12px;
+  background:#fff;
+  font-size:14px;
+  line-height:1.4;
+}
+.b2b-price-preview-label{
+  font-weight:800;
+  color:#111;
+}
+.b2b-price-preview-total{
+  margin-top:4px;
+  color:#444;
+}
+.b2b-price-preview-reason{
+  color:#b45309;
+}
+.b2b-consignment-form{
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.b2b-consignment-label{
+  width:100%;
+  font-size:13px;
+  font-weight:700;
+}
+.b2b-consignment-qty{
+  width:88px;
+  min-height:38px;
+  padding:6px 10px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
+}
+.b2b-consignment-message{
+  width:100%;
+  margin:4px 0 0;
+  font-size:13px;
+}
+.b2b-consignment-message.is-success{
+  color:#15803d;
+  font-weight:700;
+}
+.b2b-consignment-message.is-error{
+  color:#b91c1c;
+}
 </style>
 {% endblock %}
 
@@ -312,6 +364,25 @@
         {% if product.status != 'sold' %}
           <div class="product-detail-buy">
             {% include 'catalog/includes/product_buy_controls.html' with product=product %}
+            {% if viewer_is_seller %}
+              <div
+                class="b2b-price-preview"
+                data-b2b-price-preview
+                data-product-id="{{ product.id }}"
+                data-preview-url="{% url 'commercial_price_preview' %}"
+              >
+                {% if commercial_quote.can_buy %}
+                  <div class="b2b-price-preview-label">
+                    {{ commercial_quote.label }}: {{ commercial_quote.unit_price|intcomma|comma_to_space }} ₸ / шт.
+                  </div>
+                  <div class="b2b-price-preview-total">
+                    {{ commercial_quote.quantity }} шт. = {{ commercial_quote.total_price|intcomma|comma_to_space }} ₸
+                  </div>
+                {% elif commercial_quote.reason %}
+                  <div class="b2b-price-preview-reason">{{ commercial_quote.reason }}</div>
+                {% endif %}
+              </div>
+            {% endif %}
             <a href="{% url 'orders:cart' %}" class="btn outline" style="width:100%;margin-top:8px;text-align:center;">
               Перейти в корзину
             </a>
@@ -531,7 +602,8 @@
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v6"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v7"></script>
+<script src="{% static 'js/catalog-b2b.js' %}?v=catalog_b2b_v1"></script>
 <script>
 function changeImage(el) {
   document.getElementById('mainImage').src = el.src;

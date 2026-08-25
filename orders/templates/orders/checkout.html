@@ -124,7 +124,7 @@
               <div class="checkout-summary-body">
                 <div class="checkout-summary-title">{{ item.product.title }}</div>
                 <div class="checkout-summary-meta">
-                  {{ item.quantity }} × {{ item.product.price|intcomma }} ₸
+                  {{ item.quantity }} × {{ item.unit_price|default_if_none:0|intcomma }} ₸
                 </div>
               </div>
             </li>

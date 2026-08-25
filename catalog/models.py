@@ -749,3 +749,75 @@ class ProductConsignment(models.Model):
             errors['term_days'] = 'Срок не может быть отрицательным.'
         if errors:
             raise ValidationError(errors)
+
+
+class ProductConsignmentRequest(models.Model):
+    STATUS_NEW = 'new'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_ISSUED = 'issued'
+    STATUS_CLOSED = 'closed'
+    STATUS_CANCELLED = 'cancelled'
+
+    STATUS_CHOICES = [
+        (STATUS_NEW, 'Новая'),
+        (STATUS_APPROVED, 'Одобрена'),
+        (STATUS_REJECTED, 'Отклонена'),
+        (STATUS_ISSUED, 'Выдана'),
+        (STATUS_CLOSED, 'Закрыта'),
+        (STATUS_CANCELLED, 'Отменена'),
+    ]
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name='consignment_requests',
+        verbose_name='Товар',
+    )
+    seller_profile = models.ForeignKey(
+        SellerProfile,
+        on_delete=models.PROTECT,
+        related_name='consignment_requests',
+        verbose_name='Продавец',
+    )
+    requested_qty = models.PositiveIntegerField(
+        verbose_name='Запрошенное количество',
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_NEW,
+        verbose_name='Статус',
+    )
+    settlement_price = models.PositiveIntegerField(
+        verbose_name='Расчётная цена на момент заявки, ₸',
+        help_text='Снимок условий. Позднее изменение реализации товар не меняет эту заявку.',
+    )
+    term_days = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Срок реализации, дней',
+    )
+    conditions = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Условия на момент заявки',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Создано',
+    )
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Обновлено',
+    )
+
+    class Meta:
+        verbose_name = 'Заявка на реализацию'
+        verbose_name_plural = 'Заявки на реализацию'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return (
+            f'Заявка #{self.pk or "new"}: '
+            f'{self.product_id} × {self.requested_qty}'
+        )

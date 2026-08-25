@@ -44,7 +44,7 @@
                     data-product-id="{{ item.product.id }}"
                     data-product-article="{{ item.product.article|default:'' }}"
                     data-product-supplier="{{ item.product.supplier|default:'local' }}"
-                    data-price="{{ item.product.price }}"
+                    data-price="{{ item.unit_price }}"
                   >
                     <button
                       type="button"
@@ -52,7 +52,7 @@
                       data-product-id="{{ item.product.id }}"
                       data-product-article="{{ item.product.article|default:'' }}"
                       data-product-supplier="{{ item.product.supplier|default:'local' }}"
-                      data-price="{{ item.product.price }}"
+                      data-price="{{ item.unit_price }}"
                       aria-label="Уменьшить количество"
                       {% if item.quantity <= 1 %}disabled{% endif %}
                     >−</button>
@@ -73,14 +73,14 @@
                       data-product-id="{{ item.product.id }}"
                       data-product-article="{{ item.product.article|default:'' }}"
                       data-product-supplier="{{ item.product.supplier|default:'local' }}"
-                      data-price="{{ item.product.price }}"
+                      data-price="{{ item.unit_price }}"
                       aria-label="Увеличить количество"
                     >+</button>
                   </div>
 
                   <div class="checkout-summary-meta cart-line-meta">
                     <span class="cart-line-qty-price">
-                      {{ item.quantity }} × {{ item.product.price|intcomma }} ₸
+                      {{ item.quantity }} × {{ item.unit_price|default_if_none:0|intcomma }} ₸
                     </span>
                     <span class="cart-line-total">
                       = {{ item.line_total|intcomma }} ₸

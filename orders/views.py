@@ -8,6 +8,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from catalog.commercial import get_request_seller_profile, resolve_commercial_price
 from catalog.models import Product
 
 from .cart import CartManager
@@ -172,21 +173,20 @@ def api_cart_add(request, product_id=None):
                     status=404,
                 )
 
-            if product.price_on_request:
-                return JsonResponse(
-                    {
-                        'success': False,
-                        'ok': False,
-                        'error': 'Этот товар доступен только по запросу цены через WhatsApp',
-                        'message': 'Этот товар доступен только по запросу цены через WhatsApp',
-                    },
-                    status=400,
-                )
-
             try:
                 cart_manager.add(product_id=product.id, quantity=quantity)
             except CartSellerConflictError as exc:
                 return _seller_conflict_response(exc.seller_name)
+            except ValueError as exc:
+                return JsonResponse(
+                    {
+                        'success': False,
+                        'ok': False,
+                        'error': str(exc),
+                        'message': str(exc),
+                    },
+                    status=400,
+                )
         else:
             product_data = data.get('product_data')
             if not product_data:
@@ -210,6 +210,16 @@ def api_cart_add(request, product_id=None):
                 cart_manager.add(product_id=product.id, quantity=quantity)
             except CartSellerConflictError as exc:
                 return _seller_conflict_response(exc.seller_name)
+            except ValueError as exc:
+                return JsonResponse(
+                    {
+                        'success': False,
+                        'ok': False,
+                        'error': str(exc),
+                        'message': str(exc),
+                    },
+                    status=400,
+                )
 
         total_items = cart_manager.get_total_items()
         return JsonResponse({
@@ -368,8 +378,25 @@ def cart_update_quantity(request):
         cart.set_quantity(product.id, quantity)
     except CartSellerConflictError as exc:
         return _seller_conflict_response(exc.seller_name)
+    except ValueError as exc:
+        return JsonResponse(
+            {
+                'success': False,
+                'ok': False,
+                'error': str(exc),
+                'message': str(exc),
+            },
+            status=400,
+        )
 
-    item_total = product.price * quantity
+    seller_profile = get_request_seller_profile(request)
+    quote = resolve_commercial_price(
+        product,
+        quantity,
+        seller_profile=seller_profile,
+    )
+    item_total = quote.total_price if quote.can_buy else 0
+    unit_price = quote.unit_price
     cart_total = cart.get_total()
     total_items = cart.get_total_items()
 
@@ -379,12 +406,15 @@ def cart_update_quantity(request):
         'product_id': product.id,
         'quantity': quantity,
         'item_total_price': item_total,
-        'item_total_price_display': _format_price_kzt(item_total),
+        'item_total_price_display': _format_price_kzt(item_total or 0),
         'cart_total_price': cart_total,
         'cart_total_price_display': _format_price_kzt(cart_total),
         'total_items': total_items,
         'cart_count': total_items,
-        'unit_price_display': _format_price_kzt(product.price),
+        'unit_price': unit_price,
+        'unit_price_display': _format_price_kzt(unit_price or 0),
+        'price_type': quote.price_type,
+        'price_label': quote.label,
     })
 
 
@@ -432,13 +462,32 @@ def checkout(request):
                     return redirect('catalog_list')
 
                 seller_snapshot = get_seller_snapshot_from_items(current_items)
+                seller_profile = get_request_seller_profile(request)
+                order_lines = []
+                total_price = 0
+                for item in current_items:
+                    product = Product.objects.select_for_update().get(pk=item['product'].pk)
+                    quote = resolve_commercial_price(
+                        product,
+                        item['quantity'],
+                        seller_profile=seller_profile,
+                    )
+                    if not quote.can_buy or quote.unit_price is None:
+                        messages.error(
+                            request,
+                            quote.reason or 'Не удалось рассчитать цену товара. Обновите корзину.',
+                        )
+                        return redirect('orders:cart')
+                    order_lines.append((product, item['quantity'], quote.unit_price))
+                    total_price += quote.total_price
+
                 order = Order.objects.create(
                     user=request.user if request.user.is_authenticated else None,
                     customer_name=form.cleaned_data['customer_name'],
                     customer_phone=form.cleaned_data['customer_phone'],
                     delivery_method=form.cleaned_data['delivery_method'],
                     delivery_address=form.build_delivery_address(),
-                    total_price=cart.get_total(),
+                    total_price=total_price,
                     seller_name=seller_snapshot['seller_name'],
                     seller_whatsapp=seller_snapshot['seller_whatsapp'],
                     status=Order.STATUS_NEW,
@@ -446,11 +495,11 @@ def checkout(request):
                 OrderItem.objects.bulk_create([
                     OrderItem(
                         order=order,
-                        product=item['product'],
-                        quantity=item['quantity'],
-                        price_at_purchase=item['product'].price,
+                        product=product,
+                        quantity=quantity,
+                        price_at_purchase=unit_price,
                     )
-                    for item in current_items
+                    for product, quantity, unit_price in order_lines
                 ])
 
             order_id = order.pk

@@ -1,4 +1,4 @@
-{% if not product.price_on_request %}
+{% if not product.price_on_request or viewer_is_seller and product.has_b2b_buy_offer %}
 <div
   class="product-buy-controls"
   data-product-id="{{ product.id }}"

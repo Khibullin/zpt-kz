@@ -2,6 +2,8 @@ from django.urls import path
 from .views import (
     catalog_list,
     product_detail,
+    commercial_price_preview,
+    consignment_request_create,
     seller_register,
     seller_login,
     seller_logout,
@@ -48,6 +50,16 @@ urlpatterns = [
         'ajax/load-compatible-models/',
         load_compatible_models,
         name='ajax_load_compatible_models'
+    ),
+    path(
+        'ajax/commercial-price/',
+        commercial_price_preview,
+        name='commercial_price_preview',
+    ),
+    path(
+        'ajax/consignment-request/',
+        consignment_request_create,
+        name='consignment_request_create',
     ),
 
     path('faq/', faq_view, name='faq'),

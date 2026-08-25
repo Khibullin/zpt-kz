@@ -68,6 +68,29 @@
               <li>{{ product.visible_consignment.conditions }}</li>
             {% endif %}
           </ul>
+          <form
+            class="b2b-consignment-form"
+            data-consignment-form
+            data-product-id="{{ product.id }}"
+            data-action="{% url 'consignment_request_create' %}"
+          >
+            <label class="b2b-consignment-label" for="consignment-qty-{{ product.id }}">
+              Количество для реализации:
+            </label>
+            <input
+              id="consignment-qty-{{ product.id }}"
+              class="b2b-consignment-qty"
+              type="number"
+              name="quantity"
+              min="1"
+              step="1"
+              value="1"
+              {% if product.visible_consignment.max_qty %}max="{{ product.visible_consignment.max_qty }}"{% endif %}
+              required
+            >
+            <button type="submit" class="btn red b2b-consignment-submit">Подать заявку</button>
+            <p class="b2b-consignment-message" data-consignment-message hidden></p>
+          </form>
         </div>
       {% endif %}
     </section>

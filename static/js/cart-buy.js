@@ -98,12 +98,18 @@
       return Math.max(1, parseInt(input.value, 10) || 1);
     }
 
+    function notifyQty() {
+      input.dispatchEvent(new Event('qtychange', { bubbles: true }));
+    }
+
     minus.addEventListener('click', function () {
       input.value = String(Math.max(1, readQty() - 1));
+      notifyQty();
     });
 
     plus.addEventListener('click', function () {
       input.value = String(readQty() + 1);
+      notifyQty();
     });
   }
 

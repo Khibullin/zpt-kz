@@ -4,6 +4,11 @@ from django.conf import settings
 from django.db import transaction
 from django.db.models import Sum
 
+from catalog.commercial import (
+    b2b_prefetch,
+    get_request_seller_profile,
+    resolve_commercial_price,
+)
 from catalog.models import Brand, Country, Product
 
 from .constants import SESSION_CART_KEY
@@ -47,16 +52,36 @@ class CartManager:
     def _normalize_product_id(self, product_id):
         return int(product_id)
 
+    def _seller_profile(self):
+        return get_request_seller_profile(self.request)
+
+    def _quote(self, product, quantity):
+        return resolve_commercial_price(
+            product,
+            quantity,
+            seller_profile=self._seller_profile(),
+        )
+
+    def _require_purchasable(self, product, quantity):
+        quote = self._quote(product, quantity)
+        if not quote.can_buy:
+            raise ValueError(quote.reason)
+        return quote
+
     def add(self, product_id, quantity=1, accumulate=True):
         product_id = self._normalize_product_id(product_id)
-        quantity = max(1, int(quantity))
+        try:
+            requested_qty = int(quantity)
+        except (TypeError, ValueError):
+            raise ValueError('Укажите количество больше 0.')
 
         product = Product.objects.filter(pk=product_id, status='active').first()
         if not product:
             raise ValueError('Product not found')
 
-        if product.price_on_request:
-            raise ValueError('Этот товар доступен только по запросу цены через WhatsApp')
+        current_qty = self.get_product_quantities().get(product_id, 0)
+        resulting_qty = current_qty + requested_qty if accumulate else requested_qty
+        self._require_purchasable(product, resulting_qty)
 
         validate_product_for_cart(self.get_items(), product)
 
@@ -64,19 +89,21 @@ class CartManager:
             item, created = CartItem.objects.get_or_create(
                 user=self.user,
                 product_id=product_id,
-                defaults={'quantity': quantity},
+                defaults={'quantity': requested_qty},
             )
             if not created:
-                item.quantity = item.quantity + quantity if accumulate else quantity
+                item.quantity = (
+                    item.quantity + requested_qty if accumulate else requested_qty
+                )
                 item.save(update_fields=['quantity', 'updated_at'])
             return
 
         cart = self._session_cart()
         key = str(product_id)
         if accumulate:
-            cart[key] = cart.get(key, 0) + quantity
+            cart[key] = cart.get(key, 0) + requested_qty
         else:
-            cart[key] = quantity
+            cart[key] = requested_qty
         self.request.session.modified = True
 
     def set_quantity(self, product_id, quantity):
@@ -90,8 +117,7 @@ class CartManager:
         if not product:
             raise ValueError('Product not found')
 
-        if product.price_on_request:
-            raise ValueError('Этот товар доступен только по запросу цены через WhatsApp')
+        self._require_purchasable(product, quantity)
 
         if product_id not in self.get_product_quantities():
             validate_product_for_cart(self.get_items(), product)
@@ -153,6 +179,10 @@ class CartManager:
             status='active',
         ).select_related('brand', 'car_model')
 
+        seller_profile = self._seller_profile()
+        if seller_profile is not None:
+            products = b2b_prefetch(products)
+
         product_map = {product.id: product for product in products}
         items = []
 
@@ -160,10 +190,23 @@ class CartManager:
             product = product_map.get(product_id)
             if not product:
                 continue
+            quote = resolve_commercial_price(
+                product,
+                quantity,
+                seller_profile=seller_profile,
+            )
+            unit_price = quote.unit_price
+            line_total = quote.total_price if quote.can_buy else 0
             items.append({
                 'product': product,
                 'quantity': quantity,
-                'line_total': product.price * quantity,
+                'unit_price': unit_price,
+                'line_total': line_total if line_total is not None else 0,
+                'price_type': quote.price_type,
+                'price_label': quote.label,
+                'can_buy': quote.can_buy,
+                'quote_reason': quote.reason,
+                'quote': quote,
             })
 
         return items

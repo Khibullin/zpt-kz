@@ -10,6 +10,7 @@ from .models import (
     ProductPriceTier,
     ProductPromotion,
     ProductConsignment,
+    ProductConsignmentRequest,
 )
 
 
@@ -311,3 +312,57 @@ class ProductAdmin(admin.ModelAdmin):
             }
         ),
     )
+
+
+@admin.register(ProductConsignmentRequest)
+class ProductConsignmentRequestAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'product',
+        'product_article',
+        'seller_profile',
+        'requested_qty',
+        'settlement_price',
+        'term_days',
+        'status',
+        'created_at',
+    )
+    list_filter = (
+        'status',
+        'created_at',
+    )
+    search_fields = (
+        'product__title',
+        'product__article',
+        'seller_profile__name',
+        'seller_profile__phone',
+    )
+    list_select_related = (
+        'product',
+        'seller_profile',
+    )
+    readonly_fields = (
+        'product',
+        'seller_profile',
+        'requested_qty',
+        'settlement_price',
+        'term_days',
+        'conditions',
+        'created_at',
+        'updated_at',
+    )
+    fields = (
+        'status',
+        'product',
+        'seller_profile',
+        'requested_qty',
+        'settlement_price',
+        'term_days',
+        'conditions',
+        'created_at',
+        'updated_at',
+    )
+
+    @admin.display(description='Артикул')
+    def product_article(self, obj):
+        return obj.product.article or '—'

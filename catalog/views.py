@@ -1,3 +1,6 @@
+import json
+from urllib.parse import quote, urlencode
+
 from django.db.models import Q, Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
@@ -8,8 +11,8 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
-from urllib.parse import quote, urlencode
 
 from core.forms import FeedbackForm
 from .commercial import (
@@ -22,11 +25,14 @@ from .commercial import (
     filter_products_by_offer,
     filter_products_by_vehicle,
     get_request_seller_profile,
+    resolve_commercial_price,
+    validate_consignment_request,
 )
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
     Product,
     ProductImage,
+    ProductConsignmentRequest,
     Country,
     Brand,
     CarModel,
@@ -405,6 +411,13 @@ def product_detail(request, slug=None, pk=None):
 
     attach_b2b_offers([product], enabled=viewer_is_seller)
     extra_fitment_models = additional_fitment_models(product)
+    commercial_quote = None
+    if viewer_is_seller:
+        commercial_quote = resolve_commercial_price(
+            product,
+            1,
+            seller_profile=viewer_seller,
+        )
 
     seller = None
 
@@ -441,6 +454,92 @@ def product_detail(request, slug=None, pk=None):
         'seller_products': seller_products,
         'viewer_is_seller': viewer_is_seller,
         'extra_fitment_models': extra_fitment_models,
+        'commercial_quote': commercial_quote,
+    })
+
+
+@require_GET
+def commercial_price_preview(request):
+    product_id = request.GET.get('product_id', '').strip()
+    quantity = request.GET.get('quantity', '1')
+    if not product_id.isdigit():
+        return JsonResponse(
+            {'ok': False, 'error': 'Некорректный товар.', 'can_buy': False},
+            status=400,
+        )
+
+    product = get_object_or_404(Product, pk=int(product_id), status='active')
+    seller_profile = get_request_seller_profile(request)
+    quote = resolve_commercial_price(
+        product,
+        quantity,
+        seller_profile=seller_profile,
+    )
+    payload = quote.to_public_dict()
+    payload['ok'] = True
+    return JsonResponse(payload)
+
+
+@require_POST
+def consignment_request_create(request):
+    seller_profile = get_request_seller_profile(request)
+    if seller_profile is None:
+        return JsonResponse(
+            {
+                'ok': False,
+                'success': False,
+                'error': 'Подать заявку на реализацию может только зарегистрированный продавец.',
+            },
+            status=403,
+        )
+
+    try:
+        if request.content_type and 'application/json' in request.content_type:
+            data = json.loads(request.body.decode('utf-8') or '{}')
+        else:
+            data = request.POST
+        product_id = int(data.get('product_id'))
+        quantity = data.get('quantity') or data.get('requested_qty')
+    except (TypeError, ValueError, json.JSONDecodeError):
+        return JsonResponse(
+            {
+                'ok': False,
+                'success': False,
+                'error': 'Некорректные данные заявки.',
+            },
+            status=400,
+        )
+
+    product = get_object_or_404(Product, pk=product_id, status='active')
+    ok, error, consignment = validate_consignment_request(
+        product,
+        seller_profile,
+        quantity,
+    )
+    if not ok:
+        return JsonResponse(
+            {
+                'ok': False,
+                'success': False,
+                'error': error,
+            },
+            status=400,
+        )
+
+    request_obj = ProductConsignmentRequest.objects.create(
+        product=product,
+        seller_profile=seller_profile,
+        requested_qty=int(quantity),
+        status=ProductConsignmentRequest.STATUS_NEW,
+        settlement_price=consignment.settlement_price,
+        term_days=consignment.term_days,
+        conditions=consignment.conditions or '',
+    )
+    return JsonResponse({
+        'ok': True,
+        'success': True,
+        'message': 'Заявка на реализацию принята.',
+        'request_id': request_obj.pk,
     })
 
 
