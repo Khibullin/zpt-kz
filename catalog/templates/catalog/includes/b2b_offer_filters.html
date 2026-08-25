@@ -1,0 +1,15 @@
+{% if viewer_is_seller %}
+<nav class="b2b-offer-filters" aria-label="Предложения для продавцов">
+  <p class="b2b-offer-filters-title">Предложения для продавцов</p>
+  <ul class="b2b-offer-filters-list">
+    {% for link in offer_links %}
+      <li>
+        <a
+          href="{{ link.url }}"
+          class="b2b-offer-filter-link{% if link.selected %} is-selected{% endif %}"
+        >{{ link.label }}</a>
+      </li>
+    {% endfor %}
+  </ul>
+</nav>
+{% endif %}

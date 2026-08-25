@@ -15,6 +15,60 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_social_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
+<style>
+.b2b-seller-terms{
+  margin:16px 0;
+  padding:14px 16px;
+  border:1px solid #ececec;
+  border-radius:14px;
+  background:#fafafa;
+}
+.b2b-seller-terms-title{
+  margin:0 0 12px;
+  font-size:16px;
+  font-weight:800;
+}
+.b2b-seller-terms-block{
+  margin-top:10px;
+}
+.b2b-seller-terms-block h3{
+  margin:0 0 6px;
+  font-size:14px;
+  font-weight:800;
+  color:#111;
+}
+.b2b-seller-terms-block ul{
+  margin:0;
+  padding-left:18px;
+  color:#444;
+  font-size:14px;
+  line-height:1.45;
+}
+.b2b-offer-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:8px 0 10px;
+}
+.b2b-offer-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid #ffd7d2;
+  background:#fff0f0;
+  color:#ef3d2f;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+.fitment-extra{
+  margin-top:8px;
+  font-size:14px;
+  color:#444;
+  line-height:1.45;
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -120,6 +174,10 @@
 
         {% include 'catalog/includes/product_price_display.html' with product=product price_class='detail-price' %}
 
+        {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
+
+        {% include 'catalog/includes/b2b_seller_terms.html' with product=product %}
+
 <div
   style="
     color:#16a34a;
@@ -212,6 +270,17 @@
             <div class="detail-box">
               <div class="detail-label">Модель</div>
               <div class="detail-value">{{ product.car_model.name }}</div>
+            </div>
+          {% endif %}
+
+          {% if extra_fitment_models %}
+            <div class="detail-box">
+              <div class="detail-label">Также подходит</div>
+              <div class="detail-value">
+                {% for model in extra_fitment_models %}
+                  {{ model.brand.name }} {{ model.name }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </div>
             </div>
           {% endif %}
 
@@ -336,6 +405,17 @@
           <div class="detail-box">
             <div class="detail-label">Модель</div>
             <div class="detail-value">{{ product.car_model.name }}</div>
+          </div>
+        {% endif %}
+
+        {% if extra_fitment_models %}
+          <div class="detail-box">
+            <div class="detail-label">Также подходит</div>
+            <div class="detail-value">
+              {% for model in extra_fitment_models %}
+                {{ model.brand.name }} {{ model.name }}{% if not forloop.last %}, {% endif %}
+              {% endfor %}
+            </div>
           </div>
         {% endif %}
 

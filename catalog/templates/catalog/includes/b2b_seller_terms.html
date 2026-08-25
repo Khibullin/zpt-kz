@@ -1,0 +1,75 @@
+{% load humanize phone_extras %}
+{% if viewer_is_seller %}
+  {% if product.has_wholesale_offer or product.visible_sale or product.visible_promo or product.visible_consignment %}
+    <section class="b2b-seller-terms" aria-label="Условия для продавцов">
+      <h2 class="b2b-seller-terms-title">Условия для продавцов</h2>
+
+      {% if product.has_wholesale_offer %}
+        <div class="b2b-seller-terms-block">
+          <h3>Оптовые цены</h3>
+          <ul>
+            {% for tier in product.visible_price_tiers %}
+              <li>от {{ tier.min_qty }} шт. — {{ tier.price|intcomma|comma_to_space }} ₸ / шт.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if product.visible_sale %}
+        <div class="b2b-seller-terms-block">
+          <h3>Распродажа</h3>
+          <ul>
+            <li>{{ product.visible_sale.price|intcomma|comma_to_space }} ₸</li>
+            {% if product.visible_sale.starts_at or product.visible_sale.ends_at %}
+              <li>
+                {% if product.visible_sale.starts_at %}с {{ product.visible_sale.starts_at|date:"d.m.Y" }}{% endif %}
+                {% if product.visible_sale.starts_at and product.visible_sale.ends_at %} {% endif %}
+                {% if product.visible_sale.ends_at %}до {{ product.visible_sale.ends_at|date:"d.m.Y" }}{% endif %}
+              </li>
+            {% endif %}
+            {% if product.visible_sale.qty_limit %}
+              <li>Лимит: {{ product.visible_sale.qty_limit }} шт.</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if product.visible_promo %}
+        <div class="b2b-seller-terms-block">
+          <h3>Акция</h3>
+          <ul>
+            <li>{{ product.visible_promo.price|intcomma|comma_to_space }} ₸</li>
+            {% if product.visible_promo.starts_at or product.visible_promo.ends_at %}
+              <li>
+                {% if product.visible_promo.starts_at %}с {{ product.visible_promo.starts_at|date:"d.m.Y" }}{% endif %}
+                {% if product.visible_promo.starts_at and product.visible_promo.ends_at %} {% endif %}
+                {% if product.visible_promo.ends_at %}до {{ product.visible_promo.ends_at|date:"d.m.Y" }}{% endif %}
+              </li>
+            {% endif %}
+            {% if product.visible_promo.qty_limit %}
+              <li>Лимит: {{ product.visible_promo.qty_limit }} шт.</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if product.visible_consignment %}
+        <div class="b2b-seller-terms-block">
+          <h3>Можно взять на реализацию</h3>
+          <ul>
+            {% if product.visible_consignment.max_qty %}
+              <li>Максимум: {{ product.visible_consignment.max_qty }} шт.</li>
+            {% endif %}
+            <li>Расчётная цена: {{ product.visible_consignment.settlement_price|intcomma|comma_to_space }} ₸</li>
+            {% if product.visible_consignment.term_days %}
+              <li>Срок: {{ product.visible_consignment.term_days }} дн.</li>
+            {% endif %}
+            {% if product.visible_consignment.conditions %}
+              <li>{{ product.visible_consignment.conditions }}</li>
+            {% endif %}
+          </ul>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+{% endif %}

@@ -12,6 +12,17 @@ from django.urls import reverse
 from urllib.parse import quote, urlencode
 
 from core.forms import FeedbackForm
+from .commercial import (
+    OFFER_CHOICES,
+    VALID_OFFER_VALUES,
+    additional_fitment_models,
+    attach_b2b_offers,
+    b2b_prefetch,
+    build_catalog_query,
+    filter_products_by_offer,
+    filter_products_by_vehicle,
+    get_request_seller_profile,
+)
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
     Product,
@@ -243,6 +254,11 @@ def catalog_list(request):
     model_id = request.GET.get('model', '').strip()
     category_id = request.GET.get('category', '').strip()
     city = request.GET.get('city', '').strip()
+    offer_raw = request.GET.get('offer', '').strip()
+
+    viewer_seller = get_request_seller_profile(request)
+    viewer_is_seller = viewer_seller is not None
+    selected_offer = offer_raw if viewer_is_seller and offer_raw in VALID_OFFER_VALUES else ''
 
     countries = Country.objects.all().order_by('name')
     categories = Category.objects.all().order_by('name')
@@ -281,14 +297,12 @@ def catalog_list(request):
             Q(compatibility__icontains=query)
         )
 
-    if country_id:
-        products = products.filter(brand__country_id=country_id)
-
-    if brand_id:
-        products = products.filter(brand_id=brand_id)
-
-    if model_id:
-        products = products.filter(car_model_id=model_id)
+    products = filter_products_by_vehicle(
+        products,
+        country_id=country_id,
+        brand_id=brand_id,
+        model_id=model_id,
+    )
 
     if category_id:
         products = products.filter(category_id=category_id)
@@ -296,8 +310,22 @@ def catalog_list(request):
     if city:
         products = products.filter(city__icontains=city)
 
-    has_filters = any([query, country_id, brand_id, model_id, category_id, city])
+    if selected_offer:
+        products = filter_products_by_offer(products, selected_offer)
+
+    has_filters = any([
+        query,
+        country_id,
+        brand_id,
+        model_id,
+        category_id,
+        city,
+        selected_offer,
+    ])
     show_all = request.GET.get('all') == '1'
+
+    if viewer_is_seller:
+        products = b2b_prefetch(products)
 
     if has_filters or show_all:
         products = products.order_by('-created_at')
@@ -305,6 +333,21 @@ def catalog_list(request):
         products = products.order_by('?')[:12]
 
     products = attach_sellers_to_products(products)
+    attach_b2b_offers(products, enabled=viewer_is_seller)
+
+    offer_links = []
+    if viewer_is_seller:
+        for value, label in OFFER_CHOICES:
+            query_string = build_catalog_query(request.GET, offer=value)
+            offer_links.append({
+                'value': value,
+                'label': label,
+                'url': f'?{query_string}' if query_string else '?',
+                'selected': selected_offer == value,
+            })
+
+    catalog_all_query = build_catalog_query(request.GET, all='1')
+    catalog_all_url = f'?{catalog_all_query}' if catalog_all_query else '?all=1'
 
     context = {
         'products': products,
@@ -320,6 +363,10 @@ def catalog_list(request):
         'selected_model': model_id,
         'selected_category': category_id,
         'selected_city': city,
+        'viewer_is_seller': viewer_is_seller,
+        'selected_offer': selected_offer,
+        'offer_links': offer_links,
+        'catalog_all_url': catalog_all_url,
         **_build_home_seo_links(),
     }
     return render(request, 'catalog/catalog_list.html', context)
@@ -327,26 +374,37 @@ def catalog_list(request):
 
 @ensure_csrf_cookie
 def product_detail(request, slug=None, pk=None):
+    viewer_seller = get_request_seller_profile(request)
+    viewer_is_seller = viewer_seller is not None
+
+    product_qs = Product.objects.filter(status='active').select_related(
+        'brand',
+        'brand__country',
+        'car_model',
+        'category',
+    ).prefetch_related(
+        Prefetch(
+            'selected_models',
+            queryset=CarModel.objects.select_related('brand'),
+        ),
+    )
+    if viewer_is_seller:
+        product_qs = b2b_prefetch(product_qs)
 
     if slug:
-        product = get_object_or_404(
-            Product,
-            slug=slug,
-            status='active'
-        )
+        product = get_object_or_404(product_qs, slug=slug)
 
     else:
-        product = get_object_or_404(
-            Product,
-            pk=pk,
-            status='active'
-        )
+        product = get_object_or_404(product_qs, pk=pk)
 
         if product.slug:
             return redirect(
                 'product_detail',
                 slug=product.slug
             )
+
+    attach_b2b_offers([product], enabled=viewer_is_seller)
+    extra_fitment_models = additional_fitment_models(product)
 
     seller = None
 
@@ -381,6 +439,8 @@ def product_detail(request, slug=None, pk=None):
         'product': product,
         'seller': seller,
         'seller_products': seller_products,
+        'viewer_is_seller': viewer_is_seller,
+        'extra_fitment_models': extra_fitment_models,
     })
 
 

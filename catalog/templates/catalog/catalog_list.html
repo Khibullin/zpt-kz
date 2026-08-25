@@ -301,6 +301,64 @@ a.hero-b2b-strip-btn:hover,
     align-items:flex-start;
   }
 }
+
+.b2b-offer-filters{
+  margin-top:14px;
+  padding:14px 16px;
+  border-radius:12px;
+  background:#f3f4f6;
+}
+.b2b-offer-filters-title{
+  margin:0 0 10px;
+  font-size:14px;
+  font-weight:700;
+  color:#111827;
+}
+.b2b-offer-filters-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  list-style:none;
+  margin:0;
+  padding:0;
+}
+.b2b-offer-filter-link{
+  display:inline-flex;
+  align-items:center;
+  min-height:34px;
+  padding:0 12px;
+  border-radius:999px;
+  border:1px solid #d1d5db;
+  background:#fff;
+  color:#374151;
+  font-size:13px;
+  font-weight:700;
+  text-decoration:none;
+}
+.b2b-offer-filter-link.is-selected{
+  border-color:#ef3d2f;
+  background:#fff0f0;
+  color:#ef3d2f;
+}
+.b2b-offer-badges{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:8px 0 4px;
+}
+.b2b-offer-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:3px 8px;
+  border-radius:999px;
+  border:1px solid #ffd7d2;
+  background:#fff0f0;
+  color:#ef3d2f;
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.02em;
+  line-height:1.2;
+}
 </style>
 {% endblock %}
 
@@ -337,6 +395,9 @@ a.hero-b2b-strip-btn:hover,
               Найти
             </button>
           </div>
+          {% if viewer_is_seller and selected_offer %}
+            <input type="hidden" name="offer" value="{{ selected_offer }}">
+          {% endif %}
         </form>
       </div>
 
@@ -374,8 +435,13 @@ a.hero-b2b-strip-btn:hover,
           <button type="submit" class="filter-submit-btn">
             Найти по авто
           </button>
+          {% if viewer_is_seller and selected_offer %}
+            <input type="hidden" name="offer" value="{{ selected_offer }}">
+          {% endif %}
         </form>
       </div>
+
+      {% include 'catalog/includes/b2b_offer_filters.html' %}
 
       {% if has_filters and not products %}
         <div
@@ -434,7 +500,7 @@ a.hero-b2b-strip-btn:hover,
   >
     <h2 class="ds-h2">Запчасти в наличии</h2>
     {% if not show_all %}
-      <a class="products-link" href="{% url 'catalog_list' %}?all=1">Смотреть все →</a>
+      <a class="products-link" href="{{ catalog_all_url }}">Смотреть все →</a>
     {% endif %}
   </div>
 
@@ -484,6 +550,8 @@ a.hero-b2b-strip-btn:hover,
             </div>
 
           </a>
+
+          {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
 
           {% include 'catalog/includes/product_price_display.html' with product=product %}
 

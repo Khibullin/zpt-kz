@@ -1,0 +1,18 @@
+{% if viewer_is_seller %}
+  {% if product.has_wholesale_offer or product.has_sale_offer or product.has_promo_offer or product.has_consignment_offer %}
+    <div class="b2b-offer-badges" aria-label="Предложения для продавцов">
+      {% if product.has_wholesale_offer %}
+        <span class="b2b-offer-badge">ОПТ</span>
+      {% endif %}
+      {% if product.has_sale_offer %}
+        <span class="b2b-offer-badge">РАСПРОДАЖА</span>
+      {% endif %}
+      {% if product.has_promo_offer %}
+        <span class="b2b-offer-badge">АКЦИЯ</span>
+      {% endif %}
+      {% if product.has_consignment_offer %}
+        <span class="b2b-offer-badge">НА РЕАЛИЗАЦИЮ</span>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endif %}
