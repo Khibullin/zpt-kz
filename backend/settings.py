@@ -5,6 +5,8 @@ from pathlib import Path
 import dj_database_url
 from django.core.exceptions import ImproperlyConfigured
 
+from backend.media_paths import resolve_media_root
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
@@ -257,7 +259,7 @@ ZPT_DEFAULT_WHATSAPP = os.getenv('ZPT_DEFAULT_WHATSAPP', '+77713607040')
 ZPT_WAREHOUSE_CITY = os.getenv('ZPT_WAREHOUSE_CITY', 'Алматы')
 
 MEDIA_URL = '/products/'
-MEDIA_ROOT = BASE_DIR / 'products'
+MEDIA_ROOT = resolve_media_root(os.getenv('MEDIA_ROOT'), BASE_DIR)
 
 if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000

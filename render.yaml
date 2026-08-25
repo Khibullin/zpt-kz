@@ -10,6 +10,11 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.8
 
+  # Persistent Disk for media: attach manually in Render Dashboard after approval.
+  # Recommended mount path: /var/data
+  # Then set env MEDIA_ROOT=/var/data
+  # Do not declare a disk here — Blueprint would change the existing web service.
+
   # zpt-kz-dispatch-worker cron is managed manually in Render Dashboard (schedule: * * * * *).
   # Do not add a cron service here — Blueprint would create a duplicate worker.
   #
