@@ -35,6 +35,10 @@ env/
 .DS_Store
 Thumbs.db
 
+# Local AG Parts import sources and reports (never commit)
+import_work/
+data/ag_parts/
+
 # Test / coverage
 .pytest_cache/
 .coverage
