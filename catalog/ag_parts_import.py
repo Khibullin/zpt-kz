@@ -65,6 +65,10 @@ QTY_HEADERS = (
     'кол-во', 'количество', 'qty', 'quantity', 'закуплено', 'остаток',
     'stock', 'закупка',
 )
+ADDITIONAL_MODEL_HEADERS = (
+    'дополнительные модели', 'доп. модели', 'доп модели',
+    'additional models', 'extra models', 'selected models',
+)
 
 FILTER_TYPE_KEYS = {
     'air filter': 'Воздушный фильтр',
@@ -235,6 +239,7 @@ def detect_column_map(headers):
         'retail_price': RETAIL_HEADERS,
         'cost_price': COST_HEADERS,
         'quantity': QTY_HEADERS,
+        'extra_models': ADDITIONAL_MODEL_HEADERS,
     }
     normalized = [normalize_header(h) for h in headers]
     for field, aliases in groups.items():
@@ -292,6 +297,7 @@ class PreparedRow:
     quantity_raw: str
     product_type: str = ''
     description: str = ''
+    extra_models_raw: str = ''
     photos: list = field(default_factory=list)
     source_row: int = 0
     source_sheet: str = ''
@@ -442,6 +448,8 @@ def merge_prepared(existing, incoming):
         existing.category_name = incoming.category_name
     if incoming.description and not existing.description:
         existing.description = incoming.description
+    if incoming.extra_models_raw and not existing.extra_models_raw:
+        existing.extra_models_raw = incoming.extra_models_raw
     existing.photos.extend(incoming.photos)
     existing.warnings.extend(incoming.warnings)
     existing.warnings.append(
@@ -488,6 +496,7 @@ def prepared_from_excel_row(row_number, values, column_map, sheet_name, images_b
         brand_raw=cell_text(_row_value(values, column_map, 'brand')),
         model_raw=cell_text(_row_value(values, column_map, 'model')),
         compatibility=cell_text(_row_value(values, column_map, 'compatibility')),
+        extra_models_raw=cell_text(_row_value(values, column_map, 'extra_models')),
         description=cell_text(_row_value(values, column_map, 'description')),
         retail_price=retail_price,
         cost_price=parse_money(_row_value(values, column_map, 'cost_price')),
@@ -618,6 +627,27 @@ def attach_archive_photos(rows, photo_index):
                 row.product_type = folder_type
 
 
+def parse_brand_model_pairs(raw):
+    """Parse optional 'Brand:Model; Brand:Model' additional applicability."""
+    pairs = []
+    warnings = []
+    for chunk in re.split(r'[;\n]+', raw or ''):
+        chunk = chunk.strip()
+        if not chunk:
+            continue
+        if ':' not in chunk:
+            warnings.append(f'invalid_additional_model:{chunk}')
+            continue
+        brand_raw, model_raw = chunk.split(':', 1)
+        brand_raw = brand_raw.strip()
+        model_raw = model_raw.strip()
+        if not brand_raw or not model_raw:
+            warnings.append(f'invalid_additional_model:{chunk}')
+            continue
+        pairs.append((brand_raw, model_raw))
+    return pairs, warnings
+
+
 class CatalogMatcher:
     def __init__(self):
         self.categories = {
@@ -666,60 +696,45 @@ class CatalogMatcher:
         warnings = []
         brands = []
         models = []
-        raw_parts = [
-            row.brand_raw,
-            row.model_raw,
-            row.compatibility,
-        ]
-        text = ' ; '.join(part for part in raw_parts if part)
-        if row.brand_raw:
-            brand, warning = self.brand(row.brand_raw)
+
+        def add_pair(brand_raw, model_raw):
+            brand, warning = self.brand(brand_raw)
             if warning:
                 warnings.append(warning)
-            if brand:
+            if brand and brand not in brands:
                 brands.append(brand)
-                for token in re.split(r'[,/;]+', row.model_raw or ''):
-                    token = token.strip()
-                    if not token:
-                        continue
-                    model, model_warning = self.model(brand, token)
-                    if model_warning:
-                        warnings.append(model_warning)
-                    if model:
-                        models.append(model)
-        if text:
-            brand_names = sorted(
-                self.brands.keys(),
-                key=len,
-                reverse=True,
-            )
-            remaining = f' {normalize_header(text)} '
-            for brand_key in brand_names:
-                if f' {brand_key} ' not in remaining and not remaining.startswith(brand_key + ' '):
-                    # also match start of string / separators
-                    pattern = r'(?:^|[\s,;/])' + re.escape(brand_key) + r'(?:$|[\s,;/])'
-                    if not re.search(pattern, remaining):
-                        continue
-                brand = self.brands[brand_key][0]
-                if brand not in brands:
-                    brands.append(brand)
-                for model in sorted(
-                    self.models_by_brand.get(brand.id, []),
-                    key=lambda item: len(item.name),
-                    reverse=True,
-                ):
-                    model_key = normalize_header(model.name)
-                    pattern = r'(?:^|[\s,;/])' + re.escape(model_key) + r'(?:$|[\s,;/])'
-                    if re.search(pattern, remaining) and model not in models:
-                        models.append(model)
-        primary_brand = brands[0] if brands else None
+            if not model_raw:
+                return brand, None
+            if not brand:
+                return None, None
+            model, model_warning = self.model(brand, model_raw)
+            if model_warning:
+                warnings.append(model_warning)
+            if model and model not in models:
+                models.append(model)
+            return brand, model
+
+        primary_brand = None
         primary_model = None
-        if primary_brand:
-            for model in models:
-                if model.brand_id == primary_brand.id:
-                    primary_model = model
-                    break
-        if not primary_brand and (row.brand_raw or row.compatibility):
+        if row.brand_raw:
+            tokens = [
+                token.strip()
+                for token in re.split(r'[,/;]+', row.model_raw or '')
+                if token.strip()
+            ]
+            primary_brand, primary_model = add_pair(
+                row.brand_raw,
+                tokens[0] if tokens else '',
+            )
+            for token in tokens[1:]:
+                add_pair(row.brand_raw, token)
+
+        extra_pairs, extra_warnings = parse_brand_model_pairs(row.extra_models_raw)
+        warnings.extend(extra_warnings)
+        for brand_raw, model_raw in extra_pairs:
+            add_pair(brand_raw, model_raw)
+
+        if not primary_brand and (row.brand_raw or extra_pairs):
             if not any(item.startswith('unknown_brand:') for item in warnings):
                 warnings.append('unmatched_fitment')
         return primary_brand, primary_model, brands, models, warnings
@@ -797,6 +812,64 @@ def apply_images(product, photos, replace_images):
         stored += 1
 
 
+def _seller_names_match(left, right):
+    return (left or '').strip().casefold() == (right or '').strip().casefold()
+
+
+def find_legacy_ag_parts(article, seller):
+    if seller is None or not article:
+        return []
+    candidates = []
+    for product in Product.objects.filter(
+        seller_profile__isnull=True,
+        article=article,
+    ):
+        if _seller_names_match(product.seller_name, seller.name):
+            candidates.append(product)
+    return candidates
+
+
+def other_seller_products(article, seller, *, exclude_ids=None):
+    exclude_ids = set(exclude_ids or [])
+    queryset = Product.objects.filter(article=article)
+    if seller is not None:
+        queryset = queryset.exclude(seller_profile=seller)
+    others = []
+    for product in queryset:
+        if product.pk in exclude_ids:
+            continue
+        if (
+            seller is not None
+            and product.seller_profile_id is None
+            and _seller_names_match(product.seller_name, seller.name)
+        ):
+            continue
+        others.append(product)
+    return others
+
+
+def _apply_row_fields(product, *, title, category, brand, model, row, seller, description, retail_ok):
+    product.title = title
+    product.category = category
+    product.brand = brand
+    product.car_model = model
+    product.compatibility = row.compatibility or product.compatibility
+    if description:
+        product.description = description
+    if row.cost_price is not None:
+        product.cost_price = row.cost_price
+    if retail_ok:
+        product.price = row.retail_price
+        product.price_on_request = False
+    if seller.name:
+        product.seller_name = seller.name
+    if seller.phone:
+        product.whatsapp_number = seller.phone
+    if seller.city:
+        product.city = seller.city
+    return product
+
+
 def upsert_product(
     row,
     seller,
@@ -805,6 +878,7 @@ def upsert_product(
     dry_run,
     replace_images,
     expect_cost=False,
+    adopt_legacy=False,
 ):
     result = ImportResult(
         article=row.article,
@@ -817,6 +891,8 @@ def upsert_product(
         result.action = 'error'
         return result
 
+    existing = None
+    legacy_candidates = []
     if seller is not None:
         phaeton = Product.objects.filter(
             article=row.article,
@@ -828,24 +904,33 @@ def upsert_product(
         ).exists():
             result.warnings.append('phaeton_article_exists_left_untouched')
 
-        other = Product.objects.filter(article=row.article).exclude(
-            seller_profile=seller,
-        )
-        if other.exists():
-            result.warnings.append('same_article_exists_for_other_seller')
-
         existing = Product.objects.filter(
             seller_profile=seller,
             article=row.article,
         ).first()
-    else:
-        existing = None
+        if existing is None:
+            legacy_candidates = find_legacy_ag_parts(row.article, seller)
+        others = other_seller_products(
+            row.article,
+            seller,
+            exclude_ids=[item.pk for item in legacy_candidates],
+        )
+        if others:
+            result.warnings.append('same_article_exists_for_other_seller')
 
     if existing and existing.supplier == Product.SUPPLIER_PHAETON:
         result.action = 'skipped'
         result.errors.append('refusing_to_modify_phaeton_product')
         result.product_id = existing.pk
         return result
+
+    if existing is None and len(legacy_candidates) > 1:
+        result.action = 'legacy_ag_parts_ambiguous'
+        result.errors.append('legacy_ag_parts_ambiguous')
+        result.warnings.append('LEGACY_AG_PARTS_AMBIGUOUS')
+        return result
+
+    legacy = legacy_candidates[0] if len(legacy_candidates) == 1 else None
 
     category, category_warning = matcher.category(row.category_name)
     if category_warning:
@@ -861,6 +946,42 @@ def upsert_product(
     retail_ok = bool(row.retail_price and row.retail_price > 0)
     title = build_title(row, brand, model, category)
     description = (row.description or '').strip()
+
+    if existing is None and legacy is not None:
+        result.product_id = legacy.pk
+        result.warnings.append(f'LEGACY_AG_PARTS_MATCH product_id={legacy.pk}')
+        if dry_run:
+            result.action = 'would_adopt' if adopt_legacy else 'legacy_ag_parts_match'
+            return result
+        if not adopt_legacy:
+            result.action = 'skipped'
+            result.warnings.append('legacy_requires_adoption')
+            return result
+        if seller is None:
+            result.action = 'error'
+            result.errors.append('seller_profile_required_for_write')
+            return result
+        with transaction.atomic():
+            legacy.seller_profile = seller
+            _apply_row_fields(
+                legacy,
+                title=title,
+                category=category,
+                brand=brand,
+                model=model,
+                row=row,
+                seller=seller,
+                description=description,
+                retail_ok=retail_ok,
+            )
+            legacy.save()
+            legacy.selected_brands.set(brands)
+            legacy.selected_models.set(models)
+            apply_images(legacy, row.photos, replace_images=replace_images)
+            result.action = 'adopted'
+            result.product_id = legacy.pk
+        return result
+
     if dry_run:
         result.action = 'updated' if existing else 'created'
         result.product_id = existing.pk if existing else None
@@ -873,21 +994,17 @@ def upsert_product(
 
     with transaction.atomic():
         if existing:
-            existing.title = title
-            existing.category = category
-            existing.brand = brand
-            existing.car_model = model
-            existing.compatibility = row.compatibility or existing.compatibility
-            if description:
-                existing.description = description
-            if row.cost_price is not None:
-                existing.cost_price = row.cost_price
-            if retail_ok:
-                existing.price = row.retail_price
-                existing.price_on_request = False
-            existing.seller_name = seller.name
-            existing.whatsapp_number = seller.phone
-            existing.city = seller.city or existing.city
+            _apply_row_fields(
+                existing,
+                title=title,
+                category=category,
+                brand=brand,
+                model=model,
+                row=row,
+                seller=seller,
+                description=description,
+                retail_ok=retail_ok,
+            )
             existing.save()
             product = existing
             result.action = 'updated'
@@ -960,6 +1077,9 @@ def summarize(results):
     totals = {
         'CREATED': 0,
         'UPDATED': 0,
+        'LEGACY_MATCH': 0,
+        'WOULD_ADOPT': 0,
+        'ADOPTED': 0,
         'SKIPPED': 0,
         'WARNING': 0,
         'ERROR': 0,
@@ -969,12 +1089,21 @@ def summarize(results):
             totals['CREATED'] += 1
         elif item.action == 'updated':
             totals['UPDATED'] += 1
+        elif item.action == 'legacy_ag_parts_match':
+            totals['LEGACY_MATCH'] += 1
+        elif item.action == 'would_adopt':
+            totals['LEGACY_MATCH'] += 1
+            totals['WOULD_ADOPT'] += 1
+        elif item.action == 'adopted':
+            totals['ADOPTED'] += 1
         elif item.action == 'skipped':
             totals['SKIPPED'] += 1
-        elif item.action == 'error':
+            if any('LEGACY_AG_PARTS_MATCH' in warning for warning in item.warnings):
+                totals['LEGACY_MATCH'] += 1
+        elif item.action in {'error', 'legacy_ag_parts_ambiguous'}:
             totals['ERROR'] += 1
         if item.warnings:
             totals['WARNING'] += 1
-        if item.errors and item.action != 'error':
+        if item.errors and item.action not in {'error', 'legacy_ag_parts_ambiguous'}:
             totals['ERROR'] += 1
     return totals

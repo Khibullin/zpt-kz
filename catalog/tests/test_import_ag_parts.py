@@ -458,3 +458,371 @@ class AgPartsImportTests(TestCase):
         (self.photos_dir / 'CF-100-2.png').unlink()
         output = self._run('--dry-run', '--articles=CF-100')
         self.assertIn('NO_LOCAL_PHOTO', output)
+
+    def _make_legacy(self, article='CF-100', seller_name='AG Parts', **kwargs):
+        defaults = {
+            'title': 'Legacy AG Parts',
+            'article': article,
+            'price': 1425,
+            'seller_name': seller_name,
+            'whatsapp_number': '77001112233',
+            'status': 'active',
+            'seller_profile': None,
+            'city': 'Алматы',
+        }
+        defaults.update(kwargs)
+        return Product.objects.create(**defaults)
+
+    def test_legacy_ag_parts_is_detected(self):
+        legacy = self._make_legacy()
+        output = self._run('--dry-run', '--articles=CF-100')
+        self.assertIn('LEGACY_AG_PARTS_MATCH', output)
+        self.assertIn(f'product_id={legacy.pk}', output)
+        self.assertIn('LEGACY_MATCH=1', output)
+        self.assertIn('CREATED=0', output)
+
+    def test_legacy_match_does_not_create_second_product(self):
+        self._make_legacy()
+        self._run('--articles=CF-100')
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 1)
+        leftover = Product.objects.get(article='CF-100')
+        self.assertIsNone(leftover.seller_profile_id)
+        self.assertEqual(leftover.status, 'active')
+
+    def test_dry_run_legacy_does_not_change_db(self):
+        legacy = self._make_legacy()
+        self._run('--dry-run', '--articles=CF-100')
+        legacy.refresh_from_db()
+        self.assertIsNone(legacy.seller_profile_id)
+        self.assertEqual(legacy.status, 'active')
+        self.assertEqual(legacy.price, 1425)
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 1)
+
+    def test_write_without_adopt_skips_legacy(self):
+        legacy = self._make_legacy()
+        output = self._run('--articles=CF-100')
+        self.assertIn('legacy_requires_adoption', output)
+        self.assertIn('SKIPPED', output)
+        legacy.refresh_from_db()
+        self.assertIsNone(legacy.seller_profile_id)
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 1)
+
+    def test_adopt_legacy_binds_single_product(self):
+        legacy = self._make_legacy()
+        output = self._run('--articles=CF-100', '--adopt-legacy-products')
+        self.assertIn('ADOPTED', output)
+        legacy.refresh_from_db()
+        self.assertEqual(legacy.seller_profile_id, self.seller.pk)
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 1)
+
+    def test_adopt_keeps_product_id(self):
+        legacy = self._make_legacy()
+        old_id = legacy.pk
+        self._run('--articles=CF-100', '--adopt-legacy-products')
+        self.assertEqual(Product.objects.get(article='CF-100').pk, old_id)
+
+    def test_adopt_preserves_active_status(self):
+        legacy = self._make_legacy(status='active')
+        self._run('--articles=CF-100', '--adopt-legacy-products')
+        legacy.refresh_from_db()
+        self.assertEqual(legacy.status, 'active')
+        self.assertEqual(legacy.seller_profile, self.seller)
+
+    def test_multiple_legacy_candidates_are_ambiguous(self):
+        self._make_legacy()
+        self._make_legacy(title='Legacy AG Parts 2')
+        output = self._run('--articles=CF-100', '--adopt-legacy-products')
+        self.assertIn('LEGACY_AG_PARTS_AMBIGUOUS', output)
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 2)
+        self.assertEqual(
+            Product.objects.filter(article='CF-100', seller_profile=self.seller).count(),
+            0,
+        )
+
+    def test_other_legacy_seller_name_is_not_adopted(self):
+        foreign = self._make_legacy(seller_name='Other Shop')
+        self._run('--articles=CF-100', '--adopt-legacy-products')
+        foreign.refresh_from_db()
+        self.assertIsNone(foreign.seller_profile_id)
+        own = Product.objects.get(seller_profile=self.seller, article='CF-100')
+        self.assertNotEqual(own.pk, foreign.pk)
+        self.assertEqual(own.status, 'hidden')
+
+    def test_other_seller_profile_is_not_adopted(self):
+        other_user = User.objects.create_user(username='other2', password='secret12345')
+        other = SellerProfile.objects.create(
+            user=other_user,
+            name='Other Shop',
+            phone='77770000002',
+            city='Астана',
+        )
+        foreign = Product.objects.create(
+            title='Чужой товар',
+            article='CF-100',
+            price=9999,
+            seller_name=other.name,
+            whatsapp_number=other.phone,
+            status='active',
+            seller_profile=other,
+            city='Астана',
+        )
+        self._run('--articles=CF-100', '--adopt-legacy-products')
+        foreign.refresh_from_db()
+        self.assertEqual(foreign.seller_profile, other)
+        own = Product.objects.get(seller_profile=self.seller, article='CF-100')
+        self.assertNotEqual(own.pk, foreign.pk)
+
+    def test_other_seller_same_article_does_not_block_create(self):
+        other_user = User.objects.create_user(username='other3', password='secret12345')
+        other = SellerProfile.objects.create(
+            user=other_user,
+            name='Other Shop',
+            phone='77770000003',
+            city='Астана',
+        )
+        Product.objects.create(
+            title='Чужой товар',
+            article='CF-100',
+            price=9999,
+            seller_name=other.name,
+            whatsapp_number=other.phone,
+            status='active',
+            seller_profile=other,
+            city='Астана',
+        )
+        output = self._run('--articles=CF-100')
+        self.assertIn('same_article_exists_for_other_seller', output)
+        self.assertTrue(
+            Product.objects.filter(seller_profile=self.seller, article='CF-100').exists()
+        )
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 2)
+
+    def test_seller_profile_id_is_not_hardcoded(self):
+        from catalog.management.commands.import_ag_parts import Command
+
+        parser = Command().create_parser('manage.py', 'import_ag_parts')
+        defaults = {
+            option: action.default
+            for action in parser._actions
+            for option in action.option_strings
+        }
+        self.assertIsNone(defaults.get('--seller-profile-id'))
+        other_user = User.objects.create_user(username='second-ag', password='secret12345')
+        other = SellerProfile.objects.create(
+            user=other_user,
+            name='Second Shop',
+            phone='77770000004',
+            city='Астана',
+        )
+        stdout = StringIO()
+        call_command(
+            'import_ag_parts',
+            f'--price-xlsx={self.price_xlsx}',
+            f'--photos={self.photos_dir}',
+            f'--seller-profile-id={other.pk}',
+            '--articles=AF-200',
+            stdout=stdout,
+        )
+        product = Product.objects.get(article='AF-200')
+        self.assertEqual(product.seller_profile_id, other.pk)
+        self.assertNotEqual(other.pk, 1)
+
+    def test_old_excel_structure_still_works(self):
+        self._run('--articles=CF-100')
+        product = Product.objects.get(seller_profile=self.seller, article='CF-100')
+        self.assertEqual(product.brand, self.chery)
+        self.assertEqual(
+            set(product.selected_models.values_list('id', flat=True)),
+            {self.tiggo7.id, self.tiggo8.id},
+        )
+
+    def test_brand_model_pair_parsing(self):
+        from catalog.ag_parts_import import parse_brand_model_pairs
+
+        pairs, warnings = parse_brand_model_pairs(
+            'Exeed:TXL; Jetour:Dashing'
+        )
+        self.assertEqual(pairs, [('Exeed', 'TXL'), ('Jetour', 'Dashing')])
+        self.assertEqual(warnings, [])
+
+    def test_primary_brand_and_model(self):
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(product.brand, self.chery)
+        self.assertEqual(product.car_model, self.tiggo7)
+
+    def test_additional_selected_brands_and_models(self):
+        tiggo4 = CarModel.objects.create(brand=self.chery, name='Tiggo 4')
+        tiggo7_pro = CarModel.objects.create(brand=self.chery, name='Tiggo 7 Pro')
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Дополнительные модели',
+            ],
+            [[
+                'CF-100',
+                'CAIBIN FILTER',
+                'Салонный фильтр Chery',
+                'CHERY',
+                'Tiggo 7',
+                'CHERY Tiggo 4 / Tiggo 7 / Tiggo 7 Pro / Tiggo 8',
+                1200,
+                'Chery:Tiggo 4; Chery:Tiggo 7 Pro; Chery:Tiggo 8',
+            ]],
+        )
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(product.brand, self.chery)
+        self.assertEqual(product.car_model, self.tiggo7)
+        self.assertEqual(
+            set(product.selected_brands.values_list('id', flat=True)),
+            {self.chery.id},
+        )
+        self.assertEqual(
+            set(product.selected_models.values_list('id', flat=True)),
+            {self.tiggo7.id, tiggo4.id, tiggo7_pro.id, self.tiggo8.id},
+        )
+
+    def test_additional_other_brands(self):
+        exeed = Brand.objects.create(country=self.country, name='Exeed')
+        jetour = Brand.objects.create(country=self.country, name='Jetour')
+        txl = CarModel.objects.create(brand=exeed, name='TXL')
+        dashing = CarModel.objects.create(brand=jetour, name='Dashing')
+        tiggo8_pro = CarModel.objects.create(brand=self.chery, name='Tiggo 8 Pro')
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Дополнительные модели',
+            ],
+            [[
+                'CF-100',
+                'OIL FILTER',
+                'Масляный фильтр Chery Tiggo 8 Pro',
+                'CHERY',
+                'Tiggo 8 Pro',
+                'Chery Tiggo 8 Pro; Exeed TXL; Jetour Dashing',
+                1950,
+                'Exeed:TXL; Jetour:Dashing',
+            ]],
+        )
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(product.brand, self.chery)
+        self.assertEqual(product.car_model, tiggo8_pro)
+        self.assertEqual(
+            set(product.selected_brands.values_list('name', flat=True)),
+            {'Chery', 'Exeed', 'Jetour'},
+        )
+        self.assertEqual(
+            set(product.selected_models.values_list('id', flat=True)),
+            {tiggo8_pro.id, txl.id, dashing.id},
+        )
+
+    def test_structured_unknown_brand_warning(self):
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Дополнительные модели',
+            ],
+            [['ZZ-1', 'AIR FILTER', 'CHERY', 'Tiggo 7', 'CHERY Tiggo 7', 100, 'Zeekr:001']],
+        )
+        output = self._run('--dry-run', '--articles=ZZ-1')
+        self.assertIn('unknown_brand:Zeekr', output)
+        self.assertFalse(Brand.objects.filter(name='Zeekr').exists())
+
+    def test_structured_unknown_model_is_not_created(self):
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Дополнительные модели',
+            ],
+            [[
+                'ZZ-2',
+                'AIR FILTER',
+                'CHERY',
+                'Tiggo 7',
+                'CHERY Tiggo 7 / Tiggo 8 Pro',
+                100,
+                'Chery:Tiggo 8 Pro',
+            ]],
+        )
+        output = self._run('--articles=ZZ-2')
+        self.assertIn('unknown_model:Chery:Tiggo 8 Pro', output)
+        self.assertFalse(CarModel.objects.filter(name='Tiggo 8 Pro').exists())
+        product = Product.objects.get(article='ZZ-2', seller_profile=self.seller)
+        self.assertEqual(product.car_model, self.tiggo7)
+
+    def test_repeat_update_does_not_duplicate_m2m(self):
+        self._run('--articles=CF-100')
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(product.selected_brands.count(), 1)
+        self.assertEqual(product.selected_models.count(), 2)
+
+    def test_compatibility_saved_without_structured_extraction(self):
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+            ],
+            [[
+                'CF-100',
+                'CAIBIN FILTER',
+                'Салонный фильтр',
+                'CHERY',
+                'Tiggo 7',
+                'Chery Tiggo 7; Wingle 6 only as text',
+                1200,
+            ]],
+        )
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertIn('Wingle 6', product.compatibility)
+        self.assertEqual(
+            set(product.selected_models.values_list('id', flat=True)),
+            {self.tiggo7.id},
+        )
+
+    def test_dry_run_adopt_flag_does_not_write(self):
+        legacy = self._make_legacy()
+        output = self._run(
+            '--dry-run',
+            '--articles=CF-100',
+            '--adopt-legacy-products',
+        )
+        self.assertIn('WOULD_ADOPT', output)
+        legacy.refresh_from_db()
+        self.assertIsNone(legacy.seller_profile_id)
+        self.assertEqual(Product.objects.filter(article='CF-100').count(), 1)

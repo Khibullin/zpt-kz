@@ -27,7 +27,10 @@ class Command(BaseCommand):
         'Импорт товаров AG Parts из Excel и фотоархивов. '
         'По умолчанию только отчёт: --dry-run. '
         'Реальная запись требует явного запуска без --dry-run '
-        'и --seller-profile-id.'
+        'и --seller-profile-id. '
+        'Необязательная колонка «Дополнительные модели»: Brand:Model; Brand:Model. '
+        'Legacy Product (seller_profile IS NULL, seller_name = имя профиля) '
+        'не создаёт дубль; привязка только с --adopt-legacy-products.'
     )
 
     def add_arguments(self, parser):
@@ -40,6 +43,15 @@ class Command(BaseCommand):
             help='Каталог или zip с фотографиями (можно повторять)',
         )
         parser.add_argument('--seller-profile-id', type=int, default=None)
+        parser.add_argument(
+            '--adopt-legacy-products',
+            action='store_true',
+            help=(
+                'Привязать однозначный legacy Product '
+                '(seller_profile IS NULL, seller_name = имя переданного SellerProfile) '
+                'к --seller-profile-id. По умолчанию выключено.'
+            ),
+        )
         parser.add_argument('--dry-run', action='store_true')
         parser.add_argument('--limit', type=int, default=None)
         parser.add_argument(
@@ -164,6 +176,7 @@ class Command(BaseCommand):
                             dry_run=dry_run,
                             replace_images=options['replace_images'],
                             expect_cost=bool(options['cost_xlsx']),
+                            adopt_legacy=options['adopt_legacy_products'],
                         )
                     )
                 except Exception as exc:
@@ -194,6 +207,9 @@ class Command(BaseCommand):
             self.stdout.write(f"mode: {'dry-run' if dry_run else 'write'}")
             if seller:
                 self.stdout.write(f'seller_profile: {seller.pk} {seller.name}')
+            self.stdout.write(
+                f"adopt_legacy_products: {bool(options['adopt_legacy_products'])}"
+            )
             self.stdout.write(f'price rows: {sum(sheet.row_count for sheet in price_inspect.sheets)}')
             self.stdout.write(f'unique articles: {unique_articles}')
             self.stdout.write(f'selected for this run: {len(rows)}')
@@ -252,6 +268,8 @@ class Command(BaseCommand):
 
             for item in results:
                 extra = ''
+                if item.product_id:
+                    extra += f' product_id={item.product_id}'
                 if item.warnings:
                     extra += ' WARN ' + ';'.join(item.warnings)
                 if item.errors:
@@ -265,6 +283,9 @@ class Command(BaseCommand):
                 'TOTALS  '
                 f"CREATED={totals['CREATED']} "
                 f"UPDATED={totals['UPDATED']} "
+                f"LEGACY_MATCH={totals['LEGACY_MATCH']} "
+                f"WOULD_ADOPT={totals['WOULD_ADOPT']} "
+                f"ADOPTED={totals['ADOPTED']} "
                 f"SKIPPED={totals['SKIPPED']} "
                 f"WARNING={totals['WARNING']} "
                 f"ERROR={totals['ERROR']}"
