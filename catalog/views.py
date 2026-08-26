@@ -252,6 +252,32 @@ def attach_sellers_to_products(products):
     return products
 
 
+def resolve_product_seller(product):
+    """Prefer explicit Product.seller_profile; keep legacy phone/name lookup."""
+    if product.seller_profile_id:
+        return product.seller_profile
+
+    seller = None
+    if product.whatsapp_number:
+        clean_phone = ''.join(filter(str.isdigit, product.whatsapp_number))
+        if len(clean_phone) >= 10:
+            seller = SellerProfile.objects.filter(
+                phone__icontains=clean_phone[-10:]
+            ).first()
+
+    if not seller and product.seller_name:
+        seller = SellerProfile.objects.filter(
+            name__iexact=product.seller_name.strip()
+        ).first()
+    return seller
+
+
+def effective_seller_phone(product, seller=None):
+    if seller and seller.phone:
+        return seller.phone
+    return product.whatsapp_number
+
+
 @ensure_csrf_cookie
 def catalog_list(request):
     query = request.GET.get('q', '').strip()
@@ -388,6 +414,7 @@ def product_detail(request, slug=None, pk=None):
         'brand__country',
         'car_model',
         'category',
+        'seller_profile',
     ).prefetch_related(
         Prefetch(
             'selected_models',
@@ -419,21 +446,8 @@ def product_detail(request, slug=None, pk=None):
             seller_profile=viewer_seller,
         )
 
-    seller = None
-
-    if product.whatsapp_number:
-        clean_phone = ''.join(
-            filter(str.isdigit, product.whatsapp_number)
-        )
-
-        seller = SellerProfile.objects.filter(
-            phone__icontains=clean_phone[-10:]
-        ).first()
-
-    if not seller and product.seller_name:
-        seller = SellerProfile.objects.filter(
-            name__iexact=product.seller_name.strip()
-        ).first()
+    seller = resolve_product_seller(product)
+    seller_phone = effective_seller_phone(product, seller)
 
     seller_products = Product.objects.filter(
         seller_name=product.seller_name,
@@ -451,6 +465,7 @@ def product_detail(request, slug=None, pk=None):
     return render(request, 'catalog/product_detail.html', {
         'product': product,
         'seller': seller,
+        'seller_phone': seller_phone,
         'seller_products': seller_products,
         'viewer_is_seller': viewer_is_seller,
         'extra_fitment_models': extra_fitment_models,

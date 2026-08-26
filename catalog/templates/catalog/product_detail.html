@@ -355,11 +355,11 @@
 
           <div class="detail-box detail-box-whatsapp">
             <div class="detail-label">WhatsApp</div>
-            <div class="detail-value">{{ product.whatsapp_number|format_phone }}</div>
+            <div class="detail-value">{{ seller_phone|format_phone }}</div>
           </div>
         </div>
 
-{% include 'catalog/includes/product_whatsapp_link.html' with product=product detail=True %}
+{% include 'catalog/includes/product_whatsapp_link.html' with product=product seller_phone=seller_phone detail=True %}
 
         {% if product.status != 'sold' %}
           <div class="product-detail-buy">
