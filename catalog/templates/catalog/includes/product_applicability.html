@@ -1,0 +1,53 @@
+{% if applicability.has_block %}
+  <div class="detail-section-card product-applicability">
+    <h2>Применяемость</h2>
+
+    {% for group in applicability.groups %}
+      <div class="product-applicability-group">
+        <div class="product-applicability-brand">{{ group.brand.name }}:</div>
+        {% if group.models %}
+          <ul class="product-applicability-models">
+            {% for model in group.models %}
+              <li>{{ model.name }}</li>
+            {% endfor %}
+          </ul>
+        {% endif %}
+      </div>
+    {% endfor %}
+
+    {% if applicability.engines %}
+      <div class="product-applicability-group">
+        <div class="product-applicability-brand">Двигатели:</div>
+        <ul class="product-applicability-models">
+          {% for engine in applicability.engines %}
+            <li>{{ engine }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if applicability.oem_refs %}
+      <div class="product-applicability-group">
+        <div class="product-applicability-brand">OEM / кросс-номера:</div>
+        <ul class="product-applicability-models">
+          {% for oem in applicability.oem_refs %}
+            <li>{{ oem }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    {% endif %}
+
+    {% if applicability.extra_compatibility %}
+      <div class="product-applicability-group">
+        {% if applicability.groups %}
+          <div class="product-applicability-brand">Дополнительная применяемость</div>
+        {% endif %}
+        <p class="product-applicability-extra">{{ applicability.extra_compatibility }}</p>
+      </div>
+    {% endif %}
+
+    {% if applicability.show_vin_warning %}
+      <p class="product-applicability-vin">{{ applicability.vin_warning }}</p>
+    {% endif %}
+  </div>
+{% endif %}

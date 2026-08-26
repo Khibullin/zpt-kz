@@ -212,6 +212,8 @@ class ProductAdmin(admin.ModelAdmin):
         'whatsapp_number',
         'description',
         'compatibility',
+        'engine_compatibility',
+        'oem_cross_references',
         'seller_profile__name',
     )
 
@@ -275,8 +277,11 @@ class ProductAdmin(admin.ModelAdmin):
                 'fields': (
                     'brand',
                     'car_model',
+                    'selected_brands',
                     'selected_models',
                     'compatibility',
+                    'engine_compatibility',
+                    'oem_cross_references',
                 )
             }
         ),

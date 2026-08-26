@@ -323,6 +323,8 @@ class ProductForm(forms.ModelForm):
             'status',
             'main_image',
             'compatibility',
+            'engine_compatibility',
+            'oem_cross_references',
             'description',
         ]
         labels = {
@@ -339,6 +341,8 @@ class ProductForm(forms.ModelForm):
             'status': 'Статус',
             'main_image': 'Главное фото',
             'compatibility': 'Подходит для',
+            'engine_compatibility': 'Двигатели',
+            'oem_cross_references': 'OEM / кросс-номера',
             'description': 'Описание',
         }
         widgets = {
@@ -354,6 +358,14 @@ class ProductForm(forms.ModelForm):
             'compatibility': forms.Textarea(attrs={
                 'placeholder': 'Например: Toyota Camry 40, 2006–2011',
                 'rows': 3
+            }),
+            'engine_compatibility': forms.Textarea(attrs={
+                'placeholder': 'Например: 1.5 Turbo; 1.6 TGDI',
+                'rows': 2
+            }),
+            'oem_cross_references': forms.Textarea(attrs={
+                'placeholder': 'Например: F4J163707010; F4J16-3707010',
+                'rows': 2
             }),
             'description': forms.Textarea(attrs={
                 'placeholder': 'Опишите состояние, оригинал или аналог, комплектность',

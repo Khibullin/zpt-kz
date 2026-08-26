@@ -17,6 +17,7 @@ from pathlib import Path
 from django.core.files.base import ContentFile
 from django.db import transaction
 
+from catalog.applicability import serialize_plain_list
 from catalog.models import (
     Brand,
     CarModel,
@@ -68,6 +69,15 @@ QTY_HEADERS = (
 ADDITIONAL_MODEL_HEADERS = (
     'дополнительные модели', 'доп. модели', 'доп модели',
     'additional models', 'extra models', 'selected models',
+)
+ENGINE_HEADERS = (
+    'двигатели', 'двигатель', 'engines', 'engine',
+    'engine compatibility', 'двигатели применяемость',
+)
+OEM_CROSS_HEADERS = (
+    'oem / кросс-номера', 'oem/кросс-номера', 'oem / кросс номера',
+    'кросс-номера', 'кросс номера', 'cross references',
+    'cross-references', 'oem cross', 'oem кросс', 'кроссы',
 )
 
 FILTER_TYPE_KEYS = {
@@ -229,6 +239,8 @@ def detect_column_map(headers):
     mapping = {}
     used = set()
     groups = {
+        'engine_compatibility': ENGINE_HEADERS,
+        'oem_cross_references': OEM_CROSS_HEADERS,
         'article': ARTICLE_HEADERS,
         'title': TITLE_HEADERS,
         'category': CATEGORY_HEADERS,
@@ -298,6 +310,8 @@ class PreparedRow:
     product_type: str = ''
     description: str = ''
     extra_models_raw: str = ''
+    engine_compatibility: str = ''
+    oem_cross_references: str = ''
     photos: list = field(default_factory=list)
     source_row: int = 0
     source_sheet: str = ''
@@ -450,6 +464,10 @@ def merge_prepared(existing, incoming):
         existing.description = incoming.description
     if incoming.extra_models_raw and not existing.extra_models_raw:
         existing.extra_models_raw = incoming.extra_models_raw
+    if incoming.engine_compatibility and not existing.engine_compatibility:
+        existing.engine_compatibility = incoming.engine_compatibility
+    if incoming.oem_cross_references and not existing.oem_cross_references:
+        existing.oem_cross_references = incoming.oem_cross_references
     existing.photos.extend(incoming.photos)
     existing.warnings.extend(incoming.warnings)
     existing.warnings.append(
@@ -497,6 +515,12 @@ def prepared_from_excel_row(row_number, values, column_map, sheet_name, images_b
         model_raw=cell_text(_row_value(values, column_map, 'model')),
         compatibility=cell_text(_row_value(values, column_map, 'compatibility')),
         extra_models_raw=cell_text(_row_value(values, column_map, 'extra_models')),
+        engine_compatibility=serialize_plain_list(
+            _row_value(values, column_map, 'engine_compatibility')
+        ),
+        oem_cross_references=serialize_plain_list(
+            _row_value(values, column_map, 'oem_cross_references')
+        ),
         description=cell_text(_row_value(values, column_map, 'description')),
         retail_price=retail_price,
         cost_price=parse_money(_row_value(values, column_map, 'cost_price')),
@@ -854,6 +878,10 @@ def _apply_row_fields(product, *, title, category, brand, model, row, seller, de
     product.brand = brand
     product.car_model = model
     product.compatibility = row.compatibility or product.compatibility
+    if row.engine_compatibility:
+        product.engine_compatibility = row.engine_compatibility
+    if row.oem_cross_references:
+        product.oem_cross_references = row.oem_cross_references
     if description:
         product.description = description
     if row.cost_price is not None:
@@ -1025,6 +1053,8 @@ def upsert_product(
                 seller_profile=seller,
                 cost_price=row.cost_price,
                 compatibility=row.compatibility,
+                engine_compatibility=row.engine_compatibility,
+                oem_cross_references=row.oem_cross_references,
                 description=description,
                 supplier=Product.SUPPLIER_LOCAL,
             )

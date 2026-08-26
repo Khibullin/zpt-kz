@@ -128,6 +128,47 @@ body{
   margin:0;
 }
 
+.product-vehicle-line{
+  margin-top:8px;
+  margin-bottom:4px;
+  color:#444;
+  font-size:16px;
+  font-weight:600;
+  line-height:1.35;
+}
+
+.product-applicability-group{
+  margin:0 0 12px;
+}
+
+.product-applicability-brand{
+  font-size:15px;
+  font-weight:800;
+  color:#111;
+}
+
+.product-applicability-models{
+  margin:4px 0 0;
+  padding-left:18px;
+  color:#333;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.product-applicability-extra{
+  margin:6px 0 0;
+  color:#333;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.product-applicability-vin{
+  margin:14px 0 0;
+  color:#555;
+  font-size:13px;
+  line-height:1.45;
+}
+
 .detail-price{
   color:#ef3d2f;
   font-size:30px;

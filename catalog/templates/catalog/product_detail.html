@@ -2,18 +2,12 @@
 {% load static humanize phone_extras product_extras seller_extras %}
 
 {% block title %}
-{{ product.title }}
-{% if product.brand %}
-  {{ product.brand.name }}
-{% endif %}
-{% if product.car_model %}
-  {{ product.car_model.name }}
-{% endif %}
+{{ product.title }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %}
 — Купить в Казахстане | ZPT Market
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=seller_logo_v2">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=applicability_v2">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
 <style>
 .b2b-seller-terms{
@@ -147,14 +141,6 @@
 
   {{ product.title }}
 
-  {% if product.brand %}
-    {{ product.brand.name }}
-  {% endif %}
-
-  {% if product.car_model %}
-    {{ product.car_model.name }}
-  {% endif %}
-
 </span>
 
 </div>
@@ -199,18 +185,11 @@
         </div>
 
 <h1 class="product-detail-title">
-
   {{ product.title }}
-
-  {% if product.brand %}
-    {{ product.brand.name }}
-  {% endif %}
-
-  {% if product.car_model %}
-    {{ product.car_model.name }}
-  {% endif %}
-
 </h1>
+{% if title_vehicle_line %}
+  <div class="product-vehicle-line">{{ title_vehicle_line }}</div>
+{% endif %}
 
 <div
   style="
@@ -322,17 +301,6 @@
             <div class="detail-box">
               <div class="detail-label">Модель</div>
               <div class="detail-value">{{ product.car_model.name }}</div>
-            </div>
-          {% endif %}
-
-          {% if extra_fitment_models %}
-            <div class="detail-box">
-              <div class="detail-label">Также подходит</div>
-              <div class="detail-value">
-                {% for model in extra_fitment_models %}
-                  {{ model.brand.name }} {{ model.name }}{% if not forloop.last %}, {% endif %}
-                {% endfor %}
-              </div>
             </div>
           {% endif %}
 
@@ -479,17 +447,6 @@
           </div>
         {% endif %}
 
-        {% if extra_fitment_models %}
-          <div class="detail-box">
-            <div class="detail-label">Также подходит</div>
-            <div class="detail-value">
-              {% for model in extra_fitment_models %}
-                {{ model.brand.name }} {{ model.name }}{% if not forloop.last %}, {% endif %}
-              {% endfor %}
-            </div>
-          </div>
-        {% endif %}
-
         {% if product.category %}
           <div class="detail-box">
             <div class="detail-label">Категория</div>
@@ -511,12 +468,7 @@
       </div>
     </div>
 
-    {% if product.compatibility %}
-      <div class="detail-section-card">
-        <h2>Подходит для</h2>
-        <p>{{ product.compatibility }}</p>
-      </div>
-    {% endif %}
+    {% include 'catalog/includes/product_applicability.html' %}
 
     {% if product.description %}
       <div class="detail-section-card">

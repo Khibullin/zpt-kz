@@ -35,6 +35,13 @@
   flex-direction:column;
   align-items:flex-start;
 }
+.product-title-vehicle{
+  display:block;
+  margin-top:4px;
+  font-size:13px;
+  font-weight:600;
+  color:#444;
+}
 
 .hero .b2c-request-banner{
   margin-top:14px;
@@ -510,15 +517,7 @@ a.hero-b2b-strip-btn:hover,
 
       <article class="product product-v2">
 
-        <a class="product-image-link" href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" aria-label="Подробнее о товаре {{ product.title }}
-
-{% if product.brand %}
-  {{ product.brand.name }}
-{% endif %}
-
-{% if product.car_model %}
-  {{ product.car_model.name }}
-{% endif %}">
+        <a class="product-image-link" href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" aria-label="Подробнее о товаре {{ product.title }}">
 
           {% if product.main_image %}
             <img
@@ -541,12 +540,11 @@ a.hero-b2b-strip-btn:hover,
 
             <div class="product-title">
               {{ product.title }}
-              {% if product.brand %}
-                {{ product.brand.name }}
-              {% endif %}
-              {% if product.car_model %}
-                {{ product.car_model.name }}
-              {% endif %}
+              {% with vehicle_line=product|vehicle_line %}
+                {% if vehicle_line %}
+                  <span class="product-title-vehicle">{{ vehicle_line }}</span>
+                {% endif %}
+              {% endwith %}
             </div>
 
           </a>

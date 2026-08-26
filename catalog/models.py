@@ -364,6 +364,20 @@ class Product(models.Model):
         verbose_name='Совместимость'
     )
 
+    engine_compatibility = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Двигатели',
+        help_text='Применяемость по двигателям. По одному значению на строку или через точку с запятой. Без HTML.',
+    )
+
+    oem_cross_references = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='OEM / кросс-номера',
+        help_text='OEM и кросс-номера. По одному значению на строку или через точку с запятой. Без HTML и ссылок.',
+    )
+
     description = models.TextField(
         blank=True,
         verbose_name='Описание'

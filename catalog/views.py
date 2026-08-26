@@ -15,10 +15,10 @@ from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
 
 from core.forms import FeedbackForm
+from .applicability import build_product_applicability, vehicle_line_if_not_in_title
 from .commercial import (
     OFFER_CHOICES,
     VALID_OFFER_VALUES,
-    additional_fitment_models,
     attach_b2b_offers,
     b2b_prefetch,
     build_catalog_query,
@@ -413,9 +413,11 @@ def product_detail(request, slug=None, pk=None):
         'brand',
         'brand__country',
         'car_model',
+        'car_model__brand',
         'category',
         'seller_profile',
     ).prefetch_related(
+        'selected_brands',
         Prefetch(
             'selected_models',
             queryset=CarModel.objects.select_related('brand'),
@@ -437,7 +439,8 @@ def product_detail(request, slug=None, pk=None):
             )
 
     attach_b2b_offers([product], enabled=viewer_is_seller)
-    extra_fitment_models = additional_fitment_models(product)
+    applicability = build_product_applicability(product)
+    title_vehicle_line = vehicle_line_if_not_in_title(product)
     commercial_quote = None
     if viewer_is_seller:
         commercial_quote = resolve_commercial_price(
@@ -468,7 +471,8 @@ def product_detail(request, slug=None, pk=None):
         'seller_phone': seller_phone,
         'seller_products': seller_products,
         'viewer_is_seller': viewer_is_seller,
-        'extra_fitment_models': extra_fitment_models,
+        'applicability': applicability,
+        'title_vehicle_line': title_vehicle_line,
         'commercial_quote': commercial_quote,
     })
 

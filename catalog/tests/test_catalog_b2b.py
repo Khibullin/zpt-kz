@@ -534,9 +534,10 @@ class FitmentFilterTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'CamryB2B')
-        self.assertContains(response, 'Также подходит')
+        self.assertContains(response, 'Применяемость')
         self.assertContains(response, 'CorollaB2B')
         self.assertContains(response, 'Подходит для Camry 2018-2022')
+        self.assertNotContains(response, 'Также подходит')
 
 
 class CartRegressionTests(TestCase):

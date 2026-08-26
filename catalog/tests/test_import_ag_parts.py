@@ -826,3 +826,178 @@ class AgPartsImportTests(TestCase):
         legacy.refresh_from_db()
         self.assertIsNone(legacy.seller_profile_id)
         self.assertEqual(Product.objects.filter(article='CF-100').count(), 1)
+
+    def test_optional_engine_and_oem_columns(self):
+        tiggo4 = CarModel.objects.create(brand=self.chery, name='Tiggo 4')
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Двигатели',
+                'OEM / кросс-номера',
+                'Дополнительные модели',
+            ],
+            [[
+                'CF-100',
+                'CAIBIN FILTER',
+                'Салонный фильтр Chery',
+                'CHERY',
+                'Tiggo 7',
+                'CHERY Tiggo 7',
+                1200,
+                '1.5 Turbo; 1.6 TGDI; 1.5 Turbo',
+                'F4J163707010; F4J16-3707010; OE208; LDK8RTIP; F4J163707010',
+                'Chery:Tiggo 4',
+            ]],
+        )
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(
+            product.engine_compatibility.splitlines(),
+            ['1.5 Turbo', '1.6 TGDI'],
+        )
+        self.assertEqual(
+            product.oem_cross_references.splitlines(),
+            ['F4J163707010', 'F4J16-3707010', 'OE208', 'LDK8RTIP'],
+        )
+        self.assertEqual(
+            set(product.selected_models.values_list('id', flat=True)),
+            {self.tiggo7.id, tiggo4.id},
+        )
+        self.assertEqual(product.status, 'hidden')
+        self.assertIsNone(product.stock_qty)
+        self.assertEqual(product.price_tiers.count(), 0)
+
+    def test_old_excel_without_engine_oem_columns_still_imports(self):
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(product.engine_compatibility, '')
+        self.assertEqual(product.oem_cross_references, '')
+        self.assertEqual(product.brand, self.chery)
+        self.assertEqual(product.status, 'hidden')
+
+    def test_optional_columns_do_not_activate_hidden_or_change_stock(self):
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        product.status = 'hidden'
+        product.stock_qty = 7
+        product.save(update_fields=['status', 'stock_qty'])
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Двигатели',
+                'OEM / кросс-номера',
+            ],
+            [[
+                'CF-100',
+                'CAIBIN FILTER',
+                'Салонный фильтр Chery',
+                'CHERY',
+                'Tiggo 7',
+                'CHERY Tiggo 7',
+                9999,
+                '1.5 Turbo',
+                'OE208',
+            ]],
+        )
+        self._run('--articles=CF-100')
+        product.refresh_from_db()
+        self.assertEqual(product.status, 'hidden')
+        self.assertEqual(product.stock_qty, 7)
+        self.assertEqual(product.engine_compatibility, '1.5 Turbo')
+        self.assertEqual(product.oem_cross_references, 'OE208')
+        self.assertEqual(product.price_tiers.count(), 0)
+
+    def test_missing_engine_oem_columns_do_not_clear_existing_values(self):
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Двигатели',
+                'OEM / кросс-номера',
+            ],
+            [[
+                'CF-100',
+                'CAIBIN FILTER',
+                'Салонный фильтр Chery',
+                'CHERY',
+                'Tiggo 7',
+                'CHERY Tiggo 7',
+                1200,
+                '1.5 Turbo',
+                'OE208',
+            ]],
+        )
+        self._run('--articles=CF-100')
+        product = Product.objects.get(article='CF-100', seller_profile=self.seller)
+        self.assertEqual(product.engine_compatibility, '1.5 Turbo')
+        self.assertEqual(product.oem_cross_references, 'OE208')
+        self._write_default_sources()
+        self._run('--articles=CF-100')
+        product.refresh_from_db()
+        self.assertEqual(product.engine_compatibility, '1.5 Turbo')
+        self.assertEqual(product.oem_cross_references, 'OE208')
+        self.assertEqual(product.status, 'hidden')
+        self.assertIsNone(product.stock_qty)
+
+    def test_dry_run_with_engine_oem_columns_does_not_write(self):
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Название',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Двигатели',
+                'OEM / кросс-номера',
+            ],
+            [[
+                'CF-100',
+                'CAIBIN FILTER',
+                'Салонный фильтр Chery',
+                'CHERY',
+                'Tiggo 7',
+                'CHERY Tiggo 7',
+                1200,
+                '1.5 Turbo',
+                'OE208',
+            ]],
+        )
+        output = self._run('--dry-run', '--articles=CF-100')
+        self.assertIn('mode: dry-run', output)
+        self.assertEqual(Product.objects.count(), 0)
+
+    def test_oem_cross_column_is_not_confused_with_article(self):
+        from catalog.ag_parts_import import detect_column_map
+
+        mapping = detect_column_map([
+            'Артикул',
+            'OEM / кросс-номера',
+            'Двигатели',
+            'Название',
+        ])
+        self.assertEqual(mapping['article'], 0)
+        self.assertEqual(mapping['oem_cross_references'], 1)
+        self.assertEqual(mapping['engine_compatibility'], 2)
