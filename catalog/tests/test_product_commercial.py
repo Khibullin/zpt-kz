@@ -10,8 +10,11 @@ from catalog.admin import ProductAdmin
 from catalog.forms import ProductForm
 from catalog.models import (
     Product,
+    ProductBarcode,
     ProductConsignment,
+    ProductFulfillment,
     ProductImage,
+    ProductKaspiListing,
     ProductPriceTier,
     ProductPromotion,
     SellerProfile,
@@ -278,6 +281,9 @@ class ProductAdminCommercialTests(TestCase):
             inline_models,
             {
                 ProductImage,
+                ProductFulfillment,
+                ProductBarcode,
+                ProductKaspiListing,
                 ProductPriceTier,
                 ProductPromotion,
                 ProductConsignment,

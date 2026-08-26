@@ -5,7 +5,8 @@ from tempfile import TemporaryDirectory
 
 from django.contrib.auth.models import User
 from django.core.management import call_command
-from django.test import TestCase
+from django.core.management.base import CommandError
+from django.test import TestCase, override_settings
 from django.urls import reverse
 from openpyxl import Workbook
 
@@ -17,6 +18,8 @@ from catalog.models import (
     Product,
     ProductImage,
     SellerProfile,
+    CatalogImportBatch,
+    CatalogImportItem,
 )
 
 MINIMAL_PNG = (
@@ -66,6 +69,11 @@ class AgPartsImportTests(TestCase):
         self.cost_xlsx = self.root / 'cost.xlsx'
         self.photos_dir = self.root / 'photos'
         self.photos_dir.mkdir()
+        self._archive_override = override_settings(
+            IMPORT_ARCHIVE_ROOT=str(self.root / 'archives'),
+        )
+        self._archive_override.enable()
+        self.addCleanup(self._archive_override.disable)
         self._write_default_sources()
 
     def _write_default_sources(self, extra_rows=None):
@@ -138,6 +146,9 @@ class AgPartsImportTests(TestCase):
         self.assertIn('mode: dry-run', output)
         self.assertEqual(Product.objects.count(), 0)
         self.assertEqual(ProductImage.objects.count(), 0)
+        self.assertEqual(CatalogImportBatch.objects.count(), 0)
+        self.assertEqual(CatalogImportItem.objects.count(), 0)
+        self.assertFalse((self.root / 'archives').exists() and any((self.root / 'archives').rglob('*')))
 
     def test_new_article_creates_hidden_product(self):
         self._run('--articles=CF-100')
@@ -146,6 +157,8 @@ class AgPartsImportTests(TestCase):
         self.assertFalse(product.price_on_request)
         self.assertEqual(product.price, 1200)
         self.assertEqual(product.supplier, Product.SUPPLIER_LOCAL)
+        self.assertFalse(product.publish_to_sellers)
+        self.assertFalse(product.publish_to_kaspi)
 
     def test_repeat_run_does_not_duplicate(self):
         self._run('--articles=CF-100')
@@ -319,7 +332,7 @@ class AgPartsImportTests(TestCase):
         self.assertNotContains(response, str(COST_MARKER))
         self.assertNotContains(response, 'cost_price')
 
-    def test_one_row_error_does_not_stop_batch(self):
+    def test_dry_run_one_row_error_does_not_stop_batch(self):
         _write_xlsx(
             self.price_xlsx,
             ['Артикул', 'Категория', 'Название', 'Марка', 'Модель', 'Применимость', 'Цена'],
@@ -328,11 +341,29 @@ class AgPartsImportTests(TestCase):
                 ['AF-200', 'AIR FILTER', 'Good', 'HAVAL', 'Jolion', 'HAVAL Jolion', 1500],
             ],
         )
-        output = self._run()
+        output = self._run('--dry-run')
         self.assertIn('ERROR', output)
-        self.assertTrue(
+        self.assertIn('AF-200', output)
+        self.assertEqual(Product.objects.count(), 0)
+        self.assertEqual(CatalogImportBatch.objects.count(), 0)
+
+    def test_write_one_row_error_aborts_entire_batch(self):
+        _write_xlsx(
+            self.price_xlsx,
+            ['Артикул', 'Категория', 'Название', 'Марка', 'Модель', 'Применимость', 'Цена'],
+            [
+                ['', 'AIR FILTER', 'Bad', 'HAVAL', 'Jolion', 'HAVAL Jolion', 100],
+                ['AF-200', 'AIR FILTER', 'Good', 'HAVAL', 'Jolion', 'HAVAL Jolion', 1500],
+            ],
+        )
+        with self.assertRaises(CommandError):
+            self._run()
+        self.assertFalse(
             Product.objects.filter(seller_profile=self.seller, article='AF-200').exists()
         )
+        batch = CatalogImportBatch.objects.get()
+        self.assertEqual(batch.status, CatalogImportBatch.STATUS_ERROR)
+        self.assertEqual(batch.archive_status, CatalogImportBatch.ARCHIVE_NOT_APPLICABLE)
 
     def test_zip_photos_are_indexed(self):
         archive = self.root / 'filters.zip'

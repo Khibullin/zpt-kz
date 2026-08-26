@@ -2,6 +2,8 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 from django.core.management.base import BaseCommand, CommandError
+from django.db import transaction
+from django.utils import timezone
 
 from catalog.ag_parts_import import (
     CatalogMatcher,
@@ -18,6 +20,25 @@ from catalog.ag_parts_import import (
     unpack_archives,
     upsert_product,
     write_reports,
+)
+from catalog.import_ops import (
+    ARCHIVE_ERROR,
+    ARCHIVE_NOT_APPLICABLE,
+    ARCHIVE_SUCCESS,
+    IMPORT_SOURCE_AG_PARTS,
+    SCOPE_FULL,
+    STATUS_BLOCKED,
+    STATUS_ERROR,
+    STATUS_SUCCESS,
+    CatalogImportWriteAborted,
+    archive_import_source,
+    evaluate_shrink_guard,
+    missing_from_source_articles,
+    persist_import_batch,
+    previous_batch_articles,
+    previous_successful_full_write_batch,
+    resolve_source_scope,
+    sha256_file,
 )
 from catalog.models import SellerProfile
 
@@ -58,6 +79,26 @@ class Command(BaseCommand):
             '--articles',
             default='',
             help='Список артикулов через запятую',
+        )
+        parser.add_argument(
+            '--source-scope',
+            choices=['full', 'partial'],
+            default=None,
+            help=(
+                'full = весь workbook как актуальный каталог (shrink guard). '
+                'partial = выборочный импорт. По умолчанию partial. '
+                'full нельзя сочетать с --articles/--limit.'
+            ),
+        )
+        parser.add_argument(
+            '--allow-source-shrink',
+            action='store_true',
+            help='Разрешить full write при большом числе MISSING_FROM_SOURCE.',
+        )
+        parser.add_argument(
+            '--source-shrink-reason',
+            default='',
+            help='Обязательная причина для --allow-source-shrink.',
         )
         parser.add_argument('--replace-images', action='store_true')
         parser.add_argument(
@@ -158,34 +199,183 @@ class Command(BaseCommand):
                 for item in (options['articles'] or '').split(',')
                 if item.strip()
             ] or None
+            try:
+                source_scope = resolve_source_scope(
+                    options['source_scope'],
+                    has_article_filter=bool(article_filter),
+                    has_limit=options['limit'] is not None,
+                )
+            except ValueError as exc:
+                raise CommandError(str(exc)) from exc
+
+            allow_shrink = bool(options['allow_source_shrink'])
+            shrink_reason = (options['source_shrink_reason'] or '').strip()
+            if allow_shrink and not shrink_reason:
+                raise CommandError(
+                    '--allow-source-shrink требует непустой --source-shrink-reason.'
+                )
+
             rows = filter_rows(
                 list(prepared.values()),
                 limit=options['limit'],
                 articles=article_filter,
             )
+            source_unique_count = len(prepared)
+            selected_count = len(rows)
+            source_row_count = sum(sheet.row_count for sheet in price_inspect.sheets)
+            file_digest = sha256_file(price_path)
+            started_at = timezone.now()
+            previous_batch = None
+            missing_articles = []
+            guard = {
+                'should_block': False,
+                'blocked': False,
+                'reason': '',
+                'missing_count': 0,
+                'previous_count': 0,
+                'missing_ratio': 0,
+            }
+            if source_scope == SCOPE_FULL:
+                previous_batch = previous_successful_full_write_batch(
+                    seller,
+                    IMPORT_SOURCE_AG_PARTS,
+                )
+                missing_articles = missing_from_source_articles(
+                    previous_batch_articles(previous_batch),
+                    [item.article for item in prepared.values()],
+                )
+                try:
+                    guard = evaluate_shrink_guard(
+                        missing_count=len(missing_articles),
+                        previous_count=len(previous_batch_articles(previous_batch)),
+                        allow_shrink=allow_shrink,
+                        shrink_reason=shrink_reason,
+                    )
+                except ValueError as exc:
+                    raise CommandError(str(exc)) from exc
+
+            # Shrink guard runs before any Product writes / product transaction.
+            if (
+                not dry_run
+                and source_scope == SCOPE_FULL
+                and guard.get('blocked')
+            ):
+                missing_results = [
+                    ImportResult(
+                        article=article,
+                        action='missing_from_source',
+                        source_row=0,
+                        warnings=['MISSING_FROM_SOURCE'],
+                    )
+                    for article in missing_articles
+                ]
+                if seller is not None:
+                    persist_import_batch(
+                        seller=seller,
+                        source=IMPORT_SOURCE_AG_PARTS,
+                        filename=price_path.name,
+                        file_sha256=file_digest,
+                        started_at=started_at,
+                        source_scope=source_scope,
+                        status=STATUS_BLOCKED,
+                        source_row_count=source_row_count,
+                        source_unique_count=source_unique_count,
+                        selected_count=selected_count,
+                        totals=summarize(missing_results),
+                        missing_count=len(missing_articles),
+                        previous_batch=previous_batch,
+                        blocked_reason=guard['reason'],
+                        shrink_reason='',
+                        results=missing_results,
+                        archive_status=ARCHIVE_NOT_APPLICABLE,
+                    )
+                raise CommandError(guard['reason'])
 
             matcher = CatalogMatcher()
             results = []
-            for row in rows:
-                try:
-                    results.append(
-                        upsert_product(
-                            row,
+            try:
+                if dry_run:
+                    results = self._upsert_rows(
+                        rows,
+                        seller,
+                        matcher,
+                        dry_run=True,
+                        replace_images=options['replace_images'],
+                        expect_cost=bool(options['cost_xlsx']),
+                        adopt_legacy=options['adopt_legacy_products'],
+                    )
+                else:
+                    with transaction.atomic():
+                        results = self._upsert_rows(
+                            rows,
                             seller,
                             matcher,
-                            dry_run=dry_run,
+                            dry_run=False,
                             replace_images=options['replace_images'],
                             expect_cost=bool(options['cost_xlsx']),
                             adopt_legacy=options['adopt_legacy_products'],
                         )
+                        error_rows = [
+                            item for item in results if item.action == 'error'
+                        ]
+                        if error_rows:
+                            raise CatalogImportWriteAborted(error_rows[0])
+            except CatalogImportWriteAborted as exc:
+                if not dry_run and seller is not None:
+                    self._persist_aborted_write(
+                        seller=seller,
+                        price_path=price_path,
+                        file_digest=file_digest,
+                        started_at=started_at,
+                        source_scope=source_scope,
+                        source_row_count=source_row_count,
+                        source_unique_count=source_unique_count,
+                        selected_count=selected_count,
+                        missing_articles=missing_articles,
+                        previous_batch=previous_batch,
+                        results=[exc.result],
                     )
-                except Exception as exc:
+                raise CommandError(f'Import aborted: {exc}') from exc
+            except Exception as exc:
+                if dry_run:
+                    raise
+                if seller is not None:
+                    self._persist_aborted_write(
+                        seller=seller,
+                        price_path=price_path,
+                        file_digest=file_digest,
+                        started_at=started_at,
+                        source_scope=source_scope,
+                        source_row_count=source_row_count,
+                        source_unique_count=source_unique_count,
+                        selected_count=selected_count,
+                        missing_articles=missing_articles,
+                        previous_batch=previous_batch,
+                        results=[
+                            ImportResult(
+                                article='',
+                                action='error',
+                                source_row=0,
+                                errors=[f'{type(exc).__name__}:{exc}'],
+                            )
+                        ],
+                    )
+                raise CommandError(f'Import aborted: {exc}') from exc
+
+            if source_scope == SCOPE_FULL and missing_articles:
+                for article in missing_articles:
                     results.append(ImportResult(
-                        article=row.article,
-                        action='error',
-                        source_row=row.source_row,
-                        warnings=list(row.warnings),
-                        errors=[f'row_exception:{exc}'],
+                        article=article,
+                        action='missing_from_source',
+                        source_row=0,
+                        warnings=['MISSING_FROM_SOURCE'],
+                    ))
+                if guard.get('should_block'):
+                    label = 'SHRINK_BLOCK' if guard.get('blocked') else 'SHRINK_WARNING'
+                    self.stdout.write(self.style.WARNING(
+                        f"{label} missing={guard['missing_count']} "
+                        f"ratio={guard['missing_ratio']} "
+                        f"previous={guard['previous_count']}"
                     ))
 
             totals = summarize(results)
@@ -205,14 +395,16 @@ class Command(BaseCommand):
             self.stdout.write('')
             self.stdout.write(self.style.NOTICE('=== AG Parts import ==='))
             self.stdout.write(f"mode: {'dry-run' if dry_run else 'write'}")
+            self.stdout.write(f'source_scope: {source_scope}')
+            self.stdout.write(f'source_sha256: {file_digest}')
             if seller:
                 self.stdout.write(f'seller_profile: {seller.pk} {seller.name}')
             self.stdout.write(
                 f"adopt_legacy_products: {bool(options['adopt_legacy_products'])}"
             )
-            self.stdout.write(f'price rows: {sum(sheet.row_count for sheet in price_inspect.sheets)}')
+            self.stdout.write(f'price rows: {source_row_count}')
             self.stdout.write(f'unique articles: {unique_articles}')
-            self.stdout.write(f'selected for this run: {len(rows)}')
+            self.stdout.write(f'selected for this run: {selected_count}')
             self.stdout.write(f'categories in source: {categories}')
             self.stdout.write(f'brand column values: {brands}')
             self.stdout.write(f'articles with cost_price: {with_cost}')
@@ -287,14 +479,151 @@ class Command(BaseCommand):
                 f"WOULD_ADOPT={totals['WOULD_ADOPT']} "
                 f"ADOPTED={totals['ADOPTED']} "
                 f"SKIPPED={totals['SKIPPED']} "
+                f"UNCHANGED={totals.get('UNCHANGED', 0)} "
+                f"CONFLICT={totals.get('CONFLICT', 0)} "
+                f"MISSING={totals.get('MISSING', 0)} "
                 f"WARNING={totals['WARNING']} "
                 f"ERROR={totals['ERROR']}"
             )
+            report_payload = None
             if options['report']:
                 write_reports(results, options['report'])
                 self.stdout.write(f'report: {options["report"]}.json / .csv')
+            if not dry_run and seller is not None:
+                from dataclasses import asdict
+
+                if any(item.action == 'error' for item in results):
+                    raise CommandError(
+                        'Refusing to persist a success batch with action=error items'
+                    )
+                batch = persist_import_batch(
+                    seller=seller,
+                    source=IMPORT_SOURCE_AG_PARTS,
+                    filename=price_path.name,
+                    file_sha256=file_digest,
+                    started_at=started_at,
+                    source_scope=source_scope,
+                    status=STATUS_SUCCESS,
+                    source_row_count=source_row_count,
+                    source_unique_count=source_unique_count,
+                    selected_count=selected_count,
+                    totals=totals,
+                    missing_count=len(missing_articles) if source_scope == SCOPE_FULL else 0,
+                    previous_batch=previous_batch if source_scope == SCOPE_FULL else None,
+                    blocked_reason='',
+                    shrink_reason=shrink_reason if allow_shrink else '',
+                    results=results,
+                    archive_status=ARCHIVE_NOT_APPLICABLE,
+                )
+                report_payload = [asdict(item) for item in results]
+                try:
+                    archive_dir = archive_import_source(
+                        batch=batch,
+                        source_path=price_path,
+                        report_payload=report_payload,
+                    )
+                except Exception as exc:
+                    batch.archive_status = ARCHIVE_ERROR
+                    batch.archive_error = f'{type(exc).__name__}: {exc}'
+                    batch.source_archive_path = ''
+                    batch.save(update_fields=[
+                        'archive_status',
+                        'archive_error',
+                        'source_archive_path',
+                    ])
+                    self.stdout.write(self.style.ERROR(
+                        f'Audit archive FAILED after successful DB import '
+                        f'(batch_id={batch.pk}): {exc}'
+                    ))
+                    raise CommandError(
+                        f'DB import succeeded (batch_id={batch.pk}, status=success) '
+                        f'but source archive was not saved: {exc}'
+                    ) from exc
+                batch.archive_status = ARCHIVE_SUCCESS
+                batch.save(update_fields=['archive_status'])
+                self.stdout.write(f'import_batch_id: {batch.pk}')
+                self.stdout.write(f'source_archive: {archive_dir}')
+                self.stdout.write(f'archive_status: {batch.archive_status}')
         finally:
             unpack_context.cleanup()
+
+    def _persist_aborted_write(
+        self,
+        *,
+        seller,
+        price_path,
+        file_digest,
+        started_at,
+        source_scope,
+        source_row_count,
+        source_unique_count,
+        selected_count,
+        missing_articles,
+        previous_batch,
+        results,
+    ):
+        with transaction.atomic():
+            persist_import_batch(
+                seller=seller,
+                source=IMPORT_SOURCE_AG_PARTS,
+                filename=price_path.name,
+                file_sha256=file_digest,
+                started_at=started_at,
+                source_scope=source_scope,
+                status=STATUS_ERROR,
+                source_row_count=source_row_count,
+                source_unique_count=source_unique_count,
+                selected_count=selected_count,
+                totals=summarize(results),
+                missing_count=(
+                    len(missing_articles) if source_scope == SCOPE_FULL else 0
+                ),
+                previous_batch=(
+                    previous_batch if source_scope == SCOPE_FULL else None
+                ),
+                blocked_reason='',
+                shrink_reason='',
+                results=results,
+                archive_status=ARCHIVE_NOT_APPLICABLE,
+            )
+
+    def _upsert_rows(
+        self,
+        rows,
+        seller,
+        matcher,
+        *,
+        dry_run,
+        replace_images,
+        expect_cost,
+        adopt_legacy,
+    ):
+        results = []
+        for row in rows:
+            try:
+                result = upsert_product(
+                    row,
+                    seller,
+                    matcher,
+                    dry_run=dry_run,
+                    replace_images=replace_images,
+                    expect_cost=expect_cost,
+                    adopt_legacy=adopt_legacy,
+                )
+            except Exception as exc:
+                if not dry_run:
+                    raise
+                result = ImportResult(
+                    article=row.article,
+                    action='error',
+                    source_row=row.source_row,
+                    warnings=list(row.warnings),
+                    errors=[f'row_exception:{exc}'],
+                )
+            if not dry_run and result.action == 'error':
+                raise CatalogImportWriteAborted(result)
+            results.append(result)
+        return results
 
     def _resolve_seller(self, seller_id, *, dry_run):
         try:

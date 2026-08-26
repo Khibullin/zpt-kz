@@ -327,6 +327,7 @@ class ImportResult:
     warnings: list = field(default_factory=list)
     errors: list = field(default_factory=list)
     product_id: int | None = None
+    changed_fields: dict = field(default_factory=dict)
 
 
 def _iter_data_rows(worksheet):
@@ -872,6 +873,60 @@ def other_seller_products(article, seller, *, exclude_ids=None):
     return others
 
 
+def _snapshot_product(product):
+    return {
+        'title': product.title,
+        'category_id': product.category_id,
+        'brand_id': product.brand_id,
+        'car_model_id': product.car_model_id,
+        'compatibility': product.compatibility or '',
+        'engine_compatibility': product.engine_compatibility or '',
+        'oem_cross_references': product.oem_cross_references or '',
+        'description': product.description or '',
+        'price': product.price,
+        'price_on_request': product.price_on_request,
+        'cost_price': product.cost_price,
+        'seller_name': product.seller_name,
+        'whatsapp_number': product.whatsapp_number,
+        'city': product.city,
+        'status': product.status,
+        'stock_qty': product.stock_qty,
+        'publish_to_sellers': product.publish_to_sellers,
+        'publish_to_kaspi': product.publish_to_kaspi,
+        'selected_brand_ids': sorted(product.selected_brands.values_list('id', flat=True)),
+        'selected_model_ids': sorted(product.selected_models.values_list('id', flat=True)),
+    }
+
+
+def _diff_snapshots(before, after):
+    from catalog.import_ops import compact_field_diff
+
+    skip = {
+        'status',
+        'stock_qty',
+        'publish_to_sellers',
+        'publish_to_kaspi',
+        'selected_brand_ids',
+        'selected_model_ids',
+    }
+    changed = {}
+    for key, old in before.items():
+        if key in skip:
+            continue
+        payload = compact_field_diff(key, old, after.get(key))
+        if payload:
+            changed[key] = payload
+    old_brands = before.get('selected_brand_ids') or []
+    new_brands = after.get('selected_brand_ids') or []
+    if old_brands != new_brands:
+        changed['selected_brands'] = {'old': old_brands, 'new': new_brands}
+    old_models = before.get('selected_model_ids') or []
+    new_models = after.get('selected_model_ids') or []
+    if old_models != new_models:
+        changed['selected_models'] = {'old': old_models, 'new': new_models}
+    return changed
+
+
 def _apply_row_fields(product, *, title, category, brand, model, row, seller, description, retail_ok):
     product.title = title
     product.category = category
@@ -1010,18 +1065,45 @@ def upsert_product(
             result.product_id = legacy.pk
         return result
 
-    if dry_run:
-        result.action = 'updated' if existing else 'created'
-        result.product_id = existing.pk if existing else None
-        return result
-
-    if seller is None:
-        result.action = 'error'
-        result.errors.append('seller_profile_required_for_write')
-        return result
-
-    with transaction.atomic():
-        if existing:
+    if existing is not None:
+        before = _snapshot_product(existing)
+        after = _proposed_snapshot(
+            existing,
+            title=title,
+            category=category,
+            brand=brand,
+            model=model,
+            row=row,
+            seller=seller,
+            description=description,
+            retail_ok=retail_ok,
+            brands=brands,
+            models=models,
+        )
+        result.changed_fields = _diff_snapshots(before, after)
+        result.product_id = existing.pk
+        if replace_images and row.photos:
+            result.changed_fields['photos'] = {'replaced': True}
+        if (
+            after['publish_to_sellers'] != before['publish_to_sellers']
+            or after['publish_to_kaspi'] != before['publish_to_kaspi']
+            or after['status'] != before['status']
+            or after['stock_qty'] != before['stock_qty']
+        ):
+            result.errors.append('refusing_to_change_publish_or_status')
+            result.action = 'error'
+            return result
+        if dry_run:
+            result.action = 'updated' if result.changed_fields else 'unchanged'
+            return result
+        if seller is None:
+            result.action = 'error'
+            result.errors.append('seller_profile_required_for_write')
+            return result
+        if not result.changed_fields:
+            result.action = 'unchanged'
+            return result
+        with transaction.atomic():
             _apply_row_fields(
                 existing,
                 title=title,
@@ -1034,36 +1116,92 @@ def upsert_product(
                 retail_ok=retail_ok,
             )
             existing.save()
-            product = existing
+            existing.selected_brands.set(brands)
+            existing.selected_models.set(models)
+            apply_images(existing, row.photos, replace_images=replace_images)
             result.action = 'updated'
-        else:
-            product = Product.objects.create(
-                title=title,
-                article=row.article,
-                price=row.retail_price if retail_ok else None,
-                price_on_request=not retail_ok,
-                condition='new',
-                status='hidden',
-                brand=brand,
-                car_model=model,
-                category=category,
-                seller_name=seller.name,
-                whatsapp_number=seller.phone,
-                city=seller.city or '',
-                seller_profile=seller,
-                cost_price=row.cost_price,
-                compatibility=row.compatibility,
-                engine_compatibility=row.engine_compatibility,
-                oem_cross_references=row.oem_cross_references,
-                description=description,
-                supplier=Product.SUPPLIER_LOCAL,
-            )
-            result.action = 'created'
+            result.product_id = existing.pk
+        return result
+
+    if dry_run:
+        result.action = 'created'
+        return result
+
+    if seller is None:
+        result.action = 'error'
+        result.errors.append('seller_profile_required_for_write')
+        return result
+
+    with transaction.atomic():
+        product = Product.objects.create(
+            title=title,
+            article=row.article,
+            price=row.retail_price if retail_ok else None,
+            price_on_request=not retail_ok,
+            condition='new',
+            status='hidden',
+            brand=brand,
+            car_model=model,
+            category=category,
+            seller_name=seller.name,
+            whatsapp_number=seller.phone,
+            city=seller.city or '',
+            seller_profile=seller,
+            cost_price=row.cost_price,
+            compatibility=row.compatibility,
+            engine_compatibility=row.engine_compatibility,
+            oem_cross_references=row.oem_cross_references,
+            description=description,
+            supplier=Product.SUPPLIER_LOCAL,
+        )
         product.selected_brands.set(brands)
         product.selected_models.set(models)
         apply_images(product, row.photos, replace_images=replace_images)
+        result.action = 'created'
         result.product_id = product.pk
     return result
+
+
+def _proposed_snapshot(
+    existing,
+    *,
+    title,
+    category,
+    brand,
+    model,
+    row,
+    seller,
+    description,
+    retail_ok,
+    brands,
+    models,
+):
+    after = _snapshot_product(existing)
+    after['title'] = title
+    after['category_id'] = category.pk if category else None
+    after['brand_id'] = brand.pk if brand else None
+    after['car_model_id'] = model.pk if model else None
+    after['compatibility'] = row.compatibility or existing.compatibility
+    if row.engine_compatibility:
+        after['engine_compatibility'] = row.engine_compatibility
+    if row.oem_cross_references:
+        after['oem_cross_references'] = row.oem_cross_references
+    if description:
+        after['description'] = description
+    if row.cost_price is not None:
+        after['cost_price'] = row.cost_price
+    if retail_ok:
+        after['price'] = row.retail_price
+        after['price_on_request'] = False
+    if seller and seller.name:
+        after['seller_name'] = seller.name
+    if seller and seller.phone:
+        after['whatsapp_number'] = seller.phone
+    if seller and seller.city:
+        after['city'] = seller.city
+    after['selected_brand_ids'] = sorted(item.pk for item in brands)
+    after['selected_model_ids'] = sorted(item.pk for item in models)
+    return after
 
 
 def filter_rows(rows, *, limit=None, articles=None):
@@ -1089,7 +1227,10 @@ def write_reports(results, report_path):
     with path.with_suffix('.csv').open('w', encoding='utf-8', newline='') as handle:
         writer = csv.DictWriter(
             handle,
-            fieldnames=['article', 'action', 'source_row', 'product_id', 'warnings', 'errors'],
+            fieldnames=[
+                'article', 'action', 'source_row', 'product_id',
+                'warnings', 'errors', 'changed_fields',
+            ],
         )
         writer.writeheader()
         for item in payload:
@@ -1100,6 +1241,11 @@ def write_reports(results, report_path):
                 'product_id': item['product_id'] or '',
                 'warnings': '|'.join(item['warnings']),
                 'errors': '|'.join(item['errors']),
+                'changed_fields': json.dumps(
+                    item.get('changed_fields') or {},
+                    ensure_ascii=False,
+                    default=str,
+                ),
             })
 
 
@@ -1111,6 +1257,9 @@ def summarize(results):
         'WOULD_ADOPT': 0,
         'ADOPTED': 0,
         'SKIPPED': 0,
+        'UNCHANGED': 0,
+        'CONFLICT': 0,
+        'MISSING': 0,
         'WARNING': 0,
         'ERROR': 0,
     }
@@ -1119,6 +1268,12 @@ def summarize(results):
             totals['CREATED'] += 1
         elif item.action == 'updated':
             totals['UPDATED'] += 1
+        elif item.action == 'unchanged':
+            totals['UNCHANGED'] += 1
+        elif item.action == 'missing_from_source':
+            totals['MISSING'] += 1
+        elif item.action == 'conflict':
+            totals['CONFLICT'] += 1
         elif item.action == 'legacy_ag_parts_match':
             totals['LEGACY_MATCH'] += 1
         elif item.action == 'would_adopt':
@@ -1132,6 +1287,8 @@ def summarize(results):
                 totals['LEGACY_MATCH'] += 1
         elif item.action in {'error', 'legacy_ag_parts_ambiguous'}:
             totals['ERROR'] += 1
+            if item.action == 'legacy_ag_parts_ambiguous':
+                totals['CONFLICT'] += 1
         if item.warnings:
             totals['WARNING'] += 1
         if item.errors and item.action not in {'error', 'legacy_ag_parts_ambiguous'}:

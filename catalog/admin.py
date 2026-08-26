@@ -11,6 +11,11 @@ from .models import (
     ProductPromotion,
     ProductConsignment,
     ProductConsignmentRequest,
+    ProductFulfillment,
+    ProductBarcode,
+    ProductKaspiListing,
+    CatalogImportBatch,
+    CatalogImportItem,
 )
 
 
@@ -144,6 +149,33 @@ class ProductConsignmentInline(admin.StackedInline):
     )
 
 
+class ProductFulfillmentInline(admin.StackedInline):
+    model = ProductFulfillment
+    extra = 0
+    max_num = 1
+    fields = ('external_id', 'source', 'last_synced_at')
+
+
+class ProductBarcodeInline(admin.TabularInline):
+    model = ProductBarcode
+    extra = 0
+    fields = ('code', 'source', 'is_primary')
+
+
+class ProductKaspiListingInline(admin.TabularInline):
+    model = ProductKaspiListing
+    extra = 0
+    fields = (
+        'master_sku',
+        'merchant_sku',
+        'barcode',
+        'is_active',
+        'publish_to_kaspi',
+        'last_known_our_price',
+        'last_synced_at',
+    )
+
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
@@ -190,6 +222,8 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
         'condition',
         'status',
+        'publish_to_sellers',
+        'publish_to_kaspi',
         'created_at',
     )
 
@@ -203,6 +237,8 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
         'city',
         'seller_profile',
+        'publish_to_sellers',
+        'publish_to_kaspi',
     )
 
     search_fields = (
@@ -231,6 +267,9 @@ class ProductAdmin(admin.ModelAdmin):
 
     inlines = (
         ProductImageInline,
+        ProductFulfillmentInline,
+        ProductBarcodeInline,
+        ProductKaspiListingInline,
         ProductPriceTierInline,
         ProductPromotionInline,
         ProductConsignmentInline,
@@ -252,6 +291,8 @@ class ProductAdmin(admin.ModelAdmin):
                     'price_on_request',
                     'condition',
                     'status',
+                    'publish_to_sellers',
+                    'publish_to_kaspi',
                 )
             }
         ),
@@ -371,3 +412,130 @@ class ProductConsignmentRequestAdmin(admin.ModelAdmin):
     @admin.display(description='Артикул')
     def product_article(self, obj):
         return obj.product.article or '—'
+
+
+class CatalogHistoryMixin:
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(ProductFulfillment)
+class ProductFulfillmentAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'external_id', 'source', 'last_synced_at')
+    search_fields = ('external_id', 'product__article', 'product__title')
+    autocomplete_fields = ('product',)
+    list_filter = ('source',)
+
+
+@admin.register(ProductBarcode)
+class ProductBarcodeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'product', 'code', 'source', 'is_primary', 'updated_at')
+    search_fields = ('code', 'product__article', 'product__title')
+    list_filter = ('source', 'is_primary')
+    autocomplete_fields = ('product',)
+
+
+@admin.register(ProductKaspiListing)
+class ProductKaspiListingAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'product',
+        'master_sku',
+        'merchant_sku',
+        'is_active',
+        'publish_to_kaspi',
+        'last_known_our_price',
+        'last_synced_at',
+    )
+    search_fields = (
+        'master_sku',
+        'merchant_sku',
+        'barcode',
+        'product__article',
+        'product__title',
+    )
+    list_filter = ('is_active', 'publish_to_kaspi')
+    autocomplete_fields = ('product',)
+    readonly_fields = ('created_at', 'updated_at')
+
+
+class CatalogImportItemInline(admin.TabularInline):
+    model = CatalogImportItem
+    extra = 0
+    can_delete = False
+    show_change_link = True
+    fields = ('article', 'action', 'product', 'warnings', 'errors', 'changed_fields')
+    readonly_fields = fields
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(CatalogImportBatch)
+class CatalogImportBatchAdmin(CatalogHistoryMixin, admin.ModelAdmin):
+    list_display = (
+        'id',
+        'seller_profile',
+        'source',
+        'source_scope',
+        'status',
+        'archive_status',
+        'filename',
+        'source_unique_count',
+        'selected_count',
+        'created_count',
+        'updated_count',
+        'missing_from_source_count',
+        'started_at',
+    )
+    list_filter = ('status', 'archive_status', 'source_scope', 'source', 'mode')
+    search_fields = ('filename', 'file_sha256', 'seller_profile__name')
+    readonly_fields = (
+        'seller_profile',
+        'source',
+        'filename',
+        'file_sha256',
+        'source_archive_path',
+        'archive_status',
+        'archive_error',
+        'started_at',
+        'finished_at',
+        'mode',
+        'source_scope',
+        'status',
+        'source_row_count',
+        'source_unique_count',
+        'selected_count',
+        'created_count',
+        'updated_count',
+        'unchanged_count',
+        'skipped_count',
+        'conflict_count',
+        'warning_count',
+        'error_count',
+        'missing_from_source_count',
+        'previous_successful_batch',
+        'blocked_reason',
+        'allow_source_shrink_reason',
+    )
+    inlines = (CatalogImportItemInline,)
+    date_hierarchy = 'started_at'
+
+
+@admin.register(CatalogImportItem)
+class CatalogImportItemAdmin(CatalogHistoryMixin, admin.ModelAdmin):
+    list_display = ('id', 'batch', 'article', 'action', 'product')
+    list_filter = ('action',)
+    search_fields = ('article', 'batch__filename')
+    readonly_fields = (
+        'batch',
+        'product',
+        'article',
+        'action',
+        'warnings',
+        'errors',
+        'changed_fields',
+    )

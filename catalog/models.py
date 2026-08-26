@@ -378,6 +378,25 @@ class Product(models.Model):
         help_text='OEM и кросс-номера. По одному значению на строку или через точку с запятой. Без HTML и ссылок.',
     )
 
+    publish_to_sellers = models.BooleanField(
+        default=False,
+        verbose_name='Публиковать продавцам',
+        help_text=(
+            'Разрешает товар в коммерческих рассылках продавцам. '
+            'Не зависит от status. Importer не меняет этот флаг.'
+        ),
+    )
+
+    publish_to_kaspi = models.BooleanField(
+        default=False,
+        verbose_name='Разрешить публикацию в Kaspi',
+        help_text=(
+            'Мастер-разрешение для Kaspi. Реальная публикация карточки: '
+            'Product.publish_to_kaspi AND listing.publish_to_kaspi AND listing.is_active. '
+            'Importer не меняет этот флаг.'
+        ),
+    )
+
     description = models.TextField(
         blank=True,
         verbose_name='Описание'
@@ -835,3 +854,361 @@ class ProductConsignmentRequest(models.Model):
             f'Заявка #{self.pk or "new"}: '
             f'{self.product_id} × {self.requested_qty}'
         )
+
+
+class ProductFulfillment(models.Model):
+    SOURCE_WMS = 'wms'
+    SOURCE_MANUAL = 'manual'
+    SOURCE_CHOICES = [
+        (SOURCE_WMS, 'WMS'),
+        (SOURCE_MANUAL, 'Вручную'),
+    ]
+
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='fulfillment',
+        verbose_name='Товар',
+    )
+    external_id = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        verbose_name='Fulfillment / WMS ID',
+        help_text=(
+            'Внешний идентификатор склада. Не заполнять автоматически из артикула: '
+            'в текущем WMS Excel отдельного надёжного Fulfillment ID нет.'
+        ),
+    )
+    source = models.CharField(
+        max_length=32,
+        choices=SOURCE_CHOICES,
+        default=SOURCE_WMS,
+        verbose_name='Источник',
+    )
+    last_synced_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя синхронизация',
+    )
+
+    class Meta:
+        verbose_name = 'Fulfillment-идентификатор'
+        verbose_name_plural = 'Fulfillment-идентификаторы'
+
+    def __str__(self):
+        return f'{self.product_id}: {self.external_id or "—"}'
+
+
+class ProductBarcode(models.Model):
+    SOURCE_WMS = 'wms'
+    SOURCE_KASPI = 'kaspi'
+    SOURCE_MANUAL = 'manual'
+    SOURCE_CHOICES = [
+        (SOURCE_WMS, 'WMS'),
+        (SOURCE_KASPI, 'Kaspi'),
+        (SOURCE_MANUAL, 'Вручную'),
+    ]
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='barcodes',
+        verbose_name='Товар',
+    )
+    code = models.CharField(
+        max_length=64,
+        db_index=True,
+        verbose_name='Штрихкод',
+    )
+    source = models.CharField(
+        max_length=16,
+        choices=SOURCE_CHOICES,
+        default=SOURCE_WMS,
+        verbose_name='Источник',
+    )
+    is_primary = models.BooleanField(
+        default=False,
+        verbose_name='Основной',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Штрихкод товара'
+        verbose_name_plural = 'Штрихкоды товаров'
+        ordering = ['-is_primary', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'code'],
+                name='uniq_product_barcode_code',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['code'], name='cat_barcode_code_idx'),
+        ]
+
+    def __str__(self):
+        return f'{self.product_id}: {self.code}'
+
+
+class ProductKaspiListing(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='kaspi_listings',
+        verbose_name='Товар',
+    )
+    master_sku = models.CharField(
+        max_length=128,
+        db_index=True,
+        verbose_name='Kaspi master SKU',
+        help_text='Идентификатор карточки Kaspi (колонка SKU в выгрузке).',
+    )
+    merchant_sku = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Kaspi merchant SKU',
+        help_text='Артикул продавца в Kaspi. Не путать с master_sku.',
+    )
+    barcode = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Штрихкод Kaspi',
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Листинг активен',
+    )
+    publish_to_kaspi = models.BooleanField(
+        default=False,
+        verbose_name='Публиковать этот листинг в Kaspi',
+    )
+    last_known_our_price = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя наша цена в Kaspi',
+    )
+    last_synced_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя синхронизация',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Kaspi-листинг'
+        verbose_name_plural = 'Kaspi-листинги'
+        ordering = ['id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'master_sku'],
+                name='uniq_product_kaspi_master_sku',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['product', 'is_active'],
+                name='cat_kaspi_listing_active_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.product_id}: {self.master_sku}'
+
+    def is_effectively_published_to_kaspi(self):
+        return bool(
+            self.product.publish_to_kaspi
+            and self.publish_to_kaspi
+            and self.is_active
+        )
+
+
+class CatalogImportBatch(models.Model):
+    SOURCE_AG_PARTS = 'ag_parts'
+    SOURCE_AG_PARTS_BARCODES = 'ag_parts_barcodes'
+
+    MODE_WRITE = 'write'
+    MODE_DRY_RUN = 'dry-run'
+    MODE_CHOICES = [
+        (MODE_WRITE, 'Write'),
+        (MODE_DRY_RUN, 'Dry-run'),
+    ]
+
+    SCOPE_FULL = 'full'
+    SCOPE_PARTIAL = 'partial'
+    SCOPE_CHOICES = [
+        (SCOPE_FULL, 'Полный каталог'),
+        (SCOPE_PARTIAL, 'Частичный импорт'),
+    ]
+
+    STATUS_SUCCESS = 'success'
+    STATUS_BLOCKED = 'blocked'
+    STATUS_ERROR = 'error'
+    STATUS_CHOICES = [
+        (STATUS_SUCCESS, 'Успех'),
+        (STATUS_BLOCKED, 'Блок (shrink guard)'),
+        (STATUS_ERROR, 'Ошибка'),
+    ]
+
+    ARCHIVE_NOT_APPLICABLE = 'not_applicable'
+    ARCHIVE_SUCCESS = 'success'
+    ARCHIVE_ERROR = 'error'
+    ARCHIVE_STATUS_CHOICES = [
+        (ARCHIVE_NOT_APPLICABLE, 'Не применимо'),
+        (ARCHIVE_SUCCESS, 'Архив сохранён'),
+        (ARCHIVE_ERROR, 'Ошибка архива'),
+    ]
+
+    seller_profile = models.ForeignKey(
+        SellerProfile,
+        on_delete=models.PROTECT,
+        related_name='catalog_import_batches',
+        verbose_name='Профиль продавца',
+    )
+    source = models.CharField(
+        max_length=64,
+        default=SOURCE_AG_PARTS,
+        db_index=True,
+        verbose_name='Источник',
+    )
+    filename = models.CharField(max_length=255, verbose_name='Имя файла')
+    file_sha256 = models.CharField(max_length=64, db_index=True, verbose_name='SHA256 источника')
+    source_archive_path = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Путь архива источника',
+    )
+    archive_status = models.CharField(
+        max_length=16,
+        choices=ARCHIVE_STATUS_CHOICES,
+        default=ARCHIVE_NOT_APPLICABLE,
+        db_index=True,
+        verbose_name='Статус архива',
+    )
+    archive_error = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Ошибка архива',
+    )
+    started_at = models.DateTimeField(verbose_name='Начало')
+    finished_at = models.DateTimeField(null=True, blank=True, verbose_name='Окончание')
+    mode = models.CharField(
+        max_length=16,
+        choices=MODE_CHOICES,
+        default=MODE_WRITE,
+        verbose_name='Режим',
+    )
+    source_scope = models.CharField(
+        max_length=16,
+        choices=SCOPE_CHOICES,
+        default=SCOPE_PARTIAL,
+        db_index=True,
+        verbose_name='Охват источника',
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=STATUS_CHOICES,
+        default=STATUS_SUCCESS,
+        db_index=True,
+        verbose_name='Статус',
+    )
+    source_row_count = models.PositiveIntegerField(default=0, verbose_name='Строк в источнике')
+    source_unique_count = models.PositiveIntegerField(default=0, verbose_name='Уникальных в источнике')
+    selected_count = models.PositiveIntegerField(default=0, verbose_name='Выбрано после фильтра')
+    created_count = models.PositiveIntegerField(default=0)
+    updated_count = models.PositiveIntegerField(default=0)
+    unchanged_count = models.PositiveIntegerField(default=0)
+    skipped_count = models.PositiveIntegerField(default=0)
+    conflict_count = models.PositiveIntegerField(default=0)
+    warning_count = models.PositiveIntegerField(default=0)
+    error_count = models.PositiveIntegerField(default=0)
+    missing_from_source_count = models.PositiveIntegerField(default=0)
+    previous_successful_batch = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='following_batches',
+        verbose_name='Предыдущий успешный full write',
+    )
+    blocked_reason = models.TextField(blank=True, default='', verbose_name='Причина блока')
+    allow_source_shrink_reason = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Причина обхода shrink guard',
+    )
+
+    class Meta:
+        verbose_name = 'Пакет импорта каталога'
+        verbose_name_plural = 'Пакеты импорта каталога'
+        ordering = ['-started_at', '-id']
+        indexes = [
+            models.Index(
+                fields=['seller_profile', 'source', 'source_scope', 'mode', 'status'],
+                name='cat_import_batch_lookup_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return f'ImportBatch #{self.pk} {self.source} {self.status}'
+
+
+class CatalogImportItem(models.Model):
+    ACTION_CREATED = 'created'
+    ACTION_UPDATED = 'updated'
+    ACTION_UNCHANGED = 'unchanged'
+    ACTION_SKIPPED = 'skipped'
+    ACTION_CONFLICT = 'conflict'
+    ACTION_ERROR = 'error'
+    ACTION_MISSING_FROM_SOURCE = 'missing_from_source'
+    ACTION_CHOICES = [
+        (ACTION_CREATED, 'Created'),
+        (ACTION_UPDATED, 'Updated'),
+        (ACTION_UNCHANGED, 'Unchanged'),
+        (ACTION_SKIPPED, 'Skipped'),
+        (ACTION_CONFLICT, 'Conflict'),
+        (ACTION_ERROR, 'Error'),
+        (ACTION_MISSING_FROM_SOURCE, 'Missing from source'),
+    ]
+
+    batch = models.ForeignKey(
+        CatalogImportBatch,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name='Пакет',
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='catalog_import_items',
+        verbose_name='Товар',
+    )
+    article = models.CharField(max_length=100, db_index=True, verbose_name='Артикул')
+    action = models.CharField(
+        max_length=32,
+        choices=ACTION_CHOICES,
+        verbose_name='Действие',
+    )
+    warnings = models.JSONField(default=list, blank=True, verbose_name='Предупреждения')
+    errors = models.JSONField(default=list, blank=True, verbose_name='Ошибки')
+    changed_fields = models.JSONField(default=dict, blank=True, verbose_name='Изменённые поля')
+
+    class Meta:
+        verbose_name = 'Строка импорта каталога'
+        verbose_name_plural = 'Строки импорта каталога'
+        ordering = ['id']
+        indexes = [
+            models.Index(fields=['batch', 'action'], name='cat_import_item_action_idx'),
+            models.Index(fields=['article'], name='cat_import_item_article_idx'),
+        ]
+
+    def __str__(self):
+        return f'{self.article} ({self.action})'

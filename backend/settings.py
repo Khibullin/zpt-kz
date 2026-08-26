@@ -261,6 +261,18 @@ ZPT_WAREHOUSE_CITY = os.getenv('ZPT_WAREHOUSE_CITY', 'Алматы')
 MEDIA_URL = '/products/'
 MEDIA_ROOT = resolve_media_root(os.getenv('MEDIA_ROOT'), BASE_DIR)
 
+# Catalog import archives live ON the persistent MEDIA_ROOT volume,
+# in a dedicated service folder that is not ProductImage upload storage.
+_import_archive_raw = (os.getenv('IMPORT_ARCHIVE_ROOT') or '').strip()
+IMPORT_ARCHIVE_ROOT = (
+    Path(_import_archive_raw)
+    if _import_archive_raw
+    else Path(MEDIA_ROOT) / '_catalog_imports'
+)
+IMPORT_ARCHIVE_KEEP_SUCCESSFUL = int(os.getenv('IMPORT_ARCHIVE_KEEP_SUCCESSFUL', '20'))
+CATALOG_IMPORT_SHRINK_RATIO = float(os.getenv('CATALOG_IMPORT_SHRINK_RATIO', '0.20'))
+CATALOG_IMPORT_SHRINK_ABS = int(os.getenv('CATALOG_IMPORT_SHRINK_ABS', '10'))
+
 if not DEBUG:
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
