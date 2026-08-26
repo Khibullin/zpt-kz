@@ -25,6 +25,8 @@ from .seller_utils import (
 
 logger = logging.getLogger(__name__)
 
+UNAVAILABLE_CART_MESSAGE = 'Товар больше недоступен и был удалён из корзины.'
+
 
 def _warehouse_address():
     from django.conf import settings
@@ -74,15 +76,14 @@ def _read_cart_add_payload(request, path_product_id=None):
         data = json.loads(request.body.decode('utf-8') or '{}')
         if not isinstance(data, dict):
             raise ValueError('Invalid JSON payload')
-        return data
-
-    data = request.POST.dict() if request.POST else {}
-    product_data_raw = data.get('product_data')
-    if isinstance(product_data_raw, str) and product_data_raw.strip():
-        try:
-            data['product_data'] = json.loads(product_data_raw)
-        except json.JSONDecodeError:
-            pass
+    else:
+        data = request.POST.dict() if request.POST else {}
+        product_data_raw = data.get('product_data')
+        if isinstance(product_data_raw, str) and product_data_raw.strip():
+            try:
+                data['product_data'] = json.loads(product_data_raw)
+            except json.JSONDecodeError:
+                pass
 
     if path_product_id is not None:
         data['product_id'] = path_product_id
@@ -93,9 +94,12 @@ def _find_local_product(product_id=None, article=None, supplier=None):
     """
     Resolve a catalog product by primary key, with article fallback for
     environments where rendered page IDs may not match the server DB.
+
+    Only active products can enter or update the cart.
     """
     article_str = str(article or '').strip()
     supplier_str = str(supplier or '').strip() or Product.SUPPLIER_LOCAL
+    active = Product.objects.filter(status='active')
 
     if product_id is not None and str(product_id).strip() != '':
         try:
@@ -104,17 +108,26 @@ def _find_local_product(product_id=None, article=None, supplier=None):
             pk = None
 
         if pk is not None:
-            product = Product.objects.filter(pk=pk).first()
+            product = active.filter(pk=pk).first()
             if product:
                 return product, 'pk'
 
     if article_str:
-        lookup = Product.objects.filter(article=article_str, supplier=supplier_str)
-        product = lookup.filter(status='active').first() or lookup.first()
+        product = active.filter(
+            article=article_str,
+            supplier=supplier_str,
+        ).first()
         if product:
             return product, 'article'
 
     return None, None
+
+
+def _prune_unavailable_cart_items(request, cart):
+    removed = cart.prune_invalid()
+    if removed:
+        messages.warning(request, UNAVAILABLE_CART_MESSAGE)
+    return removed
 
 
 @require_POST
@@ -253,7 +266,7 @@ def cart_add(request, product_id=None):
 
 def cart_view(request):
     cart = CartManager(request)
-    cart.prune_invalid()
+    _prune_unavailable_cart_items(request, cart)
     items = cart.get_items()
 
     return render(request, 'orders/cart.html', {
@@ -421,11 +434,12 @@ def cart_update_quantity(request):
 @require_http_methods(['GET', 'POST'])
 def checkout(request):
     cart = CartManager(request)
-    cart.prune_invalid()
+    removed = _prune_unavailable_cart_items(request, cart)
     items = cart.get_items()
 
     if not items:
-        messages.warning(request, 'Корзина пуста. Добавьте товары перед оформлением заказа.')
+        if not removed:
+            messages.warning(request, 'Корзина пуста. Добавьте товары перед оформлением заказа.')
         return redirect('catalog_list')
 
     pickup_options = resolve_pickup_options(items)
@@ -466,7 +480,14 @@ def checkout(request):
                 order_lines = []
                 total_price = 0
                 for item in current_items:
-                    product = Product.objects.select_for_update().get(pk=item['product'].pk)
+                    product = (
+                        Product.objects.select_for_update()
+                        .filter(pk=item['product'].pk, status='active')
+                        .first()
+                    )
+                    if product is None:
+                        messages.error(request, 'Товар больше недоступен.')
+                        return redirect('orders:cart')
                     quote = resolve_commercial_price(
                         product,
                         item['quantity'],

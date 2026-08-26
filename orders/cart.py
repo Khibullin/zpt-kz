@@ -218,24 +218,34 @@ class CartManager:
         return CartManager.get_or_create_virtual_product(product_data)
 
     def prune_invalid(self):
+        quantities = self.get_product_quantities()
+        if not quantities:
+            return 0
+
         valid_ids = {
             product.id
             for product in Product.objects.filter(
-                id__in=self.get_product_quantities().keys(),
+                id__in=quantities.keys(),
                 status='active',
             )
         }
+        removed = 0
 
         if self.user:
-            CartItem.objects.filter(user=self.user).exclude(
+            stale = CartItem.objects.filter(user=self.user).exclude(
                 product_id__in=valid_ids
-            ).delete()
+            )
+            removed = stale.count()
+            stale.delete()
         else:
             cart = self._session_cart()
             for product_id in list(cart.keys()):
                 if int(product_id) not in valid_ids:
                     cart.pop(product_id, None)
+                    removed += 1
             self.request.session.modified = True
+
+        return removed
 
     @staticmethod
     def get_or_create_virtual_product(product_data):
