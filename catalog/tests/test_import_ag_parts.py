@@ -45,6 +45,114 @@ class AgPartsBrandAliasTests(SimpleTestCase):
         self.assertEqual(alias_brand_name('Jaecoo'), 'Jaecoo')
 
 
+def _write_zip_member(bundle, member_name, data):
+    """Write a ZIP member, keeping backslashes literally (Windows-style)."""
+    info = zipfile.ZipInfo('placeholder.jpg')
+    info.filename = member_name
+    bundle.writestr(info, data)
+
+
+class AgPartsZipUnpackTests(SimpleTestCase):
+    def setUp(self):
+        self.tmp = TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+
+    def _unpack(self, archive_name, members):
+        from catalog.ag_parts_import import unpack_archives
+
+        archive = self.root / archive_name
+        with zipfile.ZipFile(archive, 'w') as bundle:
+            for name, data in members:
+                _write_zip_member(bundle, name, data)
+        dest = self.root / 'unpacked'
+        return unpack_archives([archive], dest)
+
+    def test_windows_backslash_members_become_article_folders(self):
+        from catalog.ag_parts_import import index_photos
+
+        unpacked = self._unpack(
+            'photos.zip',
+            [(r'1017110XED95\photo1.jpg', MINIMAL_PNG)],
+        )
+        expected = unpacked[0] / '1017110XED95' / 'photo1.jpg'
+        self.assertTrue(expected.is_file())
+        self.assertTrue((unpacked[0] / '1017110XED95').is_dir())
+        self.assertNotIn(
+            '1017110XED95\\photo1.jpg',
+            [path.name for path in unpacked[0].iterdir()],
+        )
+        index, total = index_photos(unpacked)
+        self.assertEqual(total, 1)
+        self.assertIn('1017110XED95', index)
+        self.assertEqual(Path(index['1017110XED95'][0]), expected)
+
+    def test_posix_zip_members_still_work(self):
+        from catalog.ag_parts_import import index_photos
+
+        unpacked = self._unpack(
+            'photos.zip',
+            [('1017110XED95/photo1.jpg', MINIMAL_PNG)],
+        )
+        expected = unpacked[0] / '1017110XED95' / 'photo1.jpg'
+        self.assertTrue(expected.is_file())
+        index, total = index_photos(unpacked)
+        self.assertEqual(total, 1)
+        self.assertIn('1017110XED95', index)
+
+    def test_traversal_members_stay_inside_destination(self):
+        unpacked = self._unpack(
+            'evil.zip',
+            [
+                ('../outside.jpg', MINIMAL_PNG),
+                (r'..\outside2.jpg', MINIMAL_PNG),
+                ('1017110XED95/../../escape.jpg', MINIMAL_PNG),
+                (r'1017110XED95\photo1.jpg', MINIMAL_PNG),
+            ],
+        )
+        dest = unpacked[0]
+        self.assertFalse((self.root / 'outside.jpg').exists())
+        self.assertFalse((self.root / 'outside2.jpg').exists())
+        self.assertFalse((self.root / 'escape.jpg').exists())
+        self.assertFalse((self.root / 'unpacked' / 'outside.jpg').exists())
+        self.assertFalse((dest / 'outside.jpg').exists())
+        self.assertFalse((dest / 'outside2.jpg').exists())
+        self.assertFalse((dest / 'escape.jpg').exists())
+        self.assertTrue((dest / '1017110XED95' / 'photo1.jpg').is_file())
+
+    def test_attach_archive_photos_binds_windows_zip_article(self):
+        from catalog.ag_parts_import import (
+            PreparedRow,
+            attach_archive_photos,
+            index_photos,
+        )
+
+        unpacked = self._unpack(
+            'photos.zip',
+            [(r'1017110XED95\photo1.jpg', MINIMAL_PNG)],
+        )
+        index, total = index_photos(unpacked)
+        self.assertEqual(total, 1)
+        row = PreparedRow(
+            article='1017110XED95',
+            article_key='1017110XED95',
+            title='',
+            category_raw='',
+            category_name='',
+            brand_raw='',
+            model_raw='',
+            compatibility='',
+            retail_price=None,
+            cost_price=None,
+            quantity_raw='',
+        )
+        attach_archive_photos([row], index)
+        self.assertEqual(len(row.photos), 1)
+        self.assertEqual(row.photos[0]['name'], 'photo1.jpg')
+        self.assertTrue(Path(row.photos[0]['path']).is_file())
+        self.assertNotIn('NO_LOCAL_PHOTO', row.warnings)
+
+
 def _write_xlsx(path, headers, rows, sheet_name='Прайс'):
     workbook = Workbook()
     sheet = workbook.active

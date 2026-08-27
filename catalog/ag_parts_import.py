@@ -10,6 +10,7 @@ import csv
 import hashlib
 import json
 import re
+import shutil
 import zipfile
 from dataclasses import dataclass, field, asdict
 from pathlib import Path
@@ -557,6 +558,69 @@ def load_cost_index(path):
     return index, inspection, warnings
 
 
+def _normalize_zip_member_name(name):
+    return (name or '').replace('\\', '/')
+
+
+def _zip_info_is_dir(info):
+    raw = info.filename or ''
+    if raw.endswith('\\') or raw.endswith('/'):
+        return True
+    return info.is_dir()
+
+
+def _safe_zip_member_target(dest, dest_resolved, filename):
+    """Return a path under dest, or None if the member is unsafe."""
+    normalized = _normalize_zip_member_name(filename)
+    if not normalized or normalized in {'.', '/'}:
+        return None
+    if normalized.startswith('/'):
+        return None
+    if re.match(r'^[A-Za-z]:(/|$)', normalized):
+        return None
+    parts = []
+    for part in normalized.split('/'):
+        if part in ('', '.'):
+            continue
+        if part == '..':
+            return None
+        if ':' in part:
+            return None
+        parts.append(part)
+    if not parts:
+        return None
+    target = dest.joinpath(*parts)
+    try:
+        resolved = target.resolve()
+    except (OSError, RuntimeError):
+        return None
+    if not resolved.is_relative_to(dest_resolved):
+        return None
+    return target
+
+
+def _safe_extract_zip(bundle, dest):
+    dest = Path(dest)
+    dest.mkdir(parents=True, exist_ok=True)
+    dest_resolved = dest.resolve()
+    for info in bundle.infolist():
+        target = _safe_zip_member_target(dest, dest_resolved, info.filename)
+        if target is None:
+            continue
+        if _zip_info_is_dir(info):
+            target.mkdir(parents=True, exist_ok=True)
+            continue
+        target.parent.mkdir(parents=True, exist_ok=True)
+        try:
+            resolved = target.resolve()
+        except (OSError, RuntimeError):
+            continue
+        if not resolved.is_relative_to(dest_resolved):
+            continue
+        with bundle.open(info) as src, target.open('wb') as dst:
+            shutil.copyfileobj(src, dst)
+
+
 def unpack_archives(archives, dest_dir):
     dest = Path(dest_dir)
     dest.mkdir(parents=True, exist_ok=True)
@@ -565,9 +629,11 @@ def unpack_archives(archives, dest_dir):
         archive_path = Path(archive)
         if archive_path.suffix.lower() != '.zip':
             raise ValueError(f'unsupported_archive:{archive_path}')
+        target_root = dest / archive_path.stem
+        target_root.mkdir(parents=True, exist_ok=True)
         with zipfile.ZipFile(archive_path) as bundle:
-            bundle.extractall(dest / archive_path.stem)
-        unpacked.append(dest / archive_path.stem)
+            _safe_extract_zip(bundle, target_root)
+        unpacked.append(target_root)
     return unpacked
 
 
