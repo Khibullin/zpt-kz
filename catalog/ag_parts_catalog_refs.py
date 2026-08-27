@@ -1,17 +1,41 @@
-"""Fixed Brand/CarModel refs needed for the AG Parts pilot.
+"""Fixed Brand/CarModel refs needed for AG Parts catalog imports.
 
-This module never touches Product and never infers aliases
-(GWM ≠ Great Wall). Matching is exact name under a concrete Brand.
+Covers the original pilot plus CONFIRMED missing refs of the first
+33-SKU production batch. This module never touches Product and never
+infers aliases (GWM ≠ Great Wall). Matching is the canonical name
+under a concrete Brand, with case/whitespace reuse of an existing row.
 """
 
 from dataclasses import dataclass
 
+from django.db.models import Q
+
 from catalog.models import Brand, CarModel, Country
 
 REQUIRED_BRAND_MODELS = (
-    ('Chery', ('Tiggo 4', 'Tiggo 7 Pro', 'Tiggo 8 Pro')),
-    ('Exeed', ('TXL',)),
+    ('BYD', ('Atto 3', 'Dolphin')),
+    ('Changan', (
+        'CS35 Plus',
+        'CS85',
+        'CS95',
+        'Eado Plus',
+        'Hunter Plus',
+        'Lamore',
+        'Oushang Cos 5',
+    )),
+    ('Chery', ('Tiggo 4', 'Tiggo 5', 'Tiggo 7 Pro', 'Tiggo 8 Pro')),
+    ('Exeed', ('TX', 'TXL')),
+    ('Ford', ('Transit',)),
+    ('Geely', ('Icon',)),
+    ('Great Wall', ('Poer King Kong',)),
+    ('Haval', ('H2', 'H7')),
+    ('JAC', ('JS3', 'S2', 'T6')),
     ('Jetour', ('Dashing', 'X70', 'X90')),
+    ('MINI', ('Cooper',)),
+    ('Nissan', ('Altima', 'Maxima')),
+    ('Peugeot', ('207',)),
+    ('Tank', ('400',)),
+    ('Wey', ('05',)),
     ('Zeekr', ('001', '009')),
 )
 
@@ -20,6 +44,10 @@ VERIFY_ONLY_BRAND_MODELS = (
 )
 
 NEW_BRAND_COUNTRY_NAME = 'Китай'
+BRAND_COUNTRY_FALLBACK = {
+    'MINI': 'Европа',
+    'Wey': 'Китай',
+}
 
 STATUS_EXISTS = 'EXISTS'
 STATUS_WOULD_CREATE = 'WOULD_CREATE'
@@ -41,12 +69,49 @@ class CatalogRefLine:
         return f'{self.status} {self.kind} {self.label}'
 
 
+def _canonical_lookup_names(name):
+    stripped = (name or '').strip()
+    collapsed = ' '.join(stripped.split())
+    names = []
+    for item in (stripped, collapsed):
+        if item and item not in names:
+            names.append(item)
+    return names
+
+
+def _country_name_for_brand(brand_name):
+    from core.vehicle_catalog import VEHICLE_CATALOG
+
+    for country_name, brands in VEHICLE_CATALOG.items():
+        if brand_name in brands:
+            return country_name
+    return BRAND_COUNTRY_FALLBACK.get(brand_name, NEW_BRAND_COUNTRY_NAME)
+
+
 def _find_brands(name):
-    return list(Brand.objects.filter(name=name).order_by('pk'))
+    names = _canonical_lookup_names(name)
+    if not names:
+        return []
+    found = list(Brand.objects.filter(name__in=names).order_by('pk'))
+    if found:
+        return found
+    query = Q()
+    for item in names:
+        query |= Q(name__iexact=item)
+    return list(Brand.objects.filter(query).order_by('pk'))
 
 
 def _find_model(brand, name):
-    return CarModel.objects.filter(brand=brand, name=name).first()
+    names = _canonical_lookup_names(name)
+    if not names:
+        return None
+    exact = CarModel.objects.filter(brand=brand, name__in=names).order_by('pk').first()
+    if exact:
+        return exact
+    query = Q()
+    for item in names:
+        query |= Q(name__iexact=item)
+    return CarModel.objects.filter(query, brand=brand).order_by('pk').first()
 
 
 def _brand_line(status, brand_name, *, create=False):
@@ -116,8 +181,10 @@ def plan_ag_parts_catalog_refs():
     return lines
 
 
-def _country_for_new_brand():
-    country, created = Country.objects.get_or_create(name=NEW_BRAND_COUNTRY_NAME)
+def _country_for_new_brand(brand_name):
+    country, created = Country.objects.get_or_create(
+        name=_country_name_for_brand(brand_name),
+    )
     return country, created
 
 
@@ -140,7 +207,7 @@ def apply_ag_parts_catalog_refs(plan_lines):
             if existing:
                 applied.append(_brand_line(STATUS_AMBIGUOUS, line.create_name))
                 continue
-            country, _country_created = _country_for_new_brand()
+            country, _country_created = _country_for_new_brand(line.create_name)
             brand, brand_created = Brand.objects.get_or_create(
                 country=country,
                 name=line.create_name,
