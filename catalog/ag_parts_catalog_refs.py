@@ -1,9 +1,11 @@
 """Fixed Brand/CarModel refs needed for AG Parts catalog imports.
 
-Covers the original pilot plus CONFIRMED missing refs of the first
-33-SKU production batch. This module never touches Product and never
-infers aliases (GWM ≠ Great Wall). Matching is the canonical name
-under a concrete Brand, with case/whitespace reuse of an existing row.
+Covers the original pilot plus every unique Brand/CarModel from the
+CONFIRMED first-batch workbook columns (Марка, Модель, Дополнительные
+модели). Canonical Chinese brand is Li Auto, never Lixiang. This
+module never touches Product and never infers aliases
+(GWM ≠ Great Wall). Matching is the canonical name under a concrete
+Brand, with case/whitespace reuse of an existing row.
 """
 
 from dataclasses import dataclass
@@ -12,41 +14,73 @@ from django.db.models import Q
 
 from catalog.models import Brand, CarModel, Country
 
-REQUIRED_BRAND_MODELS = (
-    ('BYD', ('Atto 3', 'Dolphin')),
-    ('Changan', (
-        'CS35 Plus',
-        'CS85',
-        'CS95',
-        'Eado Plus',
-        'Hunter Plus',
-        'Lamore',
-        'Oushang Cos 5',
-    )),
-    ('Chery', ('Tiggo 4', 'Tiggo 5', 'Tiggo 7 Pro', 'Tiggo 8 Pro')),
-    ('Exeed', ('TX', 'TXL')),
-    ('Ford', ('Transit',)),
-    ('Geely', ('Icon',)),
-    ('Great Wall', ('Poer King Kong',)),
-    ('Haval', ('H2', 'H7')),
-    ('JAC', ('JS3', 'S2', 'T6')),
+# Original AG Parts pilot SKUs, not present in first_batch_confirmed.xlsx.
+PILOT_BRAND_MODELS = (
+    ('Chery', ('Tiggo 4', 'Tiggo 7 Pro', 'Tiggo 8 Pro')),
+    ('Exeed', ('TXL',)),
     ('Jetour', ('Dashing', 'X70', 'X90')),
-    ('MINI', ('Cooper',)),
-    ('Nissan', ('Altima', 'Maxima')),
-    ('Peugeot', ('207',)),
-    ('Tank', ('400',)),
-    ('Wey', ('05',)),
     ('Zeekr', ('001', '009')),
+)
+
+# Unique structured pairs from first_batch_confirmed.xlsx, excluding
+# Great Wall / Wingle 7 (verify-existing only, never created here).
+FIRST_BATCH_CONFIRMED_BRAND_MODELS = (
+    ('BYD', ('Tang',)),
+    ('Changan', ('CS35', 'CS75 Plus', 'UNI-K', 'UNI-T', 'UNI-V')),
+    ('Chery', (
+        'Arrizo 8',
+        'Tiggo 4',
+        'Tiggo 7',
+        'Tiggo 7 Pro',
+        'Tiggo 7 Pro Max',
+        'Tiggo 8',
+        'Tiggo 8 Pro',
+    )),
+    ('Exeed', ('LX', 'TXL', 'VX')),
+    ('Geely', ('Coolray',)),
+    ('Great Wall', ('Poer',)),
+    ('Haval', ('Dargo', 'F7', 'F7x', 'H9', 'Jolion')),
+    ('JAC', ('J7', 'JS4', 'JS6', 'S3')),
+    ('Jaecoo', ('J7',)),
+    ('Li Auto', ('L6', 'L7', 'L8', 'L9')),
+    ('Omoda', ('C5',)),
+    ('Peugeot', ('308',)),
+    ('Tank', ('300', '500')),
+    ('Zeekr', ('X',)),
 )
 
 VERIFY_ONLY_BRAND_MODELS = (
     ('Great Wall', ('Wingle 7',)),
 )
 
+
+def _merge_brand_models(*groups):
+    models_by_brand = {}
+    for group in groups:
+        for brand_name, model_names in group:
+            bucket = models_by_brand.setdefault(brand_name, [])
+            for model_name in model_names:
+                if model_name not in bucket:
+                    bucket.append(model_name)
+    return tuple(
+        (brand_name, tuple(sorted(models, key=str.lower)))
+        for brand_name, models in sorted(
+            models_by_brand.items(),
+            key=lambda item: item[0].lower(),
+        )
+    )
+
+
+REQUIRED_BRAND_MODELS = _merge_brand_models(
+    PILOT_BRAND_MODELS,
+    FIRST_BATCH_CONFIRMED_BRAND_MODELS,
+)
+
 NEW_BRAND_COUNTRY_NAME = 'Китай'
 BRAND_COUNTRY_FALLBACK = {
-    'MINI': 'Европа',
-    'Wey': 'Китай',
+    'Li Auto': 'Китай',
+    'Jaecoo': 'Китай',
+    'Omoda': 'Китай',
 }
 
 STATUS_EXISTS = 'EXISTS'

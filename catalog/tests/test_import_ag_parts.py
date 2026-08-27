@@ -6,7 +6,7 @@ from tempfile import TemporaryDirectory
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 from openpyxl import Workbook
 
@@ -30,6 +30,19 @@ MINIMAL_PNG = (
 )
 
 COST_MARKER = 87654321
+
+
+class AgPartsBrandAliasTests(SimpleTestCase):
+    def test_li_auto_aliases_to_canonical_li_auto(self):
+        from catalog.ag_parts_import import alias_brand_name
+
+        self.assertEqual(alias_brand_name('Li Auto'), 'Li Auto')
+        self.assertEqual(alias_brand_name('Lixiang'), 'Li Auto')
+        self.assertEqual(alias_brand_name('Li'), 'Li Auto')
+        self.assertEqual(alias_brand_name('li auto'), 'Li Auto')
+        self.assertEqual(alias_brand_name('lixiang'), 'Li Auto')
+        self.assertEqual(alias_brand_name('Omoda'), 'Omoda')
+        self.assertEqual(alias_brand_name('Jaecoo'), 'Jaecoo')
 
 
 def _write_xlsx(path, headers, rows, sheet_name='Прайс'):
@@ -780,6 +793,30 @@ class AgPartsImportTests(TestCase):
         output = self._run('--dry-run', '--articles=ZZ-1')
         self.assertIn('unknown_brand:Zeekr', output)
         self.assertFalse(Brand.objects.filter(name='Zeekr').exists())
+
+    def test_lixiang_alias_binds_to_existing_li_auto(self):
+        li_auto = Brand.objects.create(country=self.country, name='Li Auto')
+        l7 = CarModel.objects.create(brand=li_auto, name='L7')
+        _write_xlsx(
+            self.price_xlsx,
+            [
+                'Артикул',
+                'Категория',
+                'Марка',
+                'Модель',
+                'Применимость',
+                'Цена',
+                'Дополнительные модели',
+            ],
+            [['ZZ-LI', 'CABIN FILTER', 'Lixiang', 'L7', 'Lixiang L7', 100, 'Li:L7']],
+        )
+        output = self._run('--articles=ZZ-LI')
+        self.assertNotIn('unknown_brand', output)
+        product = Product.objects.get(article='ZZ-LI', seller_profile=self.seller)
+        self.assertEqual(product.brand_id, li_auto.pk)
+        self.assertEqual(product.car_model_id, l7.pk)
+        self.assertFalse(Brand.objects.filter(name='Lixiang').exists())
+        self.assertEqual(Brand.objects.filter(name='Li Auto').count(), 1)
 
     def test_structured_unknown_model_is_not_created(self):
         _write_xlsx(

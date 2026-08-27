@@ -4,7 +4,12 @@ from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase
 
-from catalog.ag_parts_catalog_refs import REQUIRED_BRAND_MODELS, VERIFY_ONLY_BRAND_MODELS
+from catalog.ag_parts_catalog_refs import (
+    FIRST_BATCH_CONFIRMED_BRAND_MODELS,
+    PILOT_BRAND_MODELS,
+    REQUIRED_BRAND_MODELS,
+    VERIFY_ONLY_BRAND_MODELS,
+)
 from catalog.models import Brand, CarModel, Country, Product, SellerProfile
 
 EXCLUDED_MODELS = (
@@ -26,6 +31,25 @@ FORBIDDEN_BRANDS = (
     'Citroen',
     'GWM',
 )
+
+# Full unique structured set of first_batch_confirmed.xlsx, including
+# Great Wall / Wingle 7 which stays verify-existing only.
+FIRST_BATCH_CONFIRMED_PAIRS = frozenset(
+    {
+        (brand, model)
+        for brand, models in FIRST_BATCH_CONFIRMED_BRAND_MODELS
+        for model in models
+    }
+    | {('Great Wall', 'Wingle 7')}
+)
+
+
+def _pairs(groups):
+    return {
+        (brand, model)
+        for brand, models in groups
+        for model in models
+    }
 
 
 class EnsureAgPartsCatalogRefsTests(TestCase):
@@ -86,12 +110,16 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
         self.assertIn('mode: dry-run', output)
         self.assertIn('EXISTS Brand Chery', output)
         self.assertIn('WOULD_CREATE Model Chery / Tiggo 4', output)
-        self.assertIn('WOULD_CREATE Model Chery / Tiggo 5', output)
+        self.assertIn('WOULD_CREATE Model Chery / Arrizo 8', output)
         self.assertIn('WOULD_CREATE Model Chery / Tiggo 7 Pro', output)
+        self.assertIn('WOULD_CREATE Model Chery / Tiggo 7 Pro Max', output)
         self.assertIn('WOULD_CREATE Model Chery / Tiggo 8 Pro', output)
+        self.assertIn('EXISTS Model Chery / Tiggo 7', output)
+        self.assertIn('EXISTS Model Chery / Tiggo 8', output)
         self.assertIn('WOULD_CREATE Brand Exeed', output)
-        self.assertIn('WOULD_CREATE Model Exeed / TX', output)
+        self.assertIn('WOULD_CREATE Model Exeed / LX', output)
         self.assertIn('WOULD_CREATE Model Exeed / TXL', output)
+        self.assertIn('WOULD_CREATE Model Exeed / VX', output)
         self.assertIn('WOULD_CREATE Brand Jetour', output)
         self.assertIn('WOULD_CREATE Model Jetour / Dashing', output)
         self.assertIn('WOULD_CREATE Model Jetour / X70', output)
@@ -99,13 +127,31 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
         self.assertIn('WOULD_CREATE Brand Zeekr', output)
         self.assertIn('WOULD_CREATE Model Zeekr / 001', output)
         self.assertIn('WOULD_CREATE Model Zeekr / 009', output)
-        self.assertIn('WOULD_CREATE Model Great Wall / Poer King Kong', output)
-        self.assertIn('WOULD_CREATE Model Haval / H2', output)
-        self.assertIn('WOULD_CREATE Model Haval / H7', output)
-        self.assertIn('WOULD_CREATE Brand MINI', output)
-        self.assertIn('WOULD_CREATE Model MINI / Cooper', output)
+        self.assertIn('WOULD_CREATE Model Zeekr / X', output)
+        self.assertIn('WOULD_CREATE Model Great Wall / Poer', output)
+        self.assertIn('EXISTS Model Haval / Jolion', output)
+        self.assertIn('WOULD_CREATE Model Haval / Dargo', output)
+        self.assertIn('WOULD_CREATE Model Haval / F7', output)
+        self.assertIn('WOULD_CREATE Model Haval / F7x', output)
+        self.assertIn('WOULD_CREATE Model Haval / H9', output)
+        self.assertIn('WOULD_CREATE Brand Li Auto', output)
+        self.assertIn('WOULD_CREATE Model Li Auto / L6', output)
+        self.assertIn('WOULD_CREATE Model Li Auto / L7', output)
+        self.assertIn('WOULD_CREATE Model Li Auto / L8', output)
+        self.assertIn('WOULD_CREATE Model Li Auto / L9', output)
+        self.assertIn('WOULD_CREATE Brand Omoda', output)
+        self.assertIn('WOULD_CREATE Model Omoda / C5', output)
+        self.assertIn('WOULD_CREATE Brand Jaecoo', output)
+        self.assertIn('WOULD_CREATE Model Jaecoo / J7', output)
         self.assertIn('WOULD_CREATE Brand Tank', output)
-        self.assertIn('WOULD_CREATE Model Tank / 400', output)
+        self.assertIn('WOULD_CREATE Model Tank / 300', output)
+        self.assertIn('WOULD_CREATE Model Tank / 500', output)
+        self.assertIn('WOULD_CREATE Model Changan / CS35', output)
+        self.assertIn('WOULD_CREATE Model Changan / CS75 Plus', output)
+        self.assertIn('WOULD_CREATE Model Changan / UNI-V', output)
+        self.assertNotIn('WOULD_CREATE Model Chery / Tiggo 5', output)
+        self.assertNotIn('WOULD_CREATE Brand MINI', output)
+        self.assertNotIn('WOULD_CREATE Brand Lixiang', output)
         self.assertNotIn('CREATED ', output)
         self.assertEqual(self._snapshot(), before)
 
@@ -116,6 +162,11 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
         self.assertEqual(Brand.objects.filter(name='Exeed').count(), 1)
         exeed = Brand.objects.get(name='Exeed')
         self.assertEqual(exeed.country_id, self.country.pk)
+        li_auto = Brand.objects.get(name='Li Auto')
+        self.assertEqual(li_auto.country_id, self.country.pk)
+        self.assertEqual(Brand.objects.filter(name='Lixiang').count(), 0)
+        self.assertEqual(Brand.objects.get(name='Omoda').country_id, self.country.pk)
+        self.assertEqual(Brand.objects.get(name='Jaecoo').country_id, self.country.pk)
 
     def test_apply_creates_car_model_under_correct_brand(self):
         output = self._run('--apply')
@@ -194,10 +245,10 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
             CarModel.objects.filter(pk=self.jolion.pk, brand=self.haval, name='Jolion').exists()
         )
         self.assertTrue(
-            CarModel.objects.filter(brand=self.haval, name='H2').exists()
+            CarModel.objects.filter(brand=self.haval, name='Dargo').exists()
         )
         self.assertTrue(
-            CarModel.objects.filter(brand=self.haval, name='H7').exists()
+            CarModel.objects.filter(brand=self.haval, name='F7').exists()
         )
 
     def test_verify_great_wall_wingle_7_read_only(self):
@@ -206,7 +257,7 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
         self.assertIn('EXISTS Model Great Wall / Wingle 7', output)
         self.assertNotIn('WOULD_CREATE Brand Great Wall', output)
         self.assertNotIn('WOULD_CREATE Model Great Wall / Wingle 7', output)
-        self.assertIn('WOULD_CREATE Model Great Wall / Poer King Kong', output)
+        self.assertIn('WOULD_CREATE Model Great Wall / Poer', output)
 
     def test_apply_does_not_create_verify_only_or_excluded_refs(self):
         self.wingle7.delete()
@@ -216,7 +267,7 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
         self.assertTrue(
             CarModel.objects.filter(
                 brand__name='Great Wall',
-                name='Poer King Kong',
+                name='Poer',
             ).exists()
         )
         self.assertFalse(CarModel.objects.filter(name='Wingle 7').exists())
@@ -231,19 +282,11 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
             )
 
     def test_required_list_covers_pilot_and_first_batch_confirmed_refs(self):
-        pairs = {
-            (brand, model)
-            for brand, models in REQUIRED_BRAND_MODELS
-            for model in models
-        }
-        self.assertIn(('Chery', 'Tiggo 4'), pairs)
-        self.assertIn(('Chery', 'Tiggo 5'), pairs)
-        self.assertIn(('Exeed', 'TX'), pairs)
-        self.assertIn(('Exeed', 'TXL'), pairs)
-        self.assertIn(('Great Wall', 'Poer King Kong'), pairs)
-        self.assertIn(('MINI', 'Cooper'), pairs)
-        self.assertIn(('Tank', '400'), pairs)
-        self.assertIn(('Wey', '05'), pairs)
+        pairs = _pairs(REQUIRED_BRAND_MODELS)
+        for brand, model in _pairs(PILOT_BRAND_MODELS):
+            self.assertIn((brand, model), pairs)
+        for brand, model in _pairs(FIRST_BATCH_CONFIRMED_BRAND_MODELS):
+            self.assertIn((brand, model), pairs)
         self.assertNotIn(('Great Wall', 'Wingle 7'), pairs)
         for brand, model in EXCLUDED_MODELS:
             self.assertNotIn((brand, model), pairs)
@@ -251,29 +294,43 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
             self.assertNotIn(brand, {item[0] for item in REQUIRED_BRAND_MODELS})
             self.assertNotIn(brand, {item[0] for item in VERIFY_ONLY_BRAND_MODELS})
 
+    def test_first_batch_confirmed_set_is_fully_covered(self):
+        covered = _pairs(REQUIRED_BRAND_MODELS) | _pairs(VERIFY_ONLY_BRAND_MODELS)
+        self.assertEqual(FIRST_BATCH_CONFIRMED_PAIRS - covered, set())
+        self.assertIn(('Great Wall', 'Wingle 7'), _pairs(VERIFY_ONLY_BRAND_MODELS))
+        self.assertIn(('Omoda', 'C5'), covered)
+        self.assertIn(('Jaecoo', 'J7'), covered)
+        self.assertIn(('Li Auto', 'L6'), covered)
+        self.assertIn(('Li Auto', 'L7'), covered)
+        self.assertIn(('Li Auto', 'L8'), covered)
+        self.assertIn(('Li Auto', 'L9'), covered)
+        self.assertNotIn(('Lixiang', 'L6'), covered)
+        self.assertNotIn(('Lixiang', 'L7'), covered)
+        self.assertNotIn(('BYD', 'Atto 3'), covered)
+        self.assertNotIn(('BYD', 'Dolphin'), covered)
+        self.assertNotIn(('Ford', 'Transit'), covered)
+        self.assertNotIn(('MINI', 'Cooper'), covered)
+        self.assertNotIn(('Wey', '05'), covered)
+        self.assertNotIn(('Great Wall', 'Poer King Kong'), covered)
+
     def test_same_model_name_stays_under_its_own_brand(self):
         self._run('--apply')
-        peugeot_207 = CarModel.objects.get(brand__name='Peugeot', name='207')
-        self.assertEqual(peugeot_207.brand.name, 'Peugeot')
-        self.assertFalse(
-            CarModel.objects.filter(brand__name='Ford', name='207').exists()
-        )
-        jac_s2 = CarModel.objects.get(brand__name='JAC', name='S2')
-        self.assertEqual(jac_s2.brand.name, 'JAC')
-        self.assertFalse(
-            CarModel.objects.filter(brand__name='Haval', name='S2').exists()
-        )
+        jac_j7 = CarModel.objects.get(brand__name='JAC', name='J7')
+        jaecoo_j7 = CarModel.objects.get(brand__name='Jaecoo', name='J7')
+        self.assertEqual(jac_j7.brand.name, 'JAC')
+        self.assertEqual(jaecoo_j7.brand.name, 'Jaecoo')
+        self.assertNotEqual(jac_j7.pk, jaecoo_j7.pk)
 
     def test_case_and_whitespace_reuse_existing_brand(self):
-        europe = Country.objects.create(name='Европа')
-        mini = Brand.objects.create(country=europe, name='Mini')
+        existing = Brand.objects.create(country=self.country, name='li auto')
         output = self._run('--apply')
-        self.assertIn('EXISTS Brand MINI', output)
-        self.assertNotIn('CREATED Brand MINI', output)
-        self.assertEqual(Brand.objects.filter(name__iexact='MINI').count(), 1)
-        self.assertEqual(Brand.objects.get(name__iexact='mini').pk, mini.pk)
-        cooper = CarModel.objects.get(name='Cooper')
-        self.assertEqual(cooper.brand_id, mini.pk)
+        self.assertIn('EXISTS Brand Li Auto', output)
+        self.assertNotIn('CREATED Brand Li Auto', output)
+        self.assertEqual(Brand.objects.filter(name__iexact='Li Auto').count(), 1)
+        self.assertEqual(Brand.objects.get(name__iexact='li auto').pk, existing.pk)
+        l7 = CarModel.objects.get(brand=existing, name='L7')
+        self.assertEqual(l7.brand_id, existing.pk)
+        self.assertFalse(Brand.objects.filter(name='Lixiang').exists())
 
     def test_probable_uncertain_refs_are_not_in_config(self):
         config_text = (
@@ -289,5 +346,6 @@ class EnsureAgPartsCatalogRefsTests(TestCase):
             'Cityray',
             'Atlas Pro',
             'Wingle 6',
+            'Lixiang',
         ):
             self.assertNotIn(token, config_text)

@@ -13,7 +13,7 @@ from catalog.ag_parts_catalog_refs import (
 class Command(BaseCommand):
     help = (
         'Добавляет только недостающие Brand/CarModel для импорта AG Parts '
-        '(пилот + CONFIRMED refs первой партии). '
+        '(пилот + CONFIRMED structured refs первой партии). '
         'По умолчанию dry-run. Реальная запись только с --apply. '
         'Не создаёт Product, не переименовывает и не удаляет справочники. '
         'import_ag_parts по-прежнему не создаёт Brand/CarModel.'
