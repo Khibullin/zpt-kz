@@ -204,6 +204,24 @@ class SellerProfile(models.Model):
         super().save(*args, **kwargs)
 
 
+class ProductQuerySet(models.QuerySet):
+    def owned_by_seller(self, seller):
+        """Canonical seller_profile, plus unbound legacy seller_name match.
+
+        Products already tied to another SellerProfile are never included,
+        even if seller_name happens to match.
+        """
+        if seller is None:
+            return self.none()
+        return self.filter(
+            models.Q(seller_profile=seller)
+            | models.Q(
+                seller_profile__isnull=True,
+                seller_name__iexact=seller.name,
+            )
+        )
+
+
 class Product(models.Model):
     CONDITION_CHOICES = [
         ('new', 'Новая'),
@@ -419,6 +437,8 @@ class Product(models.Model):
         auto_now=True,
         verbose_name='Обновлено'
     )
+
+    objects = ProductQuerySet.as_manager()
 
     class Meta:
         verbose_name = 'Товар'

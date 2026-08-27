@@ -452,8 +452,7 @@ def product_detail(request, slug=None, pk=None):
     seller = resolve_product_seller(product)
     seller_phone = effective_seller_phone(product, seller)
 
-    seller_products = Product.objects.filter(
-        seller_name=product.seller_name,
+    seller_products = Product.objects.owned_by_seller(seller).filter(
         status='active'
     ).exclude(pk=product.pk).select_related(
         'brand',
@@ -643,7 +642,7 @@ def seller_logout(request):
 @login_required
 def seller_dashboard(request):
     seller = get_object_or_404(SellerProfile, user=request.user)
-    base_products = Product.objects.filter(seller_name=seller.name)
+    base_products = Product.objects.owned_by_seller(seller)
 
     query = request.GET.get('q_dashboard', '').strip()
     status_filter = request.GET.get('status_filter', '').strip()
@@ -691,7 +690,7 @@ def seller_dashboard(request):
         'seller_models': warehouse['seller_models'],
         'seller_categories': warehouse['seller_categories'],
         'filter_qs': filter_qs,
-        'has_any_products': Product.objects.filter(seller_name=seller.name).exists(),
+        'has_any_products': Product.objects.owned_by_seller(seller).exists(),
         'has_active_filters': any([
             query,
             status_filter,
@@ -705,7 +704,7 @@ def seller_dashboard(request):
 @login_required
 def seller_profile(request):
     seller = get_object_or_404(SellerProfile, user=request.user)
-    products_count = Product.objects.filter(seller_name=seller.name).count()
+    products_count = Product.objects.owned_by_seller(seller).count()
 
     return render(request, 'catalog/seller_profile.html', {
         'seller': seller,
@@ -784,7 +783,7 @@ def seller_profile_delete(request):
 
     if request.method == 'POST':
         user = request.user
-        Product.objects.filter(seller_name=seller.name).delete()
+        Product.objects.owned_by_seller(seller).delete()
         seller.delete()
         user.delete()
         logout(request)
@@ -840,7 +839,7 @@ def add_product(request):
 @login_required
 def edit_product(request, pk):
     seller = get_object_or_404(SellerProfile, user=request.user)
-    product = get_object_or_404(Product, pk=pk, seller_name=seller.name)
+    product = get_object_or_404(Product.objects.owned_by_seller(seller), pk=pk)
 
     initial = {}
     if product.brand:
@@ -907,7 +906,7 @@ def edit_product(request, pk):
 @login_required
 def delete_product(request, pk):
     seller = get_object_or_404(SellerProfile, user=request.user)
-    product = get_object_or_404(Product, pk=pk, seller_name=seller.name)
+    product = get_object_or_404(Product.objects.owned_by_seller(seller), pk=pk)
 
     if request.method == 'POST':
         product.delete()
@@ -972,8 +971,7 @@ def public_seller_profile(request, slug):
         slug=slug
     )
 
-    base_products = Product.objects.filter(
-        seller_name=seller.name,
+    base_products = Product.objects.owned_by_seller(seller).filter(
         status='active'
     )
     products_count = base_products.count()
