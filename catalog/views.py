@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
@@ -38,6 +38,15 @@ from .models import (
     CarModel,
     Category,
     SellerProfile,
+)
+from .wholesale import (
+    WHOLESALE_TYPE_CHOICES,
+    public_wholesale_unit_price,
+    seller_has_wholesale_storefront,
+    wholesale_car_brands,
+    wholesale_fitment_text,
+    wholesale_product_type,
+    wholesale_products_qs,
 )
 
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
@@ -1043,7 +1052,86 @@ def public_seller_profile(request, slug):
                 brand_id,
                 model_id,
             ]),
+            'wholesale_storefront': seller_has_wholesale_storefront(seller),
         }
+    )
+
+
+def public_seller_wholesale(request, slug):
+    seller = get_object_or_404(SellerProfile, slug=slug)
+    if not seller.wholesale_enabled:
+        raise Http404('Оптовая витрина недоступна.')
+
+    base_products = wholesale_products_qs(seller)
+    if not base_products.exists():
+        raise Http404('Оптовая витрина недоступна.')
+
+    q_wholesale = request.GET.get('q', '').strip()
+    brand_id = _parse_filter_id(request.GET.get('brand'))
+    type_key = (request.GET.get('type') or '').strip()
+    valid_types = {item[0] for item in WHOLESALE_TYPE_CHOICES}
+    if type_key not in valid_types:
+        type_key = ''
+    page_number = request.GET.get('page', '1')
+
+    warehouse = _apply_seller_warehouse_filters(
+        base_products,
+        q=q_wholesale,
+    )
+    products_qs = warehouse['products']
+    seller_brands = wholesale_car_brands(base_products)
+    valid_brand_ids = {brand.id for brand in seller_brands}
+    if brand_id not in valid_brand_ids:
+        brand_id = None
+    if brand_id:
+        products_qs = filter_products_by_vehicle(products_qs, brand_id=brand_id)
+
+    products = list(products_qs.order_by('-created_at'))
+    if type_key:
+        products = [
+            product for product in products
+            if wholesale_product_type(product) == type_key
+        ]
+
+    for product in products:
+        product.wholesale_unit_price = public_wholesale_unit_price(product)
+        product.wholesale_type_key = wholesale_product_type(product)
+        product.fitment_text = wholesale_fitment_text(product)
+
+    paginator = Paginator(products, 12)
+    try:
+        page_obj = paginator.page(page_number)
+    except PageNotAnInteger:
+        page_obj = paginator.page(1)
+    except EmptyPage:
+        page_obj = paginator.page(paginator.num_pages)
+
+    filter_qs = _seller_filter_query(
+        q=q_wholesale,
+        brand=brand_id,
+        type=type_key,
+    )
+
+    return render(
+        request,
+        'catalog/public_seller_wholesale.html',
+        {
+            'seller': seller,
+            'page_obj': page_obj,
+            'products_count': base_products.count(),
+            'filtered_count': paginator.count,
+            'q_wholesale': q_wholesale,
+            'brand_id': brand_id,
+            'type_key': type_key,
+            'seller_brands': seller_brands,
+            'wholesale_types': WHOLESALE_TYPE_CHOICES,
+            'filter_qs': filter_qs,
+            'has_active_filters': any([
+                q_wholesale,
+                brand_id,
+                type_key,
+            ]),
+        },
     )
 
 

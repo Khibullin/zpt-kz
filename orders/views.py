@@ -10,6 +10,11 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
 from catalog.models import Product
+from catalog.wholesale import (
+    quote_public_wholesale,
+    remaining_wholesale_qty,
+    resolve_wholesale_owner,
+)
 
 from .cart import CartManager
 from .constants import DEFAULT_WAREHOUSE_ADDRESS, TRANSPORT_COMPANIES
@@ -17,6 +22,7 @@ from .email_notifications import send_order_admin_email
 from .forms import CheckoutForm
 from .models import Order, OrderItem
 from .seller_utils import (
+    CartModeConflictError,
     CartSellerConflictError,
     get_order_pickup_display_address,
     get_seller_snapshot_from_items,
@@ -51,6 +57,27 @@ def _cart_json(cart, message=''):
 
 def _format_price_kzt(value):
     return f'{int(value):,}'.replace(',', ' ')
+
+
+def _mode_conflict_response(message):
+    return JsonResponse(
+        {
+            'success': False,
+            'ok': False,
+            'error': message,
+            'message': message,
+        },
+        status=409,
+    )
+
+
+def _wholesale_minimum_message(status):
+    remaining = status.get('remaining') or 0
+    minimum = status.get('minimum') or 0
+    return (
+        f'Добавьте ещё {remaining} шт. для оптового заказа. '
+        f'Минимум — {minimum} единиц в ассортименте.'
+    )
 
 
 def _seller_conflict_response(seller_name):
@@ -187,9 +214,15 @@ def api_cart_add(request, product_id=None):
                 )
 
             try:
-                cart_manager.add(product_id=product.id, quantity=quantity)
+                cart_manager.add(
+                    product_id=product.id,
+                    quantity=quantity,
+                    mode=data.get('mode'),
+                )
             except CartSellerConflictError as exc:
                 return _seller_conflict_response(exc.seller_name)
+            except CartModeConflictError as exc:
+                return _mode_conflict_response(str(exc))
             except ValueError as exc:
                 return JsonResponse(
                     {
@@ -223,6 +256,8 @@ def api_cart_add(request, product_id=None):
                 cart_manager.add(product_id=product.id, quantity=quantity)
             except CartSellerConflictError as exc:
                 return _seller_conflict_response(exc.seller_name)
+            except CartModeConflictError as exc:
+                return _mode_conflict_response(str(exc))
             except ValueError as exc:
                 return JsonResponse(
                     {
@@ -268,12 +303,15 @@ def cart_view(request):
     cart = CartManager(request)
     _prune_unavailable_cart_items(request, cart)
     items = cart.get_items()
+    wholesale_status = cart.wholesale_status()
 
     return render(request, 'orders/cart.html', {
         'items': items,
         'cart_total': cart.get_total(),
         'cart_count': cart.get_count(),
         'warehouse_address': _warehouse_address(),
+        'wholesale_status': wholesale_status,
+        'is_wholesale_cart': cart.is_wholesale(),
     })
 
 
@@ -391,6 +429,8 @@ def cart_update_quantity(request):
         cart.set_quantity(product.id, quantity)
     except CartSellerConflictError as exc:
         return _seller_conflict_response(exc.seller_name)
+    except CartModeConflictError as exc:
+        return _mode_conflict_response(str(exc))
     except ValueError as exc:
         return JsonResponse(
             {
@@ -402,16 +442,20 @@ def cart_update_quantity(request):
             status=400,
         )
 
-    seller_profile = get_request_seller_profile(request)
-    quote = resolve_commercial_price(
-        product,
-        quantity,
-        seller_profile=seller_profile,
-    )
+    if cart.is_wholesale():
+        quote = quote_public_wholesale(product, quantity)
+    else:
+        seller_profile = get_request_seller_profile(request)
+        quote = resolve_commercial_price(
+            product,
+            quantity,
+            seller_profile=seller_profile,
+        )
     item_total = quote.total_price if quote.can_buy else 0
     unit_price = quote.unit_price
     cart_total = cart.get_total()
     total_items = cart.get_total_items()
+    wholesale_status = cart.wholesale_status()
 
     return JsonResponse({
         'success': True,
@@ -428,6 +472,10 @@ def cart_update_quantity(request):
         'unit_price_display': _format_price_kzt(unit_price or 0),
         'price_type': quote.price_type,
         'price_label': quote.label,
+        'wholesale_enabled': wholesale_status['enabled'],
+        'wholesale_remaining': wholesale_status['remaining'],
+        'wholesale_minimum': wholesale_status['minimum'],
+        'wholesale_can_checkout': wholesale_status['can_checkout'],
     })
 
 
@@ -441,6 +489,11 @@ def checkout(request):
         if not removed:
             messages.warning(request, 'Корзина пуста. Добавьте товары перед оформлением заказа.')
         return redirect('catalog_list')
+
+    wholesale_status = cart.wholesale_status()
+    if cart.is_wholesale() and not wholesale_status['can_checkout']:
+        messages.error(request, _wholesale_minimum_message(wholesale_status))
+        return redirect('orders:cart')
 
     pickup_options = resolve_pickup_options(items)
     pickup_available = pickup_options['pickup_available']
@@ -476,6 +529,22 @@ def checkout(request):
                     return redirect('catalog_list')
 
                 seller_snapshot = get_seller_snapshot_from_items(current_items)
+                is_wholesale_cart = cart.is_wholesale()
+                if is_wholesale_cart:
+                    owner = resolve_wholesale_owner(current_items[0]['product'])
+                    total_qty = sum(item['quantity'] for item in current_items)
+                    remaining = remaining_wholesale_qty(total_qty, owner)
+                    if owner is None or remaining > 0:
+                        messages.error(
+                            request,
+                            _wholesale_minimum_message({
+                                'remaining': remaining,
+                                'minimum': int(
+                                    getattr(owner, 'wholesale_min_order_qty', 0) or 0
+                                ) if owner else 0,
+                            }),
+                        )
+                        return redirect('orders:cart')
                 seller_profile = get_request_seller_profile(request)
                 order_lines = []
                 total_price = 0
@@ -488,11 +557,14 @@ def checkout(request):
                     if product is None:
                         messages.error(request, 'Товар больше недоступен.')
                         return redirect('orders:cart')
-                    quote = resolve_commercial_price(
-                        product,
-                        item['quantity'],
-                        seller_profile=seller_profile,
-                    )
+                    if is_wholesale_cart:
+                        quote = quote_public_wholesale(product, item['quantity'])
+                    else:
+                        quote = resolve_commercial_price(
+                            product,
+                            item['quantity'],
+                            seller_profile=seller_profile,
+                        )
                     if not quote.can_buy or quote.unit_price is None:
                         messages.error(
                             request,
@@ -554,6 +626,8 @@ def checkout(request):
         'effective_pickup_address': effective_pickup_address,
         'warehouse_address': effective_pickup_address or _warehouse_address(),
         'transport_companies': TRANSPORT_COMPANIES,
+        'wholesale_status': wholesale_status,
+        'is_wholesale_cart': cart.is_wholesale(),
     })
 
 

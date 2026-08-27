@@ -10,10 +10,25 @@ from catalog.commercial import (
     resolve_commercial_price,
 )
 from catalog.models import Brand, Country, Product
+from catalog.wholesale import (
+    is_wholesale_eligible,
+    quote_public_wholesale,
+    remaining_wholesale_qty,
+    resolve_wholesale_owner,
+)
 
-from .constants import SESSION_CART_KEY
+from .constants import (
+    CART_MODE_RETAIL,
+    CART_MODE_WHOLESALE,
+    SESSION_CART_KEY,
+    SESSION_CART_MODE_KEY,
+)
 from .models import CartItem
-from .seller_utils import CartSellerConflictError, validate_product_for_cart
+from .seller_utils import (
+    CartModeConflictError,
+    CartSellerConflictError,
+    validate_product_for_cart,
+)
 
 
 class CartManager:
@@ -43,8 +58,17 @@ class CartManager:
         if not session_cart:
             return
 
-        for product_id, quantity in session_cart.items():
-            self.add(int(product_id), int(quantity), accumulate=True)
+        mode = self.request.session.get(SESSION_CART_MODE_KEY)
+        try:
+            for product_id, quantity in session_cart.items():
+                self.add(
+                    int(product_id),
+                    int(quantity),
+                    accumulate=True,
+                    mode=mode,
+                )
+        except (CartModeConflictError, CartSellerConflictError, ValueError):
+            return
 
         self.request.session.pop(SESSION_CART_KEY, None)
         self.request.session.modified = True
@@ -52,10 +76,78 @@ class CartManager:
     def _normalize_product_id(self, product_id):
         return int(product_id)
 
+    def get_mode(self):
+        mode = self.request.session.get(SESSION_CART_MODE_KEY)
+        if mode in (CART_MODE_RETAIL, CART_MODE_WHOLESALE):
+            return mode
+        if self.get_count():
+            return CART_MODE_RETAIL
+        return None
+
+    def is_wholesale(self):
+        return self.get_mode() == CART_MODE_WHOLESALE
+
+    def _set_mode(self, mode):
+        if mode in (CART_MODE_RETAIL, CART_MODE_WHOLESALE):
+            self.request.session[SESSION_CART_MODE_KEY] = mode
+        else:
+            self.request.session.pop(SESSION_CART_MODE_KEY, None)
+        self.request.session.modified = True
+
+    def _normalize_mode(self, mode):
+        if mode == CART_MODE_WHOLESALE:
+            return CART_MODE_WHOLESALE
+        return CART_MODE_RETAIL
+
+    def _mode_conflict_message(self, requested_mode):
+        if requested_mode == CART_MODE_WHOLESALE:
+            return (
+                'В корзине уже есть розничные товары. '
+                'Оформите текущий заказ или очистите корзину, чтобы купить оптом.'
+            )
+        return (
+            'В корзине уже есть оптовые товары. '
+            'Оформите оптовый заказ или очистите корзину, чтобы купить в розницу.'
+        )
+
+    def _ensure_mode(self, requested_mode):
+        current = self.get_mode()
+        if not self.get_count() or current is None:
+            self._set_mode(requested_mode)
+            return
+        if current != requested_mode:
+            raise CartModeConflictError(self._mode_conflict_message(requested_mode))
+
+    def wholesale_status(self):
+        if not self.is_wholesale():
+            return {
+                'enabled': False,
+                'seller': None,
+                'total_qty': 0,
+                'minimum': 0,
+                'remaining': 0,
+                'can_checkout': True,
+            }
+        items = self.get_items()
+        seller = resolve_wholesale_owner(items[0]['product']) if items else None
+        total_qty = sum(item['quantity'] for item in items)
+        minimum = int(getattr(seller, 'wholesale_min_order_qty', 0) or 0) if seller else 0
+        remaining = remaining_wholesale_qty(total_qty, seller) if seller else 0
+        return {
+            'enabled': True,
+            'seller': seller,
+            'total_qty': total_qty,
+            'minimum': minimum,
+            'remaining': remaining,
+            'can_checkout': bool(seller and remaining == 0 and total_qty > 0),
+        }
+
     def _seller_profile(self):
         return get_request_seller_profile(self.request)
 
     def _quote(self, product, quantity):
+        if self.is_wholesale():
+            return quote_public_wholesale(product, quantity)
         return resolve_commercial_price(
             product,
             quantity,
@@ -68,22 +160,40 @@ class CartManager:
             raise ValueError(quote.reason)
         return quote
 
-    def add(self, product_id, quantity=1, accumulate=True):
+    def add(self, product_id, quantity=1, accumulate=True, mode=None):
         product_id = self._normalize_product_id(product_id)
         try:
             requested_qty = int(quantity)
         except (TypeError, ValueError):
             raise ValueError('Укажите количество больше 0.')
 
+        requested_mode = self._normalize_mode(mode)
+
         product = Product.objects.filter(pk=product_id, status='active').first()
         if not product:
             raise ValueError('Product not found')
 
+        if requested_mode == CART_MODE_WHOLESALE:
+            owner = resolve_wholesale_owner(product)
+            if owner is None or not is_wholesale_eligible(product, owner):
+                raise ValueError('Этот товар нельзя купить оптом.')
+
+        self._ensure_mode(requested_mode)
+
+        if requested_mode == CART_MODE_WHOLESALE:
+            existing_items = self.get_items()
+            if existing_items:
+                current_owner = resolve_wholesale_owner(existing_items[0]['product'])
+                if current_owner is None or owner.pk != current_owner.pk:
+                    raise CartSellerConflictError(
+                        getattr(current_owner, 'name', None) or 'продавца'
+                    )
+        else:
+            validate_product_for_cart(self.get_items(), product)
+
         current_qty = self.get_product_quantities().get(product_id, 0)
         resulting_qty = current_qty + requested_qty if accumulate else requested_qty
         self._require_purchasable(product, resulting_qty)
-
-        validate_product_for_cart(self.get_items(), product)
 
         if self.user:
             item, created = CartItem.objects.get_or_create(
@@ -120,7 +230,12 @@ class CartManager:
         self._require_purchasable(product, quantity)
 
         if product_id not in self.get_product_quantities():
-            validate_product_for_cart(self.get_items(), product)
+            if self.is_wholesale():
+                owner = resolve_wholesale_owner(product)
+                if owner is None or not is_wholesale_eligible(product, owner):
+                    raise ValueError('Этот товар нельзя купить оптом.')
+            else:
+                validate_product_for_cart(self.get_items(), product)
 
         if self.user:
             CartItem.objects.update_or_create(
@@ -137,15 +252,17 @@ class CartManager:
         product_id = self._normalize_product_id(product_id)
         if self.user:
             CartItem.objects.filter(user=self.user, product_id=product_id).delete()
-            return
-
-        self._session_cart().pop(str(product_id), None)
-        self.request.session.modified = True
+        else:
+            self._session_cart().pop(str(product_id), None)
+            self.request.session.modified = True
+        if self.get_count() == 0:
+            self._set_mode(None)
 
     def clear(self):
         if self.user:
             CartItem.objects.filter(user=self.user).delete()
         self.request.session.pop(SESSION_CART_KEY, None)
+        self._set_mode(None)
         self.request.session.modified = True
 
     def is_empty(self):
@@ -177,10 +294,10 @@ class CartManager:
         products = Product.objects.filter(
             id__in=quantities.keys(),
             status='active',
-        ).select_related('brand', 'car_model')
+        ).select_related('brand', 'car_model', 'seller_profile')
 
         seller_profile = self._seller_profile()
-        if seller_profile is not None:
+        if seller_profile is not None and not self.is_wholesale():
             products = b2b_prefetch(products)
 
         product_map = {product.id: product for product in products}
@@ -190,11 +307,7 @@ class CartManager:
             product = product_map.get(product_id)
             if not product:
                 continue
-            quote = resolve_commercial_price(
-                product,
-                quantity,
-                seller_profile=seller_profile,
-            )
+            quote = self._quote(product, quantity)
             unit_price = quote.unit_price
             line_total = quote.total_price if quote.can_buy else 0
             items.append({
@@ -229,6 +342,13 @@ class CartManager:
                 status='active',
             )
         }
+        if self.is_wholesale():
+            eligible_ids = set()
+            for product in Product.objects.filter(id__in=valid_ids).select_related('seller_profile'):
+                owner = resolve_wholesale_owner(product)
+                if owner is not None and is_wholesale_eligible(product, owner):
+                    eligible_ids.add(product.id)
+            valid_ids = eligible_ids
         removed = 0
 
         if self.user:
@@ -244,6 +364,9 @@ class CartManager:
                     cart.pop(product_id, None)
                     removed += 1
             self.request.session.modified = True
+
+        if self.get_count() == 0:
+            self._set_mode(None)
 
         return removed
 

@@ -6,6 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v2">
 {% endblock %}
 
 {% block content %}
@@ -23,6 +24,17 @@
       <div class="checkout-layout">
         <div class="checkout-card">
           <h1>Корзина</h1>
+          {% if is_wholesale_cart %}
+            <p
+              class="cart-wholesale-note"
+              id="cart-wholesale-note"
+              {% if not wholesale_status.remaining %}hidden{% endif %}
+            >
+              {% if wholesale_status.remaining %}
+                Добавьте ещё {{ wholesale_status.remaining }} шт. для оптового заказа
+              {% endif %}
+            </p>
+          {% endif %}
           <ul class="checkout-summary-list" id="cart-items-list">
             {% for item in items %}
               <li
@@ -97,7 +109,12 @@
           </ul>
           <div class="checkout-actions">
             <a href="{% url 'catalog_list' %}" class="btn outline">Продолжить покупки</a>
-            <a href="{% url 'orders:checkout' %}" class="btn red">Оформить заказ</a>
+            <a
+              href="{% url 'orders:checkout' %}"
+              class="btn red{% if is_wholesale_cart and not wholesale_status.can_checkout %} is-disabled{% endif %}"
+              id="cart-checkout-btn"
+              {% if is_wholesale_cart and not wholesale_status.can_checkout %}aria-disabled="true"{% endif %}
+            >Оформить заказ</a>
           </div>
         </div>
 
@@ -125,6 +142,6 @@
     updateUrl: '{% url "orders:cart_update_quantity" %}',
   };
 </script>
-<script src="{% static 'js/cart-page.js' %}?v=cart_page_v2"></script>
+<script src="{% static 'js/cart-page.js' %}?v=cart_page_v3"></script>
 {% endif %}
 {% endblock %}

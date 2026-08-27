@@ -109,6 +109,33 @@
     }
   }
 
+  function updateWholesaleStatus(data) {
+    if (!data || !data.wholesale_enabled) {
+      return;
+    }
+    const note = document.getElementById('cart-wholesale-note');
+    const checkoutBtn = document.getElementById('cart-checkout-btn');
+    const remaining = Number(data.wholesale_remaining || 0);
+    if (note) {
+      if (remaining > 0) {
+        note.hidden = false;
+        note.textContent = 'Добавьте ещё ' + remaining + ' шт. для оптового заказа';
+      } else {
+        note.hidden = true;
+        note.textContent = '';
+      }
+    }
+    if (checkoutBtn) {
+      const canCheckout = Boolean(data.wholesale_can_checkout);
+      checkoutBtn.classList.toggle('is-disabled', !canCheckout);
+      if (canCheckout) {
+        checkoutBtn.removeAttribute('aria-disabled');
+      } else {
+        checkoutBtn.setAttribute('aria-disabled', 'true');
+      }
+    }
+  }
+
   function updateCartTotal(data) {
     const totalEl = document.getElementById('cart-total-price');
     if (totalEl) {
@@ -154,6 +181,7 @@
         setMinusDisabled(controls, data.quantity);
         updateLineDisplay(lineItem, data);
         updateCartTotal(data);
+        updateWholesaleStatus(data);
         updateCartBadge(data.total_items != null ? data.total_items : data.cart_count);
         return data;
       })

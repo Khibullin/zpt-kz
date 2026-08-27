@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v3">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v2">
 {% endblock %}
 
 {% block content %}
@@ -106,7 +107,11 @@
 
           <div class="checkout-actions">
             <a href="{% url 'orders:cart' %}" class="btn outline">Назад в корзину</a>
-            <button type="submit" class="btn red">Оформить заказ</button>
+            <button
+              type="submit"
+              class="btn red{% if is_wholesale_cart and not wholesale_status.can_checkout %} is-disabled{% endif %}"
+              {% if is_wholesale_cart and not wholesale_status.can_checkout %}disabled{% endif %}
+            >Оформить заказ</button>
           </div>
         </form>
       </div>

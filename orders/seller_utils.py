@@ -13,6 +13,12 @@ class CartSellerConflictError(Exception):
         super().__init__(self.seller_name)
 
 
+class CartModeConflictError(Exception):
+    def __init__(self, message):
+        self.message = message
+        super().__init__(message)
+
+
 def normalize_seller_whatsapp(phone):
     digits = re.sub(r'\D', '', str(phone or ''))
     if digits.startswith('8') and len(digits) == 11:

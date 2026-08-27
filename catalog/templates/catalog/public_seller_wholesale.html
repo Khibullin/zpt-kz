@@ -1,0 +1,128 @@
+{% extends 'base.html' %}
+{% load static humanize phone_extras seller_extras %}
+
+{% block title %}{{ seller.name }} — оптовые поставки{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v2">
+{% endblock %}
+
+{% block content %}
+{% include 'includes/site_header_simple.html' %}
+
+<div class="public-seller-page wholesale-page">
+  <section class="section public-seller-section">
+    <div class="container public-seller-container">
+
+      <header class="wholesale-hero">
+        <p class="wholesale-hero-kicker">Постоянные оптовые цены</p>
+        <h1>{{ seller.name }} — оптовые поставки автокомпонентов из Китая</h1>
+        <p class="wholesale-hero-lead">
+          Постоянные прямые оптовые цены для магазинов,
+          продавцов автозапчастей и СТО.
+        </p>
+        <p class="wholesale-hero-min">
+          Минимальный оптовый заказ — {{ seller.wholesale_min_order_qty }} единиц в ассортименте
+        </p>
+        <a class="wholesale-back" href="{% url 'public_seller_profile' seller.slug %}">
+          ← Витрина {{ seller.name }}
+        </a>
+      </header>
+
+      <form method="get" class="wholesale-filters">
+        <label class="wholesale-filter-field">
+          <span>Поиск</span>
+          <input type="search" name="q" value="{{ q_wholesale }}" placeholder="Название или артикул">
+        </label>
+        <label class="wholesale-filter-field">
+          <span>Марка автомобиля</span>
+          <select name="brand">
+            <option value="">Все марки</option>
+            {% for brand in seller_brands %}
+              <option value="{{ brand.id }}"{% if brand_id == brand.id %} selected{% endif %}>{{ brand.name }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <label class="wholesale-filter-field">
+          <span>Тип</span>
+          <select name="type">
+            <option value="">Все типы</option>
+            {% for value, label in wholesale_types %}
+              <option value="{{ value }}"{% if type_key == value %} selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+          </select>
+        </label>
+        <button type="submit" class="btn red">Показать</button>
+      </form>
+
+      {% if has_active_filters %}
+        <p class="wholesale-filter-meta">Найдено: {{ filtered_count }}</p>
+      {% endif %}
+
+      {% if page_obj.object_list %}
+        <div class="wholesale-grid">
+          {% for product in page_obj %}
+            <article class="wholesale-card">
+              <a href="{{ product.get_absolute_url }}" class="wholesale-card-media">
+                {% if product.main_image %}
+                  <img src="{{ product.main_image.url }}" alt="{{ product.title }}" loading="lazy">
+                {% else %}
+                  <img src="{% static 'images/product-placeholder.svg' %}" alt="{{ product.title }}" loading="lazy">
+                {% endif %}
+              </a>
+              <div class="wholesale-card-body">
+                <h2 class="wholesale-card-title">
+                  <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
+                </h2>
+                {% if product.article %}
+                  <p class="wholesale-card-article">Арт: {{ product.article }}</p>
+                {% endif %}
+                {% if product.fitment_text %}
+                  <p class="wholesale-card-fitment">{{ product.fitment_text }}</p>
+                {% endif %}
+                {% if product.price %}
+                  <p class="wholesale-card-retail">Розница: {{ product.price|intcomma }} ₸</p>
+                {% endif %}
+                {% if product.wholesale_unit_price %}
+                  <p class="wholesale-card-opt">Опт: {{ product.wholesale_unit_price|intcomma }} ₸/шт</p>
+                {% endif %}
+                <button
+                  type="button"
+                  class="btn red wholesale-buy-btn"
+                  data-wholesale-add
+                  data-product-id="{{ product.id }}"
+                  data-product-article="{{ product.article|default:'' }}"
+                >
+                  Купить оптом
+                </button>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+
+        {% if page_obj.has_other_pages %}
+          <nav class="public-seller-pagination" aria-label="Пагинация оптовой витрины">
+            {% if page_obj.has_previous %}
+              <a href="?page={{ page_obj.previous_page_number }}{% if filter_qs %}&amp;{{ filter_qs }}{% endif %}">Назад</a>
+            {% endif %}
+            <span>Стр. {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+            {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}{% if filter_qs %}&amp;{{ filter_qs }}{% endif %}">Вперёд</a>
+            {% endif %}
+          </nav>
+        {% endif %}
+      {% else %}
+        <p class="wholesale-empty">По выбранным фильтрам оптовых товаров нет.</p>
+      {% endif %}
+    </div>
+  </section>
+</div>
+
+<script>
+  window.ZPT_WHOLESALE_CART = {
+    addUrl: '{% url "orders:cart_add_api" %}',
+  };
+</script>
+<script src="{% static 'js/wholesale-buy.js' %}?v=wholesale_buy_v1"></script>
+{% endblock %}

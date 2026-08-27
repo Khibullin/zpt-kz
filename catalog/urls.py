@@ -13,6 +13,7 @@ from .views import (
     seller_profile_delete,
     seller_change_password,
     public_seller_profile,
+    public_seller_wholesale,
     add_product,
     edit_product,
     delete_product,
@@ -65,6 +66,11 @@ urlpatterns = [
     path('faq/', faq_view, name='faq'),
     path('feedback/', feedback_view, name='feedback'),
 
+    path(
+        'seller/<slug:slug>/wholesale/',
+        public_seller_wholesale,
+        name='public_seller_wholesale',
+    ),
     path(
         'seller/<slug:slug>/',
         public_seller_profile,

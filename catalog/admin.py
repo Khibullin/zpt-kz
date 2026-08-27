@@ -94,6 +94,8 @@ class SellerProfileAdmin(admin.ModelAdmin):
         'name',
         'phone',
         'city',
+        'wholesale_enabled',
+        'wholesale_min_order_qty',
         'user',
     )
 
@@ -104,7 +106,7 @@ class SellerProfileAdmin(admin.ModelAdmin):
         'user__username',
     )
 
-    list_filter = ('city',)
+    list_filter = ('city', 'wholesale_enabled')
 
     ordering = ('name',)
 

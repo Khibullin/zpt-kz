@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v2">
 {% endblock %}
 
 {% block content %}
@@ -46,6 +47,14 @@
                 📅 На платформе с {{ platform_year }} г.
               </div>
             </div>
+            {% if wholesale_storefront %}
+              <a
+                class="btn red wholesale-cta"
+                href="{% url 'public_seller_wholesale' seller.slug %}"
+              >
+                Оптовые цены
+              </a>
+            {% endif %}
           </div>
         </div>
 

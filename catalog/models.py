@@ -155,6 +155,19 @@ class SellerProfile(models.Model):
         verbose_name='Логотип маркета'
     )
 
+    wholesale_enabled = models.BooleanField(
+        default=False,
+        verbose_name='Оптовая витрина',
+        help_text='Включает публичную постоянную оптовую витрину продавца.',
+    )
+
+    wholesale_min_order_qty = models.PositiveIntegerField(
+        default=10,
+        validators=[MinValueValidator(1)],
+        verbose_name='Минимум опта, шт.',
+        help_text='Минимальная сумма количества всех оптовых товаров в одном заказе.',
+    )
+
     class Meta:
         verbose_name = 'Профиль продавца'
         verbose_name_plural = 'Профили продавцов'
