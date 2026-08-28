@@ -6,7 +6,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v4">
 {% endblock %}
 
 {% block content %}
@@ -38,6 +38,16 @@
                 ✓ Минимальное количество набрано. Можно оформить заказ.
               {% endif %}
             </p>
+            {% if wholesale_cart_conditions %}
+              <section class="wholesale-order-terms" id="wholesale-order-terms">
+                <h2>Условия заказа</h2>
+                <ul>
+                  {% for line in wholesale_cart_conditions %}
+                    <li>{{ line }}</li>
+                  {% endfor %}
+                </ul>
+              </section>
+            {% endif %}
           {% endif %}
           <ul class="checkout-summary-list" id="cart-items-list">
             {% for item in items %}

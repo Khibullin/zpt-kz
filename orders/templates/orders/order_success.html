@@ -9,7 +9,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v3">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v4">
 {% endblock %}
 
 {% block content %}
@@ -37,6 +37,33 @@
       <div class="order-success-warning">
         Не оплачивайте товар до подтверждения заказа продавцом.
       </div>
+
+      {% if order.is_wholesale and wholesale_terms_display %}
+        {% if wholesale_terms_display.payment_lines %}
+          <div class="checkout-card order-success-section wholesale-success-terms">
+            <h2>Оплата</h2>
+            {% for line in wholesale_terms_display.payment_lines %}
+              <p>{{ line }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if wholesale_terms_display.documents_lines %}
+          <div class="checkout-card order-success-section wholesale-success-terms">
+            <h2>Документы</h2>
+            {% for line in wholesale_terms_display.documents_lines %}
+              <p>{{ line }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+        {% if wholesale_terms_display.delivery_lines %}
+          <div class="checkout-card order-success-section wholesale-success-terms">
+            <h2>Доставка</h2>
+            {% for line in wholesale_terms_display.delivery_lines %}
+              <p>{{ line }}</p>
+            {% endfor %}
+          </div>
+        {% endif %}
+      {% endif %}
 
       <div class="checkout-card order-success-section">
         <h2>Информация о заказе</h2>

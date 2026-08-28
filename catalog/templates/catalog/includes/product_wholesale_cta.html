@@ -7,8 +7,11 @@
     </p>
   {% endif %}
   <p class="product-wholesale-opt">
-    Оптовая цена: {{ public_wholesale.unit_price|intcomma|comma_to_space }} ₸/шт
+    Оптовая цена: {{ public_wholesale.unit_price|intcomma|comma_to_space }} ₸/шт{% if public_wholesale.vat_suffix %} · {{ public_wholesale.vat_suffix }}{% endif %}
   </p>
+  {% if public_wholesale.payment_note %}
+    <p class="product-wholesale-pay">{{ public_wholesale.payment_note }}</p>
+  {% endif %}
   <p class="product-wholesale-min">
     Минимальный оптовый заказ — {{ public_wholesale.min_qty }} единиц товаров этого продавца в ассортименте.
   </p>
@@ -30,5 +33,8 @@
   </button>
   <a class="product-wholesale-assortment" href="{{ public_wholesale.storefront_url }}">
     Смотреть весь оптовый ассортимент продавца →
+  </a>
+  <a class="product-wholesale-terms-link" href="{{ public_wholesale.terms_url }}">
+    Условия оптовой покупки →
   </a>
 </div>

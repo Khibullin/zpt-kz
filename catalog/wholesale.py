@@ -11,6 +11,7 @@ import re
 from dataclasses import dataclass
 
 from django.db.models import Prefetch
+from django.utils.text import slugify
 
 from catalog.applicability import extra_compatibility_text, grouped_applicability
 from catalog.commercial import check_stock_qty
@@ -144,7 +145,9 @@ def resolve_wholesale_owner(product):
     name = (product.seller_name or '').strip()
     if not name:
         return None
-    return SellerProfile.objects.filter(name__iexact=name).order_by('pk').first()
+    return SellerProfile.objects.select_related('wholesale_terms').filter(
+        name__iexact=name
+    ).order_by('pk').first()
 
 
 @dataclass
@@ -216,7 +219,10 @@ def wholesale_fitment_text(product):
 
 def public_wholesale_prefetch(queryset):
     """Prefetch seller_profile and active tiers for public wholesale flags."""
-    return queryset.select_related('seller_profile').prefetch_related(
+    return queryset.select_related(
+        'seller_profile',
+        'seller_profile__wholesale_terms',
+    ).prefetch_related(
         Prefetch(
             'price_tiers',
             queryset=ProductPriceTier.objects.filter(is_active=True).order_by(
@@ -280,3 +286,337 @@ def wholesale_car_brands(products_qs):
     brand_ids.update(products_qs.values_list('selected_brands', flat=True))
     brand_ids.discard(None)
     return Brand.objects.filter(pk__in=brand_ids).order_by('name')
+
+
+_FILENAME_UNSAFE = re.compile(r'[^A-Za-z0-9]+')
+
+VAT_INCLUDED = 'included'
+VAT_EXCLUDED = 'excluded'
+VAT_UNSPECIFIED = 'unspecified'
+DELIVERY_PAYER_BUYER = 'buyer'
+DELIVERY_PAYER_SELLER = 'seller'
+
+
+def get_seller_wholesale_terms(seller):
+    if seller is None:
+        return None
+    return getattr(seller, 'wholesale_terms', None)
+
+
+def build_wholesale_terms_snapshot(seller):
+    """JSON-safe copy of current seller wholesale terms.
+
+    Missing SellerWholesaleTerms must not invent VAT, DPD, or 100% prepayment.
+    min_order_qty comes from SellerProfile so later seller edits do not rewrite
+    already placed orders.
+    """
+    snapshot = {
+        'vat_mode': VAT_UNSPECIFIED,
+        'prepayment_percent': None,
+        'confirm_stock_before_payment': False,
+        'provides_invoice': False,
+        'provides_waybill': False,
+        'provides_esf': False,
+        'pickup_enabled': False,
+        'pickup_city': '',
+        'delivery_kz_enabled': False,
+        'delivery_payer': 'agreement',
+        'primary_carrier': '',
+        'primary_carrier_service': '',
+        'primary_carrier_url': '',
+        'other_carrier_allowed': False,
+        'stock_note': '',
+        'min_order_qty': int(getattr(seller, 'wholesale_min_order_qty', 0) or 0)
+        if seller is not None
+        else 0,
+    }
+    terms = get_seller_wholesale_terms(seller)
+    if terms is None:
+        return snapshot
+    percent = terms.prepayment_percent
+    snapshot.update({
+        'vat_mode': terms.vat_mode or VAT_UNSPECIFIED,
+        'prepayment_percent': int(percent) if percent is not None else None,
+        'confirm_stock_before_payment': bool(terms.confirm_stock_before_payment),
+        'provides_invoice': bool(terms.provides_invoice),
+        'provides_waybill': bool(terms.provides_waybill),
+        'provides_esf': bool(terms.provides_esf),
+        'pickup_enabled': bool(terms.pickup_enabled),
+        'pickup_city': (terms.pickup_city or '').strip(),
+        'delivery_kz_enabled': bool(terms.delivery_kz_enabled),
+        'delivery_payer': terms.delivery_payer or 'agreement',
+        'primary_carrier': (terms.primary_carrier or '').strip(),
+        'primary_carrier_service': (terms.primary_carrier_service or '').strip(),
+        'primary_carrier_url': (terms.primary_carrier_url or '').strip(),
+        'other_carrier_allowed': bool(terms.other_carrier_allowed),
+        'stock_note': (terms.stock_note or '').strip(),
+    })
+    return snapshot
+
+
+def _document_labels(snapshot):
+    labels = []
+    if snapshot.get('provides_invoice'):
+        labels.append('счет')
+    if snapshot.get('provides_waybill'):
+        labels.append('накладная')
+    if snapshot.get('provides_esf'):
+        labels.append('ЭСФ')
+    return labels
+
+
+def _join_ru(parts):
+    parts = [part for part in parts if part]
+    if not parts:
+        return ''
+    if len(parts) == 1:
+        return parts[0]
+    if len(parts) == 2:
+        return f'{parts[0]} и {parts[1]}'
+    return f'{", ".join(parts[:-1])} и {parts[-1]}'
+
+
+def wholesale_vat_price_suffix(snapshot):
+    vat_mode = (snapshot or {}).get('vat_mode')
+    if vat_mode == VAT_INCLUDED:
+        return 'с НДС'
+    if vat_mode == VAT_EXCLUDED:
+        return 'без НДС'
+    return ''
+
+
+def wholesale_payment_oneliner(snapshot):
+    snapshot = snapshot or {}
+    percent = snapshot.get('prepayment_percent')
+    confirm = bool(snapshot.get('confirm_stock_before_payment'))
+    if percent is not None and confirm:
+        return f'{int(percent)}% предоплата после подтверждения наличия.'
+    if percent is not None:
+        return f'{int(percent)}% предоплата.'
+    if confirm:
+        return 'Наличие подтверждается перед оплатой.'
+    return ''
+
+
+def wholesale_storefront_condition_lines(snapshot):
+    """Public storefront bullets. Skip unspecified / empty rules."""
+    snapshot = snapshot or {}
+    lines = []
+    vat_mode = snapshot.get('vat_mode')
+    if vat_mode == VAT_INCLUDED:
+        lines.append('Все оптовые цены указаны с НДС')
+    elif vat_mode == VAT_EXCLUDED:
+        lines.append('Оптовые цены указаны без НДС')
+
+    min_qty = int(snapshot.get('min_order_qty') or 0)
+    if min_qty > 0:
+        lines.append(f'Минимальный заказ — {min_qty} единиц в ассортименте')
+
+    percent = snapshot.get('prepayment_percent')
+    confirm = bool(snapshot.get('confirm_stock_before_payment'))
+    if percent is not None and confirm:
+        lines.append(f'{int(percent)}% предоплата после подтверждения наличия')
+    elif percent is not None:
+        lines.append(f'{int(percent)}% предоплата')
+    elif confirm:
+        lines.append('Наличие подтверждается перед оплатой')
+
+    docs = _document_labels(snapshot)
+    if len(docs) == 3:
+        lines.append('Счет, накладная и ЭСФ')
+    elif docs:
+        label = _join_ru(docs)
+        lines.append(label[:1].upper() + label[1:] if label else label)
+
+    if snapshot.get('pickup_enabled'):
+        city = (snapshot.get('pickup_city') or '').strip()
+        lines.append(f'Самовывоз — {city}' if city else 'Самовывоз')
+
+    if snapshot.get('delivery_kz_enabled'):
+        carrier = (snapshot.get('primary_carrier') or '').strip()
+        if carrier:
+            lines.append(f'Доставка по Казахстану — {carrier}')
+        else:
+            lines.append('Доставка по Казахстану')
+        payer = snapshot.get('delivery_payer')
+        if payer == DELIVERY_PAYER_BUYER:
+            lines.append('Стоимость доставки оплачивает покупатель')
+        elif payer == DELIVERY_PAYER_SELLER:
+            lines.append('Стоимость доставки оплачивает продавец')
+        if snapshot.get('other_carrier_allowed'):
+            lines.append('Другая транспортная компания — по согласованию')
+
+    note = (snapshot.get('stock_note') or '').strip()
+    if note and note not in lines:
+        lines.append(note)
+    return lines
+
+
+def wholesale_cart_condition_lines(snapshot):
+    snapshot = snapshot or {}
+    lines = []
+    vat_mode = snapshot.get('vat_mode')
+    if vat_mode == VAT_INCLUDED:
+        lines.append('цены с НДС')
+    elif vat_mode == VAT_EXCLUDED:
+        lines.append('цены без НДС')
+    percent = snapshot.get('prepayment_percent')
+    if percent is not None:
+        lines.append(f'{int(percent)}% предоплата')
+    if snapshot.get('confirm_stock_before_payment'):
+        lines.append('наличие подтверждается перед оплатой')
+    if (
+        snapshot.get('delivery_kz_enabled')
+        and snapshot.get('delivery_payer') == DELIVERY_PAYER_BUYER
+    ):
+        lines.append('доставка оплачивается покупателем')
+    return lines
+
+
+def wholesale_checkout_presentation(snapshot):
+    snapshot = snapshot or {}
+    percent = snapshot.get('prepayment_percent')
+    steps = ['Менеджер подтверждает наличие.']
+    if percent is not None:
+        steps.append(f'Вы получаете счет на {int(percent)}% предоплату.')
+    else:
+        steps.append('Вы получаете счет после подтверждения заказа.')
+    steps.append('После оплаты оформляются отгрузочные документы.')
+    pickup = bool(snapshot.get('pickup_enabled'))
+    delivery = bool(snapshot.get('delivery_kz_enabled'))
+    if pickup and delivery:
+        steps.append('Самовывоз или отправка транспортной компанией.')
+    elif pickup:
+        steps.append('Самовывоз.')
+    elif delivery:
+        steps.append('Отправка транспортной компанией.')
+    else:
+        steps.append('Самовывоз или отправка транспортной компанией.')
+
+    carrier = (snapshot.get('primary_carrier') or '').strip()
+    carrier_line = ''
+    if delivery and carrier:
+        carrier_line = f'Основная транспортная компания: {carrier}'
+    payer_line = ''
+    if delivery and snapshot.get('delivery_payer') == DELIVERY_PAYER_BUYER:
+        payer_line = 'Стоимость доставки оплачивает покупатель.'
+    elif delivery and snapshot.get('delivery_payer') == DELIVERY_PAYER_SELLER:
+        payer_line = 'Стоимость доставки оплачивает продавец.'
+    other_line = ''
+    if delivery and snapshot.get('other_carrier_allowed'):
+        other_line = (
+            'Другую транспортную компанию можно согласовать с продавцом.'
+        )
+    return {
+        'steps': steps,
+        'carrier_line': carrier_line,
+        'delivery_payer_line': payer_line,
+        'other_carrier_line': other_line,
+    }
+
+
+def wholesale_success_presentation(snapshot):
+    snapshot = snapshot or {}
+    payment_lines = []
+    oneliner = wholesale_payment_oneliner(snapshot)
+    if oneliner:
+        payment_lines.append(oneliner.rstrip('.'))
+        payment_lines.append('Менеджер свяжется с вами и выставит счет.')
+    else:
+        payment_lines.append('Менеджер свяжется с вами и выставит счет.')
+
+    documents_lines = []
+    docs = _document_labels(snapshot)
+    if len(docs) == 3:
+        documents_lines.append('Счет, накладная, ЭСФ.')
+    elif docs:
+        label = _join_ru(docs)
+        documents_lines.append(label[:1].upper() + label[1:] + '.')
+
+    delivery_lines = []
+    if snapshot.get('pickup_enabled'):
+        city = (snapshot.get('pickup_city') or '').strip()
+        delivery_lines.append(f'Самовывоз — {city}' if city else 'Самовывоз')
+    if snapshot.get('delivery_kz_enabled'):
+        carrier = (snapshot.get('primary_carrier') or '').strip()
+        if carrier:
+            delivery_lines.append(f'{carrier} по Казахстану.')
+        else:
+            delivery_lines.append('Доставка транспортной компанией по Казахстану.')
+        if snapshot.get('delivery_payer') == DELIVERY_PAYER_BUYER:
+            delivery_lines.append('Стоимость доставки оплачивает покупатель.')
+        elif snapshot.get('delivery_payer') == DELIVERY_PAYER_SELLER:
+            delivery_lines.append('Стоимость доставки оплачивает продавец.')
+        if snapshot.get('other_carrier_allowed'):
+            delivery_lines.append('Другую ТК можно согласовать.')
+    return {
+        'payment_lines': payment_lines,
+        'documents_lines': documents_lines,
+        'delivery_lines': delivery_lines,
+    }
+
+
+def wholesale_email_term_lines(snapshot):
+    snapshot = snapshot or {}
+    lines = []
+    vat_mode = snapshot.get('vat_mode')
+    if vat_mode == VAT_INCLUDED:
+        lines.append('НДС: включен в цену')
+    elif vat_mode == VAT_EXCLUDED:
+        lines.append('НДС: не включен в цену')
+    oneliner = wholesale_payment_oneliner(snapshot).rstrip('.')
+    if oneliner:
+        lines.append(f'Оплата: {oneliner}')
+    docs = _document_labels(snapshot)
+    if docs:
+        lines.append(f'Документы: {", ".join(docs)}')
+    delivery_bits = []
+    carrier = (snapshot.get('primary_carrier') or '').strip()
+    if snapshot.get('delivery_kz_enabled') and carrier:
+        delivery_bits.append(carrier)
+    if snapshot.get('pickup_enabled'):
+        city = (snapshot.get('pickup_city') or '').strip()
+        delivery_bits.append(f'самовывоз {city}'.strip() if city else 'самовывоз')
+    if delivery_bits:
+        lines.append('Доставка: ' + ' / '.join(delivery_bits))
+    if (
+        snapshot.get('delivery_kz_enabled')
+        and snapshot.get('delivery_payer') == DELIVERY_PAYER_BUYER
+    ):
+        lines.append('Доставку оплачивает покупатель')
+    return lines
+
+
+def format_wholesale_terms_admin_text(snapshot):
+    snapshot = snapshot or {}
+    if not snapshot:
+        return 'Нет снимка оптовых условий.'
+    lines = wholesale_email_term_lines(snapshot)
+    extras = wholesale_storefront_condition_lines(snapshot)
+    merged = []
+    seen = set()
+    for line in lines + extras:
+        key = line.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        merged.append(line)
+    return '\n'.join(merged) if merged else 'Нет заполненных оптовых условий.'
+
+
+def safe_wholesale_filename_stem(name):
+    ascii_stem = _FILENAME_UNSAFE.sub('_', str(name or '').strip()).strip('_')
+    if ascii_stem:
+        return ascii_stem[:80]
+    slug = slugify(str(name or '').strip())
+    if slug:
+        return slug.replace('-', '_')[:80]
+    return 'wholesale'
+
+
+def wholesale_price_filename(seller, day=None):
+    from django.utils import timezone
+
+    day = day or timezone.localdate()
+    stem = safe_wholesale_filename_stem(getattr(seller, 'name', '') if seller else '')
+    return f'{stem}_wholesale_price_{day:%Y-%m-%d}.xlsx'

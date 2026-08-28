@@ -12,9 +12,13 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
 from catalog.models import Product
 from catalog.wholesale import (
+    build_wholesale_terms_snapshot,
     quote_public_wholesale,
     remaining_wholesale_qty,
     resolve_wholesale_owner,
+    wholesale_cart_condition_lines,
+    wholesale_checkout_presentation,
+    wholesale_success_presentation,
 )
 
 from .attribution import clear_utm, get_utm_snapshot
@@ -320,6 +324,12 @@ def cart_view(request):
             kwargs={'slug': seller.slug},
         )
 
+    wholesale_cart_conditions = []
+    if cart.is_wholesale():
+        wholesale_cart_conditions = wholesale_cart_condition_lines(
+            build_wholesale_terms_snapshot(seller)
+        )
+
     return render(request, 'orders/cart.html', {
         'items': items,
         'cart_total': cart.get_total(),
@@ -328,6 +338,7 @@ def cart_view(request):
         'wholesale_status': wholesale_status,
         'is_wholesale_cart': cart.is_wholesale(),
         'continue_shopping_url': continue_shopping_url,
+        'wholesale_cart_conditions': wholesale_cart_conditions,
     })
 
 
@@ -553,6 +564,7 @@ def checkout(request):
                     else Order.ORDER_TYPE_RETAIL
                 )
                 utm_snapshot = get_utm_snapshot(request)
+                terms_snapshot = {}
                 if is_wholesale_cart:
                     owner = resolve_wholesale_owner(current_items[0]['product'])
                     total_qty = sum(item['quantity'] for item in current_items)
@@ -568,6 +580,7 @@ def checkout(request):
                             }),
                         )
                         return redirect('orders:cart')
+                    terms_snapshot = build_wholesale_terms_snapshot(owner)
                 seller_profile = get_request_seller_profile(request)
                 order_lines = []
                 total_price = 0
@@ -610,6 +623,7 @@ def checkout(request):
                     utm_source=utm_snapshot['utm_source'],
                     utm_medium=utm_snapshot['utm_medium'],
                     utm_campaign=utm_snapshot['utm_campaign'],
+                    wholesale_terms_snapshot=terms_snapshot,
                     status=Order.STATUS_NEW,
                 )
                 OrderItem.objects.bulk_create([
@@ -646,6 +660,12 @@ def checkout(request):
             seller_profile_id=seller_profile_id,
         )
 
+    wholesale_checkout_info = {}
+    if cart.is_wholesale():
+        wholesale_checkout_info = wholesale_checkout_presentation(
+            build_wholesale_terms_snapshot(wholesale_status.get('seller'))
+        )
+
     return render(request, 'orders/checkout.html', {
         'form': form,
         'items': items,
@@ -656,6 +676,7 @@ def checkout(request):
         'transport_companies': TRANSPORT_COMPANIES,
         'wholesale_status': wholesale_status,
         'is_wholesale_cart': cart.is_wholesale(),
+        'wholesale_checkout_info': wholesale_checkout_info,
     })
 
 
@@ -688,6 +709,11 @@ def order_success(request, order_id, access_token):
             f'Подскажите, пожалуйста, по подтверждению наличия и доставке.'
         )
         seller_whatsapp_url = build_whatsapp_url(order.seller_whatsapp, wa_text)
+    wholesale_terms_display = None
+    if order.is_wholesale:
+        wholesale_terms_display = wholesale_success_presentation(
+            order.wholesale_terms_snapshot or {}
+        )
     return render(request, 'orders/order_success.html', {
         'order': order,
         'pickup_address': pickup_address,
@@ -696,4 +722,5 @@ def order_success(request, order_id, access_token):
         'wholesale_storefront_url': wholesale_storefront_url,
         'seller_whatsapp_url': seller_whatsapp_url,
         'order_total_qty': order.total_quantity,
+        'wholesale_terms_display': wholesale_terms_display,
     })

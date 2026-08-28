@@ -1,18 +1,25 @@
+from io import BytesIO
+
 from django.contrib.auth.models import AnonymousUser, User
 from django.db import connection
 from django.test import RequestFactory, TestCase
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
+from django.utils import timezone
+from openpyxl import load_workbook
 
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
-from catalog.models import Brand, Country, Product, ProductPriceTier, SellerProfile
+from catalog.models import Brand, Country, Product, ProductPriceTier, SellerProfile, SellerWholesaleTerms
 from catalog.wholesale import (
     WHOLESALE_TYPE_CABIN,
     WHOLESALE_TYPE_OIL,
     WHOLESALE_TYPE_SPARK,
     public_wholesale_unit_price,
+    safe_wholesale_filename_stem,
+    wholesale_price_filename,
     wholesale_product_type,
 )
+from catalog.wholesale_export import XLSX_CONTENT_TYPE
 
 
 RETAIL = 2500
@@ -247,6 +254,11 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('Смотреть весь оптовый ассортимент продавца', html)
         self.assertIn(self._url(), html)
         self.assertIn('Наличие подтверждается при оформлении заказа.', html)
+        self.assertNotIn('с НДС', html)
+        self.assertNotIn('без НДС', html)
+        self.assertNotIn('100% предоплата', html)
+        self.assertIn('Условия оптовой покупки', html)
+        self.assertIn('#wholesale-terms', html)
         lowered = html.lower()
         for banned in ('скидка', 'распродажа', 'акция'):
             self.assertNotIn(banned, lowered)
@@ -263,6 +275,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertNotIn('Оптовая цена:', html)
         self.assertNotIn('Купить оптом', html)
         self.assertNotIn('Есть оптовая цена', html)
+        self.assertNotIn('с НДС', html)
+        self.assertNotIn('Условия оптовой покупки', html)
 
     def test_catalog_shows_wholesale_badge_without_price(self):
         catalog = self.client.get(reverse('catalog_list'), {'q': self.product.article})
@@ -356,4 +370,228 @@ class PublicWholesaleStorefrontTests(TestCase):
         stored = self.client.session[SESSION_UTM_KEY]
         self.assertEqual(stored['utm_source'], 'whatsapp')
         self.assertEqual(stored['utm_campaign'], 'launch')
+
+
+def _configured_terms(seller, **kwargs):
+    defaults = {
+        'vat_mode': SellerWholesaleTerms.VAT_INCLUDED,
+        'prepayment_percent': 100,
+        'confirm_stock_before_payment': True,
+        'provides_invoice': True,
+        'provides_waybill': True,
+        'provides_esf': True,
+        'pickup_enabled': True,
+        'pickup_city': 'Алматы',
+        'delivery_kz_enabled': True,
+        'delivery_payer': SellerWholesaleTerms.DELIVERY_PAYER_BUYER,
+        'primary_carrier': 'DPD Kazakhstan',
+        'primary_carrier_service': 'DPD OPTIMUM',
+        'primary_carrier_url': 'https://dpd.kz/',
+        'other_carrier_allowed': True,
+        'stock_note': 'Наличие подтверждается перед оплатой.',
+    }
+    defaults.update(kwargs)
+    return SellerWholesaleTerms.objects.create(seller=seller, **defaults)
+
+
+class SellerWholesaleTermsPublicTests(PublicWholesaleStorefrontTests):
+    def _price_url(self, seller=None):
+        seller = seller or self.seller
+        return reverse('public_seller_wholesale_price', kwargs={'slug': seller.slug})
+
+    def test_neutral_seller_without_terms_has_no_invented_rules(self):
+        html = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('Условия оптовой покупки', html)
+        self.assertIn('Минимальный заказ — 10 единиц в ассортименте', html)
+        lowered = html.lower()
+        self.assertNotIn('с ндс', lowered)
+        self.assertNotIn('без ндс', lowered)
+        self.assertNotIn('100% предоплата', html)
+        self.assertNotIn('эсф', lowered)
+        self.assertNotIn('dpd', lowered)
+        self.assertNotIn('накладная', lowered)
+
+    def test_vat_included_shows_on_storefront_and_product(self):
+        _configured_terms(self.seller)
+        storefront = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('Все оптовые цены указаны с НДС', storefront)
+        self.assertIn('100% предоплата после подтверждения наличия', storefront)
+        self.assertIn('Счет, накладная и ЭСФ', storefront)
+        self.assertIn('Самовывоз — Алматы', storefront)
+        self.assertIn('Доставка по Казахстану — DPD Kazakhstan', storefront)
+        self.assertIn('Стоимость доставки оплачивает покупатель', storefront)
+        self.assertIn('Другая транспортная компания — по согласованию', storefront)
+        self.assertIn('Скачать оптовый прайс', storefront)
+        self.assertIn(self._price_url(), storefront)
+        detail = self.client.get(self._detail_url()).content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn('с НДС', detail)
+        self.assertIn('100% предоплата после подтверждения наличия.', detail)
+        self.assertIn('#wholesale-terms', detail)
+        self.assertNotIn('Счет, накладная и ЭСФ', detail)
+
+    def test_vat_excluded_shows_correctly(self):
+        _configured_terms(
+            self.seller,
+            vat_mode=SellerWholesaleTerms.VAT_EXCLUDED,
+            prepayment_percent=None,
+            confirm_stock_before_payment=False,
+            provides_invoice=False,
+            provides_waybill=False,
+            provides_esf=False,
+            pickup_enabled=False,
+            pickup_city='',
+            delivery_kz_enabled=False,
+            other_carrier_allowed=False,
+            stock_note='',
+        )
+        storefront = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('Оптовые цены указаны без НДС', storefront)
+        self.assertNotIn('с НДС', storefront)
+        self.assertNotIn('100% предоплата', storefront)
+        self.assertNotIn('DPD', storefront)
+        detail = self.client.get(self._detail_url()).content.decode('utf-8')
+        self.assertIn('без НДС', detail)
+        self.assertNotIn('· с НДС', detail)
+
+    def test_price_xlsx_anonymous_enabled_storefront(self):
+        _configured_terms(self.seller)
+        self.product.cost_price = 87654321
+        self.product.save(update_fields=['cost_price'])
+        response = self.client.get(self._price_url())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response['Content-Type'], XLSX_CONTENT_TYPE)
+        filename = wholesale_price_filename(self.seller, day=timezone.localdate())
+        self.assertEqual(filename, f'AG_Parts_wholesale_price_{timezone.localdate():%Y-%m-%d}.xlsx')
+        self.assertIn(filename, response['Content-Disposition'])
+        self.assertIn('attachment', response['Content-Disposition'])
+        workbook = load_workbook(BytesIO(response.content))
+        self.assertEqual(workbook.sheetnames[0], 'Прайс')
+        self.assertIn('Условия', workbook.sheetnames)
+        prices = workbook['Прайс']
+        headers = [cell.value for cell in next(prices.iter_rows(min_row=1, max_row=1))]
+        self.assertEqual(headers[0], 'Артикул')
+        self.assertEqual(headers[4], 'Розничная цена, ₸')
+        self.assertEqual(headers[5], 'Оптовая цена, ₸ с НДС')
+        self.assertNotIn('cost_price', headers)
+        values = []
+        for row in prices.iter_rows(min_row=2, values_only=True):
+            values.append(row)
+        self.assertEqual(len(values), 1)
+        self.assertEqual(values[0][0], self.product.article)
+        self.assertEqual(values[0][4], RETAIL)
+        self.assertEqual(values[0][5], WHOLESALE)
+        self.assertEqual(values[0][7], 'Уточняется при заказе')
+        blob = ' '.join(str(item) for item in headers + list(values[0]))
+        self.assertNotIn('87654321', blob)
+        self.assertNotIn('cost_price', blob.lower())
+        terms_text = ' '.join(
+            str(value)
+            for row in workbook['Условия'].iter_rows(values_only=True)
+            for value in row
+            if value
+        )
+        self.assertIn('с НДС', terms_text)
+        self.assertIn('100% предоплата', terms_text)
+
+    def test_price_xlsx_excludes_ineligible_products(self):
+        other = _make_seller('xlsx-other', 'Other XLSX', '77770000011')
+        other_product = Product.objects.create(
+            title='Чужой опт',
+            price=111,
+            seller_name=other.name,
+            seller_profile=other,
+            whatsapp_number='+77770000011',
+            status='active',
+            publish_to_sellers=True,
+            city='Алматы',
+            article='WH-OTHER-X',
+            slug='wh-other-x',
+        )
+        ProductPriceTier.objects.create(product=other_product, min_qty=1, price=50)
+        hidden = self._product(
+            title='Скрытый',
+            article='WH-HID-X',
+            slug='wh-hid-x',
+            status='hidden',
+        )
+        ProductPriceTier.objects.create(product=hidden, min_qty=1, price=40)
+        unpublished = self._product(
+            title='Не для продавцов',
+            article='WH-NP-X',
+            slug='wh-np-x',
+            publish_to_sellers=False,
+        )
+        ProductPriceTier.objects.create(product=unpublished, min_qty=1, price=40)
+        no_tier = self._product(title='Без тарифа', article='WH-NT-X', slug='wh-nt-x')
+        response = self.client.get(self._price_url())
+        workbook = load_workbook(BytesIO(response.content))
+        articles = [
+            row[0]
+            for row in workbook['Прайс'].iter_rows(min_row=2, values_only=True)
+            if row[0]
+        ]
+        self.assertEqual(articles, [self.product.article])
+        self.assertNotIn(other_product.article, articles)
+        self.assertNotIn(hidden.article, articles)
+        self.assertNotIn(unpublished.article, articles)
+        self.assertNotIn(no_tier.article, articles)
+
+    def test_price_xlsx_disabled_seller_is_404(self):
+        self.seller.wholesale_enabled = False
+        self.seller.save(update_fields=['wholesale_enabled'])
+        self.assertEqual(self.client.get(self._price_url()).status_code, 404)
+
+    def test_price_xlsx_enabled_without_products_is_200(self):
+        empty = _make_seller('xlsx-empty', 'Empty Opt', '77770000022')
+        response = self.client.get(
+            reverse('public_seller_wholesale_price', kwargs={'slug': empty.slug})
+        )
+        self.assertEqual(response.status_code, 200)
+        workbook = load_workbook(BytesIO(response.content))
+        rows = list(workbook['Прайс'].iter_rows(min_row=2, values_only=True))
+        self.assertEqual(rows, [])
+
+    def test_filename_is_safe(self):
+        self.assertEqual(safe_wholesale_filename_stem('AG Parts'), 'AG_Parts')
+        self.assertEqual(safe_wholesale_filename_stem('Foo/Bar*.xlsx'), 'Foo_Bar_xlsx')
+        self.assertEqual(safe_wholesale_filename_stem('Опт Детали'), 'wholesale')
+        ugly = _make_seller('xlsx-ugly', 'Foo/Bar*.xlsx', '77770000033')
+        name = wholesale_price_filename(ugly, day=timezone.localdate())
+        self.assertTrue(name.startswith('Foo_Bar_xlsx_wholesale_price_'))
+        self.assertTrue(name.endswith('.xlsx'))
+        self.assertNotIn('/', name)
+        self.assertNotIn('*', name)
+
+    def test_price_xlsx_query_count_not_n_plus_one(self):
+        for index in range(4):
+            extra = self._product(
+                title=f'Салонный фильтр xlsx {index}',
+                article=f'WH-XLSX-{index}',
+                slug=f'wh-xlsx-{index}',
+            )
+            ProductPriceTier.objects.create(product=extra, min_qty=1, price=800)
+        url = self._price_url()
+        with CaptureQueriesContext(connection) as first:
+            first_response = self.client.get(url)
+        self.assertEqual(first_response.status_code, 200)
+        baseline = len(first.captured_queries)
+        for index in range(4, 8):
+            extra = self._product(
+                title=f'Салонный фильтр xlsx {index}',
+                article=f'WH-XLSX-{index}',
+                slug=f'wh-xlsx-{index}',
+            )
+            ProductPriceTier.objects.create(product=extra, min_qty=1, price=800)
+        with CaptureQueriesContext(connection) as second:
+            second_response = self.client.get(url)
+        self.assertEqual(second_response.status_code, 200)
+        self.assertLessEqual(len(second.captured_queries), baseline + 1)
+        workbook = load_workbook(BytesIO(second_response.content))
+        articles = [
+            row[0]
+            for row in workbook['Прайс'].iter_rows(min_row=2, values_only=True)
+            if row[0]
+        ]
+        self.assertGreaterEqual(len(articles), 9)
+
 

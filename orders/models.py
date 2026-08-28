@@ -102,6 +102,11 @@ class Order(models.Model):
         default='',
         verbose_name='UTM campaign',
     )
+    wholesale_terms_snapshot = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Снимок оптовых условий',
+    )
     access_token = models.UUIDField(
         default=uuid.uuid4,
         unique=True,

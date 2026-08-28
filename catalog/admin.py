@@ -6,6 +6,7 @@ from .models import (
     Category,
     Product,
     SellerProfile,
+    SellerWholesaleTerms,
     ProductImage,
     ProductPriceTier,
     ProductPromotion,
@@ -87,6 +88,42 @@ class CategoryAdmin(admin.ModelAdmin):
     ordering = ('name',)
 
 
+class SellerWholesaleTermsInline(admin.StackedInline):
+    model = SellerWholesaleTerms
+    extra = 0
+    max_num = 1
+    can_delete = True
+    fieldsets = (
+        ('НДС и оплата', {
+            'fields': (
+                'vat_mode',
+                'prepayment_percent',
+                'confirm_stock_before_payment',
+                'stock_note',
+            ),
+        }),
+        ('Документы', {
+            'fields': (
+                'provides_invoice',
+                'provides_waybill',
+                'provides_esf',
+            ),
+        }),
+        ('Самовывоз и доставка', {
+            'fields': (
+                'pickup_enabled',
+                'pickup_city',
+                'delivery_kz_enabled',
+                'delivery_payer',
+                'primary_carrier',
+                'primary_carrier_service',
+                'primary_carrier_url',
+                'other_carrier_allowed',
+            ),
+        }),
+    )
+
+
 @admin.register(SellerProfile)
 class SellerProfileAdmin(admin.ModelAdmin):
     list_display = (
@@ -109,6 +146,7 @@ class SellerProfileAdmin(admin.ModelAdmin):
     list_filter = ('city', 'wholesale_enabled')
 
     ordering = ('name',)
+    inlines = [SellerWholesaleTermsInline]
 
 
 class ProductImageInline(admin.TabularInline):

@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v4">
 {% endblock %}
 
 {% block content %}
@@ -28,7 +28,21 @@
         <a class="wholesale-back" href="{% url 'public_seller_profile' seller.slug %}">
           ← Витрина {{ seller.name }}
         </a>
+        <a class="wholesale-price-download" href="{{ wholesale_price_url }}">
+          Скачать оптовый прайс
+        </a>
       </header>
+
+      {% if wholesale_terms_lines %}
+        <section class="wholesale-terms" id="wholesale-terms">
+          <h2>Условия оптовой покупки</h2>
+          <ul>
+            {% for line in wholesale_terms_lines %}
+              <li>{{ line }}</li>
+            {% endfor %}
+          </ul>
+        </section>
+      {% endif %}
 
       <form method="get" class="wholesale-filters">
         <label class="wholesale-filter-field">

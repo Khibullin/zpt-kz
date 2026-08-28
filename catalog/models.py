@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -215,6 +215,122 @@ class SellerProfile(models.Model):
                 kwargs['update_fields'] = list(set(kwargs['update_fields']) | {'slug'})
 
         super().save(*args, **kwargs)
+
+
+class SellerWholesaleTerms(models.Model):
+    VAT_UNSPECIFIED = 'unspecified'
+    VAT_INCLUDED = 'included'
+    VAT_EXCLUDED = 'excluded'
+    VAT_MODE_CHOICES = [
+        (VAT_UNSPECIFIED, 'Не указано'),
+        (VAT_INCLUDED, 'С НДС'),
+        (VAT_EXCLUDED, 'Без НДС'),
+    ]
+
+    DELIVERY_PAYER_BUYER = 'buyer'
+    DELIVERY_PAYER_SELLER = 'seller'
+    DELIVERY_PAYER_AGREEMENT = 'agreement'
+    DELIVERY_PAYER_CHOICES = [
+        (DELIVERY_PAYER_BUYER, 'Покупатель'),
+        (DELIVERY_PAYER_SELLER, 'Продавец'),
+        (DELIVERY_PAYER_AGREEMENT, 'По согласованию'),
+    ]
+
+    seller = models.OneToOneField(
+        SellerProfile,
+        on_delete=models.CASCADE,
+        related_name='wholesale_terms',
+        verbose_name='Продавец',
+    )
+    vat_mode = models.CharField(
+        max_length=20,
+        choices=VAT_MODE_CHOICES,
+        default=VAT_UNSPECIFIED,
+        verbose_name='НДС',
+    )
+    prepayment_percent = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0), MaxValueValidator(100)],
+        verbose_name='Предоплата, %',
+    )
+    confirm_stock_before_payment = models.BooleanField(
+        default=True,
+        verbose_name='Подтверждать наличие до оплаты',
+    )
+    provides_invoice = models.BooleanField(
+        default=False,
+        verbose_name='Счет на оплату',
+    )
+    provides_waybill = models.BooleanField(
+        default=False,
+        verbose_name='Накладная',
+    )
+    provides_esf = models.BooleanField(
+        default=False,
+        verbose_name='ЭСФ',
+    )
+    pickup_enabled = models.BooleanField(
+        default=False,
+        verbose_name='Самовывоз',
+    )
+    pickup_city = models.CharField(
+        max_length=120,
+        blank=True,
+        default='',
+        verbose_name='Город самовывоза',
+    )
+    delivery_kz_enabled = models.BooleanField(
+        default=False,
+        verbose_name='Доставка по Казахстану',
+    )
+    delivery_payer = models.CharField(
+        max_length=20,
+        choices=DELIVERY_PAYER_CHOICES,
+        default=DELIVERY_PAYER_AGREEMENT,
+        verbose_name='Кто оплачивает доставку',
+    )
+    primary_carrier = models.CharField(
+        max_length=120,
+        blank=True,
+        default='',
+        verbose_name='Основная ТК',
+    )
+    primary_carrier_service = models.CharField(
+        max_length=120,
+        blank=True,
+        default='',
+        verbose_name='Тариф ТК',
+    )
+    primary_carrier_url = models.URLField(
+        blank=True,
+        default='',
+        verbose_name='Сайт ТК',
+    )
+    other_carrier_allowed = models.BooleanField(
+        default=True,
+        verbose_name='Другая ТК по согласованию',
+    )
+    stock_note = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Примечание по наличию',
+    )
+
+    class Meta:
+        verbose_name = 'Оптовые условия продавца'
+        verbose_name_plural = 'Оптовые условия продавцов'
+
+    def __str__(self):
+        return f'Оптовые условия: {self.seller}'
+
+    def clean(self):
+        super().clean()
+        if self.prepayment_percent is not None and not (0 <= int(self.prepayment_percent) <= 100):
+            raise ValidationError({
+                'prepayment_percent': 'Процент предоплаты должен быть от 0 до 100.',
+            })
 
 
 class ProductQuerySet(models.QuerySet):

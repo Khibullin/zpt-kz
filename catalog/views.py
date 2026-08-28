@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
-from django.http import Http404, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
@@ -42,15 +42,21 @@ from .models import (
 from .wholesale import (
     WHOLESALE_TYPE_CHOICES,
     attach_public_wholesale_flags,
+    build_wholesale_terms_snapshot,
     has_public_wholesale_offer,
     public_wholesale_prefetch,
     public_wholesale_unit_price,
     seller_has_wholesale_storefront,
     wholesale_car_brands,
     wholesale_fitment_text,
+    wholesale_payment_oneliner,
+    wholesale_price_filename,
     wholesale_product_type,
     wholesale_products_qs,
+    wholesale_storefront_condition_lines,
+    wholesale_vat_price_suffix,
 )
+from .wholesale_export import XLSX_CONTENT_TYPE, wholesale_price_xlsx_bytes
 from orders.attribution import capture_utm_from_request
 
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
@@ -274,12 +280,12 @@ def resolve_product_seller(product):
     if product.whatsapp_number:
         clean_phone = ''.join(filter(str.isdigit, product.whatsapp_number))
         if len(clean_phone) >= 10:
-            seller = SellerProfile.objects.filter(
+            seller = SellerProfile.objects.select_related('wholesale_terms').filter(
                 phone__icontains=clean_phone[-10:]
             ).first()
 
     if not seller and product.seller_name:
-        seller = SellerProfile.objects.filter(
+        seller = SellerProfile.objects.select_related('wholesale_terms').filter(
             name__iexact=product.seller_name.strip()
         ).first()
     return seller
@@ -433,6 +439,7 @@ def product_detail(request, slug=None, pk=None):
         'car_model__brand',
         'category',
         'seller_profile',
+        'seller_profile__wholesale_terms',
     ).prefetch_related(
         'selected_brands',
         Prefetch(
@@ -474,14 +481,19 @@ def product_detail(request, slug=None, pk=None):
     if has_public_wholesale_offer(product, seller):
         unit_price = public_wholesale_unit_price(product)
         if unit_price is not None and seller and seller.slug:
+            storefront_url = reverse(
+                'public_seller_wholesale',
+                kwargs={'slug': seller.slug},
+            )
+            terms_snapshot = build_wholesale_terms_snapshot(seller)
             public_wholesale = {
                 'unit_price': unit_price,
                 'min_qty': seller.wholesale_min_order_qty,
                 'seller': seller,
-                'storefront_url': reverse(
-                    'public_seller_wholesale',
-                    kwargs={'slug': seller.slug},
-                ),
+                'storefront_url': storefront_url,
+                'terms_url': f'{storefront_url}#wholesale-terms',
+                'vat_suffix': wholesale_vat_price_suffix(terms_snapshot),
+                'payment_note': wholesale_payment_oneliner(terms_snapshot),
             }
 
     seller_products = Product.objects.owned_by_seller(seller).filter(
@@ -1083,7 +1095,10 @@ def public_seller_profile(request, slug):
 
 def public_seller_wholesale(request, slug):
     capture_utm_from_request(request)
-    seller = get_object_or_404(SellerProfile, slug=slug)
+    seller = get_object_or_404(
+        SellerProfile.objects.select_related('wholesale_terms'),
+        slug=slug,
+    )
     if not seller.wholesale_enabled:
         raise Http404('Оптовая витрина недоступна.')
 
@@ -1156,8 +1171,30 @@ def public_seller_wholesale(request, slug):
                 brand_id,
                 type_key,
             ]),
+            'wholesale_terms_lines': wholesale_storefront_condition_lines(
+                build_wholesale_terms_snapshot(seller)
+            ),
+            'wholesale_price_url': reverse(
+                'public_seller_wholesale_price',
+                kwargs={'slug': seller.slug},
+            ),
         },
     )
+
+
+@require_GET
+def public_seller_wholesale_price(request, slug):
+    seller = get_object_or_404(
+        SellerProfile.objects.select_related('wholesale_terms'),
+        slug=slug,
+    )
+    if not seller.wholesale_enabled:
+        raise Http404('Оптовая витрина недоступна.')
+    payload = wholesale_price_xlsx_bytes(seller)
+    filename = wholesale_price_filename(seller)
+    response = HttpResponse(payload, content_type=XLSX_CONTENT_TYPE)
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
+    return response
 
 
 def faq_view(request):

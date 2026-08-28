@@ -229,6 +229,92 @@
   color:#9a3412;
 }
 
+.wholesale-price-download{
+  display:inline-block;
+  margin:12px 12px 0 0;
+  color:#1f4d38;
+  font-weight:700;
+  text-decoration:none;
+}
+
+.wholesale-terms,
+.wholesale-order-terms,
+.wholesale-checkout-next,
+.wholesale-success-terms{
+  background:#fff;
+  border:1px solid #ececec;
+  border-radius:16px;
+  padding:18px 20px;
+  margin:0 0 20px;
+}
+
+.wholesale-terms h2,
+.wholesale-order-terms h2,
+.wholesale-checkout-next h2,
+.wholesale-success-terms h2{
+  margin:0 0 12px;
+  font-size:18px;
+  font-weight:700;
+  color:#111;
+}
+
+.wholesale-terms ul,
+.wholesale-order-terms ul{
+  margin:0;
+  padding:0;
+  list-style:none;
+}
+
+.wholesale-terms li,
+.wholesale-order-terms li{
+  position:relative;
+  padding:5px 0 5px 22px;
+  color:#333;
+  font-size:15px;
+  line-height:1.45;
+}
+
+.wholesale-terms li::before,
+.wholesale-order-terms li::before{
+  content:"✓";
+  position:absolute;
+  left:0;
+  color:#3f6b4f;
+  font-weight:700;
+}
+
+.wholesale-checkout-next ol{
+  margin:0 0 12px;
+  padding-left:20px;
+  color:#333;
+  font-size:15px;
+  line-height:1.5;
+}
+
+.wholesale-checkout-note,
+.wholesale-success-terms p{
+  margin:0 0 8px;
+  color:#333;
+  font-size:15px;
+  line-height:1.45;
+}
+
+.product-wholesale-pay{
+  margin:0 0 8px;
+  color:#333;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.product-wholesale-terms-link{
+  display:inline-block;
+  margin-top:8px;
+  margin-left:0;
+  color:#1f4d38;
+  font-weight:700;
+  text-decoration:none;
+}
+
 @media (max-width:640px){
   .wholesale-hero h1{
     font-size:22px;

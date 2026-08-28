@@ -1,11 +1,13 @@
 import json
 
+from django.contrib.admin.sites import AdminSite
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from catalog.models import Product, ProductPriceTier, SellerProfile
+from catalog.models import Product, ProductPriceTier, SellerProfile, SellerWholesaleTerms
+from orders.admin import OrderAdmin
 from orders.constants import (
     CART_MODE_CONFLICT,
     CART_MODE_RETAIL,
@@ -128,6 +130,8 @@ class PublicWholesaleCartTests(TestCase):
         html = cart.content.decode('utf-8')
         self.assertIn('Оптовая корзина', html)
         self.assertIn('В корзине 3 из 10 шт. Добавьте ещё 7 шт.', html)
+        self.assertNotIn('Условия заказа', html)
+        self.assertNotIn('цены с НДС', html)
         self.assertIn(
             reverse('public_seller_wholesale', kwargs={'slug': self.seller.slug}),
             html,
@@ -322,4 +326,145 @@ class PublicWholesaleCartTests(TestCase):
         )
         stored = self.client.session[SESSION_UTM_KEY]['utm_campaign']
         self.assertEqual(len(stored), 150)
+
+
+def _configured_terms(seller, **kwargs):
+    defaults = {
+        'vat_mode': SellerWholesaleTerms.VAT_INCLUDED,
+        'prepayment_percent': 100,
+        'confirm_stock_before_payment': True,
+        'provides_invoice': True,
+        'provides_waybill': True,
+        'provides_esf': True,
+        'pickup_enabled': True,
+        'pickup_city': 'Алматы',
+        'delivery_kz_enabled': True,
+        'delivery_payer': SellerWholesaleTerms.DELIVERY_PAYER_BUYER,
+        'primary_carrier': 'DPD Kazakhstan',
+        'primary_carrier_service': 'DPD OPTIMUM',
+        'primary_carrier_url': 'https://dpd.kz/',
+        'other_carrier_allowed': True,
+        'stock_note': 'Наличие подтверждается перед оплатой.',
+    }
+    defaults.update(kwargs)
+    return SellerWholesaleTerms.objects.create(seller=seller, **defaults)
+
+
+class WholesaleTermsCartCheckoutTests(PublicWholesaleCartTests):
+    def test_wholesale_cart_shows_conditions_block(self):
+        _configured_terms(self.seller)
+        self._add(self.products[0], quantity=3)
+        cart = self.client.get(reverse('orders:cart'))
+        html = cart.content.decode('utf-8')
+        self.assertIn('Условия заказа', html)
+        self.assertIn('цены с НДС', html)
+        self.assertIn('100% предоплата', html)
+        self.assertIn('наличие подтверждается перед оплатой', html)
+        self.assertIn('доставка оплачивается покупателем', html)
+
+    def test_retail_cart_has_no_wholesale_conditions(self):
+        _configured_terms(self.seller)
+        self._add(self.products[0], quantity=1, mode=None)
+        cart = self.client.get(reverse('orders:cart'))
+        html = cart.content.decode('utf-8')
+        self.assertFalse(cart.context['is_wholesale_cart'])
+        self.assertNotIn('Условия заказа', html)
+        self.assertNotIn('цены с НДС', html)
+        self.assertNotIn('100% предоплата', html)
+
+    def test_wholesale_checkout_shows_carrier_and_prepayment(self):
+        _configured_terms(self.seller)
+        for product, qty in zip(self.products, (2, 3, 2, 3)):
+            self._add(product, quantity=qty)
+        checkout = self.client.get(reverse('orders:checkout'))
+        self.assertEqual(checkout.status_code, 200)
+        html = checkout.content.decode('utf-8')
+        self.assertIn('После оформления заказа', html)
+        self.assertIn('Менеджер подтверждает наличие.', html)
+        self.assertIn('Вы получаете счет на 100% предоплату.', html)
+        self.assertIn('Основная транспортная компания: DPD Kazakhstan', html)
+        self.assertIn('Стоимость доставки оплачивает покупатель.', html)
+        self.assertIn(
+            'Другую транспортную компанию можно согласовать с продавцом.',
+            html,
+        )
+
+    def test_retail_checkout_unchanged(self):
+        _configured_terms(self.seller)
+        self._add(self.products[0], quantity=1, mode=None)
+        checkout = self.client.get(reverse('orders:checkout'))
+        self.assertEqual(checkout.status_code, 200)
+        html = checkout.content.decode('utf-8')
+        self.assertNotIn('После оформления заказа', html)
+        self.assertNotIn('Основная транспортная компания', html)
+        self.assertNotIn('100% предоплату', html)
+        self.assertIn('После оформления продавец свяжется с вами в WhatsApp', html)
+
+    def test_wholesale_order_stores_terms_snapshot(self):
+        terms = _configured_terms(self.seller)
+        for product, qty in zip(self.products, (2, 3, 2, 3)):
+            self._add(product, quantity=qty)
+        created = self._checkout_post()
+        order = Order.objects.get()
+        snapshot = order.wholesale_terms_snapshot
+        self.assertEqual(snapshot['vat_mode'], 'included')
+        self.assertEqual(snapshot['prepayment_percent'], 100)
+        self.assertTrue(snapshot['confirm_stock_before_payment'])
+        self.assertTrue(snapshot['provides_invoice'])
+        self.assertTrue(snapshot['provides_waybill'])
+        self.assertTrue(snapshot['provides_esf'])
+        self.assertTrue(snapshot['pickup_enabled'])
+        self.assertEqual(snapshot['pickup_city'], 'Алматы')
+        self.assertTrue(snapshot['delivery_kz_enabled'])
+        self.assertEqual(snapshot['delivery_payer'], 'buyer')
+        self.assertEqual(snapshot['primary_carrier'], 'DPD Kazakhstan')
+        self.assertEqual(snapshot['primary_carrier_service'], 'DPD OPTIMUM')
+        self.assertEqual(snapshot['primary_carrier_url'], 'https://dpd.kz/')
+        self.assertTrue(snapshot['other_carrier_allowed'])
+        terms.vat_mode = SellerWholesaleTerms.VAT_EXCLUDED
+        terms.primary_carrier = 'Other Carrier'
+        terms.prepayment_percent = 50
+        terms.save()
+        success = self.client.get(created.url)
+        html = success.content.decode('utf-8')
+        self.assertIn('Оплата', html)
+        self.assertIn('100% предоплата после подтверждения наличия', html)
+        self.assertIn('Менеджер свяжется с вами и выставит счет.', html)
+        self.assertIn('Счет, накладная, ЭСФ', html)
+        self.assertIn('Самовывоз — Алматы', html)
+        self.assertIn('DPD Kazakhstan', html)
+        self.assertIn('Стоимость доставки оплачивает покупатель.', html)
+        self.assertNotIn('Other Carrier', html)
+        self.assertNotIn('50%', html)
+        self.assertNotIn('оплатите сейчас', html.lower())
+        body = build_order_email_body(order)
+        self.assertIn('Тип заказа: Оптовый', body)
+        self.assertIn('НДС: включен в цену', body)
+        self.assertIn('Оплата: 100% предоплата после подтверждения наличия', body)
+        self.assertIn('Документы: счет, накладная, ЭСФ', body)
+        self.assertIn('Доставка: DPD Kazakhstan / самовывоз Алматы', body)
+        self.assertIn('Доставку оплачивает покупатель', body)
+        self.assertNotIn('Other Carrier', body)
+        display = OrderAdmin(Order, AdminSite()).wholesale_terms_snapshot_display(order)
+        self.assertIn('НДС: включен в цену', str(display))
+        self.assertIn('100%', str(display))
+        self.assertNotIn('Other Carrier', str(display))
+
+    def test_retail_order_snapshot_is_empty(self):
+        _configured_terms(self.seller)
+        self._add(self.products[0], quantity=1, mode=None)
+        created = self._checkout_post()
+        order = Order.objects.get()
+        self.assertEqual(order.order_type, Order.ORDER_TYPE_RETAIL)
+        self.assertEqual(order.wholesale_terms_snapshot, {})
+        success = self.client.get(created.url)
+        html = success.content.decode('utf-8')
+        self.assertNotIn('100% предоплата', html)
+        self.assertNotIn('Основная транспортная компания', html)
+        body = build_order_email_body(order)
+        self.assertNotIn('НДС: включен в цену', body)
+        self.assertEqual(
+            OrderAdmin(Order, AdminSite()).wholesale_terms_snapshot_display(order),
+            '—',
+        )
 

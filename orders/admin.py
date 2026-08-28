@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.utils.html import format_html
+
+from catalog.wholesale import format_wholesale_terms_admin_text
 
 from .models import Order, OrderItem, KaspiTransaction, CartItem
 
@@ -50,8 +53,17 @@ class OrderAdmin(admin.ModelAdmin):
         'utm_source',
         'utm_medium',
         'utm_campaign',
+        'wholesale_terms_snapshot_display',
     )
+    exclude = ('wholesale_terms_snapshot',)
     inlines = [OrderItemInline, KaspiTransactionInline]
+
+    @admin.display(description='Оптовые условия (снимок заказа)')
+    def wholesale_terms_snapshot_display(self, obj):
+        if not obj.is_wholesale:
+            return '—'
+        text = format_wholesale_terms_admin_text(obj.wholesale_terms_snapshot or {})
+        return format_html('<pre style="white-space:pre-wrap;margin:0;">{}</pre>', text)
 
 
 @admin.register(KaspiTransaction)

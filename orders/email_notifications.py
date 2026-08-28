@@ -6,6 +6,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 
+from catalog.wholesale import wholesale_email_term_lines
+
 from .models import Order
 
 logger = logging.getLogger(__name__)
@@ -85,8 +87,9 @@ def build_order_email_body(order):
             '',
             'Тип заказа: Оптовый',
             f'Количество единиц: {total_qty}',
-            '',
         ]
+        lines.extend(wholesale_email_term_lines(order.wholesale_terms_snapshot or {}))
+        lines.append('')
     else:
         lines = [
             f'Новый заказ ZPT.KZ №{order.id}',
