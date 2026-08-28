@@ -8,7 +8,7 @@ def configure_ag_parts_wholesale_terms(apps, schema_editor):
     try:
         seller = SellerProfile.objects.get(slug='ag-parts')
     except SellerProfile.DoesNotExist:
-        raise RuntimeError("SellerProfile with slug='ag-parts' was not found.")
+        return
 
     if seller.wholesale_enabled != True:
         raise RuntimeError(

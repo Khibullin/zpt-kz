@@ -5,7 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v4">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v5">
 {% endblock %}
 
 {% block content %}
@@ -101,6 +101,10 @@
                 {% if product.wholesale_unit_price %}
                   <p class="wholesale-card-opt">Опт: {{ product.wholesale_unit_price|intcomma }} ₸/шт</p>
                 {% endif %}
+                {% if product.public_stock %}
+                  <p class="wholesale-card-stock">{{ product.public_stock.label }}</p>
+                {% endif %}
+                {% if product.public_stock.can_buy %}
                 <button
                   type="button"
                   class="btn red wholesale-buy-btn"
@@ -110,6 +114,9 @@
                 >
                   Купить оптом
                 </button>
+                {% else %}
+                  <p class="wholesale-buy-disabled">Купить оптом недоступно</p>
+                {% endif %}
               </div>
             </article>
           {% endfor %}

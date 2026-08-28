@@ -12,6 +12,7 @@ from catalog.wholesale import (
     VAT_INCLUDED,
     VAT_EXCLUDED,
     build_wholesale_terms_snapshot,
+    public_stock_xlsx_value,
     public_wholesale_unit_price,
     wholesale_fitment_text,
     wholesale_products_qs,
@@ -77,7 +78,7 @@ def build_wholesale_price_workbook(seller):
             int(product.price) if product.price is not None else '',
             int(wholesale_price) if wholesale_price is not None else '',
             min_qty or '',
-            AVAILABILITY_TEXT,
+            public_stock_xlsx_value(product),
             seller_name,
         ])
 

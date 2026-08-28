@@ -1180,6 +1180,7 @@ class ProductKaspiListing(models.Model):
 class CatalogImportBatch(models.Model):
     SOURCE_AG_PARTS = 'ag_parts'
     SOURCE_AG_PARTS_BARCODES = 'ag_parts_barcodes'
+    SOURCE_WHOLESALE_UPDATE = 'wholesale_update'
 
     MODE_WRITE = 'write'
     MODE_DRY_RUN = 'dry-run'
@@ -1291,6 +1292,22 @@ class CatalogImportBatch(models.Model):
         blank=True,
         default='',
         verbose_name='Причина обхода shrink guard',
+    )
+    uploaded_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='catalog_import_batches_uploaded',
+        verbose_name='Загрузил',
+    )
+    applied_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='catalog_import_batches_applied',
+        verbose_name='Применил',
     )
 
     class Meta:

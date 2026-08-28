@@ -1,0 +1,23 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <p>Продавец: <strong>{{ seller.name }}</strong></p>
+  <p>
+    <a class="button" href="{{ download_url }}">Скачать файл для обновления</a>
+  </p>
+  <p>
+    Скачайте текущий Excel, измените розницу, опт или остаток и загрузите файл обратно.
+    Пустая ячейка не меняет значение. Ноль в колонке «Остаток» означает 0 шт.
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="default" value="Загрузить и показать preview">
+  </form>
+  <p>
+    <a href="{% url 'admin:catalog_sellerprofile_change' seller.pk %}">← Вернуться к продавцу</a>
+  </p>
+</div>
+{% endblock %}

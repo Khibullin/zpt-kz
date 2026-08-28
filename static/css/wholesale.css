@@ -315,6 +315,22 @@
   text-decoration:none;
 }
 
+.wholesale-card-stock,
+.product-wholesale-stock,
+.cart-line-stock{
+  margin:0 0 8px;
+  color:#333;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.wholesale-buy-disabled{
+  margin:8px 0 0;
+  color:#666;
+  font-size:14px;
+  font-weight:600;
+}
+
 @media (max-width:640px){
   .wholesale-hero h1{
     font-size:22px;

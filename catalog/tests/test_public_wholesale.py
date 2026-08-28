@@ -82,6 +82,10 @@ class PublicWholesaleStorefrontTests(TestCase):
         seller = seller or self.seller
         return reverse('public_seller_wholesale', kwargs={'slug': seller.slug})
 
+    def _price_url(self, seller=None):
+        seller = seller or self.seller
+        return reverse('public_seller_wholesale_price', kwargs={'slug': seller.slug})
+
     def test_seller_wholesale_defaults(self):
         other = _make_seller(
             'plain-owner',
@@ -253,7 +257,7 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('Купить в розницу', html)
         self.assertIn('Смотреть весь оптовый ассортимент продавца', html)
         self.assertIn(self._url(), html)
-        self.assertIn('Наличие подтверждается при оформлении заказа.', html)
+        self.assertIn('Наличие уточняется', html)
         self.assertNotIn('с НДС', html)
         self.assertNotIn('без НДС', html)
         self.assertNotIn('100% предоплата', html)
@@ -277,6 +281,50 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertNotIn('Есть оптовая цена', html)
         self.assertNotIn('с НДС', html)
         self.assertNotIn('Условия оптовой покупки', html)
+
+    def test_public_stock_null_unknown_and_orderable(self):
+        self.assertIsNone(self.product.stock_qty)
+        html = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('Наличие уточняется', html)
+        self.assertIn('Купить оптом', html)
+        self.assertNotIn('Нет в наличии', html)
+        self.assertNotIn('Осталось всего', html)
+        detail = self.client.get(self._detail_url()).content.decode('utf-8')
+        self.assertIn('Наличие уточняется', detail)
+        self.assertIn('Купить оптом', detail)
+
+    def test_public_stock_zero_visible_but_not_buyable(self):
+        self.product.stock_qty = 0
+        self.product.save(update_fields=['stock_qty'])
+        html = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('Нет в наличии', html)
+        self.assertNotIn('data-wholesale-add', html)
+        detail = self.client.get(self._detail_url()).content.decode('utf-8')
+        self.assertIn('Нет в наличии', detail)
+        self.assertIn('Купить оптом недоступно', detail)
+
+    def test_public_stock_positive_shows_count(self):
+        self.product.stock_qty = 27
+        self.product.save(update_fields=['stock_qty'])
+        html = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('В наличии: 27 шт.', html)
+        self.assertIn('Купить оптом', html)
+
+    def test_price_xlsx_stock_values(self):
+        self.product.stock_qty = 0
+        self.product.save(update_fields=['stock_qty'])
+        extra = self._product(title='In stock', article='WH-STK-1', slug='wh-stk-1')
+        extra.stock_qty = 4
+        extra.save(update_fields=['stock_qty'])
+        ProductPriceTier.objects.create(product=extra, min_qty=1, price=400)
+        workbook = load_workbook(BytesIO(self.client.get(self._price_url()).content))
+        by_article = {
+            row[0]: row
+            for row in workbook['Прайс'].iter_rows(min_row=2, values_only=True)
+            if row[0]
+        }
+        self.assertEqual(by_article[self.product.article][7], 0)
+        self.assertEqual(by_article[extra.article][7], 4)
 
     def test_catalog_shows_wholesale_badge_without_price(self):
         catalog = self.client.get(reverse('catalog_list'), {'q': self.product.article})

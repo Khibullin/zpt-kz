@@ -46,6 +46,7 @@ from .wholesale import (
     has_public_wholesale_offer,
     public_wholesale_prefetch,
     public_wholesale_unit_price,
+    public_stock_status,
     seller_has_wholesale_storefront,
     wholesale_car_brands,
     wholesale_fitment_text,
@@ -494,6 +495,7 @@ def product_detail(request, slug=None, pk=None):
                 'terms_url': f'{storefront_url}#wholesale-terms',
                 'vat_suffix': wholesale_vat_price_suffix(terms_snapshot),
                 'payment_note': wholesale_payment_oneliner(terms_snapshot),
+                'stock': public_stock_status(product),
             }
 
     seller_products = Product.objects.owned_by_seller(seller).filter(
@@ -1137,6 +1139,7 @@ def public_seller_wholesale(request, slug):
         product.wholesale_unit_price = public_wholesale_unit_price(product)
         product.wholesale_type_key = wholesale_product_type(product)
         product.fitment_text = wholesale_fitment_text(product)
+        product.public_stock = public_stock_status(product)
 
     paginator = Paginator(products, 12)
     try:

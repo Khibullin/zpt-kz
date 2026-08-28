@@ -13,6 +13,7 @@ from catalog.commercial import get_request_seller_profile, resolve_commercial_pr
 from catalog.models import Product
 from catalog.wholesale import (
     build_wholesale_terms_snapshot,
+    public_stock_status,
     quote_public_wholesale,
     remaining_wholesale_qty,
     resolve_wholesale_owner,
@@ -315,6 +316,8 @@ def cart_view(request):
     cart = CartManager(request)
     _prune_unavailable_cart_items(request, cart)
     items = cart.get_items()
+    for item in items:
+        item['stock'] = public_stock_status(item.get('product'))
     wholesale_status = cart.wholesale_status()
     continue_shopping_url = reverse('catalog_list')
     seller = wholesale_status.get('seller')

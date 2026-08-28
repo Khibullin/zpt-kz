@@ -468,3 +468,30 @@ class WholesaleTermsCartCheckoutTests(PublicWholesaleCartTests):
             '—',
         )
 
+
+class WholesaleStockCartTests(PublicWholesaleCartTests):
+    def test_stock_zero_blocks_wholesale_add(self):
+        self.products[0].stock_qty = 0
+        self.products[0].save(update_fields=['stock_qty'])
+        response = self._add(self.products[0], quantity=1)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Недостаточно товара', response.json()['message'])
+
+    def test_cannot_order_more_than_stock(self):
+        self.products[0].stock_qty = 2
+        self.products[0].save(update_fields=['stock_qty'])
+        ok = self._add(self.products[0], quantity=2)
+        self.assertEqual(ok.status_code, 200)
+        too_many = self._add(self.products[0], quantity=1)
+        self.assertEqual(too_many.status_code, 400)
+        cart = self.client.get(reverse('orders:cart'))
+        self.assertContains(cart, 'В наличии: 2 шт.')
+
+    def test_null_stock_still_allows_wholesale_add(self):
+        self.assertIsNone(self.products[0].stock_qty)
+        response = self._add(self.products[0], quantity=3)
+        self.assertEqual(response.status_code, 200)
+        cart = self.client.get(reverse('orders:cart'))
+        self.assertContains(cart, 'Наличие уточняется')
+
+

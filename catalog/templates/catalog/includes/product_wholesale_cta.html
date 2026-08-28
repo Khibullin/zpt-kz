@@ -19,9 +19,10 @@
     Можно выбрать разные артикулы, марки и виды товаров.
   </p>
   <p class="product-wholesale-stock">
-    Наличие подтверждается при оформлении заказа.
+    {{ public_wholesale.stock.label }}
   </p>
   {% include 'catalog/includes/product_buy_controls.html' with product=product buy_label='Купить в розницу' %}
+  {% if public_wholesale.stock.can_buy %}
   <button
     type="button"
     class="btn red wholesale-buy-btn"
@@ -31,6 +32,9 @@
   >
     Купить оптом
   </button>
+  {% else %}
+    <p class="wholesale-buy-disabled">Купить оптом недоступно</p>
+  {% endif %}
   <a class="product-wholesale-assortment" href="{{ public_wholesale.storefront_url }}">
     Смотреть весь оптовый ассортимент продавца →
   </a>

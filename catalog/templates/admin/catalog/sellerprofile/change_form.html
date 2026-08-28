@@ -1,0 +1,13 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if original %}
+    <li>
+      <a href="{{ wholesale_update_url }}" class="historylink">Обновить цены и остатки</a>
+    </li>
+    <li>
+      <a href="{{ wholesale_download_url }}" class="historylink">Скачать файл для обновления</a>
+    </li>
+  {% endif %}
+{% endblock %}

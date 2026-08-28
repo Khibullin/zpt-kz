@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>Изменения применены</h1>
+  <p>Продавец: <strong>{{ seller.name }}</strong></p>
+  <ul>
+    <li>Обновлено товаров: {{ summary.updated }}</li>
+    <li>Изменено retail prices: {{ summary.retail_changes }}</li>
+    <li>Изменено wholesale prices: {{ summary.wholesale_changes }}</li>
+    <li>Изменено остатков: {{ summary.stock_changes }}</li>
+  </ul>
+  <p>
+    <a class="button" href="{{ history_url }}">Открыть историю импорта</a>
+    <a class="button" href="{{ seller_url }}">Вернуться к продавцу</a>
+    <a class="button" href="{{ download_url }}">Скачать актуальный файл</a>
+  </p>
+  <p><a href="{{ upload_url }}">Новое обновление</a></p>
+</div>
+{% endblock %}

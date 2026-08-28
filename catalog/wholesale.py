@@ -264,6 +264,39 @@ def attach_public_wholesale_flags(products):
     return products
 
 
+def public_stock_status(product):
+    """Public availability copy. NULL stock stays orderable (unknown remainder)."""
+    qty = getattr(product, 'stock_qty', None)
+    if qty is None:
+        return {
+            'code': 'unknown',
+            'label': 'Наличие уточняется',
+            'can_buy': True,
+            'qty': None,
+        }
+    qty = int(qty)
+    if qty <= 0:
+        return {
+            'code': 'out',
+            'label': 'Нет в наличии',
+            'can_buy': False,
+            'qty': 0,
+        }
+    return {
+        'code': 'in',
+        'label': f'В наличии: {qty} шт.',
+        'can_buy': True,
+        'qty': qty,
+    }
+
+
+def public_stock_xlsx_value(product):
+    qty = getattr(product, 'stock_qty', None)
+    if qty is None:
+        return 'Уточняется при заказе'
+    return int(qty)
+
+
 def remaining_wholesale_qty(total_qty, seller):
     minimum = int(getattr(seller, 'wholesale_min_order_qty', 0) or 0)
     if minimum <= 0:

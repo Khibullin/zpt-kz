@@ -1,4 +1,25 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.http import HttpResponse, HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import path, reverse
+from django.utils.html import format_html
+
+from catalog.wholesale_export import XLSX_CONTENT_TYPE
+from catalog.wholesale_update import (
+    STALE_APPLY_MESSAGE,
+    WholesaleUpdateBlockedError,
+    WholesaleUpdateError,
+    WholesaleUpdateStaleError,
+    WholesaleUpdateUploadForm,
+    apply_wholesale_update_preview,
+    persist_wholesale_update_batch,
+    plan_wholesale_update,
+    preview_display_rows,
+    safe_upload_filename,
+    sha256_bytes,
+    wholesale_update_filename,
+    wholesale_update_xlsx_bytes,
+)
 from .models import (
     Country,
     Brand,
@@ -134,6 +155,7 @@ class SellerProfileAdmin(admin.ModelAdmin):
         'wholesale_enabled',
         'wholesale_min_order_qty',
         'user',
+        'wholesale_update_link',
     )
 
     search_fields = (
@@ -147,6 +169,247 @@ class SellerProfileAdmin(admin.ModelAdmin):
 
     ordering = ('name',)
     inlines = [SellerWholesaleTermsInline]
+    change_form_template = 'admin/catalog/sellerprofile/change_form.html'
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                '<path:object_id>/wholesale-update/',
+                self.admin_site.admin_view(self.wholesale_update_view),
+                name='catalog_sellerprofile_wholesale_update',
+            ),
+            path(
+                '<path:object_id>/wholesale-update/download/',
+                self.admin_site.admin_view(self.wholesale_download_view),
+                name='catalog_sellerprofile_wholesale_download',
+            ),
+            path(
+                '<path:object_id>/wholesale-update/<int:batch_id>/',
+                self.admin_site.admin_view(self.wholesale_preview_view),
+                name='catalog_sellerprofile_wholesale_preview',
+            ),
+            path(
+                '<path:object_id>/wholesale-update/<int:batch_id>/apply/',
+                self.admin_site.admin_view(self.wholesale_apply_view),
+                name='catalog_sellerprofile_wholesale_apply',
+            ),
+        ]
+        return custom + urls
+
+    def _can_wholesale_update(self, request):
+        user = request.user
+        return bool(
+            user.is_active
+            and user.is_staff
+            and (
+                user.is_superuser
+                or user.has_perm('catalog.change_product')
+                or user.has_perm('catalog.change_sellerprofile')
+            )
+        )
+
+    def _seller_or_404(self, object_id):
+        return get_object_or_404(SellerProfile, pk=object_id)
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update({
+            'wholesale_update_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_update',
+                args=[object_id],
+            ),
+            'wholesale_download_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_download',
+                args=[object_id],
+            ),
+        })
+        return super().change_view(
+            request, object_id, form_url, extra_context=extra_context
+        )
+
+    @admin.display(description='Цены и остатки')
+    def wholesale_update_link(self, obj):
+        url = reverse('admin:catalog_sellerprofile_wholesale_update', args=[obj.pk])
+        return format_html(
+            '<a class="button" href="{}">Обновить цены и остатки</a>',
+            url,
+        )
+
+    def wholesale_download_view(self, request, object_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        seller = self._seller_or_404(object_id)
+        payload = wholesale_update_xlsx_bytes(seller)
+        filename = wholesale_update_filename(seller)
+        response = HttpResponse(payload, content_type=XLSX_CONTENT_TYPE)
+        response['Content-Disposition'] = f'attachment; filename="{filename}"'
+        return response
+
+    def wholesale_update_view(self, request, object_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        seller = self._seller_or_404(object_id)
+        form = WholesaleUpdateUploadForm(request.POST or None, request.FILES or None)
+        if request.method == 'POST' and form.is_valid():
+            uploaded = form.cleaned_data['file']
+            payload = uploaded.read()
+            filename = safe_upload_filename(getattr(uploaded, 'name', ''))
+            try:
+                rows = plan_wholesale_update(seller, payload)
+            except WholesaleUpdateError as exc:
+                form.add_error('file', str(exc))
+            else:
+                batch, _summary = persist_wholesale_update_batch(
+                    seller=seller,
+                    rows=rows,
+                    filename=filename,
+                    file_sha256=sha256_bytes(payload),
+                    mode=CatalogImportBatch.MODE_DRY_RUN,
+                    uploaded_by=request.user,
+                )
+                return redirect(
+                    'admin:catalog_sellerprofile_wholesale_preview',
+                    object_id,
+                    batch.pk,
+                )
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': seller,
+            'seller': seller,
+            'form': form,
+            'title': f'Обновить цены и остатки: {seller.name}',
+            'download_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_download',
+                args=[seller.pk],
+            ),
+        }
+        return render(
+            request,
+            'admin/catalog/sellerprofile/wholesale_update.html',
+            context,
+        )
+
+    def wholesale_preview_view(self, request, object_id, batch_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        seller = self._seller_or_404(object_id)
+        batch = get_object_or_404(
+            CatalogImportBatch,
+            pk=batch_id,
+            seller_profile=seller,
+            source=CatalogImportBatch.SOURCE_WHOLESALE_UPDATE,
+            mode=CatalogImportBatch.MODE_DRY_RUN,
+        )
+        rows = preview_display_rows(batch)
+        summary = {
+            'rows': batch.source_row_count,
+            'matched': batch.updated_count + batch.unchanged_count,
+            'updated': batch.updated_count,
+            'unchanged': batch.unchanged_count,
+            'conflicts': batch.conflict_count,
+            'errors': batch.error_count,
+            'has_blockers': bool(batch.conflict_count or batch.error_count),
+            'has_warnings': bool(batch.warning_count),
+        }
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': seller,
+            'seller': seller,
+            'batch': batch,
+            'rows': rows,
+            'summary': summary,
+            'title': f'Предпросмотр: {seller.name}',
+            'apply_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_apply',
+                args=[seller.pk, batch.pk],
+            ),
+            'upload_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_update',
+                args=[seller.pk],
+            ),
+        }
+        return render(
+            request,
+            'admin/catalog/sellerprofile/wholesale_update_preview.html',
+            context,
+        )
+
+    def wholesale_apply_view(self, request, object_id, batch_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        if request.method != 'POST':
+            return redirect(
+                'admin:catalog_sellerprofile_wholesale_preview',
+                object_id,
+                batch_id,
+            )
+        seller = self._seller_or_404(object_id)
+        batch = get_object_or_404(
+            CatalogImportBatch,
+            pk=batch_id,
+            seller_profile=seller,
+            source=CatalogImportBatch.SOURCE_WHOLESALE_UPDATE,
+            mode=CatalogImportBatch.MODE_DRY_RUN,
+        )
+        if request.POST.get('confirm') != '1':
+            messages.error(request, 'Подтвердите применение изменений.')
+            return redirect(
+                'admin:catalog_sellerprofile_wholesale_preview',
+                seller.pk,
+                batch.pk,
+            )
+        try:
+            write_batch, summary = apply_wholesale_update_preview(
+                seller=seller,
+                preview_batch=batch,
+                applied_by=request.user,
+            )
+        except WholesaleUpdateStaleError:
+            messages.error(request, STALE_APPLY_MESSAGE)
+            return redirect(
+                'admin:catalog_sellerprofile_wholesale_update',
+                seller.pk,
+            )
+        except WholesaleUpdateBlockedError as exc:
+            messages.error(request, str(exc))
+            return redirect(
+                'admin:catalog_sellerprofile_wholesale_preview',
+                seller.pk,
+                batch.pk,
+            )
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': seller,
+            'seller': seller,
+            'batch': write_batch,
+            'summary': summary,
+            'title': 'Изменения применены',
+            'history_url': reverse(
+                'admin:catalog_catalogimportbatch_change',
+                args=[write_batch.pk],
+            ),
+            'seller_url': reverse(
+                'admin:catalog_sellerprofile_change',
+                args=[seller.pk],
+            ),
+            'download_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_download',
+                args=[seller.pk],
+            ),
+            'upload_url': reverse(
+                'admin:catalog_sellerprofile_wholesale_update',
+                args=[seller.pk],
+            ),
+        }
+        return render(
+            request,
+            'admin/catalog/sellerprofile/wholesale_update_success.html',
+            context,
+        )
 
 
 class ProductImageInline(admin.TabularInline):
@@ -528,6 +791,8 @@ class CatalogImportBatchAdmin(CatalogHistoryMixin, admin.ModelAdmin):
         'selected_count',
         'created_count',
         'updated_count',
+        'uploaded_by',
+        'applied_by',
         'missing_from_source_count',
         'started_at',
     )
@@ -560,6 +825,8 @@ class CatalogImportBatchAdmin(CatalogHistoryMixin, admin.ModelAdmin):
         'previous_successful_batch',
         'blocked_reason',
         'allow_source_shrink_reason',
+        'uploaded_by',
+        'applied_by',
     )
     inlines = (CatalogImportItemInline,)
     date_hierarchy = 'started_at'

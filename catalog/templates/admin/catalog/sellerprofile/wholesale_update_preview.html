@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <p>Продавец: <strong>{{ seller.name }}</strong></p>
+  <p>
+    Строк: {{ summary.rows }} ·
+    Найдено: {{ summary.matched }} ·
+    Изменится: {{ summary.updated }} ·
+    Без изменений: {{ summary.unchanged }} ·
+    Конфликтов: {{ summary.conflicts }} ·
+    Ошибок: {{ summary.errors }}
+  </p>
+  {% if summary.has_warnings %}
+    <p class="errornote">Есть предупреждения. Их можно подтвердить сознательно.</p>
+  {% endif %}
+
+  <table class="listing">
+    <thead>
+      <tr>
+        <th>Артикул</th>
+        <th>Товар</th>
+        <th>Розница</th>
+        <th>Опт</th>
+        <th>Остаток</th>
+        <th>Результат</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.article }}</td>
+          <td>{{ row.title }}</td>
+          <td>{{ row.retail_old|default_if_none:"—" }} → {{ row.retail_new|default_if_none:"—" }}</td>
+          <td>{{ row.wholesale_old|default_if_none:"—" }} → {{ row.wholesale_new|default_if_none:"—" }}</td>
+          <td>{{ row.stock_old|default_if_none:"—" }} → {{ row.stock_new|default_if_none:"—" }}</td>
+          <td>
+            {% if row.action == 'updated' %}изменится
+            {% elif row.action == 'unchanged' %}без изменений
+            {% elif row.action == 'conflict' %}конфликт
+            {% elif row.action == 'error' %}ошибка
+            {% else %}{{ row.action_label }}
+            {% endif %}
+            {% for warning in row.warnings %}
+              <div>{{ warning }}</div>
+            {% endfor %}
+            {% for error in row.errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if not summary.has_blockers and summary.updated %}
+    <form method="post" action="{{ apply_url }}" onsubmit="return confirm('Будут изменены {{ summary.updated }} товаров продавца «{{ seller.name }}».');">
+      {% csrf_token %}
+      <input type="hidden" name="confirm" value="1">
+      <input type="submit" class="default" value="Применить изменения">
+    </form>
+  {% elif summary.has_blockers %}
+    <p class="errornote">Кнопка Apply недоступна, пока есть конфликты или ошибки.</p>
+  {% else %}
+    <p>Изменяемых строк нет.</p>
+  {% endif %}
+  <p>
+    <a href="{{ upload_url }}">Загрузить другой файл</a> ·
+    <a href="{% url 'admin:catalog_sellerprofile_change' seller.pk %}">Вернуться к продавцу</a>
+  </p>
+</div>
+{% endblock %}
