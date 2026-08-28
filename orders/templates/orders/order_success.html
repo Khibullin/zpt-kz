@@ -9,6 +9,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v3">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
 {% endblock %}
 
 {% block content %}
@@ -17,13 +18,21 @@
 <section class="section checkout-page">
   <div class="container">
     <div class="order-success-card">
-      <div class="order-success-badge">Заказ принят</div>
-      <h1>Заказ №{{ order.id }} принят</h1>
-      <p class="order-success-lead">
-        Мы получили ваш заказ.<br>
-        Продавец свяжется с вами в WhatsApp, чтобы подтвердить наличие товара,
-        условия доставки и порядок оплаты.
-      </p>
+      {% if order.is_wholesale %}
+        <div class="order-success-badge order-success-badge-wholesale">Оптовый заказ принят</div>
+        <h1>Оптовый заказ №{{ order.id }} принят</h1>
+        <p class="order-success-lead">
+          Продавец подтвердит наличие товаров, доставку и порядок оплаты.
+        </p>
+      {% else %}
+        <div class="order-success-badge">Заказ принят</div>
+        <h1>Заказ №{{ order.id }} принят</h1>
+        <p class="order-success-lead">
+          Мы получили ваш заказ.<br>
+          Продавец свяжется с вами в WhatsApp, чтобы подтвердить наличие товара,
+          условия доставки и порядок оплаты.
+        </p>
+      {% endif %}
 
       <div class="order-success-warning">
         Не оплачивайте товар до подтверждения заказа продавцом.
@@ -33,6 +42,10 @@
         <h2>Информация о заказе</h2>
         <p class="order-success-meta">
           <strong>Продавец:</strong> {{ order.seller_name|default:"—" }}<br>
+          {% if order.is_wholesale %}
+            <strong>Количество единиц:</strong> {{ order_total_qty }}<br>
+            <strong>Итого:</strong> {{ order.total_price|intcomma }} ₸<br>
+          {% endif %}
           <strong>Способ доставки:</strong> {{ order.delivery_method_label }}<br>
           {% if order.delivery_method == 'pickup' %}
             <strong>Адрес:</strong> {{ pickup_address }}
@@ -72,7 +85,18 @@
       </div>
 
       <div class="checkout-actions">
-        <a href="{% url 'catalog_list' %}" class="btn red">Вернуться в каталог</a>
+        {% if order.is_wholesale %}
+          {% if wholesale_storefront_url %}
+            <a href="{{ wholesale_storefront_url }}" class="btn red">Продолжить оптовые покупки</a>
+          {% endif %}
+          {% if seller_whatsapp_url %}
+            <a href="{{ seller_whatsapp_url }}" class="btn outline" target="_blank" rel="noopener noreferrer">
+              Написать продавцу в WhatsApp
+            </a>
+          {% endif %}
+        {% else %}
+          <a href="{% url 'catalog_list' %}" class="btn red">Вернуться в каталог</a>
+        {% endif %}
       </div>
     </div>
   </div>

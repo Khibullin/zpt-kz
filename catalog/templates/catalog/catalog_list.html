@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v136">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
 <style>
 .market-topbar{
   position:sticky;
@@ -550,6 +551,10 @@ a.hero-b2b-strip-btn:hover,
           </a>
 
           {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
+
+          {% if product.has_public_wholesale %}
+            <span class="wholesale-catalog-badge">Есть оптовая цена</span>
+          {% endif %}
 
           {% include 'catalog/includes/product_price_display.html' with product=product %}
 

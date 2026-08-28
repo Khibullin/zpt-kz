@@ -31,6 +31,13 @@ class Order(models.Model):
         (DELIVERY_KZ, 'Доставка по Казахстану'),
     ]
 
+    ORDER_TYPE_RETAIL = 'retail'
+    ORDER_TYPE_WHOLESALE = 'wholesale'
+    ORDER_TYPE_CHOICES = [
+        (ORDER_TYPE_RETAIL, 'Розничный'),
+        (ORDER_TYPE_WHOLESALE, 'Оптовый'),
+    ]
+
     user = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,
@@ -70,6 +77,31 @@ class Order(models.Model):
         blank=True,
         verbose_name='Данные доставки',
     )
+    order_type = models.CharField(
+        max_length=20,
+        choices=ORDER_TYPE_CHOICES,
+        default=ORDER_TYPE_RETAIL,
+        db_index=True,
+        verbose_name='Тип заказа',
+    )
+    utm_source = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='UTM source',
+    )
+    utm_medium = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='UTM medium',
+    )
+    utm_campaign = models.CharField(
+        max_length=150,
+        blank=True,
+        default='',
+        verbose_name='UTM campaign',
+    )
     access_token = models.UUIDField(
         default=uuid.uuid4,
         unique=True,
@@ -90,6 +122,14 @@ class Order(models.Model):
     @property
     def delivery_method_label(self):
         return dict(self.DELIVERY_METHOD_CHOICES).get(self.delivery_method, self.delivery_method)
+
+    @property
+    def is_wholesale(self):
+        return self.order_type == self.ORDER_TYPE_WHOLESALE
+
+    @property
+    def total_quantity(self):
+        return sum(item.quantity for item in self.items.all())
 
 
 class OrderItem(models.Model):

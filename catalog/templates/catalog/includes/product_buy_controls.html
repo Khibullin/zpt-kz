@@ -26,7 +26,7 @@
     data-product-supplier="{{ product.supplier|default:'local' }}"
   >
     <span class="product-buy-btn-icon" aria-hidden="true">🛒</span>
-    <span class="product-buy-btn-text">Купить</span>
+    <span class="product-buy-btn-text">{{ buy_label|default:'Купить' }}</span>
   </button>
 </div>
 {% endif %}

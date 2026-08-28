@@ -20,6 +20,7 @@ class OrderAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'created_at',
+        'order_type',
         'seller_name',
         'customer_name',
         'customer_phone',
@@ -27,13 +28,15 @@ class OrderAdmin(admin.ModelAdmin):
         'total_price',
         'delivery_method',
     )
-    list_filter = ('status', 'seller_name', 'delivery_method', 'created_at')
+    list_filter = ('order_type', 'status', 'seller_name', 'delivery_method', 'created_at')
     search_fields = (
         'id',
         'seller_name',
         'seller_whatsapp',
         'customer_name',
         'customer_phone',
+        'utm_source',
+        'utm_campaign',
         'items__product__title',
         'items__product__article',
     )
@@ -43,6 +46,10 @@ class OrderAdmin(admin.ModelAdmin):
         'access_token',
         'seller_name',
         'seller_whatsapp',
+        'order_type',
+        'utm_source',
+        'utm_medium',
+        'utm_campaign',
     )
     inlines = [OrderItemInline, KaspiTransactionInline]
 

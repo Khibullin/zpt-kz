@@ -89,6 +89,21 @@ def resolve_seller_profile_from_items(items):
     return None
 
 
+def resolve_seller_profile_from_order(order):
+    """Resolve SellerProfile from order seller snapshot (WhatsApp, then name)."""
+    if order is None:
+        return None
+    suffix = seller_phone_suffix(order.seller_whatsapp)
+    if suffix:
+        for profile in SellerProfile.objects.order_by('pk').iterator():
+            if seller_phone_suffix(profile.phone) == suffix:
+                return profile
+    name = (order.seller_name or '').strip()
+    if name:
+        return SellerProfile.objects.filter(name__iexact=name).order_by('pk').first()
+    return None
+
+
 def warehouse_address_fallback():
     return getattr(settings, 'ZPT_WAREHOUSE_ADDRESS', DEFAULT_WAREHOUSE_ADDRESS)
 

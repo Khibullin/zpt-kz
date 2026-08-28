@@ -1,5 +1,6 @@
 import logging
 import re
+from urllib.parse import quote
 
 from django.conf import settings
 from django.core.mail import send_mail
@@ -37,11 +38,18 @@ def build_admin_order_url(order):
     return f'{base}{path}'
 
 
-def build_buyer_whatsapp_url(phone):
+def build_whatsapp_url(phone, text=''):
     digits = normalize_phone_for_wa_me(phone)
     if not digits:
         return ''
-    return f'https://wa.me/{digits}'
+    url = f'https://wa.me/{digits}'
+    if text:
+        url += f'?text={quote(text)}'
+    return url
+
+
+def build_buyer_whatsapp_url(phone):
+    return build_whatsapp_url(phone)
 
 
 def format_delivery_block(order):
@@ -69,12 +77,28 @@ def format_delivery_block(order):
 
 
 def build_order_email_body(order):
-    lines = [
-        f'Новый заказ ZPT.KZ №{order.id}',
-        '',
+    is_wholesale = getattr(order, 'order_type', '') == Order.ORDER_TYPE_WHOLESALE
+    if is_wholesale:
+        total_qty = sum(item.quantity for item in order.items.all())
+        lines = [
+            f'Новый ОПТОВЫЙ заказ ZPT.KZ №{order.id}',
+            '',
+            'Тип заказа: Оптовый',
+            f'Количество единиц: {total_qty}',
+            '',
+        ]
+    else:
+        lines = [
+            f'Новый заказ ZPT.KZ №{order.id}',
+            '',
+        ]
+
+    missing = '\u2014'
+    seller_whatsapp = order.seller_whatsapp or missing
+    lines.extend([
         'Продавец:',
-        order.seller_name or '—',
-        f'WhatsApp продавца: {order.seller_whatsapp or "—"}',
+        order.seller_name or missing,
+        f'WhatsApp продавца: {seller_whatsapp}',
         '',
         'Покупатель:',
         order.customer_name,
@@ -84,7 +108,7 @@ def build_order_email_body(order):
         format_delivery_block(order),
         '',
         'Товары:',
-    ]
+    ])
 
     for index, item in enumerate(order.items.all(), start=1):
         article = item.product.article or '—'
@@ -136,11 +160,18 @@ def send_order_admin_email(order_id):
         logger.error('Order #%s not found for admin email', order_id)
         return False
 
-    subject = (
-        f'Новый заказ ZPT.KZ №{order.id} — '
-        f'{order.seller_name or "—"} — '
-        f'{format_price_kzt(order.total_price)} ₸'
-    )
+    if order.order_type == Order.ORDER_TYPE_WHOLESALE:
+        subject = (
+            f'Новый ОПТОВЫЙ заказ ZPT.KZ №{order.id} — '
+            f'{order.seller_name or "—"} — '
+            f'{format_price_kzt(order.total_price)} ₸'
+        )
+    else:
+        subject = (
+            f'Новый заказ ZPT.KZ №{order.id} — '
+            f'{order.seller_name or "—"} — '
+            f'{format_price_kzt(order.total_price)} ₸'
+        )
     body = build_order_email_body(order)
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.EMAIL_HOST_USER
 

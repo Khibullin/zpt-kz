@@ -116,13 +116,16 @@
     const note = document.getElementById('cart-wholesale-note');
     const checkoutBtn = document.getElementById('cart-checkout-btn');
     const remaining = Number(data.wholesale_remaining || 0);
+    const minimum = Number(data.wholesale_minimum || 0);
+    const totalQty = Number(data.wholesale_total_qty || 0);
     if (note) {
+      note.hidden = false;
       if (remaining > 0) {
-        note.hidden = false;
-        note.textContent = 'Добавьте ещё ' + remaining + ' шт. для оптового заказа';
+        note.textContent =
+          'В корзине ' + totalQty + ' из ' + minimum +
+          ' шт. Добавьте ещё ' + remaining + ' шт.';
       } else {
-        note.hidden = true;
-        note.textContent = '';
+        note.textContent = '✓ Минимальное количество набрано. Можно оформить заказ.';
       }
     }
     if (checkoutBtn) {

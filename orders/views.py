@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
@@ -16,9 +17,14 @@ from catalog.wholesale import (
     resolve_wholesale_owner,
 )
 
+from .attribution import clear_utm, get_utm_snapshot
 from .cart import CartManager
-from .constants import DEFAULT_WAREHOUSE_ADDRESS, TRANSPORT_COMPANIES
-from .email_notifications import send_order_admin_email
+from .constants import (
+    CART_MODE_CONFLICT,
+    DEFAULT_WAREHOUSE_ADDRESS,
+    TRANSPORT_COMPANIES,
+)
+from .email_notifications import build_whatsapp_url, send_order_admin_email
 from .forms import CheckoutForm
 from .models import Order, OrderItem
 from .seller_utils import (
@@ -27,6 +33,7 @@ from .seller_utils import (
     get_order_pickup_display_address,
     get_seller_snapshot_from_items,
     resolve_pickup_options,
+    resolve_seller_profile_from_order,
 )
 
 logger = logging.getLogger(__name__)
@@ -64,7 +71,8 @@ def _mode_conflict_response(message):
         {
             'success': False,
             'ok': False,
-            'error': message,
+            'error': CART_MODE_CONFLICT,
+            'code': CART_MODE_CONFLICT,
             'message': message,
         },
         status=409,
@@ -304,6 +312,13 @@ def cart_view(request):
     _prune_unavailable_cart_items(request, cart)
     items = cart.get_items()
     wholesale_status = cart.wholesale_status()
+    continue_shopping_url = reverse('catalog_list')
+    seller = wholesale_status.get('seller')
+    if cart.is_wholesale() and seller and seller.slug:
+        continue_shopping_url = reverse(
+            'public_seller_wholesale',
+            kwargs={'slug': seller.slug},
+        )
 
     return render(request, 'orders/cart.html', {
         'items': items,
@@ -312,6 +327,7 @@ def cart_view(request):
         'warehouse_address': _warehouse_address(),
         'wholesale_status': wholesale_status,
         'is_wholesale_cart': cart.is_wholesale(),
+        'continue_shopping_url': continue_shopping_url,
     })
 
 
@@ -475,6 +491,7 @@ def cart_update_quantity(request):
         'wholesale_enabled': wholesale_status['enabled'],
         'wholesale_remaining': wholesale_status['remaining'],
         'wholesale_minimum': wholesale_status['minimum'],
+        'wholesale_total_qty': wholesale_status['total_qty'],
         'wholesale_can_checkout': wholesale_status['can_checkout'],
     })
 
@@ -530,6 +547,12 @@ def checkout(request):
 
                 seller_snapshot = get_seller_snapshot_from_items(current_items)
                 is_wholesale_cart = cart.is_wholesale()
+                order_type = (
+                    Order.ORDER_TYPE_WHOLESALE
+                    if is_wholesale_cart
+                    else Order.ORDER_TYPE_RETAIL
+                )
+                utm_snapshot = get_utm_snapshot(request)
                 if is_wholesale_cart:
                     owner = resolve_wholesale_owner(current_items[0]['product'])
                     total_qty = sum(item['quantity'] for item in current_items)
@@ -583,6 +606,10 @@ def checkout(request):
                     total_price=total_price,
                     seller_name=seller_snapshot['seller_name'],
                     seller_whatsapp=seller_snapshot['seller_whatsapp'],
+                    order_type=order_type,
+                    utm_source=utm_snapshot['utm_source'],
+                    utm_medium=utm_snapshot['utm_medium'],
+                    utm_campaign=utm_snapshot['utm_campaign'],
                     status=Order.STATUS_NEW,
                 )
                 OrderItem.objects.bulk_create([
@@ -599,6 +626,7 @@ def checkout(request):
             access_token = order.access_token
             transaction.on_commit(lambda: send_order_admin_email(order_id))
             cart.clear()
+            clear_utm(request)
             return redirect(
                 'orders:order_success',
                 order_id=order_id,
@@ -640,8 +668,32 @@ def order_success(request, order_id, access_token):
     pickup_address = ''
     if order.delivery_method == Order.DELIVERY_PICKUP:
         pickup_address = get_order_pickup_display_address(order)
+    seller_profile = None
+    wholesale_storefront_url = ''
+    seller_whatsapp_url = ''
+    if order.is_wholesale:
+        seller_profile = resolve_seller_profile_from_order(order)
+        if (
+            seller_profile is not None
+            and seller_profile.wholesale_enabled
+            and seller_profile.slug
+        ):
+            wholesale_storefront_url = reverse(
+                'public_seller_wholesale',
+                kwargs={'slug': seller_profile.slug},
+            )
+        wa_text = (
+            f'Здравствуйте!\n'
+            f'Я оформил оптовый заказ №{order.id} на ZPT.KZ.\n'
+            f'Подскажите, пожалуйста, по подтверждению наличия и доставке.'
+        )
+        seller_whatsapp_url = build_whatsapp_url(order.seller_whatsapp, wa_text)
     return render(request, 'orders/order_success.html', {
         'order': order,
         'pickup_address': pickup_address,
         'warehouse_address': pickup_address,
+        'seller_profile': seller_profile,
+        'wholesale_storefront_url': wholesale_storefront_url,
+        'seller_whatsapp_url': seller_whatsapp_url,
+        'order_total_qty': order.total_quantity,
     })

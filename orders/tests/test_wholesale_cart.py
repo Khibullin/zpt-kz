@@ -1,11 +1,19 @@
 import json
 
 from django.contrib.auth.models import User
+from django.core import mail
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from catalog.models import Product, ProductPriceTier, SellerProfile
-from orders.constants import CART_MODE_RETAIL, CART_MODE_WHOLESALE, SESSION_CART_MODE_KEY
+from orders.constants import (
+    CART_MODE_CONFLICT,
+    CART_MODE_RETAIL,
+    CART_MODE_WHOLESALE,
+    SESSION_CART_MODE_KEY,
+    SESSION_UTM_KEY,
+)
+from orders.email_notifications import build_order_email_body, send_order_admin_email
 from orders.models import Order, OrderItem
 
 
@@ -93,17 +101,17 @@ class PublicWholesaleCartTests(TestCase):
             content_type='application/json',
         )
 
-    def _checkout_post(self):
-        return self.client.post(
-            reverse('orders:checkout'),
-            data={
-                'customer_name': 'Иван',
-                'customer_phone': '+7 (701) 123-45-67',
-                'delivery_method': Order.DELIVERY_COURIER,
-                'courier_street': 'Абая',
-                'courier_house': '10',
-            },
-        )
+    def _checkout_post(self, extra=None):
+        data = {
+            'customer_name': 'Иван',
+            'customer_phone': '+7 (701) 123-45-67',
+            'delivery_method': Order.DELIVERY_COURIER,
+            'courier_street': 'Абая',
+            'courier_house': '10',
+        }
+        if extra:
+            data.update(extra)
+        return self.client.post(reverse('orders:checkout'), data=data)
 
     def test_guest_wholesale_cart_uses_tier_price(self):
         response = self._add(self.products[0], quantity=3)
@@ -118,7 +126,12 @@ class PublicWholesaleCartTests(TestCase):
         self.assertEqual(cart.context['items'][0]['unit_price'], WHOLESALE)
         self.assertTrue(cart.context['is_wholesale_cart'])
         html = cart.content.decode('utf-8')
-        self.assertIn('Добавьте ещё 7 шт. для оптового заказа', html)
+        self.assertIn('Оптовая корзина', html)
+        self.assertIn('В корзине 3 из 10 шт. Добавьте ещё 7 шт.', html)
+        self.assertIn(
+            reverse('public_seller_wholesale', kwargs={'slug': self.seller.slug}),
+            html,
+        )
 
     def test_retail_cart_stays_retail(self):
         response = self._add(self.products[0], quantity=3, mode=None)
@@ -131,20 +144,35 @@ class PublicWholesaleCartTests(TestCase):
         cart = self.client.get(reverse('orders:cart'))
         self.assertEqual(cart.context['items'][0]['unit_price'], RETAIL)
         self.assertFalse(cart.context['is_wholesale_cart'])
+        self.assertEqual(
+            cart.context['continue_shopping_url'],
+            reverse('catalog_list'),
+        )
+        self.assertContains(cart, reverse('catalog_list'))
 
     def test_cannot_mix_retail_and_wholesale(self):
         first = self._add(self.products[0], quantity=1, mode=None)
         self.assertEqual(first.status_code, 200)
         mixed = self._add(self.products[1], quantity=1, mode=CART_MODE_WHOLESALE)
         self.assertEqual(mixed.status_code, 409)
-        self.assertIn('розничн', mixed.json()['message'].lower())
+        payload = mixed.json()
+        self.assertEqual(payload['code'], CART_MODE_CONFLICT)
+        self.assertIn('розничный заказ', payload['message'].lower())
+        cart = self.client.get(reverse('orders:cart'))
+        self.assertEqual(cart.context['cart_count'], 1)
+        self.assertFalse(cart.context['is_wholesale_cart'])
 
         self.client = self.client_class()
         first = self._add(self.products[0], quantity=1, mode=CART_MODE_WHOLESALE)
         self.assertEqual(first.status_code, 200)
         mixed = self._add(self.products[1], quantity=1, mode=None)
         self.assertEqual(mixed.status_code, 409)
-        self.assertIn('оптов', mixed.json()['message'].lower())
+        payload = mixed.json()
+        self.assertEqual(payload['code'], CART_MODE_CONFLICT)
+        self.assertIn('оптовый заказ', payload['message'].lower())
+        cart = self.client.get(reverse('orders:cart'))
+        self.assertEqual(cart.context['cart_count'], 1)
+        self.assertTrue(cart.context['is_wholesale_cart'])
 
     def test_cannot_add_other_seller(self):
         self._add(self.products[0], quantity=1)
@@ -165,6 +193,7 @@ class PublicWholesaleCartTests(TestCase):
         created = self._checkout_post()
         self.assertEqual(created.status_code, 302)
         order = Order.objects.get()
+        self.assertEqual(order.order_type, Order.ORDER_TYPE_WHOLESALE)
         self.assertEqual(order.total_price, WHOLESALE * 10)
         items = list(OrderItem.objects.filter(order=order).order_by('product_id'))
         self.assertEqual(len(items), 4)
@@ -190,3 +219,107 @@ class PublicWholesaleCartTests(TestCase):
         self.assertEqual(Order.objects.count(), 0)
         follow = self.client.get(reverse('orders:cart'))
         self.assertContains(follow, 'Добавьте ещё 1 шт. для оптового заказа')
+
+    def test_wholesale_progress_and_continue_url(self):
+        self._add(self.products[0], quantity=6)
+        cart = self.client.get(reverse('orders:cart'))
+        html = cart.content.decode('utf-8')
+        self.assertIn('Оптовая корзина', html)
+        self.assertIn('Минимальный заказ — 10 шт. в ассортименте', html)
+        self.assertIn('В корзине 6 из 10 шт. Добавьте ещё 4 шт.', html)
+        self.assertEqual(
+            cart.context['continue_shopping_url'],
+            reverse('public_seller_wholesale', kwargs={'slug': self.seller.slug}),
+        )
+
+        self._add(self.products[1], quantity=4)
+        cart = self.client.get(reverse('orders:cart'))
+        self.assertContains(cart, 'Минимальное количество набрано. Можно оформить заказ.')
+
+    def test_retail_checkout_stores_retail_type(self):
+        self._add(self.products[0], quantity=1, mode=None)
+        created = self._checkout_post(extra={'order_type': Order.ORDER_TYPE_WHOLESALE})
+        self.assertEqual(created.status_code, 302)
+        order = Order.objects.get()
+        self.assertEqual(order.order_type, Order.ORDER_TYPE_RETAIL)
+        success = self.client.get(created.url)
+        html = success.content.decode('utf-8')
+        self.assertNotIn('Оптовый заказ', html)
+        self.assertNotIn('Продолжить оптовые покупки', html)
+        self.assertContains(success, 'Вернуться в каталог')
+
+    def test_wholesale_success_and_email(self):
+        for product, qty in zip(self.products, (2, 3, 2, 3)):
+            self._add(product, quantity=qty)
+        created = self._checkout_post()
+        order = Order.objects.get()
+        self.assertEqual(order.order_type, Order.ORDER_TYPE_WHOLESALE)
+        success = self.client.get(created.url)
+        html = success.content.decode('utf-8')
+        self.assertIn('Оптовый заказ', html)
+        self.assertIn('Продолжить оптовые покупки', html)
+        self.assertIn(
+            reverse('public_seller_wholesale', kwargs={'slug': self.seller.slug}),
+            html,
+        )
+        self.assertIn('Написать продавцу в WhatsApp', html)
+        self.assertIn('wa.me/77771360740', html)
+        body = build_order_email_body(order)
+        self.assertIn('Тип заказа: Оптовый', body)
+        self.assertIn('Количество единиц: 10', body)
+        send_order_admin_email(order.pk)
+        self.assertTrue(mail.outbox)
+        self.assertIn('ОПТОВЫЙ', mail.outbox[-1].subject)
+        self.assertTrue(
+            mail.outbox[-1].subject.startswith('Новый ОПТОВЫЙ заказ ZPT.KZ')
+        )
+
+    def test_retail_email_subject_stays_regular(self):
+        self._add(self.products[0], quantity=1, mode=None)
+        self._checkout_post()
+        order = Order.objects.get()
+        send_order_admin_email(order.pk)
+        self.assertTrue(mail.outbox)
+        subject = mail.outbox[-1].subject
+        self.assertTrue(subject.startswith('Новый заказ ZPT.KZ'))
+        self.assertNotIn('ОПТОВЫЙ', subject)
+
+    def test_utm_snapshot_saved_and_cleared_after_order(self):
+        storefront = reverse(
+            'public_seller_wholesale',
+            kwargs={'slug': self.seller.slug},
+        )
+        self.client.get(
+            storefront,
+            {
+                'utm_source': 'whatsapp',
+                'utm_medium': 'marketing',
+                'utm_campaign': 'ag_parts_wholesale_launch',
+            },
+        )
+        self.client.get(storefront)
+        self.assertEqual(
+            self.client.session[SESSION_UTM_KEY]['utm_source'],
+            'whatsapp',
+        )
+        for product, qty in zip(self.products, (2, 3, 2, 3)):
+            self._add(product, quantity=qty)
+        self._checkout_post()
+        order = Order.objects.get()
+        self.assertEqual(order.utm_source, 'whatsapp')
+        self.assertEqual(order.utm_medium, 'marketing')
+        self.assertEqual(order.utm_campaign, 'ag_parts_wholesale_launch')
+        self.assertNotIn(SESSION_UTM_KEY, self.client.session)
+
+    def test_utm_values_are_truncated(self):
+        storefront = reverse(
+            'public_seller_wholesale',
+            kwargs={'slug': self.seller.slug},
+        )
+        self.client.get(
+            storefront,
+            {'utm_campaign': 'c' * 400},
+        )
+        stored = self.client.session[SESSION_UTM_KEY]['utm_campaign']
+        self.assertEqual(len(stored), 150)
+

@@ -1,0 +1,34 @@
+{% load static humanize phone_extras %}
+
+<div class="product-wholesale-cta" data-wholesale-cta>
+  {% if product.price is not None %}
+    <p class="product-wholesale-retail">
+      Розничная цена: {{ product.price|intcomma|comma_to_space }} ₸
+    </p>
+  {% endif %}
+  <p class="product-wholesale-opt">
+    Оптовая цена: {{ public_wholesale.unit_price|intcomma|comma_to_space }} ₸/шт
+  </p>
+  <p class="product-wholesale-min">
+    Минимальный оптовый заказ — {{ public_wholesale.min_qty }} единиц товаров этого продавца в ассортименте.
+  </p>
+  <p class="product-wholesale-mix">
+    Можно выбрать разные артикулы, марки и виды товаров.
+  </p>
+  <p class="product-wholesale-stock">
+    Наличие подтверждается при оформлении заказа.
+  </p>
+  {% include 'catalog/includes/product_buy_controls.html' with product=product buy_label='Купить в розницу' %}
+  <button
+    type="button"
+    class="btn red wholesale-buy-btn"
+    data-wholesale-add
+    data-product-id="{{ product.id }}"
+    data-product-article="{{ product.article|default:'' }}"
+  >
+    Купить оптом
+  </button>
+  <a class="product-wholesale-assortment" href="{{ public_wholesale.storefront_url }}">
+    Смотреть весь оптовый ассортимент продавца →
+  </a>
+</div>

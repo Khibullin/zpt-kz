@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
 {% load static humanize %}
 
-{% block title %}Корзина — ZPT Market{% endblock %}
+{% block title %}{% if is_wholesale_cart %}Оптовая корзина{% else %}Корзина{% endif %} — ZPT Market{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v2">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
 {% endblock %}
 
 {% block content %}
@@ -23,15 +23,19 @@
     {% if items %}
       <div class="checkout-layout">
         <div class="checkout-card">
-          <h1>Корзина</h1>
+          <h1>{% if is_wholesale_cart %}Оптовая корзина{% else %}Корзина{% endif %}</h1>
           {% if is_wholesale_cart %}
-            <p
-              class="cart-wholesale-note"
-              id="cart-wholesale-note"
-              {% if not wholesale_status.remaining %}hidden{% endif %}
-            >
+            {% if wholesale_status.seller %}
+              <p class="cart-wholesale-seller">Продавец: {{ wholesale_status.seller.name }}</p>
+            {% endif %}
+            <p class="cart-wholesale-min">
+              Минимальный заказ — {{ wholesale_status.minimum }} шт. в ассортименте
+            </p>
+            <p class="cart-wholesale-note" id="cart-wholesale-note">
               {% if wholesale_status.remaining %}
-                Добавьте ещё {{ wholesale_status.remaining }} шт. для оптового заказа
+                В корзине {{ wholesale_status.total_qty }} из {{ wholesale_status.minimum }} шт. Добавьте ещё {{ wholesale_status.remaining }} шт.
+              {% else %}
+                ✓ Минимальное количество набрано. Можно оформить заказ.
               {% endif %}
             </p>
           {% endif %}
@@ -108,7 +112,7 @@
             {% endfor %}
           </ul>
           <div class="checkout-actions">
-            <a href="{% url 'catalog_list' %}" class="btn outline">Продолжить покупки</a>
+            <a href="{{ continue_shopping_url }}" class="btn outline">Продолжить покупки</a>
             <a
               href="{% url 'orders:checkout' %}"
               class="btn red{% if is_wholesale_cart and not wholesale_status.can_checkout %} is-disabled{% endif %}"
@@ -142,6 +146,6 @@
     updateUrl: '{% url "orders:cart_update_quantity" %}',
   };
 </script>
-<script src="{% static 'js/cart-page.js' %}?v=cart_page_v3"></script>
+<script src="{% static 'js/cart-page.js' %}?v=cart_page_v4"></script>
 {% endif %}
 {% endblock %}

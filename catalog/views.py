@@ -41,6 +41,9 @@ from .models import (
 )
 from .wholesale import (
     WHOLESALE_TYPE_CHOICES,
+    attach_public_wholesale_flags,
+    has_public_wholesale_offer,
+    public_wholesale_prefetch,
     public_wholesale_unit_price,
     seller_has_wholesale_storefront,
     wholesale_car_brands,
@@ -48,6 +51,7 @@ from .wholesale import (
     wholesale_product_type,
     wholesale_products_qs,
 )
+from orders.attribution import capture_utm_from_request
 
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
 
@@ -328,7 +332,9 @@ def catalog_list(request):
         'brand__country',
         'car_model',
         'category',
+        'seller_profile',
     )
+    products = public_wholesale_prefetch(products)
 
     if query:
         products = products.filter(
@@ -375,6 +381,7 @@ def catalog_list(request):
 
     products = attach_sellers_to_products(products)
     attach_b2b_offers(products, enabled=viewer_is_seller)
+    attach_public_wholesale_flags(products)
 
     offer_links = []
     if viewer_is_seller:
@@ -415,6 +422,7 @@ def catalog_list(request):
 
 @ensure_csrf_cookie
 def product_detail(request, slug=None, pk=None):
+    capture_utm_from_request(request)
     viewer_seller = get_request_seller_profile(request)
     viewer_is_seller = viewer_seller is not None
 
@@ -432,6 +440,7 @@ def product_detail(request, slug=None, pk=None):
             queryset=CarModel.objects.select_related('brand'),
         ),
     )
+    product_qs = public_wholesale_prefetch(product_qs)
     if viewer_is_seller:
         product_qs = b2b_prefetch(product_qs)
 
@@ -461,6 +470,20 @@ def product_detail(request, slug=None, pk=None):
     seller = resolve_product_seller(product)
     seller_phone = effective_seller_phone(product, seller)
 
+    public_wholesale = None
+    if has_public_wholesale_offer(product, seller):
+        unit_price = public_wholesale_unit_price(product)
+        if unit_price is not None and seller and seller.slug:
+            public_wholesale = {
+                'unit_price': unit_price,
+                'min_qty': seller.wholesale_min_order_qty,
+                'seller': seller,
+                'storefront_url': reverse(
+                    'public_seller_wholesale',
+                    kwargs={'slug': seller.slug},
+                ),
+            }
+
     seller_products = Product.objects.owned_by_seller(seller).filter(
         status='active'
     ).exclude(pk=product.pk).select_related(
@@ -482,6 +505,7 @@ def product_detail(request, slug=None, pk=None):
         'applicability': applicability,
         'title_vehicle_line': title_vehicle_line,
         'commercial_quote': commercial_quote,
+        'public_wholesale': public_wholesale,
     })
 
 
@@ -1058,6 +1082,7 @@ def public_seller_profile(request, slug):
 
 
 def public_seller_wholesale(request, slug):
+    capture_utm_from_request(request)
     seller = get_object_or_404(SellerProfile, slug=slug)
     if not seller.wholesale_enabled:
         raise Http404('Оптовая витрина недоступна.')

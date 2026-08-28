@@ -214,6 +214,50 @@ def wholesale_fitment_text(product):
     return '; '.join(bit for bit in bits if bit)
 
 
+def public_wholesale_prefetch(queryset):
+    """Prefetch seller_profile and active tiers for public wholesale flags."""
+    return queryset.select_related('seller_profile').prefetch_related(
+        Prefetch(
+            'price_tiers',
+            queryset=ProductPriceTier.objects.filter(is_active=True).order_by(
+                'min_qty', 'id'
+            ),
+        ),
+    )
+
+
+def public_wholesale_owner_from_product(product):
+    if product is None:
+        return None
+    if getattr(product, 'seller_profile_id', None):
+        return product.seller_profile
+    return getattr(product, 'seller', None)
+
+
+def has_public_wholesale_offer(product, seller=None):
+    """Whether the product should show public wholesale UI.
+
+    Uses prefetched seller_profile/seller and price_tiers when available.
+    """
+    if product is None or product.status != 'active' or not product.publish_to_sellers:
+        return False
+    owner = seller or public_wholesale_owner_from_product(product)
+    if owner is None or not getattr(owner, 'wholesale_enabled', False):
+        return False
+    if public_wholesale_unit_price(product) is None:
+        return False
+    owner_id = getattr(owner, 'pk', None)
+    if product.seller_profile_id and owner_id and product.seller_profile_id != owner_id:
+        return False
+    return True
+
+
+def attach_public_wholesale_flags(products):
+    for product in products:
+        product.has_public_wholesale = has_public_wholesale_offer(product)
+    return products
+
+
 def remaining_wholesale_qty(total_qty, seller):
     minimum = int(getattr(seller, 'wholesale_min_order_qty', 0) or 0)
     if minimum <= 0:

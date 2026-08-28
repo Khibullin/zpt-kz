@@ -151,6 +151,13 @@
   opacity:.55;
 }
 
+.cart-wholesale-seller,
+.cart-wholesale-min{
+  margin:0 0 8px;
+  color:#333;
+  font-size:15px;
+}
+
 .cart-wholesale-note{
   margin:0 0 16px;
   padding:12px 14px;
@@ -160,11 +167,76 @@
   font-weight:600;
 }
 
+.wholesale-catalog-badge{
+  display:inline-flex;
+  align-items:center;
+  margin:0 0 8px;
+  padding:4px 8px;
+  border-radius:999px;
+  border:1px solid #f0d4a8;
+  background:#fff8eb;
+  color:#9a3412;
+  font-size:11px;
+  font-weight:800;
+  letter-spacing:.02em;
+}
+
+.product-wholesale-cta{
+  margin:8px 0 16px;
+  padding:16px;
+  border:1px solid #ececec;
+  border-radius:16px;
+  background:#fff;
+}
+
+.product-wholesale-retail{
+  margin:0 0 6px;
+  color:#555;
+  font-size:15px;
+}
+
+.product-wholesale-opt{
+  margin:0 0 10px;
+  font-size:24px;
+  line-height:1.2;
+  font-weight:800;
+  color:#111;
+}
+
+.product-wholesale-min,
+.product-wholesale-mix,
+.product-wholesale-stock{
+  margin:0 0 8px;
+  color:#444;
+  font-size:14px;
+  line-height:1.45;
+}
+
+.product-wholesale-cta .product-buy-controls{
+  margin:12px 0;
+}
+
+.product-wholesale-assortment{
+  display:inline-block;
+  margin-top:10px;
+  color:#b42318;
+  font-weight:700;
+  text-decoration:none;
+}
+
+.order-success-badge-wholesale{
+  background:#fff8eb;
+  color:#9a3412;
+}
+
 @media (max-width:640px){
   .wholesale-hero h1{
     font-size:22px;
   }
   .wholesale-card-opt{
+    font-size:20px;
+  }
+  .product-wholesale-opt{
     font-size:20px;
   }
 }

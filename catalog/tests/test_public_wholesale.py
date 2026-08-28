@@ -1,5 +1,7 @@
 from django.contrib.auth.models import AnonymousUser, User
+from django.db import connection
 from django.test import RequestFactory, TestCase
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
@@ -226,3 +228,132 @@ class PublicWholesaleStorefrontTests(TestCase):
         ).content.decode('utf-8')
         self.assertIn(self.product.title, search_html)
         self.assertNotIn(oil.title, search_html)
+
+    def _detail_url(self, product=None):
+        product = product or self.product
+        return reverse('product_detail', kwargs={'slug': product.slug})
+
+    def test_anonymous_product_detail_shows_wholesale_block(self):
+        response = self.client.get(self._detail_url())
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn('Розничная цена:', html)
+        self.assertIn('2 500', html)
+        self.assertIn('Оптовая цена:', html)
+        self.assertIn(str(WHOLESALE), html)
+        self.assertIn('Минимальный оптовый заказ — 10 единиц', html)
+        self.assertIn('Купить оптом', html)
+        self.assertIn('Купить в розницу', html)
+        self.assertIn('Смотреть весь оптовый ассортимент продавца', html)
+        self.assertIn(self._url(), html)
+        self.assertIn('Наличие подтверждается при оформлении заказа.', html)
+        lowered = html.lower()
+        for banned in ('скидка', 'распродажа', 'акция'):
+            self.assertNotIn(banned, lowered)
+
+    def test_ineligible_product_detail_has_no_wholesale_block(self):
+        ineligible = self._product(
+            title='Обычный розничный товар',
+            article='WH-RETAIL-ONLY',
+            slug='wh-retail-only',
+            publish_to_sellers=False,
+        )
+        response = self.client.get(self._detail_url(ineligible))
+        html = response.content.decode('utf-8')
+        self.assertNotIn('Оптовая цена:', html)
+        self.assertNotIn('Купить оптом', html)
+        self.assertNotIn('Есть оптовая цена', html)
+
+    def test_catalog_shows_wholesale_badge_without_price(self):
+        catalog = self.client.get(reverse('catalog_list'), {'q': self.product.article})
+        html = catalog.content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn('Есть оптовая цена', html)
+        self.assertNotIn(f'{WHOLESALE} ₸/шт', html)
+        self.assertIn('2 500', html)
+
+    def test_catalog_hides_badge_when_not_eligible(self):
+        no_publish = self._product(
+            title='Без публикации продавцам',
+            article='WH-NOBADGE-1',
+            slug='wh-nobadge-1',
+            publish_to_sellers=False,
+        )
+        ProductPriceTier.objects.create(product=no_publish, min_qty=1, price=400)
+        no_tier = self._product(
+            title='Без активного тарифа',
+            article='WH-NOBADGE-2',
+            slug='wh-nobadge-2',
+        )
+        disabled_seller = _make_seller(
+            'disabled-wh',
+            'No Wholesale Shop',
+            '77770000088',
+            wholesale_enabled=False,
+        )
+        disabled_product = Product.objects.create(
+            title='Товар выключенного опта',
+            price=RETAIL,
+            seller_name=disabled_seller.name,
+            seller_profile=disabled_seller,
+            whatsapp_number='+77770000088',
+            status='active',
+            publish_to_sellers=True,
+            city='Алматы',
+            article='WH-NOBADGE-3',
+            slug='wh-nobadge-3',
+        )
+        ProductPriceTier.objects.create(product=disabled_product, min_qty=1, price=400)
+
+        for article, title in (
+            (no_publish.article, no_publish.title),
+            (no_tier.article, no_tier.title),
+            (disabled_product.article, disabled_product.title),
+        ):
+            html = self.client.get(
+                reverse('catalog_list'),
+                {'q': article},
+            ).content.decode('utf-8')
+            self.assertIn(title, html)
+            self.assertNotIn('Есть оптовая цена', html)
+
+    def test_catalog_wholesale_badge_query_count_stable(self):
+        for index in range(4):
+            extra = self._product(
+                title=f'Салонный фильтр extra {index}',
+                article=f'WH-N1-{index}',
+                slug=f'wh-n1-{index}',
+            )
+            ProductPriceTier.objects.create(product=extra, min_qty=1, price=800)
+        url = reverse('catalog_list')
+        params = {'q': 'Салонный фильтр'}
+        with CaptureQueriesContext(connection) as first:
+            self.client.get(url, params)
+        baseline = len(first.captured_queries)
+        for index in range(4, 8):
+            extra = self._product(
+                title=f'Салонный фильтр extra {index}',
+                article=f'WH-N1-{index}',
+                slug=f'wh-n1-{index}',
+            )
+            ProductPriceTier.objects.create(product=extra, min_qty=1, price=800)
+        with CaptureQueriesContext(connection) as second:
+            response = self.client.get(url, params)
+        self.assertLessEqual(len(second.captured_queries), baseline + 1)
+        self.assertContains(response, 'Есть оптовая цена')
+
+    def test_product_detail_captures_utm_without_empty_overwrite(self):
+        from orders.constants import SESSION_UTM_KEY
+
+        self.client.get(
+            self._detail_url(),
+            {
+                'utm_source': 'whatsapp',
+                'utm_medium': 'marketing',
+                'utm_campaign': 'launch',
+            },
+        )
+        self.client.get(self._detail_url())
+        stored = self.client.session[SESSION_UTM_KEY]
+        self.assertEqual(stored['utm_source'], 'whatsapp')
+        self.assertEqual(stored['utm_campaign'], 'launch')
+
