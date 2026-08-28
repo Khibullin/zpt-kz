@@ -1,0 +1,43 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <p>
+    Будет создан/проверен WhatsApp MARKETING template:
+  </p>
+  <ul>
+    <li>Name: <strong>{{ original.meta_template_name }}</strong></li>
+    <li>Language: <strong>{{ original.language_code }}</strong></li>
+    <li>Category: <strong>MARKETING</strong></li>
+  </ul>
+
+  <h2>Header</h2>
+  <pre style="white-space:pre-wrap;">{{ header_text|default:"—" }}</pre>
+  <h2>Body</h2>
+  <pre style="white-space:pre-wrap;">{{ body_text|default:"—" }}</pre>
+  <h2>Footer</h2>
+  <pre style="white-space:pre-wrap;">{{ footer_text|default:"—" }}</pre>
+  <h2>Buttons</h2>
+  {% if buttons %}
+    <ul>
+      {% for button in buttons %}
+        <li>{{ button.type }} — {{ button.text }} — {{ button.value }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>—</p>
+  {% endif %}
+
+  <p class="errornote">
+    Это отправляет шаблон в Meta на модерацию, но НЕ отправляет сообщения получателям.
+  </p>
+
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="confirm" value="1">
+    <input type="submit" class="default" value="Подтвердить отправку шаблона в Meta">
+    <a href="{% url 'admin:marketing_marketingwhatsapptemplate_change' original.pk %}" class="button cancel-link">Отмена</a>
+  </form>
+</div>
+{% endblock %}

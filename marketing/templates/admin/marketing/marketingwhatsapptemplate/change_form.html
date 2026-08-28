@@ -1,0 +1,18 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+  {% if original %}
+    {% if show_meta_submit %}
+      <li>
+        <a href="{{ meta_submit_url }}" class="historylink">Отправить в Meta на согласование</a>
+      </li>
+    {% endif %}
+    <li>
+      <form method="post" action="{{ meta_status_url }}" style="display:inline;">
+        {% csrf_token %}
+        <button type="submit" class="historylink" style="background:none;border:0;padding:0;color:inherit;cursor:pointer;font:inherit;">Проверить статус в Meta</button>
+      </form>
+    </li>
+  {% endif %}
+{% endblock %}

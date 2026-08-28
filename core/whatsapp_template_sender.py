@@ -9,6 +9,7 @@ from core.whatsapp_config import (
     WHATSAPP_CONFIG_INVALID_CODE,
     WHATSAPP_CONFIG_INVALID_MESSAGE,
     WhatsAppSenderConfigError,
+    get_whatsapp_graph_api_version,
     validate_whatsapp_sender_config,
 )
 from core.whatsapp_redaction import (
@@ -103,7 +104,10 @@ def send_whatsapp_template_message(
             header_image_url=header_image_url,
         )
 
-    url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
+    url = (
+        f'https://graph.facebook.com/{get_whatsapp_graph_api_version()}'
+        f'/{phone_number_id}/messages'
+    )
     payload = {
         'messaging_product': 'whatsapp',
         'to': to_phone,

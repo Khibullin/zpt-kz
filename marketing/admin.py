@@ -1,18 +1,26 @@
 from __future__ import annotations
 
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.db.models import Count, Max, Min, Q
-from django.urls import reverse
+from django.http import HttpResponseForbidden
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.html import format_html
 
 from core.whatsapp_redaction import redact_whatsapp_sensitive_data
+from core.whatsapp_template_management import (
+    APPROVED_MESSAGE,
+    submit_whatsapp_template,
+    sync_whatsapp_template_status,
+)
 from marketing.models import (
     MarketingCabinetPermission,
     MarketingCampaignMessage,
     MarketingCampaignSendRun,
     MarketingWhatsAppTemplate,
 )
+from marketing.services.templates.constants import META_STATUS_APPROVED
 from marketing.services.campaigns.send_constants import (
     MESSAGE_STATUS_QUEUED,
     RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
@@ -146,6 +154,7 @@ class RecentSendRunFilter(admin.SimpleListFilter):
 
 @admin.register(MarketingWhatsAppTemplate)
 class MarketingWhatsAppTemplateAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/marketing/marketingwhatsapptemplate/change_form.html'
     list_display = (
         'id',
         'name',
@@ -170,7 +179,119 @@ class MarketingWhatsAppTemplateAdmin(admin.ModelAdmin):
         'created_at',
         'updated_at',
         'last_status_checked_at',
+        'meta_template_id',
     )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                '<path:object_id>/submit-to-meta/',
+                self.admin_site.admin_view(self.submit_to_meta_view),
+                name='marketing_marketingwhatsapptemplate_submit_to_meta',
+            ),
+            path(
+                '<path:object_id>/check-meta-status/',
+                self.admin_site.admin_view(self.check_meta_status_view),
+                name='marketing_marketingwhatsapptemplate_check_meta_status',
+            ),
+        ]
+        return custom + urls
+
+    def _can_manage_meta_templates(self, request):
+        user = getattr(request, 'user', None)
+        return bool(
+            user
+            and user.is_active
+            and user.is_staff
+            and (
+                user.is_superuser
+                or user.has_perm('marketing.change_marketingwhatsapptemplate')
+            )
+        )
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        extra_context.update(self._meta_action_context(object_id))
+        return super().change_view(
+            request, object_id, form_url, extra_context=extra_context
+        )
+
+    def _meta_action_context(self, object_id):
+        template = MarketingWhatsAppTemplate.objects.filter(pk=object_id).first()
+        return {
+            'meta_submit_url': reverse(
+                'admin:marketing_marketingwhatsapptemplate_submit_to_meta',
+                args=[object_id],
+            ),
+            'meta_status_url': reverse(
+                'admin:marketing_marketingwhatsapptemplate_check_meta_status',
+                args=[object_id],
+            ),
+            'show_meta_submit': bool(
+                template is not None and template.meta_status != META_STATUS_APPROVED
+            ),
+        }
+
+    def _change_redirect(self, object_id):
+        return redirect(
+            reverse(
+                'admin:marketing_marketingwhatsapptemplate_change',
+                args=[object_id],
+            )
+        )
+
+    def _apply_management_message(self, request, result):
+        if result.waba_missing or result.config_error:
+            messages.error(request, result.message)
+            return
+        if result.conflict or not result.ok:
+            messages.error(request, result.message)
+            return
+        if result.meta_status == META_STATUS_APPROVED:
+            messages.success(request, result.message or APPROVED_MESSAGE)
+            return
+        if result.already_exists or result.created or result.ok:
+            messages.success(request, result.message)
+
+    def submit_to_meta_view(self, request, object_id):
+        if not self._can_manage_meta_templates(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        template = get_object_or_404(MarketingWhatsAppTemplate, pk=object_id)
+        if template.meta_status == META_STATUS_APPROVED:
+            messages.info(request, 'Шаблон уже одобрен Meta.')
+            return self._change_redirect(object_id)
+
+        if request.method == 'POST' and request.POST.get('confirm') == '1':
+            result = submit_whatsapp_template(template)
+            self._apply_management_message(request, result)
+            return self._change_redirect(object_id)
+
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': template,
+            'title': 'Отправка шаблона в Meta',
+            'header_text': template.header_text,
+            'body_text': template.body_text,
+            'footer_text': template.footer_text,
+            'buttons': template.buttons or [],
+        }
+        return render(
+            request,
+            'admin/marketing/marketingwhatsapptemplate/submit_confirm.html',
+            context,
+        )
+
+    def check_meta_status_view(self, request, object_id):
+        if not self._can_manage_meta_templates(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        if request.method != 'POST':
+            return self._change_redirect(object_id)
+        template = get_object_or_404(MarketingWhatsAppTemplate, pk=object_id)
+        result = sync_whatsapp_template_status(template)
+        self._apply_management_message(request, result)
+        return self._change_redirect(object_id)
 
     @admin.display(description='Назначения')
     def allowed_purposes_short(self, obj: MarketingWhatsAppTemplate) -> str:
