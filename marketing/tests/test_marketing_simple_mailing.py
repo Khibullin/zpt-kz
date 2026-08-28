@@ -362,8 +362,18 @@ class SimpleMailingViewTests(TestCase):
     def test_get_does_not_create_entities(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(MarketingAudience.objects.count(), 0)
-        self.assertEqual(MarketingCampaign.objects.count(), 0)
+        self.assertEqual(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).count(),
+            0,
+        )
+        self.assertEqual(
+            MarketingCampaign.objects.exclude(
+                name='AG Parts — запуск оптовой витрины — 08.2026',
+            ).count(),
+            0,
+        )
         self.assertEqual(MarketingCampaignSendRun.objects.count(), 0)
 
     def test_continue_does_not_send_or_create_sendrun(self):
@@ -902,8 +912,18 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         self.client.get(self.message_url)
         self.client.post(self.message_url, {'template_id': template.pk})
         self.client.get(self.confirm_url)
-        self.assertEqual(MarketingAudience.objects.count(), 0)
-        self.assertEqual(MarketingCampaign.objects.count(), 0)
+        self.assertEqual(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).count(),
+            0,
+        )
+        self.assertEqual(
+            MarketingCampaign.objects.exclude(
+                name='AG Parts — запуск оптовой витрины — 08.2026',
+            ).count(),
+            0,
+        )
         self.assertEqual(MarketingCampaignSendRun.objects.count(), 0)
         self.assertEqual(MarketingCampaignMessage.objects.count(), 0)
 

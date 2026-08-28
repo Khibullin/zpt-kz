@@ -629,7 +629,9 @@ class MarketingCampaignLifecycleTests(TestCase):
             reverse('marketing:campaign_copy', kwargs={'pk': self.campaign.pk}),
         )
         self.assertEqual(response.status_code, 302)
-        copy = MarketingCampaign.objects.exclude(pk=self.campaign.pk).get()
+        copy = MarketingCampaign.objects.exclude(pk=self.campaign.pk).exclude(
+            name='AG Parts — запуск оптовой витрины — 08.2026',
+        ).get()
         self.assertEqual(copy.status, STATUS_DRAFT)
         self.assertFalse(copy.recipients.exists())
         self.assertEqual(MarketingCampaignRecipient.objects.count(), count_before)

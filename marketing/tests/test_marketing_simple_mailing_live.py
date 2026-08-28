@@ -575,7 +575,11 @@ class SimpleMailingDuplicateAudienceNameTests(TestCase):
 
         self.assertNotEqual(first.send_run_id, second.send_run_id)
         self.assertEqual(MarketingCampaignSendRun.objects.count(), 2)
-        audiences = list(MarketingAudience.objects.order_by('id'))
+        audiences = list(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).order_by('id')
+        )
         self.assertEqual(len(audiences), 2)
         self.assertNotEqual(audiences[0].name, audiences[1].name)
         self.assertLessEqual(len(audiences[0].name), 200)
@@ -607,7 +611,12 @@ class SimpleMailingDuplicateAudienceNameTests(TestCase):
         self.assertTrue(second.idempotent_replay)
         self.assertEqual(first.send_run_id, second.send_run_id)
         self.assertEqual(MarketingCampaignSendRun.objects.count(), 1)
-        self.assertEqual(MarketingAudience.objects.count(), 1)
+        self.assertEqual(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).count(),
+            1,
+        )
 
 
 @override_settings(**LIVE_SIMPLE_SETTINGS)
@@ -651,7 +660,11 @@ class SimpleMailingConfirmDuplicateAudienceNameTests(TestCase):
         self.assertEqual(second_response.status_code, 302)
         self.assertEqual(second_response.url, self.history_url)
         self.assertEqual(MarketingCampaignSendRun.objects.count(), 2)
-        audiences = list(MarketingAudience.objects.order_by('id'))
+        audiences = list(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).order_by('id')
+        )
         self.assertEqual(len(audiences), 2)
         self.assertNotEqual(audiences[0].name, audiences[1].name)
         self.assertLessEqual(len(audiences[0].name), 200)

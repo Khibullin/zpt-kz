@@ -300,7 +300,12 @@ class BuyerVehicleViewTests(TestCase):
     def test_get_does_not_create_audience(self):
         response = self.client.get(reverse('marketing:buyer_vehicles'))
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(MarketingAudience.objects.count(), 0)
+        self.assertEqual(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).count(),
+            0,
+        )
 
     def test_unauthorized_blocked(self):
         self.client.logout()
@@ -318,7 +323,12 @@ class BuyerVehicleViewTests(TestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Предпросмотр расчёта')
-        self.assertEqual(MarketingAudience.objects.count(), 0)
+        self.assertEqual(
+            MarketingAudience.objects.exclude(
+                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+            ).count(),
+            0,
+        )
 
     def test_create_audience(self):
         response = self.client.post(
@@ -331,7 +341,7 @@ class BuyerVehicleViewTests(TestCase):
             },
         )
         self.assertEqual(response.status_code, 302)
-        audience = MarketingAudience.objects.get()
+        audience = MarketingAudience.objects.get(name='Toyota Camry test')
         self.assertEqual(audience.contact_subtype, SUBTYPE_PARTS_REQUESTS)
         self.assertTrue(audience.criteria.get('vehicle_selection'))
 

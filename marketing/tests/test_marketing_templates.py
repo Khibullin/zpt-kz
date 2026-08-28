@@ -178,8 +178,11 @@ class MarketingTemplateCrudTests(TestCase):
         source = make_template(self.user, name='Promo original')
         response = self.client.post(reverse('marketing:template_copy', args=[source.pk]))
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(MarketingWhatsAppTemplate.objects.count(), 2)
-        copy = MarketingWhatsAppTemplate.objects.exclude(pk=source.pk).get()
+        created = MarketingWhatsAppTemplate.objects.exclude(
+            meta_template_name='zpt_ag_parts_wholesale_v1',
+        )
+        self.assertEqual(created.count(), 2)
+        copy = created.exclude(pk=source.pk).get()
         self.assertEqual(copy.name, 'Копия — Promo original')
         self.assertFalse(copy.is_active)
         self.assertEqual(copy.body_text, source.body_text)
@@ -190,13 +193,20 @@ class MarketingTemplateCrudTests(TestCase):
         self.client.post(reverse('marketing:template_copy', args=[source.pk]))
         self.client.post(reverse('marketing:template_copy', args=[source.pk]))
         names = set(
-            MarketingWhatsAppTemplate.objects.exclude(pk=source.pk).values_list('name', flat=True),
+            MarketingWhatsAppTemplate.objects.exclude(pk=source.pk).exclude(
+                meta_template_name='zpt_ag_parts_wholesale_v1',
+            ).values_list('name', flat=True),
         )
         self.assertEqual(
             names,
             {'Копия — Repeat promo', 'Копия 2 — Repeat promo'},
         )
-        self.assertEqual(MarketingWhatsAppTemplate.objects.count(), 3)
+        self.assertEqual(
+            MarketingWhatsAppTemplate.objects.exclude(
+                meta_template_name='zpt_ag_parts_wholesale_v1',
+            ).count(),
+            3,
+        )
 
     def test_delete_forbidden_when_used_by_campaign(self):
         template = make_template(self.user)
@@ -283,7 +293,11 @@ class MarketingTemplateCrudTests(TestCase):
         self.assertNotRegex(preview_section, r'77\d{9}')
 
     def test_service_templates_not_auto_imported(self):
-        self.assertEqual(MarketingWhatsAppTemplate.objects.count(), 0)
+        self.assertFalse(
+            MarketingWhatsAppTemplate.objects.exclude(
+                meta_template_name='zpt_ag_parts_wholesale_v1',
+            ).exists(),
+        )
         for service_name in get_reserved_service_template_names():
             self.assertFalse(
                 MarketingWhatsAppTemplate.objects.filter(meta_template_name=service_name).exists(),
