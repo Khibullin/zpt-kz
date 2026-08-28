@@ -219,3 +219,118 @@ class CartItem(models.Model):
 
     def __str__(self):
         return f'{self.user_id}: {self.product_id} × {self.quantity}'
+
+
+class WholesaleFunnelEvent(models.Model):
+    EVENT_STOREFRONT_VIEW = 'storefront_view'
+    EVENT_PRODUCT_VIEW = 'product_view'
+    EVENT_PRICE_DOWNLOAD = 'price_download'
+    EVENT_ADD_TO_CART = 'add_to_cart'
+    EVENT_CHECKOUT_VIEW = 'checkout_view'
+    EVENT_ORDER_CREATED = 'order_created'
+
+    EVENT_CHOICES = [
+        (EVENT_STOREFRONT_VIEW, 'Витрина'),
+        (EVENT_PRODUCT_VIEW, 'Карточка товара'),
+        (EVENT_PRICE_DOWNLOAD, 'Скачивание прайса'),
+        (EVENT_ADD_TO_CART, 'Добавление в корзину'),
+        (EVENT_CHECKOUT_VIEW, 'Оформление'),
+        (EVENT_ORDER_CREATED, 'Заказ'),
+    ]
+
+    event_type = models.CharField(
+        max_length=32,
+        choices=EVENT_CHOICES,
+        db_index=True,
+        verbose_name='Тип события',
+    )
+    seller_profile = models.ForeignKey(
+        'catalog.SellerProfile',
+        on_delete=models.PROTECT,
+        related_name='wholesale_funnel_events',
+        verbose_name='Продавец',
+    )
+    product = models.ForeignKey(
+        'catalog.Product',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='wholesale_funnel_events',
+        verbose_name='Товар',
+    )
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='wholesale_funnel_events',
+        verbose_name='Заказ',
+    )
+    visitor_id = models.UUIDField(db_index=True, verbose_name='Посетитель')
+    utm_source = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='UTM source',
+    )
+    utm_medium = models.CharField(
+        max_length=100,
+        blank=True,
+        default='',
+        verbose_name='UTM medium',
+    )
+    utm_campaign = models.CharField(
+        max_length=150,
+        blank=True,
+        default='',
+        verbose_name='UTM campaign',
+    )
+    quantity = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Количество',
+    )
+    value_kzt = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Сумма, ₸',
+    )
+    metadata = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Метаданные',
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        db_index=True,
+        verbose_name='Создано',
+    )
+
+    class Meta:
+        verbose_name = 'Событие оптовой воронки'
+        verbose_name_plural = 'События оптовой воронки'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(
+                fields=['seller_profile', 'event_type', 'created_at'],
+                name='wh_funnel_seller_evt_idx',
+            ),
+            models.Index(
+                fields=['utm_campaign', 'created_at'],
+                name='wh_funnel_campaign_idx',
+            ),
+            models.Index(
+                fields=['visitor_id', 'event_type', 'created_at'],
+                name='wh_funnel_visitor_evt_idx',
+            ),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['order'],
+                condition=models.Q(event_type='order_created'),
+                name='uniq_wholesale_funnel_order_created',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.event_type} @ {self.created_at:%Y-%m-%d %H:%M}'

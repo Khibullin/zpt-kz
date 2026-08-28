@@ -59,6 +59,12 @@ from .wholesale import (
 )
 from .wholesale_export import XLSX_CONTENT_TYPE, wholesale_price_xlsx_bytes
 from orders.attribution import capture_utm_from_request
+from orders.wholesale_analytics import (
+    EVENT_PRICE_DOWNLOAD,
+    EVENT_PRODUCT_VIEW,
+    EVENT_STOREFRONT_VIEW,
+    track_wholesale_event,
+)
 
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
 
@@ -509,6 +515,14 @@ def product_detail(request, slug=None, pk=None):
             queryset=CarModel.objects.select_related('brand'),
         ),
     )[:8]
+
+    if request.method == 'GET' and public_wholesale:
+        track_wholesale_event(
+            request,
+            EVENT_PRODUCT_VIEW,
+            public_wholesale['seller'],
+            product=product,
+        )
 
     return render(request, 'catalog/product_detail.html', {
         'product': product,
@@ -1155,6 +1169,9 @@ def public_seller_wholesale(request, slug):
         type=type_key,
     )
 
+    if request.method == 'GET':
+        track_wholesale_event(request, EVENT_STOREFRONT_VIEW, seller)
+
     return render(
         request,
         'catalog/public_seller_wholesale.html',
@@ -1187,6 +1204,7 @@ def public_seller_wholesale(request, slug):
 
 @require_GET
 def public_seller_wholesale_price(request, slug):
+    capture_utm_from_request(request)
     seller = get_object_or_404(
         SellerProfile.objects.select_related('wholesale_terms'),
         slug=slug,
@@ -1195,6 +1213,7 @@ def public_seller_wholesale_price(request, slug):
         raise Http404('Оптовая витрина недоступна.')
     payload = wholesale_price_xlsx_bytes(seller)
     filename = wholesale_price_filename(seller)
+    track_wholesale_event(request, EVENT_PRICE_DOWNLOAD, seller)
     response = HttpResponse(payload, content_type=XLSX_CONTENT_TYPE)
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
     return response

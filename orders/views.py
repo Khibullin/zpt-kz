@@ -14,6 +14,7 @@ from catalog.models import Product
 from catalog.wholesale import (
     build_wholesale_terms_snapshot,
     public_stock_status,
+    public_wholesale_unit_price,
     quote_public_wholesale,
     remaining_wholesale_qty,
     resolve_wholesale_owner,
@@ -26,12 +27,19 @@ from .attribution import clear_utm, get_utm_snapshot
 from .cart import CartManager
 from .constants import (
     CART_MODE_CONFLICT,
+    CART_MODE_WHOLESALE,
     DEFAULT_WAREHOUSE_ADDRESS,
     TRANSPORT_COMPANIES,
 )
 from .email_notifications import build_whatsapp_url, send_order_admin_email
 from .forms import CheckoutForm
 from .models import Order, OrderItem
+from .wholesale_analytics import (
+    EVENT_ADD_TO_CART,
+    EVENT_CHECKOUT_VIEW,
+    EVENT_ORDER_CREATED,
+    track_wholesale_event,
+)
 from .seller_utils import (
     CartModeConflictError,
     CartSellerConflictError,
@@ -245,6 +253,22 @@ def api_cart_add(request, product_id=None):
                         'message': str(exc),
                     },
                     status=400,
+                )
+            if str(data.get('mode') or '').strip() == CART_MODE_WHOLESALE:
+                owner = resolve_wholesale_owner(product)
+                unit_price = public_wholesale_unit_price(product)
+                value_kzt = (
+                    int(unit_price) * int(quantity)
+                    if unit_price is not None
+                    else None
+                )
+                track_wholesale_event(
+                    request,
+                    EVENT_ADD_TO_CART,
+                    owner,
+                    product=product,
+                    quantity=int(quantity),
+                    value_kzt=value_kzt,
                 )
         else:
             product_data = data.get('product_data')
@@ -553,6 +577,7 @@ def checkout(request):
                 return redirect('orders:cart')
 
             order = None
+            wholesale_owner = None
             with transaction.atomic():
                 current_items = cart.get_items()
                 if not current_items:
@@ -570,6 +595,7 @@ def checkout(request):
                 terms_snapshot = {}
                 if is_wholesale_cart:
                     owner = resolve_wholesale_owner(current_items[0]['product'])
+                    wholesale_owner = owner
                     total_qty = sum(item['quantity'] for item in current_items)
                     remaining = remaining_wholesale_qty(total_qty, owner)
                     if owner is None or remaining > 0:
@@ -641,6 +667,20 @@ def checkout(request):
 
             order_id = order.pk
             access_token = order.access_token
+            if order.order_type == Order.ORDER_TYPE_WHOLESALE:
+                track_wholesale_event(
+                    request,
+                    EVENT_ORDER_CREATED,
+                    wholesale_owner,
+                    order=order,
+                    quantity=sum(qty for _, qty, _ in order_lines),
+                    value_kzt=order.total_price,
+                    utm_snapshot={
+                        'utm_source': order.utm_source,
+                        'utm_medium': order.utm_medium,
+                        'utm_campaign': order.utm_campaign,
+                    },
+                )
             transaction.on_commit(lambda: send_order_admin_email(order_id))
             cart.clear()
             clear_utm(request)
@@ -667,6 +707,19 @@ def checkout(request):
     if cart.is_wholesale():
         wholesale_checkout_info = wholesale_checkout_presentation(
             build_wholesale_terms_snapshot(wholesale_status.get('seller'))
+        )
+
+    if (
+        request.method == 'GET'
+        and cart.is_wholesale()
+        and wholesale_status.get('can_checkout')
+    ):
+        track_wholesale_event(
+            request,
+            EVENT_CHECKOUT_VIEW,
+            wholesale_status.get('seller'),
+            quantity=wholesale_status.get('total_qty'),
+            value_kzt=cart.get_total(),
         )
 
     return render(request, 'orders/checkout.html', {

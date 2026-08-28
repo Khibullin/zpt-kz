@@ -1,6 +1,7 @@
 SESSION_CART_KEY = 'zpt_cart'
 SESSION_CART_MODE_KEY = 'zpt_cart_mode'
 SESSION_UTM_KEY = 'zpt_order_utm'
+SESSION_WHOLESALE_VISITOR_KEY = 'wholesale_visitor_id'
 
 CART_MODE_RETAIL = 'retail'
 CART_MODE_WHOLESALE = 'wholesale'

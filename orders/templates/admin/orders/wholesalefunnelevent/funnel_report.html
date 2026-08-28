@@ -1,0 +1,191 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <style>
+    .wh-funnel-cards { display: flex; flex-wrap: wrap; gap: 12px; margin: 16px 0 24px; }
+    .wh-funnel-card {
+      background: var(--body-bg, #fff);
+      border: 1px solid var(--hairline-color, #ddd);
+      border-radius: 6px;
+      min-width: 160px;
+      padding: 12px 16px;
+    }
+    .wh-funnel-card .label { color: var(--body-quiet-color, #666); font-size: 12px; }
+    .wh-funnel-card .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    .wh-funnel-card .raw { color: var(--body-quiet-color, #888); font-size: 11px; margin-top: 4px; }
+    .wh-funnel-conversions { margin: 0 0 24px; }
+    .wh-funnel-filters { margin: 12px 0 20px; display: flex; flex-wrap: wrap; gap: 8px; align-items: end; }
+    .wh-funnel-filters label { display: block; font-size: 11px; margin-bottom: 2px; }
+    .wh-funnel-table { width: 100%; border-collapse: collapse; margin-bottom: 28px; }
+    .wh-funnel-table th, .wh-funnel-table td { padding: 8px 10px; border-bottom: 1px solid var(--hairline-color, #eee); text-align: left; }
+    .wh-funnel-table th { font-size: 12px; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <ul class="object-tools">
+    <li><a href="{{ events_changelist_url }}" class="historylink">История событий</a></li>
+  </ul>
+
+  <form method="get" class="wh-funnel-filters">
+    <div>
+      <label for="id_date_from">С</label>
+      <input type="date" id="id_date_from" name="date_from" value="{{ date_from }}">
+    </div>
+    <div>
+      <label for="id_date_to">По</label>
+      <input type="date" id="id_date_to" name="date_to" value="{{ date_to }}">
+    </div>
+    <div>
+      <label for="id_seller">Продавец</label>
+      <select id="id_seller" name="seller">
+        <option value="">Все продавцы</option>
+        {% for seller in sellers %}
+          <option value="{{ seller.pk }}" {% if seller_id == seller.pk %}selected{% endif %}>{{ seller.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="id_utm_source">Source</label>
+      <input type="text" id="id_utm_source" name="utm_source" value="{{ utm_source }}" maxlength="100">
+    </div>
+    <div>
+      <label for="id_utm_medium">Medium</label>
+      <input type="text" id="id_utm_medium" name="utm_medium" value="{{ utm_medium }}" maxlength="100">
+    </div>
+    <div>
+      <label for="id_utm_campaign">Campaign</label>
+      <input type="text" id="id_utm_campaign" name="utm_campaign" value="{{ utm_campaign }}" maxlength="150">
+    </div>
+    <div>
+      <input type="submit" class="default" value="Показать">
+    </div>
+  </form>
+
+  <p>Основные показатели — уникальные посетители (visitor_id), не число обновлений страницы.</p>
+
+  <div class="wh-funnel-cards">
+    <div class="wh-funnel-card">
+      <div class="label">Посетили оптовую витрину</div>
+      <div class="value">{{ report.storefront }}</div>
+      <div class="raw">событий: {{ report.raw.storefront }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Открыли карточку товара</div>
+      <div class="value">{{ report.product }}</div>
+      <div class="raw">событий: {{ report.raw.product }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Добавили в корзину</div>
+      <div class="value">{{ report.cart }}</div>
+      <div class="raw">событий: {{ report.raw.cart }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Перешли к оформлению</div>
+      <div class="value">{{ report.checkout }}</div>
+      <div class="raw">событий: {{ report.raw.checkout }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Оптовых заказов</div>
+      <div class="value">{{ report.orders }}</div>
+      <div class="raw">событий: {{ report.raw.orders }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Скачали оптовый прайс</div>
+      <div class="value">{{ report.price_download }}</div>
+      <div class="raw">событий: {{ report.raw.price_download }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Товаров в заказах</div>
+      <div class="value">{{ report.items_qty }}</div>
+    </div>
+    <div class="wh-funnel-card">
+      <div class="label">Выручка по оптовым заказам</div>
+      <div class="value">{{ report.revenue }} ₸</div>
+    </div>
+  </div>
+
+  <h2>Конверсия</h2>
+  <table class="wh-funnel-table wh-funnel-conversions">
+    <tr><th>Витрина → карточка</th><td>{{ conversions.storefront_to_product }}</td></tr>
+    <tr><th>Карточка → корзина</th><td>{{ conversions.product_to_cart }}</td></tr>
+    <tr><th>Корзина → checkout</th><td>{{ conversions.cart_to_checkout }}</td></tr>
+    <tr><th>Checkout → заказ</th><td>{{ conversions.checkout_to_order }}</td></tr>
+    <tr><th>Витрина → заказ</th><td>{{ conversions.storefront_to_order }}</td></tr>
+  </table>
+
+  <h2>По кампаниям</h2>
+  <table class="wh-funnel-table">
+    <thead>
+      <tr>
+        <th>Источник</th>
+        <th>Medium</th>
+        <th>Campaign</th>
+        <th>Витрина</th>
+        <th>Карточки</th>
+        <th>Корзина</th>
+        <th>Checkout</th>
+        <th>Скачали прайс</th>
+        <th>Заказы</th>
+        <th>Товаров заказано</th>
+        <th>Сумма заказов</th>
+        <th>Конверсия в заказ</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in campaigns %}
+        <tr>
+          <td>{{ row.utm_source }}</td>
+          <td>{{ row.utm_medium }}</td>
+          <td>{{ row.utm_campaign }}</td>
+          <td>{{ row.storefront }}</td>
+          <td>{{ row.product }}</td>
+          <td>{{ row.cart }}</td>
+          <td>{{ row.checkout }}</td>
+          <td>{{ row.price_download }}</td>
+          <td>{{ row.orders }}</td>
+          <td>{{ row.items_qty }}</td>
+          <td>{{ row.revenue }} ₸</td>
+          <td>{{ row.conversion_display }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="12">Нет событий за выбранный период.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Последние оптовые заказы</h2>
+  <table class="wh-funnel-table">
+    <thead>
+      <tr>
+        <th>№ заказа</th>
+        <th>Дата</th>
+        <th>Продавец</th>
+        <th>Количество</th>
+        <th>Сумма</th>
+        <th>Source</th>
+        <th>Medium</th>
+        <th>Campaign</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in recent_orders %}
+        <tr>
+          <td><a href="{{ row.admin_url }}">{{ row.order.pk }}</a></td>
+          <td>{{ row.order.created_at }}</td>
+          <td>{{ row.seller_name }}</td>
+          <td>{{ row.quantity }}</td>
+          <td>{{ row.total_price }} ₸</td>
+          <td>{{ row.utm_source|default:"—" }}</td>
+          <td>{{ row.utm_medium|default:"—" }}</td>
+          <td>{{ row.utm_campaign|default:"—" }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="8">Оптовых заказов за период нет.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
