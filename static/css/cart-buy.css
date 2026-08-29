@@ -187,6 +187,46 @@
   line-height:1;
 }
 
+.product-buy-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  min-width:0;
+}
+
+.product-buy-actions .product-buy-btn{
+  flex:1 1 132px;
+}
+
+.product-buy-btn--retail{
+  background:#fff;
+  color:#111827;
+  border:1px solid #e5e7eb;
+}
+
+.product-buy-btn--retail:hover{
+  background:#fff;
+  border-color:#ef3d2f;
+  color:#ef3d2f;
+}
+
+.product-buy-btn--retail.is-success,
+.product-buy-btn--wholesale.is-success{
+  background:#15803d;
+  border-color:#15803d;
+  color:#fff;
+}
+
+.product-buy-btn--wholesale{
+  background:#ef3d2f;
+  color:#fff;
+  border:none;
+}
+
+.product-buy-btn--wholesale:hover{
+  background:#d93628;
+}
+
 .product-detail-buy{
   margin-top:12px;
 }

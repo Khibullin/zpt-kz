@@ -114,6 +114,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('product product-v2', html)
         self.assertIn('data-card-mode="wholesale"', html)
         self.assertIn('data-cart-mode="wholesale"', html)
+        self.assertIn('data-cart-mode="retail"', html)
+        self.assertEqual(html.count('product-qty-row'), 1)
         self.assertNotIn('wholesale-card', html)
         self.assertNotIn('wholesale-grid', html)
         self.assertNotIn('Есть оптовая цена', html)
@@ -267,7 +269,11 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn(str(WHOLESALE), html)
         self.assertIn('Минимальный оптовый заказ — 10 единиц', html)
         self.assertIn('Купить оптом', html)
-        self.assertIn('Купить в розницу', html)
+        self.assertIn('Купить', html)
+        self.assertNotIn('Купить в розницу', html)
+        self.assertEqual(html.count('product-qty-row'), 1)
+        self.assertIn('data-cart-mode="retail"', html)
+        self.assertIn('data-cart-mode="wholesale"', html)
         self.assertIn('Смотреть весь оптовый ассортимент продавца', html)
         self.assertIn(self._url(), html)
         self.assertIn('Наличие уточняется', html)
@@ -279,6 +285,13 @@ class PublicWholesaleStorefrontTests(TestCase):
         lowered = html.lower()
         for banned in ('скидка', 'распродажа', 'акция'):
             self.assertNotIn(banned, lowered)
+
+    def test_product_detail_has_one_quantity_selector(self):
+        html = self.client.get(self._detail_url()).content.decode('utf-8')
+        self.assertEqual(html.count('product-qty-row'), 1)
+        self.assertIn('data-cart-mode="retail"', html)
+        self.assertIn('data-cart-mode="wholesale"', html)
+        self.assertNotIn('Купить в розницу', html)
 
     def test_ineligible_product_detail_has_no_wholesale_block(self):
         ineligible = self._product(
@@ -351,6 +364,10 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('2 500', html)
         self.assertIn('data-card-mode="retail"', html)
         self.assertIn('data-cart-mode="retail"', html)
+        self.assertIn('data-cart-mode="wholesale"', html)
+        self.assertEqual(html.count('product-qty-row'), 1)
+        self.assertIn('product-buy-btn-text">Купить</span>', html)
+        self.assertIn('product-buy-btn-text">Купить оптом</span>', html)
 
     def test_catalog_hides_badge_when_not_eligible(self):
         no_publish = self._product(
@@ -397,6 +414,7 @@ class PublicWholesaleStorefrontTests(TestCase):
             self.assertIn(title, html)
             self.assertNotIn('Есть оптовая цена', html)
             self.assertNotIn('Оптовая цена:', html)
+            self.assertNotIn('Купить оптом', html)
 
     def test_catalog_wholesale_badge_query_count_stable(self):
         for index in range(4):
@@ -456,6 +474,9 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertNotIn('Оптовая цена:', html)
         self.assertNotIn('Есть оптовая цена', html)
         self.assertNotIn('Наличие уточняется', html)
+        self.assertNotIn('Купить оптом', html)
+        self.assertNotIn('data-cart-mode="wholesale"', html)
+        self.assertIn('data-cart-mode="retail"', html)
 
     def test_wholesale_storefront_shows_retail_and_tier_price(self):
         html = self.client.get(self._url()).content.decode('utf-8').replace('\xa0', ' ')
@@ -467,6 +488,11 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('data-qty-plus', html)
         self.assertIn('WhatsApp продавцу', html)
         self.assertIn('Подробнее', html)
+        self.assertIn('data-cart-mode="retail"', html)
+        self.assertIn('data-cart-mode="wholesale"', html)
+        self.assertEqual(html.count('product-qty-row'), 1)
+        self.assertIn('product-buy-btn-text">Купить</span>', html)
+        self.assertIn('product-buy-btn-text">Купить оптом</span>', html)
 
     def test_public_card_hides_research_notes(self):
         note = 'у поставщиков, в справочнике ZPT нет. Списки отвергнуты'
@@ -510,10 +536,17 @@ class PublicWholesaleStorefrontTests(TestCase):
 
         self.assertIn('data-card-mode="retail"', catalog)
         self.assertIn('data-cart-mode="retail"', catalog)
+        self.assertIn('data-cart-mode="wholesale"', catalog)
         self.assertIn('data-card-mode="retail"', profile)
         self.assertIn('data-cart-mode="retail"', profile)
+        self.assertIn('data-cart-mode="wholesale"', profile)
         self.assertIn('data-card-mode="wholesale"', wholesale)
         self.assertIn('data-cart-mode="wholesale"', wholesale)
+        self.assertIn('data-cart-mode="retail"', wholesale)
+        for html in (catalog, profile, wholesale):
+            self.assertEqual(html.count('product-qty-row'), 1)
+            self.assertIn('product-buy-btn-text">Купить</span>', html)
+            self.assertIn('product-buy-btn-text">Купить оптом</span>', html)
         self.assertIn('WhatsApp продавцу', profile)
         self.assertIn('Подробнее', profile)
         self.assertIn('qty-input', profile)
@@ -528,6 +561,9 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('Оптовая цена:', html)
         self.assertIn(f'{WHOLESALE} ₸/шт', html)
         self.assertNotIn('seller-product-card', html)
+        self.assertIn('data-cart-mode="retail"', html)
+        self.assertIn('data-cart-mode="wholesale"', html)
+        self.assertEqual(html.count('product-qty-row'), 1)
 
     def test_seller_profile_retail_only_hides_wholesale_price(self):
         retail_only = self._product(
@@ -543,6 +579,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn(retail_only.title, html)
         self.assertIn('2 500', html)
         self.assertNotIn('Оптовая цена:', html)
+        self.assertNotIn('Купить оптом', html)
+        self.assertNotIn('data-cart-mode="wholesale"', html)
 
     def test_seller_profile_wholesale_flags_query_count_stable(self):
         for index in range(4):

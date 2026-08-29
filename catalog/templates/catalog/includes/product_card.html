@@ -73,11 +73,7 @@
       </a>
 
       {% if product.status != 'sold' %}
-        {% if card_mode == 'wholesale' %}
-          {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='wholesale' buy_label='Купить оптом' %}
-        {% else %}
-          {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='retail' %}
-        {% endif %}
+        {% include 'catalog/includes/product_buy_controls.html' with product=product %}
       {% endif %}
     </div>
 

@@ -163,6 +163,15 @@ class PublicWholesaleCartTests(TestCase):
         )
         self.assertContains(cart, reverse('catalog_list'))
 
+    def test_retail_quantity_three_uses_retail_price(self):
+        response = self._add(self.products[0], quantity=3, mode=CART_MODE_RETAIL)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['cart_total'], RETAIL * 3)
+        self.assertEqual(
+            self.client.session.get(SESSION_CART_MODE_KEY),
+            CART_MODE_RETAIL,
+        )
+
     def test_cannot_mix_retail_and_wholesale(self):
         first = self._add(self.products[0], quantity=1, mode=None)
         self.assertEqual(first.status_code, 200)
