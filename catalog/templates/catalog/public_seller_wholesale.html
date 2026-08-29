@@ -5,7 +5,10 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v5">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v137">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v7">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v6">
 {% endblock %}
 
 {% block content %}
@@ -17,10 +20,10 @@
 
       <header class="wholesale-hero">
         <p class="wholesale-hero-kicker">Постоянные оптовые цены</p>
-        <h1>{{ seller.name }} — оптовые поставки автокомпонентов из Китая</h1>
+        <h1>{{ seller.name }} — оптовые автозапчасти для китайских автомобилей</h1>
         <p class="wholesale-hero-lead">
-          Постоянные прямые оптовые цены для магазинов,
-          продавцов автозапчастей и СТО.
+          Постоянные оптовые поставки для магазинов автозапчастей,
+          продавцов и СТО по Казахстану.
         </p>
         <p class="wholesale-hero-min">
           Минимальный оптовый заказ — {{ seller.wholesale_min_order_qty }} единиц в ассортименте
@@ -75,50 +78,9 @@
       {% endif %}
 
       {% if page_obj.object_list %}
-        <div class="wholesale-grid">
+        <div class="products">
           {% for product in page_obj %}
-            <article class="wholesale-card">
-              <a href="{{ product.get_absolute_url }}" class="wholesale-card-media">
-                {% if product.main_image %}
-                  <img src="{{ product.main_image.url }}" alt="{{ product.title }}" loading="lazy">
-                {% else %}
-                  <img src="{% static 'images/product-placeholder.svg' %}" alt="{{ product.title }}" loading="lazy">
-                {% endif %}
-              </a>
-              <div class="wholesale-card-body">
-                <h2 class="wholesale-card-title">
-                  <a href="{{ product.get_absolute_url }}">{{ product.title }}</a>
-                </h2>
-                {% if product.article %}
-                  <p class="wholesale-card-article">Арт: {{ product.article }}</p>
-                {% endif %}
-                {% if product.fitment_text %}
-                  <p class="wholesale-card-fitment">{{ product.fitment_text }}</p>
-                {% endif %}
-                {% if product.price %}
-                  <p class="wholesale-card-retail">Розница: {{ product.price|intcomma }} ₸</p>
-                {% endif %}
-                {% if product.wholesale_unit_price %}
-                  <p class="wholesale-card-opt">Опт: {{ product.wholesale_unit_price|intcomma }} ₸/шт</p>
-                {% endif %}
-                {% if product.public_stock %}
-                  <p class="wholesale-card-stock">{{ product.public_stock.label }}</p>
-                {% endif %}
-                {% if product.public_stock.can_buy %}
-                <button
-                  type="button"
-                  class="btn red wholesale-buy-btn"
-                  data-wholesale-add
-                  data-product-id="{{ product.id }}"
-                  data-product-article="{{ product.article|default:'' }}"
-                >
-                  Купить оптом
-                </button>
-                {% else %}
-                  <p class="wholesale-buy-disabled">Купить оптом недоступно</p>
-                {% endif %}
-              </div>
-            </article>
+            {% include 'catalog/includes/product_card.html' with product=product card_mode='wholesale' %}
           {% endfor %}
         </div>
 
@@ -141,9 +103,10 @@
 </div>
 
 <script>
-  window.ZPT_WHOLESALE_CART = {
+  window.ZPT_CART = {
     addUrl: '{% url "orders:cart_add_api" %}',
+    countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/wholesale-buy.js' %}?v=wholesale_buy_v2"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v8"></script>
 {% endblock %}

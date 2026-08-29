@@ -21,17 +21,9 @@
   <p class="product-wholesale-stock">
     {{ public_wholesale.stock.label }}
   </p>
-  {% include 'catalog/includes/product_buy_controls.html' with product=product buy_label='Купить в розницу' %}
+  {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='retail' buy_label='Купить в розницу' %}
   {% if public_wholesale.stock.can_buy %}
-  <button
-    type="button"
-    class="btn red wholesale-buy-btn"
-    data-wholesale-add
-    data-product-id="{{ product.id }}"
-    data-product-article="{{ product.article|default:'' }}"
-  >
-    Купить оптом
-  </button>
+    {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='wholesale' buy_label='Купить оптом' %}
   {% else %}
     <p class="wholesale-buy-disabled">Купить оптом недоступно</p>
   {% endif %}

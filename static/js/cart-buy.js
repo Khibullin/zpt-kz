@@ -85,6 +85,15 @@
     return '';
   }
 
+    function readMaxQty(root) {
+    const raw = root.getAttribute('data-max-qty');
+    if (!raw) {
+      return null;
+    }
+    const maxQty = parseInt(raw, 10);
+    return Number.isFinite(maxQty) && maxQty > 0 ? maxQty : null;
+  }
+
   function bindQtyControls(root) {
     const input = root.querySelector('.qty-input');
     const minus = root.querySelector('[data-qty-minus]');
@@ -94,8 +103,18 @@
       return;
     }
 
+    const maxQty = readMaxQty(root);
+
     function readQty() {
       return Math.max(1, parseInt(input.value, 10) || 1);
+    }
+
+    function clampQty(value) {
+      let qty = Math.max(1, value);
+      if (maxQty != null) {
+        qty = Math.min(qty, maxQty);
+      }
+      return qty;
     }
 
     function notifyQty() {
@@ -103,12 +122,12 @@
     }
 
     minus.addEventListener('click', function () {
-      input.value = String(Math.max(1, readQty() - 1));
+      input.value = String(clampQty(readQty() - 1));
       notifyQty();
     });
 
     plus.addEventListener('click', function () {
-      input.value = String(readQty() + 1);
+      input.value = String(clampQty(readQty() + 1));
       notifyQty();
     });
   }
@@ -141,9 +160,25 @@
         return;
       }
 
-      const quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
+      const controls = button.closest('.product-buy-controls');
+      const maxQty = readMaxQty(controls || root);
+      let quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
+      if (maxQty != null) {
+        quantity = Math.min(quantity, maxQty);
+      }
+      const cartMode = readDataAttrFromButton(button, 'data-cart-mode').trim();
 
       button.disabled = true;
+
+      const payload = {
+        product_id: Number.isFinite(productId) && productId > 0 ? productId : null,
+        article: article || null,
+        supplier: supplier || null,
+        quantity: quantity,
+      };
+      if (cartMode) {
+        payload.mode = cartMode;
+      }
 
       fetch(addUrl, {
         method: 'POST',
@@ -154,12 +189,7 @@
           'Accept': 'application/json',
           'X-CSRFToken': csrfToken,
         },
-        body: JSON.stringify({
-          product_id: Number.isFinite(productId) && productId > 0 ? productId : null,
-          article: article || null,
-          supplier: supplier || null,
-          quantity: quantity,
-        }),
+        body: JSON.stringify(payload),
       })
         .then(parseJsonResponse)
         .then(function (data) {

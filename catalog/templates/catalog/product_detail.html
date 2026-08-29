@@ -8,8 +8,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=applicability_v2">
-<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v5">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v7">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v6">
 <style>
 .b2b-seller-terms{
   margin:16px 0;
@@ -337,7 +337,7 @@
         {% if product.status != 'sold' %}
           <div class="product-detail-buy">
             {% if not public_wholesale %}
-              {% include 'catalog/includes/product_buy_controls.html' with product=product %}
+              {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='retail' %}
             {% endif %}
             {% if viewer_is_seller %}
               <div
@@ -561,13 +561,7 @@
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v7"></script>
-<script>
-  window.ZPT_WHOLESALE_CART = {
-    addUrl: '{% url "orders:cart_add_api" %}',
-  };
-</script>
-<script src="{% static 'js/wholesale-buy.js' %}?v=wholesale_buy_v2"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v8"></script>
 <script src="{% static 'js/catalog-b2b.js' %}?v=catalog_b2b_v1"></script>
 <script>
 function changeImage(el) {

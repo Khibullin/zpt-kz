@@ -1,9 +1,13 @@
+{% with stock=product.public_stock cart_mode=cart_mode|default:'retail' %}
 {% if not product.price_on_request or viewer_is_seller and product.has_b2b_buy_offer %}
+{% if not stock or stock.can_buy %}
 <div
   class="product-buy-controls"
   data-product-id="{{ product.id }}"
   data-product-article="{{ product.article|default:'' }}"
   data-product-supplier="{{ product.supplier|default:'local' }}"
+  data-cart-mode="{{ cart_mode }}"
+  {% if stock.qty %}data-max-qty="{{ stock.qty }}"{% endif %}
 >
   <div class="product-qty-row">
     <button type="button" class="qty-btn" data-qty-minus aria-label="Уменьшить количество">−</button>
@@ -21,12 +25,15 @@
     type="button"
     class="product-buy-btn btn-buy-catalog"
     data-cart-add
+    data-cart-mode="{{ cart_mode }}"
     data-product-id="{{ product.id }}"
     data-product-article="{{ product.article|default:'' }}"
     data-product-supplier="{{ product.supplier|default:'local' }}"
   >
     <span class="product-buy-btn-icon" aria-hidden="true">🛒</span>
-    <span class="product-buy-btn-text">{{ buy_label|default:'Купить' }}</span>
+    <span class="product-buy-btn-text">{% if buy_label %}{{ buy_label }}{% elif cart_mode == 'wholesale' %}Купить оптом{% else %}Купить{% endif %}</span>
   </button>
 </div>
 {% endif %}
+{% endif %}
+{% endwith %}

@@ -137,6 +137,15 @@ class PublicWholesaleCartTests(TestCase):
             html,
         )
 
+    def test_explicit_retail_mode_stays_retail(self):
+        response = self._add(self.products[0], quantity=2, mode=CART_MODE_RETAIL)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['cart_total'], RETAIL * 2)
+        self.assertEqual(
+            self.client.session.get(SESSION_CART_MODE_KEY),
+            CART_MODE_RETAIL,
+        )
+
     def test_retail_cart_stays_retail(self):
         response = self._add(self.products[0], quantity=3, mode=None)
         self.assertEqual(response.status_code, 200)

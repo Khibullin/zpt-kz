@@ -66,6 +66,34 @@ def vehicle_line_if_not_in_title(product):
     return vehicle_display_name(product)
 
 
+def public_card_fitment(product):
+    """Structured fitment for public product cards.
+
+    Built only from brand, car_model, selected_brands, and selected_models.
+    Never includes Product.compatibility, research notes, or supplier comments.
+    """
+    groups = grouped_applicability(product)
+    bits = []
+    for group in groups:
+        brand_name = (group['brand'].name or '').strip()
+        models = [
+            (model.name or '').strip()
+            for model in group['models']
+            if (model.name or '').strip()
+        ]
+        if models:
+            bits.append(f'{brand_name} {", ".join(models)}'.strip())
+        elif brand_name:
+            bits.append(brand_name)
+    line = '; '.join(bit for bit in bits if bit)
+    if not line:
+        return ''
+    title = (getattr(product, 'title', '') or '').casefold()
+    if line.casefold() in title:
+        return ''
+    return line
+
+
 def grouped_applicability(product):
     """Group primary + selected models by CarModel.brand. Deduplicate by pk."""
     models = []

@@ -145,12 +145,18 @@
   background:#fafafa;
 }
 
+.qty-btn:disabled{
+  opacity:.45;
+  cursor:default;
+}
+
 .product-buy-btn{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   gap:8px;
   width:100%;
+  max-width:100%;
   min-height:38px;
   border:none;
   border-radius:10px;
@@ -160,6 +166,7 @@
   font-weight:800;
   cursor:pointer;
   transition:background .18s ease, transform .18s ease;
+  box-sizing:border-box;
 }
 
 .product-buy-btn:hover{

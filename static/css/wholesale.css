@@ -75,67 +75,6 @@
   color:#555;
 }
 
-.wholesale-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:16px;
-}
-
-.wholesale-card{
-  background:#fff;
-  border:1px solid #ececec;
-  border-radius:16px;
-  overflow:hidden;
-  display:flex;
-  flex-direction:column;
-}
-
-.wholesale-card-media img{
-  display:block;
-  width:100%;
-  height:180px;
-  object-fit:cover;
-  background:#f3f3f3;
-}
-
-.wholesale-card-body{
-  padding:14px;
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  flex:1;
-}
-
-.wholesale-card-title{
-  margin:0;
-  font-size:16px;
-  line-height:1.35;
-}
-
-.wholesale-card-title a{
-  text-decoration:none;
-}
-
-.wholesale-card-article,
-.wholesale-card-fitment,
-.wholesale-card-retail{
-  margin:0;
-  color:#555;
-  font-size:13px;
-}
-
-.wholesale-card-opt{
-  margin:8px 0 0;
-  font-size:22px;
-  line-height:1.2;
-  font-weight:800;
-  color:#111;
-}
-
-.wholesale-buy-btn{
-  margin-top:auto;
-}
-
 .wholesale-cta{
   display:inline-flex;
   align-items:center;
@@ -165,20 +104,6 @@
   background:#fff7ed;
   color:#9a3412;
   font-weight:600;
-}
-
-.wholesale-catalog-badge{
-  display:inline-flex;
-  align-items:center;
-  margin:0 0 8px;
-  padding:4px 8px;
-  border-radius:999px;
-  border:1px solid #f0d4a8;
-  background:#fff8eb;
-  color:#9a3412;
-  font-size:11px;
-  font-weight:800;
-  letter-spacing:.02em;
 }
 
 .product-wholesale-cta{
@@ -315,7 +240,6 @@
   text-decoration:none;
 }
 
-.wholesale-card-stock,
 .product-wholesale-stock,
 .cart-line-stock{
   margin:0 0 8px;
@@ -334,9 +258,6 @@
 @media (max-width:640px){
   .wholesale-hero h1{
     font-size:22px;
-  }
-  .wholesale-card-opt{
-    font-size:20px;
   }
   .product-wholesale-opt{
     font-size:20px;

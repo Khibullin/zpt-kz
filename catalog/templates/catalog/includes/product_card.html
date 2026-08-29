@@ -1,0 +1,86 @@
+{% load static humanize phone_extras product_extras %}
+<article
+  class="product product-v2"
+  data-card-mode="{{ card_mode|default:'retail' }}"
+>
+
+  <a class="product-image-link" href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" aria-label="Подробнее о товаре {{ product.title }}">
+
+    {% if product.main_image %}
+      <img
+        src="{{ product.main_image.url }}"
+        alt="{{ product.title }}"
+        onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;"
+      >
+    {% else %}
+      <img
+        src="{% static 'images/product-placeholder.svg' %}"
+        alt="{{ product.title }}"
+      >
+    {% endif %}
+
+  </a>
+
+  <div class="product-body">
+
+    <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" class="product-title-link">
+
+      <div class="product-title">
+        {{ product.title }}
+      </div>
+
+    </a>
+
+    {% with vehicle_line=product|public_card_fitment %}
+      {% if vehicle_line %}
+        <div class="product-title-vehicle">{{ vehicle_line }}</div>
+      {% endif %}
+    {% endwith %}
+
+    {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
+
+    {% include 'catalog/includes/product_price_display.html' with product=product %}
+
+    {% if product.has_public_wholesale and product.wholesale_unit_price %}
+      <div class="product-card-wholesale">
+        <span class="product-card-wholesale-label">Оптовая цена:</span>
+        <span class="product-card-wholesale-value">{{ product.wholesale_unit_price|intcomma|comma_to_space }} ₸/шт</span>
+      </div>
+    {% endif %}
+
+    {% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
+
+    <div class="product-meta-row muted product-meta-details">
+      <span>{{ product.get_condition_display }}</span>
+      {% if product.article %}
+        <span class="meta-sep">•</span>
+        <span>Арт. {{ product.article }}</span>
+      {% endif %}
+    </div>
+
+    {% if product.public_stock %}
+      <p class="product-card-stock">{{ product.public_stock.label }}</p>
+    {% endif %}
+
+    <div class="product-actions-v2{% if product.price_on_request %} product-actions-v2--price-request{% endif %}">
+      {% include 'catalog/includes/product_whatsapp_link.html' with product=product %}
+
+      <a
+        class="product-detail-link"
+        href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}"
+      >
+        Подробнее
+      </a>
+
+      {% if product.status != 'sold' %}
+        {% if card_mode == 'wholesale' %}
+          {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='wholesale' buy_label='Купить оптом' %}
+        {% else %}
+          {% include 'catalog/includes/product_buy_controls.html' with product=product cart_mode='retail' %}
+        {% endif %}
+      {% endif %}
+    </div>
+
+  </div>
+
+</article>

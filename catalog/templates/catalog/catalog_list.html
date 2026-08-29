@@ -7,9 +7,8 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v136">
-<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v137">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v7">
 <style>
 .market-topbar{
   position:sticky;
@@ -515,78 +514,7 @@ a.hero-b2b-strip-btn:hover,
     <div class="products">
 
       {% for product in products %}
-
-      <article class="product product-v2">
-
-        <a class="product-image-link" href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" aria-label="Подробнее о товаре {{ product.title }}">
-
-          {% if product.main_image %}
-            <img
-              src="{{ product.main_image.url }}"
-              alt="{{ product.title }}"
-              onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;"
-            >
-          {% else %}
-            <img
-              src="{% static 'images/product-placeholder.svg' %}"
-              alt="{{ product.title }}"
-            >
-          {% endif %}
-
-        </a>
-
-        <div class="product-body">
-
-          <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" class="product-title-link">
-
-            <div class="product-title">
-              {{ product.title }}
-              {% with vehicle_line=product|vehicle_line %}
-                {% if vehicle_line %}
-                  <span class="product-title-vehicle">{{ vehicle_line }}</span>
-                {% endif %}
-              {% endwith %}
-            </div>
-
-          </a>
-
-          {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
-
-          {% if product.has_public_wholesale %}
-            <span class="wholesale-catalog-badge">Есть оптовая цена</span>
-          {% endif %}
-
-          {% include 'catalog/includes/product_price_display.html' with product=product %}
-
-          {% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
-
-          <div class="product-meta-row muted product-meta-details">
-            <span>{{ product.get_condition_display }}</span>
-            {% if product.article %}
-              <span class="meta-sep">•</span>
-              <span>Арт. {{ product.article }}</span>
-            {% endif %}
-          </div>
-
-          <div class="product-actions-v2{% if product.price_on_request %} product-actions-v2--price-request{% endif %}">
-            {% include 'catalog/includes/product_whatsapp_link.html' with product=product %}
-
-            <a
-              class="product-detail-link"
-              href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}"
-            >
-              Подробнее
-            </a>
-
-            {% if product.status != 'sold' %}
-              {% include 'catalog/includes/product_buy_controls.html' with product=product %}
-            {% endif %}
-          </div>
-
-        </div>
-
-      </article>
-
+        {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
       {% endfor %}
 
     </div>
@@ -665,7 +593,7 @@ a.hero-b2b-strip-btn:hover,
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v7"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v8"></script>
 <script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {

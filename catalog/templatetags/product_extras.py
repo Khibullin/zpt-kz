@@ -21,3 +21,10 @@ def vehicle_line(product):
     from catalog.applicability import vehicle_line_if_not_in_title
 
     return vehicle_line_if_not_in_title(product)
+
+
+@register.filter
+def public_card_fitment(product):
+    from catalog.applicability import public_card_fitment as build_public_card_fitment
+
+    return build_public_card_fitment(product)

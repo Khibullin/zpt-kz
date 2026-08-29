@@ -218,11 +218,16 @@ def wholesale_fitment_text(product):
 
 
 def public_wholesale_prefetch(queryset):
-    """Prefetch seller_profile and active tiers for public wholesale flags."""
+    """Prefetch seller_profile, vehicle M2M, and active tiers for public cards."""
     return queryset.select_related(
         'seller_profile',
         'seller_profile__wholesale_terms',
     ).prefetch_related(
+        'selected_brands',
+        Prefetch(
+            'selected_models',
+            queryset=CarModel.objects.select_related('brand'),
+        ),
         Prefetch(
             'price_tiers',
             queryset=ProductPriceTier.objects.filter(is_active=True).order_by(
@@ -259,8 +264,24 @@ def has_public_wholesale_offer(product, seller=None):
 
 
 def attach_public_wholesale_flags(products):
+    """Attach public wholesale flags and unit price without extra queries.
+
+    Uses prefetched price_tiers from public_wholesale_prefetch().
+    Sets:
+      product.has_public_wholesale
+      product.wholesale_unit_price  (None when ineligible)
+      product.public_stock  (only when wholesale-eligible or stock_qty is set)
+    """
     for product in products:
-        product.has_public_wholesale = has_public_wholesale_offer(product)
+        has_offer = has_public_wholesale_offer(product)
+        product.has_public_wholesale = has_offer
+        product.wholesale_unit_price = (
+            public_wholesale_unit_price(product) if has_offer else None
+        )
+        if has_offer or getattr(product, 'stock_qty', None) is not None:
+            product.public_stock = public_stock_status(product)
+        else:
+            product.public_stock = None
     return products
 
 

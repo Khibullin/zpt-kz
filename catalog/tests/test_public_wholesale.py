@@ -8,6 +8,7 @@ from django.urls import reverse
 from django.utils import timezone
 from openpyxl import load_workbook
 
+from catalog.applicability import extra_compatibility_text, public_card_fitment
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
 from catalog.models import Brand, Country, Product, ProductPriceTier, SellerProfile, SellerWholesaleTerms
 from catalog.wholesale import (
@@ -100,20 +101,28 @@ class PublicWholesaleStorefrontTests(TestCase):
         response = self.client.get(self._url())
         self.assertEqual(response.status_code, 200)
         html = response.content.decode('utf-8')
-        self.assertIn('Опт:', html)
+        self.assertIn('Оптовая цена:', html)
         self.assertIn(str(WHOLESALE), html)
         self.assertIn('₸/шт', html)
         self.assertIn(self.product.title, html)
         self.assertIn(self.product.article, html)
         self.assertIn('Купить оптом', html)
+        self.assertIn('product product-v2', html)
+        self.assertIn('data-card-mode="wholesale"', html)
+        self.assertIn('data-cart-mode="wholesale"', html)
+        self.assertNotIn('wholesale-card', html)
+        self.assertNotIn('wholesale-grid', html)
+        self.assertNotIn('Есть оптовая цена', html)
         self.assertIn(
-            'AG Parts — оптовые поставки автокомпонентов из Китая',
+            'AG Parts — оптовые автозапчасти для китайских автомобилей',
             html,
         )
         self.assertIn(
-            'Постоянные прямые оптовые цены для магазинов',
+            'Постоянные оптовые поставки для магазинов автозапчастей',
             html,
         )
+        self.assertNotIn('автокомпонентов', html)
+        self.assertNotIn('автокомпоненты', html.lower())
         self.assertIn(
             'Минимальный оптовый заказ — 10 единиц в ассортименте',
             html,
@@ -299,6 +308,7 @@ class PublicWholesaleStorefrontTests(TestCase):
         html = self.client.get(self._url()).content.decode('utf-8')
         self.assertIn('Нет в наличии', html)
         self.assertNotIn('data-wholesale-add', html)
+        self.assertNotIn('data-cart-add', html)
         detail = self.client.get(self._detail_url()).content.decode('utf-8')
         self.assertIn('Нет в наличии', detail)
         self.assertIn('Купить оптом недоступно', detail)
@@ -309,6 +319,7 @@ class PublicWholesaleStorefrontTests(TestCase):
         html = self.client.get(self._url()).content.decode('utf-8')
         self.assertIn('В наличии: 27 шт.', html)
         self.assertIn('Купить оптом', html)
+        self.assertIn('data-max-qty="27"', html)
 
     def test_price_xlsx_stock_values(self):
         self.product.stock_qty = 0
@@ -326,12 +337,16 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertEqual(by_article[self.product.article][7], 0)
         self.assertEqual(by_article[extra.article][7], 4)
 
-    def test_catalog_shows_wholesale_badge_without_price(self):
+    def test_catalog_shows_wholesale_price_not_badge(self):
         catalog = self.client.get(reverse('catalog_list'), {'q': self.product.article})
         html = catalog.content.decode('utf-8').replace('\xa0', ' ')
-        self.assertIn('Есть оптовая цена', html)
-        self.assertNotIn(f'{WHOLESALE} ₸/шт', html)
+        self.assertIn('product product-v2', html)
+        self.assertNotIn('Есть оптовая цена', html)
+        self.assertIn('Оптовая цена:', html)
+        self.assertIn(f'{WHOLESALE} ₸/шт', html)
         self.assertIn('2 500', html)
+        self.assertIn('data-card-mode="retail"', html)
+        self.assertIn('data-cart-mode="retail"', html)
 
     def test_catalog_hides_badge_when_not_eligible(self):
         no_publish = self._product(
@@ -377,6 +392,7 @@ class PublicWholesaleStorefrontTests(TestCase):
             ).content.decode('utf-8')
             self.assertIn(title, html)
             self.assertNotIn('Есть оптовая цена', html)
+            self.assertNotIn('Оптовая цена:', html)
 
     def test_catalog_wholesale_badge_query_count_stable(self):
         for index in range(4):
@@ -401,7 +417,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         with CaptureQueriesContext(connection) as second:
             response = self.client.get(url, params)
         self.assertLessEqual(len(second.captured_queries), baseline + 1)
-        self.assertContains(response, 'Есть оптовая цена')
+        self.assertContains(response, 'Оптовая цена:')
+        self.assertNotContains(response, 'Есть оптовая цена')
 
     def test_product_detail_captures_utm_without_empty_overwrite(self):
         from orders.constants import SESSION_UTM_KEY
@@ -418,6 +435,59 @@ class PublicWholesaleStorefrontTests(TestCase):
         stored = self.client.session[SESSION_UTM_KEY]
         self.assertEqual(stored['utm_source'], 'whatsapp')
         self.assertEqual(stored['utm_campaign'], 'launch')
+
+    def test_catalog_retail_only_has_no_wholesale_price_or_unknown_stock(self):
+        retail_only = self._product(
+            title='Обычный розничный фильтр',
+            article='WH-RETAIL-CARD',
+            slug='wh-retail-card',
+            publish_to_sellers=False,
+        )
+        html = self.client.get(
+            reverse('catalog_list'),
+            {'q': retail_only.article},
+        ).content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn(retail_only.title, html)
+        self.assertIn('2 500', html)
+        self.assertNotIn('Оптовая цена:', html)
+        self.assertNotIn('Есть оптовая цена', html)
+        self.assertNotIn('Наличие уточняется', html)
+
+    def test_wholesale_storefront_shows_retail_and_tier_price(self):
+        html = self.client.get(self._url()).content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn('2 500', html)
+        self.assertIn('Оптовая цена:', html)
+        self.assertIn(f'{WHOLESALE} ₸/шт', html)
+        self.assertIn('qty-input', html)
+        self.assertIn('data-qty-minus', html)
+        self.assertIn('data-qty-plus', html)
+        self.assertIn('WhatsApp продавцу', html)
+        self.assertIn('Подробнее', html)
+
+    def test_public_card_hides_research_notes(self):
+        note = 'у поставщиков, в справочнике ZPT нет. Списки отвергнуты'
+        self.product.compatibility = note
+        self.product.save(update_fields=['compatibility'])
+        self.assertIn('у поставщиков', extra_compatibility_text(self.product))
+        self.assertNotIn('у поставщиков', public_card_fitment(self.product))
+        catalog = self.client.get(
+            reverse('catalog_list'),
+            {'q': self.product.article},
+        ).content.decode('utf-8')
+        wholesale = self.client.get(self._url()).content.decode('utf-8')
+        for html in (catalog, wholesale):
+            self.assertIn(self.product.title, html)
+            self.assertNotIn('у поставщиков, в справочнике ZPT нет', html)
+            self.assertNotIn('Списки отвергнуты', html)
+            self.assertNotIn('не подтверждено', html)
+
+    def test_catalog_unknown_stock_hidden_unless_wholesale(self):
+        self.assertIsNone(self.product.stock_qty)
+        html = self.client.get(
+            reverse('catalog_list'),
+            {'q': self.product.article},
+        ).content.decode('utf-8')
+        self.assertIn('Наличие уточняется', html)
 
 
 def _configured_terms(seller, **kwargs):
@@ -641,5 +711,45 @@ class SellerWholesaleTermsPublicTests(PublicWholesaleStorefrontTests):
             if row[0]
         ]
         self.assertGreaterEqual(len(articles), 9)
+
+
+class AgPartsDescriptionMigrationTests(TestCase):
+    def test_ag_parts_description_updated_and_missing_seller_is_noop(self):
+        from importlib import import_module
+
+        from django.apps import apps as django_apps
+
+        migration = import_module(
+            'catalog.migrations.0025_ag_parts_description_avtozapchasti'
+        )
+
+        migration.update_ag_parts_description(django_apps, None)
+
+        other = _make_seller(
+            'other-desc-owner',
+            'Other Shop',
+            '77001119988',
+            slug='other-shop-desc',
+            description='Keep me',
+        )
+        seller = _make_seller(
+            'ag-parts-desc-owner',
+            'AG Parts',
+            '77771360999',
+            slug='ag-parts',
+            description=(
+                'AG Parts — представитель группы китайских производителей '
+                'автокомпонентов.'
+            ),
+        )
+        migration.update_ag_parts_description(django_apps, None)
+        seller.refresh_from_db()
+        other.refresh_from_db()
+        self.assertEqual(seller.description, migration.NEW_DESCRIPTION)
+        self.assertEqual(other.description, 'Keep me')
+
+        migration.update_ag_parts_description(django_apps, None)
+        seller.refresh_from_db()
+        self.assertEqual(seller.description, migration.NEW_DESCRIPTION)
 
 

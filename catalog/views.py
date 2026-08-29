@@ -49,7 +49,6 @@ from .wholesale import (
     public_stock_status,
     seller_has_wholesale_storefront,
     wholesale_car_brands,
-    wholesale_fitment_text,
     wholesale_payment_oneliner,
     wholesale_price_filename,
     wholesale_product_type,
@@ -344,6 +343,7 @@ def catalog_list(request):
         'brand',
         'brand__country',
         'car_model',
+        'car_model__brand',
         'category',
         'seller_profile',
     )
@@ -447,12 +447,6 @@ def product_detail(request, slug=None, pk=None):
         'category',
         'seller_profile',
         'seller_profile__wholesale_terms',
-    ).prefetch_related(
-        'selected_brands',
-        Prefetch(
-            'selected_models',
-            queryset=CarModel.objects.select_related('brand'),
-        ),
     )
     product_qs = public_wholesale_prefetch(product_qs)
     if viewer_is_seller:
@@ -471,6 +465,7 @@ def product_detail(request, slug=None, pk=None):
             )
 
     attach_b2b_offers([product], enabled=viewer_is_seller)
+    attach_public_wholesale_flags([product])
     applicability = build_product_applicability(product)
     title_vehicle_line = vehicle_line_if_not_in_title(product)
     commercial_quote = None
@@ -1109,6 +1104,7 @@ def public_seller_profile(request, slug):
     )
 
 
+@ensure_csrf_cookie
 def public_seller_wholesale(request, slug):
     capture_utm_from_request(request)
     seller = get_object_or_404(
@@ -1150,10 +1146,9 @@ def public_seller_wholesale(request, slug):
         ]
 
     for product in products:
-        product.wholesale_unit_price = public_wholesale_unit_price(product)
+        product.seller = seller
         product.wholesale_type_key = wholesale_product_type(product)
-        product.fitment_text = wholesale_fitment_text(product)
-        product.public_stock = public_stock_status(product)
+    attach_public_wholesale_flags(products)
 
     paginator = Paginator(products, 12)
     try:
