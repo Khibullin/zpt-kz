@@ -5,7 +5,10 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v3">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v137">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v7">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v6">
 {% endblock %}
 
 {% block content %}
@@ -165,33 +168,9 @@
         {% include 'catalog/includes/seller_warehouse_filters.html' with search_name='q_seller' search_value=q_seller %}
 
         {% if page_obj.paginator.count %}
-          <div class="products public-seller-product-grid">
+          <div class="products">
             {% for product in page_obj %}
-              <article class="product seller-product-card">
-                <a href="{{ product.get_absolute_url }}" class="seller-product-card-link" style="display: flex !important; flex-direction: column !important; height: auto !important; max-height: none !important; overflow: visible !important; text-decoration: none;">
-                  {% if product.main_image %}
-                    <img
-                      src="{{ product.main_image.url }}"
-                      alt="{{ product.title }}"
-                      loading="lazy"
-                    >
-                  {% else %}
-                    <img
-                      src="{% static 'images/product1.jpg' %}"
-                      alt="{{ product.title }}"
-                      loading="lazy"
-                    >
-                  {% endif %}
-
-                  {% include 'catalog/includes/seller_product_card_info.html' with card_product=product %}
-
-                  {% if product.article %}
-                    <div style="display: block !important; font-size: 12px; color: #6b7280; padding: 0 12px 12px;">
-                      Арт: {{ product.article }}
-                    </div>
-                  {% endif %}
-                </a>
-              </article>
+              {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
             {% endfor %}
           </div>
 
@@ -253,4 +232,12 @@
     </div>
   </section>
 </div>
+
+<script>
+  window.ZPT_CART = {
+    addUrl: '{% url "orders:cart_add_api" %}',
+    countUrl: '{% url "orders:cart_count" %}',
+  };
+</script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v8"></script>
 {% endblock %}

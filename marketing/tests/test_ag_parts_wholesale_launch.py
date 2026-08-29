@@ -170,3 +170,71 @@ class AgPartsWholesaleTemplateCopyMigrationTests(TestCase):
         template.refresh_from_db()
         self.assertEqual(template.header_text, original_header)
         self.assertEqual(template.body_text, original_body)
+
+
+class AgPartsWholesaleTemplateBodyLineMigrationTests(TestCase):
+    def test_first_body_line_updated_without_meta_or_campaign_side_effects(self):
+        from django.apps import apps as django_apps
+
+        COPY13 = import_module(
+            'marketing.migrations.0013_ag_parts_wholesale_template_avtozapchasti'
+        )
+        COPY14 = import_module(
+            'marketing.migrations.0014_ag_parts_wholesale_template_body_line'
+        )
+
+        LAUNCH.prepare_ag_parts_wholesale_launch(apps, None)
+        COPY13.update_ag_parts_wholesale_template_copy(django_apps, None)
+        COPY14.update_ag_parts_wholesale_template_first_line(django_apps, None)
+        COPY14.update_ag_parts_wholesale_template_first_line(django_apps, None)
+
+        template = MarketingWhatsAppTemplate.objects.get(
+            meta_template_name=LAUNCH.TEMPLATE_META_NAME,
+            language_code=LAUNCH.TEMPLATE_LANGUAGE,
+        )
+        self.assertEqual(template.meta_status, 'unknown')
+        self.assertEqual(template.header_text, COPY14.NEW_HEADER)
+        self.assertEqual(
+            template.body_text.split('\n', 1)[0],
+            COPY14.NEW_FIRST_LINE,
+        )
+        self.assertIn('Салонные фильтры — от 310 ₸/шт.', template.body_text)
+        self.assertNotIn('автокомпонентов', template.body_text)
+
+        campaign = MarketingCampaign.objects.get(name=LAUNCH.CAMPAIGN_NAME)
+        self.assertEqual(campaign.status, 'draft')
+        self.assertEqual(
+            MarketingCampaignRecipient.objects.filter(campaign=campaign).count(),
+            0,
+        )
+        self.assertEqual(
+            MarketingCampaignSendRun.objects.filter(campaign=campaign).count(),
+            0,
+        )
+        self.assertEqual(
+            MarketingCampaignMessage.objects.filter(
+                send_run__campaign=campaign,
+            ).count(),
+            0,
+        )
+
+    def test_approved_template_is_not_rewritten(self):
+        from django.apps import apps as django_apps
+
+        COPY14 = import_module(
+            'marketing.migrations.0014_ag_parts_wholesale_template_body_line'
+        )
+        LAUNCH.prepare_ag_parts_wholesale_launch(apps, None)
+        template = MarketingWhatsAppTemplate.objects.get(
+            meta_template_name=LAUNCH.TEMPLATE_META_NAME,
+            language_code=LAUNCH.TEMPLATE_LANGUAGE,
+        )
+        template.meta_status = 'approved'
+        template.header_text = 'Оптовые автозапчасти AG Parts'
+        old_body = template.body_text
+        template.save(update_fields=['meta_status', 'header_text'])
+
+        COPY14.update_ag_parts_wholesale_template_first_line(django_apps, None)
+        template.refresh_from_db()
+        self.assertEqual(template.meta_status, 'approved')
+        self.assertEqual(template.body_text, old_body)

@@ -83,6 +83,10 @@ class PublicWholesaleStorefrontTests(TestCase):
         seller = seller or self.seller
         return reverse('public_seller_wholesale', kwargs={'slug': seller.slug})
 
+    def _profile_url(self, seller=None):
+        seller = seller or self.seller
+        return reverse('public_seller_profile', kwargs={'slug': seller.slug})
+
     def _price_url(self, seller=None):
         seller = seller or self.seller
         return reverse('public_seller_wholesale_price', kwargs={'slug': seller.slug})
@@ -475,7 +479,8 @@ class PublicWholesaleStorefrontTests(TestCase):
             {'q': self.product.article},
         ).content.decode('utf-8')
         wholesale = self.client.get(self._url()).content.decode('utf-8')
-        for html in (catalog, wholesale):
+        profile = self.client.get(self._profile_url()).content.decode('utf-8')
+        for html in (catalog, wholesale, profile):
             self.assertIn(self.product.title, html)
             self.assertNotIn('у поставщиков, в справочнике ZPT нет', html)
             self.assertNotIn('Списки отвергнуты', html)
@@ -488,6 +493,80 @@ class PublicWholesaleStorefrontTests(TestCase):
             {'q': self.product.article},
         ).content.decode('utf-8')
         self.assertIn('Наличие уточняется', html)
+
+    def test_shared_product_card_on_catalog_profile_and_wholesale(self):
+        catalog = self.client.get(
+            reverse('catalog_list'),
+            {'q': self.product.article},
+        ).content.decode('utf-8')
+        profile = self.client.get(self._profile_url()).content.decode('utf-8')
+        wholesale = self.client.get(self._url()).content.decode('utf-8')
+
+        for html in (catalog, profile, wholesale):
+            self.assertIn('product product-v2', html)
+            self.assertNotIn('seller-product-card', html)
+            self.assertNotIn('wholesale-card', html)
+            self.assertNotIn('Есть оптовая цена', html)
+
+        self.assertIn('data-card-mode="retail"', catalog)
+        self.assertIn('data-cart-mode="retail"', catalog)
+        self.assertIn('data-card-mode="retail"', profile)
+        self.assertIn('data-cart-mode="retail"', profile)
+        self.assertIn('data-card-mode="wholesale"', wholesale)
+        self.assertIn('data-cart-mode="wholesale"', wholesale)
+        self.assertIn('WhatsApp продавцу', profile)
+        self.assertIn('Подробнее', profile)
+        self.assertIn('qty-input', profile)
+
+    def test_seller_profile_shows_exact_wholesale_price(self):
+        html = self.client.get(
+            self._profile_url(),
+            {'q_seller': self.product.article},
+        ).content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn(self.product.title, html)
+        self.assertIn('2 500', html)
+        self.assertIn('Оптовая цена:', html)
+        self.assertIn(f'{WHOLESALE} ₸/шт', html)
+        self.assertNotIn('seller-product-card', html)
+
+    def test_seller_profile_retail_only_hides_wholesale_price(self):
+        retail_only = self._product(
+            title='Розничный товар профиля',
+            article='WH-PROFILE-RETAIL',
+            slug='wh-profile-retail',
+            publish_to_sellers=False,
+        )
+        html = self.client.get(
+            self._profile_url(),
+            {'q_seller': retail_only.article},
+        ).content.decode('utf-8').replace('\xa0', ' ')
+        self.assertIn(retail_only.title, html)
+        self.assertIn('2 500', html)
+        self.assertNotIn('Оптовая цена:', html)
+
+    def test_seller_profile_wholesale_flags_query_count_stable(self):
+        for index in range(4):
+            extra = self._product(
+                title=f'Профиль фильтр extra {index}',
+                article=f'WH-PRF-{index}',
+                slug=f'wh-prf-{index}',
+            )
+            ProductPriceTier.objects.create(product=extra, min_qty=1, price=800)
+        url = self._profile_url()
+        with CaptureQueriesContext(connection) as first:
+            self.client.get(url)
+        baseline = len(first.captured_queries)
+        for index in range(4, 8):
+            extra = self._product(
+                title=f'Профиль фильтр extra {index}',
+                article=f'WH-PRF-{index}',
+                slug=f'wh-prf-{index}',
+            )
+            ProductPriceTier.objects.create(product=extra, min_qty=1, price=800)
+        with CaptureQueriesContext(connection) as second:
+            response = self.client.get(url)
+        self.assertLessEqual(len(second.captured_queries), baseline + 1)
+        self.assertContains(response, 'Оптовая цена:')
 
 
 def _configured_terms(seller, **kwargs):

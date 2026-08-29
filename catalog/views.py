@@ -1021,6 +1021,7 @@ def load_compatible_models(request):
     return JsonResponse(data, safe=False)
 
 
+@ensure_csrf_cookie
 def public_seller_profile(request, slug):
     seller = get_object_or_404(
         SellerProfile,
@@ -1051,12 +1052,9 @@ def public_seller_profile(request, slug):
         'category',
         'brand',
         'car_model',
-    ).prefetch_related(
-        Prefetch(
-            'selected_models',
-            queryset=CarModel.objects.select_related('brand'),
-        ),
-    ).order_by('-created_at')
+        'car_model__brand',
+    )
+    products = public_wholesale_prefetch(products).order_by('-created_at')
 
     category_id = warehouse['category_id']
     brand_id = warehouse['brand_id']
@@ -1069,6 +1067,12 @@ def public_seller_profile(request, slug):
         page_obj = paginator.page(1)
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
+
+    page_products = list(page_obj.object_list)
+    for product in page_products:
+        product.seller = seller
+    attach_public_wholesale_flags(page_products)
+    page_obj.object_list = page_products
 
     filter_qs = _seller_filter_query(
         q_seller=q_seller,
