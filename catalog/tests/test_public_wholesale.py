@@ -10,11 +10,12 @@ from openpyxl import load_workbook
 
 from catalog.applicability import extra_compatibility_text, public_card_fitment
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
-from catalog.models import Brand, Country, Product, ProductPriceTier, SellerProfile, SellerWholesaleTerms
+from catalog.models import Brand, CarModel, Country, Product, ProductPriceTier, SellerProfile, SellerWholesaleTerms
 from catalog.wholesale import (
     WHOLESALE_TYPE_CABIN,
     WHOLESALE_TYPE_OIL,
     WHOLESALE_TYPE_SPARK,
+    public_wholesale_min_order_qty,
     public_wholesale_unit_price,
     safe_wholesale_filename_stem,
     wholesale_price_filename,
@@ -105,7 +106,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         response = self.client.get(self._url())
         self.assertEqual(response.status_code, 200)
         html = response.content.decode('utf-8')
-        self.assertIn('Оптовая цена:', html)
+        self.assertIn('Опт от 10 шт', html)
+        self.assertNotIn('Оптовая цена:', html)
         self.assertIn(str(WHOLESALE), html)
         self.assertIn('₸/шт', html)
         self.assertIn(self.product.title, html)
@@ -359,7 +361,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         html = catalog.content.decode('utf-8').replace('\xa0', ' ')
         self.assertIn('product product-v2', html)
         self.assertNotIn('Есть оптовая цена', html)
-        self.assertIn('Оптовая цена:', html)
+        self.assertIn('Опт от 10 шт', html)
+        self.assertNotIn('Оптовая цена:', html)
         self.assertIn(f'{WHOLESALE} ₸/шт', html)
         self.assertIn('2 500', html)
         self.assertIn('data-card-mode="retail"', html)
@@ -368,6 +371,53 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertEqual(html.count('product-qty-row'), 1)
         self.assertIn('product-buy-btn-text">Купить</span>', html)
         self.assertIn('product-buy-btn-text">Купить оптом</span>', html)
+        self.assertIn('product-card-prices', html)
+        self.assertIn('product-card-price--retail', html)
+        self.assertIn('product-card-price--wholesale', html)
+        self.assertIn('Розница', html)
+
+    def test_wholesale_label_uses_seller_min_order_qty(self):
+        self.seller.wholesale_min_order_qty = 15
+        self.seller.save(update_fields=['wholesale_min_order_qty'])
+        self.assertEqual(public_wholesale_min_order_qty(self.product), 15)
+
+        html = self.client.get(self._url()).content.decode('utf-8')
+        self.assertIn('Опт от 15 шт', html)
+        self.assertNotIn('Опт от 10 шт', html)
+        self.assertNotIn('Оптовая цена:', html)
+
+        catalog_html = self.client.get(
+            reverse('catalog_list'),
+            {'q': self.product.article},
+        ).content.decode('utf-8')
+        self.assertIn('Опт от 15 шт', catalog_html)
+        self.assertNotIn('Опт от 10 шт', catalog_html)
+
+        profile_html = self.client.get(
+            self._profile_url(),
+            {'q_seller': self.product.article},
+        ).content.decode('utf-8')
+        self.assertIn('Опт от 15 шт', profile_html)
+
+    def test_catalog_card_fitment_stays_in_html_with_clamp_class(self):
+        product = self._product(
+            title='Салонный фильтр универсальный',
+            article='WH-FIT-1',
+            slug='wh-fit-1',
+        )
+        ProductPriceTier.objects.create(product=product, min_qty=1, price=WHOLESALE)
+        jolion = CarModel.objects.create(brand=self.haval, name='Jolion')
+        tiggo = CarModel.objects.create(brand=self.chery, name='Tiggo 7 Pro')
+        product.selected_brands.add(self.haval, self.chery)
+        product.selected_models.add(jolion, tiggo)
+
+        html = self.client.get(
+            reverse('catalog_list'),
+            {'q': product.article},
+        ).content.decode('utf-8')
+        self.assertIn('product-card-fitment', html)
+        self.assertIn('Haval Jolion', html)
+        self.assertIn('Chery Tiggo 7 Pro', html)
 
     def test_catalog_hides_badge_when_not_eligible(self):
         no_publish = self._product(
@@ -414,6 +464,7 @@ class PublicWholesaleStorefrontTests(TestCase):
             self.assertIn(title, html)
             self.assertNotIn('Есть оптовая цена', html)
             self.assertNotIn('Оптовая цена:', html)
+            self.assertNotIn('Опт от', html)
             self.assertNotIn('Купить оптом', html)
 
     def test_catalog_wholesale_badge_query_count_stable(self):
@@ -439,7 +490,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         with CaptureQueriesContext(connection) as second:
             response = self.client.get(url, params)
         self.assertLessEqual(len(second.captured_queries), baseline + 1)
-        self.assertContains(response, 'Оптовая цена:')
+        self.assertContains(response, 'Опт от 10 шт')
+        self.assertNotContains(response, 'Оптовая цена:')
         self.assertNotContains(response, 'Есть оптовая цена')
 
     def test_product_detail_captures_utm_without_empty_overwrite(self):
@@ -471,7 +523,10 @@ class PublicWholesaleStorefrontTests(TestCase):
         ).content.decode('utf-8').replace('\xa0', ' ')
         self.assertIn(retail_only.title, html)
         self.assertIn('2 500', html)
+        self.assertIn('Розница', html)
         self.assertNotIn('Оптовая цена:', html)
+        self.assertNotIn('Опт от', html)
+        self.assertNotIn('product-card-price--wholesale', html)
         self.assertNotIn('Есть оптовая цена', html)
         self.assertNotIn('Наличие уточняется', html)
         self.assertNotIn('Купить оптом', html)
@@ -481,7 +536,8 @@ class PublicWholesaleStorefrontTests(TestCase):
     def test_wholesale_storefront_shows_retail_and_tier_price(self):
         html = self.client.get(self._url()).content.decode('utf-8').replace('\xa0', ' ')
         self.assertIn('2 500', html)
-        self.assertIn('Оптовая цена:', html)
+        self.assertIn('Опт от 10 шт', html)
+        self.assertNotIn('Оптовая цена:', html)
         self.assertIn(f'{WHOLESALE} ₸/шт', html)
         self.assertIn('qty-input', html)
         self.assertIn('data-qty-minus', html)
@@ -558,7 +614,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         ).content.decode('utf-8').replace('\xa0', ' ')
         self.assertIn(self.product.title, html)
         self.assertIn('2 500', html)
-        self.assertIn('Оптовая цена:', html)
+        self.assertIn('Опт от 10 шт', html)
+        self.assertNotIn('Оптовая цена:', html)
         self.assertIn(f'{WHOLESALE} ₸/шт', html)
         self.assertNotIn('seller-product-card', html)
         self.assertIn('data-cart-mode="retail"', html)
@@ -579,6 +636,7 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn(retail_only.title, html)
         self.assertIn('2 500', html)
         self.assertNotIn('Оптовая цена:', html)
+        self.assertNotIn('Опт от', html)
         self.assertNotIn('Купить оптом', html)
         self.assertNotIn('data-cart-mode="wholesale"', html)
 
@@ -604,7 +662,8 @@ class PublicWholesaleStorefrontTests(TestCase):
         with CaptureQueriesContext(connection) as second:
             response = self.client.get(url)
         self.assertLessEqual(len(second.captured_queries), baseline + 1)
-        self.assertContains(response, 'Оптовая цена:')
+        self.assertContains(response, 'Опт от 10 шт')
+        self.assertNotContains(response, 'Оптовая цена:')
 
 
 def _configured_terms(seller, **kwargs):

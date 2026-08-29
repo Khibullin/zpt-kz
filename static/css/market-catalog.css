@@ -699,6 +699,7 @@ body{
 
   display:-webkit-box;
   -webkit-line-clamp:2;
+  line-clamp:2;
   -webkit-box-orient:vertical;
   overflow:hidden;
 }
@@ -716,8 +717,13 @@ body{
   font-weight:800;
 }
 
-.product-title-vehicle{
-  display:block;
+.product-title-vehicle,
+.product-card-fitment{
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
   margin:0 0 6px;
   font-size:13px;
   font-weight:600;
@@ -725,33 +731,55 @@ body{
   line-height:1.35;
 }
 
-.product-card-wholesale{
+.product-card-prices{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
   margin:0 0 8px;
   min-width:0;
 }
 
-.product-card-wholesale-label{
-  display:block;
-  font-size:12px;
-  font-weight:600;
-  color:#555;
-  line-height:1.3;
+.product-card-price{
+  min-width:0;
 }
 
-.product-card-wholesale-value{
+.product-card-price-label{
   display:block;
-  font-size:21px;
-  font-weight:800;
+  margin:0 0 1px;
+  font-size:13px;
+  font-weight:600;
   line-height:1.25;
-  color:#111;
+  color:#6b7280;
+}
+
+.product-card-price-value{
+  display:block;
+  color:#ef3d2f;
+  font-weight:800;
+  line-height:1.2;
   word-break:break-word;
 }
 
+.product-card-price--retail .product-card-price-value{
+  font-size:21px;
+}
+
+.product-card-price--wholesale .product-card-price-value{
+  font-size:23px;
+  font-weight:900;
+}
+
+.product-card-price-value--request{
+  color:#475569;
+  font-size:16px;
+  font-weight:800;
+}
+
 .product-card-stock{
-  margin:0 0 8px;
-  font-size:13px;
+  margin:0 0 6px;
+  font-size:14px;
   font-weight:600;
-  color:#333;
+  color:#6b7280;
   line-height:1.35;
 }
 
@@ -1252,15 +1280,21 @@ body{
 
   .product-title{
     font-size:14px;
-    min-height:34px;
+    min-height:0;
+    -webkit-line-clamp:3;
+    line-clamp:3;
   }
 
   .product-price{
     font-size:16px;
   }
 
-  .product-card-wholesale-value{
+  .product-card-price--retail .product-card-price-value{
     font-size:20px;
+  }
+
+  .product-card-price--wholesale .product-card-price-value{
+    font-size:22px;
   }
 
   .product-meta-row,
@@ -1450,7 +1484,7 @@ body{
   flex-wrap:wrap;
   font-size:11px;
   line-height:1.3;
-  margin-bottom:8px;
+  margin-bottom:6px;
   gap:0;
 }
 
@@ -1653,7 +1687,7 @@ a.site-chip.seller-mini-chip{
 
 .product-actions-v2{
   display:grid;
-  gap:6px;
+  gap:4px;
   margin-top:8px;
   min-width:0;
 }

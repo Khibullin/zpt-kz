@@ -263,6 +263,18 @@ def has_public_wholesale_offer(product, seller=None):
     return True
 
 
+def public_wholesale_min_order_qty(product, seller=None):
+    """Seller-level wholesale minimum for public card labels. No extra queries."""
+    owner = seller or public_wholesale_owner_from_product(product)
+    if owner is None:
+        return None
+    try:
+        qty = int(getattr(owner, 'wholesale_min_order_qty', 0) or 0)
+    except (TypeError, ValueError):
+        return None
+    return qty if qty > 0 else None
+
+
 def attach_public_wholesale_flags(products):
     """Attach public wholesale flags and unit price without extra queries.
 
@@ -270,6 +282,7 @@ def attach_public_wholesale_flags(products):
     Sets:
       product.has_public_wholesale
       product.wholesale_unit_price  (None when ineligible)
+      product.wholesale_min_order_qty  (None when ineligible)
       product.public_stock  (only when wholesale-eligible or stock_qty is set)
     """
     for product in products:
@@ -277,6 +290,9 @@ def attach_public_wholesale_flags(products):
         product.has_public_wholesale = has_offer
         product.wholesale_unit_price = (
             public_wholesale_unit_price(product) if has_offer else None
+        )
+        product.wholesale_min_order_qty = (
+            public_wholesale_min_order_qty(product) if has_offer else None
         )
         if has_offer or getattr(product, 'stock_qty', None) is not None:
             product.public_stock = public_stock_status(product)

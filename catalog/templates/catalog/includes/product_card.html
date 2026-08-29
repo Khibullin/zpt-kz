@@ -33,20 +33,36 @@
 
     {% with vehicle_line=product|public_card_fitment %}
       {% if vehicle_line %}
-        <div class="product-title-vehicle">{{ vehicle_line }}</div>
+        <div class="product-title-vehicle product-card-fitment">{{ vehicle_line }}</div>
       {% endif %}
     {% endwith %}
 
     {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
 
-    {% include 'catalog/includes/product_price_display.html' with product=product %}
-
-    {% if product.has_public_wholesale and product.wholesale_unit_price %}
-      <div class="product-card-wholesale">
-        <span class="product-card-wholesale-label">Оптовая цена:</span>
-        <span class="product-card-wholesale-value">{{ product.wholesale_unit_price|intcomma|comma_to_space }} ₸/шт</span>
-      </div>
-    {% endif %}
+    <div class="product-card-prices">
+      {% if product.price_on_request %}
+        <div class="product-card-price product-card-price--retail">
+          <span class="product-card-price-value product-card-price-value--request">Цена по запросу</span>
+        </div>
+      {% elif product.price is not None %}
+        <div class="product-card-price product-card-price--retail">
+          <span class="product-card-price-label">Розница</span>
+          <span class="product-card-price-value">{{ product.price|intcomma|comma_to_space }} ₸</span>
+        </div>
+      {% endif %}
+      {% if product.has_public_wholesale and product.wholesale_unit_price %}
+        <div class="product-card-price product-card-price--wholesale">
+          <span class="product-card-price-label">
+            {% if product.wholesale_min_order_qty %}
+              Опт от {{ product.wholesale_min_order_qty }} шт
+            {% else %}
+              Оптовая цена
+            {% endif %}
+          </span>
+          <span class="product-card-price-value">{{ product.wholesale_unit_price|intcomma|comma_to_space }} ₸/шт</span>
+        </div>
+      {% endif %}
+    </div>
 
     {% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
 

@@ -108,7 +108,7 @@
 
 .product-qty-row{
   display:grid;
-  grid-template-columns:36px 1fr 36px;
+  grid-template-columns:38px 1fr 38px;
   gap:6px;
   align-items:center;
 }
@@ -117,8 +117,8 @@
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  width:36px;
-  height:36px;
+  width:38px;
+  height:38px;
   border:1px solid #e5e7eb;
   border-radius:10px;
   background:#fff;
@@ -135,7 +135,7 @@
 
 .qty-input{
   width:100%;
-  height:36px;
+  height:38px;
   border:1px solid #e5e7eb;
   border-radius:10px;
   text-align:center;
@@ -189,13 +189,14 @@
 
 .product-buy-actions{
   display:flex;
-  flex-wrap:wrap;
+  flex-direction:column;
   gap:6px;
   min-width:0;
 }
 
 .product-buy-actions .product-buy-btn{
-  flex:1 1 132px;
+  flex:none;
+  width:100%;
 }
 
 .product-buy-btn--retail{
