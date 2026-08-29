@@ -755,24 +755,18 @@ body{
 .product-card-price-value{
   display:block;
   color:#ef3d2f;
+  font-size:22px;
   font-weight:800;
-  line-height:1.2;
-  word-break:break-word;
-}
-
-.product-card-price--retail .product-card-price-value{
-  font-size:21px;
-}
-
-.product-card-price--wholesale .product-card-price-value{
-  font-size:23px;
-  font-weight:900;
+  line-height:1.15;
+  font-family:inherit;
+  white-space:nowrap;
 }
 
 .product-card-price-value--request{
   color:#475569;
   font-size:16px;
   font-weight:800;
+  white-space:normal;
 }
 
 .product-card-stock{
@@ -1287,14 +1281,6 @@ body{
 
   .product-price{
     font-size:16px;
-  }
-
-  .product-card-price--retail .product-card-price-value{
-    font-size:20px;
-  }
-
-  .product-card-price--wholesale .product-card-price-value{
-    font-size:22px;
   }
 
   .product-meta-row,

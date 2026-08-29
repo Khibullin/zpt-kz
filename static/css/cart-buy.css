@@ -160,17 +160,18 @@
   min-height:38px;
   border:none;
   border-radius:10px;
-  background:#ef3d2f;
+  background:#222;
   color:#fff;
   font-size:14px;
   font-weight:800;
+  line-height:1.2;
   cursor:pointer;
   transition:background .18s ease, transform .18s ease;
   box-sizing:border-box;
 }
 
 .product-buy-btn:hover{
-  background:#d93628;
+  background:#111;
 }
 
 .product-buy-btn.is-success{
@@ -200,22 +201,15 @@
 }
 
 .product-buy-btn--retail{
-  background:#fff;
-  color:#111827;
-  border:1px solid #e5e7eb;
+  background:#222;
+  color:#fff;
+  border:none;
 }
 
 .product-buy-btn--retail:hover{
-  background:#fff;
-  border-color:#ef3d2f;
-  color:#ef3d2f;
-}
-
-.product-buy-btn--retail.is-success,
-.product-buy-btn--wholesale.is-success{
-  background:#15803d;
-  border-color:#15803d;
+  background:#111;
   color:#fff;
+  border:none;
 }
 
 .product-buy-btn--wholesale{
@@ -226,6 +220,13 @@
 
 .product-buy-btn--wholesale:hover{
   background:#d93628;
+}
+
+.product-buy-btn--retail.is-success,
+.product-buy-btn--wholesale.is-success{
+  background:#15803d;
+  border:none;
+  color:#fff;
 }
 
 .product-detail-buy{

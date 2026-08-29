@@ -23,7 +23,7 @@
   <div class="product-buy-actions">
     <button
       type="button"
-      class="product-buy-btn{% if show_wholesale %} product-buy-btn--retail{% endif %}"
+      class="product-buy-btn product-buy-btn--retail"
       data-cart-add
       data-cart-mode="retail"
       data-product-id="{{ product.id }}"
@@ -36,7 +36,7 @@
     {% if show_wholesale %}
     <button
       type="button"
-      class="product-buy-btn product-buy-btn--wholesale btn-buy-catalog"
+      class="product-buy-btn product-buy-btn--wholesale"
       data-cart-add
       data-cart-mode="wholesale"
       data-product-id="{{ product.id }}"
