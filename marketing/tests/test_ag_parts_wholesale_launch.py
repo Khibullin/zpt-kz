@@ -238,3 +238,119 @@ class AgPartsWholesaleTemplateBodyLineMigrationTests(TestCase):
         template.refresh_from_db()
         self.assertEqual(template.meta_status, 'approved')
         self.assertEqual(template.body_text, old_body)
+
+
+class AgPartsWholesaleTemplateFinalMigrationTests(TestCase):
+    def _apply_final(self):
+        from django.apps import apps as django_apps
+
+        COPY13 = import_module(
+            'marketing.migrations.0013_ag_parts_wholesale_template_avtozapchasti'
+        )
+        COPY14 = import_module(
+            'marketing.migrations.0014_ag_parts_wholesale_template_body_line'
+        )
+        COPY15 = import_module(
+            'marketing.migrations.0015_ag_parts_wholesale_template_final'
+        )
+        LAUNCH.prepare_ag_parts_wholesale_launch(apps, None)
+        COPY13.update_ag_parts_wholesale_template_copy(django_apps, None)
+        COPY14.update_ag_parts_wholesale_template_first_line(django_apps, None)
+        COPY15.update_ag_parts_wholesale_template_final(django_apps, None)
+        COPY15.update_ag_parts_wholesale_template_final(django_apps, None)
+        return COPY15
+
+    def test_final_local_draft_copy_is_exact(self):
+        COPY15 = self._apply_final()
+        template = MarketingWhatsAppTemplate.objects.get(
+            meta_template_name=LAUNCH.TEMPLATE_META_NAME,
+            language_code=LAUNCH.TEMPLATE_LANGUAGE,
+        )
+        self.assertEqual(template.meta_template_name, 'zpt_ag_parts_wholesale_v1')
+        self.assertEqual(template.language_code, 'ru')
+        self.assertEqual(template.meta_status, 'unknown')
+        self.assertEqual(template.meta_template_id, '')
+        self.assertEqual(template.header_text, COPY15.NEW_HEADER)
+        self.assertEqual(template.body_text, COPY15.NEW_BODY)
+        self.assertEqual(template.footer_text, COPY15.NEW_FOOTER)
+        self.assertEqual(template.buttons, COPY15.NEW_BUTTONS)
+        self.assertEqual(template.buttons[0]['type'], 'url')
+        self.assertEqual(template.buttons[0]['text'], 'Оптовые цены')
+        self.assertEqual(template.buttons[0]['value'], COPY15.WHOLESALE_LAUNCH_URL)
+        self.assertEqual(
+            template.allowed_purposes,
+            ['request_sellers', 'marketplace_sellers', 'combined_sellers'],
+        )
+        self.assertEqual(template.category, 'marketing')
+
+        campaign = MarketingCampaign.objects.get(name=LAUNCH.CAMPAIGN_NAME)
+        self.assertEqual(campaign.status, 'draft')
+        self.assertEqual(
+            MarketingCampaignRecipient.objects.filter(campaign=campaign).count(),
+            0,
+        )
+        self.assertEqual(
+            MarketingCampaignSendRun.objects.filter(campaign=campaign).count(),
+            0,
+        )
+        self.assertEqual(
+            MarketingCampaignMessage.objects.filter(
+                send_run__campaign=campaign,
+            ).count(),
+            0,
+        )
+
+    def test_approved_template_is_not_rewritten(self):
+        from django.apps import apps as django_apps
+
+        COPY15 = import_module(
+            'marketing.migrations.0015_ag_parts_wholesale_template_final'
+        )
+        LAUNCH.prepare_ag_parts_wholesale_launch(apps, None)
+        template = MarketingWhatsAppTemplate.objects.get(
+            meta_template_name=LAUNCH.TEMPLATE_META_NAME,
+            language_code=LAUNCH.TEMPLATE_LANGUAGE,
+        )
+        template.meta_status = 'approved'
+        template.body_text = 'KEEP APPROVED BODY'
+        template.header_text = 'KEEP APPROVED HEADER'
+        template.save(update_fields=['meta_status', 'header_text', 'body_text'])
+
+        COPY15.update_ag_parts_wholesale_template_final(django_apps, None)
+        template.refresh_from_db()
+        self.assertEqual(template.meta_status, 'approved')
+        self.assertEqual(template.body_text, 'KEEP APPROVED BODY')
+        self.assertEqual(template.header_text, 'KEEP APPROVED HEADER')
+        self.assertEqual(template.meta_template_id, '')
+
+    def test_missing_template_is_noop(self):
+        from django.apps import apps as django_apps
+
+        COPY15 = import_module(
+            'marketing.migrations.0015_ag_parts_wholesale_template_final'
+        )
+        template = MarketingWhatsAppTemplate.objects.get(
+            meta_template_name=LAUNCH.TEMPLATE_META_NAME,
+            language_code=LAUNCH.TEMPLATE_LANGUAGE,
+        )
+        original_header = template.header_text
+        original_body = template.body_text
+        original_footer = template.footer_text
+        original_buttons = template.buttons
+        template.meta_template_name = 'zpt_ag_parts_wholesale_other'
+        template.save(update_fields=['meta_template_name'])
+
+        COPY15.update_ag_parts_wholesale_template_final(django_apps, None)
+        template.refresh_from_db()
+        self.assertEqual(template.header_text, original_header)
+        self.assertEqual(template.body_text, original_body)
+        self.assertEqual(template.footer_text, original_footer)
+        self.assertEqual(template.buttons, original_buttons)
+        self.assertFalse(
+            MarketingWhatsAppTemplate.objects.filter(
+                meta_template_name=LAUNCH.TEMPLATE_META_NAME,
+            ).exists()
+        )
+        self.assertEqual(MarketingCampaignRecipient.objects.count(), 0)
+        self.assertEqual(MarketingCampaignSendRun.objects.count(), 0)
+        self.assertEqual(MarketingCampaignMessage.objects.count(), 0)
