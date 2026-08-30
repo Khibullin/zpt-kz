@@ -1,0 +1,80 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <p>Продавец: <strong>{{ seller.name }}</strong></p>
+  <p>
+    Папок: {{ summary.rows }} ·
+    Найдено: {{ summary.matched }} ·
+    Изменится: {{ summary.updated }} ·
+    Без изменений: {{ summary.unchanged }} ·
+    Пропущено: {{ summary.skipped }} ·
+    Нет товара: {{ summary.missing }} ·
+    Дублей: {{ summary.duplicates }} ·
+    Ошибок: {{ summary.errors }}
+  </p>
+
+  <table class="listing">
+    <thead>
+      <tr>
+        <th>Артикул</th>
+        <th>ID</th>
+        <th>Название</th>
+        <th>Фото в ZIP</th>
+        <th>Статус</th>
+        <th>Alias</th>
+        <th>Уже есть фото</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for row in rows %}
+        <tr>
+          <td>{{ row.article|default:row.folder }}</td>
+          <td>{{ row.product_id|default_if_none:"—" }}</td>
+          <td>{{ row.title }}</td>
+          <td>
+            {{ row.photo_count }}
+            {% if row.photo_names %}
+              <div>{% for name in row.photo_names %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}</div>
+            {% endif %}
+          </td>
+          <td>
+            {{ row.status }}
+            {% for warning in row.warnings %}
+              <div>{{ warning }}</div>
+            {% endfor %}
+            {% for error in row.errors %}
+              <div>{{ error }}</div>
+            {% endfor %}
+          </td>
+          <td>{{ row.alias|default:"—" }}</td>
+          <td>
+            {% if row.existing_names %}
+              {% for name in row.existing_names %}{{ name }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  {% if not summary.has_blockers and summary.matched %}
+    <form method="post" action="{{ apply_url }}" onsubmit="return confirm('Будут обновлены фотографии {{ summary.matched }} товаров продавца «{{ seller.name }}».');">
+      {% csrf_token %}
+      <input type="hidden" name="confirm" value="1">
+      <input type="submit" class="default" value="Применить фотографии">
+    </form>
+  {% elif summary.has_blockers %}
+    <p class="errornote">Кнопка Apply недоступна, пока есть конфликты или ошибки.</p>
+  {% else %}
+    <p>Нет папок, которые можно применить к товарам этого продавца.</p>
+  {% endif %}
+  <p>
+    <a href="{{ upload_url }}">Загрузить другой ZIP</a> ·
+    <a href="{% url 'admin:catalog_sellerprofile_change' seller.pk %}">Вернуться к продавцу</a>
+  </p>
+</div>
+{% endblock %}

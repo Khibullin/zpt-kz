@@ -20,11 +20,13 @@ from catalog.models import Brand, CarModel, Product, ProductPriceTier, SellerPro
 
 WHOLESALE_TYPE_CABIN = 'cabin_filter'
 WHOLESALE_TYPE_OIL = 'oil_filter'
+WHOLESALE_TYPE_AIR = 'air_filter'
 WHOLESALE_TYPE_SPARK = 'spark_plug'
 
 WHOLESALE_TYPE_CHOICES = (
     (WHOLESALE_TYPE_CABIN, 'Салонные фильтры'),
     (WHOLESALE_TYPE_OIL, 'Масляные фильтры'),
+    (WHOLESALE_TYPE_AIR, 'Воздушные фильтры'),
     (WHOLESALE_TYPE_SPARK, 'Свечи зажигания'),
 )
 
@@ -33,6 +35,7 @@ WHOLESALE_TYPE_LABELS = dict(WHOLESALE_TYPE_CHOICES)
 _TYPE_RULES = (
     (WHOLESALE_TYPE_CABIN, ('салонн', 'cabin')),
     (WHOLESALE_TYPE_OIL, ('маслян', 'oil')),
+    (WHOLESALE_TYPE_AIR, ('воздушн', 'air filter', 'air_filter')),
     (WHOLESALE_TYPE_SPARK, ('свеч', 'spark')),
 )
 

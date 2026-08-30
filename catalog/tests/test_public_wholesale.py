@@ -13,6 +13,7 @@ from catalog.applicability import extra_compatibility_text, public_card_fitment
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
 from catalog.models import Brand, CarModel, Country, Product, ProductPriceTier, SellerProfile, SellerWholesaleTerms
 from catalog.wholesale import (
+    WHOLESALE_TYPE_AIR,
     WHOLESALE_TYPE_CABIN,
     WHOLESALE_TYPE_OIL,
     WHOLESALE_TYPE_SPARK,
@@ -232,10 +233,18 @@ class PublicWholesaleStorefrontTests(TestCase):
         )
         spark.selected_brands.add(self.haval)
         ProductPriceTier.objects.create(product=spark, min_qty=1, price=420)
+        air = self._product(
+            title='Воздушный фильтр Haval Dargo',
+            article='WH-AIR-1',
+            slug='wh-air-1',
+        )
+        air.selected_brands.add(self.haval)
+        ProductPriceTier.objects.create(product=air, min_qty=1, price=610)
 
         self.assertEqual(wholesale_product_type(self.product), WHOLESALE_TYPE_CABIN)
         self.assertEqual(wholesale_product_type(oil), WHOLESALE_TYPE_OIL)
         self.assertEqual(wholesale_product_type(spark), WHOLESALE_TYPE_SPARK)
+        self.assertEqual(wholesale_product_type(air), WHOLESALE_TYPE_AIR)
 
         cabin_html = self.client.get(
             self._url(),
@@ -243,6 +252,14 @@ class PublicWholesaleStorefrontTests(TestCase):
         ).content.decode('utf-8')
         self.assertIn(self.product.title, cabin_html)
         self.assertNotIn(oil.title, cabin_html)
+        self.assertNotIn(air.title, cabin_html)
+
+        air_html = self.client.get(
+            self._url(),
+            {'type': WHOLESALE_TYPE_AIR},
+        ).content.decode('utf-8')
+        self.assertIn(air.title, air_html)
+        self.assertNotIn(self.product.title, air_html)
 
         brand_html = self.client.get(
             self._url(),

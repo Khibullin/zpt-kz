@@ -1,0 +1,21 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>{{ title }}</h1>
+  <p>Продавец: <strong>{{ seller.name }}</strong></p>
+  <p>
+    Загрузите ZIP со структурой <code>артикул/фото</code>.
+    Новые товары из неизвестных папок не создаются.
+    Сначала будет показан preview, запись начнётся только после подтверждения.
+  </p>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <input type="submit" class="default" value="Загрузить и показать preview">
+  </form>
+  <p>
+    <a href="{% url 'admin:catalog_sellerprofile_change' seller.pk %}">← Вернуться к продавцу</a>
+  </p>
+</div>
+{% endblock %}

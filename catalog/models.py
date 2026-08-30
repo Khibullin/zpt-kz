@@ -1181,6 +1181,7 @@ class CatalogImportBatch(models.Model):
     SOURCE_AG_PARTS = 'ag_parts'
     SOURCE_AG_PARTS_BARCODES = 'ag_parts_barcodes'
     SOURCE_WHOLESALE_UPDATE = 'wholesale_update'
+    SOURCE_PRODUCT_PHOTOS = 'product_photos'
 
     MODE_WRITE = 'write'
     MODE_DRY_RUN = 'dry-run'

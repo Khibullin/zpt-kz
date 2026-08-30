@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+  <h1>Фотографии применены</h1>
+  <p>Продавец: <strong>{{ seller.name }}</strong></p>
+  <ul>
+    <li>Найдено товаров: {{ summary.matched }}</li>
+    <li>Обновлено: {{ summary.updated }}</li>
+    <li>Без изменений: {{ summary.unchanged }}</li>
+    <li>Пропущено: {{ summary.skipped }}</li>
+  </ul>
+  <p>
+    <a class="button" href="{{ history_url }}">Открыть историю импорта</a>
+    <a class="button" href="{{ seller_url }}">Вернуться к продавцу</a>
+  </p>
+  <p><a href="{{ upload_url }}">Новая загрузка ZIP</a></p>
+</div>
+{% endblock %}

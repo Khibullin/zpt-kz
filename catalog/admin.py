@@ -4,6 +4,20 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.html import format_html
 
+from catalog.product_photo_import import (
+    STALE_APPLY_MESSAGE as PHOTO_STALE_APPLY_MESSAGE,
+    PhotoImportBlockedError,
+    PhotoImportError,
+    PhotoImportStaleError,
+    PhotoImportUploadForm,
+    apply_photo_import_preview,
+    persist_photo_import_batch,
+    persist_photo_zip,
+    plan_product_photo_import,
+    preview_photo_display_rows,
+    safe_upload_filename as photo_zip_filename,
+    sha256_bytes as photo_sha256_bytes,
+)
 from catalog.wholesale_export import XLSX_CONTENT_TYPE
 from catalog.wholesale_update import (
     STALE_APPLY_MESSAGE,
@@ -156,6 +170,7 @@ class SellerProfileAdmin(admin.ModelAdmin):
         'wholesale_min_order_qty',
         'user',
         'wholesale_update_link',
+        'photo_import_link',
     )
 
     search_fields = (
@@ -194,6 +209,21 @@ class SellerProfileAdmin(admin.ModelAdmin):
                 self.admin_site.admin_view(self.wholesale_apply_view),
                 name='catalog_sellerprofile_wholesale_apply',
             ),
+            path(
+                '<path:object_id>/photo-import/',
+                self.admin_site.admin_view(self.photo_import_view),
+                name='catalog_sellerprofile_photo_import',
+            ),
+            path(
+                '<path:object_id>/photo-import/<int:batch_id>/',
+                self.admin_site.admin_view(self.photo_preview_view),
+                name='catalog_sellerprofile_photo_preview',
+            ),
+            path(
+                '<path:object_id>/photo-import/<int:batch_id>/apply/',
+                self.admin_site.admin_view(self.photo_apply_view),
+                name='catalog_sellerprofile_photo_apply',
+            ),
         ]
         return custom + urls
 
@@ -223,6 +253,10 @@ class SellerProfileAdmin(admin.ModelAdmin):
                 'admin:catalog_sellerprofile_wholesale_download',
                 args=[object_id],
             ),
+            'photo_import_url': reverse(
+                'admin:catalog_sellerprofile_photo_import',
+                args=[object_id],
+            ),
         })
         return super().change_view(
             request, object_id, form_url, extra_context=extra_context
@@ -233,6 +267,14 @@ class SellerProfileAdmin(admin.ModelAdmin):
         url = reverse('admin:catalog_sellerprofile_wholesale_update', args=[obj.pk])
         return format_html(
             '<a class="button" href="{}">Обновить цены и остатки</a>',
+            url,
+        )
+
+    @admin.display(description='Фото ZIP')
+    def photo_import_link(self, obj):
+        url = reverse('admin:catalog_sellerprofile_photo_import', args=[obj.pk])
+        return format_html(
+            '<a class="button" href="{}">Загрузить фотографии ZIP</a>',
             url,
         )
 
@@ -408,6 +450,174 @@ class SellerProfileAdmin(admin.ModelAdmin):
         return render(
             request,
             'admin/catalog/sellerprofile/wholesale_update_success.html',
+            context,
+        )
+
+    def photo_import_view(self, request, object_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        seller = self._seller_or_404(object_id)
+        form = PhotoImportUploadForm(request.POST or None, request.FILES or None)
+        if request.method == 'POST' and form.is_valid():
+            uploaded = form.cleaned_data['file']
+            payload = uploaded.read()
+            filename = photo_zip_filename(getattr(uploaded, 'name', ''))
+            try:
+                rows = plan_product_photo_import(seller, payload)
+            except PhotoImportError as exc:
+                form.add_error('file', str(exc))
+            else:
+                file_hash = photo_sha256_bytes(payload)
+                archive_path = persist_photo_zip(seller, payload, file_hash)
+                batch, _summary = persist_photo_import_batch(
+                    seller=seller,
+                    rows=rows,
+                    filename=filename,
+                    file_sha256=file_hash,
+                    mode=CatalogImportBatch.MODE_DRY_RUN,
+                    source_archive_path=archive_path,
+                    uploaded_by=request.user,
+                )
+                return redirect(
+                    'admin:catalog_sellerprofile_photo_preview',
+                    object_id,
+                    batch.pk,
+                )
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': seller,
+            'seller': seller,
+            'form': form,
+            'title': f'Загрузить фотографии товаров ZIP: {seller.name}',
+        }
+        return render(
+            request,
+            'admin/catalog/sellerprofile/photo_import.html',
+            context,
+        )
+
+    def photo_preview_view(self, request, object_id, batch_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        seller = self._seller_or_404(object_id)
+        batch = get_object_or_404(
+            CatalogImportBatch,
+            pk=batch_id,
+            seller_profile=seller,
+            source=CatalogImportBatch.SOURCE_PRODUCT_PHOTOS,
+            mode=CatalogImportBatch.MODE_DRY_RUN,
+        )
+        rows = preview_photo_display_rows(batch)
+        summary = {
+            'rows': batch.source_row_count,
+            'matched': batch.selected_count,
+            'updated': batch.updated_count,
+            'unchanged': batch.unchanged_count,
+            'skipped': batch.skipped_count,
+            'missing': batch.missing_from_source_count,
+            'duplicates': batch.conflict_count,
+            'errors': batch.error_count,
+            'has_blockers': bool(batch.conflict_count or batch.error_count),
+        }
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': seller,
+            'seller': seller,
+            'batch': batch,
+            'rows': rows,
+            'summary': summary,
+            'title': f'Предпросмотр фотографий: {seller.name}',
+            'apply_url': reverse(
+                'admin:catalog_sellerprofile_photo_apply',
+                args=[seller.pk, batch.pk],
+            ),
+            'upload_url': reverse(
+                'admin:catalog_sellerprofile_photo_import',
+                args=[seller.pk],
+            ),
+        }
+        return render(
+            request,
+            'admin/catalog/sellerprofile/photo_import_preview.html',
+            context,
+        )
+
+    def photo_apply_view(self, request, object_id, batch_id):
+        if not self._can_wholesale_update(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+        if request.method != 'POST':
+            return redirect(
+                'admin:catalog_sellerprofile_photo_preview',
+                object_id,
+                batch_id,
+            )
+        seller = self._seller_or_404(object_id)
+        batch = get_object_or_404(
+            CatalogImportBatch,
+            pk=batch_id,
+            seller_profile=seller,
+            source=CatalogImportBatch.SOURCE_PRODUCT_PHOTOS,
+            mode=CatalogImportBatch.MODE_DRY_RUN,
+        )
+        if request.POST.get('confirm') != '1':
+            messages.error(request, 'Подтвердите применение фотографий.')
+            return redirect(
+                'admin:catalog_sellerprofile_photo_preview',
+                seller.pk,
+                batch.pk,
+            )
+        try:
+            write_batch, summary = apply_photo_import_preview(
+                seller=seller,
+                preview_batch=batch,
+                applied_by=request.user,
+            )
+        except PhotoImportStaleError:
+            messages.error(request, PHOTO_STALE_APPLY_MESSAGE)
+            return redirect(
+                'admin:catalog_sellerprofile_photo_import',
+                seller.pk,
+            )
+        except PhotoImportBlockedError as exc:
+            messages.error(request, str(exc))
+            return redirect(
+                'admin:catalog_sellerprofile_photo_preview',
+                seller.pk,
+                batch.pk,
+            )
+        except PhotoImportError as exc:
+            messages.error(request, str(exc))
+            return redirect(
+                'admin:catalog_sellerprofile_photo_preview',
+                seller.pk,
+                batch.pk,
+            )
+        context = {
+            **self.admin_site.each_context(request),
+            'opts': self.model._meta,
+            'original': seller,
+            'seller': seller,
+            'batch': write_batch,
+            'summary': summary,
+            'title': 'Фотографии применены',
+            'history_url': reverse(
+                'admin:catalog_catalogimportbatch_change',
+                args=[write_batch.pk],
+            ),
+            'seller_url': reverse(
+                'admin:catalog_sellerprofile_change',
+                args=[seller.pk],
+            ),
+            'upload_url': reverse(
+                'admin:catalog_sellerprofile_photo_import',
+                args=[seller.pk],
+            ),
+        }
+        return render(
+            request,
+            'admin/catalog/sellerprofile/photo_import_success.html',
             context,
         )
 
