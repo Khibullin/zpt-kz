@@ -1788,18 +1788,25 @@ a.site-chip.seller-mini-chip{
   font-weight:600 !important;
   font-size:12px !important;
   text-decoration:none !important;
+  cursor:pointer !important;
   flex:0 1 auto !important;
   min-width:0 !important;
   max-width:100% !important;
 }
 
 .product.product-v2 .product-meta-seller .card-seller-link:hover{
+  color:#ef3d2f !important;
   text-decoration:none !important;
 }
 
 .product.product-v2 .product-meta-seller .card-seller-link:hover .card-seller-name-text{
-  color:#111827 !important;
+  color:#ef3d2f !important;
   text-decoration:underline !important;
+  text-underline-offset:2px;
+}
+
+.product.product-v2 .product-meta-seller .card-seller-link:hover .verification-badge{
+  color:#ef3d2f !important;
 }
 
 .product.product-v2 .product-meta-seller .card-seller-name-text{

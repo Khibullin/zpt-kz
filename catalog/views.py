@@ -261,10 +261,16 @@ def attach_sellers_to_products(products):
         if len(digits) >= 10:
             by_phone_suffix[digits[-10:]] = profile
 
+    by_id = {profile.pk: profile for profile in profiles}
+
     for product in products:
         seller = None
+        profile_id = getattr(product, 'seller_profile_id', None)
+        if profile_id:
+            related = getattr(product, 'seller_profile', None)
+            seller = related if related is not None else by_id.get(profile_id)
 
-        if product.whatsapp_number:
+        if not seller and product.whatsapp_number:
             digits = ''.join(filter(str.isdigit, product.whatsapp_number))
             if len(digits) >= 10:
                 seller = by_phone_suffix.get(digits[-10:])

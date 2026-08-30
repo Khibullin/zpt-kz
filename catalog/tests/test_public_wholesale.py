@@ -1,4 +1,5 @@
 from io import BytesIO
+import re
 
 from django.contrib.auth.models import AnonymousUser, User
 from django.db import connection
@@ -622,6 +623,79 @@ class PublicWholesaleStorefrontTests(TestCase):
         self.assertIn('WhatsApp продавцу', profile)
         self.assertIn('Подробнее', profile)
         self.assertIn('qty-input', profile)
+
+    def _assert_clickable_seller_name(self, html, seller):
+        profile_url = reverse('public_seller_profile', kwargs={'slug': seller.slug})
+        self.assertIn(profile_url, html)
+        match = re.search(
+            r'<a[^>]*class="card-seller-link"[^>]*>(.*?)</a>',
+            html,
+            re.DOTALL,
+        )
+        self.assertIsNotNone(match)
+        inner = match.group(1)
+        self.assertIn(seller.name, inner)
+        self.assertIn('card-seller-name-text', inner)
+        self.assertIn('verification-badge', inner)
+        self.assertIn('✓', inner)
+        self.assertNotIn('meta-city', inner)
+        self.assertNotIn(seller.city, inner)
+
+    def test_catalog_seller_name_links_to_public_profile(self):
+        self.assertEqual(self.seller.slug, 'ag-parts')
+        html = self.client.get(
+            reverse('catalog_list'),
+            {'q': self.product.article},
+        ).content.decode('utf-8')
+        self._assert_clickable_seller_name(html, self.seller)
+        self.assertIn('/seller/ag-parts/', html)
+
+        profile_html = self.client.get(
+            self._profile_url(),
+            {'q_seller': self.product.article},
+        ).content.decode('utf-8')
+        self._assert_clickable_seller_name(profile_html, self.seller)
+
+        wholesale_html = self.client.get(self._url()).content.decode('utf-8')
+        self._assert_clickable_seller_name(wholesale_html, self.seller)
+
+    def test_seller_profile_fk_wins_over_phone_lookup_for_card_link(self):
+        _make_seller('other-phone-owner', 'Other Shop', '77001112233')
+        product = self._product(
+            title='Профиль важнее телефона',
+            article='WH-LINK-PROFILE',
+            slug='wh-link-profile',
+            seller_name='Wrong Label',
+            whatsapp_number='+77001112233',
+        )
+        html = self.client.get(
+            reverse('catalog_list'),
+            {'q': product.article},
+        ).content.decode('utf-8')
+        self._assert_clickable_seller_name(html, self.seller)
+        self.assertIn('/seller/ag-parts/', html)
+        self.assertNotIn('/seller/other-shop/', html)
+
+    def test_product_without_seller_profile_has_no_broken_seller_link(self):
+        orphan = Product.objects.create(
+            title='Товар без профиля продавца',
+            price=RETAIL,
+            seller_name='Orphan Shop',
+            seller_profile=None,
+            whatsapp_number='+77009990001',
+            status='active',
+            city='Астана',
+            article='WH-ORPHAN-1',
+            slug='wh-orphan-1',
+        )
+        html = self.client.get(
+            reverse('catalog_list'),
+            {'q': orphan.article},
+        ).content.decode('utf-8')
+        self.assertIn(orphan.title, html)
+        self.assertIn('Orphan Shop', html)
+        self.assertIn('seller-name', html)
+        self.assertNotIn('card-seller-link', html)
 
     def test_seller_profile_shows_exact_wholesale_price(self):
         html = self.client.get(
