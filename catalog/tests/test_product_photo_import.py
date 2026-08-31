@@ -96,6 +96,18 @@ class ProductPhotoImportTests(TestCase):
             article='J691109111',
             slug='photo-j69',
         )
+        self.haval = Product.objects.create(
+            title='Воздушный фильтр 1109110XKV08A',
+            price=2310,
+            seller_name=self.seller.name,
+            seller_profile=self.seller,
+            whatsapp_number='+77770001122',
+            status='active',
+            publish_to_sellers=True,
+            city='Алматы',
+            article='1109110XKV08A',
+            slug='photo-xkv08a',
+        )
         self.jetour = Product.objects.create(
             title='Воздушный фильтр Jetour X70 / Dashing / X90 Plus — F081109111HD',
             price=3300,
@@ -180,7 +192,10 @@ class ProductPhotoImportTests(TestCase):
         self.assertEqual(rows['F081109111HD'].product.pk, self.jetour.pk)
         self.assertEqual(rows['UNKNOWN-SKU'].display_status, 'skipped')
         self.assertEqual(rows['UNKNOWN-SKU'].action, CatalogImportItem.ACTION_SKIPPED)
-        self.assertEqual(rows['1109110XKVO8A'].display_status, 'skipped')
+        self.assertEqual(rows['1109110XKVO8A'].display_status, 'matched')
+        self.assertEqual(rows['1109110XKVO8A'].article, '1109110XKV08A')
+        self.assertEqual(rows['1109110XKVO8A'].alias_used, '1109110XKVO8A')
+        self.assertEqual(rows['1109110XKVO8A'].product.pk, self.haval.pk)
         self.assertEqual(rows['FAE1109160'].display_status, 'missing')
         self.assertEqual(rows['FAE1109160'].action, CatalogImportItem.ACTION_SKIPPED)
 
@@ -207,7 +222,8 @@ class ProductPhotoImportTests(TestCase):
             mapping[f'{folder}/photo.jpg'] = jpeg
         for article in sorted(STAGE2_AIR_FILTER_ARTICLES):
             mapping[f'{article}/photo.jpg'] = self.green
-        mapping['1109110XKVO8A/skip.jpg'] = self.blue
+        mapping['1109110XKVO8A/photo.jpg'] = self.blue
+        mapping['PBC1109610/skip.jpg'] = self.green
         payload = _zip_bytes(mapping)
 
         first_stage = {
@@ -215,6 +231,7 @@ class ProductPhotoImportTests(TestCase):
             for name, data in mapping.items()
             if name.split('/')[0] not in STAGE2_AIR_FILTER_ARTICLES
             and not name.startswith('1109110XKVO8A')
+            and not name.startswith('PBC1109610')
         }
         first_upload = self._upload(_zip_bytes(first_stage))
         self.assertEqual(first_upload.status_code, 302)
@@ -223,15 +240,19 @@ class ProductPhotoImportTests(TestCase):
 
         rows = plan_product_photo_import(self.seller, payload)
         summary = summarize_photo_rows(rows)
-        self.assertEqual(summary['rows'], 25)
-        self.assertEqual(summary['matched'], 24)
+        self.assertEqual(summary['rows'], 26)
+        self.assertEqual(summary['matched'], 25)
         self.assertEqual(summary['skipped'], 1)
         self.assertEqual(summary['missing'], 0)
         self.assertEqual(summary['duplicates'], 0)
         self.assertEqual(summary['errors'], 0)
         skipped = [row for row in rows if row.display_status == 'skipped']
         self.assertEqual(len(skipped), 1)
-        self.assertEqual(skipped[0].folder_name, '1109110XKVO8A')
+        self.assertEqual(skipped[0].folder_name, 'PBC1109610')
+        alias_row = next(row for row in rows if row.folder_name == '1109110XKVO8A')
+        self.assertEqual(alias_row.article, '1109110XKV08A')
+        self.assertEqual(alias_row.alias_used, '1109110XKVO8A')
+        self.assertEqual(alias_row.display_status, 'matched')
         unchanged = {
             row.article for row in rows
             if row.action == CatalogImportItem.ACTION_UNCHANGED
@@ -241,7 +262,10 @@ class ProductPhotoImportTests(TestCase):
             if row.action == CatalogImportItem.ACTION_UPDATED
         }
         self.assertEqual(unchanged, set(STAGE1_AIR_FILTER_ARTICLES))
-        self.assertEqual(updated, set(STAGE2_AIR_FILTER_ARTICLES))
+        self.assertEqual(
+            updated,
+            set(STAGE2_AIR_FILTER_ARTICLES) | {'1109110XKV08A'},
+        )
         preview = self._upload(payload)
         self.assertEqual(preview.status_code, 302)
         preview_batch = (
@@ -249,14 +273,14 @@ class ProductPhotoImportTests(TestCase):
             .order_by('-id')
             .first()
         )
-        self.assertEqual(preview_batch.updated_count, 3)
+        self.assertEqual(preview_batch.updated_count, 4)
         self.assertEqual(preview_batch.unchanged_count, 21)
         self.assertEqual(preview_batch.skipped_count, 1)
         self.assertFalse(
             CatalogImportBatch.objects.filter(
                 mode=CatalogImportBatch.MODE_WRITE,
                 source=CatalogImportBatch.SOURCE_PRODUCT_PHOTOS,
-                updated_count=3,
+                updated_count=4,
             ).exists()
         )
 
