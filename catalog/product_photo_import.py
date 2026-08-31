@@ -21,7 +21,7 @@ from django.utils import timezone
 
 from catalog.ag_parts_air_filters import (
     AG_PARTS_SLUG,
-    STAGE1_AIR_FILTER_ARTICLES,
+    APPROVED_AIR_FILTER_ARTICLES,
     article_key,
     resolve_photo_article,
 )
@@ -124,7 +124,7 @@ def safe_upload_filename(name: str) -> str:
 
 def seller_photo_whitelist(seller):
     if getattr(seller, 'slug', '') == AG_PARTS_SLUG:
-        return STAGE1_AIR_FILTER_ARTICLES
+        return APPROVED_AIR_FILTER_ARTICLES
     return None
 
 

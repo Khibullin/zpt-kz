@@ -61,15 +61,44 @@ STAGE1_AIR_FILTERS = {
 
 STAGE1_AIR_FILTER_ARTICLES = frozenset(STAGE1_AIR_FILTERS)
 
+# article: retail, wholesale, title, compatibility, oem_cross_references
+STAGE2_AIR_FILTERS = {
+    '1064000180': {
+        'retail': 1800,
+        'wholesale': 330,
+        'title': 'Воздушный фильтр 1064000180',
+        'compatibility': '',
+        'oem_cross_references': (
+            'AG 302 ECO; SA 8147; A1003; A-1180; SB 3250; 71-01286-SX'
+        ),
+    },
+    '1109130U1510': {
+        'retail': 2099,
+        'wholesale': 440,
+        'title': 'Воздушный фильтр JAC S5 — 1109130U1510',
+        'compatibility': 'JAC S5',
+        'oem_cross_references': '',
+    },
+    'F081109111HD': {
+        'retail': 3300,
+        'wholesale': 710,
+        'title': (
+            'Воздушный фильтр Jetour X70 / Dashing / X90 Plus — F081109111HD'
+        ),
+        'compatibility': 'Jetour X70, Dashing, X90 Plus; 2022–2025',
+        'oem_cross_references': '',
+    },
+}
+
+STAGE2_AIR_FILTER_ARTICLES = frozenset(STAGE2_AIR_FILTERS)
+APPROVED_AIR_FILTER_ARTICLES = STAGE1_AIR_FILTER_ARTICLES | STAGE2_AIR_FILTER_ARTICLES
+
 PHOTO_ALIASES = {
     'J61109111': 'J691109111',
 }
 
 EXCLUDED_ARTICLES = frozenset({
-    '1064000180',
-    '1109130U1510',
     '1109110XKV08A',
-    'F081109111HD',
     'PBC1109610',
     '1109110XP6EXA',
 })

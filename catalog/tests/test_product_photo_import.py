@@ -9,6 +9,11 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 from PIL import Image
 
+from catalog.ag_parts_air_filters import (
+    APPROVED_AIR_FILTER_ARTICLES,
+    STAGE1_AIR_FILTER_ARTICLES,
+    STAGE2_AIR_FILTER_ARTICLES,
+)
 from catalog.models import (
     CatalogImportBatch,
     CatalogImportItem,
@@ -16,7 +21,10 @@ from catalog.models import (
     ProductImage,
     SellerProfile,
 )
-from catalog.product_photo_import import plan_product_photo_import
+from catalog.product_photo_import import (
+    plan_product_photo_import,
+    summarize_photo_rows,
+)
 
 
 def _jpeg_bytes(color):
@@ -88,6 +96,18 @@ class ProductPhotoImportTests(TestCase):
             article='J691109111',
             slug='photo-j69',
         )
+        self.jetour = Product.objects.create(
+            title='Воздушный фильтр Jetour X70 / Dashing / X90 Plus — F081109111HD',
+            price=3300,
+            seller_name=self.seller.name,
+            seller_profile=self.seller,
+            whatsapp_number='+77770001122',
+            status='active',
+            publish_to_sellers=True,
+            city='Алматы',
+            article='F081109111HD',
+            slug='photo-f08',
+        )
         self.red = _jpeg_bytes((220, 20, 20))
         self.green = _jpeg_bytes((20, 180, 40))
         self.blue = _jpeg_bytes((30, 40, 200))
@@ -149,18 +169,96 @@ class ProductPhotoImportTests(TestCase):
             'F081109111HD/skip.jpg': self.green,
             'UNKNOWN-SKU/a.jpg': self.blue,
             'FAE1109160/new.jpg': self.red,
+            '1109110XKVO8A/conflict.jpg': self.green,
         })
         rows = {row.folder_name: row for row in plan_product_photo_import(self.seller, payload)}
         self.assertEqual(rows['J61109111'].article, 'J691109111')
         self.assertEqual(rows['J61109111'].alias_used, 'J61109111')
         self.assertEqual(rows['J61109111'].product.pk, self.alias_product.pk)
         self.assertEqual(rows['J61109111'].display_status, 'matched')
-        self.assertEqual(rows['F081109111HD'].display_status, 'skipped')
-        self.assertIsNone(rows['F081109111HD'].product)
+        self.assertEqual(rows['F081109111HD'].display_status, 'matched')
+        self.assertEqual(rows['F081109111HD'].product.pk, self.jetour.pk)
         self.assertEqual(rows['UNKNOWN-SKU'].display_status, 'skipped')
         self.assertEqual(rows['UNKNOWN-SKU'].action, CatalogImportItem.ACTION_SKIPPED)
+        self.assertEqual(rows['1109110XKVO8A'].display_status, 'skipped')
         self.assertEqual(rows['FAE1109160'].display_status, 'missing')
         self.assertEqual(rows['FAE1109160'].action, CatalogImportItem.ACTION_SKIPPED)
+
+    def test_stage2_zip_preview_24_matched_one_skipped(self):
+        for article in sorted(APPROVED_AIR_FILTER_ARTICLES):
+            Product.objects.get_or_create(
+                seller_profile=self.seller,
+                article=article,
+                defaults={
+                    'title': f'Воздушный фильтр {article}',
+                    'price': 1000,
+                    'seller_name': self.seller.name,
+                    'whatsapp_number': '+77770001122',
+                    'status': 'active',
+                    'publish_to_sellers': True,
+                    'city': 'Алматы',
+                    'slug': f'photo-all-{article.lower()}',
+                },
+            )
+        jpeg = self.red
+        mapping = {}
+        for article in sorted(STAGE1_AIR_FILTER_ARTICLES):
+            folder = 'J61109111' if article == 'J691109111' else article
+            mapping[f'{folder}/photo.jpg'] = jpeg
+        for article in sorted(STAGE2_AIR_FILTER_ARTICLES):
+            mapping[f'{article}/photo.jpg'] = self.green
+        mapping['1109110XKVO8A/skip.jpg'] = self.blue
+        payload = _zip_bytes(mapping)
+
+        first_stage = {
+            name: data
+            for name, data in mapping.items()
+            if name.split('/')[0] not in STAGE2_AIR_FILTER_ARTICLES
+            and not name.startswith('1109110XKVO8A')
+        }
+        first_upload = self._upload(_zip_bytes(first_stage))
+        self.assertEqual(first_upload.status_code, 302)
+        first_batch = CatalogImportBatch.objects.get(mode=CatalogImportBatch.MODE_DRY_RUN)
+        self.assertEqual(self._apply(first_batch).status_code, 200)
+
+        rows = plan_product_photo_import(self.seller, payload)
+        summary = summarize_photo_rows(rows)
+        self.assertEqual(summary['rows'], 25)
+        self.assertEqual(summary['matched'], 24)
+        self.assertEqual(summary['skipped'], 1)
+        self.assertEqual(summary['missing'], 0)
+        self.assertEqual(summary['duplicates'], 0)
+        self.assertEqual(summary['errors'], 0)
+        skipped = [row for row in rows if row.display_status == 'skipped']
+        self.assertEqual(len(skipped), 1)
+        self.assertEqual(skipped[0].folder_name, '1109110XKVO8A')
+        unchanged = {
+            row.article for row in rows
+            if row.action == CatalogImportItem.ACTION_UNCHANGED
+        }
+        updated = {
+            row.article for row in rows
+            if row.action == CatalogImportItem.ACTION_UPDATED
+        }
+        self.assertEqual(unchanged, set(STAGE1_AIR_FILTER_ARTICLES))
+        self.assertEqual(updated, set(STAGE2_AIR_FILTER_ARTICLES))
+        preview = self._upload(payload)
+        self.assertEqual(preview.status_code, 302)
+        preview_batch = (
+            CatalogImportBatch.objects.filter(mode=CatalogImportBatch.MODE_DRY_RUN)
+            .order_by('-id')
+            .first()
+        )
+        self.assertEqual(preview_batch.updated_count, 3)
+        self.assertEqual(preview_batch.unchanged_count, 21)
+        self.assertEqual(preview_batch.skipped_count, 1)
+        self.assertFalse(
+            CatalogImportBatch.objects.filter(
+                mode=CatalogImportBatch.MODE_WRITE,
+                source=CatalogImportBatch.SOURCE_PRODUCT_PHOTOS,
+                updated_count=3,
+            ).exists()
+        )
 
     def test_traversal_rejected(self):
         payload = _zip_bytes({
