@@ -487,6 +487,115 @@ body{
   }
 }
 
+.hero .home-wholesale-entry{
+  margin:10px 0 0;
+  padding:14px 16px;
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  background:#fff;
+  box-sizing:border-box;
+}
+
+.hero .home-wholesale-title{
+  margin:0 0 10px;
+  padding:0;
+  font-size:.9375rem;
+  line-height:1.35;
+  font-weight:800;
+  color:#111827;
+}
+
+.hero .home-wholesale-actions{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.hero a.home-wholesale-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:46px;
+  height:46px;
+  padding:0 18px;
+  border-radius:12px;
+  font-size:15px;
+  font-weight:700;
+  line-height:1.2;
+  text-decoration:none !important;
+  box-sizing:border-box;
+  cursor:pointer;
+  transition:background .15s ease, color .15s ease, border-color .15s ease;
+}
+
+.hero a.home-wholesale-btn-primary{
+  border:none;
+  background:var(--zpt-brand, #ff3b30);
+  color:#fff !important;
+}
+
+.hero a.home-wholesale-btn-primary:hover{
+  background:var(--zpt-brand-hover, #e6342a);
+  color:#fff !important;
+}
+
+.hero a.home-wholesale-btn-secondary{
+  border:1.5px solid var(--zpt-brand, #ff3b30);
+  background:#fff;
+  color:var(--zpt-brand, #ff3b30) !important;
+}
+
+.hero a.home-wholesale-btn-secondary:hover{
+  background:#fff5f5;
+  border-color:var(--zpt-brand-hover, #e6342a);
+  color:var(--zpt-brand-hover, #e6342a) !important;
+}
+
+.hero a.home-wholesale-btn:focus-visible{
+  outline:2px solid var(--zpt-brand, #ff3b30);
+  outline-offset:2px;
+}
+
+@media (min-width:768px){
+  .hero .home-wholesale-entry{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    padding:14px 18px;
+  }
+
+  .hero .home-wholesale-title{
+    margin:0;
+    flex:1 1 auto;
+  }
+
+  .hero .home-wholesale-actions{
+    flex-direction:row;
+    flex-shrink:0;
+    gap:10px;
+    width:auto;
+  }
+
+  .hero a.home-wholesale-btn{
+    width:auto;
+    min-width:180px;
+  }
+}
+
+@media (max-width:767px){
+  .hero .home-wholesale-actions{
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .hero a.home-wholesale-btn{
+    width:100%;
+    min-width:0;
+  }
+}
+
 .action-card{
   background:#fff8f7;
   border:1px solid #ffd7d2;
