@@ -141,6 +141,35 @@ class PublicWholesaleStorefrontTests(TestCase):
         for banned in ('скидка', 'распродажа', 'акция'):
             self.assertNotIn(banned, lowered)
 
+    def test_wholesale_page_has_sticky_cart_bar(self):
+        response = self.client.get(self._url())
+        self.assertEqual(response.status_code, 200)
+        html = response.content.decode('utf-8')
+        cart_url = reverse('orders:cart')
+        self.assertIn('data-wholesale-cart-bar', html)
+        self.assertIn('data-wholesale-cart-desktop', html)
+        self.assertIn('data-wholesale-cart-note', html)
+        self.assertIn('data-wholesale-cart-mobile', html)
+        self.assertIn('data-wholesale-cart-cta', html)
+        self.assertIn('data-wholesale-min="10"', html)
+        self.assertIn(f'href="{cart_url}"', html)
+        self.assertIn('wholesale-cart-bar.js', html)
+        self.assertIn('Корзина пуста', html)
+        self.assertIn('Постоянные оптовые цены', html)
+        self.assertIn('Скачать оптовый прайс', html)
+        self.assertIn('Условия оптовой покупки', html)
+
+    def test_retail_pages_do_not_get_wholesale_sticky_bar(self):
+        catalog = self.client.get(reverse('catalog_list'))
+        self.assertEqual(catalog.status_code, 200)
+        self.assertNotContains(catalog, 'data-wholesale-cart-bar')
+        self.assertNotContains(catalog, 'wholesale-cart-bar.js')
+
+        profile = self.client.get(self._profile_url())
+        self.assertEqual(profile.status_code, 200)
+        self.assertNotContains(profile, 'data-wholesale-cart-bar')
+        self.assertNotContains(profile, 'wholesale-cart-bar.js')
+
     def test_anonymous_retail_catalog_price_unchanged(self):
         factory = RequestFactory()
         request = factory.get('/market/')

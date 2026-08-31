@@ -255,6 +255,126 @@
   font-weight:600;
 }
 
+.wholesale-cart-bar{
+  position:sticky;
+  top:0;
+  z-index:40;
+  margin:0 0 16px;
+  padding:10px 14px;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  box-shadow:0 4px 12px rgba(17,24,39,.08);
+  box-sizing:border-box;
+}
+
+.wholesale-cart-bar-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.wholesale-cart-bar-copy{
+  min-width:0;
+  flex:1 1 auto;
+}
+
+.wholesale-cart-bar-line,
+.wholesale-cart-bar-note{
+  margin:0;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:700;
+  color:#111827;
+}
+
+.wholesale-cart-bar-note{
+  margin-top:4px;
+  font-weight:600;
+  color:#4b5563;
+}
+
+.wholesale-cart-bar-line--mobile,
+.wholesale-cart-bar-cta--mobile{
+  display:none;
+}
+
+a.wholesale-cart-bar-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  min-height:40px;
+  padding:0 16px;
+  border:none;
+  border-radius:12px;
+  background:var(--zpt-brand, #ff3b30);
+  color:#fff !important;
+  font-size:14px;
+  font-weight:700;
+  line-height:1.2;
+  text-decoration:none !important;
+  white-space:nowrap;
+  box-sizing:border-box;
+  transition:background .15s ease;
+}
+
+a.wholesale-cart-bar-cta:hover{
+  background:var(--zpt-brand-hover, #e6342a);
+  color:#fff !important;
+}
+
+a.wholesale-cart-bar-cta:focus-visible{
+  outline:2px solid var(--zpt-brand, #ff3b30);
+  outline-offset:2px;
+}
+
+@media (min-width:768px){
+  .wholesale-cart-bar{
+    top:8px;
+  }
+}
+
+@media (max-width:767px){
+  .wholesale-page{
+    padding-bottom:calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .wholesale-cart-bar{
+    position:fixed;
+    left:0;
+    right:0;
+    bottom:0;
+    top:auto;
+    z-index:50;
+    margin:0;
+    border-radius:12px 12px 0 0;
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom, 0px));
+    box-shadow:0 -4px 12px rgba(17,24,39,.12);
+  }
+
+  .wholesale-cart-bar-inner{
+    gap:10px;
+  }
+
+  .wholesale-cart-bar-line--desktop,
+  .wholesale-cart-bar-note,
+  .wholesale-cart-bar-cta--desktop{
+    display:none;
+  }
+
+  .wholesale-cart-bar-line--mobile,
+  .wholesale-cart-bar-cta--mobile{
+    display:inline;
+  }
+
+  a.wholesale-cart-bar-cta{
+    min-height:38px;
+    padding:0 14px;
+  }
+}
+
 @media (max-width:640px){
   .wholesale-hero h1{
     font-size:22px;

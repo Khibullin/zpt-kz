@@ -513,3 +513,62 @@ class WholesaleStockCartTests(PublicWholesaleCartTests):
         self.assertContains(cart, 'Наличие уточняется')
 
 
+class CartCountApiTests(PublicWholesaleCartTests):
+    def test_empty_cart_count_payload(self):
+        response = self.client.get(reverse('orders:cart_count'))
+        self.assertEqual(response.status_code, 200)
+        data = response.json()
+        self.assertTrue(data['ok'])
+        self.assertEqual(data['cart_count'], 0)
+        self.assertIn('cart_total', data)
+        self.assertFalse(data['is_wholesale'])
+        self.assertIsNone(data['cart_mode'])
+        self.assertEqual(
+            data['wholesale_status'],
+            {
+                'enabled': False,
+                'total_qty': 0,
+                'minimum': 0,
+                'remaining': 0,
+                'can_checkout': True,
+            },
+        )
+        self.assertNotIn('seller', data['wholesale_status'])
+
+    def test_wholesale_cart_below_minimum(self):
+        added = self._add(self.products[0], quantity=7)
+        self.assertEqual(added.status_code, 200)
+        data = self.client.get(reverse('orders:cart_count')).json()
+        self.assertEqual(data['cart_count'], 7)
+        self.assertEqual(data['cart_mode'], CART_MODE_WHOLESALE)
+        self.assertTrue(data['is_wholesale'])
+        status = data['wholesale_status']
+        self.assertTrue(status['enabled'])
+        self.assertEqual(status['total_qty'], 7)
+        self.assertEqual(status['minimum'], 10)
+        self.assertEqual(status['remaining'], 3)
+        self.assertFalse(status['can_checkout'])
+
+    def test_wholesale_cart_minimum_reached(self):
+        added = self._add(self.products[0], quantity=10)
+        self.assertEqual(added.status_code, 200)
+        data = self.client.get(reverse('orders:cart_count')).json()
+        self.assertEqual(data['cart_count'], 10)
+        self.assertEqual(data['cart_mode'], CART_MODE_WHOLESALE)
+        status = data['wholesale_status']
+        self.assertEqual(status['remaining'], 0)
+        self.assertTrue(status['can_checkout'])
+        self.assertEqual(status['total_qty'], 10)
+        self.assertEqual(status['minimum'], 10)
+
+    def test_retail_cart_count_payload(self):
+        added = self._add(self.products[0], quantity=3, mode=CART_MODE_RETAIL)
+        self.assertEqual(added.status_code, 200)
+        data = self.client.get(reverse('orders:cart_count')).json()
+        self.assertEqual(data['cart_count'], 3)
+        self.assertEqual(data['cart_mode'], CART_MODE_RETAIL)
+        self.assertFalse(data['is_wholesale'])
+        self.assertFalse(data['wholesale_status']['enabled'])
+        self.assertEqual(data['wholesale_status']['remaining'], 0)
+
+

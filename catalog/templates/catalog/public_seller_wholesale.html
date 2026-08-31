@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v141">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v11">
-<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v6">
+<link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v7">
 {% endblock %}
 
 {% block content %}
@@ -46,6 +46,30 @@
           </ul>
         </section>
       {% endif %}
+
+      <aside
+        class="wholesale-cart-bar"
+        data-wholesale-cart-bar
+        data-wholesale-min="{{ seller.wholesale_min_order_qty }}"
+        aria-live="polite"
+        aria-label="Статус корзины"
+      >
+        <div class="wholesale-cart-bar-inner">
+          <div class="wholesale-cart-bar-copy">
+            <p class="wholesale-cart-bar-line wholesale-cart-bar-line--desktop" data-wholesale-cart-desktop>
+              🛒 Корзина пуста · минимум {{ seller.wholesale_min_order_qty }} шт.
+            </p>
+            <p class="wholesale-cart-bar-note wholesale-cart-bar-line--desktop" data-wholesale-cart-note hidden></p>
+            <p class="wholesale-cart-bar-line wholesale-cart-bar-line--mobile" data-wholesale-cart-mobile>
+              🛒 Корзина пуста
+            </p>
+          </div>
+          <a href="{% url 'orders:cart' %}" class="wholesale-cart-bar-cta" data-wholesale-cart-cta>
+            <span class="wholesale-cart-bar-cta--desktop" data-wholesale-cart-cta-desktop>Корзина</span>
+            <span class="wholesale-cart-bar-cta--mobile" data-wholesale-cart-cta-mobile>Корзина</span>
+          </a>
+        </div>
+      </aside>
 
       <form method="get" class="wholesale-filters">
         <label class="wholesale-filter-field">
@@ -108,5 +132,6 @@
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v9"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v10"></script>
+<script src="{% static 'js/wholesale-cart-bar.js' %}?v=wholesale_cart_bar_v1"></script>
 {% endblock %}

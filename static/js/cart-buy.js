@@ -36,6 +36,38 @@
     });
   }
 
+  function notifyCartState(data) {
+    if (!data) {
+      return;
+    }
+    const count = data.cart_count != null ? data.cart_count : data.total_items;
+    if (count != null) {
+      updateCartBadge(count);
+    }
+    document.dispatchEvent(new CustomEvent('zpt:cart-state', { detail: data }));
+  }
+
+  function hasWholesaleCartBar() {
+    return Boolean(document.querySelector('[data-wholesale-cart-bar]'));
+  }
+
+  function fetchCartState() {
+    return fetch(countUrl, {
+      credentials: 'same-origin',
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+      },
+    })
+      .then(parseJsonResponse)
+      .then(function (data) {
+        if (data && data.ok) {
+          notifyCartState(data);
+        }
+        return data;
+      });
+  }
+
   function setBuyButtonSuccess(button) {
     const textEl = button.querySelector('.product-buy-btn-text');
     const original = textEl ? textEl.textContent : button.textContent;
@@ -195,7 +227,12 @@
                 data.message || data.error || 'Не удалось добавить товар в корзину'
               );
             }
-            updateCartBadge(data.cart_count != null ? data.cart_count : data.total_items);
+            notifyCartState(data);
+            if (hasWholesaleCartBar()) {
+              fetchCartState().catch(function () {
+                /* ignore */
+              });
+            }
             setBuyButtonSuccess(button);
           })
           .catch(function (error) {
@@ -211,20 +248,7 @@
     bindBuyButtons(root);
   });
 
-  fetch(countUrl, {
-    credentials: 'same-origin',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'Accept': 'application/json',
-    },
-  })
-    .then(parseJsonResponse)
-    .then(function (data) {
-      if (data && data.ok) {
-        updateCartBadge(data.cart_count);
-      }
-    })
-    .catch(function () {
-      /* ignore */
-    });
+  fetchCartState().catch(function () {
+    /* ignore */
+  });
 })();

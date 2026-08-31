@@ -75,6 +75,17 @@ def _cart_json(cart, message=''):
     }
 
 
+def _wholesale_status_payload(cart):
+    status = cart.wholesale_status()
+    return {
+        'enabled': bool(status['enabled']),
+        'total_qty': int(status['total_qty'] or 0),
+        'minimum': int(status['minimum'] or 0),
+        'remaining': int(status['remaining'] or 0),
+        'can_checkout': bool(status['can_checkout']),
+    }
+
+
 def _format_price_kzt(value):
     return f'{int(value):,}'.replace(',', ' ')
 
@@ -376,6 +387,9 @@ def cart_count_api(request):
         'ok': True,
         'cart_count': cart.get_count(),
         'cart_total': cart.get_total(),
+        'cart_mode': cart.get_mode(),
+        'is_wholesale': cart.is_wholesale(),
+        'wholesale_status': _wholesale_status_payload(cart),
     })
 
 
