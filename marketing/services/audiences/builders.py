@@ -61,6 +61,10 @@ class SellerSourceFlags:
     has_map_link: bool = False
     district: str = ''
     service_ids: frozenset[int] = frozenset()
+    all_brands: bool = False
+    all_countries: bool = False
+    is_test_seller: bool = False
+    selected_country_names: frozenset[str] = frozenset()
 
 
 def _build_seller_source_index() -> dict[str, SellerSourceFlags]:
@@ -84,13 +88,20 @@ def _build_seller_source_index() -> dict[str, SellerSourceFlags]:
                 'has_map_link': False,
                 'district': '',
                 'service_ids': set(),
+                'all_brands': False,
+                'all_countries': False,
+                'is_test_seller': False,
+                'selected_country_names': set(),
             }
         return index[phone_key]
 
-    for seller in Seller.objects.only(
+    for seller in Seller.objects.prefetch_related('selected_countries').only(
         'whatsapp',
         'receive_requests',
         'is_paused',
+        'all_brands',
+        'all_countries',
+        'is_test_seller',
     ):
         phone_key = normalize_phone_key(seller.whatsapp)
         if not phone_key:
@@ -99,6 +110,12 @@ def _build_seller_source_index() -> dict[str, SellerSourceFlags]:
         row['is_parts_seller'] = True
         row['receive_requests'] = seller.receive_requests
         row['is_paused'] = seller.is_paused
+        row['all_brands'] = row['all_brands'] or bool(seller.all_brands)
+        row['all_countries'] = row['all_countries'] or bool(seller.all_countries)
+        row['is_test_seller'] = row['is_test_seller'] or bool(seller.is_test_seller)
+        row['selected_country_names'].update(
+            country.name for country in seller.selected_countries.all() if country.name
+        )
 
     active_product_phones: set[str] = set()
     for row in Product.objects.exclude(whatsapp_number='').values('whatsapp_number', 'status'):
@@ -157,7 +174,27 @@ def _build_seller_source_index() -> dict[str, SellerSourceFlags]:
         row['service_ids'].update(service.id for service in seller.services.all())
 
     return {
-        phone_key: SellerSourceFlags(**payload)
+        phone_key: SellerSourceFlags(
+            is_parts_seller=payload['is_parts_seller'],
+            is_marketplace_seller=payload['is_marketplace_seller'],
+            is_sto=payload['is_sto'],
+            is_detailing=payload['is_detailing'],
+            receive_requests=payload['receive_requests'],
+            is_paused=payload['is_paused'],
+            has_products=payload['has_products'],
+            has_active_products=payload['has_active_products'],
+            has_logo=payload['has_logo'],
+            has_instagram=payload['has_instagram'],
+            has_website=payload['has_website'],
+            has_address=payload['has_address'],
+            has_map_link=payload['has_map_link'],
+            district=payload['district'],
+            service_ids=frozenset(payload['service_ids']),
+            all_brands=payload['all_brands'],
+            all_countries=payload['all_countries'],
+            is_test_seller=payload['is_test_seller'],
+            selected_country_names=frozenset(payload['selected_country_names']),
+        )
         for phone_key, payload in index.items()
     }
 

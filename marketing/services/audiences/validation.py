@@ -70,6 +70,8 @@ REQUEST_SELLER_KEYS = COMMON_KEYS | {
     'categories',
     'receive_requests',
     'is_paused',
+    'seller_countries',
+    'seller_include_all_brands',
 }
 
 MARKETPLACE_SELLER_KEYS = COMMON_KEYS | {
@@ -81,6 +83,8 @@ MARKETPLACE_SELLER_KEYS = COMMON_KEYS | {
     'has_logo',
     'has_instagram',
     'has_website',
+    'seller_countries',
+    'seller_include_all_brands',
 }
 
 SERVICE_PROVIDER_KEYS = COMMON_KEYS | {

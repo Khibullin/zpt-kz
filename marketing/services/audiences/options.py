@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from core.models import BuyerCityInterest, BuyerContact
+from core.models import BuyerCityInterest, BuyerContact, Country
 from marketing.services.audiences.constants import (
     GROUP_BUYERS,
     GROUP_SELLERS,
@@ -85,10 +85,12 @@ def build_audience_filter_options(
         options['show_categories'] = True
         options['show_receive_requests'] = True
         options['show_is_paused'] = True
+        options['show_seller_vehicle'] = True
     elif contact_group == GROUP_SELLERS and contact_subtype == SUBTYPE_MARKETPLACE_SELLERS:
         options['show_cities'] = True
         options['show_products'] = True
         options['show_profile'] = True
+        options['show_seller_vehicle'] = True
     elif contact_group == GROUP_SELLERS:
         options['show_cities'] = True
         options['show_transport_types'] = True
@@ -99,6 +101,7 @@ def build_audience_filter_options(
         options['show_is_paused'] = True
         options['show_products'] = True
         options['show_profile'] = True
+        options['show_seller_vehicle'] = True
     elif contact_group == GROUP_SERVICE_PROVIDERS and contact_subtype == SUBTYPE_STO:
         options['show_cities'] = True
         options['show_district'] = True
@@ -126,6 +129,11 @@ def build_audience_filter_options(
         options['show_profile'] = True
     elif contact_group == GROUP_TEST and contact_subtype == SUBTYPE_TEST_CONTACTS:
         options['show_test_info'] = True
+
+    if options.get('show_seller_vehicle'):
+        options['seller_country_options'] = _sorted_distinct(
+            Country.objects.exclude(name='').values_list('name', flat=True),
+        )
 
     if not options.get('show_test_info'):
         options.setdefault('show_activity_filters', True)

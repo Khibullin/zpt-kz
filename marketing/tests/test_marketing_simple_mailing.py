@@ -364,7 +364,7 @@ class SimpleMailingViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             MarketingAudience.objects.exclude(
-                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+                name__startswith='AG Parts —',
             ).count(),
             0,
         )
@@ -914,7 +914,7 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         self.client.get(self.confirm_url)
         self.assertEqual(
             MarketingAudience.objects.exclude(
-                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+                name__startswith='AG Parts —',
             ).count(),
             0,
         )

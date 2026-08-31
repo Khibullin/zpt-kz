@@ -90,6 +90,12 @@ def criteria_summary(criteria: dict, *, contact_group: str, contact_subtype: str
         parts.append('Только тестовые')
     if normalized['is_test'] is False:
         parts.append('Только реальные')
+    if normalized.get('seller_countries'):
+        parts.append(
+            'Страны продавца: ' + ', '.join(normalized['seller_countries'])
+        )
+    if normalized.get('seller_include_all_brands') is True:
+        parts.append('Или все марки продавца')
 
     if not any(key for key in parts[1:]):
         parts.append('Без дополнительных ограничений')

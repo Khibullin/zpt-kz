@@ -39,6 +39,7 @@ from marketing.services.audiences.filters import (
     normalize_marketing_criteria,
     value_in_list,
     values_intersect,
+    matches_seller_vehicle_scope,
 )
 from marketing.services.audiences.validation import validate_and_normalize_criteria
 from marketing.services.campaigns.purpose import apply_purpose_to_snapshot_status
@@ -205,9 +206,13 @@ def _matches_general_criteria(
         return False
     if criteria.get('is_active') is False and contact.is_active:
         return False
-    if criteria.get('is_test') is True and not contact.is_test:
+    if criteria.get('is_test') is True and not (
+        contact.is_test or (seller_flags is not None and seller_flags.is_test_seller)
+    ):
         return False
-    if criteria.get('is_test') is False and contact.is_test:
+    if criteria.get('is_test') is False and (
+        contact.is_test or (seller_flags is not None and seller_flags.is_test_seller)
+    ):
         return False
     activity_already_filtered = parts_db_filtered and (
         criteria.get('activity_period')
@@ -293,6 +298,9 @@ def _matches_general_criteria(
     if service_type == 'sto' and ROLE_STO not in contact.roles:
         return False
     if service_type == 'detailing' and ROLE_DETAILING not in contact.roles:
+        return False
+
+    if not matches_seller_vehicle_scope(seller_flags, criteria):
         return False
 
     return True

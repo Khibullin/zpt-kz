@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from marketing.services.campaigns.constants import (
     EXCLUSION_AUDIENCE_RULE,
+    PURPOSE_ALL_SELLERS,
     PURPOSE_COMBINED_SELLERS,
     PURPOSE_DETAILING_PROVIDERS,
     PURPOSE_MARKETPLACE_BUYERS,
@@ -46,6 +47,8 @@ def contact_matches_campaign_purpose(
         return ROLE_MARKETPLACE_SELLER in contact.roles
     if purpose == PURPOSE_COMBINED_SELLERS:
         return ROLE_PARTS_SELLER in contact.roles and ROLE_MARKETPLACE_SELLER in contact.roles
+    if purpose == PURPOSE_ALL_SELLERS:
+        return bool(contact.roles & {ROLE_PARTS_SELLER, ROLE_MARKETPLACE_SELLER})
     if purpose == PURPOSE_STO_PROVIDERS:
         return ROLE_STO in contact.roles
     if purpose == PURPOSE_DETAILING_PROVIDERS:

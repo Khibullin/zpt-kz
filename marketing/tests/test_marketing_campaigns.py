@@ -51,6 +51,7 @@ from marketing.services.campaigns.constants import (
     CAMPAIGN_VIEW_ARCHIVED,
     CAMPAIGN_VIEW_ACTIVE,
     CAMPAIGN_VIEW_CANCELLED,
+    PURPOSE_ALL_SELLERS,
     PURPOSE_COMBINED_SELLERS,
     PURPOSE_DETAILING_PROVIDERS,
     PURPOSE_MARKETPLACE_BUYERS,
@@ -815,6 +816,18 @@ class MarketingCampaignPurposeFilterTests(TestCase):
         self._prepare(campaign)
         recipient = campaign.recipients.get(phone_normalized=phone)
         self.assertEqual(recipient.exclusion_reason, EXCLUSION_AUDIENCE_RULE)
+
+    def test_all_sellers_includes_request_only(self):
+        phone = next_phone()
+        Seller.objects.create(name='Parts only', whatsapp=phone, city='Алматы', is_active=True)
+        audience = self._audience(
+            contact_group=GROUP_SELLERS,
+            contact_subtype=SUBTYPE_ALL_SELLERS,
+        )
+        campaign = self._campaign(audience, PURPOSE_ALL_SELLERS)
+        self._prepare(campaign)
+        recipient = campaign.recipients.get(phone_normalized=phone)
+        self.assertNotEqual(recipient.exclusion_reason, EXCLUSION_AUDIENCE_RULE)
 
     def test_sto_providers_all_service_providers_excludes_detailing_only(self):
         phone = next_phone()

@@ -86,6 +86,8 @@ EMPTY_MARKETING_CRITERIA: dict = {
     'has_address': None,
     'has_map_link': None,
     'vehicle_selection': [],
+    'seller_countries': [],
+    'seller_include_all_brands': None,
 }
 
 
@@ -302,6 +304,10 @@ def normalize_marketing_criteria(
         'has_website': _parse_optional_bool(raw.get('has_website')),
         'has_address': _parse_optional_bool(raw.get('has_address')),
         'has_map_link': _parse_optional_bool(raw.get('has_map_link')),
+        'seller_countries': _clean_string_list(raw.get('seller_countries')),
+        'seller_include_all_brands': _parse_optional_bool(
+            raw.get('seller_include_all_brands'),
+        ),
     }
 
 
@@ -316,6 +322,7 @@ CRITERIA_MULTISELECT_FIELDS = (
     'search_scopes',
     'transport_types',
     'services',
+    'seller_countries',
 )
 
 CRITERIA_SCALAR_FIELDS = (
@@ -343,6 +350,7 @@ CRITERIA_SCALAR_FIELDS = (
     'has_website',
     'has_address',
     'has_map_link',
+    'seller_include_all_brands',
 )
 
 
@@ -435,6 +443,25 @@ def values_intersect(values: set[str], allowed: list[str]) -> bool:
     return bool({normalize_buyer_text(value) for value in values} & allowed_norm)
 
 
+def matches_seller_vehicle_scope(seller_flags, criteria: dict) -> bool:
+    seller_countries = list(criteria.get('seller_countries') or [])
+    include_all_brands = criteria.get('seller_include_all_brands')
+    if not seller_countries and include_all_brands is not True:
+        return True
+    if seller_flags is None:
+        return False
+    matched_country = bool(seller_countries) and values_intersect(
+        set(seller_flags.selected_country_names),
+        seller_countries,
+    )
+    matched_all_brands = include_all_brands is True and bool(seller_flags.all_brands)
+    if seller_countries and include_all_brands is True:
+        return matched_country or matched_all_brands
+    if include_all_brands is True:
+        return matched_all_brands
+    return matched_country
+
+
 __all__ = [
     'EMPTY_MARKETING_CRITERIA',
     'normalize_marketing_criteria',
@@ -444,6 +471,7 @@ __all__ = [
     'category_period_start',
     'value_in_list',
     'values_intersect',
+    'matches_seller_vehicle_scope',
     'SEARCH_SCOPE_CHOICES',
     'TRANSPORT_TYPE_CHOICES',
     'CATEGORY_PERIOD_CHOICES',

@@ -171,6 +171,21 @@
       <label>Товаров до <input type="number" min="0" name="products_count_max" value="{{ criteria.products_count_max|default:'' }}"></label>
     {% endif %}
 
+    {% if filter_options.show_seller_vehicle %}
+      <fieldset class="marketing-multi-select">
+        <legend>Страны продавца (selected_countries)</legend>
+        {% for country in filter_options.seller_country_options %}
+          <label><input type="checkbox" name="seller_countries" value="{{ country }}"{% if country in criteria.seller_countries %} checked{% endif %}> {{ country }}</label>
+        {% empty %}
+          <p class="marketing-muted">Нет стран в справочнике</p>
+        {% endfor %}
+      </fieldset>
+      <label>
+        <input type="checkbox" name="seller_include_all_brands" value="true"{% if criteria.seller_include_all_brands %} checked{% endif %}>
+        Включать продавцов «все марки» (OR со странами)
+      </label>
+    {% endif %}
+
     {% if filter_options.show_receive_requests %}
       <label><input type="checkbox" name="receive_requests" value="true"{% if criteria.receive_requests %} checked{% endif %}> Получает заявки</label>
     {% endif %}

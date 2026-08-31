@@ -302,7 +302,7 @@ class BuyerVehicleViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             MarketingAudience.objects.exclude(
-                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+                name__startswith='AG Parts —',
             ).count(),
             0,
         )
@@ -325,7 +325,7 @@ class BuyerVehicleViewTests(TestCase):
         self.assertContains(response, 'Предпросмотр расчёта')
         self.assertEqual(
             MarketingAudience.objects.exclude(
-                name='AG Parts — продавцы по маркам оптового ассортимента — 08.2026',
+                name__startswith='AG Parts —',
             ).count(),
             0,
         )

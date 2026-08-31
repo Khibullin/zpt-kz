@@ -58,6 +58,7 @@ PURPOSE_SERVICE_CUSTOMERS = 'service_customers'
 PURPOSE_REQUEST_SELLERS = 'request_sellers'
 PURPOSE_MARKETPLACE_SELLERS = 'marketplace_sellers'
 PURPOSE_COMBINED_SELLERS = 'combined_sellers'
+PURPOSE_ALL_SELLERS = 'all_sellers'
 PURPOSE_STO_PROVIDERS = 'sto_providers'
 PURPOSE_DETAILING_PROVIDERS = 'detailing_providers'
 PURPOSE_TEST_CAMPAIGN = 'test_campaign'
@@ -69,6 +70,7 @@ CAMPAIGN_PURPOSE_CHOICES = (
     (PURPOSE_REQUEST_SELLERS, 'Продавцы по заявкам'),
     (PURPOSE_MARKETPLACE_SELLERS, 'Продавцы маркетплейса'),
     (PURPOSE_COMBINED_SELLERS, 'Продавцы обоих направлений'),
+    (PURPOSE_ALL_SELLERS, 'Все продавцы запчастей'),
     (PURPOSE_STO_PROVIDERS, 'СТО'),
     (PURPOSE_DETAILING_PROVIDERS, 'Детейлинг'),
     (PURPOSE_TEST_CAMPAIGN, 'Тестовая кампания'),
@@ -129,6 +131,9 @@ PURPOSE_COMPATIBILITY: dict[str, frozenset[tuple[str, str]]] = {
     }),
     PURPOSE_COMBINED_SELLERS: frozenset({
         (GROUP_SELLERS, SUBTYPE_COMBINED_SELLERS),
+        (GROUP_SELLERS, SUBTYPE_ALL_SELLERS),
+    }),
+    PURPOSE_ALL_SELLERS: frozenset({
         (GROUP_SELLERS, SUBTYPE_ALL_SELLERS),
     }),
     PURPOSE_STO_PROVIDERS: frozenset({
