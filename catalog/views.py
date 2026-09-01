@@ -39,6 +39,10 @@ from .models import (
     Category,
     SellerProfile,
 )
+from .product_assistant import suggest_product_by_article
+from .product_image_search import search_product_images
+from .remote_image import RemoteImageError, fetch_signed_remote_image
+from .article_utils import normalize_article
 from .wholesale import (
     WHOLESALE_TYPE_CHOICES,
     attach_public_wholesale_flags,
@@ -856,13 +860,51 @@ def seller_profile_delete(request):
     })
 
 
+def _request_payload(request):
+    if request.content_type and 'application/json' in request.content_type:
+        try:
+            data = json.loads(request.body.decode('utf-8') or '{}')
+        except json.JSONDecodeError:
+            return None
+        if not isinstance(data, dict):
+            return None
+        return data
+    return request.POST
+
+
+def _load_remote_main_image(request, *, filename_stem='product'):
+    if request.FILES.get('main_image'):
+        return None, None
+    token = (request.POST.get('remote_main_image_token') or '').strip()
+    if not token:
+        return None, None
+    try:
+        return fetch_signed_remote_image(token, filename_stem=filename_stem), None
+    except RemoteImageError as exc:
+        return None, str(exc)
+
+
+def _require_seller(request):
+    return get_object_or_404(SellerProfile, user=request.user)
+
+
 @login_required
 def add_product(request):
-    seller = get_object_or_404(SellerProfile, user=request.user)
+    seller = _require_seller(request)
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
         files = request.FILES.getlist('extra_images')
+        remote_file = None
+        article_stem = normalize_article(request.POST.get('article') or '') or 'product'
+
+        if form.is_valid():
+            remote_file, remote_error = _load_remote_main_image(
+                request,
+                filename_stem=article_stem,
+            )
+            if remote_error:
+                form.add_error('main_image', remote_error)
 
         if form.is_valid():
             product = form.save(commit=False)
@@ -870,8 +912,12 @@ def add_product(request):
             product.seller_name = seller.name
             product.whatsapp_number = seller.phone
             product.city = seller.city
+            product.seller_profile = seller
+            if remote_file is not None:
+                product.main_image.save(remote_file.name, remote_file, save=False)
 
             product.save()
+            form.save_m2m()
 
             uploaded_images = []
 
@@ -900,7 +946,7 @@ def add_product(request):
 
 @login_required
 def edit_product(request, pk):
-    seller = get_object_or_404(SellerProfile, user=request.user)
+    seller = _require_seller(request)
     product = get_object_or_404(Product.objects.owned_by_seller(seller), pk=pk)
 
     initial = {}
@@ -910,15 +956,35 @@ def edit_product(request, pk):
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product, initial=initial)
         files = request.FILES.getlist('extra_images')
+        remote_file = None
+        new_upload = bool(request.FILES.get('main_image'))
+        article_stem = normalize_article(
+            request.POST.get('article') or product.article or ''
+        ) or 'product'
+
+        if form.is_valid():
+            remote_file, remote_error = _load_remote_main_image(
+                request,
+                filename_stem=article_stem,
+            )
+            if remote_error:
+                form.add_error('main_image', remote_error)
 
         if form.is_valid():
             updated_product = form.save(commit=False)
 
-            if request.POST.get('remove_main_image'):
+            if (
+                request.POST.get('remove_main_image')
+                and not new_upload
+                and remote_file is None
+            ):
                 if product.main_image:
                     product.main_image.delete(save=False)
 
                 updated_product.main_image = None
+
+            if remote_file is not None and not new_upload:
+                updated_product.main_image.save(remote_file.name, remote_file, save=False)
 
             if request.POST.get('remove_extra_images'):
                 for img in product.images.all():
@@ -928,8 +994,10 @@ def edit_product(request, pk):
             updated_product.seller_name = seller.name
             updated_product.whatsapp_number = seller.phone
             updated_product.city = seller.city
+            updated_product.seller_profile = seller
 
             updated_product.save()
+            form.save_m2m()
 
             uploaded_images = []
 
@@ -1025,6 +1093,44 @@ def load_compatible_models(request):
     ]
 
     return JsonResponse(data, safe=False)
+
+
+@login_required
+@require_POST
+def product_assistant(request):
+    _require_seller(request)
+    payload = _request_payload(request)
+    if payload is None:
+        return JsonResponse(
+            {'ok': False, 'error': 'Некорректные данные.'},
+            status=400,
+        )
+    article = str(payload.get('article') or '').strip()
+    result = suggest_product_by_article(article)
+    status = 200 if result.get('ok') else 400
+    return JsonResponse(result, status=status)
+
+
+@login_required
+@require_POST
+def product_image_search(request):
+    _require_seller(request)
+    payload = _request_payload(request)
+    if payload is None:
+        return JsonResponse(
+            {
+                'ok': False,
+                'error': 'Некорректные данные.',
+                'images': [],
+            },
+            status=400,
+        )
+    result = search_product_images(
+        str(payload.get('article') or '').strip(),
+        title=str(payload.get('title') or '').strip(),
+        brand=str(payload.get('brand') or '').strip(),
+    )
+    return JsonResponse(result)
 
 
 @ensure_csrf_cookie

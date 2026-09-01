@@ -20,6 +20,7 @@ from service_requests.views import (
     services_catalog,
     service_seller_detail,
 )
+from catalog.views import product_assistant, product_image_search
 
 
 urlpatterns = [
@@ -174,6 +175,17 @@ urlpatterns = [
         'catalog/services/<int:seller_id>/',
         service_seller_detail,
         name='service_seller_detail',
+    ),
+
+    path(
+        'catalog/ajax/product-assistant/',
+        product_assistant,
+        name='catalog_ajax_product_assistant',
+    ),
+    path(
+        'catalog/ajax/product-image-search/',
+        product_image_search,
+        name='catalog_ajax_product_image_search',
     ),
 
     path('market/', include('catalog.urls')),

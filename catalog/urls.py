@@ -21,6 +21,8 @@ from .views import (
     load_brands,
     load_models,
     load_compatible_models,
+    product_assistant,
+    product_image_search,
     faq_view,
     feedback_view,
 )
@@ -52,6 +54,16 @@ urlpatterns = [
         'ajax/load-compatible-models/',
         load_compatible_models,
         name='ajax_load_compatible_models'
+    ),
+    path(
+        'ajax/product-assistant/',
+        product_assistant,
+        name='ajax_product_assistant',
+    ),
+    path(
+        'ajax/product-image-search/',
+        product_image_search,
+        name='ajax_product_image_search',
     ),
     path(
         'ajax/commercial-price/',

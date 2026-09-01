@@ -247,6 +247,12 @@ SELLER_SEARCH_PROVIDER = (os.getenv('SELLER_SEARCH_PROVIDER', 'brave') or 'brave
 BRAVE_SEARCH_API_KEY = (os.getenv('BRAVE_SEARCH_API_KEY', '') or '').strip()
 SELLER_SEARCH_ENABLED = os.getenv('SELLER_SEARCH_ENABLED', 'False').lower() == 'true'
 
+# Seller product assistant (OpenAI Responses API + web_search)
+OPENAI_API_KEY = (os.getenv('OPENAI_API_KEY', '') or '').strip()
+PRODUCT_AI_MODEL = (
+    os.getenv('PRODUCT_AI_MODEL', 'gpt-5.6-luna') or 'gpt-5.6-luna'
+).strip() or 'gpt-5.6-luna'
+
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(
     'ZPT_WAREHOUSE_ADDRESS',

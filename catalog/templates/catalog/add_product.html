@@ -10,7 +10,7 @@
 
 <section class="section">
   <div class="site-container">
-    <div class="seller-page-card">
+    <div class="seller-page-card seller-product-form-card">
       <h1 class="ds-page-title">{% if page_title %}{{ page_title }}{% else %}Добавить товар{% endif %}</h1>
       <p class="dashboard-subtitle ds-body">
         Заполните информацию о товаре и загрузите фото
@@ -63,8 +63,27 @@
 
         <p>
           <label for="{{ form.article.id_for_label }}">{{ form.article.label }}</label>
-          {{ form.article }}
+          <span class="product-article-row">
+            {{ form.article }}
+            <button type="button" class="btn outline" id="js-product-assistant-btn">
+              Подобрать данные по артикулу
+            </button>
+          </span>
+          <span class="field-hint" id="js-product-assistant-status" hidden></span>
         </p>
+
+        <div class="product-assistant-preview" id="js-product-assistant-preview" hidden>
+          <div class="product-assistant-preview-title">Найденные данные</div>
+          <div class="product-assistant-preview-body" id="js-product-assistant-preview-body"></div>
+          <div class="form-action-row">
+            <button type="button" class="btn red" id="js-product-assistant-apply">
+              Применить данные
+            </button>
+            <button type="button" class="btn outline" id="js-product-assistant-cancel">
+              Отмена
+            </button>
+          </div>
+        </div>
 
         <p class="product-price-field">
           <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
@@ -88,7 +107,7 @@
           {{ form.status }}
         </p>
 
-        <p>
+        <p class="product-main-photo-field">
           <label>Главное фото</label>
 
           {% if product and product.main_image %}
@@ -103,7 +122,33 @@
             </label>
           {% endif %}
 
-          {{ form.main_image }}
+          <div class="product-photo-actions">
+            <button type="button" class="btn outline" id="js-photo-upload-btn">
+              Загрузить своё фото
+            </button>
+            <button type="button" class="btn outline" id="js-photo-search-btn">
+              Найти фото по артикулу
+            </button>
+            <button type="button" class="btn outline" id="js-photo-skip-btn">
+              Оставить без фото
+            </button>
+          </div>
+
+          <div class="product-photo-file-wrap">
+            {{ form.main_image }}
+          </div>
+          <input type="hidden" name="remote_main_image_token" id="id_remote_main_image_token" value="">
+
+          <div class="product-photo-selected" id="js-photo-selected" hidden>
+            <img alt="Выбранное фото" id="js-photo-selected-img">
+            <div>Выбранное фото будет сохранено вместе с карточкой</div>
+          </div>
+
+          <p class="field-hint" id="js-photo-search-status" hidden></p>
+          <div class="product-photo-search" id="js-photo-search" hidden>
+            <p class="product-photo-warning">Проверьте, что на фото изображён именно ваш товар.</p>
+            <div class="product-photo-grid" id="js-photo-search-grid"></div>
+          </div>
         </p>
 
         <p>
@@ -163,7 +208,17 @@
   </div>
 </section>
 
+<div
+  id="product-assistant-root"
+  hidden
+  data-assistant-url="{% url 'ajax_product_assistant' %}"
+  data-image-search-url="{% url 'ajax_product_image_search' %}"
+  data-brands-url="{% url 'ajax_load_brands' %}"
+  data-models-url="{% url 'ajax_load_models' %}"
+  data-compatible-url="{% url 'ajax_load_compatible_models' %}"
+></div>
 <script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
+<script src="{% static 'js/product-assistant-v1.js' %}?v=product_assistant_v1"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const countrySelect = document.getElementById("id_country");
