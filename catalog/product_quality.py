@@ -15,7 +15,7 @@ from typing import Any, Iterable
 
 from catalog.applicability import parse_plain_list, serialize_plain_list
 from catalog.article_utils import normalize_article
-from catalog.models import Product
+from catalog.models import Category, Product
 
 STATUS_OK = 'OK'
 STATUS_AUTO_FIXABLE = 'AUTO_FIXABLE'
@@ -144,14 +144,49 @@ PART_TYPE_PATTERNS = (
     ('бампер', 'bumper'),
 )
 
+# Morphological / family equivalents: do not treat as different part types.
+PART_TYPE_FAMILY = {
+    'boot': 'boot',
+    'cv_boot': 'boot',
+}
+
+_YO_FOLD = str.maketrans({'ё': 'е', 'Ё': 'е'})
+_CV_BOOT_STEM = re.compile(r'пыльник', re.I)
+_CV_JOINT_STEM = re.compile(r'шру[сc]', re.I)
+
 SPARK_CATEGORY_NAMES = (
     'Свечи зажигания',
     'Система зажигания',
 )
 
-BROAD_CATEGORIES = {
-    'электрика': ('spark',),
+# General category name (casefold) → part type that has a more specific Category.
+BROAD_CATEGORY_GENERAL = {
+    'электрика': 'spark',
 }
+
+SPECIALIZED_CATEGORY_FOR_TYPE = {
+    'spark': SPARK_CATEGORY_NAMES,
+}
+
+_STANDALONE_OEM_LINE = re.compile(
+    r'(?i)^\s*(?:'
+    r'oem(?:[-\s]номер(?:а|ы)?)?'
+    r'|кросс(?:[-\s]?номер(?:а|ы)?)?'
+    r'|cross(?:[-\s]?ref(?:erence)?s?)?'
+    r')\s*:.*$'
+)
+_MANUFACTURER_ARTICLE_RE = re.compile(
+    r'(?:артикул\s+производителя|'
+    r'manufacturer(?:\s+(?:article|part(?:\s*number)?)?)?|'
+    r'part\s*number|\bp/?n\b)\s*:?\s*'
+    r'([A-Za-z0-9][A-Za-z0-9._/-]{2,40})',
+    re.I,
+)
+_CROSS_NUMBER_LABEL_RE = re.compile(
+    r'(?:кросс[-\s]?номер(?:а|ы)?|cross[-\s]?(?:number|ref(?:erence)?s?))\s*:?\s*'
+    r'([A-Za-z0-9][A-Za-z0-9._/-]{2,40})',
+    re.I,
+)
 
 
 @dataclass
@@ -339,7 +374,9 @@ def parse_article_and_oem(value: str | None) -> ParsedArticle:
     if detect_internal_research_text(raw) and not _ARTICLE_WITH_OEM.match(raw):
         return ParsedArticle(primary=raw[:100], oem_numbers=[], confident=False, raw=raw)
 
-    match = _ARTICLE_WITH_OEM.match(raw) or _ARTICLE_PREFIX.match(raw)
+    oem_match = _ARTICLE_WITH_OEM.match(raw)
+    prefix_match = _ARTICLE_PREFIX.match(raw)
+    match = oem_match or prefix_match
     if match:
         primary = (match.group('article') or '').strip()
         oem_raw = ''
@@ -349,7 +386,7 @@ def parse_article_and_oem(value: str | None) -> ParsedArticle:
             oem_raw = raw[len(primary):]
         oem_numbers = sanitize_oem_text(oem_raw).split('\n') if oem_raw else []
         oem_numbers = [item for item in oem_numbers if item and item.casefold() != primary.casefold()]
-        confident = bool(primary) and not _OEM_ONLY_LABEL.match(raw)
+        confident = bool(primary) and oem_match is not None and not _OEM_ONLY_LABEL.match(raw)
         return ParsedArticle(
             primary=primary[:100],
             oem_numbers=oem_numbers,
@@ -418,13 +455,71 @@ def normalize_research_notes(raw) -> list[dict[str, str]]:
 
 
 def part_type_from_text(value: str | None) -> str:
-    text = str(value or '').casefold()
+    text = str(value or '').casefold().translate(_YO_FOLD)
     if not text:
         return ''
+    if _CV_BOOT_STEM.search(text) and _CV_JOINT_STEM.search(text):
+        return 'cv_boot'
     for needle, code in PART_TYPE_PATTERNS:
         if needle in text:
             return code
     return ''
+
+
+def part_type_family(code: str | None) -> str:
+    if not code:
+        return ''
+    return PART_TYPE_FAMILY.get(code, code)
+
+
+def part_types_conflict(type_a: str | None, type_b: str | None) -> bool:
+    if not type_a or not type_b or type_a == type_b:
+        return False
+    return part_type_family(type_a) != part_type_family(type_b)
+
+
+def detect_article_role_unclear(article: str | None, *texts: str) -> bool:
+    """True when Product.article is labeled as a cross-number and another PN exists."""
+    raw = str(article or '').strip()
+    key = normalize_article(raw)
+    if not key:
+        return False
+    blob = '\n'.join(str(item or '') for item in texts)
+    if not blob.strip():
+        return False
+    cross_keys = {normalize_article(item) for item in _CROSS_NUMBER_LABEL_RE.findall(blob)}
+    mfr_keys = {normalize_article(item) for item in _MANUFACTURER_ARTICLE_RE.findall(blob)}
+    cross_keys.discard('')
+    mfr_keys.discard('')
+    if key not in cross_keys:
+        return False
+    return any(item != key for item in mfr_keys)
+
+
+def _related_manager_has(product: Product, field_name: str) -> bool:
+    manager = getattr(product, field_name, None)
+    if manager is None:
+        return False
+    prefetched = getattr(product, '_prefetched_objects_cache', None)
+    if isinstance(prefetched, dict) and field_name in prefetched:
+        return bool(prefetched[field_name])
+    return manager.exists()
+
+
+def _has_brand(product: Product) -> bool:
+    return bool(product.brand_id) or _related_manager_has(product, 'selected_brands')
+
+
+def _has_model_applicability(product: Product) -> bool:
+    if (product.compatibility or '').strip() or product.car_model_id:
+        return True
+    return _related_manager_has(product, 'selected_models')
+
+
+def _category_name_set(names: Iterable[str] | None) -> set[str]:
+    if names is not None:
+        return {str(item) for item in names if str(item).strip()}
+    return set(Category.objects.values_list('name', flat=True))
 
 
 def has_front_rear_conflict(titles: Iterable[str]) -> bool:
@@ -455,64 +550,84 @@ def _trim_fix(value: str) -> str:
     return _normalize_whitespace(value)
 
 
+def _drop_duplicate_oem_lines(description: str, oem_text: str) -> str:
+    oem_tokens = {
+        item.casefold()
+        for item in sanitize_oem_text(oem_text).split('\n')
+        if item
+    }
+    if not oem_tokens or not (description or '').strip():
+        return description
+    kept: list[str] = []
+    dropped = False
+    for line in str(description).splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        if _STANDALONE_OEM_LINE.match(stripped):
+            line_tokens = {
+                item.casefold()
+                for item in sanitize_oem_text(stripped).split('\n')
+                if item
+            }
+            if line_tokens and line_tokens <= oem_tokens:
+                dropped = True
+                continue
+        kept.append(stripped)
+    if not dropped:
+        return description
+    leftover = '\n'.join(kept)
+    if not leftover.strip():
+        return description
+    return leftover
+
+
+def _working_public_fields(product: Product) -> dict[str, str]:
+    """Canonical public-text snapshot. Same input always yields the same dict."""
+    current_article = product.article or ''
+    parsed = parse_article_and_oem(current_article)
+    if parsed.confident and parsed.primary:
+        article_working = parsed.primary[:100]
+    else:
+        article_working = _normalize_whitespace(current_article)
+
+    oem_working = sanitize_oem_text(product.oem_cross_references or '')
+    if parsed.confident and parsed.oem_numbers:
+        oem_working = sanitize_oem_text(oem_working + '\n' + '\n'.join(parsed.oem_numbers))
+
+    working: dict[str, str] = {
+        'article': article_working,
+        'oem_cross_references': oem_working,
+    }
+    for name in ('title', 'compatibility', 'engine_compatibility'):
+        current = getattr(product, name, '') or ''
+        result = _field_sanitize(current, name)
+        working[name] = result.text if result.safe_to_apply else _normalize_whitespace(current)
+
+    desc_current = product.description or ''
+    desc_result = _field_sanitize(desc_current, 'description')
+    desc_working = desc_result.text if desc_result.safe_to_apply else _normalize_whitespace(desc_current)
+    desc_working = _drop_duplicate_oem_lines(desc_working, oem_working)
+    working['description'] = _normalize_whitespace(desc_working)
+    return working
+
+
 def _collect_safe_fixes(product: Product) -> dict[str, str]:
+    working = _working_public_fields(product)
     fixes: dict[str, str] = {}
     for name in PUBLIC_TEXT_FIELDS:
         current = getattr(product, name, '') or ''
-        trimmed = _trim_fix(current)
-        result = _field_sanitize(current, name)
-        if name == 'article':
-            parsed = parse_article_and_oem(current)
-            if parsed.confident and parsed.primary and parsed.primary != current.strip():
-                fixes['article'] = parsed.primary[:100]
-            if parsed.confident and parsed.oem_numbers:
-                existing_oem = sanitize_oem_text(product.oem_cross_references or '')
-                merged = serialize_plain_list(
-                    existing_oem + '\n' + '\n'.join(parsed.oem_numbers)
-                )
-                if merged and merged != (product.oem_cross_references or '').strip():
-                    fixes['oem_cross_references'] = merged
+        value = working.get(name, current)
+        if value == current:
             continue
-        if name == 'oem_cross_references':
-            cleaned = sanitize_oem_text(current)
-            if cleaned and cleaned != current.strip():
-                fixes[name] = cleaned
-            elif trimmed != current:
-                fixes[name] = trimmed
+        if not value and current.strip() and name in {
+            'title',
+            'article',
+            'compatibility',
+            'description',
+        }:
             continue
-        if result.safe_to_apply and result.text != current.strip():
-            fixes[name] = result.text
-        elif trimmed != current:
-            fixes[name] = trimmed
-
-    description = product.description or ''
-    oem_field = fixes.get('oem_cross_references', product.oem_cross_references or '')
-    oem_tokens = {
-        item.casefold()
-        for item in sanitize_oem_text(oem_field).split('\n')
-        if item
-    }
-    if oem_tokens and description:
-        kept_lines = []
-        dropped = False
-        for line in description.splitlines():
-            stripped = line.strip()
-            if not stripped:
-                continue
-            if _OEM_LABEL.search(stripped):
-                line_tokens = {
-                    item.casefold()
-                    for item in sanitize_oem_text(stripped).split('\n')
-                    if item
-                }
-                if line_tokens and line_tokens <= oem_tokens:
-                    dropped = True
-                    continue
-            kept_lines.append(stripped)
-        if dropped:
-            new_description = '\n'.join(kept_lines)
-            if new_description != description.strip():
-                fixes['description'] = new_description
+        fixes[name] = value
     return fixes
 
 
@@ -530,6 +645,7 @@ def audit_product(
     *,
     article_groups: dict[str, list[Product]] | None = None,
     generic_descriptions: set[str] | None = None,
+    category_names: Iterable[str] | None = None,
 ) -> ProductAuditResult:
     issues: list[str] = []
     actions: list[str] = []
@@ -554,7 +670,7 @@ def audit_product(
 
     title_type = part_type_from_text(product.title)
     description_type = part_type_from_text(product.description)
-    if title_type and description_type and title_type != description_type:
+    if part_types_conflict(title_type, description_type):
         bump(
             STATUS_CRITICAL,
             'CRITICAL_MANUAL_REVIEW: title и description относятся к разным типам деталей',
@@ -628,31 +744,57 @@ def audit_product(
             'Одинаковое описание у нескольких карточек продавца.',
         )
 
+    if detect_article_role_unclear(
+        product.article,
+        product.compatibility or '',
+        product.description or '',
+        product.oem_cross_references or '',
+        product.title or '',
+    ):
+        bump(
+            STATUS_MANUAL,
+            'ARTICLE_ROLE_UNCLEAR',
+            'Текущий article похож на кросс-номер, а в карточке указан другой артикул производителя. Не переписывать автоматически.',
+        )
+
     if not (product.article or '').strip():
         bump(STATUS_MANUAL, 'MISSING_ARTICLE', 'Указать артикул.')
-    if not product.brand_id:
+    if not _has_brand(product):
         bump(STATUS_MANUAL, 'MISSING_BRAND', 'Указать марку.')
     if not product.category_id:
         bump(STATUS_MANUAL, 'MISSING_CATEGORY', 'Указать категорию.')
-    if not (product.compatibility or '').strip() and not product.car_model_id:
+    if not _has_model_applicability(product):
         bump(STATUS_MANUAL, 'MISSING_COMPATIBILITY', 'Указать применимость.')
     if not (product.description or '').strip():
         bump(STATUS_MANUAL, 'MISSING_DESCRIPTION', 'Добавить описание детали.')
 
+    known_categories = _category_name_set(category_names)
     category_name = (product.category.name if product.category_id else '').casefold()
-    if title_type in BROAD_CATEGORIES.get(category_name, ()):
-        bump(
-            STATUS_MANUAL,
-            'BROAD_CATEGORY',
-            'Товар, похоже, в слишком общей категории. Не создавать новую Category автоматически.',
-        )
+    expected_type = BROAD_CATEGORY_GENERAL.get(category_name)
+    if expected_type and title_type == expected_type:
+        specialized = SPECIALIZED_CATEGORY_FOR_TYPE.get(expected_type, ())
+        existing_fold = {name.casefold() for name in known_categories}
+        if any(name.casefold() in existing_fold for name in specialized):
+            bump(
+                STATUS_MANUAL,
+                'BROAD_CATEGORY',
+                'Товар, похоже, в слишком общей категории. Не создавать новую Category автоматически.',
+            )
+        else:
+            issues.append('CATEGORY_SCHEMA_GAP')
+            actions.append(
+                'Специализированной категории в справочнике нет. Не считать ошибкой карточки и не создавать Category.'
+            )
 
     key = normalize_article(product.article)
     if key and article_groups and len(article_groups.get(key, [])) > 1:
         siblings = article_groups[key]
-        types = {part_type_from_text(item.title) for item in siblings}
-        types.discard('')
-        if len(types) > 1:
+        families = {
+            part_type_family(part_type_from_text(item.title))
+            for item in siblings
+        }
+        families.discard('')
+        if len(families) > 1:
             bump(
                 STATUS_CRITICAL,
                 'CRITICAL_ARTICLE_CONFLICT',
@@ -740,15 +882,20 @@ def _generic_description_keys(products: Iterable[Product]) -> set[str]:
 def audit_all_products(queryset=None) -> list[ProductAuditResult]:
     qs = queryset if queryset is not None else Product.objects.all()
     products = list(
-        qs.select_related('brand', 'car_model', 'category', 'seller_profile')
+        qs.select_related('brand', 'car_model', 'category', 'seller_profile').prefetch_related(
+            'selected_brands',
+            'selected_models',
+        )
     )
     groups = _build_article_groups(products)
     generic = _generic_description_keys(products)
+    category_names = _category_name_set(None)
     return [
         audit_product(
             product,
             article_groups=groups,
             generic_descriptions=generic,
+            category_names=category_names,
         )
         for product in products
     ]

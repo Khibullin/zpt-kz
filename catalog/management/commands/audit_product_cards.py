@@ -33,7 +33,7 @@ class Command(BaseCommand):
             'car_model',
             'category',
             'seller_profile',
-        )
+        ).prefetch_related('selected_brands', 'selected_models')
         seller = (options.get('seller') or '').strip()
         product_id = int(options.get('product_id') or 0)
         if product_id:
