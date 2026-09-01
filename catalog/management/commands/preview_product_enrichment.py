@@ -1,0 +1,257 @@
+import csv
+import json
+from pathlib import Path
+
+from django.conf import settings
+from django.core.management.base import BaseCommand, CommandError
+
+from catalog.models import Brand, CarModel, Category, Product
+from catalog.product_assistant import preview_enrichment_for_product
+
+
+CSV_COLUMNS = (
+    'product_id',
+    'current_article',
+    'current_title',
+    'suggested_title',
+    'suggested_brand',
+    'suggested_category',
+    'suggested_compatibility',
+    'suggested_engine_compatibility',
+    'suggested_oem_cross_references',
+    'suggested_description',
+    'research_notes',
+    'sources',
+    'confidence',
+    'unresolved_fields',
+)
+
+
+def parse_product_ids(raw: str) -> list[int]:
+    ids: list[int] = []
+    seen: set[int] = set()
+    for part in str(raw or '').replace(';', ',').split(','):
+        token = part.strip()
+        if not token:
+            continue
+        try:
+            value = int(token)
+        except ValueError as exc:
+            raise CommandError(f'Некорректный product id: {token}') from exc
+        if value in seen:
+            continue
+        seen.add(value)
+        ids.append(value)
+    return ids
+
+
+def _join_notes(notes) -> str:
+    parts = []
+    for item in notes or []:
+        if isinstance(item, dict):
+            text = str(item.get('text') or '').strip()
+            severity = str(item.get('severity') or '').strip()
+            if text and severity:
+                parts.append(f'{severity}: {text}')
+            elif text:
+                parts.append(text)
+        elif str(item or '').strip():
+            parts.append(str(item).strip())
+    return ' | '.join(parts)
+
+
+def _join_sources(sources) -> str:
+    parts = []
+    for item in sources or []:
+        if not isinstance(item, dict):
+            continue
+        title = str(item.get('title') or '').strip()
+        url = str(item.get('url') or '').strip()
+        if title and url and title != url:
+            parts.append(f'{title} <{url}>')
+        else:
+            parts.append(title or url)
+    return ' | '.join(parts)
+
+
+def _join_unresolved(rows) -> str:
+    parts = []
+    for item in rows or []:
+        if not isinstance(item, dict):
+            continue
+        field_name = str(item.get('field') or '').strip()
+        reason = str(item.get('reason') or '').strip()
+        if field_name and reason:
+            parts.append(f'{field_name}: {reason}')
+        elif reason:
+            parts.append(reason)
+    return ' | '.join(parts)
+
+
+def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem: str = 'product_enrichment_preview'):
+    report_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = report_dir / f'{stem}.csv'
+    json_path = report_dir / f'{stem}.json'
+    with csv_path.open('w', encoding='utf-8', newline='') as handle:
+        writer = csv.DictWriter(handle, fieldnames=CSV_COLUMNS)
+        writer.writeheader()
+        for row in rows:
+            writer.writerow({
+                'product_id': row.get('product_id') or '',
+                'current_article': row.get('current_article') or '',
+                'current_title': row.get('current_title') or '',
+                'suggested_title': row.get('suggested_title') or '',
+                'suggested_brand': row.get('suggested_brand') or '',
+                'suggested_category': row.get('suggested_category') or '',
+                'suggested_compatibility': row.get('suggested_compatibility') or '',
+                'suggested_engine_compatibility': row.get('suggested_engine_compatibility') or '',
+                'suggested_oem_cross_references': row.get('suggested_oem_cross_references') or '',
+                'suggested_description': row.get('suggested_description') or '',
+                'research_notes': _join_notes(row.get('research_notes')),
+                'sources': _join_sources(row.get('sources')),
+                'confidence': row.get('confidence') or '',
+                'unresolved_fields': _join_unresolved(row.get('unresolved_fields')),
+            })
+    json_path.write_text(
+        json.dumps(
+            {
+                'summary': {
+                    'total': len(rows),
+                    'ok': sum(1 for item in rows if item.get('ok')),
+                    'missing': sum(1 for item in rows if item.get('error') == 'не найден'),
+                },
+                'products': rows,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding='utf-8',
+    )
+    return csv_path, json_path
+
+
+class Command(BaseCommand):
+    help = (
+        'Пакетный preview AI-обогащения карточек. '
+        'Ничего не записывает в Product, Brand, Category, CarModel. '
+        'Пишет CSV/JSON отчёт.'
+    )
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '--product-ids',
+            required=True,
+            help='Список id через запятую, например 2130,2131,2132',
+        )
+        parser.add_argument(
+            '--report',
+            default='',
+            help='Каталог для CSV/JSON. По умолчанию var/reports/',
+        )
+
+    def handle(self, *args, **options):
+        ids = parse_product_ids(options.get('product_ids') or '')
+        if not ids:
+            raise CommandError('Укажите --product-ids')
+
+        products = list(
+            Product.objects.filter(pk__in=ids).select_related(
+                'brand',
+                'brand__country',
+                'car_model',
+                'category',
+                'seller_profile',
+            )
+        )
+        by_id = {item.pk: item for item in products}
+        product_count = Product.objects.count()
+        snapshots = {
+            item.pk: {
+                'price': item.price,
+                'status': item.status,
+                'stock_qty': item.stock_qty,
+                'seller_profile_id': item.seller_profile_id,
+                'seller_name': item.seller_name,
+                'title': item.title,
+                'article': item.article,
+                'description': item.description,
+                'compatibility': item.compatibility,
+                'brand_id': item.brand_id,
+                'category_id': item.category_id,
+                'main_image': str(item.main_image or ''),
+            }
+            for item in products
+        }
+        brand_count = Brand.objects.count()
+        category_count = Category.objects.count()
+        model_count = CarModel.objects.count()
+
+        rows = []
+        for product_id in ids:
+            product = by_id.get(product_id)
+            if product is None:
+                rows.append({
+                    'ok': False,
+                    'error': 'не найден',
+                    'product_id': product_id,
+                    'current_article': '',
+                    'current_title': '',
+                    'suggested_title': '',
+                    'suggested_brand': '',
+                    'suggested_category': '',
+                    'suggested_compatibility': '',
+                    'suggested_engine_compatibility': '',
+                    'suggested_oem_cross_references': '',
+                    'suggested_description': '',
+                    'research_notes': [],
+                    'sources': [],
+                    'confidence': '',
+                    'unresolved_fields': [{'field': 'product', 'reason': 'Product не найден'}],
+                    'unmatched': [],
+                    'fields': {},
+                })
+                continue
+            row = preview_enrichment_for_product(product)
+            rows.append(row)
+            self.stdout.write(
+                f"{product_id} {row.get('current_article') or '-'} "
+                f"confidence={row.get('confidence')} "
+                f"unresolved={len(row.get('unresolved_fields') or [])}"
+            )
+
+        report_dir = Path(options['report'] or (Path(settings.BASE_DIR) / 'var' / 'reports'))
+        csv_path, json_path = write_enrichment_preview_reports(rows, report_dir=report_dir)
+
+        for product in Product.objects.filter(pk__in=snapshots):
+            before = snapshots[product.pk]
+            if (
+                product.price != before['price']
+                or product.status != before['status']
+                or product.stock_qty != before['stock_qty']
+                or product.seller_profile_id != before['seller_profile_id']
+                or product.seller_name != before['seller_name']
+                or product.title != before['title']
+                or product.article != before['article']
+                or product.description != before['description']
+                or product.compatibility != before['compatibility']
+                or product.brand_id != before['brand_id']
+                or product.category_id != before['category_id']
+                or str(product.main_image or '') != before['main_image']
+            ):
+                raise CommandError('Preview изменил Product — это ошибка.')
+        if Product.objects.count() != product_count:
+            raise CommandError('Preview изменил число Product — это ошибка.')
+        if (
+            Brand.objects.count() != brand_count
+            or Category.objects.count() != category_count
+            or CarModel.objects.count() != model_count
+        ):
+            raise CommandError('Preview создал Brand/Category/CarModel — это ошибка.')
+
+        self.stdout.write('SUMMARY:')
+        self.stdout.write(f'total {len(rows)}')
+        self.stdout.write(f"found {sum(1 for item in rows if item.get('ok'))}")
+        self.stdout.write(f"missing {sum(1 for item in rows if item.get('error') == 'не найден')}")
+        self.stdout.write(f'report_csv {csv_path}')
+        self.stdout.write(f'report_json {json_path}')
+        self.stdout.write('mode preview-only')

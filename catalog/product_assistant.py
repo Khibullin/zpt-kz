@@ -735,3 +735,233 @@ def suggest_product_by_article(
         'unmatched': unmatched,
         'sources': sources,
     }
+
+
+_PREVIEW_TEXT_FIELDS = (
+    'title',
+    'compatibility',
+    'engine_compatibility',
+    'oem_cross_references',
+    'description',
+)
+
+_UNRESOLVED_REASONS = {
+    'title': 'Название не подтверждено по артикулу.',
+    'brand': 'Марка не сопоставлена с существующим справочником.',
+    'category': 'Категория не сопоставлена с существующим справочником.',
+    'compatibility': 'Применимость не подтверждена. Не выдумывать автомобили.',
+    'engine_compatibility': 'Двигатели не подтверждены источниками.',
+    'oem_cross_references': 'OEM/кросс-номера не найдены.',
+    'description': 'Публичное описание не сформировано без служебного текста.',
+}
+
+
+def _preview_unresolved(
+    fields: dict[str, Any],
+    *,
+    unmatched: list[str],
+    confidence: str,
+) -> list[dict[str, str]]:
+    rows: list[dict[str, str]] = []
+    mapping = (
+        ('title', fields.get('title')),
+        ('brand', fields.get('brand_name')),
+        ('category', fields.get('category_name')),
+        ('compatibility', fields.get('compatibility')),
+        ('engine_compatibility', fields.get('engine_compatibility')),
+        ('oem_cross_references', fields.get('oem_cross_references')),
+        ('description', fields.get('description')),
+    )
+    for name, value in mapping:
+        if str(value or '').strip():
+            continue
+        reason = _UNRESOLVED_REASONS[name]
+        if confidence == 'needs_verification':
+            reason += ' Источник недостаточный или требует проверки.'
+        rows.append({'field': name, 'reason': reason})
+    for item in unmatched:
+        text = str(item or '').strip()
+        if not text:
+            continue
+        field_name = 'unmatched'
+        lowered = text.casefold()
+        if 'категор' in lowered:
+            field_name = 'category'
+        elif 'марка' in lowered:
+            field_name = 'brand'
+        elif 'модель' in lowered:
+            field_name = 'compatibility'
+        rows.append({'field': field_name, 'reason': text})
+    unique: list[dict[str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    for item in rows:
+        key = (item['field'], item['reason'])
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(item)
+    return unique
+
+
+_PREVIEW_FITMENT_FIELDS = (
+    'compatibility',
+    'engine_compatibility',
+    'oem_cross_references',
+)
+_PREVIEW_VERIFY_FIELDS = (
+    ('title', 'название'),
+    ('compatibility', 'применимость'),
+    ('engine_compatibility', 'двигатели'),
+    ('oem_cross_references', 'OEM'),
+)
+
+
+def _preview_clean_text(value: str, *, field: str) -> str:
+    cleaned = sanitize_public_product_text(value or '', field=field, mode='preview')
+    if field == 'oem_cross_references':
+        cleaned = sanitize_oem_text(cleaned or value or '')
+    return cleaned
+
+
+def _preview_current_clean(product: Product, field: str) -> str:
+    return prefer_public_field(getattr(product, field, '') or '', '', field=field)
+
+
+def preview_enrichment_for_product(
+    product: Product,
+    *,
+    openai_caller: Callable[..., OpenAIEnrichment | None] | None = None,
+) -> dict[str, Any]:
+    """AI/local enrichment preview for one Product. Never writes the row."""
+    captured: dict[str, OpenAIEnrichment | None] = {'enrichment': None}
+    inner = openai_caller or call_openai_product_lookup
+
+    def wrapped_caller(article, local_fields):
+        result = inner(article, local_fields)
+        captured['enrichment'] = result
+        return result
+
+    suggestion = suggest_product_by_article(
+        product.article or '',
+        openai_caller=wrapped_caller,
+    )
+    fields = dict(suggestion.get('fields') or {})
+    for name in _PREVIEW_TEXT_FIELDS:
+        fields[name] = prefer_public_field(
+            getattr(product, name, '') or '',
+            fields.get(name) or '',
+            field=name,
+        )
+        fields[name] = _preview_clean_text(fields.get(name) or '', field=name)
+
+    if product.brand_id and product.brand:
+        fields['brand_id'] = product.brand_id
+        fields['brand_name'] = product.brand.name
+        fields['country_id'] = product.brand.country_id
+        fields['country_name'] = (
+            product.brand.country.name if product.brand.country_id else fields.get('country_name') or ''
+        )
+    if product.category_id and product.category:
+        fields['category_id'] = product.category_id
+        fields['category_name'] = product.category.name
+    if product.car_model_id and product.car_model and not fields.get('car_model_id'):
+        fields['car_model_id'] = product.car_model_id
+        fields['car_model_name'] = product.car_model.name
+
+    notes = list(normalize_research_notes(suggestion.get('research_notes')))
+    unmatched = list(suggestion.get('unmatched') or [])
+    confidence = suggestion.get('confidence') or 'needs_verification'
+    enrichment = captured.get('enrichment')
+
+    if confidence == 'needs_verification':
+        for name in _PREVIEW_FITMENT_FIELDS:
+            current_clean = _preview_current_clean(product, name)
+            if current_clean:
+                fields[name] = current_clean
+                continue
+            incoming = str(fields.get(name) or '').strip()
+            if incoming:
+                notes.append({
+                    'text': (
+                        f'{name}: источники недостаточны или противоречивы, '
+                        f'значение в preview не подставляем. Неподтверждённый вариант: {incoming}'
+                    ),
+                    'severity': 'warning',
+                })
+            fields[name] = ''
+
+    if enrichment is not None:
+        for name, label in _PREVIEW_VERIFY_FIELDS:
+            current_clean = _preview_current_clean(product, name)
+            if not current_clean:
+                continue
+            ai_clean = _preview_clean_text(getattr(enrichment, name, '') or '', field=name)
+            if ai_clean and ai_clean.strip() != current_clean.strip():
+                notes.append({
+                    'text': (
+                        f'Текущее поле «{label}» сохранено, '
+                        f'но по артикулу есть другое значение — проверьте: {ai_clean}'
+                    ),
+                    'severity': 'info',
+                })
+            elif not ai_clean:
+                notes.append({
+                    'text': (
+                        f'Текущее поле «{label}» сохранено; '
+                        'по артикулу внешних подтверждений недостаточно.'
+                    ),
+                    'severity': 'info',
+                })
+
+    public_blob = ' '.join(str(fields.get(name) or '') for name in _PREVIEW_TEXT_FIELDS)
+    if detect_internal_research_text(public_blob):
+        for name in _PREVIEW_TEXT_FIELDS:
+            fields[name] = _preview_clean_text(fields.get(name) or '', field=name)
+
+    unresolved = _preview_unresolved(
+        fields,
+        unmatched=unmatched,
+        confidence=confidence,
+    )
+    for item in unresolved:
+        reason = str(item.get('reason') or '').strip()
+        field_name = str(item.get('field') or '').strip()
+        if reason:
+            notes.append({
+                'text': f'{field_name}: {reason}' if field_name else reason,
+                'severity': 'warning',
+            })
+    notes = normalize_research_notes(notes)
+
+    sources = []
+    for item in suggestion.get('sources') or []:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get('url') or '').strip()
+        title = str(item.get('title') or url).strip()
+        if not url and not title:
+            continue
+        sources.append({'title': title, 'url': url})
+
+    return {
+        'ok': bool(suggestion.get('ok')),
+        'error': suggestion.get('error') or '',
+        'ai_used': bool(suggestion.get('ai_used')),
+        'ai_error': suggestion.get('ai_error') or '',
+        'product_id': product.pk,
+        'current_article': product.article or '',
+        'current_title': product.title or '',
+        'suggested_title': fields.get('title') or '',
+        'suggested_brand': fields.get('brand_name') or '',
+        'suggested_category': fields.get('category_name') or '',
+        'suggested_compatibility': fields.get('compatibility') or '',
+        'suggested_engine_compatibility': fields.get('engine_compatibility') or '',
+        'suggested_oem_cross_references': fields.get('oem_cross_references') or '',
+        'suggested_description': fields.get('description') or '',
+        'research_notes': notes,
+        'sources': sources,
+        'confidence': confidence,
+        'unresolved_fields': unresolved,
+        'unmatched': unmatched,
+        'fields': fields,
+    }
