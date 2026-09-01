@@ -1,4 +1,4 @@
-from django.contrib.auth.hashers import check_password, make_password
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import Permission, User
 from django.contrib.contenttypes.models import ContentType
 from django.test import TestCase
@@ -58,7 +58,7 @@ class SellerAdminPasswordResetTests(TestCase):
         self.assertContains(response, 'Отмена')
         self.assertContains(
             response,
-            'Изменяется пароль кабинета продавца Seller. Пароль Django-пользователя не изменяется.',
+            'Новый пароль будет использоваться и для кабинета заявок, и для магазина продавца.',
         )
         self.assertNotContains(response, self.seller.password_hash)
 
@@ -66,7 +66,7 @@ class SellerAdminPasswordResetTests(TestCase):
         old_hash = self.seller.password_hash
         response = self._post('12345', '12345')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'минимум 6')
+        self.assertContains(response, 'минимум 8')
         self.seller.refresh_from_db()
         self.assertEqual(self.seller.password_hash, old_hash)
         self.assertTrue(self.seller.must_change_password)
@@ -78,19 +78,19 @@ class SellerAdminPasswordResetTests(TestCase):
         self.assertContains(response, 'не совпадают')
         self.seller.refresh_from_db()
         self.assertEqual(self.seller.password_hash, old_hash)
-        self.assertTrue(check_password('OldSellerPass1', self.seller.password_hash))
+        self.assertTrue(self.seller.password_hash)
+        self.assertTrue(self.seller.must_change_password)
 
-    def test_valid_password_updates_seller_hash_only(self):
-        old_user_hash = self.auth_user.password
+    def test_valid_password_updates_unified_user(self):
         response = self._post('NewSellerPass1', 'NewSellerPass1')
         self.assertRedirects(response, self.change_url)
         self.seller.refresh_from_db()
-        self.assertTrue(check_password('NewSellerPass1', self.seller.password_hash))
-        self.assertFalse(check_password('OldSellerPass1', self.seller.password_hash))
-        self.assertFalse(self.seller.must_change_password)
         self.auth_user.refresh_from_db()
-        self.assertEqual(self.auth_user.password, old_user_hash)
-        self.assertTrue(self.auth_user.check_password('DjangoUserPass1'))
+        self.assertEqual(self.seller.user_id, self.auth_user.id)
+        self.assertEqual(self.seller.password_hash, '')
+        self.assertFalse(self.seller.must_change_password)
+        self.assertTrue(self.auth_user.check_password('NewSellerPass1'))
+        self.assertFalse(self.auth_user.check_password('DjangoUserPass1'))
 
     def test_user_without_change_seller_cannot_reset(self):
         staff = User.objects.create_user(

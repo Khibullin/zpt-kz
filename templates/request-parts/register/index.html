@@ -32,8 +32,8 @@
       <div class="field"><label>Ссылка на товары</label><input id="market_location" placeholder="Сайт, Instagram, Kaspi, каталог или другая ссылка"><div class="hint">Сайт, Instagram, Kaspi, каталог или другая ссылка</div></div>
       <div class="field"><label>Город</label><select id="city" required><option value="">Выберите город</option></select></div>
       <div class="field"><label>Тип транспорта</label><select id="transport_type"><option value="car">Легковые</option><option value="truck">Грузовые</option></select></div>
-      <div class="field"><label>Пароль</label><div class="pass-wrap"><input id="password" type="password" minlength="6"><button type="button" id="showPass">Показать</button></div></div>
-      <div class="field"><label>Повторите пароль</label><input id="password2" type="password" minlength="6"></div>
+      <div class="field"><label>Пароль</label><div class="pass-wrap"><input id="password" type="password" minlength="8"><button type="button" id="showPass">Показать</button></div></div>
+      <div class="field"><label>Повторите пароль</label><input id="password2" type="password" minlength="8"></div>
 
       <div class="block"><h3 class="red-title">Страны производителей</h3><div id="countriesBox" class="checkgrid"></div><div class="all-row"><label><input type="checkbox" id="all_countries"> Все страны</label></div></div>
       <div class="block"><h3 class="blue-title">Марки автомобилей</h3><div id="brandsBox" class="checkgrid"></div><div class="all-row"><label><input type="checkbox" id="all_brands"> Все марки</label></div></div>
@@ -53,5 +53,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/request-parts-register.js' %}"></script>
+<script src="{% static 'js/request-parts-register.js' %}?v=2"></script>
 {% endblock %}

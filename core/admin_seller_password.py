@@ -1,19 +1,18 @@
-"""Admin-only reset of core.Seller cabinet password.
-
-Does not touch django.contrib.auth.User.
-"""
+"""Admin-only reset of the unified seller account password."""
 
 from django import forms
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import permission_required
-from django.contrib.auth.hashers import make_password
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 
 from core.models import Seller
-
-MIN_PASSWORD_LENGTH = 6
+from core.services.seller_identity import (
+    MIN_PASSWORD_LENGTH,
+    SellerIdentityError,
+    admin_reset_seller_password,
+)
 
 
 class SellerPasswordResetForm(forms.Form):
@@ -22,7 +21,7 @@ class SellerPasswordResetForm(forms.Form):
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         error_messages={
-            'min_length': 'Пароль должен содержать минимум 6 символов.',
+            'min_length': f'Пароль должен содержать минимум {MIN_PASSWORD_LENGTH} символов.',
             'required': 'Введите новый пароль.',
         },
     )
@@ -31,7 +30,7 @@ class SellerPasswordResetForm(forms.Form):
         min_length=MIN_PASSWORD_LENGTH,
         widget=forms.PasswordInput(attrs={'autocomplete': 'new-password'}),
         error_messages={
-            'min_length': 'Пароль должен содержать минимум 6 символов.',
+            'min_length': f'Пароль должен содержать минимум {MIN_PASSWORD_LENGTH} символов.',
             'required': 'Повторите новый пароль.',
         },
     )
@@ -53,11 +52,13 @@ def reset_seller_password(request, seller_id):
     if request.method == 'POST':
         form = SellerPasswordResetForm(request.POST)
         if form.is_valid():
-            seller.password_hash = make_password(form.cleaned_data['new_password'])
-            seller.must_change_password = False
-            seller.save(update_fields=['password_hash', 'must_change_password'])
-            messages.success(request, 'Пароль кабинета продавца обновлён.')
-            return redirect(reverse('admin:core_seller_change', args=[seller.pk]))
+            try:
+                admin_reset_seller_password(seller, form.cleaned_data['new_password'])
+            except SellerIdentityError as exc:
+                form.add_error('new_password', exc.message)
+            else:
+                messages.success(request, 'Пароль кабинета продавца обновлён.')
+                return redirect(reverse('admin:core_seller_change', args=[seller.pk]))
     else:
         form = SellerPasswordResetForm()
 

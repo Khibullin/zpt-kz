@@ -1012,6 +1012,15 @@ class Seller(models.Model):
         verbose_name='Требует смены пароля'
     )
 
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='request_seller',
+        verbose_name='Единая учётная запись',
+    )
+
     seller_type = models.CharField(
         max_length=20,
         choices=SELLER_TYPE_CHOICES,

@@ -1,20 +1,30 @@
 import json
 from urllib.parse import quote, urlencode
 
-from django.db.models import Q, Prefetch
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
+from django.db import transaction
+from django.db.models import Q, Prefetch
 from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
 
 from core.forms import FeedbackForm
+from core.models import Seller as RequestSeller
+from core.services.seller_identity import (
+    SellerIdentityError,
+    authenticate_shop_seller,
+    clear_legacy_password,
+    create_unified_seller_account,
+    delete_unified_seller_account,
+    logout_unified_seller,
+    sync_login_phone,
+)
 from .applicability import build_product_applicability, vehicle_line_if_not_in_title
 from .commercial import (
     OFFER_CHOICES,
@@ -634,35 +644,30 @@ def seller_register(request):
         form = SellerRegisterForm(request.POST, request.FILES)
         if form.is_valid():
             phone = ''.join(filter(str.isdigit, form.cleaned_data['phone']))
-            username = phone
             password = form.cleaned_data['password']
-
-            if User.objects.filter(username=username).exists():
-                error_message = 'Пользователь с таким WhatsApp уже существует.'
-            else:
-                user = User.objects.create_user(
-                    username=username,
-                    password=password
-                )
-
-                SellerProfile.objects.create(
-                    user=user,
+            try:
+                create_unified_seller_account(
                     name=form.cleaned_data['name'],
-                    phone=phone,
+                    whatsapp=phone,
+                    password=password,
                     city=form.cleaned_data.get('city', ''),
-                    address=form.cleaned_data.get('address', ''),
-                    pickup_address=form.cleaned_data.get('pickup_address', ''),
-                    pickup_available=form.cleaned_data.get('pickup_available', True),
-                    pickup_same_as_store=form.cleaned_data.get('pickup_same_as_store', True),
-                    work_hours=form.cleaned_data.get('work_hours', ''),
-                    delivery_info=form.cleaned_data.get('delivery_info', ''),
-                    instagram=form.cleaned_data.get('instagram', ''),
-                    website=form.cleaned_data.get('website', ''),
-                    description=form.cleaned_data.get('description', ''),
-                    logo=form.cleaned_data.get('logo'),
+                    transport_type='car',
+                    profile_defaults={
+                        'address': form.cleaned_data.get('address', ''),
+                        'pickup_address': form.cleaned_data.get('pickup_address', ''),
+                        'pickup_available': form.cleaned_data.get('pickup_available', True),
+                        'pickup_same_as_store': form.cleaned_data.get('pickup_same_as_store', True),
+                        'work_hours': form.cleaned_data.get('work_hours', ''),
+                        'delivery_info': form.cleaned_data.get('delivery_info', ''),
+                        'instagram': form.cleaned_data.get('instagram', ''),
+                        'website': form.cleaned_data.get('website', ''),
+                        'description': form.cleaned_data.get('description', ''),
+                        'logo': form.cleaned_data.get('logo'),
+                    },
                 )
-
                 return redirect('seller_login')
+            except SellerIdentityError as exc:
+                error_message = exc.message
     else:
         form = SellerRegisterForm()
 
@@ -682,16 +687,15 @@ def seller_login(request):
         password = request.POST.get('password', '').strip()
         remember_me = bool(request.POST.get('remember_me'))
 
-        user = authenticate(request, username=username, password=password)
+        user = authenticate_shop_seller(
+            request,
+            username,
+            password,
+            remember_me=remember_me,
+        )
         if user:
-            login(request, user)
-            if remember_me:
-                request.session.set_expiry(1209600)
-            else:
-                request.session.set_expiry(0)
             return redirect('seller_dashboard')
-        else:
-            error_message = 'Неверный логин или пароль.'
+        error_message = 'Неверный логин или пароль.'
 
     return render(request, 'catalog/seller_login.html', {
         'error_message': error_message,
@@ -701,7 +705,7 @@ def seller_login(request):
 
 
 def seller_logout(request):
-    logout(request)
+    logout_unified_seller(request)
     return redirect('catalog_list')
 
 
@@ -801,6 +805,9 @@ def seller_change_password(request):
         else:
             request.user.set_password(new_password)
             request.user.save()
+            request_seller = RequestSeller.objects.filter(user=request.user).first()
+            if request_seller:
+                clear_legacy_password(request_seller)
             update_session_auth_hash(request, request.user)
             success_message = 'Пароль успешно изменён.'
 
@@ -819,21 +826,32 @@ def seller_profile_edit(request):
     if request.method == 'POST':
         form = SellerProfileForm(request.POST, request.FILES, instance=seller)
         if form.is_valid():
-            updated_seller = form.save()
+            try:
+                with transaction.atomic():
+                    updated_seller = form.save()
+                    request_seller = RequestSeller.objects.filter(user=request.user).first()
+                    sync_login_phone(
+                        user=request.user,
+                        new_phone=updated_seller.phone,
+                        seller=request_seller,
+                        profile=updated_seller,
+                    )
+                    updated_seller.refresh_from_db()
 
-            if old_name != updated_seller.name:
-                Product.objects.filter(seller_name=old_name).update(
-                    seller_name=updated_seller.name,
-                    whatsapp_number=updated_seller.phone,
-                    city=updated_seller.city
-                )
-            else:
-                Product.objects.filter(seller_name=updated_seller.name).update(
-                    whatsapp_number=updated_seller.phone,
-                    city=updated_seller.city
-                )
-
-            return redirect('seller_profile')
+                    if old_name != updated_seller.name:
+                        Product.objects.filter(seller_name=old_name).update(
+                            seller_name=updated_seller.name,
+                            whatsapp_number=updated_seller.phone,
+                            city=updated_seller.city
+                        )
+                    else:
+                        Product.objects.filter(seller_name=updated_seller.name).update(
+                            whatsapp_number=updated_seller.phone,
+                            city=updated_seller.city
+                        )
+                return redirect('seller_profile')
+            except SellerIdentityError as exc:
+                form.add_error('phone', exc.message)
     else:
         form = SellerProfileForm(instance=seller)
 
@@ -849,10 +867,8 @@ def seller_profile_delete(request):
 
     if request.method == 'POST':
         user = request.user
-        Product.objects.owned_by_seller(seller).delete()
-        seller.delete()
-        user.delete()
-        logout(request)
+        delete_unified_seller_account(user, seller)
+        logout_unified_seller(request)
         return redirect('catalog_list')
 
     return render(request, 'catalog/seller_profile_delete.html', {

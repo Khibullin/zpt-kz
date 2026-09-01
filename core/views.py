@@ -12,9 +12,7 @@ from datetime import timedelta
 from urllib.parse import quote
 
 from django.conf import settings
-from django.contrib.auth.hashers import check_password, make_password
 from django.contrib.auth import authenticate, login
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
@@ -27,6 +25,16 @@ from django.utils import timezone
 from django.views.decorators.csrf import csrf_exempt
 from PIL import Image, ImageOps
 
+from core.services.seller_identity import (
+    SellerIdentityError,
+    authenticate_unified_seller,
+    change_unified_seller_password,
+    create_unified_seller_account,
+    get_logged_request_seller,
+    login_phone_in_use,
+    logout_unified_seller,
+    sync_login_phone,
+)
 from core.whatsapp_template_sender import (
     normalize_whatsapp_phone,
     send_whatsapp_template_message,
@@ -61,7 +69,6 @@ from .models import (
     BuyerPortalAccess,
 )
 
-from catalog.models import SellerProfile
 from catalog.instagram_service import schedule_instagram_publication_for_request
 
 from .services.buyer_contact_service import (
@@ -72,7 +79,6 @@ from .services.buyer_contact_service import (
 
 WAVE_SIZE = 20
 WAVE_INTERVAL_MINUTES = 5
-TEMP_SELLER_PASSWORD = 'zpt2026'
 logger = logging.getLogger(__name__)
 
 
@@ -1206,32 +1212,26 @@ def create_seller(request):
     if not password:
         return JsonResponse({'error': 'Укажите пароль'}, status=400)
 
-    if len(password) < 6:
-        return JsonResponse({'error': 'Пароль должен быть не короче 6 символов'}, status=400)
-
     if password != password_confirm:
         return JsonResponse({'error': 'Пароли не совпадают'}, status=400)
 
-    if Seller.objects.filter(whatsapp=whatsapp).exists():
-        return JsonResponse({'error': 'Продавец с таким WhatsApp уже зарегистрирован'}, status=400)
-
-    seller = Seller.objects.create(
-        name=name,
-        whatsapp=whatsapp,
-        password_hash=make_password(password),
-        must_change_password=False,
-        transport_type=transport_type,
-        city=city,
-        category=category,
-        is_active=True,
-        is_paused=False,
-        receive_requests=False,
-        is_test_seller=False,
-        all_categories=all_categories,
-        all_countries=all_countries,
-        all_brands=all_brands,
-        all_models=all_models,
-    )
+    try:
+        _user, seller, _profile = create_unified_seller_account(
+            name=name,
+            whatsapp=whatsapp,
+            password=password,
+            city=city,
+            transport_type=transport_type,
+            seller_defaults={
+                'category': category,
+                'all_categories': all_categories,
+                'all_countries': all_countries,
+                'all_brands': all_brands,
+                'all_models': all_models,
+            },
+        )
+    except SellerIdentityError as exc:
+        return JsonResponse({'error': exc.message}, status=exc.status)
 
     if all_categories:
         seller.selected_categories.clear()
@@ -1273,19 +1273,13 @@ def seller_login(request):
     password = data.get('password') or ''
 
     try:
-        seller = Seller.objects.get(whatsapp=whatsapp)
-    except Seller.DoesNotExist:
-        return JsonResponse({'error': 'Неверный WhatsApp или пароль'}, status=400)
-
-    if not seller.password_hash:
-        seller.password_hash = make_password(TEMP_SELLER_PASSWORD)
-        seller.must_change_password = True
-        seller.save(update_fields=['password_hash', 'must_change_password'])
-
-    if not check_password(password, seller.password_hash):
-        return JsonResponse({'error': 'Неверный WhatsApp или пароль'}, status=400)
-
-    request.session['seller_id'] = seller.id
+        _user, seller, _profile = authenticate_unified_seller(
+            request,
+            whatsapp,
+            password,
+        )
+    except SellerIdentityError as exc:
+        return JsonResponse({'error': exc.message}, status=exc.status)
 
     return JsonResponse({
         'status': 'ok',
@@ -1297,17 +1291,12 @@ def seller_login(request):
 
 @csrf_exempt
 def seller_logout(request):
-    request.session.pop('seller_id', None)
+    logout_unified_seller(request)
     return JsonResponse({'status': 'ok'})
 
 
 def _get_logged_seller(request):
-    seller_id = request.session.get('seller_id')
-
-    if not seller_id:
-        return None
-
-    return Seller.objects.filter(id=seller_id).first()
+    return get_logged_request_seller(request)
 
 
 @csrf_exempt
@@ -1317,7 +1306,7 @@ def change_seller_password(request):
 
     seller = _get_logged_seller(request)
 
-    if not seller:
+    if not seller or not seller.user_id:
         return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
     try:
@@ -1329,18 +1318,16 @@ def change_seller_password(request):
     new_password = data.get('new_password') or ''
     new_password_confirm = data.get('new_password_confirm') or ''
 
-    if not check_password(old_password, seller.password_hash):
-        return JsonResponse({'error': 'Старый пароль неверный'}, status=400)
-
-    if len(new_password) < 6:
-        return JsonResponse({'error': 'Новый пароль должен быть не короче 6 символов'}, status=400)
-
-    if new_password != new_password_confirm:
-        return JsonResponse({'error': 'Новые пароли не совпадают'}, status=400)
-
-    seller.password_hash = make_password(new_password)
-    seller.must_change_password = False
-    seller.save(update_fields=['password_hash', 'must_change_password'])
+    try:
+        change_unified_seller_password(
+            request,
+            seller.user,
+            old_password,
+            new_password,
+            new_password_confirm,
+        )
+    except SellerIdentityError as exc:
+        return JsonResponse({'error': exc.message}, status=exc.status)
 
     return JsonResponse({'status': 'ok'})
 
@@ -1463,9 +1450,10 @@ def update_seller_profile(request):
     except json.JSONDecodeError:
         return JsonResponse({'error': 'invalid json'}, status=400)
 
+    new_whatsapp = _normalize_whatsapp(data.get('whatsapp', seller.whatsapp))
+
     # Основные данные магазина
     seller.name = data.get('name', seller.name)
-    seller.whatsapp = _normalize_whatsapp(data.get('whatsapp', seller.whatsapp))
     seller.phone2 = data.get('phone2', seller.phone2)
     seller.city = data.get('city', seller.city)
     seller.market_location = data.get('market_location', seller.market_location)
@@ -1481,6 +1469,23 @@ def update_seller_profile(request):
     seller.all_countries = data.get('all_countries', seller.all_countries)
     seller.all_brands = data.get('all_brands', seller.all_brands)
     seller.all_models = data.get('all_models', seller.all_models)
+
+    try:
+        if seller.user_id:
+            sync_login_phone(
+                user=seller.user,
+                new_phone=new_whatsapp,
+                seller=seller,
+            )
+        else:
+            if login_phone_in_use(new_whatsapp, exclude_seller_id=seller.pk):
+                return JsonResponse(
+                    {'error': 'Этот WhatsApp уже используется другим аккаунтом.'},
+                    status=400,
+                )
+            seller.whatsapp = new_whatsapp
+    except SellerIdentityError as exc:
+        return JsonResponse({'error': exc.message}, status=exc.status)
 
     seller.save()
 
@@ -1703,47 +1708,17 @@ def register_seller(request):
         messages.error(request, 'Укажите номер WhatsApp.')
         return _seller_landing_form_redirect()
 
-    if len(password) < 8:
-        messages.error(request, 'Пароль должен быть не короче 8 символов.')
-        return _seller_landing_form_redirect()
-
-    phone_exists = (
-        User.objects.filter(username=whatsapp_phone).exists()
-        or SellerProfile.objects.filter(phone=whatsapp_phone).exists()
-        or Seller.objects.filter(whatsapp=whatsapp_phone).exists()
-    )
-    if phone_exists:
-        messages.error(
-            request,
-            'Продавец с таким номером WhatsApp уже зарегистрирован. Войдите в личный кабинет.',
-        )
-        return _seller_landing_form_redirect()
-
     try:
-        with transaction.atomic():
-            user = User.objects.create_user(
-                username=whatsapp_phone,
-                password=password,
-            )
-            SellerProfile.objects.create(
-                user=user,
-                name=company_name,
-                phone=whatsapp_phone,
-                city=city,
-            )
-            Seller.objects.create(
-                name=company_name,
-                whatsapp=whatsapp_phone,
-                password_hash=make_password(password),
-                must_change_password=False,
-                seller_type='seller',
-                transport_type='car',
-                city=city,
-                is_active=True,
-                is_paused=False,
-                receive_requests=False,
-                is_test_seller=False,
-            )
+        user, seller, _profile = create_unified_seller_account(
+            name=company_name,
+            whatsapp=whatsapp_phone,
+            password=password,
+            city=city,
+            transport_type='car',
+        )
+    except SellerIdentityError as exc:
+        messages.error(request, exc.message)
+        return _seller_landing_form_redirect()
     except Exception:
         logger.exception('register_seller failed for whatsapp=%s', whatsapp_phone)
         messages.error(
@@ -1752,9 +1727,10 @@ def register_seller(request):
         )
         return _seller_landing_form_redirect()
 
-    user = authenticate(request, username=whatsapp_phone, password=password)
-    if user is not None:
-        login(request, user)
+    authed = authenticate(request, username=user.username, password=password)
+    if authed is not None:
+        login(request, authed)
+        request.session['seller_id'] = seller.id
         messages.success(request, 'Регистрация завершена. Добро пожаловать в личный кабинет!')
         return redirect('seller_dashboard')
 
