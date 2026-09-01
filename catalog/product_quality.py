@@ -204,6 +204,24 @@ _COMPATIBILITY_METADATA_PATTERNS = (
     re.compile(r'технические\s+данные', re.I),
 )
 _MIN_DEDUPE_CHARS = 20
+_MIN_BLOCK_DEDUPE_CHARS = 60
+_URL_RE = re.compile(r'https?://[^\s)>\]]+', re.I)
+KNOWN_SELLER_MARKETPLACE_DOMAINS = (
+    'grm4x4.kz',
+    'emex.ru',
+    'exist.ru',
+    'autodoc.ru',
+    'drom.ru',
+    'avito.ru',
+    'olx.kz',
+    'olx.ru',
+    'kaspi.kz',
+    'wildberries.ru',
+    'ozon.ru',
+    'market.yandex.ru',
+    'alibaba.com',
+    '1688.com',
+)
 
 
 @dataclass
@@ -590,6 +608,62 @@ def is_generic_seller_description(description: str, *, title: str = '', article:
     return False
 
 
+def _url_hostname(url: str) -> str:
+    match = re.match(r'https?://([^/:]+)', str(url or ''), re.I)
+    if not match:
+        return ''
+    host = match.group(1).strip().casefold()
+    if host.startswith('www.'):
+        host = host[4:]
+    return host
+
+
+def detect_external_seller_links(text: str | None, *, seller_name: str = '') -> list[str]:
+    """Known marketplace/other-seller domains only. Manufacturer URLs are ignored."""
+    seller_key = str(seller_name or '').casefold()
+    hits: list[str] = []
+    seen: set[str] = set()
+    for raw in _URL_RE.findall(str(text or '')):
+        host = _url_hostname(raw)
+        if not host:
+            continue
+        for domain in KNOWN_SELLER_MARKETPLACE_DOMAINS:
+            if host != domain and not host.endswith('.' + domain):
+                continue
+            shop = domain.split('.')[0]
+            if shop and shop in seller_key:
+                continue
+            if domain in seen:
+                continue
+            seen.add(domain)
+            hits.append(domain)
+    return hits
+
+
+def is_malformed_description(value: str | None) -> bool:
+    text = str(value or '')
+    if not text.strip():
+        return False
+    unclosed = text.count('(') - text.count(')')
+    ellipses = len(re.findall(r'\.{3}|…', text))
+    lines = [line.strip() for line in text.splitlines() if line.strip()]
+    truncated_fitment = 0
+    for line in lines:
+        if not re.search(r'\d{4}', line):
+            continue
+        if re.search(r'\(\s*\d{1,2}\.\d{4}|\(\s*\d{4}', line) and (
+            'н.' in line.casefold() or '...' in line or '…' in line
+        ):
+            truncated_fitment += 1
+    if unclosed >= 3 and (ellipses >= 3 or truncated_fitment >= 3):
+        return True
+    if truncated_fitment >= 5 and ellipses >= 3:
+        return True
+    if unclosed >= 5:
+        return True
+    return False
+
+
 def _trim_fix(value: str) -> str:
     return _normalize_whitespace(value)
 
@@ -598,35 +672,69 @@ def _sentence_dedupe_key(value: str) -> str:
     return _WHITESPACE.sub(' ', str(value or '')).strip().casefold()
 
 
-def _dedupe_public_sentences(value: str) -> str:
-    """Drop exact duplicate sentences/lines in description. Keep the first copy.
+def _strip_exact_repeated_block(text: str) -> str | None:
+    """If text is an exact consecutive A+A block, return A (+ leftover)."""
+    source = str(text or '')
+    n = len(source)
+    if n < _MIN_BLOCK_DEDUPE_CHARS * 2:
+        return None
+    for length in range(n // 2, _MIN_BLOCK_DEDUPE_CHARS - 1, -1):
+        if source[:length] != source[length:length + length]:
+            continue
+        remainder = source[length + length:]
+        return (source[:length] + remainder).strip()
+    return None
 
-    Skips short structural values so fitment-like tokens are not collapsed.
-    """
-    text = _normalize_whitespace(value)
-    if not text:
-        return text
+
+def _dedupe_public_sentences(value: str) -> str:
+    """Drop exact duplicate lines/blocks/sentences. Keep original layout if none."""
+    original = str(value or '')
+    if not original.strip():
+        return original
+    light = _normalize_whitespace(original)
+    blocked = _strip_exact_repeated_block(light)
+    if blocked is not None:
+        return _normalize_whitespace(blocked)
+
+    lines = light.split('\n')
     kept_lines: list[str] = []
     seen_lines: set[str] = set()
-    for line in text.split('\n'):
+    dropped_line = False
+    for line in lines:
         key = _sentence_dedupe_key(line)
         if len(key) >= _MIN_DEDUPE_CHARS and key in seen_lines:
+            dropped_line = True
             continue
         if len(key) >= _MIN_DEDUPE_CHARS:
             seen_lines.add(key)
         kept_lines.append(line)
-    rebuilt = '\n'.join(kept_lines)
-    kept_sentences: list[str] = []
-    seen_sentences: set[str] = set()
-    for sentence in split_public_sentences(rebuilt):
-        key = _sentence_dedupe_key(sentence)
-        if len(key) >= _MIN_DEDUPE_CHARS and key in seen_sentences:
+    if dropped_line:
+        return '\n'.join(kept_lines)
+
+    new_lines: list[str] = []
+    changed = False
+    for line in kept_lines:
+        sentences = split_public_sentences(line)
+        kept_sentences: list[str] = []
+        seen_sentences: set[str] = set()
+        line_dropped = False
+        for sentence in sentences:
+            key = _sentence_dedupe_key(sentence)
+            if len(key) >= _MIN_DEDUPE_CHARS and key in seen_sentences:
+                line_dropped = True
+                continue
+            if len(key) >= _MIN_DEDUPE_CHARS:
+                seen_sentences.add(key)
+            kept_sentences.append(sentence)
+        if not line_dropped:
+            new_lines.append(line)
             continue
-        if len(key) >= _MIN_DEDUPE_CHARS:
-            seen_sentences.add(key)
-        kept_sentences.append(sentence)
-    joiner = '\n' if '\n' in rebuilt else ' '
-    return _normalize_whitespace(joiner.join(kept_sentences))
+        changed = True
+        joiner = ' '
+        new_lines.append(joiner.join(kept_sentences))
+    if not changed:
+        return light
+    return _normalize_whitespace('\n'.join(new_lines))
 
 
 def _drop_duplicate_oem_lines(description: str, oem_text: str) -> str:
@@ -694,6 +802,9 @@ def _working_public_fields(product: Product) -> dict[str, str]:
         )
 
     desc_current = product.description or ''
+    if is_malformed_description(desc_current):
+        working['description'] = desc_current
+        return working
     desc_result = _field_sanitize(desc_current, 'description')
     desc_working = desc_result.text if desc_result.safe_to_apply else _normalize_whitespace(desc_current)
     desc_working = _drop_duplicate_oem_lines(desc_working, oem_working)
@@ -711,6 +822,8 @@ def _collect_safe_fixes(product: Product) -> dict[str, str]:
         if value == current:
             continue
         if name == 'compatibility' and is_compatibility_metadata_block(current):
+            continue
+        if name == 'description' and is_malformed_description(current):
             continue
         if not value and current.strip() and name in {
             'title',
@@ -834,6 +947,25 @@ def audit_product(
             STATUS_MANUAL,
             'GENERIC_SELLER_DESCRIPTION',
             'Одинаковое описание у нескольких карточек продавца.',
+        )
+
+    seller_name_for_links = ''
+    if getattr(product, 'seller_profile', None) and product.seller_profile:
+        seller_name_for_links = product.seller_profile.name
+    else:
+        seller_name_for_links = product.seller_name or ''
+    if detect_external_seller_links(product.description or '', seller_name=seller_name_for_links):
+        bump(
+            STATUS_MANUAL,
+            'EXTERNAL_SELLER_LINK',
+            'В описании ссылка на другой магазин/маркетплейс. Не удалять автоматически.',
+        )
+
+    if is_malformed_description(product.description):
+        bump(
+            STATUS_MANUAL,
+            'MALFORMED_DESCRIPTION',
+            'Описание с незакрытыми скобками или обрывками применимости. Не восстанавливать годы автоматически.',
         )
 
     if detect_article_role_unclear(

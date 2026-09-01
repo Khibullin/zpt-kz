@@ -434,6 +434,142 @@ class ProductQualityAuditTests(TestCase):
             1,
         )
 
+    def test_normal_paragraph_is_not_rewrapped_as_safe_fix(self):
+        description = (
+            'Свеча зажигания для бензиновых двигателей Chery. '
+            'Артикул F4J163707010. Основная применимость: Tiggo 7 Pro. '
+            'В карточке одна свеча, не комплект.'
+        )
+        product = _product(
+            title='Свеча зажигания Chery',
+            article='F4J163707010-layout',
+            slug='f4j-layout',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            compatibility='Chery Tiggo 7 Pro',
+            description=description,
+        )
+        result = audit_product(product)
+        self.assertNotIn('description', result.safe_fixes)
+        self.assertEqual(product.description, description)
+        self.assertNotEqual(result.status, STATUS_AUTO_FIXABLE)
+
+    def test_same_line_sentences_keep_layout_without_duplicate(self):
+        description = (
+            'Свеча зажигания для бензиновых двигателей Chery. Артикул F4J163707010. '
+            'Основная применимость указана в карточке.'
+        )
+        product = _product(
+            title='Свеча зажигания Chery',
+            article='F4J-SAME-LINE',
+            slug='f4j-same-line',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            compatibility='Chery Tiggo 7 Pro',
+            description=description,
+        )
+        result = audit_product(product)
+        self.assertNotIn('description', result.safe_fixes)
+        self.assertNotIn('\n', description)
+
+    def test_exact_glued_duplicate_block_is_deduped_idempotently(self):
+        block = (
+            'Пыльник ШРУСа Japanparts KB-377 предназначен для защиты шарнира равных угловых скоростей. '
+            'Высококачественный комплект обеспечивает герметичность соединения. '
+            'Пыльник надежно защищает от грязи и влаги, обеспечивая плавный ход автомобиля.'
+        )
+        product = _product(
+            title='Пыльник ШРУСа Japanparts KB-377',
+            article='KB-377',
+            slug='kb-377-block',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            description=block + block,
+        )
+        first = audit_product(product)
+        self.assertIn('description', first.safe_fixes)
+        cleaned = first.safe_fixes['description']
+        self.assertEqual(cleaned.count('Пыльник ШРУСа Japanparts KB-377'), 1)
+        self.assertIn('плавный ход автомобиля.', cleaned)
+        apply_safe_fixes(product, first.safe_fixes)
+        product.refresh_from_db()
+        before_brand = product.brand_id
+        before_price = product.price
+        second = audit_product(product)
+        self.assertEqual(second.safe_fixes, {})
+        self.assertEqual(product.brand_id, before_brand)
+        self.assertEqual(product.price, before_price)
+
+    def test_external_seller_link_is_manual(self):
+        product = _product(
+            title='Салонный фильтр Toyota Prado',
+            article='FC41254',
+            slug='fc41254-link',
+            seller_profile=self.seller,
+            seller_name='AG Parts',
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            description=(
+                'Салонный фильтр для Toyota Land Cruiser Prado.\n'
+                'Подробнее: https://grm4x4.kz/catalog/fc41254'
+            ),
+        )
+        result = audit_product(product)
+        self.assertEqual(result.status, STATUS_MANUAL)
+        self.assertIn('EXTERNAL_SELLER_LINK', result.issues)
+
+    def test_manufacturer_url_is_not_external_seller_link(self):
+        product = _product(
+            title='Пыльник ШРУСа Japanparts KB-377',
+            article='KB-377-mfr',
+            slug='kb-377-mfr',
+            seller_profile=self.seller,
+            seller_name='AG Parts',
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            description=(
+                'Пыльник ШРУСа Japanparts KB-377.\n'
+                'Каталог производителя: https://www.japanparts.com/catalog/kb-377'
+            ),
+        )
+        result = audit_product(product)
+        self.assertNotIn('EXTERNAL_SELLER_LINK', result.issues)
+
+    def test_malformed_truncated_fitment_description_is_manual(self):
+        product = _product(
+            title='Свеча зажигания Chery',
+            article='F4J16-3707010',
+            slug='f4j16-malformed-desc',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            description=(
+                'Chery Arrizo 5 Plus. (11.2020 - н. ...\n'
+                'Chery Arrizo 6 Pro. (11.2020 - н. ...\n'
+                'Chery Arrizo 8. (05.2022 - н. ...\n'
+                'Chery Tiggo 4 Pro. (08.2020 - н. ...\n'
+                'Chery Tiggo 7 Pro. (11.2019 - н. ...\n'
+                'Chery Tiggo 8 Pro. (12.2020 - н. ...\n'
+            ),
+        )
+        result = audit_product(product)
+        self.assertEqual(result.status, STATUS_MANUAL)
+        self.assertIn('MALFORMED_DESCRIPTION', result.issues)
+        self.assertNotIn('description', result.safe_fixes)
+
     def test_malformed_cv_boot_articles_are_manual_not_critical(self):
         japanparts = _product(
             title='Пыльник ШРУСа Japanparts KB-306',
