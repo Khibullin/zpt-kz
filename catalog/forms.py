@@ -9,6 +9,11 @@ from .models import (
     DEFAULT_SELLER_WORK_HOURS,
     DEFAULT_SELLER_DELIVERY_INFO,
 )
+from .product_quality import (
+    INTERNAL_RESEARCH_ERROR,
+    PUBLIC_TEXT_FIELDS,
+    detect_internal_research_text,
+)
 
 STORE_ADDRESS_PLACEHOLDER = 'г. Алматы, ул. Примерная, 1'
 PICKUP_ADDRESS_PLACEHOLDER = 'г. Алматы, склад / пункт выдачи'
@@ -388,6 +393,16 @@ class ProductForm(forms.ModelForm):
                 'price',
                 'Укажите цену больше 0 или включите «Цена по запросу».',
             )
+
+        for field_name in PUBLIC_TEXT_FIELDS:
+            value = cleaned_data.get(field_name)
+            if not isinstance(value, str) or not detect_internal_research_text(value):
+                continue
+            if self.instance.pk:
+                old = getattr(self.instance, field_name, '') or ''
+                if (old or '').strip() == (value or '').strip():
+                    continue
+            self.add_error(field_name, INTERNAL_RESEARCH_ERROR)
 
         return cleaned_data
 

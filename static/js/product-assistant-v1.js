@@ -96,17 +96,21 @@
       .filter(Boolean);
     const unmatched = data.unmatched || [];
     const sources = data.sources || [];
+    const notes = data.research_notes || [];
     let html = '';
+    let review = '';
 
+    html += '<div class="product-assistant-public">';
     html += fieldLine('Название', fields.title);
     html += fieldLine('Категория', fields.category_name);
     html += fieldLine('Марка', fields.brand_name);
     html += fieldLine('Модели', models.join(', '));
-    html += fieldLine('Совместимость', fields.compatibility);
+    html += fieldLine('Подходит для', fields.compatibility);
     html += fieldLine('Двигатели', fields.engine_compatibility);
     html += fieldLine('OEM / кросс-номера', fields.oem_cross_references);
     html += fieldLine('Описание', fields.description);
     html += fieldLine('Уверенность', confidenceLabel(data.confidence));
+    html += '</div>';
 
     if (data.ai_error) {
       html += '<p class="field-hint">' + ZPTDom.escapeHtml(data.ai_error) + '</p>';
@@ -114,29 +118,34 @@
     if (data.message) {
       html += '<p class="field-hint">' + ZPTDom.escapeHtml(data.message) + '</p>';
     }
-    if (unmatched.length) {
-      html += '<div class="product-assistant-unmatched"><strong>Не удалось сопоставить со справочником</strong><ul>';
-      unmatched.forEach(function (item) {
-        html += '<li>' + ZPTDom.escapeHtml(item) + '</li>';
-      });
-      html += '</ul></div>';
-    }
-    if (sources.length) {
-      html += '<div class="product-assistant-sources"><strong>Источники</strong><ul>';
-      sources.forEach(function (item) {
-        const url = item.url || '';
-        const title = item.title || url;
-        if (!url) {
-          return;
-        }
-        html +=
-          '<li><a href="' +
-          ZPTDom.escapeHtml(url) +
-          '" target="_blank" rel="noopener noreferrer">' +
-          ZPTDom.escapeHtml(title) +
-          '</a></li>';
-      });
-      html += '</ul></div>';
+
+    notes.forEach(function (item) {
+      const text = (item && item.text) ? item.text : String(item || '');
+      if (text) {
+        review += '<li>' + ZPTDom.escapeHtml(text) + '</li>';
+      }
+    });
+    unmatched.forEach(function (item) {
+      review += '<li>' + ZPTDom.escapeHtml(item) + '</li>';
+    });
+    sources.forEach(function (item) {
+      const url = item.url || '';
+      const title = item.title || url;
+      if (!url) {
+        return;
+      }
+      review +=
+        '<li><a href="' +
+        ZPTDom.escapeHtml(url) +
+        '" target="_blank" rel="noopener noreferrer">' +
+        ZPTDom.escapeHtml(title) +
+        '</a></li>';
+    });
+    if (review) {
+      html +=
+        '<div class="product-assistant-review"><strong>Требует проверки</strong><ul>' +
+        review +
+        '</ul></div>';
     }
 
     container.innerHTML = html || '<p class="field-hint">Данных пока нет.</p>';

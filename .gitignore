@@ -38,6 +38,7 @@ Thumbs.db
 # Local AG Parts import sources and reports (never commit)
 import_work/
 data/ag_parts/
+var/reports/
 
 # Catalog import archives live under MEDIA_ROOT/_catalog_imports (persistent disk)
 # and are already ignored via products/. Keep a named rule for local overrides.

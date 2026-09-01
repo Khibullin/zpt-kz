@@ -17,6 +17,16 @@ from django.db.models import Q
 from catalog.applicability import parse_plain_list
 from catalog.article_utils import display_article, normalize_article
 from catalog.models import Brand, CarModel, Category, Country, Product
+from catalog.product_quality import (
+    SPARK_CATEGORY_NAMES,
+    detect_internal_research_text,
+    normalize_research_notes,
+    prefer_public_field,
+    research_notes_from_removed,
+    sanitize_oem_text,
+    sanitize_public_product_text,
+    split_public_sentences,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +51,7 @@ class OpenAIEnrichment:
     engine_compatibility: str = ''
     oem_cross_references: str = ''
     description: str = ''
+    research_notes: list[dict[str, str]] = field(default_factory=list)
     confidence: str = 'needs_verification'
     sources: list[dict[str, str]] = field(default_factory=list)
 
@@ -112,8 +123,14 @@ def find_products_by_article(article: str) -> list[Product]:
     return matches
 
 
-def _match_category(name: str) -> Category | None:
+def _match_category(name: str, *, title: str = '') -> Category | None:
     text = (name or '').strip()
+    blob = f'{text} {title or ""}'
+    if re.search(r'свеч|spark\s*plug|зажиган', blob, re.I):
+        for preferred in SPARK_CATEGORY_NAMES:
+            found = Category.objects.filter(name__iexact=preferred).first()
+            if found:
+                return found
     if not text:
         return None
     exact = list(Category.objects.filter(name__iexact=text)[:2])
@@ -262,18 +279,35 @@ def call_openai_product_lookup(
 
     model = (getattr(settings, 'PRODUCT_AI_MODEL', '') or '').strip() or DEFAULT_PRODUCT_AI_MODEL
     prompt = (
-        'Ты помощник продавца автозапчастей ZPT.KZ. '
-        'По точному артикулу найди данные карточки товара. '
-        'Не выдумывай фото. Не публикуй товар. '
+        'Ты формируешь ПУБЛИЧНЫЕ поля карточки товара ZPT.KZ. '
+        'По артикулу найди данные. Не выдумывай фото. Не публикуй товар.\n'
+        'Никогда не включай в public fields: reasoning, историю поиска, '
+        'rejected candidates, поставщиков, источники, названия сайтов, '
+        'информацию «нет в справочнике ZPT», сведения о том, какие варианты '
+        'ты отверг, оценку качества источника, FitInPart, Gemini/ChatGPT, '
+        'имена файлов, «подтверждено каталогами».\n'
+        'compatibility — только марка/модель/поколение/годы/двигатель. '
+        'Пример: «Changan CS75 Plus, UNI-K — 2.0T».\n'
+        'engine_compatibility — только двигатели, одно значение на строку.\n'
+        'oem_cross_references — только номера, без слов OEM/кросс/аналог.\n'
+        'description — пользовательский текст о товаре: назначение, комплект, '
+        'особенности, краткая применимость, рекомендация проверить VIN.\n'
+        'title — короткое товарное название без истории поиска.\n'
+        'Категория — только существующее имя из данных ZPT, без создания новых. '
+        'Для свечи зажигания предпочитай «Свечи зажигания» или «Система зажигания», '
+        'а не общую «Электрику», если такая категория есть.\n'
+        'Все сомнения и дополнительные варианты клади ТОЛЬКО в research_notes.\n'
+        'raw_historical_context — грязные старые тексты, не копируй их в public fields.\n'
         'Верни ТОЛЬКО JSON без markdown:\n'
         '{'
         '"title":"","category":"","brand":"","models":[],'
         '"compatibility":"","engine_compatibility":"",'
         '"oem_cross_references":"","description":"",'
+        '"research_notes":[{"text":"","severity":"info"}],'
         '"confidence":"confirmed|likely|needs_verification"'
         '}\n'
         f'Артикул: {article}\n'
-        f'Уже найденные данные ZPT.KZ: {json.dumps(local_fields, ensure_ascii=False)}\n'
+        f'Контекст: {json.dumps(local_fields, ensure_ascii=False)}\n'
         'Если данных мало — confidence=needs_verification.'
     )
     body = json.dumps({
@@ -332,7 +366,7 @@ def call_openai_product_lookup(
     if confidence not in VALID_CONFIDENCE:
         confidence = 'needs_verification'
 
-    return OpenAIEnrichment(
+    enrichment = OpenAIEnrichment(
         title=str(data.get('title') or '').strip(),
         category=str(data.get('category') or '').strip(),
         brand=str(data.get('brand') or '').strip(),
@@ -341,9 +375,44 @@ def call_openai_product_lookup(
         engine_compatibility=str(data.get('engine_compatibility') or '').strip(),
         oem_cross_references=str(data.get('oem_cross_references') or '').strip(),
         description=str(data.get('description') or '').strip(),
+        research_notes=normalize_research_notes(data.get('research_notes')),
         confidence=confidence,
         sources=sources,
     )
+    return _sanitize_enrichment(enrichment)
+
+
+def _notes_from_dirty_text(value: str, *, field: str) -> list[dict[str, str]]:
+    if not value or not detect_internal_research_text(value):
+        return []
+    removed = [
+        sentence
+        for sentence in split_public_sentences(value)
+        if detect_internal_research_text(sentence)
+    ]
+    if not removed:
+        removed = [value]
+    return research_notes_from_removed(removed, severity='warning')
+
+
+def _sanitize_enrichment(enrichment: OpenAIEnrichment) -> OpenAIEnrichment:
+    notes = list(enrichment.research_notes)
+    mapping = (
+        ('title', 'title'),
+        ('compatibility', 'compatibility'),
+        ('engine_compatibility', 'engine_compatibility'),
+        ('oem_cross_references', 'oem_cross_references'),
+        ('description', 'description'),
+    )
+    for attr, field_name in mapping:
+        raw = getattr(enrichment, attr) or ''
+        notes.extend(_notes_from_dirty_text(raw, field=field_name))
+        cleaned = sanitize_public_product_text(raw, field=field_name, mode='preview')
+        if field_name == 'oem_cross_references':
+            cleaned = sanitize_oem_text(raw)
+        setattr(enrichment, attr, cleaned)
+    enrichment.research_notes = normalize_research_notes(notes)
+    return enrichment
 
 
 def _aggregate_local(products: list[Product]) -> dict[str, Any]:
@@ -400,10 +469,29 @@ def _aggregate_local(products: list[Product]) -> dict[str, Any]:
     }
 
 
-def _fill_if_empty(current: str, incoming: str) -> str:
-    if (current or '').strip():
-        return current
-    return (incoming or '').strip()
+def _local_fields_for_ai(local_preview: dict[str, Any]) -> dict[str, Any]:
+    public: dict[str, Any] = {}
+    raw_history: dict[str, str] = {}
+    text_fields = {
+        'title',
+        'compatibility',
+        'engine_compatibility',
+        'oem_cross_references',
+        'description',
+    }
+    for key, value in local_preview.items():
+        if key not in text_fields:
+            public[key] = value
+            continue
+        text = str(value or '')
+        if detect_internal_research_text(text):
+            raw_history[key] = text
+            public[key] = sanitize_public_product_text(text, field=key, mode='preview')
+        else:
+            public[key] = text
+    if raw_history:
+        public['raw_historical_context'] = raw_history
+    return public
 
 
 def suggest_product_by_article(
@@ -423,6 +511,7 @@ def suggest_product_by_article(
             'match_count': 0,
             'confidence': 'needs_verification',
             'fields': {},
+            'research_notes': [],
             'unmatched': [],
             'sources': [],
         }
@@ -457,12 +546,13 @@ def suggest_product_by_article(
         'oem_cross_references': local.get('oem_cross_references') or '',
         'description': local.get('description') or '',
     }
+    ai_context = _local_fields_for_ai(local_preview)
 
     enrichment = None
     ai_error = ''
     caller = openai_caller or call_openai_product_lookup
     try:
-        enrichment = caller(raw, local_preview)
+        enrichment = caller(raw, ai_context)
     except Exception as exc:  # noqa: BLE001 — assistant must not break the form
         logger.warning('Product AI enrichment failed: %s', exc)
         enrichment = None
@@ -470,12 +560,38 @@ def suggest_product_by_article(
 
     unmatched: list[str] = []
     sources: list[dict[str, str]] = []
+    research_notes: list[dict[str, str]] = []
 
-    title = local.get('title') or ''
-    compatibility = local.get('compatibility') or ''
-    engines = local.get('engine_compatibility') or ''
-    oems = local.get('oem_cross_references') or ''
-    description = local.get('description') or ''
+    for field_name, raw_value in (
+        ('title', local.get('title') or ''),
+        ('compatibility', local.get('compatibility') or ''),
+        ('engine_compatibility', local.get('engine_compatibility') or ''),
+        ('oem_cross_references', local.get('oem_cross_references') or ''),
+        ('description', local.get('description') or ''),
+    ):
+        research_notes.extend(_notes_from_dirty_text(raw_value, field=field_name))
+
+    title = prefer_public_field(local.get('title') or '', '', field='title')
+    compatibility = prefer_public_field(
+        local.get('compatibility') or '',
+        '',
+        field='compatibility',
+    )
+    engines = prefer_public_field(
+        local.get('engine_compatibility') or '',
+        '',
+        field='engine_compatibility',
+    )
+    oems = prefer_public_field(
+        local.get('oem_cross_references') or '',
+        '',
+        field='oem_cross_references',
+    )
+    description = prefer_public_field(
+        local.get('description') or '',
+        '',
+        field='description',
+    )
     brand = local.get('brand')
     car_model = local.get('car_model')
     category = local.get('category')
@@ -483,31 +599,43 @@ def suggest_product_by_article(
     selected_models = list(local.get('selected_models') or [])
 
     if enrichment is not None:
+        enrichment = _sanitize_enrichment(enrichment)
         sources = list(enrichment.sources)
-        title = _fill_if_empty(title, enrichment.title)
-        compatibility = _fill_if_empty(compatibility, enrichment.compatibility)
-        engines = _fill_if_empty(
-            engines,
+        research_notes.extend(enrichment.research_notes)
+        title = prefer_public_field(local.get('title') or '', enrichment.title, field='title')
+        compatibility = prefer_public_field(
+            local.get('compatibility') or '',
+            enrichment.compatibility,
+            field='compatibility',
+        )
+        engines = prefer_public_field(
+            local.get('engine_compatibility') or '',
             '\n'.join(parse_plain_list(enrichment.engine_compatibility)),
+            field='engine_compatibility',
         )
-        oems = _fill_if_empty(
-            oems,
-            '\n'.join(parse_plain_list(enrichment.oem_cross_references)),
+        oems = prefer_public_field(
+            local.get('oem_cross_references') or '',
+            sanitize_oem_text(enrichment.oem_cross_references),
+            field='oem_cross_references',
         )
-        description = _fill_if_empty(description, enrichment.description)
+        description = prefer_public_field(
+            local.get('description') or '',
+            enrichment.description,
+            field='description',
+        )
 
         if category is None and enrichment.category:
-            category = _match_category(enrichment.category)
+            category = _match_category(enrichment.category, title=title or enrichment.title)
             if category is None:
                 unmatched.append(
-                    f'Категория «{enrichment.category}» не найдена в справочнике ZPT.KZ. '
+                    f'Категория «{enrichment.category}» не найдена в справочнике. '
                     'Выберите ближайшую вручную.'
                 )
         if brand is None and enrichment.brand:
             brand = _match_brand(enrichment.brand)
             if brand is None:
                 unmatched.append(
-                    f'Марка «{enrichment.brand}» не найдена в справочнике ZPT.KZ. '
+                    f'Марка «{enrichment.brand}» не найдена в справочнике. '
                     'Выберите марку вручную.'
                 )
             else:
@@ -516,7 +644,7 @@ def suggest_product_by_article(
             matched_model = _match_car_model(model_name, brand)
             if matched_model is None:
                 unmatched.append(
-                    f'Модель «{model_name}» не найдена в справочнике ZPT.KZ. '
+                    f'Модель «{model_name}» не найдена в справочнике. '
                     'Выберите ближайшую вручную.'
                 )
                 continue
@@ -529,8 +657,18 @@ def suggest_product_by_article(
                 if all(item.pk != matched_model.pk for item in selected_models):
                     selected_models.append(matched_model)
 
+    local_dirty = any(
+        detect_internal_research_text(local.get(name) or '')
+        for name in (
+            'title',
+            'compatibility',
+            'engine_compatibility',
+            'oem_cross_references',
+            'description',
+        )
+    )
     if products:
-        if local.get('conflicts'):
+        if local.get('conflicts') or local_dirty:
             local_confidence = 'likely'
         elif local.get('complete'):
             local_confidence = 'confirmed'
@@ -543,6 +681,8 @@ def suggest_product_by_article(
     confidence = _conservative_confidence(local_confidence, ai_confidence)
     if not products and confidence == 'confirmed':
         confidence = 'likely'
+    if local_dirty and enrichment is not None:
+        confidence = _conservative_confidence(confidence, 'likely')
 
     fields = {
         'title': title,
@@ -574,6 +714,7 @@ def suggest_product_by_article(
         or oems
         or description
         or unmatched
+        or research_notes
     )
     message = ''
     if not found_anything:
@@ -590,6 +731,7 @@ def suggest_product_by_article(
         'match_count': len(products),
         'confidence': confidence,
         'fields': fields,
+        'research_notes': normalize_research_notes(research_notes),
         'unmatched': unmatched,
         'sources': sources,
     }

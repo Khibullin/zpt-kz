@@ -161,6 +161,125 @@ class ProductAssistantLookupTests(TestCase):
         self.assertEqual(CarModel.objects.count(), model_count)
 
 
+class ProductAssistantPublicFieldTests(TestCase):
+    def test_ai_compatibility_strips_research_commentary(self):
+        def fake_ai(article, local_fields):
+            return OpenAIEnrichment(
+                title='Свеча зажигания Changan CS75 Plus — D20T0120700',
+                compatibility=(
+                    'CS75 Plus, UNI-K. CS85 есть у поставщиков, в справочнике ZPT нет.'
+                ),
+                description='Свеча зажигания предназначена для воспламенения смеси.',
+                research_notes=[{
+                    'text': '1.4T / 1.5T имеют противоречивую применимость.',
+                    'severity': 'warning',
+                }],
+                confidence='likely',
+            )
+
+        result = suggest_product_by_article('D20T0120700', openai_caller=fake_ai)
+        compatibility = result['fields']['compatibility']
+        self.assertIn('UNI-K', compatibility)
+        self.assertNotIn('поставщиков', compatibility)
+        self.assertNotIn('ZPT', compatibility)
+        self.assertNotIn('справочнике', compatibility)
+        notes = ' '.join(item['text'] for item in result['research_notes'])
+        self.assertTrue('поставщиков' in notes or '1.4T' in notes)
+
+    def test_research_notes_are_separate_from_fields(self):
+        def fake_ai(article, local_fields):
+            return OpenAIEnrichment(
+                title='Свеча зажигания',
+                compatibility='Changan CS75 Plus, UNI-K — 2.0T',
+                research_notes=[{
+                    'text': 'CS85 встречается во внешних источниках, но не подтверждён.',
+                    'severity': 'info',
+                }],
+            )
+
+        result = suggest_product_by_article('NOTE-1', openai_caller=fake_ai)
+        self.assertTrue(any('CS85' in item['text'] for item in result['research_notes']))
+        self.assertNotIn('research_notes', result['fields'])
+        self.assertNotIn('внешних источниках', result['fields']['compatibility'])
+
+    def test_dirty_local_compatibility_does_not_block_clean_ai(self):
+        seller = _seller('dirty-local', 'Dirty Shop', '77770000901')
+        _product(
+            title='Свеча зажигания',
+            article='DIRTY-LOC-1',
+            slug='dirty-loc-1',
+            seller_profile=seller,
+            seller_name=seller.name,
+            compatibility='CS85 есть у поставщиков, в справочнике ZPT нет.',
+            description='Старое служебное описание с Gemini',
+        )
+
+        def fake_ai(article, local_fields):
+            return OpenAIEnrichment(
+                title='Свеча зажигания Changan CS75 Plus — DIRTY-LOC-1',
+                compatibility='Changan CS75 Plus, UNI-K — 2.0T',
+                description='Свеча зажигания для двигателя 2.0T.',
+                confidence='likely',
+            )
+
+        result = suggest_product_by_article('DIRTY-LOC-1', openai_caller=fake_ai)
+        self.assertEqual(result['fields']['compatibility'], 'Changan CS75 Plus, UNI-K — 2.0T')
+        self.assertNotIn('поставщиков', result['fields']['compatibility'])
+        self.assertNotIn('Gemini', result['fields']['description'])
+
+    def test_clean_local_compatibility_keeps_priority(self):
+        seller = _seller('clean-local', 'Clean Shop', '77770000902')
+        _product(
+            title='Фильтр салонный Chery',
+            article='CLEAN-LOC-1',
+            slug='clean-loc-1',
+            seller_profile=seller,
+            seller_name=seller.name,
+            compatibility='Chery Tiggo 7',
+            description='Салонный фильтр',
+        )
+
+        def fake_ai(article, local_fields):
+            return OpenAIEnrichment(
+                title='Другое название',
+                compatibility='Chery Tiggo 8 Pro',
+                description='AI описание',
+                confidence='likely',
+            )
+
+        result = suggest_product_by_article('CLEAN-LOC-1', openai_caller=fake_ai)
+        self.assertEqual(result['fields']['title'], 'Фильтр салонный Chery')
+        self.assertEqual(result['fields']['compatibility'], 'Chery Tiggo 7')
+        self.assertEqual(result['fields']['description'], 'Салонный фильтр')
+
+    def test_description_and_title_drop_internal_markers(self):
+        def fake_ai(article, local_fields):
+            return OpenAIEnrichment(
+                title='Свеча подтверждена каталогами, в справочнике ZPT нет',
+                description=(
+                    'Чат с Gemini. WhatsApp Image 2024.jpg. '
+                    'ChatGPT нашёл у поставщиков. Списки отвергнуты.'
+                ),
+                oem_cross_references='OEM: D20T0120700; кросс: D20T012-0700',
+                confidence='likely',
+            )
+
+        result = suggest_product_by_article('MARK-1', openai_caller=fake_ai)
+        blob = ' '.join([
+            result['fields']['title'],
+            result['fields']['description'],
+            result['fields']['compatibility'],
+        ])
+        for token in ('ZPT', 'поставщиков', 'Gemini', 'ChatGPT', 'WhatsApp Image', 'отвергнут'):
+            self.assertNotIn(token, blob)
+        self.assertNotIn('research_notes', result['fields'])
+        oem = result['fields']['oem_cross_references']
+        self.assertIn('D20T0120700', oem)
+        self.assertNotIn('кросс:', oem.casefold())
+        self.assertNotIn('OEM:', oem)
+
+
+
 class ProductAssistantEndpointTests(TestCase):
     def setUp(self):
         self.seller = _seller()
@@ -224,3 +343,5 @@ class ProductAssistantEndpointTests(TestCase):
         self.assertContains(response, 'Загрузить своё фото')
         self.assertContains(response, 'Оставить без фото')
         self.assertContains(response, 'product-assistant-v1.js')
+        self.assertContains(response, 'product_assistant_v3')
+        self.assertContains(response, 'Найденные данные')

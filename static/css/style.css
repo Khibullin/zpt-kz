@@ -525,14 +525,31 @@ a.btn-green.product-wa-btn:hover,
   font-weight:700;
 }
 
+.product-assistant-public{
+  margin-bottom:10px;
+}
+
+.product-assistant-public > strong,
+.product-assistant-review > strong{
+  display:block;
+  margin-bottom:8px;
+}
+
 .product-assistant-unmatched,
-.product-assistant-sources{
+.product-assistant-sources,
+.product-assistant-review{
   margin-top:10px;
   font-size:13px;
 }
 
+.product-assistant-review{
+  border-top:1px solid #e5e7eb;
+  padding-top:10px;
+}
+
 .product-assistant-unmatched ul,
-.product-assistant-sources ul{
+.product-assistant-sources ul,
+.product-assistant-review ul{
   margin:6px 0 0;
   padding-left:18px;
 }
