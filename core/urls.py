@@ -22,6 +22,7 @@ from .views import (
     view_buyer_request_history,
     short_request_redirect,
 )
+from .admin_seller_password import reset_seller_password
 
 
 urlpatterns = [
@@ -42,6 +43,12 @@ urlpatterns = [
         name='view_buyer_request_history',
     ),
     path('create-seller/', create_seller, name='create_seller'),
+
+    path(
+        'admin/seller/<int:seller_id>/reset-password/',
+        reset_seller_password,
+        name='admin_seller_reset_password',
+    ),
 
     path('seller-login/', seller_login, name='seller_login'),
     path('seller-logout/', seller_logout, name='seller_logout'),

@@ -56,10 +56,12 @@
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     gap: 10px;
     box-sizing: border-box;
+    max-width: 100%;
   }
   .card-info-group {
     display: flex;
@@ -68,6 +70,7 @@
     gap: 10px;
     flex-grow: 1;
     min-width: 0;
+    flex-basis: 0;
   }
   .card-icon {
     width: 32px;
@@ -111,13 +114,59 @@
     border-radius: 6px;
     text-decoration: none;
     box-sizing: border-box;
-    white-space: nowrap;
+    white-space: normal;
+    flex-shrink: 0;
+    border: 1px solid transparent;
+  }
+  .card-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
     flex-shrink: 0;
   }
-  .card-btn:hover {
+  .card-btn-secondary {
+    background-color: transparent;
+    font-weight: 700;
+  }
+  .card-btn-requests {
+    background-color: #ff3b30;
+  }
+  .card-btn-requests-outline {
+    color: #ff3b30;
+    border-color: #ff3b30;
+  }
+  .card-btn-shop {
+    background-color: #111827;
+  }
+  .card-btn-shop-outline {
+    color: #111827;
+    border-color: #111827;
+  }
+  .card-btn-service {
+    background-color: #334155;
+  }
+  .card-btn-service-outline {
+    color: #334155;
+    border-color: #334155;
+  }
+  .card-btn-primary:hover {
     opacity: 0.92;
     color: #ffffff;
     text-decoration: none;
+  }
+  .card-btn-secondary:hover {
+    opacity: 0.85;
+    text-decoration: none;
+  }
+  .gateway-auth-hint {
+    font-size: 11px;
+    color: #374151;
+    font-weight: 600;
+    margin: 0 0 12px;
+    text-align: center;
+    line-height: 1.4;
   }
   @media (min-width: 768px) {
     .gateway-bg {
@@ -130,6 +179,10 @@
     }
     .gateway-bg .gateway-subtitle {
       font-size: 14px;
+      margin-bottom: 12px;
+    }
+    .gateway-auth-hint {
+      font-size: 15px;
       margin-bottom: 32px;
     }
     .gateway-grid {
@@ -139,6 +192,7 @@
     }
     .gateway-card {
       flex-direction: column;
+      flex-wrap: nowrap;
       align-items: start;
       justify-content: space-between;
       padding: 24px;
@@ -149,6 +203,8 @@
       flex-direction: column;
       align-items: start;
       gap: 16px;
+      flex-basis: auto;
+      width: 100%;
     }
     .card-icon {
       width: 48px;
@@ -163,12 +219,15 @@
     .gateway-bg .gateway-card .card-desc {
       font-size: 13px;
     }
+    .card-actions {
+      margin-top: 16px;
+      gap: 8px;
+    }
     .card-btn {
       width: 100%;
       padding: 12px 0;
       font-size: 13px;
       border-radius: 10px;
-      margin-top: 16px;
       white-space: normal;
     }
   }
@@ -180,6 +239,7 @@
     <div style="text-align: center;">
       <h1 class="gateway-title">Личные кабинеты автобизнеса ZPT.KZ</h1>
       <p class="gateway-subtitle">Выберите нужное направление для работы, авторизации или регистрации вашей компании на платформе.</p>
+      <p class="gateway-auth-hint">Уже зарегистрированы? Войдите в нужный кабинет. Новый пользователь? Зарегистрируйтесь.</p>
     </div>
 
     <div class="gateway-grid">
@@ -192,7 +252,10 @@
             <p class="card-desc">Для продавцов запчастей, желающих получать горячие запросы от автовладельцев в WhatsApp и продавать товары «здесь и сейчас».</p>
           </div>
         </div>
-        <a href="/request-parts/cabinet/" class="card-btn" style="background-color: #ff3b30;">Подключить заявки</a>
+        <div class="card-actions">
+          <a href="/request-parts/cabinet/" class="card-btn card-btn-primary card-btn-requests">Войти в кабинет</a>
+          <a href="/request-parts/register/" class="card-btn card-btn-secondary card-btn-requests-outline">Зарегистрироваться как продавец</a>
+        </div>
       </div>
 
       <div class="gateway-card">
@@ -203,7 +266,10 @@
             <p class="card-desc">Для магазинов и складов, желающих загружать прайс-листы, выставлять товары по артикулам и работать через онлайн-каталог.</p>
           </div>
         </div>
-        <a href="{% url 'seller_login' %}" class="card-btn" style="background-color: #111827;">Открыть магазин</a>
+        <div class="card-actions">
+          <a href="{% url 'seller_login' %}" class="card-btn card-btn-primary card-btn-shop">Войти в магазин</a>
+          <a href="{% url 'seller_register' %}" class="card-btn card-btn-secondary card-btn-shop-outline">Создать магазин</a>
+        </div>
       </div>
 
       <div class="gateway-card">
@@ -214,7 +280,10 @@
             <p class="card-desc">Для СТО, автосервисов и студий детейлинга, желающих принимать целевые заказы на ремонт, техническое обслуживание и уход.</p>
           </div>
         </div>
-        <a href="/service-request/cabinet/" class="card-btn" style="background-color: #334155;">Стать исполнителем</a>
+        <div class="card-actions">
+          <a href="/service-request/cabinet/" class="card-btn card-btn-primary card-btn-service">Войти в кабинет</a>
+          <a href="/service-request/register/" class="card-btn card-btn-secondary card-btn-service-outline">Зарегистрироваться как СТО/сервис</a>
+        </div>
       </div>
 
     </div>

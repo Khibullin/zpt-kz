@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+    {% if original and original.pk %}
+    <li>
+        <a href="{% url 'admin_seller_reset_password' original.pk %}" class="historylink">
+            Сбросить пароль продавца
+        </a>
+    </li>
+    {% endif %}
+    {{ block.super }}
+{% endblock %}

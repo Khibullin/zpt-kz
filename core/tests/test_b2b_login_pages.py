@@ -30,3 +30,22 @@ class B2BLoginPageSmokeTests(TestCase):
         response = self.client.get('/seller/login/')
         self.assertContains(response, 'href="/"')
         self.assertContains(response, 'href="/business/"')
+
+    def test_business_gateway_shows_login_and_register_for_each_direction(self):
+        response = self.client.get('/business/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(
+            response,
+            'Уже зарегистрированы? Войдите в нужный кабинет. Новый пользователь? Зарегистрируйтесь.',
+        )
+        self.assertContains(response, 'Войти в кабинет')
+        self.assertContains(response, 'Зарегистрироваться как продавец')
+        self.assertContains(response, 'Войти в магазин')
+        self.assertContains(response, 'Создать магазин')
+        self.assertContains(response, 'Зарегистрироваться как СТО/сервис')
+        self.assertContains(response, 'href="/request-parts/cabinet/"')
+        self.assertContains(response, 'href="/request-parts/register/"')
+        self.assertContains(response, 'href="/seller/login/"')
+        self.assertContains(response, 'href="/seller/register/"')
+        self.assertContains(response, 'href="/service-request/cabinet/"')
+        self.assertContains(response, 'href="/service-request/register/"')
