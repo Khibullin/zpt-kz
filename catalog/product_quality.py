@@ -176,17 +176,34 @@ _STANDALONE_OEM_LINE = re.compile(
     r')\s*:.*$'
 )
 _MANUFACTURER_ARTICLE_RE = re.compile(
-    r'(?:артикул\s+производителя|'
-    r'manufacturer(?:\s+(?:article|part(?:\s*number)?)?)?|'
-    r'part\s*number|\bp/?n\b)\s*:?\s*'
+    r'(?:'
+    r'артикул\s*\(\s*номер\s+производителя\s*\)|'
+    r'артикул\s+производителя|'
+    r'номер\s+производителя|'
+    r'manufacturer(?:\s+(?:article|part(?:\s*number)?|pn))?|'
+    r'part\s*number|'
+    r'\bp/?n\b'
+    r')\s*:?\s*'
     r'([A-Za-z0-9][A-Za-z0-9._/-]{2,40})',
     re.I,
 )
 _CROSS_NUMBER_LABEL_RE = re.compile(
-    r'(?:кросс[-\s]?номер(?:а|ы)?|cross[-\s]?(?:number|ref(?:erence)?s?))\s*:?\s*'
+    r'(?:кросс[-\s]?номер(?:а|ы)?(?:\s*\([^)]+\))?|'
+    r'cross[-\s]?(?:number|ref(?:erence)?s?))'
+    r'\s*:?\s*'
     r'([A-Za-z0-9][A-Za-z0-9._/-]{2,40})',
     re.I,
 )
+_COMPATIBILITY_METADATA_PATTERNS = (
+    re.compile(r'основные\s+данные\s+и\s+артикул', re.I),
+    re.compile(r'^\s*наименование\s*:', re.I | re.M),
+    re.compile(r'артикул\s*\(\s*номер\s+производителя\s*\)\s*:', re.I),
+    re.compile(r'артикул\s+производителя\s*:', re.I),
+    re.compile(r'кросс[-\s]?номер\s*\(\s*артикул\s+аналога\s*\)\s*:', re.I),
+    re.compile(r'номер\s+производителя\s*:', re.I),
+    re.compile(r'технические\s+данные', re.I),
+)
+_MIN_DEDUPE_CHARS = 20
 
 
 @dataclass
@@ -496,6 +513,30 @@ def detect_article_role_unclear(article: str | None, *texts: str) -> bool:
     return any(item != key for item in mfr_keys)
 
 
+def is_compatibility_metadata_block(value: str | None) -> bool:
+    """True when compatibility is a product metadata block, not vehicle fitment."""
+    text = str(value or '').strip()
+    if not text:
+        return False
+    hits = sum(1 for pattern in _COMPATIBILITY_METADATA_PATTERNS if pattern.search(text))
+    return hits >= 2 or (hits >= 1 and not _looks_like_vehicle_fitment(text))
+
+
+def _looks_like_vehicle_fitment(value: str) -> bool:
+    text = str(value or '')
+    if re.search(
+        r'\b(?:toyota|hyundai|kia|changan|chery|geely|haval|gwm|bmw|audi|'
+        r'mercedes|volkswagen|nissan|honda|mazda|lexus|subaru|mitsubishi|'
+        r'uni-k|camry|sonata|tiggo|cs\d{2})\b',
+        text,
+        re.I,
+    ):
+        return True
+    if re.search(r'\b\d{4}\s*[-–—]\s*\d{4}\b', text):
+        return True
+    return False
+
+
 def _related_manager_has(product: Product, field_name: str) -> bool:
     manager = getattr(product, field_name, None)
     if manager is None:
@@ -511,7 +552,10 @@ def _has_brand(product: Product) -> bool:
 
 
 def _has_model_applicability(product: Product) -> bool:
-    if (product.compatibility or '').strip() or product.car_model_id:
+    compatibility = product.compatibility or ''
+    if compatibility.strip() and not is_compatibility_metadata_block(compatibility):
+        return True
+    if product.car_model_id:
         return True
     return _related_manager_has(product, 'selected_models')
 
@@ -548,6 +592,41 @@ def is_generic_seller_description(description: str, *, title: str = '', article:
 
 def _trim_fix(value: str) -> str:
     return _normalize_whitespace(value)
+
+
+def _sentence_dedupe_key(value: str) -> str:
+    return _WHITESPACE.sub(' ', str(value or '')).strip().casefold()
+
+
+def _dedupe_public_sentences(value: str) -> str:
+    """Drop exact duplicate sentences/lines in description. Keep the first copy.
+
+    Skips short structural values so fitment-like tokens are not collapsed.
+    """
+    text = _normalize_whitespace(value)
+    if not text:
+        return text
+    kept_lines: list[str] = []
+    seen_lines: set[str] = set()
+    for line in text.split('\n'):
+        key = _sentence_dedupe_key(line)
+        if len(key) >= _MIN_DEDUPE_CHARS and key in seen_lines:
+            continue
+        if len(key) >= _MIN_DEDUPE_CHARS:
+            seen_lines.add(key)
+        kept_lines.append(line)
+    rebuilt = '\n'.join(kept_lines)
+    kept_sentences: list[str] = []
+    seen_sentences: set[str] = set()
+    for sentence in split_public_sentences(rebuilt):
+        key = _sentence_dedupe_key(sentence)
+        if len(key) >= _MIN_DEDUPE_CHARS and key in seen_sentences:
+            continue
+        if len(key) >= _MIN_DEDUPE_CHARS:
+            seen_sentences.add(key)
+        kept_sentences.append(sentence)
+    joiner = '\n' if '\n' in rebuilt else ' '
+    return _normalize_whitespace(joiner.join(kept_sentences))
 
 
 def _drop_duplicate_oem_lines(description: str, oem_text: str) -> str:
@@ -599,15 +678,26 @@ def _working_public_fields(product: Product) -> dict[str, str]:
         'article': article_working,
         'oem_cross_references': oem_working,
     }
-    for name in ('title', 'compatibility', 'engine_compatibility'):
+    for name in ('title', 'engine_compatibility'):
         current = getattr(product, name, '') or ''
         result = _field_sanitize(current, name)
         working[name] = result.text if result.safe_to_apply else _normalize_whitespace(current)
+
+    compatibility_current = product.compatibility or ''
+    if is_compatibility_metadata_block(compatibility_current):
+        working['compatibility'] = compatibility_current
+    else:
+        compat_result = _field_sanitize(compatibility_current, 'compatibility')
+        working['compatibility'] = (
+            compat_result.text if compat_result.safe_to_apply
+            else _normalize_whitespace(compatibility_current)
+        )
 
     desc_current = product.description or ''
     desc_result = _field_sanitize(desc_current, 'description')
     desc_working = desc_result.text if desc_result.safe_to_apply else _normalize_whitespace(desc_current)
     desc_working = _drop_duplicate_oem_lines(desc_working, oem_working)
+    desc_working = _dedupe_public_sentences(desc_working)
     working['description'] = _normalize_whitespace(desc_working)
     return working
 
@@ -619,6 +709,8 @@ def _collect_safe_fixes(product: Product) -> dict[str, str]:
         current = getattr(product, name, '') or ''
         value = working.get(name, current)
         if value == current:
+            continue
+        if name == 'compatibility' and is_compatibility_metadata_block(current):
             continue
         if not value and current.strip() and name in {
             'title',
@@ -755,6 +847,13 @@ def audit_product(
             STATUS_MANUAL,
             'ARTICLE_ROLE_UNCLEAR',
             'Текущий article похож на кросс-номер, а в карточке указан другой артикул производителя. Не переписывать автоматически.',
+        )
+
+    if is_compatibility_metadata_block(product.compatibility):
+        bump(
+            STATUS_MANUAL,
+            'COMPATIBILITY_NOT_FITMENT',
+            'В применимости записан блок артикулов/наименования, а не автомобили. Не исправлять автоматически.',
         )
 
     if not (product.article or '').strip():

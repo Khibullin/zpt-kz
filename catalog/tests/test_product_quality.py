@@ -338,8 +338,8 @@ class ProductQualityAuditTests(TestCase):
     def test_article_role_unclear_is_manual_not_type_critical(self):
         product = _product(
             title='Пыльник ШРУСА',
-            article='304887',
-            slug='ptp-304887',
+            article='304886',
+            slug='ptp-304886',
             seller_profile=self.seller,
             seller_name=self.seller.name,
             brand=self.brand,
@@ -347,7 +347,7 @@ class ProductQualityAuditTests(TestCase):
             compatibility=(
                 'Chery Tiggo 7 Pro.\n'
                 'Артикул производителя: PTP023723\n'
-                'Кросс-номер: 304887'
+                'Кросс-номер: 304886'
             ),
             description='Данный пыльник устанавливается на внутренний ШРУС.',
         )
@@ -357,6 +357,82 @@ class ProductQualityAuditTests(TestCase):
         self.assertEqual(result.status, STATUS_MANUAL)
         self.assertIn('ARTICLE_ROLE_UNCLEAR', result.issues)
         self.assertFalse(result.safe_fixes.get('article'))
+
+    def test_metadata_compatibility_block_is_manual_not_auto(self):
+        raw_compat = (
+            'Основные данные и артикулы\n'
+            'Наименование: Пыльник ШРУСа\n'
+            'Артикул (Номер производителя): PTP023723\n'
+            'Кросс-номер (артикул аналога): 304887\n'
+        )
+        product = _product(
+            title='Пыльник ШРУСА',
+            article='304887',
+            slug='ptp-304887-meta',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            compatibility=raw_compat,
+            description='Данный пыльник устанавливается на внутренний ШРУС.',
+        )
+        result = audit_product(product)
+        self.assertEqual(result.status, STATUS_MANUAL)
+        self.assertIn('COMPATIBILITY_NOT_FITMENT', result.issues)
+        self.assertIn('ARTICLE_ROLE_UNCLEAR', result.issues)
+        self.assertNotIn('compatibility', result.safe_fixes)
+        self.assertEqual(product.compatibility, raw_compat)
+        self.assertFalse(result.safe_fixes.get('article'))
+
+    def test_normal_compatibility_is_not_metadata(self):
+        product = _product(
+            title='Свеча зажигания Changan CS75 Plus',
+            article='D20-FIT-1',
+            slug='d20-fit-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            compatibility='Changan CS75 Plus, UNI-K — 2.0T',
+        )
+        result = audit_product(product)
+        self.assertNotIn('COMPATIBILITY_NOT_FITMENT', result.issues)
+        self.assertNotIn('ARTICLE_ROLE_UNCLEAR', result.issues)
+
+    def test_duplicate_description_sentence_is_idempotent(self):
+        product = _product(
+            title='Свеча зажигания Changan CS75 Plus',
+            article='D20T0120700-dup',
+            slug='d20t-dup',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            car_model=self.model,
+            category=self.category,
+            compatibility='Changan CS75 Plus, UNI-K — 2.0T',
+            description=(
+                'Свеча зажигания предназначена для воспламенения смеси.\n'
+                'В карточке одна свеча, не комплект.\n'
+                'Перед заказом рекомендуется проверить VIN.\n'
+                'В карточке одна свеча, не комплект.\n'
+            ),
+        )
+        first = audit_product(product)
+        self.assertIn('description', first.safe_fixes)
+        self.assertEqual(
+            first.safe_fixes['description'].casefold().count('в карточке одна свеча, не комплект.'),
+            1,
+        )
+        apply_safe_fixes(product, first.safe_fixes)
+        product.refresh_from_db()
+        second = audit_product(product)
+        self.assertEqual(second.safe_fixes, {})
+        self.assertEqual(
+            product.description.casefold().count('в карточке одна свеча, не комплект.'),
+            1,
+        )
 
     def test_malformed_cv_boot_articles_are_manual_not_critical(self):
         japanparts = _product(
@@ -532,6 +608,48 @@ class ProductQualityCommandTests(TestCase):
                 '--apply-safe',
                 '--product-id',
                 str(self.product.pk),
+                '--report',
+                tmp,
+                stdout=out,
+            )
+        self.assertRegex(out.getvalue(), r'changed 0\b')
+
+    def test_duplicate_description_second_apply_is_noop(self):
+        product = _product(
+            title='Свеча зажигания',
+            article='DUP-CMD-1',
+            slug='dup-cmd-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            compatibility='Changan CS75 Plus, UNI-K — 2.0T',
+            description=(
+                'Свеча зажигания для двигателя.\n'
+                'В карточке одна свеча, не комплект.\n'
+                'В карточке одна свеча, не комплект.\n'
+            ),
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            call_command(
+                'clean_product_cards',
+                '--apply-safe',
+                '--product-id',
+                str(product.pk),
+                '--report',
+                tmp,
+                stdout=StringIO(),
+            )
+            product.refresh_from_db()
+            self.assertEqual(
+                product.description.casefold().count('в карточке одна свеча, не комплект.'),
+                1,
+            )
+            out = StringIO()
+            call_command(
+                'clean_product_cards',
+                '--apply-safe',
+                '--product-id',
+                str(product.pk),
                 '--report',
                 tmp,
                 stdout=out,
