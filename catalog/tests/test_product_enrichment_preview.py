@@ -6,6 +6,7 @@ from unittest.mock import patch
 
 from django.contrib.auth.models import User
 from django.core.management import call_command
+from django.core.management.base import CommandError
 from django.test import TestCase
 
 from catalog.models import Brand, CarModel, Category, Country, Product, SellerProfile
@@ -249,12 +250,23 @@ class ProductEnrichmentPreviewTests(TestCase):
             self.assertIn('current_compatibility', csv_row)
             self.assertIn('current_engine_compatibility', csv_row)
             self.assertIn('current_oem_cross_references', csv_row)
+            self.assertIn('current_brand', csv_row)
+            self.assertIn('current_brand_id', csv_row)
+            self.assertIn('current_category', csv_row)
+            self.assertIn('current_category_id', csv_row)
+            self.assertIn('current_description', csv_row)
             payload = json.loads(json_path.read_text(encoding='utf-8'))
             self.assertEqual(payload['summary']['total'], 1)
             self.assertEqual(payload['products'][0]['current_article'], 'CMD-PREV-1')
+            self.assertIn('generated_at', payload)
             self.assertIn('current_compatibility', payload['products'][0])
             self.assertIn('current_engine_compatibility', payload['products'][0])
             self.assertIn('current_oem_cross_references', payload['products'][0])
+            self.assertIn('current_brand', payload['products'][0])
+            self.assertIn('current_brand_id', payload['products'][0])
+            self.assertIn('current_category', payload['products'][0])
+            self.assertIn('current_category_id', payload['products'][0])
+            self.assertIn('current_description', payload['products'][0])
 
         product.refresh_from_db()
         self.assertEqual(product.title, before['title'])
@@ -279,6 +291,66 @@ class ProductEnrichmentPreviewTests(TestCase):
         self.assertIn('approved_fields', csv_row)
         self.assertIn('blocked_fields', csv_row)
         self.assertIn('dictionary_additions', csv_row)
+
+    def test_named_snapshot_requires_overwrite(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='SNAP-STEM-1',
+            slug='snap-stem-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            category=self.category,
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                title='Не сохранять',
+                confidence='likely',
+            )
+
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch(
+                'catalog.product_assistant.call_openai_product_lookup',
+                side_effect=fake_ai,
+            ):
+                call_command(
+                    'preview_product_enrichment',
+                    '--product-ids',
+                    str(product.pk),
+                    '--report',
+                    tmp,
+                    '--stem',
+                    'airfilters_20260902_v1',
+                )
+                json_path = Path(tmp) / 'airfilters_20260902_v1.json'
+                csv_path = Path(tmp) / 'airfilters_20260902_v1.csv'
+                self.assertTrue(json_path.exists())
+                self.assertTrue(csv_path.exists())
+                payload = json.loads(json_path.read_text(encoding='utf-8'))
+                self.assertTrue(payload.get('generated_at'))
+                self.assertEqual(payload.get('stem'), 'airfilters_20260902_v1')
+                with self.assertRaises(CommandError):
+                    call_command(
+                        'preview_product_enrichment',
+                        '--product-ids',
+                        str(product.pk),
+                        '--report',
+                        tmp,
+                        '--stem',
+                        'airfilters_20260902_v1',
+                    )
+                call_command(
+                    'preview_product_enrichment',
+                    '--product-ids',
+                    str(product.pk),
+                    '--report',
+                    tmp,
+                    '--stem',
+                    'airfilters_20260902_v1',
+                    '--overwrite',
+                )
+            self.assertTrue(json_path.exists())
 
 
 class ProductEnrichmentEvidenceTests(TestCase):

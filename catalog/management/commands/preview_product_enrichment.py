@@ -1,24 +1,36 @@
 import csv
 import json
+import re
+import subprocess
 from pathlib import Path
 
 from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
+from django.utils import timezone
 
 from catalog.models import Brand, CarModel, Category, Product
 from catalog.product_assistant import preview_enrichment_for_product
 
+DEFAULT_PREVIEW_STEM = 'product_enrichment_preview'
+STEM_RE = re.compile(r'^[A-Za-z0-9._-]+$')
 
 CSV_COLUMNS = (
     'product_id',
     'current_article',
     'current_title',
+    'current_brand',
+    'current_brand_id',
+    'current_category',
+    'current_category_id',
     'current_compatibility',
     'current_engine_compatibility',
     'current_oem_cross_references',
+    'current_description',
     'suggested_title',
     'suggested_brand',
+    'suggested_brand_id',
     'suggested_category',
+    'suggested_category_id',
     'suggested_compatibility',
     'suggested_engine_compatibility',
     'suggested_oem_cross_references',
@@ -53,6 +65,52 @@ def parse_product_ids(raw: str) -> list[int]:
         seen.add(value)
         ids.append(value)
     return ids
+
+
+def validate_preview_stem(stem: str) -> str:
+    text = str(stem or '').strip()
+    if not text or not STEM_RE.fullmatch(text) or text in {'.', '..'}:
+        raise CommandError(f'Некорректный --stem: {stem}')
+    return text
+
+
+def _git_snapshot_meta() -> dict:
+    meta: dict[str, str] = {}
+    root = Path(settings.BASE_DIR)
+    try:
+        commit = subprocess.check_output(
+            ['git', 'rev-parse', 'HEAD'],
+            cwd=root,
+            text=True,
+            timeout=3,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.SubprocessError):
+        return meta
+    if commit:
+        meta['git_commit'] = commit
+    try:
+        branch = subprocess.check_output(
+            ['git', 'rev-parse', '--abbrev-ref', 'HEAD'],
+            cwd=root,
+            text=True,
+            timeout=3,
+            stderr=subprocess.DEVNULL,
+        ).strip()
+    except (OSError, subprocess.SubprocessError):
+        branch = ''
+    if branch:
+        meta['git_branch'] = branch
+    return meta
+
+
+def build_snapshot_metadata(stem: str) -> dict:
+    meta = {
+        'generated_at': timezone.now().isoformat(),
+        'stem': stem,
+    }
+    meta.update(_git_snapshot_meta())
+    return meta
 
 
 def _join_notes(notes) -> str:
@@ -102,7 +160,13 @@ def _join_list(items) -> str:
     return ', '.join(str(item).strip() for item in items or [] if str(item).strip())
 
 
-def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem: str = 'product_enrichment_preview'):
+def write_enrichment_preview_reports(
+    rows: list[dict],
+    *,
+    report_dir: Path,
+    stem: str = DEFAULT_PREVIEW_STEM,
+    metadata: dict | None = None,
+):
     report_dir.mkdir(parents=True, exist_ok=True)
     csv_path = report_dir / f'{stem}.csv'
     json_path = report_dir / f'{stem}.json'
@@ -114,12 +178,19 @@ def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem
                 'product_id': row.get('product_id') or '',
                 'current_article': row.get('current_article') or '',
                 'current_title': row.get('current_title') or '',
+                'current_brand': row.get('current_brand') or '',
+                'current_brand_id': '' if row.get('current_brand_id') in (None, '') else row.get('current_brand_id'),
+                'current_category': row.get('current_category') or '',
+                'current_category_id': '' if row.get('current_category_id') in (None, '') else row.get('current_category_id'),
                 'current_compatibility': row.get('current_compatibility') or '',
                 'current_engine_compatibility': row.get('current_engine_compatibility') or '',
                 'current_oem_cross_references': row.get('current_oem_cross_references') or '',
+                'current_description': row.get('current_description') or '',
                 'suggested_title': row.get('suggested_title') or '',
                 'suggested_brand': row.get('suggested_brand') or '',
+                'suggested_brand_id': '' if row.get('suggested_brand_id') in (None, '') else row.get('suggested_brand_id'),
                 'suggested_category': row.get('suggested_category') or '',
+                'suggested_category_id': '' if row.get('suggested_category_id') in (None, '') else row.get('suggested_category_id'),
                 'suggested_compatibility': row.get('suggested_compatibility') or '',
                 'suggested_engine_compatibility': row.get('suggested_engine_compatibility') or '',
                 'suggested_oem_cross_references': row.get('suggested_oem_cross_references') or '',
@@ -139,19 +210,15 @@ def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem
                 ),
                 'unresolved_fields': _join_unresolved(row.get('unresolved_fields')),
             })
+    payload = dict(metadata or {})
+    payload['summary'] = {
+        'total': len(rows),
+        'ok': sum(1 for item in rows if item.get('ok')),
+        'missing': sum(1 for item in rows if item.get('error') == 'не найден'),
+    }
+    payload['products'] = rows
     json_path.write_text(
-        json.dumps(
-            {
-                'summary': {
-                    'total': len(rows),
-                    'ok': sum(1 for item in rows if item.get('ok')),
-                    'missing': sum(1 for item in rows if item.get('error') == 'не найден'),
-                },
-                'products': rows,
-            },
-            ensure_ascii=False,
-            indent=2,
-        ),
+        json.dumps(payload, ensure_ascii=False, indent=2),
         encoding='utf-8',
     )
     return csv_path, json_path
@@ -175,11 +242,35 @@ class Command(BaseCommand):
             default='',
             help='Каталог для CSV/JSON. По умолчанию var/reports/',
         )
+        parser.add_argument(
+            '--stem',
+            default='',
+            help=(
+                'Имя immutable snapshot без расширения. '
+                f'По умолчанию {DEFAULT_PREVIEW_STEM} (можно перезаписывать).'
+            ),
+        )
+        parser.add_argument(
+            '--overwrite',
+            action='store_true',
+            default=False,
+            help='Разрешить перезапись существующего именованного snapshot.',
+        )
 
     def handle(self, *args, **options):
         ids = parse_product_ids(options.get('product_ids') or '')
         if not ids:
             raise CommandError('Укажите --product-ids')
+
+        explicit_stem = str(options.get('stem') or '').strip()
+        stem = validate_preview_stem(explicit_stem or DEFAULT_PREVIEW_STEM)
+        report_dir = Path(options['report'] or (Path(settings.BASE_DIR) / 'var' / 'reports'))
+        csv_path = report_dir / f'{stem}.csv'
+        json_path = report_dir / f'{stem}.json'
+        if explicit_stem and not options.get('overwrite') and (csv_path.exists() or json_path.exists()):
+            raise CommandError(
+                f'Snapshot «{stem}» уже существует. Укажите --overwrite, чтобы заменить.'
+            )
 
         products = list(
             Product.objects.filter(pk__in=ids).select_related(
@@ -223,12 +314,19 @@ class Command(BaseCommand):
                     'product_id': product_id,
                     'current_article': '',
                     'current_title': '',
+                    'current_brand': '',
+                    'current_brand_id': None,
+                    'current_category': '',
+                    'current_category_id': None,
                     'current_compatibility': '',
                     'current_engine_compatibility': '',
                     'current_oem_cross_references': '',
+                    'current_description': '',
                     'suggested_title': '',
                     'suggested_brand': '',
+                    'suggested_brand_id': None,
                     'suggested_category': '',
+                    'suggested_category_id': None,
                     'suggested_compatibility': '',
                     'suggested_engine_compatibility': '',
                     'suggested_oem_cross_references': '',
@@ -259,8 +357,13 @@ class Command(BaseCommand):
                 f"unresolved={len(row.get('unresolved_fields') or [])}"
             )
 
-        report_dir = Path(options['report'] or (Path(settings.BASE_DIR) / 'var' / 'reports'))
-        csv_path, json_path = write_enrichment_preview_reports(rows, report_dir=report_dir)
+        metadata = build_snapshot_metadata(stem)
+        csv_path, json_path = write_enrichment_preview_reports(
+            rows,
+            report_dir=report_dir,
+            stem=stem,
+            metadata=metadata,
+        )
 
         for product in Product.objects.filter(pk__in=snapshots):
             before = snapshots[product.pk]
