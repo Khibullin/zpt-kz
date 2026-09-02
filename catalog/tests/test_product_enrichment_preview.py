@@ -246,9 +246,15 @@ class ProductEnrichmentPreviewTests(TestCase):
             for token in DIRTY_TOKENS:
                 self.assertNotIn(token, public)
             self.assertEqual(str(csv_row['product_id']), str(product.pk))
+            self.assertIn('current_compatibility', csv_row)
+            self.assertIn('current_engine_compatibility', csv_row)
+            self.assertIn('current_oem_cross_references', csv_row)
             payload = json.loads(json_path.read_text(encoding='utf-8'))
             self.assertEqual(payload['summary']['total'], 1)
             self.assertEqual(payload['products'][0]['current_article'], 'CMD-PREV-1')
+            self.assertIn('current_compatibility', payload['products'][0])
+            self.assertIn('current_engine_compatibility', payload['products'][0])
+            self.assertIn('current_oem_cross_references', payload['products'][0])
 
         product.refresh_from_db()
         self.assertEqual(product.title, before['title'])
@@ -903,3 +909,86 @@ class ProductEnrichmentApprovalTests(TestCase):
         self.assertIn('approved_fields', row)
         self.assertIn('blocked_fields', row)
         self.assertIn('dictionary_additions', row)
+
+    def test_existing_compatibility_unchanged_after_identical_merge(self):
+        product = _product(
+            title='Фильтр воздушный JAC S5',
+            article='JAC-S5-2140',
+            slug='jac-s5-2140',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            category=self.category,
+            compatibility='JAC S5',
+            engine_compatibility='',
+            oem_cross_references='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                models=['S5'],
+                compatibility='JAC S5',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('jac-s5', 'jac-s5-2140'),
+            )
+
+        before = product.compatibility
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['current_compatibility'], 'JAC S5')
+        self.assertEqual(row['suggested_compatibility'], 'JAC S5')
+        self.assertEqual(row['field_decisions']['compatibility'], 'unchanged')
+        self.assertNotIn('compatibility', row['approved_fields'])
+        product.refresh_from_db()
+        self.assertEqual(product.compatibility, before)
+
+    def test_confirmed_new_model_approves_existing_compatibility(self):
+        product = _product(
+            title='Фильтр воздушный Jetour',
+            article='F081109111HD',
+            slug='jetour-2141-compat',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            category=self.category,
+            compatibility='Jetour X70, Dashing, X90 Plus; 2022–2025',
+            engine_compatibility='',
+            oem_cross_references='',
+        )
+        counts = (
+            Product.objects.count(),
+            Brand.objects.count(),
+            Category.objects.count(),
+            CarModel.objects.count(),
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                models=['X70', 'X70 Plus', 'Dashing', 'X90 Plus'],
+                compatibility='Jetour X70, Dashing, X90 Plus; 2022–2025',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('f081109111hd', 'x70-plus'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(
+            row['current_compatibility'],
+            'Jetour X70, Dashing, X90 Plus; 2022–2025',
+        )
+        self.assertIn('X70 Plus', row['suggested_compatibility'])
+        self.assertNotEqual(row['suggested_compatibility'], row['current_compatibility'])
+        self.assertEqual(row['field_decisions']['compatibility'], 'approved')
+        self.assertIn('compatibility', row['approved_fields'])
+        product.refresh_from_db()
+        self.assertEqual(
+            product.compatibility,
+            'Jetour X70, Dashing, X90 Plus; 2022–2025',
+        )
+        self.assertEqual(
+            (
+                Product.objects.count(),
+                Brand.objects.count(),
+                Category.objects.count(),
+                CarModel.objects.count(),
+            ),
+            counts,
+        )

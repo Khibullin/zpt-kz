@@ -1508,6 +1508,13 @@ def preview_enrichment_for_product(
                     brand_name=current_brand or _canonical_brand_label(ai_brand),
                 )
             fields[name] = merged
+            if (
+                name == 'compatibility'
+                and decision == 'public'
+                and ' '.join(str(merged or '').split())
+                != ' '.join(str(current_clean or '').split())
+            ):
+                new_public.add('compatibility')
             if ai_clean and ai_clean.strip() != current_clean.strip():
                 notes.append({
                     'text': (
@@ -1840,6 +1847,9 @@ def preview_enrichment_for_product(
         'product_id': product.pk,
         'current_article': product.article or '',
         'current_title': product.title or '',
+        'current_compatibility': product.compatibility or '',
+        'current_engine_compatibility': product.engine_compatibility or '',
+        'current_oem_cross_references': product.oem_cross_references or '',
         'suggested_title': fields.get('title') or '',
         'suggested_brand': fields.get('brand_name') or '',
         'suggested_category': fields.get('category_name') or '',
