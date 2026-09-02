@@ -932,6 +932,186 @@ class ProductEnrichmentApprovalTests(TestCase):
         self.assertIn('Poer', description)
         self.assertEqual(row['field_decisions']['description'], 'approved')
 
+    def test_ai_dimensions_do_not_enter_suggested_description(self):
+        product = _product(
+            title='Фильтр воздушный Chery Tiggo 7',
+            article='DESC-2137',
+            slug='desc-2137',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.chery,
+            category=None,
+            compatibility='Chery Tiggo 7',
+            engine_compatibility='',
+            description='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Chery',
+                category='Воздушные фильтры',
+                compatibility='Chery Tiggo 7',
+                engine_compatibility='1.5 Turbo',
+                description=(
+                    'Воздушный фильтр, около 260 × 165–172 × 45–54 мм, '
+                    'материал бумага, упаковка 1 шт.'
+                ),
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('chery-tiggo-2137', 'desc-2137'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        description = row['suggested_description']
+        self.assertNotIn('260', description)
+        self.assertNotIn('165', description)
+        self.assertNotIn('мм', description.casefold())
+        self.assertNotIn('бумага', description.casefold())
+        self.assertNotIn('упаковка', description.casefold())
+        self.assertIn('Chery Tiggo 7', description)
+        self.assertEqual(row['field_decisions']['description'], 'approved')
+
+    def test_ai_unrelated_chery_claim_does_not_enter_jetour_description(self):
+        product = _product(
+            title='Воздушный фильтр Jetour X70 / Dashing / X90 Plus — F081109111HD',
+            article='F081109111HD-DESC',
+            slug='desc-2141-jetour',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='Jetour X70, Dashing, X90 Plus; 2022–2025',
+            description='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Chery',
+                category='Воздушные фильтры',
+                models=['X70 Plus'],
+                compatibility='Jetour X70, Dashing, X90 Plus; 2022–2025',
+                description=(
+                    'Фильтр для автомобилей Chery с совместимой системой фильтрации'
+                ),
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('f081109111hd-desc', 'x70-plus-desc'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        description = row['suggested_description']
+        self.assertNotIn('Chery', description)
+        self.assertIn('Jetour X70, Dashing, X90 Plus; 2022–2025', description)
+        self.assertEqual(row['field_decisions']['description'], 'approved')
+
+    def test_blocked_engine_does_not_enter_generated_description(self):
+        product = _product(
+            title='Фильтр воздушный GWM Poer',
+            article='DESC-ENGINE-BLOCK',
+            slug='desc-engine-block',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='',
+            engine_compatibility='',
+            description='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Great Wall',
+                category='Воздушные фильтры',
+                compatibility='GWM Poer',
+                engine_compatibility='3.0 Turbo',
+                description='Подходит для двигателя 3.0 Turbo.',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('gwm-poer-engine-desc', 'desc-engine-block'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['field_decisions']['engine_compatibility'], 'blocked')
+        self.assertNotIn('3.0', row['suggested_description'])
+        self.assertNotIn('Turbo', row['suggested_description'])
+        self.assertIn('GWM Poer', row['suggested_description'])
+
+    def test_clean_existing_description_remains_unchanged(self):
+        product = _product(
+            title='Воздушный фильтр Jetour X70',
+            article='DESC-KEEP-CLEAN',
+            slug='desc-keep-clean',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=self.category,
+            compatibility='Jetour X70, Dashing, X90 Plus; 2022–2025',
+            description='Воздушный фильтр для Jetour X70.',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                category='Воздушные фильтры',
+                compatibility='Jetour X70, Dashing, X90 Plus; 2022–2025, X70 Plus',
+                description='Около 260 × 165 мм. Для автомобилей Chery.',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('desc-keep-clean', 'x70-plus-keep'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['suggested_description'], 'Воздушный фильтр для Jetour X70.')
+        self.assertEqual(row['field_decisions']['description'], 'unchanged')
+        self.assertNotIn('description', row['approved_fields'])
+        self.assertNotIn('260', row['suggested_description'])
+        self.assertNotIn('Chery', row['suggested_description'])
+
+    def test_structured_description_preview_writes_nothing(self):
+        product = _product(
+            title='Фильтр воздушный Chery Tiggo 7',
+            article='DESC-NO-WRITE',
+            slug='desc-no-write',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.chery,
+            category=self.category,
+            compatibility='Chery Tiggo 7',
+            description='',
+        )
+        counts = (
+            Product.objects.count(),
+            Brand.objects.count(),
+            Category.objects.count(),
+            CarModel.objects.count(),
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Chery',
+                category='Воздушные фильтры',
+                compatibility='Chery Tiggo 7',
+                description='около 260 × 165 мм, упаковка 2 шт.',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('desc-no-write', 'tiggo-7-desc'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        product.refresh_from_db()
+        self.assertEqual(product.description, '')
+        self.assertEqual(product.title, 'Фильтр воздушный Chery Tiggo 7')
+        self.assertEqual(
+            (
+                Product.objects.count(),
+                Brand.objects.count(),
+                Category.objects.count(),
+                CarModel.objects.count(),
+            ),
+            counts,
+        )
+        self.assertTrue(row['suggested_description'])
+        self.assertNotIn('260', row['suggested_description'])
+
     def test_approval_preview_writes_nothing(self):
         product = _product(
             title='Фильтр',

@@ -1280,6 +1280,47 @@ def _description_mentions_blocked(text: str, blocked_values: list[str]) -> bool:
     return False
 
 
+def _structured_description_inputs(
+    *,
+    product: Product,
+    fields: dict[str, Any],
+    field_decisions: dict[str, str],
+) -> dict[str, str]:
+    """Public description may use only approved or clean current structured facts."""
+    current_title = _preview_current_clean(product, 'title')
+    current_brand = product.brand.name if product.brand_id and product.brand else ''
+    current_category = (
+        product.category.name if product.category_id and product.category else ''
+    )
+    current_compat = _preview_current_clean(product, 'compatibility')
+    if field_decisions.get('title') == 'approved':
+        title = fields.get('title') or ''
+    else:
+        title = current_title
+    if field_decisions.get('brand') == 'approved':
+        brand = fields.get('brand_name') or ''
+    else:
+        brand = current_brand
+    if field_decisions.get('category') == 'approved':
+        category = fields.get('category_name') or ''
+    else:
+        category = current_category
+    if field_decisions.get('compatibility') == 'approved':
+        compatibility = fields.get('compatibility') or ''
+    else:
+        compatibility = current_compat
+    engine = ''
+    if field_decisions.get('engine_compatibility') == 'approved':
+        engine = fields.get('engine_compatibility') or ''
+    return {
+        'title': title,
+        'brand': brand,
+        'category': category,
+        'compatibility': compatibility,
+        'engine_compatibility': engine,
+    }
+
+
 def _description_from_approved(values: dict[str, str]) -> str:
     parts: list[str] = []
     title = ' '.join(str(values.get('title') or '').split())
@@ -1293,6 +1334,8 @@ def _description_from_approved(values: dict[str, str]) -> str:
         parts.append(f'{category} {brand}.')
     elif category:
         parts.append(f'{category}.')
+    elif brand:
+        parts.append(f'{brand}.')
     if compatibility:
         parts.append(f'Применимость: {compatibility}.')
     if engines:
@@ -1775,48 +1818,43 @@ def preview_enrichment_for_product(
         field_gates=field_gates,
     )
 
-    blocked_tokens: list[str] = []
-    if field_decisions.get('engine_compatibility') != 'approved':
-        blocked_tokens.extend(
-            item for item in str(fields.get('engine_compatibility') or '').split('\n') if item.strip()
-        )
-    if field_decisions.get('oem_cross_references') != 'approved':
-        blocked_tokens.extend(
-            item for item in str(fields.get('oem_cross_references') or '').split('\n') if item.strip()
-        )
-    approved_for_description = {
-        'title': fields.get('title') or '' if field_decisions.get('title') == 'approved' else (_preview_current_clean(product, 'title')),
-        'brand': fields.get('brand_name') or '' if field_decisions.get('brand') in {'approved', 'blocked'} else '',
-        'category': fields.get('category_name') or '',
-        'compatibility': fields.get('compatibility') or '' if field_decisions.get('compatibility') == 'approved' else _preview_current_clean(product, 'compatibility'),
-        'engine_compatibility': fields.get('engine_compatibility') or '' if field_decisions.get('engine_compatibility') == 'approved' else '',
-    }
-    if field_decisions.get('brand') == 'blocked' and fields.get('brand_name'):
-        approved_for_description['brand'] = fields.get('brand_name') or ''
-    current_description = _preview_current_clean(product, 'description')
-    ai_description = _preview_clean_text(
-        (enrichment.description if enrichment is not None else '') or '',
-        field='description',
+    approved_for_description = _structured_description_inputs(
+        product=product,
+        fields=fields,
+        field_decisions=field_decisions,
     )
-    safe_generated = _description_from_approved(approved_for_description)
-    if current_description and not detect_internal_research_text(current_description):
-        fields['description'] = current_description
+    current_raw_description = product.description or ''
+    current_description_clean = bool(str(current_raw_description).strip()) and not detect_internal_research_text(
+        current_raw_description
+    )
+    ai_description_raw = (
+        (enrichment.description if enrichment is not None else '') or ''
+    )
+    if str(ai_description_raw).strip():
+        notes.append({
+            'text': (
+                'description: AI-текст не публикуется напрямую; '
+                f'кандидат оставлен в notes: {ai_description_raw}'
+            ),
+            'severity': 'info',
+        })
+    if current_description_clean:
+        fields['description'] = current_raw_description
         field_decisions['description'] = 'unchanged'
-    elif ai_description and not _description_mentions_blocked(ai_description, blocked_tokens):
-        fields['description'] = ai_description
-        if web_search_used and source_count >= 1:
+        new_public.discard('description')
+    else:
+        safe_generated = _preview_clean_text(
+            _description_from_approved(approved_for_description),
+            field='description',
+        )
+        if safe_generated:
+            fields['description'] = safe_generated
             field_decisions['description'] = 'approved'
             new_public.add('description')
         else:
-            field_decisions['description'] = 'blocked'
-            blocked_reasons['description'] = 'unresolved evidence'
-    elif safe_generated:
-        fields['description'] = safe_generated
-        field_decisions['description'] = 'approved'
-        new_public.add('description')
-    else:
-        fields['description'] = ''
-        field_decisions['description'] = 'unchanged'
+            fields['description'] = ''
+            field_decisions['description'] = 'unchanged'
+            new_public.discard('description')
 
     approved_fields = [name for name in APPROVAL_FIELDS if field_decisions.get(name) == 'approved']
     blocked_fields = [name for name in APPROVAL_FIELDS if field_decisions.get(name) == 'blocked']
