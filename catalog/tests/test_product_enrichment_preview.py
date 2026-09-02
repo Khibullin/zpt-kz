@@ -266,3 +266,350 @@ class ProductEnrichmentPreviewTests(TestCase):
         self.assertEqual(Product.objects.count(), products)
         self.assertFalse(Brand.objects.filter(name='NewGhostBrand').exists())
         self.assertFalse(Category.objects.filter(name='НоваяКатегорияXYZ').exists())
+        self.assertIn('web_search_used', csv_row)
+        self.assertIn('source_count', csv_row)
+        self.assertIn('evidence_notes', csv_row)
+        self.assertIn('ai_used', csv_row)
+
+
+class ProductEnrichmentEvidenceTests(TestCase):
+    def setUp(self):
+        self.country = Country.objects.create(name='Китай Evidence')
+        self.brand = Brand.objects.create(country=self.country, name='Chery')
+        self.lexus = Brand.objects.create(country=self.country, name='Lexus')
+        self.lifan = Brand.objects.create(country=self.country, name='LIFAN')
+        self.model = CarModel.objects.create(brand=self.brand, name='Tiggo 7')
+        self.category = Category.objects.create(name='Фильтры')
+        self.seller = _seller('evidence-seller', 'AG Parts Evidence', '77770000812')
+
+    def test_target_product_alone_cannot_produce_likely_for_missing_facts(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='SELF-EVIDENCE-1',
+            slug='self-evidence-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=self.category,
+            compatibility='',
+            engine_compatibility='',
+            oem_cross_references='',
+        )
+        from catalog.product_assistant import find_products_by_article
+        self.assertEqual(
+            find_products_by_article(product.article, exclude_product_id=product.pk),
+            [],
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Lexus',
+                compatibility='LIFAN 320, 330, Smily New — 1.3 л',
+                confidence='confirmed',
+                web_search_used=False,
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['confidence'], 'needs_verification')
+        self.assertNotIn(row['confidence'], {'likely', 'confirmed'})
+        self.assertEqual(row['suggested_brand'], '')
+        self.assertEqual(row['suggested_compatibility'], '')
+        self.assertFalse(row['web_search_used'])
+        self.assertEqual(row['source_count'], 0)
+
+    def test_web_search_call_action_sources_are_captured(self):
+        from catalog.product_assistant import _walk_openai_text
+        payload = {
+            'output': [
+                {
+                    'type': 'web_search_call',
+                    'status': 'completed',
+                    'action': {
+                        'type': 'search',
+                        'query': 'FAE1109160 filter',
+                        'sources': [
+                            {'url': 'https://example.com/a', 'title': 'Catalog A'},
+                            {'url': 'https://example.com/b', 'title': 'Catalog B'},
+                        ],
+                    },
+                },
+                {
+                    'type': 'web_search_call',
+                    'action': {
+                        'type': 'open_page',
+                        'url': 'https://example.com/page',
+                        'title': 'Opened page',
+                    },
+                },
+                {
+                    'type': 'web_search_call',
+                    'action': {
+                        'type': 'find_in_page',
+                        'url': 'https://example.com/page#oem',
+                    },
+                },
+                {
+                    'type': 'message',
+                    'content': [{
+                        'type': 'output_text',
+                        'text': '{"title":"x"}',
+                        'annotations': [{
+                            'type': 'url_citation',
+                            'url': 'https://example.com/a',
+                            'title': 'duplicate A',
+                        }],
+                    }],
+                },
+            ]
+        }
+        text, sources, web_search_used = _walk_openai_text(payload)
+        self.assertTrue(web_search_used)
+        urls = [item['url'] for item in sources]
+        self.assertEqual(urls.count('https://example.com/a'), 1)
+        self.assertIn('https://example.com/b', urls)
+        self.assertIn('https://example.com/page', urls)
+        self.assertIn('https://example.com/page#oem', urls)
+        self.assertIn('{"title":"x"}', text)
+
+    def test_no_web_search_sources_do_not_confirm_new_public_facts(self):
+        product = _product(
+            title='Фильтр',
+            article='NO-SRC-1',
+            slug='no-src-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=self.category,
+            compatibility='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Chery',
+                compatibility='Chery Tiggo 7',
+                engine_compatibility='1.5 Turbo',
+                oem_cross_references='28113-2S000',
+                confidence='confirmed',
+                web_search_used=False,
+                sources=[],
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['confidence'], 'needs_verification')
+        self.assertEqual(row['suggested_brand'], '')
+        self.assertEqual(row['suggested_compatibility'], '')
+        self.assertEqual(row['suggested_engine_compatibility'], '')
+        self.assertEqual(row['suggested_oem_cross_references'], '')
+        notes = ' '.join(item['text'] for item in row['research_notes'])
+        self.assertIn('Chery Tiggo 7', notes)
+
+    def test_lexus_lifan_is_brand_compatibility_conflict(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='FAE1109160',
+            slug='fae1109160',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=self.category,
+            compatibility='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Lexus',
+                compatibility='LIFAN 320, 330, Smily New — 1.3 л',
+                confidence='likely',
+                web_search_used=True,
+                sources=[
+                    {'title': 'One', 'url': 'https://example.com/one'},
+                    {'title': 'Two', 'url': 'https://example.com/two'},
+                ],
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        blob = ' '.join(
+            item['text'] for item in (row['research_notes'] + row['evidence_notes'])
+        )
+        self.assertIn('BRAND_COMPATIBILITY_CONFLICT', blob)
+        self.assertEqual(row['confidence'], 'needs_verification')
+        self.assertEqual(row['suggested_brand'], '')
+        self.assertNotIn(row['confidence'], {'likely', 'confirmed'})
+
+    def test_air_filter_alias_maps_to_existing_filters_category(self):
+        product = _product(
+            title='Фильтр воздушный JAC',
+            article='F081109111HD',
+            slug='f081109111hd',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+        )
+        from catalog.product_assistant import _match_category
+        self.assertEqual(
+            _match_category('Воздушные фильтры').name,
+            'Фильтры',
+        )
+        self.assertEqual(_match_category('Воздушный фильтр').pk, self.category.pk)
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                category='Воздушные фильтры',
+                confidence='likely',
+            )
+
+        before = Category.objects.count()
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['suggested_category'], 'Фильтры')
+        self.assertEqual(Category.objects.count(), before)
+
+    def test_missing_carmodel_does_not_blank_confirmed_compatibility(self):
+        product = _product(
+            title='Фильтр воздушный Jetour',
+            article='JET-X70-1',
+            slug='jet-x70-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=self.category,
+            compatibility='',
+        )
+        models_before = CarModel.objects.count()
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                models=['X70 Plus', 'X90 Plus'],
+                compatibility='Jetour X70 Plus / X90 Plus',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=[
+                    {'title': 'Src1', 'url': 'https://example.com/jetour-1'},
+                    {'title': 'Src2', 'url': 'https://example.com/jetour-2'},
+                ],
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['suggested_compatibility'], 'Jetour X70 Plus / X90 Plus')
+        self.assertEqual(CarModel.objects.count(), models_before)
+        self.assertFalse(CarModel.objects.filter(name__icontains='X70 Plus').exists())
+        unmatched = ' '.join(row.get('unmatched') or [])
+        self.assertIn('X70 Plus', unmatched)
+        self.assertTrue(any('CarModel' in item['text'] for item in row['research_notes']) or 'CarModel' in unmatched)
+
+    def test_fragmented_oem_is_rejected(self):
+        product = _product(
+            title='Фильтр',
+            article='FRAG-OEM-1',
+            slug='frag-oem-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            category=self.category,
+            oem_cross_references='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                oem_cross_references='AG 302 ECO SA SB 8147 A1003 A-1180 SB 3250 71-01286-SX',
+                confidence='likely',
+                web_search_used=True,
+                sources=[
+                    {'title': 'One', 'url': 'https://example.com/oem-1'},
+                    {'title': 'Two', 'url': 'https://example.com/oem-2'},
+                ],
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['suggested_oem_cross_references'], '')
+        notes = ' '.join(item['text'] for item in row['research_notes'] + row['evidence_notes'])
+        self.assertTrue('OEM_FRAGMENTED' in notes or 'AG' in notes)
+
+    def test_valid_source_backed_oem_is_retained(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='1109130U1510',
+            slug='valid-oem-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            category=self.category,
+            oem_cross_references='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                oem_cross_references='1109130U1510\nF081109111HD\nF08-1109111HD\n28113-2S000',
+                confidence='likely',
+                web_search_used=True,
+                sources=[
+                    {'title': 'JAC', 'url': 'https://example.com/1109130u1510'},
+                    {'title': 'Cross', 'url': 'https://example.com/28113-2s000'},
+                ],
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        oem = row['suggested_oem_cross_references']
+        self.assertNotIn('1109130U1510', oem.split('\n'))
+        self.assertIn('F081109111HD', oem)
+        self.assertIn('F08-1109111HD', oem)
+        self.assertIn('28113-2S000', oem)
+
+    def test_preview_never_writes_catalog_rows(self):
+        product = _product(
+            title='Фильтр',
+            article='WRITE-GUARD-1',
+            slug='write-guard-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=self.brand,
+            category=self.category,
+            price=9999,
+            status='hidden',
+            stock_qty=3,
+        )
+        before = {
+            'price': product.price,
+            'status': product.status,
+            'stock_qty': product.stock_qty,
+            'seller_profile_id': product.seller_profile_id,
+            'title': product.title,
+        }
+        counts = (
+            Product.objects.count(),
+            Brand.objects.count(),
+            Category.objects.count(),
+            CarModel.objects.count(),
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='GhostBrand',
+                category='GhostCategory',
+                models=['Unknown X'],
+                compatibility='Ghost Car',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=[
+                    {'title': 'A', 'url': 'https://example.com/a'},
+                    {'title': 'B', 'url': 'https://example.com/b'},
+                ],
+            )
+
+        preview_enrichment_for_product(product, openai_caller=fake_ai)
+        product.refresh_from_db()
+        self.assertEqual(product.price, before['price'])
+        self.assertEqual(product.status, before['status'])
+        self.assertEqual(product.stock_qty, before['stock_qty'])
+        self.assertEqual(product.seller_profile_id, before['seller_profile_id'])
+        self.assertEqual(product.title, before['title'])
+        self.assertEqual(
+            (
+                Product.objects.count(),
+                Brand.objects.count(),
+                Category.objects.count(),
+                CarModel.objects.count(),
+            ),
+            counts,
+        )
+        self.assertFalse(Brand.objects.filter(name='GhostBrand').exists())
+        self.assertFalse(Category.objects.filter(name='GhostCategory').exists())
+        self.assertFalse(CarModel.objects.filter(name='Unknown X').exists())

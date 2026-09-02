@@ -23,6 +23,7 @@ from catalog.product_quality import (
     normalize_research_notes,
     prefer_public_field,
     research_notes_from_removed,
+    sanitize_oem_research,
     sanitize_oem_text,
     sanitize_public_product_text,
     split_public_sentences,
@@ -33,6 +34,30 @@ logger = logging.getLogger(__name__)
 OPENAI_RESPONSES_URL = 'https://api.openai.com/v1/responses'
 DEFAULT_PRODUCT_AI_MODEL = 'gpt-5.6-luna'
 OPENAI_TIMEOUT = 25
+OPENAI_RESEARCH_TIMEOUT = 90
+FILTER_CATEGORY_NAME = 'Фильтры'
+FILTER_CATEGORY_ALIASES = frozenset({
+    'фильтры',
+    'воздушные фильтры',
+    'воздушный фильтр',
+    'масляные фильтры',
+    'масляный фильтр',
+    'салонные фильтры',
+    'салонный фильтр',
+    'автомобильные фильтры',
+    'автомобильный фильтр',
+    'топливные фильтры',
+    'топливный фильтр',
+    'air filter',
+    'air filters',
+    'oil filter',
+    'cabin filter',
+    'cabin filters',
+})
+_HTTP_URL_RE = re.compile(r'https?://[^\s)>\]]+', re.I)
+_COMPAT_BRAND_TOKEN = re.compile(
+    r'^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9\-]*',
+)
 CONFIDENCE_RANK = {
     'confirmed': 0,
     'likely': 1,
@@ -54,6 +79,7 @@ class OpenAIEnrichment:
     research_notes: list[dict[str, str]] = field(default_factory=list)
     confidence: str = 'needs_verification'
     sources: list[dict[str, str]] = field(default_factory=list)
+    web_search_used: bool = False
 
 
 def _most_common(values: list[Any]) -> Any | None:
@@ -86,11 +112,28 @@ def _merge_plain_lists(values: list[str]) -> str:
     return '\n'.join(items)
 
 
-def find_products_by_article(article: str) -> list[Product]:
+def find_products_by_article(
+    article: str,
+    *,
+    exclude_product_ids: list[int] | tuple[int, ...] | set[int] | None = None,
+    exclude_product_id: int | None = None,
+) -> list[Product]:
     raw = display_article(article)
     key = normalize_article(raw)
     if not key:
         return []
+
+    excluded: set[int] = set()
+    for item in exclude_product_ids or []:
+        try:
+            excluded.add(int(item))
+        except (TypeError, ValueError):
+            continue
+    if exclude_product_id:
+        try:
+            excluded.add(int(exclude_product_id))
+        except (TypeError, ValueError):
+            pass
 
     qs = Product.objects.select_related(
         'brand',
@@ -98,6 +141,8 @@ def find_products_by_article(article: str) -> list[Product]:
         'car_model',
         'category',
     ).prefetch_related('selected_models', 'selected_brands')
+    if excluded:
+        qs = qs.exclude(pk__in=excluded)
 
     matches = list(
         qs.filter(Q(article__iexact=raw) | Q(article__iexact=key))
@@ -115,12 +160,28 @@ def find_products_by_article(article: str) -> list[Product]:
             )
 
     for product in extras:
-        if product.pk in matched_ids:
+        if product.pk in matched_ids or product.pk in excluded:
             continue
         if normalize_article(product.article) == key:
             matches.append(product)
             matched_ids.add(product.pk)
     return matches
+
+
+def _is_filter_category_alias(name: str) -> bool:
+    text = ' '.join((name or '').split()).casefold()
+    if not text:
+        return False
+    if text in FILTER_CATEGORY_ALIASES:
+        return True
+    return bool(
+        re.search(
+            r'(воздушн|маслян|салонн|автомобильн|топливн).{0,20}фильтр'
+            r'|фильтр.{0,20}(воздушн|маслян|салонн|автомобильн|топливн)',
+            text,
+            re.I,
+        )
+    )
 
 
 def _match_category(name: str, *, title: str = '') -> Category | None:
@@ -131,6 +192,10 @@ def _match_category(name: str, *, title: str = '') -> Category | None:
             found = Category.objects.filter(name__iexact=preferred).first()
             if found:
                 return found
+    if _is_filter_category_alias(text) or _is_filter_category_alias(title):
+        found = Category.objects.filter(name__iexact=FILTER_CATEGORY_NAME).first()
+        if found:
+            return found
     if not text:
         return None
     exact = list(Category.objects.filter(name__iexact=text)[:2])
@@ -229,7 +294,64 @@ def _extract_json_object(text: str) -> dict[str, Any]:
     return payload
 
 
-def _walk_openai_text(payload: dict[str, Any]) -> tuple[str, list[dict[str, str]]]:
+def _add_http_source(
+    sources: list[dict[str, str]],
+    seen: set[str],
+    url: str,
+    title: str = '',
+) -> None:
+    raw = str(url or '').strip()
+    if not raw:
+        return
+    if raw.startswith(('http://', 'https://')):
+        href = raw
+    else:
+        match = _HTTP_URL_RE.search(raw)
+        if not match:
+            return
+        href = match.group(0)
+    if href in seen:
+        return
+    seen.add(href)
+    label = str(title or '').strip() or href
+    sources.append({'title': label, 'url': href})
+
+
+def _collect_action_urls(action: dict[str, Any], sources: list[dict[str, str]], seen: set[str]) -> None:
+    if not isinstance(action, dict):
+        return
+    action_type = str(action.get('type') or '').strip()
+    for src in action.get('sources') or []:
+        if isinstance(src, dict):
+            _add_http_source(
+                sources,
+                seen,
+                str(src.get('url') or src.get('href') or ''),
+                str(src.get('title') or src.get('text') or ''),
+            )
+        elif isinstance(src, str):
+            _add_http_source(sources, seen, src)
+    if action_type in {'open_page', 'find_in_page'} or action.get('url'):
+        _add_http_source(
+            sources,
+            seen,
+            str(action.get('url') or action.get('href') or ''),
+            str(action.get('title') or ''),
+        )
+    for key in ('open_page', 'find_in_page'):
+        nested = action.get(key)
+        if isinstance(nested, dict):
+            _add_http_source(
+                sources,
+                seen,
+                str(nested.get('url') or nested.get('href') or ''),
+                str(nested.get('title') or ''),
+            )
+        elif isinstance(nested, str):
+            _add_http_source(sources, seen, nested)
+
+
+def _walk_openai_text(payload: dict[str, Any]) -> tuple[str, list[dict[str, str]], bool]:
     if payload.get('output_text'):
         text = str(payload.get('output_text') or '')
     else:
@@ -247,9 +369,23 @@ def _walk_openai_text(payload: dict[str, Any]) -> tuple[str, list[dict[str, str]
 
     sources: list[dict[str, str]] = []
     seen: set[str] = set()
+    web_search_used = False
     for item in payload.get('output') or []:
         if not isinstance(item, dict):
             continue
+        item_type = str(item.get('type') or '')
+        if item_type == 'web_search_call' or item_type.startswith('web_search'):
+            web_search_used = True
+            action = item.get('action') if isinstance(item.get('action'), dict) else {}
+            _collect_action_urls(action, sources, seen)
+            for src in item.get('sources') or []:
+                if isinstance(src, dict):
+                    _add_http_source(
+                        sources,
+                        seen,
+                        str(src.get('url') or src.get('href') or ''),
+                        str(src.get('title') or ''),
+                    )
         for content in item.get('content') or []:
             if not isinstance(content, dict):
                 continue
@@ -257,14 +393,15 @@ def _walk_openai_text(payload: dict[str, Any]) -> tuple[str, list[dict[str, str]
                 if not isinstance(annotation, dict):
                     continue
                 url = str(annotation.get('url') or annotation.get('href') or '').strip()
-                if not url or url in seen:
+                if not url:
                     continue
-                seen.add(url)
-                sources.append({
-                    'title': str(annotation.get('title') or annotation.get('text') or url),
-                    'url': url,
-                })
-    return text, sources
+                _add_http_source(
+                    sources,
+                    seen,
+                    url,
+                    str(annotation.get('title') or annotation.get('text') or ''),
+                )
+    return text, sources, web_search_used
 
 
 def call_openai_product_lookup(
@@ -272,6 +409,7 @@ def call_openai_product_lookup(
     local_fields: dict[str, Any],
     *,
     urlopen: Callable[..., Any] | None = None,
+    research_mode: bool = False,
 ) -> OpenAIEnrichment | None:
     api_key = (getattr(settings, 'OPENAI_API_KEY', '') or '').strip()
     if not api_key:
@@ -296,6 +434,8 @@ def call_openai_product_lookup(
         'Категория — только существующее имя из данных ZPT, без создания новых. '
         'Для свечи зажигания предпочитай «Свечи зажигания» или «Система зажигания», '
         'а не общую «Электрику», если такая категория есть.\n'
+        'Для воздушных, масляных, салонных и автомобильных фильтров используй '
+        'категорию «Фильтры».\n'
         'Все сомнения и дополнительные варианты клади ТОЛЬКО в research_notes.\n'
         'raw_historical_context — грязные старые тексты, не копируй их в public fields.\n'
         'Верни ТОЛЬКО JSON без markdown:\n'
@@ -310,11 +450,28 @@ def call_openai_product_lookup(
         f'Контекст: {json.dumps(local_fields, ensure_ascii=False)}\n'
         'Если данных мало — confidence=needs_verification.'
     )
-    body = json.dumps({
+    if research_mode:
+        prompt += (
+            '\nИсследовательский режим: обязательно используй web_search. '
+            'Новые факты (марка, применимость, двигатели, OEM/кроссы) указывай '
+            'только если они подтверждены найденными страницами.\n'
+            f'Запрошенный артикул «{article}» — основной номер детали. '
+            'Не называй другой кросс OEM вместо него. '
+            'В oem_cross_references — только подтверждённые аналоги, не сам артикул.\n'
+            'Не выдумывай CarModel. Если модели нет в справочнике, оставь '
+            'текстовую применимость и запиши это в research_notes.\n'
+            'Если марка и применимость противоречат (например Lexus и LIFAN), '
+            'confidence=needs_verification.'
+        )
+    payload_body: dict[str, Any] = {
         'model': model,
         'tools': [{'type': 'web_search'}],
         'input': prompt,
-    }).encode('utf-8')
+    }
+    if research_mode:
+        payload_body['tool_choice'] = 'required'
+        payload_body['include'] = ['web_search_call.action.sources']
+    body = json.dumps(payload_body).encode('utf-8')
     http_request = urllib_request.Request(
         OPENAI_RESPONSES_URL,
         data=body,
@@ -330,8 +487,9 @@ def call_openai_product_lookup(
             urllib_request.ProxyHandler({})
         ).open(req, timeout=timeout)
     )
+    timeout = OPENAI_RESEARCH_TIMEOUT if research_mode else OPENAI_TIMEOUT
     try:
-        with open_url(http_request, timeout=OPENAI_TIMEOUT) as response:
+        with open_url(http_request, timeout=timeout) as response:
             raw = response.read()
             status = int(getattr(response, 'status', 200) or 200)
     except (urllib_error.URLError, TimeoutError, OSError) as exc:
@@ -347,7 +505,7 @@ def call_openai_product_lookup(
         return None
     if not isinstance(payload, dict):
         return None
-    text, sources = _walk_openai_text(payload)
+    text, sources, web_search_used = _walk_openai_text(payload)
     try:
         data = _extract_json_object(text)
     except (ValueError, json.JSONDecodeError):
@@ -365,6 +523,8 @@ def call_openai_product_lookup(
     confidence = str(data.get('confidence') or 'needs_verification').strip()
     if confidence not in VALID_CONFIDENCE:
         confidence = 'needs_verification'
+    if research_mode and not web_search_used:
+        confidence = 'needs_verification'
 
     enrichment = OpenAIEnrichment(
         title=str(data.get('title') or '').strip(),
@@ -378,8 +538,9 @@ def call_openai_product_lookup(
         research_notes=normalize_research_notes(data.get('research_notes')),
         confidence=confidence,
         sources=sources,
+        web_search_used=web_search_used,
     )
-    return _sanitize_enrichment(enrichment)
+    return _sanitize_enrichment(enrichment, queried_article=article)
 
 
 def _notes_from_dirty_text(value: str, *, field: str) -> list[dict[str, str]]:
@@ -395,7 +556,11 @@ def _notes_from_dirty_text(value: str, *, field: str) -> list[dict[str, str]]:
     return research_notes_from_removed(removed, severity='warning')
 
 
-def _sanitize_enrichment(enrichment: OpenAIEnrichment) -> OpenAIEnrichment:
+def _sanitize_enrichment(
+    enrichment: OpenAIEnrichment,
+    *,
+    queried_article: str = '',
+) -> OpenAIEnrichment:
     notes = list(enrichment.research_notes)
     mapping = (
         ('title', 'title'),
@@ -409,7 +574,12 @@ def _sanitize_enrichment(enrichment: OpenAIEnrichment) -> OpenAIEnrichment:
         notes.extend(_notes_from_dirty_text(raw, field=field_name))
         cleaned = sanitize_public_product_text(raw, field=field_name, mode='preview')
         if field_name == 'oem_cross_references':
-            cleaned = sanitize_oem_text(raw)
+            cleaned, rejected = sanitize_oem_research(raw, queried_article=queried_article)
+            if rejected:
+                notes.append({
+                    'text': f'oem_cross_references: фрагментированный/невалидный список отклонён: {rejected}',
+                    'severity': 'warning',
+                })
         setattr(enrichment, attr, cleaned)
     enrichment.research_notes = normalize_research_notes(notes)
     return enrichment
@@ -494,29 +664,51 @@ def _local_fields_for_ai(local_preview: dict[str, Any]) -> dict[str, Any]:
     return public
 
 
+def _invoke_openai_caller(
+    caller: Callable[..., OpenAIEnrichment | None],
+    article: str,
+    local_fields: dict[str, Any],
+    **kwargs,
+) -> OpenAIEnrichment | None:
+    try:
+        return caller(article, local_fields, **kwargs)
+    except TypeError:
+        return caller(article, local_fields)
+
+
 def suggest_product_by_article(
     article: str,
     *,
     openai_caller: Callable[..., OpenAIEnrichment | None] | None = None,
+    exclude_product_ids: list[int] | tuple[int, ...] | set[int] | None = None,
+    exclude_product_id: int | None = None,
+    research_mode: bool = False,
 ) -> dict[str, Any]:
     raw = display_article(article)
     key = normalize_article(raw)
+    empty = {
+        'ok': False,
+        'error': 'Укажите артикул.',
+        'article': '',
+        'normalized_article': '',
+        'ai_used': False,
+        'match_count': 0,
+        'confidence': 'needs_verification',
+        'fields': {},
+        'research_notes': [],
+        'unmatched': [],
+        'sources': [],
+        'web_search_used': False,
+        'source_count': 0,
+    }
     if not key:
-        return {
-            'ok': False,
-            'error': 'Укажите артикул.',
-            'article': '',
-            'normalized_article': '',
-            'ai_used': False,
-            'match_count': 0,
-            'confidence': 'needs_verification',
-            'fields': {},
-            'research_notes': [],
-            'unmatched': [],
-            'sources': [],
-        }
+        return empty
 
-    products = find_products_by_article(raw)
+    products = find_products_by_article(
+        raw,
+        exclude_product_ids=exclude_product_ids,
+        exclude_product_id=exclude_product_id,
+    )
     local = _aggregate_local(products) if products else {
         'title': '',
         'description': '',
@@ -552,7 +744,12 @@ def suggest_product_by_article(
     ai_error = ''
     caller = openai_caller or call_openai_product_lookup
     try:
-        enrichment = caller(raw, ai_context)
+        enrichment = _invoke_openai_caller(
+            caller,
+            raw,
+            ai_context,
+            research_mode=research_mode,
+        )
     except Exception as exc:  # noqa: BLE001 — assistant must not break the form
         logger.warning('Product AI enrichment failed: %s', exc)
         enrichment = None
@@ -599,7 +796,7 @@ def suggest_product_by_article(
     selected_models = list(local.get('selected_models') or [])
 
     if enrichment is not None:
-        enrichment = _sanitize_enrichment(enrichment)
+        enrichment = _sanitize_enrichment(enrichment, queried_article=raw)
         sources = list(enrichment.sources)
         research_notes.extend(enrichment.research_notes)
         title = prefer_public_field(local.get('title') or '', enrichment.title, field='title')
@@ -615,7 +812,7 @@ def suggest_product_by_article(
         )
         oems = prefer_public_field(
             local.get('oem_cross_references') or '',
-            sanitize_oem_text(enrichment.oem_cross_references),
+            sanitize_oem_text(enrichment.oem_cross_references, queried_article=raw),
             field='oem_cross_references',
         )
         description = prefer_public_field(
@@ -644,8 +841,8 @@ def suggest_product_by_article(
             matched_model = _match_car_model(model_name, brand)
             if matched_model is None:
                 unmatched.append(
-                    f'Модель «{model_name}» не найдена в справочнике. '
-                    'Выберите ближайшую вручную.'
+                    f'Модель «{model_name}» не найдена в справочнике CarModel. '
+                    'Текстовая применимость сохранена, строка CarModel не создана.'
                 )
                 continue
             if brand is None:
@@ -683,6 +880,14 @@ def suggest_product_by_article(
         confidence = 'likely'
     if local_dirty and enrichment is not None:
         confidence = _conservative_confidence(confidence, 'likely')
+    web_search_used = bool(enrichment.web_search_used) if enrichment is not None else False
+    source_count = len({
+        str(item.get('url') or '').strip()
+        for item in sources
+        if isinstance(item, dict) and str(item.get('url') or '').strip()
+    })
+    if research_mode and (not web_search_used or source_count == 0):
+        confidence = 'needs_verification'
 
     fields = {
         'title': title,
@@ -734,6 +939,8 @@ def suggest_product_by_article(
         'research_notes': normalize_research_notes(research_notes),
         'unmatched': unmatched,
         'sources': sources,
+        'web_search_used': web_search_used,
+        'source_count': source_count,
     }
 
 
@@ -789,8 +996,8 @@ def _preview_unresolved(
             field_name = 'category'
         elif 'марка' in lowered:
             field_name = 'brand'
-        elif 'модель' in lowered:
-            field_name = 'compatibility'
+        elif 'модель' in lowered or 'carmodel' in lowered:
+            field_name = 'car_model'
         rows.append({'field': field_name, 'reason': text})
     unique: list[dict[str, str]] = []
     seen: set[tuple[str, str]] = set()
@@ -814,12 +1021,13 @@ _PREVIEW_VERIFY_FIELDS = (
     ('engine_compatibility', 'двигатели'),
     ('oem_cross_references', 'OEM'),
 )
+ISSUE_BRAND_COMPATIBILITY_CONFLICT = 'BRAND_COMPATIBILITY_CONFLICT'
 
 
-def _preview_clean_text(value: str, *, field: str) -> str:
+def _preview_clean_text(value: str, *, field: str, queried_article: str = '') -> str:
     cleaned = sanitize_public_product_text(value or '', field=field, mode='preview')
     if field == 'oem_cross_references':
-        cleaned = sanitize_oem_text(cleaned or value or '')
+        cleaned = sanitize_oem_text(cleaned or value or '', queried_article=queried_article)
     return cleaned
 
 
@@ -827,96 +1035,345 @@ def _preview_current_clean(product: Product, field: str) -> str:
     return prefer_public_field(getattr(product, field, '') or '', '', field=field)
 
 
+def _dedupe_sources(items) -> list[dict[str, str]]:
+    sources: list[dict[str, str]] = []
+    seen: set[str] = set()
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        url = str(item.get('url') or '').strip()
+        title = str(item.get('title') or url).strip()
+        if not url and not title:
+            continue
+        key = url or title
+        if key in seen:
+            continue
+        seen.add(key)
+        sources.append({'title': title or url, 'url': url})
+    return sources
+
+
+def _article_tied_to_value(article: str, *, value: str = '', sources=None) -> bool:
+    key = normalize_article(article)
+    if len(key) < 5:
+        return False
+    parts = [value or '']
+    for item in sources or []:
+        if isinstance(item, dict):
+            parts.append(str(item.get('url') or ''))
+            parts.append(str(item.get('title') or ''))
+        else:
+            parts.append(str(item))
+    return key in normalize_article(' '.join(parts))
+
+
+def brand_compatibility_conflict(brand_name: str, compatibility: str) -> bool:
+    brand = ' '.join(str(brand_name or '').split())
+    text = ' '.join(str(compatibility or '').split())
+    if not brand or not text:
+        return False
+    if brand.casefold() in text.casefold():
+        return False
+    lead = _COMPAT_BRAND_TOKEN.match(text)
+    if not lead:
+        return False
+    lead_name = lead.group(0)
+    if lead_name.casefold() == brand.casefold():
+        return False
+    return len(lead_name) >= 3
+
+
+def _oem_preview_value(raw: str, *, queried_article: str) -> tuple[str, str]:
+    """Return (public_oem, rejected_note). Blank public OEM if the list looks fragmented."""
+    return sanitize_oem_research(raw, queried_article=queried_article)
+
+
+def _new_fact_gate(
+    *,
+    web_search_used: bool,
+    source_count: int,
+    article: str,
+    value: str,
+    sources,
+) -> str:
+    """Return 'public', 'notes', or 'drop'."""
+    text = str(value or '').strip()
+    if not text:
+        return 'drop'
+    if not web_search_used or source_count <= 0:
+        return 'notes'
+    if source_count == 1:
+        if _article_tied_to_value(article, value=text, sources=sources):
+            return 'public'
+        return 'notes'
+    return 'public'
+
+
 def preview_enrichment_for_product(
     product: Product,
     *,
     openai_caller: Callable[..., OpenAIEnrichment | None] | None = None,
 ) -> dict[str, Any]:
-    """AI/local enrichment preview for one Product. Never writes the row."""
+    """Evidence-based AI enrichment preview. Never writes the row."""
     captured: dict[str, OpenAIEnrichment | None] = {'enrichment': None}
     inner = openai_caller or call_openai_product_lookup
 
-    def wrapped_caller(article, local_fields):
-        result = inner(article, local_fields)
+    def wrapped_caller(article, local_fields, **kwargs):
+        kwargs.setdefault('research_mode', True)
+        result = _invoke_openai_caller(inner, article, local_fields, **kwargs)
         captured['enrichment'] = result
         return result
 
     suggestion = suggest_product_by_article(
         product.article or '',
         openai_caller=wrapped_caller,
+        exclude_product_id=product.pk,
+        research_mode=True,
     )
+    enrichment = captured.get('enrichment')
+    article = product.article or ''
+    sources = _dedupe_sources(
+        list(suggestion.get('sources') or [])
+        + (list(enrichment.sources) if enrichment is not None else [])
+    )
+    web_search_used = bool(
+        suggestion.get('web_search_used')
+        or (enrichment.web_search_used if enrichment is not None else False)
+    )
+    source_count = len({item['url'] for item in sources if item.get('url')})
+    evidence_notes: list[dict[str, str]] = [
+        {
+            'text': 'Целевая карточка исключена из локальных доказательств по артикулу.',
+            'severity': 'info',
+        }
+    ]
+    if not web_search_used:
+        evidence_notes.append({
+            'text': 'web_search не выполнен — новые факты не подтверждены.',
+            'severity': 'warning',
+        })
+    if source_count == 0:
+        evidence_notes.append({
+            'text': 'Внешние URL не извлечены (source_count=0).',
+            'severity': 'warning',
+        })
+
     fields = dict(suggestion.get('fields') or {})
-    for name in _PREVIEW_TEXT_FIELDS:
-        fields[name] = prefer_public_field(
-            getattr(product, name, '') or '',
-            fields.get(name) or '',
-            field=name,
-        )
-        fields[name] = _preview_clean_text(fields.get(name) or '', field=name)
-
-    if product.brand_id and product.brand:
-        fields['brand_id'] = product.brand_id
-        fields['brand_name'] = product.brand.name
-        fields['country_id'] = product.brand.country_id
-        fields['country_name'] = (
-            product.brand.country.name if product.brand.country_id else fields.get('country_name') or ''
-        )
-    if product.category_id and product.category:
-        fields['category_id'] = product.category_id
-        fields['category_name'] = product.category.name
-    if product.car_model_id and product.car_model and not fields.get('car_model_id'):
-        fields['car_model_id'] = product.car_model_id
-        fields['car_model_name'] = product.car_model.name
-
     notes = list(normalize_research_notes(suggestion.get('research_notes')))
     unmatched = list(suggestion.get('unmatched') or [])
-    confidence = suggestion.get('confidence') or 'needs_verification'
-    enrichment = captured.get('enrichment')
 
-    if confidence == 'needs_verification':
-        for name in _PREVIEW_FITMENT_FIELDS:
-            current_clean = _preview_current_clean(product, name)
-            if current_clean:
-                fields[name] = current_clean
-                continue
-            incoming = str(fields.get(name) or '').strip()
-            if incoming:
+    fields['title'] = prefer_public_field(
+        product.title or '',
+        (enrichment.title if enrichment is not None else fields.get('title') or ''),
+        field='title',
+    )
+    fields['title'] = _preview_clean_text(fields.get('title') or '', field='title')
+    fields['description'] = prefer_public_field(
+        product.description or '',
+        (enrichment.description if enrichment is not None else fields.get('description') or ''),
+        field='description',
+    )
+    fields['description'] = _preview_clean_text(
+        fields.get('description') or '',
+        field='description',
+    )
+
+    current_brand = product.brand.name if product.brand_id and product.brand else ''
+    ai_brand = (enrichment.brand if enrichment is not None else '') or ''
+    current_category = product.category.name if product.category_id and product.category else ''
+    ai_category = (enrichment.category if enrichment is not None else '') or ''
+
+    for name in _PREVIEW_FITMENT_FIELDS:
+        current_clean = _preview_current_clean(product, name)
+        ai_raw = getattr(enrichment, name, '') if enrichment is not None else ''
+        if name == 'oem_cross_references':
+            ai_clean, rejected_raw = _oem_preview_value(ai_raw or '', queried_article=article)
+            if rejected_raw and not ai_clean:
+                notes.append({
+                    'text': f'oem_cross_references: фрагментированный/невалидный список отклонён: {rejected_raw}',
+                    'severity': 'warning',
+                })
+                evidence_notes.append({
+                    'text': 'OEM_FRAGMENTED: публичный OEM очищен.',
+                    'severity': 'warning',
+                })
+        else:
+            ai_clean = _preview_clean_text(
+                ai_raw or '',
+                field=name,
+                queried_article=article,
+            )
+        if current_clean:
+            fields[name] = current_clean
+            if ai_clean and ai_clean.strip() != current_clean.strip():
                 notes.append({
                     'text': (
-                        f'{name}: источники недостаточны или противоречивы, '
-                        f'значение в preview не подставляем. Неподтверждённый вариант: {incoming}'
+                        f'Текущее поле «{name}» сохранено как CURRENT, '
+                        f'не как доказательство. По артикулу также: {ai_clean}'
+                    ),
+                    'severity': 'info',
+                })
+            continue
+        decision = _new_fact_gate(
+            web_search_used=web_search_used,
+            source_count=source_count,
+            article=article,
+            value=ai_clean,
+            sources=sources,
+        )
+        if decision == 'public':
+            fields[name] = ai_clean
+        else:
+            if ai_clean:
+                notes.append({
+                    'text': (
+                        f'{name}: недостаточно независимых источников '
+                        f'(source_count={source_count}). Кандидат: {ai_clean}'
                     ),
                     'severity': 'warning',
                 })
             fields[name] = ''
 
-    if enrichment is not None:
-        for name, label in _PREVIEW_VERIFY_FIELDS:
-            current_clean = _preview_current_clean(product, name)
-            if not current_clean:
-                continue
-            ai_clean = _preview_clean_text(getattr(enrichment, name, '') or '', field=name)
-            if ai_clean and ai_clean.strip() != current_clean.strip():
+    if current_brand:
+        fields['brand_id'] = product.brand_id
+        fields['brand_name'] = current_brand
+        fields['country_id'] = product.brand.country_id if product.brand else fields.get('country_id')
+        fields['country_name'] = (
+            product.brand.country.name
+            if product.brand_id and product.brand and product.brand.country_id
+            else fields.get('country_name') or ''
+        )
+    else:
+        brand_decision = _new_fact_gate(
+            web_search_used=web_search_used,
+            source_count=source_count,
+            article=article,
+            value=ai_brand,
+            sources=sources,
+        )
+        matched_brand = _match_brand(ai_brand) if ai_brand else None
+        if brand_decision == 'public' and matched_brand is not None:
+            fields['brand_id'] = matched_brand.pk
+            fields['brand_name'] = matched_brand.name
+            fields['country_id'] = matched_brand.country_id
+            fields['country_name'] = (
+                matched_brand.country.name if matched_brand.country_id else ''
+            )
+        else:
+            if ai_brand:
                 notes.append({
                     'text': (
-                        f'Текущее поле «{label}» сохранено, '
-                        f'но по артикулу есть другое значение — проверьте: {ai_clean}'
+                        f'brand: новый факт без достаточных источников. Кандидат: {ai_brand}'
                     ),
-                    'severity': 'info',
+                    'severity': 'warning',
                 })
-            elif not ai_clean:
+            if ai_brand and matched_brand is None:
+                unmatched.append(
+                    f'Марка «{ai_brand}» не найдена в справочнике. '
+                    'Выберите марку вручную.'
+                )
+            fields['brand_id'] = None
+            fields['brand_name'] = ''
+
+    if current_category:
+        fields['category_id'] = product.category_id
+        fields['category_name'] = current_category
+    else:
+        matched_category = _match_category(
+            ai_category,
+            title=fields.get('title') or product.title or '',
+        )
+        if matched_category is None and (ai_category or product.title):
+            matched_category = _match_category(
+                FILTER_CATEGORY_NAME if _is_filter_category_alias(ai_category or product.title) else ai_category,
+                title=product.title or '',
+            )
+        if matched_category is not None:
+            fields['category_id'] = matched_category.pk
+            fields['category_name'] = matched_category.name
+        elif ai_category:
+            unmatched.append(
+                f'Категория «{ai_category}» не найдена в справочнике. '
+                'Выберите ближайшую вручную.'
+            )
+            fields['category_id'] = None
+            fields['category_name'] = ''
+
+    if product.car_model_id and product.car_model:
+        fields['car_model_id'] = product.car_model_id
+        fields['car_model_name'] = product.car_model.name
+
+    suggested_brand = fields.get('brand_name') or ''
+    suggested_compat = fields.get('compatibility') or ''
+    ai_compat = _preview_clean_text(
+        (enrichment.compatibility if enrichment is not None else '') or '',
+        field='compatibility',
+    )
+    conflict_brand = suggested_brand or ai_brand
+    conflict_compat = suggested_compat or ai_compat
+    conflict = brand_compatibility_conflict(conflict_brand, conflict_compat)
+    if not conflict and conflict_brand and ai_compat:
+        conflict = brand_compatibility_conflict(conflict_brand, ai_compat)
+    if conflict:
+        evidence_notes.append({
+            'text': (
+                f'{ISSUE_BRAND_COMPATIBILITY_CONFLICT}: '
+                f'марка «{suggested_brand}» не согласуется с применимостью «{conflict_compat}».'
+            ),
+            'severity': 'warning',
+        })
+        notes.append({
+            'text': (
+                f'{ISSUE_BRAND_COMPATIBILITY_CONFLICT}: не сопоставлять '
+                f'«{suggested_brand}» с «{conflict_compat}».'
+            ),
+            'severity': 'warning',
+        })
+        if not current_brand:
+            fields['brand_id'] = None
+            fields['brand_name'] = ''
+            suggested_brand = ''
+        if not _preview_current_clean(product, 'compatibility'):
+            if ai_compat:
                 notes.append({
-                    'text': (
-                        f'Текущее поле «{label}» сохранено; '
-                        'по артикулу внешних подтверждений недостаточно.'
-                    ),
-                    'severity': 'info',
+                    'text': f'compatibility: кандидат из‑за конфликта марки оставлен в notes: {ai_compat}',
+                    'severity': 'warning',
                 })
+            fields['compatibility'] = ''
 
     public_blob = ' '.join(str(fields.get(name) or '') for name in _PREVIEW_TEXT_FIELDS)
     if detect_internal_research_text(public_blob):
         for name in _PREVIEW_TEXT_FIELDS:
-            fields[name] = _preview_clean_text(fields.get(name) or '', field=name)
+            fields[name] = _preview_clean_text(
+                fields.get(name) or '',
+                field=name,
+                queried_article=article,
+            )
+
+    fragmented_oem = any('OEM_FRAGMENTED' in item['text'] for item in evidence_notes)
+    has_public_new_facts = False
+    if not current_brand and fields.get('brand_name'):
+        has_public_new_facts = True
+    for name in _PREVIEW_FITMENT_FIELDS:
+        if _preview_current_clean(product, name):
+            continue
+        if str(fields.get(name) or '').strip():
+            has_public_new_facts = True
+
+    if conflict or fragmented_oem or not web_search_used or source_count == 0:
+        confidence = 'needs_verification'
+    elif source_count >= 2 and web_search_used and has_public_new_facts and not conflict:
+        confidence = 'confirmed' if source_count >= 2 else 'likely'
+        if source_count < 2:
+            confidence = 'likely'
+    elif source_count >= 1 and web_search_used and not conflict:
+        confidence = 'likely'
+    else:
+        confidence = 'needs_verification'
+    if not has_public_new_facts and source_count < 2:
+        confidence = 'needs_verification' if source_count == 0 or not web_search_used else 'likely'
+    if not has_public_new_facts and (not web_search_used or source_count == 0):
+        confidence = 'needs_verification'
 
     unresolved = _preview_unresolved(
         fields,
@@ -932,22 +1389,15 @@ def preview_enrichment_for_product(
                 'severity': 'warning',
             })
     notes = normalize_research_notes(notes)
-
-    sources = []
-    for item in suggestion.get('sources') or []:
-        if not isinstance(item, dict):
-            continue
-        url = str(item.get('url') or '').strip()
-        title = str(item.get('title') or url).strip()
-        if not url and not title:
-            continue
-        sources.append({'title': title, 'url': url})
+    evidence_notes = normalize_research_notes(evidence_notes)
 
     return {
         'ok': bool(suggestion.get('ok')),
         'error': suggestion.get('error') or '',
-        'ai_used': bool(suggestion.get('ai_used')),
+        'ai_used': bool(suggestion.get('ai_used') or enrichment is not None),
         'ai_error': suggestion.get('ai_error') or '',
+        'web_search_used': web_search_used,
+        'source_count': source_count,
         'product_id': product.pk,
         'current_article': product.article or '',
         'current_title': product.title or '',
@@ -959,9 +1409,12 @@ def preview_enrichment_for_product(
         'suggested_oem_cross_references': fields.get('oem_cross_references') or '',
         'suggested_description': fields.get('description') or '',
         'research_notes': notes,
+        'evidence_notes': evidence_notes,
         'sources': sources,
         'confidence': confidence,
         'unresolved_fields': unresolved,
         'unmatched': unmatched,
         'fields': fields,
     }
+
+

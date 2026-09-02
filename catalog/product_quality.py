@@ -86,7 +86,9 @@ _OEM_LABEL = re.compile(
 _OEM_TOKEN = re.compile(r'[A-Za-z0-9][A-Za-z0-9._/-]{1,40}')
 _OEM_SKIP_TOKENS = frozenset({
     'oem', 'cross', 'ref', 'reference', 'references', 'xx',
+    'ag', 'eco', 'sa', 'sb', 'hd', 'sx', 'oe', 'pc',
 })
+_OEM_COMPACT_RE = re.compile(r'[^A-Za-z0-9]')
 _ENGINE_TOKEN = re.compile(
     r'(?i)\b(?:\d+(?:[.,]\d+)?\s*(?:t|l|turbo|gdi|tgdi|tdi|mpi|dci)?|'
     r'[A-Z]{1,5}\d[A-Z0-9]{1,8})\b'
@@ -300,8 +302,50 @@ def _normalize_whitespace(value: str) -> str:
     return '\n'.join(line for line in lines if line).strip()
 
 
-def sanitize_oem_text(value: str | None) -> str:
+def oem_raw_tokens(value: str | None) -> list[str]:
     text = _OEM_LABEL.sub(' ', str(value or ''))
+    tokens: list[str] = []
+    seen: set[str] = set()
+    for token in _OEM_TOKEN.findall(text):
+        token = token.strip().strip('.,;:()[]')
+        if not token:
+            continue
+        key = token.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        tokens.append(token)
+    return tokens
+
+
+def oem_compact(value: str | None) -> str:
+    return _OEM_COMPACT_RE.sub('', str(value or '')).upper()
+
+
+def is_plausible_oem_token(token: str | None) -> bool:
+    """Keep part-number-like tokens; drop brand fragments and short generics."""
+    raw = str(token or '').strip().strip('.,;:()[]')
+    if not raw:
+        return False
+    compact = oem_compact(raw)
+    if not compact or compact.casefold() in _OEM_SKIP_TOKENS:
+        return False
+    if len(compact) < 7:
+        return False
+    has_letter = bool(re.search(r'[A-Za-z]', compact))
+    has_digit = bool(re.search(r'\d', compact))
+    if not has_letter or not has_digit:
+        return False
+    if len(re.findall(r'\d', compact)) < 3:
+        return False
+    if detect_internal_research_text(raw):
+        return False
+    return True
+
+
+def sanitize_oem_text(value: str | None, *, queried_article: str | None = '') -> str:
+    text = _OEM_LABEL.sub(' ', str(value or ''))
+    queried_key = oem_compact(queried_article)
     tokens: list[str] = []
     seen: set[str] = set()
     for token in _OEM_TOKEN.findall(text):
@@ -311,9 +355,31 @@ def sanitize_oem_text(value: str | None) -> str:
         key = token.casefold()
         if key in seen or key in _OEM_SKIP_TOKENS:
             continue
+        if not is_plausible_oem_token(token):
+            continue
+        if queried_key and oem_compact(token) == queried_key:
+            continue
         seen.add(key)
         tokens.append(token)
     return '\n'.join(tokens)
+
+
+def sanitize_oem_research(value: str | None, *, queried_article: str | None = '') -> tuple[str, str]:
+    """Drop fragmented OEM lists; return (public_text, rejected_blob)."""
+    raw = str(value or '')
+    tokens = oem_raw_tokens(raw)
+    kept = sanitize_oem_text(raw, queried_article=queried_article)
+    kept_items = [item for item in kept.split('\n') if item]
+    queried_key = oem_compact(queried_article)
+    rejected = [
+        token for token in tokens
+        if not is_plausible_oem_token(token) and oem_compact(token) != queried_key
+    ]
+    if tokens and not kept_items:
+        return '', ' | '.join(tokens)
+    if rejected and len(rejected) >= 3 and len(kept_items) <= 1:
+        return '', ' | '.join(tokens)
+    return kept, ''
 
 
 def sanitize_engine_text(value: str | None) -> str:

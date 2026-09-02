@@ -21,7 +21,11 @@ CSV_COLUMNS = (
     'suggested_oem_cross_references',
     'suggested_description',
     'research_notes',
+    'evidence_notes',
     'sources',
+    'ai_used',
+    'web_search_used',
+    'source_count',
     'confidence',
     'unresolved_fields',
 )
@@ -108,7 +112,11 @@ def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem
                 'suggested_oem_cross_references': row.get('suggested_oem_cross_references') or '',
                 'suggested_description': row.get('suggested_description') or '',
                 'research_notes': _join_notes(row.get('research_notes')),
+                'evidence_notes': _join_notes(row.get('evidence_notes')),
                 'sources': _join_sources(row.get('sources')),
+                'ai_used': row.get('ai_used'),
+                'web_search_used': row.get('web_search_used'),
+                'source_count': row.get('source_count') if row.get('source_count') is not None else '',
                 'confidence': row.get('confidence') or '',
                 'unresolved_fields': _join_unresolved(row.get('unresolved_fields')),
             })
@@ -204,7 +212,11 @@ class Command(BaseCommand):
                     'suggested_oem_cross_references': '',
                     'suggested_description': '',
                     'research_notes': [],
+                    'evidence_notes': [],
                     'sources': [],
+                    'ai_used': False,
+                    'web_search_used': False,
+                    'source_count': 0,
                     'confidence': '',
                     'unresolved_fields': [{'field': 'product', 'reason': 'Product не найден'}],
                     'unmatched': [],
@@ -216,6 +228,8 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"{product_id} {row.get('current_article') or '-'} "
                 f"confidence={row.get('confidence')} "
+                f"web_search={row.get('web_search_used')} "
+                f"sources={row.get('source_count')} "
                 f"unresolved={len(row.get('unresolved_fields') or [])}"
             )
 

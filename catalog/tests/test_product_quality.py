@@ -57,6 +57,17 @@ class ProductQualitySanitizerTests(TestCase):
         self.assertNotIn('кросс', cleaned.casefold())
         self.assertNotIn('аналог', cleaned.casefold())
 
+    def test_oem_sanitizer_rejects_short_generic_tokens(self):
+        cleaned = sanitize_oem_text('AG 302 ECO SA SB 8147 A1003 A-1180')
+        self.assertEqual(cleaned, '')
+        kept = sanitize_oem_text('F081109111HD F08-1109111HD 28113-2S000 AG 302')
+        lines = kept.split('\n')
+        self.assertIn('F081109111HD', lines)
+        self.assertIn('F08-1109111HD', lines)
+        self.assertIn('28113-2S000', lines)
+        self.assertNotIn('AG', lines)
+        self.assertNotIn('302', lines)
+
     def test_compatibility_preview_drops_research_sentence(self):
         raw = (
             'Changan CS75 Plus, UNI-K — 2.0T. '
