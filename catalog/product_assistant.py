@@ -58,6 +58,27 @@ _HTTP_URL_RE = re.compile(r'https?://[^\s)>\]]+', re.I)
 _COMPAT_BRAND_TOKEN = re.compile(
     r'^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9\-]*',
 )
+_BRAND_KEY_RE = re.compile(r'[^a-zа-яё0-9]+', re.I)
+BRAND_CANONICAL_BY_KEY = {
+    'gwm': 'Great Wall',
+    'greatwall': 'Great Wall',
+    'greatwallmotor': 'Great Wall',
+    'greatwallmotors': 'Great Wall',
+    'lifan': 'Lifan',
+    'лифан': 'Lifan',
+}
+PROPOSED_DICTIONARY_BRANDS = {
+    'lifan': 'Lifan',
+}
+APPROVAL_FIELDS = (
+    'title',
+    'brand',
+    'category',
+    'compatibility',
+    'engine_compatibility',
+    'oem_cross_references',
+    'description',
+)
 CONFIDENCE_RANK = {
     'confirmed': 0,
     'likely': 1,
@@ -209,20 +230,72 @@ def _match_category(name: str, *, title: str = '') -> Category | None:
     return None
 
 
+def _brand_key(name: str) -> str:
+    text = str(name or '').casefold().replace('ё', 'е')
+    return _BRAND_KEY_RE.sub('', text)
+
+
+def _canonical_brand_label(name: str) -> str:
+    raw = ' '.join(str(name or '').split())
+    if not raw:
+        return ''
+    mapped = BRAND_CANONICAL_BY_KEY.get(_brand_key(raw))
+    return mapped or raw
+
+
+def _brand_equivalence_keys(name: str) -> set[str]:
+    raw = ' '.join(str(name or '').split())
+    if not raw:
+        return set()
+    keys = {_brand_key(raw)}
+    canonical = _canonical_brand_label(raw)
+    if canonical:
+        keys.add(_brand_key(canonical))
+    target = _brand_key(canonical or raw)
+    for alias_key, canon in BRAND_CANONICAL_BY_KEY.items():
+        if _brand_key(canon) == target or alias_key == target:
+            keys.add(alias_key)
+            keys.add(_brand_key(canon))
+    return {item for item in keys if item}
+
+
+def _proposed_dictionary_brand(name: str) -> str:
+    key = _brand_key(_canonical_brand_label(name) or name)
+    return PROPOSED_DICTIONARY_BRANDS.get(key) or ''
+
+
 def _match_brand(name: str) -> Brand | None:
     text = (name or '').strip()
     if not text:
         return None
-    qs = Brand.objects.select_related('country').filter(name__iexact=text).order_by(
-        'country__name',
-        'name',
-        'id',
-    )
-    found = list(qs[:5])
-    if found:
-        return found[0]
+    wanted = _brand_equivalence_keys(text)
+    canonical = _canonical_brand_label(text)
+    names = []
+    for item in (canonical, text):
+        label = ' '.join(str(item or '').split())
+        if label and label not in names:
+            names.append(label)
+    for label in names:
+        qs = Brand.objects.select_related('country').filter(name__iexact=label).order_by(
+            'country__name',
+            'name',
+            'id',
+        )
+        found = list(qs[:5])
+        if found:
+            return found[0]
+    matches = []
+    for brand in Brand.objects.select_related('country').order_by('country__name', 'name', 'id'):
+        if _brand_equivalence_keys(brand.name) & wanted:
+            matches.append(brand)
+            if len(matches) > 2:
+                break
+    if len(matches) == 1:
+        return matches[0]
+    if matches:
+        return matches[0]
     contains = list(
-        Brand.objects.select_related('country').filter(name__icontains=text).order_by(
+        Brand.objects.select_related('country').filter(name__icontains=canonical or text).order_by(
             'name',
             'id',
         )[:3]
@@ -1072,15 +1145,166 @@ def brand_compatibility_conflict(brand_name: str, compatibility: str) -> bool:
     text = ' '.join(str(compatibility or '').split())
     if not brand or not text:
         return False
-    if brand.casefold() in text.casefold():
-        return False
+    brand_keys = _brand_equivalence_keys(brand)
+    folded = text.casefold()
+    for key in brand_keys:
+        if key and key in _brand_key(text):
+            return False
+    labels = {brand, _canonical_brand_label(brand)}
+    for alias_key, canon in BRAND_CANONICAL_BY_KEY.items():
+        if alias_key in brand_keys or _brand_key(canon) in brand_keys:
+            labels.add(canon)
+            if alias_key == 'gwm':
+                labels.add('GWM')
+    for label in labels:
+        token = ' '.join(str(label or '').split())
+        if not token:
+            continue
+        if re.search(rf'(?<!\w){re.escape(token)}(?!\w)', text, re.I):
+            return False
     lead = _COMPAT_BRAND_TOKEN.match(text)
     if not lead:
         return False
     lead_name = lead.group(0)
-    if lead_name.casefold() == brand.casefold():
+    if _brand_equivalence_keys(lead_name) & brand_keys:
         return False
-    return len(lead_name) >= 3
+    if not _looks_like_known_brand(lead_name):
+        return False
+    return _brand_key(_canonical_brand_label(lead_name)) != _brand_key(_canonical_brand_label(brand))
+
+
+def _looks_like_known_brand(name: str) -> bool:
+    raw = ' '.join(str(name or '').split())
+    if not raw:
+        return False
+    key = _brand_key(raw)
+    if key in BRAND_CANONICAL_BY_KEY or key in PROPOSED_DICTIONARY_BRANDS:
+        return True
+    if _canonical_brand_label(raw) != raw:
+        return True
+    return Brand.objects.filter(name__iexact=raw).exists()
+
+
+def _model_in_compatibility(compat: str, model: str) -> bool:
+    name = ' '.join(str(model or '').split())
+    if not name:
+        return False
+    text = str(compat or '')
+    pattern = rf'(?<!\w){re.escape(name)}(?!\w)'
+    matches = list(re.finditer(pattern, text, re.I))
+    if not matches:
+        return False
+    has_plus = bool(re.search(r'\bplus\b', name, re.I))
+    for match in matches:
+        rest = text[match.end():]
+        if not has_plus and re.match(r'\s+plus\b', rest, re.I):
+            continue
+        return True
+    return False
+
+
+def _merge_models_into_compatibility(
+    compat: str,
+    models: list[str] | None,
+    *,
+    brand_name: str = '',
+) -> str:
+    text = ' '.join(str(compat or '').split())
+    extras: list[str] = []
+    for raw in models or []:
+        name = ' '.join(str(raw or '').split())
+        if not name or _model_in_compatibility(text, name):
+            continue
+        extras.append(name)
+        text = f'{text}, {name}' if text else name
+    brand = ' '.join(str(brand_name or '').split())
+    if brand and text and not re.search(rf'(?<!\w){re.escape(brand)}(?!\w)', text, re.I):
+        if not (_brand_equivalence_keys(brand) & _brand_equivalence_keys(text.split()[0] if text else '')):
+            # Keep textual models; brand prefix is optional when aliases already present.
+            pass
+    return text
+
+
+def _blob_contains(value: str, blob: str) -> bool:
+    compact_value = _brand_key(value)
+    if len(compact_value) < 2:
+        return False
+    return compact_value in _brand_key(blob)
+
+
+def _engine_is_supported(engine_text: str, *, compatibility: str, sources) -> bool:
+    items = parse_plain_list(engine_text) or [
+        item.strip() for item in str(engine_text or '').split('\n') if item.strip()
+    ]
+    if not items:
+        return False
+    source_blob = ' '.join(
+        f"{item.get('title') or ''} {item.get('url') or ''}"
+        for item in sources or []
+        if isinstance(item, dict)
+    )
+    blob = f'{compatibility or ''} {source_blob}'
+    for item in items:
+        if not _blob_contains(item, blob) and item.casefold() not in (compatibility or '').casefold():
+            return False
+    return True
+
+
+def _oem_is_supported(oem_text: str, *, article: str, sources) -> bool:
+    tokens = [item for item in str(oem_text or '').split('\n') if item.strip()]
+    if not tokens:
+        return False
+    article_key = normalize_article(article)
+    if article_key and all(normalize_article(token) == article_key for token in tokens):
+        return False
+    source_blob = ' '.join(
+        f"{item.get('title') or ''} {item.get('url') or ''}"
+        for item in sources or []
+        if isinstance(item, dict)
+    )
+    if any(_blob_contains(token, source_blob) for token in tokens):
+        return True
+    return len([item for item in sources or [] if isinstance(item, dict) and item.get('url')]) >= 2
+
+
+def _description_mentions_blocked(text: str, blocked_values: list[str]) -> bool:
+    blob = str(text or '')
+    if detect_internal_research_text(blob):
+        return True
+    for raw in blocked_values:
+        value = ' '.join(str(raw or '').split())
+        if len(value) < 3:
+            continue
+        if value.casefold() in blob.casefold():
+            return True
+    return False
+
+
+def _description_from_approved(values: dict[str, str]) -> str:
+    parts: list[str] = []
+    title = ' '.join(str(values.get('title') or '').split())
+    brand = ' '.join(str(values.get('brand') or '').split())
+    category = ' '.join(str(values.get('category') or '').split())
+    compatibility = ' '.join(str(values.get('compatibility') or '').split())
+    engines = str(values.get('engine_compatibility') or '').strip()
+    if title:
+        parts.append(title.rstrip('.') + '.')
+    elif category and brand:
+        parts.append(f'{category} {brand}.')
+    elif category:
+        parts.append(f'{category}.')
+    if compatibility:
+        parts.append(f'Применимость: {compatibility}.')
+    if engines:
+        engine_line = ', '.join(
+            item for item in engines.split('\n') if item.strip()
+        )
+        if engine_line:
+            parts.append(f'Двигатели: {engine_line}.')
+    if not parts:
+        return ''
+    parts.append('Перед установкой сверьте применимость по VIN.')
+    return ' '.join(parts)
 
 
 def _oem_preview_value(raw: str, *, queried_article: str) -> tuple[str, str]:
@@ -1107,6 +1331,58 @@ def _new_fact_gate(
             return 'public'
         return 'notes'
     return 'public'
+
+
+def _build_field_decisions(
+    *,
+    product: Product,
+    fields: dict[str, Any],
+    new_public: set[str],
+    blocked_reasons: dict[str, str],
+    field_gates: dict[str, str],
+) -> dict[str, str]:
+    current = {
+        'title': _preview_current_clean(product, 'title'),
+        'brand': product.brand.name if product.brand_id and product.brand else '',
+        'category': product.category.name if product.category_id and product.category else '',
+        'compatibility': _preview_current_clean(product, 'compatibility'),
+        'engine_compatibility': _preview_current_clean(product, 'engine_compatibility'),
+        'oem_cross_references': _preview_current_clean(product, 'oem_cross_references'),
+        'description': _preview_current_clean(product, 'description'),
+    }
+    suggested = {
+        'title': fields.get('title') or '',
+        'brand': fields.get('brand_name') or '',
+        'category': fields.get('category_name') or '',
+        'compatibility': fields.get('compatibility') or '',
+        'engine_compatibility': fields.get('engine_compatibility') or '',
+        'oem_cross_references': fields.get('oem_cross_references') or '',
+        'description': fields.get('description') or '',
+    }
+    decisions: dict[str, str] = {}
+    for name in APPROVAL_FIELDS:
+        if name == 'description':
+            decisions[name] = 'unchanged'
+            continue
+        if name in blocked_reasons:
+            decisions[name] = 'blocked'
+            continue
+        if name in new_public and str(suggested.get(name) or '').strip():
+            decisions[name] = 'approved'
+            continue
+        current_value = str(current.get(name) or '').strip()
+        suggested_value = str(suggested.get(name) or '').strip()
+        if current_value and suggested_value == current_value:
+            decisions[name] = 'unchanged'
+            continue
+        if not suggested_value:
+            decisions[name] = 'unchanged'
+            continue
+        if suggested_value and not current_value and field_gates.get(name) == 'public':
+            decisions[name] = 'approved'
+            continue
+        decisions[name] = 'unchanged'
+    return decisions
 
 
 def preview_enrichment_for_product(
@@ -1182,6 +1458,11 @@ def preview_enrichment_for_product(
     ai_brand = (enrichment.brand if enrichment is not None else '') or ''
     current_category = product.category.name if product.category_id and product.category else ''
     ai_category = (enrichment.category if enrichment is not None else '') or ''
+    ai_models = list(enrichment.models) if enrichment is not None else []
+    dictionary_additions: dict[str, list[str]] = {'brands': [], 'categories': []}
+    blocked_reasons: dict[str, str] = {}
+    new_public: set[str] = set()
+    field_gates: dict[str, str] = {}
 
     for name in _PREVIEW_FITMENT_FIELDS:
         current_clean = _preview_current_clean(product, name)
@@ -1197,14 +1478,36 @@ def preview_enrichment_for_product(
                     'text': 'OEM_FRAGMENTED: публичный OEM очищен.',
                     'severity': 'warning',
                 })
+                blocked_reasons['oem_cross_references'] = 'questionable OEM'
         else:
             ai_clean = _preview_clean_text(
                 ai_raw or '',
                 field=name,
                 queried_article=article,
             )
+        if name == 'compatibility':
+            ai_clean = _merge_models_into_compatibility(
+                ai_clean,
+                ai_models,
+                brand_name=_canonical_brand_label(ai_brand) or ai_brand,
+            )
+        decision = _new_fact_gate(
+            web_search_used=web_search_used,
+            source_count=source_count,
+            article=article,
+            value=ai_clean,
+            sources=sources,
+        )
+        field_gates[name] = decision
         if current_clean:
-            fields[name] = current_clean
+            merged = current_clean
+            if name == 'compatibility' and decision == 'public':
+                merged = _merge_models_into_compatibility(
+                    current_clean,
+                    ai_models,
+                    brand_name=current_brand or _canonical_brand_label(ai_brand),
+                )
+            fields[name] = merged
             if ai_clean and ai_clean.strip() != current_clean.strip():
                 notes.append({
                     'text': (
@@ -1214,15 +1517,9 @@ def preview_enrichment_for_product(
                     'severity': 'info',
                 })
             continue
-        decision = _new_fact_gate(
-            web_search_used=web_search_used,
-            source_count=source_count,
-            article=article,
-            value=ai_clean,
-            sources=sources,
-        )
         if decision == 'public':
             fields[name] = ai_clean
+            new_public.add(name)
         else:
             if ai_clean:
                 notes.append({
@@ -1232,6 +1529,7 @@ def preview_enrichment_for_product(
                     ),
                     'severity': 'warning',
                 })
+                blocked_reasons[name] = 'unresolved evidence'
             fields[name] = ''
 
     if current_brand:
@@ -1243,6 +1541,7 @@ def preview_enrichment_for_product(
             if product.brand_id and product.brand and product.brand.country_id
             else fields.get('country_name') or ''
         )
+        field_gates['brand'] = 'current'
     else:
         brand_decision = _new_fact_gate(
             web_search_used=web_search_used,
@@ -1251,7 +1550,10 @@ def preview_enrichment_for_product(
             value=ai_brand,
             sources=sources,
         )
+        field_gates['brand'] = brand_decision
         matched_brand = _match_brand(ai_brand) if ai_brand else None
+        proposed_brand = _proposed_dictionary_brand(ai_brand) if ai_brand else ''
+        canonical_brand = _canonical_brand_label(ai_brand) if ai_brand else ''
         if brand_decision == 'public' and matched_brand is not None:
             fields['brand_id'] = matched_brand.pk
             fields['brand_name'] = matched_brand.name
@@ -1259,6 +1561,21 @@ def preview_enrichment_for_product(
             fields['country_name'] = (
                 matched_brand.country.name if matched_brand.country_id else ''
             )
+            new_public.add('brand')
+        elif brand_decision == 'public' and proposed_brand:
+            fields['brand_id'] = None
+            fields['brand_name'] = proposed_brand
+            if proposed_brand not in dictionary_additions['brands']:
+                dictionary_additions['brands'].append(proposed_brand)
+            blocked_reasons['brand'] = 'missing required Brand'
+            new_public.add('brand')
+            notes.append({
+                'text': (
+                    f'brand: внешние источники подтверждают «{proposed_brand}», '
+                    'но Brand в справочнике нет. Apply заблокирован до добавления марки.'
+                ),
+                'severity': 'warning',
+            })
         else:
             if ai_brand:
                 notes.append({
@@ -1267,9 +1584,10 @@ def preview_enrichment_for_product(
                     ),
                     'severity': 'warning',
                 })
-            if ai_brand and matched_brand is None:
+                blocked_reasons['brand'] = 'unresolved evidence'
+            if ai_brand and matched_brand is None and not proposed_brand:
                 unmatched.append(
-                    f'Марка «{ai_brand}» не найдена в справочнике. '
+                    f'Марка «{canonical_brand or ai_brand}» не найдена в справочнике. '
                     'Выберите марку вручную.'
                 )
             fields['brand_id'] = None
@@ -1278,6 +1596,7 @@ def preview_enrichment_for_product(
     if current_category:
         fields['category_id'] = product.category_id
         fields['category_name'] = current_category
+        field_gates['category'] = 'current'
     else:
         matched_category = _match_category(
             ai_category,
@@ -1288,14 +1607,30 @@ def preview_enrichment_for_product(
                 FILTER_CATEGORY_NAME if _is_filter_category_alias(ai_category or product.title) else ai_category,
                 title=product.title or '',
             )
+        category_gate = _new_fact_gate(
+            web_search_used=web_search_used,
+            source_count=source_count,
+            article=article,
+            value=ai_category or (matched_category.name if matched_category else ''),
+            sources=sources,
+        )
+        field_gates['category'] = category_gate
         if matched_category is not None:
             fields['category_id'] = matched_category.pk
             fields['category_name'] = matched_category.name
+            if category_gate == 'public':
+                new_public.add('category')
+            elif not web_search_used or source_count == 0:
+                blocked_reasons.setdefault('category', 'unresolved evidence')
         elif ai_category:
             unmatched.append(
                 f'Категория «{ai_category}» не найдена в справочнике. '
                 'Выберите ближайшую вручную.'
             )
+            blocked_reasons['category'] = 'missing required Category'
+            fields['category_id'] = None
+            fields['category_name'] = ''
+        else:
             fields['category_id'] = None
             fields['category_name'] = ''
 
@@ -1305,11 +1640,15 @@ def preview_enrichment_for_product(
 
     suggested_brand = fields.get('brand_name') or ''
     suggested_compat = fields.get('compatibility') or ''
-    ai_compat = _preview_clean_text(
-        (enrichment.compatibility if enrichment is not None else '') or '',
-        field='compatibility',
+    ai_compat = _merge_models_into_compatibility(
+        _preview_clean_text(
+            (enrichment.compatibility if enrichment is not None else '') or '',
+            field='compatibility',
+        ),
+        ai_models,
+        brand_name=_canonical_brand_label(ai_brand) or suggested_brand,
     )
-    conflict_brand = suggested_brand or ai_brand
+    conflict_brand = suggested_brand or _canonical_brand_label(ai_brand) or ai_brand
     conflict_compat = suggested_compat or ai_compat
     conflict = brand_compatibility_conflict(conflict_brand, conflict_compat)
     if not conflict and conflict_brand and ai_compat:
@@ -1318,21 +1657,25 @@ def preview_enrichment_for_product(
         evidence_notes.append({
             'text': (
                 f'{ISSUE_BRAND_COMPATIBILITY_CONFLICT}: '
-                f'марка «{suggested_brand}» не согласуется с применимостью «{conflict_compat}».'
+                f'марка «{conflict_brand}» не согласуется с применимостью «{conflict_compat}».'
             ),
             'severity': 'warning',
         })
         notes.append({
             'text': (
                 f'{ISSUE_BRAND_COMPATIBILITY_CONFLICT}: не сопоставлять '
-                f'«{suggested_brand}» с «{conflict_compat}».'
+                f'«{conflict_brand}» с «{conflict_compat}».'
             ),
             'severity': 'warning',
         })
+        blocked_reasons['brand'] = 'BRAND_COMPATIBILITY_CONFLICT'
+        blocked_reasons['compatibility'] = 'BRAND_COMPATIBILITY_CONFLICT'
         if not current_brand:
             fields['brand_id'] = None
             fields['brand_name'] = ''
             suggested_brand = ''
+            dictionary_additions['brands'] = []
+            new_public.discard('brand')
         if not _preview_current_clean(product, 'compatibility'):
             if ai_compat:
                 notes.append({
@@ -1340,6 +1683,58 @@ def preview_enrichment_for_product(
                     'severity': 'warning',
                 })
             fields['compatibility'] = ''
+            new_public.discard('compatibility')
+    elif fields.get('compatibility'):
+        fields['compatibility'] = _merge_models_into_compatibility(
+            fields.get('compatibility') or '',
+            ai_models,
+            brand_name=suggested_brand or _canonical_brand_label(ai_brand),
+        )
+
+    engine_text = str(fields.get('engine_compatibility') or '').strip()
+    if engine_text:
+        if not _engine_is_supported(
+            engine_text,
+            compatibility=str(fields.get('compatibility') or ''),
+            sources=sources,
+        ):
+            blocked_reasons['engine_compatibility'] = 'unsupported engine'
+            notes.append({
+                'text': (
+                    f'engine_compatibility: значение не подтверждено совместимостью/источниками: {engine_text}'
+                ),
+                'severity': 'warning',
+            })
+            new_public.discard('engine_compatibility')
+
+    oem_text = str(fields.get('oem_cross_references') or '').strip()
+    if oem_text:
+        if not _oem_is_supported(oem_text, article=article, sources=sources) and source_count < 2:
+            blocked_reasons['oem_cross_references'] = 'insufficient OEM evidence'
+            new_public.discard('oem_cross_references')
+
+    current_title = _preview_current_clean(product, 'title')
+    ai_title = _preview_clean_text(
+        (enrichment.title if enrichment is not None else '') or '',
+        field='title',
+    )
+    if current_title:
+        field_gates['title'] = 'current'
+    elif ai_title:
+        title_gate = _new_fact_gate(
+            web_search_used=web_search_used,
+            source_count=source_count,
+            article=article,
+            value=ai_title,
+            sources=sources,
+        )
+        field_gates['title'] = title_gate
+        if title_gate == 'public':
+            new_public.add('title')
+        else:
+            blocked_reasons.setdefault('title', 'unresolved evidence')
+    else:
+        field_gates['title'] = 'drop'
 
     public_blob = ' '.join(str(fields.get(name) or '') for name in _PREVIEW_TEXT_FIELDS)
     if detect_internal_research_text(public_blob):
@@ -1351,29 +1746,73 @@ def preview_enrichment_for_product(
             )
 
     fragmented_oem = any('OEM_FRAGMENTED' in item['text'] for item in evidence_notes)
-    has_public_new_facts = False
-    if not current_brand and fields.get('brand_name'):
-        has_public_new_facts = True
-    for name in _PREVIEW_FITMENT_FIELDS:
-        if _preview_current_clean(product, name):
-            continue
-        if str(fields.get(name) or '').strip():
-            has_public_new_facts = True
-
+    has_public_new_facts = bool(new_public)
     if conflict or fragmented_oem or not web_search_used or source_count == 0:
         confidence = 'needs_verification'
     elif source_count >= 2 and web_search_used and has_public_new_facts and not conflict:
-        confidence = 'confirmed' if source_count >= 2 else 'likely'
-        if source_count < 2:
-            confidence = 'likely'
+        confidence = 'confirmed'
     elif source_count >= 1 and web_search_used and not conflict:
         confidence = 'likely'
     else:
         confidence = 'needs_verification'
-    if not has_public_new_facts and source_count < 2:
-        confidence = 'needs_verification' if source_count == 0 or not web_search_used else 'likely'
+    if blocked_reasons.get('brand') == 'missing required Brand' and web_search_used and source_count >= 2 and not conflict:
+        confidence = 'confirmed'
     if not has_public_new_facts and (not web_search_used or source_count == 0):
         confidence = 'needs_verification'
+
+    field_decisions = _build_field_decisions(
+        product=product,
+        fields=fields,
+        new_public=new_public,
+        blocked_reasons=blocked_reasons,
+        field_gates=field_gates,
+    )
+
+    blocked_tokens: list[str] = []
+    if field_decisions.get('engine_compatibility') != 'approved':
+        blocked_tokens.extend(
+            item for item in str(fields.get('engine_compatibility') or '').split('\n') if item.strip()
+        )
+    if field_decisions.get('oem_cross_references') != 'approved':
+        blocked_tokens.extend(
+            item for item in str(fields.get('oem_cross_references') or '').split('\n') if item.strip()
+        )
+    approved_for_description = {
+        'title': fields.get('title') or '' if field_decisions.get('title') == 'approved' else (_preview_current_clean(product, 'title')),
+        'brand': fields.get('brand_name') or '' if field_decisions.get('brand') in {'approved', 'blocked'} else '',
+        'category': fields.get('category_name') or '',
+        'compatibility': fields.get('compatibility') or '' if field_decisions.get('compatibility') == 'approved' else _preview_current_clean(product, 'compatibility'),
+        'engine_compatibility': fields.get('engine_compatibility') or '' if field_decisions.get('engine_compatibility') == 'approved' else '',
+    }
+    if field_decisions.get('brand') == 'blocked' and fields.get('brand_name'):
+        approved_for_description['brand'] = fields.get('brand_name') or ''
+    current_description = _preview_current_clean(product, 'description')
+    ai_description = _preview_clean_text(
+        (enrichment.description if enrichment is not None else '') or '',
+        field='description',
+    )
+    safe_generated = _description_from_approved(approved_for_description)
+    if current_description and not detect_internal_research_text(current_description):
+        fields['description'] = current_description
+        field_decisions['description'] = 'unchanged'
+    elif ai_description and not _description_mentions_blocked(ai_description, blocked_tokens):
+        fields['description'] = ai_description
+        if web_search_used and source_count >= 1:
+            field_decisions['description'] = 'approved'
+            new_public.add('description')
+        else:
+            field_decisions['description'] = 'blocked'
+            blocked_reasons['description'] = 'unresolved evidence'
+    elif safe_generated:
+        fields['description'] = safe_generated
+        field_decisions['description'] = 'approved'
+        new_public.add('description')
+    else:
+        fields['description'] = ''
+        field_decisions['description'] = 'unchanged'
+
+    approved_fields = [name for name in APPROVAL_FIELDS if field_decisions.get(name) == 'approved']
+    blocked_fields = [name for name in APPROVAL_FIELDS if field_decisions.get(name) == 'blocked']
 
     unresolved = _preview_unresolved(
         fields,
@@ -1414,7 +1853,12 @@ def preview_enrichment_for_product(
         'confidence': confidence,
         'unresolved_fields': unresolved,
         'unmatched': unmatched,
+        'approved_fields': approved_fields,
+        'blocked_fields': blocked_fields,
+        'field_decisions': field_decisions,
+        'dictionary_additions': dictionary_additions,
         'fields': fields,
     }
+
 
 

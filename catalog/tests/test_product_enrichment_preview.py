@@ -270,6 +270,9 @@ class ProductEnrichmentPreviewTests(TestCase):
         self.assertIn('source_count', csv_row)
         self.assertIn('evidence_notes', csv_row)
         self.assertIn('ai_used', csv_row)
+        self.assertIn('approved_fields', csv_row)
+        self.assertIn('blocked_fields', csv_row)
+        self.assertIn('dictionary_additions', csv_row)
 
 
 class ProductEnrichmentEvidenceTests(TestCase):
@@ -613,3 +616,290 @@ class ProductEnrichmentEvidenceTests(TestCase):
         self.assertFalse(Brand.objects.filter(name='GhostBrand').exists())
         self.assertFalse(Category.objects.filter(name='GhostCategory').exists())
         self.assertFalse(CarModel.objects.filter(name='Unknown X').exists())
+
+
+def _two_sources(*keys: str):
+    rows = []
+    for index, key in enumerate(keys or ('a', 'b'), start=1):
+        slug = str(key or f'src-{index}').replace(' ', '-').lower()
+        rows.append({
+            'title': f'Source {index}',
+            'url': f'https://example.com/{slug}',
+        })
+    if len(rows) < 2:
+        rows.append({'title': 'Source extra', 'url': 'https://example.com/extra'})
+    return rows
+
+
+class ProductEnrichmentApprovalTests(TestCase):
+    def setUp(self):
+        self.country = Country.objects.create(name='Китай Approval')
+        self.gwm = Brand.objects.create(country=self.country, name='Great Wall')
+        self.chery = Brand.objects.create(country=self.country, name='Chery')
+        self.category = Category.objects.create(name='Фильтры')
+        self.seller = _seller('approval-seller', 'AG Parts Approval', '77770000813')
+
+    def test_great_wall_and_gwm_poer_are_not_a_conflict(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='GWM-POER-1',
+            slug='gwm-poer-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='GWM',
+                category='Воздушные фильтры',
+                compatibility='GWM Poer, Wingle 7',
+                engine_compatibility='2.0 Turbo',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('gwm-poer', '2.0-turbo'),
+            )
+
+        from catalog.product_assistant import brand_compatibility_conflict
+        self.assertFalse(brand_compatibility_conflict('Great Wall', 'GWM Poer, Wingle 7'))
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        blob = ' '.join(
+            item['text'] for item in (row['research_notes'] + row['evidence_notes'])
+        )
+        self.assertNotIn('BRAND_COMPATIBILITY_CONFLICT', blob)
+        self.assertEqual(row['suggested_brand'], 'Great Wall')
+        self.assertIn('GWM Poer', row['suggested_compatibility'])
+        self.assertIn('brand', row['approved_fields'])
+        self.assertEqual(Brand.objects.filter(name__iexact='GWM').count(), 0)
+        self.assertEqual(Brand.objects.filter(name='Great Wall').count(), 1)
+
+    def test_lifan_missing_brand_is_proposed_and_blocked(self):
+        self.assertFalse(Brand.objects.filter(name__iexact='Lifan').exists())
+        product = _product(
+            title='Фильтр воздушный',
+            article='FAE1109160',
+            slug='fae-lifan-2136',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='',
+            engine_compatibility='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='LIFAN',
+                category='Воздушные фильтры',
+                compatibility='Lifan 320, Lifan 330',
+                engine_compatibility='1.3',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('fae1109160-lifan', '1.3'),
+            )
+
+        before = Brand.objects.count()
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['suggested_brand'], 'Lifan')
+        self.assertIn('Lifan', row['dictionary_additions']['brands'])
+        self.assertIn('brand', row['blocked_fields'])
+        self.assertNotIn('brand', row['approved_fields'])
+        self.assertIn('compatibility', row['approved_fields'])
+        self.assertIn('Lifan 320', row['suggested_compatibility'])
+        self.assertEqual(row['confidence'], 'confirmed')
+        self.assertEqual(Brand.objects.count(), before)
+        self.assertFalse(Brand.objects.filter(name__iexact='Lifan').exists())
+
+    def test_jetour_compatibility_keeps_all_confirmed_models(self):
+        product = _product(
+            title='Фильтр воздушный Jetour',
+            article='F081109111HD',
+            slug='jetour-f081109111hd',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=self.category,
+            compatibility='',
+        )
+        models_before = CarModel.objects.count()
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Jetour',
+                models=['X70', 'X70 Plus', 'Dashing', 'X90 Plus'],
+                compatibility='Jetour X70 Plus',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('f081109111hd', 'jetour-x70'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        compat = row['suggested_compatibility']
+        for model in ('X70', 'X70 Plus', 'Dashing', 'X90 Plus'):
+            self.assertIn(model, compat)
+        self.assertEqual(CarModel.objects.count(), models_before)
+
+    def test_unsupported_engine_is_blocked_when_overall_confirmed(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='STYLE-2134',
+            slug='style-2134',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='',
+            engine_compatibility='',
+            oem_cross_references='',
+            description='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Great Wall',
+                category='Воздушные фильтры',
+                compatibility='GWM Poer',
+                engine_compatibility='3.0 Turbo',
+                oem_cross_references='28113-2S000',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('gwm-poer', 'style-2134'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertEqual(row['confidence'], 'confirmed')
+        self.assertIn('brand', row['approved_fields'])
+        self.assertIn('category', row['approved_fields'])
+        self.assertIn('compatibility', row['approved_fields'])
+        self.assertIn('engine_compatibility', row['blocked_fields'])
+        self.assertNotIn('engine_compatibility', row['approved_fields'])
+
+    def test_missing_oem_does_not_block_other_approved_fields(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='STYLE-2135',
+            slug='style-2135',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='',
+            engine_compatibility='',
+            oem_cross_references='',
+            description='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Great Wall',
+                category='Фильтры',
+                compatibility='GWM Poer',
+                engine_compatibility='2.0 Turbo',
+                oem_cross_references='',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('gwm-poer-2135', '2.0-turbo'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        self.assertIn('brand', row['approved_fields'])
+        self.assertIn('category', row['approved_fields'])
+        self.assertIn('compatibility', row['approved_fields'])
+        self.assertIn('engine_compatibility', row['approved_fields'])
+        self.assertNotIn('oem_cross_references', row['approved_fields'])
+        self.assertEqual(row['field_decisions']['oem_cross_references'], 'unchanged')
+        self.assertEqual(row['suggested_oem_cross_references'], '')
+
+    def test_description_uses_approved_facts_only(self):
+        product = _product(
+            title='Фильтр воздушный',
+            article='DESC-SAFE-1',
+            slug='desc-safe-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            compatibility='',
+            engine_compatibility='',
+            description='',
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='Great Wall',
+                category='Воздушные фильтры',
+                compatibility='GWM Poer',
+                engine_compatibility='3.0 Turbo',
+                oem_cross_references='AG 302 ECO',
+                description=(
+                    'По данным поставщика двигатель 3.0 Turbo и OEM AG. '
+                    'ChatGPT / Gemini. В справочнике ZPT нет.'
+                ),
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('gwm-poer-desc', 'desc-safe-1'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        description = row['suggested_description']
+        self.assertTrue(description)
+        self.assertNotIn('3.0', description)
+        self.assertNotIn('AG', description)
+        self.assertNotIn('ChatGPT', description)
+        self.assertNotIn('Gemini', description)
+        self.assertNotIn('ZPT', description)
+        self.assertNotIn('поставщика', description.casefold())
+        self.assertIn('Poer', description)
+        self.assertEqual(row['field_decisions']['description'], 'approved')
+
+    def test_approval_preview_writes_nothing(self):
+        product = _product(
+            title='Фильтр',
+            article='APPLY-GUARD-1',
+            slug='apply-guard-1',
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            brand=None,
+            category=None,
+            price=1500,
+            status='active',
+            stock_qty=4,
+        )
+        counts = (
+            Product.objects.count(),
+            Brand.objects.count(),
+            Category.objects.count(),
+            CarModel.objects.count(),
+        )
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                brand='LIFAN',
+                category='Воздушные фильтры',
+                models=['X70 Plus'],
+                compatibility='Lifan 320',
+                confidence='confirmed',
+                web_search_used=True,
+                sources=_two_sources('lifan-320', 'apply-guard-1'),
+            )
+
+        row = preview_enrichment_for_product(product, openai_caller=fake_ai)
+        product.refresh_from_db()
+        self.assertEqual(product.price, 1500)
+        self.assertEqual(product.status, 'active')
+        self.assertEqual(product.stock_qty, 4)
+        self.assertIsNone(product.brand_id)
+        self.assertEqual(
+            (
+                Product.objects.count(),
+                Brand.objects.count(),
+                Category.objects.count(),
+                CarModel.objects.count(),
+            ),
+            counts,
+        )
+        self.assertIn('approved_fields', row)
+        self.assertIn('blocked_fields', row)
+        self.assertIn('dictionary_additions', row)

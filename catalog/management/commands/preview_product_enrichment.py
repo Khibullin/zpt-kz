@@ -27,6 +27,9 @@ CSV_COLUMNS = (
     'web_search_used',
     'source_count',
     'confidence',
+    'approved_fields',
+    'blocked_fields',
+    'dictionary_additions',
     'unresolved_fields',
 )
 
@@ -92,6 +95,10 @@ def _join_unresolved(rows) -> str:
     return ' | '.join(parts)
 
 
+def _join_list(items) -> str:
+    return ', '.join(str(item).strip() for item in items or [] if str(item).strip())
+
+
 def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem: str = 'product_enrichment_preview'):
     report_dir.mkdir(parents=True, exist_ok=True)
     csv_path = report_dir / f'{stem}.csv'
@@ -118,6 +125,12 @@ def write_enrichment_preview_reports(rows: list[dict], *, report_dir: Path, stem
                 'web_search_used': row.get('web_search_used'),
                 'source_count': row.get('source_count') if row.get('source_count') is not None else '',
                 'confidence': row.get('confidence') or '',
+                'approved_fields': _join_list(row.get('approved_fields')),
+                'blocked_fields': _join_list(row.get('blocked_fields')),
+                'dictionary_additions': json.dumps(
+                    row.get('dictionary_additions') or {'brands': [], 'categories': []},
+                    ensure_ascii=False,
+                ),
                 'unresolved_fields': _join_unresolved(row.get('unresolved_fields')),
             })
     json_path.write_text(
@@ -218,6 +231,10 @@ class Command(BaseCommand):
                     'web_search_used': False,
                     'source_count': 0,
                     'confidence': '',
+                    'approved_fields': [],
+                    'blocked_fields': [],
+                    'field_decisions': {},
+                    'dictionary_additions': {'brands': [], 'categories': []},
                     'unresolved_fields': [{'field': 'product', 'reason': 'Product не найден'}],
                     'unmatched': [],
                     'fields': {},
