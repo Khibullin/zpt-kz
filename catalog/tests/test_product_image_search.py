@@ -6,15 +6,20 @@ from urllib.parse import urlparse
 
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
+from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
-from catalog.models import Product, SellerProfile
+from catalog.models import Product, ProductImage, SellerProfile
 from catalog.product_image_search import (
     MAX_RESULTS,
     PHOTO_WARNING,
     parse_brave_image_results,
     search_product_images,
+)
+from catalog.product_image_upload import (
+    TOO_MANY_IMAGES_MESSAGE,
+    parse_remote_image_tokens,
 )
 from catalog.remote_image import (
     MAX_IMAGE_BYTES,
@@ -382,3 +387,241 @@ class RemoteImageSecurityTests(TestCase):
                 self.assertTrue(product.main_image)
                 self.assertEqual(seen_urls, ['https://cdn.example.com/ok.png'])
                 self.assertEqual(urlparse(seen_urls[0]).hostname, 'cdn.example.com')
+
+
+class MultiRemoteProductPhotoTests(TestCase):
+    def setUp(self):
+        self.seller = _seller('multi-photo', 'Multi Photo', '77770000555')
+        self.client.login(username='multi-photo', password='secret12345')
+
+    def _token(self, index):
+        return sign_remote_image_token(image_url=f'https://cdn.example.com/p{index}.png')
+
+    def _post_add(self, data):
+        payload = {
+            'title': 'Мультифото фильтр',
+            'article': data.pop('article', 'MULTI-1'),
+            'price': '3000',
+            'condition': 'new',
+            'status': 'active',
+        }
+        payload.update(data)
+        return self.client.post(reverse('add_product'), data=payload)
+
+    def test_parse_tokens_dedupes_and_rejects_sixth(self):
+        tokens = [self._token(i) for i in range(6)]
+        parsed, main = parse_remote_image_tokens({
+            'remote_main_image_token': tokens[0],
+            'remote_image_tokens': json.dumps(tokens[:5]),
+        })
+        self.assertEqual(main, tokens[0])
+        self.assertEqual(len(parsed), 5)
+        with self.assertRaises(RemoteImageError) as ctx:
+            parse_remote_image_tokens({
+                'remote_main_image_token': tokens[0],
+                'remote_image_tokens': json.dumps(tokens),
+            })
+        self.assertIn('5 фото', str(ctx.exception))
+        duped, _ = parse_remote_image_tokens({
+            'remote_main_image_token': tokens[1],
+            'remote_image_tokens': json.dumps([tokens[1], tokens[1], tokens[2]]),
+        })
+        self.assertEqual(duped, [tokens[1], tokens[2]])
+
+    def test_one_remote_token_becomes_main(self):
+        token = self._token(1)
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                with patch(
+                    'catalog.remote_image.download_public_image',
+                    return_value=(MINIMAL_PNG, 'PNG'),
+                ):
+                    response = self._post_add({
+                        'article': 'MULTI-ONE',
+                        'remote_main_image_token': token,
+                    })
+                self.assertRedirects(response, reverse('seller_dashboard'))
+                product = Product.objects.get(article='MULTI-ONE')
+                self.assertTrue(product.main_image)
+                self.assertEqual(product.images.count(), 0)
+
+    def test_two_remote_selected_make_main_and_product_image(self):
+        tokens = [self._token(1), self._token(2)]
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                with patch(
+                    'catalog.remote_image.download_public_image',
+                    return_value=(MINIMAL_PNG, 'PNG'),
+                ):
+                    response = self._post_add({
+                        'article': 'MULTI-TWO',
+                        'remote_main_image_token': tokens[0],
+                        'remote_image_tokens': json.dumps(tokens),
+                    })
+                self.assertRedirects(response, reverse('seller_dashboard'))
+                product = Product.objects.get(article='MULTI-TWO')
+                self.assertTrue(product.main_image)
+                self.assertEqual(product.images.count(), 1)
+
+    def test_five_remote_selected_make_one_main_and_four_extras(self):
+        tokens = [self._token(i) for i in range(5)]
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                with patch(
+                    'catalog.remote_image.download_public_image',
+                    return_value=(MINIMAL_PNG, 'PNG'),
+                ):
+                    response = self._post_add({
+                        'article': 'MULTI-FIVE',
+                        'remote_main_image_token': tokens[0],
+                        'remote_image_tokens': json.dumps(tokens),
+                    })
+                self.assertRedirects(response, reverse('seller_dashboard'))
+                product = Product.objects.get(article='MULTI-FIVE')
+                self.assertTrue(product.main_image)
+                self.assertEqual(product.images.count(), 4)
+
+    def test_sixth_remote_is_rejected(self):
+        tokens = [self._token(i) for i in range(6)]
+        before = Product.objects.count()
+        response = self._post_add({
+            'article': 'MULTI-SIX',
+            'remote_main_image_token': tokens[0],
+            'remote_image_tokens': json.dumps(tokens),
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, TOO_MANY_IMAGES_MESSAGE)
+        self.assertEqual(Product.objects.count(), before)
+
+    def test_second_selected_can_be_main(self):
+        tokens = [self._token(1), self._token(2)]
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                with patch(
+                    'catalog.remote_image.download_public_image',
+                    return_value=(MINIMAL_PNG, 'PNG'),
+                ):
+                    response = self._post_add({
+                        'article': 'MULTI-MAIN2',
+                        'remote_main_image_token': tokens[1],
+                        'remote_image_tokens': json.dumps(tokens),
+                    })
+                self.assertRedirects(response, reverse('seller_dashboard'))
+                product = Product.objects.get(article='MULTI-MAIN2')
+                self.assertTrue(product.main_image)
+                self.assertEqual(product.images.count(), 1)
+                self.assertNotEqual(product.main_image.name, product.images.first().image.name)
+
+    def test_duplicate_selection_does_not_create_duplicate_product_image(self):
+        token = self._token(8)
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                with patch(
+                    'catalog.remote_image.download_public_image',
+                    return_value=(MINIMAL_PNG, 'PNG'),
+                ):
+                    response = self._post_add({
+                        'article': 'MULTI-DUP',
+                        'remote_main_image_token': token,
+                        'remote_image_tokens': json.dumps([token, token]),
+                    })
+                self.assertRedirects(response, reverse('seller_dashboard'))
+                product = Product.objects.get(article='MULTI-DUP')
+                self.assertTrue(product.main_image)
+                self.assertEqual(product.images.count(), 0)
+
+    def test_invalid_extra_token_does_not_create_product(self):
+        token = self._token(1)
+        before = Product.objects.count()
+        response = self._post_add({
+            'article': 'MULTI-BAD',
+            'remote_main_image_token': token,
+            'remote_image_tokens': json.dumps([token, 'not-a-token']),
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Некорректный выбор фото')
+        self.assertEqual(Product.objects.count(), before)
+
+    def test_edit_keeps_existing_photos_when_adding_remote_extra(self):
+        product = _product(
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            slug='keep-gallery',
+            article='KEEP-GALLERY',
+        )
+        extra_token = self._token(3)
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                product.main_image.save('keep-main.png', ContentFile(MINIMAL_PNG), save=True)
+                extra = ProductImage.objects.create(
+                    product=product,
+                    image=ContentFile(MINIMAL_PNG, name='keep-extra.png'),
+                )
+                old_main = product.main_image.name
+                old_extra = extra.image.name
+                with patch(
+                    'catalog.remote_image.download_public_image',
+                    return_value=(MINIMAL_PNG, 'PNG'),
+                ):
+                    response = self.client.post(
+                        reverse('edit_product', kwargs={'pk': product.pk}),
+                        data={
+                            'title': product.title,
+                            'article': 'KEEP-GALLERY',
+                            'price': '2000',
+                            'condition': 'new',
+                            'status': 'active',
+                            'remote_image_tokens': json.dumps([extra_token]),
+                        },
+                    )
+                self.assertEqual(response.status_code, 302)
+                product.refresh_from_db()
+                self.assertEqual(product.main_image.name, old_main)
+                self.assertEqual(product.images.count(), 2)
+                names = [img.image.name for img in product.images.all()]
+                self.assertIn(old_extra, names)
+
+    def test_local_extra_upload_still_works(self):
+        uploaded = SimpleUploadedFile('extra.png', MINIMAL_PNG, content_type='image/png')
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                response = self._post_add({
+                    'article': 'MULTI-LOCAL',
+                    'extra_images': uploaded,
+                })
+                self.assertRedirects(response, reverse('seller_dashboard'))
+                product = Product.objects.get(article='MULTI-LOCAL')
+                self.assertEqual(product.images.count(), 1)
+                self.assertTrue(product.main_image)
+
+    def test_total_max_enforced_with_existing_extras(self):
+        product = _product(
+            seller_profile=self.seller,
+            seller_name=self.seller.name,
+            slug='full-gallery',
+            article='FULL-GALLERY',
+        )
+        tokens = [self._token(i) for i in range(4)]
+        with TemporaryDirectory() as tmp:
+            with override_settings(MEDIA_ROOT=tmp):
+                product.main_image.save('full-main.png', ContentFile(MINIMAL_PNG), save=True)
+                for index in range(4):
+                    ProductImage.objects.create(
+                        product=product,
+                        image=ContentFile(MINIMAL_PNG, name=f'full-extra-{index}.png'),
+                    )
+                response = self.client.post(
+                    reverse('edit_product', kwargs={'pk': product.pk}),
+                    data={
+                        'title': product.title,
+                        'article': 'FULL-GALLERY',
+                        'price': '2000',
+                        'condition': 'new',
+                        'status': 'active',
+                        'remote_image_tokens': json.dumps(tokens[:1]),
+                    },
+                )
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, TOO_MANY_IMAGES_MESSAGE)
+                product.refresh_from_db()
+                self.assertEqual(product.images.count(), 4)

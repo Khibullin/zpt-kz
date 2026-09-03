@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/seller-product-form.css' %}?v=seller_product_form_v1">
+{% endblock %}
+
 {% block title %}
   {% if page_title %}{{ page_title }}{% else %}Добавить товар{% endif %} — ZPT.KZ
 {% endblock %}
@@ -25,6 +29,39 @@
 
       <form method="post" enctype="multipart/form-data" class="seller-form">
         {% csrf_token %}
+
+        <div class="seller-ai-panel" id="seller-ai-panel">
+          <h2 class="seller-ai-panel__title">✨ Заполнить товар с помощью AI</h2>
+          <p class="seller-ai-panel__text">
+            Введите артикул — AI найдёт данные о запчасти и поможет заполнить карточку:
+            название, категорию, страну и марку, применимость, двигатели,
+            OEM/кросс-номера, описание и варианты фотографий.
+            Вы проверяете результат и сами сохраняете товар.
+          </p>
+          <p>
+            <label for="{{ form.article.id_for_label }}">{{ form.article.label }}</label>
+            <span class="product-article-row">
+              {{ form.article }}
+              <button type="button" class="btn red" id="js-product-assistant-btn">
+                ✨ Заполнить карточку с AI
+              </button>
+            </span>
+            <span class="field-hint" id="js-product-assistant-status" hidden></span>
+          </p>
+          <div class="product-assistant-preview" id="js-product-assistant-preview" hidden>
+            <div class="product-assistant-preview-title">Найденные данные</div>
+            <div class="product-assistant-preview-body" id="js-product-assistant-preview-body"></div>
+            <div class="form-action-row">
+              <button type="button" class="btn red" id="js-product-assistant-apply">
+                Применить данные
+              </button>
+              <button type="button" class="btn outline" id="js-product-assistant-cancel">
+                Отмена
+              </button>
+            </div>
+          </div>
+          <p class="seller-ai-panel__manual">Можно заполнить карточку вручную ниже.</p>
+        </div>
 
         <p>
           <label for="{{ form.country.id_for_label }}">{{ form.country.label }}</label>
@@ -63,30 +100,6 @@
           <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
           {{ form.title }}
         </p>
-
-        <p>
-          <label for="{{ form.article.id_for_label }}">{{ form.article.label }}</label>
-          <span class="product-article-row">
-            {{ form.article }}
-            <button type="button" class="btn outline" id="js-product-assistant-btn">
-              Подобрать данные по артикулу
-            </button>
-          </span>
-          <span class="field-hint" id="js-product-assistant-status" hidden></span>
-        </p>
-
-        <div class="product-assistant-preview" id="js-product-assistant-preview" hidden>
-          <div class="product-assistant-preview-title">Найденные данные</div>
-          <div class="product-assistant-preview-body" id="js-product-assistant-preview-body"></div>
-          <div class="form-action-row">
-            <button type="button" class="btn red" id="js-product-assistant-apply">
-              Применить данные
-            </button>
-            <button type="button" class="btn outline" id="js-product-assistant-cancel">
-              Отмена
-            </button>
-          </div>
-        </div>
 
         <p class="product-price-field">
           <label for="{{ form.price.id_for_label }}">{{ form.price.label }}</label>
@@ -141,10 +154,14 @@
             {{ form.main_image }}
           </div>
           <input type="hidden" name="remote_main_image_token" id="id_remote_main_image_token" value="">
+          <input type="hidden" name="remote_image_tokens" id="id_remote_image_tokens" value="[]">
 
           <div class="product-photo-selected" id="js-photo-selected" hidden>
-            <img alt="Выбранное фото" id="js-photo-selected-img">
-            <div>Выбранное фото будет сохранено вместе с карточкой</div>
+            <div class="product-photo-selected-count" id="js-photo-selected-count">Выбрано 0 из 5</div>
+            <p class="product-photo-save-note" id="js-photo-save-note" hidden>
+              Выбранные фотографии будут сохранены вместе с товаром после нажатия «Сохранить товар».
+            </p>
+            <div class="product-photo-selected-list" id="js-photo-selected-list"></div>
           </div>
 
           <p class="field-hint" id="js-photo-search-status" hidden></p>
@@ -155,7 +172,7 @@
         </p>
 
         <p>
-          <label for="id_extra_images">Дополнительные фото (до 4)</label>
+          <label for="id_extra_images">Дополнительные фото с компьютера (до 4)</label>
           <input type="file" name="extra_images" id="id_extra_images" multiple>
         </p>
 
@@ -219,9 +236,11 @@
   data-brands-url="{% url 'ajax_load_brands' %}"
   data-models-url="{% url 'ajax_load_models' %}"
   data-compatible-url="{% url 'ajax_load_compatible_models' %}"
+  data-has-existing-main="{% if product and product.main_image %}1{% else %}0{% endif %}"
+  data-existing-extra-count="{% if product %}{{ product.images.count }}{% else %}0{% endif %}"
 ></div>
 <script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
-<script src="{% static 'js/product-assistant-v1.js' %}?v=product_assistant_v4"></script>
+<script src="{% static 'js/product-assistant-v1.js' %}?v=product_assistant_v5"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const countrySelect = document.getElementById("id_country");

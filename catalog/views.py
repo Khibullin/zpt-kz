@@ -41,7 +41,6 @@ from .commercial import (
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
 from .models import (
     Product,
-    ProductImage,
     ProductConsignmentRequest,
     Country,
     Brand,
@@ -51,8 +50,12 @@ from .models import (
 )
 from .product_assistant import suggest_product_by_article
 from .product_image_search import search_product_images
-from .remote_image import RemoteImageError, fetch_signed_remote_image
-from .article_utils import normalize_article
+from .product_image_upload import (
+    ProductImagePlan,
+    apply_product_image_plan,
+    build_product_image_plan,
+)
+from .remote_image import RemoteImageError
 from .wholesale import (
     WHOLESALE_TYPE_CHOICES,
     attach_public_wholesale_flags,
@@ -888,18 +891,6 @@ def _request_payload(request):
     return request.POST
 
 
-def _load_remote_main_image(request, *, filename_stem='product'):
-    if request.FILES.get('main_image'):
-        return None, None
-    token = (request.POST.get('remote_main_image_token') or '').strip()
-    if not token:
-        return None, None
-    try:
-        return fetch_signed_remote_image(token, filename_stem=filename_stem), None
-    except RemoteImageError as exc:
-        return None, str(exc)
-
-
 def _require_seller(request):
     return get_object_or_404(SellerProfile, user=request.user)
 
@@ -910,44 +901,28 @@ def add_product(request):
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
-        files = request.FILES.getlist('extra_images')
-        remote_file = None
-        article_stem = normalize_article(request.POST.get('article') or '') or 'product'
+        image_plan = None
 
         if form.is_valid():
-            remote_file, remote_error = _load_remote_main_image(
-                request,
-                filename_stem=article_stem,
-            )
-            if remote_error:
-                form.add_error('main_image', remote_error)
+            try:
+                image_plan = build_product_image_plan(request, product=None)
+            except RemoteImageError as exc:
+                form.add_error('main_image', str(exc))
 
         if form.is_valid():
-            product = form.save(commit=False)
-
-            product.seller_name = seller.name
-            product.whatsapp_number = seller.phone
-            product.city = seller.city
-            product.seller_profile = seller
-            if remote_file is not None:
-                product.main_image.save(remote_file.name, remote_file, save=False)
-
-            product.save()
-            form.save_m2m()
-
-            uploaded_images = []
-
-            for f in files[:4]:
-                img = ProductImage.objects.create(
-                    product=product,
-                    image=f
+            with transaction.atomic():
+                product = form.save(commit=False)
+                product.seller_name = seller.name
+                product.whatsapp_number = seller.phone
+                product.city = seller.city
+                product.seller_profile = seller
+                product.save()
+                form.save_m2m()
+                apply_product_image_plan(
+                    product,
+                    image_plan or ProductImagePlan(),
+                    new_local_main=bool(request.FILES.get('main_image')),
                 )
-                uploaded_images.append(img)
-
-            if not product.main_image and uploaded_images:
-                product.main_image = uploaded_images[0].image
-                product.save(update_fields=['main_image'])
-
             return redirect('seller_dashboard')
     else:
         form = ProductForm()
@@ -971,71 +946,29 @@ def edit_product(request, pk):
 
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES, instance=product, initial=initial)
-        files = request.FILES.getlist('extra_images')
-        remote_file = None
+        image_plan = None
         new_upload = bool(request.FILES.get('main_image'))
-        article_stem = normalize_article(
-            request.POST.get('article') or product.article or ''
-        ) or 'product'
 
         if form.is_valid():
-            remote_file, remote_error = _load_remote_main_image(
-                request,
-                filename_stem=article_stem,
-            )
-            if remote_error:
-                form.add_error('main_image', remote_error)
+            try:
+                image_plan = build_product_image_plan(request, product=product)
+            except RemoteImageError as exc:
+                form.add_error('main_image', str(exc))
 
         if form.is_valid():
-            updated_product = form.save(commit=False)
-
-            if (
-                request.POST.get('remove_main_image')
-                and not new_upload
-                and remote_file is None
-            ):
-                if product.main_image:
-                    product.main_image.delete(save=False)
-
-                updated_product.main_image = None
-
-            if remote_file is not None and not new_upload:
-                updated_product.main_image.save(remote_file.name, remote_file, save=False)
-
-            if request.POST.get('remove_extra_images'):
-                for img in product.images.all():
-                    img.image.delete(save=False)
-                    img.delete()
-
-            updated_product.seller_name = seller.name
-            updated_product.whatsapp_number = seller.phone
-            updated_product.city = seller.city
-            updated_product.seller_profile = seller
-
-            updated_product.save()
-            form.save_m2m()
-
-            uploaded_images = []
-
-            if files:
-                for img in product.images.all():
-                    img.image.delete(save=False)
-                    img.delete()
-
-                for f in files[:4]:
-                    img = ProductImage.objects.create(
-                        product=updated_product,
-                        image=f
-                    )
-                    uploaded_images.append(img)
-
-            if not updated_product.main_image:
-                first_image = updated_product.images.first()
-
-                if first_image:
-                    updated_product.main_image = first_image.image
-                    updated_product.save(update_fields=['main_image'])
-
+            with transaction.atomic():
+                updated_product = form.save(commit=False)
+                updated_product.seller_name = seller.name
+                updated_product.whatsapp_number = seller.phone
+                updated_product.city = seller.city
+                updated_product.seller_profile = seller
+                updated_product.save()
+                form.save_m2m()
+                apply_product_image_plan(
+                    updated_product,
+                    image_plan or ProductImagePlan(),
+                    new_local_main=new_upload,
+                )
             return redirect('seller_dashboard')
     else:
         form = ProductForm(instance=product, initial=initial)

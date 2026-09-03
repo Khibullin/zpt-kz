@@ -466,23 +466,120 @@
     const skipBtn = document.getElementById('js-photo-skip-btn');
     const fileInput = document.getElementById('id_main_image');
     const tokenInput = document.getElementById('id_remote_main_image_token');
+    const tokensInput = document.getElementById('id_remote_image_tokens');
     const selectedBox = document.getElementById('js-photo-selected');
-    const selectedImg = document.getElementById('js-photo-selected-img');
+    const selectedList = document.getElementById('js-photo-selected-list');
+    const selectedCount = document.getElementById('js-photo-selected-count');
+    const saveNote = document.getElementById('js-photo-save-note');
     const searchBox = document.getElementById('js-photo-search');
     const grid = document.getElementById('js-photo-search-grid');
     const status = document.getElementById('js-photo-search-status');
     const searchUrl = root.getAttribute('data-image-search-url');
+    const hasExistingMain = root.getAttribute('data-has-existing-main') === '1';
+    const MAX_REMOTE = 5;
+    let selected = [];
 
-    function clearRemoteSelection() {
+    function syncHidden() {
       if (tokenInput) {
-        tokenInput.value = '';
+        const main = selected.find(function (item) { return item.isMain; });
+        tokenInput.value = main ? main.token : '';
+      }
+      if (tokensInput) {
+        tokensInput.value = JSON.stringify(selected.map(function (item) { return item.token; }));
+      }
+    }
+
+    function selectedCountText() {
+      return 'Выбрано ' + selected.length + ' из 5';
+    }
+
+    function markCards() {
+      if (!grid) {
+        return;
+      }
+      const tokens = selected.map(function (item) { return item.token; });
+      grid.querySelectorAll('.product-photo-card').forEach(function (card) {
+        const token = card.getAttribute('data-token') || '';
+        const on = tokens.indexOf(token) !== -1;
+        card.classList.toggle('is-selected', on);
+        const badge = card.querySelector('.product-photo-card-badge');
+        const button = card.querySelector('button[data-use-photo]');
+        if (badge) {
+          badge.hidden = !on;
+        }
+        if (button) {
+          button.disabled = on;
+          button.textContent = on ? 'Выбрано' : 'Использовать фото';
+        }
+      });
+    }
+
+    function renderSelected() {
+      syncHidden();
+      if (selectedCount) {
+        selectedCount.textContent = selectedCountText();
+      }
+      if (saveNote) {
+        saveNote.hidden = selected.length === 0;
       }
       if (selectedBox) {
-        selectedBox.hidden = true;
+        selectedBox.hidden = selected.length === 0;
       }
-      if (selectedImg) {
-        selectedImg.removeAttribute('src');
+      if (!selectedList) {
+        markCards();
+        return;
       }
+      ZPTDom.clearElement(selectedList);
+      selected.forEach(function (item, index) {
+        const card = document.createElement('div');
+        card.className = 'product-photo-picked' + (item.isMain ? ' is-main' : '');
+
+        const img = document.createElement('img');
+        img.src = item.thumb || '';
+        img.alt = item.isMain ? 'Главное фото' : 'Дополнительное фото';
+        card.appendChild(img);
+
+        const role = document.createElement('div');
+        role.className = 'product-photo-picked-role';
+        role.textContent = item.isMain ? 'Главное фото' : 'Дополнительное фото';
+        card.appendChild(role);
+
+        const actions = document.createElement('div');
+        actions.className = 'product-photo-picked-actions';
+        if (!item.isMain) {
+          const makeMain = document.createElement('button');
+          makeMain.type = 'button';
+          makeMain.className = 'btn outline';
+          makeMain.textContent = 'Сделать главным';
+          makeMain.addEventListener('click', function () {
+            selected.forEach(function (entry) { entry.isMain = false; });
+            selected[index].isMain = true;
+            renderSelected();
+          });
+          actions.appendChild(makeMain);
+        }
+        const remove = document.createElement('button');
+        remove.type = 'button';
+        remove.className = 'btn outline';
+        remove.textContent = 'Убрать';
+        remove.addEventListener('click', function () {
+          const wasMain = selected[index].isMain;
+          selected.splice(index, 1);
+          if (wasMain && selected.length) {
+            selected[0].isMain = true;
+          }
+          renderSelected();
+        });
+        actions.appendChild(remove);
+        card.appendChild(actions);
+        selectedList.appendChild(card);
+      });
+      markCards();
+    }
+
+    function clearRemoteSelection() {
+      selected = [];
+      renderSelected();
     }
 
     function clearFile() {
@@ -491,12 +588,31 @@
       }
     }
 
-    function showSelected(src) {
-      if (!selectedBox || !selectedImg || !src) {
+    function addRemote(item) {
+      if (!item || !item.token) {
         return;
       }
-      selectedImg.src = src;
-      selectedBox.hidden = false;
+      if (selected.some(function (entry) { return entry.token === item.token; })) {
+        return;
+      }
+      if (selected.length >= MAX_REMOTE) {
+        setHint(status, 'Можно выбрать не больше 5 фото.', true);
+        return;
+      }
+      clearFile();
+      const makeMain = selected.length === 0 && !hasExistingMain;
+      selected.push({
+        token: item.token,
+        thumb: item.thumbnail_url || '',
+        title: item.title || '',
+        isMain: makeMain,
+      });
+      renderSelected();
+      setHint(
+        status,
+        'Фото выбрано. Оно сохранится только после «Сохранить товар».',
+        false
+      );
     }
 
     if (uploadBtn && fileInput) {
@@ -510,8 +626,6 @@
       fileInput.addEventListener('change', function () {
         if (fileInput.files && fileInput.files[0]) {
           clearRemoteSelection();
-          const url = URL.createObjectURL(fileInput.files[0]);
-          showSelected(url);
           setHint(status, 'Выбрано своё фото. Оно сохранится вместе с карточкой.', false);
         }
       });
@@ -524,7 +638,7 @@
         if (searchBox) {
           searchBox.hidden = true;
         }
-        setHint(status, 'Карточка будет без нового фото.', false);
+        setHint(status, 'Карточка будет без нового фото. Текущие фото товара не удаляются.', false);
       });
     }
 
@@ -569,6 +683,13 @@
             images.forEach(function (item) {
               const card = document.createElement('div');
               card.className = 'product-photo-card';
+              card.setAttribute('data-token', item.token || '');
+
+              const badge = document.createElement('span');
+              badge.className = 'product-photo-card-badge';
+              badge.textContent = 'Выбрано';
+              badge.hidden = true;
+              card.appendChild(badge);
 
               const img = document.createElement('img');
               img.src = item.thumbnail_url || '';
@@ -592,14 +713,10 @@
               const choose = document.createElement('button');
               choose.type = 'button';
               choose.className = 'btn outline';
-              choose.textContent = 'Выбрать фото';
+              choose.setAttribute('data-use-photo', '1');
+              choose.textContent = 'Использовать фото';
               choose.addEventListener('click', function () {
-                clearFile();
-                if (tokenInput) {
-                  tokenInput.value = item.token || '';
-                }
-                showSelected(item.thumbnail_url);
-                setHint(status, 'Фото выбрано. Оно сохранится вместе с карточкой.', false);
+                addRemote(item);
               });
               card.appendChild(choose);
               grid.appendChild(card);
@@ -608,6 +725,7 @@
               searchBox.hidden = false;
             }
             setHint(status, data.warning || 'Проверьте, что на фото изображён именно ваш товар.', false);
+            markCards();
           })
           .catch(function (error) {
             setHint(status, error.message || 'Не удалось найти фото. Загрузите своё.', true);
