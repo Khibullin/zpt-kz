@@ -1,0 +1,76 @@
+{% extends 'base_portal.html' %}
+{% load static %}
+
+{% block title %}Вопросы и справки ZPT.KZ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=2">
+{% endblock %}
+
+{% block content %}
+<main class="platform-help">
+  <header class="platform-help__intro">
+    <h1>Вопросы и справки ZPT.KZ</h1>
+    <p>
+      Напишите вопрос или задайте его голосом. ИИ-помощник подскажет,
+      как пользоваться ZPT.KZ.
+    </p>
+  </header>
+
+  <section class="platform-help__chat" aria-label="Диалог со справочным помощником">
+    <div class="platform-help__toolbar">
+      <button type="button" class="platform-help__new" id="help-new-dialog">
+        Новый диалог
+      </button>
+    </div>
+    <div
+      class="platform-help__messages"
+      id="help-messages"
+      aria-live="polite"
+      aria-relevant="additions"
+    ></div>
+    <div class="platform-help__chips" id="help-chips" hidden>
+      <button type="button" data-help-example="Где посмотреть мои заявки?">Где посмотреть мои заявки?</button>
+      <button type="button" data-help-example="Как добавить товар?">Как добавить товар?</button>
+      <button type="button" data-help-example="Как работают оптовые предложения?">Как работают оптовые предложения?</button>
+      <button type="button" data-help-example="Как пользоваться ИИ-помощником?">Как пользоваться ИИ-помощником?</button>
+    </div>
+  </section>
+
+  <form class="platform-help__composer" id="help-form" novalidate>
+    {% csrf_token %}
+    <label class="platform-help__label" for="help-input">Ваш вопрос</label>
+    <textarea
+      id="help-input"
+      name="message"
+      maxlength="2000"
+      rows="3"
+      placeholder="Напишите свой вопрос…"
+      required
+    ></textarea>
+    <p class="platform-help__status" id="help-status" aria-live="polite"></p>
+    <div class="platform-help__actions">
+      <button
+        type="button"
+        class="platform-help__mic"
+        id="help-mic"
+        aria-label="Говорить"
+        aria-pressed="false"
+      >
+        Говорить
+      </button>
+      <button type="submit" class="platform-help__send" id="help-send">
+        Отправить
+      </button>
+    </div>
+    <p class="platform-help__privacy">
+      Голосовая запись используется только для распознавания и не сохраняется.
+      Текст вопросов и ответы сохраняются в истории диалога ZPT.KZ.
+    </p>
+  </form>
+</main>
+{% endblock %}
+
+{% block portal_js %}
+<script src="{% static 'js/platform-help.js' %}?v=2"></script>
+{% endblock %}

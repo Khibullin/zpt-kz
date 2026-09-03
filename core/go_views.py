@@ -8,7 +8,7 @@ GO_DESTINATIONS = {
     'add-product': '/market/seller/add/',
     'wholesale': '/market/?offer=wholesale&all=1',
     'sellers': '/parts-sellers/',
-    'help': '/request-parts/faq/',
+    'help': '/request-parts/help/',
 }
 
 

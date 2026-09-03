@@ -45,6 +45,8 @@ from .models import (
     BUYER_BROADCAST_RECIPIENT_SKIPPED,
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
+    PlatformHelpConversation,
+    PlatformHelpMessage,
 )
 from core.buyer_audience_admin_forms import (
     BuyerAudienceAdminForm,
@@ -2054,3 +2056,81 @@ class SellerLeadPipelineRunAdmin(admin.ModelAdmin):
     @admin.display(description='Созданные лиды (ID)')
     def created_lead_ids_display(self, obj):
         return _format_json_for_admin(obj.created_lead_ids)
+
+
+class PlatformHelpMessageInline(admin.TabularInline):
+    model = PlatformHelpMessage
+    extra = 0
+    can_delete = False
+    readonly_fields = (
+        'role',
+        'input_mode',
+        'content',
+        'ai_model',
+        'created_at',
+    )
+    fields = readonly_fields
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(PlatformHelpConversation)
+class PlatformHelpConversationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'public_id',
+        'user',
+        'created_at',
+        'updated_at',
+        'message_count',
+    )
+    ordering = ('-created_at',)
+    search_fields = ('public_id', 'user__username')
+    readonly_fields = (
+        'public_id',
+        'user',
+        'created_at',
+        'updated_at',
+        'message_count',
+    )
+    inlines = (PlatformHelpMessageInline,)
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).prefetch_related('messages')
+
+    @admin.display(description='Сообщений')
+    def message_count(self, obj):
+        return obj.messages.count()
+
+
+@admin.register(PlatformHelpMessage)
+class PlatformHelpMessageAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'conversation',
+        'role',
+        'input_mode',
+        'ai_model',
+        'created_at',
+        'content_short',
+    )
+    list_filter = ('role', 'input_mode')
+    ordering = ('-created_at', '-id')
+    readonly_fields = (
+        'conversation',
+        'role',
+        'input_mode',
+        'content',
+        'ai_model',
+        'created_at',
+    )
+    search_fields = ('content', 'conversation__public_id')
+
+    def has_add_permission(self, request):
+        return False
+
+    @admin.display(description='Текст')
+    def content_short(self, obj):
+        text = obj.content or ''
+        return text if len(text) <= 80 else f'{text[:80]}…'

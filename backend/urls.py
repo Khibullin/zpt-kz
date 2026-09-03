@@ -4,6 +4,7 @@ from django.views.generic import TemplateView
 
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect
+from core.help_views import platform_help_page
 from core.views import (
     parts_sellers_catalog,
     parts_seller_detail,
@@ -89,6 +90,12 @@ urlpatterns = [
             template_name='request-parts/faq/index.html'
         ),
         name='request_parts_faq',
+    ),
+
+    path(
+        'request-parts/help/',
+        platform_help_page,
+        name='platform_help',
     ),
 
     path(

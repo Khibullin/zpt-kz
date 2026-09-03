@@ -23,6 +23,12 @@ from .views import (
     short_request_redirect,
 )
 from .admin_seller_password import reset_seller_password
+from .help_views import (
+    platform_help_ask,
+    platform_help_history,
+    platform_help_new_conversation,
+    platform_help_transcribe,
+)
 
 
 urlpatterns = [
@@ -75,5 +81,22 @@ urlpatterns = [
         'parts-seller/<int:seller_id>/',
         parts_seller_detail,
         name='parts_seller_detail'
+    ),
+
+    path('platform-help/ask/', platform_help_ask, name='platform_help_ask'),
+    path(
+        'platform-help/transcribe/',
+        platform_help_transcribe,
+        name='platform_help_transcribe',
+    ),
+    path(
+        'platform-help/history/',
+        platform_help_history,
+        name='platform_help_history',
+    ),
+    path(
+        'platform-help/new-conversation/',
+        platform_help_new_conversation,
+        name='platform_help_new_conversation',
     ),
 ]

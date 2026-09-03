@@ -253,6 +253,18 @@ PRODUCT_AI_MODEL = (
     os.getenv('PRODUCT_AI_MODEL', 'gpt-5.6-luna') or 'gpt-5.6-luna'
 ).strip() or 'gpt-5.6-luna'
 
+# Platform help (text + voice). No web_search; controlled ZPT.KZ context only.
+HELP_AI_MODEL = (
+    os.getenv('HELP_AI_MODEL', 'gpt-5.6-luna') or 'gpt-5.6-luna'
+).strip()
+HELP_TRANSCRIBE_MODEL = (
+    os.getenv('HELP_TRANSCRIBE_MODEL', 'gpt-4o-mini-transcribe')
+    or 'gpt-4o-mini-transcribe'
+).strip()
+HELP_ASK_MAX_PER_HOUR = int(os.getenv('HELP_ASK_MAX_PER_HOUR', '30') or '30')
+HELP_TRANSCRIBE_MAX_PER_HOUR = int(os.getenv('HELP_TRANSCRIBE_MAX_PER_HOUR', '12') or '12')
+HELP_RATE_LIMIT_WINDOW = int(os.getenv('HELP_RATE_LIMIT_WINDOW', '3600') or '3600')
+
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(
     'ZPT_WAREHOUSE_ADDRESS',

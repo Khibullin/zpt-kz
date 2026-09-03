@@ -1,0 +1,169 @@
+.platform-help {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 16px 28px;
+}
+
+.platform-help__intro h1 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  line-height: 1.25;
+}
+
+.platform-help__intro p {
+  margin: 0 0 16px;
+  color: var(--zpt-gray-600, #4b5563);
+  font-size: 0.98rem;
+}
+
+.platform-help__chat {
+  background: #fff;
+  border: 1px solid var(--zpt-border, #ececec);
+  border-radius: 12px;
+  padding: 12px;
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.platform-help__toolbar {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.platform-help__new {
+  border: 1px solid var(--zpt-border, #ececec);
+  background: #fff;
+  color: #111;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-weight: 600;
+}
+
+.platform-help__messages {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 180px;
+}
+
+.platform-help__bubble {
+  max-width: 92%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font-size: 0.96rem;
+  line-height: 1.45;
+}
+
+.platform-help__bubble--assistant {
+  background: #f3f4f6;
+  align-self: flex-start;
+}
+
+.platform-help__bubble--user {
+  background: #ffe8e6;
+  align-self: flex-end;
+}
+
+.platform-help__bubble a {
+  color: #b42318;
+  word-break: break-all;
+}
+
+.platform-help__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.platform-help__chips[hidden] {
+  display: none;
+}
+
+.platform-help__chips button {
+  border: 1px solid var(--zpt-border, #ececec);
+  background: #fff;
+  border-radius: 999px;
+  padding: 8px 12px;
+  font-size: 0.88rem;
+}
+
+.platform-help__composer {
+  margin-top: 14px;
+}
+
+.platform-help__label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.platform-help__composer textarea {
+  width: 100%;
+  border: 1px solid var(--zpt-border, #ececec);
+  border-radius: 10px;
+  padding: 12px;
+  font: inherit;
+  resize: vertical;
+  min-height: 84px;
+}
+
+.platform-help__status {
+  min-height: 1.4em;
+  margin: 8px 0;
+  color: var(--zpt-gray-600, #4b5563);
+  font-size: 0.92rem;
+}
+
+.platform-help__actions {
+  display: flex;
+  gap: 8px;
+}
+
+.platform-help__mic,
+.platform-help__send {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.platform-help__send {
+  background: var(--zpt-brand, #ff3b30);
+  color: #fff;
+}
+
+.platform-help__mic {
+  background: #111827;
+  color: #fff;
+}
+
+.platform-help__mic.is-recording {
+  background: #b42318;
+}
+
+.platform-help__mic:disabled,
+.platform-help__send:disabled,
+.platform-help__new:disabled {
+  opacity: 0.6;
+}
+
+.platform-help__privacy {
+  margin: 10px 0 0;
+  font-size: 0.82rem;
+  color: var(--zpt-gray-500, #6b7280);
+}
+
+@media (max-width: 360px) {
+  .platform-help {
+    padding: 12px;
+  }
+
+  .platform-help__actions {
+    flex-direction: column;
+  }
+}

@@ -1903,3 +1903,78 @@ class SellerLeadPipelineRun(models.Model):
 
     def __str__(self) -> str:
         return f'{self.run_uuid} ({self.status})'
+
+
+class PlatformHelpConversation(models.Model):
+    public_id = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False,
+        verbose_name='Публичный ID',
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name='platform_help_conversations',
+        verbose_name='Пользователь',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Диалог справки ZPT.KZ'
+        verbose_name_plural = 'Диалоги справки ZPT.KZ'
+        ordering = ['-created_at']
+
+    def __str__(self) -> str:
+        return str(self.public_id)
+
+
+class PlatformHelpMessage(models.Model):
+    ROLE_USER = 'user'
+    ROLE_ASSISTANT = 'assistant'
+    ROLE_CHOICES = [
+        (ROLE_USER, 'Пользователь'),
+        (ROLE_ASSISTANT, 'Помощник'),
+    ]
+    MODE_TEXT = 'text'
+    MODE_VOICE = 'voice'
+    MODE_SYSTEM = 'system'
+    MODE_CHOICES = [
+        (MODE_TEXT, 'Текст'),
+        (MODE_VOICE, 'Голос'),
+        (MODE_SYSTEM, 'Система'),
+    ]
+
+    conversation = models.ForeignKey(
+        PlatformHelpConversation,
+        related_name='messages',
+        on_delete=models.CASCADE,
+        verbose_name='Диалог',
+    )
+    role = models.CharField(max_length=16, choices=ROLE_CHOICES, verbose_name='Роль')
+    input_mode = models.CharField(
+        max_length=16,
+        choices=MODE_CHOICES,
+        default=MODE_TEXT,
+        verbose_name='Способ ввода',
+    )
+    content = models.TextField(verbose_name='Текст')
+    ai_model = models.CharField(max_length=100, blank=True, default='', verbose_name='Модель AI')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Сообщение справки ZPT.KZ'
+        verbose_name_plural = 'Сообщения справки ZPT.KZ'
+        ordering = ['created_at', 'id']
+        indexes = [
+            models.Index(
+                fields=['conversation', 'created_at'],
+                name='core_help_msg_conv_created',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return f'{self.role}: {self.content[:40]}'

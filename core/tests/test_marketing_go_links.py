@@ -12,7 +12,7 @@ class MarketingGoLinkTests(TestCase):
         'add-product': '/market/seller/add/',
         'wholesale': '/market/?offer=wholesale&all=1',
         'sellers': '/parts-sellers/',
-        'help': '/request-parts/faq/',
+        'help': '/request-parts/help/',
     }
 
     def test_every_allowlisted_route_redirects_to_the_fixed_target(self):
@@ -36,6 +36,11 @@ class MarketingGoLinkTests(TestCase):
 
     def test_post_does_not_redirect(self):
         response = self.client.post('/go/requests/')
+        self.assertEqual(response.status_code, 405)
+        self.assertNotIn('Location', response)
+
+    def test_help_post_does_not_redirect(self):
+        response = self.client.post('/go/help/')
         self.assertEqual(response.status_code, 405)
         self.assertNotIn('Location', response)
 
