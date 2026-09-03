@@ -20,6 +20,29 @@ from marketing.models import (
 
 SEED = import_module('marketing.migrations.0018_seller_platform_confirm_template')
 UPDATE = import_module('marketing.migrations.0019_update_seller_platform_confirm_body')
+FORMAT = import_module('marketing.migrations.0020_format_seller_platform_confirm_body')
+
+# Independent copy of the exact body. Do not import this from the migration:
+# a glued migration string must fail this comparison.
+EXPECTED_SELLER_PLATFORM_BODY = (
+    'Уважаемый продавец! Вы зарегистрированы на ZPT.KZ и получаете заявки покупателей на автозапчасти со всего Казахстана.\n'
+    '\n'
+    'Возможности для зарегистрированных продавцов:\n'
+    'Просматривайте поступившие заявки покупателей:\n'
+    'https://zpt.kz/go/requests/\n'
+    '\n'
+    'Размещайте товары вручную или с ИИ-помощником. По артикулу система поможет заполнить описание, применимость, двигатели, OEM/кросс-номера и предложит фотографии:\n'
+    'https://zpt.kz/go/add-product/\n'
+    '\n'
+    'Оптовые товары и прайс-листы:\n'
+    'https://zpt.kz/go/wholesale/\n'
+    '\n'
+    'Каталог продавцов:\n'
+    'https://zpt.kz/go/sellers/\n'
+    '\n'
+    'Вопросы и справки текстом или голосом:\n'
+    'https://zpt.kz/go/help/'
+)
 
 EMOJI_RE = re.compile(
     '['
@@ -51,7 +74,8 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertTrue(template.allow_test_campaign)
         self.assertEqual(template.allowed_purposes, list(SEED.TEMPLATE_ALLOWED_PURPOSES))
         self.assertEqual(template.header_text, SEED.TEMPLATE_HEADER)
-        self.assertEqual(template.body_text, UPDATE.TEMPLATE_BODY)
+        self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
+        self.assertEqual(template.body_text, FORMAT.TEMPLATE_BODY)
         self.assertNotEqual(template.body_text, SEED.TEMPLATE_BODY)
         self.assertEqual(template.footer_text, '')
         self.assertEqual(template.variables, [])
@@ -70,6 +94,43 @@ class SellerPlatformConfirmTemplateTests(TestCase):
             self.assertIsNone(EMOJI_RE.search(button['text']))
             self.assertIsNone(EMOJI_RE.search(button['value']))
 
+    def test_body_text_matches_exact_formatted_multiline_string(self):
+        template = _seller_platform_template()
+        self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
+        self.assertFalse(template.body_text.startswith('\n'))
+        self.assertFalse(template.body_text.endswith('\n'))
+        self.assertNotIn(' \n', template.body_text)
+        self.assertEqual(template.body_text.count('\n\n'), 5)
+        self.assertNotIn('\n\n\n', template.body_text)
+        self.assertEqual(
+            template.body_text.split('\n\n'),
+            [
+                'Уважаемый продавец! Вы зарегистрированы на ZPT.KZ и получаете заявки покупателей на автозапчасти со всего Казахстана.',
+                'Возможности для зарегистрированных продавцов:\nПросматривайте поступившие заявки покупателей:\nhttps://zpt.kz/go/requests/',
+                'Размещайте товары вручную или с ИИ-помощником. По артикулу система поможет заполнить описание, применимость, двигатели, OEM/кросс-номера и предложит фотографии:\nhttps://zpt.kz/go/add-product/',
+                'Оптовые товары и прайс-листы:\nhttps://zpt.kz/go/wholesale/',
+                'Каталог продавцов:\nhttps://zpt.kz/go/sellers/',
+                'Вопросы и справки текстом или голосом:\nhttps://zpt.kz/go/help/',
+            ],
+        )
+        for link in SEED.STABLE_GO_LINKS:
+            self.assertIn(link, template.body_text)
+        self.assertLessEqual(len(template.header_text), SEED.MAX_HEADER_LENGTH)
+        self.assertLessEqual(len(template.body_text), FORMAT.MAX_BODY_LENGTH)
+        self.assertEqual(template.header_text, SEED.TEMPLATE_HEADER)
+        self.assertEqual(len(template.buttons), 2)
+        self.assertEqual(template.buttons, SEED.TEMPLATE_BUTTONS)
+
+        with patch(
+            'core.whatsapp_template_management.urllib.request.urlopen',
+        ) as mocked_urlopen:
+            payload = build_meta_template_payload(template)
+            mocked_urlopen.assert_not_called()
+        body_component = next(
+            item for item in payload['components'] if item['type'] == 'BODY'
+        )
+        self.assertEqual(body_component['text'], EXPECTED_SELLER_PLATFORM_BODY)
+
     def test_meta_payload_is_marketing_quick_reply_without_internal_values(self):
         template = _seller_platform_template()
         with patch(
@@ -84,7 +145,8 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertEqual(types, ['HEADER', 'BODY', 'BUTTONS'])
         self.assertEqual(payload['components'][0]['format'], 'TEXT')
         self.assertEqual(payload['components'][0]['text'], SEED.TEMPLATE_HEADER)
-        self.assertEqual(payload['components'][1]['text'], UPDATE.TEMPLATE_BODY)
+        self.assertEqual(payload['components'][1]['text'], EXPECTED_SELLER_PLATFORM_BODY)
+        self.assertEqual(payload['components'][1]['text'], FORMAT.TEMPLATE_BODY)
         buttons = payload['components'][2]['buttons']
         self.assertEqual(len(buttons), 2)
         self.assertEqual(
@@ -104,8 +166,8 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         with patch(
             'core.whatsapp_template_management.urllib.request.urlopen',
         ) as mocked_urlopen:
-            UPDATE.update_seller_platform_confirm_body(apps, None)
-            UPDATE.update_seller_platform_confirm_body(apps, None)
+            FORMAT.format_seller_platform_confirm_body(apps, None)
+            FORMAT.format_seller_platform_confirm_body(apps, None)
             mocked_urlopen.assert_not_called()
 
         self.assertEqual(
@@ -117,7 +179,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         )
         template = _seller_platform_template()
         self.assertEqual(template.header_text, SEED.TEMPLATE_HEADER)
-        self.assertEqual(template.body_text, UPDATE.TEMPLATE_BODY)
+        self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
         self.assertEqual(
             MarketingCampaign.objects.filter(message_template=template).count(),
             0,
@@ -211,9 +273,9 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         template.body_text = 'Temporary local body before copy update.'
         template.save(update_fields=['body_text', 'updated_at'])
 
-        UPDATE.update_seller_platform_confirm_body(apps, None)
+        FORMAT.format_seller_platform_confirm_body(apps, None)
         template.refresh_from_db()
-        self.assertEqual(template.body_text, UPDATE.TEMPLATE_BODY)
+        self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
         for field, value in snapshot.items():
             self.assertEqual(getattr(template, field), value)
 
@@ -231,6 +293,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
                 'updated_at',
             ])
             UPDATE.update_seller_platform_confirm_body(apps, None)
+            FORMAT.format_seller_platform_confirm_body(apps, None)
             template.refresh_from_db()
             self.assertEqual(template.body_text, protected_body, status)
             self.assertEqual(template.meta_status, status)
@@ -245,6 +308,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
             'updated_at',
         ])
         UPDATE.update_seller_platform_confirm_body(apps, None)
+        FORMAT.format_seller_platform_confirm_body(apps, None)
         template.refresh_from_db()
         self.assertEqual(template.body_text, protected_body)
         self.assertEqual(template.meta_template_id, 'already-has-id')
