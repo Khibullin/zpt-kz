@@ -19,6 +19,7 @@ from marketing.models import (
 
 
 SEED = import_module('marketing.migrations.0018_seller_platform_confirm_template')
+UPDATE = import_module('marketing.migrations.0019_update_seller_platform_confirm_body')
 
 EMOJI_RE = re.compile(
     '['
@@ -50,12 +51,13 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertTrue(template.allow_test_campaign)
         self.assertEqual(template.allowed_purposes, list(SEED.TEMPLATE_ALLOWED_PURPOSES))
         self.assertEqual(template.header_text, SEED.TEMPLATE_HEADER)
-        self.assertEqual(template.body_text, SEED.TEMPLATE_BODY)
+        self.assertEqual(template.body_text, UPDATE.TEMPLATE_BODY)
+        self.assertNotEqual(template.body_text, SEED.TEMPLATE_BODY)
         self.assertEqual(template.footer_text, '')
         self.assertEqual(template.variables, [])
         self.assertEqual(template.meta_template_id, '')
         self.assertLessEqual(len(template.header_text), SEED.MAX_HEADER_LENGTH)
-        self.assertLessEqual(len(template.body_text), SEED.MAX_BODY_LENGTH)
+        self.assertLessEqual(len(template.body_text), UPDATE.MAX_BODY_LENGTH)
         self.assertEqual(len(template.buttons), 2)
         self.assertEqual(template.buttons, SEED.TEMPLATE_BUTTONS)
         for button in template.buttons:
@@ -82,7 +84,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertEqual(types, ['HEADER', 'BODY', 'BUTTONS'])
         self.assertEqual(payload['components'][0]['format'], 'TEXT')
         self.assertEqual(payload['components'][0]['text'], SEED.TEMPLATE_HEADER)
-        self.assertEqual(payload['components'][1]['text'], SEED.TEMPLATE_BODY)
+        self.assertEqual(payload['components'][1]['text'], UPDATE.TEMPLATE_BODY)
         buttons = payload['components'][2]['buttons']
         self.assertEqual(len(buttons), 2)
         self.assertEqual(
@@ -102,8 +104,8 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         with patch(
             'core.whatsapp_template_management.urllib.request.urlopen',
         ) as mocked_urlopen:
-            SEED.seed_seller_platform_confirm_template(apps, None)
-            SEED.seed_seller_platform_confirm_template(apps, None)
+            UPDATE.update_seller_platform_confirm_body(apps, None)
+            UPDATE.update_seller_platform_confirm_body(apps, None)
             mocked_urlopen.assert_not_called()
 
         self.assertEqual(
@@ -115,7 +117,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         )
         template = _seller_platform_template()
         self.assertEqual(template.header_text, SEED.TEMPLATE_HEADER)
-        self.assertEqual(template.body_text, SEED.TEMPLATE_BODY)
+        self.assertEqual(template.body_text, UPDATE.TEMPLATE_BODY)
         self.assertEqual(
             MarketingCampaign.objects.filter(message_template=template).count(),
             0,
@@ -188,3 +190,61 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertEqual(template.allowed_purposes, list(SEED.TEMPLATE_ALLOWED_PURPOSES))
         self.assertTrue(template.allow_test_campaign)
         self.assertEqual(template.meta_template_id, '')
+
+    def test_body_update_changes_only_body_text(self):
+        template = _seller_platform_template()
+        snapshot = {
+            'name': template.name,
+            'header_text': template.header_text,
+            'footer_text': template.footer_text,
+            'buttons': list(template.buttons),
+            'variables': list(template.variables),
+            'allowed_purposes': list(template.allowed_purposes),
+            'is_active': template.is_active,
+            'allow_test_campaign': template.allow_test_campaign,
+            'category': template.category,
+            'meta_status': template.meta_status,
+            'meta_template_id': template.meta_template_id,
+            'language_code': template.language_code,
+            'meta_template_name': template.meta_template_name,
+        }
+        template.body_text = 'Temporary local body before copy update.'
+        template.save(update_fields=['body_text', 'updated_at'])
+
+        UPDATE.update_seller_platform_confirm_body(apps, None)
+        template.refresh_from_db()
+        self.assertEqual(template.body_text, UPDATE.TEMPLATE_BODY)
+        for field, value in snapshot.items():
+            self.assertEqual(getattr(template, field), value)
+
+    def test_body_update_skips_non_editable_and_submitted_templates(self):
+        template = _seller_platform_template()
+        protected_body = 'Do not overwrite this body.'
+        for status in ('pending', 'approved', 'rejected', 'paused', 'disabled'):
+            template.body_text = protected_body
+            template.meta_status = status
+            template.meta_template_id = ''
+            template.save(update_fields=[
+                'body_text',
+                'meta_status',
+                'meta_template_id',
+                'updated_at',
+            ])
+            UPDATE.update_seller_platform_confirm_body(apps, None)
+            template.refresh_from_db()
+            self.assertEqual(template.body_text, protected_body, status)
+            self.assertEqual(template.meta_status, status)
+
+        template.body_text = protected_body
+        template.meta_status = 'unknown'
+        template.meta_template_id = 'already-has-id'
+        template.save(update_fields=[
+            'body_text',
+            'meta_status',
+            'meta_template_id',
+            'updated_at',
+        ])
+        UPDATE.update_seller_platform_confirm_body(apps, None)
+        template.refresh_from_db()
+        self.assertEqual(template.body_text, protected_body)
+        self.assertEqual(template.meta_template_id, 'already-has-id')
