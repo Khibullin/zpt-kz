@@ -89,6 +89,11 @@
     return 'нужна проверка';
   }
 
+  function isModelCatalogNote(text) {
+    const value = String(text || '');
+    return /не найдена в справочнике CarModel|относится к марке|Подходит для/i.test(value);
+  }
+
   function renderPreview(container, data) {
     const fields = data.fields || {};
     const models = [fields.car_model_name]
@@ -99,6 +104,7 @@
     const notes = data.research_notes || [];
     let html = '';
     let review = '';
+    let modelNotes = '';
 
     html += '<div class="product-assistant-public">';
     html += fieldLine('Название', fields.title);
@@ -121,12 +127,26 @@
 
     notes.forEach(function (item) {
       const text = (item && item.text) ? item.text : String(item || '');
-      if (text) {
+      const severity = (item && item.severity) ? String(item.severity) : '';
+      if (!text) {
+        return;
+      }
+      if (severity === 'info' || isModelCatalogNote(text)) {
+        modelNotes += '<li>' + ZPTDom.escapeHtml(text) + '</li>';
+      } else {
         review += '<li>' + ZPTDom.escapeHtml(text) + '</li>';
       }
     });
     unmatched.forEach(function (item) {
-      review += '<li>' + ZPTDom.escapeHtml(item) + '</li>';
+      const text = String(item || '');
+      if (!text) {
+        return;
+      }
+      if (isModelCatalogNote(text)) {
+        modelNotes += '<li>' + ZPTDom.escapeHtml(text) + '</li>';
+      } else {
+        review += '<li>' + ZPTDom.escapeHtml(text) + '</li>';
+      }
     });
     sources.forEach(function (item) {
       const url = item.url || '';
@@ -147,6 +167,12 @@
         review +
         '</ul></div>';
     }
+    if (modelNotes) {
+      html +=
+        '<div class="product-assistant-review"><strong>Модели справочника</strong><ul>' +
+        modelNotes +
+        '</ul></div>';
+    }
 
     container.innerHTML = html || '<p class="field-hint">Данных пока нет.</p>';
   }
@@ -156,6 +182,48 @@
       credentials: 'same-origin',
       headers: { Accept: 'application/json' },
     }).then(parseJsonResponse);
+  }
+
+  function escapeRegExp(value) {
+    return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
+  function mentionIndex(blob, name) {
+    const text = String(name || '').trim();
+    if (!text) {
+      return -1;
+    }
+    const re = new RegExp(
+      '(^|[^0-9A-Za-zА-Яа-яЁё])' + escapeRegExp(text) + '(?=[^0-9A-Za-zА-Яа-яЁё]|$)',
+      'i'
+    );
+    const match = blob.match(re);
+    return match ? blob.search(re) : -1;
+  }
+
+  function firstMentioned(items, blob, getName) {
+    let best = null;
+    let bestPos = Infinity;
+    (items || []).forEach(function (item) {
+      const idx = mentionIndex(blob, getName(item));
+      if (idx >= 0 && idx < bestPos) {
+        best = item;
+        bestPos = idx;
+      }
+    });
+    return best;
+  }
+
+  function vehicleBlob(fields) {
+    return [
+      fields.brand_name,
+      fields.title,
+      fields.compatibility,
+      fields.car_model_name,
+    ]
+      .concat((fields.selected_models || []).map(function (item) { return item && item.name; }))
+      .filter(Boolean)
+      .join(' \n ');
   }
 
   function applyVehicle(fields, urls) {
@@ -176,48 +244,112 @@
       });
     }
 
-    const countryId = fields.country_id ? String(fields.country_id) : '';
-    const brandId = fields.brand_id ? String(fields.brand_id) : '';
-    const modelId = fields.car_model_id ? String(fields.car_model_id) : '';
+    function fillVehicle(countryId, brandId, modelId, extra) {
+      if (!countryId) {
+        return Promise.resolve();
+      }
+      countrySelect.value = countryId;
+      return fetchJson(urls.brands + '?country=' + encodeURIComponent(countryId))
+        .then(function (brands) {
+          ZPTDom.fillSelect(brandSelect, brands, 'Выберите марку');
+          if (brandId) {
+            brandSelect.value = brandId;
+          }
+          if (!brandSelect.value) {
+            ZPTDom.fillSelect(modelSelect, [], '---------');
+            ZPTDom.clearElement(compatibleBox);
+            return null;
+          }
+          return Promise.all([
+            fetchJson(urls.models + '?brand=' + encodeURIComponent(brandSelect.value)),
+            fetchJson(urls.compatible + '?brand=' + encodeURIComponent(brandSelect.value)),
+          ]);
+        })
+        .then(function (pair) {
+          if (!pair) {
+            return;
+          }
+          ZPTDom.fillSelect(modelSelect, pair[0], 'Выберите модель');
+          if (modelId) {
+            modelSelect.value = modelId;
+          }
+          if (!modelSelect.value && modelSelect.options) {
+            const blob = vehicleBlob(fields);
+            const catalogModels = pair[0] || [];
+            const hinted = firstMentioned(catalogModels, blob, function (item) { return item.name; });
+            if (hinted) {
+              modelSelect.value = String(hinted.id);
+            }
+          }
+          ZPTDom.renderCheckboxLabels(compatibleBox, pair[1], {
+            name: 'selected_models',
+            excludeId: modelSelect.value,
+          });
+          let ids = extra.slice();
+          if (!ids.length) {
+            const blob = vehicleBlob(fields);
+            (pair[1] || []).forEach(function (item) {
+              if (String(item.id) === String(modelSelect.value)) {
+                return;
+              }
+              if (mentionIndex(blob, item.name) >= 0) {
+                ids.push(String(item.id));
+              }
+            });
+          }
+          setChecked(ids);
+        });
+    }
 
     if (!countrySelect || !brandSelect || !modelSelect) {
       return Promise.resolve();
     }
-    if (!countryId) {
+
+    const countryId = fields.country_id ? String(fields.country_id) : '';
+    const brandId = fields.brand_id ? String(fields.brand_id) : '';
+    const modelId = fields.car_model_id ? String(fields.car_model_id) : '';
+    if (countryId && brandId) {
+      return fillVehicle(countryId, brandId, modelId, extraIds);
+    }
+
+    const blob = vehicleBlob(fields);
+    if (!blob.trim()) {
+      if (countryId) {
+        return fillVehicle(countryId, brandId, modelId, extraIds);
+      }
       return Promise.resolve();
     }
 
-    countrySelect.value = countryId;
-    return fetchJson(urls.brands + '?country=' + encodeURIComponent(countryId))
-      .then(function (brands) {
-        ZPTDom.fillSelect(brandSelect, brands, 'Выберите марку');
-        if (brandId) {
-          brandSelect.value = brandId;
-        }
-        if (!brandSelect.value) {
-          ZPTDom.fillSelect(modelSelect, [], '---------');
-          ZPTDom.clearElement(compatibleBox);
-          return null;
-        }
-        return Promise.all([
-          fetchJson(urls.models + '?brand=' + encodeURIComponent(brandSelect.value)),
-          fetchJson(urls.compatible + '?brand=' + encodeURIComponent(brandSelect.value)),
-        ]);
-      })
-      .then(function (pair) {
-        if (!pair) {
+    const countryIds = Array.prototype.map.call(countrySelect.options, function (option) {
+      return option.value;
+    }).filter(Boolean);
+    const searches = countryIds.map(function (id) {
+      return fetchJson(urls.brands + '?country=' + encodeURIComponent(id)).then(function (brands) {
+        return { countryId: id, brands: brands || [] };
+      });
+    });
+    return Promise.all(searches).then(function (groups) {
+      let resolved = null;
+      let bestPos = Infinity;
+      groups.forEach(function (group) {
+        const brand = firstMentioned(group.brands, blob, function (item) { return item.name; });
+        if (!brand) {
           return;
         }
-        ZPTDom.fillSelect(modelSelect, pair[0], 'Выберите модель');
-        if (modelId) {
-          modelSelect.value = modelId;
+        const pos = mentionIndex(blob, brand.name);
+        if (pos >= 0 && pos < bestPos) {
+          bestPos = pos;
+          resolved = { countryId: group.countryId, brandId: String(brand.id) };
         }
-        ZPTDom.renderCheckboxLabels(compatibleBox, pair[1], {
-          name: 'selected_models',
-          excludeId: modelSelect.value,
-        });
-        setChecked(extraIds);
       });
+      if (!resolved) {
+        if (countryId) {
+          return fillVehicle(countryId, brandId, modelId, extraIds);
+        }
+        return null;
+      }
+      return fillVehicle(resolved.countryId, resolved.brandId, modelId, extraIds);
+    });
   }
 
   function applyFields(fields, urls) {
@@ -316,8 +448,13 @@
           })
           .then(function () {
             applyBtn.disabled = false;
+            const unmatched = (lastPayload && lastPayload.unmatched) || [];
+            const hasModelGap = unmatched.some(isModelCatalogNote);
             hidePreview();
-            setHint(status, 'Данные подставлены. Проверьте карточку и сохраните.', false);
+            const msg = hasModelGap
+              ? 'Данные подставлены. Модели, которых нет в справочнике, сохранены в поле «Подходит для» и не мешают сохранению.'
+              : 'Данные подставлены. Проверьте карточку и сохраните.';
+            setHint(status, msg, false);
           });
       });
     }

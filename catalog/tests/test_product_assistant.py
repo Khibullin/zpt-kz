@@ -5,8 +5,14 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from catalog.article_utils import normalize_article
+from catalog.forms import ProductForm
 from catalog.models import Brand, CarModel, Category, Country, Product, SellerProfile
-from catalog.product_assistant import OpenAIEnrichment, suggest_product_by_article
+from catalog.product_assistant import (
+    OpenAIEnrichment,
+    _match_brand,
+    _match_car_model,
+    suggest_product_by_article,
+)
 
 
 def _seller(username='assistant-seller', name='Assistant Shop', phone='77770000111'):
@@ -343,5 +349,108 @@ class ProductAssistantEndpointTests(TestCase):
         self.assertContains(response, 'Загрузить своё фото')
         self.assertContains(response, 'Оставить без фото')
         self.assertContains(response, 'product-assistant-v1.js')
-        self.assertContains(response, 'product_assistant_v3')
+        self.assertContains(response, 'product_assistant_v4')
         self.assertContains(response, 'Найденные данные')
+        self.assertContains(
+            response,
+            'Нет нужной модели в списке? Ничего добавлять не нужно',
+        )
+
+
+class HyundaiKiaAssistantMatchingTests(TestCase):
+    def setUp(self):
+        self.korea = Country.objects.create(name='Корея')
+        self.hyundai = Brand.objects.create(country=self.korea, name='Hyundai')
+        self.kia = Brand.objects.create(country=self.korea, name='Kia')
+        self.elantra = CarModel.objects.create(brand=self.hyundai, name='Elantra')
+        self.tucson = CarModel.objects.create(brand=self.hyundai, name='Tucson')
+        self.santa_fe = CarModel.objects.create(brand=self.hyundai, name='Santa Fe')
+        self.sportage = CarModel.objects.create(brand=self.kia, name='Sportage')
+        self.seller = _seller('hk-assistant', 'Hyundai Kia Shop', '77770000263')
+
+    def test_hyundai_kia_composite_selects_hyundai_and_keeps_text_fitment(self):
+        compatibility = (
+            'Hyundai Accent, Elantra, Sonata, Tucson, Santa Fe; Kia Forte, Sportage'
+        )
+        brands_before = Brand.objects.count()
+        models_before = CarModel.objects.count()
+        products_before = Product.objects.count()
+
+        def fake_ai(article, local_fields, **kwargs):
+            return OpenAIEnrichment(
+                title='Масляный фильтр Hyundai/Kia 26300-35505',
+                brand='Hyundai/Kia',
+                models=[
+                    'Hyundai Accent',
+                    'Hyundai Elantra',
+                    'Hyundai Sonata',
+                    'Hyundai Tucson',
+                    'Hyundai Santa Fe',
+                    'Kia Forte',
+                    'Kia Sportage',
+                ],
+                compatibility=compatibility,
+                engine_compatibility='1.6 GDI\n2.0',
+                oem_cross_references='26300-35505\n2630035505',
+                confidence='likely',
+            )
+
+        result = suggest_product_by_article('26300-35505', openai_caller=fake_ai)
+        self.assertTrue(result['ok'])
+        self.assertEqual(result['fields']['country_id'], self.korea.pk)
+        self.assertEqual(result['fields']['country_name'], 'Корея')
+        self.assertEqual(result['fields']['brand_id'], self.hyundai.pk)
+        self.assertEqual(result['fields']['brand_name'], 'Hyundai')
+        self.assertEqual(result['fields']['car_model_id'], self.elantra.pk)
+        self.assertEqual(result['fields']['car_model_name'], 'Elantra')
+        selected_ids = {item['id'] for item in result['fields']['selected_models']}
+        selected_names = {item['name'] for item in result['fields']['selected_models']}
+        self.assertEqual(selected_ids, {self.tucson.pk, self.santa_fe.pk})
+        self.assertEqual(selected_names, {'Tucson', 'Santa Fe'})
+        self.assertNotIn(self.sportage.pk, selected_ids)
+        self.assertEqual(result['fields']['compatibility'], compatibility)
+        unmatched = ' '.join(result['unmatched'])
+        self.assertIn('Hyundai Accent', unmatched)
+        self.assertIn('Hyundai Sonata', unmatched)
+        self.assertIn('Kia Forte', unmatched)
+        self.assertIn('Kia Sportage', unmatched)
+        self.assertFalse(Brand.objects.filter(name='Hyundai/Kia').exists())
+        self.assertFalse(CarModel.objects.filter(name='Accent').exists())
+        self.assertFalse(CarModel.objects.filter(name='Sonata').exists())
+        self.assertFalse(CarModel.objects.filter(name='Forte').exists())
+        self.assertEqual(Brand.objects.count(), brands_before)
+        self.assertEqual(CarModel.objects.count(), models_before)
+        self.assertEqual(Product.objects.count(), products_before)
+
+    def test_match_car_model_does_not_cross_brands(self):
+        self.assertIsNone(_match_car_model('Sportage', self.hyundai))
+        self.assertEqual(_match_car_model('Sportage', self.kia).pk, self.sportage.pk)
+        self.assertEqual(_match_car_model('Hyundai Elantra', self.hyundai).pk, self.elantra.pk)
+        self.assertIsNone(_match_car_model('Kia Sportage', self.hyundai))
+        self.assertEqual(_match_brand('Hyundai/Kia').pk, self.hyundai.pk)
+        self.assertEqual(_match_brand('Hyundai, Kia').pk, self.hyundai.pk)
+        self.assertEqual(_match_brand('Hyundai & Kia').pk, self.hyundai.pk)
+
+    def test_product_form_saves_compatibility_without_structured_models(self):
+        compatibility = (
+            'Hyundai Accent, Elantra, Sonata, Tucson, Santa Fe; Kia Forte, Sportage'
+        )
+        form = ProductForm(data={
+            'title': 'Масляный фильтр Hyundai/Kia 26300-35505',
+            'article': '26300-35505',
+            'price': '4500',
+            'condition': 'new',
+            'status': 'active',
+            'compatibility': compatibility,
+        })
+        self.assertTrue(form.is_valid(), form.errors)
+        product = form.save(commit=False)
+        product.seller_name = self.seller.name
+        product.whatsapp_number = self.seller.phone
+        product.save()
+        form.save_m2m()
+        product.refresh_from_db()
+        self.assertIsNone(product.car_model_id)
+        self.assertIsNone(product.brand_id)
+        self.assertEqual(product.selected_models.count(), 0)
+        self.assertEqual(product.compatibility, compatibility)

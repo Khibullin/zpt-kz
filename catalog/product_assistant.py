@@ -59,6 +59,7 @@ _COMPAT_BRAND_TOKEN = re.compile(
     r'^[A-Za-zА-Яа-яЁё][A-Za-zА-Яа-яЁё0-9\-]*',
 )
 _BRAND_KEY_RE = re.compile(r'[^a-zа-яё0-9]+', re.I)
+_BRAND_SPLIT_RE = re.compile(r'\s*(?:[/|,;&+]|\band\b|\bи\b)\s*', re.I)
 BRAND_CANONICAL_BY_KEY = {
     'gwm': 'Great Wall',
     'greatwall': 'Great Wall',
@@ -264,7 +265,79 @@ def _proposed_dictionary_brand(name: str) -> str:
     return PROPOSED_DICTIONARY_BRANDS.get(key) or ''
 
 
-def _match_brand(name: str) -> Brand | None:
+def _brand_tokens(name: str) -> list[str]:
+    text = ' '.join(str(name or '').split())
+    if not text:
+        return []
+    parts = [
+        item.strip()
+        for item in _BRAND_SPLIT_RE.split(text)
+        if item and item.strip()
+    ]
+    tokens: list[str] = []
+    seen: set[str] = set()
+    for item in parts:
+        key = item.casefold()
+        if key in seen:
+            continue
+        seen.add(key)
+        tokens.append(item)
+    return tokens or ([text] if text else [])
+
+
+def _brand_labels(brand: Brand) -> list[str]:
+    labels = [' '.join(str(brand.name or '').split())]
+    canonical = _canonical_brand_label(brand.name)
+    if canonical and canonical not in labels:
+        labels.append(canonical)
+    target = _brand_key(canonical or brand.name)
+    for alias_key, canon in BRAND_CANONICAL_BY_KEY.items():
+        if _brand_key(canon) != target:
+            continue
+        if canon not in labels:
+            labels.append(canon)
+        compact = alias_key.upper() if alias_key.isascii() else alias_key
+        if compact not in labels:
+            labels.append(compact)
+        if alias_key == 'gwm' and 'GWM' not in labels:
+            labels.append('GWM')
+    return [item for item in labels if item]
+
+
+def _brand_word_pattern(label: str) -> re.Pattern[str]:
+    return re.compile(
+        rf'(?<![\w]){re.escape(label)}(?![\w])',
+        re.I,
+    )
+
+
+def _first_existing_brand_in_text(*texts: str) -> Brand | None:
+    blob = ' '.join(' '.join(str(item or '').split()) for item in texts if item)
+    if not blob:
+        return None
+    best: Brand | None = None
+    best_pos = -1
+    best_len = -1
+    for brand in Brand.objects.select_related('country').order_by('name', 'id'):
+        for label in _brand_labels(brand):
+            match = _brand_word_pattern(label).search(blob)
+            if not match:
+                continue
+            pos = match.start()
+            label_len = len(label)
+            if (
+                best is None
+                or pos < best_pos
+                or (pos == best_pos and label_len > best_len)
+            ):
+                best = brand
+                best_pos = pos
+                best_len = label_len
+            break
+    return best
+
+
+def _match_brand_single(name: str) -> Brand | None:
     text = (name or '').strip()
     if not text:
         return None
@@ -305,6 +378,56 @@ def _match_brand(name: str) -> Brand | None:
     return None
 
 
+def _match_brand(name: str) -> Brand | None:
+    text = (name or '').strip()
+    if not text:
+        return None
+    found = _match_brand_single(text)
+    if found is not None:
+        return found
+    tokens = _brand_tokens(text)
+    if len(tokens) <= 1:
+        return None
+    for token in tokens:
+        found = _match_brand_single(token)
+        if found is not None:
+            return found
+    return None
+
+
+def _resolve_primary_brand(
+    name: str,
+    *,
+    title: str = '',
+    compatibility: str = '',
+) -> Brand | None:
+    found = _match_brand(name)
+    if found is not None:
+        return found
+    return _first_existing_brand_in_text(name, title, compatibility)
+
+
+def _split_model_brand_prefix(name: str) -> tuple[Brand | None, str]:
+    text = ' '.join(str(name or '').split())
+    if not text:
+        return None, ''
+    brands = list(Brand.objects.select_related('country').order_by('name', 'id'))
+    brands.sort(key=lambda item: len(item.name or ''), reverse=True)
+    folded = text.casefold()
+    for brand in brands:
+        for label in _brand_labels(brand):
+            prefix = label.casefold()
+            if not prefix:
+                continue
+            if folded == prefix:
+                return brand, ''
+            if folded.startswith(prefix + ' '):
+                rest = text[len(label):].strip()
+                if rest:
+                    return brand, rest
+    return None, text
+
+
 def _match_country(name: str) -> Country | None:
     text = (name or '').strip()
     if not text:
@@ -313,26 +436,37 @@ def _match_country(name: str) -> Country | None:
 
 
 def _match_car_model(name: str, brand: Brand | None) -> CarModel | None:
-    text = (name or '').strip()
+    text = ' '.join(str(name or '').split())
     if not text:
         return None
-    qs = CarModel.objects.select_related('brand', 'brand__country').filter(name__iexact=text)
-    if brand is not None:
-        branded = qs.filter(brand=brand).order_by('id')
-        found = branded.first()
-        if found:
-            return found
-    found = qs.order_by('id').first()
-    if found:
-        return found
-    contains = CarModel.objects.select_related('brand', 'brand__country').filter(
-        name__icontains=text,
-    )
-    if brand is not None:
-        contains = contains.filter(brand=brand)
-    items = list(contains.order_by('id')[:2])
-    if len(items) == 1:
-        return items[0]
+    prefix_brand, remainder = _split_model_brand_prefix(text)
+    if brand is not None and prefix_brand is not None and prefix_brand.pk != brand.pk:
+        return None
+    labels: list[str] = []
+    for item in (remainder, text):
+        label = ' '.join(str(item or '').split())
+        if label and label not in labels:
+            labels.append(label)
+    qs = CarModel.objects.select_related('brand', 'brand__country')
+    scoped_brand = brand if brand is not None else prefix_brand
+    if scoped_brand is not None:
+        for label in labels:
+            found = qs.filter(brand=scoped_brand, name__iexact=label).order_by('id').first()
+            if found:
+                return found
+        for label in labels:
+            contains = list(
+                qs.filter(brand=scoped_brand, name__icontains=label).order_by('id')[:2]
+            )
+            if len(contains) == 1:
+                return contains[0]
+        return None
+    for label in labels:
+        items = list(qs.filter(name__iexact=label).order_by('id')[:2])
+        if len(items) == 1:
+            return items[0]
+        if len(items) > 1:
+            return None
     return None
 
 
@@ -901,31 +1035,76 @@ def suggest_product_by_article(
                     f'Категория «{enrichment.category}» не найдена в справочнике. '
                     'Выберите ближайшую вручную.'
                 )
-        if brand is None and enrichment.brand:
-            brand = _match_brand(enrichment.brand)
-            if brand is None:
+        if brand is None:
+            brand = _resolve_primary_brand(
+                enrichment.brand,
+                title=title or enrichment.title,
+                compatibility=compatibility or enrichment.compatibility,
+            )
+            if brand is None and enrichment.brand:
                 unmatched.append(
                     f'Марка «{enrichment.brand}» не найдена в справочнике. '
                     'Выберите марку вручную.'
                 )
-            else:
+            elif brand is not None:
                 country = brand.country
+        missing_catalog_models = False
         for model_name in enrichment.models:
-            matched_model = _match_car_model(model_name, brand)
+            raw_model = ' '.join(str(model_name or '').split())
+            if not raw_model:
+                continue
+            prefix_brand, remainder = _split_model_brand_prefix(raw_model)
+            if (
+                brand is not None
+                and prefix_brand is not None
+                and prefix_brand.pk != brand.pk
+            ):
+                unmatched.append(
+                    f'Модель «{raw_model}» относится к марке «{prefix_brand.name}», '
+                    f'а основная марка — «{brand.name}». '
+                    'Она сохранена в поле «Подходит для» и не добавлена в selected_models.'
+                )
+                missing_catalog_models = True
+                continue
+            matched_model = _match_car_model(raw_model, brand)
             if matched_model is None:
                 unmatched.append(
-                    f'Модель «{model_name}» не найдена в справочнике CarModel. '
+                    f'Модель «{raw_model}» не найдена в справочнике CarModel. '
                     'Текстовая применимость сохранена, строка CarModel не создана.'
                 )
+                missing_catalog_models = True
                 continue
             if brand is None:
                 brand = matched_model.brand
                 country = brand.country if brand is not None else country
+            if brand is not None and matched_model.brand_id != brand.pk:
+                unmatched.append(
+                    f'Модель «{raw_model}» относится к марке «{matched_model.brand.name}», '
+                    f'а основная марка — «{brand.name}». '
+                    'Она сохранена в поле «Подходит для» и не добавлена в selected_models.'
+                )
+                missing_catalog_models = True
+                continue
             if car_model is None:
                 car_model = matched_model
             elif matched_model.pk != car_model.pk:
                 if all(item.pk != matched_model.pk for item in selected_models):
                     selected_models.append(matched_model)
+        if brand is not None:
+            selected_models = [
+                item for item in selected_models
+                if item is not None and item.brand_id == brand.pk
+            ]
+            if car_model is not None and car_model.brand_id != brand.pk:
+                car_model = None
+        if missing_catalog_models:
+            research_notes.append({
+                'text': (
+                    'Модели, которых нет в справочнике, сохранены в поле «Подходит для» '
+                    'и не мешают сохранению.'
+                ),
+                'severity': 'info',
+            })
 
     local_dirty = any(
         detect_internal_research_text(local.get(name) or '')
