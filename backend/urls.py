@@ -3,6 +3,7 @@ from django.urls import path, include
 from django.views.generic import TemplateView
 
 from backend.pwa_views import manifest_json, service_worker_js
+from core.go_views import go_redirect
 from core.views import (
     parts_sellers_catalog,
     parts_seller_detail,
@@ -186,6 +187,12 @@ urlpatterns = [
         'catalog/ajax/product-image-search/',
         product_image_search,
         name='catalog_ajax_product_image_search',
+    ),
+
+    path(
+        'go/<slug:destination>/',
+        go_redirect,
+        name='marketing_go_redirect',
     ),
 
     path('market/', include('catalog.urls')),

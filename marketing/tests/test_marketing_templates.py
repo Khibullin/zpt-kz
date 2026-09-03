@@ -40,6 +40,11 @@ from marketing.services.templates.validation import (
 from marketing.tests.test_marketing_campaigns import make_audience, make_campaign
 from marketing.tests.test_marketing_audiences import grant_marketing_permission, next_phone
 
+SEEDED_MARKETING_TEMPLATE_NAMES = (
+    'zpt_ag_parts_wholesale_v1',
+    'zpt_seller_platform_confirm_v1',
+)
+
 
 def make_template(user: User, **kwargs) -> MarketingWhatsAppTemplate:
     suffix = next_phone()
@@ -179,7 +184,7 @@ class MarketingTemplateCrudTests(TestCase):
         response = self.client.post(reverse('marketing:template_copy', args=[source.pk]))
         self.assertEqual(response.status_code, 302)
         created = MarketingWhatsAppTemplate.objects.exclude(
-            meta_template_name='zpt_ag_parts_wholesale_v1',
+            meta_template_name__in=SEEDED_MARKETING_TEMPLATE_NAMES,
         )
         self.assertEqual(created.count(), 2)
         copy = created.exclude(pk=source.pk).get()
@@ -194,7 +199,7 @@ class MarketingTemplateCrudTests(TestCase):
         self.client.post(reverse('marketing:template_copy', args=[source.pk]))
         names = set(
             MarketingWhatsAppTemplate.objects.exclude(pk=source.pk).exclude(
-                meta_template_name='zpt_ag_parts_wholesale_v1',
+                meta_template_name__in=SEEDED_MARKETING_TEMPLATE_NAMES,
             ).values_list('name', flat=True),
         )
         self.assertEqual(
@@ -203,7 +208,7 @@ class MarketingTemplateCrudTests(TestCase):
         )
         self.assertEqual(
             MarketingWhatsAppTemplate.objects.exclude(
-                meta_template_name='zpt_ag_parts_wholesale_v1',
+                meta_template_name__in=SEEDED_MARKETING_TEMPLATE_NAMES,
             ).count(),
             3,
         )
@@ -295,7 +300,7 @@ class MarketingTemplateCrudTests(TestCase):
     def test_service_templates_not_auto_imported(self):
         self.assertFalse(
             MarketingWhatsAppTemplate.objects.exclude(
-                meta_template_name='zpt_ag_parts_wholesale_v1',
+                meta_template_name__in=SEEDED_MARKETING_TEMPLATE_NAMES,
             ).exists(),
         )
         for service_name in get_reserved_service_template_names():
