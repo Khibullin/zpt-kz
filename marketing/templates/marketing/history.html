@@ -20,9 +20,17 @@
     {% for run, run_messages, wave_info in run_entries %}
       <article class="marketing-history-run">
         <div class="marketing-page-header marketing-page-header--compact">
-          <h2 class="marketing-section-title">
-            {{ run.created_at|date:'d.m.Y H:i' }} — {{ run.campaign.name }}
-          </h2>
+          <div class="marketing-history-run__heading">
+            <h2 class="marketing-section-title">
+              <a href="{% url 'marketing:campaign_detail' run.campaign.pk %}">
+                Кампания №{{ run.campaign.pk }}
+              </a>
+              — {{ run.created_at|date:'d.m.Y H:i' }}
+            </h2>
+            <p class="marketing-history-run__campaign-name" title="{{ run.campaign.name }}">
+              {{ run.campaign.name }}
+            </p>
+          </div>
           <span class="campaign-badge {% if run.mode == 'LIVE' %}campaign-badge--test{% else %}campaign-badge--marketing{% endif %}">{{ run.mode }}</span>
         </div>
         <dl class="marketing-meta-grid">

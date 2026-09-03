@@ -772,6 +772,22 @@
   align-items: center;
 }
 
+.marketing-history-run__heading {
+  flex: 1 1 auto;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.marketing-history-run__campaign-name {
+  margin: 0 0 12px;
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  color: var(--marketing-muted);
+  font-size: 14px;
+}
+
 .marketing-preview-filters {
   display: flex;
   gap: 8px;
