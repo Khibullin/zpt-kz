@@ -21,27 +21,38 @@ from marketing.models import (
 SEED = import_module('marketing.migrations.0018_seller_platform_confirm_template')
 UPDATE = import_module('marketing.migrations.0019_update_seller_platform_confirm_body')
 FORMAT = import_module('marketing.migrations.0020_format_seller_platform_confirm_body')
+RESTORE = import_module('marketing.migrations.0021_restore_full_seller_platform_confirm_body')
 
 # Independent copy of the exact body. Do not import this from the migration:
-# a glued migration string must fail this comparison.
+# a glued or shortened migration string must fail this comparison.
 EXPECTED_SELLER_PLATFORM_BODY = (
-    'Уважаемый продавец! Вы зарегистрированы на ZPT.KZ и получаете заявки покупателей на автозапчасти со всего Казахстана.\n'
+    'Уважаемый продавец!\n'
     '\n'
-    'Возможности для зарегистрированных продавцов:\n'
-    'Просматривайте поступившие заявки покупателей:\n'
+    'Вы зарегистрированы на ZPT.KZ и получаете заявки покупателей на автозапчасти со всего Казахстана.\n'
+    '\n'
+    'Возможности для зарегистрированных продавцов\n'
+    '\n'
+    'Получение заявок покупателей на ваши запчасти\n'
+    'Просматривайте поступившие заявки в личном кабинете продавца.\n'
     'https://zpt.kz/go/requests/\n'
     '\n'
-    'Размещайте товары вручную или с ИИ-помощником. По артикулу система поможет заполнить описание, применимость, двигатели, OEM/кросс-номера и предложит фотографии:\n'
+    'Размещение товаров на ZPT.KZ\n'
+    'Добавляйте товары вручную или с помощью ИИ-помощника. Достаточно указать артикул — система поможет заполнить описание, применимость, двигатели, OEM/кросс-номера и предложит подходящие фотографии.\n'
     'https://zpt.kz/go/add-product/\n'
     '\n'
-    'Оптовые товары и прайс-листы:\n'
+    'Оптовые товары и актуальные прайс-листы\n'
+    'Просматривайте оптовые предложения и актуальные прайс-листы.\n'
     'https://zpt.kz/go/wholesale/\n'
     '\n'
-    'Каталог продавцов:\n'
+    'Каталог продавцов ZPT.KZ\n'
+    'Находите продавцов и поставщиков автозапчастей по всему Казахстану.\n'
     'https://zpt.kz/go/sellers/\n'
     '\n'
-    'Вопросы и справки текстом или голосом:\n'
-    'https://zpt.kz/go/help/'
+    'Вопросы и справки\n'
+    'Задавайте вопросы текстом или голосом и получайте помощь по работе с ZPT.KZ.\n'
+    'https://zpt.kz/go/help/\n'
+    '\n'
+    'Подтвердите, что хотите продолжать получать заявки и пользоваться возможностями ZPT.KZ:'
 )
 
 EMOJI_RE = re.compile(
@@ -75,7 +86,10 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertEqual(template.allowed_purposes, list(SEED.TEMPLATE_ALLOWED_PURPOSES))
         self.assertEqual(template.header_text, SEED.TEMPLATE_HEADER)
         self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
-        self.assertEqual(template.body_text, FORMAT.TEMPLATE_BODY)
+        self.assertEqual(template.body_text, RESTORE.TEMPLATE_BODY)
+        self.assertEqual(len(template.body_text), 1019)
+        self.assertEqual(len(template.body_text), RESTORE.EXPECTED_BODY_LENGTH)
+        self.assertNotEqual(template.body_text, FORMAT.TEMPLATE_BODY)
         self.assertNotEqual(template.body_text, SEED.TEMPLATE_BODY)
         self.assertEqual(template.footer_text, '')
         self.assertEqual(template.variables, [])
@@ -97,20 +111,27 @@ class SellerPlatformConfirmTemplateTests(TestCase):
     def test_body_text_matches_exact_formatted_multiline_string(self):
         template = _seller_platform_template()
         self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
+        self.assertEqual(len(template.body_text), 1019)
+        self.assertLessEqual(len(template.body_text), 1024)
         self.assertFalse(template.body_text.startswith('\n'))
         self.assertFalse(template.body_text.endswith('\n'))
         self.assertNotIn(' \n', template.body_text)
-        self.assertEqual(template.body_text.count('\n\n'), 5)
+        for line in template.body_text.split('\n'):
+            self.assertEqual(line, line.rstrip())
+        self.assertEqual(template.body_text.count('\n\n'), 8)
         self.assertNotIn('\n\n\n', template.body_text)
         self.assertEqual(
             template.body_text.split('\n\n'),
             [
-                'Уважаемый продавец! Вы зарегистрированы на ZPT.KZ и получаете заявки покупателей на автозапчасти со всего Казахстана.',
-                'Возможности для зарегистрированных продавцов:\nПросматривайте поступившие заявки покупателей:\nhttps://zpt.kz/go/requests/',
-                'Размещайте товары вручную или с ИИ-помощником. По артикулу система поможет заполнить описание, применимость, двигатели, OEM/кросс-номера и предложит фотографии:\nhttps://zpt.kz/go/add-product/',
-                'Оптовые товары и прайс-листы:\nhttps://zpt.kz/go/wholesale/',
-                'Каталог продавцов:\nhttps://zpt.kz/go/sellers/',
-                'Вопросы и справки текстом или голосом:\nhttps://zpt.kz/go/help/',
+                'Уважаемый продавец!',
+                'Вы зарегистрированы на ZPT.KZ и получаете заявки покупателей на автозапчасти со всего Казахстана.',
+                'Возможности для зарегистрированных продавцов',
+                'Получение заявок покупателей на ваши запчасти\nПросматривайте поступившие заявки в личном кабинете продавца.\nhttps://zpt.kz/go/requests/',
+                'Размещение товаров на ZPT.KZ\nДобавляйте товары вручную или с помощью ИИ-помощника. Достаточно указать артикул — система поможет заполнить описание, применимость, двигатели, OEM/кросс-номера и предложит подходящие фотографии.\nhttps://zpt.kz/go/add-product/',
+                'Оптовые товары и актуальные прайс-листы\nПросматривайте оптовые предложения и актуальные прайс-листы.\nhttps://zpt.kz/go/wholesale/',
+                'Каталог продавцов ZPT.KZ\nНаходите продавцов и поставщиков автозапчастей по всему Казахстану.\nhttps://zpt.kz/go/sellers/',
+                'Вопросы и справки\nЗадавайте вопросы текстом или голосом и получайте помощь по работе с ZPT.KZ.\nhttps://zpt.kz/go/help/',
+                'Подтвердите, что хотите продолжать получать заявки и пользоваться возможностями ZPT.KZ:',
             ],
         )
         for link in SEED.STABLE_GO_LINKS:
@@ -146,7 +167,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         self.assertEqual(payload['components'][0]['format'], 'TEXT')
         self.assertEqual(payload['components'][0]['text'], SEED.TEMPLATE_HEADER)
         self.assertEqual(payload['components'][1]['text'], EXPECTED_SELLER_PLATFORM_BODY)
-        self.assertEqual(payload['components'][1]['text'], FORMAT.TEMPLATE_BODY)
+        self.assertEqual(payload['components'][1]['text'], RESTORE.TEMPLATE_BODY)
         buttons = payload['components'][2]['buttons']
         self.assertEqual(len(buttons), 2)
         self.assertEqual(
@@ -166,8 +187,8 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         with patch(
             'core.whatsapp_template_management.urllib.request.urlopen',
         ) as mocked_urlopen:
-            FORMAT.format_seller_platform_confirm_body(apps, None)
-            FORMAT.format_seller_platform_confirm_body(apps, None)
+            RESTORE.restore_full_seller_platform_confirm_body(apps, None)
+            RESTORE.restore_full_seller_platform_confirm_body(apps, None)
             mocked_urlopen.assert_not_called()
 
         self.assertEqual(
@@ -215,6 +236,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         ])
 
         SEED.seed_seller_platform_confirm_template(apps, None)
+        RESTORE.restore_full_seller_platform_confirm_body(apps, None)
         template.refresh_from_db()
         self.assertEqual(template.body_text, original_body)
         self.assertEqual(template.header_text, 'Keep this header')
@@ -224,6 +246,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         template.meta_status = 'pending'
         template.save(update_fields=['meta_status', 'updated_at'])
         SEED.seed_seller_platform_confirm_template(apps, None)
+        RESTORE.restore_full_seller_platform_confirm_body(apps, None)
         template.refresh_from_db()
         self.assertEqual(template.body_text, original_body)
         self.assertEqual(template.meta_status, 'pending')
@@ -273,7 +296,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         template.body_text = 'Temporary local body before copy update.'
         template.save(update_fields=['body_text', 'updated_at'])
 
-        FORMAT.format_seller_platform_confirm_body(apps, None)
+        RESTORE.restore_full_seller_platform_confirm_body(apps, None)
         template.refresh_from_db()
         self.assertEqual(template.body_text, EXPECTED_SELLER_PLATFORM_BODY)
         for field, value in snapshot.items():
@@ -294,6 +317,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
             ])
             UPDATE.update_seller_platform_confirm_body(apps, None)
             FORMAT.format_seller_platform_confirm_body(apps, None)
+            RESTORE.restore_full_seller_platform_confirm_body(apps, None)
             template.refresh_from_db()
             self.assertEqual(template.body_text, protected_body, status)
             self.assertEqual(template.meta_status, status)
@@ -309,6 +333,7 @@ class SellerPlatformConfirmTemplateTests(TestCase):
         ])
         UPDATE.update_seller_platform_confirm_body(apps, None)
         FORMAT.format_seller_platform_confirm_body(apps, None)
+        RESTORE.restore_full_seller_platform_confirm_body(apps, None)
         template.refresh_from_db()
         self.assertEqual(template.body_text, protected_body)
         self.assertEqual(template.meta_template_id, 'already-has-id')
