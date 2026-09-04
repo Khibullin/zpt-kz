@@ -7,6 +7,7 @@ from unittest.mock import patch
 from django.conf import settings
 from django.contrib.admin.sites import site
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
@@ -17,13 +18,14 @@ from core.help_views import (
     platform_help_new_conversation,
     platform_help_transcribe,
 )
-from core.models import PlatformHelpConversation, PlatformHelpMessage
+from core.models import PlatformHelpConversation, PlatformHelpMessage, Seller
 from core.platform_help import (
     OPENAI_RESPONSES_URL,
     OPENAI_TRANSCRIPTIONS_URL,
     PLATFORM_HELP_SYSTEM_PROMPT,
     parse_help_output_text,
 )
+from core.services.platform_help_email import get_help_notification_email
 
 
 FAKE_KEY = 'sk-test-platform-help-secret-key'
@@ -51,7 +53,7 @@ def _csrf_headers(client):
     return {'HTTP_X_CSRFTOKEN': client.cookies['csrftoken'].value}
 
 
-@override_settings(OPENAI_API_KEY=FAKE_KEY)
+@override_settings(OPENAI_API_KEY=FAKE_KEY, HELP_EMAIL_ENABLED=False)
 class PlatformHelpTests(TestCase):
     def setUp(self):
         cache.clear()
@@ -442,3 +444,191 @@ class PlatformHelpTests(TestCase):
             )
         conversation = PlatformHelpConversation.objects.get()
         self.assertEqual(conversation.user_id, user.id)
+
+
+EMAIL_SETTINGS = {
+    'OPENAI_API_KEY': FAKE_KEY,
+    'EMAIL_BACKEND': 'django.core.mail.backends.locmem.EmailBackend',
+    'HELP_EMAIL_ENABLED': True,
+    'HELP_NOTIFICATION_EMAIL': 'help-admin@test.local',
+    'ORDER_ADMIN_EMAIL': 'orders-admin@test.local',
+    'EMAIL_HOST_USER': 'smtp-user@test.local',
+    'EMAIL_HOST_PASSWORD': 'smtp-secret-password',
+    'PUBLIC_BASE_URL': 'https://zpt.kz',
+}
+
+
+@override_settings(**EMAIL_SETTINGS)
+class PlatformHelpEmailTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        self.client = Client()
+        mail.outbox.clear()
+
+    def _ask_mock(self, payload=None, status=200):
+        body = payload if payload is not None else {'output_text': ANSWER_TEXT}
+
+        def fake_post(url, **kwargs):
+            fake_post.calls.append({'url': url, 'kwargs': kwargs})
+            return FakeResponse(body, status=status)
+
+        fake_post.calls = []
+        return fake_post
+
+    def _ask(self, message, input_mode=None, client=None):
+        payload = {'message': message}
+        if input_mode is not None:
+            payload['input_mode'] = input_mode
+        http = client or self.client
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            response = http.post(
+                reverse('platform_help_ask'),
+                data=json.dumps(payload),
+                content_type='application/json',
+            )
+        return response, fake_post
+
+    def test_successful_text_question_sends_one_email(self):
+        question = 'Как добавить товар по артикулу?'
+        response, _fake = self._ask(question)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(email.to, ['help-admin@test.local'])
+        self.assertEqual(email.subject, 'ZPT.KZ: новый вопрос — Вопросы и справки')
+        self.assertNotIn(question, email.subject)
+        body = email.body
+        self.assertIn(question, body)
+        self.assertIn(ANSWER_TEXT, body)
+        self.assertIn('Способ ввода: текст', body)
+        self.assertIn('Тип пользователя: Анонимный пользователь', body)
+        conversation = PlatformHelpConversation.objects.get()
+        user_message = PlatformHelpMessage.objects.get(role='user')
+        self.assertIn(str(conversation.public_id), body)
+        self.assertIn(
+            f'https://zpt.kz/admin/core/platformhelpconversation/{conversation.pk}/change/',
+            body,
+        )
+        self.assertIn(
+            f'https://zpt.kz/admin/core/platformhelpmessage/{user_message.pk}/change/',
+            body,
+        )
+        self.assertNotIn(FAKE_KEY, body)
+        self.assertNotIn('smtp-secret-password', body)
+        self.assertNotIn(FAKE_KEY, email.subject)
+        self.assertNotIn('sessionid', body)
+        self.assertNotIn('csrftoken', body)
+        self.assertNotIn('csrfmiddlewaretoken', body)
+
+    def test_voice_question_email_marks_voice_input(self):
+        response, _fake = self._ask('Как добавить товар?', input_mode='voice')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertIn('Способ ввода: голос', mail.outbox[0].body)
+
+    def test_authenticated_seller_email_includes_shop_details(self):
+        user = User.objects.create_user('ag-parts', password='secret')
+        Seller.objects.create(
+            name='AG Parts',
+            whatsapp='77700001122',
+            city='Алматы',
+            transport_type='car',
+            user=user,
+        )
+        self.client.force_login(user)
+        response, _fake = self._ask('Как добавить товар по артикулу?')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        email = mail.outbox[0]
+        self.assertEqual(
+            email.subject,
+            'ZPT.KZ: новый вопрос продавца — AG Parts',
+        )
+        body = email.body
+        self.assertIn('Тип пользователя: Продавец', body)
+        self.assertIn('Продавец: AG Parts', body)
+        self.assertIn('WhatsApp: 77700001122', body)
+        self.assertIn('Город: Алматы', body)
+
+    def test_openai_failure_still_sends_email(self):
+        import requests as requests_lib
+
+        with patch('core.platform_help.requests.post', side_effect=requests_lib.Timeout('timed out')):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Как войти?'}),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(len(mail.outbox), 1)
+        body = mail.outbox[0].body
+        self.assertIn('Как войти?', body)
+        self.assertIn('ОТВЕТ ИИ:', body)
+        self.assertIn('Не получен: ИИ временно недоступен или произошла ошибка ответа.', body)
+
+    def test_smtp_exception_does_not_change_successful_api(self):
+        with patch(
+            'core.services.platform_help_email.send_mail',
+            side_effect=OSError('smtp down'),
+        ):
+            response, _fake = self._ask('Как войти?')
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['ok'])
+        self.assertEqual(response.json()['answer'], ANSWER_TEXT)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_smtp_exception_on_ai_failure_keeps_503(self):
+        import requests as requests_lib
+
+        with patch('core.platform_help.requests.post', side_effect=requests_lib.Timeout('timed out')):
+            with patch(
+                'core.services.platform_help_email.send_mail',
+                side_effect=OSError('smtp down'),
+            ):
+                response = self.client.post(
+                    reverse('platform_help_ask'),
+                    data=json.dumps({'message': 'Как войти?'}),
+                    content_type='application/json',
+                )
+        self.assertEqual(response.status_code, 503)
+        self.assertFalse(response.json()['ok'])
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(**{**EMAIL_SETTINGS, 'HELP_EMAIL_ENABLED': False})
+    def test_disabled_setting_does_not_send_email(self):
+        response, _fake = self._ask('Как войти?')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+
+    @override_settings(**{**EMAIL_SETTINGS, 'HELP_NOTIFICATION_EMAIL': ''})
+    def test_empty_help_email_falls_back_to_order_admin(self):
+        self.assertEqual(get_help_notification_email(), 'orders-admin@test.local')
+        response, _fake = self._ask('Как войти?')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['orders-admin@test.local'])
+
+    def test_transcribe_does_not_send_email(self):
+        with patch('core.platform_help.requests.post', return_value=FakeResponse({'text': TRANSCRIPT_TEXT})):
+            response = self.client.post(
+                reverse('platform_help_transcribe'),
+                data={'audio': SimpleUploadedFile('voice.webm', b'abc', content_type='audio/webm')},
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+
+    def test_invalid_questions_do_not_send_email(self):
+        empty = self.client.post(
+            reverse('platform_help_ask'),
+            data=json.dumps({'message': '   '}),
+            content_type='application/json',
+        )
+        malformed = self.client.post(
+            reverse('platform_help_ask'),
+            data='{not-json',
+            content_type='application/json',
+        )
+        self.assertEqual(empty.status_code, 400)
+        self.assertEqual(malformed.status_code, 400)
+        self.assertEqual(len(mail.outbox), 0)

@@ -264,6 +264,14 @@ HELP_TRANSCRIBE_MODEL = (
 HELP_ASK_MAX_PER_HOUR = int(os.getenv('HELP_ASK_MAX_PER_HOUR', '30') or '30')
 HELP_TRANSCRIBE_MAX_PER_HOUR = int(os.getenv('HELP_TRANSCRIBE_MAX_PER_HOUR', '12') or '12')
 HELP_RATE_LIMIT_WINDOW = int(os.getenv('HELP_RATE_LIMIT_WINDOW', '3600') or '3600')
+HELP_EMAIL_ENABLED = os.getenv(
+    'HELP_EMAIL_ENABLED',
+    'True',
+).lower() in ('true', '1', 'yes')
+HELP_NOTIFICATION_EMAIL = os.getenv(
+    'HELP_NOTIFICATION_EMAIL',
+    ORDER_ADMIN_EMAIL or EMAIL_HOST_USER,
+)
 
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(

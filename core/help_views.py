@@ -28,6 +28,7 @@ from core.platform_help import (
     transcribe_help_audio,
     validate_question,
 )
+from core.services.platform_help_email import notify_platform_help_question_safely
 
 
 def _json_error(message: str, status: int) -> JsonResponse:
@@ -65,7 +66,7 @@ def platform_help_ask(request):
     history_rows = list(
         conversation.messages.order_by('created_at', 'id')
     )
-    PlatformHelpMessage.objects.create(
+    user_message = PlatformHelpMessage.objects.create(
         conversation=conversation,
         role=PlatformHelpMessage.ROLE_USER,
         input_mode=input_mode,
@@ -75,6 +76,11 @@ def platform_help_ask(request):
     try:
         answer = answer_platform_help(question, history_rows)
     except Exception as exc:
+        notify_platform_help_question_safely(
+            request,
+            user_message,
+            ai_failed=True,
+        )
         return _safe_error(exc, SAFE_ASK_UNAVAILABLE, 503)
     model = str(getattr(settings, 'HELP_AI_MODEL', '') or '').strip()
     PlatformHelpMessage.objects.create(
@@ -86,6 +92,11 @@ def platform_help_ask(request):
     )
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
+    notify_platform_help_question_safely(
+        request,
+        user_message,
+        answer=answer,
+    )
     return JsonResponse({
         'ok': True,
         'answer': answer,
