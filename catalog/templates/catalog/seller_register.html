@@ -51,6 +51,9 @@
         <p>
           <label for="{{ form.logo.id_for_label }}">{{ form.logo.label }}</label>
           {{ form.logo }}
+          {% if form.logo.help_text %}
+            <span class="field-hint">{{ form.logo.help_text }}</span>
+          {% endif %}
           <span class="dashboard-subtitle seller-form-section-hint" style="display:block;margin-top:4px;">
             Необязательно. Логотип отображается в карточке товара и публичном профиле магазина.
           </span>

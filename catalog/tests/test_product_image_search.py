@@ -582,7 +582,17 @@ class MultiRemoteProductPhotoTests(TestCase):
                 self.assertIn(old_extra, names)
 
     def test_local_extra_upload_still_works(self):
-        uploaded = SimpleUploadedFile('extra.png', MINIMAL_PNG, content_type='image/png')
+        from io import BytesIO
+
+        from PIL import Image
+
+        buffer = BytesIO()
+        Image.new('RGB', (8, 8), (10, 20, 30)).save(buffer, format='PNG')
+        uploaded = SimpleUploadedFile(
+            'extra.png',
+            buffer.getvalue(),
+            content_type='image/png',
+        )
         with TemporaryDirectory() as tmp:
             with override_settings(MEDIA_ROOT=tmp):
                 response = self._post_add({

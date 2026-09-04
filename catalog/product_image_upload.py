@@ -8,8 +8,10 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 
+from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 
+from catalog.image_upload_policy import optimize_uploaded_image
 from catalog.models import Product, ProductImage
 from catalog.remote_image import RemoteImageError, fetch_signed_remote_image, read_remote_image_token
 
@@ -92,8 +94,11 @@ def build_product_image_plan(request, product: Product | None = None) -> Product
     post = getattr(request, 'POST', {}) or {}
     files = getattr(request, 'FILES', None)
     local_main = bool(files and files.get('main_image'))
-    local_extras = list(files.getlist('extra_images')) if files else []
-    replace_extras_with_local = bool(local_extras)
+    raw_local_extras = (
+        list(files.getlist('extra_images'))
+        if files else []
+    )
+    replace_extras_with_local = bool(raw_local_extras)
     remove_main = bool(post.get('remove_main_image'))
     remove_extra = bool(post.get('remove_extra_images'))
 
@@ -113,11 +118,24 @@ def build_product_image_plan(request, product: Product | None = None) -> Product
         remove_extra=remove_extra,
         replace_extras_with_local=replace_extras_with_local,
     )
-    extra_count = len(extra_remote_tokens) + len(local_extras)
+    extra_count = len(extra_remote_tokens) + len(raw_local_extras)
     if extra_count > extra_slots:
         raise RemoteImageError(TOO_MANY_IMAGES_MESSAGE)
     if extra_count > MAX_ADDITIONAL_IMAGES:
         raise RemoteImageError(TOO_MANY_IMAGES_MESSAGE)
+
+    try:
+        local_extras = [
+            optimize_uploaded_image(uploaded)
+            for uploaded in raw_local_extras
+        ]
+    except ValidationError as exc:
+        message = (
+            exc.messages[0]
+            if getattr(exc, 'messages', None)
+            else str(exc)
+        )
+        raise RemoteImageError(message) from exc
 
     article_stem = 'product'
     plan = ProductImagePlan(

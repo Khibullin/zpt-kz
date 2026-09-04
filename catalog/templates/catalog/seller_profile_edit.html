@@ -104,6 +104,9 @@
             {{ form.logo.label }}
           </label>
           {{ form.logo }}
+          {% if form.logo.help_text %}
+            <span class="field-hint">{{ form.logo.help_text }}</span>
+          {% endif %}
           {% if seller.logo %}
             <span class="dashboard-subtitle seller-form-section-hint" style="display:block;margin-top:4px;">
               Текущий логотип загружен. Выберите новый файл, чтобы заменить его.

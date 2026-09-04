@@ -152,6 +152,9 @@
 
           <div class="product-photo-file-wrap">
             {{ form.main_image }}
+            {% if form.main_image.help_text %}
+              <span class="field-hint">{{ form.main_image.help_text }}</span>
+            {% endif %}
           </div>
           <input type="hidden" name="remote_main_image_token" id="id_remote_main_image_token" value="">
           <input type="hidden" name="remote_image_tokens" id="id_remote_image_tokens" value="[]">
@@ -173,7 +176,18 @@
 
         <p>
           <label for="id_extra_images">Дополнительные фото с компьютера (до 4)</label>
-          <input type="file" name="extra_images" id="id_extra_images" multiple>
+          <input
+            type="file"
+            name="extra_images"
+            id="id_extra_images"
+            multiple
+            accept="image/jpeg,image/png,image/webp"
+          >
+          <span class="field-hint">
+            JPEG, PNG или WebP, до 5 МБ каждое.
+            Большие фото автоматически уменьшаются.
+            Всего в карточке — не более 5 фото.
+          </span>
         </p>
 
         {% if product and product.images.all %}

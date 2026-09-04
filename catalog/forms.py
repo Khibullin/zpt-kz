@@ -9,11 +9,17 @@ from .models import (
     DEFAULT_SELLER_WORK_HOURS,
     DEFAULT_SELLER_DELIVERY_INFO,
 )
+from .image_upload_policy import (
+    IMAGE_UPLOAD_HELP_TEXT,
+    optimize_uploaded_image,
+)
 from .product_quality import (
     INTERNAL_RESEARCH_ERROR,
     PUBLIC_TEXT_FIELDS,
     detect_internal_research_text,
 )
+
+IMAGE_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp'
 
 STORE_ADDRESS_PLACEHOLDER = 'г. Алматы, ул. Примерная, 1'
 PICKUP_ADDRESS_PLACEHOLDER = 'г. Алматы, склад / пункт выдачи'
@@ -162,6 +168,8 @@ class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
         self.fields['name'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
+            self.fields['logo'].help_text = IMAGE_UPLOAD_HELP_TEXT
+            self.fields['logo'].widget.attrs['accept'] = IMAGE_UPLOAD_ACCEPT
         for optional_field in ('instagram', 'website'):
             if optional_field in self.fields:
                 self.fields[optional_field].required = False
@@ -169,6 +177,11 @@ class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
         if not self.is_bound and not getattr(self.instance, 'pk', None):
             self.initial.setdefault('work_hours', DEFAULT_SELLER_WORK_HOURS)
             self.initial.setdefault('delivery_info', DEFAULT_SELLER_DELIVERY_INFO)
+
+    def clean_logo(self):
+        return optimize_uploaded_image(
+            self.cleaned_data.get('logo')
+        )
 
     def clean_instagram(self):
         instagram = (self.cleaned_data.get('instagram') or '').strip()
@@ -285,7 +298,14 @@ class SellerProfileForm(SellerPickupFieldsMixin, forms.ModelForm):
         self.fields['name'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
+            self.fields['logo'].help_text = IMAGE_UPLOAD_HELP_TEXT
+            self.fields['logo'].widget.attrs['accept'] = IMAGE_UPLOAD_ACCEPT
         self._setup_pickup_fields()
+
+    def clean_logo(self):
+        return optimize_uploaded_image(
+            self.cleaned_data.get('logo')
+        )
 
     def clean(self):
         cleaned_data = super().clean()
@@ -446,3 +466,13 @@ class ProductForm(forms.ModelForm):
             ).order_by('name')
         else:
             self.fields['selected_models'].queryset = CarModel.objects.none()
+
+        self.fields['main_image'].widget.attrs['accept'] = (
+            'image/jpeg,image/png,image/webp'
+        )
+        self.fields['main_image'].help_text = IMAGE_UPLOAD_HELP_TEXT
+
+    def clean_main_image(self):
+        return optimize_uploaded_image(
+            self.cleaned_data.get('main_image')
+        )
