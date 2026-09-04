@@ -20,10 +20,14 @@
   var micEl = document.getElementById('help-mic');
   var newEl = document.getElementById('help-new-dialog');
 
+  var MIC_IDLE_LABEL = 'Задать вопрос голосом';
+  var MIC_STOP_LABEL = 'Стоп и распознать';
+  var MIC_TRANSCRIBING_LABEL = 'Распознаю…';
   var recorder = null;
   var recordedChunks = [];
   var recordedMime = '';
   var recordTimer = null;
+  var highlightTimer = null;
   var pendingInputMode = 'text';
   var busy = false;
 
@@ -49,6 +53,40 @@
       micEl.disabled = next && !(recorder && recorder.state === 'recording');
     }
     if (newEl) newEl.disabled = next;
+  }
+
+  function setMicLabel(label) {
+    if (!micEl) return;
+    micEl.textContent = label;
+    micEl.setAttribute('aria-label', label);
+  }
+
+  function resetMicButton() {
+    if (!micEl) return;
+    micEl.classList.remove('is-recording');
+    micEl.setAttribute('aria-pressed', 'false');
+    setMicLabel(MIC_IDLE_LABEL);
+  }
+
+  function showTranscribingMic() {
+    if (!micEl) return;
+    micEl.classList.remove('is-recording');
+    micEl.setAttribute('aria-pressed', 'false');
+    micEl.disabled = true;
+    setMicLabel(MIC_TRANSCRIBING_LABEL);
+    setStatus('Запись завершена. Распознаю ваш вопрос…');
+  }
+
+  function highlightTextarea() {
+    if (!inputEl) return;
+    if (highlightTimer) {
+      clearTimeout(highlightTimer);
+    }
+    inputEl.style.boxShadow = '0 0 0 3px rgba(255, 59, 48, 0.45)';
+    highlightTimer = setTimeout(function () {
+      inputEl.style.boxShadow = '';
+      highlightTimer = null;
+    }, 1800);
   }
 
   function appendZptLinks(container, text) {
@@ -202,12 +240,13 @@
       recordTimer = null;
     }
     if (recorder && recorder.state === 'recording') {
+      showTranscribingMic();
       recorder.stop();
     }
   }
 
   function transcribeBlob(blob, mime) {
-    setStatus('Распознаю речь…');
+    showTranscribingMic();
     var form = new FormData();
     form.append('audio', blob, 'help-audio.' + extensionForMime(mime));
     fetch(TRANSCRIBE_URL, {
@@ -227,21 +266,21 @@
         }
         inputEl.value = data.text;
         pendingInputMode = 'voice';
-        setStatus('Текст распознан. Проверьте его и нажмите «Отправить».');
+        setStatus('Готово. Проверьте текст ниже и нажмите „Отправить“.');
         inputEl.focus();
+        highlightTextarea();
       });
     }).catch(function (err) {
       setStatus(err && err.message ? err.message : 'Не удалось распознать голос. Попробуйте ещё раз или напишите вопрос текстом.');
     }).then(function () {
       setBusy(false);
-      micEl.classList.remove('is-recording');
-      micEl.setAttribute('aria-pressed', 'false');
-      micEl.textContent = 'Говорить';
+      resetMicButton();
     });
   }
 
   function startRecording() {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+      resetMicButton();
       setStatus('Голосовой ввод недоступен на этом устройстве. Напишите вопрос текстом.');
       return;
     }
@@ -270,12 +309,13 @@
       recorder.start();
       micEl.classList.add('is-recording');
       micEl.setAttribute('aria-pressed', 'true');
-      micEl.textContent = 'Стоп';
+      setMicLabel(MIC_STOP_LABEL);
       micEl.disabled = false;
-      setStatus('Идёт запись… Нажмите ещё раз, чтобы остановить.');
+      setStatus('Говорите сейчас. Когда закончите — нажмите „Стоп и распознать“.');
       recordTimer = setTimeout(stopRecording, MAX_SECONDS * 1000);
     }).catch(function (err) {
       setBusy(false);
+      resetMicButton();
       var name = err && err.name ? err.name : '';
       if (name === 'NotAllowedError' || name === 'PermissionDeniedError') {
         setStatus('Нет доступа к микрофону. Разрешите микрофон или напишите вопрос текстом.');

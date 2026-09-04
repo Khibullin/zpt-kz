@@ -73,6 +73,7 @@ class PlatformHelpTests(TestCase):
         self.assertContains(response, 'Вопросы и справки ZPT.KZ')
         self.assertContains(response, 'id="help-input"')
         self.assertContains(response, 'id="help-mic"')
+        self.assertContains(response, 'Задать вопрос голосом')
         self.assertContains(response, 'id="help-send"')
         self.assertIn('csrftoken', response.cookies)
 
