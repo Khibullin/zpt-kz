@@ -4,6 +4,7 @@ import hashlib
 import json
 import logging
 from typing import Any
+from urllib.parse import quote
 
 import requests
 from django.conf import settings
@@ -32,6 +33,11 @@ SAFE_TRANSCRIBE_UNAVAILABLE = (
     'Не удалось распознать голос. Попробуйте ещё раз или напишите вопрос текстом.'
 )
 RATE_LIMIT_MESSAGE = 'Слишком много запросов. Попробуйте немного позже.'
+HELP_WHATSAPP_INVALID = 'Проверьте номер WhatsApp.'
+HELP_WHATSAPP_REPLY_PREFILL = (
+    'Здравствуйте! Вы задавали вопрос в разделе «Вопросы и справки» на ZPT.KZ. '
+    'Отвечаем по вашему обращению.'
+)
 
 ALLOWED_AUDIO_CONTENT_TYPES = frozenset({
     'audio/webm',
@@ -209,6 +215,60 @@ def normalize_input_mode(raw: Any) -> str:
     if value == PlatformHelpMessage.MODE_VOICE:
         return PlatformHelpMessage.MODE_VOICE
     return PlatformHelpMessage.MODE_TEXT
+
+
+def normalize_help_contact_whatsapp(raw: Any) -> str:
+    if raw is None:
+        return ''
+    text = str(raw).strip()
+    if not text:
+        return ''
+    digits = ''.join(ch for ch in text if ch.isdigit())
+    if not digits:
+        raise PlatformHelpError(HELP_WHATSAPP_INVALID, 400)
+    if len(digits) == 11 and digits.startswith('8'):
+        digits = '7' + digits[1:]
+    elif len(digits) == 10:
+        digits = '7' + digits
+    if 11 <= len(digits) <= 15:
+        return digits
+    raise PlatformHelpError(HELP_WHATSAPP_INVALID, 400)
+
+
+def build_help_whatsapp_reply_url(digits: str) -> str:
+    number = ''.join(ch for ch in str(digits or '') if ch.isdigit())
+    if not number:
+        return ''
+    return f'https://wa.me/{number}?text={quote(HELP_WHATSAPP_REPLY_PREFILL)}'
+
+
+def apply_conversation_contact(request, conversation, payload: dict) -> None:
+    from core.services.seller_identity import get_logged_request_seller
+
+    seller = get_logged_request_seller(request)
+    seller_whatsapp = ''
+    if seller is not None:
+        try:
+            seller_whatsapp = normalize_help_contact_whatsapp(
+                getattr(seller, 'whatsapp', '')
+            )
+        except PlatformHelpError:
+            seller_whatsapp = ''
+    if seller is not None and seller_whatsapp:
+        conversation.contact_whatsapp = seller_whatsapp
+        conversation.contact_source = PlatformHelpConversation.CONTACT_SOURCE_SELLER
+        conversation.save(update_fields=['contact_whatsapp', 'contact_source', 'updated_at'])
+        return
+
+    raw = ''
+    if isinstance(payload, dict) and 'contact_whatsapp' in payload:
+        raw = payload.get('contact_whatsapp')
+    normalized = normalize_help_contact_whatsapp(raw)
+    if not normalized:
+        return
+    conversation.contact_whatsapp = normalized
+    conversation.contact_source = PlatformHelpConversation.CONTACT_SOURCE_USER_INPUT
+    conversation.save(update_fields=['contact_whatsapp', 'contact_source', 'updated_at'])
 
 
 def _truncate(text: str) -> str:

@@ -4,7 +4,7 @@
 {% block title %}Вопросы и справки ZPT.KZ{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
@@ -48,6 +48,32 @@
       placeholder="Напишите свой вопрос…"
       required
     ></textarea>
+    <div class="platform-help__whatsapp">
+      <label class="platform-help__label" for="help-whatsapp">
+        WhatsApp для ответа специалиста (необязательно)
+      </label>
+      <input
+        type="tel"
+        id="help-whatsapp"
+        name="contact_whatsapp"
+        inputmode="tel"
+        autocomplete="tel"
+        maxlength="30"
+        placeholder="+7 701 123 45 67"
+        value="{{ help_contact_whatsapp }}"
+        {% if help_contact_is_seller %}readonly{% endif %}
+      >
+      {% if help_contact_is_seller %}
+      <p class="platform-help__hint">
+        Для личного ответа используется WhatsApp из вашего профиля продавца.
+      </p>
+      {% else %}
+      <p class="platform-help__hint">
+        Укажите номер, если хотите, чтобы специалист ZPT.KZ мог ответить вам лично в WhatsApp.
+        Номер не используется для рекламных рассылок без отдельного согласия.
+      </p>
+      {% endif %}
+    </div>
     <p class="platform-help__status" id="help-status" aria-live="polite"></p>
     <div class="platform-help__actions">
       <button
@@ -66,11 +92,12 @@
     <p class="platform-help__privacy">
       Голосовая запись используется только для распознавания и не сохраняется.
       Текст вопросов и ответы сохраняются в истории диалога ZPT.KZ.
+      WhatsApp, если вы его указали, хранится только для ответа по этому обращению.
     </p>
   </form>
 </main>
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/platform-help.js' %}?v=3"></script>
+<script src="{% static 'js/platform-help.js' %}?v=4"></script>
 {% endblock %}

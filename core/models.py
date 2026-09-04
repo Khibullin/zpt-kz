@@ -1912,6 +1912,13 @@ class PlatformHelpConversation(models.Model):
         editable=False,
         verbose_name='Публичный ID',
     )
+    CONTACT_SOURCE_SELLER = 'seller'
+    CONTACT_SOURCE_USER_INPUT = 'user_input'
+    CONTACT_SOURCE_CHOICES = [
+        (CONTACT_SOURCE_SELLER, 'Профиль продавца'),
+        (CONTACT_SOURCE_USER_INPUT, 'Указан пользователем'),
+    ]
+
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         null=True,
@@ -1919,6 +1926,19 @@ class PlatformHelpConversation(models.Model):
         on_delete=models.SET_NULL,
         related_name='platform_help_conversations',
         verbose_name='Пользователь',
+    )
+    contact_whatsapp = models.CharField(
+        max_length=20,
+        blank=True,
+        default='',
+        verbose_name='WhatsApp для ответа',
+    )
+    contact_source = models.CharField(
+        max_length=20,
+        blank=True,
+        default='',
+        choices=CONTACT_SOURCE_CHOICES,
+        verbose_name='Источник WhatsApp',
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')

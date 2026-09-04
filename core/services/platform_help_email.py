@@ -8,6 +8,8 @@ from django.core.mail import send_mail
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
+from core.models import PlatformHelpConversation
+from core.platform_help import build_help_whatsapp_reply_url
 from core.services.seller_identity import get_logged_request_seller
 
 logger = logging.getLogger(__name__)
@@ -99,6 +101,32 @@ def _identity_lines(request, seller) -> list[str]:
     return ['Тип пользователя: Анонимный пользователь']
 
 
+def _contact_source_label(source: str) -> str:
+    if source == PlatformHelpConversation.CONTACT_SOURCE_SELLER:
+        return 'Профиль продавца'
+    if source == PlatformHelpConversation.CONTACT_SOURCE_USER_INPUT:
+        return 'Указан пользователем'
+    return '—'
+
+
+def _contact_lines(conversation) -> list[str]:
+    digits = str(getattr(conversation, 'contact_whatsapp', '') or '').strip()
+    if not digits:
+        return ['WhatsApp для ответа: не указан']
+    lines = [
+        f'WhatsApp для ответа: +{digits}',
+        f'Источник контакта: {_contact_source_label(getattr(conversation, "contact_source", ""))}',
+    ]
+    reply_url = build_help_whatsapp_reply_url(digits)
+    if reply_url:
+        lines.extend([
+            '',
+            'Ответить пользователю в WhatsApp:',
+            reply_url,
+        ])
+    return lines
+
+
 def build_platform_help_email_body(
     request,
     user_message,
@@ -125,6 +153,8 @@ def build_platform_help_email_body(
         'ZPT.KZ — новый вопрос через «Вопросы и справки»',
         '',
         *_identity_lines(request, seller),
+        '',
+        *_contact_lines(conversation),
         '',
         f'Способ ввода: {_input_mode_label(user_message.input_mode)}',
         f'Время: {_format_created_at(user_message.created_at)}',

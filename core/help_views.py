@@ -19,6 +19,7 @@ from core.platform_help import (
     SAFE_ASK_UNAVAILABLE,
     SAFE_TRANSCRIBE_UNAVAILABLE,
     answer_platform_help,
+    apply_conversation_contact,
     conversation_history_payload,
     get_or_create_conversation,
     load_conversation_from_session,
@@ -29,6 +30,7 @@ from core.platform_help import (
     validate_question,
 )
 from core.services.platform_help_email import notify_platform_help_question_safely
+from core.services.seller_identity import get_logged_request_seller
 
 
 def _json_error(message: str, status: int) -> JsonResponse:
@@ -44,7 +46,18 @@ def _safe_error(exc: Exception, fallback: str, status: int = 503) -> JsonRespons
 @ensure_csrf_cookie
 @require_GET
 def platform_help_page(request):
-    return render(request, 'request-parts/help/index.html')
+    seller = get_logged_request_seller(request)
+    conversation = load_conversation_from_session(request)
+    help_contact_is_seller = seller is not None
+    help_contact_whatsapp = ''
+    if seller is not None and str(getattr(seller, 'whatsapp', '') or '').strip():
+        help_contact_whatsapp = str(seller.whatsapp).strip()
+    elif conversation is not None and conversation.contact_whatsapp:
+        help_contact_whatsapp = conversation.contact_whatsapp
+    return render(request, 'request-parts/help/index.html', {
+        'help_contact_whatsapp': help_contact_whatsapp,
+        'help_contact_is_seller': help_contact_is_seller,
+    })
 
 
 @require_POST
@@ -63,6 +76,10 @@ def platform_help_ask(request):
         return _json_error(exc.message, exc.status)
     input_mode = normalize_input_mode(payload.get('input_mode'))
     conversation = get_or_create_conversation(request)
+    try:
+        apply_conversation_contact(request, conversation, payload)
+    except PlatformHelpError as exc:
+        return _json_error(exc.message, exc.status)
     history_rows = list(
         conversation.messages.order_by('created_at', 'id')
     )

@@ -5,8 +5,9 @@ from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils import timezone
-from django.utils.html import escape
+from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
+from core.platform_help import build_help_whatsapp_reply_url
 from .models import WhatsAppMessageLog
 
 from openpyxl import load_workbook
@@ -2081,15 +2082,20 @@ class PlatformHelpConversationAdmin(admin.ModelAdmin):
         'id',
         'public_id',
         'user',
+        'contact_whatsapp',
+        'whatsapp_reply_link',
         'created_at',
         'updated_at',
         'message_count',
     )
     ordering = ('-created_at',)
-    search_fields = ('public_id', 'user__username')
+    search_fields = ('public_id', 'user__username', 'contact_whatsapp')
     readonly_fields = (
         'public_id',
         'user',
+        'contact_whatsapp',
+        'contact_source',
+        'whatsapp_reply_link',
         'created_at',
         'updated_at',
         'message_count',
@@ -2102,6 +2108,19 @@ class PlatformHelpConversationAdmin(admin.ModelAdmin):
     @admin.display(description='Сообщений')
     def message_count(self, obj):
         return obj.messages.count()
+
+    @admin.display(description='Открыть WhatsApp')
+    def whatsapp_reply_link(self, obj):
+        digits = str(getattr(obj, 'contact_whatsapp', '') or '').strip()
+        if not digits:
+            return '—'
+        url = build_help_whatsapp_reply_url(digits)
+        if not url:
+            return '—'
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener noreferrer">Открыть WhatsApp</a>',
+            url,
+        )
 
 
 @admin.register(PlatformHelpMessage)

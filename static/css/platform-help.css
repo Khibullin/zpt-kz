@@ -111,6 +111,29 @@
   min-height: 84px;
 }
 
+.platform-help__whatsapp {
+  margin-top: 12px;
+}
+
+.platform-help__whatsapp input {
+  width: 100%;
+  border: 1px solid var(--zpt-border, #ececec);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+.platform-help__whatsapp input[readonly] {
+  background: #f3f4f6;
+}
+
+.platform-help__hint {
+  margin: 6px 0 0;
+  font-size: 0.82rem;
+  color: var(--zpt-gray-500, #6b7280);
+  line-height: 1.4;
+}
+
 .platform-help__status {
   min-height: 1.4em;
   margin: 8px 0;

@@ -19,6 +19,7 @@
   var sendEl = document.getElementById('help-send');
   var micEl = document.getElementById('help-mic');
   var newEl = document.getElementById('help-new-dialog');
+  var whatsappEl = document.getElementById('help-whatsapp');
 
   var MIC_IDLE_LABEL = 'Задать вопрос голосом';
   var MIC_STOP_LABEL = 'Стоп и распознать';
@@ -178,6 +179,13 @@
   function sendQuestion(text, inputMode) {
     var question = String(text || '').trim();
     if (!question || busy) return;
+    var contactWhatsapp = whatsappEl ? String(whatsappEl.value || '') : '';
+    var digits = contactWhatsapp.replace(/\D/g, '');
+    if (contactWhatsapp.trim() && digits.length < 10) {
+      setStatus('Проверьте номер WhatsApp.');
+      if (whatsappEl) whatsappEl.focus();
+      return;
+    }
     setBusy(true);
     setStatus('Отправляю вопрос…');
     if (chipsEl) chipsEl.hidden = true;
@@ -191,6 +199,7 @@
       body: JSON.stringify({
         message: question,
         input_mode: inputMode || 'text',
+        contact_whatsapp: contactWhatsapp,
       }),
     }).then(function (response) {
       return response.text().then(function (raw) {

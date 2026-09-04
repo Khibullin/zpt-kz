@@ -23,6 +23,7 @@ from core.platform_help import (
     OPENAI_RESPONSES_URL,
     OPENAI_TRANSCRIPTIONS_URL,
     PLATFORM_HELP_SYSTEM_PROMPT,
+    normalize_help_contact_whatsapp,
     parse_help_output_text,
 )
 from core.services.platform_help_email import get_help_notification_email
@@ -77,6 +78,9 @@ class PlatformHelpTests(TestCase):
         self.assertContains(response, 'id="help-mic"')
         self.assertContains(response, 'Задать вопрос голосом')
         self.assertContains(response, 'id="help-send"')
+        self.assertContains(response, 'id="help-whatsapp"')
+        self.assertContains(response, 'WhatsApp для ответа специалиста (необязательно)')
+        self.assertNotContains(response, 'readonly')
         self.assertIn('csrftoken', response.cookies)
 
     def test_faq_still_works(self):
@@ -445,6 +449,236 @@ class PlatformHelpTests(TestCase):
         conversation = PlatformHelpConversation.objects.get()
         self.assertEqual(conversation.user_id, user.id)
 
+    def test_normalize_help_contact_whatsapp(self):
+        self.assertEqual(normalize_help_contact_whatsapp(''), '')
+        self.assertEqual(normalize_help_contact_whatsapp('+7 701 123 45 67'), '77011234567')
+        self.assertEqual(normalize_help_contact_whatsapp('8 701 123 45 67'), '77011234567')
+        self.assertEqual(normalize_help_contact_whatsapp('7011234567'), '77011234567')
+        with self.assertRaises(Exception) as caught:
+            normalize_help_contact_whatsapp('12345')
+        self.assertEqual(caught.exception.message, 'Проверьте номер WhatsApp.')
+
+    def test_anonymous_without_whatsapp_keeps_blank_contact(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Как войти?'}),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 200)
+        conversation = PlatformHelpConversation.objects.get()
+        self.assertEqual(conversation.contact_whatsapp, '')
+        self.assertEqual(conversation.contact_source, '')
+
+    def test_anonymous_plus7_whatsapp_is_normalized(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Как войти?',
+                    'contact_whatsapp': '+7 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 200)
+        conversation = PlatformHelpConversation.objects.get()
+        self.assertEqual(conversation.contact_whatsapp, '77011234567')
+        self.assertEqual(conversation.contact_source, 'user_input')
+        dumped = json.dumps(fake_post.calls[0]['kwargs']['json'])
+        self.assertNotIn('77011234567', dumped)
+        self.assertNotIn('contact_whatsapp', dumped)
+
+    def test_leading_eight_whatsapp_normalized(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Как войти?',
+                    'contact_whatsapp': '8 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+        conversation = PlatformHelpConversation.objects.get()
+        self.assertEqual(conversation.contact_whatsapp, '77011234567')
+
+    def test_invalid_whatsapp_does_not_create_message(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Как войти?',
+                    'contact_whatsapp': '12345',
+                }),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['message'], 'Проверьте номер WhatsApp.')
+        self.assertEqual(PlatformHelpMessage.objects.count(), 0)
+        fake_post.calls = getattr(fake_post, 'calls', [])
+        self.assertEqual(len(fake_post.calls), 0)
+
+    def test_blank_contact_does_not_erase_saved_whatsapp(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Первый',
+                    'contact_whatsapp': '+7 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Второй'}),
+                content_type='application/json',
+            )
+        conversation = PlatformHelpConversation.objects.get()
+        self.assertEqual(conversation.contact_whatsapp, '77011234567')
+        self.assertEqual(conversation.contact_source, 'user_input')
+
+    def test_user_can_update_own_whatsapp(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Первый',
+                    'contact_whatsapp': '+7 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Второй',
+                    'contact_whatsapp': '+7 702 999 88 77',
+                }),
+                content_type='application/json',
+            )
+        conversation = PlatformHelpConversation.objects.get()
+        self.assertEqual(conversation.contact_whatsapp, '77029998877')
+
+    def test_seller_whatsapp_taken_from_profile_and_payload_ignored(self):
+        user = User.objects.create_user('ag-parts', password='secret')
+        Seller.objects.create(
+            name='AG Parts',
+            whatsapp='77700001122',
+            city='Алматы',
+            transport_type='car',
+            user=user,
+        )
+        self.client.force_login(user)
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Как войти?',
+                    'contact_whatsapp': '+7 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 200)
+        conversation = PlatformHelpConversation.objects.get()
+        self.assertEqual(conversation.contact_whatsapp, '77700001122')
+        self.assertEqual(conversation.contact_source, 'seller')
+        dumped = json.dumps(fake_post.calls[0]['kwargs']['json'])
+        self.assertNotIn('77700001122', dumped)
+        self.assertNotIn('77011234567', dumped)
+
+    def test_transcribe_does_not_save_whatsapp(self):
+        with patch('core.platform_help.requests.post', return_value=FakeResponse({'text': TRANSCRIPT_TEXT})):
+            response = self.client.post(
+                reverse('platform_help_transcribe'),
+                data={'audio': SimpleUploadedFile('voice.webm', b'abc', content_type='audio/webm')},
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(PlatformHelpConversation.objects.count(), 0)
+        self.assertEqual(PlatformHelpMessage.objects.count(), 0)
+
+    def test_history_payload_omits_contact_whatsapp(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Как войти?',
+                    'contact_whatsapp': '+7 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+        history = self.client.get(reverse('platform_help_history')).json()
+        dumped = json.dumps(history)
+        self.assertNotIn('contact_whatsapp', dumped)
+        self.assertNotIn('77011234567', dumped)
+
+    def test_new_conversation_keeps_old_whatsapp_in_db(self):
+        fake_post = self._ask_mock()
+        with patch('core.platform_help.requests.post', fake_post):
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({
+                    'message': 'Первый',
+                    'contact_whatsapp': '+7 701 123 45 67',
+                }),
+                content_type='application/json',
+            )
+        old = PlatformHelpConversation.objects.get()
+        self.client.post(reverse('platform_help_new_conversation'))
+        with patch('core.platform_help.requests.post', fake_post):
+            self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Второй'}),
+                content_type='application/json',
+            )
+        self.assertEqual(PlatformHelpConversation.objects.count(), 2)
+        old.refresh_from_db()
+        self.assertEqual(old.contact_whatsapp, '77011234567')
+        new = PlatformHelpConversation.objects.exclude(pk=old.pk).get()
+        self.assertEqual(new.contact_whatsapp, '')
+
+    def test_help_page_seller_whatsapp_is_readonly(self):
+        user = User.objects.create_user('ag-parts-page', password='secret')
+        Seller.objects.create(
+            name='AG Parts',
+            whatsapp='77700001122',
+            city='Алматы',
+            transport_type='car',
+            user=user,
+        )
+        self.client.force_login(user)
+        response = self.client.get('/request-parts/help/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="help-whatsapp"')
+        self.assertContains(response, 'readonly')
+        self.assertContains(response, '77700001122')
+        self.assertContains(
+            response,
+            'Для личного ответа используется WhatsApp из вашего профиля продавца.',
+        )
+
+    def test_admin_conversation_shows_whatsapp_reply_link(self):
+        conversation = PlatformHelpConversation.objects.create(
+            contact_whatsapp='77011234567',
+            contact_source='user_input',
+        )
+        admin_user = User.objects.create_superuser('help-wa-admin', 'a@b.c', 'secret')
+        self.client.force_login(admin_user)
+        response = self.client.get(
+            reverse('admin:core_platformhelpconversation_change', args=[conversation.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '77011234567')
+        self.assertContains(response, 'Открыть WhatsApp')
+        self.assertContains(response, 'https://wa.me/77011234567')
+        self.assertContains(response, 'target="_blank"')
+        self.assertContains(response, 'noopener')
+
 
 EMAIL_SETTINGS = {
     'OPENAI_API_KEY': FAKE_KEY,
@@ -475,10 +709,11 @@ class PlatformHelpEmailTests(TestCase):
         fake_post.calls = []
         return fake_post
 
-    def _ask(self, message, input_mode=None, client=None):
+    def _ask(self, message, input_mode=None, client=None, **extra):
         payload = {'message': message}
         if input_mode is not None:
             payload['input_mode'] = input_mode
+        payload.update(extra)
         http = client or self.client
         fake_post = self._ask_mock()
         with patch('core.platform_help.requests.post', fake_post):
@@ -503,6 +738,7 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn(ANSWER_TEXT, body)
         self.assertIn('Способ ввода: текст', body)
         self.assertIn('Тип пользователя: Анонимный пользователь', body)
+        self.assertIn('WhatsApp для ответа: не указан', body)
         conversation = PlatformHelpConversation.objects.get()
         user_message = PlatformHelpMessage.objects.get(role='user')
         self.assertIn(str(conversation.public_id), body)
@@ -550,6 +786,13 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('Продавец: AG Parts', body)
         self.assertIn('WhatsApp: 77700001122', body)
         self.assertIn('Город: Алматы', body)
+        self.assertIn('WhatsApp для ответа: +77700001122', body)
+        self.assertIn('Источник контакта: Профиль продавца', body)
+        self.assertIn('https://wa.me/77700001122', body)
+        reply_line = next(
+            line for line in body.splitlines() if line.startswith('https://wa.me/')
+        )
+        self.assertNotIn('Как добавить товар по артикулу?', reply_line)
 
     def test_openai_failure_still_sends_email(self):
         import requests as requests_lib
@@ -632,3 +875,30 @@ class PlatformHelpEmailTests(TestCase):
         self.assertEqual(empty.status_code, 400)
         self.assertEqual(malformed.status_code, 400)
         self.assertEqual(len(mail.outbox), 0)
+
+    def test_anonymous_whatsapp_email_contains_reply_link(self):
+        question = 'Как добавить товар по артикулу?'
+        response, _fake = self._ask(question, contact_whatsapp='+7 701 123 45 67')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        body = mail.outbox[0].body
+        self.assertIn('WhatsApp для ответа: +77011234567', body)
+        self.assertIn('Источник контакта: Указан пользователем', body)
+        self.assertIn('https://wa.me/77011234567', body)
+        reply_line = next(
+            line for line in body.splitlines() if line.startswith('https://wa.me/')
+        )
+        self.assertNotIn(question, reply_line)
+
+    def test_invalid_whatsapp_does_not_send_email(self):
+        response = self.client.post(
+            reverse('platform_help_ask'),
+            data=json.dumps({
+                'message': 'Как войти?',
+                'contact_whatsapp': '12345',
+            }),
+            content_type='application/json',
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(PlatformHelpMessage.objects.count(), 0)
