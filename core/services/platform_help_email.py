@@ -7,6 +7,8 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
+from django.utils.html import escape, format_html
+from django.utils.safestring import mark_safe
 
 from core.models import PlatformHelpConversation
 from core.platform_help import build_help_whatsapp_reply_url
@@ -117,14 +119,138 @@ def _contact_lines(conversation) -> list[str]:
         f'WhatsApp для ответа: +{digits}',
         f'Источник контакта: {_contact_source_label(getattr(conversation, "contact_source", ""))}',
     ]
-    reply_url = build_help_whatsapp_reply_url(digits)
-    if reply_url:
+    short_url = _short_whatsapp_url(digits)
+    if short_url:
         lines.extend([
             '',
             'Ответить пользователю в WhatsApp:',
-            reply_url,
+            short_url,
         ])
     return lines
+
+
+def _short_whatsapp_url(digits: str) -> str:
+    number = ''.join(ch for ch in str(digits or '') if ch.isdigit())
+    if not number:
+        return ''
+    return f'https://wa.me/{number}'
+
+
+def _html_multiline(value: Any) -> str:
+    escaped = escape(str(value or ''))
+    return mark_safe(escaped.replace('\n', '<br>'))
+
+
+def _contact_digits(conversation) -> str:
+    return str(getattr(conversation, 'contact_whatsapp', '') or '').strip()
+
+
+def _identity_html(request, seller) -> list[str]:
+    if seller is not None:
+        return [
+            mark_safe('<p>Тип пользователя: Продавец</p>'),
+            format_html('<p>Продавец: {}</p>', _dash(getattr(seller, 'name', ''))),
+            format_html('<p>WhatsApp: {}</p>', _dash(getattr(seller, 'whatsapp', ''))),
+            format_html('<p>Город: {}</p>', _dash(getattr(seller, 'city', ''))),
+        ]
+    user = getattr(request, 'user', None)
+    if user is not None and getattr(user, 'is_authenticated', False):
+        return [
+            mark_safe('<p>Тип пользователя: Авторизованный пользователь</p>'),
+            format_html('<p>Пользователь: {}</p>', _dash(user.get_username())),
+            format_html(
+                '<p>Email пользователя: {}</p>',
+                _dash(getattr(user, 'email', '')),
+            ),
+        ]
+    return [mark_safe('<p>Тип пользователя: Анонимный пользователь</p>')]
+
+
+def _contact_html(conversation, digits: str) -> list[str]:
+    if not digits:
+        return [mark_safe('<p>WhatsApp для ответа: не указан</p>')]
+    blocks = [
+        format_html('<p>WhatsApp для ответа: +{}</p>', digits),
+        format_html(
+            '<p>Источник контакта: {}</p>',
+            _contact_source_label(getattr(conversation, 'contact_source', '')),
+        ),
+    ]
+    full_url = build_help_whatsapp_reply_url(digits)
+    if full_url:
+        blocks.append(
+            format_html(
+                '<p><a href="{}" style="display:inline-block;background:#25D366;'
+                'color:#fff;padding:10px 16px;border-radius:8px;'
+                'text-decoration:none;font-weight:700;">Ответить в WhatsApp</a></p>',
+                full_url,
+            )
+        )
+    return blocks
+
+
+def build_platform_help_email_html(
+    request,
+    user_message,
+    answer: str = '',
+    ai_failed: bool = False,
+    seller=None,
+) -> str:
+    conversation = user_message.conversation
+    if ai_failed or not str(answer or '').strip():
+        answer_text = AI_UNAVAILABLE_TEXT
+    else:
+        answer_text = str(answer).strip()
+
+    conversation_url = _admin_url(
+        'admin:core_platformhelpconversation_change',
+        conversation.pk,
+    )
+    message_url = _admin_url(
+        'admin:core_platformhelpmessage_change',
+        user_message.pk,
+    )
+    digits = _contact_digits(conversation)
+
+    blocks: list[str] = [
+        mark_safe(
+            '<div style="font-family:Arial,Helvetica,sans-serif;font-size:14px;'
+            'line-height:1.5;color:#111;">'
+        ),
+        mark_safe(
+            '<h2 style="margin:0 0 12px;">ZPT.KZ — новый вопрос через «Вопросы и справки»</h2>'
+        ),
+        *_identity_html(request, seller),
+        *_contact_html(conversation, digits),
+        format_html(
+            '<p>Способ ввода: {}</p>',
+            _input_mode_label(user_message.input_mode),
+        ),
+        format_html('<p>Время: {}</p>', _format_created_at(user_message.created_at)),
+        format_html('<p>Conversation UUID: {}</p>', str(conversation.public_id)),
+        mark_safe('<p><strong>ВОПРОС:</strong></p>'),
+        format_html('<p>{}</p>', _html_multiline(user_message.content)),
+        mark_safe('<p><strong>ОТВЕТ ИИ:</strong></p>'),
+        format_html('<p>{}</p>', _html_multiline(answer_text)),
+    ]
+    if conversation_url:
+        blocks.append(
+            format_html(
+                '<p>Открыть диалог в Django Admin:<br><a href="{}">{}</a></p>',
+                conversation_url,
+                conversation_url,
+            )
+        )
+    if message_url:
+        blocks.append(
+            format_html(
+                '<p>Открыть вопрос в Django Admin:<br><a href="{}">{}</a></p>',
+                message_url,
+                message_url,
+            )
+        )
+    blocks.append(mark_safe('</div>'))
+    return mark_safe(''.join(str(block) for block in blocks))
 
 
 def build_platform_help_email_body(
@@ -204,6 +330,13 @@ def send_platform_help_question_notification(
         ai_failed=ai_failed,
         seller=seller,
     )
+    html_body = build_platform_help_email_html(
+        request,
+        user_message,
+        answer=answer,
+        ai_failed=ai_failed,
+        seller=seller,
+    )
     from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or settings.EMAIL_HOST_USER
 
     try:
@@ -213,6 +346,7 @@ def send_platform_help_question_notification(
             from_email=from_email,
             recipient_list=[recipient],
             fail_silently=False,
+            html_message=html_body,
         )
     except Exception as exc:
         logger.error(

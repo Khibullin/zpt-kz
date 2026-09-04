@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from unittest.mock import patch
 
@@ -12,6 +13,7 @@ from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
+from django.utils.html import strip_tags
 
 from core.help_views import (
     platform_help_ask,
@@ -724,6 +726,12 @@ class PlatformHelpEmailTests(TestCase):
             )
         return response, fake_post
 
+    def _html(self, email):
+        self.assertTrue(email.alternatives)
+        content, mimetype = email.alternatives[0]
+        self.assertEqual(mimetype, 'text/html')
+        return content
+
     def test_successful_text_question_sends_one_email(self):
         question = 'Как добавить товар по артикулу?'
         response, _fake = self._ask(question)
@@ -739,6 +747,10 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('Способ ввода: текст', body)
         self.assertIn('Тип пользователя: Анонимный пользователь', body)
         self.assertIn('WhatsApp для ответа: не указан', body)
+        html = self._html(email)
+        self.assertIn('Тип пользователя: Анонимный пользователь', html)
+        self.assertIn('WhatsApp для ответа: не указан', html)
+        self.assertNotIn('Ответить в WhatsApp', html)
         conversation = PlatformHelpConversation.objects.get()
         user_message = PlatformHelpMessage.objects.get(role='user')
         self.assertIn(str(conversation.public_id), body)
@@ -789,10 +801,17 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('WhatsApp для ответа: +77700001122', body)
         self.assertIn('Источник контакта: Профиль продавца', body)
         self.assertIn('https://wa.me/77700001122', body)
+        self.assertNotIn('?text=', body)
         reply_line = next(
             line for line in body.splitlines() if line.startswith('https://wa.me/')
         )
         self.assertNotIn('Как добавить товар по артикулу?', reply_line)
+        html = self._html(email)
+        self.assertIn('Тип пользователя: Продавец', html)
+        self.assertIn('Продавец: AG Parts', html)
+        self.assertIn('Ответить в WhatsApp', html)
+        self.assertIn('https://wa.me/77700001122?text=', html)
+        self.assertNotIn('?text=', strip_tags(html))
 
     def test_openai_failure_still_sends_email(self):
         import requests as requests_lib
@@ -809,6 +828,9 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('Как войти?', body)
         self.assertIn('ОТВЕТ ИИ:', body)
         self.assertIn('Не получен: ИИ временно недоступен или произошла ошибка ответа.', body)
+        html = self._html(mail.outbox[0])
+        self.assertIn('Не получен: ИИ временно недоступен или произошла ошибка ответа.', html)
+        self.assertEqual(mail.outbox[0].alternatives[0][1], 'text/html')
 
     def test_smtp_exception_does_not_change_successful_api(self):
         with patch(
@@ -885,10 +907,27 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('WhatsApp для ответа: +77011234567', body)
         self.assertIn('Источник контакта: Указан пользователем', body)
         self.assertIn('https://wa.me/77011234567', body)
+        self.assertNotIn('?text=', body)
         reply_line = next(
             line for line in body.splitlines() if line.startswith('https://wa.me/')
         )
         self.assertNotIn(question, reply_line)
+        html = self._html(mail.outbox[0])
+        self.assertIn('Ответить в WhatsApp', html)
+        match = re.search(r'href="(https://wa\.me/77011234567\?text=[^"]*)"', html)
+        self.assertIsNotNone(match)
+        self.assertNotIn(question, match.group(1))
+        self.assertNotIn('?text=', strip_tags(html))
+
+    def test_html_email_escapes_user_content(self):
+        payload = '<script>alert(1)</script><b>x</b>'
+        response, _fake = self._ask(payload, contact_whatsapp='+7 701 123 45 67')
+        self.assertEqual(response.status_code, 200)
+        html = self._html(mail.outbox[0])
+        self.assertIn('&lt;script&gt;', html)
+        self.assertNotIn('<script>', html)
+        self.assertIn('&lt;b&gt;', html)
+        self.assertNotIn('<b>x</b>', html)
 
     def test_invalid_whatsapp_does_not_send_email(self):
         response = self.client.post(
