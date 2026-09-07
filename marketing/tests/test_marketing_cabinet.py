@@ -320,10 +320,7 @@ class MarketingConsentAndOrderStatsTests(TestCase):
         )
         cards = {card.key: card for card in get_group_cards()}
         self.assertEqual(cards['parts_sellers'].with_marketing_consent, 0)
-        self.assertEqual(
-            cards['parts_sellers'].consent_note,
-            SELLER_EXECUTOR_CONSENT_NOTE,
-        )
+        self.assertEqual(cards['parts_sellers'].consent_note, '')
 
     def test_service_sellers_without_consent_not_shown_as_granted(self):
         ServiceSeller.objects.create(

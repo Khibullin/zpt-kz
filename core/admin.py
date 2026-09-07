@@ -48,6 +48,8 @@ from .models import (
     CONTACT_CONSENT_PURPOSE_MARKETING,
     PlatformHelpConversation,
     PlatformHelpMessage,
+    SellerContactConsent,
+    WhatsAppInboundEvent,
 )
 from core.buyer_audience_admin_forms import (
     BuyerAudienceAdminForm,
@@ -751,6 +753,121 @@ class ContactConsentAdmin(admin.ModelAdmin):
         return super().get_queryset(request).select_related('buyer')
 
 
+@admin.register(SellerContactConsent)
+class SellerContactConsentAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'seller',
+        'masked_phone',
+        'phone_normalized',
+        'channel',
+        'purpose',
+        'status',
+        'source',
+        'consent_text_version',
+        'consented_at',
+        'revoked_at',
+        'updated_at',
+        'evidence_reference',
+    )
+    list_filter = ('channel', 'purpose', 'status', 'source')
+    search_fields = (
+        'phone_normalized',
+        'consent_text_version',
+        'evidence_reference',
+        'seller__name',
+        'seller__whatsapp',
+    )
+    autocomplete_fields = ('seller',)
+    readonly_fields = ('created_at', 'updated_at')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('seller')
+
+    @admin.display(description='Телефон')
+    def masked_phone(self, obj):
+        return mask_phone(obj.phone_normalized)
+
+
+class SellerContactConsentInline(admin.TabularInline):
+    model = SellerContactConsent
+    extra = 0
+    fields = (
+        'phone_normalized',
+        'channel',
+        'purpose',
+        'status',
+        'source',
+        'consent_text_version',
+        'consented_at',
+        'revoked_at',
+        'evidence_reference',
+    )
+    readonly_fields = (
+        'phone_normalized',
+        'channel',
+        'purpose',
+        'status',
+        'source',
+        'consent_text_version',
+        'consented_at',
+        'revoked_at',
+        'evidence_reference',
+    )
+    can_delete = False
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(WhatsAppInboundEvent)
+class WhatsAppInboundEventAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'provider_message_id',
+        'phone_normalized',
+        'message_type',
+        'button_text',
+        'action',
+        'seller',
+        'processing_status',
+        'provider_timestamp',
+        'created_at',
+        'processed_at',
+    )
+    list_filter = ('processing_status', 'action', 'message_type')
+    search_fields = (
+        'provider_message_id',
+        'phone_normalized',
+        'button_text',
+        'payload_hash',
+        'seller__name',
+    )
+    readonly_fields = (
+        'provider_message_id',
+        'phone_normalized',
+        'message_type',
+        'button_text',
+        'action',
+        'seller',
+        'processing_status',
+        'provider_timestamp',
+        'payload_hash',
+        'created_at',
+        'processed_at',
+    )
+    ordering = ('-created_at', '-id')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('seller')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+
 @admin.register(BuyerAudience)
 class BuyerAudienceAdmin(admin.ModelAdmin):
     form = BuyerAudienceAdminForm
@@ -1067,6 +1184,7 @@ def unmark_as_test_seller(modeladmin, request, queryset):
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
     change_list_template = 'admin/core/seller/change_list.html'
+    inlines = (SellerContactConsentInline,)
 
     list_display = (
         'id',

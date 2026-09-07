@@ -20,6 +20,7 @@ from core.models import (
     BuyerContact,
     ContactConsent,
     Seller,
+    SellerContactConsent,
 )
 from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 from marketing.services.phone_utils import normalize_phone_key
@@ -109,6 +110,8 @@ class MarketingContact:
     products_count: int | None
     marketing_consent: str | None
     marketing_consent_label: str
+    seller_marketing_consent: str | None
+    seller_marketing_consent_label: str
     contact_status: str | None
     contact_status_label: str
     is_test: bool
@@ -162,6 +165,7 @@ class _ContactBuilder:
         self.orders_count: int | None = None
         self.products_count: int | None = None
         self.marketing_consent: str | None = None
+        self.seller_marketing_consent: str | None = None
         self.contact_status: str | None = None
         self.is_test = False
         self.is_active = False
@@ -330,6 +334,10 @@ class _ContactBuilder:
             products_count=self.products_count,
             marketing_consent=self.marketing_consent,
             marketing_consent_label=marketing_consent_label(self.marketing_consent),
+            seller_marketing_consent=self.seller_marketing_consent,
+            seller_marketing_consent_label=seller_marketing_consent_label(
+                self.seller_marketing_consent,
+            ),
             contact_status=self.contact_status,
             contact_status_label=status_labels.get(self.contact_status, '—')
             if self.contact_status
@@ -347,6 +355,17 @@ class _ContactBuilder:
             service_ids=frozenset(self.service_ids),
             districts=frozenset(self.districts),
         )
+
+
+def seller_marketing_consent_label(status: str | None) -> str:
+    if not status:
+        return 'Не зафиксировано'
+    labels = {
+        CONTACT_CONSENT_STATUS_GRANTED: 'Дано',
+        CONTACT_CONSENT_STATUS_REVOKED: 'Отозвано',
+        CONTACT_CONSENT_STATUS_UNKNOWN: 'Не подтверждено',
+    }
+    return labels.get(status, 'Не зафиксировано')
 
 
 def role_labels_from_builder(builder: _ContactBuilder) -> tuple[str, ...]:
@@ -427,16 +446,39 @@ def build_contact_registry() -> dict[str, MarketingContact]:
                 service_ids={service.id for service in request.services.all()},
             )
 
+    seller_ids_by_phone: dict[str, list[int]] = {}
     for seller in Seller.objects.only(
+        'id',
         'whatsapp',
         'name',
         'city',
         'is_active',
         'is_paused',
+        'transport_type',
+        'brand',
+        'model',
+        'category',
     ):
         builder = get_builder(seller.whatsapp)
         if builder:
             builder.add_parts_seller(seller)
+            seller_ids_by_phone.setdefault(builder.phone_key, []).append(seller.pk)
+
+    seller_consents = SellerContactConsent.objects.filter(
+        channel=CONTACT_CONSENT_CHANNEL_WHATSAPP,
+        purpose=CONTACT_CONSENT_PURPOSE_MARKETING,
+    ).only('seller_id', 'phone_normalized', 'status')
+    consent_by_seller_phone = {
+        (row.seller_id, row.phone_normalized): row.status
+        for row in seller_consents
+    }
+    for phone_key, seller_ids in seller_ids_by_phone.items():
+        unique_ids = list(dict.fromkeys(seller_ids))
+        if len(unique_ids) != 1:
+            continue
+        status = consent_by_seller_phone.get((unique_ids[0], phone_key))
+        if status:
+            registry[phone_key].seller_marketing_consent = status
 
     product_counts: dict[str, int] = {}
     for row in Product.objects.exclude(whatsapp_number='').values('whatsapp_number').annotate(

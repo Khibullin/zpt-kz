@@ -29,10 +29,12 @@ from .help_views import (
     platform_help_new_conversation,
     platform_help_transcribe,
 )
+from .whatsapp_webhook_views import whatsapp_webhook
 
 
 urlpatterns = [
     path('create-request/', create_request, name='create_request'),
+    path('whatsapp/webhook/', whatsapp_webhook, name='whatsapp_webhook'),
     path(
         'r/<int:pk>/<str:token>/',
         short_request_redirect,

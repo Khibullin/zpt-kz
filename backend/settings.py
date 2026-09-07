@@ -221,6 +221,12 @@ WHATSAPP_BUYER_TEMPLATE_NAME = os.getenv(
     "zpt_buyer_request_receipt",
 )
 
+WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv(
+    'WHATSAPP_WEBHOOK_VERIFY_TOKEN',
+    '',
+).strip()
+META_APP_SECRET = os.getenv('META_APP_SECRET', '').strip()
+
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
 
 BUYER_BROADCAST_MODE = (os.getenv("BUYER_BROADCAST_MODE", "OFF") or "OFF").strip().upper()

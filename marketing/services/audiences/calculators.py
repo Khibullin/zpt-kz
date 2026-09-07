@@ -24,6 +24,7 @@ from marketing.services.audiences.builders import (
     build_seller_source_index,
     contact_matches_subtype,
     is_buyer_group,
+    is_seller_group,
     is_test_audience,
     marketplace_test_phone_keys,
 )
@@ -370,7 +371,7 @@ def _classify_eligibility(
         and contact.phone_key in test_marketplace_keys
     ):
         return 'test_contact'
-    if not contact.is_active:
+    if not contact.is_active and not is_seller_group(contact_group):
         return 'inactive'
     if is_buyer_group(contact_group):
         consent = contact.marketing_consent
@@ -381,7 +382,32 @@ def _classify_eligibility(
         if consent == CONTACT_CONSENT_STATUS_UNKNOWN:
             return 'consent_unknown'
         return 'consent_unknown'
+    if is_seller_group(contact_group):
+        consent = contact.seller_marketing_consent
+        if not consent:
+            return 'consent_not_recorded'
+        if consent == CONTACT_CONSENT_STATUS_REVOKED:
+            return 'consent_revoked'
+        if consent == CONTACT_CONSENT_STATUS_UNKNOWN:
+            return 'consent_unknown'
+        if consent != CONTACT_CONSENT_STATUS_GRANTED:
+            return 'consent_not_recorded'
+        if not contact.is_active:
+            return 'inactive'
+        return 'eligible'
     return 'consent_not_recorded'
+
+
+def _group_consent_status(contact: MarketingContact, contact_group: str) -> str | None:
+    if is_seller_group(contact_group):
+        return contact.seller_marketing_consent
+    return contact.marketing_consent
+
+
+def _group_consent_label(contact: MarketingContact, contact_group: str) -> str:
+    if is_seller_group(contact_group):
+        return contact.seller_marketing_consent_label
+    return contact.marketing_consent_label
 
 
 def _format_brand_model(contact: MarketingContact) -> str:
@@ -486,7 +512,7 @@ def calculate_audience(
             counts['consent_not_recorded_count'] += 1
         elif eligibility == 'eligible':
             counts['eligible_count'] += 1
-            if contact.marketing_consent == CONTACT_CONSENT_STATUS_GRANTED:
+            if _group_consent_status(contact, contact_group) == CONTACT_CONSENT_STATUS_GRANTED:
                 counts['granted_count'] += 1
 
         if contact_subtype == SUBTYPE_MARKETPLACE_PAID:
@@ -504,7 +530,7 @@ def calculate_audience(
                     roles_display=', '.join(role_labels(contact)) or '—',
                     brand_model=_format_brand_model(contact),
                     last_activity=_format_last_activity(contact),
-                    consent_label=contact.marketing_consent_label,
+                    consent_label=_group_consent_label(contact, contact_group),
                     eligibility_label=EXCLUSION_LABELS.get(
                         eligibility,
                         eligibility,
@@ -667,7 +693,7 @@ def collect_audience_snapshot(
             counts['consent_not_recorded_count'] += 1
         elif eligibility == 'eligible':
             counts['eligible_count'] += 1
-            if contact.marketing_consent == CONTACT_CONSENT_STATUS_GRANTED:
+            if _group_consent_status(contact, contact_group) == CONTACT_CONSENT_STATUS_GRANTED:
                 counts['consent_granted_count'] += 1
 
         if not _safe_phone_key(contact.phone_key):
@@ -696,7 +722,7 @@ def collect_audience_snapshot(
                 vehicle_summary=_format_brand_model(contact),
                 last_activity_at=contact.last_activity,
                 is_test_contact=contact.is_test,
-                consent_status=contact.marketing_consent or '',
+                consent_status=_group_consent_status(contact, contact_group) or '',
                 eligibility_status=eligibility_status,
                 exclusion_reason=exclusion_reason,
                 source_summary=_build_source_summary(contact),

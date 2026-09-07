@@ -260,6 +260,10 @@ def is_buyer_group(contact_group: str) -> bool:
     return contact_group == GROUP_BUYERS
 
 
+def is_seller_group(contact_group: str) -> bool:
+    return contact_group == GROUP_SELLERS
+
+
 def is_test_audience(contact_group: str, contact_subtype: str) -> bool:
     return contact_group == GROUP_TEST and contact_subtype == SUBTYPE_TEST_CONTACTS
 

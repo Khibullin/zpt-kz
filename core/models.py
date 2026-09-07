@@ -6,6 +6,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
+from core.phone_utils import normalize_kz_phone
 from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 
 
@@ -99,6 +100,34 @@ CONTACT_CONSENT_SOURCE_CHOICES = [
     (CONTACT_CONSENT_SOURCE_WHATSAPP, 'WhatsApp'),
     (CONTACT_CONSENT_SOURCE_ADMIN, 'Админ'),
     (CONTACT_CONSENT_SOURCE_IMPORT, 'Импорт'),
+]
+
+SELLER_PLATFORM_CONFIRM_TEMPLATE = 'zpt_seller_platform_confirm_v1'
+SELLER_CONFIRM_YES_TEXT = 'Да, подтверждаю'
+SELLER_CONFIRM_NO_TEXT = 'Нет, отключить'
+SELLER_CONFIRM_ACTION_YES = 'seller_confirm_yes'
+SELLER_CONFIRM_ACTION_NO = 'seller_confirm_no'
+
+INBOUND_EVENT_STATUS_PROCESSED = 'processed'
+INBOUND_EVENT_STATUS_IGNORED = 'ignored'
+INBOUND_EVENT_STATUS_UNMATCHED = 'unmatched'
+INBOUND_EVENT_STATUS_AMBIGUOUS = 'ambiguous'
+INBOUND_EVENT_STATUS_ERROR = 'error'
+INBOUND_EVENT_STATUS_STALE = 'stale'
+
+INBOUND_EVENT_STATUS_CHOICES = [
+    (INBOUND_EVENT_STATUS_PROCESSED, 'Обработано'),
+    (INBOUND_EVENT_STATUS_IGNORED, 'Игнорировано'),
+    (INBOUND_EVENT_STATUS_UNMATCHED, 'Продавец не найден'),
+    (INBOUND_EVENT_STATUS_AMBIGUOUS, 'Несколько продавцов'),
+    (INBOUND_EVENT_STATUS_ERROR, 'Ошибка'),
+    (INBOUND_EVENT_STATUS_STALE, 'Устарело'),
+]
+
+INBOUND_EVENT_ACTION_CHOICES = [
+    ('', '—'),
+    (SELLER_CONFIRM_ACTION_YES, 'Да, подтверждаю'),
+    (SELLER_CONFIRM_ACTION_NO, 'Нет, отключить'),
 ]
 
 
@@ -713,6 +742,184 @@ class ContactConsent(models.Model):
 
     def __str__(self) -> str:
         return f'{self.get_channel_display()} / {self.get_purpose_display()}'
+
+
+class SellerContactConsent(models.Model):
+    seller = models.ForeignKey(
+        'Seller',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='contact_consents',
+        verbose_name='Продавец',
+    )
+    phone_normalized = models.CharField(
+        max_length=11,
+        db_index=True,
+        verbose_name='Телефон',
+    )
+    channel = models.CharField(
+        max_length=16,
+        choices=CONTACT_CONSENT_CHANNEL_CHOICES,
+        verbose_name='Канал',
+    )
+    purpose = models.CharField(
+        max_length=16,
+        choices=CONTACT_CONSENT_PURPOSE_CHOICES,
+        verbose_name='Цель',
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=CONTACT_CONSENT_STATUS_CHOICES,
+        default=CONTACT_CONSENT_STATUS_UNKNOWN,
+        verbose_name='Статус',
+    )
+    source = models.CharField(
+        max_length=20,
+        choices=CONTACT_CONSENT_SOURCE_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Источник',
+    )
+    consent_text_version = models.CharField(
+        max_length=50,
+        blank=True,
+        default='',
+        verbose_name='Версия текста согласия',
+    )
+    evidence_reference = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Ссылка на доказательство',
+    )
+    consented_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата согласия',
+    )
+    revoked_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Дата отзыва',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлён')
+
+    class Meta:
+        verbose_name = 'Согласие продавца на контакт'
+        verbose_name_plural = 'Согласия продавцов на контакт'
+        ordering = ('-updated_at', '-id')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller', 'phone_normalized', 'channel', 'purpose'],
+                name='unique_seller_consent_purpose',
+            ),
+        ]
+
+    def clean(self):
+        errors = {}
+        canonical = normalize_kz_phone(self.phone_normalized)
+        if not canonical or canonical != str(self.phone_normalized or ''):
+            errors['phone_normalized'] = (
+                'Ожидается канонический номер Казахстана 7XXXXXXXXXX.'
+            )
+        if self.status == CONTACT_CONSENT_STATUS_GRANTED and not self.consented_at:
+            errors['consented_at'] = (
+                'Для статуса «Дано» необходимо указать дату согласия.'
+            )
+        if self.status == CONTACT_CONSENT_STATUS_REVOKED and not self.revoked_at:
+            errors['revoked_at'] = (
+                'Для статуса «Отозвано» необходимо указать дату отзыва.'
+            )
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+
+    def __str__(self) -> str:
+        return f'{self.phone_normalized} / {self.get_purpose_display()}'
+
+
+class WhatsAppInboundEvent(models.Model):
+    provider_message_id = models.CharField(
+        max_length=255,
+        unique=True,
+        verbose_name='ID сообщения WhatsApp',
+    )
+    phone_normalized = models.CharField(
+        max_length=11,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Телефон',
+    )
+    message_type = models.CharField(
+        max_length=32,
+        blank=True,
+        default='',
+        verbose_name='Тип сообщения',
+    )
+    button_text = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Текст кнопки',
+    )
+    action = models.CharField(
+        max_length=32,
+        choices=INBOUND_EVENT_ACTION_CHOICES,
+        blank=True,
+        default='',
+        verbose_name='Действие',
+    )
+    seller = models.ForeignKey(
+        'Seller',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='whatsapp_inbound_events',
+        verbose_name='Продавец',
+    )
+    processing_status = models.CharField(
+        max_length=16,
+        choices=INBOUND_EVENT_STATUS_CHOICES,
+        default=INBOUND_EVENT_STATUS_IGNORED,
+        verbose_name='Статус обработки',
+    )
+    provider_timestamp = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Время у провайдера',
+    )
+    payload_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='SHA-256 фрагмента payload',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создан')
+    processed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Обработан',
+    )
+
+    class Meta:
+        verbose_name = 'Входящее событие WhatsApp'
+        verbose_name_plural = 'Входящие события WhatsApp'
+        ordering = ('-created_at', '-id')
+        indexes = [
+            models.Index(
+                fields=['processing_status', '-created_at'],
+                name='core_wa_inbound_status_created',
+            ),
+        ]
+
+    def __str__(self) -> str:
+        return self.provider_message_id
 
 
 class BuyerAudience(models.Model):

@@ -159,13 +159,14 @@ def _card_from_contacts(
     contacts: list[MarketingContact],
     note: str = '',
     consent_note: str = '',
+    consent_attr: str = 'marketing_consent',
 ) -> ContactGroupCard:
     total = len(contacts)
     active = sum(1 for contact in contacts if contact.is_active)
     with_consent = sum(
         1
         for contact in contacts
-        if contact.marketing_consent == CONTACT_CONSENT_STATUS_GRANTED
+        if getattr(contact, consent_attr, None) == CONTACT_CONSENT_STATUS_GRANTED
     )
     without_consent = total - with_consent
     city_counter = Counter(
@@ -266,21 +267,21 @@ def get_group_cards() -> list[ContactGroupCard]:
             title='Получают заявки покупателей',
             section='sellers',
             contacts=[c for c in contacts if ROLE_PARTS_SELLER in c.roles],
-            consent_note=seller_consent_note,
+            consent_attr='seller_marketing_consent',
         ),
         _card_from_contacts(
             key='marketplace_sellers',
             title='Размещают товары в маркетплейсе',
             section='sellers',
             contacts=[c for c in contacts if ROLE_MARKETPLACE_SELLER in c.roles],
-            consent_note=seller_consent_note,
+            consent_attr='seller_marketing_consent',
         ),
         _card_from_contacts(
             key='combined_sellers',
             title='Совмещают оба направления',
             section='sellers',
             contacts=[c for c in contacts if _has_combined_seller_roles(c)],
-            consent_note=seller_consent_note,
+            consent_attr='seller_marketing_consent',
         ),
         _card_from_contacts(
             key='sto',
