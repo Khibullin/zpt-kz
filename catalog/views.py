@@ -22,8 +22,13 @@ from core.services.seller_identity import (
     clear_legacy_password,
     create_unified_seller_account,
     delete_unified_seller_account,
+    get_logged_request_seller,
     logout_unified_seller,
     sync_login_phone,
+)
+from core.services.seller_whatsapp_consent import (
+    get_seller_whatsapp_marketing_consent_status,
+    maybe_grant_registration_whatsapp_consent,
 )
 from .applicability import build_product_applicability, vehicle_line_if_not_in_title
 from .commercial import (
@@ -649,7 +654,7 @@ def seller_register(request):
             phone = ''.join(filter(str.isdigit, form.cleaned_data['phone']))
             password = form.cleaned_data['password']
             try:
-                create_unified_seller_account(
+                _user, request_seller, _profile = create_unified_seller_account(
                     name=form.cleaned_data['name'],
                     whatsapp=phone,
                     password=password,
@@ -668,6 +673,8 @@ def seller_register(request):
                         'logo': form.cleaned_data.get('logo'),
                     },
                 )
+                if form.cleaned_data.get('whatsapp_marketing_consent'):
+                    maybe_grant_registration_whatsapp_consent(request_seller)
                 return redirect('seller_login')
             except SellerIdentityError as exc:
                 error_message = exc.message
@@ -750,9 +757,17 @@ def seller_dashboard(request):
         brand=warehouse['brand_id'],
         model=warehouse['model_id'],
     )
+    request_seller = get_logged_request_seller(request)
+    consent_status = (
+        get_seller_whatsapp_marketing_consent_status(request_seller)
+        if request_seller
+        else ''
+    )
 
     return render(request, 'catalog/seller_dashboard.html', {
         'seller': seller,
+        'request_seller': request_seller,
+        'consent_status': consent_status,
         'products': products,
         'query': query,
         'status_filter': status_filter,
@@ -778,10 +793,18 @@ def seller_dashboard(request):
 def seller_profile(request):
     seller = get_object_or_404(SellerProfile, user=request.user)
     products_count = Product.objects.owned_by_seller(seller).count()
+    request_seller = get_logged_request_seller(request)
+    consent_status = (
+        get_seller_whatsapp_marketing_consent_status(request_seller)
+        if request_seller
+        else ''
+    )
 
     return render(request, 'catalog/seller_profile.html', {
         'seller': seller,
         'products_count': products_count,
+        'request_seller': request_seller,
+        'consent_status': consent_status,
     })
 
 

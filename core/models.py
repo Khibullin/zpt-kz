@@ -92,6 +92,7 @@ CONTACT_CONSENT_SOURCE_BUYER_PORTAL = 'buyer_portal'
 CONTACT_CONSENT_SOURCE_WHATSAPP = 'whatsapp'
 CONTACT_CONSENT_SOURCE_ADMIN = 'admin'
 CONTACT_CONSENT_SOURCE_IMPORT = 'import'
+CONTACT_CONSENT_SOURCE_SELLER_PORTAL = 'seller_portal'
 
 CONTACT_CONSENT_SOURCE_CHOICES = [
     (CONTACT_CONSENT_SOURCE_REQUEST_FORM, 'Форма заявки'),
@@ -100,7 +101,16 @@ CONTACT_CONSENT_SOURCE_CHOICES = [
     (CONTACT_CONSENT_SOURCE_WHATSAPP, 'WhatsApp'),
     (CONTACT_CONSENT_SOURCE_ADMIN, 'Админ'),
     (CONTACT_CONSENT_SOURCE_IMPORT, 'Импорт'),
+    (CONTACT_CONSENT_SOURCE_SELLER_PORTAL, 'Кабинет продавца'),
 ]
+
+SELLER_REGISTRATION_WHATSAPP_CONSENT_VERSION = 'seller_registration_whatsapp_v1'
+SELLER_PORTAL_WHATSAPP_CONSENT_VERSION = 'seller_portal_whatsapp_v1'
+SELLER_LINK_WHATSAPP_CONSENT_VERSION = 'seller_link_whatsapp_v1'
+SELLER_WHATSAPP_CONSENT_OPT_IN_TEXT = (
+    'Я согласен получать в WhatsApp заявки покупателей, уведомления '
+    'и информацию о возможностях ZPT.KZ.'
+)
 
 SELLER_PLATFORM_CONFIRM_TEMPLATE = 'zpt_seller_platform_confirm_v1'
 SELLER_CONFIRM_YES_TEXT = 'Да, подтверждаю'

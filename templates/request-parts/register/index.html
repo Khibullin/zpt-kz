@@ -5,6 +5,7 @@
 
 {% block portal_css %}
 <link rel="stylesheet" href="{% static 'css/portal-register.css' %}">
+<link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
 {% endblock %}
 
 {% block portal_header %}
@@ -39,6 +40,10 @@
       <div class="block"><h3 class="blue-title">Марки автомобилей</h3><div id="brandsBox" class="checkgrid"></div><div class="all-row"><label><input type="checkbox" id="all_brands"> Все марки</label></div></div>
       <div class="block"><h3 class="green-title">Модели автомобилей</h3><div id="modelsBox" class="checkgrid"></div><div class="all-row"><label><input type="checkbox" id="all_models"> Все модели</label></div></div>
       <div class="block"><h3 class="orange-title">Категории запчастей</h3><div id="categoriesBox" class="checkgrid"></div><div class="all-row"><label><input type="checkbox" id="all_categories"> Все категории</label></div></div>
+      <label class="seller-consent-optin">
+        <input type="checkbox" id="whatsapp_marketing_consent">
+        <span>Я согласен получать в WhatsApp заявки покупателей, уведомления и информацию о возможностях ZPT.KZ.</span>
+      </label>
       <button class="submit" type="submit">Зарегистрироваться</button>
     </form>
 
@@ -53,5 +58,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/request-parts-register.js' %}?v=2"></script>
+<script src="{% static 'js/request-parts-register.js' %}?v=3"></script>
 {% endblock %}

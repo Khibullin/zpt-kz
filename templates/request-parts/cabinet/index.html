@@ -3,9 +3,14 @@
 
 {% block title %}Кабинет продавца — ZPT.kz{% endblock %}
 
+{% block extra_head %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
+
 {% block portal_css %}
 <link rel="stylesheet" href="{% static 'css/portal-cabinet.css' %}">
 <link rel="stylesheet" href="{% static 'css/b2b-auth.css' %}">
+<link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
 {% endblock %}
 
 {% block portal_header %}
@@ -14,6 +19,7 @@
 
 {% block content %}
 <div class="page">
+  {% csrf_token %}
   <div class="b2b-auth-shell" id="loginBox">
     <div class="b2b-auth-card">
       <h1 class="b2b-auth-title">Вход продавца</h1>
@@ -131,6 +137,11 @@
         <div id="profileBox" class="profile-grid"></div>
       </section>
 
+      <section class="panel" id="whatsappConsentPanel">
+        <h2>WhatsApp и заявки ZPT.KZ</h2>
+        <div id="whatsappConsentBox"></div>
+      </section>
+
       <section class="panel">
         <h2>Настройки автозапчастей</h2>
         <div id="settingsBox" class="profile-grid"></div>
@@ -158,5 +169,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/request-parts-cabinet.js' %}"></script>
+<script src="{% static 'js/request-parts-cabinet.js' %}?v=1"></script>
 {% endblock %}

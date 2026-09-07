@@ -3,6 +3,10 @@
 
 {% block title %}Регистрация продавца — ZPT.KZ{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
+{% endblock %}
+
 {% block content %}
 {% include 'includes/site_header_simple.html' %}
 <section class="section">
@@ -123,6 +127,13 @@
             </span>
           </p>
         </div>
+
+        <p class="seller-consent-optin">
+          {{ form.whatsapp_marketing_consent }}
+          <label for="{{ form.whatsapp_marketing_consent.id_for_label }}" style="font-weight:400;margin:0;">
+            {{ form.whatsapp_marketing_consent.label }}
+          </label>
+        </p>
 
 <div class="form-action-row">
   <button type="submit" class="btn red">

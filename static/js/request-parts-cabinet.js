@@ -17,6 +17,41 @@ function statusClass(s){let t=labelStatus(s);if(t==='Новая')return 'badge-n
 function statusKey(s){let t=labelStatus(s);if(t==='Новая')return 'new';if(t==='Отправлена')return 'sent';if(t==='Просмотрена')return 'viewed';if(t==='Связался')return 'contacted';if(t==='Отказ')return 'done';return 'new'}
 function escHtml(v){return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
 function ids(arr){return (arr||[]).map(x=>Number(x.id)).filter(Boolean)}
+function getCookie(name){const match=document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));return match?decodeURIComponent(match[2]):''}
+function getCsrfToken(){const meta=document.querySelector('meta[name="csrf-token"]');if(meta&&meta.content)return meta.content;return getCookie('csrftoken')}
+
+function renderWhatsappConsent(data){
+  const box=document.getElementById('whatsappConsentBox');
+  if(!box)return;
+  const status=data.whatsapp_marketing_consent||'';
+  if(status==='granted'){
+    box.innerHTML=`<p>WhatsApp-уведомления включены</p><div class="profile-actions"><button class="btn btn-gray" type="button" onclick="submitWhatsappConsent('revoke')">Отключить</button></div>`;
+    return;
+  }
+  if(status==='revoked'){
+    box.innerHTML=`<p>WhatsApp-уведомления отключены</p><div class="profile-actions"><button class="btn btn-green" type="button" onclick="submitWhatsappConsent('grant')">Включить</button></div>`;
+    return;
+  }
+  box.innerHTML=`<p>Подтвердите, хотите ли вы получать в WhatsApp заявки покупателей и информацию о возможностях ZPT.KZ.</p><div class="profile-actions"><button class="btn btn-green" type="button" onclick="submitWhatsappConsent('grant')">Да, подтверждаю</button><button class="btn btn-gray" type="button" onclick="submitWhatsappConsent('revoke')">Нет, отключить</button></div>`;
+}
+
+async function submitWhatsappConsent(action){
+  try{
+    const r=await fetch(`${API}/seller-whatsapp-consent/`,{
+      method:'POST',
+      credentials:'include',
+      headers:{
+        'Content-Type':'application/json',
+        'Accept':'application/json',
+        'X-CSRFToken':getCsrfToken()
+      },
+      body:JSON.stringify({action})
+    });
+    const data=await r.json();
+    if(data.error){alert(data.error);return}
+    await loadProfile();
+  }catch(e){alert('Не удалось сохранить решение по WhatsApp')}
+}
 
 async function apiGet(url){let r=await fetch(url,{credentials:'include'});if(!r.ok)throw new Error('api error');return r.json()}
 
@@ -40,6 +75,7 @@ async function loadProfile(){
     if(data.error){showLogin();return}
     showCabinet();
     renderProfile(data);
+    renderWhatsappConsent(data);
   }catch(e){showLogin()}
 }
 

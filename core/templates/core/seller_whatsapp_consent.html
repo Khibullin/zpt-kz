@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZPT.KZ — подтверждение WhatsApp</title>
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=4">
+  <link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
+</head>
+<body class="seller-consent-page">
+  <header class="seller-consent-header site-header">
+    {% include 'includes/site_logo.html' %}
+  </header>
+  <main class="seller-consent-card">
+    <h1>ZPT.KZ — подтверждение WhatsApp</h1>
+    {% if page_state == 'error' %}
+      <p class="seller-consent-message">{{ error_message }}</p>
+    {% elif page_state == 'done' %}
+      {% if seller_name %}
+        <p class="seller-consent-name">{{ seller_name }}</p>
+      {% endif %}
+      <p class="seller-consent-message">{{ result_message }}</p>
+    {% else %}
+      {% if seller_name %}
+        <p class="seller-consent-name">{{ seller_name }}</p>
+      {% endif %}
+      <p>Подтвердите, хотите ли вы получать заявки покупателей и информацию о возможностях ZPT.KZ в WhatsApp.</p>
+      {% if error_message %}
+        <p class="seller-consent-error">{{ error_message }}</p>
+      {% endif %}
+      <form method="post" class="seller-consent-actions">
+        {% csrf_token %}
+        <button class="btn-primary" type="submit" name="action" value="grant">{{ yes_label }}</button>
+        <button class="btn-secondary" type="submit" name="action" value="revoke">{{ no_label }}</button>
+      </form>
+    {% endif %}
+  </main>
+</body>
+</html>

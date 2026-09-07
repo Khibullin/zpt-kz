@@ -3,6 +3,10 @@
 
 {% block title %}Профиль продавца — ZPT.KZ{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
+{% endblock %}
+
 {% block content %}
 {% include 'includes/site_header_simple.html' %}
 
@@ -35,6 +39,10 @@
           </div>
 
         </div>
+
+        {% if request_seller %}
+          {% include 'core/includes/seller_whatsapp_consent_block.html' %}
+        {% endif %}
 
         <div class="seller-profile-grid">
 

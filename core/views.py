@@ -35,6 +35,11 @@ from core.services.seller_identity import (
     logout_unified_seller,
     sync_login_phone,
 )
+from core.services.seller_whatsapp_consent import (
+    get_seller_whatsapp_marketing_consent_status,
+    is_whatsapp_marketing_opt_in,
+    maybe_grant_registration_whatsapp_consent,
+)
 from core.whatsapp_template_sender import (
     normalize_whatsapp_phone,
     send_whatsapp_template_message,
@@ -1199,6 +1204,9 @@ def create_seller(request):
     all_countries = bool(data.get('all_countries', False))
     all_brands = bool(data.get('all_brands', False))
     all_models = bool(data.get('all_models', False))
+    whatsapp_marketing_consent = is_whatsapp_marketing_opt_in(
+        data.get('whatsapp_marketing_consent')
+    )
 
     if not name:
         return JsonResponse({'error': 'Укажите название продавца'}, status=400)
@@ -1252,6 +1260,10 @@ def create_seller(request):
         seller.selected_models.clear()
     else:
         seller.selected_models.set(selected_model_ids)
+
+    if whatsapp_marketing_consent:
+        maybe_grant_registration_whatsapp_consent(seller)
+        seller.refresh_from_db(fields=['receive_requests', 'is_paused'])
 
     return JsonResponse({
         'status': 'ok',
@@ -1406,6 +1418,7 @@ def seller_profile(request):
         'receive_requests': seller.receive_requests,
         'is_test_seller': seller.is_test_seller,
         'must_change_password': seller.must_change_password,
+        'whatsapp_marketing_consent': get_seller_whatsapp_marketing_consent_status(seller),
 
         'selected_categories': list(seller.selected_categories.values('id', 'name')),
         'selected_countries': list(seller.selected_countries.values('id', 'name')),
@@ -1695,6 +1708,9 @@ def register_seller(request):
     city = (request.POST.get('city') or '').strip()
     whatsapp_phone = _normalize_whatsapp(request.POST.get('whatsapp_phone'))
     password = request.POST.get('password') or ''
+    whatsapp_marketing_consent = is_whatsapp_marketing_opt_in(
+        request.POST.get('whatsapp_marketing_consent')
+    )
 
     if not company_name:
         messages.error(request, 'Укажите название магазина или СТО.')
@@ -1726,6 +1742,9 @@ def register_seller(request):
             'Не удалось завершить регистрацию. Попробуйте ещё раз или свяжитесь с поддержкой.',
         )
         return _seller_landing_form_redirect()
+
+    if whatsapp_marketing_consent:
+        maybe_grant_registration_whatsapp_consent(seller)
 
     authed = authenticate(request, username=user.username, password=password)
     if authed is not None:

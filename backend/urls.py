@@ -5,6 +5,10 @@ from django.views.generic import TemplateView
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect
 from core.help_views import platform_help_page
+from core.seller_whatsapp_consent_views import (
+    seller_portal_whatsapp_consent,
+    seller_whatsapp_consent_link,
+)
 from core.views import (
     parts_sellers_catalog,
     parts_seller_detail,
@@ -35,6 +39,16 @@ urlpatterns = [
     path('prodavat/', seller_landing, name='seller_landing'),
     path('register/', register_seller, name='register_seller'),
     path('business/', business_gateway, name='business_gateway'),
+    path(
+        'seller/whatsapp-consent/',
+        seller_portal_whatsapp_consent,
+        name='seller_portal_whatsapp_consent',
+    ),
+    path(
+        'seller/whatsapp-consent/<path:token>/',
+        seller_whatsapp_consent_link,
+        name='seller_whatsapp_consent_link',
+    ),
 
     path(
         'r/<int:pk>/<str:token>/',

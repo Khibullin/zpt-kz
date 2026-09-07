@@ -30,6 +30,7 @@ from .help_views import (
     platform_help_transcribe,
 )
 from .whatsapp_webhook_views import whatsapp_webhook
+from .seller_whatsapp_consent_views import seller_whatsapp_consent_api
 
 
 urlpatterns = [
@@ -51,6 +52,11 @@ urlpatterns = [
         name='view_buyer_request_history',
     ),
     path('create-seller/', create_seller, name='create_seller'),
+    path(
+        'seller-whatsapp-consent/',
+        seller_whatsapp_consent_api,
+        name='seller_whatsapp_consent_api',
+    ),
 
     path(
         'admin/seller/<int:seller_id>/reset-password/',

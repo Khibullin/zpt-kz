@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=warehouse_filters_v1">
+<link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
@@ -39,6 +40,10 @@
         {% endif %}
       </div>
     </div>
+
+    {% if request_seller %}
+      {% include 'core/includes/seller_whatsapp_consent_block.html' %}
+    {% endif %}
 
     <div class="seller-dashboard-search">
       <form class="seller-dashboard-search-form" method="get" action="">

@@ -75,6 +75,14 @@ class SellerPickupFieldsMixin:
 
 class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput, label='Пароль')
+    whatsapp_marketing_consent = forms.BooleanField(
+        required=False,
+        initial=False,
+        label=(
+            'Я согласен получать в WhatsApp заявки покупателей, уведомления '
+            'и информацию о возможностях ZPT.KZ.'
+        ),
+    )
 
     class Meta:
         model = SellerProfile
