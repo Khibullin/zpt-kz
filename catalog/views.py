@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
+from django.utils.http import url_has_allowed_host_and_scheme
 from django.db import transaction
 from django.db.models import Q, Prefetch
 from django.http import Http404, HttpResponse, JsonResponse
@@ -687,10 +688,29 @@ def seller_register(request):
     })
 
 
+def _safe_seller_next_url(request, candidate):
+    candidate = (candidate or '').strip()
+    if not candidate:
+        return ''
+    if url_has_allowed_host_and_scheme(
+        url=candidate,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        return candidate
+    return ''
+
+
 def seller_login(request):
     error_message = None
     username = ''
     remember_me = False
+    raw_next = (
+        request.POST.get('next')
+        if request.method == 'POST'
+        else request.GET.get('next')
+    )
+    next_url = _safe_seller_next_url(request, raw_next)
 
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -704,6 +724,8 @@ def seller_login(request):
             remember_me=remember_me,
         )
         if user:
+            if next_url:
+                return redirect(next_url)
             return redirect('seller_dashboard')
         error_message = 'Неверный логин или пароль.'
 
@@ -711,6 +733,7 @@ def seller_login(request):
         'error_message': error_message,
         'username': username,
         'remember_me': remember_me,
+        'next_url': next_url,
     })
 
 

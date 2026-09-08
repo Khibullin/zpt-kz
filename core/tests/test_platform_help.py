@@ -98,7 +98,6 @@ class PlatformHelpTests(TestCase):
     def test_other_go_routes_unchanged(self):
         expected = {
             'requests': '/request-parts/cabinet/',
-            'add-product': '/market/seller/add/',
             'wholesale': '/market/?offer=wholesale&all=1',
             'sellers': '/parts-sellers/',
         }

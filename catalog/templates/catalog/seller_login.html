@@ -20,6 +20,7 @@
 
     <form method="post" class="b2b-auth-form seller-form" action="" autocomplete="on">
       {% csrf_token %}
+      <input type="hidden" name="next" value="{{ next_url|default:'' }}">
 
       <div class="b2b-auth-field">
         <label for="username">WhatsApp</label>
