@@ -32,13 +32,16 @@ from core.models import (
     WhatsAppInboundEvent,
 )
 from core.phone_utils import normalize_kz_phone
+from core.seller_request_consent import (
+    SELLER_REQUEST_CONSENT_NO_TEXT,
+    SELLER_REQUEST_CONSENT_TEMPLATE,
+    SELLER_REQUEST_CONSENT_YES_TEXT,
+)
 from core.services.seller_identity import find_sellers_by_phone
 
 logger = logging.getLogger(__name__)
 
 _WHITESPACE_RE = re.compile(r'\s+')
-_YES_NORMALIZED = _WHITESPACE_RE.sub(' ', SELLER_CONFIRM_YES_TEXT.replace('\u00a0', ' ')).strip().casefold()
-_NO_NORMALIZED = _WHITESPACE_RE.sub(' ', SELLER_CONFIRM_NO_TEXT.replace('\u00a0', ' ')).strip().casefold()
 
 
 def normalize_quick_reply_text(value: object) -> str:
@@ -46,15 +49,36 @@ def normalize_quick_reply_text(value: object) -> str:
     return _WHITESPACE_RE.sub(' ', text).strip().casefold()
 
 
+_YES_NORMALIZED = frozenset({
+    normalize_quick_reply_text(SELLER_CONFIRM_YES_TEXT),
+    normalize_quick_reply_text(SELLER_REQUEST_CONSENT_YES_TEXT),
+})
+_NO_NORMALIZED = frozenset({
+    normalize_quick_reply_text(SELLER_CONFIRM_NO_TEXT),
+    normalize_quick_reply_text(SELLER_REQUEST_CONSENT_NO_TEXT),
+})
+_REQUEST_TEMPLATE_REPLY_NORMALIZED = frozenset({
+    normalize_quick_reply_text(SELLER_REQUEST_CONSENT_YES_TEXT),
+    normalize_quick_reply_text(SELLER_REQUEST_CONSENT_NO_TEXT),
+})
+
+
 def resolve_seller_confirm_action(button_text: object) -> str:
     normalized = normalize_quick_reply_text(button_text)
     if not normalized:
         return ''
-    if normalized == _YES_NORMALIZED:
+    if normalized in _YES_NORMALIZED:
         return SELLER_CONFIRM_ACTION_YES
-    if normalized == _NO_NORMALIZED:
+    if normalized in _NO_NORMALIZED:
         return SELLER_CONFIRM_ACTION_NO
     return ''
+
+
+def _consent_text_version_for_button(button_text: object) -> str:
+    normalized = normalize_quick_reply_text(button_text)
+    if normalized in _REQUEST_TEMPLATE_REPLY_NORMALIZED:
+        return SELLER_REQUEST_CONSENT_TEMPLATE
+    return SELLER_PLATFORM_CONFIRM_TEMPLATE
 
 
 def hash_payload(raw_body: bytes) -> str:
@@ -314,7 +338,7 @@ def _apply_seller_confirm_yes(
         )
     consent.status = CONTACT_CONSENT_STATUS_GRANTED
     consent.source = CONTACT_CONSENT_SOURCE_WHATSAPP
-    consent.consent_text_version = SELLER_PLATFORM_CONFIRM_TEMPLATE
+    consent.consent_text_version = _consent_text_version_for_button(event.button_text)
     consent.phone_normalized = event.phone_normalized
     consent.consented_at = event_time
     consent.revoked_at = None
@@ -343,7 +367,7 @@ def _apply_seller_confirm_no(
         )
     consent.status = CONTACT_CONSENT_STATUS_REVOKED
     consent.source = CONTACT_CONSENT_SOURCE_WHATSAPP
-    consent.consent_text_version = SELLER_PLATFORM_CONFIRM_TEMPLATE
+    consent.consent_text_version = _consent_text_version_for_button(event.button_text)
     consent.phone_normalized = event.phone_normalized
     consent.revoked_at = event_time
     consent.evidence_reference = evidence
