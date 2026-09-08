@@ -19,6 +19,22 @@ MARKETPLACE_BRAND_FILTER_AVAILABLE = False
 SESSION_DRAFT_KEY = 'marketing_simple_mailing_draft'
 PREVIEW_SESSION_KEY = 'marketing_simple_mailing_preview'
 
+# Convenience-only UI action for the seller picker. Not a send limit.
+SELLER_SELECT_FIRST_N = 5
+
+SELLER_CONSENT_FILTER_ALL = ''
+SELLER_CONSENT_FILTER_GRANTED = 'granted'
+SELLER_CONSENT_FILTER_NOT_RECORDED = 'not_recorded'
+SELLER_CONSENT_FILTER_REVOKED = 'revoked'
+
+SELLER_CONSENT_FILTER_CHOICES = (
+    (SELLER_CONSENT_FILTER_ALL, 'Все'),
+    (SELLER_CONSENT_FILTER_GRANTED, 'Подтверждено'),
+    (SELLER_CONSENT_FILTER_NOT_RECORDED, 'Не подтверждено'),
+    (SELLER_CONSENT_FILTER_REVOKED, 'Отключено'),
+)
+SELLER_CONSENT_FILTER_VALUES = {choice[0] for choice in SELLER_CONSENT_FILTER_CHOICES}
+
 RECIPIENT_SCOPE_CONTROL_ONLY = 'control_only'
 RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS = 'audience_plus_controls'
 

@@ -1652,3 +1652,100 @@
     gap: 8px;
   }
 }
+
+.simple-mailing__seller-picker {
+  margin-top: 20px;
+}
+
+.simple-mailing__seller-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.simple-mailing__search--inline {
+  min-width: 220px;
+  flex: 1;
+}
+
+.simple-mailing__select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--marketing-border);
+  border-radius: 8px;
+  background: var(--marketing-white);
+  color: var(--marketing-text);
+}
+
+.simple-mailing__seller-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-bottom: 12px;
+}
+
+.simple-mailing__seller-count,
+.simple-mailing__seller-consent-summary {
+  margin: 0;
+  font-size: 14px;
+  color: var(--marketing-text);
+}
+
+.simple-mailing__seller-consent-summary {
+  color: var(--marketing-muted);
+}
+
+.simple-mailing__seller-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.simple-mailing__seller-table {
+  min-width: 960px;
+}
+
+.simple-mailing__seller-table .seller-picker-row.is-search-hidden,
+.simple-mailing__seller-table .seller-picker-row[hidden] {
+  display: none;
+}
+
+.seller-consent-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.seller-consent-badge--granted {
+  background: #e8f7ee;
+  color: var(--marketing-green);
+}
+
+.seller-consent-badge--revoked {
+  background: #fde8e8;
+  color: var(--marketing-red);
+}
+
+.seller-consent-badge--unknown {
+  background: #eef0f3;
+  color: var(--marketing-muted);
+}
+
+.simple-mailing__seller-summary-list {
+  margin: 12px 0 0;
+  padding-left: 18px;
+  color: var(--marketing-text);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.seller-copy-consent-link {
+  white-space: nowrap;
+}

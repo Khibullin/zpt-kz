@@ -27,6 +27,27 @@
       <div><dt>Сообщение</dt><dd>{{ template.name }}</dd></div>
     </dl>
 
+    {% if selected_seller_rows %}
+      <p class="simple-mailing__seller-consent-summary">
+        Получатели: {{ selected_seller_count }} продавцов
+        {% if seller_selection_summary %}
+          — WhatsApp разрешён: {{ seller_selection_summary.whatsapp_allowed_count }},
+          не подтверждено: {{ seller_selection_summary.not_recorded_count }},
+          отключено: {{ seller_selection_summary.revoked_count }}.
+        {% endif %}
+      </p>
+      <ul class="simple-mailing__seller-summary-list">
+        {% for row in selected_seller_rows %}
+          <li>
+            <strong>{{ row.name }}</strong>
+            — {{ row.whatsapp }}
+            — {{ row.brands_label }}
+            — {{ row.consent_label }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+
     {% if is_audience_plus_controls %}
       <p class="simple-mailing__warning simple-mailing__warning--audience">
         Рабочая рассылка: сообщения будут отправлены реальным получателям.

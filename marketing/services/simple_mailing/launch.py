@@ -7,6 +7,11 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from core.models import CONTACT_CONSENT_STATUS_UNKNOWN
+from marketing.services.campaigns.live_consent import (
+    seller_consent_status_for_phone,
+    recheck_live_recipient_consent,
+    uses_seller_live_consent,
+)
 from marketing.models import (
     MarketingAudience,
     MarketingCampaign,
@@ -49,10 +54,7 @@ from marketing.services.campaigns.send_variables import (
     VariableResolutionError,
     resolve_template_variables_for_recipient,
 )
-from marketing.services.simple_mailing.consent import (
-    SKIP_REASON_CONSENT_REVOKED,
-    evaluate_simple_mailing_phone,
-)
+from marketing.services.simple_mailing.consent import evaluate_simple_mailing_phone
 from marketing.services.simple_mailing.launch_recipients import (
     SimpleMailingLaunchRecipient,
     resolve_simple_mailing_launch_recipients,
@@ -149,6 +151,33 @@ def _consent_status_for_phone(phone_normalized: str) -> str:
     return _marketing_consent_status(buyer) or CONTACT_CONSENT_STATUS_UNKNOWN
 
 
+def _consent_status_for_launch_row(row: SimpleMailingLaunchRecipient, *, purpose: str) -> str:
+    if uses_seller_live_consent(
+        purpose=purpose,
+        is_control_recipient=row.is_control_recipient,
+    ):
+        return seller_consent_status_for_phone(row.phone_normalized)
+    return _consent_status_for_phone(row.phone_normalized)
+
+
+def _evaluate_simple_mailing_launch_row(
+    row: SimpleMailingLaunchRecipient,
+    recipient: MarketingCampaignRecipient,
+    *,
+    purpose: str,
+) -> tuple[bool, str]:
+    if uses_seller_live_consent(
+        purpose=purpose,
+        is_control_recipient=row.is_control_recipient,
+    ):
+        return recheck_live_recipient_consent(recipient)
+    return evaluate_simple_mailing_phone(
+        phone_normalized=row.phone_normalized,
+        is_test=row.is_test_contact,
+        is_control=row.is_control_recipient,
+    )
+
+
 def launch_simple_mailing(
     *,
     draft: dict,
@@ -184,11 +213,15 @@ def launch_simple_mailing(
     if purpose not in template.allowed_purposes:
         raise SimpleMailingLaunchError('Шаблон несовместим с типом получателей.')
 
+    selected_seller_ids = draft.get('selected_seller_ids')
+    if selected_seller_ids is not None:
+        selected_seller_ids = [int(item) for item in selected_seller_ids]
     launch_recipients = resolve_simple_mailing_launch_recipients(
         recipient_type=recipient_type,
         recipient_scope=recipient_scope,
         all_brands=all_brands,
         brands=brands,
+        selected_seller_ids=selected_seller_ids,
     )
     actual_count = len(launch_recipients)
     if actual_count != expected_count:
@@ -242,6 +275,7 @@ def launch_simple_mailing(
                     'recipient_scope': recipient_scope,
                     'all_brands': all_brands,
                     'brands': brands,
+                    'selected_seller_ids': list(selected_seller_ids or []),
                 },
                 is_active=False,
                 created_by=created_by,
@@ -265,7 +299,7 @@ def launch_simple_mailing(
 
             snapshot_recipients: list[MarketingCampaignRecipient] = []
             for index, row in enumerate(launch_recipients, start=1):
-                consent_status = _consent_status_for_phone(row.phone_normalized)
+                consent_status = _consent_status_for_launch_row(row, purpose=purpose)
                 snapshot_recipients.append(
                     MarketingCampaignRecipient(
                         campaign=campaign,
@@ -312,10 +346,10 @@ def launch_simple_mailing(
             for position, launch_row in enumerate(launch_recipients, start=1):
                 _, wave_number, scheduled_at = wave_by_position[position]
                 recipient = recipient_by_phone[launch_row.phone_normalized]
-                eligible, skip_reason = evaluate_simple_mailing_phone(
-                    phone_normalized=launch_row.phone_normalized,
-                    is_test=launch_row.is_test_contact,
-                    is_control=launch_row.is_control_recipient,
+                eligible, skip_reason = _evaluate_simple_mailing_launch_row(
+                    launch_row,
+                    recipient,
+                    purpose=purpose,
                 )
                 if not eligible:
                     MarketingCampaignMessage.objects.create(

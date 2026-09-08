@@ -945,12 +945,13 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         self.assertEqual(draft['recipient_type'], RECIPIENT_TYPE_PARTS_REQUEST_BUYERS)
 
     def test_seller_page_without_seller_template_does_not_crash(self):
-        Seller.objects.create(
+        seller = Seller.objects.create(
             name='Seller',
             whatsapp=next_phone(),
             transport_type='car',
             city='Алматы',
             is_active=True,
+            receive_requests=True,
             brand='Toyota',
         )
         preview = self.client.post(
@@ -966,10 +967,11 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         self.client.post(
             self.new_mailing_url,
             {
-                'action': 'continue',
+                'action': 'prepare_selected',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
                 'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
+                'seller_ids': [str(seller.pk)],
             },
         )
         response = self.client.get(self.message_url)
@@ -1021,12 +1023,13 @@ class SimpleMailingTemplateSelectionTests(TestCase):
             meta_template_name='zpt_request_sellers_only',
             allowed_purposes=[PURPOSE_REQUEST_SELLERS],
         )
-        Seller.objects.create(
+        seller = Seller.objects.create(
             name='Seller',
             whatsapp=next_phone(),
             transport_type='car',
             city='Алматы',
             is_active=True,
+            receive_requests=True,
             brand='Toyota',
         )
         preview = self.client.post(
@@ -1042,10 +1045,11 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         continue_response = self.client.post(
             self.new_mailing_url,
             {
-                'action': 'continue',
+                'action': 'prepare_selected',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
                 'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
+                'seller_ids': [str(seller.pk)],
             },
         )
         self.assertEqual(continue_response.status_code, 302)
@@ -1064,12 +1068,13 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         draft = load_simple_mailing_draft(self.client.session)
         self.assertEqual(draft['template_id'], buyer_template.pk)
 
-        Seller.objects.create(
+        seller = Seller.objects.create(
             name='Seller',
             whatsapp=next_phone(),
             transport_type='car',
             city='Алматы',
             is_active=True,
+            receive_requests=True,
             brand='Toyota',
         )
         preview = self.client.post(
@@ -1085,10 +1090,11 @@ class SimpleMailingTemplateSelectionTests(TestCase):
         continue_response = self.client.post(
             self.new_mailing_url,
             {
-                'action': 'continue',
+                'action': 'prepare_selected',
                 'recipient_type': RECIPIENT_TYPE_SELLERS,
                 'recipient_scope': RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
                 'all_brands': '1',
+                'seller_ids': [str(seller.pk)],
             },
         )
         self.assertEqual(continue_response.status_code, 302)

@@ -82,6 +82,20 @@ def is_seller_campaign_purpose(purpose: str) -> bool:
     return purpose in SELLER_CAMPAIGN_PURPOSES
 
 
+def uses_seller_live_consent(*, purpose: str, is_control_recipient: bool = False) -> bool:
+    return is_seller_campaign_purpose(purpose) and not is_control_recipient
+
+
+def seller_consent_status_for_phone(phone_normalized: str) -> str:
+    phone = normalize_kz_phone(phone_normalized)
+    if not phone:
+        return ''
+    sellers = find_sellers_by_phone(phone)
+    if len(sellers) != 1:
+        return ''
+    return get_seller_marketing_consent_status(sellers[0], phone)
+
+
 def _consent_skip_reason(consent_status: str) -> str:
     if consent_status == CONTACT_CONSENT_STATUS_REVOKED:
         return SKIP_REASON_CONSENT_REVOKED

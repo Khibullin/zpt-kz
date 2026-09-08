@@ -15,7 +15,10 @@ from core.whatsapp_template_sender import (
 from core.whatsapp_config import is_whatsapp_sender_config_valid
 from core.whatsapp_redaction import sanitize_persisted_whatsapp_error_message
 from marketing.models import MarketingCampaignMessage, MarketingCampaignSendRun
-from marketing.services.campaigns.live_consent import recheck_live_recipient_consent
+from marketing.services.campaigns.live_consent import (
+    recheck_live_recipient_consent,
+    uses_seller_live_consent,
+)
 from marketing.services.campaigns.live_simple_waves import (
     find_active_simple_mailing_run,
     get_next_eligible_simple_mailing_wave,
@@ -231,7 +234,14 @@ def _process_single_message(
         return MESSAGE_STATUS_SKIPPED
 
     if send_run.workflow_type == WORKFLOW_TYPE_SIMPLE_MAILING:
-        live_ok, skip_reason = recheck_simple_mailing_recipient(recipient)
+        purpose = getattr(campaign, 'purpose', '') or ''
+        if uses_seller_live_consent(
+            purpose=purpose,
+            is_control_recipient=bool(getattr(recipient, 'is_control_recipient', False)),
+        ):
+            live_ok, skip_reason = recheck_live_recipient_consent(recipient)
+        else:
+            live_ok, skip_reason = recheck_simple_mailing_recipient(recipient)
     else:
         live_ok, skip_reason = recheck_live_recipient_consent(recipient)
     if not live_ok:

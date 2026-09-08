@@ -1,4 +1,5 @@
 {% extends 'marketing/base.html' %}
+{% load static %}
 
 {% block title %}Новая рассылка — ZPT.KZ{% endblock %}
 
@@ -144,7 +145,112 @@
         </div>
       </div>
 
-      {% if show_preview %}
+      {% if show_seller_picker %}
+        <div class="simple-mailing__seller-picker" id="seller-picker" data-select-first-n="{{ seller_select_first_n }}">
+          <div class="simple-mailing__seller-toolbar">
+            <label class="simple-mailing__search simple-mailing__search--inline">
+              <span class="simple-mailing__search-label">Название / WhatsApp</span>
+              <input type="search"
+                     name="seller_search"
+                     id="seller-search"
+                     class="simple-mailing__search-input"
+                     value="{{ seller_search }}"
+                     placeholder="Поиск внутри списка"
+                     autocomplete="off">
+            </label>
+            <label class="simple-mailing__search simple-mailing__search--inline">
+              <span class="simple-mailing__search-label">Consent</span>
+              <select name="seller_consent_filter" id="seller-consent-filter" class="simple-mailing__select">
+                {% for value, label in seller_consent_filter_choices %}
+                  <option value="{{ value }}" {% if seller_consent_filter == value %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+              </select>
+            </label>
+          </div>
+
+          <div class="simple-mailing__seller-actions">
+            <p class="simple-mailing__seller-count" id="seller-selected-count">
+              Выбрано: {{ selected_seller_ids|length }}
+            </p>
+            {% if seller_selection_summary %}
+              <p class="simple-mailing__seller-consent-summary" id="seller-consent-summary">
+                WhatsApp разрешён: {{ seller_selection_summary.whatsapp_allowed_count }}.
+                Не подтверждено: {{ seller_selection_summary.not_recorded_count }}.
+                Отключено: {{ seller_selection_summary.revoked_count }}.
+              </p>
+            {% endif %}
+            <div class="simple-mailing__seller-buttons">
+              <button type="button" class="marketing-btn marketing-btn--secondary" id="select-first-sellers">
+                Выбрать первые {{ seller_select_first_n }}
+              </button>
+              <button type="button" class="marketing-btn marketing-btn--secondary" id="clear-seller-selection">
+                Очистить выбор
+              </button>
+            </div>
+          </div>
+
+          <div class="marketing-table-wrap">
+            <table class="marketing-table simple-mailing__seller-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>ID</th>
+                  <th>Продавец</th>
+                  <th>WhatsApp</th>
+                  <th>Город</th>
+                  <th>Марки</th>
+                  <th>Consent WhatsApp</th>
+                  <th>Получает заявки</th>
+                  <th>Пауза</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for row in seller_rows %}
+                  <tr class="seller-picker-row"
+                      data-seller-id="{{ row.seller_id }}"
+                      data-consent="{{ row.consent_badge }}"
+                      data-search="{{ row.name|lower }} {{ row.whatsapp|lower }}"
+                      data-eligible="{% if row.marketing_send_eligible %}1{% else %}0{% endif %}">
+                    <td>
+                      <input type="checkbox"
+                             name="seller_ids"
+                             value="{{ row.seller_id }}"
+                             class="seller-picker-checkbox"
+                             {% if row.selected %}checked{% endif %}>
+                    </td>
+                    <td>{{ row.seller_id }}</td>
+                    <td>{{ row.name }}</td>
+                    <td>{{ row.whatsapp }}</td>
+                    <td>{{ row.city }}</td>
+                    <td>{{ row.brands_label }}</td>
+                    <td>
+                      <span class="seller-consent-badge seller-consent-badge--{{ row.consent_badge }}">
+                        {{ row.consent_label }}
+                      </span>
+                    </td>
+                    <td>{% if row.receive_requests %}Да{% else %}Нет{% endif %}</td>
+                    <td>{% if row.is_paused %}Да{% else %}Нет{% endif %}</td>
+                    <td>
+                      {% if row.consent_url %}
+                        <button type="button"
+                                class="marketing-btn marketing-btn--secondary seller-copy-consent-link"
+                                data-consent-url="{{ row.consent_url }}">
+                          Скопировать ссылку подтверждения
+                        </button>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr>
+                    <td colspan="10">Продавцы по выбранным фильтрам не найдены.</td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% elif show_preview %}
         <details class="simple-mailing__preview">
           <summary>Показать получателей</summary>
           <div class="marketing-table-wrap">
@@ -177,16 +283,27 @@
                 class="marketing-btn marketing-btn--secondary"
                 id="preview-button"
                 {% if not can_calculate %}disabled{% endif %}>
-          Показать количество
+          {% if recipient_type == 'sellers' %}Показать продавцов{% else %}Показать количество{% endif %}
         </button>
-        <button type="submit"
-                name="action"
-                value="continue"
-                class="marketing-btn marketing-btn--primary"
-                id="continue-button"
-                {% if not can_continue %}disabled{% endif %}>
-          Продолжить к сообщению
-        </button>
+        {% if recipient_type == 'sellers' %}
+          <button type="submit"
+                  name="action"
+                  value="prepare_selected"
+                  class="marketing-btn marketing-btn--primary"
+                  id="continue-button"
+                  {% if not can_continue %}disabled{% endif %}>
+            Подготовить выбранных
+          </button>
+        {% else %}
+          <button type="submit"
+                  name="action"
+                  value="continue"
+                  class="marketing-btn marketing-btn--primary"
+                  id="continue-button"
+                  {% if not can_continue %}disabled{% endif %}>
+            Продолжить к сообщению
+          </button>
+        {% endif %}
       </div>
     </div>
   </form>
@@ -343,4 +460,7 @@
   syncUiState();
 })();
 </script>
+{% if show_seller_picker %}
+<script src="{% static 'marketing/simple-mailing-seller-picker.js' %}?v=2"></script>
+{% endif %}
 {% endblock %}

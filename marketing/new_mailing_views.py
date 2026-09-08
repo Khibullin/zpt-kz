@@ -33,11 +33,14 @@ from marketing.services.simple_mailing.constants import (
     MARKETPLACE_BRAND_FILTER_AVAILABLE,
     RECIPIENT_TYPE_MARKETPLACE_BUYERS,
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
+    RECIPIENT_TYPE_SELLERS,
     DEFAULT_RECIPIENT_SCOPE,
     RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
     RECIPIENT_SCOPE_CHOICES,
     RECIPIENT_SCOPE_CONTROL_ONLY,
     RECIPIENT_SCOPE_VALUES,
+    SELLER_CONSENT_FILTER_CHOICES,
+    SELLER_SELECT_FIRST_N,
 )
 from marketing.services.simple_mailing.preview import build_selection_key
 from marketing.services.simple_mailing.draft import ensure_launch_key_in_draft, update_draft_count
@@ -45,6 +48,16 @@ from marketing.services.simple_mailing.launch import (
     SimpleMailingCountChangedError,
     SimpleMailingLaunchError,
     launch_simple_mailing,
+)
+from marketing.services.simple_mailing.launch_recipients import resolve_simple_mailing_launch_recipients
+from marketing.services.simple_mailing.seller_picker import (
+    build_seller_selection_summary,
+    list_seller_picker_rows,
+    normalize_consent_filter,
+    parse_selected_seller_ids,
+    seller_recipient_key,
+    seller_summary_rows_for_ids,
+    validate_selected_seller_ids,
 )
 from marketing.services.templates.validation import TemplateValidationError
 from marketing.views import MarketingCabinetMixin
@@ -64,6 +77,23 @@ def _draft_summary_context(draft: dict) -> dict:
         brands = draft.get('brands') or []
         brands_label = ', '.join(brands) if brands else '—'
 
+    selected_seller_ids = parse_selected_seller_ids(draft.get('selected_seller_ids') or [])
+    selected_seller_rows = ()
+    seller_selection_summary = None
+    if recipient_type == RECIPIENT_TYPE_SELLERS and selected_seller_ids:
+        try:
+            selected_seller_rows = seller_summary_rows_for_ids(
+                selected_seller_ids,
+                all_brands=bool(draft.get('all_brands')),
+                brands=list(draft.get('brands') or []),
+            )
+            seller_selection_summary = build_seller_selection_summary(
+                selected_seller_rows,
+                [row.seller_id for row in selected_seller_rows],
+            )
+        except SimpleMailingValidationError:
+            selected_seller_rows = ()
+
     return {
         'draft': draft,
         'recipient_type_label': type_labels.get(recipient_type, recipient_type),
@@ -74,6 +104,10 @@ def _draft_summary_context(draft: dict) -> dict:
         'ordinary_count': draft.get('ordinary_count', 0),
         'control_count': draft.get('control_count', 0),
         'is_audience_plus_controls': recipient_scope == RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
+        'selected_seller_ids': selected_seller_ids,
+        'selected_seller_rows': selected_seller_rows,
+        'seller_selection_summary': seller_selection_summary,
+        'selected_seller_count': len(selected_seller_rows) or len(selected_seller_ids),
     }
 
 
@@ -163,11 +197,16 @@ class NewMailingView(MarketingCabinetMixin, View):
                 selected_brands=selected_brands,
             )
 
-        if action == 'continue':
+        if action in {'continue', 'prepare_selected'}:
+            preview_label = (
+                'Показать продавцов'
+                if recipient_type == RECIPIENT_TYPE_SELLERS and not control_only
+                else 'Показать количество'
+            )
             if not preview_matches(request.session, selection_key):
                 messages.error(
                     request,
-                    'Фильтры изменились. Сначала нажмите «Показать количество».',
+                    f'Фильтры изменились. Сначала нажмите «{preview_label}».',
                 )
                 return self._render_page(
                     request,
@@ -175,8 +214,73 @@ class NewMailingView(MarketingCabinetMixin, View):
                     recipient_scope=recipient_scope,
                     all_brands=all_brands,
                     selected_brands=selected_brands,
+                    result=result,
                 )
-            if result.count <= 0:
+            draft_payload = {
+                'recipient_type': recipient_type,
+                'recipient_scope': recipient_scope,
+                'all_brands': all_brands,
+                'brands': list(result.selection.brands),
+                'count': result.count,
+                'ordinary_count': result.ordinary_count,
+                'control_count': result.control_count,
+            }
+            if recipient_type == RECIPIENT_TYPE_SELLERS and not control_only:
+                posted_ids = parse_selected_seller_ids(request.POST.getlist('seller_ids'))
+                if not posted_ids:
+                    messages.error(request, 'Выберите хотя бы одного продавца.')
+                    return self._render_page(
+                        request,
+                        recipient_type=recipient_type,
+                        recipient_scope=recipient_scope,
+                        all_brands=all_brands,
+                        selected_brands=selected_brands,
+                        result=result,
+                    )
+                try:
+                    validated_ids = validate_selected_seller_ids(
+                        posted_ids,
+                        all_brands=all_brands,
+                        brands=validated_brands,
+                    )
+                except SimpleMailingValidationError as exc:
+                    messages.error(request, str(exc))
+                    return self._render_page(
+                        request,
+                        recipient_type=recipient_type,
+                        recipient_scope=recipient_scope,
+                        all_brands=all_brands,
+                        selected_brands=selected_brands,
+                        result=result,
+                    )
+                launch_rows = resolve_simple_mailing_launch_recipients(
+                    recipient_type=recipient_type,
+                    recipient_scope=recipient_scope,
+                    all_brands=all_brands,
+                    brands=validated_brands,
+                    selected_seller_ids=validated_ids,
+                )
+                if not launch_rows:
+                    messages.error(request, 'Выберите хотя бы одного продавца.')
+                    return self._render_page(
+                        request,
+                        recipient_type=recipient_type,
+                        recipient_scope=recipient_scope,
+                        all_brands=all_brands,
+                        selected_brands=selected_brands,
+                        result=result,
+                    )
+                control_count = sum(1 for row in launch_rows if row.is_control_recipient)
+                draft_payload.update({
+                    'count': len(launch_rows),
+                    'ordinary_count': len(validated_ids),
+                    'control_count': control_count,
+                    'selected_seller_ids': validated_ids,
+                    'selected_seller_keys': [
+                        seller_recipient_key(seller_id) for seller_id in validated_ids
+                    ],
+                })
+            elif result.count <= 0:
                 if control_only:
                     messages.error(
                         request,
@@ -194,18 +298,7 @@ class NewMailingView(MarketingCabinetMixin, View):
                     selected_brands=selected_brands,
                     result=result,
                 )
-            save_simple_mailing_draft(
-                request.session,
-                {
-                    'recipient_type': recipient_type,
-                    'recipient_scope': recipient_scope,
-                    'all_brands': all_brands,
-                    'brands': list(result.selection.brands),
-                    'count': result.count,
-                    'ordinary_count': result.ordinary_count,
-                    'control_count': result.control_count,
-                },
-            )
+            save_simple_mailing_draft(request.session, draft_payload)
             clear_preview_state(request.session)
             return redirect('marketing:new_mailing_message')
 
@@ -285,7 +378,38 @@ class NewMailingView(MarketingCabinetMixin, View):
             all_brands=all_brands,
             brands=selected_brands,
         )
+        show_seller_picker = (
+            recipient_type == RECIPIENT_TYPE_SELLERS
+            and not control_only
+            and result is not None
+        )
+        seller_rows = ()
+        seller_search = str(request.POST.get('seller_search') or '').strip()
+        seller_consent_filter = normalize_consent_filter(request.POST.get('seller_consent_filter'))
+        selected_seller_ids = parse_selected_seller_ids(request.POST.getlist('seller_ids'))
+        if show_seller_picker and not selected_seller_ids:
+            draft = load_simple_mailing_draft(request.session)
+            if (
+                draft
+                and draft.get('recipient_type') == recipient_type
+                and bool(draft.get('all_brands')) == bool(all_brands)
+                and list(draft.get('brands') or []) == list(selected_brands)
+            ):
+                selected_seller_ids = parse_selected_seller_ids(draft.get('selected_seller_ids') or [])
+        seller_selection_summary = None
+        if show_seller_picker:
+            seller_rows = list_seller_picker_rows(
+                all_brands=all_brands,
+                brands=selected_brands,
+                selected_seller_ids=selected_seller_ids,
+            )
+            seller_selection_summary = build_seller_selection_summary(
+                seller_rows,
+                selected_seller_ids,
+            )
         can_continue = result is not None and result.count > 0
+        if show_seller_picker:
+            can_continue = bool(selected_seller_ids)
 
         if control_only:
             selected_brands_label = '—'
@@ -295,6 +419,10 @@ class NewMailingView(MarketingCabinetMixin, View):
             selected_brands_label = 'Все марки'
         else:
             selected_brands_label = str(len(selected_brands))
+
+        ordinary_count_display = str(result.ordinary_count) if result is not None else '—'
+        if show_seller_picker:
+            ordinary_count_display = str(len(seller_rows))
 
         context = {
             **self.get_broadcast_mode_context(),
@@ -316,9 +444,17 @@ class NewMailingView(MarketingCabinetMixin, View):
             'can_calculate': can_calculate,
             'can_continue': can_continue,
             'count_display': str(result.count) if result is not None else '—',
-            'ordinary_count_display': str(result.ordinary_count) if result is not None else '—',
+            'ordinary_count_display': ordinary_count_display,
             'control_count_display': str(result.control_count) if result is not None else '—',
-            'show_preview': result is not None and bool(result.preview_rows),
+            'show_preview': result is not None and bool(result.preview_rows) and not show_seller_picker,
+            'show_seller_picker': show_seller_picker,
+            'seller_rows': seller_rows,
+            'seller_search': seller_search,
+            'seller_consent_filter': seller_consent_filter,
+            'seller_consent_filter_choices': SELLER_CONSENT_FILTER_CHOICES,
+            'selected_seller_ids': selected_seller_ids,
+            'seller_selection_summary': seller_selection_summary,
+            'seller_select_first_n': SELLER_SELECT_FIRST_N,
         }
         return render(request, self.template_name, context)
 

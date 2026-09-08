@@ -21,8 +21,37 @@
     <dl class="simple-mailing__summary">
       <div><dt>Кому</dt><dd>{{ recipient_type_label }}</dd></div>
       <div><dt>Марки</dt><dd>{{ brands_label }}</dd></div>
-      <div><dt>Получателей</dt><dd>{{ recipient_count }}</dd></div>
+      <div>
+        <dt>Получателей</dt>
+        <dd>
+          {% if selected_seller_rows %}
+            {{ selected_seller_count }} продавцов
+          {% else %}
+            {{ recipient_count }}
+          {% endif %}
+        </dd>
+      </div>
     </dl>
+    {% if selected_seller_rows %}
+      {% if seller_selection_summary %}
+        <p class="simple-mailing__seller-consent-summary">
+          Выбрано: {{ seller_selection_summary.selected_count }}.
+          WhatsApp разрешён: {{ seller_selection_summary.whatsapp_allowed_count }}.
+          Не подтверждено: {{ seller_selection_summary.not_recorded_count }}.
+          Отключено: {{ seller_selection_summary.revoked_count }}.
+        </p>
+      {% endif %}
+      <ul class="simple-mailing__seller-summary-list">
+        {% for row in selected_seller_rows %}
+          <li>
+            <strong>{{ row.name }}</strong>
+            — {{ row.whatsapp }}
+            — {{ row.brands_label }}
+            — {{ row.consent_label }}
+          </li>
+        {% endfor %}
+      </ul>
+    {% endif %}
     <div class="simple-mailing__summary-actions">
       <a class="marketing-btn marketing-btn--secondary" href="{% url 'marketing:new_mailing' %}">Изменить получателей</a>
     </div>

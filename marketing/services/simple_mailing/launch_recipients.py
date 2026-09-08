@@ -17,6 +17,7 @@ from marketing.services.simple_mailing.constants import (
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
     RECIPIENT_TYPE_SELLERS,
 )
+from marketing.services.simple_mailing.seller_picker import seller_audience_queryset
 
 
 @dataclass(frozen=True)
@@ -93,14 +94,22 @@ def _seller_recipients(
     *,
     all_brands: bool,
     brands: list[str],
+    selected_seller_ids: list[int] | None = None,
 ) -> list[SimpleMailingLaunchRecipient]:
-    qs = Seller.objects.filter(
-        is_active=True,
-        is_test_seller=False,
-        is_paused=False,
-    ).select_related('brand_fk').prefetch_related('selected_brands')
-    if not all_brands:
-        qs = qs.filter(build_seller_brand_filter_q(brands)).distinct()
+    if selected_seller_ids is not None:
+        qs = seller_audience_queryset(
+            all_brands=all_brands,
+            brands=brands,
+        ).filter(pk__in=selected_seller_ids)
+    else:
+        qs = Seller.objects.filter(
+            is_active=True,
+            is_test_seller=False,
+            is_paused=False,
+        )
+        if not all_brands:
+            qs = qs.filter(build_seller_brand_filter_q(brands)).distinct()
+    qs = qs.select_related('brand_fk').prefetch_related('selected_brands')
 
     grouped: dict[str, list[Seller]] = {}
     for seller in qs.order_by('id'):
@@ -174,6 +183,7 @@ def resolve_simple_mailing_launch_recipients(
     recipient_scope: str,
     all_brands: bool = False,
     brands: list[str] | None = None,
+    selected_seller_ids: list[int] | None = None,
 ) -> list[SimpleMailingLaunchRecipient]:
     from marketing.services.simple_mailing.constants import (
         RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
@@ -195,7 +205,11 @@ def resolve_simple_mailing_launch_recipients(
             raise NotImplementedError('Marketplace brand filter is not enabled yet.')
         ordinary = _marketplace_buyer_recipients()
     elif recipient_type == RECIPIENT_TYPE_SELLERS:
-        ordinary = _seller_recipients(all_brands=all_brands, brands=brand_list)
+        ordinary = _seller_recipients(
+            all_brands=all_brands,
+            brands=brand_list,
+            selected_seller_ids=selected_seller_ids,
+        )
     else:
         raise ValueError(f'Unknown recipient type: {recipient_type}')
 
