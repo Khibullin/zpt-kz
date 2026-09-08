@@ -629,8 +629,7 @@ class SimpleMailingBrandSearchTests(TestCase):
         self.assertContains(response, 'data-brand-search="haval"')
         self.assertContains(response, 'data-brand-search="mercedes-benz"')
         self.assertContains(response, 'id="brand-search"')
-        self.assertContains(response, 'filterBrandCards')
-        self.assertContains(response, 'is-search-hidden')
+        self.assertContains(response, 'simple-mailing-form.js')
 
     def test_haval_present_in_brand_list(self):
         make_request(make_buyer(), brand='Haval')

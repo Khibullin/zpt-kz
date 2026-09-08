@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}Рассылки и уведомления ZPT.KZ{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
-  <link rel="stylesheet" href="{% static 'marketing/marketing.css' %}?v=2">
+  <link rel="stylesheet" href="{% static 'marketing/marketing.css' %}?v=4">
 </head>
 <body class="marketing-body">
   <header class="marketing-header">
@@ -60,5 +60,6 @@
       });
     })();
   </script>
+  {% block extra_scripts %}{% endblock %}
 </body>
 </html>

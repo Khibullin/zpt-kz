@@ -15,7 +15,11 @@
     </ul>
   {% endif %}
 
-  <form method="post" class="simple-mailing__form" id="simple-mailing-form">
+  <form method="post"
+        class="simple-mailing__form"
+        id="simple-mailing-form"
+        data-has-fresh-result="{% if result %}true{% else %}false{% endif %}"
+        data-marketplace-locked="{% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}true{% else %}false{% endif %}">
     {% csrf_token %}
 
     <div class="simple-mailing__card">
@@ -54,17 +58,27 @@
           {% endfor %}
         </div>
       </fieldset>
-      {% if control_only %}
-        <p class="simple-mailing__hint simple-mailing__hint--control">
-          Режим: Контрольная рассылка. Фильтры марок и аудитории не применяются к контрольным номерам.
-        </p>
-      {% endif %}
+      <p class="simple-mailing__hint simple-mailing__hint--control"
+         id="control-scope-hint"
+         {% if not control_only %}hidden{% endif %}>
+        Режим: Контрольная рассылка. Фильтры марок и аудитории не применяются к контрольным номерам.
+      </p>
     </div>
 
     <div class="simple-mailing__card{% if control_only %} simple-mailing__card--muted{% endif %}"
          id="brand-selection-card">
       <h2 class="simple-mailing__card-title">3. Марки автомобилей</h2>
 
+      <p class="simple-mailing__hint simple-mailing__hint--control"
+         id="control-brands-hint"
+         {% if not control_only %}hidden{% endif %}>
+        Марки автомобилей не применяются к контрольной рассылке.
+        Будут использованы только контрольные номера.
+      </p>
+
+      <fieldset class="simple-mailing__fieldset"
+                id="brand-selection-fieldset"
+                {% if control_only %}disabled{% endif %}>
       {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}
         <p class="simple-mailing__hint">
           Для покупателей Marketplace сейчас доступна рассылка по всем маркам.
@@ -78,7 +92,8 @@
                  id="brand-search"
                  class="simple-mailing__search-input"
                  placeholder="Введите название марки"
-                 autocomplete="off">
+                 autocomplete="off"
+                 {% if control_only %}disabled{% endif %}>
         </label>
       {% endif %}
 
@@ -88,8 +103,8 @@
                  name="all_brands"
                  value="1"
                  id="all-brands-checkbox"
-                 {% if all_brands or recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}checked{% endif %}
-                 {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}disabled{% endif %}>
+                 {% if all_brands and not control_only %}checked{% endif %}
+                 {% if control_only or recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}disabled{% endif %}>
           <span>Все марки</span>
         </label>
       </div>
@@ -102,8 +117,9 @@
               <input type="checkbox"
                      name="brands"
                      value="{{ brand }}"
-                     {% if brand in selected_brands %}checked{% endif %}
-                     class="brand-checkbox">
+                     {% if not control_only and brand in selected_brands %}checked{% endif %}
+                     class="brand-checkbox"
+                     {% if control_only %}disabled{% endif %}>
               <span>{{ brand }}</span>
             </label>
           {% empty %}
@@ -116,6 +132,7 @@
           Марка не найдена
         </p>
       {% endif %}
+      </fieldset>
     </div>
 
     <div class="simple-mailing__card simple-mailing__card--result">
@@ -283,9 +300,9 @@
                 class="marketing-btn marketing-btn--secondary"
                 id="preview-button"
                 {% if not can_calculate %}disabled{% endif %}>
-          {% if recipient_type == 'sellers' %}Показать продавцов{% else %}Показать количество{% endif %}
+          {{ preview_action_label }}
         </button>
-        {% if recipient_type == 'sellers' %}
+        {% if recipient_type == 'sellers' and not control_only %}
           <button type="submit"
                   name="action"
                   value="prepare_selected"
@@ -309,157 +326,10 @@
   </form>
 </section>
 
-<script>
-(function () {
-  var form = document.getElementById('simple-mailing-form');
-  var allBrands = document.getElementById('all-brands-checkbox');
-  var brandCheckboxes = Array.prototype.slice.call(document.querySelectorAll('.brand-checkbox'));
-  var brandSearch = document.getElementById('brand-search');
-  var brandSearchEmpty = document.getElementById('brand-search-empty');
-  var brandOptions = Array.prototype.slice.call(document.querySelectorAll('.brand-option'));
-  var recipientRadios = Array.prototype.slice.call(
-    document.querySelectorAll('[data-recipient-type-radio]')
-  );
-  var recipientScopeRadios = Array.prototype.slice.call(
-    document.querySelectorAll('[data-recipient-scope-radio]')
-  );
-  var brandSelectionCard = document.getElementById('brand-selection-card');
-  var previewButton = document.getElementById('preview-button');
-  var continueButton = document.getElementById('continue-button');
-  var countDisplay = document.getElementById('recipient-count-display');
-  var selectedCountDisplay = document.getElementById('selected-brands-count');
-  var hasFreshResult = {% if result %}true{% else %}false{% endif %};
-  var marketplaceLocked = {% if recipient_type == 'marketplace_buyers' and not brand_filter_enabled %}true{% else %}false{% endif %};
+{% endblock %}
 
-  function selectedBrandCount() {
-    if (marketplaceLocked || (allBrands && allBrands.checked)) {
-      return 'Все марки';
-    }
-    var count = brandCheckboxes.filter(function (checkbox) {
-      return checkbox.checked;
-    }).length;
-    return String(count);
-  }
-
-  function isControlOnlyScope() {
-    var checked = recipientScopeRadios.find(function (radio) {
-      return radio.checked;
-    });
-    return checked && checked.value === 'control_only';
-  }
-
-  function hasValidSelection() {
-    if (isControlOnlyScope()) {
-      return true;
-    }
-    if (marketplaceLocked) {
-      return true;
-    }
-    if (allBrands && allBrands.checked) {
-      return true;
-    }
-    return brandCheckboxes.some(function (checkbox) {
-      return checkbox.checked;
-    });
-  }
-
-  function invalidateResult() {
-    hasFreshResult = false;
-    if (countDisplay) {
-      countDisplay.textContent = '—';
-    }
-    if (continueButton) {
-      continueButton.disabled = true;
-    }
-  }
-
-  function syncUiState() {
-    var controlOnly = isControlOnlyScope();
-    if (brandSelectionCard) {
-      brandSelectionCard.classList.toggle('simple-mailing__card--muted', controlOnly);
-    }
-    if (selectedCountDisplay) {
-      selectedCountDisplay.textContent = controlOnly ? '—' : selectedBrandCount();
-    }
-    if (previewButton) {
-      previewButton.disabled = !hasValidSelection();
-    }
-    if (!hasFreshResult && continueButton) {
-      continueButton.disabled = true;
-    }
-  }
-
-  function syncBrandDisabledState() {
-    var disableBrands = allBrands && allBrands.checked;
-    brandCheckboxes.forEach(function (checkbox) {
-      if (checkbox.hasAttribute('data-perma-disabled')) {
-        return;
-      }
-      checkbox.disabled = disableBrands;
-      if (disableBrands) {
-        checkbox.checked = false;
-      }
-    });
-  }
-
-  function onSelectionChanged() {
-    invalidateResult();
-    syncBrandDisabledState();
-    syncUiState();
-  }
-
-  if (allBrands) {
-    allBrands.addEventListener('change', onSelectionChanged);
-  }
-
-  brandCheckboxes.forEach(function (checkbox) {
-    checkbox.addEventListener('change', onSelectionChanged);
-  });
-
-  function normalizeSearchQuery(value) {
-    return (value || '').trim().toLowerCase();
-  }
-
-  function filterBrandCards() {
-    var query = normalizeSearchQuery(brandSearch ? brandSearch.value : '');
-    var visibleCount = 0;
-    brandOptions.forEach(function (label) {
-      var searchText = label.getAttribute('data-brand-search') || '';
-      var matches = !query || searchText.indexOf(query) !== -1;
-      label.classList.toggle('is-search-hidden', !matches);
-      if (matches) {
-        visibleCount += 1;
-      }
-    });
-    if (brandSearchEmpty) {
-      brandSearchEmpty.hidden = !(query && visibleCount === 0);
-    }
-  }
-
-  if (brandSearch) {
-    brandSearch.addEventListener('input', filterBrandCards);
-    brandSearch.addEventListener('search', filterBrandCards);
-  }
-
-  recipientScopeRadios.forEach(function (radio) {
-    radio.addEventListener('change', onSelectionChanged);
-  });
-
-  recipientRadios.forEach(function (radio) {
-    radio.addEventListener('change', function () {
-      if (!radio.checked) {
-        return;
-      }
-      var url = new URL(window.location.href);
-      url.searchParams.set('recipient_type', radio.value);
-      window.location.href = url.toString();
-    });
-  });
-
-  syncBrandDisabledState();
-  syncUiState();
-})();
-</script>
+{% block extra_scripts %}
+<script src="{% static 'marketing/simple-mailing-form.js' %}?v=1"></script>
 {% if show_seller_picker %}
 <script src="{% static 'marketing/simple-mailing-seller-picker.js' %}?v=2"></script>
 {% endif %}

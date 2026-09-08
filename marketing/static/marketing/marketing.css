@@ -1274,6 +1274,38 @@
   line-height: 1.5;
 }
 
+.simple-mailing__hint--control {
+  padding: 10px 12px;
+  border-radius: 8px;
+  background: #f3f4f6;
+  color: var(--marketing-text);
+}
+
+.simple-mailing__card--muted {
+  background: #f9fafb;
+}
+
+.simple-mailing__card--muted .simple-mailing__brand-item,
+.simple-mailing__card--muted .simple-mailing__checkbox--all {
+  cursor: not-allowed;
+  opacity: 0.65;
+}
+
+.simple-mailing__card--muted .simple-mailing__brand-item {
+  background: #f3f4f6;
+}
+
+.simple-mailing__card--muted .simple-mailing__brand-item:hover {
+  border-color: var(--marketing-border);
+  background: #f3f4f6;
+}
+
+.simple-mailing__search-input:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  background: #f3f4f6;
+}
+
 .simple-mailing__all-brands-wrap {
   margin-bottom: 16px;
   padding-bottom: 16px;

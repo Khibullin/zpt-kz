@@ -64,6 +64,18 @@ from marketing.views import MarketingCabinetMixin
 
 DEFAULT_RECIPIENT_TYPE = RECIPIENT_TYPE_PARTS_REQUEST_BUYERS
 
+PREVIEW_LABEL_CONTROL_ONLY = 'Показать контрольных получателей'
+PREVIEW_LABEL_SELLERS = 'Показать продавцов'
+PREVIEW_LABEL_DEFAULT = 'Показать количество'
+
+
+def preview_action_label(*, recipient_scope: str, recipient_type: str) -> str:
+    if recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY:
+        return PREVIEW_LABEL_CONTROL_ONLY
+    if recipient_type == RECIPIENT_TYPE_SELLERS:
+        return PREVIEW_LABEL_SELLERS
+    return PREVIEW_LABEL_DEFAULT
+
 
 def _draft_summary_context(draft: dict) -> dict:
     recipient_type = draft.get('recipient_type') or DEFAULT_RECIPIENT_TYPE
@@ -163,18 +175,22 @@ class NewMailingView(MarketingCabinetMixin, View):
                 selected_brands=selected_brands,
             )
 
+        if control_only:
+            resolver_all_brands = True
+            validated_brands: list[str] = []
+        else:
+            resolver_all_brands = all_brands
+            validated_brands = []
+
         selection_key = build_selection_key(
             recipient_type=recipient_type,
             recipient_scope=recipient_scope,
-            all_brands=all_brands,
-            brands=selected_brands,
+            all_brands=resolver_all_brands,
+            brands=validated_brands if control_only else selected_brands,
         )
 
         try:
-            if control_only:
-                validated_brands: list[str] = []
-                all_brands = True
-            else:
+            if not control_only:
                 validated_brands = validate_brand_selection(
                     recipient_type=recipient_type,
                     all_brands=all_brands,
@@ -183,7 +199,7 @@ class NewMailingView(MarketingCabinetMixin, View):
             result = resolve_simple_mailing_recipients(
                 recipient_type=recipient_type,
                 recipient_scope=recipient_scope,
-                all_brands=all_brands,
+                all_brands=resolver_all_brands,
                 brands=validated_brands,
             )
         except SimpleMailingValidationError as exc:
@@ -198,10 +214,9 @@ class NewMailingView(MarketingCabinetMixin, View):
             )
 
         if action in {'continue', 'prepare_selected'}:
-            preview_label = (
-                'Показать продавцов'
-                if recipient_type == RECIPIENT_TYPE_SELLERS and not control_only
-                else 'Показать количество'
+            preview_label = preview_action_label(
+                recipient_scope=recipient_scope,
+                recipient_type=recipient_type,
             )
             if not preview_matches(request.session, selection_key):
                 messages.error(
@@ -219,7 +234,7 @@ class NewMailingView(MarketingCabinetMixin, View):
             draft_payload = {
                 'recipient_type': recipient_type,
                 'recipient_scope': recipient_scope,
-                'all_brands': all_brands,
+                'all_brands': resolver_all_brands,
                 'brands': list(result.selection.brands),
                 'count': result.count,
                 'ordinary_count': result.ordinary_count,
@@ -240,7 +255,7 @@ class NewMailingView(MarketingCabinetMixin, View):
                 try:
                     validated_ids = validate_selected_seller_ids(
                         posted_ids,
-                        all_brands=all_brands,
+                        all_brands=resolver_all_brands,
                         brands=validated_brands,
                     )
                 except SimpleMailingValidationError as exc:
@@ -256,7 +271,7 @@ class NewMailingView(MarketingCabinetMixin, View):
                 launch_rows = resolve_simple_mailing_launch_recipients(
                     recipient_type=recipient_type,
                     recipient_scope=recipient_scope,
-                    all_brands=all_brands,
+                    all_brands=resolver_all_brands,
                     brands=validated_brands,
                     selected_seller_ids=validated_ids,
                 )
@@ -363,7 +378,10 @@ class NewMailingView(MarketingCabinetMixin, View):
 
         control_only = recipient_scope == RECIPIENT_SCOPE_CONTROL_ONLY
 
-        if recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS and not MARKETPLACE_BRAND_FILTER_AVAILABLE:
+        if control_only:
+            all_brands = False
+            selected_brands = []
+        elif recipient_type == RECIPIENT_TYPE_MARKETPLACE_BUYERS and not MARKETPLACE_BRAND_FILTER_AVAILABLE:
             all_brands = True
             selected_brands = []
 
@@ -435,6 +453,10 @@ class NewMailingView(MarketingCabinetMixin, View):
             'recipient_scope_label': scope_labels.get(recipient_scope, recipient_scope),
             'recipient_scope_choices': RECIPIENT_SCOPE_CHOICES,
             'control_only': control_only,
+            'preview_action_label': preview_action_label(
+                recipient_scope=recipient_scope,
+                recipient_type=recipient_type,
+            ),
             'brand_options': brand_options,
             'all_brands': all_brands,
             'selected_brands': selected_brands,
