@@ -2,14 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.models import BuyerContact, Request, Seller
+from core.models import BuyerContact, Request
+from core.phone_utils import normalize_kz_phone
 from core.services.buyer_contact_utils import normalize_buyer_text
 from marketing.services.marketplace_orders import get_marketplace_buyer_counts
 from marketing.services.phone_utils import normalize_phone_key
 from marketing.services.simple_mailing.brands import (
     build_exclude_test_brand_q,
     build_request_brand_filter_q,
-    build_seller_brand_filter_q,
 )
 from marketing.services.simple_mailing.constants import (
     MARKETPLACE_BRAND_FILTER_AVAILABLE,
@@ -17,7 +17,10 @@ from marketing.services.simple_mailing.constants import (
     RECIPIENT_TYPE_PARTS_REQUEST_BUYERS,
     RECIPIENT_TYPE_SELLERS,
 )
-from marketing.services.simple_mailing.seller_picker import seller_audience_queryset
+from marketing.services.simple_mailing.seller_selectability import (
+    list_selectable_sellers,
+    seller_brands_label,
+)
 
 
 @dataclass(frozen=True)
@@ -96,57 +99,27 @@ def _seller_recipients(
     brands: list[str],
     selected_seller_ids: list[int] | None = None,
 ) -> list[SimpleMailingLaunchRecipient]:
-    if selected_seller_ids is not None:
-        qs = seller_audience_queryset(
-            all_brands=all_brands,
-            brands=brands,
-        ).filter(pk__in=selected_seller_ids)
-    else:
-        qs = Seller.objects.filter(
-            is_active=True,
-            is_test_seller=False,
-            is_paused=False,
-        )
-        if not all_brands:
-            qs = qs.filter(build_seller_brand_filter_q(brands)).distinct()
-    qs = qs.select_related('brand_fk').prefetch_related('selected_brands')
-
-    grouped: dict[str, list[Seller]] = {}
-    for seller in qs.order_by('id'):
-        phone_key = normalize_phone_key(seller.whatsapp)
+    sellers = list_selectable_sellers(
+        all_brands=all_brands,
+        brands=brands,
+        selected_seller_ids=selected_seller_ids,
+    )
+    recipients: list[SimpleMailingLaunchRecipient] = []
+    for seller in sellers:
+        phone_key = normalize_kz_phone(seller.whatsapp)
         if not phone_key:
             continue
-        grouped.setdefault(phone_key, []).append(seller)
-
-    recipients: list[SimpleMailingLaunchRecipient] = []
-    for phone_key in sorted(grouped.keys()):
-        sellers = grouped[phone_key]
         recipients.append(
             SimpleMailingLaunchRecipient(
                 phone_normalized=phone_key,
-                display_name=sellers[0].name or '—',
-                city=sellers[0].city or '—',
-                brands_label=_merged_seller_brands_label(sellers),
+                display_name=seller.name or '—',
+                city=seller.city or '—',
+                brands_label=seller_brands_label(seller),
                 is_test_contact=False,
                 is_control_recipient=False,
             ),
         )
     return recipients
-
-
-def _merged_seller_brands_label(sellers: list[Seller]) -> str:
-    if any(seller.all_brands for seller in sellers):
-        return 'Все марки'
-    names: set[str] = set()
-    for seller in sellers:
-        if seller.brand:
-            names.add(seller.brand.strip())
-        if seller.brand_fk_id and seller.brand_fk:
-            names.add(seller.brand_fk.name)
-        for brand in seller.selected_brands.all():
-            if brand.name:
-                names.add(brand.name)
-    return ', '.join(sorted(names, key=lambda item: item.casefold())) or '—'
 
 
 def _sorted_unique_brands(values) -> list[str]:

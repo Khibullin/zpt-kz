@@ -15,10 +15,7 @@ from core.services.seller_whatsapp_consent import (
     SellerWhatsAppConsentError,
     build_seller_whatsapp_consent_url,
 )
-from marketing.services.simple_mailing.brands import (
-    SimpleMailingValidationError,
-    build_seller_brand_filter_q,
-)
+from marketing.services.simple_mailing.brands import SimpleMailingValidationError
 from marketing.services.simple_mailing.constants import (
     SELLER_CONSENT_FILTER_ALL,
     SELLER_CONSENT_FILTER_GRANTED,
@@ -26,6 +23,16 @@ from marketing.services.simple_mailing.constants import (
     SELLER_CONSENT_FILTER_REVOKED,
     SELLER_CONSENT_FILTER_VALUES,
     SELLER_SELECT_FIRST_N,
+)
+from marketing.services.simple_mailing.seller_selectability import (
+    SellerPhoneIdentityIndex,
+    build_seller_phone_identity_index,
+    classify_seller_whatsapp,
+    list_audience_sellers,
+    operational_seller_queryset,
+    seller_audience_queryset,
+    seller_brands_label,
+    seller_is_technically_selectable,
 )
 
 CONSENT_LABEL_GRANTED = 'Подтверждено'
@@ -48,6 +55,9 @@ class SellerPickerRow:
     is_paused: bool
     consent_url: str
     marketing_send_eligible: bool
+    selectable: bool
+    whatsapp_state: str
+    whatsapp_status_label: str
     selected: bool = False
 
 
@@ -81,45 +91,6 @@ def parse_selected_seller_ids(raw_values) -> list[int]:
     return ids
 
 
-def operational_seller_queryset():
-    return Seller.objects.filter(
-        is_active=True,
-        is_test_seller=False,
-        is_paused=False,
-        receive_requests=True,
-    )
-
-
-def apply_seller_brand_filter(qs, *, all_brands: bool, brands: list[str] | None):
-    if all_brands:
-        return qs
-    return qs.filter(build_seller_brand_filter_q(list(brands or []))).distinct()
-
-
-def seller_audience_queryset(*, all_brands: bool, brands: list[str] | None):
-    return apply_seller_brand_filter(
-        operational_seller_queryset(),
-        all_brands=all_brands,
-        brands=brands,
-    )
-
-
-def seller_brands_label(seller: Seller) -> str:
-    if seller.all_brands:
-        return 'Все марки'
-    names: set[str] = set()
-    brand = str(getattr(seller, 'brand', '') or '').strip()
-    if brand:
-        names.add(brand)
-    brand_fk = getattr(seller, 'brand_fk', None)
-    if brand_fk is not None and brand_fk.name:
-        names.add(brand_fk.name)
-    for selected in seller.selected_brands.all():
-        if selected.name:
-            names.add(selected.name)
-    return ', '.join(sorted(names, key=lambda item: item.casefold())) or '—'
-
-
 def consent_display(status: str) -> tuple[str, str, str]:
     if status == CONTACT_CONSENT_STATUS_GRANTED:
         return status, CONSENT_LABEL_GRANTED, 'granted'
@@ -128,9 +99,15 @@ def consent_display(status: str) -> tuple[str, str, str]:
     return status or '', CONSENT_LABEL_NOT_RECORDED, 'unknown'
 
 
-def seller_is_marketing_send_eligible(seller: Seller, consent_status: str) -> bool:
+def seller_is_marketing_send_eligible(
+    seller: Seller,
+    consent_status: str,
+    *,
+    selectable: bool = True,
+) -> bool:
     return (
-        consent_status == CONTACT_CONSENT_STATUS_GRANTED
+        selectable
+        and consent_status == CONTACT_CONSENT_STATUS_GRANTED
         and bool(seller.is_active)
         and not seller.is_test_seller
         and bool(seller.receive_requests)
@@ -148,7 +125,14 @@ def _consent_status_for_seller(
     return consent_by_key.get((seller.pk, phone), '')
 
 
-def _consent_url_for_seller(seller: Seller, consent_status: str) -> str:
+def _consent_url_for_seller(
+    seller: Seller,
+    consent_status: str,
+    *,
+    selectable: bool,
+) -> str:
+    if not selectable:
+        return ''
     if consent_status in {CONTACT_CONSENT_STATUS_GRANTED, CONTACT_CONSENT_STATUS_REVOKED}:
         return ''
     try:
@@ -182,7 +166,10 @@ def _row_from_seller(
     *,
     consent_by_key: dict[tuple[int, str], str],
     selected_ids: set[int],
+    index: SellerPhoneIdentityIndex,
 ) -> SellerPickerRow:
+    classification = classify_seller_whatsapp(seller, index)
+    selectable = seller_is_technically_selectable(seller, index)
     raw_status = _consent_status_for_seller(seller, consent_by_key)
     status, label, badge = consent_display(raw_status)
     return SellerPickerRow(
@@ -197,9 +184,16 @@ def _row_from_seller(
         consent_badge=badge,
         receive_requests=bool(seller.receive_requests),
         is_paused=bool(seller.is_paused),
-        consent_url=_consent_url_for_seller(seller, status),
-        marketing_send_eligible=seller_is_marketing_send_eligible(seller, status),
-        selected=seller.pk in selected_ids,
+        consent_url=_consent_url_for_seller(seller, status, selectable=selectable),
+        marketing_send_eligible=seller_is_marketing_send_eligible(
+            seller,
+            status,
+            selectable=selectable,
+        ),
+        selectable=selectable,
+        whatsapp_state=classification.state,
+        whatsapp_status_label=classification.label,
+        selected=selectable and seller.pk in selected_ids,
     )
 
 
@@ -239,14 +233,10 @@ def list_seller_picker_rows(
     consent_filter: str = SELLER_CONSENT_FILTER_ALL,
     search: str = '',
     selected_seller_ids: list[int] | None = None,
+    index: SellerPhoneIdentityIndex | None = None,
 ) -> tuple[SellerPickerRow, ...]:
-    qs = (
-        seller_audience_queryset(all_brands=all_brands, brands=brands)
-        .select_related('brand_fk')
-        .prefetch_related('selected_brands')
-        .order_by('id')
-    )
-    sellers = list(qs)
+    sellers = list_audience_sellers(all_brands=all_brands, brands=brands)
+    identity = index or build_seller_phone_identity_index()
     consent_by_key = _load_consent_map(sellers)
     selected_ids = set(selected_seller_ids or [])
     consent_filter = normalize_consent_filter(consent_filter)
@@ -257,6 +247,7 @@ def list_seller_picker_rows(
             seller,
             consent_by_key=consent_by_key,
             selected_ids=selected_ids,
+            index=identity,
         )
         if not _row_matches_consent_filter(row, consent_filter):
             continue
@@ -271,7 +262,7 @@ def first_n_seller_ids(
     n: int = SELLER_SELECT_FIRST_N,
 ) -> list[int]:
     limit = max(int(n), 0)
-    return [row.seller_id for row in list(rows)[:limit]]
+    return [row.seller_id for row in rows if row.selectable][:limit]
 
 
 def validate_selected_seller_ids(
@@ -286,6 +277,7 @@ def validate_selected_seller_ids(
             all_brands=all_brands,
             brands=brands,
         )
+        if row.selectable
     }
     validated: list[int] = []
     seen: set[int] = set()
@@ -346,3 +338,21 @@ def seller_summary_rows_for_ids(
         )
     }
     return tuple(by_id[seller_id] for seller_id in validated if seller_id in by_id)
+
+
+__all__ = [
+    'SellerPickerRow',
+    'SellerSelectionSummary',
+    'build_seller_selection_summary',
+    'first_n_seller_ids',
+    'list_seller_picker_rows',
+    'normalize_consent_filter',
+    'operational_seller_queryset',
+    'parse_selected_seller_ids',
+    'seller_audience_queryset',
+    'seller_brands_label',
+    'seller_is_marketing_send_eligible',
+    'seller_recipient_key',
+    'seller_summary_rows_for_ids',
+    'validate_selected_seller_ids',
+]

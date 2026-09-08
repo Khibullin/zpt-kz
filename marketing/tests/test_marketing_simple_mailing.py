@@ -172,6 +172,7 @@ class SimpleMailingSellerTests(TestCase):
             'is_active': True,
             'is_test_seller': False,
             'is_paused': False,
+            'receive_requests': True,
         }
         defaults.update(kwargs)
         return Seller.objects.create(**defaults)
@@ -231,7 +232,7 @@ class SimpleMailingSellerTests(TestCase):
         )
         self.assertEqual(result.count, 2)
 
-    def test_two_sellers_same_whatsapp_count_once(self):
+    def test_two_sellers_same_whatsapp_are_excluded_as_ambiguous(self):
         phone = next_phone()
         self._seller(brand='Toyota', whatsapp=phone)
         self._seller(brand='Toyota', whatsapp=phone)
@@ -241,21 +242,25 @@ class SimpleMailingSellerTests(TestCase):
             all_brands=False,
             brands=['Toyota'],
         )
-        self.assertEqual(result.count, 1)
+        self.assertEqual(result.seller_found_count, 2)
+        self.assertEqual(result.seller_ambiguous_whatsapp_count, 2)
+        self.assertEqual(result.ordinary_count, 0)
+        self.assertEqual(result.count, 0)
 
-    def test_two_sellers_different_format_same_normalized_phone(self):
+    def test_two_sellers_different_format_same_normalized_phone_are_ambiguous(self):
         phone_key = next_phone()
+        self._seller(brand='Toyota', whatsapp=phone_key)
         self._seller(brand='Toyota', whatsapp=f'8{phone_key[1:]}')
-        self._seller(brand='Toyota', whatsapp=f'+7 {phone_key[1:4]} {phone_key[4:7]} {phone_key[7:9]} {phone_key[9:]}')
         result = resolve_simple_mailing_recipients(
             recipient_type=RECIPIENT_TYPE_SELLERS,
             recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
             all_brands=False,
             brands=['Toyota'],
         )
-        self.assertEqual(result.count, 1)
+        self.assertEqual(result.ordinary_count, 0)
+        self.assertEqual(result.seller_ambiguous_whatsapp_count, 2)
 
-    def test_all_brands_and_branded_seller_same_phone_count_once(self):
+    def test_all_brands_and_branded_seller_same_phone_are_ambiguous(self):
         phone = next_phone()
         self._seller(all_brands=True, whatsapp=phone)
         self._seller(brand='Toyota', whatsapp=phone)
@@ -265,7 +270,8 @@ class SimpleMailingSellerTests(TestCase):
             all_brands=False,
             brands=['Toyota'],
         )
-        self.assertEqual(result.count, 1)
+        self.assertEqual(result.ordinary_count, 0)
+        self.assertEqual(result.seller_found_count, 2)
 
 
 class SimpleMailingMarketplaceTests(TestCase):

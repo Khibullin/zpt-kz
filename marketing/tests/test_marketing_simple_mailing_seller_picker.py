@@ -93,6 +93,7 @@ class SimpleMailingSellerPickerTests(TestCase):
         rows = list_seller_picker_rows(all_brands=False, brands=['Toyota'])
         selected = first_n_seller_ids(rows, n=SELLER_SELECT_FIRST_N)
         self.assertEqual(selected, [seller.pk for seller in sellers[:5]])
+        self.assertTrue(all(row.selectable for row in rows if row.seller_id in selected))
 
     def test_select_first_five_uses_available_when_fewer(self):
         sellers = [self._seller(name=f'Shop {index}', brand='Toyota') for index in range(3)]

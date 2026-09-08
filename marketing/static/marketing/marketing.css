@@ -1738,12 +1738,16 @@
 }
 
 .simple-mailing__seller-table {
-  min-width: 960px;
+  min-width: 1100px;
 }
 
 .simple-mailing__seller-table .seller-picker-row.is-search-hidden,
 .simple-mailing__seller-table .seller-picker-row[hidden] {
   display: none;
+}
+
+.seller-picker-row--not-selectable {
+  opacity: 0.72;
 }
 
 .seller-consent-badge {
@@ -1768,6 +1772,26 @@
 .seller-consent-badge--unknown {
   background: #eef0f3;
   color: var(--marketing-muted);
+}
+
+.seller-whatsapp-status {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.seller-whatsapp-status--ready {
+  background: #e8f7ee;
+  color: var(--marketing-green);
+}
+
+.seller-whatsapp-status--invalid,
+.seller-whatsapp-status--ambiguous {
+  background: #fff4e5;
+  color: #9a6700;
 }
 
 .simple-mailing__seller-summary-list {

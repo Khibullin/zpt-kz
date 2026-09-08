@@ -87,9 +87,17 @@
     }
   }
 
-  function visibleRows() {
+  function rowSelectable(row) {
+    var checkbox = row.querySelector('.seller-picker-checkbox');
+    if (!checkbox || checkbox.disabled) {
+      return false;
+    }
+    return row.getAttribute('data-selectable') === '1';
+  }
+
+  function visibleSelectableRows() {
     return rows.filter(function (row) {
-      return !row.hidden;
+      return !row.hidden && rowSelectable(row);
     });
   }
 
@@ -101,10 +109,10 @@
           checkbox.checked = false;
         }
       });
-      var visible = visibleRows();
-      visible.slice(0, selectFirstN).forEach(function (row) {
+      var selectable = visibleSelectableRows();
+      selectable.slice(0, selectFirstN).forEach(function (row) {
         var checkbox = row.querySelector('.seller-picker-checkbox');
-        if (checkbox) {
+        if (checkbox && !checkbox.disabled) {
           checkbox.checked = true;
         }
       });

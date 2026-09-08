@@ -147,19 +147,46 @@
           <span class="simple-mailing__result-label">Выбрано марок</span>
           <span class="simple-mailing__result-value" id="selected-brands-count">{{ selected_brands_label }}</span>
         </div>
-        <div class="simple-mailing__result-item">
-          <span class="simple-mailing__result-label">Обычных получателей</span>
-          <span class="simple-mailing__result-value" id="ordinary-count-display">{{ ordinary_count_display }}</span>
-        </div>
-        <div class="simple-mailing__result-item">
-          <span class="simple-mailing__result-label">Контрольных</span>
-          <span class="simple-mailing__result-value" id="control-count-display">{{ control_count_display }}</span>
-        </div>
-        <div class="simple-mailing__result-item simple-mailing__result-item--highlight">
-          <span class="simple-mailing__result-label">Итого</span>
-          <span class="simple-mailing__result-value simple-mailing__result-value--count"
-                id="recipient-count-display">{{ count_display }}</span>
-        </div>
+        {% if show_seller_audience_counts %}
+          <div class="simple-mailing__result-item">
+            <span class="simple-mailing__result-label">Найдено продавцов</span>
+            <span class="simple-mailing__result-value" id="seller-found-count-display">{{ seller_found_count }}</span>
+          </div>
+          <div class="simple-mailing__result-item">
+            <span class="simple-mailing__result-label">Доступно для выбора</span>
+            <span class="simple-mailing__result-value" id="seller-selectable-count-display">{{ seller_selectable_count }}</span>
+          </div>
+          <div class="simple-mailing__result-item">
+            <span class="simple-mailing__result-label">Исключено по WhatsApp</span>
+            <span class="simple-mailing__result-value" id="seller-excluded-whatsapp-display">
+              неверный номер: {{ seller_invalid_whatsapp_count }};
+              неоднозначный номер: {{ seller_ambiguous_whatsapp_count }}
+            </span>
+          </div>
+          <div class="simple-mailing__result-item">
+            <span class="simple-mailing__result-label">Контрольных</span>
+            <span class="simple-mailing__result-value" id="control-count-display">{{ control_count_display }}</span>
+          </div>
+          <div class="simple-mailing__result-item simple-mailing__result-item--highlight">
+            <span class="simple-mailing__result-label">Итого доступных получателей</span>
+            <span class="simple-mailing__result-value simple-mailing__result-value--count"
+                  id="recipient-count-display">{{ count_display }}</span>
+          </div>
+        {% else %}
+          <div class="simple-mailing__result-item">
+            <span class="simple-mailing__result-label">Обычных получателей</span>
+            <span class="simple-mailing__result-value" id="ordinary-count-display">{{ ordinary_count_display }}</span>
+          </div>
+          <div class="simple-mailing__result-item">
+            <span class="simple-mailing__result-label">Контрольных</span>
+            <span class="simple-mailing__result-value" id="control-count-display">{{ control_count_display }}</span>
+          </div>
+          <div class="simple-mailing__result-item simple-mailing__result-item--highlight">
+            <span class="simple-mailing__result-label">Итого</span>
+            <span class="simple-mailing__result-value simple-mailing__result-value--count"
+                  id="recipient-count-display">{{ count_display }}</span>
+          </div>
+        {% endif %}
       </div>
 
       {% if show_seller_picker %}
@@ -217,6 +244,7 @@
                   <th>Город</th>
                   <th>Марки</th>
                   <th>Consent WhatsApp</th>
+                  <th>Статус WhatsApp</th>
                   <th>Получает заявки</th>
                   <th>Пауза</th>
                   <th></th>
@@ -224,17 +252,19 @@
               </thead>
               <tbody>
                 {% for row in seller_rows %}
-                  <tr class="seller-picker-row"
+                  <tr class="seller-picker-row{% if not row.selectable %} seller-picker-row--not-selectable{% endif %}"
                       data-seller-id="{{ row.seller_id }}"
                       data-consent="{{ row.consent_badge }}"
                       data-search="{{ row.name|lower }} {{ row.whatsapp|lower }}"
-                      data-eligible="{% if row.marketing_send_eligible %}1{% else %}0{% endif %}">
+                      data-eligible="{% if row.marketing_send_eligible %}1{% else %}0{% endif %}"
+                      data-selectable="{% if row.selectable %}1{% else %}0{% endif %}">
                     <td>
                       <input type="checkbox"
                              name="seller_ids"
                              value="{{ row.seller_id }}"
                              class="seller-picker-checkbox"
-                             {% if row.selected %}checked{% endif %}>
+                             {% if row.selected %}checked{% endif %}
+                             {% if not row.selectable %}disabled{% endif %}>
                     </td>
                     <td>{{ row.seller_id }}</td>
                     <td>{{ row.name }}</td>
@@ -244,6 +274,11 @@
                     <td>
                       <span class="seller-consent-badge seller-consent-badge--{{ row.consent_badge }}">
                         {{ row.consent_label }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="seller-whatsapp-status seller-whatsapp-status--{{ row.whatsapp_state }}">
+                        {{ row.whatsapp_status_label }}
                       </span>
                     </td>
                     <td>{% if row.receive_requests %}Да{% else %}Нет{% endif %}</td>
@@ -260,7 +295,7 @@
                   </tr>
                 {% empty %}
                   <tr>
-                    <td colspan="10">Продавцы по выбранным фильтрам не найдены.</td>
+                    <td colspan="11">Продавцы по выбранным фильтрам не найдены.</td>
                   </tr>
                 {% endfor %}
               </tbody>
@@ -331,6 +366,6 @@
 {% block extra_scripts %}
 <script src="{% static 'marketing/simple-mailing-form.js' %}?v=1"></script>
 {% if show_seller_picker %}
-<script src="{% static 'marketing/simple-mailing-seller-picker.js' %}?v=2"></script>
+<script src="{% static 'marketing/simple-mailing-seller-picker.js' %}?v=3"></script>
 {% endif %}
 {% endblock %}

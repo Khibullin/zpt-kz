@@ -2,14 +2,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from core.models import BuyerContact, Request, Seller
+from core.models import BuyerContact, Request
+from core.phone_utils import normalize_kz_phone
 from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 from marketing.services.marketplace_orders import get_marketplace_buyer_counts
-from marketing.services.phone_utils import normalize_phone_key
 from marketing.services.simple_mailing.brands import (
     build_exclude_test_brand_q,
     build_request_brand_filter_q,
-    build_seller_brand_filter_q,
 )
 from marketing.services.simple_mailing.constants import (
     MARKETPLACE_BRAND_FILTER_AVAILABLE,
@@ -26,6 +25,13 @@ from marketing.services.simple_mailing.control_recipients import (
 )
 from marketing.services.simple_mailing.launch_recipients import (
     resolve_simple_mailing_launch_recipients,
+)
+from marketing.services.simple_mailing.seller_selectability import (
+    build_seller_phone_identity_index,
+    list_audience_sellers,
+    seller_brands_label,
+    seller_is_technically_selectable,
+    summarize_seller_audience,
 )
 
 PREVIEW_LIMIT = 50
@@ -61,6 +67,10 @@ class SimpleMailingRecipientsResult:
     count: int
     recipient_keys: tuple[str, ...]
     preview_rows: tuple[SimpleMailingPreviewRow, ...]
+    seller_found_count: int = 0
+    seller_selectable_count: int = 0
+    seller_invalid_whatsapp_count: int = 0
+    seller_ambiguous_whatsapp_count: int = 0
 
 
 def _parts_request_buyers(
@@ -154,40 +164,17 @@ def _marketplace_buyers(
     )
 
 
-def _merged_seller_brands_label(sellers: list[Seller]) -> str:
-    if any(seller.all_brands for seller in sellers):
-        return 'Все марки'
-    names: set[str] = set()
-    for seller in sellers:
-        if seller.brand:
-            names.add(seller.brand.strip())
-        if seller.brand_fk_id and seller.brand_fk:
-            names.add(seller.brand_fk.name)
-        for brand in seller.selected_brands.all():
-            if brand.name:
-                names.add(brand.name)
-    return ', '.join(sorted(names, key=lambda item: item.casefold())) or '—'
-
-
-def _group_sellers_by_phone(qs) -> dict[str, list[Seller]]:
-    grouped: dict[str, list[Seller]] = {}
-    for seller in qs.order_by('id'):
-        phone_key = normalize_phone_key(seller.whatsapp)
+def _seller_preview_rows(sellers: list[Seller]) -> tuple[SimpleMailingPreviewRow, ...]:
+    preview_rows: list[SimpleMailingPreviewRow] = []
+    for seller in sellers[:PREVIEW_LIMIT]:
+        phone_key = normalize_kz_phone(seller.whatsapp)
         if not phone_key:
             continue
-        grouped.setdefault(phone_key, []).append(seller)
-    return grouped
-
-
-def _seller_preview_rows(grouped: dict[str, list[Seller]]) -> tuple[SimpleMailingPreviewRow, ...]:
-    preview_rows: list[SimpleMailingPreviewRow] = []
-    for phone_key in sorted(grouped.keys())[:PREVIEW_LIMIT]:
-        sellers = grouped[phone_key]
         preview_rows.append(
             SimpleMailingPreviewRow(
                 masked_phone=mask_phone(phone_key),
                 recipient_type_label=RECIPIENT_LABELS[RECIPIENT_TYPE_SELLERS],
-                brands_label=_merged_seller_brands_label(sellers),
+                brands_label=seller_brands_label(seller),
                 recipient_key=f'phone:{phone_key}',
             ),
         )
@@ -204,25 +191,26 @@ def _sellers(
         all_brands=all_brands,
         brands=tuple(brands),
     )
-    qs = Seller.objects.filter(
-        is_active=True,
-        is_test_seller=False,
-        is_paused=False,
-    ).select_related('brand_fk').prefetch_related('selected_brands')
-    if not all_brands:
-        qs = qs.filter(build_seller_brand_filter_q(brands)).distinct()
-
-    grouped = _group_sellers_by_phone(qs)
-    count = len(grouped)
-    preview_rows = _seller_preview_rows(grouped)
+    index = build_seller_phone_identity_index()
+    found = list_audience_sellers(all_brands=all_brands, brands=brands)
+    stats = summarize_seller_audience(found, index)
+    selectable = [
+        seller for seller in found
+        if seller_is_technically_selectable(seller, index)
+    ]
+    preview_rows = _seller_preview_rows(selectable)
     return SimpleMailingRecipientsResult(
         selection=selection,
         recipient_scope=RECIPIENT_SCOPE_AUDIENCE_PLUS_CONTROLS,
-        ordinary_count=count,
+        ordinary_count=stats.selectable_count,
         control_count=0,
-        count=count,
+        count=stats.selectable_count,
         recipient_keys=(),
         preview_rows=preview_rows,
+        seller_found_count=stats.found_count,
+        seller_selectable_count=stats.selectable_count,
+        seller_invalid_whatsapp_count=stats.invalid_whatsapp_count,
+        seller_ambiguous_whatsapp_count=stats.ambiguous_whatsapp_count,
     )
 
 
@@ -269,6 +257,15 @@ def _control_only_result(*, recipient_type: str) -> SimpleMailingRecipientsResul
     )
 
 
+def _seller_count_fields(result: SimpleMailingRecipientsResult) -> dict:
+    return {
+        'seller_found_count': result.seller_found_count,
+        'seller_selectable_count': result.seller_selectable_count,
+        'seller_invalid_whatsapp_count': result.seller_invalid_whatsapp_count,
+        'seller_ambiguous_whatsapp_count': result.seller_ambiguous_whatsapp_count,
+    }
+
+
 def _with_scope_counts(
     base: SimpleMailingRecipientsResult,
     *,
@@ -289,6 +286,7 @@ def _with_scope_counts(
             count=base.count,
             recipient_keys=base.recipient_keys,
             preview_rows=base.preview_rows,
+            **_seller_count_fields(base),
         )
 
     launch_rows = resolve_simple_mailing_launch_recipients(
@@ -329,6 +327,7 @@ def _with_scope_counts(
         count=total_count,
         recipient_keys=base.recipient_keys,
         preview_rows=tuple(preview_rows[:PREVIEW_LIMIT]),
+        **_seller_count_fields(base),
     )
 
 

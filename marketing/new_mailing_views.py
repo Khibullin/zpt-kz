@@ -439,8 +439,14 @@ class NewMailingView(MarketingCabinetMixin, View):
             selected_brands_label = str(len(selected_brands))
 
         ordinary_count_display = str(result.ordinary_count) if result is not None else '—'
-        if show_seller_picker:
-            ordinary_count_display = str(len(seller_rows))
+        seller_found_count = result.seller_found_count if result is not None else 0
+        seller_selectable_count = result.seller_selectable_count if result is not None else 0
+        seller_invalid_whatsapp_count = (
+            result.seller_invalid_whatsapp_count if result is not None else 0
+        )
+        seller_ambiguous_whatsapp_count = (
+            result.seller_ambiguous_whatsapp_count if result is not None else 0
+        )
 
         context = {
             **self.get_broadcast_mode_context(),
@@ -468,6 +474,11 @@ class NewMailingView(MarketingCabinetMixin, View):
             'count_display': str(result.count) if result is not None else '—',
             'ordinary_count_display': ordinary_count_display,
             'control_count_display': str(result.control_count) if result is not None else '—',
+            'seller_found_count': seller_found_count,
+            'seller_selectable_count': seller_selectable_count,
+            'seller_invalid_whatsapp_count': seller_invalid_whatsapp_count,
+            'seller_ambiguous_whatsapp_count': seller_ambiguous_whatsapp_count,
+            'show_seller_audience_counts': show_seller_picker,
             'show_preview': result is not None and bool(result.preview_rows) and not show_seller_picker,
             'show_seller_picker': show_seller_picker,
             'seller_rows': seller_rows,
