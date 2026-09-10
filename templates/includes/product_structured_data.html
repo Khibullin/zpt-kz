@@ -1,0 +1,4 @@
+{% load product_extras %}
+{% if product and request|is_public_product_detail_request %}
+<script type="application/ld+json">{{ product|product_json_ld }}</script>
+{% endif %}
