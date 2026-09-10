@@ -230,7 +230,7 @@ WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv(
 META_APP_SECRET = os.getenv('META_APP_SECRET', '').strip()
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
-SEO_PRODUCT_SITEMAP_ENABLED = os.getenv('SEO_PRODUCT_SITEMAP_ENABLED', 'False').lower() in ('true', '1', 'yes')
+SEO_PRODUCT_SITEMAP_ENABLED = os.getenv('SEO_PRODUCT_SITEMAP_ENABLED', 'True').lower() in ('true', '1', 'yes')
 
 BUYER_BROADCAST_MODE = (os.getenv("BUYER_BROADCAST_MODE", "OFF") or "OFF").strip().upper()
 BUYER_BROADCAST_TEST_MAX_RECIPIENTS = int(
