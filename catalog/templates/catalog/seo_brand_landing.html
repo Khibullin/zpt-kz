@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ landing.title }}{% endblock %}
+{% block meta_description %}{{ landing.meta_description }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v142">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v11">
+<style>
+.seo-brand-landing{padding-top:24px;padding-bottom:40px}
+.seo-brand-breadcrumbs{font-size:13px;color:#6b7280;margin-bottom:16px}
+.seo-brand-breadcrumbs a{color:#ef3d2f;text-decoration:none}
+.seo-brand-hero{padding:22px 0 12px;max-width:900px}
+.seo-brand-hero h1{margin:0 0 12px;font-size:clamp(28px,5vw,44px);line-height:1.1;color:#111827}
+.seo-brand-hero p{margin:0;color:#4b5563;font-size:16px;line-height:1.65}
+.seo-brand-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.seo-brand-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;text-decoration:none;font-weight:700}
+.seo-brand-action-primary{background:#ef3d2f;color:#fff!important}
+.seo-brand-action-secondary{border:1px solid #d1d5db;background:#fff;color:#111827!important}
+.seo-brand-section{margin-top:28px}
+.seo-brand-section h2{margin:0 0 14px;font-size:24px;color:#111827}
+.seo-brand-empty{padding:20px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;color:#4b5563}
+.seo-brand-related{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.seo-brand-related a{padding:8px 12px;border:1px solid #e5e7eb;border-radius:999px;text-decoration:none;color:#374151;background:#fff}
+@media(max-width:640px){.seo-brand-actions{flex-direction:column}.seo-brand-action{width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+
+<main class="container seo-brand-landing">
+  <nav class="seo-brand-breadcrumbs" aria-label="Навигация">
+    <a href="{% url 'catalog_list' %}">Автозапчасти</a> → {{ brand.name }}
+  </nav>
+
+  <section class="seo-brand-hero">
+    <h1>{{ landing.h1 }}</h1>
+    <p>{{ landing.intro }}</p>
+    <div class="seo-brand-actions">
+      <a class="seo-brand-action seo-brand-action-primary" href="/request-parts/?brand={{ brand.id }}">Оставить заявку на запчасть</a>
+      <a class="seo-brand-action seo-brand-action-secondary" href="{% url 'catalog_list' %}?brand={{ brand.id }}&all=1">Смотреть весь каталог {{ brand.name }}</a>
+    </div>
+  </section>
+
+  <section class="seo-brand-section">
+    <h2>Запчасти {{ brand.name }} в наличии</h2>
+    {% if products %}
+      <div class="products">
+        {% for product in products %}
+          {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="seo-brand-empty">
+        Сейчас активных предложений по {{ brand.name }} в каталоге нет. Оставьте заявку — продавцы смогут предложить нужную деталь напрямую.
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="seo-brand-section">
+    <h2>Как подобрать запчасть {{ brand.name }}</h2>
+    <p>
+      Для точного подбора используйте артикул детали, модель автомобиля и известные данные о модификации. Если артикул неизвестен, в заявке можно указать автомобиль и описать нужную деталь — продавцы ZPT.KZ получат запрос и смогут ответить в WhatsApp.
+    </p>
+  </section>
+
+  <section class="seo-brand-section">
+    <h2>Другие китайские марки</h2>
+    <div class="seo-brand-related">
+      {% for item in related_landings %}
+        <a href="{% url 'seo_brand_landing' brand_slug=item.slug %}">Запчасти {{ item.label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+{% endblock %}
