@@ -14,6 +14,7 @@
     <meta name="robots" content="{{ seo_robots }}">
     <link rel="canonical" href="{{ seo_canonical_url }}">
     {% block extra_head %}{% endblock %}
+    {% include 'includes/product_structured_data.html' %}
     <meta name="description" content="{% block meta_description %}ZPT.KZ — маркетплейс автозапчастей в Казахстане.{% endblock %}">
 
     <link rel="manifest" href="/manifest.json">
