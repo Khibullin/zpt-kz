@@ -1,4 +1,4 @@
-{% load static %}
+{% load static product_extras %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -15,13 +15,13 @@
     <link rel="canonical" href="{{ seo_canonical_url }}">
     {% block extra_head %}{% endblock %}
     {% include 'includes/product_structured_data.html' %}
-    <meta name="description" content="{% block meta_description %}ZPT.KZ — маркетплейс автозапчастей в Казахстане.{% endblock %}">
+    <meta name="description" content="{% block meta_description %}{% if product and request|is_public_product_detail_request %}{{ product|public_product_meta_description }}{% else %}ZPT.KZ — маркетплейс автозапчастей в Казахстане.{% endif %}{% endblock %}">
 
     <link rel="manifest" href="/manifest.json">
 
-    <meta property="og:type" content="website">
-    <meta property="og:title" content="ZPT.KZ — Автомобильная платформа Казахстана">
-    <meta property="og:description" content="Поиск автозапчастей, маркетплейс товаров от проверенных продавцов и подбор СТО/детейлинга.">
+    <meta property="og:type" content="{% if product and request|is_public_product_detail_request %}product{% else %}website{% endif %}">
+    <meta property="og:title" content="{% if product and request|is_public_product_detail_request %}{{ product.title }} — ZPT.KZ{% else %}ZPT.KZ — Автомобильная платформа Казахстана{% endif %}">
+    <meta property="og:description" content="{% if product and request|is_public_product_detail_request %}{{ product|public_product_meta_description }}{% else %}Поиск автозапчастей, маркетплейс товаров от проверенных продавцов и подбор СТО/детейлинга.{% endif %}">
     <meta property="og:url" content="{{ seo_canonical_url }}">
     <meta property="og:image" content="https://zpt.kz{% static 'favicon/android-chrome-512x512.png' %}">
     <meta property="og:image:width" content="512">

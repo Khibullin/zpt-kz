@@ -6,6 +6,7 @@ from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django.utils.text import Truncator
 
 register = template.Library()
 
@@ -70,6 +71,30 @@ def is_public_product_detail_request(request):
         'product_detail',
         'canonical_product_alias',
     }
+
+
+@register.filter
+def public_product_meta_description(product):
+    """Build a stable factual meta description from public product fields."""
+    title = re.sub(r'\s+', ' ', str(getattr(product, 'title', '') or '')).strip()
+    article = re.sub(r'\s+', ' ', str(getattr(product, 'article', '') or '')).strip()
+    brand = getattr(product, 'brand', None)
+    brand_name = re.sub(
+        r'\s+',
+        ' ',
+        str(getattr(brand, 'name', '') or ''),
+    ).strip()
+
+    title_for_meta = Truncator(title or 'Автозапчасть').chars(82, truncate='…')
+    parts = [f'{title_for_meta}.']
+    if article:
+        parts.append(f'Арт. {article}.')
+    if brand_name and brand_name.lower() not in title.lower():
+        parts.append(f'Марка {brand_name}.')
+    parts.append(
+        'Купить в Казахстане на ZPT.KZ: цена, наличие, применяемость и контакты продавца.'
+    )
+    return Truncator(' '.join(parts)).chars(160, truncate='…')
 
 
 def _absolute_public_url(path_or_url):
