@@ -4,7 +4,7 @@
   data-card-mode="{{ card_mode|default:'retail' }}"
 >
 
-  <a class="product-image-link" href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" aria-label="Подробнее о товаре {{ product.title }}">
+  <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="Подробнее о товаре {{ product.title }}">
 
     {% if product.main_image %}
       <img
@@ -23,7 +23,7 @@
 
   <div class="product-body">
 
-    <a href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}" class="product-title-link">
+    <a href="{{ product|public_product_url }}" class="product-title-link">
 
       <div class="product-title">
         {{ product.title }}
@@ -83,7 +83,7 @@
 
       <a
         class="product-detail-link"
-        href="{% if product.slug %}{% url 'product_detail' product.slug %}{% else %}{% url 'product_detail_old' product.pk %}{% endif %}"
+        href="{{ product|public_product_url }}"
       >
         Подробнее
       </a>
