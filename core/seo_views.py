@@ -21,6 +21,7 @@ STATIC_SITEMAP_PATHS = (
     '/seller/ag-parts/',
     '/avtozapchasti/changan/',
     '/avtozapchasti/chery/',
+    '/avtozapchasti/geely/',
     '/avtozapchasti/haval/',
     '/avtozapchasti/zeekr/',
     '/avtozapchasti/maslyanye-filtry/',
