@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .legacy_product_urls import legacy_product_urlpatterns
+from .seo_category_landings import oil_filter_landing
 from .seo_landings import brand_landing
 from .views import (
     catalog_list,
@@ -34,6 +35,11 @@ urlpatterns = [
     path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
 
+    path(
+        'avtozapchasti/maslyanye-filtry/',
+        oil_filter_landing,
+        name='seo_oil_filter_landing',
+    ),
     path(
         'avtozapchasti/<slug:brand_slug>/',
         brand_landing,
