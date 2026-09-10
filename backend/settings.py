@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'core.seo_middleware.SeoRobotsHeaderMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.cart_count',
                 'marketing.context_processors.marketing_send_mode',
+                'core.seo.seo_context',
             ],
         },
     },
@@ -228,6 +230,7 @@ WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv(
 META_APP_SECRET = os.getenv('META_APP_SECRET', '').strip()
 
 PUBLIC_BASE_URL = os.getenv("PUBLIC_BASE_URL", "https://zpt.kz")
+SEO_PRODUCT_SITEMAP_ENABLED = os.getenv('SEO_PRODUCT_SITEMAP_ENABLED', 'False').lower() in ('true', '1', 'yes')
 
 BUYER_BROADCAST_MODE = (os.getenv("BUYER_BROADCAST_MODE", "OFF") or "OFF").strip().upper()
 BUYER_BROADCAST_TEST_MAX_RECIPIENTS = int(
