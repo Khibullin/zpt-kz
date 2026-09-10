@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from django.http import Http404, HttpResponsePermanentRedirect
+from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.urls import reverse
 
 from .legacy_product_urls import LEGACY_PRODUCT_SLUG_REDIRECTS
@@ -32,8 +32,12 @@ def numeric_product_entry(request, pk):
     if by_pk is not None:
         target = _public_product_path(by_pk)
         current_path = request.path
-        if target != current_path and by_pk.slug:
+        if by_pk.slug and target != current_path:
             return HttpResponsePermanentRedirect(target)
+        if by_pk.slug:
+            # Avoid a self-redirect when a product PK happens to equal its
+            # numeric slug.
+            return product_detail(request, slug=by_pk.slug)
         return product_detail(request, pk=by_pk.pk)
 
     # Keep the raw token from the URL so leading zeroes are not lost by the
@@ -53,12 +57,13 @@ def numeric_product_entry(request, pk):
     )
     if len(article_matches) == 1:
         target = _public_product_path(article_matches[0])
-        if target == request.path:
+        if target == request.path and article_matches[0].slug:
             return product_detail(request, slug=article_matches[0].slug)
         return HttpResponsePermanentRedirect(target)
 
     if len(article_matches) > 1:
-        # Do not guess between multiple sellers/products sharing one article.
-        return HttpResponsePermanentRedirect(f'/?q={numeric_token}')
+        # Do not make a permanent choice while several sellers/products share
+        # the same article. Send the visitor to catalog search instead.
+        return HttpResponseRedirect(f'/?q={numeric_token}')
 
     raise Http404('Product not found')
