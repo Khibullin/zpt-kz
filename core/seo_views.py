@@ -23,6 +23,7 @@ STATIC_SITEMAP_PATHS = (
     '/avtozapchasti/chery/',
     '/avtozapchasti/geely/',
     '/avtozapchasti/haval/',
+    '/avtozapchasti/jac/',
     '/avtozapchasti/zeekr/',
     '/avtozapchasti/maslyanye-filtry/',
 )

@@ -10,6 +10,7 @@ REVIEWED_BRAND_LANDING_PATHS = {
     'chery': '/avtozapchasti/chery/',
     'geely': '/avtozapchasti/geely/',
     'haval': '/avtozapchasti/haval/',
+    'jac': '/avtozapchasti/jac/',
     'zeekr': '/avtozapchasti/zeekr/',
 }
 
