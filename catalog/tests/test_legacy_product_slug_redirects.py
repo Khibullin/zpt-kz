@@ -1,9 +1,10 @@
-from importlib import import_module
-
 from django.test import SimpleTestCase
 from django.urls import resolve
 
-from catalog.legacy_product_urls import LEGACY_PRODUCT_SLUG_REDIRECTS
+from catalog.legacy_product_urls import (
+    LEGACY_PRODUCT_SLUG_REDIRECTS,
+    canonical_product_alias,
+)
 from catalog.views import product_detail
 
 
@@ -17,15 +18,13 @@ class LegacyProductSlugRedirectTests(SimpleTestCase):
                 self.assertEqual(response.status_code, 301)
                 self.assertEqual(response['Location'], f'/{new_slug}/')
 
-    def test_migration_and_runtime_redirect_map_stay_in_sync(self):
-        migration = import_module(
-            'catalog.migrations.0030_cleanup_legacy_product_slugs'
-        )
-        migration_map = {
-            old_slug: new_slug
-            for _pk, old_slug, new_slug in migration.PRODUCT_SLUG_CHANGES
-        }
-        self.assertEqual(migration_map, LEGACY_PRODUCT_SLUG_REDIRECTS)
+    def test_all_canonical_aliases_are_reserved_before_generic_slug_route(self):
+        for old_slug, new_slug in LEGACY_PRODUCT_SLUG_REDIRECTS.items():
+            with self.subTest(new_slug=new_slug):
+                match = resolve(f'/{new_slug}/')
+                self.assertIs(match.func, canonical_product_alias)
+                self.assertEqual(match.kwargs['stored_slug'], old_slug)
+                self.assertEqual(match.kwargs['new_slug'], new_slug)
 
     def test_regular_product_slug_still_resolves_to_product_detail(self):
         match = resolve('/ordinary-product-slug/')
