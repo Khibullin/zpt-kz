@@ -141,7 +141,8 @@ class SeoEndpointTests(TestCase):
         self.assertIn('Allow: /static/', body)
         self.assertIn('Sitemap: https://zpt.kz/sitemap.xml', body)
 
-    def test_sitemap_index_exposes_only_static_by_default(self):
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=False)
+    def test_sitemap_index_can_explicitly_disable_products(self):
         response = self.client.get('/sitemap.xml')
 
         self.assertEqual(response.status_code, 200)
@@ -166,7 +167,7 @@ class SeoEndpointTests(TestCase):
         self.assertNotIn('https://zpt.kz/parts-sellers/', body)
 
     @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
-    def test_sitemap_index_adds_products_only_after_explicit_enable(self):
+    def test_sitemap_index_adds_products_when_enabled(self):
         response = self.client.get('/sitemap.xml')
 
         self.assertEqual(response.status_code, 200)
@@ -174,14 +175,9 @@ class SeoEndpointTests(TestCase):
         self.assertIn('https://zpt.kz/sitemap-static.xml', body)
         self.assertIn('https://zpt.kz/sitemap-products.xml', body)
 
-    def test_product_sitemap_is_empty_by_default(self):
-        Product.objects.create(
-            title='Active test part',
-            slug='active-test-part',
-            seller_name='Test seller',
-            whatsapp_number='+77010000000',
-            status='active',
-        )
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=False)
+    def test_product_sitemap_is_empty_when_explicitly_disabled(self):
+        self._ready_product(slug='active-test-part')
 
         response = self.client.get('/sitemap-products.xml')
 
