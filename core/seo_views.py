@@ -18,6 +18,7 @@ STATIC_SITEMAP_PATHS = (
     '/request-parts/guide/',
     '/request-parts/faq/',
     '/prodavat/',
+    '/seller/ag-parts/',
     '/avtozapchasti/changan/',
     '/avtozapchasti/chery/',
     '/avtozapchasti/haval/',
