@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .legacy_product_urls import legacy_product_urlpatterns
+from .seo_landings import brand_landing
 from .views import (
     catalog_list,
     product_detail,
@@ -32,6 +33,12 @@ from .views import (
 urlpatterns = [
     path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
+
+    path(
+        'avtozapchasti/<slug:brand_slug>/',
+        brand_landing,
+        name='seo_brand_landing',
+    ),
 
     path('seller/register/', seller_register, name='seller_register'),
     path('seller/login/', seller_login, name='seller_login'),
