@@ -1,3 +1,6 @@
-{% load product_extras %}{% if product %}
+{% load product_extras %}
+{% if product %}
+  {% if request.resolver_match.url_name == 'product_detail' or request.resolver_match.url_name == 'product_detail_old' %}
 <script type="application/ld+json">{{ product|product_json_ld }}</script>
+  {% endif %}
 {% endif %}
