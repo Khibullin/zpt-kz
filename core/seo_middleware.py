@@ -8,6 +8,7 @@ from core.seo import canonical_path, robots_directive
 REVIEWED_BRAND_LANDING_PATHS = {
     'changan': '/avtozapchasti/changan/',
     'chery': '/avtozapchasti/chery/',
+    'geely': '/avtozapchasti/geely/',
     'haval': '/avtozapchasti/haval/',
     'zeekr': '/avtozapchasti/zeekr/',
 }
