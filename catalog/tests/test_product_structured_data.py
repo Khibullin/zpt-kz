@@ -97,20 +97,29 @@ class ProductStructuredDataIntegrationTests(TestCase):
         country = Country.objects.create(name='Structured Data Test Country')
         brand = Brand.objects.create(country=country, name='Structured Data Test Brand')
         category = Category.objects.create(name='Structured Data Test Category')
+        common = {
+            'price': 9900,
+            'condition': 'new',
+            'status': 'active',
+            'brand': brand,
+            'category': category,
+            'seller_name': 'Structured Data Seller',
+            'whatsapp_number': '+77010000000',
+            'description': 'Подробное описание товара для интеграционной проверки JSON-LD.',
+            'main_image': 'products/structured-data-test.jpg',
+            'stock_qty': 2,
+        }
         cls.product = Product.objects.create(
             title='Structured Data Public Product',
             slug='structured-data-public-product',
             article='SD-100',
-            price=9900,
-            condition='new',
-            status='active',
-            brand=brand,
-            category=category,
-            seller_name='Structured Data Seller',
-            whatsapp_number='+77010000000',
-            description='Подробное описание товара для интеграционной проверки JSON-LD.',
-            main_image='products/structured-data-test.jpg',
-            stock_qty=2,
+            **common,
+        )
+        cls.legacy_product = Product.objects.create(
+            title='Structured Data Legacy Product',
+            slug='audi',
+            article='HU71151X',
+            **common,
         )
 
     def test_public_product_page_emits_product_json_ld(self):
@@ -120,6 +129,14 @@ class ProductStructuredDataIntegrationTests(TestCase):
         self.assertContains(response, '<script type="application/ld+json">')
         self.assertContains(response, 'Structured Data Public Product')
         self.assertContains(response, 'https://zpt.kz/structured-data-public-product/')
+
+    def test_canonical_alias_page_also_emits_product_json_ld(self):
+        response = self.client.get('/peugeot-308-hu71151x/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<script type="application/ld+json">')
+        self.assertContains(response, 'Structured Data Legacy Product')
+        self.assertContains(response, 'https://zpt.kz/peugeot-308-hu71151x/')
 
     def test_home_page_does_not_emit_product_json_ld(self):
         response = self.client.get('/')
