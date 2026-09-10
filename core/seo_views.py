@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from xml.sax.saxutils import escape
 
+from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.http import require_GET
 
@@ -22,6 +23,15 @@ STATIC_SITEMAP_PATHS = (
     '/catalog/services/',
     '/parts-sellers/',
 )
+
+
+def _urlset(items: str = '') -> str:
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+        f'{items}'
+        '</urlset>'
+    )
 
 
 @require_GET
@@ -47,10 +57,10 @@ def robots_txt(request):
 
 @require_GET
 def sitemap_index(request):
-    urls = (
-        canonical_url_for_path('/sitemap-static.xml'),
-        canonical_url_for_path('/sitemap-products.xml'),
-    )
+    urls = [canonical_url_for_path('/sitemap-static.xml')]
+    if getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
+        urls.append(canonical_url_for_path('/sitemap-products.xml'))
+
     items = ''.join(f'<sitemap><loc>{escape(url)}</loc></sitemap>' for url in urls)
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
@@ -67,17 +77,14 @@ def sitemap_static(request):
         f'<url><loc>{escape(canonical_url_for_path(path))}</loc></url>'
         for path in STATIC_SITEMAP_PATHS
     )
-    xml = (
-        '<?xml version="1.0" encoding="UTF-8"?>'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        f'{items}'
-        '</urlset>'
-    )
-    return HttpResponse(xml, content_type='application/xml; charset=utf-8')
+    return HttpResponse(_urlset(items), content_type='application/xml; charset=utf-8')
 
 
 @require_GET
 def sitemap_products(request):
+    if not getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
+        return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')
+
     seen_slugs: set[str] = set()
     items: list[str] = []
 
@@ -93,10 +100,7 @@ def sitemap_products(request):
         lastmod = product.updated_at.date().isoformat()
         items.append(f'<url><loc>{loc}</loc><lastmod>{lastmod}</lastmod></url>')
 
-    xml = (
-        '<?xml version="1.0" encoding="UTF-8"?>'
-        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
-        f'{"".join(items)}'
-        '</urlset>'
+    return HttpResponse(
+        _urlset(''.join(items)),
+        content_type='application/xml; charset=utf-8',
     )
-    return HttpResponse(xml, content_type='application/xml; charset=utf-8')
