@@ -62,6 +62,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'core.seo_middleware.SeoRobotsHeaderMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -85,6 +86,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'orders.context_processors.cart_count',
                 'marketing.context_processors.marketing_send_mode',
+                'core.seo.seo_context',
             ],
         },
     },
@@ -122,7 +124,7 @@ LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Asia/Almaty'
 USE_I18N = True
 USE_TZ = True
-USE_THOUSAND_SEPARATOR = True
+USE_THOUSANDS_SEPARATOR = True
 NUMBER_GROUPING = 3
 
 STATIC_URL = '/static/'
