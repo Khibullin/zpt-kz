@@ -1,8 +1,9 @@
 import json
 from types import SimpleNamespace
 
-from django.test import SimpleTestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 
+from catalog.models import Brand, Category, Country, Product
 from catalog.templatetags.product_extras import product_json_ld
 
 
@@ -87,3 +88,41 @@ class ProductStructuredDataTests(SimpleTestCase):
             data['description'],
             'Безопасно </script><script>alert(1)</script>',
         )
+
+
+@override_settings(PUBLIC_BASE_URL='https://zpt.kz')
+class ProductStructuredDataIntegrationTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        country = Country.objects.create(name='Structured Data Test Country')
+        brand = Brand.objects.create(country=country, name='Structured Data Test Brand')
+        category = Category.objects.create(name='Structured Data Test Category')
+        cls.product = Product.objects.create(
+            title='Structured Data Public Product',
+            slug='structured-data-public-product',
+            article='SD-100',
+            price=9900,
+            condition='new',
+            status='active',
+            brand=brand,
+            category=category,
+            seller_name='Structured Data Seller',
+            whatsapp_number='+77010000000',
+            description='Подробное описание товара для интеграционной проверки JSON-LD.',
+            main_image='products/structured-data-test.jpg',
+            stock_qty=2,
+        )
+
+    def test_public_product_page_emits_product_json_ld(self):
+        response = self.client.get('/structured-data-public-product/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<script type="application/ld+json">')
+        self.assertContains(response, 'Structured Data Public Product')
+        self.assertContains(response, 'https://zpt.kz/structured-data-public-product/')
+
+    def test_home_page_does_not_emit_product_json_ld(self):
+        response = self.client.get('/')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<script type="application/ld+json">')
