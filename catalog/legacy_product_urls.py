@@ -29,14 +29,38 @@ LEGACY_PRODUCT_SLUG_REDIRECTS = {
 
 
 def legacy_product_redirect(request, new_slug):
+    """Permanently move a weak legacy public URL to its canonical SEO URL."""
     return redirect('product_detail', slug=new_slug, permanent=True)
 
 
-legacy_product_urlpatterns = [
-    path(
-        f'{old_slug}/',
-        legacy_product_redirect,
-        {'new_slug': new_slug},
-    )
-    for old_slug, new_slug in LEGACY_PRODUCT_SLUG_REDIRECTS.items()
-]
+def canonical_product_alias(request, stored_slug, new_slug):
+    """Serve the canonical URL even while the database still stores the old slug.
+
+    This keeps the rollout zero-downtime on Render, where Django migrations are
+    not part of the current build command. If the database is migrated later,
+    the same route automatically starts using the new stored slug.
+    """
+    from .models import Product
+    from .views import product_detail
+
+    effective_slug = stored_slug
+    if Product.objects.filter(status='active', slug=new_slug).exists():
+        effective_slug = new_slug
+
+    return product_detail(request, slug=effective_slug)
+
+
+legacy_product_urlpatterns = []
+for old_slug, new_slug in LEGACY_PRODUCT_SLUG_REDIRECTS.items():
+    legacy_product_urlpatterns.extend([
+        path(
+            f'{old_slug}/',
+            legacy_product_redirect,
+            {'new_slug': new_slug},
+        ),
+        path(
+            f'{new_slug}/',
+            canonical_product_alias,
+            {'stored_slug': old_slug, 'new_slug': new_slug},
+        ),
+    ])
