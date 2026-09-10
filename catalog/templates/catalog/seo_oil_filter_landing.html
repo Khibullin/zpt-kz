@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ landing.title }}{% endblock %}
+{% block meta_description %}{{ landing.meta_description }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v142">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v11">
+<style>
+.seo-category-landing{padding-top:24px;padding-bottom:40px}
+.seo-category-breadcrumbs{font-size:13px;color:#6b7280;margin-bottom:16px}
+.seo-category-breadcrumbs a{color:#ef3d2f;text-decoration:none}
+.seo-category-hero{padding:22px 0 12px;max-width:900px}
+.seo-category-hero h1{margin:0 0 12px;font-size:clamp(28px,5vw,44px);line-height:1.1;color:#111827}
+.seo-category-hero p{margin:0;color:#4b5563;font-size:16px;line-height:1.65}
+.seo-category-actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+.seo-category-action{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;text-decoration:none;font-weight:700}
+.seo-category-action-primary{background:#ef3d2f;color:#fff!important}
+.seo-category-action-secondary{border:1px solid #d1d5db;background:#fff;color:#111827!important}
+.seo-category-section{margin-top:28px}
+.seo-category-section h2{margin:0 0 14px;font-size:24px;color:#111827}
+.seo-category-empty{padding:20px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;color:#4b5563}
+.seo-category-related{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.seo-category-related a{padding:8px 12px;border:1px solid #e5e7eb;border-radius:999px;text-decoration:none;color:#374151;background:#fff}
+@media(max-width:640px){.seo-category-actions{flex-direction:column}.seo-category-action{width:100%}}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+
+<main class="container seo-category-landing">
+  <nav class="seo-category-breadcrumbs" aria-label="Навигация">
+    <a href="{% url 'catalog_list' %}">Автозапчасти</a> → Масляные фильтры
+  </nav>
+
+  <section class="seo-category-hero">
+    <h1>{{ landing.h1 }}</h1>
+    <p>{{ landing.intro }}</p>
+    <div class="seo-category-actions">
+      <a class="seo-category-action seo-category-action-primary" href="/request-parts/">Оставить заявку на фильтр</a>
+      <a class="seo-category-action seo-category-action-secondary" href="{% url 'catalog_list' %}?q=масляный+фильтр&all=1">Смотреть весь каталог фильтров</a>
+    </div>
+  </section>
+
+  <section class="seo-category-section">
+    <h2>Масляные фильтры в наличии</h2>
+    {% if products %}
+      <div class="products">
+        {% for product in products %}
+          {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="seo-category-empty">
+        Сейчас активных предложений масляных фильтров в каталоге нет. Оставьте заявку на подбор по автомобилю или артикулу.
+      </div>
+    {% endif %}
+  </section>
+
+  <section class="seo-category-section">
+    <h2>Как подобрать масляный фильтр</h2>
+    <p>
+      Перед заказом сравните артикул фильтра и применяемость к вашему автомобилю. Если есть сомнения, укажите в заявке марку, модель и известный номер детали — продавцы смогут уточнить совместимость перед покупкой.
+    </p>
+  </section>
+
+  <section class="seo-category-section">
+    <h2>Запчасти по маркам</h2>
+    <div class="seo-category-related">
+      {% for item in brand_landings %}
+        <a href="{% url 'seo_brand_landing' brand_slug=item.slug %}">Запчасти {{ item.label }}</a>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+{% endblock %}

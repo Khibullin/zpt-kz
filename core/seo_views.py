@@ -22,6 +22,7 @@ STATIC_SITEMAP_PATHS = (
     '/avtozapchasti/chery/',
     '/avtozapchasti/haval/',
     '/avtozapchasti/zeekr/',
+    '/avtozapchasti/maslyanye-filtry/',
 )
 
 MIN_PRODUCT_DESCRIPTION_LENGTH = 40
