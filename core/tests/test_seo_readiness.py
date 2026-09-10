@@ -1,7 +1,7 @@
 from django.http import HttpResponse
 from django.test import RequestFactory, TestCase, override_settings
 
-from catalog.models import Product
+from catalog.models import Brand, Category, Country, Product
 from core.seo import canonical_url_for_path, robots_directive, seo_context
 from core.seo_middleware import SeoRobotsHeaderMiddleware
 
@@ -108,6 +108,28 @@ class SeoPolicyTests(TestCase):
 
 
 class SeoEndpointTests(TestCase):
+    def _ready_product(self, **overrides):
+        country, _ = Country.objects.get_or_create(name='SEO Test Country')
+        brand, _ = Brand.objects.get_or_create(country=country, name='SEO Test Brand')
+        category, _ = Category.objects.get_or_create(name='SEO Test Category')
+        data = {
+            'title': 'SEO ready test part',
+            'slug': 'seo-ready-test-part',
+            'article': 'SEO-001',
+            'seller_name': 'Test seller',
+            'whatsapp_number': '+77010000000',
+            'status': 'active',
+            'brand': brand,
+            'category': category,
+            'main_image': 'products/seo-test.jpg',
+            'description': (
+                'Подробное описание товара для безопасной индексации '
+                'поисковыми системами Казахстана.'
+            ),
+        }
+        data.update(overrides)
+        return Product.objects.create(**data)
+
     def test_robots_txt_is_public_and_references_sitemap(self):
         response = self.client.get('/robots.txt')
 
@@ -168,29 +190,14 @@ class SeoEndpointTests(TestCase):
         self.assertNotIn('active-test-part', body)
 
     @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
-    def test_enabled_product_sitemap_contains_only_active_slug_products(self):
-        Product.objects.create(
-            title='Active test part',
-            slug='active-test-part',
-            seller_name='Test seller',
-            whatsapp_number='+77010000000',
-            status='active',
-        )
-        Product.objects.create(
-            title='Hidden test part',
-            slug='hidden-test-part',
-            seller_name='Test seller',
-            whatsapp_number='+77010000000',
-            status='hidden',
-        )
-        no_slug = Product.objects.create(
-            title='No slug test part',
-            slug='temporary-no-slug',
-            seller_name='Test seller',
-            whatsapp_number='+77010000000',
-            status='active',
-        )
+    def test_enabled_product_sitemap_contains_only_ready_active_products(self):
+        self._ready_product(slug='active-test-part')
+        self._ready_product(slug='hidden-test-part', status='hidden')
+        no_slug = self._ready_product(slug='temporary-no-slug')
         Product.objects.filter(pk=no_slug.pk).update(slug='')
+        self._ready_product(slug='short-description', description='Слишком коротко')
+        self._ready_product(slug='no-image', main_image='')
+        self._ready_product(slug='no-brand', brand=None)
 
         response = self.client.get('/sitemap-products.xml')
 
@@ -199,6 +206,24 @@ class SeoEndpointTests(TestCase):
         self.assertIn('https://zpt.kz/active-test-part/', body)
         self.assertNotIn('hidden-test-part', body)
         self.assertNotIn('temporary-no-slug', body)
+        self.assertNotIn('short-description', body)
+        self.assertNotIn('no-image', body)
+        self.assertNotIn('no-brand', body)
+
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
+    def test_product_sitemap_uses_canonical_alias_for_legacy_slug(self):
+        self._ready_product(
+            slug='audi',
+            title='Масляный фильтр Peugeot 308 HU71151X',
+            article='HU71151X',
+        )
+
+        response = self.client.get('/sitemap-products.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode('utf-8')
+        self.assertIn('https://zpt.kz/peugeot-308-hu71151x/', body)
+        self.assertNotIn('<loc>https://zpt.kz/audi/</loc>', body)
 
     def test_home_template_outputs_indexable_canonical_metadata(self):
         response = self.client.get('/')
