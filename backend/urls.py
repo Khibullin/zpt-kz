@@ -35,6 +35,11 @@ urlpatterns = [
     path('sitemap.xml', sitemap_index, name='sitemap_index'),
     path('sitemap-static.xml', sitemap_static, name='sitemap_static'),
     path('sitemap-products.xml', sitemap_products, name='sitemap_products'),
+    path(
+        'privacy/',
+        TemplateView.as_view(template_name='legal/privacy.html'),
+        name='privacy',
+    ),
 
     path('admin/', admin.site.urls),
 

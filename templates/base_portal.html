@@ -42,6 +42,10 @@
 
   {% block content %}{% endblock %}
 
+  <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
+    <a href="{% url 'privacy' %}" style="color:inherit;">Политика конфиденциальности</a>
+  </footer>
+
   <script src="{% static 'js/dom-safe.js' %}"></script>
   <script src="{% static 'js/portal-config.js' %}"></script>
   {% block portal_js %}{% endblock %}
