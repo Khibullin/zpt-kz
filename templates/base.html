@@ -1,4 +1,4 @@
-{% load static product_extras seller_extras %}
+{% load static product_extras seller_extras analytics_tags %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -43,8 +43,10 @@
 <link rel="stylesheet" href="{% static 'css/faq-feedback.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/ios-pwa-prompt.css' %}?v=ios_pwa_v1">
     {% block extra_css %}{% endblock %}
+    {% google_tag_manager_head %}
 </head>
 <body>
+{% google_tag_manager_body %}
 {% block content %}{% endblock %}
 <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
   <a href="{% url 'privacy' %}" style="color:inherit;">Политика конфиденциальности</a>
