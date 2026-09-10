@@ -61,6 +61,17 @@ def public_product_whatsapp_message(product):
     return message.replace(legacy_url, canonical_url)
 
 
+@register.filter
+def is_public_product_detail_request(request):
+    """True only for public product detail views, including canonical alias routes."""
+    resolver_match = getattr(request, 'resolver_match', None)
+    view_func = getattr(resolver_match, 'func', None)
+    return getattr(view_func, '__name__', '') in {
+        'product_detail',
+        'canonical_product_alias',
+    }
+
+
 def _absolute_public_url(path_or_url):
     value = str(path_or_url or '').strip()
     if not value:
