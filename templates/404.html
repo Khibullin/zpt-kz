@@ -1,0 +1,40 @@
+{% load static analytics_tags %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Страница не найдена — ZPT.KZ</title>
+  <meta name="robots" content="noindex, follow">
+  <meta name="description" content="Страница не найдена. Перейдите в каталог ZPT.KZ или оставьте заявку на поиск автозапчасти.">
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=3">
+  <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=4">
+  {% google_tag_manager_head %}
+  <style>
+    body{margin:0;font-family:Inter,Arial,sans-serif;background:#f7f8fa;color:#1f2937}
+    .not-found{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px 20px;box-sizing:border-box}
+    .not-found-card{max-width:680px;width:100%;background:#fff;border:1px solid #e5e7eb;border-radius:20px;padding:48px 36px;text-align:center;box-shadow:0 12px 35px rgba(0,0,0,.06)}
+    .not-found-code{font-size:72px;line-height:1;font-weight:800;margin:0 0 14px}
+    .not-found-card h1{font-size:30px;margin:0 0 14px}
+    .not-found-card p{font-size:17px;line-height:1.55;color:#6b7280;margin:0 auto 28px;max-width:520px}
+    .not-found-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+    .not-found-actions a{display:inline-block;padding:13px 20px;border-radius:12px;text-decoration:none;font-weight:700}
+    .not-found-primary{background:#111827;color:#fff}
+    .not-found-secondary{border:1px solid #d1d5db;color:#111827;background:#fff}
+  </style>
+</head>
+<body>
+{% google_tag_manager_body %}
+<main class="not-found">
+  <section class="not-found-card">
+    <div class="not-found-code">404</div>
+    <h1>Страница не найдена</h1>
+    <p>Возможно, адрес изменился или был введён неверно. Перейдите в каталог автозапчастей или отправьте заявку — продавцы ZPT.KZ помогут найти нужную деталь.</p>
+    <div class="not-found-actions">
+      <a class="not-found-primary" href="/">В каталог</a>
+      <a class="not-found-secondary" href="/request-parts/">Оставить заявку</a>
+    </div>
+  </section>
+</main>
+</body>
+</html>

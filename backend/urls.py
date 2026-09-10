@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
+from django.views.generic import RedirectView, TemplateView
 
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect
@@ -67,9 +67,14 @@ urlpatterns = [
         name='short_request_redirect',
     ),
 
-    # PWA
+    # PWA / browser metadata
     path('manifest.json', manifest_json, name='pwa_manifest'),
     path('service-worker.js', service_worker_js, name='pwa_service_worker'),
+    path(
+        'favicon.ico',
+        RedirectView.as_view(url='/static/images/favicon.ico', permanent=True),
+        name='root_favicon',
+    ),
 
     # ZPT MARKET
 

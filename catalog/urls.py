@@ -1,6 +1,7 @@
 from django.urls import path
 
 from .legacy_product_urls import legacy_product_urlpatterns
+from .numeric_product_urls import numeric_product_entry
 from .seo_category_landings import oil_filter_landing
 from .seo_landings import brand_landing
 from .views import (
@@ -111,6 +112,6 @@ urlpatterns = [
     ),
 
     *legacy_product_urlpatterns,
-    path('<int:pk>/', product_detail, name='product_detail_old'),
+    path('<int:pk>/', numeric_product_entry, name='product_detail_old'),
     path('<slug:slug>/', product_detail, name='product_detail'),
 ]

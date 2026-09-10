@@ -10,11 +10,11 @@
       <img
         src="{{ product.main_image.url }}"
         alt="{{ product.title }}"
-        onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;"
+        onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
       >
     {% else %}
       <img
-        src="{% static 'images/product-placeholder.svg' %}"
+        src="{% static 'images/logo.png' %}"
         alt="{{ product.title }}"
       >
     {% endif %}
