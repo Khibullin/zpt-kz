@@ -5,6 +5,7 @@ from django.views.generic import TemplateView
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect
 from core.help_views import platform_help_page
+from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static
 from core.seller_whatsapp_consent_views import (
     seller_portal_whatsapp_consent,
     seller_whatsapp_consent_link,
@@ -30,6 +31,11 @@ from catalog.views import product_assistant, product_image_search
 
 
 urlpatterns = [
+    path('robots.txt', robots_txt, name='robots_txt'),
+    path('sitemap.xml', sitemap_index, name='sitemap_index'),
+    path('sitemap-static.xml', sitemap_static, name='sitemap_static'),
+    path('sitemap-products.xml', sitemap_products, name='sitemap_products'),
+
     path('admin/', admin.site.urls),
 
     path('marketing/', include('marketing.urls')),
