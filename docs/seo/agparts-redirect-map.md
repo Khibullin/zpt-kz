@@ -16,7 +16,7 @@ Purpose: preserve organic search signals when retiring or consolidating `agparts
 
 | Source on agparts.kz | Destination on zpt.kz | Status | Reason |
 | --- | --- | --- | --- |
-| `/` | `/` | READY_AT_SITE_CUTOVER | Root-to-root consolidation only when AG Parts site is actually retired. |
+| `/` | `/seller/ag-parts/` | READY_AT_SITE_CUTOVER | The old root represents the AG Parts store; the public AG Parts seller page is the closest semantic replacement on ZPT. |
 | `/changan` | `/avtozapchasti/changan/` | READY | Dedicated indexable Changan landing exists on ZPT. |
 | `/chery` | `/avtozapchasti/chery/` | READY | Dedicated indexable Chery landing exists on ZPT. |
 | `/haval` | `/avtozapchasti/haval/` | READY | Dedicated indexable Haval landing exists on ZPT. |
