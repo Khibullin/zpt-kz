@@ -51,6 +51,7 @@
   <script src="{% static 'js/dom-safe.js' %}"></script>
   <script src="{% static 'js/portal-config.js' %}"></script>
   {% block portal_js %}{% endblock %}
+  <script src="{% static 'js/analytics-events.js' %}?v=1"></script>
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js', { scope: '/' });

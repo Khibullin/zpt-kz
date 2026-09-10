@@ -55,6 +55,7 @@
 {% include 'catalog/includes/feedback_modal.html' %}
 <script src="{% static 'js/feedback-modal.js' %}?v=market_v110"></script>
 <script src="{% static 'js/ios-pwa-prompt.js' %}?v=ios_pwa_v1"></script>
+<script src="{% static 'js/analytics-events.js' %}?v=1"></script>
 <script>
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
