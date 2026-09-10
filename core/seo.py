@@ -45,6 +45,21 @@ SERVICES_FILTER_QUERY_KEYS = frozenset({
     'page',
 })
 
+PUBLIC_SELLER_FILTER_QUERY_KEYS = frozenset({
+    'q_seller',
+    'category',
+    'brand',
+    'model',
+    'page',
+})
+
+PUBLIC_WHOLESALE_FILTER_QUERY_KEYS = frozenset({
+    'q',
+    'brand',
+    'type',
+    'page',
+})
+
 NOINDEX_FOLLOW_PREFIXES = (
     '/cart/',
     '/feedback/',
@@ -101,12 +116,19 @@ def canonical_url_for_path(path: str) -> str:
 def robots_directive(request) -> str:
     raw_path = request.path or '/'
     path = canonical_path(raw_path)
+    resolver_match = getattr(request, 'resolver_match', None)
+    url_name = getattr(resolver_match, 'url_name', '')
 
     if any(path.startswith(prefix) for prefix in NOINDEX_NOFOLLOW_PREFIXES):
         return 'noindex, nofollow'
 
     if any(path.startswith(prefix) for prefix in NOINDEX_FOLLOW_PREFIXES):
         return 'noindex, follow'
+
+    # Downloadable seller price files are useful to buyers but are not HTML
+    # landing pages and should not enter the search index.
+    if url_name == 'public_seller_wholesale_price':
+        return 'noindex, nofollow'
 
     # The Render service URL is a duplicate origin. Keep it crawlable only so
     # crawlers can see canonical ZPT URLs, but never allow it into the index.
@@ -135,6 +157,19 @@ def robots_directive(request) -> str:
         return 'noindex, follow'
 
     if path == '/catalog/services/' and SERVICES_FILTER_QUERY_KEYS.intersection(
+        request.GET.keys()
+    ):
+        return 'noindex, follow'
+
+    # Public seller storefronts are indexable only at their clean path. Search,
+    # vehicle/category filters and pagination are crawlable duplicates that keep
+    # the clean self-canonical but must not become separate search results.
+    if url_name == 'public_seller_profile' and PUBLIC_SELLER_FILTER_QUERY_KEYS.intersection(
+        request.GET.keys()
+    ):
+        return 'noindex, follow'
+
+    if url_name == 'public_seller_wholesale' and PUBLIC_WHOLESALE_FILTER_QUERY_KEYS.intersection(
         request.GET.keys()
     ):
         return 'noindex, follow'
