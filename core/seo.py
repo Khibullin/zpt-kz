@@ -16,6 +16,15 @@ CATALOG_FILTER_QUERY_KEYS = frozenset({
     'sort',
 })
 
+REQUEST_PARTS_VARIANT_QUERY_KEYS = frozenset({
+    'transport',
+    'country',
+    'brand',
+    'model',
+    'category',
+    'city',
+})
+
 NOINDEX_FOLLOW_PREFIXES = (
     '/cart/',
     '/feedback/',
@@ -66,7 +75,8 @@ def canonical_url_for_path(path: str) -> str:
 
 
 def robots_directive(request) -> str:
-    path = canonical_path(request.path)
+    raw_path = request.path or '/'
+    path = canonical_path(raw_path)
 
     if any(path.startswith(prefix) for prefix in NOINDEX_NOFOLLOW_PREFIXES):
         return 'noindex, nofollow'
@@ -74,7 +84,19 @@ def robots_directive(request) -> str:
     if any(path.startswith(prefix) for prefix in NOINDEX_FOLLOW_PREFIXES):
         return 'noindex, follow'
 
+    # /market/ is a legacy duplicate mount of the public catalog. Keep it
+    # crawlable for canonical discovery, but do not let it become a second index.
+    if raw_path in {'/market', '/market/'} or raw_path.startswith('/market/'):
+        return 'noindex, follow'
+
     if path == '/' and CATALOG_FILTER_QUERY_KEYS.intersection(request.GET.keys()):
+        return 'noindex, follow'
+
+    # Ad click identifiers (gclid/wbraid/utm_*) stay indexable with a clean
+    # canonical. Content-changing prefill parameters must not create SEO pages.
+    if path == '/request-parts/' and REQUEST_PARTS_VARIANT_QUERY_KEYS.intersection(
+        request.GET.keys()
+    ):
         return 'noindex, follow'
 
     return 'index, follow'
