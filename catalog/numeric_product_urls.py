@@ -56,9 +56,12 @@ def numeric_product_entry(request, pk):
         active.filter(article=numeric_token).only('pk', 'slug', 'article')[:2]
     )
     if len(article_matches) == 1:
-        target = _public_product_path(article_matches[0])
-        if target == request.path and article_matches[0].slug:
-            return product_detail(request, slug=article_matches[0].slug)
+        product = article_matches[0]
+        target = _public_product_path(product)
+        if target == request.path:
+            if product.slug:
+                return product_detail(request, slug=product.slug)
+            return product_detail(request, pk=product.pk)
         return HttpResponsePermanentRedirect(target)
 
     if len(article_matches) > 1:
