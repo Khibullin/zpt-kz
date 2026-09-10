@@ -25,6 +25,26 @@ REQUEST_PARTS_VARIANT_QUERY_KEYS = frozenset({
     'city',
 })
 
+PARTS_SELLERS_FILTER_QUERY_KEYS = frozenset({
+    'q',
+    'transport_type',
+    'city',
+    'category',
+    'country',
+    'brand',
+    'model',
+    'page',
+})
+
+SERVICES_FILTER_QUERY_KEYS = frozenset({
+    'q',
+    'type',
+    'city',
+    'district',
+    'service',
+    'page',
+})
+
 NOINDEX_FOLLOW_PREFIXES = (
     '/cart/',
     '/feedback/',
@@ -58,6 +78,10 @@ NOINDEX_NOFOLLOW_PREFIXES = (
     '/orders/',
 )
 
+DUPLICATE_HOSTS = frozenset({
+    'zpt-kz-backend.onrender.com',
+})
+
 
 def canonical_path(path: str) -> str:
     """Return the single public path used as the canonical ZPT URL."""
@@ -84,6 +108,12 @@ def robots_directive(request) -> str:
     if any(path.startswith(prefix) for prefix in NOINDEX_FOLLOW_PREFIXES):
         return 'noindex, follow'
 
+    # The Render service URL is a duplicate origin. Keep it crawlable only so
+    # crawlers can see canonical ZPT URLs, but never allow it into the index.
+    host = request.get_host().split(':', 1)[0].lower()
+    if host in DUPLICATE_HOSTS:
+        return 'noindex, follow'
+
     # /market/ is a legacy duplicate mount of the public catalog. Keep it
     # crawlable for canonical discovery, but do not let it become a second index.
     if raw_path in {'/market', '/market/'} or raw_path.startswith('/market/'):
@@ -95,6 +125,16 @@ def robots_directive(request) -> str:
     # Ad click identifiers (gclid/wbraid/utm_*) stay indexable with a clean
     # canonical. Content-changing prefill parameters must not create SEO pages.
     if path == '/request-parts/' and REQUEST_PARTS_VARIANT_QUERY_KEYS.intersection(
+        request.GET.keys()
+    ):
+        return 'noindex, follow'
+
+    if path == '/parts-sellers/' and PARTS_SELLERS_FILTER_QUERY_KEYS.intersection(
+        request.GET.keys()
+    ):
+        return 'noindex, follow'
+
+    if path == '/catalog/services/' and SERVICES_FILTER_QUERY_KEYS.intersection(
         request.GET.keys()
     ):
         return 'noindex, follow'
