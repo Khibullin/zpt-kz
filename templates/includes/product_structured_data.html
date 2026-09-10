@@ -1,0 +1,3 @@
+{% load product_extras %}{% if product %}
+<script type="application/ld+json">{{ product|product_json_ld }}</script>
+{% endif %}
