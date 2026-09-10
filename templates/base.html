@@ -52,7 +52,7 @@
 <script src="{% static 'js/ios-pwa-prompt.js' %}?v=ios_pwa_v1"></script>
 <script>
 if ('serviceWorker' in navigator) {
-  serviceWorkerRegistration = navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+  navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
 }
 </script>
 </body>
