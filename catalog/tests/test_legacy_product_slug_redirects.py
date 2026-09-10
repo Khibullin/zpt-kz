@@ -5,6 +5,7 @@ from catalog.legacy_product_urls import (
     LEGACY_PRODUCT_SLUG_REDIRECTS,
     canonical_product_alias,
 )
+from catalog.numeric_product_urls import numeric_product_entry
 from catalog.views import product_detail
 
 
@@ -31,7 +32,7 @@ class LegacyProductSlugRedirectTests(SimpleTestCase):
         self.assertIs(match.func, product_detail)
         self.assertEqual(match.kwargs['slug'], 'ordinary-product-slug')
 
-    def test_numeric_product_route_is_unchanged(self):
+    def test_numeric_product_route_uses_safe_numeric_resolver(self):
         match = resolve('/12345/')
-        self.assertIs(match.func, product_detail)
+        self.assertIs(match.func, numeric_product_entry)
         self.assertEqual(match.kwargs['pk'], 12345)
