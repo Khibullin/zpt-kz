@@ -24,6 +24,16 @@ class SeoPolicyTests(TestCase):
         self.assertEqual(context['seo_robots'], 'noindex, follow')
         self.assertEqual(context['seo_canonical_url'], 'https://zpt.kz/test-part/')
 
+    def test_render_origin_is_noindex_follow_with_zpt_canonical(self):
+        request = self.factory.get(
+            '/test-part/',
+            HTTP_HOST='zpt-kz-backend.onrender.com',
+        )
+        context = seo_context(request)
+
+        self.assertEqual(context['seo_robots'], 'noindex, follow')
+        self.assertEqual(context['seo_canonical_url'], 'https://zpt.kz/test-part/')
+
     def test_tracking_parameter_on_product_does_not_force_noindex(self):
         request = self.factory.get('/test-part/?utm_source=google')
 
@@ -43,6 +53,20 @@ class SeoPolicyTests(TestCase):
             canonical_url_for_path(prefilled.path),
             'https://zpt.kz/request-parts/',
         )
+
+    def test_public_catalog_filters_and_pagination_are_noindex(self):
+        cases = (
+            '/parts-sellers/?city=Алматы',
+            '/parts-sellers/?page=2',
+            '/catalog/services/?service=Диагностика',
+            '/catalog/services/?page=2',
+        )
+        for url in cases:
+            with self.subTest(url=url):
+                self.assertEqual(
+                    robots_directive(self.factory.get(url)),
+                    'noindex, follow',
+                )
 
     def test_market_product_path_canonicalizes_to_root_product_path(self):
         self.assertEqual(
@@ -102,6 +126,22 @@ class SeoEndpointTests(TestCase):
         body = response.content.decode('utf-8')
         self.assertIn('https://zpt.kz/sitemap-static.xml', body)
         self.assertNotIn('https://zpt.kz/sitemap-products.xml', body)
+
+    def test_initial_static_sitemap_is_deliberately_small(self):
+        response = self.client.get('/sitemap-static.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode('utf-8')
+        for url in (
+            'https://zpt.kz/',
+            'https://zpt.kz/request-parts/',
+            'https://zpt.kz/request-parts/guide/',
+            'https://zpt.kz/request-parts/faq/',
+            'https://zpt.kz/prodavat/',
+        ):
+            self.assertIn(url, body)
+        self.assertNotIn('https://zpt.kz/catalog/services/', body)
+        self.assertNotIn('https://zpt.kz/parts-sellers/', body)
 
     @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
     def test_sitemap_index_adds_products_only_after_explicit_enable(self):
