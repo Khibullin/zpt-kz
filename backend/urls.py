@@ -183,6 +183,22 @@ urlpatterns = [
     ),
 
     path(
+        'service-request/guide/',
+        TemplateView.as_view(
+            template_name='service-request/guide/index.html'
+        ),
+        name='service_request_guide',
+    ),
+
+    path(
+        'service-request/faq/',
+        TemplateView.as_view(
+            template_name='service-request/faq/index.html'
+        ),
+        name='service_request_faq',
+    ),
+
+    path(
         'catalog/services/',
         services_catalog,
         name='services_catalog',
@@ -194,12 +210,39 @@ urlpatterns = [
         name='service_seller_detail',
     ),
 
-    path('catalog/ajax/load-brands/', product_assistant, name='legacy_catalog_product_assistant_placeholder'),
-    path('catalog/ajax/load-models/', product_image_search, name='legacy_catalog_product_image_search_placeholder'),
+    path(
+        'catalog/ajax/product-assistant/',
+        product_assistant,
+        name='catalog_ajax_product_assistant',
+    ),
+    path(
+        'catalog/ajax/product-image-search/',
+        product_image_search,
+        name='catalog_ajax_product_image_search',
+    ),
 
-    path('go/<slug:slug>/', go_redirect, name='go_redirect'),
+    path(
+        'go/<slug:destination>/',
+        go_redirect,
+        name='marketing_go_redirect',
+    ),
 
-    # Catalog is intentionally mounted at both /market/ and root for legacy compatibility.
     path('market/', include('catalog.urls')),
     path('', include('catalog.urls')),
+
+]
+
+# parts sellers routes
+
+from django.urls import re_path
+
+from backend.media_views import serve_media
+
+
+urlpatterns += [
+    re_path(
+        r'^products/(?P<path>.*)$',
+        serve_media,
+        name='media',
+    ),
 ]
