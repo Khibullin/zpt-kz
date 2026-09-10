@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.test import RequestFactory, TestCase
+from django.test import RequestFactory, TestCase, override_settings
 
 from catalog.models import Product
 from core.seo import canonical_url_for_path, robots_directive, seo_context
@@ -95,7 +95,16 @@ class SeoEndpointTests(TestCase):
         self.assertIn('Allow: /static/', body)
         self.assertIn('Sitemap: https://zpt.kz/sitemap.xml', body)
 
-    def test_sitemap_index_references_static_and_products(self):
+    def test_sitemap_index_exposes_only_static_by_default(self):
+        response = self.client.get('/sitemap.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode('utf-8')
+        self.assertIn('https://zpt.kz/sitemap-static.xml', body)
+        self.assertNotIn('https://zpt.kz/sitemap-products.xml', body)
+
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
+    def test_sitemap_index_adds_products_only_after_explicit_enable(self):
         response = self.client.get('/sitemap.xml')
 
         self.assertEqual(response.status_code, 200)
@@ -103,7 +112,23 @@ class SeoEndpointTests(TestCase):
         self.assertIn('https://zpt.kz/sitemap-static.xml', body)
         self.assertIn('https://zpt.kz/sitemap-products.xml', body)
 
-    def test_product_sitemap_contains_only_active_slug_products(self):
+    def test_product_sitemap_is_empty_by_default(self):
+        Product.objects.create(
+            title='Active test part',
+            slug='active-test-part',
+            seller_name='Test seller',
+            whatsapp_number='+77010000000',
+            status='active',
+        )
+
+        response = self.client.get('/sitemap-products.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode('utf-8')
+        self.assertNotIn('active-test-part', body)
+
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
+    def test_enabled_product_sitemap_contains_only_active_slug_products(self):
         Product.objects.create(
             title='Active test part',
             slug='active-test-part',
