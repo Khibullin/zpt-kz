@@ -11,14 +11,17 @@ from catalog.models import Product
 from core.seo import canonical_url_for_path
 
 
-# Keep the first public sitemap intentionally small. Other public areas are
-# added only after their page-level SEO/content review is complete.
+# Keep the public static sitemap limited to reviewed indexable landing pages.
 STATIC_SITEMAP_PATHS = (
     '/',
     '/request-parts/',
     '/request-parts/guide/',
     '/request-parts/faq/',
     '/prodavat/',
+    '/avtozapchasti/changan/',
+    '/avtozapchasti/chery/',
+    '/avtozapchasti/haval/',
+    '/avtozapchasti/zeekr/',
 )
 
 MIN_PRODUCT_DESCRIPTION_LENGTH = 40
