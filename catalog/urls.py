@@ -1,4 +1,6 @@
 from django.urls import path
+
+from .legacy_product_urls import legacy_product_urlpatterns
 from .views import (
     catalog_list,
     product_detail,
@@ -95,6 +97,7 @@ urlpatterns = [
         name='public_seller_profile'
     ),
 
+    *legacy_product_urlpatterns,
     path('<int:pk>/', product_detail, name='product_detail_old'),
     path('<slug:slug>/', product_detail, name='product_detail'),
 ]
