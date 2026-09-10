@@ -1,4 +1,4 @@
-{% load static %}
+{% load static analytics_tags %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -24,11 +24,13 @@
   <link rel="stylesheet" href="{% static 'css/portal-common.css' %}">
   {% block portal_css %}{% endblock %}
   {% block extra_css %}{% endblock %}
+  {% google_tag_manager_head %}
 </head>
 <body
   data-api-base="/api/"
   data-service-api-base="/api/service/"
 >
+  {% google_tag_manager_body %}
   {% block portal_header %}
   <header class="header site-header">
     <div class="header-inner site-container">
