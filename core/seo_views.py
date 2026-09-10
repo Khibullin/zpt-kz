@@ -10,18 +10,14 @@ from catalog.models import Product
 from core.seo import canonical_url_for_path
 
 
+# Keep the first public sitemap intentionally small. Other public areas are
+# added only after their page-level SEO/content review is complete.
 STATIC_SITEMAP_PATHS = (
     '/',
     '/request-parts/',
     '/request-parts/guide/',
     '/request-parts/faq/',
     '/prodavat/',
-    '/faq/',
-    '/service-request/',
-    '/service-request/guide/',
-    '/service-request/faq/',
-    '/catalog/services/',
-    '/parts-sellers/',
 )
 
 
