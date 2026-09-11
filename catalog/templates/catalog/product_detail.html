@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=applicability_v2">
+<link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=product_share_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v11">
 <link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v6">
 <style>
@@ -185,9 +185,12 @@
           {% endif %}
         </div>
 
-<h1 class="product-detail-title">
-  {{ product.title }}
-</h1>
+<div class="product-detail-title-row">
+  <h1 class="product-detail-title">
+    {{ product.title }}
+  </h1>
+  {% include 'catalog/includes/product_share_button.html' with product=product detail=True %}
+</div>
 {% if title_vehicle_line %}
   <div class="product-vehicle-line">{{ title_vehicle_line }}</div>
 {% endif %}
@@ -495,7 +498,7 @@
             <article class="product">
               <a
                 class="seller-related-product-link"
-                href="{% if p.slug %}{% url 'product_detail' p.slug %}{% else %}{% url 'product_detail_old' p.pk %}{% endif %}"
+                href="{{ p|public_product_url }}"
                 style="display: flex !important; flex-direction: column !important; height: auto !important; max-height: none !important; overflow: visible !important; text-decoration: none;"
               >
                 {% if p.main_image %}

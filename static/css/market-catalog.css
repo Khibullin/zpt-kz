@@ -1551,6 +1551,22 @@ body{
   color:#111;
 }
 
+.product-title-row{
+  display:flex;
+  align-items:flex-start;
+  gap:2px;
+  margin-bottom:6px;
+}
+
+.product-title-row .product-title-link{
+  flex:1;
+  min-width:0;
+}
+
+.product-title-row .product-title{
+  margin-bottom:0;
+}
+
 .product-meta-row{
   display:flex;
   justify-content:space-between;

@@ -1,0 +1,41 @@
+{% load product_extras %}
+{% with share_path=product|public_product_url %}
+{% if share_path %}
+<button
+  type="button"
+  class="product-share-btn{% if detail %} product-share-btn--detail{% endif %}"
+  data-product-share
+  data-share-path="{{ share_path }}"
+  data-share-title="{{ product.title }}"
+  aria-label="Поделиться товаром"
+  title="Поделиться"
+>
+  <svg class="product-share-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path
+      d="M12 3v10"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+    <path
+      d="M8 7l4-4 4 4"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+    <path
+      d="M5 14v4a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-4"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+    />
+  </svg>
+  <span class="product-share-label">Поделиться</span>
+  <span class="product-share-copied" hidden>Ссылка скопирована</span>
+</button>
+{% endif %}
+{% endwith %}

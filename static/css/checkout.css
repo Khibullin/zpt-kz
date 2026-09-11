@@ -152,6 +152,23 @@
   color:#111827;
 }
 
+.checkout-summary-thumb-link{
+  display:block;
+  flex-shrink:0;
+  line-height:0;
+}
+
+.checkout-summary-title-link{
+  display:inline-block;
+  text-decoration:none;
+  color:inherit;
+}
+
+.checkout-summary-title-link:hover,
+.checkout-summary-title-link:focus-visible{
+  color:#ef3d2f;
+}
+
 .checkout-summary-meta{
   margin-top:4px;
   font-size:13px;

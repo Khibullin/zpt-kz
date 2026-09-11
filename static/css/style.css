@@ -2571,3 +2571,101 @@ a.seller-card-name:hover{
     flex-basis: auto;
   }
 }
+
+.product-share-btn{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  flex-shrink:0;
+  margin:0;
+  padding:0;
+  min-width:44px;
+  min-height:44px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
+  color:#6b7280;
+  cursor:pointer;
+  font:inherit;
+  line-height:1;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.product-share-btn:hover,
+.product-share-btn:focus-visible{
+  color:#111;
+  background:#f3f4f6;
+  outline:none;
+}
+
+.product-share-btn:focus-visible{
+  box-shadow:0 0 0 2px #fff, 0 0 0 4px #111;
+}
+
+.product-share-icon{
+  width:18px;
+  height:18px;
+  display:block;
+}
+
+.product-share-label{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0, 0, 0, 0);
+  white-space:nowrap;
+  border:0;
+}
+
+.product-share-btn--detail{
+  margin-top:2px;
+  padding:6px 8px;
+  min-width:0;
+  color:#6b7280;
+}
+
+.product-share-btn--detail .product-share-label{
+  position:static;
+  width:auto;
+  height:auto;
+  margin:0;
+  overflow:visible;
+  clip:auto;
+  white-space:nowrap;
+  font-size:13px;
+  font-weight:600;
+}
+
+.product-share-copied{
+  position:absolute;
+  right:0;
+  top:calc(100% - 4px);
+  z-index:3;
+  padding:5px 8px;
+  border-radius:8px;
+  background:#111;
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  white-space:nowrap;
+  box-shadow:0 8px 20px rgba(0,0,0,.16);
+}
+
+.product-share-btn.is-copied .product-share-label{
+  visibility:hidden;
+}
+
+.seller-dashboard .product-title-link{
+  text-decoration:none;
+  color:inherit;
+}
+
+.seller-dashboard .product-title-link:hover,
+.seller-dashboard .product-title-link:focus-visible{
+  color:#ef3d2f;
+}

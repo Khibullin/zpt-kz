@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras %}
+{% load static humanize phone_extras product_extras %}
 
 {% block title %}Кабинет продавца — ZPT.KZ{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/style.css' %}?v=warehouse_filters_v1">
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=product_share_v1">
 <link rel="stylesheet" href="{% static 'css/seller-whatsapp-consent.css' %}?v=1">
 {% endblock %}
 
@@ -77,7 +77,7 @@
       <div class="products-container">
         {% for product in products %}
           <article class="product-card">
-            <a href="{{ product.get_absolute_url }}" class="product-image-link">
+            <a href="{{ product|public_product_url }}" class="product-image-link">
               {% if product.main_image %}
                 <img src="{{ product.main_image.url }}" alt="{{ product.title }}" class="product-image">
               {% elif product.images.first %}
@@ -96,7 +96,9 @@
               {% endif %}
 
               <h2 class="product-title">
-                {{ product.title }}
+                <a href="{{ product|public_product_url }}" class="product-title-link">
+                  {{ product.title }}
+                </a>
               </h2>
 
               {% include 'catalog/includes/product_price_display.html' with product=product %}

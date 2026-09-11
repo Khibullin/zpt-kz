@@ -23,13 +23,16 @@
 
   <div class="product-body">
 
-    <a href="{{ product|public_product_url }}" class="product-title-link">
+    <div class="product-title-row">
+      <a href="{{ product|public_product_url }}" class="product-title-link">
 
-      <div class="product-title">
-        {{ product.title }}
-      </div>
+        <div class="product-title">
+          {{ product.title }}
+        </div>
 
-    </a>
+      </a>
+      {% include 'catalog/includes/product_share_button.html' with product=product %}
+    </div>
 
     {% with vehicle_line=product|public_card_fitment %}
       {% if vehicle_line %}

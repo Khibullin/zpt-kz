@@ -1,10 +1,10 @@
 {% extends 'base.html' %}
-{% load static humanize %}
+{% load static humanize product_extras %}
 
 {% block title %}{% if is_wholesale_cart %}Оптовая корзина{% else %}Корзина{% endif %} — ZPT Market{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=checkout_v2">
+<link rel="stylesheet" href="{% static 'css/checkout.css' %}?v=product_share_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v6">
 <link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v5">
 {% endblock %}
@@ -57,13 +57,15 @@
                 data-product-article="{{ item.product.article|default:'' }}"
                 data-product-supplier="{{ item.product.supplier|default:'local' }}"
               >
-                {% if item.product.main_image %}
-                  <img class="checkout-summary-thumb" src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}">
-                {% else %}
-                  <img class="checkout-summary-thumb" src="{% static 'images/product-placeholder.svg' %}" alt="{{ item.product.title }}">
-                {% endif %}
+                <a class="checkout-summary-thumb-link" href="{{ item.product|public_product_url }}">
+                  {% if item.product.main_image %}
+                    <img class="checkout-summary-thumb" src="{{ item.product.main_image.url }}" alt="{{ item.product.title }}">
+                  {% else %}
+                    <img class="checkout-summary-thumb" src="{% static 'images/product-placeholder.svg' %}" alt="{{ item.product.title }}">
+                  {% endif %}
+                </a>
                 <div class="checkout-summary-body">
-                  <div class="checkout-summary-title">{{ item.product.title }}</div>
+                  <a class="checkout-summary-title checkout-summary-title-link" href="{{ item.product|public_product_url }}">{{ item.product.title }}</a>
                   {% if is_wholesale_cart and item.stock %}
                     <p class="cart-line-stock">{{ item.stock.label }}</p>
                   {% endif %}

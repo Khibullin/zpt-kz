@@ -128,6 +128,17 @@ body{
   margin:0;
 }
 
+.product-detail-title-row{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+}
+
+.product-detail-title-row .product-detail-title{
+  flex:1;
+  min-width:0;
+}
+
 .product-vehicle-line{
   margin-top:8px;
   margin-bottom:4px;
