@@ -67,6 +67,7 @@ def robots_txt(request):
         'Disallow: /market/ajax/',
         'Disallow: /go/',
         'Disallow: /r/',
+        'Disallow: /sr/',
         'Allow: /static/',
         'Allow: /products/',
         '',

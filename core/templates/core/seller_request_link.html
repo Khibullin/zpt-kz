@@ -1,0 +1,50 @@
+{% extends 'base_portal.html' %}
+{% load static %}
+
+{% block title %}Заявка ZPT.KZ{% endblock %}
+
+{% block seo_meta %}
+<meta name="robots" content="{{ seo_robots }}">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .sr-page {
+    max-width: 560px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+  }
+  .sr-card {
+    background: #fff;
+    border: 1px solid #ececec;
+    border-radius: 16px;
+    padding: 24px 20px;
+  }
+  .sr-card h1 {
+    margin: 0 0 12px;
+    font-size: 22px;
+    line-height: 1.3;
+  }
+  .sr-card p {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #374151;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="sr-page">
+  <section class="sr-card">
+    <h1>Заявка ZPT.KZ</h1>
+    {% if page_state == 'valid' %}
+      <p>Ссылка действительна. Полная страница обработки заявки будет доступна здесь.</p>
+    {% elif page_state == 'expired' %}
+      <p>Срок действия ссылки истёк.</p>
+    {% else %}
+      <p>Ссылка недействительна или больше не доступна.</p>
+    {% endif %}
+  </section>
+</main>
+{% endblock %}

@@ -82,6 +82,7 @@ class SeoPolicyTests(TestCase):
             '/seller/login/',
             '/request-parts/cabinet/',
             '/my-request/123/00000000-0000-0000-0000-000000000000/',
+            '/sr/unknown-token-value/',
         ):
             with self.subTest(path=path):
                 self.assertEqual(
@@ -138,6 +139,8 @@ class SeoEndpointTests(TestCase):
         body = response.content.decode('utf-8')
         self.assertIn('Disallow: /admin/', body)
         self.assertIn('Disallow: /api/', body)
+        self.assertIn('Disallow: /r/', body)
+        self.assertIn('Disallow: /sr/', body)
         self.assertIn('Allow: /static/', body)
         self.assertIn('Sitemap: https://zpt.kz/sitemap.xml', body)
 

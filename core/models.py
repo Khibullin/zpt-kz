@@ -118,6 +118,8 @@ SELLER_CONFIRM_NO_TEXT = 'Нет, отключить'
 SELLER_CONFIRM_ACTION_YES = 'seller_confirm_yes'
 SELLER_CONFIRM_ACTION_NO = 'seller_confirm_no'
 
+SELLER_REQUEST_ACCESS_TOKEN_MAX_LENGTH = 64
+
 INBOUND_EVENT_STATUS_PROCESSED = 'processed'
 INBOUND_EVENT_STATUS_IGNORED = 'ignored'
 INBOUND_EVENT_STATUS_UNMATCHED = 'unmatched'
@@ -1422,6 +1424,48 @@ class RequestDispatch(models.Model):
 
     def __str__(self):
         return f"{self.request} → {self.seller} / волна {self.wave_number}"
+
+
+class SellerRequestAccess(models.Model):
+    token = models.CharField(
+        max_length=SELLER_REQUEST_ACCESS_TOKEN_MAX_LENGTH,
+        unique=True,
+        db_index=True,
+        verbose_name='Токен ссылки продавца',
+    )
+    request = models.ForeignKey(
+        Request,
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='seller_access_links',
+        verbose_name='Заявка',
+    )
+    seller = models.ForeignKey(
+        'Seller',
+        null=True,
+        blank=True,
+        on_delete=models.CASCADE,
+        related_name='request_access_links',
+        verbose_name='Продавец',
+    )
+    expires_at = models.DateTimeField(
+        db_index=True,
+        verbose_name='Срок действия',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Ссылка заявки для продавца'
+        verbose_name_plural = 'Ссылки заявок для продавцов'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'SellerRequestAccess #{self.pk}'
+
+    def is_expired(self) -> bool:
+        return self.expires_at <= timezone.now()
+
 
 class WhatsAppMessageLog(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)

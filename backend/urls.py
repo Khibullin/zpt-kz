@@ -21,6 +21,7 @@ from core.views import (
     business_gateway,
     short_request_redirect,
 )
+from core.seller_request_link_views import seller_request_link
 
 from service_requests.views import (
     service_request_result,
@@ -65,6 +66,11 @@ urlpatterns = [
         'r/<int:pk>/<str:token>/',
         short_request_redirect,
         name='short_request_redirect',
+    ),
+    path(
+        'sr/<str:token>/',
+        seller_request_link,
+        name='seller_request_link',
     ),
 
     # PWA / browser metadata

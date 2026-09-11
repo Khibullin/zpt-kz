@@ -77,6 +77,7 @@ NOINDEX_NOFOLLOW_PREFIXES = (
     '/catalog/ajax/',
     '/go/',
     '/r/',
+    '/sr/',
     '/seller/whatsapp-consent/',
     '/seller/login/',
     '/seller/logout/',
