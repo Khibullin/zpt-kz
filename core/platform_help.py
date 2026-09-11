@@ -4,7 +4,6 @@ import hashlib
 import json
 import logging
 from typing import Any
-from urllib.parse import quote
 
 import requests
 from django.conf import settings
@@ -236,10 +235,9 @@ def normalize_help_contact_whatsapp(raw: Any) -> str:
 
 
 def build_help_whatsapp_reply_url(digits: str) -> str:
-    number = ''.join(ch for ch in str(digits or '') if ch.isdigit())
-    if not number:
-        return ''
-    return f'https://wa.me/{number}?text={quote(HELP_WHATSAPP_REPLY_PREFILL)}'
+    from core.phone_utils import build_whatsapp_url
+
+    return build_whatsapp_url(digits, HELP_WHATSAPP_REPLY_PREFILL)
 
 
 def apply_conversation_contact(request, conversation, payload: dict) -> None:

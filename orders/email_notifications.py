@@ -1,12 +1,14 @@
 import logging
-import re
-from urllib.parse import quote
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.urls import reverse
 
 from catalog.wholesale import wholesale_email_term_lines
+from core.phone_utils import (
+    build_whatsapp_url,
+    normalize_phone_for_whatsapp,
+)
 
 from .models import Order
 
@@ -26,28 +28,13 @@ def format_price_kzt(value):
 
 
 def normalize_phone_for_wa_me(phone):
-    digits = re.sub(r'\D', '', str(phone or ''))
-    if digits.startswith('8') and len(digits) == 11:
-        digits = '7' + digits[1:]
-    if digits.startswith('7'):
-        return digits
-    return digits.lstrip('+')
+    return normalize_phone_for_whatsapp(phone) or ''
 
 
 def build_admin_order_url(order):
     base = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/')
     path = reverse('admin:orders_order_change', args=[order.pk])
     return f'{base}{path}'
-
-
-def build_whatsapp_url(phone, text=''):
-    digits = normalize_phone_for_wa_me(phone)
-    if not digits:
-        return ''
-    url = f'https://wa.me/{digits}'
-    if text:
-        url += f'?text={quote(text)}'
-    return url
 
 
 def build_buyer_whatsapp_url(phone):

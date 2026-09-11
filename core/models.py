@@ -1878,9 +1878,9 @@ class SellerLead(models.Model):
         return ''
 
     def get_whatsapp_url(self) -> str:
-        if self.whatsapp:
-            return f'https://wa.me/{self.whatsapp}'
-        return ''
+        from core.phone_utils import build_whatsapp_url
+
+        return build_whatsapp_url(self.whatsapp)
 
 
 CONTACT_CANDIDATE_TYPE_CHOICES = [
@@ -2053,9 +2053,11 @@ class SellerLeadContactCandidate(models.Model):
         super().save(*args, **kwargs)
 
     def get_whatsapp_url(self) -> str:
-        if self.contact_type == self.CONTACT_TYPE_WHATSAPP and self.value:
-            return f'https://wa.me/{self.value}'
-        return ''
+        from core.phone_utils import build_whatsapp_url
+
+        if self.contact_type != self.CONTACT_TYPE_WHATSAPP:
+            return ''
+        return build_whatsapp_url(self.value)
 
     def approve_as_primary(self) -> None:
         from django.db import transaction

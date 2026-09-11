@@ -104,6 +104,11 @@ class SellerLeadModelTests(TestCase):
         lead = SellerLead(name='Shop', whatsapp='77011234567')
         self.assertEqual(lead.get_whatsapp_url(), 'https://wa.me/77011234567')
 
+    def test_get_whatsapp_url_converts_leading_eight(self):
+        lead = SellerLead(name='Shop', whatsapp='87772320709')
+        self.assertEqual(lead.get_whatsapp_url(), 'https://wa.me/77772320709')
+        self.assertNotEqual(lead.get_whatsapp_url(), 'https://wa.me/87772320709')
+
     def test_collected_at_set_on_create(self):
         lead = SellerLead.objects.create(name='New Lead')
         self.assertIsNotNone(lead.collected_at)

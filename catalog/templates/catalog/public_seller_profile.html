@@ -110,14 +110,18 @@
               <div class="seller-contact-label">Телефоны для связи</div>
               <div class="seller-contact-value seller-contact-phones">
                 <a href="tel:{{ seller.phone }}">{{ seller.phone|format_phone }}</a>
+                {% with wa_url=seller.phone|whatsapp_url %}
+                {% if wa_url %}
                 <a
                   class="seller-contact-wa-btn"
-                  href="https://wa.me/{{ seller.phone|cut:'+'|cut:' ' }}"
+                  href="{{ wa_url }}"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
                   WhatsApp
                 </a>
+                {% endif %}
+                {% endwith %}
               </div>
             </div>
           </div>

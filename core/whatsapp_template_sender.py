@@ -16,10 +16,11 @@ from core.whatsapp_redaction import (
     redact_whatsapp_sensitive_data,
     sanitize_whatsapp_error_payload,
 )
+from core.phone_utils import normalize_phone_for_whatsapp
 
 
 def normalize_whatsapp_phone(phone: object) -> str:
-    return ''.join(ch for ch in str(phone or '') if ch.isdigit())
+    return normalize_phone_for_whatsapp(phone) or ''
 
 
 def wa_template_param(value: object) -> dict:

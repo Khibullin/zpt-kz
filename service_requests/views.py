@@ -23,6 +23,18 @@ from core.views import (
     _normalize_whatsapp,
     _wa_template_param,
 )
+from core.phone_utils import build_whatsapp_url
+
+
+def _service_request_whatsapp_url(req):
+    services = ', '.join(req.services.values_list('name', flat=True))
+    text = (
+        f'Здравствуйте. По заявке ZPT:\n'
+        f'Услуги: {services}\n'
+        f'Город: {req.city or ""}\n'
+        f'Описание: {req.description or ""}'
+    )
+    return build_whatsapp_url(req.phone, text)
 
 
 def read_json(request):
@@ -454,6 +466,7 @@ def get_service_requests(request):
             "city": req.city,
             "district": req.district,
             "phone": req.phone,
+            "whatsapp_url": _service_request_whatsapp_url(req),
             "description": req.description,
             "status": match.status,
         })

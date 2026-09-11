@@ -9,7 +9,6 @@ import uuid
 import urllib.error
 import urllib.request
 from datetime import timedelta
-from urllib.parse import quote
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
@@ -45,6 +44,7 @@ from core.whatsapp_template_sender import (
     send_whatsapp_template_message,
     wa_template_param,
 )
+from core.phone_utils import build_whatsapp_url
 from .buyer_portal import (
     REQUEST_STATUS_LABELS,
     build_request_sellers,
@@ -813,7 +813,7 @@ def _seller_notification_text(req):
         f"{req.description or '-'}\n\n"
         f"Телефон клиента: {_format_whatsapp_display(req.phone)}\n"
         f"WhatsApp клиента:\n"
-        f"https://wa.me/{_normalize_whatsapp(req.phone)}\n\n"
+        f"{build_whatsapp_url(req.phone)}\n\n"
         f"Пожалуйста, свяжитесь с клиентом и предложите наличие, цену и сроки поставки.\n\n"
         f"Личный кабинет / просмотр заявок / отписаться:\n"
         f"https://zpt.kz\n\n"
@@ -834,19 +834,11 @@ def _buyer_to_seller_text(req):
 
 
 def _seller_notification_link(phone, req):
-    return (
-        f"https://api.whatsapp.com/send"
-        f"?phone={_normalize_whatsapp(phone)}"
-        f"&text={quote(_seller_notification_text(req))}"
-    )
+    return build_whatsapp_url(phone, _seller_notification_text(req))
 
 
 def _buyer_contact_link(phone, req):
-    return (
-        f"https://api.whatsapp.com/send"
-        f"?phone={_normalize_whatsapp(phone)}"
-        f"&text={quote(_buyer_to_seller_text(req))}"
-    )
+    return build_whatsapp_url(phone, _buyer_to_seller_text(req))
 
 
 def _send_dispatch(dispatch):
@@ -1116,7 +1108,7 @@ def _render_request_status(request, req):
     for seller in all_sellers:
         whatsapp = seller.pop('whatsapp')
         if whatsapp:
-            seller['whatsapp_url'] = _buyer_contact_link(whatsapp, req)
+            seller['whatsapp_url'] = _buyer_contact_link(whatsapp, req) or None
         else:
             seller['whatsapp_url'] = None
         seller['profile_url'] = reverse(
@@ -1387,6 +1379,7 @@ def seller_requests(request):
             'city': req.city,
             'description': req.description,
             'phone': req.phone,
+            'whatsapp_url': build_whatsapp_url(req.phone),
             'created_at': req.created_at.strftime('%d.%m.%Y %H:%M') if hasattr(req, 'created_at') else '',
             'match_id': match.id,
             'match_status': status_map.get(match.status, match.status),

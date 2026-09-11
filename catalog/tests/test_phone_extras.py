@@ -18,3 +18,10 @@ class FormatPhoneTests(SimpleTestCase):
 class WhatsappPhoneTests(SimpleTestCase):
     def test_strips_to_digits(self):
         self.assertEqual(whatsapp_phone('+7 771 360 7040'), '77713607040')
+
+    def test_converts_leading_eight(self):
+        self.assertEqual(whatsapp_phone('87772320709'), '77772320709')
+
+    def test_invalid_is_empty(self):
+        self.assertEqual(whatsapp_phone('abc'), '')
+        self.assertEqual(whatsapp_phone(None), '')

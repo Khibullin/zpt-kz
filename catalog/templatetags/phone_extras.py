@@ -34,3 +34,17 @@ def format_phone(value):
 @register.filter
 def comma_to_space(value):
     return str(value).replace(',', ' ')
+
+
+@register.filter
+def whatsapp_phone(value):
+    from core.phone_utils import normalize_phone_for_whatsapp
+
+    return normalize_phone_for_whatsapp(value) or ''
+
+
+@register.filter
+def whatsapp_url(value, text=None):
+    from core.phone_utils import build_whatsapp_url
+
+    return build_whatsapp_url(value, text)

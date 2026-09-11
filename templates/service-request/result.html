@@ -1,5 +1,5 @@
 ```html
-{% load static %}
+{% load static phone_extras %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -303,13 +303,17 @@ body{
 
         <div class="buttons">
 
+          {% with wa_url=seller.whatsapp|whatsapp_url %}
+          {% if wa_url %}
           <a
             class="btn wa"
             target="_blank"
-            href="https://wa.me/{{ seller.whatsapp }}"
+            href="{{ wa_url }}"
           >
             WhatsApp
           </a>
+          {% endif %}
+          {% endwith %}
 
           {% if seller.map_link %}
 

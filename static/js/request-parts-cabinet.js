@@ -9,7 +9,12 @@ let countriesDict=[];
 let categoriesDict=[];
 let brandsDict=[];
 
-function normalizePhone(v){return String(v||'').replace(/\D/g,'')}
+function normalizePhone(v){
+  const digits=String(v||'').replace(/\D/g,'');
+  if(digits.length===11 && digits.startsWith('8')) return '7'+digits.slice(1);
+  if(digits.length===10) return '7'+digits;
+  return digits;
+}
 function showLogin(){loginBox.classList.remove('hidden');cabinetApp.classList.add('hidden')}
 function showCabinet(){loginBox.classList.add('hidden');cabinetApp.classList.remove('hidden')}
 function labelStatus(s){if(s==='Новая'||s==='prepared')return 'Новая';if(s==='Отправлена'||s==='sent')return 'Отправлена';if(s==='Просмотрена'||s==='viewed')return 'Просмотрена';if(s==='В работе'||s==='contacted')return 'Связался';if(s==='Закрыта'||s==='done')return 'Отказ';return s||'Новая'}
@@ -261,12 +266,12 @@ function renderRequests(){
   if(!filtered.length){requestsContent.innerHTML='<p>Заявок по выбранному фильтру нет.</p>';return}
   let html='';
   filtered.forEach(x=>{
-    let phone=normalizePhone(x.phone);
+    let waUrl=x.whatsapp_url || '';
     let auto=`${x.brand||'-'} ${x.model||''}`.trim();
     html+=`<div class="request-card">
       <div class="request-title"><h3><span class="badge ${statusClass(x.match_status)}">${labelStatus(x.match_status)}</span> Заявка №${x.id}</h3><span class="muted">${x.created_at||''}</span></div>
       <div class="request-body"><div>${x.city||'-'} • ${auto}</div><div>Категория: ${x.category||'-'}</div><div class="request-description">${escHtml(x.description||'-')}</div></div>
-      <div class="actions">${phone?`<a class="btn btn-green" target="_blank" href="https://wa.me/${phone}">Написать клиенту</a>`:''}<button class="btn btn-blue" onclick="setMatchStatus(${x.match_id},'contacted')">Связался</button><button class="btn btn-red" onclick="setMatchStatus(${x.match_id},'done')">Отказ</button></div>
+      <div class="actions">${waUrl?`<a class="btn btn-green" target="_blank" href="${waUrl}">Написать клиенту</a>`:''}<button class="btn btn-blue" onclick="setMatchStatus(${x.match_id},'contacted')">Связался</button><button class="btn btn-red" onclick="setMatchStatus(${x.match_id},'done')">Отказ</button></div>
     </div>`;
   });
   requestsContent.innerHTML=html;

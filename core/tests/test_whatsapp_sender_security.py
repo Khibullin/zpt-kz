@@ -93,8 +93,51 @@ class WhatsAppConfigValidationTests(TestCase):
             validate_whatsapp_sender_config()
 
 
+class _FakeWhatsAppHttpResponse:
+    status = 200
+
+    def read(self):
+        return json.dumps({'messages': [{'id': 'wamid.test'}]}).encode('utf-8')
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *args):
+        return False
+
+
 @patch.dict('os.environ', VALID_ENV, clear=False)
 class WhatsAppSenderSecurityTests(TestCase):
+    def _sent_payload(self, mocked_urlopen, to_phone):
+        mocked_urlopen.return_value = _FakeWhatsAppHttpResponse()
+        result = send_whatsapp_template_message(
+            to_phone,
+            template_name='test_template',
+            body_parameters=_body_parameters(),
+        )
+        self.assertTrue(result['ok'])
+        request = mocked_urlopen.call_args[0][0]
+        return json.loads(request.data.decode('utf-8'))
+
+    @patch('core.whatsapp_template_sender.urllib.request.urlopen')
+    def test_destination_converts_kz_leading_eight(self, mocked_urlopen):
+        payload = self._sent_payload(mocked_urlopen, '87772320709')
+        self.assertEqual(payload['to'], '77772320709')
+        self.assertFalse(str(payload['to']).startswith('+'))
+
+    @patch('core.whatsapp_template_sender.urllib.request.urlopen')
+    def test_destination_keeps_plus_seven_as_digits(self, mocked_urlopen):
+        payload = self._sent_payload(mocked_urlopen, '+77772320709')
+        self.assertEqual(payload['to'], '77772320709')
+        self.assertFalse(str(payload['to']).startswith('+'))
+
+    @patch('core.whatsapp_template_sender.urllib.request.urlopen')
+    def test_destination_preserves_uzbekistan_international(self, mocked_urlopen):
+        payload = self._sent_payload(mocked_urlopen, '+998901234567')
+        self.assertEqual(payload['to'], '998901234567')
+        self.assertFalse(str(payload['to']).startswith('+'))
+        self.assertFalse(str(payload['to']).startswith('7'))
+
     @patch('core.whatsapp_template_sender.urllib.request.urlopen')
     def test_invalid_phone_number_id_blocks_before_http(self, mocked_urlopen):
         with patch.dict('os.environ', {

@@ -130,10 +130,9 @@ def _contact_lines(conversation) -> list[str]:
 
 
 def _short_whatsapp_url(digits: str) -> str:
-    number = ''.join(ch for ch in str(digits or '') if ch.isdigit())
-    if not number:
-        return ''
-    return f'https://wa.me/{number}'
+    from core.phone_utils import build_whatsapp_url
+
+    return build_whatsapp_url(digits)
 
 
 def _html_multiline(value: Any) -> str:

@@ -680,6 +680,24 @@ class PlatformHelpTests(TestCase):
         self.assertContains(response, 'target="_blank"')
         self.assertContains(response, 'noopener')
 
+    def test_admin_whatsapp_reply_link_converts_leading_eight(self):
+        conversation = PlatformHelpConversation.objects.create(
+            contact_whatsapp='87772320709',
+            contact_source='user_input',
+        )
+        admin_user = User.objects.create_superuser(
+            'help-wa-eight-admin',
+            'a@b.c',
+            'secret',
+        )
+        self.client.force_login(admin_user)
+        response = self.client.get(
+            reverse('admin:core_platformhelpconversation_change', args=[conversation.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'https://wa.me/77772320709')
+        self.assertNotContains(response, 'https://wa.me/87772320709')
+
 
 EMAIL_SETTINGS = {
     'OPENAI_API_KEY': FAKE_KEY,

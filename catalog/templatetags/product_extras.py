@@ -13,7 +13,16 @@ register = template.Library()
 
 @register.filter
 def whatsapp_phone(value):
-    return re.sub(r'\D', '', str(value or ''))
+    from core.phone_utils import normalize_phone_for_whatsapp
+
+    return normalize_phone_for_whatsapp(value) or ''
+
+
+@register.filter
+def whatsapp_url(value, text=None):
+    from core.phone_utils import build_whatsapp_url
+
+    return build_whatsapp_url(value, text)
 
 
 @register.filter

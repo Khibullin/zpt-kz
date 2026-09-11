@@ -210,6 +210,15 @@ class SellerLeadContactCandidateModelTests(TestCase):
         )
         self.assertEqual(candidate.get_whatsapp_url(), 'https://wa.me/77011234567')
 
+    def test_whatsapp_url_converts_leading_eight(self):
+        candidate = SellerLeadContactCandidate.objects.create(
+            seller_lead=self.lead,
+            value='87772320709',
+            confidence=CONFIDENCE_HIGH,
+        )
+        self.assertEqual(candidate.get_whatsapp_url(), 'https://wa.me/77772320709')
+        self.assertNotEqual(candidate.get_whatsapp_url(), 'https://wa.me/87772320709')
+
     def test_source_text_length_limited(self):
         long_text = 'x' * 500
         candidate = SellerLeadContactCandidate.objects.create(

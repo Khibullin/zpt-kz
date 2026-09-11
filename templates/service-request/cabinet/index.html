@@ -1331,14 +1331,7 @@ async function loadRequests(){
         ? escapeHtml(req.services.join(', '))
         : '-';
 
-    let wa =
-      `https://wa.me/${req.phone}?text=` +
-      encodeURIComponent(
-        `Здравствуйте. По заявке ZPT:\n` +
-        `Услуги: ${services}\n` +
-        `Город: ${req.city || ''}\n` +
-        `Описание: ${req.description || ''}`
-      );
+    let wa = req.whatsapp_url || '';
 
     container.insertAdjacentHTML('beforeend', `
       <div class="request ${status}">
@@ -1412,9 +1405,9 @@ async function loadRequests(){
             </select>
           </div>
 
-          <a href="${escapeHtml(wa)}" target="_blank" rel="noopener" class="wa-btn">
+          ${wa ? `<a href="${escapeHtml(wa)}" target="_blank" rel="noopener" class="wa-btn">
             Написать в WhatsApp
-          </a>
+          </a>` : ''}
 
         </div>
 
