@@ -14,3 +14,8 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
 
 application = get_wsgi_application()
+
+# Explicitly opt-in deploy tasks. With the default environment this is a no-op.
+from backend.startup_tasks import run_startup_tasks
+
+run_startup_tasks()
