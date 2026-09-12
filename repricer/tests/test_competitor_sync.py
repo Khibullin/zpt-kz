@@ -1,6 +1,6 @@
 from decimal import Decimal
 
-from django.test import TestCase, override_settings
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.utils import timezone
 
 from catalog.models import Product, ProductKaspiListing
@@ -51,7 +51,7 @@ class FakeOfferSource:
         ]
 
 
-class KaspiPublicOfferSourceTests(TestCase):
+class KaspiPublicOfferSourceTests(SimpleTestCase):
     def test_normalizes_public_offers(self):
         session = FakeSession(
             FakeResponse(
