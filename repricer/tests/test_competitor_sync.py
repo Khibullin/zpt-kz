@@ -52,6 +52,12 @@ class FakeOfferSource:
 
 
 class KaspiPublicOfferSourceTests(SimpleTestCase):
+    def test_extracts_card_id_from_composite_export_sku(self):
+        self.assertEqual(
+            KaspiPublicOfferSource._product_id("116207063_792647100"),
+            "116207063",
+        )
+
     def test_normalizes_public_offers(self):
         session = FakeSession(
             FakeResponse(
