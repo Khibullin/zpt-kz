@@ -3,7 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
+import os
 
+from django.conf import settings
 from django.db import transaction
 from django.utils import timezone
 
@@ -29,6 +31,32 @@ class RecommendationResult:
     competitor_data_since: datetime
 
 
+def _string_set_setting(name: str) -> set[str]:
+    """Read a comma-separated env/Django setting as normalized strings."""
+
+    value = getattr(settings, name, None)
+    if value is None:
+        value = os.getenv(name, "")
+    if isinstance(value, str):
+        values = value.split(",")
+    else:
+        values = value or []
+    return {
+        str(item).strip().casefold()
+        for item in values
+        if str(item).strip()
+    }
+
+
+def configured_own_merchants() -> tuple[set[str], set[str]]:
+    """Return (merchant ids, merchant names) that belong to our Kaspi shop."""
+
+    return (
+        _string_set_setting("KASPI_OWN_MERCHANT_IDS"),
+        _string_set_setting("KASPI_OWN_MERCHANT_NAMES"),
+    )
+
+
 def get_current_kaspi_price(listing: ProductKaspiListing) -> Decimal:
     """Return the last price explicitly known from Kaspi data.
 
@@ -51,6 +79,11 @@ def latest_competitor_prices(
 ) -> tuple[list[Decimal], int, datetime]:
     """Return one latest fresh price per competitor.
 
+    Public Kaspi offer data contains our own shop alongside competitors.  We
+    therefore refuse to use public snapshots for repricing until our merchant
+    id or merchant name is configured.  This prevents the engine from treating
+    our own price as a competitor price.
+
     Deduplication is intentionally done in Python to stay portable between
     PostgreSQL in production and SQLite in local/test environments.
     """
@@ -59,19 +92,36 @@ def latest_competitor_prices(
         raise ValueError("max_age_minutes must be positive")
 
     cutoff = timezone.now() - timedelta(minutes=max_age_minutes)
-    snapshots = (
+    snapshots = list(
         KaspiCompetitorOfferSnapshot.objects.filter(
             listing=listing,
             is_available=True,
             captured_at__gte=cutoff,
-        )
-        .order_by("-captured_at", "price", "id")
+        ).order_by("-captured_at", "price", "id")
     )
+
+    own_ids, own_names = configured_own_merchants()
+    has_public_snapshots = any(
+        snapshot.source == "kaspi_public" for snapshot in snapshots
+    )
+    if has_public_snapshots and not (own_ids or own_names):
+        raise RepricerConfigurationError(
+            "Есть публичные цены Kaspi, но не указан наш продавец. "
+            "Настройте KASPI_OWN_MERCHANT_IDS или KASPI_OWN_MERCHANT_NAMES; "
+            "до этого рекомендации по публичным данным заблокированы."
+        )
 
     seen: set[str] = set()
     prices: list[Decimal] = []
     for snapshot in snapshots:
-        key = (snapshot.seller_code or snapshot.seller_name).strip().casefold()
+        seller_code = (snapshot.seller_code or "").strip().casefold()
+        seller_name = (snapshot.seller_name or "").strip().casefold()
+        if seller_code and seller_code in own_ids:
+            continue
+        if seller_name and seller_name in own_names:
+            continue
+
+        key = seller_code or seller_name
         if not key:
             key = f"snapshot:{snapshot.pk}"
         if key in seen:
