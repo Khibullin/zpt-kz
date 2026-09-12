@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 
 from django.db import transaction
@@ -26,7 +26,7 @@ class RepricerConfigurationError(RuntimeError):
 class RecommendationResult:
     recommendation: KaspiRepricerRecommendation
     competitor_count: int
-    competitor_data_since: object
+    competitor_data_since: datetime
 
 
 def get_current_kaspi_price(listing: ProductKaspiListing) -> Decimal:
@@ -48,7 +48,7 @@ def latest_competitor_prices(
     *,
     listing: ProductKaspiListing,
     max_age_minutes: int = 60,
-) -> tuple[list[Decimal], int, object]:
+) -> tuple[list[Decimal], int, datetime]:
     """Return one latest fresh price per competitor.
 
     Deduplication is intentionally done in Python to stay portable between
@@ -79,6 +79,7 @@ def latest_competitor_prices(
         seen.add(key)
         prices.append(snapshot.price)
 
+    prices.sort()
     return prices, len(prices), cutoff
 
 
