@@ -14,6 +14,9 @@
   .repricer-title { margin: 0 0 6px; font-size: 28px; font-weight: 800; }
   .repricer-subtitle { margin: 0; color: #6b7280; font-size: 14px; }
   .repricer-link { display: inline-flex; align-items: center; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 10px; color: #111827; text-decoration: none; background: #fff; font-weight: 600; }
+  .repricer-status { margin-bottom: 18px; padding: 13px 15px; border-radius: 12px; border: 1px solid #e5e7eb; background: #f9fafb; font-size: 13px; line-height: 1.45; }
+  .repricer-status--warning { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+  .repricer-status--ok { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
   .repricer-summary { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
   .repricer-card { padding: 16px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
   .repricer-card strong { display: block; font-size: 24px; line-height: 1.1; margin-bottom: 5px; }
@@ -50,6 +53,19 @@
     </div>
     <a class="repricer-link" href="{% url 'admin:repricer_kaspirepricerrule_changelist' %}">Настроить правила</a>
   </div>
+
+  {% if own_merchant_configured %}
+    <div class="repricer-status repricer-status--ok">
+      Наш продавец Kaspi идентифицирован. Публичных снимков цен: {{ public_snapshot_count }}.
+      {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}.{% endif %}
+    </div>
+  {% else %}
+    <div class="repricer-status repricer-status--warning">
+      Публичных снимков цен: {{ public_snapshot_count }}.
+      {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}. {% endif %}
+      Рекомендации по публичным данным заблокированы, пока не указан наш продавец через KASPI_OWN_MERCHANT_IDS или KASPI_OWN_MERCHANT_NAMES.
+    </div>
+  {% endif %}
 
   <section class="repricer-summary" aria-label="Сводка репрайсера">
     <div class="repricer-card"><strong>{{ summary.total }}</strong><span>товаров под контролем</span></div>
