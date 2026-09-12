@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.humanize',
 
     'catalog',
+    'repricer',
 
     'core',
     'service_requests',
