@@ -1,0 +1,49 @@
+name: Repricer CI
+
+on:
+  pull_request:
+    paths:
+      - 'catalog/kaspi_repricing.py'
+      - 'catalog/management/commands/preview_kaspi_reprice.py'
+      - 'catalog/tests/test_kaspi_repricing.py'
+      - 'integrations/kaspi_competitors.py'
+      - 'repricer/**'
+      - 'scripts/kaspi_readonly_pilot.py'
+      - 'backend/settings.py'
+      - 'backend/urls.py'
+      - 'backend/startup_tasks.py'
+      - 'backend/wsgi.py'
+      - 'requirements.txt'
+      - '.github/workflows/repricer-ci.yml'
+  push:
+    branches:
+      - feature/kaspi-repricer-v1
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SECRET_KEY: ci-secret-key-for-tests-only
+      DEBUG: 'True'
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install dependencies
+        run: python -m pip install --upgrade pip && pip install -r requirements.txt
+
+      - name: Django checks
+        run: python manage.py check
+
+      - name: Migration consistency
+        run: python manage.py makemigrations --check --dry-run
+
+      - name: Repricer tests
+        run: python manage.py test catalog.tests.test_kaspi_repricing repricer.tests -v 2

@@ -43,6 +43,7 @@ urlpatterns = [
     ),
 
     path('admin/', admin.site.urls),
+    path('office/repricer/', include('repricer.urls')),
 
     path('marketing/', include('marketing.urls')),
 

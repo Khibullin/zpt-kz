@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}Репрайсер Kaspi — ZPT.KZ{% endblock %}
+
+{% block extra_head %}
+<meta name="robots" content="noindex,nofollow">
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .repricer-page { max-width: 1500px; margin: 0 auto; padding: 28px 20px 48px; color: #111827; }
+  .repricer-top { display: flex; gap: 16px; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
+  .repricer-title { margin: 0 0 6px; font-size: 28px; font-weight: 800; }
+  .repricer-subtitle { margin: 0; color: #6b7280; font-size: 14px; }
+  .repricer-link { display: inline-flex; align-items: center; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 10px; color: #111827; text-decoration: none; background: #fff; font-weight: 600; }
+  .repricer-status { margin-bottom: 18px; padding: 13px 15px; border-radius: 12px; border: 1px solid #e5e7eb; background: #f9fafb; font-size: 13px; line-height: 1.45; }
+  .repricer-status--warning { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+  .repricer-status--ok { border-color: #bbf7d0; background: #f0fdf4; color: #166534; }
+  .repricer-summary { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 12px; margin-bottom: 20px; }
+  .repricer-card { padding: 16px; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
+  .repricer-card strong { display: block; font-size: 24px; line-height: 1.1; margin-bottom: 5px; }
+  .repricer-card span { color: #6b7280; font-size: 13px; }
+  .repricer-table-wrap { overflow-x: auto; border: 1px solid #e5e7eb; border-radius: 14px; background: #fff; }
+  .repricer-table { width: 100%; border-collapse: collapse; min-width: 1120px; }
+  .repricer-table th, .repricer-table td { padding: 12px 10px; border-bottom: 1px solid #eef0f3; text-align: left; vertical-align: top; font-size: 13px; }
+  .repricer-table th { background: #f9fafb; color: #4b5563; font-weight: 700; white-space: nowrap; }
+  .repricer-table tr:last-child td { border-bottom: 0; }
+  .repricer-product { min-width: 230px; }
+  .repricer-product strong { display: block; margin-bottom: 3px; }
+  .repricer-muted { color: #6b7280; }
+  .repricer-money { white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .repricer-badge { display: inline-flex; padding: 4px 8px; border-radius: 999px; font-weight: 700; font-size: 12px; white-space: nowrap; background: #f3f4f6; color: #374151; }
+  .repricer-badge--lower { background: #fef3c7; color: #92400e; }
+  .repricer-badge--raise { background: #dcfce7; color: #166534; }
+  .repricer-badge--hold { background: #e5e7eb; color: #374151; }
+  .repricer-badge--none { background: #fee2e2; color: #991b1b; }
+  .repricer-reason { max-width: 300px; color: #4b5563; }
+  .repricer-empty { padding: 34px; text-align: center; color: #6b7280; }
+  @media (max-width: 900px) {
+    .repricer-summary { grid-template-columns: repeat(2, minmax(120px, 1fr)); }
+    .repricer-top { flex-direction: column; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="repricer-page">
+  <div class="repricer-top">
+    <div>
+      <h1 class="repricer-title">Репрайсер Kaspi</h1>
+      <p class="repricer-subtitle">Режим v1: анализ и рекомендации. Автоматическая отправка цен в Kaspi отключена.</p>
+    </div>
+    <a class="repricer-link" href="{% url 'admin:repricer_kaspirepricerrule_changelist' %}">Настроить правила</a>
+  </div>
+
+  {% if own_merchant_configured %}
+    <div class="repricer-status repricer-status--ok">
+      Наш продавец Kaspi идентифицирован. Публичных снимков цен: {{ public_snapshot_count }}.
+      {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}.{% endif %}
+    </div>
+  {% else %}
+    <div class="repricer-status repricer-status--warning">
+      Публичных снимков цен: {{ public_snapshot_count }}.
+      {% if latest_public_snapshot %}Последний сбор: {{ latest_public_snapshot.captured_at|date:"d.m.Y H:i" }}. {% endif %}
+      Рекомендации по публичным данным заблокированы, пока не указан наш продавец через KASPI_OWN_MERCHANT_IDS или KASPI_OWN_MERCHANT_NAMES.
+    </div>
+  {% endif %}
+
+  <section class="repricer-summary" aria-label="Сводка репрайсера">
+    <div class="repricer-card"><strong>{{ summary.total }}</strong><span>товаров под контролем</span></div>
+    <div class="repricer-card"><strong>{{ summary.lower }}</strong><span>можно снизить</span></div>
+    <div class="repricer-card"><strong>{{ summary.raise }}</strong><span>можно повысить</span></div>
+    <div class="repricer-card"><strong>{{ summary.hold }}</strong><span>оставить цену</span></div>
+    <div class="repricer-card"><strong>{{ summary.without_recommendation }}</strong><span>ещё без расчёта</span></div>
+  </section>
+
+  <div class="repricer-table-wrap">
+    {% if rules %}
+      <table class="repricer-table">
+        <thead>
+          <tr>
+            <th>Товар</th>
+            <th>Наша цена</th>
+            <th>Лучшая цена</th>
+            <th>Позиция</th>
+            <th>MIN</th>
+            <th>Рекомендация</th>
+            <th>Действие</th>
+            <th>Режим</th>
+            <th>Обновлено</th>
+            <th>Почему</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for rule in rules %}
+            <tr>
+              <td class="repricer-product">
+                <strong>{{ rule.listing.product.title }}</strong>
+                <span class="repricer-muted">{{ rule.listing.product.article|default:"без артикула" }} · Kaspi {{ rule.listing.master_sku }}</span>
+              </td>
+              <td class="repricer-money">
+                {% if rule.listing.last_known_our_price != None %}{{ rule.listing.last_known_our_price|intcomma }} ₸{% else %}—{% endif %}
+              </td>
+              <td class="repricer-money">
+                {% if rule.latest_best_competitor_price != None %}{{ rule.latest_best_competitor_price|floatformat:0|intcomma }} ₸{% else %}—{% endif %}
+              </td>
+              <td>{% if rule.latest_market_position %}№ {{ rule.latest_market_position }}{% else %}—{% endif %}</td>
+              <td class="repricer-money">{{ rule.min_price|floatformat:0|intcomma }} ₸</td>
+              <td class="repricer-money">
+                {% if rule.latest_recommended_price != None %}{{ rule.latest_recommended_price|floatformat:0|intcomma }} ₸{% else %}—{% endif %}
+              </td>
+              <td>
+                {% if rule.latest_action == "LOWER" %}
+                  <span class="repricer-badge repricer-badge--lower">Снизить</span>
+                {% elif rule.latest_action == "RAISE" %}
+                  <span class="repricer-badge repricer-badge--raise">Повысить</span>
+                {% elif rule.latest_action == "HOLD" %}
+                  <span class="repricer-badge repricer-badge--hold">Оставить</span>
+                {% else %}
+                  <span class="repricer-badge repricer-badge--none">Нет расчёта</span>
+                {% endif %}
+              </td>
+              <td>{{ rule.get_mode_display }}{% if not rule.is_enabled %} · выключен{% endif %}</td>
+              <td class="repricer-muted">{% if rule.latest_created_at %}{{ rule.latest_created_at|date:"d.m.Y H:i" }}{% else %}—{% endif %}</td>
+              <td class="repricer-reason">{{ rule.latest_reason|default:"—" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div class="repricer-empty">Правила репрайсера ещё не созданы. Начните с привязки Kaspi-листинга и MIN цены.</div>
+    {% endif %}
+  </div>
+</main>
+{% endblock %}
