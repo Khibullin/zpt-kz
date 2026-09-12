@@ -64,7 +64,7 @@ jobs:
         run: python -m pip install --upgrade pip && pip install -r requirements.txt
 
       - name: Collect 8 Kaspi cards read-only
-        run: python scripts/kaspi_readonly_pilot.py
+        run: PYTHONPATH=. python scripts/kaspi_readonly_pilot.py
 
       - name: Upload pilot report
         if: always()
