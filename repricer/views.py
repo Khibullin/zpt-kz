@@ -6,7 +6,6 @@ from .models import KaspiRepricerRecommendation, KaspiRepricerRule
 
 
 @staff_member_required
-
 def repricer_dashboard(request):
     latest = KaspiRepricerRecommendation.objects.filter(
         rule_id=OuterRef("pk")
