@@ -2,7 +2,12 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import OuterRef, Subquery
 from django.shortcuts import render
 
-from .models import KaspiRepricerRecommendation, KaspiRepricerRule
+from .models import (
+    KaspiCompetitorOfferSnapshot,
+    KaspiRepricerRecommendation,
+    KaspiRepricerRule,
+)
+from .services import configured_own_merchants
 
 
 @staff_member_required
@@ -37,12 +42,21 @@ def repricer_dashboard(request):
         ),
     }
 
+    own_ids, own_names = configured_own_merchants()
+    public_snapshots = KaspiCompetitorOfferSnapshot.objects.filter(
+        source="kaspi_public"
+    )
+    latest_public_snapshot = public_snapshots.order_by("-captured_at").first()
+
     response = render(
         request,
         "repricer/dashboard.html",
         {
             "rules": rules,
             "summary": summary,
+            "own_merchant_configured": bool(own_ids or own_names),
+            "public_snapshot_count": public_snapshots.count(),
+            "latest_public_snapshot": latest_public_snapshot,
         },
     )
     response["X-Robots-Tag"] = "noindex, nofollow"
