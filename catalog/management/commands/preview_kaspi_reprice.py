@@ -48,14 +48,11 @@ class Command(BaseCommand):
         except ProductKaspiListing.DoesNotExist as exc:
             raise CommandError("Kaspi-привязка с таким listing-id не найдена.") from exc
 
-        current_price = (
-            listing.current_price
-            or listing.last_known_our_price
-            or listing.price
-        )
+        current_price = listing.last_known_our_price
         if current_price is None:
             raise CommandError(
-                "У Kaspi-привязки нет current_price, last_known_our_price или price."
+                "У Kaspi-привязки ещё нет last_known_our_price. "
+                "Не подменяем цену Kaspi ценой сайта ZPT.KZ."
             )
 
         competitor_prices = [
@@ -76,7 +73,8 @@ class Command(BaseCommand):
             policy=policy,
         )
 
-        self.stdout.write(f"ZPT SKU: {listing.product.sku}")
+        article = listing.product.article or f"product-{listing.product_id}"
+        self.stdout.write(f"ZPT артикул: {article}")
         self.stdout.write(f"Kaspi master SKU: {listing.master_sku}")
         self.stdout.write(f"Kaspi merchant SKU: {listing.merchant_sku}")
         self.stdout.write(f"Текущая цена: {decision.current_price} ₸")
