@@ -60,10 +60,11 @@ class KaspiRepricerRule(models.Model):
     class Meta:
         verbose_name = "Правило репрайсера Kaspi"
         verbose_name_plural = "Правила репрайсера Kaspi"
-        ordering = ("listing__product__sku",)
+        ordering = ("listing__product__article", "listing_id")
 
     def __str__(self):
-        return f"{self.listing.product.sku}: {self.get_mode_display()}"
+        article = self.listing.product.article or f"product-{self.listing.product_id}"
+        return f"{article}: {self.get_mode_display()}"
 
 
 class KaspiCompetitorOfferSnapshot(models.Model):
@@ -124,7 +125,8 @@ class KaspiOwnPriceSnapshot(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.listing.product.sku}: {self.price} ₸"
+        article = self.listing.product.article or f"product-{self.listing.product_id}"
+        return f"{article}: {self.price} ₸"
 
 
 class KaspiRepricerRecommendation(models.Model):
@@ -188,7 +190,5 @@ class KaspiRepricerRecommendation(models.Model):
         ]
 
     def __str__(self):
-        return (
-            f"{self.listing.product.sku}: "
-            f"{self.current_price} → {self.recommended_price} ₸"
-        )
+        article = self.listing.product.article or f"product-{self.listing.product_id}"
+        return f"{article}: {self.current_price} → {self.recommended_price} ₸"
