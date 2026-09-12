@@ -1,7 +1,7 @@
 from decimal import Decimal
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from catalog.models import Product, ProductKaspiListing
@@ -34,6 +34,10 @@ class KaspiRepricerDashboardTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/admin/login/", response["Location"])
 
+    @override_settings(
+        KASPI_OWN_MERCHANT_IDS="",
+        KASPI_OWN_MERCHANT_NAMES="",
+    )
     def test_staff_user_can_open_dashboard(self):
         user = get_user_model().objects.create_user(
             username="repricer-staff",
@@ -47,4 +51,5 @@ class KaspiRepricerDashboardTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Репрайсер Kaspi")
         self.assertContains(response, "AIR-TEST-001")
+        self.assertContains(response, "Рекомендации по публичным данным заблокированы")
         self.assertEqual(response["X-Robots-Tag"], "noindex, nofollow")
