@@ -105,15 +105,27 @@ class KaspiPublicOfferSource:
 
     @staticmethod
     def _product_id(master_sku: str) -> str:
-        product_id = str(master_sku or "").strip()
-        if not product_id:
+        """Extract the numeric Kaspi card id from an exported SKU.
+
+        Kaspi exports can contain values such as ``116207063_792647100``.
+        The public card id is the numeric prefix before the first underscore.
+        Plain numeric SKUs are used as-is.  Anything else fails closed.
+        """
+
+        raw_sku = str(master_sku or "").strip()
+        if not raw_sku:
             raise CompetitorPriceSourceError("Kaspi master_sku пустой.")
-        if not product_id.isdigit():
-            raise CompetitorPriceSourceError(
-                "Публичный сборщик Kaspi ожидает числовой master_sku/product id: "
-                f"{product_id!r}."
-            )
-        return product_id
+        if raw_sku.isdigit():
+            return raw_sku
+
+        prefix = raw_sku.split("_", 1)[0].strip()
+        if prefix.isdigit():
+            return prefix
+
+        raise CompetitorPriceSourceError(
+            "Не удалось получить числовой Kaspi product id из master_sku: "
+            f"{raw_sku!r}."
+        )
 
     @staticmethod
     def _decimal_price(value: object) -> Decimal | None:
@@ -151,6 +163,7 @@ class KaspiPublicOfferSource:
             "Referer": referer,
             "User-Agent": "ZPT-KZ-KaspiRepricer/1.0 (+https://zpt.kz)",
             "X-KS-City": self.city_id,
+            "X-Requested-With": "XMLHttpRequest",
         }
 
         try:
