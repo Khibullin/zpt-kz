@@ -31,7 +31,7 @@ class Migration(migrations.Migration):
             options={
                 "verbose_name": "Правило репрайсера Kaspi",
                 "verbose_name_plural": "Правила репрайсера Kaspi",
-                "ordering": ("listing__product__sku",),
+                "ordering": ("listing__product__article", "listing_id"),
             },
         ),
         migrations.CreateModel(
