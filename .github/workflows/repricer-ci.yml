@@ -11,6 +11,8 @@ on:
       - 'scripts/kaspi_readonly_pilot.py'
       - 'backend/settings.py'
       - 'backend/urls.py'
+      - 'backend/startup_tasks.py'
+      - 'backend/wsgi.py'
       - 'requirements.txt'
       - '.github/workflows/repricer-ci.yml'
   push:
@@ -45,31 +47,3 @@ jobs:
 
       - name: Repricer tests
         run: python manage.py test catalog.tests.test_kaspi_repricing repricer.tests -v 2
-
-  pilot-readonly:
-    if: github.event_name == 'push'
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
-          cache: pip
-
-      - name: Install dependencies
-        run: python -m pip install --upgrade pip && pip install -r requirements.txt
-
-      - name: Collect 8 Kaspi cards read-only
-        run: PYTHONPATH=. python scripts/kaspi_readonly_pilot.py
-
-      - name: Upload pilot report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: kaspi-readonly-pilot
-          path: kaspi_pilot.json
-          if-no-files-found: warn
