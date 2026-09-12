@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from django.core.validators import MinValueValidator
 from django.db import models
 
@@ -41,14 +43,14 @@ class KaspiRepricerRule(models.Model):
         max_digits=10,
         decimal_places=2,
         default=1,
-        validators=[MinValueValidator(0.01)],
+        validators=[MinValueValidator(Decimal("0.01"))],
     )
     max_change_percent = models.DecimalField(
         "Макс. изменение за расчёт, %",
         max_digits=6,
         decimal_places=2,
         default=10,
-        validators=[MinValueValidator(0.01)],
+        validators=[MinValueValidator(Decimal("0.01"))],
     )
     allow_raise = models.BooleanField("Разрешать повышение", default=True)
     is_enabled = models.BooleanField("Включён", default=True, db_index=True)
@@ -77,7 +79,7 @@ class KaspiCompetitorOfferSnapshot(models.Model):
         "Цена",
         max_digits=14,
         decimal_places=2,
-        validators=[MinValueValidator(0.01)],
+        validators=[MinValueValidator(Decimal("0.01"))],
     )
     position = models.PositiveIntegerField("Позиция", null=True, blank=True)
     is_available = models.BooleanField("В наличии", default=True)
@@ -108,7 +110,7 @@ class KaspiOwnPriceSnapshot(models.Model):
         "Наша цена",
         max_digits=14,
         decimal_places=2,
-        validators=[MinValueValidator(0.01)],
+        validators=[MinValueValidator(Decimal("0.01"))],
     )
     source = models.CharField("Источник", max_length=64, default="sync")
     captured_at = models.DateTimeField("Получено", db_index=True)
