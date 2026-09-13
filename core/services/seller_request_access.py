@@ -34,7 +34,10 @@ def create_seller_request_access(
     request: Request | None = None,
     seller: Seller | None = None,
     ttl: timedelta | None = None,
+    require_binding: bool = False,
 ) -> SellerRequestAccess:
+    if require_binding and (request is None or seller is None):
+        raise ValueError('Seller request access requires both request and seller.')
     expires_at = timezone.now() + (ttl or DEFAULT_TTL)
     for _ in range(8):
         token = generate_seller_request_access_token()
@@ -53,7 +56,11 @@ def find_seller_request_access(token: object) -> SellerRequestAccess | None:
     value = str(token or '').strip()
     if not value or len(value) > SELLER_REQUEST_ACCESS_TOKEN_MAX_LENGTH:
         return None
-    return SellerRequestAccess.objects.filter(token=value).first()
+    return (
+        SellerRequestAccess.objects.select_related('request', 'seller')
+        .filter(token=value)
+        .first()
+    )
 
 
 def build_seller_request_access_url(access: SellerRequestAccess) -> str:

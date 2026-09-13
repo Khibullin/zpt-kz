@@ -50,6 +50,7 @@ from core.services.seller_request_access import (
     create_seller_request_access,
     seller_request_whatsapp_url_suffix,
 )
+from core.services.seller_request_page_events import seller_match_status_label
 from .buyer_portal import (
     REQUEST_STATUS_LABELS,
     build_request_sellers,
@@ -77,6 +78,8 @@ from .models import (
     BroadcastSettings,
     WhatsAppMessageLog,
     BuyerPortalAccess,
+    SellerRequestPageEvent,
+    SELLER_REQUEST_PAGE_OUTCOME_TYPES,
 )
 
 from catalog.instagram_service import schedule_instagram_publication_for_request
@@ -200,7 +203,11 @@ def build_seller_request_send_kwargs(req, seller) -> dict:
         consent_kwargs['body_parameters'] = _seller_consent_template_body_params(req)
         return consent_kwargs
 
-    access = create_seller_request_access(request=req, seller=seller)
+    access = create_seller_request_access(
+        request=req,
+        seller=seller,
+        require_binding=True,
+    )
     return {
         'template_name': resolve_seller_request_notification_template_name(),
         'body_parameters': _seller_template_body_params(req),
@@ -1425,17 +1432,19 @@ def seller_requests(request):
         matches = matches.filter(request__created_at__gte=now - timedelta(days=30))
 
     data = []
+    request_ids = [match.request_id for match in matches]
+    outcome_by_request = {
+        event.request_id: event.event_type
+        for event in SellerRequestPageEvent.objects.filter(
+            seller=seller,
+            request_id__in=request_ids,
+            event_type__in=SELLER_REQUEST_PAGE_OUTCOME_TYPES,
+        ).order_by('created_at', 'id')
+    }
 
     for match in matches:
         req = match.request
-
-        status_map = {
-            'prepared': 'Новая',
-            'viewed': 'Просмотрена',
-            'sent': 'Отправлена',
-            'contacted': 'В работе',
-            'done': 'Закрыта',
-        }
+        display_status = outcome_by_request.get(req.id) or match.status
 
         data.append({
             'id': req.id,
@@ -1448,7 +1457,7 @@ def seller_requests(request):
             'whatsapp_url': build_whatsapp_url(req.phone),
             'created_at': req.created_at.strftime('%d.%m.%Y %H:%M') if hasattr(req, 'created_at') else '',
             'match_id': match.id,
-            'match_status': status_map.get(match.status, match.status),
+            'match_status': seller_match_status_label(display_status),
         })
 
     return JsonResponse({

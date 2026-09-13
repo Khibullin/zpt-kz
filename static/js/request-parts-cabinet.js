@@ -17,9 +17,9 @@ function normalizePhone(v){
 }
 function showLogin(){loginBox.classList.remove('hidden');cabinetApp.classList.add('hidden')}
 function showCabinet(){loginBox.classList.add('hidden');cabinetApp.classList.remove('hidden')}
-function labelStatus(s){if(s==='Новая'||s==='prepared')return 'Новая';if(s==='Отправлена'||s==='sent')return 'Отправлена';if(s==='Просмотрена'||s==='viewed')return 'Просмотрена';if(s==='В работе'||s==='contacted')return 'Связался';if(s==='Закрыта'||s==='done')return 'Отказ';return s||'Новая'}
-function statusClass(s){let t=labelStatus(s);if(t==='Новая')return 'badge-new';if(t==='Отправлена')return 'badge-sent';if(t==='Просмотрена')return 'badge-viewed';if(t==='Связался')return 'badge-contacted';if(t==='Отказ')return 'badge-done';return 'badge-new'}
-function statusKey(s){let t=labelStatus(s);if(t==='Новая')return 'new';if(t==='Отправлена')return 'sent';if(t==='Просмотрена')return 'viewed';if(t==='Связался')return 'contacted';if(t==='Отказ')return 'done';return 'new'}
+function labelStatus(s){if(s==='Новая'||s==='prepared')return 'Новая';if(s==='Отправлена'||s==='sent')return 'Отправлена';if(s==='Просмотрена'||s==='viewed')return 'Просмотрена';if(s==='В работе'||s==='contacted')return 'Связался';if(s==='Нет в наличии'||s==='unavailable'||s==='out_of_stock')return 'Нет в наличии';if(s==='Не могу выполнить заявку'||s==='declined'||s==='cannot_fulfill')return 'Не могу выполнить заявку';if(s==='Закрыта'||s==='done')return 'Отказ';return s||'Новая'}
+function statusClass(s){let t=labelStatus(s);if(t==='Новая')return 'badge-new';if(t==='Отправлена')return 'badge-sent';if(t==='Просмотрена')return 'badge-viewed';if(t==='Связался')return 'badge-contacted';if(t==='Отказ'||t==='Нет в наличии'||t==='Не могу выполнить заявку')return 'badge-done';return 'badge-new'}
+function statusKey(s){let t=labelStatus(s);if(t==='Новая')return 'new';if(t==='Отправлена')return 'sent';if(t==='Просмотрена')return 'viewed';if(t==='Связался')return 'contacted';if(t==='Отказ'||t==='Нет в наличии'||t==='Не могу выполнить заявку')return 'done';return 'new'}
 function escHtml(v){return String(v ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
 function ids(arr){return (arr||[]).map(x=>Number(x.id)).filter(Boolean)}
 function getCookie(name){const match=document.cookie.match(new RegExp('(^| )'+name+'=([^;]+)'));return match?decodeURIComponent(match[2]):''}

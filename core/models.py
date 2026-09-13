@@ -93,6 +93,7 @@ CONTACT_CONSENT_SOURCE_WHATSAPP = 'whatsapp'
 CONTACT_CONSENT_SOURCE_ADMIN = 'admin'
 CONTACT_CONSENT_SOURCE_IMPORT = 'import'
 CONTACT_CONSENT_SOURCE_SELLER_PORTAL = 'seller_portal'
+CONTACT_CONSENT_SOURCE_SELLER_REQUEST_PAGE = 'seller_req_page'
 
 CONTACT_CONSENT_SOURCE_CHOICES = [
     (CONTACT_CONSENT_SOURCE_REQUEST_FORM, 'Форма заявки'),
@@ -102,11 +103,13 @@ CONTACT_CONSENT_SOURCE_CHOICES = [
     (CONTACT_CONSENT_SOURCE_ADMIN, 'Админ'),
     (CONTACT_CONSENT_SOURCE_IMPORT, 'Импорт'),
     (CONTACT_CONSENT_SOURCE_SELLER_PORTAL, 'Кабинет продавца'),
+    (CONTACT_CONSENT_SOURCE_SELLER_REQUEST_PAGE, 'Страница заявки продавца'),
 ]
 
 SELLER_REGISTRATION_WHATSAPP_CONSENT_VERSION = 'seller_registration_whatsapp_v1'
 SELLER_PORTAL_WHATSAPP_CONSENT_VERSION = 'seller_portal_whatsapp_v1'
 SELLER_LINK_WHATSAPP_CONSENT_VERSION = 'seller_link_whatsapp_v1'
+SELLER_REQUEST_PAGE_WHATSAPP_CONSENT_VERSION = 'seller_request_page_whatsapp_v1'
 SELLER_WHATSAPP_CONSENT_OPT_IN_TEXT = (
     'Я согласен получать в WhatsApp заявки покупателей, уведомления '
     'и информацию о возможностях ZPT.KZ.'
@@ -119,6 +122,34 @@ SELLER_CONFIRM_ACTION_YES = 'seller_confirm_yes'
 SELLER_CONFIRM_ACTION_NO = 'seller_confirm_no'
 
 SELLER_REQUEST_ACCESS_TOKEN_MAX_LENGTH = 64
+
+SELLER_REQUEST_PAGE_EVENT_PAGE_OPEN = 'page_open'
+SELLER_REQUEST_PAGE_EVENT_WHATSAPP_CLICK = 'whatsapp_click'
+SELLER_REQUEST_PAGE_EVENT_CALL_CLICK = 'call_click'
+SELLER_REQUEST_PAGE_EVENT_CONSENT_YES = 'marketing_consent_yes'
+SELLER_REQUEST_PAGE_EVENT_CONSENT_NO = 'marketing_consent_no'
+SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK = 'out_of_stock'
+SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL = 'cannot_fulfill'
+
+SELLER_REQUEST_PAGE_EVENT_CHOICES = [
+    (SELLER_REQUEST_PAGE_EVENT_PAGE_OPEN, 'Открытие страницы'),
+    (SELLER_REQUEST_PAGE_EVENT_WHATSAPP_CLICK, 'Клик WhatsApp'),
+    (SELLER_REQUEST_PAGE_EVENT_CALL_CLICK, 'Клик звонка'),
+    (SELLER_REQUEST_PAGE_EVENT_CONSENT_YES, 'Согласие на предложения'),
+    (SELLER_REQUEST_PAGE_EVENT_CONSENT_NO, 'Отказ от предложений'),
+    (SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK, 'Нет в наличии'),
+    (SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL, 'Не могу выполнить заявку'),
+]
+
+SELLER_REQUEST_PAGE_OUTCOME_TYPES = frozenset({
+    SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK,
+    SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL,
+})
+
+SELLER_REQUEST_PAGE_CONSENT_TYPES = frozenset({
+    SELLER_REQUEST_PAGE_EVENT_CONSENT_YES,
+    SELLER_REQUEST_PAGE_EVENT_CONSENT_NO,
+})
 
 INBOUND_EVENT_STATUS_PROCESSED = 'processed'
 INBOUND_EVENT_STATUS_IGNORED = 'ignored'
@@ -1465,6 +1496,71 @@ class SellerRequestAccess(models.Model):
 
     def is_expired(self) -> bool:
         return self.expires_at <= timezone.now()
+
+
+class SellerRequestPageEvent(models.Model):
+    access = models.ForeignKey(
+        SellerRequestAccess,
+        on_delete=models.CASCADE,
+        related_name='page_events',
+        verbose_name='Ссылка доступа',
+    )
+    request = models.ForeignKey(
+        Request,
+        on_delete=models.CASCADE,
+        related_name='seller_page_events',
+        verbose_name='Заявка',
+    )
+    seller = models.ForeignKey(
+        'Seller',
+        on_delete=models.CASCADE,
+        related_name='request_page_events',
+        verbose_name='Продавец',
+    )
+    event_type = models.CharField(
+        max_length=32,
+        choices=SELLER_REQUEST_PAGE_EVENT_CHOICES,
+        verbose_name='Тип события',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Событие страницы заявки продавца'
+        verbose_name_plural = 'События страницы заявки продавца'
+        ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['access', 'event_type'],
+                name='uniq_sr_page_event_access_type',
+            ),
+            models.UniqueConstraint(
+                fields=['request', 'seller'],
+                condition=models.Q(
+                    event_type__in=[
+                        SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK,
+                        SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL,
+                    ]
+                ),
+                name='uniq_sr_page_outcome_request_seller',
+            ),
+            models.UniqueConstraint(
+                fields=['access'],
+                condition=models.Q(
+                    event_type__in=[
+                        SELLER_REQUEST_PAGE_EVENT_CONSENT_YES,
+                        SELLER_REQUEST_PAGE_EVENT_CONSENT_NO,
+                    ]
+                ),
+                name='uniq_sr_page_consent_access',
+            ),
+        ]
+        indexes = [
+            models.Index(fields=['request', 'seller', 'event_type']),
+            models.Index(fields=['access', 'event_type']),
+        ]
+
+    def __str__(self):
+        return f'{self.event_type} access={self.access_id} request={self.request_id}'
 
 
 class WhatsAppMessageLog(models.Model):

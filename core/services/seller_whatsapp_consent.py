@@ -16,12 +16,14 @@ from core.models import (
     CONTACT_CONSENT_PURPOSE_MARKETING,
     CONTACT_CONSENT_SOURCE_REGISTRATION,
     CONTACT_CONSENT_SOURCE_SELLER_PORTAL,
+    CONTACT_CONSENT_SOURCE_SELLER_REQUEST_PAGE,
     CONTACT_CONSENT_STATUS_GRANTED,
     CONTACT_CONSENT_STATUS_REVOKED,
     CONTACT_CONSENT_STATUS_UNKNOWN,
     SELLER_LINK_WHATSAPP_CONSENT_VERSION,
     SELLER_PORTAL_WHATSAPP_CONSENT_VERSION,
     SELLER_REGISTRATION_WHATSAPP_CONSENT_VERSION,
+    SELLER_REQUEST_PAGE_WHATSAPP_CONSENT_VERSION,
     Seller,
     SellerContactConsent,
 )
@@ -106,6 +108,7 @@ def set_seller_whatsapp_marketing_consent(
     source: str,
     consent_text_version: str,
     evidence_reference: str,
+    update_request_opt_in: bool = True,
 ) -> SellerContactConsent:
     with transaction.atomic():
         locked_seller = Seller.objects.select_for_update().get(pk=seller.pk)
@@ -141,17 +144,20 @@ def set_seller_whatsapp_marketing_consent(
             consent.status = CONTACT_CONSENT_STATUS_GRANTED
             consent.consented_at = now
             consent.revoked_at = None
-            locked_seller.receive_requests = True
-            locked_seller.is_paused = False
+            if update_request_opt_in:
+                locked_seller.receive_requests = True
+                locked_seller.is_paused = False
         else:
             consent.status = CONTACT_CONSENT_STATUS_REVOKED
             consent.revoked_at = now
-            locked_seller.receive_requests = False
-            locked_seller.is_paused = True
+            if update_request_opt_in:
+                locked_seller.receive_requests = False
+                locked_seller.is_paused = True
         consent.save()
-        locked_seller.save(update_fields=['receive_requests', 'is_paused'])
-        seller.receive_requests = locked_seller.receive_requests
-        seller.is_paused = locked_seller.is_paused
+        if update_request_opt_in:
+            locked_seller.save(update_fields=['receive_requests', 'is_paused'])
+            seller.receive_requests = locked_seller.receive_requests
+            seller.is_paused = locked_seller.is_paused
         return consent
 
 
@@ -183,6 +189,36 @@ def apply_seller_portal_whatsapp_consent(
         source=CONTACT_CONSENT_SOURCE_SELLER_PORTAL,
         consent_text_version=SELLER_PORTAL_WHATSAPP_CONSENT_VERSION,
         evidence_reference=f'seller_portal:authenticated:seller:{seller.pk}',
+    )
+
+
+def seller_needs_request_page_marketing_prompt(seller: Seller | None) -> bool:
+    """True when the seller has not yet chosen marketing yes/no."""
+    if seller is None:
+        return False
+    if not normalize_kz_phone(getattr(seller, 'whatsapp', '')):
+        return False
+    status = get_seller_whatsapp_marketing_consent_status(seller)
+    return status not in {
+        CONTACT_CONSENT_STATUS_GRANTED,
+        CONTACT_CONSENT_STATUS_REVOKED,
+    }
+
+
+def apply_seller_request_page_marketing_consent(
+    seller: Seller,
+    *,
+    granted: bool,
+    evidence_reference: str,
+) -> SellerContactConsent:
+    """Record marketing yes/no without pausing buyer-request delivery."""
+    return set_seller_whatsapp_marketing_consent(
+        seller,
+        granted,
+        source=CONTACT_CONSENT_SOURCE_SELLER_REQUEST_PAGE,
+        consent_text_version=SELLER_REQUEST_PAGE_WHATSAPP_CONSENT_VERSION,
+        evidence_reference=evidence_reference,
+        update_request_opt_in=False,
     )
 
 

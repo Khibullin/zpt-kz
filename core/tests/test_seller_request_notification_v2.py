@@ -6,7 +6,10 @@ from django.utils import timezone
 
 from core.models import Request, RequestDispatch, Seller, SellerRequestAccess
 from core.request_dispatch_service import send_single_dispatch
-from core.services.seller_request_access import seller_request_whatsapp_url_suffix
+from core.services.seller_request_access import (
+    create_seller_request_access,
+    seller_request_whatsapp_url_suffix,
+)
 from core.views import (
     CURRENT_SELLER_REQUEST_TEMPLATE_NAME,
     _buyer_template_body_params,
@@ -131,6 +134,15 @@ class SellerRequestNotificationV2Tests(TestCase):
         self.assertNotIn('https://', suffix)
         self.assertNotIn('/sr/', suffix)
         self.assertTrue(suffix.endswith('/'))
+
+    def test_bound_access_is_required_for_v2_dispatch_helper(self):
+        with self.assertRaises(ValueError):
+            create_seller_request_access(request=self.req, require_binding=True)
+        kwargs = build_seller_request_send_kwargs(self.req, self.seller)
+        access = SellerRequestAccess.objects.get(request=self.req, seller=self.seller)
+        self.assertIsNotNone(access.request_id)
+        self.assertIsNotNone(access.seller_id)
+        self.assertEqual(kwargs['template_name'], 'zpt_request_notification_v2')
 
     @override_settings(WHATSAPP_TEMPLATE_LANG='ru')
     @patch.dict(

@@ -1,7 +1,11 @@
 {% extends 'base_portal.html' %}
 {% load static %}
 
-{% block title %}Заявка ZPT.KZ{% endblock %}
+{% block title %}Страница заявки — ZPT.KZ{% endblock %}
+
+{% block extra_head %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+{% endblock %}
 
 {% block seo_meta %}
 <meta name="robots" content="{{ seo_robots }}">
@@ -21,7 +25,7 @@
     padding: 24px 20px;
   }
   .sr-card h1 {
-    margin: 0 0 12px;
+    margin: 0 0 16px;
     font-size: 22px;
     line-height: 1.3;
   }
@@ -31,20 +35,225 @@
     line-height: 1.5;
     color: #374151;
   }
+  .sr-meta {
+    margin: 0 0 8px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #111;
+  }
+  .sr-line {
+    margin: 0 0 6px;
+    font-size: 16px;
+    color: #111;
+  }
+  .sr-label {
+    margin: 16px 0 6px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+  }
+  .sr-comment {
+    margin: 0;
+    font-size: 16px;
+    line-height: 1.5;
+    color: #111;
+    white-space: pre-wrap;
+  }
+  .sr-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .sr-btn {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    text-align: center;
+    text-decoration: none;
+    border: 0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .sr-btn:disabled {
+    opacity: .6;
+    cursor: default;
+  }
+  .sr-btn-wa {
+    background: #25D366;
+    color: #fff;
+  }
+  .sr-btn-call {
+    background: #111;
+    color: #fff;
+  }
+  .sr-extra {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #ececec;
+  }
+  .sr-extra h2 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #6b7280;
+  }
+  .sr-extra-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sr-btn-extra {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    font-weight: 600;
+  }
+  .sr-note {
+    margin-top: 10px;
+    font-size: 15px;
+    color: #111;
+  }
+  .sr-error {
+    margin-top: 10px;
+    font-size: 14px;
+    color: #b91c1c;
+  }
+  .sr-modal[hidden] {
+    display: none;
+  }
+  .sr-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 16px;
+    background: rgba(17, 24, 39, .45);
+  }
+  .sr-modal-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px 18px 18px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, .18);
+  }
+  .sr-modal-card h2 {
+    margin: 0 0 8px;
+    font-size: 18px;
+    line-height: 1.35;
+    color: #111;
+  }
+  .sr-modal-card p {
+    margin: 0 0 16px;
+    font-size: 15px;
+    line-height: 1.45;
+    color: #4b5563;
+  }
+  .sr-modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sr-btn-yes {
+    background: #111;
+    color: #fff;
+  }
+  .sr-btn-no {
+    background: #f3f4f6;
+    color: #111;
+  }
+  @media (min-width: 560px) {
+    .sr-modal {
+      align-items: center;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <main class="sr-page">
   <section class="sr-card">
-    <h1>Заявка ZPT.KZ</h1>
     {% if page_state == 'valid' %}
-      <p>Ссылка действительна. Полная страница обработки заявки будет доступна здесь.</p>
+      <h1>Страница заявки</h1>
+      <p class="sr-meta">Заявка №{{ request_number }}</p>
+      {% if vehicle %}<p class="sr-line">{{ vehicle }}</p>{% endif %}
+      {% if category %}<p class="sr-line">{{ category }}</p>{% endif %}
+      {% if city %}<p class="sr-line">{{ city }}</p>{% endif %}
+      {% if comment %}
+        <p class="sr-label">Комментарий покупателя:</p>
+        <p class="sr-comment">{{ comment }}</p>
+      {% endif %}
+
+      <div
+        id="sr-page-root"
+        class="sr-actions"
+        data-needs-consent="{% if needs_consent %}1{% else %}0{% endif %}"
+        data-whatsapp-url="{{ whatsapp_url }}"
+        data-tel-url="{{ tel_url }}"
+      >
+        {% csrf_token %}
+        {% if whatsapp_url %}
+          <button type="button" class="sr-btn sr-btn-wa" id="sr-whatsapp">Написать покупателю в WhatsApp</button>
+        {% endif %}
+        {% if tel_url %}
+          <button type="button" class="sr-btn sr-btn-call" id="sr-call">Позвонить покупателю</button>
+        {% endif %}
+        <p id="sr-contact-error" class="sr-error" hidden></p>
+      </div>
+
+      {% if can_decline or decline_message %}
+        <div class="sr-extra">
+          <h2>Дополнительно:</h2>
+          <div id="sr-decline-actions" class="sr-extra-row"{% if not can_decline %} hidden{% endif %}>
+            <button class="sr-btn sr-btn-extra" type="button" data-sr-action="unavailable">Нет в наличии</button>
+            <button class="sr-btn sr-btn-extra" type="button" data-sr-action="decline">Не могу выполнить заявку</button>
+          </div>
+          <p id="sr-decline-note" class="sr-note"{% if not decline_message %} hidden{% endif %}>{{ decline_message }}</p>
+          <p id="sr-decline-error" class="sr-error" hidden></p>
+        </div>
+      {% endif %}
     {% elif page_state == 'expired' %}
+      <h1>Заявка ZPT.KZ</h1>
       <p>Срок действия ссылки истёк.</p>
     {% else %}
+      <h1>Заявка ZPT.KZ</h1>
       <p>Ссылка недействительна или больше не доступна.</p>
     {% endif %}
   </section>
 </main>
+
+{% if page_state == 'valid' and needs_consent %}
+  <div
+    class="sr-modal"
+    id="sr-consent-modal"
+    hidden
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="sr-consent-title"
+    aria-describedby="sr-consent-text"
+  >
+    <div class="sr-modal-card">
+      <h2 id="sr-consent-title">Получать выгодные предложения ZPT.KZ в WhatsApp?</h2>
+      <p id="sr-consent-text">Вы продолжите получать заявки покупателей независимо от выбора.</p>
+      <div class="sr-modal-actions">
+        <button class="sr-btn sr-btn-yes" type="button" data-sr-consent="consent_yes">Да, получать</button>
+        <button class="sr-btn sr-btn-no" type="button" data-sr-consent="consent_no">Нет, только заявки</button>
+      </div>
+      <p id="sr-consent-error" class="sr-error" hidden></p>
+    </div>
+  </div>
+{% endif %}
+{% endblock %}
+
+{% block portal_js %}
+{% if page_state == 'valid' %}
+<script src="{% static 'js/seller-request-page.js' %}?v=2"></script>
+{% endif %}
 {% endblock %}
