@@ -1,6 +1,7 @@
 """Secure seller request landing links: /sr/<token>/.
 
-Not wired into WhatsApp send. Tokens are random, unique, and expire.
+Tokens are random, unique, and expire. WhatsApp template buttons receive only
+the path suffix after the Meta base URL https://zpt.kz/sr/.
 """
 
 from __future__ import annotations
@@ -59,3 +60,15 @@ def build_seller_request_access_url(access: SellerRequestAccess) -> str:
     path = reverse('seller_request_link', kwargs={'token': access.token})
     base = str(getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz') or 'https://zpt.kz')
     return f'{base.rstrip("/")}{path}'
+
+
+def seller_request_whatsapp_url_suffix(token: object) -> str:
+    """Dynamic URL button value for Meta template https://zpt.kz/sr/{{1}}.
+
+    Meta concatenates the approved base URL with this suffix, so the value must
+    be only ``<token>/`` — never a full URL and never another ``/sr/`` prefix.
+    """
+    value = str(token or '').strip().strip('/')
+    if not value:
+        return '-'
+    return f'{value}/'

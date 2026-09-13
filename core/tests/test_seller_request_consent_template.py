@@ -104,6 +104,7 @@ class SellerRequestConsentRoutingTests(TestCase):
         self.assertEqual(call.kwargs['template_name'], SELLER_REQUEST_CONSENT_TEMPLATE)
         self.assertFalse(call.kwargs['include_image_header'])
         self.assertEqual(len(call.kwargs['button_components']), 2)
+        self.assertEqual(len(call.kwargs['body_parameters']), 7)
 
     @patch.dict(os.environ, {'WHATSAPP_SELLER_CONSENT_TEMPLATE_ENABLED': 'true'})
     def test_granted_consent_keeps_existing_request_template(self):
@@ -125,7 +126,14 @@ class SellerRequestConsentRoutingTests(TestCase):
             result = send_single_dispatch(dispatch)
 
         self.assertTrue(result['ok'])
-        self.assertEqual(mocked_send.call_args.kwargs, {})
+        call = mocked_send.call_args
+        self.assertEqual(
+            call.kwargs['template_name'],
+            'zpt_request_notification_v2',
+        )
+        self.assertEqual(len(call.kwargs['body_parameters']), 6)
+        self.assertEqual(len(call.kwargs['button_components']), 1)
+        self.assertEqual(call.kwargs['button_components'][0]['sub_type'], 'url')
 
     @patch.dict(os.environ, {'WHATSAPP_SELLER_CONSENT_TEMPLATE_ENABLED': 'false'})
     def test_feature_flag_prevents_use_before_meta_approval(self):

@@ -211,7 +211,7 @@ META_PHONE_NUMBER_ID = (
 
 WHATSAPP_TEMPLATE_NAME = os.getenv(
     "WHATSAPP_TEMPLATE_NAME",
-    "mp_request_v1",
+    "zpt_request_notification_v2",
 )
 
 WHATSAPP_TEMPLATE_LANG = os.getenv(
@@ -222,6 +222,11 @@ WHATSAPP_TEMPLATE_LANG = os.getenv(
 WHATSAPP_BUYER_TEMPLATE_NAME = os.getenv(
     "WHATSAPP_BUYER_TEMPLATE_NAME",
     "zpt_buyer_request_receipt",
+)
+
+WHATSAPP_SERVICE_TEMPLATE_NAME = os.getenv(
+    "WHATSAPP_SERVICE_TEMPLATE_NAME",
+    "zpt_request_notification",
 )
 
 WHATSAPP_WEBHOOK_VERIFY_TOKEN = os.getenv(

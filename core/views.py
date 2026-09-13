@@ -45,6 +45,11 @@ from core.whatsapp_template_sender import (
     wa_template_param,
 )
 from core.phone_utils import build_whatsapp_url
+from core.seller_request_consent import seller_request_template_kwargs
+from core.services.seller_request_access import (
+    create_seller_request_access,
+    seller_request_whatsapp_url_suffix,
+)
 from .buyer_portal import (
     REQUEST_STATUS_LABELS,
     build_request_sellers,
@@ -82,6 +87,11 @@ from .services.buyer_contact_service import (
 )
 
 
+CURRENT_SELLER_REQUEST_TEMPLATE_NAME = 'zpt_request_notification_v2'
+LEGACY_SELLER_REQUEST_TEMPLATE_NAMES = frozenset({
+    'mp_request_v1',
+    'zpt_request_notification',
+})
 WAVE_SIZE = 20
 WAVE_INTERVAL_MINUTES = 5
 logger = logging.getLogger(__name__)
@@ -131,7 +141,24 @@ def _description_with_request_link(req):
     return combined[:500]
 
 
+def _seller_template_comment(req):
+    return (req.description or '').strip()
+
+
 def _seller_template_body_params(req):
+    """Body parameters for zpt_request_notification_v2 (6 variables)."""
+    return [
+        _wa_template_param(req.id),
+        _wa_template_param(req.brand),
+        _wa_template_param(req.model),
+        _wa_template_param(req.category),
+        _wa_template_param(req.city),
+        _wa_template_param(_seller_template_comment(req)),
+    ]
+
+
+def _seller_consent_template_body_params(req):
+    """Body parameters for the optional consent template (7 variables)."""
     return [
         _wa_template_param(req.id),
         _wa_template_param(req.brand),
@@ -141,6 +168,45 @@ def _seller_template_body_params(req):
         _wa_template_param(_description_with_request_link(req)),
         _wa_template_param(_format_whatsapp_display(req.phone)),
     ]
+
+
+def resolve_seller_request_notification_template_name() -> str:
+    name = (
+        getattr(settings, 'WHATSAPP_TEMPLATE_NAME', None)
+        or os.getenv('WHATSAPP_TEMPLATE_NAME', '')
+        or CURRENT_SELLER_REQUEST_TEMPLATE_NAME
+    ).strip()
+    if name.lower() in LEGACY_SELLER_REQUEST_TEMPLATE_NAMES:
+        return CURRENT_SELLER_REQUEST_TEMPLATE_NAME
+    return name or CURRENT_SELLER_REQUEST_TEMPLATE_NAME
+
+
+def _seller_request_url_button_components(token: str) -> list[dict]:
+    return [
+        {
+            'type': 'button',
+            'sub_type': 'url',
+            'index': '0',
+            'parameters': [
+                _wa_template_param(seller_request_whatsapp_url_suffix(token)),
+            ],
+        },
+    ]
+
+
+def build_seller_request_send_kwargs(req, seller) -> dict:
+    consent_kwargs = seller_request_template_kwargs(seller)
+    if consent_kwargs:
+        consent_kwargs['body_parameters'] = _seller_consent_template_body_params(req)
+        return consent_kwargs
+
+    access = create_seller_request_access(request=req, seller=seller)
+    return {
+        'template_name': resolve_seller_request_notification_template_name(),
+        'body_parameters': _seller_template_body_params(req),
+        'button_components': _seller_request_url_button_components(access.token),
+        'include_image_header': False,
+    }
 
 
 def _buyer_template_body_params(req, sellers_count=0):
@@ -442,11 +508,11 @@ def send_whatsapp_template(
 ):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
-    template_name = template_name or os.getenv(
-        'WHATSAPP_TEMPLATE_NAME',
-        'mp_request_v1',
-    )
-    template_lang = os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru').strip() or 'ru'
+    template_name = template_name or resolve_seller_request_notification_template_name()
+    template_lang = (
+        getattr(settings, 'WHATSAPP_TEMPLATE_LANG', None)
+        or os.getenv('WHATSAPP_TEMPLATE_LANG', 'ru')
+    ).strip() or 'ru'
 
     to_phone = _normalize_whatsapp(to_phone)
 

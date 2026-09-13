@@ -9,7 +9,6 @@ from django.db.models import Max
 from django.utils import timezone
 
 from core.models import BroadcastSettings, Match, RequestDispatch, WhatsAppMessageLog
-from core.seller_request_consent import seller_request_template_kwargs
 
 logger = logging.getLogger(__name__)
 
@@ -319,7 +318,7 @@ def _mark_dispatch_sent(
 
 def send_single_dispatch(dispatch: RequestDispatch) -> dict:
     """Send one dispatch via Meta API. sent_at is set only after success."""
-    from core.views import send_whatsapp_template
+    from core.views import build_seller_request_send_kwargs, send_whatsapp_template
 
     with transaction.atomic():
         locked_dispatch = (
@@ -346,7 +345,7 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
             dispatch.seller.whatsapp,
             dispatch.request,
             dispatch.seller.name,
-            **seller_request_template_kwargs(dispatch.seller),
+            **build_seller_request_send_kwargs(dispatch.request, dispatch.seller),
         )
     except Exception as exc:
         with transaction.atomic():

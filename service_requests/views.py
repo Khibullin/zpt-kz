@@ -236,8 +236,8 @@ def send_service_whatsapp_to_seller(req, seller):
     phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
     access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
     template_name = os.getenv(
-        'WHATSAPP_TEMPLATE_NAME',
-        'mp_request_v1',
+        'WHATSAPP_SERVICE_TEMPLATE_NAME',
+        'zpt_request_notification',
     )
     template_lang = os.getenv(
         'WHATSAPP_TEMPLATE_LANG',
