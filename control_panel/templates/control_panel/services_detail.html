@@ -2,17 +2,17 @@
 
 {% block content %}
   <section class="cp-card">
+    <h2>Данные заявки</h2>
     <dl class="cp-dl">
       <dt>Номер</dt><dd>{{ service_request.pk }}</dd>
       <dt>Дата</dt><dd>{{ service_request.created_at|date:'d.m.Y H:i' }}</dd>
-      <dt>Тип</dt><dd>{{ service_type }}</dd>
+      <dt>Вид</dt><dd>{{ service_type }}</dd>
       <dt>Услуги</dt><dd>{{ services }}</dd>
       <dt>Город</dt><dd>{{ service_request.city|default:'—' }}</dd>
       <dt>Район</dt><dd>{{ service_request.district|default:'—' }}</dd>
       <dt>Автомобиль</dt><dd>{{ vehicle }}</dd>
       <dt>Комментарий</dt><dd>{{ service_request.description|default:'—' }}</dd>
-      <dt>Клиент</dt><dd>{{ masked_phone }}</dd>
-      <dt>Статус заявки</dt><dd>{{ status }}</dd>
+      <dt>Телефон</dt><dd>{{ masked_phone }}</dd>
     </dl>
   </section>
 
@@ -21,7 +21,7 @@
     {% if matches %}
       <div class="cp-table-wrap">
         <table class="cp-table">
-          <thead><tr><th>СТО</th><th>Статус match</th><th>Создано</th></tr></thead>
+          <thead><tr><th>СТО</th><th>Статус направления</th><th>Дата</th></tr></thead>
           <tbody>
             {% for row in matches %}
               <tr>
@@ -39,11 +39,11 @@
   </section>
 
   <section class="cp-card">
-    <h2>WhatsApp-логи</h2>
+    <h2>История WhatsApp-уведомлений</h2>
     {% if logs %}
       <div class="cp-table-wrap">
         <table class="cp-table">
-          <thead><tr><th>Дата</th><th>СТО</th><th>Тип</th><th>Статус</th></tr></thead>
+          <thead><tr><th>Дата</th><th>СТО</th><th>Тип</th><th>Статус отправки</th></tr></thead>
           <tbody>
             {% for row in logs %}
               <tr>
@@ -57,7 +57,7 @@
         </table>
       </div>
     {% else %}
-      <p class="cp-empty">Логов нет.</p>
+      <p class="cp-empty">Уведомлений нет.</p>
     {% endif %}
   </section>
 {% endblock %}

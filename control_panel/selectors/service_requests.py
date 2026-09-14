@@ -8,12 +8,14 @@ from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
 from control_panel.display import (
-    dash,
-    mask_phone,
-    vehicle_label,
-    whatsapp_log_status_label,
     SERVICE_MATCH_STATUS_LABELS,
     SERVICE_TYPE_LABELS,
+    dash,
+    mask_phone,
+    summarize_names,
+    vehicle_label,
+    whatsapp_log_status_label,
+    whatsapp_message_type_label,
 )
 from control_panel.periods import (
     DEFAULT_LIST_PERIOD,
@@ -28,9 +30,9 @@ from control_panel.selectors.common import (
     paginate,
 )
 from service_requests.models import (
+    Service,
     ServiceMatch,
     ServiceRequest,
-    ServiceSeller,
     ServiceWhatsAppMessageLog,
 )
 
@@ -45,13 +47,31 @@ class ServiceRequestRow:
     vehicle: str
     matched: int
     notified: int
-    replies: str
-    status: str
 
 
-def _service_names(request_obj: ServiceRequest) -> str:
-    names = [item.name for item in request_obj.services.all()]
-    return dash(', '.join(names))
+def _ordered_service_names(holder) -> list[str]:
+    return [item.name for item in holder.services.all()]
+
+
+def _service_names(holder) -> str:
+    names = _ordered_service_names(holder)
+    return ', '.join(names) if names else '—'
+
+
+def _service_preview(holder) -> str:
+    return summarize_names(_ordered_service_names(holder))
+
+
+def _type_label(value: str) -> str:
+    return SERVICE_TYPE_LABELS.get(value) or 'Нет данных'
+
+
+def _match_status_label(value: str) -> str:
+    return SERVICE_MATCH_STATUS_LABELS.get(value) or 'Нет данных'
+
+
+def _services_prefetch():
+    return Prefetch('services', queryset=Service.objects.order_by('name', 'id'))
 
 
 def list_service_requests(params: QueryDict) -> dict:
@@ -82,23 +102,28 @@ def list_service_requests(params: QueryDict) -> dict:
     if city:
         queryset = queryset.filter(city__icontains=city)
     service_type = first_value(params, 'service_type')
-    if service_type:
+    if service_type in SERVICE_TYPE_LABELS:
         queryset = queryset.filter(service_type=service_type)
+    else:
+        service_type = ''
+    service_id = first_value(params, 'service')
+    if service_id.isdigit():
+        queryset = queryset.filter(services__pk=int(service_id)).distinct()
+    else:
+        service_id = ''
 
-    queryset = queryset.prefetch_related('services').order_by('-created_at', '-id')
+    queryset = queryset.prefetch_related(_services_prefetch()).order_by('-created_at', '-id')
     page = paginate(queryset, params)
     rows = [
         ServiceRequestRow(
             pk=item.pk,
             created_at=item.created_at,
-            service_type=SERVICE_TYPE_LABELS.get(item.service_type, item.service_type),
-            services=_service_names(item),
+            service_type=_type_label(item.service_type),
+            services=_service_preview(item),
             city=dash(item.city),
             vehicle=vehicle_label(item.brand, item.model),
             matched=item.matched,
             notified=item.notified,
-            replies='Нет данных',
-            status='Нет данных',
         )
         for item in page.object_list
     ]
@@ -114,23 +139,21 @@ def list_service_requests(params: QueryDict) -> dict:
         'querystring': page.querystring,
         'total': page.total,
         'cities': cities,
+        'service_options': list(Service.objects.order_by('name', 'id')),
         'filters': {
             'period': period,
             'q': search,
             'city': city,
             'service_type': service_type,
+            'service': service_id,
         },
-        'gaps': [
-            'У ServiceRequest нет поля status.',
-            'Ответы СТО отдельно не логируются; есть только ServiceMatch.status.',
-        ],
     }
 
 
 def get_service_request_detail(pk: int) -> dict:
     request_obj = get_object_or_404(
         ServiceRequest.objects.prefetch_related(
-            'services',
+            _services_prefetch(),
             Prefetch(
                 'servicematch_set',
                 queryset=ServiceMatch.objects.select_related('seller').order_by('id'),
@@ -142,7 +165,7 @@ def get_service_request_detail(pk: int) -> dict:
         {
             'seller_id': match.seller_id,
             'seller_name': dash(match.seller.name if match.seller_id else ''),
-            'status': SERVICE_MATCH_STATUS_LABELS.get(match.status, match.status),
+            'status': _match_status_label(match.status),
             'created_at': match.created_at,
         }
         for match in request_obj.servicematch_set.all()
@@ -152,7 +175,7 @@ def get_service_request_detail(pk: int) -> dict:
             'created_at': log.created_at,
             'seller_name': dash(log.seller.name if log.seller_id else ''),
             'status_label': whatsapp_log_status_label(log.status),
-            'message_type': log.message_type,
+            'message_type': whatsapp_message_type_label(log.message_type),
         }
         for log in fetch_latest(
             ServiceWhatsAppMessageLog.objects.filter(request_id=request_obj.pk)
@@ -165,17 +188,9 @@ def get_service_request_detail(pk: int) -> dict:
     return {
         'service_request': request_obj,
         'vehicle': vehicle_label(request_obj.brand, request_obj.model),
-        'service_type': SERVICE_TYPE_LABELS.get(
-            request_obj.service_type, request_obj.service_type
-        ),
+        'service_type': _type_label(request_obj.service_type),
         'services': _service_names(request_obj),
         'masked_phone': mask_phone(request_obj.phone),
         'matches': matches,
         'logs': logs,
-        'status': 'Нет данных',
-        'gaps': [
-            'Нет статуса самой заявки СТО.',
-            'Нет page_open / whatsapp_click / consent для СТО.',
-            'В логах WhatsApp не показываем номер клиента.',
-        ],
     }

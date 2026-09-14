@@ -1,4 +1,5 @@
 from datetime import timedelta
+from pathlib import Path
 
 from django.contrib.auth.models import User
 from django.db import connection
@@ -6,6 +7,8 @@ from django.test import Client, TestCase, override_settings
 from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 from django.utils import timezone
+
+from control_panel.display import normalize_sto_sort, summarize_names
 
 from core.models import (
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
@@ -179,7 +182,13 @@ class ControlPanelTests(TestCase):
         for response in (today, week, month):
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'Заявки на запчасти')
-            self.assertContains(response, 'Отправлено предложений продавцам')
+            self.assertContains(response, 'Отправлено уведомлений продавцам')
+            self.assertContains(response, 'Открыто заявок продавцами')
+            self.assertContains(response, 'Звонки покупателям')
+            self.assertContains(response, 'Согласились на предложения')
+            self.assertNotContains(response, 'page_open')
+            self.assertNotContains(response, 'whatsapp_click')
+            self.assertNotContains(response, 'RequestDispatch')
             self.assertContains(response, 'Переходы в WhatsApp')
             self.assertContains(response, 'Текущий backlog, не зависит от выбранного периода')
         kpis = {item.key: item.value for item in week.context['kpis']}
@@ -203,6 +212,14 @@ class ControlPanelTests(TestCase):
         self.assertFalse(any('MidBrand' in title for title in recent_titles))
         month_titles = [row.title for row in month.context['recent_parts']]
         self.assertTrue(any('MidBrand' in title for title in month_titles))
+        self.assertNotContains(week, 'Нет статуса заявки')
+        self.assertContains(week, 'Последние заявки СТО')
+        self.assertContains(week, 'Подобрано СТО')
+        self.assertContains(week, 'Отправлено уведомлений')
+        service_row = week.context['recent_services'][0]
+        self.assertFalse(hasattr(service_row, 'status'))
+        self.assertEqual(service_row.matched, 0)
+        self.assertEqual(service_row.notified, 0)
 
     def test_parts_list_filters_search_and_hides_phone(self):
         self._login_staff()
@@ -242,6 +259,9 @@ class ControlPanelTests(TestCase):
         SellerRequestPageEvent.objects.create(
             access=access, request=req, seller=seller, event_type='whatsapp_click'
         )
+        SellerRequestPageEvent.objects.create(
+            access=access, request=req, seller=seller, event_type='marketing_consent_yes'
+        )
         url = reverse('control_panel:parts_request_detail', args=[req.pk])
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
@@ -252,7 +272,15 @@ class ControlPanelTests(TestCase):
         self.assertNotIn(str(req.access_token), body)
         self.assertContains(response, 'Открыл заявку')
         self.assertContains(response, 'Перешёл в WhatsApp')
-        self.assertContains(response, f'#{access.pk}')
+        self.assertNotIn(f'#{access.pk}', body)
+        self.assertContains(response, 'Разрешил здесь')
+        self.assertContains(response, 'Создано ссылок продавцам')
+        self.assertContains(response, 'Звонок')
+        self.assertNotContains(response, '>Call<')
+        self.assertRegex(body, r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}')
+        events = list(response.context['events'])
+        self.assertGreaterEqual(len(events), 2)
+        self.assertGreaterEqual(events[0].created_at, events[1].created_at)
 
     def test_seller_list_and_rh_like_consent_card(self):
         self._login_staff()
@@ -270,13 +298,27 @@ class ControlPanelTests(TestCase):
         listing = self.client.get('/control/partners/sellers/?consent=granted')
         self.assertContains(listing, 'RH')
         self.assertContains(listing, 'Разрешено')
+        self.assertContains(listing, 'Отправлено заявок')
+        self.assertContains(listing, 'Нет в наличии')
         detail = self.client.get(
             reverse('control_panel:seller_detail', args=[rh.pk])
         )
-        self.assertContains(detail, 'granted')
-        self.assertContains(detail, 'registration')
-        self.assertContains(detail, 'seller_registration_whatsapp_v1')
+        detail_body = detail.content.decode('utf-8')
+        self.assertContains(detail, 'Разрешено')
+        self.assertContains(detail, 'Регистрация')
+        self.assertContains(detail, 'Согласие на предложения')
+        self.assertNotIn('granted', detail_body)
+        self.assertNotIn('registration', detail_body)
+        self.assertNotIn('seller_registration_whatsapp_v1', detail_body)
         self.assertContains(detail, '/admin/core/seller/')
+        req = _request(phone='77019950999')
+        Match.objects.create(request=req, seller=rh, status='sent', sent_at=timezone.now())
+        create_seller_request_access(request=req, seller=rh)
+        parts = self.client.get(reverse('control_panel:parts_request_detail', args=[req.pk]))
+        self.assertContains(parts, 'Разрешено ранее')
+        junk_sort = self.client.get('/control/partners/sellers/?sort=;drop table')
+        self.assertEqual(junk_sort.status_code, 200)
+        self.assertEqual(junk_sort.context['filters']['sort'], 'name')
 
     def test_service_requests_use_existing_models(self):
         self._login_staff()
@@ -310,15 +352,24 @@ class ControlPanelTests(TestCase):
         listing = self.client.get('/control/requests/services/')
         self.assertEqual(listing.status_code, 200)
         self.assertContains(listing, 'Диагностика')
-        self.assertContains(listing, 'Нет данных')
+        self.assertContains(listing, 'Статусы и ответы СТО пока не собираются')
+        self.assertContains(
+            listing,
+            f'href="/control/requests/services/{req.pk}/"',
+            html=False,
+        )
         body = listing.content.decode('utf-8')
         self.assertNotIn('77017770001', body)
+        self.assertNotIn('ServiceMatch', body)
+        self.assertNotRegex(body, r'\bsent\b')
         detail = self.client.get(
             reverse('control_panel:service_request_detail', args=[req.pk])
         )
         self.assertContains(detail, '7701•••01')
         self.assertContains(detail, 'Ошибка отправки')
+        self.assertContains(detail, 'Уведомление о заявке')
         detail_body = detail.content.decode('utf-8')
+        self.assertNotIn('seller_request', detail_body)
         self.assertNotIn('77017770001', detail_body)
         self.assertNotIn(META_ERROR_SECRET, detail_body)
         self.assertNotIn(META_JSON_SECRET, detail_body)
@@ -328,14 +379,25 @@ class ControlPanelTests(TestCase):
         sto_detail = self.client.get(reverse('control_panel:sto_detail', args=[sto.pk]))
         self.assertContains(sto_detail, 'Диагностика')
         self.assertContains(sto_detail, 'Ошибка отправки')
+        self.assertContains(sto_detail, 'Заявки, направленные СТО')
+        self.assertContains(sto_detail, 'История WhatsApp-уведомлений')
+        self.assertContains(sto_detail, 'Учёт ответов СТО пока не подключён')
+        self.assertNotContains(sto_detail, 'Ответы:')
+        self.assertNotContains(sto_detail, 'Пауза')
         sto_body = sto_detail.content.decode('utf-8')
         self.assertNotIn(sto.whatsapp, sto_body)
         self.assertNotIn('77017770001', sto_body)
         self.assertNotIn(META_ERROR_SECRET, sto_body)
         self.assertNotIn(META_JSON_SECRET, sto_body)
+        self.assertNotIn('seller_request', sto_body)
+        self.assertNotIn('ServiceMatch', sto_body)
+        self.assertNotRegex(sto_body, r'\bsent\b')
+        self.assertContains(sto_detail, 'Уведомление о заявке')
         self.assertNotContains(sto_detail, 'password')
         self.assertNotContains(sto_detail, 'error_text')
+        self.assertNotContains(sto_detail, 'response_json')
         self.assertNotContains(detail, 'error_text')
+        self.assertNotContains(detail, 'ServiceMatch')
 
     def test_pagination_keeps_filters(self):
         self._login_staff()
@@ -620,11 +682,11 @@ class ControlPanelTests(TestCase):
             '/control/': 25,
             '/control/requests/parts/': 20,
             reverse('control_panel:parts_request_detail', args=[req.pk]): 15,
-            '/control/requests/services/': 15,
+            '/control/requests/services/': 18,
             reverse('control_panel:service_request_detail', args=[sreq.pk]): 15,
             '/control/partners/sellers/': 18,
-            reverse('control_panel:seller_detail', args=[seller.pk]): 18,
-            '/control/partners/services/': 12,
+            reverse('control_panel:seller_detail', args=[seller.pk]): 20,
+            '/control/partners/services/': 16,
             reverse('control_panel:sto_detail', args=[sto.pk]): 15,
         }
         for url, limit in bounds.items():
@@ -636,6 +698,388 @@ class ControlPanelTests(TestCase):
                 limit,
                 f'{url} used {len(ctx)} queries, limit {limit}',
             )
+
+    def test_seller_card_shows_reactions_without_technical_ids(self):
+        self._login_staff()
+        seller = _seller(name='Reaction Seller', whatsapp='77015551111')
+        opened = _request(phone='77019991111', brand='Toyota', model='Camry')
+        stock = _request(phone='77019991112', brand='Honda', model='Civic')
+        silent = _request(phone='77019991113', brand='Kia', model='Rio')
+        Match.objects.create(
+            request=opened, seller=seller, status='sent', sent_at=timezone.now()
+        )
+        Match.objects.create(
+            request=stock, seller=seller, status='sent', sent_at=timezone.now()
+        )
+        Match.objects.create(
+            request=silent, seller=seller, status='failed', sent_at=timezone.now()
+        )
+        opened_access = create_seller_request_access(request=opened, seller=seller)
+        stock_access = create_seller_request_access(request=stock, seller=seller)
+        create_seller_request_access(request=silent, seller=seller)
+        for event_type in ('page_open', 'whatsapp_click', 'call_click'):
+            SellerRequestPageEvent.objects.create(
+                access=opened_access,
+                request=opened,
+                seller=seller,
+                event_type=event_type,
+            )
+        SellerRequestPageEvent.objects.create(
+            access=stock_access,
+            request=stock,
+            seller=seller,
+            event_type='out_of_stock',
+        )
+        cannot = _request(phone='77019991114', brand='Mazda', model='6')
+        Match.objects.create(
+            request=cannot, seller=seller, status='sent', sent_at=timezone.now()
+        )
+        cannot_access = create_seller_request_access(request=cannot, seller=seller)
+        SellerRequestPageEvent.objects.create(
+            access=cannot_access,
+            request=cannot,
+            seller=seller,
+            event_type='cannot_fulfill',
+        )
+
+        url = reverse('control_panel:seller_detail', args=[seller.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode('utf-8')
+        self.assertContains(response, 'Открыл заявку')
+        self.assertContains(response, 'Перешёл в WhatsApp')
+        self.assertContains(response, 'Позвонил')
+        self.assertContains(response, 'Нет в наличии')
+        self.assertContains(response, 'Не могу выполнить')
+        self.assertContains(response, 'Ответа нет')
+        self.assertContains(response, 'да')
+        self.assertContains(response, 'нет')
+        self.assertContains(
+            response,
+            f'href="/control/requests/parts/{opened.pk}/"',
+            html=False,
+        )
+        self.assertNotIn(opened_access.token, body)
+        self.assertNotIn(stock_access.token, body)
+        self.assertNotIn(f'#{opened_access.pk}', body)
+        self.assertNotIn(str(opened.access_token), body)
+        self.assertNotIn('ServiceMatch', body)
+        self.assertNotIn('Consent', body)
+        self.assertNotIn('granted', body)
+        self.assertNotIn('seller_req_page', body)
+        self.assertNotRegex(body, r'\bsent\b')
+        self.assertContains(response, 'Открыть в технической Django Admin')
+        rows = {row['request_id']: row for row in response.context['requests']}
+        self.assertTrue(rows[opened.pk]['opened'])
+        self.assertTrue(rows[opened.pk]['whatsapp'])
+        self.assertTrue(rows[opened.pk]['called'])
+        self.assertEqual(rows[opened.pk]['result'], 'Ответа нет')
+        self.assertEqual(rows[stock.pk]['result'], 'Нет в наличии')
+        self.assertEqual(rows[cannot.pk]['result'], 'Не могу выполнить')
+        self.assertEqual(rows[silent.pk]['result'], 'Ответа нет')
+        self.assertFalse(rows[silent.pk]['opened'])
+        self.assertEqual(response.context['out_of_stock'], 1)
+        self.assertEqual(response.context['cannot_fulfill'], 1)
+
+    def test_sto_and_service_request_filters_truncation_and_sort(self):
+        self._login_staff()
+        names = [
+            'Полная компьютерная диагностика ходовой части автомобиля',
+            'Замена масла двигателя с промывкой системы',
+            'Ремонт автоматической коробки передач',
+            'Покраска кузова с подбором цвета эмали',
+        ]
+        services = [Service.objects.create(name=name) for name in names]
+        ordered_names = sorted(names)
+        preview = summarize_names(ordered_names)
+        hidden_service = ordered_names[3]
+        sto = ServiceSeller.objects.create(
+            name='Long Services STO',
+            whatsapp='77016661111',
+            password='unused',
+            city='Алматы',
+            district='Бостандыкский',
+            seller_type='sto',
+            is_active=True,
+        )
+        sto.services.add(*services)
+        detailing = ServiceSeller.objects.create(
+            name='Detail Atelier',
+            whatsapp='77016661112',
+            password='unused',
+            city='Астана',
+            district='Есильский',
+            seller_type='detailing',
+            is_active=False,
+        )
+        detailing.services.add(services[3])
+        req = ServiceRequest.objects.create(
+            service_type='sto',
+            brand='Hyundai',
+            model='Tucson',
+            city='Алматы',
+            phone='77017771111',
+        )
+        req.services.add(*services)
+        other = ServiceRequest.objects.create(
+            service_type='detailing',
+            brand='BMW',
+            model='X5',
+            city='Астана',
+            phone='77017771112',
+        )
+        other.services.add(services[3])
+        ServiceMatch.objects.create(request=req, seller=sto, status='sent')
+        ServiceWhatsAppMessageLog.objects.create(
+            seller=sto,
+            request=req,
+            phone='77016661111',
+            message_type='seller_request',
+            status='sent',
+        )
+
+        self.assertEqual(preview, f'{ordered_names[0]}, {ordered_names[1]}, {ordered_names[2]} ещё 1')
+        self.assertEqual(hidden_service, ordered_names[3])
+        self.assertEqual(normalize_sto_sort(';drop table sellers'), 'name')
+        self.assertEqual(normalize_sto_sort('city'), 'city')
+        self.assertEqual(normalize_sto_sort('activity'), 'activity')
+
+        sto_list = self.client.get('/control/partners/services/')
+        self.assertEqual(sto_list.status_code, 200)
+        sto_list_body = sto_list.content.decode('utf-8')
+        self.assertContains(sto_list, preview)
+        self.assertContains(sto_list, 'Detail Atelier')
+        self.assertIn('cp-table-wrap', sto_list_body)
+        self.assertIn('cp-cell-clip', sto_list_body)
+        district = self.client.get('/control/partners/services/?district=Бостандыкский')
+        self.assertContains(district, 'Long Services STO')
+        self.assertContains(district, preview)
+        self.assertNotContains(district, 'Detail Atelier')
+        self.assertEqual(district.context['rows'][0].services, preview)
+        self.assertNotIn(hidden_service, district.context['rows'][0].services)
+        by_type = self.client.get('/control/partners/services/?seller_type=detailing')
+        self.assertContains(by_type, 'Detail Atelier')
+        self.assertNotContains(by_type, 'Long Services STO')
+        by_service = self.client.get(f'/control/partners/services/?service={services[0].pk}')
+        self.assertContains(by_service, 'Long Services STO')
+        self.assertNotContains(by_service, 'Detail Atelier')
+        inactive = self.client.get('/control/partners/services/?active=no')
+        self.assertContains(inactive, 'Detail Atelier')
+        self.assertNotContains(inactive, 'Long Services STO')
+        city_sort = self.client.get('/control/partners/services/?sort=city')
+        self.assertEqual(city_sort.status_code, 200)
+        self.assertEqual(city_sort.context['filters']['sort'], 'city')
+        activity_sort = self.client.get('/control/partners/services/?sort=activity')
+        self.assertEqual(activity_sort.status_code, 200)
+        self.assertEqual(activity_sort.context['filters']['sort'], 'activity')
+        junk_sort = self.client.get('/control/partners/services/?sort=;drop table')
+        self.assertEqual(junk_sort.status_code, 200)
+        self.assertEqual(junk_sort.context['filters']['sort'], 'name')
+
+        sto_detail = self.client.get(reverse('control_panel:sto_detail', args=[sto.pk]))
+        for name in names:
+            self.assertContains(sto_detail, name)
+        sto_detail_body = sto_detail.content.decode('utf-8')
+        self.assertNotIn('77016661111', sto_detail_body)
+        self.assertNotIn('unused', sto_detail_body)
+        self.assertNotIn('password', sto_detail_body)
+        self.assertNotIn('credentials', sto_detail_body)
+        self.assertNotIn(META_ERROR_SECRET, sto_detail_body)
+
+        listing = self.client.get('/control/requests/services/')
+        listing_body = listing.content.decode('utf-8')
+        self.assertContains(listing, preview)
+        rows = {row.pk: row for row in listing.context['rows']}
+        self.assertEqual(rows[req.pk].services, preview)
+        self.assertNotIn(hidden_service, rows[req.pk].services)
+        self.assertEqual(rows[other.pk].services, names[3])
+        self.assertContains(
+            listing,
+            f'href="/control/requests/services/{req.pk}/"',
+            html=False,
+        )
+        self.assertContains(listing, 'Статусы и ответы СТО пока не собираются')
+        self.assertNotIn('77017771111', listing_body)
+        self.assertNotRegex(listing_body, r'\bsent\b')
+        self.assertNotIn('ServiceMatch', listing_body)
+        filtered = self.client.get(f'/control/requests/services/?service={services[0].pk}')
+        self.assertContains(filtered, 'Hyundai')
+        self.assertNotContains(filtered, 'BMW')
+
+        detail = self.client.get(
+            reverse('control_panel:service_request_detail', args=[req.pk])
+        )
+        for name in names:
+            self.assertContains(detail, name)
+        detail_body = detail.content.decode('utf-8')
+        self.assertContains(detail, '7701•••11')
+        self.assertNotIn('77017771111', detail_body)
+        self.assertNotIn('77016661111', detail_body)
+        self.assertNotIn('seller_request', detail_body)
+        self.assertNotIn('ServiceMatch', detail_body)
+        self.assertNotIn('Consent', detail_body)
+        self.assertNotRegex(detail_body, r'\bsent\b')
+        self.assertContains(detail, 'Отправлено')
+        self.assertContains(detail, 'История WhatsApp-уведомлений')
+
+    def test_horizontal_scroll_is_localized_to_table_wrap(self):
+        css = (
+            Path(__file__).resolve().parent / 'static' / 'control_panel' / 'control.css'
+        ).read_text(encoding='utf-8')
+        wrap_start = css.index('.cp-table-wrap')
+        wrap_block = css[wrap_start : css.index('}', wrap_start) + 1]
+        self.assertIn('overflow-x: auto', wrap_block)
+        self.assertIn('overflow-x: hidden', css)
+        self.assertIn('html.cp-html', css)
+        self.assertIn('body.cp-body', css)
+        self.assertIn('.cp-header', css)
+        self.assertIn('.cp-sidebar', css)
+
+    def _query_count(self, url):
+        with CaptureQueriesContext(connection) as ctx:
+            response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, url)
+        return len(ctx), response
+
+    def test_query_counts_do_not_grow_with_row_count(self):
+        self._login_staff()
+        seller = _seller(name='NPlus Seller', whatsapp='77015552100')
+        now = timezone.now()
+
+        def add_seller_request(index):
+            req = _request(
+                brand=f'NPlus{index:02d}',
+                phone=f'77018{index:06d}'[:11],
+            )
+            Match.objects.create(
+                request=req, seller=seller, status='sent', sent_at=now
+            )
+            RequestDispatch.objects.create(
+                request=req,
+                seller=seller,
+                wave_number=1,
+                position_number=1,
+                status=RequestDispatch.STATUS_SENT,
+                scheduled_at=now,
+                sent_at=now,
+            )
+            access = create_seller_request_access(request=req, seller=seller)
+            for event_type in ('page_open', 'whatsapp_click', 'call_click'):
+                SellerRequestPageEvent.objects.create(
+                    access=access,
+                    request=req,
+                    seller=seller,
+                    event_type=event_type,
+                )
+            SellerRequestPageEvent.objects.create(
+                access=access,
+                request=req,
+                seller=seller,
+                event_type='out_of_stock' if index % 2 == 0 else 'cannot_fulfill',
+            )
+            return req
+
+        add_seller_request(0)
+        seller_url = reverse('control_panel:seller_detail', args=[seller.pk])
+        one_seller_queries, one_seller_response = self._query_count(seller_url)
+        self.assertEqual(len(one_seller_response.context['requests']), 1)
+        for index in range(1, 30):
+            add_seller_request(index)
+        thirty_seller_queries, thirty_seller_response = self._query_count(seller_url)
+        self.assertEqual(len(thirty_seller_response.context['requests']), 30)
+        row = thirty_seller_response.context['requests'][0]
+        self.assertIn('opened', row)
+        self.assertIn('whatsapp', row)
+        self.assertIn('called', row)
+        self.assertIn('result', row)
+        print(
+            f'CONTROL_NPLUS seller_detail_1={one_seller_queries} '
+            f'seller_detail_30={thirty_seller_queries}'
+        )
+        self.assertLessEqual(
+            thirty_seller_queries,
+            one_seller_queries + 2,
+            f'seller detail N+1: 1 row={one_seller_queries}, '
+            f'30 rows={thirty_seller_queries}',
+        )
+
+        sellers_one = self._query_count('/control/partners/sellers/')[0]
+        for index in range(1, 50):
+            _seller(name=f'List Seller {index}', whatsapp=f'77014{index:06d}'[:11])
+        sellers_fifty = self._query_count('/control/partners/sellers/')[0]
+        print(f'CONTROL_NPLUS seller_list_1={sellers_one} seller_list_50={sellers_fifty}')
+        self.assertLessEqual(
+            sellers_fifty,
+            sellers_one + 3,
+            f'seller list N+1: 1={sellers_one}, 50={sellers_fifty}',
+        )
+
+        service_names = [
+            Service.objects.create(name=f'NPlus service {index}') for index in range(3)
+        ]
+        first_sto = ServiceSeller.objects.create(
+            name='NPlus STO 0',
+            whatsapp='77016652100',
+            password='unused',
+            city='Алматы',
+            seller_type='sto',
+        )
+        first_sto.services.add(*service_names)
+        sto_one = self._query_count('/control/partners/services/')[0]
+        for index in range(1, 50):
+            sto = ServiceSeller.objects.create(
+                name=f'NPlus STO {index}',
+                whatsapp=f'77016{index:06d}'[:11],
+                password='unused',
+                city='Алматы',
+                seller_type='sto',
+            )
+            sto.services.add(*service_names)
+        sto_fifty = self._query_count('/control/partners/services/')[0]
+        print(f'CONTROL_NPLUS sto_list_1={sto_one} sto_list_50={sto_fifty}')
+        self.assertLessEqual(
+            sto_fifty,
+            sto_one + 3,
+            f'sto list N+1: 1={sto_one}, 50={sto_fifty}',
+        )
+
+        first_req = ServiceRequest.objects.create(
+            service_type='sto',
+            city='Алматы',
+            phone='77017772100',
+            brand='NPlusCar',
+            model='One',
+        )
+        first_req.services.add(*service_names)
+        ServiceMatch.objects.create(request=first_req, seller=first_sto, status='sent')
+        ServiceWhatsAppMessageLog.objects.create(
+            seller=first_sto,
+            request=first_req,
+            phone='77016652100',
+            message_type='seller_request',
+            status='sent',
+        )
+        services_one = self._query_count('/control/requests/services/')[0]
+        for index in range(1, 50):
+            sreq = ServiceRequest.objects.create(
+                service_type='sto',
+                city='Алматы',
+                phone=f'77017{index:06d}'[:11],
+                brand=f'STOBrand{index}',
+                model='X',
+            )
+            sreq.services.add(*service_names)
+            ServiceMatch.objects.create(request=sreq, seller=first_sto, status='sent')
+        services_fifty = self._query_count('/control/requests/services/')[0]
+        print(
+            f'CONTROL_NPLUS service_list_1={services_one} '
+            f'service_list_50={services_fifty}'
+        )
+        self.assertLessEqual(
+            services_fifty,
+            services_one + 3,
+            f'service request list N+1: 1={services_one}, 50={services_fifty}',
+        )
 
     def test_existing_public_and_admin_routes_still_work(self):
         response = self.client.get('/admin/login/')

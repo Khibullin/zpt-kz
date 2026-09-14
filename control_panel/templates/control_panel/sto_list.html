@@ -13,11 +13,41 @@
         {% endfor %}
       </select>
     </label>
+    <label>Район
+      <select name="district">
+        <option value="">Все</option>
+        {% for district in districts %}
+          <option value="{{ district }}" {% if filters.district == district %}selected{% endif %}>{{ district }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Тип
+      <select name="seller_type">
+        <option value="">Все</option>
+        <option value="sto" {% if filters.seller_type == 'sto' %}selected{% endif %}>СТО</option>
+        <option value="detailing" {% if filters.seller_type == 'detailing' %}selected{% endif %}>Детейлинг</option>
+      </select>
+    </label>
+    <label>Услуга
+      <select name="service">
+        <option value="">Все</option>
+        {% for service in service_options %}
+          <option value="{{ service.pk }}" {% if filters.service == service.pk|stringformat:'s' %}selected{% endif %}>{{ service.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
     <label>Активен
       <select name="active">
         <option value="">Все</option>
         <option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>Да</option>
         <option value="no" {% if filters.active == 'no' %}selected{% endif %}>Нет</option>
+      </select>
+    </label>
+    <label>Сортировка
+      <select name="sort">
+        {% for key, label in sort_choices %}
+          <option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
       </select>
     </label>
     <button class="cp-btn" type="submit">Показать</button>
@@ -26,11 +56,12 @@
   <div class="cp-card">
     {% if rows %}
       <div class="cp-table-wrap">
-        <table class="cp-table">
+        <table class="cp-table cp-table-sticky">
           <thead>
             <tr>
               <th>Название</th><th>Город</th><th>Район</th><th>Тип</th><th>Услуги</th>
-              <th>Активен</th><th>Заявки</th><th>Пауза</th><th>Получено</th><th>Ответы</th><th>Активность</th>
+              <th>Активен</th><th>Получает заявки</th><th>Приостановлен</th>
+              <th>Получено</th><th>Последняя активность</th>
             </tr>
           </thead>
           <tbody>
@@ -40,12 +71,11 @@
                 <td>{{ row.city }}</td>
                 <td>{{ row.district }}</td>
                 <td>{{ row.seller_type }}</td>
-                <td>{{ row.services }}</td>
-                <td>{% if row.is_active %}<span class="cp-pill cp-pill-on">да</span>{% else %}<span class="cp-pill cp-pill-off">нет</span>{% endif %}</td>
-                <td>{% if row.receive_requests %}да{% else %}нет{% endif %}</td>
-                <td>{% if row.is_paused %}да{% else %}нет{% endif %}</td>
+                <td class="cp-cell-clip">{{ row.services }}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.is_active|yesno:'Активен,Не активен' tone=row.is_active|yesno:'on,off' %}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.receive_requests|yesno:'Получает заявки,Не получает' tone=row.receive_requests|yesno:'on,off' %}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.is_paused|yesno:'Приостановлен,Работает' tone=row.is_paused|yesno:'off,on' %}</td>
                 <td>{{ row.received }}</td>
-                <td>{{ row.replies }}</td>
                 <td>{{ row.last_activity|date:'d.m.Y H:i'|default:'—' }}</td>
               </tr>
             {% endfor %}

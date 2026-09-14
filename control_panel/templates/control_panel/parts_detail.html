@@ -11,7 +11,7 @@
       <dt>Комментарий</dt><dd>{{ parts_request.description|default:'—' }}</dd>
       <dt>Статус</dt><dd>{{ status_label }}</dd>
       <dt>Телефон покупателя</dt><dd>{{ masked_phone }}</dd>
-      <dt>Ссылок доступа</dt><dd>{{ access_count }}</dd>
+      <dt>Создано ссылок продавцам</dt><dd>{{ access_count }}</dd>
     </dl>
   </section>
 
@@ -19,7 +19,7 @@
     <h2>Отправки продавцам</h2>
     {% if dispatches %}
       <div class="cp-table-wrap">
-        <table class="cp-table">
+        <table class="cp-table cp-table-sticky">
           <thead><tr><th>Продавец</th><th>Волна</th><th>Статус</th><th>Запланировано</th><th>Отправлено</th></tr></thead>
           <tbody>
             {% for item in dispatches %}
@@ -43,11 +43,11 @@
     <h2>Реакция продавцов</h2>
     {% if reactions %}
       <div class="cp-table-wrap">
-        <table class="cp-table">
+        <table class="cp-table cp-table-sticky">
           <thead>
             <tr>
               <th>Продавец</th><th>Отправлено</th><th>Открыл</th><th>WhatsApp</th>
-              <th>Call</th><th>Consent</th><th>Результат</th><th>Последнее действие</th><th>Ссылка</th>
+              <th>Звонок</th><th>Согласие на предложения</th><th>Результат</th><th>Последнее действие</th>
             </tr>
           </thead>
           <tbody>
@@ -60,8 +60,7 @@
                 <td>{% if row.called %}<span class="cp-yes">да</span>{% else %}<span class="cp-no">нет</span>{% endif %}</td>
                 <td>{{ row.consent }}</td>
                 <td>{{ row.outcome }}</td>
-                <td>{{ row.last_action_at|date:'d.m.Y H:i'|default:'—' }}</td>
-                <td>{% if row.access_id %}#{{ row.access_id }}{% else %}—{% endif %}</td>
+                <td>{{ row.last_action_at|date:'d.m.Y H:i:s'|default:'—' }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -77,14 +76,13 @@
     {% if events %}
       <div class="cp-table-wrap">
         <table class="cp-table">
-          <thead><tr><th>Дата</th><th>Продавец</th><th>Событие</th><th>Ссылка доступа</th></tr></thead>
+          <thead><tr><th>Дата</th><th>Продавец</th><th>Событие</th></tr></thead>
           <tbody>
             {% for row in events %}
               <tr>
-                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i:s' }}</td>
                 <td>{{ row.seller_name }}</td>
                 <td>{{ row.event_label }}</td>
-                <td>#{{ row.access_id }}</td>
               </tr>
             {% endfor %}
           </tbody>

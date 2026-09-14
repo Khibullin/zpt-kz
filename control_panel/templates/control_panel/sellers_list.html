@@ -27,12 +27,12 @@
         <option value="no" {% if filters.receive == 'no' %}selected{% endif %}>Нет</option>
       </select>
     </label>
-    <label>Consent
+    <label>Согласие
       <select name="consent">
         <option value="">Все</option>
-        <option value="granted" {% if filters.consent == 'granted' %}selected{% endif %}>granted</option>
-        <option value="revoked" {% if filters.consent == 'revoked' %}selected{% endif %}>revoked</option>
-        <option value="unknown" {% if filters.consent == 'unknown' %}selected{% endif %}>unknown / нет</option>
+        <option value="granted" {% if filters.consent == 'granted' %}selected{% endif %}>Разрешено</option>
+        <option value="revoked" {% if filters.consent == 'revoked' %}selected{% endif %}>Отозвано</option>
+        <option value="unknown" {% if filters.consent == 'unknown' %}selected{% endif %}>Не подтверждено</option>
       </select>
     </label>
     <label>Открывал заявки
@@ -50,7 +50,19 @@
       </select>
     </label>
     <label>Категория
-      <input name="category" value="{{ filters.category }}">
+      <select name="category">
+        <option value="">Все</option>
+        {% for category in categories %}
+          <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Сортировка
+      <select name="sort">
+        {% for key, label in sort_choices %}
+          <option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
     </label>
     <button class="cp-btn" type="submit">Показать</button>
   </form>
@@ -58,12 +70,14 @@
   <div class="cp-card">
     {% if rows %}
       <div class="cp-table-wrap">
-        <table class="cp-table">
+        <table class="cp-table cp-table-sticky">
           <thead>
             <tr>
               <th>Продавец</th><th>Город</th><th>Категории</th><th>Активен</th>
-              <th>Получает</th><th>Пауза</th><th>Consent</th><th>Отправлено</th>
-              <th>Открыто</th><th>WhatsApp</th><th>Звонки</th><th>Отказы</th><th>Активность</th>
+              <th>Получает заявки</th><th>Приостановлен</th><th>Согласие</th>
+              <th>Отправлено заявок</th><th>Открыто заявок</th><th>WhatsApp</th>
+              <th>Звонки</th><th>Нет в наличии</th><th>Не могу выполнить</th>
+              <th>Последняя активность</th>
             </tr>
           </thead>
           <tbody>
@@ -72,15 +86,16 @@
                 <td><a href="{% url 'control_panel:seller_detail' row.pk %}">{{ row.name }}</a></td>
                 <td>{{ row.city }}</td>
                 <td>{{ row.categories }}</td>
-                <td>{% if row.is_active %}<span class="cp-pill cp-pill-on">да</span>{% else %}<span class="cp-pill cp-pill-off">нет</span>{% endif %}</td>
-                <td>{% if row.receive_requests %}да{% else %}нет{% endif %}</td>
-                <td>{% if row.is_paused %}да{% else %}нет{% endif %}</td>
-                <td>{{ row.consent_label }}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.is_active|yesno:'Активен,Не активен' tone=row.is_active|yesno:'on,off' %}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.receive_requests|yesno:'Получает заявки,Не получает' tone=row.receive_requests|yesno:'on,off' %}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.is_paused|yesno:'Приостановлен,Работает' tone=row.is_paused|yesno:'off,on' %}</td>
+                <td>{% include 'control_panel/_pill.html' with text=row.consent_label tone=row.consent_tone %}</td>
                 <td>{{ row.sent }}</td>
                 <td>{{ row.opened }}</td>
                 <td>{{ row.whatsapp }}</td>
                 <td>{{ row.called }}</td>
-                <td>{{ row.declined }}</td>
+                <td>{{ row.out_of_stock }}</td>
+                <td>{{ row.cannot_fulfill }}</td>
                 <td>{{ row.last_activity|date:'d.m.Y H:i'|default:'—' }}</td>
               </tr>
             {% endfor %}

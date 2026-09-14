@@ -8,9 +8,12 @@ from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
 from core.models import (
+    CONTACT_CONSENT_CHANNEL_WHATSAPP,
+    CONTACT_CONSENT_PURPOSE_MARKETING,
     Match,
     Request,
     RequestDispatch,
+    SellerContactConsent,
     SellerRequestAccess,
     SellerRequestPageEvent,
 )
@@ -18,6 +21,7 @@ from control_panel.display import (
     dash,
     event_label,
     mask_phone,
+    reaction_consent_label,
     request_status_label,
     vehicle_label,
 )
@@ -51,7 +55,6 @@ class SellerReactionRow:
     consent: str
     outcome: str
     last_action_at: datetime | None
-    access_id: int | None
 
 
 @dataclass(frozen=True)
@@ -59,7 +62,6 @@ class PageEventRow:
     created_at: datetime
     seller_name: str
     event_label: str
-    access_id: int
 
 
 def _base_queryset():
@@ -247,13 +249,15 @@ def get_parts_request_detail(pk: int) -> dict:
             ),
             Prefetch(
                 'seller_access_links',
-                queryset=SellerRequestAccess.objects.select_related('seller').order_by('id'),
+                queryset=SellerRequestAccess.objects.select_related('seller')
+                .defer('token')
+                .order_by('id'),
             ),
             Prefetch(
                 'seller_page_events',
                 queryset=SellerRequestPageEvent.objects.select_related(
-                    'seller', 'access'
-                ).order_by('created_at', 'id'),
+                    'seller'
+                ).order_by('-created_at', '-id'),
             ),
         ),
         pk=pk,
@@ -262,12 +266,6 @@ def get_parts_request_detail(pk: int) -> dict:
     events_by_seller: dict[int, list] = {}
     for event in events:
         events_by_seller.setdefault(event.seller_id, []).append(event)
-
-    access_by_seller = {
-        access.seller_id: access
-        for access in request_obj.seller_access_links.all()
-        if access.seller_id
-    }
 
     sent_by_seller = {
         match.seller_id: match.sent_at
@@ -294,21 +292,25 @@ def get_parts_request_detail(pk: int) -> dict:
             sent_by_seller.setdefault(access.seller_id, None)
 
     reactions = []
+    seller_ids = [seller_id for seller_id in seller_names if seller_id]
+    stored_by_seller: dict[int, SellerContactConsent] = {}
+    if seller_ids:
+        for record in SellerContactConsent.objects.filter(
+            seller_id__in=seller_ids,
+            channel=CONTACT_CONSENT_CHANNEL_WHATSAPP,
+            purpose=CONTACT_CONSENT_PURPOSE_MARKETING,
+        ).order_by('-updated_at', '-id'):
+            stored_by_seller.setdefault(record.seller_id, record)
     for seller_id, seller_name in seller_names.items():
         seller_events = events_by_seller.get(seller_id, [])
         types = {event.event_type for event in seller_events}
-        consent = '—'
-        if 'marketing_consent_yes' in types:
-            consent = 'Да'
-        elif 'marketing_consent_no' in types:
-            consent = 'Нет'
+        stored = stored_by_seller.get(seller_id)
         outcome = '—'
         if 'out_of_stock' in types:
             outcome = 'Нет в наличии'
         elif 'cannot_fulfill' in types:
             outcome = 'Не могу выполнить заявку'
         last_action = max((event.created_at for event in seller_events), default=None)
-        access = access_by_seller.get(seller_id)
         reactions.append(
             SellerReactionRow(
                 seller_id=seller_id,
@@ -317,10 +319,11 @@ def get_parts_request_detail(pk: int) -> dict:
                 opened='page_open' in types,
                 whatsapp='whatsapp_click' in types,
                 called='call_click' in types,
-                consent=consent,
+                consent=reaction_consent_label(
+                    types, stored.status if stored else ''
+                ),
                 outcome=outcome,
                 last_action_at=last_action,
-                access_id=access.pk if access else None,
             )
         )
 
@@ -329,7 +332,6 @@ def get_parts_request_detail(pk: int) -> dict:
             created_at=event.created_at,
             seller_name=dash(event.seller.name if event.seller_id else ''),
             event_label=event_label(event.event_type),
-            access_id=event.access_id,
         )
         for event in events
     ]

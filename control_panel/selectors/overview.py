@@ -39,6 +39,17 @@ class RecentRequestRow:
 
 
 @dataclass(frozen=True)
+class RecentServiceRow:
+    pk: int
+    created_at: datetime
+    title: str
+    city: str
+    matched: int
+    notified: int
+    url_name: str
+
+
+@dataclass(frozen=True)
 class RecentEventRow:
     created_at: datetime
     seller_name: str
@@ -108,26 +119,26 @@ def overview_context(period: str) -> dict:
         KpiItem(
             'offers_sent',
             offers_qs.count(),
-            'Отправлено предложений продавцам',
-            'Сколько WhatsApp-отправленных слотов RequestDispatch за период',
+            'Отправлено уведомлений продавцам',
+            'WhatsApp-уведомления продавцам за период',
         ),
         KpiItem(
             'page_open',
             event_counts['page_open'],
-            'Открыто страниц заявок',
-            'События page_open у продавцов',
+            'Открыто заявок продавцами',
+            'Продавцы открыли страницу заявки',
         ),
         KpiItem(
             'whatsapp_click',
             event_counts['whatsapp_click'],
             'Переходы в WhatsApp',
-            'События whatsapp_click',
+            'Переходы продавца в WhatsApp покупателя',
         ),
         KpiItem(
             'call_click',
             event_counts['call_click'],
-            'Звонки',
-            'События call_click',
+            'Звонки покупателям',
+            'Нажатия «Позвонить» на странице заявки',
         ),
         KpiItem(
             'out_of_stock',
@@ -144,14 +155,14 @@ def overview_context(period: str) -> dict:
         KpiItem(
             'consent_yes',
             event_counts['marketing_consent_yes'],
-            'Новые согласия на предложения',
-            'Выборы «Да, получать» на странице заявки',
+            'Согласились на предложения',
+            'Выбор «Да, получать предложения»',
         ),
         KpiItem(
             'consent_no',
             event_counts['marketing_consent_no'],
-            'Отказы от предложений',
-            'Выборы «Нет, только заявки» на странице заявки',
+            'Отказались от предложений',
+            'Выбор «Нет, только заявки»',
         ),
     ]
 
@@ -169,16 +180,27 @@ def overview_context(period: str) -> dict:
         )[:8]
     ]
     recent_services = [
-        RecentRequestRow(
+        RecentServiceRow(
             pk=item.pk,
             created_at=item.created_at,
             title=dash(', '.join(svc.name for svc in list(item.services.all())[:3])),
             city=dash(item.city),
-            status='Нет статуса заявки',
+            matched=item.matched,
+            notified=item.notified,
             url_name='control_panel:service_request_detail',
         )
         for item in apply_created_range(
-            ServiceRequest.objects.prefetch_related('services'),
+            ServiceRequest.objects.annotate(
+                matched=Count('servicematch', distinct=True),
+                notified=Count(
+                    'wa_logs',
+                    filter=Q(
+                        wa_logs__status='sent',
+                        wa_logs__message_type='seller_request',
+                    ),
+                    distinct=True,
+                ),
+            ).prefetch_related('services'),
             'created_at',
             period,
         ).order_by('-created_at', '-id')[:8]

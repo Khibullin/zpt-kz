@@ -47,7 +47,7 @@
       {% if recent_services %}
         <div class="cp-table-wrap">
           <table class="cp-table">
-            <thead><tr><th>№</th><th>Дата</th><th>Услуги</th><th>Город</th><th>Статус</th></tr></thead>
+            <thead><tr><th>№</th><th>Дата</th><th>Услуги</th><th>Город</th><th>Подобрано СТО</th><th>Отправлено уведомлений</th></tr></thead>
             <tbody>
               {% for row in recent_services %}
                 <tr>
@@ -55,7 +55,8 @@
                   <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
                   <td>{{ row.title }}</td>
                   <td>{{ row.city }}</td>
-                  <td>{{ row.status }}</td>
+                  <td>{{ row.matched }}</td>
+                  <td>{{ row.notified }}</td>
                 </tr>
               {% endfor %}
             </tbody>

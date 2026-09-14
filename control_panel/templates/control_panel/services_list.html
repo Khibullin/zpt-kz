@@ -27,33 +27,39 @@
         <option value="detailing" {% if filters.service_type == 'detailing' %}selected{% endif %}>Детейлинг</option>
       </select>
     </label>
+    <label>Услуга
+      <select name="service">
+        <option value="">Все</option>
+        {% for service in service_options %}
+          <option value="{{ service.pk }}" {% if filters.service == service.pk|stringformat:'s' %}selected{% endif %}>{{ service.name }}</option>
+        {% endfor %}
+      </select>
+    </label>
     <button class="cp-btn" type="submit">Показать</button>
   </form>
   <p class="cp-muted">Всего: {{ total }}</p>
   <div class="cp-card">
     {% if rows %}
+      <p class="cp-note">Статусы и ответы СТО пока не собираются</p>
       <div class="cp-table-wrap">
-        <table class="cp-table">
+        <table class="cp-table cp-table-sticky">
           <thead>
             <tr>
               <th>№</th><th>Дата</th><th>Вид</th><th>Услуги</th><th>Город</th>
-              <th>Авто</th><th>Статус</th><th>Подобрано СТО</th><th>Уведомлено</th><th>Ответы</th><th></th>
+              <th>Автомобиль</th><th>Подходящих СТО</th><th>Отправлено уведомлений</th>
             </tr>
           </thead>
           <tbody>
             {% for row in rows %}
               <tr>
-                <td>{{ row.pk }}</td>
+                <td><a href="{% url 'control_panel:service_request_detail' row.pk %}">№{{ row.pk }}</a></td>
                 <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
                 <td>{{ row.service_type }}</td>
-                <td>{{ row.services }}</td>
+                <td class="cp-cell-clip">{{ row.services }}</td>
                 <td>{{ row.city }}</td>
                 <td>{{ row.vehicle }}</td>
-                <td>{{ row.status }}</td>
                 <td>{{ row.matched }}</td>
                 <td>{{ row.notified }}</td>
-                <td>{{ row.replies }}</td>
-                <td><a href="{% url 'control_panel:service_request_detail' row.pk %}">Открыть</a></td>
               </tr>
             {% endfor %}
           </tbody>

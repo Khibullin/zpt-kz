@@ -8,52 +8,71 @@
       <dt>Город</dt><dd>{{ seller.city|default:'—' }}</dd>
       <dt>Категории</dt><dd>{{ categories }}</dd>
       <dt>Марки</dt><dd>{{ brands }}</dd>
-      <dt>Тестовый</dt><dd>{% if seller.is_test_seller %}да{% else %}нет{% endif %}</dd>
+      <dt>Тестовый</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.is_test_seller|yesno:'Да,Нет' tone=seller.is_test_seller|yesno:'neutral,on' %}</dd>
     </dl>
   </section>
   <section class="cp-card">
     <h2>Статус получения заявок</h2>
     <dl class="cp-dl">
-      <dt>Активен</dt><dd>{% if seller.is_active %}да{% else %}нет{% endif %}</dd>
-      <dt>Получает заявки</dt><dd>{% if seller.receive_requests %}да{% else %}нет{% endif %}</dd>
-      <dt>Приостановлен</dt><dd>{% if seller.is_paused %}да{% else %}нет{% endif %}</dd>
+      <dt>Активен</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.is_active|yesno:'Активен,Не активен' tone=seller.is_active|yesno:'on,off' %}</dd>
+      <dt>Получает заявки</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.receive_requests|yesno:'Получает заявки,Не получает' tone=seller.receive_requests|yesno:'on,off' %}</dd>
+      <dt>Приостановлен</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.is_paused|yesno:'Приостановлен,Работает' tone=seller.is_paused|yesno:'off,on' %}</dd>
     </dl>
   </section>
   <section class="cp-card">
-    <h2>Marketing consent</h2>
+    <h2>Согласие на предложения</h2>
     <dl class="cp-dl">
-      <dt>Статус</dt><dd>{{ consent_label }}{% if consent %} ({{ consent.status }}){% endif %}</dd>
-      <dt>Source</dt><dd>{% if consent %}{{ consent.source|default:'—' }}{% else %}—{% endif %}</dd>
-      <dt>Version</dt><dd>{% if consent %}{{ consent.consent_text_version|default:'—' }}{% else %}—{% endif %}</dd>
-      <dt>Дата согласия</dt><dd>{{ consent.consented_at|date:'d.m.Y H:i'|default:'—' }}</dd>
-      <dt>Дата отзыва</dt><dd>{{ consent.revoked_at|date:'d.m.Y H:i'|default:'—' }}</dd>
+      <dt>Статус</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=consent_label tone=consent_tone %}</dd>
+      <dt>Источник</dt><dd>{{ consent_source }}</dd>
+      <dt>Дата согласия</dt><dd>{{ consented_at|date:'d.m.Y H:i'|default:'—' }}</dd>
+      <dt>Дата отзыва</dt><dd>{{ revoked_at|date:'d.m.Y H:i'|default:'—' }}</dd>
     </dl>
   </section>
   <section class="cp-card">
     <h2>Сводная активность</h2>
     <dl class="cp-dl">
       <dt>Отправлено заявок</dt><dd>{{ sent }}</dd>
-      <dt>Открыто</dt><dd>{{ opened }}</dd>
+      <dt>Открыто заявок</dt><dd>{{ opened }}</dd>
       <dt>WhatsApp</dt><dd>{{ whatsapp }}</dd>
       <dt>Звонки</dt><dd>{{ called }}</dd>
-      <dt>Отказы</dt><dd>{{ declined }}</dd>
+      <dt>Нет в наличии</dt><dd>{{ out_of_stock }}</dd>
+      <dt>Не могу выполнить</dt><dd>{{ cannot_fulfill }}</dd>
       <dt>Последняя активность</dt><dd>{{ last_activity|date:'d.m.Y H:i'|default:'—' }}</dd>
     </dl>
   </section>
   <section class="cp-card">
-    <h2>Полученные заявки</h2>
+    <h2>Заявки, отправленные продавцу</h2>
     {% if requests %}
       <div class="cp-table-wrap">
-        <table class="cp-table">
-          <thead><tr><th>Заявка</th><th>Авто</th><th>Match</th><th>Создано</th><th>Отправлено</th></tr></thead>
+        <table class="cp-table cp-table-sticky">
+          <thead>
+            <tr>
+              <th>Заявка</th>
+              <th>Автомобиль</th>
+              <th>Статус отправки</th>
+              <th>Дата отправки</th>
+              <th>Открыл заявку</th>
+              <th>Перешёл в WhatsApp</th>
+              <th>Позвонил</th>
+              <th>Результат</th>
+            </tr>
+          </thead>
           <tbody>
             {% for row in requests %}
               <tr>
                 <td><a href="{% url 'control_panel:parts_request_detail' row.request_id %}">№{{ row.request_id }}</a></td>
                 <td>{{ row.vehicle }}</td>
                 <td>{{ row.status }}</td>
-                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
                 <td>{{ row.sent_at|date:'d.m.Y H:i'|default:'—' }}</td>
+                <td>{{ row.opened|yesno:'да,нет' }}</td>
+                <td>{{ row.whatsapp|yesno:'да,нет' }}</td>
+                <td>{{ row.called|yesno:'да,нет' }}</td>
+                <td>{{ row.result }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -68,14 +87,13 @@
     {% if events %}
       <div class="cp-table-wrap">
         <table class="cp-table">
-          <thead><tr><th>Дата</th><th>Событие</th><th>Заявка</th><th>Ссылка</th></tr></thead>
+          <thead><tr><th>Дата</th><th>Событие</th><th>Заявка</th></tr></thead>
           <tbody>
             {% for row in events %}
               <tr>
-                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i:s' }}</td>
                 <td>{{ row.event_label }}</td>
                 <td><a href="{% url 'control_panel:parts_request_detail' row.request_id %}">№{{ row.request_id }}</a></td>
-                <td>#{{ row.access_id }}</td>
               </tr>
             {% endfor %}
           </tbody>

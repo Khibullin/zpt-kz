@@ -1,0 +1,7 @@
+{% if tone == 'on' %}
+  <span class="cp-pill cp-pill-on">{{ text }}</span>
+{% elif tone == 'off' %}
+  <span class="cp-pill cp-pill-off">{{ text }}</span>
+{% else %}
+  <span class="cp-pill">{{ text }}</span>
+{% endif %}

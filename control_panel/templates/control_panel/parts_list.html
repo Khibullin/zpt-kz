@@ -39,14 +39,14 @@
         {% endfor %}
       </select>
     </label>
-    <label>Открыта
+    <label>Открыта продавцом
       <select name="opened">
         <option value="">Все</option>
         <option value="yes" {% if filters.opened == 'yes' %}selected{% endif %}>Открыта</option>
         <option value="no" {% if filters.opened == 'no' %}selected{% endif %}>Не открыта</option>
       </select>
     </label>
-    <label>Контакт
+    <label>Связались с покупателем
       <select name="contact">
         <option value="">Все</option>
         <option value="yes" {% if filters.contact == 'yes' %}selected{% endif %}>Был контакт</option>
@@ -60,17 +60,18 @@
   <div class="cp-card">
     {% if rows %}
       <div class="cp-table-wrap">
-        <table class="cp-table">
+        <table class="cp-table cp-table-sticky">
           <thead>
             <tr>
               <th>№</th><th>Дата</th><th>Авто</th><th>Категория</th><th>Город</th>
-              <th>Статус</th><th>Получили</th><th>Открыли</th><th>WhatsApp</th><th>Звонки</th><th>Результат</th><th></th>
+              <th>Статус</th><th>Отправлено продавцам</th><th>Открыли заявку</th>
+              <th>WhatsApp</th><th>Звонки</th><th>Результат</th>
             </tr>
           </thead>
           <tbody>
             {% for row in rows %}
               <tr>
-                <td>{{ row.pk }}</td>
+                <td><a href="{% url 'control_panel:parts_request_detail' row.pk %}">№{{ row.pk }}</a></td>
                 <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
                 <td>{{ row.vehicle }}</td>
                 <td>{{ row.category }}</td>
@@ -81,7 +82,6 @@
                 <td>{{ row.whatsapp }}</td>
                 <td>{{ row.called }}</td>
                 <td>{{ row.result }}</td>
-                <td><a href="{% url 'control_panel:parts_request_detail' row.pk %}">Открыть</a></td>
               </tr>
             {% endfor %}
           </tbody>

@@ -10,14 +10,17 @@
       <dt>Район</dt><dd>{{ seller.district|default:'—' }}</dd>
       <dt>Адрес</dt><dd>{{ seller.address|default:'—' }}</dd>
       <dt>Услуги</dt><dd>{{ services }}</dd>
-      <dt>Активен</dt><dd>{% if seller.is_active %}да{% else %}нет{% endif %}</dd>
-      <dt>Получает заявки</dt><dd>{% if seller.receive_requests %}да{% else %}нет{% endif %}</dd>
-      <dt>Пауза</dt><dd>{% if seller.is_paused %}да{% else %}нет{% endif %}</dd>
-      <dt>Ответы</dt><dd>{{ replies }}</dd>
+      <dt>Активен</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.is_active|yesno:'Активен,Не активен' tone=seller.is_active|yesno:'on,off' %}</dd>
+      <dt>Получает заявки</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.receive_requests|yesno:'Получает заявки,Не получает' tone=seller.receive_requests|yesno:'on,off' %}</dd>
+      <dt>Приостановлен</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=seller.is_paused|yesno:'Приостановлен,Работает' tone=seller.is_paused|yesno:'off,on' %}</dd>
     </dl>
+    <p class="cp-note">Учёт ответов СТО пока не подключён</p>
   </section>
   <section class="cp-card">
-    <h2>Заявки / ServiceMatch</h2>
+    <h2>Заявки, направленные СТО</h2>
     {% if matches %}
       <div class="cp-table-wrap">
         <table class="cp-table">
@@ -39,7 +42,7 @@
     {% endif %}
   </section>
   <section class="cp-card">
-    <h2>WhatsApp-логи</h2>
+    <h2>История WhatsApp-уведомлений</h2>
     {% if logs %}
       <div class="cp-table-wrap">
         <table class="cp-table">
@@ -57,7 +60,7 @@
         </table>
       </div>
     {% else %}
-      <p class="cp-empty">Логов нет.</p>
+      <p class="cp-empty">Уведомлений нет.</p>
     {% endif %}
   </section>
   <p><a href="{{ admin_url }}">Открыть в технической Django Admin</a></p>
