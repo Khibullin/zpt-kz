@@ -1,0 +1,122 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <div class="cp-period">
+    {% for key, label in period_choices %}
+      <a class="{% if period == key %}is-active{% endif %}" href="?period={{ key }}">{{ label }}</a>
+    {% endfor %}
+  </div>
+
+  <div class="cp-kpis">
+    {% for kpi in kpis %}
+      <article class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ kpi.value }}</div>
+        <div class="cp-kpi-label">{{ kpi.label }}</div>
+        <div class="cp-kpi-hint">{{ kpi.hint }}</div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <div class="cp-grid-2">
+    <section class="cp-card">
+      <h2>Последние заявки на запчасти</h2>
+      {% if recent_parts %}
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead><tr><th>№</th><th>Дата</th><th>Авто</th><th>Город</th><th>Статус</th></tr></thead>
+            <tbody>
+              {% for row in recent_parts %}
+                <tr>
+                  <td><a href="{% url row.url_name row.pk %}">{{ row.pk }}</a></td>
+                  <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                  <td>{{ row.title }}</td>
+                  <td>{{ row.city }}</td>
+                  <td>{{ row.status }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="cp-empty">Пока нет заявок на запчасти.</p>
+      {% endif %}
+    </section>
+
+    <section class="cp-card">
+      <h2>Последние заявки СТО</h2>
+      {% if recent_services %}
+        <div class="cp-table-wrap">
+          <table class="cp-table">
+            <thead><tr><th>№</th><th>Дата</th><th>Услуги</th><th>Город</th><th>Статус</th></tr></thead>
+            <tbody>
+              {% for row in recent_services %}
+                <tr>
+                  <td><a href="{% url row.url_name row.pk %}">{{ row.pk }}</a></td>
+                  <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                  <td>{{ row.title }}</td>
+                  <td>{{ row.city }}</td>
+                  <td>{{ row.status }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <p class="cp-empty">Пока нет заявок СТО.</p>
+      {% endif %}
+    </section>
+  </div>
+
+  <section class="cp-card">
+    <h2>Последние действия продавцов</h2>
+    {% if recent_events %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Дата</th><th>Продавец</th><th>Событие</th><th>Заявка</th></tr></thead>
+          <tbody>
+            {% for row in recent_events %}
+              <tr>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.seller_name }}</td>
+                <td>{{ row.event_label }}</td>
+                <td><a href="{% url 'control_panel:parts_request_detail' row.request_id %}">№{{ row.request_id }}</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Событий пока нет.</p>
+    {% endif %}
+  </section>
+
+  <section class="cp-card">
+    <h2>Требует внимания</h2>
+    <p class="cp-muted">Текущий backlog, не зависит от выбранного периода</p>
+    {% if attention_items %}
+      <ul>
+        {% for item in attention_items %}
+          <li>
+            {% if item.object_id %}
+              <a href="{% url item.url_name item.object_id %}">{{ item.title }}</a>
+            {% else %}
+              <a href="{% url item.url_name %}">{{ item.title }}</a>
+            {% endif %}
+            <span class="cp-muted"> — {{ item.detail }}</span>
+          </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="cp-empty">Сейчас нет отмеченных ситуаций.</p>
+    {% endif %}
+  </section>
+
+  <section class="cp-card">
+    <h2>Будущие модули</h2>
+    <div class="cp-future">
+      {% for name in future_modules %}
+        <span>{{ name }}</span>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}

@@ -71,6 +71,7 @@ NOINDEX_FOLLOW_PREFIXES = (
 
 NOINDEX_NOFOLLOW_PREFIXES = (
     '/admin/',
+    '/control/',
     '/api/',
     '/marketing/',
     '/ajax/',

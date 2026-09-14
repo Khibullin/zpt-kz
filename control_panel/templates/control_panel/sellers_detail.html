@@ -1,0 +1,89 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <section class="cp-card">
+    <h2>Основная информация</h2>
+    <dl class="cp-dl">
+      <dt>Имя</dt><dd>{{ seller.name }}</dd>
+      <dt>Город</dt><dd>{{ seller.city|default:'—' }}</dd>
+      <dt>Категории</dt><dd>{{ categories }}</dd>
+      <dt>Марки</dt><dd>{{ brands }}</dd>
+      <dt>Тестовый</dt><dd>{% if seller.is_test_seller %}да{% else %}нет{% endif %}</dd>
+    </dl>
+  </section>
+  <section class="cp-card">
+    <h2>Статус получения заявок</h2>
+    <dl class="cp-dl">
+      <dt>Активен</dt><dd>{% if seller.is_active %}да{% else %}нет{% endif %}</dd>
+      <dt>Получает заявки</dt><dd>{% if seller.receive_requests %}да{% else %}нет{% endif %}</dd>
+      <dt>Приостановлен</dt><dd>{% if seller.is_paused %}да{% else %}нет{% endif %}</dd>
+    </dl>
+  </section>
+  <section class="cp-card">
+    <h2>Marketing consent</h2>
+    <dl class="cp-dl">
+      <dt>Статус</dt><dd>{{ consent_label }}{% if consent %} ({{ consent.status }}){% endif %}</dd>
+      <dt>Source</dt><dd>{% if consent %}{{ consent.source|default:'—' }}{% else %}—{% endif %}</dd>
+      <dt>Version</dt><dd>{% if consent %}{{ consent.consent_text_version|default:'—' }}{% else %}—{% endif %}</dd>
+      <dt>Дата согласия</dt><dd>{{ consent.consented_at|date:'d.m.Y H:i'|default:'—' }}</dd>
+      <dt>Дата отзыва</dt><dd>{{ consent.revoked_at|date:'d.m.Y H:i'|default:'—' }}</dd>
+    </dl>
+  </section>
+  <section class="cp-card">
+    <h2>Сводная активность</h2>
+    <dl class="cp-dl">
+      <dt>Отправлено заявок</dt><dd>{{ sent }}</dd>
+      <dt>Открыто</dt><dd>{{ opened }}</dd>
+      <dt>WhatsApp</dt><dd>{{ whatsapp }}</dd>
+      <dt>Звонки</dt><dd>{{ called }}</dd>
+      <dt>Отказы</dt><dd>{{ declined }}</dd>
+      <dt>Последняя активность</dt><dd>{{ last_activity|date:'d.m.Y H:i'|default:'—' }}</dd>
+    </dl>
+  </section>
+  <section class="cp-card">
+    <h2>Полученные заявки</h2>
+    {% if requests %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Заявка</th><th>Авто</th><th>Match</th><th>Создано</th><th>Отправлено</th></tr></thead>
+          <tbody>
+            {% for row in requests %}
+              <tr>
+                <td><a href="{% url 'control_panel:parts_request_detail' row.request_id %}">№{{ row.request_id }}</a></td>
+                <td>{{ row.vehicle }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.sent_at|date:'d.m.Y H:i'|default:'—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Заявок нет.</p>
+    {% endif %}
+  </section>
+  <section class="cp-card">
+    <h2>Хронология событий</h2>
+    {% if events %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Дата</th><th>Событие</th><th>Заявка</th><th>Ссылка</th></tr></thead>
+          <tbody>
+            {% for row in events %}
+              <tr>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.event_label }}</td>
+                <td><a href="{% url 'control_panel:parts_request_detail' row.request_id %}">№{{ row.request_id }}</a></td>
+                <td>#{{ row.access_id }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Событий нет.</p>
+    {% endif %}
+  </section>
+  <p><a href="{{ admin_url }}">Открыть в технической Django Admin</a></p>
+{% endblock %}

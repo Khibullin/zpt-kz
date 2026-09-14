@@ -77,6 +77,7 @@ class SeoPolicyTests(TestCase):
     def test_technical_paths_are_noindex_nofollow(self):
         for path in (
             '/admin/',
+            '/control/',
             '/api/countries/',
             '/marketing/',
             '/seller/login/',
@@ -138,6 +139,7 @@ class SeoEndpointTests(TestCase):
         self.assertTrue(response['Content-Type'].startswith('text/plain'))
         body = response.content.decode('utf-8')
         self.assertIn('Disallow: /admin/', body)
+        self.assertIn('Disallow: /control/', body)
         self.assertIn('Disallow: /api/', body)
         self.assertIn('Disallow: /r/', body)
         self.assertIn('Disallow: /sr/', body)

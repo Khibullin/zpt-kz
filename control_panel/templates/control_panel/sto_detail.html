@@ -1,0 +1,64 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <section class="cp-card">
+    <h2>Профиль СТО</h2>
+    <dl class="cp-dl">
+      <dt>Название</dt><dd>{{ seller.name }}</dd>
+      <dt>Тип</dt><dd>{{ seller_type }}</dd>
+      <dt>Город</dt><dd>{{ seller.city|default:'—' }}</dd>
+      <dt>Район</dt><dd>{{ seller.district|default:'—' }}</dd>
+      <dt>Адрес</dt><dd>{{ seller.address|default:'—' }}</dd>
+      <dt>Услуги</dt><dd>{{ services }}</dd>
+      <dt>Активен</dt><dd>{% if seller.is_active %}да{% else %}нет{% endif %}</dd>
+      <dt>Получает заявки</dt><dd>{% if seller.receive_requests %}да{% else %}нет{% endif %}</dd>
+      <dt>Пауза</dt><dd>{% if seller.is_paused %}да{% else %}нет{% endif %}</dd>
+      <dt>Ответы</dt><dd>{{ replies }}</dd>
+    </dl>
+  </section>
+  <section class="cp-card">
+    <h2>Заявки / ServiceMatch</h2>
+    {% if matches %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Заявка</th><th>Город</th><th>Статус</th><th>Дата</th></tr></thead>
+          <tbody>
+            {% for row in matches %}
+              <tr>
+                <td><a href="{% url 'control_panel:service_request_detail' row.request_id %}">№{{ row.request_id }}</a></td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Заявок нет.</p>
+    {% endif %}
+  </section>
+  <section class="cp-card">
+    <h2>WhatsApp-логи</h2>
+    {% if logs %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Дата</th><th>Заявка</th><th>Тип</th><th>Статус</th></tr></thead>
+          <tbody>
+            {% for row in logs %}
+              <tr>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{% if row.request_id %}<a href="{% url 'control_panel:service_request_detail' row.request_id %}">№{{ row.request_id }}</a>{% else %}—{% endif %}</td>
+                <td>{{ row.message_type }}</td>
+                <td>{{ row.status_label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Логов нет.</p>
+    {% endif %}
+  </section>
+  <p><a href="{{ admin_url }}">Открыть в технической Django Admin</a></p>
+{% endblock %}

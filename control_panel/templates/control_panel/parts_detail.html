@@ -1,0 +1,97 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <section class="cp-card">
+    <dl class="cp-dl">
+      <dt>Номер</dt><dd>{{ parts_request.pk }}</dd>
+      <dt>Дата</dt><dd>{{ parts_request.created_at|date:'d.m.Y H:i' }}</dd>
+      <dt>Автомобиль</dt><dd>{{ vehicle }}</dd>
+      <dt>Категория</dt><dd>{{ parts_request.category|default:'—' }}</dd>
+      <dt>Город</dt><dd>{{ parts_request.city|default:'—' }}</dd>
+      <dt>Комментарий</dt><dd>{{ parts_request.description|default:'—' }}</dd>
+      <dt>Статус</dt><dd>{{ status_label }}</dd>
+      <dt>Телефон покупателя</dt><dd>{{ masked_phone }}</dd>
+      <dt>Ссылок доступа</dt><dd>{{ access_count }}</dd>
+    </dl>
+  </section>
+
+  <section class="cp-card">
+    <h2>Отправки продавцам</h2>
+    {% if dispatches %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Продавец</th><th>Волна</th><th>Статус</th><th>Запланировано</th><th>Отправлено</th></tr></thead>
+          <tbody>
+            {% for item in dispatches %}
+              <tr>
+                <td>{% if item.seller_id %}<a href="{% url 'control_panel:seller_detail' item.seller_id %}">{{ item.seller.name }}</a>{% else %}—{% endif %}</td>
+                <td>{{ item.wave_number }}</td>
+                <td>{{ item.get_status_display }}</td>
+                <td>{{ item.scheduled_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ item.sent_at|date:'d.m.Y H:i'|default:'—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Отправок нет.</p>
+    {% endif %}
+  </section>
+
+  <section class="cp-card">
+    <h2>Реакция продавцов</h2>
+    {% if reactions %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead>
+            <tr>
+              <th>Продавец</th><th>Отправлено</th><th>Открыл</th><th>WhatsApp</th>
+              <th>Call</th><th>Consent</th><th>Результат</th><th>Последнее действие</th><th>Ссылка</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in reactions %}
+              <tr>
+                <td>{% if row.seller_id %}<a href="{% url 'control_panel:seller_detail' row.seller_id %}">{{ row.seller_name }}</a>{% else %}{{ row.seller_name }}{% endif %}</td>
+                <td>{{ row.sent_at|date:'d.m.Y H:i'|default:'—' }}</td>
+                <td>{% if row.opened %}<span class="cp-yes">да</span>{% else %}<span class="cp-no">нет</span>{% endif %}</td>
+                <td>{% if row.whatsapp %}<span class="cp-yes">да</span>{% else %}<span class="cp-no">нет</span>{% endif %}</td>
+                <td>{% if row.called %}<span class="cp-yes">да</span>{% else %}<span class="cp-no">нет</span>{% endif %}</td>
+                <td>{{ row.consent }}</td>
+                <td>{{ row.outcome }}</td>
+                <td>{{ row.last_action_at|date:'d.m.Y H:i'|default:'—' }}</td>
+                <td>{% if row.access_id %}#{{ row.access_id }}{% else %}—{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Продавцы ещё не подобраны.</p>
+    {% endif %}
+  </section>
+
+  <section class="cp-card">
+    <h2>Хронология событий</h2>
+    {% if events %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Дата</th><th>Продавец</th><th>Событие</th><th>Ссылка доступа</th></tr></thead>
+          <tbody>
+            {% for row in events %}
+              <tr>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.seller_name }}</td>
+                <td>{{ row.event_label }}</td>
+                <td>#{{ row.access_id }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Событий нет.</p>
+    {% endif %}
+  </section>
+{% endblock %}

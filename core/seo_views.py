@@ -60,6 +60,7 @@ def robots_txt(request):
     lines = [
         'User-agent: *',
         'Disallow: /admin/',
+        'Disallow: /control/',
         'Disallow: /api/',
         'Disallow: /marketing/',
         'Disallow: /ajax/',

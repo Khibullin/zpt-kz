@@ -1,0 +1,95 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <form class="cp-filters" method="get">
+    <label>Поиск
+      <input name="q" value="{{ filters.q }}" placeholder="имя или город">
+    </label>
+    <label>Город
+      <select name="city">
+        <option value="">Все</option>
+        {% for city in cities %}
+          <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Активен
+      <select name="active">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>Да</option>
+        <option value="no" {% if filters.active == 'no' %}selected{% endif %}>Нет</option>
+      </select>
+    </label>
+    <label>Получает заявки
+      <select name="receive">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.receive == 'yes' %}selected{% endif %}>Да</option>
+        <option value="no" {% if filters.receive == 'no' %}selected{% endif %}>Нет</option>
+      </select>
+    </label>
+    <label>Consent
+      <select name="consent">
+        <option value="">Все</option>
+        <option value="granted" {% if filters.consent == 'granted' %}selected{% endif %}>granted</option>
+        <option value="revoked" {% if filters.consent == 'revoked' %}selected{% endif %}>revoked</option>
+        <option value="unknown" {% if filters.consent == 'unknown' %}selected{% endif %}>unknown / нет</option>
+      </select>
+    </label>
+    <label>Открывал заявки
+      <select name="opened">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.opened == 'yes' %}selected{% endif %}>Да</option>
+        <option value="no" {% if filters.opened == 'no' %}selected{% endif %}>Нет</option>
+      </select>
+    </label>
+    <label>Активность
+      <select name="activity">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.activity == 'yes' %}selected{% endif %}>Была</option>
+        <option value="no" {% if filters.activity == 'no' %}selected{% endif %}>Не было</option>
+      </select>
+    </label>
+    <label>Категория
+      <input name="category" value="{{ filters.category }}">
+    </label>
+    <button class="cp-btn" type="submit">Показать</button>
+  </form>
+  <p class="cp-muted">Всего: {{ total }}</p>
+  <div class="cp-card">
+    {% if rows %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead>
+            <tr>
+              <th>Продавец</th><th>Город</th><th>Категории</th><th>Активен</th>
+              <th>Получает</th><th>Пауза</th><th>Consent</th><th>Отправлено</th>
+              <th>Открыто</th><th>WhatsApp</th><th>Звонки</th><th>Отказы</th><th>Активность</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td><a href="{% url 'control_panel:seller_detail' row.pk %}">{{ row.name }}</a></td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.categories }}</td>
+                <td>{% if row.is_active %}<span class="cp-pill cp-pill-on">да</span>{% else %}<span class="cp-pill cp-pill-off">нет</span>{% endif %}</td>
+                <td>{% if row.receive_requests %}да{% else %}нет{% endif %}</td>
+                <td>{% if row.is_paused %}да{% else %}нет{% endif %}</td>
+                <td>{{ row.consent_label }}</td>
+                <td>{{ row.sent }}</td>
+                <td>{{ row.opened }}</td>
+                <td>{{ row.whatsapp }}</td>
+                <td>{{ row.called }}</td>
+                <td>{{ row.declined }}</td>
+                <td>{{ row.last_activity|date:'d.m.Y H:i'|default:'—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include 'control_panel/_pagination.html' %}
+    {% else %}
+      <p class="cp-empty">Продавцов нет.</p>
+    {% endif %}
+  </div>
+{% endblock %}

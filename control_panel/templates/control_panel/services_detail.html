@@ -1,0 +1,63 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <section class="cp-card">
+    <dl class="cp-dl">
+      <dt>Номер</dt><dd>{{ service_request.pk }}</dd>
+      <dt>Дата</dt><dd>{{ service_request.created_at|date:'d.m.Y H:i' }}</dd>
+      <dt>Тип</dt><dd>{{ service_type }}</dd>
+      <dt>Услуги</dt><dd>{{ services }}</dd>
+      <dt>Город</dt><dd>{{ service_request.city|default:'—' }}</dd>
+      <dt>Район</dt><dd>{{ service_request.district|default:'—' }}</dd>
+      <dt>Автомобиль</dt><dd>{{ vehicle }}</dd>
+      <dt>Комментарий</dt><dd>{{ service_request.description|default:'—' }}</dd>
+      <dt>Клиент</dt><dd>{{ masked_phone }}</dd>
+      <dt>Статус заявки</dt><dd>{{ status }}</dd>
+    </dl>
+  </section>
+
+  <section class="cp-card">
+    <h2>Подобранные СТО</h2>
+    {% if matches %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>СТО</th><th>Статус match</th><th>Создано</th></tr></thead>
+          <tbody>
+            {% for row in matches %}
+              <tr>
+                <td>{% if row.seller_id %}<a href="{% url 'control_panel:sto_detail' row.seller_id %}">{{ row.seller_name }}</a>{% else %}{{ row.seller_name }}{% endif %}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Подборов нет.</p>
+    {% endif %}
+  </section>
+
+  <section class="cp-card">
+    <h2>WhatsApp-логи</h2>
+    {% if logs %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead><tr><th>Дата</th><th>СТО</th><th>Тип</th><th>Статус</th></tr></thead>
+          <tbody>
+            {% for row in logs %}
+              <tr>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.seller_name }}</td>
+                <td>{{ row.message_type }}</td>
+                <td>{{ row.status_label }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% else %}
+      <p class="cp-empty">Логов нет.</p>
+    {% endif %}
+  </section>
+{% endblock %}

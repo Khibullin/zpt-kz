@@ -1,0 +1,11 @@
+{% if page.has_other_pages %}
+  <p class="cp-page">
+    {% if page.has_previous %}
+      <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.previous_page_number }}">Назад</a>
+    {% endif %}
+    Стр. {{ page.number }} из {{ page.paginator.num_pages }}
+    {% if page.has_next %}
+      <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page.next_page_number }}">Вперёд</a>
+    {% endif %}
+  </p>
+{% endif %}

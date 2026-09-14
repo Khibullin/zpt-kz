@@ -1,0 +1,95 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <form class="cp-filters" method="get">
+    <label>Период
+      <select name="period">
+        {% for key, label in list_period_choices %}
+          <option value="{{ key }}" {% if filters.period == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Номер заявки
+      <input name="request_id" value="{{ filters.request_id }}" inputmode="numeric">
+    </label>
+    <label>Поиск
+      <input name="q" value="{{ filters.q }}" placeholder="марка, модель, город">
+    </label>
+    <label>Город
+      <select name="city">
+        <option value="">Все</option>
+        {% for city in cities %}
+          <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Категория
+      <select name="category">
+        <option value="">Все</option>
+        {% for category in categories %}
+          <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Статус
+      <select name="status">
+        <option value="">Все</option>
+        {% for status in statuses %}
+          <option value="{{ status.value }}" {% if filters.status == status.value %}selected{% endif %}>{{ status.label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Открыта
+      <select name="opened">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.opened == 'yes' %}selected{% endif %}>Открыта</option>
+        <option value="no" {% if filters.opened == 'no' %}selected{% endif %}>Не открыта</option>
+      </select>
+    </label>
+    <label>Контакт
+      <select name="contact">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.contact == 'yes' %}selected{% endif %}>Был контакт</option>
+        <option value="no" {% if filters.contact == 'no' %}selected{% endif %}>Не было контакта</option>
+      </select>
+    </label>
+    <button class="cp-btn" type="submit">Показать</button>
+  </form>
+
+  <p class="cp-muted">Всего: {{ total }}</p>
+  <div class="cp-card">
+    {% if rows %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead>
+            <tr>
+              <th>№</th><th>Дата</th><th>Авто</th><th>Категория</th><th>Город</th>
+              <th>Статус</th><th>Получили</th><th>Открыли</th><th>WhatsApp</th><th>Звонки</th><th>Результат</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>{{ row.pk }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.vehicle }}</td>
+                <td>{{ row.category }}</td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.sellers_received }}</td>
+                <td>{{ row.opened }}</td>
+                <td>{{ row.whatsapp }}</td>
+                <td>{{ row.called }}</td>
+                <td>{{ row.result }}</td>
+                <td><a href="{% url 'control_panel:parts_request_detail' row.pk %}">Открыть</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include 'control_panel/_pagination.html' %}
+    {% else %}
+      <p class="cp-empty">Заявок нет.</p>
+    {% endif %}
+  </div>
+{% endblock %}

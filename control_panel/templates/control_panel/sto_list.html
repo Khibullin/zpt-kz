@@ -1,0 +1,60 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <form class="cp-filters" method="get">
+    <label>Поиск
+      <input name="q" value="{{ filters.q }}" placeholder="название или город">
+    </label>
+    <label>Город
+      <select name="city">
+        <option value="">Все</option>
+        {% for city in cities %}
+          <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Активен
+      <select name="active">
+        <option value="">Все</option>
+        <option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>Да</option>
+        <option value="no" {% if filters.active == 'no' %}selected{% endif %}>Нет</option>
+      </select>
+    </label>
+    <button class="cp-btn" type="submit">Показать</button>
+  </form>
+  <p class="cp-muted">Всего: {{ total }}</p>
+  <div class="cp-card">
+    {% if rows %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead>
+            <tr>
+              <th>Название</th><th>Город</th><th>Район</th><th>Тип</th><th>Услуги</th>
+              <th>Активен</th><th>Заявки</th><th>Пауза</th><th>Получено</th><th>Ответы</th><th>Активность</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td><a href="{% url 'control_panel:sto_detail' row.pk %}">{{ row.name }}</a></td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.district }}</td>
+                <td>{{ row.seller_type }}</td>
+                <td>{{ row.services }}</td>
+                <td>{% if row.is_active %}<span class="cp-pill cp-pill-on">да</span>{% else %}<span class="cp-pill cp-pill-off">нет</span>{% endif %}</td>
+                <td>{% if row.receive_requests %}да{% else %}нет{% endif %}</td>
+                <td>{% if row.is_paused %}да{% else %}нет{% endif %}</td>
+                <td>{{ row.received }}</td>
+                <td>{{ row.replies }}</td>
+                <td>{{ row.last_activity|date:'d.m.Y H:i'|default:'—' }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include 'control_panel/_pagination.html' %}
+    {% else %}
+      <p class="cp-empty">СТО нет.</p>
+    {% endif %}
+  </div>
+{% endblock %}

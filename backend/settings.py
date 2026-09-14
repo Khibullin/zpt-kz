@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'service_requests',
     'orders',
     'marketing',
+    'control_panel.apps.ControlPanelConfig',
 ]
 
 MIDDLEWARE = [

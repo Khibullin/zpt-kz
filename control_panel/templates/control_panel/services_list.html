@@ -1,0 +1,67 @@
+{% extends 'control_panel/base.html' %}
+
+{% block content %}
+  <form class="cp-filters" method="get">
+    <label>Период
+      <select name="period">
+        {% for key, label in list_period_choices %}
+          <option value="{{ key }}" {% if filters.period == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Поиск
+      <input name="q" value="{{ filters.q }}" placeholder="номер, город, авто">
+    </label>
+    <label>Город
+      <select name="city">
+        <option value="">Все</option>
+        {% for city in cities %}
+          <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Тип
+      <select name="service_type">
+        <option value="">Все</option>
+        <option value="sto" {% if filters.service_type == 'sto' %}selected{% endif %}>СТО</option>
+        <option value="detailing" {% if filters.service_type == 'detailing' %}selected{% endif %}>Детейлинг</option>
+      </select>
+    </label>
+    <button class="cp-btn" type="submit">Показать</button>
+  </form>
+  <p class="cp-muted">Всего: {{ total }}</p>
+  <div class="cp-card">
+    {% if rows %}
+      <div class="cp-table-wrap">
+        <table class="cp-table">
+          <thead>
+            <tr>
+              <th>№</th><th>Дата</th><th>Вид</th><th>Услуги</th><th>Город</th>
+              <th>Авто</th><th>Статус</th><th>Подобрано СТО</th><th>Уведомлено</th><th>Ответы</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr>
+                <td>{{ row.pk }}</td>
+                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
+                <td>{{ row.service_type }}</td>
+                <td>{{ row.services }}</td>
+                <td>{{ row.city }}</td>
+                <td>{{ row.vehicle }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.matched }}</td>
+                <td>{{ row.notified }}</td>
+                <td>{{ row.replies }}</td>
+                <td><a href="{% url 'control_panel:service_request_detail' row.pk %}">Открыть</a></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include 'control_panel/_pagination.html' %}
+    {% else %}
+      <p class="cp-empty">Заявок СТО нет.</p>
+    {% endif %}
+  </div>
+{% endblock %}
