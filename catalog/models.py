@@ -1379,3 +1379,135 @@ class CatalogImportItem(models.Model):
 
     def __str__(self):
         return f'{self.article} ({self.action})'
+
+
+class Warehouse(models.Model):
+    code = models.CharField(
+        max_length=32,
+        unique=True,
+        verbose_name='Код склада',
+    )
+    name = models.CharField(
+        max_length=128,
+        verbose_name='Название',
+    )
+    is_active = models.BooleanField(
+        default=True,
+        verbose_name='Активен',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Склад'
+        verbose_name_plural = 'Склады'
+        ordering = ['code']
+
+    def __str__(self):
+        return f'{self.code} — {self.name}'
+
+
+class ProductWarehouseStock(models.Model):
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='warehouse_stocks',
+        verbose_name='Товар',
+    )
+    warehouse = models.ForeignKey(
+        Warehouse,
+        on_delete=models.PROTECT,
+        related_name='stocks',
+        verbose_name='Склад',
+    )
+    quantity = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Остаток',
+    )
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Остаток на складе'
+        verbose_name_plural = 'Остатки на складах'
+        ordering = ['product_id', 'warehouse_id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'warehouse'],
+                name='uniq_product_warehouse_stock',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(quantity__gte=0),
+                name='catalog_warehouse_stock_qty_gte_0',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.product_id} @ {self.warehouse_id}: {self.quantity}'
+
+
+class StockMovement(models.Model):
+    class MovementType(models.TextChoices):
+        OPENING = 'OPENING', 'Открытие'
+        RECEIPT = 'RECEIPT', 'Приход'
+        SALE = 'SALE', 'Продажа'
+        TRANSFER_IN = 'TRANSFER_IN', 'Перемещение (вход)'
+        TRANSFER_OUT = 'TRANSFER_OUT', 'Перемещение (выход)'
+        ADJUSTMENT = 'ADJUSTMENT', 'Корректировка'
+        RETURN = 'RETURN', 'Возврат'
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='stock_movements',
+        verbose_name='Товар',
+    )
+    warehouse = models.ForeignKey(
+        Warehouse,
+        on_delete=models.PROTECT,
+        related_name='stock_movements',
+        verbose_name='Склад',
+    )
+    movement_type = models.CharField(
+        max_length=16,
+        choices=MovementType.choices,
+        db_index=True,
+        verbose_name='Тип движения',
+    )
+    quantity_delta = models.IntegerField(verbose_name='Изменение')
+    quantity_before = models.PositiveIntegerField(verbose_name='Было')
+    quantity_after = models.PositiveIntegerField(verbose_name='Стало')
+    source = models.CharField(
+        max_length=64,
+        default='',
+        verbose_name='Источник',
+    )
+    reference = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Ссылка / документ',
+    )
+    note = models.TextField(blank=True, default='', verbose_name='Комментарий')
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Движение склада'
+        verbose_name_plural = 'Движения склада'
+        ordering = ['-created_at', '-id']
+        indexes = [
+            models.Index(
+                fields=['warehouse', 'movement_type'],
+                name='cat_stock_move_wh_type_idx',
+            ),
+            models.Index(
+                fields=['product', 'created_at'],
+                name='cat_stock_move_prod_dt_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.movement_type} {self.product_id} @ {self.warehouse_id}: '
+            f'{self.quantity_delta}'
+        )

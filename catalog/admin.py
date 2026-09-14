@@ -34,6 +34,7 @@ from catalog.wholesale_update import (
     wholesale_update_filename,
     wholesale_update_xlsx_bytes,
 )
+from catalog.stock_service import set_stock_quantity
 from .models import (
     Country,
     Brand,
@@ -52,6 +53,9 @@ from .models import (
     ProductKaspiListing,
     CatalogImportBatch,
     CatalogImportItem,
+    Warehouse,
+    ProductWarehouseStock,
+    StockMovement,
 )
 
 
@@ -984,6 +988,113 @@ class CatalogImportItemInline(admin.TabularInline):
     readonly_fields = fields
 
     def has_add_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(Warehouse)
+class WarehouseAdmin(admin.ModelAdmin):
+    list_display = ('id', 'code', 'name', 'is_active', 'updated_at')
+    list_filter = ('is_active',)
+    search_fields = ('code', 'name')
+    ordering = ('code',)
+
+
+@admin.register(ProductWarehouseStock)
+class ProductWarehouseStockAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'product',
+        'product_article',
+        'warehouse',
+        'quantity',
+        'updated_at',
+    )
+    list_filter = ('warehouse',)
+    search_fields = ('product__article', 'product__title', 'warehouse__code')
+    autocomplete_fields = ('product', 'warehouse')
+    readonly_fields = ('updated_at',)
+
+    @admin.display(description='Артикул', ordering='product__article')
+    def product_article(self, obj):
+        return obj.product.article
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(self.readonly_fields)
+        if obj:
+            fields.extend(['product', 'warehouse'])
+        return fields
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        set_stock_quantity(
+            product=obj.product,
+            warehouse=obj.warehouse,
+            new_quantity=form.cleaned_data.get('quantity', obj.quantity),
+            source='admin',
+            note=f'user:{request.user.pk}',
+        )
+        stock = ProductWarehouseStock.objects.filter(
+            product=obj.product,
+            warehouse=obj.warehouse,
+        ).first()
+        if stock is None:
+            return
+        obj.pk = stock.pk
+        obj.quantity = stock.quantity
+        obj.updated_at = stock.updated_at
+
+
+@admin.register(StockMovement)
+class StockMovementAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'created_at',
+        'product',
+        'product_article',
+        'warehouse',
+        'movement_type',
+        'quantity_delta',
+        'quantity_before',
+        'quantity_after',
+        'source',
+        'reference',
+    )
+    list_filter = ('warehouse', 'movement_type', 'created_at')
+    search_fields = (
+        'product__article',
+        'product__title',
+        'reference',
+        'source',
+        'note',
+    )
+    autocomplete_fields = ('product', 'warehouse')
+    readonly_fields = (
+        'product',
+        'warehouse',
+        'movement_type',
+        'quantity_delta',
+        'quantity_before',
+        'quantity_after',
+        'source',
+        'reference',
+        'note',
+        'created_at',
+    )
+    ordering = ('-created_at', '-id')
+
+    @admin.display(description='Артикул', ordering='product__article')
+    def product_article(self, obj):
+        return obj.product.article
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
         return False
 
 
