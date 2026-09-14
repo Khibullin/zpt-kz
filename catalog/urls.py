@@ -96,17 +96,17 @@ urlpatterns = [
     path('feedback/', feedback_view, name='feedback'),
 
     path(
-        'seller/<slug:slug>/wholesale/price.xlsx',
+        'seller/<str:slug>/wholesale/price.xlsx',
         public_seller_wholesale_price,
         name='public_seller_wholesale_price',
     ),
     path(
-        'seller/<slug:slug>/wholesale/',
+        'seller/<str:slug>/wholesale/',
         public_seller_wholesale,
         name='public_seller_wholesale',
     ),
     path(
-        'seller/<slug:slug>/',
+        'seller/<str:slug>/',
         public_seller_profile,
         name='public_seller_profile'
     ),
