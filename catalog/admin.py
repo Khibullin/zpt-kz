@@ -52,6 +52,8 @@ from .models import (
     ProductBarcode,
     ProductKaspiListing,
     KaspiListingFactSnapshot,
+    KaspiOrder,
+    KaspiSalesOperation,
     CatalogImportBatch,
     CatalogImportItem,
     Warehouse,
@@ -1136,6 +1138,125 @@ class KaspiListingFactSnapshotAdmin(admin.ModelAdmin):
         'created_at',
     )
     ordering = ('-observed_at', '-id')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(KaspiOrder)
+class KaspiOrderAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'seller_profile',
+        'external_order_id',
+        'first_operation_at',
+        'last_operation_at',
+        'updated_at',
+    )
+    list_filter = ('seller_profile',)
+    search_fields = ('external_order_id',)
+    autocomplete_fields = ('seller_profile',)
+    readonly_fields = (
+        'seller_profile',
+        'external_order_id',
+        'first_operation_at',
+        'last_operation_at',
+        'created_at',
+        'updated_at',
+    )
+    ordering = ('-last_operation_at', '-id')
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(KaspiSalesOperation)
+class KaspiSalesOperationAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'operation_at',
+        'operation_type',
+        'order',
+        'product',
+        'listing',
+        'quantity',
+        'gross_amount',
+        'commission_amount',
+        'delivery_cost',
+        'match_status',
+    )
+    list_filter = ('operation_type', 'match_status', 'seller_profile')
+    search_fields = (
+        'order__external_order_id',
+        'product__article',
+        'details',
+        'source_fingerprint',
+        'matched_identifier',
+    )
+    autocomplete_fields = (
+        'seller_profile',
+        'order',
+        'product',
+        'listing',
+        'import_batch',
+    )
+    readonly_fields = (
+        'seller_profile',
+        'order',
+        'product',
+        'listing',
+        'purchase_return_document',
+        'sales_point_id',
+        'terminal_id',
+        'operation_type',
+        'operation_at',
+        'accounting_date',
+        'payment_type',
+        'payment_type_2',
+        'gross_amount',
+        'settlement_amount',
+        'commission_amount',
+        'commission_ex_vat_amount',
+        'commission_ex_vat_percent',
+        'card_commission_amount',
+        'card_commission_percent',
+        'payment_guarantee_amount',
+        'payment_guarantee_percent',
+        'kaspi_pay_commission_amount',
+        'kaspi_pay_commission_percent',
+        'kaspi_travel_commission_amount',
+        'kaspi_travel_commission_percent',
+        'bonus_product_amount',
+        'bonus_review_amount',
+        'delivery_document',
+        'delivery_cost',
+        'installment_term',
+        'details',
+        'quantity',
+        'unit_gross_amount',
+        'match_status',
+        'matched_identifier',
+        'source_filename',
+        'source_sha256',
+        'source_row',
+        'source_fingerprint',
+        'import_batch',
+        'raw_data',
+        'created_at',
+    )
+    ordering = ('-operation_at', '-id')
 
     def has_add_permission(self, request):
         return False

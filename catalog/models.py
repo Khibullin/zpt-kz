@@ -1266,6 +1266,7 @@ class CatalogImportBatch(models.Model):
     SOURCE_WHOLESALE_UPDATE = 'wholesale_update'
     SOURCE_PRODUCT_PHOTOS = 'product_photos'
     SOURCE_KASPI_LISTING_FACTS = 'kaspi_listing_facts'
+    SOURCE_KASPI_SALES_REPORT = 'kaspi_sales_report'
 
     MODE_WRITE = 'write'
     MODE_DRY_RUN = 'dry-run'
@@ -1594,4 +1595,321 @@ class StockMovement(models.Model):
         return (
             f'{self.movement_type} {self.product_id} @ {self.warehouse_id}: '
             f'{self.quantity_delta}'
+        )
+
+
+class KaspiOrder(models.Model):
+    seller_profile = models.ForeignKey(
+        SellerProfile,
+        on_delete=models.PROTECT,
+        related_name='kaspi_orders',
+        verbose_name='Профиль продавца',
+    )
+    external_order_id = models.CharField(
+        max_length=128,
+        db_index=True,
+        verbose_name='Номер заказа Kaspi (ID/RRN)',
+    )
+    first_operation_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Первая операция',
+    )
+    last_operation_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя операция',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Заказ Kaspi'
+        verbose_name_plural = 'Заказы Kaspi'
+        ordering = ['-last_operation_at', '-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_profile', 'external_order_id'],
+                name='uniq_kaspi_order_seller_external',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.seller_profile_id}:{self.external_order_id}'
+
+
+class KaspiSalesOperation(models.Model):
+    class OperationType(models.TextChoices):
+        PURCHASE = 'PURCHASE', 'Покупка'
+        RETURN = 'RETURN', 'Возврат'
+
+    class MatchStatus(models.TextChoices):
+        LISTING_MATCHED = 'LISTING_MATCHED', 'Listing'
+        PRODUCT_ONLY = 'PRODUCT_ONLY', 'Только товар'
+        UNMATCHED = 'UNMATCHED', 'Не найден'
+        AMBIGUOUS_PRODUCT = 'AMBIGUOUS_PRODUCT', 'Несколько товаров'
+
+    seller_profile = models.ForeignKey(
+        SellerProfile,
+        on_delete=models.PROTECT,
+        related_name='kaspi_sales_operations',
+        verbose_name='Профиль продавца',
+    )
+    order = models.ForeignKey(
+        KaspiOrder,
+        on_delete=models.CASCADE,
+        related_name='operations',
+        verbose_name='Заказ Kaspi',
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='kaspi_sales_operations',
+        verbose_name='Товар',
+    )
+    listing = models.ForeignKey(
+        ProductKaspiListing,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='kaspi_sales_operations',
+        verbose_name='Kaspi-листинг',
+    )
+    purchase_return_document = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        verbose_name='№ документа Покупки/Возврата',
+    )
+    sales_point_id = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Идентификатор точки',
+    )
+    terminal_id = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='ID терминала',
+    )
+    operation_type = models.CharField(
+        max_length=16,
+        choices=OperationType.choices,
+        db_index=True,
+        verbose_name='Тип операции',
+    )
+    operation_at = models.DateTimeField(db_index=True, verbose_name='Дата/время операции')
+    accounting_date = models.DateField(
+        null=True,
+        blank=True,
+        verbose_name='Дата учета операции',
+    )
+    payment_type = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Тип оплаты',
+    )
+    payment_type_2 = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Тип оплаты 2',
+    )
+    gross_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        verbose_name='Сумма операции',
+    )
+    settlement_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Сумма к зачислению/списанию',
+    )
+    commission_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за операции',
+    )
+    commission_ex_vat_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за операции без НДС',
+    )
+    commission_ex_vat_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за операции % без НДС',
+    )
+    card_commission_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за операции по карте',
+    )
+    card_commission_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за операции по карте %',
+    )
+    payment_guarantee_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за обеспечение платежа',
+    )
+    payment_guarantee_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия за обеспечение платежа %',
+    )
+    kaspi_pay_commission_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия Kaspi Pay',
+    )
+    kaspi_pay_commission_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия Kaspi Pay %',
+    )
+    kaspi_travel_commission_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия Kaspi Travel',
+    )
+    kaspi_travel_commission_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        verbose_name='Комиссия Kaspi Travel %',
+    )
+    bonus_product_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Бонусы на товар',
+    )
+    bonus_review_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Бонусы за отзыв',
+    )
+    delivery_document = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        verbose_name='№ документа Kaspi Доставка',
+    )
+    delivery_cost = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        verbose_name='Стоимость Kaspi Доставки',
+    )
+    installment_term = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Срок кредита на покупки',
+    )
+    details = models.TextField(blank=True, default='', verbose_name='Детали покупки')
+    quantity = models.PositiveIntegerField(verbose_name='Количество')
+    unit_gross_amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        verbose_name='Сумма за единицу',
+    )
+    match_status = models.CharField(
+        max_length=24,
+        choices=MatchStatus.choices,
+        db_index=True,
+        verbose_name='Статус сопоставления',
+    )
+    matched_identifier = models.CharField(
+        max_length=128,
+        blank=True,
+        default='',
+        verbose_name='Сопоставленный идентификатор',
+    )
+    source_filename = models.CharField(
+        max_length=255,
+        default='',
+        verbose_name='Имя файла',
+    )
+    source_sha256 = models.CharField(
+        max_length=64,
+        db_index=True,
+        verbose_name='SHA256 источника',
+    )
+    source_row = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Строка источника',
+    )
+    source_fingerprint = models.CharField(
+        max_length=64,
+        db_index=True,
+        verbose_name='Отпечаток операции',
+    )
+    import_batch = models.ForeignKey(
+        'CatalogImportBatch',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='kaspi_sales_operations',
+        verbose_name='Пакет импорта',
+    )
+    raw_data = models.JSONField(default=dict, blank=True, verbose_name='Сырые данные строки')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Операция продаж Kaspi'
+        verbose_name_plural = 'Операции продаж Kaspi'
+        ordering = ['-operation_at', '-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_profile', 'source_fingerprint'],
+                name='uniq_kaspi_sales_seller_fingerprint',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['seller_profile', 'operation_type', 'operation_at'],
+                name='cat_kaspi_sales_seller_op_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f'{self.operation_type} {self.order_id} '
+            f'{self.gross_amount}'
         )
