@@ -51,6 +51,7 @@ from .models import (
     ProductFulfillment,
     ProductBarcode,
     ProductKaspiListing,
+    KaspiListingFactSnapshot,
     CatalogImportBatch,
     CatalogImportItem,
     Warehouse,
@@ -689,6 +690,7 @@ class ProductKaspiListingInline(admin.TabularInline):
         'is_active',
         'publish_to_kaspi',
         'last_known_our_price',
+        'last_known_kaspi_qty',
         'last_synced_at',
     )
 
@@ -965,6 +967,7 @@ class ProductKaspiListingAdmin(admin.ModelAdmin):
         'is_active',
         'publish_to_kaspi',
         'last_known_our_price',
+        'last_known_kaspi_qty',
         'last_synced_at',
     )
     search_fields = (
@@ -1087,6 +1090,52 @@ class StockMovementAdmin(admin.ModelAdmin):
     @admin.display(description='Артикул', ordering='product__article')
     def product_article(self, obj):
         return obj.product.article
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(KaspiListingFactSnapshot)
+class KaspiListingFactSnapshotAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'created_at',
+        'listing',
+        'observed_price',
+        'observed_qty',
+        'source',
+        'source_filename',
+        'source_row',
+        'observed_at',
+        'import_batch',
+    )
+    list_filter = ('source', 'observed_at')
+    search_fields = (
+        'listing__master_sku',
+        'listing__product__article',
+        'source_filename',
+        'source_sha256',
+    )
+    autocomplete_fields = ('listing', 'import_batch')
+    readonly_fields = (
+        'listing',
+        'observed_price',
+        'observed_qty',
+        'source',
+        'source_filename',
+        'source_sha256',
+        'source_row',
+        'observed_at',
+        'import_batch',
+        'created_at',
+    )
+    ordering = ('-observed_at', '-id')
 
     def has_add_permission(self, request):
         return False

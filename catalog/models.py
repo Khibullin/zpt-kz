@@ -1141,6 +1141,11 @@ class ProductKaspiListing(models.Model):
         blank=True,
         verbose_name='Последняя наша цена в Kaspi',
     )
+    last_known_kaspi_qty = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Последний наблюдаемый остаток Kaspi',
+    )
     last_synced_at = models.DateTimeField(
         null=True,
         blank=True,
@@ -1177,11 +1182,90 @@ class ProductKaspiListing(models.Model):
         )
 
 
+class KaspiListingFactSnapshot(models.Model):
+    SOURCE_ACTIVE_XLSX = 'active_xlsx'
+    SOURCE_MANUAL_IMPORT = 'manual_import'
+    SOURCE_CHOICES = [
+        (SOURCE_ACTIVE_XLSX, 'Kaspi active.xlsx'),
+        (SOURCE_MANUAL_IMPORT, 'Ручной импорт'),
+    ]
+
+    listing = models.ForeignKey(
+        ProductKaspiListing,
+        on_delete=models.CASCADE,
+        related_name='fact_snapshots',
+        verbose_name='Kaspi-листинг',
+    )
+    observed_price = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Наблюдаемая цена Kaspi',
+    )
+    observed_qty = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Наблюдаемый остаток Kaspi',
+    )
+    source = models.CharField(
+        max_length=32,
+        choices=SOURCE_CHOICES,
+        default=SOURCE_ACTIVE_XLSX,
+        db_index=True,
+        verbose_name='Источник',
+    )
+    source_filename = models.CharField(
+        max_length=255,
+        default='',
+        verbose_name='Имя файла',
+    )
+    source_sha256 = models.CharField(
+        max_length=64,
+        db_index=True,
+        verbose_name='SHA256 источника',
+    )
+    source_row = models.PositiveIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Строка источника',
+    )
+    observed_at = models.DateTimeField(verbose_name='Наблюдено')
+    import_batch = models.ForeignKey(
+        'CatalogImportBatch',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='kaspi_listing_fact_snapshots',
+        verbose_name='Пакет импорта',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Снимок факта Kaspi'
+        verbose_name_plural = 'Снимки фактов Kaspi'
+        ordering = ['-observed_at', '-id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['listing', 'source_sha256'],
+                name='uniq_kaspi_fact_listing_source',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=['listing', 'observed_at'],
+                name='cat_kaspi_fact_list_obs_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.listing_id} @ {self.source_sha256[:8]}'
+
+
 class CatalogImportBatch(models.Model):
     SOURCE_AG_PARTS = 'ag_parts'
     SOURCE_AG_PARTS_BARCODES = 'ag_parts_barcodes'
     SOURCE_WHOLESALE_UPDATE = 'wholesale_update'
     SOURCE_PRODUCT_PHOTOS = 'product_photos'
+    SOURCE_KASPI_LISTING_FACTS = 'kaspi_listing_facts'
 
     MODE_WRITE = 'write'
     MODE_DRY_RUN = 'dry-run'
