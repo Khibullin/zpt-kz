@@ -1913,3 +1913,111 @@ class KaspiSalesOperation(models.Model):
             f'{self.operation_type} {self.order_id} '
             f'{self.gross_amount}'
         )
+
+
+class KaspiEconomicsConfig(models.Model):
+    seller_profile = models.OneToOneField(
+        SellerProfile,
+        on_delete=models.CASCADE,
+        related_name='kaspi_economics_config',
+        verbose_name='Профиль продавца',
+    )
+    fulfillment_packaging_per_unit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        verbose_name='Упаковка Fulfillment за единицу',
+    )
+    fulfillment_handling_per_unit = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        validators=[MinValueValidator(0)],
+        verbose_name='Обработка Fulfillment за единицу',
+    )
+    default_min_margin_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        validators=[MinValueValidator(0)],
+        verbose_name='Мин. маржа по умолчанию, %',
+        help_text='Человеческий процент: 15.00 = 15%. Не доля.',
+    )
+    is_active = models.BooleanField(default=True, verbose_name='Конфиг активен')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Конфиг экономики Kaspi'
+        verbose_name_plural = 'Конфиги экономики Kaspi'
+        constraints = [
+            models.CheckConstraint(
+                condition=models.Q(fulfillment_packaging_per_unit__gte=0),
+                name='kaspi_econ_packaging_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(fulfillment_handling_per_unit__gte=0),
+                name='kaspi_econ_handling_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(default_min_margin_percent__gte=0),
+                name='kaspi_econ_margin_gte_0',
+            ),
+        ]
+
+    def __str__(self):
+        return f'Kaspi economics {self.seller_profile_id}'
+
+    @property
+    def fulfillment_total_per_unit(self):
+        return self.fulfillment_packaging_per_unit + self.fulfillment_handling_per_unit
+
+
+class ProductKaspiEconomicsPolicy(models.Model):
+    product = models.OneToOneField(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='kaspi_economics_policy',
+        verbose_name='Товар',
+    )
+    min_margin_percent = models.DecimalField(
+        max_digits=8,
+        decimal_places=4,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        verbose_name='Мин. маржа товара, %',
+        help_text='Пусто = взять default_min_margin_percent продавца. 15.00 = 15%.',
+    )
+    manual_min_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        null=True,
+        blank=True,
+        validators=[MinValueValidator(0)],
+        verbose_name='Ручной минимальный floor',
+        help_text='Не снижает расчётный floor, только поднимает его.',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Политика экономики товара Kaspi'
+        verbose_name_plural = 'Политики экономики товаров Kaspi'
+        constraints = [
+            models.CheckConstraint(
+                condition=(
+                    models.Q(min_margin_percent__isnull=True)
+                    | models.Q(min_margin_percent__gte=0)
+                ),
+                name='kaspi_econ_policy_margin_gte_0',
+            ),
+            models.CheckConstraint(
+                condition=(
+                    models.Q(manual_min_price__isnull=True)
+                    | models.Q(manual_min_price__gte=0)
+                ),
+                name='kaspi_econ_policy_manual_gte_0',
+            ),
+        ]
+
+    def __str__(self):
+        return f'Kaspi policy {self.product_id}'

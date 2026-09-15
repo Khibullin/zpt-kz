@@ -54,6 +54,8 @@ from .models import (
     KaspiListingFactSnapshot,
     KaspiOrder,
     KaspiSalesOperation,
+    KaspiEconomicsConfig,
+    ProductKaspiEconomicsPolicy,
     CatalogImportBatch,
     CatalogImportItem,
     Warehouse,
@@ -1266,6 +1268,47 @@ class KaspiSalesOperationAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(KaspiEconomicsConfig)
+class KaspiEconomicsConfigAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'seller_profile',
+        'fulfillment_packaging_per_unit',
+        'fulfillment_handling_per_unit',
+        'fulfillment_total_display',
+        'default_min_margin_percent',
+        'is_active',
+        'updated_at',
+    )
+    list_filter = ('is_active',)
+    search_fields = ('seller_profile__name',)
+    autocomplete_fields = ('seller_profile',)
+    readonly_fields = ('fulfillment_total_display', 'created_at', 'updated_at')
+
+    @admin.display(description='Fulfillment всего / ед.')
+    def fulfillment_total_display(self, obj):
+        return obj.fulfillment_total_per_unit
+
+
+@admin.register(ProductKaspiEconomicsPolicy)
+class ProductKaspiEconomicsPolicyAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'product',
+        'article',
+        'min_margin_percent',
+        'manual_min_price',
+        'updated_at',
+    )
+    search_fields = ('product__article', 'product__title')
+    autocomplete_fields = ('product',)
+    readonly_fields = ('created_at', 'updated_at')
+
+    @admin.display(description='Артикул')
+    def article(self, obj):
+        return obj.product.article
 
 
 @admin.register(CatalogImportBatch)
