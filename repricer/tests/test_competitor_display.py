@@ -219,3 +219,30 @@ class CompetitorDisplayTests(TestCase):
             if "kaspicompetitoroffersnapshot" in query["sql"].lower()
         ]
         self.assertLessEqual(len(snapshot_sql), 2)
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS=OWN_CODE)
+    def test_office_collector_source_excludes_own_seller(self):
+        listing = _listing("COLLECTOR")
+        now = timezone.now()
+        _offer(
+            listing,
+            seller_name=OWN_NAME,
+            seller_code=OWN_CODE,
+            price="3034",
+            captured_at=now,
+            source="office_collector",
+        )
+        _offer(
+            listing,
+            seller_name="Other",
+            seller_code="30308762",
+            price="3033",
+            captured_at=now,
+            source="office_collector",
+        )
+
+        state = listing_competitor_state(listing.pk, now=now)
+
+        self.assertEqual(state.state, STATE_READY)
+        self.assertEqual(state.best_price, Decimal("3033"))
+        self.assertEqual(state.best_seller_code, "30308762")

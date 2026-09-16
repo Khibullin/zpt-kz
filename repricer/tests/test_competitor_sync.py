@@ -6,6 +6,7 @@ from django.utils import timezone
 from catalog.models import Product, ProductKaspiListing
 from integrations.kaspi_competitors import (
     CompetitorPriceSourceRateLimited,
+    CompetitorPriceSourceUnavailable,
     KaspiCompetitorOffer,
     KaspiPublicOfferSource,
 )
@@ -92,6 +93,14 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         )
 
         with self.assertRaises(CompetitorPriceSourceRateLimited):
+            source.fetch_offers(master_sku="123456789")
+
+    def test_http_405_fails_closed(self):
+        source = KaspiPublicOfferSource(
+            session=FakeSession(FakeResponse(status_code=405, payload={}))
+        )
+
+        with self.assertRaises(CompetitorPriceSourceUnavailable):
             source.fetch_offers(master_sku="123456789")
 
 

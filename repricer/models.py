@@ -100,6 +100,33 @@ class KaspiCompetitorOfferSnapshot(models.Model):
         return f"{self.seller_name}: {self.price} ₸"
 
 
+class KaspiCompetitorIngestBatch(models.Model):
+    """Idempotency record for one collector POST of offer snapshots."""
+
+    external_batch_id = models.UUIDField("Внешний batch id", unique=True)
+    listing = models.ForeignKey(
+        "catalog.ProductKaspiListing",
+        on_delete=models.CASCADE,
+        related_name="competitor_ingest_batches",
+        verbose_name="Kaspi-привязка",
+    )
+    source = models.CharField("Источник", max_length=64, default="office_collector")
+    captured_at = models.DateTimeField("Получено")
+    offer_count = models.PositiveIntegerField("Число офферов")
+    received_at = models.DateTimeField("Принято", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Пакет цен конкурентов Kaspi"
+        verbose_name_plural = "Пакеты цен конкурентов Kaspi"
+        ordering = ("-received_at",)
+        indexes = [
+            models.Index(fields=("listing", "received_at"), name="repr_ingest_listing_idx"),
+        ]
+
+    def __str__(self):
+        return f"{self.external_batch_id} × {self.offer_count}"
+
+
 class KaspiOwnPriceSnapshot(models.Model):
     listing = models.ForeignKey(
         "catalog.ProductKaspiListing",

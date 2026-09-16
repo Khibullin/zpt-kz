@@ -45,6 +45,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('control/', include('control_panel.urls', namespace='control_panel')),
     path('office/repricer/', include('repricer.urls')),
+    path(
+        'internal/kaspi/competitor-collector/',
+        include('repricer.collector_urls'),
+    ),
 
     path('marketing/', include('marketing.urls')),
 

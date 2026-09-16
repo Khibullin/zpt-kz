@@ -1,6 +1,7 @@
 from django.contrib import admin
 
 from .models import (
+    KaspiCompetitorIngestBatch,
     KaspiCompetitorOfferSnapshot,
     KaspiOwnPriceSnapshot,
     KaspiRepricerRecommendation,
@@ -133,6 +134,35 @@ class KaspiRepricerRecommendationAdmin(ListingAdminMixin, admin.ModelAdmin):
         "created_at",
     )
     date_hierarchy = "created_at"
+
+    def has_add_permission(self, request):
+        return False
+
+
+@admin.register(KaspiCompetitorIngestBatch)
+class KaspiCompetitorIngestBatchAdmin(ListingAdminMixin, admin.ModelAdmin):
+    list_display = (
+        "external_batch_id",
+        "product_article",
+        "source",
+        "offer_count",
+        "captured_at",
+        "received_at",
+    )
+    search_fields = (
+        "external_batch_id",
+        "listing__product__article",
+        "listing__master_sku",
+    )
+    readonly_fields = (
+        "external_batch_id",
+        "listing",
+        "source",
+        "captured_at",
+        "offer_count",
+        "received_at",
+    )
+    date_hierarchy = "received_at"
 
     def has_add_permission(self, request):
         return False

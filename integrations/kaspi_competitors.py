@@ -182,7 +182,7 @@ class KaspiPublicOfferSource:
             raise CompetitorPriceSourceRateLimited(
                 f"Kaspi ограничил частоту запросов для product_id={product_id}."
             )
-        if response.status_code in {401, 403}:
+        if response.status_code in {401, 403, 405}:
             raise CompetitorPriceSourceUnavailable(
                 f"Kaspi отклонил read-only запрос ({response.status_code}) "
                 f"для product_id={product_id}."

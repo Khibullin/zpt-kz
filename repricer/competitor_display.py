@@ -26,6 +26,8 @@ STATE_READY = "READY"
 STATE_STALE = "STALE"
 
 PUBLIC_SOURCE = "kaspi_public"
+COLLECTOR_SOURCE = "office_collector"
+PUBLIC_EQUIVALENT_SOURCES = frozenset({PUBLIC_SOURCE, COLLECTOR_SOURCE})
 DEFAULT_FRESH_MINUTES = 180
 
 STATE_LABELS = {
@@ -108,7 +110,7 @@ def _state_from_batch(
     captured_at = batch[0].captured_at
     is_fresh = captured_at >= now - fresh_delta
     is_stale = not is_fresh
-    has_public = any(item.source == PUBLIC_SOURCE for item in batch)
+    has_public = any(item.source in PUBLIC_EQUIVALENT_SOURCES for item in batch)
     if has_public and not _own_merchant_configured(own_ids, own_names):
         return ListingCompetitorState(
             listing_id=listing_id,
