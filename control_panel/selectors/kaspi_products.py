@@ -14,6 +14,7 @@ from django.http import QueryDict
 from django.utils import timezone
 
 from catalog.kaspi_economics import load_economics_context, product_economics_from_context
+from catalog.kaspi_public_url import display_kaspi_public_url
 from catalog.models import (
     Category,
     KaspiEconomicsConfig,
@@ -66,6 +67,7 @@ class ListingView:
     kaspi_qty_label: str
     last_synced_at: datetime | None
     is_active: bool
+    public_url: str
 
 
 @dataclass
@@ -112,6 +114,8 @@ class ProductWorkRow:
     status_title: str
     recommended_note: str
     badges: list[StatusBadge]
+    zpt_url: str
+    kaspi_url: str
     public_url: str
     economics_configured: bool
     cost_price: int | None
@@ -422,6 +426,14 @@ def _build_badges(row: ProductWorkRow) -> list[StatusBadge]:
     return badges
 
 
+def _safe_zpt_url(product: Product) -> str:
+    try:
+        url = product.get_absolute_url()
+    except Exception:
+        return ''
+    return str(url or '').strip()
+
+
 def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRow:
     listings = [
         ListingView(
@@ -436,6 +448,7 @@ def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRo
             ),
             last_synced_at=item.last_synced_at,
             is_active=item.is_active,
+            public_url=display_kaspi_public_url(item.public_url),
         )
         for item in product.kaspi_listings.all()
     ]
@@ -451,6 +464,8 @@ def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRo
         stock_delta = kaspi_qty - pp2
     else:
         stock_delta = None
+    zpt_url = _safe_zpt_url(product)
+    kaspi_url = listings[0].public_url if listing_count == 1 else ''
 
     zpt_status = 'ZPT' if product.status == 'active' else 'скрыт'
     zpt_tone = 'on' if product.status == 'active' else 'neutral'
@@ -513,7 +528,9 @@ def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRo
         status_title='OK',
         recommended_note='Правило снижения цены не задано',
         badges=[],
-        public_url=product.get_absolute_url(),
+        zpt_url=zpt_url,
+        kaspi_url=kaspi_url,
+        public_url=zpt_url,
         economics_configured=econ_configured,
         cost_price=cost_price,
         commission_rate=commission_rate,

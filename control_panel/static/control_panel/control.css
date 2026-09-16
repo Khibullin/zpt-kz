@@ -402,6 +402,19 @@ table.cp-table.cp-table-work {
   font-size: 13px;
   line-height: 1.2;
 }
+a.cp-article,
+a.cp-title-clip {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+a.cp-ext-link:hover { text-decoration: underline; }
+.cp-kaspi-link {
+  font-size: 11px;
+  color: var(--cp-muted);
+  font-weight: 600;
+  white-space: nowrap;
+}
 .cp-title-clip {
   max-width: 100%;
   overflow: hidden;
@@ -500,10 +513,12 @@ table.cp-table.cp-table-work {
 .cp-expand-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 12px;
   margin: 0 0 8px;
   font-size: 13px;
 }
 .cp-expand-actions a { color: #111; }
+.cp-listing-link { margin: 4px 0 0; font-size: 12px; }
 .cp-expand-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));

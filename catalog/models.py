@@ -4,6 +4,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
 
+from catalog.kaspi_public_url import validate_kaspi_public_url
+
 
 class Country(models.Model):
     name = models.CharField(max_length=100, unique=True, verbose_name='Страна')
@@ -1151,6 +1153,17 @@ class ProductKaspiListing(models.Model):
         blank=True,
         verbose_name='Последняя синхронизация',
     )
+    public_url = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Публичная ссылка Kaspi',
+        help_text=(
+            'Проверенная публичная ссылка на карточку товара в Магазине Kaspi. '
+            'Не формируется автоматически из master_sku.'
+        ),
+        validators=[validate_kaspi_public_url],
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
 
@@ -1173,6 +1186,12 @@ class ProductKaspiListing(models.Model):
 
     def __str__(self):
         return f'{self.product_id}: {self.master_sku}'
+
+    def clean(self):
+        super().clean()
+        self.public_url = (self.public_url or '').strip()
+        if self.public_url:
+            validate_kaspi_public_url(self.public_url)
 
     def is_effectively_published_to_kaspi(self):
         return bool(

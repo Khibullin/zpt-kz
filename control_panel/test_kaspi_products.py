@@ -1,5 +1,6 @@
 from datetime import timedelta
 from decimal import Decimal
+from pathlib import Path
 from uuid import uuid4
 
 from django.contrib.auth.models import User
@@ -117,7 +118,7 @@ def _snapshot():
         ),
         'listings': list(
             ProductKaspiListing.objects.order_by('pk').values_list(
-                'pk', 'last_known_our_price', 'last_known_kaspi_qty', 'last_synced_at'
+                'pk', 'last_known_our_price', 'last_known_kaspi_qty', 'last_synced_at', 'public_url'
             )
         ),
         'stocks': list(
@@ -359,3 +360,59 @@ class KaspiProductsControlTests(TestCase):
         self.assertContains(response, 'cp-thumb-wrap')
         self.assertContains(response, 'data-fallback')
         self.assertContains(response, 'Нет Kaspi')
+
+    def test_zpt_link_uses_get_absolute_url_and_opens_safely(self):
+        self._login()
+        product = _product(self.seller, 'ART-ZPT', slug='art-zpt-public')
+        zpt_url = product.get_absolute_url()
+        self.assertTrue(zpt_url)
+        self.assertIn(product.slug, zpt_url)
+        response = self.client.get(URL)
+        html = response.content.decode()
+        self.assertIn(zpt_url, html)
+        self.assertIn(f'href="{zpt_url}"', html)
+        self.assertIn('target="_blank"', html)
+        self.assertIn('rel="noopener noreferrer"', html)
+        self.assertIn('Открыть ZPT ↗', html)
+        self.assertIn('class="cp-article cp-ext-link"', html)
+        js = (
+            Path(__file__).resolve().parent / 'static' / 'control_panel' / 'control.js'
+        ).read_text(encoding='utf-8')
+        self.assertIn("event.target.closest('a, button')", js)
+        self.assertIn('stopPropagation', js)
+
+    def test_single_listing_kaspi_link_only_when_public_url_set(self):
+        self._login()
+        url = 'https://kaspi.kz/shop/p/filtr-maslianyi-901-102-111/'
+        with_link = _product(self.seller, 'ART-K-YES')
+        _listing(with_link, 'SKU-YES', public_url=url)
+        without = _product(self.seller, 'ART-K-NO')
+        _listing(without, 'SKU-NO')
+        response = self.client.get(URL)
+        html = response.content.decode()
+        self.assertIn(url, html)
+        self.assertIn('cp-kaspi-link', html)
+        self.assertIn('Kaspi ↗', html)
+        self.assertIn('Открыть Kaspi ↗', html)
+        self.assertNotIn(f'https://kaspi.kz/shop/p/{without.kaspi_listings.get().master_sku}', html)
+        no_link_html = html
+        self.assertIn('ART-K-NO', no_link_html)
+        self.assertEqual(no_link_html.count('cp-kaspi-link'), 1)
+
+    def test_multiple_listings_keep_per_listing_kaspi_links(self):
+        self._login()
+        url_a = 'https://kaspi.kz/shop/p/item-alpha-111/'
+        url_b = 'https://kaspi.kz/shop/p/item-beta-222/'
+        product = _product(self.seller, 'ART-K-MULTI')
+        _listing(product, 'SKU-A', public_url=url_a)
+        _listing(product, 'SKU-B', public_url=url_b)
+        response = self.client.get(URL)
+        html = response.content.decode()
+        self.assertIn(url_a, html)
+        self.assertIn(url_b, html)
+        self.assertNotEqual(url_a, url_b)
+        self.assertNotIn('cp-kaspi-link', html)
+        actions_start = html.index('cp-expand-actions')
+        actions_end = html.index('</div>', actions_start)
+        self.assertNotIn('Открыть Kaspi', html[actions_start:actions_end])
+        self.assertEqual(html.count('Открыть Kaspi ↗'), 2)

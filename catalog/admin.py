@@ -691,6 +691,7 @@ class ProductKaspiListingInline(admin.TabularInline):
         'master_sku',
         'merchant_sku',
         'barcode',
+        'public_url',
         'is_active',
         'publish_to_kaspi',
         'last_known_our_price',
@@ -973,17 +974,44 @@ class ProductKaspiListingAdmin(admin.ModelAdmin):
         'last_known_our_price',
         'last_known_kaspi_qty',
         'last_synced_at',
+        'kaspi_open_link',
     )
     search_fields = (
         'master_sku',
         'merchant_sku',
         'barcode',
+        'public_url',
         'product__article',
         'product__title',
     )
     list_filter = ('is_active', 'publish_to_kaspi')
     autocomplete_fields = ('product',)
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = ('created_at', 'updated_at', 'kaspi_open_link')
+    fields = (
+        'product',
+        'master_sku',
+        'merchant_sku',
+        'barcode',
+        'public_url',
+        'kaspi_open_link',
+        'is_active',
+        'publish_to_kaspi',
+        'last_known_our_price',
+        'last_known_kaspi_qty',
+        'last_synced_at',
+        'created_at',
+        'updated_at',
+    )
+
+    @admin.display(description='Открыть Kaspi')
+    def kaspi_open_link(self, obj):
+        url = (obj.public_url or '').strip()
+        if not url:
+            return '—'
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener noreferrer">Открыть Kaspi</a>',
+            url,
+        )
 
 
 class CatalogImportItemInline(admin.TabularInline):

@@ -120,8 +120,13 @@
                       {% endif %}
                     </span>
                     <div class="cp-product-copy">
-                      <div class="cp-article">{{ row.article }}</div>
-                      <div class="cp-title-clip" title="{{ row.title }}">{{ row.title }}</div>
+                      {% if row.zpt_url %}
+                        <a class="cp-article cp-ext-link" href="{{ row.zpt_url }}" target="_blank" rel="noopener noreferrer">{{ row.article }}</a>
+                        <a class="cp-title-clip cp-ext-link" href="{{ row.zpt_url }}" target="_blank" rel="noopener noreferrer" title="{{ row.title }}">{{ row.title }}</a>
+                      {% else %}
+                        <div class="cp-article">{{ row.article }}</div>
+                        <div class="cp-title-clip" title="{{ row.title }}">{{ row.title }}</div>
+                      {% endif %}
                       <div class="cp-meta">{{ row.brand }} · {{ row.category }}</div>
                       <div class="cp-badge-row">
                         {% if row.has_kaspi_listing %}
@@ -130,6 +135,9 @@
                           {% include 'control_panel/_pill.html' with tone='neutral' text='Нет Kaspi' %}
                         {% endif %}
                         {% include 'control_panel/_pill.html' with tone=row.zpt_tone text=row.zpt_status %}
+                        {% if row.kaspi_url %}
+                          <a class="cp-ext-link cp-kaspi-link" href="{{ row.kaspi_url }}" target="_blank" rel="noopener noreferrer">Kaspi ↗</a>
+                        {% endif %}
                       </div>
                     </div>
                   </div>
@@ -161,9 +169,14 @@
               <tr class="cp-expand-row" id="kaspi-{{ row.pk }}" hidden>
                 <td colspan="12">
                   <div class="cp-expand-panel">
-                    {% if row.public_url %}
+                    {% if row.zpt_url or row.kaspi_url %}
                       <div class="cp-expand-actions">
-                        <a href="{{ row.public_url }}">Открыть ZPT</a>
+                        {% if row.zpt_url %}
+                          <a class="cp-ext-link" href="{{ row.zpt_url }}" target="_blank" rel="noopener noreferrer">Открыть ZPT ↗</a>
+                        {% endif %}
+                        {% if row.kaspi_url %}
+                          <a class="cp-ext-link" href="{{ row.kaspi_url }}" target="_blank" rel="noopener noreferrer">Открыть Kaspi ↗</a>
+                        {% endif %}
                       </div>
                     {% endif %}
                     <div class="cp-expand-grid">
@@ -179,6 +192,11 @@
                               <dd>{% if listing.last_synced_at %}{{ listing.last_synced_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
                             </dl>
                             <p class="cp-tech">listing id {{ listing.pk }} · master_sku {{ listing.master_sku }} · merchant_sku {{ listing.merchant_sku|default:'—' }}</p>
+                            {% if listing.public_url %}
+                              <p class="cp-listing-link">
+                                <a class="cp-ext-link" href="{{ listing.public_url }}" target="_blank" rel="noopener noreferrer">Открыть Kaspi ↗</a>
+                              </p>
+                            {% endif %}
                           </div>
                         {% endfor %}
                       {% else %}

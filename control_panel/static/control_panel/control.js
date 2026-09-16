@@ -35,7 +35,10 @@
         ? row.getAttribute('data-expand-row')
         : '';
     if (!id) return;
-    if (!button && event.target.closest('a, button')) return;
+    if (!button && event.target.closest('a, button')) {
+      event.stopPropagation();
+      return;
+    }
     var panel = document.getElementById(id);
     if (!panel) return;
     var willOpen = panel.hasAttribute('hidden');
