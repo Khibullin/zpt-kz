@@ -30,4 +30,5 @@ urlpatterns = [
         views.sto_detail,
         name='sto_detail',
     ),
+    path('kaspi/products/', views.kaspi_product_list, name='kaspi_product_list'),
 ]

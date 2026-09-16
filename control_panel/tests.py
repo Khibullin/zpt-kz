@@ -42,6 +42,7 @@ CONTROL_LIST_URLS = (
     '/control/requests/services/',
     '/control/partners/sellers/',
     '/control/partners/services/',
+    '/control/kaspi/products/',
 )
 META_ERROR_SECRET = 'SECRET_META_PAYLOAD_CONTROL_XYZ'
 META_JSON_SECRET = '{"error":"SECRET_JSON_CONTROL_XYZ"}'

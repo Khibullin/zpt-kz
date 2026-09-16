@@ -1,0 +1,235 @@
+{% extends 'control_panel/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="cp-page-head">
+    <p class="cp-subtitle">Kaspi · ZPT.KZ · PP1 · PP2/Fulfillment</p>
+    {% if last_synced_at %}
+      <p class="cp-updated">Обновлено: {{ last_synced_at|date:'d.m.Y H:i' }}</p>
+    {% endif %}
+  </div>
+
+  <div class="cp-kpis cp-kpis-compact">
+    {% for kpi in kpis %}
+      <article class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ kpi.value }}</div>
+        <div class="cp-kpi-label">{{ kpi.label }}</div>
+      </article>
+    {% endfor %}
+  </div>
+
+  <form class="cp-search-bar" method="get">
+    {% if filters.sort %}<input type="hidden" name="sort" value="{{ filters.sort }}">{% endif %}
+    {% if filters.filter %}<input type="hidden" name="filter" value="{{ filters.filter }}">{% endif %}
+    <input
+      type="search"
+      name="q"
+      value="{{ filters.q }}"
+      placeholder="Поиск по артикулу, названию, штрихкоду, Kaspi SKU..."
+      aria-label="Поиск товаров"
+    >
+    <button class="cp-btn" type="submit">Найти</button>
+  </form>
+
+  <div class="cp-chips" role="navigation" aria-label="Быстрые фильтры">
+    {% for chip in chips %}
+      <a
+        class="cp-chip{% if filters.filter == chip.key %} is-active{% endif %}"
+        href="?{{ chip.href }}"
+      >{{ chip.label }}</a>
+    {% endfor %}
+  </div>
+
+  <p class="cp-count">{{ total }} товаров</p>
+
+  <div class="cp-card cp-card-table">
+    {% if rows %}
+      <div class="cp-table-wrap">
+        <table class="cp-table cp-table-sticky cp-table-work">
+          <colgroup>
+            <col class="cp-col-product">
+            <col class="cp-col-price">
+            <col class="cp-col-price">
+            <col class="cp-col-price">
+            <col class="cp-col-stock">
+            <col class="cp-col-stock">
+            <col class="cp-col-stock">
+            <col class="cp-col-stock">
+            <col class="cp-col-sales">
+            <col class="cp-col-sales">
+            <col class="cp-col-sales">
+            <col class="cp-col-status">
+          </colgroup>
+          <thead>
+            <tr class="cp-group-row">
+              <th>Товар</th>
+              <th colspan="3">Цены</th>
+              <th colspan="4">Остатки</th>
+              <th colspan="3">Продажи</th>
+              <th>Статус</th>
+            </tr>
+            <tr>
+              <th>
+                <a class="cp-th-sort{% if filters.sort == 'article' or filters.sort == 'title' %} is-active{% endif %}" href="?{{ sort_hrefs.article }}">Товар</a>
+              </th>
+              <th class="cp-num">
+                <a class="cp-th-sort{% if filters.sort == 'price' %} is-active{% endif %}" href="?{{ sort_hrefs.price }}">Наша Kaspi</a>
+              </th>
+              <th class="cp-num">Конкурент</th>
+              <th class="cp-num">Рекомендация</th>
+              <th class="cp-num" title="Основной склад">PP1</th>
+              <th class="cp-num" title="Fulfillment">
+                <a class="cp-th-sort{% if filters.sort == 'pp2' %} is-active{% endif %}" href="?{{ sort_hrefs.pp2 }}">PP2</a>
+              </th>
+              <th class="cp-num">Kaspi</th>
+              <th class="cp-num" title="Kaspi qty − PP2 qty">Δ</th>
+              <th class="cp-num">7 дн.</th>
+              <th class="cp-num">
+                <a class="cp-th-sort{% if filters.sort == 'sales_30' %} is-active{% endif %}" href="?{{ sort_hrefs.sales_30 }}">30 дн.</a>
+              </th>
+              <th class="cp-num">Возвраты</th>
+              <th>Статус</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+              <tr class="cp-product-row" data-expand-row="kaspi-{{ row.pk }}">
+                <td>
+                  <div class="cp-product-cell">
+                    <span class="cp-thumb-wrap" style="--cp-placeholder: url('{% static 'images/product-placeholder.svg' %}')">
+                      {% if row.image_url %}
+                        <img
+                          class="cp-thumb"
+                          src="{{ row.image_url }}"
+                          alt=""
+                          width="46"
+                          height="46"
+                          data-fallback="{% static 'images/product-placeholder.svg' %}"
+                          onerror="if(this.dataset.fallback){if(this.getAttribute('src')!=this.dataset.fallback){this.src=this.dataset.fallback;return;}}this.onerror=null;this.classList.add('is-missing');this.removeAttribute('src');"
+                        >
+                      {% else %}
+                        <img
+                          class="cp-thumb"
+                          src="{% static 'images/product-placeholder.svg' %}"
+                          alt=""
+                          width="46"
+                          height="46"
+                          data-fallback="{% static 'images/product-placeholder.svg' %}"
+                          onerror="this.onerror=null;this.classList.add('is-missing');this.removeAttribute('src');"
+                        >
+                      {% endif %}
+                    </span>
+                    <div class="cp-product-copy">
+                      <div class="cp-article">{{ row.article }}</div>
+                      <div class="cp-title-clip" title="{{ row.title }}">{{ row.title }}</div>
+                      <div class="cp-meta">{{ row.brand }} · {{ row.category }}</div>
+                      <div class="cp-badge-row">
+                        {% if row.has_kaspi_listing %}
+                          {% include 'control_panel/_pill.html' with tone='on' text='Kaspi' %}
+                        {% else %}
+                          {% include 'control_panel/_pill.html' with tone='neutral' text='Нет Kaspi' %}
+                        {% endif %}
+                        {% include 'control_panel/_pill.html' with tone=row.zpt_tone text=row.zpt_status %}
+                      </div>
+                    </div>
+                  </div>
+                </td>
+                <td class="cp-num cp-stack">
+                  <div class="cp-price-main{% if row.listing_count > 1 %} is-multi{% endif %}">{{ row.our_price_label }}</div>
+                </td>
+                <td class="cp-num cp-stack" title="Мониторинг цен конкурентов ещё не подключён">
+                  <div class="cp-price-main cp-muted">{{ row.competitor_label }}</div>
+                </td>
+                <td class="cp-num cp-stack" title="{{ row.recommended_note }}">
+                  <div class="cp-price-main cp-muted">{{ row.recommended_label }}</div>
+                </td>
+                <td class="cp-num cp-pp1">{{ row.pp1 }}</td>
+                <td class="cp-num cp-pp2">{{ row.pp2 }}</td>
+                <td class="cp-num cp-kaspi-qty">{{ row.kaspi_qty_label }}</td>
+                <td class="cp-num{% if row.stock_delta and row.stock_delta != 0 %} cp-warn-num{% endif %}">{{ row.stock_delta_label }}</td>
+                <td class="cp-num">{{ row.sales_7 }}</td>
+                <td class="cp-num cp-sales-30">{{ row.sales_30 }}</td>
+                <td class="cp-num{% if row.returns_30 %} cp-warn-num{% endif %}">{{ row.returns_30 }}</td>
+                <td class="cp-status" title="{{ row.status_title }}">
+                  {% include 'control_panel/_pill.html' with tone=row.primary_badge.tone text=row.primary_badge.text %}
+                  {% if row.extra_badge_count %}
+                    <span class="cp-more">+{{ row.extra_badge_count }}</span>
+                  {% endif %}
+                  <span class="cp-chevron" aria-hidden="true"></span>
+                </td>
+              </tr>
+              <tr class="cp-expand-row" id="kaspi-{{ row.pk }}" hidden>
+                <td colspan="12">
+                  <div class="cp-expand-panel">
+                    {% if row.public_url %}
+                      <div class="cp-expand-actions">
+                        <a href="{{ row.public_url }}">Открыть ZPT</a>
+                      </div>
+                    {% endif %}
+                    <div class="cp-expand-grid">
+                    <section>
+                      <h3>Kaspi</h3>
+                      {% if row.listings %}
+                        {% for listing in row.listings %}
+                          <div class="cp-listing-block">
+                            <dl class="cp-dl cp-dl-compact">
+                              <dt>Наша цена</dt><dd>{{ listing.our_price_label }}</dd>
+                              <dt>Kaspi qty</dt><dd>{{ listing.kaspi_qty_label }}</dd>
+                              <dt>Последняя синхронизация</dt>
+                              <dd>{% if listing.last_synced_at %}{{ listing.last_synced_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+                            </dl>
+                            <p class="cp-tech">listing id {{ listing.pk }} · master_sku {{ listing.master_sku }} · merchant_sku {{ listing.merchant_sku|default:'—' }}</p>
+                          </div>
+                        {% endfor %}
+                      {% else %}
+                        <p class="cp-empty">Нет Kaspi listing.</p>
+                      {% endif %}
+                    </section>
+                    <section>
+                      <h3>Склад</h3>
+                      <dl class="cp-dl cp-dl-compact">
+                        <dt>PP1</dt><dd>{{ row.pp1 }}</dd>
+                        <dt>PP2 / Fulfillment</dt><dd>{{ row.pp2 }}</dd>
+                        <dt>Kaspi qty</dt><dd>{{ row.kaspi_qty_label }}</dd>
+                        <dt>Δ Kaspi − PP2</dt><dd>{{ row.stock_delta_label }}</dd>
+                      </dl>
+                    </section>
+                    <section>
+                      <h3>Продажи</h3>
+                      <dl class="cp-dl cp-dl-compact">
+                        <dt>7 дней, net</dt><dd>{{ row.sales_7 }}</dd>
+                        <dt>30 дней, net</dt><dd>{{ row.sales_30 }}</dd>
+                        <dt>Весь период, net</dt><dd>{{ row.sales_all }}</dd>
+                        <dt>Возвраты</dt><dd>{{ row.returns_all }}</dd>
+                        <dt>Net gross 30д</dt><dd>{{ row.net_gross_30_label }}</dd>
+                      </dl>
+                    </section>
+                    <section class="cp-econ">
+                      <h3>Экономика</h3>
+                      {% if row.economics_configured %}
+                        <dl class="cp-dl cp-dl-compact">
+                          <dt>Себестоимость</dt><dd>{% if row.cost_price is None %}—{% else %}{{ row.cost_price }}{% endif %}</dd>
+                          <dt>Commission rate</dt><dd>{% if row.commission_rate is None %}—{% else %}{{ row.commission_rate }}{% endif %}</dd>
+                          <dt>Kaspi Delivery / ед.</dt><dd>{% if row.delivery_per_unit is None %}—{% else %}{{ row.delivery_per_unit }}{% endif %}</dd>
+                          <dt>Fulfillment / ед.</dt><dd>{% if row.fulfillment_per_unit is None %}—{% else %}{{ row.fulfillment_per_unit }}{% endif %}</dd>
+                          <dt>Economic floor</dt><dd>{% if row.economic_floor is None %}—{% else %}{{ row.economic_floor }}{% endif %}</dd>
+                          <dt>Contribution</dt><dd>{% if row.contribution is None %}—{% else %}{{ row.contribution }}{% endif %}</dd>
+                        </dl>
+                      {% else %}
+                        <p class="cp-econ-note">{{ row.economics_note }}</p>
+                      {% endif %}
+                    </section>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% include 'control_panel/_pagination.html' %}
+    {% else %}
+      <p class="cp-empty">Товаров нет.</p>
+    {% endif %}
+  </div>
+{% endblock %}

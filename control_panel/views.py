@@ -5,6 +5,7 @@ from control_panel.periods import (
     PERIOD_CHOICES,
     normalize_period,
 )
+from control_panel.selectors.kaspi_products import list_kaspi_products
 from control_panel.selectors.overview import overview_context
 from control_panel.selectors.parts_requests import (
     get_parts_request_detail,
@@ -39,15 +40,19 @@ NAV_SECTIONS = (
         ),
     },
     {
+        'title': 'Товары',
+        'items': (
+            ('kaspi_products', 'Товары и цены', 'control_panel:kaspi_product_list'),
+        ),
+    },
+    {
         'title': 'Система',
         'items': (('admin', 'Техническая Admin', 'admin:index'),),
     },
 )
 
 FUTURE_MODULES = (
-    'Товары',
     'Заказы',
-    'Kaspi',
     'Склады',
     'Закупки',
     'Маркетинг',
@@ -202,3 +207,17 @@ def sto_detail(request, pk: int):
     )
     context.update(detail)
     return render(request, 'control_panel/sto_detail.html', context)
+
+
+@control_staff_required
+def kaspi_product_list(request):
+    context = _base_context(
+        active_nav='kaspi_products',
+        breadcrumbs=[
+            {'label': 'Обзор', 'url': 'control_panel:overview'},
+            {'label': 'Товары и цены'},
+        ],
+        title='Товары и цены',
+    )
+    context.update(list_kaspi_products(request.GET))
+    return render(request, 'control_panel/kaspi_products.html', context)
