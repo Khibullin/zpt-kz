@@ -25,6 +25,17 @@ from catalog.models import (
 )
 from catalog.warehouses import WAREHOUSE_CODE_PP1, WAREHOUSE_CODE_PP2
 from control_panel.selectors.common import first_value, paginate
+from repricer.competitor_display import (
+    STATE_NO_DATA,
+    STATE_NO_OTHER_OFFERS,
+    STATE_OWN_MERCHANT_NOT_CONFIGURED,
+    STATE_READY,
+    STATE_STALE,
+    TOOLTIP_NO_DATA,
+    TOOLTIP_OWN_MERCHANT_NOT_CONFIGURED,
+    ListingCompetitorState,
+    competitor_states_for_listings,
+)
 
 MATCHED = (
     KaspiSalesOperation.MatchStatus.LISTING_MATCHED,
@@ -68,6 +79,12 @@ class ListingView:
     last_synced_at: datetime | None
     is_active: bool
     public_url: str
+    competitor_state: str
+    competitor_price_label: str
+    competitor_seller_label: str
+    competitor_captured_at: datetime | None
+    competitor_state_label: str
+    competitor_is_stale: bool
 
 
 @dataclass
@@ -92,6 +109,11 @@ class ProductWorkRow:
     our_price: int | None
     our_price_label: str
     competitor_label: str
+    competitor_sublabel: str
+    competitor_title: str
+    competitor_state: str
+    competitor_is_stale: bool
+    competitor_muted: bool
     delta_label: str
     rule_label: str
     recommended_label: str
@@ -371,6 +393,103 @@ def _format_delta(value: int | None) -> str:
     return str(value)
 
 
+def _format_updated(captured_at: datetime | None) -> str:
+    if captured_at is None:
+        return ''
+    return timezone.localtime(captured_at).strftime('%d.%m.%Y %H:%M')
+
+
+def _listing_competitor_view(state: ListingCompetitorState) -> dict:
+    seller_label = state.best_seller_name or state.best_seller_code or '—'
+    if state.state == STATE_READY:
+        price_label = _format_kzt(state.best_price)
+    elif state.state == STATE_STALE:
+        price_label = _format_kzt(state.best_price)
+        seller_label = state.best_seller_name or state.best_seller_code or '—'
+    elif state.state == STATE_NO_OTHER_OFFERS:
+        price_label = 'Нет других'
+        seller_label = '—'
+    else:
+        price_label = '—'
+        seller_label = '—'
+    return {
+        'competitor_state': state.state,
+        'competitor_price_label': price_label,
+        'competitor_seller_label': seller_label,
+        'competitor_captured_at': state.captured_at,
+        'competitor_state_label': state.state_label,
+        'competitor_is_stale': state.is_stale,
+    }
+
+
+def _product_competitor_cell(listings: list[ListingView]) -> dict:
+    if not listings:
+        return {
+            'competitor_label': '—',
+            'competitor_sublabel': '',
+            'competitor_title': '',
+            'competitor_state': STATE_NO_DATA,
+            'competitor_is_stale': False,
+            'competitor_muted': True,
+        }
+    if len(listings) > 1:
+        return {
+            'competitor_label': 'Несколько',
+            'competitor_sublabel': '',
+            'competitor_title': 'Цены конкурентов смотрите по каждому listing',
+            'competitor_state': 'MULTIPLE',
+            'competitor_is_stale': False,
+            'competitor_muted': False,
+        }
+    listing = listings[0]
+    updated = _format_updated(listing.competitor_captured_at)
+    if listing.competitor_state == STATE_READY:
+        return {
+            'competitor_label': listing.competitor_price_label,
+            'competitor_sublabel': listing.competitor_seller_label,
+            'competitor_title': f'Обновлено: {updated}' if updated else '',
+            'competitor_state': STATE_READY,
+            'competitor_is_stale': False,
+            'competitor_muted': False,
+        }
+    if listing.competitor_state == STATE_STALE:
+        title = f'Обновлено: {updated}' if updated else 'Данные конкурентов устарели'
+        return {
+            'competitor_label': listing.competitor_price_label,
+            'competitor_sublabel': 'устарело',
+            'competitor_title': title,
+            'competitor_state': STATE_STALE,
+            'competitor_is_stale': True,
+            'competitor_muted': False,
+        }
+    if listing.competitor_state == STATE_NO_OTHER_OFFERS:
+        return {
+            'competitor_label': 'Нет других',
+            'competitor_sublabel': 'устарело' if listing.competitor_is_stale else '',
+            'competitor_title': f'Обновлено: {updated}' if updated else '',
+            'competitor_state': STATE_NO_OTHER_OFFERS,
+            'competitor_is_stale': listing.competitor_is_stale,
+            'competitor_muted': False,
+        }
+    if listing.competitor_state == STATE_OWN_MERCHANT_NOT_CONFIGURED:
+        return {
+            'competitor_label': '—',
+            'competitor_sublabel': '',
+            'competitor_title': TOOLTIP_OWN_MERCHANT_NOT_CONFIGURED,
+            'competitor_state': STATE_OWN_MERCHANT_NOT_CONFIGURED,
+            'competitor_is_stale': False,
+            'competitor_muted': True,
+        }
+    return {
+        'competitor_label': '—',
+        'competitor_sublabel': '',
+        'competitor_title': TOOLTIP_NO_DATA,
+        'competitor_state': STATE_NO_DATA,
+        'competitor_is_stale': False,
+        'competitor_muted': True,
+    }
+
+
 def _listing_price_label(listing_count: int, our_price: int | None) -> str:
     if listing_count == 0:
         return '—'
@@ -434,24 +553,45 @@ def _safe_zpt_url(product: Product) -> str:
     return str(url or '').strip()
 
 
-def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRow:
-    listings = [
-        ListingView(
-            pk=item.pk,
-            master_sku=item.master_sku,
-            merchant_sku=item.merchant_sku,
-            our_price=item.last_known_our_price,
-            our_price_label=_format_kzt(item.last_known_our_price),
-            kaspi_qty=item.last_known_kaspi_qty,
-            kaspi_qty_label=(
-                '—' if item.last_known_kaspi_qty is None else str(item.last_known_kaspi_qty)
-            ),
-            last_synced_at=item.last_synced_at,
-            is_active=item.is_active,
-            public_url=display_kaspi_public_url(item.public_url),
+def _row_from_product(
+    product: Product,
+    sales: dict,
+    economics,
+    competitor_states: dict[int, ListingCompetitorState],
+) -> ProductWorkRow:
+    listings = []
+    for item in product.kaspi_listings.all():
+        competitor = _listing_competitor_view(
+            competitor_states.get(item.pk) or ListingCompetitorState(
+                listing_id=item.pk,
+                has_snapshot=False,
+                captured_at=None,
+                competitor_count=0,
+                best_price=None,
+                best_seller_name='',
+                best_seller_code='',
+                is_fresh=False,
+                is_stale=False,
+                state=STATE_NO_DATA,
+            )
         )
-        for item in product.kaspi_listings.all()
-    ]
+        listings.append(
+            ListingView(
+                pk=item.pk,
+                master_sku=item.master_sku,
+                merchant_sku=item.merchant_sku,
+                our_price=item.last_known_our_price,
+                our_price_label=_format_kzt(item.last_known_our_price),
+                kaspi_qty=item.last_known_kaspi_qty,
+                kaspi_qty_label=(
+                    '—' if item.last_known_kaspi_qty is None else str(item.last_known_kaspi_qty)
+                ),
+                last_synced_at=item.last_synced_at,
+                is_active=item.is_active,
+                public_url=display_kaspi_public_url(item.public_url),
+                **competitor,
+            )
+        )
     listing_count = len(listings)
     stocks = _stock_map(product)
     pp1 = stocks[WAREHOUSE_CODE_PP1]
@@ -460,6 +600,7 @@ def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRo
     kaspi_qty = listings[0].kaspi_qty if listing_count == 1 else None
     our_price_label = _listing_price_label(listing_count, our_price)
     kaspi_qty_label = _listing_qty_label(listing_count, kaspi_qty)
+    competitor_cell = _product_competitor_cell(listings)
     if listing_count == 1 and kaspi_qty is not None:
         stock_delta = kaspi_qty - pp2
     else:
@@ -505,7 +646,12 @@ def _row_from_product(product: Product, sales: dict, economics) -> ProductWorkRo
         listings=listings,
         our_price=our_price,
         our_price_label=our_price_label,
-        competitor_label='—',
+        competitor_label=competitor_cell['competitor_label'],
+        competitor_sublabel=competitor_cell['competitor_sublabel'],
+        competitor_title=competitor_cell['competitor_title'],
+        competitor_state=competitor_cell['competitor_state'],
+        competitor_is_stale=competitor_cell['competitor_is_stale'],
+        competitor_muted=competitor_cell['competitor_muted'],
         delta_label='—',
         rule_label='Не задано',
         recommended_label='—',
@@ -605,11 +751,18 @@ def list_kaspi_products(params: QueryDict) -> dict:
         since_30=since_30,
     )
     economics_map = _economics_by_product(products)
+    listing_ids = [
+        listing.pk
+        for product in products
+        for listing in product.kaspi_listings.all()
+    ]
+    competitor_states = competitor_states_for_listings(listing_ids)
     rows = [
         _row_from_product(
             product,
             sales_map[product.pk],
             economics_map.get(product.pk),
+            competitor_states,
         )
         for product in products
     ]

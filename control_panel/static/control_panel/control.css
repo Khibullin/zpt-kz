@@ -463,6 +463,10 @@ a.cp-ext-link:hover { text-decoration: underline; }
   font-weight: 400;
   margin-top: 2px;
 }
+.cp-stack.is-stale .cp-price-main,
+.cp-price-sub.is-stale {
+  color: #92400e;
+}
 .cp-pp1 { color: var(--cp-muted); font-weight: 400; }
 .cp-pp2 { font-weight: 800; font-size: 15px; }
 .cp-kaspi-qty { font-weight: 700; }
@@ -542,6 +546,9 @@ a.cp-ext-link:hover { text-decoration: underline; }
   margin-top: 8px;
   padding-top: 8px;
   border-top: 1px solid var(--cp-line);
+}
+.cp-listing-block .cp-dl-compact {
+  grid-template-columns: minmax(108px, 42%) minmax(0, 1fr);
 }
 .cp-tech {
   margin: 4px 0 0;

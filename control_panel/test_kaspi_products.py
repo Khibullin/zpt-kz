@@ -21,6 +21,7 @@ from catalog.models import (
     Warehouse,
 )
 from catalog.warehouses import WAREHOUSE_CODE_PP1, WAREHOUSE_CODE_PP2
+from repricer.models import KaspiCompetitorOfferSnapshot
 
 
 URL = '/control/kaspi/products/'
@@ -128,6 +129,11 @@ def _snapshot():
         ),
         'operations': KaspiSalesOperation.objects.count(),
         'orders': KaspiOrder.objects.count(),
+        'competitor_snapshots': list(
+            KaspiCompetitorOfferSnapshot.objects.order_by('pk').values_list(
+                'pk', 'listing_id', 'seller_code', 'price', 'captured_at'
+            )
+        ),
     }
 
 
@@ -302,6 +308,12 @@ class KaspiProductsControlTests(TestCase):
             response = self.client.get(URL)
         self.assertEqual(response.status_code, 200)
         self.assertLess(len(captured), 45)
+        snapshot_sql = [
+            query['sql']
+            for query in captured.captured_queries
+            if 'kaspicompetitoroffersnapshot' in query['sql'].lower()
+        ]
+        self.assertLessEqual(len(snapshot_sql), 2)
 
     def test_get_performs_zero_writes(self):
         self._login()
@@ -322,14 +334,15 @@ class KaspiProductsControlTests(TestCase):
 
     def test_price_block_has_three_columns(self):
         self._login()
-        _product(self.seller, 'ART-COLS')
+        product = _product(self.seller, 'ART-COLS')
+        _listing(product, 'COLS-1')
         response = self.client.get(URL)
         self.assertContains(response, 'Конкурент')
         self.assertContains(response, 'Рекомендация')
-        self.assertContains(response, 'Мониторинг цен конкурентов ещё не подключён')
+        self.assertContains(response, 'Данные конкурентов ещё не получены')
         self.assertContains(response, 'Правило снижения цены не задано')
         self.assertNotContains(response, 'Правило: не задано')
-        self.assertNotContains(response, 'Мин. конкурент')
+        self.assertContains(response, 'Мин. конкурент')
         self.assertContains(response, 'товаров')
         self.assertNotContains(response, 'Всего:')
         self.assertContains(response, 'cp-chevron')
@@ -416,3 +429,195 @@ class KaspiProductsControlTests(TestCase):
         actions_end = html.index('</div>', actions_start)
         self.assertNotIn('Открыть Kaspi', html[actions_start:actions_end])
         self.assertEqual(html.count('Открыть Kaspi ↗'), 2)
+
+    def _competitor_offer(self, listing, *, seller_name, price, seller_code='', minutes_ago=0):
+        return KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing,
+            seller_name=seller_name,
+            seller_code=seller_code,
+            price=Decimal(str(price)),
+            is_available=True,
+            source='kaspi_public',
+            captured_at=timezone.now() - timedelta(minutes=minutes_ago),
+        )
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN', KASPI_OWN_MERCHANT_NAMES='TEST-MERCHANT')
+    def test_competitor_cell_shows_latest_other_price(self):
+        self._login()
+        product = _product(self.seller, 'ART-COMP-A')
+        listing = _listing(product, '115801437', last_known_our_price=3034)
+        now_batch = timezone.now()
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing,
+            seller_name='TEST-MERCHANT',
+            seller_code='TEST-OWN',
+            price=Decimal('3034'),
+            source='kaspi_public',
+            captured_at=now_batch,
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing,
+            seller_name='ИП Other',
+            seller_code='30308762',
+            price=Decimal('3033'),
+            source='kaspi_public',
+            captured_at=now_batch,
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing,
+            seller_name='Old cheap',
+            seller_code='OLD',
+            price=Decimal('1000'),
+            source='kaspi_public',
+            captured_at=timezone.now() - timedelta(days=1),
+        )
+        response = self.client.get(URL)
+        html = response.content.decode()
+        self.assertIn('3 033', html)
+        self.assertIn('ИП Other', html)
+        self.assertNotIn('1 000 ₸', html)
+        self.assertContains(response, 'title="Правило снижения цены не задано"')
+        row_start = html.index('ART-COMP-A')
+        row_end = html.index('id="kaspi-', row_start)
+        main_row = html[row_start:row_end]
+        self.assertIn('3 033', main_row)
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN', KASPI_OWN_MERCHANT_NAMES='TEST-MERCHANT')
+    def test_competitor_cell_no_other_offers(self):
+        self._login()
+        product = _product(self.seller, 'ART-COMP-B')
+        listing = _listing(product, '136510902', last_known_our_price=3410)
+        self._competitor_offer(
+            listing,
+            seller_name='TEST-MERCHANT',
+            seller_code='TEST-OWN',
+            price=3410,
+        )
+        response = self.client.get(URL)
+        self.assertContains(response, 'Нет других')
+        html = response.content.decode()
+        kaspi_start = html.index('ART-COMP-B')
+        self.assertIn('Нет других', html[kaspi_start:])
+
+    @override_settings(
+        KASPI_OWN_MERCHANT_IDS='TEST-OWN',
+        KASPI_COMPETITOR_FRESH_MINUTES=180,
+    )
+    def test_competitor_cell_stale_is_marked(self):
+        self._login()
+        product = _product(self.seller, 'ART-COMP-STALE')
+        listing = _listing(product, '116207063', last_known_our_price=1150)
+        self._competitor_offer(
+            listing,
+            seller_name='Other',
+            seller_code='30327411',
+            price=1954,
+            minutes_ago=200,
+        )
+        response = self.client.get(URL)
+        html = response.content.decode()
+        self.assertIn('1 954', html)
+        self.assertIn('устарело', html)
+        self.assertIn('is-stale', html)
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS='', KASPI_OWN_MERCHANT_NAMES='')
+    def test_competitor_fail_closed_without_own_merchant(self):
+        self._login()
+        product = _product(self.seller, 'ART-COMP-CFG')
+        listing = _listing(product, '129914457', last_known_our_price=3740)
+        now_batch = timezone.now()
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing,
+            seller_name='TEST-MERCHANT',
+            seller_code='TEST-OWN',
+            price=Decimal('3740'),
+            source='kaspi_public',
+            captured_at=now_batch,
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing,
+            seller_name='AMIOSPHY GROUP',
+            seller_code='30440420',
+            price=Decimal('6864'),
+            source='kaspi_public',
+            captured_at=now_batch,
+        )
+        response = self.client.get(URL)
+        html = response.content.decode()
+        self.assertIn('Не настроен собственный продавец Kaspi', html)
+        self.assertNotIn('6 864', html)
+        self.assertContains(response, 'title="Правило снижения цены не задано"')
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN')
+    def test_multiple_listings_do_not_aggregate_competitors(self):
+        self._login()
+        product = _product(self.seller, 'ART-COMP-MULTI')
+        first = _listing(product, 'SKU-ONE', last_known_our_price=3034)
+        second = _listing(product, 'SKU-TWO', last_known_our_price=3740)
+        now_batch = timezone.now()
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=first,
+            seller_name='Cheap',
+            seller_code='C1',
+            price=Decimal('1954'),
+            source='kaspi_public',
+            captured_at=now_batch,
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=second,
+            seller_name='Dear',
+            seller_code='C2',
+            price=Decimal('6864'),
+            source='kaspi_public',
+            captured_at=now_batch,
+        )
+        response = self.client.get(URL)
+        html = response.content.decode()
+        main_start = html.index('ART-COMP-MULTI')
+        expand_id = html.index(f'id="kaspi-{product.pk}"', main_start)
+        main_row = html[main_start:expand_id]
+        self.assertIn('Несколько', main_row)
+        self.assertNotIn('1 954', main_row)
+        self.assertNotIn('6 864', main_row)
+        expand = html[expand_id:]
+        self.assertIn('1 954', expand)
+        self.assertIn('6 864', expand)
+        self.assertIn('Cheap', expand)
+        self.assertIn('Dear', expand)
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN')
+    def test_competitor_query_count_stays_bounded_with_snapshots(self):
+        self._login()
+        for index in range(12):
+            product = _product(self.seller, f'ART-CQ-{index:02d}')
+            listing = _listing(
+                product,
+                f'9{index:03d}',
+                last_known_our_price=4000 + index,
+                last_known_kaspi_qty=index,
+            )
+            self._competitor_offer(
+                listing,
+                seller_name='Other',
+                seller_code=f'S{index}',
+                price=3000 + index,
+            )
+            self._competitor_offer(
+                listing,
+                seller_name='Old',
+                seller_code=f'O{index}',
+                price=1000,
+                minutes_ago=24 * 60,
+            )
+        with CaptureQueriesContext(connection) as captured:
+            response = self.client.get(URL)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '3 000')
+        self.assertNotContains(response, '1 000 ₸')
+        self.assertLess(len(captured), 45)
+        snapshot_sql = [
+            query['sql']
+            for query in captured.captured_queries
+            if 'kaspicompetitoroffersnapshot' in query['sql'].lower()
+        ]
+        self.assertLessEqual(len(snapshot_sql), 2)

@@ -145,8 +145,11 @@
                 <td class="cp-num cp-stack">
                   <div class="cp-price-main{% if row.listing_count > 1 %} is-multi{% endif %}">{{ row.our_price_label }}</div>
                 </td>
-                <td class="cp-num cp-stack" title="Мониторинг цен конкурентов ещё не подключён">
-                  <div class="cp-price-main cp-muted">{{ row.competitor_label }}</div>
+                <td class="cp-num cp-stack{% if row.competitor_is_stale %} is-stale{% endif %}"{% if row.competitor_title %} title="{{ row.competitor_title }}"{% endif %}>
+                  <div class="cp-price-main{% if row.competitor_muted %} cp-muted{% endif %}{% if row.listing_count > 1 %} is-multi{% endif %}">{{ row.competitor_label }}</div>
+                  {% if row.competitor_sublabel %}
+                    <div class="cp-price-sub{% if row.competitor_is_stale %} is-stale{% endif %}">{{ row.competitor_sublabel }}</div>
+                  {% endif %}
                 </td>
                 <td class="cp-num cp-stack" title="{{ row.recommended_note }}">
                   <div class="cp-price-main cp-muted">{{ row.recommended_label }}</div>
@@ -188,6 +191,11 @@
                             <dl class="cp-dl cp-dl-compact">
                               <dt>Наша цена</dt><dd>{{ listing.our_price_label }}</dd>
                               <dt>Kaspi qty</dt><dd>{{ listing.kaspi_qty_label }}</dd>
+                              <dt>Мин. конкурент</dt><dd>{{ listing.competitor_price_label }}</dd>
+                              <dt>Продавец конкурента</dt><dd>{{ listing.competitor_seller_label }}</dd>
+                              <dt>Последнее получение цен</dt>
+                              <dd>{% if listing.competitor_captured_at %}{{ listing.competitor_captured_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
+                              <dt>Состояние</dt><dd>{{ listing.competitor_state_label }}</dd>
                               <dt>Последняя синхронизация</dt>
                               <dd>{% if listing.last_synced_at %}{{ listing.last_synced_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
                             </dl>
