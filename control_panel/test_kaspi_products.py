@@ -335,12 +335,12 @@ class KaspiProductsControlTests(TestCase):
     def test_price_block_has_three_columns(self):
         self._login()
         product = _product(self.seller, 'ART-COLS')
-        _listing(product, 'COLS-1')
+        _listing(product, '129900001')
         response = self.client.get(URL)
         self.assertContains(response, 'Конкурент')
         self.assertContains(response, 'Рекомендация')
         self.assertContains(response, 'Данные конкурентов ещё не получены')
-        self.assertContains(response, 'Правило снижения цены не задано')
+        self.assertContains(response, 'Нет снимка конкурентов')
         self.assertNotContains(response, 'Правило: не задано')
         self.assertContains(response, 'Мин. конкурент')
         self.assertContains(response, 'товаров')
@@ -441,7 +441,11 @@ class KaspiProductsControlTests(TestCase):
             captured_at=timezone.now() - timedelta(minutes=minutes_ago),
         )
 
-    @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN', KASPI_OWN_MERCHANT_NAMES='TEST-MERCHANT')
+    @override_settings(
+        KASPI_OWN_MERCHANT_IDS='TEST-OWN',
+        KASPI_OWN_MERCHANT_NAMES='TEST-MERCHANT',
+        KASPI_REPRICER_UNDERCUT_AMOUNT=300,
+    )
     def test_competitor_cell_shows_latest_other_price(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-A')
@@ -476,11 +480,12 @@ class KaspiProductsControlTests(TestCase):
         self.assertIn('3 033', html)
         self.assertIn('ИП Other', html)
         self.assertNotIn('1 000 ₸', html)
-        self.assertContains(response, 'title="Правило снижения цены не задано"')
         row_start = html.index('ART-COMP-A')
         row_end = html.index('id="kaspi-', row_start)
         main_row = html[row_start:row_end]
         self.assertIn('3 033', main_row)
+        self.assertIn('2 733', html)
+        self.assertIn('−300', html)
 
     @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN', KASPI_OWN_MERCHANT_NAMES='TEST-MERCHANT')
     def test_competitor_cell_no_other_offers(self):
@@ -498,6 +503,23 @@ class KaspiProductsControlTests(TestCase):
         html = response.content.decode()
         kaspi_start = html.index('ART-COMP-B')
         self.assertIn('Нет других', html[kaspi_start:])
+        rec_cell = html[kaspi_start:html.index('id="kaspi-', kaspi_start)]
+        self.assertIn('—', rec_cell)
+
+    def test_unresolved_mapping_cell(self):
+        self._login()
+        product = _product(self.seller, 'X01-90000014')
+        _listing(product, 'X01-90000014', last_known_our_price=1000)
+        response = self.client.get(URL)
+        self.assertContains(response, 'Не сопоставлен Kaspi ID')
+        self.assertContains(response, 'Нет надёжного числового Kaspi product id')
+
+    def test_numeric_article_as_master_sku_is_unresolved(self):
+        self._login()
+        product = _product(self.seller, '8890649934')
+        _listing(product, '8890649934', last_known_our_price=1000)
+        response = self.client.get(URL)
+        self.assertContains(response, 'Не сопоставлен Kaspi ID')
 
     @override_settings(
         KASPI_OWN_MERCHANT_IDS='TEST-OWN',
@@ -519,6 +541,7 @@ class KaspiProductsControlTests(TestCase):
         self.assertIn('1 954', html)
         self.assertIn('устарело', html)
         self.assertIn('is-stale', html)
+        self.assertNotIn('1 654', html)
 
     @override_settings(KASPI_OWN_MERCHANT_IDS='', KASPI_OWN_MERCHANT_NAMES='')
     def test_competitor_fail_closed_without_own_merchant(self):
@@ -546,14 +569,14 @@ class KaspiProductsControlTests(TestCase):
         html = response.content.decode()
         self.assertIn('Не настроен собственный продавец Kaspi', html)
         self.assertNotIn('6 864', html)
-        self.assertContains(response, 'title="Правило снижения цены не задано"')
+        self.assertContains(response, 'title="Не настроен собственный продавец Kaspi"')
 
     @override_settings(KASPI_OWN_MERCHANT_IDS='TEST-OWN')
     def test_multiple_listings_do_not_aggregate_competitors(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-MULTI')
-        first = _listing(product, 'SKU-ONE', last_known_our_price=3034)
-        second = _listing(product, 'SKU-TWO', last_known_our_price=3740)
+        first = _listing(product, '111111111', last_known_our_price=3034)
+        second = _listing(product, '222222222', last_known_our_price=3740)
         now_batch = timezone.now()
         KaspiCompetitorOfferSnapshot.objects.create(
             listing=first,

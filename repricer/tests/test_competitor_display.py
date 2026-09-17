@@ -13,6 +13,7 @@ from repricer.competitor_display import (
     STATE_OWN_MERCHANT_NOT_CONFIGURED,
     STATE_READY,
     STATE_STALE,
+    STATE_UNRESOLVED_MAPPING,
     competitor_states_for_listings,
     listing_competitor_state,
 )
@@ -76,7 +77,7 @@ class CompetitorDisplayTests(TestCase):
         self.assertNotEqual(state.best_seller_code, OWN_CODE)
 
     @override_settings(KASPI_OWN_MERCHANT_IDS="", KASPI_OWN_MERCHANT_NAMES=OWN_NAME)
-    def test_own_seller_name_is_excluded_case_insensitive(self):
+    def test_name_only_config_does_not_exclude_own_seller(self):
         listing = _listing("OWN-NAME")
         now = timezone.now()
         _offer(listing, seller_name="test-merchant", seller_code="other-code", price="3410", captured_at=now)
@@ -84,8 +85,34 @@ class CompetitorDisplayTests(TestCase):
 
         state = listing_competitor_state(listing.pk, now=now)
 
-        self.assertEqual(state.best_price, Decimal("6864"))
-        self.assertEqual(state.best_seller_code, "30440420")
+        self.assertEqual(state.state, STATE_OWN_MERCHANT_NOT_CONFIGURED)
+        self.assertIsNone(state.best_price)
+
+    @override_settings(KASPI_OWN_MERCHANT_IDS="30363568", KASPI_OWN_MERCHANT_NAMES="")
+    def test_ag_parts_merchant_id_is_excluded(self):
+        listing = _listing("AG-PARTS")
+        now = timezone.now()
+        _offer(
+            listing,
+            seller_name="AG Parts",
+            seller_code="30363568",
+            price="1150",
+            captured_at=now,
+        )
+        _offer(
+            listing,
+            seller_name="Other",
+            seller_code="30327411",
+            price="1954",
+            captured_at=now,
+        )
+
+        state = listing_competitor_state(listing.pk, now=now)
+
+        self.assertEqual(state.state, STATE_READY)
+        self.assertEqual(state.best_price, Decimal("1954"))
+        self.assertEqual(state.best_seller_code, "30327411")
+        self.assertNotEqual(state.best_seller_code, "30363568")
 
     @override_settings(KASPI_OWN_MERCHANT_IDS=OWN_CODE, KASPI_OWN_MERCHANT_NAMES=OWN_NAME)
     def test_own_offer_never_becomes_best_competitor(self):
@@ -246,3 +273,17 @@ class CompetitorDisplayTests(TestCase):
         self.assertEqual(state.state, STATE_READY)
         self.assertEqual(state.best_price, Decimal("3033"))
         self.assertEqual(state.best_seller_code, "30308762")
+
+
+class UnresolvedMappingDisplayTests(TestCase):
+    def test_alphanumeric_master_sku_is_unresolved_mapping(self):
+        listing = _listing("UNRES", master_sku="1017110XEN01")
+        state = listing_competitor_state(listing.pk)
+        self.assertEqual(state.state, STATE_UNRESOLVED_MAPPING)
+        self.assertIsNone(state.best_price)
+
+    def test_numeric_master_equal_merchant_is_unresolved_mapping(self):
+        listing = _listing("8890649934", master_sku="8890649934")
+        state = listing_competitor_state(listing.pk)
+        self.assertEqual(state.state, STATE_UNRESOLVED_MAPPING)
+        self.assertIsNone(state.best_price)

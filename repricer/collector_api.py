@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 
+from django.conf import settings
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 
@@ -31,6 +32,21 @@ def _parse_ids(raw: str) -> list[int]:
     return list(dict.fromkeys(values))
 
 
+def _manifest_own_merchant_ids() -> list[str]:
+    raw = getattr(settings, "KASPI_OWN_MERCHANT_IDS", "") or ""
+    ids = [part.strip() for part in str(raw).split(",") if part.strip()]
+    return list(dict.fromkeys(ids))
+
+
+def _manifest_undercut_amount() -> int:
+    raw = getattr(settings, "KASPI_REPRICER_UNDERCUT_AMOUNT", 300)
+    try:
+        value = int(raw)
+    except (TypeError, ValueError):
+        return 300
+    return 300 if value < 0 else value
+
+
 @collector_auth_required
 @require_GET
 def listings_manifest(request):
@@ -48,12 +64,16 @@ def listings_manifest(request):
             "article": listing.product.article or "",
             "master_sku": listing.master_sku,
             "merchant_sku": listing.merchant_sku or "",
+            "last_known_our_price": listing.last_known_our_price,
         }
         for listing in queryset.order_by("id")
     ]
-    response = JsonResponse(rows, safe=False)
-    response["X-Robots-Tag"] = "noindex, nofollow"
-    return response
+    payload = {
+        "own_merchant_ids": _manifest_own_merchant_ids(),
+        "undercut_amount": _manifest_undercut_amount(),
+        "listings": rows,
+    }
+    return _json_response(payload)
 
 
 @collector_auth_required

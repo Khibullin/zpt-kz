@@ -31,11 +31,15 @@ from repricer.competitor_display import (
     STATE_OWN_MERCHANT_NOT_CONFIGURED,
     STATE_READY,
     STATE_STALE,
+    STATE_UNRESOLVED_MAPPING,
     TOOLTIP_NO_DATA,
     TOOLTIP_OWN_MERCHANT_NOT_CONFIGURED,
+    TOOLTIP_UNRESOLVED_MAPPING,
     ListingCompetitorState,
     competitor_states_for_listings,
+    overlay_unresolved_mapping,
 )
+from repricer.recommendation_preview import recommendation_preview
 
 MATCHED = (
     KaspiSalesOperation.MatchStatus.LISTING_MATCHED,
@@ -85,6 +89,10 @@ class ListingView:
     competitor_captured_at: datetime | None
     competitor_state_label: str
     competitor_is_stale: bool
+    recommended_label: str
+    recommended_sublabel: str
+    recommended_note: str
+    recommended_actionable: bool
 
 
 @dataclass
@@ -117,6 +125,8 @@ class ProductWorkRow:
     delta_label: str
     rule_label: str
     recommended_label: str
+    recommended_sublabel: str
+    recommended_actionable: bool
     pp1: int
     pp2: int
     kaspi_qty: int | None
@@ -399,26 +409,39 @@ def _format_updated(captured_at: datetime | None) -> str:
     return timezone.localtime(captured_at).strftime('%d.%m.%Y %H:%M')
 
 
-def _listing_competitor_view(state: ListingCompetitorState) -> dict:
-    seller_label = state.best_seller_name or state.best_seller_code or '—'
-    if state.state == STATE_READY:
-        price_label = _format_kzt(state.best_price)
-    elif state.state == STATE_STALE:
-        price_label = _format_kzt(state.best_price)
-        seller_label = state.best_seller_name or state.best_seller_code or '—'
-    elif state.state == STATE_NO_OTHER_OFFERS:
+def _listing_competitor_view(
+    state: ListingCompetitorState,
+    master_sku: str,
+    merchant_sku: str = "",
+) -> dict:
+    mapped = overlay_unresolved_mapping(state, master_sku, merchant_sku=merchant_sku)
+    seller_label = mapped.best_seller_name or mapped.best_seller_code or '—'
+    if mapped.state == STATE_READY:
+        price_label = _format_kzt(mapped.best_price)
+    elif mapped.state == STATE_STALE:
+        price_label = _format_kzt(mapped.best_price)
+        seller_label = mapped.best_seller_name or mapped.best_seller_code or '—'
+    elif mapped.state == STATE_NO_OTHER_OFFERS:
         price_label = 'Нет других'
+        seller_label = '—'
+    elif mapped.state == STATE_UNRESOLVED_MAPPING:
+        price_label = 'Не сопоставлен Kaspi ID'
         seller_label = '—'
     else:
         price_label = '—'
         seller_label = '—'
+    preview = recommendation_preview(mapped)
     return {
-        'competitor_state': state.state,
+        'competitor_state': mapped.state,
         'competitor_price_label': price_label,
         'competitor_seller_label': seller_label,
-        'competitor_captured_at': state.captured_at,
-        'competitor_state_label': state.state_label,
-        'competitor_is_stale': state.is_stale,
+        'competitor_captured_at': mapped.captured_at,
+        'competitor_state_label': mapped.state_label,
+        'competitor_is_stale': mapped.is_stale,
+        'recommended_label': _format_kzt(preview.amount) if preview.actionable else '—',
+        'recommended_sublabel': preview.sublabel,
+        'recommended_note': preview.note,
+        'recommended_actionable': preview.actionable,
     }
 
 
@@ -470,6 +493,15 @@ def _product_competitor_cell(listings: list[ListingView]) -> dict:
             'competitor_state': STATE_NO_OTHER_OFFERS,
             'competitor_is_stale': listing.competitor_is_stale,
             'competitor_muted': False,
+        }
+    if listing.competitor_state == STATE_UNRESOLVED_MAPPING:
+        return {
+            'competitor_label': 'Не сопоставлен Kaspi ID',
+            'competitor_sublabel': '',
+            'competitor_title': TOOLTIP_UNRESOLVED_MAPPING,
+            'competitor_state': STATE_UNRESOLVED_MAPPING,
+            'competitor_is_stale': False,
+            'competitor_muted': True,
         }
     if listing.competitor_state == STATE_OWN_MERCHANT_NOT_CONFIGURED:
         return {
@@ -573,7 +605,9 @@ def _row_from_product(
                 is_fresh=False,
                 is_stale=False,
                 state=STATE_NO_DATA,
-            )
+            ),
+            item.master_sku,
+            item.merchant_sku or '',
         )
         listings.append(
             ListingView(
@@ -601,6 +635,21 @@ def _row_from_product(
     our_price_label = _listing_price_label(listing_count, our_price)
     kaspi_qty_label = _listing_qty_label(listing_count, kaspi_qty)
     competitor_cell = _product_competitor_cell(listings)
+    if listing_count == 1:
+        recommended_label = listings[0].recommended_label
+        recommended_sublabel = listings[0].recommended_sublabel
+        recommended_note = listings[0].recommended_note
+        recommended_actionable = listings[0].recommended_actionable
+    elif listing_count > 1:
+        recommended_label = 'Несколько'
+        recommended_sublabel = ''
+        recommended_note = 'Рекомендацию смотрите по каждому listing'
+        recommended_actionable = False
+    else:
+        recommended_label = '—'
+        recommended_sublabel = ''
+        recommended_note = 'Нет Kaspi listing'
+        recommended_actionable = False
     if listing_count == 1 and kaspi_qty is not None:
         stock_delta = kaspi_qty - pp2
     else:
@@ -654,7 +703,9 @@ def _row_from_product(
         competitor_muted=competitor_cell['competitor_muted'],
         delta_label='—',
         rule_label='Не задано',
-        recommended_label='—',
+        recommended_label=recommended_label,
+        recommended_sublabel=recommended_sublabel,
+        recommended_actionable=recommended_actionable,
         pp1=pp1,
         pp2=pp2,
         kaspi_qty=kaspi_qty,
@@ -672,7 +723,7 @@ def _row_from_product(
         primary_badge=StatusBadge('OK', 'on'),
         extra_badge_count=0,
         status_title='OK',
-        recommended_note='Правило снижения цены не задано',
+        recommended_note=recommended_note,
         badges=[],
         zpt_url=zpt_url,
         kaspi_url=kaspi_url,

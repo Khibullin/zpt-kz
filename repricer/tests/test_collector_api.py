@@ -120,16 +120,42 @@ class CollectorApiTests(TestCase):
         inactive = _listing("INACTIVE", "999", is_active=False)
         response = self.client.get(LISTINGS_URL, **self._auth())
         self.assertEqual(response.status_code, 200)
-        rows = response.json()
+        payload = response.json()
+        self.assertIn("listings", payload)
+        rows = payload["listings"]
         ids = [row["listing_id"] for row in rows]
         self.assertIn(self.listing.pk, ids)
         self.assertNotIn(inactive.pk, ids)
         self.assertEqual(
             set(rows[0]),
-            {"listing_id", "article", "master_sku", "merchant_sku"},
+            {
+                "listing_id",
+                "article",
+                "master_sku",
+                "merchant_sku",
+                "last_known_our_price",
+            },
         )
-        self.assertNotIn("cost_price", json.dumps(rows))
-        self.assertNotIn("last_known_our_price", json.dumps(rows))
+        encoded = json.dumps(payload)
+        self.assertNotIn("cost_price", encoded)
+        self.assertNotIn(TOKEN, encoded)
+
+    @override_settings(
+        KASPI_OWN_MERCHANT_IDS="30363568",
+        KASPI_REPRICER_UNDERCUT_AMOUNT=300,
+    )
+    def test_manifest_returns_own_merchant_ids(self):
+        response = self.client.get(LISTINGS_URL, **self._auth())
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(payload["own_merchant_ids"], ["30363568"])
+        self.assertIsInstance(payload["listings"], list)
+
+    @override_settings(KASPI_REPRICER_UNDERCUT_AMOUNT=300)
+    def test_manifest_returns_undercut_amount(self):
+        response = self.client.get(LISTINGS_URL, **self._auth())
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["undercut_amount"], 300)
 
     def test_manifest_ids_filter_does_not_substitute(self):
         other = _listing("OTHER", "222")
@@ -138,7 +164,7 @@ class CollectorApiTests(TestCase):
             {"ids": f"{self.listing.pk},999999"},
             **self._auth(),
         )
-        ids = [row["listing_id"] for row in response.json()]
+        ids = [row["listing_id"] for row in response.json()["listings"]]
         self.assertEqual(ids, [self.listing.pk])
         self.assertNotIn(other.pk, ids)
 

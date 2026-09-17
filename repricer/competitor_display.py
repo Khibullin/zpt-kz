@@ -16,6 +16,8 @@ from django.conf import settings
 from django.db.models import Max, Q
 from django.utils import timezone
 
+from catalog.models import ProductKaspiListing
+from integrations.kaspi_competitors import kaspi_public_product_id
 from repricer.models import KaspiCompetitorOfferSnapshot
 from repricer.services import configured_own_merchants
 
@@ -24,6 +26,7 @@ STATE_OWN_MERCHANT_NOT_CONFIGURED = "OWN_MERCHANT_NOT_CONFIGURED"
 STATE_NO_OTHER_OFFERS = "NO_OTHER_OFFERS"
 STATE_READY = "READY"
 STATE_STALE = "STALE"
+STATE_UNRESOLVED_MAPPING = "UNRESOLVED_MAPPING"
 
 PUBLIC_SOURCE = "kaspi_public"
 COLLECTOR_SOURCE = "office_collector"
@@ -36,10 +39,12 @@ STATE_LABELS = {
     STATE_NO_OTHER_OFFERS: "Нет других",
     STATE_READY: "Актуально",
     STATE_STALE: "Устарело",
+    STATE_UNRESOLVED_MAPPING: "Не сопоставлен Kaspi ID",
 }
 
 TOOLTIP_NO_DATA = "Данные конкурентов ещё не получены"
 TOOLTIP_OWN_MERCHANT_NOT_CONFIGURED = "Не настроен собственный продавец Kaspi"
+TOOLTIP_UNRESOLVED_MAPPING = "Нет надёжного числового Kaspi product id"
 
 
 @dataclass(frozen=True)
@@ -84,18 +89,17 @@ def _empty_state(listing_id: int) -> ListingCompetitorState:
     )
 
 
-def _is_own_offer(seller_code: str, seller_name: str, own_ids: set[str], own_names: set[str]) -> bool:
+def _is_own_offer(seller_code: str, seller_name: str, own_ids: set[str], own_names: set[str] | None = None) -> bool:
+    """Own shop is identified by merchant id only. Seller name is display-only."""
+
+    del seller_name, own_names
     code = (seller_code or "").strip().casefold()
-    name = (seller_name or "").strip().casefold()
-    if code and code in own_ids:
-        return True
-    if name and name in own_names:
-        return True
-    return False
+    return bool(code and code in own_ids)
 
 
-def _own_merchant_configured(own_ids: set[str], own_names: set[str]) -> bool:
-    return bool(own_ids or own_names)
+def _own_merchant_configured(own_ids: set[str], own_names: set[str] | None = None) -> bool:
+    del own_names
+    return bool(own_ids)
 
 
 def _state_from_batch(
@@ -212,5 +216,45 @@ def listing_competitor_state(
     listing_id: int,
     *,
     now: datetime | None = None,
+    master_sku: str | None = None,
+    merchant_sku: str | None = None,
 ) -> ListingCompetitorState:
-    return competitor_states_for_listings([listing_id], now=now)[listing_id]
+    state = competitor_states_for_listings([listing_id], now=now)[listing_id]
+    sku = master_sku
+    merchant = merchant_sku
+    if sku is None or merchant is None:
+        row = (
+            ProductKaspiListing.objects.filter(pk=listing_id)
+            .values_list("master_sku", "merchant_sku")
+            .first()
+        )
+        if row is None:
+            sku = sku or ""
+            merchant = merchant or ""
+        else:
+            sku = sku if sku is not None else (row[0] or "")
+            merchant = merchant if merchant is not None else (row[1] or "")
+    return overlay_unresolved_mapping(state, sku or "", merchant_sku=merchant or "")
+
+
+def overlay_unresolved_mapping(
+    state: ListingCompetitorState,
+    master_sku: str,
+    merchant_sku: str = "",
+) -> ListingCompetitorState:
+    """Mark listings whose master_sku is not a Kaspi public product id."""
+
+    if kaspi_public_product_id(master_sku, merchant_sku=merchant_sku) is not None:
+        return state
+    return ListingCompetitorState(
+        listing_id=state.listing_id,
+        has_snapshot=state.has_snapshot,
+        captured_at=state.captured_at,
+        competitor_count=0,
+        best_price=None,
+        best_seller_name="",
+        best_seller_code="",
+        is_fresh=False,
+        is_stale=False,
+        state=STATE_UNRESOLVED_MAPPING,
+    )

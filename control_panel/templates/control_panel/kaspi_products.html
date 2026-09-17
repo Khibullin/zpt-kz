@@ -152,7 +152,10 @@
                   {% endif %}
                 </td>
                 <td class="cp-num cp-stack" title="{{ row.recommended_note }}">
-                  <div class="cp-price-main cp-muted">{{ row.recommended_label }}</div>
+                  <div class="cp-price-main{% if not row.recommended_actionable %} cp-muted{% endif %}{% if row.listing_count > 1 %} is-multi{% endif %}">{{ row.recommended_label }}</div>
+                  {% if row.recommended_sublabel %}
+                    <div class="cp-price-sub">{{ row.recommended_sublabel }}</div>
+                  {% endif %}
                 </td>
                 <td class="cp-num cp-pp1">{{ row.pp1 }}</td>
                 <td class="cp-num cp-pp2">{{ row.pp2 }}</td>
@@ -193,6 +196,7 @@
                               <dt>Kaspi qty</dt><dd>{{ listing.kaspi_qty_label }}</dd>
                               <dt>Мин. конкурент</dt><dd>{{ listing.competitor_price_label }}</dd>
                               <dt>Продавец конкурента</dt><dd>{{ listing.competitor_seller_label }}</dd>
+                              <dt>Рекомендация</dt><dd>{{ listing.recommended_label }}{% if listing.recommended_sublabel %} · {{ listing.recommended_sublabel }}{% endif %}</dd>
                               <dt>Последнее получение цен</dt>
                               <dd>{% if listing.competitor_captured_at %}{{ listing.competitor_captured_at|date:'d.m.Y H:i' }}{% else %}—{% endif %}</dd>
                               <dt>Состояние</dt><dd>{{ listing.competitor_state_label }}</dd>

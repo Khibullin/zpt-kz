@@ -43,17 +43,50 @@ class KaspiCompetitorPriceSource(Protocol):
 class CompetitorPriceSourceError(RuntimeError):
     """Base exception for a read-only competitor price source."""
 
+    def __init__(self, message: str, *, http_status: int | None = None) -> None:
+        super().__init__(message)
+        self.http_status = http_status
+
 
 class CompetitorPriceSourceNotConfigured(CompetitorPriceSourceError):
     pass
 
 
 class CompetitorPriceSourceRateLimited(CompetitorPriceSourceError):
-    pass
+    def __init__(self, message: str, *, http_status: int = 429) -> None:
+        super().__init__(message, http_status=http_status)
 
 
 class CompetitorPriceSourceUnavailable(CompetitorPriceSourceError):
     pass
+
+
+def kaspi_public_product_id(master_sku: str, merchant_sku: str = "") -> str | None:
+    """Return a numeric Kaspi public product id, or None if mapping is unsafe.
+
+    Collectable shapes:
+    - ``<digits>_<suffix>`` → numeric prefix
+    - digits-only **and** master_sku != merchant_sku
+
+    Unresolved (no Kaspi request, no guessing):
+    - digits-only master_sku equal to merchant_sku (OEM/article copied into SKU)
+    - alphanumeric / other forms
+
+    Merchant SKU, article, and barcode are never used as a product id.
+    """
+
+    raw = str(master_sku or "").strip()
+    merchant = str(merchant_sku or "").strip()
+    if not raw:
+        return None
+    if raw.isdigit():
+        if merchant and raw == merchant:
+            return None
+        return raw
+    prefix = raw.split("_", 1)[0].strip()
+    if prefix.isdigit():
+        return prefix
+    return None
 
 
 class NotConfiguredKaspiCompetitorPriceSource:
@@ -104,24 +137,21 @@ class KaspiPublicOfferSource:
             raise ValueError("max_offers must be between 1 and 100")
 
     @staticmethod
-    def _product_id(master_sku: str) -> str:
+    def _product_id(master_sku: str, merchant_sku: str = "") -> str:
         """Extract the numeric Kaspi card id from an exported SKU.
 
         Kaspi exports can contain values such as ``116207063_792647100``.
         The public card id is the numeric prefix before the first underscore.
-        Plain numeric SKUs are used as-is.  Anything else fails closed.
+        Plain numeric SKUs are used only when they are not the merchant SKU.
+        Merchant SKU is never used as a guess.
         """
 
+        product_id = kaspi_public_product_id(master_sku, merchant_sku=merchant_sku)
+        if product_id:
+            return product_id
         raw_sku = str(master_sku or "").strip()
         if not raw_sku:
             raise CompetitorPriceSourceError("Kaspi master_sku пустой.")
-        if raw_sku.isdigit():
-            return raw_sku
-
-        prefix = raw_sku.split("_", 1)[0].strip()
-        if prefix.isdigit():
-            return prefix
-
         raise CompetitorPriceSourceError(
             "Не удалось получить числовой Kaspi product id из master_sku: "
             f"{raw_sku!r}."
@@ -143,8 +173,7 @@ class KaspiPublicOfferSource:
         master_sku: str,
         merchant_sku: str = "",
     ) -> Sequence[KaspiCompetitorOffer]:
-        del merchant_sku  # Public offer payload is keyed by Kaspi product id.
-        product_id = self._product_id(master_sku)
+        product_id = self._product_id(master_sku, merchant_sku=merchant_sku)
         url = f"{KASPI_BASE_URL}/yml/offer-view/offers/{product_id}"
         referer = f"{KASPI_BASE_URL}/shop/p/-{product_id}/?c={self.city_id}"
         payload = {
@@ -180,16 +209,19 @@ class KaspiPublicOfferSource:
 
         if response.status_code == 429:
             raise CompetitorPriceSourceRateLimited(
-                f"Kaspi ограничил частоту запросов для product_id={product_id}."
+                f"Kaspi ограничил частоту запросов для product_id={product_id}.",
+                http_status=429,
             )
         if response.status_code in {401, 403, 405}:
             raise CompetitorPriceSourceUnavailable(
                 f"Kaspi отклонил read-only запрос ({response.status_code}) "
-                f"для product_id={product_id}."
+                f"для product_id={product_id}.",
+                http_status=response.status_code,
             )
         if response.status_code >= 400:
             raise CompetitorPriceSourceUnavailable(
-                f"Kaspi вернул HTTP {response.status_code} для product_id={product_id}."
+                f"Kaspi вернул HTTP {response.status_code} для product_id={product_id}.",
+                http_status=response.status_code,
             )
 
         try:

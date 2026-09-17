@@ -5,10 +5,12 @@ from django.utils import timezone
 
 from catalog.models import Product, ProductKaspiListing
 from integrations.kaspi_competitors import (
+    CompetitorPriceSourceError,
     CompetitorPriceSourceRateLimited,
     CompetitorPriceSourceUnavailable,
     KaspiCompetitorOffer,
     KaspiPublicOfferSource,
+    kaspi_public_product_id,
 )
 from repricer.competitor_sync import sync_competitor_offers_for_listing
 from repricer.models import KaspiCompetitorOfferSnapshot
@@ -59,6 +61,47 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
             "116207063",
         )
 
+    def test_plain_numeric_master_sku_is_collectable_when_not_merchant(self):
+        self.assertEqual(kaspi_public_product_id("123456789"), "123456789")
+        self.assertEqual(
+            kaspi_public_product_id("123456789", merchant_sku="TEST-KASPI-001"),
+            "123456789",
+        )
+
+    def test_numeric_prefix_before_underscore_is_collectable(self):
+        self.assertEqual(
+            kaspi_public_product_id("115801437_271928151", merchant_sku="X0390000206"),
+            "115801437",
+        )
+        self.assertEqual(
+            KaspiPublicOfferSource._product_id("116207063_792647100", "116207063_792647100"),
+            "116207063",
+        )
+
+    def test_plain_numeric_equal_to_merchant_sku_is_unresolved(self):
+        self.assertIsNone(kaspi_public_product_id("8890649934", merchant_sku="8890649934"))
+        self.assertIsNone(kaspi_public_product_id("8025530500", merchant_sku="8025530500"))
+        self.assertIsNone(kaspi_public_product_id("1056025900", merchant_sku="1056025900"))
+        with self.assertRaises(CompetitorPriceSourceError):
+            KaspiPublicOfferSource._product_id("8890649934", merchant_sku="8890649934")
+
+    def test_numeric_equal_merchant_does_not_http(self):
+        session = FakeSession(FakeResponse(payload={"offers": []}))
+        source = KaspiPublicOfferSource(session=session)
+        with self.assertRaises(CompetitorPriceSourceError):
+            source.fetch_offers(master_sku="8890649934", merchant_sku="8890649934")
+        self.assertEqual(session.calls, [])
+
+    def test_alphanumeric_master_sku_is_unresolved(self):
+        self.assertIsNone(kaspi_public_product_id("1017110XEN01"))
+        self.assertIsNone(kaspi_public_product_id("X01-90000014"))
+        self.assertIsNone(kaspi_public_product_id("EM2E8121211E"))
+
+    def test_does_not_guess_from_merchant_sku(self):
+        self.assertIsNone(kaspi_public_product_id("P8104140"))
+        with self.assertRaises(CompetitorPriceSourceError):
+            KaspiPublicOfferSource._product_id("P8104140")
+
     def test_normalizes_public_offers(self):
         session = FakeSession(
             FakeResponse(
@@ -88,20 +131,31 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         self.assertEqual(kwargs["timeout"], 10.0)
 
     def test_rate_limit_fails_closed(self):
-        source = KaspiPublicOfferSource(
-            session=FakeSession(FakeResponse(status_code=429, payload={}))
-        )
+        session = FakeSession(FakeResponse(status_code=429, payload={}))
+        source = KaspiPublicOfferSource(session=session)
 
-        with self.assertRaises(CompetitorPriceSourceRateLimited):
+        with self.assertRaises(CompetitorPriceSourceRateLimited) as caught:
             source.fetch_offers(master_sku="123456789")
+        self.assertEqual(caught.exception.http_status, 429)
+        self.assertEqual(len(session.calls), 1)
 
     def test_http_405_fails_closed(self):
-        source = KaspiPublicOfferSource(
-            session=FakeSession(FakeResponse(status_code=405, payload={}))
-        )
+        session = FakeSession(FakeResponse(status_code=405, payload={}))
+        source = KaspiPublicOfferSource(session=session)
 
-        with self.assertRaises(CompetitorPriceSourceUnavailable):
+        with self.assertRaises(CompetitorPriceSourceUnavailable) as caught:
             source.fetch_offers(master_sku="123456789")
+        self.assertEqual(caught.exception.http_status, 405)
+        self.assertEqual(len(session.calls), 1)
+
+    def test_http_403_fails_closed_without_retry(self):
+        session = FakeSession(FakeResponse(status_code=403, payload={}))
+        source = KaspiPublicOfferSource(session=session)
+
+        with self.assertRaises(CompetitorPriceSourceUnavailable) as caught:
+            source.fetch_offers(master_sku="123456789")
+        self.assertEqual(caught.exception.http_status, 403)
+        self.assertEqual(len(session.calls), 1)
 
 
 class CompetitorSyncTests(TestCase):

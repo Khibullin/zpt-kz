@@ -81,8 +81,7 @@ def latest_competitor_prices(
 
     Public Kaspi offer data contains our own shop alongside competitors.  We
     therefore refuse to use public snapshots for repricing until our merchant
-    id or merchant name is configured.  This prevents the engine from treating
-    our own price as a competitor price.
+    id is configured.  Exclusion is merchant_id only; seller name is display.
 
     Deduplication is intentionally done in Python to stay portable between
     PostgreSQL in production and SQLite in local/test environments.
@@ -100,14 +99,14 @@ def latest_competitor_prices(
         ).order_by("-captured_at", "price", "id")
     )
 
-    own_ids, own_names = configured_own_merchants()
+    own_ids, _own_names = configured_own_merchants()
     has_public_snapshots = any(
         snapshot.source == "kaspi_public" for snapshot in snapshots
     )
-    if has_public_snapshots and not (own_ids or own_names):
+    if has_public_snapshots and not own_ids:
         raise RepricerConfigurationError(
             "Есть публичные цены Kaspi, но не указан наш продавец. "
-            "Настройте KASPI_OWN_MERCHANT_IDS или KASPI_OWN_MERCHANT_NAMES; "
+            "Настройте KASPI_OWN_MERCHANT_IDS; "
             "до этого рекомендации по публичным данным заблокированы."
         )
 
@@ -117,8 +116,6 @@ def latest_competitor_prices(
         seller_code = (snapshot.seller_code or "").strip().casefold()
         seller_name = (snapshot.seller_name or "").strip().casefold()
         if seller_code and seller_code in own_ids:
-            continue
-        if seller_name and seller_name in own_names:
             continue
 
         key = seller_code or seller_name
