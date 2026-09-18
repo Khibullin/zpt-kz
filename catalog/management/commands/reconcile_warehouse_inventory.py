@@ -115,6 +115,10 @@ class Command(BaseCommand):
         self.stdout.write(f'already applied = {summary["already_applied"]}')
         self.stdout.write(f'net delta = {summary["net_delta"]}')
         self.stdout.write(f'result total = {summary["result_total"]}')
+        if apply and summary.get('persisted_pp2_total') is not None:
+            self.stdout.write(
+                f'persisted PP2 total = {summary["persisted_pp2_total"]}'
+            )
 
         unmatched = [row for row in result.rows if row.status == STATUS_UNMATCHED]
         self.stdout.write('')

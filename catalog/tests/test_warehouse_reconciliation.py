@@ -302,6 +302,10 @@ class WarehouseReconciliationTests(TestCase):
         self.assertEqual(get_stock_quantity(first, self.pp1), 4630)
 
         applied = self._reconcile(mapping=RAPIDO_PP2_QTY, apply=True)
+        self.assertEqual(applied.summary['existing_pp2_total'], 1996)
+        self.assertEqual(applied.summary['net_delta'], -98)
+        self.assertEqual(applied.summary['result_total'], 1898)
+        self.assertEqual(applied.summary['persisted_pp2_total'], 1898)
         self.assertEqual(applied.summary['changed'], 13)
         self.assertEqual(sum(
             ProductWarehouseStock.objects.filter(warehouse=self.pp2).values_list(
@@ -349,6 +353,50 @@ class WarehouseReconciliationTests(TestCase):
                 '--warehouse',
                 'PP1',
             )
+
+    def test_command_apply_reporting_uses_before_total(self):
+        before_qty = rapido_pp2_before_qty()
+        for article, qty in before_qty.items():
+            product = _make_product(self.seller, article)
+            _open_stock(product, self.pp2, qty)
+
+        dry_out = StringIO()
+        call_command(
+            'reconcile_warehouse_inventory',
+            '--snapshot',
+            'rapido-2026-09-18',
+            stdout=dry_out,
+        )
+        dry_text = dry_out.getvalue()
+        self.assertIn('existing PP2 total = 1996', dry_text)
+        self.assertIn('net delta = -98', dry_text)
+        self.assertIn('result total = 1898', dry_text)
+        self.assertNotIn('result total = 1800', dry_text)
+
+        apply_out = StringIO()
+        call_command(
+            'reconcile_warehouse_inventory',
+            '--snapshot',
+            'rapido-2026-09-18',
+            '--apply',
+            stdout=apply_out,
+        )
+        apply_text = apply_out.getvalue()
+        self.assertIn('mode: apply', apply_text)
+        self.assertIn('existing PP2 total = 1996', apply_text)
+        self.assertIn('net delta = -98', apply_text)
+        self.assertIn('result total = 1898', apply_text)
+        self.assertIn('persisted PP2 total = 1898', apply_text)
+        self.assertNotIn('result total = 1800', apply_text)
+        self.assertNotIn('existing PP2 total = 1898', apply_text)
+        self.assertEqual(
+            sum(
+                ProductWarehouseStock.objects.filter(warehouse=self.pp2).values_list(
+                    'quantity', flat=True
+                )
+            ),
+            1898,
+        )
 
 
 class KaspiStockPreviewTests(TestCase):

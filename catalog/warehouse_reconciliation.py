@@ -270,10 +270,21 @@ def classify_reconciliation_rows(
     return rows
 
 
+def warehouse_quantity_total(warehouse: Warehouse) -> int:
+    return int(
+        sum(
+            ProductWarehouseStock.objects.filter(warehouse=warehouse).values_list(
+                'quantity', flat=True
+            )
+        )
+    )
+
+
 def summarize_reconciliation_rows(
     rows: list[ReconciliationRow],
     *,
-    warehouse: Warehouse,
+    existing_pp2_total: int,
+    persisted_pp2_total: int | None = None,
 ) -> dict:
     matched = [
         row
@@ -297,17 +308,12 @@ def summarize_reconciliation_rows(
         if row.status == STATUS_CHANGED and row.quantity_delta is not None:
             net_delta += int(row.quantity_delta)
 
-    warehouse_total = sum(
-        ProductWarehouseStock.objects.filter(warehouse=warehouse).values_list(
-            'quantity', flat=True
-        )
-    )
     summary = {
         'source_rows': len(rows),
         'matched': len(matched),
         'unmatched': sum(1 for row in rows if row.status == STATUS_UNMATCHED),
         'source_total': source_total,
-        'existing_pp2_total': warehouse_total,
+        'existing_pp2_total': int(existing_pp2_total),
         'existing_matched_total': existing_matched_total,
         'changed': sum(1 for row in rows if row.status == STATUS_CHANGED),
         'unchanged': sum(1 for row in rows if row.status == STATUS_UNCHANGED),
@@ -329,7 +335,8 @@ def summarize_reconciliation_rows(
             }
         ),
         'net_delta': net_delta,
-        'result_total': warehouse_total + net_delta,
+        'result_total': int(existing_pp2_total) + net_delta,
+        'persisted_pp2_total': persisted_pp2_total,
     }
     return summary
 
@@ -416,12 +423,14 @@ def reconcile_warehouse_inventory(
         rows, sheet_name, headers = snapshot_rows_from_file(source_file)
         source_path = str(source_file)
 
+    existing_pp2_total = warehouse_quantity_total(warehouse)
     classify_reconciliation_rows(
         rows,
         warehouse=warehouse,
         source=source,
         reference=reference,
     )
+    persisted_pp2_total = None
     if apply:
         apply_reconciliation_rows(
             rows,
@@ -430,6 +439,7 @@ def reconcile_warehouse_inventory(
             reference=reference,
             note=note,
         )
+        persisted_pp2_total = warehouse_quantity_total(warehouse)
 
     return ReconciliationResult(
         rows=rows,
@@ -442,7 +452,11 @@ def reconcile_warehouse_inventory(
         apply=apply,
         sheet_name=sheet_name,
         headers=headers,
-        summary=summarize_reconciliation_rows(rows, warehouse=warehouse),
+        summary=summarize_reconciliation_rows(
+            rows,
+            existing_pp2_total=existing_pp2_total,
+            persisted_pp2_total=persisted_pp2_total,
+        ),
     )
 
 
