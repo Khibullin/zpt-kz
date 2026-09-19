@@ -69,6 +69,10 @@
 
     {% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
 
+    {% if compat_note %}
+      <p class="home-compat-note">{{ compat_note }}</p>
+    {% endif %}
+
     <div class="product-meta-row muted product-meta-details">
       <span>{{ product.get_condition_display }}</span>
       {% if product.article %}

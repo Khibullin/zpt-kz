@@ -184,7 +184,7 @@ def _format_vehicle_line(product_request: Request) -> str:
     if model:
         parts.append(model)
 
-    year = getattr(product_request, 'year', None) or getattr(product_request, 'vehicle_year', None)
+    year = getattr(product_request, 'vehicle_year', None)
     year_text = _normalize_text(str(year)) if year else ''
     if year_text:
         parts.append(year_text)

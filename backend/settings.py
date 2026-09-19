@@ -63,8 +63,8 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'core.seo_middleware.SeoRobotsHeaderMiddleware',
+    'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -321,6 +321,22 @@ ZPT_KASPI_COLLECTOR_BASE_URL = os.getenv('ZPT_KASPI_COLLECTOR_BASE_URL', '').str
 PHAETON_PRICE_MARKUP_PERCENT = int(os.getenv('PHAETON_PRICE_MARKUP_PERCENT', '15'))
 ZPT_DEFAULT_WHATSAPP = os.getenv('ZPT_DEFAULT_WHATSAPP', '+77713607040')
 ZPT_WAREHOUSE_CITY = os.getenv('ZPT_WAREHOUSE_CITY', 'Алматы')
+
+
+def _env_int(name: str, default: int) -> int:
+    raw = os.getenv(name, str(default))
+    try:
+        return int(raw)
+    except (TypeError, ValueError):
+        return default
+
+
+# Homepage short-form public limits. Shared via DB (not LocMem).
+# HOME_PARTS_NUM_PROXIES=1 matches Render: take the right-hand X-Forwarded-For hop.
+HOME_PARTS_MAX_PER_HOUR = _env_int('HOME_PARTS_MAX_PER_HOUR', 8)
+HOME_PARTS_MAX_PER_PHONE_HOUR = _env_int('HOME_PARTS_MAX_PER_PHONE_HOUR', 5)
+HOME_PARTS_RATE_LIMIT_WINDOW = _env_int('HOME_PARTS_RATE_LIMIT_WINDOW', 3600)
+HOME_PARTS_NUM_PROXIES = _env_int('HOME_PARTS_NUM_PROXIES', 1)
 
 MEDIA_URL = '/products/'
 MEDIA_ROOT = resolve_media_root(os.getenv('MEDIA_ROOT'), BASE_DIR)

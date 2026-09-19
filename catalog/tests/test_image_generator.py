@@ -173,6 +173,15 @@ class InstagramStoryGeneratorTests(TestCase):
         line = _format_vehicle_line(self.request)
         self.assertEqual(line, 'Chery Tiggo 7')
 
+    def test_request_year_is_not_published_to_instagram(self):
+        self.request.year = 2018
+        self.request.vin = 'JTDBR32E720012345'
+        line = _format_vehicle_line(self.request)
+        caption = build_publication_caption(self.request)
+        self.assertEqual(line, 'Chery Tiggo 7')
+        self.assertNotIn('2018', caption)
+        self.assertNotIn('JTDBR32E720012345', caption)
+
     def test_build_publication_caption_contains_new_geography_lines(self):
         self.request.search_scope = 'kazakhstan'
         caption = build_publication_caption(self.request)

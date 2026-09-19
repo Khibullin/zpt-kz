@@ -43,10 +43,14 @@
 <link rel="stylesheet" href="{% static 'css/faq-feedback.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/ios-pwa-prompt.css' %}?v=ios_pwa_v1">
     {% block extra_css %}{% endblock %}
+    {% if 'home_request' not in request.GET %}
     {% google_tag_manager_head %}
+    {% endif %}
 </head>
 <body>
+{% if 'home_request' not in request.GET %}
 {% google_tag_manager_body %}
+{% endif %}
 {% block content %}{% endblock %}
 <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
   <a href="{% url 'privacy' %}" style="color:inherit;">Политика конфиденциальности</a>

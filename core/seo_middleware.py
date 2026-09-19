@@ -130,4 +130,10 @@ class SeoRobotsHeaderMiddleware:
         directive = robots_directive(request)
         if directive.startswith('noindex'):
             response['X-Robots-Tag'] = directive
+        if 'home_request' in request.GET:
+            response['Cache-Control'] = 'private, no-store'
+            response['Pragma'] = 'no-cache'
+            response['Referrer-Policy'] = 'no-referrer'
+            response['X-Robots-Tag'] = 'noindex, nofollow'
+            return response
         return _inject_missing_gtm(response)

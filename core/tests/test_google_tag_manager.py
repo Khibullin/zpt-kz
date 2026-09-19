@@ -29,3 +29,12 @@ class GoogleTagManagerTemplateTests(TestCase):
             self.assertContains(response, 'https://www.googletagmanager.com/gtm.js?id=')
             self.assertContains(response, 'GTM-ABC123')
             self.assertContains(response, 'https://www.googletagmanager.com/ns.html?id=GTM-ABC123')
+
+    def test_home_request_page_omits_gtm(self):
+        with patch.dict(os.environ, {'GOOGLE_TAG_MANAGER_ID': 'GTM-ABC123'}, clear=False):
+            home = self.client.get('/')
+            result = self.client.get('/', {'home_request': 'abc'})
+
+        self.assertContains(home, 'googletagmanager.com/gtm.js')
+        self.assertContains(home, 'googletagmanager.com/ns.html')
+        self.assertNotContains(result, 'googletagmanager.com')

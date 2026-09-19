@@ -9,6 +9,7 @@ import uuid
 import urllib.error
 import urllib.request
 from datetime import timedelta
+from pathlib import Path
 
 from django.conf import settings
 from django.contrib.auth import authenticate, login
@@ -355,7 +356,7 @@ def _save_request_photos(req, uploaded_files):
     if not uploaded_files:
         return saved
 
-    media_root = settings.MEDIA_ROOT
+    media_root = Path(settings.MEDIA_ROOT)
     os.makedirs(media_root, exist_ok=True)
     os.makedirs(media_root / 'request_photos', exist_ok=True)
 
@@ -700,14 +701,17 @@ def part_categories_list(request):
     )
 
 
-def _base_sellers_queryset(req):
+def _base_sellers_queryset(req, *, match_transport: bool = True):
     settings = BroadcastSettings.load()
 
-    base = Seller.objects.filter(
-        is_active=True,
-        is_paused=False,
-        transport_type=req.transport_type
-    )
+    filters = {
+        'is_active': True,
+        'is_paused': False,
+    }
+    if match_transport and req.transport_type in ('car', 'truck'):
+        filters['transport_type'] = req.transport_type
+
+    base = Seller.objects.filter(**filters)
 
     if settings.emergency_stop:
         return Seller.objects.none()
@@ -802,7 +806,32 @@ def _apply_model_filter(qs, req):
     )
 
 
+def _unique_sellers_by_whatsapp(sellers):
+    from core.phone_utils import normalize_phone_for_whatsapp
+
+    seen = set()
+    unique = []
+    for seller in sellers:
+        phone = normalize_phone_for_whatsapp(seller.whatsapp)
+        if not phone:
+            continue
+        if phone in seen:
+            continue
+        seen.add(phone)
+        unique.append(seller)
+    return unique
+
+
 def _find_matching_sellers(req):
+    if getattr(req, 'dispatch_mode', '') == Request.DISPATCH_MODE_ALL_KZ:
+        qs = _base_sellers_queryset(req, match_transport=False).order_by(
+            'dispatch_priority',
+            'id',
+        )
+        if qs.exists():
+            return qs, 'all_kz'
+        return Seller.objects.none(), 'no_match'
+
     base_qs = _base_sellers_queryset(req)
     base_qs = _apply_category_filter(base_qs, req)
 
@@ -925,6 +954,8 @@ def _build_dispatch_queue(req, sellers):
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()
+    if getattr(req, 'dispatch_mode', '') == Request.DISPATCH_MODE_ALL_KZ:
+        sellers = _unique_sellers_by_whatsapp(sellers)
 
     wave_size = settings.wave_size or WAVE_SIZE
     wave_interval = settings.wave_interval_minutes or WAVE_INTERVAL_MINUTES
@@ -1164,6 +1195,142 @@ def create_request(request):
             {'error': 'Не удалось создать заявку. Попробуйте ещё раз.'},
             status=500,
         )
+
+
+def vehicle_suggest(request):
+    from core.services.vehicle_suggest import suggest_brands, suggest_models
+
+    kind = (request.GET.get('kind') or 'brand').strip().lower()
+    query = request.GET.get('q', '')
+    if kind == 'model':
+        items = suggest_models(
+            query,
+            brand_id=request.GET.get('brand_id'),
+            brand_name=request.GET.get('brand', ''),
+        )
+    else:
+        items = suggest_brands(query)
+    return JsonResponse({'items': items})
+
+
+def create_home_parts_request(request):
+    from core.services.home_parts_request import (
+        HomePartsRequestError,
+        _existing_by_key,
+        buyer_confirmation_message,
+        broadcast_promised,
+        create_home_parts_request_record,
+        dispatch_status_set,
+        parse_home_parts_data,
+        payload_matches_request,
+        search_catalog_safe,
+    )
+    from core.services.public_rate_limit import home_parts_rate_limit_allowed
+
+    if request.method != 'POST':
+        return JsonResponse({'error': 'invalid method'}, status=405)
+
+    uploaded_photos = _collect_request_uploads(request)
+    data = {
+        'query': request.POST.get('query', ''),
+        'description': request.POST.get('description', ''),
+        'brand': request.POST.get('brand', ''),
+        'model': request.POST.get('model', ''),
+        'brand_id': request.POST.get('brand_id', ''),
+        'model_id': request.POST.get('model_id', ''),
+        'year': request.POST.get('year', ''),
+        'vin': request.POST.get('vin', ''),
+        'city': request.POST.get('city', ''),
+        'phone': request.POST.get('phone') or request.POST.get('whatsapp', ''),
+        'consent': request.POST.get('consent', ''),
+        'idempotency_key': request.POST.get('idempotency_key', ''),
+    }
+    header_key = (request.headers.get('Idempotency-Key') or '').strip()
+    idempotency_key = header_key or data.get('idempotency_key') or ''
+
+    try:
+        payload = parse_home_parts_data(data, idempotency_key=idempotency_key)
+    except HomePartsRequestError as exc:
+        return JsonResponse(
+            {'error': exc.message, 'fields': exc.fields},
+            status=exc.status,
+        )
+
+    existing = _existing_by_key(payload.idempotency_key)
+    if existing is not None and not payload_matches_request(
+        payload,
+        existing,
+        uploaded_photos,
+    ):
+        return JsonResponse(
+            {
+                'error': 'Этот ключ уже использован для другого запроса. Чтобы отправить текущие данные, начните новый запрос.',
+                'can_retry_as_new': True,
+            },
+            status=409,
+        )
+    if existing is None and not home_parts_rate_limit_allowed(request, payload.phone):
+        return JsonResponse(
+            {
+                'error': 'Слишком много запросов. Подождите немного и попробуйте снова.',
+            },
+            status=429,
+        )
+
+    try:
+        req, dispatches, replay = create_home_parts_request_record(
+            payload,
+            uploaded_photos,
+        )
+    except HomePartsRequestError as exc:
+        body = {'error': exc.message, 'fields': exc.fields}
+        if exc.status == 409:
+            body['can_retry_as_new'] = True
+        return JsonResponse(body, status=exc.status)
+    except Exception:
+        logger.exception('create_home_parts_request failed')
+        return JsonResponse(
+            {'error': 'Не удалось сохранить запрос. Попробуйте ещё раз.'},
+            status=500,
+        )
+
+    if not replay:
+        request_id = req.id
+        sellers_count = len(dispatches)
+        try:
+            _send_buyer_whatsapp_notification_async(req, sellers_count)
+        except Exception as exc:
+            logger.error(
+                'Buyer WhatsApp background dispatch failed for request #%s: %s',
+                req.id,
+                exc,
+                exc_info=True,
+            )
+        transaction.on_commit(
+            lambda request_id=request_id: _sync_buyer_contact_safely(request_id)
+        )
+        transaction.on_commit(
+            lambda: schedule_instagram_publication_for_request(request_id)
+        )
+
+    _groups, products_payload, search_failed = search_catalog_safe(payload)
+    statuses = dispatch_status_set(dispatches)
+    queued = RequestDispatch.STATUS_QUEUED in statuses
+    broadcast_active = broadcast_promised(statuses=statuses, queued=queued)
+    message = buyer_confirmation_message(statuses=statuses, queued=queued)
+    return JsonResponse({
+        'status': 'ok',
+        'id': req.id,
+        'replay': replay,
+        'message': message,
+        'queued': queued,
+        'broadcast_active': broadcast_active,
+        'matches': len(dispatches),
+        'result_url': f'/?home_request={req.access_token}',
+        'products': products_payload,
+        'search_failed': search_failed,
+        'photos_saved': req.photos.count(),
+    })
 
 
 def _render_request_status(request, req):

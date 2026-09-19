@@ -339,6 +339,8 @@ def _rebuild_vehicles(buyer: BuyerContact, requests: list[Request]) -> tuple[int
         model = str(req.model or '').strip()
         if not brand and not model:
             continue
+        if req.transport_type not in ('car', 'truck'):
+            continue
         key = (
             req.transport_type,
             normalize_buyer_text(brand),

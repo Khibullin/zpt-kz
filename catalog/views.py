@@ -14,6 +14,7 @@ from django.http import Http404, HttpResponse, JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
+from django.utils import timezone
 
 from core.forms import FeedbackForm
 from core.models import Seller as RequestSeller
@@ -332,6 +333,62 @@ def effective_seller_phone(product, seller=None):
     return product.whatsapp_number
 
 
+def _load_home_request_result(token: str):
+    from uuid import UUID
+
+    from django.core.exceptions import ValidationError
+
+    from core.models import Request, RequestDispatch
+    from core.services.home_parts_query import split_part_queries
+    from core.services.home_parts_request import (
+        buyer_confirmation_message,
+        broadcast_promised,
+        dispatch_status_set,
+    )
+    from catalog.home_parts_search import search_home_parts
+
+    token = (token or '').strip()
+    if not token:
+        return None
+    try:
+        UUID(token)
+    except (ValueError, AttributeError, TypeError):
+        return None
+    try:
+        req = Request.objects.filter(
+            access_token=token,
+            source=Request.SOURCE_HOME_SHORT,
+        ).first()
+    except (ValidationError, ValueError):
+        return None
+    if req is None:
+        return None
+    dispatches = list(req.dispatches.all())
+    statuses = dispatch_status_set(dispatches)
+    queued = RequestDispatch.STATUS_QUEUED in statuses
+    broadcast_active = broadcast_promised(statuses=statuses, queued=queued)
+    groups = []
+    search_failed = False
+    try:
+        groups = search_home_parts(
+            split_part_queries(req.description),
+            brand_name=req.brand,
+            model_name=req.model,
+            country=req.country,
+            transport_type=req.transport_type,
+        )
+    except Exception:
+        search_failed = True
+    return {
+        'request': req,
+        'message': buyer_confirmation_message(statuses=statuses, queued=queued),
+        'queued': queued,
+        'broadcast_active': broadcast_active,
+        'groups': groups,
+        'search_failed': search_failed,
+    }
+
+
 @ensure_csrf_cookie
 def catalog_list(request):
     query = request.GET.get('q', '').strip()
@@ -412,14 +469,17 @@ def catalog_list(request):
         selected_offer,
     ])
     show_all = request.GET.get('all') == '1'
+    home_request_token = (request.GET.get('home_request') or '').strip()
+    is_home_result_param = bool(home_request_token)
+    is_listing = has_filters or show_all
 
     if viewer_is_seller:
         products = b2b_prefetch(products)
 
-    if has_filters or show_all:
+    if is_listing and not is_home_result_param:
         products = products.order_by('-created_at')
     else:
-        products = products.order_by('?')[:12]
+        products = products.none()
 
     products = attach_sellers_to_products(products)
     attach_b2b_offers(products, enabled=viewer_is_seller)
@@ -439,10 +499,20 @@ def catalog_list(request):
     catalog_all_query = build_catalog_query(request.GET, all='1')
     catalog_all_url = f'?{catalog_all_query}' if catalog_all_query else '?all=1'
 
+    from orders.constants import KAZAKHSTAN_CITIES
+    home_result = _load_home_request_result(home_request_token) if is_home_result_param else None
+
     context = {
         'products': products,
         'has_filters': has_filters,
         'show_all': show_all,
+        'is_listing': is_listing,
+        'is_home_result': bool(home_result),
+        'home_request_token': home_request_token,
+        'home_result': home_result,
+        'home_cities': KAZAKHSTAN_CITIES,
+        'home_year_max': timezone.now().year + 1,
+        'home_query_prefill': query,
         'countries': countries,
         'brands': brands,
         'models': models,
@@ -459,7 +529,13 @@ def catalog_list(request):
         'catalog_all_url': catalog_all_url,
         **_build_home_seo_links(),
     }
-    return render(request, 'catalog/catalog_list.html', context)
+    response = render(request, 'catalog/catalog_list.html', context)
+    if home_request_token:
+        response['Cache-Control'] = 'private, no-store'
+        response['Pragma'] = 'no-cache'
+        response['Referrer-Policy'] = 'no-referrer'
+        response['X-Robots-Tag'] = 'noindex, nofollow'
+    return response
 
 
 @ensure_csrf_cookie

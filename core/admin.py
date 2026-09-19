@@ -379,10 +379,13 @@ class BroadcastSettingsAdmin(admin.ModelAdmin):
 class RequestAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'source',
+        'dispatch_mode',
         'transport_type',
         'country',
         'brand',
         'model',
+        'year',
         'category',
         'city',
         'phone',
@@ -391,6 +394,8 @@ class RequestAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
+        'source',
+        'dispatch_mode',
         'transport_type',
         'status',
         'city',
@@ -403,10 +408,11 @@ class RequestAdmin(admin.ModelAdmin):
         'model',
         'article',
         'description',
-        'phone'
+        'phone',
+        'vin',
     )
 
-    readonly_fields = ('buyer_contact',)
+    readonly_fields = ('buyer_contact', 'idempotency_key')
 
 
 BUYER_INLINE_AGGREGATE_READONLY = (

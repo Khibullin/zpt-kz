@@ -26,13 +26,17 @@
   <link rel="stylesheet" href="{% static 'css/portal-common.css' %}">
   {% block portal_css %}{% endblock %}
   {% block extra_css %}{% endblock %}
+  {% if 'home_request' not in request.GET %}
   {% google_tag_manager_head %}
+  {% endif %}
 </head>
 <body
   data-api-base="/api/"
   data-service-api-base="/api/service/"
 >
+  {% if 'home_request' not in request.GET %}
   {% google_tag_manager_body %}
+  {% endif %}
   {% block portal_header %}
   <header class="header site-header">
     <div class="header-inner site-container">

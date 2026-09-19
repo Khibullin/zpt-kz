@@ -3,11 +3,17 @@
 
 {% block title %}Автозапчасти в Казахстане для легковых и грузовых авто | ZPT.KZ{% endblock %}
 
+{% block extra_head %}
+{% if home_request_token %}
+<meta name="referrer" content="no-referrer">
+{% endif %}
+{% endblock %}
+
 {% block meta_description %}Ищете автозапчасть? Отправьте одну заявку — более 300 продавцов по Казахстану найдут нужную запчасть и отправят предложения в WhatsApp. Запчасти для легковых и грузовых авто.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v143">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v144">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v11">
 <style>
 .market-topbar{
@@ -467,6 +473,181 @@ a.hero-b2b-strip-btn:hover,
   letter-spacing:.02em;
   line-height:1.2;
 }
+.home-parts-form{
+  margin-top:12px;
+  padding:16px;
+  background:#fff;
+  border:1px solid #ececec;
+  border-radius:14px;
+  box-sizing:border-box;
+}
+.home-parts-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:10px;
+}
+.home-parts-field{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  min-width:0;
+}
+.home-parts-field label{
+  font-size:13px;
+  font-weight:700;
+  color:#111827;
+}
+.home-parts-field input,
+.home-parts-field textarea{
+  width:100%;
+  min-height:46px;
+  padding:10px 12px;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  font-family:inherit;
+  font-size:16px;
+  line-height:1.3;
+  box-sizing:border-box;
+  background:#fff;
+}
+.home-parts-field textarea{
+  min-height:72px;
+  resize:vertical;
+}
+.home-parts-field input:focus,
+.home-parts-field textarea:focus{
+  outline:2px solid #ff3b30;
+  outline-offset:1px;
+  border-color:#ff3b30;
+}
+.home-parts-combo{
+  position:relative;
+}
+.home-parts-suggest{
+  position:absolute;
+  z-index:40;
+  left:0;
+  right:0;
+  top:100%;
+  margin:4px 0 0;
+  padding:6px 0;
+  list-style:none;
+  background:#fff;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  box-shadow:0 8px 24px rgba(17,24,39,.12);
+  max-height:220px;
+  overflow:auto;
+}
+.home-parts-suggest[hidden]{display:none;}
+.home-parts-suggest button{
+  display:block;
+  width:100%;
+  padding:10px 12px;
+  border:0;
+  background:transparent;
+  text-align:left;
+  font-size:15px;
+  cursor:pointer;
+}
+.home-parts-suggest button[aria-selected="true"],
+.home-parts-suggest button:hover{
+  background:#fff5f5;
+}
+.home-parts-extra{
+  margin-top:4px;
+}
+.home-parts-extra summary{
+  cursor:pointer;
+  font-size:14px;
+  font-weight:600;
+  color:#374151;
+  list-style:none;
+}
+.home-parts-extra summary::-webkit-details-marker{display:none;}
+.home-parts-consent{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  font-size:13px;
+  line-height:1.45;
+  color:#4b5563;
+}
+.home-parts-consent input{
+  margin-top:3px;
+  flex-shrink:0;
+}
+.home-parts-submit{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:48px;
+  border:none;
+  border-radius:12px;
+  background:#ff3b30;
+  color:#fff;
+  font-size:16px;
+  font-weight:700;
+  cursor:pointer;
+}
+.home-parts-submit:hover{background:#e6342a;}
+.home-parts-submit:disabled{
+  opacity:.65;
+  cursor:wait;
+}
+.home-parts-error{
+  margin:0;
+  font-size:13px;
+  color:#b91c1c;
+}
+.home-parts-form-error{
+  margin:0;
+  padding:10px 12px;
+  border-radius:10px;
+  background:#fff5f5;
+  color:#b91c1c;
+  font-size:14px;
+}
+.home-request-result{
+  margin-top:14px;
+  padding:16px;
+  background:#fff;
+  border:1px solid #ececec;
+  border-radius:14px;
+  scroll-margin-top:88px;
+}
+.home-request-confirm{
+  margin:0 0 8px;
+  font-size:18px;
+  font-weight:800;
+  color:#111827;
+}
+.home-request-new{
+  margin:8px 0 0;
+}
+.home-compat-note{
+  margin:8px 0 0;
+  font-size:13px;
+  line-height:1.4;
+  color:#92400e;
+}
+.home-request-group-title{
+  margin:16px 0 8px;
+  font-size:15px;
+  font-weight:700;
+}
+@media (min-width:768px){
+  .home-parts-grid{
+    grid-template-columns:1fr 1fr;
+  }
+  .home-parts-field-query,
+  .home-parts-consent,
+  .home-parts-actions,
+  .home-parts-extra{
+    grid-column:1 / -1;
+  }
+}
 </style>
 {% endblock %}
 
@@ -480,78 +661,129 @@ a.hero-b2b-strip-btn:hover,
 
     <div class="hero-main">
 
-      <h1 class="hero-title ds-h1">Автозапчасти для легковых и грузовых автомобилей</h1>
-
-      <p class="hero-kicker">300+ продавцов по Казахстану</p>
+      <h1 class="hero-title ds-h1">Какая запчасть вам нужна?</h1>
 
       <p class="hero-sub ds-body">
-        Найдите запчасть в каталоге или оставьте заявку — продавцы ответят в WhatsApp.
+        Напишите, какая запчасть нужна — предложения придут в WhatsApp.
       </p>
 
-      <div class="hero-panel hero-panel-search">
-        <h2 class="hero-panel-title">Поиск по артикулу или названию</h2>
-        <form method="get" class="hero-search-form" action="{% url 'catalog_list' %}">
-          <div class="search-row">
-            <input
-              type="text"
-              name="q"
-              value="{{ query }}"
-              placeholder="фара Camry 2018 или 52119-0K040"
-              aria-label="Поиск по артикулу или названию"
-            >
-            <button type="submit" class="search-btn">
-              Найти
-            </button>
-          </div>
-          {% if viewer_is_seller and selected_offer %}
-            <input type="hidden" name="offer" value="{{ selected_offer }}">
+      {% if is_home_result %}
+      <div class="home-request-result" id="home-request-result">
+        <p class="home-request-confirm">{{ home_result.message }}</p>
+        {% for group in home_result.groups %}
+          {% if group.hits %}
+            <h3 class="home-request-group-title">{{ group.query }}</h3>
+            <div class="products">
+              {% for hit in group.hits %}
+                {% if hit.compatibility == 'unconfirmed' %}
+                  {% include 'catalog/includes/product_card.html' with product=hit.product card_mode='retail' compat_note='Совместимость с выбранным автомобилем не подтверждена.' %}
+                {% else %}
+                  {% include 'catalog/includes/product_card.html' with product=hit.product card_mode='retail' %}
+                {% endif %}
+              {% endfor %}
+            </div>
           {% endif %}
-        </form>
+        {% endfor %}
+        <p class="home-request-new">
+          <button type="button" class="btn-secondary" id="home-parts-new">Новый запрос</button>
+        </p>
       </div>
+      {% endif %}
 
-      <div class="hero-panel hero-panel-filters">
-        <h2 class="hero-panel-title">Подбор по марке и модели</h2>
-        <form method="get" class="hero-filter-form" action="{% url 'catalog_list' %}">
-          <div class="filter-grid">
-            <select id="country" name="country">
-              <option value="">Страна</option>
-              {% for country in countries %}
-                <option value="{{ country.id }}"{% if selected_country == country.id|stringformat:"s" %} selected{% endif %}>
-                  {{ country.name }}
-                </option>
-              {% endfor %}
-            </select>
-
-            <select id="brand" name="brand">
-              <option value="">Марка</option>
-            </select>
-
-            <select id="model" name="model">
-              <option value="">Модель</option>
-            </select>
-
-            <select id="category" name="category">
-              <option value="">Категория</option>
-              {% for category in categories %}
-                <option value="{{ category.id }}"{% if selected_category == category.id|stringformat:"s" %} selected{% endif %}>
-                  {{ category.name }}
-                </option>
-              {% endfor %}
-            </select>
+      <form
+        id="home-parts-form"
+        class="home-parts-form"
+        method="post"
+        action="{% url 'create_home_parts_request' %}"
+        enctype="multipart/form-data"
+        novalidate
+        {% if is_home_result %}hidden{% endif %}
+      >
+        {% csrf_token %}
+        <div class="home-parts-grid">
+          <div class="home-parts-field home-parts-field-query">
+            <label for="home-query">Название или артикул запчасти</label>
+            <textarea
+              id="home-query"
+              name="query"
+              required
+              maxlength="500"
+              placeholder="колодки, масляный фильтр или 52119-0K040"
+            >{{ home_query_prefill }}</textarea>
+            <p class="home-parts-error" data-error-for="query" hidden></p>
           </div>
 
-          <button type="submit" class="filter-submit-btn">
-            Найти по авто
-          </button>
-          {% if viewer_is_seller and selected_offer %}
-            <input type="hidden" name="offer" value="{{ selected_offer }}">
-          {% endif %}
-        </form>
-      </div>
+          <div class="home-parts-field home-parts-combo">
+            <label for="home-brand">Марка</label>
+            <input id="home-brand" name="brand" type="text" autocomplete="off" spellcheck="false" placeholder="Toyota" value="">
+            <input type="hidden" id="home-brand-id" name="brand_id" value="">
+            <ul class="home-parts-suggest" id="home-brand-suggest" hidden role="listbox"></ul>
+            <p class="home-parts-error" data-error-for="brand" hidden></p>
+          </div>
+
+          <div class="home-parts-field home-parts-combo">
+            <label for="home-model">Модель</label>
+            <input id="home-model" name="model" type="text" autocomplete="off" spellcheck="false" placeholder="Camry" value="">
+            <input type="hidden" id="home-model-id" name="model_id" value="">
+            <ul class="home-parts-suggest" id="home-model-suggest" hidden role="listbox"></ul>
+            <p class="home-parts-error" data-error-for="model" hidden></p>
+          </div>
+
+          <div class="home-parts-field">
+            <label for="home-year">Год выпуска (необязательно)</label>
+            <input id="home-year" name="year" type="number" inputmode="numeric" min="1950" max="{{ home_year_max }}" placeholder="2018" value="">
+            <p class="home-parts-error" data-error-for="year" hidden></p>
+          </div>
+
+          <div class="home-parts-field">
+            <label for="home-city">Город</label>
+            <input id="home-city" name="city" type="text" list="home-city-list" required placeholder="Алматы" autocomplete="address-level2" value="">
+            <datalist id="home-city-list">
+              {% for city_name in home_cities %}
+                <option value="{{ city_name }}"></option>
+              {% endfor %}
+            </datalist>
+            <p class="home-parts-error" data-error-for="city" hidden></p>
+          </div>
+
+          <div class="home-parts-field">
+            <label for="home-phone">Ваш WhatsApp</label>
+            <input id="home-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+7 701 123 45 67">
+            <p class="home-parts-error" data-error-for="phone" hidden></p>
+          </div>
+
+          <details class="home-parts-extra">
+            <summary>Добавить VIN или фото</summary>
+            <div class="home-parts-grid" style="margin-top:10px">
+              <div class="home-parts-field">
+                <label for="home-vin">VIN</label>
+                <input id="home-vin" name="vin" type="text" maxlength="17" autocomplete="off" spellcheck="false" placeholder="Необязательно" value="">
+                <p class="home-parts-error" data-error-for="vin" hidden></p>
+              </div>
+              <div class="home-parts-field">
+                <label for="home-photos">Фото</label>
+                <input id="home-photos" name="photos" type="file" accept="image/*" multiple>
+              </div>
+            </div>
+          </details>
+
+          <label class="home-parts-consent">
+            <input id="home-consent" name="consent" type="checkbox" value="1" required>
+            <span>Согласен на обработку данных и передачу запроса и контакта продавцам для подбора запчасти. Это не согласие на рекламную рассылку.</span>
+          </label>
+          <p class="home-parts-error" data-error-for="consent" hidden></p>
+
+          <p class="home-parts-form-error" id="home-parts-form-error" hidden></p>
+
+          <div class="home-parts-actions">
+            <button type="submit" class="home-parts-submit" id="home-parts-submit">Найти запчасть</button>
+          </div>
+        </div>
+      </form>
 
       {% include 'catalog/includes/b2b_offer_filters.html' %}
 
-      {% if has_filters and not products %}
+      {% if has_filters and not products and not is_home_result %}
         <div
           id="catalog-empty-state"
           class="catalog-empty-state"
@@ -563,13 +795,10 @@ a.hero-b2b-strip-btn:hover,
               <p class="catalog-empty-state-query">Вы искали: {{ query }}</p>
             {% endif %}
             <p class="catalog-empty-state-text">
-              Оставьте заявку — мы отправим её продавцам автозапчастей по Казахстану. Продавцы сами напишут вам в WhatsApp с ценой и наличием.
+              Отправьте запрос формой выше — продавцы напишут в WhatsApp, если запчасть есть.
             </p>
           </div>
           <div class="catalog-empty-state-actions">
-            <a href="/request-parts/" class="catalog-empty-state-btn-primary">
-              Оставить заявку на запчасть
-            </a>
             <a href="{% url 'catalog_list' %}" class="catalog-empty-state-btn-secondary">
               Сбросить поиск
             </a>
@@ -577,14 +806,6 @@ a.hero-b2b-strip-btn:hover,
         </div>
       {% endif %}
 
-      {% if products or not has_filters %}
-      <div class="b2c-request-banner">
-        <div class="b2c-request-banner-content">
-          <p class="b2c-request-banner-title">Не нашли нужную запчасть?</p>
-          <p class="b2c-request-banner-text">Оставьте заявку — продавцы сами напишут вам в WhatsApp с ценой и наличием.</p>
-        </div>
-        <a href="/request-parts/" class="b2c-request-banner-btn">Оставить заявку</a>
-      </div>
       <div class="home-wholesale-entry">
         <p class="home-wholesale-title">Для оптовых покупателей</p>
         <div class="home-wholesale-actions">
@@ -592,7 +813,6 @@ a.hero-b2b-strip-btn:hover,
           <a href="{% url 'public_seller_wholesale_price' slug='ag-parts' %}" class="home-wholesale-btn home-wholesale-btn-secondary">Скачать оптовый прайс</a>
         </div>
       </div>
-      {% endif %}
 
       <div class="hero-b2b-strip">
         <p class="hero-b2b-strip-text">
@@ -607,7 +827,7 @@ a.hero-b2b-strip-btn:hover,
 
   </section>
 
-  {% if products %}
+  {% if products and not is_home_result %}
   <div
     id="catalog-results"
     class="products-head"
@@ -634,7 +854,7 @@ a.hero-b2b-strip-btn:hover,
       На ZPT.KZ можно найти и купить автозапчасти для легковых и грузовых автомобилей. На платформе размещаются новые, оригинальные, аналоговые, контрактные и б/у запчасти от продавцов из разных городов Казахстана.
     </p>
     <p>
-      Используйте поиск по названию или артикулу, выберите страну производства, марку, модель автомобиля и категорию запчасти. Если нужного товара пока нет в каталоге, оставьте заявку — продавцы свяжутся с вами через WhatsApp и предложат доступные варианты.
+      Используйте форму выше, чтобы отправить запрос — продавцы свяжутся с вами через WhatsApp. Популярные марки, категории и города открываются ссылками ниже.
     </p>
   </section>
 
@@ -702,61 +922,30 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v10"></script>
-<script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
+<script src="{% static 'js/home-parts-form-v1.js' %}?v=3"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-
   function scrollToCatalogTarget(el) {
     if (el && typeof el.scrollIntoView === 'function') {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
 
+  const homeResult = document.getElementById('home-request-result');
+  if (homeResult) {
+    scrollToCatalogTarget(homeResult);
+    return;
+  }
+
   const emptyState = document.getElementById('catalog-empty-state');
   if (emptyState) {
     scrollToCatalogTarget(emptyState);
-  } else {
-    const results = document.querySelector(
-      '#catalog-results[data-catalog-scroll="results"]'
-    );
-    scrollToCatalogTarget(results);
+    return;
   }
-
-  const country = document.getElementById('country');
-  const brand = document.getElementById('brand');
-  const model = document.getElementById('model');
-
-  if (!country || !brand || !model) return;
-
-  country.addEventListener('change', function () {
-
-    ZPTDom.fillSelect(brand, [], 'Марка');
-    ZPTDom.fillSelect(model, [], 'Модель');
-
-    if (!this.value) return;
-
-    fetch(`/market/ajax/load-brands/?country=${encodeURIComponent(this.value)}`)
-      .then(response => response.json())
-      .then(data => {
-        ZPTDom.fillSelect(brand, data, 'Марка');
-      });
-
-  });
-
-  brand.addEventListener('change', function () {
-
-    ZPTDom.fillSelect(model, [], 'Модель');
-
-    if (!this.value) return;
-
-    fetch(`/market/ajax/load-models/?brand=${encodeURIComponent(this.value)}`)
-      .then(response => response.json())
-      .then(data => {
-        ZPTDom.fillSelect(model, data, 'Модель');
-      });
-
-  });
-
+  const results = document.querySelector(
+    '#catalog-results[data-catalog-scroll="results"]'
+  );
+  scrollToCatalogTarget(results);
 });
 </script>
 

@@ -143,6 +143,9 @@ def robots_directive(request) -> str:
     if raw_path in {'/market', '/market/'} or raw_path.startswith('/market/'):
         return 'noindex, follow'
 
+    if path == '/' and request.GET.get('home_request'):
+        return 'noindex, nofollow'
+
     if path == '/' and CATALOG_FILTER_QUERY_KEYS.intersection(request.GET.keys()):
         return 'noindex, follow'
 

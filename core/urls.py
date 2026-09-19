@@ -2,6 +2,8 @@ from django.urls import path
 
 from .views import (
     create_request,
+    create_home_parts_request,
+    vehicle_suggest,
     create_seller,
     seller_login,
     seller_logout,
@@ -35,6 +37,12 @@ from .seller_whatsapp_consent_views import seller_whatsapp_consent_api
 
 urlpatterns = [
     path('create-request/', create_request, name='create_request'),
+    path(
+        'home-parts-request/',
+        create_home_parts_request,
+        name='create_home_parts_request',
+    ),
+    path('vehicle-suggest/', vehicle_suggest, name='vehicle_suggest'),
     path('whatsapp/webhook/', whatsapp_webhook, name='whatsapp_webhook'),
     path(
         'r/<int:pk>/<str:token>/',

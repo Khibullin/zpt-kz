@@ -1,3 +1,4 @@
+import json
 import os
 from unittest.mock import patch
 
@@ -53,6 +54,17 @@ class GtmStandaloneMiddlewareTests(SimpleTestCase):
 
         self.assertNotIn('googletagmanager.com', response.content.decode())
 
+    def test_home_request_does_not_receive_injected_gtm(self):
+        middleware = SeoRobotsHeaderMiddleware(
+            lambda request: self._response('<html><head><title>X</title></head><body>OK</body></html>')
+        )
+        request = self.factory.get('/', {'home_request': 'abc'})
+
+        with patch.dict(os.environ, {'GOOGLE_TAG_MANAGER_ID': 'GTM-ABC123'}, clear=False):
+            response = middleware(request)
+
+        self.assertNotIn('googletagmanager.com', response.content.decode())
+
     def test_non_html_response_is_not_modified(self):
         middleware = SeoRobotsHeaderMiddleware(lambda request: JsonResponse({'ok': True}))
         request = self.factory.get('/api/test/')
@@ -60,4 +72,4 @@ class GtmStandaloneMiddlewareTests(SimpleTestCase):
         with patch.dict(os.environ, {'GOOGLE_TAG_MANAGER_ID': 'GTM-ABC123'}, clear=False):
             response = middleware(request)
 
-        self.assertEqual(response.json(), {'ok': True})
+        self.assertEqual(json.loads(response.content), {'ok': True})

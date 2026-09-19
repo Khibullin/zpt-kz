@@ -90,6 +90,8 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'page_state': page_state,
         'request_number': '',
         'vehicle': '',
+        'year': '',
+        'vin': '',
         'category': '',
         'city': '',
         'comment': '',
@@ -99,6 +101,7 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'can_decline': False,
         'match_status': '',
         'decline_message': '',
+        'photos': [],
     }
     if page_state != 'valid' or req is None or access is None:
         return context
@@ -113,9 +116,13 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
     vehicle = ' '.join(
         part for part in ((req.brand or '').strip(), (req.model or '').strip()) if part
     )
+    year = str(req.year or '').strip()
+    vin = (req.vin or '').strip()
     context.update({
         'request_number': str(req.pk),
         'vehicle': vehicle,
+        'year': year,
+        'vin': vin,
         'category': (req.category or '').strip(),
         'city': (req.city or '').strip(),
         'comment': (req.description or '').strip(),
@@ -124,6 +131,7 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'can_decline': bool(access.seller_id) and not outcome_type,
         'match_status': outcome_type,
         'decline_message': OUTCOME_MESSAGES.get(outcome_type, ''),
+        'photos': list(req.photos.all()),
     })
     return context
 

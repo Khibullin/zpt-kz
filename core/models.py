@@ -28,6 +28,20 @@ REQUEST_SEARCH_SCOPE_CHOICES = [
     ('custom', 'Выбрать города'),
 ]
 
+REQUEST_SOURCE_CLASSIC = 'classic'
+REQUEST_SOURCE_HOME_SHORT = 'home_short'
+REQUEST_SOURCE_CHOICES = [
+    (REQUEST_SOURCE_CLASSIC, 'Классическая заявка'),
+    (REQUEST_SOURCE_HOME_SHORT, 'Короткая форма главной'),
+]
+
+REQUEST_DISPATCH_MODE_MATCHED = 'matched'
+REQUEST_DISPATCH_MODE_ALL_KZ = 'all_kz'
+REQUEST_DISPATCH_MODE_CHOICES = [
+    (REQUEST_DISPATCH_MODE_MATCHED, 'Подбор по специализации'),
+    (REQUEST_DISPATCH_MODE_ALL_KZ, 'Все допущенные продавцы Казахстана'),
+]
+
 BUYER_CONTACT_STATUS_ACTIVE = 'active'
 BUYER_CONTACT_STATUS_INVALID_PHONE = 'invalid_phone'
 BUYER_CONTACT_STATUS_WHATSAPP_UNAVAILABLE = 'whatsapp_unavailable'
@@ -285,10 +299,18 @@ class BroadcastSettings(models.Model):
 
 class Request(models.Model):
     SEARCH_SCOPE_CHOICES = REQUEST_SEARCH_SCOPE_CHOICES
+    SOURCE_CLASSIC = REQUEST_SOURCE_CLASSIC
+    SOURCE_HOME_SHORT = REQUEST_SOURCE_HOME_SHORT
+    SOURCE_CHOICES = REQUEST_SOURCE_CHOICES
+    DISPATCH_MODE_MATCHED = REQUEST_DISPATCH_MODE_MATCHED
+    DISPATCH_MODE_ALL_KZ = REQUEST_DISPATCH_MODE_ALL_KZ
+    DISPATCH_MODE_CHOICES = REQUEST_DISPATCH_MODE_CHOICES
 
     transport_type = models.CharField(
         max_length=10,
-        choices=TRANSPORT_CHOICES
+        choices=TRANSPORT_CHOICES,
+        blank=True,
+        default='',
     )
 
     country = models.CharField(max_length=100, blank=True)
@@ -297,6 +319,17 @@ class Request(models.Model):
     category = models.CharField(max_length=100, blank=True)
     article = models.CharField(max_length=100, blank=True)
     description = models.TextField(blank=True)
+    year = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Год выпуска',
+    )
+    vin = models.CharField(
+        max_length=32,
+        blank=True,
+        default='',
+        verbose_name='VIN',
+    )
 
     city = models.CharField(
         max_length=100,
@@ -312,6 +345,33 @@ class Request(models.Model):
     selected_cities = models.TextField(
         blank=True,
         default=''
+    )
+
+    source = models.CharField(
+        max_length=20,
+        choices=REQUEST_SOURCE_CHOICES,
+        default=REQUEST_SOURCE_CLASSIC,
+        db_index=True,
+        verbose_name='Источник заявки',
+    )
+    dispatch_mode = models.CharField(
+        max_length=20,
+        choices=REQUEST_DISPATCH_MODE_CHOICES,
+        default=REQUEST_DISPATCH_MODE_MATCHED,
+        db_index=True,
+        verbose_name='Режим рассылки',
+    )
+    idempotency_key = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Ключ идемпотентности',
+    )
+    idempotency_fingerprint = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Отпечаток содержимого заявки',
     )
 
     phone = models.CharField(max_length=20)
@@ -354,6 +414,13 @@ class Request(models.Model):
         verbose_name = 'Заявка'
         verbose_name_plural = 'Заявки'
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['idempotency_key'],
+                condition=~models.Q(idempotency_key=''),
+                name='uniq_request_idempotency_key',
+            ),
+        ]
 
     def __str__(self):
         return f"{self.brand} {self.model} ({self.phone})"
@@ -370,6 +437,19 @@ class Request(models.Model):
                     self.short_token = token
                     break
         super().save(*args, **kwargs)
+
+
+class HomePartsRateBucket(models.Model):
+    key = models.CharField(max_length=80, unique=True)
+    hits = models.PositiveIntegerField(default=0)
+    window_started_at = models.DateTimeField()
+
+    class Meta:
+        verbose_name = 'Лимит короткой формы'
+        verbose_name_plural = 'Лимиты короткой формы'
+
+    def __str__(self) -> str:
+        return self.key
 
 
 class BuyerPortalAccess(models.Model):

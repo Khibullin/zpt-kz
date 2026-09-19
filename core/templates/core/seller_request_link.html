@@ -46,6 +46,20 @@
     font-size: 16px;
     color: #111;
   }
+  .sr-photos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    gap: 8px;
+    margin: 12px 0 16px;
+  }
+  .sr-photos img {
+    display: block;
+    width: 100%;
+    height: 96px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 1px solid #ececec;
+  }
   .sr-label {
     margin: 16px 0 6px;
     font-size: 14px;
@@ -184,6 +198,17 @@
       <h1>Страница заявки</h1>
       <p class="sr-meta">Заявка №{{ request_number }}</p>
       {% if vehicle %}<p class="sr-line">{{ vehicle }}</p>{% endif %}
+      {% if year %}<p class="sr-line">Год: {{ year }}</p>{% endif %}
+      {% if vin %}<p class="sr-line">VIN: {{ vin }}</p>{% endif %}
+      {% if photos %}
+        <div class="sr-photos">
+          {% for photo in photos %}
+            <a href="{{ photo.image.url }}" target="_blank" rel="noopener">
+              <img src="{{ photo.image.url }}" alt="Фото заявки">
+            </a>
+          {% endfor %}
+        </div>
+      {% endif %}
       {% if category %}<p class="sr-line">{{ category }}</p>{% endif %}
       {% if city %}<p class="sr-line">{{ city }}</p>{% endif %}
       {% if comment %}

@@ -78,10 +78,12 @@ def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
 
 
 def seller_allowed_for_dispatch(seller, settings: BroadcastSettings) -> bool:
+    if not getattr(seller, 'is_active', True) or getattr(seller, 'is_paused', False):
+        return False
     if settings.mode == BroadcastSettings.MODE_TEST:
         return bool(seller.is_test_seller)
     if settings.mode == BroadcastSettings.MODE_LIVE:
-        return True
+        return bool(getattr(seller, 'receive_requests', False))
     return False
 
 
@@ -475,6 +477,9 @@ def process_due_dispatch_waves(*, writer=None) -> dict:
 
             for dispatch in dispatches:
                 if not seller_allowed_for_dispatch(dispatch.seller, settings):
+                    if dispatch.status == RequestDispatch.STATUS_QUEUED:
+                        dispatch.status = RequestDispatch.STATUS_PAUSED
+                        dispatch.save(update_fields=['status'])
                     write(
                         f'Request #{request_id} wave {wave_number}: '
                         f'skip seller #{dispatch.seller_id} ({settings.mode} mode)',
