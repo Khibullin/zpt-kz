@@ -9,6 +9,7 @@ from django.core.management.base import CommandError
 from django.test import TestCase
 from openpyxl import Workbook
 
+from catalog.ag_parts_import import extract_article
 from catalog.data.rapido_pp2_2026_09_18 import (
     HOLD_DUPLICATE_ARTICLES,
     KNOWN_CHANGES,
@@ -17,6 +18,13 @@ from catalog.data.rapido_pp2_2026_09_18 import (
     RAPIDO_PP2_QTY,
     REFERENCE,
     rapido_pp2_before_qty,
+)
+from catalog.data.rapido_pp2_2026_09_18_1817 import (
+    KNOWN_CHANGES as KNOWN_CHANGES_1817,
+    NOTE as NOTE_1817,
+    RAPIDO_PP2_QTY as RAPIDO_PP2_1817_QTY,
+    REFERENCE as REFERENCE_1817,
+    rapido_pp2_before_qty as rapido_pp2_1817_before_qty,
 )
 from catalog.kaspi_stock_update_preview import (
     STATUS_HOLD_DUPLICATE,
@@ -110,6 +118,44 @@ class RapidoSnapshotContractTests(TestCase):
         self.assertEqual(len(before), 62)
         self.assertEqual(sum(before.values()), 1996)
         self.assertEqual(sum(before.values()) - sum(RAPIDO_PP2_QTY.values()), 98)
+        self.assertEqual(RAPIDO_PP2_QTY['151000187AA'], 37)
+        self.assertEqual(RAPIDO_PP2_QTY['1109140W5000'], 2)
+
+
+class RapidoSnapshot1817ContractTests(TestCase):
+    def test_snapshot_counts_and_deltas(self):
+        self.assertEqual(len(RAPIDO_PP2_1817_QTY), 62)
+        self.assertEqual(sum(RAPIDO_PP2_1817_QTY.values()), 1896)
+        self.assertEqual(set(RAPIDO_PP2_1817_QTY), set(RAPIDO_PP2_QTY))
+        self.assertEqual(len(KNOWN_CHANGES_1817), 2)
+        self.assertEqual(REFERENCE_1817, 'PP2-RAPIDO-2026-09-18-1817')
+        self.assertEqual(NOTE_1817, 'Rapido physical inventory snapshot 2026-09-18 18:17')
+        self.assertEqual(RAPIDO_PP2_QTY['151000187AA'], 37)
+        self.assertEqual(RAPIDO_PP2_QTY['1109140W5000'], 2)
+        self.assertEqual(RAPIDO_PP2_1817_QTY['151000187AA'], 36)
+        self.assertEqual(RAPIDO_PP2_1817_QTY['1109140W5000'], 1)
+        self.assertEqual(KNOWN_CHANGES_1817['151000187AA'], (37, 36))
+        self.assertEqual(KNOWN_CHANGES_1817['1109140W5000'], (2, 1))
+        before = rapido_pp2_1817_before_qty()
+        self.assertEqual(len(before), 62)
+        self.assertEqual(sum(before.values()), 1898)
+        self.assertEqual(sum(before.values()) - sum(RAPIDO_PP2_1817_QTY.values()), 2)
+        unchanged = [
+            article
+            for article, qty in RAPIDO_PP2_1817_QTY.items()
+            if article not in KNOWN_CHANGES_1817
+        ]
+        self.assertEqual(len(unchanged), 60)
+        for article in unchanged:
+            self.assertEqual(RAPIDO_PP2_1817_QTY[article], RAPIDO_PP2_QTY[article])
+
+    def test_cabin_filter_row_extracts_exact_article(self):
+        article, article_key = extract_article('Салонный фильтр 8104400XP24BA')
+        self.assertEqual(article, '8104400XP24BA')
+        self.assertEqual(article_key, '8104400XP24BA')
+        self.assertIn('8104400XP24BA', RAPIDO_PP2_1817_QTY)
+        exact, _key = extract_article('8104400XP24BA')
+        self.assertEqual(exact, '8104400XP24BA')
 
 
 class WarehouseReconciliationTests(TestCase):
@@ -397,6 +443,100 @@ class WarehouseReconciliationTests(TestCase):
             ),
             1898,
         )
+
+    def test_rapido_1817_dry_run_against_current_pp2(self):
+        for article, qty in RAPIDO_PP2_QTY.items():
+            product = _make_product(self.seller, article)
+            _open_stock(product, self.pp2, qty)
+        first = Product.objects.get(article='234349636')
+        _open_stock(first, self.pp1, 4630)
+        opening_moves = StockMovement.objects.count()
+
+        result = reconcile_warehouse_inventory(
+            mapping=RAPIDO_PP2_1817_QTY,
+            warehouse_code=WAREHOUSE_CODE_PP2,
+            reference=REFERENCE_1817,
+            note=NOTE_1817,
+            apply=False,
+        )
+        summary = result.summary
+        self.assertEqual(summary['source_rows'], 62)
+        self.assertEqual(summary['matched'], 62)
+        self.assertEqual(summary['unmatched'], 0)
+        self.assertEqual(summary['source_total'], 1896)
+        self.assertEqual(summary['existing_pp2_total'], 1898)
+        self.assertEqual(summary['changed'], 2)
+        self.assertEqual(summary['unchanged'], 60)
+        self.assertEqual(summary['already_applied'], 0)
+        self.assertEqual(summary['net_delta'], -2)
+        self.assertEqual(summary['result_total'], 1896)
+        changed = [row for row in result.rows if row.status == STATUS_CHANGED]
+        changed_by_article = {row.article: row for row in changed}
+        self.assertEqual(set(changed_by_article), {'151000187AA', '1109140W5000'})
+        self.assertEqual(changed_by_article['151000187AA'].quantity_before, 37)
+        self.assertEqual(changed_by_article['151000187AA'].quantity_after, 36)
+        self.assertEqual(changed_by_article['151000187AA'].quantity_delta, -1)
+        self.assertEqual(changed_by_article['1109140W5000'].quantity_before, 2)
+        self.assertEqual(changed_by_article['1109140W5000'].quantity_after, 1)
+        self.assertEqual(changed_by_article['1109140W5000'].quantity_delta, -1)
+        self.assertEqual(StockMovement.objects.count(), opening_moves)
+        self.assertEqual(get_stock_quantity(first, self.pp1), 4630)
+
+    def test_command_1817_dry_run_default(self):
+        for article, qty in RAPIDO_PP2_QTY.items():
+            _open_stock(_make_product(self.seller, article), self.pp2, qty)
+        out = StringIO()
+        call_command(
+            'reconcile_warehouse_inventory',
+            '--warehouse',
+            'PP2',
+            '--snapshot',
+            'rapido-2026-09-18-1817',
+            '--reference',
+            'PP2-RAPIDO-2026-09-18-1817',
+            stdout=out,
+        )
+        text = out.getvalue()
+        self.assertIn('mode: dry-run', text)
+        self.assertIn('reference: PP2-RAPIDO-2026-09-18-1817', text)
+        self.assertIn('source rows = 62', text)
+        self.assertIn('matched = 62', text)
+        self.assertIn('unmatched = 0', text)
+        self.assertIn('source total = 1896', text)
+        self.assertIn('existing PP2 total = 1898', text)
+        self.assertIn('changed = 2', text)
+        self.assertIn('unchanged = 60', text)
+        self.assertIn('already applied = 0', text)
+        self.assertIn('net delta = -2', text)
+        self.assertIn('result total = 1896', text)
+        self.assertIn('151000187AA\t37 -> 36 delta=-1', text)
+        self.assertIn('1109140W5000\t2 -> 1 delta=-1', text)
+        self.assertEqual(
+            sum(
+                ProductWarehouseStock.objects.filter(warehouse=self.pp2).values_list(
+                    'quantity', flat=True
+                )
+            ),
+            1898,
+        )
+        self.assertFalse(
+            StockMovement.objects.filter(source=SOURCE_RAPIDO).exists()
+        )
+
+    def test_rapido_product_column_extracts_cabin_filter_article(self):
+        product = _make_product(self.seller, '8104400XP24BA')
+        _open_stock(product, self.pp2, 20)
+        with TemporaryDirectory() as tmp:
+            path = Path(tmp) / 'rapido_cabin.xlsx'
+            _xlsx(
+                path,
+                [(20, 'Салонный фильтр 8104400XP24BA')],
+                headers=('Кол-во', 'Продукт'),
+            )
+            result = self._reconcile(path=path, apply=False)
+        self.assertEqual(result.rows[0].article, '8104400XP24BA')
+        self.assertEqual(result.rows[0].status, STATUS_UNCHANGED)
+        self.assertEqual(result.rows[0].product_id, product.pk)
 
 
 class KaspiStockPreviewTests(TestCase):

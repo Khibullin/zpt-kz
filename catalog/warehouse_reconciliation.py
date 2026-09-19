@@ -14,7 +14,7 @@ from pathlib import Path
 
 from django.db import transaction
 
-from catalog.ag_parts_import import cell_text, normalize_header
+from catalog.ag_parts_import import cell_text, extract_article, normalize_header
 from catalog.models import Product, ProductWarehouseStock, StockMovement, Warehouse
 from catalog.stock_service import StockServiceError, apply_stock_movement, resolve_warehouse
 from catalog.warehouse_stock_sync import parse_stock_quantity
@@ -167,10 +167,11 @@ def snapshot_rows_from_file(path: Path) -> tuple[list[ReconciliationRow], str, l
         raise ValueError(f'quantity_column_not_found. headers={headers}')
     rows = []
     for row_number, values in data_rows:
+        article, _article_key = extract_article(_cell_at(values, article_idx))
         rows.append(
             ReconciliationRow(
                 row_number=row_number,
-                article=cell_text(_cell_at(values, article_idx)),
+                article=article,
                 raw_qty=_cell_at(values, qty_idx),
             )
         )

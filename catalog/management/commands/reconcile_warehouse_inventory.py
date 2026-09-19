@@ -2,7 +2,16 @@ from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 
-from catalog.data.rapido_pp2_2026_09_18 import NOTE, RAPIDO_PP2_QTY, REFERENCE
+from catalog.data.rapido_pp2_2026_09_18 import (
+    NOTE as NOTE_RAPIDO_0918,
+    RAPIDO_PP2_QTY,
+    REFERENCE as REFERENCE_RAPIDO_0918,
+)
+from catalog.data.rapido_pp2_2026_09_18_1817 import (
+    NOTE as NOTE_RAPIDO_0918_1817,
+    RAPIDO_PP2_QTY as RAPIDO_PP2_1817_QTY,
+    REFERENCE as REFERENCE_RAPIDO_0918_1817,
+)
 from catalog.models import Product, ProductKaspiListing, ProductWarehouseStock, StockMovement
 from catalog.warehouse_reconciliation import (
     STATUS_ALREADY_APPLIED,
@@ -13,10 +22,31 @@ from catalog.warehouse_reconciliation import (
 )
 from catalog.warehouses import WAREHOUSE_CODE_PP1, WAREHOUSE_CODE_PP2
 
-SNAPSHOT_ALIASES = {
-    'rapido-2026-09-18': RAPIDO_PP2_QTY,
-    'PP2-RAPIDO-2026-09-18': RAPIDO_PP2_QTY,
+SNAPSHOTS = {
+    'rapido-2026-09-18': (
+        RAPIDO_PP2_QTY,
+        REFERENCE_RAPIDO_0918,
+        NOTE_RAPIDO_0918,
+    ),
+    'PP2-RAPIDO-2026-09-18': (
+        RAPIDO_PP2_QTY,
+        REFERENCE_RAPIDO_0918,
+        NOTE_RAPIDO_0918,
+    ),
+    'rapido-2026-09-18-1817': (
+        RAPIDO_PP2_1817_QTY,
+        REFERENCE_RAPIDO_0918_1817,
+        NOTE_RAPIDO_0918_1817,
+    ),
+    'PP2-RAPIDO-2026-09-18-1817': (
+        RAPIDO_PP2_1817_QTY,
+        REFERENCE_RAPIDO_0918_1817,
+        NOTE_RAPIDO_0918_1817,
+    ),
 }
+SNAPSHOT_ALIASES = {name: spec[0] for name, spec in SNAPSHOTS.items()}
+NOTE = NOTE_RAPIDO_0918
+REFERENCE = REFERENCE_RAPIDO_0918
 
 
 class Command(BaseCommand):
@@ -44,17 +74,17 @@ class Command(BaseCommand):
         parser.add_argument(
             '--snapshot',
             default='',
-            help='Встроенный снимок, например rapido-2026-09-18.',
+            help='Встроенный снимок, например rapido-2026-09-18-1817.',
         )
         parser.add_argument(
             '--reference',
-            default=REFERENCE,
-            help=f'Идемпотентный reference. По умолчанию {REFERENCE}.',
+            default='',
+            help='Идемпотентный reference. По умолчанию — reference выбранного снимка.',
         )
         parser.add_argument(
             '--note',
-            default=NOTE,
-            help='Комментарий StockMovement.',
+            default='',
+            help='Комментарий StockMovement. По умолчанию — note выбранного снимка.',
         )
         parser.add_argument(
             '--apply',
@@ -69,14 +99,21 @@ class Command(BaseCommand):
             raise CommandError('Укажите ровно один источник: --file или --snapshot.')
         mapping = None
         path = None
+        reference = str(options.get('reference') or '').strip()
+        note = str(options.get('note') or '').strip()
         if snapshot_name:
-            mapping = SNAPSHOT_ALIASES.get(snapshot_name)
-            if mapping is None:
+            spec = SNAPSHOTS.get(snapshot_name)
+            if spec is None:
                 raise CommandError(f'unknown_snapshot:{snapshot_name}')
+            mapping, snap_reference, snap_note = spec
+            reference = reference or snap_reference
+            note = note or snap_note
         else:
             path = Path(file_path)
             if not path.exists():
                 raise CommandError(f'Не найден файл: {path}')
+            reference = reference or REFERENCE
+            note = note or NOTE
 
         apply = bool(options['apply'])
         before = _safety_snapshot()
@@ -85,8 +122,8 @@ class Command(BaseCommand):
                 path=path,
                 mapping=mapping,
                 warehouse_code=str(options['warehouse'] or '').strip(),
-                reference=str(options['reference'] or '').strip(),
-                note=str(options['note'] or '').strip(),
+                reference=reference,
+                note=note,
                 apply=apply,
             )
         except ValueError as exc:
