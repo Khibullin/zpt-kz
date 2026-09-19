@@ -234,7 +234,6 @@
     }
 
     const formData = new FormData(form);
-    formData.set('consent', document.getElementById('home-consent').checked ? '1' : '');
     const key = getIdempotencyKey();
     formData.set('idempotency_key', key);
 

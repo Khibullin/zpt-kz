@@ -80,6 +80,9 @@ class CatalogEmptyStateTests(TestCase):
         self.assertNotContains(response, 'id="catalog-empty-state"')
         self.assertNotContains(response, 'Не нашли нужную запчасть?')
         self.assertNotContains(response, 'class="b2c-request-banner"')
+        self.assertContains(response, 'Запчасти в наличии')
+        self.assertContains(response, 'Тормозные колодки')
+        self.assertContains(response, 'Смотреть все')
         self.assertContains(response, 'Для оптовых покупателей')
         self.assertContains(response, 'href="/seller/ag-parts/wholesale/"')
         self.assertContains(
@@ -126,13 +129,14 @@ class CatalogEmptyStateTests(TestCase):
         html = response.content.decode()
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, 'id="catalog-results"')
+        self.assertContains(response, 'id="catalog-results"')
         self.assertNotRegex(
             html,
             r'id="catalog-results"[^>]*data-catalog-scroll="results"',
         )
         self.assertNotContains(response, 'id="catalog-empty-state"')
         self.assertContains(response, 'Какая запчасть вам нужна?')
+        self.assertContains(response, 'Запчасти в наличии')
 
     def test_filters_without_query_show_filter_empty_state(self):
         country = Country.objects.create(name='Япония')
@@ -211,6 +215,17 @@ class CatalogHeroLayoutTests(TestCase):
         self.assertContains(response, 'Название или артикул запчасти')
         self.assertContains(response, 'Найти запчасть')
         self.assertContains(response, 'id="home-parts-form"')
+        self.assertContains(response, 'Запчасти в наличии')
+        self.assertContains(response, 'Ремень ГРМ')
+        self.assertContains(response, 'Смотреть все')
+        self.assertNotContains(response, 'id="home-consent"')
+        self.assertNotContains(response, 'name="consent"')
+        self.assertContains(
+            response,
+            'Нажимая кнопку, вы соглашаетесь на',
+        )
+        self.assertContains(response, 'href="/privacy/"')
+        self.assertContains(response, '>обработку данных</a>')
         self.assertNotContains(response, 'Поиск по артикулу или названию')
         self.assertNotContains(response, 'Подбор по марке и модели')
         self.assertNotContains(response, 'Найти по авто')
@@ -261,3 +276,51 @@ class CatalogHeroLayoutTests(TestCase):
         self.assertNotContains(response, 'Не нашли нужную запчасть?')
         self.assertContains(response, 'Для оптовых покупателей')
         self.assertContains(response, 'Продаете запчасти в Казахстане?')
+
+
+class HomeShowcaseVisibilityTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            username='showcase_seller',
+            password='testpass123',
+        )
+        self.seller = SellerProfile.objects.create(
+            user=self.user,
+            name='Showcase Seller',
+            phone='77001113355',
+            city='Алматы',
+        )
+
+    def test_hidden_product_is_not_on_home_showcase(self):
+        Product.objects.create(
+            title='Скрытый товар витрины',
+            slug='hidden-home-item',
+            article='HID-1',
+            price=1000,
+            seller_name=self.seller.name,
+            whatsapp_number=self.seller.phone,
+            status='hidden',
+            city='Алматы',
+        )
+        Product.objects.create(
+            title='Публичный товар витрины',
+            slug='public-home-item',
+            article='PUB-1',
+            price=2000,
+            seller_name=self.seller.name,
+            whatsapp_number=self.seller.phone,
+            status='active',
+            city='Алматы',
+        )
+        response = self.client.get(reverse('catalog_list'))
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Запчасти в наличии')
+        self.assertContains(response, 'Публичный товар витрины')
+        self.assertNotContains(response, 'Скрытый товар витрины')
+        html = response.content.decode()
+        results = html.find('id="catalog-results"')
+        seo = html.find('id="home-seo-heading"')
+        b2b = html.find('class="hero-b2b-strip"')
+        self.assertGreater(results, b2b)
+        self.assertGreater(seo, results)

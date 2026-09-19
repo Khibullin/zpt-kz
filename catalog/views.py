@@ -476,10 +476,12 @@ def catalog_list(request):
     if viewer_is_seller:
         products = b2b_prefetch(products)
 
-    if is_listing and not is_home_result_param:
+    if is_home_result_param:
+        products = products.none()
+    elif is_listing:
         products = products.order_by('-created_at')
     else:
-        products = products.none()
+        products = products.order_by('?')[:12]
 
     products = attach_sellers_to_products(products)
     attach_b2b_offers(products, enabled=viewer_is_seller)

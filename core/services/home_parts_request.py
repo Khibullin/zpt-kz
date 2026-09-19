@@ -9,7 +9,13 @@ from django.db import IntegrityError, transaction
 from django.utils import timezone
 
 from core.models import (
+    CONTACT_CONSENT_CHANNEL_WHATSAPP,
+    CONTACT_CONSENT_PURPOSE_SERVICE,
+    CONTACT_CONSENT_SOURCE_REQUEST_FORM,
+    CONTACT_CONSENT_STATUS_GRANTED,
+    CONTACT_CONSENT_STATUS_UNKNOWN,
     BroadcastSettings,
+    ContactConsent,
     Request,
     RequestDispatch,
 )
@@ -34,7 +40,11 @@ MODEL_MAX_LENGTH = 100
 VIN_MIN_LENGTH = 6
 VIN_MAX_LENGTH = 17
 YEAR_MIN = 1950
-CONSENT_TRUE_VALUES = {'1', 'true', 'on', 'yes', 'да'}
+HOME_PARTS_CONSENT_TEXT_VERSION = 'home_parts_submit_v1'
+HOME_PARTS_CONSENT_NOTICE = (
+    'Нажимая кнопку, вы соглашаетесь на обработку данных '
+    'и передачу запроса и телефона продавцам для подбора запчасти.'
+)
 ACCEPTED_MESSAGE = 'Запрос принят. Ожидайте предложения в WhatsApp.'
 SAVED_WITHOUT_BROADCAST_MESSAGE = (
     'Запрос принят. Сейчас предложения в WhatsApp отправить не можем — заявка сохранена.'
@@ -62,18 +72,11 @@ class HomePartsPayload:
     model_id: str = ''
     year: int | None = None
     vin: str = ''
-    consent: bool = False
     idempotency_key: str = ''
     positions: list[str] = field(default_factory=list)
     vehicle_country: str = ''
     transport_type: str = ''
     article: str = ''
-
-
-def _truthy(value) -> bool:
-    if isinstance(value, bool):
-        return value
-    return str(value or '').strip().lower() in CONSENT_TRUE_VALUES
 
 
 def _current_max_year() -> int:
@@ -117,12 +120,6 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
         raise HomePartsRequestError(
             'Укажите город.',
             fields={'city': 'Укажите город.'},
-        )
-
-    if not _truthy(data.get('consent')):
-        raise HomePartsRequestError(
-            'Нужно согласие на обработку данных и передачу запроса продавцам.',
-            fields={'consent': 'Подтвердите согласие, чтобы отправить запрос.'},
         )
 
     phone = normalize_phone_for_whatsapp(data.get('phone') or data.get('whatsapp'))
@@ -190,7 +187,6 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
         model_id=str(vehicle.model_id or ''),
         year=year,
         vin=vin,
-        consent=True,
         idempotency_key=key,
         positions=positions,
         vehicle_country=vehicle.country,
@@ -412,3 +408,47 @@ def search_catalog_safe(payload: HomePartsPayload):
     except Exception:
         logger.exception('Homepage catalog search failed')
         return [], [], True
+
+
+def record_home_parts_service_consent(request_id: int) -> None:
+    """Record service (not marketing) consent after an explicit homepage submit."""
+    req = (
+        Request.objects.select_related('buyer_contact')
+        .filter(pk=request_id, source=Request.SOURCE_HOME_SHORT)
+        .first()
+    )
+    if req is None or req.buyer_contact_id is None:
+        return
+
+    now = timezone.now()
+    consent, created = ContactConsent.objects.get_or_create(
+        buyer=req.buyer_contact,
+        channel=CONTACT_CONSENT_CHANNEL_WHATSAPP,
+        purpose=CONTACT_CONSENT_PURPOSE_SERVICE,
+        defaults={
+            'status': CONTACT_CONSENT_STATUS_GRANTED,
+            'source': CONTACT_CONSENT_SOURCE_REQUEST_FORM,
+            'consent_text_version': HOME_PARTS_CONSENT_TEXT_VERSION,
+            'consented_at': now,
+            'evidence_reference': f'home_parts_request:{req.pk}',
+        },
+    )
+    if created:
+        return
+    if consent.status != CONTACT_CONSENT_STATUS_UNKNOWN:
+        return
+    consent.status = CONTACT_CONSENT_STATUS_GRANTED
+    consent.source = CONTACT_CONSENT_SOURCE_REQUEST_FORM
+    consent.consent_text_version = HOME_PARTS_CONSENT_TEXT_VERSION
+    consent.consented_at = now
+    consent.evidence_reference = f'home_parts_request:{req.pk}'
+    consent.save(
+        update_fields=[
+            'status',
+            'source',
+            'consent_text_version',
+            'consented_at',
+            'evidence_reference',
+            'updated_at',
+        ],
+    )

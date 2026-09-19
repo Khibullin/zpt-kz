@@ -565,17 +565,15 @@ a.hero-b2b-strip-btn:hover,
   list-style:none;
 }
 .home-parts-extra summary::-webkit-details-marker{display:none;}
-.home-parts-consent{
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
+.home-parts-consent-note{
+  margin:8px 0 0;
   font-size:13px;
   line-height:1.45;
   color:#4b5563;
 }
-.home-parts-consent input{
-  margin-top:3px;
-  flex-shrink:0;
+.home-parts-consent-note a{
+  color:#111827;
+  text-decoration:underline;
 }
 .home-parts-submit{
   display:inline-flex;
@@ -642,8 +640,8 @@ a.hero-b2b-strip-btn:hover,
     grid-template-columns:1fr 1fr;
   }
   .home-parts-field-query,
-  .home-parts-consent,
   .home-parts-actions,
+  .home-parts-consent-note,
   .home-parts-extra{
     grid-column:1 / -1;
   }
@@ -767,17 +765,16 @@ a.hero-b2b-strip-btn:hover,
             </div>
           </details>
 
-          <label class="home-parts-consent">
-            <input id="home-consent" name="consent" type="checkbox" value="1" required>
-            <span>Согласен на обработку данных и передачу запроса и контакта продавцам для подбора запчасти. Это не согласие на рекламную рассылку.</span>
-          </label>
-          <p class="home-parts-error" data-error-for="consent" hidden></p>
-
           <p class="home-parts-form-error" id="home-parts-form-error" hidden></p>
 
           <div class="home-parts-actions">
             <button type="submit" class="home-parts-submit" id="home-parts-submit">Найти запчасть</button>
           </div>
+          <p class="home-parts-consent-note">
+            Нажимая кнопку, вы соглашаетесь на
+            <a href="{% url 'privacy' %}">обработку данных</a>
+            и передачу запроса и телефона продавцам для подбора запчасти.
+          </p>
         </div>
       </form>
 
@@ -922,7 +919,7 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v10"></script>
-<script src="{% static 'js/home-parts-form-v1.js' %}?v=3"></script>
+<script src="{% static 'js/home-parts-form-v1.js' %}?v=4"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {

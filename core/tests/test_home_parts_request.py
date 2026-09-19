@@ -21,12 +21,19 @@ from core.models import (
     Brand as CoreBrand,
     BroadcastSettings,
     CarModel as CoreCarModel,
+    CONTACT_CONSENT_PURPOSE_MARKETING,
+    CONTACT_CONSENT_PURPOSE_SERVICE,
+    CONTACT_CONSENT_SOURCE_REQUEST_FORM,
+    CONTACT_CONSENT_STATUS_GRANTED,
+    CONTACT_CONSENT_STATUS_REVOKED,
+    ContactConsent,
     Country as CoreCountry,
     Request,
     RequestDispatch,
     RequestPhoto,
     Seller,
 )
+from core.services.home_parts_request import HOME_PARTS_CONSENT_TEXT_VERSION
 from core.request_dispatch_service import process_due_dispatch_waves
 from core.tests.test_request_dispatch_waves import _ensure_broadcast_settings
 from django.contrib.auth.models import User
@@ -148,7 +155,6 @@ class HomePartsRequestTests(TestCase):
             'model_id': str(self.core_model.id),
             'city': 'Алматы',
             'phone': '87015556677',
-            'consent': '1',
             'idempotency_key': extra.pop('idempotency_key', 'key-home-1'),
         }
         data.update(extra)
@@ -216,7 +222,6 @@ class HomePartsRequestTests(TestCase):
             query='',
             phone='',
             city='',
-            consent='',
             idempotency_key='key-missing',
         )
         self.assertEqual(response.status_code, 400)
@@ -856,17 +861,90 @@ class HomePartsRequestTests(TestCase):
     def test_consent_is_not_marketing_opt_in(self):
         response, _, _ = self._post(idempotency_key='key-consent')
         self.assertEqual(response.status_code, 200)
-        from core.models import (
-            CONTACT_CONSENT_PURPOSE_MARKETING,
-            CONTACT_CONSENT_STATUS_GRANTED,
-            ContactConsent,
-        )
+        buyer = Request.objects.get().buyer_contact
+        self.assertIsNotNone(buyer)
         self.assertFalse(
             ContactConsent.objects.filter(
+                buyer=buyer,
                 purpose=CONTACT_CONSENT_PURPOSE_MARKETING,
                 status=CONTACT_CONSENT_STATUS_GRANTED,
             ).exists()
         )
+        service = ContactConsent.objects.get(
+            buyer=buyer,
+            purpose=CONTACT_CONSENT_PURPOSE_SERVICE,
+        )
+        self.assertEqual(service.status, CONTACT_CONSENT_STATUS_GRANTED)
+        self.assertEqual(service.source, CONTACT_CONSENT_SOURCE_REQUEST_FORM)
+        self.assertEqual(service.consent_text_version, HOME_PARTS_CONSENT_TEXT_VERSION)
+        self.assertIsNotNone(service.consented_at)
+        self.assertTrue(service.evidence_reference.startswith('home_parts_request:'))
+
+    def test_submit_without_consent_field_records_service_consent(self):
+        response, _, _ = self._post(idempotency_key='key-no-checkbox')
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(
+            ContactConsent.objects.filter(
+                purpose=CONTACT_CONSENT_PURPOSE_SERVICE,
+                status=CONTACT_CONSENT_STATUS_GRANTED,
+            ).count(),
+            1,
+        )
+
+    def test_vehicle_suggest_does_not_record_consent(self):
+        response = self.client.get('/api/vehicle-suggest/', {'kind': 'brand', 'q': 'toy'})
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(ContactConsent.objects.exists())
+
+    def test_existing_revoked_service_consent_is_not_overwritten(self):
+        first, _, _ = self._post(idempotency_key='key-consent-first')
+        self.assertEqual(first.status_code, 200, first.content)
+        buyer = Request.objects.get().buyer_contact
+        consent = buyer.consents.get(purpose=CONTACT_CONSENT_PURPOSE_SERVICE)
+        revoked_at = timezone.now()
+        consent.status = CONTACT_CONSENT_STATUS_REVOKED
+        consent.revoked_at = revoked_at
+        consent.save(update_fields=['status', 'revoked_at', 'updated_at'])
+        second, _, _ = self._post(
+            query='масляный фильтр',
+            idempotency_key='key-consent-second',
+        )
+        self.assertEqual(second.status_code, 200, second.content)
+        consent.refresh_from_db()
+        self.assertEqual(consent.status, CONTACT_CONSENT_STATUS_REVOKED)
+        self.assertEqual(consent.revoked_at, revoked_at)
+
+    def test_home_result_shows_relevant_hits_not_random_showcase(self):
+        Product.objects.create(
+            title='тормозные колодки Camry',
+            slug='pads-result-hit',
+            article='PAD-HIT',
+            price=1000,
+            seller_name=self.profile.name,
+            whatsapp_number=self.profile.phone,
+            status='active',
+            brand=self.catalog_brand,
+            car_model=self.catalog_model,
+        )
+        Product.objects.create(
+            title='Случайный товар витрины XYZ',
+            slug='random-showcase-xyz',
+            article='RND-XYZ',
+            price=9000,
+            seller_name=self.profile.name,
+            whatsapp_number=self.profile.phone,
+            status='active',
+        )
+        response, _, _ = self._post(idempotency_key='key-result-hits')
+        self.assertEqual(response.status_code, 200, response.content)
+        req = Request.objects.get()
+        page = self.client.get('/', {'home_request': str(req.access_token)})
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'тормозные колодки Camry')
+        self.assertContains(page, 'id="home-request-result"')
+        self.assertNotContains(page, 'Случайный товар витрины XYZ')
+        html = page.content.decode()
+        self.assertNotIn('id="catalog-results"', html)
 
 
 class VehicleSuggestTests(TestCase):

@@ -1049,6 +1049,19 @@ def _sync_buyer_contact_safely(request_id: int) -> None:
         )
 
 
+def _sync_home_parts_buyer_and_consent(request_id: int) -> None:
+    from core.services.home_parts_request import record_home_parts_service_consent
+
+    _sync_buyer_contact_safely(request_id)
+    try:
+        record_home_parts_service_consent(request_id)
+    except Exception:
+        logger.exception(
+            'Home parts service consent failed for request #%s',
+            request_id,
+        )
+
+
 def _log_create_request_timing(request_id: int, stage: str, started: float) -> None:
     elapsed_ms = (time.perf_counter() - started) * 1000
     logger.info(
@@ -1242,7 +1255,6 @@ def create_home_parts_request(request):
         'vin': request.POST.get('vin', ''),
         'city': request.POST.get('city', ''),
         'phone': request.POST.get('phone') or request.POST.get('whatsapp', ''),
-        'consent': request.POST.get('consent', ''),
         'idempotency_key': request.POST.get('idempotency_key', ''),
     }
     header_key = (request.headers.get('Idempotency-Key') or '').strip()
@@ -1307,7 +1319,9 @@ def create_home_parts_request(request):
                 exc_info=True,
             )
         transaction.on_commit(
-            lambda request_id=request_id: _sync_buyer_contact_safely(request_id)
+            lambda request_id=request_id: _sync_home_parts_buyer_and_consent(
+                request_id
+            )
         )
         transaction.on_commit(
             lambda: schedule_instagram_publication_for_request(request_id)
