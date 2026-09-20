@@ -146,7 +146,38 @@ def _read_cart_add_payload(request, path_product_id=None):
 
     if path_product_id is not None:
         data['product_id'] = path_product_id
+    if 'product_id' in data:
+        data['product_id'] = _sanitize_product_id(data.get('product_id'))
     return data
+
+
+def _sanitize_product_id(raw):
+    """Normalize product_id; allow only digits with optional thousand separators.
+
+    Defensive fallback for localized HTML IDs (space / NBSP / narrow NBSP).
+    Rejects garbage like ``21abc52`` or ``2.152`` — does not glue digits.
+    """
+    if raw is None or isinstance(raw, bool):
+        return None
+    if isinstance(raw, int):
+        return raw if raw > 0 else None
+    if isinstance(raw, float):
+        if raw.is_integer() and raw > 0:
+            return int(raw)
+        return None
+
+    text = str(raw).strip()
+    if not text:
+        return None
+    for sep in ('\u0020', '\u00a0', '\u202f'):
+        text = text.replace(sep, '')
+    if not text.isdigit():
+        return None
+    try:
+        value = int(text)
+    except (TypeError, ValueError):
+        return None
+    return value if value > 0 else None
 
 
 def _find_local_product(product_id=None, article=None, supplier=None):
@@ -160,16 +191,11 @@ def _find_local_product(product_id=None, article=None, supplier=None):
     supplier_str = str(supplier or '').strip() or Product.SUPPLIER_LOCAL
     active = Product.objects.filter(status='active')
 
-    if product_id is not None and str(product_id).strip() != '':
-        try:
-            pk = int(product_id)
-        except (TypeError, ValueError):
-            pk = None
-
-        if pk is not None:
-            product = active.filter(pk=pk).first()
-            if product:
-                return product, 'pk'
+    pk = _sanitize_product_id(product_id)
+    if pk is not None:
+        product = active.filter(pk=pk).first()
+        if product:
+            return product, 'pk'
 
     if article_str:
         product = active.filter(

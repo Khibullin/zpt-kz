@@ -1,12 +1,13 @@
+{% load l10n %}
 {% with stock=product.public_stock show_wholesale=product.has_public_wholesale %}
 {% if not product.price_on_request or viewer_is_seller and product.has_b2b_buy_offer %}
 {% if not stock or stock.can_buy %}
 <div
   class="product-buy-controls"
-  data-product-id="{{ product.id }}"
+  data-product-id="{{ product.id|unlocalize }}"
   data-product-article="{{ product.article|default:'' }}"
   data-product-supplier="{{ product.supplier|default:'local' }}"
-  {% if stock.qty %}data-max-qty="{{ stock.qty }}"{% endif %}
+  {% if stock.qty %}data-max-qty="{{ stock.qty|unlocalize }}"{% endif %}
 >
   <div class="product-qty-row">
     <button type="button" class="qty-btn" data-qty-minus aria-label="Уменьшить количество">−</button>
@@ -26,7 +27,7 @@
       class="product-buy-btn product-buy-btn--retail"
       data-cart-add
       data-cart-mode="retail"
-      data-product-id="{{ product.id }}"
+      data-product-id="{{ product.id|unlocalize }}"
       data-product-article="{{ product.article|default:'' }}"
       data-product-supplier="{{ product.supplier|default:'local' }}"
     >
@@ -39,7 +40,7 @@
       class="product-buy-btn product-buy-btn--wholesale"
       data-cart-add
       data-cart-mode="wholesale"
-      data-product-id="{{ product.id }}"
+      data-product-id="{{ product.id|unlocalize }}"
       data-product-article="{{ product.article|default:'' }}"
       data-product-supplier="{{ product.supplier|default:'local' }}"
     >

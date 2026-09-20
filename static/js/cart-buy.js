@@ -16,6 +16,30 @@
     return getCookie('csrftoken');
   }
 
+  /**
+   * Parse machine IDs/qty. Accepts numbers; for strings only strips
+   * thousand separators (space / NBSP / NNBSP), then requires /^\d+$/.
+   */
+  function parsePositiveInt(raw) {
+    if (typeof raw === 'number') {
+      if (!Number.isFinite(raw) || !Number.isInteger(raw) || raw <= 0) {
+        return NaN;
+      }
+      return raw;
+    }
+    if (raw == null) {
+      return NaN;
+    }
+    const text = String(raw)
+      .trim()
+      .replace(/[\u0020\u00A0\u202F]/g, '');
+    if (!/^\d+$/.test(text)) {
+      return NaN;
+    }
+    const value = parseInt(text, 10);
+    return value > 0 ? value : NaN;
+  }
+
   function parseJsonResponse(response) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
@@ -26,7 +50,17 @@
         );
       });
     }
-    return response.json();
+    return response.json().then(function (data) {
+      if (!response.ok && data && !(data.ok || data.success)) {
+        const message =
+          data.message || data.error || ('Ошибка сервера (код ' + response.status + ')');
+        const error = new Error(message);
+        error.payload = data;
+        error.status = response.status;
+        throw error;
+      }
+      return data;
+    });
   }
 
   function updateCartBadge(count) {
@@ -117,13 +151,16 @@
     return '';
   }
 
-    function readMaxQty(root) {
+  function readMaxQty(root) {
+    if (!root) {
+      return null;
+    }
     const raw = root.getAttribute('data-max-qty');
     if (!raw) {
       return null;
     }
-    const maxQty = parseInt(raw, 10);
-    return Number.isFinite(maxQty) && maxQty > 0 ? maxQty : null;
+    const maxQty = parsePositiveInt(raw);
+    return Number.isFinite(maxQty) ? maxQty : null;
   }
 
   function bindQtyControls(root) {
@@ -138,7 +175,8 @@
     const maxQty = readMaxQty(root);
 
     function readQty() {
-      return Math.max(1, parseInt(input.value, 10) || 1);
+      const qty = parsePositiveInt(input.value);
+      return Number.isFinite(qty) ? qty : 1;
     }
 
     function clampQty(value) {
@@ -174,9 +212,13 @@
 
     buttons.forEach(function (buyButton) {
       buyButton.addEventListener('click', function (event) {
+        event.preventDefault();
         const button = event.currentTarget;
-        const idRaw = readProductIdFromButton(button);
-        const productId = parseInt(String(idRaw || '').trim(), 10);
+        if (button.disabled || button.getAttribute('data-cart-busy') === '1') {
+          return;
+        }
+
+        const productId = parsePositiveInt(readProductIdFromButton(button));
         const article = readDataAttrFromButton(button, 'data-product-article').trim();
         const supplier = readDataAttrFromButton(button, 'data-product-supplier').trim();
 
@@ -193,13 +235,17 @@
 
         const controls = button.closest('.product-buy-controls');
         const maxQty = readMaxQty(controls || root);
-        let quantity = Math.max(1, parseInt(qtyInput ? qtyInput.value : '1', 10) || 1);
+        let quantity = parsePositiveInt(qtyInput ? qtyInput.value : '1');
+        if (!Number.isFinite(quantity)) {
+          quantity = 1;
+        }
         if (maxQty != null) {
           quantity = Math.min(quantity, maxQty);
         }
         const cartMode = (button.getAttribute('data-cart-mode') || '').trim() || 'retail';
 
         button.disabled = true;
+        button.setAttribute('data-cart-busy', '1');
 
         const payload = {
           product_id: Number.isFinite(productId) && productId > 0 ? productId : null,
@@ -233,11 +279,13 @@
                 /* ignore */
               });
             }
+            button.removeAttribute('data-cart-busy');
             setBuyButtonSuccess(button);
           })
           .catch(function (error) {
             window.alert(error.message || 'Ошибка добавления в корзину');
             button.disabled = false;
+            button.removeAttribute('data-cart-busy');
           });
       });
     });

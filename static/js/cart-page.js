@@ -15,6 +15,30 @@
     return getCookie('csrftoken');
   }
 
+  /**
+   * Parse machine IDs/qty. Accepts numbers; for strings only strips
+   * thousand separators (space / NBSP / NNBSP), then requires /^\d+$/.
+   */
+  function parsePositiveInt(raw) {
+    if (typeof raw === 'number') {
+      if (!Number.isFinite(raw) || !Number.isInteger(raw) || raw <= 0) {
+        return NaN;
+      }
+      return raw;
+    }
+    if (raw == null) {
+      return NaN;
+    }
+    const text = String(raw)
+      .trim()
+      .replace(/[\u0020\u00A0\u202F]/g, '');
+    if (!/^\d+$/.test(text)) {
+      return NaN;
+    }
+    const value = parseInt(text, 10);
+    return value > 0 ? value : NaN;
+  }
+
   function parseJsonResponse(response) {
     const contentType = response.headers.get('content-type') || '';
     if (!contentType.includes('application/json')) {
@@ -76,7 +100,8 @@
 
   function readQuantity(controls) {
     const input = controls.querySelector('.cart-qty-input');
-    return Math.max(1, parseInt(input ? input.value : '1', 10) || 1);
+    const qty = parsePositiveInt(input ? input.value : '1');
+    return Number.isFinite(qty) ? qty : 1;
   }
 
   function setQuantityInput(controls, quantity) {
@@ -208,7 +233,7 @@
     }
 
     const idRaw = button.getAttribute('data-product-id') || readProductIdFromButton(button);
-    const productId = parseInt(String(idRaw || '').trim(), 10);
+    const productId = parsePositiveInt(idRaw);
     const article = readDataAttr(button, 'data-product-article').trim();
     const supplier = readDataAttr(button, 'data-product-supplier').trim();
     const currentQty = readQuantity(controls);

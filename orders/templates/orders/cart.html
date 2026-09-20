@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize product_extras %}
+{% load static humanize l10n product_extras %}
 
 {% block title %}{% if is_wholesale_cart %}Оптовая корзина{% else %}Корзина{% endif %} — ZPT Market{% endblock %}
 
@@ -53,7 +53,7 @@
             {% for item in items %}
               <li
                 class="checkout-summary-item cart-line-item"
-                data-product-id="{{ item.product.id }}"
+                data-product-id="{{ item.product.id|unlocalize }}"
                 data-product-article="{{ item.product.article|default:'' }}"
                 data-product-supplier="{{ item.product.supplier|default:'local' }}"
               >
@@ -72,39 +72,39 @@
 
                   <div
                     class="cart-qty-controls product-qty-row"
-                    data-product-id="{{ item.product.id }}"
+                    data-product-id="{{ item.product.id|unlocalize }}"
                     data-product-article="{{ item.product.article|default:'' }}"
                     data-product-supplier="{{ item.product.supplier|default:'local' }}"
-                    data-price="{{ item.unit_price }}"
+                    data-price="{{ item.unit_price|unlocalize }}"
                   >
                     <button
                       type="button"
                       class="cart-minus qty-btn"
-                      data-product-id="{{ item.product.id }}"
+                      data-product-id="{{ item.product.id|unlocalize }}"
                       data-product-article="{{ item.product.article|default:'' }}"
                       data-product-supplier="{{ item.product.supplier|default:'local' }}"
-                      data-price="{{ item.unit_price }}"
+                      data-price="{{ item.unit_price|unlocalize }}"
                       aria-label="Уменьшить количество"
                       {% if item.quantity <= 1 %}disabled{% endif %}
                     >−</button>
                     <input
                       type="text"
                       class="cart-qty-input qty-input"
-                      value="{{ item.quantity }}"
+                      value="{{ item.quantity|unlocalize }}"
                       readonly
                       tabindex="-1"
                       aria-label="Количество"
-                      data-product-id="{{ item.product.id }}"
+                      data-product-id="{{ item.product.id|unlocalize }}"
                       data-product-article="{{ item.product.article|default:'' }}"
                       data-product-supplier="{{ item.product.supplier|default:'local' }}"
                     >
                     <button
                       type="button"
                       class="cart-plus qty-btn"
-                      data-product-id="{{ item.product.id }}"
+                      data-product-id="{{ item.product.id|unlocalize }}"
                       data-product-article="{{ item.product.article|default:'' }}"
                       data-product-supplier="{{ item.product.supplier|default:'local' }}"
-                      data-price="{{ item.unit_price }}"
+                      data-price="{{ item.unit_price|unlocalize }}"
                       aria-label="Увеличить количество"
                     >+</button>
                   </div>
@@ -161,6 +161,6 @@
     updateUrl: '{% url "orders:cart_update_quantity" %}',
   };
 </script>
-<script src="{% static 'js/cart-page.js' %}?v=cart_page_v4"></script>
+<script src="{% static 'js/cart-page.js' %}?v=cart_page_v5"></script>
 {% endif %}
 {% endblock %}
