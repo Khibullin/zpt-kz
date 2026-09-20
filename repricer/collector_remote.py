@@ -52,6 +52,7 @@ class RemoteListing:
     master_sku: str
     merchant_sku: str
     last_known_our_price: int | None = None
+    public_url: str = ""
 
 
 @dataclass(frozen=True)
@@ -147,6 +148,7 @@ def _parse_listing_row(row: dict) -> RemoteListing | None:
         master_sku=str(row.get("master_sku") or ""),
         merchant_sku=str(row.get("merchant_sku") or ""),
         last_known_our_price=last_price,
+        public_url=str(row.get("public_url") or ""),
     )
 
 
@@ -450,7 +452,11 @@ def collect_remote_listings(
             )
             continue
         product_id = (
-            kaspi_public_product_id(listing.master_sku, merchant_sku=listing.merchant_sku)
+            kaspi_public_product_id(
+                listing.master_sku,
+                merchant_sku=listing.merchant_sku,
+                public_url=listing.public_url,
+            )
             or ""
         )
         if not product_id:
@@ -553,7 +559,8 @@ def collect_remote_listings(
                 break
             product_id = (
                 kaspi_public_product_id(
-                    listing.master_sku, merchant_sku=listing.merchant_sku
+                    listing.master_sku, merchant_sku=listing.merchant_sku,
+                    public_url=listing.public_url,
                 )
                 or ""
             )
@@ -562,6 +569,7 @@ def collect_remote_listings(
                     source.fetch_offers(
                         master_sku=listing.master_sku,
                         merchant_sku=listing.merchant_sku,
+                        public_url=listing.public_url,
                     )
                 )
             except CompetitorPriceSourceError as exc:
@@ -674,7 +682,9 @@ def collect_remote_listings(
                 continue
             product_id = (
                 kaspi_public_product_id(
-                    listing.master_sku, merchant_sku=listing.merchant_sku
+                    listing.master_sku,
+                    merchant_sku=listing.merchant_sku,
+                    public_url=listing.public_url,
                 )
                 or ""
             )

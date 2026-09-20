@@ -35,6 +35,7 @@ class KaspiCompetitorPriceSource(Protocol):
         *,
         master_sku: str,
         merchant_sku: str = "",
+        public_url: str = "",
     ) -> Sequence[KaspiCompetitorOffer]:
         """Return normalized competing offers for one Kaspi product."""
         ...
@@ -61,32 +62,53 @@ class CompetitorPriceSourceUnavailable(CompetitorPriceSourceError):
     pass
 
 
-def kaspi_public_product_id(master_sku: str, merchant_sku: str = "") -> str | None:
+def kaspi_public_product_id(
+    master_sku: str,
+    merchant_sku: str = "",
+    public_url: str = "",
+) -> str | None:
     """Return a numeric Kaspi public product id, or None if mapping is unsafe.
 
-    Collectable shapes:
-    - ``<digits>_<suffix>`` → numeric prefix
-    - digits-only **and** master_sku != merchant_sku
+    Priority:
+    1. trailing numeric id from an already-bound ``public_url`` (unless it is
+       the merchant SKU)
+    2. ``<digits>_<suffix>`` master_sku → numeric prefix
 
-    Unresolved (no Kaspi request, no guessing):
-    - digits-only master_sku equal to merchant_sku (OEM/article copied into SKU)
-    - alphanumeric / other forms
-
-    Merchant SKU, article, and barcode are never used as a product id.
+    If both sources resolve and disagree, fail closed (return None). Digits-only
+    master_sku / merchant SKU are never used as a public card id. Merchant SKU,
+    article, barcode, and Kaspi search results are never used as a product id.
     """
 
-    raw = str(master_sku or "").strip()
     merchant = str(merchant_sku or "").strip()
-    if not raw:
+    url_id = _product_id_from_bound_public_url(public_url, merchant_sku=merchant)
+    sku_id = _product_id_from_underscore_master_sku(master_sku)
+    if url_id and sku_id and url_id != sku_id:
         return None
-    if raw.isdigit():
-        if merchant and raw == merchant:
-            return None
-        return raw
+    if url_id:
+        return url_id
+    return sku_id
+
+
+def _product_id_from_underscore_master_sku(master_sku: str) -> str | None:
+    raw = str(master_sku or "").strip()
+    if not raw or "_" not in raw:
+        return None
     prefix = raw.split("_", 1)[0].strip()
     if prefix.isdigit():
         return prefix
     return None
+
+
+def _product_id_from_bound_public_url(public_url: str, *, merchant_sku: str) -> str | None:
+    from catalog.kaspi_public_url import kaspi_product_id_from_public_url
+
+    url_id = kaspi_product_id_from_public_url(public_url)
+    if not url_id:
+        return None
+    merchant = str(merchant_sku or "").strip()
+    if merchant and url_id == merchant:
+        return None
+    return url_id
 
 
 class NotConfiguredKaspiCompetitorPriceSource:
@@ -97,8 +119,9 @@ class NotConfiguredKaspiCompetitorPriceSource:
         *,
         master_sku: str,
         merchant_sku: str = "",
+        public_url: str = "",
     ) -> Sequence[KaspiCompetitorOffer]:
-        del merchant_sku
+        del merchant_sku, public_url
         raise CompetitorPriceSourceNotConfigured(
             f"Источник цен конкурентов Kaspi не настроен для master_sku={master_sku}."
         )
@@ -137,20 +160,28 @@ class KaspiPublicOfferSource:
             raise ValueError("max_offers must be between 1 and 100")
 
     @staticmethod
-    def _product_id(master_sku: str, merchant_sku: str = "") -> str:
-        """Extract the numeric Kaspi card id from an exported SKU.
+    def _product_id(master_sku: str, merchant_sku: str = "", public_url: str = "") -> str:
+        """Extract the numeric Kaspi card id from a bound URL or export SKU.
 
-        Kaspi exports can contain values such as ``116207063_792647100``.
-        The public card id is the numeric prefix before the first underscore.
-        Plain numeric SKUs are used only when they are not the merchant SKU.
-        Merchant SKU is never used as a guess.
+        ``public_url`` is the priority source. Underscore export SKUs are used
+        only when no URL id is present. Digits-only ACTIVE ``SKU`` values are
+        never treated as public card ids. Conflicting URL vs SKU ids fail closed.
+        Merchant SKU and search results are never used as a guess.
         """
 
-        product_id = kaspi_public_product_id(master_sku, merchant_sku=merchant_sku)
+        merchant = str(merchant_sku or "").strip()
+        url_id = _product_id_from_bound_public_url(public_url, merchant_sku=merchant)
+        sku_id = _product_id_from_underscore_master_sku(master_sku)
+        if url_id and sku_id and url_id != sku_id:
+            raise CompetitorPriceSourceError(
+                "Конфликт Kaspi product id: public_url="
+                f"{url_id!r} vs master_sku prefix={sku_id!r}."
+            )
+        product_id = url_id or sku_id
         if product_id:
             return product_id
         raw_sku = str(master_sku or "").strip()
-        if not raw_sku:
+        if not raw_sku and not str(public_url or "").strip():
             raise CompetitorPriceSourceError("Kaspi master_sku пустой.")
         raise CompetitorPriceSourceError(
             "Не удалось получить числовой Kaspi product id из master_sku: "
@@ -172,8 +203,13 @@ class KaspiPublicOfferSource:
         *,
         master_sku: str,
         merchant_sku: str = "",
+        public_url: str = "",
     ) -> Sequence[KaspiCompetitorOffer]:
-        product_id = self._product_id(master_sku, merchant_sku=merchant_sku)
+        product_id = self._product_id(
+            master_sku,
+            merchant_sku=merchant_sku,
+            public_url=public_url,
+        )
         url = f"{KASPI_BASE_URL}/yml/offer-view/offers/{product_id}"
         referer = f"{KASPI_BASE_URL}/shop/p/-{product_id}/?c={self.city_id}"
         payload = {

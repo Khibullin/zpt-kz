@@ -41,6 +41,7 @@ def sync_competitor_offers_for_listing(
         source.fetch_offers(
             master_sku=listing.master_sku,
             merchant_sku=listing.merchant_sku,
+            public_url=getattr(listing, "public_url", "") or "",
         )
     )
 

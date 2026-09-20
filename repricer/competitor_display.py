@@ -222,10 +222,11 @@ def listing_competitor_state(
     state = competitor_states_for_listings([listing_id], now=now)[listing_id]
     sku = master_sku
     merchant = merchant_sku
+    public_url = ""
     if sku is None or merchant is None:
         row = (
             ProductKaspiListing.objects.filter(pk=listing_id)
-            .values_list("master_sku", "merchant_sku")
+            .values_list("master_sku", "merchant_sku", "public_url")
             .first()
         )
         if row is None:
@@ -234,17 +235,28 @@ def listing_competitor_state(
         else:
             sku = sku if sku is not None else (row[0] or "")
             merchant = merchant if merchant is not None else (row[1] or "")
-    return overlay_unresolved_mapping(state, sku or "", merchant_sku=merchant or "")
+            public_url = row[2] or ""
+    return overlay_unresolved_mapping(
+        state,
+        sku or "",
+        merchant_sku=merchant or "",
+        public_url=public_url,
+    )
 
 
 def overlay_unresolved_mapping(
     state: ListingCompetitorState,
     master_sku: str,
     merchant_sku: str = "",
+    public_url: str = "",
 ) -> ListingCompetitorState:
-    """Mark listings whose master_sku is not a Kaspi public product id."""
+    """Mark listings that have no collectable Kaspi public product id."""
 
-    if kaspi_public_product_id(master_sku, merchant_sku=merchant_sku) is not None:
+    if kaspi_public_product_id(
+        master_sku,
+        merchant_sku=merchant_sku,
+        public_url=public_url,
+    ) is not None:
         return state
     return ListingCompetitorState(
         listing_id=state.listing_id,

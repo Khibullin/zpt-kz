@@ -65,6 +65,7 @@ def listings_manifest(request):
             "master_sku": listing.master_sku,
             "merchant_sku": listing.merchant_sku or "",
             "last_known_our_price": listing.last_known_our_price,
+            "public_url": listing.public_url or "",
         }
         for listing in queryset.order_by("id")
     ]

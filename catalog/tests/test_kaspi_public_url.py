@@ -2,7 +2,11 @@ from django.core.exceptions import ValidationError
 from django.forms.models import modelform_factory
 from django.test import TestCase
 
-from catalog.kaspi_public_url import display_kaspi_public_url, validate_kaspi_public_url
+from catalog.kaspi_public_url import (
+    display_kaspi_public_url,
+    kaspi_product_id_from_public_url,
+    validate_kaspi_public_url,
+)
 from catalog.models import Product, ProductKaspiListing, SellerProfile
 from django.contrib.auth.models import User
 
@@ -98,6 +102,24 @@ class KaspiPublicUrlValidationTests(TestCase):
         self.assertEqual(
             display_kaspi_public_url('https://kaspi.kz/shop/api/products/1'),
             '',
+        )
+
+    def test_trailing_numeric_id_from_bound_public_url(self):
+        self.assertEqual(kaspi_product_id_from_public_url(VALID), '123456789')
+        self.assertEqual(
+            kaspi_product_id_from_public_url(
+                'https://kaspi.kz/shop/p/filtr-vozdushnyi-hyundai-272774m400-987654321/'
+            ),
+            '987654321',
+        )
+        self.assertIsNone(
+            kaspi_product_id_from_public_url(
+                'https://kaspi.kz/shop/p/filtr-vozdushnyi-272774m400/'
+            )
+        )
+        self.assertIsNone(kaspi_product_id_from_public_url(''))
+        self.assertIsNone(
+            kaspi_product_id_from_public_url('https://kaspi.kz/shop/c/filters/')
         )
 
     def test_url_is_not_derived_from_master_sku(self):

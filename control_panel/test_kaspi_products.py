@@ -335,7 +335,7 @@ class KaspiProductsControlTests(TestCase):
     def test_price_block_has_three_columns(self):
         self._login()
         product = _product(self.seller, 'ART-COLS')
-        _listing(product, '129900001')
+        _listing(product, '129900001_555555555')
         response = self.client.get(URL)
         self.assertContains(response, 'Конкурент')
         self.assertContains(response, 'Рекомендация')
@@ -449,7 +449,7 @@ class KaspiProductsControlTests(TestCase):
     def test_competitor_cell_shows_latest_other_price(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-A')
-        listing = _listing(product, '115801437', last_known_our_price=3034)
+        listing = _listing(product, '115801437_271928151', last_known_our_price=3034)
         now_batch = timezone.now()
         KaspiCompetitorOfferSnapshot.objects.create(
             listing=listing,
@@ -491,7 +491,7 @@ class KaspiProductsControlTests(TestCase):
     def test_competitor_cell_no_other_offers(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-B')
-        listing = _listing(product, '136510902', last_known_our_price=3410)
+        listing = _listing(product, '136510902_627349511', last_known_our_price=3410)
         self._competitor_offer(
             listing,
             seller_name='TEST-MERCHANT',
@@ -521,6 +521,29 @@ class KaspiProductsControlTests(TestCase):
         response = self.client.get(URL)
         self.assertContains(response, 'Не сопоставлен Kaspi ID')
 
+    def test_plain_active_sku_different_from_article_is_unresolved(self):
+        self._login()
+        product = _product(self.seller, '272774M400')
+        _listing(product, '126807700', last_known_our_price=2250)
+        response = self.client.get(URL)
+        self.assertContains(response, 'Не сопоставлен Kaspi ID')
+        self.assertContains(response, 'Нет надёжного числового Kaspi product id')
+
+    def test_oem_article_with_bound_public_url_is_not_unresolved(self):
+        self._login()
+        product = _product(self.seller, '272774M400')
+        _listing(
+            product,
+            '126807700',
+            last_known_our_price=2250,
+            public_url='https://kaspi.kz/shop/p/filtr-vozdushnyi-272774m400-987654321/',
+        )
+        response = self.client.get(URL)
+        self.assertContains(response, '272774M400')
+        self.assertNotContains(response, 'Не сопоставлен Kaspi ID')
+        self.assertContains(response, 'Данные конкурентов ещё не получены')
+
+
     @override_settings(
         KASPI_OWN_MERCHANT_IDS='TEST-OWN',
         KASPI_COMPETITOR_FRESH_MINUTES=180,
@@ -528,7 +551,7 @@ class KaspiProductsControlTests(TestCase):
     def test_competitor_cell_stale_is_marked(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-STALE')
-        listing = _listing(product, '116207063', last_known_our_price=1150)
+        listing = _listing(product, '116207063_792647100', last_known_our_price=1150)
         self._competitor_offer(
             listing,
             seller_name='Other',
@@ -547,7 +570,7 @@ class KaspiProductsControlTests(TestCase):
     def test_competitor_fail_closed_without_own_merchant(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-CFG')
-        listing = _listing(product, '129914457', last_known_our_price=3740)
+        listing = _listing(product, '129914457_677517150', last_known_our_price=3740)
         now_batch = timezone.now()
         KaspiCompetitorOfferSnapshot.objects.create(
             listing=listing,
@@ -575,8 +598,8 @@ class KaspiProductsControlTests(TestCase):
     def test_multiple_listings_do_not_aggregate_competitors(self):
         self._login()
         product = _product(self.seller, 'ART-COMP-MULTI')
-        first = _listing(product, '111111111', last_known_our_price=3034)
-        second = _listing(product, '222222222', last_known_our_price=3740)
+        first = _listing(product, '111111111_1001', last_known_our_price=3034)
+        second = _listing(product, '222222222_2002', last_known_our_price=3740)
         now_batch = timezone.now()
         KaspiCompetitorOfferSnapshot.objects.create(
             listing=first,
@@ -615,7 +638,7 @@ class KaspiProductsControlTests(TestCase):
             product = _product(self.seller, f'ART-CQ-{index:02d}')
             listing = _listing(
                 product,
-                f'9{index:03d}',
+                f'9{index:03d}_8{index:03d}',
                 last_known_our_price=4000 + index,
                 last_known_kaspi_qty=index,
             )

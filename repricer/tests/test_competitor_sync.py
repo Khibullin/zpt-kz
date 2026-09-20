@@ -37,7 +37,8 @@ class FakeSession:
 
 
 class FakeOfferSource:
-    def fetch_offers(self, *, master_sku, merchant_sku=""):
+    def fetch_offers(self, *, master_sku, merchant_sku="", public_url=""):
+        del public_url
         return [
             KaspiCompetitorOffer(
                 seller_name="Продавец 1",
@@ -61,17 +62,35 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
             "116207063",
         )
 
-    def test_plain_numeric_master_sku_is_collectable_when_not_merchant(self):
-        self.assertEqual(kaspi_public_product_id("123456789"), "123456789")
-        self.assertEqual(
-            kaspi_public_product_id("123456789", merchant_sku="TEST-KASPI-001"),
-            "123456789",
+    def test_plain_numeric_active_sku_is_unresolved_even_when_not_merchant(self):
+        # ACTIVE.xlsx SKU column for these rows is digits-only and is not a
+        # public Kaspi card id (same 404 / empty-offers signature as an
+        # underscore suffix). Do not collect against it.
+        self.assertIsNone(
+            kaspi_public_product_id("126807700", merchant_sku="272774M400")
         )
+        self.assertIsNone(
+            kaspi_public_product_id("801748033", merchant_sku="301000265AA")
+        )
+        self.assertIsNone(
+            kaspi_public_product_id("806873204", merchant_sku="4801012010")
+        )
+        self.assertIsNone(
+            kaspi_public_product_id("123456789", merchant_sku="TEST-KASPI-001")
+        )
+        with self.assertRaises(CompetitorPriceSourceError):
+            KaspiPublicOfferSource._product_id("126807700", merchant_sku="272774M400")
 
     def test_numeric_prefix_before_underscore_is_collectable(self):
         self.assertEqual(
             kaspi_public_product_id("115801437_271928151", merchant_sku="X0390000206"),
             "115801437",
+        )
+        self.assertEqual(
+            kaspi_public_product_id(
+                "135426201_722693725", merchant_sku="2032047000"
+            ),
+            "135426201",
         )
         self.assertEqual(
             KaspiPublicOfferSource._product_id("116207063_792647100", "116207063_792647100"),
@@ -85,17 +104,152 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         with self.assertRaises(CompetitorPriceSourceError):
             KaspiPublicOfferSource._product_id("8890649934", merchant_sku="8890649934")
 
-    def test_numeric_equal_merchant_does_not_http(self):
+    def test_plain_numeric_active_sku_does_not_http(self):
         session = FakeSession(FakeResponse(payload={"offers": []}))
         source = KaspiPublicOfferSource(session=session)
         with self.assertRaises(CompetitorPriceSourceError):
-            source.fetch_offers(master_sku="8890649934", merchant_sku="8890649934")
+            source.fetch_offers(master_sku="126807700", merchant_sku="272774M400")
         self.assertEqual(session.calls, [])
+
+    def test_bound_public_url_makes_plain_active_sku_collectable(self):
+        url = "https://kaspi.kz/shop/p/filtr-vozdushnyi-272774m400-987654321/"
+        self.assertEqual(
+            kaspi_public_product_id(
+                "126807700",
+                merchant_sku="272774M400",
+                public_url=url,
+            ),
+            "987654321",
+        )
+        self.assertEqual(
+            KaspiPublicOfferSource._product_id(
+                "126807700",
+                "272774M400",
+                public_url=url,
+            ),
+            "987654321",
+        )
+
+    def test_public_url_agrees_with_underscore_sku(self):
+        url = "https://kaspi.kz/shop/p/filtr-135426201/"
+        self.assertEqual(
+            kaspi_public_product_id(
+                "135426201_722693725",
+                merchant_sku="2032047000",
+                public_url=url,
+            ),
+            "135426201",
+        )
+        self.assertEqual(
+            KaspiPublicOfferSource._product_id(
+                "135426201_722693725",
+                "2032047000",
+                public_url=url,
+            ),
+            "135426201",
+        )
+
+    def test_public_url_and_underscore_sku_conflict_fails_closed(self):
+        url = "https://kaspi.kz/shop/p/salonnyi-fil-tr-272774m400-138029683/"
+        self.assertIsNone(
+            kaspi_public_product_id(
+                "999888777_111",
+                merchant_sku="272774M400",
+                public_url=url,
+            )
+        )
+        with self.assertRaises(CompetitorPriceSourceError) as ctx:
+            KaspiPublicOfferSource._product_id(
+                "999888777_111",
+                "272774M400",
+                public_url=url,
+            )
+        self.assertIn("Конфликт", str(ctx.exception))
+
+    def test_three_cabin_oil_filter_public_url_bindings(self):
+        cases = (
+            (
+                "272774M400",
+                "126807700",
+                "https://kaspi.kz/shop/p/salonnyi-fil-tr-272774m400-138029683/",
+                "138029683",
+            ),
+            (
+                "301000265AA",
+                "801748033",
+                "https://kaspi.kz/shop/p/salonnyi-fil-tr-301000265aa-141508690/",
+                "141508690",
+            ),
+            (
+                "4801012010",
+                "806873204",
+                "https://kaspi.kz/shop/p/masljanyi-fil-tr-4801012010-139279709/",
+                "139279709",
+            ),
+        )
+        for merchant_sku, master_sku, url, expected in cases:
+            with self.subTest(article=merchant_sku):
+                self.assertEqual(
+                    kaspi_public_product_id(
+                        master_sku,
+                        merchant_sku=merchant_sku,
+                        public_url=url,
+                    ),
+                    expected,
+                )
+                self.assertEqual(
+                    KaspiPublicOfferSource._product_id(
+                        master_sku,
+                        merchant_sku,
+                        public_url=url,
+                    ),
+                    expected,
+                )
+
+    def test_working_control_underscore_sku_without_public_url(self):
+        self.assertEqual(
+            kaspi_public_product_id(
+                "135426201_722693725",
+                merchant_sku="2032047000",
+            ),
+            "135426201",
+        )
 
     def test_alphanumeric_master_sku_is_unresolved(self):
         self.assertIsNone(kaspi_public_product_id("1017110XEN01"))
         self.assertIsNone(kaspi_public_product_id("X01-90000014"))
         self.assertIsNone(kaspi_public_product_id("EM2E8121211E"))
+        self.assertIsNone(kaspi_public_product_id("272774M400", merchant_sku="272774M400"))
+        self.assertIsNone(kaspi_public_product_id("301000265AA", merchant_sku="301000265AA"))
+
+    def test_bound_public_url_makes_oem_master_sku_collectable(self):
+        url = "https://kaspi.kz/shop/p/filtr-vozdushnyi-272774m400-987654321/"
+        self.assertEqual(
+            kaspi_public_product_id(
+                "272774M400",
+                merchant_sku="272774M400",
+                public_url=url,
+            ),
+            "987654321",
+        )
+        self.assertEqual(
+            KaspiPublicOfferSource._product_id(
+                "272774M400",
+                "272774M400",
+                public_url=url,
+            ),
+            "987654321",
+        )
+
+    def test_public_url_id_equal_to_merchant_sku_is_unresolved(self):
+        url = "https://kaspi.kz/shop/p/filtr-maslianyi-4801012010/"
+        self.assertIsNone(
+            kaspi_public_product_id(
+                "4801012010",
+                merchant_sku="4801012010",
+                public_url=url,
+            )
+        )
 
     def test_does_not_guess_from_merchant_sku(self):
         self.assertIsNone(kaspi_public_product_id("P8104140"))
@@ -116,7 +270,7 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         )
         source = KaspiPublicOfferSource(session=session, city_id="750000000")
 
-        offers = source.fetch_offers(master_sku="123456789")
+        offers = source.fetch_offers(master_sku="123456789_555555555")
 
         self.assertEqual(len(offers), 2)
         self.assertEqual(offers[0].seller_name, "Shop A")
@@ -135,7 +289,7 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         source = KaspiPublicOfferSource(session=session)
 
         with self.assertRaises(CompetitorPriceSourceRateLimited) as caught:
-            source.fetch_offers(master_sku="123456789")
+            source.fetch_offers(master_sku="123456789_555555555")
         self.assertEqual(caught.exception.http_status, 429)
         self.assertEqual(len(session.calls), 1)
 
@@ -144,7 +298,7 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         source = KaspiPublicOfferSource(session=session)
 
         with self.assertRaises(CompetitorPriceSourceUnavailable) as caught:
-            source.fetch_offers(master_sku="123456789")
+            source.fetch_offers(master_sku="123456789_555555555")
         self.assertEqual(caught.exception.http_status, 405)
         self.assertEqual(len(session.calls), 1)
 
@@ -153,7 +307,7 @@ class KaspiPublicOfferSourceTests(SimpleTestCase):
         source = KaspiPublicOfferSource(session=session)
 
         with self.assertRaises(CompetitorPriceSourceUnavailable) as caught:
-            source.fetch_offers(master_sku="123456789")
+            source.fetch_offers(master_sku="123456789_555555555")
         self.assertEqual(caught.exception.http_status, 403)
         self.assertEqual(len(session.calls), 1)
 
@@ -168,7 +322,7 @@ class CompetitorSyncTests(TestCase):
         )
         self.listing = ProductKaspiListing.objects.create(
             product=self.product,
-            master_sku="123456789",
+            master_sku="123456789_555555555",
             merchant_sku="TEST-KASPI-001",
             last_known_our_price=12900,
             is_active=True,

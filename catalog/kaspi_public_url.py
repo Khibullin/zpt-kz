@@ -62,3 +62,26 @@ def display_kaspi_public_url(value: str) -> str:
     except ValidationError:
         return ''
     return text
+
+
+MIN_PUBLIC_PRODUCT_ID_DIGITS = 6
+
+
+def kaspi_product_id_from_public_url(value: str) -> str | None:
+    """Return the trailing numeric Kaspi card id from a stored /shop/p/ URL.
+
+    Uses only an already-bound public_url. Does not search Kaspi, does not
+    guess from article/merchant SKU, and does not merge analog cards.
+    """
+
+    text = display_kaspi_public_url(value)
+    if not text:
+        return None
+    path = (urlsplit(text).path or '').rstrip('/')
+    if not path.startswith(PRODUCT_PATH_PREFIX):
+        return None
+    slug = path[len(PRODUCT_PATH_PREFIX):]
+    token = slug.rsplit('-', 1)[-1].strip()
+    if token.isdigit() and len(token) >= MIN_PUBLIC_PRODUCT_ID_DIGITS:
+        return token
+    return None

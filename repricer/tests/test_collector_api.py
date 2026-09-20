@@ -134,6 +134,7 @@ class CollectorApiTests(TestCase):
                 "master_sku",
                 "merchant_sku",
                 "last_known_our_price",
+                "public_url",
             },
         )
         encoded = json.dumps(payload)

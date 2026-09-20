@@ -413,8 +413,14 @@ def _listing_competitor_view(
     state: ListingCompetitorState,
     master_sku: str,
     merchant_sku: str = "",
+    public_url: str = "",
 ) -> dict:
-    mapped = overlay_unresolved_mapping(state, master_sku, merchant_sku=merchant_sku)
+    mapped = overlay_unresolved_mapping(
+        state,
+        master_sku,
+        merchant_sku=merchant_sku,
+        public_url=public_url,
+    )
     seller_label = mapped.best_seller_name or mapped.best_seller_code or '—'
     if mapped.state == STATE_READY:
         price_label = _format_kzt(mapped.best_price)
@@ -608,6 +614,7 @@ def _row_from_product(
             ),
             item.master_sku,
             item.merchant_sku or '',
+            item.public_url or '',
         )
         listings.append(
             ListingView(

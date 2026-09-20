@@ -33,8 +33,9 @@ class ScriptedOfferSource:
         self.script = list(script)
         self.calls = []
 
-    def fetch_offers(self, *, master_sku, merchant_sku=""):
+    def fetch_offers(self, *, master_sku, merchant_sku="", public_url=""):
         self.calls.append((master_sku, merchant_sku))
+        del public_url
         if not self.script:
             raise AssertionError("unexpected extra Kaspi request")
         item = self.script.pop(0)
@@ -49,8 +50,9 @@ class FakeOfferSource:
         self.error = error
         self.calls = []
 
-    def fetch_offers(self, *, master_sku, merchant_sku=""):
+    def fetch_offers(self, *, master_sku, merchant_sku="", public_url=""):
         self.calls.append((master_sku, merchant_sku))
+        del public_url
         if self.error is not None:
             raise self.error
         return list(self.offers or [])
@@ -314,6 +316,29 @@ class CollectorRemoteTests(TestCase):
         self.assertEqual(source.calls, [])
         self.assertEqual(client.posts, [])
         self.assertIn("UNRESOLVED_MAPPING", stdout.getvalue())
+
+    def test_bound_public_url_collects_oem_master_sku(self):
+        listing = RemoteListing(
+            listing_id=10,
+            article="272774M400",
+            master_sku="272774M400",
+            merchant_sku="272774M400",
+            public_url="https://kaspi.kz/shop/p/filtr-vozdushnyi-272774m400-987654321/",
+        )
+        client = FakeZptClient([listing])
+        source = FakeOfferSource(_offers())
+        stdout = StringIO()
+        collect_remote_listings(
+            listing_ids=[10],
+            source=source,
+            client=client,
+            dry_run=True,
+            sleep_seconds=1.0,
+            stdout=stdout,
+        )
+        self.assertEqual(source.calls, [("272774M400", "272774M400")])
+        self.assertIn("product_id=987654321", stdout.getvalue())
+        self.assertNotIn("UNRESOLVED_MAPPING", stdout.getvalue())
 
     def test_all_active_uses_full_manifest_and_batches(self):
         listings = [_listing(index) for index in range(1, 12)]

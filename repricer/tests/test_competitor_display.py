@@ -24,7 +24,7 @@ OWN_CODE = "TEST-OWN"
 OWN_NAME = "TEST-MERCHANT"
 
 
-def _listing(article, master_sku="1001"):
+def _listing(article, master_sku="1001001_2002002"):
     product = Product.objects.create(
         title=f"Title {article}",
         article=article,
@@ -199,8 +199,8 @@ class CompetitorDisplayTests(TestCase):
 
     @override_settings(KASPI_OWN_MERCHANT_IDS=OWN_CODE)
     def test_multiple_listings_are_isolated(self):
-        first = _listing("ISO-A", master_sku="111")
-        second = _listing("ISO-B", master_sku="222")
+        first = _listing("ISO-A", master_sku="111111111_1001")
+        second = _listing("ISO-B", master_sku="222222222_2002")
         now = timezone.now()
         _offer(first, seller_name="Cheap", seller_code="C1", price="1954", captured_at=now)
         _offer(second, seller_name="Dear", seller_code="C2", price="6864", captured_at=now)
@@ -217,7 +217,7 @@ class CompetitorDisplayTests(TestCase):
         now = timezone.now()
         ids = []
         for index in range(20):
-            listing = _listing(f"Q-{index:02d}", master_sku=str(8000 + index))
+            listing = _listing(f"Q-{index:02d}", master_sku=f"{800000000 + index}_{900000000 + index}")
             ids.append(listing.pk)
             _offer(
                 listing,
@@ -286,4 +286,18 @@ class UnresolvedMappingDisplayTests(TestCase):
         listing = _listing("8890649934", master_sku="8890649934")
         state = listing_competitor_state(listing.pk)
         self.assertEqual(state.state, STATE_UNRESOLVED_MAPPING)
+        self.assertIsNone(state.best_price)
+
+    def test_plain_active_sku_different_from_merchant_is_unresolved_mapping(self):
+        listing = _listing("272774M400", master_sku="126807700")
+        state = listing_competitor_state(listing.pk)
+        self.assertEqual(state.state, STATE_UNRESOLVED_MAPPING)
+        self.assertIsNone(state.best_price)
+
+    def test_bound_public_url_clears_unresolved_mapping(self):
+        listing = _listing("272774M400", master_sku="126807700")
+        listing.public_url = "https://kaspi.kz/shop/p/filtr-vozdushnyi-272774m400-987654321/"
+        listing.save(update_fields=["public_url"])
+        state = listing_competitor_state(listing.pk)
+        self.assertEqual(state.state, STATE_NO_DATA)
         self.assertIsNone(state.best_price)
