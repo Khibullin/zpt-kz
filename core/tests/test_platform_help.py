@@ -7,11 +7,11 @@ from unittest.mock import patch
 
 from django.conf import settings
 from django.contrib.admin.sites import site
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AnonymousUser, User
 from django.core import mail
 from django.core.cache import cache
 from django.core.files.uploadedfile import SimpleUploadedFile
-from django.test import Client, TestCase, override_settings
+from django.test import Client, RequestFactory, TestCase, override_settings
 from django.urls import reverse
 from django.utils.html import strip_tags
 
@@ -24,11 +24,14 @@ from core.models import PlatformHelpConversation, PlatformHelpMessage, Seller
 from core.platform_help import (
     OPENAI_RESPONSES_URL,
     OPENAI_TRANSCRIPTIONS_URL,
-    PLATFORM_HELP_SYSTEM_PROMPT,
+    platform_help_system_prompt,
     normalize_help_contact_whatsapp,
     parse_help_output_text,
 )
-from core.services.platform_help_email import get_help_notification_email
+from core.services.platform_help_email import (
+    get_help_notification_email,
+    send_platform_help_question_notification,
+)
 
 
 FAKE_KEY = 'sk-test-platform-help-secret-key'
@@ -74,26 +77,34 @@ class PlatformHelpTests(TestCase):
 
     def test_help_page_renders(self):
         response = self.client.get('/request-parts/help/')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Вопросы и справки ZPT.KZ')
-        self.assertContains(response, 'id="help-input"')
-        self.assertContains(response, 'id="help-mic"')
-        self.assertContains(response, 'Задать вопрос голосом')
-        self.assertContains(response, 'id="help-send"')
-        self.assertContains(response, 'id="help-whatsapp"')
-        self.assertContains(response, 'WhatsApp для ответа специалиста (необязательно)')
-        self.assertNotContains(response, 'readonly')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/zpt-gid/#pomoshchnik')
         self.assertIn('csrftoken', response.cookies)
+        page = self.client.get('/zpt-gid/')
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, 'ZPT Гид')
+        self.assertContains(page, 'Чем помочь?')
+        self.assertContains(page, 'id="help-input"')
+        self.assertContains(page, 'id="help-mic"')
+        self.assertContains(page, 'Задать вопрос голосом')
+        self.assertContains(page, 'id="help-send"')
+        self.assertContains(page, 'id="help-whatsapp"')
+        self.assertContains(page, 'WhatsApp для ответа специалиста (необязательно)')
+        self.assertNotContains(page, 'readonly')
+        self.assertNotContains(page, 'GPT Guide')
+        self.assertNotContains(page, 'GPT Гид')
 
     def test_faq_still_works(self):
         response = self.client.get('/request-parts/faq/')
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Часто задаваемые вопросы')
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, '/zpt-gid/#spravka')
+        page = self.client.get('/zpt-gid/')
+        self.assertContains(page, 'Как оставить запрос на запчасть?')
 
     def test_go_help_points_to_new_page(self):
         response = self.client.get('/go/help/')
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, '/request-parts/help/')
+        self.assertEqual(response.url, '/zpt-gid/')
 
     def test_other_go_routes_unchanged(self):
         expected = {
@@ -144,7 +155,7 @@ class PlatformHelpTests(TestCase):
         dumped = json.dumps(body)
         self.assertNotIn('web_search', dumped)
         self.assertEqual(body['input'][0]['role'], 'system')
-        self.assertEqual(body['input'][0]['content'], PLATFORM_HELP_SYSTEM_PROMPT)
+        self.assertEqual(body['input'][0]['content'], platform_help_system_prompt())
         self.assertEqual(body['input'][-1]['content'], 'Где посмотреть мои заявки?')
 
     def test_voice_input_mode_saved_when_explicit(self):
@@ -653,7 +664,7 @@ class PlatformHelpTests(TestCase):
             user=user,
         )
         self.client.force_login(user)
-        response = self.client.get('/request-parts/help/')
+        response = self.client.get('/zpt-gid/')
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="help-whatsapp"')
         self.assertContains(response, 'readonly')
@@ -749,10 +760,36 @@ class PlatformHelpEmailTests(TestCase):
         self.assertEqual(mimetype, 'text/html')
         return content
 
-    def test_successful_text_question_sends_one_email(self):
+    def _user_message(self):
+        return PlatformHelpMessage.objects.get(role='user')
+
+    def _help_request(self, user=None):
+        req = RequestFactory().post('/api/platform-help/ask/')
+        req.user = user or AnonymousUser()
+        req.session = {}
+        return req
+
+    def _send_help_email(self, answer=ANSWER_TEXT, ai_failed=False, user=None):
+        return send_platform_help_question_notification(
+            self._help_request(user=user),
+            self._user_message(),
+            answer=answer,
+            ai_failed=ai_failed,
+        )
+
+    def test_ask_does_not_email_dialog_even_when_help_email_enabled(self):
         question = 'Как добавить товар по артикулу?'
         response, _fake = self._ask(question)
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertEqual(PlatformHelpMessage.objects.filter(role='user').count(), 1)
+
+    def test_explicit_help_email_builder_still_works_when_called_directly(self):
+        question = 'Как добавить товар по артикулу?'
+        response, _fake = self._ask(question)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self.assertTrue(self._send_help_email())
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
         self.assertEqual(email.to, ['help-admin@test.local'])
@@ -769,7 +806,7 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('WhatsApp для ответа: не указан', html)
         self.assertNotIn('Ответить в WhatsApp', html)
         conversation = PlatformHelpConversation.objects.get()
-        user_message = PlatformHelpMessage.objects.get(role='user')
+        user_message = self._user_message()
         self.assertIn(str(conversation.public_id), body)
         self.assertIn(
             f'https://zpt.kz/admin/core/platformhelpconversation/{conversation.pk}/change/',
@@ -789,6 +826,8 @@ class PlatformHelpEmailTests(TestCase):
     def test_voice_question_email_marks_voice_input(self):
         response, _fake = self._ask('Как добавить товар?', input_mode='voice')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self._send_help_email()
         self.assertEqual(len(mail.outbox), 1)
         self.assertIn('Способ ввода: голос', mail.outbox[0].body)
 
@@ -804,6 +843,8 @@ class PlatformHelpEmailTests(TestCase):
         self.client.force_login(user)
         response, _fake = self._ask('Как добавить товар по артикулу?')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self._send_help_email(user=user)
         self.assertEqual(len(mail.outbox), 1)
         email = mail.outbox[0]
         self.assertEqual(
@@ -830,7 +871,7 @@ class PlatformHelpEmailTests(TestCase):
         self.assertIn('https://wa.me/77700001122?text=', html)
         self.assertNotIn('?text=', strip_tags(html))
 
-    def test_openai_failure_still_sends_email(self):
+    def test_openai_failure_does_not_email_dialog(self):
         import requests as requests_lib
 
         with patch('core.platform_help.requests.post', side_effect=requests_lib.Timeout('timed out')):
@@ -840,6 +881,8 @@ class PlatformHelpEmailTests(TestCase):
                 content_type='application/json',
             )
         self.assertEqual(response.status_code, 503)
+        self.assertEqual(len(mail.outbox), 0)
+        self._send_help_email(answer='', ai_failed=True)
         self.assertEqual(len(mail.outbox), 1)
         body = mail.outbox[0].body
         self.assertIn('Как войти?', body)
@@ -888,6 +931,8 @@ class PlatformHelpEmailTests(TestCase):
         self.assertEqual(get_help_notification_email(), 'orders-admin@test.local')
         response, _fake = self._ask('Как войти?')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self._send_help_email()
         self.assertEqual(len(mail.outbox), 1)
         self.assertEqual(mail.outbox[0].to, ['orders-admin@test.local'])
 
@@ -919,6 +964,8 @@ class PlatformHelpEmailTests(TestCase):
         question = 'Как добавить товар по артикулу?'
         response, _fake = self._ask(question, contact_whatsapp='+7 701 123 45 67')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self._send_help_email()
         self.assertEqual(len(mail.outbox), 1)
         body = mail.outbox[0].body
         self.assertIn('WhatsApp для ответа: +77011234567', body)
@@ -940,6 +987,8 @@ class PlatformHelpEmailTests(TestCase):
         payload = '<script>alert(1)</script><b>x</b>'
         response, _fake = self._ask(payload, contact_whatsapp='+7 701 123 45 67')
         self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 0)
+        self._send_help_email()
         html = self._html(mail.outbox[0])
         self.assertIn('&lt;script&gt;', html)
         self.assertNotIn('<script>', html)

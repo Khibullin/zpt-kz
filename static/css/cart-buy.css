@@ -26,6 +26,28 @@
   flex-wrap:wrap;
 }
 
+.market-guide-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:0 10px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.01em;
+  color:#ff3b30 !important;
+  background:#fff5f5;
+  border:1px solid #ffd1d1;
+  white-space:nowrap;
+  flex-shrink:0;
+  text-decoration:none !important;
+}
+.market-guide-link:hover{
+  background:#ffe8e8;
+  color:#e6342a !important;
+}
+
 .market-cart-link{
   display:inline-flex;
   align-items:center;
@@ -240,11 +262,17 @@
 @media (max-width:767px){
   .market-topbar-inner,
   .market-header-flex{
-    flex-wrap:wrap;
+    flex-wrap:nowrap;
     align-items:center;
     justify-content:space-between;
-    gap:8px;
+    gap:6px;
     padding:8px 10px;
+  }
+
+  .market-guide-link{
+    min-height:32px;
+    padding:0 8px;
+    font-size:12px;
   }
 
   .market-header-logo,

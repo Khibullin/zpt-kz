@@ -54,6 +54,8 @@
       micEl.disabled = next && !(recorder && recorder.state === 'recording');
     }
     if (newEl) newEl.disabled = next;
+    var handoff = document.getElementById('help-handoff');
+    if (handoff) handoff.disabled = next;
   }
 
   function setMicLabel(label) {
@@ -122,6 +124,7 @@
   function addBubble(role, text) {
     var bubble = document.createElement('div');
     bubble.className = 'platform-help__bubble platform-help__bubble--' + role;
+    bubble.setAttribute('data-help-role', role);
     appendZptLinks(bubble, text);
     messagesEl.appendChild(bubble);
     bubble.scrollIntoView({ block: 'end' });
@@ -187,7 +190,7 @@
       return;
     }
     setBusy(true);
-    setStatus('Отправляю вопрос…');
+    setStatus('Ищу ответ…');
     if (chipsEl) chipsEl.hidden = true;
     addBubble('user', question);
     inputEl.value = '';
@@ -215,7 +218,11 @@
         setStatus('');
       });
     }).catch(function (err) {
-      setStatus(err && err.message ? err.message : 'Ошибка сети. Проверьте соединение и попробуйте ещё раз.');
+      var message = err && err.message ? err.message : 'Ошибка сети. Проверьте соединение и попробуйте ещё раз.';
+      if (document.getElementById('help-handoff')) {
+        message += ' Чтобы передать вопрос человеку, нажмите «Передать вопрос менеджеру» и отправьте форму.';
+      }
+      setStatus(message);
     }).then(function () {
       setBusy(false);
     });
@@ -313,6 +320,12 @@
         stream.getTracks().forEach(function (track) { track.stop(); });
         var blob = new Blob(recordedChunks, { type: recordedMime || 'audio/webm' });
         recorder = null;
+        if (!blob.size) {
+          setBusy(false);
+          resetMicButton();
+          setStatus('Запись пустая. Попробуйте ещё раз или напишите вопрос текстом.');
+          return;
+        }
         transcribeBlob(blob, recordedMime);
       });
       recorder.start();

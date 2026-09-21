@@ -12,7 +12,7 @@ GO_DESTINATIONS = {
     'add-product': '/market/seller/add/',
     'wholesale': '/market/?offer=wholesale&all=1',
     'sellers': '/parts-sellers/',
-    'help': '/request-parts/help/',
+    'help': '/zpt-gid/',
 }
 
 # catalog.urls is mounted at both /market/ and /. reverse() resolves to

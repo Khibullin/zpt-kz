@@ -93,6 +93,23 @@ a.site-logo-link.market-brand,
   gap:0;
 }
 
+.market-guide-link{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:34px;
+  padding:0 10px;
+  border-radius:10px;
+  font-size:13px;
+  font-weight:800;
+  color:#ff3b30 !important;
+  background:#fff5f5;
+  border:1px solid #ffd1d1;
+  white-space:nowrap;
+  flex-shrink:0;
+  text-decoration:none !important;
+}
+
 @media (min-width:768px){
   .market-mobile-business-btn{
     display:none !important;

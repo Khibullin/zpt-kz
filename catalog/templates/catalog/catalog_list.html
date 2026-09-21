@@ -3,6 +3,8 @@
 
 {% block title %}Автозапчасти в Казахстане для легковых и грузовых авто | ZPT.KZ{% endblock %}
 
+{% block body_attrs %}{% if not is_listing and not is_home_result %} data-zpt-suppress-ios-pwa="1"{% endif %}{% if is_home_result %} data-zpt-home-result="1"{% endif %}{% endblock %}
+
 {% block extra_head %}
 {% if home_request_token %}
 <meta name="referrer" content="no-referrer">
@@ -14,7 +16,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v144">
-<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v11">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v13">
 <style>
 .market-topbar{
   position:sticky;
@@ -41,222 +43,6 @@
   flex-direction:column;
   align-items:flex-start;
 }
-.hero .b2c-request-banner{
-  margin-top:14px;
-  padding:17px 18px;
-  background:#fff5f5;
-  border:1px solid #ffd1d1;
-  border-radius:15px;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:flex-start;
-  gap:12px;
-  box-sizing:border-box;
-}
-
-.hero .b2c-request-banner-content{
-  display:flex;
-  flex-direction:column;
-  gap:6px;
-  flex:1 1 auto;
-  min-width:0;
-}
-
-.hero .b2c-request-banner-title{
-  margin:0;
-  padding:0;
-  font-size:17px;
-  line-height:1.35;
-  font-weight:700;
-  color:#111827;
-}
-
-.hero .b2c-request-banner-text{
-  margin:0;
-  padding:0;
-  font-size:14px;
-  line-height:1.45;
-  font-weight:400;
-  color:#4b5563;
-}
-
-.hero a.b2c-request-banner-btn,
-.hero .b2c-request-banner-btn{
-  display:inline-flex !important;
-  align-items:center !important;
-  justify-content:center !important;
-  min-height:46px !important;
-  height:46px !important;
-  min-width:180px;
-  max-width:220px;
-  padding:0 24px !important;
-  border:none !important;
-  border-radius:12px !important;
-  background:#ff3b30 !important;
-  color:#fff !important;
-  font-size:15px !important;
-  font-weight:700 !important;
-  line-height:1.2 !important;
-  text-decoration:none !important;
-  white-space:nowrap;
-  box-shadow:none !important;
-  box-sizing:border-box;
-  cursor:pointer;
-}
-
-.hero a.b2c-request-banner-btn:hover,
-.hero .b2c-request-banner-btn:hover{
-  background:#e6342a !important;
-  color:#fff !important;
-  text-decoration:none !important;
-}
-
-@media (min-width:768px){
-  .hero .b2c-request-banner{
-    flex-direction:row;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    margin-top:16px;
-    padding:18px 20px;
-  }
-
-  .hero .b2c-request-banner-title{
-    font-size:18px;
-  }
-
-  .hero .b2c-request-banner-text{
-    font-size:15px;
-  }
-}
-
-@media (max-width:767px){
-  .hero .b2c-request-banner{
-    margin-top:12px;
-    padding:16px;
-    flex-direction:column;
-    align-items:stretch;
-  }
-
-  .hero a.b2c-request-banner-btn,
-  .hero .b2c-request-banner-btn{
-    width:100%;
-    max-width:none;
-    min-width:0;
-    white-space:normal;
-  }
-}
-
-.hero .home-wholesale-entry{
-  margin:10px 0 0;
-  padding:14px 16px;
-  border:1px solid #e5e7eb;
-  border-radius:14px;
-  background:#fff;
-  box-sizing:border-box;
-}
-
-.hero .home-wholesale-title{
-  margin:0 0 10px;
-  padding:0;
-  font-size:.9375rem;
-  line-height:1.35;
-  font-weight:800;
-  color:#111827;
-}
-
-.hero .home-wholesale-actions{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-}
-
-.hero a.home-wholesale-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:100%;
-  min-height:46px;
-  height:46px;
-  padding:0 18px;
-  border-radius:12px;
-  font-size:15px;
-  font-weight:700;
-  line-height:1.2;
-  text-decoration:none !important;
-  box-sizing:border-box;
-  cursor:pointer;
-  transition:background .15s ease, color .15s ease, border-color .15s ease;
-}
-
-.hero a.home-wholesale-btn-primary{
-  border:none;
-  background:var(--zpt-brand, #ff3b30);
-  color:#fff !important;
-}
-
-.hero a.home-wholesale-btn-primary:hover{
-  background:var(--zpt-brand-hover, #e6342a);
-  color:#fff !important;
-}
-
-.hero a.home-wholesale-btn-secondary{
-  border:1.5px solid var(--zpt-brand, #ff3b30);
-  background:#fff;
-  color:var(--zpt-brand, #ff3b30) !important;
-}
-
-.hero a.home-wholesale-btn-secondary:hover{
-  background:#fff5f5;
-  border-color:var(--zpt-brand-hover, #e6342a);
-  color:var(--zpt-brand-hover, #e6342a) !important;
-}
-
-.hero a.home-wholesale-btn:focus-visible{
-  outline:2px solid var(--zpt-brand, #ff3b30);
-  outline-offset:2px;
-}
-
-@media (min-width:768px){
-  .hero .home-wholesale-entry{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    padding:14px 18px;
-  }
-
-  .hero .home-wholesale-title{
-    margin:0;
-    flex:1 1 auto;
-  }
-
-  .hero .home-wholesale-actions{
-    flex-direction:row;
-    flex-shrink:0;
-    gap:10px;
-    width:auto;
-  }
-
-  .hero a.home-wholesale-btn{
-    width:auto;
-    min-width:180px;
-  }
-}
-
-@media (max-width:767px){
-  .hero .home-wholesale-actions{
-    flex-direction:column;
-    gap:8px;
-  }
-
-  .hero a.home-wholesale-btn{
-    width:100%;
-    min-width:0;
-  }
-}
-
 .hero-b2b-strip{
   margin-top:16px;
   padding:14px 16px;
@@ -338,38 +124,20 @@ a.hero-b2b-strip-btn:hover,
   }
 }
 
-.home-seo-block{
-  margin-top:28px;
-  padding:20px 0 8px;
-  border-top:1px solid #ececec;
-}
-.home-seo-block h2{
-  font-size:1.125rem;
-  font-weight:800;
-  margin:0 0 12px;
-  line-height:1.3;
-  color:#111827;
-}
-.home-seo-block p{
-  font-size:.875rem;
-  line-height:1.5;
-  color:#4b5563;
-  margin:0 0 12px;
-}
-.home-seo-links{
-  margin-top:24px;
+.catalog-seo-links{
+  margin-top:20px;
   padding-top:8px;
 }
-.home-seo-links-section{
-  margin-bottom:20px;
+.catalog-seo-links-section{
+  margin-bottom:16px;
 }
-.home-seo-links-section h3{
-  font-size:.875rem;
+.catalog-seo-links-section h3{
+  font-size:.8125rem;
   font-weight:700;
   margin:0 0 8px;
   color:#111827;
 }
-.home-seo-links-list{
+.catalog-seo-links-list{
   display:flex;
   flex-wrap:wrap;
   gap:8px 16px;
@@ -377,21 +145,13 @@ a.hero-b2b-strip-btn:hover,
   margin:0;
   padding:0;
 }
-.home-seo-links-list a{
+.catalog-seo-links-list a{
   color:#ff3b30;
   text-decoration:none;
   font-size:.75rem;
   font-weight:500;
 }
-@media (min-width:768px){
-  .home-seo-block h2{
-    font-size:1.5rem;
-  }
-  .home-seo-links-list a{
-    font-size:.875rem;
-  }
-}
-.home-seo-links-list a:hover{
+.catalog-seo-links-list a:hover{
   text-decoration:underline;
 }
 @media (max-width:640px){
@@ -473,37 +233,67 @@ a.hero-b2b-strip-btn:hover,
   letter-spacing:.02em;
   line-height:1.2;
 }
+.home-intro{
+  margin:0 0 10px;
+}
+.home-intro .hero-title{
+  margin:0 0 6px;
+  font-size:1.35rem;
+  line-height:1.25;
+  font-weight:800;
+  color:#111827;
+}
+.home-intro .hero-sub{
+  margin:0;
+  font-size:.9375rem;
+  line-height:1.4;
+  color:#4b5563;
+}
+.home-parts-heading{
+  margin:0 0 10px;
+  font-size:1rem;
+  line-height:1.3;
+  font-weight:800;
+  color:#111827;
+}
 .home-parts-form{
-  margin-top:12px;
-  padding:16px;
-  background:#fff;
-  border:1px solid #ececec;
-  border-radius:14px;
+  margin-top:4px;
+  padding:0;
+  background:transparent;
+  border:none;
+  border-radius:0;
   box-sizing:border-box;
 }
 .home-parts-grid{
   display:grid;
-  grid-template-columns:1fr;
-  gap:10px;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.home-parts-field-query,
+.home-parts-field-phone,
+.home-parts-actions,
+.home-parts-consent-note,
+.home-parts-extra{
+  grid-column:1 / -1;
 }
 .home-parts-field{
   display:flex;
   flex-direction:column;
-  gap:6px;
+  gap:4px;
   min-width:0;
 }
 .home-parts-field label{
-  font-size:13px;
+  font-size:12px;
   font-weight:700;
   color:#111827;
 }
 .home-parts-field input,
 .home-parts-field textarea{
   width:100%;
-  min-height:46px;
-  padding:10px 12px;
+  min-height:42px;
+  padding:8px 10px;
   border:1px solid #d1d5db;
-  border-radius:12px;
+  border-radius:10px;
   font-family:inherit;
   font-size:16px;
   line-height:1.3;
@@ -511,7 +301,7 @@ a.hero-b2b-strip-btn:hover,
   background:#fff;
 }
 .home-parts-field textarea{
-  min-height:72px;
+  min-height:64px;
   resize:vertical;
 }
 .home-parts-field input:focus,
@@ -580,7 +370,7 @@ a.hero-b2b-strip-btn:hover,
   align-items:center;
   justify-content:center;
   width:100%;
-  min-height:48px;
+  min-height:44px;
   border:none;
   border-radius:12px;
   background:#ff3b30;
@@ -636,15 +426,81 @@ a.hero-b2b-strip-btn:hover,
   font-weight:700;
 }
 @media (min-width:768px){
-  .home-parts-grid{
-    grid-template-columns:1fr 1fr;
+  .home-intro .hero-title{
+    font-size:1.75rem;
   }
-  .home-parts-field-query,
-  .home-parts-actions,
-  .home-parts-consent-note,
-  .home-parts-extra{
-    grid-column:1 / -1;
+}
+@media (max-width:767px){
+  .home-intro .hero-title{
+    font-size:1.25rem;
   }
+  .home-showcase-products > .product:nth-child(n+7){
+    display:none !important;
+  }
+}
+.zpt-pwa-prompt{
+  margin:12px 0 0;
+  padding:12px 14px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#fff;
+  position:relative;
+}
+.zpt-pwa-prompt[hidden]{display:none;}
+.zpt-pwa-prompt-title{
+  margin:0 28px 4px 0;
+  font-size:15px;
+  font-weight:800;
+  color:#111827;
+}
+.zpt-pwa-prompt-text{
+  margin:0 28px 10px 0;
+  font-size:13px;
+  line-height:1.4;
+  color:#4b5563;
+}
+.zpt-pwa-prompt-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.zpt-pwa-prompt-close{
+  position:absolute;
+  top:8px;
+  right:8px;
+  width:32px;
+  height:32px;
+  border:0;
+  background:transparent;
+  font-size:22px;
+  line-height:1;
+  cursor:pointer;
+  color:#6b7280;
+}
+.zpt-pwa-prompt-add,
+.zpt-pwa-prompt-later{
+  min-height:40px;
+  padding:0 14px;
+  border-radius:10px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.zpt-pwa-prompt-add{
+  border:none;
+  background:#ff3b30;
+  color:#fff;
+}
+.zpt-pwa-prompt-later{
+  border:1px solid #d1d5db;
+  background:#fff;
+  color:#111827;
+}
+.zpt-pwa-prompt-instructions{
+  margin:8px 0 0;
+  font-size:13px;
+  line-height:1.45;
+  color:#374151;
 }
 </style>
 {% endblock %}
@@ -659,15 +515,15 @@ a.hero-b2b-strip-btn:hover,
 
     <div class="hero-main">
 
-      <h1 class="hero-title ds-h1">Какая запчасть вам нужна?</h1>
-
-      <p class="hero-sub ds-body">
-        Напишите, какая запчасть нужна — предложения придут в WhatsApp.
-      </p>
+      <header class="home-intro">
+        <h1 class="hero-title ds-h1">Запчасти для вашего авто — одним запросом</h1>
+        <p class="hero-sub ds-body">Отправьте заявку и получите предложения в WhatsApp</p>
+      </header>
 
       {% if is_home_result %}
       <div class="home-request-result" id="home-request-result">
         <p class="home-request-confirm">{{ home_result.message }}</p>
+        {% include 'catalog/includes/zpt_pwa_prompt.html' %}
         {% for group in home_result.groups %}
           {% if group.hits %}
             <h3 class="home-request-group-title">{{ group.query }}</h3>
@@ -698,6 +554,7 @@ a.hero-b2b-strip-btn:hover,
         {% if is_home_result %}hidden{% endif %}
       >
         {% csrf_token %}
+        <h2 class="home-parts-heading">Оставить заявку</h2>
         <div class="home-parts-grid">
           <div class="home-parts-field home-parts-field-query">
             <label for="home-query">Название или артикул запчасти</label>
@@ -744,7 +601,7 @@ a.hero-b2b-strip-btn:hover,
             <p class="home-parts-error" data-error-for="city" hidden></p>
           </div>
 
-          <div class="home-parts-field">
+          <div class="home-parts-field home-parts-field-phone">
             <label for="home-phone">Ваш WhatsApp</label>
             <input id="home-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+7 701 123 45 67">
             <p class="home-parts-error" data-error-for="phone" hidden></p>
@@ -768,7 +625,7 @@ a.hero-b2b-strip-btn:hover,
           <p class="home-parts-form-error" id="home-parts-form-error" hidden></p>
 
           <div class="home-parts-actions">
-            <button type="submit" class="home-parts-submit" id="home-parts-submit">Найти запчасть</button>
+            <button type="submit" class="home-parts-submit" id="home-parts-submit">Отправить запрос</button>
           </div>
           <p class="home-parts-consent-note">
             Нажимая кнопку, вы соглашаетесь на
@@ -778,7 +635,9 @@ a.hero-b2b-strip-btn:hover,
         </div>
       </form>
 
+      {% if is_listing %}
       {% include 'catalog/includes/b2b_offer_filters.html' %}
+      {% endif %}
 
       {% if has_filters and not products and not is_home_result %}
         <div
@@ -802,14 +661,6 @@ a.hero-b2b-strip-btn:hover,
           </div>
         </div>
       {% endif %}
-
-      <div class="home-wholesale-entry">
-        <p class="home-wholesale-title">Для оптовых покупателей</p>
-        <div class="home-wholesale-actions">
-          <a href="{% url 'public_seller_wholesale' slug='ag-parts' %}" class="home-wholesale-btn home-wholesale-btn-primary">Товары оптом</a>
-          <a href="{% url 'public_seller_wholesale_price' slug='ag-parts' %}" class="home-wholesale-btn home-wholesale-btn-secondary">Скачать оптовый прайс</a>
-        </div>
-      </div>
 
       <div class="hero-b2b-strip">
         <p class="hero-b2b-strip-text">
@@ -836,7 +687,7 @@ a.hero-b2b-strip-btn:hover,
     {% endif %}
   </div>
 
-    <div class="products">
+    <div class="products{% if not is_listing %} home-showcase-products{% endif %}">
 
       {% for product in products %}
         {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
@@ -845,69 +696,43 @@ a.hero-b2b-strip-btn:hover,
     </div>
   {% endif %}
 
-  <section class="home-seo-block" aria-labelledby="home-seo-heading">
-    <h2 class="ds-h2" id="home-seo-heading">Автозапчасти для автомобилей в Казахстане</h2>
-    <p>
-      На ZPT.KZ можно найти и купить автозапчасти для легковых и грузовых автомобилей. На платформе размещаются новые, оригинальные, аналоговые, контрактные и б/у запчасти от продавцов из разных городов Казахстана.
-    </p>
-    <p>
-      Используйте форму выше, чтобы отправить запрос — продавцы свяжутся с вами через WhatsApp. Популярные марки, категории и города открываются ссылками ниже.
-    </p>
-  </section>
-
-  <nav class="home-seo-links" aria-label="Популярные разделы каталога">
-
-    <div class="home-seo-links-section">
+  {% if is_listing %}
+  <nav class="catalog-seo-links" aria-label="Популярные разделы каталога">
+    <div class="catalog-seo-links-section">
       <h3>Популярные марки</h3>
-      <ul class="home-seo-links-list">
+      <ul class="catalog-seo-links-list">
         {% for link in seo_brand_links %}
           <li><a href="{{ link.url }}">{{ link.label }}</a></li>
         {% endfor %}
       </ul>
     </div>
-
-    <div class="home-seo-links-section">
+    <div class="catalog-seo-links-section">
       <h3>Популярные категории</h3>
-      <ul class="home-seo-links-list">
+      <ul class="catalog-seo-links-list">
         {% for link in seo_category_links %}
           <li><a href="{{ link.url }}">{{ link.label }}</a></li>
         {% endfor %}
       </ul>
     </div>
-
-    <div class="home-seo-links-section">
+    <div class="catalog-seo-links-section">
       <h3>Автозапчасти по городам</h3>
-      <ul class="home-seo-links-list">
+      <ul class="catalog-seo-links-list">
         {% for link in seo_city_links %}
           <li><a href="{{ link.url }}">{{ link.label }}</a></li>
         {% endfor %}
       </ul>
     </div>
-
   </nav>
+  {% endif %}
 
   <footer class="footer">
-
     <div class="footer-links">
-
-      <a href="{% url 'home' %}">
-        ZPT.KZ
-      </a>
-
-      <a href="/service-request/">
-        СТО и детейлинг
-      </a>
-
-      <a href="{% url 'faq' %}">
-        Частые вопросы
-      </a>
-
-      <a href="{% url 'feedback' %}" data-feedback-open>
-        Обратная связь
-      </a>
-
+      <a href="{% url 'home' %}">ZPT.KZ</a>
+      <a href="{% url 'zpt_gid' %}">ZPT Гид</a>
+      <a href="{% url 'public_seller_wholesale' slug='ag-parts' %}">Товары оптом</a>
+      <a href="/service-request/">СТО и детейлинг</a>
+      <a href="{% url 'privacy' %}">Политика конфиденциальности</a>
     </div>
-
   </footer>
 
 </div>
@@ -918,8 +743,8 @@ a.hero-b2b-strip-btn:hover,
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v11"></script>
-<script src="{% static 'js/home-parts-form-v1.js' %}?v=4"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
+<script src="{% static 'js/home-parts-form-v2.js' %}?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {

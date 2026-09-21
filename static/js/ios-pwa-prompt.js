@@ -46,6 +46,9 @@
     if (!isIOSDevice() || isStandaloneMode() || wasDismissed()) {
       return;
     }
+    if (document.body.getAttribute('data-zpt-suppress-ios-pwa') === '1') {
+      return;
+    }
 
     var closeButton = prompt.querySelector('[data-ios-pwa-close]');
 

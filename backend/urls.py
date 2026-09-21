@@ -29,6 +29,7 @@ from service_requests.views import (
     service_seller_detail,
 )
 from catalog.views import product_assistant, product_image_search
+from catalog.views_zpt_guide import zpt_guide_view
 
 
 urlpatterns = [
@@ -36,11 +37,8 @@ urlpatterns = [
     path('sitemap.xml', sitemap_index, name='sitemap_index'),
     path('sitemap-static.xml', sitemap_static, name='sitemap_static'),
     path('sitemap-products.xml', sitemap_products, name='sitemap_products'),
-    path(
-        'privacy/',
-        TemplateView.as_view(template_name='legal/privacy.html'),
-        name='privacy',
-    ),
+    path('privacy/', TemplateView.as_view(template_name='legal/privacy.html'), name='privacy'),
+    path('zpt-gid/', zpt_guide_view, name='zpt_gid'),
 
     path('admin/', admin.site.urls),
     path('control/', include('control_panel.urls', namespace='control_panel')),
@@ -128,9 +126,7 @@ urlpatterns = [
 
     path(
         'request-parts/faq/',
-        TemplateView.as_view(
-            template_name='request-parts/faq/index.html'
-        ),
+        RedirectView.as_view(url='/zpt-gid/#spravka', permanent=False),
         name='request_parts_faq',
     ),
 

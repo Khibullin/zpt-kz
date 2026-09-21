@@ -481,7 +481,7 @@ def catalog_list(request):
     elif is_listing:
         products = products.order_by('-created_at')
     else:
-        products = products.order_by('?')[:12]
+        products = products.order_by('?')[:8]
 
     products = attach_sellers_to_products(products)
     attach_b2b_offers(products, enabled=viewer_is_seller)
@@ -1404,7 +1404,7 @@ def public_seller_wholesale_price(request, slug):
 
 
 def faq_view(request):
-    return render(request, 'catalog/faq.html')
+    return redirect('/zpt-gid/#spravka')
 
 
 def feedback_view(request):
@@ -1419,16 +1419,18 @@ def feedback_view(request):
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
-                    'message': 'Спасибо! Мы получили ваше сообщение и скоро свяжемся с вами.',
+                    'message': 'Спасибо! Мы получили ваше сообщение. Ответ не мгновенный — свяжемся с вами.',
                 })
-            success = True
-            form = FeedbackForm()
+            return redirect('/zpt-gid/#svyaz')
         elif request.headers.get('X-Requested-With') == 'XMLHttpRequest':
             return JsonResponse({
                 'success': False,
                 'message': 'Проверьте правильность заполнения полей.',
                 'errors': form.errors,
             }, status=400)
+
+    if request.method != 'POST':
+        return redirect('/zpt-gid/#svyaz')
 
     return render(request, 'catalog/feedback.html', {
         'form': form,

@@ -62,7 +62,7 @@ class CatalogEmptyStateTests(TestCase):
         self.assertNotContains(response, 'Запчасти в наличии')
         self.assertNotContains(response, 'Не нашли нужную запчасть?')
         self.assertNotContains(response, 'class="b2c-request-banner"')
-        self.assertContains(response, 'Для оптовых покупателей')
+        self.assertContains(response, 'Товары оптом')
         self.assertContains(response, 'Продаете запчасти в Казахстане?')
 
     def test_home_without_search_hides_empty_state(self):
@@ -83,12 +83,9 @@ class CatalogEmptyStateTests(TestCase):
         self.assertContains(response, 'Запчасти в наличии')
         self.assertContains(response, 'Тормозные колодки')
         self.assertContains(response, 'Смотреть все')
-        self.assertContains(response, 'Для оптовых покупателей')
+        self.assertContains(response, 'Товары оптом')
         self.assertContains(response, 'href="/seller/ag-parts/wholesale/"')
-        self.assertContains(
-            response,
-            'href="/seller/ag-parts/wholesale/price.xlsx"',
-        )
+        self.assertNotContains(response, 'class="home-wholesale-entry"')
 
     def test_search_with_results_hides_empty_state(self):
         product = self._create_product(
@@ -135,7 +132,7 @@ class CatalogEmptyStateTests(TestCase):
             r'id="catalog-results"[^>]*data-catalog-scroll="results"',
         )
         self.assertNotContains(response, 'id="catalog-empty-state"')
-        self.assertContains(response, 'Какая запчасть вам нужна?')
+        self.assertContains(response, 'Запчасти для вашего авто — одним запросом')
         self.assertContains(response, 'Запчасти в наличии')
 
     def test_filters_without_query_show_filter_empty_state(self):
@@ -171,7 +168,7 @@ class CatalogEmptyStateTests(TestCase):
         self.assertNotContains(response, 'id="catalog-results"')
         self.assertIn('getElementById(\'catalog-empty-state\')', html)
         self.assertNotContains(response, 'Не нашли нужную запчасть?')
-        self.assertContains(response, 'Для оптовых покупателей')
+        self.assertContains(response, 'Товары оптом')
         self.assertContains(response, 'Продаете запчасти в Казахстане?')
 
 
@@ -206,15 +203,16 @@ class CatalogHeroLayoutTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            'Какая запчасть вам нужна?',
+            'Запчасти для вашего авто — одним запросом',
         )
         self.assertContains(
             response,
-            'Напишите, какая запчасть нужна — предложения придут в WhatsApp.',
+            'Отправьте заявку и получите предложения в WhatsApp',
         )
         self.assertContains(response, 'Название или артикул запчасти')
-        self.assertContains(response, 'Найти запчасть')
+        self.assertContains(response, 'Отправить запрос')
         self.assertContains(response, 'id="home-parts-form"')
+        self.assertContains(response, 'Оставить заявку')
         self.assertContains(response, 'Запчасти в наличии')
         self.assertContains(response, 'Ремень ГРМ')
         self.assertContains(response, 'Смотреть все')
@@ -231,27 +229,20 @@ class CatalogHeroLayoutTests(TestCase):
         self.assertNotContains(response, 'Найти по авто')
         self.assertNotContains(response, 'Не нашли нужную запчасть?')
         self.assertNotContains(response, 'class="b2c-request-banner-btn"')
-        self.assertNotContains(response, 'Оставить заявку')
+        self.assertNotContains(response, 'Оставить заявку на запчасть')
         self.assertNotContains(response, 'выберите страну')
         self.assertNotContains(response, 'Выберите страну')
-        self.assertContains(response, 'Используйте форму выше')
+        self.assertNotContains(response, 'Автозапчасти для автомобилей в Казахстане')
         self.assertContains(response, 'Год выпуска (необязательно)')
-        self.assertContains(response, 'Для оптовых покупателей')
         self.assertContains(response, 'Товары оптом')
-        self.assertContains(response, 'Скачать оптовый прайс')
         self.assertContains(response, 'href="/seller/ag-parts/wholesale/"')
-        self.assertContains(
-            response,
-            'href="/seller/ag-parts/wholesale/price.xlsx"',
-        )
-        wholesale_html = html[
-            html.find('class="home-wholesale-entry"') : html.find(
-                'class="hero-b2b-strip"'
-            )
-        ]
-        self.assertIn('Товары оптом', wholesale_html)
-        self.assertIn('Скачать оптовый прайс', wholesale_html)
-        self.assertNotIn('nofollow', wholesale_html)
+        self.assertNotContains(response, 'class="home-wholesale-entry"')
+        self.assertContains(response, 'ZPT Гид')
+        self.assertContains(response, 'Маркетплейс')
+        self.assertNotContains(response, 'Маркетплейс автозапчастей Казахстана')
+        self.assertNotContains(response, 'GPT Guide')
+        self.assertNotContains(response, 'GPT Гид')
+        self.assertNotContains(response, 'Комплекты ТО')
 
         self.assertNotContains(response, 'hero-perks')
         self.assertNotContains(
@@ -271,10 +262,10 @@ class CatalogHeroLayoutTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(html.count('id="catalog-empty-state"'), 1)
         self.assertEqual(html.count('Запчасть не найдена в каталоге'), 1)
-        self.assertContains(response, 'Найти запчасть')
+        self.assertContains(response, 'Отправить запрос')
         self.assertNotContains(response, 'Оставить заявку на запчасть')
         self.assertNotContains(response, 'Не нашли нужную запчасть?')
-        self.assertContains(response, 'Для оптовых покупателей')
+        self.assertContains(response, 'Товары оптом')
         self.assertContains(response, 'Продаете запчасти в Казахстане?')
 
 
@@ -320,7 +311,6 @@ class HomeShowcaseVisibilityTests(TestCase):
         self.assertNotContains(response, 'Скрытый товар витрины')
         html = response.content.decode()
         results = html.find('id="catalog-results"')
-        seo = html.find('id="home-seo-heading"')
         b2b = html.find('class="hero-b2b-strip"')
         self.assertGreater(results, b2b)
-        self.assertGreater(seo, results)
+        self.assertNotContains(response, 'id="home-seo-heading"')

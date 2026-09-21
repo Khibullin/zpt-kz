@@ -3,10 +3,12 @@
   <div class="market-topbar-inner topbar-inner header-inner market-header-flex site-container">
 
     <div class="market-brand-block">
-      {% include 'includes/site_logo.html' with show_subtitle=True %}
+    {% include 'includes/site_logo.html' with show_subtitle=True subtitle='Маркетплейс' %}
     </div>
 
     <div class="market-topbar-actions market-header-actions">
+      <a href="{% url 'zpt_gid' %}" class="market-guide-link no-underline">ZPT Гид</a>
+
       <a href="{% url 'orders:cart' %}" class="market-cart-link no-underline" title="Корзина">
         <span class="market-cart-icon" aria-hidden="true">🛒</span>
         <span class="market-cart-label">Корзина</span>

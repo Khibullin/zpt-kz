@@ -16,7 +16,7 @@ class MarketingGoLinkTests(TestCase):
         'add-product': '/market/seller/add/',
         'wholesale': '/market/?offer=wholesale&all=1',
         'sellers': '/parts-sellers/',
-        'help': '/request-parts/help/',
+        'help': '/zpt-gid/',
     }
 
     def _next_query(self, url):

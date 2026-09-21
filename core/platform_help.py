@@ -77,14 +77,16 @@ https://zpt.kz/go/add-product/
 https://zpt.kz/go/wholesale/
 Каталог продавцов:
 https://zpt.kz/go/sellers/
+ZPT Гид:
+https://zpt.kz/zpt-gid/
 Справка:
 https://zpt.kz/go/help/
 Создать заявку покупателя:
-https://zpt.kz/request-parts/
+https://zpt.kz/
 FAQ:
-https://zpt.kz/request-parts/faq/
+https://zpt.kz/zpt-gid/#spravka
 Обратная связь:
-https://zpt.kz/feedback/
+https://zpt.kz/zpt-gid/#svyaz
 Вход в кабинет продавца:
 https://zpt.kz/seller/login/
 Кабинет продавца:
@@ -124,6 +126,7 @@ https://zpt.kz/go/wholesale/
 Без HTML.
 Без markdown-таблиц.
 Ссылки допустимы, предпочтительно https://zpt.kz/...
+Название раздела помощи: «ZPT Гид». Не пиши «GPT Гид» и не «GPT Guide».
 """
 
 
@@ -325,9 +328,15 @@ def conversation_history_payload(conversation: PlatformHelpConversation) -> list
     return payload
 
 
+def platform_help_system_prompt() -> str:
+    from core.zpt_guide_faq import faq_prompt_block
+
+    return f'{PLATFORM_HELP_SYSTEM_PROMPT}\n\n{faq_prompt_block()}'
+
+
 def build_ai_input(question: str, history_rows: list[PlatformHelpMessage]) -> list[dict]:
     items: list[dict] = [
-        {'role': 'system', 'content': PLATFORM_HELP_SYSTEM_PROMPT},
+        {'role': 'system', 'content': platform_help_system_prompt()},
     ]
     for row in history_rows[-HISTORY_MAX_MESSAGES:]:
         role = row.role if row.role in {'user', 'assistant'} else 'user'

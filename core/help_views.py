@@ -4,7 +4,7 @@ import json
 
 from django.conf import settings
 from django.http import JsonResponse
-from django.shortcuts import render
+from django.shortcuts import redirect
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
@@ -29,8 +29,6 @@ from core.platform_help import (
     transcribe_help_audio,
     validate_question,
 )
-from core.services.platform_help_email import notify_platform_help_question_safely
-from core.services.seller_identity import get_logged_request_seller
 
 
 def _json_error(message: str, status: int) -> JsonResponse:
@@ -46,18 +44,7 @@ def _safe_error(exc: Exception, fallback: str, status: int = 503) -> JsonRespons
 @ensure_csrf_cookie
 @require_GET
 def platform_help_page(request):
-    seller = get_logged_request_seller(request)
-    conversation = load_conversation_from_session(request)
-    help_contact_is_seller = seller is not None
-    help_contact_whatsapp = ''
-    if seller is not None and str(getattr(seller, 'whatsapp', '') or '').strip():
-        help_contact_whatsapp = str(seller.whatsapp).strip()
-    elif conversation is not None and conversation.contact_whatsapp:
-        help_contact_whatsapp = conversation.contact_whatsapp
-    return render(request, 'request-parts/help/index.html', {
-        'help_contact_whatsapp': help_contact_whatsapp,
-        'help_contact_is_seller': help_contact_is_seller,
-    })
+    return redirect('/zpt-gid/#pomoshchnik')
 
 
 @require_POST
@@ -83,7 +70,7 @@ def platform_help_ask(request):
     history_rows = list(
         conversation.messages.order_by('created_at', 'id')
     )
-    user_message = PlatformHelpMessage.objects.create(
+    PlatformHelpMessage.objects.create(
         conversation=conversation,
         role=PlatformHelpMessage.ROLE_USER,
         input_mode=input_mode,
@@ -93,11 +80,6 @@ def platform_help_ask(request):
     try:
         answer = answer_platform_help(question, history_rows)
     except Exception as exc:
-        notify_platform_help_question_safely(
-            request,
-            user_message,
-            ai_failed=True,
-        )
         return _safe_error(exc, SAFE_ASK_UNAVAILABLE, 503)
     model = str(getattr(settings, 'HELP_AI_MODEL', '') or '').strip()
     PlatformHelpMessage.objects.create(
@@ -109,11 +91,6 @@ def platform_help_ask(request):
     )
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
-    notify_platform_help_question_safely(
-        request,
-        user_message,
-        answer=answer,
-    )
     return JsonResponse({
         'ok': True,
         'answer': answer,
