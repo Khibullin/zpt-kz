@@ -14,6 +14,9 @@
   color:#4b5563;
   line-height:1.45;
 }
+.zpt-guide__hero > p{
+  margin-bottom:10px;
+}
 .zpt-guide__toc{
   display:flex;
   flex-wrap:wrap;
@@ -38,6 +41,10 @@
   padding-top:8px;
   scroll-margin-top:76px;
 }
+.zpt-guide__section--help{
+  margin-top:16px;
+  padding-top:4px;
+}
 .zpt-guide__section h2{
   margin:0 0 8px;
   font-size:1.25rem;
@@ -51,22 +58,68 @@
 .zpt-guide__help{
   margin-top:8px;
 }
-.platform-help__toolbar{
+.zpt-guide .platform-help{
+  max-width:none;
+  margin:0;
+  padding:0;
+}
+.zpt-guide .platform-help__chat{
+  min-height:0;
+  height:auto;
+  padding:10px 12px;
+  gap:8px;
+}
+.zpt-guide .platform-help__messages{
+  min-height:0;
+  flex:0 0 auto;
+  gap:8px;
+}
+.zpt-guide .platform-help__composer{
+  margin-top:10px;
+}
+.zpt-guide .platform-help__composer textarea{
+  min-height:64px;
+  padding:10px 12px;
+}
+.zpt-guide .platform-help__status{
+  min-height:0;
+  margin:6px 0 0;
+}
+.zpt-guide .platform-help__actions{
+  margin-top:8px;
+}
+.zpt-guide .platform-help__whatsapp{
+  margin-top:10px;
+}
+.platform-help__toolbar,
+.zpt-guide__toolbar{
   display:flex;
   flex-wrap:wrap;
-  gap:8px;
+  gap:12px;
   align-items:center;
   justify-content:flex-start;
 }
-.zpt-guide__handoff{
-  min-height:36px;
-  padding:0 12px;
-  border-radius:10px;
-  border:1px solid #d1d5db;
-  background:#fff;
+.zpt-guide .platform-help__new,
+.zpt-guide .zpt-guide__handoff{
+  min-height:32px;
+  padding:0;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  color:#6b7280;
   font-size:13px;
-  font-weight:700;
+  font-weight:600;
   cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:3px;
+}
+.zpt-guide .platform-help__new:hover,
+.zpt-guide .zpt-guide__handoff:hover{
+  color:#374151;
+}
+.zpt-guide .platform-help__new:disabled,
+.zpt-guide .zpt-guide__handoff:disabled{
+  opacity:0.6;
 }
 .zpt-guide__search-label{
   display:block;

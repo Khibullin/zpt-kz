@@ -4,6 +4,8 @@ from __future__ import annotations
 import json
 from unittest.mock import patch
 
+from pathlib import Path
+
 from django.contrib.auth.models import User
 from django.core import mail
 from django.test import Client, TestCase, override_settings
@@ -53,6 +55,10 @@ class ZptGuidePageTests(TestCase):
         self.assertContains(response, 'id="help-input"')
         self.assertContains(response, 'Задать вопрос голосом')
         self.assertContains(response, 'Передать вопрос менеджеру')
+        self.assertContains(response, 'Новый диалог')
+        self.assertContains(response, 'static/js/platform-help.js')
+        self.assertNotContains(response, 'Ответ появится здесь')
+        self.assertNotContains(response, 'Я помощник ZPT.KZ')
         self.assertContains(response, 'Связаться с нами')
         self.assertContains(response, 'Добавить ZPT на главный экран')
         self.assertContains(response, 'name="name"')
@@ -64,6 +70,16 @@ class ZptGuidePageTests(TestCase):
         self.assertNotContains(response, 'GPT Guide')
         self.assertNotContains(response, 'GPT Гид')
         self.assertIn('csrftoken', response.cookies)
+
+    def test_helper_welcome_is_compact_and_asks_to_type_or_speak(self):
+        js = Path('static/js/platform-help.js').read_text(encoding='utf-8')
+        self.assertIn(
+            'Здравствуйте! Помогу разобраться с заявками и работой ZPT. '
+            'Напишите вопрос или задайте его голосом',
+            js,
+        )
+        self.assertNotIn('Я помощник ZPT.KZ', js)
+        self.assertNotIn('Могу подсказать по заявкам покупателей', js)
 
     def test_old_public_addresses_redirect_without_touching_post_apis(self):
         faq = self.client.get('/faq/')

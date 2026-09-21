@@ -7,9 +7,7 @@
   var HISTORY_URL = '/api/platform-help/history/';
   var NEW_URL = '/api/platform-help/new-conversation/';
   var WELCOME =
-    'Здравствуйте! Я помощник ZPT.KZ.\n' +
-    'Могу подсказать по заявкам покупателей, размещению товаров,\n' +
-    'оптовым предложениям, кабинету продавца и другим возможностям платформы.';
+    'Здравствуйте! Помогу разобраться с заявками и работой ZPT. Напишите вопрос или задайте его голосом';
 
   var messagesEl = document.getElementById('help-messages');
   var chipsEl = document.getElementById('help-chips');

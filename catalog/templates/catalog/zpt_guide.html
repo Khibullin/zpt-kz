@@ -10,7 +10,7 @@
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v13">
 <link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=4">
-<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -29,15 +29,12 @@
     </nav>
   </header>
 
-  <section class="zpt-guide__section" id="pomoshchnik">
+  <section class="zpt-guide__section zpt-guide__section--help" id="pomoshchnik">
     <h2>Чем помочь?</h2>
-    <p class="zpt-guide__lead">
-      Напишите вопрос или задайте его голосом. Ответ появится здесь. Распознанный голос можно исправить перед отправкой.
-    </p>
 
     <div class="platform-help zpt-guide__help">
       <section class="platform-help__chat" aria-label="Диалог со справочным помощником">
-        <div class="platform-help__toolbar">
+        <div class="platform-help__toolbar zpt-guide__toolbar">
           <button type="button" class="platform-help__new" id="help-new-dialog">
             Новый диалог
           </button>
@@ -66,10 +63,25 @@
           id="help-input"
           name="message"
           maxlength="2000"
-          rows="3"
+          rows="2"
           placeholder="Напишите свой вопрос…"
           required
         ></textarea>
+        <p class="platform-help__status" id="help-status" aria-live="polite"></p>
+        <div class="platform-help__actions">
+          <button
+            type="button"
+            class="platform-help__mic"
+            id="help-mic"
+            aria-label="Задать вопрос голосом"
+            aria-pressed="false"
+          >
+            Задать вопрос голосом
+          </button>
+          <button type="submit" class="platform-help__send" id="help-send">
+            Отправить
+          </button>
+        </div>
         <div class="platform-help__whatsapp">
           <label class="platform-help__label" for="help-whatsapp">
             WhatsApp для ответа специалиста (необязательно)
@@ -95,21 +107,6 @@
             Номер не используется для рекламных рассылок без отдельного согласия.
           </p>
           {% endif %}
-        </div>
-        <p class="platform-help__status" id="help-status" aria-live="polite"></p>
-        <div class="platform-help__actions">
-          <button
-            type="button"
-            class="platform-help__mic"
-            id="help-mic"
-            aria-label="Задать вопрос голосом"
-            aria-pressed="false"
-          >
-            Задать вопрос голосом
-          </button>
-          <button type="submit" class="platform-help__send" id="help-send">
-            Отправить
-          </button>
         </div>
         <p class="platform-help__privacy">
           Голосовая запись используется только для распознавания и не сохраняется.
@@ -200,6 +197,6 @@
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/platform-help.js' %}?v=5"></script>
+<script src="{% static 'js/platform-help.js' %}?v=6"></script>
 <script src="{% static 'js/zpt-guide-v1.js' %}?v=2"></script>
 {% endblock %}
