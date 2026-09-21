@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static humanize %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v143">
+<style>
+.kit-page{padding-top:24px;padding-bottom:40px}
+.kit-breadcrumbs{font-size:13px;color:#6b7280;margin-bottom:16px}
+.kit-breadcrumbs a{color:#ef3d2f;text-decoration:none}
+.kit-hero{padding:8px 0 12px;max-width:900px}
+.kit-hero h1{margin:0 0 12px;font-size:clamp(28px,5vw,44px);line-height:1.1;color:#111827}
+.kit-hero p{margin:0;color:#4b5563;font-size:16px;line-height:1.65}
+.kit-filter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;margin:20px 0;align-items:end}
+.kit-filter label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151}
+.kit-filter select{width:100%;min-height:44px;border:1px solid #d1d5db;border-radius:10px;padding:0 12px;background:#fff}
+.kit-filter button{min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#ef3d2f;color:#fff;font-weight:700;cursor:pointer}
+.kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:16px}
+.kit-card{border:1px solid #e5e7eb;border-radius:14px;padding:16px;background:#fff;display:flex;flex-direction:column;gap:8px}
+.kit-card h2{margin:0;font-size:18px}
+.kit-card h2 a{color:#111827;text-decoration:none}
+.kit-card-meta{color:#6b7280;font-size:14px}
+.kit-card-price{font-size:20px;font-weight:800}
+.kit-empty{padding:20px;border:1px solid #e5e7eb;border-radius:12px;background:#f9fafb;color:#4b5563}
+@media(max-width:720px){.kit-filter{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+
+<main class="container kit-page">
+  <nav class="kit-breadcrumbs" aria-label="Навигация">
+    <a href="{% url 'catalog_list' %}">Автозапчасти</a> → Комплекты ТО
+  </nav>
+
+  <section class="kit-hero">
+    <h1>Комплекты ТО</h1>
+    <p>
+      Подберите готовый набор расходников по марке, модели и двигателю.
+      В корзину попадают обычные товары каталога — без отдельного складского остатка комплекта.
+    </p>
+  </section>
+
+  <form class="kit-filter" method="get" action="{% url 'maintenance_kit_list' %}">
+    <div>
+      <label for="kit-brand">Марка</label>
+      <select id="kit-brand" name="brand">
+        <option value="">Все марки</option>
+        {% for brand in brands %}
+          <option value="{{ brand.id }}"{% if selected_brand == brand.id|stringformat:'s' %} selected{% endif %}>{{ brand.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="kit-model">Модель</label>
+      <select id="kit-model" name="model">
+        <option value="">Все модели</option>
+        {% for model in models %}
+          <option value="{{ model.id }}"{% if selected_model == model.id|stringformat:'s' %} selected{% endif %}>{{ model.name }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
+      <label for="kit-engine">Двигатель</label>
+      <select id="kit-engine" name="engine">
+        <option value="">Все двигатели</option>
+        {% for item in engines %}
+          <option value="{{ item }}"{% if selected_engine == item %} selected{% endif %}>{{ item }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit">Подобрать</button>
+  </form>
+
+  {% if kits %}
+    <div class="kit-grid">
+      {% for kit_view in kits %}
+        <article class="kit-card">
+          <h2>
+            <a href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">{{ kit_view.kit.name }}</a>
+          </h2>
+          <div class="kit-card-meta">
+            {{ kit_view.kit.brand.name }} {{ kit_view.kit.car_model.name }}
+            {% if kit_view.kit.engine %} · {{ kit_view.kit.engine }}{% endif %}
+          </div>
+          {% if kit_view.total_price is not None %}
+            <div class="kit-card-price">{{ kit_view.total_price|intcomma }} ₸</div>
+          {% else %}
+            <div class="kit-card-price">Цена уточняется</div>
+          {% endif %}
+          <div class="kit-card-meta">
+            {% if kit_view.available_kits is None %}
+              Наличие уточняется
+            {% elif kit_view.available_kits == 0 %}
+              Нет в наличии
+            {% else %}
+              Доступно комплектов: {{ kit_view.available_kits }}
+            {% endif %}
+          </div>
+          <a href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">Смотреть состав</a>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="kit-empty">
+      Опубликованных комплектов ТО по выбранным параметрам пока нет.
+    </div>
+  {% endif %}
+</main>
+{% endblock %}

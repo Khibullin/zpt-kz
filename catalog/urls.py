@@ -4,6 +4,11 @@ from .legacy_product_urls import legacy_product_urlpatterns
 from .numeric_product_urls import numeric_product_entry
 from .seo_category_landings import oil_filter_landing
 from .seo_landings import brand_landing
+from .views_maintenance_kits import (
+    maintenance_kit_add_to_cart,
+    maintenance_kit_detail,
+    maintenance_kit_list,
+)
 from .views import (
     catalog_list,
     product_detail,
@@ -35,6 +40,18 @@ from .views import (
 urlpatterns = [
     path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
+
+    path('maintenance-kits/', maintenance_kit_list, name='maintenance_kit_list'),
+    path(
+        'maintenance-kits/<slug:slug>/add-to-cart/',
+        maintenance_kit_add_to_cart,
+        name='maintenance_kit_add_to_cart',
+    ),
+    path(
+        'maintenance-kits/<slug:slug>/',
+        maintenance_kit_detail,
+        name='maintenance_kit_detail',
+    ),
 
     path(
         'avtozapchasti/maslyanye-filtry/',

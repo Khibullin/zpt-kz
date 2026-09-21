@@ -61,6 +61,8 @@ from .models import (
     Warehouse,
     ProductWarehouseStock,
     StockMovement,
+    MaintenanceKit,
+    MaintenanceKitItem,
 )
 
 
@@ -1408,3 +1410,97 @@ class CatalogImportItemAdmin(CatalogHistoryMixin, admin.ModelAdmin):
         'errors',
         'changed_fields',
     )
+
+
+class MaintenanceKitItemInline(admin.TabularInline):
+    model = MaintenanceKitItem
+    extra = 0
+    autocomplete_fields = ('product',)
+    fields = ('product', 'quantity')
+
+
+@admin.register(MaintenanceKit)
+class MaintenanceKitAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'name',
+        'slug',
+        'brand',
+        'car_model',
+        'engine',
+        'is_active',
+        'base_price_display',
+        'available_kits_display',
+    )
+    list_filter = ('is_active', 'brand', 'car_model')
+    search_fields = ('name', 'slug', 'engine', 'description')
+    autocomplete_fields = ('brand', 'car_model')
+    readonly_fields = (
+        'base_price_display',
+        'available_kits_display',
+        'created_at',
+        'updated_at',
+    )
+    inlines = (MaintenanceKitItemInline,)
+    fieldsets = (
+        (
+            None,
+            {
+                'fields': (
+                    'name',
+                    'slug',
+                    'brand',
+                    'car_model',
+                    'engine',
+                    'year_from',
+                    'year_to',
+                    'description',
+                    'is_active',
+                    'base_price_display',
+                    'available_kits_display',
+                ),
+            },
+        ),
+        (
+            'Служебное',
+            {'fields': ('created_at', 'updated_at')},
+        ),
+    )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related('brand', 'car_model')
+            .prefetch_related('items__product')
+        )
+
+    @admin.display(description='Базовая стоимость')
+    def base_price_display(self, obj):
+        from catalog.maintenance_kits import guest_kit_base_price
+
+        if not obj.pk:
+            return '—'
+        price = guest_kit_base_price(obj)
+        if price is None:
+            return 'не рассчитана'
+        return f'{price} ₸'
+
+    @admin.display(description='Доступно комплектов')
+    def available_kits_display(self, obj):
+        from catalog.maintenance_kits import available_kits
+
+        if not obj.pk:
+            return '—'
+        qty = available_kits(obj)
+        if qty is None:
+            return 'Наличие уточняется'
+        return qty
+
+
+@admin.register(MaintenanceKitItem)
+class MaintenanceKitItemAdmin(admin.ModelAdmin):
+    list_display = ('id', 'kit', 'product', 'quantity')
+    search_fields = ('kit__name', 'kit__slug', 'product__title', 'product__article')
+    autocomplete_fields = ('kit', 'product')
+

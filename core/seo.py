@@ -60,6 +60,12 @@ PUBLIC_WHOLESALE_FILTER_QUERY_KEYS = frozenset({
     'page',
 })
 
+MAINTENANCE_KIT_FILTER_QUERY_KEYS = frozenset({
+    'brand',
+    'model',
+    'engine',
+})
+
 NOINDEX_FOLLOW_PREFIXES = (
     '/cart/',
     '/feedback/',
@@ -175,6 +181,11 @@ def robots_directive(request) -> str:
         return 'noindex, follow'
 
     if url_name == 'public_seller_wholesale' and PUBLIC_WHOLESALE_FILTER_QUERY_KEYS.intersection(
+        request.GET.keys()
+    ):
+        return 'noindex, follow'
+
+    if path == '/maintenance-kits/' and MAINTENANCE_KIT_FILTER_QUERY_KEYS.intersection(
         request.GET.keys()
     ):
         return 'noindex, follow'

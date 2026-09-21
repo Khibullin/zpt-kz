@@ -26,6 +26,7 @@ STATIC_SITEMAP_PATHS = (
     '/avtozapchasti/jac/',
     '/avtozapchasti/zeekr/',
     '/avtozapchasti/maslyanye-filtry/',
+    '/maintenance-kits/',
 )
 
 MIN_PRODUCT_DESCRIPTION_LENGTH = 40

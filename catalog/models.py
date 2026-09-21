@@ -1,5 +1,5 @@
 from django.core.exceptions import ValidationError
-from django.core.validators import MaxValueValidator, MinValueValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils.text import slugify
@@ -2040,3 +2040,139 @@ class ProductKaspiEconomicsPolicy(models.Model):
 
     def __str__(self):
         return f'Kaspi policy {self.product_id}'
+
+
+MAINTENANCE_KIT_SLUG_RE = r'^[a-z0-9]+(?:-[a-z0-9]+)*$'
+
+
+class MaintenanceKit(models.Model):
+    name = models.CharField(max_length=255, verbose_name='Название')
+    slug = models.SlugField(
+        max_length=255,
+        unique=True,
+        allow_unicode=False,
+        validators=[
+            RegexValidator(
+                regex=MAINTENANCE_KIT_SLUG_RE,
+                message='Slug может содержать только латиницу, цифры и дефис.',
+            ),
+        ],
+        verbose_name='URL',
+    )
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.PROTECT,
+        related_name='maintenance_kits',
+        verbose_name='Марка',
+    )
+    car_model = models.ForeignKey(
+        CarModel,
+        on_delete=models.PROTECT,
+        related_name='maintenance_kits',
+        verbose_name='Модель',
+    )
+    engine = models.CharField(
+        max_length=80,
+        blank=True,
+        default='',
+        verbose_name='Двигатель',
+    )
+    year_from = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Год от',
+    )
+    year_to = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        verbose_name='Год до',
+    )
+    description = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Описание',
+    )
+    is_active = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name='Опубликован',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Комплект ТО'
+        verbose_name_plural = 'Комплекты ТО'
+        ordering = ['brand__name', 'car_model__name', 'name']
+
+    def __str__(self):
+        return self.name
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.car_model_id and self.brand_id:
+            model_brand_id = getattr(self.car_model, 'brand_id', None)
+            if model_brand_id is None and self.car_model_id:
+                model_brand_id = (
+                    CarModel.objects.filter(pk=self.car_model_id)
+                    .values_list('brand_id', flat=True)
+                    .first()
+                )
+            if model_brand_id != self.brand_id:
+                errors['car_model'] = 'Модель должна относиться к выбранной марке.'
+        if (
+            self.year_from is not None
+            and self.year_to is not None
+            and self.year_from > self.year_to
+        ):
+            errors['year_to'] = 'Год «до» не может быть меньше года «от».'
+        if errors:
+            raise ValidationError(errors)
+
+    def save(self, *args, **kwargs):
+        if self.slug:
+            self.slug = str(self.slug).strip().lower()
+        super().save(*args, **kwargs)
+
+
+class MaintenanceKitItem(models.Model):
+    kit = models.ForeignKey(
+        MaintenanceKit,
+        on_delete=models.CASCADE,
+        related_name='items',
+        verbose_name='Комплект',
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name='maintenance_kit_items',
+        verbose_name='Товар',
+    )
+    quantity = models.PositiveIntegerField(
+        validators=[MinValueValidator(1)],
+        verbose_name='Количество',
+    )
+
+    class Meta:
+        verbose_name = 'Позиция комплекта ТО'
+        verbose_name_plural = 'Позиции комплектов ТО'
+        ordering = ['id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['kit', 'product'],
+                name='uniq_maintenance_kit_item_product',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(quantity__gte=1),
+                name='maintenance_kit_item_qty_gte_1',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.product_id} ×{self.quantity}'
+
+    def clean(self):
+        super().clean()
+        if self.quantity is not None and self.quantity < 1:
+            raise ValidationError({'quantity': 'Количество должно быть не меньше 1.'})
