@@ -210,7 +210,7 @@
   function applyGuideDraft() {
     var yearEl = document.getElementById('home-year');
     var vinEl = document.getElementById('home-vin');
-    var phoneEl = document.getElementById('home-phone');
+    var extraEl = form.querySelector('.home-parts-extra');
     var draft;
     try {
       var raw = sessionStorage.getItem('zptGuideRequestDraft');
@@ -221,20 +221,21 @@
       return;
     }
     if (!draft || typeof draft !== 'object') return;
-    if (queryEl && draft.query) queryEl.value = String(draft.query);
-    if (brandEl && draft.brand) {
-      brandEl.value = String(draft.brand);
-      brandIdEl.value = '';
+
+    function fillIfEmpty(el, value) {
+      if (!el) return false;
+      if (String(el.value || '').trim()) return false;
+      var next = String(value || '').trim();
+      if (!next) return false;
+      el.value = next;
+      return true;
     }
-    if (modelEl && draft.model) {
-      modelEl.value = String(draft.model);
-      modelIdEl.value = '';
-    }
-    if (yearEl && draft.year) yearEl.value = String(draft.year);
-    if (vinEl) vinEl.value = vinEl.value;
-    if (phoneEl && !phoneEl.value) {
-      /* keep phone empty; never fill from the assistant */
-    }
+
+    fillIfEmpty(queryEl, draft.query);
+    if (fillIfEmpty(brandEl, draft.brand) && brandIdEl) brandIdEl.value = '';
+    if (fillIfEmpty(modelEl, draft.model) && modelIdEl) modelIdEl.value = '';
+    fillIfEmpty(yearEl, draft.year);
+    if (fillIfEmpty(vinEl, draft.vin) && extraEl) extraEl.open = true;
     form.hidden = false;
     if (typeof form.scrollIntoView === 'function') {
       form.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -243,6 +244,8 @@
   }
 
   applyGuideDraft();
+
+  window.ZPTHomePartsApplyGuideDraft = applyGuideDraft;
 
   function showNewRequestForm() {
     rotateIdempotencyKey();

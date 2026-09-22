@@ -113,9 +113,22 @@
   }
 
   function showDraftButton(draft) {
-    requestDraft = draft && draft.query ? draft : null;
+    requestDraft = sanitizeRequestDraft(draft);
     if (!goRequestEl) return;
     goRequestEl.hidden = !requestDraft;
+  }
+
+  function sanitizeRequestDraft(draft) {
+    if (!draft || typeof draft !== 'object') return null;
+    var query = String(draft.query || '').trim();
+    if (!query) return null;
+    return {
+      query: query,
+      brand: String(draft.brand || '').trim(),
+      model: String(draft.model || '').trim(),
+      year: String(draft.year || '').trim(),
+      vin: String(draft.vin || '').trim(),
+    };
   }
 
   function loadHistory() {

@@ -136,6 +136,11 @@ class ZptGuidePageTests(TestCase):
         self.assertNotIn('Я помощник ZPT.KZ', js)
         self.assertNotIn('Задать вопрос голосом', js)
         self.assertIn('zptGuideRequestDraft', js)
+        self.assertIn('window.location.href = \'/\';', js)
+        home_js = Path('static/js/home-parts-form-v3.js').read_text(encoding='utf-8')
+        self.assertIn("fillIfEmpty(vinEl, draft.vin)", home_js)
+        self.assertIn('fillIfEmpty', home_js)
+        self.assertNotIn('draft.phone', home_js)
 
     def test_old_public_addresses_redirect_without_touching_post_apis(self):
         faq = self.client.get('/faq/')

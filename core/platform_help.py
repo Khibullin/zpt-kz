@@ -130,8 +130,9 @@ https://zpt.kz/go/wholesale/
 
 Помощь с заявкой:
 уточни название детали, марку, модель, год и при необходимости артикул.
-VIN можно предложить добавить в форме на главной, но не включай VIN,
-телефон и текст обращения в черновик.
+Если покупатель сам назвал VIN для заявки, передай его в prepare_parts_request.
+Не включай телефон и текст обращения в черновик.
+VIN, телефон и текст обращения нельзя передавать в URL.
 Когда данных достаточно, вызови prepare_parts_request.
 Покупатель сам проверяет форму на главной и нажимает «Отправить запрос».
 Ты не создаёшь заявку и не запускаешь рассылку продавцам.
@@ -184,8 +185,9 @@ HELP_TOOLS = [
         'name': 'prepare_parts_request',
         'description': (
             'Prepare a draft for the homepage parts-request form. '
-            'Call only after collecting the part name and, when needed, brand, model and year. '
-            'Never include VIN, phone or a private message. This does not submit the request.'
+            'Call only after collecting the part name and, when needed, brand, model, year and VIN. '
+            'Include VIN only if the buyer already provided it for the request. '
+            'Never include phone or a private message. This does not submit the request.'
         ),
         'parameters': {
             'type': 'object',
@@ -205,6 +207,13 @@ HELP_TOOLS = [
                 'year': {
                     'type': 'string',
                     'description': 'Vehicle year, if known.',
+                },
+                'vin': {
+                    'type': 'string',
+                    'description': (
+                        'Vehicle VIN if the buyer already provided it. '
+                        '6 to 17 letters and digits. Do not invent a VIN.'
+                    ),
                 },
             },
             'required': ['query'],
@@ -236,6 +245,13 @@ def _clip(value: Any, limit: int) -> str:
     return ' '.join(str(value or '').split())[:limit]
 
 
+def _draft_vin(raw: Any) -> str:
+    text = str(raw or '').strip().upper().replace(' ', '')
+    if not text or not text.isalnum() or not (6 <= len(text) <= 17):
+        return ''
+    return text
+
+
 def prepare_parts_request_draft(raw: Any) -> dict:
     if not isinstance(raw, dict):
         raw = {}
@@ -254,6 +270,7 @@ def prepare_parts_request_draft(raw: Any) -> dict:
         'brand': _clip(raw.get('brand'), REQUEST_FIELD_MAX),
         'model': _clip(raw.get('model'), REQUEST_FIELD_MAX),
         'year': year,
+        'vin': _draft_vin(raw.get('vin')),
     }
     return {
         'ok': True,
@@ -592,6 +609,7 @@ def answer_platform_help(
                         'brand': str(draft.get('brand') or ''),
                         'model': str(draft.get('model') or ''),
                         'year': str(draft.get('year') or ''),
+                        'vin': str(draft.get('vin') or ''),
                     }
             input_items.append({
                 'type': 'function_call_output',

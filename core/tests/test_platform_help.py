@@ -27,6 +27,7 @@ from core.platform_help import (
     platform_help_system_prompt,
     normalize_help_contact_whatsapp,
     parse_help_output_text,
+    prepare_parts_request_draft,
 )
 from core.services.platform_help_email import (
     get_help_notification_email,
@@ -349,7 +350,7 @@ class PlatformHelpTests(TestCase):
         self.assertNotIn('cost_price', second)
         self.assertIn('В каталоге ZPT найден', response.json()['answer'])
 
-    def test_prepare_parts_request_draft_omits_vin_and_phone(self):
+    def test_prepare_parts_request_draft_keeps_vin_omits_phone(self):
         def fake_post(url, **kwargs):
             fake_post.calls.append(kwargs.get('json') or {})
             dumped = json.dumps(kwargs.get('json') or {}, ensure_ascii=False)
@@ -377,7 +378,7 @@ class PlatformHelpTests(TestCase):
         with patch('core.platform_help.requests.post', fake_post):
             response = self.client.post(
                 reverse('platform_help_ask'),
-                data=json.dumps({'message': 'Собери заявку на колодки Toyota Camry 2018'}),
+                data=json.dumps({'message': 'Собери заявку на колодки Toyota Camry 2018 VIN JTDBT923X01234567'}),
                 content_type='application/json',
             )
         self.assertEqual(response.status_code, 200)
@@ -389,13 +390,26 @@ class PlatformHelpTests(TestCase):
                 'brand': 'Toyota',
                 'model': 'Camry',
                 'year': '2018',
+                'vin': 'JTDBT923X01234567',
             },
         )
-        self.assertNotIn('vin', payload['request_draft'])
         self.assertNotIn('phone', payload['request_draft'])
         dumped = json.dumps(payload)
-        self.assertNotIn('JTDBT923X01234567', dumped)
         self.assertNotIn('77015556677', dumped)
+
+    def test_prepare_parts_request_draft_drops_invalid_vin_and_phone(self):
+        result = prepare_parts_request_draft({
+            'query': 'фильтр масляный',
+            'brand': 'Toyota',
+            'vin': '??',
+            'phone': '77015556677',
+            'message': 'Скрытый текст',
+        })
+        self.assertTrue(result['ok'])
+        self.assertEqual(result['draft']['query'], 'фильтр масляный')
+        self.assertEqual(result['draft']['vin'], '')
+        self.assertNotIn('phone', result['draft'])
+        self.assertNotIn('message', result['draft'])
 
     def test_history_empty_for_new_session(self):
         response = self.client.get(reverse('platform_help_history'))
