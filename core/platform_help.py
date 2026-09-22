@@ -3,6 +3,7 @@ from __future__ import annotations
 import hashlib
 import json
 import logging
+from dataclasses import dataclass
 from typing import Any
 
 import requests
@@ -108,10 +109,32 @@ https://zpt.kz/seller/profile/
 Оптовые предложения и прайс-листы доступны через
 https://zpt.kz/go/wholesale/
 
-Если спрашивают о подборе конкретной запчасти или применимости,
-не выдавай непроверенный ответ. Это не Buyer AI.
-Объясни, что подбор запчастей и проверка применимости — отдельная функция,
-и предложи создать заявку на https://zpt.kz/request-parts/ или открыть каталог.
+Помощь по сайту:
+опирайся на проверенные FAQ ниже. Не выдумывай правила платформы.
+Ты не видишь сайт пользователя, его кабинет и переписку вне этого диалога.
+
+Поиск по публичному каталогу:
+если спрашивают, есть ли запчасть, артикул или название в каталоге ZPT —
+вызови search_public_catalog. Сообщай только то, что вернул инструмент.
+Точное совпадение артикула важнее похожего названия.
+Совпадение слов в названии товара не подтверждает совместимость с автомобилем.
+Не обещай точный подбор по VIN, взаимозаменяемость и совместимость
+без подтверждения продавца.
+Не называй внутренние склады, PP1, PP2, себестоимость, закупочные цены
+и данные продавцов.
+Если инструмент вернул not_found: напиши «В каталоге ZPT не найден».
+Не пиши, что такой запчасти не существует.
+Если инструмент вернул ошибку: скажи, что сейчас не удалось проверить каталог.
+Не выдавай ошибку проверки за отсутствие товаров.
+Если наличие unknown / «Уточните наличие у продавца» — так и напиши.
+
+Помощь с заявкой:
+уточни название детали, марку, модель, год и при необходимости артикул.
+VIN можно предложить добавить в форме на главной, но не включай VIN,
+телефон и текст обращения в черновик.
+Когда данных достаточно, вызови prepare_parts_request.
+Покупатель сам проверяет форму на главной и нажимает «Отправить запрос».
+Ты не создаёшь заявку и не запускаешь рассылку продавцам.
 
 Если спрашивают вопрос, не связанный с ZPT.KZ,
 вежливо сообщи, что этот помощник предназначен для работы с ZPT.KZ.
@@ -127,7 +150,71 @@ https://zpt.kz/go/wholesale/
 Без markdown-таблиц.
 Ссылки допустимы, предпочтительно https://zpt.kz/...
 Название раздела помощи: «ZPT Гид». Не пиши «GPT Гид» и не «GPT Guide».
+Название этого окна: «ИИ-помощник». Ответ даёт ИИ и появляется здесь.
 """
+
+
+HELP_TOOLS = [
+    {
+        'type': 'function',
+        'name': 'search_public_catalog',
+        'description': (
+            'Search published ZPT catalog products by article or product name. '
+            'Use when the user asks whether a part, SKU or name is in the ZPT catalog. '
+            'Keep leading zeros and significant characters from the user query. '
+            'Do not use this for how-to questions about the website.'
+        ),
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'query': {
+                    'type': 'string',
+                    'description': (
+                        'Article and/or product name as given by the user. '
+                        'Do not strip leading zeros.'
+                    ),
+                },
+            },
+            'required': ['query'],
+            'additionalProperties': False,
+        },
+    },
+    {
+        'type': 'function',
+        'name': 'prepare_parts_request',
+        'description': (
+            'Prepare a draft for the homepage parts-request form. '
+            'Call only after collecting the part name and, when needed, brand, model and year. '
+            'Never include VIN, phone or a private message. This does not submit the request.'
+        ),
+        'parameters': {
+            'type': 'object',
+            'properties': {
+                'query': {
+                    'type': 'string',
+                    'description': 'Part name or article for the homepage form.',
+                },
+                'brand': {
+                    'type': 'string',
+                    'description': 'Vehicle brand, if known.',
+                },
+                'model': {
+                    'type': 'string',
+                    'description': 'Vehicle model, if known.',
+                },
+                'year': {
+                    'type': 'string',
+                    'description': 'Vehicle year, if known.',
+                },
+            },
+            'required': ['query'],
+            'additionalProperties': False,
+        },
+    },
+]
+MAX_TOOL_ROUNDS = 4
+REQUEST_QUERY_MAX = 500
+REQUEST_FIELD_MAX = 80
 
 
 class PlatformHelpError(Exception):
@@ -135,6 +222,94 @@ class PlatformHelpError(Exception):
         super().__init__(message)
         self.message = message
         self.status = status
+
+
+@dataclass
+class HelpAnswer:
+    text: str
+    request_draft: dict | None = None
+    catalog_used: bool = False
+    tool_error: bool = False
+
+
+def _clip(value: Any, limit: int) -> str:
+    return ' '.join(str(value or '').split())[:limit]
+
+
+def prepare_parts_request_draft(raw: Any) -> dict:
+    if not isinstance(raw, dict):
+        raw = {}
+    query = _clip(raw.get('query'), REQUEST_QUERY_MAX)
+    if not query:
+        return {
+            'ok': False,
+            'error': 'missing_query',
+            'message': 'Нужно название или артикул запчасти.',
+        }
+    year = _clip(raw.get('year'), 4)
+    if year and (not year.isdigit() or not (1950 <= int(year) <= 2100)):
+        year = ''
+    draft = {
+        'query': query,
+        'brand': _clip(raw.get('brand'), REQUEST_FIELD_MAX),
+        'model': _clip(raw.get('model'), REQUEST_FIELD_MAX),
+        'year': year,
+    }
+    return {
+        'ok': True,
+        'draft': draft,
+        'message': (
+            'Черновик заявки подготовлен. Покупатель должен проверить форму '
+            'на главной и отправить её сам. Заявка ещё не создана.'
+        ),
+    }
+
+
+def execute_help_tool(name: str, raw_arguments: Any) -> dict:
+    if isinstance(raw_arguments, str):
+        try:
+            arguments = json.loads(raw_arguments or '{}')
+        except (TypeError, ValueError, json.JSONDecodeError):
+            arguments = {}
+    elif isinstance(raw_arguments, dict):
+        arguments = raw_arguments
+    else:
+        arguments = {}
+
+    if name == 'search_public_catalog':
+        from catalog.guide_catalog_search import search_public_catalog
+
+        query = arguments.get('query') or arguments.get('article') or arguments.get('name')
+        return search_public_catalog(str(query or ''))
+    if name == 'prepare_parts_request':
+        return prepare_parts_request_draft(arguments)
+    return {
+        'ok': False,
+        'error': 'unknown_tool',
+        'message': 'Этот инструмент недоступен.',
+    }
+
+
+def extract_function_calls(payload: Any) -> list[dict]:
+    if not isinstance(payload, dict):
+        return []
+    calls = []
+    for item in payload.get('output') or []:
+        if not isinstance(item, dict):
+            continue
+        if item.get('type') not in {'function_call', 'tool_call'}:
+            continue
+        call_id = str(item.get('call_id') or item.get('id') or '').strip()
+        name = str(item.get('name') or '').strip()
+        if not call_id or not name:
+            continue
+        calls.append({
+            'call_id': call_id,
+            'name': name,
+            'arguments': item.get('arguments') or item.get('input') or {},
+            'raw': item,
+        })
+    return calls
 
 
 def normalize_audio_content_type(raw: str) -> str:
@@ -348,21 +523,7 @@ def build_ai_input(question: str, history_rows: list[PlatformHelpMessage]) -> li
     return items
 
 
-def answer_platform_help(
-    question: str,
-    history_rows: list[PlatformHelpMessage],
-    *,
-    post=None,
-) -> str:
-    api_key = _openai_api_key()
-    if not api_key:
-        raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503)
-    model = str(getattr(settings, 'HELP_AI_MODEL', '') or '').strip() or 'gpt-5.6-luna'
-    payload = {
-        'model': model,
-        'input': build_ai_input(question, history_rows),
-    }
-    http_post = post or requests.post
+def _post_openai_response(http_post, api_key: str, payload: dict):
     try:
         response = http_post(
             OPENAI_RESPONSES_URL,
@@ -381,14 +542,68 @@ def answer_platform_help(
         logger.warning('Platform help OpenAI HTTP error')
         raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503)
     try:
-        body = response.json()
+        return response.json()
     except (ValueError, TypeError, json.JSONDecodeError):
         logger.warning('Platform help OpenAI returned invalid JSON')
         raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503) from None
-    text = parse_help_output_text(body)
-    if not text:
+
+
+def answer_platform_help(
+    question: str,
+    history_rows: list[PlatformHelpMessage],
+    *,
+    post=None,
+) -> HelpAnswer:
+    api_key = _openai_api_key()
+    if not api_key:
         raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503)
-    return text
+    model = str(getattr(settings, 'HELP_AI_MODEL', '') or '').strip() or 'gpt-5.6-luna'
+    http_post = post or requests.post
+    input_items = build_ai_input(question, history_rows)
+    result = HelpAnswer(text='')
+
+    for _round in range(MAX_TOOL_ROUNDS + 1):
+        payload = {
+            'model': model,
+            'input': input_items,
+            'tools': HELP_TOOLS,
+        }
+        body = _post_openai_response(http_post, api_key, payload)
+        calls = extract_function_calls(body)
+        text = parse_help_output_text(body)
+        if not calls:
+            if not text:
+                raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503)
+            result.text = text
+            return result
+
+        for call in calls:
+            input_items.append(call['raw'])
+            tool_payload = execute_help_tool(call['name'], call['arguments'])
+            if call['name'] == 'search_public_catalog':
+                result.catalog_used = True
+                if not tool_payload.get('ok'):
+                    result.tool_error = True
+            if call['name'] == 'prepare_parts_request' and tool_payload.get('ok'):
+                draft = tool_payload.get('draft')
+                if isinstance(draft, dict):
+                    result.request_draft = {
+                        'query': str(draft.get('query') or ''),
+                        'brand': str(draft.get('brand') or ''),
+                        'model': str(draft.get('model') or ''),
+                        'year': str(draft.get('year') or ''),
+                    }
+            input_items.append({
+                'type': 'function_call_output',
+                'call_id': call['call_id'],
+                'output': json.dumps(tool_payload, ensure_ascii=False),
+            })
+
+        if text and _round == MAX_TOOL_ROUNDS:
+            result.text = text
+            return result
+
+    raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503)
 
 
 def transcribe_help_audio(

@@ -1675,6 +1675,28 @@ class Feedback(models.Model):
         return f'{self.name} ({self.phone})'
 
 
+class GuideFaqVote(models.Model):
+    faq_id = models.CharField(max_length=32, db_index=True, verbose_name='ID вопроса')
+    session_key = models.CharField(max_length=40, db_index=True, verbose_name='Сессия')
+    helpful = models.BooleanField(verbose_name='Полезно')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Оценка ответа ZPT Гида'
+        verbose_name_plural = 'Оценки ответов ZPT Гида'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['faq_id', 'session_key'],
+                name='core_guidefaqvote_faq_session_uniq',
+            ),
+        ]
+
+    def __str__(self):
+        mark = 'да' if self.helpful else 'нет'
+        return f'{self.faq_id}: {mark}'
+
+
 class InstagramPublication(models.Model):
     STATUS_DRAFT = 'draft'
     STATUS_APPROVED = 'approved'

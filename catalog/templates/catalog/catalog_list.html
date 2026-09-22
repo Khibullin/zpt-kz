@@ -3,7 +3,7 @@
 
 {% block title %}Автозапчасти в Казахстане для легковых и грузовых авто | ZPT.KZ{% endblock %}
 
-{% block body_attrs %}{% if not is_listing and not is_home_result %} data-zpt-suppress-ios-pwa="1"{% endif %}{% if is_home_result %} data-zpt-home-result="1"{% endif %}{% endblock %}
+{% block body_attrs %}{% if not is_listing %} data-zpt-suppress-ios-pwa="1"{% endif %}{% if is_home_result %} data-zpt-home-result="1"{% endif %}{% endblock %}
 
 {% block extra_head %}
 {% if home_request_token %}
@@ -744,7 +744,7 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/home-parts-form-v2.js' %}?v=1"></script>
+<script src="{% static 'js/home-parts-form-v3.js' %}?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {

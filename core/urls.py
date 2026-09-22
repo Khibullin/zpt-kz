@@ -25,6 +25,7 @@ from .views import (
     short_request_redirect,
 )
 from .admin_seller_password import reset_seller_password
+from catalog.views_zpt_guide import zpt_guide_faq_vote
 from .help_views import (
     platform_help_ask,
     platform_help_history,
@@ -114,5 +115,10 @@ urlpatterns = [
         'platform-help/new-conversation/',
         platform_help_new_conversation,
         name='platform_help_new_conversation',
+    ),
+    path(
+        'zpt-guide/faq-vote/',
+        zpt_guide_faq_vote,
+        name='zpt_guide_faq_vote',
     ),
 ]

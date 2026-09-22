@@ -18,6 +18,7 @@ from core.platform_help import (
     SESSION_CONVERSATION_KEY,
     SAFE_ASK_UNAVAILABLE,
     SAFE_TRANSCRIBE_UNAVAILABLE,
+    HelpAnswer,
     answer_platform_help,
     apply_conversation_contact,
     conversation_history_payload,
@@ -81,21 +82,26 @@ def platform_help_ask(request):
         answer = answer_platform_help(question, history_rows)
     except Exception as exc:
         return _safe_error(exc, SAFE_ASK_UNAVAILABLE, 503)
+    if not isinstance(answer, HelpAnswer):
+        answer = HelpAnswer(text=str(answer or ''))
     model = str(getattr(settings, 'HELP_AI_MODEL', '') or '').strip()
     PlatformHelpMessage.objects.create(
         conversation=conversation,
         role=PlatformHelpMessage.ROLE_ASSISTANT,
         input_mode=PlatformHelpMessage.MODE_TEXT,
-        content=answer,
+        content=answer.text,
         ai_model=model,
     )
     conversation.updated_at = timezone.now()
     conversation.save(update_fields=['updated_at'])
-    return JsonResponse({
+    payload = {
         'ok': True,
-        'answer': answer,
+        'answer': answer.text,
         'input_mode': input_mode,
-    })
+    }
+    if answer.request_draft:
+        payload['request_draft'] = answer.request_draft
+    return JsonResponse(payload)
 
 
 @require_POST

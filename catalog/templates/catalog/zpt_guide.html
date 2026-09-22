@@ -1,16 +1,17 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}ZPT Гид — помощь, справка и обратная связь | ZPT.KZ{% endblock %}
+{% block title %}ZPT Гид — частые вопросы и помощь | ZPT.KZ{% endblock %}
+{% block body_attrs %} data-zpt-suppress-ios-pwa="1"{% endblock %}
 
-{% block meta_description %}ZPT Гид: помощник, справка по заявкам и каталогу, форма связи и установка сайта на главный экран.{% endblock %}
+{% block meta_description %}ZPT Гид: частые вопросы, обратная связь и ИИ-помощник по работе сайта и каталогу запчастей.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v13">
-<link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=4">
-<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=6">
 {% endblock %}
 
 {% block content %}
@@ -20,147 +21,100 @@
 <main class="zpt-guide container">
   <header class="zpt-guide__hero">
     <h1>ZPT Гид</h1>
-    <p>Помощник, справка по работе сайта и связь с нами — в одном разделе.</p>
     <nav class="zpt-guide__toc" aria-label="Разделы ZPT Гида">
-      <a href="#pomoshchnik">Чем помочь?</a>
-      <a href="#spravka">Справка</a>
-      <a href="#svyaz">Связаться с нами</a>
-      <a href="#na-ekran">На главный экран</a>
+      <a href="#spravka" data-guide-nav="faq" aria-current="page">Частые вопросы</a>
+      <a href="#svyaz" data-guide-nav="feedback">Обратная связь</a>
+      <button type="button" class="zpt-guide__toc-btn" data-guide-nav="assistant" id="zpt-guide-open-assistant">
+        ИИ-помощник
+      </button>
     </nav>
   </header>
 
-  <section class="zpt-guide__section zpt-guide__section--help" id="pomoshchnik">
-    <h2>Чем помочь?</h2>
+  <section class="zpt-guide__panel" id="spravka" data-guide-panel="faq">
+    <label class="zpt-guide__search-wrap" for="zpt-guide-search">
+      <span class="visually-hidden">Поиск по вопросам</span>
+      <input
+        id="zpt-guide-search"
+        class="zpt-guide__search"
+        type="search"
+        placeholder="Поиск по вопросам"
+        autocomplete="off"
+        enterkeyhint="search"
+      >
+    </label>
 
-    <div class="platform-help zpt-guide__help">
-      <section class="platform-help__chat" aria-label="Диалог со справочным помощником">
-        <div class="platform-help__toolbar zpt-guide__toolbar">
-          <button type="button" class="platform-help__new" id="help-new-dialog">
-            Новый диалог
-          </button>
-          <button type="button" class="zpt-guide__handoff" id="help-handoff">
-            Передать вопрос менеджеру
-          </button>
-        </div>
-        <div
-          class="platform-help__messages"
-          id="help-messages"
-          aria-live="polite"
-          aria-relevant="additions"
-        ></div>
-        <div class="platform-help__chips" id="help-chips" hidden>
-          <button type="button" data-help-example="Как оставить запрос на запчасть?">Как оставить запрос?</button>
-          <button type="button" data-help-example="Куда придут предложения продавцов?">Куда придут предложения?</button>
-          <button type="button" data-help-example="Как добавить товар?">Как добавить товар?</button>
-          <button type="button" data-help-example="Где посмотреть оптовые цены?">Оптовые цены</button>
-        </div>
-      </section>
-
-      <form class="platform-help__composer" id="help-form" novalidate>
-        {% csrf_token %}
-        <label class="platform-help__label" for="help-input">Ваш вопрос</label>
-        <textarea
-          id="help-input"
-          name="message"
-          maxlength="2000"
-          rows="2"
-          placeholder="Напишите свой вопрос…"
-          required
-        ></textarea>
-        <p class="platform-help__status" id="help-status" aria-live="polite"></p>
-        <div class="platform-help__actions">
-          <button
-            type="button"
-            class="platform-help__mic"
-            id="help-mic"
-            aria-label="Задать вопрос голосом"
-            aria-pressed="false"
-          >
-            Задать вопрос голосом
-          </button>
-          <button type="submit" class="platform-help__send" id="help-send">
-            Отправить
-          </button>
-        </div>
-        <div class="platform-help__whatsapp">
-          <label class="platform-help__label" for="help-whatsapp">
-            WhatsApp для ответа специалиста (необязательно)
-          </label>
-          <input
-            type="tel"
-            id="help-whatsapp"
-            name="contact_whatsapp"
-            inputmode="tel"
-            autocomplete="tel"
-            maxlength="30"
-            placeholder="+7 701 123 45 67"
-            value="{{ help_contact_whatsapp }}"
-            {% if help_contact_is_seller %}readonly{% endif %}
-          >
-          {% if help_contact_is_seller %}
-          <p class="platform-help__hint">
-            Для личного ответа используется WhatsApp из вашего профиля продавца.
-          </p>
-          {% else %}
-          <p class="platform-help__hint">
-            Укажите номер, если хотите, чтобы специалист ZPT.KZ мог ответить вам лично в WhatsApp.
-            Номер не используется для рекламных рассылок без отдельного согласия.
-          </p>
-          {% endif %}
-        </div>
-        <p class="platform-help__privacy">
-          Голосовая запись используется только для распознавания и не сохраняется.
-          Текст вопросов и ответы сохраняются в истории диалога ZPT.KZ.
-          WhatsApp, если вы его указали, хранится только для ответа по этому обращению.
-        </p>
-      </form>
-    </div>
-  </section>
-
-  <section class="zpt-guide__section" id="spravka">
-    <h2>Справка</h2>
-    <p class="zpt-guide__lead">Поиск по вопросам и ответам ZPT Гида.</p>
-    <label class="zpt-guide__search-label" for="zpt-guide-search">Найти в справке</label>
-    <input
-      id="zpt-guide-search"
-      class="zpt-guide__search"
-      type="search"
-      placeholder="Например: VIN, опт, возврат"
-      autocomplete="off"
-    >
-    <p class="zpt-guide__empty" id="zpt-guide-empty" hidden>
-      Ничего не найдено.
-      <a href="#pomoshchnik">Задайте вопрос помощнику</a>
-      или
-      <a href="#svyaz">свяжитесь с нами</a>.
-    </p>
-    {% for section in faq_sections %}
-      <article class="zpt-guide__faq-section" data-faq-section>
-        <h3>{{ section.title }}</h3>
-        {% for item in section.items %}
-          <details class="zpt-guide__faq" data-faq-item id="{{ item.id }}">
-            <summary>{{ item.question }}</summary>
-            <div class="zpt-guide__faq-answer">
+    <div id="zpt-guide-faq-home">
+      <h2 class="zpt-guide__block-title">Топ 10 вопросов</h2>
+      <ol class="zpt-guide-faq-list" id="zpt-guide-top10">
+        {% for item in faq_top10 %}
+          <li class="zpt-guide-faq" data-faq-id="{{ item.id }}">
+            <button
+              type="button"
+              class="zpt-guide-faq__q"
+              aria-expanded="false"
+              aria-controls="faq-answer-{{ item.id }}"
+              id="faq-q-{{ item.id }}"
+            >
+              <span class="zpt-guide-faq__num">{{ forloop.counter }}</span>
+              <span class="zpt-guide-faq__text">{{ item.question }}</span>
+              <span class="zpt-guide-faq__arrow" aria-hidden="true"></span>
+            </button>
+            <div class="zpt-guide-faq__a" id="faq-answer-{{ item.id }}" hidden>
               <p>{{ item.answer }}</p>
               {% if item.links %}
-                <p class="zpt-guide__faq-links">
+                <p class="zpt-guide-faq__links">
                   {% for url, label in item.links %}
                     <a href="{{ url }}">{{ label }}</a>
                   {% endfor %}
                 </p>
               {% endif %}
+              <p class="zpt-guide-faq__updated">Обновлено {{ item.updated_at|date:"d.m.Y" }}</p>
+              <div class="zpt-guide-faq__vote" data-faq-vote="{{ item.id }}">
+                <p class="zpt-guide-faq__vote-q">Ответ был полезным?</p>
+                <div class="zpt-guide-faq__vote-btns">
+                  <button type="button" data-vote="yes">Да</button>
+                  <button type="button" data-vote="no">Нет</button>
+                </div>
+                <p class="zpt-guide-faq__vote-stats" data-vote-stats hidden></p>
+                <p class="zpt-guide-faq__vote-error" data-vote-error hidden></p>
+              </div>
             </div>
-          </details>
+          </li>
         {% endfor %}
-      </article>
-    {% endfor %}
+      </ol>
+
+      <h2 class="zpt-guide__block-title">Темы</h2>
+      <ul class="zpt-guide-topics" id="zpt-guide-topics">
+        {% for topic in faq_topics %}
+          <li>
+            <button
+              type="button"
+              class="zpt-guide-topics__btn"
+              data-topic="{{ topic.id }}"
+            >
+              {{ topic.title }}
+            </button>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+
+    <div id="zpt-guide-faq-results" hidden>
+      <button type="button" class="zpt-guide__back" id="zpt-guide-faq-back">Ко всем вопросам</button>
+      <h2 class="zpt-guide__block-title" id="zpt-guide-results-title"></h2>
+      <ol class="zpt-guide-faq-list" id="zpt-guide-results-list"></ol>
+      <p class="zpt-guide__empty" id="zpt-guide-empty" hidden>
+        Ничего не найдено.
+        <button type="button" class="zpt-guide__text-btn" data-guide-nav="assistant">Спросить ИИ-помощника</button>
+        или
+        <a href="#svyaz" data-guide-nav="feedback">написать специалисту</a>.
+      </p>
+    </div>
   </section>
 
-  <section class="zpt-guide__section" id="svyaz">
-    <h2>Связаться с нами</h2>
-    <p class="zpt-guide__lead">
-      Напишите вопрос — мы получим обращение и ответим. Мгновенный ответ не обещаем.
-    </p>
+  <section class="zpt-guide__panel" id="svyaz" data-guide-panel="feedback" hidden>
+    <h2 class="zpt-guide__block-title">Написать специалисту</h2>
+    <p class="zpt-guide__lead">Обращение получит человек. Мгновенный ответ не обещаем.</p>
     <p class="zpt-guide__feedback-success" id="zpt-guide-feedback-success" hidden role="status"></p>
     <p class="zpt-guide__feedback-error" id="zpt-guide-feedback-error" hidden role="alert"></p>
     <form
@@ -171,32 +125,103 @@
       novalidate
     >
       {% csrf_token %}
-      <label for="id_name">{{ feedback_form.name.label }}</label>
+      <label for="id_name">Имя</label>
       {{ feedback_form.name }}
-      <label for="id_phone">{{ feedback_form.phone.label }}</label>
+      <label for="id_phone">Контакт для ответа</label>
       {{ feedback_form.phone }}
-      <label for="id_message">{{ feedback_form.message.label }}</label>
+      <label for="id_message">Сообщение</label>
       {{ feedback_form.message }}
-      <button type="submit" class="zpt-guide__feedback-submit">Отправить</button>
+      <p class="zpt-guide__consent">
+        Нажимая кнопку, вы соглашаетесь на
+        <a href="{% url 'privacy' %}">обработку данных</a>
+        для ответа на обращение.
+      </p>
+      <button type="submit" class="zpt-guide__feedback-submit">Отправить обращение</button>
     </form>
   </section>
 
-  <section class="zpt-guide__section" id="na-ekran" data-zpt-pwa="guide">
-    <h2>Добавить ZPT на главный экран</h2>
-    <p class="zpt-guide__lead">
-      Чтобы открывать сервис одним нажатием, добавьте ярлык на главный экран.
-    </p>
-    <button type="button" class="zpt-guide__install" data-zpt-pwa-add>Добавить</button>
-    <p class="zpt-pwa-prompt-instructions" data-zpt-pwa-instructions></p>
-  </section>
+  <p class="zpt-guide__install-wrap" id="na-ekran" data-zpt-pwa="guide">
+    <button type="button" class="zpt-guide__install-link" data-zpt-pwa-toggle>
+      Добавить иконку ZPT
+    </button>
+    <div class="zpt-guide__install-box" data-zpt-pwa-panel hidden>
+      <p class="zpt-pwa-prompt-instructions" data-zpt-pwa-instructions></p>
+      <button type="button" class="zpt-guide__install" data-zpt-pwa-add hidden>Установить</button>
+      <div class="zpt-guide__install-pick" data-zpt-pwa-pick hidden>
+        <p>Выберите инструкцию:</p>
+        <button type="button" data-pwa-kind="android">Android</button>
+        <button type="button" data-pwa-kind="ios">iPhone / iPad</button>
+        <button type="button" data-pwa-kind="desktop">Компьютер</button>
+        <button type="button" data-pwa-kind="webview">Встроенный браузер</button>
+      </div>
+    </div>
+  </p>
 </main>
+
+<dialog class="zpt-guide-dialog" id="pomoshchnik" aria-labelledby="zpt-guide-assistant-title">
+  <div class="zpt-guide-dialog__bar">
+    <div>
+      <h2 id="zpt-guide-assistant-title">ИИ-помощник</h2>
+      <p class="zpt-guide-dialog__lead">Помогу разобраться с сайтом и найти запчасть в каталоге</p>
+    </div>
+    <button type="button" class="zpt-guide-dialog__close" id="zpt-guide-assistant-close" aria-label="Закрыть">
+      Закрыть
+    </button>
+  </div>
+  <p class="zpt-guide-dialog__ai-note">Ответ даёт ИИ и появляется в этом окне.</p>
+  <div class="zpt-guide-dialog__toolbar">
+    <button type="button" class="zpt-guide-dialog__secondary" id="help-new-dialog">Новый диалог</button>
+    <button type="button" class="zpt-guide-dialog__secondary" id="help-handoff">Написать специалисту</button>
+    <button type="button" class="zpt-guide-dialog__go" id="help-go-request" hidden>Перейти к заявке</button>
+  </div>
+  <div
+    class="platform-help__messages zpt-guide-dialog__messages"
+    id="help-messages"
+    aria-live="polite"
+    aria-relevant="additions"
+  ></div>
+  <form class="zpt-guide-dialog__composer" id="help-form" novalidate>
+    {% csrf_token %}
+    <label class="visually-hidden" for="help-input">Напишите вопрос</label>
+    <textarea
+      id="help-input"
+      name="message"
+      maxlength="2000"
+      rows="1"
+      placeholder="Напишите вопрос…"
+      required
+    ></textarea>
+    <button
+      type="button"
+      class="zpt-guide-dialog__mic"
+      id="help-mic"
+      aria-label="Записать вопрос голосом"
+      aria-pressed="false"
+    >
+      <span aria-hidden="true">🎤</span>
+    </button>
+    <button type="submit" class="zpt-guide-dialog__send" id="help-send">Отправить</button>
+    <p class="platform-help__status zpt-guide-dialog__status" id="help-status" aria-live="polite"></p>
+    <button type="button" class="zpt-guide-dialog__cancel" id="help-mic-cancel" hidden>Отмена</button>
+  </form>
+</dialog>
+
+{{ faq_payload|json_script:"zpt-guide-faq-data" }}
 <script>
   window.ZPT_CART = {
     addUrl: '{% url "orders:cart_add_api" %}',
     countUrl: '{% url "orders:cart_count" %}',
   };
+  window.ZPT_GUIDE = {
+    voteUrl: '{% url "zpt_guide_faq_vote" %}',
+    topics: [
+      {% for topic in faq_topics %}
+      {id: '{{ topic.id }}', title: '{{ topic.title|escapejs }}', itemIds: [{% for faq_id in topic.item_ids %}'{{ faq_id }}'{% if not forloop.last %}, {% endif %}{% endfor %}]}{% if not forloop.last %},{% endif %}
+      {% endfor %}
+    ]
+  };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/platform-help.js' %}?v=6"></script>
-<script src="{% static 'js/zpt-guide-v1.js' %}?v=2"></script>
+<script src="{% static 'js/platform-help-v2.js' %}?v=1"></script>
+<script src="{% static 'js/zpt-guide-v2.js' %}?v=1"></script>
 {% endblock %}

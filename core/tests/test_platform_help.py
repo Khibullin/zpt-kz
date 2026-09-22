@@ -83,14 +83,13 @@ class PlatformHelpTests(TestCase):
         page = self.client.get('/zpt-gid/')
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, 'ZPT Гид')
-        self.assertContains(page, 'Чем помочь?')
+        self.assertContains(page, 'ИИ-помощник')
         self.assertContains(page, 'id="help-input"')
         self.assertContains(page, 'id="help-mic"')
-        self.assertContains(page, 'Задать вопрос голосом')
         self.assertContains(page, 'id="help-send"')
-        self.assertContains(page, 'id="help-whatsapp"')
-        self.assertContains(page, 'WhatsApp для ответа специалиста (необязательно)')
-        self.assertNotContains(page, 'readonly')
+        self.assertNotContains(page, 'id="help-whatsapp"')
+        self.assertNotContains(page, 'Задать вопрос голосом')
+        self.assertNotContains(page, 'WhatsApp для ответа специалиста (необязательно)')
         self.assertNotContains(page, 'GPT Guide')
         self.assertNotContains(page, 'GPT Гид')
 
@@ -99,7 +98,7 @@ class PlatformHelpTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertEqual(response.url, '/zpt-gid/#spravka')
         page = self.client.get('/zpt-gid/')
-        self.assertContains(page, 'Как оставить запрос на запчасть?')
+        self.assertContains(page, 'Как оставить заявку на запчасть?')
 
     def test_go_help_points_to_new_page(self):
         response = self.client.get('/go/help/')
@@ -151,9 +150,12 @@ class PlatformHelpTests(TestCase):
         self.assertEqual(call['url'], OPENAI_RESPONSES_URL)
         body = call['kwargs']['json']
         self.assertEqual(body['model'], settings.HELP_AI_MODEL)
-        self.assertNotIn('tools', body)
+        self.assertIn('tools', body)
         dumped = json.dumps(body)
         self.assertNotIn('web_search', dumped)
+        tool_names = [item.get('name') for item in body['tools']]
+        self.assertIn('search_public_catalog', tool_names)
+        self.assertIn('prepare_parts_request', tool_names)
         self.assertEqual(body['input'][0]['role'], 'system')
         self.assertEqual(body['input'][0]['content'], platform_help_system_prompt())
         self.assertEqual(body['input'][-1]['content'], 'Где посмотреть мои заявки?')
@@ -286,6 +288,114 @@ class PlatformHelpTests(TestCase):
             }),
             'Запасной ответ',
         )
+
+    def test_catalog_tool_round_uses_public_search_and_returns_answer(self):
+        from catalog.models import Product
+
+        Product.objects.create(
+            title='Фильтр масляный Toyota',
+            slug='oil-filter-toyota',
+            article='90915-YZZD4',
+            price=4500,
+            cost_price=1200,
+            seller_name='AG Parts',
+            whatsapp_number='77011112233',
+            status='active',
+        )
+        hidden = Product.objects.create(
+            title='Скрытый фильтр',
+            slug='hidden-filter',
+            article='90915-HIDDEN',
+            price=1,
+            cost_price=1,
+            seller_name='AG Parts',
+            whatsapp_number='77011112233',
+            status='hidden',
+        )
+        del hidden
+
+        def fake_post(url, **kwargs):
+            fake_post.calls.append({'url': url, 'kwargs': kwargs})
+            payload = kwargs.get('json') or {}
+            dumped = json.dumps(payload, ensure_ascii=False)
+            if 'function_call_output' in dumped:
+                return FakeResponse({
+                    'output_text': 'В каталоге ZPT найден фильтр 90915-YZZD4. Совместимость не подтверждена.',
+                })
+            return FakeResponse({
+                'output': [{
+                    'type': 'function_call',
+                    'call_id': 'call_cat_1',
+                    'name': 'search_public_catalog',
+                    'arguments': json.dumps({'query': '90915-YZZD4'}),
+                }],
+            })
+
+        fake_post.calls = []
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Есть фильтр 90915-YZZD4?'}),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(fake_post.calls), 2)
+        second = json.dumps(fake_post.calls[1]['kwargs']['json'], ensure_ascii=False)
+        self.assertIn('90915-YZZD4', second)
+        self.assertIn('Фильтр масляный Toyota', second)
+        self.assertNotIn('1200', second)
+        self.assertNotIn('77011112233', second)
+        self.assertNotIn('90915-HIDDEN', second)
+        self.assertNotIn('cost_price', second)
+        self.assertIn('В каталоге ZPT найден', response.json()['answer'])
+
+    def test_prepare_parts_request_draft_omits_vin_and_phone(self):
+        def fake_post(url, **kwargs):
+            fake_post.calls.append(kwargs.get('json') or {})
+            dumped = json.dumps(kwargs.get('json') or {}, ensure_ascii=False)
+            if 'function_call_output' in dumped:
+                return FakeResponse({
+                    'output_text': 'Проверьте заявку на главной и отправьте её сами.',
+                })
+            return FakeResponse({
+                'output': [{
+                    'type': 'function_call',
+                    'call_id': 'call_req_1',
+                    'name': 'prepare_parts_request',
+                    'arguments': json.dumps({
+                        'query': 'тормозные колодки',
+                        'brand': 'Toyota',
+                        'model': 'Camry',
+                        'year': '2018',
+                        'vin': 'JTDBT923X01234567',
+                        'phone': '77015556677',
+                    }),
+                }],
+            })
+
+        fake_post.calls = []
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Собери заявку на колодки Toyota Camry 2018'}),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 200)
+        payload = response.json()
+        self.assertEqual(
+            payload['request_draft'],
+            {
+                'query': 'тормозные колодки',
+                'brand': 'Toyota',
+                'model': 'Camry',
+                'year': '2018',
+            },
+        )
+        self.assertNotIn('vin', payload['request_draft'])
+        self.assertNotIn('phone', payload['request_draft'])
+        dumped = json.dumps(payload)
+        self.assertNotIn('JTDBT923X01234567', dumped)
+        self.assertNotIn('77015556677', dumped)
 
     def test_history_empty_for_new_session(self):
         response = self.client.get(reverse('platform_help_history'))
@@ -654,7 +764,7 @@ class PlatformHelpTests(TestCase):
         new = PlatformHelpConversation.objects.exclude(pk=old.pk).get()
         self.assertEqual(new.contact_whatsapp, '')
 
-    def test_help_page_seller_whatsapp_is_readonly(self):
+    def test_help_page_does_not_show_whatsapp_field(self):
         user = User.objects.create_user('ag-parts-page', password='secret')
         Seller.objects.create(
             name='AG Parts',
@@ -666,10 +776,8 @@ class PlatformHelpTests(TestCase):
         self.client.force_login(user)
         response = self.client.get('/zpt-gid/')
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'id="help-whatsapp"')
-        self.assertContains(response, 'readonly')
-        self.assertContains(response, '77700001122')
-        self.assertContains(
+        self.assertNotContains(response, 'id="help-whatsapp"')
+        self.assertNotContains(
             response,
             'Для личного ответа используется WhatsApp из вашего профиля продавца.',
         )
