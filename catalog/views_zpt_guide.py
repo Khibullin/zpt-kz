@@ -29,6 +29,13 @@ def _ensure_session_key(request) -> str:
     return str(request.session.session_key or '')
 
 
+def _guide_feedback_form():
+    form = FeedbackForm()
+    form.fields['phone'].widget.attrs['placeholder'] = '+7 701 123 45 67'
+    form.fields['phone'].widget.attrs['inputmode'] = 'tel'
+    return form
+
+
 def faq_vote_stats_map(faq_ids=None) -> dict:
     qs = GuideFaqVote.objects.all()
     if faq_ids is not None:
@@ -100,7 +107,7 @@ def zpt_guide_view(request):
         'faq_topics': PUBLIC_TOPICS,
         'faq_payload': items,
         'faq_vote_stats': stats,
-        'feedback_form': FeedbackForm(),
+        'feedback_form': _guide_feedback_form(),
         'help_contact_whatsapp': help_contact_whatsapp,
         'help_contact_is_seller': help_contact_is_seller,
     })

@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v13">
 <link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=5">
-<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=7">
 {% endblock %}
 
 {% block content %}
@@ -114,7 +114,7 @@
 
   <section class="zpt-guide__panel" id="svyaz" data-guide-panel="feedback" hidden>
     <h2 class="zpt-guide__block-title">Написать специалисту</h2>
-    <p class="zpt-guide__lead">Обращение получит человек. Мгновенный ответ не обещаем.</p>
+    <p class="zpt-guide__lead">Напишите нам — специалист ответит по указанному контакту.</p>
     <p class="zpt-guide__feedback-success" id="zpt-guide-feedback-success" hidden role="status"></p>
     <p class="zpt-guide__feedback-error" id="zpt-guide-feedback-error" hidden role="alert"></p>
     <form
@@ -127,7 +127,7 @@
       {% csrf_token %}
       <label for="id_name">Имя</label>
       {{ feedback_form.name }}
-      <label for="id_phone">Контакт для ответа</label>
+      <label for="id_phone">Телефон / WhatsApp</label>
       {{ feedback_form.phone }}
       <label for="id_message">Сообщение</label>
       {{ feedback_form.message }}
@@ -200,7 +200,15 @@
     >
       <span aria-hidden="true">🎤</span>
     </button>
-    <button type="submit" class="zpt-guide-dialog__send" id="help-send">Отправить</button>
+    <button
+      type="submit"
+      class="zpt-guide-dialog__send"
+      id="help-send"
+      aria-label="Отправить"
+    >
+      <span class="zpt-guide-dialog__send-text">Отправить</span>
+      <span class="zpt-guide-dialog__send-icon" aria-hidden="true">↑</span>
+    </button>
     <p class="platform-help__status zpt-guide-dialog__status" id="help-status" aria-live="polite"></p>
     <button type="button" class="zpt-guide-dialog__cancel" id="help-mic-cancel" hidden>Отмена</button>
   </form>
@@ -223,5 +231,5 @@
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
 <script src="{% static 'js/platform-help-v2.js' %}?v=2"></script>
-<script src="{% static 'js/zpt-guide-v2.js' %}?v=1"></script>
+<script src="{% static 'js/zpt-guide-v2.js' %}?v=2"></script>
 {% endblock %}
