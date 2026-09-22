@@ -307,6 +307,37 @@ def execute_help_tool(name: str, raw_arguments: Any) -> dict:
     }
 
 
+def _tool_name(item: dict) -> str:
+    name = str(item.get('name') or '').strip()
+    if name:
+        return name
+    nested = item.get('function')
+    if isinstance(nested, dict):
+        return str(nested.get('name') or '').strip()
+    return ''
+
+
+def _tool_arguments(item: dict) -> Any:
+    if item.get('arguments') not in (None, ''):
+        return item.get('arguments')
+    nested = item.get('function')
+    if isinstance(nested, dict) and nested.get('arguments') not in (None, ''):
+        return nested.get('arguments')
+    return item.get('input') or {}
+
+
+def function_call_input_item(call: dict) -> dict:
+    arguments = call.get('arguments')
+    if not isinstance(arguments, str):
+        arguments = json.dumps(arguments or {}, ensure_ascii=False)
+    return {
+        'type': 'function_call',
+        'call_id': call['call_id'],
+        'name': call['name'],
+        'arguments': arguments,
+    }
+
+
 def extract_function_calls(payload: Any) -> list[dict]:
     if not isinstance(payload, dict):
         return []
@@ -316,15 +347,14 @@ def extract_function_calls(payload: Any) -> list[dict]:
             continue
         if item.get('type') not in {'function_call', 'tool_call'}:
             continue
-        call_id = str(item.get('call_id') or item.get('id') or '').strip()
-        name = str(item.get('name') or '').strip()
+        call_id = str(item.get('call_id') or '').strip()
+        name = _tool_name(item)
         if not call_id or not name:
             continue
         calls.append({
             'call_id': call_id,
             'name': name,
-            'arguments': item.get('arguments') or item.get('input') or {},
-            'raw': item,
+            'arguments': _tool_arguments(item),
         })
     return calls
 
@@ -556,7 +586,19 @@ def _post_openai_response(http_post, api_key: str, payload: dict):
         logger.warning('Platform help OpenAI request failed')
         raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503) from None
     if getattr(response, 'status_code', 500) >= 400:
-        logger.warning('Platform help OpenAI HTTP error')
+        error_code = ''
+        try:
+            payload = response.json()
+            error = payload.get('error') if isinstance(payload, dict) else None
+            if isinstance(error, dict):
+                error_code = str(error.get('code') or error.get('type') or '')
+        except (ValueError, TypeError, json.JSONDecodeError, AttributeError):
+            error_code = ''
+        logger.warning(
+            'Platform help OpenAI HTTP error status=%s code=%s',
+            getattr(response, 'status_code', None),
+            error_code,
+        )
         raise PlatformHelpError(SAFE_ASK_UNAVAILABLE, 503)
     try:
         return response.json()
@@ -595,7 +637,7 @@ def answer_platform_help(
             return result
 
         for call in calls:
-            input_items.append(call['raw'])
+            input_items.append(function_call_input_item(call))
             tool_payload = execute_help_tool(call['name'], call['arguments'])
             if call['name'] == 'search_public_catalog':
                 result.catalog_used = True

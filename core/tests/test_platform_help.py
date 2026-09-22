@@ -350,6 +350,37 @@ class PlatformHelpTests(TestCase):
         self.assertNotIn('cost_price', second)
         self.assertIn('В каталоге ZPT найден', response.json()['answer'])
 
+    def test_catalog_tool_round_strips_openai_item_ids_from_follow_up(self):
+        def fake_post(url, **kwargs):
+            fake_post.calls.append(kwargs.get('json') or {})
+            dumped = json.dumps(kwargs.get('json') or {}, ensure_ascii=False)
+            if 'function_call_output' in dumped:
+                return FakeResponse({'output_text': 'В каталоге ZPT не найден.'})
+            return FakeResponse({
+                'output': [{
+                    'type': 'function_call',
+                    'id': 'fc_should_not_echo',
+                    'status': 'completed',
+                    'call_id': 'call_cat_clean',
+                    'name': 'search_public_catalog',
+                    'arguments': json.dumps({'query': 'ZPTTESTARTICLE0000'}),
+                }],
+            })
+
+        fake_post.calls = []
+        with patch('core.platform_help.requests.post', fake_post):
+            response = self.client.post(
+                reverse('platform_help_ask'),
+                data=json.dumps({'message': 'Есть артикул ZPTTESTARTICLE0000?'}),
+                content_type='application/json',
+            )
+        self.assertEqual(response.status_code, 200)
+        second = json.dumps(fake_post.calls[1], ensure_ascii=False)
+        self.assertNotIn('fc_should_not_echo', second)
+        self.assertNotIn('"status": "completed"', second)
+        self.assertIn('call_cat_clean', second)
+        self.assertIn('function_call_output', second)
+
     def test_prepare_parts_request_draft_keeps_vin_omits_phone(self):
         def fake_post(url, **kwargs):
             fake_post.calls.append(kwargs.get('json') or {})
