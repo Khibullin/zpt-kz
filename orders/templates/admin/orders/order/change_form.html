@@ -1,0 +1,12 @@
+{% extends "admin/change_form.html" %}
+
+{% block object-tools-items %}
+  {% if original and original.pk and robokassa_test_url %}
+    <li>
+      <a href="{{ robokassa_test_url }}" class="historylink">
+        Тестовая оплата Robokassa
+      </a>
+    </li>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

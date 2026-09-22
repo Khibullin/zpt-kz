@@ -1,0 +1,36 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+  <h1>{{ title }}</h1>
+  <p>
+    Этап 1: только тестовая оплата Robokassa Kazakhstan, SHA256, IsTest=1.
+    Боевые платежи программно запрещены. Receipt/фискализация не передаётся —
+    перед live нужно отдельное решение.
+  </p>
+  <p>
+    <strong>Тестируется сохранённая сумма товаров</strong> заказа №{{ order.pk }}:
+    {{ amount_display }} ₸. Стоимость доставки не добавляется.
+  </p>
+  <p>Статус заказа сейчас: {{ order.get_status_display }}. Тестовый Result его не меняет.</p>
+  {% if latest %}
+    <p>
+      Последняя попытка: InvId {{ latest.inv_id }},
+      {{ latest.amount }} {{ latest.currency }},
+      {{ latest.get_status_display }}.
+    </p>
+  {% endif %}
+  {% if error %}
+    <ul class="errorlist"><li>{{ error }}</li></ul>
+  {% endif %}
+  <form method="post" action="{{ start_url }}">
+    {% csrf_token %}
+    <p>
+      <label>
+        <input type="checkbox" name="force_new" value="1">
+        Создать новую попытку (новый InvId)
+      </label>
+    </p>
+    <input type="submit" class="default" value="Перейти к тестовой оплате">
+    <a href="{{ order_admin_url }}" class="button cancel-link">К заказу</a>
+  </form>
+{% endblock %}

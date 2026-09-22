@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'core',
     'service_requests',
     'orders',
+    'payments.apps.PaymentsConfig',
     'marketing',
     'control_panel.apps.ControlPanelConfig',
 ]
@@ -288,6 +289,29 @@ HELP_NOTIFICATION_EMAIL = os.getenv(
     'HELP_NOTIFICATION_EMAIL',
     ORDER_ADMIN_EMAIL or EMAIL_HOST_USER,
 )
+
+# Robokassa Kazakhstan. Stage 1: test payments only. Live is never honoured.
+def _env_flag(name, default=False):
+    raw = os.getenv(name, 'true' if default else 'false')
+    return str(raw or '').strip().lower() in ('true', '1', 'yes')
+
+
+ROBOKASSA_ENABLED = _env_flag('ROBOKASSA_ENABLED', False)
+ROBOKASSA_TEST_ENABLED = _env_flag('ROBOKASSA_TEST_ENABLED', False)
+# Explicit stage-1 deny. A true environment value must not enable live.
+ROBOKASSA_LIVE_ENABLED = False
+ROBOKASSA_MERCHANT_LOGIN = (
+    os.getenv('ROBOKASSA_MERCHANT_LOGIN', 'zptkz') or 'zptkz'
+).strip() or 'zptkz'
+ROBOKASSA_HASH_ALGO_TEST = (
+    os.getenv('ROBOKASSA_HASH_ALGO_TEST', 'sha256') or 'sha256'
+).strip().lower() or 'sha256'
+ROBOKASSA_PASS1_TEST = os.getenv('ROBOKASSA_PASS1_TEST', '').strip()
+ROBOKASSA_PASS2_TEST = os.getenv('ROBOKASSA_PASS2_TEST', '').strip()
+ROBOKASSA_OWN_SELLER_PROFILE_ID = os.getenv(
+    'ROBOKASSA_OWN_SELLER_PROFILE_ID',
+    '',
+).strip()
 
 # Checkout / Kaspi (mock until bank credentials are issued)
 ZPT_WAREHOUSE_ADDRESS = os.getenv(

@@ -6,6 +6,7 @@ from django.utils.html import format_html
 
 from catalog.models import SellerProfile
 from catalog.wholesale import format_wholesale_terms_admin_text
+from payments.admin_views import robokassa_test_start_view
 
 from .models import CartItem, KaspiTransaction, Order, OrderItem, WholesaleFunnelEvent
 from .wholesale_analytics import (
@@ -31,6 +32,7 @@ class KaspiTransactionInline(admin.TabularInline):
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     change_list_template = 'admin/orders/order/change_list.html'
+    change_form_template = 'admin/orders/order/change_form.html'
     list_display = (
         'id',
         'created_at',
@@ -68,6 +70,37 @@ class OrderAdmin(admin.ModelAdmin):
     )
     exclude = ('wholesale_terms_snapshot',)
     inlines = [OrderItemInline, KaspiTransactionInline]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                '<int:order_id>/robokassa-test/',
+                self.admin_site.admin_view(robokassa_test_start_view),
+                name='orders_order_robokassa_test',
+            ),
+        ]
+        return custom + urls
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+        user = request.user
+        if (
+            object_id
+            and user.is_authenticated
+            and user.is_active
+            and user.is_superuser
+        ):
+            extra_context['robokassa_test_url'] = reverse(
+                'admin:orders_order_robokassa_test',
+                args=[object_id],
+            )
+        return super().change_view(
+            request,
+            object_id,
+            form_url,
+            extra_context=extra_context,
+        )
 
     def changelist_view(self, request, extra_context=None):
         extra_context = extra_context or {}

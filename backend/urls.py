@@ -50,6 +50,7 @@ urlpatterns = [
 
     path('marketing/', include('marketing.urls')),
 
+    path('payments/', include('payments.urls')),
     path('', include('orders.urls')),
 
     path('prodavat/', seller_landing, name='seller_landing'),

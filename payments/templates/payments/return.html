@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title }}</title>
+</head>
+<body>
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  {% if detail %}
+    <p>{{ detail.note }}</p>
+    {% if detail.inv_id %}
+      <ul>
+        <li>InvId: {{ detail.inv_id }}</li>
+        <li>Заказ: №{{ detail.order_id }}</li>
+        <li>Сумма товаров: {{ detail.amount }} {{ detail.currency }}</li>
+        <li>Попытка: {{ detail.status }}</li>
+      </ul>
+    {% endif %}
+  {% endif %}
+</body>
+</html>
