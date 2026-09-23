@@ -319,6 +319,26 @@ class MaintenanceKitCartTests(TestCase):
         self.assertContains(response, 'Наличие уточняется')
         self.assertContains(response, self.spark.article)
         self.assertContains(response, 'Добавить комплект в корзину')
+        self.assertContains(response, 'Свеча зажигания — SPK-C')
+        self.assertNotContains(response, 'class="kit-cover-wrap"')
+
+    def test_detail_hides_foreign_model_from_product_title(self):
+        self.spark.title = 'Свеча зажигания другой модели XYZ'
+        self.spark.save(update_fields=['title'])
+        response = self.client.get(
+            reverse('maintenance_kit_detail', kwargs={'slug': self.kit.slug})
+        )
+        self.assertContains(response, 'Свеча зажигания — SPK-C')
+        self.assertNotContains(response, 'другой модели XYZ')
+        self.spark.refresh_from_db()
+        self.assertEqual(self.spark.title, 'Свеча зажигания другой модели XYZ')
+
+    def test_list_shows_placeholder_without_cover(self):
+        response = self.client.get(reverse('maintenance_kit_list'))
+        self.assertContains(response, 'kit-card-placeholder')
+        self.assertContains(response, 'Комплект ТО')
+        self.assertContains(response, 'Chery Tiggo 7 Pro')
+        self.assertNotContains(response, 'kit-card-cover')
 
     def test_authenticated_cart_is_atomic(self):
         user = User.objects.create_user(username='buyer-kit', password='secret12345')
@@ -445,3 +465,58 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertEqual(response.status_code, 404)
         post = self.client.post('/maintenance-kits/komplekt-to-changan-uni-k-20t/add-to-cart/')
         self.assertEqual(post.status_code, 404)
+
+    def test_exeed_detail_uses_type_article_and_own_model_copy(self):
+        apply_maintenance_kits()
+        spark = Product.objects.get(article='F4J163707010')
+        spark.title = 'Свеча зажигания Chery Tiggo 7'
+        spark.save(update_fields=['title'])
+        response = self.client.get('/maintenance-kits/komplekt-to-exeed-txl-16t/')
+        html = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Масляный фильтр — F4J161012030', html)
+        self.assertIn('Свеча зажигания — F4J163707010', html)
+        self.assertNotIn('Свеча зажигания Chery Tiggo 7', html)
+        self.assertNotIn('Tiggo 7', html)
+        self.assertIn('EXEED TXL 1.6T', html)
+        self.assertIn('Комплект расходников для ТО EXEED TXL 1.6T', html)
+        spark.refresh_from_db()
+        self.assertEqual(spark.title, 'Свеча зажигания Chery Tiggo 7')
+        self.assertIn(
+            'Комплект ТО Exeed TXL 1.6T. Состав, цены и наличие расходников на ZPT.KZ.',
+            response.context['page_description'],
+        )
+        self.assertNotIn('UNI-K', html)
+        self.assertNotIn('Changan', html)
+
+    def test_chery_detail_mentions_only_own_model(self):
+        apply_maintenance_kits()
+        response = self.client.get(
+            '/maintenance-kits/komplekt-to-chery-tiggo-7-pro-15t/'
+        )
+        html = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Масляный фильтр — 4801012010', html)
+        self.assertIn('Комплект расходников для ТО Chery Tiggo 7 Pro 1.5T', html)
+        self.assertNotIn('TXL', html)
+        self.assertNotIn('UNI-K', html)
+        self.assertNotIn('Exeed', html)
+        self.assertNotIn('Changan', html)
+        self.assertIn(
+            'Комплект ТО Chery Tiggo 7 Pro 1.5T. Состав, цены и наличие расходников на ZPT.KZ.',
+            response.context['page_description'],
+        )
+
+    def test_type_label_falls_back_to_known_article(self):
+        apply_maintenance_kits()
+        oil = Product.objects.get(article='F4J161012030')
+        oil.title = 'Расходник без указания типа'
+        oil.save(update_fields=['title'])
+        from catalog.maintenance_kits import kit_component_display_name
+
+        self.assertEqual(
+            kit_component_display_name(oil),
+            'Масляный фильтр — F4J161012030',
+        )
+        oil.refresh_from_db()
+        self.assertEqual(oil.title, 'Расходник без указания типа')

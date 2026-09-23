@@ -2092,6 +2092,16 @@ class MaintenanceKit(models.Model):
         default='',
         verbose_name='Описание',
     )
+    cover = models.ImageField(
+        upload_to='maintenance_kits/',
+        null=True,
+        blank=True,
+        verbose_name='Общее фото комплекта',
+        help_text=(
+            'Одна общая фотография набора. Показывается в списке и в шапке '
+            'страницы состава. Не заменяет фотографии товаров состава.'
+        ),
+    )
     is_active = models.BooleanField(
         default=False,
         db_index=True,

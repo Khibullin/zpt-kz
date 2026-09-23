@@ -6,33 +6,14 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v143">
-<style>
-.kit-page{padding-top:24px;padding-bottom:40px;max-width:960px}
-.kit-breadcrumbs{font-size:13px;color:#6b7280;margin-bottom:16px}
-.kit-breadcrumbs a{color:#ef3d2f;text-decoration:none}
-.kit-hero h1{margin:0 0 10px;font-size:clamp(26px,4vw,40px);line-height:1.15}
-.kit-meta{color:#4b5563;font-size:16px;line-height:1.5}
-.kit-messages{margin:16px 0;padding:12px 14px;border-radius:10px}
-.kit-messages-error{background:#fef2f2;color:#991b1b}
-.kit-messages-success{background:#ecfdf5;color:#065f46}
-.kit-table{width:100%;border-collapse:collapse;margin-top:20px}
-.kit-table th,.kit-table td{border-bottom:1px solid #e5e7eb;padding:12px 8px;text-align:left;vertical-align:middle}
-.kit-table img{width:64px;height:64px;object-fit:cover;border-radius:8px;background:#f3f4f6}
-.kit-total{margin-top:18px;font-size:22px;font-weight:800}
-.kit-stock{margin-top:8px;color:#4b5563}
-.kit-add{margin-top:18px}
-.kit-add button{min-height:48px;padding:0 20px;border:0;border-radius:10px;background:#ef3d2f;color:#fff;font-weight:700;cursor:pointer}
-.kit-add button:disabled{background:#d1d5db;cursor:not-allowed}
-.kit-note{margin-top:10px;color:#b45309}
-@media(max-width:700px){.kit-table,.kit-table thead,.kit-table tbody,.kit-table th,.kit-table td,.kit-table tr{display:block}.kit-table tr{margin-bottom:14px;border:1px solid #e5e7eb;border-radius:12px;padding:8px}.kit-table th{display:none}}
-</style>
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_cover_v2">
 {% endblock %}
 
 {% block content %}
 {% include 'catalog/includes/market_header.html' %}
 
-<main class="container kit-page">
+<main class="container kit-page kit-page--detail">
   <nav class="kit-breadcrumbs" aria-label="Навигация">
     <a href="{% url 'catalog_list' %}">Автозапчасти</a> →
     <a href="{% url 'maintenance_kit_list' %}">Комплекты ТО</a> →
@@ -49,6 +30,11 @@
 
   <section class="kit-hero">
     <h1>{{ kit.name }}</h1>
+    {% if kit.cover %}
+      <div class="kit-cover-wrap">
+        <img src="{{ kit.cover.url }}" alt="Общее фото комплекта {{ kit.name }}">
+      </div>
+    {% endif %}
     <p class="kit-meta">
       Марка: {{ kit.brand.name }}<br>
       Модель: {{ kit.car_model.name }}<br>
@@ -64,8 +50,7 @@
     <thead>
       <tr>
         <th>Фото</th>
-        <th>Товар</th>
-        <th>Артикул</th>
+        <th>Позиция</th>
         <th>Кол-во</th>
         <th>Цена</th>
         <th>Сумма</th>
@@ -76,24 +61,23 @@
         <tr>
           <td>
             {% if line.product.main_image %}
-              <img src="{{ line.product.main_image.url }}" alt="{{ line.product.title }}">
+              <img src="{{ line.product.main_image.url }}" alt="{{ line.display_name }}">
             {% else %}
-              <img src="{% static 'images/logo.png' %}" alt="{{ line.product.title }}">
+              <img src="{% static 'images/logo.png' %}" alt="{{ line.display_name }}">
             {% endif %}
           </td>
           <td>
-            <a href="{{ line.product|public_product_url }}">{{ line.product.title }}</a>
+            <a href="{{ line.product|public_product_url }}">{{ line.display_name }}</a>
           </td>
-          <td>{{ line.product.article }}</td>
-          <td>{{ line.quantity }}</td>
-          <td>
+          <td data-label="Кол-во">{{ line.quantity }}</td>
+          <td data-label="Цена">
             {% if line.unit_price is not None %}
               {{ line.unit_price|intcomma }} ₸
             {% else %}
               —
             {% endif %}
           </td>
-          <td>
+          <td data-label="Сумма">
             {% if line.subtotal is not None %}
               {{ line.subtotal|intcomma }} ₸
             {% else %}

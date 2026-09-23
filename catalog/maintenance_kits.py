@@ -12,6 +12,13 @@ from django.db import transaction
 
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
 from catalog.models import MaintenanceKit, MaintenanceKitItem, Product
+from catalog.wholesale import (
+    WHOLESALE_TYPE_AIR,
+    WHOLESALE_TYPE_CABIN,
+    WHOLESALE_TYPE_OIL,
+    WHOLESALE_TYPE_SPARK,
+    wholesale_product_type,
+)
 from orders.cart import CartManager
 from orders.constants import CART_MODE_RETAIL, CART_MODE_WHOLESALE, SESSION_CART_KEY, SESSION_CART_MODE_KEY
 from orders.seller_utils import CartModeConflictError, CartSellerConflictError, validate_product_for_cart
@@ -24,6 +31,47 @@ KIT_INTERNAL_SELLER_MESSAGE = (
     'Комплект нельзя добавить: его позиции относятся к разным продавцам.'
 )
 STOCK_UNLIMITED_LABEL = 'Наличие уточняется'
+
+KIT_COMPONENT_TYPE_LABELS = {
+    WHOLESALE_TYPE_CABIN: 'Салонный фильтр',
+    WHOLESALE_TYPE_OIL: 'Масляный фильтр',
+    WHOLESALE_TYPE_AIR: 'Воздушный фильтр',
+    WHOLESALE_TYPE_SPARK: 'Свеча зажигания',
+}
+
+KIT_ARTICLE_TYPES = {
+    'T151109111': WHOLESALE_TYPE_AIR,
+    'T218107011': WHOLESALE_TYPE_CABIN,
+    '4801012010': WHOLESALE_TYPE_OIL,
+    'F4J163707010': WHOLESALE_TYPE_SPARK,
+    '151000025AA': WHOLESALE_TYPE_AIR,
+    '301001199AA': WHOLESALE_TYPE_CABIN,
+    'F4J161012030': WHOLESALE_TYPE_OIL,
+    '1109190CR01': WHOLESALE_TYPE_AIR,
+    'CD569F2801032700': WHOLESALE_TYPE_CABIN,
+    'D20T0120700': WHOLESALE_TYPE_SPARK,
+}
+
+
+def kit_component_type_label(product) -> str:
+    """Buyer-facing part type. Does not use Product.title (may name another car)."""
+    type_key = wholesale_product_type(product)
+    if type_key in KIT_COMPONENT_TYPE_LABELS:
+        return KIT_COMPONENT_TYPE_LABELS[type_key]
+    article = str(getattr(product, 'article', '') or '').strip()
+    return KIT_COMPONENT_TYPE_LABELS.get(KIT_ARTICLE_TYPES.get(article, ''), '')
+
+
+def kit_component_display_name(product) -> str:
+    type_label = kit_component_type_label(product)
+    article = str(getattr(product, 'article', '') or '').strip()
+    if type_label and article:
+        return f'{type_label} — {article}'
+    if type_label:
+        return type_label
+    if article:
+        return article
+    return 'Расходник'
 
 
 class MaintenanceKitCartError(ValueError):
@@ -40,6 +88,7 @@ class KitLineView:
     can_buy: bool
     reason: str
     quote: object
+    display_name: str
 
 
 @dataclass
@@ -126,6 +175,7 @@ def quote_kit_lines(kit: MaintenanceKit, seller_profile=None, *, enforce_stock=T
             can_buy=bool(quote.can_buy),
             reason=quote.reason or '',
             quote=quote,
+            display_name=kit_component_display_name(product),
         ))
     return lines
 

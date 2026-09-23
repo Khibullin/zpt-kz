@@ -1429,6 +1429,7 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
         'car_model',
         'engine',
         'is_active',
+        'has_cover',
         'base_price_display',
         'available_kits_display',
     )
@@ -1436,6 +1437,7 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
     search_fields = ('name', 'slug', 'engine', 'description')
     autocomplete_fields = ('brand', 'car_model')
     readonly_fields = (
+        'cover_preview',
         'base_price_display',
         'available_kits_display',
         'created_at',
@@ -1455,6 +1457,8 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
                     'year_from',
                     'year_to',
                     'description',
+                    'cover',
+                    'cover_preview',
                     'is_active',
                     'base_price_display',
                     'available_kits_display',
@@ -1496,6 +1500,47 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
         if qty is None:
             return 'Наличие уточняется'
         return qty
+
+    @admin.display(description='Общее фото', boolean=True)
+    def has_cover(self, obj):
+        return bool(obj.cover)
+
+    @admin.display(description='Просмотр общего фото')
+    def cover_preview(self, obj):
+        if not obj.cover:
+            return 'Нет общего фото — в витрине будет заготовка «Комплект ТО».'
+        return format_html(
+            '<img src="{}" alt="Общее фото комплекта" '
+            'style="max-width:320px;max-height:240px;object-fit:contain;'
+            'background:#f3f4f6;padding:8px;border-radius:8px;">',
+            obj.cover.url,
+        )
+
+    def save_model(self, request, obj, form, change):
+        from django.core.files.uploadedfile import UploadedFile
+
+        from catalog.image_upload_policy import optimize_uploaded_image
+
+        previous_name = ''
+        if change and obj.pk:
+            previous_name = (
+                MaintenanceKit.objects.filter(pk=obj.pk)
+                .values_list('cover', flat=True)
+                .first()
+                or ''
+            )
+        uploaded = form.cleaned_data.get('cover') if form is not None else None
+        if isinstance(uploaded, UploadedFile):
+            obj.cover = optimize_uploaded_image(uploaded)
+        super().save_model(request, obj, form, change)
+        new_name = getattr(obj.cover, 'name', '') or ''
+        if previous_name and previous_name != new_name:
+            storage = obj.cover.storage if obj.cover else None
+            if storage is None:
+                from django.core.files.storage import default_storage
+                storage = default_storage
+            if storage.exists(previous_name):
+                storage.delete(previous_name)
 
 
 @admin.register(MaintenanceKitItem)
