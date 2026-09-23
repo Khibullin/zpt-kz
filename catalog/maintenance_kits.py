@@ -1,6 +1,9 @@
 """Maintenance kit pricing, stock and atomic cart add.
 
 Does not store kit price or kit stock. Does not touch PP1/PP2.
+Orderability uses the same commercial quote as the rest of ZPT.KZ retail cart:
+Product.status, Product.price / price_on_request, and Product.stock_qty.
+PP1 is a planning reserve and is never added to live availability.
 """
 
 from __future__ import annotations
@@ -26,11 +29,22 @@ from orders.seller_utils import CartModeConflictError, CartSellerConflictError, 
 
 KIT_UNAVAILABLE_MESSAGE = 'Этот комплект сейчас нельзя добавить в корзину.'
 KIT_EMPTY_MESSAGE = 'В комплекте нет позиций.'
+KIT_EMPTY_SELECTION_MESSAGE = 'Выберите хотя бы одну позицию.'
+KIT_INVALID_SELECTION_MESSAGE = 'Выбранная позиция не входит в этот комплект.'
+KIT_LINE_UNAVAILABLE_MESSAGE = 'Выбранную позицию сейчас нельзя заказать.'
 KIT_INACTIVE_MESSAGE = 'Комплект не опубликован.'
 KIT_INTERNAL_SELLER_MESSAGE = (
     'Комплект нельзя добавить: его позиции относятся к разным продавцам.'
 )
 STOCK_UNLIMITED_LABEL = 'Наличие уточняется'
+COVER_PARTIAL_CAPTION = (
+    'На фото полный комплект; выбранный состав указан ниже'
+)
+PARTS_REQUEST_URL = '/request-parts/'
+
+LINE_AVAILABLE = 'available'
+LINE_UNAVAILABLE = 'unavailable'
+LINE_UNCONFIRMED = 'unconfirmed'
 
 KIT_COMPONENT_TYPE_LABELS = {
     WHOLESALE_TYPE_CABIN: 'Салонный фильтр',
@@ -89,6 +103,10 @@ class KitLineView:
     reason: str
     quote: object
     display_name: str
+    availability: str
+    availability_label: str
+    selected_by_default: bool
+    request_url: str
 
 
 @dataclass
@@ -96,9 +114,13 @@ class KitView:
     kit: MaintenanceKit
     lines: list[KitLineView]
     total_price: int | None
+    full_total_price: int | None
     available_kits: int | None
     can_add: bool
     reason: str
+    has_unavailable: bool
+    has_unconfirmed: bool
+    orderable_count: int
 
 
 def kit_years_display(kit: MaintenanceKit) -> str:
@@ -116,9 +138,10 @@ def kit_years_display(kit: MaintenanceKit) -> str:
 
 
 def available_kits(kit: MaintenanceKit) -> int | None:
-    """MIN(stock_qty // required) over numeric stock_qty only.
+    """How many *complete* kits can be assembled from Product.stock_qty.
 
     None stock does not constrain. All-None → None. Zero or insufficient → 0.
+    Does not hide a published car from the picker. Does not read PP1/PP2.
     """
     limits = []
     saw_numeric = False
@@ -155,46 +178,106 @@ def _quote_commercial(product, quantity, seller_profile, *, enforce_stock=True):
         product.stock_qty = original
 
 
+def classify_kit_line(product, purchase_quote) -> str:
+    """Separate unconfirmed article from 'in catalog but not orderable now'."""
+    if product is None or getattr(product, 'pk', None) is None:
+        return LINE_UNCONFIRMED
+    article = str(getattr(product, 'article', '') or '').strip()
+    if not article:
+        return LINE_UNCONFIRMED
+    if getattr(product, 'status', '') != 'active':
+        return LINE_UNAVAILABLE
+    if purchase_quote is not None and purchase_quote.can_buy:
+        return LINE_AVAILABLE
+    return LINE_UNAVAILABLE
+
+
+def _availability_label(availability: str) -> str:
+    if availability == LINE_AVAILABLE:
+        return 'Можно заказать'
+    if availability == LINE_UNCONFIRMED:
+        return 'Артикул не подтверждён'
+    return 'Нет в наличии'
+
+
+def _line_request_url(availability: str) -> str:
+    if availability == LINE_UNAVAILABLE:
+        return PARTS_REQUEST_URL
+    return ''
+
+
 def quote_kit_lines(kit: MaintenanceKit, seller_profile=None, *, enforce_stock=True):
     lines = []
     for item in kit.items.all():
         product = item.product
         quantity = int(item.quantity)
-        quote = _quote_commercial(
+        display_quote = _quote_commercial(
             product,
             quantity,
             seller_profile,
-            enforce_stock=enforce_stock,
+            enforce_stock=False,
         )
+        purchase_quote = _quote_commercial(
+            product,
+            quantity,
+            seller_profile,
+            enforce_stock=True,
+        )
+        availability = classify_kit_line(product, purchase_quote)
+        show_price = availability != LINE_UNCONFIRMED
+        can_buy = availability == LINE_AVAILABLE
+        quote = purchase_quote if enforce_stock else display_quote
         lines.append(KitLineView(
             item=item,
             product=product,
             quantity=quantity,
-            unit_price=quote.unit_price,
-            subtotal=quote.total_price,
-            can_buy=bool(quote.can_buy),
-            reason=quote.reason or '',
+            unit_price=display_quote.unit_price if show_price else None,
+            subtotal=display_quote.total_price if show_price else None,
+            can_buy=can_buy,
+            reason=purchase_quote.reason or '',
             quote=quote,
             display_name=kit_component_display_name(product),
+            availability=availability,
+            availability_label=_availability_label(availability),
+            selected_by_default=can_buy,
+            request_url=_line_request_url(availability),
         ))
     return lines
 
 
+def _sum_line_totals(lines, predicate) -> int | None:
+    selected = [line for line in lines if predicate(line)]
+    if not selected:
+        return None
+    totals = [line.subtotal for line in selected]
+    if any(value is None for value in totals):
+        return None
+    return sum(totals)
+
+
 def build_kit_view(kit: MaintenanceKit, request=None) -> KitView:
     seller_profile = get_request_seller_profile(request) if request is not None else None
-    display_lines = quote_kit_lines(kit, seller_profile, enforce_stock=False)
-    totals = [line.subtotal for line in display_lines]
-    total_price = sum(totals) if totals and all(value is not None for value in totals) else None
+    display_lines = quote_kit_lines(kit, seller_profile, enforce_stock=True)
+    selected_total = _sum_line_totals(
+        display_lines,
+        lambda line: line.selected_by_default,
+    )
+    full_total = _sum_line_totals(
+        display_lines,
+        lambda line: line.availability != LINE_UNCONFIRMED,
+    )
     available = available_kits(kit)
+    has_unavailable = any(line.availability == LINE_UNAVAILABLE for line in display_lines)
+    has_unconfirmed = any(line.availability == LINE_UNCONFIRMED for line in display_lines)
+    orderable_count = sum(1 for line in display_lines if line.can_buy)
     reason = ''
     can_add = True
     try:
         if request is not None:
             preflight_add_kit(request, kit)
         else:
-            _preflight_kit_contents(kit)
-            if available == 0:
-                raise MaintenanceKitCartError(KIT_UNAVAILABLE_MESSAGE)
+            default_items = [line.item for line in display_lines if line.selected_by_default]
+            _preflight_kit_contents(kit, default_items)
     except (MaintenanceKitCartError, CartSellerConflictError, CartModeConflictError, ValueError) as exc:
         can_add = False
         if isinstance(exc, CartSellerConflictError):
@@ -207,41 +290,87 @@ def build_kit_view(kit: MaintenanceKit, request=None) -> KitView:
     return KitView(
         kit=kit,
         lines=display_lines,
-        total_price=total_price,
+        total_price=selected_total,
+        full_total_price=full_total,
         available_kits=available,
         can_add=can_add,
         reason=reason,
+        has_unavailable=has_unavailable,
+        has_unconfirmed=has_unconfirmed,
+        orderable_count=orderable_count,
     )
 
 
 def guest_kit_base_price(kit: MaintenanceKit) -> int | None:
-    """Admin-facing guest commercial total. Same resolver, stock not enforced."""
+    """Admin-facing guest commercial total of the full confirmed composition."""
     lines = quote_kit_lines(kit, seller_profile=None, enforce_stock=False)
-    totals = [line.subtotal for line in lines]
-    if not totals or any(value is None for value in totals):
-        return None
-    return sum(totals)
+    return _sum_line_totals(
+        lines,
+        lambda line: line.availability != LINE_UNCONFIRMED,
+    )
 
 
-def _preflight_kit_contents(kit: MaintenanceKit):
+def parse_selected_product_ids(raw_values) -> list[int]:
+    """Parse posted item ids. Ignores prices; rejects non-integer values."""
+    ids = []
+    seen = set()
+    for value in raw_values or []:
+        text = str(value or '').strip()
+        if not text:
+            continue
+        if not text.isdigit():
+            raise MaintenanceKitCartError(KIT_INVALID_SELECTION_MESSAGE)
+        pk = int(text)
+        if pk in seen:
+            continue
+        seen.add(pk)
+        ids.append(pk)
+    return ids
+
+
+def _default_orderable_items(kit: MaintenanceKit, seller_profile=None):
+    items = []
+    for item in kit.items.all():
+        quantity = int(item.quantity)
+        purchase_quote = _quote_commercial(
+            item.product,
+            quantity,
+            seller_profile,
+            enforce_stock=True,
+        )
+        if classify_kit_line(item.product, purchase_quote) == LINE_AVAILABLE:
+            items.append(item)
+    return items
+
+
+def _preflight_kit_contents(kit: MaintenanceKit, items=None):
     if not kit.is_active:
         raise MaintenanceKitCartError(KIT_INACTIVE_MESSAGE)
-    items = list(kit.items.all())
-    if not items:
+    all_items = list(kit.items.all())
+    if not all_items:
         raise MaintenanceKitCartError(KIT_EMPTY_MESSAGE)
+    if items is None:
+        items = all_items
+    items = list(items)
+    if not items:
+        raise MaintenanceKitCartError(KIT_EMPTY_SELECTION_MESSAGE)
 
+    allowed_ids = {item.product_id for item in all_items}
     synthetic = []
     for item in items:
         quantity = int(item.quantity)
         if quantity < 1:
             raise MaintenanceKitCartError('Количество в комплекте должно быть не меньше 1.')
         product = item.product
+        if item.product_id not in allowed_ids:
+            raise MaintenanceKitCartError(KIT_INVALID_SELECTION_MESSAGE)
         if product is None or product.pk is None:
-            raise MaintenanceKitCartError(KIT_UNAVAILABLE_MESSAGE)
+            raise MaintenanceKitCartError(KIT_LINE_UNAVAILABLE_MESSAGE)
+        article = str(getattr(product, 'article', '') or '').strip()
+        if not article:
+            raise MaintenanceKitCartError(KIT_LINE_UNAVAILABLE_MESSAGE)
         if getattr(product, 'status', '') != 'active':
-            raise MaintenanceKitCartError(
-                f'Товар «{product.title}» недоступен для покупки.'
-            )
+            raise MaintenanceKitCartError(KIT_LINE_UNAVAILABLE_MESSAGE)
         try:
             validate_product_for_cart(synthetic, product)
         except CartSellerConflictError:
@@ -250,8 +379,26 @@ def _preflight_kit_contents(kit: MaintenanceKit):
     return items
 
 
-def preflight_add_kit(request, kit: MaintenanceKit):
-    items = _preflight_kit_contents(kit)
+def resolve_selected_kit_items(kit: MaintenanceKit, selected_ids: list[int]):
+    items_by_product = {item.product_id: item for item in kit.items.all()}
+    if not selected_ids:
+        raise MaintenanceKitCartError(KIT_EMPTY_SELECTION_MESSAGE)
+    selected = []
+    for product_id in selected_ids:
+        item = items_by_product.get(product_id)
+        if item is None:
+            raise MaintenanceKitCartError(KIT_INVALID_SELECTION_MESSAGE)
+        selected.append(item)
+    return selected
+
+
+def preflight_add_kit(request, kit: MaintenanceKit, selected_ids=None):
+    seller_profile = get_request_seller_profile(request)
+    if selected_ids is None:
+        items = _default_orderable_items(kit, seller_profile)
+    else:
+        items = resolve_selected_kit_items(kit, selected_ids)
+    items = _preflight_kit_contents(kit, items)
     cart = CartManager(request)
     if cart.get_mode() == CART_MODE_WHOLESALE:
         raise CartModeConflictError(cart._mode_conflict_message(CART_MODE_RETAIL))
@@ -272,14 +419,17 @@ def preflight_add_kit(request, kit: MaintenanceKit):
         )
         if not quote.can_buy:
             raise MaintenanceKitCartError(
-                quote.reason or f'Товар «{product.title}» нельзя добавить в корзину.'
+                quote.reason or KIT_LINE_UNAVAILABLE_MESSAGE
             )
     return items, cart
 
 
-def add_kit_to_cart(request, kit: MaintenanceKit):
-    """Add every kit component or leave the cart unchanged."""
-    items, cart = preflight_add_kit(request, kit)
+def add_kit_to_cart(request, kit: MaintenanceKit, selected_ids=None):
+    """Add selected kit components or leave the cart unchanged.
+
+    Quantities always come from MaintenanceKitItem. Client totals are ignored.
+    """
+    items, cart = preflight_add_kit(request, kit, selected_ids=selected_ids)
 
     if cart.user:
         with transaction.atomic():
@@ -314,6 +464,11 @@ def add_kit_to_cart(request, kit: MaintenanceKit):
 
 
 def published_kits_queryset():
+    """Only kits explicitly published as a verified composition.
+
+    Does not infer cars from Brand/CarModel or Product names.
+    Zero stock of a part does not exclude the kit.
+    """
     return (
         MaintenanceKit.objects.filter(is_active=True)
         .select_related('brand', 'car_model', 'car_model__brand')

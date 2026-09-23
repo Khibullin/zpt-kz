@@ -1,12 +1,15 @@
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
-from django.views.decorators.http import require_GET, require_POST
+from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
+from catalog.forms import MaintenanceKitCarRequestForm
 from catalog.maintenance_kits import (
+    COVER_PARTIAL_CAPTION,
     add_kit_to_cart,
     build_kit_view,
     kit_years_display,
+    parse_selected_product_ids,
     published_kits_queryset,
 )
 from catalog.models import MaintenanceKit
@@ -58,6 +61,23 @@ def _picker_choices(queryset, selected_brand, selected_model):
     return brands, models, engines
 
 
+def _cart_error_redirect(request, detail_url, exc):
+    if isinstance(exc, CartSellerConflictError):
+        messages.error(
+            request,
+            (
+                f'В корзине уже есть товары продавца «{exc.seller_name}». '
+                'Сначала оформите текущий заказ или очистите корзину.'
+            ),
+        )
+        return redirect(detail_url)
+    if isinstance(exc, CartModeConflictError):
+        messages.error(request, str(exc))
+        return redirect(detail_url)
+    messages.error(request, str(exc) or 'Комплект нельзя добавить в корзину.')
+    return redirect(detail_url)
+
+
 @require_GET
 def maintenance_kit_list(request):
     base = _kit_queryset()
@@ -89,6 +109,7 @@ def maintenance_kit_detail(request, slug):
         'kit': kit,
         'kit_view': view,
         'years': years,
+        'cover_partial_caption': COVER_PARTIAL_CAPTION,
         'page_title': f'{kit.name} — комплект ТО | ZPT.KZ',
         'page_description': (
             f'Комплект ТО {kit.brand.name} {kit.car_model.name}'
@@ -106,21 +127,38 @@ def maintenance_kit_add_to_cart(request, slug):
     )
     detail_url = reverse('maintenance_kit_detail', kwargs={'slug': kit.slug})
     try:
-        add_kit_to_cart(request, kit)
-    except CartSellerConflictError as exc:
-        messages.error(
-            request,
-            (
-                f'В корзине уже есть товары продавца «{exc.seller_name}». '
-                'Сначала оформите текущий заказ или очистите корзину.'
-            ),
-        )
-        return redirect(detail_url)
-    except CartModeConflictError as exc:
-        messages.error(request, str(exc))
-        return redirect(detail_url)
-    except ValueError as exc:
-        messages.error(request, str(exc) or 'Комплект нельзя добавить в корзину.')
-        return redirect(detail_url)
-    messages.success(request, 'Комплект добавлен в корзину.')
+        selected_ids = parse_selected_product_ids(request.POST.getlist('item'))
+        add_kit_to_cart(request, kit, selected_ids=selected_ids)
+    except (CartSellerConflictError, CartModeConflictError, ValueError) as exc:
+        return _cart_error_redirect(request, detail_url, exc)
+    messages.success(request, 'Выбранные позиции добавлены в корзину.')
     return redirect('orders:cart')
+
+
+@require_http_methods(['GET', 'POST'])
+def maintenance_kit_missing_car(request):
+    form = MaintenanceKitCarRequestForm(request.POST or None)
+    if request.method == 'POST':
+        if form.is_valid():
+            from core.services.public_rate_limit import home_parts_rate_limit_allowed
+
+            if not home_parts_rate_limit_allowed(request):
+                messages.error(
+                    request,
+                    'Слишком много запросов. Попробуйте позже.',
+                )
+            else:
+                form.save()
+                messages.success(
+                    request,
+                    'Запрос сохранён. Мы учтём автомобиль при подготовке следующих комплектов ТО.',
+                )
+                return redirect('maintenance_kit_missing_car')
+    return render(request, 'catalog/maintenance_kit_missing_car.html', {
+        'form': form,
+        'page_title': 'Нет моего автомобиля — комплекты ТО | ZPT.KZ',
+        'page_description': (
+            'Оставьте марку, модель, год и двигатель — мы подготовим проверенный '
+            'состав ТО, когда данные будут подтверждены.'
+        ),
+    })

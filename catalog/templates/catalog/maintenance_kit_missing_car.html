@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_select_v1">
+{% endblock %}
+
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+
+<main class="container kit-page kit-page--detail">
+  <nav class="kit-breadcrumbs" aria-label="Навигация">
+    <a href="{% url 'catalog_list' %}">Автозапчасти</a> →
+    <a href="{% url 'maintenance_kit_list' %}">Комплекты ТО</a> →
+    Нет моего автомобиля
+  </nav>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="kit-messages {% if message.tags == 'error' %}kit-messages-error{% else %}kit-messages-success{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <section class="kit-hero">
+    <h1>Нет моего автомобиля</h1>
+    <p>
+      Сейчас в витрине только автомобили с полным проверенным составом ТО.
+      Оставьте марку, модель, год и двигатель — мы увидим спрос и подготовим комплект после проверки артикулов.
+    </p>
+  </section>
+
+  <form class="kit-request-form" method="post" action="{% url 'maintenance_kit_missing_car' %}">
+    {% csrf_token %}
+    <div class="kit-request-grid">
+      <div>
+        <label for="{{ form.brand.id_for_label }}">Марка</label>
+        {{ form.brand }}
+        {{ form.brand.errors }}
+      </div>
+      <div>
+        <label for="{{ form.model.id_for_label }}">Модель</label>
+        {{ form.model }}
+        {{ form.model.errors }}
+      </div>
+      <div>
+        <label for="{{ form.year.id_for_label }}">Год</label>
+        {{ form.year }}
+        {{ form.year.errors }}
+      </div>
+      <div>
+        <label for="{{ form.engine.id_for_label }}">Двигатель</label>
+        {{ form.engine }}
+        {{ form.engine.errors }}
+      </div>
+      <div class="kit-request-full">
+        <label for="{{ form.vin.id_for_label }}">VIN <span class="kit-optional">(необязательно)</span></label>
+        {{ form.vin }}
+        <p class="kit-field-hint">{{ form.vin.help_text }}</p>
+        {{ form.vin.errors }}
+      </div>
+    </div>
+    <button type="submit">Отправить запрос</button>
+  </form>
+  <p class="kit-meta">Автоподбор артикулов и ссылки Kaspi на этом шаге не используются.</p>
+</main>
+{% endblock %}

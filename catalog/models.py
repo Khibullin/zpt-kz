@@ -2186,3 +2186,34 @@ class MaintenanceKitItem(models.Model):
         super().clean()
         if self.quantity is not None and self.quantity < 1:
             raise ValidationError({'quantity': 'Количество должно быть не меньше 1.'})
+
+
+class MaintenanceKitCarRequest(models.Model):
+    """Buyer asked for a car that is not yet in the verified TO catalog.
+
+    Stored for demand, not dispatched to sellers and not matched by AI.
+    """
+
+    brand = models.CharField(max_length=100, verbose_name='Марка')
+    model = models.CharField(max_length=100, verbose_name='Модель')
+    year = models.PositiveSmallIntegerField(verbose_name='Год')
+    engine = models.CharField(max_length=80, verbose_name='Двигатель')
+    vin = models.CharField(
+        max_length=32,
+        blank=True,
+        default='',
+        verbose_name='VIN',
+        help_text='Необязательно. Помогает уточнить модификацию.',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+
+    class Meta:
+        verbose_name = 'Запрос комплекта ТО'
+        verbose_name_plural = 'Запросы комплектов ТО'
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['brand', 'model'], name='kit_car_req_brand_model_idx'),
+        ]
+
+    def __str__(self):
+        return f'{self.brand} {self.model} {self.year} {self.engine}'.strip()

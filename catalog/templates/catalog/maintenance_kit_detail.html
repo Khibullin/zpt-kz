@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize product_extras %}
+{% load static humanize product_extras l10n %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ page_description }}{% endblock %}
@@ -7,7 +7,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_cover_v2">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_select_v1">
 {% endblock %}
 
 {% block content %}
@@ -34,6 +34,7 @@
       <div class="kit-cover-wrap">
         <img src="{{ kit.cover.url }}" alt="Общее фото комплекта {{ kit.name }}">
       </div>
+      <p class="kit-cover-note" hidden data-kit-cover-note>{{ cover_partial_caption }}</p>
     {% endif %}
     <p class="kit-meta">
       Марка: {{ kit.brand.name }}<br>
@@ -44,76 +45,123 @@
     {% if kit.description %}
       <p class="kit-meta">{{ kit.description }}</p>
     {% endif %}
+    <p class="kit-meta">Отметьте нужные позиции. По умолчанию выбрано всё, что можно заказать сейчас.</p>
   </section>
 
-  <table class="kit-table">
-    <thead>
-      <tr>
-        <th>Фото</th>
-        <th>Позиция</th>
-        <th>Кол-во</th>
-        <th>Цена</th>
-        <th>Сумма</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for line in kit_view.lines %}
-        <tr>
-          <td>
-            {% if line.product.main_image %}
-              <img src="{{ line.product.main_image.url }}" alt="{{ line.display_name }}">
-            {% else %}
-              <img src="{% static 'images/logo.png' %}" alt="{{ line.display_name }}">
-            {% endif %}
-          </td>
-          <td>
-            <a href="{{ line.product|public_product_url }}">{{ line.display_name }}</a>
-          </td>
-          <td data-label="Кол-во">{{ line.quantity }}</td>
-          <td data-label="Цена">
-            {% if line.unit_price is not None %}
-              {{ line.unit_price|intcomma }} ₸
-            {% else %}
-              —
-            {% endif %}
-          </td>
-          <td data-label="Сумма">
-            {% if line.subtotal is not None %}
-              {{ line.subtotal|intcomma }} ₸
-            {% else %}
-              —
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-
-  <div class="kit-total">
-    {% if kit_view.total_price is not None %}
-      Итого: {{ kit_view.total_price|intcomma }} ₸
-    {% else %}
-      Итого: цена уточняется
-    {% endif %}
-  </div>
-  <div class="kit-stock">
-    {% if kit_view.available_kits is None %}
-      Наличие уточняется
-    {% elif kit_view.available_kits == 0 %}
-      Нет доступных комплектов
-    {% else %}
-      Доступно комплектов: {{ kit_view.available_kits }}
-    {% endif %}
-  </div>
-
-  <form class="kit-add" method="post" action="{% url 'maintenance_kit_add_to_cart' slug=kit.slug %}">
+  <form
+    class="kit-add"
+    method="post"
+    action="{% url 'maintenance_kit_add_to_cart' slug=kit.slug %}"
+    data-kit-select
+    data-cover-note="{{ cover_partial_caption }}"
+  >
     {% csrf_token %}
-    <button type="submit"{% if not kit_view.can_add %} disabled{% endif %}>
-      Добавить комплект в корзину
+    <table class="kit-table">
+      <thead>
+        <tr>
+          <th>Заказ</th>
+          <th>Фото</th>
+          <th>Позиция</th>
+          <th>Кол-во</th>
+          <th>Цена</th>
+          <th>Сумма</th>
+          <th>Наличие</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for line in kit_view.lines %}
+          <tr class="kit-line{% if not line.can_buy %} kit-line--unavailable{% endif %}" data-kit-line>
+            <td data-label="Заказ">
+              {% if line.can_buy %}
+                <label class="kit-check">
+                  <input
+                    type="checkbox"
+                    name="item"
+                    value="{{ line.product.id }}"
+                    data-kit-item
+                    data-subtotal="{{ line.subtotal|default:0|unlocalize }}"
+                    {% if line.selected_by_default %}checked{% endif %}
+                  >
+                  <span>В заказ</span>
+                </label>
+              {% else %}
+                <input type="checkbox" disabled aria-hidden="true">
+              {% endif %}
+            </td>
+            <td>
+              {% if line.availability != 'unconfirmed' and line.product.main_image %}
+                <img src="{{ line.product.main_image.url }}" alt="{{ line.display_name }}">
+              {% elif line.availability != 'unconfirmed' %}
+                <img src="{% static 'images/logo.png' %}" alt="{{ line.display_name }}">
+              {% else %}
+                <span class="kit-no-photo">—</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if line.availability != 'unconfirmed' %}
+                <a href="{{ line.product|public_product_url }}">{{ line.display_name }}</a>
+              {% else %}
+                {{ line.display_name }}
+              {% endif %}
+            </td>
+            <td data-label="Кол-во">{{ line.quantity }}</td>
+            <td data-label="Цена">
+              {% if line.unit_price is not None %}
+                {{ line.unit_price|intcomma }} ₸
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td data-label="Сумма">
+              {% if line.subtotal is not None %}
+                {{ line.subtotal|intcomma }} ₸
+              {% else %}
+                —
+              {% endif %}
+            </td>
+            <td data-label="Наличие">
+              {% if line.availability == 'available' %}
+                <span class="kit-status kit-status--ok">{{ line.availability_label }}</span>
+              {% else %}
+                <span class="kit-status kit-status--out">{{ line.availability_label }}</span>
+                {% if line.request_url %}
+                  <a class="kit-request-link" href="{{ line.request_url }}">Оставить заявку</a>
+                {% endif %}
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <div class="kit-total" data-kit-total>
+      {% if kit_view.total_price is not None %}
+        Итого: {{ kit_view.total_price|intcomma }} ₸
+      {% else %}
+        Итого: выберите позиции
+      {% endif %}
+    </div>
+    <div class="kit-stock">
+      {% if kit_view.has_unavailable and kit_view.orderable_count %}
+        Недоступные позиции не входят в заказ и итоговую стоимость.
+      {% elif kit_view.orderable_count == 0 %}
+        Сейчас нет позиций, которые можно добавить в корзину.
+      {% elif kit_view.available_kits is None %}
+        Наличие уточняется
+      {% elif kit_view.available_kits == 0 %}
+        Полный комплект сейчас не собрать — можно заказать доступные позиции.
+      {% else %}
+        Доступно полных комплектов: {{ kit_view.available_kits }}
+      {% endif %}
+    </div>
+
+    <button type="submit"{% if not kit_view.can_add %} disabled data-kit-locked{% endif %} data-kit-submit>
+      Добавить выбранное в корзину
     </button>
   </form>
   {% if kit_view.reason %}
     <p class="kit-note">{{ kit_view.reason }}</p>
   {% endif %}
+  <script src="{% static 'js/maintenance-kits-select-v1.js' %}?v=kit_select_v2"></script>
 </main>
 {% endblock %}

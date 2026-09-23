@@ -16,12 +16,15 @@ from catalog.maintenance_kits import (
     available_kits,
     build_kit_view,
     guest_kit_base_price,
+    LINE_UNAVAILABLE,
+    LINE_UNCONFIRMED,
 )
 from catalog.models import (
     Brand,
     CarModel,
     Country,
     MaintenanceKit,
+    MaintenanceKitCarRequest,
     MaintenanceKitItem,
     Product,
     ProductPriceTier,
@@ -178,12 +181,20 @@ class MaintenanceKitPricingStockTests(TestCase):
         self.spark.save(update_fields=['stock_qty'])
         self.assertEqual(available_kits(self.kit), 0)
 
-    def test_zero_stock_makes_kit_unavailable(self):
+    def test_zero_stock_does_not_hide_kit_and_allows_other_items(self):
         self.oil.stock_qty = 0
         self.oil.save(update_fields=['stock_qty'])
         self.assertEqual(available_kits(self.kit), 0)
         view = build_kit_view(self.kit)
-        self.assertFalse(view.can_add)
+        self.assertTrue(view.can_add)
+        self.assertTrue(view.has_unavailable)
+        self.assertEqual(view.orderable_count, 3)
+        oil_line = next(line for line in view.lines if line.product.pk == self.oil.id)
+        self.assertFalse(oil_line.can_buy)
+        self.assertFalse(oil_line.selected_by_default)
+        self.assertEqual(oil_line.availability, 'unavailable')
+        self.assertEqual(view.total_price, 1700 + 1650 + (2450 * 4))
+        self.assertEqual(view.full_total_price, 1700 + 1650 + 1309 + (2450 * 4))
 
     def test_mixed_stock_none_and_numeric(self):
         self.air.stock_qty = None
@@ -229,9 +240,15 @@ class MaintenanceKitCartTests(TestCase):
         MaintenanceKitItem.objects.create(kit=self.kit, product=self.spark, quantity=4)
         self.client = Client()
 
-    def _add_via_view(self):
+    def _add_via_view(self, products=None, extra=None):
+        if products is None:
+            products = (self.air, self.cabin, self.oil, self.spark)
+        data = {'item': [str(product.id) for product in products]}
+        if extra:
+            data.update(extra)
         return self.client.post(
             reverse('maintenance_kit_add_to_cart', kwargs={'slug': self.kit.slug}),
+            data=data,
         )
 
     def test_add_kit_creates_correct_cart_quantities(self):
@@ -318,8 +335,10 @@ class MaintenanceKitCartTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Наличие уточняется')
         self.assertContains(response, self.spark.article)
-        self.assertContains(response, 'Добавить комплект в корзину')
+        self.assertContains(response, 'Добавить выбранное в корзину')
         self.assertContains(response, 'Свеча зажигания — SPK-C')
+        self.assertContains(response, 'type="checkbox"')
+        self.assertRegex(response.content.decode('utf-8'), r'data-subtotal="\d+"')
         self.assertNotContains(response, 'class="kit-cover-wrap"')
 
     def test_detail_hides_foreign_model_from_product_title(self):
@@ -370,6 +389,162 @@ class MaintenanceKitCartTests(TestCase):
     def test_sitemap_contains_list_url(self):
         response = self.client.get('/sitemap-static.xml')
         self.assertIn('https://zpt.kz/maintenance-kits/', response.content.decode('utf-8'))
+
+    def test_add_without_sparks_uses_kit_quantities(self):
+        response = self._add_via_view(products=(self.air, self.cabin, self.oil))
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, reverse('orders:cart'), fetch_redirect_response=False)
+        cart = self.client.session[SESSION_CART_KEY]
+        self.assertEqual(cart[str(self.air.id)], 1)
+        self.assertEqual(cart[str(self.cabin.id)], 1)
+        self.assertEqual(cart[str(self.oil.id)], 1)
+        self.assertNotIn(str(self.spark.id), cart)
+
+    def test_empty_selection_adds_nothing(self):
+        response = self.client.post(
+            reverse('maintenance_kit_add_to_cart', kwargs={'slug': self.kit.slug}),
+            data={},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.session.get(SESSION_CART_KEY, {}), {})
+
+    def test_foreign_product_id_adds_nothing(self):
+        outsider = _make_product(article='OUT-C', title='Чужой')
+        response = self._add_via_view(products=(self.air, outsider))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.session.get(SESSION_CART_KEY, {}), {})
+
+    def test_client_total_and_quantity_are_ignored(self):
+        response = self._add_via_view(
+            products=(self.air, self.cabin, self.oil),
+            extra={'total': '1', 'price': '1', 'quantity': '99'},
+        )
+        self.assertEqual(response.status_code, 302)
+        cart = self.client.session[SESSION_CART_KEY]
+        self.assertEqual(cart[str(self.air.id)], 1)
+        self.assertEqual(cart[str(self.oil.id)], 1)
+        self.assertNotIn(str(self.spark.id), cart)
+        cart_page = self.client.get(reverse('orders:cart'))
+        self.assertEqual(cart_page.context['cart_total'], 3000)
+
+    def test_unavailable_selected_item_adds_nothing(self):
+        self.oil.stock_qty = 0
+        self.oil.save(update_fields=['stock_qty'])
+        response = self._add_via_view(products=(self.air, self.oil))
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.session.get(SESSION_CART_KEY, {}), {})
+
+    def test_zero_stock_line_stays_visible_and_kit_stays_in_picker(self):
+        self.oil.stock_qty = 0
+        self.oil.save(update_fields=['stock_qty'])
+        listing = self.client.get(reverse('maintenance_kit_list'))
+        self.assertContains(listing, self.kit.name)
+        self.assertContains(listing, 'Нет моего автомобиля')
+        self.assertContains(listing, 'Часть позиций нет в наличии')
+        detail = self.client.get(
+            reverse('maintenance_kit_detail', kwargs={'slug': self.kit.slug})
+        )
+        self.assertContains(detail, 'Нет в наличии')
+        self.assertContains(detail, 'Оставить заявку')
+        self.assertContains(detail, '/request-parts/')
+        oil_line = next(
+            line for line in detail.context['kit_view'].lines
+            if line.product.pk == self.oil.id
+        )
+        self.assertEqual(oil_line.availability, LINE_UNAVAILABLE)
+        self.assertFalse(oil_line.selected_by_default)
+        response = self._add_via_view(products=(self.air, self.cabin, self.spark))
+        cart = self.client.session[SESSION_CART_KEY]
+        self.assertNotIn(str(self.oil.id), cart)
+        self.assertEqual(cart[str(self.spark.id)], 4)
+
+    def test_unconfirmed_article_hides_invented_price(self):
+        self.oil.article = ''
+        self.oil.save(update_fields=['article'])
+        view = build_kit_view(self.kit)
+        oil_line = next(line for line in view.lines if line.product.pk == self.oil.id)
+        self.assertEqual(oil_line.availability, LINE_UNCONFIRMED)
+        self.assertIsNone(oil_line.unit_price)
+        self.assertIsNone(oil_line.subtotal)
+        self.assertFalse(oil_line.can_buy)
+        response = self.client.get(
+            reverse('maintenance_kit_detail', kwargs={'slug': self.kit.slug})
+        )
+        self.assertContains(response, 'Артикул не подтверждён')
+
+
+class MaintenanceKitMissingCarTests(TestCase):
+    def setUp(self):
+        country = _make_country()
+        brand = Brand.objects.create(country=country, name='Chery')
+        model = CarModel.objects.create(brand=brand, name='Tiggo 7 Pro')
+        extra_brand = Brand.objects.create(country=country, name='Haval')
+        CarModel.objects.create(brand=extra_brand, name='Jolion')
+        product = _make_product(article='AIR-M')
+        self.kit = MaintenanceKit.objects.create(
+            name='Комплект ТО Chery Tiggo 7 Pro 1.5T',
+            slug='kit-missing-car',
+            brand=brand,
+            car_model=model,
+            engine='1.5T',
+            is_active=True,
+        )
+        MaintenanceKitItem.objects.create(kit=self.kit, product=product, quantity=1)
+        self.client = Client()
+
+    def test_picker_lists_only_published_kit_cars(self):
+        listing = self.client.get(reverse('maintenance_kit_list'))
+        self.assertContains(listing, 'Chery')
+        self.assertContains(listing, 'Tiggo 7 Pro')
+        self.assertNotContains(listing, 'Haval')
+        self.assertNotContains(listing, 'Jolion')
+
+    def test_missing_car_form_saves_demand_without_dispatch(self):
+        response = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data={
+                'brand': 'Geely',
+                'model': 'Coolray',
+                'year': '2022',
+                'engine': '1.5T',
+                'vin': 'LWV12345678901234',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        request = MaintenanceKitCarRequest.objects.get()
+        self.assertEqual(request.brand, 'Geely')
+        self.assertEqual(request.model, 'Coolray')
+        self.assertEqual(request.year, 2022)
+        self.assertEqual(request.engine, '1.5T')
+        self.assertEqual(request.vin, 'LWV12345678901234')
+
+    def test_vin_is_optional(self):
+        response = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data={
+                'brand': 'Changan',
+                'model': 'UNI-K',
+                'year': '2021',
+                'engine': '2.0T',
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        request = MaintenanceKitCarRequest.objects.get()
+        self.assertEqual(request.vin, '')
+        self.assertEqual(request.brand, 'Changan')
+
+    def test_invalid_year_is_rejected(self):
+        response = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data={
+                'brand': 'Geely',
+                'model': 'Coolray',
+                'year': '1901',
+                'engine': '1.5T',
+            },
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(MaintenanceKitCarRequest.objects.count(), 0)
 
 
 class MaintenanceKitSeedTests(TestCase):

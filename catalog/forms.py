@@ -6,6 +6,7 @@ from .models import (
     Country,
     Brand,
     CarModel,
+    MaintenanceKitCarRequest,
     DEFAULT_SELLER_WORK_HOURS,
     DEFAULT_SELLER_DELIVERY_INFO,
 )
@@ -484,3 +485,71 @@ class ProductForm(forms.ModelForm):
         return optimize_uploaded_image(
             self.cleaned_data.get('main_image')
         )
+
+
+class MaintenanceKitCarRequestForm(forms.ModelForm):
+    class Meta:
+        model = MaintenanceKitCarRequest
+        fields = ('brand', 'model', 'year', 'engine', 'vin')
+        widgets = {
+            'brand': forms.TextInput(attrs={
+                'autocomplete': 'off',
+                'placeholder': 'Например, Geely',
+            }),
+            'model': forms.TextInput(attrs={
+                'autocomplete': 'off',
+                'placeholder': 'Например, Coolray',
+            }),
+            'year': forms.NumberInput(attrs={
+                'inputmode': 'numeric',
+                'placeholder': '2021',
+            }),
+            'engine': forms.TextInput(attrs={
+                'autocomplete': 'off',
+                'placeholder': 'Например, 1.5T',
+            }),
+            'vin': forms.TextInput(attrs={
+                'autocomplete': 'off',
+                'placeholder': 'Необязательно',
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['vin'].required = False
+        self.fields['vin'].help_text = 'Необязательно. Нужен, если модификацию трудно уточнить по году и двигателю.'
+
+    def clean_brand(self):
+        return self._clean_required_text('brand', 2, 100)
+
+    def clean_model(self):
+        return self._clean_required_text('model', 1, 100)
+
+    def clean_engine(self):
+        return self._clean_required_text('engine', 1, 80)
+
+    def clean_year(self):
+        from django.utils import timezone
+
+        year = self.cleaned_data.get('year')
+        current = timezone.now().year
+        if year is None:
+            raise forms.ValidationError('Укажите год выпуска.')
+        if year < 1980 or year > current + 1:
+            raise forms.ValidationError('Укажите год выпуска автомобиля.')
+        return year
+
+    def clean_vin(self):
+        vin = str(self.cleaned_data.get('vin') or '').strip().upper()
+        vin = ''.join(ch for ch in vin if ch.isalnum())
+        if not vin:
+            return ''
+        if len(vin) < 8 or len(vin) > 17:
+            raise forms.ValidationError('VIN укажите полностью или оставьте поле пустым.')
+        return vin
+
+    def _clean_required_text(self, field, min_len, max_len):
+        value = str(self.cleaned_data.get(field) or '').strip()
+        if len(value) < min_len:
+            raise forms.ValidationError('Заполните это поле.')
+        return value[:max_len]

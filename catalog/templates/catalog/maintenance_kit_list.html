@@ -7,7 +7,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_cover_v2">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_select_v1">
 {% endblock %}
 
 {% block content %}
@@ -21,8 +21,8 @@
   <section class="kit-hero">
     <h1>Комплекты ТО</h1>
     <p>
-      Подберите готовый набор расходников по марке, модели и двигателю.
-      В корзину попадают обычные товары каталога — без отдельного складского остатка комплекта.
+      Выберите автомобиль с проверенным составом ТО. Можно заказать полный набор
+      или только нужные позиции — например, без свечей.
     </p>
   </section>
 
@@ -56,6 +56,9 @@
     </div>
     <button type="submit">Подобрать</button>
   </form>
+  <p class="kit-missing-car">
+    <a href="{% url 'maintenance_kit_missing_car' %}">Нет моего автомобиля</a>
+  </p>
 
   {% if kits %}
     <div class="kit-grid">
@@ -85,16 +88,20 @@
             {{ kit_view.kit.brand.name }} {{ kit_view.kit.car_model.name }}
             {% if kit_view.kit.engine %} · {{ kit_view.kit.engine }}{% endif %}
           </div>
-          {% if kit_view.total_price is not None %}
+          {% if kit_view.full_total_price is not None %}
+            <div class="kit-card-price">{{ kit_view.full_total_price|intcomma }} ₸</div>
+          {% elif kit_view.total_price is not None %}
             <div class="kit-card-price">{{ kit_view.total_price|intcomma }} ₸</div>
           {% else %}
             <div class="kit-card-price">Цена уточняется</div>
           {% endif %}
           <div class="kit-card-meta">
-            {% if kit_view.available_kits is None %}
-              Наличие уточняется
-            {% elif kit_view.available_kits == 0 %}
+            {% if kit_view.has_unavailable and kit_view.orderable_count %}
+              Часть позиций нет в наличии
+            {% elif kit_view.orderable_count == 0 %}
               Нет в наличии
+            {% elif kit_view.available_kits is None %}
+              Наличие уточняется
             {% else %}
               Доступно комплектов: {{ kit_view.available_kits }}
             {% endif %}
@@ -106,6 +113,7 @@
   {% else %}
     <div class="kit-empty">
       Опубликованных комплектов ТО по выбранным параметрам пока нет.
+      <a href="{% url 'maintenance_kit_missing_car' %}">Оставить запрос на автомобиль</a>
     </div>
   {% endif %}
 </main>

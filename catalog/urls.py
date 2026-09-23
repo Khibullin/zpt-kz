@@ -8,6 +8,7 @@ from .views_maintenance_kits import (
     maintenance_kit_add_to_cart,
     maintenance_kit_detail,
     maintenance_kit_list,
+    maintenance_kit_missing_car,
 )
 from .views import (
     catalog_list,
@@ -42,6 +43,11 @@ urlpatterns = [
     path('', catalog_list, name='catalog_list'),
 
     path('maintenance-kits/', maintenance_kit_list, name='maintenance_kit_list'),
+    path(
+        'maintenance-kits/no-car/',
+        maintenance_kit_missing_car,
+        name='maintenance_kit_missing_car',
+    ),
     path(
         'maintenance-kits/<slug:slug>/add-to-cart/',
         maintenance_kit_add_to_cart,

@@ -63,6 +63,7 @@ from .models import (
     StockMovement,
     MaintenanceKit,
     MaintenanceKitItem,
+    MaintenanceKitCarRequest,
 )
 
 
@@ -1548,4 +1549,13 @@ class MaintenanceKitItemAdmin(admin.ModelAdmin):
     list_display = ('id', 'kit', 'product', 'quantity')
     search_fields = ('kit__name', 'kit__slug', 'product__title', 'product__article')
     autocomplete_fields = ('kit', 'product')
+
+
+@admin.register(MaintenanceKitCarRequest)
+class MaintenanceKitCarRequestAdmin(admin.ModelAdmin):
+    list_display = ('id', 'brand', 'model', 'year', 'engine', 'vin', 'created_at')
+    list_filter = ('brand', 'year', 'created_at')
+    search_fields = ('brand', 'model', 'engine', 'vin')
+    readonly_fields = ('created_at',)
+    ordering = ('-created_at',)
 
