@@ -58,6 +58,26 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 #   https://www.fitinpart.sg/v2/en/product/51490992/great-wall-1017110xen01
 # Dargo cabin: FitInPart Dargo GW4N20 lists 8104400XKZ96A; AG SKU is 8104400XKY28B.
 #   Disputed — reference only, OEM unknown.
+# 151000079AA air — Tiggo 8 Pro 1.6 T1D SQRF4J16A Mar 2021~ and T1A SQRF4J16
+#   Mar 2021~May 2024; Arrizo 8 SQRF4J16C Apr 2022~:
+#   https://www.fitinpart.sg/v2/en/product/50357241/chery-151000079aa
+# T21-8107011 cabin — Tiggo 8 Pro 1.6 SQRF4J16A Mar 2021~; Tiggo 7 T15
+#   SQRE4T15 Apr 2016~Nov 2020 and T1E SQRE4T15C Sep 2020~; Arrizo 8
+#   SQRF4J16C Apr 2022~; Tiggo 8 T18 SQRE4T15C Dec 2020~Mar 2022 and
+#   SQRE4T15B Jan 2022~:
+#   https://www.fitinpart.sg/v2/en/product/50357199/chery-t21-8107011
+# F4J16-1012030 oil — Tiggo 8 Pro T1D SQRF4J16A Mar 2021~:
+#   https://www.fitinpart.sg/v2/en/product/50357242/chery-f4j16-1012030
+# 480-1012010 oil — same Tiggo 8 Pro T1D SQRF4J16A Mar 2021~ AND Tiggo 7
+#   1.5 / Arrizo 8 SQRF4J16C / Tiggo 8 1.5:
+#   https://www.fitinpart.sg/v2/en/product/136865/chery-480-1012010
+# Tiggo 8 Pro 1.6 oil is disputed (cartridge vs spin-on) — not in kit.
+# 301001199AA cabin: no FitInPart page; do not substitute for T21-8107011.
+# F4J16-3707010 spark — Tiggo 8 T18 SQRE4T15B Jan 2022~; TXL SQRF4J16A.
+#   Not listed for Tiggo 7 T15/T1E or Tiggo 8 Pro:
+#   https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010
+# T15-1109111 air — Tiggo 7 1.5 T15/T1E; Tiggo 8 T18 1.5. Not Tiggo 8 Pro 1.6:
+#   https://www.fitinpart.sg/v2/en/product/50357231/chery-t15-1109111
 
 KIT_SPECS = (
     {
@@ -195,6 +215,152 @@ KIT_SPECS = (
             ('1109190CR01', 1),
             ('CD569F2801032700', 1),
             ('D20T0120700', 4),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-tiggo-8-pro-16-sqrf4j16a',
+        'name': 'Набор ТО — 2 позиции Chery Tiggo 8 Pro 1.6 SQRF4J16A',
+        'brand_name': 'Chery',
+        'model_name': 'Tiggo 8 Pro',
+        'engine': '1.6 SQRF4J16A / SQRF4J16',
+        'year_from': 2021,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Chery Tiggo 8 Pro 1.6 SQRF4J16A '
+            '(T1D, с марта 2021) и 1.6 SQRF4J16 (T1A, март 2021 – май 2024): '
+            'воздушный и салонный фильтры. Масляный фильтр и свечи в набор '
+            'не входят. Не для Tiggo 8 без Pro, не для 1.5T и не для 2.0T.'
+        ),
+        'cover_note': '',
+        'reference_lines': (
+            {
+                'type_label': 'Масляный фильтр',
+                'article': '',
+                'note': (
+                    'В набор не входит. OEM уточняется: каталоги указывают '
+                    'разные номера для этой модификации.'
+                ),
+            },
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+        ),
+        'publish_if_complete': True,
+        'items': (
+            ('151000079AA', 1),
+            ('T218107011', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-tiggo-7-15',
+        'name': 'Набор ТО — 3 позиции Chery Tiggo 7 1.5 SQRE4T15',
+        'brand_name': 'Chery',
+        'model_name': 'Tiggo 7',
+        'engine': '1.5 SQRE4T15 / SQRE4T15C',
+        'year_from': 2016,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 3 позиции для Chery Tiggo 7 1.5 SQRE4T15 '
+            '(T15, апрель 2016 – ноябрь 2020) и SQRE4T15C (T1E, с сентября '
+            '2020): воздушный, салонный и масляный фильтры. Свечи в набор '
+            'не входят. Не для Tiggo 7 Pro и не для 2.0.'
+        ),
+        'cover_note': '',
+        'reference_lines': (
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+        ),
+        'publish_if_complete': True,
+        'items': (
+            ('T151109111', 1),
+            ('T218107011', 1),
+            ('4801012010', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-arrizo-8-16-sqrf4j16c',
+        'name': 'Набор ТО — 3 позиции Chery Arrizo 8 1.6 SQRF4J16C',
+        'brand_name': 'Chery',
+        'model_name': 'Arrizo 8',
+        'engine': '1.6 SQRF4J16C',
+        'year_from': 2022,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 3 позиции для Chery Arrizo 8 1.6 SQRF4J16C '
+            '(DC21B, с апреля 2022): воздушный, салонный и масляный фильтры. '
+            'Свечи в набор не входят. Не для Tiggo 8 Pro и не для других '
+            'моторов Arrizo 8.'
+        ),
+        'cover_note': '',
+        'reference_lines': (
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+        ),
+        'publish_if_complete': True,
+        'items': (
+            ('151000079AA', 1),
+            ('T218107011', 1),
+            ('4801012010', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-tiggo-8-15t-sqre4t15c',
+        'name': 'Набор ТО — 3 позиции Chery Tiggo 8 1.5T SQRE4T15C',
+        'brand_name': 'Chery',
+        'model_name': 'Tiggo 8',
+        'engine': '1.5T SQRE4T15C',
+        'year_from': 2020,
+        'year_to': 2022,
+        'description': (
+            'Набор ТО — 3 позиции для Chery Tiggo 8 1.5T SQRE4T15C '
+            '(T18, декабрь 2020 – март 2022): воздушный, салонный и масляный '
+            'фильтры. Свечи в набор не входят. Не для SQRE4T15B, не для 2.0 '
+            'и не для Tiggo 8 Pro.'
+        ),
+        'cover_note': '',
+        'reference_lines': (
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+        ),
+        'publish_if_complete': True,
+        'items': (
+            ('T151109111', 1),
+            ('T218107011', 1),
+            ('4801012010', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-tiggo-8-15t-sqre4t15b',
+        'name': 'Набор ТО — 4 позиции Chery Tiggo 8 1.5T SQRE4T15B',
+        'brand_name': 'Chery',
+        'model_name': 'Tiggo 8',
+        'engine': '1.5T SQRE4T15B',
+        'year_from': 2022,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 4 позиции для Chery Tiggo 8 1.5T SQRE4T15B '
+            '(T18, с января 2022): воздушный, салонный, масляный фильтры '
+            'и свечи. Не для SQRE4T15C, не для 2.0 и не для Tiggo 8 Pro.'
+        ),
+        'cover_note': '',
+        'reference_lines': (),
+        'publish_if_complete': True,
+        'items': (
+            ('T151109111', 1),
+            ('T218107011', 1),
+            ('4801012010', 1),
+            ('F4J163707010', 4),
         ),
     },
 )

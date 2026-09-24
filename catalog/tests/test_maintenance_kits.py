@@ -856,6 +856,10 @@ class MaintenanceKitSeedTests(TestCase):
         changan = Brand.objects.create(country=country, name='Changan')
         haval = Brand.objects.create(country=country, name='Haval')
         CarModel.objects.create(brand=chery, name='Tiggo 7 Pro')
+        CarModel.objects.create(brand=chery, name='Tiggo 7')
+        CarModel.objects.create(brand=chery, name='Tiggo 8 Pro')
+        CarModel.objects.create(brand=chery, name='Tiggo 8')
+        CarModel.objects.create(brand=chery, name='Arrizo 8')
         CarModel.objects.create(brand=exeed, name='TXL')
         CarModel.objects.create(brand=changan, name='UNI-K')
         CarModel.objects.create(brand=changan, name='UNI-V')
@@ -868,6 +872,7 @@ class MaintenanceKitSeedTests(TestCase):
             '151000025AA': 'Воздушный Exeed',
             '301001199AA': 'Салонный Exeed',
             'F4J161012030': 'Масляный Exeed',
+            '151000079AA': 'Воздушный Chery 8 Pro',
             '1109190CR01': 'Воздушный UNI-K',
             'CD569F2801032700': 'Салонный UNI-K',
             'D20T0120700': 'Свеча UNI-K',
@@ -881,23 +886,43 @@ class MaintenanceKitSeedTests(TestCase):
 
     def test_apply_creates_published_kits_and_is_idempotent(self):
         apply_maintenance_kits()
-        self.assertEqual(MaintenanceKit.objects.count(), 5)
+        self.assertEqual(MaintenanceKit.objects.count(), 10)
         chery = MaintenanceKit.objects.get(slug='komplekt-to-chery-tiggo-7-pro-15t')
         exeed = MaintenanceKit.objects.get(slug='komplekt-to-exeed-txl-16t')
         univ = MaintenanceKit.objects.get(slug='nabor-to-changan-uni-v-15')
         dargo = MaintenanceKit.objects.get(slug='nabor-to-haval-dargo-20-gw4n20')
         changan = MaintenanceKit.objects.get(slug='komplekt-to-changan-uni-k-20t')
+        t8pro = MaintenanceKit.objects.get(slug='nabor-to-chery-tiggo-8-pro-16-sqrf4j16a')
+        t7 = MaintenanceKit.objects.get(slug='nabor-to-chery-tiggo-7-15')
+        arrizo = MaintenanceKit.objects.get(slug='nabor-to-chery-arrizo-8-16-sqrf4j16c')
+        t8c = MaintenanceKit.objects.get(slug='nabor-to-chery-tiggo-8-15t-sqre4t15c')
+        t8b = MaintenanceKit.objects.get(slug='nabor-to-chery-tiggo-8-15t-sqre4t15b')
         self.assertTrue(chery.is_active)
         self.assertTrue(exeed.is_active)
         self.assertTrue(univ.is_active)
         self.assertTrue(dargo.is_active)
         self.assertFalse(changan.is_active)
+        self.assertTrue(t8pro.is_active)
+        self.assertTrue(t7.is_active)
+        self.assertTrue(arrizo.is_active)
+        self.assertTrue(t8c.is_active)
+        self.assertTrue(t8b.is_active)
         self.assertEqual(chery.items.count(), 3)
         self.assertFalse(chery.items.filter(product__article='F4J163707010').exists())
         self.assertEqual(exeed.items.count(), 4)
         self.assertEqual(univ.items.count(), 2)
         self.assertEqual(dargo.items.count(), 2)
         self.assertEqual(changan.items.count(), 3)
+        self.assertEqual(t8pro.items.count(), 2)
+        self.assertFalse(t8pro.items.filter(product__article='F4J161012030').exists())
+        self.assertFalse(t8pro.items.filter(product__article='301001199AA').exists())
+        self.assertEqual(t7.items.count(), 3)
+        self.assertFalse(t7.items.filter(product__article='F4J163707010').exists())
+        self.assertEqual(arrizo.items.count(), 3)
+        self.assertFalse(arrizo.items.filter(product__article='F4J163707010').exists())
+        self.assertEqual(t8c.items.count(), 3)
+        self.assertFalse(t8c.items.filter(product__article='F4J163707010').exists())
+        self.assertEqual(t8b.items.count(), 4)
         self.assertIn(UNI_K_INCOMPLETE_WARNING, changan.description)
         self.assertEqual(chery.engine, '1.5T SQRE4T15C')
         self.assertEqual(exeed.engine, '1.6T SQRF4J16A')
@@ -909,11 +934,12 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertEqual(spark_item.quantity, 4)
 
         apply_maintenance_kits()
-        self.assertEqual(MaintenanceKit.objects.count(), 5)
-        self.assertEqual(MaintenanceKitItem.objects.count(), 14)
+        self.assertEqual(MaintenanceKit.objects.count(), 10)
+        self.assertEqual(MaintenanceKitItem.objects.count(), 29)
         chery.refresh_from_db()
         self.assertEqual(chery.items.count(), 3)
         self.assertFalse(chery.items.filter(product__article='F4J163707010').exists())
+        self.assertFalse(changan.is_active)
 
     def test_apply_removes_excluded_spark_and_does_not_restore_it(self):
         apply_maintenance_kits()
@@ -962,7 +988,7 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertIn('Комплект ТО Changan UNI-K 2.0T', report)
         self.assertIn('would_add: T151109111 x1, T218107011 x1, 4801012010 x1', report)
         self.assertNotIn('F4J163707010', report.split('--- Набор ТО — 3 позиции Chery')[1].split('---')[0])
-        self.assertEqual(report.count('result: WOULD create (publish)'), 4)
+        self.assertEqual(report.count('result: WOULD create (publish)'), 9)
         self.assertIn('result: WOULD create (draft)', report)
         self.assertEqual(MaintenanceKit.objects.count(), 0)
 
@@ -973,6 +999,11 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertContains(listing, 'Chery Tiggo 7 Pro')
         self.assertContains(listing, 'Набор ТО — 2 позиции Changan UNI-V')
         self.assertContains(listing, 'Набор ТО — 2 позиции Haval Dargo')
+        self.assertContains(listing, 'Набор ТО — 2 позиции Chery Tiggo 8 Pro')
+        self.assertContains(listing, 'Набор ТО — 3 позиции Chery Tiggo 7 1.5')
+        self.assertContains(listing, 'Набор ТО — 3 позиции Chery Arrizo 8')
+        self.assertContains(listing, 'Набор ТО — 3 позиции Chery Tiggo 8 1.5T SQRE4T15C')
+        self.assertContains(listing, 'Набор ТО — 4 позиции Chery Tiggo 8 1.5T SQRE4T15B')
         response = self.client.get('/maintenance-kits/komplekt-to-changan-uni-k-20t/')
         self.assertEqual(response.status_code, 404)
         post = self.client.post('/maintenance-kits/komplekt-to-changan-uni-k-20t/add-to-cart/')
@@ -1070,6 +1101,131 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertIn('Салонный фильтр — OEM неизвестен', html)
         self.assertIn('Не для 1.5', html)
         self.assertNotIn('Jolion', html)
+
+    def test_seed_does_not_rewrite_existing_published_kits(self):
+        apply_maintenance_kits()
+        protected = {
+            'komplekt-to-chery-tiggo-7-pro-15t': (
+                '1.5T SQRE4T15C',
+                ['T151109111', 'T218107011', '4801012010'],
+            ),
+            'komplekt-to-exeed-txl-16t': (
+                '1.6T SQRF4J16A',
+                ['151000025AA', '301001199AA', 'F4J161012030', 'F4J163707010'],
+            ),
+            'nabor-to-changan-uni-v-15': (
+                '1.5 JL473ZQ7',
+                ['S3010140903', 'C281F2801032601'],
+            ),
+            'nabor-to-haval-dargo-20-gw4n20': (
+                '2.0 GW4N20',
+                ['1109101XGW01A', '1017110XEN01'],
+            ),
+        }
+        unik = MaintenanceKit.objects.get(slug='komplekt-to-changan-uni-k-20t')
+        self.assertFalse(unik.is_active)
+        before = {}
+        for slug, (engine, articles) in protected.items():
+            kit = MaintenanceKit.objects.get(slug=slug)
+            before[slug] = (
+                kit.engine,
+                kit.is_active,
+                list(kit.items.order_by('id').values_list('product__article', 'quantity')),
+            )
+            self.assertEqual(kit.engine, engine)
+            self.assertEqual(
+                [article for article, _qty in before[slug][2]],
+                articles,
+            )
+        apply_maintenance_kits()
+        unik.refresh_from_db()
+        self.assertFalse(unik.is_active)
+        for slug, snapshot in before.items():
+            kit = MaintenanceKit.objects.get(slug=slug)
+            self.assertEqual(kit.engine, snapshot[0])
+            self.assertTrue(kit.is_active)
+            self.assertEqual(
+                list(kit.items.order_by('id').values_list('product__article', 'quantity')),
+                snapshot[2],
+            )
+
+    def test_tiggo_8_pro_two_position_kit_keeps_disputed_oil_as_reference(self):
+        apply_maintenance_kits()
+        response = self.client.get(
+            '/maintenance-kits/nabor-to-chery-tiggo-8-pro-16-sqrf4j16a/'
+        )
+        html = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Воздушный фильтр — 151000079AA', html)
+        self.assertIn('Салонный фильтр — T218107011', html)
+        self.assertIn('Масляный фильтр — OEM неизвестен', html)
+        self.assertIn('Свеча зажигания — OEM неизвестен', html)
+        self.assertIn('Не для Tiggo 8 без Pro', html)
+        self.assertNotIn('F4J161012030', html)
+        self.assertNotIn('301001199AA', html)
+        self.assertNotIn('F4J163707010', html)
+        oil = Product.objects.get(article='F4J161012030')
+        post = self.client.post(
+            '/maintenance-kits/nabor-to-chery-tiggo-8-pro-16-sqrf4j16a/add-to-cart/',
+            data={'item': [str(oil.id)]},
+        )
+        self.assertEqual(post.status_code, 302)
+        self.assertEqual(self.client.session.get(SESSION_CART_KEY, {}), {})
+
+    def test_tiggo_7_kit_is_not_tiggo_7_pro_and_excludes_spark(self):
+        apply_maintenance_kits()
+        response = self.client.get('/maintenance-kits/nabor-to-chery-tiggo-7-15/')
+        html = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Воздушный фильтр — T151109111', html)
+        self.assertIn('Салонный фильтр — T218107011', html)
+        self.assertIn('Масляный фильтр — 4801012010', html)
+        self.assertIn('Не для Tiggo 7 Pro', html)
+        self.assertNotIn('F4J163707010', html)
+        self.assertNotIn('SQRF4J16A', html)
+
+    def test_arrizo_8_and_tiggo_8_engine_kits_do_not_copy_other_motors(self):
+        apply_maintenance_kits()
+        arrizo = self.client.get(
+            '/maintenance-kits/nabor-to-chery-arrizo-8-16-sqrf4j16c/'
+        )
+        arrizo_html = arrizo.content.decode('utf-8')
+        self.assertEqual(arrizo.status_code, 200)
+        self.assertIn('Воздушный фильтр — 151000079AA', arrizo_html)
+        self.assertIn('Масляный фильтр — 4801012010', arrizo_html)
+        self.assertIn('SQRF4J16C', arrizo_html)
+        self.assertIn('Не для Tiggo 8 Pro', arrizo_html)
+        self.assertNotIn('F4J161012030', arrizo_html)
+        self.assertNotIn('F4J163707010', arrizo_html)
+
+        t8c = self.client.get(
+            '/maintenance-kits/nabor-to-chery-tiggo-8-15t-sqre4t15c/'
+        )
+        t8c_html = t8c.content.decode('utf-8')
+        self.assertEqual(t8c.status_code, 200)
+        self.assertIn('SQRE4T15C', t8c_html)
+        self.assertIn('Не для SQRE4T15B', t8c_html)
+        self.assertNotIn('F4J163707010', t8c_html)
+
+        t8b = self.client.get(
+            '/maintenance-kits/nabor-to-chery-tiggo-8-15t-sqre4t15b/'
+        )
+        t8b_html = t8b.content.decode('utf-8')
+        self.assertEqual(t8b.status_code, 200)
+        self.assertIn('Свеча зажигания — F4J163707010', t8b_html)
+        self.assertIn('Не для SQRE4T15C', t8b_html)
+        air = Product.objects.get(article='T151109111')
+        spark = Product.objects.get(article='F4J163707010')
+        post = self.client.post(
+            '/maintenance-kits/nabor-to-chery-tiggo-8-15t-sqre4t15b/add-to-cart/',
+            data={'item': [str(air.id), str(spark.id)]},
+        )
+        self.assertEqual(post.status_code, 302)
+        cart = self.client.session[SESSION_CART_KEY]
+        self.assertEqual(cart[str(air.id)], 1)
+        self.assertEqual(cart[str(spark.id)], 4)
+        cart_page = self.client.get(reverse('orders:cart'))
+        self.assertEqual(cart_page.context['cart_total'], 1000 + 4000)
 
     def test_type_label_falls_back_to_known_article(self):
         apply_maintenance_kits()
