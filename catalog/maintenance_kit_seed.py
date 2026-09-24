@@ -1,7 +1,11 @@
-"""Exact-article seed plan for the first maintenance kits.
+"""Exact-article seed plan for maintenance kits.
 
 Binds a Product only when Product.objects.filter(article=article).count() == 1.
 Never uses icontains or first()-style fallbacks.
+Does not change Product.price, Product.stock_qty, or PP1/PP2.
+
+Fitment decisions use independent catalogs (FitInPart / WIX), not zpt.kz cards.
+Disputed articles stay in reference_lines and must not return as kit items.
 """
 
 from __future__ import annotations
@@ -18,40 +22,93 @@ UNI_K_INCOMPLETE_WARNING = (
     'Не публиковать, пока SKU масляного фильтра не подтверждён.'
 )
 
+COVER_SPARKS_EXCLUDED_CAPTION = (
+    'Состав набора указан ниже; свечи в заказ не входят'
+)
+
+OEM_UNKNOWN = 'OEM неизвестен'
+
 STATUS_OK = 'OK'
 STATUS_MISSING = 'MISSING'
 STATUS_AMBIGUOUS = 'AMBIGUOUS'
 
 
+# Independent sources (not zpt.kz Product cards):
+# T15-1109111 air — Tiggo 7 Pro SQRE4T15C from Mar 2020:
+#   https://www.fitinpart.sg/v2/en/product/50357231/chery-t15-1109111
+# T21-8107011 cabin — Tiggo 7 Pro SQRE4T15C from Mar 2020:
+#   https://www.fitinpart.sg/v2/en/product/50357199/chery-t21-8107011
+# 480-1012010 oil — Tiggo 7 Pro SQRE4T15C from Mar 2020:
+#   https://www.fitinpart.sg/v2/en/product/136865/chery-480-1012010
+# F4J16-3707010 spark — TXL M32T SQRF4J16A from Apr 2019; Tiggo 7 Pro SQRE4T15C
+#   is not listed. Seller/our cards contradict. Keep disputed, not in 7 Pro kit:
+#   https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010
+# F4J16-1012030 oil — TXL M32T SQRF4J16A from Apr 2019, not SQRF4J16D / 2.0T:
+#   https://www.fitinpart.sg/v2/en/product/50357242/chery-f4j16-1012030
+# 480-1012010 also listed for TXL M32T SQRF4J16D from Jul 2023 — different engine.
+# WIX WA11833 OE 151000025AA — EXEED TX/TXL 1.6T (SQRF4J16 / later 1.6 codes):
+#   https://www.wixfilters.com/zh-cn/catalog/results/product.html/wa11833_wix.html
+# S301014-0903 air — UNI-V 1.5 JL473ZQ7 from Mar 2022:
+#   https://www.fitinpart.sg/v2/en/product/61763323/changan-s301014-0903
+# C281F280103-2601 cabin — UNI-V 1.5 JL473ZQ7 from Mar 2022:
+#   https://www.fitinpart.sg/v2/en/product/70433118/changan-c281f280103-2601
+# 1109101XGW01A air — Dargo 2.0 GW4N20 from Apr 2022 (also 1.5 — kit scoped to 2.0):
+#   https://www.fitinpart.sg/v2/en/product/79453172/haval-1109101xgw01a
+# 1017110XEN01 oil — Dargo 2.0 GW4N20 from Apr 2022:
+#   https://www.fitinpart.sg/v2/en/product/51490992/great-wall-1017110xen01
+# Dargo cabin: FitInPart Dargo GW4N20 lists 8104400XKZ96A; AG SKU is 8104400XKY28B.
+#   Disputed — reference only, OEM unknown.
+
 KIT_SPECS = (
     {
         'slug': 'komplekt-to-chery-tiggo-7-pro-15t',
-        'name': 'Комплект ТО Chery Tiggo 7 Pro 1.5T',
+        'name': 'Набор ТО — 3 позиции Chery Tiggo 7 Pro 1.5T SQRE4T15C',
         'brand_name': 'Chery',
         'model_name': 'Tiggo 7 Pro',
-        'engine': '1.5T',
+        'engine': '1.5T SQRE4T15C',
+        'year_from': 2020,
+        'year_to': None,
         'description': (
-            'Комплект расходников для ТО Chery Tiggo 7 Pro 1.5T: '
-            'воздушный фильтр, салонный фильтр, масляный фильтр и свечи зажигания.'
+            'Набор ТО — 3 позиции для Chery Tiggo 7 Pro 1.5T SQRE4T15C '
+            '(с марта 2020): воздушный, салонный и масляный фильтры. '
+            'Свечи в набор не входят; артикул свечей для конкретного '
+            'автомобиля требует уточнения. Не для Tiggo 7 (T15) и не для '
+            'Tiggo 7 Pro Max 1.6.'
+        ),
+        'cover_note': COVER_SPARKS_EXCLUDED_CAPTION,
+        'reference_lines': (
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': (
+                    'Свечи в набор не входят. OEM для этой модификации '
+                    'неизвестен: источники противоречат друг другу.'
+                ),
+            },
         ),
         'publish_if_complete': True,
         'items': (
             ('T151109111', 1),
             ('T218107011', 1),
             ('4801012010', 1),
-            ('F4J163707010', 4),
         ),
     },
     {
         'slug': 'komplekt-to-exeed-txl-16t',
-        'name': 'Комплект ТО EXEED TXL 1.6T',
+        'name': 'Набор ТО — 4 позиции EXEED TXL 1.6T SQRF4J16A',
         'brand_name': 'Exeed',
         'model_name': 'TXL',
-        'engine': '1.6T',
+        'engine': '1.6T SQRF4J16A',
+        'year_from': 2019,
+        'year_to': None,
         'description': (
-            'Комплект расходников для ТО EXEED TXL 1.6T: '
-            'воздушный фильтр, салонный фильтр, масляный фильтр и свечи зажигания.'
+            'Набор ТО — 4 позиции для EXEED TXL 1.6T SQRF4J16A (M32T, '
+            'с апреля 2019): воздушный, салонный, масляный фильтры и свечи. '
+            'Не для 2.0T и не для поздних 1.6T SQRF4J16D (с июля 2023) — '
+            'у них другой масляный фильтр.'
         ),
+        'cover_note': '',
+        'reference_lines': (),
         'publish_if_complete': True,
         'items': (
             ('151000025AA', 1),
@@ -61,12 +118,78 @@ KIT_SPECS = (
         ),
     },
     {
+        'slug': 'nabor-to-changan-uni-v-15',
+        'name': 'Набор ТО — 2 позиции Changan UNI-V 1.5 JL473ZQ7',
+        'brand_name': 'Changan',
+        'model_name': 'UNI-V',
+        'engine': '1.5 JL473ZQ7',
+        'year_from': 2022,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Changan UNI-V 1.5 JL473ZQ7 '
+            '(с марта 2022): воздушный и салонный фильтры. Масляный фильтр '
+            'и свечи в набор не входят.'
+        ),
+        'cover_note': '',
+        'reference_lines': (
+            {
+                'type_label': 'Масляный фильтр',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+        ),
+        'publish_if_complete': True,
+        'items': (
+            ('S3010140903', 1),
+            ('C281F2801032601', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-haval-dargo-20-gw4n20',
+        'name': 'Набор ТО — 2 позиции Haval Dargo 2.0 GW4N20',
+        'brand_name': 'Haval',
+        'model_name': 'Dargo',
+        'engine': '2.0 GW4N20',
+        'year_from': 2022,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Haval Dargo 2.0 GW4N20 '
+            '(с апреля 2022): воздушный и масляный фильтры. Не для 1.5 '
+            'GW4B15L. Салонный фильтр в набор не входит.'
+        ),
+        'cover_note': '',
+        'reference_lines': (
+            {
+                'type_label': 'Салонный фильтр',
+                'article': '',
+                'note': (
+                    'В набор не входит. OEM неизвестен: каталоги указывают '
+                    'разные номера.'
+                ),
+            },
+        ),
+        'publish_if_complete': True,
+        'items': (
+            ('1109101XGW01A', 1),
+            ('1017110XEN01', 1),
+        ),
+    },
+    {
         'slug': 'komplekt-to-changan-uni-k-20t',
         'name': 'Комплект ТО Changan UNI-K 2.0T',
         'brand_name': 'Changan',
         'model_name': 'UNI-K',
         'engine': '2.0T',
+        'year_from': None,
+        'year_to': None,
         'description': UNI_K_INCOMPLETE_WARNING,
+        'cover_note': '',
+        'reference_lines': (),
         'publish_if_complete': False,
         'items': (
             ('1109190CR01', 1),
@@ -95,6 +218,9 @@ class SeedKitPlan:
     would_publish: bool = False
     skip_reason: str = ''
     existing_kit_id: int | None = None
+    current_items: list[tuple[str, int, int]] = field(default_factory=list)
+    would_remove: list[tuple[str, int]] = field(default_factory=list)
+    would_add: list[tuple[str, int]] = field(default_factory=list)
 
     @property
     def complete(self):
@@ -147,6 +273,37 @@ def resolve_car_model(brand_ref: SeedRef, model_name: str) -> SeedRef:
     )
 
 
+def _current_kit_items(kit_id: int | None) -> list[tuple[str, int, int]]:
+    if not kit_id:
+        return []
+    rows = (
+        MaintenanceKitItem.objects.filter(kit_id=kit_id)
+        .select_related('product')
+        .order_by('id')
+    )
+    result = []
+    for item in rows:
+        article = str(getattr(item.product, 'article', '') or '').strip()
+        result.append((article, int(item.quantity), item.product_id))
+    return result
+
+
+def _diff_items(current, planned_pairs):
+    current_by_article = {article: qty for article, qty, _pid in current}
+    planned_by_article = {article: qty for article, qty in planned_pairs}
+    would_remove = [
+        (article, qty)
+        for article, qty in current_by_article.items()
+        if article not in planned_by_article
+    ]
+    would_add = [
+        (article, qty)
+        for article, qty in planned_pairs
+        if article not in current_by_article
+    ]
+    return would_remove, would_add
+
+
 def plan_maintenance_kits(specs=KIT_SPECS) -> list[SeedKitPlan]:
     plans = []
     for spec in specs:
@@ -161,12 +318,17 @@ def plan_maintenance_kits(specs=KIT_SPECS) -> list[SeedKitPlan]:
             .values_list('pk', flat=True)
             .first()
         )
+        current_items = _current_kit_items(existing)
+        would_remove, would_add = _diff_items(current_items, spec['items'])
         plan = SeedKitPlan(
             spec=spec,
             brand=brand,
             car_model=car_model,
             items=item_refs,
             existing_kit_id=existing,
+            current_items=current_items,
+            would_remove=would_remove,
+            would_add=would_add,
         )
         if not plan.complete:
             missing = []
@@ -194,16 +356,25 @@ def _upsert_kit(plan: SeedKitPlan) -> MaintenanceKit:
             'brand_id': plan.brand.object_id,
             'car_model_id': plan.car_model.object_id,
             'engine': spec['engine'],
+            'year_from': spec.get('year_from'),
+            'year_to': spec.get('year_to'),
             'description': spec['description'],
+            'cover_note': spec.get('cover_note') or '',
+            'reference_lines': list(spec.get('reference_lines') or ()),
             'is_active': bool(spec['publish_if_complete']),
         },
     )
+    wanted_ids = []
     for (_article, quantity), ref in zip(spec['items'], plan.items):
         MaintenanceKitItem.objects.update_or_create(
             kit=kit,
             product_id=ref.object_id,
             defaults={'quantity': quantity},
         )
+        wanted_ids.append(ref.object_id)
+    MaintenanceKitItem.objects.filter(kit=kit).exclude(
+        product_id__in=wanted_ids,
+    ).delete()
     return kit
 
 
@@ -216,7 +387,16 @@ def apply_maintenance_kits(plans: list[SeedKitPlan] | None = None) -> list[SeedK
                 continue
             kit = _upsert_kit(plan)
             plan.existing_kit_id = kit.pk
+            plan.current_items = _current_kit_items(kit.pk)
+            plan.would_remove = []
+            plan.would_add = []
     return plans
+
+
+def _fmt_pairs(pairs) -> str:
+    if not pairs:
+        return '(none)'
+    return ', '.join(f'{article} x{qty}' for article, qty, *_rest in pairs)
 
 
 def format_plan_report(plans: list[SeedKitPlan], *, apply=False) -> str:
@@ -226,6 +406,7 @@ def format_plan_report(plans: list[SeedKitPlan], *, apply=False) -> str:
         spec = plan.spec
         lines.append(f'--- {spec["name"]} ---')
         lines.append(f'slug: {spec["slug"]}')
+        lines.append(f'kit_id: {plan.existing_kit_id or "(new)"}')
         lines.append(
             f'brand: {plan.brand.status} {plan.brand.label}'
             + (f' id={plan.brand.object_id}' if plan.brand.object_id else '')
@@ -234,9 +415,21 @@ def format_plan_report(plans: list[SeedKitPlan], *, apply=False) -> str:
             f'model: {plan.car_model.status} {plan.car_model.label}'
             + (f' id={plan.car_model.object_id}' if plan.car_model.object_id else '')
         )
+        lines.append(f'engine: {spec["engine"]}')
+        lines.append(f'current: {_fmt_pairs(plan.current_items)}')
+        lines.append(f'planned: {_fmt_pairs(spec["items"])}')
+        if plan.would_remove:
+            lines.append(f'would_remove: {_fmt_pairs(plan.would_remove)}')
+        if plan.would_add:
+            lines.append(f'would_add: {_fmt_pairs(plan.would_add)}')
         for (article, qty), ref in zip(spec['items'], plan.items):
             extra = f' id={ref.object_id}' if ref.object_id else f' {ref.detail}'
             lines.append(f'item {article} x{qty}: {ref.status}{extra}')
+        for raw in spec.get('reference_lines') or ():
+            article = str(raw.get('article') or '').strip() or OEM_UNKNOWN
+            lines.append(
+                f'reference {raw.get("type_label", "")}: {article}'
+            )
         if not plan.complete:
             lines.append(f'result: SKIP ({plan.skip_reason})')
         elif apply:

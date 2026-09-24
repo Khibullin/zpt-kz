@@ -12,6 +12,7 @@ from io import StringIO
 
 from catalog.commercial import resolve_commercial_price
 from catalog.maintenance_kit_seed import (
+    COVER_SPARKS_EXCLUDED_CAPTION,
     UNI_K_INCOMPLETE_WARNING,
     apply_maintenance_kits,
     plan_maintenance_kits,
@@ -22,6 +23,7 @@ from catalog.maintenance_kits import (
     guest_kit_base_price,
     LINE_UNAVAILABLE,
     LINE_UNCONFIRMED,
+    OEM_UNKNOWN_LABEL,
 )
 from catalog.models import (
     Brand,
@@ -852,9 +854,12 @@ class MaintenanceKitSeedTests(TestCase):
         chery = Brand.objects.create(country=country, name='Chery')
         exeed = Brand.objects.create(country=country, name='Exeed')
         changan = Brand.objects.create(country=country, name='Changan')
+        haval = Brand.objects.create(country=country, name='Haval')
         CarModel.objects.create(brand=chery, name='Tiggo 7 Pro')
         CarModel.objects.create(brand=exeed, name='TXL')
         CarModel.objects.create(brand=changan, name='UNI-K')
+        CarModel.objects.create(brand=changan, name='UNI-V')
+        CarModel.objects.create(brand=haval, name='Dargo')
         articles = {
             'T151109111': 'Воздушный Chery',
             'T218107011': 'Салонный Chery',
@@ -866,42 +871,69 @@ class MaintenanceKitSeedTests(TestCase):
             '1109190CR01': 'Воздушный UNI-K',
             'CD569F2801032700': 'Салонный UNI-K',
             'D20T0120700': 'Свеча UNI-K',
+            'S3010140903': 'Воздушный UNI-V',
+            'C281F2801032601': 'Салонный UNI-V',
+            '1109101XGW01A': 'Воздушный Dargo',
+            '1017110XEN01': 'Масляный Dargo',
         }
         for article, title in articles.items():
             _make_product(article=article, title=title, stock_qty=5)
 
-    def test_apply_creates_three_kits_and_is_idempotent(self):
+    def test_apply_creates_published_kits_and_is_idempotent(self):
         apply_maintenance_kits()
-        self.assertEqual(MaintenanceKit.objects.count(), 3)
+        self.assertEqual(MaintenanceKit.objects.count(), 5)
         chery = MaintenanceKit.objects.get(slug='komplekt-to-chery-tiggo-7-pro-15t')
         exeed = MaintenanceKit.objects.get(slug='komplekt-to-exeed-txl-16t')
+        univ = MaintenanceKit.objects.get(slug='nabor-to-changan-uni-v-15')
+        dargo = MaintenanceKit.objects.get(slug='nabor-to-haval-dargo-20-gw4n20')
         changan = MaintenanceKit.objects.get(slug='komplekt-to-changan-uni-k-20t')
         self.assertTrue(chery.is_active)
         self.assertTrue(exeed.is_active)
+        self.assertTrue(univ.is_active)
+        self.assertTrue(dargo.is_active)
         self.assertFalse(changan.is_active)
-        self.assertEqual(chery.items.count(), 4)
+        self.assertEqual(chery.items.count(), 3)
+        self.assertFalse(chery.items.filter(product__article='F4J163707010').exists())
         self.assertEqual(exeed.items.count(), 4)
+        self.assertEqual(univ.items.count(), 2)
+        self.assertEqual(dargo.items.count(), 2)
         self.assertEqual(changan.items.count(), 3)
         self.assertIn(UNI_K_INCOMPLETE_WARNING, changan.description)
-        spark_item = chery.items.get(product__article='F4J163707010')
+        self.assertEqual(chery.engine, '1.5T SQRE4T15C')
+        self.assertEqual(exeed.engine, '1.6T SQRF4J16A')
+        self.assertEqual(chery.cover_note, COVER_SPARKS_EXCLUDED_CAPTION)
+        spark_ref = chery.reference_lines[0]
+        self.assertEqual(spark_ref['type_label'], 'Свеча зажигания')
+        self.assertEqual(spark_ref['article'], '')
+        spark_item = exeed.items.get(product__article='F4J163707010')
         self.assertEqual(spark_item.quantity, 4)
 
         apply_maintenance_kits()
-        self.assertEqual(MaintenanceKit.objects.count(), 3)
-        self.assertEqual(MaintenanceKitItem.objects.count(), 11)
+        self.assertEqual(MaintenanceKit.objects.count(), 5)
+        self.assertEqual(MaintenanceKitItem.objects.count(), 14)
+        chery.refresh_from_db()
+        self.assertEqual(chery.items.count(), 3)
+        self.assertFalse(chery.items.filter(product__article='F4J163707010').exists())
 
-    def test_apply_does_not_delete_extra_manual_items(self):
+    def test_apply_removes_excluded_spark_and_does_not_restore_it(self):
         apply_maintenance_kits()
         kit = MaintenanceKit.objects.get(slug='komplekt-to-chery-tiggo-7-pro-15t')
+        spark = Product.objects.get(article='F4J163707010')
+        MaintenanceKitItem.objects.create(kit=kit, product=spark, quantity=4)
         extra = _make_product(article='EXTRA-MANUAL-001', title='Ручная позиция')
         MaintenanceKitItem.objects.create(kit=kit, product=extra, quantity=1)
         self.assertEqual(kit.items.count(), 5)
 
         apply_maintenance_kits()
         kit.refresh_from_db()
-        self.assertEqual(kit.items.count(), 5)
-        self.assertTrue(kit.items.filter(product=extra).exists())
+        self.assertEqual(kit.items.count(), 3)
+        self.assertFalse(kit.items.filter(product=spark).exists())
+        self.assertFalse(kit.items.filter(product=extra).exists())
         self.assertTrue(kit.is_active)
+        spark.refresh_from_db()
+        self.assertEqual(spark.article, 'F4J163707010')
+        self.assertEqual(spark.price, 1000)
+        self.assertEqual(spark.stock_qty, 5)
 
     def test_ambiguous_article_skips_kit(self):
         _make_product(article='T151109111-DUP', title='dup')
@@ -923,10 +955,14 @@ class MaintenanceKitSeedTests(TestCase):
         call_command('seed_maintenance_kits', stdout=out)
         report = out.getvalue()
         self.assertIn('mode: dry-run', report)
-        self.assertIn('Комплект ТО Chery Tiggo 7 Pro 1.5T', report)
-        self.assertIn('Комплект ТО EXEED TXL 1.6T', report)
+        self.assertIn('Набор ТО — 3 позиции Chery Tiggo 7 Pro 1.5T SQRE4T15C', report)
+        self.assertIn('Набор ТО — 4 позиции EXEED TXL 1.6T SQRF4J16A', report)
+        self.assertIn('Набор ТО — 2 позиции Changan UNI-V 1.5 JL473ZQ7', report)
+        self.assertIn('Набор ТО — 2 позиции Haval Dargo 2.0 GW4N20', report)
         self.assertIn('Комплект ТО Changan UNI-K 2.0T', report)
-        self.assertEqual(report.count('result: WOULD create (publish)'), 2)
+        self.assertIn('would_add: T151109111 x1, T218107011 x1, 4801012010 x1', report)
+        self.assertNotIn('F4J163707010', report.split('--- Набор ТО — 3 позиции Chery')[1].split('---')[0])
+        self.assertEqual(report.count('result: WOULD create (publish)'), 4)
         self.assertIn('result: WOULD create (draft)', report)
         self.assertEqual(MaintenanceKit.objects.count(), 0)
 
@@ -935,6 +971,8 @@ class MaintenanceKitSeedTests(TestCase):
         listing = self.client.get(reverse('maintenance_kit_list'))
         self.assertNotContains(listing, 'Changan UNI-K')
         self.assertContains(listing, 'Chery Tiggo 7 Pro')
+        self.assertContains(listing, 'Набор ТО — 2 позиции Changan UNI-V')
+        self.assertContains(listing, 'Набор ТО — 2 позиции Haval Dargo')
         response = self.client.get('/maintenance-kits/komplekt-to-changan-uni-k-20t/')
         self.assertEqual(response.status_code, 404)
         post = self.client.post('/maintenance-kits/komplekt-to-changan-uni-k-20t/add-to-cart/')
@@ -952,12 +990,13 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertIn('Свеча зажигания — F4J163707010', html)
         self.assertNotIn('Свеча зажигания Chery Tiggo 7', html)
         self.assertNotIn('Tiggo 7', html)
-        self.assertIn('EXEED TXL 1.6T', html)
-        self.assertIn('Комплект расходников для ТО EXEED TXL 1.6T', html)
+        self.assertIn('EXEED TXL 1.6T SQRF4J16A', html)
+        self.assertIn('Не для 2.0T', html)
+        self.assertNotIn('Комплект расходников для ТО EXEED TXL 1.6T', html)
         spark.refresh_from_db()
         self.assertEqual(spark.title, 'Свеча зажигания Chery Tiggo 7')
         self.assertIn(
-            'Комплект ТО Exeed TXL 1.6T. Состав, цены и наличие расходников на ZPT.KZ.',
+            'Комплект ТО Exeed TXL 1.6T SQRF4J16A. Состав, цены и наличие расходников на ZPT.KZ.',
             response.context['page_description'],
         )
         self.assertNotIn('UNI-K', html)
@@ -971,15 +1010,66 @@ class MaintenanceKitSeedTests(TestCase):
         html = response.content.decode('utf-8')
         self.assertEqual(response.status_code, 200)
         self.assertIn('Масляный фильтр — 4801012010', html)
-        self.assertIn('Комплект расходников для ТО Chery Tiggo 7 Pro 1.5T', html)
+        self.assertIn('Набор ТО — 3 позиции для Chery Tiggo 7 Pro 1.5T SQRE4T15C', html)
+        self.assertIn(COVER_SPARKS_EXCLUDED_CAPTION, html)
+        self.assertIn(OEM_UNKNOWN_LABEL, html)
+        self.assertIn('Свечи в набор не входят', html)
+        self.assertNotIn('F4J163707010', html)
+        self.assertNotIn('Свеча зажигания — F4J163707010', html)
         self.assertNotIn('TXL', html)
         self.assertNotIn('UNI-K', html)
         self.assertNotIn('Exeed', html)
         self.assertNotIn('Changan', html)
         self.assertIn(
-            'Комплект ТО Chery Tiggo 7 Pro 1.5T. Состав, цены и наличие расходников на ZPT.KZ.',
+            'Комплект ТО Chery Tiggo 7 Pro 1.5T SQRE4T15C. Состав, цены и наличие расходников на ZPT.KZ.',
             response.context['page_description'],
         )
+        spark = Product.objects.get(article='F4J163707010')
+        post = self.client.post(
+            '/maintenance-kits/komplekt-to-chery-tiggo-7-pro-15t/add-to-cart/',
+            data={'item': [str(spark.id)]},
+        )
+        self.assertEqual(post.status_code, 302)
+        self.assertEqual(self.client.session.get(SESSION_CART_KEY, {}), {})
+
+    def test_partial_kits_cart_excludes_reference_and_sums_selected(self):
+        apply_maintenance_kits()
+        univ = MaintenanceKit.objects.get(slug='nabor-to-changan-uni-v-15')
+        air = Product.objects.get(article='S3010140903')
+        cabin = Product.objects.get(article='C281F2801032601')
+        view = build_kit_view(univ)
+        self.assertEqual(len(view.lines), 2)
+        self.assertEqual(len(view.reference_lines), 2)
+        self.assertEqual(view.reference_lines[0].article_display, OEM_UNKNOWN_LABEL)
+        self.assertEqual(view.total_price, 1000 + 1000)
+        listing = self.client.get(reverse('maintenance_kit_list'))
+        self.assertNotContains(listing, 'OEM неизвестен')
+        response = self.client.get('/maintenance-kits/nabor-to-changan-uni-v-15/')
+        html = response.content.decode('utf-8')
+        self.assertIn('OEM неизвестен', html)
+        self.assertIn('Справочно', html)
+        self.assertNotIn('Купить', html.split('Справочно', 1)[1])
+        post = self.client.post(
+            '/maintenance-kits/nabor-to-changan-uni-v-15/add-to-cart/',
+            data={'item': [str(air.id)]},
+        )
+        self.assertEqual(post.status_code, 302)
+        cart = self.client.session[SESSION_CART_KEY]
+        self.assertEqual(cart[str(air.id)], 1)
+        self.assertNotIn(str(cabin.id), cart)
+        cart_page = self.client.get(reverse('orders:cart'))
+        self.assertEqual(cart_page.context['cart_total'], 1000)
+
+    def test_dargo_two_position_kit_keeps_cabin_as_reference(self):
+        apply_maintenance_kits()
+        response = self.client.get('/maintenance-kits/nabor-to-haval-dargo-20-gw4n20/')
+        html = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('Воздушный фильтр — 1109101XGW01A', html)
+        self.assertIn('Масляный фильтр — 1017110XEN01', html)
+        self.assertIn('Салонный фильтр — OEM неизвестен', html)
+        self.assertIn('Не для 1.5', html)
+        self.assertNotIn('Jolion', html)
 
     def test_type_label_falls_back_to_known_article(self):
         apply_maintenance_kits()

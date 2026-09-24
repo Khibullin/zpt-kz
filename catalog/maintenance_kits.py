@@ -46,6 +46,8 @@ STOCK_UNLIMITED_LABEL = 'Наличие уточняется'
 COVER_PARTIAL_CAPTION = (
     'На фото полный комплект; выбранный состав указан ниже'
 )
+OEM_UNKNOWN_LABEL = 'OEM неизвестен'
+ARTICLE_PENDING_LABEL = 'Артикул уточняется'
 PARTS_REQUEST_URL = '/request-parts/'
 
 LINE_AVAILABLE = 'available'
@@ -70,6 +72,10 @@ KIT_ARTICLE_TYPES = {
     '1109190CR01': WHOLESALE_TYPE_AIR,
     'CD569F2801032700': WHOLESALE_TYPE_CABIN,
     'D20T0120700': WHOLESALE_TYPE_SPARK,
+    'S3010140903': WHOLESALE_TYPE_AIR,
+    'C281F2801032601': WHOLESALE_TYPE_CABIN,
+    '1109101XGW01A': WHOLESALE_TYPE_AIR,
+    '1017110XEN01': WHOLESALE_TYPE_OIL,
 }
 
 
@@ -116,9 +122,19 @@ class KitLineView:
 
 
 @dataclass
+class KitReferenceLineView:
+    type_label: str
+    article: str
+    article_display: str
+    note: str
+    display_name: str
+
+
+@dataclass
 class KitView:
     kit: MaintenanceKit
     lines: list[KitLineView]
+    reference_lines: list[KitReferenceLineView]
     total_price: int | None
     full_total_price: int | None
     available_kits: int | None
@@ -215,6 +231,29 @@ def _line_request_url(availability: str) -> str:
     return ''
 
 
+def kit_reference_line_views(kit: MaintenanceKit) -> list[KitReferenceLineView]:
+    """Missing/disputed rows. Never priced and never added to the cart."""
+    rows = []
+    for raw in kit.reference_lines or []:
+        if not isinstance(raw, dict):
+            continue
+        type_label = str(raw.get('type_label') or '').strip() or 'Расходник'
+        article = str(raw.get('article') or '').strip()
+        if article:
+            article_display = article
+        else:
+            article_display = OEM_UNKNOWN_LABEL
+        note = str(raw.get('note') or '').strip()
+        rows.append(KitReferenceLineView(
+            type_label=type_label,
+            article=article,
+            article_display=article_display,
+            note=note,
+            display_name=f'{type_label} — {article_display}',
+        ))
+    return rows
+
+
 def quote_kit_lines(kit: MaintenanceKit, seller_profile=None, *, enforce_stock=True):
     lines = []
     for item in kit.items.all():
@@ -299,6 +338,7 @@ def build_kit_view(kit: MaintenanceKit, request=None) -> KitView:
     return KitView(
         kit=kit,
         lines=display_lines,
+        reference_lines=kit_reference_line_views(kit),
         total_price=selected_total,
         full_total_price=full_total,
         available_kits=available,

@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_search_v1">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_partial_v1">
 {% endblock %}
 
 {% block content %}
@@ -91,6 +91,9 @@
                 src="{{ kit_view.kit.cover.url }}"
                 alt="Общее фото комплекта {{ kit_view.kit.name }}"
               >
+              {% if kit_view.kit.cover_note %}
+                <span class="kit-card-cover-note">{{ kit_view.kit.cover_note }}</span>
+              {% endif %}
             {% else %}
               <div class="kit-card-placeholder" aria-hidden="true">
                 <span class="kit-card-placeholder-kicker">Комплект ТО</span>

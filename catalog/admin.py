@@ -1463,6 +1463,8 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
                     'description',
                     'cover',
                     'cover_preview',
+                    'cover_note',
+                    'reference_lines',
                     'is_active',
                     'base_price_display',
                     'available_kits_display',

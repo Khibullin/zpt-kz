@@ -54,6 +54,7 @@
   display:flex;
   align-items:center;
   justify-content:center;
+  position:relative;
 }
 .kit-card-cover{
   width:100%;
@@ -166,10 +167,27 @@
 .kit-add button{min-height:48px;padding:0 20px;border:0;border-radius:10px;background:#ef3d2f;color:#fff;font-weight:700;cursor:pointer}
 .kit-add button:disabled{background:#d1d5db;cursor:not-allowed}
 .kit-note{margin-top:10px;color:#b45309}
-.kit-cover-note{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:14px;line-height:1.45}
+.kit-cover-note{margin:0 0 12px;padding:10px 12px;border-radius:10px;background:#fff7ed;color:#9a3412;font-size:14px;line-height:1.45;font-weight:700}
+.kit-cover-note--always{display:block}
+.kit-card-cover-note{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  padding:8px 10px;
+  background:rgba(154,52,18,.92);
+  color:#fff;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.35;
+  text-align:center;
+}
 .kit-check{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;color:#111827;cursor:pointer}
 .kit-check input{width:22px;height:22px;accent-color:#ef3d2f;flex-shrink:0}
 .kit-line--unavailable{background:#fafafa}
+.kit-line--reference{background:#f8fafc;color:#4b5563}
+.kit-ref-badge{display:inline-block;font-size:12px;font-weight:700;color:#6b7280}
+.kit-ref-note{margin:6px 0 0;font-size:13px;line-height:1.4;color:#6b7280;font-weight:400}
 .kit-status{display:inline-block;font-size:13px;font-weight:700}
 .kit-status--ok{color:#047857}
 .kit-status--out{color:#b91c1c}
@@ -213,6 +231,7 @@
     background:#fff;
     box-sizing:border-box;
   }
+  .kit-table tr.kit-line--reference{background:#f8fafc}
   .kit-table th,.kit-table td{
     border:0;
     padding:0;

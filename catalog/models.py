@@ -2102,6 +2102,25 @@ class MaintenanceKit(models.Model):
             'страницы состава. Не заменяет фотографии товаров состава.'
         ),
     )
+    cover_note = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        verbose_name='Подпись к общему фото',
+        help_text=(
+            'Показывается под общим фото, если оно не совпадает с составом '
+            'заказа. Исходный файл фото не менять.'
+        ),
+    )
+    reference_lines = models.JSONField(
+        default=list,
+        blank=True,
+        verbose_name='Справочные позиции',
+        help_text=(
+            'Не входят в корзину и итоговую сумму. Список объектов: '
+            'type_label, article (пусто = OEM неизвестен), note.'
+        ),
+    )
     is_active = models.BooleanField(
         default=False,
         db_index=True,

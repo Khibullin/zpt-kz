@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_search_v1">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_partial_v1">
 {% endblock %}
 
 {% block content %}
@@ -35,6 +35,10 @@
       <div class="kit-cover-wrap">
         <img src="{{ kit.cover.url }}" alt="Общее фото комплекта {{ kit.name }}">
       </div>
+    {% endif %}
+    {% if kit.cover_note %}
+      <p class="kit-cover-note kit-cover-note--always">{{ kit.cover_note }}</p>
+    {% elif kit.cover %}
       <p class="kit-cover-note" hidden data-kit-cover-note>{{ cover_partial_caption }}</p>
     {% endif %}
     <p class="kit-meta">
@@ -133,6 +137,24 @@
             </td>
           </tr>
         {% endfor %}
+        {% for line in kit_view.reference_lines %}
+          <tr class="kit-line kit-line--reference">
+            <td class="kit-line-check" data-label="Заказ">
+              <span class="kit-ref-badge">Справочно</span>
+            </td>
+            <td class="kit-line-photo"><span class="kit-no-photo">—</span></td>
+            <td class="kit-line-name">
+              {{ line.display_name }}
+              {% if line.note %}<p class="kit-ref-note">{{ line.note }}</p>{% endif %}
+            </td>
+            <td class="kit-line-qty" data-label="Кол-во">—</td>
+            <td class="kit-line-price" data-label="Цена">—</td>
+            <td class="kit-line-sum" data-label="Сумма">—</td>
+            <td class="kit-line-status" data-label="Наличие">
+              <span class="kit-status">Не входит в заказ</span>
+            </td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
 
@@ -164,6 +186,6 @@
   {% if kit_view.reason %}
     <p class="kit-note">{{ kit_view.reason }}</p>
   {% endif %}
-  <script src="{% static 'js/maintenance-kits-select-v1.js' %}?v=kit_select_v2"></script>
+  <script src="{% static 'js/maintenance-kits-select-v1.js' %}?v=kit_select_v3"></script>
 </main>
 {% endblock %}
