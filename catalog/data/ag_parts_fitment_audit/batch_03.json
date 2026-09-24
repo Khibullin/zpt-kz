@@ -1,0 +1,104 @@
+{
+  "batch_id": "03",
+  "notes": "T151 Tiggo 4 по двигателям; 1109101XGW01A Dargo/F7 II; S301 и 1109190CR01 двигатели UNI-V/UNI-K; 1109110XKV08A H6→H9 + slug; 1109104XGW02A Jolion двигатели. C281 без правки zpt.kz. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "articles": [
+    {
+      "article": "T151109111",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Chery Tiggo 7 — T151109111",
+        "compatibility": "Chery Tiggo 4 — 1.5 SQRE4G15B/C, SQRE4T15C и 2.0 SQRD4G20 (не все моторы Tiggo 4 без сверки); Tiggo 7 1.5 SQRE4T15 / SQRE4T15C и 2.0 SQRD4G20; Tiggo 7 Pro 1.5 SQRE4T15C; Tiggo 8 1.5 SQRE4T15B/C и 2.0 SQRD4T20; Exeed LX 1.5 SQRE4T15C; Omoda C5 1.5 SQRE4T15C. OEM T15-1109111. Не путать с 151000079AA (Tiggo 8 Pro 1.6) и F081109111HD.",
+        "engine_compatibility": "SQRE4G15B\nSQRE4G15C\nSQRE4T15C\nSQRD4G20\nSQRE4T15\nSQRE4T15B\nSQRD4T20",
+        "oem_cross_references": "T151109111\nT15-1109111",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: T151109111 / T15-1109111.\nОсновная применимость: Chery Tiggo 7 1.5 и 2.0, Tiggo 7 Pro 1.5 SQRE4T15C, Tiggo 8 1.5 и 2.0 SQRD4T20; Exeed LX 1.5; Omoda C5 1.5; Tiggo 4 — только 1.5 SQRE4G15B/C, SQRE4T15C и 2.0 SQRD4G20.\nНе путать с 151000079AA и F081109111HD.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 7"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 4"},
+        {"brand": "Chery", "model": "Tiggo 7"},
+        {"brand": "Chery", "model": "Tiggo 7 Pro"},
+        {"brand": "Chery", "model": "Tiggo 8"},
+        {"brand": "Exeed", "model": "LX"},
+        {"brand": "Omoda", "model": "C5"}
+      ]
+    },
+    {
+      "article": "1109101XGW01A",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Haval Dargo / F7 II — 1109101XGW01A",
+        "compatibility": "Haval Dargo 2.0 GW4N20 (с 04.2022) и 1.5 GW4B15L (с 07.2023); F7 II 1.5 GW4B15D и 2.0 GW4N20 (с 08.2024); F7x II 2.0 GW4N20 (с 08.2024). Первое поколение F7/F7x этим артикулом не подтверждаем. OEM 1109101XGW01A / 1109101AGW01A. Не смешивать с 1109104XGW02A (Jolion).",
+        "engine_compatibility": "GW4N20\nGW4B15L\nGW4B15D",
+        "oem_cross_references": "1109101XGW01A\n1109101AGW01A",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109101XGW01A / 1109101AGW01A.\nОсновная применимость: Haval Dargo 2.0 GW4N20 (с 04.2022) и 1.5 GW4B15L (с 07.2023); F7 II 1.5 GW4B15D / 2.0 GW4N20 (с 08.2024); F7x II 2.0 GW4N20 (с 08.2024).\nПервое поколение F7/F7x этим артикулом не подтверждаем.\nНе смешивать с 1109104XGW02A.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Haval", "model": "Dargo"},
+      "selected_models": [
+        {"brand": "Haval", "model": "Dargo"},
+        {"brand": "Haval", "model": "F7"},
+        {"brand": "Haval", "model": "F7x"}
+      ]
+    },
+    {
+      "article": "S3010140903",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Changan UNI-V — S3010140903",
+        "compatibility": "Changan UNI-V 1.5 JL473ZQ7 (с 03.2022). OEM S301014-0903 / 1109190-PT01. UNI-K — 1109190CR01.",
+        "engine_compatibility": "JL473ZQ7",
+        "oem_cross_references": "S3010140903\nS301014-0903\n1109190-PT01",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: S3010140903 / S301014-0903; 1109190-PT01.\nОсновная применимость: Changan UNI-V 1.5 JL473ZQ7 (с 03.2022).\nUNI-K — 1109190CR01.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Changan", "model": "UNI-V"},
+      "selected_models": [
+        {"brand": "Changan", "model": "UNI-V"}
+      ]
+    },
+    {
+      "article": "1109190CR01",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Changan UNI-K — 1109190CR01",
+        "compatibility": "Changan UNI-K 2.0 JL486ZQ5 (с 09.2020) и UNI-K iDD 1.5 JL473ZQ6 (с 03.2022). OEM 1109190-CR01 / CD569F210501-0300. UNI-V — S3010140903. UNI-T этим артикулом не подтверждаем.",
+        "engine_compatibility": "JL486ZQ5\nJL473ZQ6",
+        "oem_cross_references": "1109190CR01\n1109190-CR01\nCD569F210501-0300",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109190CR01 / 1109190-CR01; CD569F210501-0300.\nОсновная применимость: Changan UNI-K 2.0 JL486ZQ5 (с 09.2020) и UNI-K iDD 1.5 JL473ZQ6 (с 03.2022).\nUNI-V — S3010140903. UNI-T этим артикулом не подтверждаем.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Changan", "model": "UNI-K"},
+      "selected_models": [
+        {"brand": "Changan", "model": "UNI-K"}
+      ]
+    },
+    {
+      "article": "1109110XKV08A",
+      "part_type": "air_filter",
+      "canonical_slug": "vozdushnyi-filtr-1109110xkv08a",
+      "fields": {
+        "title": "Воздушный фильтр Haval H9 — 1109110XKV08A",
+        "compatibility": "Haval H9 2.0 GW4C20A (11.2017–02.2021), GW4C20B (с 07.2019), GW4D20T (11.2017–01.2024). OEM 1109110XKV08A. H6 этим артикулом не подтверждаем.",
+        "engine_compatibility": "GW4C20A\nGW4C20B\nGW4D20T",
+        "oem_cross_references": "1109110XKV08A",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109110XKV08A.\nОсновная применимость: Haval H9 2.0 GW4C20A, GW4C20B и GW4D20T.\nH6 этим артикулом не подтверждаем.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Haval", "model": "H9"},
+      "selected_models": [
+        {"brand": "Haval", "model": "H9"}
+      ]
+    },
+    {
+      "article": "1109104XGW02A",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Haval Jolion — 1109104XGW02A",
+        "compatibility": "Haval Jolion 1.5 GW4G15K / GW4B15D (с 04.2021). OEM 1109104XGW02A. Не смешивать с 1109101XGW01A (Dargo / F7 II).",
+        "engine_compatibility": "GW4G15K\nGW4B15D",
+        "oem_cross_references": "1109104XGW02A",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109104XGW02A.\nОсновная применимость: Haval Jolion 1.5 GW4G15K / GW4B15D (с 04.2021).\nНе смешивать с 1109101XGW01A.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Haval", "model": "Jolion"},
+      "selected_models": [
+        {"brand": "Haval", "model": "Jolion"}
+      ]
+    }
+  ]
+}

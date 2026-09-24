@@ -32,7 +32,23 @@ def _product(**kwargs):
 
 class FitmentSlugRedirectTests(TestCase):
     def test_old_urls_redirect_permanently(self):
-        self.assertEqual(len(FITMENT_SLUG_REDIRECTS), 4)
+        self.assertGreaterEqual(len(FITMENT_SLUG_REDIRECTS), 4)
+        self.assertEqual(
+            FITMENT_SLUG_REDIRECTS['chery-tiggo-7-pro-151000079aa-chery-tiggo-7-pro'],
+            'vozdushnyi-filtr-151000079aa',
+        )
+        self.assertEqual(
+            FITMENT_SLUG_REDIRECTS['chery-tiggo-7-f4j163707010-chery-tiggo-7'],
+            'svecha-f4j163707010',
+        )
+        self.assertEqual(
+            FITMENT_SLUG_REDIRECTS['changan-cs55'],
+            'masljanyi-filtr-4801012010',
+        )
+        self.assertEqual(
+            FITMENT_SLUG_REDIRECTS['chery-tiggo-8-2'],
+            'salonnyi-filtr-301001199aa',
+        )
         for old_slug, new_slug in FITMENT_SLUG_REDIRECTS.items():
             response = self.client.get(f'/{old_slug}/')
             self.assertEqual(response.status_code, 301)
