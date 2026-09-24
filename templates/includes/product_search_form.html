@@ -1,0 +1,22 @@
+<form
+  class="site-product-search"
+  method="get"
+  action="{% url 'catalog_list' %}"
+  role="search"
+  onsubmit="if(!this.q.value.trim()){event.preventDefault();return false;}"
+>
+  <label class="site-product-search-label" for="site-product-q">Артикул или название запчасти</label>
+  <input
+    id="site-product-q"
+    type="search"
+    name="q"
+    value="{{ request.GET.q|default:'' }}"
+    placeholder="Артикул или название запчасти"
+    required
+    maxlength="120"
+    autocomplete="off"
+    enterkeyhint="search"
+    aria-label="Артикул или название запчасти"
+  >
+  <button type="submit">Найти</button>
+</form>

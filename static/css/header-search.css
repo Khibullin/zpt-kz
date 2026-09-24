@@ -1,0 +1,127 @@
+/* Visible catalog search in the shared buyer header. */
+
+.site-product-search-label{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0,0,0,0);
+  white-space:nowrap;
+  border:0;
+}
+
+.site-product-search{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:stretch;
+  gap:6px;
+  min-width:0;
+  width:100%;
+  max-width:100%;
+  box-sizing:border-box;
+  order:3;
+}
+
+.site-product-search input[type="search"]{
+  flex:1 1 auto;
+  min-width:0;
+  width:auto;
+  box-sizing:border-box;
+  min-height:40px;
+  padding:0 10px;
+  border:1px solid #e5e7eb;
+  border-radius:10px;
+  background:#fff;
+  color:#111827;
+  font-size:16px;
+  line-height:1.2;
+  font-family:inherit;
+}
+
+.site-product-search input[type="search"]::placeholder{
+  color:#6b7280;
+}
+
+.site-product-search button{
+  flex:0 0 auto;
+  box-sizing:border-box;
+  min-height:40px;
+  padding:0 12px;
+  border:none;
+  border-radius:10px;
+  background:#ff3b30;
+  color:#fff;
+  font-size:14px;
+  font-weight:700;
+  font-family:inherit;
+  white-space:nowrap;
+  cursor:pointer;
+}
+
+.site-product-search button:hover{
+  background:#e6342a;
+}
+
+@media (min-width:768px){
+  .site-header .market-topbar-inner,
+  .site-header .topbar-inner{
+    flex-wrap:nowrap;
+    align-items:center;
+  }
+
+  .site-header .market-brand-block,
+  .site-header .topbar-inner > .site-logo-link{
+    order:1;
+    flex:0 0 auto;
+  }
+
+  .site-product-search{
+    order:2;
+    flex:1 1 240px;
+    width:auto;
+    max-width:520px;
+    margin:0 8px;
+  }
+
+  .site-header .market-header-actions,
+  .site-header .market-topbar-actions{
+    order:3;
+    flex:0 1 auto;
+  }
+
+  .site-product-search input[type="search"]{
+    min-height:38px;
+    font-size:14px;
+  }
+
+  .site-product-search button{
+    min-height:38px;
+  }
+}
+
+@media (max-width:767px){
+  .site-header .site-container,
+  .site-header .topbar-inner,
+  .market-topbar-inner{
+    overflow-x:hidden;
+  }
+
+  .site-product-search{
+    width:100%;
+    max-width:none;
+    margin:0;
+    order:3;
+  }
+
+  .site-product-search input[type="search"]{
+    min-height:44px;
+  }
+
+  .site-product-search button{
+    min-height:44px;
+    padding:0 10px;
+    font-size:13px;
+  }
+}
