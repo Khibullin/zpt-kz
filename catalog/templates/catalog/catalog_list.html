@@ -516,12 +516,83 @@ a.hero-b2b-strip-btn:hover,
   line-height:1.45;
   color:#374151;
 }
+.home-kits-entry{
+  background:#fff;
+  border-bottom:1px solid #ececec;
+}
+.home-kits-entry-inner{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px 12px;
+  max-width:1200px;
+  margin:0 auto;
+  box-sizing:border-box;
+}
+.home-kits-entry-hint{
+  margin:0;
+  color:#4b5563;
+  font-size:13px;
+  line-height:1.35;
+  min-width:0;
+  flex:1 1 180px;
+}
+.home-kits-entry-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  box-sizing:border-box;
+  min-height:40px;
+  padding:0 14px;
+  border-radius:10px;
+  background:#ff3b30;
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.home-kits-entry-btn:hover{
+  background:#e6342a;
+  color:#fff;
+}
+@media (min-width:768px){
+  .home-kits-entry-inner{
+    padding:8px 16px 10px;
+    justify-content:flex-start;
+  }
+  .home-kits-entry:has(.home-kits-entry-hint) .home-kits-entry-inner{
+    justify-content:space-between;
+  }
+}
+@media (max-width:767px){
+  .home-kits-entry-inner{
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    gap:8px;
+    padding:0 12px 8px;
+  }
+  .home-kits-entry-btn{
+    width:100%;
+    min-height:44px;
+    font-size:13px;
+  }
+}
 </style>
 {% endblock %}
 
 {% block content %}
 {% csrf_token %}
 {% include 'catalog/includes/market_header.html' %}
+
+{% if not is_listing %}
+<div class="home-kits-entry">
+  <div class="home-kits-entry-inner">
+    <a class="home-kits-entry-btn" href="{% url 'maintenance_kit_list' %}">Комплекты ТО →</a>
+  </div>
+</div>
+{% endif %}
 
 <div class="container">
 
