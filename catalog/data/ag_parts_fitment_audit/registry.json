@@ -2,6 +2,13 @@
   "audit": "ag-parts-fitment",
   "batch": "02",
   "updated_at": "2026-09-24",
+  "batch_02_live": {
+    "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
+    "deploy": "dep-daqht00473hc738tf310",
+    "dry_run_job": "job-daqhu8bncjis73a1fjog",
+    "apply_job": "job-daqhvbh7lnhs73d2seeg",
+    "apply_summary": "CHANGED 6: T218107011, 301001199AA, 4801012010, C281F2801032601, 151000079AA slug, F4J163707010 slug"
+  },
   "rules": {
     "evidence": "Independent catalogs are proof. zpt.kz and Kaspi texts are not proof.",
     "no_expand_from_similar_model_or_seller_title": true,
