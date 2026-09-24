@@ -10,6 +10,37 @@
 .kit-filter label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151}
 .kit-filter select{width:100%;min-height:44px;border:1px solid #d1d5db;border-radius:10px;padding:0 12px;background:#fff}
 .kit-filter button{min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#ef3d2f;color:#fff;font-weight:700;cursor:pointer}
+.kit-car-search{
+  margin:0 0 16px;
+  padding:14px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#fafafa;
+}
+.kit-car-search-lead{margin:0 0 12px;color:#4b5563;font-size:14px;line-height:1.5}
+.kit-car-search-row{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;align-items:end}
+.kit-car-search label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151}
+.kit-car-search input{
+  width:100%;
+  min-height:44px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  padding:0 12px;
+  background:#fff;
+  box-sizing:border-box;
+}
+.kit-car-search button{
+  min-height:44px;
+  padding:0 18px;
+  border:0;
+  border-radius:10px;
+  background:#111827;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer;
+}
+.kit-selection-status{margin:0 0 12px;color:#4b5563;font-size:14px;line-height:1.45}
+.kit-selection-status a{display:inline-block;margin-left:8px;color:#ef3d2f;font-weight:700;text-decoration:none}
 .kit-missing-car{margin:0 0 8px;font-size:15px}
 .kit-missing-car a{color:#ef3d2f;font-weight:700;text-decoration:none}
 .kit-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:16px}
@@ -155,6 +186,8 @@
 .kit-request-form .errorlist{margin:6px 0 0;padding:0;list-style:none;color:#b91c1c;font-size:13px}
 @media(max-width:720px){
   .kit-filter{grid-template-columns:1fr}
+  .kit-car-search-row{grid-template-columns:1fr}
+  .kit-selection-status a{display:block;margin:8px 0 0}
   .kit-cover-wrap img{max-height:240px}
   .kit-request-grid{grid-template-columns:1fr}
   .kit-hero{padding:4px 0 8px}

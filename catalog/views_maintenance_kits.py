@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -31,6 +33,56 @@ def _filter_kits(queryset, request):
     if engine:
         queryset = queryset.filter(engine=engine)
     return queryset, brand_id, model_id, engine
+
+
+def _search_query(request):
+    brand_query = str(request.GET.get('q_brand') or '').strip()[:100]
+    model_query = str(request.GET.get('q_model') or '').strip()[:100]
+    return brand_query, model_query
+
+
+def _apply_car_search(queryset, brand_query, model_query):
+    """Match published kits by typed brand/model. Does not search Product catalog."""
+    active = bool(brand_query or model_query)
+    if not active:
+        return queryset, False
+    if brand_query:
+        queryset = queryset.filter(brand__name__icontains=brand_query)
+    if model_query:
+        queryset = queryset.filter(car_model__name__icontains=model_query)
+    return queryset, True
+
+
+def _missing_car_url(brand_query='', model_query=''):
+    url = reverse('maintenance_kit_missing_car')
+    params = {}
+    if brand_query:
+        params['brand'] = brand_query
+    if model_query:
+        params['model'] = model_query
+    if params:
+        return f'{url}?{urlencode(params)}'
+    return url
+
+
+def _selection_summary(brand_id, model_id, engine, brands, models, search_active, brand_query, model_query):
+    parts = []
+    if search_active:
+        searched = ' '.join(part for part in (brand_query, model_query) if part)
+        if searched:
+            parts.append(f'Поиск: {searched}')
+    else:
+        if brand_id.isdigit():
+            brand = next((item for item in brands if str(item.id) == brand_id), None)
+            if brand:
+                parts.append(f'Марка: {brand.name}')
+        if model_id.isdigit():
+            model = next((item for item in models if str(item.id) == model_id), None)
+            if model:
+                parts.append(f'Модель: {model.name}')
+        if engine:
+            parts.append(f'Двигатель: {engine}')
+    return ' · '.join(parts)
 
 
 def _picker_choices(queryset, selected_brand, selected_model):
@@ -81,7 +133,13 @@ def _cart_error_redirect(request, detail_url, exc):
 @require_GET
 def maintenance_kit_list(request):
     base = _kit_queryset()
-    kits, brand_id, model_id, engine = _filter_kits(base, request)
+    brand_query, model_query = _search_query(request)
+    search_qs, search_active = _apply_car_search(base, brand_query, model_query)
+    if search_active:
+        kits = search_qs
+        brand_id, model_id, engine = '', '', ''
+    else:
+        kits, brand_id, model_id, engine = _filter_kits(base, request)
     brands, models, engines = _picker_choices(base, brand_id, model_id)
     kit_views = [build_kit_view(kit, request) for kit in kits]
     return render(request, 'catalog/maintenance_kit_list.html', {
@@ -92,6 +150,14 @@ def maintenance_kit_list(request):
         'selected_brand': brand_id,
         'selected_model': model_id,
         'selected_engine': engine,
+        'search_active': search_active,
+        'search_brand': brand_query,
+        'search_model': model_query,
+        'selection_summary': _selection_summary(
+            brand_id, model_id, engine, brands, models,
+            search_active, brand_query, model_query,
+        ),
+        'missing_car_url': _missing_car_url(brand_query, model_query),
         'page_title': 'Комплекты ТО — купить расходники для обслуживания | ZPT.KZ',
         'page_description': (
             'Готовые комплекты ТО для автомобилей в Казахстане: фильтры и свечи '
@@ -137,7 +203,17 @@ def maintenance_kit_add_to_cart(request, slug):
 
 @require_http_methods(['GET', 'POST'])
 def maintenance_kit_missing_car(request):
-    form = MaintenanceKitCarRequestForm(request.POST or None)
+    if request.method == 'POST':
+        form = MaintenanceKitCarRequestForm(request.POST)
+    else:
+        initial = {}
+        brand = str(request.GET.get('brand') or '').strip()[:100]
+        model = str(request.GET.get('model') or '').strip()[:100]
+        if brand:
+            initial['brand'] = brand
+        if model:
+            initial['model'] = model
+        form = MaintenanceKitCarRequestForm(initial=initial)
     if request.method == 'POST':
         if form.is_valid():
             from core.services.public_rate_limit import home_parts_rate_limit_allowed

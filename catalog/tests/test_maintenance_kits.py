@@ -488,7 +488,7 @@ class MaintenanceKitCartTests(TestCase):
         self.oil.save(update_fields=['stock_qty'])
         listing = self.client.get(reverse('maintenance_kit_list'))
         self.assertContains(listing, self.kit.name)
-        self.assertContains(listing, 'Нет моего автомобиля')
+        self.assertNotContains(listing, 'Нет моего автомобиля')
         self.assertContains(listing, 'Часть позиций нет в наличии')
         detail = self.client.get(
             reverse('maintenance_kit_detail', kwargs={'slug': self.kit.slug})
@@ -529,6 +529,10 @@ class MaintenanceKitMissingCarTests(TestCase):
         model = CarModel.objects.create(brand=brand, name='Tiggo 7 Pro')
         extra_brand = Brand.objects.create(country=country, name='Haval')
         CarModel.objects.create(brand=extra_brand, name='Jolion')
+        exeed = Brand.objects.create(country=country, name='Exeed')
+        txl = CarModel.objects.create(brand=exeed, name='TXL')
+        changan = Brand.objects.create(country=country, name='Changan')
+        unik = CarModel.objects.create(brand=changan, name='UNI-K')
         product = _make_product(article='AIR-M')
         self.kit = MaintenanceKit.objects.create(
             name='Комплект ТО Chery Tiggo 7 Pro 1.5T',
@@ -539,6 +543,23 @@ class MaintenanceKitMissingCarTests(TestCase):
             is_active=True,
         )
         MaintenanceKitItem.objects.create(kit=self.kit, product=product, quantity=1)
+        self.exeed_kit = MaintenanceKit.objects.create(
+            name='Комплект ТО EXEED TXL 1.6T',
+            slug='kit-missing-exeed',
+            brand=exeed,
+            car_model=txl,
+            engine='1.6T',
+            is_active=True,
+        )
+        MaintenanceKitItem.objects.create(kit=self.exeed_kit, product=product, quantity=1)
+        MaintenanceKit.objects.create(
+            name='Комплект ТО Changan UNI-K 2.0T',
+            slug='kit-unik-hidden',
+            brand=changan,
+            car_model=unik,
+            engine='2.0T',
+            is_active=False,
+        )
         self.client = Client()
 
     def test_picker_lists_only_published_kit_cars(self):
@@ -547,6 +568,74 @@ class MaintenanceKitMissingCarTests(TestCase):
         self.assertContains(listing, 'Tiggo 7 Pro')
         self.assertNotContains(listing, 'Haval')
         self.assertNotContains(listing, 'Jolion')
+        self.assertNotContains(listing, 'Нет моего автомобиля')
+        self.assertContains(listing, 'q_brand')
+        self.assertContains(listing, 'Найти')
+
+    def test_default_list_shows_kits_without_missing_car_prompt(self):
+        listing = self.client.get(reverse('maintenance_kit_list'))
+        self.assertContains(listing, self.kit.name)
+        self.assertContains(listing, 'Смотреть состав')
+        self.assertNotContains(listing, 'По вашему запросу комплект ТО не найден')
+        self.assertNotContains(listing, 'Оставить заявку на подбор')
+
+    def test_search_finds_published_chery_kit(self):
+        listing = self.client.get(
+            reverse('maintenance_kit_list'),
+            {'q_brand': 'chery', 'q_model': 'tiggo 7 pro'},
+        )
+        self.assertContains(listing, self.kit.name)
+        self.assertContains(listing, 'Смотреть состав')
+        self.assertContains(listing, 'Поиск: chery tiggo 7 pro')
+        self.assertContains(listing, 'Сбросить и показать все комплекты')
+        self.assertNotContains(listing, 'По вашему запросу комплект ТО не найден')
+
+    def test_search_finds_published_exeed_kit(self):
+        listing = self.client.get(
+            reverse('maintenance_kit_list'),
+            {'q_brand': 'EXEED', 'q_model': 'TXL'},
+        )
+        self.assertContains(listing, self.exeed_kit.name)
+        self.assertContains(listing, 'Смотреть состав')
+        self.assertNotContains(listing, self.kit.name)
+        self.assertNotContains(listing, 'Комплект ТО Changan UNI-K')
+
+    def test_empty_search_shows_published_kits(self):
+        listing = self.client.get(
+            reverse('maintenance_kit_list'),
+            {'q_brand': '  ', 'q_model': ''},
+        )
+        self.assertContains(listing, self.kit.name)
+        self.assertNotContains(listing, 'По вашему запросу комплект ТО не найден')
+
+    def test_search_missing_model_offers_request_form(self):
+        listing = self.client.get(
+            reverse('maintenance_kit_list'),
+            {'q_brand': 'Haval', 'q_model': 'Jolion'},
+        )
+        self.assertNotContains(listing, self.kit.name)
+        self.assertContains(listing, 'По вашему запросу комплект ТО не найден')
+        self.assertContains(listing, 'Оставить заявку на подбор')
+        self.assertContains(listing, '/maintenance-kits/no-car/?brand=Haval&amp;model=Jolion')
+        self.assertNotContains(listing, 'нет в каталоге')
+
+    def test_search_does_not_reveal_unpublished_draft(self):
+        listing = self.client.get(
+            reverse('maintenance_kit_list'),
+            {'q_brand': 'Changan', 'q_model': 'UNI-K'},
+        )
+        self.assertNotContains(listing, 'Комплект ТО Changan UNI-K')
+        self.assertNotContains(listing, 'kit-unik-hidden')
+        self.assertContains(listing, 'По вашему запросу комплект ТО не найден')
+
+    def test_missing_car_form_prefills_brand_and_model(self):
+        response = self.client.get(
+            reverse('maintenance_kit_missing_car'),
+            {'brand': 'Haval', 'model': 'Jolion'},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'value="Haval"')
+        self.assertContains(response, 'value="Jolion"')
 
     def test_missing_car_form_saves_demand_without_dispatch(self):
         response = self.client.post(

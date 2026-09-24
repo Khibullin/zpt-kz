@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_mobile_v1">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_search_v1">
 {% endblock %}
 
 {% block content %}
@@ -57,9 +57,28 @@
     </div>
     <button type="submit">Подобрать</button>
   </form>
-  <p class="kit-missing-car">
-    <a href="{% url 'maintenance_kit_missing_car' %}">Нет моего автомобиля</a>
-  </p>
+
+  <form class="kit-car-search" method="get" action="{% url 'maintenance_kit_list' %}">
+    <p class="kit-car-search-lead">Нет нужного автомобиля в списке выше? Укажите марку и модель — год и двигатель можно уточнить в заявке.</p>
+    <div class="kit-car-search-row">
+      <div>
+        <label for="kit-q-brand">Марка</label>
+        <input id="kit-q-brand" type="text" name="q_brand" value="{{ search_brand }}" maxlength="100" autocomplete="off" placeholder="Например, Geely">
+      </div>
+      <div>
+        <label for="kit-q-model">Модель</label>
+        <input id="kit-q-model" type="text" name="q_model" value="{{ search_model }}" maxlength="100" autocomplete="off" placeholder="Например, Coolray">
+      </div>
+      <button type="submit">Найти</button>
+    </div>
+  </form>
+
+  {% if selection_summary %}
+    <p class="kit-selection-status">
+      Сейчас показано: {{ selection_summary }}
+      <a href="{% url 'maintenance_kit_list' %}">Сбросить и показать все комплекты</a>
+    </p>
+  {% endif %}
 
   {% if kits %}
     <div class="kit-grid">
@@ -113,8 +132,13 @@
     </div>
   {% else %}
     <div class="kit-empty">
-      Опубликованных комплектов ТО по выбранным параметрам пока нет.
-      <a href="{% url 'maintenance_kit_missing_car' %}">Оставить запрос на автомобиль</a>
+      {% if search_active %}
+        По вашему запросу комплект ТО не найден.
+        <a href="{{ missing_car_url }}">Оставить заявку на подбор</a>
+      {% else %}
+        По выбранным параметрам комплектов ТО пока нет.
+        <a href="{% url 'maintenance_kit_list' %}">Показать все комплекты</a>
+      {% endif %}
     </div>
   {% endif %}
 </main>
