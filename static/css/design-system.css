@@ -110,11 +110,67 @@ a.site-logo-link.market-brand,
   text-decoration:none !important;
 }
 
-@media (min-width:768px){
-  .market-mobile-business-btn{
-    display:none !important;
-  }
+.market-header-actions,
+.market-topbar-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  min-width:0;
 }
+
+.market-mobile-business-btn{
+  display:none;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  min-height:38px;
+  padding:0 12px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  color:#111827;
+  text-decoration:none;
+  font-size:12px;
+  font-weight:700;
+  line-height:1;
+  white-space:nowrap;
+}
+
+.market-cart-link{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  min-height:38px;
+  padding:0 14px;
+  border-radius:10px;
+  border:1px solid #e5e7eb;
+  background:#fff;
+  color:#111827;
+  text-decoration:none;
+  font-size:14px;
+  font-weight:700;
+}
+
+.market-cart-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:22px;
+  height:22px;
+  padding:0 6px;
+  border-radius:999px;
+  background:#ef3d2f;
+  color:#fff;
+  font-size:12px;
+  font-weight:800;
+  line-height:1;
+}
+
+.market-cart-badge[hidden]{
+  display:none !important;
+}
+
 
 /* ---- Site header shell ---- */
 .site-header,
@@ -329,12 +385,22 @@ button.btn-secondary:hover,
   background-color:var(--zpt-brand-hover) !important;
 }
 
-/* ---- Mobile logo ---- */
+/* ---- Mobile header: two compact rows, no overlap at 320–390px ---- */
 @media (max-width:767px){
   .site-header .site-container,
   .site-header .topbar-inner,
-  .market-topbar-inner{
-    padding:8px 10px;
+  .market-topbar-inner,
+  .market-topbar-inner.market-header-flex,
+  .market-topbar-inner.header-inner,
+  .market-topbar-inner.site-container{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr);
+    justify-content:stretch !important;
+    align-items:stretch !important;
+    gap:8px;
+    padding:8px 12px !important;
+    flex-wrap:unset;
+    flex-direction:unset !important;
   }
 
   .site-logo-link img,
@@ -347,15 +413,74 @@ button.btn-secondary:hover,
     max-width:100%;
   }
 
+  .market-brand-block,
   .market-brand.site-logo-link--with-subtitle,
   .market-header-logo:has(.market-brand-subtitle),
-  .market-brand-block{
-    max-width:48%;
+  .market-brand,
+  .site-header .topbar-inner > .site-logo-link{
+    max-width:100% !important;
     min-width:0;
+    width:100%;
   }
 
   .market-brand-block .site-logo-link,
   .market-brand-block .market-header-logo{
     max-width:100%;
+  }
+
+  .market-header-actions,
+  .market-topbar-actions{
+    display:flex;
+    width:100%;
+    min-width:0;
+    justify-content:stretch;
+    align-items:stretch;
+    gap:8px;
+    flex-wrap:nowrap;
+  }
+
+  .market-guide-link,
+  .market-cart-link,
+  .market-mobile-business-btn{
+    flex:1 1 0;
+    min-width:0;
+    min-height:44px;
+    justify-content:center;
+    padding:0 8px;
+    box-sizing:border-box;
+  }
+
+  .market-guide-link{
+    font-size:12px;
+  }
+
+  .market-cart-link{
+    gap:4px;
+    font-size:12px;
+  }
+
+  .market-cart-label{
+    display:none;
+  }
+
+  .market-cart-badge{
+    min-width:20px;
+    height:20px;
+    flex-shrink:0;
+  }
+
+  .market-mobile-business-btn{
+    display:inline-flex !important;
+    gap:4px;
+  }
+
+  .market-mobile-business-text{
+    font-size:12px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+
+  .market-header-cabinet--desktop{
+    display:none !important;
   }
 }

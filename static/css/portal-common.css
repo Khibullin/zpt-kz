@@ -152,11 +152,18 @@ body{
   .header-inner,
   .topbar-inner,
   .market-header-inner,
-  .header-wrap,
-  .market-topbar-inner{
+  .header-wrap{
     flex-direction:row !important;
     align-items:center !important;
     justify-content:space-between !important;
+  }
+
+  .market-topbar-inner,
+  .market-topbar-inner.header-inner,
+  .site-header .topbar-inner{
+    flex-direction:unset !important;
+    align-items:stretch !important;
+    justify-content:stretch !important;
   }
 
   .nav{
@@ -173,12 +180,16 @@ body{
 
 @media (max-width:640px){
   .header-inner,
-  .topbar-inner,
-  .market-header-inner,
   .header-wrap,
-  .market-topbar-inner{
+  .market-header-inner{
     padding:8px 10px;
     flex-wrap:nowrap;
+  }
+
+  .market-topbar-inner,
+  .site-header .topbar-inner{
+    padding:8px 12px;
+    flex-wrap:unset;
   }
 
   .market-brand img,
@@ -205,7 +216,7 @@ body{
   }
 
   .market-brand{
-    max-width:42%;
+    max-width:100%;
     min-width:0;
   }
 
@@ -231,5 +242,49 @@ body{
     width:auto;
     box-sizing:border-box;
     text-align:center;
+  }
+}
+
+@media (max-width:767px){
+  .market-topbar-inner,
+  .market-topbar-inner.header-inner,
+  .market-topbar-inner.topbar-inner,
+  .site-header .topbar-inner,
+  .site-header .site-container{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    justify-content:stretch !important;
+    align-items:stretch !important;
+    gap:8px !important;
+    flex-direction:unset !important;
+    flex-wrap:unset !important;
+  }
+
+  .market-brand-block,
+  .market-brand,
+  .market-header-logo{
+    max-width:100% !important;
+    width:100%;
+    min-width:0;
+  }
+
+  .market-header-actions,
+  .market-topbar-actions{
+    display:flex !important;
+    width:100%;
+    min-width:0;
+    justify-content:stretch;
+    align-items:stretch;
+    gap:8px;
+    flex-wrap:nowrap;
+  }
+
+  .market-guide-link,
+  .market-cart-link,
+  .market-mobile-business-btn{
+    flex:1 1 0;
+    min-width:0;
+    min-height:44px;
+    justify-content:center;
   }
 }

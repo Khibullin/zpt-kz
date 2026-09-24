@@ -5,9 +5,10 @@
 {% block meta_description %}{{ page_description }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_select_v1">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_mobile_v1">
 {% endblock %}
 
 {% block content %}
@@ -84,10 +85,10 @@
           <h2>
             <a href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">{{ kit_view.kit.name }}</a>
           </h2>
-          <div class="kit-card-meta">
+          <p class="kit-card-meta">
             {{ kit_view.kit.brand.name }} {{ kit_view.kit.car_model.name }}
             {% if kit_view.kit.engine %} · {{ kit_view.kit.engine }}{% endif %}
-          </div>
+          </p>
           {% if kit_view.full_total_price is not None %}
             <div class="kit-card-price">{{ kit_view.full_total_price|intcomma }} ₸</div>
           {% elif kit_view.total_price is not None %}
@@ -95,7 +96,7 @@
           {% else %}
             <div class="kit-card-price">Цена уточняется</div>
           {% endif %}
-          <div class="kit-card-meta">
+          <div class="kit-card-stock">
             {% if kit_view.has_unavailable and kit_view.orderable_count %}
               Часть позиций нет в наличии
             {% elif kit_view.orderable_count == 0 %}
@@ -106,7 +107,7 @@
               Доступно комплектов: {{ kit_view.available_kits }}
             {% endif %}
           </div>
-          <a href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">Смотреть состав</a>
+          <a class="kit-card-cta" href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">Смотреть состав</a>
         </article>
       {% endfor %}
     </div>

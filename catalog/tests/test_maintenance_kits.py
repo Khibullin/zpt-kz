@@ -216,6 +216,36 @@ class MaintenanceKitPricingStockTests(TestCase):
         self.assertIsNone(view.available_kits)
         self.assertTrue(view.can_add)
 
+    def test_availability_label_uses_counted_stock_not_orderability_alone(self):
+        view = build_kit_view(self.kit)
+        air = next(line for line in view.lines if line.product.pk == self.air.id)
+        spark = next(line for line in view.lines if line.product.pk == self.spark.id)
+        self.assertEqual(air.availability_label, 'В наличии')
+        self.assertEqual(spark.availability_label, 'В наличии')
+        self.assertEqual(spark.quantity, 4)
+
+        self.air.stock_qty = None
+        self.air.save(update_fields=['stock_qty'])
+        view = build_kit_view(self.kit)
+        air = next(line for line in view.lines if line.product.pk == self.air.id)
+        self.assertTrue(air.can_buy)
+        self.assertEqual(air.availability_label, 'Можно заказать')
+
+        self.oil.stock_qty = 0
+        self.oil.save(update_fields=['stock_qty'])
+        view = build_kit_view(self.kit)
+        oil = next(line for line in view.lines if line.product.pk == self.oil.id)
+        self.assertFalse(oil.can_buy)
+        self.assertEqual(oil.availability_label, 'Нет в наличии')
+        self.assertEqual(oil.request_url, '/request-parts/')
+
+        html = self.client.get(
+            reverse('maintenance_kit_detail', kwargs={'slug': self.kit.slug})
+        )
+        self.assertContains(html, 'Можно заказать')
+        self.assertContains(html, 'Нет в наличии')
+        self.assertContains(html, 'Оставить заявку')
+
 
 class MaintenanceKitCartTests(TestCase):
     def setUp(self):

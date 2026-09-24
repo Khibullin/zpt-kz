@@ -4,6 +4,12 @@ Does not store kit price or kit stock. Does not touch PP1/PP2.
 Orderability uses the same commercial quote as the rest of ZPT.KZ retail cart:
 Product.status, Product.price / price_on_request, and Product.stock_qty.
 PP1 is a planning reserve and is never added to live availability.
+
+Buyer-facing stock copy:
+- Product.status=active, resolve_commercial_price.can_buy, and numeric
+  Product.stock_qty covering the line qty → «В наличии» (confirmed remainder).
+- can_buy with stock_qty is None → «Можно заказать» (orderable, remainder not counted).
+- otherwise → «Нет в наличии» or «Артикул не подтверждён».
 """
 
 from __future__ import annotations
@@ -192,8 +198,11 @@ def classify_kit_line(product, purchase_quote) -> str:
     return LINE_UNAVAILABLE
 
 
-def _availability_label(availability: str) -> str:
+def _availability_label(availability: str, product=None) -> str:
     if availability == LINE_AVAILABLE:
+        stock = getattr(product, 'stock_qty', None)
+        if stock is not None:
+            return 'В наличии'
         return 'Можно заказать'
     if availability == LINE_UNCONFIRMED:
         return 'Артикул не подтверждён'
@@ -238,7 +247,7 @@ def quote_kit_lines(kit: MaintenanceKit, seller_profile=None, *, enforce_stock=T
             quote=quote,
             display_name=kit_component_display_name(product),
             availability=availability,
-            availability_label=_availability_label(availability),
+            availability_label=_availability_label(availability, product),
             selected_by_default=can_buy,
             request_url=_line_request_url(availability),
         ))

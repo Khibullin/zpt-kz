@@ -14,9 +14,9 @@
 {% block meta_description %}Ищете автозапчасть? Отправьте одну заявку — более 300 продавцов по Казахстану найдут нужную запчасть и отправят предложения в WhatsApp. Запчасти для легковых и грузовых авто.{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v144">
-<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v13">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
 <style>
 .market-topbar{
   position:sticky;
@@ -109,6 +109,20 @@ a.hero-b2b-strip-btn:hover,
 }
 
 @media (max-width:767px){
+  .market-topbar-inner,
+  .market-topbar-inner.header-inner{
+    display:grid !important;
+    grid-template-columns:minmax(0,1fr) !important;
+    justify-content:stretch !important;
+    align-items:stretch !important;
+    gap:8px !important;
+  }
+  .market-brand-block,
+  .market-brand,
+  .market-header-logo{
+    max-width:100% !important;
+    width:100%;
+  }
   .hero-b2b-strip{
     flex-direction:column;
     align-items:stretch;

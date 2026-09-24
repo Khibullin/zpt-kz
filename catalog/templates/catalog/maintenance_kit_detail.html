@@ -5,9 +5,10 @@
 {% block meta_description %}{{ page_description }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v110">
-<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v145">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_select_v1">
+<link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_mobile_v1">
 {% endblock %}
 
 {% block content %}
@@ -71,7 +72,7 @@
       <tbody>
         {% for line in kit_view.lines %}
           <tr class="kit-line{% if not line.can_buy %} kit-line--unavailable{% endif %}" data-kit-line>
-            <td data-label="Заказ">
+            <td class="kit-line-check" data-label="Заказ">
               {% if line.can_buy %}
                 <label class="kit-check">
                   <input
@@ -81,6 +82,7 @@
                     data-kit-item
                     data-subtotal="{{ line.subtotal|default:0|unlocalize }}"
                     {% if line.selected_by_default %}checked{% endif %}
+                    aria-label="В заказ"
                   >
                   <span>В заказ</span>
                 </label>
@@ -88,7 +90,7 @@
                 <input type="checkbox" disabled aria-hidden="true">
               {% endif %}
             </td>
-            <td>
+            <td class="kit-line-photo">
               {% if line.availability != 'unconfirmed' and line.product.main_image %}
                 <img src="{{ line.product.main_image.url }}" alt="{{ line.display_name }}">
               {% elif line.availability != 'unconfirmed' %}
@@ -97,29 +99,29 @@
                 <span class="kit-no-photo">—</span>
               {% endif %}
             </td>
-            <td>
+            <td class="kit-line-name">
               {% if line.availability != 'unconfirmed' %}
                 <a href="{{ line.product|public_product_url }}">{{ line.display_name }}</a>
               {% else %}
                 {{ line.display_name }}
               {% endif %}
             </td>
-            <td data-label="Кол-во">{{ line.quantity }}</td>
-            <td data-label="Цена">
+            <td class="kit-line-qty" data-label="Кол-во">{{ line.quantity }}</td>
+            <td class="kit-line-price" data-label="Цена">
               {% if line.unit_price is not None %}
                 {{ line.unit_price|intcomma }} ₸
               {% else %}
                 —
               {% endif %}
             </td>
-            <td data-label="Сумма">
+            <td class="kit-line-sum" data-label="Сумма">
               {% if line.subtotal is not None %}
                 {{ line.subtotal|intcomma }} ₸
               {% else %}
                 —
               {% endif %}
             </td>
-            <td data-label="Наличие">
+            <td class="kit-line-status" data-label="Наличие">
               {% if line.availability == 'available' %}
                 <span class="kit-status kit-status--ok">{{ line.availability_label }}</span>
               {% else %}

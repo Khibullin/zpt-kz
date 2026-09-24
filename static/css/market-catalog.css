@@ -1233,9 +1233,11 @@ body{
 @media(max-width:640px){
 
   .market-topbar-inner{
-    flex-wrap:nowrap;
-    align-items:center;
-    padding:8px 10px;
+    display:grid;
+    grid-template-columns:minmax(0,1fr);
+    flex-wrap:unset;
+    align-items:stretch;
+    padding:8px 12px;
   }
 
   .market-brand img{
