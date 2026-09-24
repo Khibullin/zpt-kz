@@ -6,6 +6,7 @@ from django.urls import reverse
 from django.views.decorators.http import require_GET, require_http_methods, require_POST
 
 from catalog.forms import MaintenanceKitCarRequestForm
+from catalog.maintenance_kit_requests import send_kit_car_request_notification
 from catalog.maintenance_kits import (
     COVER_PARTIAL_CAPTION,
     add_kit_to_cart,
@@ -218,23 +219,25 @@ def maintenance_kit_missing_car(request):
         if form.is_valid():
             from core.services.public_rate_limit import home_parts_rate_limit_allowed
 
-            if not home_parts_rate_limit_allowed(request):
+            phone = form.cleaned_data.get('phone') or ''
+            if not home_parts_rate_limit_allowed(request, phone):
                 messages.error(
                     request,
                     'Слишком много запросов. Попробуйте позже.',
                 )
             else:
-                form.save()
+                car_request = form.save()
+                send_kit_car_request_notification(car_request, request)
                 messages.success(
                     request,
-                    'Запрос сохранён. Мы учтём автомобиль при подготовке следующих комплектов ТО.',
+                    'Заявка получена. Мы свяжемся с вами в WhatsApp после проверки данных автомобиля.',
                 )
                 return redirect('maintenance_kit_missing_car')
     return render(request, 'catalog/maintenance_kit_missing_car.html', {
         'form': form,
         'page_title': 'Нет моего автомобиля — комплекты ТО | ZPT.KZ',
         'page_description': (
-            'Оставьте марку, модель, год и двигатель — мы подготовим проверенный '
-            'состав ТО, когда данные будут подтверждены.'
+            'Оставьте автомобиль и WhatsApp — мы учтём спрос и свяжемся, '
+            'когда состав ТО будет проверен.'
         ),
     })

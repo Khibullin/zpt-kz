@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_search_v1">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_request_v2">
 {% endblock %}
 
 {% block content %}
@@ -33,7 +33,8 @@
     <h1>Нет моего автомобиля</h1>
     <p>
       Сейчас в витрине только автомобили с полным проверенным составом ТО.
-      Оставьте марку, модель, год и двигатель — мы увидим спрос и подготовим комплект после проверки артикулов.
+      Оставьте марку, модель, год, двигатель и WhatsApp — мы увидим спрос
+      и свяжемся после проверки данных.
     </p>
   </section>
 
@@ -59,6 +60,12 @@
         <label for="{{ form.engine.id_for_label }}">Двигатель</label>
         {{ form.engine }}
         {{ form.engine.errors }}
+      </div>
+      <div class="kit-request-full">
+        <label for="{{ form.phone.id_for_label }}">Телефон / WhatsApp</label>
+        {{ form.phone }}
+        <p class="kit-field-hint">Нужен, чтобы связаться с вами в WhatsApp.</p>
+        {{ form.phone.errors }}
       </div>
       <div class="kit-request-full">
         <label for="{{ form.vin.id_for_label }}">VIN <span class="kit-optional">(необязательно)</span></label>

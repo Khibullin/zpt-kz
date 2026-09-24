@@ -1,8 +1,11 @@
 from django.contrib import admin, messages
+from django.db.models import Case, IntegerField, Value, When
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
 from django.utils.html import format_html
+
+from core.phone_utils import build_whatsapp_url
 
 from catalog.product_photo_import import (
     STALE_APPLY_MESSAGE as PHOTO_STALE_APPLY_MESSAGE,
@@ -1553,9 +1556,65 @@ class MaintenanceKitItemAdmin(admin.ModelAdmin):
 
 @admin.register(MaintenanceKitCarRequest)
 class MaintenanceKitCarRequestAdmin(admin.ModelAdmin):
-    list_display = ('id', 'brand', 'model', 'year', 'engine', 'vin', 'created_at')
-    list_filter = ('brand', 'year', 'created_at')
-    search_fields = ('brand', 'model', 'engine', 'vin')
+    list_display = (
+        'id',
+        'status',
+        'brand',
+        'model',
+        'year',
+        'engine',
+        'phone_display',
+        'created_at',
+    )
+    list_display_links = ('id', 'brand', 'model')
+    list_editable = ('status',)
+    list_filter = ('status', 'created_at', 'brand', 'year')
+    search_fields = ('brand', 'model', 'engine', 'vin', 'phone')
     readonly_fields = ('created_at',)
     ordering = ('-created_at',)
+    date_hierarchy = 'created_at'
+    actions = ('mark_in_progress', 'mark_closed', 'mark_new')
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.order_by(
+            Case(
+                When(status=MaintenanceKitCarRequest.STATUS_NEW, then=Value(0)),
+                When(status=MaintenanceKitCarRequest.STATUS_IN_PROGRESS, then=Value(1)),
+                When(status=MaintenanceKitCarRequest.STATUS_CLOSED, then=Value(2)),
+                default=Value(3),
+                output_field=IntegerField(),
+            ),
+            '-created_at',
+            '-id',
+        )
+
+    @admin.display(description='Телефон / WhatsApp', ordering='phone')
+    def phone_display(self, obj):
+        phone = str(obj.phone or '').strip()
+        if not phone:
+            return '—'
+        wa_url = build_whatsapp_url(phone)
+        if not wa_url:
+            return phone
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener">{}</a>',
+            wa_url,
+            phone,
+        )
+
+    @admin.action(description='Отметить «В работе»')
+    def mark_in_progress(self, request, queryset):
+        updated = queryset.update(status=MaintenanceKitCarRequest.STATUS_IN_PROGRESS)
+        self.message_user(request, f'Отмечено «В работе»: {updated}.')
+
+    @admin.action(description='Отметить «Закрыта»')
+    def mark_closed(self, request, queryset):
+        updated = queryset.update(status=MaintenanceKitCarRequest.STATUS_CLOSED)
+        self.message_user(request, f'Закрыто заявок: {updated}.')
+
+    @admin.action(description='Вернуть в «Новая»')
+    def mark_new(self, request, queryset):
+        updated = queryset.update(status=MaintenanceKitCarRequest.STATUS_NEW)
+        self.message_user(request, f'Вернуто в «Новая»: {updated}.')
 

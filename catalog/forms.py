@@ -1,5 +1,7 @@
 from django import forms
 
+from core.phone_utils import normalize_phone_for_whatsapp
+
 from .models import (
     SellerProfile,
     Product,
@@ -490,7 +492,7 @@ class ProductForm(forms.ModelForm):
 class MaintenanceKitCarRequestForm(forms.ModelForm):
     class Meta:
         model = MaintenanceKitCarRequest
-        fields = ('brand', 'model', 'year', 'engine', 'vin')
+        fields = ('brand', 'model', 'year', 'engine', 'phone', 'vin')
         widgets = {
             'brand': forms.TextInput(attrs={
                 'autocomplete': 'off',
@@ -508,6 +510,11 @@ class MaintenanceKitCarRequestForm(forms.ModelForm):
                 'autocomplete': 'off',
                 'placeholder': 'Например, 1.5T',
             }),
+            'phone': forms.TextInput(attrs={
+                'autocomplete': 'tel',
+                'inputmode': 'tel',
+                'placeholder': 'Например: 7771234567',
+            }),
             'vin': forms.TextInput(attrs={
                 'autocomplete': 'off',
                 'placeholder': 'Необязательно',
@@ -516,6 +523,8 @@ class MaintenanceKitCarRequestForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields['phone'].required = True
+        self.fields['phone'].label = 'Телефон / WhatsApp'
         self.fields['vin'].required = False
         self.fields['vin'].help_text = 'Необязательно. Нужен, если модификацию трудно уточнить по году и двигателю.'
 
@@ -538,6 +547,12 @@ class MaintenanceKitCarRequestForm(forms.ModelForm):
         if year < 1980 or year > current + 1:
             raise forms.ValidationError('Укажите год выпуска автомобиля.')
         return year
+
+    def clean_phone(self):
+        phone = normalize_phone_for_whatsapp(self.cleaned_data.get('phone'))
+        if not phone:
+            raise forms.ValidationError('Укажите корректный номер WhatsApp.')
+        return phone
 
     def clean_vin(self):
         vin = str(self.cleaned_data.get('vin') or '').strip().upper()

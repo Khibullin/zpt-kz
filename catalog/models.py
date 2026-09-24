@@ -2194,6 +2194,15 @@ class MaintenanceKitCarRequest(models.Model):
     Stored for demand, not dispatched to sellers and not matched by AI.
     """
 
+    STATUS_NEW = 'new'
+    STATUS_IN_PROGRESS = 'in_progress'
+    STATUS_CLOSED = 'closed'
+    STATUS_CHOICES = (
+        (STATUS_NEW, 'Новая'),
+        (STATUS_IN_PROGRESS, 'В работе'),
+        (STATUS_CLOSED, 'Закрыта'),
+    )
+
     brand = models.CharField(max_length=100, verbose_name='Марка')
     model = models.CharField(max_length=100, verbose_name='Модель')
     year = models.PositiveSmallIntegerField(verbose_name='Год')
@@ -2205,6 +2214,20 @@ class MaintenanceKitCarRequest(models.Model):
         verbose_name='VIN',
         help_text='Необязательно. Помогает уточнить модификацию.',
     )
+    phone = models.CharField(
+        max_length=20,
+        blank=True,
+        default='',
+        verbose_name='Телефон / WhatsApp',
+        help_text='Пусто у заявок, оставленных до появления поля. Новые заявки сохраняют номер.',
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_NEW,
+        db_index=True,
+        verbose_name='Статус',
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
 
     class Meta:
@@ -2213,6 +2236,7 @@ class MaintenanceKitCarRequest(models.Model):
         ordering = ['-created_at']
         indexes = [
             models.Index(fields=['brand', 'model'], name='kit_car_req_brand_model_idx'),
+            models.Index(fields=['status', '-created_at'], name='kit_car_req_status_created_idx'),
         ]
 
     def __str__(self):

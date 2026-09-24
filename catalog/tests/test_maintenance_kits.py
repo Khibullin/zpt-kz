@@ -1,8 +1,12 @@
+from unittest.mock import patch
+
 from django.contrib.auth.models import User
+from django.core import mail
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
-from django.db import IntegrityError, transaction
-from django.test import Client, TestCase
+from django.db import IntegrityError, connection, transaction
+from django.db.migrations.executor import MigrationExecutor
+from django.test import Client, TestCase, TransactionTestCase, override_settings
 from django.urls import reverse
 from io import StringIO
 
@@ -30,6 +34,7 @@ from catalog.models import (
     ProductPriceTier,
     SellerProfile,
 )
+from core.models import Match, Request as PartsRequest
 from orders.constants import SESSION_CART_KEY
 from orders.models import CartItem
 
@@ -522,6 +527,7 @@ class MaintenanceKitCartTests(TestCase):
         self.assertContains(response, 'Артикул не подтверждён')
 
 
+@override_settings(EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend')
 class MaintenanceKitMissingCarTests(TestCase):
     def setUp(self):
         country = _make_country()
@@ -561,6 +567,18 @@ class MaintenanceKitMissingCarTests(TestCase):
             is_active=False,
         )
         self.client = Client()
+
+    def _missing_car_payload(self, **overrides):
+        data = {
+            'brand': 'Geely',
+            'model': 'Coolray',
+            'year': '2022',
+            'engine': '1.5T',
+            'phone': '8 777 232 07 09',
+            'vin': '',
+        }
+        data.update(overrides)
+        return data
 
     def test_picker_lists_only_published_kit_cars(self):
         listing = self.client.get(reverse('maintenance_kit_list'))
@@ -636,53 +654,196 @@ class MaintenanceKitMissingCarTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'value="Haval"')
         self.assertContains(response, 'value="Jolion"')
+        self.assertContains(response, 'Телефон / WhatsApp')
+        self.assertNotContains(response, 'value="77772320709"')
 
     def test_missing_car_form_saves_demand_without_dispatch(self):
         response = self.client.post(
             reverse('maintenance_kit_missing_car'),
-            data={
-                'brand': 'Geely',
-                'model': 'Coolray',
-                'year': '2022',
-                'engine': '1.5T',
-                'vin': 'LWV12345678901234',
-            },
+            data=self._missing_car_payload(vin='LWV12345678901234'),
+            follow=True,
         )
-        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.status_code, 200)
         request = MaintenanceKitCarRequest.objects.get()
         self.assertEqual(request.brand, 'Geely')
         self.assertEqual(request.model, 'Coolray')
         self.assertEqual(request.year, 2022)
         self.assertEqual(request.engine, '1.5T')
         self.assertEqual(request.vin, 'LWV12345678901234')
+        self.assertEqual(request.phone, '77772320709')
+        self.assertEqual(request.status, MaintenanceKitCarRequest.STATUS_NEW)
+        self.assertContains(response, 'Заявка получена')
+        self.assertContains(response, 'WhatsApp')
+        self.assertNotContains(response, 'комплект уже')
+        self.assertNotContains(response, 'в течение')
+        self.assertEqual(PartsRequest.objects.count(), 0)
+        self.assertEqual(Match.objects.count(), 0)
+
+    def test_phone_is_required_and_normalized(self):
+        missing = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data=self._missing_car_payload(phone=''),
+        )
+        self.assertEqual(missing.status_code, 200)
+        self.assertEqual(MaintenanceKitCarRequest.objects.count(), 0)
+        self.assertContains(missing, 'id_phone_error')
+
+        invalid = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data=self._missing_car_payload(phone='12345'),
+        )
+        self.assertEqual(invalid.status_code, 200)
+        self.assertEqual(MaintenanceKitCarRequest.objects.count(), 0)
+        self.assertContains(invalid, 'Укажите корректный номер WhatsApp')
+
+        saved = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data=self._missing_car_payload(phone='+7 (777) 232-07-09'),
+        )
+        self.assertEqual(saved.status_code, 302)
+        request = MaintenanceKitCarRequest.objects.get()
+        self.assertEqual(request.phone, '77772320709')
+
+    def test_operator_is_notified_with_car_phone_and_admin_link(self):
+        response = self.client.post(
+            reverse('maintenance_kit_missing_car'),
+            data=self._missing_car_payload(vin='LWV12345678901234'),
+        )
+        self.assertEqual(response.status_code, 302)
+        request = MaintenanceKitCarRequest.objects.get()
+        self.assertEqual(len(mail.outbox), 1)
+        message = mail.outbox[0]
+        from catalog.views import FEEDBACK_NOTIFY_EMAIL
+        self.assertEqual(message.to, [FEEDBACK_NOTIFY_EMAIL])
+        self.assertIn('Geely', message.subject)
+        self.assertIn('Coolray', message.body)
+        self.assertIn('2022', message.body)
+        self.assertIn('1.5T', message.body)
+        self.assertIn('77772320709', message.body)
+        self.assertIn('LWV12345678901234', message.body)
+        self.assertIn(
+            reverse(
+                'admin:catalog_maintenancekitcarrequest_change',
+                args=[request.pk],
+            ),
+            message.body,
+        )
+
+    def test_mail_failure_keeps_saved_request_and_hides_pii_in_logs(self):
+        with patch(
+            'catalog.maintenance_kit_requests.send_mail',
+            side_effect=OSError('smtp down'),
+        ):
+            with self.assertLogs('catalog.maintenance_kit_requests', level='ERROR') as logs:
+                response = self.client.post(
+                    reverse('maintenance_kit_missing_car'),
+                    data=self._missing_car_payload(vin='LWV12345678901234'),
+                )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(MaintenanceKitCarRequest.objects.count(), 1)
+        combined = '\n'.join(logs.output)
+        self.assertIn('Failed to send maintenance kit car request email id=', combined)
+        self.assertNotIn('77772320709', combined)
+        self.assertNotIn('LWV12345678901234', combined)
+        self.assertNotIn('Geely', combined)
+
+    def test_legacy_blank_phone_does_not_break_admin(self):
+        row = MaintenanceKitCarRequest.objects.create(
+            brand='Haval',
+            model='Jolion',
+            year=2023,
+            engine='1.5T',
+        )
+        self.assertEqual(row.phone, '')
+        self.assertEqual(row.status, MaintenanceKitCarRequest.STATUS_NEW)
+        staff = User.objects.create_superuser(
+            'kit-admin',
+            'kit-admin@test.local',
+            'secret12345',
+        )
+        self.client.force_login(staff)
+        listing = self.client.get(
+            reverse('admin:catalog_maintenancekitcarrequest_changelist'),
+        )
+        self.assertEqual(listing.status_code, 200)
+        self.assertContains(listing, 'Haval')
+        self.assertContains(listing, 'Новая')
+        change = self.client.get(
+            reverse(
+                'admin:catalog_maintenancekitcarrequest_change',
+                args=[row.pk],
+            ),
+        )
+        self.assertEqual(change.status_code, 200)
+        saved = self.client.post(
+            reverse(
+                'admin:catalog_maintenancekitcarrequest_change',
+                args=[row.pk],
+            ),
+            data={
+                'brand': 'Haval',
+                'model': 'Jolion',
+                'year': '2023',
+                'engine': '1.5T',
+                'vin': '',
+                'phone': '',
+                'status': MaintenanceKitCarRequest.STATUS_IN_PROGRESS,
+            },
+        )
+        self.assertEqual(saved.status_code, 302)
+        row.refresh_from_db()
+        self.assertEqual(row.status, MaintenanceKitCarRequest.STATUS_IN_PROGRESS)
+        self.assertEqual(row.phone, '')
 
     def test_vin_is_optional(self):
         response = self.client.post(
             reverse('maintenance_kit_missing_car'),
-            data={
-                'brand': 'Changan',
-                'model': 'UNI-K',
-                'year': '2021',
-                'engine': '2.0T',
-            },
+            data=self._missing_car_payload(
+                brand='Changan',
+                model='UNI-K',
+                year='2021',
+                engine='2.0T',
+            ),
         )
         self.assertEqual(response.status_code, 302)
         request = MaintenanceKitCarRequest.objects.get()
         self.assertEqual(request.vin, '')
         self.assertEqual(request.brand, 'Changan')
+        self.assertEqual(request.phone, '77772320709')
 
     def test_invalid_year_is_rejected(self):
         response = self.client.post(
             reverse('maintenance_kit_missing_car'),
-            data={
-                'brand': 'Geely',
-                'model': 'Coolray',
-                'year': '1901',
-                'engine': '1.5T',
-            },
+            data=self._missing_car_payload(year='1901'),
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(MaintenanceKitCarRequest.objects.count(), 0)
+
+
+class MaintenanceKitCarRequestMigrationTests(TransactionTestCase):
+    def test_old_rows_get_new_status_and_blank_phone(self):
+        executor = MigrationExecutor(connection)
+        executor.migrate([('catalog', '0037_maintenance_kit_car_request')])
+        old_apps = executor.loader.project_state(
+            [('catalog', '0037_maintenance_kit_car_request')]
+        ).apps
+        OldRequest = old_apps.get_model('catalog', 'MaintenanceKitCarRequest')
+        OldRequest.objects.create(
+            brand='Haval',
+            model='Jolion',
+            year=2023,
+            engine='1.5T',
+        )
+        executor.loader.build_graph()
+        executor.migrate([('catalog', '0038_maintenance_kit_car_request_phone_status')])
+        new_apps = executor.loader.project_state(
+            [('catalog', '0038_maintenance_kit_car_request_phone_status')]
+        ).apps
+        NewRequest = new_apps.get_model('catalog', 'MaintenanceKitCarRequest')
+        row = NewRequest.objects.get()
+        self.assertEqual(row.status, 'new')
+        self.assertEqual(row.phone, '')
+        self.assertFalse(hasattr(OldRequest, 'phone'))
 
 
 class MaintenanceKitSeedTests(TestCase):
