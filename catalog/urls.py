@@ -1,5 +1,6 @@
 from django.urls import path
 
+from .fitment_slug_redirects import fitment_slug_urlpatterns
 from .legacy_product_urls import legacy_product_urlpatterns
 from .numeric_product_urls import numeric_product_entry
 from .seo_category_landings import oil_filter_landing
@@ -134,6 +135,7 @@ urlpatterns = [
         name='public_seller_profile'
     ),
 
+    *fitment_slug_urlpatterns,
     *legacy_product_urlpatterns,
     path('<int:pk>/', numeric_product_entry, name='product_detail_old'),
     path('<slug:slug>/', product_detail, name='product_detail'),

@@ -614,8 +614,10 @@ class Product(models.Model):
     def get_absolute_url(self):
         from django.urls import reverse
 
+        from catalog.fitment_slug_redirects import public_product_slug
+
         if self.slug:
-            return reverse('product_detail', kwargs={'slug': self.slug})
+            return reverse('product_detail', kwargs={'slug': public_product_slug(self.slug)})
         return reverse('product_detail_old', kwargs={'pk': self.pk})
 
     def get_whatsapp_inquiry_message(self):

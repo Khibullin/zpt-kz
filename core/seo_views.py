@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import HttpResponse
 from django.views.decorators.http import require_GET
 
-from catalog.legacy_product_urls import LEGACY_PRODUCT_SLUG_REDIRECTS
+from catalog.fitment_slug_redirects import public_product_slug
 from catalog.models import Product
 from core.seo import canonical_url_for_path
 
@@ -53,7 +53,7 @@ def _product_is_sitemap_ready(product: Product) -> bool:
 
 
 def _public_product_slug(stored_slug: str) -> str:
-    return LEGACY_PRODUCT_SLUG_REDIRECTS.get(stored_slug, stored_slug)
+    return public_product_slug(stored_slug)
 
 
 @require_GET

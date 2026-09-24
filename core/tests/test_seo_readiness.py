@@ -226,6 +226,21 @@ class SeoEndpointTests(TestCase):
         self.assertIn('https://zpt.kz/peugeot-308-hu71151x/', body)
         self.assertNotIn('<loc>https://zpt.kz/audi/</loc>', body)
 
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
+    def test_product_sitemap_uses_fitment_canonical_slug(self):
+        self._ready_product(
+            slug='chery-tiggo-7-pro-151000079aa-chery-tiggo-7-pro',
+            title='Воздушный фильтр Chery Tiggo 8 Pro 1.6 / Arrizo 8 — 151000079AA',
+            article='151000079AA',
+        )
+
+        response = self.client.get('/sitemap-products.xml')
+
+        self.assertEqual(response.status_code, 200)
+        body = response.content.decode('utf-8')
+        self.assertIn('https://zpt.kz/vozdushnyi-filtr-151000079aa/', body)
+        self.assertNotIn('tiggo-7-pro-151000079aa', body)
+
     def test_home_template_outputs_indexable_canonical_metadata(self):
         response = self.client.get('/')
 

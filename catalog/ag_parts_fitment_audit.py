@@ -1,7 +1,9 @@
 """AG Parts fitment audit: verified text/selected_models patches.
 
-Dry-run by default. Never writes price, stock, photos, PP1/PP2, slug, or
-article. Matches Product by exact article + AG Parts seller, count == 1.
+Dry-run by default. Never writes price, stock, photos, PP1/PP2, or article.
+Slug is rewritten only when canonical_slug is in FITMENT_SLUG_REDIRECTS and
+the current slug is the mapped old value. Matches Product by exact article
++ AG Parts seller, count == 1.
 """
 
 from __future__ import annotations
@@ -13,6 +15,7 @@ from pathlib import Path
 from django.db import transaction
 from django.db.models import Q
 
+from catalog.fitment_slug_redirects import FITMENT_SLUG_REDIRECTS
 from catalog.models import Brand, CarModel, Product, ProductKaspiListing
 
 
@@ -65,6 +68,7 @@ class FitmentPlan:
     selected_models: list[CarModel] | None = None
     update_primary: bool = False
     update_selected: bool = False
+    new_slug: str = ''
 
 
 def batch_path(batch_id: str) -> Path:
@@ -252,6 +256,27 @@ def plan_fitment_batch(spec: dict) -> list[FitmentPlan]:
                         seen.add(model.pk)
                         selected.append(model)
                 plan.selected_models = selected
+            if 'canonical_slug' in row:
+                wanted = str(row.get('canonical_slug') or '').strip()
+                if not wanted:
+                    raise FitmentAuditError(f'{article}: пустой canonical_slug.')
+                old_for_wanted = {
+                    new: old for old, new in FITMENT_SLUG_REDIRECTS.items()
+                }.get(wanted)
+                if not old_for_wanted:
+                    raise FitmentAuditError(
+                        f'{article}: slug {wanted} нет в FITMENT_SLUG_REDIRECTS.'
+                    )
+                if product.slug not in (wanted, old_for_wanted):
+                    raise FitmentAuditError(
+                        f'{article}: текущий slug {product.slug} не связан с {wanted}.'
+                    )
+                if product.slug != wanted:
+                    if Product.objects.filter(slug=wanted).exclude(pk=product.pk).exists():
+                        raise FitmentAuditError(
+                            f'{article}: slug {wanted} уже занят другим товаром.'
+                        )
+                    plan.new_slug = wanted
         except FitmentAuditError as exc:
             plan.status = STATUS_ERROR
             plan.errors.append(str(exc))
@@ -288,6 +313,9 @@ def plan_fitment_batch(spec: dict) -> list[FitmentPlan]:
             if plan.before.get('selected_models') != new_selected:
                 after['selected_models'] = new_selected
                 plan.changed_fields.append('selected_models')
+        if plan.new_slug:
+            after['slug'] = plan.new_slug
+            plan.changed_fields.append('slug')
         plan.after = after
         plan.changed_fields = list(dict.fromkeys(plan.changed_fields))
         plan.status = STATUS_WOULD_CHANGE if plan.changed_fields else STATUS_UNCHANGED
@@ -311,6 +339,9 @@ def apply_fitment_plans(plans: list[FitmentPlan], *, apply: bool) -> list[Fitmen
             if plan.update_primary:
                 product.car_model = plan.primary_model
                 update_fields.append('car_model')
+            if plan.new_slug:
+                product.slug = plan.new_slug
+                update_fields.append('slug')
             if update_fields:
                 product.save(update_fields=update_fields)
             if plan.update_selected:
@@ -322,7 +353,14 @@ def apply_fitment_plans(plans: list[FitmentPlan], *, apply: bool) -> list[Fitmen
                 product.selected_brands.set(brands)
             product.refresh_from_db()
             protected_after = _protected_snapshot(product)
-            if protected_before != protected_after:
+            ignore = {'slug'} if plan.new_slug else set()
+            protected_before_cmp = {
+                key: value for key, value in protected_before.items() if key not in ignore
+            }
+            protected_after_cmp = {
+                key: value for key, value in protected_after.items() if key not in ignore
+            }
+            if protected_before_cmp != protected_after_cmp:
                 raise FitmentAuditError(
                     f'{plan.article}: запрещённые поля изменились, откат.'
                 )

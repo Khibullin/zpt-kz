@@ -204,13 +204,13 @@ class AgPartsFitmentAuditTests(TestCase):
     def test_public_cards_hide_false_models(self):
         spec = load_batch('01')
         apply_fitment_plans(plan_fitment_batch(spec), apply=True)
-        air = self.client.get(reverse('product_detail', kwargs={'slug': self.air079.slug}))
+        air = self.client.get('/vozdushnyi-filtr-151000079aa/')
         self.assertEqual(air.status_code, 200)
         self.assertContains(air, 'Tiggo 8 Pro')
         self.assertContains(air, 'Arrizo 8')
         self.assertNotContains(air, '<li>Tiggo 7 Pro</li>')
 
-        spark = self.client.get(reverse('product_detail', kwargs={'slug': self.spark.slug}))
+        spark = self.client.get('/svecha-f4j163707010/')
         self.assertEqual(spark.status_code, 200)
         self.assertContains(spark, 'Tiggo 8')
         self.assertNotContains(spark, '<li>Tiggo 7</li>')

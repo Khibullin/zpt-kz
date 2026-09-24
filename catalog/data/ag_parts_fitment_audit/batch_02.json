@@ -1,0 +1,87 @@
+{
+  "batch_id": "02",
+  "notes": "T218 vs 301001199AA, 480 Tiggo 4/8 Pro, C281 UNI-T/UNI-V, slug redirects for misleading batch-01 URLs. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "articles": [
+    {
+      "article": "T218107011",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Chery Tiggo 7 / Tiggo 8 Pro — T218107011",
+        "compatibility": "Chery Tiggo 4 (1.5 SQRE4G15B/C, SQRE4T15C; 2.0 SQRD4G20), Tiggo 7 1.5, Tiggo 7 Pro 1.5 SQRE4T15C, Tiggo 8 1.5, Arrizo 8 1.6 SQRF4J16C, Tiggo 8 Pro 1.6 SQRF4J16A / SQRF4J16. OEM T21-8107011. T15-8107011 — родственный, не этот артикул. Не утверждаем, что Tiggo 8 Pro берёт только 301001199AA.",
+        "engine_compatibility": "SQRE4T15C\nSQRE4T15B\nSQRF4J16A\nSQRF4J16\nSQRF4J16C\nSQRE4G15B\nSQRE4G15C",
+        "oem_cross_references": "T218107011\nT21-8107011",
+        "description": "Салонный фильтр. OEM: T218107011 / T21-8107011.\nОсновная применимость: Chery Tiggo 7, Tiggo 7 Pro 1.5, Tiggo 8 1.5, Arrizo 8 1.6, Tiggo 8 Pro 1.6 SQRF4J16A; Tiggo 4 — только перечисленные двигатели.\nРодственный T15-8107011 не является этим артикулом.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 7"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 7"},
+        {"brand": "Chery", "model": "Tiggo 7 Pro"},
+        {"brand": "Chery", "model": "Tiggo 8"},
+        {"brand": "Chery", "model": "Tiggo 8 Pro"},
+        {"brand": "Chery", "model": "Arrizo 8"},
+        {"brand": "Chery", "model": "Tiggo 4"}
+      ]
+    },
+    {
+      "article": "301001199AA",
+      "part_type": "cabin_filter",
+      "canonical_slug": "salonnyi-filtr-301001199aa",
+      "fields": {
+        "title": "Салонный фильтр EXEED TXL / VX — 301001199AA",
+        "compatibility": "EXEED TXL, EXEED VX. Угольный OEM 301001199AA / 301001199A. Tiggo 8 Pro 1.6 для T21-8107011; для 301001199AA Tiggo 8 Pro не подтверждаем. Не путать с пылевым 301000265AA.",
+        "engine_compatibility": "",
+        "oem_cross_references": "301001199AA\n301001199A",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 301001199AA; 301001199A.\nОсновная применимость: EXEED TXL, EXEED VX.\nTiggo 8 Pro для этого артикула не подтверждаем: независимо указан T21-8107011.\nНе путать с пылевым 301000265AA той же посадочной группы.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Exeed", "model": "TXL"},
+      "selected_models": [
+        {"brand": "Exeed", "model": "TXL"},
+        {"brand": "Exeed", "model": "VX"}
+      ]
+    },
+    {
+      "article": "4801012010",
+      "part_type": "oil_filter_spin_on",
+      "canonical_slug": "masljanyi-filtr-4801012010",
+      "fields": {
+        "title": "Масляный фильтр Chery Tiggo 7 — 4801012010",
+        "compatibility": "Накручиваемый 480-1012010. Chery Tiggo 4 1.5 SQRE4G15B/C и SQRE4T15B/C (не все моторы Tiggo 4 без сверки), Tiggo 7 1.5, Tiggo 7 Pro 1.5 SQRE4T15C, Tiggo 8 1.5 SQRE4T15B/C, Arrizo 8 1.6 SQRF4J16C. Для Tiggo 8 Pro 1.6 SQRF4J16A также указывают картридж F4J16-1012030 — другой тип корпуса, сверьте фильтр на авто.",
+        "engine_compatibility": "SQRE4T15\nSQRE4T15C\nSQRE4T15B\nSQRF4J16C\nSQRE4G15B\nSQRE4G15C",
+        "oem_cross_references": "4801012010\n480-1012010",
+        "description": "Накручиваемый масляный фильтр. OEM Chery: 4801012010 / 480-1012010.\nОсновная применимость: Chery Tiggo 7 1.5, Tiggo 7 Pro 1.5, Tiggo 8 1.5, Arrizo 8 1.6; Tiggo 4 — только 1.5 SQRE4G15B/C и SQRE4T15B/C.\nДля Tiggo 8 Pro 1.6 SQRF4J16A также указывают картридж F4J16-1012030 — это другой тип корпуса.\nПеред заказом сверьте артикул с установленным фильтром или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 7"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 4"},
+        {"brand": "Chery", "model": "Tiggo 7"},
+        {"brand": "Chery", "model": "Tiggo 7 Pro"},
+        {"brand": "Chery", "model": "Tiggo 8"},
+        {"brand": "Chery", "model": "Arrizo 8"}
+      ]
+    },
+    {
+      "article": "C281F2801032601",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Changan UNI-V / UNI-T — C281F2801032601",
+        "compatibility": "Changan UNI-V 1.5 JL473ZQ7 (с 03.2022) и 2.0 JL486ZQ5 (с 06.2022); UNI-T 1.5 JL473ZQ5 (с 08.2021). OEM C281F280103-2601.",
+        "engine_compatibility": "JL473ZQ7\nJL486ZQ5\nJL473ZQ5",
+        "oem_cross_references": "C281F2801032601\nC281F280103-2601",
+        "description": "Салонный фильтр. OEM Changan: C281F2801032601 / C281F280103-2601.\nОсновная применимость: Changan UNI-V 1.5 с 03.2022 и 2.0 с 06.2022; UNI-T 1.5 с 08.2021.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Changan", "model": "UNI-V"},
+      "selected_models": [
+        {"brand": "Changan", "model": "UNI-V"},
+        {"brand": "Changan", "model": "UNI-T"}
+      ]
+    },
+    {
+      "article": "151000079AA",
+      "canonical_slug": "vozdushnyi-filtr-151000079aa"
+    },
+    {
+      "article": "F4J163707010",
+      "canonical_slug": "svecha-f4j163707010"
+    }
+  ]
+}
