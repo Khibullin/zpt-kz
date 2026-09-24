@@ -339,6 +339,10 @@ class MaintenanceKitCartTests(TestCase):
         self.assertContains(response, 'Свеча зажигания — SPK-C')
         self.assertContains(response, 'type="checkbox"')
         self.assertRegex(response.content.decode('utf-8'), r'data-subtotal="\d+"')
+        self.assertRegex(
+            response.content.decode('utf-8'),
+            r'name="item"\s+value="\d+"',
+        )
         self.assertNotContains(response, 'class="kit-cover-wrap"')
 
     def test_detail_hides_foreign_model_from_product_title(self):
@@ -398,6 +402,21 @@ class MaintenanceKitCartTests(TestCase):
         self.assertEqual(cart[str(self.air.id)], 1)
         self.assertEqual(cart[str(self.cabin.id)], 1)
         self.assertEqual(cart[str(self.oil.id)], 1)
+        self.assertNotIn(str(self.spark.id), cart)
+
+    def test_localized_product_id_is_accepted(self):
+        from catalog.maintenance_kits import parse_selected_product_ids
+
+        spaced = f'{self.air.id}\xa0'
+        parsed = parse_selected_product_ids([spaced, str(self.cabin.id)])
+        self.assertEqual(parsed, [self.air.id, self.cabin.id])
+        response = self._add_via_view(
+            products=(self.air, self.cabin, self.oil),
+            extra={'item': [f'{self.air.id}\xa0', str(self.cabin.id), str(self.oil.id)]},
+        )
+        self.assertEqual(response.status_code, 302)
+        cart = self.client.session[SESSION_CART_KEY]
+        self.assertEqual(cart[str(self.air.id)], 1)
         self.assertNotIn(str(self.spark.id), cart)
 
     def test_empty_selection_adds_nothing(self):

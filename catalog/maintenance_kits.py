@@ -315,7 +315,7 @@ def parse_selected_product_ids(raw_values) -> list[int]:
     ids = []
     seen = set()
     for value in raw_values or []:
-        text = str(value or '').strip()
+        text = str(value or '').strip().replace('\xa0', '').replace(' ', '')
         if not text:
             continue
         if not text.isdigit():

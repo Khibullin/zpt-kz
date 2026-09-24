@@ -77,7 +77,7 @@
                   <input
                     type="checkbox"
                     name="item"
-                    value="{{ line.product.id }}"
+                    value="{{ line.product.id|unlocalize }}"
                     data-kit-item
                     data-subtotal="{{ line.subtotal|default:0|unlocalize }}"
                     {% if line.selected_by_default %}checked{% endif %}
