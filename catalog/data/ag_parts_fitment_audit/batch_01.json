@@ -1,0 +1,90 @@
+{
+  "batch_id": "01",
+  "notes": "Первая партия: ложные модели на карточках комплектов ТО. Цены, остатки, фото, PP1/PP2, slug и артикул не меняем. Составы опубликованных наборов не затронуты.",
+  "articles": [
+    {
+      "article": "151000079AA",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Chery Tiggo 8 Pro 1.6 / Arrizo 8 — 151000079AA",
+        "compatibility": "Chery Tiggo 8 Pro 1.6, Tiggo 7 Pro Max 1.6, Arrizo 8 1.6; Exeed LX 1.6; Jaecoo J7 1.6; Omoda C5 1.6. Не для Tiggo 7 Pro 1.5T — там T15-1109111. Не смешивать с 151000025AA (TXL) и 151000151AA (2.0T).",
+        "engine_compatibility": "SQRF4J16A\nSQRF4J16\nSQRF4J16B\nSQRF4J16C",
+        "oem_cross_references": "151000079AA",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 151000079AA. Основная применимость: Chery Tiggo 8 Pro 1.6, Tiggo 7 Pro Max 1.6, Arrizo 8 1.6; Exeed LX 1.6; Jaecoo J7 1.6; Omoda C5 1.6. Не для Tiggo 7 Pro 1.5T (там T15-1109111). Не смешивать с 151000025AA (TXL) и 151000151AA (2.0T). Перед заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 8 Pro"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 8 Pro"},
+        {"brand": "Chery", "model": "Tiggo 7 Pro Max"},
+        {"brand": "Chery", "model": "Arrizo 8"},
+        {"brand": "Exeed", "model": "LX"},
+        {"brand": "Jaecoo", "model": "J7"},
+        {"brand": "Omoda", "model": "C5"}
+      ]
+    },
+    {
+      "article": "F4J163707010",
+      "part_type": "spark_plug",
+      "fields": {
+        "title": "Свеча зажигания Chery Tiggo 8 1.5T SQRE4T15B / EXEED TXL — F4J163707010",
+        "compatibility": "Chery Tiggo 8 1.5T SQRE4T15B (с 01.2022); EXEED TXL 1.6 SQRF4J16A; EXEED LX 1.6 SQRF4J16A; Omoda C5 1.5 SQRE4T15C / 1.6 SQRF4J16. Не Tiggo 8 SQRE4T15C, не Tiggo 7 / 7 Pro, не Jetour X70 / X90. В карточке одна свеча, не комплект.",
+        "engine_compatibility": "SQRE4T15B\nSQRF4J16A\nSQRE4T15C\nSQRF4J16",
+        "oem_cross_references": "F4J163707010\nF4J16-3707010",
+        "description": "Свеча зажигания. Артикул на упаковке F4J163707010 соответствует OEM F4J16-3707010; THS2036 — аналог, не этот товар.\nОсновная применимость: Chery Tiggo 8 1.5T SQRE4T15B (с 01.2022), EXEED TXL 1.6 SQRF4J16A, EXEED LX 1.6 SQRF4J16A, Omoda C5 1.5 SQRE4T15C / 1.6 SQRF4J16.\nНе Tiggo 8 SQRE4T15C, не Tiggo 7 / 7 Pro, не Jetour X70 / X90. В карточке одна свеча, не комплект.\nПеред заказом сверьте артикул с установленной свечой или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 8"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 8"},
+        {"brand": "Exeed", "model": "TXL"},
+        {"brand": "Exeed", "model": "LX"},
+        {"brand": "Omoda", "model": "C5"}
+      ]
+    },
+    {
+      "article": "1017110XEN01",
+      "part_type": "oil_filter",
+      "fields": {
+        "title": "Масляный фильтр Haval Dargo — 1017110XEN01",
+        "compatibility": "Haval Dargo 2.0 GW4N20 (с 04.2022), F7 II 2.0 GW4N20, F7x II 2.0 GW4N20. Haval H9 II 2.4 GW4D24 с 01.2024 — не H9 2.0T. Не смешивать с дизельным 1017110XED95.",
+        "engine_compatibility": "GW4N20",
+        "oem_cross_references": "1017110XEN01\n1017110AEN01",
+        "description": "Масляный фильтр предназначен для очистки моторного масла от загрязнений и продуктов износа.\nОсновная применимость: Haval Dargo 2.0 GW4N20 (с 04.2022), F7 II 2.0 GW4N20, F7x II 2.0 GW4N20.\nHaval H9 II 2.4 GW4D24 с 01.2024 — не путать с H9 2.0T.\nНе смешивать с дизельным 1017110XED95.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Haval", "model": "Dargo"},
+      "selected_models": [
+        {"brand": "Haval", "model": "Dargo"},
+        {"brand": "Haval", "model": "F7"},
+        {"brand": "Haval", "model": "F7x"}
+      ]
+    },
+    {
+      "article": "M111109111",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Chery A3 / M11 — M111109111",
+        "compatibility": "Chery A3, Chery Chance M11. Не для Jetour X70.",
+        "engine_compatibility": "",
+        "oem_cross_references": "M111109111\nM11-1109111",
+        "description": "Воздушный фильтр M111109111.\nПрименимость: Chery A3, Chery Chance M11. Не для Jetour X70.\nПеред установкой сверьте применимость по VIN."
+      },
+      "selected_models": []
+    },
+    {
+      "article": "F4J161012030",
+      "part_type": "oil_filter",
+      "fields": {
+        "title": "Масляный фильтр Chery Tiggo 8 Pro 1.6 / EXEED TXL — F4J161012030",
+        "compatibility": "Картридж F4J16-1012030: Chery Tiggo 8 Pro 1.6 SQRF4J16A / SQRF4J16, EXEED TXL 1.6 SQRF4J16A, Jetour Dashing 1.6 SQRF4J16A. Для Tiggo 8 Pro 1.6 каталоги также связывают 480-1012010 (другой тип корпуса) — сверьте установленный фильтр.",
+        "engine_compatibility": "SQRF4J16A\nSQRF4J16",
+        "oem_cross_references": "F4J161012030\nF4J16-1012030",
+        "description": "Масляный фильтр-элемент (картридж). OEM Chery: F4J16-1012030 / F4J161012030.\nОсновная применимость: Chery Tiggo 8 Pro 1.6 SQRF4J16A / SQRF4J16, EXEED TXL 1.6 SQRF4J16A, Jetour Dashing 1.6 SQRF4J16A.\nДля того же двигателя Tiggo 8 Pro 1.6 каталоги также указывают накручиваемый 480-1012010 — это другой тип корпуса, сверьте фильтр на автомобиле.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 8 Pro"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 8 Pro"},
+        {"brand": "Exeed", "model": "TXL"},
+        {"brand": "Jetour", "model": "Dashing"}
+      ]
+    }
+  ]
+}

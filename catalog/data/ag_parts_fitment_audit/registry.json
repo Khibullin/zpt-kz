@@ -1,0 +1,263 @@
+{
+  "audit": "ag-parts-fitment",
+  "batch": "01",
+  "updated_at": "2026-09-24",
+  "rules": {
+    "evidence": "Independent catalogs are proof. zpt.kz and Kaspi texts are not proof.",
+    "no_expand_from_similar_model_or_seller_title": true,
+    "m111109111": "Chery M11/A3 only. Never Jetour X70.",
+    "protected": ["price", "stock_qty", "cost_price", "photos", "PP1/PP2", "slug", "article", "other_sellers"]
+  },
+  "kaspi_edit_capability": {
+    "monolith_api": "none_for_title_description_fitment",
+    "available_in_repo": "price/stock XML and ProductKaspiListing match only",
+    "own_card": "Title starts with AG Parts and a single merchant; edit only in Kaspi cabinet, not via this repo. Do not create a duplicate card.",
+    "shared_card": "Multiple sellers on /shop/p/; we can only keep/update our offer price/stock. Title/fitment requires Kaspi correction request.",
+    "match_rule": "Exact article + ProductKaspiListing.master_sku/merchant_sku/public_url. Similar title is not a match."
+  },
+  "articles": [
+    {
+      "article": "151000079AA",
+      "status": "confirmed_error_fixed_zpt_pending_deploy",
+      "part_type": "air_filter",
+      "packing_article": "151000079AA",
+      "oem": ["151000079AA"],
+      "analogs_not_this_sku": ["T15-1109111", "T151109111", "151000025AA", "151000151AA"],
+      "zpt": {
+        "product_id": 2115,
+        "url": "https://zpt.kz/chery-tiggo-7-pro-151000079aa-chery-tiggo-7-pro/",
+        "current_title": "Воздушный фильтр Chery Tiggo 7 Pro — 151000079AA",
+        "error": "Title, car_model and selected_models claim Tiggo 7 Pro. Independent catalog does not list Tiggo 7 Pro for 151000079AA; 7 Pro 1.5T air is T15-1109111.",
+        "proposed_title": "Воздушный фильтр Chery Tiggo 8 Pro 1.6 / Arrizo 8 — 151000079AA"
+      },
+      "confirmed_fitment": [
+        {"brand": "Chery", "model": "Tiggo 8 Pro", "engine": "SQRF4J16A / SQRF4J16", "years": "Mar 2021~", "source": "https://www.fitinpart.sg/v2/en/product/80119709/kaiyi-f02-1109111-02aa", "claim": "Air filter OEM Chery 151000079AA for Tiggo 8 Pro T1D SQRF4J16A and T1A SQRF4J16"},
+        {"brand": "Chery", "model": "Arrizo 8", "engine": "SQRF4J16C", "years": "Apr 2022~", "source": "https://www.fitinpart.sg/v2/en/product/80119709/kaiyi-f02-1109111-02aa", "claim": "Arrizo 8 1.6 DC21B SQRF4J16C"},
+        {"brand": "Chery", "model": "Tiggo 7 Pro Max", "engine": "SQRF4J16B", "years": "Aug 2023~", "source": "https://www.fitinpart.sg/v2/en/product/80119709/kaiyi-f02-1109111-02aa", "claim": "Tiggo 7 Pro Max 1.6 SQRF4J16B — not Tiggo 7 Pro 1.5T"},
+        {"brand": "Exeed", "model": "LX", "engine": "SQRF4J16A", "years": "Dec 2022~", "source": "https://www.fitinpart.sg/v2/en/product/80119709/kaiyi-f02-1109111-02aa", "claim": "LX T1C 1.6 SQRF4J16A"},
+        {"brand": "Jaecoo", "model": "J7", "engine": "SQRF4J16C", "years": "Aug 2023~", "source": "https://www.fitinpart.sg/v2/en/product/80119709/kaiyi-f02-1109111-02aa", "claim": "J7 T1EJ 1.6 SQRF4J16C"},
+        {"brand": "Omoda", "model": "C5", "engine": "SQRF4J16", "years": "Jul 2022~", "source": "https://www.fitinpart.sg/v2/en/product/80119709/kaiyi-f02-1109111-02aa", "claim": "C5 1.6 SQRF4J16; 1.5 T15C Jan 2026 row not used"}
+      ],
+      "rejected_fitment": [
+        {"brand": "Chery", "model": "Tiggo 7 Pro", "reason": "Not on FitInPart 151000079AA. Tiggo 7 Pro uses T15-1109111.", "source": "https://www.fitinpart.sg/v2/en/product/50357231/chery-t15-1109111"}
+      ],
+      "kits": ["nabor-to-chery-tiggo-8-pro-16-sqrf4j16a", "nabor-to-chery-arrizo-8-16-sqrf4j16c"],
+      "kit_change": "none — kits already use 151000079AA for 8 Pro 1.6 and Arrizo 8, not 7 Pro",
+      "kaspi": {
+        "edit_path": "not_matched_to_our_offer_yet",
+        "public_lookalikes_not_ours": [
+          "https://kaspi.kz/shop/p/555-vozdushnyi-fil-tr-chery-arrizo-8-151000079aa-146399161/",
+          "https://kaspi.kz/shop/p/as-vozdushnyi-fil-tr-151000079-a-a-145879550/"
+        ],
+        "note": "Shared analog cards. Do not treat 555/AS titles as AG Parts. Dump ProductKaspiListing on production before any Kaspi text request."
+      }
+    },
+    {
+      "article": "F4J163707010",
+      "status": "confirmed_error_fixed_zpt_pending_deploy",
+      "part_type": "spark_plug",
+      "packing_article": "F4J163707010",
+      "oem": ["F4J163707010", "F4J16-3707010"],
+      "analogs_not_this_sku": ["THS2036", "LDK8RTIP"],
+      "zpt": {
+        "product_id": 2110,
+        "url": "https://zpt.kz/chery-tiggo-7-f4j163707010-chery-tiggo-7/",
+        "current_title": "Свеча зажигания Chery Tiggo 7 — F4J163707010",
+        "error": "Card claims Tiggo 7, Jetour X70, Jetour X90. OEM catalog lists Tiggo 8 SQRE4T15B, TXL/LX SQRF4J16A, Omoda C5 — not Tiggo 7 and not X70/X90."
+      },
+      "confirmed_fitment": [
+        {"brand": "Chery", "model": "Tiggo 8", "engine": "SQRE4T15B", "years": "Jan 2022~", "source": "https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010", "claim": "Spark plug F4J16-3707010 Tiggo 8 T18 1.5 SQRE4T15B"},
+        {"brand": "Exeed", "model": "TXL", "engine": "SQRF4J16A", "years": "Apr 2019~", "source": "https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010", "claim": "M32T 1.6 SQRF4J16A"},
+        {"brand": "Exeed", "model": "LX", "engine": "SQRF4J16A", "years": "Dec 2022~", "source": "https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010", "claim": "T1C 1.6 SQRF4J16A"},
+        {"brand": "Omoda", "model": "C5", "engine": "SQRE4T15C / SQRF4J16", "years": "Oct 2021~ / Jul 2022~", "source": "https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010", "claim": "C5 T19C"}
+      ],
+      "rejected_fitment": [
+        {"brand": "Chery", "model": "Tiggo 7", "reason": "Not on OEM FitInPart F4J16-3707010"},
+        {"brand": "Chery", "model": "Tiggo 7 Pro", "reason": "Not on OEM page; analog THS2036 lists it — analog is not this SKU", "source": "https://tmitatsumi.com/catalogue/ths2036/"},
+        {"brand": "Chery", "model": "Tiggo 8", "engine": "SQRE4T15C", "reason": "OEM page lists Tiggo 8 only as SQRE4T15B"},
+        {"brand": "Jetour", "model": "X70", "reason": "Not on OEM page"},
+        {"brand": "Jetour", "model": "X90", "reason": "Not on OEM page"}
+      ],
+      "kits": ["komplekt-to-exeed-txl-16t", "nabor-to-chery-tiggo-8-15t-sqre4t15b"],
+      "kit_change": "none — TXL and Tiggo 8 T15B already include ×4; T15C kit correctly has no spark",
+      "kaspi": {
+        "pilot_master_sku": "835932711",
+        "edit_path": "shared_or_unverified",
+        "public_lookalike": "https://kaspi.kz/shop/p/svecha-zazhiganija-chery-exeed-ldk8rtip-163508255/",
+        "lookalike_claim": "OEM F4J163707010 but packing analog LDK8RTIP; models include Jetour X70, Tiggo 7, Tiggo 7 Pro",
+        "correction_request": "If our offer sits on the LDK8RTIP card: request Kaspi to remove Jetour X70/X90 and Tiggo 7 / 7 Pro from the shared card OR move our offer to an OEM F4J163707010 card. Do not create a duplicate. Do not change price/stock."
+      }
+    },
+    {
+      "article": "1017110XEN01",
+      "status": "confirmed_error_fixed_zpt_pending_deploy",
+      "part_type": "oil_filter",
+      "packing_article": "1017110XEN01",
+      "oem": ["1017110XEN01", "1017110AEN01"],
+      "analogs_not_this_sku": ["1017110XED95"],
+      "zpt": {
+        "product_id": 2111,
+        "url": "https://zpt.kz/haval-dargo-1017110xen01-haval-dargo/",
+        "error": "H9 listed together with 'Двигатель 2.0T GW4N20'. FitInPart: H9 II is 2.4 GW4D24 from Jan 2024, not H9 2.0T. Poer/Tank 500 mixed diesel/petrol — stripped from selected_models."
+      },
+      "confirmed_fitment": [
+        {"brand": "Haval", "model": "Dargo", "engine": "GW4N20", "years": "Apr 2022~", "source": "https://www.fitinpart.sg/v2/en/product/79061365/great-wall-1017110aen01", "claim": "Dargo 2.0 CC6460 GW4N20"},
+        {"brand": "Haval", "model": "F7 II", "engine": "GW4N20", "years": "Aug 2024~", "source": "https://www.fitinpart.sg/v2/en/product/79061365/great-wall-1017110aen01", "claim": "F7 II 2.0 GW4N20"},
+        {"brand": "Haval", "model": "F7x II", "engine": "GW4N20", "years": "Aug 2024~", "source": "https://www.fitinpart.sg/v2/en/product/79061365/great-wall-1017110aen01", "claim": "F7x II 2.0 GW4N20"},
+        {"brand": "Haval", "model": "H9 II", "engine": "GW4D24", "years": "Jan 2024~", "source": "https://www.fitinpart.sg/v2/en/product/79061365/great-wall-1017110aen01", "claim": "H9 II 2.4 GW4D24 — not selected_models because catalog H9 has no generation"}
+      ],
+      "rejected_fitment": [
+        {"brand": "Haval", "model": "H9", "engine": "2.0T", "reason": "Not listed. H9 II is 2.4 diesel GW4D24."}
+      ],
+      "kits": ["nabor-to-haval-dargo-20-gw4n20"],
+      "kit_change": "none",
+      "kaspi": {"edit_path": "dump_production_listing_first"}
+    },
+    {
+      "article": "M111109111",
+      "status": "confirmed_a3_m11_zpt_title_pending_deploy",
+      "part_type": "air_filter",
+      "packing_article": "M111109111",
+      "oem": ["M111109111", "M11-1109111"],
+      "analogs_not_this_sku": ["T15-1109111", "F01-1109111", "F081109111HD"],
+      "zpt": {
+        "product_id": 2138,
+        "url": "https://zpt.kz/m111109111/",
+        "current_title": "Воздушный фильтр M111109111",
+        "current_extra": "Chery A3, Chery Chance M11",
+        "error": "Applicability text already A3/M11; X70 appears only as a related-product card F081109111HD. Title did not name A3/M11. No selected_models (A3/M11 not in vehicle catalog)."
+      },
+      "confirmed_fitment": [
+        {"brand": "Chery", "model": "A3 / M11", "source": "packing family M11-1109111 + live card + known mismatch case", "claim": "Air filter for Chery A3 / Chance M11. Jetour X70 uses F01/T15-1109111 family."}
+      ],
+      "rejected_fitment": [
+        {"brand": "Jetour", "model": "X70", "reason": "Known real-world mismatch. X70 air is F01-1109111 / T15-1109111.", "source": "https://www.fitinpart.sg/v2/en/product/70390181/jetour-f01-1109111"}
+      ],
+      "kits": [],
+      "kaspi": {
+        "edit_path": "dump_production_listing_first",
+        "correction_request": "If any AG Parts Kaspi offer for M111109111 names Jetour X70: remove X70. Card must say Chery A3 / M11 only."
+      }
+    },
+    {
+      "article": "F4J161012030",
+      "status": "confirmed_txl_dashing_8pro_cartridge_with_480_boundary",
+      "part_type": "oil_filter_cartridge",
+      "packing_article": "F4J161012030",
+      "oem": ["F4J161012030", "F4J16-1012030"],
+      "analogs_not_this_sku": ["4801012010", "480-1012010"],
+      "zpt": {
+        "product_id": 2108,
+        "url": "https://zpt.kz/chery-tiggo-8-pro-f4j161012030-chery-tiggo-8-pro/",
+        "error": "Title implied Tiggo 8 Pro oil is settled. FitInPart OEM lists 8 Pro 1.6 cartridge AND catalogs also list spin-on 480-1012010 for the same engine. Keep 8 Pro 1.6 on this cartridge card with a housing-type warning."
+      },
+      "confirmed_fitment": [
+        {"brand": "Exeed", "model": "TXL", "engine": "SQRF4J16A", "years": "Apr 2019~", "source": "https://www.fitinpart.sg/v2/en/product/50357242/chery-f4j16-1012030", "claim": "TXL M32T 1.6 SQRF4J16A oil element"},
+        {"brand": "Jetour", "model": "Dashing", "engine": "SQRF4J16A", "years": "Sep 2022~", "source": "https://www.fitinpart.sg/v2/en/product/50357242/chery-f4j16-1012030", "claim": "Dashing X-1 1.6 SQRF4J16A"},
+        {"brand": "Chery", "model": "Tiggo 8 Pro", "engine": "SQRF4J16A / SQRF4J16", "years": "Mar 2021~", "source": "https://www.fitinpart.sg/v2/en/product/50357242/chery-f4j16-1012030", "claim": "Listed for T1D/T1A; disputed vs 480-1012010 spin-on"}
+      ],
+      "kits": ["komplekt-to-exeed-txl-16t"],
+      "kit_change": "none — 8 Pro 1.6 kit still has no oil because 480 vs cartridge is unresolved",
+      "kaspi": {"edit_path": "dump_production_listing_first"}
+    },
+    {
+      "article": "T151109111",
+      "status": "confirmed_keep_batch02",
+      "part_type": "air_filter",
+      "packing_article": "T151109111",
+      "oem": ["T151109111", "T15-1109111"],
+      "zpt": {
+        "product_id": 1988,
+        "url": "https://zpt.kz/chery-tiggo-7-t151109111/",
+        "current_text": "Chery Tiggo 4, Tiggo 7, Tiggo 7 Pro, Tiggo 8; Exeed LX; Omoda C5"
+      },
+      "note": "Independently listed for Tiggo 7 / 7 Pro / Tiggo 8 1.5. Tiggo 4 mixed engines — do not expand; review engines in batch 02.",
+      "kits": ["komplekt-to-chery-tiggo-7-pro-15t", "nabor-to-chery-tiggo-7-15", "nabor-to-chery-tiggo-8-15t-sqre4t15c", "nabor-to-chery-tiggo-8-15t-sqre4t15b"]
+    },
+    {
+      "article": "T218107011",
+      "status": "needs_recheck_8pro_cabin",
+      "part_type": "cabin_filter",
+      "zpt": {
+        "product_id": 2127,
+        "url": "https://zpt.kz/chery-tiggo-7-t218107011-chery-tiggo-7/",
+        "current_text": "Tiggo 4, 7, 7 Pro, 8, Arrizo 8. Card says Tiggo 8 Pro uses 301001199AA."
+      },
+      "note": "T21-8107011 independently listed for 8 Pro 1.6; live card contradicts that. Batch 02.",
+      "kits": ["komplekt-to-chery-tiggo-7-pro-15t", "nabor-to-chery-tiggo-8-pro-16-sqrf4j16a", "nabor-to-chery-arrizo-8-16-sqrf4j16c", "nabor-to-chery-tiggo-7-15", "nabor-to-chery-tiggo-8-15t-sqre4t15c", "nabor-to-chery-tiggo-8-15t-sqre4t15b"]
+    },
+    {
+      "article": "4801012010",
+      "status": "confirmed_spin_on_8pro_oil_disputed",
+      "part_type": "oil_filter_spin_on",
+      "zpt": {
+        "product_id": 1978,
+        "url": "https://zpt.kz/changan-cs55/",
+        "current_text": "Tiggo 4, Tiggo 7, Tiggo 7 Pro, Tiggo 8. Missing Arrizo 8. Does not mention 8 Pro housing dispute."
+      },
+      "kits": ["komplekt-to-chery-tiggo-7-pro-15t", "nabor-to-chery-tiggo-7-15", "nabor-to-chery-arrizo-8-16-sqrf4j16c", "nabor-to-chery-tiggo-8-15t-sqre4t15c", "nabor-to-chery-tiggo-8-15t-sqre4t15b"],
+      "kaspi": {"known_public_url": "https://kaspi.kz/shop/p/masljanyi-fil-tr-4801012010-139279709/"}
+    },
+    {
+      "article": "151000025AA",
+      "status": "zpt_ok_kaspi_shared_overclaim",
+      "part_type": "air_filter",
+      "zpt": {
+        "product_id": 1983,
+        "url": "https://zpt.kz/chery-tiggo-7-2/",
+        "current_text": "Exeed TXL only. Do not replace 079AA / 187AA."
+      },
+      "kaspi": {
+        "edit_path": "shared_card_blocked",
+        "public_url": "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-151000025aa-119186252/",
+        "card_id": "119186252",
+        "sellers_include": "AG Parts plus other shops",
+        "card_claim": "Chery/EXEED: Exeed TXL, Tiggo 8, Tiggo 8 Pro, TXL, VX",
+        "correction_request": "Kaspi product 119186252: remove Tiggo 8, Tiggo 8 Pro and VX unless independently confirmed for 151000025AA. Keep EXEED TXL. AG Parts is a seller on a shared card and cannot edit the master title/fitment. Do not create a duplicate card. Do not change price or stock."
+      },
+      "kits": ["komplekt-to-exeed-txl-16t"]
+    },
+    {
+      "article": "301001199AA",
+      "status": "needs_recheck_8pro_cabin",
+      "zpt": {
+        "product_id": 1985,
+        "url": "https://zpt.kz/chery-tiggo-8-2/",
+        "current_text": "Exeed TXL, Exeed VX; Chery Tiggo 8 Pro"
+      },
+      "kits": ["komplekt-to-exeed-txl-16t"]
+    },
+    {
+      "article": "1109101XGW01A",
+      "status": "confirmed_dargo_keep_batch02_engines",
+      "zpt": {
+        "product_id": 2112,
+        "url": "https://zpt.kz/haval-dargo-1109101xgw01a-haval-dargo/",
+        "current_text": "Haval Dargo, F7, F7x"
+      },
+      "kits": ["nabor-to-haval-dargo-20-gw4n20"],
+      "kaspi": {"pilot_master_sku": "116207063_792647100"}
+    },
+    {
+      "article": "S3010140903",
+      "status": "confirmed_uni_v_keep",
+      "zpt": {
+        "product_id": 2126,
+        "url": "https://zpt.kz/changan-uni-v-s3010140903-changan-uni-v/",
+        "current_text": "Changan UNI-V"
+      },
+      "kits": ["nabor-to-changan-uni-v-15"]
+    },
+    {
+      "article": "C281F2801032601",
+      "status": "uni_t_unconfirmed_batch02",
+      "zpt": {
+        "product_id": 1993,
+        "url": "https://zpt.kz/changan-uni-v-c281f2801032601/",
+        "current_text": "Changan UNI-V, UNI-T"
+      },
+      "note": "UNI-T on the card is not independently confirmed this batch. Do not expand. Review batch 02.",
+      "kits": ["nabor-to-changan-uni-v-15"]
+    }
+  ]
+}
