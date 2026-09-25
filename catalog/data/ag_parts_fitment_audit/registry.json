@@ -1661,5 +1661,14 @@
     "dry_run_job": "job-daqvvpnavr4c73f8f6hg",
     "apply_job": "job-dar01p3ncjis73bk3kag",
     "apply_summary": "CHANGED 4: F081109111HD slug 301, 1109110XP64XA engines, D20T0120700 CS75 Plus JL486ZQ4, 1064000180 strip. First dry-run job-daqvt80u01pc73bi77b0 ERROR X70 Plus missing in production catalog — selected Dashing/X90 only."
+  },
+  "uni_k_draft_spark_removed": {
+    "sha": "8c6350a8a33e407dff1a6f726f027ade45c7a6fb",
+    "deploy": "dep-dar0ql60tbcc73ci4bi0",
+    "dry_run_job": "job-dar138favr4c73fch7ig",
+    "apply_job": "job-dar14cvlot8c73e2ilj0",
+    "source": "https://www.fitinpart.sg/v2/en/product/76262538/changan-d20t0120700",
+    "conclusion": "D20T0120700 independently listed for CS75 Plus 2.0 JL486ZQ4 (Apr 2019–Apr 2021) and CS95, not UNI-K. Removed ×4 from unpublished komplekt-to-changan-uni-k-20t. Draft stays is_active=false. Published kits current==planned, no item diffs.",
+    "apply_summary": "UNI-K kit_id=3 is_active=False; items 1109190CR01 x1, CD569F2801032700 x1. Spark not in items."
   }
 }
