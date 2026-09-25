@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "09",
+  "batch": "10",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -1435,31 +1435,54 @@
     },
     {
       "article": "J691109111",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_10_apply",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/j691109111/",
-        "was": "Chery Tiggo 2 seller-title"
+        "was": "Tiggo 2 2016–2021, no engines, analog OEM list",
+        "canonical_url": "https://zpt.kz/j691109111/"
       },
-      "independent_note": "Live Tiggo 2 2016–2021. No FitInPart J69-1109111 page. Seller titles only. T11-1109111 is a different OEM (Tiggo 2.0/2.4). Do not apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS Filters A0851 manufacturer catalogue crosses Chery J69-1109111 to Tiggo 2 03.17–01.20 1.5 SQRD4G15B body DB11B2H. chery911 packing J691109111 = catalog J69-1109111 Tiggo 2 A13TFL 1.5 SQRD4G15B. 2016–2021 live years not independently shown. T11-1109111 is a different OEM.",
+      "confirmed_fitment": [
+        {
+          "brand": "Chery",
+          "model": "Tiggo 2",
+          "engine": "SQRD4G15B",
+          "body": "DB11B2H",
+          "years": "03.2017–01.2020",
+          "source": "https://jsfilter.jp/catalogue/filter/53692636/A0851"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "J691109111",
+      "oem": [
+        "J691109111",
+        "J69-1109111"
+      ],
+      "analogs_not_this_sku": [
+        "ADBP220237",
+        "ELP9720",
+        "SXJ691109111",
+        "T11-1109111"
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "FAE1109160",
-      "status": "researched_no_independent_oem_page",
+      "status": "частично проверено",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/fae1109160/",
         "was": "Lifan Smily seller-title"
       },
-      "independent_note": "Live Lifan 320/330/Smily. No FitInPart FAE1109160 page. Seller/AG Parts own shop titles only. Analog mix with B1109130 — do not apply.",
+      "independent_note": "No 17vin packing URL. Kitayavto exploded diagram search lists OEM FAE1109160 as air filter on Lifan Smily NEW 1.3; page itself bot-walled this pass. avtokitay Lifan 320 Smily exploded list uses neighbor F1109160, not FAE1109160 — do not merge. Live 320/330/Smily and OEM FAE1109120 remain unproven. No apply.",
       "confirmed_fitment": [],
       "kaspi": {
         "card_type": "unresolved_public_offer",
@@ -1467,25 +1490,91 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "FAE1109160",
+      "analogs_not_this_sku": [
+        "FAE1109120",
+        "F1109160",
+        "B1109130"
+      ],
+      "partial_fitment": [
+        {
+          "brand": "Lifan",
+          "model": "Smily NEW",
+          "engine": "1.3 (page did not give engine code in fetched snippet)",
+          "source": "https://xn--80aagvgd7a1ae.xn--p1acf/catalog/lifan/8f55a2e1b6f0a546b66b4877af4ed865/689020a51110a7f9a53c3e4d73737e3b/cda6055689059a6ba87ed38856ee5394/FAE1109160",
+          "note": "exploded-diagram snippet only; full page not retrieved"
+        }
+      ],
+      "kits": [],
+      "kit_change": "none"
     },
     {
       "article": "2032047000",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_10_apply",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/2032047000/",
-        "was": "Geely Monjaro/Tugella/Preface seller-title"
+        "was": "Monjaro 2022–2024 2.0T; Tugella 2.0T; Preface from 2020; Lynk 05; no engines",
+        "canonical_url": "https://zpt.kz/2032047000/"
       },
-      "independent_note": "No FitInPart page for 2032047000. Nearby 2032061800 is a different OEM (Atlas II / Tugella / Volvo XC40). Do not copy 2032061800 vehicles onto 2032047000.",
-      "confirmed_fitment": [],
+      "independent_note": "17vin Geely packing page 2032047000, material 8888475602, 42 applications. Neighbor 2032061800 (Atlas II / XC40) is a different OEM. Live related-products token 1064000180 is not this card's OEM. Lynk 05 absent from this OEM page — not declared incompatible. Preface/Atlas L have no production CarModel — text only.",
+      "confirmed_fitment": [
+        {
+          "brand": "Geely",
+          "model": "Tugella 300T / 260T",
+          "engine": "JLH-3G15TD",
+          "years": "2019–2020",
+          "source": "https://en.17vin.com/part/geely_2032047000.html"
+        },
+        {
+          "brand": "Geely",
+          "model": "Tugella 350T / Tugella S / Tugella/Monjaro",
+          "engine": "JLH-4G20TDB / JLH-4G20TD / JLH-4G20TDJ",
+          "years": "2019–2024",
+          "source": "https://en.17vin.com/part/geely_2032047000.html"
+        },
+        {
+          "brand": "Geely",
+          "model": "Preface",
+          "engine": "JLH-4G20TD / BHE15-EFZ",
+          "years": "2021 2.0T; 2023 1.5T",
+          "source": "https://en.17vin.com/part/geely_2032047000.html"
+        },
+        {
+          "brand": "Geely",
+          "model": "Boyue L / Azkarra L / Atlas L",
+          "engine": "BHE15-EFZ",
+          "years": "2023",
+          "source": "https://en.17vin.com/part/geely_2032047000.html"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "2032047000",
+      "oem": [
+        "2032047000",
+        "8888475602"
+      ],
+      "analogs_not_this_sku": [
+        "2032061800",
+        "1064000180"
+      ],
+      "rejected_fitment": [
+        {
+          "brand": "Lynk & Co",
+          "model": "05",
+          "reason": "Not on 17vin packing page 2032047000. Absence is not incompatibility; live claim not confirmed.",
+          "source": "https://en.17vin.com/part/geely_2032047000.html"
+        }
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "X01-90000014",
@@ -1850,7 +1939,9 @@
       },
       "independent_note": "Batch 09 live: still no dedicated packing cabin page for CD569F2801032700 / CD569F280103-2700. FitInPart UNI-K vehicle catalog lists cabin CD569F280103-2701 (neighbor, last digit), not 2700. Brake CD569F260303-* / CD569F260301-* are different parts. Live UNI-K product claim kept unconfirmed; not declared incompatible. Unpublished UNI-K draft: removed from sellable items, kept in reference_lines as артикул уточняется. After apply current==planned 1109190CR01 x1; next seed cannot restore CD569 as a kit item.",
       "confirmed_fitment": [],
-      "kits": ["komplekt-to-changan-uni-k-20t"],
+      "kits": [
+        "komplekt-to-changan-uni-k-20t"
+      ],
       "kit_change": "Removed CD569F2801032700 from unpublished komplekt-to-changan-uni-k-20t items. Reference line keeps the article with note артикул уточняется. publish_if_complete stays false. Seed must not restore it as a kit item.",
       "kaspi": {
         "card_type": "unresolved_public_offer",
@@ -2156,6 +2247,128 @@
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
       }
+    },
+    {
+      "article": "13033898-00",
+      "status": "batch_10_apply",
+      "part_type": "cabin_filter",
+      "packing_article": "13033898-00",
+      "oem": [
+        "13033898-00",
+        "1303389800"
+      ],
+      "owner_cross_material": "ST-8121211E-E1",
+      "analogs_not_this_sku": [
+        "EM2E-8121211E"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/byd-tang-13033898-00/",
+        "was": "Tang EV/hybrid; Han/Yuan/Song not confirmed; no engines"
+      },
+      "independent_note": "17vin BYD packing 13033898-00, material ST-8121211E-E1, High-efficiency filter, 50 applications all Tang / Tang DM / Tang EV / Tang DM-i. Do not copy Han/Yuan from agparts.kz. Do not treat EM2E-8121211E packing SKU as this material code.",
+      "confirmed_fitment": [
+        {
+          "brand": "BYD",
+          "model": "Tang",
+          "engine": "BYD487ZQA / BYD487ZQB",
+          "years": "2018–2021",
+          "source": "https://en.17vin.com/part/byd_1303389800.html"
+        },
+        {
+          "brand": "BYD",
+          "model": "Tang New Energy DM",
+          "engine": "BYD487ZQA / BYD487ZQB",
+          "years": "2018–2021",
+          "fuel": "PHEV",
+          "source": "https://en.17vin.com/part/byd_1303389800.html"
+        },
+        {
+          "brand": "BYD",
+          "model": "Tang New Energy EV / EV600 / EV600D",
+          "years": "2019–2021",
+          "fuel": "BEV",
+          "source": "https://en.17vin.com/part/byd_1303389800.html"
+        },
+        {
+          "brand": "BYD",
+          "model": "Tang New Energy DM-i",
+          "engine": "BYD476ZQC",
+          "years": "2021",
+          "fuel": "PHEV 1.5T",
+          "source": "https://en.17vin.com/part/byd_1303389800.html"
+        }
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits",
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "8890649934",
+      "status": "применяемость не подтверждена",
+      "part_type": "cabin_filter",
+      "packing_article": "8890649934",
+      "zpt": {
+        "url": "https://zpt.kz/zeekr-001-8890649934-zeekr-001/",
+        "was": "Zeekr 001 and 009"
+      },
+      "independent_note": "17vin zeekr_8890649934 URL invalid. No manufacturer/OEM applications table found. Reseller titles list 001/009 and also 007/MIX/7X — do not copy 007/MIX/7X. Leave Product unchanged.",
+      "confirmed_fitment": [],
+      "kits": [],
+      "kit_change": "none",
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "301000265AA",
+      "status": "частично проверено",
+      "part_type": "cabin_filter",
+      "packing_article": "301000265AA",
+      "oem": [
+        "301000265AA"
+      ],
+      "analogs_not_this_sku": [
+        "301001199AA",
+        "301001199A",
+        "T218107011"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/chery-tiggo-8/",
+        "canonical_url": "https://zpt.kz/salonnyi-filtr-301000265aa/",
+        "was": "title TXL, selected TXL/VX, stored slug chery-tiggo-8",
+        "redirect": "301 chery-tiggo-8 → salonnyi-filtr-301000265aa; text unchanged"
+      },
+      "independent_note": "17vin chery_301000265AA URL invalid. part-kom shop title lists EXEED TXL, VX for packing 301000265AA but is not an OEM applications table. Neighbor 301001199AA engines/RX/8 Pro not copied. Tiggo 8 absence is not incompatibility. Slug rewrite is internal title-vs-URL mismatch.",
+      "confirmed_fitment": [],
+      "partial_fitment": [
+        {
+          "brand": "Exeed",
+          "model": "TXL / VX",
+          "source": "https://part-kom.ru/products/3589580605",
+          "note": "shop listing title, not OEM table"
+        }
+      ],
+      "kits": [
+        "komplekt-to-exeed-txl-16t"
+      ],
+      "kit_change": "none — published TXL kit uses 301001199AA, not 301000265AA; dust vs antibacterial remain different articles",
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
     }
   ],
   "live_assortment": {
@@ -2215,15 +2428,13 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 24,
+    "independently_verified_count": 27,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
       "1064000180",
       "M111109111",
-      "J691109111",
       "FAE1109160",
-      "2032047000",
       "151000151AA",
       "1109140W5000",
       "1109120U8710",
@@ -2241,7 +2452,6 @@
       "1017110XED95",
       "CD569F2801032700",
       "EM2E-8121211E",
-      "13033898-00",
       "301001199AA",
       "301000265AA",
       "151000025AA"
@@ -2282,7 +2492,10 @@
       "151000187AA",
       "1109130U2400",
       "EM2E-8121211E",
-      "8100422XNZ01A"
+      "8100422XNZ01A",
+      "FAE1109160",
+      "8890649934",
+      "301000265AA"
     ],
     "verified_after_batch_04": [
       "151000079AA",
@@ -2414,6 +2627,35 @@
       "8114010U8520",
       "272774M400",
       "HU71151X"
+    ],
+    "verified_after_batch_10": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA",
+      "8104400XKY28B",
+      "8104102P3010",
+      "8114010U8520",
+      "272774M400",
+      "HU71151X",
+      "J691109111",
+      "2032047000",
+      "13033898-00"
     ]
   },
   "batch_03_live": {

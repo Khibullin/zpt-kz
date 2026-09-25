@@ -9,6 +9,7 @@ FITMENT_SLUG_REDIRECTS = {
     'chery-tiggo-7-f4j163707010-chery-tiggo-7': 'svecha-f4j163707010',
     'changan-cs55': 'masljanyi-filtr-4801012010',
     'chery-tiggo-8-2': 'salonnyi-filtr-301001199aa',
+    'chery-tiggo-8': 'salonnyi-filtr-301000265aa',
     '1109110xkv08a-1109110xkv08a-1109110xkv08a-1109110xkv08a-1109110xkv08a-1109110xkv08a-1109-haval-h6': (
         'vozdushnyi-filtr-1109110xkv08a'
     ),

@@ -1,0 +1,57 @@
+{
+  "batch_id": "10",
+  "notes": "J691109111: packing без дефиса, OEM Chery J69-1109111, Tiggo 2 SQRD4G15B 03.2017–01.2020; кроссы ADBP/ELP не копировать. 2032047000: packing Geely OEM, двигатели с 17vin; Lynk 05 не подтверждаем; 2032061800 не копировать. 13033898-00: packing BYD Tang/DM/EV/DM-i, материал ST-8121211E-E1 не путать с packing EM2E-8121211E. 301000265AA: внутренний slug chery-tiggo-8 → salonnyi-filtr-301000265aa, текст не меняем. FAE1109160 и 8890649934 без dedicated OEM-страницы — apply нет. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
+  "articles": [
+    {
+      "article": "J691109111",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Chery Tiggo 2 — J691109111",
+        "compatibility": "Chery Tiggo 2 1.5 SQRD4G15B, кузов DB11B2H (03.2017–01.2020). OEM J69-1109111. Не смешивать с T11-1109111.",
+        "engine_compatibility": "SQRD4G15B",
+        "oem_cross_references": "J691109111\nJ69-1109111",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: J691109111 / J69-1109111.\nОсновная применимость: Chery Tiggo 2 1.5 SQRD4G15B, кузов DB11B2H (03.2017–01.2020).\nНе смешивать с T11-1109111.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Chery", "model": "Tiggo 2"},
+      "selected_models": [
+        {"brand": "Chery", "model": "Tiggo 2"}
+      ]
+    },
+    {
+      "article": "2032047000",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Geely Monjaro / Tugella — 2032047000",
+        "compatibility": "Geely Tugella 1.5T JLH-3G15TD (2019–2020) и 2.0T JLH-4G20TDB / JLH-4G20TD (с 2019); Tugella S 2.0T; Monjaro / Xingyue L 2.0T JLH-4G20TDJ / JLH-4G20TDB (2021–2024); Preface 2.0T JLH-4G20TD (с 2021) и 1.5T BHE15-EFZ (с 2023); Boyue L / Atlas L 1.5T BHE15-EFZ (с 2023). OEM 2032047000. Lynk & Co 05 этим артикулом не подтверждаем. Не смешивать с 2032061800.",
+        "engine_compatibility": "JLH-3G15TD\nJLH-4G20TDB\nJLH-4G20TD\nJLH-4G20TDJ\nBHE15-EFZ",
+        "oem_cross_references": "2032047000\n8888475602",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 2032047000; код материала 8888475602.\nОсновная применимость: Geely Tugella 1.5T JLH-3G15TD / 2.0T JLH-4G20TDB / JLH-4G20TD, Monjaro / Xingyue L 2.0T JLH-4G20TDJ / JLH-4G20TDB, Preface 2.0T JLH-4G20TD и 1.5T BHE15-EFZ, Boyue L / Atlas L 1.5T BHE15-EFZ.\nLynk & Co 05 этим артикулом не подтверждаем.\nНе смешивать с 2032061800.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Geely", "model": "Monjaro"},
+      "selected_models": [
+        {"brand": "Geely", "model": "Monjaro"},
+        {"brand": "Geely", "model": "Tugella"}
+      ]
+    },
+    {
+      "article": "13033898-00",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр BYD Tang — 13033898-00",
+        "compatibility": "BYD Tang 2.0T BYD487ZQA / BYD487ZQB (2018–2021), включая DM PHEV; Tang EV (2019–2021); Tang DM-i 1.5T BYD476ZQC (2021). OEM 13033898-00. Han / Yuan / Song этим артикулом не подтверждаем. Не смешивать с EM2E-8121211E.",
+        "engine_compatibility": "BYD487ZQA\nBYD487ZQB\nBYD476ZQC",
+        "oem_cross_references": "13033898-00\n1303389800\nST-8121211E-E1",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 13033898-00 / 1303389800; код материала ST-8121211E-E1.\nОсновная применимость: BYD Tang 2.0T BYD487ZQA / BYD487ZQB (2018–2021), Tang DM PHEV, Tang EV, Tang DM-i 1.5T BYD476ZQC (2021).\nHan / Yuan / Song этим артикулом не подтверждаем.\nНе смешивать с EM2E-8121211E.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "BYD", "model": "Tang"},
+      "selected_models": [
+        {"brand": "BYD", "model": "Tang"}
+      ]
+    },
+    {
+      "article": "301000265AA",
+      "part_type": "cabin_filter",
+      "canonical_slug": "salonnyi-filtr-301000265aa"
+    }
+  ]
+}
