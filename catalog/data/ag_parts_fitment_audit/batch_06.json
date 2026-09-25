@@ -1,0 +1,66 @@
+{
+  "batch_id": "06",
+  "notes": "X01-90000014: packing OEM только X01-90000014; X01-29150063 не копировать (owner-cross на чужой OEM-странице). L6/L7/L8/L9 не расширять, двигатели L2E15M не ставить. S1010140400: CS35 Plus и двигатели с dedicated OEM. S111F2801031700: двигатели CS35 Plus / Eado Plus, Ford/Volvo не расширять. 8104400XP24BA: slug haval-h6 → salonnyi-filtr-8104400xp24ba, двигатели Wingle 6/7. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "articles": [
+    {
+      "article": "X01-90000014",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Li Auto L7 — X01-90000014",
+        "compatibility": "Li Auto L6, L7, L8, L9. OEM X01-90000014. Не смешивать с X01-29150063 без сверки с установленной деталью или VIN. Это воздушный фильтр двигателя, не салонный.",
+        "engine_compatibility": "",
+        "oem_cross_references": "X01-90000014\nX0190000014",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: X01-90000014 / X0190000014.\nОсновная применимость: Li Auto L6, L7, L8, L9. Это воздушный фильтр двигателя, не салонный.\nНе смешивать с X01-29150063 без сверки с установленной деталью или VIN.\nСалон L6/L7 — X0390000206; салон L8/L9 — X01-90000044.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Li Auto", "model": "L7"},
+      "selected_models": [
+        {"brand": "Li Auto", "model": "L6"},
+        {"brand": "Li Auto", "model": "L7"},
+        {"brand": "Li Auto", "model": "L8"},
+        {"brand": "Li Auto", "model": "L9"}
+      ]
+    },
+    {
+      "article": "S1010140400",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Changan CS35 / CS35 Plus — S1010140400",
+        "compatibility": "Changan CS35 1.6 JL478QEE (с 10.2012); CS35 Plus 1.6 JL478QEP (с 06.2018); Oushang Cos 5 1.6 JL478QEP (04.2019–07.2020). OEM S1010140400 / S101014-0400.",
+        "engine_compatibility": "JL478QEE\nJL478QEP",
+        "oem_cross_references": "S1010140400\nS101014-0400",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: S1010140400 / S101014-0400.\nОсновная применимость: Changan CS35 1.6 JL478QEE, CS35 Plus 1.6 JL478QEP, Oushang Cos 5 1.6 JL478QEP (04.2019–07.2020).\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Changan", "model": "CS35"},
+      "selected_models": [
+        {"brand": "Changan", "model": "CS35"}
+      ]
+    },
+    {
+      "article": "S111F2801031700",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Changan CS35 Plus / Eado Plus — S111F2801031700",
+        "compatibility": "Changan CS35 Plus 1.6 JL478QEP (с 06.2018); Eado Plus 1.4 JL473ZQ3 / JL473ZQ9, 1.5 JL473QK, 1.6 JL478QEP; Oushang Cos 5 1.6 JL478QEP (04.2019–07.2020). OEM S111F2801031700 / S111F280103-1700. CS35 без Plus и кроссы Ford/Volvo не входят.",
+        "engine_compatibility": "JL478QEP\nJL473ZQ3\nJL473ZQ9\nJL473QK",
+        "oem_cross_references": "S111F2801031700\nS111F280103-1700",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: S111F2801031700 / S111F280103-1700.\nОсновная применимость: Changan CS35 Plus 1.6 JL478QEP, Eado Plus 1.4 JL473ZQ3 / JL473ZQ9, 1.5 JL473QK, 1.6 JL478QEP, Oushang Cos 5 1.6 JL478QEP (04.2019–07.2020).\nCS35 без Plus и кроссы Ford/Volvo не входят.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      }
+    },
+    {
+      "article": "8104400XP24BA",
+      "part_type": "cabin_filter",
+      "canonical_slug": "salonnyi-filtr-8104400xp24ba",
+      "fields": {
+        "title": "Салонный фильтр Great Wall Wingle 6 / Wingle 7 — 8104400XP24BA",
+        "compatibility": "Great Wall Wingle 6 2.4 4G69S4N (01.2014–12.2021); Wingle 7 2.0 GW4D20D (с 10.2018). OEM 8104400XP24BA. Не путать с 8104400XKY28B.",
+        "engine_compatibility": "4G69S4N\nGW4D20D",
+        "oem_cross_references": "8104400XP24BA",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8104400XP24BA.\nОсновная применимость: Great Wall Wingle 6 2.4 4G69S4N (01.2014–12.2021), Wingle 7 2.0 GW4D20D (с 10.2018).\nНе путать с 8104400XKY28B.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Great Wall", "model": "Wingle 7"},
+      "selected_models": [
+        {"brand": "Great Wall", "model": "Wingle 7"}
+      ]
+    }
+  ]
+}

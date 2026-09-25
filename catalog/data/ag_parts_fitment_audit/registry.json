@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "05",
+  "batch": "06",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -1486,6 +1486,198 @@
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
       }
+    },
+    {
+      "article": "X01-90000014",
+      "status": "batch_06_oem_unmix_no_l_series_expand",
+      "part_type": "air_filter",
+      "packing_article": "X01-90000014",
+      "oem": [
+        "X01-90000014",
+        "X0190000014"
+      ],
+      "analogs_not_this_sku": [
+        "X01-29150063"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/li-auto-l7-x01-90000014-li-auto-l7/",
+        "was": "OEM list mixed X01-90000014 / X0190000014 / X01-29150063; selected L6/L7/L8/L9; no engines"
+      },
+      "independent_note": "FitInPart Part Number is X01-29150063 (AIR FILTER). X01-90000014 appears only as Owner Part Number on that page, not as a dedicated packing-SKU applications page. Do not copy L2E15M / years onto X01-90000014. Keep existing L6–L9, do not expand. Unmix 29150063 from this packing OEM list.",
+      "confirmed_fitment": [],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Li Auto",
+          "model": "L6/L7/L8/L9 engines",
+          "reason": "Applications belong to X01-29150063 page. Owner-cross is not a dedicated 90000014 page."
+        }
+      ],
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "S1010140400",
+      "status": "batch_06_apply",
+      "part_type": "air_filter",
+      "oem": [
+        "S1010140400",
+        "S101014-0400"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/changan-cs35-s1010140400/",
+        "was": "CS35 only, no engines"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Changan",
+          "model": "CS35",
+          "engine": "JL478QEE",
+          "years": "Oct 12~",
+          "source": "https://www.fitinpart.sg/v2/en/product/51505576/changan-s101014-0400"
+        },
+        {
+          "brand": "Changan",
+          "model": "CS35 Plus",
+          "engine": "JL478QEP",
+          "years": "Jun 18~",
+          "source": "https://www.fitinpart.sg/v2/en/product/51505576/changan-s101014-0400"
+        },
+        {
+          "brand": "Changan",
+          "model": "Oushang Cos 5",
+          "engine": "JL478QEP",
+          "years": "Apr 19~Jul 20",
+          "source": "https://www.fitinpart.sg/v2/en/product/51505576/changan-s101014-0400"
+        }
+      ],
+      "note": "selected CS35 only — production catalog has no CS35 Plus / Oushang Cos 5 CarModel; Plus and Cos 5 stay in public text. Owner 1109013-W01 not copied as packing identity.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "S111F2801031700",
+      "status": "batch_06_apply",
+      "part_type": "cabin_filter",
+      "oem": [
+        "S111F2801031700",
+        "S111F280103-1700"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/changan-s111f2801031700/",
+        "was": "CS35 Plus, Eado Plus in text; empty selected; no engines; Ford/Volvo already excluded"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Changan",
+          "model": "CS35 Plus",
+          "engine": "JL478QEP",
+          "years": "Jun 18~",
+          "source": "https://www.fitinpart.sg/v2/en/product/51505580/changan-s111f280103-1700"
+        },
+        {
+          "brand": "Changan",
+          "model": "Eado Plus",
+          "engine": "JL473ZQ3 / JL473ZQ9 / JL473QK / JL478QEP",
+          "source": "https://www.fitinpart.sg/v2/en/product/51505580/changan-s111f280103-1700"
+        },
+        {
+          "brand": "Changan",
+          "model": "Oushang Cos 5",
+          "engine": "JL478QEP",
+          "years": "Apr 19~Jul 20",
+          "source": "https://www.fitinpart.sg/v2/en/product/51505580/changan-s111f280103-1700"
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Ford",
+          "model": "Focus II",
+          "reason": "Analog vehicles on OEM page ignored."
+        },
+        {
+          "brand": "Volvo",
+          "model": "C30/C70/S40/V50",
+          "reason": "Analog vehicles on OEM page ignored."
+        }
+      ],
+      "note": "CS35 Plus / Eado Plus not in production CarModel refs — engines and text only, selected stays empty.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "8104400XP24BA",
+      "status": "batch_06_apply",
+      "part_type": "cabin_filter",
+      "oem": [
+        "8104400XP24BA"
+      ],
+      "zpt": {
+        "old_url": "https://zpt.kz/haval-h6/",
+        "canonical_url": "https://zpt.kz/salonnyi-filtr-8104400xp24ba/",
+        "redirect": "301 haval-h6 → salonnyi-filtr-8104400xp24ba",
+        "was": "slug haval-h6; selected Wingle 7; Wingle 6 in text; no engines"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Great Wall",
+          "model": "Wingle 6",
+          "engine": "4G69S4N",
+          "years": "Jan 14~Dec 21",
+          "source": "https://www.fitinpart.sg/v2/en/product/47233293/great-wall-8104400xp24ba"
+        },
+        {
+          "brand": "Great Wall",
+          "model": "Wingle 7",
+          "engine": "GW4D20D",
+          "years": "Oct 18~",
+          "source": "https://www.fitinpart.sg/v2/en/product/47233293/great-wall-8104400xp24ba"
+        }
+      ],
+      "note": "selected Wingle 7 only — Wingle 6 not in production CarModel; stays in text. Slug haval-h6 was a generic Haval collision.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "1017110XED95",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "oil_filter",
+      "zpt": {
+        "url": "https://zpt.kz/great-wall-poer-1017110xed95/",
+        "was": "Poer + Wingle 7 diesel 2.0; not XEN01 petrol"
+      },
+      "independent_note": "No FitInPart page for packing 1017110XED95. Nearby 1017110XED61 is a different Great Wall part — do not copy. Keep Poer/Wingle 7 claim unconfirmed, do not declare incompatible.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
     }
   ],
   "live_assortment": {
@@ -1545,7 +1737,7 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 16,
+    "independently_verified_count": 19,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -1571,12 +1763,9 @@
       "151000187AA",
       "1109130U2400",
       "8890649934",
-      "8104400XP24BA",
       "8100422XNZ01A",
       "1017110XED95",
-      "S111F2801031700",
       "CD569F2801032700",
-      "S1010140400",
       "EM2E-8121211E",
       "13033898-00",
       "301001199AA",
@@ -1604,7 +1793,8 @@
       "301001199AA",
       "151000025AA",
       "151000151AA",
-      "1064000180"
+      "1064000180",
+      "X01-90000014"
     ],
     "verified_after_batch_04": [
       "151000079AA",
@@ -1639,6 +1829,27 @@
       "F081109111HD",
       "1109110XP64XA",
       "D20T0120700"
+    ],
+    "verified_after_batch_06": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA"
     ]
   },
   "batch_03_live": {
