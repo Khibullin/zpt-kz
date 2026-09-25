@@ -2088,5 +2088,12 @@
     "dry_run_job": "job-dar1l1vlot8c73e4ggq0",
     "apply_job": "job-dar1m28473hc739grh20",
     "apply_summary": "CHANGED 4: X01-90000014 OEM unmix keep L6-L9 no engines; S1010140400 CS35 Plus/engines; S111F2801031700 engines Ford/Volvo out; 8104400XP24BA slug 301 haval-h6 plus Wingle 6/7 engines."
+  },
+  "batch_07_live": {
+    "sha": "99819ad3e796c8f8e31978123c7222c1ea04c314",
+    "deploy": "dep-dar2d2dg1s2s73dql190",
+    "dry_run_job": "job-dar2ggou01pc73e6spug",
+    "apply_job": "job-dar2i0nlot8c73e7ahkg",
+    "apply_summary": "CHANGED 3: 8104400XKY28B Haval engines keep Dargo/F7/F7x/Jolion; 8104102P3010 T6→T8 HFC4DB21D1; 8114010U8520 S3/JS4/J7 engines, JS3 text only."
   }
 }
