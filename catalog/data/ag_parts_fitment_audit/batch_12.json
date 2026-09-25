@@ -1,6 +1,6 @@
 {
   "batch_id": "12",
-  "notes": "JS A0877: 151000025AA packing Chery, TXL SQRF4J16A/D M32T; Qoros 100001222 не копировать; slug chery-tiggo-7-2 → vozdushnyi-filtr-151000025aa. Комплект TXL 1.6 остаётся 025AA. JS A8010: 151000187AA TXL/VX 2.0 SQRF4J20C. JS AC0341: 8100422XNZ01A packing GWM, Poer GW4C20B/GW4D20M/GW4D24 и Tank 300 E20CB/E20NA/E24D; 8104300XKR02A и Ford EMS1 не копировать. JS OE0167: 1017110XED95 Poer/H5 дизель GW4D20M; Wingle 7 не подтверждаем, не объявляем несовместимым; XEN01 другой SKU. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
+  "notes": "JS A0877: 151000025AA packing Chery, TXL SQRF4J16A/D M32T; Qoros 100001222 не копировать; slug chery-tiggo-7-2 → vozdushnyi-filtr-151000025aa. Комплект TXL 1.6 остаётся 025AA. JS A8010: 151000187AA TXL/VX 2.0 SQRF4J20C. JS AC0341: 8100422XNZ01A packing GWM, Poer GW4C20B/GW4D20M/GW4D24 и Tank 300 E20CB/E20NA/E24D; 8104300XKR02A и Ford EMS1 не копировать. JS OE0167: 1017110XED95 Poer/H5 дизель GW4D20M; H5 нет в production CarModel — только текст; Wingle 7 не подтверждаем, не объявляем несовместимым; XEN01 другой SKU. Первый dry-run ERROR Haval H5 missing. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
   "articles": [
     {
       "article": "151000025AA",
@@ -62,8 +62,7 @@
       },
       "primary_model": {"brand": "Great Wall", "model": "Poer"},
       "selected_models": [
-        {"brand": "Great Wall", "model": "Poer"},
-        {"brand": "Haval", "model": "H5"}
+        {"brand": "Great Wall", "model": "Poer"}
       ]
     }
   ]

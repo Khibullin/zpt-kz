@@ -158,7 +158,7 @@ class AgPartsFitmentBatch12Tests(TestCase):
         self.assertNotIn('1017110XEN01', self.oil.oem_cross_references)
         self.assertEqual(
             set(self.oil.selected_models.values_list('name', flat=True)),
-            {'Poer', 'H5'},
+            {'Poer'},
         )
         oil_page = self.client.get('/great-wall-poer-1017110xed95/')
         self.assertEqual(oil_page.status_code, 200)
