@@ -98,7 +98,10 @@ class AgPartsFitmentBatch04Tests(TestCase):
         self.assertEqual(self.f081.stock_qty, 5)
         self.assertEqual(self.f081.slug, 'jetour-x70-dashing-x90-plus-f081109111hd')
 
-        page = self.client.get(f'/{self.f081.slug}/')
+        old_page = self.client.get(f'/{self.f081.slug}/')
+        self.assertEqual(old_page.status_code, 301)
+        self.assertEqual(old_page['Location'], '/vozdushnyi-filtr-f081109111hd/')
+        page = self.client.get('/vozdushnyi-filtr-f081109111hd/')
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, 'X70 Plus')
         self.assertContains(page, 'SQRF4J16A')

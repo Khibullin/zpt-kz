@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "04",
+  "batch": "05",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -1142,15 +1142,17 @@
     },
     {
       "article": "F081109111HD",
-      "status": "batch_04_apply",
+      "status": "batch_05_slug_x70plus",
       "part_type": "air_filter",
       "oem": [
         "F081109111HD",
         "F08-1109111HD"
       ],
       "zpt": {
-        "url": "https://zpt.kz/jetour-x70-dashing-x90-plus-f081109111hd/",
-        "current_text": "Jetour X70, Dashing, X90 Plus; 2022–2025"
+        "product_id": 2141,
+        "old_url": "https://zpt.kz/jetour-x70-dashing-x90-plus-f081109111hd/",
+        "canonical_url": "https://zpt.kz/vozdushnyi-filtr-f081109111hd/",
+        "redirect": "301 old slug → vozdushnyi-filtr-f081109111hd"
       },
       "confirmed_fitment": [
         {
@@ -1173,7 +1175,7 @@
           "source": "https://www.fitinpart.sg/v2/en/product/70390188/jetour-f08-1109111hd"
         }
       ],
-      "note": "OEM FitInPart: Dashing X-1 SQRF4J16A/C, X70PLUS SQRF4J16, X90PLUS SQRF4J16/SQRF4J20. Public text uses Plus; catalog models are X70/X90. Bare X70 claim removed, not declared incompatible. Analog VW/Citroen/Ford ignored. Soueast S07/S09 not expanded.",
+      "note": "Slug jetour-x70-... misleading: OEM is X70 Plus not bare X70. 301 to vozdushnyi-filtr-f081109111hd. selected_models now Dashing / X70 Plus / X90 (catalog X90 stands for X90 Plus in text). Bare X70 not declared incompatible.",
       "kaspi": {
         "card_type": "lookalike_not_proven_ours",
         "public_url": "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-f08-1109111hd-148505767/",
@@ -1189,11 +1191,12 @@
         },
         "should": {
           "title": "если своя/shared с AG Parts: Воздушный фильтр F081109111HD",
-          "models": "Dashing 1.6 SQRF4J16A/C, X70 Plus 1.6 SQRF4J16, X90 Plus 1.6/2.0. Убрать Chery. Убрать голое X90. Не VW/Citroen по аналогу 1444-L8."
+          "models": "Dashing 1.6 SQRF4J16A/C, X70 Plus 1.6 SQRF4J16, X90 Plus 1.6/2.0. Убрать Chery. Убрать голое X70 и голое X90."
         },
         "public_lookalikes_not_ours": [
           "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-f08-1109111hd-148505767/",
-          "https://kaspi.kz/shop/p/555-vozdushnyi-fil-tr-jetour-dashing-f08-1109111hd-146465814/"
+          "https://kaspi.kz/shop/p/555-vozdushnyi-fil-tr-jetour-dashing-f08-1109111hd-146465814/",
+          "https://kaspi.kz/shop/p/as-vozdushnyi-fil-tr-jetour-x70-plus-145832195/"
         ],
         "lookalike_note": "148505767 и 146465814: AG Parts как продавец не подтверждён. Чужая карточка ≠ наше предложение."
       },
@@ -1265,6 +1268,224 @@
         }
       ],
       "kits": []
+    },
+    {
+      "article": "1109110XP64XA",
+      "status": "batch_05_apply",
+      "part_type": "air_filter",
+      "oem": [
+        "1109110XP64XA",
+        "1109110-P64"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/1109110xp64xa/",
+        "was": "Wingle 5 2011–2023 / Wingle 7 from 2018 without engines; OEM 1109110P64"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Great Wall",
+          "model": "Wingle 5",
+          "engine": "GW4D20",
+          "years": "Jan 2011~",
+          "source": "https://www.fitinpart.sg/v2/en/product/70801008/great-wall-1109110xp64xa"
+        },
+        {
+          "brand": "Great Wall",
+          "model": "Wingle 5",
+          "engine": "GW4D20M",
+          "years": "Nov 2020–May 2023",
+          "source": "https://www.fitinpart.sg/v2/en/product/70801008/great-wall-1109110xp64xa"
+        },
+        {
+          "brand": "Great Wall",
+          "model": "Wingle 7",
+          "engine": "GW4D20D",
+          "years": "Oct 2018~",
+          "source": "https://www.fitinpart.sg/v2/en/product/70801008/great-wall-1109110xp64xa"
+        }
+      ],
+      "not_expanded_this_batch": [],
+      "selected_models_note": "Catalog has Wingle 7 only; Wingle 5 stays in public text.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "sellers_confirmed_ag_parts": false,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено",
+        "should": {
+          "title": "если своя: Воздушный фильтр AG Parts 1109110XP64XA",
+          "models": "Wingle 5 2.0 GW4D20/GW4D20M; Wingle 7 2.0 GW4D20D"
+        }
+      }
+    },
+    {
+      "article": "D20T0120700",
+      "status": "batch_05_apply",
+      "part_type": "spark_plug",
+      "oem": [
+        "D20T0120700",
+        "D20T012-0700"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/changan-cs75-plus-d20t0120700-changan-cs75-plus/",
+        "was": "CS75 Plus and UNI-K 2.0T without engine codes"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Changan",
+          "model": "CS75 Plus",
+          "engine": "JL486ZQ4",
+          "years": "Apr 2019–Apr 2021",
+          "source": "https://www.fitinpart.sg/v2/en/product/76262538/changan-d20t0120700"
+        }
+      ],
+      "unconfirmed_not_incompatible": [
+        {
+          "brand": "Changan",
+          "model": "UNI-K",
+          "reason": "Not on this OEM spark page. Do not declare incompatible. Unpublished UNI-K kit still lists this spark."
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Changan",
+          "model": "CS95",
+          "engine": "JL486ZQ4",
+          "reason": "Independently listed; catalog has no CS95 this batch."
+        }
+      ],
+      "kits": [],
+      "kit_change": "none — komplekt-to-changan-uni-k-20t is unpublished (publish_if_complete false, 404)",
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "sellers_confirmed_ag_parts": false,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено",
+        "should": {
+          "title": "если своя: Свеча AG Parts D20T0120700",
+          "models": "CS75 Plus 2.0 JL486ZQ4 04.2019–04.2021. Убрать голое UNI-K 2.0T."
+        }
+      }
+    },
+    {
+      "article": "1064000180",
+      "status": "batch_05_apply_strip_unconfirmed_models",
+      "part_type": "air_filter",
+      "oem": [
+        "1064000180"
+      ],
+      "analogs_not_this_sku": [
+        "B1109130",
+        "17801-22020",
+        "17801-0D011",
+        "71-01286-SX"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/1064000180/",
+        "was": "Geely Emgrand EC7/EC7RV/GC7/FC/SL 1.5–1.8; OEM 71-01286-SX aftermarket"
+      },
+      "confirmed_fitment": [],
+      "stripped_unconfirmed": [
+        {
+          "claim": "Emgrand EC7 / GC7 / FC / SL",
+          "reason": "No Geely OEM air page. Number appears only as analog on Lifan B1109130 with Toyota 17801. Aftermarket 71-01286-SX is not OEM."
+        }
+      ],
+      "independent_note": "https://www.fitinpart.sg/v2/en/product/825406/lifan-b1109130 lists GEELY 1064000180 as analog owner number — analog vehicles ignored.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "lookalike_not_proven_ours",
+        "public_url": "https://kaspi.kz/shop/p/miles-vozdushnyi-fil-tr-afad087-146993685/",
+        "product_id": "146993685",
+        "sellers_confirmed_ag_parts": false,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено",
+        "was": {
+          "title": "MILES AFAD087",
+          "oem_list": "includes 1064000180 among Toyota/Lifan/BYD analogs"
+        },
+        "should": {
+          "title": "не наша карточка MILES. Если появится своё предложение 1064000180: не ставить Emgrand все кузова / Toyota Corolla по аналогу."
+        },
+        "lookalike_note": "146993685 — бренд MILES, комплект кроссов включая Toyota. Не одиночный товар AG Parts."
+      }
+    },
+    {
+      "article": "1109130U1510",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "air_filter",
+      "zpt": {
+        "url": "https://zpt.kz/jac-s5-1109130u1510/",
+        "was": "JAC S5"
+      },
+      "independent_note": "JAC S5; OEM analog 28113-2S000 looks Hyundai. No FitInPart page for 1109130U1510. Keep S5 claim unconfirmed, do not declare incompatible.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "J691109111",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "air_filter",
+      "zpt": {
+        "url": "https://zpt.kz/j691109111/",
+        "was": "Chery Tiggo 2 seller-title"
+      },
+      "independent_note": "Live Tiggo 2 2016–2021. No FitInPart J69-1109111 page. Seller titles only. T11-1109111 is a different OEM (Tiggo 2.0/2.4). Do not apply.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "FAE1109160",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "air_filter",
+      "zpt": {
+        "url": "https://zpt.kz/fae1109160/",
+        "was": "Lifan Smily seller-title"
+      },
+      "independent_note": "Live Lifan 320/330/Smily. No FitInPart FAE1109160 page. Seller/AG Parts own shop titles only. Analog mix with B1109130 — do not apply.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "2032047000",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "air_filter",
+      "zpt": {
+        "url": "https://zpt.kz/2032047000/",
+        "was": "Geely Monjaro/Tugella/Preface seller-title"
+      },
+      "independent_note": "No FitInPart page for 2032047000. Nearby 2032061800 is a different OEM (Atlas II / Tugella / Volvo XC40). Do not copy 2032061800 vehicles onto 2032047000.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
     }
   ],
   "live_assortment": {
@@ -1324,7 +1545,7 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 14,
+    "independently_verified_count": 16,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -1336,12 +1557,10 @@
       "151000151AA",
       "1109140W5000",
       "1109120U8710",
-      "1109110XP64XA",
       "1109110XP6EXACHS",
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "D20T0120700",
       "8114010U8520",
       "8104400XKY28B",
       "8104400ASZ08A",
@@ -1384,7 +1603,8 @@
       "M111109111",
       "301001199AA",
       "151000025AA",
-      "151000151AA"
+      "151000151AA",
+      "1064000180"
     ],
     "verified_after_batch_04": [
       "151000079AA",
@@ -1401,6 +1621,24 @@
       "1109110XKV08A",
       "1109104XGW02A",
       "F081109111HD"
+    ],
+    "verified_after_batch_05": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700"
     ]
   },
   "batch_03_live": {

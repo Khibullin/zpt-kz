@@ -12,6 +12,7 @@ FITMENT_SLUG_REDIRECTS = {
     '1109110xkv08a-1109110xkv08a-1109110xkv08a-1109110xkv08a-1109110xkv08a-1109110xkv08a-1109-haval-h6': (
         'vozdushnyi-filtr-1109110xkv08a'
     ),
+    'jetour-x70-dashing-x90-plus-f081109111hd': 'vozdushnyi-filtr-f081109111hd',
 }
 
 

@@ -1,0 +1,59 @@
+{
+  "batch_id": "05",
+  "notes": "F081: нейтральный slug с артикулом, 301 со старого x70-адреса; selected X70 Plus вместо голого X70. 1109110XP64XA: двигатели Wingle 5/7. D20T: CS75 Plus JL486ZQ4, UNI-K не подтверждаем. 1064000180: снять модели без OEM-страницы. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "articles": [
+    {
+      "article": "F081109111HD",
+      "part_type": "air_filter",
+      "canonical_slug": "vozdushnyi-filtr-f081109111hd",
+      "primary_model": {"brand": "Jetour", "model": "Dashing"},
+      "selected_models": [
+        {"brand": "Jetour", "model": "Dashing"},
+        {"brand": "Jetour", "model": "X70 Plus"},
+        {"brand": "Jetour", "model": "X90"}
+      ]
+    },
+    {
+      "article": "1109110XP64XA",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Great Wall Wingle 5 / Wingle 7 — 1109110XP64XA",
+        "compatibility": "Great Wall Wingle 5 2.0 GW4D20 (с 01.2011) и GW4D20M (11.2020–05.2023); Wingle 7 2.0 GW4D20D (с 10.2018). OEM 1109110XP64XA / 1109110-P64.",
+        "engine_compatibility": "GW4D20\nGW4D20M\nGW4D20D",
+        "oem_cross_references": "1109110XP64XA\n1109110-P64",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109110XP64XA / 1109110-P64.\nОсновная применимость: Great Wall Wingle 5 2.0 GW4D20 / GW4D20M; Wingle 7 2.0 GW4D20D.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Great Wall", "model": "Wingle 7"},
+      "selected_models": [
+        {"brand": "Great Wall", "model": "Wingle 7"}
+      ]
+    },
+    {
+      "article": "D20T0120700",
+      "part_type": "spark_plug",
+      "fields": {
+        "title": "Свеча зажигания Changan CS75 Plus — D20T0120700",
+        "compatibility": "Changan CS75 Plus 2.0 JL486ZQ4 (04.2019–04.2021). OEM D20T0120700 / D20T012-0700. UNI-K 2.0 этим артикулом не подтверждаем.",
+        "engine_compatibility": "JL486ZQ4",
+        "oem_cross_references": "D20T0120700\nD20T012-0700",
+        "description": "Свеча зажигания воспламеняет топливовоздушную смесь. В карточке одна свеча, не комплект. OEM: D20T0120700 / D20T012-0700.\nОсновная применимость: Changan CS75 Plus 2.0 JL486ZQ4 (04.2019–04.2021).\nUNI-K 2.0 этим артикулом не подтверждаем.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Changan", "model": "CS75 Plus"},
+      "selected_models": [
+        {"brand": "Changan", "model": "CS75 Plus"}
+      ]
+    },
+    {
+      "article": "1064000180",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр 1064000180",
+        "compatibility": "OEM 1064000180. Не смешивать с Lifan B1109130 и Toyota 17801. Модели и двигатели этим артикулом не подтверждаем без сверки с установленной деталью или VIN.",
+        "engine_compatibility": "",
+        "oem_cross_references": "1064000180",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1064000180.\nНе смешивать с Lifan B1109130 и Toyota 17801.\nМодели и двигатели этим артикулом не подтверждаем без сверки с установленной деталью или VIN автомобиля."
+      },
+      "selected_models": []
+    }
+  ]
+}
