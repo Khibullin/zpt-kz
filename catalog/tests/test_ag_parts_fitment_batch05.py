@@ -116,8 +116,9 @@ class AgPartsFitmentBatch05Tests(TestCase):
         self.assertEqual(self.f081.price, 3300)
         self.assertEqual(self.f081.stock_qty, 5)
         names = set(self.f081.selected_models.values_list('name', flat=True))
-        self.assertEqual(names, {'Dashing', 'X70 Plus', 'X90'})
+        self.assertEqual(names, {'Dashing', 'X90'})
         self.assertNotIn('X70', names)
+        self.assertNotIn('X70 Plus', names)
 
         old = self.client.get(f'/{OLD_F081_SLUG}/')
         self.assertEqual(old.status_code, 301)
@@ -126,8 +127,10 @@ class AgPartsFitmentBatch05Tests(TestCase):
         self.assertEqual(new.status_code, 200)
         self.assertContains(new, 'X70 Plus')
         self.assertContains(new, f'https://zpt.kz/{NEW_F081_SLUG}/')
-        self.assertContains(new, '<li>X70 Plus</li>')
+        self.assertContains(new, '<li>Dashing</li>')
+        self.assertContains(new, '<li>X90</li>')
         self.assertNotContains(new, '<li>X70</li>')
+        self.assertNotContains(new, '<li>X70 Plus</li>')
 
         search = self.client.get('/', {'q': 'F081109111HD'})
         self.assertEqual(search.status_code, 200)

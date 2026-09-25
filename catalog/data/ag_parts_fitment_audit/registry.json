@@ -1175,7 +1175,7 @@
           "source": "https://www.fitinpart.sg/v2/en/product/70390188/jetour-f08-1109111hd"
         }
       ],
-      "note": "Slug jetour-x70-... misleading: OEM is X70 Plus not bare X70. 301 to vozdushnyi-filtr-f081109111hd. selected_models now Dashing / X70 Plus / X90 (catalog X90 stands for X90 Plus in text). Bare X70 not declared incompatible.",
+      "note": "Slug jetour-x70-... misleading: OEM is X70 Plus not bare X70. 301 to vozdushnyi-filtr-f081109111hd. selected_models Dashing / X90 — production has no Jetour X70 Plus CarModel yet; Plus stays in public text. Bare X70 not declared incompatible.",
       "kaspi": {
         "card_type": "lookalike_not_proven_ours",
         "public_url": "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-f08-1109111hd-148505767/",

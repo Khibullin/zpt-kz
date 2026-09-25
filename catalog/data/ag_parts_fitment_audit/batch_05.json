@@ -1,6 +1,6 @@
 {
   "batch_id": "05",
-  "notes": "F081: нейтральный slug с артикулом, 301 со старого x70-адреса; selected X70 Plus вместо голого X70. 1109110XP64XA: двигатели Wingle 5/7. D20T: CS75 Plus JL486ZQ4, UNI-K не подтверждаем. 1064000180: снять модели без OEM-страницы. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "notes": "F081: нейтральный slug с артикулом, 301 со старого x70-адреса; selected Dashing/X90 (X70 Plus нет в production CarModel, Plus остаётся в тексте). 1109110XP64XA: двигатели Wingle 5/7. D20T: CS75 Plus JL486ZQ4, UNI-K не подтверждаем. 1064000180: снять модели без OEM-страницы. Цены, остатки, фото, PP1/PP2 не меняем.",
   "articles": [
     {
       "article": "F081109111HD",
@@ -9,7 +9,6 @@
       "primary_model": {"brand": "Jetour", "model": "Dashing"},
       "selected_models": [
         {"brand": "Jetour", "model": "Dashing"},
-        {"brand": "Jetour", "model": "X70 Plus"},
         {"brand": "Jetour", "model": "X90"}
       ]
     },
