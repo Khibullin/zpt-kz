@@ -1,0 +1,70 @@
+{
+  "batch_id": "12",
+  "notes": "JS A0877: 151000025AA packing Chery, TXL SQRF4J16A/D M32T; Qoros 100001222 не копировать; slug chery-tiggo-7-2 → vozdushnyi-filtr-151000025aa. Комплект TXL 1.6 остаётся 025AA. JS A8010: 151000187AA TXL/VX 2.0 SQRF4J20C. JS AC0341: 8100422XNZ01A packing GWM, Poer GW4C20B/GW4D20M/GW4D24 и Tank 300 E20CB/E20NA/E24D; 8104300XKR02A и Ford EMS1 не копировать. JS OE0167: 1017110XED95 Poer/H5 дизель GW4D20M; Wingle 7 не подтверждаем, не объявляем несовместимым; XEN01 другой SKU. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
+  "articles": [
+    {
+      "article": "151000025AA",
+      "part_type": "air_filter",
+      "canonical_slug": "vozdushnyi-filtr-151000025aa",
+      "fields": {
+        "title": "Воздушный фильтр Exeed TXL — 151000025AA",
+        "compatibility": "EXEED TXL 1.6 SQRF4J16A (с 04.2019) и SQRF4J16D (с 07.2023), кузов M32T. OEM 151000025AA. Не смешивать с 151000079AA и 151000187AA.",
+        "engine_compatibility": "SQRF4J16A\nSQRF4J16D",
+        "oem_cross_references": "151000025AA",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 151000025AA.\nОсновная применимость: EXEED TXL 1.6 SQRF4J16A (с 04.2019) и SQRF4J16D (с 07.2023), кузов M32T.\nНе смешивать с 151000079AA и 151000187AA.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Exeed", "model": "TXL"},
+      "selected_models": [
+        {"brand": "Exeed", "model": "TXL"}
+      ]
+    },
+    {
+      "article": "151000187AA",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Exeed TXL / VX 2.0 — 151000187AA",
+        "compatibility": "EXEED TXL 2.0 SQRF4J20C, кузов M32T (08.2022–06.2023 и с 07.2023); EXEED VX 2.0 SQRF4J20C, кузов M36T (с 04.2020 и с 07.2023). OEM 151000187AA. Не смешивать с 151000025AA (TXL 1.6) и 151000079AA.",
+        "engine_compatibility": "SQRF4J20C",
+        "oem_cross_references": "151000187AA",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 151000187AA.\nОсновная применимость: EXEED TXL 2.0 SQRF4J20C (кузов M32T) и EXEED VX 2.0 SQRF4J20C (кузов M36T).\nНе смешивать с 151000025AA (TXL 1.6) и 151000079AA.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Exeed", "model": "TXL"},
+      "selected_models": [
+        {"brand": "Exeed", "model": "TXL"},
+        {"brand": "Exeed", "model": "VX"}
+      ]
+    },
+    {
+      "article": "8100422XNZ01A",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Great Wall Poer / Tank 300 — 8100422XNZ01A",
+        "compatibility": "Great Wall Poer 2.0 GW4C20B (с 03.2023), GW4D20M (с 09.2020) и 2.4 GW4D24 (с 05.2024); Tank 300 2.0 E20CB (с 07.2021), E20NA (с 08.2023) и 2.4 E24D (с 08.2024). OEM 8100422XNZ01A. Не смешивать с 8104300XKR02A и 8104400XKR02A.",
+        "engine_compatibility": "GW4C20B\nGW4D20M\nGW4D24\nE20CB\nE20NA\nE24D",
+        "oem_cross_references": "8100422XNZ01A",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8100422XNZ01A.\nОсновная применимость: Great Wall Poer 2.0 GW4C20B / GW4D20M и 2.4 GW4D24; Tank 300 2.0 E20CB / E20NA и 2.4 E24D.\nНе смешивать с 8104300XKR02A и 8104400XKR02A.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Great Wall", "model": "Poer"},
+      "selected_models": [
+        {"brand": "Great Wall", "model": "Poer"},
+        {"brand": "Tank", "model": "300"}
+      ]
+    },
+    {
+      "article": "1017110XED95",
+      "part_type": "oil_filter",
+      "fields": {
+        "title": "Масляный фильтр Great Wall Poer — 1017110XED95",
+        "compatibility": "Great Wall Poer дизель 2.0 GW4D20M (с 09.2020). Haval H5 дизель 2.0 GW4D20M (с 08.2023). Poer King Kong этим артикулом в тексте. OEM 1017110XED95. Не взаимозаменяем с 1017110XEN01. Wingle 7 этим артикулом не подтверждаем.",
+        "engine_compatibility": "GW4D20M",
+        "oem_cross_references": "1017110XED95",
+        "description": "Масляный фильтр предназначен для очистки моторного масла от загрязнений и продуктов износа. OEM: 1017110XED95.\nОсновная применимость: Great Wall Poer дизель 2.0 GW4D20M, Haval H5 дизель 2.0 GW4D20M.\nPoer King Kong — по отдельной строке OEM, без выбранной модели ZPT.\nНе взаимозаменяем с 1017110XEN01.\nWingle 7 этим артикулом не подтверждаем.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Great Wall", "model": "Poer"},
+      "selected_models": [
+        {"brand": "Great Wall", "model": "Poer"},
+        {"brand": "Haval", "model": "H5"}
+      ]
+    }
+  ]
+}

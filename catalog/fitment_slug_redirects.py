@@ -15,6 +15,7 @@ FITMENT_SLUG_REDIRECTS = {
     ),
     'jetour-x70-dashing-x90-plus-f081109111hd': 'vozdushnyi-filtr-f081109111hd',
     'haval-h6': 'salonnyi-filtr-8104400xp24ba',
+    'chery-tiggo-7-2': 'vozdushnyi-filtr-151000025aa',
 }
 
 

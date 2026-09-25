@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "11",
+  "batch": "12",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -816,24 +816,61 @@
     },
     {
       "article": "151000025AA",
-      "status": "zpt_ok_kaspi_shared_overclaim",
+      "status": "batch_12_apply",
       "part_type": "air_filter",
       "zpt": {
         "product_id": 1983,
         "url": "https://zpt.kz/chery-tiggo-7-2/",
-        "current_text": "Exeed TXL only. Do not replace 079AA / 187AA."
+        "was": "TXL without engines; misleading slug chery-tiggo-7-2",
+        "canonical_url": "https://zpt.kz/vozdushnyi-filtr-151000025aa/",
+        "redirect": "301 chery-tiggo-7-2 → vozdushnyi-filtr-151000025aa"
       },
       "kaspi": {
-        "edit_path": "shared_card_blocked",
+        "card_type": "shared_card",
         "public_url": "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-151000025aa-119186252/",
         "card_id": "119186252",
         "sellers_include": "AG Parts plus other shops",
         "card_claim": "Chery/EXEED: Exeed TXL, Tiggo 8, Tiggo 8 Pro, TXL, VX",
-        "correction_request": "Kaspi product 119186252: remove Tiggo 8, Tiggo 8 Pro and VX unless independently confirmed for 151000025AA. Keep EXEED TXL. Do not create a duplicate."
+        "edit_path": "shared_card_blocked",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено",
+        "correction_request": "Kaspi product 119186252: remove Tiggo 8, Tiggo 8 Pro and VX. Keep EXEED TXL 1.6 SQRF4J16A/SQRF4J16D. VX independently uses 151000187AA, not 025AA. Do not create a duplicate."
       },
       "kits": [
         "komplekt-to-exeed-txl-16t"
-      ]
+      ],
+      "packing_article": "151000025AA",
+      "oem": [
+        "151000025AA"
+      ],
+      "analogs_not_this_sku": [
+        "151000079AA",
+        "151000187AA",
+        "100001222",
+        "T151109111"
+      ],
+      "independent_note": "JS A0877 manufacturer catalogue: Chery packing 151000025AA, EXEED TXL SQRF4J16A 04.19~ and SQRF4J16D 07.23~ body M32T. Qoros 100001222 is owner-cross analog, not copied. Tiggo 8 / 8 Pro / VX not on this page. Slug rewrite is internal title-vs-URL mismatch (title TXL, slug Tiggo 7).",
+      "confirmed_fitment": [
+        {
+          "brand": "Exeed",
+          "model": "TXL",
+          "engine": "SQRF4J16A",
+          "body": "M32T",
+          "years": "04.2019~",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809039/A0877",
+          "number_role": "packing SKU"
+        },
+        {
+          "brand": "Exeed",
+          "model": "TXL",
+          "engine": "SQRF4J16D",
+          "body": "M32T",
+          "years": "07.2023~",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809039/A0877",
+          "number_role": "packing SKU"
+        }
+      ],
+      "kit_change": "none — published TXL 1.6 kit already uses 151000025AA; JS A0877 confirms that air filter"
     },
     {
       "article": "1109101XGW01A",
@@ -1752,21 +1789,69 @@
     },
     {
       "article": "1017110XED95",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_12_apply",
       "part_type": "oil_filter",
       "zpt": {
         "url": "https://zpt.kz/great-wall-poer-1017110xed95/",
-        "was": "Poer + Wingle 7 diesel 2.0; not XEN01 petrol"
+        "was": "Poer + Wingle 7 diesel 2.0 without engine code",
+        "canonical_url": "https://zpt.kz/great-wall-poer-1017110xed95/"
       },
-      "independent_note": "Batch 08: still no FitInPart page for packing 1017110XED95. Nearby 1017110XED61 is a different Great Wall part — do not copy. Keep Poer/Wingle 7 diesel 2.0 claim unconfirmed, do not declare incompatible. XEN01 petrol is a different SKU.",
-      "confirmed_fitment": [],
+      "independent_note": "JS OE0167: GREAT WALL / HAVAL packing 1017110XED95. Poer diesel GW4D20M; Poer King Kong GW4D20M; Haval H5 diesel GW4D20M. Wingle 7 is not on this page — not confirmed, not declared incompatible. XEN01 petrol is a different SKU. King Kong has no production CarModel — text only.",
+      "confirmed_fitment": [
+        {
+          "brand": "Great Wall",
+          "model": "Poer",
+          "engine": "GW4D20M",
+          "years": "09.2020~",
+          "source": "https://jsfilter.jp/catalogue/filter/50378582/OE0167",
+          "number_role": "packing SKU"
+        },
+        {
+          "brand": "Haval",
+          "model": "H5",
+          "engine": "GW4D20M",
+          "body": "CC6520BS",
+          "years": "08.2023~",
+          "source": "https://jsfilter.jp/catalogue/filter/50378582/OE0167",
+          "number_role": "packing SKU (HAVAL owner-cross of same packing)"
+        },
+        {
+          "brand": "Great Wall",
+          "model": "Poer King Kong",
+          "engine": "GW4D20M",
+          "body": "CC1030UA",
+          "years": "03.2022~",
+          "source": "https://jsfilter.jp/catalogue/filter/50378582/OE0167",
+          "number_role": "packing SKU",
+          "selected": false,
+          "limit": "no production CarModel Poer King Kong"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "1017110XED95",
+      "oem": [
+        "1017110XED95"
+      ],
+      "analogs_not_this_sku": [
+        "1017110XEN01",
+        "1017110XED61",
+        "1017100XED95"
+      ],
+      "unconfirmed_not_incompatible": [
+        {
+          "brand": "Great Wall",
+          "model": "Wingle 7",
+          "reason": "JS OE0167 does not list Wingle 7 for 1017110XED95; live diesel 2.0 claim removed from confirmed text"
+        }
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "8104400XKY28B",
@@ -2341,21 +2426,52 @@
     },
     {
       "article": "151000187AA",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_12_apply",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/exeed-txl-151000187aa-exeed-txl/",
-        "was": "Exeed TXL"
+        "was": "Exeed TXL / VX without engine codes",
+        "canonical_url": "https://zpt.kz/exeed-txl-151000187aa-exeed-txl/"
       },
-      "independent_note": "Batch 09 remaining: no dedicated FitInPart packing page for 151000187AA. Neighbors 151000079AA (Tiggo 8 Pro/Arrizo 8 1.6) and 151000295AA (Jetour 2.0) are different packing SKUs; TXL kit air is 151000025AA — do not copy any of them onto 187AA. Keep TXL claim unconfirmed. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS A8010 manufacturer catalogue: Chery packing 151000187AA. TXL 2.0 SQRF4J20C M32T 08.22~06.23 and 07.23~; VX 2.0 SQRF4J20C M36T 04.20~ and 07.23~. Do not mix with 025AA (TXL 1.6). FitInPart empty in batch 09, not repeated.",
+      "confirmed_fitment": [
+        {
+          "brand": "Exeed",
+          "model": "TXL",
+          "engine": "SQRF4J20C",
+          "body": "M32T",
+          "years": "08.2022~",
+          "source": "https://www.jsfilter.jp/catalogue/filter/70748775/A8010",
+          "number_role": "packing SKU"
+        },
+        {
+          "brand": "Exeed",
+          "model": "VX",
+          "engine": "SQRF4J20C",
+          "body": "M36T",
+          "years": "04.2020~",
+          "source": "https://www.jsfilter.jp/catalogue/filter/70748775/A8010",
+          "number_role": "packing SKU"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "151000187AA",
+      "oem": [
+        "151000187AA"
+      ],
+      "analogs_not_this_sku": [
+        "151000025AA",
+        "151000079AA",
+        "151000295AA"
+      ],
+      "kits": [],
+      "kit_change": "none — published TXL 1.6 kit uses 151000025AA, not 187AA"
     },
     {
       "article": "1109130U2400",
@@ -2416,21 +2532,79 @@
     },
     {
       "article": "8100422XNZ01A",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_12_apply",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/great-wall-poer/",
-        "was": "Great Wall Poer cabin; weak stored slug great-wall-poer"
+        "was": "Poer + Tank 300 without engines; slug great-wall-poer matches primary model, not a wrong-model intercept",
+        "canonical_url": "https://zpt.kz/great-wall-poer/",
+        "slug_decision": "leave stored slug; not a proven wrong-model URL like chery-tiggo-7-2 or chery-tiggo-8"
       },
-      "independent_note": "Batch 09 remaining: no dedicated FitInPart packing page for 8100422XNZ01A. Neighbors 8104400XKY28A / CJ08XA / XKZ16A are different last-letter SKUs — do not copy. Keep Poer claim unconfirmed. Weak slug is not a proven wrong-model error like HU audi→308; leave slug until independent packing exists. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS AC0341: GREAT WALL packing 8100422XNZ01A. Poer GW4C20B/GW4D20M/GW4D24; Tank 300 E20CB/E20NA/E24D. Other GWM/Haval/Ford numbers on the same page are owner-crosses, not this packing. FitInPart empty in batch 09, not repeated.",
+      "confirmed_fitment": [
+        {
+          "brand": "Great Wall",
+          "model": "Poer",
+          "engine": "GW4C20B",
+          "body": "CC1032QS",
+          "years": "03.2023~",
+          "source": "https://jsfilter.jp/catalogue/filter/53692654/AC0341",
+          "number_role": "packing SKU"
+        },
+        {
+          "brand": "Great Wall",
+          "model": "Poer",
+          "engine": "GW4D20M",
+          "years": "09.2020~",
+          "source": "https://jsfilter.jp/catalogue/filter/53692654/AC0341",
+          "number_role": "packing SKU"
+        },
+        {
+          "brand": "Great Wall",
+          "model": "Poer",
+          "engine": "GW4D24",
+          "body": "CC1033QS",
+          "years": "05.2024~",
+          "source": "https://jsfilter.jp/catalogue/filter/53692654/AC0341",
+          "number_role": "packing SKU"
+        },
+        {
+          "brand": "Tank",
+          "model": "300",
+          "engine": "E20CB / E20NA / E24D",
+          "body": "CC2030BE",
+          "years": "07.2021~",
+          "source": "https://jsfilter.jp/catalogue/filter/53692654/AC0341",
+          "number_role": "packing SKU 8100422XNZ01A"
+        }
+      ],
       "kaspi": {
-        "card_type": "unresolved_public_offer",
+        "card_type": "repricer_pilot_listing",
+        "dump_master_sku": "129914457_677517150",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
-        "status": "подготовлено, не отправлено"
-      }
+        "status": "подготовлено, не отправлено",
+        "should": {
+          "title": "если своя карточка: Салонный фильтр AG Parts 8100422XNZ01A",
+          "models": "Poer GW4C20B/GW4D20M/GW4D24; Tank 300 E20CB/E20NA/E24D. Не копировать Ford EMS1-19G245-AA."
+        }
+      },
+      "packing_article": "8100422XNZ01A",
+      "oem": [
+        "8100422XNZ01A"
+      ],
+      "analogs_not_this_sku": [
+        "8104300X",
+        "8104300XKR02A",
+        "8104300XKR02B",
+        "8104400XKR02A",
+        "EMS1-19G245-AA",
+        "8104400XP24BA",
+        "8104400XKY28B"
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "13033898-00",
@@ -2612,7 +2786,7 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 32,
+    "independently_verified_count": 36,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -2625,15 +2799,11 @@
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "151000187AA",
       "8890649934",
-      "8100422XNZ01A",
-      "1017110XED95",
       "CD569F2801032700",
       "EM2E-8121211E",
       "301001199AA",
-      "301000265AA",
-      "151000025AA"
+      "301000265AA"
     ],
     "verified_after_batch_03": [
       "151000079AA",
@@ -2653,20 +2823,16 @@
     "partial_independent_not_fully_verified": [
       "M111109111",
       "301001199AA",
-      "151000025AA",
       "151000151AA",
       "1064000180",
       "X01-90000014",
       "CD569F2801032700",
-      "1017110XED95",
       "X0390000206",
       "1109110XP6EXACHS",
       "1109130U1510",
       "1109140W5000",
       "RF059ZKR",
-      "151000187AA",
       "EM2E-8121211E",
-      "8100422XNZ01A",
       "FAE1109160",
       "8890649934",
       "301000265AA"
@@ -2864,6 +3030,44 @@
       "1109120U8710",
       "8104400ASZ08A",
       "8100103XKV08A"
+    ],
+    "verified_after_batch_12": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA",
+      "8104400XKY28B",
+      "8104102P3010",
+      "8114010U8520",
+      "272774M400",
+      "HU71151X",
+      "J691109111",
+      "2032047000",
+      "13033898-00",
+      "6600131687",
+      "1109130U2400",
+      "1109120U8710",
+      "8104400ASZ08A",
+      "8100103XKV08A",
+      "151000025AA",
+      "151000187AA",
+      "8100422XNZ01A",
+      "1017110XED95"
     ]
   },
   "batch_03_live": {
@@ -2956,5 +3160,11 @@
       "decision": "leave LEGACY_PRODUCT_SLUG_REDIRECTS byd unchanged; no extra redirect"
     }
   },
-  "progress": {}
+  "batch_11_live": {
+    "sha": "42f494791dc8c9a1936eb813e5067fffe3e722ba",
+    "deploy": "dep-dar6jto473hc73csiajg",
+    "dry_run_job": "job-dar6lvu0tbcc7397ktp0",
+    "apply_job": "job-dar6rch7lnhs73a8v3mg",
+    "apply_summary": "CHANGED 5: 6600131687 Coolray engines (product_id=2118); 1109130U2400 JS6 HFC4GC1.6E (2114); 1109120U8710 S2 HFC4GB2.3D text only (2132); 8104400ASZ08A H2 GW4G15B text only (2121); 8100103XKV08A H9 engines (2119). No price/stock/slug/kit changes. Coolray/JS6/H9 CarModel present; S2/H2 text only."
+  }
 }
