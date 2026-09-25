@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "07",
+  "batch": "08",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -1669,7 +1669,7 @@
         "url": "https://zpt.kz/great-wall-poer-1017110xed95/",
         "was": "Poer + Wingle 7 diesel 2.0; not XEN01 petrol"
       },
-      "independent_note": "No FitInPart page for packing 1017110XED95. Nearby 1017110XED61 is a different Great Wall part — do not copy. Keep Poer/Wingle 7 claim unconfirmed, do not declare incompatible.",
+      "independent_note": "Batch 08: still no FitInPart page for packing 1017110XED95. Nearby 1017110XED61 is a different Great Wall part — do not copy. Keep Poer/Wingle 7 diesel 2.0 claim unconfirmed, do not declare incompatible. XEN01 petrol is a different SKU.",
       "confirmed_fitment": [],
       "kaspi": {
         "card_type": "unresolved_public_offer",
@@ -1848,8 +1848,99 @@
         "url": "https://zpt.kz/changan-uni-k-changan/",
         "was": "UNI-K cabin"
       },
-      "independent_note": "No FitInPart cabin page for CD569F280103-2700. Nearby CD569F260303-* are brake pads/rotors — do not copy onto this packing SKU.",
+      "independent_note": "Batch 08: still no FitInPart cabin page for packing CD569F2801032700 / CD569F280103-2700. Nearby CD569F260303-* and CD569F260301-* are BRAKE pads/rotors (UNI-K/CS75 Plus) — do not copy onto this cabin SKU. Live UNI-K claim kept unconfirmed; UNI-T/UNI-V/CS55 already excluded. Unpublished UNI-K kit still references this cabin; kit composition unchanged.",
       "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "272774M400",
+      "status": "batch_08_apply",
+      "part_type": "cabin_filter",
+      "oem": [
+        "272774M400",
+        "27277-4M400"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/nissan-272774m400-nissan/",
+        "was": "Altima 2002–2006, Maxima 2004–2008; OEM included 27277-VP01A; empty selected"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Nissan",
+          "model": "Altima",
+          "engine": "QR25DE / VQ35DE",
+          "years": "Aug 01~Apr 07",
+          "source": "https://www.fitinpart.sg/v2/en/product/55249/nissan-27277-4m400"
+        },
+        {
+          "brand": "Nissan",
+          "model": "Maxima",
+          "engine": "VQ25DE / VQ35DE",
+          "years": "Oct 04~",
+          "source": "https://www.fitinpart.sg/v2/en/product/55249/nissan-27277-4m400"
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Ford/Geely/Jetour/Infiniti",
+          "reason": "Analog vehicles on OEM page ignored."
+        }
+      ],
+      "note": "Nissan Altima/Maxima not in production CarModel — engines and text only, selected empty. Dedicated OEM page also lists Almera/Murano and other Nissan models; not expanded this batch. 27277-4M425 is a different Nissan number. 27277-VP01A not on dedicated owner list — dropped from OEM field.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "HU71151X",
+      "status": "batch_08_apply",
+      "part_type": "oil_filter",
+      "oem": [
+        "HU71151X",
+        "HU 711/51 X"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/peugeot-308-hu71151x/",
+        "was": "308 selected; OEM split into HU and 711/51; Citroen/Ford Transit/DS4/MINI in text from Mann"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Peugeot",
+          "model": "308",
+          "engine": "EP3C / EP6 / EP6DT / EP6CDT / DW10BTED4",
+          "years": "Jun 07~",
+          "source": "https://www.fitinpart.sg/v2/en/product/69295/mann-filter-hu-71151-x"
+        },
+        {
+          "brand": "Citroen",
+          "model": "C4 Picasso / C5",
+          "source": "https://www.fitinpart.sg/v2/en/product/69295/mann-filter-hu-71151-x"
+        },
+        {
+          "brand": "MINI",
+          "model": "Cooper II",
+          "source": "https://www.fitinpart.sg/v2/en/product/69295/mann-filter-hu-71151-x"
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Ford Transit / DS4 / BMW / Volvo",
+          "reason": "Transit and DS4 not in Vehicles table of this packing page; BMW/Volvo stay as owner-cross only. Do not declare incompatible."
+        }
+      ],
+      "note": "Packing article is Mann HU 711/51 X. Do not rename to Chery/Haval. Citroen/MINI in text only — not in selected (no production CarModel). agparts.kz VAG fitment is not this packing page and is not copied.",
+      "kits": [],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
@@ -1916,7 +2007,7 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 22,
+    "independently_verified_count": 24,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -1935,7 +2026,6 @@
       "8104400ASZ08A",
       "8100103XKV08A",
       "6600131687",
-      "272774M400",
       "151000187AA",
       "1109130U2400",
       "8890649934",
@@ -1946,8 +2036,7 @@
       "13033898-00",
       "301001199AA",
       "301000265AA",
-      "151000025AA",
-      "HU71151X"
+      "151000025AA"
     ],
     "verified_after_batch_03": [
       "151000079AA",
@@ -1970,7 +2059,9 @@
       "151000025AA",
       "151000151AA",
       "1064000180",
-      "X01-90000014"
+      "X01-90000014",
+      "CD569F2801032700",
+      "1017110XED95"
     ],
     "verified_after_batch_04": [
       "151000079AA",
@@ -2050,6 +2141,32 @@
       "8104400XKY28B",
       "8104102P3010",
       "8114010U8520"
+    ],
+    "verified_after_batch_08": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA",
+      "8104400XKY28B",
+      "8104102P3010",
+      "8114010U8520",
+      "272774M400",
+      "HU71151X"
     ]
   },
   "batch_03_live": {

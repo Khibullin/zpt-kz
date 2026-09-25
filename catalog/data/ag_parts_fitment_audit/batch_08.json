@@ -1,0 +1,33 @@
+{
+  "batch_id": "08",
+  "notes": "CD569F2801032700 и 1017110XED95 без dedicated packing-страницы — apply нет, тормозные CD569F260303 и 1017110XED61 не копировать. 272774M400: OEM Nissan 27277-4M400, Altima/Maxima двигатели; Ford/Geely/Jetour не расширять. HU71151X: packing Mann HU 711/51 X, убрать осколки OEM HU / 711/51, двигатели 308; китайские марки не ставить. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
+  "articles": [
+    {
+      "article": "272774M400",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Nissan Altima / Maxima — 272774M400",
+        "compatibility": "Nissan Altima 2.5 QR25DE (08.2001–04.2007) и 3.5 VQ35DE (03.2004–04.2007); Maxima 2.5 VQ25DE / 3.5 VQ35DE (с 10.2004). OEM 272774M400 / 27277-4M400. Кроссы Ford/Geely/Jetour не входят.",
+        "engine_compatibility": "QR25DE\nVQ35DE\nVQ25DE",
+        "oem_cross_references": "272774M400\n27277-4M400",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 272774M400 / 27277-4M400.\nОсновная применимость: Nissan Altima 2.5 QR25DE / 3.5 VQ35DE, Maxima 2.5 VQ25DE / 3.5 VQ35DE.\nКроссы Ford/Geely/Jetour не входят.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "selected_models": []
+    },
+    {
+      "article": "HU71151X",
+      "part_type": "oil_filter",
+      "fields": {
+        "title": "Масляный фильтр Peugeot 308 — HU71151X",
+        "compatibility": "Peugeot 308 1.4 EP3C / 1.6 EP6 / EP6DT / EP6CDT / 2.0 DW10BTED4 (с 06.2007); Citroen C4 Picasso / C5; MINI Cooper II. OEM HU71151X / HU 711/51 X. Картридж, не китайский OEM Chery/Haval.",
+        "engine_compatibility": "EP3C\nEP6\nEP6DT\nEP6CDT\nDW10BTED4",
+        "oem_cross_references": "HU71151X\nHU 711/51 X\n1109AH\n1109AJ\n1109CK",
+        "description": "Масляный фильтр предназначен для очистки моторного масла от загрязнений и продуктов износа. OEM: HU71151X / HU 711/51 X; 1109AH; 1109AJ; 1109CK.\nОсновная применимость: Peugeot 308 1.4 EP3C, 1.6 EP6 / EP6DT / EP6CDT, 2.0 DW10BTED4 (с 06.2007); Citroen C4 Picasso / C5; MINI Cooper II.\nКартридж, не китайский OEM Chery/Haval.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Peugeot", "model": "308"},
+      "selected_models": [
+        {"brand": "Peugeot", "model": "308"}
+      ]
+    }
+  ]
+}
