@@ -1881,5 +1881,12 @@
     "source": "https://www.fitinpart.sg/v2/en/product/76262538/changan-d20t0120700",
     "conclusion": "D20T0120700 independently listed for CS75 Plus 2.0 JL486ZQ4 (Apr 2019–Apr 2021) and CS95, not UNI-K. Removed ×4 from unpublished komplekt-to-changan-uni-k-20t. Draft stays is_active=false. Published kits current==planned, no item diffs.",
     "apply_summary": "UNI-K kit_id=3 is_active=False; items 1109190CR01 x1, CD569F2801032700 x1. Spark not in items."
+  },
+  "batch_06_live": {
+    "sha": "82d66f1336062bbf7b80c70b77226bdb045969f6",
+    "deploy": "dep-dar1gd7f3r2c73cnudp0",
+    "dry_run_job": "job-dar1l1vlot8c73e4ggq0",
+    "apply_job": "job-dar1m28473hc739grh20",
+    "apply_summary": "CHANGED 4: X01-90000014 OEM unmix keep L6-L9 no engines; S1010140400 CS35 Plus/engines; S111F2801031700 engines Ford/Volvo out; 8104400XP24BA slug 301 haval-h6 plus Wingle 6/7 engines."
   }
 }
