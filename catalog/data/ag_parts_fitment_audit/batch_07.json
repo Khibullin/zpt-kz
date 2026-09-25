@@ -1,0 +1,53 @@
+{
+  "batch_id": "07",
+  "notes": "8104400XKY28B: двигатели Haval Dargo/F7/F7x/Jolion с dedicated OEM; VAG/Porsche не расширять; XKY28A другой артикул. 8104102P3010: packing JAC T8 HFC4DB21D1, не T6; кроссы Mazda/Chrysler не входят. 8114010U8520: двигатели S3/JS4/J7, JS3 в тексте; Hyundai/Kia 97133 не входят. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "articles": [
+    {
+      "article": "8104400XKY28B",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Haval F7 / Dargo / Jolion — 8104400XKY28B",
+        "compatibility": "Haval Dargo 1.5 GW4B15A (с 09.2020) и 2.0 GW4N20 (с 01.2021); F7 1.5 GW4B15A / 2.0 GW4C20 (11.2018–07.2024); F7x; Jolion 1.5 GW4G15K / GW4B15D (с 04.2021). OEM 8104400XKY28B. Не смешивать с 8104400XP24BA и 8104400XKY28A. Кроссы VAG/Porsche не входят.",
+        "engine_compatibility": "GW4B15A\nGW4N20\nGW4C20\nGW4G15K\nGW4B15D",
+        "oem_cross_references": "8104400XKY28B",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8104400XKY28B.\nОсновная применимость: Haval Dargo 1.5 GW4B15A / 2.0 GW4N20, F7 1.5 GW4B15A / 2.0 GW4C20, F7x, Jolion 1.5 GW4G15K / GW4B15D.\nНе смешивать с 8104400XP24BA и 8104400XKY28A.\nКроссы VAG/Porsche не входят.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Haval", "model": "F7"},
+      "selected_models": [
+        {"brand": "Haval", "model": "Dargo"},
+        {"brand": "Haval", "model": "F7"},
+        {"brand": "Haval", "model": "F7x"},
+        {"brand": "Haval", "model": "Jolion"}
+      ]
+    },
+    {
+      "article": "8104102P3010",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр JAC T8 — 8104102P3010",
+        "compatibility": "JAC T8 2.0 HFC4DB21D1 (с 08.2018); Changan Hunter Plus 2.0 JL486ZQ5 (с 10.2023); Kaicene F70 2.4 4K22D4T (с 10.2019). OEM 8104102P3010. Кроссы Mazda/Chrysler не входят.",
+        "engine_compatibility": "HFC4DB21D1\nJL486ZQ5\n4K22D4T",
+        "oem_cross_references": "8104102P3010",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8104102P3010.\nОсновная применимость: JAC T8 2.0 HFC4DB21D1 (с 08.2018), Changan Hunter Plus 2.0 JL486ZQ5 (с 10.2023), Kaicene F70 2.4 4K22D4T (с 10.2019).\nКроссы Mazda/Chrysler не входят.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "selected_models": []
+    },
+    {
+      "article": "8114010U8520",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр JAC S3 / JS4 / J7 — 8114010U8520",
+        "compatibility": "JAC S3 1.6 HFC4GB3-3D (с 09.2016); JS4 1.5 HFC4GB24D (с 07.2022); J7 1.5 HFC4GB2.4E (с 07.2020); JS3 1.6 HFC4GB3-3D (с 01.2022). OEM 8114010U8520. Номера Hyundai/Kia 97133 не входят.",
+        "engine_compatibility": "HFC4GB3-3D\nHFC4GB24D\nHFC4GB2.4E",
+        "oem_cross_references": "8114010U8520",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8114010U8520.\nОсновная применимость: JAC S3 1.6 HFC4GB3-3D, JS4 1.5 HFC4GB24D, J7 1.5 HFC4GB2.4E, JS3 1.6 HFC4GB3-3D.\nНомера Hyundai/Kia 97133 не входят.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "JAC", "model": "S3"},
+      "selected_models": [
+        {"brand": "JAC", "model": "J7"},
+        {"brand": "JAC", "model": "JS4"},
+        {"brand": "JAC", "model": "S3"}
+      ]
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "06",
+  "batch": "07",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -1678,6 +1678,185 @@
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
       }
+    },
+    {
+      "article": "8104400XKY28B",
+      "status": "batch_07_apply",
+      "part_type": "cabin_filter",
+      "oem": [
+        "8104400XKY28B"
+      ],
+      "analogs_not_this_sku": [
+        "8104400XKY28A",
+        "8104400XP24BA",
+        "8104400XKZ96A"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/haval-f7-8104400xky28b-haval-f7/",
+        "was": "Dargo/F7/F7x/Jolion, no engines"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "Haval",
+          "model": "Dargo",
+          "engine": "GW4B15A / GW4N20",
+          "source": "https://www.fitinpart.sg/v2/en/product/70778903/great-wall-8104400xky28b"
+        },
+        {
+          "brand": "Haval",
+          "model": "F7",
+          "engine": "GW4B15A / GW4C20",
+          "years": "Nov 18~Jul 24",
+          "source": "https://www.fitinpart.sg/v2/en/product/70778903/great-wall-8104400xky28b"
+        },
+        {
+          "brand": "Haval",
+          "model": "Jolion",
+          "engine": "GW4G15K / GW4B15D",
+          "years": "Apr 21~",
+          "source": "https://www.fitinpart.sg/v2/en/product/70778903/great-wall-8104400xky28b"
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "VAG/Porsche/Mercedes",
+          "reason": "Analog vehicles on OEM page ignored."
+        }
+      ],
+      "note": "Keep F7x selected (already on card). 8104400XKY28A is a different last letter. Dargo kit still lists XKZ96A as disputed cabin — kit unchanged.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "8104102P3010",
+      "status": "batch_07_apply",
+      "part_type": "cabin_filter",
+      "oem": [
+        "8104102P3010"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/jac-8104102p3010-jac/",
+        "was": "JAC T6 Shuailing T6, empty selected"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "JAC",
+          "model": "T8",
+          "engine": "HFC4DB21D1",
+          "years": "Aug 18~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075623/jac-8104102p3010"
+        },
+        {
+          "brand": "Changan",
+          "model": "Hunter Plus",
+          "engine": "JL486ZQ5",
+          "years": "Oct 23~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075623/jac-8104102p3010"
+        },
+        {
+          "brand": "Changan",
+          "model": "Kaicene F70",
+          "engine": "4K22D4T",
+          "years": "Oct 19~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075623/jac-8104102p3010"
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Mazda/Chrysler/Dodge/Jeep",
+          "reason": "Analog vehicles on OEM page ignored."
+        }
+      ],
+      "note": "T6 claim removed — dedicated page lists T8, not T6. T8/Hunter/Kaicene not in production CarModel; text only, selected empty. Do not declare T6 incompatible.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "8114010U8520",
+      "status": "batch_07_apply",
+      "part_type": "cabin_filter",
+      "oem": [
+        "8114010U8520"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/jac-s3-8114010u8520-jac-s3/",
+        "was": "selected S3/JS4/J7, no engines, Hyundai/Kia 97133 already excluded"
+      },
+      "confirmed_fitment": [
+        {
+          "brand": "JAC",
+          "model": "S3",
+          "engine": "HFC4GB3-3D",
+          "years": "Sep 16~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075619/jac-8114010u8520"
+        },
+        {
+          "brand": "JAC",
+          "model": "JS4",
+          "engine": "HFC4GB24D",
+          "years": "Jul 22~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075619/jac-8114010u8520"
+        },
+        {
+          "brand": "JAC",
+          "model": "J7",
+          "engine": "HFC4GB2.4E",
+          "years": "Jul 20~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075619/jac-8114010u8520"
+        },
+        {
+          "brand": "JAC",
+          "model": "JS3",
+          "engine": "HFC4GB3-3D",
+          "years": "Jan 22~",
+          "source": "https://www.fitinpart.sg/v2/en/product/71075619/jac-8114010u8520"
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Hyundai/Kia",
+          "reason": "Analog vehicles on OEM page ignored."
+        }
+      ],
+      "note": "JS3 in text only — not in production CarModel. selected S3/JS4/J7.",
+      "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "CD569F2801032700",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "cabin_filter",
+      "zpt": {
+        "url": "https://zpt.kz/changan-uni-k-changan/",
+        "was": "UNI-K cabin"
+      },
+      "independent_note": "No FitInPart cabin page for CD569F280103-2700. Nearby CD569F260303-* are brake pads/rotors — do not copy onto this packing SKU.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
     }
   ],
   "live_assortment": {
@@ -1737,7 +1916,7 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 19,
+    "independently_verified_count": 22,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -1753,10 +1932,7 @@
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "8114010U8520",
-      "8104400XKY28B",
       "8104400ASZ08A",
-      "8104102P3010",
       "8100103XKV08A",
       "6600131687",
       "272774M400",
@@ -1850,6 +2026,30 @@
       "S1010140400",
       "S111F2801031700",
       "8104400XP24BA"
+    ],
+    "verified_after_batch_07": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA",
+      "8104400XKY28B",
+      "8104102P3010",
+      "8114010U8520"
     ]
   },
   "batch_03_live": {
