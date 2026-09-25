@@ -126,10 +126,7 @@ class AgPartsFitmentBatch10Tests(TestCase):
         self.assertIn('SQRD4G15B', self.j69.engine_compatibility)
         self.assertIn('J69-1109111', self.j69.oem_cross_references)
         self.assertNotIn('ADBP220237', self.j69.oem_cross_references)
-        self.assertEqual(
-            set(self.j69.selected_models.values_list('name', flat=True)),
-            {'Tiggo 2'},
-        )
+        self.assertFalse(self.j69.selected_models.exists())
         j69_page = self.client.get('/j691109111/')
         self.assertEqual(j69_page.status_code, 200)
         self.assertContains(j69_page, 'SQRD4G15B')
@@ -146,8 +143,9 @@ class AgPartsFitmentBatch10Tests(TestCase):
         self.assertIn('8888475602', self.geely_air.oem_cross_references)
         self.assertEqual(
             set(self.geely_air.selected_models.values_list('name', flat=True)),
-            {'Monjaro', 'Tugella'},
+            {'Monjaro'},
         )
+        self.assertNotIn('Tugella', list(self.geely_air.selected_models.values_list('name', flat=True)))
         geely_page = self.client.get('/2032047000/')
         self.assertEqual(geely_page.status_code, 200)
         self.assertContains(geely_page, 'JLH-4G20TDJ')

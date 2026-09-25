@@ -1,6 +1,6 @@
 {
   "batch_id": "10",
-  "notes": "J691109111: packing без дефиса, OEM Chery J69-1109111, Tiggo 2 SQRD4G15B 03.2017–01.2020; кроссы ADBP/ELP не копировать. 2032047000: packing Geely OEM, двигатели с 17vin; Lynk 05 не подтверждаем; 2032061800 не копировать. 13033898-00: packing BYD Tang/DM/EV/DM-i, материал ST-8121211E-E1 не путать с packing EM2E-8121211E. 301000265AA: внутренний slug chery-tiggo-8 → salonnyi-filtr-301000265aa, текст не меняем. FAE1109160 и 8890649934 без dedicated OEM-страницы — apply нет. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
+  "notes": "J691109111: packing без дефиса, OEM Chery J69-1109111, Tiggo 2 SQRD4G15B 03.2017–01.2020; кроссы ADBP/ELP не копировать; selected Tiggo 2 нет в production CarModel — только текст. 2032047000: packing Geely OEM, двигатели с 17vin; selected только Monjaro (Tugella/Preface/Atlas L нет в production CarModel); Lynk 05 не подтверждаем; 2032061800 не копировать. 13033898-00: packing BYD Tang/DM/EV/DM-i, материал ST-8121211E-E1 не путать с packing EM2E-8121211E. 301000265AA: внутренний slug chery-tiggo-8 → salonnyi-filtr-301000265aa, текст не меняем. FAE1109160 и 8890649934 без dedicated OEM-страницы — apply нет. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
   "articles": [
     {
       "article": "J691109111",
@@ -11,11 +11,7 @@
         "engine_compatibility": "SQRD4G15B",
         "oem_cross_references": "J691109111\nJ69-1109111",
         "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: J691109111 / J69-1109111.\nОсновная применимость: Chery Tiggo 2 1.5 SQRD4G15B, кузов DB11B2H (03.2017–01.2020).\nНе смешивать с T11-1109111.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
-      },
-      "primary_model": {"brand": "Chery", "model": "Tiggo 2"},
-      "selected_models": [
-        {"brand": "Chery", "model": "Tiggo 2"}
-      ]
+      }
     },
     {
       "article": "2032047000",
@@ -29,8 +25,7 @@
       },
       "primary_model": {"brand": "Geely", "model": "Monjaro"},
       "selected_models": [
-        {"brand": "Geely", "model": "Monjaro"},
-        {"brand": "Geely", "model": "Tugella"}
+        {"brand": "Geely", "model": "Monjaro"}
       ]
     },
     {
