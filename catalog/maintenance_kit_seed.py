@@ -19,8 +19,9 @@ from catalog.models import Brand, CarModel, MaintenanceKit, MaintenanceKitItem, 
 
 UNI_K_INCOMPLETE_WARNING = (
     'Неполный комплект: отсутствует подтверждённый масляный фильтр. '
+    'Салонный CD569F2801032700: артикул уточняется. '
     'Свеча D20T0120700 для UNI-K не подтверждаем. '
-    'Не публиковать, пока SKU масляного фильтра и свечи не подтверждены.'
+    'Не публиковать, пока SKU масляного, салонного фильтра и свечи не подтверждены.'
 )
 
 COVER_SPARKS_EXCLUDED_CAPTION = (
@@ -82,6 +83,9 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # D20T0120700 spark — CS75 Plus 2.0 JL486ZQ4 Apr 2019–Apr 2021 and CS95.
 #   UNI-K is not listed. Keep as reference only, not a UNI-K kit item:
 #   https://www.fitinpart.sg/v2/en/product/76262538/changan-d20t0120700
+# CD569F2801032700 cabin — no dedicated packing page. UNI-K vehicle catalog
+#   lists neighbor cabin CD569F280103-2701, not 2700. Brake CD569F260303-*
+#   are different parts. Keep 2700 as reference only: артикул уточняется.
 
 KIT_SPECS = (
     {
@@ -220,6 +224,16 @@ KIT_SPECS = (
                 'note': 'В набор не входит. OEM неизвестен.',
             },
             {
+                'type_label': 'Салонный фильтр',
+                'article': 'CD569F2801032700',
+                'note': (
+                    'В набор не входит. Артикул уточняется: независимой '
+                    'packing-страницы для CD569F2801032700 нет, каталог UNI-K '
+                    'указывает соседний CD569F280103-2701. Тормозные '
+                    'CD569F260303 не копируем. Несовместимость не объявляем.'
+                ),
+            },
+            {
                 'type_label': 'Свеча зажигания',
                 'article': '',
                 'note': (
@@ -232,7 +246,6 @@ KIT_SPECS = (
         'publish_if_complete': False,
         'items': (
             ('1109190CR01', 1),
-            ('CD569F2801032700', 1),
         ),
     },
     {

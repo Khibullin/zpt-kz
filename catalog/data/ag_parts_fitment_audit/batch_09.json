@@ -1,0 +1,11 @@
+{
+  "batch_id": "09",
+  "notes": "HU71151X: внутренний slug audi → peugeot-308-hu71151x. Публичный канон и 301 /audi/ уже в LEGACY_PRODUCT_SLUG_REDIRECTS, дублировать FITMENT_SLUG_REDIRECTS нельзя. Текст карточки не меняем (партия 08). CD569 UNI-K — через seed комплекта, не Product. Цены, остатки, фото, PP1/PP2, опубликованные комплекты ТО не меняем.",
+  "articles": [
+    {
+      "article": "HU71151X",
+      "part_type": "oil_filter",
+      "canonical_slug": "peugeot-308-hu71151x"
+    }
+  ]
+}

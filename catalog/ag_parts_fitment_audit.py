@@ -16,6 +16,7 @@ from django.db import transaction
 from django.db.models import Q
 
 from catalog.fitment_slug_redirects import FITMENT_SLUG_REDIRECTS
+from catalog.legacy_product_urls import LEGACY_PRODUCT_SLUG_REDIRECTS
 from catalog.models import Brand, CarModel, Product, ProductKaspiListing
 
 
@@ -69,6 +70,13 @@ class FitmentPlan:
     update_primary: bool = False
     update_selected: bool = False
     new_slug: str = ''
+
+
+def slug_redirect_map() -> dict[str, str]:
+    """Old→canonical public slugs: legacy aliases plus fitment 301s."""
+    mapping = dict(LEGACY_PRODUCT_SLUG_REDIRECTS)
+    mapping.update(FITMENT_SLUG_REDIRECTS)
+    return mapping
 
 
 def batch_path(batch_id: str) -> Path:
@@ -261,11 +269,12 @@ def plan_fitment_batch(spec: dict) -> list[FitmentPlan]:
                 if not wanted:
                     raise FitmentAuditError(f'{article}: пустой canonical_slug.')
                 old_for_wanted = {
-                    new: old for old, new in FITMENT_SLUG_REDIRECTS.items()
+                    new: old for old, new in slug_redirect_map().items()
                 }.get(wanted)
                 if not old_for_wanted:
                     raise FitmentAuditError(
-                        f'{article}: slug {wanted} нет в FITMENT_SLUG_REDIRECTS.'
+                        f'{article}: slug {wanted} нет в FITMENT_SLUG_REDIRECTS '
+                        'или LEGACY_PRODUCT_SLUG_REDIRECTS.'
                     )
                 if product.slug not in (wanted, old_for_wanted):
                     raise FitmentAuditError(

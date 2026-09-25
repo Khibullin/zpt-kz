@@ -912,12 +912,22 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertEqual(exeed.items.count(), 4)
         self.assertEqual(univ.items.count(), 2)
         self.assertEqual(dargo.items.count(), 2)
-        self.assertEqual(changan.items.count(), 2)
+        self.assertEqual(changan.items.count(), 1)
         self.assertFalse(changan.items.filter(product__article='D20T0120700').exists())
+        self.assertFalse(
+            changan.items.filter(product__article='CD569F2801032700').exists()
+        )
         self.assertEqual(
             list(changan.items.order_by('id').values_list('product__article', 'quantity')),
-            [('1109190CR01', 1), ('CD569F2801032700', 1)],
+            [('1109190CR01', 1)],
         )
+        cabin_ref = next(
+            line
+            for line in changan.reference_lines
+            if line.get('type_label') == 'Салонный фильтр'
+        )
+        self.assertEqual(cabin_ref['article'], 'CD569F2801032700')
+        self.assertIn('артикул уточняется', cabin_ref['note'].lower())
         self.assertEqual(t8pro.items.count(), 2)
         self.assertFalse(t8pro.items.filter(product__article='F4J161012030').exists())
         self.assertFalse(t8pro.items.filter(product__article='301001199AA').exists())
@@ -940,7 +950,7 @@ class MaintenanceKitSeedTests(TestCase):
 
         apply_maintenance_kits()
         self.assertEqual(MaintenanceKit.objects.count(), 10)
-        self.assertEqual(MaintenanceKitItem.objects.count(), 28)
+        self.assertEqual(MaintenanceKitItem.objects.count(), 27)
         chery.refresh_from_db()
         self.assertEqual(chery.items.count(), 3)
         self.assertFalse(chery.items.filter(product__article='F4J163707010').exists())
@@ -965,6 +975,29 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertEqual(spark.article, 'F4J163707010')
         self.assertEqual(spark.price, 1000)
         self.assertEqual(spark.stock_qty, 5)
+
+    def test_apply_removes_unconfirmed_uni_k_cabin_and_does_not_restore_it(self):
+        apply_maintenance_kits()
+        kit = MaintenanceKit.objects.get(slug='komplekt-to-changan-uni-k-20t')
+        cabin = Product.objects.get(article='CD569F2801032700')
+        MaintenanceKitItem.objects.create(kit=kit, product=cabin, quantity=1)
+        self.assertEqual(kit.items.count(), 2)
+
+        apply_maintenance_kits()
+        kit.refresh_from_db()
+        self.assertEqual(kit.items.count(), 1)
+        self.assertFalse(kit.items.filter(product=cabin).exists())
+        self.assertFalse(kit.is_active)
+        cabin_ref = next(
+            line
+            for line in kit.reference_lines
+            if line.get('type_label') == 'Салонный фильтр'
+        )
+        self.assertEqual(cabin_ref['article'], 'CD569F2801032700')
+        self.assertIn('артикул уточняется', cabin_ref['note'].lower())
+        cabin.refresh_from_db()
+        self.assertEqual(cabin.price, 1000)
+        self.assertEqual(cabin.stock_qty, 5)
 
     def test_ambiguous_article_skips_kit(self):
         _make_product(article='T151109111-DUP', title='dup')
@@ -1130,7 +1163,8 @@ class MaintenanceKitSeedTests(TestCase):
         unik = MaintenanceKit.objects.get(slug='komplekt-to-changan-uni-k-20t')
         self.assertFalse(unik.is_active)
         self.assertFalse(unik.items.filter(product__article='D20T0120700').exists())
-        self.assertEqual(unik.items.count(), 2)
+        self.assertFalse(unik.items.filter(product__article='CD569F2801032700').exists())
+        self.assertEqual(unik.items.count(), 1)
         before = {}
         for slug, (engine, articles) in protected.items():
             kit = MaintenanceKit.objects.get(slug=slug)

@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "08",
+  "batch": "09",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -1842,14 +1842,16 @@
     },
     {
       "article": "CD569F2801032700",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_09_kit_reference",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/changan-uni-k-changan/",
         "was": "UNI-K cabin"
       },
-      "independent_note": "Batch 08: still no FitInPart cabin page for packing CD569F2801032700 / CD569F280103-2700. Nearby CD569F260303-* and CD569F260301-* are BRAKE pads/rotors (UNI-K/CS75 Plus) — do not copy onto this cabin SKU. Live UNI-K claim kept unconfirmed; UNI-T/UNI-V/CS55 already excluded. Unpublished UNI-K kit still references this cabin; kit composition unchanged.",
+      "independent_note": "Batch 09: still no dedicated packing cabin page for CD569F2801032700 / CD569F280103-2700. FitInPart UNI-K vehicle catalog lists cabin CD569F280103-2701 (neighbor, last digit), not 2700. Brake CD569F260303-* / CD569F260301-* are different parts. Live UNI-K product claim kept unconfirmed; not declared incompatible. Unpublished UNI-K draft: removed from sellable items, kept in reference_lines as артикул уточняется.",
       "confirmed_fitment": [],
+      "kits": ["komplekt-to-changan-uni-k-20t"],
+      "kit_change": "Removed CD569F2801032700 from unpublished komplekt-to-changan-uni-k-20t items. Reference line keeps the article with note артикул уточняется. publish_if_complete stays false. Seed must not restore it as a kit item.",
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
@@ -1904,7 +1906,7 @@
     },
     {
       "article": "HU71151X",
-      "status": "batch_08_apply",
+      "status": "batch_09_stored_slug",
       "part_type": "oil_filter",
       "oem": [
         "HU71151X",
@@ -1912,6 +1914,7 @@
       ],
       "zpt": {
         "url": "https://zpt.kz/peugeot-308-hu71151x/",
+        "stored_slug_before": "audi",
         "was": "308 selected; OEM split into HU and 711/51; Citroen/Ford Transit/DS4/MINI in text from Mann"
       },
       "confirmed_fitment": [
@@ -1939,8 +1942,86 @@
           "reason": "Transit and DS4 not in Vehicles table of this packing page; BMW/Volvo stay as owner-cross only. Do not declare incompatible."
         }
       ],
-      "note": "Packing article is Mann HU 711/51 X. Do not rename to Chery/Haval. Citroen/MINI in text only — not in selected (no production CarModel). agparts.kz VAG fitment is not this packing page and is not copied.",
+      "note": "Packing article is Mann HU 711/51 X. Do not rename to Chery/Haval. Citroen/MINI in text only — not in selected (no production CarModel). agparts.kz VAG fitment is not this packing page and is not copied. Stored Product.slug was audi (slugify leftover); public URL already remapped by LEGACY_PRODUCT_SLUG_REDIRECTS audi→peugeot-308-hu71151x. Batch 09 writes the stored slug to the canonical value; /audi/ stays 301. Do not add the same pair to FITMENT_SLUG_REDIRECTS (duplicate URL patterns).",
       "kits": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "X0390000206",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "cabin_filter",
+      "zpt": {
+        "url": "https://zpt.kz/li-auto-l7-x0390000206-li-auto-l7/",
+        "was": "Li Auto L6/L7; L8/L9 excluded as X01-90000044"
+      },
+      "independent_note": "Batch 09: no FitInPart page for packing X0390000206. Keep L6/L7 claim unconfirmed; do not copy X01-90000014 air applications. Do not declare L8/L9 incompatible beyond the existing X01-90000044 split. No apply.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "1109110XP6EXACHS",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "air_filter",
+      "zpt": {
+        "url": "https://zpt.kz/1109110xp6exachs/",
+        "was": "GWM Poer 2024–2025 2.0T"
+      },
+      "independent_note": "Batch 09: no FitInPart page for packing 1109110XP6EXACHS. Neighbor 1109110XP64XA / 1109110-P64 is Wingle 5/7 — do not copy onto this SKU. Keep Poer 2.0T claim unconfirmed. No apply.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "6600131687",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "cabin_filter",
+      "independent_note": "Batch 09: no FitInPart packing page for 6600131687. Nearby Geely cabin 6608126457 / 6608160467 / 8025530600 (Monjaro/Xingyue L) are different numbers — do not copy. No apply.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "8104400ASZ08A",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "cabin_filter",
+      "independent_note": "Batch 09: no dedicated FitInPart page for packing 8104400ASZ08A. Nearby 8104400XKZ16A / XKY28A / CJ08XA are different last-letter SKUs — do not copy. No apply.",
+      "confirmed_fitment": [],
+      "kaspi": {
+        "card_type": "unresolved_public_offer",
+        "public_url": null,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено"
+      }
+    },
+    {
+      "article": "8100103XKV08A",
+      "status": "researched_no_independent_oem_page",
+      "part_type": "cabin_filter",
+      "independent_note": "Batch 09: no dedicated FitInPart page for packing 8100103XKV08A. Nearby 1109110XKV08A is an air filter for Haval H9; 3502110XKV08A is brake pads — do not copy. No apply.",
+      "confirmed_fitment": [],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
@@ -2061,7 +2142,12 @@
       "1064000180",
       "X01-90000014",
       "CD569F2801032700",
-      "1017110XED95"
+      "1017110XED95",
+      "X0390000206",
+      "1109110XP6EXACHS",
+      "6600131687",
+      "8104400ASZ08A",
+      "8100103XKV08A"
     ],
     "verified_after_batch_04": [
       "151000079AA",
@@ -2143,6 +2229,32 @@
       "8114010U8520"
     ],
     "verified_after_batch_08": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA",
+      "8104400XKY28B",
+      "8104102P3010",
+      "8114010U8520",
+      "272774M400",
+      "HU71151X"
+    ],
+    "verified_after_batch_09": [
       "151000079AA",
       "F4J163707010",
       "1017110XEN01",
