@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "03",
+  "batch": "04",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -325,7 +325,7 @@
     },
     {
       "article": "M111109111",
-      "status": "zpt_live_kaspi_offer_unresolved",
+      "status": "zpt_keep_a3_m11_no_x70",
       "part_type": "air_filter",
       "packing_article": "M111109111",
       "oem": [
@@ -347,7 +347,8 @@
         {
           "brand": "Chery",
           "model": "A3 / M11",
-          "claim": "Air filter for Chery A3 / Chance M11. Jetour X70 uses F01/T15-1109111 family."
+          "claim": "Keep established boundary. X70 air is F01/T15-1109111.",
+          "source": "https://www.fitinpart.sg/v2/en/product/70390181/jetour-f01-1109111"
         }
       ],
       "rejected_fitment": [
@@ -369,13 +370,15 @@
         "was": null,
         "should": {
           "title": "Воздушный фильтр Chery A3 / M11 — M111109111",
-          "models": "Chery A3, Chery M11 / Chance. Не Jetour X70."
+          "models": "Chery A3, Chery M11 / Chance. Не Jetour X70. Не M12 без отдельного OEM."
         },
         "public_lookalikes_not_ours": [
           "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-m111109111-161941852/"
         ],
-        "lookalike_note": "161941852: продавец CAR KIT AUTO, модели M11, AG Parts нет. URL 343875218 — 404."
-      }
+        "lookalike_note": "161941852: продавец CAR KIT AUTO, модели M11, AG Parts нет. URL 343875218 — 404.",
+        "status": "подготовлено, не отправлено"
+      },
+      "independent_note": "FitInPart has no M11-1109111 air page. M11-8107915 is cabin A3/M11. Parts shops list M11/A3 1.6 2010; M12 is seller-only — do not expand. Live card already A3/M11, not X70."
     },
     {
       "article": "F4J161012030",
@@ -527,7 +530,7 @@
     },
     {
       "article": "301001199AA",
-      "status": "confirmed_strip_8pro_slug_redirect",
+      "status": "zpt_keep_txl_vx_no_8pro",
       "part_type": "cabin_filter",
       "oem": [
         "301001199AA",
@@ -547,12 +550,12 @@
         {
           "brand": "Exeed",
           "model": "TXL",
-          "source": "live card + seller catalogs Autopiter/atvgid; no FitInPart page"
+          "source": "https://part-kom.ru/products/3589483677"
         },
         {
           "brand": "Exeed",
           "model": "VX",
-          "source": "live card + seller catalogs Autopiter/atvgid; no FitInPart page"
+          "source": "https://part-kom.ru/products/3589483677"
         }
       ],
       "rejected_fitment": [
@@ -567,8 +570,24 @@
       ],
       "kit_change": "none — TXL kit keeps 199AA; 8 Pro kit uses T218",
       "kaspi": {
-        "edit_path": "after_zpt_apply"
-      }
+        "card_type": "lookalike_not_proven_ours",
+        "public_url": "https://kaspi.kz/shop/p/chery-exeed-salonnyi-fil-tr-301001199aa-135422517/",
+        "product_id": "135422517",
+        "sellers_confirmed_ag_parts": false,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено",
+        "was": {
+          "title": "Chery/Exeed салонный фильтр 301001199AA",
+          "models": "Tiggo 8, Tiggo 8 Pro"
+        },
+        "should": {
+          "title": "если своя/shared с AG Parts: Салонный фильтр 301001199AA",
+          "models": "EXEED TXL, EXEED VX. Убрать Tiggo 8 и Tiggo 8 Pro."
+        },
+        "lookalike_note": "135422517: бренд Chery/Exeed, модели Tiggo 8 / 8 Pro. AG Parts в названии нет. Не доказано наше предложение."
+      },
+      "independent_note": "Still no FitInPart page for 301001199AA. Part-Kom original listing TXL/VX. atvgid also names Tiggo 8 Pro — seller title; 8 Pro 1.6 independently uses T21-8107011. Live zpt already TXL/VX."
     },
     {
       "article": "4801012010",
@@ -1123,7 +1142,7 @@
     },
     {
       "article": "F081109111HD",
-      "status": "independent_partial_next_batch",
+      "status": "batch_04_apply",
       "part_type": "air_filter",
       "oem": [
         "F081109111HD",
@@ -1154,22 +1173,98 @@
           "source": "https://www.fitinpart.sg/v2/en/product/70390188/jetour-f08-1109111hd"
         }
       ],
-      "note": "Live claims bare X70. OEM page names X70PLUS. Next batch: engine-narrow, do not declare X70 incompatible. Analog page also lists VW/Citroen — ignore analog vehicles.",
+      "note": "OEM FitInPart: Dashing X-1 SQRF4J16A/C, X70PLUS SQRF4J16, X90PLUS SQRF4J16/SQRF4J20. Public text uses Plus; catalog models are X70/X90. Bare X70 claim removed, not declared incompatible. Analog VW/Citroen/Ford ignored. Soueast S07/S09 not expanded.",
       "kaspi": {
         "card_type": "lookalike_not_proven_ours",
         "public_url": "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-f08-1109111hd-148505767/",
+        "product_id": "148505767",
+        "sellers_confirmed_ag_parts": false,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
         "status": "подготовлено, не отправлено",
-        "lookalike_note": "148505767: Chery/Jetour Dashing, X90 Plus, X70 Plus, X90. AG Parts не подтверждён."
-      }
+        "was": {
+          "title": "Воздушный фильтр F08-1109111HD",
+          "brands": "Chery, Jetour",
+          "models": "Dashing, X90 Plus, X70 Plus, X90"
+        },
+        "should": {
+          "title": "если своя/shared с AG Parts: Воздушный фильтр F081109111HD",
+          "models": "Dashing 1.6 SQRF4J16A/C, X70 Plus 1.6 SQRF4J16, X90 Plus 1.6/2.0. Убрать Chery. Убрать голое X90. Не VW/Citroen по аналогу 1444-L8."
+        },
+        "public_lookalikes_not_ours": [
+          "https://kaspi.kz/shop/p/vozdushnyi-fil-tr-f08-1109111hd-148505767/",
+          "https://kaspi.kz/shop/p/555-vozdushnyi-fil-tr-jetour-dashing-f08-1109111hd-146465814/"
+        ],
+        "lookalike_note": "148505767 и 146465814: AG Parts как продавец не подтверждён. Чужая карточка ≠ наше предложение."
+      },
+      "analogs_not_this_sku": [
+        "T15-1109111",
+        "T151109111",
+        "M111109111",
+        "1444-L8"
+      ],
+      "unconfirmed_not_incompatible": [
+        {
+          "brand": "Jetour",
+          "model": "X70",
+          "reason": "OEM page names X70PLUS, not bare X70. Remove bare-X70 claim; do not declare incompatible."
+        }
+      ],
+      "not_expanded_this_batch": [
+        {
+          "brand": "Soueast",
+          "model": "S07/S09",
+          "reason": "Independently listed; do not expand."
+        }
+      ],
+      "kits": [],
+      "kit_change": "none"
     },
     {
       "article": "151000151AA",
-      "status": "unverified_no_fitinpart_page",
+      "status": "batch_04_apply_strip_unconfirmed_models",
       "part_type": "air_filter",
-      "note": "Seller catalogs name Tiggo 8 / 8 Pro / RX / J7. That is not independent OEM proof. Do not apply. Analog of 151000079AA in batch 01 text only.",
+      "note": "No FitInPart OEM page. Seller/aftermarket titles are not proof. Strip all model claims; keep analog warnings vs 079AA and T151. Do not declare Tiggo 9 / RX / J8 incompatible.",
       "kaspi": {
-        "status": "не искали карточку AG Parts до независимого OEM"
-      }
+        "card_type": "lookalike_not_proven_ours",
+        "public_url": "https://kaspi.kz/shop/p/chery-komplekt-fil-trov-151000151aa-116097405/",
+        "product_id": "116097405",
+        "sellers_confirmed_ag_parts": false,
+        "edit_path": "blocked_until_our_card_url",
+        "cabinet_ticket": null,
+        "status": "подготовлено, не отправлено",
+        "was": {
+          "title": "Chery комплект фильтров 151000151AA",
+          "models": "Tiggo 8 Pro Max 2023",
+          "type": "комплект фильтров с CY5000055 и F4J16-1012030"
+        },
+        "should": {
+          "title": "не наша карточка комплекта. Если появится своё предложение воздуха 151000151AA: не ставить Tiggo 8 все годы / 9 / RX / J8 без OEM. Не смешивать с 079AA и T151."
+        },
+        "lookalike_note": "116097405 — комплект, не одиночный воздушный фильтр AG Parts. Не наше предложение."
+      },
+      "oem": [
+        "151000151AA",
+        "F02-1109111-03AA",
+        "151000151AB"
+      ],
+      "analogs_not_this_sku": [
+        "151000079AA",
+        "T151109111",
+        "151000025AA"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/151000151aa/",
+        "was": "Tiggo 8 2021–2023; Tiggo 8 Pro Max; Tiggo 9; EXEED RX; JAECOO J8; KAIYI X7 Kunlun — no engines, no FitInPart page"
+      },
+      "confirmed_fitment": [],
+      "stripped_unconfirmed": [
+        {
+          "claim": "Tiggo 8 2021–2023 / 8 Pro Max / Tiggo 9 / RX / J8 / X7 Kunlun",
+          "reason": "Seller and aftermarket titles only. No FitInPart OEM page. SQRD4T20 independently uses T15-1109111; 1.6 uses 151000079AA."
+        }
+      ],
+      "kits": []
     }
   ],
   "live_assortment": {
@@ -1229,10 +1324,9 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 13,
+    "independently_verified_count": 14,
     "total_packing_sku": 51,
     "remaining_unverified": [
-      "F081109111HD",
       "1109130U1510",
       "1064000180",
       "M111109111",
@@ -1290,6 +1384,22 @@
       "M111109111",
       "301001199AA",
       "151000025AA",
+      "151000151AA"
+    ],
+    "verified_after_batch_04": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
       "F081109111HD"
     ]
   },

@@ -1,0 +1,35 @@
+{
+  "batch_id": "04",
+  "notes": "F081: X70 Plus / Dashing / X90 Plus с двигателями, не голое X70. 151000151AA: снять модели без OEM-страницы. M111 и 301001199AA в apply не входят — карточки уже в установленных границах. Цены, остатки, фото, PP1/PP2 не меняем.",
+  "articles": [
+    {
+      "article": "F081109111HD",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Jetour Dashing / X70 Plus — F081109111HD",
+        "compatibility": "Jetour Dashing 1.6 SQRF4J16A (с 09.2022) / SQRF4J16C (с 07.2023); X70 Plus 1.6 SQRF4J16 (с 10.2020); X90 Plus 1.6 SQRF4J16 (с 04.2021) и 2.0 SQRF4J20 (с 11.2022). OEM F08-1109111HD. Голый X70 этим артикулом не подтверждаем. Не путать с T15-1109111 / T151109111.",
+        "engine_compatibility": "SQRF4J16A\nSQRF4J16C\nSQRF4J16\nSQRF4J20",
+        "oem_cross_references": "F081109111HD\nF08-1109111HD",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: F081109111HD / F08-1109111HD.\nОсновная применимость: Jetour Dashing 1.6 SQRF4J16A / SQRF4J16C, X70 Plus 1.6 SQRF4J16, X90 Plus 1.6 SQRF4J16 и 2.0 SQRF4J20.\nГолый X70 этим артикулом не подтверждаем.\nНе путать с T15-1109111.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Jetour", "model": "Dashing"},
+      "selected_models": [
+        {"brand": "Jetour", "model": "Dashing"},
+        {"brand": "Jetour", "model": "X70"},
+        {"brand": "Jetour", "model": "X90"}
+      ]
+    },
+    {
+      "article": "151000151AA",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр 151000151AA",
+        "compatibility": "OEM 151000151AA. Не смешивать с 151000079AA (Tiggo 8 Pro 1.6) и T151109111. Модели и двигатели этим артикулом не подтверждаем без сверки с установленной деталью или VIN.",
+        "engine_compatibility": "",
+        "oem_cross_references": "151000151AA\nF02-1109111-03AA\n151000151AB",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 151000151AA; F02-1109111-03AA; 151000151AB.\nНе смешивать с 151000079AA (Tiggo 8 Pro 1.6) и T151109111.\nМодели и двигатели этим артикулом не подтверждаем без сверки с установленной деталью или VIN автомобиля."
+      },
+      "selected_models": []
+    }
+  ]
+}
