@@ -2212,5 +2212,12 @@
     "dry_run_job": "job-dar2ggou01pc73e6spug",
     "apply_job": "job-dar2i0nlot8c73e7ahkg",
     "apply_summary": "CHANGED 3: 8104400XKY28B Haval engines keep Dargo/F7/F7x/Jolion; 8104102P3010 T6→T8 HFC4DB21D1; 8114010U8520 S3/JS4/J7 engines, JS3 text only."
+  },
+  "batch_08_live": {
+    "sha": "402acc70359246ebf9bf73838b848dbf157a176b",
+    "deploy": "dep-dar32fjl550s73d022dg",
+    "dry_run_job": "job-dar348vlot8c73e9cf10",
+    "apply_job": "job-dar35bvlot8c73e9g4ag",
+    "apply_summary": "CHANGED 2: 272774M400 Altima/Maxima engines drop VP01A; HU71151X 308 engines clean OEM fragments keep Citroen/MINI text. CD569 cabin and 1017110XED95 not in apply. HU stored slug remains audi; public 301 /audi/ → /peugeot-308-hu71151x/ already in LEGACY_PRODUCT_SLUG_REDIRECTS."
   }
 }
