@@ -1,0 +1,73 @@
+{
+  "batch_id": "11",
+  "notes": "JS Filters + 17vin OEM beyond FitInPart. 6600131687: material of packing 2032040500, воздушный Coolray, не салон. 1109130U2400: JS6 HFC4GC1.6E; 1.6D с витрин не копировать. 1109120U8710: S2 HFC4GB2.3D, S2 нет в production CarModel. 8104400ASZ08A: H2 GW4G15B, H2 нет в CarModel. 8100103XKV08A: H9 двигатели; 08B другой артикул. Цены, остатки, фото, PP1/PP2, комплекты ТО не меняем.",
+  "articles": [
+    {
+      "article": "6600131687",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр Geely Coolray — 6600131687",
+        "compatibility": "Geely Coolray 1.5 JLH-3G15TD / 3G15TD (с 08.2018) и BHE15-EFZ (с 08.2022); Coolray 1.4 JLB-4G14TB (с 2020). OEM 6600131687 / 2032040500. Belgee X50 и Geely Icon этим артикулом в тексте; не смешивать с 2032047000.",
+        "engine_compatibility": "JLH-3G15TD\n3G15TD\nBHE15-EFZ\nJLB-4G14TB",
+        "oem_cross_references": "6600131687\n2032040500",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 6600131687 / 2032040500.\nОсновная применимость: Geely Coolray 1.5 JLH-3G15TD / 3G15TD и BHE15-EFZ, Coolray 1.4 JLB-4G14TB.\nBelgee X50 и Geely Icon — по отдельным строкам OEM, без выбранной модели ZPT.\nНе смешивать с 2032047000.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Geely", "model": "Coolray"},
+      "selected_models": [
+        {"brand": "Geely", "model": "Coolray"}
+      ]
+    },
+    {
+      "article": "1109130U2400",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр JAC JS6 — 1109130U2400",
+        "compatibility": "JAC JS6 1.5 HFC4GC1.6E, кузов QX (с 10.2021). OEM 1109130U2400. Не смешивать с 1109130U1510.",
+        "engine_compatibility": "HFC4GC1.6E",
+        "oem_cross_references": "1109130U2400",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109130U2400.\nОсновная применимость: JAC JS6 1.5 HFC4GC1.6E, кузов QX (с 10.2021).\nНе смешивать с 1109130U1510.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "JAC", "model": "JS6"},
+      "selected_models": [
+        {"brand": "JAC", "model": "JS6"}
+      ]
+    },
+    {
+      "article": "1109120U8710",
+      "part_type": "air_filter",
+      "fields": {
+        "title": "Воздушный фильтр JAC S2 — 1109120U8710",
+        "compatibility": "JAC S2 1.5 HFC4GB2.3D, кузов C415J (с 08.2015). OEM 1109120U8710.",
+        "engine_compatibility": "HFC4GB2.3D",
+        "oem_cross_references": "1109120U8710",
+        "description": "Воздушный фильтр очищает воздух на впуске двигателя. OEM: 1109120U8710.\nОсновная применимость: JAC S2 1.5 HFC4GB2.3D, кузов C415J (с 08.2015).\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      }
+    },
+    {
+      "article": "8104400ASZ08A",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Haval H2 — 8104400ASZ08A",
+        "compatibility": "Haval H2 1.5 GW4G15B, кузов CC7150FM (07.2014–12.2021). OEM 8104400ASZ08A. Не смешивать с 8104400XP24BA и 8104400XKY28B. Jolion этим артикулом не подтверждаем.",
+        "engine_compatibility": "GW4G15B",
+        "oem_cross_references": "8104400ASZ08A",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8104400ASZ08A.\nОсновная применимость: Haval H2 1.5 GW4G15B (07.2014–12.2021).\nНе смешивать с 8104400XP24BA и 8104400XKY28B.\nJolion этим артикулом не подтверждаем.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      }
+    },
+    {
+      "article": "8100103XKV08A",
+      "part_type": "cabin_filter",
+      "fields": {
+        "title": "Салонный фильтр Haval H9 — 8100103XKV08A",
+        "compatibility": "Haval H9 2.0 GW4C20A (11.2017–02.2021), GW4C20B (с 03.2021) и дизель GW4D20T (11.2017–01.2024). OEM 8100103XKV08A. Не смешивать с угольным 8100103XKV08B.",
+        "engine_compatibility": "GW4C20A\nGW4C20B\nGW4D20T",
+        "oem_cross_references": "8100103XKV08A",
+        "description": "Салонный фильтр очищает воздух, поступающий в салон через систему вентиляции и кондиционирования. OEM: 8100103XKV08A.\nОсновная применимость: Haval H9 2.0 GW4C20A / GW4C20B и дизель GW4D20T.\nНе смешивать с 8100103XKV08B.\nПеред заказом сверьте артикул с установленной деталью или VIN автомобиля."
+      },
+      "primary_model": {"brand": "Haval", "model": "H9"},
+      "selected_models": [
+        {"brand": "Haval", "model": "H9"}
+      ]
+    }
+  ]
+}

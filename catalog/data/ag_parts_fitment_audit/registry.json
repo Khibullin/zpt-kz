@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "10",
+  "batch": "11",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -2082,45 +2082,185 @@
     },
     {
       "article": "6600131687",
-      "status": "researched_no_independent_oem_page",
-      "part_type": "cabin_filter",
-      "independent_note": "Batch 09: no FitInPart packing page for 6600131687. Nearby Geely cabin 6608126457 / 6608160467 / 8025530600 (Monjaro/Xingyue L) are different numbers — do not copy. No apply.",
-      "confirmed_fitment": [],
+      "status": "batch_11_apply",
+      "part_type": "air_filter",
+      "independent_note": "17vin packing 2032040500 material 6600131687 AIR FILTER ELEMENT, Coolray 1.4 JLB-4G14TB and 1.5 JLH-3G15TD/BHE15-EFZ plus Icon/Binyue. JS A0841 crosses GEELY 6600131687 and 2032040500: Coolray 1.5 only + Belgee X50; 1.4T omitted — disagreement kept open, 1.4T stays from 17vin. 2032058300/2032072000 on the same JS page are other packing numbers. Belgee/Icon text only (no production CarModel). Not a cabin filter.",
+      "confirmed_fitment": [
+        {
+          "brand": "Geely",
+          "model": "Coolray",
+          "engine": "JLH-3G15TD / 3G15TD",
+          "years": "08.2018~",
+          "source": "https://www.jsfilter.jp/catalogue/filter/51488050/A0841",
+          "number_role": "packing SKU 6600131687 and OEM 2032040500"
+        },
+        {
+          "brand": "Geely",
+          "model": "Coolray",
+          "engine": "BHE15-EFZ",
+          "years": "08.2022~",
+          "source": "https://en.17vin.com/part/geely_2032040500.html",
+          "number_role": "material 6600131687 of packing 2032040500"
+        },
+        {
+          "brand": "Geely",
+          "model": "Coolray",
+          "engine": "JLB-4G14TB",
+          "years": "2020~",
+          "source": "https://en.17vin.com/part/geely_2032040500.html",
+          "number_role": "material 6600131687 of packing 2032040500",
+          "disagreement": "JS A0841 does not list 1.4T"
+        },
+        {
+          "brand": "Belgee",
+          "model": "X50",
+          "source": "https://www.jsfilter.jp/catalogue/filter/51488050/A0841",
+          "number_role": "packing SKU 6600131687",
+          "selected": false,
+          "limit": "no production CarModel Belgee X50"
+        },
+        {
+          "brand": "Geely",
+          "model": "Icon",
+          "source": "https://en.17vin.com/part/geely_2032040500.html",
+          "number_role": "material 6600131687 of packing 2032040500",
+          "selected": false,
+          "limit": "no production CarModel Geely Icon"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "6600131687",
+      "oem": [
+        "6600131687",
+        "2032040500"
+      ],
+      "analogs_not_this_sku": [
+        "2032047000",
+        "2032058300",
+        "2032072000",
+        "6608126457",
+        "6608160467"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/geely-coolray-6600131687-geely-coolray/",
+        "was": "live air Coolray; registry still listed cabin_filter from FitInPart-empty pass",
+        "canonical_url": "https://zpt.kz/geely-coolray-6600131687-geely-coolray/"
+      },
+      "open_dispute": "JS A0841 Coolray 1.5 only vs 17vin Coolray 1.4 JLB-4G14TB — 1.4T kept from 17vin OEM packing page",
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "8104400ASZ08A",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_11_apply",
       "part_type": "cabin_filter",
-      "independent_note": "Batch 09: no dedicated FitInPart page for packing 8104400ASZ08A. Nearby 8104400XKZ16A / XKY28A / CJ08XA are different last-letter SKUs — do not copy. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS AC0365 manufacturer catalogue: GREAT WALL 8104400ASZ08A Haval H2 07.14~12.21 1500 GW4G15B body CC7150FM. Neighbors 8100240XSZ08A / 8104400XSZ47A on the same page are not this packing. Jolion seller titles vs XKZ96A not copied. H2 is not in production CarModel — text only.",
+      "confirmed_fitment": [
+        {
+          "brand": "Haval",
+          "model": "H2",
+          "engine": "GW4G15B",
+          "body": "CC7150FM",
+          "years": "07.2014–12.2021",
+          "source": "https://jsfilter.jp/catalogue/filter/70388484/AC0365",
+          "number_role": "packing SKU",
+          "selected": false,
+          "limit": "no production CarModel Haval H2"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "8104400ASZ08A",
+      "oem": [
+        "8104400ASZ08A"
+      ],
+      "analogs_not_this_sku": [
+        "8104400XP24BA",
+        "8104400XKY28B",
+        "8100240XSZ08A",
+        "8104400XSZ47A",
+        "8104400XKZ16A"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/haval-8104400asz08a-haval/",
+        "was": "Haval H2 without engine",
+        "canonical_url": "https://zpt.kz/haval-8104400asz08a-haval/"
+      },
+      "unconfirmed_not_incompatible": [
+        {
+          "brand": "Haval",
+          "model": "Jolion",
+          "reason": "seller titles only; JS AC0365 does not list Jolion for 8104400ASZ08A"
+        }
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "8100103XKV08A",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_11_apply",
       "part_type": "cabin_filter",
-      "independent_note": "Batch 09: no dedicated FitInPart page for packing 8100103XKV08A. Nearby 1109110XKV08A is an air filter for Haval H9; 3502110XKV08A is brake pads — do not copy. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS AC0391C manufacturer catalogue: GREAT WALL 8100103XKV08A and 08B; applications H9 GW4C20A / GW4C20B / GW4D20T. 08B is a different packing — not copied into OEM field. Neighbor 1109110XKV08A is air filter.",
+      "confirmed_fitment": [
+        {
+          "brand": "Haval",
+          "model": "H9",
+          "engine": "GW4C20A",
+          "years": "11.2017–02.2021",
+          "source": "https://jsfilter.jp/catalogue/filter/70810216/AC0391C",
+          "number_role": "packing SKU 8100103XKV08A"
+        },
+        {
+          "brand": "Haval",
+          "model": "H9",
+          "engine": "GW4C20B",
+          "years": "03.2021~",
+          "source": "https://jsfilter.jp/catalogue/filter/70810216/AC0391C",
+          "number_role": "packing SKU 8100103XKV08A"
+        },
+        {
+          "brand": "Haval",
+          "model": "H9",
+          "engine": "GW4D20T",
+          "years": "11.2017–01.2024",
+          "source": "https://jsfilter.jp/catalogue/filter/70810216/AC0391C",
+          "number_role": "packing SKU 8100103XKV08A"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "8100103XKV08A",
+      "oem": [
+        "8100103XKV08A"
+      ],
+      "analogs_not_this_sku": [
+        "8100103XKV08B",
+        "1109110XKV08A",
+        "3502110XKV08A"
+      ],
+      "zpt": {
+        "url": "https://zpt.kz/haval-h9-8100103xkv08a-haval-h9/",
+        "was": "Haval H9 without engine codes",
+        "canonical_url": "https://zpt.kz/haval-h9-8100103xkv08a-haval-h9/"
+      },
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "1109140W5000",
@@ -2142,21 +2282,44 @@
     },
     {
       "article": "1109120U8710",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_11_apply",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/1109120u8710/",
-        "was": "JAC S2 2015+ 1.5"
+        "was": "JAC S2 2015+ 1.5 without engine code",
+        "canonical_url": "https://zpt.kz/1109120u8710/"
       },
-      "independent_note": "Batch 09 remaining: no dedicated FitInPart packing page for 1109120U8710. Neighbors 1109120-A13 (Hover H3/Wingle) and 1109120-SN01 (Changan/Dongfeng) are different numbers — do not copy. Keep S2 claim unconfirmed. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS A0879 manufacturer catalogue: JAC 1109120U8710 S2 08.15~ 1500 HFC4GB2.3D body C415J. S2 is not in production CarModel (JAC: JS6/J7/JS4/S3/S5/S7) — text only, no selected. 17vin jac_1109120U8710 URL invalid. FitInPart empty in batch 09, not repeated.",
+      "confirmed_fitment": [
+        {
+          "brand": "JAC",
+          "model": "S2",
+          "engine": "HFC4GB2.3D",
+          "body": "C415J",
+          "years": "08.2015~",
+          "source": "https://jsfilter.jp/catalogue/filter/67810142/A0879",
+          "number_role": "packing SKU",
+          "selected": false,
+          "limit": "no production CarModel JAC S2"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "1109120U8710",
+      "oem": [
+        "1109120U8710"
+      ],
+      "analogs_not_this_sku": [
+        "1109120-A13",
+        "1109120-SN01"
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "RF059ZKR",
@@ -2196,21 +2359,42 @@
     },
     {
       "article": "1109130U2400",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_11_apply",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/jac-js6-1109130u2400-jac-js6/",
-        "was": "JAC JS6"
+        "was": "JAC JS6 without engine",
+        "canonical_url": "https://zpt.kz/jac-js6-1109130u2400-jac-js6/"
       },
-      "independent_note": "Batch 09 remaining: no dedicated FitInPart packing page for 1109130U2400. Neighbor JAC 8101100U2400-F011 is a different part; neighbor 1109130U1510 is S5 packing, not this SKU. Keep JS6 claim unconfirmed. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "JS A8091 manufacturer catalogue: JAC 1109130U2400 JS6 10.21~ 1500 HFC4GC1.6E body QX. Carville aftermarket 1.6D / HFC4GC1.6D not copied. 17vin jac_1109130U2400 URL invalid.",
+      "confirmed_fitment": [
+        {
+          "brand": "JAC",
+          "model": "JS6",
+          "engine": "HFC4GC1.6E",
+          "body": "QX",
+          "years": "10.2021~",
+          "source": "https://www.jsfilter.jp/catalogue/filter/103527771/A8091",
+          "number_role": "packing SKU"
+        }
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "packing_article": "1109130U2400",
+      "oem": [
+        "1109130U2400"
+      ],
+      "analogs_not_this_sku": [
+        "1109130U1510",
+        "8101100U2400-F011"
+      ],
+      "kits": [],
+      "kit_change": "none — not in published TO kits"
     },
     {
       "article": "EM2E-8121211E",
@@ -2428,7 +2612,7 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 27,
+    "independently_verified_count": 32,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -2437,16 +2621,11 @@
       "FAE1109160",
       "151000151AA",
       "1109140W5000",
-      "1109120U8710",
       "1109110XP6EXACHS",
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "8104400ASZ08A",
-      "8100103XKV08A",
-      "6600131687",
       "151000187AA",
-      "1109130U2400",
       "8890649934",
       "8100422XNZ01A",
       "1017110XED95",
@@ -2482,15 +2661,10 @@
       "1017110XED95",
       "X0390000206",
       "1109110XP6EXACHS",
-      "6600131687",
-      "8104400ASZ08A",
-      "8100103XKV08A",
       "1109130U1510",
       "1109140W5000",
-      "1109120U8710",
       "RF059ZKR",
       "151000187AA",
-      "1109130U2400",
       "EM2E-8121211E",
       "8100422XNZ01A",
       "FAE1109160",
@@ -2656,6 +2830,40 @@
       "J691109111",
       "2032047000",
       "13033898-00"
+    ],
+    "verified_after_batch_11": [
+      "151000079AA",
+      "F4J163707010",
+      "1017110XEN01",
+      "F4J161012030",
+      "T218107011",
+      "4801012010",
+      "C281F2801032601",
+      "T151109111",
+      "1109101XGW01A",
+      "S3010140903",
+      "1109190CR01",
+      "1109110XKV08A",
+      "1109104XGW02A",
+      "F081109111HD",
+      "1109110XP64XA",
+      "D20T0120700",
+      "S1010140400",
+      "S111F2801031700",
+      "8104400XP24BA",
+      "8104400XKY28B",
+      "8104102P3010",
+      "8114010U8520",
+      "272774M400",
+      "HU71151X",
+      "J691109111",
+      "2032047000",
+      "13033898-00",
+      "6600131687",
+      "1109130U2400",
+      "1109120U8710",
+      "8104400ASZ08A",
+      "8100103XKV08A"
     ]
   },
   "batch_03_live": {
@@ -2732,5 +2940,21 @@
     "dry_run_job": "job-dar561rtqb8s73fim8f0",
     "apply_job": "job-dar56p3tqb8s73fioj00",
     "apply_summary": "CHANGED 4: J691109111 Tiggo 2 engines/OEM text only (Tiggo 2 CarModel missing); 2032047000 Geely engines selected Monjaro only (Tugella CarModel missing); 13033898-00 Tang engines keep stored slug byd; 301000265AA slug chery-tiggo-8 → salonnyi-filtr-301000265aa text unchanged. FAE1109160 and 8890649934 not in apply. First dry-run ERROR Tiggo 2/Tugella missing in production catalog."
-  }
+  },
+  "routing_check_after_batch_10": {
+    "date": "2026-09-25",
+    "chery-tiggo-8": {
+      "live": "301 → /salonnyi-filtr-301000265aa/ 200, canonical TXL 301000265AA",
+      "search": "search 301000265AA links new slug, no href=/chery-tiggo-8/",
+      "collision": "none — /avtozapchasti/chery/ is the brand landing; no model page at root; FITMENT already maps this leftover slug to 301000265AA only",
+      "decision": "leave FITMENT_SLUG_REDIRECTS chery-tiggo-8 unchanged; no extra redirect"
+    },
+    "byd": {
+      "live": "301 → /byd-tang-13033898-00/ 200, canonical Tang 13033898-00",
+      "search": "search 13033898-00 uses public slug, not href=/byd/",
+      "collision": "none — /avtozapchasti/byd/ 404; /byd-2/ is EM2E-8121211E, a different SKU",
+      "decision": "leave LEGACY_PRODUCT_SLUG_REDIRECTS byd unchanged; no extra redirect"
+    }
+  },
+  "progress": {}
 }
