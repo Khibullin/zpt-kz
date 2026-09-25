@@ -1017,7 +1017,7 @@
       "kits": [
         "komplekt-to-changan-uni-k-20t"
       ],
-      "kit_change": "none — kit exists but publish_if_complete=false, public 404",
+      "kit_change": "none — kit remains unpublished draft. Spark D20T0120700 removed from UNI-K seed items; air 1109190CR01 stays in draft.",
       "kaspi": {
         "card_type": "own",
         "product_id": "151649550",
@@ -1345,7 +1345,7 @@
         {
           "brand": "Changan",
           "model": "UNI-K",
-          "reason": "Not on this OEM spark page. Do not declare incompatible. Unpublished UNI-K kit still lists this spark."
+          "reason": "Not on this OEM spark page. Do not declare incompatible. Removed from unpublished UNI-K draft seed (was D20T0120700 ×4)."
         }
       ],
       "not_expanded_this_batch": [
@@ -1357,7 +1357,7 @@
         }
       ],
       "kits": [],
-      "kit_change": "none — komplekt-to-changan-uni-k-20t is unpublished (publish_if_complete false, 404)",
+      "kit_change": "removed D20T0120700 ×4 from unpublished komplekt-to-changan-uni-k-20t seed/draft. publish_if_complete stays false. Source: https://www.fitinpart.sg/v2/en/product/76262538/changan-d20t0120700 (CS75 Plus JL486ZQ4 Apr 2019–Apr 2021, CS95; UNI-K not listed).",
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,

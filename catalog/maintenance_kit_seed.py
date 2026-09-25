@@ -19,7 +19,8 @@ from catalog.models import Brand, CarModel, MaintenanceKit, MaintenanceKitItem, 
 
 UNI_K_INCOMPLETE_WARNING = (
     'Неполный комплект: отсутствует подтверждённый масляный фильтр. '
-    'Не публиковать, пока SKU масляного фильтра не подтверждён.'
+    'Свеча D20T0120700 для UNI-K не подтверждаем. '
+    'Не публиковать, пока SKU масляного фильтра и свечи не подтверждены.'
 )
 
 COVER_SPARKS_EXCLUDED_CAPTION = (
@@ -78,6 +79,9 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 #   https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010
 # T15-1109111 air — Tiggo 7 1.5 T15/T1E; Tiggo 8 T18 1.5. Not Tiggo 8 Pro 1.6:
 #   https://www.fitinpart.sg/v2/en/product/50357231/chery-t15-1109111
+# D20T0120700 spark — CS75 Plus 2.0 JL486ZQ4 Apr 2019–Apr 2021 and CS95.
+#   UNI-K is not listed. Keep as reference only, not a UNI-K kit item:
+#   https://www.fitinpart.sg/v2/en/product/76262538/changan-d20t0120700
 
 KIT_SPECS = (
     {
@@ -209,12 +213,26 @@ KIT_SPECS = (
         'year_to': None,
         'description': UNI_K_INCOMPLETE_WARNING,
         'cover_note': '',
-        'reference_lines': (),
+        'reference_lines': (
+            {
+                'type_label': 'Масляный фильтр',
+                'article': '',
+                'note': 'В набор не входит. OEM неизвестен.',
+            },
+            {
+                'type_label': 'Свеча зажигания',
+                'article': '',
+                'note': (
+                    'В набор не входит. D20T0120700 для UNI-K не подтверждаем: '
+                    'независимо указаны CS75 Plus 2.0 JL486ZQ4 (04.2019–04.2021) '
+                    'и CS95, без UNI-K. Несовместимость не объявляем.'
+                ),
+            },
+        ),
         'publish_if_complete': False,
         'items': (
             ('1109190CR01', 1),
             ('CD569F2801032700', 1),
-            ('D20T0120700', 4),
         ),
     },
     {

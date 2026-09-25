@@ -912,7 +912,12 @@ class MaintenanceKitSeedTests(TestCase):
         self.assertEqual(exeed.items.count(), 4)
         self.assertEqual(univ.items.count(), 2)
         self.assertEqual(dargo.items.count(), 2)
-        self.assertEqual(changan.items.count(), 3)
+        self.assertEqual(changan.items.count(), 2)
+        self.assertFalse(changan.items.filter(product__article='D20T0120700').exists())
+        self.assertEqual(
+            list(changan.items.order_by('id').values_list('product__article', 'quantity')),
+            [('1109190CR01', 1), ('CD569F2801032700', 1)],
+        )
         self.assertEqual(t8pro.items.count(), 2)
         self.assertFalse(t8pro.items.filter(product__article='F4J161012030').exists())
         self.assertFalse(t8pro.items.filter(product__article='301001199AA').exists())
@@ -935,7 +940,7 @@ class MaintenanceKitSeedTests(TestCase):
 
         apply_maintenance_kits()
         self.assertEqual(MaintenanceKit.objects.count(), 10)
-        self.assertEqual(MaintenanceKitItem.objects.count(), 29)
+        self.assertEqual(MaintenanceKitItem.objects.count(), 28)
         chery.refresh_from_db()
         self.assertEqual(chery.items.count(), 3)
         self.assertFalse(chery.items.filter(product__article='F4J163707010').exists())
@@ -1124,6 +1129,8 @@ class MaintenanceKitSeedTests(TestCase):
         }
         unik = MaintenanceKit.objects.get(slug='komplekt-to-changan-uni-k-20t')
         self.assertFalse(unik.is_active)
+        self.assertFalse(unik.items.filter(product__article='D20T0120700').exists())
+        self.assertEqual(unik.items.count(), 2)
         before = {}
         for slug, (engine, articles) in protected.items():
             kit = MaintenanceKit.objects.get(slug=slug)
