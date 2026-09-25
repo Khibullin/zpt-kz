@@ -1654,5 +1654,12 @@
     "dry_run_job": "job-daqvaag473hc73988cd0",
     "apply_job": "job-daqvbrbncjis73bhp8eg",
     "apply_summary": "CHANGED 2: F081109111HD, 151000151AA. M111109111 and 301001199AA not in apply — cards already in established bounds."
+  },
+  "batch_05_live": {
+    "sha": "372e5ba9baeb",
+    "deploy": "dep-daqvuo0473hc73cltmgg",
+    "dry_run_job": "job-daqvvpnavr4c73f8f6hg",
+    "apply_job": "job-dar01p3ncjis73bk3kag",
+    "apply_summary": "CHANGED 4: F081109111HD slug 301, 1109110XP64XA engines, D20T0120700 CS75 Plus JL486ZQ4, 1064000180 strip. First dry-run job-daqvt80u01pc73bi77b0 ERROR X70 Plus missing in production catalog — selected Dashing/X90 only."
   }
 }
