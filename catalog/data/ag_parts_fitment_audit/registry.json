@@ -2724,5 +2724,13 @@
     "dry_run_job": "job-dar3rgk9v7es739d3kf0",
     "apply_job": "job-dar3vtflot8c73ec82h0",
     "apply_summary": "CHANGED 1: HU71151X stored slug audi → peugeot-308-hu71151x. /audi/ stays 301 via LEGACY. Remaining researched no-apply: 1109140W5000, 1109120U8710, RF059ZKR, 151000187AA, 1109130U2400, EM2E-8121211E, 8100422XNZ01A."
+  },
+  "batch_10_live": {
+    "sha": "44a8b20f4f18492ba4174d09645ec60b4259e839",
+    "deploy": "dep-dar54fg473hc73cqrnq0",
+    "first_dry_run_job": "job-dar5317lot8c73eg124g",
+    "dry_run_job": "job-dar561rtqb8s73fim8f0",
+    "apply_job": "job-dar56p3tqb8s73fioj00",
+    "apply_summary": "CHANGED 4: J691109111 Tiggo 2 engines/OEM text only (Tiggo 2 CarModel missing); 2032047000 Geely engines selected Monjaro only (Tugella CarModel missing); 13033898-00 Tang engines keep stored slug byd; 301000265AA slug chery-tiggo-8 → salonnyi-filtr-301000265aa text unchanged. FAE1109160 and 8890649934 not in apply. First dry-run ERROR Tiggo 2/Tugella missing in production catalog."
   }
 }
