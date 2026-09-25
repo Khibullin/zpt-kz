@@ -1,7 +1,7 @@
 {
   "audit": "ag-parts-fitment",
   "batch": "03",
-  "updated_at": "2026-09-24",
+  "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
     "deploy": "dep-daqht00473hc738tf310",
@@ -697,7 +697,7 @@
     },
     {
       "article": "T151109111",
-      "status": "batch_03_apply",
+      "status": "zpt_live_engines",
       "part_type": "air_filter",
       "oem": [
         "T151109111",
@@ -818,7 +818,7 @@
     },
     {
       "article": "1109101XGW01A",
-      "status": "batch_03_apply",
+      "status": "zpt_live_f7_ii_engines",
       "zpt": {
         "product_id": 2112,
         "url": "https://zpt.kz/haval-dargo-1109101xgw01a-haval-dargo/",
@@ -910,7 +910,7 @@
     },
     {
       "article": "S3010140903",
-      "status": "batch_03_apply",
+      "status": "zpt_live_uni_v_engine",
       "zpt": {
         "product_id": 2126,
         "url": "https://zpt.kz/changan-uni-v-s3010140903-changan-uni-v/",
@@ -963,7 +963,7 @@
     },
     {
       "article": "1109190CR01",
-      "status": "batch_03_apply",
+      "status": "zpt_live_uni_k_engines",
       "part_type": "air_filter",
       "oem": [
         "1109190CR01",
@@ -1022,7 +1022,7 @@
     },
     {
       "article": "1109110XKV08A",
-      "status": "batch_03_apply_slug",
+      "status": "zpt_live_h9_slug",
       "part_type": "air_filter",
       "oem": [
         "1109110XKV08A"
@@ -1071,7 +1071,7 @@
     },
     {
       "article": "1109104XGW02A",
-      "status": "batch_03_apply",
+      "status": "zpt_live_jolion_engines",
       "part_type": "air_filter",
       "oem": [
         "1109104XGW02A"
@@ -1292,5 +1292,12 @@
       "151000025AA",
       "F081109111HD"
     ]
+  },
+  "batch_03_live": {
+    "sha": "1b96550d9c4a3fd5300167188a22f0205b428838",
+    "deploy": "dep-daqkf08ae00c738839q0",
+    "dry_run_job": "job-daquua7avr4c73f4pa4g",
+    "apply_job": "job-daquvf142hec73ccb2pg",
+    "apply_summary": "CHANGED 6: T151109111, 1109101XGW01A, S3010140903, 1109190CR01, 1109110XKV08A slug, 1109104XGW02A"
   }
 }
