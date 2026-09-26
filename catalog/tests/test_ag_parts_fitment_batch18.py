@@ -5,8 +5,8 @@ from catalog.models import Product
 
 
 class AgPartsFitmentBatch18Tests(TestCase):
-    def test_only_four_exact_articles_and_commercial_fields_unchanged(self):
-        articles = ('151000151AA', 'EM2E-8121211E', '8890649934', 'CD569F2801032700')
+    def test_only_six_exact_articles_and_commercial_fields_unchanged(self):
+        articles = ('151000151AA', 'EM2E-8121211E', '8890649934', 'CD569F2801032700', '1064000180', 'X01-90000014')
         products = {}
         for article in articles:
             products[article] = Product.objects.create(
@@ -40,4 +40,6 @@ class AgPartsFitmentBatch18Tests(TestCase):
         self.assertIn('Atto 3', products['EM2E-8121211E'].compatibility)
         self.assertIn('Zeekr 7X', products['8890649934'].compatibility)
         self.assertIn('UNI-K', products['CD569F2801032700'].compatibility)
-        self.assertEqual(Product.objects.count(), 4)
+        self.assertIn('JLy4G15', products['1064000180'].engine_compatibility)
+        self.assertIn('L2E15M', products['X01-90000014'].engine_compatibility)
+        self.assertEqual(Product.objects.count(), 6)
