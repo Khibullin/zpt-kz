@@ -3762,6 +3762,48 @@
       }
     }
   },
+  "kaspi_text_review_20260926": {
+    "source": "ACTIVE(4).xlsx account export and partial-fitment registry; proposed only, not submitted to Kaspi",
+    "priority": [
+      {
+        "article": "1064000180",
+        "merchant_sku": "638978124",
+        "current_title": "Воздушный фильтр 1064000180 Geely Emgrand EC7",
+        "proposed_title": "Воздушный фильтр 1064000180",
+        "characteristics": "Снять категоричное Emgrand EC7 из модели только после проверки полей своей карточки. В описании: применяемость к Emgrand EC7 заявлена продавцом, точный подбор по VIN/размерам.",
+        "reason": "нет независимой страницы применяемости точного packing; соседний аналог не доказательство"
+      },
+      {
+        "article": "1109130U1510",
+        "merchant_sku": "720926049",
+        "current_title": "JAC S5 воздушный фильтр 1109130U1510",
+        "proposed_title": "Воздушный фильтр 1109130U1510",
+        "characteristics": "Модель S5 и годы/двигатели обозначить как неподтвержденные, проверить по VIN/размерам. Не ставить Hyundai 28113-2S000 в OEM.",
+        "reason": "нет точной JAC packing-таблицы; чужие публичные Kaspi карточки не являются нашей офертой"
+      },
+      {
+        "article": "EM2E-8121211E",
+        "merchant_sku": "EM2E8121211E",
+        "current_title": "Салонный воздушный фильтр для электромобилей BYD Song Plus EV.",
+        "proposed_title": "Салонный фильтр AG Parts EM2E-8121211E",
+        "characteristics": "Снять категоричную модель Song Plus EV до подтверждения точного артикула. Не подставлять SA2E-8121211E или 13033898-00 как тот же номер.",
+        "reason": "вторая наша оферта из двух; 25 PP2, независимой применяемости к Song Plus EV нет"
+      },
+      {
+        "article": "8890649934",
+        "merchant_sku": "8890649934",
+        "current_title": "Салонный фильтр на ZEEKR 001 8890649934",
+        "proposed_title": "Салонный фильтр 8890649934",
+        "characteristics": "Zeekr 001 оставить только как заявленную применяемость с проверкой по VIN, не расширять на 007/MIX/7X.",
+        "reason": "точная OEM таблица не найдена"
+      }
+    ],
+    "check_before_edit": "Verify merchant offer and public card association inside Kaspi cabinet. Shared cards may require request to correct characteristics rather than direct edit. Do not change price, stock, barcode, brand or PP2 allocation.",
+    "unresolved": [
+      "M111109111: 40 PP2 physical, absent ACTIVE(4).xlsx; determine inactive/blocked/unlinked status in cabinet.",
+      "EM2E-8121211E: two merchant SKUs 482719437 and EM2E8121211E at 25 each; preserve intentional split; prices 6600/4290 unchanged."
+    ]
+  },
   "batch_14_plan": {
     "date": "2026-09-26",
     "apply_articles": 12,
