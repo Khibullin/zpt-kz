@@ -1,6 +1,6 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "12",
+  "batch": "13",
   "updated_at": "2026-09-25",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
@@ -2787,6 +2787,9 @@
       "4801012010"
     ],
     "independently_verified_count": 36,
+    "partial_researched_count": 15,
+    "unprocessed_count": 0,
+    "researched_count": 51,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
@@ -3166,5 +3169,36 @@
     "dry_run_job": "job-dar6lvu0tbcc7397ktp0",
     "apply_job": "job-dar6rch7lnhs73a8v3mg",
     "apply_summary": "CHANGED 5: 6600131687 Coolray engines (product_id=2118); 1109130U2400 JS6 HFC4GC1.6E (2114); 1109120U8710 S2 HFC4GB2.3D text only (2132); 8104400ASZ08A H2 GW4G15B text only (2121); 8100103XKV08A H9 engines (2119). No price/stock/slug/kit changes. Coolray/JS6/H9 CarModel present; S2/H2 text only."
+  },
+  "batch_12_live": {
+    "sha": "4daa9c120b4f8bb238722639bd496db9ef3c59d9",
+    "deploy": "dep-dar7162vcj2c73a3rc9g",
+    "code_sha": "44dd0abfd929aa47b54e259373c36c37bcff41c6",
+    "first_dry_run_job": "job-dar705navr4c7380sba0",
+    "dry_run_job": "job-dar72u60tbcc73992310",
+    "apply_job": "job-dar77ue0tbcc7399jmv0",
+    "apply_summary": "CHANGED 4: 151000025AA engines + slug chery-tiggo-7-2 → vozdushnyi-filtr-151000025aa (1983); 151000187AA TXL/VX SQRF4J20C (2116); 8100422XNZ01A Poer/Tank 300 engines keep slug great-wall-poer (2048); 1017110XED95 Poer GW4D20M H5 text only selected Poer (2047 stored slug jac via LEGACY). First dry-run ERROR Haval H5 missing. TXL kit unchanged 025AA+199AA. UNI-K 404."
+  },
+  "batch_13_registry_close": {
+    "date": "2026-09-25",
+    "product_apply": false,
+    "note": "Remaining 15 packing SKUs closed as researched. JS Filters expanded beyond FitInPart; neighbors not copied onto our packing. No Product change without dedicated packing identity.",
+    "to_close_dispute": {
+      "1109130U1510": "Need JAC packing page for 1109130U1510 / 1109130-U1510 with S5 engines. JS A0658 is GWM 1109120-A13 Hover/Wingle — neighbor. Hyundai 28113-2S000 is a different packing.",
+      "1064000180": "Need Geely OEM packing page where 1064000180 is the owner number, not analog on Lifan B1109130.",
+      "M111109111": "Need Chery M11-1109111 air (not cabin M11-8107915) applications table. Keep A3/M11 boundary until then.",
+      "FAE1109160": "Need Lifan OEM packing page for FAE1109160 / FAE-1109160. Seller Lifan 320/330 titles are not proof.",
+      "151000151AA": "Need Chery packing page for 151000151AA / F02-1109111-03AA. Do not copy 079AA or T151.",
+      "1109140W5000": "Need JAC packing page for 1109140W5000. JS A9324 lists Hyundai 28113-4F000 applications — analog, do not copy.",
+      "1109110XP6EXACHS": "Need packing page that shows suffix CHS. JS A0888 is 1109110XP6EXA without CHS — neighbor, not copied.",
+      "X0390000206": "Need Li Auto OEM packing page for X0390000206 cabin L6/L7. Live L8/L9 exclusion stays until that page.",
+      "X01-90000014": "Need Li Auto OEM applications table with engines for packing X01-90000014. Batch 06 already unmixed X01-29150063.",
+      "RF059ZKR": "Need Zeekr/RAF packing page for RF059ZKR distinct from OEM 8894900181. Mazda RF* neighbors not copied.",
+      "8890649934": "Need Zeekr OEM packing page for 8890649934 (001/009). Do not copy RF059ZKR.",
+      "CD569F2801032700": "Need Changan packing page for CD569F2801032700 (not 2701 cabin, not CD569F260303 brakes). UNI-K draft stays unpublished; cabin not restored.",
+      "EM2E-8121211E": "Need BYD packing page for EM2E-8121211E. JS AC0369/AC0350C list SA2E/ST-8121211E/13033898-00 — not this packing.",
+      "301001199AA": "Need Chery/Exeed OEM applications table for packing 301001199AA. Part-Kom shop title TXL/VX is not an OEM table. TXL kit already uses this cabin.",
+      "301000265AA": "Need OEM applications table for packing 301000265AA. Slug rewrite only; shop titles TXL/VX not copied as engines. Kit uses 199AA not 265AA."
+    }
   }
 }
