@@ -2986,15 +2986,18 @@
     },
     {
       "article": "8890649934",
-      "status": "batch_14_apply_honest_zeekr",
+      "status": "batch_15_independent_exact_part_evidence",
       "part_type": "cabin_filter",
       "packing_article": "8890649934",
       "zpt": {
         "url": "https://zpt.kz/zeekr-001-8890649934-zeekr-001/",
         "was": "Zeekr 001 and 009"
       },
-      "independent_note": "17vin zeekr_8890649934 URL invalid. No manufacturer/OEM applications table found. Reseller titles list 001/009 and also 007/MIX/7X — do not copy 007/MIX/7X. Leave Product unchanged.",
-      "confirmed_fitment": [],
+      "independent_note": "Dealer-hosted Zeekr Kazakhstan parts list, page 18 (PDF page index 17), lists exact 8890649934 as cabin filter for Zeekr 001 / 7X. SLFILTER's own May 2025 release lists 8890649934 as OEM cross for its SC-C315K, for Zeekr 001 / 009 EV 2024+. The latter supports 009 through an analog maker, not a Zeekr exact-part applications table. 8890649934M is a different part number. No inference for 007/MIX.",
+      "confirmed_fitment": [
+        "Zeekr 001: exact number in dealer-hosted parts list",
+        "Zeekr 7X: exact number in dealer-hosted parts list"
+      ],
       "kits": [],
       "kit_change": "none",
       "kaspi": {
@@ -3009,21 +3012,37 @@
       ],
       "public_claims": [
         {
-          "claim": "Zeekr 001 / 009 основная применимость",
-          "label": "заявлено продавцом",
-          "decision": "честная формулировка, selected снят"
+          "claim": "Zeekr 001",
+          "label": "подтверждено",
+          "decision": "Exact number in dealer-hosted list. The existing Kaspi title can stay; verify it maps to our active merchant SKU."
         },
         {
-          "claim": "007 / MIX / 7X",
-          "label": "заявлено продавцом",
-          "decision": "не копируем; не подтверждаем"
+          "claim": "Zeekr 7X",
+          "label": "подтверждено",
+          "decision": "Exact number in dealer-hosted list; do not add automatically to Product/Kaspi until model/variant and physical AG Parts packing checked."
         },
         {
-          "claim": "independent packing page 8890649934",
-          "label": "не найдено"
+          "claim": "Zeekr 009",
+          "label": "спорно",
+          "decision": "Independent analog maker cross supports 009, but dealer exact-part list does not name it. Preserve as qualified claim with VIN/size check, not categorical fitment."
+        },
+        {
+          "claim": "Zeekr 007 / MIX",
+          "label": "не найдено",
+          "decision": "Do not add from seller listings; absence is not incompatibility."
         }
       ],
-      "zpt_apply": "batch_14 honest 001/009"
+      "zpt_apply": "No Product change in batch 15; batch 14 neutral wording remains live pending scoped Product change.",
+      "supporting_sources": [
+        {
+          "url": "https://zeekr-astana.kz/media-link/original-spare-parts-and-accessories",
+          "evidence": "8890649934 cabin filter Zeekr 001 / Zeekr 7X; exact dealer parts-list entry"
+        },
+        {
+          "url": "https://www.slfiltration.com/news/new-products-release-in-may-85106208.html",
+          "evidence": "SC-C315K cross to OEM 8890649934; 001 / 009 EV 2024+, analog maker evidence"
+        }
+      ]
     },
     {
       "article": "301000265AA",
@@ -3160,8 +3179,8 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 36,
-    "partial_researched_count": 15,
+    "independently_verified_count": 37,
+    "partial_researched_count": 14,
     "unprocessed_count": 0,
     "researched_count": 51,
     "total_packing_sku": 51,
@@ -3176,7 +3195,6 @@
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "8890649934",
       "CD569F2801032700",
       "EM2E-8121211E",
       "301001199AA",
@@ -3208,7 +3226,6 @@
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "8890649934",
       "CD569F2801032700",
       "EM2E-8121211E",
       "301001199AA",
@@ -3793,9 +3810,9 @@
         "article": "8890649934",
         "merchant_sku": "8890649934",
         "current_title": "Салонный фильтр на ZEEKR 001 8890649934",
-        "proposed_title": "Салонный фильтр 8890649934",
-        "characteristics": "Zeekr 001 оставить только как заявленную применяемость с проверкой по VIN, не расширять на 007/MIX/7X.",
-        "reason": "точная OEM таблица не найдена"
+        "proposed_title": "Салонный фильтр на ZEEKR 001 8890649934",
+        "characteristics": "Zeekr 001 подтверждён точным номером в каталоге запчастей дилера; 7X также указан. Для 009 есть независимый кросс производителя аналога, но нет строки дилерского каталога на 009; не добавлять без оговорки/проверки VIN. 007/MIX не добавлять.",
+        "reason": "Точный 8890649934 найден в дилерском каталоге для 001/7X; прежнее предложение убрать 001 отменено."
       }
     ],
     "check_before_edit": "Verify merchant offer and public card association inside Kaspi cabinet. Shared cards may require request to correct characteristics rather than direct edit. Do not change price, stock, barcode, brand or PP2 allocation.",
@@ -3822,5 +3839,16 @@
     "dry_run_job": "job-darrd5h7lnhs73ei3b30",
     "apply_job": "job-darrel8jo6nc73953rp0",
     "apply_summary": "CHANGED 12: 301001199AA engines; 301000265AA title TXL/VX; strip 28113-2S000/28113-4F000/FAE1109120/8894900181; honest unconfirmed models. Kit TXL unchanged 14332. ERROR 0."
+  },
+  "batch_15_zeekr_evidence": {
+    "date": "2026-09-26",
+    "scope": "Registry correction only; no Product, kit, Kaspi, price, stock or PP2 apply",
+    "article": "8890649934",
+    "decision": "Exact dealer parts-list fitment confirms 001 and 7X. Analog manufacturer independently cross-references 001/009; 009 remains qualified. Keep existing Kaspi title mentioning 001. No unsupported 007/MIX claim.",
+    "independently_verified_count_after": 37,
+    "sources": [
+      "https://zeekr-astana.kz/media-link/original-spare-parts-and-accessories",
+      "https://www.slfiltration.com/news/new-products-release-in-may-85106208.html"
+    ]
   }
 }
