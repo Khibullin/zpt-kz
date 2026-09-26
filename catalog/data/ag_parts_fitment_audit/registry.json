@@ -3578,5 +3578,12 @@
     "kit_txl": "keep 151000025AA + 301001199AA + F4J161012030 + F4J163707010×4; sum 14332; do not change until review",
     "kit_unik": "unpublished 404; do not restore CD569F2801032700 or D20T0120700",
     "kaspi": "none of the 15 have a proven AG Parts own card; cabinet list is zpt texts only"
+  },
+  "batch_14_live": {
+    "sha": "171c38eca54c8982f152d6fbe48db6a58759aa91",
+    "deploy": "dep-darrbg3ncjis73dtu2jg",
+    "dry_run_job": "job-darrd5h7lnhs73ei3b30",
+    "apply_job": "job-darrel8jo6nc73953rp0",
+    "apply_summary": "CHANGED 12: 301001199AA engines; 301000265AA title TXL/VX; strip 28113-2S000/28113-4F000/FAE1109120/8894900181; honest unconfirmed models. Kit TXL unchanged 14332. ERROR 0."
   }
 }
