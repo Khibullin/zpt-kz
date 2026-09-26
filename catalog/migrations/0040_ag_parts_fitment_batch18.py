@@ -120,7 +120,7 @@ def _apply(apps, schema_editor, source, destination):
     Product = apps.get_model("catalog", "Product")
     alias = schema_editor.connection.alias
     articles = tuple(source)
-    products = list(Product.objects.using(alias).filter(article__in=articles).order_by("article", "id"))
+    products = list(Product.objects.using(alias).select_for_update().filter(article__in=articles).order_by("article", "id"))
     if not products:
         return  # Fresh database: these imported catalogue rows do not exist.
     if len(products) != len(articles):
