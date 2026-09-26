@@ -74,7 +74,9 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 #   1.5 / Arrizo 8 SQRF4J16C / Tiggo 8 1.5:
 #   https://www.fitinpart.sg/v2/en/product/136865/chery-480-1012010
 # Tiggo 8 Pro 1.6 oil is disputed (cartridge vs spin-on) — not in kit.
-# 301001199AA cabin: no FitInPart page; do not substitute for T21-8107011.
+# 301001199AA cabin: JS AC0359C lists Chery 301001199AA with TXL SQRF4J16A
+#   (also 265AA and other 30100* as co-crosses). Keep published TXL 1.6 kit
+#   line; do not substitute T21-8107011 or swap to 301000265AA without review.
 # F4J16-3707010 spark — Tiggo 8 T18 SQRE4T15B Jan 2022~; TXL SQRF4J16A.
 #   Not listed for Tiggo 7 T15/T1E or Tiggo 8 Pro:
 #   https://www.fitinpart.sg/v2/en/product/70437342/chery-f4j16-3707010

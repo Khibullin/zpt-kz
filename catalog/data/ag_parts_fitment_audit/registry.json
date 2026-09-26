@@ -1,7 +1,7 @@
 {
   "audit": "ag-parts-fitment",
-  "batch": "13",
-  "updated_at": "2026-09-25",
+  "batch": "14",
+  "updated_at": "2026-09-26",
   "batch_02_live": {
     "sha": "070a27ea525a43e2844168fc910a7a1659829a4e",
     "deploy": "dep-daqht00473hc738tf310",
@@ -378,7 +378,21 @@
         "lookalike_note": "161941852: продавец CAR KIT AUTO, модели M11, AG Parts нет. URL 343875218 — 404.",
         "status": "подготовлено, не отправлено"
       },
-      "independent_note": "FitInPart has no M11-1109111 air page. M11-8107915 is cabin A3/M11. Parts shops list M11/A3 1.6 2010; M12 is seller-only — do not expand. Live card already A3/M11, not X70."
+      "independent_note": "FitInPart has no M11-1109111 air page. M11-8107915 is cabin A3/M11. Parts shops list M11/A3 1.6 2010; M12 is seller-only — do not expand. Live card already A3/M11, not X70.",
+      "public_claims": [
+        {
+          "claim": "Chery A3 / M11",
+          "label": "подтверждено",
+          "note": "установленная граница; FitInPart cabin M11-8107915 / shops 2010 1.6; не unique air packing page",
+          "decision": "карточка уже A3/M11; apply нет"
+        },
+        {
+          "claim": "Jetour X70",
+          "label": "спорно",
+          "note": "X70 air is F01/T15-1109111",
+          "decision": "«Не для Jetour X70» оставляем"
+        }
+      ]
     },
     {
       "article": "F4J161012030",
@@ -530,7 +544,7 @@
     },
     {
       "article": "301001199AA",
-      "status": "zpt_keep_txl_vx_no_8pro",
+      "status": "partial_analog_group_txl_vx",
       "part_type": "cabin_filter",
       "oem": [
         "301001199AA",
@@ -539,7 +553,11 @@
       "analogs_not_this_sku": [
         "T218107011",
         "T21-8107011",
-        "301000265AA"
+        "301000265AA",
+        "301000260AA",
+        "301001782AA",
+        "301001802AA",
+        "301001806AA"
       ],
       "zpt": {
         "product_id": 1985,
@@ -550,12 +568,38 @@
         {
           "brand": "Exeed",
           "model": "TXL",
-          "source": "https://part-kom.ru/products/3589483677"
+          "engine": "SQRF4J16A",
+          "years": "04.2019~",
+          "body": "M32T",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "number_role": "OEM-cross of analog AC0359C, not unique packing SKU",
+          "slot_source": "https://www.jsfilter.jp/catalogue/filter/67809039/A0877"
+        },
+        {
+          "brand": "Exeed",
+          "model": "TXL",
+          "engine": "SQRF4J16D",
+          "years": "07.2023~",
+          "body": "M32T",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "number_role": "OEM-cross of analog AC0359C"
+        },
+        {
+          "brand": "Exeed",
+          "model": "TXL",
+          "engine": "SQRF4J20C",
+          "body": "M32T",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "number_role": "OEM-cross of analog AC0359C"
         },
         {
           "brand": "Exeed",
           "model": "VX",
-          "source": "https://part-kom.ru/products/3589483677"
+          "engine": "SQRF4J20C",
+          "years": "04.2020~",
+          "body": "M36T",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "number_role": "OEM-cross of analog AC0359C"
         }
       ],
       "rejected_fitment": [
@@ -568,7 +612,7 @@
       "kits": [
         "komplekt-to-exeed-txl-16t"
       ],
-      "kit_change": "none — TXL kit keeps 199AA; 8 Pro kit uses T218",
+      "kit_change": "none — published komplekt-to-exeed-txl-16t keeps 301001199AA; composition/sum not changed this batch",
       "kaspi": {
         "card_type": "lookalike_not_proven_ours",
         "public_url": "https://kaspi.kz/shop/p/chery-exeed-salonnyi-fil-tr-301001199aa-135422517/",
@@ -587,7 +631,46 @@
         },
         "lookalike_note": "135422517: бренд Chery/Exeed, модели Tiggo 8 / 8 Pro. AG Parts в названии нет. Не доказано наше предложение."
       },
-      "independent_note": "Still no FitInPart page for 301001199AA. Part-Kom original listing TXL/VX. atvgid also names Tiggo 8 Pro — seller title; 8 Pro 1.6 independently uses T21-8107011. Live zpt already TXL/VX."
+      "independent_note": "JS AC0359C lists exact Chery 301001199AA plus 301000265AA/260AA/1782/1802/1806. A0877 maps TXL 1.6 cabin slot to AC0359C. Part-Kom is seller title only. No unique packing page. Do not raise 36/51. Keep TXL kit 199AA.",
+      "public_claims": [
+        {
+          "claim": "EXEED TXL / VX cabin, engines SQRF4J16A/D and SQRF4J20C",
+          "label": "подтверждено",
+          "scope": "analog-group slot AC0359C; exact article listed as Chery OEM-cross",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "decision": "keep title/selected TXL+VX; add engines; keep published TXL 1.6 kit line"
+        },
+        {
+          "claim": "угольный 301001199AA vs пылевой 301000265AA",
+          "label": "спорно",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "note": "оба номера на одной analog-странице; тип угольный/пылевой с карточки/витрин, не с уникальной packing-страницы",
+          "decision": "различать артикулы, не копировать 265AA в OEM 199AA"
+        },
+        {
+          "claim": "Tiggo 8 Pro / RX / 8 Pro 1.5",
+          "label": "заявлено продавцом",
+          "source": "https://part-kom.ru/products/3589483677",
+          "decision": "8 Pro независимо T21-8107011; в публичном тексте не подтверждаем"
+        },
+        {
+          "claim": "unique packing page / 17vin / FitInPart 301001199AA",
+          "label": "не найдено",
+          "sources": [
+            "https://en.17vin.com/part/chery_301001199AA.html",
+            "https://www.fitinpart.sg/v2/en/search?q=301001199AA"
+          ],
+          "decision": "счётчик 36/51 не повышать"
+        }
+      ],
+      "seller_claimed": [
+        {
+          "claim": "TXL/VX shop title",
+          "source": "https://part-kom.ru/products/3589483677",
+          "note": "витрина, не OEM-таблица"
+        }
+      ],
+      "zpt_apply": "batch_14 add engines, keep TXL/VX, distinguish 265AA"
     },
     {
       "article": "4801012010",
@@ -1304,7 +1387,23 @@
           "reason": "Seller and aftermarket titles only. No FitInPart OEM page. SQRD4T20 independently uses T15-1109111; 1.6 uses 151000079AA."
         }
       ],
-      "kits": []
+      "kits": [],
+      "public_claims": [
+        {
+          "claim": "Tiggo 8 / 9 / RX / J8",
+          "label": "заявлено продавцом",
+          "decision": "карточка уже честная с batch 04; apply нет"
+        },
+        {
+          "claim": "OEM F02-1109111-03AA / 151000151AB",
+          "label": "спорно",
+          "decision": "оставлены как возможные варианты packing, не доказаны ложными"
+        },
+        {
+          "claim": "independent packing page 151000151AA",
+          "label": "не найдено"
+        }
+      ]
     },
     {
       "article": "1109110XP64XA",
@@ -1450,17 +1549,29 @@
           "title": "не наша карточка MILES. Если появится своё предложение 1064000180: не ставить Emgrand все кузова / Toyota Corolla по аналогу."
         },
         "lookalike_note": "146993685 — бренд MILES, комплект кроссов включая Toyota. Не одиночный товар AG Parts."
-      }
+      },
+      "public_claims": [
+        {
+          "claim": "models/engines",
+          "label": "не найдено",
+          "decision": "карточка уже честная с batch 05; apply нет"
+        },
+        {
+          "claim": "Geely Emgrand / Toyota via analog B1109130",
+          "label": "заявлено продавцом",
+          "decision": "не возвращаем"
+        }
+      ]
     },
     {
       "article": "1109130U1510",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_14_apply_strip_hyundai_oem",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/jac-s5-1109130u1510/",
         "was": "JAC S5"
       },
-      "independent_note": "Batch 09 remaining: still no packing page for 1109130U1510 / 1109130-U1510. Owner-cross 28113-2S000 is a dedicated Hyundai/Kia air packing page (Accent/Creta/i40/Tucson/Sportage), not JAC S5 — do not copy those vehicles. Keep S5 claim unconfirmed, do not declare incompatible. No apply.",
+      "independent_note": "28113-2S000 is Hyundai/Kia air packing. S5 remains seller-claimed.",
       "confirmed_fitment": [],
       "kaspi": {
         "card_type": "unresolved_public_offer",
@@ -1468,7 +1579,30 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "1109130U1510"
+      ],
+      "analogs_not_this_sku": [
+        "28113-2S000"
+      ],
+      "public_claims": [
+        {
+          "claim": "OEM 28113-2S000",
+          "label": "спорно",
+          "decision": "снято с Product: Hyundai packing, не JAC"
+        },
+        {
+          "claim": "JAC S5",
+          "label": "заявлено продавцом",
+          "decision": "честная формулировка, selected снят; несовместимость не объявляем"
+        },
+        {
+          "claim": "independent JAC packing page 1109130U1510",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 strip 28113-2S000, honest S5"
     },
     {
       "article": "J691109111",
@@ -1513,7 +1647,7 @@
     },
     {
       "article": "FAE1109160",
-      "status": "частично проверено",
+      "status": "batch_14_apply_fix_oem_mix",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/fae1109160/",
@@ -1544,7 +1678,28 @@
         }
       ],
       "kits": [],
-      "kit_change": "none"
+      "kit_change": "none",
+      "oem": [
+        "FAE1109160"
+      ],
+      "public_claims": [
+        {
+          "claim": "OEM field FAE1109120",
+          "label": "спорно",
+          "decision": "другой артикул; заменён на FAE1109160"
+        },
+        {
+          "claim": "Lifan 320/330/Smily",
+          "label": "заявлено продавцом",
+          "note": "Kitayavto exploded snippet Smily NEW 1.3 bot-walled; not unique packing table",
+          "decision": "честная формулировка, счётчик не повышать"
+        },
+        {
+          "claim": "independent packing page FAE1109160",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 OEM FAE1109160 only, honest Lifan"
     },
     {
       "article": "2032047000",
@@ -1615,7 +1770,7 @@
     },
     {
       "article": "X01-90000014",
-      "status": "batch_06_oem_unmix_no_l_series_expand",
+      "status": "batch_14_apply_honest_l_series",
       "part_type": "air_filter",
       "packing_article": "X01-90000014",
       "oem": [
@@ -1645,7 +1800,20 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "public_claims": [
+        {
+          "claim": "Li Auto L6/L7/L8/L9 основная применимость",
+          "label": "заявлено продавцом",
+          "note": "applications belong to owner-cross X01-29150063 page",
+          "decision": "честная формулировка, selected снят; 29150063 не в OEM"
+        },
+        {
+          "claim": "dedicated packing page X01-90000014",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 honest L-series, keep unmix 29150063"
     },
     {
       "article": "S1010140400",
@@ -2016,7 +2184,7 @@
     },
     {
       "article": "CD569F2801032700",
-      "status": "batch_09_kit_reference",
+      "status": "batch_14_apply_honest_unik",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/changan-uni-k-changan/",
@@ -2027,14 +2195,34 @@
       "kits": [
         "komplekt-to-changan-uni-k-20t"
       ],
-      "kit_change": "Removed CD569F2801032700 from unpublished komplekt-to-changan-uni-k-20t items. Reference line keeps the article with note артикул уточняется. publish_if_complete stays false. Seed must not restore it as a kit item.",
+      "kit_change": "stay out of unpublished UNI-K sellable items; do not restore",
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "CD569F2801032700",
+        "CD569F280103-2700"
+      ],
+      "analogs_not_this_sku": [
+        "CD569F280103-2701",
+        "CD569F260303"
+      ],
+      "public_claims": [
+        {
+          "claim": "Changan UNI-K cabin",
+          "label": "заявлено продавцом",
+          "decision": "сняты title/selected UNI-K; соседний 2701 не копируем; несовместимость не объявляем"
+        },
+        {
+          "claim": "independent packing page CD569F2801032700",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 honest UNI-K text, clear selected"
     },
     {
       "article": "272774M400",
@@ -2131,7 +2319,7 @@
     },
     {
       "article": "X0390000206",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_14_apply_honest_l6_l7",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/li-auto-l7-x0390000206-li-auto-l7/",
@@ -2145,11 +2333,35 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "X0390000206"
+      ],
+      "analogs_not_this_sku": [
+        "X01-90000044",
+        "X01-90000014"
+      ],
+      "public_claims": [
+        {
+          "claim": "Li Auto L6 / L7 confirmed",
+          "label": "заявлено продавцом",
+          "decision": "честная формулировка, selected снят"
+        },
+        {
+          "claim": "L8 и L9 не входят",
+          "label": "спорно",
+          "decision": "отсутствие ≠ несовместимость; заменено на «не подтверждаем»"
+        },
+        {
+          "claim": "independent packing page X0390000206",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 remove не входят, honest L6/L7"
     },
     {
       "article": "1109110XP6EXACHS",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_14_apply_honest_poer",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/1109110xp6exachs/",
@@ -2163,7 +2375,31 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "1109110XP6EXACHS"
+      ],
+      "analogs_not_this_sku": [
+        "1109110XP64XA",
+        "1109110-P64"
+      ],
+      "public_claims": [
+        {
+          "claim": "GWM Poer 2024–2025 2.0T",
+          "label": "заявлено продавцом",
+          "decision": "сняты двигатель 2.0T и selected; артикул сохранён"
+        },
+        {
+          "claim": "copy Wingle 5/7 from 1109110XP64XA",
+          "label": "спорно",
+          "decision": "соседний номер не копируем"
+        },
+        {
+          "claim": "independent packing page XP6EXACHS",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 honest Poer, clear 2.0T"
     },
     {
       "article": "6600131687",
@@ -2349,7 +2585,7 @@
     },
     {
       "article": "1109140W5000",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_14_apply_strip_hyundai_oem",
       "part_type": "air_filter",
       "zpt": {
         "url": "https://zpt.kz/1109140w5000/",
@@ -2363,7 +2599,31 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "1109140W5000"
+      ],
+      "analogs_not_this_sku": [
+        "28113-4F000",
+        "1109140W5000-AM001"
+      ],
+      "public_claims": [
+        {
+          "claim": "OEM 28113-4F000 / 1109140W5000-AM001",
+          "label": "спорно",
+          "decision": "снято с Product"
+        },
+        {
+          "claim": "JAC N25/N35 / Sollers Argo",
+          "label": "заявлено продавцом",
+          "decision": "честная формулировка; отсутствие в источнике ≠ несовместимость"
+        },
+        {
+          "claim": "independent packing page 1109140W5000",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 strip 28113-4F000 and AM001, honest N25"
     },
     {
       "article": "1109120U8710",
@@ -2408,7 +2668,7 @@
     },
     {
       "article": "RF059ZKR",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_14_apply_unmix_oem",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/zeekr-x-rf059zkr-zeekr-x/",
@@ -2422,7 +2682,31 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "RF059ZKR"
+      ],
+      "analogs_not_this_sku": [
+        "8894900181",
+        "8890649934"
+      ],
+      "public_claims": [
+        {
+          "claim": "OEM 8894900181 = this packing",
+          "label": "спорно",
+          "decision": "снято с OEM-поля; aftermarket RF059ZKR ≠ доказанный packing 8894900181"
+        },
+        {
+          "claim": "Zeekr X",
+          "label": "заявлено продавцом",
+          "decision": "честная формулировка, selected снят"
+        },
+        {
+          "claim": "independent packing page RF059ZKR",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 strip 8894900181, honest Zeekr X"
     },
     {
       "article": "151000187AA",
@@ -2514,7 +2798,7 @@
     },
     {
       "article": "EM2E-8121211E",
-      "status": "researched_no_independent_oem_page",
+      "status": "batch_14_apply_honest_byd",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/byd-em2e-8121211e/",
@@ -2528,7 +2812,32 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "EM2E-8121211E",
+        "EM2E8121211E"
+      ],
+      "analogs_not_this_sku": [
+        "SA2E-8121211E",
+        "13033898-00"
+      ],
+      "public_claims": [
+        {
+          "claim": "BYD Dolphin / Atto 3 основная применимость",
+          "label": "заявлено продавцом",
+          "decision": "честная формулировка без обещания"
+        },
+        {
+          "claim": "Song Plus",
+          "label": "не найдено",
+          "decision": "другой OEM SA2E-8121211E; не подтверждаем, не объявляем несовместимым кроме отличия номера"
+        },
+        {
+          "claim": "independent packing page EM2E-8121211E",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 honest Dolphin/Atto 3"
     },
     {
       "article": "8100422XNZ01A",
@@ -2668,7 +2977,7 @@
     },
     {
       "article": "8890649934",
-      "status": "применяемость не подтверждена",
+      "status": "batch_14_apply_honest_zeekr",
       "part_type": "cabin_filter",
       "packing_article": "8890649934",
       "zpt": {
@@ -2685,11 +2994,31 @@
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "oem": [
+        "8890649934"
+      ],
+      "public_claims": [
+        {
+          "claim": "Zeekr 001 / 009 основная применимость",
+          "label": "заявлено продавцом",
+          "decision": "честная формулировка, selected снят"
+        },
+        {
+          "claim": "007 / MIX / 7X",
+          "label": "заявлено продавцом",
+          "decision": "не копируем; не подтверждаем"
+        },
+        {
+          "claim": "independent packing page 8890649934",
+          "label": "не найдено"
+        }
+      ],
+      "zpt_apply": "batch_14 honest 001/009"
     },
     {
       "article": "301000265AA",
-      "status": "частично проверено",
+      "status": "partial_analog_group_txl_vx",
       "part_type": "cabin_filter",
       "packing_article": "301000265AA",
       "oem": [
@@ -2706,8 +3035,16 @@
         "was": "title TXL, selected TXL/VX, stored slug chery-tiggo-8",
         "redirect": "301 chery-tiggo-8 → salonnyi-filtr-301000265aa; text unchanged"
       },
-      "independent_note": "17vin chery_301000265AA URL invalid. part-kom shop title lists EXEED TXL, VX for packing 301000265AA but is not an OEM applications table. Neighbor 301001199AA engines/RX/8 Pro not copied. Tiggo 8 absence is not incompatibility. Slug rewrite is internal title-vs-URL mismatch.",
-      "confirmed_fitment": [],
+      "independent_note": "Same JS AC0359C page as 199AA. Live title was TXL-only while selected TXL+VX. Not in published TXL kit.",
+      "confirmed_fitment": [
+        {
+          "brand": "Exeed",
+          "model": "TXL / VX",
+          "engine": "SQRF4J16A / SQRF4J16D / SQRF4J20C",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "number_role": "OEM-cross of analog AC0359C"
+        }
+      ],
       "partial_fitment": [
         {
           "brand": "Exeed",
@@ -2719,14 +3056,42 @@
       "kits": [
         "komplekt-to-exeed-txl-16t"
       ],
-      "kit_change": "none — published TXL kit uses 301001199AA, not 301000265AA; dust vs antibacterial remain different articles",
+      "kit_change": "none — published TXL kit uses 301001199AA, not 265AA",
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
         "edit_path": "blocked_until_our_card_url",
         "cabinet_ticket": null,
         "status": "подготовлено, не отправлено"
-      }
+      },
+      "public_claims": [
+        {
+          "claim": "EXEED TXL / VX cabin same AC0359C engines",
+          "label": "подтверждено",
+          "scope": "analog-group OEM-cross, not unique packing",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "decision": "align title TXL/VX, add engines, distinguish 199AA"
+        },
+        {
+          "claim": "пылевой vs угольный 199AA unique packing",
+          "label": "спорно",
+          "source": "https://www.jsfilter.jp/catalogue/filter/67809048/AC0359C",
+          "decision": "не подменять 199AA в комплекте TXL"
+        },
+        {
+          "claim": "unique packing / 17vin 301000265AA",
+          "label": "не найдено",
+          "source": "https://en.17vin.com/part/chery_301000265AA.html",
+          "decision": "счётчик не повышать"
+        }
+      ],
+      "seller_claimed": [
+        {
+          "source": "https://part-kom.ru/products/3589580605",
+          "note": "shop title TXL/VX"
+        }
+      ],
+      "zpt_apply": "batch_14 title TXL/VX, engines, distinguish 199AA"
     }
   ],
   "live_assortment": {
@@ -2824,20 +3189,20 @@
       "1109104XGW02A"
     ],
     "partial_independent_not_fully_verified": [
-      "M111109111",
-      "301001199AA",
-      "151000151AA",
-      "1064000180",
-      "X01-90000014",
-      "CD569F2801032700",
-      "X0390000206",
-      "1109110XP6EXACHS",
       "1109130U1510",
-      "1109140W5000",
-      "RF059ZKR",
-      "EM2E-8121211E",
+      "1064000180",
+      "M111109111",
       "FAE1109160",
+      "151000151AA",
+      "1109140W5000",
+      "1109110XP6EXACHS",
+      "X0390000206",
+      "X01-90000014",
+      "RF059ZKR",
       "8890649934",
+      "CD569F2801032700",
+      "EM2E-8121211E",
+      "301001199AA",
       "301000265AA"
     ],
     "verified_after_batch_04": [
@@ -3071,7 +3436,8 @@
       "151000187AA",
       "8100422XNZ01A",
       "1017110XED95"
-    ]
+    ],
+    "counter_note": "Batch 14: JS AC0359C independently lists exact 301001199AA and 301000265AA as co-crosses of one analog, not a unique packing page. Counter stays 36/51."
   },
   "batch_03_live": {
     "sha": "1b96550d9c4a3fd5300167188a22f0205b428838",
@@ -3200,5 +3566,17 @@
       "301001199AA": "Need Chery/Exeed OEM applications table for packing 301001199AA. Part-Kom shop title TXL/VX is not an OEM table. TXL kit already uses this cabin.",
       "301000265AA": "Need OEM applications table for packing 301000265AA. Slug rewrite only; shop titles TXL/VX not copied as engines. Kit uses 199AA not 265AA."
     }
+  },
+  "batch_14_plan": {
+    "date": "2026-09-26",
+    "apply_articles": 12,
+    "skipped_already_honest": [
+      "1064000180",
+      "151000151AA",
+      "M111109111"
+    ],
+    "kit_txl": "keep 151000025AA + 301001199AA + F4J161012030 + F4J163707010×4; sum 14332; do not change until review",
+    "kit_unik": "unpublished 404; do not restore CD569F2801032700 or D20T0120700",
+    "kaspi": "none of the 15 have a proven AG Parts own card; cabinet list is zpt texts only"
   }
 }
