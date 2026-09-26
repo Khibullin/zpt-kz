@@ -631,7 +631,7 @@
         },
         "lookalike_note": "135422517: бренд Chery/Exeed, модели Tiggo 8 / 8 Pro. AG Parts в названии нет. Не доказано наше предложение."
       },
-      "independent_note": "JS AC0359C lists exact Chery 301001199AA plus 301000265AA/260AA/1782/1802/1806. A0877 maps TXL 1.6 cabin slot to AC0359C. Part-Kom is seller title only. No unique packing page. Do not raise 36/51. Keep TXL kit 199AA.",
+      "independent_note": "JS AC0359C lists exact Chery 301001199AA plus 301000265AA/260AA/1782/1802/1806. A0877 maps TXL 1.6 cabin slot to AC0359C. Part-Kom is seller title only. FitInPart has a dedicated exact-number 301001199AA cabin-filter page with dimensions, but no vehicle table. AZUMI AC83006C lists 301001199AA and 301000265AA as separate OE crosses and lists TXL M32T 1.6 SQRF4J16A/D; this supports the filter slot via an analog group, not independent vehicle fitment of the exact AG Parts packing. Do not raise 36/51. Keep TXL kit 199AA pending physical packing/VIN check.",
       "public_claims": [
         {
           "claim": "EXEED TXL / VX cabin, engines SQRF4J16A/D and SQRF4J20C",
@@ -654,13 +654,14 @@
           "decision": "8 Pro независимо T21-8107011; в публичном тексте не подтверждаем"
         },
         {
-          "claim": "unique packing page / 17vin / FitInPart 301001199AA",
-          "label": "не найдено",
+          "claim": "dedicated exact-number FitInPart 301001199AA page",
+          "label": "подтверждено: артикул и тип; применяемость TXL на этой странице не указана",
           "sources": [
-            "https://en.17vin.com/part/chery_301001199AA.html",
-            "https://www.fitinpart.sg/v2/en/search?q=301001199AA"
+            "https://www.fitinpart.sg/v2/en/product/51505574/chery-301001199aa",
+            "https://www.azfilter.jp/catalogue/51505574",
+            "https://en.17vin.com/part/chery_301001199AA.html"
           ],
-          "decision": "счётчик 36/51 не повышать"
+          "decision": "поправить ошибочное «страницы нет»; AZUMI поддерживает TXL 1.6 через группу аналога AC83006C, но прямой таблицы автомобилей для упаковки 301001199AA нет; счётчик 36/51 не повышать"
         }
       ],
       "seller_claimed": [
@@ -3563,7 +3564,7 @@
       "8890649934": "Need Zeekr OEM packing page for 8890649934 (001/009). Do not copy RF059ZKR.",
       "CD569F2801032700": "Need Changan packing page for CD569F2801032700 (not 2701 cabin, not CD569F260303 brakes). UNI-K draft stays unpublished; cabin not restored.",
       "EM2E-8121211E": "Need BYD packing page for EM2E-8121211E. JS AC0369/AC0350C list SA2E/ST-8121211E/13033898-00 — not this packing.",
-      "301001199AA": "Need Chery/Exeed OEM applications table for packing 301001199AA. Part-Kom shop title TXL/VX is not an OEM table. TXL kit already uses this cabin.",
+      "301001199AA": "Dedicated FitInPart 301001199AA confirms exact number/type but has no vehicle table; AZUMI AC83006C crosses both 199AA and 265AA and lists TXL 1.6, indirect analog-group support. Need OEM application table or verified packaging/VIN for exact AG Parts 301001199AA. Part-Kom title remains seller claim. TXL kit unchanged.",
       "301000265AA": "Need OEM applications table for packing 301000265AA. Slug rewrite only; shop titles TXL/VX not copied as engines. Kit uses 199AA not 265AA."
     }
   },
