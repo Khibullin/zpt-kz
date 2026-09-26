@@ -2209,14 +2209,16 @@
     },
     {
       "article": "CD569F2801032700",
-      "status": "batch_14_apply_honest_unik",
+      "status": "batch_17_independent_analog_maker_cross",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/changan-uni-k-changan/",
         "was": "UNI-K cabin"
       },
-      "independent_note": "Batch 09 live: still no dedicated packing cabin page for CD569F2801032700 / CD569F280103-2700. FitInPart UNI-K vehicle catalog lists cabin CD569F280103-2701 (neighbor, last digit), not 2700. Brake CD569F260303-* / CD569F260301-* are different parts. Live UNI-K product claim kept unconfirmed; not declared incompatible. Unpublished UNI-K draft: removed from sellable items, kept in reference_lines as артикул уточняется. After apply current==planned 1109190CR01 x1; next seed cannot restore CD569 as a kit item.",
-      "confirmed_fitment": [],
+      "independent_note": "Carville/Carville Racing manufacturer catalogue PDF lists CRV55011 cabin filter for Changan UNI-K 2020+ with exact OEM CD569F2801032700. This is independent analog-maker OE cross with model application, not a dedicated AG Parts packing table. Do not mix neighboring CD569F280103-2701; no engine claim from cabin-filter entry.",
+      "confirmed_fitment": [
+        "Changan UNI-K 2020+ via independent Carville CRV55011 exact-OE cross"
+      ],
       "kits": [
         "komplekt-to-changan-uni-k-20t"
       ],
@@ -2238,16 +2240,23 @@
       ],
       "public_claims": [
         {
-          "claim": "Changan UNI-K cabin",
-          "label": "заявлено продавцом",
-          "decision": "сняты title/selected UNI-K; соседний 2701 не копируем; несовместимость не объявляем"
+          "claim": "Changan UNI-K cabin filter CD569F2801032700",
+          "label": "подтверждено",
+          "decision": "Restore qualified Product model text after tests/dry-run; check physical AG Parts packing. Keep unpublished kit draft and do not re-add sellable item automatically."
         },
         {
-          "claim": "independent packing page CD569F2801032700",
-          "label": "не найдено"
+          "claim": "CD569F280103-2701",
+          "label": "спорно",
+          "decision": "Different suffix; do not merge without exact cross evidence."
         }
       ],
-      "zpt_apply": "batch_14 honest UNI-K text, clear selected"
+      "zpt_apply": "Registry only batch 17. Product remains neutral; UNI-K kit stays unpublished with cabin as reference.",
+      "sources": [
+        {
+          "url": "https://carvilleshop.ru/upload/iblock/a63/a63c62558c2ea5d202a81f5ee8281c75.pdf",
+          "evidence": "Page 3 and summary page: CRV55011, Changan UNI-K 2020+, OEM CD569F2801032700"
+        }
+      ]
     },
     {
       "article": "272774M400",
@@ -3205,8 +3214,8 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 39,
-    "partial_researched_count": 12,
+    "independently_verified_count": 40,
+    "partial_researched_count": 11,
     "unprocessed_count": 0,
     "researched_count": 51,
     "total_packing_sku": 51,
@@ -3220,7 +3229,6 @@
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "CD569F2801032700",
       "301001199AA",
       "301000265AA"
     ],
@@ -3249,7 +3257,6 @@
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
-      "CD569F2801032700",
       "301001199AA",
       "301000265AA"
     ],
@@ -3889,5 +3896,13 @@
         "decision": "Independent manufacturer analog OE cross supports Atto 3 and Dolphin; Song Plus EV Kaspi title remains unsupported and queued for correction."
       }
     ]
+  },
+  "batch_17_cabin_uni_k_evidence": {
+    "date": "2026-09-26",
+    "scope": "Registry evidence only; no Product, kit, price, stock, Kaspi, or PP2 apply",
+    "article": "CD569F2801032700",
+    "independently_verified_count_after": 40,
+    "source": "https://carvilleshop.ru/upload/iblock/a63/a63c62558c2ea5d202a81f5ee8281c75.pdf",
+    "decision": "Manufacturer analog catalogue exact OE cross confirms UNI-K cabin slot. Keep kit unpublished and do not restore sellable item until scoped review."
   }
 }
