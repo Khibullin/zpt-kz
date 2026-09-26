@@ -1,0 +1,28 @@
+name: AG Parts fitment batch 18
+
+on:
+  pull_request:
+    paths:
+      - 'catalog/data/ag_parts_fitment_audit/batch_18.json'
+      - 'catalog/migrations/0040_ag_parts_fitment_batch18.py'
+      - 'catalog/tests/test_ag_parts_fitment_batch18.py'
+      - 'catalog/tests/test_ag_parts_fitment_migration40.py'
+      - '.github/workflows/ag-fitment-batch18.yml'
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'django-insecure-ci-fitment-batch18-only'
+      DATABASE_URL: 'sqlite:///db-fitment-ci.sqlite3'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+      - run: python -m pip install -r requirements.txt
+      - run: python manage.py test catalog.tests.test_ag_parts_fitment_batch18 catalog.tests.test_ag_parts_fitment_migration40 catalog.tests.test_ag_parts_fitment_batch14 --noinput
