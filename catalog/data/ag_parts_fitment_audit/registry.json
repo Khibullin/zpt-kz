@@ -325,7 +325,7 @@
     },
     {
       "article": "M111109111",
-      "status": "zpt_keep_a3_m11_no_x70",
+      "status": "batch_18_independent_analog_maker_cross",
       "part_type": "air_filter",
       "packing_article": "M111109111",
       "oem": [
@@ -344,12 +344,8 @@
         "live_title": "Воздушный фильтр Chery A3 / M11 — M111109111"
       },
       "confirmed_fitment": [
-        {
-          "brand": "Chery",
-          "model": "A3 / M11",
-          "claim": "Keep established boundary. X70 air is F01/T15-1109111.",
-          "source": "https://www.fitinpart.sg/v2/en/product/70390181/jetour-f01-1109111"
-        }
+        "Chery A3 via Japanparts FA-045S exact OE cross",
+        "Chery Chance M11 via Japanparts FA-045S exact OE cross"
       ],
       "rejected_fitment": [
         {
@@ -378,21 +374,26 @@
         "lookalike_note": "161941852: продавец CAR KIT AUTO, модели M11, AG Parts нет. URL 343875218 — 404.",
         "status": "подготовлено, не отправлено"
       },
-      "independent_note": "FitInPart has no M11-1109111 air page. M11-8107915 is cabin A3/M11. Parts shops list M11/A3 1.6 2010; M12 is seller-only — do not expand. Live card already A3/M11, not X70.",
+      "independent_note": "Japanparts own Chery catalogue lists FA-045S air filter for OE M111109111 with Chery A3 and Chance M11 applications and dimensions. This confirms exact OE and these models through independent analog manufacturer. Do not add Jetour X70; user reported actual mismatch. OEM M11-1109111BC is an additional cross in catalogue, not necessarily same AG packing.",
       "public_claims": [
         {
           "claim": "Chery A3 / M11",
           "label": "подтверждено",
-          "note": "установленная граница; FitInPart cabin M11-8107915 / shops 2010 1.6; не unique air packing page",
-          "decision": "карточка уже A3/M11; apply нет"
+          "decision": "Live Product already within these bounds; no Product apply needed."
         },
         {
           "claim": "Jetour X70",
           "label": "спорно",
-          "note": "X70 air is F01/T15-1109111",
-          "decision": "«Не для Jetour X70» оставляем"
+          "decision": "Keep explicit not-for-X70 boundary based on real mismatch; no fitment expansion."
         }
-      ]
+      ],
+      "sources": [
+        {
+          "url": "https://japanparts.it/media/ei4ggtb2/chery-japan-eng.pdf",
+          "evidence": "Page 15 (PDF index 14), FA-045S, A3 hatch/sedan, Chance M11, For OE M111109111 and dimensions"
+        }
+      ],
+      "zpt_apply": "No Product change; already A3/M11."
     },
     {
       "article": "F4J161012030",
@@ -1596,7 +1597,7 @@
         "url": "https://zpt.kz/jac-s5-1109130u1510/",
         "was": "JAC S5"
       },
-      "independent_note": "28113-2S000 is Hyundai/Kia air packing. S5 remains seller-claimed.",
+      "independent_note": "28113-2S000 is Hyundai/Kia air packing. S5 remains seller-claimed. PartsCarrier full-parts listing maps exact 1109130U1510 FILTER ASSEMBLY to JAC S5 body HFC7202E1V-U1608. This is a supplier listing with body-code context, not JAC manufacturer EPC. JUAN manufacturer brochure lists both Hyundai 28113-2S000 and JAC 1109130U1510 as OE crosses for one aftermarket filter; do not put Hyundai number in JAC Product OEM field. Keep partial status pending JAC primary parts table/packing check.",
       "confirmed_fitment": [],
       "kaspi": {
         "card_type": "unresolved_public_offer",
@@ -1625,6 +1626,12 @@
         {
           "claim": "independent JAC packing page 1109130U1510",
           "label": "не найдено"
+        },
+        {
+          "claim": "JAC S5 body HFC7202E1V-U1608 exact part listing",
+          "label": "заявлено поставщиком",
+          "source": "https://www.partscarrier.com/products/193-Full-Parts-For-JAC.html",
+          "decision": "Evidence strengthens S5 claim but does not justify blanket year/engine fitment or automatic structured selection."
         }
       ],
       "zpt_apply": "batch_14 strip 28113-2S000, honest S5"
@@ -3214,15 +3221,14 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 40,
-    "partial_researched_count": 11,
+    "independently_verified_count": 41,
+    "partial_researched_count": 10,
     "unprocessed_count": 0,
     "researched_count": 51,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
       "1064000180",
-      "M111109111",
       "FAE1109160",
       "1109140W5000",
       "1109110XP6EXACHS",
@@ -3250,7 +3256,6 @@
     "partial_independent_not_fully_verified": [
       "1109130U1510",
       "1064000180",
-      "M111109111",
       "FAE1109160",
       "1109140W5000",
       "1109110XP6EXACHS",
@@ -3904,5 +3909,13 @@
     "independently_verified_count_after": 40,
     "source": "https://carvilleshop.ru/upload/iblock/a63/a63c62558c2ea5d202a81f5ee8281c75.pdf",
     "decision": "Manufacturer analog catalogue exact OE cross confirms UNI-K cabin slot. Keep kit unpublished and do not restore sellable item until scoped review."
+  },
+  "batch_18_m111_evidence": {
+    "date": "2026-09-26",
+    "article": "M111109111",
+    "independently_verified_count_after": 41,
+    "source": "https://japanparts.it/media/ei4ggtb2/chery-japan-eng.pdf",
+    "scope": "Registry only; live Product A3/M11 unchanged, Kaspi untouched",
+    "jac_s5_supplier_lead": "https://www.partscarrier.com/products/193-Full-Parts-For-JAC.html"
   }
 }
