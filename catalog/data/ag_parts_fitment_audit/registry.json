@@ -1354,9 +1354,9 @@
     },
     {
       "article": "151000151AA",
-      "status": "batch_04_apply_strip_unconfirmed_models",
+      "status": "batch_16_independent_exact_number_fitment",
       "part_type": "air_filter",
-      "note": "No FitInPart OEM page. Seller/aftermarket titles are not proof. Strip all model claims; keep analog warnings vs 079AA and T151. Do not declare Tiggo 9 / RX / J8 incompatible.",
+      "note": "FitInPart exact Chery 151000151AA air-filter page lists Tiggo 8 2.0 SQRF4J20 T1A (Jul 2021–Oct 2023), Tiggo 8 Pro Max 2.0 SQRF4J20 T1D (May 2022+), Tiggo 9 2.0 SQRF4J20C/A/B, EXEED RX 2.0 SQRF4J20C, JAECOO J8 2.0 SQRF4J20C, KAIYI X7 Kunlun 2.0 SQRF4J20, TENET T8 2.0 SQRF4J20B. It cross-references F02-1109111-03AA as KAIYI owner OE. Distinguish from 151000079AA and T151109111; do not apply to every Tiggo 8 variant.",
       "kaspi": {
         "card_type": "lookalike_not_proven_ours",
         "public_url": "https://kaspi.kz/shop/p/chery-komplekt-fil-trov-151000151aa-116097405/",
@@ -1389,7 +1389,15 @@
         "url": "https://zpt.kz/151000151aa/",
         "was": "Tiggo 8 2021–2023; Tiggo 8 Pro Max; Tiggo 9; EXEED RX; JAECOO J8; KAIYI X7 Kunlun — no engines, no FitInPart page"
       },
-      "confirmed_fitment": [],
+      "confirmed_fitment": [
+        "Tiggo 8 T1A 2.0 SQRF4J20 Jul 2021–Oct 2023",
+        "Tiggo 8 Pro Max T1D 2.0 SQRF4J20 May 2022+",
+        "Tiggo 9 2.0 SQRF4J20C/A/B",
+        "EXEED RX 2.0 SQRF4J20C",
+        "JAECOO J8 2.0 SQRF4J20C",
+        "KAIYI X7 Kunlun 2.0 SQRF4J20",
+        "TENET T8 2.0 SQRF4J20B"
+      ],
       "stripped_unconfirmed": [
         {
           "claim": "Tiggo 8 2021–2023 / 8 Pro Max / Tiggo 9 / RX / J8 / X7 Kunlun",
@@ -1399,20 +1407,28 @@
       "kits": [],
       "public_claims": [
         {
-          "claim": "Tiggo 8 / 9 / RX / J8",
-          "label": "заявлено продавцом",
-          "decision": "карточка уже честная с batch 04; apply нет"
+          "claim": "Named 2.0T models and engines in exact-part table",
+          "label": "подтверждено",
+          "decision": "Prepare scoped Product title/description/structured model and engine restoration, after tests and dry-run. Do not broaden Tiggo 8 or 1.6 variants."
         },
         {
-          "claim": "OEM F02-1109111-03AA / 151000151AB",
+          "claim": "151000151AB equivalent to AA",
           "label": "спорно",
-          "decision": "оставлены как возможные варианты packing, не доказаны ложными"
+          "decision": "Not on this exact-part page; do not promise interchangeability."
         },
         {
-          "claim": "independent packing page 151000151AA",
-          "label": "не найдено"
+          "claim": "F02-1109111-03AA",
+          "label": "подтверждено",
+          "decision": "KAIYI owner cross in exact-part page; keep distinct from packing number."
         }
-      ]
+      ],
+      "sources": [
+        {
+          "url": "https://www.fitinpart.sg/v2/en/product/61756645/chery-151000151aa",
+          "evidence": "Dedicated exact Chery part number, air type, model/engine/body/year table; F02-1109111-03AA owner cross"
+        }
+      ],
+      "zpt_apply": "Registry only batch 16. Product remains neutral from batch 04; future scoped apply needs tests/dry-run."
     },
     {
       "article": "1109110XP64XA",
@@ -2807,14 +2823,17 @@
     },
     {
       "article": "EM2E-8121211E",
-      "status": "batch_14_apply_honest_byd",
+      "status": "batch_16_independent_analog_maker_cross",
       "part_type": "cabin_filter",
       "zpt": {
         "url": "https://zpt.kz/byd-em2e-8121211e/",
         "was": "BYD cabin; stored slug leftover byd-2 via LEGACY"
       },
-      "independent_note": "Batch 09 remaining: no dedicated FitInPart packing page for EM2E-8121211E. Neighbors BYD SA2FC-8121211E / SA2FC-8121211E-E1 list GM 13508023 / 13356914 — do not copy those vehicles onto this prefix. Keep BYD cabin claim unconfirmed. No apply.",
-      "confirmed_fitment": [],
+      "independent_note": "Corner Filter manufacturer C-BYC01 page lists exact BYD OE EM2E-8121211E for cabin filter (199×210×30 mm) and applications ATTO3 2022+, DOLPHIN 2023+. This is independent analog-maker OE cross, not a dedicated AG Parts packing applications table. Seller-only Song Plus EV remains unconfirmed; SA2E-8121211E is a different number.",
+      "confirmed_fitment": [
+        "BYD ATTO3 2022+ via independent analog-maker exact OE cross",
+        "BYD DOLPHIN 2023+ via independent analog-maker exact OE cross"
+      ],
       "kaspi": {
         "card_type": "unresolved_public_offer",
         "public_url": null,
@@ -2832,21 +2851,28 @@
       ],
       "public_claims": [
         {
-          "claim": "BYD Dolphin / Atto 3 основная применимость",
-          "label": "заявлено продавцом",
-          "decision": "честная формулировка без обещания"
+          "claim": "BYD Atto 3 / Dolphin",
+          "label": "подтверждено",
+          "decision": "Analog manufacturer gives exact OE cross and applications. Prepare scoped Product correction after dry-run; verify AG Parts dimensions/packing."
         },
         {
-          "claim": "Song Plus",
+          "claim": "BYD Song Plus EV",
           "label": "не найдено",
-          "decision": "другой OEM SA2E-8121211E; не подтверждаем, не объявляем несовместимым кроме отличия номера"
+          "decision": "Do not claim on our Kaspi offer; preserve two merchant SKUs and stock split. Absence is not incompatibility."
         },
         {
-          "claim": "independent packing page EM2E-8121211E",
-          "label": "не найдено"
+          "claim": "SA2E-8121211E / 13033898-00",
+          "label": "спорно",
+          "decision": "Different numbers; do not merge into OEM field."
         }
       ],
-      "zpt_apply": "batch_14 honest Dolphin/Atto 3"
+      "zpt_apply": "Registry only batch 16. Product remains neutral from batch 14; future scoped apply needs tests/dry-run.",
+      "sources": [
+        {
+          "url": "https://www.cornerfilter.com/en/product/detail/CABINAIR-FILTER-C-BYC01",
+          "evidence": "Corner Filter C-BYC01, OE EM2E-8121211E, cabin filter, ATTO3 and DOLPHIN applications"
+        }
+      ]
     },
     {
       "article": "8100422XNZ01A",
@@ -3179,8 +3205,8 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 37,
-    "partial_researched_count": 14,
+    "independently_verified_count": 39,
+    "partial_researched_count": 12,
     "unprocessed_count": 0,
     "researched_count": 51,
     "total_packing_sku": 51,
@@ -3189,14 +3215,12 @@
       "1064000180",
       "M111109111",
       "FAE1109160",
-      "151000151AA",
       "1109140W5000",
       "1109110XP6EXACHS",
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
       "CD569F2801032700",
-      "EM2E-8121211E",
       "301001199AA",
       "301000265AA"
     ],
@@ -3220,14 +3244,12 @@
       "1064000180",
       "M111109111",
       "FAE1109160",
-      "151000151AA",
       "1109140W5000",
       "1109110XP6EXACHS",
       "X0390000206",
       "X01-90000014",
       "RF059ZKR",
       "CD569F2801032700",
-      "EM2E-8121211E",
       "301001199AA",
       "301000265AA"
     ],
@@ -3849,6 +3871,23 @@
     "sources": [
       "https://zeekr-astana.kz/media-link/original-spare-parts-and-accessories",
       "https://www.slfiltration.com/news/new-products-release-in-may-85106208.html"
+    ]
+  },
+  "batch_16_new_exact_evidence": {
+    "date": "2026-09-26",
+    "scope": "Registry evidence only; no Product, kit, price, stock, Kaspi, or PP2 apply",
+    "independently_verified_count_after": 39,
+    "articles": [
+      {
+        "article": "151000151AA",
+        "source": "https://www.fitinpart.sg/v2/en/product/61756645/chery-151000151aa",
+        "decision": "Exact Chery part number with 2.0L fitment table; restore only specified models/engines after implementation tests and production dry-run."
+      },
+      {
+        "article": "EM2E-8121211E",
+        "source": "https://www.cornerfilter.com/en/product/detail/CABINAIR-FILTER-C-BYC01",
+        "decision": "Independent manufacturer analog OE cross supports Atto 3 and Dolphin; Song Plus EV Kaspi title remains unsupported and queued for correction."
+      }
     ]
   }
 }
