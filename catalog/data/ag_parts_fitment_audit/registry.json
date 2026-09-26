@@ -544,6 +544,14 @@
     },
     {
       "article": "301001199AA",
+      "package_observation": {
+        "date": "2026-09-26",
+        "source": "Фото этикетки товара, предоставленное владельцем в рабочем чате; не публичный каталог применяемости",
+        "visible_part_number": "301001199AA",
+        "visible_product_type": "Cabin Filter",
+        "vehicle_fitment_on_label": "не указана",
+        "decision": "Подтверждён номер на сфотографированной упаковке, а не применяемость к TXL или тождество 301000265AA. Состав TXL и счётчик 36/51 не менять."
+      },
       "status": "partial_analog_group_txl_vx",
       "part_type": "cabin_filter",
       "oem": [
