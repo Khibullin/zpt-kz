@@ -3576,6 +3576,192 @@
       "301000265AA": "Need OEM applications table for packing 301000265AA. Slug rewrite only; shop titles TXL/VX not copied as engines. Kit uses 199AA not 265AA."
     }
   },
+  "kaspi_pp2_reconciliation_20260926": {
+    "source_active": "User-provided ACTIVE(4).xlsx, Лист1, 2026-09-26; account export of active Kaspi offers, SKU is merchant SKU, not a public card ID",
+    "source_wms": "User-provided products_list(7).xlsx, Worksheet, 2026-09-26; PP2 Rapido FF physical stock by product article",
+    "scope": "15 partial fitment SKU. Exact article in active title or SKU, and normalized exact WMS product article. Stock and price recorded for reconciliation only; no price/stock changes. PP1 is not live PP2.",
+    "articles": {
+      "1064000180": {
+        "active_offers": [
+          {
+            "merchant_sku": "638978124",
+            "pp2_qty": 40,
+            "price_kzt": 870
+          }
+        ],
+        "wms_pp2_qty": 40,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "301001199AA": {
+        "active_offers": [
+          {
+            "merchant_sku": "119714061_988697284",
+            "pp2_qty": 50,
+            "price_kzt": 1532
+          }
+        ],
+        "wms_pp2_qty": 50,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "301000265AA": {
+        "active_offers": [
+          {
+            "merchant_sku": "801748033",
+            "pp2_qty": 55,
+            "price_kzt": 1529
+          }
+        ],
+        "wms_pp2_qty": 55,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "M111109111": {
+        "active_offers": [],
+        "wms_pp2_qty": 40,
+        "match_status": "PP2 stock but no matching active offer",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "151000151AA": {
+        "active_offers": [
+          {
+            "merchant_sku": "865592695",
+            "pp2_qty": 44,
+            "price_kzt": 2950
+          }
+        ],
+        "wms_pp2_qty": 44,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "1109130U1510": {
+        "active_offers": [
+          {
+            "merchant_sku": "720926049",
+            "pp2_qty": 38,
+            "price_kzt": 2099
+          }
+        ],
+        "wms_pp2_qty": 38,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "FAE1109160": {
+        "active_offers": [
+          {
+            "merchant_sku": "771931649",
+            "pp2_qty": 40,
+            "price_kzt": 1760
+          }
+        ],
+        "wms_pp2_qty": 40,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "X01-90000014": {
+        "active_offers": [
+          {
+            "merchant_sku": "X01-90000014",
+            "pp2_qty": 47,
+            "price_kzt": 840
+          }
+        ],
+        "wms_pp2_qty": 47,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "CD569F2801032700": {
+        "active_offers": [
+          {
+            "merchant_sku": "423766246",
+            "pp2_qty": 40,
+            "price_kzt": 1839
+          }
+        ],
+        "wms_pp2_qty": 40,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "X0390000206": {
+        "active_offers": [
+          {
+            "merchant_sku": "115801437_271928151",
+            "pp2_qty": 40,
+            "price_kzt": 3034
+          }
+        ],
+        "wms_pp2_qty": 40,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "1109110XP6EXACHS": {
+        "active_offers": [
+          {
+            "merchant_sku": "711699731",
+            "pp2_qty": 40,
+            "price_kzt": 2640
+          }
+        ],
+        "wms_pp2_qty": 40,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "1109140W5000": {
+        "active_offers": [
+          {
+            "merchant_sku": "617689253",
+            "pp2_qty": 35,
+            "price_kzt": 4180
+          }
+        ],
+        "wms_pp2_qty": 35,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "RF059ZKR": {
+        "active_offers": [
+          {
+            "merchant_sku": "976276599",
+            "pp2_qty": 46,
+            "price_kzt": 1760
+          }
+        ],
+        "wms_pp2_qty": 46,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "EM2E-8121211E": {
+        "active_offers": [
+          {
+            "merchant_sku": "482719437",
+            "pp2_qty": 25,
+            "price_kzt": 6600
+          },
+          {
+            "merchant_sku": "EM2E8121211E",
+            "pp2_qty": 25,
+            "price_kzt": 4290
+          }
+        ],
+        "wms_pp2_qty": 50,
+        "match_status": "two account offers; combined PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      },
+      "8890649934": {
+        "active_offers": [
+          {
+            "merchant_sku": "8890649934",
+            "pp2_qty": 40,
+            "price_kzt": 3240
+          }
+        ],
+        "wms_pp2_qty": 40,
+        "match_status": "one account offer; PP2 equals WMS",
+        "fitment_evidence": "none; ownership/stock export does not prove compatibility"
+      }
+    }
+  },
   "batch_14_plan": {
     "date": "2026-09-26",
     "apply_articles": 12,
