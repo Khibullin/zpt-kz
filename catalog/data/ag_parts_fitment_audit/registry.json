@@ -1535,7 +1535,7 @@
     },
     {
       "article": "1064000180",
-      "status": "batch_05_apply_strip_unconfirmed_models",
+      "status": "batch_19_independent_exact_oe_fitment",
       "part_type": "air_filter",
       "oem": [
         "1064000180"
@@ -1550,14 +1550,18 @@
         "url": "https://zpt.kz/1064000180/",
         "was": "Geely Emgrand EC7/EC7RV/GC7/FC/SL 1.5–1.8; OEM 71-01286-SX aftermarket"
       },
-      "confirmed_fitment": [],
+      "confirmed_fitment": [
+        "Geely Emgrand FE-1 1.5 JL4G15 / 1.8 JL4G18 in AZUMI cross",
+        "Geely Emgrand 7 FE-3JC 1.5 JLy4G15 / 1.8 JLy4G18 in AZUMI cross",
+        "Geely FC air-cleaner element in Geely parts PDF"
+      ],
       "stripped_unconfirmed": [
         {
           "claim": "Emgrand EC7 / GC7 / FC / SL",
           "reason": "No Geely OEM air page. Number appears only as analog on Lifan B1109130 with Toyota 17801. Aftermarket 71-01286-SX is not OEM."
         }
       ],
-      "independent_note": "https://www.fitinpart.sg/v2/en/product/825406/lifan-b1109130 lists GEELY 1064000180 as analog owner number — analog vehicles ignored.",
+      "independent_note": "AZUMI A21003 manufacturer filter catalogue lists exact GEELY OE 1064000180 and Geely Emgrand FE-1 1.5 JL4G15/1.8 JL4G18 (2012–2017) plus Emgrand 7 FE-3JC 1.5 JLy4G15/1.8 JLy4G18 (2016–2020). Geely FC parts PDF lists exact 1064000180 as air-cleaner element. Same analog page has unrelated BYD/Lifan/Toyota crosses; do not copy their applications as Geely OE fitment.",
       "kits": [],
       "kaspi": {
         "card_type": "lookalike_not_proven_ours",
@@ -1578,16 +1582,27 @@
       },
       "public_claims": [
         {
-          "claim": "models/engines",
-          "label": "не найдено",
-          "decision": "карточка уже честная с batch 05; apply нет"
+          "claim": "Geely Emgrand FE-1 and Emgrand 7 FE-3JC specific engines",
+          "label": "подтверждено",
+          "decision": "Prepare scoped Product fitment text. Existing Kaspi title Emgrand EC7 is broadly plausible but should be tied to specified FE codes, not all EC7 years."
         },
         {
-          "claim": "Geely Emgrand / Toyota via analog B1109130",
-          "label": "заявлено продавцом",
-          "decision": "не возвращаем"
+          "claim": "Geely GC7/SL and Toyota/Lifan via analog",
+          "label": "не найдено",
+          "decision": "Do not broaden from multi-OE analog crosses."
         }
-      ]
+      ],
+      "sources": [
+        {
+          "url": "https://www.azfilter.jp/catalogue/496846",
+          "evidence": "A21003, exact GEELY OE 1064000180 with Emgrand/Emgrand 7 engines and years"
+        },
+        {
+          "url": "https://files.geely-club.com.ua/FC_catalog_zapch.pdf",
+          "evidence": "Geely FC parts list, air-cleaner element 1064000180"
+        }
+      ],
+      "zpt_apply": "Registry only; Product neutral pending tests and dry-run."
     },
     {
       "article": "1109130U1510",
@@ -1802,7 +1817,7 @@
     },
     {
       "article": "X01-90000014",
-      "status": "batch_14_apply_honest_l_series",
+      "status": "batch_19_independent_exact_oe_fitment",
       "part_type": "air_filter",
       "packing_article": "X01-90000014",
       "oem": [
@@ -1816,8 +1831,11 @@
         "url": "https://zpt.kz/li-auto-l7-x01-90000014-li-auto-l7/",
         "was": "OEM list mixed X01-90000014 / X0190000014 / X01-29150063; selected L6/L7/L8/L9; no engines"
       },
-      "independent_note": "FitInPart Part Number is X01-29150063 (AIR FILTER). X01-90000014 appears only as Owner Part Number on that page, not as a dedicated packing-SKU applications page. Do not copy L2E15M / years onto X01-90000014. Keep existing L6–L9, do not expand. Unmix 29150063 from this packing OEM list.",
-      "confirmed_fitment": [],
+      "independent_note": "AZUMI A80039 manufacturer catalogue independently lists exact LIXIANG OE X01-90000014 and X01-29150063 as separate owner crosses for the same analog, with L6/L7/L8/L9 1.5 L2E15M applications. Continental HK parts catalogue lists exact X01-90000014 air filter for L7/L8/L9. This supports the model group but does not make the two OEM numbers identical packing articles.",
+      "confirmed_fitment": [
+        "Li Auto L6 1.5 L2E15M via AZUMI exact OE cross",
+        "Li Auto L7/L8/L9 1.5 L2E15M via AZUMI and L7–L9 parts catalogue"
+      ],
       "not_expanded_this_batch": [
         {
           "brand": "Li Auto",
@@ -1835,17 +1853,27 @@
       },
       "public_claims": [
         {
-          "claim": "Li Auto L6/L7/L8/L9 основная применимость",
-          "label": "заявлено продавцом",
-          "note": "applications belong to owner-cross X01-29150063 page",
-          "decision": "честная формулировка, selected снят; 29150063 не в OEM"
+          "claim": "Li Auto L6/L7/L8/L9 1.5 L2E15M",
+          "label": "подтверждено",
+          "decision": "Prepare Product fitment text and engine, retaining VIN check."
         },
         {
-          "claim": "dedicated packing page X01-90000014",
-          "label": "не найдено"
+          "claim": "X01-29150063 is same packing",
+          "label": "спорно",
+          "decision": "Separate OE number cross to same analog; do not merge packing articles."
         }
       ],
-      "zpt_apply": "batch_14 honest L-series, keep unmix 29150063"
+      "zpt_apply": "Registry only; Product neutral pending tests and dry-run.",
+      "sources": [
+        {
+          "url": "https://www.azfilter.jp/catalogue/79023935",
+          "evidence": "A80039, exact X01-90000014 OE cross, L6/L7/L8/L9 applications and engine"
+        },
+        {
+          "url": "https://cdn.cnyandex.com/continental-hk/uploads/Product-Catalogue_Li-Auto-Full-Parts_Continental-HK.pdf",
+          "evidence": "Exact X01-90000014 air filter, L7/L8/L9 in parts list"
+        }
+      ]
     },
     {
       "article": "S1010140400",
@@ -3221,19 +3249,17 @@
       "HU71151X",
       "4801012010"
     ],
-    "independently_verified_count": 41,
-    "partial_researched_count": 10,
+    "independently_verified_count": 43,
+    "partial_researched_count": 8,
     "unprocessed_count": 0,
     "researched_count": 51,
     "total_packing_sku": 51,
     "remaining_unverified": [
       "1109130U1510",
-      "1064000180",
       "FAE1109160",
       "1109140W5000",
       "1109110XP6EXACHS",
       "X0390000206",
-      "X01-90000014",
       "RF059ZKR",
       "301001199AA",
       "301000265AA"
@@ -3255,12 +3281,10 @@
     ],
     "partial_independent_not_fully_verified": [
       "1109130U1510",
-      "1064000180",
       "FAE1109160",
       "1109140W5000",
       "1109110XP6EXACHS",
       "X0390000206",
-      "X01-90000014",
       "RF059ZKR",
       "301001199AA",
       "301000265AA"
@@ -3820,9 +3844,9 @@
         "article": "1064000180",
         "merchant_sku": "638978124",
         "current_title": "Воздушный фильтр 1064000180 Geely Emgrand EC7",
-        "proposed_title": "Воздушный фильтр 1064000180",
-        "characteristics": "Снять категоричное Emgrand EC7 из модели только после проверки полей своей карточки. В описании: применяемость к Emgrand EC7 заявлена продавцом, точный подбор по VIN/размерам.",
-        "reason": "нет независимой страницы применяемости точного packing; соседний аналог не доказательство"
+        "proposed_title": "Воздушный фильтр 1064000180 Geely Emgrand EC7",
+        "characteristics": "Geely Emgrand FE-1 и Emgrand 7 FE-3JC подтверждены для указанных двигателей по кроссу AZUMI; FC указан в каталоге деталей. Не расширять на все годы EC7/GC7/SL и на BYD/Lifan/Toyota из общей таблицы аналога.",
+        "reason": "Прежнее предложение убрать Emgrand отменено после независимого подтверждения точного OEM 1064000180."
       },
       {
         "article": "1109130U1510",
@@ -3917,5 +3941,26 @@
     "source": "https://japanparts.it/media/ei4ggtb2/chery-japan-eng.pdf",
     "scope": "Registry only; live Product A3/M11 unchanged, Kaspi untouched",
     "jac_s5_supplier_lead": "https://www.partscarrier.com/products/193-Full-Parts-For-JAC.html"
+  },
+  "batch_19_geely_li_evidence": {
+    "date": "2026-09-26",
+    "independently_verified_count_after": 43,
+    "scope": "Registry only; no Product, kit, price, stock, Kaspi or PP2 apply",
+    "articles": [
+      {
+        "article": "1064000180",
+        "sources": [
+          "https://www.azfilter.jp/catalogue/496846",
+          "https://files.geely-club.com.ua/FC_catalog_zapch.pdf"
+        ]
+      },
+      {
+        "article": "X01-90000014",
+        "sources": [
+          "https://www.azfilter.jp/catalogue/79023935",
+          "https://cdn.cnyandex.com/continental-hk/uploads/Product-Catalogue_Li-Auto-Full-Parts_Continental-HK.pdf"
+        ]
+      }
+    ]
   }
 }
