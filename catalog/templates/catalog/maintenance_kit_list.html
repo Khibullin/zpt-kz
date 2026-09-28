@@ -85,7 +85,13 @@
       {% for kit_view in kits %}
         <article class="kit-card">
           <a class="kit-card-media" href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">
-            {% if kit_view.kit.cover %}
+            {% if kit_view.kit.slug == "nabor-to-chery-arrizo-8-16-sqrf4j16c" %}
+              <img
+                class="kit-card-cover"
+                src="{% static 'images/kits/arrizo-8-16-three-filter-collage.png' %}"
+                alt="Три фильтра комплекта Chery Arrizo 8 1.6"
+              >
+            {% elif kit_view.kit.cover %}
               <img
                 class="kit-card-cover"
                 src="{{ kit_view.kit.cover.url }}"

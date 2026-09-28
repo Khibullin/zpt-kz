@@ -31,7 +31,11 @@
 
   <section class="kit-hero">
     <h1>{{ kit.name }}</h1>
-    {% if kit.cover %}
+    {% if kit.slug == "nabor-to-chery-arrizo-8-16-sqrf4j16c" %}
+      <div class="kit-cover-wrap">
+        <img src="{% static 'images/kits/arrizo-8-16-three-filter-collage.png' %}" alt="Воздушный, масляный и салонный фильтры комплекта Chery Arrizo 8 1.6">
+      </div>
+    {% elif kit.cover %}
       <div class="kit-cover-wrap">
         <img src="{{ kit.cover.url }}" alt="Общее фото комплекта {{ kit.name }}">
       </div>
