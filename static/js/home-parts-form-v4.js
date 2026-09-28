@@ -12,6 +12,8 @@
   const modelIdEl = document.getElementById('home-model-id');
   const modelSuggest = document.getElementById('home-model-suggest');
   const newRequestBtn = document.getElementById('home-parts-new');
+  const cityEl = document.getElementById('home-city');
+  const cityList = document.getElementById('home-city-list');
   const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
   const KEY_STORAGE = 'zptHomePartsIdempotency';
   let memoryKey = '';
@@ -70,6 +72,28 @@
     if (el) {
       el.textContent = message;
       el.hidden = !message;
+    }
+  }
+
+  function canonicalCity(value) {
+    const text = String(value || '').trim().replace(/\s+/g, ' ');
+    if (!text || !cityList) return '';
+    const folded = text.toLocaleLowerCase('ru');
+    let match = '';
+    cityList.querySelectorAll('option').forEach(function (opt) {
+      const name = String(opt.value || '').trim();
+      if (name && name.toLocaleLowerCase('ru') === folded) {
+        match = name;
+      }
+    });
+    return match;
+  }
+
+  function stopSubmitWithCityError(message) {
+    showFieldError('city', message);
+    if (formError) {
+      formError.textContent = message;
+      formError.hidden = false;
     }
   }
 
@@ -267,6 +291,19 @@
     event.preventDefault();
     if (submitting) return;
     clearErrors();
+    if (cityEl) {
+      const rawCity = String(cityEl.value || '').trim();
+      if (!rawCity) {
+        stopSubmitWithCityError('Укажите город.');
+        return;
+      }
+      const cityCanonical = canonicalCity(cityEl.value);
+      if (!cityCanonical) {
+        stopSubmitWithCityError('Выберите город из списка.');
+        return;
+      }
+      cityEl.value = cityCanonical;
+    }
     submitting = true;
     if (submitBtn) {
       submitBtn.disabled = true;

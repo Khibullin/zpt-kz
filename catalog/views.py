@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.forms import FeedbackForm
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES
 from core.models import Seller as RequestSeller
 from core.services.seller_identity import (
     SellerIdentityError,
@@ -501,7 +502,6 @@ def catalog_list(request):
     catalog_all_query = build_catalog_query(request.GET, all='1')
     catalog_all_url = f'?{catalog_all_query}' if catalog_all_query else '?all=1'
 
-    from orders.constants import KAZAKHSTAN_CITIES
     home_result = _load_home_request_result(home_request_token) if is_home_result_param else None
 
     context = {

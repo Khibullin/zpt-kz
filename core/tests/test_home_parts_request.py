@@ -227,6 +227,42 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(Request.objects.count(), 0)
 
+    def test_city_is_canonicalized_and_unknown_rejected(self):
+        from core.kazakhstan_locations import KAZAKHSTAN_CITIES as core_cities
+        from orders.constants import KAZAKHSTAN_CITIES as order_cities
+
+        self.assertIs(core_cities, order_cities)
+        cases = (
+            ('Алматы', 'key-city-exact'),
+            (' алматы ', 'key-city-trim'),
+            ('АЛМАТЫ', 'key-city-upper'),
+        )
+        for city, key in cases:
+            response, _, _ = self._post(city=city, idempotency_key=key)
+            self.assertEqual(response.status_code, 200, response.content)
+            req = Request.objects.get(idempotency_key=key)
+            self.assertEqual(req.city, 'Алматы')
+
+        before = Request.objects.count()
+        unknown, _, _ = self._post(city='Аматы', idempotency_key='key-city-typo')
+        self.assertEqual(unknown.status_code, 400)
+        payload = unknown.json()
+        self.assertEqual(payload['fields']['city'], 'Выберите город из списка.')
+        self.assertEqual(Request.objects.count(), before)
+
+        missing, _, _ = self._post(
+            city='Город-которого-нет',
+            idempotency_key='key-city-unknown',
+        )
+        self.assertEqual(missing.status_code, 400)
+        self.assertEqual(missing.json()['fields']['city'], 'Выберите город из списка.')
+        self.assertEqual(Request.objects.count(), before)
+
+        empty, _, _ = self._post(city='', idempotency_key='key-city-empty')
+        self.assertEqual(empty.status_code, 400)
+        self.assertEqual(empty.json()['fields']['city'], 'Укажите город.')
+        self.assertEqual(Request.objects.count(), before)
+
     def test_saves_year_vin_and_photo(self):
         response, _, _ = self._post(
             year='2018',

@@ -48,7 +48,7 @@ from core.whatsapp_template_sender import (
 from core.phone_utils import build_whatsapp_url
 from core.seller_request_consent import seller_request_template_kwargs
 from core.services.seller_request_access import (
-    create_seller_request_access,
+    get_or_create_active_seller_request_access,
     seller_request_whatsapp_url_suffix,
 )
 from core.services.seller_request_page_events import seller_match_status_label
@@ -204,10 +204,9 @@ def build_seller_request_send_kwargs(req, seller) -> dict:
         consent_kwargs['body_parameters'] = _seller_consent_template_body_params(req)
         return consent_kwargs
 
-    access = create_seller_request_access(
+    access = get_or_create_active_seller_request_access(
         request=req,
         seller=seller,
-        require_binding=True,
     )
     return {
         'template_name': resolve_seller_request_notification_template_name(),

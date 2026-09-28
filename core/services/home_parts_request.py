@@ -19,6 +19,7 @@ from core.models import (
     Request,
     RequestDispatch,
 )
+from core.kazakhstan_locations import canonical_kazakhstan_city
 from core.phone_utils import normalize_phone_for_whatsapp
 from core.services.home_parts_query import (
     MAX_PART_POSITIONS,
@@ -121,6 +122,13 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
             'Укажите город.',
             fields={'city': 'Укажите город.'},
         )
+    canonical_city = canonical_kazakhstan_city(city)
+    if canonical_city is None:
+        raise HomePartsRequestError(
+            'Выберите город из списка.',
+            fields={'city': 'Выберите город из списка.'},
+        )
+    city = canonical_city
 
     phone = normalize_phone_for_whatsapp(data.get('phone') or data.get('whatsapp'))
     if not phone:

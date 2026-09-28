@@ -11,7 +11,12 @@
       <dt>Комментарий</dt><dd>{{ parts_request.description|default:'—' }}</dd>
       <dt>Статус</dt><dd>{{ status_label }}</dd>
       <dt>Телефон покупателя</dt><dd>{{ masked_phone }}</dd>
-      <dt>Создано ссылок продавцам</dt><dd>{{ access_count }}</dd>
+      <dt>Подобрано продавцов</dt><dd>{{ dispatch_count }}</dd>
+      <dt>В очереди</dt><dd>{{ queued_count }}</dd>
+      <dt>Отправлено</dt><dd>{{ sent_count }}</dd>
+      <dt>Остановлено</dt><dd>{{ paused_count }}</dd>
+      <dt>Ошибка</dt><dd>{{ failed_count }}</dd>
+      <dt class="cp-muted">Ссылок доступа создано</dt><dd class="cp-muted">{{ access_count }}</dd>
     </dl>
   </section>
 
