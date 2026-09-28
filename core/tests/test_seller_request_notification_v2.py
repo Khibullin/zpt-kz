@@ -1,4 +1,5 @@
 import json
+from datetime import timedelta
 from unittest.mock import patch
 
 from django.test import TestCase, override_settings
@@ -8,6 +9,7 @@ from core.models import Request, RequestDispatch, Seller, SellerRequestAccess
 from core.request_dispatch_service import send_single_dispatch
 from core.services.seller_request_access import (
     create_seller_request_access,
+    get_or_create_active_seller_request_access,
     seller_request_whatsapp_url_suffix,
 )
 from core.views import (
@@ -211,6 +213,99 @@ class SellerRequestNotificationV2Tests(TestCase):
         self.assertIn('zpt_buyer_request_receipt', reserved)
         self.assertIn('mp_request_v1', reserved)
         self.assertIn('zpt_buyer_request_receipt', BASE_RESERVED_SERVICE_TEMPLATE_NAMES)
+
+    def _queued_dispatch(self, seller=None):
+        return RequestDispatch.objects.create(
+            request=self.req,
+            seller=seller or self.seller,
+            wave_number=1,
+            position_number=1,
+            status=RequestDispatch.STATUS_QUEUED,
+            scheduled_at=timezone.now(),
+        )
+
+    @patch('core.views.send_whatsapp_template')
+    def test_retry_reuses_active_seller_request_access(self, mocked_send):
+        dispatch = self._queued_dispatch()
+        mocked_send.side_effect = [
+            {'ok': False, 'error': 'meta fail'},
+            {'ok': True, 'message_id': 'wamid.retry-ok'},
+        ]
+
+        first = send_single_dispatch(dispatch)
+        self.assertFalse(first.get('ok'))
+        self.assertEqual(
+            SellerRequestAccess.objects.filter(request=self.req, seller=self.seller).count(),
+            1,
+        )
+        token = SellerRequestAccess.objects.get(request=self.req, seller=self.seller).token
+
+        dispatch.refresh_from_db()
+        self.assertEqual(dispatch.status, RequestDispatch.STATUS_QUEUED)
+        second = send_single_dispatch(dispatch)
+        self.assertTrue(second.get('ok'))
+        self.assertEqual(
+            SellerRequestAccess.objects.filter(request=self.req, seller=self.seller).count(),
+            1,
+        )
+        self.assertEqual(
+            SellerRequestAccess.objects.get(request=self.req, seller=self.seller).token,
+            token,
+        )
+
+        third = send_single_dispatch(dispatch)
+        self.assertTrue(third.get('skipped'))
+        self.assertEqual(
+            SellerRequestAccess.objects.filter(request=self.req, seller=self.seller).count(),
+            1,
+        )
+
+    def test_expired_access_creates_new_token(self):
+        old = create_seller_request_access(request=self.req, seller=self.seller)
+        old.expires_at = timezone.now() - timedelta(minutes=1)
+        old.save(update_fields=['expires_at'])
+
+        kwargs = build_seller_request_send_kwargs(self.req, self.seller)
+        self.assertEqual(
+            SellerRequestAccess.objects.filter(request=self.req, seller=self.seller).count(),
+            2,
+        )
+        active = get_or_create_active_seller_request_access(
+            request=self.req,
+            seller=self.seller,
+        )
+        self.assertNotEqual(active.token, old.token)
+        self.assertEqual(
+            kwargs['button_components'][0]['parameters'][0]['text'],
+            f'{active.token}/',
+        )
+
+    def test_access_is_scoped_to_request_and_seller(self):
+        other_seller = _make_seller()
+        other_seller.whatsapp = '77015550099'
+        other_seller.save(update_fields=['whatsapp'])
+        other_request = _make_request(phone='77001110000')
+
+        first = get_or_create_active_seller_request_access(
+            request=self.req,
+            seller=self.seller,
+        )
+        other_seller_access = get_or_create_active_seller_request_access(
+            request=self.req,
+            seller=other_seller,
+        )
+        other_request_access = get_or_create_active_seller_request_access(
+            request=other_request,
+            seller=self.seller,
+        )
+        reused = get_or_create_active_seller_request_access(
+            request=self.req,
+            seller=self.seller,
+        )
+        self.assertEqual(first.pk, reused.pk)
+        self.assertNotEqual(first.pk, other_seller_access.pk)
+        self.assertNotEqual(first.pk, other_request_access.pk)
+        self.assertEqual(SellerRequestAccess.objects.count(), 3)
 
     def test_example_payload_matches_approved_template(self):
         req = _make_request(pk=431)

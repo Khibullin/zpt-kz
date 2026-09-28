@@ -10,6 +10,7 @@ import secrets
 from datetime import timedelta
 
 from django.conf import settings
+from django.db import transaction
 from django.urls import reverse
 from django.utils import timezone
 
@@ -50,6 +51,41 @@ def create_seller_request_access(
             expires_at=expires_at,
         )
     raise RuntimeError('Could not allocate a unique seller request access token.')
+
+
+def get_or_create_active_seller_request_access(
+    *,
+    request: Request,
+    seller: Seller,
+    ttl: timedelta | None = None,
+) -> SellerRequestAccess:
+    """Reuse the newest unexpired access for this request/seller, else create one.
+
+    Does not prevent a new token after expiry. Concurrent first-creates without a
+    unique constraint can still insert two active rows; sequential retry is safe.
+    """
+    if request is None or seller is None:
+        raise ValueError('Seller request access requires both request and seller.')
+    now = timezone.now()
+    with transaction.atomic():
+        existing = (
+            SellerRequestAccess.objects.select_for_update()
+            .filter(
+                request=request,
+                seller=seller,
+                expires_at__gt=now,
+            )
+            .order_by('-created_at', '-id')
+            .first()
+        )
+        if existing is not None:
+            return existing
+        return create_seller_request_access(
+            request=request,
+            seller=seller,
+            ttl=ttl,
+            require_binding=True,
+        )
 
 
 def find_seller_request_access(token: object) -> SellerRequestAccess | None:

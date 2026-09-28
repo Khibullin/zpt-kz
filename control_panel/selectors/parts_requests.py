@@ -336,6 +336,21 @@ def get_parts_request_detail(pk: int) -> dict:
         for event in events
     ]
 
+    dispatches = list(request_obj.dispatches.all())
+    queued_count = 0
+    sent_count = 0
+    paused_count = 0
+    failed_count = 0
+    for item in dispatches:
+        if item.status == RequestDispatch.STATUS_QUEUED:
+            queued_count += 1
+        elif item.status == RequestDispatch.STATUS_SENT:
+            sent_count += 1
+        elif item.status == RequestDispatch.STATUS_PAUSED:
+            paused_count += 1
+        elif item.status == RequestDispatch.STATUS_FAILED:
+            failed_count += 1
+
     return {
         'parts_request': request_obj,
         'vehicle': vehicle_label(request_obj.brand, request_obj.model),
@@ -343,6 +358,11 @@ def get_parts_request_detail(pk: int) -> dict:
         'masked_phone': mask_phone(request_obj.phone),
         'reactions': reactions,
         'events': event_rows,
-        'dispatches': list(request_obj.dispatches.all()),
+        'dispatches': dispatches,
+        'dispatch_count': len(dispatches),
+        'queued_count': queued_count,
+        'sent_count': sent_count,
+        'paused_count': paused_count,
+        'failed_count': failed_count,
         'access_count': len(request_obj.seller_access_links.all()),
     }

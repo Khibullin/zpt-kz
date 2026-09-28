@@ -275,13 +275,75 @@ class ControlPanelTests(TestCase):
         self.assertContains(response, 'Перешёл в WhatsApp')
         self.assertNotIn(f'#{access.pk}', body)
         self.assertContains(response, 'Разрешил здесь')
-        self.assertContains(response, 'Создано ссылок продавцам')
+        self.assertContains(response, 'Ссылок доступа создано')
+        self.assertNotContains(response, 'Создано ссылок продавцам')
         self.assertContains(response, 'Звонок')
         self.assertNotContains(response, '>Call<')
         self.assertRegex(body, r'\d{2}\.\d{2}\.\d{4} \d{2}:\d{2}:\d{2}')
         events = list(response.context['events'])
         self.assertGreaterEqual(len(events), 2)
         self.assertGreaterEqual(events[0].created_at, events[1].created_at)
+
+    def test_parts_detail_dispatch_counters_separate_from_access_links(self):
+        self._login_staff()
+        queued_seller = _seller(name='Queued', whatsapp='77015550011')
+        sent_seller = _seller(name='Sent', whatsapp='77015550012')
+        paused_seller = _seller(name='Paused', whatsapp='77015550013')
+        failed_seller = _seller(name='Failed', whatsapp='77015550014')
+        req = _request()
+        now = timezone.now()
+        RequestDispatch.objects.create(
+            request=req,
+            seller=queued_seller,
+            wave_number=1,
+            position_number=1,
+            status=RequestDispatch.STATUS_QUEUED,
+            scheduled_at=now,
+        )
+        RequestDispatch.objects.create(
+            request=req,
+            seller=sent_seller,
+            wave_number=1,
+            position_number=2,
+            status=RequestDispatch.STATUS_SENT,
+            scheduled_at=now,
+            sent_at=now,
+        )
+        RequestDispatch.objects.create(
+            request=req,
+            seller=paused_seller,
+            wave_number=1,
+            position_number=3,
+            status=RequestDispatch.STATUS_PAUSED,
+            scheduled_at=now,
+        )
+        RequestDispatch.objects.create(
+            request=req,
+            seller=failed_seller,
+            wave_number=1,
+            position_number=4,
+            status=RequestDispatch.STATUS_FAILED,
+            scheduled_at=now,
+        )
+        create_seller_request_access(request=req, seller=sent_seller)
+        create_seller_request_access(request=req, seller=sent_seller)
+
+        url = reverse('control_panel:parts_request_detail', args=[req.pk])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['dispatch_count'], 4)
+        self.assertEqual(response.context['queued_count'], 1)
+        self.assertEqual(response.context['sent_count'], 1)
+        self.assertEqual(response.context['paused_count'], 1)
+        self.assertEqual(response.context['failed_count'], 1)
+        self.assertEqual(response.context['access_count'], 2)
+        self.assertContains(response, 'Подобрано продавцов')
+        self.assertContains(response, 'В очереди')
+        self.assertContains(response, 'Отправлено')
+        self.assertContains(response, 'Остановлено')
+        self.assertContains(response, 'Ошибка')
+        self.assertContains(response, 'Ссылок доступа создано')
+        self.assertNotContains(response, 'Создано ссылок продавцам')
 
     def test_seller_list_and_rh_like_consent_card(self):
         self._login_staff()
