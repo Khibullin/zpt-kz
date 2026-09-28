@@ -20,6 +20,7 @@ from dataclasses import dataclass
 from django.db import transaction
 
 from catalog.commercial import get_request_seller_profile, resolve_commercial_price
+from catalog.maintenance_kit_collages import kit_cover_image
 from catalog.models import MaintenanceKit, MaintenanceKitItem, Product
 from catalog.wholesale import (
     WHOLESALE_TYPE_AIR,
@@ -144,6 +145,8 @@ class KitView:
     has_unavailable: bool
     has_unconfirmed: bool
     orderable_count: int
+    cover_image_url: str = ''
+    cover_image_alt: str = ''
 
 
 def kit_years_display(kit: MaintenanceKit) -> str:
@@ -336,6 +339,7 @@ def build_kit_view(kit: MaintenanceKit, request=None) -> KitView:
             )
         else:
             reason = str(exc) or KIT_UNAVAILABLE_MESSAGE
+    cover_image_url, cover_image_alt = kit_cover_image(kit)
     return KitView(
         kit=kit,
         lines=display_lines,
@@ -348,6 +352,8 @@ def build_kit_view(kit: MaintenanceKit, request=None) -> KitView:
         has_unavailable=has_unavailable,
         has_unconfirmed=has_unconfirmed,
         orderable_count=orderable_count,
+        cover_image_url=cover_image_url,
+        cover_image_alt=cover_image_alt,
     )
 
 

@@ -120,10 +120,18 @@ class MaintenanceKitCoverAttachTests(TestCase):
                 self.assertTrue(exeed.cover)
                 listing = self.client.get(reverse('maintenance_kit_list'))
                 self.assertContains(listing, 'kit-card-cover')
-                self.assertContains(listing, exeed.cover.url)
+                self.assertContains(
+                    listing,
+                    '/static/images/kits/exeed-txl-16t-four-part-collage.jpg',
+                )
+                self.assertNotContains(listing, exeed.cover.url)
                 detail = self.client.get('/maintenance-kits/komplekt-to-exeed-txl-16t/')
                 self.assertContains(detail, 'kit-cover-wrap')
-                self.assertContains(detail, exeed.cover.url)
+                self.assertContains(
+                    detail,
+                    '/static/images/kits/exeed-txl-16t-four-part-collage.jpg',
+                )
+                self.assertNotContains(detail, exeed.cover.url)
                 hidden = self.client.get(
                     '/maintenance-kits/komplekt-to-changan-uni-k-20t/'
                 )
@@ -142,5 +150,9 @@ class MaintenanceKitCoverAttachTests(TestCase):
                 kit.refresh_from_db()
                 self.assertTrue(kit.cover.name.startswith('maintenance_kits/'))
                 response = self.client.get(reverse('maintenance_kit_list'))
-                self.assertContains(response, kit.cover.url)
+                self.assertContains(
+                    response,
+                    '/static/images/kits/exeed-txl-16t-four-part-collage.jpg',
+                )
+                self.assertNotContains(response, kit.cover.url)
                 self.assertContains(response, 'maintenance-kits.css')

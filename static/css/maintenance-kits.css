@@ -49,7 +49,7 @@
   width:100%;
   aspect-ratio:4 / 3;
   border-radius:10px;
-  background:#f3f4f6;
+  background:#fff;
   overflow:hidden;
   display:flex;
   align-items:center;
@@ -137,7 +137,7 @@
   margin:4px 0 16px;
   width:100%;
   min-height:160px;
-  background:#f3f4f6;
+  background:#fff;
   border-radius:14px;
   display:flex;
   align-items:center;
@@ -206,7 +206,7 @@
   .kit-filter{grid-template-columns:1fr}
   .kit-car-search-row{grid-template-columns:1fr}
   .kit-selection-status a{display:block;margin:8px 0 0}
-  .kit-cover-wrap img{max-height:240px}
+  .kit-cover-wrap img{max-height:320px}
   .kit-request-grid{grid-template-columns:1fr}
   .kit-hero{padding:4px 0 8px}
   .kit-hero h1{margin-bottom:8px}
