@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_partial_v1">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_collage_v1">
 {% endblock %}
 
 {% block content %}
@@ -31,13 +31,9 @@
 
   <section class="kit-hero">
     <h1>{{ kit.name }}</h1>
-    {% if kit.slug == "nabor-to-chery-arrizo-8-16-sqrf4j16c" %}
+    {% if kit_view.cover_image_url %}
       <div class="kit-cover-wrap">
-        <img src="{% static 'images/kits/arrizo-8-16-three-filter-collage.jpg' %}" alt="Воздушный, масляный и салонный фильтры комплекта Chery Arrizo 8 1.6">
-      </div>
-    {% elif kit.cover %}
-      <div class="kit-cover-wrap">
-        <img src="{{ kit.cover.url }}" alt="Общее фото комплекта {{ kit.name }}">
+        <img src="{{ kit_view.cover_image_url }}" alt="{{ kit_view.cover_image_alt }}">
       </div>
     {% endif %}
     {% if kit.cover_note %}
