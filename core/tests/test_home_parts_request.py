@@ -263,6 +263,38 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(empty.json()['fields']['city'], 'Укажите город.')
         self.assertEqual(Request.objects.count(), before)
 
+    def test_city_exact_aliases_accepted_typos_rejected(self):
+        from core.kazakhstan_locations import KAZAKHSTAN_CITIES as core_cities
+
+        self.assertIn('Жезказган', core_cities)
+
+        accepted = (
+            ('Almaty', 'Алматы', 'key-city-alias-almaty'),
+            ('Astana', 'Астана', 'key-city-alias-astana'),
+            ('Алматы', 'Алматы', 'key-city-cyrillic-almaty'),
+            ('алматы', 'Алматы', 'key-city-cyrillic-almaty-lower'),
+            ('Жезказган', 'Жезказган', 'key-city-zhezkazgan'),
+        )
+        for city, expected, key in accepted:
+            response, _, _ = self._post(city=city, idempotency_key=key)
+            self.assertEqual(response.status_code, 200, response.content)
+            req = Request.objects.get(idempotency_key=key)
+            self.assertEqual(req.city, expected)
+
+        before = Request.objects.count()
+        typo, _, _ = self._post(city='Аматы', idempotency_key='key-city-alias-typo')
+        self.assertEqual(typo.status_code, 400)
+        self.assertEqual(typo.json()['fields']['city'], 'Выберите город из списка.')
+        self.assertEqual(Request.objects.count(), before)
+
+        unknown, _, _ = self._post(
+            city='Город-которого-нет',
+            idempotency_key='key-city-alias-unknown',
+        )
+        self.assertEqual(unknown.status_code, 400)
+        self.assertEqual(unknown.json()['fields']['city'], 'Выберите город из списка.')
+        self.assertEqual(Request.objects.count(), before)
+
     def test_saves_year_vin_and_photo(self):
         response, _, _ = self._post(
             year='2018',

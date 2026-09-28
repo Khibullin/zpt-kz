@@ -298,11 +298,9 @@
         return;
       }
       const cityCanonical = canonicalCity(cityEl.value);
-      if (!cityCanonical) {
-        stopSubmitWithCityError('Выберите город из списка.');
-        return;
+      if (cityCanonical) {
+        cityEl.value = cityCanonical;
       }
-      cityEl.value = cityCanonical;
     }
     submitting = true;
     if (submitBtn) {
