@@ -209,7 +209,7 @@ class CatalogHeroLayoutTests(TestCase):
             response,
             'Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки.',
         )
-        self.assertContains(response, 'Название или артикул запчасти')
+        self.assertContains(response, 'Название, артикул или описание запчасти')
         self.assertContains(response, 'Отправить запрос')
         self.assertContains(response, 'id="home-parts-form"')
         self.assertContains(response, 'Оставить заявку')

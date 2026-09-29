@@ -398,12 +398,14 @@ class HomePartsRequestTests(TestCase):
     def test_manual_model_does_not_create_catalog_rows(self):
         catalog_models_before = CatalogCarModel.objects.count()
         core_models_before = CoreCarModel.objects.count()
+        PartCategory.objects.create(name='Двигатель')
         response, _, _ = self._post(
             query='ремень ГРМ',
             brand='Toyota',
             model='CustomWagon',
             brand_id=str(self.core_brand.id),
             model_id='',
+            category='Двигатель',
             idempotency_key='key-manual',
         )
         self.assertEqual(response.status_code, 200, response.content)
@@ -1399,10 +1401,17 @@ class HomeShortMatchedSellerTests(TestCase):
 
     def test_home_form_is_compact_matched_version(self):
         page = self.client.get('/')
-        self.assertContains(page, 'home-parts-form-v6.js')
+        self.assertContains(page, 'home-parts-form-v7.js')
+        self.assertNotContains(page, 'home-parts-form-v6.js')
         self.assertNotContains(page, 'home-parts-form-v5.js')
         self.assertNotContains(page, 'home-parts-form-v4.js')
+        self.assertContains(page, 'Название, артикул или описание запчасти')
         self.assertContains(page, 'id="home-parts-warning"')
+        from pathlib import Path
+        script = Path('static/js/home-parts-form-v7.js').read_text(encoding='utf-8')
+        rejection_ui = script.split('function showRejection', 1)[1].split('function ', 1)[0]
+        self.assertIn('Исправить запрос', rejection_ui)
+        self.assertNotIn('Всё равно отправить', rejection_ui)
         self.assertContains(page, 'name="transport_type"')
         self.assertContains(page, 'value="car" checked')
         self.assertContains(page, 'Легковые')
@@ -1524,26 +1533,26 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertEqual(Request.objects.count(), 1)
         self.assertEqual(Request.objects.get().article, '52119-0K040')
 
-    def test_service_intent_warns_without_creating_request(self):
+    def test_service_intent_rejects_without_creating_request(self):
         for query, key in (
             ('записаться на СТО', 'key-sto'),
             ('шиномонтаж', 'key-tires'),
+            ('продам автомобиль', 'key-sell-car'),
+            ('страхование', 'key-insurance'),
+            ('реклама', 'key-ads'),
         ):
             with self.subTest(query=query):
                 response = self._post(
                     query=query,
                     category='Тормоза',
                     idempotency_key=key,
+                    warning_confirmed='1',
                 )
                 self.assertEqual(response.status_code, 422, response.content)
                 payload = response.json()
-                self.assertTrue(payload['warning_required'])
-                self.assertEqual(payload['warning_code'], 'non_parts_intent')
-                self.assertEqual(
-                    payload['warning_message'],
-                    'Похоже, это не запрос на покупку автозапчасти. '
-                    'Проверьте текст перед отправкой.',
-                )
+                self.assertTrue(payload['rejected'])
+                self.assertEqual(payload['rejection_code'], 'not_parts_request')
+                self.assertNotIn('warning_required', payload)
                 self.assertNotIn('suggested_category', payload)
         self.assertEqual(Request.objects.count(), 0)
         self.assertEqual(RequestDispatch.objects.count(), 0)
@@ -1595,6 +1604,129 @@ class HomeShortMatchedSellerTests(TestCase):
         )
         self.assertEqual(created.status_code, 200, created.content)
         self.assertEqual(Request.objects.count(), 1)
+
+    def test_unknown_part_name_is_not_rejected(self):
+        response = self._post(
+            query='подушка двигателя',
+            category='Тормоза',
+            idempotency_key='key-engine-mount',
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertNotIn('rejected', response.json())
+        self.assertEqual(Request.objects.count(), 1)
+
+    def test_radiator_and_steering_rack_suggest_their_categories(self):
+        PartCategory.objects.create(name='Охлаждение')
+        radiator = self._post(
+            query='радиатор',
+            category='Трансмиссия',
+            idempotency_key='key-radiator',
+        )
+        self.assertEqual(radiator.status_code, 422, radiator.content)
+        self.assertEqual(radiator.json()['warning_code'], 'category_mismatch')
+        self.assertEqual(radiator.json()['suggested_category'], 'Охлаждение')
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+        rack = self._post(
+            query='рулевая рейка',
+            category='Охлаждение',
+            idempotency_key='key-rack',
+        )
+        self.assertEqual(rack.status_code, 422, rack.content)
+        self.assertEqual(rack.json()['suggested_category'], 'Рулевое управление')
+        self.assertEqual(Request.objects.count(), 0)
+
+    def test_bare_steering_wheel_warns_without_guessing_category(self):
+        PartCategory.objects.create(name='Охлаждение')
+        response = self._post(
+            query='руль',
+            category='Охлаждение',
+            idempotency_key='key-wheel',
+        )
+        self.assertEqual(response.status_code, 422, response.content)
+        payload = response.json()
+        self.assertTrue(payload['warning_required'])
+        self.assertEqual(payload['warning_code'], 'ambiguous_part_category')
+        self.assertNotIn('suggested_category', payload)
+        self.assertNotIn('rejected', payload)
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+    def test_multiple_part_categories_warn_until_confirmed(self):
+        warned = self._post(
+            query='колодки, амортизатор',
+            category='Тормоза',
+            idempotency_key='key-multi-cat',
+        )
+        self.assertEqual(warned.status_code, 422, warned.content)
+        payload = warned.json()
+        self.assertEqual(payload['warning_code'], 'multiple_part_categories')
+        self.assertNotIn('suggested_category', payload)
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+        same_category = self._post(
+            query='колодки, тормозные диски',
+            category='Тормоза',
+            idempotency_key='key-same-cat',
+        )
+        self.assertEqual(same_category.status_code, 200, same_category.content)
+
+        created = self._post(
+            query='колодки, амортизатор',
+            category='Тормоза',
+            idempotency_key='key-multi-cat',
+            warning_confirmed='1',
+        )
+        self.assertEqual(created.status_code, 200, created.content)
+        self.assertEqual(Request.objects.filter(description__icontains='амортизатор').count(), 1)
+        replay = self._post(
+            query='колодки, амортизатор',
+            category='Тормоза',
+            idempotency_key='key-multi-cat',
+            warning_confirmed='1',
+        )
+        self.assertTrue(replay.json()['replay'])
+        self.assertEqual(Request.objects.filter(description__icontains='амортизатор').count(), 1)
+
+    def test_meaningless_text_is_rejected(self):
+        for query, key in (
+            ('помогите', 'key-help'),
+            ('сломалось', 'key-broken'),
+            ('нужна запчасть', 'key-generic-part'),
+        ):
+            with self.subTest(query=query):
+                response = self._post(
+                    query=query,
+                    category='Тормоза',
+                    idempotency_key=key,
+                    warning_confirmed='1',
+                )
+                self.assertEqual(response.status_code, 422, response.content)
+                payload = response.json()
+                self.assertTrue(payload['rejected'])
+                self.assertEqual(payload['rejection_code'], 'unspecified_part')
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+    def test_reject_does_not_consume_idempotency_key_or_rate_limit(self):
+        with self.settings(HOME_PARTS_MAX_PER_HOUR=1, HOME_PARTS_MAX_PER_PHONE_HOUR=1):
+            rejected = self._post(
+                query='шиномонтаж',
+                category='Тормоза',
+                idempotency_key='key-reject-then-create',
+            )
+            self.assertEqual(rejected.status_code, 422, rejected.content)
+            self.assertTrue(rejected.json()['rejected'])
+            self.assertEqual(Request.objects.count(), 0)
+            created = self._post(
+                query='колодки',
+                category='Тормоза',
+                idempotency_key='key-reject-then-create',
+            )
+            self.assertEqual(created.status_code, 200, created.content)
+            self.assertEqual(Request.objects.count(), 1)
 
 
 class VehicleSuggestTests(TestCase):
