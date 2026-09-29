@@ -14,11 +14,13 @@ from core.models import (
     Request,
     Seller,
     SellerContactConsent,
+    SellerRequestAccess,
     SellerRequestPageEvent,
 )
 from core.services.seller_request_access import (
     build_seller_request_access_url,
     create_seller_request_access,
+    get_or_create_active_seller_request_access,
 )
 from core.services.seller_request_page_events import (
     EVENT_CALL_CLICK,
@@ -524,10 +526,69 @@ class SellerRequestLinkTests(TestCase):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
 
-    def test_default_ttl_is_two_hours(self):
+    def test_default_ttl_is_seventy_two_hours(self):
         delta = self.access.expires_at - self.access.created_at
-        self.assertGreaterEqual(delta.total_seconds(), 2 * 3600 - 5)
-        self.assertLessEqual(delta.total_seconds(), 2 * 3600 + 5)
+        self.assertGreaterEqual(delta.total_seconds(), 72 * 3600 - 5)
+        self.assertLessEqual(delta.total_seconds(), 72 * 3600 + 5)
+
+    def test_active_link_is_reused(self):
+        before = SellerRequestAccess.objects.filter(
+            request=self.request_obj,
+            seller=self.seller,
+        ).count()
+        reused = get_or_create_active_seller_request_access(
+            request=self.request_obj,
+            seller=self.seller,
+        )
+        again = get_or_create_active_seller_request_access(
+            request=self.request_obj,
+            seller=self.seller,
+        )
+        self.assertEqual(reused.pk, self.access.pk)
+        self.assertEqual(again.pk, self.access.pk)
+        self.assertEqual(reused.token, self.access.token)
+        self.assertEqual(
+            SellerRequestAccess.objects.filter(
+                request=self.request_obj,
+                seller=self.seller,
+            ).count(),
+            before,
+        )
+
+    def test_expired_link_creates_new_access_with_default_ttl(self):
+        self.access.expires_at = timezone.now() - timedelta(minutes=1)
+        self.access.save(update_fields=['expires_at'])
+        before = SellerRequestAccess.objects.filter(
+            request=self.request_obj,
+            seller=self.seller,
+        ).count()
+        created = get_or_create_active_seller_request_access(
+            request=self.request_obj,
+            seller=self.seller,
+        )
+        self.assertNotEqual(created.pk, self.access.pk)
+        self.assertNotEqual(created.token, self.access.token)
+        self.assertEqual(
+            SellerRequestAccess.objects.filter(
+                request=self.request_obj,
+                seller=self.seller,
+            ).count(),
+            before + 1,
+        )
+        delta = created.expires_at - created.created_at
+        self.assertGreaterEqual(delta.total_seconds(), 72 * 3600 - 5)
+        self.assertLessEqual(delta.total_seconds(), 72 * 3600 + 5)
+
+    def test_explicit_ttl_override(self):
+        access = create_seller_request_access(
+            request=self.request_obj,
+            seller=self.seller,
+            ttl=timedelta(minutes=15),
+        )
+        delta = access.expires_at - access.created_at
+        self.assertGreaterEqual(delta.total_seconds(), 15 * 60 - 5)
+        self.assertLessEqual(delta.total_seconds(), 15 * 60 + 5)
+        self.assertNotEqual(access.pk, self.access.pk)
 
     def test_require_binding_rejects_unbound_access(self):
         with self.assertRaises(ValueError):
