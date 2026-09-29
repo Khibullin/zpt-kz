@@ -12,7 +12,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from catalog.models import Product, SellerProfile
-from core.models import Feedback, GuideFaqVote, Request
+from core.models import Feedback, GuideFaqVote, PartCategory, Request
 from core.platform_help import platform_help_system_prompt
 from core.zpt_guide_faq import (
     FAQ_SECTIONS,
@@ -148,7 +148,7 @@ class ZptGuidePageTests(TestCase):
         self.assertNotIn('Задать вопрос голосом', js)
         self.assertIn('zptGuideRequestDraft', js)
         self.assertIn('window.location.href = \'/\';', js)
-        home_js = Path('static/js/home-parts-form-v4.js').read_text(encoding='utf-8')
+        home_js = Path('static/js/home-parts-form-v5.js').read_text(encoding='utf-8')
         self.assertIn("fillIfEmpty(vinEl, draft.vin)", home_js)
         self.assertIn('fillIfEmpty', home_js)
         self.assertNotIn('draft.phone', home_js)
@@ -408,6 +408,7 @@ class HomePwaPromptTests(TestCase):
         with patch('core.views._send_buyer_whatsapp_notification_async') as buyer_wa, patch(
             'core.views.schedule_instagram_publication_for_request',
         ):
+            PartCategory.objects.create(name='Тормоза')
             success = self.client.post(
                 '/api/home-parts-request/',
                 {
@@ -416,6 +417,8 @@ class HomePwaPromptTests(TestCase):
                     'model': 'Camry',
                     'city': 'Алматы',
                     'phone': '87015556677',
+                    'transport_type': 'car',
+                    'category': 'Тормоза',
                     'idempotency_key': 'pwa-success-key',
                 },
             )

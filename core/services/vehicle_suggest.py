@@ -215,13 +215,22 @@ def _transport_label(transport_type: str) -> str:
     return dict(TRANSPORT_CHOICES).get(transport_type, '')
 
 
-def suggest_brands(query: str, *, limit: int = SUGGEST_LIMIT) -> list[dict]:
+def suggest_brands(
+    query: str,
+    *,
+    limit: int = SUGGEST_LIMIT,
+    transport_type: str = '',
+) -> list[dict]:
     text = ' '.join(str(query or '').split())
     if len(text) < MIN_QUERY_LEN:
         return []
 
+    brands = Brand.objects.select_related('country').order_by('name', 'id')
+    if transport_type in ('car', 'truck'):
+        brands = brands.filter(transport_type=transport_type)
+
     scored: list[tuple[int, str, Brand]] = []
-    for brand in Brand.objects.select_related('country').order_by('name', 'id'):
+    for brand in brands:
         score = _score_name(text, brand.name)
         alias = _alias_canonical(text)
         if score is None and alias:
@@ -265,12 +274,15 @@ def suggest_models(
     brand_id: int | None = None,
     brand_name: str = '',
     limit: int = SUGGEST_LIMIT,
+    transport_type: str = '',
 ) -> list[dict]:
     text = ' '.join(str(query or '').split())
     models = CarModel.objects.select_related('brand', 'brand__country').order_by(
         'name',
         'id',
     )
+    if transport_type in ('car', 'truck'):
+        models = models.filter(transport_type=transport_type)
     if brand_id:
         models = models.filter(brand_id=brand_id)
     elif brand_name.strip():
@@ -335,9 +347,11 @@ def resolve_vehicle(
     brand_name: str = '',
     model_id=None,
     model_name: str = '',
+    transport_type: str = '',
 ) -> VehicleMatch:
     brand_name = ' '.join(str(brand_name or '').split())
     model_name = ' '.join(str(model_name or '').split())
+    preferred = transport_type if transport_type in ('car', 'truck') else ''
     brand = _load_brand(brand_id)
     model = _load_model(model_id)
 
@@ -364,6 +378,10 @@ def resolve_vehicle(
         matches = list(
             Brand.objects.select_related('country').filter(name__iexact=brand_name)
         )
+        if preferred:
+            typed = [item for item in matches if item.transport_type == preferred]
+            if typed:
+                matches = typed
         unique_names = {_fold(item.name) for item in matches}
         unique_types = {item.transport_type for item in matches}
         unique_countries = {

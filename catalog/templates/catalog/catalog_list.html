@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 
-{% block meta_description %}Ищете автозапчасть? Отправьте одну заявку — более 300 продавцов по Казахстану найдут нужную запчасть и отправят предложения в WhatsApp. Запчасти для легковых и грузовых авто.{% endblock %}
+{% block meta_description %}Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки. Запчасти для легковых и грузовых авто.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
@@ -285,6 +285,8 @@ a.hero-b2b-strip-btn:hover,
 }
 .home-parts-field-query,
 .home-parts-field-phone,
+.home-parts-field-transport,
+.home-parts-scope,
 .home-parts-actions,
 .home-parts-consent-note,
 .home-parts-extra{
@@ -296,13 +298,15 @@ a.hero-b2b-strip-btn:hover,
   gap:4px;
   min-width:0;
 }
-.home-parts-field label{
+.home-parts-field label,
+.home-parts-field-caption{
   font-size:12px;
   font-weight:700;
   color:#111827;
 }
 .home-parts-field input,
-.home-parts-field textarea{
+.home-parts-field textarea,
+.home-parts-field select{
   width:100%;
   min-height:42px;
   padding:8px 10px;
@@ -319,10 +323,56 @@ a.hero-b2b-strip-btn:hover,
   resize:vertical;
 }
 .home-parts-field input:focus,
-.home-parts-field textarea:focus{
+.home-parts-field textarea:focus,
+.home-parts-field select:focus{
   outline:2px solid #ff3b30;
   outline-offset:1px;
   border-color:#ff3b30;
+}
+.home-parts-transport{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:6px;
+}
+.home-parts-transport-option{
+  position:relative;
+}
+.home-parts-transport-option input{
+  position:absolute;
+  opacity:0;
+  width:1px;
+  height:1px;
+  min-height:0;
+  padding:0;
+  border:0;
+  margin:0;
+  pointer-events:none;
+}
+.home-parts-transport-option span{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:42px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+  background:#fff;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+}
+.home-parts-transport-option input:checked + span{
+  border-color:#ff3b30;
+  background:#fff5f5;
+}
+.home-parts-transport-option input:focus-visible + span{
+  outline:2px solid #ff3b30;
+  outline-offset:1px;
+}
+.home-parts-scope{
+  margin:0;
+  font-size:13px;
+  line-height:1.4;
+  color:#4b5563;
 }
 .home-parts-combo{
   position:relative;
@@ -602,7 +652,7 @@ a.hero-b2b-strip-btn:hover,
 
       <header class="home-intro">
         <h1 class="hero-title ds-h1">Запчасти для вашего авто — одним запросом</h1>
-        <p class="hero-sub ds-body">Отправьте заявку и получите предложения в WhatsApp</p>
+        <p class="hero-sub ds-body">Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки.</p>
       </header>
 
       {% if is_home_result %}
@@ -653,6 +703,21 @@ a.hero-b2b-strip-btn:hover,
             <p class="home-parts-error" data-error-for="query" hidden></p>
           </div>
 
+          <div class="home-parts-field home-parts-field-transport">
+            <span class="home-parts-field-caption" id="home-transport-label">Тип транспорта</span>
+            <div class="home-parts-transport" role="radiogroup" aria-labelledby="home-transport-label">
+              <label class="home-parts-transport-option">
+                <input type="radio" name="transport_type" value="car" checked>
+                <span>Легковые</span>
+              </label>
+              <label class="home-parts-transport-option">
+                <input type="radio" name="transport_type" value="truck">
+                <span>Грузовые</span>
+              </label>
+            </div>
+            <p class="home-parts-error" data-error-for="transport_type" hidden></p>
+          </div>
+
           <div class="home-parts-field home-parts-combo">
             <label for="home-brand">Марка</label>
             <input id="home-brand" name="brand" type="text" autocomplete="off" spellcheck="false" placeholder="Toyota" value="">
@@ -670,9 +735,14 @@ a.hero-b2b-strip-btn:hover,
           </div>
 
           <div class="home-parts-field">
-            <label for="home-year">Год выпуска (необязательно)</label>
-            <input id="home-year" name="year" type="number" inputmode="numeric" min="1950" max="{{ home_year_max }}" placeholder="2018" value="">
-            <p class="home-parts-error" data-error-for="year" hidden></p>
+            <label for="home-category">Категория запчасти</label>
+            <select id="home-category" name="category" required>
+              <option value="">Выберите категорию</option>
+              {% for category in home_part_categories %}
+                <option value="{{ category.name }}">{{ category.name }}</option>
+              {% endfor %}
+            </select>
+            <p class="home-parts-error" data-error-for="category" hidden></p>
           </div>
 
           <div class="home-parts-field">
@@ -692,9 +762,16 @@ a.hero-b2b-strip-btn:hover,
             <p class="home-parts-error" data-error-for="phone" hidden></p>
           </div>
 
+          <p class="home-parts-scope">Ищем подходящих продавцов по всему Казахстану</p>
+
           <details class="home-parts-extra">
-            <summary>Добавить VIN или фото</summary>
+            <summary>Дополнительно</summary>
             <div class="home-parts-grid" style="margin-top:10px">
+              <div class="home-parts-field">
+                <label for="home-year">Год выпуска (необязательно)</label>
+                <input id="home-year" name="year" type="number" inputmode="numeric" min="1950" max="{{ home_year_max }}" placeholder="2018" value="">
+                <p class="home-parts-error" data-error-for="year" hidden></p>
+              </div>
               <div class="home-parts-field">
                 <label for="home-vin">VIN</label>
                 <input id="home-vin" name="vin" type="text" maxlength="17" autocomplete="off" spellcheck="false" placeholder="Необязательно" value="">
@@ -736,7 +813,7 @@ a.hero-b2b-strip-btn:hover,
               <p class="catalog-empty-state-query">Вы искали: {{ query }}</p>
             {% endif %}
             <p class="catalog-empty-state-text">
-              Отправьте запрос формой выше — продавцы напишут в WhatsApp, если запчасть есть.
+              Отправьте запрос формой выше — подходящие продавцы напишут в WhatsApp, если запчасть есть.
             </p>
           </div>
           <div class="catalog-empty-state-actions">
@@ -829,7 +906,7 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/home-parts-form-v4.js' %}?v=2"></script>
+<script src="{% static 'js/home-parts-form-v5.js' %}?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {

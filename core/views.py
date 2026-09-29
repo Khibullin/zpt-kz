@@ -1214,14 +1214,17 @@ def vehicle_suggest(request):
 
     kind = (request.GET.get('kind') or 'brand').strip().lower()
     query = request.GET.get('q', '')
+    raw_transport = (request.GET.get('transport_type') or '').strip().lower()
+    transport_type = raw_transport if raw_transport in ('car', 'truck') else ''
     if kind == 'model':
         items = suggest_models(
             query,
             brand_id=request.GET.get('brand_id'),
             brand_name=request.GET.get('brand', ''),
+            transport_type=transport_type,
         )
     else:
-        items = suggest_brands(query)
+        items = suggest_brands(query, transport_type=transport_type)
     return JsonResponse({'items': items})
 
 
@@ -1254,6 +1257,8 @@ def create_home_parts_request(request):
         'vin': request.POST.get('vin', ''),
         'city': request.POST.get('city', ''),
         'phone': request.POST.get('phone') or request.POST.get('whatsapp', ''),
+        'transport_type': request.POST.get('transport_type', ''),
+        'category': request.POST.get('category', ''),
         'idempotency_key': request.POST.get('idempotency_key', ''),
     }
     header_key = (request.headers.get('Idempotency-Key') or '').strip()

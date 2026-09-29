@@ -89,7 +89,7 @@ class ProductMetaDescriptionIntegrationTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(
             response,
-            '<meta name="description" content="Ищете автозапчасть?',
+            '<meta name="description" content="Отправьте заявку — подходящие продавцы по Казахстану',
         )
         self.assertContains(
             response,

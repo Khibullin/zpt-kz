@@ -207,7 +207,7 @@ class CatalogHeroLayoutTests(TestCase):
         )
         self.assertContains(
             response,
-            'Отправьте заявку и получите предложения в WhatsApp',
+            'Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки.',
         )
         self.assertContains(response, 'Название или артикул запчасти')
         self.assertContains(response, 'Отправить запрос')
