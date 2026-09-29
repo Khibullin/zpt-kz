@@ -1,7 +1,9 @@
 import json
+from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from django.conf import settings
 from django.test import Client, TestCase, override_settings
 
 from catalog.image_generator import (
@@ -10,6 +12,7 @@ from catalog.image_generator import (
     generate_instagram_story,
 )
 from catalog.instagram_service import (
+    MISSING_CRON_IMAGE_MESSAGE,
     is_publication_stuck_publishing,
     mark_stuck_instagram_publication_failed,
     process_instagram_publication_for_request,
@@ -499,11 +502,14 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
         }
 
     @patch('catalog.instagram_service.publish_story_to_instagram')
-    @patch('catalog.instagram_service.generate_instagram_story')
+    @patch(
+        'catalog.instagram_service.generate_instagram_story',
+        wraps=generate_instagram_story,
+    )
     @patch('core.views._find_matching_sellers', return_value=([], 'none'))
     @patch('core.views._build_dispatch_queue', return_value=[])
     @patch('core.views._send_buyer_whatsapp_notification_async')
-    def test_create_request_queues_instagram_without_meta_api(
+    def test_create_request_prepares_image_without_meta_api(
         self,
         buyer_whatsapp_mock,
         dispatch_queue_mock,
@@ -519,13 +525,15 @@ class CreateRequestInstagramLiveNoMetaApiTests(TestCase):
                         data=json.dumps(self.payload),
                         content_type='application/json',
                     )
-
-        self.assertEqual(response.status_code, 200)
-        request_id = response.json()['id']
-        publication = InstagramPublication.objects.get(request_id=request_id)
-        self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
-        self.assertFalse(publication.image)
-        generate_mock.assert_not_called()
+                self.assertEqual(response.status_code, 200)
+                request_id = response.json()['id']
+                publication = InstagramPublication.objects.get(request_id=request_id)
+                image_path = Path(settings.MEDIA_ROOT) / publication.image.name
+                self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+                self.assertTrue(publication.image.name)
+                self.assertTrue(image_path.is_file())
+                self.assertTrue(image_path.read_bytes().startswith(b'\xff\xd8'))
+        generate_mock.assert_called_once()
         publish_mock.assert_not_called()
 
 
@@ -567,3 +575,161 @@ class InstagramCronPublishesQueuedTests(TestCase):
         self.assertEqual(stats['published'], 1)
         self.assertEqual(publication.status, InstagramPublication.STATUS_PUBLISHED)
         publish_mock.assert_called_once()
+
+    def test_cron_does_not_regenerate_existing_image(self):
+        request = Request.objects.create(
+            transport_type='car',
+            brand='BMW',
+            model='X3',
+            category='Подвеска',
+            city='Алматы',
+            phone='77713607041',
+            status='sent',
+        )
+        publication = process_instagram_publication_for_request(request.pk)
+        publication.refresh_from_db()
+        self.assertEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+        self.assertTrue(publication.image.name)
+
+        with patch('catalog.instagram_service.generate_instagram_story') as generate_mock, patch(
+            'catalog.instagram_service.publish_story_to_instagram',
+            return_value={'container_id': 'container_ready', 'media_id': 'media_ready'},
+        ) as publish_mock:
+            stats = process_queued_instagram_publications()
+        publication.refresh_from_db()
+
+        generate_mock.assert_not_called()
+        publish_mock.assert_called_once()
+        self.assertEqual(stats['published'], 1)
+        self.assertEqual(publication.status, InstagramPublication.STATUS_PUBLISHED)
+
+    @patch('catalog.instagram_service.generate_instagram_story')
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_cron_fails_queued_publication_without_image(self, publish_mock, generate_mock):
+        request = Request.objects.create(
+            transport_type='car',
+            brand='BMW',
+            model='X1',
+            category='Подвеска',
+            city='Алматы',
+            phone='77713607042',
+            status='sent',
+        )
+        publication = InstagramPublication.objects.create(
+            request=request,
+            status=InstagramPublication.STATUS_QUEUED,
+        )
+
+        stats = process_queued_instagram_publications()
+        publication.refresh_from_db()
+
+        generate_mock.assert_not_called()
+        publish_mock.assert_not_called()
+        self.assertEqual(stats['failed'], 1)
+        self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertEqual(publication.error_message, MISSING_CRON_IMAGE_MESSAGE)
+
+
+@override_settings(
+    INSTAGRAM_PUBLISH_MODE='LIVE',
+    INSTAGRAM_ACCOUNT_ID='17841400000000000',
+    INSTAGRAM_ACCESS_TOKEN='test-token',
+)
+class InstagramBackendMediaPipelineTests(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.payload = {
+            'transport_type': 'car',
+            'country': 'Япония',
+            'brand': 'Toyota',
+            'model': 'Camry',
+            'category': 'Тормоза',
+            'article': '',
+            'description': 'Нужны передние колодки',
+            'city': 'Алматы',
+            'search_scope': 'city',
+            'selected_cities': [],
+            'phone': '77001112233',
+        }
+
+    def _post_request(self, **payload):
+        body = dict(self.payload)
+        body.update(payload)
+        with patch('core.views._find_matching_sellers', return_value=([], 'none')), patch(
+            'core.views._build_dispatch_queue',
+            return_value=[],
+        ), patch('core.views._send_buyer_whatsapp_notification_async'):
+            with self.captureOnCommitCallbacks(execute=True):
+                return self.client.post(
+                    '/api/create-request/',
+                    data=json.dumps(body),
+                    content_type='application/json',
+                )
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    @patch(
+        'catalog.instagram_service.generate_instagram_story',
+        side_effect=InstagramStoryGenerationError('Не удалось сгенерировать изображение.'),
+    )
+    def test_generation_failure_does_not_break_request(self, generate_mock, publish_mock):
+        response = self._post_request()
+        self.assertEqual(response.status_code, 200)
+        request_id = response.json()['id']
+        self.assertTrue(Request.objects.filter(pk=request_id).exists())
+        publication = InstagramPublication.objects.get(request_id=request_id)
+        self.assertNotEqual(publication.status, InstagramPublication.STATUS_QUEUED)
+        self.assertEqual(publication.status, InstagramPublication.STATUS_FAILED)
+        self.assertFalse(publication.image)
+        self.assertIn('Не удалось сгенерировать изображение.', publication.error_message)
+        generate_mock.assert_called_once()
+        publish_mock.assert_not_called()
+
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    @patch('catalog.instagram_service.generate_instagram_story')
+    def test_junk_description_stays_draft_without_generation(self, generate_mock, publish_mock):
+        response = self._post_request(description='test')
+        self.assertEqual(response.status_code, 200)
+        publication = InstagramPublication.objects.get(request_id=response.json()['id'])
+        self.assertEqual(publication.status, InstagramPublication.STATUS_DRAFT)
+        self.assertFalse(publication.image)
+        generate_mock.assert_not_called()
+        publish_mock.assert_not_called()
+
+    @override_settings(INSTAGRAM_PUBLISH_MODE='OFF')
+    @patch('catalog.instagram_service.generate_instagram_story')
+    @patch('catalog.instagram_service.publish_story_to_instagram')
+    def test_off_mode_does_not_generate_or_publish(self, publish_mock, generate_mock):
+        response = self._post_request()
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(
+            InstagramPublication.objects.filter(request_id=response.json()['id']).exists()
+        )
+        generate_mock.assert_not_called()
+        publish_mock.assert_not_called()
+
+    def test_prepared_image_is_served_as_jpeg(self):
+        request = Request.objects.create(
+            transport_type='car',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            city='Алматы',
+            phone='77001112233',
+            status='sent',
+        )
+        with TemporaryDirectory() as media_root:
+            with self.settings(MEDIA_ROOT=Path(media_root)):
+                story_dir = Path(media_root) / 'instagram_stories'
+                story_dir.mkdir()
+                image_path = story_dir / 'request_ready.jpg'
+                image_path.write_bytes(b'\xff\xd8\xff\xd9')
+                publication = InstagramPublication.objects.create(
+                    request=request,
+                    status=InstagramPublication.STATUS_QUEUED,
+                )
+                publication.image.name = 'instagram_stories/request_ready.jpg'
+                publication.save(update_fields=['image'])
+                response = self.client.get(f'/products/{publication.image.name}')
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response['Content-Type'], 'image/jpeg')
+                response.close()
