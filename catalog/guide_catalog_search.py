@@ -9,11 +9,8 @@ from __future__ import annotations
 import logging
 
 from django.conf import settings
-from django.db.models import Value
-from django.db.models.functions import Replace, Upper
 
-from catalog.article_utils import normalize_article
-from catalog.home_parts_search import _ARTICLE_STRIP_CHARS
+from catalog.article_utils import compact_article_expression, normalize_article
 from catalog.models import Product
 from catalog.templatetags.product_extras import public_product_url
 from catalog.wholesale import public_stock_status
@@ -39,10 +36,7 @@ def _public_products():
 
 
 def _compact_article_expr():
-    expr = Upper('article')
-    for char in _ARTICLE_STRIP_CHARS:
-        expr = Replace(expr, Value(char), Value(''))
-    return expr
+    return compact_article_expression()
 
 
 def _absolute_product_url(product) -> str:

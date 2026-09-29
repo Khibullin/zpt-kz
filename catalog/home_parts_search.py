@@ -3,10 +3,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 
-from django.db.models import Value
-from django.db.models.functions import Replace, Upper
-
-from catalog.article_utils import normalize_article
+from catalog.article_utils import compact_article_expression, normalize_article
 from catalog.commercial import filter_products_by_vehicle
 from catalog.models import Brand as CatalogBrand
 from catalog.models import CarModel as CatalogCarModel
@@ -18,7 +15,6 @@ from core.services.home_parts_query import looks_like_exact_article
 MAX_RESULTS_PER_GROUP = 8
 COMPAT_UNKNOWN = 'unknown'
 COMPAT_UNCONFIRMED = 'unconfirmed'
-_ARTICLE_STRIP_CHARS = ('-', ' ', '/', '.', '_')
 
 
 @dataclass
@@ -126,10 +122,7 @@ def _filter_by_catalog_vehicle(qs, brand_ids: list[int], model_ids: list[int]):
 
 
 def _compact_article_expr():
-    expr = Upper('article')
-    for char in _ARTICLE_STRIP_CHARS:
-        expr = Replace(expr, Value(char), Value(''))
-    return expr
+    return compact_article_expression()
 
 
 def _exact_article_candidates(qs, query: str):
