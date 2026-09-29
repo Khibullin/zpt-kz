@@ -20,7 +20,10 @@ CATEGORY_PHRASES: tuple[tuple[str, tuple[str, ...]], ...] = (
         'суппорт',
     )),
     ('Трансмиссия', (
+        'блок управления акпп',
         'коробка передач',
+        'клапан акпп',
+        'рычаг кпп',
         'привод',
         'граната',
         'шрус',
@@ -88,15 +91,11 @@ CATEGORY_PHRASES: tuple[tuple[str, tuple[str, ...]], ...] = (
         'ступица',
         'шаровая',
         'пружина',
-        'стойка',
-        'рычаг',
     )),
     ('Электрика', (
         'катушка зажигания',
-        'блок управления',
         'генератор',
         'стартер',
-        'датчик',
         'реле',
         'эбу',
     )),
@@ -111,8 +110,6 @@ CATEGORY_PHRASES: tuple[tuple[str, tuple[str, ...]], ...] = (
         'поршень',
         'поршни',
         'кольца',
-        'клапан',
-        'мотор',
         'гбц',
     )),
     ('Выхлопная система', (
@@ -126,7 +123,14 @@ CATEGORY_PHRASES: tuple[tuple[str, tuple[str, ...]], ...] = (
         'панель приборов',
         'обшивка двери',
         'подлокотник',
+        'мотор печки',
         'сиденье',
         'торпедо',
     )),
 )
+
+# These words are real parts, but not one category:
+# датчик, мотор, клапан, рычаг, стойка, блок управления.
+# They are not lone signals. A wrong category_mismatch is worse than
+# letting the buyer's selected category through. Only a longer phrase
+# with one obvious category is listed above.

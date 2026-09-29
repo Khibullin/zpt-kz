@@ -58,6 +58,29 @@ class HomePartsPreflightDecisionTests(SimpleTestCase):
         self.assertTrue(decision.is_reject)
         self.assertEqual(decision.code, REJECT_UNSPECIFIED_PART)
 
+    def test_broad_words_do_not_force_a_wrong_category(self):
+        cases = (
+            ('датчик ABS', 'Тормоза', 'Электрика'),
+            ('датчик температуры', 'Охлаждение', 'Электрика'),
+            ('мотор печки', 'Салон', 'Двигатель'),
+            ('клапан АКПП', 'Трансмиссия', 'Двигатель'),
+            ('рычаг КПП', 'Трансмиссия', 'Ходовая часть'),
+            ('блок управления АКПП', 'Трансмиссия', 'Электрика'),
+        )
+        for query, category, forbidden in cases:
+            with self.subTest(query=query):
+                decision = self._decision(query, category)
+                self.assertNotEqual(
+                    getattr(decision, 'code', ''),
+                    WARNING_MULTIPLE_CATEGORIES,
+                )
+                self.assertNotEqual(
+                    getattr(decision, 'suggested_category', ''),
+                    forbidden,
+                )
+                if decision is not None:
+                    self.assertFalse(decision.is_reject)
+
     def test_exact_article_skips_content_preflight(self):
         self.assertIsNone(self._decision('52119-0K040', 'Трансмиссия'))
         self.assertIsNone(self._decision('M111109111', 'Кузов'))
