@@ -34,6 +34,7 @@ from core.services.seller_whatsapp_consent import (
     maybe_grant_registration_whatsapp_consent,
 )
 from .applicability import build_product_applicability, vehicle_line_if_not_in_title
+from .article_utils import filter_products_by_public_query
 from .commercial import (
     OFFER_CHOICES,
     VALID_OFFER_VALUES,
@@ -437,12 +438,7 @@ def catalog_list(request):
     products = public_wholesale_prefetch(products)
 
     if query:
-        products = products.filter(
-            Q(title__icontains=query) |
-            Q(article__icontains=query) |
-            Q(description__icontains=query) |
-            Q(compatibility__icontains=query)
-        )
+        products = filter_products_by_public_query(products, query)
 
     products = filter_products_by_vehicle(
         products,
