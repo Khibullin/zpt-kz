@@ -21,7 +21,7 @@ from core.models import (
     SellerRequestAccess,
 )
 
-DEFAULT_TTL = timedelta(hours=2)
+DEFAULT_TTL = timedelta(hours=72)
 TOKEN_BYTES = 24
 
 
