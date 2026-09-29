@@ -90,6 +90,7 @@ FORBIDDEN_VARIABLE_EXTRA_FIELDS = frozenset({
 
 BASE_RESERVED_SERVICE_TEMPLATE_NAMES = frozenset({
     'zpt_buyer_request_receipt',
+    'zpt_buyer_request_receipt_v2',
     'zpt_request_notification',
     'zpt_request_notification_v2',
     'hello_world',

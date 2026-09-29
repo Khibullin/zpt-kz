@@ -1240,6 +1240,11 @@ def create_home_parts_request(request):
         payload_matches_request,
         search_catalog_safe,
     )
+    from core.services.home_parts_preflight import (
+        WARNING_HTTP_STATUS,
+        evaluate_home_parts_warning,
+        warning_is_confirmed,
+    )
     from core.services.public_rate_limit import home_parts_rate_limit_allowed
 
     if request.method != 'POST':
@@ -1285,6 +1290,14 @@ def create_home_parts_request(request):
             },
             status=409,
         )
+    if existing is None and not warning_is_confirmed(request.POST.get('warning_confirmed')):
+        warning = evaluate_home_parts_warning(
+            query=payload.query,
+            category=payload.category,
+            positions=payload.positions,
+        )
+        if warning is not None:
+            return JsonResponse(warning.as_response(), status=WARNING_HTTP_STATUS)
     if existing is None and not home_parts_rate_limit_allowed(request, payload.phone):
         return JsonResponse(
             {

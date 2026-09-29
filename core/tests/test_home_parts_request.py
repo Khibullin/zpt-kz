@@ -1399,8 +1399,10 @@ class HomeShortMatchedSellerTests(TestCase):
 
     def test_home_form_is_compact_matched_version(self):
         page = self.client.get('/')
-        self.assertContains(page, 'home-parts-form-v5.js')
+        self.assertContains(page, 'home-parts-form-v6.js')
+        self.assertNotContains(page, 'home-parts-form-v5.js')
         self.assertNotContains(page, 'home-parts-form-v4.js')
+        self.assertContains(page, 'id="home-parts-warning"')
         self.assertContains(page, 'name="transport_type"')
         self.assertContains(page, 'value="car" checked')
         self.assertContains(page, 'Легковые')
@@ -1413,6 +1415,186 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertNotContains(page, 'более 300')
         self.assertNotContains(page, 'name="search_scope"')
         self.assertNotContains(page, 'Выберите страну')
+
+    def test_category_mismatch_warns_without_creating_request(self):
+        response = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-pads',
+        )
+        self.assertEqual(response.status_code, 422, response.content)
+        payload = response.json()
+        self.assertTrue(payload['warning_required'])
+        self.assertEqual(payload['warning_code'], 'category_mismatch')
+        self.assertEqual(payload['suggested_category'], 'Тормоза')
+        self.assertEqual(
+            payload['warning_message'],
+            'По тексту запроса похоже, что вам нужна категория “Тормоза”, '
+            'а выбрана “Трансмиссия”. Проверьте категорию.',
+        )
+        self.assertNotIn('id', payload)
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+    def test_confirmed_category_mismatch_creates_one_request(self):
+        warned = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-confirm',
+        )
+        self.assertEqual(warned.status_code, 422, warned.content)
+        self.assertEqual(Request.objects.count(), 0)
+
+        created = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-confirm',
+            warning_confirmed='1',
+        )
+        self.assertEqual(created.status_code, 200, created.content)
+        self.assertFalse(created.json().get('warning_required', False))
+        self.assertFalse(created.json()['replay'])
+        req = Request.objects.get()
+        self.assertEqual(req.category, 'Трансмиссия')
+        dispatch_count = RequestDispatch.objects.count()
+
+        replay = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-confirm',
+            warning_confirmed='1',
+        )
+        self.assertEqual(replay.status_code, 200, replay.content)
+        self.assertTrue(replay.json()['replay'])
+        self.assertEqual(Request.objects.count(), 1)
+        self.assertEqual(RequestDispatch.objects.count(), dispatch_count)
+
+        without_flag = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-confirm',
+        )
+        self.assertEqual(without_flag.status_code, 200, without_flag.content)
+        self.assertTrue(without_flag.json()['replay'])
+        self.assertEqual(Request.objects.count(), 1)
+
+    def test_matching_brake_and_transmission_queries_do_not_warn(self):
+        pads = self._post(
+            query='колодки',
+            category='Тормоза',
+            idempotency_key='key-pads-ok',
+        )
+        self.assertEqual(pads.status_code, 200, pads.content)
+        self.assertNotIn('warning_required', pads.json())
+
+        drive = self._post(
+            query='привод',
+            category='Трансмиссия',
+            idempotency_key='key-drive-ok',
+        )
+        self.assertEqual(drive.status_code, 200, drive.content)
+        self.assertNotIn('warning_required', drive.json())
+        self.assertEqual(Request.objects.count(), 2)
+
+    def test_drive_with_brakes_category_suggests_transmission(self):
+        response = self._post(
+            query='привод',
+            category='Тормоза',
+            idempotency_key='key-drive-brakes',
+        )
+        self.assertEqual(response.status_code, 422, response.content)
+        payload = response.json()
+        self.assertEqual(payload['warning_code'], 'category_mismatch')
+        self.assertEqual(payload['suggested_category'], 'Трансмиссия')
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+    def test_exact_article_skips_category_warning(self):
+        response = self._post(
+            query='52119-0K040',
+            category='Трансмиссия',
+            brand='',
+            model='',
+            brand_id='',
+            model_id='',
+            idempotency_key='key-article-no-warn',
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertNotIn('warning_required', response.json())
+        self.assertEqual(Request.objects.count(), 1)
+        self.assertEqual(Request.objects.get().article, '52119-0K040')
+
+    def test_service_intent_warns_without_creating_request(self):
+        for query, key in (
+            ('записаться на СТО', 'key-sto'),
+            ('шиномонтаж', 'key-tires'),
+        ):
+            with self.subTest(query=query):
+                response = self._post(
+                    query=query,
+                    category='Тормоза',
+                    idempotency_key=key,
+                )
+                self.assertEqual(response.status_code, 422, response.content)
+                payload = response.json()
+                self.assertTrue(payload['warning_required'])
+                self.assertEqual(payload['warning_code'], 'non_parts_intent')
+                self.assertEqual(
+                    payload['warning_message'],
+                    'Похоже, это не запрос на покупку автозапчасти. '
+                    'Проверьте текст перед отправкой.',
+                )
+                self.assertNotIn('suggested_category', payload)
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+    def test_pads_with_installation_is_category_hint_not_non_parts(self):
+        mismatch = self._post(
+            query='нужны тормозные колодки с установкой',
+            category='Трансмиссия',
+            idempotency_key='key-pads-install',
+        )
+        self.assertEqual(mismatch.status_code, 422, mismatch.content)
+        payload = mismatch.json()
+        self.assertEqual(payload['warning_code'], 'category_mismatch')
+        self.assertEqual(payload['suggested_category'], 'Тормоза')
+        self.assertEqual(Request.objects.count(), 0)
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+
+        genitive = self._post(
+            query='нужна замена тормозных колодок',
+            category='Кузов',
+            idempotency_key='key-pads-genitive',
+        )
+        self.assertEqual(genitive.status_code, 422, genitive.content)
+        self.assertEqual(genitive.json()['warning_code'], 'category_mismatch')
+        self.assertEqual(genitive.json()['suggested_category'], 'Тормоза')
+
+        matched = self._post(
+            query='нужны тормозные колодки с установкой',
+            category='Тормоза',
+            idempotency_key='key-pads-install-ok',
+        )
+        self.assertEqual(matched.status_code, 200, matched.content)
+        self.assertNotIn('warning_required', matched.json())
+        self.assertEqual(Request.objects.count(), 1)
+
+    @override_settings(HOME_PARTS_MAX_PER_HOUR=1, HOME_PARTS_MAX_PER_PHONE_HOUR=1)
+    def test_warning_response_does_not_consume_rate_limit(self):
+        warned = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-rate',
+        )
+        self.assertEqual(warned.status_code, 422, warned.content)
+        created = self._post(
+            query='колодки',
+            category='Трансмиссия',
+            idempotency_key='key-warn-rate',
+            warning_confirmed='1',
+        )
+        self.assertEqual(created.status_code, 200, created.content)
+        self.assertEqual(Request.objects.count(), 1)
 
 
 class VehicleSuggestTests(TestCase):
