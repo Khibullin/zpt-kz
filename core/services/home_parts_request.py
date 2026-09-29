@@ -16,6 +16,7 @@ from core.models import (
     CONTACT_CONSENT_STATUS_UNKNOWN,
     BroadcastSettings,
     ContactConsent,
+    PartCategory,
     Request,
     RequestDispatch,
 )
@@ -52,6 +53,10 @@ SAVED_WITHOUT_BROADCAST_MESSAGE = (
 )
 CONFLICT_MESSAGE = 'Этот ключ уже использован для другого запроса.'
 NEW_REQUEST_HINT = ' Чтобы отправить текущие данные, начните новый запрос.'
+TRANSPORT_MISMATCH_MESSAGE = (
+    'Выбранная марка или модель не соответствует типу транспорта.'
+)
+ALLOWED_TRANSPORT_TYPES = ('car', 'truck')
 
 
 class HomePartsRequestError(Exception):
@@ -77,6 +82,7 @@ class HomePartsPayload:
     positions: list[str] = field(default_factory=list)
     vehicle_country: str = ''
     transport_type: str = ''
+    category: str = ''
     article: str = ''
 
 
@@ -137,6 +143,9 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
             fields={'phone': 'Укажите корректный номер WhatsApp.'},
         )
 
+    transport_type = _parse_transport_type(data.get('transport_type'))
+    category = _canonical_part_category(data.get('category'))
+
     year = _parse_year(data.get('year'))
     vin = _parse_vin(data.get('vin'))
 
@@ -155,12 +164,28 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
             fields={'model': 'Укажите модель автомобиля.'},
         )
 
+    _reject_catalog_transport_mismatch(
+        brand_id=data.get('brand_id'),
+        brand_name=brand_name,
+        model_id=data.get('model_id'),
+        model_name=model_name,
+        transport_type=transport_type,
+    )
     vehicle = resolve_vehicle(
         brand_id=data.get('brand_id'),
         brand_name=brand_name,
         model_id=data.get('model_id'),
         model_name=model_name,
+        transport_type=transport_type,
     )
+    if vehicle.transport_type and vehicle.transport_type != transport_type:
+        raise HomePartsRequestError(
+            TRANSPORT_MISMATCH_MESSAGE,
+            fields={
+                'transport_type': TRANSPORT_MISMATCH_MESSAGE,
+                'brand': TRANSPORT_MISMATCH_MESSAGE,
+            },
+        )
     brand_name = vehicle.brand_name
     model_name = vehicle.model_name
 
@@ -198,8 +223,78 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
         idempotency_key=key,
         positions=positions,
         vehicle_country=vehicle.country,
-        transport_type=vehicle.transport_type,
+        transport_type=transport_type,
+        category=category,
         article=article,
+    )
+
+
+def _names_match(left: str, right: str) -> bool:
+    return ' '.join(str(left or '').split()).casefold() == ' '.join(str(right or '').split()).casefold()
+
+
+def _parse_transport_type(raw) -> str:
+    text = str(raw or '').strip().lower()
+    if text not in ALLOWED_TRANSPORT_TYPES:
+        raise HomePartsRequestError(
+            'Выберите тип транспорта.',
+            fields={'transport_type': 'Выберите тип транспорта: легковые или грузовые.'},
+        )
+    return text
+
+
+def _canonical_part_category(raw) -> str:
+    text = ' '.join(str(raw or '').split())
+    if not text:
+        raise HomePartsRequestError(
+            'Выберите категорию запчасти.',
+            fields={'category': 'Выберите категорию запчасти.'},
+        )
+    folded = text.casefold()
+    matches = [
+        category
+        for category in PartCategory.objects.order_by('id')
+        if category.name.casefold() == folded
+    ]
+    if not matches:
+        raise HomePartsRequestError(
+            'Выберите категорию из списка.',
+            fields={'category': 'Выберите категорию из списка.'},
+        )
+    exact = next((category for category in matches if category.name == text), None)
+    return (exact or matches[0]).name
+
+
+def _reject_catalog_transport_mismatch(
+    *,
+    brand_id,
+    brand_name: str,
+    model_id,
+    model_name: str,
+    transport_type: str,
+) -> None:
+    from core.services.vehicle_suggest import _load_brand, _load_model
+
+    brand = _load_brand(brand_id)
+    model = _load_model(model_id)
+    brand_selected = bool(
+        brand and (not brand_name or _names_match(brand.name, brand_name))
+    )
+    model_selected = bool(
+        model and (not model_name or _names_match(model.name, model_name))
+    )
+    mismatched = (
+        (brand_selected and brand.transport_type != transport_type)
+        or (model_selected and model.transport_type != transport_type)
+    )
+    if not mismatched:
+        return
+    raise HomePartsRequestError(
+        TRANSPORT_MISMATCH_MESSAGE,
+        fields={
+            'transport_type': TRANSPORT_MISMATCH_MESSAGE,
+            'brand': TRANSPORT_MISMATCH_MESSAGE,
+        },
     )
 
 
@@ -266,6 +361,7 @@ def compute_idempotency_fingerprint(payload: HomePartsPayload, uploaded_photos) 
         payload.model_id,
         payload.vehicle_country,
         payload.transport_type,
+        payload.category,
         str(payload.year or ''),
         payload.vin,
     ]
@@ -311,6 +407,7 @@ def payload_matches_request(
         and payload.vin == (req.vin or '')
         and payload.vehicle_country == (req.country or '')
         and payload.transport_type == (req.transport_type or '')
+        and payload.category == (req.category or '')
         and not uploaded_photos
     )
 
@@ -358,6 +455,7 @@ def create_home_parts_request_record(
         _build_dispatch_queue,
         _find_matching_sellers,
         _save_request_photos,
+        _unique_sellers_by_whatsapp,
     )
 
     existing = _existing_by_key(payload.idempotency_key)
@@ -372,7 +470,7 @@ def create_home_parts_request_record(
                 country=payload.vehicle_country,
                 brand=payload.brand_name,
                 model=payload.model_name,
-                category='',
+                category=payload.category,
                 article=payload.article,
                 description=payload.query,
                 year=payload.year,
@@ -381,7 +479,7 @@ def create_home_parts_request_record(
                 search_scope='kazakhstan',
                 selected_cities='',
                 source=Request.SOURCE_HOME_SHORT,
-                dispatch_mode=Request.DISPATCH_MODE_ALL_KZ,
+                dispatch_mode=Request.DISPATCH_MODE_MATCHED,
                 idempotency_key=payload.idempotency_key,
                 idempotency_fingerprint=fingerprint,
                 phone=payload.phone,
@@ -390,6 +488,8 @@ def create_home_parts_request_record(
             _save_request_photos(req, uploaded_photos)
             sellers, _strategy = _find_matching_sellers(req)
             matched = list(sellers)
+            if req.source == Request.SOURCE_HOME_SHORT:
+                matched = _unique_sellers_by_whatsapp(matched)
             dispatches = _build_dispatch_queue(req, matched)
             req.status = 'sent' if matched else 'no_sellers'
             req.save(update_fields=['status'])

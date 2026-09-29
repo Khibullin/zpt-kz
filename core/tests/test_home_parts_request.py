@@ -1,4 +1,4 @@
-"""Homepage short-form request: create, dispatch-all, idempotency, validation."""
+"""Homepage short-form request: matched dispatch, idempotency, validation."""
 from __future__ import annotations
 
 from tempfile import TemporaryDirectory
@@ -28,6 +28,7 @@ from core.models import (
     CONTACT_CONSENT_STATUS_REVOKED,
     ContactConsent,
     Country as CoreCountry,
+    PartCategory,
     Request,
     RequestDispatch,
     RequestPhoto,
@@ -104,6 +105,10 @@ class HomePartsRequestTests(TestCase):
             emergency_stop=False,
         )
         self.core_brand, self.core_model = _core_vehicle()
+        self.japan = self.core_brand.country
+        PartCategory.objects.create(name='Тормоза')
+        PartCategory.objects.create(name='Трансмиссия')
+        PartCategory.objects.create(name='Кузов')
         seed_country, _ = CatalogCountry.objects.get_or_create(name='Корея')
         CatalogBrand.objects.get_or_create(country=seed_country, name='SeedBrandForIdGap')
         self.catalog_brand, self.catalog_model = _catalog_vehicle()
@@ -114,7 +119,15 @@ class HomePartsRequestTests(TestCase):
             phone='77001112233',
             city='Астана',
         )
-        self.live_car = _seller(name='Car Almaty', whatsapp='77010000001', city='Алматы')
+        self.live_car = _seller(
+            name='Car Almaty',
+            whatsapp='77010000001',
+            city='Алматы',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            country_fk=self.japan,
+        )
         self.live_truck = _seller(
             name='Truck Astana',
             whatsapp='77010000002',
@@ -144,6 +157,10 @@ class HomePartsRequestTests(TestCase):
             whatsapp='77010000006',
             is_test_seller=True,
             receive_requests=False,
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            country_fk=self.japan,
         )
 
     def _post(self, **extra):
@@ -155,6 +172,8 @@ class HomePartsRequestTests(TestCase):
             'model_id': str(self.core_model.id),
             'city': 'Алматы',
             'phone': '87015556677',
+            'transport_type': 'car',
+            'category': 'Тормоза',
             'idempotency_key': extra.pop('idempotency_key', 'key-home-1'),
         }
         data.update(extra)
@@ -165,18 +184,20 @@ class HomePartsRequestTests(TestCase):
                 response = self.client.post('/api/home-parts-request/', data=data)
         return response, buyer_wa, instagram
 
-    def test_successful_short_form_creates_one_request_and_queues_all(self):
+    def test_home_short_creates_matched_kazakhstan_request(self):
         response, buyer_wa, instagram = self._post()
         self.assertEqual(response.status_code, 200, response.content)
         payload = response.json()
         self.assertEqual(payload['status'], 'ok')
         self.assertTrue(payload['queued'])
+        self.assertEqual(payload['matches'], 1)
         self.assertEqual(payload['message'], 'Запрос принят. Ожидайте предложения в WhatsApp.')
         self.assertEqual(Request.objects.count(), 1)
         req = Request.objects.get()
         self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
-        self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_ALL_KZ)
+        self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
         self.assertEqual(req.search_scope, 'kazakhstan')
+        self.assertEqual(req.category, 'Тормоза')
         self.assertEqual(req.phone, '77015556677')
         self.assertEqual(req.brand, 'Toyota')
         self.assertEqual(req.model, 'Camry')
@@ -184,7 +205,8 @@ class HomePartsRequestTests(TestCase):
         queued_ids = set(
             RequestDispatch.objects.filter(request=req).values_list('seller_id', flat=True)
         )
-        self.assertEqual(queued_ids, {self.live_car.id, self.live_truck.id})
+        self.assertEqual(queued_ids, {self.live_car.id})
+        self.assertNotIn(self.live_truck.id, queued_ids)
         buyer_wa.assert_called_once()
         instagram.assert_called_once()
 
@@ -202,7 +224,11 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(req.article, '52119-0K040')
         self.assertEqual(req.brand, '')
         self.assertEqual(req.model, '')
-        self.assertEqual(req.transport_type, '')
+        self.assertEqual(req.transport_type, 'car')
+        self.assertEqual(req.category, 'Тормоза')
+        self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
+        queued_ids = set(req.dispatches.values_list('seller_id', flat=True))
+        self.assertEqual(queued_ids, {self.live_car.id})
 
     def test_name_without_vehicle_rejected(self):
         response, _, _ = self._post(
@@ -420,6 +446,15 @@ class HomePartsRequestTests(TestCase):
             wave_interval_minutes=5,
             emergency_stop=False,
         )
+        second = _seller(
+            name='Car Shymkent',
+            whatsapp='77010000022',
+            city='Шымкент',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            country_fk=self.japan,
+        )
         response, _, _ = self._post(idempotency_key='key-skip')
         self.assertEqual(response.status_code, 200, response.content)
         req = Request.objects.get()
@@ -431,8 +466,8 @@ class HomePartsRequestTests(TestCase):
         car_dispatch.refresh_from_db()
         self.assertEqual(car_dispatch.status, RequestDispatch.STATUS_PAUSED)
         self.assertEqual(stats['sent'], 1)
-        truck_dispatch = RequestDispatch.objects.get(request=req, seller=self.live_truck)
-        self.assertEqual(truck_dispatch.status, RequestDispatch.STATUS_SENT)
+        second_dispatch = RequestDispatch.objects.get(request=req, seller=second)
+        self.assertEqual(second_dispatch.status, RequestDispatch.STATUS_SENT)
 
     def test_repeat_post_does_not_duplicate(self):
         first, buyer_wa, instagram = self._post(idempotency_key='same-key')
@@ -440,7 +475,7 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(first.status_code, 200)
         self.assertEqual(second.status_code, 200)
         self.assertEqual(Request.objects.count(), 1)
-        self.assertEqual(RequestDispatch.objects.count(), 2)
+        self.assertEqual(RequestDispatch.objects.count(), 1)
         self.assertTrue(second.json()['replay'])
         self.assertNotIn('request_page_url', second.json())
         self.assertEqual(buyer_wa.call_count, 1)
@@ -487,20 +522,28 @@ class HomePartsRequestTests(TestCase):
             name='Eight prefix shop',
             whatsapp='87010000001',
             city='Шымкент',
-            brand='Kia',
-            model='Rio',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            country_fk=self.japan,
         )
         _seller(
             name='Plus prefix shop',
             whatsapp='+77010000001',
             city='Караганда',
-            brand='Kia',
-            model='Rio',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            country_fk=self.japan,
         )
         _seller(
             name='Invalid number shop',
             whatsapp='00000000000',
             city='Актобе',
+            brand='Toyota',
+            model='Camry',
+            category='Тормоза',
+            country_fk=self.japan,
         )
         response, _, _ = self._post(idempotency_key='key-dup-wa')
         self.assertEqual(response.status_code, 200, response.content)
@@ -510,7 +553,8 @@ class HomePartsRequestTests(TestCase):
             for item in RequestDispatch.objects.select_related('seller')
         ]
         self.assertEqual(phones.count('77010000001'), 1)
-        self.assertEqual(set(phones), {'77010000001', '77010000002'})
+        self.assertEqual(set(phones), {'77010000001'})
+        self.assertNotIn(self.live_truck.id, RequestDispatch.objects.values_list('seller_id', flat=True))
         self.assertNotIn(None, phones)
 
     def test_reenabled_seller_does_not_unpause_this_request(self):
@@ -600,6 +644,8 @@ class HomePartsRequestTests(TestCase):
             'model_id': str(self.core_model.id),
             'city': 'Алматы',
             'phone': '87015556677',
+            'transport_type': 'car',
+            'category': 'Тормоза',
             'consent': '1',
         }
         with patch('core.views._send_buyer_whatsapp_notification_async'), patch(
@@ -1015,6 +1061,360 @@ class HomePartsRequestTests(TestCase):
         self.assertNotIn('id="catalog-results"', html)
 
 
+@override_settings(
+    PUBLIC_BASE_URL='https://zpt.kz',
+    HOME_PARTS_MAX_PER_HOUR=0,
+    HOME_PARTS_MAX_PER_PHONE_HOUR=0,
+)
+class HomeShortMatchedSellerTests(TestCase):
+    """home_short uses the existing MATCHED seller selection, not ALL_KZ."""
+
+    def setUp(self):
+        self.client = Client()
+        _ensure_broadcast_settings(
+            mode=BroadcastSettings.MODE_LIVE,
+            wave_size=10,
+            wave_interval_minutes=5,
+            emergency_stop=False,
+        )
+        PartCategory.objects.create(name='Трансмиссия')
+        PartCategory.objects.create(name='Тормоза')
+        PartCategory.objects.create(name='Кузов')
+        self.brand, self.model = _core_vehicle(
+            'Mercedes-Benz',
+            '123',
+            country='Германия',
+        )
+        self.germany = self.brand.country
+        _core_vehicle('Mercedes-Benz', 'E-Class', country='Германия')
+        self.exact = self._specialist(
+            name='Exact Almaty',
+            whatsapp='77020000001',
+            city='Алматы',
+            brand='Mercedes-Benz',
+            model='123',
+        )
+        self.all_spec = self._specialist(
+            name='All brands',
+            whatsapp='77020000002',
+            city='Астана',
+            brand='',
+            model='',
+            all_brands=True,
+            all_models=True,
+            all_countries=True,
+        )
+        self.other_brand = self._specialist(
+            name='Other brand',
+            whatsapp='77020000003',
+            city='Алматы',
+            brand='BMW',
+            model='X5',
+        )
+        self.other_category = self._specialist(
+            name='Other category',
+            whatsapp='77020000004',
+            city='Алматы',
+            brand='Mercedes-Benz',
+            model='123',
+            category='Тормоза',
+        )
+        self.other_city = self._specialist(
+            name='Other city',
+            whatsapp='77020000005',
+            city='Шымкент',
+            brand='Mercedes-Benz',
+            model='123',
+        )
+        self.brand_level = self._specialist(
+            name='Brand fallback',
+            whatsapp='77020000006',
+            city='Алматы',
+            brand='Mercedes-Benz',
+            model='E-Class',
+        )
+        self.truck = self._specialist(
+            name='Truck specialist',
+            whatsapp='77020000007',
+            city='Алматы',
+            transport_type='truck',
+            all_brands=True,
+            all_models=True,
+            all_countries=True,
+            brand='',
+            model='',
+        )
+
+    def _specialist(self, **kwargs):
+        defaults = {
+            'transport_type': 'car',
+            'category': 'Трансмиссия',
+            'country_fk': self.germany,
+        }
+        defaults.update(kwargs)
+        return _seller(**defaults)
+
+    def _post(self, **extra):
+        data = {
+            'query': 'привод граната',
+            'brand': 'Mercedes-Benz',
+            'model': '123',
+            'brand_id': str(self.brand.id),
+            'model_id': str(self.model.id),
+            'city': 'Алматы',
+            'phone': '87015556677',
+            'transport_type': 'car',
+            'category': 'Трансмиссия',
+            'idempotency_key': extra.pop('idempotency_key', 'key-matched-1'),
+        }
+        data.update(extra)
+        with patch('core.views._send_buyer_whatsapp_notification_async'), patch(
+            'core.views.schedule_instagram_publication_for_request',
+        ):
+            with self.captureOnCommitCallbacks(execute=True):
+                return self.client.post('/api/home-parts-request/', data=data)
+
+    def _seller_ids(self):
+        return set(RequestDispatch.objects.values_list('seller_id', flat=True))
+
+    def test_home_short_is_matched_kazakhstan_and_canonical_category(self):
+        response = self._post(category='трансмиссия', idempotency_key='key-canon')
+        self.assertEqual(response.status_code, 200, response.content)
+        req = Request.objects.get()
+        self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
+        self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
+        self.assertEqual(req.search_scope, 'kazakhstan')
+        self.assertEqual(req.transport_type, 'car')
+        self.assertEqual(req.category, 'Трансмиссия')
+        self.assertEqual(req.brand, 'Mercedes-Benz')
+        self.assertEqual(req.model, '123')
+        self.assertEqual(req.country, 'Германия')
+
+    def test_exact_all_brands_and_other_city_match_wrong_sellers_do_not(self):
+        response = self._post(idempotency_key='key-exact-tier')
+        self.assertEqual(response.status_code, 200, response.content)
+        seller_ids = self._seller_ids()
+        self.assertEqual(
+            seller_ids,
+            {self.exact.id, self.all_spec.id, self.other_city.id},
+        )
+        self.assertNotIn(self.truck.id, seller_ids)
+        self.assertNotIn(self.other_category.id, seller_ids)
+        self.assertNotIn(self.other_brand.id, seller_ids)
+        self.assertNotIn(self.brand_level.id, seller_ids)
+
+    def test_brand_fallback_when_exact_model_seller_is_absent(self):
+        self.exact.is_active = False
+        self.exact.save(update_fields=['is_active'])
+        self.all_spec.is_active = False
+        self.all_spec.save(update_fields=['is_active'])
+        self.other_city.is_active = False
+        self.other_city.save(update_fields=['is_active'])
+        response = self._post(idempotency_key='key-fallback')
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(self._seller_ids(), {self.brand_level.id})
+
+    def test_article_only_keeps_transport_and_category_limits(self):
+        body = _seller(
+            name='Body Almaty',
+            whatsapp='77020000011',
+            city='Алматы',
+            transport_type='car',
+            category='Кузов',
+            brand='',
+            model='',
+        )
+        body_other_city = _seller(
+            name='Body Shymkent',
+            whatsapp='77020000012',
+            city='Шымкент',
+            transport_type='car',
+            category='Кузов',
+            brand='Toyota',
+            model='Camry',
+        )
+        truck_body = _seller(
+            name='Truck body',
+            whatsapp='77020000013',
+            city='Алматы',
+            transport_type='truck',
+            category='Кузов',
+            all_brands=True,
+            all_models=True,
+            all_countries=True,
+        )
+        response = self._post(
+            query='52119-0K040',
+            brand='',
+            model='',
+            brand_id='',
+            model_id='',
+            transport_type='car',
+            category='Кузов',
+            idempotency_key='key-article-limit',
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        req = Request.objects.get()
+        self.assertEqual(req.article, '52119-0K040')
+        self.assertEqual(req.brand, '')
+        self.assertEqual(req.model, '')
+        self.assertEqual(req.transport_type, 'car')
+        self.assertEqual(req.category, 'Кузов')
+        self.assertEqual(self._seller_ids(), {body.id, body_other_city.id})
+        self.assertNotIn(truck_body.id, self._seller_ids())
+        self.assertNotIn(self.exact.id, self._seller_ids())
+
+    def test_duplicate_whatsapp_creates_one_home_short_dispatch(self):
+        Seller.objects.update(is_active=False)
+        _seller(
+            name='Shop eight',
+            whatsapp='87013334455',
+            city='Алматы',
+            transport_type='car',
+            category='Трансмиссия',
+            all_brands=True,
+            all_models=True,
+            all_countries=True,
+        )
+        _seller(
+            name='Shop plus',
+            whatsapp='+77013334455',
+            city='Астана',
+            transport_type='car',
+            category='Трансмиссия',
+            all_brands=True,
+            all_models=True,
+            all_countries=True,
+        )
+        response = self._post(idempotency_key='key-wa-dedup')
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(RequestDispatch.objects.count(), 1)
+        self.assertEqual(Request.objects.get().source, Request.SOURCE_HOME_SHORT)
+
+    def test_broadcast_off_test_and_emergency_stop_still_apply(self):
+        _ensure_broadcast_settings(mode=BroadcastSettings.MODE_OFF, emergency_stop=False)
+        off = self._post(idempotency_key='key-off-matched')
+        self.assertEqual(off.status_code, 200, off.content)
+        self.assertFalse(off.json()['queued'])
+        self.assertEqual(RequestDispatch.objects.count(), 0)
+        self.assertEqual(Request.objects.get().dispatch_mode, Request.DISPATCH_MODE_MATCHED)
+
+        test_seller = self._specialist(
+            name='Matched test seller',
+            whatsapp='77020000021',
+            is_test_seller=True,
+            receive_requests=False,
+            all_brands=True,
+            all_models=True,
+            all_countries=True,
+            brand='',
+            model='',
+        )
+        _ensure_broadcast_settings(mode=BroadcastSettings.MODE_TEST, emergency_stop=False)
+        test_mode = self._post(idempotency_key='key-test-matched')
+        self.assertEqual(test_mode.status_code, 200, test_mode.content)
+        self.assertEqual(
+            set(RequestDispatch.objects.filter(
+                request__idempotency_key='key-test-matched',
+            ).values_list('seller_id', flat=True)),
+            {test_seller.id},
+        )
+
+        _ensure_broadcast_settings(
+            mode=BroadcastSettings.MODE_LIVE,
+            emergency_stop=True,
+        )
+        stopped = self._post(idempotency_key='key-stop-matched')
+        self.assertEqual(stopped.status_code, 200, stopped.content)
+        self.assertFalse(stopped.json()['queued'])
+        self.assertFalse(
+            RequestDispatch.objects.filter(
+                request__idempotency_key='key-stop-matched',
+            ).exists()
+        )
+
+    def test_invalid_transport_category_and_vehicle_mismatch_rejected(self):
+        invalid_transport = self._post(
+            transport_type='bus',
+            idempotency_key='key-bad-transport',
+        )
+        self.assertEqual(invalid_transport.status_code, 400)
+        self.assertIn('transport_type', invalid_transport.json()['fields'])
+
+        missing_category = self._post(category='', idempotency_key='key-no-category')
+        self.assertEqual(missing_category.status_code, 400)
+        self.assertEqual(
+            missing_category.json()['fields']['category'],
+            'Выберите категорию запчасти.',
+        )
+
+        unknown_category = self._post(
+            category='Несуществующая',
+            idempotency_key='key-unknown-category',
+        )
+        self.assertEqual(unknown_category.status_code, 400)
+        self.assertEqual(
+            unknown_category.json()['fields']['category'],
+            'Выберите категорию из списка.',
+        )
+
+        truck_brand, truck_model = _core_vehicle(
+            'KAMAZ',
+            '65115',
+            transport_type='truck',
+            country='Россия',
+        )
+        mismatch = self._post(
+            transport_type='car',
+            brand='KAMAZ',
+            model='65115',
+            brand_id=str(truck_brand.id),
+            model_id=str(truck_model.id),
+            idempotency_key='key-mismatch',
+        )
+        self.assertEqual(mismatch.status_code, 400)
+        self.assertIn('не соответствует', mismatch.json()['error'])
+        self.assertIn('brand', mismatch.json()['fields'])
+        name_mismatch = self._post(
+            transport_type='car',
+            brand='KAMAZ',
+            model='65115',
+            brand_id='',
+            model_id='',
+            idempotency_key='key-mismatch-name',
+        )
+        self.assertEqual(name_mismatch.status_code, 400)
+        self.assertEqual(Request.objects.count(), 0)
+
+    def test_idempotency_replay_does_not_duplicate_request_or_dispatch(self):
+        first = self._post(idempotency_key='key-replay-matched')
+        dispatch_count = RequestDispatch.objects.count()
+        second = self._post(idempotency_key='key-replay-matched')
+        self.assertEqual(first.status_code, 200, first.content)
+        self.assertEqual(second.status_code, 200, second.content)
+        self.assertTrue(second.json()['replay'])
+        self.assertEqual(Request.objects.count(), 1)
+        self.assertEqual(RequestDispatch.objects.count(), dispatch_count)
+        self.assertGreater(dispatch_count, 0)
+
+    def test_home_form_is_compact_matched_version(self):
+        page = self.client.get('/')
+        self.assertContains(page, 'home-parts-form-v5.js')
+        self.assertNotContains(page, 'home-parts-form-v4.js')
+        self.assertContains(page, 'name="transport_type"')
+        self.assertContains(page, 'value="car" checked')
+        self.assertContains(page, 'Легковые')
+        self.assertContains(page, 'Грузовые')
+        self.assertContains(page, 'name="category"')
+        self.assertContains(page, '>Трансмиссия</option>')
+        self.assertContains(page, 'Ищем подходящих продавцов по всему Казахстану')
+        self.assertContains(page, '>Дополнительно</summary>')
+        self.assertContains(page, 'подходящие продавцы по Казахстану')
+        self.assertNotContains(page, 'более 300')
+        self.assertNotContains(page, 'name="search_scope"')
+        self.assertNotContains(page, 'Выберите страну')
+
+
 class VehicleSuggestTests(TestCase):
     def setUp(self):
         _core_vehicle('Toyota', 'Camry')
@@ -1056,6 +1456,73 @@ class VehicleSuggestTests(TestCase):
             for item in suggest_models('джол', brand_id=haval.id)
         ]
         self.assertIn('Jolion', models)
+
+    def test_transport_type_filters_brands_and_models_without_changing_default(self):
+        car_brand, _car_model = _core_vehicle(
+            'Volvo',
+            'XC90',
+            transport_type='car',
+            country='Швеция',
+        )
+        truck_brand, _truck_model = _core_vehicle(
+            'Volvo',
+            'FH',
+            transport_type='truck',
+            country='Швеция',
+        )
+
+        car = self.client.get(
+            '/api/vehicle-suggest/',
+            {'kind': 'brand', 'q': 'volvo', 'transport_type': 'car'},
+        )
+        car_ids = [item['id'] for item in car.json()['items']]
+        self.assertIn(car_brand.id, car_ids)
+        self.assertNotIn(truck_brand.id, car_ids)
+
+        truck = self.client.get(
+            '/api/vehicle-suggest/',
+            {'kind': 'brand', 'q': 'volvo', 'transport_type': 'truck'},
+        )
+        truck_ids = [item['id'] for item in truck.json()['items']]
+        self.assertIn(truck_brand.id, truck_ids)
+        self.assertNotIn(car_brand.id, truck_ids)
+
+        omitted = self.client.get('/api/vehicle-suggest/', {'kind': 'brand', 'q': 'volvo'})
+        omitted_ids = [item['id'] for item in omitted.json()['items']]
+        self.assertIn(car_brand.id, omitted_ids)
+        self.assertIn(truck_brand.id, omitted_ids)
+
+        kamaz_car = self.client.get(
+            '/api/vehicle-suggest/',
+            {'kind': 'brand', 'q': 'kamaz', 'transport_type': 'car'},
+        )
+        self.assertEqual(kamaz_car.json()['items'], [])
+        kamaz_any = self.client.get('/api/vehicle-suggest/', {'kind': 'brand', 'q': 'kamaz'})
+        self.assertIn('KAMAZ', [item['name'] for item in kamaz_any.json()['items']])
+
+        car_models = self.client.get(
+            '/api/vehicle-suggest/',
+            {'kind': 'model', 'q': '', 'brand': 'Volvo', 'transport_type': 'car'},
+        )
+        car_model_names = [item['name'] for item in car_models.json()['items']]
+        self.assertIn('XC90', car_model_names)
+        self.assertNotIn('FH', car_model_names)
+
+        truck_models = self.client.get(
+            '/api/vehicle-suggest/',
+            {'kind': 'model', 'q': '', 'brand': 'Volvo', 'transport_type': 'truck'},
+        )
+        truck_model_names = [item['name'] for item in truck_models.json()['items']]
+        self.assertIn('FH', truck_model_names)
+        self.assertNotIn('XC90', truck_model_names)
+
+        all_models = self.client.get(
+            '/api/vehicle-suggest/',
+            {'kind': 'model', 'q': '', 'brand': 'Volvo'},
+        )
+        all_model_names = [item['name'] for item in all_models.json()['items']]
+        self.assertIn('XC90', all_model_names)
+        self.assertIn('FH', all_model_names)
 
 
 @override_settings(PUBLIC_BASE_URL='https://zpt.kz', ALLOWED_HOSTS=['*'])

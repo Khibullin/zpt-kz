@@ -18,7 +18,7 @@ from django.utils import timezone
 
 from core.forms import FeedbackForm
 from core.kazakhstan_locations import KAZAKHSTAN_CITIES
-from core.models import Seller as RequestSeller
+from core.models import PartCategory, Seller as RequestSeller
 from core.services.seller_identity import (
     SellerIdentityError,
     authenticate_shop_seller,
@@ -513,6 +513,7 @@ def catalog_list(request):
         'home_request_token': home_request_token,
         'home_result': home_result,
         'home_cities': KAZAKHSTAN_CITIES,
+        'home_part_categories': PartCategory.objects.order_by('name'),
         'home_year_max': timezone.now().year + 1,
         'home_query_prefill': query,
         'countries': countries,
