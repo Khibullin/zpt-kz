@@ -461,6 +461,37 @@ a.hero-b2b-strip-btn:hover,
   color:#b91c1c;
   font-size:14px;
 }
+.home-parts-warning{
+  margin:0;
+  padding:12px;
+  border-radius:12px;
+  background:#fff8eb;
+  border:1px solid #f3d19c;
+  color:#7a4b00;
+  font-size:14px;
+}
+.home-parts-warning p{
+  margin:0 0 10px;
+}
+.home-parts-warning-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.home-parts-warning-actions button{
+  border:1px solid #e5d3a1;
+  background:#fff;
+  color:#111827;
+  border-radius:10px;
+  padding:8px 12px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.home-parts-warning-actions button:disabled{
+  opacity:.65;
+  cursor:wait;
+}
 .home-request-result{
   margin-top:14px;
   padding:16px;
@@ -784,6 +815,7 @@ a.hero-b2b-strip-btn:hover,
             </div>
           </details>
 
+          <div class="home-parts-warning" id="home-parts-warning" hidden role="status"></div>
           <p class="home-parts-form-error" id="home-parts-form-error" hidden></p>
 
           <div class="home-parts-actions">
@@ -906,7 +938,7 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/home-parts-form-v5.js' %}?v=1"></script>
+<script src="{% static 'js/home-parts-form-v6.js' %}?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {
