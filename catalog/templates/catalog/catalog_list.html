@@ -492,6 +492,14 @@ a.hero-b2b-strip-btn:hover,
   opacity:.65;
   cursor:wait;
 }
+.home-parts-rejection{
+  background:#fff5f5;
+  border-color:#f3b4b4;
+  color:#7f1d1d;
+}
+.home-parts-rejection-title{
+  font-weight:800;
+}
 .home-request-result{
   margin-top:14px;
   padding:16px;
@@ -723,13 +731,13 @@ a.hero-b2b-strip-btn:hover,
         <h2 class="home-parts-heading">Оставить заявку</h2>
         <div class="home-parts-grid">
           <div class="home-parts-field home-parts-field-query">
-            <label for="home-query">Название или артикул запчасти</label>
+            <label for="home-query">Название, артикул или описание запчасти</label>
             <textarea
               id="home-query"
               name="query"
               required
               maxlength="500"
-              placeholder="колодки, масляный фильтр или 52119-0K040"
+              placeholder="Передние колодки, рулевая рейка или 52119-0K040"
             >{{ home_query_prefill }}</textarea>
             <p class="home-parts-error" data-error-for="query" hidden></p>
           </div>
@@ -938,7 +946,7 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/home-parts-form-v6.js' %}?v=1"></script>
+<script src="{% static 'js/home-parts-form-v7.js' %}?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {

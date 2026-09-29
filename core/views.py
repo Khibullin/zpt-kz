@@ -1241,8 +1241,8 @@ def create_home_parts_request(request):
         search_catalog_safe,
     )
     from core.services.home_parts_preflight import (
-        WARNING_HTTP_STATUS,
-        evaluate_home_parts_warning,
+        PREFLIGHT_HTTP_STATUS,
+        evaluate_home_parts_preflight,
         warning_is_confirmed,
     )
     from core.services.public_rate_limit import home_parts_rate_limit_allowed
@@ -1290,14 +1290,15 @@ def create_home_parts_request(request):
             },
             status=409,
         )
-    if existing is None and not warning_is_confirmed(request.POST.get('warning_confirmed')):
-        warning = evaluate_home_parts_warning(
+    if existing is None:
+        preflight = evaluate_home_parts_preflight(
             query=payload.query,
             category=payload.category,
             positions=payload.positions,
         )
-        if warning is not None:
-            return JsonResponse(warning.as_response(), status=WARNING_HTTP_STATUS)
+        confirmed = warning_is_confirmed(request.POST.get('warning_confirmed'))
+        if preflight is not None and (preflight.is_reject or not confirmed):
+            return JsonResponse(preflight.as_response(), status=PREFLIGHT_HTTP_STATUS)
     if existing is None and not home_parts_rate_limit_allowed(request, payload.phone):
         return JsonResponse(
             {
