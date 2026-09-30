@@ -25,15 +25,20 @@ class MaintenanceKitCollageCoverTests(TestCase):
         exeed = Brand.objects.create(country=country, name='Exeed')
         changan = Brand.objects.create(country=country, name='Changan')
         haval = Brand.objects.create(country=country, name='Haval')
+        great_wall = Brand.objects.create(country=country, name='Great Wall')
+        li_auto = Brand.objects.create(country=country, name='Li Auto')
         CarModel.objects.create(brand=chery, name='Tiggo 7 Pro')
         CarModel.objects.create(brand=chery, name='Tiggo 7')
         CarModel.objects.create(brand=chery, name='Tiggo 8 Pro')
         CarModel.objects.create(brand=chery, name='Tiggo 8')
         CarModel.objects.create(brand=chery, name='Arrizo 8')
+        CarModel.objects.create(brand=chery, name='Tiggo 2')
         CarModel.objects.create(brand=exeed, name='TXL')
         CarModel.objects.create(brand=changan, name='UNI-K')
         CarModel.objects.create(brand=changan, name='UNI-V')
         CarModel.objects.create(brand=haval, name='Dargo')
+        CarModel.objects.create(brand=great_wall, name='Wingle 7')
+        CarModel.objects.create(brand=li_auto, name='L7')
         articles = {
             'T151109111': 'Воздушный Chery',
             'T218107011': 'Салонный Chery',
@@ -48,6 +53,12 @@ class MaintenanceKitCollageCoverTests(TestCase):
             'C281F2801032601': 'Салонный UNI-V',
             '1109101XGW01A': 'Воздушный Dargo',
             '1017110XEN01': 'Масляный Dargo',
+            'J691109111': 'Воздушный Tiggo 2',
+            'A138107915': 'Салонный Tiggo 2',
+            '1109110XP64XA': 'Воздушный Wingle 7',
+            '8104400XP24BA': 'Салонный Wingle 7',
+            'X01-90000014': 'Воздушный Li Auto L7',
+            'X0390000206': 'Салонный Li Auto L7',
         }
         for article, title in articles.items():
             _make_product(article=article, title=title, stock_qty=5)

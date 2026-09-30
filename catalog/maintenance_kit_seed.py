@@ -88,6 +88,15 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # CD569F2801032700 cabin — no dedicated packing page. UNI-K vehicle catalog
 #   lists neighbor cabin CD569F280103-2701, not 2700. Brake CD569F260303-*
 #   are different parts. Keep 2700 as reference only: артикул уточняется.
+# J69-1109111 air and A13-8107915 cabin — Tiggo 2 DB11B2H, SQRD4G15B,
+#   Mar 2017–Jan 2020, both listed for the exact vehicle in the catalog:
+#   https://www.fitinpart.sg/v2/en/product/53692634/chery-j69-1109111
+#   https://www.fitinpart.sg/v2/en/product/49855003/chery-a13-8107915
+# Wingle 7: supplier's vehicle parts list has 1109110XP64XA and 8104400XP24BA:
+#   https://www.shindary.com/news/shindary-productsspare-parts-numbers-for-greatwall-wingle-7.html
+# Li Auto L7: X01-90000014 air OE cross; X0390000206 cabin manufacturer listing:
+#   https://www.fitinpart.sg/v2/en/product/79023930/lixiang-x01-29150063
+#   https://www.x-filter.com/ru/lixiang-cars.html
 
 KIT_SPECS = (
     {
@@ -394,6 +403,71 @@ KIT_SPECS = (
             ('T218107011', 1),
             ('4801012010', 1),
             ('F4J163707010', 4),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-tiggo-2-15-sqrd4g15b',
+        'name': 'Набор ТО — 2 позиции Chery Tiggo 2 1.5 SQRD4G15B',
+        'brand_name': 'Chery',
+        'model_name': 'Tiggo 2',
+        'engine': '1.5 SQRD4G15B',
+        'year_from': 2017,
+        'year_to': 2020,
+        'description': (
+            'Набор ТО — 2 позиции для Chery Tiggo 2 1.5 SQRD4G15B '
+            '(DB11B2H, март 2017 – январь 2020): воздушный и салонный '
+            'фильтры. Масляный фильтр и свечи в набор не входят. '
+            'Перед заказом сверьте модификацию и VIN.'
+        ),
+        'cover_note': '',
+        'reference_lines': (),
+        'publish_if_complete': True,
+        'items': (
+            ('J691109111', 1),
+            ('A138107915', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-great-wall-wingle-7-two-filters',
+        'name': 'Набор ТО — 2 позиции Great Wall Wingle 7',
+        'brand_name': 'Great Wall',
+        'model_name': 'Wingle 7',
+        'engine': '',
+        'year_from': None,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Great Wall Wingle 7: воздушный и '
+            'салонный фильтры. Масляный фильтр в набор не входит. '
+            'Перед заказом сверьте оба артикула с VIN и установленными фильтрами.'
+        ),
+        'cover_note': '',
+        'reference_lines': (),
+        'publish_if_complete': True,
+        'items': (
+            ('1109110XP64XA', 1),
+            ('8104400XP24BA', 1),
+        ),
+    },
+    {
+        'slug': 'nabor-to-li-auto-l7-two-filters',
+        'name': 'Набор ТО — 2 позиции Li Auto L7',
+        'brand_name': 'Li Auto',
+        'model_name': 'L7',
+        'engine': '1.5 L2E15M',
+        'year_from': 2022,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Li Auto L7 с бензиновым '
+            'генератором 1.5 L2E15M (с сентября 2022): воздушный фильтр '
+            'двигателя и салонный фильтр. Перед заказом сверьте артикулы '
+            'с VIN и установленными фильтрами.'
+        ),
+        'cover_note': '',
+        'reference_lines': (),
+        'publish_if_complete': True,
+        'items': (
+            ('X01-90000014', 1),
+            ('X0390000206', 1),
         ),
     },
 )
