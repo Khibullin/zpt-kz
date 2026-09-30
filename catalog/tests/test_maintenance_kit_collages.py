@@ -30,6 +30,7 @@ class MaintenanceKitCollageCoverTests(TestCase):
         CarModel.objects.create(brand=chery, name='Tiggo 8 Pro')
         CarModel.objects.create(brand=chery, name='Tiggo 8')
         CarModel.objects.create(brand=chery, name='Arrizo 8')
+        CarModel.objects.create(brand=chery, name='Tiggo 2')
         CarModel.objects.create(brand=exeed, name='TXL')
         CarModel.objects.create(brand=changan, name='UNI-K')
         CarModel.objects.create(brand=changan, name='UNI-V')
@@ -48,6 +49,8 @@ class MaintenanceKitCollageCoverTests(TestCase):
             'C281F2801032601': 'Салонный UNI-V',
             '1109101XGW01A': 'Воздушный Dargo',
             '1017110XEN01': 'Масляный Dargo',
+            'J691109111': 'Воздушный Tiggo 2',
+            'A138107915': 'Салонный Tiggo 2',
         }
         for article, title in articles.items():
             _make_product(article=article, title=title, stock_qty=5)

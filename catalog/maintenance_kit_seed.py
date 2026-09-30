@@ -88,6 +88,10 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # CD569F2801032700 cabin — no dedicated packing page. UNI-K vehicle catalog
 #   lists neighbor cabin CD569F280103-2701, not 2700. Brake CD569F260303-*
 #   are different parts. Keep 2700 as reference only: артикул уточняется.
+# J69-1109111 air and A13-8107915 cabin — Tiggo 2 DB11B2H, SQRD4G15B,
+#   Mar 2017–Jan 2020, both listed for the exact vehicle in the catalog:
+#   https://www.fitinpart.sg/v2/en/product/53692634/chery-j69-1109111
+#   https://www.fitinpart.sg/v2/en/product/49855003/chery-a13-8107915
 
 KIT_SPECS = (
     {
@@ -394,6 +398,28 @@ KIT_SPECS = (
             ('T218107011', 1),
             ('4801012010', 1),
             ('F4J163707010', 4),
+        ),
+    },
+    {
+        'slug': 'nabor-to-chery-tiggo-2-15-sqrd4g15b',
+        'name': 'Набор ТО — 2 позиции Chery Tiggo 2 1.5 SQRD4G15B',
+        'brand_name': 'Chery',
+        'model_name': 'Tiggo 2',
+        'engine': '1.5 SQRD4G15B',
+        'year_from': 2017,
+        'year_to': 2020,
+        'description': (
+            'Набор ТО — 2 позиции для Chery Tiggo 2 1.5 SQRD4G15B '
+            '(DB11B2H, март 2017 – январь 2020): воздушный и салонный '
+            'фильтры. Масляный фильтр и свечи в набор не входят. '
+            'Перед заказом сверьте модификацию и VIN.'
+        ),
+        'cover_note': '',
+        'reference_lines': (),
+        'publish_if_complete': True,
+        'items': (
+            ('J691109111', 1),
+            ('A138107915', 1),
         ),
     },
 )

@@ -28,6 +28,9 @@ KIT_COLLAGE_STATIC = {
     'nabor-to-chery-tiggo-8-15t-sqre4t15b': (
         'images/kits/tiggo-8-15t-sqre4t15b-four-part-collage.jpg'
     ),
+    'nabor-to-chery-tiggo-2-15-sqrd4g15b': (
+        'images/kits/tiggo-2-15-two-filter-collage.jpg'
+    ),
 }
 
 KIT_COLLAGE_ALT = {
@@ -57,6 +60,9 @@ KIT_COLLAGE_ALT = {
     ),
     'nabor-to-chery-tiggo-8-15t-sqre4t15b': (
         'Воздушный, салонный, масляный фильтры и свечи комплекта Chery Tiggo 8 1.5T SQRE4T15B'
+    ),
+    'nabor-to-chery-tiggo-2-15-sqrd4g15b': (
+        'Воздушный и салонный фильтры комплекта Chery Tiggo 2 1.5'
     ),
 }
 
