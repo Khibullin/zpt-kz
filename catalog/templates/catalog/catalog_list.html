@@ -377,36 +377,197 @@ a.hero-b2b-strip-btn:hover,
 .home-parts-combo{
   position:relative;
 }
-.home-parts-suggest{
-  position:absolute;
-  z-index:40;
-  left:0;
-  right:0;
-  top:100%;
-  margin:4px 0 0;
-  padding:6px 0;
-  list-style:none;
-  background:#fff;
-  border:1px solid #e5e7eb;
-  border-radius:12px;
-  box-shadow:0 8px 24px rgba(17,24,39,.12);
-  max-height:220px;
-  overflow:auto;
+.home-parts-picker-field{
+  position:relative;
 }
-.home-parts-suggest[hidden]{display:none;}
-.home-parts-suggest button{
-  display:block;
-  width:100%;
-  padding:10px 12px;
+.home-parts-picker-field input[readonly]{
+  padding-right:42px;
+  cursor:pointer;
+  caret-color:transparent;
+}
+.home-parts-picker-field input[readonly]:disabled{
+  cursor:not-allowed;
+  background:#f3f4f6;
+  color:#9ca3af;
+}
+.home-parts-picker-open{
+  position:absolute;
+  top:50%;
+  right:4px;
+  width:34px;
+  height:34px;
+  transform:translateY(-50%);
   border:0;
+  border-radius:8px;
   background:transparent;
-  text-align:left;
-  font-size:15px;
+  color:#6b7280;
+  font-size:26px;
+  line-height:1;
   cursor:pointer;
 }
-.home-parts-suggest button[aria-selected="true"],
-.home-parts-suggest button:hover{
+.home-parts-picker-open:hover{
+  background:#f9fafb;
+  color:#111827;
+}
+.home-parts-picker-open:disabled{
+  cursor:not-allowed;
+  opacity:.35;
+}
+body.home-vehicle-picker-open{
+  overflow:hidden;
+}
+.home-vehicle-picker{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:flex;
+  align-items:flex-end;
+  justify-content:center;
+}
+.home-vehicle-picker[hidden]{display:none;}
+.home-vehicle-picker-backdrop{
+  position:absolute;
+  inset:0;
+  border:0;
+  background:rgba(17,24,39,.45);
+}
+.home-vehicle-picker-sheet{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:560px;
+  max-height:min(82dvh,720px);
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:16px;
+  box-sizing:border-box;
+  border-radius:18px 18px 0 0;
+  background:#fff;
+  box-shadow:0 -16px 40px rgba(17,24,39,.18);
+}
+.home-vehicle-picker-header{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+.home-vehicle-picker-title{
+  margin:0 0 3px;
+  font-size:18px;
+  line-height:1.25;
+  font-weight:800;
+  color:#111827;
+}
+.home-vehicle-picker-hint{
+  margin:0;
+  font-size:13px;
+  line-height:1.4;
+  color:#6b7280;
+}
+.home-vehicle-picker-close{
+  flex:0 0 auto;
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:10px;
+  background:#f3f4f6;
+  color:#374151;
+  font-size:24px;
+  line-height:1;
+  cursor:pointer;
+}
+.home-vehicle-picker-search{
+  width:100%;
+  min-height:46px;
+  padding:10px 12px;
+  box-sizing:border-box;
+  border:1px solid #d1d5db;
+  border-radius:12px;
+  font:inherit;
+  font-size:16px;
+  background:#fff;
+}
+.home-vehicle-picker-search:focus{
+  outline:2px solid #ff3b30;
+  outline-offset:1px;
+  border-color:#ff3b30;
+}
+.home-vehicle-picker-status{
+  margin:0;
+  padding:2px 2px 0;
+  color:#6b7280;
+  font-size:13px;
+  line-height:1.4;
+}
+.home-vehicle-picker-results{
+  min-height:0;
+  margin:0;
+  padding:0;
+  overflow:auto;
+  list-style:none;
+  border-top:1px solid #f3f4f6;
+}
+.home-vehicle-picker-results li{
+  margin:0;
+  padding:0;
+}
+.home-vehicle-picker-option{
+  display:flex;
+  width:100%;
+  min-height:54px;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:2px;
+  padding:9px 4px;
+  border:0;
+  border-bottom:1px solid #f3f4f6;
+  background:#fff;
+  text-align:left;
+  cursor:pointer;
+}
+.home-vehicle-picker-option:hover,
+.home-vehicle-picker-option:focus-visible{
   background:#fff5f5;
+  outline:none;
+}
+.home-vehicle-picker-option-name{
+  color:#111827;
+  font-size:16px;
+  font-weight:700;
+}
+.home-vehicle-picker-option-meta{
+  color:#6b7280;
+  font-size:12px;
+  font-weight:500;
+}
+.home-vehicle-picker-manual{
+  width:100%;
+  min-height:44px;
+  padding:9px 12px;
+  border:1px solid #d1d5db;
+  border-radius:11px;
+  background:#fff;
+  color:#374151;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+}
+.home-vehicle-picker-manual:hover{
+  border-color:#ff3b30;
+  color:#ff3b30;
+}
+@media (min-width:768px){
+  .home-vehicle-picker{
+    align-items:center;
+    padding:24px;
+    box-sizing:border-box;
+  }
+  .home-vehicle-picker-sheet{
+    border-radius:18px;
+    max-height:min(78vh,720px);
+  }
 }
 .home-parts-extra{
   margin-top:4px;
@@ -759,18 +920,115 @@ a.hero-b2b-strip-btn:hover,
 
           <div class="home-parts-field home-parts-combo">
             <label for="home-brand">Марка</label>
-            <input id="home-brand" name="brand" type="text" autocomplete="off" spellcheck="false" placeholder="Toyota" value="">
+            <div class="home-parts-picker-field">
+              <input
+                id="home-brand"
+                name="brand"
+                type="text"
+                readonly
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Выберите марку"
+                value=""
+                aria-haspopup="dialog"
+                aria-controls="home-vehicle-picker"
+              >
+              <button
+                type="button"
+                class="home-parts-picker-open"
+                id="home-brand-open"
+                aria-label="Выбрать марку"
+                aria-controls="home-vehicle-picker"
+              >›</button>
+            </div>
             <input type="hidden" id="home-brand-id" name="brand_id" value="">
-            <ul class="home-parts-suggest" id="home-brand-suggest" hidden role="listbox"></ul>
             <p class="home-parts-error" data-error-for="brand" hidden></p>
           </div>
 
           <div class="home-parts-field home-parts-combo">
             <label for="home-model">Модель</label>
-            <input id="home-model" name="model" type="text" autocomplete="off" spellcheck="false" placeholder="Camry" value="">
+            <div class="home-parts-picker-field">
+              <input
+                id="home-model"
+                name="model"
+                type="text"
+                readonly
+                disabled
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Сначала выберите марку"
+                value=""
+                aria-haspopup="dialog"
+                aria-controls="home-vehicle-picker"
+              >
+              <button
+                type="button"
+                class="home-parts-picker-open"
+                id="home-model-open"
+                aria-label="Выбрать модель"
+                aria-controls="home-vehicle-picker"
+                disabled
+              >›</button>
+            </div>
             <input type="hidden" id="home-model-id" name="model_id" value="">
-            <ul class="home-parts-suggest" id="home-model-suggest" hidden role="listbox"></ul>
             <p class="home-parts-error" data-error-for="model" hidden></p>
+          </div>
+
+          <div
+            class="home-vehicle-picker"
+            id="home-vehicle-picker"
+            hidden
+            aria-hidden="true"
+          >
+            <button
+              type="button"
+              class="home-vehicle-picker-backdrop"
+              id="home-vehicle-picker-backdrop"
+              tabindex="-1"
+              aria-label="Закрыть выбор автомобиля"
+            ></button>
+            <section
+              class="home-vehicle-picker-sheet"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="home-vehicle-picker-title"
+              aria-describedby="home-vehicle-picker-hint"
+            >
+              <div class="home-vehicle-picker-header">
+                <div>
+                  <h3 class="home-vehicle-picker-title" id="home-vehicle-picker-title">Выберите марку</h3>
+                  <p class="home-vehicle-picker-hint" id="home-vehicle-picker-hint"></p>
+                </div>
+                <button
+                  type="button"
+                  class="home-vehicle-picker-close"
+                  id="home-vehicle-picker-close"
+                  aria-label="Закрыть"
+                >×</button>
+              </div>
+              <input
+                class="home-vehicle-picker-search"
+                id="home-vehicle-picker-search"
+                type="search"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Начните вводить марку"
+                aria-label="Поиск марки или модели"
+              >
+              <p class="home-vehicle-picker-status" id="home-vehicle-picker-status" hidden></p>
+              <ul
+                class="home-vehicle-picker-results"
+                id="home-vehicle-picker-results"
+                role="listbox"
+                aria-label="Подходящие варианты"
+              ></ul>
+              <button
+                type="button"
+                class="home-vehicle-picker-manual"
+                id="home-vehicle-picker-manual"
+                hidden
+              ></button>
+            </section>
           </div>
 
           <div class="home-parts-field">
@@ -946,7 +1204,7 @@ a.hero-b2b-strip-btn:hover,
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v12"></script>
-<script src="{% static 'js/home-parts-form-v7.js' %}?v=1"></script>
+<script src="{% static 'js/home-parts-form-v8.js' %}?v=1"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {
