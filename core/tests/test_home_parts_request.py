@@ -1401,17 +1401,23 @@ class HomeShortMatchedSellerTests(TestCase):
 
     def test_home_form_is_compact_matched_version(self):
         page = self.client.get('/')
-        self.assertContains(page, 'home-parts-form-v7.js')
+        self.assertContains(page, 'home-parts-form-v8.js')
+        self.assertNotContains(page, 'home-parts-form-v7.js')
         self.assertNotContains(page, 'home-parts-form-v6.js')
         self.assertNotContains(page, 'home-parts-form-v5.js')
         self.assertNotContains(page, 'home-parts-form-v4.js')
         self.assertContains(page, 'Название, артикул или описание запчасти')
         self.assertContains(page, 'id="home-parts-warning"')
+        self.assertContains(page, 'id="home-vehicle-picker"')
+        self.assertContains(page, 'id="home-brand-open"')
+        self.assertContains(page, 'id="home-model-open"')
         from pathlib import Path
-        script = Path('static/js/home-parts-form-v7.js').read_text(encoding='utf-8')
+        script = Path('static/js/home-parts-form-v8.js').read_text(encoding='utf-8')
         rejection_ui = script.split('function showRejection', 1)[1].split('function ', 1)[0]
         self.assertIn('Исправить запрос', rejection_ui)
         self.assertNotIn('Всё равно отправить', rejection_ui)
+        self.assertIn("openVehiclePicker('brand')", script)
+        self.assertIn("openVehiclePicker('model')", script)
         self.assertContains(page, 'name="transport_type"')
         self.assertContains(page, 'value="car" checked')
         self.assertContains(page, 'Легковые')
