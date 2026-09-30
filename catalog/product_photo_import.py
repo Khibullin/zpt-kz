@@ -36,6 +36,12 @@ MAX_UPLOAD_BYTES = 80 * 1024 * 1024
 MAX_FILE_COUNT = 500
 MAX_FILE_BYTES = 8 * 1024 * 1024
 MAX_UNCOMPRESSED_BYTES = 200 * 1024 * 1024
+AG_PARTS_EXTRA_PHOTO_ARTICLES = frozenset({
+    '1056022300',
+    '8126100U851025',
+    '8126100U1510-06',
+    'F188107041',
+})
 ALLOWED_IMAGE_EXTS = {'.jpg', '.jpeg', '.png', '.webp', '.avif'}
 SKIP_DIR_NAMES = {'__macosx', 'thumbs.db'}
 SKIP_FILE_NAMES = {'.ds_store', 'thumbs.db', 'desktop.ini'}
@@ -124,7 +130,7 @@ def safe_upload_filename(name: str) -> str:
 
 def seller_photo_whitelist(seller):
     if getattr(seller, 'slug', '') == AG_PARTS_SLUG:
-        return APPROVED_AIR_FILTER_ARTICLES
+        return APPROVED_AIR_FILTER_ARTICLES | AG_PARTS_EXTRA_PHOTO_ARTICLES
     return None
 
 
