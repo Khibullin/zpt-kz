@@ -31,6 +31,12 @@ KIT_COLLAGE_STATIC = {
     'nabor-to-chery-tiggo-2-15-sqrd4g15b': (
         'images/kits/tiggo-2-15-two-filter-collage.jpg'
     ),
+    'nabor-to-great-wall-wingle-7-two-filters': (
+        'images/kits/wingle-7-two-filter-collage.jpg'
+    ),
+    'nabor-to-li-auto-l7-two-filters': (
+        'images/kits/li-auto-l7-two-filter-collage.jpg'
+    ),
 }
 
 KIT_COLLAGE_ALT = {
@@ -63,6 +69,12 @@ KIT_COLLAGE_ALT = {
     ),
     'nabor-to-chery-tiggo-2-15-sqrd4g15b': (
         'Воздушный и салонный фильтры комплекта Chery Tiggo 2 1.5'
+    ),
+    'nabor-to-great-wall-wingle-7-two-filters': (
+        'Воздушный и салонный фильтры комплекта Great Wall Wingle 7'
+    ),
+    'nabor-to-li-auto-l7-two-filters': (
+        'Воздушный и салонный фильтры комплекта Li Auto L7'
     ),
 }
 
