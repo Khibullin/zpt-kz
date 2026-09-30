@@ -284,6 +284,38 @@ class ProductPhotoImportTests(TestCase):
             ).exists()
         )
 
+    def test_four_verified_non_air_articles_are_allowed_for_ag_parts(self):
+        articles = (
+            '1056022300',
+            '8126100U851025',
+            '8126100U1510-06',
+            'F188107041',
+        )
+        for article in articles:
+            Product.objects.create(
+                title=f'Товар {article}',
+                price=1000,
+                seller_name=self.seller.name,
+                seller_profile=self.seller,
+                whatsapp_number='+77770001122',
+                status='active',
+                city='Алматы',
+                article=article,
+                slug=f'photo-extra-{article.lower()}',
+            )
+        payload = _zip_bytes({
+            f'{article}/photo.jpg': self.red
+            for article in articles
+        })
+        rows = {
+            row.article: row
+            for row in plan_product_photo_import(self.seller, payload)
+        }
+        self.assertEqual(set(rows), set(articles))
+        for article in articles:
+            self.assertEqual(rows[article].display_status, 'matched')
+            self.assertEqual(rows[article].action, CatalogImportItem.ACTION_UPDATED)
+
     def test_traversal_rejected(self):
         payload = _zip_bytes({
             '../secret.jpg': self.red,
