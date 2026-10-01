@@ -1,4 +1,3 @@
-from django.db.models import Prefetch
 from django import forms
 from django.contrib import admin
 from django.contrib import messages
@@ -18,6 +17,8 @@ from catalog.instagram_service import (
     mark_stuck_instagram_publication_failed,
     queue_instagram_publication_for_processing,
 )
+from django.db.models import Count, Prefetch, Q
+
 from .models import (
     Country,
     Brand,
@@ -28,7 +29,12 @@ from .models import (
     Seller,
     SellerLead,
     SellerLeadContactCandidate,
+    SellerLeadDuplicateMatch,
+    SellerLeadEvidence,
+    SellerLeadLocation,
     SellerLeadPipelineRun,
+    SellerLeadSource,
+    SELLER_LEAD_DISCOVERY_SOURCE_CHOICES,
     Match,
     RequestDispatch,
     Feedback,
@@ -1787,6 +1793,100 @@ class SellerLeadMarketplacePlannedFilter(admin.SimpleListFilter):
         return queryset
 
 
+class SellerLeadDiscoverySourceTypeFilter(admin.SimpleListFilter):
+    title = 'Источник discovery'
+    parameter_name = 'discovery_source_type'
+
+    def lookups(self, request, model_admin):
+        return SELLER_LEAD_DISCOVERY_SOURCE_CHOICES
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return queryset.filter(sources__source_type=value).distinct()
+
+
+class SellerLeadConfidenceFilter(admin.SimpleListFilter):
+    title = 'Общая уверенность'
+    parameter_name = 'overall_confidence_band'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('none', 'Не указана'),
+            ('low', '0–49'),
+            ('mid', '50–79'),
+            ('high', '80–100'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == 'none':
+            return queryset.filter(overall_confidence__isnull=True)
+        if value == 'low':
+            return queryset.filter(overall_confidence__gte=0, overall_confidence__lt=50)
+        if value == 'mid':
+            return queryset.filter(overall_confidence__gte=50, overall_confidence__lt=80)
+        if value == 'high':
+            return queryset.filter(overall_confidence__gte=80, overall_confidence__lte=100)
+        return queryset
+
+
+class SellerLeadSourceInline(admin.TabularInline):
+    model = SellerLeadSource
+    extra = 0
+    fields = (
+        'source_type',
+        'provider',
+        'external_id',
+        'source_url',
+        'display_name',
+        'source_confidence',
+        'is_active',
+        'first_seen_at',
+        'last_seen_at',
+        'fetched_at',
+    )
+    show_change_link = True
+
+
+class SellerLeadEvidenceInline(admin.TabularInline):
+    model = SellerLeadEvidence
+    extra = 0
+    raw_id_fields = ('source',)
+    fields = (
+        'field_name',
+        'value',
+        'normalized_value',
+        'confidence',
+        'extraction_method',
+        'source',
+        'is_selected',
+        'is_owner_verified',
+        'observed_at',
+    )
+    show_change_link = True
+
+
+class SellerLeadLocationInline(admin.TabularInline):
+    model = SellerLeadLocation
+    extra = 0
+    raw_id_fields = ('source',)
+    fields = (
+        'city',
+        'address',
+        'normalized_address',
+        'is_primary',
+        'confidence',
+        'latitude',
+        'longitude',
+        'source',
+        'first_seen_at',
+        'last_seen_at',
+    )
+    show_change_link = True
+
+
 class SellerLeadContactCandidateInline(admin.TabularInline):
     model = SellerLeadContactCandidate
     extra = 0
@@ -1951,55 +2051,157 @@ class SellerLeadContactCandidateAdmin(admin.ModelAdmin):
         return _seller_lead_external_link(obj.source_url, 'Открыть источник')
 
 
+@admin.action(description='Пересчитать нормализованные identity')
+def refresh_seller_lead_identities(modeladmin, request, queryset):
+    from core.services.seller_discovery_identity import refresh_seller_lead_identity
+
+    updated = 0
+    for lead in queryset:
+        refresh_seller_lead_identity(lead)
+        updated += 1
+    messages.success(request, f'Identity пересчитан: {updated}.')
+
+
+@admin.action(description='Найти возможные дубли')
+def find_seller_lead_duplicates(modeladmin, request, queryset):
+    from core.services.seller_discovery_dedup import find_possible_duplicates_for_leads
+
+    matches = find_possible_duplicates_for_leads(queryset)
+    messages.success(request, f'Проверены возможные дубли. Пар в результате: {len(matches)}.')
+
+
+@admin.action(description='Отметить готовность к приглашению')
+def mark_seller_leads_ready_to_invite(modeladmin, request, queryset):
+    updated = queryset.update(lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE)
+    messages.success(request, f'Готовы к приглашению: {updated}. Сообщения не отправлялись.')
+
+
+@admin.action(description='Отметить lifecycle как отклонённый')
+def mark_seller_leads_lifecycle_rejected(modeladmin, request, queryset):
+    updated = queryset.update(lifecycle_status=SellerLead.LIFECYCLE_REJECTED)
+    messages.warning(request, f'Lifecycle «Отклонён»: {updated}. Старый статус pipeline не изменён.')
+
+
+@admin.action(description='Подтвердить: A является дублем B')
+def confirm_card_a_is_duplicate_of_card_b(modeladmin, request, queryset):
+    _confirm_duplicate_direction(request, queryset, canonical_side='b')
+
+
+@admin.action(description='Подтвердить: B является дублем A')
+def confirm_card_b_is_duplicate_of_card_a(modeladmin, request, queryset):
+    _confirm_duplicate_direction(request, queryset, canonical_side='a')
+
+
+def _confirm_duplicate_direction(request, queryset, *, canonical_side: str):
+    from core.services.seller_discovery_dedup import (
+        SellerDiscoveryDedupError,
+        confirm_seller_lead_duplicate,
+    )
+
+    confirmed = 0
+    for match in queryset:
+        canonical = match.lead_b if canonical_side == 'b' else match.lead_a
+        try:
+            confirm_seller_lead_duplicate(
+                match,
+                canonical_lead=canonical,
+                resolved_by=request.user,
+            )
+        except SellerDiscoveryDedupError as exc:
+            messages.error(request, str(exc))
+            continue
+        confirmed += 1
+    messages.success(
+        request,
+        f'Подтверждено дублей: {confirmed}. Карточки не удалялись и данные не переносились.',
+    )
+
+
+@admin.action(description='Отклонить пару дублей')
+def reject_seller_lead_duplicate_matches(modeladmin, request, queryset):
+    from core.services.seller_discovery_dedup import reject_seller_lead_duplicate
+
+    rejected = 0
+    for match in queryset:
+        reject_seller_lead_duplicate(match, resolved_by=request.user)
+        rejected += 1
+    messages.info(
+        request,
+        f'Отклонено пар: {rejected}. Lifecycle карточек не изменялся.',
+    )
+
+
 @admin.register(SellerLead)
 class SellerLeadAdmin(admin.ModelAdmin):
-    inlines = (SellerLeadContactCandidateInline,)
+    inlines = (
+        SellerLeadSourceInline,
+        SellerLeadEvidenceInline,
+        SellerLeadLocationInline,
+        SellerLeadContactCandidateInline,
+    )
     list_display = (
+        'lead_id',
         'name',
-        'instagram_username',
-        'whatsapp',
         'city',
-        'category',
-        'request_seller_transport_type',
+        'lifecycle_status',
         'review_status',
-        'request_seller',
-        'marketplace_invitation_status',
-        'status',
-        'source_type',
-        'created_at',
+        'overall_confidence',
+        'whatsapp',
+        'website_url',
+        'instagram_username',
+        'sources_count',
+        'possible_duplicates_count',
+        'collected_at',
+        'last_seen_at',
+        'checked_at',
     )
     list_filter = (
-        'review_status',
-        'status',
-        'source_type',
+        'lifecycle_status',
         'city',
-        'category',
-        'request_seller_transport_type',
-        SellerLeadHasWhatsAppFilter,
-        SellerLeadHasRequestSellerFilter,
-        SellerLeadMarketplacePlannedFilter,
+        SellerLeadConfidenceFilter,
+        SellerLeadDiscoverySourceTypeFilter,
+        'status',
         'collected_at',
         'checked_at',
+        SellerLeadHasWhatsAppFilter,
+        SellerLeadMarketplacePlannedFilter,
+        SellerLeadHasRequestSellerFilter,
+        'review_status',
+        'source_type',
+        'category',
     )
     search_fields = (
         'name',
-        'instagram_username',
         'whatsapp',
+        'instagram_username',
+        'website_url',
+        'normalized_name',
+        'normalized_phone',
+        'normalized_domain',
+        'normalized_instagram',
         'city',
-        'category',
-        'car_brands',
         'notes',
-        'profile_description',
     )
     readonly_fields = (
+        'lead_id',
         'created_at',
         'updated_at',
+        'normalized_name',
+        'normalized_phone',
+        'normalized_domain',
+        'normalized_instagram',
+        'normalized_address',
         'instagram_profile_link',
         'whatsapp_link',
         'website_link',
         'source_link',
+        'possible_duplicates_display',
     )
     actions = (
+        refresh_seller_lead_identities,
+        find_seller_lead_duplicates,
+        mark_seller_leads_ready_to_invite,
+        mark_seller_leads_lifecycle_rejected,
         convert_seller_leads_to_request_sellers,
         mark_seller_leads_marketplace_planned,
         convert_seller_leads_to_both,
@@ -2012,17 +2214,61 @@ class SellerLeadAdmin(admin.ModelAdmin):
         mark_seller_leads_contacted,
     )
     fieldsets = (
-        ('Основное', {
+        ('Основная карточка', {
             'fields': (
+                'lead_id',
                 'name',
-                'status',
-                'source_type',
+                'city',
+                'category',
+                'car_brands',
+                'profile_description',
+                'overall_confidence',
                 'collected_at',
+                'last_seen_at',
                 'checked_at',
             ),
         }),
-        ('Обработка администратором', {
+        ('Lifecycle', {
             'fields': (
+                'lifecycle_status',
+                'duplicate_of',
+                'last_enriched_at',
+                'last_classified_at',
+            ),
+        }),
+        ('Контакты', {
+            'fields': (
+                'instagram_username',
+                'instagram_url',
+                'instagram_profile_link',
+                'normalized_instagram',
+                'whatsapp',
+                'whatsapp_source_url',
+                'whatsapp_source_text',
+                'whatsapp_confidence',
+                'whatsapp_found_at',
+                'whatsapp_link',
+                'normalized_phone',
+                'website_url',
+                'website_link',
+                'normalized_domain',
+                'normalized_name',
+                'normalized_address',
+            ),
+        }),
+        ('Источники', {
+            'fields': (
+                'source_type',
+                'source_url',
+                'source_link',
+            ),
+        }),
+        ('Возможные дубли', {
+            'fields': ('possible_duplicates_display',),
+        }),
+        ('Legacy workflow', {
+            'fields': (
+                'status',
                 'review_status',
                 'request_seller_transport_type',
                 'request_seller',
@@ -2032,43 +2278,56 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'rejected_at',
             ),
         }),
-        ('Контакты', {
+        ('Notes', {
             'fields': (
-                'instagram_username',
-                'instagram_url',
-                'instagram_profile_link',
-                'whatsapp',
-                'whatsapp_source_url',
-                'whatsapp_source_text',
-                'whatsapp_confidence',
-                'whatsapp_found_at',
-                'whatsapp_link',
-                'website_url',
-                'website_link',
-            ),
-        }),
-        ('Профиль', {
-            'fields': (
-                'city',
-                'category',
-                'car_brands',
-                'profile_description',
-            ),
-        }),
-        ('Источник', {
-            'fields': (
-                'source_url',
-                'source_link',
                 'notes',
-            ),
-        }),
-        ('Служебное', {
-            'fields': (
                 'created_at',
                 'updated_at',
             ),
         }),
     )
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .select_related('request_seller', 'duplicate_of')
+            .annotate(
+                sources_count=Count('sources', distinct=True),
+                possible_duplicates_as_a=Count(
+                    'duplicate_matches_as_a',
+                    filter=Q(
+                        duplicate_matches_as_a__status=SellerLeadDuplicateMatch.STATUS_POSSIBLE,
+                    ),
+                    distinct=True,
+                ),
+                possible_duplicates_as_b=Count(
+                    'duplicate_matches_as_b',
+                    filter=Q(
+                        duplicate_matches_as_b__status=SellerLeadDuplicateMatch.STATUS_POSSIBLE,
+                    ),
+                    distinct=True,
+                ),
+            )
+            .prefetch_related(
+                'sources',
+                'evidences',
+                'locations',
+                'contact_candidates',
+            )
+        )
+
+    @admin.display(description='ID', ordering='pk')
+    def lead_id(self, obj):
+        return obj.pk
+
+    @admin.display(description='Источники', ordering='sources_count')
+    def sources_count(self, obj):
+        return obj.sources_count
+
+    @admin.display(description='Возможные дубли')
+    def possible_duplicates_count(self, obj):
+        return obj.possible_duplicates_as_a + obj.possible_duplicates_as_b
 
     @admin.display(description='Instagram')
     def instagram_profile_link(self, obj):
@@ -2091,6 +2350,65 @@ class SellerLeadAdmin(admin.ModelAdmin):
     @admin.display(description='Источник')
     def source_link(self, obj):
         return _seller_lead_external_link(obj.source_url, 'Открыть источник')
+
+    @admin.display(description='Пары')
+    def possible_duplicates_display(self, obj):
+        if not obj or not obj.pk:
+            return '—'
+        matches = SellerLeadDuplicateMatch.objects.filter(
+            Q(lead_a=obj) | Q(lead_b=obj),
+        ).select_related('lead_a', 'lead_b')
+        if not matches:
+            return '—'
+        lines = []
+        for match in matches:
+            other = match.lead_b if match.lead_a_id == obj.pk else match.lead_a
+            url = reverse('admin:core_sellerlead_change', args=[other.pk])
+            lines.append(format_html(
+                '<div><a href="{}">#{} {}</a> — {} — {}</div>',
+                url,
+                other.pk,
+                other.name,
+                match.score,
+                match.get_status_display(),
+            ))
+        return mark_safe(''.join(str(line) for line in lines))
+
+
+@admin.register(SellerLeadDuplicateMatch)
+class SellerLeadDuplicateMatchAdmin(admin.ModelAdmin):
+    list_display = (
+        'lead_a',
+        'lead_b',
+        'score',
+        'status',
+        'resolved_at',
+        'resolved_by',
+        'updated_at',
+    )
+    list_filter = ('status', 'score')
+    search_fields = (
+        'lead_a__name',
+        'lead_b__name',
+        'lead_a__whatsapp',
+        'lead_b__whatsapp',
+        'lead_a__normalized_phone',
+        'lead_b__normalized_phone',
+    )
+    raw_id_fields = ('lead_a', 'lead_b', 'resolved_by')
+    readonly_fields = ('created_at', 'updated_at')
+    actions = (
+        confirm_card_a_is_duplicate_of_card_b,
+        confirm_card_b_is_duplicate_of_card_a,
+        reject_seller_lead_duplicate_matches,
+    )
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related(
+            'lead_a',
+            'lead_b',
+            'resolved_by',
+        )
 
 
 def _format_json_for_admin(value) -> str:

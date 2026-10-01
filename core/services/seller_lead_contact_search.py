@@ -815,6 +815,9 @@ def enrich_seller_lead_contacts(
                         'updated_at',
                     ],
                 )
+                from core.services.seller_discovery_identity import refresh_seller_lead_identity
+
+                refresh_seller_lead_identity(lead)
                 stats.saved += 1
 
         stats.lead_outcomes.append(
