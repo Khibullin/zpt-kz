@@ -31,6 +31,7 @@
 
   <section class="kit-hero">
     <h1>{{ kit.name }}</h1>
+    <p class="kit-marking">Маркировка: <strong>{{ kit.marking }}</strong></p>
     {% if kit_view.cover_image_url %}
       <div class="kit-cover-wrap">
         <img src="{{ kit_view.cover_image_url }}" alt="{{ kit_view.cover_image_alt }}">

@@ -1427,6 +1427,7 @@ class MaintenanceKitItemInline(admin.TabularInline):
 class MaintenanceKitAdmin(admin.ModelAdmin):
     list_display = (
         'id',
+        'marking_display',
         'name',
         'slug',
         'brand',
@@ -1441,6 +1442,7 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
     search_fields = ('name', 'slug', 'engine', 'description')
     autocomplete_fields = ('brand', 'car_model')
     readonly_fields = (
+        'marking_display',
         'cover_preview',
         'base_price_display',
         'available_kits_display',
@@ -1453,6 +1455,7 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
             None,
             {
                 'fields': (
+                    'marking_display',
                     'name',
                     'slug',
                     'brand',
@@ -1476,6 +1479,10 @@ class MaintenanceKitAdmin(admin.ModelAdmin):
             {'fields': ('created_at', 'updated_at')},
         ),
     )
+
+    @admin.display(description='Маркировка')
+    def marking_display(self, obj):
+        return obj.marking or 'Присваивается после сохранения'
 
     def get_queryset(self, request):
         return (
@@ -1619,4 +1626,3 @@ class MaintenanceKitCarRequestAdmin(admin.ModelAdmin):
     def mark_new(self, request, queryset):
         updated = queryset.update(status=MaintenanceKitCarRequest.STATUS_NEW)
         self.message_user(request, f'Вернуто в «Новая»: {updated}.')
-

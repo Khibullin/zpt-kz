@@ -67,6 +67,31 @@ class MaintenanceKitModelTests(TestCase):
         self.model = CarModel.objects.create(brand=self.brand, name='Tiggo 7 Pro')
         self.other_model = CarModel.objects.create(brand=self.other_brand, name='TXL')
 
+    def test_marking_counts_full_positions_independent_of_stock_and_selection(self):
+        kit = MaintenanceKit.objects.create(
+            name='Комплект', slug='kit-marking', brand=self.brand,
+            car_model=self.model, is_active=True,
+            reference_lines=[{'type_label': 'Справочно', 'article': ''}],
+        )
+        air = _make_product(article='MARK-AIR', stock_qty=0)
+        sparks = _make_product(article='MARK-SPARKS', stock_qty=4)
+        MaintenanceKitItem.objects.create(kit=kit, product=air, quantity=1)
+        MaintenanceKitItem.objects.create(kit=kit, product=sparks, quantity=4)
+        expected = f'TO-{kit.pk:03d}/2'
+        self.assertEqual(kit.marking, expected)
+        kit.name = 'Другое название'
+        kit.save()
+        self.assertEqual(kit.marking, expected)
+        prefetched = MaintenanceKit.objects.prefetch_related('items').get(pk=kit.pk)
+        with self.assertNumQueries(0):
+            self.assertEqual(prefetched.marking, expected)
+        detail = self.client.get(reverse('maintenance_kit_detail', kwargs={'slug': kit.slug}))
+        self.assertContains(detail, expected)
+        self.assertContains(self.client.get(reverse('maintenance_kit_list')), expected)
+
+    def test_unsaved_kit_has_no_marking(self):
+        self.assertEqual(MaintenanceKit().marking, '')
+
     def test_quantity_must_be_at_least_one(self):
         kit = MaintenanceKit.objects.create(
             name='Комплект',
