@@ -109,8 +109,30 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # GW4D20M from Sep 2020 in the independent vehicle catalog:
 #   https://www.fitinpart.sg/v2/en/product/70800918/great-wall-1017110xed95
 #   https://www.fitinpart.sg/v2/en/product/70829678/great-wall-8100422xnz01a
+# H9 2.0 GW4C20A: 1109110XKV08A engine air (Oct 2016–Sep 2019),
+# 8100103XKV08A cabin (Nov 2017–Feb 2021); overlap Nov 2017–Sep 2019.
+#   https://www.airoilfilter.com/product/airfilter1109110xkv08a/
+#   https://www.fitinpart.sg/v2/en/product/47233170/great-wall-8100103xkv08a
+# Our air-filter photo has an erroneous 'CABIN FILTER' side print. The actual
+# large orange-framed part and package article match the engine air filter.
 
 KIT_SPECS = (
+    {
+        'slug': 'nabor-to-haval-h9-20-gw4c20a-two-filters',
+        'name': 'Набор ТО — 2 позиции Haval H9 2.0 GW4C20A',
+        'brand_name': 'Haval', 'model_name': 'H9',
+        'engine': '2.0 GW4C20A', 'year_from': 2017, 'year_to': 2019,
+        'description': (
+            'Набор ТО — 2 позиции для Haval H9 2.0 GW4C20A '
+            '(кузов CC6490WM, ноябрь 2017 – сентябрь 2019): воздушный '
+            'фильтр двигателя и салонный фильтр. Масляный фильтр в набор '
+            'не входит. Для других двигателей и годов применяемость не '
+            'подтверждена. Перед заказом сверьте артикулы с VIN и '
+            'установленными фильтрами.'
+        ),
+        'cover_note': '', 'reference_lines': (), 'publish_if_complete': True,
+        'items': (('1109110XKV08A', 1), ('8100103XKV08A', 1)),
+    },
     {
         'slug': 'nabor-to-great-wall-poer-20-gw4d20m-two-filters',
         'name': 'Набор ТО — 2 позиции Great Wall Poer 2.0 GW4D20M',
