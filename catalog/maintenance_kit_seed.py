@@ -101,8 +101,40 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # cabin: FitInPart M11 SQRD4G16 from Mar 2010. Check VIN before order.
 #   https://www.highfil.com/ProductDetail.aspx?ppid=154114
 #   https://www.fitinpart.sg/v2/en/product/653529/chery-m11-8107915
+# 151000187AA air and 301000265AA cabin share EXEED TXL M32T and VX M36T
+# SQRF4J20C in the independent vehicle catalog:
+#   https://www.fitinpart.sg/v2/en/product/51490981/chery-151000187aa
+#   https://www.fitinpart.sg/v2/en/product/51490934/chery-301000265aa
 
 KIT_SPECS = (
+    {
+        'slug': 'nabor-to-exeed-txl-20-sqrf4j20c-two-filters',
+        'name': 'Набор ТО — 2 позиции EXEED TXL 2.0T SQRF4J20C',
+        'brand_name': 'Exeed', 'model_name': 'TXL',
+        'engine': '2.0T SQRF4J20C', 'year_from': 2022, 'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для EXEED TXL 2.0T SQRF4J20C (M32T, '
+            'с августа 2022): воздушный фильтр двигателя и салонный фильтр. '
+            'Масляный фильтр в набор не входит. Не для TXL 1.6T. '
+            'Перед заказом сверьте двигатель и артикулы с VIN.'
+        ),
+        'cover_note': '', 'reference_lines': (), 'publish_if_complete': True,
+        'items': (('151000187AA', 1), ('301000265AA', 1)),
+    },
+    {
+        'slug': 'nabor-to-exeed-vx-20-sqrf4j20c-two-filters',
+        'name': 'Набор ТО — 2 позиции EXEED VX 2.0T SQRF4J20C',
+        'brand_name': 'Exeed', 'model_name': 'VX',
+        'engine': '2.0T SQRF4J20C', 'year_from': 2020, 'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для EXEED VX 2.0T SQRF4J20C (M36T, '
+            'с апреля 2020): воздушный фильтр двигателя и салонный фильтр. '
+            'Масляный фильтр в набор не входит. Перед заказом сверьте '
+            'двигатель и артикулы с VIN.'
+        ),
+        'cover_note': '', 'reference_lines': (), 'publish_if_complete': True,
+        'items': (('151000187AA', 1), ('301000265AA', 1)),
+    },
     {
         'slug': 'nabor-to-chery-m11-16-two-filters',
         'name': 'Набор ТО — 2 позиции Chery M11 1.6 SQRD4G16',

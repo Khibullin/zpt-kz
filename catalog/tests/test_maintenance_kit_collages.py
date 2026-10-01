@@ -35,12 +35,15 @@ class MaintenanceKitCollageCoverTests(TestCase):
         CarModel.objects.create(brand=chery, name='Tiggo 2')
         CarModel.objects.create(brand=chery, name='M11')
         CarModel.objects.create(brand=exeed, name='TXL')
+        CarModel.objects.create(brand=exeed, name='VX')
         CarModel.objects.create(brand=changan, name='UNI-K')
         CarModel.objects.create(brand=changan, name='UNI-V')
         CarModel.objects.create(brand=haval, name='Dargo')
         CarModel.objects.create(brand=great_wall, name='Wingle 7')
         CarModel.objects.create(brand=li_auto, name='L7')
         articles = {
+            '151000187AA': 'Воздушный TXL VX 2.0',
+            '301000265AA': 'Салонный TXL VX 2.0',
             'M111109111': 'Воздушный Chery M11',
             'M118107915': 'Салонный Chery M11',
             'T151109111': 'Воздушный Chery',
