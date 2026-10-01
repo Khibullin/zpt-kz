@@ -40,8 +40,11 @@ class MaintenanceKitCollageCoverTests(TestCase):
         CarModel.objects.create(brand=changan, name='UNI-V')
         CarModel.objects.create(brand=haval, name='Dargo')
         CarModel.objects.create(brand=great_wall, name='Wingle 7')
+        CarModel.objects.create(brand=great_wall, name='Poer')
         CarModel.objects.create(brand=li_auto, name='L7')
         articles = {
+            '1017110XED95': 'Масляный Poer дизель',
+            '8100422XNZ01A': 'Салонный Poer',
             '151000187AA': 'Воздушный TXL VX 2.0',
             '301000265AA': 'Салонный TXL VX 2.0',
             'M111109111': 'Воздушный Chery M11',
