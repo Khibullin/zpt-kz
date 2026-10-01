@@ -105,8 +105,26 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # SQRF4J20C in the independent vehicle catalog:
 #   https://www.fitinpart.sg/v2/en/product/51490981/chery-151000187aa
 #   https://www.fitinpart.sg/v2/en/product/51490934/chery-301000265aa
+# 1017110XED95 oil and 8100422XNZ01A cabin share Great Wall Poer
+# GW4D20M from Sep 2020 in the independent vehicle catalog:
+#   https://www.fitinpart.sg/v2/en/product/70800918/great-wall-1017110xed95
+#   https://www.fitinpart.sg/v2/en/product/70829678/great-wall-8100422xnz01a
 
 KIT_SPECS = (
+    {
+        'slug': 'nabor-to-great-wall-poer-20-gw4d20m-two-filters',
+        'name': 'Набор ТО — 2 позиции Great Wall Poer 2.0 GW4D20M',
+        'brand_name': 'Great Wall', 'model_name': 'Poer',
+        'engine': '2.0 дизель GW4D20M', 'year_from': 2020, 'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Great Wall Poer 2.0 дизель GW4D20M '
+            '(с сентября 2020): масляный и салонный фильтры. Воздушный '
+            'фильтр в набор не входит. Не для Wingle 7 и других двигателей. '
+            'Перед заказом сверьте двигатель и артикулы с VIN.'
+        ),
+        'cover_note': '', 'reference_lines': (), 'publish_if_complete': True,
+        'items': (('1017110XED95', 1), ('8100422XNZ01A', 1)),
+    },
     {
         'slug': 'nabor-to-exeed-txl-20-sqrf4j20c-two-filters',
         'name': 'Набор ТО — 2 позиции EXEED TXL 2.0T SQRF4J20C',

@@ -9,6 +9,9 @@ from __future__ import annotations
 from django.templatetags.static import static
 
 KIT_COLLAGE_STATIC = {
+    'nabor-to-great-wall-poer-20-gw4d20m-two-filters': (
+        'images/kits/great-wall-poer-20-two-filter-collage.jpg'
+    ),
     'nabor-to-exeed-txl-20-sqrf4j20c-two-filters': (
         'images/kits/exeed-txl-20-two-filter-collage.jpg'
     ),
@@ -49,6 +52,9 @@ KIT_COLLAGE_STATIC = {
 }
 
 KIT_COLLAGE_ALT = {
+    'nabor-to-great-wall-poer-20-gw4d20m-two-filters': (
+        'Масляный и салонный фильтры комплекта Great Wall Poer 2.0 дизель'
+    ),
     'nabor-to-exeed-txl-20-sqrf4j20c-two-filters': (
         'Воздушный и салонный фильтры комплекта EXEED TXL 2.0T'
     ),
