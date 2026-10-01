@@ -9,6 +9,9 @@ from __future__ import annotations
 from django.templatetags.static import static
 
 KIT_COLLAGE_STATIC = {
+    'nabor-to-chery-m11-16-two-filters': (
+        'images/kits/chery-m11-16-two-filter-collage.jpg'
+    ),
     'komplekt-to-chery-tiggo-7-pro-15t': (
         'images/kits/tiggo-7-pro-15t-three-filter-collage.jpg'
     ),
@@ -40,6 +43,9 @@ KIT_COLLAGE_STATIC = {
 }
 
 KIT_COLLAGE_ALT = {
+    'nabor-to-chery-m11-16-two-filters': (
+        'Воздушный и салонный фильтры комплекта Chery M11 1.6'
+    ),
     'komplekt-to-chery-tiggo-7-pro-15t': (
         'Воздушный, масляный и салонный фильтры комплекта Chery Tiggo 7 Pro 1.5T'
     ),

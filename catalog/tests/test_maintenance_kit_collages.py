@@ -33,6 +33,7 @@ class MaintenanceKitCollageCoverTests(TestCase):
         CarModel.objects.create(brand=chery, name='Tiggo 8')
         CarModel.objects.create(brand=chery, name='Arrizo 8')
         CarModel.objects.create(brand=chery, name='Tiggo 2')
+        CarModel.objects.create(brand=chery, name='M11')
         CarModel.objects.create(brand=exeed, name='TXL')
         CarModel.objects.create(brand=changan, name='UNI-K')
         CarModel.objects.create(brand=changan, name='UNI-V')
@@ -40,6 +41,8 @@ class MaintenanceKitCollageCoverTests(TestCase):
         CarModel.objects.create(brand=great_wall, name='Wingle 7')
         CarModel.objects.create(brand=li_auto, name='L7')
         articles = {
+            'M111109111': 'Воздушный Chery M11',
+            'M118107915': 'Салонный Chery M11',
             'T151109111': 'Воздушный Chery',
             'T218107011': 'Салонный Chery',
             '4801012010': 'Масляный Chery',

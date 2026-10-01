@@ -97,8 +97,31 @@ STATUS_AMBIGUOUS = 'AMBIGUOUS'
 # Li Auto L7: X01-90000014 air OE cross; X0390000206 cabin manufacturer listing:
 #   https://www.fitinpart.sg/v2/en/product/79023930/lixiang-x01-29150063
 #   https://www.x-filter.com/ru/lixiang-cars.html
+# M11-1109111 air: manufacturer OE cross for Chery M11; M11-8107915
+# cabin: FitInPart M11 SQRD4G16 from Mar 2010. Check VIN before order.
+#   https://www.highfil.com/ProductDetail.aspx?ppid=154114
+#   https://www.fitinpart.sg/v2/en/product/653529/chery-m11-8107915
 
 KIT_SPECS = (
+    {
+        'slug': 'nabor-to-chery-m11-16-two-filters',
+        'name': 'Набор ТО — 2 позиции Chery M11 1.6 SQRD4G16',
+        'brand_name': 'Chery',
+        'model_name': 'M11',
+        'engine': '1.6 SQRD4G16',
+        'year_from': 2010,
+        'year_to': None,
+        'description': (
+            'Набор ТО — 2 позиции для Chery M11 1.6 SQRD4G16: '
+            'воздушный фильтр двигателя и салонный фильтр. '
+            'Масляный фильтр в набор не входит. Перед заказом сверьте '
+            'артикулы с VIN и установленными фильтрами. Не для Jetour X70.'
+        ),
+        'cover_note': '',
+        'reference_lines': (),
+        'publish_if_complete': True,
+        'items': (('M111109111', 1), ('M118107915', 1)),
+    },
     {
         'slug': 'komplekt-to-chery-tiggo-7-pro-15t',
         'name': 'Набор ТО — 3 позиции Chery Tiggo 7 Pro 1.5T SQRE4T15C',
