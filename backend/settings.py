@@ -264,6 +264,35 @@ SELLER_SEARCH_PROVIDER = (os.getenv('SELLER_SEARCH_PROVIDER', 'brave') or 'brave
 BRAVE_SEARCH_API_KEY = (os.getenv('BRAVE_SEARCH_API_KEY', '') or '').strip()
 SELLER_SEARCH_ENABLED = os.getenv('SELLER_SEARCH_ENABLED', 'False').lower() == 'true'
 
+# Seller Discovery sources (2GIS + Brave web). Separate from the Instagram pipeline.
+# A provider runs only when the master flag and its own flag are both true.
+# Defaults stay off. These flags do not affect collect_instagram_seller_leads.
+def _discovery_flag(name: str) -> bool:
+    return os.getenv(name, 'False').strip().lower() in {'true', '1', 'yes'}
+
+
+def _discovery_int(name: str, default: int, cap: int) -> int:
+    raw = os.getenv(name, str(default))
+    try:
+        value = int(str(raw).strip())
+    except (TypeError, ValueError):
+        value = default
+    if value < 1:
+        value = default
+    return min(value, cap)
+
+
+SELLER_DISCOVERY_ENABLED = _discovery_flag('SELLER_DISCOVERY_ENABLED')
+SELLER_DISCOVERY_2GIS_ENABLED = _discovery_flag('SELLER_DISCOVERY_2GIS_ENABLED')
+SELLER_DISCOVERY_BRAVE_WEB_ENABLED = _discovery_flag('SELLER_DISCOVERY_BRAVE_WEB_ENABLED')
+SELLER_DISCOVERY_2GIS_PAGE_SIZE = _discovery_int('SELLER_DISCOVERY_2GIS_PAGE_SIZE', 10, 10)
+SELLER_DISCOVERY_2GIS_MAX_PAGES = _discovery_int('SELLER_DISCOVERY_2GIS_MAX_PAGES', 1, 5)
+TWO_GIS_API_KEY = (os.getenv('TWO_GIS_API_KEY', '') or '').strip()
+TWO_GIS_CATALOG_API_URL = (
+    os.getenv('TWO_GIS_CATALOG_API_URL', 'https://catalog.api.2gis.com/3.0/items')
+    or 'https://catalog.api.2gis.com/3.0/items'
+).strip()
+
 # Seller product assistant (OpenAI Responses API + web_search)
 OPENAI_API_KEY = (os.getenv('OPENAI_API_KEY', '') or '').strip()
 PRODUCT_AI_MODEL = (
