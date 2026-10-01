@@ -9,6 +9,12 @@ from __future__ import annotations
 from django.templatetags.static import static
 
 KIT_COLLAGE_STATIC = {
+    'nabor-to-exeed-txl-20-sqrf4j20c-two-filters': (
+        'images/kits/exeed-txl-20-two-filter-collage.jpg'
+    ),
+    'nabor-to-exeed-vx-20-sqrf4j20c-two-filters': (
+        'images/kits/exeed-vx-20-two-filter-collage.jpg'
+    ),
     'nabor-to-chery-m11-16-two-filters': (
         'images/kits/chery-m11-16-two-filter-collage.jpg'
     ),
@@ -43,6 +49,12 @@ KIT_COLLAGE_STATIC = {
 }
 
 KIT_COLLAGE_ALT = {
+    'nabor-to-exeed-txl-20-sqrf4j20c-two-filters': (
+        'Воздушный и салонный фильтры комплекта EXEED TXL 2.0T'
+    ),
+    'nabor-to-exeed-vx-20-sqrf4j20c-two-filters': (
+        'Воздушный и салонный фильтры комплекта EXEED VX 2.0T'
+    ),
     'nabor-to-chery-m11-16-two-filters': (
         'Воздушный и салонный фильтры комплекта Chery M11 1.6'
     ),
