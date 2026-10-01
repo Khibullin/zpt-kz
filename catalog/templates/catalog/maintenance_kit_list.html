@@ -107,6 +107,7 @@
           <h2>
             <a href="{% url 'maintenance_kit_detail' slug=kit_view.kit.slug %}">{{ kit_view.kit.name }}</a>
           </h2>
+          <p class="kit-marking">Маркировка: <strong>{{ kit_view.kit.marking }}</strong></p>
           <p class="kit-card-meta">
             {{ kit_view.kit.brand.name }} {{ kit_view.kit.car_model.name }}
             {% if kit_view.kit.engine %} · {{ kit_view.kit.engine }}{% endif %}

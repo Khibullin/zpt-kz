@@ -2048,6 +2048,13 @@ MAINTENANCE_KIT_SLUG_RE = r'^[a-z0-9]+(?:-[a-z0-9]+)*$'
 
 
 class MaintenanceKit(models.Model):
+    @property
+    def marking(self):
+        """Stable kit ID and full composition line count, independent of selection/stock."""
+        if self.pk is None:
+            return ''
+        return f'TO-{self.pk:03d}/{self.items.count()}'
+
     name = models.CharField(max_length=255, verbose_name='Название')
     slug = models.SlugField(
         max_length=255,
