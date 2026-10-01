@@ -682,6 +682,9 @@ def collect_instagram_seller_leads(
                 source_type='web_search',
                 status=SellerLead.STATUS_NEEDS_REVIEW,
             )
+            from core.services.seller_discovery_identity import refresh_seller_lead_identity
+
+            refresh_seller_lead_identity(lead)
             stats.created += 1
             stats.created_lead_ids.append(lead.pk)
 

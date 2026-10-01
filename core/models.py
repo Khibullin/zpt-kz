@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
@@ -1831,6 +1832,55 @@ SELLER_LEAD_MARKETPLACE_INVITATION_STATUS_CHOICES = [
     ('planned', 'Приглашение запланировано'),
 ]
 
+SELLER_LEAD_LIFECYCLE_STATUS_CHOICES = [
+    ('found', 'Найден'),
+    ('enriched', 'Обогащён'),
+    ('classified', 'Классифицирован'),
+    ('ready_to_invite', 'Готов к приглашению'),
+    ('invited', 'Приглашён'),
+    ('claimed', 'Заявлен владельцем'),
+    ('verified', 'Подтверждён'),
+    ('active', 'Активный'),
+    ('possible_duplicate', 'Возможный дубль'),
+    ('duplicate', 'Дубль'),
+    ('rejected', 'Отклонён'),
+    ('unreachable', 'Недоступен'),
+    ('closed', 'Закрыт'),
+]
+
+SELLER_LEAD_DISCOVERY_SOURCE_CHOICES = [
+    ('brave_search', 'Brave Search'),
+    ('web_search', 'Веб-поиск'),
+    ('instagram', 'Instagram'),
+    ('website', 'Сайт'),
+    ('two_gis', '2GIS'),
+    ('google_places', 'Google Places'),
+    ('directory', 'Справочник'),
+    ('manual', 'Вручную'),
+    ('other', 'Другое'),
+]
+
+SELLER_LEAD_EVIDENCE_METHOD_CHOICES = [
+    ('parser', 'Парсер'),
+    ('search_result', 'Результат поиска'),
+    ('ai', 'AI'),
+    ('manual', 'Вручную'),
+    ('seller', 'Продавец'),
+    ('import', 'Импорт'),
+    ('other', 'Другое'),
+]
+
+SELLER_LEAD_DUPLICATE_MATCH_STATUS_CHOICES = [
+    ('possible', 'Возможный'),
+    ('confirmed', 'Подтверждён'),
+    ('rejected', 'Отклонён'),
+]
+
+SELLER_DISCOVERY_CONFIDENCE_VALIDATORS = [
+    MinValueValidator(0),
+    MaxValueValidator(100),
+]
+
 
 def normalize_seller_lead_instagram_username(value: str | None) -> str:
     username = str(value or '').strip()
@@ -1867,6 +1917,20 @@ class SellerLead(models.Model):
 
     MARKETPLACE_INVITATION_NONE = ''
     MARKETPLACE_INVITATION_PLANNED = 'planned'
+
+    LIFECYCLE_FOUND = 'found'
+    LIFECYCLE_ENRICHED = 'enriched'
+    LIFECYCLE_CLASSIFIED = 'classified'
+    LIFECYCLE_READY_TO_INVITE = 'ready_to_invite'
+    LIFECYCLE_INVITED = 'invited'
+    LIFECYCLE_CLAIMED = 'claimed'
+    LIFECYCLE_VERIFIED = 'verified'
+    LIFECYCLE_ACTIVE = 'active'
+    LIFECYCLE_POSSIBLE_DUPLICATE = 'possible_duplicate'
+    LIFECYCLE_DUPLICATE = 'duplicate'
+    LIFECYCLE_REJECTED = 'rejected'
+    LIFECYCLE_UNREACHABLE = 'unreachable'
+    LIFECYCLE_CLOSED = 'closed'
 
     name = models.CharField(max_length=255, verbose_name='Название')
     instagram_username = models.CharField(
@@ -2008,10 +2072,83 @@ class SellerLead(models.Model):
     )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+    lifecycle_status = models.CharField(
+        max_length=32,
+        choices=SELLER_LEAD_LIFECYCLE_STATUS_CHOICES,
+        default=LIFECYCLE_FOUND,
+        db_index=True,
+        verbose_name='Жизненный цикл',
+        help_text='Используется Seller Discovery. Поле «Статус» остаётся для текущего pipeline.',
+    )
+    overall_confidence = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Общая уверенность',
+    )
+    normalized_name = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Нормализованное название',
+    )
+    normalized_phone = models.CharField(
+        max_length=32,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Нормализованный телефон',
+    )
+    normalized_domain = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Нормализованный домен',
+    )
+    normalized_instagram = models.CharField(
+        max_length=150,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Нормализованный Instagram',
+    )
+    normalized_address = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Нормализованный адрес',
+    )
+    last_seen_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name='Последнее наблюдение',
+    )
+    last_enriched_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последнее обогащение',
+    )
+    last_classified_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Последняя классификация',
+    )
+    duplicate_of = models.ForeignKey(
+        'self',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='merged_duplicates',
+        verbose_name='Подтверждённый дубль карточки',
+        help_text='Заполняется только после явного подтверждения дубля администратором.',
+    )
 
     class Meta:
-        verbose_name = 'Потенциальный продавец'
-        verbose_name_plural = 'Потенциальные продавцы'
+        verbose_name = 'Найденный продавец'
+        verbose_name_plural = 'Найденные продавцы'
         ordering = ['-collected_at', '-created_at']
         indexes = [
             models.Index(fields=['status']),
@@ -2031,6 +2168,10 @@ class SellerLead(models.Model):
                 fields=['whatsapp'],
                 condition=models.Q(whatsapp__gt=''),
                 name='unique_sellerlead_whatsapp',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(overall_confidence__isnull=True) | models.Q(overall_confidence__lte=100),
+                name='sl_overall_confidence_lte_100',
             ),
         ]
 
@@ -2057,6 +2198,10 @@ class SellerLead(models.Model):
         if self.whatsapp and duplicate_filter.filter(whatsapp=self.whatsapp).exists():
             raise ValidationError({
                 'whatsapp': 'Потенциальный продавец с таким WhatsApp уже существует.',
+            })
+        if self.duplicate_of_id and self.pk and self.duplicate_of_id == self.pk:
+            raise ValidationError({
+                'duplicate_of': 'Карточка не может быть дублем самой себя.',
             })
 
     def save(self, *args, **kwargs):
@@ -2300,6 +2445,344 @@ class SellerLeadContactCandidate(models.Model):
                     'updated_at',
                 ],
             )
+            from core.services.seller_discovery_identity import refresh_seller_lead_identity
+
+            refresh_seller_lead_identity(lead)
+
+
+class SellerLeadSource(models.Model):
+    SOURCE_BRAVE_SEARCH = 'brave_search'
+    SOURCE_WEB_SEARCH = 'web_search'
+    SOURCE_INSTAGRAM = 'instagram'
+    SOURCE_WEBSITE = 'website'
+    SOURCE_TWO_GIS = 'two_gis'
+    SOURCE_GOOGLE_PLACES = 'google_places'
+    SOURCE_DIRECTORY = 'directory'
+    SOURCE_MANUAL = 'manual'
+    SOURCE_OTHER = 'other'
+
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='sources',
+        verbose_name='Найденный продавец',
+    )
+    source_type = models.CharField(
+        max_length=32,
+        choices=SELLER_LEAD_DISCOVERY_SOURCE_CHOICES,
+        verbose_name='Тип источника',
+    )
+    provider = models.CharField(max_length=64, blank=True, default='', verbose_name='Провайдер')
+    external_id = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Внешний ID',
+    )
+    source_url = models.URLField(max_length=500, blank=True, default='', verbose_name='URL источника')
+    display_name = models.CharField(max_length=255, blank=True, default='', verbose_name='Название в источнике')
+    first_seen_at = models.DateTimeField(verbose_name='Первое наблюдение')
+    last_seen_at = models.DateTimeField(verbose_name='Последнее наблюдение')
+    fetched_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата загрузки')
+    source_confidence = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность источника',
+    )
+    is_active = models.BooleanField(default=True, verbose_name='Активен')
+    metadata = models.JSONField(default=dict, blank=True, verbose_name='Метаданные')
+    raw_payload_hash = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Хеш исходных данных',
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Источник найденного продавца'
+        verbose_name_plural = 'Источники найденных продавцов'
+        ordering = ['-last_seen_at', '-id']
+        indexes = [
+            models.Index(fields=['seller_lead', 'source_type'], name='sl_src_lead_type_idx'),
+            models.Index(fields=['provider', 'external_id'], name='sl_src_prov_ext_idx'),
+            models.Index(fields=['source_url'], name='sl_src_url_idx'),
+            models.Index(fields=['last_seen_at'], name='sl_src_seen_idx'),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['source_type', 'provider', 'external_id'],
+                condition=~models.Q(external_id=''),
+                name='uniq_sl_source_external_id',
+            ),
+            models.UniqueConstraint(
+                fields=['seller_lead', 'source_url'],
+                condition=~models.Q(source_url=''),
+                name='uniq_sl_source_url_per_lead',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(source_confidence__isnull=True) | models.Q(source_confidence__lte=100),
+                name='sl_source_confidence_lte_100',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.get_source_type_display()} — {self.display_name or self.source_url or self.pk}'
+
+
+class SellerLeadEvidence(models.Model):
+    METHOD_PARSER = 'parser'
+    METHOD_SEARCH_RESULT = 'search_result'
+    METHOD_AI = 'ai'
+    METHOD_MANUAL = 'manual'
+    METHOD_SELLER = 'seller'
+    METHOD_IMPORT = 'import'
+    METHOD_OTHER = 'other'
+
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='evidences',
+        verbose_name='Найденный продавец',
+    )
+    source = models.ForeignKey(
+        SellerLeadSource,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='evidences',
+        verbose_name='Источник',
+    )
+    field_name = models.CharField(max_length=64, db_index=True, verbose_name='Поле')
+    value = models.TextField(verbose_name='Значение')
+    normalized_value = models.TextField(blank=True, default='', verbose_name='Нормализованное значение')
+    confidence = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность',
+    )
+    extraction_method = models.CharField(
+        max_length=32,
+        choices=SELLER_LEAD_EVIDENCE_METHOD_CHOICES,
+        default=METHOD_OTHER,
+        verbose_name='Способ извлечения',
+    )
+    observed_at = models.DateTimeField(verbose_name='Наблюдалось')
+    is_selected = models.BooleanField(default=False, verbose_name='Выбранное значение')
+    is_owner_verified = models.BooleanField(default=False, verbose_name='Подтверждено владельцем')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Доказательство'
+        verbose_name_plural = 'Доказательства'
+        ordering = ['-observed_at', '-id']
+        indexes = [
+            models.Index(fields=['seller_lead', 'field_name'], name='sl_ev_lead_field_idx'),
+            models.Index(fields=['normalized_value'], name='sl_ev_norm_idx'),
+            models.Index(fields=['is_selected'], name='sl_ev_selected_idx'),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_lead', 'field_name'],
+                condition=models.Q(is_selected=True),
+                name='uniq_sl_selected_evidence',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(confidence__isnull=True) | models.Q(confidence__lte=100),
+                name='sl_evidence_confidence_lte_100',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.field_name}: {self.value[:80]}'
+
+    def clean(self):
+        if not self.is_selected or not self.seller_lead_id or not self.field_name:
+            return
+        conflict = SellerLeadEvidence.objects.filter(
+            seller_lead_id=self.seller_lead_id,
+            field_name=self.field_name,
+            is_selected=True,
+        )
+        if self.pk:
+            conflict = conflict.exclude(pk=self.pk)
+        if conflict.exists():
+            raise ValidationError({
+                'is_selected': 'Для этого поля уже выбрано другое доказательство.',
+            })
+
+
+class SellerLeadLocation(models.Model):
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='locations',
+        verbose_name='Найденный продавец',
+    )
+    source = models.ForeignKey(
+        SellerLeadSource,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='locations',
+        verbose_name='Источник',
+    )
+    external_id = models.CharField(max_length=255, blank=True, default='', verbose_name='Внешний ID')
+    name = models.CharField(max_length=255, blank=True, default='', verbose_name='Название точки')
+    city = models.CharField(max_length=100, blank=True, default='', db_index=True, verbose_name='Город')
+    address = models.CharField(max_length=500, blank=True, default='', verbose_name='Адрес')
+    normalized_address = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Нормализованный адрес',
+    )
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name='Широта',
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name='Долгота',
+    )
+    is_primary = models.BooleanField(default=False, verbose_name='Основная точка')
+    confidence = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность',
+    )
+    first_seen_at = models.DateTimeField(verbose_name='Первое наблюдение')
+    last_seen_at = models.DateTimeField(verbose_name='Последнее наблюдение')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+
+    class Meta:
+        verbose_name = 'Локация найденного продавца'
+        verbose_name_plural = 'Локации найденных продавцов'
+        ordering = ['-is_primary', '-last_seen_at', '-id']
+        indexes = [
+            models.Index(fields=['seller_lead', 'city'], name='sl_loc_lead_city_idx'),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_lead'],
+                condition=models.Q(is_primary=True),
+                name='uniq_sl_primary_location',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(confidence__isnull=True) | models.Q(confidence__lte=100),
+                name='sl_location_confidence_lte_100',
+            ),
+        ]
+
+    def __str__(self):
+        return self.address or self.city or f'Локация #{self.pk}'
+
+    def clean(self):
+        if not self.is_primary or not self.seller_lead_id:
+            return
+        conflict = SellerLeadLocation.objects.filter(
+            seller_lead_id=self.seller_lead_id,
+            is_primary=True,
+        )
+        if self.pk:
+            conflict = conflict.exclude(pk=self.pk)
+        if conflict.exists():
+            raise ValidationError({
+                'is_primary': 'У найденного продавца уже есть основная локация.',
+            })
+
+
+class SellerLeadDuplicateMatch(models.Model):
+    STATUS_POSSIBLE = 'possible'
+    STATUS_CONFIRMED = 'confirmed'
+    STATUS_REJECTED = 'rejected'
+
+    lead_a = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='duplicate_matches_as_a',
+        verbose_name='Карточка A',
+    )
+    lead_b = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='duplicate_matches_as_b',
+        verbose_name='Карточка B',
+    )
+    score = models.PositiveSmallIntegerField(
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Оценка',
+    )
+    status = models.CharField(
+        max_length=16,
+        choices=SELLER_LEAD_DUPLICATE_MATCH_STATUS_CHOICES,
+        default=STATUS_POSSIBLE,
+        db_index=True,
+        verbose_name='Статус пары',
+    )
+    reasons = models.JSONField(default=list, blank=True, verbose_name='Причины')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
+    resolved_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата решения')
+    resolved_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='resolved_seller_lead_duplicates',
+        verbose_name='Кто решил',
+    )
+
+    class Meta:
+        verbose_name = 'Возможный дубль'
+        verbose_name_plural = 'Возможные дубли'
+        ordering = ['-score', '-updated_at']
+        indexes = [
+            models.Index(fields=['status', 'score'], name='sl_dup_status_score_idx'),
+        ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['lead_a', 'lead_b'],
+                name='uniq_sl_duplicate_pair',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(lead_a_id__lt=models.F('lead_b_id')),
+                name='sl_dup_pair_ordered',
+            ),
+            models.CheckConstraint(
+                condition=models.Q(score__lte=100),
+                name='sl_dup_score_lte_100',
+            ),
+        ]
+
+    def __str__(self):
+        return f'#{self.lead_a_id} ↔ #{self.lead_b_id} ({self.score})'
+
+    def clean(self):
+        if self.lead_a_id and self.lead_b_id and self.lead_a_id == self.lead_b_id:
+            raise ValidationError('Нельзя сравнить карточку саму с собой.')
+
+    def save(self, *args, **kwargs):
+        if self.lead_a_id and self.lead_b_id and self.lead_a_id > self.lead_b_id:
+            self.lead_a_id, self.lead_b_id = self.lead_b_id, self.lead_a_id
+            self.__dict__.pop('lead_a', None)
+            self.__dict__.pop('lead_b', None)
+        super().save(*args, **kwargs)
 
 
 class SellerLeadPipelineRun(models.Model):
