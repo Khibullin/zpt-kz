@@ -33,6 +33,7 @@ from core.services.seller_discovery_providers.base import DiscoveryProviderError
 from core.services.seller_discovery_providers.brave import (
     BraveWebDiscoveryProvider,
     build_brave_discovery_query,
+    is_probable_auto_parts_seller_result,
     parse_brave_web_result,
 )
 from core.services.seller_discovery_providers.catalog import (
@@ -156,7 +157,7 @@ def _hit(**kwargs):
         'instagram_url': 'https://www.instagram.com/chinaparts/',
         'category_text': 'автозапчасти',
         'rubrics': ('Автозапчасти',),
-        'source_url': 'https://2gis.kz/firm/70000001000000001',
+        'source_url': '',
         'search_query': 'автозапчасти',
         'org_id': '9001',
         'confidence': 80,
@@ -184,6 +185,7 @@ class TwoGisParserTests(TestCase):
         self.assertEqual(hit.search_query, 'автозапчасти')
         self.assertEqual(hit.website, 'https://chinaparts.kz')
         self.assertEqual(hit.instagram_url, 'https://www.instagram.com/chinaparts/')
+        self.assertEqual(hit.source_url, '')
         self.assertEqual(hit.rubrics, ('Автозапчасти',))
         self.assertEqual(hit.latitude, Decimal('43.240000'))
         self.assertEqual(hit.longitude, Decimal('76.950000'))
@@ -263,9 +265,9 @@ class BraveDiscoveryTests(TestCase):
     def test_provider_uses_existing_brave_client(self):
         client = _FakeSearchClient([
             {
-                'title': 'Shop',
+                'title': 'Магазин фильтров',
                 'url': 'https://shop-example.kz',
-                'description': 'фильтры',
+                'description': 'Продажа автозапчастей',
             },
         ])
         provider = BraveWebDiscoveryProvider(client=client)
@@ -278,6 +280,85 @@ class BraveDiscoveryTests(TestCase):
         self.assertEqual(len(hits), 1)
         self.assertEqual(client.queries[0][0], 'фильтры Шымкент Казахстан')
         self.assertNotIn('site:instagram.com', client.queries[0][0])
+
+
+class BraveSuitabilityTests(TestCase):
+    def _parse(self, title, description, url, direction='автозапчасти'):
+        return parse_brave_web_result(
+            {'title': title, 'description': description, 'url': url},
+            city='Алматы',
+            direction=direction,
+        )
+
+    def test_seller_pages_are_accepted_and_unrelated_pages_are_rejected(self):
+        accepted = (
+            ('China Parts — магазин автозапчастей', 'Алматы', 'https://chinaparts.kz/'),
+            ('Запчасти Chery Haval Geely', 'Наличие и продажа', 'https://china-parts.kz/'),
+            ('Магазин фильтров и масел для авто', 'Алматы', 'https://filters.kz/'),
+            ('Авторазбор', 'Контрактные запчасти', 'https://razbor.kz/'),
+            ('Кузовные запчасти', 'Магазин', 'https://kuzov.kz/'),
+            ('Ходовая часть', 'Продажа запчастей', 'https://hodovaya.kz/'),
+            ('Автоэлектрика', 'Магазин автозапчастей', 'https://electro.kz/'),
+            ('Spare parts shop', 'Auto parts in Almaty', 'https://spare.kz/'),
+            ('AutoFilter Алматы', 'Магазин автомобильных фильтров, продажа автозапчастей', 'https://autofilter.kz/'),
+        )
+        for title, description, url in accepted:
+            with self.subTest(title=title):
+                hit = self._parse(title, description, url)
+                self.assertIsNotNone(hit)
+                self.assertTrue(is_probable_auto_parts_seller_result(
+                    title=title,
+                    description=description,
+                    name=hit.name,
+                ))
+
+        rejected = (
+            ('Новости Chery Казахстан', 'Последние новости бренда', 'https://news.example.kz/chery', 'Chery запчасти Алматы'),
+            ('Как выбрать масляный фильтр', 'Статья о выборе фильтра', 'https://blog.example.kz/filter', 'фильтры Алматы'),
+            ('Обзор нового Chery', 'Информационная статья о модели', 'https://blog.example.kz/review', 'Chery запчасти'),
+            ('Форум владельцев Haval', 'Обсуждение на форуме', 'https://forum.example.kz/', 'Haval запчасти'),
+            ('ТОО Ромашка', 'Корпоративный сайт производственной компании', 'https://romashka.kz/', 'автозапчасти'),
+            ('Chery', 'Официальный бренд', 'https://chery-brand.kz/', 'Chery запчасти Алматы'),
+            ('Масляный фильтр', 'Описание детали', 'https://generic.kz/filter', 'фильтры'),
+        )
+        for title, description, url, direction in rejected:
+            with self.subTest(title=title):
+                self.assertIsNone(self._parse(title, description, url, direction))
+                self.assertFalse(is_probable_auto_parts_seller_result(title=title, description=description))
+
+    def test_instagram_profile_needs_seller_evidence(self):
+        shop = self._parse(
+            'China Parts (@chinaparts)',
+            '',
+            'https://www.instagram.com/chinaparts/',
+        )
+        club = self._parse(
+            'Chery Club Almaty',
+            'Клуб владельцев',
+            'https://www.instagram.com/cheryclub/',
+            'Chery запчасти Алматы',
+        )
+        self.assertIsNotNone(shop)
+        self.assertEqual(shop.source_type, 'instagram')
+        self.assertEqual(shop.instagram_url, 'https://www.instagram.com/chinaparts/')
+        self.assertIsNone(club)
+
+    def test_marketplace_hosts_stay_rejected(self):
+        for url in (
+            'https://kaspi.kz/shop/p/filter',
+            'https://satu.kz/parts',
+            'https://olx.kz/list',
+            'https://kolesa.kz/a/1',
+        ):
+            with self.subTest(url=url):
+                self.assertIsNone(self._parse('Магазин автозапчастей', 'Продажа запчастей', url))
+
+    def test_search_query_does_not_make_a_weak_page_acceptable(self):
+        title = 'Chery Казахстан'
+        description = 'Официальный бренд'
+        self.assertFalse(is_probable_auto_parts_seller_result(title=title, description=description))
+        hit = self._parse(title, description, 'https://chery-brand.kz/', 'Chery запчасти Алматы')
+        self.assertIsNone(hit)
 
 
 class IngestionTests(TestCase):
@@ -349,7 +430,7 @@ class IngestionTests(TestCase):
         )
         result = ingest_seller_discovery_hit(_hit(
             external_id='70000001000000002',
-            source_url='https://2gis.kz/firm/70000001000000002',
+            source_url='',
             website='',
             instagram_url='',
         ))
@@ -374,7 +455,7 @@ class IngestionTests(TestCase):
             phones=(),
             website='',
             instagram_url='',
-            source_url='https://2gis.kz/firm/70000001000000099',
+            source_url='',
         ))
 
         self.assertEqual(SellerLead.objects.count(), 2)
@@ -504,8 +585,8 @@ class DiscoveryCommandTests(TestCase):
 
     def test_runner_stops_at_max_hits(self):
         provider = _FakeProvider([
-            _hit(external_id='1', source_url='https://2gis.kz/firm/1', phone='', phones=(), website='', instagram_url=''),
-            _hit(external_id='2', source_url='https://2gis.kz/firm/2', name='Second', phone='', phones=(), website='', instagram_url=''),
+            _hit(external_id='1', source_url='', phone='', phones=(), website='', instagram_url=''),
+            _hit(external_id='2', source_url='', name='Second', phone='', phones=(), website='', instagram_url=''),
         ])
         stats = run_seller_discovery(
             provider_names=['two_gis'],
@@ -726,6 +807,60 @@ class ContactAndIdentityTests(TestCase):
         self.assertFalse(lead.evidences.filter(field_name='whatsapp').exists())
         self.assertFalse(lead.evidences.filter(field_name='vehicle_brand').exists())
         self.assertEqual(lead.sources.get().metadata['search_query'], 'Chery запчасти')
+        self.assertEqual(lead.sources.get().source_url, '')
+        self.assertEqual(hit.source_url, '')
+
+    def test_source_url_is_not_synthesized_and_external_id_reuses_the_lead(self):
+        hit = parse_two_gis_item(TWO_GIS_ITEM, city=resolve_city('Алматы'), direction='автозапчасти')
+        self.assertEqual(hit.source_url, '')
+        self.assertNotIn('2gis.kz', hit.source_url)
+        first = ingest_seller_discovery_hit(hit)
+        second = ingest_seller_discovery_hit(hit)
+        self.assertEqual(first.action, 'create')
+        self.assertEqual(second.action, 'update')
+        self.assertEqual(second.match_reason, 'external_id')
+        self.assertEqual(second.seller_lead_id, first.seller_lead_id)
+        self.assertEqual(SellerLead.objects.count(), 1)
+        source = SellerLeadSource.objects.get()
+        self.assertEqual(source.provider, 'two_gis')
+        self.assertEqual(source.external_id, '70000001000000001')
+        self.assertEqual(source.source_url, '')
+
+    def test_related_links_are_not_website_or_instagram(self):
+        item = json.loads(json.dumps(TWO_GIS_ITEM))
+        item.pop('contact_groups')
+        item['links'] = {
+            'nearest_stations': [{'id': 'station-1', 'name': 'Абая'}],
+            'website': 'https://not-the-shop.example',
+            'instagram': 'related_shop',
+            'attractions': [{'id': 'park-1'}],
+        }
+        hit = parse_two_gis_item(item, city=resolve_city('Алматы'), direction='автозапчасти')
+        self.assertIsNotNone(hit)
+        self.assertEqual(hit.website, '')
+        self.assertEqual(hit.instagram_url, '')
+        self.assertNotIn('items.links', ITEM_FIELDS)
+        ingest_seller_discovery_hit(hit)
+        lead = SellerLead.objects.get()
+        self.assertEqual(lead.website_url, '')
+        self.assertEqual(lead.instagram_username, '')
+
+    def test_website_and_instagram_contacts_are_kept_when_links_exist(self):
+        item = json.loads(json.dumps(TWO_GIS_ITEM))
+        item['links'] = {
+            'website': 'https://ignored.example',
+            'instagram': 'ignored_profile',
+        }
+        item['contact_groups'] = [{
+            'contacts': [
+                {'type': 'website', 'url': 'https://chinaparts.kz'},
+                {'type': 'instagram', 'value': 'chinaparts'},
+            ],
+        }]
+        hit = parse_two_gis_item(item, city=resolve_city('Алматы'), direction='автозапчасти')
+        self.assertEqual(hit.website, 'https://chinaparts.kz')
+        self.assertEqual(hit.instagram_url, 'https://www.instagram.com/chinaparts/')
+        self.assertEqual(hit.source_url, '')
 
     def test_phone_contact_is_not_whatsapp(self):
         hit = parse_two_gis_item(TWO_GIS_ITEM, city=resolve_city('Алматы'), direction='автозапчасти')
@@ -764,7 +899,7 @@ class ContactAndIdentityTests(TestCase):
                 result = ingest_seller_discovery_hit(_hit(
                     name='Auto Parts Shop',
                     external_id=f'query-{index}',
-                    source_url=f'https://2gis.kz/firm/query-{index}',
+                    source_url='',
                     address=f'Алматы, ул. Тест, {index}',
                     category_text='',
                     rubrics=(),
@@ -790,7 +925,7 @@ class ContactAndIdentityTests(TestCase):
             add_seller_lead_evidence(lead, field_name='phone', value='77271234567')
         phone_result = ingest_seller_discovery_hit(_hit(
             external_id='phone-new',
-            source_url='https://2gis.kz/firm/phone-new',
+            source_url='',
             name='Third shop',
             phone='77271234567',
             phones=('77271234567',),
@@ -807,7 +942,7 @@ class ContactAndIdentityTests(TestCase):
         refresh_seller_lead_identity(right)
         domain_result = ingest_seller_discovery_hit(_hit(
             external_id='domain-new',
-            source_url='https://2gis.kz/firm/domain-new',
+            source_url='',
             name='Domain shop',
             phone='',
             phones=(),
@@ -823,7 +958,7 @@ class ContactAndIdentityTests(TestCase):
         SellerLead.objects.create(name='Auto Parts Shop', city='Алматы')
         name_only = ingest_seller_discovery_hit(_hit(
             external_id='name-only',
-            source_url='https://2gis.kz/firm/name-only',
+            source_url='',
             name='Auto Parts Shop',
             address='',
             phone='',
@@ -848,7 +983,7 @@ class ContactAndIdentityTests(TestCase):
         )
         unique = ingest_seller_discovery_hit(_hit(
             external_id='exact-1',
-            source_url='https://2gis.kz/firm/exact-1',
+            source_url='',
             name='Exact Shop',
             address=address,
             phone='',
@@ -867,7 +1002,7 @@ class ContactAndIdentityTests(TestCase):
         )
         ambiguous = ingest_seller_discovery_hit(_hit(
             external_id='exact-2',
-            source_url='https://2gis.kz/firm/exact-2',
+            source_url='',
             name='Exact Shop',
             address=address,
             phone='',

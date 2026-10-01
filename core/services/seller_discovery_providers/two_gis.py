@@ -48,10 +48,12 @@ ITEM_FIELDS = ','.join((
     'items.org',
     'items.brand',
     'items.contact_groups',
-    'items.links',
     'items.adm_div',
 ))
-FIRM_URL = 'https://2gis.kz/firm/{external_id}'
+# Contact types documented by the 2GIS Catalog API. items.links is a list of
+# related catalog objects, not the business website or Instagram.
+CONTACT_TYPE_WEBSITE = 'website'
+CONTACT_TYPE_INSTAGRAM = 'instagram'
 _COORD_QUANT = Decimal('0.000001')
 
 
@@ -227,7 +229,7 @@ def parse_two_gis_item(
     address = _address_from_item(item)
     latitude, longitude = _point_from_item(item)
     phones, whatsapp_phone = _phones_from_item(item)
-    website, instagram_url = _links_from_item(item)
+    website, instagram_url = _website_and_instagram_from_contacts(item)
     rubrics = _rubrics_from_item(item)
     org = item.get('org') if isinstance(item.get('org'), dict) else {}
     org_id = str(org.get('id') or '').strip()[:64]
@@ -250,7 +252,7 @@ def parse_two_gis_item(
         instagram_url=instagram_url[:500],
         category_text=(rubrics[0] if rubrics else '')[:100],
         rubrics=tuple(rubrics),
-        source_url=FIRM_URL.format(external_id=parse.quote(external_id, safe=''))[:500],
+        source_url='',
         search_query=' '.join(str(direction or '').split())[:200],
         org_id=org_id,
         brand_name=brand_name[:100],
@@ -452,19 +454,20 @@ def _bounded_max_pages(value: int | None) -> int:
     return min(number, TWO_GIS_MAX_PAGES_CAP)
 
 
-def _links_from_item(item: dict[str, Any]) -> tuple[str, str]:
+def _website_and_instagram_from_contacts(item: dict[str, Any]) -> tuple[str, str]:
+    """Read website and Instagram only from contact_groups entries.
+
+    items.links lists related catalog objects and is ignored. A missing
+    contact_groups field is an empty contact list, not an error.
+    """
     website = ''
     instagram_url = ''
-    links = item.get('links')
-    if isinstance(links, dict):
-        website = _http_url(links.get('website') or links.get('url') or '')
-        instagram_url = _instagram_url(links.get('instagram') or '')
     for contact in _iter_contacts(item):
         contact_type = str(contact.get('type') or '').strip().lower()
         raw = contact.get('url') or contact.get('value') or contact.get('text') or ''
-        if contact_type in {'website', 'url'} and not website:
+        if contact_type == CONTACT_TYPE_WEBSITE and not website:
             website = _http_url(raw)
-        if contact_type == 'instagram' and not instagram_url:
+        elif contact_type == CONTACT_TYPE_INSTAGRAM and not instagram_url:
             instagram_url = _instagram_url(raw)
     return website, instagram_url
 

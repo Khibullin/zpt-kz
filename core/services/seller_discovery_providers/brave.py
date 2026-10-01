@@ -43,6 +43,39 @@ INSTAGRAM_IN_TEXT_RE = re.compile(
 )
 TITLE_SPLIT_RE = re.compile(r'\s+[|–—]\s+|\s+-\s+')
 TITLE_HANDLE_RE = re.compile(r'\s*\(@[A-Za-z0-9._]+\)\s*')
+_LATIN_WORD_RE = r'(?<![a-z0-9]){word}(?![a-z0-9])'
+
+# A hit needs an auto-parts or seller signal in the result text itself.
+# The search query is not evidence. One car brand, "масло" or "фильтр" is not enough.
+_REJECT_SUBSTRINGS = (
+    'новост',
+    'блог',
+    'форум',
+    'статья',
+    'статьи',
+    'обзор',
+    'как выбрать',
+    'how to',
+    'how-to',
+)
+_REJECT_WORDS = ('news', 'blog', 'forum', 'article', 'review')
+_STRONG_PARTS_SUBSTRINGS = (
+    'автозапчаст',
+    'запчаст',
+    'авторазбор',
+    'кузовн',
+    'ходовая',
+    'автоэлектрик',
+    'spare parts',
+    'auto parts',
+    'spareparts',
+    'autoparts',
+)
+_STRONG_PARTS_WORDS = ('parts',)
+_WEAK_CONTEXT_SUBSTRINGS = ('масл', 'масел', 'фильтр')
+_WEAK_CONTEXT_WORDS = ('chery', 'haval', 'geely', 'jetour')
+_COMMERCE_SUBSTRINGS = ('магазин', 'продаж', 'купить', 'оптом', 'оптов')
+_COMMERCE_WORDS = ('shop', 'store')
 
 # Catalogs and maps are not the shop itself. 2GIS firms belong to the 2GIS provider.
 SKIPPED_RESULT_SUFFIXES = (
@@ -111,6 +144,8 @@ def parse_brave_web_result(
 
     if not name:
         return None
+    if not is_probable_auto_parts_seller_result(title=title, description=description, name=name):
+        return None
 
     raw = {
         'title': title,
@@ -174,6 +209,31 @@ def _client_from_settings() -> BraveSearchClient:
             'BRAVE_SEARCH_API_KEY не задан. Укажите ключ в переменных окружения.',
         )
     return BraveSearchClient(api_key=api_key)
+
+
+def is_probable_auto_parts_seller_result(*, title: str, description: str = '', name: str = '') -> bool:
+    """True when the result text itself looks like an auto-parts seller.
+
+    News, blogs, how-to articles and pages with only a car brand are rejected.
+    The discovery query is intentionally not an argument.
+    """
+    text = ' '.join(str(part or '') for part in (title, description, name)).casefold()
+    text = ' '.join(text.split())
+    if not text:
+        return False
+    if _contains_marker(text, _REJECT_SUBSTRINGS, _REJECT_WORDS):
+        return False
+    if _contains_marker(text, _STRONG_PARTS_SUBSTRINGS, _STRONG_PARTS_WORDS):
+        return True
+    has_weak = _contains_marker(text, _WEAK_CONTEXT_SUBSTRINGS, _WEAK_CONTEXT_WORDS)
+    has_commerce = _contains_marker(text, _COMMERCE_SUBSTRINGS, _COMMERCE_WORDS)
+    return has_weak and has_commerce
+
+
+def _contains_marker(text: str, substrings: tuple[str, ...], words: tuple[str, ...]) -> bool:
+    if any(marker in text for marker in substrings):
+        return True
+    return any(re.search(_LATIN_WORD_RE.format(word=re.escape(word)), text) for word in words)
 
 
 def _host_is_skipped(url: str) -> bool:
