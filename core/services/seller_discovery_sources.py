@@ -322,3 +322,117 @@ def set_primary_location(location: SellerLeadLocation) -> SellerLeadLocation:
         lead.normalized_address = locked.normalized_address
         lead.save(update_fields=['normalized_address', 'updated_at'])
         return locked
+
+
+def upsert_seller_lead_location(
+    seller_lead,
+    *,
+    source: SellerLeadSource | None = None,
+    external_id: str = '',
+    name: str = '',
+    city: str = '',
+    address: str = '',
+    latitude=None,
+    longitude=None,
+    confidence: int | None = None,
+    observed_at=None,
+    make_primary_if_missing: bool = True,
+) -> SellerLeadLocation | None:
+    """Create or refresh one location. Does not replace an existing primary point."""
+    external_id = str(external_id or '').strip()[:255]
+    name = str(name or '').strip()[:255]
+    city = str(city or '').strip()[:100]
+    address = str(address or '').strip()[:500]
+    normalized = normalize_address(address)
+    confidence = _validate_confidence(confidence)
+    seen_at = observed_at or timezone.now()
+    if not any((external_id, address, city, latitude is not None, longitude is not None)):
+        return None
+
+    with transaction.atomic():
+        existing = _find_existing_location(
+            seller_lead,
+            external_id=external_id,
+            normalized_address=normalized,
+        )
+        if existing is None:
+            existing = SellerLeadLocation.objects.create(
+                seller_lead=seller_lead,
+                source=source,
+                external_id=external_id,
+                name=name,
+                city=city,
+                address=address,
+                normalized_address=normalized,
+                latitude=latitude,
+                longitude=longitude,
+                is_primary=False,
+                confidence=confidence,
+                first_seen_at=seen_at,
+                last_seen_at=seen_at,
+            )
+        else:
+            existing.last_seen_at = seen_at
+            update_fields = ['last_seen_at', 'updated_at']
+            if name:
+                existing.name = name
+                update_fields.append('name')
+            if city:
+                existing.city = city
+                update_fields.append('city')
+            if address:
+                existing.address = address
+                existing.normalized_address = normalized
+                update_fields.extend(['address', 'normalized_address'])
+            if latitude is not None:
+                existing.latitude = latitude
+                update_fields.append('latitude')
+            if longitude is not None:
+                existing.longitude = longitude
+                update_fields.append('longitude')
+            if confidence is not None:
+                existing.confidence = confidence
+                update_fields.append('confidence')
+            if source is not None and existing.source_id is None:
+                existing.source = source
+                update_fields.append('source')
+            if external_id and not existing.external_id:
+                existing.external_id = external_id
+                update_fields.append('external_id')
+            existing.save(update_fields=update_fields)
+
+        if existing.is_primary:
+            lead = existing.seller_lead
+            if lead.normalized_address != existing.normalized_address:
+                lead.normalized_address = existing.normalized_address
+                lead.save(update_fields=['normalized_address', 'updated_at'])
+            return existing
+
+        has_primary = SellerLeadLocation.objects.filter(
+            seller_lead=seller_lead,
+            is_primary=True,
+        ).exists()
+        if make_primary_if_missing and not has_primary:
+            return set_primary_location(existing)
+        return existing
+
+
+def _find_existing_location(
+    seller_lead,
+    *,
+    external_id: str,
+    normalized_address: str,
+) -> SellerLeadLocation | None:
+    if external_id:
+        found = SellerLeadLocation.objects.select_for_update().filter(
+            seller_lead=seller_lead,
+            external_id=external_id,
+        ).first()
+        if found is not None:
+            return found
+    if normalized_address:
+        return SellerLeadLocation.objects.select_for_update().filter(
+            seller_lead=seller_lead,
+            normalized_address=normalized_address,
+        ).first()
+    return None
