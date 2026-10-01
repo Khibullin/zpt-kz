@@ -2196,6 +2196,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'website_link',
         'source_link',
         'possible_duplicates_display',
+        'duplicate_of',
     )
     actions = (
         refresh_seller_lead_identities,
@@ -2395,13 +2396,25 @@ class SellerLeadDuplicateMatchAdmin(admin.ModelAdmin):
         'lead_a__normalized_phone',
         'lead_b__normalized_phone',
     )
-    raw_id_fields = ('lead_a', 'lead_b', 'resolved_by')
-    readonly_fields = ('created_at', 'updated_at')
+    readonly_fields = (
+        'lead_a',
+        'lead_b',
+        'score',
+        'status',
+        'reasons',
+        'resolved_at',
+        'resolved_by',
+        'created_at',
+        'updated_at',
+    )
     actions = (
         confirm_card_a_is_duplicate_of_card_b,
         confirm_card_b_is_duplicate_of_card_a,
         reject_seller_lead_duplicate_matches,
     )
+
+    def has_add_permission(self, request):
+        return False
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_related(

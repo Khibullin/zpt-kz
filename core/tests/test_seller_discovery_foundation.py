@@ -12,11 +12,13 @@ from django.utils import timezone
 from catalog.models import Product, SellerProfile
 from core.admin import (
     SellerLeadAdmin,
+    SellerLeadDuplicateMatchAdmin,
     confirm_card_a_is_duplicate_of_card_b,
     confirm_card_b_is_duplicate_of_card_a,
     find_seller_lead_duplicates,
     mark_seller_leads_lifecycle_rejected,
     mark_seller_leads_ready_to_invite,
+    reject_seller_lead_duplicate_matches,
 )
 from core.models import (
     Seller,
@@ -676,6 +678,37 @@ class SellerDiscoveryAdminWorkflowTests(TestCase):
         ).count(), 4)
         with self.assertRaises(TypeError):
             confirm_seller_lead_duplicate(match_first, resolved_by=request.user)
+
+    def test_duplicate_links_are_not_editable_in_admin(self):
+        lead_admin = SellerLeadAdmin(SellerLead, AdminSite())
+        match_admin = SellerLeadDuplicateMatchAdmin(SellerLeadDuplicateMatch, AdminSite())
+        request = _admin_request()
+        self.assertIn('duplicate_of', lead_admin.get_readonly_fields(request, _lead()))
+        self.assertIn(
+            'duplicate_of',
+            lead_admin.get_fieldsets(request, _lead())[1][1]['fields'],
+        )
+        readonly = set(match_admin.get_readonly_fields(request, SellerLeadDuplicateMatch()))
+        self.assertTrue({
+            'lead_a',
+            'lead_b',
+            'score',
+            'status',
+            'reasons',
+            'resolved_at',
+            'resolved_by',
+            'created_at',
+            'updated_at',
+        }.issubset(readonly))
+        self.assertFalse(match_admin.has_add_permission(request))
+        self.assertEqual(
+            match_admin.actions,
+            (
+                confirm_card_a_is_duplicate_of_card_b,
+                confirm_card_b_is_duplicate_of_card_a,
+                reject_seller_lead_duplicate_matches,
+            ),
+        )
 
     def test_reject_duplicate_does_not_rewrite_lifecycle(self):
         left = _lead(website_url='https://reject.example.kz')
