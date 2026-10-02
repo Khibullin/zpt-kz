@@ -1,5 +1,6 @@
 import io
 import json
+import socket
 from unittest.mock import patch
 from urllib import error, parse
 
@@ -46,6 +47,27 @@ ENABLED = {
     'GOOGLE_PLACES_API_KEY': 'google-secret-key',
     'BRAVE_SEARCH_API_KEY': 'brave-secret-key',
 }
+
+
+_dns_calls = []
+
+
+def _public_getaddrinfo(host, port, *args, **kwargs):
+    _dns_calls.append(host)
+    return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('1.1.1.1', 0))]
+
+
+def setUpModule():
+    global _dns_patch
+    _dns_patch = patch(
+        'core.services.seller_contact_website.socket.getaddrinfo',
+        side_effect=_public_getaddrinfo,
+    )
+    _dns_patch.start()
+
+
+def tearDownModule():
+    _dns_patch.stop()
 
 
 class _Response:
@@ -249,6 +271,226 @@ class WebsiteSafetyTests(TestCase):
         self.assertNotIn('/submit', calls)
         self.assertLessEqual(crawled.pages_fetched, 5)
         self.assertTrue(crawled.identity_accepted)
+
+
+class WebsiteSsrfTests(TestCase):
+    def _forbid(self, calls):
+        def urlopen(http_request, timeout):
+            calls.append(http_request.full_url)
+            raise AssertionError(http_request.full_url)
+        return urlopen
+
+    def _serve(self, calls, *, redirect_to=''):
+        def urlopen(http_request, timeout):
+            calls.append(http_request.full_url)
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            page_hits = [
+                url for url in calls
+                if parse.urlsplit(url).path in {'', '/'}
+            ]
+            if redirect_to and len(page_hits) == 1:
+                return _Response(
+                    status=302,
+                    body='',
+                    headers={'Location': redirect_to, 'Content-Type': 'text/html'},
+                )
+            return _Response(body=_html())
+        return urlopen
+
+    def _assert_blocked(self, url):
+        calls = []
+        before = len(_dns_calls)
+        result = crawl_official_website(url, lead_name='China Parts', urlopen=self._forbid(calls))
+        self.assertEqual(result.outcome, 'error')
+        self.assertEqual(calls, [])
+        self.assertEqual(len(_dns_calls), before)
+        return result
+
+    def test_loopback_and_shorthand_ipv4_are_rejected_before_urlopen(self):
+        self._assert_blocked('http://127.0.0.1/')
+        self._assert_blocked('http://127.1/')
+
+    def test_private_ipv4_is_rejected(self):
+        self._assert_blocked('http://10.0.0.1/')
+
+    def test_link_local_metadata_ip_is_rejected(self):
+        self._assert_blocked('http://169.254.169.254/')
+
+    def test_ipv6_loopback_is_rejected(self):
+        self._assert_blocked('http://[::1]/')
+
+    def test_hostname_mocked_to_private_ip_is_rejected(self):
+        calls = []
+        lookups = []
+
+        def lookup(host, port, *args, **kwargs):
+            lookups.append(host)
+            return [(socket.AF_INET, socket.SOCK_STREAM, 6, '', ('192.168.1.20', 0))]
+
+        with patch('core.services.seller_contact_website.socket.getaddrinfo', side_effect=lookup):
+            result = crawl_official_website(
+                'http://shop.example.test/',
+                lead_name='Shop',
+                urlopen=self._forbid(calls),
+            )
+        self.assertEqual(result.outcome, 'error')
+        self.assertEqual(calls, [])
+        self.assertEqual(lookups, ['shop.example.test', 'shop.example.test'])
+
+    def test_hostname_with_mixed_public_and_private_ips_is_rejected(self):
+        calls = []
+
+        def lookup(host, port, *args, **kwargs):
+            return [
+                (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('1.1.1.1', 0)),
+                (socket.AF_INET, socket.SOCK_STREAM, 6, '', ('10.0.0.5', 0)),
+            ]
+
+        with patch('core.services.seller_contact_website.socket.getaddrinfo', side_effect=lookup):
+            result = crawl_official_website(
+                'https://shop.example/',
+                lead_name='Shop',
+                urlopen=self._forbid(calls),
+            )
+        self.assertEqual(result.outcome, 'error')
+        self.assertEqual(calls, [])
+
+    def test_public_hostname_mocked_to_public_ip_is_accepted(self):
+        calls = []
+        result = crawl_official_website(
+            'https://example.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=self._serve(calls),
+        )
+        self.assertEqual(result.outcome, 'ok')
+        self.assertTrue(calls)
+        self.assertTrue(all(parse.urlsplit(url).hostname == 'example.kz' for url in calls))
+
+    def test_localhost_names_are_rejected(self):
+        self._assert_blocked('http://localhost/')
+        self._assert_blocked('http://shop.localhost/')
+
+    def test_local_tld_is_rejected(self):
+        self._assert_blocked('http://printer.local/')
+
+    def test_credentials_in_url_are_rejected(self):
+        self._assert_blocked('http://user:pass@example.com/')
+
+    def test_unlisted_port_is_rejected(self):
+        self._assert_blocked('http://example.com:8080/')
+        self._assert_blocked('https://example.com:8443/')
+
+    def test_default_http_and_https_ports_are_accepted(self):
+        https_calls = []
+        https_result = crawl_official_website(
+            'https://example.kz:443/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=self._serve(https_calls),
+        )
+        self.assertEqual(https_result.outcome, 'ok')
+        self.assertTrue(any(':443' in url for url in https_calls))
+        http_calls = []
+        http_result = crawl_official_website(
+            'http://example.kz:80/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=self._serve(http_calls),
+        )
+        self.assertEqual(http_result.outcome, 'ok')
+        self.assertTrue(any(':80' in url for url in http_calls))
+
+    def test_redirect_to_private_ip_is_rejected_before_second_get(self):
+        calls = []
+        result = crawl_official_website(
+            'https://example.kz/',
+            lead_name='China Parts',
+            urlopen=self._serve(calls, redirect_to='http://10.0.0.1/secret'),
+        )
+        self.assertEqual(result.outcome, 'error')
+        self.assertFalse(any(parse.urlsplit(url).hostname == '10.0.0.1' for url in calls))
+
+    def test_redirect_to_foreign_hostname_is_rejected_before_second_get(self):
+        calls = []
+        result = crawl_official_website(
+            'https://example.kz/',
+            lead_name='China Parts',
+            urlopen=self._serve(calls, redirect_to='https://other.kz/steal'),
+        )
+        self.assertEqual(result.outcome, 'redirect_rejected')
+        self.assertFalse(any(parse.urlsplit(url).hostname == 'other.kz' for url in calls))
+
+    def test_www_redirect_stays_on_the_same_site(self):
+        calls = []
+        result = crawl_official_website(
+            'https://example.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=self._serve(calls, redirect_to='https://www.example.kz/'),
+        )
+        self.assertEqual(result.outcome, 'ok')
+        self.assertTrue(any(parse.urlsplit(url).hostname == 'www.example.kz' for url in calls))
+
+    def test_separate_co_jp_hosts_are_not_the_same_site(self):
+        calls = []
+        result = crawl_official_website(
+            'https://one.co.jp/',
+            lead_name='China Parts',
+            urlopen=self._serve(calls, redirect_to='https://two.co.jp/'),
+        )
+        self.assertEqual(result.outcome, 'redirect_rejected')
+        self.assertFalse(any(parse.urlsplit(url).hostname == 'two.co.jp' for url in calls))
+
+    def test_contact_link_on_another_hostname_is_not_crawled(self):
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request.full_url)
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://shop.example.kz/contacts">Контакты</a>'))
+
+        crawl_official_website(
+            'https://example.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=urlopen,
+        )
+        self.assertFalse(any(parse.urlsplit(url).hostname == 'shop.example.kz' for url in calls))
+
+    def test_robots_fetch_obeys_ssrf_guard(self):
+        calls = []
+        result = crawl_official_website(
+            'http://192.168.1.1/',
+            lead_name='China Parts',
+            urlopen=self._forbid(calls),
+        )
+        self.assertEqual(result.outcome, 'error')
+        self.assertFalse(any(parse.urlsplit(url).path == '/robots.txt' for url in calls))
+        self.assertEqual(calls, [])
+
+    def test_dns_failure_is_not_retried(self):
+        calls = []
+        lookups = []
+
+        def lookup(host, port, *args, **kwargs):
+            lookups.append(host)
+            raise socket.gaierror('dns failed')
+
+        with patch('core.services.seller_contact_website.socket.getaddrinfo', side_effect=lookup):
+            result = crawl_official_website(
+                'https://missing.example/',
+                lead_name='Shop',
+                urlopen=self._forbid(calls),
+            )
+        self.assertEqual(result.outcome, 'error')
+        self.assertIn('определить', result.error)
+        self.assertEqual(calls, [])
+        self.assertEqual(lookups, ['missing.example', 'missing.example'])
 
 
 @override_settings(**ENABLED)

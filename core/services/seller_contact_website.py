@@ -1,15 +1,18 @@
 """Fetch a seller's own website and read public contacts from its HTML.
 
 Google and search engines are not sources of the extracted contacts. The page
-itself is. Crawling stays on the same site, respects robots.txt for extra
+itself is. Crawling stays on the same host, respects robots.txt for extra
 pages, and does not execute JavaScript, submit forms, or pretend to be a browser.
+Each GET is refused unless the destination is a public HTTP(S) address.
 """
 
 from __future__ import annotations
 
+import ipaddress
 import json
 import logging
 import re
+import socket
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from typing import Any, Callable
@@ -130,6 +133,141 @@ def registrable_domain(hostname: str) -> str:
     return host
 
 
+def same_crawl_host(seed_host: str, target_host: str) -> bool:
+    """Crawl boundary: the same host, or its www / non-www pair.
+
+    shop1.co.jp and shop2.co.jp are different sites. parts.kz and
+    other.parts.kz are different sites. This is not a public-suffix check.
+    """
+    return bool(_crawl_host_key(seed_host)) and _crawl_host_key(seed_host) == _crawl_host_key(target_host)
+
+
+def _crawl_host_key(hostname: str) -> str:
+    host = (hostname or '').lower().strip().rstrip('.')
+    if host.startswith('www.'):
+        host = host[4:]
+    return host
+
+
+def _assert_public_destination(url: str) -> str:
+    """Refuse a crawl target immediately before GET.
+
+    This is application-level SSRF protection. DNS is resolved for this
+    request only and is not cached: the next GET resolves the host again.
+    """
+    raw = str(url or '').strip()
+    parts = parse.urlsplit(raw)
+    if parts.scheme not in {'http', 'https'} or not parts.hostname:
+        raise WebsiteFetchError('Сайт должен быть http или https URL.')
+    if parts.username is not None or parts.password is not None:
+        raise WebsiteFetchError('URL сайта не должен содержать логин или пароль.')
+    if parts.scheme == 'http' and parts.port not in {None, 80}:
+        raise WebsiteFetchError('Для HTTP разрешён только порт 80.')
+    if parts.scheme == 'https' and parts.port not in {None, 443}:
+        raise WebsiteFetchError('Для HTTPS разрешён только порт 443.')
+    host = parts.hostname.lower().strip().rstrip('.')
+    if host == 'localhost' or host.endswith('.localhost') or host.endswith('.local'):
+        raise WebsiteFetchError('Адрес сайта не является публичным.')
+    literal = _literal_ip(host)
+    if literal is not None:
+        if not _is_public_ip(literal):
+            raise WebsiteFetchError('Адрес сайта не является публичным.')
+        return raw
+    try:
+        answers = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
+    except OSError:
+        raise WebsiteFetchError('Не удалось определить адрес сайта.') from None
+    if not answers:
+        raise WebsiteFetchError('Не удалось определить адрес сайта.')
+    for family, socktype, proto, canon, sockaddr in answers:
+        del family, socktype, proto, canon
+        ip_text = str(sockaddr[0]).split('%', 1)[0]
+        try:
+            resolved = ipaddress.ip_address(ip_text)
+        except ValueError:
+            raise WebsiteFetchError('Не удалось определить адрес сайта.') from None
+        if not _is_public_ip(resolved):
+            raise WebsiteFetchError('Адрес сайта не является публичным.')
+    return raw
+
+
+def _literal_ip(host: str) -> ipaddress.IPv4Address | ipaddress.IPv6Address | None:
+    text = host.split('%', 1)[0]
+    try:
+        return ipaddress.ip_address(text)
+    except ValueError:
+        pass
+    if not text or any(char not in '0123456789.x' for char in text):
+        return None
+    parsed = _inet_aton(text)
+    if parsed is None:
+        raise WebsiteFetchError('Адрес сайта не является публичным.')
+    return parsed
+
+
+def _inet_aton(text: str) -> ipaddress.IPv4Address | None:
+    """Parse a dotted or abbreviated IPv4 literal, including 127.1."""
+    parts = text.split('.')
+    if not 1 <= len(parts) <= 4 or any(part == '' for part in parts):
+        return None
+    limits = {
+        1: (0xFFFFFFFF,),
+        2: (0xFF, 0xFFFFFF),
+        3: (0xFF, 0xFF, 0xFFFF),
+        4: (0xFF, 0xFF, 0xFF, 0xFF),
+    }[len(parts)]
+    values = []
+    for part, limit in zip(parts, limits):
+        try:
+            if part.startswith('0x'):
+                value = int(part, 16)
+            elif len(part) > 1 and part.startswith('0'):
+                if any(char not in '01234567' for char in part):
+                    return None
+                value = int(part, 8)
+            else:
+                value = int(part, 10)
+        except ValueError:
+            return None
+        if value < 0 or value > limit:
+            return None
+        values.append(value)
+    if len(values) == 1:
+        packed = values[0]
+    elif len(values) == 2:
+        packed = (values[0] << 24) | values[1]
+    elif len(values) == 3:
+        packed = (values[0] << 24) | (values[1] << 16) | values[2]
+    else:
+        packed = (values[0] << 24) | (values[1] << 16) | (values[2] << 8) | values[3]
+    if packed > 0xFFFFFFFF:
+        return None
+    return ipaddress.IPv4Address(packed)
+
+
+def _is_public_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
+    """True only for a globally routable unicast address.
+
+    Rejects loopback, private, link-local, multicast, unspecified, reserved,
+    and shared address space such as carrier-grade NAT 100.64.0.0/10.
+    """
+    mapped = getattr(ip, 'ipv4_mapped', None)
+    if mapped is not None:
+        return _is_public_ip(mapped)
+    if (
+        ip.is_private
+        or ip.is_loopback
+        or ip.is_link_local
+        or ip.is_multicast
+        or ip.is_reserved
+        or ip.is_unspecified
+        or getattr(ip, 'is_site_local', False)
+        or not ip.is_global
+    ):
+        return False
+    return True
+
+
 def parse_seller_website_html(html: str, *, page_url: str) -> WebsiteExtract:
     """Read contacts from one HTML document. The document is not returned."""
     parser = _ContactHTMLParser(page_url=page_url)
@@ -213,10 +351,9 @@ def crawl_official_website(
         return WebsiteCrawlResult(outcome='error', error=str(exc))
 
     seed_host = parse.urlsplit(seed).hostname or ''
-    domain = registrable_domain(seed_host)
-    robots = _load_robots(seed, opener)
+    robots = _load_robots(seed, opener, seed_host=seed_host)
     try:
-        fetched = _fetch_page(seed, opener=opener, expected_domain=domain, redirects_left=MAX_REDIRECTS)
+        fetched = _fetch_page(seed, opener=opener, seed_host=seed_host, redirects_left=MAX_REDIRECTS)
     except WebsiteFetchError as exc:
         message = str(exc)
         outcome = 'error'
@@ -253,7 +390,7 @@ def crawl_official_website(
         if not absolute or absolute in seen:
             continue
         link_host = parse.urlsplit(absolute).hostname or ''
-        if registrable_domain(link_host) != domain:
+        if not same_crawl_host(seed_host, link_host):
             continue
         path = parse.urlsplit(absolute).path or '/'
         if robots is not None and not _robots_allows(robots, path):
@@ -263,7 +400,7 @@ def crawl_official_website(
             extra = _fetch_page(
                 absolute,
                 opener=opener,
-                expected_domain=domain,
+                seed_host=seed_host,
                 redirects_left=MAX_REDIRECTS,
             )
         except WebsiteFetchError:
@@ -287,7 +424,7 @@ def crawl_official_website(
         domain_is_prior=domain_is_prior,
     )
     final_url = combined.canonical_url or fetched.final_url
-    if registrable_domain(parse.urlsplit(final_url).hostname or '') != domain:
+    if not same_crawl_host(seed_host, parse.urlsplit(final_url).hostname or ''):
         final_url = fetched.final_url
     if not accepted:
         return WebsiteCrawlResult(
@@ -313,14 +450,14 @@ def _validate_http_url(value: str) -> str:
     return raw
 
 
-def _load_robots(seed: str, opener: Callable[..., Any]) -> str | None:
+def _load_robots(seed: str, opener: Callable[..., Any], *, seed_host: str) -> str | None:
     parts = parse.urlsplit(seed)
     robots_url = parse.urlunsplit((parts.scheme, parts.netloc, '/robots.txt', '', ''))
     try:
         fetched = _fetch_page(
             robots_url,
             opener=opener,
-            expected_domain=registrable_domain(parts.hostname or ''),
+            seed_host=seed_host,
             redirects_left=1,
         )
     except WebsiteFetchError:
@@ -330,10 +467,14 @@ def _load_robots(seed: str, opener: Callable[..., Any]) -> str | None:
     return fetched.body
 
 
-def _fetch_page(url: str, *, opener: Callable[..., Any], expected_domain: str, redirects_left: int):
+def _fetch_page(url: str, *, opener: Callable[..., Any], seed_host: str, redirects_left: int):
     current = url
     remaining = redirects_left
     while True:
+        current = _assert_public_destination(current)
+        current_host = parse.urlsplit(current).hostname or ''
+        if not same_crawl_host(seed_host, current_host):
+            raise WebsiteFetchError('Редирект уводит на другой домен.')
         http_request = request.Request(
             current,
             headers={
@@ -342,7 +483,7 @@ def _fetch_page(url: str, *, opener: Callable[..., Any], expected_domain: str, r
             },
             method='GET',
         )
-        logger.info('Seller website GET host=%s path=%s', parse.urlsplit(current).hostname, parse.urlsplit(current).path)
+        logger.info('Seller website GET host=%s path=%s', current_host, parse.urlsplit(current).path)
         try:
             with opener(http_request, timeout=FETCH_TIMEOUT) as response:
                 status = getattr(response, 'status', 200)
@@ -363,8 +504,7 @@ def _fetch_page(url: str, *, opener: Callable[..., Any], expected_domain: str, r
             if remaining <= 0:
                 raise WebsiteFetchError('Слишком много редиректов.')
             target = _absolute_url(current, location)
-            target_host = parse.urlsplit(target).hostname or ''
-            if registrable_domain(target_host) != expected_domain:
+            if not target:
                 raise WebsiteFetchError('Редирект уводит на другой домен.')
             remaining -= 1
             current = target
