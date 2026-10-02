@@ -285,6 +285,9 @@ def _discovery_int(name: str, default: int, cap: int) -> int:
 SELLER_DISCOVERY_ENABLED = _discovery_flag('SELLER_DISCOVERY_ENABLED')
 SELLER_DISCOVERY_2GIS_ENABLED = _discovery_flag('SELLER_DISCOVERY_2GIS_ENABLED')
 SELLER_DISCOVERY_BRAVE_WEB_ENABLED = _discovery_flag('SELLER_DISCOVERY_BRAVE_WEB_ENABLED')
+# Not a provider switch. Adds items.contact_groups to the 2GIS fields list only.
+# A demo key often has no permission for that field. Default stays off.
+SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED = _discovery_flag('SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED')
 SELLER_DISCOVERY_2GIS_PAGE_SIZE = _discovery_int('SELLER_DISCOVERY_2GIS_PAGE_SIZE', 10, 10)
 SELLER_DISCOVERY_2GIS_MAX_PAGES = _discovery_int('SELLER_DISCOVERY_2GIS_MAX_PAGES', 1, 5)
 TWO_GIS_API_KEY = (os.getenv('TWO_GIS_API_KEY', '') or '').strip()

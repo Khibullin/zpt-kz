@@ -1,5 +1,6 @@
 import io
 import json
+import traceback
 from decimal import Decimal
 from unittest.mock import patch
 from urllib import error, parse
@@ -29,7 +30,11 @@ from core.services.seller_discovery_identity import (
     normalize_seller_name,
     refresh_seller_lead_identity,
 )
-from core.services.seller_discovery_providers.base import DiscoveryProviderError, SellerDiscoveryHit
+from core.services.seller_discovery_providers.base import (
+    DiscoveryProviderConfigError,
+    DiscoveryProviderError,
+    SellerDiscoveryHit,
+)
 from core.services.seller_discovery_providers.brave import (
     BraveWebDiscoveryProvider,
     build_brave_discovery_query,
@@ -47,6 +52,7 @@ from core.services.seller_discovery_providers.two_gis import (
     TwoGisDiscoveryProvider,
     TwoGisPlacesClient,
     parse_two_gis_item,
+    two_gis_item_fields,
 )
 from core.services.seller_discovery_sources import add_seller_lead_evidence
 from core.services.seller_lead_search import collect_instagram_seller_leads
@@ -686,7 +692,7 @@ class TwoGisPaginationTests(TestCase):
                 self.assertIn('items.rubrics', query['fields'][0])
                 self.assertIn('items.org', query['fields'][0])
                 self.assertIn('items.brand', query['fields'][0])
-                self.assertIn('items.contact_groups', query['fields'][0])
+                self.assertNotIn('items.contact_groups', query['fields'][0])
                 self.assertIn('items.point', query['fields'][0])
                 self.assertIn('items.full_address_name', query['fields'][0])
                 payload = pages_payload.get(page, {'meta': {'code': 200}, 'result': {'items': []}})
@@ -758,7 +764,8 @@ class TwoGisPaginationTests(TestCase):
             )
         self.assertEqual(len(calls), 1)
         self.assertIn('429', str(ctx.exception))
-        self.assertIn('items.contact_groups', ITEM_FIELDS)
+        self.assertNotIn('permission', str(ctx.exception).casefold())
+        self.assertNotIn('items.contact_groups', ITEM_FIELDS)
 
     def test_search_areas_are_bounded_and_unknown_city_does_not_search(self):
         calls = []
@@ -1014,6 +1021,200 @@ class ContactAndIdentityTests(TestCase):
         self.assertEqual(ambiguous.action, 'create')
 
 
+class TwoGisOptionalContactsTests(TestCase):
+    def _query_fields(self, *, settings_overrides):
+        captured = []
+
+        def urlopen(http_request, timeout):
+            query = parse.parse_qs(parse.urlsplit(http_request.full_url).query)
+            captured.append(query['fields'][0])
+            return _json_response({'meta': {'code': 200}, 'result': {'items': []}})
+
+        with override_settings(**settings_overrides):
+            TwoGisPlacesClient('test-key', urlopen=urlopen).search_items(
+                'автозапчасти',
+                city=resolve_city('Алматы'),
+                page_size=1,
+                max_pages=1,
+            )
+        self.assertEqual(len(captured), 1)
+        return captured[0]
+
+    def test_default_contacts_flag_omits_contact_groups_field(self):
+        fields = self._query_fields(settings_overrides={
+            'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED': False,
+        })
+        self.assertNotIn('items.contact_groups', fields)
+        self.assertEqual(fields, two_gis_item_fields(include_contacts=False))
+        for name in (
+            'items.point',
+            'items.full_address_name',
+            'items.rubrics',
+            'items.org',
+            'items.brand',
+            'items.adm_div',
+        ):
+            self.assertIn(name, fields)
+        self.assertNotIn('items.contact_groups', ITEM_FIELDS)
+
+    def test_organization_without_contacts_becomes_hit(self):
+        item = json.loads(json.dumps(TWO_GIS_ITEM))
+        item.pop('contact_groups')
+        item['brand'] = {'name': 'China Parts Brand'}
+        with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=False):
+            hit = parse_two_gis_item(item, city=resolve_city('Алматы'), direction='автозапчасти')
+        self.assertIsNotNone(hit)
+        self.assertEqual(hit.name, 'China Parts')
+        self.assertEqual(hit.external_id, '70000001000000001')
+        self.assertEqual(hit.city, 'Алматы')
+        self.assertEqual(hit.address, 'Алматы, ул. Абая, 10')
+        self.assertEqual(hit.latitude, Decimal('43.240000'))
+        self.assertEqual(hit.longitude, Decimal('76.950000'))
+        self.assertEqual(hit.rubrics, ('Автозапчасти',))
+        self.assertEqual(hit.org_id, '9001')
+        self.assertEqual(hit.brand_name, 'China Parts Brand')
+        self.assertEqual(hit.phone, '')
+        self.assertEqual(hit.phones, ())
+        self.assertEqual(hit.whatsapp_phone, '')
+        self.assertEqual(hit.website, '')
+        self.assertEqual(hit.instagram_url, '')
+
+    def test_contacts_flag_true_requests_contact_groups(self):
+        fields = self._query_fields(settings_overrides={
+            'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED': True,
+        })
+        self.assertIn('items.contact_groups', fields)
+        self.assertTrue(fields.endswith('items.contact_groups') or 'items.contact_groups' in fields.split(','))
+
+    def test_contacts_flag_true_reads_real_contacts(self):
+        item = json.loads(json.dumps(TWO_GIS_ITEM))
+        item['contact_groups'][0]['contacts'].append({
+            'type': 'whatsapp',
+            'value': '+7 701 555 44 33',
+        })
+        captured = []
+
+        def urlopen(http_request, timeout):
+            query = parse.parse_qs(parse.urlsplit(http_request.full_url).query)
+            captured.append(query['fields'][0])
+            return _json_response({'meta': {'code': 200}, 'result': {'items': [item]}})
+
+        with override_settings(
+            SELLER_DISCOVERY_ENABLED=True,
+            SELLER_DISCOVERY_2GIS_ENABLED=True,
+            SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True,
+        ):
+            hits = TwoGisDiscoveryProvider(
+                client=TwoGisPlacesClient('test-key', urlopen=urlopen),
+            ).search(city='Алматы', direction='автозапчасти', limit=10, max_pages=1)
+        self.assertIn('items.contact_groups', captured[0])
+        self.assertEqual(len(hits), 1)
+        hit = hits[0]
+        self.assertEqual(hit.phone, '77271234567')
+        self.assertEqual(hit.website, 'https://chinaparts.kz')
+        self.assertEqual(hit.instagram_url, 'https://www.instagram.com/chinaparts/')
+        self.assertEqual(hit.whatsapp_phone, '77015554433')
+
+    def test_contacts_permission_error_is_not_retried(self):
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request.full_url)
+            raise error.HTTPError(
+                http_request.full_url,
+                403,
+                'forbidden',
+                hdrs={'Content-Type': 'application/json'},
+                fp=io.BytesIO(
+                    b'{"meta":{"code":403,"error":{"message":"You have no access to field items.contact_groups"}}}'
+                ),
+            )
+
+        with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True):
+            with self.assertRaises(DiscoveryProviderError) as ctx:
+                TwoGisPlacesClient('test-key', urlopen=urlopen).search_items(
+                    'автозапчасти',
+                    city=resolve_city('Алматы'),
+                    page_size=1,
+                    max_pages=5,
+                )
+        self.assertEqual(len(calls), 1)
+        message = str(ctx.exception)
+        self.assertIn('items.contact_groups', message)
+        self.assertIn('permission', message)
+        self.assertIn('no access to field items.contact_groups', message)
+
+    def test_contacts_permission_error_redacts_api_key(self):
+        secret = 'two-gis-live-key-9f3a'
+        body = json.dumps({
+            'meta': {
+                'code': 403,
+                'error': {
+                    'message': (
+                        'You have no access to field items.contact_groups. '
+                        f'https://catalog.api.2gis.com/3.0/items?key={secret}'
+                    ),
+                },
+            },
+        }).encode()
+
+        def urlopen(http_request, timeout):
+            self.assertIn(f'key={secret}', http_request.full_url)
+            raise error.HTTPError(
+                http_request.full_url,
+                403,
+                'forbidden',
+                hdrs={'Content-Type': 'application/json'},
+                fp=io.BytesIO(body),
+            )
+
+        with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True):
+            with self.assertRaises(DiscoveryProviderError) as ctx:
+                TwoGisPlacesClient(secret, urlopen=urlopen).search_items(
+                    'автозапчасти',
+                    city=resolve_city('Алматы'),
+                    page_size=1,
+                    max_pages=1,
+                )
+
+        message = str(ctx.exception)
+        rendered = ''.join(traceback.format_exception(ctx.exception))
+        self.assertIn('items.contact_groups', message)
+        self.assertIn('permission', message)
+        self.assertIn('[REDACTED]', message)
+        self.assertNotIn(secret, message)
+        self.assertNotIn(secret, rendered)
+        self.assertNotIn(f'key={secret}', message)
+        self.assertNotIn(f'key={secret}', rendered)
+        self.assertIsNone(ctx.exception.__cause__)
+        self.assertTrue(ctx.exception.__suppress_context__)
+
+    def test_contacts_flag_does_not_replace_master_or_provider_flags(self):
+        def explode(*args, **kwargs):
+            raise AssertionError('network')
+
+        provider = TwoGisDiscoveryProvider(
+            client=TwoGisPlacesClient('test-key', urlopen=explode),
+        )
+        with override_settings(
+            SELLER_DISCOVERY_ENABLED=False,
+            SELLER_DISCOVERY_2GIS_ENABLED=True,
+            SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True,
+        ):
+            with self.assertRaises(DiscoveryProviderConfigError) as ctx:
+                provider.search(city='Алматы', direction='автозапчасти', limit=10)
+        self.assertIn('SELLER_DISCOVERY_ENABLED', str(ctx.exception))
+
+        with override_settings(
+            SELLER_DISCOVERY_ENABLED=True,
+            SELLER_DISCOVERY_2GIS_ENABLED=False,
+            SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True,
+        ):
+            with self.assertRaises(DiscoveryProviderConfigError) as ctx:
+                provider.search(city='Алматы', direction='автозапчасти', limit=10)
+        self.assertIn('SELLER_DISCOVERY_2GIS_ENABLED', str(ctx.exception))
+
+
 @override_settings(
     SELLER_SEARCH_ENABLED=True,
     SELLER_SEARCH_PROVIDER='brave',
@@ -1060,4 +1261,25 @@ class LegacyInstagramPipelineTests(TestCase):
                             '--dry-run',
                         )
         self.assertIn('SELLER_DISCOVERY_BRAVE_WEB_ENABLED', str(ctx.exception))
+
+    def test_contacts_flag_does_not_change_instagram_pipeline(self):
+        client = _FakeSearchClient([
+            {
+                'title': 'China Parts',
+                'url': 'https://www.instagram.com/chinaparts/',
+                'description': 'автозапчасти',
+            },
+        ])
+        with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True):
+            stats = collect_instagram_seller_leads(
+                city='Алматы',
+                category='автозапчасти',
+                limit=1,
+                dry_run=True,
+                client=client,
+            )
+        self.assertGreaterEqual(stats.queries_executed, 1)
+        self.assertIn('site:instagram.com', client.queries[0][0])
+        self.assertNotIn('contact_groups', client.queries[0][0])
+        self.assertEqual(SellerLead.objects.count(), 0)
 
