@@ -41,15 +41,22 @@ PROVIDER_NAME = 'two_gis'
 DEFAULT_CATALOG_URL = 'https://catalog.api.2gis.com/3.0/items'
 DEFAULT_TIMEOUT = 10.0
 TWO_GIS_CONFIDENCE = 80
-ITEM_FIELDS = ','.join((
+# Fields a basic 2GIS key can request. items.contact_groups needs an extra
+# permission and is appended only when SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED.
+BASE_ITEM_FIELDS = (
     'items.point',
     'items.full_address_name',
     'items.rubrics',
     'items.org',
     'items.brand',
-    'items.contact_groups',
     'items.adm_div',
-))
+)
+CONTACT_GROUPS_FIELD = 'items.contact_groups'
+ITEM_FIELDS = ','.join(BASE_ITEM_FIELDS)
+CONTACTS_PERMISSION_MESSAGE = (
+    'Поле items.contact_groups может требовать дополнительного permission у ключа 2GIS. '
+    'Повторный запрос без этого поля не выполняется.'
+)
 # Contact types documented by the 2GIS Catalog API. items.links is a list of
 # related catalog objects, not the business website or Instagram.
 CONTACT_TYPE_WEBSITE = 'website'
@@ -114,6 +121,7 @@ class TwoGisPlacesClient:
         page: int,
         page_size: int,
     ) -> list[dict[str, Any]]:
+        include_contacts = _contacts_enabled()
         params = {
             'q': ' '.join(str(query or '').split()),
             'type': 'branch',
@@ -122,7 +130,7 @@ class TwoGisPlacesClient:
             'page': str(page),
             'page_size': str(page_size),
             'locale': 'ru_KZ',
-            'fields': ITEM_FIELDS,
+            'fields': two_gis_item_fields(include_contacts=include_contacts),
             'key': self.api_key,
         }
         request_url = f'{self.catalog_url}?{parse.urlencode(params)}'
@@ -145,7 +153,12 @@ class TwoGisPlacesClient:
                 headers = getattr(response, 'headers', None)
         except error.HTTPError as exc:
             raw_body = exc.read() if exc.fp else b''
-            self._raise_http(exc.code, raw_body, getattr(exc, 'headers', None))
+            self._raise_http(
+                exc.code,
+                raw_body,
+                getattr(exc, 'headers', None),
+                include_contacts=include_contacts,
+            )
         except error.URLError as exc:
             reason = _redact(str(getattr(exc, 'reason', exc)), api_key=self.api_key)
             if 'timed out' in reason.lower():
@@ -153,18 +166,32 @@ class TwoGisPlacesClient:
             raise DiscoveryProviderError(f'2GIS Places API network error: {reason}') from exc
 
         if status_code >= 400:
-            self._raise_http(status_code, raw_body, headers)
+            self._raise_http(status_code, raw_body, headers, include_contacts=include_contacts)
         payload = _parse_json(raw_body, headers, api_key=self.api_key, status_code=status_code)
         meta = payload.get('meta') if isinstance(payload.get('meta'), dict) else {}
         meta_code = meta.get('code')
         if isinstance(meta_code, int) and meta_code >= 400:
-            self._raise_http(meta_code, raw_body, headers)
+            self._raise_http(meta_code, raw_body, headers, include_contacts=include_contacts)
         result = payload.get('result') if isinstance(payload.get('result'), dict) else {}
         items = result.get('items') or []
         return [item for item in items if isinstance(item, dict)]
 
-    def _raise_http(self, status_code: int, raw_body: bytes, headers: Any) -> None:
+    def _raise_http(
+        self,
+        status_code: int,
+        raw_body: bytes,
+        headers: Any,
+        *,
+        include_contacts: bool = False,
+    ) -> None:
         detail = _error_detail(raw_body, headers, api_key=self.api_key)
+        if include_contacts and _is_contact_groups_permission_error(status_code, detail):
+            message = CONTACTS_PERMISSION_MESSAGE
+            if detail:
+                message = f'{message} Ответ 2GIS: {detail}'
+            else:
+                message = f'{message} 2GIS Places API HTTP {status_code}.'
+            raise DiscoveryProviderError(message) from None
         message = f'2GIS Places API HTTP {status_code}'
         if detail:
             message = f'{message}: {detail}'
@@ -424,6 +451,52 @@ def _brand_from_item(item: dict[str, Any]) -> str:
     if isinstance(brand, dict):
         return ' '.join(str(brand.get('name') or '').split())
     return ''
+
+
+def two_gis_item_fields(*, include_contacts: bool | None = None) -> str:
+    """Base catalog fields, plus contact_groups only when that flag is on."""
+    if include_contacts is None:
+        include_contacts = _contacts_enabled()
+    fields = list(BASE_ITEM_FIELDS)
+    if include_contacts:
+        fields.append(CONTACT_GROUPS_FIELD)
+    return ','.join(fields)
+
+
+def _contacts_enabled() -> bool:
+    return bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED', False))
+
+
+def _is_contact_groups_permission_error(status_code: int, detail: str) -> bool:
+    """True when 2GIS rejected the extra contact_groups field.
+
+    A generic transport error is left unchanged. This does not trigger a
+    second request without the field.
+    """
+    text = str(detail or '').casefold()
+    if any(marker in text for marker in ('invalid key', 'incorrect key', 'key not found', 'unknown key')):
+        return False
+    mentions_field = 'contact_groups' in text or 'contact groups' in text
+    mentions_permission = any(
+        marker in text
+        for marker in (
+            'permission',
+            'forbidden',
+            'not allowed',
+            'not permitted',
+            'no access',
+            'access denied',
+            'доступ',
+            'запрещ',
+        )
+    )
+    if mentions_field and (mentions_permission or status_code in {400, 401, 403}):
+        return True
+    if status_code in {401, 403} and mentions_permission and (
+        'field' in text or 'fields' in text or 'contact' in text
+    ):
+        return True
+    return False
 
 
 def _bounded_page_size(value: int | None) -> int:
