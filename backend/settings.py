@@ -296,6 +296,15 @@ TWO_GIS_CATALOG_API_URL = (
     or 'https://catalog.api.2gis.com/3.0/items'
 ).strip()
 
+# Seller contact enrichment. Separate from discovery and from the Instagram pipeline.
+# A source runs only when the master flag and its own flag are both true.
+# Defaults stay off. These flags do not send messages and do not create sellers.
+SELLER_CONTACT_ENRICHMENT_ENABLED = _discovery_flag('SELLER_CONTACT_ENRICHMENT_ENABLED')
+SELLER_CONTACT_WEBSITE_ENABLED = _discovery_flag('SELLER_CONTACT_WEBSITE_ENABLED')
+SELLER_CONTACT_GOOGLE_PLACES_ENABLED = _discovery_flag('SELLER_CONTACT_GOOGLE_PLACES_ENABLED')
+SELLER_CONTACT_BRAVE_ENABLED = _discovery_flag('SELLER_CONTACT_BRAVE_ENABLED')
+GOOGLE_PLACES_API_KEY = (os.getenv('GOOGLE_PLACES_API_KEY', '') or '').strip()
+
 # Seller product assistant (OpenAI Responses API + web_search)
 OPENAI_API_KEY = (os.getenv('OPENAI_API_KEY', '') or '').strip()
 PRODUCT_AI_MODEL = (
