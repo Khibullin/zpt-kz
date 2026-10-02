@@ -1,4 +1,4 @@
-"""Enrich SellerLead contacts from a public website.
+"""Enrich SellerLead contacts from allowed public sources.
 
 Not wired to cron. Does not send WhatsApp, email, or SMS, and does not create
 Seller, User, SellerProfile, or Product rows. Kolesa is not called.
@@ -16,9 +16,19 @@ from core.services.seller_contact_enrichment import (
 MAX_LIMIT = 5
 
 
+def _whatsapp_state(result) -> str:
+    if result.conflicts:
+        return 'CONFLICT'
+    if result.verified_whatsapp:
+        return 'VERIFIED'
+    if result.pending_candidates:
+        return 'PENDING'
+    return 'NOT FOUND'
+
+
 class Command(BaseCommand):
     help = (
-        'Ищет публичные контакты SellerLead на официальном сайте. '
+        'Ищет публичные контакты SellerLead в разрешённых источниках. '
         'Не отправляет сообщения и не создаёт продавцов.'
     )
 
@@ -29,6 +39,14 @@ class Command(BaseCommand):
         parser.add_argument('--source', action='append', dest='sources', default=[])
         parser.add_argument('--dry-run', action='store_true')
         parser.add_argument('--apply', action='store_true')
+        parser.add_argument(
+            '--stop-on-verified-whatsapp',
+            action='store_true',
+            help=(
+                'Пропустить остальные источники, если официальный сайт уже дал явный WhatsApp. '
+                'Без этого флага проверяются все выбранные источники.'
+            ),
+        )
 
     def handle(self, *args, **options):
         dry_run = bool(options['dry_run'])
@@ -38,9 +56,15 @@ class Command(BaseCommand):
         if not dry_run and not apply:
             raise CommandError('Укажите --dry-run или --apply. Без режима сеть и запись не выполняются.')
 
-        sources = [str(item).strip().lower().replace('-', '_') for item in options['sources']]
+        aliases = {'2gis': 'two_gis', 'yandex': 'yandex_org'}
+        sources = [
+            aliases.get(str(item).strip().lower().replace('-', '_'), str(item).strip().lower().replace('-', '_'))
+            for item in options['sources']
+        ]
         if not sources:
-            raise CommandError('Укажите --source website, --source google_places или --source brave.')
+            raise CommandError(
+                'Укажите --source website, google_places, brave, two_gis, yandex_org или all.',
+            )
         unknown = [item for item in sources if item not in ALLOWED_SOURCES and item != 'kolesa']
         if unknown:
             raise CommandError(f'Неизвестный источник enrichment: {unknown[0]}')
@@ -59,18 +83,35 @@ class Command(BaseCommand):
                     lead,
                     sources=sources,
                     dry_run=dry_run,
+                    stop_on_verified_whatsapp=bool(options['stop_on_verified_whatsapp']),
                 )
             except SellerContactEnrichmentError as exc:
                 raise CommandError(str(exc)) from exc
             self.stdout.write(
                 f'#{lead.pk} {lead.name} | {result.outcome} | '
-                f'contacts={len(result.observations)} | dry_run={result.dry_run}'
+                f'contacts={len(result.observations)} | dry_run={result.dry_run} | '
+                f'whatsapp_state={_whatsapp_state(result)}'
             )
+            for run in result.source_runs:
+                detail = f' {run.detail}' if run.detail else ''
+                self.stdout.write(f'  source {run.source}: {run.status}{detail}')
+            for hit in result.locators:
+                detail = f' {hit.detail}' if hit.detail else ''
+                self.stdout.write(f'  locator {hit.source}: {hit.website_url}{detail}')
+            for site in result.websites_considered:
+                self.stdout.write(f'  website {site}')
             for observation in result.observations:
                 self.stdout.write(
                     f'  [{observation.field_name}] {observation.value} '
-                    f'confidence={observation.confidence} explicit={observation.explicit_whatsapp}'
+                    f'confidence={observation.confidence} explicit={observation.explicit_whatsapp} '
+                    f'origin={observation.origin}'
                 )
+            if result.verified_whatsapp:
+                self.stdout.write(f'  verified_whatsapp={",".join(result.verified_whatsapp)}')
+            if result.pending_candidates:
+                self.stdout.write(f'  pending_whatsapp={",".join(result.pending_candidates)}')
+            if result.conflicts:
+                self.stdout.write(f'  conflict_whatsapp={",".join(result.conflicts)}')
             for message in result.errors:
                 self.stdout.write(self.style.WARNING(message))
         if dry_run:
