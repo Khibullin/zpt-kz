@@ -23,6 +23,7 @@ from core.models import (
     SellerLeadPipelineRun,
     SellerLeadSource,
 )
+from core.services.seller_discovery_sources import add_seller_lead_evidence
 from core.services.seller_contact_enrichment import (
     LocatorHit,
     SellerContactEnrichmentError,
@@ -197,6 +198,51 @@ def _router(*, website_html, google_json=None, yandex_json=None, two_gis_json=No
         return _Response(body=website_html)
 
     return seen, urlopen
+
+
+_API_HOSTS = {'places.googleapis.com', 'search-maps.yandex.ru', 'catalog.api.2gis.com'}
+
+
+def _fetched_site_hosts(calls):
+    hosts = set()
+    for call in calls:
+        parts = parse.urlsplit(call.full_url)
+        if parts.path == '/robots.txt':
+            continue
+        host = (parts.hostname or '').lower()
+        if host in _API_HOSTS:
+            continue
+        hosts.add(host)
+    return hosts
+
+
+def _pool_router(*, google_site, yandex_site, two_gis_site, pages=None):
+    calls = []
+    pages = pages or {}
+    contacts = [{'type': 'website', 'value': two_gis_site}] if two_gis_site else []
+    two_gis_json = _two_gis_body(contacts=contacts)
+
+    def urlopen(http_request, timeout):
+        calls.append(http_request)
+        parts = parse.urlsplit(http_request.full_url)
+        host = (parts.hostname or '').lower()
+        if host == 'places.googleapis.com':
+            return _Response(
+                body=_google_body(website=google_site),
+                headers={'Content-Type': 'application/json'},
+            )
+        if host == 'search-maps.yandex.ru':
+            return _Response(
+                body=_yandex_body(website=yandex_site),
+                headers={'Content-Type': 'application/json'},
+            )
+        if host == 'catalog.api.2gis.com':
+            return _Response(body=two_gis_json, headers={'Content-Type': 'application/json'})
+        if parts.path == '/robots.txt':
+            return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+        return _Response(body=pages.get(host, _html()))
+
+    return calls, urlopen
 
 
 @override_settings(**ENABLED)
@@ -654,6 +700,11 @@ class MultiSourceEnrichmentTests(TestCase):
             'source__provider', flat=True,
         ))
         self.assertEqual(providers, {'website', 'two_gis'})
+        selected = list(SellerLeadEvidence.objects.filter(field_name='whatsapp', is_selected=True))
+        self.assertEqual(len(selected), 1)
+        self.assertEqual(selected[0].source.provider, 'website')
+        self.assertEqual(lead.whatsapp_source_url, selected[0].source.source_url)
+        self.assertIn('chinaparts.kz', lead.whatsapp_source_url)
 
     def test_google_phone_is_not_persisted(self):
         lead = _lead()
@@ -881,6 +932,9 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertIn('source brave: executed', text)
         self.assertIn('source yandex_org: executed', text)
         self.assertNotIn('skipped_verified_whatsapp', text)
+        self.assertIn('website_discovered https://chinaparts.kz/', text)
+        self.assertIn('website_crawled https://chinaparts.kz/', text)
+        self.assertNotIn('website_skipped_budget', text)
         self.assertIn('77011234567', text)
         self.assertEqual(SellerLead.objects.get(pk=lead.pk).whatsapp, '')
 
@@ -997,6 +1051,10 @@ class MultiSourceEnrichmentTests(TestCase):
         urls = {item.source.source_url for item in evidences}
         self.assertTrue(any('china-parts-a.kz' in url for url in urls))
         self.assertTrue(any('china-parts-b.kz' in url for url in urls))
+        selected = [item for item in evidences if item.is_selected]
+        self.assertEqual(len(selected), 1)
+        self.assertIn('china-parts-a.kz', selected[0].source.source_url)
+        self.assertEqual(lead.whatsapp_source_url, selected[0].source.source_url)
         self.assertEqual(
             set(SellerLeadSource.objects.filter(provider='website').values_list('source_url', flat=True)),
             urls,
@@ -1017,6 +1075,7 @@ class MultiSourceEnrichmentTests(TestCase):
         lead.refresh_from_db()
         self.assertEqual(result.outcome, 'conflict')
         self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(lead.whatsapp_source_url, '')
         self.assertEqual(result.verified_whatsapp, [])
         self.assertEqual(SellerLeadContactCandidate.objects.count(), 2)
         self.assertFalse(SellerLeadContactCandidate.objects.exclude(
@@ -1111,3 +1170,285 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertNotIn(secret, rendered)
         self.assertNotIn(secret, formatted)
         self.assertNotIn(f'apikey={secret}', formatted)
+
+    def test_four_locator_websites_are_all_crawled(self):
+        lead = _lead()
+        calls, urlopen = _pool_router(
+            google_site='https://google-site.kz/',
+            yandex_site='https://yandex-site.kz/',
+            two_gis_site='https://two-gis-site.kz/',
+            pages={'two-gis-site.kz': _html(body='<a href="https://wa.me/77011234567">WhatsApp</a>')},
+        )
+        brave = _Brave([{'title': 'China Parts', 'url': 'https://brave-site.kz/', 'description': ''}])
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['all'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        self.assertEqual(_fetched_site_hosts(calls), {
+            'two-gis-site.kz',
+            'google-site.kz',
+            'yandex-site.kz',
+            'brave-site.kz',
+        })
+        self.assertEqual(len(result.websites_considered), 4)
+        self.assertEqual(result.websites_skipped_budget, [])
+        self.assertIn('77011234567', result.verified_whatsapp)
+
+    def test_existing_and_four_locators_crawl_five_websites(self):
+        lead = _lead(website_url='https://known-site.kz/')
+        calls, urlopen = _pool_router(
+            google_site='https://google-site.kz/',
+            yandex_site='https://yandex-site.kz/',
+            two_gis_site='https://two-gis-site.kz/',
+        )
+        brave = _Brave([{'title': 'China Parts', 'url': 'https://brave-site.kz/', 'description': ''}])
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['all'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        self.assertEqual(_fetched_site_hosts(calls), {
+            'known-site.kz',
+            'two-gis-site.kz',
+            'google-site.kz',
+            'yandex-site.kz',
+            'brave-site.kz',
+        })
+        self.assertEqual(len(result.websites_considered), 5)
+        self.assertEqual(result.websites_skipped_budget, [])
+
+    def test_sixth_website_candidate_is_skipped_by_budget(self):
+        lead = _lead(website_url='https://known-site.kz/')
+        calls, urlopen = _pool_router(
+            google_site='https://google-site.kz/',
+            yandex_site='https://yandex-site.kz/',
+            two_gis_site='https://two-gis-site.kz/',
+        )
+        brave = _Brave([
+            {'title': 'China Parts', 'url': 'https://brave-site.kz/', 'description': ''},
+            {'title': 'China Parts', 'url': 'https://brave-extra.kz/', 'description': ''},
+        ])
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['all'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        crawled = _fetched_site_hosts(calls)
+        self.assertEqual(crawled, {
+            'known-site.kz',
+            'two-gis-site.kz',
+            'google-site.kz',
+            'yandex-site.kz',
+            'brave-site.kz',
+        })
+        self.assertNotIn('brave-extra.kz', crawled)
+        self.assertTrue(any('brave-extra.kz' in url for url in result.websites_discovered))
+        self.assertTrue(any('brave-extra.kz' in url for url in result.websites_skipped_budget))
+        self.assertFalse(any('brave-extra.kz' in url for url in result.websites_considered))
+
+    def test_brave_urls_do_not_displace_google_yandex_or_two_gis(self):
+        lead = _lead()
+        calls, urlopen = _pool_router(
+            google_site='https://google-site.kz/',
+            yandex_site='https://yandex-site.kz/',
+            two_gis_site='https://two-gis-site.kz/',
+        )
+        brave_rows = [
+            {'title': 'China Parts', 'url': f'https://brave-{index}.kz/', 'description': ''}
+            for index in range(1, 11)
+        ]
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['all'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=_Brave(brave_rows),
+        )
+        crawled = _fetched_site_hosts(calls)
+        self.assertIn('two-gis-site.kz', crawled)
+        self.assertIn('google-site.kz', crawled)
+        self.assertIn('yandex-site.kz', crawled)
+        brave_crawled = {host for host in crawled if host.startswith('brave-')}
+        self.assertLessEqual(len(brave_crawled), 2)
+        self.assertEqual(len(crawled), 5)
+        skipped_brave = [url for url in result.websites_skipped_budget if 'brave-' in url]
+        self.assertGreaterEqual(len(skipped_brave), 8)
+
+    def test_locator_agreement_outranks_a_single_brave_candidate(self):
+        lead = _lead()
+        calls, urlopen = _pool_router(
+            google_site='https://agreed.kz/',
+            yandex_site='https://agreed.kz/',
+            two_gis_site='https://gis-only.kz/',
+        )
+        brave = _Brave([
+            {'title': 'China Parts', 'url': 'https://agreed.kz/', 'description': ''},
+            {'title': 'China Parts', 'url': 'https://lone-brave.kz/', 'description': ''},
+        ])
+        with override_settings(SELLER_CONTACT_MAX_WEBSITE_DOMAINS=1):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['all'],
+                dry_run=True,
+                urlopen=urlopen,
+                brave_client=brave,
+            )
+        self.assertEqual(_fetched_site_hosts(calls), {'agreed.kz'})
+        self.assertEqual(result.verified_whatsapp, [])
+        agreed = [hit for hit in result.locators if 'agreed.kz' in hit.website_url]
+        self.assertTrue(agreed)
+        self.assertIn('agreement=3', agreed[0].detail)
+        self.assertTrue(any('gis-only.kz' in url for url in result.websites_skipped_budget))
+        self.assertTrue(any('lone-brave.kz' in url for url in result.websites_skipped_budget))
+
+    def test_www_and_bare_host_stay_one_crawl_candidate(self):
+        lead = _lead()
+        calls, urlopen = _pool_router(
+            google_site='https://www.shop.kz/',
+            yandex_site='https://shop.kz/',
+            two_gis_site='',
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+        )
+        self.assertEqual(_fetched_site_hosts(calls), {'www.shop.kz'})
+        self.assertEqual(len(result.websites_discovered), 1)
+        self.assertEqual(len(result.websites_considered), 1)
+
+    def test_sibling_subdomains_remain_separate_crawl_candidates(self):
+        lead = _lead()
+        calls, urlopen = _pool_router(
+            google_site='https://shop1.example.kz/',
+            yandex_site='https://shop2.example.kz/',
+            two_gis_site='',
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+        )
+        self.assertEqual(_fetched_site_hosts(calls), {'shop1.example.kz', 'shop2.example.kz'})
+        self.assertEqual(len(result.websites_discovered), 2)
+        self.assertEqual(result.websites_skipped_budget, [])
+
+    def test_stop_flag_crawls_only_the_first_verified_website(self):
+        lead = _lead()
+        calls, urlopen = _pool_router(
+            google_site='https://google-site.kz/',
+            yandex_site='https://yandex-site.kz/',
+            two_gis_site='https://two-gis-site.kz/',
+            pages={'two-gis-site.kz': _html(body='<a href="https://wa.me/77011234567">WhatsApp</a>')},
+        )
+        brave = _Brave([{'title': 'China Parts', 'url': 'https://brave-site.kz/', 'description': ''}])
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['all'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+            stop_on_verified_whatsapp=True,
+        )
+        self.assertEqual(_fetched_site_hosts(calls), {'two-gis-site.kz'})
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+        self.assertTrue(result.websites_discovered)
+        self.assertNotIn('google-site.kz', _fetched_site_hosts(calls))
+
+    def test_selected_website_evidence_ignores_provider_order(self):
+        lead = _lead()
+        calls, urlopen = self._two_site_router(
+            page_a=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'),
+            page_b=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'),
+            site_a='https://china-parts-b.kz/',
+            site_b='https://china-parts-a.kz/',
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=False,
+            urlopen=urlopen,
+        )
+        lead.refresh_from_db()
+        evidences = list(SellerLeadEvidence.objects.filter(field_name='whatsapp', value='77011234567'))
+        self.assertEqual(len(evidences), 2)
+        selected = [item for item in evidences if item.is_selected]
+        self.assertEqual(len(selected), 1)
+        self.assertIn('china-parts-a.kz', selected[0].source.source_url)
+        self.assertNotIn('china-parts-b.kz', selected[0].source.source_url)
+        self.assertEqual(lead.whatsapp, '77011234567')
+        self.assertEqual(lead.whatsapp_source_url, selected[0].source.source_url)
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+
+    def test_owner_verified_selected_evidence_is_not_replaced(self):
+        lead = _lead(name='Owner Shop', whatsapp='77013333333', website_url='https://ownershop.kz/')
+        add_seller_lead_evidence(
+            lead,
+            field_name='whatsapp',
+            value='77013333333',
+            is_selected=True,
+            is_owner_verified=True,
+            confidence=100,
+        )
+
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(
+                title='Owner Shop',
+                body='<a href="https://wa.me/77014444444">WhatsApp</a>',
+            ))
+
+        enrich_seller_lead_contacts(lead, sources=['website'], dry_run=False, urlopen=urlopen)
+        lead.refresh_from_db()
+        self.assertEqual(lead.whatsapp, '77013333333')
+        self.assertEqual(lead.whatsapp_source_url, '')
+        selected = list(SellerLeadEvidence.objects.filter(seller_lead=lead, field_name='whatsapp', is_selected=True))
+        self.assertEqual(len(selected), 1)
+        self.assertTrue(selected[0].is_owner_verified)
+        self.assertEqual(selected[0].value, '77013333333')
+
+        same = _lead(name='Owner Shop', whatsapp='77015555555', website_url='https://same-owner.kz/')
+        add_seller_lead_evidence(
+            same,
+            field_name='whatsapp',
+            value='77015555555',
+            is_selected=True,
+            is_owner_verified=True,
+            confidence=100,
+        )
+
+        def same_open(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(
+                title='Owner Shop',
+                body='<a href="https://wa.me/77015555555">WhatsApp</a>',
+            ))
+
+        enrich_seller_lead_contacts(same, sources=['website'], dry_run=False, urlopen=same_open)
+        same.refresh_from_db()
+        self.assertEqual(same.whatsapp, '77015555555')
+        self.assertEqual(same.whatsapp_source_url, '')
+        selected_same = list(SellerLeadEvidence.objects.filter(
+            seller_lead=same,
+            field_name='whatsapp',
+            is_selected=True,
+        ))
+        self.assertEqual(len(selected_same), 1)
+        self.assertTrue(selected_same[0].is_owner_verified)
+        self.assertEqual(
+            SellerLeadEvidence.objects.filter(seller_lead=same, field_name='whatsapp').count(),
+            2,
+        )

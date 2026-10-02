@@ -98,8 +98,12 @@ class Command(BaseCommand):
             for hit in result.locators:
                 detail = f' {hit.detail}' if hit.detail else ''
                 self.stdout.write(f'  locator {hit.source}: {hit.website_url}{detail}')
+            for site in result.websites_discovered:
+                self.stdout.write(f'  website_discovered {site}')
             for site in result.websites_considered:
-                self.stdout.write(f'  website {site}')
+                self.stdout.write(f'  website_crawled {site}')
+            for site in result.websites_skipped_budget:
+                self.stdout.write(f'  website_skipped_budget {site}')
             for observation in result.observations:
                 self.stdout.write(
                     f'  [{observation.field_name}] {observation.value} '
