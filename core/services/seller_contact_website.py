@@ -133,20 +133,25 @@ def registrable_domain(hostname: str) -> str:
     return host
 
 
+def crawl_host_key(hostname: str) -> str:
+    """One site: the exact host, treating www and non-www as the same host.
+
+    shop1.example.kz and shop2.example.kz stay different. one.co.jp and
+    two.co.jp stay different. This is not a public-suffix collapse.
+    """
+    host = (hostname or '').lower().strip().rstrip('.')
+    if host.startswith('www.'):
+        host = host[4:]
+    return host
+
+
 def same_crawl_host(seed_host: str, target_host: str) -> bool:
     """Crawl boundary: the same host, or its www / non-www pair.
 
     shop1.co.jp and shop2.co.jp are different sites. parts.kz and
     other.parts.kz are different sites. This is not a public-suffix check.
     """
-    return bool(_crawl_host_key(seed_host)) and _crawl_host_key(seed_host) == _crawl_host_key(target_host)
-
-
-def _crawl_host_key(hostname: str) -> str:
-    host = (hostname or '').lower().strip().rstrip('.')
-    if host.startswith('www.'):
-        host = host[4:]
-    return host
+    return bool(crawl_host_key(seed_host)) and crawl_host_key(seed_host) == crawl_host_key(target_host)
 
 
 def _assert_public_destination(url: str) -> str:

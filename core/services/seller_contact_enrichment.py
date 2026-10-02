@@ -1,13 +1,13 @@
-"""Package 3 contact enrichment for one SellerLead.
+"""Contact enrichment for one SellerLead.
 
 This is not the legacy Instagram Brave pipeline in seller_lead_contact_search.
-That function stays unchanged. Package 3 reads a seller's own website and may
-use Google Places or Brave only to locate that website.
-A Brave wa.me hit stays a pending candidate until the official website confirms it.
-Google display name, address, and websiteUri are not website identity evidence.
+That function stays unchanged. Official websites confirm WhatsApp. Google,
+Yandex, Brave, and 2GIS may only locate that website or, for 2GIS, an explicit
+WhatsApp contact type. A Brave wa.me hit stays pending until a verified source
+confirms the same number. Google and Yandex content is not stored.
 
-Kolesa, Kaspi, OLX, Satu, 2GIS HTML and Instagram pages are not fetched.
-Kolesa needs an official API or permission and has no HTTP client here.
+Kolesa, Kaspi, OLX, Satu, 2GIS HTML, Yandex Maps HTML, and Instagram pages are
+not fetched. Kolesa needs an official API or permission and has no HTTP client.
 
 Run journal: stdout of enrich_seller_contacts is enough. SellerLeadPipelineRun
 belongs to the Instagram pipeline and is not written.
@@ -31,12 +31,16 @@ from core.models import (
     SellerLeadSource,
 )
 from core.services.seller_contact_google_places import (
-    GooglePlaceLocator,
     GooglePlacesError,
     locate_google_place,
 )
+from core.services.seller_contact_yandex import (
+    YandexOrgError,
+    locate_yandex_organization,
+)
 from core.services.seller_contact_website import (
     WebsiteCrawlResult,
+    crawl_host_key,
     crawl_official_website,
     registrable_domain,
 )
@@ -50,6 +54,13 @@ from core.services.seller_discovery_sources import (
     add_seller_lead_evidence,
     upsert_seller_lead_source,
 )
+from core.services.seller_discovery_providers.base import DiscoveryProviderError
+from core.services.seller_discovery_providers.catalog import resolve_city
+from core.services.seller_discovery_providers.two_gis import (
+    TwoGisPlacesClient,
+    _phones_from_item,
+    _website_and_instagram_from_contacts,
+)
 from core.services.seller_lead_contact_search import normalize_kz_whatsapp_phone
 from core.services.seller_lead_search import BraveSearchClient
 
@@ -58,7 +69,24 @@ logger = logging.getLogger(__name__)
 SOURCE_WEBSITE = 'website'
 SOURCE_GOOGLE = 'google_places'
 SOURCE_BRAVE = 'brave'
-ALLOWED_SOURCES = frozenset({SOURCE_WEBSITE, SOURCE_GOOGLE, SOURCE_BRAVE})
+SOURCE_TWO_GIS = 'two_gis'
+SOURCE_YANDEX = 'yandex_org'
+SOURCE_ALL = 'all'
+ALLOWED_SOURCES = frozenset({
+    SOURCE_WEBSITE,
+    SOURCE_GOOGLE,
+    SOURCE_BRAVE,
+    SOURCE_TWO_GIS,
+    SOURCE_YANDEX,
+    SOURCE_ALL,
+})
+SOURCE_ORDER = (
+    SOURCE_WEBSITE,
+    SOURCE_TWO_GIS,
+    SOURCE_GOOGLE,
+    SOURCE_BRAVE,
+    SOURCE_YANDEX,
+)
 KOLESA_NOTE = 'kolesa requires official permission or API; Package 3 does not call it'
 SKIPPED_BRAVE_HOSTS = frozenset({
     'kolesa.kz',
@@ -72,9 +100,14 @@ SKIPPED_BRAVE_HOSTS = frozenset({
     'instagram.com',
     'facebook.com',
     'youtube.com',
+    'yandex.ru',
+    'yandex.kz',
+    'yandex.com',
+    'maps.yandex.ru',
 })
 MAX_BRAVE_RESULTS = 5
-MAX_WEBSITE_DOMAINS = 2
+MAX_BRAVE_WEBSITE_CANDIDATES = 2
+WEBSITE_DOMAIN_CAP = 5
 
 
 class SellerContactEnrichmentError(Exception):
@@ -93,6 +126,22 @@ class EnrichmentObservation:
     source_url: str
     excerpt: str
     confirms_whatsapp: bool = True
+    origin: str = ''
+    conflicting: bool = False
+
+
+@dataclass
+class SourceRun:
+    source: str
+    status: str
+    detail: str = ''
+
+
+@dataclass
+class LocatorHit:
+    source: str
+    website_url: str = ''
+    detail: str = ''
 
 
 @dataclass
@@ -103,6 +152,14 @@ class SellerContactEnrichmentResult:
     google_place_id: str = ''
     errors: list[str] = field(default_factory=list)
     wrote: bool = False
+    source_runs: list[SourceRun] = field(default_factory=list)
+    locators: list[LocatorHit] = field(default_factory=list)
+    websites_considered: list[str] = field(default_factory=list)
+    websites_discovered: list[str] = field(default_factory=list)
+    websites_skipped_budget: list[str] = field(default_factory=list)
+    verified_whatsapp: list[str] = field(default_factory=list)
+    pending_candidates: list[str] = field(default_factory=list)
+    conflicts: list[str] = field(default_factory=list)
 
 
 def enrich_seller_lead_contacts(
@@ -112,88 +169,184 @@ def enrich_seller_lead_contacts(
     dry_run: bool = True,
     urlopen: Callable[..., Any] | None = None,
     brave_client: BraveSearchClient | None = None,
+    stop_on_verified_whatsapp: bool = False,
 ) -> SellerContactEnrichmentResult:
     """Find public contacts for one lead. dry_run performs no database writes."""
-    selected = _canonical_sources(sources)
-    _require_flags(selected)
+    active, source_runs, all_mode = _prepare_sources(sources)
     observations: list[EnrichmentObservation] = []
     errors: list[str] = []
+    locators: list[LocatorHit] = []
     website_urls: list[str] = []
     place_id = ''
-
-    if seller_lead.website_url and SOURCE_WEBSITE in selected:
-        website_urls.append(seller_lead.website_url)
-
-    if SOURCE_GOOGLE in selected:
-        try:
-            locator = locate_google_place(
-                name=seller_lead.name,
-                city=seller_lead.city,
-                address=_lead_address(seller_lead),
-                website_url=seller_lead.website_url,
-                urlopen=urlopen,
-            )
-        except GooglePlacesError as exc:
-            raise SellerContactEnrichmentError(str(exc)) from None
-        if locator.ambiguous:
-            return SellerContactEnrichmentResult(
-                dry_run=dry_run,
-                outcome='ambiguous_google',
-                errors=[locator.error],
-            )
-        place_id = locator.place_id
-        if locator.website_uri and SOURCE_WEBSITE in selected:
-            website_urls.append(locator.website_uri)
-        elif locator.website_uri and SOURCE_WEBSITE not in selected:
-            errors.append('websiteUri найден, но чтение сайта выключено.')
-
-    if SOURCE_BRAVE in selected:
-        brave_urls, brave_observations, brave_errors = _brave_locator(
-            seller_lead,
-            client=brave_client,
-        )
-        website_urls.extend(brave_urls)
-        observations.extend(brave_observations)
-        errors.extend(brave_errors)
-
+    two_gis_external_id = ''
     outcome = 'no_contacts'
     accepted_site = ''
+    websites_considered: list[str] = []
+    websites_discovered: list[str] = []
+    websites_skipped_budget: list[str] = []
+    crawled_domains: set[str] = set()
     prior_website = (seller_lead.website_url or '').strip()
     prior_domain = registrable_domain(normalize_domain(prior_website)) if prior_website else ''
-    if SOURCE_WEBSITE in selected:
-        for website_url in _unique_domains(website_urls)[:MAX_WEBSITE_DOMAINS]:
-            crawled = crawl_official_website(
-                website_url,
-                lead_name=seller_lead.name,
-                city=seller_lead.city,
-                address=_lead_address(seller_lead),
-                phone=seller_lead.whatsapp,
-                instagram=seller_lead.instagram_username,
-                known_domain=prior_domain,
-                domain_is_prior=bool(prior_website),
+    prior_host_key = crawl_host_key(parse.urlsplit(prior_website).hostname or '') if prior_website else ''
+
+    if SOURCE_WEBSITE in active and prior_website:
+        website_urls.append(prior_website)
+        locators.append(LocatorHit(source='existing_website', website_url=prior_website))
+        accepted_site, outcome = _crawl_candidates(
+            seller_lead,
+            website_urls,
+            observations=observations,
+            errors=errors,
+            websites_considered=websites_considered,
+            crawled_domains=crawled_domains,
+            prior_domain=prior_domain,
+            prior_host_key=prior_host_key,
+            urlopen=urlopen,
+            accepted_site=accepted_site,
+            outcome=outcome,
+            stop_on_verified_whatsapp=stop_on_verified_whatsapp,
+        )
+        source_runs.append(SourceRun(SOURCE_WEBSITE, 'executed'))
+
+    verified_now = _verified_numbers(observations)
+    skip_later = stop_on_verified_whatsapp and len(verified_now) == 1
+    later = [source for source in active if source != SOURCE_WEBSITE]
+
+    if skip_later:
+        websites_discovered = list(websites_considered)
+        for source in later:
+            source_runs.append(SourceRun(source, 'skipped_verified_whatsapp'))
+    else:
+        if SOURCE_TWO_GIS in active:
+            external_id, urls, two_gis_observations, two_gis_errors = _two_gis_locator(
+                seller_lead,
                 urlopen=urlopen,
             )
-            if crawled.outcome == 'ambiguous_website':
-                outcome = 'ambiguous_website'
-                continue
-            if crawled.outcome != 'ok':
-                errors.append(crawled.error or crawled.outcome)
-                continue
-            accepted_site = crawled.final_url
-            observations.extend(_observations_from_website(crawled))
-            outcome = 'no_contacts'
-            break
+            two_gis_external_id = external_id
+            website_urls.extend(urls)
+            observations.extend(two_gis_observations)
+            errors.extend(two_gis_errors)
+            for url in urls:
+                locators.append(LocatorHit(source=SOURCE_TWO_GIS, website_url=url))
+            if two_gis_errors == ['contacts_disabled']:
+                status = 'contacts_disabled'
+            elif two_gis_errors and not urls and not two_gis_observations:
+                status = 'error'
+            else:
+                status = 'executed'
+            source_runs.append(SourceRun(SOURCE_TWO_GIS, status, '; '.join(two_gis_errors)[:300]))
 
-    observations = _dedupe_observations(observations)
-    if observations and outcome != 'ambiguous_website':
-        outcome = 'enriched'
+        if SOURCE_GOOGLE in active:
+            try:
+                locator = locate_google_place(
+                    name=seller_lead.name,
+                    city=seller_lead.city,
+                    address=_lead_address(seller_lead),
+                    website_url=seller_lead.website_url,
+                    urlopen=urlopen,
+                )
+            except GooglePlacesError as exc:
+                if all_mode:
+                    errors.append(str(exc))
+                    source_runs.append(SourceRun(SOURCE_GOOGLE, 'error', str(exc)[:300]))
+                    locator = None
+                else:
+                    raise SellerContactEnrichmentError(str(exc)) from None
+            if locator is not None and locator.ambiguous:
+                if active == [SOURCE_GOOGLE]:
+                    return _result(
+                        dry_run=dry_run,
+                        outcome='ambiguous_google',
+                        observations=[],
+                        errors=[locator.error],
+                        source_runs=source_runs + [SourceRun(SOURCE_GOOGLE, 'ambiguous', locator.error)],
+                        wrote=False,
+                    )
+                errors.append(locator.error or 'неоднозначное совпадение Google')
+                source_runs.append(SourceRun(SOURCE_GOOGLE, 'ambiguous', locator.error))
+            elif locator is not None:
+                place_id = locator.place_id
+                if locator.website_uri and SOURCE_WEBSITE in active:
+                    website_urls.append(locator.website_uri)
+                    locators.append(LocatorHit(source=SOURCE_GOOGLE, website_url=locator.website_uri))
+                elif locator.website_uri:
+                    errors.append('websiteUri найден, но чтение сайта выключено.')
+                source_runs.append(SourceRun(SOURCE_GOOGLE, 'executed'))
+
+        if SOURCE_BRAVE in active:
+            brave_urls, brave_observations, brave_errors = _brave_locator(
+                seller_lead,
+                client=brave_client,
+            )
+            website_urls.extend(brave_urls)
+            observations.extend(brave_observations)
+            errors.extend(brave_errors)
+            for url in brave_urls:
+                locators.append(LocatorHit(source=SOURCE_BRAVE, website_url=url))
+            status = 'error' if brave_errors and not brave_urls and not brave_observations else 'executed'
+            source_runs.append(SourceRun(SOURCE_BRAVE, status, '; '.join(brave_errors)[:300]))
+
+        if SOURCE_YANDEX in active:
+            try:
+                yandex = locate_yandex_organization(
+                    name=seller_lead.name,
+                    city=seller_lead.city,
+                    urlopen=urlopen,
+                )
+            except YandexOrgError as exc:
+                if all_mode:
+                    errors.append(str(exc))
+                    source_runs.append(SourceRun(SOURCE_YANDEX, 'error', str(exc)[:300]))
+                    yandex = None
+                else:
+                    raise SellerContactEnrichmentError(str(exc)) from None
+            if yandex is not None and yandex.ambiguous:
+                errors.append(yandex.error or 'неоднозначное совпадение Yandex')
+                source_runs.append(SourceRun(SOURCE_YANDEX, 'ambiguous', yandex.error))
+            elif yandex is not None:
+                if yandex.website_uri and SOURCE_WEBSITE in active:
+                    website_urls.append(yandex.website_uri)
+                    locators.append(LocatorHit(source=SOURCE_YANDEX, website_url=yandex.website_uri))
+                source_runs.append(SourceRun(SOURCE_YANDEX, 'executed', yandex.error))
+
+    if SOURCE_WEBSITE in active and not skip_later:
+        discovered, crawl_urls, skipped_budget = _prioritize_website_candidates(locators)
+        websites_discovered = discovered
+        websites_skipped_budget = skipped_budget
+        accepted_site, outcome = _crawl_candidates(
+            seller_lead,
+            crawl_urls,
+            observations=observations,
+            errors=errors,
+            websites_considered=websites_considered,
+            crawled_domains=crawled_domains,
+            prior_domain=prior_domain,
+            prior_host_key=prior_host_key,
+            urlopen=urlopen,
+            accepted_site=accepted_site,
+            outcome=outcome,
+            stop_on_verified_whatsapp=stop_on_verified_whatsapp,
+        )
+        if not any(run.source == SOURCE_WEBSITE for run in source_runs):
+            source_runs.append(SourceRun(SOURCE_WEBSITE, 'executed'))
+
+    _annotate_locator_agreement(locators)
+    observations, outcome, verified, pending, conflicts = _classify_observations(observations, outcome)
     if dry_run:
-        return SellerContactEnrichmentResult(
+        return _result(
             dry_run=True,
             outcome=outcome,
             observations=observations,
             google_place_id=place_id,
             errors=errors,
+            source_runs=source_runs,
+            locators=locators,
+            websites_considered=websites_considered,
+            websites_discovered=websites_discovered,
+            websites_skipped_budget=websites_skipped_budget,
+            verified_whatsapp=verified,
+            pending_candidates=pending,
+            conflicts=conflicts,
             wrote=False,
         )
     _apply(
@@ -201,50 +354,107 @@ def enrich_seller_lead_contacts(
         observations=observations,
         place_id=place_id,
         website_url=accepted_site,
+        two_gis_external_id=two_gis_external_id,
     )
-    return SellerContactEnrichmentResult(
+    return _result(
         dry_run=False,
         outcome=outcome,
         observations=observations,
         google_place_id=place_id,
         errors=errors,
+        source_runs=source_runs,
+        locators=locators,
+        websites_considered=websites_considered,
+        websites_discovered=websites_discovered,
+        websites_skipped_budget=websites_skipped_budget,
+        verified_whatsapp=verified,
+        pending_candidates=pending,
+        conflicts=conflicts,
         wrote=True,
     )
 
 
-def _canonical_sources(sources: list[str] | tuple[str, ...]) -> list[str]:
+def _canonical_sources(sources: list[str] | tuple[str, ...]) -> tuple[list[str], bool]:
     if not sources:
-        raise SellerContactEnrichmentError('Укажите источник: website, google_places или brave.')
-    selected: list[str] = []
+        raise SellerContactEnrichmentError(
+            'Укажите источник: website, google_places, brave, two_gis, yandex_org или all.',
+        )
+    aliases = {'2gis': SOURCE_TWO_GIS, 'yandex': SOURCE_YANDEX}
+    all_mode = False
+    requested: list[str] = []
     for name in sources:
-        key = str(name or '').strip().lower().replace('-', '_')
+        raw = str(name or '').strip().lower().replace('-', '_')
+        key = aliases.get(raw, raw)
         if key == 'kolesa':
             raise SellerContactEnrichmentError(KOLESA_NOTE)
-        if key not in ALLOWED_SOURCES:
+        if key == SOURCE_ALL:
+            all_mode = True
+            continue
+        if key not in SOURCE_ORDER:
             raise SellerContactEnrichmentError(f'Неизвестный источник enrichment: {name}')
-        if key not in selected:
-            selected.append(key)
-    return selected
+        if key not in requested:
+            requested.append(key)
+    if all_mode:
+        return list(SOURCE_ORDER), True
+    if not requested:
+        raise SellerContactEnrichmentError(
+            'Укажите источник: website, google_places, brave, two_gis, yandex_org или all.',
+        )
+    return [source for source in SOURCE_ORDER if source in requested], False
 
 
-def _require_flags(sources: list[str]) -> None:
+def _prepare_sources(sources: list[str] | tuple[str, ...]) -> tuple[list[str], list[SourceRun], bool]:
+    requested, all_mode = _canonical_sources(sources)
     if not bool(getattr(settings, 'SELLER_CONTACT_ENRICHMENT_ENABLED', False)):
         raise SellerContactEnrichmentError(
             'SELLER_CONTACT_ENRICHMENT_ENABLED=False. Обогащение контактов выключено.',
         )
+    active: list[str] = []
+    runs: list[SourceRun] = []
+    for source in requested:
+        problem = _source_problem(source)
+        if not problem:
+            active.append(source)
+            continue
+        if not all_mode:
+            raise SellerContactEnrichmentError(problem)
+        status = 'skipped_missing_key' if 'не задан' in problem else 'skipped_disabled'
+        runs.append(SourceRun(source, status, problem))
+    return active, runs, all_mode
+
+
+def _source_problem(source: str) -> str:
     flag_by_source = {
         SOURCE_WEBSITE: 'SELLER_CONTACT_WEBSITE_ENABLED',
         SOURCE_GOOGLE: 'SELLER_CONTACT_GOOGLE_PLACES_ENABLED',
         SOURCE_BRAVE: 'SELLER_CONTACT_BRAVE_ENABLED',
+        SOURCE_TWO_GIS: 'SELLER_CONTACT_2GIS_ENABLED',
+        SOURCE_YANDEX: 'SELLER_CONTACT_YANDEX_ENABLED',
     }
-    for source in sources:
-        flag = flag_by_source[source]
-        if not bool(getattr(settings, flag, False)):
-            raise SellerContactEnrichmentError(f'{flag}=False. Источник {source} выключен.')
-    if SOURCE_GOOGLE in sources and not (getattr(settings, 'GOOGLE_PLACES_API_KEY', '') or '').strip():
-        raise SellerContactEnrichmentError('GOOGLE_PLACES_API_KEY не задан.')
-    if SOURCE_BRAVE in sources and not (getattr(settings, 'BRAVE_SEARCH_API_KEY', '') or '').strip():
-        raise SellerContactEnrichmentError('BRAVE_SEARCH_API_KEY не задан.')
+    key_by_source = {
+        SOURCE_GOOGLE: 'GOOGLE_PLACES_API_KEY',
+        SOURCE_BRAVE: 'BRAVE_SEARCH_API_KEY',
+        SOURCE_TWO_GIS: 'TWO_GIS_API_KEY',
+        SOURCE_YANDEX: 'YANDEX_ORG_SEARCH_API_KEY',
+    }
+    flag = flag_by_source[source]
+    if not bool(getattr(settings, flag, False)):
+        return f'{flag}=False. Источник {source} выключен.'
+    key_name = key_by_source.get(source, '')
+    if key_name and not (getattr(settings, key_name, '') or '').strip():
+        return f'{key_name} не задан.'
+    return ''
+
+
+def _brave_queries(seller_lead: SellerLead) -> list[str]:
+    name = seller_lead.name
+    city = seller_lead.city
+    return [
+        f'"{name}" {city} WhatsApp'.strip(),
+        f'"{name}" {city} контакты'.strip(),
+        f'"{name}" wa.me'.strip(),
+        f'"{name}" {city} официальный сайт'.strip(),
+    ]
 
 
 def _brave_locator(
@@ -254,36 +464,308 @@ def _brave_locator(
 ) -> tuple[list[str], list[EnrichmentObservation], list[str]]:
     api_key = (getattr(settings, 'BRAVE_SEARCH_API_KEY', '') or '').strip()
     search_client = client or BraveSearchClient(api_key=api_key)
-    query = f'"{seller_lead.name}" {seller_lead.city} официальный сайт'.strip()
-    logger.info('Seller contact Brave locator query=%r', query)
-    try:
-        rows = search_client.search(query, count=MAX_BRAVE_RESULTS)
-    except Exception as exc:
-        return [], [], [str(exc)[:300]]
     websites: list[str] = []
     observations: list[EnrichmentObservation] = []
-    for row in rows:
-        url = str(row.get('url') or '').strip()
-        if not url:
+    errors: list[str] = []
+    seen_urls: set[str] = set()
+    for query in _brave_queries(seller_lead):
+        logger.info('Seller contact Brave locator query=%r', query)
+        try:
+            rows = search_client.search(query, count=MAX_BRAVE_RESULTS)
+        except Exception as exc:
+            errors.append(str(exc)[:300])
             continue
-        host = registrable_domain(parse.urlsplit(url).hostname or '')
-        if host in SKIPPED_BRAVE_HOSTS:
+        for row in rows:
+            url = str(row.get('url') or '').strip()
+            if not url or url in seen_urls:
+                continue
+            seen_urls.add(url)
+            if _blocked_locator_host(parse.urlsplit(url).hostname or ''):
+                continue
+            phone = _explicit_whatsapp_url_phone(url)
+            if phone and _title_mentions_lead(str(row.get('title') or ''), seller_lead.name):
+                observations.append(EnrichmentObservation(
+                    field_name='whatsapp',
+                    value=phone,
+                    confidence=BRAVE_WHATSAPP_CANDIDATE_CONFIDENCE,
+                    explicit_whatsapp=True,
+                    source_url=url[:500],
+                    excerpt='Brave search result',
+                    confirms_whatsapp=False,
+                    origin=SOURCE_BRAVE,
+                ))
+                continue
+            if url.startswith(('http://', 'https://')):
+                websites.append(url)
+    return websites, observations, errors
+
+
+def _crawl_candidates(
+    seller_lead: SellerLead,
+    website_urls: list[str],
+    *,
+    observations: list[EnrichmentObservation],
+    errors: list[str],
+    websites_considered: list[str],
+    crawled_domains: set[str],
+    prior_domain: str,
+    prior_host_key: str,
+    urlopen: Callable[..., Any] | None,
+    accepted_site: str,
+    outcome: str,
+    stop_on_verified_whatsapp: bool,
+) -> tuple[str, str]:
+    for website_url in _unique_domains(website_urls):
+        host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
+        if not host or host in crawled_domains:
             continue
-        phone = _explicit_whatsapp_url_phone(url)
-        if phone and _title_mentions_lead(str(row.get('title') or ''), seller_lead.name):
-            observations.append(EnrichmentObservation(
-                field_name='whatsapp',
-                value=phone,
-                confidence=BRAVE_WHATSAPP_CANDIDATE_CONFIDENCE,
-                explicit_whatsapp=True,
-                source_url=url[:500],
-                excerpt='Brave search result',
-                confirms_whatsapp=False,
-            ))
+        if len(crawled_domains) >= _website_domain_limit():
+            break
+        crawled_domains.add(host)
+        websites_considered.append(website_url)
+        is_prior = bool(prior_host_key) and host == prior_host_key
+        crawled = crawl_official_website(
+            website_url,
+            lead_name=seller_lead.name,
+            city=seller_lead.city,
+            address=_lead_address(seller_lead),
+            phone=seller_lead.whatsapp,
+            instagram=seller_lead.instagram_username,
+            known_domain=prior_domain if is_prior else '',
+            domain_is_prior=is_prior,
+            urlopen=urlopen,
+        )
+        if crawled.outcome == 'ambiguous_website':
+            outcome = 'ambiguous_website'
             continue
-        if url.startswith(('http://', 'https://')):
-            websites.append(url)
-    return websites, observations, []
+        if crawled.outcome != 'ok':
+            errors.append(crawled.error or crawled.outcome)
+            continue
+        if not accepted_site:
+            accepted_site = crawled.final_url
+        observations.extend(_observations_from_website(crawled))
+        outcome = 'no_contacts'
+        if stop_on_verified_whatsapp and len(_verified_numbers(observations)) == 1:
+            break
+    return accepted_site, outcome
+
+
+def _two_gis_locator(
+    seller_lead: SellerLead,
+    *,
+    urlopen: Callable[..., Any] | None,
+) -> tuple[str, list[str], list[EnrichmentObservation], list[str]]:
+    """Official 2GIS catalog API. HTML pages are not fetched."""
+    if not bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED', False)):
+        return '', [], [], ['contacts_disabled']
+    try:
+        city = resolve_city(seller_lead.city)
+    except DiscoveryProviderError as exc:
+        return '', [], [], [str(exc)]
+    client = TwoGisPlacesClient(
+        api_key=(getattr(settings, 'TWO_GIS_API_KEY', '') or '').strip(),
+        urlopen=urlopen,
+    )
+    try:
+        items = client.search_items(
+            seller_lead.name,
+            city=city,
+            page_size=5,
+            max_pages=1,
+        )
+    except DiscoveryProviderError as exc:
+        return '', [], [], [str(exc)]
+    matches = [item for item in items if _two_gis_name_matches(item, seller_lead.name)]
+    if len(matches) != 1:
+        if len(matches) > 1:
+            return '', [], [], ['неоднозначное совпадение 2GIS']
+        return '', [], [], []
+    item = matches[0]
+    external_id = str(item.get('id') or '')[:255]
+    website, instagram = _website_and_instagram_from_contacts(item)
+    phones, whatsapp = _phones_from_item(item)
+    observations: list[EnrichmentObservation] = []
+    if whatsapp:
+        observations.append(EnrichmentObservation(
+            field_name='whatsapp',
+            value=whatsapp,
+            confidence=90,
+            explicit_whatsapp=True,
+            source_url='',
+            excerpt='2GIS contact type whatsapp',
+            confirms_whatsapp=True,
+            origin=SOURCE_TWO_GIS,
+        ))
+    for phone in phones:
+        if phone == whatsapp:
+            continue
+        observations.append(EnrichmentObservation(
+            field_name='phone',
+            value=phone,
+            confidence=80,
+            explicit_whatsapp=False,
+            source_url='',
+            excerpt='2GIS contact type phone',
+            confirms_whatsapp=True,
+            origin=SOURCE_TWO_GIS,
+        ))
+    if instagram:
+        observations.append(EnrichmentObservation(
+            field_name='instagram',
+            value=instagram,
+            confidence=85,
+            explicit_whatsapp=False,
+            source_url=instagram[:500],
+            excerpt='2GIS contact type instagram',
+            confirms_whatsapp=True,
+            origin=SOURCE_TWO_GIS,
+        ))
+    return external_id, ([website] if website else []), observations, []
+
+
+def _two_gis_name_matches(item: dict[str, Any], lead_name: str) -> bool:
+    from core.services.seller_contact_website import distinctive_name_tokens
+    from core.services.seller_discovery_identity import normalize_seller_name
+
+    tokens = distinctive_name_tokens(lead_name)
+    if len(tokens) < 2:
+        return False
+    haystack = normalize_seller_name(str(item.get('name') or ''))
+    matched = [token for token in tokens if token in haystack]
+    return len(matched) >= 2
+
+
+def _verified_numbers(observations: list[EnrichmentObservation]) -> list[str]:
+    numbers: list[str] = []
+    for item in observations:
+        if item.field_name != 'whatsapp' or not item.confirms_whatsapp or not item.explicit_whatsapp:
+            continue
+        if item.conflicting:
+            continue
+        number = normalize_kz_whatsapp_phone(item.value)
+        if number and number not in numbers:
+            numbers.append(number)
+    return numbers
+
+
+def _classify_observations(
+    observations: list[EnrichmentObservation],
+    outcome: str,
+) -> tuple[list[EnrichmentObservation], str, list[str], list[str], list[str]]:
+    observations = _dedupe_observations(observations)
+    verified = _verified_numbers(observations)
+    if len(verified) > 1:
+        verified_set = set(verified)
+        for item in observations:
+            number = normalize_kz_whatsapp_phone(item.value) if item.field_name == 'whatsapp' else ''
+            if item.confirms_whatsapp and item.explicit_whatsapp and number in verified_set:
+                item.conflicting = True
+        outcome = 'conflict'
+        verified = []
+    elif observations and outcome != 'ambiguous_website':
+        outcome = 'enriched'
+    pending: list[str] = []
+    conflicts: list[str] = []
+    for item in observations:
+        if item.field_name != 'whatsapp':
+            continue
+        number = normalize_kz_whatsapp_phone(item.value)
+        if not number:
+            continue
+        if item.conflicting:
+            if number not in conflicts:
+                conflicts.append(number)
+        elif not item.confirms_whatsapp and number not in pending and number not in verified:
+            pending.append(number)
+    return observations, outcome, verified, pending, conflicts
+
+
+def _website_domain_limit() -> int:
+    try:
+        value = int(getattr(settings, 'SELLER_CONTACT_MAX_WEBSITE_DOMAINS', WEBSITE_DOMAIN_CAP))
+    except (TypeError, ValueError):
+        value = WEBSITE_DOMAIN_CAP
+    if value < 1:
+        value = WEBSITE_DOMAIN_CAP
+    return min(value, WEBSITE_DOMAIN_CAP)
+
+
+def _prioritize_website_candidates(locators: list[LocatorHit]) -> tuple[list[str], list[str], list[str]]:
+    """Order website hosts before crawl.
+
+    Returns discovered, crawl queue, and skipped_budget URLs.
+    Agreement raises priority. It does not confirm a contact or skip identity checks.
+    Brave-only hosts cannot fill the queue ahead of 2GIS, Google, or Yandex.
+    """
+    hosts: dict[str, dict[str, Any]] = {}
+    seen_order: list[str] = []
+    for hit in locators:
+        if not hit.website_url:
+            continue
+        host = crawl_host_key(parse.urlsplit(hit.website_url).hostname or '')
+        if not host or _blocked_locator_host(host):
+            continue
+        bucket = hosts.get(host)
+        if bucket is None:
+            bucket = {'url': hit.website_url, 'sources': set()}
+            hosts[host] = bucket
+            seen_order.append(host)
+        bucket['sources'].add(hit.source)
+    brave_only_kept = 0
+    ranked_hosts: list[str] = []
+    dropped_brave: list[str] = []
+    for host in seen_order:
+        sources = hosts[host]['sources']
+        locator_sources = sources - {'existing_website'}
+        brave_only = locator_sources == {SOURCE_BRAVE}
+        if brave_only:
+            if brave_only_kept >= MAX_BRAVE_WEBSITE_CANDIDATES:
+                dropped_brave.append(hosts[host]['url'])
+                continue
+            brave_only_kept += 1
+        ranked_hosts.append(host)
+    ranked_hosts.sort(key=lambda host: (_website_priority(hosts[host]['sources']), seen_order.index(host)))
+    limit = _website_domain_limit()
+    selected = ranked_hosts[:limit]
+    skipped_hosts = ranked_hosts[limit:]
+    discovered = [hosts[host]['url'] for host in ranked_hosts] + dropped_brave
+    crawl_urls = [hosts[host]['url'] for host in selected]
+    skipped = [hosts[host]['url'] for host in skipped_hosts] + dropped_brave
+    return discovered, crawl_urls, skipped
+
+
+def _website_priority(sources: set[str]) -> int:
+    locator_sources = sources - {'existing_website'}
+    if 'existing_website' in sources:
+        return 0
+    if len(locator_sources) >= 2:
+        return 1
+    if SOURCE_TWO_GIS in sources:
+        return 2
+    if SOURCE_GOOGLE in sources:
+        return 3
+    if SOURCE_YANDEX in sources:
+        return 4
+    if SOURCE_BRAVE in sources:
+        return 5
+    return 6
+
+
+def _annotate_locator_agreement(locators: list[LocatorHit]) -> None:
+    by_host: dict[str, set[str]] = {}
+    for hit in locators:
+        host = crawl_host_key(parse.urlsplit(hit.website_url).hostname or '') if hit.website_url else ''
+        if host and not _blocked_locator_host(host):
+            by_host.setdefault(host, set()).add(hit.source)
+    for hit in locators:
+        host = crawl_host_key(parse.urlsplit(hit.website_url).hostname or '') if hit.website_url else ''
+        agreed = by_host.get(host) or set()
+        if len(agreed) >= 2:
+            hit.detail = f"agreement={len(agreed)}:{','.join(sorted(agreed))}"
+
+
+def _result(**kwargs: Any) -> SellerContactEnrichmentResult:
+    return SellerContactEnrichmentResult(**kwargs)
 
 
 def _title_mentions_lead(title: str, lead_name: str) -> bool:
@@ -313,6 +795,7 @@ def _observations_from_website(crawled: WebsiteCrawlResult) -> list[EnrichmentOb
             explicit_whatsapp=contact.explicit_whatsapp,
             source_url=crawled.final_url,
             excerpt=contact.excerpt,
+            origin=SOURCE_WEBSITE,
         ))
     return observations
 
@@ -323,6 +806,7 @@ def _apply(
     observations: list[EnrichmentObservation],
     place_id: str,
     website_url: str,
+    two_gis_external_id: str = '',
 ) -> None:
     with transaction.atomic():
         locked = SellerLead.objects.select_for_update().get(pk=seller_lead.pk)
@@ -337,22 +821,26 @@ def _apply(
                 metadata={'role': 'locator'},
                 observed_at=timezone.now(),
             )
-        website_source = None
-        if website_url:
-            website_source = upsert_seller_lead_source(
+        two_gis_source = None
+        if two_gis_external_id:
+            two_gis_source = upsert_seller_lead_source(
                 locked,
-                source_type=SellerLeadSource.SOURCE_WEBSITE,
-                provider='website',
-                source_url=website_url[:500],
+                source_type=SellerLeadSource.SOURCE_TWO_GIS,
+                provider='two_gis',
+                external_id=two_gis_external_id[:255],
+                source_url='',
                 display_name='',
-                metadata={'identity': 'validated'},
+                metadata={'role': 'locator'},
                 observed_at=timezone.now(),
             )
-            if not locked.website_url:
-                locked.website_url = website_url[:500]
+        if website_url and not locked.website_url:
+            locked.website_url = website_url[:500]
+        website_sources: dict[str, SellerLeadSource] = {}
+        preferred = _preferred_verified_observation(observations)
         for observation in observations:
-            source = website_source
-            if not observation.confirms_whatsapp:
+            if observation.origin == SOURCE_TWO_GIS:
+                source = two_gis_source
+            elif observation.origin == SOURCE_BRAVE or not observation.confirms_whatsapp:
                 source = upsert_seller_lead_source(
                     locked,
                     source_type=SellerLeadSource.SOURCE_WEB_SEARCH,
@@ -361,9 +849,69 @@ def _apply(
                     metadata={'kind': 'search_candidate'},
                     observed_at=timezone.now(),
                 )
-            _store_observation(locked, observation, source=source)
+            else:
+                source = _website_source_for(locked, observation.source_url, cache=website_sources)
+            _store_observation(locked, observation, source=source, preferred=observation is preferred)
         refresh_seller_lead_identity(locked)
         seller_lead.refresh_from_db()
+
+
+def _preferred_verified_observation(
+    observations: list[EnrichmentObservation],
+) -> EnrichmentObservation | None:
+    """One preferred confirmed WhatsApp. Different numbers are not ranked.
+
+    The key does not follow provider walk order. Equal website rows break the
+    tie by source URL so the same observations always pick the same evidence.
+    """
+    confirmed = []
+    for item in observations:
+        if item.field_name != 'whatsapp' or not item.confirms_whatsapp or not item.explicit_whatsapp:
+            continue
+        if item.conflicting:
+            continue
+        number = normalize_kz_whatsapp_phone(item.value)
+        if number:
+            confirmed.append((number, item))
+    numbers = {number for number, _item in confirmed}
+    if len(numbers) != 1:
+        return None
+
+    def sort_key(pair: tuple[str, EnrichmentObservation]) -> tuple[int, int, str]:
+        item = pair[1]
+        if item.origin == SOURCE_WEBSITE:
+            origin_rank = 0
+        elif item.origin == SOURCE_TWO_GIS:
+            origin_rank = 1
+        else:
+            origin_rank = 2
+        return (-item.confidence, origin_rank, item.source_url or '')
+
+    return min(confirmed, key=sort_key)[1]
+
+
+def _website_source_for(
+    lead: SellerLead,
+    source_url: str,
+    *,
+    cache: dict[str, SellerLeadSource],
+) -> SellerLeadSource:
+    """Provenance follows the page that published the contact."""
+    url = (source_url or '')[:500]
+    cached = cache.get(url)
+    if cached is not None:
+        return cached
+    source = upsert_seller_lead_source(
+        lead,
+        source_type=SellerLeadSource.SOURCE_WEBSITE,
+        provider='website',
+        source_url=url,
+        display_name='',
+        metadata={'identity': 'validated'},
+        observed_at=timezone.now(),
+    )
+    cache[url] = source
+    return source
 
 
 def _store_observation(
@@ -371,9 +919,10 @@ def _store_observation(
     observation: EnrichmentObservation,
     *,
     source: SellerLeadSource | None,
+    preferred: bool = False,
 ) -> None:
     if observation.field_name == 'whatsapp':
-        _store_whatsapp(lead, observation, source=source)
+        _store_whatsapp(lead, observation, source=source, preferred=preferred)
         return
     if observation.field_name == 'phone':
         _store_phone(lead, observation, source=source)
@@ -382,19 +931,31 @@ def _store_observation(
         _store_instagram(lead, observation, source=source)
 
 
+def _owner_verified_selected(lead: SellerLead, field_name: str) -> bool:
+    return SellerLeadEvidence.objects.filter(
+        seller_lead=lead,
+        field_name=field_name,
+        is_selected=True,
+        is_owner_verified=True,
+    ).exists()
+
+
 def _store_whatsapp(
     lead: SellerLead,
     observation: EnrichmentObservation,
     *,
     source: SellerLeadSource | None,
+    preferred: bool = False,
 ) -> None:
     if not observation.explicit_whatsapp:
         return
     number = normalize_kz_whatsapp_phone(observation.value)
     if not number:
         return
-    conflict = _whatsapp_conflict(lead, number)
-    confirmed = observation.confirms_whatsapp
+    conflict = observation.conflicting or _whatsapp_conflict(lead, number)
+    confirmed = observation.confirms_whatsapp and not observation.conflicting
+    owner_locked = _owner_verified_selected(lead, 'whatsapp')
+    select = bool(preferred) and confirmed and not conflict and not owner_locked
     add_seller_lead_evidence(
         lead,
         field_name='whatsapp',
@@ -402,7 +963,7 @@ def _store_whatsapp(
         source=source,
         confidence=observation.confidence,
         extraction_method=SellerLeadEvidence.METHOD_PARSER,
-        is_selected=confirmed and not conflict and not _owner_verified_blocks(lead, 'whatsapp', number),
+        is_selected=select,
     )
     _upsert_candidate(
         lead,
@@ -411,27 +972,31 @@ def _store_whatsapp(
         confidence=_candidate_confidence(observation.confidence),
         source_url=observation.source_url,
         source_text=observation.excerpt,
-        source_type='wa_me' if 'wa.me' in observation.source_url or 'whatsapp' in observation.source_url else 'website',
+        source_type=(
+            'other' if observation.origin == SOURCE_TWO_GIS
+            else 'wa_me' if 'wa.me' in observation.source_url or 'whatsapp' in observation.source_url
+            else 'website'
+        ),
         status=SellerLeadContactCandidate.STATUS_CONFLICT if conflict else SellerLeadContactCandidate.STATUS_PENDING,
     )
-    if not confirmed or conflict or _owner_verified_blocks(lead, 'whatsapp', number):
+    if not select or conflict or owner_locked:
         return
     if lead.whatsapp and lead.whatsapp != number:
         return
-    if not lead.whatsapp:
-        lead.whatsapp = number
-        lead.whatsapp_confidence = _candidate_confidence(observation.confidence)
-        lead.whatsapp_source_url = observation.source_url[:500]
-        lead.whatsapp_source_text = observation.excerpt[:1000]
+    lead.whatsapp = number
+    lead.whatsapp_confidence = _candidate_confidence(observation.confidence)
+    lead.whatsapp_source_url = (observation.source_url or '')[:500]
+    lead.whatsapp_source_text = observation.excerpt[:1000]
+    if lead.whatsapp_found_at is None:
         lead.whatsapp_found_at = timezone.now()
-        lead.save(update_fields=[
-            'whatsapp',
-            'whatsapp_confidence',
-            'whatsapp_source_url',
-            'whatsapp_source_text',
-            'whatsapp_found_at',
-            'updated_at',
-        ])
+    lead.save(update_fields=[
+        'whatsapp',
+        'whatsapp_confidence',
+        'whatsapp_source_url',
+        'whatsapp_source_text',
+        'whatsapp_found_at',
+        'updated_at',
+    ])
 
 
 def _store_phone(
@@ -579,12 +1144,24 @@ def _lead_address(lead: SellerLead) -> str:
     return ''
 
 
+def _blocked_locator_host(hostname: str) -> bool:
+    """Marketplace and directory hosts, including their subdomains."""
+    host = crawl_host_key(hostname)
+    if not host:
+        return True
+    parts = host.split('.')
+    for index in range(len(parts) - 1):
+        if '.'.join(parts[index:]) in SKIPPED_BRAVE_HOSTS:
+            return True
+    return False
+
+
 def _unique_domains(urls: list[str]) -> list[str]:
     seen: set[str] = set()
     result = []
     for url in urls:
-        host = registrable_domain(parse.urlsplit(url).hostname or '')
-        if not host or host in seen or host in SKIPPED_BRAVE_HOSTS:
+        host = crawl_host_key(parse.urlsplit(url).hostname or '')
+        if not host or host in seen or _blocked_locator_host(host):
             continue
         seen.add(host)
         result.append(url)
@@ -592,9 +1169,12 @@ def _unique_domains(urls: list[str]) -> list[str]:
 
 
 def _dedupe_observations(observations: list[EnrichmentObservation]) -> list[EnrichmentObservation]:
-    best: dict[tuple[str, str], EnrichmentObservation] = {}
+    best: dict[tuple[str, str, str, str], EnrichmentObservation] = {}
     for item in observations:
-        key = (item.field_name, item.value)
+        host = ''
+        if item.origin == SOURCE_WEBSITE and item.source_url:
+            host = crawl_host_key(parse.urlsplit(item.source_url).hostname or '')
+        key = (item.field_name, item.value, item.origin, host)
         current = best.get(key)
         if current is None or _observation_outranks(item, current):
             best[key] = item
