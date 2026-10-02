@@ -1,6 +1,7 @@
 import io
 import json
 import socket
+import traceback
 from email.message import Message
 from unittest.mock import patch
 from urllib import error, parse
@@ -23,11 +24,15 @@ from core.models import (
     SellerLeadSource,
 )
 from core.services.seller_contact_enrichment import (
+    LocatorHit,
     SellerContactEnrichmentError,
+    _annotate_locator_agreement,
+    _unique_domains,
     enrich_seller_lead_contacts,
 )
 from core.services.seller_contact_google_places import GooglePlaceLocator
-from core.services.seller_contact_yandex import YandexOrgLocator
+from core.services.seller_contact_website import crawl_host_key
+from core.services.seller_contact_yandex import YandexOrgError, YandexOrgLocator, locate_yandex_organization
 from core.services.seller_contact_sources import SOURCE_CAPABILITIES
 
 ENABLED = {
@@ -918,3 +923,191 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertIn('source brave: skipped_verified_whatsapp', text)
         self.assertIn('source yandex_org: skipped_verified_whatsapp', text)
         self.assertEqual(SellerLead.objects.get(pk=lead.pk).whatsapp, '')
+
+    def _two_site_router(self, *, page_a, page_b, site_a='https://china-parts-a.kz/', site_b='https://china-parts-b.kz/'):
+        calls = []
+        host_a = parse.urlsplit(site_a).hostname
+        host_b = parse.urlsplit(site_b).hostname
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request)
+            host = (parse.urlsplit(http_request.full_url).hostname or '').lower()
+            if host == 'places.googleapis.com':
+                return _Response(
+                    body=_google_body(website=site_a),
+                    headers={'Content-Type': 'application/json'},
+                )
+            if host == 'search-maps.yandex.ru':
+                return _Response(
+                    body=_yandex_body(website=site_b),
+                    headers={'Content-Type': 'application/json'},
+                )
+            if parse.urlsplit(http_request.full_url).path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            if host == host_a:
+                return _Response(body=page_a)
+            if host == host_b:
+                return _Response(body=page_b)
+            raise AssertionError(http_request.full_url)
+
+        return calls, urlopen
+
+    def test_full_mode_crawls_two_websites_after_first_whatsapp(self):
+        lead = _lead()
+        calls, urlopen = self._two_site_router(
+            page_a=_html(body='<a href="https://wa.me/77011111111">WhatsApp</a>'),
+            page_b=_html(body='<a href="https://wa.me/77012222222">WhatsApp</a>'),
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+        )
+        page_hosts = {
+            (parse.urlsplit(call.full_url).hostname or '')
+            for call in calls
+            if parse.urlsplit(call.full_url).path != '/robots.txt'
+            and (parse.urlsplit(call.full_url).hostname or '') in {'china-parts-a.kz', 'china-parts-b.kz'}
+        }
+        self.assertEqual(page_hosts, {'china-parts-a.kz', 'china-parts-b.kz'})
+        self.assertEqual(result.outcome, 'conflict')
+        self.assertEqual(result.verified_whatsapp, [])
+        self.assertCountEqual(result.conflicts, ['77011111111', '77012222222'])
+
+    def test_two_websites_with_same_whatsapp_keep_two_sources(self):
+        lead = _lead()
+        calls, urlopen = self._two_site_router(
+            page_a=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'),
+            page_b=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'),
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=False,
+            urlopen=urlopen,
+        )
+        lead.refresh_from_db()
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+        self.assertEqual(result.conflicts, [])
+        self.assertEqual(lead.whatsapp, '77011234567')
+        self.assertEqual(SellerLeadContactCandidate.objects.filter(value='77011234567').count(), 1)
+        evidences = list(SellerLeadEvidence.objects.filter(field_name='whatsapp', value='77011234567'))
+        self.assertEqual(len(evidences), 2)
+        urls = {item.source.source_url for item in evidences}
+        self.assertTrue(any('china-parts-a.kz' in url for url in urls))
+        self.assertTrue(any('china-parts-b.kz' in url for url in urls))
+        self.assertEqual(
+            set(SellerLeadSource.objects.filter(provider='website').values_list('source_url', flat=True)),
+            urls,
+        )
+
+    def test_two_websites_with_different_whatsapp_conflict_without_a_winner(self):
+        lead = _lead()
+        calls, urlopen = self._two_site_router(
+            page_a=_html(body='<a href="https://wa.me/77011111111">WhatsApp</a>'),
+            page_b=_html(body='<a href="https://wa.me/77012222222">WhatsApp</a>'),
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=False,
+            urlopen=urlopen,
+        )
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'conflict')
+        self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(result.verified_whatsapp, [])
+        self.assertEqual(SellerLeadContactCandidate.objects.count(), 2)
+        self.assertFalse(SellerLeadContactCandidate.objects.exclude(
+            status=SellerLeadContactCandidate.STATUS_CONFLICT,
+        ).exists())
+        evidences = list(SellerLeadEvidence.objects.filter(field_name='whatsapp'))
+        self.assertEqual(len(evidences), 2)
+        self.assertFalse(any(item.is_selected for item in evidences))
+        by_value = {item.value: item.source.source_url for item in evidences}
+        self.assertIn('china-parts-a.kz', by_value['77011111111'])
+        self.assertIn('china-parts-b.kz', by_value['77012222222'])
+
+    def test_stop_flag_does_not_fetch_the_second_website(self):
+        lead = _lead()
+        calls, urlopen = self._two_site_router(
+            page_a=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'),
+            page_b=_html(body='<a href="https://wa.me/77019998877">WhatsApp</a>'),
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'yandex_org', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            stop_on_verified_whatsapp=True,
+        )
+        hosts = {(parse.urlsplit(call.full_url).hostname or '') for call in calls}
+        self.assertIn('china-parts-a.kz', hosts)
+        self.assertNotIn('china-parts-b.kz', hosts)
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+        self.assertNotIn('77019998877', [item.value for item in result.observations])
+
+    def test_locator_host_dedupe_keeps_www_and_splits_siblings(self):
+        self.assertEqual(crawl_host_key('www.example.kz'), crawl_host_key('example.kz'))
+        self.assertNotEqual(crawl_host_key('shop1.example.kz'), crawl_host_key('shop2.example.kz'))
+        self.assertNotEqual(crawl_host_key('one.co.jp'), crawl_host_key('two.co.jp'))
+        self.assertEqual(len(_unique_domains([
+            'https://example.kz/contacts',
+            'https://www.example.kz/',
+        ])), 1)
+        self.assertEqual(len(_unique_domains([
+            'https://shop1.example.kz/',
+            'https://shop2.example.kz/',
+        ])), 2)
+        self.assertEqual(len(_unique_domains([
+            'https://one.co.jp/',
+            'https://two.co.jp/',
+        ])), 2)
+
+        agreed = [
+            LocatorHit(source='google_places', website_url='https://www.example.kz/'),
+            LocatorHit(source='yandex_org', website_url='https://example.kz/'),
+        ]
+        _annotate_locator_agreement(agreed)
+        self.assertIn('agreement=2', agreed[0].detail)
+        self.assertIn('google_places', agreed[0].detail)
+        self.assertIn('yandex_org', agreed[1].detail)
+
+        siblings = [
+            LocatorHit(source='google_places', website_url='https://shop1.example.kz/'),
+            LocatorHit(source='yandex_org', website_url='https://shop2.example.kz/'),
+        ]
+        _annotate_locator_agreement(siblings)
+        self.assertEqual(siblings[0].detail, '')
+        self.assertEqual(siblings[1].detail, '')
+
+        suffixes = [
+            LocatorHit(source='google_places', website_url='https://one.co.jp/'),
+            LocatorHit(source='brave', website_url='https://two.co.jp/'),
+        ]
+        _annotate_locator_agreement(suffixes)
+        self.assertEqual(suffixes[0].detail, '')
+        self.assertEqual(suffixes[1].detail, '')
+
+    def test_yandex_api_key_is_absent_from_traceback(self):
+        secret = 'yandex-super-secret-key'
+        request_url = f'https://search-maps.yandex.ru/v1/?apikey={secret}&text=China+Parts'
+
+        def urlopen(http_request, timeout):
+            raise error.HTTPError(
+                request_url,
+                502,
+                f'apikey={secret}',
+                Message(),
+                io.BytesIO(b'{"message":"denied"}'),
+            )
+
+        with override_settings(YANDEX_ORG_SEARCH_API_KEY=secret):
+            with self.assertRaises(YandexOrgError) as ctx:
+                locate_yandex_organization(name='China Parts', city='Алматы', urlopen=urlopen)
+        rendered = str(ctx.exception)
+        formatted = ''.join(traceback.format_exception(ctx.exception))
+        self.assertNotIn(secret, rendered)
+        self.assertNotIn(secret, formatted)
+        self.assertNotIn(f'apikey={secret}', formatted)

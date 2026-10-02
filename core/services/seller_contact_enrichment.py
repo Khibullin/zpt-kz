@@ -40,6 +40,7 @@ from core.services.seller_contact_yandex import (
 )
 from core.services.seller_contact_website import (
     WebsiteCrawlResult,
+    crawl_host_key,
     crawl_official_website,
     registrable_domain,
 )
@@ -181,6 +182,7 @@ def enrich_seller_lead_contacts(
     crawled_domains: set[str] = set()
     prior_website = (seller_lead.website_url or '').strip()
     prior_domain = registrable_domain(normalize_domain(prior_website)) if prior_website else ''
+    prior_host_key = crawl_host_key(parse.urlsplit(prior_website).hostname or '') if prior_website else ''
 
     if SOURCE_WEBSITE in active and prior_website:
         website_urls.append(prior_website)
@@ -193,10 +195,11 @@ def enrich_seller_lead_contacts(
             websites_considered=websites_considered,
             crawled_domains=crawled_domains,
             prior_domain=prior_domain,
-            prior_website=bool(prior_website),
+            prior_host_key=prior_host_key,
             urlopen=urlopen,
             accepted_site=accepted_site,
             outcome=outcome,
+            stop_on_verified_whatsapp=stop_on_verified_whatsapp,
         )
         source_runs.append(SourceRun(SOURCE_WEBSITE, 'executed'))
 
@@ -309,10 +312,11 @@ def enrich_seller_lead_contacts(
             websites_considered=websites_considered,
             crawled_domains=crawled_domains,
             prior_domain=prior_domain,
-            prior_website=bool(prior_website),
+            prior_host_key=prior_host_key,
             urlopen=urlopen,
             accepted_site=accepted_site,
             outcome=outcome,
+            stop_on_verified_whatsapp=stop_on_verified_whatsapp,
         )
         if not any(run.source == SOURCE_WEBSITE for run in source_runs):
             source_runs.append(SourceRun(SOURCE_WEBSITE, 'executed'))
@@ -463,8 +467,7 @@ def _brave_locator(
             if not url or url in seen_urls:
                 continue
             seen_urls.add(url)
-            host = registrable_domain(parse.urlsplit(url).hostname or '')
-            if host in SKIPPED_BRAVE_HOSTS:
+            if _blocked_locator_host(parse.urlsplit(url).hostname or ''):
                 continue
             phone = _explicit_whatsapp_url_phone(url)
             if phone and _title_mentions_lead(str(row.get('title') or ''), seller_lead.name):
@@ -493,20 +496,21 @@ def _crawl_candidates(
     websites_considered: list[str],
     crawled_domains: set[str],
     prior_domain: str,
-    prior_website: bool,
+    prior_host_key: str,
     urlopen: Callable[..., Any] | None,
     accepted_site: str,
     outcome: str,
+    stop_on_verified_whatsapp: bool,
 ) -> tuple[str, str]:
     for website_url in _unique_domains(website_urls):
-        host = registrable_domain(parse.urlsplit(website_url).hostname or '')
+        host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
         if not host or host in crawled_domains:
             continue
         if len(crawled_domains) >= MAX_WEBSITE_DOMAINS:
             break
         crawled_domains.add(host)
         websites_considered.append(website_url)
-        is_prior = prior_website and host == prior_domain
+        is_prior = bool(prior_host_key) and host == prior_host_key
         crawled = crawl_official_website(
             website_url,
             lead_name=seller_lead.name,
@@ -528,7 +532,7 @@ def _crawl_candidates(
             accepted_site = crawled.final_url
         observations.extend(_observations_from_website(crawled))
         outcome = 'no_contacts'
-        if _verified_numbers(observations):
+        if stop_on_verified_whatsapp and len(_verified_numbers(observations)) == 1:
             break
     return accepted_site, outcome
 
@@ -664,14 +668,14 @@ def _classify_observations(
 
 
 def _annotate_locator_agreement(locators: list[LocatorHit]) -> None:
-    by_domain: dict[str, set[str]] = {}
+    by_host: dict[str, set[str]] = {}
     for hit in locators:
-        host = registrable_domain(parse.urlsplit(hit.website_url).hostname or '') if hit.website_url else ''
-        if host:
-            by_domain.setdefault(host, set()).add(hit.source)
+        host = crawl_host_key(parse.urlsplit(hit.website_url).hostname or '') if hit.website_url else ''
+        if host and not _blocked_locator_host(host):
+            by_host.setdefault(host, set()).add(hit.source)
     for hit in locators:
-        host = registrable_domain(parse.urlsplit(hit.website_url).hostname or '') if hit.website_url else ''
-        agreed = by_domain.get(host) or set()
+        host = crawl_host_key(parse.urlsplit(hit.website_url).hostname or '') if hit.website_url else ''
+        agreed = by_host.get(host) or set()
         if len(agreed) >= 2:
             hit.detail = f"agreement={len(agreed)}:{','.join(sorted(agreed))}"
 
@@ -745,19 +749,9 @@ def _apply(
                 metadata={'role': 'locator'},
                 observed_at=timezone.now(),
             )
-        website_source = None
-        if website_url:
-            website_source = upsert_seller_lead_source(
-                locked,
-                source_type=SellerLeadSource.SOURCE_WEBSITE,
-                provider='website',
-                source_url=website_url[:500],
-                display_name='',
-                metadata={'identity': 'validated'},
-                observed_at=timezone.now(),
-            )
-            if not locked.website_url:
-                locked.website_url = website_url[:500]
+        if website_url and not locked.website_url:
+            locked.website_url = website_url[:500]
+        website_sources: dict[str, SellerLeadSource] = {}
         for observation in observations:
             if observation.origin == SOURCE_TWO_GIS:
                 source = two_gis_source
@@ -771,10 +765,34 @@ def _apply(
                     observed_at=timezone.now(),
                 )
             else:
-                source = website_source
+                source = _website_source_for(locked, observation.source_url, cache=website_sources)
             _store_observation(locked, observation, source=source)
         refresh_seller_lead_identity(locked)
         seller_lead.refresh_from_db()
+
+
+def _website_source_for(
+    lead: SellerLead,
+    source_url: str,
+    *,
+    cache: dict[str, SellerLeadSource],
+) -> SellerLeadSource:
+    """Provenance follows the page that published the contact."""
+    url = (source_url or '')[:500]
+    cached = cache.get(url)
+    if cached is not None:
+        return cached
+    source = upsert_seller_lead_source(
+        lead,
+        source_type=SellerLeadSource.SOURCE_WEBSITE,
+        provider='website',
+        source_url=url,
+        display_name='',
+        metadata={'identity': 'validated'},
+        observed_at=timezone.now(),
+    )
+    cache[url] = source
+    return source
 
 
 def _store_observation(
@@ -994,12 +1012,24 @@ def _lead_address(lead: SellerLead) -> str:
     return ''
 
 
+def _blocked_locator_host(hostname: str) -> bool:
+    """Marketplace and directory hosts, including their subdomains."""
+    host = crawl_host_key(hostname)
+    if not host:
+        return True
+    parts = host.split('.')
+    for index in range(len(parts) - 1):
+        if '.'.join(parts[index:]) in SKIPPED_BRAVE_HOSTS:
+            return True
+    return False
+
+
 def _unique_domains(urls: list[str]) -> list[str]:
     seen: set[str] = set()
     result = []
     for url in urls:
-        host = registrable_domain(parse.urlsplit(url).hostname or '')
-        if not host or host in seen or host in SKIPPED_BRAVE_HOSTS:
+        host = crawl_host_key(parse.urlsplit(url).hostname or '')
+        if not host or host in seen or _blocked_locator_host(host):
             continue
         seen.add(host)
         result.append(url)
@@ -1007,9 +1037,12 @@ def _unique_domains(urls: list[str]) -> list[str]:
 
 
 def _dedupe_observations(observations: list[EnrichmentObservation]) -> list[EnrichmentObservation]:
-    best: dict[tuple[str, str], EnrichmentObservation] = {}
+    best: dict[tuple[str, str, str, str], EnrichmentObservation] = {}
     for item in observations:
-        key = (item.field_name, item.value, item.origin)
+        host = ''
+        if item.origin == SOURCE_WEBSITE and item.source_url:
+            host = crawl_host_key(parse.urlsplit(item.source_url).hostname or '')
+        key = (item.field_name, item.value, item.origin, host)
         current = best.get(key)
         if current is None or _observation_outranks(item, current):
             best[key] = item

@@ -124,12 +124,12 @@ def _search(query: str, *, api_key: str, opener: Callable[..., Any]) -> dict[str
 
 def _raise_http(status: int, raw: bytes, *, api_key: str) -> None:
     if status == 429:
-        raise YandexOrgError('Yandex Organization Search HTTP 429')
+        raise YandexOrgError('Yandex Organization Search HTTP 429') from None
     detail = _redact(raw.decode('utf-8', errors='replace')[:180], api_key=api_key)
     message = f'Yandex Organization Search HTTP {status}'
     if detail:
         message = f'{message}: {detail}'
-    raise YandexOrgError(message)
+    raise YandexOrgError(message) from None
 
 
 def _features(payload: dict[str, Any]) -> list[dict[str, Any]]:
