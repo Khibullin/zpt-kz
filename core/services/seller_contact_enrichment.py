@@ -31,6 +31,7 @@ from core.models import (
     SellerLeadSource,
 )
 from core.services.seller_contact_google_places import (
+    GooglePlaceLocator,
     GooglePlacesError,
     locate_google_place,
 )
@@ -104,6 +105,7 @@ SKIPPED_BRAVE_HOSTS = frozenset({
     'yandex.kz',
     'yandex.com',
     'maps.yandex.ru',
+    'optoviki.kz',
 })
 MAX_BRAVE_RESULTS = 5
 MAX_BRAVE_WEBSITE_CANDIDATES = 2
@@ -157,6 +159,9 @@ class SellerContactEnrichmentResult:
     websites_considered: list[str] = field(default_factory=list)
     websites_discovered: list[str] = field(default_factory=list)
     websites_skipped_budget: list[str] = field(default_factory=list)
+    websites_skipped_brave_cap: list[str] = field(default_factory=list)
+    websites_skipped_blocked: list[str] = field(default_factory=list)
+    two_gis_external_id: str = ''
     verified_whatsapp: list[str] = field(default_factory=list)
     pending_candidates: list[str] = field(default_factory=list)
     conflicts: list[str] = field(default_factory=list)
@@ -184,6 +189,8 @@ def enrich_seller_lead_contacts(
     websites_considered: list[str] = []
     websites_discovered: list[str] = []
     websites_skipped_budget: list[str] = []
+    websites_skipped_brave_cap: list[str] = []
+    websites_skipped_blocked: list[str] = []
     crawled_domains: set[str] = set()
     prior_website = (seller_lead.website_url or '').strip()
     prior_domain = registrable_domain(normalize_domain(prior_website)) if prior_website else ''
@@ -271,7 +278,7 @@ def enrich_seller_lead_contacts(
                     locators.append(LocatorHit(source=SOURCE_GOOGLE, website_url=locator.website_uri))
                 elif locator.website_uri:
                     errors.append('websiteUri найден, но чтение сайта выключено.')
-                source_runs.append(SourceRun(SOURCE_GOOGLE, 'executed'))
+                source_runs.append(SourceRun(SOURCE_GOOGLE, 'executed', _google_locator_summary(locator)))
 
         if SOURCE_BRAVE in active:
             brave_urls, brave_observations, brave_errors = _brave_locator(
@@ -310,9 +317,13 @@ def enrich_seller_lead_contacts(
                 source_runs.append(SourceRun(SOURCE_YANDEX, 'executed', yandex.error))
 
     if SOURCE_WEBSITE in active and not skip_later:
-        discovered, crawl_urls, skipped_budget = _prioritize_website_candidates(locators)
+        discovered, crawl_urls, skipped_budget, skipped_brave_cap, skipped_blocked = (
+            _prioritize_website_candidates(locators)
+        )
         websites_discovered = discovered
         websites_skipped_budget = skipped_budget
+        websites_skipped_brave_cap = skipped_brave_cap
+        websites_skipped_blocked = skipped_blocked
         accepted_site, outcome = _crawl_candidates(
             seller_lead,
             crawl_urls,
@@ -344,6 +355,9 @@ def enrich_seller_lead_contacts(
             websites_considered=websites_considered,
             websites_discovered=websites_discovered,
             websites_skipped_budget=websites_skipped_budget,
+            websites_skipped_brave_cap=websites_skipped_brave_cap,
+            websites_skipped_blocked=websites_skipped_blocked,
+            two_gis_external_id=two_gis_external_id,
             verified_whatsapp=verified,
             pending_candidates=pending,
             conflicts=conflicts,
@@ -367,6 +381,9 @@ def enrich_seller_lead_contacts(
         websites_considered=websites_considered,
         websites_discovered=websites_discovered,
         websites_skipped_budget=websites_skipped_budget,
+        websites_skipped_brave_cap=websites_skipped_brave_cap,
+        websites_skipped_blocked=websites_skipped_blocked,
+        two_gis_external_id=two_gis_external_id,
         verified_whatsapp=verified,
         pending_candidates=pending,
         conflicts=conflicts,
@@ -449,12 +466,24 @@ def _source_problem(source: str) -> str:
 def _brave_queries(seller_lead: SellerLead) -> list[str]:
     name = seller_lead.name
     city = seller_lead.city
-    return [
+    queries = [
         f'"{name}" {city} WhatsApp'.strip(),
         f'"{name}" {city} контакты'.strip(),
         f'"{name}" wa.me'.strip(),
         f'"{name}" {city} официальный сайт'.strip(),
     ]
+    handle = (seller_lead.instagram_username or '').strip().lstrip('@')
+    if handle:
+        queries.append(f'"{handle}" {city} контакты'.strip())
+    return queries
+
+
+def _google_locator_summary(locator: GooglePlaceLocator) -> str:
+    """Operator summary without Places content or the API key."""
+    if not locator.place_id:
+        return 'no confident match'
+    website = 'True' if locator.website_uri else 'False'
+    return f'matched place_id_present=True website_candidate={website}'
 
 
 def _brave_locator(
@@ -481,6 +510,8 @@ def _brave_locator(
                 continue
             seen_urls.add(url)
             if _blocked_locator_host(parse.urlsplit(url).hostname or ''):
+                if url.startswith(('http://', 'https://')):
+                    websites.append(url)
                 continue
             phone = _explicit_whatsapp_url_phone(url)
             if phone and _title_mentions_lead(str(row.get('title') or ''), seller_lead.name):
@@ -537,6 +568,7 @@ def _crawl_candidates(
         )
         if crawled.outcome == 'ambiguous_website':
             outcome = 'ambiguous_website'
+            errors.append(f'ambiguous website candidate: {website_url}')
             continue
         if crawled.outcome != 'ok':
             errors.append(crawled.error or crawled.outcome)
@@ -662,6 +694,8 @@ def _classify_observations(
                 item.conflicting = True
         outcome = 'conflict'
         verified = []
+    elif len(verified) == 1:
+        outcome = 'enriched'
     elif observations and outcome != 'ambiguous_website':
         outcome = 'enriched'
     pending: list[str] = []
@@ -690,20 +724,30 @@ def _website_domain_limit() -> int:
     return min(value, WEBSITE_DOMAIN_CAP)
 
 
-def _prioritize_website_candidates(locators: list[LocatorHit]) -> tuple[list[str], list[str], list[str]]:
+def _prioritize_website_candidates(
+    locators: list[LocatorHit],
+) -> tuple[list[str], list[str], list[str], list[str], list[str]]:
     """Order website hosts before crawl.
 
-    Returns discovered, crawl queue, and skipped_budget URLs.
-    Agreement raises priority. It does not confirm a contact or skip identity checks.
-    Brave-only hosts cannot fill the queue ahead of 2GIS, Google, or Yandex.
+    Returns discovered, crawl queue, skipped_budget, skipped_brave_cap, and
+    skipped_blocked URLs. Agreement raises priority. It does not confirm a
+    contact or skip identity checks. Brave-only hosts cannot fill the queue
+    ahead of 2GIS, Google, or Yandex. skipped_budget is only the domain cap.
     """
     hosts: dict[str, dict[str, Any]] = {}
     seen_order: list[str] = []
+    blocked_urls: list[str] = []
+    blocked_seen: set[str] = set()
     for hit in locators:
         if not hit.website_url:
             continue
         host = crawl_host_key(parse.urlsplit(hit.website_url).hostname or '')
-        if not host or _blocked_locator_host(host):
+        if not host:
+            continue
+        if _blocked_locator_host(host):
+            if host not in blocked_seen:
+                blocked_seen.add(host)
+                blocked_urls.append(hit.website_url)
             continue
         bucket = hosts.get(host)
         if bucket is None:
@@ -730,8 +774,8 @@ def _prioritize_website_candidates(locators: list[LocatorHit]) -> tuple[list[str
     skipped_hosts = ranked_hosts[limit:]
     discovered = [hosts[host]['url'] for host in ranked_hosts] + dropped_brave
     crawl_urls = [hosts[host]['url'] for host in selected]
-    skipped = [hosts[host]['url'] for host in skipped_hosts] + dropped_brave
-    return discovered, crawl_urls, skipped
+    skipped_budget = [hosts[host]['url'] for host in skipped_hosts]
+    return discovered, crawl_urls, skipped_budget, dropped_brave, blocked_urls
 
 
 def _website_priority(sources: set[str]) -> int:
