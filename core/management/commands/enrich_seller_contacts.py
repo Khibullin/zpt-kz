@@ -12,6 +12,7 @@ from core.services.seller_contact_enrichment import (
     SellerContactEnrichmentError,
     enrich_seller_lead_contacts,
 )
+from core.services.seller_lead_contact_search import normalize_kz_whatsapp_phone
 
 MAX_LIMIT = 5
 
@@ -102,13 +103,23 @@ class Command(BaseCommand):
                 self.stdout.write(f'  website_discovered {site}')
             for site in result.websites_considered:
                 self.stdout.write(f'  website_crawled {site}')
+            for site in result.websites_skipped_brave_cap:
+                self.stdout.write(f'  website_skipped_brave_cap {site}')
+            for site in result.websites_skipped_blocked:
+                self.stdout.write(f'  website_skipped_blocked {site}')
             for site in result.websites_skipped_budget:
                 self.stdout.write(f'  website_skipped_budget {site}')
+            verified_numbers = set(result.verified_whatsapp)
             for observation in result.observations:
+                source = _observation_source_label(observation, result.two_gis_external_id)
+                note = ''
+                phone = normalize_kz_whatsapp_phone(observation.value) or ''
+                if observation.field_name == 'phone' and phone and phone in verified_numbers:
+                    note = ' (same as verified WhatsApp)'
                 self.stdout.write(
                     f'  [{observation.field_name}] {observation.value} '
                     f'confidence={observation.confidence} explicit={observation.explicit_whatsapp} '
-                    f'origin={observation.origin}'
+                    f'origin={observation.origin} source={source}{note}'
                 )
             if result.verified_whatsapp:
                 self.stdout.write(f'  verified_whatsapp={",".join(result.verified_whatsapp)}')
@@ -132,3 +143,11 @@ class Command(BaseCommand):
         if city:
             return SellerLead.objects.filter(city=city).order_by('pk')[:limit]
         raise CommandError('Укажите --lead-id или --city.')
+
+
+def _observation_source_label(observation, two_gis_external_id: str) -> str:
+    if observation.source_url:
+        return observation.source_url
+    if observation.origin == 'two_gis':
+        return f'2gis:{two_gis_external_id}' if two_gis_external_id else '2gis:'
+    return observation.origin or ''

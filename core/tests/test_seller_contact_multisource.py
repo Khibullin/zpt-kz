@@ -1251,6 +1251,7 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertNotIn('brave-extra.kz', crawled)
         self.assertTrue(any('brave-extra.kz' in url for url in result.websites_discovered))
         self.assertTrue(any('brave-extra.kz' in url for url in result.websites_skipped_budget))
+        self.assertFalse(any('brave-extra.kz' in url for url in result.websites_skipped_brave_cap))
         self.assertFalse(any('brave-extra.kz' in url for url in result.websites_considered))
 
     def test_brave_urls_do_not_displace_google_yandex_or_two_gis(self):
@@ -1278,8 +1279,9 @@ class MultiSourceEnrichmentTests(TestCase):
         brave_crawled = {host for host in crawled if host.startswith('brave-')}
         self.assertLessEqual(len(brave_crawled), 2)
         self.assertEqual(len(crawled), 5)
-        skipped_brave = [url for url in result.websites_skipped_budget if 'brave-' in url]
+        skipped_brave = [url for url in result.websites_skipped_brave_cap if 'brave-' in url]
         self.assertGreaterEqual(len(skipped_brave), 8)
+        self.assertFalse(any('brave-' in url for url in result.websites_skipped_budget))
 
     def test_locator_agreement_outranks_a_single_brave_candidate(self):
         lead = _lead()

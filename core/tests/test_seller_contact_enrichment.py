@@ -21,6 +21,7 @@ from core.models import (
     SellerLeadPipelineRun,
     SellerLeadSource,
 )
+from core.management.commands.enrich_seller_contacts import _observation_source_label
 from core.services.seller_contact_enrichment import (
     SellerContactEnrichmentError,
     enrich_seller_lead_contacts,
@@ -184,6 +185,68 @@ class WebsiteExtractionTests(TestCase):
         self.assertEqual(len(phones), 1)
         self.assertEqual(phones[0].field_name, 'phone')
         self.assertFalse(phones[0].explicit_whatsapp)
+
+    def test_generic_hrefs_are_not_instagram(self):
+        html = _html(body='''
+            <a href="javascript:void(0);">Instagram</a>
+            <a href="mailto:info@solidgroup.kz">Email</a>
+            <a href="tel:+77020080000">Позвонить</a>
+            <a href="/contacts">Контакты</a>
+            <a href="./contacts">Ещё</a>
+            <a href="#">Туда</a>
+            <a href="https://facebook.com/omega">Facebook</a>
+            <a href="https://youtube.com/omega">YouTube</a>
+            <a href="https://t.me/omega">Telegram</a>
+            <a href="https://instagram.com/omega_auto_parts">Instagram</a>
+            <a href="https://m.instagram.com/omega_mobile">Mobile</a>
+        ''')
+        extract = parse_seller_website_html(html, page_url='https://omega-auto-parts.kz/')
+        instagram = {item.value for item in extract.contacts if item.field_name == 'instagram'}
+        self.assertEqual(instagram, {'omega_auto_parts', 'omega_mobile'})
+        self.assertFalse(any('javascript' in item.value for item in extract.contacts))
+        self.assertFalse(any('mailto' in item.value for item in extract.contacts))
+        self.assertFalse(any('solidgroup' in item.value for item in extract.contacts))
+
+    def test_production_dry_run_fixture_keeps_whatsapp_and_drops_fake_instagram(self):
+        html = _html(body='''
+            <a href="https://wa.me/77768266888">WhatsApp</a>
+            <a href="tel:+77020080000">Позвонить</a>
+            <a href="javascript:void(0);">Instagram</a>
+            <a href="mailto:info@solidgroup.kz">Email</a>
+            <a href="https://instagram.com/omega_auto_parts">Instagram</a>
+        ''')
+        extract = parse_seller_website_html(html, page_url='https://omega-auto-parts.kz/')
+        by_field = {}
+        for item in extract.contacts:
+            by_field.setdefault(item.field_name, set()).add(item.value)
+        self.assertEqual(by_field['whatsapp'], {'77768266888'})
+        self.assertIn('77020080000', by_field['phone'])
+        self.assertEqual(by_field['instagram'], {'omega_auto_parts'})
+
+    def test_instagram_username_supports_a_name_match_and_does_not_accept_alone(self):
+        unrelated = parse_seller_website_html(
+            '<html><head><title>Other Shop</title></head><body>omega_auto_parts</body></html>',
+            page_url='https://other.kz/',
+        )
+        self.assertFalse(website_identity_accepted(
+            unrelated,
+            lead_name='China Motors',
+            instagram='omega_auto_parts',
+        ))
+        weak = parse_seller_website_html(
+            '<html><head><title>Omega catalog</title></head><body>omega_auto_parts</body></html>',
+            page_url='https://omega-auto-parts.kz/',
+        )
+        self.assertTrue(website_identity_accepted(
+            weak,
+            lead_name='Omega Auto Parts',
+            instagram='omega_auto_parts',
+        ))
+        self.assertFalse(website_identity_accepted(
+            weak,
+            lead_name='Omega Auto Parts',
+            instagram='',
+        ))
 
 
 class WebsiteSafetyTests(TestCase):
@@ -715,6 +778,42 @@ class GooglePlacesStorageTests(TestCase):
         self.assertNotIn('77019998877', blob)
         self.assertTrue(any(call.full_url.startswith('https://chinaparts.kz') for call in calls))
 
+    def test_google_summary_hides_places_content(self):
+        lead = _lead(website_url='')
+        calls, urlopen = self._places_router([{
+            'id': 'places/ChIJhidden',
+            'displayName': {'text': 'China Parts'},
+            'formattedAddress': 'Алматы, ул. Секретная, 1',
+            'websiteUri': 'https://chinaparts.kz/',
+            'nationalPhoneNumber': '+7 701 999 88 77',
+            'location': {'latitude': 43.2, 'longitude': 76.9},
+        }], website_html=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+        )
+        google_run = next(run for run in result.source_runs if run.source == 'google_places')
+        detail = google_run.detail
+        self.assertEqual(detail, 'matched place_id_present=True website_candidate=True')
+        self.assertNotIn('ChIJ', detail)
+        self.assertNotIn('Секрет', detail)
+        self.assertNotIn('999', detail)
+        self.assertNotIn('43.2', detail)
+        self.assertNotIn('google-secret-key', detail)
+
+        empty_calls, empty_open = self._places_router([])
+        missed = enrich_seller_lead_contacts(
+            _lead(website_url=''),
+            sources=['google_places'],
+            dry_run=True,
+            urlopen=empty_open,
+        )
+        missed_run = next(run for run in missed.source_runs if run.source == 'google_places')
+        self.assertEqual(missed_run.detail, 'no confident match')
+        self.assertNotIn('google-secret-key', missed_run.detail)
+
 
 @override_settings(**ENABLED)
 class ApplyAndConflictTests(TestCase):
@@ -1007,6 +1106,230 @@ class CommandSafetyTests(TestCase):
         self.assertEqual(SellerProfile.objects.count(), 0)
         self.assertEqual(Product.objects.count(), 0)
         self.assertEqual(SellerLead.objects.get(pk=lead.pk).whatsapp, '77011234567')
+
+
+@override_settings(**ENABLED)
+class ProductionFindingTests(TestCase):
+    def _pages(self, pages):
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request)
+            parts = parse.urlsplit(http_request.full_url)
+            if parts.path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            host = parts.hostname or ''
+            if host not in pages:
+                raise AssertionError(http_request.full_url)
+            return _Response(body=pages[host])
+
+        return calls, urlopen
+
+    def test_optoviki_is_blocked_and_is_not_a_website_source(self):
+        lead = _lead(website_url='')
+        calls, urlopen = self._pages({
+            'omega-auto-parts.kz': _html(body='<a href="https://wa.me/77768266888">WhatsApp</a>'),
+        })
+
+        class _Brave:
+            def search(self, query, count=10):
+                return [
+                    {'title': 'China Parts', 'url': 'https://optoviki.kz/optom', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://www.optoviki.kz/optom-avtozapchasti/almaty', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://omega-auto-parts.kz/', 'description': ''},
+                ]
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['brave', 'website'],
+            dry_run=False,
+            urlopen=urlopen,
+            brave_client=_Brave(),
+        )
+        hosts = {(parse.urlsplit(call.full_url).hostname or '') for call in calls}
+        self.assertNotIn('optoviki.kz', hosts)
+        self.assertNotIn('www.optoviki.kz', hosts)
+        self.assertTrue(any('optoviki.kz' in url for url in result.websites_skipped_blocked))
+        self.assertFalse(any('optoviki.kz' in url for url in result.websites_considered))
+        self.assertFalse(SellerLeadSource.objects.filter(source_url__icontains='optoviki').exists())
+        self.assertEqual(result.verified_whatsapp, ['77768266888'])
+
+    def test_third_brave_only_candidate_is_brave_cap_not_budget(self):
+        lead = _lead(website_url='')
+        calls, urlopen = self._pages({
+            'brave-1.kz': _html(),
+            'brave-2.kz': _html(),
+        })
+
+        class _Brave:
+            def search(self, query, count=10):
+                return [
+                    {'title': 'China Parts', 'url': 'https://brave-1.kz/', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://brave-2.kz/', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://brave-3.kz/', 'description': ''},
+                ]
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=_Brave(),
+        )
+        self.assertTrue(any('brave-3.kz' in url for url in result.websites_skipped_brave_cap))
+        self.assertFalse(any('brave-3.kz' in url for url in result.websites_skipped_budget))
+        hosts = {(parse.urlsplit(call.full_url).hostname or '') for call in calls}
+        self.assertNotIn('brave-3.kz', hosts)
+
+    def test_verified_whatsapp_wins_over_an_ambiguous_candidate(self):
+        lead = _lead(website_url='')
+        calls, urlopen = self._pages({
+            'omegaauto.kz': _html(title='Другой магазин', city='Астана', body='<p>контакты позже</p>'),
+            'omega-auto-parts.kz': _html(body='<a href="https://wa.me/77768266888">WhatsApp</a>'),
+        })
+
+        class _Brave:
+            def search(self, query, count=10):
+                return [
+                    {'title': 'China Parts', 'url': 'https://omegaauto.kz/', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://omega-auto-parts.kz/', 'description': ''},
+                ]
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=_Brave(),
+        )
+        self.assertEqual(result.outcome, 'enriched')
+        self.assertEqual(result.verified_whatsapp, ['77768266888'])
+        self.assertTrue(any(
+            'ambiguous website candidate: https://omegaauto.kz/' in message
+            for message in result.errors
+        ))
+
+    def test_two_verified_whatsapp_numbers_conflict(self):
+        lead = _lead(website_url='')
+        calls, urlopen = self._pages({
+            'one.kz': _html(body='<a href="https://wa.me/77011111111">WhatsApp</a>'),
+            'two.kz': _html(body='<a href="https://wa.me/77012222222">WhatsApp</a>'),
+        })
+
+        class _Brave:
+            def search(self, query, count=10):
+                return [
+                    {'title': 'China Parts', 'url': 'https://one.kz/', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://two.kz/', 'description': ''},
+                ]
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=_Brave(),
+        )
+        self.assertEqual(result.outcome, 'conflict')
+        self.assertEqual(result.verified_whatsapp, [])
+        self.assertEqual(set(result.conflicts), {'77011111111', '77012222222'})
+
+    def test_instagram_handle_is_a_brave_query_and_not_enough_alone(self):
+        lead = _lead(website_url='', instagram_username='omega_auto_parts')
+        queries = []
+
+        class _Brave:
+            def search(self, query, count=10):
+                queries.append(query)
+                return []
+
+        enrich_seller_lead_contacts(
+            lead,
+            sources=['brave'],
+            dry_run=True,
+            brave_client=_Brave(),
+        )
+        self.assertTrue(any('omega_auto_parts' in query for query in queries))
+        self.assertIn('официальный сайт', queries[-1])
+
+    def test_two_gis_stdout_uses_external_id_when_url_is_empty(self):
+        observation = type('Obs', (), {'source_url': '', 'origin': 'two_gis'})()
+        self.assertEqual(_observation_source_label(observation, '70000001000000001'), '2gis:70000001000000001')
+        linked = type('Obs', (), {'source_url': 'https://wa.me/77768266888', 'origin': 'brave'})()
+        self.assertEqual(_observation_source_label(linked, ''), 'https://wa.me/77768266888')
+
+    def test_command_stdout_shows_source_and_duplicate_phone(self):
+        lead = _lead()
+
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='''
+                <a href="https://wa.me/77768266888">WhatsApp</a>
+                <a href="tel:+77768266888">тот же</a>
+                <a href="tel:+77020080000">другой</a>
+            '''))
+
+        stdout = io.StringIO()
+        with patch('core.services.seller_contact_website._urlopen_without_proxy', side_effect=urlopen):
+            call_command(
+                'enrich_seller_contacts',
+                '--lead-id', str(lead.pk),
+                '--source', 'website',
+                '--dry-run',
+                stdout=stdout,
+            )
+        text = stdout.getvalue()
+        self.assertIn('[whatsapp] 77768266888', text)
+        self.assertIn('origin=website source=https://chinaparts.kz/', text)
+        self.assertIn('[phone] 77768266888', text)
+        self.assertIn('(same as verified WhatsApp)', text)
+        other = next(line for line in text.splitlines() if '[phone] 77020080000' in line)
+        self.assertNotIn('same as verified WhatsApp', other)
+        self.assertNotIn('google-secret-key', text)
+        self.assertNotIn('brave-secret-key', text)
+
+    def test_command_google_summary_does_not_print_places_content(self):
+        lead = _lead(website_url='')
+
+        def urlopen(http_request, timeout):
+            if http_request.full_url.endswith(':searchText'):
+                return _Response(
+                    body=json.dumps({'places': [{
+                        'id': 'places/ChIJhidden',
+                        'displayName': {'text': 'China Parts'},
+                        'formattedAddress': 'Алматы, ул. Секретная, 1',
+                        'websiteUri': 'https://chinaparts.kz/',
+                        'nationalPhoneNumber': '+7 701 999 88 77',
+                    }]}),
+                    headers={'Content-Type': 'application/json'},
+                )
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        stdout = io.StringIO()
+        with patch('core.services.seller_contact_google_places._urlopen_without_proxy', side_effect=urlopen):
+            with patch('core.services.seller_contact_website._urlopen_without_proxy', side_effect=urlopen):
+                call_command(
+                    'enrich_seller_contacts',
+                    '--lead-id', str(lead.pk),
+                    '--source', 'google_places',
+                    '--source', 'website',
+                    '--dry-run',
+                    stdout=stdout,
+                )
+        text = stdout.getvalue()
+        self.assertIn(
+            'source google_places: executed matched place_id_present=True website_candidate=True',
+            text,
+        )
+        self.assertNotIn('ChIJ', text)
+        self.assertNotIn('Секрет', text)
+        self.assertNotIn('999 88 77', text)
+        self.assertNotIn('google-secret-key', text)
 
 
 class EnrichmentGuardTests(TestCase):

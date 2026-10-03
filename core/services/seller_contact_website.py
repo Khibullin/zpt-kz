@@ -317,10 +317,14 @@ def website_identity_accepted(
         item.field_name in {'phone', 'whatsapp'} and item.value == phone
         for item in extract.contacts
     )
-    instagram_match = bool(instagram) and any(
-        item.field_name == 'instagram' and item.value == instagram
+    handle = normalize_instagram_identity(instagram)
+    instagram_contact = bool(handle) and any(
+        item.field_name == 'instagram' and item.value == handle
         for item in extract.contacts
     )
+    # The handle can support a name match. It does not accept a page by itself.
+    instagram_text = bool(handle) and f' {handle} ' in f' {normalized_haystack} '
+    instagram_match = instagram_contact or instagram_text
     city_match = bool(city) and city.casefold() in haystack.casefold()
     normalized_address = normalize_address(address)
     address_match = len(normalized_address) >= 8 and normalized_address in normalize_address(haystack)
@@ -753,6 +757,8 @@ class _ContactHTMLParser(HTMLParser):
                 explicit_whatsapp=labelled,
             ))
             return
+        if not _is_instagram_href(absolute or href):
+            return
         username = normalize_instagram_identity(absolute or href)
         if username:
             self.extract.contacts.append(ExtractedContact(
@@ -821,6 +827,23 @@ class _ContactHTMLParser(HTMLParser):
         for value in node.values():
             if isinstance(value, (dict, list)):
                 self._walk_json(value)
+
+
+def _is_instagram_href(href: str) -> bool:
+    """True only for an http(s) Instagram profile URL, not a generic href."""
+    raw = str(href or '').strip()
+    if not raw:
+        return False
+    lowered = raw.lower()
+    if lowered.startswith(('javascript:', 'mailto:', 'tel:', 'sms:', 'data:', '#')):
+        return False
+    if '://' not in raw:
+        return False
+    parts = parse.urlsplit(raw)
+    if parts.scheme not in {'http', 'https'}:
+        return False
+    host = (parts.hostname or '').lower().strip().rstrip('.')
+    return host in {'instagram.com', 'www.instagram.com', 'm.instagram.com'}
 
 
 def _is_contact_link(href: str, label: str) -> bool:
