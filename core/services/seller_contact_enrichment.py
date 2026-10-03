@@ -877,8 +877,10 @@ def _apply(
                 metadata={'role': 'locator'},
                 observed_at=timezone.now(),
             )
-        if website_url and not locked.website_url:
-            locked.website_url = website_url[:500]
+        accepted_website = (website_url or '').strip()
+        if accepted_website and not (locked.website_url or '').strip():
+            locked.website_url = accepted_website[:500]
+            locked.save(update_fields=['website_url', 'updated_at'])
         website_sources: dict[str, SellerLeadSource] = {}
         preferred = _preferred_verified_observation(observations)
         for observation in observations:
@@ -897,7 +899,24 @@ def _apply(
                 source = _website_source_for(locked, observation.source_url, cache=website_sources)
             _store_observation(locked, observation, source=source, preferred=observation is preferred)
         refresh_seller_lead_identity(locked)
+        if _enrichment_was_useful(accepted_website, observations):
+            locked.last_enriched_at = timezone.now()
+            update_fields = ['last_enriched_at', 'updated_at']
+            if locked.lifecycle_status == SellerLead.LIFECYCLE_FOUND:
+                locked.lifecycle_status = SellerLead.LIFECYCLE_ENRICHED
+                update_fields.append('lifecycle_status')
+            locked.save(update_fields=update_fields)
         seller_lead.refresh_from_db()
+
+
+def _enrichment_was_useful(website_url: str, observations: list[EnrichmentObservation]) -> bool:
+    """True when apply stored a validated site or contact evidence."""
+    if website_url:
+        return True
+    return any(
+        observation.field_name in {'whatsapp', 'phone', 'instagram'} and observation.value
+        for observation in observations
+    )
 
 
 def _preferred_verified_observation(
