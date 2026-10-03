@@ -1456,6 +1456,95 @@ class ProductionFindingTests(TestCase):
         self.assertNotIn('google-secret-key', text)
 
 
+@override_settings(**ENABLED)
+class ApplyPersistenceTests(TestCase):
+    def _open(self, pages):
+        def urlopen(http_request, timeout):
+            parts = parse.urlsplit(http_request.full_url)
+            if parts.path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            host = parts.hostname or ''
+            if host not in pages:
+                raise AssertionError(http_request.full_url)
+            return _Response(body=pages[host])
+
+        return urlopen
+
+    def _apply_official_site(self, lead, *, body='<p>Алматы, контакты магазина</p>'):
+        class _Brave:
+            def search(self, query, count=10):
+                return [{
+                    'title': 'China Parts',
+                    'url': 'https://omega-auto-parts.kz/',
+                    'description': '',
+                }]
+
+        return enrich_seller_lead_contacts(
+            lead,
+            sources=['brave', 'website'],
+            dry_run=False,
+            urlopen=self._open({
+                'omega-auto-parts.kz': _html(body=body),
+                'kept-shop.kz': _html(title='Другой магазин', city='Астана', body='<p>каталог</p>'),
+            }),
+            brave_client=_Brave(),
+        )
+
+    def test_accepted_website_is_saved_and_normalizes_domain(self):
+        lead = _lead(website_url='', lifecycle_status=SellerLead.LIFECYCLE_FOUND)
+        self.assertEqual(lead.normalized_domain, '')
+        result = self._apply_official_site(
+            lead,
+            body='<a href="https://wa.me/77768266888">WhatsApp</a>',
+        )
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'enriched')
+        self.assertEqual(lead.website_url, 'https://omega-auto-parts.kz/')
+        self.assertEqual(lead.normalized_domain, 'omega-auto-parts.kz')
+        self.assertEqual(lead.whatsapp, '77768266888')
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_ENRICHED)
+        self.assertIsNotNone(lead.last_enriched_at)
+
+    def test_successful_apply_keeps_later_lifecycle_and_existing_website(self):
+        for status in (
+            SellerLead.LIFECYCLE_ENRICHED,
+            SellerLead.LIFECYCLE_CLASSIFIED,
+            SellerLead.LIFECYCLE_READY_TO_INVITE,
+            SellerLead.LIFECYCLE_VERIFIED,
+            SellerLead.LIFECYCLE_ACTIVE,
+        ):
+            with self.subTest(status=status):
+                lead = _lead(
+                    name=f'China Parts {status}',
+                    website_url='https://kept-shop.kz/',
+                    lifecycle_status=status,
+                )
+                self._apply_official_site(lead)
+                lead.refresh_from_db()
+                self.assertEqual(lead.lifecycle_status, status)
+                self.assertEqual(lead.website_url, 'https://kept-shop.kz/')
+                self.assertEqual(lead.normalized_domain, 'kept-shop.kz')
+                self.assertIsNotNone(lead.last_enriched_at)
+                self.assertEqual(lead.whatsapp, '')
+
+    def test_empty_apply_does_not_promote_found(self):
+        lead = _lead(website_url='https://other.kz/', lifecycle_status=SellerLead.LIFECYCLE_FOUND)
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['website'],
+            dry_run=False,
+            urlopen=self._open({
+                'other.kz': _html(title='Другой магазин', city='Астана', body='<p>каталог</p>'),
+            }),
+        )
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'ambiguous_website')
+        self.assertEqual(result.observations, [])
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_FOUND)
+        self.assertIsNone(lead.last_enriched_at)
+        self.assertEqual(lead.website_url, 'https://other.kz/')
+
+
 class EnrichmentGuardTests(TestCase):
     def test_direct_call_without_flags_does_not_fetch(self):
         lead = _lead()
