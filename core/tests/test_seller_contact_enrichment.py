@@ -264,6 +264,9 @@ class WebsiteExtractionTests(TestCase):
             'omega_auto_partsx',
             'xomega_auto_parts',
             'omega_auto_parts.official',
+            'omega_auto_parts@example.com',
+            'omega_auto_parts@domain.kz',
+            'prefix omega_auto_parts@example.com suffix',
         )
         for sample in visible:
             self.assertTrue(
@@ -298,6 +301,33 @@ class WebsiteExtractionTests(TestCase):
             weak,
             lead_name='Omega Motors',
             instagram='',
+        ))
+
+    def test_email_local_part_is_not_instagram_corroboration(self):
+        handle = 'omega_auto_parts'
+        email_page = parse_seller_website_html(
+            '<html><head><title>Omega catalog</title></head>'
+            '<body>omega_auto_parts@example.com</body></html>',
+            page_url='https://omega-motors.kz/',
+        )
+        self.assertFalse(_instagram_handle_visible_in_text(
+            'omega_auto_parts@example.com',
+            handle,
+        ))
+        self.assertFalse(website_identity_accepted(
+            email_page,
+            lead_name='Omega Motors',
+            instagram=handle,
+        ))
+        visible_page = parse_seller_website_html(
+            '<html><head><title>Omega catalog</title></head>'
+            '<body>Instagram: @omega_auto_parts</body></html>',
+            page_url='https://omega-motors.kz/',
+        )
+        self.assertTrue(website_identity_accepted(
+            visible_page,
+            lead_name='Omega Motors',
+            instagram=handle,
         ))
 
 

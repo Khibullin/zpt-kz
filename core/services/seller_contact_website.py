@@ -288,14 +288,14 @@ def parse_seller_website_html(html: str, *, page_url: str) -> WebsiteExtract:
 def _instagram_handle_visible_in_text(text: str, handle: str) -> bool:
     """True when handle is its own Instagram token, not part of a longer one.
 
-    @ and surrounding punctuation are allowed. A dot continues the token only
-    when another username segment follows, so omega_auto_parts. matches and
-    omega_auto_parts.official does not.
+    A leading @ and surrounding punctuation are allowed. A following @ is an
+    email, and a dot continues the token only when another username segment
+    follows, so omega_auto_parts. matches and omega_auto_parts.official does not.
     """
     if not handle:
         return False
     pattern = re.compile(
-        rf'(?<![A-Za-z0-9_.])@?{re.escape(handle)}(?![A-Za-z0-9_]|\.[A-Za-z0-9_])',
+        rf'(?<![A-Za-z0-9_.])@?{re.escape(handle)}(?![@A-Za-z0-9_]|\.[A-Za-z0-9_])',
         re.IGNORECASE,
     )
     return pattern.search(text or '') is not None
