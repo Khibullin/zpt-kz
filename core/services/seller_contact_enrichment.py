@@ -470,11 +470,11 @@ def _brave_queries(seller_lead: SellerLead) -> list[str]:
         f'"{name}" {city} WhatsApp'.strip(),
         f'"{name}" {city} контакты'.strip(),
         f'"{name}" wa.me'.strip(),
+        f'"{name}" {city} официальный сайт'.strip(),
     ]
     handle = (seller_lead.instagram_username or '').strip().lstrip('@')
     if handle:
         queries.append(f'"{handle}" {city} контакты'.strip())
-    queries.append(f'"{name}" {city} официальный сайт'.strip())
     return queries
 
 

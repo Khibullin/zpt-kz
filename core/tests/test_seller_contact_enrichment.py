@@ -1302,7 +1302,49 @@ class ProductionFindingTests(TestCase):
             brave_client=_Brave(),
         )
         self.assertTrue(any('omega_auto_parts' in query for query in queries))
-        self.assertIn('официальный сайт', queries[-1])
+        official_at = next(index for index, query in enumerate(queries) if 'официальный сайт' in query)
+        handle_at = next(index for index, query in enumerate(queries) if 'omega_auto_parts' in query)
+        self.assertLess(official_at, handle_at)
+
+    def test_official_site_query_is_not_displaced_by_noisy_handle_results(self):
+        lead = _lead(website_url='', instagram_username='omega_auto_parts')
+        calls, urlopen = self._pages({
+            'official-seller.kz': _html(body='<a href="https://wa.me/77768266888">WhatsApp</a>'),
+            'noise-1.kz': _html(title='Другой магазин', city='Астана', body='<p>каталог</p>'),
+        })
+        queries = []
+
+        class _Brave:
+            def search(self, query, count=10):
+                queries.append(query)
+                if 'официальный сайт' in query:
+                    return [{'title': 'China Parts', 'url': 'https://official-seller.kz/', 'description': ''}]
+                if 'omega_auto_parts' in query:
+                    return [
+                        {'title': 'Noise', 'url': 'https://noise-1.kz/', 'description': ''},
+                        {'title': 'Noise', 'url': 'https://noise-2.kz/', 'description': ''},
+                    ]
+                return []
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=_Brave(),
+        )
+        official_at = next(index for index, query in enumerate(queries) if 'официальный сайт' in query)
+        handle_at = next(index for index, query in enumerate(queries) if 'omega_auto_parts' in query)
+        self.assertLess(official_at, handle_at)
+        considered_hosts = {
+            parse.urlsplit(url).hostname for url in result.websites_considered
+        }
+        self.assertIn('official-seller.kz', considered_hosts)
+        self.assertFalse(any('official-seller.kz' in url for url in result.websites_skipped_brave_cap))
+        self.assertTrue(any('noise-2.kz' in url for url in result.websites_skipped_brave_cap))
+        fetched_hosts = {(parse.urlsplit(call.full_url).hostname or '') for call in calls}
+        self.assertIn('official-seller.kz', fetched_hosts)
+        self.assertNotIn('noise-2.kz', fetched_hosts)
 
     def test_two_gis_stdout_uses_external_id_when_url_is_empty(self):
         observation = type('Obs', (), {'source_url': '', 'origin': 'two_gis'})()
