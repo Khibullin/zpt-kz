@@ -34,6 +34,7 @@ from core.services.seller_contact_google_places import (
 )
 from core.services.seller_contact_website import (
     MAX_RESPONSE_BYTES,
+    _instagram_handle_visible_in_text,
     crawl_official_website,
     parse_seller_website_html,
     website_identity_accepted,
@@ -245,6 +246,57 @@ class WebsiteExtractionTests(TestCase):
         self.assertFalse(website_identity_accepted(
             weak,
             lead_name='Omega Auto Parts',
+            instagram='',
+        ))
+
+    def test_visible_instagram_handle_ignores_surrounding_punctuation(self):
+        handle = 'omega_auto_parts'
+        visible = (
+            '@omega_auto_parts',
+            'omega_auto_parts.',
+            'omega_auto_parts,',
+            '(omega_auto_parts)',
+            'Instagram: @Omega_Auto_Parts',
+        )
+        hidden = (
+            'myomega_auto_parts',
+            'omega_auto_parts_shop',
+            'omega_auto_partsx',
+            'xomega_auto_parts',
+            'omega_auto_parts.official',
+        )
+        for sample in visible:
+            self.assertTrue(
+                _instagram_handle_visible_in_text(sample, handle),
+                sample,
+            )
+        for sample in hidden:
+            self.assertFalse(
+                _instagram_handle_visible_in_text(sample, handle),
+                sample,
+            )
+        unrelated = parse_seller_website_html(
+            '<html><head><title>Other Shop</title></head><body>@omega_auto_parts</body></html>',
+            page_url='https://other.kz/',
+        )
+        self.assertFalse(website_identity_accepted(
+            unrelated,
+            lead_name='China Motors',
+            instagram=handle,
+        ))
+        weak = parse_seller_website_html(
+            '<html><head><title>Omega catalog</title></head>'
+            '<body>Instagram: @omega_auto_parts</body></html>',
+            page_url='https://omega-motors.kz/',
+        )
+        self.assertTrue(website_identity_accepted(
+            weak,
+            lead_name='Omega Motors',
+            instagram=handle,
+        ))
+        self.assertFalse(website_identity_accepted(
+            weak,
+            lead_name='Omega Motors',
             instagram='',
         ))
 

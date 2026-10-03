@@ -285,6 +285,22 @@ def parse_seller_website_html(html: str, *, page_url: str) -> WebsiteExtract:
     return extract
 
 
+def _instagram_handle_visible_in_text(text: str, handle: str) -> bool:
+    """True when handle is its own Instagram token, not part of a longer one.
+
+    @ and surrounding punctuation are allowed. A dot continues the token only
+    when another username segment follows, so omega_auto_parts. matches and
+    omega_auto_parts.official does not.
+    """
+    if not handle:
+        return False
+    pattern = re.compile(
+        rf'(?<![A-Za-z0-9_.])@?{re.escape(handle)}(?![A-Za-z0-9_]|\.[A-Za-z0-9_])',
+        re.IGNORECASE,
+    )
+    return pattern.search(text or '') is not None
+
+
 def website_identity_accepted(
     extract: WebsiteExtract,
     *,
@@ -323,7 +339,7 @@ def website_identity_accepted(
         for item in extract.contacts
     )
     # The handle can support a name match. It does not accept a page by itself.
-    instagram_text = bool(handle) and f' {handle} ' in f' {normalized_haystack} '
+    instagram_text = bool(handle) and _instagram_handle_visible_in_text(haystack, handle)
     instagram_match = instagram_contact or instagram_text
     city_match = bool(city) and city.casefold() in haystack.casefold()
     normalized_address = normalize_address(address)
