@@ -829,18 +829,33 @@ class CityCompletionTests(TestCase):
         self.assertEqual(completed, list(KZ_DISCOVERY_CITY_NAMES[:3]))
         self.assertEqual(offset, 3)
 
-    def test_oversized_default_budget_errors_before_search(self):
-        provider = _QuietProvider()
-        with self.assertRaises(SellerDiscoveryRunError) as ctx:
-            run_seller_discovery(
-                provider_names=['two_gis', 'brave'],
-                cities=list(KZ_DISCOVERY_CITY_NAMES),
-                dry_run=True,
-                providers=[provider, _QuietProvider()],
-                city_limit=4,
-            )
-        self.assertIn('Уменьшите --city-limit', str(ctx.exception))
-        self.assertEqual(provider.calls, [])
+    def test_provider_error_advances_the_query_cursor(self):
+        provider = _FailProvider()
+        stats = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            directions=['один', 'два', 'три'],
+            max_queries=1,
+            dry_run=True,
+            providers=[provider],
+        )
+        self.assertEqual(stats.errors, 1)
+        self.assertEqual(stats.queries_executed, 1)
+        self.assertEqual(stats.cities_completed, [])
+        self.assertEqual(stats.next_city_offset, 0)
+        self.assertEqual(stats.next_query_offset, 1)
+        resumed = _FailProvider()
+        second = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            directions=['один', 'два', 'три'],
+            max_queries=1,
+            query_offset=stats.next_query_offset,
+            dry_run=True,
+            providers=[resumed],
+        )
+        self.assertEqual(resumed.calls, [('Алматы', 'два')])
+        self.assertEqual(second.next_query_offset, 2)
 
     def test_provider_error_counts_as_a_completed_query(self):
         provider = _FailProvider()
@@ -854,6 +869,7 @@ class CityCompletionTests(TestCase):
         self.assertEqual(stats.errors, 3)
         self.assertEqual(stats.cities_completed, ['Алматы'])
         self.assertEqual(stats.next_city_offset, 1)
+        self.assertEqual(stats.next_query_offset, 0)
 
     def test_hit_cap_mid_city_does_not_complete_the_city(self):
         provider = _HitProvider()
@@ -868,6 +884,7 @@ class CityCompletionTests(TestCase):
         self.assertEqual(stats.hits_received, 1)
         self.assertEqual(stats.cities_completed, [])
         self.assertEqual(stats.next_city_offset, 0)
+        self.assertEqual(stats.next_query_offset, 1)
         self.assertEqual(provider.calls[0][0], 'Алматы')
 
     @override_settings(
@@ -893,8 +910,11 @@ class CityCompletionTests(TestCase):
         text = out.getvalue()
         self.assertIn('cities_selected=3', text)
         self.assertIn('cities_completed=1', text)
+        self.assertIn('query_offset=0', text)
+        self.assertIn('queries_per_city=3', text)
         self.assertIn('next_city_offset=1', text)
-        self.assertIn('--city-offset 1', text)
+        self.assertIn('next_query_offset=1', text)
+        self.assertIn('--city-offset 1 --query-offset 1', text)
         self.assertNotIn('offset + limit', text)
 
 
@@ -1326,3 +1346,202 @@ class EnrichmentFreshnessAndOrderTests(TestCase):
         selected = list(select_leads_needing_enrichment(limit=10))
         self.assertNotIn(fresh_failure, selected)
         self.assertIn(stale_failure, selected)
+
+
+class _DenseProvider:
+    name = 'two_gis'
+
+    def __init__(self, hits_per_query=10):
+        self.calls = []
+        self.hits_per_query = hits_per_query
+
+    def search(self, *, city, direction, limit=None, max_pages=None):
+        self.calls.append((city, direction))
+        serial = len(self.calls)
+        return [
+            _hit(
+                external_id=f'{serial}-{index}',
+                name=f'Shop {serial}-{index}',
+                phone='',
+                phones=(),
+                website='',
+                instagram_url='',
+                source_url='',
+            )
+            for index in range(self.hits_per_query)
+        ]
+
+
+class DiscoveryCursorTests(TestCase):
+    def test_dense_city_resumes_at_the_next_query_and_does_not_repeat(self):
+        directions = ['автозапчасти', 'магазин автозапчастей', 'китайские запчасти']
+        before = SellerLead.objects.count()
+        first_provider = _DenseProvider()
+        first = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            directions=directions,
+            max_hits=20,
+            dry_run=True,
+            providers=[first_provider],
+        )
+        self.assertEqual(first.hits_received, 20)
+        self.assertEqual(first.queries_executed, 2)
+        self.assertEqual(first.cities_completed, [])
+        self.assertEqual(first.next_city_offset, 0)
+        self.assertEqual(first.next_query_offset, 2)
+        self.assertEqual(first.queries_per_city, 3)
+        self.assertEqual(SellerLead.objects.count(), before)
+        self.assertEqual([call[1] for call in first_provider.calls], directions[:2])
+
+        second_provider = _DenseProvider()
+        second = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            directions=directions,
+            max_hits=20,
+            query_offset=first.next_query_offset,
+            city_offset=first.next_city_offset,
+            dry_run=True,
+            providers=[second_provider],
+        )
+        self.assertEqual(second_provider.calls, [('Алматы', directions[2])])
+        self.assertEqual(second.cities_completed, ['Алматы'])
+        self.assertEqual(second.next_city_offset, 1)
+        self.assertEqual(second.next_query_offset, 0)
+        self.assertEqual(SellerLead.objects.count(), before)
+
+    def test_query_cap_resumes_inside_the_city(self):
+        directions = ['один', 'два', 'три']
+        provider = _QuietProvider()
+        stats = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            directions=directions,
+            max_queries=2,
+            dry_run=True,
+            providers=[provider],
+        )
+        self.assertEqual([call[1] for call in provider.calls], directions[:2])
+        self.assertEqual(stats.next_city_offset, 0)
+        self.assertEqual(stats.next_query_offset, 2)
+        resumed = _QuietProvider()
+        second = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            directions=directions,
+            query_offset=2,
+            dry_run=True,
+            providers=[resumed],
+        )
+        self.assertEqual(resumed.calls, [('Алматы', 'три')])
+        self.assertEqual(second.cities_completed, ['Алматы'])
+        self.assertEqual(second.next_query_offset, 0)
+        self.assertEqual(second.next_city_offset, 1)
+
+    def test_large_plan_progresses_in_capped_runs(self):
+        directions = [f'направление {index}' for index in range(15)]
+        first = _QuietProvider()
+        second_provider = _QuietProvider()
+        second_provider.name = 'brave'
+        stats = run_seller_discovery(
+            provider_names=['two_gis', 'brave'],
+            cities=['Алматы'],
+            directions=directions,
+            dry_run=True,
+            providers=[first, second_provider],
+        )
+        self.assertEqual(stats.queries_per_city, 30)
+        self.assertEqual(stats.queries_executed, 20)
+        self.assertEqual(stats.cities_completed, [])
+        self.assertEqual(stats.next_query_offset, 20)
+        self.assertEqual(stats.next_city_offset, 0)
+        follow_a = _QuietProvider()
+        follow_b = _QuietProvider()
+        follow_b.name = 'brave'
+        done = run_seller_discovery(
+            provider_names=['two_gis', 'brave'],
+            cities=['Алматы'],
+            directions=directions,
+            query_offset=20,
+            dry_run=True,
+            providers=[follow_a, follow_b],
+        )
+        self.assertEqual(done.queries_executed, 10)
+        self.assertEqual(done.cities_completed, ['Алматы'])
+        self.assertEqual(done.next_query_offset, 0)
+        self.assertEqual(done.next_city_offset, 1)
+        self.assertEqual(len(first.calls) + len(second_provider.calls), 20)
+        self.assertEqual(len(follow_a.calls) + len(follow_b.calls), 10)
+
+    def test_partial_second_city_keeps_both_cursors(self):
+        directions = ['один', 'два', 'три']
+        stats = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы', 'Астана', 'Шымкент'],
+            directions=directions,
+            max_queries=5,
+            dry_run=True,
+            providers=[_QuietProvider()],
+            city_limit=2,
+        )
+        self.assertEqual(stats.cities_completed, ['Алматы'])
+        self.assertEqual(stats.next_city_offset, 1)
+        self.assertEqual(stats.next_query_offset, 2)
+        resumed = _QuietProvider()
+        second = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы', 'Астана', 'Шымкент'],
+            directions=directions,
+            max_queries=1,
+            city_offset=stats.next_city_offset,
+            query_offset=stats.next_query_offset,
+            dry_run=True,
+            providers=[resumed],
+            city_limit=2,
+        )
+        self.assertEqual(resumed.calls, [('Астана', 'три')])
+        self.assertEqual(second.cities_completed, ['Астана'])
+        self.assertEqual(second.next_query_offset, 0)
+
+    def test_query_offset_past_the_plan_does_not_search(self):
+        provider = _QuietProvider()
+        before = SellerLead.objects.count()
+        with self.assertRaises(SellerDiscoveryRunError):
+            run_seller_discovery(
+                provider_names=['two_gis'],
+                cities=['Алматы'],
+                directions=['один', 'два', 'три'],
+                query_offset=3,
+                dry_run=True,
+                providers=[provider],
+            )
+        with self.assertRaises(SellerDiscoveryRunError):
+            run_seller_discovery(
+                provider_names=['two_gis'],
+                cities=['Алматы'],
+                query_offset=-1,
+                dry_run=True,
+                providers=[provider],
+            )
+        self.assertEqual(provider.calls, [])
+        self.assertEqual(SellerLead.objects.count(), before)
+
+
+class ClassificationOrderTests(TestCase):
+    def test_never_classified_leads_sort_before_retries(self):
+        older = _lead(
+            name='Older classified',
+            business_type=SellerLead.BUSINESS_TYPE_UNKNOWN,
+            last_classified_at=timezone.now() - timedelta(days=60),
+        )
+        newer = _lead(
+            name='Newer classified',
+            business_type=SellerLead.BUSINESS_TYPE_UNKNOWN,
+            last_classified_at=timezone.now() - timedelta(days=31),
+        )
+        first_null = _lead(name='Never A')
+        second_null = _lead(name='Never B')
+        selected = select_leads_needing_classification(limit=10)
+        self.assertIn('NULLS FIRST', str(selected.query))
+        self.assertEqual(list(selected), [first_null, second_null, older, newer])

@@ -71,7 +71,20 @@ class Command(BaseCommand):
             '--city-offset',
             type=int,
             default=0,
-            help='С какой позиции стабильного списка городов брать пачку. Следующий запуск: --city-offset <next_city_offset>.',
+            help=(
+                'С какой позиции стабильного списка городов брать пачку. '
+                'Для resume используйте одновременно --city-offset и --query-offset из предыдущего stdout. '
+                'Сохраните тот же набор и порядок провайдеров, direction или direction-group и флаги плана запросов.'
+            ),
+        )
+        parser.add_argument(
+            '--query-offset',
+            type=int,
+            default=0,
+            help=(
+                'Индекс следующего запроса provider × direction внутри первого выбранного города. '
+                '0 — обычный запуск. Для resume используйте значение next_query_offset вместе с --city-offset.'
+            ),
         )
         parser.add_argument(
             '--direction-group',
@@ -98,9 +111,9 @@ class Command(BaseCommand):
             type=int,
             default=None,
             help=(
-                'Предел запросов к API, максимум 20. Без флага бюджет равен '
-                'городам × направлениям × провайдерам. Явное меньшее значение '
-                'обрабатывает пачку частично.'
+                'Сколько запросов выполнить за один запуск, максимум 20. '
+                'Без флага берётся остаток плана, но не больше 20. '
+                'Продолжение — по next_city_offset и next_query_offset.'
             ),
         )
         parser.add_argument(
@@ -173,6 +186,7 @@ class Command(BaseCommand):
                 dry_run=dry_run,
                 city_limit=city_limit,
                 city_offset=options['city_offset'],
+                query_offset=options['query_offset'],
             )
         except (SellerDiscoveryRunError, DiscoveryProviderConfigError) as exc:
             raise CommandError(str(exc)) from exc
@@ -181,13 +195,19 @@ class Command(BaseCommand):
         self.stdout.write(f'Режим: {mode}')
         limit_label = 'all' if stats.city_limit is None else str(stats.city_limit)
         self.stdout.write(f'city_offset={stats.city_offset}')
+        self.stdout.write(f'query_offset={stats.query_offset}')
+        self.stdout.write(f'queries_per_city={stats.queries_per_city}')
         self.stdout.write(f'city_limit={limit_label}')
         self.stdout.write(f'cities_selected={len(stats.cities_selected)}')
         self.stdout.write(f"selected cities: {', '.join(stats.cities_selected)}")
         self.stdout.write(f'cities_completed={len(stats.cities_completed)}')
         self.stdout.write(f"completed cities: {', '.join(stats.cities_completed)}")
         self.stdout.write(f'next_city_offset={stats.next_city_offset}')
-        self.stdout.write(f'Следующий запуск: --city-offset {stats.next_city_offset}')
+        self.stdout.write(f'next_query_offset={stats.next_query_offset}')
+        self.stdout.write(
+            'Следующий запуск: '
+            f'--city-offset {stats.next_city_offset} --query-offset {stats.next_query_offset}'
+        )
         self.stdout.write(f"Источники: {', '.join(stats.providers)}")
         self.stdout.write(f"Направления: {', '.join(stats.directions)}")
         self.stdout.write(f'Запросов: {stats.queries_executed}')

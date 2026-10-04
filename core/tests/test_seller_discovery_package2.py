@@ -602,7 +602,7 @@ class DiscoveryCommandTests(TestCase):
             dry_run=True,
             providers=[provider],
         )
-        self.assertEqual(stats.hits_received, 1)
+        self.assertEqual(stats.hits_received, 2)
         self.assertEqual(SellerLead.objects.count(), 0)
 
     def test_missing_mode_and_both_modes_do_not_call_network(self):

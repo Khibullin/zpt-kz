@@ -60,6 +60,9 @@ class DiscoveryRunStats:
     city_offset: int = 0
     city_limit: int | None = None
     next_city_offset: int = 0
+    query_offset: int = 0
+    next_query_offset: int = 0
+    queries_per_city: int = 0
     classified: dict = field(default_factory=dict)
     new_parts: int = 0
     dismantlers: int = 0
@@ -80,8 +83,15 @@ def run_seller_discovery(
     providers: list[DiscoveryProvider] | None = None,
     city_limit: int | None = None,
     city_offset: int | None = None,
+    query_offset: int | None = None,
 ) -> DiscoveryRunStats:
-    """Search providers and ingest hits. dry_run does not write SellerLead rows."""
+    """Search providers and ingest hits. dry_run does not write SellerLead rows.
+
+    max_hits is a boundary between query units, not inside one provider.search().
+    A query that already started is ingested fully, so the last unit may pass
+    the hit budget by the size of that bounded provider response. The next unit
+    is not started. Resume with city_offset and query_offset together.
+    """
     resolved_cities = _resolve_cities(cities)
     selected_cities, applied_limit, applied_offset = _select_city_batch(
         resolved_cities,
@@ -102,21 +112,35 @@ def run_seller_discovery(
     ]
     if not active:
         raise SellerDiscoveryRunError('Нужно указать хотя бы один источник: two_gis или brave.')
-    required_queries = len(selected_cities) * len(selected_directions) * len(active)
-    if max_queries is None:
-        if required_queries > MAX_QUERIES_CAP:
-            raise SellerDiscoveryRunError(
-                f'Выбранная конфигурация требует {required_queries} запросов, '
-                f'это больше предела {MAX_QUERIES_CAP}. Уменьшите --city-limit, '
-                'число провайдеров или направлений. Запросы к API не выполнялись.',
-            )
-        query_cap = required_queries
+    work_units = [
+        (direction, provider)
+        for direction in selected_directions
+        for provider in active
+    ]
+    queries_per_city = len(work_units)
+    applied_query_offset = _resolve_query_offset(
+        query_offset,
+        queries_per_city,
+        has_cities=bool(selected_cities),
+    )
+    if selected_cities:
+        remaining_units = (
+            (queries_per_city - applied_query_offset)
+            + (len(selected_cities) - 1) * queries_per_city
+        )
     else:
-        query_cap = _bounded(
-            max_queries,
-            default=DEFAULT_MAX_QUERIES,
-            cap=MAX_QUERIES_CAP,
-            label='max_queries',
+        remaining_units = 0
+    if max_queries is None:
+        query_cap = min(remaining_units, MAX_QUERIES_CAP)
+    else:
+        query_cap = min(
+            _bounded(
+                max_queries,
+                default=DEFAULT_MAX_QUERIES,
+                cap=MAX_QUERIES_CAP,
+                label='max_queries',
+            ),
+            remaining_units,
         )
 
     stats = DiscoveryRunStats(
@@ -126,67 +150,65 @@ def run_seller_discovery(
         directions=selected_directions,
         city_offset=applied_offset,
         city_limit=applied_limit,
+        query_offset=applied_query_offset,
+        queries_per_city=queries_per_city,
     )
     seen_match_ids: set[int] = set()
     queries_used = 0
     completed_names: list[str] = []
-    planned_queries = len(selected_directions) * len(active)
+    next_query_offset = 0
+    resume_at = applied_query_offset
 
     try:
         for city in selected_cities:
-            attempts = 0
-            stopped = False
-            for direction in selected_directions:
-                for provider in active:
-                    if queries_used >= query_cap or stats.hits_received >= hit_cap:
-                        stopped = True
-                        break
-                    if city.name not in stats.cities_processed:
-                        stats.cities_processed.append(city.name)
-                    queries_used += 1
-                    attempts += 1
+            start_unit = resume_at
+            resume_at = 0
+            finished_city = True
+            for unit_index in range(start_unit, queries_per_city):
+                if queries_used >= query_cap or stats.hits_received >= hit_cap:
+                    finished_city = False
+                    next_query_offset = unit_index
+                    break
+                direction, provider = work_units[unit_index]
+                if city.name not in stats.cities_processed:
+                    stats.cities_processed.append(city.name)
+                queries_used += 1
+                try:
+                    hits = provider.search(
+                        city=city.name,
+                        direction=direction,
+                        limit=page_size,
+                        max_pages=page_cap,
+                    )
+                except (DiscoveryProviderError, SellerLeadSearchError) as exc:
+                    stats.errors += 1
+                    stats.error_messages.append(str(exc)[:300])
+                    stats.queries_executed += 1
+                    continue
+                stats.queries_executed += 1
+                for hit in hits:
+                    stats.hits_received += 1
                     try:
-                        hits = provider.search(
-                            city=city.name,
-                            direction=direction,
-                            limit=page_size,
-                            max_pages=page_cap,
-                        )
-                    except (DiscoveryProviderError, SellerLeadSearchError) as exc:
+                        outcome = ingest_seller_discovery_hit(hit, dry_run=dry_run)
+                    except SellerDiscoveryIngestionError as exc:
                         stats.errors += 1
                         stats.error_messages.append(str(exc)[:300])
-                        stats.queries_executed += 1
                         continue
-                    stats.queries_executed += 1
-                    for hit in hits:
-                        if stats.hits_received >= hit_cap:
-                            stopped = True
-                            break
-                        stats.hits_received += 1
-                        try:
-                            outcome = ingest_seller_discovery_hit(hit, dry_run=dry_run)
-                        except SellerDiscoveryIngestionError as exc:
-                            stats.errors += 1
-                            stats.error_messages.append(str(exc)[:300])
-                            continue
-                        stats.outcomes.append(outcome)
-                        if outcome.seller_lead_id and outcome.business_type:
-                            stats.classified[outcome.seller_lead_id] = outcome.business_type
-                        if outcome.action == 'create':
-                            stats.created += 1
-                        elif outcome.action == 'update':
-                            stats.updated += 1
-                        else:
-                            stats.skipped += 1
-                        for match_id in outcome.possible_duplicate_ids:
-                            seen_match_ids.add(match_id)
-                    if stopped:
-                        break
-                if stopped:
-                    break
-            if planned_queries and attempts == planned_queries and not stopped:
+                    stats.outcomes.append(outcome)
+                    if outcome.seller_lead_id and outcome.business_type:
+                        stats.classified[outcome.seller_lead_id] = outcome.business_type
+                    if outcome.action == 'create':
+                        stats.created += 1
+                    elif outcome.action == 'update':
+                        stats.updated += 1
+                    else:
+                        stats.skipped += 1
+                    for match_id in outcome.possible_duplicate_ids:
+                        seen_match_ids.add(match_id)
+            if finished_city:
                 completed_names.append(city.name)
-            if stopped:
+                next_query_offset = 0
+            else:
                 break
         return stats
     finally:
@@ -194,6 +216,9 @@ def run_seller_discovery(
         stats.cities = list(stats.cities_selected)
         stats.cities_completed = list(completed_names)
         stats.next_city_offset = applied_offset + len(completed_names)
+        stats.next_query_offset = next_query_offset
+        stats.queries_per_city = queries_per_city
+        stats.query_offset = applied_query_offset
         stats.possible_duplicates = len(seen_match_ids)
         stats.new_parts = sum(1 for value in stats.classified.values() if value == 'new_parts')
         stats.dismantlers = sum(1 for value in stats.classified.values() if value == 'dismantler')
@@ -232,6 +257,22 @@ def _resolve_cities(cities: list[str] | tuple[str, ...]):
         seen.add(city.name)
         resolved.append(city)
     return resolved
+
+
+def _resolve_query_offset(query_offset, queries_per_city: int, *, has_cities: bool) -> int:
+    offset = 0 if query_offset is None else query_offset
+    try:
+        offset = int(offset)
+    except (TypeError, ValueError) as exc:
+        raise SellerDiscoveryRunError('query-offset должен быть целым числом. Запросы не выполняются.') from exc
+    if offset < 0:
+        raise SellerDiscoveryRunError('query-offset должен быть больше или равен 0. Запросы не выполняются.')
+    if has_cities and offset != 0 and offset >= queries_per_city:
+        raise SellerDiscoveryRunError(
+            f'query-offset {offset} не меньше числа запросов на город ({queries_per_city}). '
+            'Запросы не выполняются.',
+        )
+    return offset
 
 
 def _resolve_directions(

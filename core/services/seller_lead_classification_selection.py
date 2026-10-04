@@ -8,7 +8,7 @@ A fresh unknown result is not selected again until the retry interval or new dat
 
 from datetime import timedelta
 
-from django.db.models import Exists, OuterRef, Q
+from django.db.models import Exists, F, OuterRef, Q
 from django.utils import timezone
 
 from core.models import (
@@ -53,5 +53,5 @@ def select_leads_needing_classification(*, city: str = '', business_type: str = 
             business_type=BUSINESS_TYPE_UNKNOWN,
             last_classified_at__lt=stale_unknown_before,
         ),
-    ).order_by('last_classified_at', 'pk')
+    ).order_by(F('last_classified_at').asc(nulls_first=True), 'pk')
     return queryset[:limit]
