@@ -1140,3 +1140,189 @@ class WhatsAppAdminQueryTests(TestCase):
             ))
         self.assertEqual(len(rows), 20)
         self.assertEqual(len(ctx.captured_queries), 1)
+
+
+class ManualWhatsAppApprovalTests(TestCase):
+    def test_approve_whatsapp_creates_selected_evidence_and_verifies(self):
+        lead = _lead(name='Manual WA', whatsapp='')
+        candidate = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77001112233',
+            confidence='high',
+            source_url='https://shop.kz/contacts',
+            source_text='whatsapp 77001112233',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        candidate.approve_as_primary()
+        lead.refresh_from_db()
+        candidate.refresh_from_db()
+        evidence = SellerLeadEvidence.objects.get(seller_lead=lead, field_name='whatsapp')
+        self.assertEqual(lead.whatsapp, '77001112233')
+        self.assertEqual(candidate.source_url, 'https://shop.kz/contacts')
+        self.assertEqual(candidate.source_text, 'whatsapp 77001112233')
+        self.assertEqual(evidence.value, '77001112233')
+        self.assertTrue(evidence.is_selected)
+        self.assertFalse(evidence.is_owner_verified)
+        self.assertEqual(evidence.extraction_method, SellerLeadEvidence.METHOD_MANUAL)
+        self.assertEqual(evidence.confidence, 100)
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
+
+    def test_repeat_approve_does_not_duplicate_evidence(self):
+        lead = _lead(name='Repeat WA', whatsapp='')
+        existing = SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='whatsapp',
+            value='77001112233',
+            normalized_value='77001112233',
+            extraction_method=SellerLeadEvidence.METHOD_PARSER,
+            is_selected=False,
+            observed_at=timezone.now() - timedelta(days=5),
+        )
+        candidate = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77001112233',
+            confidence='medium',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        candidate.approve_as_primary()
+        candidate.approve_as_primary()
+        evidences = SellerLeadEvidence.objects.filter(seller_lead=lead, field_name='whatsapp')
+        self.assertEqual(evidences.count(), 1)
+        existing.refresh_from_db()
+        self.assertTrue(existing.is_selected)
+        self.assertEqual(existing.extraction_method, SellerLeadEvidence.METHOD_PARSER)
+
+    def test_approved_phone_does_not_become_verified_whatsapp(self):
+        lead = _lead(name='Phone only', whatsapp='')
+        candidate = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_PHONE,
+            value='77004445566',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        candidate.approve_as_primary()
+        lead.refresh_from_db()
+        self.assertEqual(lead.whatsapp, '')
+        self.assertFalse(SellerLeadEvidence.objects.filter(seller_lead=lead, field_name='whatsapp').exists())
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_NOT_FOUND)
+
+    def test_approved_primary_without_evidence_is_verified(self):
+        lead = _lead(name='Legacy approval', whatsapp='77001112233')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77001112233',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_APPROVED,
+            is_primary=True,
+            reviewed_at=timezone.now(),
+        )
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
+
+    def test_conflict_outranks_verified_whatsapp(self):
+        lead = _lead(name='Conflict wins', whatsapp='77001112233')
+        SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='whatsapp',
+            value='77001112233',
+            normalized_value='77001112233',
+            is_selected=True,
+            observed_at=timezone.now(),
+        )
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77009998877',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_CONFLICT,
+        )
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_CONFLICT)
+
+
+class EnrichmentFreshnessAndOrderTests(TestCase):
+    def test_never_attempted_leads_sort_before_stale_retries(self):
+        older = _lead(
+            name='Older retry',
+            whatsapp='',
+            last_enrichment_attempt_at=timezone.now() - timedelta(days=60),
+        )
+        newer = _lead(
+            name='Newer retry',
+            whatsapp='',
+            last_enrichment_attempt_at=timezone.now() - timedelta(days=31),
+        )
+        first_null = _lead(name='Never A', whatsapp='')
+        second_null = _lead(name='Never B', whatsapp='')
+        selected = select_leads_needing_enrichment(limit=10)
+        self.assertIn('NULLS FIRST', str(selected.query))
+        self.assertEqual(list(selected), [first_null, second_null, older, newer])
+
+    def test_fresh_verified_evidence_is_excluded_and_stale_is_selected(self):
+        fresh = _lead(name='Fresh verified', whatsapp='77001112233')
+        SellerLeadEvidence.objects.create(
+            seller_lead=fresh,
+            field_name='whatsapp',
+            value='77001112233',
+            normalized_value='77001112233',
+            is_selected=True,
+            observed_at=timezone.now(),
+        )
+        stale = _lead(name='Stale verified', whatsapp='77002223344')
+        SellerLeadEvidence.objects.create(
+            seller_lead=stale,
+            field_name='whatsapp',
+            value='77002223344',
+            normalized_value='77002223344',
+            is_selected=True,
+            observed_at=timezone.now() - timedelta(days=45),
+        )
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertNotIn(fresh, selected)
+        self.assertIn(stale, selected)
+        self.assertEqual(seller_lead_whatsapp_state(stale), WHATSAPP_VERIFIED)
+        self.assertEqual(seller_lead_whatsapp_state(fresh), WHATSAPP_VERIFIED)
+
+    def test_fresh_approved_primary_is_excluded_and_stale_approval_is_selected(self):
+        fresh = _lead(name='Fresh approval', whatsapp='77001112233')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=fresh,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77001112233',
+            confidence='low',
+            status=SellerLeadContactCandidate.STATUS_APPROVED,
+            is_primary=True,
+            reviewed_at=timezone.now(),
+        )
+        stale = _lead(name='Stale approval', whatsapp='77002223344')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=stale,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77002223344',
+            confidence='low',
+            status=SellerLeadContactCandidate.STATUS_APPROVED,
+            is_primary=True,
+            reviewed_at=timezone.now() - timedelta(days=45),
+        )
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertNotIn(fresh, selected)
+        self.assertIn(stale, selected)
+        self.assertEqual(seller_lead_whatsapp_state(fresh), WHATSAPP_VERIFIED)
+        self.assertEqual(seller_lead_whatsapp_state(stale), WHATSAPP_VERIFIED)
+
+    def test_attempt_clock_without_whatsapp(self):
+        fresh_failure = _lead(
+            name='Failed today',
+            whatsapp='',
+            last_enrichment_attempt_at=timezone.now(),
+        )
+        stale_failure = _lead(
+            name='Failed last month',
+            whatsapp='',
+            last_enrichment_attempt_at=timezone.now() - timedelta(days=31),
+        )
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertNotIn(fresh_failure, selected)
+        self.assertIn(stale_failure, selected)

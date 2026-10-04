@@ -2662,21 +2662,33 @@ class SellerLeadContactCandidate(models.Model):
             )
 
             lead = self.seller_lead
-            lead.whatsapp = self.value
-            lead.whatsapp_confidence = self.confidence
-            lead.whatsapp_source_url = self.source_url
-            lead.whatsapp_source_text = self.source_text
-            lead.whatsapp_found_at = self.found_at
-            lead.save(
-                update_fields=[
-                    'whatsapp',
-                    'whatsapp_confidence',
-                    'whatsapp_source_url',
-                    'whatsapp_source_text',
-                    'whatsapp_found_at',
-                    'updated_at',
-                ],
-            )
+            if self.contact_type == self.CONTACT_TYPE_WHATSAPP:
+                lead.whatsapp = self.value
+                lead.whatsapp_confidence = self.confidence
+                lead.whatsapp_source_url = self.source_url
+                lead.whatsapp_source_text = self.source_text
+                lead.whatsapp_found_at = self.found_at
+                lead.save(
+                    update_fields=[
+                        'whatsapp',
+                        'whatsapp_confidence',
+                        'whatsapp_source_url',
+                        'whatsapp_source_text',
+                        'whatsapp_found_at',
+                        'updated_at',
+                    ],
+                )
+                from core.services.seller_discovery_sources import (
+                    CANDIDATE_CONFIDENCE_TO_EVIDENCE,
+                    ensure_selected_whatsapp_evidence,
+                )
+
+                ensure_selected_whatsapp_evidence(
+                    lead,
+                    value=self.value,
+                    confidence=CANDIDATE_CONFIDENCE_TO_EVIDENCE.get(self.confidence),
+                    observed_at=now,
+                )
             from core.services.seller_discovery_identity import refresh_seller_lead_identity
 
             refresh_seller_lead_identity(lead)

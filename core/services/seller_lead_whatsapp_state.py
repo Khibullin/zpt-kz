@@ -4,7 +4,7 @@ The state is not stored. Discovery does not require WhatsApp.
 Admin lists read annotated flags instead of querying once per row.
 """
 
-from django.db.models import Exists, F, OuterRef, Q
+from django.db.models import BooleanField, Exists, ExpressionWrapper, F, OuterRef, Q
 
 from core.models import SellerLead, SellerLeadContactCandidate, SellerLeadEvidence
 
@@ -41,14 +41,25 @@ def annotate_seller_leads_with_whatsapp_state(queryset):
     ).filter(
         Q(normalized_value=OuterRef('whatsapp')) | Q(value=OuterRef('whatsapp')),
     )
+    approved_primary = SellerLeadContactCandidate.objects.filter(
+        seller_lead_id=OuterRef('pk'),
+        contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+        status=SellerLeadContactCandidate.STATUS_APPROVED,
+        is_primary=True,
+        value=OuterRef('whatsapp'),
+    )
     pending = SellerLeadContactCandidate.objects.filter(
         seller_lead_id=OuterRef('pk'),
         contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
         status=SellerLeadContactCandidate.STATUS_PENDING,
     )
+    has_verified_whatsapp = ExpressionWrapper(
+        Exists(verified) | Exists(approved_primary),
+        output_field=BooleanField(),
+    )
     return queryset.annotate(
         has_whatsapp_conflict=Exists(conflict),
-        has_verified_whatsapp=Exists(verified),
+        has_verified_whatsapp=has_verified_whatsapp,
         has_pending_whatsapp=Exists(pending),
     )
 
