@@ -82,13 +82,18 @@ def _fold(value: str) -> str:
     return ' '.join(str(value or '').casefold().replace('ё', 'е').split())
 
 
-def _phrase_in(phrase: str, text: str, *, min_length: int = 3) -> bool:
+def _phrase_spans(phrase: str, text: str, *, min_length: int = 3) -> list[tuple[int, int]]:
+    """Exact word-boundary spans. Same boundary rule as _phrase_in()."""
     folded_phrase = _fold(phrase)
     folded_text = _fold(text)
     if len(folded_phrase) < min_length or not folded_text:
-        return False
+        return []
     pattern = r'(?<![\w])' + re.escape(folded_phrase) + r'(?![\w])'
-    return re.search(pattern, folded_text) is not None
+    return [match.span() for match in re.finditer(pattern, folded_text)]
+
+
+def _phrase_in(phrase: str, text: str, *, min_length: int = 3) -> bool:
+    return bool(_phrase_spans(phrase, text, min_length=min_length))
 
 
 def _fragments(lead: SellerLead) -> list[TextFragment]:
@@ -221,22 +226,17 @@ def _replace_models(lead: SellerLead, fragments: list[TextFragment], brand_ids: 
         if not brand_ok and not unique_ok:
             continue
         phrase_min = 1 if brand_ok else 3
+        hits = []
         for fragment in fragments:
-            if _phrase_in(car_model.name, fragment.text, min_length=phrase_min):
-                candidates.append((car_model, fragment))
-                break
+            spans = _phrase_spans(car_model.name, fragment.text, min_length=phrase_min)
+            if spans:
+                hits.append((fragment, spans))
+        if hits:
+            candidates.append((car_model, hits))
     kept = []
-    for car_model, fragment in candidates:
-        longer = False
-        own = _fold(car_model.name)
-        for other, _other_fragment in candidates:
-            if other.pk == car_model.pk or other.brand_id != car_model.brand_id:
-                continue
-            other_name = _fold(other.name)
-            if len(other_name) > len(own) and own in other_name:
-                longer = True
-                break
-        if not longer:
+    for car_model, hits in candidates:
+        fragment = _standalone_model_fragment(car_model, hits, candidates)
+        if fragment is not None:
             kept.append((car_model, fragment))
     SellerLeadDiscoveredModel.objects.bulk_create([
         SellerLeadDiscoveredModel(
@@ -251,6 +251,38 @@ def _replace_models(lead: SellerLead, fragments: list[TextFragment], brand_ids: 
         )
         for car_model, fragment in kept
     ])
+
+
+def _span_inside(inner: tuple[int, int], outer: tuple[int, int]) -> bool:
+    return outer[0] <= inner[0] and inner[1] <= outer[1]
+
+
+def _standalone_model_fragment(car_model, hits, candidates):
+    """Keep a short model when one exact mention is not inside a longer sibling.
+
+    Suppression compares spans in the same TextFragment. A mention in another
+    fragment is a separate occurrence and does not hide the short model.
+    """
+    own_length = len(_fold(car_model.name))
+    for fragment, spans in hits:
+        for span in spans:
+            if not _model_span_covered(car_model, fragment, span, own_length, candidates):
+                return fragment
+    return None
+
+
+def _model_span_covered(car_model, fragment, span, own_length, candidates) -> bool:
+    for other, other_hits in candidates:
+        if other.pk == car_model.pk or other.brand_id != car_model.brand_id:
+            continue
+        if len(_fold(other.name)) <= own_length:
+            continue
+        for other_fragment, other_spans in other_hits:
+            if other_fragment is not fragment:
+                continue
+            if any(_span_inside(span, other_span) for other_span in other_spans):
+                return True
+    return False
 
 
 def _category_names_for_phrase(phrase_names: tuple[str, ...], categories: list[PartCategory]):

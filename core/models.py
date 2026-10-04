@@ -2648,6 +2648,17 @@ class SellerLeadContactCandidate(models.Model):
                 seller_lead=self.seller_lead,
                 is_primary=True,
             ).exclude(pk=self.pk).update(is_primary=False)
+            if self.contact_type == self.CONTACT_TYPE_WHATSAPP:
+                SellerLeadContactCandidate.objects.select_for_update().filter(
+                    seller_lead_id=self.seller_lead_id,
+                    contact_type=self.CONTACT_TYPE_WHATSAPP,
+                    status=self.STATUS_CONFLICT,
+                ).exclude(pk=self.pk).update(
+                    status=self.STATUS_REJECTED,
+                    is_primary=False,
+                    reviewed_at=now,
+                    updated_at=now,
+                )
 
             self.status = self.STATUS_APPROVED
             self.is_primary = True

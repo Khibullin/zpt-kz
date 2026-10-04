@@ -424,6 +424,51 @@ class ShortCatalogMatchTests(TestCase):
             before,
         )
 
+    def _model_names(self, lead):
+        return sorted(lead.discovered_models.values_list('name', flat=True))
+
+    def test_bmw_3_series_hides_the_nested_digit_model(self):
+        CarModel.objects.create(brand=self.bmw, name='3')
+        CarModel.objects.create(brand=self.bmw, name='3 Series')
+        lead = _lead(profile_description='BMW 3 Series')
+        classify_seller_lead(lead)
+        self.assertEqual(self._model_names(lead), ['3 Series'])
+
+    def test_bmw_3_and_3_series_both_stay_when_both_are_written(self):
+        CarModel.objects.create(brand=self.bmw, name='3')
+        CarModel.objects.create(brand=self.bmw, name='3 Series')
+        lead = _lead(profile_description='BMW 3, BMW 3 Series')
+        classify_seller_lead(lead)
+        self.assertEqual(self._model_names(lead), ['3', '3 Series'])
+
+    def test_tiggo_7_pro_hides_the_nested_shorter_model(self):
+        country = Country.objects.get(name='Каталог')
+        chery = Brand.objects.create(country=country, name='Chery')
+        CarModel.objects.create(brand=chery, name='Tiggo 7')
+        CarModel.objects.create(brand=chery, name='Tiggo 7 Pro')
+        lead = _lead(name='Chery', profile_description='Tiggo 7 Pro')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Chery'])
+        self.assertEqual(self._model_names(lead), ['Tiggo 7 Pro'])
+
+    def test_tiggo_7_and_tiggo_7_pro_both_stay_when_both_are_written(self):
+        country = Country.objects.get(name='Каталог')
+        chery = Brand.objects.create(country=country, name='Chery')
+        CarModel.objects.create(brand=chery, name='Tiggo 7')
+        CarModel.objects.create(brand=chery, name='Tiggo 7 Pro')
+        lead = _lead(name='Chery', profile_description='Tiggo 7 и Tiggo 7 Pro')
+        classify_seller_lead(lead)
+        self.assertEqual(self._model_names(lead), ['Tiggo 7', 'Tiggo 7 Pro'])
+
+    def test_short_and_long_models_in_different_fragments_both_stay(self):
+        country = Country.objects.get(name='Каталог')
+        chery = Brand.objects.create(country=country, name='Chery')
+        CarModel.objects.create(brand=chery, name='Tiggo 7')
+        CarModel.objects.create(brand=chery, name='Tiggo 7 Pro')
+        lead = _lead(name='Chery Tiggo 7', profile_description='Tiggo 7 Pro')
+        classify_seller_lead(lead)
+        self.assertEqual(self._model_names(lead), ['Tiggo 7', 'Tiggo 7 Pro'])
+
 
 class WhatsAppStateTests(TestCase):
     def test_states_and_admin_filter(self):
@@ -1461,6 +1506,116 @@ class ManualWhatsAppApprovalTests(TestCase):
             status=SellerLeadContactCandidate.STATUS_CONFLICT,
         )
         self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_CONFLICT)
+
+
+class SiblingWhatsAppApprovalTests(TestCase):
+    def _conflict(self, lead, value, **kwargs):
+        defaults = {
+            'seller_lead': lead,
+            'contact_type': SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            'value': value,
+            'confidence': 'high',
+            'status': SellerLeadContactCandidate.STATUS_CONFLICT,
+        }
+        defaults.update(kwargs)
+        return SellerLeadContactCandidate.objects.create(**defaults)
+
+    def test_approving_one_whatsapp_rejects_sibling_conflicts(self):
+        lead = _lead(name='Two conflicts', whatsapp='')
+        chosen = self._conflict(
+            lead,
+            '77001112233',
+            source_url='https://shop.kz/a',
+            source_text='whatsapp A',
+        )
+        other = self._conflict(
+            lead,
+            '77002223344',
+            source_url='https://shop.kz/b',
+            source_text='whatsapp B',
+            notes='keep this sibling',
+            confidence='medium',
+        )
+        pending = self._conflict(
+            lead,
+            '77005556677',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        chosen.approve_as_primary()
+        lead.refresh_from_db()
+        chosen.refresh_from_db()
+        other.refresh_from_db()
+        pending.refresh_from_db()
+        self.assertEqual(chosen.status, SellerLeadContactCandidate.STATUS_APPROVED)
+        self.assertTrue(chosen.is_primary)
+        self.assertIsNotNone(chosen.reviewed_at)
+        self.assertEqual(other.status, SellerLeadContactCandidate.STATUS_REJECTED)
+        self.assertFalse(other.is_primary)
+        self.assertIsNotNone(other.reviewed_at)
+        self.assertEqual(other.value, '77002223344')
+        self.assertEqual(other.source_url, 'https://shop.kz/b')
+        self.assertEqual(other.source_text, 'whatsapp B')
+        self.assertEqual(other.notes, 'keep this sibling')
+        self.assertEqual(other.confidence, 'medium')
+        self.assertEqual(pending.status, SellerLeadContactCandidate.STATUS_PENDING)
+        self.assertIsNone(pending.reviewed_at)
+        self.assertEqual(lead.whatsapp, '77001112233')
+        evidence = SellerLeadEvidence.objects.get(seller_lead=lead, field_name='whatsapp', is_selected=True)
+        self.assertEqual(evidence.value, '77001112233')
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
+        self.assertNotIn(lead, list(select_leads_needing_enrichment(limit=10)))
+
+    def test_phone_approval_leaves_whatsapp_conflicts_untouched(self):
+        lead = _lead(name='Phone approve', whatsapp='')
+        first = self._conflict(lead, '77001112233')
+        second = self._conflict(lead, '77002223344')
+        phone = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_PHONE,
+            value='77004445566',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        phone.approve_as_primary()
+        first.refresh_from_db()
+        second.refresh_from_db()
+        lead.refresh_from_db()
+        self.assertEqual(first.status, SellerLeadContactCandidate.STATUS_CONFLICT)
+        self.assertEqual(second.status, SellerLeadContactCandidate.STATUS_CONFLICT)
+        self.assertIsNone(first.reviewed_at)
+        self.assertIsNone(second.reviewed_at)
+        self.assertEqual(lead.whatsapp, '')
+
+    def test_unrelated_lead_conflicts_stay_open(self):
+        lead = _lead(name='Chosen shop', whatsapp='')
+        other_lead = _lead(name='Other shop', whatsapp='')
+        chosen = self._conflict(lead, '77001112233')
+        sibling = self._conflict(lead, '77002223344')
+        foreign = self._conflict(other_lead, '77003334455')
+        chosen.approve_as_primary()
+        sibling.refresh_from_db()
+        foreign.refresh_from_db()
+        self.assertEqual(sibling.status, SellerLeadContactCandidate.STATUS_REJECTED)
+        self.assertEqual(foreign.status, SellerLeadContactCandidate.STATUS_CONFLICT)
+        self.assertIsNone(foreign.reviewed_at)
+
+    def test_repeat_approve_stays_approved_and_sibling_stays_rejected(self):
+        lead = _lead(name='Repeat resolve', whatsapp='')
+        chosen = self._conflict(lead, '77001112233')
+        other = self._conflict(lead, '77002223344')
+        chosen.approve_as_primary()
+        chosen.approve_as_primary()
+        chosen.refresh_from_db()
+        other.refresh_from_db()
+        self.assertEqual(chosen.status, SellerLeadContactCandidate.STATUS_APPROVED)
+        self.assertTrue(chosen.is_primary)
+        self.assertEqual(other.status, SellerLeadContactCandidate.STATUS_REJECTED)
+        self.assertFalse(other.is_primary)
+        self.assertEqual(
+            SellerLeadEvidence.objects.filter(seller_lead=lead, field_name='whatsapp').count(),
+            1,
+        )
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
 
 
 class EnrichmentFreshnessAndOrderTests(TestCase):
