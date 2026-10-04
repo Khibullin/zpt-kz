@@ -150,6 +150,23 @@ class BusinessTypeTests(TestCase):
         lead = _lead(profile_description='Контрактные запчасти с разбора')
         self.assertEqual(classify_seller_lead(lead), SellerLead.BUSINESS_TYPE_DISMANTLER)
 
+    def test_discovery_dismantler_phrases_classify_as_dismantler(self):
+        for phrase in (
+            'б/у автозапчасти',
+            'бу автозапчасти',
+            'б/у запчасти',
+            'бу запчасти',
+            'авторазбор',
+            'контрактные запчасти',
+        ):
+            with self.subTest(phrase=phrase):
+                lead = _lead(name=phrase, profile_description=phrase)
+                self.assertEqual(classify_seller_lead(lead), SellerLead.BUSINESS_TYPE_DISMANTLER)
+
+    def test_inflected_dismantler_wording_is_not_stemmed(self):
+        lead = _lead(profile_description='магазин б/у автозапчастей')
+        self.assertEqual(classify_seller_lead(lead), SellerLead.BUSINESS_TYPE_UNKNOWN)
+
     def test_mixed_classification(self):
         lead = _lead(profile_description='Магазин автозапчастей и контрактные запчасти')
         self.assertEqual(classify_seller_lead(lead), SellerLead.BUSINESS_TYPE_MIXED)
@@ -1478,6 +1495,55 @@ class EnrichmentFreshnessAndOrderTests(TestCase):
         selected = list(select_leads_needing_enrichment(limit=10))
         self.assertNotIn(fresh_failure, selected)
         self.assertIn(stale_failure, selected)
+
+    def _fresh_verified(self, name, number):
+        lead = _lead(name=name, whatsapp=number)
+        SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='whatsapp',
+            value=number,
+            normalized_value=number,
+            is_selected=True,
+            observed_at=timezone.now(),
+        )
+        return lead
+
+    def test_fresh_verified_without_conflict_is_excluded(self):
+        lead = self._fresh_verified('Fresh clean', '77001112233')
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertNotIn(lead, selected)
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
+
+    def test_fresh_verified_with_whatsapp_conflict_stays_eligible(self):
+        lead = self._fresh_verified('Fresh conflict', '77001112233')
+        conflict = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77009998877',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_CONFLICT,
+        )
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertIn(lead, selected)
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_CONFLICT)
+        conflict.status = SellerLeadContactCandidate.STATUS_REJECTED
+        conflict.save(update_fields=['status', 'updated_at'])
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertNotIn(lead, selected)
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
+
+    def test_phone_conflict_does_not_keep_fresh_verified_eligible(self):
+        lead = self._fresh_verified('Phone conflict', '77001112233')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_PHONE,
+            value='77004445566',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_CONFLICT,
+        )
+        selected = list(select_leads_needing_enrichment(limit=10))
+        self.assertNotIn(lead, selected)
+        self.assertEqual(seller_lead_whatsapp_state(lead), WHATSAPP_VERIFIED)
 
 
 class _DenseProvider:

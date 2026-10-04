@@ -22,8 +22,9 @@ def select_leads_needing_enrichment(*, city: str = '', business_type: str = '', 
     """Leads without a fresh verified WhatsApp whose last attempt is due.
 
     Verified state and enrichment freshness are separate. A verified number
-    older than ENRICHMENT_STALE_DAYS can be selected again. Never-attempted
-    rows sort before stale retries on PostgreSQL and SQLite.
+    older than ENRICHMENT_STALE_DAYS can be selected again. A fresh verified
+    number stays eligible when a WhatsApp candidate is still in conflict.
+    Never-attempted rows sort before stale retries on PostgreSQL and SQLite.
     """
     stale_before = timezone.now() - timedelta(days=ENRICHMENT_STALE_DAYS)
     queryset = SellerLead.objects.exclude(lifecycle_status__in=EXCLUDED_LIFECYCLES)
@@ -47,8 +48,14 @@ def select_leads_needing_enrichment(*, city: str = '', business_type: str = '', 
         value=OuterRef('whatsapp'),
         reviewed_at__gte=stale_before,
     )
+    whatsapp_conflict = SellerLeadContactCandidate.objects.filter(
+        seller_lead_id=OuterRef('pk'),
+        contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+        status=SellerLeadContactCandidate.STATUS_CONFLICT,
+    )
+    fresh_verified = Q(whatsapp__gt='') & (Exists(fresh_evidence) | Exists(fresh_approval))
     queryset = queryset.exclude(
-        Q(whatsapp__gt='') & (Exists(fresh_evidence) | Exists(fresh_approval)),
+        fresh_verified & ~Exists(whatsapp_conflict),
     ).filter(
         Q(last_enrichment_attempt_at__isnull=True) | Q(last_enrichment_attempt_at__lt=stale_before),
     ).order_by(
