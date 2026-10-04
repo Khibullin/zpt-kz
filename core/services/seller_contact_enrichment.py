@@ -350,7 +350,8 @@ def enrich_seller_lead_contacts(
             stop_on_verified_whatsapp=stop_on_verified_whatsapp,
         )
         if not any(run.source == SOURCE_WEBSITE for run in source_runs):
-            source_runs.append(SourceRun(SOURCE_WEBSITE, 'executed'))
+            status = 'executed' if crawl_urls else 'skipped_no_candidate'
+            source_runs.append(SourceRun(SOURCE_WEBSITE, status))
 
     _annotate_locator_agreement(locators)
     observations, outcome, verified, pending, conflicts = _classify_observations(observations, outcome)

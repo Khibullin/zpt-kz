@@ -555,9 +555,15 @@ class DiscoveryCommandTests(TestCase):
                 stdout=out,
             )
 
+        text = out.getvalue()
         self.assertEqual(SellerLead.objects.count(), 0)
-        self.assertIn('Dry-run: записи в базу не сохранялись.', out.getvalue())
-        self.assertNotIn('test-key', out.getvalue())
+        self.assertIn('Dry-run: записи в базу не сохранялись.', text)
+        self.assertIn('Типы бизнеса: не рассчитываются в discovery dry-run', text)
+        self.assertNotIn('new_parts=', text)
+        self.assertNotIn('dismantlers=', text)
+        self.assertNotIn('mixed=', text)
+        self.assertNotIn('unknown=', text)
+        self.assertNotIn('test-key', text)
 
     def test_execute_saves_lead_without_network(self):
         provider = _FakeProvider([_hit()])
@@ -584,10 +590,13 @@ class DiscoveryCommandTests(TestCase):
                         stdout=out,
                     )
 
+        text = out.getvalue()
         self.assertEqual(SellerLead.objects.count(), 1)
         self.assertIsNone(SellerLead.objects.get().request_seller_id)
-        self.assertIn('Создано SellerLead: 1', out.getvalue())
-        self.assertNotIn('test-key', out.getvalue())
+        self.assertIn('Создано SellerLead: 1', text)
+        self.assertIn('Типы: new_parts=0 dismantlers=0 mixed=0 unknown=1', text)
+        self.assertNotIn('не рассчитываются в discovery dry-run', text)
+        self.assertNotIn('test-key', text)
 
     def test_runner_stops_at_max_hits(self):
         provider = _FakeProvider([

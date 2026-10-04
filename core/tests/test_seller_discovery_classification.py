@@ -229,7 +229,7 @@ class AssortmentTests(TestCase):
         lead = _lead(profile_description='Chery 7 и Accent, магазин автозапчастей')
         classify_seller_lead(lead)
         self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Chery'])
-        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+        self.assertEqual(list(lead.discovered_models.values_list('name', flat=True)), ['7'])
 
     def test_category_match_does_not_create_missing_category(self):
         before = PartCategory.objects.count()
@@ -371,6 +371,58 @@ class ShortCatalogMatchTests(TestCase):
         classify_seller_lead(lead)
         self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), [])
         self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+
+    def test_zeekr_x_links_the_one_character_model(self):
+        country = Country.objects.get(name='Каталог')
+        zeekr = Brand.objects.create(country=country, name='Zeekr')
+        model = CarModel.objects.create(brand=zeekr, name='X')
+        lead = _lead(profile_description='Zeekr X запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Zeekr'])
+        link = lead.model_links.get()
+        self.assertEqual(link.car_model_id, model.pk)
+        self.assertEqual(link.car_model.brand_id, zeekr.pk)
+
+    def test_moskvich_3_links_the_one_character_model(self):
+        country = Country.objects.get(name='Каталог')
+        moskvich = Brand.objects.create(country=country, name='Moskvich')
+        model = CarModel.objects.create(brand=moskvich, name='3')
+        lead = _lead(profile_description='Moskvich 3 запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Moskvich'])
+        link = lead.model_links.get()
+        self.assertEqual(link.car_model_id, model.pk)
+        self.assertEqual(link.car_model.brand_id, moskvich.pk)
+
+    def test_one_character_model_without_its_brand_is_not_linked(self):
+        country = Country.objects.get(name='Каталог')
+        zeekr = Brand.objects.create(country=country, name='Zeekr')
+        moskvich = Brand.objects.create(country=country, name='Moskvich')
+        CarModel.objects.create(brand=zeekr, name='X')
+        CarModel.objects.create(brand=moskvich, name='3')
+        bare_x = _lead(name='Bare X', profile_description='X запчасти')
+        bare_3 = _lead(name='Bare 3', profile_description='3 запчасти')
+        classify_seller_lead(bare_x)
+        classify_seller_lead(bare_3)
+        self.assertEqual(list(bare_x.discovered_models.values_list('pk', flat=True)), [])
+        self.assertEqual(list(bare_3.discovered_models.values_list('pk', flat=True)), [])
+
+    def test_chery_7_without_canonical_digit_model_links_no_model(self):
+        country = Country.objects.get(name='Каталог')
+        chery = Brand.objects.create(country=country, name='Chery')
+        for name in ('Tiggo 7', 'Tiggo 7 Pro', 'Tiggo 7 Pro Max'):
+            CarModel.objects.create(brand=chery, name=name)
+        before = set(CarModel.objects.filter(brand=chery).values_list('name', flat=True))
+        lead = _lead(profile_description='Chery 7 запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Chery'])
+        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+        self.assertEqual(lead.model_links.count(), 0)
+        self.assertFalse(CarModel.objects.filter(brand=chery, name='7').exists())
+        self.assertEqual(
+            set(CarModel.objects.filter(brand=chery).values_list('name', flat=True)),
+            before,
+        )
 
 
 class WhatsAppStateTests(TestCase):
@@ -1073,12 +1125,12 @@ class CityCompletionTests(TestCase):
     GOOGLE_PLACES_API_KEY='test-key',
 )
 class EnrichmentAttemptTests(TestCase):
-    def test_no_contacts_apply_stamps_attempt_only(self):
-        lead = _lead(name='Empty Shop', whatsapp='')
+    def test_website_without_a_candidate_does_not_stamp_attempt(self):
+        lead = _lead(name='Empty Shop', whatsapp='', website_url='')
         result = enrich_seller_lead_contacts(lead, sources=['website'], dry_run=False)
         lead.refresh_from_db()
-        self.assertEqual(result.outcome, 'no_contacts')
-        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertEqual(result.source_runs[0].status, 'skipped_no_candidate')
+        self.assertIsNone(lead.last_enrichment_attempt_at)
         self.assertIsNone(lead.last_enriched_at)
 
     def test_ambiguous_apply_stamps_attempt_only(self):

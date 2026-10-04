@@ -219,10 +219,13 @@ class Command(BaseCommand):
             self.stdout.write(f'Создано SellerLead: {stats.created}')
             self.stdout.write(f'Обновлено SellerLead: {stats.updated}')
         self.stdout.write(f'Возможных дублей отмечено: {stats.possible_duplicates}')
-        self.stdout.write(
-            f'Типы: new_parts={stats.new_parts} dismantlers={stats.dismantlers} '
-            f'mixed={stats.mixed} unknown={stats.unknown}',
-        )
+        if dry_run:
+            self.stdout.write('Типы бизнеса: не рассчитываются в discovery dry-run')
+        else:
+            self.stdout.write(
+                f'Типы: new_parts={stats.new_parts} dismantlers={stats.dismantlers} '
+                f'mixed={stats.mixed} unknown={stats.unknown}',
+            )
         self.stdout.write(f'Пропущено: {stats.skipped}')
         self.stdout.write(f'Ошибок: {stats.errors}')
         for message in stats.error_messages[:5]:

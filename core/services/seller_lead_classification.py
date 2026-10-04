@@ -220,7 +220,7 @@ def _replace_models(lead: SellerLead, fragments: list[TextFragment], brand_ids: 
         unique_ok = names_seen[folded] == 1 and len(folded) >= MIN_UNAMBIGUOUS_MODEL_LENGTH
         if not brand_ok and not unique_ok:
             continue
-        phrase_min = 2 if brand_ok else 3
+        phrase_min = 1 if brand_ok else 3
         for fragment in fragments:
             if _phrase_in(car_model.name, fragment.text, min_length=phrase_min):
                 candidates.append((car_model, fragment))
