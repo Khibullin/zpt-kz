@@ -792,8 +792,8 @@ class TwoGisPaginationTests(TestCase):
         provider = TwoGisDiscoveryProvider(client=TwoGisPlacesClient('test-key', urlopen=explode))
         with override_settings(SELLER_DISCOVERY_ENABLED=True, SELLER_DISCOVERY_2GIS_ENABLED=True):
             with self.assertRaises(DiscoveryProviderError) as ctx:
-                provider.search(city='Караганда', direction='автозапчасти', limit=5)
-        self.assertIn('Караганда', str(ctx.exception))
+                provider.search(city='Берлин', direction='автозапчасти', limit=5)
+        self.assertIn('Берлин', str(ctx.exception))
 
 
 class ContactAndIdentityTests(TestCase):

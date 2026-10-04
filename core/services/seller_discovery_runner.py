@@ -53,6 +53,14 @@ class DiscoveryRunStats:
     errors: int = 0
     error_messages: list[str] = field(default_factory=list)
     outcomes: list[IngestionResult] = field(default_factory=list)
+    cities_processed: list[str] = field(default_factory=list)
+    city_offset: int = 0
+    city_limit: int | None = None
+    classified: dict = field(default_factory=dict)
+    new_parts: int = 0
+    dismantlers: int = 0
+    mixed: int = 0
+    unknown: int = 0
 
 
 def run_seller_discovery(
@@ -66,9 +74,16 @@ def run_seller_discovery(
     max_pages: int | None = None,
     dry_run: bool = True,
     providers: list[DiscoveryProvider] | None = None,
+    city_limit: int | None = None,
+    city_offset: int | None = None,
 ) -> DiscoveryRunStats:
     """Search providers and ingest hits. dry_run does not write SellerLead rows."""
-    selected_cities = _resolve_cities(cities)
+    resolved_cities = _resolve_cities(cities)
+    selected_cities, applied_limit, applied_offset = _select_city_batch(
+        resolved_cities,
+        city_limit=city_limit,
+        city_offset=city_offset,
+    )
     selected_directions = _resolve_directions(directions, max_queries=max_queries)
     page_size = None if limit is None else _bounded(limit, default=DEFAULT_LIMIT, cap=MAX_LIMIT_CAP, label='limit')
     hit_cap = _bounded(max_hits, default=DEFAULT_MAX_HITS, cap=MAX_HITS_CAP, label='max_hits')
@@ -90,6 +105,8 @@ def run_seller_discovery(
         providers=[provider.name for provider in active],
         cities=[city.name for city in selected_cities],
         directions=selected_directions,
+        city_offset=applied_offset,
+        city_limit=applied_limit,
     )
     seen_match_ids: set[int] = set()
     queries_used = 0
@@ -100,6 +117,8 @@ def run_seller_discovery(
                 for provider in active:
                     if queries_used >= query_cap or stats.hits_received >= hit_cap:
                         return stats
+                    if city.name not in stats.cities_processed:
+                        stats.cities_processed.append(city.name)
                     queries_used += 1
                     try:
                         hits = provider.search(
@@ -125,6 +144,8 @@ def run_seller_discovery(
                             stats.error_messages.append(str(exc)[:300])
                             continue
                         stats.outcomes.append(outcome)
+                        if outcome.seller_lead_id and outcome.business_type:
+                            stats.classified[outcome.seller_lead_id] = outcome.business_type
                         if outcome.action == 'create':
                             stats.created += 1
                         elif outcome.action == 'update':
@@ -136,6 +157,29 @@ def run_seller_discovery(
         return stats
     finally:
         stats.possible_duplicates = len(seen_match_ids)
+        stats.new_parts = sum(1 for value in stats.classified.values() if value == 'new_parts')
+        stats.dismantlers = sum(1 for value in stats.classified.values() if value == 'dismantler')
+        stats.mixed = sum(1 for value in stats.classified.values() if value == 'mixed')
+        stats.unknown = sum(1 for value in stats.classified.values() if value == 'unknown')
+
+
+def _select_city_batch(cities, *, city_limit, city_offset):
+    """Return a stable slice. Offset past the list raises before any provider call."""
+    offset = 0 if city_offset is None else city_offset
+    try:
+        offset = int(offset)
+    except (TypeError, ValueError) as exc:
+        raise SellerDiscoveryRunError('city-offset должен быть целым числом.') from exc
+    if offset < 0:
+        raise SellerDiscoveryRunError('city-offset должен быть больше или равен 0.')
+    if offset > len(cities):
+        raise SellerDiscoveryRunError(
+            f'city-offset {offset} за пределами списка ({len(cities)} городов). Запросы не выполняются.',
+        )
+    if city_limit is None:
+        return cities[offset:], None, offset
+    limit = _bounded(city_limit, default=3, cap=5, label='city_limit')
+    return cities[offset:offset + limit], limit, offset
 
 
 def _resolve_cities(cities: list[str] | tuple[str, ...]):

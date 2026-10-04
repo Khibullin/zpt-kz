@@ -86,6 +86,7 @@ class IngestionResult:
     seller_lead_id: int | None = None
     possible_duplicate_ids: tuple[int, ...] = ()
     dry_run: bool = False
+    business_type: str = ''
 
 
 def ingest_seller_discovery_hit(
@@ -137,6 +138,9 @@ def ingest_seller_discovery_hit(
         lead.refresh_from_db()
         matches = find_possible_duplicates_for_leads([lead])
         duplicate_ids = tuple(match.pk for match in matches)
+        from core.services.seller_lead_classification import classify_seller_lead
+
+        business_type = classify_seller_lead(lead)
         lead.refresh_from_db()
 
     return IngestionResult(
@@ -149,6 +153,7 @@ def ingest_seller_discovery_hit(
         seller_lead_id=lead.pk,
         possible_duplicate_ids=duplicate_ids,
         dry_run=False,
+        business_type=business_type,
     )
 
 

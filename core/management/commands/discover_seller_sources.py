@@ -11,7 +11,12 @@ from core.services.seller_discovery_providers.base import (
     DiscoveryProviderConfigError,
     require_discovery_provider,
 )
-from core.services.seller_discovery_providers.catalog import DISCOVERY_CITIES
+from core.services.seller_discovery_providers.catalog import (
+    DISCOVERY_CITIES,
+    DISMANTLER_DIRECTIONS,
+    KZ_DISCOVERY_CITY_NAMES,
+    NEW_PARTS_DIRECTIONS,
+)
 from core.services.seller_discovery_runner import (
     SellerDiscoveryRunError,
     run_seller_discovery,
@@ -44,12 +49,35 @@ class Command(BaseCommand):
             action='append',
             dest='cities',
             default=[],
-            help='Город MVP: Алматы, Астана или Шымкент.',
+            help='Город из реестра discovery Казахстана. Можно передать несколько раз.',
         )
         parser.add_argument(
             '--mvp-cities',
             action='store_true',
             help='Искать в Алматы, Астане и Шымкенте.',
+        )
+        parser.add_argument(
+            '--all-kz-cities',
+            action='store_true',
+            help='Крупные города и областные центры. За один запуск берётся не больше --city-limit.',
+        )
+        parser.add_argument(
+            '--city-limit',
+            type=int,
+            default=None,
+            help='Сколько городов брать из списка. Для --all-kz-cities по умолчанию 3, максимум 5.',
+        )
+        parser.add_argument(
+            '--city-offset',
+            type=int,
+            default=0,
+            help='С какой позиции стабильного списка городов брать пачку. Следующий запуск: offset + limit.',
+        )
+        parser.add_argument(
+            '--direction-group',
+            choices=('new_parts', 'dismantlers'),
+            default='',
+            help='Набор поисковых фраз. Тип бизнеса по этому флагу не назначается.',
         )
         parser.add_argument(
             '--direction',
@@ -98,28 +126,56 @@ class Command(BaseCommand):
         except DiscoveryProviderConfigError as exc:
             raise CommandError(str(exc)) from exc
 
-        cities = list(DISCOVERY_CITIES) if options['mvp_cities'] else list(options['cities'] or [])
-        if not cities:
-            raise CommandError('Укажите --city или --mvp-cities.')
+        city_modes = (
+            bool(options['cities']),
+            bool(options['mvp_cities']),
+            bool(options['all_kz_cities']),
+        )
+        if sum(city_modes) != 1:
+            raise CommandError('Укажите ровно один режим города: --city, --mvp-cities или --all-kz-cities.')
+        if options['all_kz_cities']:
+            cities = list(KZ_DISCOVERY_CITY_NAMES)
+            city_limit = 3 if options['city_limit'] is None else options['city_limit']
+        elif options['mvp_cities']:
+            cities = list(DISCOVERY_CITIES)
+            city_limit = options['city_limit']
+        else:
+            cities = list(options['cities'])
+            city_limit = options['city_limit']
+        if options['directions'] and options['direction_group']:
+            raise CommandError('Укажите --direction или --direction-group, не оба.')
+        if options['direction_group'] == 'new_parts':
+            directions = list(NEW_PARTS_DIRECTIONS)
+        elif options['direction_group'] == 'dismantlers':
+            directions = list(DISMANTLER_DIRECTIONS)
+        else:
+            directions = options['directions'] or None
         self._require_keys(providers)
 
         try:
             stats = run_seller_discovery(
                 provider_names=providers,
                 cities=cities,
-                directions=options['directions'] or None,
+                directions=directions,
                 limit=options['limit'],
                 max_hits=options['max_hits'],
                 max_queries=options['max_queries'],
                 max_pages=options['max_pages'],
                 dry_run=dry_run,
+                city_limit=city_limit,
+                city_offset=options['city_offset'],
             )
         except (SellerDiscoveryRunError, DiscoveryProviderConfigError) as exc:
             raise CommandError(str(exc)) from exc
 
         mode = 'dry-run' if dry_run else 'apply'
         self.stdout.write(f'Режим: {mode}')
+        limit_label = 'all' if stats.city_limit is None else str(stats.city_limit)
+        self.stdout.write(f'city_offset={stats.city_offset}')
+        self.stdout.write(f'city_limit={limit_label}')
+        self.stdout.write(f"selected cities: {', '.join(stats.cities)}")
         self.stdout.write(f"Города: {', '.join(stats.cities)}")
+        self.stdout.write(f"Города обработаны: {', '.join(stats.cities_processed)}")
         self.stdout.write(f"Источники: {', '.join(stats.providers)}")
         self.stdout.write(f"Направления: {', '.join(stats.directions)}")
         self.stdout.write(f'Запросов: {stats.queries_executed}')
@@ -130,7 +186,11 @@ class Command(BaseCommand):
         else:
             self.stdout.write(f'Создано SellerLead: {stats.created}')
             self.stdout.write(f'Обновлено SellerLead: {stats.updated}')
-            self.stdout.write(f'Возможных дублей отмечено: {stats.possible_duplicates}')
+        self.stdout.write(f'Возможных дублей отмечено: {stats.possible_duplicates}')
+        self.stdout.write(
+            f'Типы: new_parts={stats.new_parts} dismantlers={stats.dismantlers} '
+            f'mixed={stats.mixed} unknown={stats.unknown}',
+        )
         self.stdout.write(f'Пропущено: {stats.skipped}')
         self.stdout.write(f'Ошибок: {stats.errors}')
         for message in stats.error_messages[:5]:
