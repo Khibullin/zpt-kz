@@ -304,6 +304,58 @@ class AssortmentTests(TestCase):
         self.assertEqual(stale.lifecycle_status, SellerLead.LIFECYCLE_REJECTED)
 
 
+class ShortCatalogMatchTests(TestCase):
+    def setUp(self):
+        country = Country.objects.create(name='Каталог')
+        self.bmw = Brand.objects.create(country=country, name='BMW')
+        self.kia = Brand.objects.create(country=country, name='Kia')
+        self.audi = Brand.objects.create(country=country, name='Audi')
+        self.a4 = CarModel.objects.create(brand=self.audi, name='A4')
+        self.q5 = CarModel.objects.create(brand=self.audi, name='Q5')
+        other = Brand.objects.create(country=country, name='Seat')
+        CarModel.objects.create(brand=other, name='A4')
+
+    def test_bmw_exact_token_links_the_brand(self):
+        lead = _lead(profile_description='BMW 3 Series запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['BMW'])
+
+    def test_kia_exact_token_links_the_brand(self):
+        lead = _lead(profile_description='Kia Sportage запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Kia'])
+
+    def test_short_brand_inside_another_word_is_not_a_match(self):
+        bmw = _lead(name='Shop BMWX', profile_description='BMWX запчасти')
+        kia = _lead(name='Shop Kiamo', profile_description='Kiamo и киа запчасти')
+        classify_seller_lead(bmw)
+        classify_seller_lead(kia)
+        self.assertEqual(list(bmw.discovered_brands.values_list('name', flat=True)), [])
+        self.assertEqual(list(kia.discovered_brands.values_list('name', flat=True)), [])
+
+    def test_audi_a4_links_the_matching_brand_model(self):
+        lead = _lead(profile_description='Audi A4 запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Audi'])
+        link = lead.model_links.get()
+        self.assertEqual(link.car_model_id, self.a4.pk)
+        self.assertEqual(link.car_model.brand_id, self.audi.pk)
+
+    def test_audi_q5_links_the_matching_brand_model(self):
+        lead = _lead(profile_description='Audi Q5 запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Audi'])
+        link = lead.model_links.get()
+        self.assertEqual(link.car_model_id, self.q5.pk)
+        self.assertEqual(link.car_model.brand_id, self.audi.pk)
+
+    def test_a4_without_audi_does_not_link_a_model(self):
+        lead = _lead(profile_description='A4 запчасти')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), [])
+        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+
+
 class WhatsAppStateTests(TestCase):
     def test_states_and_admin_filter(self):
         verified = _lead(name='Verified', whatsapp='77001112233')
@@ -1022,6 +1074,7 @@ class EnrichmentAttemptTests(TestCase):
             result = enrich_seller_lead_contacts(lead, sources=['google_places'], dry_run=False)
         lead.refresh_from_db()
         self.assertEqual(result.outcome, 'ambiguous_google')
+        self.assertTrue(result.wrote)
         self.assertIsNotNone(lead.last_enrichment_attempt_at)
         self.assertIsNone(lead.last_enriched_at)
 

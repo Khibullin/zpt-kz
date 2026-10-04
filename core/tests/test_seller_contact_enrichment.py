@@ -30,6 +30,7 @@ from core.services.seller_contact_enrichment import (
 from core.services.seller_contact_google_places import (
     PLACE_DETAILS_FIELD_MASK,
     PLACES_FIELD_MASK,
+    GooglePlaceLocator,
     GooglePlacesError,
     locate_google_place,
 )
@@ -1693,6 +1694,77 @@ class SkippedSourceAttemptTests(TestCase):
         self.assertIsNone(lead.last_enrichment_attempt_at)
         selected = list(select_leads_needing_enrichment(limit=5))
         self.assertIn(lead, selected)
+
+    def test_ambiguous_google_apply_reports_the_attempt_write(self):
+        lead = _lead(name='Ambiguous Shop', website_url='', whatsapp='')
+        stamp = timezone.now() - timedelta(days=3)
+        lead.last_enrichment_attempt_at = stamp
+        lead.save(update_fields=['last_enrichment_attempt_at', 'updated_at'])
+        lead.refresh_from_db()
+        before = lead.last_enrichment_attempt_at
+        locator = GooglePlaceLocator(place_id='', website_uri='', ambiguous=True, error='неоднозначно')
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_GOOGLE_PLACES_ENABLED=True,
+            GOOGLE_PLACES_API_KEY='test-key',
+        ):
+            with patch(
+                'core.services.seller_contact_enrichment.locate_google_place',
+                return_value=locator,
+            ):
+                result = enrich_seller_lead_contacts(lead, sources=['google_places'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'ambiguous_google')
+        self.assertTrue(result.wrote)
+        self.assertGreater(lead.last_enrichment_attempt_at, before)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_ambiguous_google_dry_run_does_not_write(self):
+        lead = _lead(name='Ambiguous Dry', website_url='', whatsapp='')
+        stamp = timezone.now() - timedelta(days=3)
+        lead.last_enrichment_attempt_at = stamp
+        lead.last_enriched_at = stamp
+        lead.save(update_fields=['last_enrichment_attempt_at', 'last_enriched_at', 'updated_at'])
+        lead.refresh_from_db()
+        attempt_at = lead.last_enrichment_attempt_at
+        enriched_at = lead.last_enriched_at
+        locator = GooglePlaceLocator(place_id='', website_uri='', ambiguous=True, error='неоднозначно')
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_GOOGLE_PLACES_ENABLED=True,
+            GOOGLE_PLACES_API_KEY='test-key',
+        ):
+            with patch(
+                'core.services.seller_contact_enrichment.locate_google_place',
+                return_value=locator,
+            ):
+                result = enrich_seller_lead_contacts(lead, sources=['google_places'], dry_run=True)
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'ambiguous_google')
+        self.assertFalse(result.wrote)
+        self.assertEqual(lead.last_enrichment_attempt_at, attempt_at)
+        self.assertEqual(lead.last_enriched_at, enriched_at)
+
+    def test_skipped_sources_keep_wrote_false_and_the_timestamp(self):
+        lead = _lead(name='Skipped Stamp', website_url='', whatsapp='')
+        stamp = timezone.now() - timedelta(days=3)
+        lead.last_enrichment_attempt_at = stamp
+        lead.save(update_fields=['last_enrichment_attempt_at', 'updated_at'])
+        lead.refresh_from_db()
+        attempt_at = lead.last_enrichment_attempt_at
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=False,
+            SELLER_CONTACT_GOOGLE_PLACES_ENABLED=False,
+            SELLER_CONTACT_BRAVE_ENABLED=False,
+            SELLER_CONTACT_2GIS_ENABLED=False,
+            SELLER_CONTACT_YANDEX_ENABLED=False,
+        ):
+            result = enrich_seller_lead_contacts(lead, sources=['all'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertFalse(result.wrote)
+        self.assertEqual(lead.last_enrichment_attempt_at, attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
 
 
 class EnrichmentGuardTests(TestCase):

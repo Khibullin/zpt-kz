@@ -278,7 +278,7 @@ def enrich_seller_lead_contacts(
                         observations=[],
                         errors=[locator.error],
                         source_runs=source_runs + [SourceRun(SOURCE_GOOGLE, 'ambiguous', locator.error)],
-                        wrote=False,
+                        wrote=not dry_run,
                     )
                 errors.append(locator.error or 'неоднозначное совпадение Google')
                 source_runs.append(SourceRun(SOURCE_GOOGLE, 'ambiguous', locator.error))

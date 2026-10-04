@@ -80,10 +80,10 @@ def _fold(value: str) -> str:
     return ' '.join(str(value or '').casefold().replace('ё', 'е').split())
 
 
-def _phrase_in(phrase: str, text: str) -> bool:
+def _phrase_in(phrase: str, text: str, *, min_length: int = 3) -> bool:
     folded_phrase = _fold(phrase)
     folded_text = _fold(text)
-    if len(folded_phrase) < 3 or not folded_text:
+    if len(folded_phrase) < min_length or not folded_text:
         return False
     pattern = r'(?<![\w])' + re.escape(folded_phrase) + r'(?![\w])'
     return re.search(pattern, folded_text) is not None
@@ -178,7 +178,7 @@ def _replace_brands(lead: SellerLead, fragments: list[TextFragment], now):
     matches = []
     for brand in Brand.objects.all().order_by('name'):
         name = str(brand.name or '').strip()
-        if len(_fold(name)) < MIN_BRAND_LENGTH:
+        if not name:
             continue
         for fragment in fragments:
             if _phrase_in(name, fragment.text):
@@ -210,14 +210,17 @@ def _replace_models(lead: SellerLead, fragments: list[TextFragment], brand_ids: 
         names_seen[folded] = names_seen.get(folded, 0) + 1
     for car_model in models:
         folded = _fold(car_model.name)
-        if len(folded) < MIN_MODEL_LENGTH:
+        if not folded:
             continue
         brand_ok = car_model.brand_id in brand_ids
+        if not brand_ok and len(folded) < MIN_MODEL_LENGTH:
+            continue
         unique_ok = names_seen[folded] == 1 and len(folded) >= MIN_UNAMBIGUOUS_MODEL_LENGTH
         if not brand_ok and not unique_ok:
             continue
+        phrase_min = 2 if brand_ok else 3
         for fragment in fragments:
-            if _phrase_in(car_model.name, fragment.text):
+            if _phrase_in(car_model.name, fragment.text, min_length=phrase_min):
                 candidates.append((car_model, fragment))
                 break
     kept = []
