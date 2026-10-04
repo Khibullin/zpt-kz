@@ -293,20 +293,24 @@ def classify_seller_lead(lead: SellerLead, *, promote_lifecycle: bool = False, d
 
     dry_run returns the type and writes nothing.
     promote_lifecycle moves found/enriched to classified and leaves later statuses.
+    A write reloads the row under select_for_update and decides from that row.
     """
-    fragments = _fragments(lead)
-    business_type, confidence, evidence, provenance = _business_type(fragments)
     if dry_run:
+        fragments = _fragments(lead)
+        business_type, _confidence, _evidence, _provenance = _business_type(fragments)
         return business_type
-    source, evidence_row = _provenance_pair(provenance)
     now = timezone.now()
     with transaction.atomic():
-        lead.business_type = business_type
-        lead.business_type_confidence = confidence
-        lead.business_type_evidence = evidence
-        lead.business_type_source = source
-        lead.business_type_evidence_item = evidence_row
-        lead.last_classified_at = now
+        locked = SellerLead.objects.select_for_update().get(pk=lead.pk)
+        fragments = _fragments(locked)
+        business_type, confidence, evidence, provenance = _business_type(fragments)
+        source, evidence_row = _provenance_pair(provenance)
+        locked.business_type = business_type
+        locked.business_type_confidence = confidence
+        locked.business_type_evidence = evidence
+        locked.business_type_source = source
+        locked.business_type_evidence_item = evidence_row
+        locked.last_classified_at = now
         update_fields = [
             'business_type',
             'business_type_confidence',
@@ -316,11 +320,11 @@ def classify_seller_lead(lead: SellerLead, *, promote_lifecycle: bool = False, d
             'last_classified_at',
             'updated_at',
         ]
-        if promote_lifecycle and lead.lifecycle_status in PROMOTABLE_LIFECYCLES:
-            lead.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
+        if promote_lifecycle and locked.lifecycle_status in PROMOTABLE_LIFECYCLES:
+            locked.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
             update_fields.append('lifecycle_status')
-        lead.save(update_fields=update_fields)
-        brand_ids = _replace_brands(lead, fragments, now)
-        _replace_models(lead, fragments, brand_ids, now)
-        _replace_categories(lead, fragments, now)
+        locked.save(update_fields=update_fields)
+        brand_ids = _replace_brands(locked, fragments, now)
+        _replace_models(locked, fragments, brand_ids, now)
+        _replace_categories(locked, fragments, now)
     return business_type

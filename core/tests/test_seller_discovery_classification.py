@@ -289,6 +289,20 @@ class AssortmentTests(TestCase):
             ['Масляные фильтры'],
         )
 
+    def test_stale_found_instance_does_not_promote_a_rejected_lead(self):
+        lead = _lead(
+            profile_description='Магазин автозапчастей, официальный поставщик',
+            lifecycle_status=SellerLead.LIFECYCLE_FOUND,
+        )
+        stale = SellerLead.objects.get(pk=lead.pk)
+        SellerLead.objects.filter(pk=lead.pk).update(
+            lifecycle_status=SellerLead.LIFECYCLE_REJECTED,
+        )
+        self.assertEqual(stale.lifecycle_status, SellerLead.LIFECYCLE_FOUND)
+        classify_seller_lead(stale, promote_lifecycle=True)
+        stale.refresh_from_db()
+        self.assertEqual(stale.lifecycle_status, SellerLead.LIFECYCLE_REJECTED)
+
 
 class WhatsAppStateTests(TestCase):
     def test_states_and_admin_filter(self):
