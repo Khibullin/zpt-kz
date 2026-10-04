@@ -139,6 +139,15 @@ class SourceRun:
     detail: str = ''
 
 
+# Invoked sources stamp last_enrichment_attempt_at. Skips and pre-execution
+# gates (disabled, missing key, verified-WhatsApp skip, contacts flag) do not.
+EXECUTED_SOURCE_STATUSES = frozenset({
+    'executed',
+    'error',
+    'ambiguous',
+})
+
+
 @dataclass
 class LocatorHit:
     source: str
@@ -365,13 +374,15 @@ def enrich_seller_lead_contacts(
             conflicts=conflicts,
             wrote=False,
         )
-    _apply(
-        seller_lead,
-        observations=observations,
-        place_id=place_id,
-        website_url=accepted_site,
-        two_gis_external_id=two_gis_external_id,
-    )
+    executed_any = _any_source_executed(source_runs)
+    if executed_any:
+        _apply(
+            seller_lead,
+            observations=observations,
+            place_id=place_id,
+            website_url=accepted_site,
+            two_gis_external_id=two_gis_external_id,
+        )
     return _result(
         dry_run=False,
         outcome=outcome,
@@ -389,7 +400,7 @@ def enrich_seller_lead_contacts(
         verified_whatsapp=verified,
         pending_candidates=pending,
         conflicts=conflicts,
-        wrote=True,
+        wrote=executed_any,
     )
 
 
@@ -844,6 +855,11 @@ def _observations_from_website(crawled: WebsiteCrawlResult) -> list[EnrichmentOb
             origin=SOURCE_WEBSITE,
         ))
     return observations
+
+
+def _any_source_executed(source_runs: list[SourceRun]) -> bool:
+    """True when at least one requested source was actually invoked."""
+    return any(run.status in EXECUTED_SOURCE_STATUSES for run in source_runs)
 
 
 def _apply(

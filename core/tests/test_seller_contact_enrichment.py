@@ -1,6 +1,7 @@
 import io
 import json
 import socket
+from datetime import timedelta
 from unittest.mock import patch
 from urllib import error, parse
 
@@ -40,6 +41,7 @@ from core.services.seller_contact_website import (
     website_identity_accepted,
 )
 from core.services.seller_discovery_sources import add_seller_lead_evidence
+from core.services.seller_lead_enrichment_selection import select_leads_needing_enrichment
 
 ENABLED = {
     'SELLER_CONTACT_ENRICHMENT_ENABLED': True,
@@ -1543,6 +1545,154 @@ class ApplyPersistenceTests(TestCase):
         self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_FOUND)
         self.assertIsNone(lead.last_enriched_at)
         self.assertEqual(lead.website_url, 'https://other.kz/')
+
+
+class SkippedSourceAttemptTests(TestCase):
+    def test_source_all_with_every_source_disabled_does_not_stamp_attempt(self):
+        lead = _lead(website_url='', whatsapp='')
+
+        def explode(*args, **kwargs):
+            raise AssertionError('network')
+
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=False,
+            SELLER_CONTACT_GOOGLE_PLACES_ENABLED=False,
+            SELLER_CONTACT_BRAVE_ENABLED=False,
+            SELLER_CONTACT_2GIS_ENABLED=False,
+            SELLER_CONTACT_YANDEX_ENABLED=False,
+        ):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['all'],
+                dry_run=False,
+                urlopen=explode,
+            )
+        lead.refresh_from_db()
+        self.assertFalse(result.wrote)
+        self.assertTrue(result.source_runs)
+        self.assertTrue(all(run.status == 'skipped_disabled' for run in result.source_runs))
+        self.assertIsNone(lead.last_enrichment_attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_requested_sources_that_never_execute_do_not_stamp_attempt(self):
+        lead = _lead(website_url='', whatsapp='')
+
+        def explode(*args, **kwargs):
+            raise AssertionError('network')
+
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=False,
+            SELLER_CONTACT_GOOGLE_PLACES_ENABLED=True,
+            SELLER_CONTACT_BRAVE_ENABLED=True,
+            SELLER_CONTACT_2GIS_ENABLED=True,
+            SELLER_CONTACT_YANDEX_ENABLED=True,
+            GOOGLE_PLACES_API_KEY='',
+            BRAVE_SEARCH_API_KEY='',
+            TWO_GIS_API_KEY='',
+            YANDEX_ORG_SEARCH_API_KEY='',
+        ):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['all'],
+                dry_run=False,
+                urlopen=explode,
+            )
+        lead.refresh_from_db()
+        self.assertFalse(result.wrote)
+        self.assertTrue(result.source_runs)
+        self.assertTrue(all(run.status.startswith('skipped_') for run in result.source_runs))
+        self.assertFalse(any(run.status == 'executed' for run in result.source_runs))
+        self.assertIsNone(lead.last_enrichment_attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_executed_source_without_contacts_stamps_attempt_only(self):
+        lead = _lead(name='Empty Shop', website_url='', whatsapp='')
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=True,
+        ):
+            result = enrich_seller_lead_contacts(lead, sources=['website'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'no_contacts')
+        self.assertEqual([run.status for run in result.source_runs], ['executed'])
+        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_executed_source_with_useful_enrichment_stamps_both_timestamps(self):
+        lead = _lead(website_url='https://chinaparts.kz/', whatsapp='')
+
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=True,
+        ):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['website'],
+                dry_run=False,
+                urlopen=urlopen,
+            )
+        lead.refresh_from_db()
+        self.assertEqual([run.status for run in result.source_runs], ['executed'])
+        self.assertEqual(lead.whatsapp, '77011234567')
+        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertIsNotNone(lead.last_enriched_at)
+
+    def test_dry_run_with_executed_source_does_not_change_timestamps(self):
+        lead = _lead(website_url='https://chinaparts.kz/', whatsapp='')
+        stamp = timezone.now() - timedelta(days=3)
+        lead.last_enrichment_attempt_at = stamp
+        lead.last_enriched_at = stamp
+        lead.save(update_fields=['last_enrichment_attempt_at', 'last_enriched_at', 'updated_at'])
+        lead.refresh_from_db()
+        attempt_at = lead.last_enrichment_attempt_at
+        enriched_at = lead.last_enriched_at
+
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=True,
+        ):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['website'],
+                dry_run=True,
+                urlopen=urlopen,
+            )
+        lead.refresh_from_db()
+        self.assertEqual(result.source_runs[0].status, 'executed')
+        self.assertFalse(result.wrote)
+        self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(lead.last_enrichment_attempt_at, attempt_at)
+        self.assertEqual(lead.last_enriched_at, enriched_at)
+
+    def test_skipped_all_sources_lead_stays_selectable(self):
+        lead = _lead(name='Skipped Shop', website_url='', whatsapp='')
+        with override_settings(
+            SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+            SELLER_CONTACT_WEBSITE_ENABLED=False,
+            SELLER_CONTACT_GOOGLE_PLACES_ENABLED=False,
+            SELLER_CONTACT_BRAVE_ENABLED=False,
+            SELLER_CONTACT_2GIS_ENABLED=False,
+            SELLER_CONTACT_YANDEX_ENABLED=False,
+        ):
+            enrich_seller_lead_contacts(lead, sources=['all'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertIsNone(lead.last_enrichment_attempt_at)
+        selected = list(select_leads_needing_enrichment(limit=5))
+        self.assertIn(lead, selected)
 
 
 class EnrichmentGuardTests(TestCase):
