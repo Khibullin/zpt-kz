@@ -27,8 +27,8 @@ def select_leads_needing_enrichment(*, city: str = '', business_type: str = '', 
     if business_type:
         queryset = queryset.filter(business_type=business_type)
     queryset = queryset.filter(
-        Q(last_enriched_at__isnull=True) | Q(last_enriched_at__lt=stale_before),
+        Q(last_enrichment_attempt_at__isnull=True) | Q(last_enrichment_attempt_at__lt=stale_before),
     ).exclude(
         pk__in=verified_whatsapp_lead_ids(),
-    ).order_by('last_enriched_at', 'pk')
+    ).order_by('last_enrichment_attempt_at', 'pk')
     return queryset[:limit]

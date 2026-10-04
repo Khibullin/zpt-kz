@@ -71,7 +71,7 @@ class Command(BaseCommand):
             '--city-offset',
             type=int,
             default=0,
-            help='С какой позиции стабильного списка городов брать пачку. Следующий запуск: offset + limit.',
+            help='С какой позиции стабильного списка городов брать пачку. Следующий запуск: --city-offset <next_city_offset>.',
         )
         parser.add_argument(
             '--direction-group',
@@ -93,7 +93,16 @@ class Command(BaseCommand):
             help='Результатов на страницу или на запрос Brave. Для 2GIS по умолчанию берётся SELLER_DISCOVERY_2GIS_PAGE_SIZE.',
         )
         parser.add_argument('--max-hits', type=int, default=20, help='Общий предел наблюдений, максимум 50.')
-        parser.add_argument('--max-queries', type=int, default=3, help='Предел запросов к API, максимум 20.')
+        parser.add_argument(
+            '--max-queries',
+            type=int,
+            default=None,
+            help=(
+                'Предел запросов к API, максимум 20. Без флага бюджет равен '
+                'городам × направлениям × провайдерам. Явное меньшее значение '
+                'обрабатывает пачку частично.'
+            ),
+        )
         parser.add_argument(
             '--max-pages',
             type=int,
@@ -173,9 +182,12 @@ class Command(BaseCommand):
         limit_label = 'all' if stats.city_limit is None else str(stats.city_limit)
         self.stdout.write(f'city_offset={stats.city_offset}')
         self.stdout.write(f'city_limit={limit_label}')
-        self.stdout.write(f"selected cities: {', '.join(stats.cities)}")
-        self.stdout.write(f"Города: {', '.join(stats.cities)}")
-        self.stdout.write(f"Города обработаны: {', '.join(stats.cities_processed)}")
+        self.stdout.write(f'cities_selected={len(stats.cities_selected)}')
+        self.stdout.write(f"selected cities: {', '.join(stats.cities_selected)}")
+        self.stdout.write(f'cities_completed={len(stats.cities_completed)}')
+        self.stdout.write(f"completed cities: {', '.join(stats.cities_completed)}")
+        self.stdout.write(f'next_city_offset={stats.next_city_offset}')
+        self.stdout.write(f'Следующий запуск: --city-offset {stats.next_city_offset}')
         self.stdout.write(f"Источники: {', '.join(stats.providers)}")
         self.stdout.write(f"Направления: {', '.join(stats.directions)}")
         self.stdout.write(f'Запросов: {stats.queries_executed}')

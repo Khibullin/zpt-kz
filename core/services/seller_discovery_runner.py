@@ -28,6 +28,7 @@ from core.services.seller_lead_search import SellerLeadSearchError
 
 DEFAULT_MAX_QUERIES = 3
 MAX_QUERIES_CAP = 20
+DEFAULT_DIRECTIONS_PER_CITY = 3
 DEFAULT_LIMIT = 5
 MAX_LIMIT_CAP = 10
 DEFAULT_MAX_HITS = 20
@@ -54,8 +55,11 @@ class DiscoveryRunStats:
     error_messages: list[str] = field(default_factory=list)
     outcomes: list[IngestionResult] = field(default_factory=list)
     cities_processed: list[str] = field(default_factory=list)
+    cities_selected: list[str] = field(default_factory=list)
+    cities_completed: list[str] = field(default_factory=list)
     city_offset: int = 0
     city_limit: int | None = None
+    next_city_offset: int = 0
     classified: dict = field(default_factory=dict)
     new_parts: int = 0
     dismantlers: int = 0
@@ -70,7 +74,7 @@ def run_seller_discovery(
     directions: list[str] | tuple[str, ...] | None = None,
     limit: int | None = None,
     max_hits: int = DEFAULT_MAX_HITS,
-    max_queries: int = DEFAULT_MAX_QUERIES,
+    max_queries: int | None = None,
     max_pages: int | None = None,
     dry_run: bool = True,
     providers: list[DiscoveryProvider] | None = None,
@@ -84,10 +88,9 @@ def run_seller_discovery(
         city_limit=city_limit,
         city_offset=city_offset,
     )
-    selected_directions = _resolve_directions(directions, max_queries=max_queries)
+    selected_directions = _resolve_directions(directions)
     page_size = None if limit is None else _bounded(limit, default=DEFAULT_LIMIT, cap=MAX_LIMIT_CAP, label='limit')
     hit_cap = _bounded(max_hits, default=DEFAULT_MAX_HITS, cap=MAX_HITS_CAP, label='max_hits')
-    query_cap = _bounded(max_queries, default=DEFAULT_MAX_QUERIES, cap=MAX_QUERIES_CAP, label='max_queries')
     page_cap = None if max_pages is None else _bounded(
         max_pages,
         default=1,
@@ -99,6 +102,22 @@ def run_seller_discovery(
     ]
     if not active:
         raise SellerDiscoveryRunError('Нужно указать хотя бы один источник: two_gis или brave.')
+    required_queries = len(selected_cities) * len(selected_directions) * len(active)
+    if max_queries is None:
+        if required_queries > MAX_QUERIES_CAP:
+            raise SellerDiscoveryRunError(
+                f'Выбранная конфигурация требует {required_queries} запросов, '
+                f'это больше предела {MAX_QUERIES_CAP}. Уменьшите --city-limit, '
+                'число провайдеров или направлений. Запросы к API не выполнялись.',
+            )
+        query_cap = required_queries
+    else:
+        query_cap = _bounded(
+            max_queries,
+            default=DEFAULT_MAX_QUERIES,
+            cap=MAX_QUERIES_CAP,
+            label='max_queries',
+        )
 
     stats = DiscoveryRunStats(
         dry_run=dry_run,
@@ -110,16 +129,22 @@ def run_seller_discovery(
     )
     seen_match_ids: set[int] = set()
     queries_used = 0
+    completed_names: list[str] = []
+    planned_queries = len(selected_directions) * len(active)
 
     try:
         for city in selected_cities:
+            attempts = 0
+            stopped = False
             for direction in selected_directions:
                 for provider in active:
                     if queries_used >= query_cap or stats.hits_received >= hit_cap:
-                        return stats
+                        stopped = True
+                        break
                     if city.name not in stats.cities_processed:
                         stats.cities_processed.append(city.name)
                     queries_used += 1
+                    attempts += 1
                     try:
                         hits = provider.search(
                             city=city.name,
@@ -135,7 +160,8 @@ def run_seller_discovery(
                     stats.queries_executed += 1
                     for hit in hits:
                         if stats.hits_received >= hit_cap:
-                            return stats
+                            stopped = True
+                            break
                         stats.hits_received += 1
                         try:
                             outcome = ingest_seller_discovery_hit(hit, dry_run=dry_run)
@@ -154,8 +180,20 @@ def run_seller_discovery(
                             stats.skipped += 1
                         for match_id in outcome.possible_duplicate_ids:
                             seen_match_ids.add(match_id)
+                    if stopped:
+                        break
+                if stopped:
+                    break
+            if planned_queries and attempts == planned_queries and not stopped:
+                completed_names.append(city.name)
+            if stopped:
+                break
         return stats
     finally:
+        stats.cities_selected = [city.name for city in selected_cities]
+        stats.cities = list(stats.cities_selected)
+        stats.cities_completed = list(completed_names)
+        stats.next_city_offset = applied_offset + len(completed_names)
         stats.possible_duplicates = len(seen_match_ids)
         stats.new_parts = sum(1 for value in stats.classified.values() if value == 'new_parts')
         stats.dismantlers = sum(1 for value in stats.classified.values() if value == 'dismantler')
@@ -198,10 +236,7 @@ def _resolve_cities(cities: list[str] | tuple[str, ...]):
 
 def _resolve_directions(
     directions: list[str] | tuple[str, ...] | None,
-    *,
-    max_queries: int,
 ) -> list[str]:
-    cap = _bounded(max_queries, default=DEFAULT_MAX_QUERIES, cap=MAX_QUERIES_CAP, label='max_queries')
     if directions:
         cleaned = []
         for direction in directions:
@@ -211,8 +246,8 @@ def _resolve_directions(
             cleaned.append(text[:120])
         if not cleaned:
             raise SellerDiscoveryRunError('Поисковое направление пустое.')
-        return cleaned[:cap]
-    return list(SEARCH_DIRECTIONS[:cap])
+        return cleaned
+    return list(SEARCH_DIRECTIONS[:DEFAULT_DIRECTIONS_PER_CITY])
 
 
 def _bounded(value: int, *, default: int, cap: int, label: str) -> int:

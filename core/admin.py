@@ -21,8 +21,10 @@ from django.db.models import Count, Prefetch, Q
 
 from core.services.seller_lead_whatsapp_state import (
     WHATSAPP_STATE_CHOICES,
+    annotate_seller_leads_with_whatsapp_state,
     filter_seller_leads_by_whatsapp_state,
     seller_lead_whatsapp_state,
+    whatsapp_state_from_annotations,
 )
 
 from .models import (
@@ -2526,11 +2528,14 @@ class SellerLeadAdmin(admin.ModelAdmin):
     @admin.display(description='WhatsApp state')
     def whatsapp_state_display(self, obj):
         labels = dict(WHATSAPP_STATE_CHOICES)
-        state = seller_lead_whatsapp_state(obj)
+        if hasattr(obj, 'has_whatsapp_conflict'):
+            state = whatsapp_state_from_annotations(obj)
+        else:
+            state = seller_lead_whatsapp_state(obj)
         return labels.get(state, state)
 
     def get_queryset(self, request):
-        return (
+        queryset = (
             super()
             .get_queryset(request)
             .select_related('request_seller', 'duplicate_of')
@@ -2559,6 +2564,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'contact_candidates',
             )
         )
+        return annotate_seller_leads_with_whatsapp_state(queryset)
 
     @admin.display(description='ID', ordering='pk')
     def lead_id(self, obj):

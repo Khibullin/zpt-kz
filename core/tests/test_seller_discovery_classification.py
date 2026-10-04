@@ -6,7 +6,9 @@ from django.contrib.admin.sites import AdminSite
 from django.contrib.auth import get_user_model
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.db import connection
+from django.test import RequestFactory, TestCase, override_settings
+from django.test.utils import CaptureQueriesContext
 from django.utils import timezone
 
 from catalog.models import Product, SellerProfile
@@ -44,6 +46,13 @@ from core.services.seller_discovery_providers.catalog import (
     TWO_GIS_MIN_RADIUS_M,
     resolve_city,
 )
+from core.services.seller_contact_enrichment import (
+    EnrichmentObservation,
+    SellerContactEnrichmentError,
+    _apply,
+    enrich_seller_lead_contacts,
+)
+from core.services.seller_contact_google_places import GooglePlaceLocator, GooglePlacesError
 from core.services.seller_discovery_runner import SellerDiscoveryRunError, run_seller_discovery
 from core.services.seller_lead_classification import classify_seller_lead
 from core.services.seller_lead_classification_selection import (
@@ -56,6 +65,7 @@ from core.services.seller_lead_whatsapp_state import (
     WHATSAPP_NOT_FOUND,
     WHATSAPP_PENDING,
     WHATSAPP_VERIFIED,
+    filter_seller_leads_by_whatsapp_state,
     seller_lead_whatsapp_state,
 )
 
@@ -358,7 +368,7 @@ class NeedsEnrichmentTests(TestCase):
         fresh_checked = _lead(
             name='Checked',
             whatsapp='',
-            last_enriched_at=timezone.now(),
+            last_enrichment_attempt_at=timezone.now(),
         )
         missing = _lead(name='Needs', whatsapp='', city='Караганда', business_type=SellerLead.BUSINESS_TYPE_DISMANTLER)
         closed = _lead(
@@ -376,13 +386,17 @@ class NeedsEnrichmentTests(TestCase):
         lead = _lead(
             name='Stale',
             whatsapp='',
-            last_enriched_at=timezone.now() - timedelta(days=31),
+            last_enrichment_attempt_at=timezone.now() - timedelta(days=31),
         )
         self.assertEqual(list(select_leads_needing_enrichment(limit=5)), [lead])
 
     def test_command_uses_needs_enrichment_selection(self):
         missing = _lead(name='Needs command', whatsapp='')
-        _lead(name='Fresh command', whatsapp='77005556677', last_enriched_at=timezone.now())
+        _lead(
+            name='Fresh command',
+            whatsapp='77005556677',
+            last_enrichment_attempt_at=timezone.now(),
+        )
         result = SimpleNamespace(
             outcome='no_contacts',
             observations=[],
@@ -724,3 +738,405 @@ class AssortmentProvenanceTests(TestCase):
         self.assertIsNone(brand_link.source_id)
         self.assertEqual(brand_link.brand_id, chery.pk)
         self.assertTrue(lead.brand_links.filter(pk=link_pk).exists())
+
+
+class _FailProvider:
+    name = 'two_gis'
+
+    def __init__(self):
+        self.calls = []
+
+    def search(self, *, city, direction, limit=None, max_pages=None):
+        self.calls.append((city, direction))
+        raise DiscoveryProviderError('provider down')
+
+
+class _HitProvider:
+    name = 'two_gis'
+
+    def __init__(self):
+        self.calls = []
+
+    def search(self, *, city, direction, limit=None, max_pages=None):
+        self.calls.append((city, direction))
+        return [_hit(external_id=f'hit-{len(self.calls)}', phone='', phones=(), website='', instagram_url='')]
+
+
+class CityCompletionTests(TestCase):
+    def _run(self, **kwargs):
+        provider = kwargs.pop('provider', None) or _QuietProvider()
+        providers = kwargs.pop('providers', [provider])
+        stats = run_seller_discovery(
+            provider_names=['two_gis'] * len(providers),
+            cities=list(KZ_DISCOVERY_CITY_NAMES),
+            dry_run=True,
+            providers=providers,
+            **kwargs,
+        )
+        return providers[0], stats
+
+    def test_default_budget_completes_three_cities(self):
+        provider, stats = self._run(city_limit=3, city_offset=0)
+        self.assertEqual(stats.cities_selected, list(KZ_DISCOVERY_CITY_NAMES[:3]))
+        self.assertEqual(stats.cities_completed, list(KZ_DISCOVERY_CITY_NAMES[:3]))
+        self.assertEqual(stats.next_city_offset, 3)
+        self.assertEqual(stats.queries_executed, 9)
+        self.assertEqual(len(provider.calls), 9)
+
+    def test_two_providers_complete_three_cities_within_budget(self):
+        first = _QuietProvider()
+        second = _QuietProvider()
+        second.name = 'brave'
+        stats = run_seller_discovery(
+            provider_names=['two_gis', 'brave'],
+            cities=list(KZ_DISCOVERY_CITY_NAMES),
+            dry_run=True,
+            providers=[first, second],
+            city_limit=3,
+            city_offset=0,
+        )
+        self.assertEqual(stats.cities_completed, list(KZ_DISCOVERY_CITY_NAMES[:3]))
+        self.assertEqual(stats.next_city_offset, 3)
+        self.assertEqual(stats.queries_executed, 18)
+        self.assertEqual(len(first.calls) + len(second.calls), 18)
+
+    def test_explicit_query_cap_advances_only_completed_cities(self):
+        provider, stats = self._run(city_limit=3, city_offset=0, max_queries=4)
+        self.assertEqual(stats.cities_selected, list(KZ_DISCOVERY_CITY_NAMES[:3]))
+        self.assertEqual(stats.cities_completed, [KZ_DISCOVERY_CITY_NAMES[0]])
+        self.assertEqual(stats.next_city_offset, 1)
+        self.assertEqual(provider.calls[0][0], KZ_DISCOVERY_CITY_NAMES[0])
+        self.assertEqual(provider.calls[-1][0], KZ_DISCOVERY_CITY_NAMES[1])
+        self.assertNotIn(KZ_DISCOVERY_CITY_NAMES[1], stats.cities_completed)
+
+    def test_partial_second_city_does_not_advance_past_it(self):
+        _, first = self._run(city_limit=3, city_offset=0, max_queries=4)
+        self.assertEqual(first.next_city_offset, 1)
+        provider, second = self._run(city_limit=3, city_offset=first.next_city_offset, max_queries=4)
+        self.assertEqual(second.cities_selected[0], KZ_DISCOVERY_CITY_NAMES[1])
+        self.assertEqual(second.cities_completed, [KZ_DISCOVERY_CITY_NAMES[1]])
+        self.assertEqual(provider.calls[0][0], KZ_DISCOVERY_CITY_NAMES[1])
+
+    def test_sequential_next_offset_does_not_skip_cities(self):
+        offset = 0
+        completed = []
+        for _step in range(3):
+            _provider, stats = self._run(city_limit=3, city_offset=offset, max_queries=4)
+            self.assertEqual(len(stats.cities_completed), 1)
+            completed.extend(stats.cities_completed)
+            self.assertEqual(stats.next_city_offset, offset + 1)
+            offset = stats.next_city_offset
+        self.assertEqual(completed, list(KZ_DISCOVERY_CITY_NAMES[:3]))
+        self.assertEqual(offset, 3)
+
+    def test_oversized_default_budget_errors_before_search(self):
+        provider = _QuietProvider()
+        with self.assertRaises(SellerDiscoveryRunError) as ctx:
+            run_seller_discovery(
+                provider_names=['two_gis', 'brave'],
+                cities=list(KZ_DISCOVERY_CITY_NAMES),
+                dry_run=True,
+                providers=[provider, _QuietProvider()],
+                city_limit=4,
+            )
+        self.assertIn('Уменьшите --city-limit', str(ctx.exception))
+        self.assertEqual(provider.calls, [])
+
+    def test_provider_error_counts_as_a_completed_query(self):
+        provider = _FailProvider()
+        stats = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы'],
+            dry_run=True,
+            providers=[provider],
+        )
+        self.assertEqual(stats.queries_executed, 3)
+        self.assertEqual(stats.errors, 3)
+        self.assertEqual(stats.cities_completed, ['Алматы'])
+        self.assertEqual(stats.next_city_offset, 1)
+
+    def test_hit_cap_mid_city_does_not_complete_the_city(self):
+        provider = _HitProvider()
+        stats = run_seller_discovery(
+            provider_names=['two_gis'],
+            cities=['Алматы', 'Астана'],
+            dry_run=True,
+            providers=[provider],
+            max_hits=1,
+            city_limit=2,
+        )
+        self.assertEqual(stats.hits_received, 1)
+        self.assertEqual(stats.cities_completed, [])
+        self.assertEqual(stats.next_city_offset, 0)
+        self.assertEqual(provider.calls[0][0], 'Алматы')
+
+    @override_settings(
+        SELLER_DISCOVERY_ENABLED=True,
+        SELLER_DISCOVERY_2GIS_ENABLED=True,
+        TWO_GIS_API_KEY='test-key',
+    )
+    def test_command_prints_next_city_offset(self):
+        out = __import__('io').StringIO()
+        with patch(
+            'core.services.seller_discovery_runner.build_discovery_provider',
+            return_value=_QuietProvider(),
+        ):
+            call_command(
+                'discover_seller_sources',
+                '--provider', 'two_gis',
+                '--all-kz-cities',
+                '--city-limit', '3',
+                '--max-queries', '4',
+                '--dry-run',
+                stdout=out,
+            )
+        text = out.getvalue()
+        self.assertIn('cities_selected=3', text)
+        self.assertIn('cities_completed=1', text)
+        self.assertIn('next_city_offset=1', text)
+        self.assertIn('--city-offset 1', text)
+        self.assertNotIn('offset + limit', text)
+
+
+@override_settings(
+    SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+    SELLER_CONTACT_WEBSITE_ENABLED=True,
+    SELLER_CONTACT_GOOGLE_PLACES_ENABLED=True,
+    GOOGLE_PLACES_API_KEY='test-key',
+)
+class EnrichmentAttemptTests(TestCase):
+    def test_no_contacts_apply_stamps_attempt_only(self):
+        lead = _lead(name='Empty Shop', whatsapp='')
+        result = enrich_seller_lead_contacts(lead, sources=['website'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'no_contacts')
+        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_ambiguous_apply_stamps_attempt_only(self):
+        lead = _lead(name='Ambiguous Shop', whatsapp='')
+        locator = GooglePlaceLocator(place_id='', website_uri='', ambiguous=True, error='неоднозначно')
+        with patch(
+            'core.services.seller_contact_enrichment.locate_google_place',
+            return_value=locator,
+        ):
+            result = enrich_seller_lead_contacts(lead, sources=['google_places'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertEqual(result.outcome, 'ambiguous_google')
+        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_successful_apply_stamps_attempt_and_enriched(self):
+        lead = _lead(name='Useful Shop', whatsapp='', website_url='')
+        _apply(lead, observations=[], place_id='', website_url='https://shop.kz/')
+        lead.refresh_from_db()
+        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertIsNotNone(lead.last_enriched_at)
+        self.assertEqual(lead.website_url, 'https://shop.kz/')
+
+    def test_conflict_apply_stamps_attempt(self):
+        lead = _lead(name='Conflict Shop', whatsapp='')
+        _apply(
+            lead,
+            observations=[EnrichmentObservation(
+                field_name='whatsapp',
+                value='77001112233',
+                confidence=90,
+                explicit_whatsapp=True,
+                source_url='https://example.kz/wa',
+                excerpt='whatsapp',
+                confirms_whatsapp=True,
+                conflicting=True,
+                origin='website',
+            )],
+            place_id='',
+            website_url='',
+        )
+        lead.refresh_from_db()
+        self.assertIsNotNone(lead.last_enrichment_attempt_at)
+        self.assertEqual(lead.whatsapp, '')
+
+    def test_dry_run_does_not_stamp_attempt(self):
+        lead = _lead(name='Dry Shop', whatsapp='')
+        enrich_seller_lead_contacts(lead, sources=['website'], dry_run=True)
+        lead.refresh_from_db()
+        self.assertIsNone(lead.last_enrichment_attempt_at)
+        self.assertIsNone(lead.last_enriched_at)
+
+    def test_failed_exception_does_not_stamp_attempt(self):
+        lead = _lead(name='Broken Shop', whatsapp='')
+        with patch(
+            'core.services.seller_contact_enrichment.locate_google_place',
+            side_effect=GooglePlacesError('down'),
+        ):
+            with self.assertRaises(SellerContactEnrichmentError):
+                enrich_seller_lead_contacts(lead, sources=['google_places'], dry_run=False)
+        lead.refresh_from_db()
+        self.assertIsNone(lead.last_enrichment_attempt_at)
+
+    def test_apply_exception_rolls_back_attempt(self):
+        lead = _lead(name='Rollback Shop', whatsapp='')
+        with patch(
+            'core.services.seller_contact_enrichment.refresh_seller_lead_identity',
+            side_effect=RuntimeError('boom'),
+        ):
+            with self.assertRaises(RuntimeError):
+                _apply(lead, observations=[], place_id='', website_url='https://shop.kz/')
+        lead.refresh_from_db()
+        self.assertIsNone(lead.last_enrichment_attempt_at)
+        self.assertEqual(lead.website_url, '')
+
+    def test_needs_enrichment_skips_fresh_attempt_and_selects_next(self):
+        blocked = _lead(name='Blocked', whatsapp='', last_enrichment_attempt_at=timezone.now())
+        nxt = _lead(name='Next', whatsapp='')
+        selected = list(select_leads_needing_enrichment(limit=1))
+        self.assertEqual(selected, [nxt])
+        self.assertNotIn(blocked, selected)
+
+    def test_stale_unsuccessful_attempt_is_selected_again(self):
+        fresh = _lead(name='Fresh attempt', whatsapp='', last_enrichment_attempt_at=timezone.now())
+        stale = _lead(
+            name='Stale attempt',
+            whatsapp='',
+            last_enrichment_attempt_at=timezone.now() - timedelta(days=31),
+        )
+        selected = list(select_leads_needing_enrichment(limit=5))
+        self.assertIn(stale, selected)
+        self.assertNotIn(fresh, selected)
+
+    def test_recent_enriched_at_does_not_block_a_missing_attempt(self):
+        lead = _lead(name='Enriched clock', whatsapp='', last_enriched_at=timezone.now())
+        self.assertEqual(list(select_leads_needing_enrichment(limit=1)), [lead])
+
+
+class NewestEvidenceTests(TestCase):
+    def test_classification_reads_the_newest_evidence_inside_the_cap(self):
+        lead = _lead(name='Omega Parts', profile_description='')
+        old = timezone.now() - timedelta(days=10)
+        SellerLeadEvidence.objects.bulk_create([
+            SellerLeadEvidence(
+                seller_lead=lead,
+                field_name='profile',
+                value='каталог',
+                observed_at=old,
+            )
+            for _index in range(41)
+        ])
+        SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='profile',
+            value='Контрактные запчасти с разбора',
+            observed_at=timezone.now(),
+        )
+        self.assertEqual(classify_seller_lead(lead), SellerLead.BUSINESS_TYPE_DISMANTLER)
+
+
+class SourcedProvenanceTests(TestCase):
+    def setUp(self):
+        country = Country.objects.create(name='Китай')
+        self.chery = Brand.objects.create(country=country, name='Chery')
+        self.filters = PartCategory.objects.create(name='Масляные фильтры')
+
+    def test_sourced_evidence_wins_over_the_same_direct_text(self):
+        lead = _lead(
+            name='Магазин автозапчастей',
+            category='Chery масляные фильтры',
+            profile_description='',
+        )
+        now = timezone.now()
+        source = SellerLeadSource.objects.create(
+            seller_lead=lead,
+            source_type=SellerLeadSource.SOURCE_WEBSITE,
+            provider='website',
+            source_url='https://chery-shop.kz/about',
+            display_name='старое название',
+            first_seen_at=now,
+            last_seen_at=now,
+        )
+        evidence = SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            source=source,
+            field_name='profile',
+            value='Магазин автозапчастей Chery, масляные фильтры',
+            observed_at=now,
+        )
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.business_type_source_id, source.pk)
+        self.assertEqual(lead.business_type_evidence_item_id, evidence.pk)
+        brand_link = lead.brand_links.get()
+        self.assertEqual(brand_link.brand_id, self.chery.pk)
+        self.assertEqual(brand_link.source_id, source.pk)
+        self.assertEqual(brand_link.evidence_id, evidence.pk)
+        category_link = lead.category_links.get()
+        self.assertEqual(category_link.category_id, self.filters.pk)
+        self.assertEqual(category_link.source_id, source.pk)
+        self.assertEqual(category_link.evidence_id, evidence.pk)
+
+    def test_canonical_only_lead_keeps_null_provenance(self):
+        lead = _lead(profile_description='Магазин автозапчастей')
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.business_type, SellerLead.BUSINESS_TYPE_NEW_PARTS)
+        self.assertIsNone(lead.business_type_source_id)
+        self.assertIsNone(lead.business_type_evidence_item_id)
+
+
+class WhatsAppAdminQueryTests(TestCase):
+    def _states(self, limit):
+        request = RequestFactory().get('/admin/core/sellerlead/')
+        admin_model = SellerLeadAdmin(SellerLead, AdminSite())
+        with CaptureQueriesContext(connection) as ctx:
+            rows = list(admin_model.get_queryset(request)[:limit])
+            labels = [admin_model.whatsapp_state_display(row) for row in rows]
+        return len(ctx.captured_queries), labels
+
+    def test_changelist_whatsapp_state_does_not_cascade_per_row(self):
+        verified = _lead(name='Verified row', whatsapp='77001112233')
+        SellerLeadEvidence.objects.create(
+            seller_lead=verified,
+            field_name='whatsapp',
+            value='77001112233',
+            normalized_value='77001112233',
+            is_selected=True,
+            observed_at=timezone.now(),
+        )
+        conflict = _lead(name='Conflict row', whatsapp='')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=conflict,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77002223344',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_CONFLICT,
+        )
+        pending = _lead(name='Pending row', whatsapp='')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=pending,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77003334455',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        for index in range(17):
+            _lead(name=f'Plain {index}', whatsapp='')
+
+        queries_10, labels_10 = self._states(10)
+        queries_20, labels_20 = self._states(20)
+        self.assertEqual(queries_10, queries_20)
+        self.assertLess(queries_20, 15)
+        self.assertEqual(len(labels_20), 20)
+        self.assertIn('VERIFIED', labels_20)
+        self.assertIn('CONFLICT', labels_20)
+        self.assertIn('PENDING', labels_20)
+        self.assertIn('NOT_FOUND', labels_20)
+
+    def test_whatsapp_filter_uses_one_sql_query(self):
+        for index in range(20):
+            _lead(name=f'Filter {index}', whatsapp='')
+        with CaptureQueriesContext(connection) as ctx:
+            rows = list(filter_seller_leads_by_whatsapp_state(
+                SellerLead.objects.all(),
+                WHATSAPP_NOT_FOUND,
+            ))
+        self.assertEqual(len(rows), 20)
+        self.assertEqual(len(ctx.captured_queries), 1)

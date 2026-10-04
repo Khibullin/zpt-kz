@@ -2148,6 +2148,12 @@ class SellerLead(models.Model):
         blank=True,
         verbose_name='Последнее обогащение',
     )
+    last_enrichment_attempt_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name='Последняя попытка обогащения',
+    )
     last_classified_at = models.DateTimeField(
         null=True,
         blank=True,

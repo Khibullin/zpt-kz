@@ -261,6 +261,8 @@ def enrich_seller_lead_contacts(
                     raise SellerContactEnrichmentError(str(exc)) from None
             if locator is not None and locator.ambiguous:
                 if active == [SOURCE_GOOGLE]:
+                    if not dry_run:
+                        _stamp_enrichment_attempt(seller_lead)
                     return _result(
                         dry_run=dry_run,
                         outcome='ambiguous_google',
@@ -899,14 +901,22 @@ def _apply(
                 source = _website_source_for(locked, observation.source_url, cache=website_sources)
             _store_observation(locked, observation, source=source, preferred=observation is preferred)
         refresh_seller_lead_identity(locked)
+        locked.last_enrichment_attempt_at = timezone.now()
+        update_fields = ['last_enrichment_attempt_at', 'updated_at']
         if _enrichment_was_useful(accepted_website, observations):
             locked.last_enriched_at = timezone.now()
-            update_fields = ['last_enriched_at', 'updated_at']
+            update_fields.append('last_enriched_at')
             if locked.lifecycle_status == SellerLead.LIFECYCLE_FOUND:
                 locked.lifecycle_status = SellerLead.LIFECYCLE_ENRICHED
                 update_fields.append('lifecycle_status')
-            locked.save(update_fields=update_fields)
+        locked.save(update_fields=update_fields)
         seller_lead.refresh_from_db()
+
+
+def _stamp_enrichment_attempt(seller_lead: SellerLead) -> None:
+    """Completed apply with no stored contacts, such as an ambiguous locator."""
+    seller_lead.last_enrichment_attempt_at = timezone.now()
+    seller_lead.save(update_fields=['last_enrichment_attempt_at', 'updated_at'])
 
 
 def _enrichment_was_useful(website_url: str, observations: list[EnrichmentObservation]) -> bool:

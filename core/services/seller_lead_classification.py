@@ -90,6 +90,19 @@ def _phrase_in(phrase: str, text: str) -> bool:
 
 def _fragments(lead: SellerLead) -> list[TextFragment]:
     rows: list[TextFragment] = []
+    evidences = list(
+        lead.evidences.select_related('source').order_by('-observed_at', '-pk')[:40]
+    )
+    for evidence in evidences:
+        if evidence.source_id:
+            _append_evidence_fragment(rows, evidence)
+    for evidence in evidences:
+        if not evidence.source_id:
+            _append_evidence_fragment(rows, evidence)
+    for source in lead.sources.all().order_by('-last_seen_at', '-pk')[:20]:
+        text = ' '.join(str(source.display_name or '').split())
+        if text:
+            rows.append(TextFragment('source', text[:500], source=source))
     for kind, value in (
         ('name', lead.name),
         ('profile', lead.profile_description),
@@ -101,15 +114,13 @@ def _fragments(lead: SellerLead) -> list[TextFragment]:
         text = ' '.join(str(value or '').split())
         if text:
             rows.append(TextFragment(kind, text[:500]))
-    for evidence in lead.evidences.select_related('source').order_by('pk')[:40]:
-        text = ' '.join(str(evidence.value or '').split())
-        if text:
-            rows.append(TextFragment('evidence', text[:500], source=evidence.source, evidence=evidence))
-    for source in lead.sources.all().order_by('pk')[:20]:
-        text = ' '.join(str(source.display_name or '').split())
-        if text:
-            rows.append(TextFragment('source', text[:500], source=source))
     return rows
+
+
+def _append_evidence_fragment(rows: list[TextFragment], evidence) -> None:
+    text = ' '.join(str(evidence.value or '').split())
+    if text:
+        rows.append(TextFragment('evidence', text[:500], source=evidence.source, evidence=evidence))
 
 
 def _matching_phrases(phrases: tuple[str, ...], fragments: list[TextFragment]):
