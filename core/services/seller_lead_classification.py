@@ -11,6 +11,7 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+from django.db import transaction
 from django.utils import timezone
 
 from core.models import (
@@ -299,26 +300,27 @@ def classify_seller_lead(lead: SellerLead, *, promote_lifecycle: bool = False, d
         return business_type
     source, evidence_row = _provenance_pair(provenance)
     now = timezone.now()
-    lead.business_type = business_type
-    lead.business_type_confidence = confidence
-    lead.business_type_evidence = evidence
-    lead.business_type_source = source
-    lead.business_type_evidence_item = evidence_row
-    lead.last_classified_at = now
-    update_fields = [
-        'business_type',
-        'business_type_confidence',
-        'business_type_evidence',
-        'business_type_source',
-        'business_type_evidence_item',
-        'last_classified_at',
-        'updated_at',
-    ]
-    if promote_lifecycle and lead.lifecycle_status in PROMOTABLE_LIFECYCLES:
-        lead.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
-        update_fields.append('lifecycle_status')
-    lead.save(update_fields=update_fields)
-    brand_ids = _replace_brands(lead, fragments, now)
-    _replace_models(lead, fragments, brand_ids, now)
-    _replace_categories(lead, fragments, now)
+    with transaction.atomic():
+        lead.business_type = business_type
+        lead.business_type_confidence = confidence
+        lead.business_type_evidence = evidence
+        lead.business_type_source = source
+        lead.business_type_evidence_item = evidence_row
+        lead.last_classified_at = now
+        update_fields = [
+            'business_type',
+            'business_type_confidence',
+            'business_type_evidence',
+            'business_type_source',
+            'business_type_evidence_item',
+            'last_classified_at',
+            'updated_at',
+        ]
+        if promote_lifecycle and lead.lifecycle_status in PROMOTABLE_LIFECYCLES:
+            lead.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
+            update_fields.append('lifecycle_status')
+        lead.save(update_fields=update_fields)
+        brand_ids = _replace_brands(lead, fragments, now)
+        _replace_models(lead, fragments, brand_ids, now)
+        _replace_categories(lead, fragments, now)
     return business_type

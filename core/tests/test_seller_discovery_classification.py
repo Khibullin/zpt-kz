@@ -224,6 +224,71 @@ class AssortmentTests(TestCase):
         self.assertEqual(CarModel.objects.count(), 4)
         self.assertTrue(PartCategory.objects.filter(pk=self.filters.pk).exists())
 
+    def test_assortment_replace_failure_rolls_back_the_classification(self):
+        lead = _lead(
+            profile_description='Chery Tiggo 7 Pro, масляные фильтры, магазин автозапчастей',
+            business_type=SellerLead.BUSINESS_TYPE_DISMANTLER,
+            business_type_confidence=60,
+            lifecycle_status=SellerLead.LIFECYCLE_FOUND,
+            last_classified_at=timezone.now() - timedelta(days=10),
+        )
+        lead.refresh_from_db()
+        classified_at = lead.last_classified_at
+        toyota_accent = CarModel.objects.get(brand=self.toyota, name='Accent')
+        brand_link = lead.brand_links.create(
+            brand=self.toyota,
+            confidence=70,
+            source_kind='profile',
+            source_text='Toyota',
+        )
+        model_link = lead.model_links.create(
+            car_model=toyota_accent,
+            confidence=70,
+            source_kind='profile',
+            source_text='Accent',
+        )
+        category_link = lead.category_links.create(
+            category=self.filters,
+            confidence=70,
+            source_kind='profile',
+            source_text='фильтры',
+        )
+        with patch(
+            'core.services.seller_lead_classification._replace_categories',
+            side_effect=RuntimeError('category replace failed'),
+        ):
+            with self.assertRaises(RuntimeError):
+                classify_seller_lead(lead, promote_lifecycle=True)
+        lead.refresh_from_db()
+        self.assertEqual(lead.business_type, SellerLead.BUSINESS_TYPE_DISMANTLER)
+        self.assertEqual(lead.business_type_confidence, 60)
+        self.assertEqual(lead.last_classified_at, classified_at)
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_FOUND)
+        self.assertEqual(lead.brand_links.get().pk, brand_link.pk)
+        self.assertEqual(lead.brand_links.get().brand_id, self.toyota.pk)
+        self.assertEqual(lead.model_links.get().pk, model_link.pk)
+        self.assertEqual(lead.category_links.get().pk, category_link.pk)
+        self.assertFalse(lead.discovered_brands.filter(name='Chery').exists())
+
+    def test_successful_classification_writes_type_lifecycle_and_assortment(self):
+        lead = _lead(
+            profile_description='Chery Tiggo 7 Pro, масляные фильтры, магазин автозапчастей',
+            business_type=SellerLead.BUSINESS_TYPE_UNKNOWN,
+            lifecycle_status=SellerLead.LIFECYCLE_FOUND,
+        )
+        result = classify_seller_lead(lead, promote_lifecycle=True)
+        lead.refresh_from_db()
+        self.assertEqual(result, SellerLead.BUSINESS_TYPE_NEW_PARTS)
+        self.assertEqual(lead.business_type, SellerLead.BUSINESS_TYPE_NEW_PARTS)
+        self.assertIsNotNone(lead.last_classified_at)
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_CLASSIFIED)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Chery'])
+        self.assertEqual(list(lead.discovered_models.values_list('name', flat=True)), ['Tiggo 7 Pro'])
+        self.assertEqual(
+            list(lead.discovered_categories.values_list('name', flat=True)),
+            ['Масляные фильтры'],
+        )
+
 
 class WhatsAppStateTests(TestCase):
     def test_states_and_admin_filter(self):
