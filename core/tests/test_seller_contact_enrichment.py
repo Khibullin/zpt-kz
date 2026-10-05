@@ -467,6 +467,54 @@ class WebsiteSafetyTests(TestCase):
             [item.value for item in result.contacts if item.field_name == 'whatsapp'],
         )
 
+    def test_foreign_contact_link_does_not_block_same_host_fallback(self):
+        calls = []
+
+        def urlopen(http_request, timeout):
+            host = parse.urlsplit(http_request.full_url).hostname or ''
+            path = parse.urlsplit(http_request.full_url).path
+            calls.append((host, path))
+            if path == '/robots.txt':
+                return _Response(
+                    body='User-agent: *\nDisallow:\n',
+                    headers={'Content-Type': 'text/plain'},
+                )
+            if host == 'chinaparts.kz' and path == '/':
+                return _Response(body=_html(
+                    title='China Parts',
+                    body='<a href="https://facebook.com/chinaparts/contact">Contact</a>',
+                ))
+            if host == 'chinaparts.kz' and path == '/contacts':
+                return _Response(body=_html(
+                    title='China Parts',
+                    body='<a href="https://wa.me/77011234567">WhatsApp</a>',
+                ))
+            if host == 'chinaparts.kz' and path in {'/contact', '/kontakty', '/kontaktyi/'}:
+                raise error.HTTPError(
+                    http_request.full_url,
+                    404,
+                    'not found',
+                    hdrs={'Content-Type': 'text/html'},
+                    fp=io.BytesIO(b'not found'),
+                )
+            if host == 'facebook.com':
+                raise AssertionError('foreign contact link must not be fetched')
+            raise AssertionError(http_request.full_url)
+
+        result = crawl_official_website(
+            'https://chinaparts.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=urlopen,
+        )
+
+        self.assertEqual(result.outcome, 'ok')
+        self.assertIn(
+            '77011234567',
+            [item.value for item in result.contacts if item.field_name == 'whatsapp'],
+        )
+        self.assertFalse(any(host == 'facebook.com' for host, _path in calls))
+
     def test_standard_contact_page_fallback_respects_robots(self):
         calls = []
 
