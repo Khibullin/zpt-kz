@@ -360,6 +360,7 @@ class BraveSuitabilityTests(TestCase):
             'https://razborka.org/almaty',
             'https://raz-bor.ru/kazahstan/almati-avtorazbor.htm',
             'https://incatalog.kz/katalog-tovarov/almaty13356/avto-almaty/avtozapchasti/autorazbor/',
+            'https://www.optoviki.kz/optom-avtozapchasti/almaty',
         ):
             with self.subTest(url=url):
                 self.assertIsNone(self._parse('Магазин автозапчастей', 'Продажа запчастей', url))
