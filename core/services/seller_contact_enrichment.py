@@ -664,9 +664,17 @@ def _crawl_candidates(
         if not accepted_site:
             accepted_site = crawled.final_url
         website_observations = _observations_from_website(crawled)
-        observations.extend(website_observations)
         if _is_contact_locator_url(website_url) and website_observations:
+            observations[:] = [
+                item
+                for item in observations
+                if not (
+                    item.origin == SOURCE_WEBSITE
+                    and crawl_host_key(parse.urlsplit(item.source_url or '').hostname or '') == host
+                )
+            ]
             successful_preferred_hosts.add(host)
+        observations.extend(website_observations)
         outcome = 'no_contacts'
         if stop_on_verified_whatsapp and len(_verified_numbers(observations)) == 1:
             break
