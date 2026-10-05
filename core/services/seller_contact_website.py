@@ -282,13 +282,24 @@ def _is_public_ip(ip: ipaddress.IPv4Address | ipaddress.IPv6Address) -> bool:
     return True
 
 
+def _is_contact_page_url(url: str) -> bool:
+    path = parse.unquote(parse.urlsplit(str(url or '')).path or '').casefold()
+    return any(marker in path for marker in _CONTACT_LINK_MARKERS)
+
+
 def parse_seller_website_html(html: str, *, page_url: str) -> WebsiteExtract:
     """Read contacts from one HTML document. The document is not returned."""
-    parser = _ContactHTMLParser(page_url=page_url)
+    allow_trailing_whatsapp = _is_contact_page_url(page_url)
+    parser = _ContactHTMLParser(
+        page_url=page_url,
+        allow_trailing_whatsapp=allow_trailing_whatsapp,
+    )
     parser.feed(html or '')
     parser.close()
     extract = parser.extract
-    parser._consume_whatsapp_text(extract.text_sample)
+    if allow_trailing_whatsapp:
+        # Contact pages may split one label across adjacent spans.
+        parser._consume_whatsapp_text(extract.text_sample)
     extract.contacts = _dedupe_contacts(extract.contacts)
     extract.contact_links = _unique(extract.contact_links)[:12]
     extract.text_sample = extract.text_sample[:20_000]
@@ -699,9 +710,10 @@ def _unique(values: list[str]) -> list[str]:
 
 
 class _ContactHTMLParser(HTMLParser):
-    def __init__(self, *, page_url: str):
+    def __init__(self, *, page_url: str, allow_trailing_whatsapp: bool = False):
         super().__init__(convert_charrefs=True)
         self.page_url = page_url
+        self.allow_trailing_whatsapp = allow_trailing_whatsapp
         self.extract = WebsiteExtract()
         self._ignore_depth = 0
         self._capture_title = False
@@ -811,7 +823,10 @@ class _ContactHTMLParser(HTMLParser):
             ))
 
     def _consume_whatsapp_text(self, text: str):
-        for pattern in (_WHATSAPP_TEXT_RE, _WHATSAPP_TRAILING_TEXT_RE):
+        patterns = [_WHATSAPP_TEXT_RE]
+        if self.allow_trailing_whatsapp:
+            patterns.append(_WHATSAPP_TRAILING_TEXT_RE)
+        for pattern in patterns:
             for match in pattern.finditer(text):
                 number = normalize_seller_phone(match.group(1))
                 if not number:
