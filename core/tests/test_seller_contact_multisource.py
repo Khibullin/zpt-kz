@@ -593,6 +593,55 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertEqual(page_paths[:2], ['/contacts/', '/'])
         self.assertEqual(result.verified_whatsapp, ['77011234567'])
 
+    def test_successful_contact_page_skips_same_host_root_fallback(self):
+        lead = _lead()
+        brave = _Brave([{
+            'title': 'China Parts — контакты',
+            'url': 'https://chinaparts.kz/contacts/',
+            'description': 'Контакты магазина',
+        }])
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request)
+            parts = parse.urlsplit(http_request.full_url)
+            host = (parts.hostname or '').lower()
+            if host == 'places.googleapis.com':
+                return _Response(
+                    body=_google_body(website='https://chinaparts.kz/'),
+                    headers={'Content-Type': 'application/json'},
+                )
+            if parts.path == '/robots.txt':
+                return _Response(
+                    body='User-agent: *\nDisallow:\n',
+                    headers={'Content-Type': 'text/plain'},
+                )
+            if parts.path == '/contacts/':
+                return _Response(body=_html(
+                    body='<a href="https://wa.me/77011111111">WhatsApp</a>',
+                ))
+            return _Response(body=_html(
+                body='<a href="https://wa.me/77012222222">WhatsApp</a>',
+            ))
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        page_paths = [
+            parse.urlsplit(call.full_url).path
+            for call in calls
+            if (parse.urlsplit(call.full_url).hostname or '') == 'chinaparts.kz'
+            and parse.urlsplit(call.full_url).path != '/robots.txt'
+        ]
+        self.assertEqual(page_paths, ['/contacts/'])
+        self.assertEqual(result.verified_whatsapp, ['77011111111'])
+        self.assertEqual(result.conflicts, [])
+
+
     def test_contactless_path_is_not_treated_as_contact_page(self):
         lead = _lead()
         brave = _Brave([{
