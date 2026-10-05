@@ -505,6 +505,49 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertEqual(result.verified_whatsapp, ['77011234567'])
         self.assertTrue(all(item.origin != 'google_places' for item in result.observations))
 
+    def test_existing_site_retries_same_host_contact_page_from_brave(self):
+        lead = _lead(name='Компания АВТОБАН', website_url='https://autobahn.kz/')
+        brave = _Brave([{
+            'title': 'Компания АВТОБАН — контакты',
+            'url': 'https://autobahn.kz/kontaktyi/',
+            'description': 'Контакты компании',
+        }])
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request)
+            parts = parse.urlsplit(http_request.full_url)
+            if parts.path == '/robots.txt':
+                return _Response(
+                    body='User-agent: *\nDisallow:\n',
+                    headers={'Content-Type': 'text/plain'},
+                )
+            if parts.path == '/kontaktyi/':
+                return _Response(body=_html(
+                    title='Компания АВТОБАН',
+                    body='<a href="https://wa.me/77011234567">WhatsApp</a>',
+                ))
+            return _Response(body=_html(title='Компания АВТОБАН'))
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['website', 'brave'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        page_paths = [
+            parse.urlsplit(call.full_url).path
+            for call in calls
+            if (parse.urlsplit(call.full_url).hostname or '') == 'autobahn.kz'
+            and parse.urlsplit(call.full_url).path != '/robots.txt'
+        ]
+        self.assertIn('/', page_paths)
+        self.assertIn('/kontaktyi/', page_paths)
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+        self.assertIn('https://autobahn.kz/kontaktyi/', result.websites_considered)
+
+
     def test_google_yandex_and_brave_same_domain_is_crawled_once(self):
         lead = _lead()
         brave = _Brave([{'title': 'China Parts', 'url': 'https://chinaparts.kz/contacts', 'description': ''}])
@@ -781,6 +824,9 @@ class MultiSourceEnrichmentTests(TestCase):
             {'title': 'China Parts', 'url': 'https://kolesa.kz/a/seller', 'description': ''},
             {'title': 'China Parts', 'url': 'https://instagram.com/chinaparts', 'description': ''},
             {'title': 'China Parts', 'url': 'https://yandex.kz/maps/org/1', 'description': ''},
+            {'title': 'China Parts', 'url': 'https://website.informer.com/chinaparts.kz', 'description': ''},
+            {'title': 'China Parts', 'url': 'https://bizfam.ru/company/chinaparts', 'description': ''},
+            {'title': 'China Parts', 'url': 'https://razborka.org/almaty', 'description': ''},
             {'title': 'China Parts', 'url': 'https://chinaparts.kz/', 'description': ''},
         ])
         calls, urlopen = _router(website_html=_html(
@@ -800,6 +846,9 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertNotIn('kolesa.kz', hosts)
         self.assertNotIn('instagram.com', hosts)
         self.assertNotIn('yandex.kz', hosts)
+        self.assertNotIn('website.informer.com', hosts)
+        self.assertNotIn('bizfam.ru', hosts)
+        self.assertNotIn('razborka.org', hosts)
         self.assertIn('chinaparts.kz', hosts)
         self.assertTrue(any(item.field_name == 'instagram' and item.origin == 'website' for item in result.observations))
 
