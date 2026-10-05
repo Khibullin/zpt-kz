@@ -355,6 +355,8 @@ class BraveSuitabilityTests(TestCase):
             'https://satu.kz/parts',
             'https://olx.kz/list',
             'https://kolesa.kz/a/1',
+            'https://zoon.kz/almaty/autoservice/type/avtorazbor/',
+            'https://almaty.spravker.ru/avtorazborki/',
         ):
             with self.subTest(url=url):
                 self.assertIsNone(self._parse('Магазин автозапчастей', 'Продажа запчастей', url))
@@ -1291,4 +1293,3 @@ class LegacyInstagramPipelineTests(TestCase):
         self.assertIn('site:instagram.com', client.queries[0][0])
         self.assertNotIn('contact_groups', client.queries[0][0])
         self.assertEqual(SellerLead.objects.count(), 0)
-
