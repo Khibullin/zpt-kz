@@ -415,7 +415,11 @@ def crawl_official_website(
     pages = 1
     seen = {fetched.final_url}
     contact_links = list(combined.contact_links)
-    if not contact_links:
+    has_explicit_whatsapp = any(
+        item.field_name == 'whatsapp' and item.explicit_whatsapp
+        for item in combined.contacts
+    )
+    if not contact_links and not has_explicit_whatsapp:
         contact_links = [
             absolute
             for path in _CONTACT_FALLBACK_PATHS
