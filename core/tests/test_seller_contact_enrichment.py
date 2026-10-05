@@ -180,7 +180,7 @@ class WebsiteExtractionTests(TestCase):
 
     def test_trailing_whatsapp_label_is_explicit(self):
         html = _html(body='''
-            <p>+7 (747) 232-32-90 — только WhatsApp</p>
+            <p><span>+7 (747) 232-32-90</span><span> — только WhatsApp</span></p>
             <p>+7 (708) 486-94-04</p>
         ''')
         extract = parse_seller_website_html(html, page_url='https://autobahn.kz/kontaktyi/')
