@@ -252,6 +252,52 @@ def add_seller_lead_evidence(
         return existing
 
 
+CANDIDATE_CONFIDENCE_TO_EVIDENCE = {
+    'high': 100,
+    'medium': 80,
+    'low': 60,
+}
+
+
+def ensure_selected_whatsapp_evidence(
+    seller_lead,
+    *,
+    value: str,
+    confidence: int | None,
+    observed_at=None,
+) -> SellerLeadEvidence:
+    """Select matching WhatsApp evidence, or create one manual row.
+
+    A ZPT admin approval is not owner verification. An existing row with the
+    same normalized number is selected instead of inserting a duplicate.
+    """
+    normalized = _normalize_evidence_value('whatsapp', value)
+    with transaction.atomic():
+        existing = (
+            SellerLeadEvidence.objects.select_for_update()
+            .filter(
+                seller_lead=seller_lead,
+                field_name='whatsapp',
+                normalized_value=normalized,
+            )
+            .order_by('-is_selected', '-pk')
+            .first()
+        )
+        if existing is not None:
+            return select_seller_lead_evidence(existing)
+        return add_seller_lead_evidence(
+            seller_lead,
+            field_name='whatsapp',
+            value=value,
+            normalized_value=normalized,
+            confidence=confidence,
+            extraction_method=SellerLeadEvidence.METHOD_MANUAL,
+            observed_at=observed_at,
+            is_selected=True,
+            is_owner_verified=False,
+        )
+
+
 def select_seller_lead_evidence(evidence: SellerLeadEvidence) -> SellerLeadEvidence:
     with transaction.atomic():
         locked = SellerLeadEvidence.objects.select_for_update().get(pk=evidence.pk)

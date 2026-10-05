@@ -555,9 +555,15 @@ class DiscoveryCommandTests(TestCase):
                 stdout=out,
             )
 
+        text = out.getvalue()
         self.assertEqual(SellerLead.objects.count(), 0)
-        self.assertIn('Dry-run: записи в базу не сохранялись.', out.getvalue())
-        self.assertNotIn('test-key', out.getvalue())
+        self.assertIn('Dry-run: записи в базу не сохранялись.', text)
+        self.assertIn('Типы бизнеса: не рассчитываются в discovery dry-run', text)
+        self.assertNotIn('new_parts=', text)
+        self.assertNotIn('dismantlers=', text)
+        self.assertNotIn('mixed=', text)
+        self.assertNotIn('unknown=', text)
+        self.assertNotIn('test-key', text)
 
     def test_execute_saves_lead_without_network(self):
         provider = _FakeProvider([_hit()])
@@ -584,10 +590,13 @@ class DiscoveryCommandTests(TestCase):
                         stdout=out,
                     )
 
+        text = out.getvalue()
         self.assertEqual(SellerLead.objects.count(), 1)
         self.assertIsNone(SellerLead.objects.get().request_seller_id)
-        self.assertIn('Создано SellerLead: 1', out.getvalue())
-        self.assertNotIn('test-key', out.getvalue())
+        self.assertIn('Создано SellerLead: 1', text)
+        self.assertIn('Типы: new_parts=0 dismantlers=0 mixed=0 unknown=1', text)
+        self.assertNotIn('не рассчитываются в discovery dry-run', text)
+        self.assertNotIn('test-key', text)
 
     def test_runner_stops_at_max_hits(self):
         provider = _FakeProvider([
@@ -602,7 +611,7 @@ class DiscoveryCommandTests(TestCase):
             dry_run=True,
             providers=[provider],
         )
-        self.assertEqual(stats.hits_received, 1)
+        self.assertEqual(stats.hits_received, 2)
         self.assertEqual(SellerLead.objects.count(), 0)
 
     def test_missing_mode_and_both_modes_do_not_call_network(self):
@@ -792,8 +801,8 @@ class TwoGisPaginationTests(TestCase):
         provider = TwoGisDiscoveryProvider(client=TwoGisPlacesClient('test-key', urlopen=explode))
         with override_settings(SELLER_DISCOVERY_ENABLED=True, SELLER_DISCOVERY_2GIS_ENABLED=True):
             with self.assertRaises(DiscoveryProviderError) as ctx:
-                provider.search(city='Караганда', direction='автозапчасти', limit=5)
-        self.assertIn('Караганда', str(ctx.exception))
+                provider.search(city='Берлин', direction='автозапчасти', limit=5)
+        self.assertIn('Берлин', str(ctx.exception))
 
 
 class ContactAndIdentityTests(TestCase):

@@ -6,13 +6,14 @@ Seller, User, SellerProfile, or Product rows. Kolesa is not called.
 
 from django.core.management.base import BaseCommand, CommandError
 
-from core.models import SellerLead
+from core.models import SELLER_LEAD_BUSINESS_TYPE_CHOICES, SellerLead
 from core.services.seller_contact_enrichment import (
     ALLOWED_SOURCES,
     SellerContactEnrichmentError,
     enrich_seller_lead_contacts,
 )
 from core.services.seller_lead_contact_search import normalize_kz_whatsapp_phone
+from core.services.seller_lead_enrichment_selection import select_leads_needing_enrichment
 
 MAX_LIMIT = 5
 
@@ -37,6 +38,12 @@ class Command(BaseCommand):
         parser.add_argument('--lead-id', action='append', dest='lead_ids', type=int, default=[])
         parser.add_argument('--city', default='')
         parser.add_argument('--limit', type=int, default=1)
+        parser.add_argument(
+            '--needs-enrichment',
+            action='store_true',
+            help='Выбрать SellerLead без свежего проверенного WhatsApp. Сеть включается только с --dry-run или --apply.',
+        )
+        parser.add_argument('--business-type', default='')
         parser.add_argument('--source', action='append', dest='sources', default=[])
         parser.add_argument('--dry-run', action='store_true')
         parser.add_argument('--apply', action='store_true')
@@ -74,7 +81,25 @@ class Command(BaseCommand):
         if limit < 1 or limit > MAX_LIMIT:
             raise CommandError(f'--limit должен быть от 1 до {MAX_LIMIT}.')
 
-        leads = list(self._leads(options['lead_ids'], options['city'], limit))
+        business_type = str(options['business_type'] or '').strip()
+        if business_type and business_type not in {value for value, _label in SELLER_LEAD_BUSINESS_TYPE_CHOICES}:
+            raise CommandError('Неизвестный --business-type.')
+        if options['needs_enrichment']:
+            if options['lead_ids']:
+                raise CommandError('--needs-enrichment не сочетается с --lead-id.')
+            try:
+                leads = list(select_leads_needing_enrichment(
+                    city=options['city'],
+                    business_type=business_type,
+                    limit=limit,
+                    sources=sources,
+                ))
+            except SellerContactEnrichmentError as exc:
+                raise CommandError(str(exc)) from exc
+        else:
+            if business_type:
+                raise CommandError('--business-type используется вместе с --needs-enrichment.')
+            leads = list(self._leads(options['lead_ids'], options['city'], limit))
         if not leads:
             raise CommandError('SellerLead для обогащения не найден.')
 

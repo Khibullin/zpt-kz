@@ -19,6 +19,14 @@ from catalog.instagram_service import (
 )
 from django.db.models import Count, Prefetch, Q
 
+from core.services.seller_lead_whatsapp_state import (
+    WHATSAPP_STATE_CHOICES,
+    annotate_seller_leads_with_whatsapp_state,
+    filter_seller_leads_by_whatsapp_state,
+    seller_lead_whatsapp_state,
+    whatsapp_state_from_annotations,
+)
+
 from .models import (
     Country,
     Brand,
@@ -29,6 +37,9 @@ from .models import (
     Seller,
     SellerLead,
     SellerLeadContactCandidate,
+    SellerLeadDiscoveredBrand,
+    SellerLeadDiscoveredCategory,
+    SellerLeadDiscoveredModel,
     SellerLeadDuplicateMatch,
     SellerLeadEvidence,
     SellerLeadLocation,
@@ -1753,6 +1764,97 @@ class SellerLeadHasWhatsAppFilter(admin.SimpleListFilter):
         return queryset
 
 
+class SellerLeadWhatsAppStateFilter(admin.SimpleListFilter):
+    title = 'WhatsApp state'
+    parameter_name = 'whatsapp_state'
+
+    def lookups(self, request, model_admin):
+        return WHATSAPP_STATE_CHOICES
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return filter_seller_leads_by_whatsapp_state(queryset, value)
+
+
+class SellerLeadDiscoveredBrandFilter(admin.SimpleListFilter):
+    title = 'Найденная марка'
+    parameter_name = 'discovered_brand'
+
+    def lookups(self, request, model_admin):
+        return list(
+            Brand.objects.filter(discovered_seller_leads__isnull=False)
+            .distinct()
+            .order_by('name')
+            .values_list('pk', 'name')[:100]
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return queryset.filter(discovered_brands__pk=value).distinct()
+
+
+class SellerLeadDiscoveredModelFilter(admin.SimpleListFilter):
+    title = 'Найденная модель'
+    parameter_name = 'discovered_model'
+
+    def lookups(self, request, model_admin):
+        return list(
+            CarModel.objects.filter(discovered_seller_leads__isnull=False)
+            .distinct()
+            .order_by('name')
+            .values_list('pk', 'name')[:100]
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return queryset.filter(discovered_models__pk=value).distinct()
+
+
+class SellerLeadDiscoveredCategoryFilter(admin.SimpleListFilter):
+    title = 'Найденная категория'
+    parameter_name = 'discovered_category'
+
+    def lookups(self, request, model_admin):
+        return list(
+            PartCategory.objects.filter(discovered_seller_leads__isnull=False)
+            .distinct()
+            .order_by('name')
+            .values_list('pk', 'name')[:100]
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return queryset.filter(discovered_categories__pk=value).distinct()
+
+
+class SellerLeadSourceProviderFilter(admin.SimpleListFilter):
+    title = 'Провайдер источника'
+    parameter_name = 'source_provider'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('two_gis', '2GIS'),
+            ('brave', 'Brave'),
+            ('website', 'Сайт'),
+            ('google_places', 'Google Places'),
+            ('yandex_org', 'Яндекс'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if not value:
+            return queryset
+        return queryset.filter(sources__provider=value).distinct()
+
+
 class SellerLeadHasRequestSellerFilter(admin.SimpleListFilter):
     title = 'Связь с продавцом заявок'
     parameter_name = 'has_request_seller'
@@ -1830,6 +1932,82 @@ class SellerLeadConfidenceFilter(admin.SimpleListFilter):
         if value == 'high':
             return queryset.filter(overall_confidence__gte=80, overall_confidence__lte=100)
         return queryset
+
+
+class _ClassificationLinkInline(admin.TabularInline):
+    extra = 0
+    can_delete = False
+    readonly_fields = (
+        'confidence',
+        'source',
+        'evidence',
+        'source_kind',
+        'source_text',
+        'source_link',
+        'observed_at',
+    )
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    @admin.display(description='Ссылка источника')
+    def source_link(self, obj):
+        source = getattr(obj, 'source', None)
+        if source is None:
+            return '—'
+        provider = source.provider or source.get_source_type_display()
+        if source.source_url:
+            return format_html(
+                '{} · <a href="{}" target="_blank" rel="noopener noreferrer">ссылка</a>',
+                provider,
+                source.source_url,
+            )
+        return provider
+
+
+class SellerLeadDiscoveredBrandInline(_ClassificationLinkInline):
+    model = SellerLeadDiscoveredBrand
+    readonly_fields = ('brand',) + _ClassificationLinkInline.readonly_fields
+    fields = (
+        'brand',
+        'confidence',
+        'source',
+        'evidence',
+        'source_kind',
+        'source_text',
+        'source_link',
+        'observed_at',
+    )
+
+
+class SellerLeadDiscoveredModelInline(_ClassificationLinkInline):
+    model = SellerLeadDiscoveredModel
+    readonly_fields = ('car_model',) + _ClassificationLinkInline.readonly_fields
+    fields = (
+        'car_model',
+        'confidence',
+        'source',
+        'evidence',
+        'source_kind',
+        'source_text',
+        'source_link',
+        'observed_at',
+    )
+
+
+class SellerLeadDiscoveredCategoryInline(_ClassificationLinkInline):
+    model = SellerLeadDiscoveredCategory
+    readonly_fields = ('category',) + _ClassificationLinkInline.readonly_fields
+    fields = (
+        'category',
+        'confidence',
+        'source',
+        'evidence',
+        'source_kind',
+        'source_text',
+        'source_link',
+        'observed_at',
+    )
 
 
 class SellerLeadSourceInline(admin.TabularInline):
@@ -2138,11 +2316,17 @@ class SellerLeadAdmin(admin.ModelAdmin):
         SellerLeadEvidenceInline,
         SellerLeadLocationInline,
         SellerLeadContactCandidateInline,
+        SellerLeadDiscoveredBrandInline,
+        SellerLeadDiscoveredModelInline,
+        SellerLeadDiscoveredCategoryInline,
     )
     list_display = (
         'lead_id',
         'name',
         'city',
+        'business_type',
+        'brands_summary',
+        'categories_summary',
         'lifecycle_status',
         'review_status',
         'overall_confidence',
@@ -2156,9 +2340,15 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'checked_at',
     )
     list_filter = (
+        'business_type',
         'lifecycle_status',
         'city',
+        SellerLeadWhatsAppStateFilter,
         SellerLeadConfidenceFilter,
+        SellerLeadDiscoveredBrandFilter,
+        SellerLeadDiscoveredModelFilter,
+        SellerLeadDiscoveredCategoryFilter,
+        SellerLeadSourceProviderFilter,
         SellerLeadDiscoverySourceTypeFilter,
         'status',
         'collected_at',
@@ -2184,6 +2374,13 @@ class SellerLeadAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'lead_id',
+        'business_type',
+        'business_type_confidence',
+        'business_type_evidence',
+        'business_type_source',
+        'business_type_evidence_item',
+        'business_type_source_link',
+        'whatsapp_state_display',
         'created_at',
         'updated_at',
         'normalized_name',
@@ -2222,6 +2419,12 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'city',
                 'category',
                 'car_brands',
+                'business_type',
+                'business_type_confidence',
+                'business_type_evidence',
+                'business_type_source',
+                'business_type_evidence_item',
+                'business_type_source_link',
                 'profile_description',
                 'overall_confidence',
                 'collected_at',
@@ -2244,6 +2447,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'instagram_profile_link',
                 'normalized_instagram',
                 'whatsapp',
+                'whatsapp_state_display',
                 'whatsapp_source_url',
                 'whatsapp_source_text',
                 'whatsapp_confidence',
@@ -2288,11 +2492,55 @@ class SellerLeadAdmin(admin.ModelAdmin):
         }),
     )
 
+    @admin.display(description='Марки')
+    def brands_summary(self, obj):
+        names = [brand.name for brand in obj.discovered_brands.all()]
+        if not names:
+            return '—'
+        shown = ', '.join(names[:3])
+        if len(names) > 3:
+            return f'{shown} +{len(names) - 3}'
+        return shown
+
+    @admin.display(description='Категории')
+    def categories_summary(self, obj):
+        names = [category.name for category in obj.discovered_categories.all()]
+        if not names:
+            return '—'
+        shown = ', '.join(names[:3])
+        if len(names) > 3:
+            return f'{shown} +{len(names) - 3}'
+        return shown
+
+    @admin.display(description='Источник классификации')
+    def business_type_source_link(self, obj):
+        source = obj.business_type_source
+        if source is None:
+            return '—'
+        provider = source.provider or source.get_source_type_display()
+        if source.source_url:
+            return format_html(
+                '{} · <a href="{}" target="_blank" rel="noopener noreferrer">ссылка</a>',
+                provider,
+                source.source_url,
+            )
+        return provider
+
+    @admin.display(description='WhatsApp state')
+    def whatsapp_state_display(self, obj):
+        labels = dict(WHATSAPP_STATE_CHOICES)
+        if hasattr(obj, 'has_whatsapp_conflict'):
+            state = whatsapp_state_from_annotations(obj)
+        else:
+            state = seller_lead_whatsapp_state(obj)
+        return labels.get(state, state)
+
     def get_queryset(self, request):
-        return (
+        queryset = (
             super()
             .get_queryset(request)
             .select_related('request_seller', 'duplicate_of')
+            .prefetch_related('discovered_brands', 'discovered_categories')
             .annotate(
                 sources_count=Count('sources', distinct=True),
                 possible_duplicates_as_a=Count(
@@ -2317,6 +2565,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'contact_candidates',
             )
         )
+        return annotate_seller_leads_with_whatsapp_state(queryset)
 
     @admin.display(description='ID', ordering='pk')
     def lead_id(self, obj):

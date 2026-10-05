@@ -139,6 +139,15 @@ class SourceRun:
     detail: str = ''
 
 
+# Invoked sources stamp last_enrichment_attempt_at. Skips and pre-execution
+# gates (disabled, missing key, verified-WhatsApp skip, contacts flag) do not.
+EXECUTED_SOURCE_STATUSES = frozenset({
+    'executed',
+    'error',
+    'ambiguous',
+})
+
+
 @dataclass
 class LocatorHit:
     source: str
@@ -261,13 +270,15 @@ def enrich_seller_lead_contacts(
                     raise SellerContactEnrichmentError(str(exc)) from None
             if locator is not None and locator.ambiguous:
                 if active == [SOURCE_GOOGLE]:
+                    if not dry_run:
+                        _stamp_enrichment_attempt(seller_lead)
                     return _result(
                         dry_run=dry_run,
                         outcome='ambiguous_google',
                         observations=[],
                         errors=[locator.error],
                         source_runs=source_runs + [SourceRun(SOURCE_GOOGLE, 'ambiguous', locator.error)],
-                        wrote=False,
+                        wrote=not dry_run,
                     )
                 errors.append(locator.error or 'неоднозначное совпадение Google')
                 source_runs.append(SourceRun(SOURCE_GOOGLE, 'ambiguous', locator.error))
@@ -339,7 +350,8 @@ def enrich_seller_lead_contacts(
             stop_on_verified_whatsapp=stop_on_verified_whatsapp,
         )
         if not any(run.source == SOURCE_WEBSITE for run in source_runs):
-            source_runs.append(SourceRun(SOURCE_WEBSITE, 'executed'))
+            status = 'executed' if crawl_urls else 'skipped_no_candidate'
+            source_runs.append(SourceRun(SOURCE_WEBSITE, status))
 
     _annotate_locator_agreement(locators)
     observations, outcome, verified, pending, conflicts = _classify_observations(observations, outcome)
@@ -363,13 +375,15 @@ def enrich_seller_lead_contacts(
             conflicts=conflicts,
             wrote=False,
         )
-    _apply(
-        seller_lead,
-        observations=observations,
-        place_id=place_id,
-        website_url=accepted_site,
-        two_gis_external_id=two_gis_external_id,
-    )
+    executed_any = _any_source_executed(source_runs)
+    if executed_any:
+        _apply(
+            seller_lead,
+            observations=observations,
+            place_id=place_id,
+            website_url=accepted_site,
+            two_gis_external_id=two_gis_external_id,
+        )
     return _result(
         dry_run=False,
         outcome=outcome,
@@ -387,7 +401,7 @@ def enrich_seller_lead_contacts(
         verified_whatsapp=verified,
         pending_candidates=pending,
         conflicts=conflicts,
-        wrote=True,
+        wrote=executed_any,
     )
 
 
@@ -433,11 +447,38 @@ def _prepare_sources(sources: list[str] | tuple[str, ...]) -> tuple[list[str], l
         if not problem:
             active.append(source)
             continue
-        if not all_mode:
+        contacts_blocked = _two_gis_contacts_blocked(source, problem)
+        if not all_mode and not contacts_blocked:
             raise SellerContactEnrichmentError(problem)
         status = 'skipped_missing_key' if 'не задан' in problem else 'skipped_disabled'
         runs.append(SourceRun(source, status, problem))
+    if not all_mode and not active and requested == [SOURCE_TWO_GIS]:
+        blocked = next((run for run in runs if _two_gis_contacts_blocked(run.source, run.detail)), None)
+        if blocked is not None:
+            raise SellerContactEnrichmentError(blocked.detail)
     return active, runs, all_mode
+
+
+LOCATOR_ENRICHMENT_SOURCES = frozenset({
+    SOURCE_GOOGLE,
+    SOURCE_BRAVE,
+    SOURCE_TWO_GIS,
+    SOURCE_YANDEX,
+})
+
+
+def active_enrichment_sources(sources: list[str] | tuple[str, ...]) -> list[str]:
+    """Sources that will actually run. Same flags and keys as execution. No network."""
+    active, _runs, _all_mode = _prepare_sources(sources)
+    return active
+
+
+def enrichment_requires_website_url(sources: list[str] | tuple[str, ...]) -> bool:
+    """True when the website crawler is the only source that can run."""
+    active = set(active_enrichment_sources(sources))
+    if not active:
+        return False
+    return not bool(active & LOCATOR_ENRICHMENT_SOURCES)
 
 
 def _source_problem(source: str) -> str:
@@ -460,7 +501,16 @@ def _source_problem(source: str) -> str:
     key_name = key_by_source.get(source, '')
     if key_name and not (getattr(settings, key_name, '') or '').strip():
         return f'{key_name} не задан.'
+    if source == SOURCE_TWO_GIS and not bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED', False)):
+        return (
+            'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=False. '
+            'Контакты 2GIS для enrichment выключены.'
+        )
     return ''
+
+
+def _two_gis_contacts_blocked(source: str, problem: str) -> bool:
+    return source == SOURCE_TWO_GIS and 'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED' in problem
 
 
 def _brave_queries(seller_lead: SellerLead) -> list[str]:
@@ -844,6 +894,11 @@ def _observations_from_website(crawled: WebsiteCrawlResult) -> list[EnrichmentOb
     return observations
 
 
+def _any_source_executed(source_runs: list[SourceRun]) -> bool:
+    """True when at least one requested source was actually invoked."""
+    return any(run.status in EXECUTED_SOURCE_STATUSES for run in source_runs)
+
+
 def _apply(
     seller_lead: SellerLead,
     *,
@@ -899,14 +954,22 @@ def _apply(
                 source = _website_source_for(locked, observation.source_url, cache=website_sources)
             _store_observation(locked, observation, source=source, preferred=observation is preferred)
         refresh_seller_lead_identity(locked)
+        locked.last_enrichment_attempt_at = timezone.now()
+        update_fields = ['last_enrichment_attempt_at', 'updated_at']
         if _enrichment_was_useful(accepted_website, observations):
             locked.last_enriched_at = timezone.now()
-            update_fields = ['last_enriched_at', 'updated_at']
+            update_fields.append('last_enriched_at')
             if locked.lifecycle_status == SellerLead.LIFECYCLE_FOUND:
                 locked.lifecycle_status = SellerLead.LIFECYCLE_ENRICHED
                 update_fields.append('lifecycle_status')
-            locked.save(update_fields=update_fields)
+        locked.save(update_fields=update_fields)
         seller_lead.refresh_from_db()
+
+
+def _stamp_enrichment_attempt(seller_lead: SellerLead) -> None:
+    """Completed apply with no stored contacts, such as an ambiguous locator."""
+    seller_lead.last_enrichment_attempt_at = timezone.now()
+    seller_lead.save(update_fields=['last_enrichment_attempt_at', 'updated_at'])
 
 
 def _enrichment_was_useful(website_url: str, observations: list[EnrichmentObservation]) -> bool:

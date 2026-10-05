@@ -1832,6 +1832,18 @@ SELLER_LEAD_MARKETPLACE_INVITATION_STATUS_CHOICES = [
     ('planned', 'Приглашение запланировано'),
 ]
 
+BUSINESS_TYPE_NEW_PARTS = 'new_parts'
+BUSINESS_TYPE_DISMANTLER = 'dismantler'
+BUSINESS_TYPE_MIXED = 'mixed'
+BUSINESS_TYPE_UNKNOWN = 'unknown'
+
+SELLER_LEAD_BUSINESS_TYPE_CHOICES = [
+    (BUSINESS_TYPE_NEW_PARTS, 'Новые запчасти'),
+    (BUSINESS_TYPE_DISMANTLER, 'Авторазбор / б/у'),
+    (BUSINESS_TYPE_MIXED, 'Новые + б/у'),
+    (BUSINESS_TYPE_UNKNOWN, 'Не определено'),
+]
+
 SELLER_LEAD_LIFECYCLE_STATUS_CHOICES = [
     ('found', 'Найден'),
     ('enriched', 'Обогащён'),
@@ -1931,6 +1943,11 @@ class SellerLead(models.Model):
     LIFECYCLE_REJECTED = 'rejected'
     LIFECYCLE_UNREACHABLE = 'unreachable'
     LIFECYCLE_CLOSED = 'closed'
+
+    BUSINESS_TYPE_NEW_PARTS = BUSINESS_TYPE_NEW_PARTS
+    BUSINESS_TYPE_DISMANTLER = BUSINESS_TYPE_DISMANTLER
+    BUSINESS_TYPE_MIXED = BUSINESS_TYPE_MIXED
+    BUSINESS_TYPE_UNKNOWN = BUSINESS_TYPE_UNKNOWN
 
     name = models.CharField(max_length=255, verbose_name='Название')
     instagram_username = models.CharField(
@@ -2131,6 +2148,12 @@ class SellerLead(models.Model):
         blank=True,
         verbose_name='Последнее обогащение',
     )
+    last_enrichment_attempt_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name='Последняя попытка обогащения',
+    )
     last_classified_at = models.DateTimeField(
         null=True,
         blank=True,
@@ -2144,6 +2167,62 @@ class SellerLead(models.Model):
         related_name='merged_duplicates',
         verbose_name='Подтверждённый дубль карточки',
         help_text='Заполняется только после явного подтверждения дубля администратором.',
+    )
+    business_type = models.CharField(
+        max_length=16,
+        choices=SELLER_LEAD_BUSINESS_TYPE_CHOICES,
+        default=BUSINESS_TYPE_UNKNOWN,
+        db_index=True,
+        verbose_name='Тип бизнеса',
+    )
+    business_type_confidence = models.PositiveSmallIntegerField(
+        null=True,
+        blank=True,
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность типа бизнеса',
+    )
+    business_type_evidence = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Основание типа бизнеса',
+    )
+    business_type_source = models.ForeignKey(
+        'SellerLeadSource',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='business_type_leads',
+        verbose_name='Источник типа бизнеса',
+    )
+    business_type_evidence_item = models.ForeignKey(
+        'SellerLeadEvidence',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='business_type_leads',
+        verbose_name='Evidence типа бизнеса',
+    )
+    discovered_brands = models.ManyToManyField(
+        Brand,
+        through='SellerLeadDiscoveredBrand',
+        blank=True,
+        related_name='discovered_seller_leads',
+        verbose_name='Найденные марки',
+    )
+    discovered_models = models.ManyToManyField(
+        CarModel,
+        through='SellerLeadDiscoveredModel',
+        blank=True,
+        related_name='discovered_seller_leads',
+        verbose_name='Найденные модели',
+    )
+    discovered_categories = models.ManyToManyField(
+        PartCategory,
+        through='SellerLeadDiscoveredCategory',
+        blank=True,
+        related_name='discovered_seller_leads',
+        verbose_name='Найденные категории',
     )
 
     class Meta:
@@ -2262,6 +2341,159 @@ CONTACT_CANDIDATE_SOURCE_TEXT_LIMIT = 400
 
 def normalize_contact_candidate_value(value: str | None) -> str:
     return normalize_seller_lead_whatsapp(value)
+
+
+class SellerLeadDiscoveredBrand(models.Model):
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='brand_links',
+        verbose_name='Найденный продавец',
+    )
+    brand = models.ForeignKey(
+        Brand,
+        on_delete=models.CASCADE,
+        related_name='seller_lead_brand_links',
+        verbose_name='Марка',
+    )
+    confidence = models.PositiveSmallIntegerField(
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность',
+    )
+    source = models.ForeignKey(
+        'SellerLeadSource',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='discovered_brand_links',
+        verbose_name='Источник',
+    )
+    evidence = models.ForeignKey(
+        'SellerLeadEvidence',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='discovered_brand_links',
+        verbose_name='Evidence',
+    )
+    source_kind = models.CharField(max_length=32, verbose_name='Откуда')
+    source_text = models.CharField(max_length=300, blank=True, default='', verbose_name='Фрагмент')
+    observed_at = models.DateTimeField(default=timezone.now, verbose_name='Определено')
+
+    class Meta:
+        verbose_name = 'Найденная марка'
+        verbose_name_plural = 'Найденные марки'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_lead', 'brand'],
+                name='unique_sellerlead_discovered_brand',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.brand} / {self.seller_lead_id}'
+
+
+class SellerLeadDiscoveredModel(models.Model):
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='model_links',
+        verbose_name='Найденный продавец',
+    )
+    car_model = models.ForeignKey(
+        CarModel,
+        on_delete=models.CASCADE,
+        related_name='seller_lead_model_links',
+        verbose_name='Модель',
+    )
+    confidence = models.PositiveSmallIntegerField(
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность',
+    )
+    source = models.ForeignKey(
+        'SellerLeadSource',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='discovered_model_links',
+        verbose_name='Источник',
+    )
+    evidence = models.ForeignKey(
+        'SellerLeadEvidence',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='discovered_model_links',
+        verbose_name='Evidence',
+    )
+    source_kind = models.CharField(max_length=32, verbose_name='Откуда')
+    source_text = models.CharField(max_length=300, blank=True, default='', verbose_name='Фрагмент')
+    observed_at = models.DateTimeField(default=timezone.now, verbose_name='Определено')
+
+    class Meta:
+        verbose_name = 'Найденная модель'
+        verbose_name_plural = 'Найденные модели'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_lead', 'car_model'],
+                name='unique_sellerlead_discovered_model',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.car_model} / {self.seller_lead_id}'
+
+
+class SellerLeadDiscoveredCategory(models.Model):
+    seller_lead = models.ForeignKey(
+        SellerLead,
+        on_delete=models.CASCADE,
+        related_name='category_links',
+        verbose_name='Найденный продавец',
+    )
+    category = models.ForeignKey(
+        PartCategory,
+        on_delete=models.CASCADE,
+        related_name='seller_lead_category_links',
+        verbose_name='Категория',
+    )
+    confidence = models.PositiveSmallIntegerField(
+        validators=SELLER_DISCOVERY_CONFIDENCE_VALIDATORS,
+        verbose_name='Уверенность',
+    )
+    source = models.ForeignKey(
+        'SellerLeadSource',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='discovered_category_links',
+        verbose_name='Источник',
+    )
+    evidence = models.ForeignKey(
+        'SellerLeadEvidence',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='discovered_category_links',
+        verbose_name='Evidence',
+    )
+    source_kind = models.CharField(max_length=32, verbose_name='Откуда')
+    source_text = models.CharField(max_length=300, blank=True, default='', verbose_name='Фрагмент')
+    observed_at = models.DateTimeField(default=timezone.now, verbose_name='Определено')
+
+    class Meta:
+        verbose_name = 'Найденная категория'
+        verbose_name_plural = 'Найденные категории'
+        constraints = [
+            models.UniqueConstraint(
+                fields=['seller_lead', 'category'],
+                name='unique_sellerlead_discovered_category',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.category} / {self.seller_lead_id}'
 
 
 class SellerLeadContactCandidate(models.Model):
@@ -2416,6 +2648,17 @@ class SellerLeadContactCandidate(models.Model):
                 seller_lead=self.seller_lead,
                 is_primary=True,
             ).exclude(pk=self.pk).update(is_primary=False)
+            if self.contact_type == self.CONTACT_TYPE_WHATSAPP:
+                SellerLeadContactCandidate.objects.select_for_update().filter(
+                    seller_lead_id=self.seller_lead_id,
+                    contact_type=self.CONTACT_TYPE_WHATSAPP,
+                    status=self.STATUS_CONFLICT,
+                ).exclude(pk=self.pk).update(
+                    status=self.STATUS_REJECTED,
+                    is_primary=False,
+                    reviewed_at=now,
+                    updated_at=now,
+                )
 
             self.status = self.STATUS_APPROVED
             self.is_primary = True
@@ -2430,21 +2673,33 @@ class SellerLeadContactCandidate(models.Model):
             )
 
             lead = self.seller_lead
-            lead.whatsapp = self.value
-            lead.whatsapp_confidence = self.confidence
-            lead.whatsapp_source_url = self.source_url
-            lead.whatsapp_source_text = self.source_text
-            lead.whatsapp_found_at = self.found_at
-            lead.save(
-                update_fields=[
-                    'whatsapp',
-                    'whatsapp_confidence',
-                    'whatsapp_source_url',
-                    'whatsapp_source_text',
-                    'whatsapp_found_at',
-                    'updated_at',
-                ],
-            )
+            if self.contact_type == self.CONTACT_TYPE_WHATSAPP:
+                lead.whatsapp = self.value
+                lead.whatsapp_confidence = self.confidence
+                lead.whatsapp_source_url = self.source_url
+                lead.whatsapp_source_text = self.source_text
+                lead.whatsapp_found_at = self.found_at
+                lead.save(
+                    update_fields=[
+                        'whatsapp',
+                        'whatsapp_confidence',
+                        'whatsapp_source_url',
+                        'whatsapp_source_text',
+                        'whatsapp_found_at',
+                        'updated_at',
+                    ],
+                )
+                from core.services.seller_discovery_sources import (
+                    CANDIDATE_CONFIDENCE_TO_EVIDENCE,
+                    ensure_selected_whatsapp_evidence,
+                )
+
+                ensure_selected_whatsapp_evidence(
+                    lead,
+                    value=self.value,
+                    confidence=CANDIDATE_CONFIDENCE_TO_EVIDENCE.get(self.confidence),
+                    observed_at=now,
+                )
             from core.services.seller_discovery_identity import refresh_seller_lead_identity
 
             refresh_seller_lead_identity(lead)
