@@ -357,6 +357,9 @@ class BraveSuitabilityTests(TestCase):
             'https://kolesa.kz/a/1',
             'https://zoon.kz/almaty/autoservice/type/avtorazbor/',
             'https://almaty.spravker.ru/avtorazborki/',
+            'https://razborka.org/almaty',
+            'https://raz-bor.ru/kazahstan/almati-avtorazbor.htm',
+            'https://incatalog.kz/katalog-tovarov/almaty13356/avto-almaty/avtozapchasti/autorazbor/',
         ):
             with self.subTest(url=url):
                 self.assertIsNone(self._parse('Магазин автозапчастей', 'Продажа запчастей', url))
