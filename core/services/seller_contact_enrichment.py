@@ -619,9 +619,12 @@ def _crawl_candidates(
     outcome: str,
     stop_on_verified_whatsapp: bool,
 ) -> tuple[str, str]:
+    successful_preferred_hosts: set[str] = set()
     for website_url in _unique_crawl_urls(website_urls):
         host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
         if not host or website_url in websites_considered:
+            continue
+        if host in successful_preferred_hosts and not _is_contact_locator_url(website_url):
             continue
         already_crawled = host in crawled_domains
         host_attempts = sum(
@@ -657,7 +660,10 @@ def _crawl_candidates(
             continue
         if not accepted_site:
             accepted_site = crawled.final_url
-        observations.extend(_observations_from_website(crawled))
+        website_observations = _observations_from_website(crawled)
+        observations.extend(website_observations)
+        if _is_contact_locator_url(website_url) and website_observations:
+            successful_preferred_hosts.add(host)
         outcome = 'no_contacts'
         if stop_on_verified_whatsapp and len(_verified_numbers(observations)) == 1:
             break
