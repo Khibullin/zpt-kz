@@ -61,6 +61,12 @@ _CONTACT_LINK_MARKERS = (
     'контакты',
     'контакты-магазина',
 )
+_CONTACT_FALLBACK_PATHS = (
+    '/contacts',
+    '/contact',
+    '/kontakty',
+    '/kontaktyi/',
+)
 _WHATSAPP_WORDS = ('whatsapp', 'вотсап', 'ватсап')
 _WHATSAPP_TEXT_RE = re.compile(
     r'(?i)(?:whatsapp|вотсап|ватсап)\s*[:\-–]?\s*(\+?\d[\d\-\s()]{8,18}\d)',
@@ -408,7 +414,14 @@ def crawl_official_website(
     combined = parse_seller_website_html(fetched.body, page_url=fetched.final_url)
     pages = 1
     seen = {fetched.final_url}
-    for link in combined.contact_links:
+    contact_links = list(combined.contact_links)
+    if not contact_links:
+        contact_links = [
+            absolute
+            for path in _CONTACT_FALLBACK_PATHS
+            if (absolute := _absolute_url(fetched.final_url, path))
+        ]
+    for link in contact_links:
         if pages >= MAX_PAGES:
             break
         absolute = _absolute_url(fetched.final_url, link)
