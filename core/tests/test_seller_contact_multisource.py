@@ -785,6 +785,52 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertEqual(website_whatsapps, ['77012222222'])
 
 
+    def test_preferred_phone_keeps_root_whatsapp(self):
+        lead = _lead(
+            name='China Parts',
+            website_url='https://chinaparts.kz/',
+        )
+        brave = _Brave([{
+            'title': 'China Parts — контакты',
+            'url': 'https://chinaparts.kz/contacts/',
+            'description': 'Контакты магазина',
+        }])
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request)
+            parts = parse.urlsplit(http_request.full_url)
+            if parts.path == '/robots.txt':
+                return _Response(
+                    body='User-agent: *\nDisallow:\n',
+                    headers={'Content-Type': 'text/plain'},
+                )
+            if parts.path == '/contacts/':
+                return _Response(body=_html(
+                    body='<a href="tel:+77023334455">+7 702 333 44 55</a>',
+                ))
+            return _Response(body=_html(
+                body='<a href="https://wa.me/77011111111">WhatsApp</a>',
+            ))
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['website', 'brave'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        self.assertEqual(result.verified_whatsapp, ['77011111111'])
+        self.assertEqual(result.conflicts, [])
+        website_fields = {
+            (item.field_name, item.value)
+            for item in result.observations
+            if item.origin == 'website'
+        }
+        self.assertIn(('whatsapp', '77011111111'), website_fields)
+        self.assertIn(('phone', '77023334455'), website_fields)
+
+
     def test_contactless_path_is_not_treated_as_contact_page(self):
         lead = _lead()
         brave = _Brave([{
