@@ -178,21 +178,28 @@ class WebsiteExtractionTests(TestCase):
         self.assertFalse(ordinary.explicit_whatsapp)
         self.assertEqual(ordinary.field_name, 'phone')
 
-    def test_trailing_whatsapp_label_is_explicit(self):
+    def test_trailing_whatsapp_label_is_explicit_on_contact_page(self):
         html = _html(body='''
+            <p><span>+7 (708) 486-94-04</span></p>
             <p><span>+7 (747) 232-32-90</span><span> — только WhatsApp</span></p>
-            <p>+7 (708) 486-94-04</p>
         ''')
         extract = parse_seller_website_html(html, page_url='https://autobahn.kz/kontaktyi/')
         whatsapp = [
             item for item in extract.contacts
-            if item.field_name == 'whatsapp' and item.value == '77472323290'
+            if item.field_name == 'whatsapp'
         ]
-        self.assertEqual(len(whatsapp), 1)
+        self.assertEqual([item.value for item in whatsapp], ['77472323290'])
         self.assertTrue(whatsapp[0].explicit_whatsapp)
         self.assertGreaterEqual(whatsapp[0].confidence, 90)
+
+    def test_trailing_whatsapp_label_is_not_inferred_across_homepage_markup(self):
+        html = _html(body='''
+            <div><span>+7 (708) 486-94-04</span><span> — только WhatsApp</span></div>
+            <div><span>+7 (747) 232-32-90</span></div>
+        ''')
+        extract = parse_seller_website_html(html, page_url='https://autobahn.kz/')
         self.assertFalse(any(
-            item.field_name == 'whatsapp' and item.value == '77084869404'
+            item.field_name == 'whatsapp'
             for item in extract.contacts
         ))
 
