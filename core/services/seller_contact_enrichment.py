@@ -454,6 +454,28 @@ def _prepare_sources(sources: list[str] | tuple[str, ...]) -> tuple[list[str], l
     return active, runs, all_mode
 
 
+LOCATOR_ENRICHMENT_SOURCES = frozenset({
+    SOURCE_GOOGLE,
+    SOURCE_BRAVE,
+    SOURCE_TWO_GIS,
+    SOURCE_YANDEX,
+})
+
+
+def active_enrichment_sources(sources: list[str] | tuple[str, ...]) -> list[str]:
+    """Sources that will actually run. Same flags and keys as execution. No network."""
+    active, _runs, _all_mode = _prepare_sources(sources)
+    return active
+
+
+def enrichment_requires_website_url(sources: list[str] | tuple[str, ...]) -> bool:
+    """True when the website crawler is the only source that can run."""
+    active = set(active_enrichment_sources(sources))
+    if not active:
+        return False
+    return not bool(active & LOCATOR_ENRICHMENT_SOURCES)
+
+
 def _source_problem(source: str) -> str:
     flag_by_source = {
         SOURCE_WEBSITE: 'SELLER_CONTACT_WEBSITE_ENABLED',

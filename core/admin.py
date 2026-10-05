@@ -2374,6 +2374,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'lead_id',
+        'business_type',
         'business_type_confidence',
         'business_type_evidence',
         'business_type_source',

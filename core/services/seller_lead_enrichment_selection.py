@@ -18,7 +18,13 @@ EXCLUDED_LIFECYCLES = (
 )
 
 
-def select_leads_needing_enrichment(*, city: str = '', business_type: str = '', limit: int = 1):
+def select_leads_needing_enrichment(
+    *,
+    city: str = '',
+    business_type: str = '',
+    limit: int = 1,
+    sources: list[str] | tuple[str, ...] | None = None,
+):
     """Leads without a fresh verified WhatsApp whose last attempt is due.
 
     Verified state and enrichment freshness are separate. A verified number
@@ -32,6 +38,11 @@ def select_leads_needing_enrichment(*, city: str = '', business_type: str = '', 
         queryset = queryset.filter(city=city)
     if business_type:
         queryset = queryset.filter(business_type=business_type)
+    if sources:
+        from core.services.seller_contact_enrichment import enrichment_requires_website_url
+
+        if enrichment_requires_website_url(sources):
+            queryset = queryset.exclude(website_url='')
     fresh_evidence = SellerLeadEvidence.objects.filter(
         seller_lead_id=OuterRef('pk'),
         field_name='whatsapp',

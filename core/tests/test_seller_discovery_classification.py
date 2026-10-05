@@ -470,6 +470,71 @@ class ShortCatalogMatchTests(TestCase):
         self.assertEqual(self._model_names(lead), ['Tiggo 7', 'Tiggo 7 Pro'])
 
 
+def _evidence(lead, field_name, value):
+    return SellerLeadEvidence.objects.create(
+        seller_lead=lead,
+        field_name=field_name,
+        value=value,
+        observed_at=timezone.now(),
+    )
+
+
+class NonSemanticEvidenceTests(TestCase):
+    def setUp(self):
+        country = Country.objects.create(name='Семантика')
+        self.moskvich = Brand.objects.create(country=country, name='Moskvich')
+        self.zeekr = Brand.objects.create(country=country, name='Zeekr')
+        CarModel.objects.create(brand=self.moskvich, name='3')
+        CarModel.objects.create(brand=self.zeekr, name='X')
+        PartCategory.objects.create(name='Масляные фильтры')
+        PartCategory.objects.create(name='тормозные колодки')
+
+    def test_address_does_not_link_a_one_character_model(self):
+        lead = _lead(name='Moskvich', profile_description='')
+        _evidence(lead, 'address', 'Абая 3')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Moskvich'])
+        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+
+    def test_phone_evidence_does_not_create_assortment(self):
+        lead = _lead(name='Phone Shop', profile_description='')
+        _evidence(lead, 'phone', 'Moskvich 3')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('pk', flat=True)), [])
+        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+        self.assertEqual(list(lead.discovered_categories.values_list('pk', flat=True)), [])
+
+    def test_whatsapp_evidence_does_not_create_assortment(self):
+        lead = _lead(name='WhatsApp Shop', profile_description='')
+        _evidence(lead, 'whatsapp', 'Zeekr X')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('pk', flat=True)), [])
+        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+
+    def test_category_and_rubric_evidence_still_match(self):
+        category_lead = _lead(name='Category Shop', profile_description='')
+        _evidence(category_lead, 'category', 'масляные фильтры')
+        classify_seller_lead(category_lead)
+        self.assertEqual(
+            list(category_lead.discovered_categories.values_list('name', flat=True)),
+            ['Масляные фильтры'],
+        )
+        rubric_lead = _lead(name='Rubric Shop', profile_description='')
+        _evidence(rubric_lead, 'rubrics', 'тормозные колодки')
+        classify_seller_lead(rubric_lead)
+        self.assertEqual(
+            list(rubric_lead.discovered_categories.values_list('name', flat=True)),
+            ['тормозные колодки'],
+        )
+
+    def test_brand_evidence_still_matches(self):
+        lead = _lead(name='Brand Shop', profile_description='')
+        _evidence(lead, 'brand', 'Zeekr')
+        classify_seller_lead(lead)
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Zeekr'])
+        self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
+
+
 class WhatsAppStateTests(TestCase):
     def test_states_and_admin_filter(self):
         verified = _lead(name='Verified', whatsapp='77001112233')
@@ -510,6 +575,26 @@ class WhatsAppStateTests(TestCase):
         self.assertIn('business_type', admin.list_display)
         self.assertIn('brands_summary', admin.list_display)
         self.assertIn('categories_summary', admin.list_display)
+        request = RequestFactory().get('/')
+        readonly = admin.get_readonly_fields(request, verified)
+        self.assertIn('business_type', readonly)
+        self.assertIn('business_type_confidence', readonly)
+        self.assertIn('business_type_evidence', readonly)
+        self.assertIn('business_type_source', readonly)
+        missing.business_type = SellerLead.BUSINESS_TYPE_DISMANTLER
+        missing.save(update_fields=['business_type', 'updated_at'])
+        user = get_user_model().objects.create_superuser(
+            'type-admin',
+            'type-admin@example.com',
+            'pass-word-123',
+        )
+        filter_request = RequestFactory().get(
+            '/admin/core/sellerlead/',
+            {'business_type__exact': SellerLead.BUSINESS_TYPE_DISMANTLER},
+        )
+        filter_request.user = user
+        filtered = list(admin.get_changelist_instance(filter_request).queryset)
+        self.assertEqual(filtered, [missing])
         state_filter = SellerLeadWhatsAppStateFilter(
             None,
             {'whatsapp_state': [WHATSAPP_NOT_FOUND]},
@@ -635,8 +720,16 @@ class NeedsEnrichmentTests(TestCase):
         )
         self.assertEqual(list(select_leads_needing_enrichment(limit=5)), [lead])
 
+    @override_settings(
+        SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+        SELLER_CONTACT_WEBSITE_ENABLED=True,
+    )
     def test_command_uses_needs_enrichment_selection(self):
-        missing = _lead(name='Needs command', whatsapp='')
+        missing = _lead(
+            name='Needs command',
+            whatsapp='',
+            website_url='https://needs.kz/',
+        )
         _lead(
             name='Fresh command',
             whatsapp='77005556677',
@@ -677,6 +770,98 @@ class NeedsEnrichmentTests(TestCase):
                 '--dry-run',
             )
         self.assertEqual(enrich.call_args.args[0].pk, missing.pk)
+
+
+WEBSITE_SELECTION_SETTINGS = dict(
+    SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+    SELLER_CONTACT_WEBSITE_ENABLED=True,
+    SELLER_CONTACT_BRAVE_ENABLED=True,
+    SELLER_CONTACT_GOOGLE_PLACES_ENABLED=True,
+    BRAVE_SEARCH_API_KEY='test-key',
+    GOOGLE_PLACES_API_KEY='test-key',
+)
+
+
+@override_settings(**WEBSITE_SELECTION_SETTINGS)
+class WebsiteSourceSelectionTests(TestCase):
+    def _command_choice(self, *args):
+        chosen = []
+        result = SimpleNamespace(
+            outcome='no_contacts',
+            observations=[],
+            dry_run=True,
+            conflicts=[],
+            verified_whatsapp=[],
+            pending_candidates=[],
+            source_runs=[],
+            locators=[],
+            websites_discovered=[],
+            websites_considered=[],
+            websites_skipped_brave_cap=[],
+            websites_skipped_blocked=[],
+            websites_skipped_budget=[],
+            two_gis_external_id='',
+            errors=[],
+        )
+
+        def fake(lead, **kwargs):
+            chosen.append(lead)
+            return result
+
+        with patch(
+            'core.management.commands.enrich_seller_contacts.enrich_seller_lead_contacts',
+            side_effect=fake,
+        ):
+            call_command('enrich_seller_contacts', '--needs-enrichment', '--dry-run', *args)
+        return chosen
+
+    def test_website_only_skips_a_lead_without_a_url(self):
+        without_url = _lead(name='No site', whatsapp='', website_url='')
+        with_url = _lead(name='Has site', whatsapp='', website_url='https://shop.kz/')
+        chosen = self._command_choice('--source', 'website', '--limit', '1')
+        self.assertEqual(chosen, [with_url])
+        self.assertNotIn(without_url, chosen)
+        again = self._command_choice('--source', 'website', '--limit', '1')
+        self.assertEqual(again, [with_url])
+
+    def test_website_plus_brave_allows_a_lead_without_a_url(self):
+        without_url = _lead(name='No site brave', whatsapp='', website_url='')
+        chosen = self._command_choice('--source', 'website', '--source', 'brave', '--limit', '1')
+        self.assertEqual(chosen, [without_url])
+
+    def test_website_plus_google_allows_a_lead_without_a_url(self):
+        without_url = _lead(name='No site google', whatsapp='', website_url='')
+        chosen = self._command_choice('--source', 'google_places', '--source', 'website', '--limit', '1')
+        self.assertEqual(chosen, [without_url])
+
+    def test_website_only_keeps_attempt_order_and_does_not_write(self):
+        newer = _lead(name='Newer site', whatsapp='', website_url='https://newer.kz/')
+        older = _lead(
+            name='Older site',
+            whatsapp='',
+            website_url='https://older.kz/',
+            last_enrichment_attempt_at=timezone.now() - timedelta(days=40),
+        )
+        without_url = _lead(name='Blocked site', whatsapp='', website_url='')
+        before = (
+            SellerLead.objects.count(),
+            SellerLeadEvidence.objects.count(),
+            Seller.objects.count(),
+            Product.objects.count(),
+        )
+        selected = list(select_leads_needing_enrichment(limit=5, sources=['website']))
+        self.assertEqual(selected, [newer, older])
+        self.assertNotIn(without_url, selected)
+        self.assertIn('NULLS FIRST', str(select_leads_needing_enrichment(limit=5, sources=['website']).query))
+        self.assertEqual(
+            (
+                SellerLead.objects.count(),
+                SellerLeadEvidence.objects.count(),
+                Seller.objects.count(),
+                Product.objects.count(),
+            ),
+            before,
+        )
 
 
 class CityBatchTests(TestCase):

@@ -53,6 +53,14 @@ GENERIC_ONLY_PHRASES = ('автозапчасти',)
 MIN_BRAND_LENGTH = 4
 MIN_MODEL_LENGTH = 4
 MIN_UNAMBIGUOUS_MODEL_LENGTH = 8
+CLASSIFICATION_EVIDENCE_FIELDS = frozenset({
+    'name',
+    'category',
+    'rubrics',
+    'brand',
+    'profile',
+    'description',
+})
 PROMOTABLE_LIFECYCLES = (
     SellerLead.LIFECYCLE_FOUND,
     SellerLead.LIFECYCLE_ENRICHED,
@@ -102,9 +110,13 @@ def _fragments(lead: SellerLead) -> list[TextFragment]:
         lead.evidences.select_related('source').order_by('-observed_at', '-pk')[:40]
     )
     for evidence in evidences:
+        if evidence.field_name not in CLASSIFICATION_EVIDENCE_FIELDS:
+            continue
         if evidence.source_id:
             _append_evidence_fragment(rows, evidence)
     for evidence in evidences:
+        if evidence.field_name not in CLASSIFICATION_EVIDENCE_FIELDS:
+            continue
         if not evidence.source_id:
             _append_evidence_fragment(rows, evidence)
     for source in lead.sources.all().order_by('-last_seen_at', '-pk')[:20]:

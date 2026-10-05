@@ -87,11 +87,15 @@ class Command(BaseCommand):
         if options['needs_enrichment']:
             if options['lead_ids']:
                 raise CommandError('--needs-enrichment не сочетается с --lead-id.')
-            leads = list(select_leads_needing_enrichment(
-                city=options['city'],
-                business_type=business_type,
-                limit=limit,
-            ))
+            try:
+                leads = list(select_leads_needing_enrichment(
+                    city=options['city'],
+                    business_type=business_type,
+                    limit=limit,
+                    sources=sources,
+                ))
+            except SellerContactEnrichmentError as exc:
+                raise CommandError(str(exc)) from exc
         else:
             if business_type:
                 raise CommandError('--business-type используется вместе с --needs-enrichment.')
