@@ -1,6 +1,7 @@
 import io
 import json
 import socket
+import ssl
 from datetime import timedelta
 from unittest.mock import patch
 from urllib import error, parse
@@ -429,7 +430,8 @@ class WebsiteSafetyTests(TestCase):
             urlopen=page_reset_open,
         )
         self.assertEqual(failed.outcome, 'error')
-        self.assertIn('Сетевая ошибка', failed.error)
+        self.assertIn('Соединение сброшено', failed.error)
+        self.assertEqual(failed.error_kind, 'connection_reset')
 
     def test_timeout_challenge_non_html_and_robots(self):
         def timeout_open(http_request, timeout):
@@ -483,6 +485,7 @@ class WebsiteSafetyTests(TestCase):
         self.assertNotIn('/submit', calls)
         self.assertLessEqual(crawled.pages_fetched, 5)
         self.assertTrue(crawled.identity_accepted)
+
 
 
     def test_unlinked_standard_contact_page_is_probed(self):
@@ -614,6 +617,183 @@ class WebsiteSafetyTests(TestCase):
         self.assertNotIn('/contact', calls)
         self.assertNotIn('/kontakty', calls)
         self.assertNotIn('/kontaktyi/', calls)
+
+
+class _ResetOnRead:
+    def __init__(self):
+        self.status = 200
+        self.headers = {'Content-Type': 'text/html; charset=utf-8'}
+
+    def read(self, amount=-1):
+        raise ConnectionResetError(104, 'Connection reset by peer')
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
+
+
+class WebsiteTransportErrorTests(TestCase):
+    def test_robots_reset_does_not_abort_the_homepage(self):
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                raise ConnectionResetError(104, 'Connection reset by peer')
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        result = crawl_official_website(
+            'https://chinaparts.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=urlopen,
+        )
+        self.assertEqual(result.outcome, 'ok')
+        self.assertEqual(result.robots_status, 'robots_unavailable')
+        self.assertEqual(result.robots_kind, 'connection_reset')
+        self.assertEqual(result.contacts[0].value, '77011234567')
+
+    def test_page_reset_is_a_finished_website_error(self):
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _ResetOnRead()
+
+        result = crawl_official_website(
+            'https://chinaparts.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=urlopen,
+        )
+        self.assertEqual(result.outcome, 'error')
+        self.assertEqual(result.error_kind, 'connection_reset')
+        self.assertIn('Соединение сброшено', result.error)
+        self.assertEqual(result.contacts, [])
+
+    def test_timeout_ssl_and_dns_are_classified(self):
+        def timeout_open(http_request, timeout):
+            raise TimeoutError('timed out')
+
+        timed = crawl_official_website('https://chinaparts.kz/', lead_name='China Parts', urlopen=timeout_open)
+        self.assertEqual(timed.error_kind, 'timeout')
+        self.assertIn('Таймаут', timed.error)
+        self.assertEqual(timed.robots_status, 'robots_unavailable')
+        self.assertEqual(timed.robots_kind, 'timeout')
+
+        def ssl_open(http_request, timeout):
+            raise ssl.SSLError('certificate verify failed')
+
+        secured = crawl_official_website('https://chinaparts.kz/', lead_name='China Parts', urlopen=ssl_open)
+        self.assertEqual(secured.error_kind, 'ssl_error')
+        self.assertIn('SSL', secured.error)
+
+        def dns_open(http_request, timeout):
+            raise socket.gaierror('name or service not known')
+
+        missing = crawl_official_website('https://chinaparts.kz/', lead_name='China Parts', urlopen=dns_open)
+        self.assertEqual(missing.error_kind, 'network_error')
+
+    def test_http_403_is_not_a_connection_reset(self):
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            raise error.HTTPError(
+                http_request.full_url,
+                403,
+                'forbidden',
+                hdrs={'Content-Type': 'text/html'},
+                fp=io.BytesIO(b'forbidden'),
+            )
+
+        result = crawl_official_website(
+            'https://chinaparts.kz/',
+            lead_name='China Parts',
+            urlopen=urlopen,
+        )
+        self.assertEqual(result.outcome, 'error')
+        self.assertEqual(result.error_kind, 'http_403')
+        self.assertEqual(result.error, 'Сайт ответил HTTP 403')
+        self.assertNotIn('connection_reset', result.error)
+        self.assertEqual(result.robots_status, '')
+
+    def test_forbidden_site_does_not_block_the_next_candidate(self):
+        lead = _lead(name='China Parts', website_url='', whatsapp='')
+        calls = []
+
+        class _Brave:
+            def search(self, query, count=10):
+                return [
+                    {'title': 'China Parts', 'url': 'https://forbidden.kz/', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://reset.kz/', 'description': ''},
+                    {'title': 'China Parts', 'url': 'https://later.kz/', 'description': ''},
+                ]
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request.full_url)
+            parts = parse.urlsplit(http_request.full_url)
+            if parts.hostname == 'forbidden.kz' and parts.path != '/robots.txt':
+                raise error.HTTPError(
+                    http_request.full_url,
+                    403,
+                    'forbidden',
+                    hdrs={'Content-Type': 'text/html'},
+                    fp=io.BytesIO(b'forbidden'),
+                )
+            if parts.hostname == 'reset.kz' and parts.path == '/robots.txt':
+                raise ConnectionResetError(104, 'Connection reset by peer')
+            if parts.path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        with override_settings(**ENABLED):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['brave', 'website'],
+                dry_run=True,
+                urlopen=urlopen,
+                brave_client=_Brave(),
+                stop_on_verified_whatsapp=True,
+            )
+        self.assertTrue(any('Сайт ответил HTTP 403' in message for message in result.errors))
+        self.assertTrue(any(message.startswith('robots_unavailable connection_reset') for message in result.errors))
+        self.assertTrue(any('https://reset.kz/' in url and parse.urlsplit(url).path != '/robots.txt' for url in calls))
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+        self.assertFalse(any('later.kz' in url for url in calls))
+        self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(Seller.objects.count(), 0)
+
+    def test_unreachable_website_does_not_stop_google(self):
+        lead = _lead(website_url='https://down.kz/', whatsapp='')
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request.full_url)
+            host = parse.urlsplit(http_request.full_url).hostname
+            if host == 'down.kz':
+                raise ConnectionResetError(104, 'Connection reset by peer')
+            if host == 'places.googleapis.com':
+                return _Response(
+                    body='{"places": []}',
+                    headers={'Content-Type': 'application/json'},
+                )
+            raise AssertionError(http_request.full_url)
+
+        with override_settings(**ENABLED):
+            result = enrich_seller_lead_contacts(
+                lead,
+                sources=['website', 'google_places'],
+                dry_run=True,
+                urlopen=urlopen,
+            )
+        self.assertTrue(any('connection_reset' in message for message in result.errors))
+        self.assertTrue(any(call.startswith('https://places.googleapis.com/') for call in calls))
+        self.assertEqual(result.dry_run, True)
+        self.assertFalse(result.wrote)
+        self.assertEqual(Seller.objects.count(), 0)
+
+
 
 
 class WebsiteSsrfTests(TestCase):
@@ -1386,6 +1566,88 @@ class CommandSafetyTests(TestCase):
         self.assertEqual(SellerProfile.objects.count(), 0)
         self.assertEqual(Product.objects.count(), 0)
         self.assertEqual(SellerLead.objects.get(pk=lead.pk).whatsapp, '77011234567')
+
+    def test_one_lead_network_error_does_not_stop_the_next_lead(self):
+        broken = _lead(name='Broken Shop', website_url='https://broken.kz/', whatsapp='')
+        healthy = _lead(name='China Parts', website_url='https://chinaparts.kz/', whatsapp='')
+
+        def urlopen(http_request, timeout):
+            host = parse.urlsplit(http_request.full_url).hostname
+            if host == 'broken.kz':
+                raise ConnectionResetError(104, 'Connection reset by peer')
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        stdout = io.StringIO()
+        with override_settings(**ENABLED):
+            with patch('core.services.seller_contact_website._urlopen_without_proxy', side_effect=urlopen):
+                call_command(
+                    'enrich_seller_contacts',
+                    '--lead-id', str(broken.pk),
+                    '--lead-id', str(healthy.pk),
+                    '--source', 'website',
+                    '--dry-run',
+                    stdout=stdout,
+                )
+        text = stdout.getvalue()
+        self.assertIn(f'#{broken.pk}', text)
+        self.assertIn('connection_reset', text)
+        self.assertIn('robots_unavailable', text)
+        self.assertIn(f'#{healthy.pk}', text)
+        self.assertIn('77011234567', text)
+        self.assertIn('Dry-run: записи в базу не сохранялись.', text)
+        self.assertNotIn(f'#{broken.pk} failed error', text)
+        self.assertEqual(broken.whatsapp, '')
+        self.assertEqual(healthy.whatsapp, '')
+
+    def test_unexpected_lead_error_does_not_stop_the_next_lead(self):
+        broken = _lead(name='Parser Shop', website_url='https://parser.kz/', whatsapp='')
+        healthy = _lead(name='China Parts', website_url='https://chinaparts.kz/', whatsapp='')
+
+        def urlopen(http_request, timeout):
+            host = parse.urlsplit(http_request.full_url).hostname
+            if host == 'parser.kz':
+                raise RuntimeError('parser blew up')
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        stdout = io.StringIO()
+        with override_settings(**ENABLED):
+            with patch('core.services.seller_contact_website._urlopen_without_proxy', side_effect=urlopen):
+                call_command(
+                    'enrich_seller_contacts',
+                    '--lead-id', str(broken.pk),
+                    '--lead-id', str(healthy.pk),
+                    '--source', 'website',
+                    '--dry-run',
+                    stdout=stdout,
+                )
+        text = stdout.getvalue()
+        self.assertIn(f'#{broken.pk} failed error RuntimeError: parser blew up', text)
+        self.assertIn(f'#{healthy.pk}', text)
+        self.assertIn('77011234567', text)
+        self.assertEqual(Seller.objects.count(), 0)
+
+    def test_keyboard_interrupt_is_not_swallowed(self):
+        lead = _lead()
+
+        def urlopen(http_request, timeout):
+            raise KeyboardInterrupt
+
+        with override_settings(**ENABLED):
+            with patch('core.services.seller_contact_website._urlopen_without_proxy', side_effect=urlopen):
+                with self.assertRaises(KeyboardInterrupt):
+                    call_command(
+                        'enrich_seller_contacts',
+                        '--lead-id', str(lead.pk),
+                        '--source', 'website',
+                        '--dry-run',
+                        stdout=io.StringIO(),
+                    )
 
 
 @override_settings(**ENABLED)

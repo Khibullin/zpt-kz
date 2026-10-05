@@ -4,6 +4,8 @@ Not wired to cron. Does not send WhatsApp, email, or SMS, and does not create
 Seller, User, SellerProfile, or Product rows. Kolesa is not called.
 """
 
+import logging
+
 from django.core.management.base import BaseCommand, CommandError
 
 from core.models import SELLER_LEAD_BUSINESS_TYPE_CHOICES, SellerLead
@@ -16,6 +18,7 @@ from core.services.seller_lead_contact_search import normalize_kz_whatsapp_phone
 from core.services.seller_lead_enrichment_selection import select_leads_needing_enrichment
 
 MAX_LIMIT = 5
+logger = logging.getLogger(__name__)
 
 
 def _whatsapp_state(result) -> str:
@@ -113,6 +116,16 @@ class Command(BaseCommand):
                 )
             except SellerContactEnrichmentError as exc:
                 raise CommandError(str(exc)) from exc
+            except Exception as exc:
+                logger.exception(
+                    'Seller contact enrichment failed lead=%s error=%s',
+                    lead.pk,
+                    type(exc).__name__,
+                )
+                self.stdout.write(self.style.ERROR(
+                    f'#{lead.pk} failed error {type(exc).__name__}: {exc}'[:500]
+                ))
+                continue
             self.stdout.write(
                 f'#{lead.pk} {lead.name} | {result.outcome} | '
                 f'contacts={len(result.observations)} | dry_run={result.dry_run} | '

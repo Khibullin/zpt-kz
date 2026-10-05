@@ -8,11 +8,13 @@ Each GET is refused unless the destination is a public HTTP(S) address.
 
 from __future__ import annotations
 
+import errno
 import ipaddress
 import json
 import logging
 import re
 import socket
+import ssl
 from dataclasses import dataclass, field
 from html.parser import HTMLParser
 from typing import Any, Callable
@@ -88,6 +90,52 @@ _CHALLENGE_MARKERS = (
 class WebsiteFetchError(Exception):
     """Controlled fetch failure. Callers turn this into an outcome, not a retry loop."""
 
+    def __init__(self, message: str, *, kind: str = '', http_status: int | None = None):
+        super().__init__(message)
+        self.kind = kind
+        self.http_status = http_status
+
+
+# Transport failures only. PermissionError and other local OSError stay visible.
+_RESET_ERRNOS = frozenset({
+    errno.ECONNRESET,
+    104,
+    10054,
+})
+_TIMEOUT_ERRNOS = frozenset({
+    errno.ETIMEDOUT,
+    10060,
+})
+_NETWORK_ERRNOS = frozenset({
+    errno.ECONNRESET,
+    errno.ECONNABORTED,
+    errno.EPIPE,
+    errno.ETIMEDOUT,
+    errno.EHOSTUNREACH,
+    errno.ENETUNREACH,
+    errno.ECONNREFUSED,
+    errno.ENETDOWN,
+    errno.EADDRNOTAVAIL,
+    errno.ENOTCONN,
+    104,
+    10053,
+    10054,
+    10060,
+    10061,
+    10064,
+    10065,
+    11001,
+})
+_NETWORK_WINERRORS = frozenset({10053, 10054, 10060, 10061, 10064, 10065, 11001})
+_ROBOTS_TRANSPORT_KINDS = frozenset({
+    'timeout',
+    'connection_reset',
+    'ssl_error',
+    'network_error',
+    'http_403',
+    'http_error',
+})
+
 
 @dataclass(frozen=True)
 class ExtractedContact:
@@ -118,6 +166,9 @@ class WebsiteCrawlResult:
     identity_accepted: bool = False
     pages_fetched: int = 0
     error: str = ''
+    error_kind: str = ''
+    robots_status: str = ''
+    robots_kind: str = ''
 
 
 def distinctive_name_tokens(name: str) -> list[str]:
@@ -190,7 +241,10 @@ def _assert_public_destination(url: str) -> str:
     try:
         answers = socket.getaddrinfo(host, None, type=socket.SOCK_STREAM)
     except OSError:
-        raise WebsiteFetchError('Не удалось определить адрес сайта.') from None
+        raise WebsiteFetchError(
+            'Не удалось определить адрес сайта.',
+            kind='network_error',
+        ) from None
     if not answers:
         raise WebsiteFetchError('Не удалось определить адрес сайта.')
     for family, socktype, proto, canon, sockaddr in answers:
@@ -397,7 +451,7 @@ def crawl_official_website(
         return WebsiteCrawlResult(outcome='error', error=str(exc))
 
     seed_host = parse.urlsplit(seed).hostname or ''
-    robots = _load_robots(seed, opener, seed_host=seed_host)
+    robots, robots_status, robots_kind = _load_robots(seed, opener, seed_host=seed_host)
     try:
         fetched = _fetch_page(seed, opener=opener, seed_host=seed_host, redirects_left=MAX_REDIRECTS)
     except WebsiteFetchError as exc:
@@ -409,7 +463,13 @@ def crawl_official_website(
             outcome = 'truncated'
         elif 'challenge' in message:
             outcome = 'challenge'
-        return WebsiteCrawlResult(outcome=outcome, error=str(exc))
+        return WebsiteCrawlResult(
+            outcome=outcome,
+            error=str(exc),
+            error_kind=exc.kind,
+            robots_status=robots_status,
+            robots_kind=robots_kind,
+        )
 
     if not _is_html(fetched.content_type, fetched.body):
         return WebsiteCrawlResult(
@@ -417,6 +477,8 @@ def crawl_official_website(
             final_url=fetched.final_url,
             pages_fetched=1,
             error='Ответ не HTML.',
+            robots_status=robots_status,
+            robots_kind=robots_kind,
         )
     if _looks_like_challenge(fetched.body):
         return WebsiteCrawlResult(
@@ -424,6 +486,8 @@ def crawl_official_website(
             final_url=fetched.final_url,
             pages_fetched=1,
             error='Страница выглядит как captcha или anti-bot challenge. Обход не выполняется.',
+            robots_status=robots_status,
+            robots_kind=robots_kind,
         )
 
     combined = parse_seller_website_html(fetched.body, page_url=fetched.final_url)
@@ -494,6 +558,8 @@ def crawl_official_website(
             final_url=final_url,
             pages_fetched=pages,
             identity_accepted=False,
+            robots_status=robots_status,
+            robots_kind=robots_kind,
         )
     return WebsiteCrawlResult(
         outcome='ok',
@@ -501,6 +567,8 @@ def crawl_official_website(
         contacts=list(combined.contacts),
         identity_accepted=True,
         pages_fetched=pages,
+        robots_status=robots_status,
+        robots_kind=robots_kind,
     )
 
 
@@ -512,7 +580,18 @@ def _validate_http_url(value: str) -> str:
     return raw
 
 
-def _load_robots(seed: str, opener: Callable[..., Any], *, seed_host: str) -> str | None:
+def _load_robots(
+    seed: str,
+    opener: Callable[..., Any],
+    *,
+    seed_host: str,
+) -> tuple[str | None, str, str]:
+    """Return robots body, status, and failure kind.
+
+    A missing robots.txt is empty rules, not a failure. Timeout, reset, HTTP 403,
+    and other transport errors are robots_unavailable: the homepage is still fetched
+    once, and nothing is retried.
+    """
     parts = parse.urlsplit(seed)
     robots_url = parse.urlunsplit((parts.scheme, parts.netloc, '/robots.txt', '', ''))
     try:
@@ -522,11 +601,82 @@ def _load_robots(seed: str, opener: Callable[..., Any], *, seed_host: str) -> st
             seed_host=seed_host,
             redirects_left=1,
         )
-    except WebsiteFetchError:
-        return None
+    except WebsiteFetchError as exc:
+        if exc.http_status in {404, 410} or exc.kind not in _ROBOTS_TRANSPORT_KINDS:
+            return None, '', ''
+        logger.warning(
+            'Seller website robots_unavailable host=%s kind=%s',
+            seed_host,
+            exc.kind or 'network_error',
+        )
+        return None, 'robots_unavailable', exc.kind or 'network_error'
     if _looks_like_challenge(fetched.body):
-        return None
-    return fetched.body
+        return None, '', ''
+    return fetched.body, '', ''
+
+
+def _log_fetch_failure(host: str, failure: WebsiteFetchError) -> None:
+    logger.warning(
+        'Seller website fetch failed host=%s kind=%s',
+        host,
+        failure.kind or 'network_error',
+    )
+
+
+def _http_fetch_error(exc: error.HTTPError) -> WebsiteFetchError:
+    code = getattr(exc, 'code', None)
+    status = code if isinstance(code, int) else None
+    kind = 'http_403' if status == 403 else 'http_error'
+    return WebsiteFetchError(
+        f'Сайт ответил HTTP {code}',
+        kind=kind,
+        http_status=status,
+    )
+
+
+def _url_fetch_error(exc: error.URLError) -> WebsiteFetchError:
+    reason = getattr(exc, 'reason', exc)
+    if isinstance(reason, WebsiteFetchError):
+        return reason
+    if isinstance(reason, error.HTTPError):
+        return _http_fetch_error(reason)
+    if isinstance(reason, OSError):
+        return _os_fetch_error(reason)
+    text = str(reason).lower()
+    if 'timed out' in text or 'timeout' in text:
+        return WebsiteFetchError('Таймаут при чтении сайта', kind='timeout')
+    return WebsiteFetchError('Сетевая ошибка при чтении сайта', kind='network_error')
+
+
+def _os_fetch_error(exc: OSError) -> WebsiteFetchError:
+    if isinstance(exc, (TimeoutError, socket.timeout)) or _has_errno(exc, _TIMEOUT_ERRNOS):
+        return WebsiteFetchError('Таймаут при чтении сайта', kind='timeout')
+    if isinstance(exc, ConnectionResetError) or _has_errno(exc, _RESET_ERRNOS):
+        return WebsiteFetchError('Соединение сброшено при чтении сайта', kind='connection_reset')
+    if isinstance(exc, ssl.SSLError):
+        return WebsiteFetchError('Ошибка SSL при чтении сайта', kind='ssl_error')
+    return WebsiteFetchError('Сетевая ошибка при чтении сайта', kind='network_error')
+
+
+def _is_transport_oserror(exc: OSError) -> bool:
+    if isinstance(exc, (
+        TimeoutError,
+        socket.timeout,
+        ConnectionResetError,
+        ConnectionAbortedError,
+        BrokenPipeError,
+        ConnectionRefusedError,
+        socket.gaierror,
+        socket.herror,
+        ssl.SSLError,
+    )):
+        return True
+    return _has_errno(exc, _NETWORK_ERRNOS) or getattr(exc, 'winerror', None) in _NETWORK_WINERRORS
+
+
+def _has_errno(exc: OSError, expected: frozenset[int]) -> bool:
+    values = {getattr(exc, 'errno', None), getattr(exc, 'winerror', None)}
+    return bool(values & expected)
 
 
 def _fetch_page(url: str, *, opener: Callable[..., Any], seed_host: str, redirects_left: int):
@@ -551,21 +701,22 @@ def _fetch_page(url: str, *, opener: Callable[..., Any], seed_host: str, redirec
                 status = getattr(response, 'status', 200)
                 headers = getattr(response, 'headers', {})
                 body = _read_limited(response)
-        except error.HTTPError as exc:
-            raise WebsiteFetchError(f'Сайт ответил HTTP {exc.code}') from None
-        except error.URLError as exc:
-            reason = str(getattr(exc, 'reason', exc)).lower()
-            if 'timed out' in reason:
-                raise WebsiteFetchError('Таймаут при чтении сайта') from None
-            raise WebsiteFetchError('Сетевая ошибка при чтении сайта') from None
-        except TimeoutError:
-            raise WebsiteFetchError('Таймаут при чтении сайта') from None
-        except OSError:
-            # Low-level socket/TLS failures (for example ConnectionResetError)
-            # are ordinary remote-site failures and must never abort a batch.
-            raise WebsiteFetchError('Сетевая ошибка при чтении сайта') from None
         except WebsiteFetchError:
             raise
+        except error.HTTPError as exc:
+            failure = _http_fetch_error(exc)
+            _log_fetch_failure(current_host, failure)
+            raise failure from None
+        except error.URLError as exc:
+            failure = _url_fetch_error(exc)
+            _log_fetch_failure(current_host, failure)
+            raise failure from None
+        except OSError as exc:
+            if not _is_transport_oserror(exc):
+                raise
+            failure = _os_fetch_error(exc)
+            _log_fetch_failure(current_host, failure)
+            raise failure from None
 
         location = _header(headers, 'Location')
         if status in {301, 302, 303, 307, 308} and location:

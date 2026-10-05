@@ -616,12 +616,19 @@ def _crawl_candidates(
             domain_is_prior=is_prior,
             urlopen=urlopen,
         )
+        if crawled.robots_status == 'robots_unavailable':
+            errors.append(
+                f'robots_unavailable {crawled.robots_kind} {website_url}'.strip()
+            )
         if crawled.outcome == 'ambiguous_website':
             outcome = 'ambiguous_website'
             errors.append(f'ambiguous website candidate: {website_url}')
             continue
         if crawled.outcome != 'ok':
-            errors.append(crawled.error or crawled.outcome)
+            detail = crawled.error or crawled.outcome
+            if crawled.error_kind and crawled.error_kind not in detail:
+                detail = f'{crawled.error_kind}: {detail}'
+            errors.append(detail)
             continue
         if not accepted_site:
             accepted_site = crawled.final_url
