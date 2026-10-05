@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0051_sellerlead_last_enrichment_attempt_at'),
+        ('core', '0052_sellerlead_market_and_enrichment_schedule'),
     ]
 
     operations = [
