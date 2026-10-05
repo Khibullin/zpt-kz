@@ -224,6 +224,7 @@ def enrich_seller_lead_contacts(
     websites_skipped_brave_cap: list[str] = []
     websites_skipped_blocked: list[str] = []
     crawled_domains: set[str] = set()
+    successful_preferred_hosts: set[str] = set()
     prior_website = (seller_lead.website_url or '').strip()
     prior_domain = registrable_domain(normalize_domain(prior_website)) if prior_website else ''
     prior_host_key = crawl_host_key(parse.urlsplit(prior_website).hostname or '') if prior_website else ''
@@ -238,6 +239,7 @@ def enrich_seller_lead_contacts(
             errors=errors,
             websites_considered=websites_considered,
             crawled_domains=crawled_domains,
+            successful_preferred_hosts=successful_preferred_hosts,
             prior_domain=prior_domain,
             prior_host_key=prior_host_key,
             urlopen=urlopen,
@@ -365,6 +367,7 @@ def enrich_seller_lead_contacts(
             errors=errors,
             websites_considered=websites_considered,
             crawled_domains=crawled_domains,
+            successful_preferred_hosts=successful_preferred_hosts,
             prior_domain=prior_domain,
             prior_host_key=prior_host_key,
             urlopen=urlopen,
@@ -612,6 +615,7 @@ def _crawl_candidates(
     errors: list[str],
     websites_considered: list[str],
     crawled_domains: set[str],
+    successful_preferred_hosts: set[str],
     prior_domain: str,
     prior_host_key: str,
     urlopen: Callable[..., Any] | None,
@@ -619,7 +623,6 @@ def _crawl_candidates(
     outcome: str,
     stop_on_verified_whatsapp: bool,
 ) -> tuple[str, str]:
-    successful_preferred_hosts: set[str] = set()
     for website_url in _unique_crawl_urls(website_urls):
         host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
         if not host or website_url in websites_considered:
@@ -891,7 +894,12 @@ def _is_contact_locator_url(url: str) -> bool:
     path = parse.unquote(parts.path or '').casefold()
     for segment in (piece for piece in path.split('/') if piece):
         for marker in CONTACT_LOCATOR_PATH_MARKERS:
-            if segment == marker or segment.startswith(marker + '-') or segment.startswith(marker + '_'):
+            if (
+                segment == marker
+                or segment.startswith(marker + '-')
+                or segment.startswith(marker + '_')
+                or segment.startswith(marker + '.')
+            ):
                 return True
     return False
 
