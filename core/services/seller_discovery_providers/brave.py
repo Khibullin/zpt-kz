@@ -101,6 +101,7 @@ SKIPPED_RESULT_SUFFIXES = (
     'razborka.org',
     'raz-bor.ru',
     'incatalog.kz',
+    'optoviki.kz',
 )
 
 
