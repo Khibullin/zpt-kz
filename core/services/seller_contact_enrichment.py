@@ -665,11 +665,13 @@ def _crawl_candidates(
             accepted_site = crawled.final_url
         website_observations = _observations_from_website(crawled)
         if _is_contact_locator_url(website_url) and website_observations:
+            preferred_fields = {item.field_name for item in website_observations}
             observations[:] = [
                 item
                 for item in observations
                 if not (
                     item.origin == SOURCE_WEBSITE
+                    and item.field_name in preferred_fields
                     and crawl_host_key(parse.urlsplit(item.source_url or '').hostname or '') == host
                 )
             ]
