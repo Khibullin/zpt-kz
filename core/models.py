@@ -1864,14 +1864,36 @@ SELLER_LEAD_MARKETPLACE_INVITATION_STATUS_CHOICES = [
 
 BUSINESS_TYPE_NEW_PARTS = 'new_parts'
 BUSINESS_TYPE_DISMANTLER = 'dismantler'
+BUSINESS_TYPE_WHOLESALER = 'wholesaler'
+BUSINESS_TYPE_DEALER = 'dealer'
+BUSINESS_TYPE_SERVICE_PARTS = 'service_parts'
+BUSINESS_TYPE_SERVICE_ONLY = 'service_only'
+BUSINESS_TYPE_OTHER_AUTO = 'other_auto'
 BUSINESS_TYPE_MIXED = 'mixed'
 BUSINESS_TYPE_UNKNOWN = 'unknown'
+# Stored values stay new_parts/dismantler so existing rows remain valid.
+BUSINESS_TYPE_PARTS_STORE = BUSINESS_TYPE_NEW_PARTS
+BUSINESS_TYPE_AUTO_DISMANTLER = BUSINESS_TYPE_DISMANTLER
 
 SELLER_LEAD_BUSINESS_TYPE_CHOICES = [
-    (BUSINESS_TYPE_NEW_PARTS, 'Новые запчасти'),
-    (BUSINESS_TYPE_DISMANTLER, 'Авторазбор / б/у'),
-    (BUSINESS_TYPE_MIXED, 'Новые + б/у'),
+    (BUSINESS_TYPE_NEW_PARTS, 'Магазин запчастей'),
+    (BUSINESS_TYPE_DISMANTLER, 'Авторазбор'),
+    (BUSINESS_TYPE_WHOLESALER, 'Оптовый поставщик'),
+    (BUSINESS_TYPE_DEALER, 'Дилер'),
+    (BUSINESS_TYPE_SERVICE_PARTS, 'СТО с запчастями'),
+    (BUSINESS_TYPE_SERVICE_ONLY, 'Сервис без продажи запчастей'),
+    (BUSINESS_TYPE_OTHER_AUTO, 'Автобизнес, тип неясен'),
+    (BUSINESS_TYPE_MIXED, 'Смешанный профиль'),
     (BUSINESS_TYPE_UNKNOWN, 'Не определено'),
+]
+
+MARKET_SCOPE_KZ = 'kz'
+MARKET_SCOPE_FOREIGN = 'foreign'
+MARKET_SCOPE_UNKNOWN = 'unknown'
+SELLER_LEAD_MARKET_SCOPE_CHOICES = [
+    (MARKET_SCOPE_KZ, 'Казахстан'),
+    (MARKET_SCOPE_FOREIGN, 'Зарубежный'),
+    (MARKET_SCOPE_UNKNOWN, 'Рынок не определён'),
 ]
 
 SELLER_LEAD_LIFECYCLE_STATUS_CHOICES = [
@@ -1975,9 +1997,19 @@ class SellerLead(models.Model):
     LIFECYCLE_CLOSED = 'closed'
 
     BUSINESS_TYPE_NEW_PARTS = BUSINESS_TYPE_NEW_PARTS
+    BUSINESS_TYPE_PARTS_STORE = BUSINESS_TYPE_PARTS_STORE
     BUSINESS_TYPE_DISMANTLER = BUSINESS_TYPE_DISMANTLER
+    BUSINESS_TYPE_AUTO_DISMANTLER = BUSINESS_TYPE_AUTO_DISMANTLER
+    BUSINESS_TYPE_WHOLESALER = BUSINESS_TYPE_WHOLESALER
+    BUSINESS_TYPE_DEALER = BUSINESS_TYPE_DEALER
+    BUSINESS_TYPE_SERVICE_PARTS = BUSINESS_TYPE_SERVICE_PARTS
+    BUSINESS_TYPE_SERVICE_ONLY = BUSINESS_TYPE_SERVICE_ONLY
+    BUSINESS_TYPE_OTHER_AUTO = BUSINESS_TYPE_OTHER_AUTO
     BUSINESS_TYPE_MIXED = BUSINESS_TYPE_MIXED
     BUSINESS_TYPE_UNKNOWN = BUSINESS_TYPE_UNKNOWN
+    MARKET_SCOPE_KZ = MARKET_SCOPE_KZ
+    MARKET_SCOPE_FOREIGN = MARKET_SCOPE_FOREIGN
+    MARKET_SCOPE_UNKNOWN = MARKET_SCOPE_UNKNOWN
 
     name = models.CharField(max_length=255, verbose_name='Название')
     instagram_username = models.CharField(
@@ -2232,6 +2264,35 @@ class SellerLead(models.Model):
         blank=True,
         related_name='business_type_leads',
         verbose_name='Evidence типа бизнеса',
+    )
+    market_scope = models.CharField(
+        max_length=16,
+        choices=SELLER_LEAD_MARKET_SCOPE_CHOICES,
+        default=MARKET_SCOPE_UNKNOWN,
+        db_index=True,
+        verbose_name='Рынок',
+    )
+    market_scope_evidence = models.CharField(
+        max_length=300,
+        blank=True,
+        default='',
+        verbose_name='Основание рынка',
+    )
+    next_enrichment_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        db_index=True,
+        verbose_name='Следующее обогащение',
+    )
+    enrichment_attempt_count = models.PositiveIntegerField(
+        default=0,
+        verbose_name='Завершённые проходы без WhatsApp',
+    )
+    last_enrichment_result = models.CharField(
+        max_length=32,
+        blank=True,
+        default='',
+        verbose_name='Результат последнего обогащения',
     )
     discovered_brands = models.ManyToManyField(
         Brand,
