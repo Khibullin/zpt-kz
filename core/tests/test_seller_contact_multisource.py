@@ -843,14 +843,33 @@ class MultiSourceEnrichmentTests(TestCase):
             raise AssertionError(http_request.full_url)
 
         with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=False):
+            with self.assertRaises(SellerContactEnrichmentError) as ctx:
+                enrich_seller_lead_contacts(
+                    lead,
+                    sources=['two_gis'],
+                    dry_run=True,
+                    urlopen=urlopen,
+                )
+        self.assertIn('SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED', str(ctx.exception))
+        self.assertEqual(calls, [])
+
+    def test_all_mode_skips_two_gis_when_contacts_flag_is_false(self):
+        lead = _lead(website_url='https://chinaparts.kz/')
+        calls, urlopen = _router(website_html=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+        with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=False):
             result = enrich_seller_lead_contacts(
                 lead,
-                sources=['two_gis'],
+                sources=['all'],
                 dry_run=True,
                 urlopen=urlopen,
+                brave_client=_Brave([]),
             )
-        self.assertEqual(_runs(result)['two_gis'], 'contacts_disabled')
-        self.assertEqual(calls, [])
+        runs = _runs(result)
+        self.assertEqual(runs['two_gis'], 'skipped_disabled')
+        self.assertEqual(runs['website'], 'executed')
+        self.assertEqual(runs['brave'], 'executed')
+        hosts = {(parse.urlsplit(call.full_url).hostname or '').lower() for call in calls}
+        self.assertNotIn('catalog.api.2gis.com', hosts)
 
     def test_dry_run_all_sources_writes_nothing(self):
         lead = _lead()

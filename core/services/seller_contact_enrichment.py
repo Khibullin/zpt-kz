@@ -447,10 +447,15 @@ def _prepare_sources(sources: list[str] | tuple[str, ...]) -> tuple[list[str], l
         if not problem:
             active.append(source)
             continue
-        if not all_mode:
+        contacts_blocked = _two_gis_contacts_blocked(source, problem)
+        if not all_mode and not contacts_blocked:
             raise SellerContactEnrichmentError(problem)
         status = 'skipped_missing_key' if 'не задан' in problem else 'skipped_disabled'
         runs.append(SourceRun(source, status, problem))
+    if not all_mode and not active and requested == [SOURCE_TWO_GIS]:
+        blocked = next((run for run in runs if _two_gis_contacts_blocked(run.source, run.detail)), None)
+        if blocked is not None:
+            raise SellerContactEnrichmentError(blocked.detail)
     return active, runs, all_mode
 
 
@@ -496,7 +501,16 @@ def _source_problem(source: str) -> str:
     key_name = key_by_source.get(source, '')
     if key_name and not (getattr(settings, key_name, '') or '').strip():
         return f'{key_name} не задан.'
+    if source == SOURCE_TWO_GIS and not bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED', False)):
+        return (
+            'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=False. '
+            'Контакты 2GIS для enrichment выключены.'
+        )
     return ''
+
+
+def _two_gis_contacts_blocked(source: str, problem: str) -> bool:
+    return source == SOURCE_TWO_GIS and 'SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED' in problem
 
 
 def _brave_queries(seller_lead: SellerLead) -> list[str]:

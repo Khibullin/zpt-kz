@@ -535,6 +535,63 @@ class NonSemanticEvidenceTests(TestCase):
         self.assertEqual(list(lead.discovered_models.values_list('pk', flat=True)), [])
 
 
+class SemanticEvidenceCapTests(TestCase):
+    def setUp(self):
+        country = Country.objects.create(name='Лимит evidence')
+        Brand.objects.create(country=country, name='Chery')
+        PartCategory.objects.create(name='Масляные фильтры')
+        PartCategory.objects.create(name='тормозные колодки')
+
+    def _row(self, lead, field_name, value, observed_at):
+        return SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name=field_name,
+            value=value,
+            observed_at=observed_at,
+        )
+
+    def test_newer_non_semantic_rows_do_not_evict_older_semantic_evidence(self):
+        lead = _lead(name='Cap Shop', profile_description='', category='', car_brands='')
+        classified_before = timezone.now() - timedelta(days=3)
+        lead.last_classified_at = classified_before
+        lead.save(update_fields=['last_classified_at'])
+        older = timezone.now() - timedelta(days=2)
+        self._row(lead, 'profile', 'магазин автозапчастей Chery', older)
+        self._row(lead, 'category', 'масляные фильтры', older + timedelta(minutes=1))
+        newer = timezone.now()
+        for index in range(41):
+            field_name = ('phone', 'whatsapp', 'address', 'city')[index % 4]
+            self._row(lead, field_name, f'7701000{index:04d}', newer + timedelta(seconds=index))
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.business_type, SellerLead.BUSINESS_TYPE_NEW_PARTS)
+        self.assertEqual(
+            list(lead.discovered_categories.values_list('name', flat=True)),
+            ['Масляные фильтры'],
+        )
+        self.assertEqual(list(lead.discovered_brands.values_list('name', flat=True)), ['Chery'])
+        self.assertGreater(lead.last_classified_at, classified_before)
+        self.assertEqual(lead.evidences.exclude(field_name__in=('profile', 'category')).count(), 41)
+        self.assertEqual(lead.evidences.filter(field_name__in=('profile', 'category')).count(), 2)
+
+    def test_semantic_cap_keeps_the_newest_forty_rows(self):
+        lead = _lead(name='Newest Shop', profile_description='', category='', car_brands='')
+        base = timezone.now() - timedelta(days=2)
+        self._row(lead, 'category', 'масляные фильтры', base)
+        for index in range(39):
+            self._row(lead, 'description', f'заметка {index}', base + timedelta(minutes=index + 1))
+        self._row(lead, 'rubrics', 'тормозные колодки', base + timedelta(hours=3))
+        self.assertEqual(lead.evidences.count(), 41)
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.business_type, SellerLead.BUSINESS_TYPE_UNKNOWN)
+        self.assertEqual(
+            list(lead.discovered_categories.values_list('name', flat=True)),
+            ['тормозные колодки'],
+        )
+        self.assertIsNotNone(lead.last_classified_at)
+
+
 class WhatsAppStateTests(TestCase):
     def test_states_and_admin_filter(self):
         verified = _lead(name='Verified', whatsapp='77001112233')
@@ -862,6 +919,72 @@ class WebsiteSourceSelectionTests(TestCase):
             ),
             before,
         )
+
+
+TWO_GIS_READINESS_SETTINGS = dict(
+    SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+    SELLER_CONTACT_WEBSITE_ENABLED=True,
+    SELLER_CONTACT_2GIS_ENABLED=True,
+    TWO_GIS_API_KEY='test-key',
+    SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=False,
+    SELLER_CONTACT_BRAVE_ENABLED=False,
+    SELLER_CONTACT_GOOGLE_PLACES_ENABLED=False,
+    SELLER_CONTACT_YANDEX_ENABLED=False,
+)
+
+
+def _record_counts():
+    return (
+        SellerLead.objects.count(),
+        SellerLeadEvidence.objects.count(),
+        Seller.objects.count(),
+        get_user_model().objects.count(),
+        SellerProfile.objects.count(),
+        Product.objects.count(),
+    )
+
+
+@override_settings(**TWO_GIS_READINESS_SETTINGS)
+class TwoGisContactsReadinessTests(TestCase):
+    def test_explicit_two_gis_errors_before_network_when_contacts_disabled(self):
+        _lead(name='Blocked 2GIS', whatsapp='', website_url='')
+        before = _record_counts()
+        with patch('urllib.request.urlopen', side_effect=AssertionError('network')):
+            with self.assertRaises(CommandError) as ctx:
+                call_command(
+                    'enrich_seller_contacts',
+                    '--needs-enrichment',
+                    '--source',
+                    'two_gis',
+                    '--limit',
+                    '1',
+                    '--dry-run',
+                )
+        self.assertIn('SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED', str(ctx.exception))
+        self.assertEqual(_record_counts(), before)
+
+    def test_website_and_disabled_contacts_skip_a_lead_without_a_url(self):
+        without_url = _lead(name='No site 2GIS', whatsapp='', website_url='')
+        before = _record_counts()
+        selected = list(select_leads_needing_enrichment(limit=5, sources=['website', 'two_gis']))
+        self.assertEqual(selected, [])
+        self.assertNotIn(without_url, selected)
+        self.assertEqual(_record_counts(), before)
+
+    def test_website_and_disabled_contacts_select_a_lead_with_a_url(self):
+        with_url = _lead(name='Has site 2GIS', whatsapp='', website_url='https://shop.kz/')
+        before = _record_counts()
+        selected = list(select_leads_needing_enrichment(limit=5, sources=['website', 'two_gis']))
+        self.assertEqual(selected, [with_url])
+        self.assertEqual(_record_counts(), before)
+
+    def test_enabled_contacts_select_a_lead_without_a_website(self):
+        without_url = _lead(name='Locator 2GIS', whatsapp='', website_url='')
+        before = _record_counts()
+        with override_settings(SELLER_DISCOVERY_2GIS_CONTACTS_ENABLED=True):
+            selected = list(select_leads_needing_enrichment(limit=1, sources=['two_gis']))
+        self.assertEqual(selected, [without_url])
+        self.assertEqual(_record_counts(), before)
 
 
 class CityBatchTests(TestCase):

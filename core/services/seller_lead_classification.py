@@ -107,16 +107,14 @@ def _phrase_in(phrase: str, text: str, *, min_length: int = 3) -> bool:
 def _fragments(lead: SellerLead) -> list[TextFragment]:
     rows: list[TextFragment] = []
     evidences = list(
-        lead.evidences.select_related('source').order_by('-observed_at', '-pk')[:40]
+        lead.evidences.filter(field_name__in=CLASSIFICATION_EVIDENCE_FIELDS)
+        .select_related('source')
+        .order_by('-observed_at', '-pk')[:40]
     )
     for evidence in evidences:
-        if evidence.field_name not in CLASSIFICATION_EVIDENCE_FIELDS:
-            continue
         if evidence.source_id:
             _append_evidence_fragment(rows, evidence)
     for evidence in evidences:
-        if evidence.field_name not in CLASSIFICATION_EVIDENCE_FIELDS:
-            continue
         if not evidence.source_id:
             _append_evidence_fragment(rows, evidence)
     for source in lead.sources.all().order_by('-last_seen_at', '-pk')[:20]:
