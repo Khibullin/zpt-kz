@@ -96,6 +96,8 @@ SKIPPED_RESULT_SUFFIXES = (
     'kaspi.kz',
     'satu.kz',
     'krisha.kz',
+    'zoon.kz',
+    'spravker.ru',
 )
 
 
