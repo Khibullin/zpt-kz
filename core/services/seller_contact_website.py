@@ -414,7 +414,12 @@ def crawl_official_website(
     combined = parse_seller_website_html(fetched.body, page_url=fetched.final_url)
     pages = 1
     seen = {fetched.final_url}
-    contact_links = list(combined.contact_links)
+    contact_links = [
+        absolute
+        for link in combined.contact_links
+        if (absolute := _absolute_url(fetched.final_url, link))
+        and same_crawl_host(seed_host, parse.urlsplit(absolute).hostname or '')
+    ]
     has_explicit_whatsapp = any(
         item.field_name == 'whatsapp' and item.explicit_whatsapp
         for item in combined.contacts
