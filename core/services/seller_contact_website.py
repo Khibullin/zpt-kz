@@ -71,6 +71,9 @@ _WHATSAPP_WORDS = ('whatsapp', 'вотсап', 'ватсап')
 _WHATSAPP_TEXT_RE = re.compile(
     r'(?i)(?:whatsapp|вотсап|ватсап)\s*[:\-–]?\s*(\+?\d[\d\-\s()]{8,18}\d)',
 )
+_WHATSAPP_TRAILING_TEXT_RE = re.compile(
+    r'(?i)(\+?\d[\d\-\s()]{8,18}\d)\s*(?:[:\-–—|]\s*)?(?:только\s+)?(?:whatsapp|вотсап|ватсап)',
+)
 _CHALLENGE_MARKERS = (
     'cf-challenge',
     'cf-browser-verification',
@@ -285,6 +288,7 @@ def parse_seller_website_html(html: str, *, page_url: str) -> WebsiteExtract:
     parser.feed(html or '')
     parser.close()
     extract = parser.extract
+    parser._consume_whatsapp_text(extract.text_sample)
     extract.contacts = _dedupe_contacts(extract.contacts)
     extract.contact_links = _unique(extract.contact_links)[:12]
     extract.text_sample = extract.text_sample[:20_000]
@@ -807,17 +811,18 @@ class _ContactHTMLParser(HTMLParser):
             ))
 
     def _consume_whatsapp_text(self, text: str):
-        for match in _WHATSAPP_TEXT_RE.finditer(text):
-            number = normalize_seller_phone(match.group(1))
-            if not number:
-                continue
-            self.extract.contacts.append(ExtractedContact(
-                field_name='whatsapp',
-                value=number,
-                confidence=WHATSAPP_TEXT_CONFIDENCE,
-                excerpt=match.group(0)[:180],
-                explicit_whatsapp=True,
-            ))
+        for pattern in (_WHATSAPP_TEXT_RE, _WHATSAPP_TRAILING_TEXT_RE):
+            for match in pattern.finditer(text):
+                number = normalize_seller_phone(match.group(1))
+                if not number:
+                    continue
+                self.extract.contacts.append(ExtractedContact(
+                    field_name='whatsapp',
+                    value=number,
+                    confidence=WHATSAPP_TEXT_CONFIDENCE,
+                    excerpt=match.group(0)[:180],
+                    explicit_whatsapp=True,
+                ))
 
     def _consume_json(self, raw: str):
         try:
