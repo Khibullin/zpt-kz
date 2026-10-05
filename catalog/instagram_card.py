@@ -208,8 +208,13 @@ def _draw_lines(
 
 def _canvas_for(kind: str) -> _Canvas:
     if kind == 'story':
-        return _Canvas(1080, 1920, 64, 240, 1920 - 230, True)
-    return _Canvas(1080, 1350, 48, 36, 1350 - 24, False)
+        # Верх и низ закрывает интерфейс сторис. Бренд остаётся ниже этой зоны.
+        return _Canvas(1080, 1920, 64, 250, 1920 - 250, True)
+    # Пост 4:5 в сетке профиля обрезается до центрального квадрата.
+    # Бренд и заголовок должны попадать в него, а не в срезаемые поля.
+    crop = (1350 - 1080) // 2
+    inset = 32
+    return _Canvas(1080, 1350, 48, crop + inset, 1350 - crop - inset, False)
 
 
 def _sizes(scale: float, *, story: bool) -> dict[str, int]:
@@ -258,6 +263,8 @@ def render_instagram_card(content: InstagramCardContent, *, kind: str) -> CardRe
             break
     if chosen is None:
         chosen = _measure(probe, content, canvas, _SCALE_STEPS[-1])
+        if chosen['bottom_gap'] < 0:
+            chosen = _compress_to_safe_area(chosen, canvas)
 
     image = Image.new('RGB', (canvas.width, canvas.height), COLOR_WHITE)
     draw = ImageDraw.Draw(image)
@@ -416,6 +423,26 @@ def _measure(draw: ImageDraw.ImageDraw, content: InstagramCardContent, canvas: _
         'stack': stack,
         'bottom_gap': available - stack,
     }
+
+
+def _compress_to_safe_area(layout: dict, canvas: _Canvas) -> dict:
+    """Ужимает промежутки, если даже минимальный масштаб не входит в безопасную зону."""
+    available = canvas.safe_bottom - canvas.safe_top
+    overflow = layout['stack'] - available
+    if overflow <= 0:
+        return layout
+    tightened = dict(layout)
+    min_gap = 8
+    current_gap = tightened['section_gap']
+    reducible = max(0, current_gap - min_gap) * 3 + max(0, 18 - min_gap)
+    if reducible <= 0:
+        return tightened
+    reduction = min(overflow, reducible)
+    gap_cut = min(current_gap - min_gap, reduction // 3)
+    tightened['section_gap'] = current_gap - gap_cut
+    tightened['stack'] = layout['stack'] - gap_cut * 3
+    tightened['bottom_gap'] = available - tightened['stack']
+    return tightened
 
 
 def _paint(draw: ImageDraw.ImageDraw, content: InstagramCardContent, canvas: _Canvas, layout: dict) -> None:

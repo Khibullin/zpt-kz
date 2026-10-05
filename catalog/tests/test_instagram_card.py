@@ -6,6 +6,38 @@ from core.instagram_sanitize import build_public_location_line
 from core.models import Request
 
 
+def _red_rows(image, y0, y1):
+    rows = []
+    for y in range(y0, y1):
+        for x in range(0, image.width, 4):
+            red, green, blue = image.getpixel((x, y))
+            if red > 180 and green < 90 and blue < 90:
+                rows.append(y)
+                break
+    return rows
+
+
+def _ink_rows(image, y0, y1):
+    rows = []
+    for y in range(max(0, y0), min(image.height, y1)):
+        for x in range(36, image.width - 36, 6):
+            red, green, blue = image.getpixel((x, y))
+            if red < 245 or green < 245 or blue < 245:
+                rows.append(y)
+                break
+    return rows
+
+
+def _dark_pixel_count(image, y0, y1):
+    count = 0
+    for y in range(max(0, y0), min(image.height, y1)):
+        for x in range(48, 760, 2):
+            red, green, blue = image.getpixel((x, y))
+            if red < 40 and green < 50 and blue < 60:
+                count += 1
+    return count
+
+
 class PublicLocationTests(TestCase):
     def test_kazakhstan_scope_is_explicit(self):
         self.assertEqual(
@@ -54,6 +86,43 @@ class InstagramCardLayoutTests(TestCase):
         self.assertGreater(feed.part_size, feed.headline_size)
         self.assertGreater(story.vehicle_size, story.headline_size)
         self.assertGreater(story.part_size, story.headline_size)
+
+    def test_long_part_keeps_brand_and_headline_inside_profile_crop(self):
+        content = InstagramCardContent(
+            vehicle='Hyundai Sonata',
+            part='Передний левый блок управления климат-контролем в сборе с панелью и проводкой',
+            location='Астана',
+            request_number='№ 482',
+        )
+        feed = render_instagram_card(content, kind='feed')
+        story = render_instagram_card(content, kind='story')
+        crop = (feed.image.height - feed.image.width) // 2
+        self.assertEqual(_ink_rows(feed.image, 0, crop), [])
+        self.assertEqual(_ink_rows(feed.image, feed.image.height - crop, feed.image.height), [])
+        safe_red = _red_rows(feed.image, crop, crop + 220)
+        self.assertTrue(safe_red)
+        self.assertGreaterEqual(safe_red[0], crop + 24)
+        self.assertGreater(_dark_pixel_count(feed.image, safe_red[0] + 36, safe_red[0] + 130), 40)
+        self.assertGreater(feed.part_size, feed.headline_size)
+        self.assertGreaterEqual(feed.part_size, 32)
+        self.assertEqual(_ink_rows(story.image, 0, 240), [])
+        self.assertTrue(_red_rows(story.image, 250, 430))
+        self.assertGreater(story.part_size, story.headline_size)
+
+    def test_very_long_part_shrinks_without_covering_brand(self):
+        content = InstagramCardContent(
+            vehicle='Mercedes-Benz GLE Coupe 400 d 4MATIC 2019',
+            part='Передний левый блок управления климат-контролем ' * 8,
+            location='Караганда • По Казахстану',
+            request_number='№ 483',
+        )
+        feed = render_instagram_card(content, kind='feed')
+        crop = (feed.image.height - feed.image.width) // 2
+        brand_rows = _red_rows(feed.image, crop, crop + 220)
+        self.assertTrue(brand_rows)
+        self.assertEqual(_ink_rows(feed.image, 0, crop), [])
+        self.assertEqual(_ink_rows(feed.image, feed.image.height - crop, feed.image.height), [])
+        self.assertGreater(feed.part_size, feed.headline_size)
 
     def test_long_part_name_stays_readable_and_does_not_invent_fields(self):
         content = InstagramCardContent(
