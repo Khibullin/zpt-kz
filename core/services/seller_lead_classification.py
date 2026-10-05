@@ -15,10 +15,15 @@ from django.db import transaction
 from django.utils import timezone
 
 from core.models import (
+    BUSINESS_TYPE_DEALER,
     BUSINESS_TYPE_DISMANTLER,
     BUSINESS_TYPE_MIXED,
     BUSINESS_TYPE_NEW_PARTS,
+    BUSINESS_TYPE_OTHER_AUTO,
+    BUSINESS_TYPE_SERVICE_ONLY,
+    BUSINESS_TYPE_SERVICE_PARTS,
     BUSINESS_TYPE_UNKNOWN,
+    BUSINESS_TYPE_WHOLESALER,
     Brand,
     CarModel,
     PartCategory,
@@ -27,6 +32,8 @@ from core.models import (
     SellerLeadDiscoveredCategory,
     SellerLeadDiscoveredModel,
 )
+from core.services.seller_lead_market import qualify_market
+from core.services.seller_lead_qualification import is_enrichment_target
 
 DISMANTLER_PHRASES = (
     'авторазбор',
@@ -39,7 +46,31 @@ DISMANTLER_PHRASES = (
     'бу автозапчасти',
     'контрактные запчасти',
     'запчасти с разбора',
+    'разборка',
     'used parts',
+)
+WHOLESALER_PHRASES = (
+    'оптовый поставщик',
+    'оптовая база',
+    'опт автозапчастей',
+)
+DEALER_PHRASES = (
+    'официальный дилер',
+    'дилерский центр',
+)
+SERVICE_PHRASES = (
+    'автосервис',
+    'станция технического обслуживания',
+    'шиномонтаж',
+)
+PARTS_SALE_PHRASES = (
+    'запчасти',
+    'автозапчасти',
+    'запчастей',
+)
+OTHER_AUTO_PHRASES = (
+    'автосалон',
+    'автомойка',
 )
 NEW_PARTS_PHRASES = (
     'магазин автозапчастей',
@@ -164,22 +195,54 @@ def _provenance_pair(fragment: TextFragment | None):
 def _business_type(fragments: list[TextFragment]):
     dismantler = _matching_phrases(DISMANTLER_PHRASES, fragments)
     new_parts = _matching_phrases(NEW_PARTS_PHRASES, fragments)
+    wholesaler = _matching_phrases(WHOLESALER_PHRASES, fragments)
+    dealer = _matching_phrases(DEALER_PHRASES, fragments)
+    service = _matching_phrases(SERVICE_PHRASES, fragments)
+    parts_sale = _matching_phrases(PARTS_SALE_PHRASES, fragments)
+    other_auto = _matching_phrases(OTHER_AUTO_PHRASES, fragments)
     generic = _matching_phrases(GENERIC_ONLY_PHRASES, fragments)
+    sells_parts = bool(new_parts or wholesaler or parts_sale)
     notes = []
+    matched = dismantler + new_parts
     if dismantler and new_parts:
         business_type = BUSINESS_TYPE_MIXED
         confidence = 75
     elif dismantler:
         business_type = BUSINESS_TYPE_DISMANTLER
         confidence = 85
+    elif wholesaler:
+        business_type = BUSINESS_TYPE_WHOLESALER
+        confidence = 80
+        matched = wholesaler
+    elif dealer and sells_parts:
+        business_type = BUSINESS_TYPE_DEALER
+        confidence = 80
+        matched = dealer
+    elif dealer:
+        business_type = BUSINESS_TYPE_OTHER_AUTO
+        confidence = 60
+        matched = dealer
+    elif service and sells_parts:
+        business_type = BUSINESS_TYPE_SERVICE_PARTS
+        confidence = 75
+        matched = service
+    elif service:
+        business_type = BUSINESS_TYPE_SERVICE_ONLY
+        confidence = 70
+        matched = service
     elif new_parts:
         business_type = BUSINESS_TYPE_NEW_PARTS
         confidence = 85
+    elif other_auto:
+        business_type = BUSINESS_TYPE_OTHER_AUTO
+        confidence = 60
+        matched = other_auto
     else:
         business_type = BUSINESS_TYPE_UNKNOWN
         confidence = 0
+        matched = []
     provenance = None
-    for phrase, fragment in dismantler + new_parts:
+    for phrase, fragment in matched:
         notes.append(f'{phrase} ({fragment.kind})')
         if provenance is None and (fragment.source is not None or fragment.evidence is not None):
             provenance = fragment
@@ -352,11 +415,14 @@ def classify_seller_lead(lead: SellerLead, *, promote_lifecycle: bool = False, d
         fragments = _fragments(locked)
         business_type, confidence, evidence, provenance = _business_type(fragments)
         source, evidence_row = _provenance_pair(provenance)
+        market_scope, market_evidence = qualify_market(locked)
         locked.business_type = business_type
         locked.business_type_confidence = confidence
         locked.business_type_evidence = evidence
         locked.business_type_source = source
         locked.business_type_evidence_item = evidence_row
+        locked.market_scope = market_scope
+        locked.market_scope_evidence = market_evidence[:300]
         locked.last_classified_at = now
         update_fields = [
             'business_type',
@@ -364,9 +430,14 @@ def classify_seller_lead(lead: SellerLead, *, promote_lifecycle: bool = False, d
             'business_type_evidence',
             'business_type_source',
             'business_type_evidence_item',
+            'market_scope',
+            'market_scope_evidence',
             'last_classified_at',
             'updated_at',
         ]
+        if is_enrichment_target(locked) and locked.next_enrichment_at is None:
+            locked.next_enrichment_at = now
+            update_fields.append('next_enrichment_at')
         if promote_lifecycle and locked.lifecycle_status in PROMOTABLE_LIFECYCLES:
             locked.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
             update_fields.append('lifecycle_status')

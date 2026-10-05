@@ -5,6 +5,7 @@ from django.core.management.base import BaseCommand, CommandError
 from core.models import SELLER_LEAD_BUSINESS_TYPE_CHOICES, SellerLead
 from core.services.seller_lead_classification import PROMOTABLE_LIFECYCLES, classify_seller_lead
 from core.services.seller_lead_classification_selection import select_leads_needing_classification
+from core.services.seller_lead_market import qualify_market
 
 MAX_LIMIT = 20
 
@@ -71,9 +72,10 @@ class Command(BaseCommand):
         for lead in leads:
             planned = classify_seller_lead(lead, dry_run=True)
             if dry_run:
+                market, reason = qualify_market(lead)
                 self.stdout.write(
                     f'#{lead.pk} {lead.name} | dry-run | business_type={planned} | '
-                    f'lifecycle={lead.lifecycle_status}'
+                    f'market={market} | {reason} | lifecycle={lead.lifecycle_status}'
                 )
                 continue
             previous = lead.lifecycle_status
