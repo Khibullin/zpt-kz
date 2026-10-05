@@ -12,7 +12,7 @@ TAGLINE_LINES = ('Поиск автозапчастей', 'по Казахста
 BADGE = 'ЗАЯВКА ПОКУПАТЕЛЯ'
 
 SELLER_TITLE = 'Есть эта запчасть?'
-SELLER_BODY = 'Продавцы ZPT.KZ получают её в WhatsApp.'
+SELLER_BODY = 'Продавцы ZPT.KZ получают заявки в WhatsApp.'
 SELLER_NOTE = 'Сайт — по ссылке в профиле'
 
 BUYER_TITLE = 'Ищете запчасть?'
@@ -22,7 +22,7 @@ BUYER_NOTE = 'Оставить заявку на ZPT.KZ >'
 FOOTER = 'Переход на сайт — по ссылке в профиле'
 
 SELLER_CAPTION = (
-    'Есть эта запчасть? Продавцы ZPT.KZ получают её в WhatsApp.'
+    'Есть эта запчасть? Продавцы ZPT.KZ получают заявки в WhatsApp.'
 )
 BUYER_CAPTION = (
     'Ищете другую запчасть? Оставьте заявку на ZPT.KZ — '

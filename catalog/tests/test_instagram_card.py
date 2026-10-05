@@ -113,5 +113,5 @@ class InstagramCardLayoutTests(TestCase):
         caption = build_publication_caption(request)
         self.assertNotIn('Город:', caption)
         self.assertNotIn('Казахстан', caption)
-        self.assertIn('Продавцы ZPT.KZ получают её в WhatsApp.', caption)
+        self.assertIn('Продавцы ZPT.KZ получают заявки в WhatsApp.', caption)
         self.assertIn('Переход на сайт — по ссылке в профиле', caption)
