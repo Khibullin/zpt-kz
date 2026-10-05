@@ -558,6 +558,12 @@ def _fetch_page(url: str, *, opener: Callable[..., Any], seed_host: str, redirec
             if 'timed out' in reason:
                 raise WebsiteFetchError('Таймаут при чтении сайта') from None
             raise WebsiteFetchError('Сетевая ошибка при чтении сайта') from None
+        except TimeoutError:
+            raise WebsiteFetchError('Таймаут при чтении сайта') from None
+        except OSError:
+            # Low-level socket/TLS failures (for example ConnectionResetError)
+            # are ordinary remote-site failures and must never abort a batch.
+            raise WebsiteFetchError('Сетевая ошибка при чтении сайта') from None
         except WebsiteFetchError:
             raise
 
