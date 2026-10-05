@@ -129,7 +129,9 @@ CONTACT_LOCATOR_PATH_MARKERS = (
     'kontakt',
     'kontakty',
     'kontakti',
+    'kontaktyi',
     'контакт',
+    'контакты',
 )
 
 
@@ -617,19 +619,17 @@ def _crawl_candidates(
     outcome: str,
     stop_on_verified_whatsapp: bool,
 ) -> tuple[str, str]:
-    for website_url in _unique_domains(website_urls):
+    for website_url in _unique_crawl_urls(website_urls):
         host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
-        if not host:
+        if not host or website_url in websites_considered:
             continue
         already_crawled = host in crawled_domains
-        retry_prior_contact_page = (
-            already_crawled
-            and bool(prior_host_key)
-            and host == prior_host_key
-            and _is_contact_locator_url(website_url)
-            and website_url not in websites_considered
+        host_attempts = sum(
+            1
+            for considered in websites_considered
+            if crawl_host_key(parse.urlsplit(considered).hostname or '') == host
         )
-        if already_crawled and not retry_prior_contact_page:
+        if already_crawled and host_attempts >= 2:
             continue
         if not already_crawled:
             if len(crawled_domains) >= _website_domain_limit():
@@ -831,13 +831,21 @@ def _prioritize_website_candidates(
                 blocked_seen.add(host)
                 blocked_urls.append(hit.website_url)
             continue
+        is_contact = _is_contact_locator_url(hit.website_url)
         bucket = hosts.get(host)
         if bucket is None:
-            bucket = {'url': hit.website_url, 'sources': set()}
+            bucket = {
+                'url': hit.website_url,
+                'contact_url': hit.website_url if is_contact else '',
+                'fallback_url': '' if is_contact else hit.website_url,
+                'sources': set(),
+            }
             hosts[host] = bucket
             seen_order.append(host)
-        elif _website_candidate_url_priority(hit.website_url) < _website_candidate_url_priority(bucket['url']):
-            bucket['url'] = hit.website_url
+        elif is_contact and not bucket['contact_url']:
+            bucket['contact_url'] = hit.website_url
+        elif not is_contact and not bucket['fallback_url']:
+            bucket['fallback_url'] = hit.website_url
         bucket['sources'].add(hit.source)
     brave_only_kept = 0
     ranked_hosts: list[str] = []
@@ -848,7 +856,7 @@ def _prioritize_website_candidates(
         brave_only = locator_sources == {SOURCE_BRAVE}
         if brave_only:
             if brave_only_kept >= MAX_BRAVE_WEBSITE_CANDIDATES:
-                dropped_brave.append(hosts[host]['url'])
+                dropped_brave.append(_website_bucket_primary_url(hosts[host]))
                 continue
             brave_only_kept += 1
         ranked_hosts.append(host)
@@ -856,20 +864,34 @@ def _prioritize_website_candidates(
     limit = _website_domain_limit()
     selected = ranked_hosts[:limit]
     skipped_hosts = ranked_hosts[limit:]
-    discovered = [hosts[host]['url'] for host in ranked_hosts] + dropped_brave
-    crawl_urls = [hosts[host]['url'] for host in selected]
-    skipped_budget = [hosts[host]['url'] for host in skipped_hosts]
+    discovered = [_website_bucket_primary_url(hosts[host]) for host in ranked_hosts] + dropped_brave
+    crawl_urls = []
+    for host in selected:
+        bucket = hosts[host]
+        contact_url = bucket['contact_url']
+        fallback_url = bucket['fallback_url']
+        if contact_url:
+            crawl_urls.append(contact_url)
+        if fallback_url and fallback_url != contact_url:
+            crawl_urls.append(fallback_url)
+        if not contact_url and not fallback_url:
+            crawl_urls.append(bucket['url'])
+    skipped_budget = [_website_bucket_primary_url(hosts[host]) for host in skipped_hosts]
     return discovered, crawl_urls, skipped_budget, dropped_brave, blocked_urls
 
 
 def _is_contact_locator_url(url: str) -> bool:
     parts = parse.urlsplit(str(url or ''))
-    text = parse.unquote(parts.path or '').casefold()
-    return any(marker in text for marker in CONTACT_LOCATOR_PATH_MARKERS)
+    path = parse.unquote(parts.path or '').casefold()
+    for segment in (piece for piece in path.split('/') if piece):
+        for marker in CONTACT_LOCATOR_PATH_MARKERS:
+            if segment == marker or segment.startswith(marker + '-') or segment.startswith(marker + '_'):
+                return True
+    return False
 
 
-def _website_candidate_url_priority(url: str) -> int:
-    return 0 if _is_contact_locator_url(url) else 1
+def _website_bucket_primary_url(bucket: dict[str, Any]) -> str:
+    return bucket.get('contact_url') or bucket.get('fallback_url') or bucket.get('url') or ''
 
 
 def _website_priority(sources: set[str]) -> int:
@@ -1324,6 +1346,19 @@ def _blocked_locator_host(hostname: str) -> bool:
         if '.'.join(parts[index:]) in SKIPPED_BRAVE_HOSTS:
             return True
     return False
+
+
+def _unique_crawl_urls(urls: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result = []
+    for url in urls:
+        raw = str(url or '').strip()
+        host = crawl_host_key(parse.urlsplit(raw).hostname or '')
+        if not raw or not host or raw in seen or _blocked_locator_host(host):
+            continue
+        seen.add(raw)
+        result.append(raw)
+    return result
 
 
 def _unique_domains(urls: list[str]) -> list[str]:
