@@ -106,10 +106,31 @@ SKIPPED_BRAVE_HOSTS = frozenset({
     'yandex.com',
     'maps.yandex.ru',
     'optoviki.kz',
+    'zoon.kz',
+    'spravker.ru',
+    'razborka.org',
+    'raz-bor.ru',
+    'incatalog.kz',
+    'website.informer.com',
+    'bizfam.ru',
+    'thehrd.ru',
+    'rusprofile.ru',
+    'list-org.com',
+    'wikipedia.org',
+    'checko.ru',
+    'career.habr.com',
 })
 MAX_BRAVE_RESULTS = 5
 MAX_BRAVE_WEBSITE_CANDIDATES = 2
 WEBSITE_DOMAIN_CAP = 5
+CONTACT_LOCATOR_PATH_MARKERS = (
+    'contact',
+    'contacts',
+    'kontakt',
+    'kontakty',
+    'kontakti',
+    'контакт',
+)
 
 
 class SellerContactEnrichmentError(Exception):
@@ -598,11 +619,22 @@ def _crawl_candidates(
 ) -> tuple[str, str]:
     for website_url in _unique_domains(website_urls):
         host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
-        if not host or host in crawled_domains:
+        if not host:
             continue
-        if len(crawled_domains) >= _website_domain_limit():
-            break
-        crawled_domains.add(host)
+        already_crawled = host in crawled_domains
+        retry_prior_contact_page = (
+            already_crawled
+            and bool(prior_host_key)
+            and host == prior_host_key
+            and _is_contact_locator_url(website_url)
+            and website_url not in websites_considered
+        )
+        if already_crawled and not retry_prior_contact_page:
+            continue
+        if not already_crawled:
+            if len(crawled_domains) >= _website_domain_limit():
+                break
+            crawled_domains.add(host)
         websites_considered.append(website_url)
         is_prior = bool(prior_host_key) and host == prior_host_key
         crawled = crawl_official_website(
@@ -804,6 +836,8 @@ def _prioritize_website_candidates(
             bucket = {'url': hit.website_url, 'sources': set()}
             hosts[host] = bucket
             seen_order.append(host)
+        elif _website_candidate_url_priority(hit.website_url) < _website_candidate_url_priority(bucket['url']):
+            bucket['url'] = hit.website_url
         bucket['sources'].add(hit.source)
     brave_only_kept = 0
     ranked_hosts: list[str] = []
@@ -826,6 +860,16 @@ def _prioritize_website_candidates(
     crawl_urls = [hosts[host]['url'] for host in selected]
     skipped_budget = [hosts[host]['url'] for host in skipped_hosts]
     return discovered, crawl_urls, skipped_budget, dropped_brave, blocked_urls
+
+
+def _is_contact_locator_url(url: str) -> bool:
+    parts = parse.urlsplit(str(url or ''))
+    text = parse.unquote(parts.path or '').casefold()
+    return any(marker in text for marker in CONTACT_LOCATOR_PATH_MARKERS)
+
+
+def _website_candidate_url_priority(url: str) -> int:
+    return 0 if _is_contact_locator_url(url) else 1
 
 
 def _website_priority(sources: set[str]) -> int:
