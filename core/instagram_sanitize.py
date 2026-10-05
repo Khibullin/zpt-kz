@@ -417,6 +417,38 @@ def build_instagram_seller_search_text(
     return 'Казахстан'
 
 
+def build_public_location_line(
+    *,
+    search_scope: str | None = None,
+    city: str | None = None,
+    selected_cities: str | None = None,
+) -> str:
+    """Город и география поиска только из реальных полей заявки."""
+    city_text = _normalize_spaces(city)
+    scope = (search_scope or 'city').strip().lower()
+    selected = [
+        item.strip()
+        for item in str(selected_cities or '').split(',')
+        if item.strip()
+    ]
+
+    if scope == 'kazakhstan':
+        if city_text:
+            return f'{city_text} • По Казахстану'
+        return 'По Казахстану'
+
+    if scope == 'custom':
+        if city_text and selected:
+            if selected == [city_text]:
+                return city_text
+            return f'{city_text} • {", ".join(selected)}'
+        if selected:
+            return ', '.join(selected)
+        return city_text
+
+    return city_text
+
+
 def build_instagram_geography_text(
     *,
     search_scope: str | None = None,

@@ -1706,6 +1706,7 @@ class InstagramPublication(models.Model):
     STATUS_PUBLISHED = 'published'
     STATUS_FAILED = 'failed'
     STATUS_CANCELLED = 'cancelled'
+    STATUS_NEEDS_REVIEW = 'needs_review'
 
     STATUS_CHOICES = [
         (STATUS_DRAFT, 'Черновик'),
@@ -1715,13 +1716,28 @@ class InstagramPublication(models.Model):
         (STATUS_PUBLISHED, 'Опубликовано'),
         (STATUS_FAILED, 'Ошибка'),
         (STATUS_CANCELLED, 'Отменено'),
+        (STATUS_NEEDS_REVIEW, 'Нужно разобрать'),
     ]
 
-    request = models.OneToOneField(
+    PLACEMENT_STORY = 'story'
+    PLACEMENT_FEED = 'feed'
+    PLACEMENT_CHOICES = [
+        (PLACEMENT_STORY, 'Сторис'),
+        (PLACEMENT_FEED, 'Лента'),
+    ]
+
+    request = models.ForeignKey(
         Request,
         on_delete=models.CASCADE,
-        related_name='instagram_publication',
+        related_name='instagram_publications',
         verbose_name='Заявка',
+    )
+    placement = models.CharField(
+        max_length=16,
+        choices=PLACEMENT_CHOICES,
+        default=PLACEMENT_STORY,
+        db_index=True,
+        verbose_name='Размещение',
     )
     image = models.ImageField(
         upload_to='instagram_stories/',
@@ -1779,14 +1795,28 @@ class InstagramPublication(models.Model):
         blank=True,
         verbose_name='Последняя попытка',
     )
+    next_attempt_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Следующая попытка не раньше',
+    )
 
     class Meta:
         verbose_name = 'Публикация Instagram'
         verbose_name_plural = 'Публикации Instagram'
         ordering = ['-created_at']
+        constraints = [
+            models.UniqueConstraint(
+                fields=['request', 'placement'],
+                name='uniq_instagram_publication_request_placement',
+            ),
+        ]
 
     def __str__(self):
-        return f'Instagram #{self.pk} — заявка #{self.request_id} ({self.get_status_display()})'
+        return (
+            f'Instagram #{self.pk} — заявка #{self.request_id} '
+            f'{self.get_placement_display()} ({self.get_status_display()})'
+        )
 
 
 SELLER_LEAD_STATUS_CHOICES = [

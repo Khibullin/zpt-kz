@@ -11,18 +11,24 @@ from pathlib import Path
 import requests
 from django.conf import settings
 from django.db import IntegrityError
-from django.db.models import Count
+from django.db.models import Count, Q
 from django.utils import timezone
 
 from catalog.image_generator import (
     InstagramStoryGenerationError,
     build_publication_caption,
+    generate_instagram_feed,
     generate_instagram_story,
+    public_part_text,
 )
 from catalog.instagram_api import (
+    InstagramAmbiguousPublishError,
     InstagramPublishError,
+    InstagramQuotaError,
     InstagramTemporaryImageUrlError,
     absolute_media_path_to_relative,
+    inspect_instagram_container,
+    publish_feed_to_instagram,
     publish_story_to_instagram,
 )
 from core.instagram_sanitize import is_junk_only_description
@@ -32,9 +38,59 @@ logger = logging.getLogger(__name__)
 
 STUCK_PUBLISHING_TIMEOUT = timedelta(minutes=5)
 MAX_IMAGE_URL_RETRIES = 3
+MAX_QUOTA_DEFERS = 6
+QUOTA_DELAY = timedelta(hours=1)
+TEMPORARY_RETRY_DELAYS = (
+    timedelta(minutes=5),
+    timedelta(minutes=15),
+    timedelta(minutes=45),
+)
 MISSING_CRON_IMAGE_MESSAGE = (
     'Instagram publication image is missing before cron publish.'
 )
+PUBLIC_REQUEST_STATUSES = frozenset({'new', 'sent', 'no_sellers'})
+NON_PUBLIC_REQUEST_STATUSES = frozenset({
+    'deleted',
+    'rejected',
+    'cancelled',
+    'canceled',
+    'hidden',
+    'closed',
+    'archived',
+})
+
+
+def feed_publish_enabled() -> bool:
+    """Публикация в ленте. Не отключает сторис."""
+    return bool(getattr(settings, 'INSTAGRAM_FEED_PUBLISH_ENABLED', False))
+
+
+def _daily_publish_limit() -> int:
+    try:
+        return int(getattr(settings, 'INSTAGRAM_DAILY_PUBLISH_LIMIT', 50))
+    except (TypeError, ValueError):
+        return 50
+
+
+def request_is_eligible_for_instagram(product_request: Request) -> tuple[bool, str]:
+    """Повторная проверка перед отправкой. Не меняет заявку."""
+    if product_request is None or product_request.pk is None:
+        return False, 'Заявка для Instagram-публикации не найдена.'
+    status = (product_request.status or '').strip().lower()
+    if status in NON_PUBLIC_REQUEST_STATUSES or status not in PUBLIC_REQUEST_STATUSES:
+        return False, 'Заявка не допущена к публичному размещению.'
+    if is_junk_only_description(product_request.description):
+        return False, 'Описание заявки не подходит для публичного размещения.'
+    if not public_part_text(product_request):
+        return False, 'Нет публичного названия детали.'
+    return True, ''
+
+
+def _placement_publication(request_id: int, placement: str) -> InstagramPublication | None:
+    return InstagramPublication.objects.filter(
+        request_id=request_id,
+        placement=placement,
+    ).first()
 
 
 def get_instagram_publish_mode() -> str:
@@ -84,7 +140,7 @@ def enqueue_instagram_publication_for_request(
         logger.debug('Instagram publish mode OFF — пропуск заявки #%s', request_id)
         return None
 
-    existing = InstagramPublication.objects.filter(request_id=request_id).first()
+    existing = _placement_publication(request_id, InstagramPublication.PLACEMENT_STORY)
     if existing:
         logger.info(
             'Instagram publication already exists for request #%s (status=%s)',
@@ -104,23 +160,24 @@ def enqueue_instagram_publication_for_request(
         logger.warning('Request #%s not found for Instagram publication', request_id)
         return None
 
-    junk_only_description = is_junk_only_description(product_request.description)
+    eligible, _reason = request_is_eligible_for_instagram(product_request)
     caption = build_publication_caption(product_request)
-    if junk_only_description:
+    if not eligible:
         logger.info(
-            'Request #%s has junk-only description, Instagram publication will stay draft',
+            'Request #%s is not eligible for Instagram, publication will stay draft',
             request_id,
         )
 
     try:
         publication = InstagramPublication.objects.create(
             request=product_request,
+            placement=InstagramPublication.PLACEMENT_STORY,
             caption=caption,
             status=InstagramPublication.STATUS_DRAFT,
         )
     except IntegrityError:
         logger.info('Instagram publication race for request #%s', request_id)
-        return InstagramPublication.objects.filter(request_id=request_id).first()
+        return _placement_publication(request_id, InstagramPublication.PLACEMENT_STORY)
 
     logger.info(
         'Instagram publication created for request #%s (publication #%s, status=%s)',
@@ -128,8 +185,13 @@ def enqueue_instagram_publication_for_request(
         publication.pk,
         publication.status,
     )
-    if mode == 'LIVE' and not junk_only_description:
-        return _queue_live_publication_with_backend_image(publication)
+    if mode == 'LIVE' and eligible:
+        publication = _queue_live_publication_with_backend_image(publication)
+    _maybe_create_feed_for_new_request(
+        product_request,
+        mode=mode,
+        generate_image=mode == 'LIVE' and eligible,
+    )
     return publication
 
 
@@ -143,7 +205,7 @@ def _queue_live_publication_with_backend_image(
             publication,
             'Заявка для Instagram-публикации не найдена.',
         )
-    if is_junk_only_description(product_request.description):
+    if not request_is_eligible_for_instagram(product_request)[0]:
         return publication
     if not publication.image:
         publication = ensure_instagram_story_image(publication)
@@ -183,8 +245,13 @@ def ensure_instagram_story_image(
             'Заявка для Instagram-публикации не найдена.',
         )
 
+    generator = (
+        generate_instagram_feed
+        if publication.placement == InstagramPublication.PLACEMENT_FEED
+        else generate_instagram_story
+    )
     try:
-        output_path, caption = generate_instagram_story(product_request)
+        output_path, caption = generator(product_request)
     except InstagramStoryGenerationError as exc:
         logger.warning(
             'Instagram Story not generated for publication #%s request #%s: %s',
@@ -249,7 +316,7 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
         logger.debug('Instagram publish mode OFF — пропуск заявки #%s', request_id)
         return None
 
-    existing = InstagramPublication.objects.filter(request_id=request_id).first()
+    existing = _placement_publication(request_id, InstagramPublication.PLACEMENT_STORY)
     if existing:
         logger.info(
             'Instagram publication already exists for request #%s (status=%s)',
@@ -269,7 +336,7 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
                 product_request = Request.objects.get(pk=request_id)
             except Request.DoesNotExist:
                 return existing
-            if not is_junk_only_description(product_request.description):
+            if request_is_eligible_for_instagram(product_request)[0]:
                 queue_instagram_publication_for_processing(existing)
             return existing
         return existing
@@ -302,13 +369,14 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
     try:
         publication = InstagramPublication.objects.create(
             request=product_request,
+            placement=InstagramPublication.PLACEMENT_STORY,
             caption=caption,
             status=InstagramPublication.STATUS_DRAFT,
         )
     except IntegrityError:
         logger.info('Instagram publication race for request #%s', request_id)
-        publication = InstagramPublication.objects.get(request_id=request_id)
-        if not publication.image:
+        publication = _placement_publication(request_id, InstagramPublication.PLACEMENT_STORY)
+        if publication and not publication.image:
             publication = ensure_instagram_story_image(publication)
         return publication
 
@@ -321,10 +389,58 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
         publication.pk,
     )
 
-    if mode == 'LIVE' and not junk_only_description:
+    if mode == 'LIVE' and not junk_only_description and request_is_eligible_for_instagram(product_request)[0]:
         queue_instagram_publication_for_processing(publication)
-        return publication
+    _maybe_create_feed_for_new_request(
+        product_request,
+        mode=mode,
+        generate_image=True,
+    )
+    return publication
 
+
+def _maybe_create_feed_for_new_request(
+    product_request: Request,
+    *,
+    mode: str,
+    generate_image: bool,
+) -> InstagramPublication | None:
+    """Создаёт пост ленты только вместе с новой заявкой. Старые строки не дополняет."""
+    if not feed_publish_enabled():
+        return None
+    if not request_is_eligible_for_instagram(product_request)[0]:
+        return None
+    existing = _placement_publication(product_request.pk, InstagramPublication.PLACEMENT_FEED)
+    if existing:
+        return existing
+    try:
+        publication = InstagramPublication.objects.create(
+            request=product_request,
+            placement=InstagramPublication.PLACEMENT_FEED,
+            caption=build_publication_caption(product_request),
+            status=InstagramPublication.STATUS_DRAFT,
+        )
+    except IntegrityError:
+        return _placement_publication(product_request.pk, InstagramPublication.PLACEMENT_FEED)
+
+    if not generate_image:
+        return publication
+    try:
+        publication = ensure_instagram_story_image(publication)
+    except Exception:
+        logger.exception(
+            'Instagram feed image failed for request #%s',
+            product_request.pk,
+        )
+        return _mark_publication_failed(
+            publication,
+            'Не удалось подготовить изображение ленты.',
+        )
+    publication.refresh_from_db()
+    if publication.status == InstagramPublication.STATUS_FAILED or not publication.image:
+        return publication
+    if mode == 'LIVE':
+        return queue_instagram_publication_for_processing(publication)
     return publication
 
 
@@ -340,6 +456,7 @@ def queue_instagram_publication_for_processing(
     publication.error_message = ''
     publication.retry_count = 0
     publication.last_attempt_at = None
+    publication.next_attempt_at = None
     publication.save(
         update_fields=[
             'status',
@@ -347,6 +464,7 @@ def queue_instagram_publication_for_processing(
             'error_message',
             'retry_count',
             'last_attempt_at',
+            'next_attempt_at',
         ]
     )
     logger.info(
@@ -408,11 +526,15 @@ def process_queued_instagram_publications() -> dict[str, int]:
         if publication.status == InstagramPublication.STATUS_FAILED and before_status != publication.status:
             stats['stuck_reset'] += 1
 
-    queued_publications = list(
-        InstagramPublication.objects.filter(
-            status=InstagramPublication.STATUS_QUEUED,
-        ).order_by('created_at')
+    now = timezone.now()
+    queued = InstagramPublication.objects.filter(
+        status=InstagramPublication.STATUS_QUEUED,
+    ).filter(
+        Q(next_attempt_at__isnull=True) | Q(next_attempt_at__lte=now),
     )
+    if not feed_publish_enabled():
+        queued = queued.exclude(placement=InstagramPublication.PLACEMENT_FEED)
+    queued_publications = list(queued.order_by('created_at'))
 
     for publication in queued_publications:
         stats['processed'] += 1
@@ -492,6 +614,7 @@ def _requeue_publication_for_temporary_image_url_error(
 
     if new_retry_count >= MAX_IMAGE_URL_RETRIES:
         publication.status = InstagramPublication.STATUS_FAILED
+        publication.next_attempt_at = None
         publication.error_message = (
             f'Временная недоступность image_url: HTTP {status_code}. '
             f'Превышено число попыток ({MAX_IMAGE_URL_RETRIES}).'
@@ -504,6 +627,8 @@ def _requeue_publication_for_temporary_image_url_error(
         )
     else:
         publication.status = InstagramPublication.STATUS_QUEUED
+        delay = TEMPORARY_RETRY_DELAYS[min(new_retry_count - 1, len(TEMPORARY_RETRY_DELAYS) - 1)]
+        publication.next_attempt_at = now + delay
         publication.error_message = (
             f'Временная недоступность image_url: HTTP {status_code}. '
             'Будет повторено позже.'
@@ -524,7 +649,103 @@ def _requeue_publication_for_temporary_image_url_error(
             'retry_count',
             'last_attempt_at',
             'publishing_started_at',
+            'next_attempt_at',
         ]
+    )
+    return publication
+
+
+def _defer_publication_for_quota(
+    publication: InstagramPublication,
+    message: str,
+) -> InstagramPublication:
+    new_retry_count = publication.retry_count + 1
+    now = timezone.now()
+    if new_retry_count >= MAX_QUOTA_DEFERS:
+        publication.status = InstagramPublication.STATUS_NEEDS_REVIEW
+        publication.error_message = (
+            'Лимит публикаций Instagram. Автоматический повтор остановлен, нужна проверка.'
+        )
+        publication.next_attempt_at = None
+    else:
+        publication.status = InstagramPublication.STATUS_QUEUED
+        publication.error_message = (
+            'Лимит публикаций Instagram. Публикация остаётся в очереди.'
+        )
+        publication.next_attempt_at = now + QUOTA_DELAY
+    publication.retry_count = new_retry_count
+    publication.last_attempt_at = now
+    publication.publishing_started_at = None
+    publication.save(
+        update_fields=[
+            'status',
+            'error_message',
+            'retry_count',
+            'last_attempt_at',
+            'publishing_started_at',
+            'next_attempt_at',
+        ]
+    )
+    logger.warning(
+        'Instagram publication #%s deferred or held for quota (attempt %s)',
+        publication.pk,
+        new_retry_count,
+    )
+    return publication
+
+
+def _resolve_ambiguous_publication(
+    publication: InstagramPublication,
+    message: str,
+) -> InstagramPublication:
+    inspection = {'status_code': '', 'media_id': ''}
+    if publication.instagram_container_id:
+        inspection = inspect_instagram_container(
+            publication.instagram_container_id,
+            publication_id=publication.pk,
+        ) or inspection
+    media_id = str(inspection.get('media_id') or '')
+    now = timezone.now()
+    if media_id:
+        publication.instagram_media_id = media_id
+        publication.status = InstagramPublication.STATUS_PUBLISHED
+        publication.published_at = now
+        publication.error_message = ''
+        publication.publishing_started_at = None
+        publication.retry_count = 0
+        publication.last_attempt_at = now
+        publication.next_attempt_at = None
+        publication.save(
+            update_fields=[
+                'instagram_media_id',
+                'status',
+                'published_at',
+                'error_message',
+                'publishing_started_at',
+                'retry_count',
+                'last_attempt_at',
+                'next_attempt_at',
+            ]
+        )
+        return publication
+
+    publication.status = InstagramPublication.STATUS_NEEDS_REVIEW
+    publication.error_message = message
+    publication.publishing_started_at = None
+    publication.last_attempt_at = now
+    publication.next_attempt_at = None
+    publication.save(
+        update_fields=[
+            'status',
+            'error_message',
+            'publishing_started_at',
+            'last_attempt_at',
+            'next_attempt_at',
+        ]
+    )
+    logger.warning(
+        'Instagram publication #%s needs review after an ambiguous API response',
+        publication.pk,
     )
     return publication
 
@@ -542,9 +763,23 @@ def publish_instagram_publication(
         )
         return publication
 
-    if publication.status == InstagramPublication.STATUS_CANCELLED:
+    if publication.status in (
+        InstagramPublication.STATUS_CANCELLED,
+        InstagramPublication.STATUS_NEEDS_REVIEW,
+    ):
         logger.info(
-            'Instagram publication #%s cancelled, skip publish',
+            'Instagram publication #%s status=%s, skip publish',
+            publication.pk,
+            publication.status,
+        )
+        return publication
+
+    if (
+        publication.placement == InstagramPublication.PLACEMENT_FEED
+        and not feed_publish_enabled()
+    ):
+        logger.info(
+            'Instagram feed publication #%s skipped because feed publishing is disabled',
             publication.pk,
         )
         return publication
@@ -583,6 +818,43 @@ def publish_instagram_publication(
         )
         return _mark_publication_failed(publication, MISSING_CRON_IMAGE_MESSAGE)
 
+    try:
+        product_request = publication.request
+    except Request.DoesNotExist:
+        return _mark_publication_failed(publication, 'Заявка для Instagram-публикации не найдена.')
+    eligible, reason = request_is_eligible_for_instagram(product_request)
+    if not eligible:
+        publication.status = InstagramPublication.STATUS_CANCELLED
+        publication.error_message = reason
+        publication.publishing_started_at = None
+        publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+        logger.info(
+            'Instagram publication #%s cancelled before publish: %s',
+            publication.pk,
+            reason,
+        )
+        return publication
+
+    limit = _daily_publish_limit()
+    if limit > 0 and publication.status == InstagramPublication.STATUS_QUEUED:
+        since = timezone.now() - timedelta(hours=24)
+        published_recently = InstagramPublication.objects.filter(
+            status=InstagramPublication.STATUS_PUBLISHED,
+            published_at__gte=since,
+        ).count()
+        if published_recently >= limit:
+            publication.next_attempt_at = timezone.now() + QUOTA_DELAY
+            publication.error_message = (
+                'Достигнут лимит публикаций Instagram за 24 часа. Публикация остаётся в очереди.'
+            )
+            publication.save(update_fields=['next_attempt_at', 'error_message'])
+            logger.info(
+                'Instagram publication #%s deferred: daily limit %s reached',
+                publication.pk,
+                limit,
+            )
+            return publication
+
     if source == 'management':
         logger.info(
             'Instagram cron publish started publication #%s request #%s image=%s',
@@ -598,22 +870,52 @@ def publish_instagram_publication(
             publication.image.name,
         )
 
-    publication.status = InstagramPublication.STATUS_PUBLISHING
-    publication.error_message = ''
-    publication.publishing_started_at = timezone.now()
-    publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+    claimed = InstagramPublication.objects.filter(
+        pk=publication.pk,
+        status__in=(
+            InstagramPublication.STATUS_QUEUED,
+            InstagramPublication.STATUS_FAILED,
+            InstagramPublication.STATUS_DRAFT,
+        ),
+    ).update(
+        status=InstagramPublication.STATUS_PUBLISHING,
+        error_message='',
+        publishing_started_at=timezone.now(),
+    )
+    if not claimed:
+        publication.refresh_from_db()
+        return publication
+    publication.refresh_from_db()
+
+    def _remember_container(container_id: str) -> None:
+        publication.instagram_container_id = container_id
+        publication.save(update_fields=['instagram_container_id'])
 
     try:
-        result = publish_story_to_instagram(
-            publication.image.name,
-            publication_id=publication.pk,
-            validate_image_url=validate_image_url,
-        )
+        if publication.placement == InstagramPublication.PLACEMENT_FEED:
+            result = publish_feed_to_instagram(
+                publication.image.name,
+                caption=publication.caption,
+                publication_id=publication.pk,
+                validate_image_url=validate_image_url,
+                on_container_created=_remember_container,
+            )
+        else:
+            result = publish_story_to_instagram(
+                publication.image.name,
+                publication_id=publication.pk,
+                validate_image_url=validate_image_url,
+                on_container_created=_remember_container,
+            )
     except InstagramTemporaryImageUrlError as exc:
         return _requeue_publication_for_temporary_image_url_error(
             publication,
             status_code=exc.status_code,
         )
+    except InstagramQuotaError as exc:
+        return _defer_publication_for_quota(publication, str(exc))
+    except InstagramAmbiguousPublishError as exc:
+        return _resolve_ambiguous_publication(publication, str(exc))
     except InstagramPublishError as exc:
         _mark_publication_failed(publication, str(exc))
         logger.warning(

@@ -173,21 +173,24 @@ class InstagramStoryGeneratorTests(TestCase):
         line = _format_vehicle_line(self.request)
         self.assertEqual(line, 'Chery Tiggo 7')
 
-    def test_request_year_is_not_published_to_instagram(self):
+    def test_request_year_is_published_and_vin_is_not(self):
         self.request.year = 2018
         self.request.vin = 'JTDBR32E720012345'
         line = _format_vehicle_line(self.request)
         caption = build_publication_caption(self.request)
-        self.assertEqual(line, 'Chery Tiggo 7')
-        self.assertNotIn('2018', caption)
+        self.assertEqual(line, 'Chery Tiggo 7 2018')
+        self.assertIn('2018', caption)
         self.assertNotIn('JTDBR32E720012345', caption)
+        self.assertNotIn(self.request.phone, caption)
 
     def test_build_publication_caption_contains_new_geography_lines(self):
         self.request.search_scope = 'kazakhstan'
         caption = build_publication_caption(self.request)
         self.assertIn('Город: Алматы', caption)
-        self.assertIn('Поиск: весь Казахстан', caption)
-        self.assertIn('ДЕТАЛЬ:', caption)
+        self.assertIn('Покупатель ищет:', caption)
+        self.assertIn('Автомобиль:', caption)
+        self.assertNotIn(self.request.phone, caption)
+        self.assertNotIn('Откройте заявку', caption)
 
     def test_build_publication_caption_excludes_phone_from_description(self):
         self.request.description = 'Фильтр, звоните 77001112233'
@@ -221,8 +224,9 @@ class InstagramStoryGeneratorTests(TestCase):
         self.assertTrue(output_path.is_file())
         self.assertEqual(output_path.suffix, '.jpg')
         self.assertIn('instagram_stories', output_path.as_posix())
-        self.assertIn(str(self.request.access_token), output_path.name)
-        self.assertIn('АВТО:', caption)
+        self.assertIn(f'story_{self.request.pk}_', output_path.name)
+        self.assertNotIn(str(self.request.access_token), output_path.name)
+        self.assertIn('Автомобиль:', caption)
         self.assertIn('Город:', caption)
 
         with Image.open(output_path) as image:

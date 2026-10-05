@@ -1565,12 +1565,13 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'request',
+        'placement',
         'status',
         'image_preview_list',
         'created_at',
         'published_at',
     )
-    list_filter = ('status', 'created_at', 'published_at')
+    list_filter = ('placement', 'status', 'created_at', 'published_at')
     search_fields = (
         'request__id',
         'request__brand',
@@ -1581,6 +1582,7 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'request',
+        'placement',
         'image',
         'image_preview',
         'caption',
@@ -1589,9 +1591,13 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
         'created_at',
         'publishing_started_at',
         'published_at',
+        'retry_count',
+        'last_attempt_at',
+        'next_attempt_at',
     )
     fields = (
         'request',
+        'placement',
         'status',
         'image_preview',
         'image',
@@ -1599,6 +1605,9 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
         'instagram_container_id',
         'instagram_media_id',
         'error_message',
+        'retry_count',
+        'last_attempt_at',
+        'next_attempt_at',
         'created_at',
         'publishing_started_at',
         'published_at',

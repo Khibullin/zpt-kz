@@ -34,8 +34,18 @@ SENSITIVE_LOG_KEYS = ('access_token', 'token', 'client_secret', 'appsecret_proof
 TEMPORARY_IMAGE_URL_STATUS_CODES = frozenset({502, 503, 504})
 
 
+QUOTA_ERROR_CODES = frozenset({4, 17, 32, 613})
+QUOTA_ERROR_SUBCODES = frozenset({2207042})
+CAPTION_MAX_LENGTH = 2200
+
+
 class InstagramPublishError(Exception):
-    """Ошибка публикации Instagram Story через Meta Graph API."""
+    """Ошибка публикации Instagram через Meta Graph API."""
+
+    def __init__(self, message: str, *, code: int | None = None, subcode: int | None = None) -> None:
+        self.code = code
+        self.subcode = subcode
+        super().__init__(message)
 
 
 class InstagramTemporaryImageUrlError(InstagramPublishError):
@@ -47,6 +57,14 @@ class InstagramTemporaryImageUrlError(InstagramPublishError):
         super().__init__(
             f'Временная недоступность image_url: HTTP {status_code} ({image_url})'
         )
+
+
+class InstagramQuotaError(InstagramPublishError):
+    """Локальная или серверная квота публикаций Instagram."""
+
+
+class InstagramAmbiguousPublishError(InstagramPublishError):
+    """Ответ после отправки не позволяет понять, создана ли публикация."""
 
 
 @dataclass(frozen=True)
@@ -286,6 +304,7 @@ def _parse_graph_response(
     *,
     action: str,
     publication_id: int | None = None,
+    ambiguous_on_server_error: bool = False,
 ) -> dict[str, Any]:
     try:
         payload = response.json()
@@ -298,6 +317,10 @@ def _parse_graph_response(
             response.status_code,
             response.text[:500],
         )
+        if ambiguous_on_server_error or response.status_code >= 500:
+            raise InstagramAmbiguousPublishError(
+                f'{action}: неясный ответ Meta API (HTTP {response.status_code}).'
+            ) from exc
         raise InstagramPublishError(
             f'{action}: Meta API вернул не-JSON ответ (HTTP {response.status_code}).'
         ) from exc
@@ -311,13 +334,51 @@ def _parse_graph_response(
         _sanitize_for_log(payload),
     )
 
+    if response.status_code >= 500 and ambiguous_on_server_error:
+        raise InstagramAmbiguousPublishError(
+            f'{action}: неясный ответ Meta API (HTTP {response.status_code}).'
+        )
+
     if response.status_code >= 400 or 'error' in payload:
-        error = payload.get('error', {})
+        error = payload.get('error') or {}
         message = error.get('message') or response.text or 'Неизвестная ошибка Meta API'
         code = error.get('code')
-        raise InstagramPublishError(f'{action}: {message} (code={code})')
+        subcode = error.get('error_subcode')
+        if _is_quota_error(code, subcode) or response.status_code == 429:
+            raise InstagramQuotaError(
+                f'{action}: достигнут лимит публикаций Instagram.',
+                code=_as_int(code),
+                subcode=_as_int(subcode),
+            )
+        raise InstagramPublishError(
+            f'{action}: {message} (code={code})',
+            code=_as_int(code),
+            subcode=_as_int(subcode),
+        )
 
     return payload
+
+
+def _as_int(value: Any) -> int | None:
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _is_quota_error(code: Any, subcode: Any) -> bool:
+    code_int = _as_int(code)
+    subcode_int = _as_int(subcode)
+    return code_int in QUOTA_ERROR_CODES or subcode_int in QUOTA_ERROR_SUBCODES
+
+
+def _post_graph(url: str, *, data: dict[str, Any], action: str) -> requests.Response:
+    try:
+        return requests.post(url, data=data, timeout=REQUEST_TIMEOUT_SEC)
+    except (requests.Timeout, requests.ConnectionError) as exc:
+        raise InstagramAmbiguousPublishError(
+            f'{action}: ответ Meta после отправки не получен.'
+        ) from exc
 
 
 def _create_story_container(
@@ -334,14 +395,14 @@ def _create_story_container(
         'create container endpoint=%s media_type=STORIES',
         endpoint,
     )
-    response = requests.post(
+    response = _post_graph(
         f'{_graph_api_root()}/{ig_account_id}/media',
         data={
             'image_url': image_url,
             'media_type': 'STORIES',
             'access_token': access_token,
         },
-        timeout=REQUEST_TIMEOUT_SEC,
+        action='Создание media container',
     )
     payload = _parse_graph_response(
         response,
@@ -368,14 +429,19 @@ def _wait_for_container_ready(
     deadline = time.monotonic() + CONTAINER_POLL_TIMEOUT_SEC
 
     while time.monotonic() < deadline:
-        response = requests.get(
-            endpoint,
-            params={
-                'fields': 'status_code',
-                'access_token': access_token,
-            },
-            timeout=REQUEST_TIMEOUT_SEC,
-        )
+        try:
+            response = requests.get(
+                endpoint,
+                params={
+                    'fields': 'status_code',
+                    'access_token': access_token,
+                },
+                timeout=REQUEST_TIMEOUT_SEC,
+            )
+        except (requests.Timeout, requests.ConnectionError) as exc:
+            raise InstagramAmbiguousPublishError(
+                'Polling media container: ответ Meta после отправки не получен.'
+            ) from exc
         payload = _parse_graph_response(
             response,
             action='Polling media container',
@@ -424,22 +490,23 @@ def _publish_story_container(
         endpoint,
         container_id,
     )
-    response = requests.post(
+    response = _post_graph(
         f'{_graph_api_root()}/{ig_account_id}/media_publish',
         data={
             'creation_id': container_id,
             'access_token': access_token,
         },
-        timeout=REQUEST_TIMEOUT_SEC,
+        action='Публикация media container',
     )
     payload = _parse_graph_response(
         response,
         action='Публикация media container',
         publication_id=publication_id,
+        ambiguous_on_server_error=True,
     )
     media_id = payload.get('id')
     if not media_id:
-        raise InstagramPublishError(
+        raise InstagramAmbiguousPublishError(
             'Публикация media container: Meta API не вернул ID опубликованного media.'
         )
     media_id = str(media_id)
@@ -452,6 +519,7 @@ def publish_story_to_instagram(
     *,
     publication_id: int | None = None,
     validate_image_url: bool = False,
+    on_container_created=None,
 ) -> dict[str, str]:
     """
     Публикует изображение в Instagram Stories через Meta Graph API.
@@ -491,6 +559,8 @@ def publish_story_to_instagram(
             image_url=image_url,
             publication_id=publication_id,
         )
+        if on_container_created is not None:
+            on_container_created(container_id)
 
         _wait_for_container_ready(
             container_id=container_id,
@@ -517,6 +587,118 @@ def publish_story_to_instagram(
     except Exception:
         _pub_log(publication_id, logging.ERROR, 'непредвиденная ошибка публикации', exc_info=True)
         raise
+
+
+def _clip_caption(caption: str) -> str:
+    text = ' '.join(str(caption or '').split())
+    if len(text) <= CAPTION_MAX_LENGTH:
+        return text
+    return text[: CAPTION_MAX_LENGTH - 1].rstrip() + '…'
+
+
+def publish_feed_to_instagram(
+    image_relative_path: str,
+    *,
+    caption: str,
+    publication_id: int | None = None,
+    validate_image_url: bool = False,
+    on_container_created=None,
+) -> dict[str, str]:
+    """Публикует JPEG 4:5 в ленту Instagram. Сторис при этом не создаётся."""
+    try:
+        if not instagram_credentials_configured():
+            raise InstagramPublishError(
+                'Instagram API не настроен: отсутствуют INSTAGRAM_ACCOUNT_ID '
+                'или INSTAGRAM_ACCESS_TOKEN.'
+            )
+
+        ig_account_id = _instagram_account_id()
+        access_token = _instagram_access_token()
+        image_url = build_public_media_url(image_relative_path)
+        _pub_log(publication_id, logging.INFO, 'начало публикации ленты image_url=%s', image_url)
+
+        if validate_image_url:
+            validation = validate_public_image_url(image_url)
+            _pub_log(
+                publication_id,
+                logging.INFO,
+                'image URL validation result: HTTP %s Content-Type=%s',
+                validation.status_code,
+                validation.content_type,
+            )
+
+        response = _post_graph(
+            f'{_graph_api_root()}/{ig_account_id}/media',
+            data={
+                'image_url': image_url,
+                'caption': _clip_caption(caption),
+                'access_token': access_token,
+            },
+            action='Создание контейнера ленты',
+        )
+        payload = _parse_graph_response(
+            response,
+            action='Создание контейнера ленты',
+            publication_id=publication_id,
+        )
+        container_id = str(payload.get('id') or '')
+        if not container_id:
+            raise InstagramAmbiguousPublishError(
+                'Создание контейнера ленты: Meta API не вернул ID контейнера.'
+            )
+        if on_container_created is not None:
+            on_container_created(container_id)
+
+        _wait_for_container_ready(
+            container_id=container_id,
+            access_token=access_token,
+            publication_id=publication_id,
+        )
+        media_id = _publish_story_container(
+            ig_account_id=ig_account_id,
+            access_token=access_token,
+            container_id=container_id,
+            publication_id=publication_id,
+        )
+        return {'container_id': container_id, 'media_id': media_id}
+    except InstagramPublishError:
+        _pub_log(publication_id, logging.ERROR, 'ошибка публикации ленты', exc_info=True)
+        raise
+    except requests.RequestException as exc:
+        _pub_log(publication_id, logging.ERROR, 'сетевая ошибка публикации ленты', exc_info=True)
+        raise InstagramAmbiguousPublishError(
+            'Публикация ленты: ответ Meta после отправки не получен.'
+        ) from exc
+    except Exception:
+        _pub_log(publication_id, logging.ERROR, 'непредвиденная ошибка публикации ленты', exc_info=True)
+        raise
+
+
+def inspect_instagram_container(container_id: str, *, publication_id: int | None = None) -> dict[str, str]:
+    """Читает status_code контейнера. Не создаёт новую публикацию."""
+    if not container_id or not instagram_credentials_configured():
+        return {'status_code': '', 'media_id': ''}
+    try:
+        response = requests.get(
+            f'{_graph_api_root()}/{container_id}',
+            params={
+                'fields': 'status_code,id',
+                'access_token': _instagram_access_token(),
+            },
+            timeout=REQUEST_TIMEOUT_SEC,
+        )
+    except (requests.Timeout, requests.ConnectionError):
+        return {'status_code': '', 'media_id': ''}
+    try:
+        payload = _parse_graph_response(
+            response,
+            action='Проверка media container',
+            publication_id=publication_id,
+        )
+    except InstagramPublishError:
+        return {'status_code': '', 'media_id': ''}
+    status_code = str(payload.get('status_code') or '').upper()
+    return {'status_code': status_code, 'media_id': ''}
 
 
 def try_publish_story_to_instagram(image_relative_path: str) -> str | None:

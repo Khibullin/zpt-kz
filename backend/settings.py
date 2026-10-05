@@ -254,6 +254,14 @@ MARKETING_WHATSAPP_SEND_MODE = (
 INSTAGRAM_ACCESS_TOKEN = os.getenv("INSTAGRAM_ACCESS_TOKEN") or os.getenv("FACEBOOK_ACCESS_TOKEN", "")
 INSTAGRAM_ACCOUNT_ID = os.getenv("INSTAGRAM_ACCOUNT_ID") or os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
 INSTAGRAM_PUBLISH_MODE = (os.getenv("INSTAGRAM_PUBLISH_MODE", "OFF") or "OFF").strip().upper()
+# Отдельный выключатель поста в ленте. Не влияет на сторис и по умолчанию выключен.
+INSTAGRAM_FEED_PUBLISH_ENABLED = os.getenv(
+    "INSTAGRAM_FEED_PUBLISH_ENABLED", "False"
+).strip().lower() in {"true", "1", "yes"}
+try:
+    INSTAGRAM_DAILY_PUBLISH_LIMIT = int(os.getenv("INSTAGRAM_DAILY_PUBLISH_LIMIT", "50") or "50")
+except (TypeError, ValueError):
+    INSTAGRAM_DAILY_PUBLISH_LIMIT = 50
 
 INSTAGRAM_BUSINESS_ACCOUNT_ID = os.getenv("INSTAGRAM_BUSINESS_ACCOUNT_ID", "")
 FACEBOOK_ACCESS_TOKEN = os.getenv("FACEBOOK_ACCESS_TOKEN", "")

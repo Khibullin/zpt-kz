@@ -16,10 +16,14 @@ from typing import TYPE_CHECKING
 from django.conf import settings
 from PIL import Image, ImageDraw, ImageFont
 
+from catalog.instagram_card import InstagramCardContent, render_instagram_card
+from catalog.instagram_copy import BUYER_CAPTION, PROFILE_CAPTION, SELLER_CAPTION
 from core.instagram_sanitize import (
+    INSTAGRAM_PART_FALLBACK,
     build_instagram_buyer_city_text,
     build_instagram_part_display,
     build_instagram_seller_search_text,
+    build_public_location_line,
 )
 
 if TYPE_CHECKING:
@@ -30,6 +34,7 @@ logger = logging.getLogger(__name__)
 STORY_WIDTH = 1080
 STORY_HEIGHT = 1920
 OUTPUT_SUBDIR = 'instagram_stories'
+FEED_OUTPUT_SUBDIR = 'instagram_feed'
 
 SITE_MARK = 'ZPT.KZ'
 SITE_TAGLINE = 'заявки на автозапчасти'
@@ -184,12 +189,14 @@ def _format_vehicle_line(product_request: Request) -> str:
     if model:
         parts.append(model)
 
-    year = getattr(product_request, 'vehicle_year', None)
+    year = getattr(product_request, 'year', None)
+    if not year:
+        year = getattr(product_request, 'vehicle_year', None)
     year_text = _normalize_text(str(year)) if year else ''
-    if year_text:
+    if year_text and year_text.lower() not in {'none', '0'}:
         parts.append(year_text)
 
-    return ' '.join(parts) if parts else 'Не указано'
+    return ' '.join(parts)
 
 
 def _format_part_display(product_request: Request):
@@ -215,19 +222,48 @@ def _format_seller_search_line(product_request: Request) -> str:
     )
 
 
+def public_part_text(product_request: Request) -> str:
+    """Публичное название детали. Пустая строка, если его нет в заявке."""
+    detail = _format_part_display(product_request).detail
+    if not detail or detail == INSTAGRAM_PART_FALLBACK:
+        return ''
+    return detail
+
+
+def public_request_number(product_request: Request) -> str:
+    if getattr(product_request, 'pk', None):
+        return f'№ {product_request.pk}'
+    return ''
+
+
+def _card_content(product_request: Request) -> InstagramCardContent:
+    return InstagramCardContent(
+        vehicle=_format_vehicle_line(product_request),
+        part=public_part_text(product_request),
+        location=build_public_location_line(
+            search_scope=getattr(product_request, 'search_scope', 'city'),
+            city=product_request.city,
+            selected_cities=product_request.selected_cities,
+        ),
+        request_number=public_request_number(product_request),
+    )
+
+
 def build_publication_caption(product_request: Request) -> str:
-    """Безопасный текст карточки для хранения и превью в админке."""
-    part_display = _format_part_display(product_request)
-    lines = [
-        f'АВТО: {_format_vehicle_line(product_request)}',
-        f'ДЕТАЛЬ: {part_display.detail}',
-    ]
-    if part_display.category_line:
-        lines.append(part_display.category_line)
-    lines.extend([
-        _format_buyer_city_line(product_request),
-        _format_seller_search_line(product_request),
-    ])
+    """Безопасная подпись без контактов, VIN и секретных ссылок."""
+    lines: list[str] = []
+    part = public_part_text(product_request)
+    if part:
+        lines.append(f'Покупатель ищет: {part}')
+    vehicle = _format_vehicle_line(product_request)
+    if vehicle:
+        lines.append(f'Автомобиль: {vehicle}')
+    city = _normalize_text(product_request.city)
+    if city:
+        lines.append(f'Город: {city}')
+    if product_request.pk:
+        lines.append(f'Заявка №{product_request.pk}')
+    lines.extend([SELLER_CAPTION, BUYER_CAPTION, PROFILE_CAPTION])
     return '\n'.join(lines)
 
 
@@ -511,154 +547,51 @@ def _draw_footer(
     )
 
 
-def _build_output_filename(product_request: Request) -> str:
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    return f'request_{product_request.access_token}_{timestamp}.jpg'
+def _build_output_filename(product_request: Request, kind: str) -> str:
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+    return f'{kind}_{product_request.pk}_{timestamp}.jpg'
 
 
-def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
-    """
-    Создаёт JPEG-карточку 1080×1920 для Instagram Stories и сохраняет её
-    в ``MEDIA_ROOT/instagram_stories/``.
-
-    :returns: (абсолютный путь к файлу, безопасный caption).
-    :raises InstagramStoryGenerationError: если сохранить изображение не удалось.
-    """
+def _save_card(product_request: Request, *, kind: str) -> tuple[Path, str]:
     if product_request is None or product_request.pk is None:
         raise InstagramStoryGenerationError('Для генерации нужна сохранённая заявка.')
 
     caption = build_publication_caption(product_request)
-
     try:
-        image = _load_background()
-        draw = ImageDraw.Draw(image)
-        _draw_decorative_pattern(draw)
-
-        part_display = _format_part_display(product_request)
-        meta_lines = [
-            part_display.category_line,
-            _format_buyer_city_line(product_request),
-            _format_seller_search_line(product_request),
-        ]
-        meta_lines = [line for line in meta_lines if line]
-
-        inner_width = CONTENT_WIDTH - CARD_PAD_X * 2
-
-        label_font = _load_font(30, bold=True)
-        meta_font = _load_font(34, bold=False)
-        vehicle_lines, vehicle_font = _wrap_lines_fitted(
-            draw,
-            _format_vehicle_line(product_request),
-            max_width=inner_width,
-            sizes=[72, 64, 56],
-            max_lines=2,
-            bold=True,
+        rendered = render_instagram_card(_card_content(product_request), kind=kind)
+        output_dir = Path(settings.MEDIA_ROOT) / (
+            FEED_OUTPUT_SUBDIR if kind == 'feed' else OUTPUT_SUBDIR
         )
-        part_lines, part_font = _wrap_lines_fitted(
-            draw,
-            part_display.detail,
-            max_width=inner_width,
-            sizes=[60, 54, 48],
-            max_lines=3,
-            bold=True,
-        )
-
-        cta_primary_font = _load_font(42, bold=True)
-        cta_secondary_font = _load_font(36, bold=False)
-        footer_font = _load_font(36, bold=False)
-
-        info_sections = [
-            ('АВТО', vehicle_lines, label_font, vehicle_font, COLOR_TITLE),
-            ('ДЕТАЛЬ', part_lines, label_font, part_font, COLOR_BODY),
-        ]
-
-        info_height = _estimate_centered_block_height(
-            draw,
-            [(label, lines, label_font, body_font) for label, lines, label_font, body_font, _ in info_sections],
-        )
-        meta_height = _estimate_meta_lines_height(draw, meta_lines, meta_font)
-        if meta_lines:
-            info_height += BLOCK_GAP + meta_height
-        cta_height = (
-            28
-            + _measure_text(draw, CTA_LINE_1, cta_primary_font)[1]
-            + 14
-            + _measure_text(draw, CTA_LINE_2, cta_secondary_font)[1]
-            + 28
-        )
-        footer_height = _measure_text(draw, FOOTER_TEXT, footer_font)[1]
-
-        card_height = info_height + CARD_PAD_Y * 2
-        stack_height = card_height + 28 + cta_height + 28 + footer_height
-        stack_top = max(SAFE_ZONE_TOP, (SAFE_ZONE_BOTTOM - stack_height) // 2)
-        if stack_top + stack_height > SAFE_ZONE_BOTTOM:
-            stack_top = max(SAFE_ZONE_TOP, SAFE_ZONE_BOTTOM - stack_height)
-
-        header_bottom = _draw_header_block(draw, y_start=SAFE_ZONE_TOP - 12)
-
-        card_left = PADDING_X
-        card_right = STORY_WIDTH - PADDING_X
-        card_top = max(header_bottom + 28, stack_top)
-        card_bottom = card_top + card_height
-
-        draw.rounded_rectangle(
-            (card_left, card_top, card_right, card_bottom),
-            radius=CARD_RADIUS,
-            fill=COLOR_WHITE,
-            outline=COLOR_CARD_OUTLINE,
-            width=2,
-        )
-        draw.rounded_rectangle(
-            (card_left + 4, card_top + 4, card_right - 4, card_bottom - 4),
-            radius=CARD_RADIUS - 4,
-            outline=COLOR_BORDER,
-            width=1,
-        )
-
-        content_bottom = _draw_centered_info_block(
-            draw,
-            y_start=card_top + CARD_PAD_Y,
-            sections=info_sections,
-        )
-        if meta_lines:
-            content_bottom = _draw_centered_meta_lines(
-                draw,
-                lines=meta_lines,
-                y_start=content_bottom + BLOCK_GAP,
-                font=meta_font,
-            )
-
-        cta_bottom = _draw_cta_card(
-            draw,
-            y=card_bottom + 28,
-            primary_font=cta_primary_font,
-            secondary_font=cta_secondary_font,
-        )
-
-        footer_y = min(cta_bottom + 28, SAFE_ZONE_BOTTOM - footer_height)
-        _draw_footer(
-            draw,
-            font=footer_font,
-            y_start=footer_y,
-        )
-
-        output_dir = _output_dir()
         output_dir.mkdir(parents=True, exist_ok=True)
-        output_path = output_dir / _build_output_filename(product_request)
-        image = image.convert('RGB')
-        image.save(output_path, format='JPEG', quality=92, optimize=True)
-
-        logger.info('Instagram Story сохранена: %s (request_id=%s)', output_path, product_request.pk)
+        output_path = output_dir / _build_output_filename(product_request, kind)
+        image = rendered.image.convert('RGB')
+        image.save(output_path, format='JPEG', quality=90, optimize=True)
+        logger.info(
+            'Instagram %s сохранена: %s (request_id=%s)',
+            kind,
+            output_path,
+            product_request.pk,
+        )
         return output_path.resolve(), caption
-
     except InstagramStoryGenerationError:
         raise
     except Exception as exc:
         logger.exception(
-            'Ошибка генерации Instagram Story для заявки %s',
+            'Ошибка генерации Instagram %s для заявки %s',
+            kind,
             getattr(product_request, 'pk', '?'),
         )
         raise InstagramStoryGenerationError('Не удалось сгенерировать изображение.') from exc
+
+
+def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
+    """JPEG 1080×1920 для Instagram Stories в ``MEDIA_ROOT/instagram_stories/``."""
+    return _save_card(product_request, kind='story')
+
+
+def generate_instagram_feed(product_request: Request) -> tuple[Path, str]:
+    """JPEG 1080×1350 для ленты Instagram в ``MEDIA_ROOT/instagram_feed/``."""
+    return _save_card(product_request, kind='feed')
 
 
 ACTIVE_REQUEST_STATUSES = ('new', 'sent')
@@ -678,7 +611,9 @@ def instagram_story_exists(request_id: int) -> bool:
         access_token = Request.objects.values_list('access_token', flat=True).get(pk=request_id)
     except Request.DoesNotExist:
         return False
-    return any(output_dir.glob(f'request_{access_token}_*.jpg'))
+    return any(output_dir.glob(f'request_{access_token}_*.jpg')) or any(
+        output_dir.glob(f'story_{request_id}_*.jpg')
+    )
 
 
 def try_generate_instagram_story(product_request: Request) -> Path | None:
@@ -692,9 +627,15 @@ def try_generate_instagram_story(product_request: Request) -> Path | None:
 
     schedule_instagram_publication_for_request(product_request.pk)
 
+    from catalog.instagram_service import ensure_instagram_story_image
     from core.models import InstagramPublication
 
-    publication = InstagramPublication.objects.filter(request_id=product_request.pk).first()
+    publication = InstagramPublication.objects.filter(
+        request_id=product_request.pk,
+        placement=InstagramPublication.PLACEMENT_STORY,
+    ).first()
+    if publication and not publication.image:
+        publication = ensure_instagram_story_image(publication)
     if publication and publication.image:
         return Path(settings.MEDIA_ROOT) / publication.image.name
     return None

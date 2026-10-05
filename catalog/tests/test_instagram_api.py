@@ -7,6 +7,7 @@ from catalog.instagram_api import (
     InstagramTemporaryImageUrlError,
     build_public_media_url,
     normalize_media_relative_path,
+    publish_feed_to_instagram,
     publish_story_to_instagram,
     try_publish_story_to_instagram,
     validate_public_image_url,
@@ -235,3 +236,26 @@ class InstagramApiTests(TestCase):
         publish_mock.side_effect = requests.Timeout('timeout')
         result = try_publish_story_to_instagram(IMAGE_RELATIVE_PATH)
         self.assertIsNone(result)
+
+    @patch('catalog.instagram_api._wait_for_container_ready')
+    @patch('catalog.instagram_api.requests.post')
+    def test_publish_feed_sends_caption_without_story_type(self, post_mock, wait_mock):
+        create_response = MagicMock()
+        create_response.status_code = 200
+        create_response.json.return_value = {'id': 'container_feed'}
+        publish_response = MagicMock()
+        publish_response.status_code = 200
+        publish_response.json.return_value = {'id': 'media_feed'}
+        post_mock.side_effect = [create_response, publish_response]
+
+        result = publish_feed_to_instagram(
+            IMAGE_RELATIVE_PATH,
+            caption='Покупатель ищет: колодки',
+        )
+
+        self.assertEqual(result['media_id'], 'media_feed')
+        create_call = post_mock.call_args_list[0]
+        self.assertNotIn('media_type', create_call.kwargs['data'])
+        self.assertEqual(create_call.kwargs['data']['caption'], 'Покупатель ищет: колодки')
+        self.assertNotIn('test-token', str(create_call.kwargs['data']['caption']))
+        wait_mock.assert_called_once()
