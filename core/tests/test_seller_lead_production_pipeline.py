@@ -23,8 +23,11 @@ from core.models import (
     MARKET_SCOPE_FOREIGN,
     MARKET_SCOPE_KZ,
     MARKET_SCOPE_UNKNOWN,
+    Brand,
+    Country,
     Seller,
     SellerLead,
+    SellerLeadEvidence,
     SellerLeadLocation,
     SellerLeadSource,
 )
@@ -436,3 +439,120 @@ class DailyReportTests(TestCase):
         call_command('seller_lead_daily_report', stdout=out)
         self.assertIn('SellerLead — сводка за сутки', out.getvalue())
         self.assertIn('Требует внимания', out.getvalue())
+
+
+class ProductionTitleTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        country = Country.objects.create(name='Германия')
+        Brand.objects.create(country=country, name='BMW', transport_type='car')
+        Brand.objects.create(country=country, name='Mercedes-Benz', transport_type='car')
+
+    def _type(self, name):
+        lead = _lead(name=name, profile_description='')
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        return lead.business_type
+
+    def test_production_titles(self):
+        expected = {
+            'Автозапчасти алматы # и оптом (@avtozapchastialmaty_optom)': BUSINESS_TYPE_WHOLESALER,
+            'ОПТОВЫЕ ПРОДАЖИ АВТОЗАПЧАСТЕЙ | Алматы (@omega_auto_parts)': BUSINESS_TYPE_WHOLESALER,
+            'ЗАПЧАСТИ ДЛЯ BMW В АЛМАТЫ (@bmwpartsalmaty)': BUSINESS_TYPE_NEW_PARTS,
+            'Круглосут.автомагазин в Алматы (@kaz_avto.kz)': BUSINESS_TYPE_UNKNOWN,
+            'Авто-рынок жибек жол 15ряд 85к (@avtoshopkz1)': BUSINESS_TYPE_UNKNOWN,
+            'АВТОЗАПЧАСТИ | НА ЗАКАЗ ИЗ США | АЛМАТЫ (@usa.carparts)': BUSINESS_TYPE_NEW_PARTS,
+            'Запчасти | Пятый Элемент (@fealmaty)': BUSINESS_TYPE_UNKNOWN,
+            'Запчасти MERCEDES-BENZ (@mb_parts_kz)': BUSINESS_TYPE_NEW_PARTS,
+            'Авторазбор В Алматы (@avtorazbor__kz)': BUSINESS_TYPE_DISMANTLER,
+            'авторазбор с Европы в Алматы (@avtorazbor_audi_volksvagen)': BUSINESS_TYPE_DISMANTLER,
+            'АВТОАКСЕССУАРЫ ОПТОМ!!! (@optomkzru)': BUSINESS_TYPE_OTHER_AUTO,
+            'АВТОЗАПЧАСТИ ШЫМКЕНТ/ОПТОМ (@donix.kz)': BUSINESS_TYPE_WHOLESALER,
+            'АВТО и МОТО запчасти Алматы (@4motokz)': BUSINESS_TYPE_UNKNOWN,
+            'BMW Алматы (@bavaria_almaty)': BUSINESS_TYPE_UNKNOWN,
+            'ЗАПЧАСТИ НА MERCEDES•АЛМАТЫ (@mbshop.kz)': BUSINESS_TYPE_NEW_PARTS,
+        }
+        for name, business_type in expected.items():
+            self.assertEqual(self._type(name), business_type, name)
+
+    def test_lone_parts_word_stays_unknown(self):
+        self.assertEqual(self._type('Продаём автозапчасти'), BUSINESS_TYPE_UNKNOWN)
+
+    def test_dismantler_plus_new_parts_stays_mixed(self):
+        self.assertEqual(
+            self._type('Авторазбор и магазин автозапчастей'),
+            BUSINESS_TYPE_MIXED,
+        )
+
+    def test_wholesale_phrase_without_parts_is_not_a_parts_store(self):
+        self.assertNotEqual(self._type('Доставка оптом по городу'), BUSINESS_TYPE_NEW_PARTS)
+        self.assertNotEqual(self._type('Доставка оптом по городу'), BUSINESS_TYPE_WHOLESALER)
+
+
+class ForeignIdentityTests(TestCase):
+    def test_minsk_name_and_handle_override_discovery_city(self):
+        lead = _lead(
+            city='Алматы',
+            name='audi.minsk.garage Minsk',
+            instagram_username='audi.minsk.garage',
+        )
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_FOREIGN)
+        self.assertIsNone(lead.next_enrichment_at)
+
+    def test_bishkek_name_alone_conflicts_with_discovery_city(self):
+        lead = _lead(city='Алматы', name='Автозапчасти БИШКЕК')
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_UNKNOWN)
+        self.assertNotEqual(lead.market_scope, MARKET_SCOPE_KZ)
+
+    def test_bishkek_name_and_kg_domain_are_foreign(self):
+        lead = _lead(
+            city='Алматы',
+            name='Автозапчасти БИШКЕК',
+            website_url='https://shop.example.kg/catalog',
+        )
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_FOREIGN)
+
+    def test_minsk_name_and_by_domain_are_foreign(self):
+        lead = _lead(
+            city='Алматы',
+            name='Minsk Garage',
+            website_url='https://parts.example.by/catalog',
+        )
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_FOREIGN)
+
+    def test_by_domain_alone_does_not_become_kazakhstan(self):
+        lead = _lead(city='Алматы', name='Omega Parts', website_url='https://shop.example.by/')
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_UNKNOWN)
+
+    def test_passing_minsk_mention_stays_kazakhstan(self):
+        lead = _lead(
+            city='Алматы',
+            name='Магазин автозапчастей',
+            profile_description='Доставка из Минска',
+        )
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_KZ)
+        self.assertEqual(lead.business_type, BUSINESS_TYPE_NEW_PARTS)
+
+    def test_search_evidence_mention_does_not_make_foreign(self):
+        lead = _lead(city='Алматы', name='Магазин автозапчастей')
+        SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='profile',
+            value='Результат поиска: магазин в Минске',
+            observed_at=timezone.now(),
+        )
+        classify_seller_lead(lead)
+        lead.refresh_from_db()
+        self.assertEqual(lead.market_scope, MARKET_SCOPE_KZ)

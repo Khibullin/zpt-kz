@@ -71,6 +71,29 @@ PARTS_SALE_PHRASES = (
 OTHER_AUTO_PHRASES = (
     'автосалон',
     'автомойка',
+    'автоаксессуары',
+)
+PARTS_COMBO_WORDS = (
+    'запчасти',
+    'автозапчасти',
+    'запчастей',
+    'автозапчастей',
+)
+WHOLESALE_COMBO_MARKERS = (
+    'оптом',
+    'оптовые продажи',
+    'оптовая продажа',
+)
+ORDER_COMBO_MARKERS = (
+    'на заказ',
+    'под заказ',
+)
+SHOP_COMBO_MARKERS = (
+    'магазин',
+    'автомагазин',
+)
+SHOP_COMBO_PARTS = (
+    'автозапчасти',
 )
 NEW_PARTS_PHRASES = (
     'магазин автозапчастей',
@@ -192,28 +215,71 @@ def _provenance_pair(fragment: TextFragment | None):
     return source, evidence
 
 
+def _same_fragment_combo(fragments: list[TextFragment], left: tuple[str, ...], right: tuple[str, ...]):
+    found = []
+    for fragment in fragments:
+        left_hit = next((phrase for phrase in left if _phrase_in(phrase, fragment.text)), '')
+        right_hit = next((phrase for phrase in right if _phrase_in(phrase, fragment.text)), '')
+        if left_hit and right_hit:
+            found.append((f'{left_hit}+{right_hit}', fragment))
+    return found
+
+
+def _brand_labels() -> list[str]:
+    labels = []
+    for name in Brand.objects.values_list('name', flat=True):
+        cleaned = str(name or '').strip()
+        if not cleaned:
+            continue
+        labels.append(cleaned)
+        token = re.split(r'[\s\-]+', cleaned, maxsplit=1)[0]
+        if len(_fold(token)) >= 5 and _fold(token) != _fold(cleaned):
+            labels.append(token)
+    return labels
+
+
+def _brand_parts_combo(fragments: list[TextFragment]):
+    labels = _brand_labels()
+    if not labels:
+        return []
+    found = []
+    for fragment in fragments:
+        part = next((phrase for phrase in PARTS_COMBO_WORDS if _phrase_in(phrase, fragment.text)), '')
+        brand = next((label for label in labels if _phrase_in(label, fragment.text)), '')
+        if part and brand:
+            found.append((f'{part}+{brand}', fragment))
+    return found
+
+
 def _business_type(fragments: list[TextFragment]):
     dismantler = _matching_phrases(DISMANTLER_PHRASES, fragments)
     new_parts = _matching_phrases(NEW_PARTS_PHRASES, fragments)
     wholesaler = _matching_phrases(WHOLESALER_PHRASES, fragments)
+    wholesale_combo = _same_fragment_combo(fragments, PARTS_COMBO_WORDS, WHOLESALE_COMBO_MARKERS)
     dealer = _matching_phrases(DEALER_PHRASES, fragments)
     service = _matching_phrases(SERVICE_PHRASES, fragments)
     parts_sale = _matching_phrases(PARTS_SALE_PHRASES, fragments)
     other_auto = _matching_phrases(OTHER_AUTO_PHRASES, fragments)
     generic = _matching_phrases(GENERIC_ONLY_PHRASES, fragments)
-    sells_parts = bool(new_parts or wholesaler or parts_sale)
+    new_combo = (
+        _same_fragment_combo(fragments, PARTS_COMBO_WORDS, ORDER_COMBO_MARKERS)
+        + _same_fragment_combo(fragments, SHOP_COMBO_PARTS, SHOP_COMBO_MARKERS)
+        + _brand_parts_combo(fragments)
+    )
+    sells_parts = bool(new_parts or wholesaler or wholesale_combo or parts_sale or new_combo)
     notes = []
     matched = dismantler + new_parts
-    if dismantler and new_parts:
+    if dismantler and (new_parts or new_combo):
         business_type = BUSINESS_TYPE_MIXED
         confidence = 75
+        matched = dismantler + (new_parts or new_combo)
     elif dismantler:
         business_type = BUSINESS_TYPE_DISMANTLER
         confidence = 85
-    elif wholesaler:
+    elif wholesaler or wholesale_combo:
         business_type = BUSINESS_TYPE_WHOLESALER
         confidence = 80
-        matched = wholesaler
+        matched = wholesaler or wholesale_combo
     elif dealer and sells_parts:
         business_type = BUSINESS_TYPE_DEALER
         confidence = 80
@@ -230,9 +296,10 @@ def _business_type(fragments: list[TextFragment]):
         business_type = BUSINESS_TYPE_SERVICE_ONLY
         confidence = 70
         matched = service
-    elif new_parts:
+    elif new_parts or new_combo:
         business_type = BUSINESS_TYPE_NEW_PARTS
         confidence = 85
+        matched = new_parts or new_combo
     elif other_auto:
         business_type = BUSINESS_TYPE_OTHER_AUTO
         confidence = 60
