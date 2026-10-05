@@ -178,6 +178,24 @@ class WebsiteExtractionTests(TestCase):
         self.assertFalse(ordinary.explicit_whatsapp)
         self.assertEqual(ordinary.field_name, 'phone')
 
+    def test_trailing_whatsapp_label_is_explicit(self):
+        html = _html(body='''
+            <p>+7 (747) 232-32-90 — только WhatsApp</p>
+            <p>+7 (708) 486-94-04</p>
+        ''')
+        extract = parse_seller_website_html(html, page_url='https://autobahn.kz/kontaktyi/')
+        whatsapp = [
+            item for item in extract.contacts
+            if item.field_name == 'whatsapp' and item.value == '77472323290'
+        ]
+        self.assertEqual(len(whatsapp), 1)
+        self.assertTrue(whatsapp[0].explicit_whatsapp)
+        self.assertGreaterEqual(whatsapp[0].confidence, 90)
+        self.assertFalse(any(
+            item.field_name == 'whatsapp' and item.value == '77084869404'
+            for item in extract.contacts
+        ))
+
     def test_json_ld_phone_is_not_whatsapp(self):
         html = _html(body='''
             <script type="application/ld+json">
