@@ -548,6 +548,79 @@ class MultiSourceEnrichmentTests(TestCase):
         self.assertIn('https://autobahn.kz/kontaktyi/', result.websites_considered)
 
 
+    def test_locator_contact_page_keeps_original_root_as_fallback(self):
+        lead = _lead()
+        brave = _Brave([{
+            'title': 'China Parts — контакты',
+            'url': 'https://chinaparts.kz/contacts/',
+            'description': 'Контакты магазина',
+        }])
+        calls = []
+
+        def urlopen(http_request, timeout):
+            calls.append(http_request)
+            parts = parse.urlsplit(http_request.full_url)
+            host = (parts.hostname or '').lower()
+            if host == 'places.googleapis.com':
+                return _Response(
+                    body=_google_body(website='https://chinaparts.kz/'),
+                    headers={'Content-Type': 'application/json'},
+                )
+            if parts.path == '/robots.txt':
+                return _Response(
+                    body='User-agent: *\nDisallow:\n',
+                    headers={'Content-Type': 'text/plain'},
+                )
+            if parts.path == '/contacts/':
+                return _Response(body='<html><body>Just a moment cf-challenge</body></html>')
+            return _Response(body=_html(
+                body='<a href="https://wa.me/77011234567">WhatsApp</a>',
+            ))
+
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        page_paths = [
+            parse.urlsplit(call.full_url).path
+            for call in calls
+            if (parse.urlsplit(call.full_url).hostname or '') == 'chinaparts.kz'
+            and parse.urlsplit(call.full_url).path != '/robots.txt'
+        ]
+        self.assertEqual(page_paths[:2], ['/contacts/', '/'])
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+
+    def test_contactless_path_is_not_treated_as_contact_page(self):
+        lead = _lead()
+        brave = _Brave([{
+            'title': 'China Parts contactless payments',
+            'url': 'https://chinaparts.kz/contactless-payments/',
+            'description': 'Оплата',
+        }])
+        calls, urlopen = _router(
+            website_html=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'),
+            google_json=_google_body(website='https://chinaparts.kz/'),
+        )
+        result = enrich_seller_lead_contacts(
+            lead,
+            sources=['google_places', 'brave', 'website'],
+            dry_run=True,
+            urlopen=urlopen,
+            brave_client=brave,
+        )
+        page_paths = [
+            parse.urlsplit(call.full_url).path
+            for call in calls
+            if (parse.urlsplit(call.full_url).hostname or '') == 'chinaparts.kz'
+            and parse.urlsplit(call.full_url).path != '/robots.txt'
+        ]
+        self.assertEqual(page_paths, ['/'])
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+
+
     def test_google_yandex_and_brave_same_domain_is_crawled_once(self):
         lead = _lead()
         brave = _Brave([{'title': 'China Parts', 'url': 'https://chinaparts.kz/contacts', 'description': ''}])
