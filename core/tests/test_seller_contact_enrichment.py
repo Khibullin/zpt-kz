@@ -392,6 +392,45 @@ class WebsiteSafetyTests(TestCase):
         self.assertEqual(result.outcome, 'truncated')
         self.assertEqual(result.contacts, [])
 
+    def test_connection_reset_is_controlled_and_does_not_abort_crawl(self):
+        calls = []
+
+        def robots_reset_open(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            calls.append(path)
+            if path == '/robots.txt':
+                raise ConnectionResetError(104, 'Connection reset by peer')
+            return _Response(body=_html())
+
+        result = crawl_official_website(
+            'https://chinaparts.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=robots_reset_open,
+        )
+        self.assertEqual(result.outcome, 'ok')
+        self.assertTrue(result.identity_accepted)
+        self.assertIn('/robots.txt', calls)
+        self.assertIn('/', calls)
+
+        def page_reset_open(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(
+                    body='User-agent: *\nDisallow:\n',
+                    headers={'Content-Type': 'text/plain'},
+                )
+            raise ConnectionResetError(104, 'Connection reset by peer')
+
+        failed = crawl_official_website(
+            'https://chinaparts.kz/',
+            lead_name='China Parts',
+            city='Алматы',
+            urlopen=page_reset_open,
+        )
+        self.assertEqual(failed.outcome, 'error')
+        self.assertIn('Сетевая ошибка', failed.error)
+
     def test_timeout_challenge_non_html_and_robots(self):
         def timeout_open(http_request, timeout):
             raise error.URLError('timed out')
