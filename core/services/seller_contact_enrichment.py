@@ -45,6 +45,7 @@ from core.services.seller_contact_website import (
     crawl_official_website,
     registrable_domain,
 )
+from core.services.seller_discovery_dedup import record_external_id_conflict
 from core.services.seller_discovery_identity import (
     normalize_domain,
     normalize_instagram_identity,
@@ -52,6 +53,7 @@ from core.services.seller_discovery_identity import (
     refresh_seller_lead_identity,
 )
 from core.services.seller_discovery_sources import (
+    SellerLeadExternalIdConflict,
     add_seller_lead_evidence,
     upsert_seller_lead_source,
 )
@@ -174,6 +176,7 @@ class SellerContactEnrichmentResult:
     verified_whatsapp: list[str] = field(default_factory=list)
     pending_candidates: list[str] = field(default_factory=list)
     conflicts: list[str] = field(default_factory=list)
+    identity_conflicts: list[str] = field(default_factory=list)
 
 
 def enrich_seller_lead_contacts(
@@ -376,8 +379,9 @@ def enrich_seller_lead_contacts(
             wrote=False,
         )
     executed_any = _any_source_executed(source_runs)
+    identity_conflicts: list[str] = []
     if executed_any:
-        _apply(
+        identity_conflicts = _apply(
             seller_lead,
             observations=observations,
             place_id=place_id,
@@ -401,6 +405,7 @@ def enrich_seller_lead_contacts(
         verified_whatsapp=verified,
         pending_candidates=pending,
         conflicts=conflicts,
+        identity_conflicts=identity_conflicts,
         wrote=executed_any,
     )
 
@@ -906,6 +911,27 @@ def _any_source_executed(source_runs: list[SourceRun]) -> bool:
     return any(run.status in EXECUTED_SOURCE_STATUSES for run in source_runs)
 
 
+def _note_external_id_conflict(
+    lead: SellerLead,
+    exc: SellerLeadExternalIdConflict,
+    notes: list[str],
+) -> None:
+    """Keep the current owner and store a possible-duplicate pair."""
+    record_external_id_conflict(lead, exc.owner_lead_id)
+    provider = exc.provider or exc.source_type or 'source'
+    note = f'external_id conflict {provider} owner=#{exc.owner_lead_id}'
+    if note not in notes:
+        notes.append(note)
+
+
+def _accept_source(lead: SellerLead, notes: list[str], **kwargs):
+    try:
+        return upsert_seller_lead_source(lead, **kwargs)
+    except SellerLeadExternalIdConflict as exc:
+        _note_external_id_conflict(lead, exc, notes)
+        return None
+
+
 def _apply(
     seller_lead: SellerLead,
     *,
@@ -913,12 +939,14 @@ def _apply(
     place_id: str,
     website_url: str,
     two_gis_external_id: str = '',
-) -> None:
+) -> list[str]:
+    identity_conflicts: list[str] = []
     with transaction.atomic():
         locked = SellerLead.objects.select_for_update().get(pk=seller_lead.pk)
         if place_id:
-            upsert_seller_lead_source(
+            _accept_source(
                 locked,
+                identity_conflicts,
                 source_type=SellerLeadSource.SOURCE_GOOGLE_PLACES,
                 provider='google_places',
                 external_id=place_id[:255],
@@ -929,8 +957,9 @@ def _apply(
             )
         two_gis_source = None
         if two_gis_external_id:
-            two_gis_source = upsert_seller_lead_source(
+            two_gis_source = _accept_source(
                 locked,
+                identity_conflicts,
                 source_type=SellerLeadSource.SOURCE_TWO_GIS,
                 provider='two_gis',
                 external_id=two_gis_external_id[:255],
@@ -949,8 +978,9 @@ def _apply(
             if observation.origin == SOURCE_TWO_GIS:
                 source = two_gis_source
             elif observation.origin == SOURCE_BRAVE or not observation.confirms_whatsapp:
-                source = upsert_seller_lead_source(
+                source = _accept_source(
                     locked,
+                    identity_conflicts,
                     source_type=SellerLeadSource.SOURCE_WEB_SEARCH,
                     provider='brave',
                     source_url=observation.source_url[:500],
@@ -958,7 +988,12 @@ def _apply(
                     observed_at=timezone.now(),
                 )
             else:
-                source = _website_source_for(locked, observation.source_url, cache=website_sources)
+                source = _website_source_for(
+                    locked,
+                    observation.source_url,
+                    cache=website_sources,
+                    identity_conflicts=identity_conflicts,
+                )
             _store_observation(locked, observation, source=source, preferred=observation is preferred)
         refresh_seller_lead_identity(locked)
         locked.last_enrichment_attempt_at = timezone.now()
@@ -971,6 +1006,7 @@ def _apply(
                 update_fields.append('lifecycle_status')
         locked.save(update_fields=update_fields)
         seller_lead.refresh_from_db()
+    return identity_conflicts
 
 
 def _stamp_enrichment_attempt(seller_lead: SellerLead) -> None:
@@ -1028,14 +1064,17 @@ def _website_source_for(
     source_url: str,
     *,
     cache: dict[str, SellerLeadSource],
-) -> SellerLeadSource:
+    identity_conflicts: list[str] | None = None,
+) -> SellerLeadSource | None:
     """Provenance follows the page that published the contact."""
     url = (source_url or '')[:500]
     cached = cache.get(url)
     if cached is not None:
         return cached
-    source = upsert_seller_lead_source(
+    notes = identity_conflicts if identity_conflicts is not None else []
+    source = _accept_source(
         lead,
+        notes,
         source_type=SellerLeadSource.SOURCE_WEBSITE,
         provider='website',
         source_url=url,
@@ -1043,7 +1082,8 @@ def _website_source_for(
         metadata={'identity': 'validated'},
         observed_at=timezone.now(),
     )
-    cache[url] = source
+    if source is not None:
+        cache[url] = source
     return source
 
 

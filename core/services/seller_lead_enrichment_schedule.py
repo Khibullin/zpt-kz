@@ -23,6 +23,7 @@ RESULT_PHONES = 'phones'
 RESULT_NETWORK_ERROR = 'network_error'
 RESULT_HTTP_403 = 'http_403'
 RESULT_AMBIGUOUS = 'ambiguous'
+RESULT_CONFLICT = 'conflict'
 RESULT_ERROR = 'error'
 
 _NETWORK_MARKERS = (
@@ -148,6 +149,8 @@ def classify_enrichment_result(result) -> str:
     found_phone = pending or any(getattr(item, 'field_name', '') in phone_fields for item in observations)
     if found_phone or outcome == 'enriched':
         return RESULT_PHONES
+    if list(getattr(result, 'identity_conflicts', None) or []):
+        return RESULT_CONFLICT
     return RESULT_NO_CONTACTS
 
 
@@ -161,7 +164,7 @@ def apply_enrichment_schedule(lead: SellerLead, code: str, *, now: datetime | No
         delay = network_error_days()
     elif code == RESULT_HTTP_403:
         delay = http_403_days()
-    elif code == RESULT_AMBIGUOUS:
+    elif code == RESULT_AMBIGUOUS or code == RESULT_CONFLICT:
         delay = ambiguous_days()
     elif code == RESULT_NO_CONTACTS:
         delay = no_contact_first_days() if count == 0 else no_contact_repeat_days()

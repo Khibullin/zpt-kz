@@ -42,7 +42,7 @@ from core.services.seller_contact_website import (
     parse_seller_website_html,
     website_identity_accepted,
 )
-from core.services.seller_discovery_sources import add_seller_lead_evidence
+from core.services.seller_discovery_sources import add_seller_lead_evidence, upsert_seller_lead_source
 from core.services.seller_lead_enrichment_selection import select_leads_needing_enrichment
 
 ENABLED = {
@@ -1273,6 +1273,78 @@ class GooglePlacesStorageTests(TestCase):
         missed_run = next(run for run in missed.source_runs if run.source == 'google_places')
         self.assertEqual(missed_run.detail, 'no confident match')
         self.assertNotIn('google-secret-key', missed_run.detail)
+
+    def test_external_id_conflict_keeps_the_owner_and_other_evidence(self):
+        owner = _lead(name='Owner Parts', website_url='')
+        seen = timezone.now() - timedelta(days=1)
+        source = upsert_seller_lead_source(
+            owner,
+            source_type=SellerLeadSource.SOURCE_GOOGLE_PLACES,
+            provider='google_places',
+            external_id='places/shared-owner',
+            observed_at=seen,
+        )
+        source.refresh_from_db()
+        owner_stamp = (
+            source.seller_lead_id,
+            source.external_id,
+            source.last_seen_at,
+            source.updated_at,
+            source.display_name,
+        )
+        challenger = _lead(name='China Parts', website_url='https://chinaparts.kz/', whatsapp='')
+
+        def urlopen(http_request, timeout):
+            path = parse.urlsplit(http_request.full_url).path
+            if path == '/robots.txt':
+                return _Response(body='User-agent: *\nDisallow:\n', headers={'Content-Type': 'text/plain'})
+            return _Response(body=_html(body='<a href="https://wa.me/77011234567">WhatsApp</a>'))
+
+        locator = GooglePlaceLocator(place_id='places/shared-owner', website_uri='')
+        with patch(
+            'core.services.seller_contact_enrichment.locate_google_place',
+            return_value=locator,
+        ):
+            result = enrich_seller_lead_contacts(
+                challenger,
+                sources=['google_places', 'website'],
+                dry_run=False,
+                urlopen=urlopen,
+            )
+        source.refresh_from_db()
+        challenger.refresh_from_db()
+        self.assertEqual(
+            (
+                source.seller_lead_id,
+                source.external_id,
+                source.last_seen_at,
+                source.updated_at,
+                source.display_name,
+            ),
+            owner_stamp,
+        )
+        self.assertEqual(
+            SellerLeadSource.objects.filter(external_id='places/shared-owner').count(),
+            1,
+        )
+        self.assertFalse(
+            SellerLeadSource.objects.filter(seller_lead=challenger, provider='google_places').exists(),
+        )
+        self.assertTrue(
+            SellerLeadEvidence.objects.filter(
+                seller_lead=challenger,
+                field_name='whatsapp',
+                value='77011234567',
+            ).exists(),
+        )
+        self.assertEqual(result.verified_whatsapp, ['77011234567'])
+        self.assertTrue(result.identity_conflicts)
+        match = SellerLeadDuplicateMatch.objects.get()
+        self.assertEqual(match.status, SellerLeadDuplicateMatch.STATUS_POSSIBLE)
+        self.assertIn('external_id', match.reasons)
+        self.assertIsNone(challenger.duplicate_of_id)
+        self.assertNotEqual(challenger.lifecycle_status, SellerLead.LIFECYCLE_DUPLICATE)
+        self.assertEqual(challenger.lifecycle_status, SellerLead.LIFECYCLE_POSSIBLE_DUPLICATE)
 
 
 @override_settings(**ENABLED)

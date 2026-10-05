@@ -104,6 +104,53 @@ def score_seller_lead_pair(lead_a: SellerLead, lead_b: SellerLead) -> SellerLead
     return SellerLeadPairScore(score=min(score, 100), reasons=reasons, strong=strong)
 
 
+def record_external_id_conflict(current: SellerLead, owner_lead_id: int) -> SellerLeadDuplicateMatch | None:
+    """Remember that a unique external id already has an owner.
+
+    external_id is an existing strong duplicate reason. The pair stays POSSIBLE.
+    Lifecycle becomes possible_duplicate only where that review rule already
+    allows it. This does not confirm a merge, does not set duplicate_of, and
+    does not move the source.
+    """
+    if not getattr(current, 'pk', None) or not owner_lead_id or current.pk == owner_lead_id:
+        return None
+    owner = SellerLead.objects.select_for_update().get(pk=owner_lead_id)
+    ordered = _ordered_ids(current.pk, owner.pk)
+    if ordered is None:
+        return None
+    low_id, high_id = ordered
+    low = current if current.pk == low_id else owner
+    high = owner if owner.pk == high_id else current
+    scored = score_seller_lead_pair(low, high)
+    reasons = list(scored.reasons) if scored is not None else []
+    if 'external_id' not in reasons:
+        reasons.insert(0, 'external_id')
+    score = 100 if scored is None else min(100, max(scored.score, 100))
+
+    with transaction.atomic():
+        match = SellerLeadDuplicateMatch.objects.select_for_update().filter(
+            lead_a_id=low_id,
+            lead_b_id=high_id,
+        ).first()
+        if match is None:
+            match = SellerLeadDuplicateMatch.objects.create(
+                lead_a_id=low_id,
+                lead_b_id=high_id,
+                score=score,
+                status=SellerLeadDuplicateMatch.STATUS_POSSIBLE,
+                reasons=reasons,
+            )
+        elif match.status == SellerLeadDuplicateMatch.STATUS_POSSIBLE:
+            match.score = score
+            match.reasons = reasons
+            match.save(update_fields=['score', 'reasons', 'updated_at'])
+        else:
+            return match
+        _mark_possible_duplicate(low)
+        _mark_possible_duplicate(high)
+        return match
+
+
 def find_possible_duplicates_for_leads(leads) -> list[SellerLeadDuplicateMatch]:
     """Score candidates and store POSSIBLE matches. Never confirms or merges."""
     selected = []

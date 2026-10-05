@@ -29,6 +29,19 @@ class SellerDiscoverySourceError(ValueError):
     pass
 
 
+class SellerLeadExternalIdConflict(SellerDiscoverySourceError):
+    """An external id already belongs to another SellerLead and was not moved."""
+
+    def __init__(self, *, owner_lead_id: int, source_type: str, provider: str, external_id: str):
+        self.owner_lead_id = owner_lead_id
+        self.source_type = source_type
+        self.provider = provider
+        self.external_id = external_id
+        super().__init__(
+            'Этот внешний идентификатор уже сохранён у другого найденного продавца.',
+        )
+
+
 class SellerDiscoveryEvidenceError(ValueError):
     pass
 
@@ -110,8 +123,11 @@ def upsert_seller_lead_source(
             )
 
         if existing.seller_lead_id != seller_lead.pk:
-            raise SellerDiscoverySourceError(
-                'Этот внешний идентификатор уже сохранён у другого найденного продавца.',
+            raise SellerLeadExternalIdConflict(
+                owner_lead_id=existing.seller_lead_id,
+                source_type=source_type,
+                provider=provider,
+                external_id=external_id,
             )
 
         existing.last_seen_at = seen_at

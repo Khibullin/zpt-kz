@@ -7,7 +7,7 @@ from unittest.mock import patch
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
-from django.test import TestCase
+from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from core.models import (
@@ -27,15 +27,19 @@ from core.models import (
     Country,
     Seller,
     SellerLead,
+    SellerLeadDuplicateMatch,
     SellerLeadEvidence,
     SellerLeadLocation,
     SellerLeadSource,
 )
 from core.services.seller_contact_enrichment import SellerContactEnrichmentError
+from core.services.seller_contact_google_places import GooglePlaceLocator
+from core.services.seller_discovery_sources import upsert_seller_lead_source
 from core.services.seller_lead_classification import classify_seller_lead
 from core.services.seller_lead_daily_report import build_seller_lead_daily_report
 from core.services.seller_lead_enrichment_schedule import (
     RESULT_AMBIGUOUS,
+    RESULT_CONFLICT,
     RESULT_HTTP_403,
     RESULT_NETWORK_ERROR,
     RESULT_NO_CONTACTS,
@@ -367,6 +371,77 @@ class SchedulerCommandTests(TestCase):
         ):
             with self.assertRaises(CommandError):
                 call_command('process_seller_lead_enrichment', '--apply', '--batch-size', '5')
+
+    @override_settings(
+        SELLER_CONTACT_ENRICHMENT_ENABLED=True,
+        SELLER_CONTACT_GOOGLE_PLACES_ENABLED=True,
+        GOOGLE_PLACES_API_KEY='google-secret-key',
+        SELLER_CONTACT_WEBSITE_ENABLED=False,
+        SELLER_CONTACT_BRAVE_ENABLED=False,
+        SELLER_CONTACT_2GIS_ENABLED=False,
+        SELLER_CONTACT_YANDEX_ENABLED=False,
+    )
+    def test_external_id_conflict_is_not_a_batch_failure(self):
+        owner = _lead(name='Owner Parts')
+        seen = timezone.now() - timedelta(days=1)
+        source = upsert_seller_lead_source(
+            owner,
+            source_type=SellerLeadSource.SOURCE_GOOGLE_PLACES,
+            provider='google_places',
+            external_id='places/shared-owner',
+            observed_at=seen,
+        )
+        source.refresh_from_db()
+        owner_stamp = (source.seller_lead_id, source.external_id, source.last_seen_at, source.updated_at)
+        SellerLead.objects.filter(pk=owner.pk).update(
+            business_type=BUSINESS_TYPE_UNKNOWN,
+            market_scope=MARKET_SCOPE_UNKNOWN,
+            last_classified_at=timezone.now(),
+            next_enrichment_at=None,
+            lifecycle_status=SellerLead.LIFECYCLE_FOUND,
+        )
+        challenger = _lead(name='Challenger Parts', profile_description='Магазин автозапчастей')
+        nxt = _lead(name='Next Parts', profile_description='Магазин автозапчастей')
+        classify_seller_lead(challenger)
+        classify_seller_lead(nxt)
+
+        def locate(**kwargs):
+            if kwargs.get('name') == 'Challenger Parts':
+                return GooglePlaceLocator(place_id='places/shared-owner', website_uri='')
+            return GooglePlaceLocator(place_id='', website_uri='')
+
+        out = StringIO()
+        with patch(
+            'core.services.seller_contact_enrichment.locate_google_place',
+            side_effect=locate,
+        ):
+            call_command('process_seller_lead_enrichment', '--apply', '--batch-size', '5', stdout=out)
+        text = out.getvalue()
+        source.refresh_from_db()
+        owner.refresh_from_db()
+        challenger.refresh_from_db()
+        nxt.refresh_from_db()
+        self.assertEqual(
+            (source.seller_lead_id, source.external_id, source.last_seen_at, source.updated_at),
+            owner_stamp,
+        )
+        self.assertEqual(SellerLeadSource.objects.filter(external_id='places/shared-owner').count(), 1)
+        self.assertFalse(
+            SellerLeadSource.objects.filter(seller_lead=challenger, external_id='places/shared-owner').exists(),
+        )
+        match = SellerLeadDuplicateMatch.objects.get()
+        self.assertEqual(match.status, SellerLeadDuplicateMatch.STATUS_POSSIBLE)
+        self.assertIn('external_id', match.reasons)
+        self.assertIsNone(owner.duplicate_of_id)
+        self.assertIsNone(challenger.duplicate_of_id)
+        self.assertNotEqual(challenger.lifecycle_status, SellerLead.LIFECYCLE_DUPLICATE)
+        self.assertEqual(challenger.last_enrichment_result, RESULT_CONFLICT)
+        self.assertEqual(challenger.enrichment_attempt_count, 0)
+        self.assertGreater(challenger.next_enrichment_at, timezone.now() + timedelta(days=2))
+        self.assertNotIn('failed error', text)
+        self.assertIn(f'#{challenger.pk} {RESULT_CONFLICT}', text)
+        self.assertIn(f'#{nxt.pk} {RESULT_NO_CONTACTS}', text)
+        self.assertEqual(nxt.last_enrichment_result, RESULT_NO_CONTACTS)
 
 
 class DailyReportTests(TestCase):

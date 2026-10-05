@@ -27,6 +27,7 @@ from core.models import (
 )
 from core.services.seller_lead_enrichment_schedule import (
     RESULT_AMBIGUOUS,
+    RESULT_CONFLICT,
     RESULT_ERROR,
     RESULT_HTTP_403,
     RESULT_NETWORK_ERROR,
@@ -75,6 +76,7 @@ def build_seller_lead_daily_report(*, now=None) -> str:
         f'phones найдено: {_result_count(processed_ids, RESULT_PHONES)}',
         f'no contacts: {_result_count(processed_ids, RESULT_NO_CONTACTS)}',
         f'ambiguous: {_result_count(processed_ids, RESULT_AMBIGUOUS)}',
+        f'identity conflict: {_result_count(processed_ids, RESULT_CONFLICT)}',
         f'HTTP 403: {_result_count(processed_ids, RESULT_HTTP_403)}',
         f'timeout/network errors: {_result_count(processed_ids, RESULT_NETWORK_ERROR)}',
         f'failed/unexpected errors: {_result_count(processed_ids, RESULT_ERROR)}',
