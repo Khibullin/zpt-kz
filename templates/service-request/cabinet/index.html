@@ -905,10 +905,52 @@ select:focus{
 
 </div>
 
+<form id="serviceCsrfHolder" hidden>{% csrf_token %}</form>
 <script src="/static/js/dom-safe.js"></script>
 <script>
 const escapeHtml = ZPTDom.escapeHtml;
 const API = window.location.origin + '/api/service';
+
+function csrfToken(){
+  const input = document.querySelector('[name=csrfmiddlewaretoken]');
+  return input ? input.value : '';
+}
+
+function clearLegacySellerId(){
+  localStorage.removeItem('seller_id');
+}
+
+function showLogin(){
+  clearLegacySellerId();
+  currentProfile = null;
+  const cabinet = document.getElementById('cabinetWrap');
+  const login = document.getElementById('loginBox');
+  const requests = document.getElementById('requestsTab');
+  const profile = document.getElementById('profileView');
+  if(cabinet) cabinet.style.display = 'none';
+  if(login) login.style.display = '';
+  if(requests) requests.replaceChildren();
+  if(profile) profile.replaceChildren();
+}
+
+async function apiFetch(url, options){
+  const opts = Object.assign({}, options || {});
+  opts.credentials = 'same-origin';
+  const headers = Object.assign({}, opts.headers || {});
+  const method = String(opts.method || 'GET').toUpperCase();
+  if(method !== 'GET' && method !== 'HEAD'){
+    headers['X-CSRFToken'] = csrfToken();
+  }
+  opts.headers = headers;
+  const response = await fetch(url, opts);
+  if(response.status === 401 || response.status === 403){
+    showLogin();
+    const error = new Error('session');
+    error.status = response.status;
+    throw error;
+  }
+  return response;
+}
 
 let currentProfile = null;
 let currentStatusFilter = 'all';
@@ -936,8 +978,10 @@ async function login(){
       API + '/service-seller-login/',
       {
         method:'POST',
+        credentials:'same-origin',
         headers:{
-          'Content-Type':'application/json'
+          'Content-Type':'application/json',
+          'X-CSRFToken':csrfToken()
         },
         body:JSON.stringify({
           whatsapp,
@@ -945,6 +989,12 @@ async function login(){
         })
       }
     );
+
+    if(r.status === 401 || r.status === 403){
+      loginError.innerText =
+        'Ошибка безопасности. Обновите страницу.';
+      return;
+    }
 
     let data =
       await r.json();
@@ -956,11 +1006,7 @@ async function login(){
       return;
     }
 
-    localStorage.setItem(
-      'seller_id',
-      data.seller_id
-    );
-
+    clearLegacySellerId();
     openCabinet();
 
   }catch(err){
@@ -969,25 +1015,19 @@ async function login(){
   }
 }
 
-function openCabinet(){
+async function openCabinet(){
+
+  await loadProfile();
+  await loadRequests();
 
   loginBox.style.display = 'none';
   cabinetWrap.style.display = 'block';
-
-  loadProfile();
-  loadRequests();
 }
 
 async function loadProfile(){
 
-  let seller_id =
-    localStorage.getItem('seller_id');
-
-  if(!seller_id) return;
-
-  let r = await fetch(
-    API + '/service-seller-profile/?seller_id=' +
-    seller_id
+  let r = await apiFetch(
+    API + '/service-seller-profile/'
   );
 
   let data =
@@ -1185,9 +1225,6 @@ async function saveProfile(){
   saveMsg.style.display = 'none';
   saveMsg.className = 'msg';
 
-  let seller_id =
-    localStorage.getItem('seller_id');
-
   let services = Array
     .from(
       document.querySelectorAll(
@@ -1197,7 +1234,6 @@ async function saveProfile(){
     .map(x => x.value);
 
   let payload = {
-    seller_id,
     name:editName.value.trim(),
     seller_type:editSellerType.value,
     city:editCity.value.trim(),
@@ -1228,7 +1264,7 @@ async function saveProfile(){
 
   try{
 
-    let r = await fetch(
+    let r = await apiFetch(
       API + '/update-service-seller-profile/',
       {
         method:'POST',
@@ -1265,6 +1301,10 @@ async function saveProfile(){
 
   }catch(err){
 
+    if(err && (err.status === 401 || err.status === 403)){
+      return;
+    }
+
     saveMsg.className =
       'msg error';
 
@@ -1275,14 +1315,8 @@ async function saveProfile(){
 
 async function loadRequests(){
 
-  let seller_id =
-    localStorage.getItem('seller_id');
-
-  if(!seller_id) return;
-
-  let r = await fetch(
-    API + '/get-requests/?seller_id=' +
-    seller_id
+  let r = await apiFetch(
+    API + '/service-requests/'
   );
 
   let data =
@@ -1421,24 +1455,37 @@ async function loadRequests(){
     empty.textContent = 'По выбранному статусу заявок нет';
     container.appendChild(empty);
   }
+
+  try{
+    await apiFetch(
+      API + '/mark-service-requests-viewed/',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:'{}'
+      }
+    );
+  }catch(err){
+    if(err && (err.status === 401 || err.status === 403)){
+      return;
+    }
+  }
 }
 
 async function updateStatus(request_id,status){
 
-  let seller_id =
-    localStorage.getItem('seller_id');
-
   try{
 
-    await fetch(
-      API + '/update-match-status/',
+    await apiFetch(
+      API + '/update-service-match-status/',
       {
         method:'POST',
         headers:{
           'Content-Type':'application/json'
         },
         body:JSON.stringify({
-          seller_id,
           request_id,
           status
         })
@@ -1448,6 +1495,10 @@ async function updateStatus(request_id,status){
     loadRequests();
 
   }catch(err){
+
+    if(err && (err.status === 401 || err.status === 403)){
+      return;
+    }
 
     alert('Ошибка обновления статуса');
   }
@@ -1502,9 +1553,24 @@ function showTab(tab){
   }
 }
 
-function logout(){
+async function logout(){
 
-  localStorage.removeItem('seller_id');
+  try{
+    await fetch(
+      API + '/service-seller-logout/',
+      {
+        method:'POST',
+        credentials:'same-origin',
+        headers:{
+          'Content-Type':'application/json',
+          'X-CSRFToken':csrfToken()
+        },
+        body:'{}'
+      }
+    );
+  }catch(err){}
+
+  clearLegacySellerId();
   location.reload();
 }
 
@@ -1556,13 +1622,14 @@ editSellerType.addEventListener(
   () => toggleServiceBlocks(true)
 );
 
-window.onload = function(){
+window.onload = async function(){
 
-  let seller_id =
-    localStorage.getItem('seller_id');
+  clearLegacySellerId();
 
-  if(seller_id){
-    openCabinet();
+  try{
+    await openCabinet();
+  }catch(err){
+    showLogin();
   }
 }
 </script>

@@ -156,11 +156,11 @@ class ServiceRequestSecurityFoundationRegressionTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, f'Заявка №{req.id}')
 
-    def test_cabinet_and_private_apis_do_not_require_user(self):
+    def test_private_apis_require_session(self):
         seller = _seller()
         self.assertIsNone(seller.user_id)
         req = _request()
-        ServiceMatch.objects.create(request=req, seller=seller, status='new')
+        match = ServiceMatch.objects.create(request=req, seller=seller, status='new')
         client = Client()
 
         cabinet = client.get('/service-request/cabinet/')
@@ -170,19 +170,15 @@ class ServiceRequestSecurityFoundationRegressionTests(TestCase):
             '/api/service/service-seller-profile/',
             {'seller_id': seller.id},
         )
-        self.assertEqual(profile.status_code, 200)
-        self.assertEqual(profile.json()['id'], seller.id)
-        self.assertNotIn('user', profile.json())
-        self.assertNotIn('access_token', profile.json())
+        self.assertEqual(profile.status_code, 401)
+        self.assertNotIn(req.phone, profile.content.decode())
+        self.assertNotIn('access_token', profile.content.decode())
 
         requests_response = client.get(
             '/api/service/service-requests/',
             {'seller_id': seller.id},
         )
-        self.assertEqual(requests_response.status_code, 200)
-        items = requests_response.json()['requests']
-        self.assertEqual(items[0]['id'], req.id)
-        self.assertNotIn('access_token', items[0])
+        self.assertEqual(requests_response.status_code, 401)
 
         status_response = client.post(
             '/api/service/update-service-match-status/',
@@ -193,8 +189,9 @@ class ServiceRequestSecurityFoundationRegressionTests(TestCase):
             }),
             content_type='application/json',
         )
-        self.assertEqual(status_response.status_code, 200)
-        self.assertEqual(status_response.json(), {'success': True})
+        self.assertEqual(status_response.status_code, 401)
+        match.refresh_from_db()
+        self.assertEqual(match.status, 'new')
 
 
 class ServiceRequestAccessTokenMigrationTests(TransactionTestCase):

@@ -4,13 +4,19 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
 from django.core.paginator import Paginator
+from django.contrib.auth import logout, update_session_auth_hash
 from django.contrib.auth.hashers import make_password
+from django.db import transaction
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 import json
 
 from .location import normalize_service_request_location
-from .services.service_seller_identity import authenticate_service_seller
+from .services.service_seller_identity import (
+    ServiceSellerAccessDenied,
+    authenticate_service_seller,
+    get_current_service_seller,
+)
 from .models import (
     Service,
     ServiceSeller,
@@ -145,7 +151,13 @@ def create_service_seller(request):
     return JsonResponse({"success": True, "seller_id": seller.id})
 
 
-@csrf_exempt
+def _service_seller_or_error(request):
+    try:
+        return get_current_service_seller(request), None
+    except ServiceSellerAccessDenied as exc:
+        return None, JsonResponse({'error': exc.message}, status=exc.status)
+
+
 def service_seller_login(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
@@ -424,211 +436,157 @@ def match_services(req):
 
     return matched_sellers
 
-def get_service_requests(request):
-    seller_id = request.GET.get("seller_id")
+def _service_request_item(match):
+    req = match.request
+    return {
+        "id": req.id,
+        "service_type": req.service_type,
+        "services": list(req.services.values_list("name", flat=True)),
+        "city": req.city,
+        "district": req.district,
+        "phone": req.phone,
+        "whatsapp_url": _service_request_whatsapp_url(req),
+        "description": req.description,
+        "status": match.status,
+    }
 
-    if not seller_id:
-        return JsonResponse({"requests": []})
+
+def _service_seller_profile_payload(seller):
+    return {
+        "id": seller.id,
+        "name": seller.name,
+        "whatsapp": seller.whatsapp,
+        "city": seller.city,
+        "district": seller.district,
+        "address": seller.address,
+        "map_link": seller.map_link,
+        "instagram": seller.instagram,
+        "website": seller.website,
+        "working_hours": seller.working_hours,
+        "description": seller.description,
+        "seller_type": seller.seller_type,
+        "services": list(seller.services.values_list("name", flat=True)),
+        "is_active": seller.is_active,
+    }
+
+
+def get_service_requests(request):
+    seller, error = _service_seller_or_error(request)
+    if error:
+        return error
 
     matches = ServiceMatch.objects.filter(
-        seller_id=seller_id
+        seller=seller
     ).select_related("request").prefetch_related("request__services").order_by("-created_at")
 
-    items = []
-
-    for match in matches:
-        req = match.request
-
-        if match.status == 'new':
-            match.status = 'viewed'
-            match.save(update_fields=['status'])
-
-        items.append({
-            "id": req.id,
-            "service_type": req.service_type,
-            "services": list(req.services.values_list("name", flat=True)),
-            "city": req.city,
-            "district": req.district,
-            "phone": req.phone,
-            "whatsapp_url": _service_request_whatsapp_url(req),
-            "description": req.description,
-            "status": match.status,
-        })
-
-    return JsonResponse({"requests": items})
+    return JsonResponse({
+        "requests": [_service_request_item(match) for match in matches],
+    })
 
 
-@csrf_exempt
 def get_service_seller_profile(request):
-    seller_id = request.GET.get("seller_id")
-
-    if not seller_id:
-        return JsonResponse({"error": "seller_id required"}, status=400)
-
-    try:
-        seller = ServiceSeller.objects.get(id=seller_id)
-
-        return JsonResponse({
-            "id": seller.id,
-            "name": seller.name,
-            "whatsapp": seller.whatsapp,
-            "city": seller.city,
-            "district": seller.district,
-            "address": seller.address,
-            "map_link": seller.map_link,
-
-            "instagram":
-                seller.instagram,
-
-            "website":
-                seller.website,
-
-            "working_hours":
-                seller.working_hours,
-
-            "description":
-                seller.description,
-
-            "seller_type":
-                seller.seller_type,
-
-            "services": list(
-                seller.services.values_list(
-                    "name",
-                    flat=True
-                )
-            ),
-
-            "is_active":
-                seller.is_active,
-        })
-
-    except ServiceSeller.DoesNotExist:
-        return JsonResponse({"error": "Исполнитель не найден"}, status=404)
+    seller, error = _service_seller_or_error(request)
+    if error:
+        return error
+    return JsonResponse(_service_seller_profile_payload(seller))
 
 
-@csrf_exempt
 def update_service_seller_profile(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
 
+    seller, error = _service_seller_or_error(request)
+    if error:
+        return error
+
     data = read_json(request)
+    new_password = (data.get("password") or "").strip()
+    if new_password:
+        password_error = _password_validation_error(new_password)
+        if password_error:
+            return JsonResponse({"error": password_error}, status=400)
 
-    seller_id = data.get("seller_id")
+    service_names = data.get("services", [])
+    fields = {
+        "name": data.get("name", seller.name).strip(),
+        "city": data.get("city", seller.city).strip(),
+        "district": data.get("district", seller.district).strip(),
+        "address": data.get("address", seller.address).strip(),
+        "map_link": data.get("map_link", seller.map_link).strip(),
+        "instagram": data.get("instagram", seller.instagram or "").strip(),
+        "website": data.get("website", seller.website or "").strip(),
+        "working_hours": data.get("working_hours", seller.working_hours or "").strip(),
+        "description": data.get("description", seller.description or "").strip(),
+        "seller_type": data.get("seller_type", seller.seller_type),
+        "is_active": data.get("is_active", seller.is_active),
+    }
 
-    if not seller_id:
-        return JsonResponse({"error": "seller_id required"}, status=400)
-
-    try:
-        seller = ServiceSeller.objects.get(id=seller_id)
-
-        new_password = (data.get("password") or "").strip()
-        if new_password and seller.user_id:
-            return JsonResponse(
-                {
-                    "error": (
-                        "Смена пароля будет доступна после обновления безопасности кабинета. "
-                        "Остальные данные профиля можно сохранить без изменения пароля."
-                    ),
-                },
-                status=400,
-            )
-
-        seller.name = data.get("name", seller.name).strip()
-        seller.city = data.get("city", seller.city).strip()
-        seller.district = data.get("district", seller.district).strip()
-
-        seller.address = data.get(
-            "address",
-            seller.address
-        ).strip()
-
-        seller.map_link = data.get(
-            "map_link",
-            seller.map_link
-        ).strip()
-
-        seller.instagram = data.get(
-            "instagram",
-            seller.instagram or ""
-        ).strip()
-
-        seller.website = data.get(
-            "website",
-            seller.website or ""
-        ).strip()
-
-        seller.working_hours = data.get(
-            "working_hours",
-            seller.working_hours or ""
-        ).strip()
-
-        seller.description = data.get(
-            "description",
-            seller.description or ""
-        ).strip()
-
-        seller.seller_type = data.get(
-            "seller_type",
-            seller.seller_type
-        )
-
-        seller.is_active = data.get(
-            "is_active",
-            seller.is_active
-        )
-
+    with transaction.atomic():
+        seller = ServiceSeller.objects.select_for_update().get(pk=seller.pk)
+        for field, value in fields.items():
+            setattr(seller, field, value)
         if new_password:
-            password_error = _password_validation_error(new_password)
-
-            if password_error:
-                return JsonResponse({"error": password_error}, status=400)
-
-            seller.password = make_password(new_password)
-
+            seller.password = ''
+        seller.save()
         seller.services.clear()
-
-        for name in data.get("services", []):
+        for name in service_names:
             service, _ = Service.objects.get_or_create(name=name)
             seller.services.add(service)
+        if new_password:
+            request.user.set_password(new_password)
+            request.user.save(update_fields=['password'])
 
-        seller.save()
+    if new_password:
+        update_session_auth_hash(request, request.user)
 
-        return JsonResponse({"success": True})
-
-    except ServiceSeller.DoesNotExist:
-        return JsonResponse({"error": "Исполнитель не найден"}, status=404)
+    return JsonResponse({"success": True})
 
 
-@csrf_exempt
 def update_service_match_status(request):
     if request.method != "POST":
         return JsonResponse({"error": "POST only"}, status=405)
 
+    seller, error = _service_seller_or_error(request)
+    if error:
+        return error
+
     data = read_json(request)
-
-    seller_id = data.get("seller_id")
-    request_id = data.get("request_id")
     status = data.get("status")
-
     allowed = ['new', 'sent', 'viewed', 'in_work', 'done']
-
     if status not in allowed:
         return JsonResponse({"error": "Invalid status"}, status=400)
 
     try:
         match = ServiceMatch.objects.get(
-            seller_id=seller_id,
-            request_id=request_id
+            seller=seller,
+            request_id=data.get("request_id"),
         )
-
-        match.status = status
-        match.save()
-
-        return JsonResponse({"success": True})
-
-    except ServiceMatch.DoesNotExist:
+    except (ServiceMatch.DoesNotExist, ValueError, TypeError):
         return JsonResponse({"error": "Match not found"}, status=404)
+
+    match.status = status
+    match.save(update_fields=['status'])
+    return JsonResponse({"success": True})
+
+
+def mark_service_requests_viewed(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    seller, error = _service_seller_or_error(request)
+    if error:
+        return error
+
+    ServiceMatch.objects.filter(seller=seller, status='new').update(status='viewed')
+    return JsonResponse({"success": True})
+
+
+def service_seller_logout(request):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=405)
+
+    logout(request)
+    return JsonResponse({"success": True})
 
 
 def service_request_result(request, request_id):

@@ -22,6 +22,27 @@ class _ServiceAuthRejected(Exception):
     """Abort a linking transaction and return a generic auth failure."""
 
 
+class ServiceSellerAccessDenied(Exception):
+    def __init__(self, status, message):
+        super().__init__(message)
+        self.status = status
+        self.message = message
+
+
+def get_current_service_seller(request):
+    """Return the ServiceSeller owned by the authenticated user.
+
+    Request parameters are never used as identity.
+    """
+    user = getattr(request, 'user', None)
+    if user is None or not user.is_authenticated:
+        raise ServiceSellerAccessDenied(401, 'Требуется вход')
+    try:
+        return user.service_seller_profile
+    except ServiceSeller.DoesNotExist as exc:
+        raise ServiceSellerAccessDenied(403, 'Доступ запрещён') from exc
+
+
 def authenticate_service_seller(request, whatsapp, password):
     """Return the ServiceSeller after a real Django login, or None."""
     try:

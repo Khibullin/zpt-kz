@@ -46,6 +46,18 @@ urlpatterns = [
     ),
 
     path(
+        'mark-service-requests-viewed/',
+        mark_service_requests_viewed,
+        name='mark_service_requests_viewed'
+    ),
+
+    path(
+        'service-seller-logout/',
+        service_seller_logout,
+        name='service_seller_logout'
+    ),
+
+    path(
         'result/<int:request_id>/',
         service_request_result,
         name='service_request_result'
