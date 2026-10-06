@@ -4,12 +4,13 @@ from django.shortcuts import render, get_object_or_404
 from django.urls import reverse
 from django.db.models import Q
 from django.core.paginator import Paginator
-from django.contrib.auth.hashers import make_password, check_password
+from django.contrib.auth.hashers import make_password
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 import json
 
 from .location import normalize_service_request_location
+from .services.service_seller_identity import authenticate_service_seller
 from .models import (
     Service,
     ServiceSeller,
@@ -105,24 +106,6 @@ def build_service_request_success_payload(
     }
 
 
-def _authenticate_service_seller(whatsapp, password):
-    normalized = _normalize_whatsapp(whatsapp)
-
-    if not normalized or not password:
-        return None
-
-    sellers = ServiceSeller.objects.filter(whatsapp=whatsapp.strip())
-
-    if not sellers.exists() and normalized != whatsapp.strip():
-        sellers = ServiceSeller.objects.filter(whatsapp=normalized)
-
-    for seller in sellers:
-        if check_password(password, seller.password):
-            return seller
-
-    return None
-
-
 @csrf_exempt
 def create_service_seller(request):
     if request.method != "POST":
@@ -169,7 +152,8 @@ def service_seller_login(request):
 
     data = read_json(request)
 
-    seller = _authenticate_service_seller(
+    seller = authenticate_service_seller(
+        request,
         data.get("whatsapp", ""),
         data.get("password", ""),
     )
