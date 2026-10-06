@@ -522,6 +522,18 @@ def update_service_seller_profile(request):
     try:
         seller = ServiceSeller.objects.get(id=seller_id)
 
+        new_password = (data.get("password") or "").strip()
+        if new_password and seller.user_id:
+            return JsonResponse(
+                {
+                    "error": (
+                        "Смена пароля будет доступна после обновления безопасности кабинета. "
+                        "Остальные данные профиля можно сохранить без изменения пароля."
+                    ),
+                },
+                status=400,
+            )
+
         seller.name = data.get("name", seller.name).strip()
         seller.city = data.get("city", seller.city).strip()
         seller.district = data.get("district", seller.district).strip()
@@ -565,8 +577,6 @@ def update_service_seller_profile(request):
             "is_active",
             seller.is_active
         )
-
-        new_password = data.get("password", "").strip()
 
         if new_password:
             password_error = _password_validation_error(new_password)

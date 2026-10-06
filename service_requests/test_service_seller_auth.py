@@ -2,7 +2,7 @@ import json
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import check_password, make_password
 from django.db import IntegrityError
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -392,3 +392,118 @@ class ServiceSellerAuthRegressionTests(TestCase):
         self.assertEqual(status.status_code, 200)
         self.assertEqual(status.json(), {'success': True})
         self.assertFalse(client.get('/service-request/cabinet/').wsgi_request.user.is_authenticated)
+
+
+PROFILE_URL = '/api/service/update-service-seller-profile/'
+PASSWORD_CHANGE_BLOCKED = (
+    'Смена пароля будет доступна после обновления безопасности кабинета. '
+    'Остальные данные профиля можно сохранить без изменения пароля.'
+)
+
+
+def _post_profile(client, payload):
+    return client.post(
+        PROFILE_URL,
+        data=json.dumps(payload),
+        content_type='application/json',
+    )
+
+
+class LinkedServiceSellerPasswordUpdateGuardTests(TestCase):
+    def test_linked_seller_password_change_does_not_save_profile(self):
+        user = User.objects.create_user(username='linked-profile-user', password='USER-PASS')
+        seller = _seller(user=user, password='', name='Original STO', city='Алматы')
+        client = Client()
+
+        response = _post_profile(client, {
+            'seller_id': seller.id,
+            'name': 'Changed STO',
+            'city': 'Астана',
+            'password': 'NEW-PASS',
+        })
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), {'error': PASSWORD_CHANGE_BLOCKED})
+        user.refresh_from_db()
+        seller.refresh_from_db()
+        self.assertTrue(user.check_password('USER-PASS'))
+        self.assertFalse(user.check_password('NEW-PASS'))
+        self.assertEqual(seller.password, '')
+        self.assertFalse(check_password('NEW-PASS', seller.password))
+        self.assertEqual(seller.name, 'Original STO')
+        self.assertEqual(seller.city, 'Алматы')
+
+        failed = _post_login(Client(), seller.whatsapp, 'NEW-PASS')
+        self.assertEqual(failed.status_code, 400)
+        succeeded = _post_login(Client(), seller.whatsapp, 'USER-PASS')
+        self.assertEqual(succeeded.status_code, 200)
+
+    def test_unauthenticated_request_cannot_change_linked_user_password(self):
+        user = User.objects.create_user(username='attacker-target-user', password='USER-PASS')
+        seller = _seller(user=user, password='', name='Original STO')
+        client = Client()
+        self.assertFalse(client.get('/service-request/cabinet/').wsgi_request.user.is_authenticated)
+
+        response = _post_profile(client, {
+            'seller_id': seller.id,
+            'name': 'Taken Over',
+            'password': 'NEW-PASS',
+        })
+
+        self.assertNotEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 400)
+        self.assertNotIn('success', response.json())
+        user.refresh_from_db()
+        seller.refresh_from_db()
+        self.assertTrue(user.check_password('USER-PASS'))
+        self.assertFalse(user.check_password('NEW-PASS'))
+        self.assertEqual(seller.password, '')
+        self.assertEqual(seller.name, 'Original STO')
+
+    def test_linked_seller_updates_profile_when_password_blank(self):
+        user = User.objects.create_user(username='linked-blank-password', password='USER-PASS')
+        seller = _seller(user=user, password='', name='Original STO')
+        client = Client()
+
+        response = _post_profile(client, {
+            'seller_id': seller.id,
+            'name': 'Updated STO',
+            'password': '',
+            'services': [],
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {'success': True})
+        user.refresh_from_db()
+        seller.refresh_from_db()
+        self.assertEqual(seller.name, 'Updated STO')
+        self.assertEqual(seller.password, '')
+        self.assertTrue(user.check_password('USER-PASS'))
+        self.assertFalse(user.check_password('NEW-PASS'))
+
+    def test_unlinked_seller_password_update_still_migrates_on_login(self):
+        seller = _seller(user=None, password=make_password('LEGACY-PASS'), name='Original STO')
+        client = Client()
+
+        response = _post_profile(client, {
+            'seller_id': seller.id,
+            'name': 'Renamed STO',
+            'password': 'Fresh-pass-1',
+            'services': [],
+        })
+
+        self.assertEqual(response.status_code, 200)
+        seller.refresh_from_db()
+        self.assertIsNone(seller.user_id)
+        self.assertEqual(seller.name, 'Renamed STO')
+        self.assertTrue(check_password('Fresh-pass-1', seller.password))
+        self.assertFalse(check_password('LEGACY-PASS', seller.password))
+
+        login_response = _post_login(Client(), seller.whatsapp, 'Fresh-pass-1')
+        self.assertEqual(login_response.status_code, 200)
+        self.assertEqual(login_response.json(), {'success': True, 'seller_id': seller.id})
+        seller.refresh_from_db()
+        self.assertIsNotNone(seller.user_id)
+        self.assertEqual(seller.user.username, PHONE)
+        self.assertTrue(seller.user.check_password('Fresh-pass-1'))
+        self.assertEqual(User.objects.count(), 1)
