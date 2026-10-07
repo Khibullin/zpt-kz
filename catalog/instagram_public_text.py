@@ -18,8 +18,6 @@ REASON_AMBIGUOUS_GENERATION = 'ambiguous_generation'
 REASON_AMBIGUOUS_PART = 'ambiguous_part'
 REASON_AMBIGUOUS_SIDE = 'ambiguous_side'
 REASON_UNSAFE_PUBLIC_TEXT = 'unsafe_public_text'
-REASON_VEHICLE_IMAGE_LOW_CONFIDENCE = 'vehicle_image_low_confidence'
-REASON_PART_IMAGE_LOW_CONFIDENCE = 'part_image_low_confidence'
 REASON_PII_DETECTED = 'pii_detected'
 REASON_OTHER = 'other'
 
@@ -29,8 +27,6 @@ REVIEW_REASON_CODES = (
     REASON_AMBIGUOUS_PART,
     REASON_AMBIGUOUS_SIDE,
     REASON_UNSAFE_PUBLIC_TEXT,
-    REASON_VEHICLE_IMAGE_LOW_CONFIDENCE,
-    REASON_PART_IMAGE_LOW_CONFIDENCE,
     REASON_PII_DETECTED,
     REASON_OTHER,
 )
@@ -41,8 +37,6 @@ REVIEW_REASON_LABELS = {
     REASON_AMBIGUOUS_PART: 'Неясно, какая запчасть нужна.',
     REASON_AMBIGUOUS_SIDE: 'Неясно, какая сторона нужна.',
     REASON_UNSAFE_PUBLIC_TEXT: 'Публичный текст нельзя показать безопасно.',
-    REASON_VEHICLE_IMAGE_LOW_CONFIDENCE: 'Нет достоверного изображения автомобиля.',
-    REASON_PART_IMAGE_LOW_CONFIDENCE: 'Нет достоверного изображения детали.',
     REASON_PII_DETECTED: 'В публичном тексте найдены персональные данные.',
     REASON_OTHER: 'Нужна ручная проверка.',
 }
@@ -54,8 +48,6 @@ _REASON_PRIORITY = (
     REASON_AMBIGUOUS_GENERATION,
     REASON_AMBIGUOUS_PART,
     REASON_AMBIGUOUS_SIDE,
-    REASON_VEHICLE_IMAGE_LOW_CONFIDENCE,
-    REASON_PART_IMAGE_LOW_CONFIDENCE,
     REASON_OTHER,
 )
 

@@ -5,14 +5,27 @@ from catalog.instagram_public_text import (
     REASON_AMBIGUOUS_SIDE,
     REASON_AMBIGUOUS_VEHICLE,
     REASON_PII_DETECTED,
+    REVIEW_REASON_CODES,
     build_banner_v2_caption,
     build_public_part_request,
 )
-from catalog.instagram_banner_v2 import BannerContent, render_request_banner_v2
-from catalog.instagram_visuals import (
-    GENERATION_BOUNDARIES,
-    VehicleVisualResolver,
+from catalog.instagram_banner_v2 import (
+    PART_BODY,
+    PART_BRAKES,
+    PART_ELECTRICAL,
+    PART_ENGINE,
+    PART_FILTER,
+    PART_GENERIC,
+    PART_HEADLIGHT,
+    PART_SUSPENSION,
+    PART_TRANSMISSION,
+    PART_WHEEL,
+    BannerContent,
+    fit_text_to_width,
+    part_category,
+    render_request_banner_v2,
 )
+from PIL import ImageDraw
 from core.models import Request
 
 
@@ -100,79 +113,160 @@ class PublicTextNormalizationTests(TestCase):
         self.assertNotIn(product_request.phone, caption)
 
 
-class VehicleVisualResolverTests(TestCase):
-    def test_unknown_model_uses_generic_fallback_without_blocking(self):
-        asset = VehicleVisualResolver().resolve(brand='Haval', model='Dargo', year=2023)
-        self.assertEqual(asset.source_type, 'generic_fallback')
-        self.assertFalse(asset.blocks_publish)
-        self.assertIsNotNone(asset.image)
-        self.assertIn('source_type', asset.provenance())
+def _is_red(pixel) -> bool:
+    red, green, blue = pixel
+    return red > 180 and green < 90 and blue < 90
 
-    def test_generation_boundary_does_not_pick_a_generation(self):
-        boundaries = {
-            ('haval', 'dargo'): (
-                (2022, 2023, 'I'),
-                (2023, 2024, 'II'),
-            ),
-        }
-        asset = VehicleVisualResolver().resolve(
-            brand='Haval',
-            model='Dargo',
-            year=2023,
-            boundaries=boundaries,
-        )
-        self.assertTrue(asset.blocks_publish)
-        self.assertEqual(asset.review_reason, 'ambiguous_generation')
-        self.assertEqual(asset.generation, '')
-        self.assertEqual(GENERATION_BOUNDARIES, {})
+
+def _is_blue(pixel) -> bool:
+    red, green, blue = pixel
+    return blue > 140 and red < 80 and green < 140
+
+
+def _is_dark(pixel) -> bool:
+    return pixel[0] < 40 and pixel[1] < 45 and pixel[2] < 50
+
+
+def _is_light(pixel) -> bool:
+    return pixel[0] > 220 and pixel[1] > 220 and pixel[2] > 220
 
 
 class BannerV2LayoutTests(TestCase):
-    def test_reference_banner_fits_and_keeps_red_secondary(self):
-        rendered = render_request_banner_v2(
-            BannerContent(
-                brand='Haval',
-                model='Dargo',
-                year='2023',
-                parts=('Правая передняя фара', 'Левая передняя фара'),
-                city='Алматы',
-                request_number='486',
-                vehicle_is_generic=True,
-            )
+    def _haval(self, **overrides):
+        payload = dict(
+            brand='Haval',
+            model='Dargo',
+            year='2023',
+            parts=('Правая передняя фара', 'Левая передняя фара'),
+            city='Алматы',
+            request_number='486',
         )
+        payload.update(overrides)
+        return BannerContent(**payload)
+
+    def _render(self, **overrides):
+        return render_request_banner_v2(self._haval(**overrides))
+
+    def test_banner_matches_the_approved_frame(self):
+        rendered = self._render()
         image = rendered.image
         self.assertEqual(image.size, (1080, 1350))
-        red = blue = dark_footer = 0
+        self.assertLess(rendered.content_bottom, image.height - 180)
+        footer = image.getpixel((40, image.height - 24))
+        self.assertTrue(_is_dark(footer))
+        logo_red = any(
+            _is_red(image.getpixel((x, y)))
+            for y in range(36, 90, 2)
+            for x in range(70, 220, 4)
+        )
+        badge_red = any(
+            _is_red(image.getpixel((x, y)))
+            for y in range(40, 130, 2)
+            for x in range(760, 1000, 4)
+        )
+        self.assertTrue(logo_red)
+        self.assertTrue(badge_red)
+        paired_rows = [
+            y for y in range(880, 1140, 2)
+            if _is_red(image.getpixel((180, y))) and _is_light(image.getpixel((860, y)))
+        ]
+        self.assertTrue(paired_rows)
+        buyer_has_blue = any(
+            _is_blue(image.getpixel((x, y)))
+            for y in paired_rows[::4]
+            for x in range(600, 1020, 2)
+        )
+        self.assertTrue(buyer_has_blue)
+        red = blue = 0
         sampled = 0
         for y in range(0, image.height, 4):
             for x in range(0, image.width, 4):
-                r, g, b = image.getpixel((x, y))
+                pixel = image.getpixel((x, y))
                 sampled += 1
-                if r > 180 and g < 80 and b < 80:
+                if _is_red(pixel):
                     red += 1
-                if b > 140 and r < 80 and g < 120:
+                if _is_blue(pixel):
                     blue += 1
-                if y > image.height - 100 and r < 40 and g < 40 and b < 45:
-                    dark_footer += 1
-        self.assertGreater(blue, 20)
-        self.assertGreater(dark_footer, 100)
-        self.assertLess(red / sampled, 0.2)
-        self.assertLess(rendered.content_bottom, image.height - 100)
+        self.assertGreater(red, blue)
+        self.assertLess(red / sampled, 0.22)
+        self.assertLess(blue, 2500)
 
-    def test_many_parts_do_not_cover_the_footer(self):
+    def test_long_names_shrink_and_stay_inside_the_safe_area(self):
+        probe = ImageDraw.Draw(self._render().image)
+        short = fit_text_to_width(probe, 'HAVAL', 960, max_size=72, min_size=36)
+        long = fit_text_to_width(probe, 'LAND CRUISER PRADO', 960, max_size=72, min_size=36)
+        self.assertGreaterEqual(getattr(short, 'size', 72), getattr(long, 'size', 36))
+        cases = (
+            self._haval(brand='Honda', model='CR-V', year='2007', city='Шымкент', parts=(
+                'Правая передняя дверь',
+                'Правое переднее крыло',
+            )),
+            self._haval(brand='Chery', model='Tiggo 7 Pro', year='2022'),
+            self._haval(brand='Mercedes-Benz', model='GLE', year='2019'),
+            self._haval(
+                brand='Toyota',
+                model='Land Cruiser Prado',
+                year='2021',
+                parts=(
+                    'Передний правый нижний рычаг подвески',
+                    'Электронный блок управления двигателем',
+                ),
+            ),
+            self._haval(parts=(
+                'Передний левый блок управления климат-контролем в сборе с панелью и проводкой',
+            )),
+        )
+        for content in cases:
+            image = render_request_banner_v2(content).image
+            footer_top = image.height - 204
+            for y in range(0, footer_top, 10):
+                self.assertTrue(_is_light(image.getpixel((image.width - 8, y))))
+                self.assertTrue(_is_light(image.getpixel((8, y))))
+
+    def test_changing_copy_changes_the_banner(self):
+        base = render_request_banner_v2(self._haval()).image
+        other_number = render_request_banner_v2(self._haval(request_number='999')).image
+        other_city = render_request_banner_v2(self._haval(city='Астана')).image
+        other_year = render_request_banner_v2(self._haval(year='2021')).image
+        self.assertNotEqual(list(base.getdata()), list(other_number.getdata()))
+        self.assertNotEqual(list(base.getdata()), list(other_city.getdata()))
+        self.assertNotEqual(list(base.getdata()), list(other_year.getdata()))
+
+    def test_part_counts_change_the_list_and_keep_the_footer(self):
+        one = self._render(parts=('Правая передняя фара',)).image
+        two = self._render().image
+        three = self._render(parts=(
+            'Правая передняя фара',
+            'Левая передняя фара',
+            'Капот',
+        )).image
+        more = self._render(
+            parts=('Правая передняя фара', 'Левая передняя фара', 'Капот', 'Радиатор'),
+            hidden_part_count=2,
+        ).image
+        self.assertNotEqual(list(one.getdata()), list(two.getdata()))
+        self.assertNotEqual(list(two.getdata()), list(three.getdata()))
+        self.assertNotEqual(list(three.getdata()), list(more.getdata()))
+        self.assertTrue(_is_dark(more.getpixel((20, more.height - 12))))
+
+    def test_more_than_three_parts_keep_the_footer_clear(self):
         rendered = render_request_banner_v2(
             BannerContent(
-                brand='Mercedes-Benz',
-                model='GLE Coupe 400 d 4MATIC',
-                year='2018-2020',
-                parts=(
-                    'Передний бампер с отверстиями под омыватель и парктроники',
-                    'Правая передняя фара в сборе',
-                    'Капот',
-                    'Левое крыло',
-                    'Правое крыло',
-                ),
-                hidden_part_count=3,
+                brand='Toyota',
+                model='Camry',
+                year='2018',
+                parts=('Передние колодки', 'Капот', 'Радиатор', 'Скрытая деталь'),
+                hidden_part_count=2,
+                city='Караганда',
+                request_number='99999',
+            )
+        )
+        without_extra = render_request_banner_v2(
+            BannerContent(
+                brand='Toyota',
+                model='Camry',
+                year='2018',
+                parts=('Передние колодки', 'Капот', 'Радиатор'),
                 city='Караганда',
                 request_number='99999',
             )
@@ -181,3 +275,62 @@ class BannerV2LayoutTests(TestCase):
         footer = image.getpixel((20, image.height - 10))
         self.assertLess(footer[0], 40)
         self.assertLess(rendered.content_bottom, image.height - 80)
+        self.assertNotEqual(list(image.getdata()), list(without_extra.image.getdata()))
+
+    def test_long_model_and_part_names_stay_inside_the_canvas(self):
+        rendered = render_request_banner_v2(
+            BannerContent(
+                brand='Mercedes-Benz',
+                model='GLE Coupe 400 d 4MATIC',
+                year='2018-2020',
+                parts=(
+                    'Передний левый блок управления климат-контролем в сборе с панелью и проводкой',
+                ),
+                city='Алматы',
+                request_number='486',
+            )
+        )
+        image = rendered.image
+        footer_top = image.height - 204
+        edge = [image.getpixel((image.width - 8, y)) for y in range(0, footer_top, 8)]
+        self.assertTrue(all(_is_light(pixel) for pixel in edge))
+        footer = image.getpixel((20, image.height - 10))
+        self.assertLess(footer[0], 40)
+
+    def test_part_icons_are_categories_not_specific_parts(self):
+        self.assertEqual(part_category('Правая передняя фара'), PART_HEADLIGHT)
+        self.assertEqual(part_category('Капот'), PART_BODY)
+        self.assertEqual(part_category('Радиатор'), PART_ENGINE)
+        self.assertEqual(part_category('Передние колодки'), PART_BRAKES)
+        self.assertEqual(part_category('Амортизатор'), PART_SUSPENSION)
+        self.assertEqual(part_category('Масляный фильтр'), PART_FILTER)
+        self.assertEqual(part_category('Генератор'), PART_ELECTRICAL)
+        self.assertEqual(part_category('АКПП'), PART_TRANSMISSION)
+        self.assertEqual(part_category('Литой диск'), PART_WHEEL)
+        self.assertEqual(part_category('Правая передняя дверь'), PART_BODY)
+        self.assertEqual(part_category('Правое переднее крыло'), PART_BODY)
+        self.assertEqual(part_category('Передний правый нижний рычаг подвески'), PART_SUSPENSION)
+        self.assertEqual(part_category('Электронный блок управления двигателем'), PART_ENGINE)
+        self.assertEqual(part_category('Непонятная позиция'), PART_GENERIC)
+        import inspect
+        import catalog.instagram_banner_v2 as banner_module
+        source = inspect.getsource(banner_module).casefold()
+        self.assertNotIn('wa.me', source)
+        self.assertNotIn('whatsapp', source)
+        self.assertNotIn('доставк', source)
+        self.assertNotIn('silhouette', source)
+        self.assertNotIn('vehiclevisual', source)
+        headlight = render_request_banner_v2(self._haval(parts=('Правая передняя фара',))).image
+        generic = render_request_banner_v2(self._haval(parts=('Непонятная позиция',))).image
+        self.assertNotEqual(list(headlight.getdata()), list(generic.getdata()))
+
+    def test_missing_images_are_not_a_review_reason(self):
+        blocked = {
+            'vehicle_image_required',
+            'vehicle_image_low_confidence',
+            'part_image_low_confidence',
+        }
+        self.assertFalse(blocked.intersection(REVIEW_REASON_CODES))
+        product_request = _request()
+        public = build_public_part_request(product_request)
+        self.assertEqual(public.review_reason, '')

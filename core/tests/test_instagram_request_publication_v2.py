@@ -48,7 +48,7 @@ class InstagramRequestPublicationV2Tests(TestCase):
         self.settings_override = self.settings(MEDIA_ROOT=self._media_tmp.name)
         self.settings_override.enable()
 
-    def test_clear_request_still_queues_story_and_feed_once(self):
+    def test_clear_request_queues_story_and_feed_without_images(self):
         product_request = _request()
         with patch('catalog.instagram_service.publish_story_to_instagram') as story_mock, \
                 patch('catalog.instagram_service.publish_feed_to_instagram') as feed_mock:
@@ -56,9 +56,15 @@ class InstagramRequestPublicationV2Tests(TestCase):
             feed_mock.return_value = {'container_id': 'c-feed', 'media_id': 'm-feed'}
             process_instagram_publication_for_request(product_request.pk)
             process_instagram_publication_for_request(product_request.pk)
-        publications = list(InstagramPublication.objects.filter(request=product_request))
+        publications = {
+            item.placement: item
+            for item in InstagramPublication.objects.filter(request=product_request)
+        }
         self.assertEqual(len(publications), 2)
-        self.assertTrue(all(item.status == InstagramPublication.STATUS_QUEUED for item in publications))
+        self.assertEqual(publications['story'].status, InstagramPublication.STATUS_QUEUED)
+        self.assertEqual(publications['feed'].status, InstagramPublication.STATUS_QUEUED)
+        self.assertEqual(publications['feed'].review_reason, '')
+        self.assertNotIn('vehicle', publications['feed'].public_payload)
         product_request.refresh_from_db()
         self.assertEqual(product_request.description, 'Передние колодки')
 

@@ -34,9 +34,7 @@ from catalog.instagram_api import (
 from catalog.instagram_public_text import (
     build_banner_v2_caption,
     build_public_part_request,
-    review_reason_label,
 )
-from catalog.instagram_visuals import VehicleVisualResolver
 from core.instagram_sanitize import is_junk_only_description
 from core.models import InstagramPublication, Request
 
@@ -407,19 +405,9 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
 
 
 def _feed_public_state(product_request: Request):
+    """Публичный текст заявки. Картинка автомобиля для ленты не требуется."""
     public = build_public_part_request(product_request)
-    year = int(public.year) if str(public.year).isdigit() else None
-    vehicle = VehicleVisualResolver().resolve(
-        brand=public.brand,
-        model=public.model,
-        year=year,
-    )
-    if vehicle.blocks_publish and vehicle.review_reason and not public.review_reason:
-        public.review_reason = vehicle.review_reason
-        public.review_detail = review_reason_label(vehicle.review_reason)
-    payload = public.as_dict()
-    payload['vehicle'] = vehicle.provenance()
-    return public, payload
+    return public, public.as_dict()
 
 
 def _maybe_create_feed_for_new_request(
