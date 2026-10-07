@@ -850,27 +850,33 @@ class MaintenanceKitMissingCarTests(TestCase):
 class MaintenanceKitCarRequestMigrationTests(TransactionTestCase):
     def test_old_rows_get_new_status_and_blank_phone(self):
         executor = MigrationExecutor(connection)
-        executor.migrate([('catalog', '0037_maintenance_kit_car_request')])
-        old_apps = executor.loader.project_state(
-            [('catalog', '0037_maintenance_kit_car_request')]
-        ).apps
-        OldRequest = old_apps.get_model('catalog', 'MaintenanceKitCarRequest')
-        OldRequest.objects.create(
-            brand='Haval',
-            model='Jolion',
-            year=2023,
-            engine='1.5T',
-        )
-        executor.loader.build_graph()
-        executor.migrate([('catalog', '0038_maintenance_kit_car_request_phone_status')])
-        new_apps = executor.loader.project_state(
-            [('catalog', '0038_maintenance_kit_car_request_phone_status')]
-        ).apps
-        NewRequest = new_apps.get_model('catalog', 'MaintenanceKitCarRequest')
-        row = NewRequest.objects.get()
-        self.assertEqual(row.status, 'new')
-        self.assertEqual(row.phone, '')
-        self.assertFalse(hasattr(OldRequest, 'phone'))
+        try:
+            executor.migrate([('catalog', '0037_maintenance_kit_car_request')])
+            old_apps = executor.loader.project_state(
+                [('catalog', '0037_maintenance_kit_car_request')]
+            ).apps
+            OldRequest = old_apps.get_model('catalog', 'MaintenanceKitCarRequest')
+            OldRequest.objects.create(
+                brand='Haval',
+                model='Jolion',
+                year=2023,
+                engine='1.5T',
+            )
+            executor.loader.build_graph()
+            executor.migrate([('catalog', '0038_maintenance_kit_car_request_phone_status')])
+            new_apps = executor.loader.project_state(
+                [('catalog', '0038_maintenance_kit_car_request_phone_status')]
+            ).apps
+            NewRequest = new_apps.get_model('catalog', 'MaintenanceKitCarRequest')
+            row = NewRequest.objects.get()
+            self.assertEqual(row.status, 'new')
+            self.assertEqual(row.phone, '')
+            self.assertFalse(hasattr(OldRequest, 'phone'))
+        finally:
+            # orders.0007 depends on catalog.0057, so the rollback above
+            # unapplies Order.seller_profile. Later tests must see the leaf schema.
+            executor.loader.build_graph()
+            executor.migrate(executor.loader.graph.leaf_nodes())
 
 
 class MaintenanceKitSeedTests(TestCase):
