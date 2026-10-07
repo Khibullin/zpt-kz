@@ -337,7 +337,7 @@ class ServiceSellerAuthRegressionTests(TestCase):
         self.assertIsNone(seller.user_id)
         self.assertEqual(User.objects.count(), 0)
 
-    def test_service_request_and_result_url_stay_legacy(self):
+    def test_create_service_request_returns_tokenized_result_url(self):
         client = Client()
         response = client.post(
             '/api/service/create-service-request/',
@@ -355,11 +355,19 @@ class ServiceSellerAuthRegressionTests(TestCase):
         req = ServiceRequest.objects.get(pk=data['request_id'])
         self.assertEqual(
             data['result_url'],
-            reverse('service_request_result_page', args=[req.id]),
+            reverse(
+                'service_request_result_page',
+                kwargs={
+                    'request_id': req.id,
+                    'access_token': req.access_token,
+                },
+            ),
         )
-        self.assertNotIn(str(req.access_token), data['result_url'])
+        self.assertNotIn('access_token', data)
         page = client.get(data['result_url'])
         self.assertEqual(page.status_code, 200)
+        legacy = client.get(f'/service-request/result/{req.id}/')
+        self.assertEqual(legacy.status_code, 404)
 
     def test_private_apis_require_session_and_ignore_seller_id(self):
         seller = _seller(user=None)

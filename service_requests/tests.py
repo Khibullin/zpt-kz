@@ -68,8 +68,15 @@ class CreateServiceRequestResponseTests(TestCase):
         self.assertEqual(data['services'], ['Диагностика', 'Ходовая часть'])
         self.assertEqual(
             data['result_url'],
-            reverse('service_request_result_page', args=[req.id]),
+            reverse(
+                'service_request_result_page',
+                kwargs={
+                    'request_id': req.id,
+                    'access_token': req.access_token,
+                },
+            ),
         )
+        self.assertNotIn('access_token', data)
 
     def test_description_with_html_returned_as_plain_text(self):
         malicious = '<script>alert(1)</script><b>bold</b>'
@@ -158,8 +165,15 @@ class ServiceRequestSuccessMessageTests(TestCase):
         self.assertNotIn('5–15 минут', json.dumps(data, ensure_ascii=False))
         self.assertEqual(
             data['result_url'],
-            reverse('service_request_result_page', args=[req.id]),
+            reverse(
+                'service_request_result_page',
+                kwargs={
+                    'request_id': req.id,
+                    'access_token': req.access_token,
+                },
+            ),
         )
+        self.assertNotIn('access_token', data)
         self.assertEqual(data['result_button_label'], 'Посмотреть страницу заявки')
 
     @patch('service_requests.views.send_service_whatsapp_to_seller')
@@ -167,7 +181,7 @@ class ServiceRequestSuccessMessageTests(TestCase):
         response = self._post_request(city='Кызылорда', district='')
         req_id = response.json()['request_id']
 
-        page = self.client.get(reverse('service_request_result_page', args=[req_id]))
+        page = self.client.get(response.json()['result_url'])
         self.assertEqual(page.status_code, 200)
         content = page.content.decode('utf-8')
         self.assertIn('✅ Заявка №{} принята.'.format(req_id), content)
@@ -258,7 +272,7 @@ class ServiceRequestCityDistrictTests(TestCase):
 
     def test_template_uses_service_result_v5_cache_bust(self):
         response = self.client.get('/service-request/')
-        self.assertContains(response, 'service-request-form-v2.js?v=service_result_v5')
+        self.assertContains(response, 'service-request-form-v2.js?v=service_result_v6')
         self.assertContains(response, 'portal-forms.css?v=service_result_v4')
 
     @patch('service_requests.views.send_service_whatsapp_to_seller')

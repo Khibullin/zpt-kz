@@ -78,7 +78,10 @@ function renderSuccessResult(data){
   appendTextBlock(msg,data.catalog_hint);
 
   const link=document.createElement('a');
-  link.href=data.result_url || ('/service-request/result/' + data.request_id + '/');
+  if(!data.result_url){
+    return;
+  }
+  link.href=data.result_url;
   link.className='service-result-link';
   link.textContent=data.result_button_label || 'Посмотреть страницу заявки';
   appendSpacer(msg);

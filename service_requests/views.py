@@ -107,7 +107,13 @@ def build_service_request_success_payload(
         'district': req.district,
         'phone': req.phone,
         'description': req.description,
-        'result_url': reverse('service_request_result_page', args=[req.id]),
+        'result_url': reverse(
+            'service_request_result_page',
+            kwargs={
+                'request_id': req.id,
+                'access_token': req.access_token,
+            },
+        ),
         'sellers': sellers,
     }
 
@@ -589,11 +595,28 @@ def service_seller_logout(request):
     return JsonResponse({"success": True})
 
 
-def service_request_result(request, request_id):
+def _service_result_privacy(response):
+    response['Cache-Control'] = 'no-store'
+    response['Referrer-Policy'] = 'no-referrer'
+    response['X-Robots-Tag'] = 'noindex, nofollow'
+    return response
+
+
+def service_request_legacy_result(request, request_id):
+    response = render(
+        request,
+        'service-request/result_unavailable.html',
+        status=404,
+    )
+    return _service_result_privacy(response)
+
+
+def service_request_result(request, request_id, access_token):
 
     req = get_object_or_404(
         ServiceRequest,
-        id=request_id
+        id=request_id,
+        access_token=access_token,
     )
 
     matches = ServiceMatch.objects.filter(
@@ -620,7 +643,7 @@ def service_request_result(request, request_id):
         'detailing': 'Детейлинг / тюнинг',
     }.get(req.service_type, req.service_type)
 
-    return render(
+    response = render(
         request,
         'service-request/result.html',
         {
@@ -630,6 +653,7 @@ def service_request_result(request, request_id):
             'sellers_count': len(sellers),
         }
     )
+    return _service_result_privacy(response)
 
 
 def services_catalog(request):

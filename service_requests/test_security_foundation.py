@@ -113,6 +113,7 @@ class ServiceRequestAccessTokenFoundationTests(TestCase):
         self.assertEqual(req.access_token, original)
 
     def test_create_api_assigns_token_without_accepting_one(self):
+        supplied = uuid.uuid4()
         response = Client().post(
             '/api/service/create-service-request/',
             data=json.dumps({
@@ -121,7 +122,7 @@ class ServiceRequestAccessTokenFoundationTests(TestCase):
                 'district': '',
                 'phone': '77001234567',
                 'services': ['Диагностика'],
-                'access_token': str(uuid.uuid4()),
+                'access_token': str(supplied),
             }),
             content_type='application/json',
         )
@@ -130,31 +131,46 @@ class ServiceRequestAccessTokenFoundationTests(TestCase):
         req = ServiceRequest.objects.get(pk=data['request_id'])
 
         self.assertIsInstance(req.access_token, uuid.UUID)
+        self.assertNotEqual(req.access_token, supplied)
         self.assertNotIn('access_token', data)
+        self.assertNotIn(str(supplied), data['result_url'])
         self.assertEqual(
             data['result_url'],
-            reverse('service_request_result_page', args=[req.id]),
+            reverse(
+                'service_request_result_page',
+                kwargs={
+                    'request_id': req.id,
+                    'access_token': req.access_token,
+                },
+            ),
         )
-        self.assertNotIn(str(req.access_token), data['result_url'])
+        self.assertIn(str(req.access_token), data['result_url'])
 
 
 class ServiceRequestSecurityFoundationRegressionTests(TestCase):
-    def test_success_payload_keeps_legacy_result_url(self):
+    def test_success_payload_uses_tokenized_result_url(self):
         req = _request()
         payload = build_service_request_success_payload(req, [])
 
         self.assertEqual(
             payload['result_url'],
-            reverse('service_request_result_page', args=[req.id]),
+            reverse(
+                'service_request_result_page',
+                kwargs={
+                    'request_id': req.id,
+                    'access_token': req.access_token,
+                },
+            ),
         )
         self.assertNotIn('access_token', payload)
-        self.assertNotIn(str(req.access_token), payload['result_url'])
+        self.assertIn(str(req.access_token), payload['result_url'])
 
-    def test_legacy_result_url_still_opens(self):
-        req = _request()
-        response = Client().get(reverse('service_request_result_page', args=[req.id]))
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, f'Заявка №{req.id}')
+    def test_legacy_sequential_result_url_does_not_open(self):
+        req = _request(description='secret foundation request')
+        response = Client().get(f'/service-request/result/{req.id}/')
+        self.assertEqual(response.status_code, 404)
+        self.assertNotContains(response, req.phone, status_code=404)
+        self.assertNotContains(response, 'secret foundation request', status_code=404)
 
     def test_private_apis_require_session(self):
         seller = _seller()

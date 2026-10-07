@@ -24,6 +24,7 @@ from core.views import (
 from core.seller_request_link_views import seller_request_link
 
 from service_requests.views import (
+    service_request_legacy_result,
     service_request_result,
     services_catalog,
     service_seller_detail,
@@ -184,9 +185,15 @@ urlpatterns = [
     ),
 
     path(
-        'service-request/result/<int:request_id>/',
+        'service-request/result/<int:request_id>/<uuid:access_token>/',
         service_request_result,
         name='service_request_result_page',
+    ),
+
+    path(
+        'service-request/result/<int:request_id>/',
+        service_request_legacy_result,
+        name='service_request_result_unavailable',
     ),
 
     path(
