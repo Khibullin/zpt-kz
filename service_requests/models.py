@@ -2,6 +2,7 @@ import uuid
 
 from django.conf import settings
 from django.db import models
+from django.utils import timezone
 
 # ================================
 # Настройки рассылки исполнителям
@@ -315,3 +316,72 @@ class ServiceWhatsAppMessageLog(models.Model):
             f"{self.get_status_display()} | "
             f"{self.created_at:%d.%m.%Y %H:%M}"
         )
+
+
+class ServiceRequestDispatch(models.Model):
+    STATUS_QUEUED = 'queued'
+    STATUS_PROCESSING = 'processing'
+    STATUS_SENT = 'sent'
+    STATUS_FAILED = 'failed'
+    STATUS_SKIPPED = 'skipped'
+
+    STATUS_CHOICES = [
+        (STATUS_QUEUED, 'В очереди'),
+        (STATUS_PROCESSING, 'Отправляется'),
+        (STATUS_SENT, 'Отправлено'),
+        (STATUS_FAILED, 'Ошибка'),
+        (STATUS_SKIPPED, 'Пропущено'),
+    ]
+
+    request = models.ForeignKey(
+        ServiceRequest,
+        on_delete=models.CASCADE,
+        related_name='dispatches',
+    )
+    seller = models.ForeignKey(
+        ServiceSeller,
+        on_delete=models.CASCADE,
+        related_name='request_dispatches',
+    )
+    position_number = models.PositiveIntegerField()
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=STATUS_QUEUED,
+        db_index=True,
+    )
+    attempts_count = models.PositiveIntegerField(default=0)
+    next_attempt_at = models.DateTimeField(
+        default=timezone.now,
+        db_index=True,
+    )
+    last_attempt_at = models.DateTimeField(null=True, blank=True)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    provider_message_id = models.CharField(max_length=255, blank=True)
+    last_error = models.TextField(blank=True)
+    skip_reason = models.CharField(max_length=100, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = 'Очередь WhatsApp заявки'
+        verbose_name_plural = 'Очередь WhatsApp заявок'
+        constraints = [
+            models.UniqueConstraint(
+                fields=('request', 'seller'),
+                name='uniq_service_request_dispatch_seller',
+            ),
+        ]
+        indexes = [
+            models.Index(
+                fields=('status', 'next_attempt_at'),
+                name='sr_dispatch_due_idx',
+            ),
+            models.Index(
+                fields=('request', 'position_number'),
+                name='sr_dispatch_pos_idx',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.request_id} → {self.seller_id} ({self.status})'

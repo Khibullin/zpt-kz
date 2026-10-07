@@ -13,6 +13,7 @@ from service_requests.models import (
     Service,
     ServiceBroadcastSettings,
     ServiceRequest,
+    ServiceRequestDispatch,
     ServiceSeller,
 )
 from service_requests.views import match_services
@@ -131,7 +132,7 @@ class ServiceRequestSuccessMessageTests(TestCase):
             content_type='application/json',
         )
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_city_with_sellers_uses_sent_to_executors_message(self, mock_send):
         ServiceBroadcastSettings.objects.create(mode=ServiceBroadcastSettings.MODE_LIVE)
         service = Service.objects.create(name='Диагностика')
@@ -151,12 +152,19 @@ class ServiceRequestSuccessMessageTests(TestCase):
         data = response.json()
 
         self.assertEqual(data['sellers_count'], 1)
-        self.assertIn('отправлена подходящим исполнителям', data['title'])
+        self.assertEqual(data['title'], '✅ Заявка принята.')
+        self.assertIn('Подходящие исполнители найдены', data['message'])
+        self.assertIn('Мы уведомим их в WhatsApp', data['message'])
+        self.assertNotIn('отправлена', data['title'])
+        self.assertNotIn('отправлена', data['message'])
         self.assertIn('5–15 минут', data['timing_hint'])
         self.assertEqual(data['result_button_label'], 'Посмотреть исполнителей по заявке')
+        self.assertEqual(mock_send.call_count, 0)
+        dispatch = ServiceRequestDispatch.objects.get(seller=seller)
+        self.assertEqual(dispatch.status, ServiceRequestDispatch.STATUS_QUEUED)
+        self.assertEqual(dispatch.attempts_count, 0)
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
-    def test_city_without_sellers_uses_saved_request_message(self, mock_send):
+    def test_city_without_sellers_uses_saved_request_message(self):
         response = self._post_request(city='Кызылорда', district='')
         self.assertEqual(response.status_code, 200)
         data = response.json()
@@ -182,8 +190,7 @@ class ServiceRequestSuccessMessageTests(TestCase):
         self.assertNotIn('access_token', data)
         self.assertEqual(data['result_button_label'], 'Посмотреть страницу заявки')
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
-    def test_result_page_without_sellers_does_not_claim_sent(self, mock_send):
+    def test_result_page_without_sellers_does_not_claim_sent(self):
         response = self._post_request(city='Кызылорда', district='')
         req_id = response.json()['request_id']
 
@@ -281,7 +288,7 @@ class ServiceRequestCityDistrictTests(TestCase):
         self.assertContains(response, 'service-request-form-v2.js?v=service_result_v6')
         self.assertContains(response, 'portal-forms.css?v=service_result_v4')
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_match_services_non_almaty_does_not_filter_by_almaty_district(self, mock_send):
         ServiceBroadcastSettings.objects.create(mode=ServiceBroadcastSettings.MODE_LIVE)
         service = Service.objects.create(name='Диагностика')
@@ -319,4 +326,11 @@ class ServiceRequestCityDistrictTests(TestCase):
 
         self.assertEqual(len(matched), 1)
         self.assertEqual(matched[0].pk, kokshetau_seller.pk)
-        mock_send.assert_called_once()
+        self.assertEqual(mock_send.call_count, 0)
+        self.assertEqual(
+            list(
+                ServiceRequestDispatch.objects.filter(request=req)
+                .values_list('seller_id', flat=True)
+            ),
+            [kokshetau_seller.pk],
+        )

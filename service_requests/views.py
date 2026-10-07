@@ -13,6 +13,7 @@ import json
 
 from .location import normalize_service_request_location
 from .services.dispatch_policy import select_service_sellers_for_request
+from .services.whatsapp_dispatch import enqueue_service_request_dispatches
 from .services.service_seller_identity import (
     ServiceSellerAccessDenied,
     authenticate_service_seller,
@@ -23,13 +24,8 @@ from .models import (
     ServiceSeller,
     ServiceRequest,
     ServiceMatch,
-    ServiceWhatsAppMessageLog,
 )
 
-from core.views import (
-    _normalize_whatsapp,
-    _wa_template_param,
-)
 from core.phone_utils import build_whatsapp_url
 
 
@@ -71,10 +67,10 @@ def build_service_request_success_payload(
     services_names = list(req.services.values_list('name', flat=True))
 
     if sellers_count > 0:
-        title = '✅ Заявка принята и отправлена подходящим исполнителям.'
+        title = '✅ Заявка принята.'
         message = (
-            'Ничего делать не нужно — СТО и мастера сами напишут вам в WhatsApp '
-            'с ценой, сроками и условиями.'
+            'Подходящие исполнители найдены. '
+            'Мы уведомим их в WhatsApp.'
         )
         timing_hint = 'Обычно первые ответы приходят в течение 5–15 минут.'
         catalog_hint = (
@@ -197,21 +193,22 @@ def create_service_request(request):
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
 
-    req = ServiceRequest.objects.create(
-        service_type=data.get("service_type", "sto"),
-        brand=data.get("brand", "").strip(),
-        model=data.get("model", "").strip(),
-        city=city,
-        district=district,
-        phone=data.get("phone", "").strip(),
-        description=data.get("description", "").strip(),
-    )
+    with transaction.atomic():
+        req = ServiceRequest.objects.create(
+            service_type=data.get("service_type", "sto"),
+            brand=data.get("brand", "").strip(),
+            model=data.get("model", "").strip(),
+            city=city,
+            district=district,
+            phone=data.get("phone", "").strip(),
+            description=data.get("description", "").strip(),
+        )
 
-    for name in data.get("services", []):
-        service, _ = Service.objects.get_or_create(name=name)
-        req.services.add(service)
+        for name in data.get("services", []):
+            service, _ = Service.objects.get_or_create(name=name)
+            req.services.add(service)
 
-    matched = match_services(req)
+        matched = match_services(req)
 
     sellers = []
 
@@ -229,157 +226,11 @@ def create_service_request(request):
     )
 
 
-def send_service_whatsapp_to_seller(req, seller):
-
-    import os
-    import urllib.request
-    import urllib.error
-
-    phone_number_id = os.getenv('WHATSAPP_PHONE_NUMBER_ID')
-    access_token = os.getenv('WHATSAPP_ACCESS_TOKEN')
-    template_name = os.getenv(
-        'WHATSAPP_SERVICE_TEMPLATE_NAME',
-        'zpt_request_notification',
-    )
-    template_lang = os.getenv(
-        'WHATSAPP_TEMPLATE_LANG',
-        'ru'
-    )
-
-    to_phone = _normalize_whatsapp(seller.whatsapp)
-
-    services_text = ', '.join(
-        req.services.values_list('name', flat=True)
-    ) or '-'
-
-    payload = {
-        'messaging_product': 'whatsapp',
-        'to': to_phone,
-        'type': 'template',
-        'template': {
-            'name': template_name,
-            'language': {
-                'code': template_lang,
-            },
-            'components': [
-                {
-                    'type': 'body',
-                    'parameters': [
-                        _wa_template_param(req.id),
-                        _wa_template_param(req.brand),
-                        _wa_template_param(req.model),
-                        _wa_template_param(services_text),
-                        _wa_template_param(req.city),
-                        _wa_template_param(req.description),
-                        _wa_template_param(req.phone),
-                    ],
-                }
-            ],
-        },
-    }
-
-    url = f'https://graph.facebook.com/v20.0/{phone_number_id}/messages'
-
-    body = json.dumps(
-        payload,
-        ensure_ascii=False
-    ).encode('utf-8')
-
-    http_request = urllib.request.Request(
-        url,
-        data=body,
-        method='POST',
-        headers={
-            'Authorization': f'Bearer {access_token}',
-            'Content-Type': 'application/json',
-        },
-    )
-
-    try:
-
-        with urllib.request.urlopen(
-            http_request,
-            timeout=20
-        ) as response:
-
-            response_body = response.read().decode('utf-8')
-
-            response_json = json.loads(response_body)
-
-            messages = response_json.get('messages') or []
-
-            message_id = (
-                messages[0].get('id', '')
-                if messages else ''
-            )
-
-            ok = 200 <= response.status < 300
-
-            ServiceWhatsAppMessageLog.objects.create(
-                seller=seller,
-                request=req,
-                phone=to_phone,
-                message_type='seller_request',
-                status='sent' if ok else 'failed',
-                meta_message_id=message_id,
-                error_text='' if ok else response_body,
-                response_json=response_body,
-            )
-
-            return {
-                'ok': ok,
-                'message_id': message_id,
-                'response': response_json,
-            }
-
-    except urllib.error.HTTPError as e:
-
-        error_body = e.read().decode('utf-8')
-
-        ServiceWhatsAppMessageLog.objects.create(
-            seller=seller,
-            request=req,
-            phone=to_phone,
-            message_type='seller_request',
-            status='failed',
-            error_text=error_body,
-            response_json=error_body,
-        )
-
-        return {
-            'ok': False,
-            'error': error_body,
-        }
-
-    except Exception as e:
-
-        ServiceWhatsAppMessageLog.objects.create(
-            seller=seller,
-            request=req,
-            phone=to_phone,
-            message_type='seller_request',
-            status='failed',
-            error_text=str(e),
-        )
-
-        return {
-            'ok': False,
-            'error': str(e),
-        }
-
-
-
-
 def match_services(req):
-    matched_sellers = []
-    for seller in select_service_sellers_for_request(req):
-        ServiceMatch.objects.create(
-            request=req,
-            seller=seller,
-        )
-        send_service_whatsapp_to_seller(req, seller)
-        matched_sellers.append(seller)
-    return matched_sellers
+    return enqueue_service_request_dispatches(
+        req,
+        select_service_sellers_for_request(req),
+    )
 
 def _service_request_item(match):
     req = match.request

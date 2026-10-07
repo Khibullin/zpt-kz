@@ -8,6 +8,7 @@ from .models import (
     ServiceRequest,
     ServiceMatch,
     ServiceWhatsAppMessageLog,
+    ServiceRequestDispatch,
 )
 
 @admin.register(ServiceBroadcastSettings)
@@ -203,6 +204,71 @@ class ServiceWhatsAppMessageLogAdmin(admin.ModelAdmin):
         'meta_message_id',
         'error_text',
     )
+
+
+@admin.register(ServiceRequestDispatch)
+class ServiceRequestDispatchAdmin(admin.ModelAdmin):
+    list_display = (
+        'id',
+        'created_at',
+        'request',
+        'seller',
+        'position_number',
+        'status',
+        'attempts_count',
+        'next_attempt_at',
+        'last_attempt_at',
+        'sent_at',
+        'provider_message_id',
+        'skip_reason',
+    )
+    list_filter = (
+        'status',
+        'created_at',
+    )
+    search_fields = (
+        'seller__name',
+        'seller__whatsapp',
+        'request__phone',
+        'provider_message_id',
+    )
+    readonly_fields = (
+        'request',
+        'seller',
+        'position_number',
+        'status',
+        'attempts_count',
+        'next_attempt_at',
+        'last_attempt_at',
+        'sent_at',
+        'provider_message_id',
+        'last_error',
+        'skip_reason',
+        'created_at',
+        'updated_at',
+    )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_view_permission(self, request, obj=None):
+        opts = self.opts
+        return request.user.has_perm(
+            f'{opts.app_label}.view_{opts.model_name}',
+        ) or request.user.has_perm(
+            f'{opts.app_label}.change_{opts.model_name}',
+        )
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop('delete_selected', None)
+        return actions
 
 
 

@@ -9,6 +9,7 @@ from service_requests.models import (
     ServiceBroadcastSettings,
     ServiceMatch,
     ServiceRequest,
+    ServiceRequestDispatch,
     ServiceSeller,
 )
 from service_requests.services.dispatch_policy import select_service_sellers_for_request
@@ -80,9 +81,16 @@ class DispatchPolicyTestCase(TestCase):
             .values_list('seller_id', flat=True)
         )
 
+    def queued_seller_ids(self, req):
+        return list(
+            ServiceRequestDispatch.objects.filter(request=req)
+            .order_by('position_number', 'pk')
+            .values_list('seller_id', flat=True)
+        )
+
 
 class OffModeTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_off_saves_request_without_matches_or_sends(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_OFF)
         service = self.add_service('Диагностика')
@@ -94,6 +102,7 @@ class OffModeTests(DispatchPolicyTestCase):
         req = ServiceRequest.objects.get(pk=data['request_id'])
 
         self.assertEqual(ServiceMatch.objects.filter(request=req).count(), 0)
+        self.assertEqual(ServiceRequestDispatch.objects.filter(request=req).count(), 0)
         self.assertEqual(mock_send.call_count, 0)
         self.assertEqual(data['sellers_count'], 0)
         self.assertEqual(data['sellers'], [])
@@ -104,7 +113,7 @@ class OffModeTests(DispatchPolicyTestCase):
         page = self.client.get(data['result_url'])
         self.assertEqual(page.status_code, 200)
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_missing_settings_fail_closed(self, mock_send):
         self.assertFalse(ServiceBroadcastSettings.objects.exists())
         service = self.add_service('Диагностика')
@@ -116,12 +125,13 @@ class OffModeTests(DispatchPolicyTestCase):
         self.assertEqual(matched, [])
         self.assertEqual(select_service_sellers_for_request(req), [])
         self.assertEqual(ServiceMatch.objects.filter(request=req, seller=seller).count(), 0)
+        self.assertEqual(ServiceRequestDispatch.objects.filter(request=req).count(), 0)
         self.assertEqual(mock_send.call_count, 0)
         self.assertFalse(ServiceBroadcastSettings.objects.exists())
 
 
 class TestModeTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_test_mode_selects_only_active_receiving_unpaused_test_seller(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_TEST)
         service = self.add_service('Диагностика')
@@ -151,13 +161,13 @@ class TestModeTests(DispatchPolicyTestCase):
         self.assertEqual(self.matched_pks(req), [seller_a.pk])
         self.assertEqual([item['name'] for item in data['sellers']], ['A'])
         self.assertEqual(data['sellers_count'], 1)
-        self.assertEqual(mock_send.call_count, 1)
-        self.assertEqual(mock_send.call_args.args[1].pk, seller_a.pk)
+        self.assertEqual(self.queued_seller_ids(req), [seller_a.pk])
+        self.assertEqual(mock_send.call_count, 0)
         self.assertNotIn(seller_b.pk, self.matched_pks(req))
 
 
 class LiveModeTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_live_includes_test_seller_and_excludes_inactive_flags(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_LIVE)
         service = self.add_service('Диагностика')
@@ -181,10 +191,8 @@ class LiveModeTests(DispatchPolicyTestCase):
         matched = match_services(req)
 
         self.assertEqual([seller.pk for seller in matched], [seller_a.pk, seller_b.pk])
-        self.assertEqual(
-            [call.args[1].pk for call in mock_send.call_args_list],
-            [seller_a.pk, seller_b.pk],
-        )
+        self.assertEqual(self.queued_seller_ids(req), [seller_a.pk, seller_b.pk])
+        self.assertEqual(mock_send.call_count, 0)
         self.assertEqual(
             set(ServiceMatch.objects.filter(request=req).values_list('status', flat=True)),
             {'new'},
@@ -203,7 +211,7 @@ class DistrictFallbackTests(DispatchPolicyTestCase):
         )
         return district_seller, city_seller
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_eligible_district_seller_excludes_other_district(self, mock_send):
         service = self.add_service('Диагностика')
         district_seller, city_seller = self._pair(service)
@@ -214,7 +222,7 @@ class DistrictFallbackTests(DispatchPolicyTestCase):
         self.assertEqual([seller.pk for seller in matched], [district_seller.pk])
         self.assertNotIn(city_seller.pk, [seller.pk for seller in matched])
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_paused_district_seller_falls_back_to_city(self, mock_send):
         service = self.add_service('Диагностика')
         district_seller, city_seller = self._pair(service, is_paused=True)
@@ -227,7 +235,7 @@ class DistrictFallbackTests(DispatchPolicyTestCase):
             ServiceMatch.objects.filter(request=req, seller=district_seller).exists()
         )
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_receive_requests_false_district_seller_falls_back_to_city(self, mock_send):
         service = self.add_service('Диагностика')
         district_seller, city_seller = self._pair(service, receive_requests=False)
@@ -240,7 +248,7 @@ class DistrictFallbackTests(DispatchPolicyTestCase):
             ServiceMatch.objects.filter(request=req, seller=district_seller).exists()
         )
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_non_test_district_seller_falls_back_in_test_mode(self, mock_send):
         service = self.add_service('Диагностика')
         ServiceBroadcastSettings.objects.create(mode=ServiceBroadcastSettings.MODE_TEST)
@@ -263,7 +271,7 @@ class DistrictFallbackTests(DispatchPolicyTestCase):
 
 
 class DispatchPriorityTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_lower_priority_is_sent_first_with_pk_tie_break(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_LIVE)
         service = self.add_service('Диагностика')
@@ -281,15 +289,25 @@ class DispatchPriorityTests(DispatchPolicyTestCase):
         response = self.post_request()
         data = response.json()
 
+        req = ServiceRequest.objects.get(pk=data['request_id'])
         self.assertEqual(
-            [call.args[1].pk for call in mock_send.call_args_list],
+            self.queued_seller_ids(req),
             [seller_b.pk, seller_c.pk, seller_a.pk],
         )
+        self.assertEqual(
+            list(
+                ServiceRequestDispatch.objects.filter(request=req)
+                .order_by('position_number')
+                .values_list('position_number', flat=True)
+            ),
+            [1, 2, 3],
+        )
+        self.assertEqual(mock_send.call_count, 0)
         self.assertEqual([item['name'] for item in data['sellers']], ['B', 'C', 'A'])
 
 
 class ServiceIntersectionTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_any_service_intersection_is_enough(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_LIVE)
         diagnostics = self.add_service('Диагностика')
@@ -306,7 +324,7 @@ class ServiceIntersectionTests(DispatchPolicyTestCase):
 
 
 class SellerTypeAndCityTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_seller_type_must_match_request(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_LIVE)
         service = self.add_service('Диагностика')
@@ -327,7 +345,7 @@ class SellerTypeAndCityTests(DispatchPolicyTestCase):
             [detailing.pk],
         )
 
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_other_city_is_excluded_even_with_better_priority(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_LIVE)
         service = self.add_service('Диагностика')
@@ -345,11 +363,12 @@ class SellerTypeAndCityTests(DispatchPolicyTestCase):
 
         self.assertEqual([seller.pk for seller in matched], [local.pk])
         self.assertFalse(ServiceMatch.objects.filter(request=req, seller=other).exists())
-        self.assertEqual(mock_send.call_count, 1)
+        self.assertEqual(self.queued_seller_ids(req), [local.pk])
+        self.assertEqual(mock_send.call_count, 0)
 
 
 class UnknownModeTests(DispatchPolicyTestCase):
-    @patch('service_requests.views.send_service_whatsapp_to_seller')
+    @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')
     def test_unknown_mode_fail_closed_without_error(self, mock_send):
         self.set_mode(ServiceBroadcastSettings.MODE_LIVE)
         ServiceBroadcastSettings.objects.filter(pk=1).update(mode='unexpected')
@@ -362,4 +381,5 @@ class UnknownModeTests(DispatchPolicyTestCase):
         self.assertEqual(matched, [])
         self.assertEqual(select_service_sellers_for_request(req), [])
         self.assertEqual(ServiceMatch.objects.filter(request=req).count(), 0)
+        self.assertEqual(ServiceRequestDispatch.objects.filter(request=req).count(), 0)
         self.assertEqual(mock_send.call_count, 0)
