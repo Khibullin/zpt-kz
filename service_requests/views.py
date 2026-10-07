@@ -12,6 +12,7 @@ from django.core.exceptions import ValidationError
 import json
 
 from .location import normalize_service_request_location
+from .services.dispatch_policy import select_service_sellers_for_request
 from .services.service_seller_identity import (
     ServiceSellerAccessDenied,
     authenticate_service_seller,
@@ -23,7 +24,6 @@ from .models import (
     ServiceRequest,
     ServiceMatch,
     ServiceWhatsAppMessageLog,
-    ServiceBroadcastSettings,
 )
 
 from core.views import (
@@ -371,75 +371,14 @@ def send_service_whatsapp_to_seller(req, seller):
 
 
 def match_services(req):
-
-    req_services = set(
-        req.services.values_list("name", flat=True)
-    )
-
     matched_sellers = []
-
-    settings = ServiceBroadcastSettings.objects.first()
-
-    if req.district:
-        district_sellers = ServiceSeller.objects.filter(
-            seller_type=req.service_type,
-            city=req.city,
-            district=req.district,
-            is_active=True
+    for seller in select_service_sellers_for_request(req):
+        ServiceMatch.objects.create(
+            request=req,
+            seller=seller,
         )
-
-        if settings and settings.mode == ServiceBroadcastSettings.MODE_TEST:
-            district_sellers = district_sellers.filter(
-                is_test_seller=True
-            )
-
-        for seller in district_sellers:
-
-            seller_services = set(
-                seller.services.values_list("name", flat=True)
-            )
-
-            if seller_services & req_services:
-
-                ServiceMatch.objects.create(
-                    request=req,
-                    seller=seller
-                )
-
-                send_service_whatsapp_to_seller(req, seller)
-
-                matched_sellers.append(seller)
-
-    if not matched_sellers:
-
-        city_sellers = ServiceSeller.objects.filter(
-            seller_type=req.service_type,
-            city=req.city,
-            is_active=True
-        )
-
-        if settings and settings.mode == ServiceBroadcastSettings.MODE_TEST:
-            city_sellers = city_sellers.filter(
-                is_test_seller=True
-            )
-
-        for seller in city_sellers:
-
-            seller_services = set(
-                seller.services.values_list("name", flat=True)
-            )
-
-            if seller_services & req_services:
-
-                ServiceMatch.objects.create(
-                    request=req,
-                    seller=seller
-                )
-
-                send_service_whatsapp_to_seller(req, seller)
-
-                matched_sellers.append(seller)
-
+        send_service_whatsapp_to_seller(req, seller)
+        matched_sellers.append(seller)
     return matched_sellers
 
 def _service_request_item(match):

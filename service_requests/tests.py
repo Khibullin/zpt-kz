@@ -9,7 +9,12 @@ from django.contrib.staticfiles.finders import find
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from service_requests.models import Service, ServiceRequest, ServiceSeller
+from service_requests.models import (
+    Service,
+    ServiceBroadcastSettings,
+    ServiceRequest,
+    ServiceSeller,
+)
 from service_requests.views import match_services
 
 
@@ -128,6 +133,7 @@ class ServiceRequestSuccessMessageTests(TestCase):
 
     @patch('service_requests.views.send_service_whatsapp_to_seller')
     def test_city_with_sellers_uses_sent_to_executors_message(self, mock_send):
+        ServiceBroadcastSettings.objects.create(mode=ServiceBroadcastSettings.MODE_LIVE)
         service = Service.objects.create(name='Диагностика')
         seller = ServiceSeller.objects.create(
             name='Almaty seller',
@@ -277,6 +283,7 @@ class ServiceRequestCityDistrictTests(TestCase):
 
     @patch('service_requests.views.send_service_whatsapp_to_seller')
     def test_match_services_non_almaty_does_not_filter_by_almaty_district(self, mock_send):
+        ServiceBroadcastSettings.objects.create(mode=ServiceBroadcastSettings.MODE_LIVE)
         service = Service.objects.create(name='Диагностика')
         almaty_seller = ServiceSeller.objects.create(
             name='Almaty seller',
