@@ -10,7 +10,7 @@ from pathlib import Path
 
 import requests
 from django.conf import settings
-from django.db import IntegrityError
+from django.db import IntegrityError, connection, transaction
 from django.db.models import Count, Q
 from django.utils import timezone
 
@@ -30,6 +30,10 @@ from catalog.instagram_api import (
     inspect_instagram_container,
     publish_feed_to_instagram,
     publish_story_to_instagram,
+)
+from catalog.instagram_public_text import (
+    build_banner_v2_caption,
+    build_public_part_request,
 )
 from core.instagram_sanitize import is_junk_only_description
 from core.models import InstagramPublication, Request
@@ -303,9 +307,10 @@ def ensure_instagram_story_image(
     if caption and not publication.caption:
         publication.caption = caption
         update_fields.append('caption')
-    publication.status = InstagramPublication.STATUS_DRAFT
-    publication.error_message = ''
-    update_fields.extend(['status', 'error_message'])
+    if publication.status != InstagramPublication.STATUS_NEEDS_REVIEW:
+        publication.status = InstagramPublication.STATUS_DRAFT
+        publication.error_message = ''
+        update_fields.extend(['status', 'error_message'])
     publication.save(update_fields=update_fields)
     return publication
 
@@ -399,6 +404,12 @@ def process_instagram_publication_for_request(request_id: int) -> InstagramPubli
     return publication
 
 
+def _feed_public_state(product_request: Request):
+    """Публичный текст заявки. Картинка автомобиля для ленты не требуется."""
+    public = build_public_part_request(product_request)
+    return public, public.as_dict()
+
+
 def _maybe_create_feed_for_new_request(
     product_request: Request,
     *,
@@ -408,20 +419,54 @@ def _maybe_create_feed_for_new_request(
     """Создаёт пост ленты только вместе с новой заявкой. Старые строки не дополняет."""
     if not feed_publish_enabled():
         return None
-    if not request_is_eligible_for_instagram(product_request)[0]:
-        return None
     existing = _placement_publication(product_request.pk, InstagramPublication.PLACEMENT_FEED)
     if existing:
         return existing
+    if is_junk_only_description(product_request.description):
+        return None
+
+    public, payload = _feed_public_state(product_request)
+    eligible = request_is_eligible_for_instagram(product_request)[0]
+    if not eligible and not public.review_reason:
+        return None
+    initial_status = (
+        InstagramPublication.STATUS_NEEDS_REVIEW
+        if public.review_reason
+        else InstagramPublication.STATUS_DRAFT
+    )
     try:
         publication = InstagramPublication.objects.create(
             request=product_request,
             placement=InstagramPublication.PLACEMENT_FEED,
-            caption=build_publication_caption(product_request),
-            status=InstagramPublication.STATUS_DRAFT,
+            caption=build_banner_v2_caption(public),
+            status=initial_status,
+            review_reason=public.review_reason,
+            review_detail=public.review_detail,
+            public_payload=payload,
+            error_message=public.review_detail,
         )
     except IntegrityError:
         return _placement_publication(product_request.pk, InstagramPublication.PLACEMENT_FEED)
+
+    if public.review_reason:
+        if generate_image:
+            try:
+                publication = ensure_instagram_story_image(publication)
+            except Exception:
+                logger.exception(
+                    'Instagram feed preview failed for request #%s',
+                    product_request.pk,
+                )
+        publication.refresh_from_db()
+        if publication.status != InstagramPublication.STATUS_NEEDS_REVIEW:
+            publication.status = InstagramPublication.STATUS_NEEDS_REVIEW
+            publication.review_reason = public.review_reason
+            publication.review_detail = public.review_detail
+            publication.error_message = public.review_detail
+            publication.save(
+                update_fields=['status', 'review_reason', 'review_detail', 'error_message']
+            )
+        return publication
 
     if not generate_image:
         return publication
@@ -449,6 +494,20 @@ def queue_instagram_publication_for_processing(
 ) -> InstagramPublication:
     """Ставит публикацию в очередь без синхронного вызова Meta API."""
     if publication.status == InstagramPublication.STATUS_PUBLISHED:
+        return publication
+    if publication.review_reason and not publication.approved_at:
+        if publication.status != InstagramPublication.STATUS_NEEDS_REVIEW:
+            publication.status = InstagramPublication.STATUS_NEEDS_REVIEW
+        publication.error_message = (
+            publication.review_detail
+            or 'Нельзя поставить в очередь без одобрения: есть причина проверки.'
+        )
+        publication.save(update_fields=['status', 'error_message'])
+        logger.info(
+            'Instagram publication #%s stays in review (%s)',
+            publication.pk,
+            publication.review_reason,
+        )
         return publication
 
     publication.status = InstagramPublication.STATUS_QUEUED
@@ -583,6 +642,37 @@ def mark_stuck_instagram_publication_failed(
         publication.pk,
     )
     return publication
+
+
+def _claim_instagram_publication(publication: InstagramPublication) -> bool:
+    """Коротко забирает запись. Сетевой вызов Meta остаётся вне транзакции."""
+    now = timezone.now()
+    with transaction.atomic():
+        queryset = InstagramPublication.objects.filter(
+            pk=publication.pk,
+            status__in=(
+                InstagramPublication.STATUS_QUEUED,
+                InstagramPublication.STATUS_FAILED,
+                InstagramPublication.STATUS_DRAFT,
+            ),
+        )
+        if connection.vendor == 'postgresql':
+            queryset = queryset.select_for_update(skip_locked=True)
+        else:
+            queryset = queryset.select_for_update()
+        locked = queryset.first()
+        if locked is None:
+            return False
+        if locked.review_reason and not locked.approved_at:
+            return False
+        locked.status = InstagramPublication.STATUS_PUBLISHING
+        locked.error_message = ''
+        locked.publishing_started_at = now
+        locked.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+    publication.status = InstagramPublication.STATUS_PUBLISHING
+    publication.error_message = ''
+    publication.publishing_started_at = now
+    return True
 
 
 def _mark_publication_failed(
@@ -855,6 +945,14 @@ def publish_instagram_publication(
             )
             return publication
 
+    if publication.review_reason and not publication.approved_at:
+        logger.info(
+            'Instagram publication #%s has review reason %s and is not approved',
+            publication.pk,
+            publication.review_reason,
+        )
+        return publication
+
     if source == 'management':
         logger.info(
             'Instagram cron publish started publication #%s request #%s image=%s',
@@ -870,19 +968,7 @@ def publish_instagram_publication(
             publication.image.name,
         )
 
-    claimed = InstagramPublication.objects.filter(
-        pk=publication.pk,
-        status__in=(
-            InstagramPublication.STATUS_QUEUED,
-            InstagramPublication.STATUS_FAILED,
-            InstagramPublication.STATUS_DRAFT,
-        ),
-    ).update(
-        status=InstagramPublication.STATUS_PUBLISHING,
-        error_message='',
-        publishing_started_at=timezone.now(),
-    )
-    if not claimed:
+    if not _claim_instagram_publication(publication):
         publication.refresh_from_db()
         return publication
     publication.refresh_from_db()
@@ -899,6 +985,7 @@ def publish_instagram_publication(
                 publication_id=publication.pk,
                 validate_image_url=validate_image_url,
                 on_container_created=_remember_container,
+                existing_container_id=publication.instagram_container_id,
             )
         else:
             result = publish_story_to_instagram(
@@ -906,6 +993,7 @@ def publish_instagram_publication(
                 publication_id=publication.pk,
                 validate_image_url=validate_image_url,
                 on_container_created=_remember_container,
+                existing_container_id=publication.instagram_container_id,
             )
     except InstagramTemporaryImageUrlError as exc:
         return _requeue_publication_for_temporary_image_url_error(
@@ -927,11 +1015,12 @@ def publish_instagram_publication(
     except requests.RequestException as exc:
         _mark_publication_failed(
             publication,
-            f'Сетевая ошибка Meta API: {exc}',
+            'Сетевая ошибка Meta API.',
         )
-        logger.exception(
-            'Instagram publish network error for publication #%s',
+        logger.warning(
+            'Instagram publication #%s network error class=%s',
             publication.pk,
+            type(exc).__name__,
         )
         return publication
     except Exception as exc:
@@ -974,11 +1063,15 @@ def approve_instagram_publication(publication: InstagramPublication) -> Instagra
     if publication.status in (
         InstagramPublication.STATUS_DRAFT,
         InstagramPublication.STATUS_FAILED,
+        InstagramPublication.STATUS_NEEDS_REVIEW,
     ):
         publication.status = InstagramPublication.STATUS_APPROVED
+        publication.approved_at = timezone.now()
         publication.error_message = ''
         publication.publishing_started_at = None
-        publication.save(update_fields=['status', 'error_message', 'publishing_started_at'])
+        publication.save(
+            update_fields=['status', 'approved_at', 'error_message', 'publishing_started_at']
+        )
     return publication
 
 

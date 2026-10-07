@@ -135,6 +135,9 @@ def robots_directive(request) -> str:
 
     # Downloadable seller price files are useful to buyers but are not HTML
     # landing pages and should not enter the search index.
+    if url_name == 'public_part_request':
+        return 'noindex, nofollow'
+
     if url_name == 'public_seller_wholesale_price':
         return 'noindex, nofollow'
 

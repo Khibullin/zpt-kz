@@ -21,6 +21,7 @@ from core.views import (
     business_gateway,
     short_request_redirect,
 )
+from core.public_part_request_views import public_part_request
 from core.seller_request_link_views import seller_request_link
 
 from service_requests.views import (
@@ -100,7 +101,8 @@ urlpatterns = [
         'request-parts/',
         TemplateView.as_view(
             template_name='request-parts/index.html'
-        )
+        ),
+        name='request_parts_form',
     ),
 
     path(
@@ -108,6 +110,7 @@ urlpatterns = [
         TemplateView.as_view(
             template_name='request-parts/cabinet/index.html'
         ),
+        name='request_parts_cabinet',
     ),
 
     path(
@@ -136,6 +139,12 @@ urlpatterns = [
         'request-parts/help/',
         platform_help_page,
         name='platform_help',
+    ),
+
+    path(
+        'zayavka/<int:request_id>/',
+        public_part_request,
+        name='public_part_request',
     ),
 
     path(

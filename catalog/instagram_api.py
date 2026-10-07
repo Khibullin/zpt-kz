@@ -520,6 +520,7 @@ def publish_story_to_instagram(
     publication_id: int | None = None,
     validate_image_url: bool = False,
     on_container_created=None,
+    existing_container_id: str = '',
 ) -> dict[str, str]:
     """
     Публикует изображение в Instagram Stories через Meta Graph API.
@@ -553,14 +554,16 @@ def publish_story_to_instagram(
                 validation.content_type,
             )
 
-        container_id = _create_story_container(
-            ig_account_id=ig_account_id,
-            access_token=access_token,
-            image_url=image_url,
-            publication_id=publication_id,
-        )
-        if on_container_created is not None:
-            on_container_created(container_id)
+        container_id = existing_container_id
+        if not container_id:
+            container_id = _create_story_container(
+                ig_account_id=ig_account_id,
+                access_token=access_token,
+                image_url=image_url,
+                publication_id=publication_id,
+            )
+            if on_container_created is not None:
+                on_container_created(container_id)
 
         _wait_for_container_ready(
             container_id=container_id,
@@ -582,7 +585,7 @@ def publish_story_to_instagram(
         _pub_log(publication_id, logging.ERROR, 'ошибка публикации', exc_info=True)
         raise
     except requests.RequestException:
-        _pub_log(publication_id, logging.ERROR, 'сетевая ошибка Meta API', exc_info=True)
+        _pub_log(publication_id, logging.ERROR, 'сетевая ошибка Meta API')
         raise
     except Exception:
         _pub_log(publication_id, logging.ERROR, 'непредвиденная ошибка публикации', exc_info=True)
@@ -603,6 +606,7 @@ def publish_feed_to_instagram(
     publication_id: int | None = None,
     validate_image_url: bool = False,
     on_container_created=None,
+    existing_container_id: str = '',
 ) -> dict[str, str]:
     """Публикует JPEG 4:5 в ленту Instagram. Сторис при этом не создаётся."""
     try:
@@ -627,27 +631,29 @@ def publish_feed_to_instagram(
                 validation.content_type,
             )
 
-        response = _post_graph(
-            f'{_graph_api_root()}/{ig_account_id}/media',
-            data={
-                'image_url': image_url,
-                'caption': _clip_caption(caption),
-                'access_token': access_token,
-            },
-            action='Создание контейнера ленты',
-        )
-        payload = _parse_graph_response(
-            response,
-            action='Создание контейнера ленты',
-            publication_id=publication_id,
-        )
-        container_id = str(payload.get('id') or '')
+        container_id = existing_container_id
         if not container_id:
-            raise InstagramAmbiguousPublishError(
-                'Создание контейнера ленты: Meta API не вернул ID контейнера.'
+            response = _post_graph(
+                f'{_graph_api_root()}/{ig_account_id}/media',
+                data={
+                    'image_url': image_url,
+                    'caption': _clip_caption(caption),
+                    'access_token': access_token,
+                },
+                action='Создание контейнера ленты',
             )
-        if on_container_created is not None:
-            on_container_created(container_id)
+            payload = _parse_graph_response(
+                response,
+                action='Создание контейнера ленты',
+                publication_id=publication_id,
+            )
+            container_id = str(payload.get('id') or '')
+            if not container_id:
+                raise InstagramAmbiguousPublishError(
+                    'Создание контейнера ленты: Meta API не вернул ID контейнера.'
+                )
+            if on_container_created is not None:
+                on_container_created(container_id)
 
         _wait_for_container_ready(
             container_id=container_id,
@@ -665,7 +671,7 @@ def publish_feed_to_instagram(
         _pub_log(publication_id, logging.ERROR, 'ошибка публикации ленты', exc_info=True)
         raise
     except requests.RequestException as exc:
-        _pub_log(publication_id, logging.ERROR, 'сетевая ошибка публикации ленты', exc_info=True)
+        _pub_log(publication_id, logging.ERROR, 'сетевая ошибка публикации ленты')
         raise InstagramAmbiguousPublishError(
             'Публикация ленты: ответ Meta после отправки не получен.'
         ) from exc

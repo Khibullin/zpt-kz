@@ -1567,11 +1567,12 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
         'request',
         'placement',
         'status',
+        'review_reason',
         'image_preview_list',
         'created_at',
         'published_at',
     )
-    list_filter = ('placement', 'status', 'created_at', 'published_at')
+    list_filter = ('placement', 'status', 'review_reason', 'created_at', 'published_at')
     search_fields = (
         'request__id',
         'request__brand',
@@ -1594,11 +1595,19 @@ class InstagramPublicationAdmin(admin.ModelAdmin):
         'retry_count',
         'last_attempt_at',
         'next_attempt_at',
+        'review_reason',
+        'review_detail',
+        'public_payload',
+        'approved_at',
     )
     fields = (
         'request',
         'placement',
         'status',
+        'review_reason',
+        'review_detail',
+        'public_payload',
+        'approved_at',
         'image_preview',
         'image',
         'caption',
