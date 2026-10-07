@@ -38,17 +38,27 @@ class OrderAdmin(admin.ModelAdmin):
         'created_at',
         'order_type',
         'seller_name',
+        'seller_profile',
         'customer_name',
         'customer_phone',
         'status',
         'total_price',
         'delivery_method',
     )
-    list_filter = ('order_type', 'status', 'seller_name', 'delivery_method', 'created_at')
+    list_filter = (
+        'order_type',
+        'status',
+        'seller_name',
+        'seller_profile',
+        'delivery_method',
+        'created_at',
+    )
     search_fields = (
         'id',
         'seller_name',
         'seller_whatsapp',
+        'seller_profile__name',
+        'seller_profile__phone',
         'customer_name',
         'customer_phone',
         'utm_source',
@@ -62,6 +72,7 @@ class OrderAdmin(admin.ModelAdmin):
         'access_token',
         'seller_name',
         'seller_whatsapp',
+        'seller_profile',
         'order_type',
         'utm_source',
         'utm_medium',

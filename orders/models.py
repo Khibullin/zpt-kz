@@ -60,6 +60,14 @@ class Order(models.Model):
         default='',
         verbose_name='WhatsApp продавца',
     )
+    seller_profile = models.ForeignKey(
+        'catalog.SellerProfile',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='merchant_orders',
+        verbose_name='Профиль продавца',
+    )
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
