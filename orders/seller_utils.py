@@ -1,10 +1,13 @@
 import re
+from dataclasses import dataclass
 
 from django.conf import settings
 
 from catalog.models import Product, SellerProfile
 
 from .constants import DEFAULT_WAREHOUSE_ADDRESS
+
+# TODO: a stored normalized phone would replace the Python scan of SellerProfile.phone.
 
 
 class CartSellerConflictError(Exception):
@@ -33,22 +36,85 @@ def seller_phone_suffix(phone):
     return digits
 
 
+RESOLUTION_RESOLVED = 'resolved'
+RESOLUTION_NOT_FOUND = 'not_found'
+RESOLUTION_AMBIGUOUS = 'ambiguous'
+RESOLUTION_CONFLICT = 'conflict'
+
+SOURCE_EXPLICIT = 'explicit'
+SOURCE_WHATSAPP = 'whatsapp'
+SOURCE_NAME = 'name'
+
+
+@dataclass(frozen=True)
+class SellerResolution:
+    profile: SellerProfile | None
+    status: str
+    source: str | None = None
+
+
+def _not_found():
+    return SellerResolution(None, RESOLUTION_NOT_FOUND, None)
+
+
 def get_product_seller_key(product):
-    return normalize_seller_whatsapp(product.whatsapp_number)
+    """Cart identity. Explicit SellerProfile wins over a shared WhatsApp number."""
+    profile_id = getattr(product, 'seller_profile_id', None)
+    if profile_id:
+        return f'profile:{profile_id}'
+    return f'whatsapp:{normalize_seller_whatsapp(product.whatsapp_number)}'
+
+
+def cart_has_single_seller(products):
+    """Whether these products may stay in one retail cart.
+
+    Explicit SellerProfile links are compared by FK: different merchants conflict
+    even with one WhatsApp, and one merchant does not split on phone formatting.
+    Products without FK keep the normalized WhatsApp rule. A legacy line can sit
+    next to an explicit product only when that snapshot number matches.
+    """
+    explicit_ids = {
+        product.seller_profile_id
+        for product in products
+        if getattr(product, 'seller_profile_id', None)
+    }
+    if len(explicit_ids) > 1:
+        return False
+    legacy_phones = {
+        normalize_seller_whatsapp(getattr(product, 'whatsapp_number', ''))
+        for product in products
+        if not getattr(product, 'seller_profile_id', None)
+    }
+    if len(legacy_phones) > 1:
+        return False
+    if not explicit_ids or not legacy_phones:
+        return True
+    explicit_phones = {
+        normalize_seller_whatsapp(getattr(product, 'whatsapp_number', ''))
+        for product in products
+        if getattr(product, 'seller_profile_id', None)
+    }
+    return explicit_phones == legacy_phones
+
+
+def _require_single_cart_seller(products):
+    if not products:
+        raise ValueError('Cart is empty')
+    if cart_has_single_seller(products):
+        return
+    seller_name = (getattr(products[0], 'seller_name', '') or '').strip() or 'продавца'
+    raise CartSellerConflictError(seller_name)
 
 
 def get_seller_snapshot_from_items(items):
     if not items:
         raise ValueError('Cart is empty')
 
-    first_product = items[0]['product']
-    seller_key = get_product_seller_key(first_product)
+    products = [item['product'] for item in items]
+    _require_single_cart_seller(products)
+    first_product = products[0]
     seller_name = (first_product.seller_name or '').strip()
     seller_whatsapp = (first_product.whatsapp_number or '').strip()
-
-    for item in items[1:]:
-        if get_product_seller_key(item['product']) != seller_key:
-            raise CartSellerConflictError(seller_name)
 
     return {
         'seller_name': seller_name,
@@ -60,48 +126,132 @@ def validate_product_for_cart(cart_items, product):
     if not cart_items:
         return
 
-    current_name = (cart_items[0]['product'].seller_name or '').strip() or 'продавца'
-    current_key = get_product_seller_key(cart_items[0]['product'])
-    new_key = get_product_seller_key(product)
+    products = [item['product'] for item in cart_items]
+    products.append(product)
+    _require_single_cart_seller(products)
 
-    if new_key != current_key:
-        raise CartSellerConflictError(current_name)
+
+def _profiles_by_phone_suffix():
+    """One pass over merchant phones. Normalization stays in Python."""
+    buckets = {}
+    for profile in SellerProfile.objects.all().iterator():
+        suffix = seller_phone_suffix(profile.phone)
+        if not suffix:
+            continue
+        buckets.setdefault(suffix, []).append(profile)
+    return buckets
+
+
+def resolve_unique_seller_profile_by_whatsapp(phone, *, profiles_by_suffix=None):
+    suffix = seller_phone_suffix(phone)
+    if not suffix:
+        return _not_found()
+    if profiles_by_suffix is None:
+        profiles_by_suffix = _profiles_by_phone_suffix()
+    matches = profiles_by_suffix.get(suffix, [])
+    if len(matches) == 1:
+        return SellerResolution(matches[0], RESOLUTION_RESOLVED, SOURCE_WHATSAPP)
+    if not matches:
+        return _not_found()
+    return SellerResolution(None, RESOLUTION_AMBIGUOUS, SOURCE_WHATSAPP)
+
+
+def resolve_unique_seller_profile_by_name(name):
+    """Exact case-insensitive name. Several rows are ambiguous, never the first pk."""
+    cleaned = (name or '').strip()
+    if not cleaned:
+        return _not_found()
+    matches = list(SellerProfile.objects.filter(name__iexact=cleaned)[:2])
+    if len(matches) == 1:
+        return SellerResolution(matches[0], RESOLUTION_RESOLVED, SOURCE_NAME)
+    if not matches:
+        return _not_found()
+    return SellerResolution(None, RESOLUTION_AMBIGUOUS, SOURCE_NAME)
+
+
+def _is_phaeton_product(product):
+    return getattr(product, 'supplier', None) == Product.SUPPLIER_PHAETON
+
+
+def resolve_product_merchant(product, *, profiles_by_suffix=None):
+    """Explicit Product.seller_profile, otherwise a unique WhatsApp match.
+
+    Phaeton products do not inherit a merchant from a shared warehouse phone.
+    Name matching is not used for products.
+    """
+    if product is None:
+        return _not_found()
+    if getattr(product, 'seller_profile_id', None):
+        return SellerResolution(product.seller_profile, RESOLUTION_RESOLVED, SOURCE_EXPLICIT)
+    if _is_phaeton_product(product):
+        return _not_found()
+    return resolve_unique_seller_profile_by_whatsapp(
+        getattr(product, 'whatsapp_number', ''),
+        profiles_by_suffix=profiles_by_suffix,
+    )
+
+
+def _item_product(item):
+    if isinstance(item, dict):
+        return item.get('product')
+    return item
+
+
+def resolve_canonical_merchant_from_items(items):
+    """One merchant for a cart, or no guess.
+
+    Every line must resolve to the same SellerProfile. A legacy line that is
+    missing, ambiguous, or a different merchant leaves the order unlinked.
+    """
+    products = [_item_product(item) for item in (items or [])]
+    products = [product for product in products if product is not None]
+    if not products:
+        return _not_found()
+
+    needs_phone = any(
+        not getattr(product, 'seller_profile_id', None) and not _is_phaeton_product(product)
+        for product in products
+    )
+    profiles_by_suffix = _profiles_by_phone_suffix() if needs_phone else {}
+    resolutions = [
+        resolve_product_merchant(product, profiles_by_suffix=profiles_by_suffix)
+        for product in products
+    ]
+    if any(item.status == RESOLUTION_AMBIGUOUS for item in resolutions):
+        source = next(item.source for item in resolutions if item.status == RESOLUTION_AMBIGUOUS)
+        return SellerResolution(None, RESOLUTION_AMBIGUOUS, source)
+
+    resolved = [item for item in resolutions if item.status == RESOLUTION_RESOLVED]
+    if len(resolved) != len(products):
+        return _not_found()
+    profile_ids = {item.profile.pk for item in resolved}
+    if len(profile_ids) != 1:
+        return SellerResolution(None, RESOLUTION_CONFLICT, SOURCE_EXPLICIT)
+    sources = {item.source for item in resolved}
+    source = SOURCE_EXPLICIT if SOURCE_EXPLICIT in sources else next(iter(sources))
+    return SellerResolution(resolved[0].profile, RESOLUTION_RESOLVED, source)
 
 
 def resolve_seller_profile_from_items(items):
-    """
-    Soft-resolve SellerProfile for cart items via normalized WhatsApp
-    (same last-10 digit legacy matching as catalog attach_sellers).
+    """Merchant for cart items, or None when the match is missing or not unique."""
+    return resolve_canonical_merchant_from_items(items).profile
 
-    If multiple profiles share the same phone suffix, the lowest pk wins.
-    """
-    if not items:
-        return None
 
-    product = items[0]['product']
-    suffix = seller_phone_suffix(product.whatsapp_number)
-    if not suffix:
-        return None
-
-    for profile in SellerProfile.objects.order_by('pk').iterator():
-        if seller_phone_suffix(profile.phone) == suffix:
-            return profile
-    return None
+def resolve_order_merchant(order):
+    """Stored FK first, then unique WhatsApp, then a unique exact name."""
+    if order is None:
+        return _not_found()
+    if getattr(order, 'seller_profile_id', None):
+        return SellerResolution(order.seller_profile, RESOLUTION_RESOLVED, SOURCE_EXPLICIT)
+    phone_match = resolve_unique_seller_profile_by_whatsapp(getattr(order, 'seller_whatsapp', ''))
+    if phone_match.status != RESOLUTION_NOT_FOUND:
+        return phone_match
+    return resolve_unique_seller_profile_by_name(getattr(order, 'seller_name', ''))
 
 
 def resolve_seller_profile_from_order(order):
-    """Resolve SellerProfile from order seller snapshot (WhatsApp, then name)."""
-    if order is None:
-        return None
-    suffix = seller_phone_suffix(order.seller_whatsapp)
-    if suffix:
-        for profile in SellerProfile.objects.order_by('pk').iterator():
-            if seller_phone_suffix(profile.phone) == suffix:
-                return profile
-    name = (order.seller_name or '').strip()
-    if name:
-        return SellerProfile.objects.filter(name__iexact=name).order_by('pk').first()
-    return None
+    """Legacy order display. Ambiguous phone or name stays unresolved."""
+    return resolve_order_merchant(order).profile
 
 
 def warehouse_address_fallback():
@@ -133,12 +283,12 @@ def resolve_pickup_options(items):
             'effective_pickup_address': address,
         }
 
-    seller_profile = resolve_seller_profile_from_items(items)
-    if seller_profile is not None:
-        address = seller_profile.get_effective_pickup_address()
-        available = bool(seller_profile.pickup_available and address)
+    merchant_profile = resolve_canonical_merchant_from_items(items).profile
+    if merchant_profile is not None:
+        address = merchant_profile.get_effective_pickup_address()
+        available = bool(merchant_profile.pickup_available and address)
         return {
-            'seller_profile': seller_profile,
+            'seller_profile': merchant_profile,
             'pickup_available': available,
             'effective_pickup_address': address if available else '',
         }

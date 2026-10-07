@@ -182,11 +182,11 @@ class OrderSellerProfileCheckoutTests(TestCase):
         self.assertEqual(response.status_code, 302)
         order = Order.objects.get()
         self.assertEqual(order.user, buyer)
-        self.assertIsNone(order.seller_profile)
-        self.assertNotEqual(order.seller_profile_id, buyer.seller_profile.pk)
+        self.assertEqual(order.seller_profile, merchant)
+        self.assertNotEqual(order.seller_profile_id, buyer_profile.pk)
         self.assertEqual(buyer.seller_profile, buyer_profile)
 
-    def test_product_seller_profile_is_not_copied_to_order(self):
+    def test_checkout_stores_explicit_merchant_without_rewriting_snapshots(self):
         merchant = create_seller_profile(
             'product-merchant',
             'Product Merchant',
@@ -205,7 +205,7 @@ class OrderSellerProfileCheckoutTests(TestCase):
         order = Order.objects.get()
         self.assertEqual(order.seller_name, 'Snapshot Name')
         self.assertEqual(order.seller_whatsapp, '+77773334455')
-        self.assertIsNone(order.seller_profile)
+        self.assertEqual(order.seller_profile, merchant)
         self.assertEqual(product.seller_profile, merchant)
 
 

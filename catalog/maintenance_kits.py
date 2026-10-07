@@ -469,7 +469,7 @@ def preflight_add_kit(request, kit: MaintenanceKit, selected_ids=None):
 
     existing_items = cart.get_items()
     quantities = cart.get_product_quantities()
-    seller_profile = cart._seller_profile()
+    buyer_seller_profile = cart._buyer_seller_profile()
 
     for item in items:
         product = item.product
@@ -479,7 +479,7 @@ def preflight_add_kit(request, kit: MaintenanceKit, selected_ids=None):
         quote = resolve_commercial_price(
             product,
             resulting,
-            seller_profile=seller_profile,
+            seller_profile=buyer_seller_profile,
         )
         if not quote.can_buy:
             raise MaintenanceKitCartError(

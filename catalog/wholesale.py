@@ -145,12 +145,12 @@ def resolve_wholesale_owner(product):
         return None
     if product.seller_profile_id:
         return product.seller_profile
-    name = (product.seller_name or '').strip()
-    if not name:
+    from orders.seller_utils import resolve_unique_seller_profile_by_name
+
+    merchant_profile = resolve_unique_seller_profile_by_name(product.seller_name).profile
+    if merchant_profile is None:
         return None
-    return SellerProfile.objects.select_related('wholesale_terms').filter(
-        name__iexact=name
-    ).order_by('pk').first()
+    return SellerProfile.objects.select_related('wholesale_terms').filter(pk=merchant_profile.pk).first()
 
 
 @dataclass

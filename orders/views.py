@@ -45,6 +45,7 @@ from .seller_utils import (
     CartSellerConflictError,
     get_order_pickup_display_address,
     get_seller_snapshot_from_items,
+    resolve_canonical_merchant_from_items,
     resolve_pickup_options,
     resolve_seller_profile_from_order,
 )
@@ -539,11 +540,11 @@ def cart_update_quantity(request):
     if cart.is_wholesale():
         quote = quote_public_wholesale(product, quantity)
     else:
-        seller_profile = get_request_seller_profile(request)
+        buyer_seller_profile = get_request_seller_profile(request)
         quote = resolve_commercial_price(
             product,
             quantity,
-            seller_profile=seller_profile,
+            seller_profile=buyer_seller_profile,
         )
     item_total = quote.total_price if quote.can_buy else 0
     unit_price = quote.unit_price
@@ -593,8 +594,8 @@ def checkout(request):
     pickup_options = resolve_pickup_options(items)
     pickup_available = pickup_options['pickup_available']
     effective_pickup_address = pickup_options['effective_pickup_address']
-    seller_profile = pickup_options['seller_profile']
-    seller_profile_id = seller_profile.pk if seller_profile else None
+    pickup_merchant = pickup_options['seller_profile']
+    seller_profile_id = pickup_merchant.pk if pickup_merchant else None
 
     if request.method == 'POST':
         form = CheckoutForm(
@@ -650,7 +651,8 @@ def checkout(request):
                         )
                         return redirect('orders:cart')
                     terms_snapshot = build_wholesale_terms_snapshot(owner)
-                seller_profile = get_request_seller_profile(request)
+                buyer_seller_profile = get_request_seller_profile(request)
+                merchant_profile = resolve_canonical_merchant_from_items(current_items).profile
                 order_lines = []
                 total_price = 0
                 for item in current_items:
@@ -668,7 +670,7 @@ def checkout(request):
                         quote = resolve_commercial_price(
                             product,
                             item['quantity'],
-                            seller_profile=seller_profile,
+                            seller_profile=buyer_seller_profile,
                         )
                     if not quote.can_buy or quote.unit_price is None:
                         messages.error(
@@ -688,6 +690,7 @@ def checkout(request):
                     total_price=total_price,
                     seller_name=seller_snapshot['seller_name'],
                     seller_whatsapp=seller_snapshot['seller_whatsapp'],
+                    seller_profile=merchant_profile,
                     order_type=order_type,
                     utm_source=utm_snapshot['utm_source'],
                     utm_medium=utm_snapshot['utm_medium'],
@@ -785,19 +788,19 @@ def order_success(request, order_id, access_token):
     pickup_address = ''
     if order.delivery_method == Order.DELIVERY_PICKUP:
         pickup_address = get_order_pickup_display_address(order)
-    seller_profile = None
+    merchant_profile = None
     wholesale_storefront_url = ''
     seller_whatsapp_url = ''
     if order.is_wholesale:
-        seller_profile = resolve_seller_profile_from_order(order)
+        merchant_profile = resolve_seller_profile_from_order(order)
         if (
-            seller_profile is not None
-            and seller_profile.wholesale_enabled
-            and seller_profile.slug
+            merchant_profile is not None
+            and merchant_profile.wholesale_enabled
+            and merchant_profile.slug
         ):
             wholesale_storefront_url = reverse(
                 'public_seller_wholesale',
-                kwargs={'slug': seller_profile.slug},
+                kwargs={'slug': merchant_profile.slug},
             )
         wa_text = (
             f'Здравствуйте!\n'
@@ -814,7 +817,7 @@ def order_success(request, order_id, access_token):
         'order': order,
         'pickup_address': pickup_address,
         'warehouse_address': pickup_address,
-        'seller_profile': seller_profile,
+        'seller_profile': merchant_profile,
         'wholesale_storefront_url': wholesale_storefront_url,
         'seller_whatsapp_url': seller_whatsapp_url,
         'order_total_qty': order.total_quantity,

@@ -142,7 +142,7 @@ class CartManager:
             'can_checkout': bool(seller and remaining == 0 and total_qty > 0),
         }
 
-    def _seller_profile(self):
+    def _buyer_seller_profile(self):
         return get_request_seller_profile(self.request)
 
     def _quote(self, product, quantity):
@@ -151,7 +151,7 @@ class CartManager:
         return resolve_commercial_price(
             product,
             quantity,
-            seller_profile=self._seller_profile(),
+            seller_profile=self._buyer_seller_profile(),
         )
 
     def _require_purchasable(self, product, quantity):
@@ -296,8 +296,8 @@ class CartManager:
             status='active',
         ).select_related('brand', 'car_model', 'seller_profile')
 
-        seller_profile = self._seller_profile()
-        if seller_profile is not None and not self.is_wholesale():
+        buyer_seller_profile = self._buyer_seller_profile()
+        if buyer_seller_profile is not None and not self.is_wholesale():
             products = b2b_prefetch(products)
 
         product_map = {product.id: product for product in products}
