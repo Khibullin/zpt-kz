@@ -1800,6 +1800,27 @@ class InstagramPublication(models.Model):
         blank=True,
         verbose_name='Следующая попытка не раньше',
     )
+    review_reason = models.CharField(
+        max_length=64,
+        blank=True,
+        default='',
+        verbose_name='Причина проверки',
+    )
+    review_detail = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Пояснение проверки',
+    )
+    public_payload = models.JSONField(
+        blank=True,
+        default=dict,
+        verbose_name='Публичное представление',
+    )
+    approved_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name='Одобрено',
+    )
 
     class Meta:
         verbose_name = 'Публикация Instagram'
@@ -1817,6 +1838,30 @@ class InstagramPublication(models.Model):
             f'Instagram #{self.pk} — заявка #{self.request_id} '
             f'{self.get_placement_display()} ({self.get_status_display()})'
         )
+
+    def save(self, *args, **kwargs):
+        if (
+            self.pk
+            and self.status == self.STATUS_QUEUED
+            and self.review_reason
+            and not self.approved_at
+        ):
+            previous = (
+                InstagramPublication.objects.filter(pk=self.pk)
+                .values_list('status', flat=True)
+                .first()
+            )
+            if previous != self.STATUS_QUEUED:
+                self.status = previous or self.STATUS_NEEDS_REVIEW
+                self.error_message = (
+                    'Нельзя поставить в очередь без одобрения: есть причина проверки.'
+                )
+                update_fields = kwargs.get('update_fields')
+                if update_fields is not None:
+                    kwargs['update_fields'] = list(
+                        set(update_fields) | {'status', 'error_message'}
+                    )
+        super().save(*args, **kwargs)
 
 
 SELLER_LEAD_STATUS_CHOICES = [

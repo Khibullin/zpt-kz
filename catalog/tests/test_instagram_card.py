@@ -155,7 +155,6 @@ class InstagramCardLayoutTests(TestCase):
             with self.settings(MEDIA_ROOT=media_root):
                 _story, caption = generate_instagram_story(request)
                 feed_path, feed_caption = generate_instagram_feed(request)
-        self.assertEqual(caption, feed_caption)
         self.assertIn('Покупатель ищет:', caption)
         self.assertIn('2016', caption)
         self.assertIn('Город: Алматы', caption)
@@ -163,6 +162,13 @@ class InstagramCardLayoutTests(TestCase):
         self.assertNotIn('77001112233', caption)
         self.assertNotIn('JTDBR32E720012345', caption)
         self.assertNotIn(str(request.access_token), caption)
+        self.assertNotIn('77001112233', feed_caption)
+        self.assertNotIn('JTDBR32E720012345', feed_caption)
+        self.assertNotIn(str(request.access_token), feed_caption)
+        self.assertNotIn('WhatsApp', feed_caption)
+        self.assertNotIn('wa.me', feed_caption)
+        self.assertIn('Получайте заявки покупателей на ZPT.KZ.', feed_caption)
+        self.assertIn('ссылка в профиле', feed_caption)
         if request.short_token:
             self.assertNotIn(request.short_token, caption)
         self.assertNotIn('Откройте заявку', caption)

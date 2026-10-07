@@ -590,8 +590,13 @@ def generate_instagram_story(product_request: Request) -> tuple[Path, str]:
 
 
 def generate_instagram_feed(product_request: Request) -> tuple[Path, str]:
-    """JPEG 1080×1350 для ленты Instagram в ``MEDIA_ROOT/instagram_feed/``."""
-    return _save_card(product_request, kind='feed')
+    """JPEG 1080×1350 Banner V2 для ленты Instagram в ``MEDIA_ROOT/instagram_feed/``.
+
+    Story-карточка остаётся в ``generate_instagram_story``.
+    """
+    from catalog.instagram_banner_v2 import render_and_save_feed_banner
+
+    return render_and_save_feed_banner(product_request)
 
 
 ACTIVE_REQUEST_STATUSES = ('new', 'sent')

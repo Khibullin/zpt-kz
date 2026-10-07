@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %}Заявка №{{ public_request.public_request_number }} — ZPT.KZ{% endblock %}
+
+{% block extra_css %}
+<style>
+  .zpt-public-request {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 28px 20px 48px;
+    color: #1c1f24;
+    font-family: Inter, Arial, sans-serif;
+  }
+  .zpt-public-request .kicker {
+    color: #e31e24;
+    font-weight: 800;
+    letter-spacing: .04em;
+    font-size: 13px;
+  }
+  .zpt-public-request h1 {
+    margin: 8px 0 4px;
+    font-size: 34px;
+    line-height: 1.15;
+  }
+  .zpt-public-request .year,
+  .zpt-public-request .city {
+    color: #5a6068;
+    margin: 0 0 8px;
+  }
+  .zpt-public-request ul {
+    padding-left: 18px;
+  }
+  .zpt-public-request .photos {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+  .zpt-public-request .photos img {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 12px;
+    background: #eef0f3;
+  }
+  .zpt-public-request .cta {
+    display: block;
+    margin-top: 14px;
+    padding: 16px 18px;
+    border-radius: 16px;
+    text-decoration: none;
+    background: #fff;
+    border: 1px solid #d6dae0;
+  }
+  .zpt-public-request .cta strong { display: block; }
+  .zpt-public-request .seller { border-left: 6px solid #e31e24; color: #e31e24; }
+  .zpt-public-request .buyer { border-left: 6px solid #145cb8; color: #145cb8; }
+  .zpt-public-request .note { color: #5a6068; }
+</style>
+{% endblock %}
+
+{% block content %}
+<main class="zpt-public-request">
+  <p class="kicker">ПОКУПАТЕЛЬ ИЩЕТ</p>
+  <h1>{{ public_request.brand }} {{ public_request.model }}</h1>
+  {% if public_request.year %}<p class="year">{{ public_request.year }}</p>{% endif %}
+  {% if public_request.city %}<p class="city">{{ public_request.city }}</p>{% endif %}
+  {% if public_request.parts %}
+    <ul>
+      {% for part in public_request.parts %}
+        <li>{{ part }}</li>
+      {% endfor %}
+    </ul>
+  {% elif public_request.review_reason %}
+    <p class="note">Список деталей ещё проверяется.</p>
+  {% endif %}
+  {% if public_request.notes %}
+    <p class="note">{{ public_request.notes|join:", " }}</p>
+  {% endif %}
+  {% if photos %}
+    <div class="photos">
+      {% for photo in photos %}
+        <img src="{{ photo }}" alt="Фото из заявки">
+      {% endfor %}
+    </div>
+  {% endif %}
+  <p>Заявка №{{ public_request.public_request_number }}</p>
+  <a class="cta seller" href="{{ seller_href }}">
+    <strong>Есть эта запчасть?</strong>
+    {{ seller_action }} на ZPT.KZ
+  </a>
+  <a class="cta buyer" href="{{ buyer_href }}">
+    <strong>Ищете запчасть?</strong>
+    Оставьте заявку на ZPT.KZ
+  </a>
+</main>
+{% endblock %}
