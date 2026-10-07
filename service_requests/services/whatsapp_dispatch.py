@@ -194,6 +194,18 @@ def _claim_or_close(dispatch_id):
             ])
             return ('skipped', dispatch.pk)
 
+        if dispatch.attempts_count >= MAX_ATTEMPTS:
+            dispatch.status = ServiceRequestDispatch.STATUS_FAILED
+            dispatch.last_error = (
+                'Attempt limit reached without a confirmed WhatsApp send.'
+            )
+            dispatch.save(update_fields=[
+                'status',
+                'last_error',
+                'updated_at',
+            ])
+            return ('failed', dispatch.pk)
+
         dispatch.status = ServiceRequestDispatch.STATUS_PROCESSING
         dispatch.attempts_count += 1
         dispatch.last_attempt_at = timezone.now()

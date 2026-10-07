@@ -355,6 +355,71 @@ class WorkerDeliveryTests(WhatsAppDispatchTestCase):
         self.assertEqual(mock_send.call_count, 1)
 
     @patch(SENDER)
+    def test_stale_third_attempt_without_success_log_is_terminal(self, mock_send):
+        req, seller = self._queued()
+        dispatch = ServiceRequestDispatch.objects.get(request=req, seller=seller)
+        dispatch.status = ServiceRequestDispatch.STATUS_PROCESSING
+        dispatch.attempts_count = 3
+        dispatch.last_attempt_at = timezone.now() - timedelta(minutes=6)
+        dispatch.save()
+
+        process_due_service_request_dispatches()
+
+        dispatch.refresh_from_db()
+        self.assertEqual(dispatch.status, ServiceRequestDispatch.STATUS_FAILED)
+        self.assertEqual(dispatch.attempts_count, 3)
+        self.assertEqual(mock_send.call_count, 0)
+
+        process_due_service_request_dispatches()
+
+        dispatch.refresh_from_db()
+        self.assertEqual(dispatch.status, ServiceRequestDispatch.STATUS_FAILED)
+        self.assertEqual(dispatch.attempts_count, 3)
+        self.assertEqual(mock_send.call_count, 0)
+
+    @patch(SENDER)
+    def test_stale_third_attempt_with_success_log_is_reconciled(self, mock_send):
+        req, seller = self._queued()
+        dispatch = ServiceRequestDispatch.objects.get(request=req, seller=seller)
+        dispatch.status = ServiceRequestDispatch.STATUS_PROCESSING
+        dispatch.attempts_count = 3
+        dispatch.last_attempt_at = timezone.now() - timedelta(minutes=6)
+        dispatch.save()
+        ServiceWhatsAppMessageLog.objects.create(
+            request=req,
+            seller=seller,
+            phone='77002000041',
+            message_type='seller_request',
+            status='sent',
+            meta_message_id='wamid.third-success',
+        )
+
+        process_due_service_request_dispatches()
+
+        dispatch.refresh_from_db()
+        self.assertEqual(dispatch.status, ServiceRequestDispatch.STATUS_SENT)
+        self.assertEqual(dispatch.attempts_count, 3)
+        self.assertEqual(dispatch.provider_message_id, 'wamid.third-success')
+        self.assertEqual(mock_send.call_count, 0)
+
+    @patch(SENDER)
+    def test_stale_second_attempt_uses_exactly_the_third_send(self, mock_send):
+        mock_send.return_value = _ok_result('wamid.third')
+        req, seller = self._queued()
+        dispatch = ServiceRequestDispatch.objects.get(request=req, seller=seller)
+        dispatch.status = ServiceRequestDispatch.STATUS_PROCESSING
+        dispatch.attempts_count = 2
+        dispatch.last_attempt_at = timezone.now() - timedelta(minutes=6)
+        dispatch.save()
+
+        process_due_service_request_dispatches()
+
+        dispatch.refresh_from_db()
+        self.assertEqual(dispatch.attempts_count, 3)
+        self.assertEqual(dispatch.status, ServiceRequestDispatch.STATUS_SENT)
+        self.assertEqual(mock_send.call_count, 1)
+
+    @patch(SENDER)
     def test_existing_success_log_reconciles_without_send(self, mock_send):
         req, seller = self._queued()
         ServiceWhatsAppMessageLog.objects.create(
