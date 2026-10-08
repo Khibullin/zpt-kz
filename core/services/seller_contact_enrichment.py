@@ -1125,6 +1125,13 @@ def _store_whatsapp(
     number = normalize_kz_whatsapp_phone(observation.value)
     if not number:
         return
+    if SellerLeadContactCandidate.objects.filter(
+        seller_lead=lead,
+        contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+        value=number,
+        status=SellerLeadContactCandidate.STATUS_REJECTED,
+    ).exists():
+        return
     conflict = observation.conflicting or _whatsapp_conflict(lead, number)
     confirmed = observation.confirms_whatsapp and not observation.conflicting
     owner_locked = _owner_verified_selected(lead, 'whatsapp')
