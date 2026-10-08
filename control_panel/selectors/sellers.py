@@ -40,9 +40,6 @@ from core.models import (
     SellerRequestPageEvent,
 )
 from core.phone_utils import normalize_kz_phone
-from core.services.seller_lead_marketplace_onboarding import (
-    build_marketplace_invite_whatsapp_url,
-)
 from core.services.seller_whatsapp_consent import get_seller_whatsapp_marketing_consent
 from control_panel.display import (
     SELLER_SORT_CHOICES,
@@ -134,7 +131,7 @@ class SellerLeadRow:
     instagram_username: str
     website_url: str
     linked_seller_id: int | None
-    invite_url: str
+    can_invite: bool
     can_mark_invited: bool
     admin_url: str
 
@@ -789,14 +786,11 @@ def list_seller_candidates(params: QueryDict) -> dict:
                 lead.lifecycle_status,
                 lead.lifecycle_status,
             )
-        invite_url = ''
-        can_mark_invited = False
-        if (
+        can_invite = bool(
             lead.lifecycle_status == SellerLead.LIFECYCLE_READY_TO_INVITE
             and normalize_kz_phone(lead.whatsapp)
-        ):
-            invite_url = build_marketplace_invite_whatsapp_url(lead)
-            can_mark_invited = bool(invite_url)
+        )
+        can_mark_invited = can_invite
 
         rows.append(
             SellerLeadRow(
@@ -813,7 +807,7 @@ def list_seller_candidates(params: QueryDict) -> dict:
                 instagram_username=lead.instagram_username,
                 website_url=lead.website_url,
                 linked_seller_id=lead.request_seller_id,
-                invite_url=invite_url,
+                can_invite=can_invite,
                 can_mark_invited=can_mark_invited,
                 admin_url=f'/admin/core/sellerlead/{lead.pk}/change/',
             )
