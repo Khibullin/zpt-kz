@@ -27,7 +27,10 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 
 from core.models import SellerLead
-from core.services.seller_lead_marketplace_onboarding import mark_seller_lead_invited
+from core.services.seller_lead_marketplace_onboarding import (
+    build_marketplace_invite_whatsapp_url,
+    mark_seller_lead_invited,
+)
 
 
 NAV_SECTIONS = (
@@ -175,6 +178,16 @@ def seller_list(request):
     else:
         context.update(list_sellers(request.GET))
     return render(request, 'control_panel/sellers_list.html', context)
+
+
+@control_staff_required
+def seller_candidate_invite(request, pk: int):
+    lead = get_object_or_404(SellerLead, pk=pk, duplicate_of__isnull=True)
+    target = build_marketplace_invite_whatsapp_url(lead)
+    if not target:
+        messages.warning(request, f'#{lead.pk}: корректный WhatsApp не найден.')
+        return redirect(reverse('control_panel:seller_list') + '?view=candidates')
+    return redirect(target)
 
 
 @control_staff_required
