@@ -168,10 +168,7 @@ class BraveQueryPriorityTests(TestCase):
             index for index, query in enumerate(queries)
             if 'официальный сайт' in query and 'Автозапчасти Hyundai/Kia' in query
         )
-        handle_at = next(
-            index for index, query in enumerate(queries)
-            if 'almaty_parts.kz' in query
-        )
+        handle_at = queries.index('"almaty_parts.kz" Алматы контакты')
         self.assertLess(official_at, handle_at)
         self.assertIn('"almaty_parts.kz" Алматы контакты', queries)
         self.assertIn('"almaty_parts.kz" WhatsApp', queries)
