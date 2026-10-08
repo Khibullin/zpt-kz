@@ -1,37 +1,68 @@
 from __future__ import annotations
 
+from base64 import urlsafe_b64encode
+
 from django.conf import settings
-from django.core import signing
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.crypto import constant_time_compare, salted_hmac
+from django.utils.http import base36_to_int, int_to_base36
 
 from core.models import Seller, SellerLead, normalize_seller_lead_whatsapp
 from core.phone_utils import build_whatsapp_url
 from core.services.seller_lead_admin_workflow import compute_review_status
 
 
-SELLER_INVITE_SIGNING_SALT = 'seller-marketplace-invite-v1'
-SELLER_INVITE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
+SELLER_INVITE_SIGNING_SALT = 'seller-marketplace-invite-v2'
+SELLER_INVITE_MAX_AGE_DAYS = 30
+SELLER_INVITE_SIGNATURE_CHARS = 10
+
+
+class SellerInviteTokenError(ValueError):
+    pass
+
+
+def _seller_invite_day() -> int:
+    return int(timezone.now().timestamp() // 86400)
+
+
+def _seller_invite_signature(lead_id: int, day: int) -> str:
+    payload = f'{lead_id}:{day}'
+    digest = salted_hmac(SELLER_INVITE_SIGNING_SALT, payload).digest()
+    return urlsafe_b64encode(digest).decode('ascii').rstrip('=')[
+        :SELLER_INVITE_SIGNATURE_CHARS
+    ]
 
 
 def build_seller_invite_token(lead: SellerLead) -> str:
-    """Signed, URL-safe invite token containing only the SellerLead id."""
-    return signing.dumps(
-        {'lead_id': lead.pk},
-        salt=SELLER_INVITE_SIGNING_SALT,
-        compress=True,
+    """Compact signed token: lead id + issue day + short HMAC signature."""
+    day = _seller_invite_day()
+    return (
+        f'{int_to_base36(lead.pk)}-'
+        f'{int_to_base36(day)}-'
+        f'{_seller_invite_signature(lead.pk, day)}'
     )
 
 
 def decode_seller_invite_token(token: str) -> int:
-    payload = signing.loads(
-        token,
-        salt=SELLER_INVITE_SIGNING_SALT,
-        max_age=SELLER_INVITE_MAX_AGE_SECONDS,
-    )
-    lead_id = payload.get('lead_id')
-    if not isinstance(lead_id, int) or lead_id <= 0:
-        raise signing.BadSignature('Invalid seller invite lead id')
+    try:
+        lead_part, day_part, signature = str(token or '').split('-', 2)
+        lead_id = base36_to_int(lead_part)
+        issued_day = base36_to_int(day_part)
+    except (TypeError, ValueError) as exc:
+        raise SellerInviteTokenError('Invalid seller invite token') from exc
+
+    if lead_id <= 0 or issued_day <= 0:
+        raise SellerInviteTokenError('Invalid seller invite token')
+
+    age_days = _seller_invite_day() - issued_day
+    if age_days < -1 or age_days > SELLER_INVITE_MAX_AGE_DAYS:
+        raise SellerInviteTokenError('Seller invite token expired')
+
+    expected = _seller_invite_signature(lead_id, issued_day)
+    if not constant_time_compare(signature, expected):
+        raise SellerInviteTokenError('Invalid seller invite signature')
+
     return lead_id
 
 
