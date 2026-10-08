@@ -1,0 +1,102 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div style="max-width: 820px;">
+  <p>
+    <a href="{{ back_url }}">← Вернуться к SellerLead #{{ lead.pk }}</a>
+  </p>
+
+  <h1>Приглашение продавца</h1>
+
+  <div style="margin: 18px 0; padding: 14px 16px; background: var(--darkened-bg); border-radius: 6px;">
+    <strong>{{ lead.name }}</strong><br>
+    WhatsApp: {{ lead.whatsapp }}<br>
+    Lifecycle: {{ lead.get_lifecycle_status_display }}
+  </div>
+
+  <p>
+    Ниже — ровно тот текст, который нужно отправить продавцу.
+    WhatsApp откроется без автоматически вставленного текста, поэтому старый
+    черновик не смешается с новым приглашением.
+  </p>
+
+  <textarea
+    id="invite-message"
+    readonly
+    rows="8"
+    style="width:100%; box-sizing:border-box; font:inherit; line-height:1.5; padding:12px;"
+  >{{ invite_message }}</textarea>
+
+  <div style="display:flex; flex-wrap:wrap; gap:10px; margin-top:14px;">
+    <button type="button" class="button default" onclick="copyInvite()">
+      Скопировать сообщение
+    </button>
+
+    {% if whatsapp_url %}
+      <button type="button" class="button" onclick="copyAndOpenWhatsApp()">
+        Скопировать и открыть WhatsApp
+      </button>
+    {% endif %}
+  </div>
+
+  <p id="copy-status" style="margin-top:10px;"></p>
+
+  {% if whatsapp_url %}
+  <p style="margin-top:18px;">
+    <strong>Важно:</strong> если в WhatsApp остался старый черновик,
+    удалите его целиком и вставьте скопированное сообщение.
+  </p>
+  {% endif %}
+
+  <hr style="margin:28px 0;">
+
+  <form method="post">
+    {% csrf_token %}
+    <button
+      type="submit"
+      name="mark_invited"
+      value="1"
+      class="button"
+      onclick="return confirm('Подтвердить, что приглашение действительно отправлено продавцу?');"
+    >
+      Отправил — отметить приглашённым
+    </button>
+  </form>
+</div>
+
+<script>
+(function () {
+  const textarea = document.getElementById('invite-message');
+  const status = document.getElementById('copy-status');
+  const whatsappUrl = '{{ whatsapp_url|escapejs }}';
+
+  window.copyInvite = async function () {
+    const text = textarea.value;
+    try {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+      } else {
+        textarea.focus();
+        textarea.select();
+        document.execCommand('copy');
+        textarea.setSelectionRange(0, 0);
+      }
+      status.textContent = 'Сообщение скопировано.';
+      return true;
+    } catch (error) {
+      textarea.focus();
+      textarea.select();
+      status.textContent = 'Не удалось скопировать автоматически. Нажмите Ctrl+C.';
+      return false;
+    }
+  };
+
+  window.copyAndOpenWhatsApp = function () {
+    window.copyInvite();
+    if (whatsappUrl) {
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+    }
+  };
+})();
+</script>
+{% endblock %}
