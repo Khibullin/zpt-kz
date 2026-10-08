@@ -4,9 +4,12 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from django.db.models import (
+    BooleanField,
     Case,
     Count,
+    DateTimeField,
     Exists,
+    ExpressionWrapper,
     F,
     IntegerField,
     Max,
@@ -180,33 +183,31 @@ def _lead_prefetch():
     )
 
 
-def _product_count_subqueries():
-    canonical = (
-        Product.objects
-        .filter(
-            status='active',
-            seller_profile__user_id=OuterRef('user_id'),
-        )
-        .values('seller_profile__user_id')
-        .annotate(total=Count('id'))
+def _count_for_seller_subquery(model, *, filter_q=None):
+    queryset = model.objects.filter(seller_id=OuterRef('pk'))
+    if filter_q is not None:
+        queryset = queryset.filter(filter_q)
+    return (
+        queryset
+        .order_by()
+        .values('seller_id')
+        .annotate(total=Count('pk'))
         .values('total')[:1]
     )
-    legacy = (
-        Product.objects
-        .filter(
-            status='active',
-            seller_profile__isnull=True,
-            seller_name=OuterRef('name'),
-        )
-        .values('seller_name')
-        .annotate(total=Count('id'))
-        .values('total')[:1]
+
+
+def _last_activity_subquery():
+    return (
+        SellerRequestPageEvent.objects
+        .filter(seller_id=OuterRef('pk'))
+        .order_by()
+        .values('seller_id')
+        .annotate(last=Max('created_at'))
+        .values('last')[:1]
     )
-    return canonical, legacy
 
 
 def _annotated_sellers():
-    canonical_products, legacy_products = _product_count_subqueries()
     discovery_lead = SellerLead.objects.filter(
         request_seller_id=OuterRef('pk'),
         duplicate_of__isnull=True,
@@ -214,51 +215,134 @@ def _annotated_sellers():
     registered_profile = SellerProfile.objects.filter(
         user_id=OuterRef('user_id'),
     )
+    canonical_product = Product.objects.filter(
+        status='active',
+        seller_profile__user_id=OuterRef('user_id'),
+    )
+    legacy_product = Product.objects.filter(
+        status='active',
+        seller_profile__isnull=True,
+        seller_name=OuterRef('name'),
+    )
+    has_active_product = ExpressionWrapper(
+        Exists(canonical_product) | Exists(legacy_product),
+        output_field=BooleanField(),
+    )
+
     return Seller.objects.annotate(
-        sent_count=Count(
-            'matches',
-            filter=Q(matches__sent_at__isnull=False) | Q(matches__status='sent'),
-            distinct=True,
+        sent_count=Coalesce(
+            Subquery(
+                _count_for_seller_subquery(
+                    Match,
+                    filter_q=Q(sent_at__isnull=False) | Q(status='sent'),
+                ),
+                output_field=IntegerField(),
+            ),
+            Value(0),
         ),
-        opened_count=Count(
-            'request_page_events',
-            filter=Q(request_page_events__event_type='page_open'),
-            distinct=True,
+        opened_count=Coalesce(
+            Subquery(
+                _count_for_seller_subquery(
+                    SellerRequestPageEvent,
+                    filter_q=Q(event_type='page_open'),
+                ),
+                output_field=IntegerField(),
+            ),
+            Value(0),
         ),
-        whatsapp_count=Count(
-            'request_page_events',
-            filter=Q(request_page_events__event_type='whatsapp_click'),
-            distinct=True,
+        whatsapp_count=Coalesce(
+            Subquery(
+                _count_for_seller_subquery(
+                    SellerRequestPageEvent,
+                    filter_q=Q(event_type='whatsapp_click'),
+                ),
+                output_field=IntegerField(),
+            ),
+            Value(0),
         ),
-        call_count=Count(
-            'request_page_events',
-            filter=Q(request_page_events__event_type='call_click'),
-            distinct=True,
+        call_count=Coalesce(
+            Subquery(
+                _count_for_seller_subquery(
+                    SellerRequestPageEvent,
+                    filter_q=Q(event_type='call_click'),
+                ),
+                output_field=IntegerField(),
+            ),
+            Value(0),
         ),
-        out_of_stock_count=Count(
-            'request_page_events',
-            filter=Q(request_page_events__event_type='out_of_stock'),
-            distinct=True,
+        out_of_stock_count=Coalesce(
+            Subquery(
+                _count_for_seller_subquery(
+                    SellerRequestPageEvent,
+                    filter_q=Q(event_type='out_of_stock'),
+                ),
+                output_field=IntegerField(),
+            ),
+            Value(0),
         ),
-        cannot_fulfill_count=Count(
-            'request_page_events',
-            filter=Q(request_page_events__event_type='cannot_fulfill'),
-            distinct=True,
+        cannot_fulfill_count=Coalesce(
+            Subquery(
+                _count_for_seller_subquery(
+                    SellerRequestPageEvent,
+                    filter_q=Q(event_type='cannot_fulfill'),
+                ),
+                output_field=IntegerField(),
+            ),
+            Value(0),
         ),
-        last_activity=Max('request_page_events__created_at'),
+        last_activity=Subquery(
+            _last_activity_subquery(),
+            output_field=DateTimeField(),
+        ),
         has_discovery_lead=Exists(discovery_lead),
         registered_profile=Exists(registered_profile),
-        canonical_product_count=Coalesce(
-            Subquery(canonical_products, output_field=IntegerField()),
-            Value(0),
-        ),
-        legacy_product_count=Coalesce(
-            Subquery(legacy_products, output_field=IntegerField()),
-            Value(0),
-        ),
-    ).annotate(
-        active_product_count=F('canonical_product_count') + F('legacy_product_count'),
+        has_active_product=has_active_product,
     )
+
+
+def _product_counts_for_sellers(sellers: list[Seller]) -> dict[int, int]:
+    if not sellers:
+        return {}
+
+    counts = {seller.pk: 0 for seller in sellers}
+    sellers_by_user = {
+        seller.user_id: seller.pk
+        for seller in sellers
+        if seller.user_id
+    }
+    if sellers_by_user:
+        for user_id, total in (
+            Product.objects
+            .filter(
+                status='active',
+                seller_profile__user_id__in=sellers_by_user,
+            )
+            .values_list('seller_profile__user_id')
+            .annotate(total=Count('pk'))
+            .values_list('seller_profile__user_id', 'total')
+        ):
+            seller_pk = sellers_by_user.get(user_id)
+            if seller_pk:
+                counts[seller_pk] += int(total or 0)
+
+    sellers_by_name = {seller.name: seller.pk for seller in sellers if seller.name}
+    if sellers_by_name:
+        for seller_name, total in (
+            Product.objects
+            .filter(
+                status='active',
+                seller_profile__isnull=True,
+                seller_name__in=sellers_by_name,
+            )
+            .values_list('seller_name')
+            .annotate(total=Count('pk'))
+            .values_list('seller_name', 'total')
+        ):
+            seller_pk = sellers_by_name.get(seller_name)
+            if seller_pk:
+                counts[seller_pk] += int(total or 0)
+
+    return counts
 
 
 def _source_keys_for_lead(lead: SellerLead | None) -> list[str]:
@@ -402,7 +486,7 @@ def _seller_quick_filter(queryset, quick: str):
     if quick == 'not_receives':
         return queryset.filter(receive_requests=False)
     if quick == 'no_products':
-        return queryset.filter(active_product_count=0)
+        return queryset.filter(has_active_product=False)
     return queryset
 
 
@@ -412,7 +496,7 @@ def _seller_summary() -> dict[str, int]:
         'total': Seller.objects.count(),
         'receives': Seller.objects.filter(receive_requests=True).count(),
         'registered': base.filter(registered_profile=True).count(),
-        'no_products': base.filter(active_product_count=0).count(),
+        'no_products': base.filter(has_active_product=False).count(),
     }
 
 
@@ -508,9 +592,9 @@ def list_sellers(params: QueryDict) -> dict:
 
     products = first_value(params, 'products')
     if products == 'yes':
-        queryset = queryset.filter(active_product_count__gt=0)
+        queryset = queryset.filter(has_active_product=True)
     elif products == 'no':
-        queryset = queryset.filter(active_product_count=0)
+        queryset = queryset.filter(has_active_product=False)
 
     quick = first_value(params, 'quick')
     queryset = _seller_quick_filter(queryset, quick)
@@ -530,6 +614,7 @@ def list_sellers(params: QueryDict) -> dict:
         queryset = queryset.order_by('name', 'id')
 
     page = paginate(queryset, params)
+    product_counts = _product_counts_for_sellers(page.object_list)
     rows = []
     for seller in page.object_list:
         record = _consent_for_seller(seller)
@@ -559,7 +644,7 @@ def list_sellers(params: QueryDict) -> dict:
                 business_type_label=_seller_type_label(lead),
                 stage_label=stage_label,
                 has_whatsapp=bool(normalize_kz_phone(seller.whatsapp)),
-                products_count=int(seller.active_product_count or 0),
+                products_count=product_counts.get(seller.pk, 0),
                 registered=bool(seller.registered_profile),
             )
         )
@@ -930,7 +1015,7 @@ def get_seller_detail(pk: int) -> dict:
             'source_label': _source_label_for_lead(lead),
             'business_type_label': _seller_type_label(lead),
             'stage_label': stage_label,
-            'products_count': int(seller.active_product_count or 0),
+            'products_count': _product_counts_for_sellers([seller]).get(seller.pk, 0),
             'registered': bool(seller.registered_profile),
         },
         'admin_url': f'/admin/core/seller/{seller.pk}/change/',
