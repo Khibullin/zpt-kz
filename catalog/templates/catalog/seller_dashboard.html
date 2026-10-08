@@ -14,6 +14,9 @@
     {% include 'includes/site_logo.html' %}
 
     <nav class="market-nav">
+      <a href="{% url 'add_product' %}?mode=photo" class="btn-add">
+        📷 Добавить по фото
+      </a>
       <a href="{% url 'add_product' %}" class="btn-add">
         + Добавить товар
       </a>
@@ -129,6 +132,9 @@
         {% else %}
           <h2>Пока товаров нет</h2>
           <p>Добавьте первый товар в свой магазин.</p>
+          <a href="{% url 'add_product' %}?mode=photo" class="btn-add">
+            📷 Добавить по фото
+          </a>
           <a href="{% url 'add_product' %}" class="btn-add">
             + Добавить товар
           </a>
