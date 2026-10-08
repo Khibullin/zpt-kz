@@ -520,6 +520,63 @@ class ControlPanelTests(TestCase):
         self.assertNotContains(receives, base.name)
         self.assertIsNotNone(lead.pk)
 
+    def test_seller_hub_marks_unavailable_whatsapp_and_removes_from_ready_queue(self):
+        self._login_staff()
+        lead = SellerLead.objects.create(
+            name='Unavailable WhatsApp Candidate',
+            whatsapp='77015550302',
+            city='Алматы',
+            source_type='web_search',
+            business_type=SellerLead.BUSINESS_TYPE_NEW_PARTS,
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+            market_scope=SellerLead.MARKET_SCOPE_KZ,
+        )
+        candidate = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77015550302',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+        )
+        SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='whatsapp',
+            value='77015550302',
+            normalized_value='77015550302',
+            confidence=98,
+            extraction_method=SellerLeadEvidence.METHOD_PARSER,
+            observed_at=timezone.now(),
+            is_selected=True,
+        )
+
+        listing = self.client.get(
+            '/control/partners/sellers/?view=candidates&quick=ready'
+        )
+        self.assertContains(listing, 'WhatsApp не работает')
+
+        url = reverse(
+            'control_panel:seller_candidate_whatsapp_unavailable',
+            args=[lead.pk],
+        )
+        self.assertEqual(self.client.get(url).status_code, 405)
+
+        response = self.client.post(
+            url,
+            {'next': '/control/partners/sellers/?view=candidates&quick=ready'},
+        )
+        self.assertEqual(response.status_code, 302)
+
+        lead.refresh_from_db()
+        candidate.refresh_from_db()
+        self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_CLASSIFIED)
+        self.assertEqual(candidate.status, SellerLeadContactCandidate.STATUS_REJECTED)
+
+        ready = self.client.get(
+            '/control/partners/sellers/?view=candidates&quick=ready'
+        )
+        self.assertNotContains(ready, 'Unavailable WhatsApp Candidate')
+
     def test_seller_hub_marks_ready_candidate_invited_only_by_post(self):
         self._login_staff()
         lead = SellerLead.objects.create(
