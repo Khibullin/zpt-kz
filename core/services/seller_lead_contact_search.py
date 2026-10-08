@@ -453,10 +453,15 @@ def build_contact_search_queries(
 ) -> list[str]:
     queries: list[str] = []
     if username:
-        queries.append(f'site:instagram.com/{username} WhatsApp')
+        # Start with exact-handle web queries. With a low query budget these
+        # are more likely to reveal the merchant's own website than a generic
+        # Instagram-only search result.
         queries.append(f'"{username}" WhatsApp')
+        queries.append(f'"{username}" {city} контакты'.strip())
+        queries.append(f'"{username}" официальный сайт')
         queries.append(f'"{username}" wa.me')
         queries.append(f'"{username}" "+7"')
+        queries.append(f'site:instagram.com/{username} WhatsApp')
     if name and city:
         queries.append(f'"{name}" {city} WhatsApp')
     return queries
