@@ -703,3 +703,6 @@ a.cp-ext-link:hover { text-decoration: underline; }
     min-width: 0;
   }
 }
+
+.cp-btn-danger { background:#fff; color:#991b1b; border:1px solid #fecaca; }
+.cp-btn-danger:hover { background:#fef2f2; }
