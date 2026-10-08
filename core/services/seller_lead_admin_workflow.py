@@ -6,7 +6,7 @@ from enum import Enum
 from django.db import transaction
 from django.utils import timezone
 
-from core.models import Seller, SellerLead, SellerLeadContactCandidate, TRANSPORT_CHOICES
+from core.models import Brand, Country, Seller, SellerLead, SellerLeadContactCandidate, TRANSPORT_CHOICES
 
 
 REQUEST_SELLER_TRANSPORT_TYPES = {choice[0] for choice in TRANSPORT_CHOICES}
@@ -26,6 +26,25 @@ class WorkflowActionResult:
     seller_id: int | None = None
     created_seller: bool = False
     linked_existing_seller: bool = False
+
+
+@dataclass(frozen=True)
+class RequestSellerActivationProfile:
+    transport_type: str
+    all_categories: bool = True
+    all_countries: bool = True
+    all_brands: bool = True
+    all_models: bool = True
+    country_names: tuple[str, ...] = ()
+    brand_names: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class RequestSellerActivationResult:
+    lead_id: int
+    seller_id: int
+    created_seller: bool
+    receive_requests: bool
 
 
 def normalize_request_seller_whatsapp(value: str | None) -> str:
@@ -216,6 +235,133 @@ def convert_lead_to_request_seller(lead: SellerLead) -> WorkflowActionResult:
         lead_id=lead.pk,
         seller_id=seller.pk,
         created_seller=True,
+    )
+
+
+def activate_invited_lead_for_requests(
+    lead: SellerLead,
+    profile: RequestSellerActivationProfile,
+) -> RequestSellerActivationResult:
+    """Create/link Seller and enable buyer-request delivery for an invited lead.
+
+    This does not register a marketplace user, does not grant marketing consent,
+    and does not send any WhatsApp message.
+    """
+    if lead.lifecycle_status != SellerLead.LIFECYCLE_INVITED:
+        raise ValueError('SellerLead must be invited before request activation.')
+    if profile.transport_type not in REQUEST_SELLER_TRANSPORT_TYPES:
+        raise ValueError('Invalid request seller transport type.')
+
+    whatsapp = normalize_request_seller_whatsapp(lead.whatsapp)
+    if not whatsapp:
+        raise ValueError('SellerLead has no valid WhatsApp.')
+
+    with transaction.atomic():
+        locked = SellerLead.objects.select_for_update().get(pk=lead.pk)
+        existing = find_request_seller_by_whatsapp(whatsapp)
+
+        if locked.request_seller_id:
+            seller = Seller.objects.select_for_update().get(pk=locked.request_seller_id)
+            if existing is not None and existing.pk != seller.pk:
+                raise ValueError('WhatsApp belongs to another Seller.')
+            created = False
+        elif existing is not None:
+            seller = Seller.objects.select_for_update().get(pk=existing.pk)
+            locked.request_seller = seller
+            created = False
+        else:
+            seller = Seller.objects.create(
+                name=locked.name[:255],
+                whatsapp=whatsapp[:20],
+                city=locked.city[:100],
+                transport_type=profile.transport_type,
+                notes=build_request_seller_notes(locked),
+                receive_requests=False,
+                is_active=True,
+                is_paused=False,
+            )
+            locked.request_seller = seller
+            created = True
+
+        seller.name = locked.name[:255] or seller.name
+        seller.whatsapp = whatsapp[:20]
+        seller.city = locked.city[:100]
+        seller.transport_type = profile.transport_type
+        seller.is_active = True
+        seller.is_paused = False
+        seller.receive_requests = True
+        seller.all_categories = profile.all_categories
+        seller.all_countries = profile.all_countries
+        seller.all_brands = profile.all_brands
+        seller.all_models = profile.all_models
+        seller.category = ''
+        seller.brand = ''
+        seller.model = ''
+        seller.country_fk = None
+        seller.brand_fk = None
+        seller.model_fk = None
+        seller.save(update_fields=[
+            'name',
+            'whatsapp',
+            'city',
+            'transport_type',
+            'is_active',
+            'is_paused',
+            'receive_requests',
+            'all_categories',
+            'all_countries',
+            'all_brands',
+            'all_models',
+            'category',
+            'brand',
+            'model',
+            'country_fk',
+            'brand_fk',
+            'model_fk',
+        ])
+
+        seller.selected_categories.clear()
+        seller.selected_countries.clear()
+        seller.selected_brands.clear()
+        seller.selected_models.clear()
+
+        if profile.country_names:
+            countries = list(Country.objects.filter(name__in=profile.country_names))
+            if len(countries) != len(set(profile.country_names)):
+                found = {item.name for item in countries}
+                missing = sorted(set(profile.country_names) - found)
+                raise ValueError(f'Unknown countries: {", ".join(missing)}')
+            seller.selected_countries.add(*countries)
+
+        if profile.brand_names:
+            brands = list(
+                Brand.objects.filter(
+                    name__in=profile.brand_names,
+                    transport_type=profile.transport_type,
+                )
+            )
+            if len(brands) != len(set(profile.brand_names)):
+                found = {item.name for item in brands}
+                missing = sorted(set(profile.brand_names) - found)
+                raise ValueError(f'Unknown brands: {", ".join(missing)}')
+            seller.selected_brands.add(*brands)
+
+        locked.request_seller_transport_type = profile.transport_type
+        locked.reviewed_at = locked.reviewed_at or timezone.now()
+        _save_lead_workflow_fields(
+            locked,
+            update_fields=[
+                'request_seller',
+                'request_seller_transport_type',
+                'reviewed_at',
+            ],
+        )
+
+    return RequestSellerActivationResult(
+        lead_id=lead.pk,
+        seller_id=seller.pk,
+        created_seller=created,
+        receive_requests=seller.receive_requests,
     )
 
 
