@@ -17,6 +17,7 @@ from .views import (
     commercial_price_preview,
     consignment_request_create,
     seller_register,
+    seller_join,
     seller_login,
     seller_logout,
     seller_dashboard,
@@ -71,6 +72,7 @@ urlpatterns = [
         name='seo_brand_landing',
     ),
 
+    path('seller/join/<str:token>/', seller_join, name='seller_join'),
     path('seller/register/', seller_register, name='seller_register'),
     path('seller/login/', seller_login, name='seller_login'),
     path('seller/logout/', seller_logout, name='seller_logout'),
