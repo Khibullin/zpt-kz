@@ -264,6 +264,7 @@
   data-compatible-url="{% url 'ajax_load_compatible_models' %}"
   data-has-existing-main="{% if product and product.main_image %}1{% else %}0{% endif %}"
   data-existing-extra-count="{% if product %}{{ product.images.count }}{% else %}0{% endif %}"
+  data-autostart-article-recognition="{% if photo_mode %}1{% else %}0{% endif %}"
 ></div>
 <script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
 <script src="{% static 'js/product-assistant-v1.js' %}?v=product_assistant_v6"></script>
