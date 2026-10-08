@@ -29,6 +29,10 @@ STATIC_SITEMAP_PATHS = (
     '/avtozapchasti/jac/',
     '/avtozapchasti/zeekr/',
     '/avtozapchasti/maslyanye-filtry/',
+    '/avtozapchasti/kuzov/',
+    '/avtozapchasti/dvigatel/',
+    '/avtozapchasti/tormoza/',
+    '/avtozapchasti/hodovaya-chast/',
     '/maintenance-kits/',
 )
 
