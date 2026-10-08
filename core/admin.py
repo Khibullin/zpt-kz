@@ -17,7 +17,7 @@ from catalog.instagram_service import (
     mark_stuck_instagram_publication_failed,
     queue_instagram_publication_for_processing,
 )
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 
 from core.services.seller_lead_whatsapp_state import (
     WHATSAPP_STATE_CHOICES,
@@ -52,6 +52,12 @@ from .models import (
     SELLER_LEAD_DISCOVERY_SOURCE_CHOICES,
     Match,
     RequestDispatch,
+    SellerRequestPageEvent,
+    SELLER_REQUEST_PAGE_EVENT_CALL_CLICK,
+    SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL,
+    SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK,
+    SELLER_REQUEST_PAGE_EVENT_PAGE_OPEN,
+    SELLER_REQUEST_PAGE_EVENT_WHATSAPP_CLICK,
     Feedback,
     InstagramPublication,
     BuyerContact,
@@ -92,6 +98,15 @@ from core.buyer_contact_admin_filters import (
     marketing_consent_label,
 )
 from core.services.buyer_contact_utils import mask_phone
+from core.services.seller_request_response import (
+    REACTION_CANNOT_FULFILL,
+    REACTION_CONTACT,
+    REACTION_NO_REACTION,
+    REACTION_OPENED,
+    REACTION_OUT_OF_STOCK,
+    classify_seller_request_reaction,
+    summarize_request_reactions,
+)
 from core.services.buyer_audience_service import (
     audience_criteria_has_filters,
     preview_buyer_audience,
@@ -411,6 +426,7 @@ class RequestAdmin(admin.ModelAdmin):
         'city',
         'phone',
         'status',
+        'seller_reaction_summary',
         'created_at'
     )
 
@@ -434,6 +450,23 @@ class RequestAdmin(admin.ModelAdmin):
     )
 
     readonly_fields = ('buyer_contact', 'idempotency_key')
+
+    def get_queryset(self, request):
+        return (
+            super()
+            .get_queryset(request)
+            .prefetch_related(
+                Prefetch(
+                    'dispatches',
+                    queryset=RequestDispatch.objects.select_related('seller'),
+                ),
+                'seller_page_events',
+            )
+        )
+
+    @admin.display(description='Реакция продавцов')
+    def seller_reaction_summary(self, obj):
+        return summarize_request_reactions(obj).label
 
 
 BUYER_INLINE_AGGREGATE_READONLY = (
@@ -1424,6 +1457,55 @@ class MatchAdmin(admin.ModelAdmin):
     )
 
 
+class SellerRequestReactionFilter(admin.SimpleListFilter):
+    title = 'Реакция продавца'
+    parameter_name = 'seller_reaction'
+
+    def lookups(self, request, model_admin):
+        return (
+            (REACTION_NO_REACTION, 'Без реакции'),
+            (REACTION_OPENED, 'Открыл заявку'),
+            (REACTION_CONTACT, 'Перешёл к контакту'),
+            ('declined', 'Отказ'),
+        )
+
+    def queryset(self, request, queryset):
+        value = self.value()
+        if value == REACTION_NO_REACTION:
+            return queryset.filter(
+                status=RequestDispatch.STATUS_SENT,
+                sr_has_page_open=False,
+                sr_has_whatsapp_click=False,
+                sr_has_call_click=False,
+                sr_has_out_of_stock=False,
+                sr_has_cannot_fulfill=False,
+            )
+        if value == REACTION_OPENED:
+            return queryset.filter(
+                status=RequestDispatch.STATUS_SENT,
+                sr_has_page_open=True,
+                sr_has_whatsapp_click=False,
+                sr_has_call_click=False,
+                sr_has_out_of_stock=False,
+                sr_has_cannot_fulfill=False,
+            )
+        if value == REACTION_CONTACT:
+            return queryset.filter(
+                status=RequestDispatch.STATUS_SENT,
+                sr_has_out_of_stock=False,
+                sr_has_cannot_fulfill=False,
+            ).filter(
+                Q(sr_has_whatsapp_click=True) | Q(sr_has_call_click=True)
+            )
+        if value == 'declined':
+            return queryset.filter(
+                status=RequestDispatch.STATUS_SENT,
+            ).filter(
+                Q(sr_has_out_of_stock=True) | Q(sr_has_cannot_fulfill=True)
+            )
+        return queryset
+
+
 @admin.action(description='Остановить выбранные волны')
 def pause_dispatches(modeladmin, request, queryset):
     updated = queryset.exclude(status=RequestDispatch.STATUS_SENT).update(
@@ -1449,12 +1531,14 @@ class RequestDispatchAdmin(admin.ModelAdmin):
         'wave_number',
         'position_number',
         'status',
+        'seller_reaction',
         'scheduled_at',
         'sent_at',
         'created_at'
     )
 
     list_filter = (
+        SellerRequestReactionFilter,
         'status',
         'wave_number',
         'scheduled_at',
@@ -1472,6 +1556,48 @@ class RequestDispatchAdmin(admin.ModelAdmin):
     readonly_fields = (
         'created_at',
     )
+
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request).select_related('request', 'seller')
+        events = SellerRequestPageEvent.objects.filter(
+            request_id=OuterRef('request_id'),
+            seller_id=OuterRef('seller_id'),
+        )
+        return queryset.annotate(
+            sr_has_page_open=Exists(
+                events.filter(event_type=SELLER_REQUEST_PAGE_EVENT_PAGE_OPEN)
+            ),
+            sr_has_whatsapp_click=Exists(
+                events.filter(event_type=SELLER_REQUEST_PAGE_EVENT_WHATSAPP_CLICK)
+            ),
+            sr_has_call_click=Exists(
+                events.filter(event_type=SELLER_REQUEST_PAGE_EVENT_CALL_CLICK)
+            ),
+            sr_has_out_of_stock=Exists(
+                events.filter(event_type=SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK)
+            ),
+            sr_has_cannot_fulfill=Exists(
+                events.filter(event_type=SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL)
+            ),
+        )
+
+    @admin.display(description='Реакция продавца')
+    def seller_reaction(self, obj):
+        event_types = set()
+        if getattr(obj, 'sr_has_page_open', False):
+            event_types.add(SELLER_REQUEST_PAGE_EVENT_PAGE_OPEN)
+        if getattr(obj, 'sr_has_whatsapp_click', False):
+            event_types.add(SELLER_REQUEST_PAGE_EVENT_WHATSAPP_CLICK)
+        if getattr(obj, 'sr_has_call_click', False):
+            event_types.add(SELLER_REQUEST_PAGE_EVENT_CALL_CLICK)
+        if getattr(obj, 'sr_has_out_of_stock', False):
+            event_types.add(SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK)
+        if getattr(obj, 'sr_has_cannot_fulfill', False):
+            event_types.add(SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL)
+        return classify_seller_request_reaction(
+            dispatch_status=obj.status,
+            event_types=event_types,
+        ).label
 
     actions = (
         pause_dispatches,
