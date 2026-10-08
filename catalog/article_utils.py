@@ -11,6 +11,7 @@ from core.services.home_parts_query import looks_like_exact_article
 
 _NON_ALNUM = re.compile(r'[^A-Za-z0-9]+')
 ARTICLE_STRIP_CHARS = ('-', ' ', '/', '.', '_')
+_OEM_TOKEN_SPLIT = re.compile(r'[\n\r;,•|]+')
 
 
 def normalize_article(value: str | None) -> str:
@@ -36,6 +37,29 @@ def compact_article_expression(field_name: str = 'article'):
     return expr
 
 
+def _exact_oem_reference_product_ids(products, compact: str) -> list[int]:
+    """Return product ids whose OEM/cross-reference token exactly matches compact.
+
+    Candidate rows are narrowed by a short raw prefix, then verified in Python
+    with the same punctuation-insensitive normalization used for Product.article.
+    """
+    if not compact:
+        return []
+
+    prefix = compact[:3]
+    candidates = products.exclude(oem_cross_references='').filter(
+        oem_cross_references__icontains=prefix,
+    ).values_list('pk', 'oem_cross_references')
+
+    matched: list[int] = []
+    for product_id, raw in candidates:
+        for token in _OEM_TOKEN_SPLIT.split(str(raw or '')):
+            if normalize_article(token) == compact:
+                matched.append(product_id)
+                break
+    return matched
+
+
 def filter_products_by_public_query(products, query):
     """Public catalog search.
 
@@ -49,9 +73,18 @@ def filter_products_by_public_query(products, query):
         compact = normalize_article(text)
         if not compact:
             return products.none()
-        return products.exclude(article='').annotate(
-            article_compact=compact_article_expression(),
-        ).filter(article_compact=compact)
+
+        article_ids = list(
+            products.exclude(article='').annotate(
+                article_compact=compact_article_expression(),
+            ).filter(article_compact=compact).values_list('pk', flat=True)
+        )
+        oem_ids = _exact_oem_reference_product_ids(products, compact)
+        matched_ids = set(article_ids)
+        matched_ids.update(oem_ids)
+        if not matched_ids:
+            return products.none()
+        return products.filter(pk__in=matched_ids)
     return products.filter(
         Q(title__icontains=text)
         | Q(article__icontains=text)
