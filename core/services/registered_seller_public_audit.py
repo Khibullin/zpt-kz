@@ -90,29 +90,30 @@ def _state_table_exists() -> bool:
 def _claim_seller_ids(batch_size: int) -> list[int]:
     with transaction.atomic():
         with connection.cursor() as cursor:
+            lock_clause = ' FOR UPDATE SKIP LOCKED' if connection.vendor == 'postgresql' else ''
             cursor.execute(
                 f"""
                 SELECT seller_id
                 FROM {STATE_TABLE}
                 WHERE status = 'pending'
                 ORDER BY seller_id
-                FOR UPDATE SKIP LOCKED
-                LIMIT %s
+                LIMIT %s{lock_clause}
                 """,
                 [batch_size],
             )
             ids = [row[0] for row in cursor.fetchall()]
             if ids:
+                placeholders = ','.join(['%s'] * len(ids))
                 cursor.execute(
                     f"""
                     UPDATE {STATE_TABLE}
                     SET status = 'running',
                         attempts = attempts + 1,
-                        started_at = COALESCE(started_at, NOW()),
-                        updated_at = NOW()
-                    WHERE seller_id = ANY(%s)
+                        started_at = COALESCE(started_at, CURRENT_TIMESTAMP),
+                        updated_at = CURRENT_TIMESTAMP
+                    WHERE seller_id IN ({placeholders})
                     """,
-                    [ids],
+                    ids,
                 )
             return ids
 
@@ -123,10 +124,10 @@ def _finish_state(seller_id: int, *, payload: dict, error: str = '') -> None:
             f"""
             UPDATE {STATE_TABLE}
             SET status = 'done',
-                result = %s::jsonb,
+                result = %s,
                 error = %s,
-                finished_at = NOW(),
-                updated_at = NOW()
+                finished_at = CURRENT_TIMESTAMP,
+                updated_at = CURRENT_TIMESTAMP
             WHERE seller_id = %s
             """,
             [json.dumps(payload, ensure_ascii=False), error[:2000], seller_id],
