@@ -1151,6 +1151,7 @@ def add_product(request):
         'seller': seller,
         'page_title': 'Добавить товар',
         'submit_text': 'Сохранить товар',
+        'photo_mode': request.method == 'GET' and request.GET.get('mode') == 'photo',
     })
 
 
