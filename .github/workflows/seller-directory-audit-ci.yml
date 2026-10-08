@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - feature/seller-directory-audit-20261008
+  pull_request:
+    branches:
+      - main
 
 jobs:
   test:
