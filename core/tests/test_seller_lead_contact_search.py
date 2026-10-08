@@ -182,7 +182,7 @@ class EnrichSellerLeadContactsTests(TestCase):
     def test_dry_run_does_not_save(self):
         lead = self._lead()
         client = self._mock_client({
-            'site:instagram.com/omega_auto_parts WhatsApp': [
+            '"omega_auto_parts" WhatsApp': [
                 {
                     'title': 'Omega WhatsApp',
                     'url': 'https://wa.me/77011234567',
@@ -210,7 +210,7 @@ class EnrichSellerLeadContactsTests(TestCase):
     def test_save_high_and_medium_only(self):
         lead = self._lead()
         client = self._mock_client({
-            'site:instagram.com/omega_auto_parts WhatsApp': [
+            '"omega_auto_parts" WhatsApp': [
                 {
                     'title': 'Omega WhatsApp',
                     'url': 'https://wa.me/77011234567',
@@ -240,7 +240,7 @@ class EnrichSellerLeadContactsTests(TestCase):
     def test_conflict_multiple_numbers(self):
         lead = self._lead()
         client = self._mock_client({
-            'site:instagram.com/omega_auto_parts WhatsApp': [
+            '"omega_auto_parts" WhatsApp': [
                 {
                     'title': 'Omega WhatsApp',
                     'url': 'https://wa.me/77011234567',
@@ -274,7 +274,7 @@ class EnrichSellerLeadContactsTests(TestCase):
         SellerLead.objects.filter(instagram_username='existing_shop').update(whatsapp='77011234567')
         lead = self._lead('omega_auto_parts')
         client = self._mock_client({
-            'site:instagram.com/omega_auto_parts WhatsApp': [
+            '"omega_auto_parts" WhatsApp': [
                 {
                     'title': 'Omega WhatsApp',
                     'url': 'https://wa.me/77011234567',
@@ -306,7 +306,7 @@ class EnrichSellerLeadContactsTests(TestCase):
         )
         lead.refresh_from_db()
         client = self._mock_client({
-            'site:instagram.com/omega_auto_parts WhatsApp': [
+            '"omega_auto_parts" WhatsApp': [
                 {
                     'title': 'Omega WhatsApp',
                     'url': 'https://wa.me/77019876543',
@@ -338,7 +338,7 @@ class EnrichSellerLeadContactsTests(TestCase):
         Seller.objects.create(name='Registered', whatsapp='77011234567')
         lead = self._lead('omega_auto_parts')
         client = self._mock_client({
-            'site:instagram.com/omega_auto_parts WhatsApp': [
+            '"omega_auto_parts" WhatsApp': [
                 {
                     'title': 'Omega WhatsApp',
                     'url': 'https://wa.me/77011234567',
@@ -361,7 +361,7 @@ class EnrichSellerLeadContactsTests(TestCase):
             name='Omega Auto Parts',
             city='Алматы',
         )
-        self.assertEqual(queries[0], 'site:instagram.com/omega_auto_parts WhatsApp')
+        self.assertEqual(queries[0], '"omega_auto_parts" WhatsApp')
         self.assertIn('"omega_auto_parts" WhatsApp', queries)
 
 
