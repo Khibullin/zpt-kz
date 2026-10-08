@@ -34,6 +34,7 @@ from .views import (
     load_brands,
     load_models,
     load_compatible_models,
+    product_article_recognition,
     product_assistant,
     product_image_search,
     faq_view,
@@ -96,6 +97,11 @@ urlpatterns = [
         'ajax/load-compatible-models/',
         load_compatible_models,
         name='ajax_load_compatible_models'
+    ),
+    path(
+        'ajax/product-article-recognition/',
+        product_article_recognition,
+        name='ajax_product_article_recognition',
     ),
     path(
         'ajax/product-assistant/',
