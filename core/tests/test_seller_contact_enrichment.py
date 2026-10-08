@@ -27,6 +27,7 @@ from core.management.commands.enrich_seller_contacts import _observation_source_
 from core.services.seller_contact_enrichment import (
     EnrichmentObservation,
     SellerContactEnrichmentError,
+    _brave_queries,
     _store_whatsapp,
     enrich_seller_lead_contacts,
 )
@@ -151,6 +152,24 @@ def _route(routes):
         return payload
 
     return calls, urlopen
+
+
+class BraveQueryPriorityTests(TestCase):
+    def test_exact_instagram_handle_queries_run_before_generic_name_queries(self):
+        lead = SellerLead(
+            name='Автозапчасти Hyundai/Kia (@almaty_parts.kz)',
+            instagram_username='almaty_parts.kz',
+            city='Алматы',
+        )
+
+        queries = _brave_queries(lead)
+
+        self.assertEqual(queries[0], '"almaty_parts.kz" WhatsApp')
+        self.assertEqual(queries[1], '"almaty_parts.kz" Алматы контакты')
+        self.assertEqual(queries[2], '"almaty_parts.kz" официальный сайт')
+        self.assertTrue(
+            all('Автозапчасти Hyundai/Kia' not in query for query in queries[:3])
+        )
 
 
 class WebsiteExtractionTests(TestCase):
