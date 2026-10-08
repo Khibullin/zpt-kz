@@ -175,6 +175,7 @@ def mark_seller_lead_whatsapp_unavailable(lead: SellerLead) -> bool:
         SellerLead.LIFECYCLE_DUPLICATE,
         SellerLead.LIFECYCLE_REJECTED,
         SellerLead.LIFECYCLE_CLOSED,
+        SellerLead.LIFECYCLE_INVITED,
         SellerLead.LIFECYCLE_CLAIMED,
         SellerLead.LIFECYCLE_VERIFIED,
         SellerLead.LIFECYCLE_ACTIVE,
