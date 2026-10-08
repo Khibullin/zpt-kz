@@ -43,13 +43,15 @@ from core.services.seller_lead_search import (
     SellerLeadSearchError,
     get_seller_search_settings,
 )
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES
 from core.services.seller_lead_search_rotation import (
     PipelineSearchConfigError,
     SEARCH_ROTATION_PROFILES,
     get_rotation_city,
+    get_rotation_city_batch,
     resolve_pipeline_search,
 )
-from core.services.seller_discovery_providers.catalog import KZ_DISCOVERY_CITY_NAMES
+from core.services.seller_discovery_providers.catalog import KZ_DISCOVERY_CITIES
 
 
 class Command(BaseCommand):
@@ -229,9 +231,10 @@ class Command(BaseCommand):
             return
         if not bool(getattr(settings, 'SELLER_LEAD_CRON_ROTATE_CITY', True)):
             return
-        city, index = get_rotation_city()
-        options['city'] = city
+        cities, index = get_rotation_city_batch()
+        options['city'] = cities[0]
         options['_city_rotation_index'] = index
+        options['_city_rotation_batch'] = cities
 
     def _configured_broad_discovery_providers(self):
         if not bool(getattr(settings, 'SELLER_DISCOVERY_ENABLED', False)):
@@ -242,12 +245,14 @@ class Command(BaseCommand):
             and bool((getattr(settings, 'BRAVE_SEARCH_API_KEY', '') or '').strip())
         ):
             providers.append('brave')
-        if (
-            bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_ENABLED', False))
-            and bool((getattr(settings, 'TWO_GIS_API_KEY', '') or '').strip())
-        ):
-            providers.append('two_gis')
         return providers
+
+    def _two_gis_available(self):
+        return (
+            bool(getattr(settings, 'SELLER_DISCOVERY_ENABLED', False))
+            and bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_ENABLED', False))
+            and bool((getattr(settings, 'TWO_GIS_API_KEY', '') or '').strip())
+        )
 
     def _run_cron_growth(self, options, resolved_search):
         if options['trigger'] != SellerLeadPipelineRun.TRIGGER_CRON:
@@ -255,16 +260,19 @@ class Command(BaseCommand):
 
         self.stdout.write('KZ SELLER GROWTH:')
 
+        cities = tuple(options.get('_city_rotation_batch') or (options['city'],))
+        self.stdout.write(f"  city batch: {', '.join(cities)}")
+
         providers = self._configured_broad_discovery_providers()
         if providers:
             try:
                 discovery = run_seller_discovery(
                     provider_names=providers,
-                    cities=[options['city']],
+                    cities=list(cities),
                     directions=[resolved_search.search_term],
                     limit=min(int(options['search_limit'] or 10), 10),
-                    max_hits=20,
-                    max_queries=len(providers),
+                    max_hits=50,
+                    max_queries=len(cities) * len(providers),
                     max_pages=1,
                     dry_run=False,
                 )
@@ -284,6 +292,31 @@ class Command(BaseCommand):
                 ))
         else:
             self.stdout.write('  broad discovery: disabled by current provider settings')
+
+        if self._two_gis_available():
+            geo_cities = [city for city in cities if city in KZ_DISCOVERY_CITIES]
+            if geo_cities:
+                try:
+                    discovery_2gis = run_seller_discovery(
+                        provider_names=['two_gis'],
+                        cities=geo_cities,
+                        directions=[resolved_search.search_term],
+                        limit=min(int(options['search_limit'] or 10), 10),
+                        max_hits=50,
+                        max_queries=len(geo_cities),
+                        max_pages=1,
+                        dry_run=False,
+                    )
+                    self.stdout.write(
+                        '  2GIS discovery: '
+                        f'cities={len(geo_cities)} created={discovery_2gis.created} '
+                        f'updated={discovery_2gis.updated} hits={discovery_2gis.hits_received} '
+                        f'errors={discovery_2gis.errors}'
+                    )
+                except Exception as exc:
+                    self.stdout.write(self.style.WARNING(
+                        f'  2GIS discovery error: {type(exc).__name__}: {exc}'
+                    ))
 
         classified = 0
         try:
@@ -365,8 +398,11 @@ class Command(BaseCommand):
         self.stdout.write(f"  city: {options['city']}")
         if options.get('_city_rotation_index') is not None:
             self.stdout.write(
-                f"  city rotation: {options['_city_rotation_index'] + 1}/{len(KZ_DISCOVERY_CITY_NAMES)}"
+                f"  city rotation start: {options['_city_rotation_index'] + 1}/{len(KAZAKHSTAN_CITIES)}"
             )
+            batch = options.get('_city_rotation_batch') or ()
+            if batch:
+                self.stdout.write(f"  city batch: {', '.join(batch)}")
         self.stdout.write(f"  search term: {resolved_search.search_term}")
         self.stdout.write(f"  stored category: {resolved_search.category}")
         if resolved_search.rotation_enabled:
