@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.management.base import BaseCommand, CommandError
 
 from core.models import SellerLeadPipelineRun
@@ -20,6 +21,23 @@ from core.services.seller_lead_pipeline_guard import (
     PipelineRunLock,
     validate_cooldown_minutes,
 )
+from core.services.seller_contact_enrichment import (
+    SellerContactEnrichmentError,
+    enrich_seller_lead_contacts,
+)
+from core.services.seller_discovery_runner import (
+    SellerDiscoveryRunError,
+    run_seller_discovery,
+)
+from core.services.seller_lead_classification import classify_seller_lead
+from core.services.seller_lead_classification_selection import (
+    select_leads_needing_classification,
+)
+from core.services.seller_lead_enrichment_schedule import (
+    apply_enrichment_schedule,
+    claim_due_seller_leads,
+    classify_enrichment_result,
+)
 from core.services.seller_lead_search import (
     SellerLeadSearchConfigError,
     SellerLeadSearchError,
@@ -28,8 +46,10 @@ from core.services.seller_lead_search import (
 from core.services.seller_lead_search_rotation import (
     PipelineSearchConfigError,
     SEARCH_ROTATION_PROFILES,
+    get_rotation_city,
     resolve_pipeline_search,
 )
+from core.services.seller_discovery_providers.catalog import KZ_DISCOVERY_CITY_NAMES
 
 
 class Command(BaseCommand):
@@ -142,6 +162,8 @@ class Command(BaseCommand):
         if options['trigger'] not in valid_triggers:
             raise CommandError(f"Недопустимый trigger: {options['trigger']}")
 
+        self._apply_cron_city_rotation(options)
+
         if dry_run:
             self._write_pipeline_run_header(options, resolved_search)
             self._run_dry_pipeline(options, settings_data, resolved_search)
@@ -197,7 +219,115 @@ class Command(BaseCommand):
 
         self._write_pipeline_stats(managed.stats, resolved_search.search_term)
         self._write_live_footer(managed.run)
+        self._run_cron_growth(options, resolved_search)
         self.stdout.write(self.style.SUCCESS('Pipeline завершён.'))
+
+    def _apply_cron_city_rotation(self, options):
+        if options['trigger'] != SellerLeadPipelineRun.TRIGGER_CRON:
+            return
+        if not options.get('rotate_search_term'):
+            return
+        if not bool(getattr(settings, 'SELLER_LEAD_CRON_ROTATE_CITY', True)):
+            return
+        city, index = get_rotation_city()
+        options['city'] = city
+        options['_city_rotation_index'] = index
+
+    def _configured_broad_discovery_providers(self):
+        if not bool(getattr(settings, 'SELLER_DISCOVERY_ENABLED', False)):
+            return []
+        providers = []
+        if (
+            bool(getattr(settings, 'SELLER_DISCOVERY_BRAVE_WEB_ENABLED', False))
+            and bool((getattr(settings, 'BRAVE_SEARCH_API_KEY', '') or '').strip())
+        ):
+            providers.append('brave')
+        if (
+            bool(getattr(settings, 'SELLER_DISCOVERY_2GIS_ENABLED', False))
+            and bool((getattr(settings, 'TWO_GIS_API_KEY', '') or '').strip())
+        ):
+            providers.append('two_gis')
+        return providers
+
+    def _run_cron_growth(self, options, resolved_search):
+        if options['trigger'] != SellerLeadPipelineRun.TRIGGER_CRON:
+            return
+
+        self.stdout.write('KZ SELLER GROWTH:')
+
+        providers = self._configured_broad_discovery_providers()
+        if providers:
+            try:
+                discovery = run_seller_discovery(
+                    provider_names=providers,
+                    cities=[options['city']],
+                    directions=[resolved_search.search_term],
+                    limit=min(int(options['search_limit'] or 10), 10),
+                    max_hits=20,
+                    max_queries=len(providers),
+                    max_pages=1,
+                    dry_run=False,
+                )
+                self.stdout.write(
+                    '  broad discovery: '
+                    f"providers={','.join(providers)} "
+                    f'created={discovery.created} updated={discovery.updated} '
+                    f'hits={discovery.hits_received} errors={discovery.errors}'
+                )
+            except SellerDiscoveryRunError as exc:
+                self.stdout.write(self.style.WARNING(
+                    f'  broad discovery skipped: {exc}'
+                ))
+            except Exception as exc:
+                self.stdout.write(self.style.WARNING(
+                    f'  broad discovery error: {type(exc).__name__}: {exc}'
+                ))
+        else:
+            self.stdout.write('  broad discovery: disabled by current provider settings')
+
+        classified = 0
+        try:
+            for lead in select_leads_needing_classification(limit=10):
+                classify_seller_lead(lead, promote_lifecycle=True)
+                classified += 1
+        except Exception as exc:
+            self.stdout.write(self.style.WARNING(
+                f'  classification batch error: {type(exc).__name__}: {exc}'
+            ))
+        self.stdout.write(f'  reclassified={classified}')
+
+        leads = claim_due_seller_leads(limit=5)
+        self.stdout.write(f'  due enrichment claimed={len(leads)}')
+        for lead in leads:
+            try:
+                result = enrich_seller_lead_contacts(
+                    lead,
+                    sources=('all',),
+                    dry_run=False,
+                    stop_on_verified_whatsapp=True,
+                )
+                code = classify_enrichment_result(result)
+            except SellerContactEnrichmentError as exc:
+                code = 'error'
+                self.stdout.write(self.style.WARNING(
+                    f'    #{lead.pk} enrichment controlled error: {exc}'
+                ))
+            except Exception as exc:
+                code = 'error'
+                self.stdout.write(self.style.WARNING(
+                    f'    #{lead.pk} enrichment error: {type(exc).__name__}: {exc}'
+                ))
+
+            apply_enrichment_schedule(lead, code)
+            lead.save(update_fields=[
+                'last_enrichment_result',
+                'enrichment_attempt_count',
+                'next_enrichment_at',
+                'updated_at',
+            ])
+            self.stdout.write(
+                f'    #{lead.pk} {lead.name[:60]} -> {code}'
+            )
 
     def _run_dry_pipeline(self, options, settings_data, resolved_search):
         try:
@@ -233,6 +363,10 @@ class Command(BaseCommand):
         self.stdout.write('PIPELINE RUN:')
         self.stdout.write(f"  trigger: {options['trigger']}")
         self.stdout.write(f"  city: {options['city']}")
+        if options.get('_city_rotation_index') is not None:
+            self.stdout.write(
+                f"  city rotation: {options['_city_rotation_index'] + 1}/{len(KZ_DISCOVERY_CITY_NAMES)}"
+            )
         self.stdout.write(f"  search term: {resolved_search.search_term}")
         self.stdout.write(f"  stored category: {resolved_search.category}")
         if resolved_search.rotation_enabled:
