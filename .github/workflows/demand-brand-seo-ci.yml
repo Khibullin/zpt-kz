@@ -11,7 +11,7 @@ jobs:
     env:
       SECRET_KEY: ci-secret-key-for-tests-only
       DEBUG: 'True'
-      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver,zpt-kz-backend.onrender.com
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
