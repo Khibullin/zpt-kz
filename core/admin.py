@@ -28,6 +28,7 @@ from core.services.seller_lead_whatsapp_state import (
 )
 from core.services.seller_lead_marketplace_onboarding import (
     build_marketplace_invite_whatsapp_url,
+    mark_seller_lead_invited,
 )
 
 from .models import (
@@ -2275,6 +2276,27 @@ def mark_seller_leads_ready_to_invite(modeladmin, request, queryset):
     messages.success(request, f'Готовы к приглашению: {updated}. Сообщения не отправлялись.')
 
 
+@admin.action(description='Отметить как приглашённых в маркетплейс')
+def mark_seller_leads_invited(modeladmin, request, queryset):
+    invited = 0
+    skipped = 0
+    for lead in queryset:
+        if mark_seller_lead_invited(lead):
+            invited += 1
+        else:
+            skipped += 1
+    if invited:
+        messages.success(request, f'Отмечены как приглашённые: {invited}.')
+    if skipped:
+        messages.warning(
+            request,
+            (
+                f'Пропущено: {skipped}. Действие доступно только для '
+                'ready_to_invite с корректным WhatsApp.'
+            ),
+        )
+
+
 @admin.action(description='Отметить lifecycle как отклонённый')
 def mark_seller_leads_lifecycle_rejected(modeladmin, request, queryset):
     updated = queryset.update(lifecycle_status=SellerLead.LIFECYCLE_REJECTED)
@@ -2427,6 +2449,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
         refresh_seller_lead_identities,
         find_seller_lead_duplicates,
         mark_seller_leads_ready_to_invite,
+        mark_seller_leads_invited,
         mark_seller_leads_lifecycle_rejected,
         convert_seller_leads_to_request_sellers,
         mark_seller_leads_marketplace_planned,
