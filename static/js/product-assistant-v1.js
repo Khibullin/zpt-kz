@@ -44,6 +44,18 @@
     }).then(parseJsonResponse);
   }
 
+  function postFormData(url, formData) {
+    return fetch(url, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCsrfToken(),
+        Accept: 'application/json',
+      },
+      credentials: 'same-origin',
+      body: formData,
+    }).then(parseJsonResponse);
+  }
+
   function setHint(el, text, isError) {
     if (!el) {
       return;
@@ -371,6 +383,82 @@
       categorySelect.value = String(fields.category_id);
     }
     return applyVehicle(fields, urls);
+  }
+
+  function bindArticleRecognition(root) {
+    const button = document.getElementById('js-article-recognition-btn');
+    const fileInput = document.getElementById('js-article-recognition-file');
+    const status = document.getElementById('js-article-recognition-status');
+    const articleInput = document.getElementById('id_article');
+    const assistantButton = document.getElementById('js-product-assistant-btn');
+    const recognitionUrl = root.getAttribute('data-article-recognition-url');
+
+    if (!button || !fileInput || !recognitionUrl) {
+      return;
+    }
+
+    button.addEventListener('click', function () {
+      fileInput.value = '';
+      fileInput.click();
+    });
+
+    fileInput.addEventListener('change', function () {
+      const file = fileInput.files && fileInput.files[0];
+      if (!file) {
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('image', file);
+      button.disabled = true;
+      setHint(status, 'Распознаём артикул на фото…', false);
+
+      postFormData(recognitionUrl, formData)
+        .then(function (data) {
+          if (!data || !data.ok) {
+            const candidates = (data && data.candidates) || [];
+            const suffix = candidates.length
+              ? ' Возможные варианты: ' + candidates.join(', ') + '.'
+              : '';
+            setHint(
+              status,
+              ((data && data.error) || 'Не удалось распознать артикул.') + suffix,
+              true
+            );
+            return;
+          }
+
+          const article = String(data.article || '').trim();
+          if (!article) {
+            setHint(status, 'Артикул не распознан. Введите его вручную.', true);
+            return;
+          }
+
+          if (articleInput) {
+            articleInput.value = article;
+            articleInput.dispatchEvent(new Event('input', { bubbles: true }));
+            articleInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          setHint(
+            status,
+            'Распознан артикул: ' + article + '. Запускаем заполнение карточки…',
+            false
+          );
+          if (assistantButton) {
+            assistantButton.click();
+          }
+        })
+        .catch(function (error) {
+          setHint(
+            status,
+            error.message || 'Не удалось распознать артикул. Введите его вручную.',
+            true
+          );
+        })
+        .then(function () {
+          button.disabled = false;
+        });
+    });
   }
 
   function bindAssistant(root) {
@@ -742,6 +830,7 @@
     if (!root) {
       return;
     }
+    bindArticleRecognition(root);
     bindAssistant(root);
     bindPhotos(root);
   });
