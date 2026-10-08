@@ -20,10 +20,12 @@ from core.services.seller_lead_pipeline_guard import (
     release_pipeline_lock,
 )
 from core.services.seller_lead_search import build_search_queries
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES
 from core.services.seller_lead_search_rotation import (
     ROTATION_EPOCH,
     SEARCH_ROTATION_PROFILES,
     get_rotation_city,
+    get_rotation_city_batch,
     get_rotation_profile,
     resolve_pipeline_search,
 )
@@ -75,10 +77,28 @@ class SearchRotationProfileSelectionTests(SimpleTestCase):
         self.assertEqual(city, 'Алматы')
         self.assertEqual(index, 0)
 
-    def test_city_rotation_moves_to_next_city(self):
+    def test_city_rotation_moves_to_next_five_city_batch(self):
         city, index = get_rotation_city(ROTATION_EPOCH + timedelta(days=1))
-        self.assertEqual(city, 'Астана')
-        self.assertEqual(index, 1)
+        self.assertEqual(city, KAZAKHSTAN_CITIES[5])
+        self.assertEqual(index, 5)
+
+    def test_city_registry_contains_all_ninety_unique_cities(self):
+        self.assertEqual(len(KAZAKHSTAN_CITIES), 90)
+        self.assertEqual(len(set(KAZAKHSTAN_CITIES)), 90)
+        self.assertIn('Абай', KAZAKHSTAN_CITIES)
+        self.assertIn('Эмба', KAZAKHSTAN_CITIES)
+
+    def test_eighteen_daily_batches_cover_all_cities(self):
+        covered = []
+        for day in range(18):
+            batch, _start = get_rotation_city_batch(
+                ROTATION_EPOCH + timedelta(days=day)
+            )
+            self.assertEqual(len(batch), 5)
+            covered.extend(batch)
+
+        self.assertEqual(len(covered), 90)
+        self.assertEqual(set(covered), set(KAZAKHSTAN_CITIES))
 
     def test_city_rotation_is_deterministic(self):
         target = date(2026, 8, 4)
@@ -221,8 +241,8 @@ class SearchRotationPipelineIntegrationTests(TestCase):
         from core.services.seller_lead_pipeline import SellerLeadPipelineStats
 
         with patch(
-            'core.management.commands.run_seller_lead_pipeline.get_rotation_city',
-            return_value=('Астана', 1),
+            'core.management.commands.run_seller_lead_pipeline.get_rotation_city_batch',
+            return_value=(('Астана', 'Шымкент', 'Караганда', 'Актобе', 'Тараз'), 1),
         ), patch(
             'core.management.commands.run_seller_lead_pipeline.run_seller_lead_pipeline',
             return_value=SellerLeadPipelineStats(dry_run=True),
@@ -239,7 +259,8 @@ class SearchRotationPipelineIntegrationTests(TestCase):
 
         self.assertEqual(pipeline_mock.call_args.kwargs['city'], 'Астана')
         self.assertIn('city: Астана', out.getvalue())
-        self.assertIn('city rotation: 2/', out.getvalue())
+        self.assertIn('city rotation start: 2/90', out.getvalue())
+        self.assertIn('city batch: Астана, Шымкент, Караганда, Актобе, Тараз', out.getvalue())
 
     @override_settings(SELLER_LEAD_CRON_ROTATE_CITY=True)
     def test_manual_command_does_not_rotate_city(self):
@@ -247,8 +268,8 @@ class SearchRotationPipelineIntegrationTests(TestCase):
         from core.services.seller_lead_pipeline import SellerLeadPipelineStats
 
         with patch(
-            'core.management.commands.run_seller_lead_pipeline.get_rotation_city',
-            return_value=('Астана', 1),
+            'core.management.commands.run_seller_lead_pipeline.get_rotation_city_batch',
+            return_value=(('Астана', 'Шымкент', 'Караганда', 'Актобе', 'Тараз'), 1),
         ) as city_mock, patch(
             'core.management.commands.run_seller_lead_pipeline.run_seller_lead_pipeline',
             return_value=SellerLeadPipelineStats(dry_run=True),
