@@ -87,8 +87,6 @@ from .wholesale import (
     wholesale_vat_price_suffix,
 )
 
-
-logger = logging.getLogger(__name__)
 from .wholesale_export import XLSX_CONTENT_TYPE, wholesale_price_xlsx_bytes
 from orders.attribution import capture_utm_from_request
 from orders.wholesale_analytics import (
@@ -97,6 +95,9 @@ from orders.wholesale_analytics import (
     EVENT_STOREFRONT_VIEW,
     track_wholesale_event,
 )
+
+
+logger = logging.getLogger(__name__)
 
 FEEDBACK_NOTIFY_EMAIL = 'rkhaibullin@gmail.com'
 
