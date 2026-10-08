@@ -4,6 +4,7 @@ from django.views.generic import RedirectView, TemplateView
 
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect, product_whatsapp_redirect
+from core.ops_seller_recheck import seller_whatsapp_recheck_batch
 from core.help_views import platform_help_page
 from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static
 from core.seller_whatsapp_consent_views import (
@@ -48,6 +49,12 @@ urlpatterns = [
     path(
         'internal/kaspi/competitor-collector/',
         include('repricer.collector_urls'),
+    ),
+
+    path(
+        'internal/ops/seller-whatsapp-recheck/',
+        seller_whatsapp_recheck_batch,
+        name='seller_whatsapp_recheck_batch',
     ),
 
     path('marketing/', include('marketing.urls')),
