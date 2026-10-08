@@ -5,7 +5,7 @@ from datetime import date
 
 from django.utils import timezone
 
-from core.services.seller_discovery_providers.catalog import KZ_DISCOVERY_CITY_NAMES
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES
 
 ROTATION_EPOCH = date(2026, 7, 15)
 
@@ -84,14 +84,34 @@ class PipelineSearchConfigError(ValueError):
     """Ошибка конфигурации search_term / category pipeline."""
 
 
+DEFAULT_CITY_ROTATION_BATCH_SIZE = 5
+
+
+def get_rotation_city_batch(
+    target_date: date | None = None,
+    *,
+    batch_size: int = DEFAULT_CITY_ROTATION_BATCH_SIZE,
+) -> tuple[tuple[str, ...], int]:
+    """Return a stable daily batch covering every Kazakhstan city in rotation."""
+    if batch_size < 1:
+        raise ValueError('batch_size must be positive')
+    current_date = target_date or timezone.localdate()
+    day_offset = (current_date - ROTATION_EPOCH).days
+    total = len(KAZAKHSTAN_CITIES)
+    start = (day_offset * batch_size) % total
+    cities = tuple(
+        KAZAKHSTAN_CITIES[(start + offset) % total]
+        for offset in range(min(batch_size, total))
+    )
+    return cities, start
+
+
 def get_rotation_city(
     target_date: date | None = None,
 ) -> tuple[str, int]:
-    """Return one Kazakhstan discovery city for the local day."""
-    current_date = target_date or timezone.localdate()
-    day_offset = (current_date - ROTATION_EPOCH).days
-    index = day_offset % len(KZ_DISCOVERY_CITY_NAMES)
-    return KZ_DISCOVERY_CITY_NAMES[index], index
+    """Compatibility helper returning the first city of today's batch."""
+    cities, start = get_rotation_city_batch(target_date)
+    return cities[0], start
 
 
 def get_rotation_profile(
