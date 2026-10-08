@@ -136,6 +136,7 @@ class SellerLeadRow:
     linked_seller_id: int | None
     can_invite: bool
     can_mark_invited: bool
+    can_mark_whatsapp_unavailable: bool
     admin_url: str
 
 
@@ -871,11 +872,19 @@ def list_seller_candidates(params: QueryDict) -> dict:
                 lead.lifecycle_status,
                 lead.lifecycle_status,
             )
+        has_valid_whatsapp = bool(normalize_kz_phone(lead.whatsapp))
         can_invite = bool(
             lead.lifecycle_status == SellerLead.LIFECYCLE_READY_TO_INVITE
-            and normalize_kz_phone(lead.whatsapp)
+            and has_valid_whatsapp
         )
         can_mark_invited = can_invite
+        can_mark_whatsapp_unavailable = bool(
+            has_valid_whatsapp
+            and lead.lifecycle_status in {
+                SellerLead.LIFECYCLE_READY_TO_INVITE,
+                SellerLead.LIFECYCLE_INVITED,
+            }
+        )
 
         rows.append(
             SellerLeadRow(
@@ -894,6 +903,7 @@ def list_seller_candidates(params: QueryDict) -> dict:
                 linked_seller_id=lead.request_seller_id,
                 can_invite=can_invite,
                 can_mark_invited=can_mark_invited,
+                can_mark_whatsapp_unavailable=can_mark_whatsapp_unavailable,
                 admin_url=f'/admin/core/sellerlead/{lead.pk}/change/',
             )
         )
