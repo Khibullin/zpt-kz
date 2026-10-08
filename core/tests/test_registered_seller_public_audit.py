@@ -42,10 +42,10 @@ class RegisteredSellerPublicAuditTests(TestCase):
                 f"""
                 INSERT INTO {STATE_TABLE}
                     (seller_id, status, attempts, result, error, updated_at)
-                VALUES (%s, 'pending', 0, '{{}}'::jsonb, '', NOW())
+                VALUES (%s, 'pending', 0, '{{}}', '', NOW())
                 ON CONFLICT (seller_id) DO UPDATE
                 SET status='pending', attempts=0, result='{{}}'::jsonb,
-                    error='', started_at=NULL, finished_at=NULL, updated_at=NOW()
+                    error='', started_at=NULL, finished_at=NULL, updated_at=CURRENT_TIMESTAMP
                 """,
                 [seller_id],
             )
