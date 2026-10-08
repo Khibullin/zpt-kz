@@ -9,6 +9,7 @@ from catalog.wholesale import format_wholesale_terms_admin_text
 from payments.admin_views import robokassa_test_start_view
 
 from .models import CartItem, KaspiTransaction, Order, OrderItem, WholesaleFunnelEvent
+from .mvp_funnel import build_mvp_funnel_report
 from .wholesale_analytics import (
     build_wholesale_funnel_report,
     default_report_dates,
@@ -86,12 +87,45 @@ class OrderAdmin(admin.ModelAdmin):
         urls = super().get_urls()
         custom = [
             path(
+                'mvp-funnel/',
+                self.admin_site.admin_view(self.mvp_funnel_view),
+                name='orders_order_mvp_funnel',
+            ),
+            path(
                 '<int:order_id>/robokassa-test/',
                 self.admin_site.admin_view(robokassa_test_start_view),
                 name='orders_order_robokassa_test',
             ),
         ]
         return custom + urls
+
+    def mvp_funnel_view(self, request):
+        if not self.has_view_permission(request):
+            return HttpResponseForbidden('Недостаточно прав.')
+
+        default_from, default_to = default_report_dates()
+        date_from = parse_report_date(request.GET.get('date_from'), default_from)
+        date_to = parse_report_date(request.GET.get('date_to'), default_to)
+        if date_from > date_to:
+            date_from, date_to = date_to, date_from
+
+        report = build_mvp_funnel_report(date_from, date_to)
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'MVP-воронка ZPT.KZ',
+            'opts': self.model._meta,
+            'date_from': date_from.isoformat(),
+            'date_to': date_to.isoformat(),
+            'report': report,
+            'product_to_whatsapp': format_conversion(report['product_to_whatsapp']),
+            'request_to_contact': format_conversion(report['request_to_contact']),
+            'orders_changelist_url': reverse('admin:orders_order_changelist'),
+        }
+        return render(
+            request,
+            'admin/orders/order/mvp_funnel.html',
+            context,
+        )
 
     def change_view(self, request, object_id, form_url='', extra_context=None):
         extra_context = extra_context or {}
@@ -118,6 +152,7 @@ class OrderAdmin(admin.ModelAdmin):
         extra_context['wholesale_funnel_url'] = reverse(
             'admin:orders_wholesalefunnelevent_funnel'
         )
+        extra_context['mvp_funnel_url'] = reverse('admin:orders_order_mvp_funnel')
         return super().changelist_view(request, extra_context=extra_context)
 
     @admin.display(description='Оптовые условия (снимок заказа)')
@@ -212,6 +247,7 @@ class WholesaleFunnelEventAdmin(admin.ModelAdmin):
         extra_context['wholesale_funnel_url'] = reverse(
             'admin:orders_wholesalefunnelevent_funnel'
         )
+        extra_context['mvp_funnel_url'] = reverse('admin:orders_order_mvp_funnel')
         return super().changelist_view(request, extra_context=extra_context)
 
     def get_urls(self):
