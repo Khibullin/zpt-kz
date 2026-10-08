@@ -5,7 +5,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from catalog.models import SellerProfile
-from core.models import Seller, SellerLead
+from core.models import Seller, SellerLead, SellerLeadContactCandidate, SellerLeadEvidence
 from core.services.seller_identity import create_unified_seller_account
 from core.services.seller_lead_admin_workflow import convert_lead_to_request_seller
 from core.services.seller_lead_marketplace_onboarding import (
@@ -14,6 +14,7 @@ from core.services.seller_lead_marketplace_onboarding import (
     build_marketplace_registration_url,
     claim_seller_lead_after_registration,
     mark_seller_lead_invited,
+    mark_seller_lead_whatsapp_unavailable,
 )
 
 
@@ -283,6 +284,59 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertFalse(changed)
         lead.refresh_from_db()
         self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_READY_TO_INVITE)
+
+    def test_unavailable_whatsapp_is_rejected_and_lead_returns_to_enrichment(self):
+        lead = self._lead(
+            whatsapp='77015550110',
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+        candidate = SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77015550110',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_PENDING,
+            source_url='https://example.test/contact',
+        )
+        evidence = SellerLeadEvidence.objects.create(
+            seller_lead=lead,
+            field_name='whatsapp',
+            value='77015550110',
+            normalized_value='77015550110',
+            confidence=98,
+            extraction_method=SellerLeadEvidence.METHOD_PARSER,
+            observed_at=lead.created_at,
+            is_selected=True,
+        )
+
+        changed = mark_seller_lead_whatsapp_unavailable(lead)
+
+        self.assertTrue(changed)
+        lead.refresh_from_db()
+        candidate.refresh_from_db()
+        evidence.refresh_from_db()
+        self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(lead.normalized_phone, '')
+        self.assertEqual(lead.status, SellerLead.STATUS_NO_WHATSAPP)
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_CLASSIFIED)
+        self.assertIsNotNone(lead.next_enrichment_at)
+        self.assertEqual(candidate.status, SellerLeadContactCandidate.STATUS_REJECTED)
+        self.assertFalse(candidate.is_primary)
+        self.assertFalse(evidence.is_selected)
+        self.assertIn('номер не зарегистрирован', lead.notes)
+
+    def test_unavailable_whatsapp_does_not_reset_already_invited_lead(self):
+        lead = self._lead(
+            whatsapp='77015550111',
+            lifecycle_status=SellerLead.LIFECYCLE_INVITED,
+        )
+
+        changed = mark_seller_lead_whatsapp_unavailable(lead)
+
+        self.assertFalse(changed)
+        lead.refresh_from_db()
+        self.assertEqual(lead.whatsapp, '77015550111')
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_INVITED)
 
     def test_claim_does_not_overwrite_conflicting_request_seller(self):
         lead = self._lead(whatsapp='77015550106')
