@@ -42,7 +42,7 @@
     <p>{{ landing.intro }}</p>
     <div class="seo-category-actions">
       <a class="seo-category-action seo-category-action-primary" href="/request-parts/">{{ landing.cta }}</a>
-      <a class="seo-category-action seo-category-action-secondary" href="{% url 'catalog_list' %}?category={{ products.0.category_id|default:'' }}&all=1">{{ landing.catalog_label }}</a>
+      <a class="seo-category-action seo-category-action-secondary" href="{% url 'catalog_list' %}?category={{ category_id }}&all=1">{{ landing.catalog_label }}</a>
     </div>
   </section>
 
