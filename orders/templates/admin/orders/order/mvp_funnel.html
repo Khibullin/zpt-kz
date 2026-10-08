@@ -1,0 +1,108 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <style>
+    .mvp-funnel-cards { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0 24px; }
+    .mvp-funnel-card {
+      min-width:180px;
+      padding:14px 16px;
+      border:1px solid var(--hairline-color, #ddd);
+      border-radius:8px;
+      background:var(--body-bg, #fff);
+    }
+    .mvp-funnel-card .label { font-size:12px; color:var(--body-quiet-color, #666); }
+    .mvp-funnel-card .value { margin-top:4px; font-size:24px; font-weight:700; }
+    .mvp-funnel-card .note { margin-top:4px; font-size:11px; color:var(--body-quiet-color, #888); }
+    .mvp-funnel-filters { display:flex; gap:8px; align-items:end; flex-wrap:wrap; margin:12px 0 20px; }
+    .mvp-funnel-filters label { display:block; font-size:11px; margin-bottom:2px; }
+    .mvp-funnel-table { width:100%; border-collapse:collapse; margin:0 0 24px; }
+    .mvp-funnel-table th, .mvp-funnel-table td {
+      padding:8px 10px;
+      border-bottom:1px solid var(--hairline-color, #eee);
+      text-align:left;
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <ul class="object-tools">
+    <li><a href="{{ orders_changelist_url }}" class="historylink">Заказы</a></li>
+  </ul>
+
+  <form method="get" class="mvp-funnel-filters">
+    <div>
+      <label for="id_date_from">С</label>
+      <input type="date" id="id_date_from" name="date_from" value="{{ date_from }}">
+    </div>
+    <div>
+      <label for="id_date_to">По</label>
+      <input type="date" id="id_date_to" name="date_to" value="{{ date_to }}">
+    </div>
+    <div><input type="submit" class="default" value="Показать"></div>
+  </form>
+
+  <p>
+    Это минимальная операционная воронка. «Заказ создан» не означает оплату или завершённую сделку.
+    Прямые WhatsApp-клики начнут накапливаться с момента включения нового отслеживания.
+  </p>
+
+  <div class="mvp-funnel-cards">
+    <div class="mvp-funnel-card">
+      <div class="label">Открыли карточки товаров</div>
+      <div class="value">{{ report.product_viewers }}</div>
+      <div class="note">уникальные посетители</div>
+    </div>
+    <div class="mvp-funnel-card">
+      <div class="label">Ушли в WhatsApp продавцу</div>
+      <div class="value">{{ report.whatsapp_clickers }}</div>
+      <div class="note">кликов: {{ report.whatsapp_clicks }} · карточка → WhatsApp: {{ product_to_whatsapp }}</div>
+    </div>
+    <div class="mvp-funnel-card">
+      <div class="label">Заявок покупателей</div>
+      <div class="value">{{ report.requests }}</div>
+      <div class="note">реально отправлены продавцам: {{ report.requests_sent }}</div>
+    </div>
+    <div class="mvp-funnel-card">
+      <div class="label">Заявки с контактом продавца</div>
+      <div class="value">{{ report.requests_with_seller_contact }}</div>
+      <div class="note">от отправленных: {{ request_to_contact }}</div>
+    </div>
+    <div class="mvp-funnel-card">
+      <div class="label">Явные отказы продавцов</div>
+      <div class="value">{{ report.requests_declined }}</div>
+      <div class="note">нет в наличии / не может выполнить</div>
+    </div>
+    <div class="mvp-funnel-card">
+      <div class="label">Создано заказов</div>
+      <div class="value">{{ report.orders }}</div>
+      <div class="note">не равно оплаченным сделкам</div>
+    </div>
+  </div>
+
+  <h2>Источники заявок</h2>
+  <table class="mvp-funnel-table">
+    <thead><tr><th>Источник</th><th>Заявок</th></tr></thead>
+    <tbody>
+      {% for row in report.request_sources %}
+        <tr><td>{{ row.source|default:"—" }}</td><td>{{ row.count }}</td></tr>
+      {% empty %}
+        <tr><td colspan="2">Нет заявок за период.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <h2>Статусы заказов</h2>
+  <table class="mvp-funnel-table">
+    <thead><tr><th>Статус</th><th>Заказов</th></tr></thead>
+    <tbody>
+      {% for row in report.order_statuses %}
+        <tr><td>{{ row.status|default:"—" }}</td><td>{{ row.count }}</td></tr>
+      {% empty %}
+        <tr><td colspan="2">Нет заказов за период.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
