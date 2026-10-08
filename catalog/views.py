@@ -5,7 +5,6 @@ from urllib.parse import quote, urlencode
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
-from django.core import signing
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
@@ -32,6 +31,7 @@ from core.services.seller_identity import (
     sync_login_phone,
 )
 from core.services.seller_lead_marketplace_onboarding import (
+    SellerInviteTokenError,
     claim_seller_lead_after_registration,
     decode_seller_invite_token,
 )
@@ -734,7 +734,7 @@ def consignment_request_create(request):
 def seller_join(request, token):
     try:
         lead_id = decode_seller_invite_token(token)
-    except (signing.BadSignature, signing.SignatureExpired):
+    except SellerInviteTokenError:
         raise Http404('Приглашение недействительно или срок действия истёк.')
 
     lead = get_object_or_404(
