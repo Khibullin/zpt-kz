@@ -1,4 +1,5 @@
 import json
+import logging
 from urllib.parse import quote, urlencode
 
 from django.shortcuts import render, get_object_or_404, redirect
@@ -29,6 +30,9 @@ from core.services.seller_identity import (
     logout_unified_seller,
     sync_login_phone,
 )
+from core.services.seller_lead_marketplace_onboarding import (
+    claim_seller_lead_after_registration,
+)
 from core.services.seller_whatsapp_consent import (
     get_seller_whatsapp_marketing_consent_status,
     maybe_grant_registration_whatsapp_consent,
@@ -48,6 +52,9 @@ from .commercial import (
     validate_consignment_request,
 )
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
+logger = logging.getLogger(__name__)
+
+
 from .models import (
     Product,
     ProductConsignmentRequest,
@@ -751,11 +758,32 @@ def seller_register(request):
                 )
                 if form.cleaned_data.get('whatsapp_marketing_consent'):
                     maybe_grant_registration_whatsapp_consent(request_seller)
+                try:
+                    claim_seller_lead_after_registration(
+                        phone=phone,
+                        request_seller=request_seller,
+                    )
+                except Exception:
+                    logger.exception(
+                        'Seller account created but SellerLead claim sync failed',
+                        extra={'seller_id': request_seller.pk},
+                    )
                 return redirect('seller_login')
             except SellerIdentityError as exc:
                 error_message = exc.message
     else:
-        form = SellerRegisterForm()
+        initial = {
+            'name': (request.GET.get('name') or '').strip()[:255],
+            'phone': ''.join(
+                ch for ch in (request.GET.get('phone') or '') if ch.isdigit()
+            )[:30],
+            'city': (request.GET.get('city') or '').strip()[:120],
+            'instagram': (request.GET.get('instagram') or '').strip()[:255],
+            'website': (request.GET.get('website') or '').strip()[:500],
+        }
+        form = SellerRegisterForm(
+            initial={key: value for key, value in initial.items() if value},
+        )
 
     return render(request, 'catalog/seller_register.html', {
         'form': form,
