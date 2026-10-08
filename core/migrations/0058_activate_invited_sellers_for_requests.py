@@ -48,6 +48,26 @@ def activate_invited_sellers(apps, schema_editor):
 
     now = timezone.now()
     china = Country.objects.filter(name='Китай').first()
+    if china is None:
+        raise RuntimeError('Country "Китай" is required for seller activation.')
+
+    required_brand_names = {
+        brand
+        for profile in PROFILES.values()
+        for brand in profile.get('brands', ())
+    }
+    available_brand_names = set(
+        Brand.objects.filter(
+            name__in=required_brand_names,
+            transport_type='car',
+        ).values_list('name', flat=True)
+    )
+    missing_brand_names = sorted(required_brand_names - available_brand_names)
+    if missing_brand_names:
+        raise RuntimeError(
+            'Missing seller activation brands: ' + ', '.join(missing_brand_names)
+        )
+
     chinese_brands = list(
         Brand.objects.filter(
             country=china,
@@ -144,10 +164,8 @@ def activate_invited_sellers(apps, schema_editor):
         seller.selected_models.clear()
 
         if mode == 'china':
-            if china is not None:
-                seller.selected_countries.add(china)
-            if chinese_brands:
-                seller.selected_brands.add(*chinese_brands)
+            seller.selected_countries.add(china)
+            seller.selected_brands.add(*chinese_brands)
         elif mode == 'brands':
             names = tuple(profile.get('brands') or ())
             brands = list(
