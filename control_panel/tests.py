@@ -9,6 +9,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from control_panel.display import normalize_sto_sort, summarize_names
+from catalog.models import Product, SellerProfile
 
 from core.models import (
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
@@ -20,6 +21,8 @@ from core.models import (
     RequestDispatch,
     Seller,
     SellerContactConsent,
+    SellerLead,
+    SellerLeadSource,
     SellerRequestPageEvent,
 )
 from core.services.seller_request_access import create_seller_request_access
@@ -382,6 +385,216 @@ class ControlPanelTests(TestCase):
         junk_sort = self.client.get('/control/partners/sellers/?sort=;drop table')
         self.assertEqual(junk_sort.status_code, 200)
         self.assertEqual(junk_sort.context['filters']['sort'], 'name')
+
+    def test_seller_hub_candidates_filter_source_type_stage_and_whatsapp(self):
+        self._login_staff()
+        linked = _seller(
+            name='Instagram Dismantler',
+            whatsapp='77015550111',
+            receive_requests=False,
+        )
+        instagram = SellerLead.objects.create(
+            name='Instagram Dismantler',
+            instagram_username='insta_dismantler',
+            whatsapp='77015550111',
+            city='Алматы',
+            source_type='instagram_profile',
+            business_type=SellerLead.BUSINESS_TYPE_DISMANTLER,
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+            request_seller=linked,
+        )
+        web = SellerLead.objects.create(
+            name='Web Wholesaler',
+            whatsapp='77015550112',
+            city='Астана',
+            source_type='web_search',
+            business_type=SellerLead.BUSINESS_TYPE_WHOLESALER,
+            lifecycle_status=SellerLead.LIFECYCLE_CLASSIFIED,
+        )
+        SellerLeadSource.objects.create(
+            seller_lead=web,
+            source_type=SellerLeadSource.SOURCE_BRAVE_SEARCH,
+            provider='brave',
+            source_url='https://example.test/web-wholesaler',
+            first_seen_at=timezone.now(),
+            last_seen_at=timezone.now(),
+        )
+
+        response = self.client.get(
+            '/control/partners/sellers/',
+            {
+                'view': 'candidates',
+                'source': 'instagram',
+                'business_type': SellerLead.BUSINESS_TYPE_DISMANTLER,
+                'stage': SellerLead.LIFECYCLE_READY_TO_INVITE,
+                'whatsapp_state': 'yes',
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Кандидаты')
+        self.assertContains(response, 'Instagram Dismantler')
+        self.assertContains(response, 'Авторазбор')
+        self.assertContains(response, 'Готов к приглашению')
+        self.assertContains(response, 'Открыть приглашение')
+        self.assertContains(response, 'Отметить приглашённым')
+        self.assertNotContains(response, 'Web Wholesaler')
+        self.assertNotContains(response, instagram.whatsapp)
+
+    def test_seller_hub_seller_filters_source_stage_products_and_receive(self):
+        self._login_staff()
+        base = _seller(
+            name='Base Seller',
+            whatsapp='77015550201',
+            receive_requests=False,
+        )
+        user = User.objects.create_user(
+            username='hub-registered',
+            password='secret-pass',
+        )
+        discovered = _seller(
+            name='Registered Dismantler',
+            whatsapp='77015550202',
+            receive_requests=True,
+            user=user,
+        )
+        profile = SellerProfile.objects.create(
+            user=user,
+            name='Registered Dismantler',
+            phone=discovered.whatsapp,
+            city='Алматы',
+        )
+        Product.objects.create(
+            title='Hub active product',
+            article='HUB-001',
+            price=1000,
+            status='active',
+            seller_name=profile.name,
+            whatsapp_number=profile.phone,
+            seller_profile=profile,
+        )
+        lead = SellerLead.objects.create(
+            name=discovered.name,
+            instagram_username='hub_parts',
+            whatsapp=discovered.whatsapp,
+            city='Алматы',
+            source_type='instagram_profile',
+            business_type=SellerLead.BUSINESS_TYPE_DISMANTLER,
+            lifecycle_status=SellerLead.LIFECYCLE_INVITED,
+            request_seller=discovered,
+        )
+
+        dismantlers = self.client.get(
+            '/control/partners/sellers/?view=sellers&quick=dismantler'
+        )
+        self.assertContains(dismantlers, discovered.name)
+        self.assertNotContains(dismantlers, base.name)
+        self.assertContains(dismantlers, 'Instagram')
+        self.assertContains(dismantlers, 'Авторазбор')
+
+        registered = self.client.get(
+            '/control/partners/sellers/?view=sellers&stage=registered'
+        )
+        self.assertContains(registered, discovered.name)
+        self.assertNotContains(registered, base.name)
+        self.assertContains(registered, 'Зарегистрирован')
+
+        no_products = self.client.get(
+            '/control/partners/sellers/?view=sellers&products=no'
+        )
+        self.assertContains(no_products, base.name)
+        self.assertNotContains(no_products, discovered.name)
+
+        base_only = self.client.get(
+            '/control/partners/sellers/?view=sellers&source=base'
+        )
+        self.assertContains(base_only, base.name)
+        self.assertNotContains(base_only, discovered.name)
+
+        receives = self.client.get(
+            '/control/partners/sellers/?view=sellers&receive=yes'
+        )
+        self.assertContains(receives, discovered.name)
+        self.assertNotContains(receives, base.name)
+        self.assertIsNotNone(lead.pk)
+
+    def test_seller_hub_marks_ready_candidate_invited_only_by_post(self):
+        self._login_staff()
+        lead = SellerLead.objects.create(
+            name='Ready Candidate',
+            whatsapp='77015550301',
+            city='Алматы',
+            source_type='web_search',
+            business_type=SellerLead.BUSINESS_TYPE_NEW_PARTS,
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+        url = reverse('control_panel:seller_candidate_mark_invited', args=[lead.pk])
+
+        get_response = self.client.get(url)
+        self.assertEqual(get_response.status_code, 405)
+        lead.refresh_from_db()
+        self.assertEqual(
+            lead.lifecycle_status,
+            SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_INVITED)
+        self.assertEqual(
+            lead.marketplace_invitation_status,
+            SellerLead.MARKETPLACE_INVITATION_PLANNED,
+        )
+        self.assertIsNotNone(lead.marketplace_invitation_planned_at)
+
+    def test_seller_detail_shows_discovery_origin_and_product_count(self):
+        self._login_staff()
+        user = User.objects.create_user(
+            username='hub-detail',
+            password='secret-pass',
+        )
+        seller = _seller(
+            name='Hub Detail Seller',
+            whatsapp='77015550401',
+            user=user,
+        )
+        profile = SellerProfile.objects.create(
+            user=user,
+            name=seller.name,
+            phone=seller.whatsapp,
+            city='Алматы',
+        )
+        Product.objects.create(
+            title='Detail product',
+            article='DETAIL-1',
+            price=1500,
+            status='active',
+            seller_name=seller.name,
+            whatsapp_number=seller.whatsapp,
+            seller_profile=profile,
+        )
+        SellerLead.objects.create(
+            name=seller.name,
+            instagram_username='hub_detail',
+            whatsapp=seller.whatsapp,
+            city='Алматы',
+            source_type='instagram_profile',
+            business_type=SellerLead.BUSINESS_TYPE_NEW_PARTS,
+            lifecycle_status=SellerLead.LIFECYCLE_INVITED,
+            request_seller=seller,
+        )
+
+        response = self.client.get(
+            reverse('control_panel:seller_detail', args=[seller.pk])
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Подключение к ZPT')
+        self.assertContains(response, 'Instagram')
+        self.assertContains(response, 'Магазин запчастей')
+        self.assertContains(response, 'Зарегистрирован')
+        self.assertContains(response, 'Активных товаров')
+        self.assertContains(response, '>1<', html=False)
 
     def test_service_requests_use_existing_models(self):
         self._login_staff()
