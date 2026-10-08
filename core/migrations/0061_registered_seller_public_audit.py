@@ -73,11 +73,11 @@ CREATE TABLE IF NOT EXISTS core_registered_seller_public_audit (
     seller_id bigint PRIMARY KEY REFERENCES core_seller(id) ON DELETE CASCADE,
     status varchar(20) NOT NULL DEFAULT 'pending',
     attempts integer NOT NULL DEFAULT 0,
-    result jsonb NOT NULL DEFAULT '{}'::jsonb,
+    result text NOT NULL DEFAULT '{}',
     error text NOT NULL DEFAULT '',
     started_at timestamptz NULL,
     finished_at timestamptz NULL,
-    updated_at timestamptz NOT NULL DEFAULT NOW()
+    updated_at timestamptz NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 INSERT INTO core_registered_seller_public_audit (seller_id)
