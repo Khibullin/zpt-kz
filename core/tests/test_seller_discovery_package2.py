@@ -102,6 +102,10 @@ class _FakeProvider:
         return list(self.hits)
 
 
+class _FakeBraveProvider(_FakeProvider):
+    name = 'brave'
+
+
 def _discovery_counts():
     user_model = get_user_model()
     return (
@@ -268,6 +272,24 @@ class BraveDiscoveryTests(TestCase):
             direction='автоэлектрика',
         ))
 
+    def test_brave_discovery_accepts_city_outside_old_geo_registry(self):
+        hit = parse_brave_web_result(
+            {
+                'title': 'Абай Автозапчасти — магазин',
+                'url': 'https://abay-parts.example.kz',
+                'description': 'Магазин автозапчастей, Абай',
+            },
+            city='Абай',
+            direction='автозапчасти',
+        )
+
+        self.assertIsNotNone(hit)
+        self.assertEqual(hit.city, 'Абай')
+        self.assertEqual(
+            build_brave_discovery_query(city='Абай', direction='автозапчасти'),
+            'автозапчасти Абай Казахстан',
+        )
+
     def test_provider_uses_existing_brave_client(self):
         client = _FakeSearchClient([
             {
@@ -371,6 +393,37 @@ class BraveSuitabilityTests(TestCase):
         self.assertFalse(is_probable_auto_parts_seller_result(title=title, description=description))
         hit = self._parse(title, description, 'https://chery-brand.kz/', 'Chery запчасти Алматы')
         self.assertIsNone(hit)
+
+
+class FullCityBraveRunnerTests(TestCase):
+    def test_brave_only_runner_accepts_city_outside_2gis_registry(self):
+        provider = _FakeBraveProvider([])
+        stats = run_seller_discovery(
+            provider_names=['brave'],
+            cities=['Абай'],
+            directions=['автозапчасти'],
+            providers=[provider],
+            max_hits=20,
+            max_queries=1,
+            dry_run=True,
+        )
+
+        self.assertEqual(stats.cities, ['Абай'])
+        self.assertEqual(stats.queries_executed, 1)
+        self.assertEqual(provider.calls[0][0], 'Абай')
+
+    def test_two_gis_runner_still_requires_geo_registry_city(self):
+        provider = _FakeProvider([])
+        with self.assertRaises(Exception):
+            run_seller_discovery(
+                provider_names=['two_gis'],
+                cities=['Абай'],
+                directions=['автозапчасти'],
+                providers=[provider],
+                max_hits=20,
+                max_queries=1,
+                dry_run=True,
+            )
 
 
 class IngestionTests(TestCase):
