@@ -10,6 +10,7 @@ from core.services.seller_lead_pipeline import (
     DEFAULT_SEARCH_LIMIT,
     SellerLeadPipelineConfigError,
     run_seller_lead_pipeline,
+    validate_pipeline_limits,
 )
 from core.services.seller_lead_pipeline_execution import (
     execute_managed_seller_lead_pipeline,
@@ -153,8 +154,13 @@ class Command(BaseCommand):
             )
 
         try:
+            validate_pipeline_limits(
+                search_limit=options['search_limit'],
+                lead_limit=options['lead_limit'],
+                max_queries_per_lead=options['max_queries_per_lead'],
+            )
             validate_cooldown_minutes(options['cooldown_minutes'])
-        except ValueError as exc:
+        except (SellerLeadPipelineConfigError, ValueError) as exc:
             raise CommandError(str(exc)) from exc
 
         valid_triggers = {
