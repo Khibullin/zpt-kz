@@ -3,7 +3,7 @@ from django.urls import path, include
 from django.views.generic import RedirectView, TemplateView
 
 from backend.pwa_views import manifest_json, service_worker_js
-from core.go_views import go_redirect
+from core.go_views import go_redirect, product_whatsapp_redirect
 from core.help_views import platform_help_page
 from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static
 from core.seller_whatsapp_consent_views import (
@@ -251,6 +251,11 @@ urlpatterns = [
         name='catalog_ajax_product_image_search',
     ),
 
+    path(
+        'go/wa/<int:product_id>/',
+        product_whatsapp_redirect,
+        name='product_whatsapp_redirect',
+    ),
     path(
         'go/<slug:destination>/',
         go_redirect,
