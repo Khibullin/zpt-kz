@@ -5,6 +5,7 @@ from urllib.parse import quote, urlencode
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
@@ -63,6 +64,7 @@ from .models import (
     Category,
     SellerProfile,
 )
+from .product_article_recognition import recognize_article_from_upload
 from .product_assistant import suggest_product_by_article
 from .product_image_search import search_product_images
 from .product_image_upload import (
@@ -1230,6 +1232,55 @@ def load_compatible_models(request):
     ]
 
     return JsonResponse(data, safe=False)
+
+
+@login_required
+@require_POST
+def product_article_recognition(request):
+    _require_seller(request)
+    uploaded = request.FILES.get('image')
+    if not uploaded:
+        return JsonResponse(
+            {'ok': False, 'error': 'Выберите фотографию с артикулом.'},
+            status=400,
+        )
+    try:
+        result = recognize_article_from_upload(uploaded)
+    except ValidationError as exc:
+        message = exc.messages[0] if getattr(exc, 'messages', None) else str(exc)
+        return JsonResponse({'ok': False, 'error': message}, status=400)
+
+    if result is None:
+        return JsonResponse(
+            {
+                'ok': False,
+                'error': 'Распознавание временно недоступно. Введите артикул вручную.',
+            },
+            status=503,
+        )
+
+    if result.article:
+        return JsonResponse({
+            'ok': True,
+            'article': result.article,
+            'candidates': result.candidates,
+            'confidence': result.confidence,
+        })
+
+    if result.candidates:
+        return JsonResponse({
+            'ok': False,
+            'error': 'На фото найдено несколько возможных артикулов. Выберите нужный вручную.',
+            'candidates': result.candidates,
+            'confidence': result.confidence,
+        }, status=422)
+
+    return JsonResponse({
+        'ok': False,
+        'error': 'Артикул на фото не распознан. Сфотографируйте этикетку крупнее или введите номер вручную.',
+        'candidates': [],
+        'confidence': result.confidence,
+    }, status=422)
 
 
 @login_required
