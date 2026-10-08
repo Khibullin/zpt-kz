@@ -13,6 +13,20 @@
     </dl>
   </section>
   <section class="cp-card">
+    <h2>Подключение к ZPT</h2>
+    <dl class="cp-dl">
+      <dt>Источник</dt><dd>{{ discovery.source_label }}</dd>
+      <dt>Тип продавца</dt><dd>{{ discovery.business_type_label }}</dd>
+      <dt>Этап</dt><dd>{% include 'control_panel/_pill.html' with text=discovery.stage_label tone=discovery.registered|yesno:'on,neutral' %}</dd>
+      <dt>Кабинет продавца</dt>
+      <dd>{% include 'control_panel/_pill.html' with text=discovery.registered|yesno:'Есть,Нет' tone=discovery.registered|yesno:'on,neutral' %}</dd>
+      <dt>Активных товаров</dt><dd>{{ discovery.products_count }}</dd>
+      {% if discovery.lead %}
+        <dt>SellerLead</dt><dd><a href="/admin/core/sellerlead/{{ discovery.lead.pk }}/change/">#{{ discovery.lead.pk }}</a></dd>
+      {% endif %}
+    </dl>
+  </section>
+  <section class="cp-card">
     <h2>Статус получения заявок</h2>
     <dl class="cp-dl">
       <dt>Активен</dt>
