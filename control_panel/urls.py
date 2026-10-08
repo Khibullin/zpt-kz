@@ -20,6 +20,11 @@ urlpatterns = [
     ),
     path('partners/sellers/', views.seller_list, name='seller_list'),
     path(
+        'partners/seller-leads/<int:pk>/mark-invited/',
+        views.seller_candidate_mark_invited,
+        name='seller_candidate_mark_invited',
+    ),
+    path(
         'partners/sellers/<int:pk>/',
         views.seller_detail,
         name='seller_detail',
