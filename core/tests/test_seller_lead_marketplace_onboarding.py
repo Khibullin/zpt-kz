@@ -46,7 +46,7 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertNotIn('Invite Parts', url)
         self.assertNotIn('77015550101', url)
         self.assertNotIn('invite_parts', url)
-        self.assertLess(len(url), 180)
+        self.assertLess(len(url), 90)
 
     @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
     def test_invite_copy_does_not_expose_scraped_profile_title(self):
@@ -99,6 +99,21 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
 
     def test_invalid_join_token_returns_404(self):
         response = self.client.get('/seller/join/not-a-valid-token/')
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_tampered_short_join_token_returns_404(self):
+        lead = self._lead()
+        join_url = build_marketplace_registration_url(
+            lead,
+            base_url='http://testserver',
+        )
+        parsed = urlparse(join_url)
+        token = parsed.path.rstrip('/').split('/')[-1]
+        replacement = 'A' if token[-1] != 'A' else 'B'
+        tampered = token[:-1] + replacement
+
+        response = self.client.get(f'/seller/join/{tampered}/')
 
         self.assertEqual(response.status_code, 404)
 
