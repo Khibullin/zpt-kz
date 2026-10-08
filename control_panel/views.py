@@ -30,6 +30,7 @@ from core.models import SellerLead
 from core.services.seller_lead_marketplace_onboarding import (
     build_marketplace_invite_whatsapp_url,
     mark_seller_lead_invited,
+    mark_seller_lead_whatsapp_unavailable,
 )
 
 
@@ -194,6 +195,28 @@ def seller_candidate_invite(request, pk: int):
         messages.warning(request, f'#{lead.pk}: корректный WhatsApp не найден.')
         return redirect(reverse('control_panel:seller_list') + '?view=candidates')
     return redirect(target)
+
+
+@control_staff_required
+@require_POST
+def seller_candidate_whatsapp_unavailable(request, pk: int):
+    lead = get_object_or_404(SellerLead, pk=pk, duplicate_of__isnull=True)
+    changed = mark_seller_lead_whatsapp_unavailable(lead)
+    if changed:
+        messages.success(
+            request,
+            f'#{lead.pk}: нерабочий WhatsApp исключён, кандидат возвращён на поиск контакта.',
+        )
+    else:
+        messages.warning(
+            request,
+            f'#{lead.pk}: WhatsApp уже отсутствует или этап не допускает изменение.',
+        )
+
+    next_url = (request.POST.get('next') or '').strip()
+    if not next_url.startswith('/control/partners/sellers/'):
+        next_url = reverse('control_panel:seller_list') + '?view=candidates'
+    return redirect(next_url)
 
 
 @control_staff_required
