@@ -49,13 +49,10 @@ def build_marketplace_registration_url(
 
 def build_marketplace_invite_message(lead: SellerLead) -> str:
     registration_url = build_marketplace_registration_url(lead)
-    name = (lead.name or '').strip()
-    greeting = f'Здравствуйте! Приглашаем {name} подключиться к ZPT.KZ.' if name else (
-        'Здравствуйте! Приглашаем ваш магазин подключиться к ZPT.KZ.'
-    )
     return (
-        f'{greeting}\n\n'
-        'Можно создать кабинет продавца, разместить товары и работать с заявками покупателей.\n'
+        'Здравствуйте! Команда ZPT.KZ приглашает ваш магазин подключиться '
+        'к платформе автозапчастей Казахстана.\n\n'
+        'Можно создать кабинет продавца, разместить товары и получать заявки покупателей.\n'
         f'Регистрация: {registration_url}'
     )
 
