@@ -353,8 +353,22 @@ def create_unified_seller_account(
         raise SellerIdentityError('Укажите название продавца')
     if not phone:
         raise SellerIdentityError('Укажите WhatsApp')
-    if login_phone_in_use(phone):
+    existing_users = find_users_by_phone(phone)
+    existing_profiles = find_profiles_by_phone(phone)
+    existing_sellers = find_sellers_by_phone(phone)
+    claimable_sellers = [seller for seller in existing_sellers if not seller.user_id]
+    linked_sellers = [seller for seller in existing_sellers if seller.user_id]
+
+    if (
+        existing_users
+        or existing_profiles
+        or linked_sellers
+        or len(claimable_sellers) > 1
+    ):
         raise SellerIdentityError(PHONE_TAKEN)
+
+    claimable_seller = claimable_sellers[0] if len(claimable_sellers) == 1 else None
+
     if len(password or '') < MIN_PASSWORD_LENGTH:
         raise SellerIdentityError(
             f'Пароль должен быть не короче {MIN_PASSWORD_LENGTH} символов'
@@ -394,7 +408,10 @@ def create_unified_seller_account(
             city=(city or '')[:120],
             **profile_payload,
         )
-        seller = Seller.objects.create(user=user, **seller_payload)
+        if claimable_seller is not None:
+            seller = link_seller_to_user(claimable_seller, user)
+        else:
+            seller = Seller.objects.create(user=user, **seller_payload)
     return user, seller, profile
 
 
