@@ -24,7 +24,7 @@ CAMPAIGN_LEAD_IDS = (
     104, 105, 106, 107, 109, 110, 111, 112, 113, 114, 116, 117, 118, 119,
     120, 122, 123, 124, 125, 126, 127, 128, 129,
 )
-CAMPAIGN_SOURCES = ('website', 'google_places', 'brave')
+CAMPAIGN_SOURCES = ('all',)
 TERMINAL_LIFECYCLES = (
     SellerLead.LIFECYCLE_DUPLICATE,
     SellerLead.LIFECYCLE_REJECTED,
@@ -137,3 +137,14 @@ def recheck_next_seller_whatsapp() -> RecheckResult:
         active_sources=active,
         remaining=campaign_remaining_count(),
     )
+
+
+def process_seller_whatsapp_recheck_batch(batch_size: int = 2) -> list[RecheckResult]:
+    size = max(1, min(int(batch_size or 1), 3))
+    results: list[RecheckResult] = []
+    for _index in range(size):
+        result = recheck_next_seller_whatsapp()
+        results.append(result)
+        if result.outcome in {'complete', 'configuration_error'}:
+            break
+    return results
