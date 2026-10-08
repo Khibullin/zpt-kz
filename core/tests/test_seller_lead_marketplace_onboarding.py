@@ -12,6 +12,7 @@ from core.services.seller_lead_marketplace_onboarding import (
     build_marketplace_invite_whatsapp_url,
     build_marketplace_registration_url,
     claim_seller_lead_after_registration,
+    mark_seller_lead_invited,
 )
 
 
@@ -142,6 +143,62 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_CLAIMED)
         self.assertIsNotNone(lead.request_seller_id)
         self.assertIsNotNone(lead.request_seller.user_id)
+
+    def test_manual_invite_moves_ready_lead_to_invited(self):
+        lead = self._lead(
+            whatsapp='77015550107',
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+
+        changed = mark_seller_lead_invited(lead)
+
+        self.assertTrue(changed)
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_INVITED)
+        self.assertEqual(
+            lead.marketplace_invitation_status,
+            SellerLead.MARKETPLACE_INVITATION_PLANNED,
+        )
+        self.assertIsNotNone(lead.marketplace_invitation_planned_at)
+        self.assertIsNotNone(lead.reviewed_at)
+
+    def test_manual_invite_is_idempotent(self):
+        lead = self._lead(
+            whatsapp='77015550108',
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+
+        self.assertTrue(mark_seller_lead_invited(lead))
+        first_planned_at = lead.marketplace_invitation_planned_at
+        self.assertFalse(mark_seller_lead_invited(lead))
+
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_INVITED)
+        self.assertEqual(lead.marketplace_invitation_planned_at, first_planned_at)
+
+    def test_manual_invite_skips_non_ready_lead(self):
+        lead = self._lead(
+            whatsapp='77015550109',
+            lifecycle_status=SellerLead.LIFECYCLE_CLASSIFIED,
+        )
+
+        changed = mark_seller_lead_invited(lead)
+
+        self.assertFalse(changed)
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_CLASSIFIED)
+
+    def test_manual_invite_skips_invalid_whatsapp(self):
+        lead = self._lead(
+            whatsapp='',
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+
+        changed = mark_seller_lead_invited(lead)
+
+        self.assertFalse(changed)
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_READY_TO_INVITE)
 
     def test_claim_does_not_overwrite_conflicting_request_seller(self):
         lead = self._lead(whatsapp='77015550106')
