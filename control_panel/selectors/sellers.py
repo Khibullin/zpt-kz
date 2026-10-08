@@ -283,7 +283,9 @@ def _source_keys_for_lead(lead: SellerLead | None) -> list[str]:
     if lead.website_url:
         add('website')
 
-    for source in getattr(lead, 'sources', []).all() if hasattr(getattr(lead, 'sources', None), 'all') else []:
+    related_sources = getattr(lead, 'sources', None)
+    source_rows = related_sources.all() if related_sources is not None else []
+    for source in source_rows:
         source_type = str(source.source_type or '')
         if source_type == 'instagram':
             add('instagram')
