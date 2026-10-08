@@ -3,12 +3,19 @@ from __future__ import annotations
 from base64 import urlsafe_b64encode
 
 from django.conf import settings
+from django.db import models, transaction
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.crypto import constant_time_compare, salted_hmac
 from django.utils.http import base36_to_int, int_to_base36
 
-from core.models import Seller, SellerLead, normalize_seller_lead_whatsapp
+from core.models import (
+    Seller,
+    SellerLead,
+    SellerLeadContactCandidate,
+    SellerLeadEvidence,
+    normalize_seller_lead_whatsapp,
+)
 from core.phone_utils import build_whatsapp_url
 from core.services.seller_lead_admin_workflow import compute_review_status
 
@@ -150,6 +157,91 @@ def mark_seller_lead_invited(lead: SellerLead) -> bool:
         update_fields.add('review_status')
 
     lead.save(update_fields=sorted(update_fields))
+    return True
+
+
+def mark_seller_lead_whatsapp_unavailable(lead: SellerLead) -> bool:
+    """Record that the current discovered WhatsApp is not registered.
+
+    Keeps source/evidence history, rejects only this contact, clears the
+    canonical WhatsApp, and returns a qualified lead to enrichment.
+    Never sends a message and never mutates the linked request Seller.
+    """
+    current = normalize_seller_lead_whatsapp(lead.whatsapp)
+    if not current:
+        return False
+
+    blocked_lifecycles = {
+        SellerLead.LIFECYCLE_DUPLICATE,
+        SellerLead.LIFECYCLE_REJECTED,
+        SellerLead.LIFECYCLE_CLOSED,
+        SellerLead.LIFECYCLE_CLAIMED,
+        SellerLead.LIFECYCLE_VERIFIED,
+        SellerLead.LIFECYCLE_ACTIVE,
+    }
+    if lead.lifecycle_status in blocked_lifecycles:
+        return False
+
+    now = timezone.now()
+    note = f'WhatsApp {current}: номер не зарегистрирован, ручная проверка {now:%d.%m.%Y}.'
+
+    with transaction.atomic():
+        locked = SellerLead.objects.select_for_update().get(pk=lead.pk)
+        current = normalize_seller_lead_whatsapp(locked.whatsapp)
+        if not current or locked.lifecycle_status in blocked_lifecycles:
+            return False
+
+        SellerLeadContactCandidate.objects.filter(
+            seller_lead=locked,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value=current,
+        ).update(
+            status=SellerLeadContactCandidate.STATUS_REJECTED,
+            is_primary=False,
+            reviewed_at=now,
+            notes=note,
+            updated_at=now,
+        )
+
+        SellerLeadEvidence.objects.filter(
+            seller_lead=locked,
+            field_name='whatsapp',
+            is_selected=True,
+        ).filter(
+            models.Q(normalized_value=current) | models.Q(value=current)
+        ).update(is_selected=False, updated_at=now)
+
+        locked.whatsapp = ''
+        locked.whatsapp_confidence = ''
+        locked.whatsapp_source_url = ''
+        locked.whatsapp_source_text = ''
+        locked.whatsapp_found_at = None
+        locked.status = SellerLead.STATUS_NO_WHATSAPP
+        locked.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
+        locked.next_enrichment_at = now
+        locked.reviewed_at = now
+        locked.notes = (
+            f'{locked.notes.rstrip()}\n{note}'.strip()
+            if locked.notes
+            else note
+        )
+        locked.save(update_fields=[
+            'whatsapp',
+            'whatsapp_confidence',
+            'whatsapp_source_url',
+            'whatsapp_source_text',
+            'whatsapp_found_at',
+            'status',
+            'lifecycle_status',
+            'next_enrichment_at',
+            'reviewed_at',
+            'notes',
+            'updated_at',
+        ])
+
+        from core.services.seller_discovery_identity import refresh_seller_lead_identity
+        refresh_seller_lead_identity(locked)
+
     return True
 
 
