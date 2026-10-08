@@ -521,22 +521,19 @@ def _two_gis_contacts_blocked(source: str, problem: str) -> bool:
 def _brave_queries(seller_lead: SellerLead) -> list[str]:
     name = seller_lead.name
     city = seller_lead.city
-    handle = (seller_lead.instagram_username or '').strip().lstrip('@')
-    queries: list[str] = []
-    if handle:
-        # Exact social identity is stronger than a generic shop name. Run these
-        # first so the official site is not pushed out by the Brave website cap.
-        queries.extend([
-            f'"{handle}" WhatsApp'.strip(),
-            f'"{handle}" {city} контакты'.strip(),
-            f'"{handle}" официальный сайт'.strip(),
-        ])
-    queries.extend([
+    queries = [
         f'"{name}" {city} WhatsApp'.strip(),
         f'"{name}" {city} контакты'.strip(),
         f'"{name}" wa.me'.strip(),
         f'"{name}" {city} официальный сайт'.strip(),
-    ])
+    ]
+    handle = (seller_lead.instagram_username or '').strip().lstrip('@')
+    if handle:
+        queries.extend([
+            f'"{handle}" {city} контакты'.strip(),
+            f'"{handle}" официальный сайт'.strip(),
+            f'"{handle}" WhatsApp'.strip(),
+        ])
     return queries
 
 
@@ -548,6 +545,36 @@ def _google_locator_summary(locator: GooglePlaceLocator) -> str:
     return f'matched place_id_present=True website_candidate={website}'
 
 
+def _identity_key(value: str) -> str:
+    return ''.join(ch for ch in str(value or '').casefold() if ch.isalnum())
+
+
+def _instagram_handle_matches_host(handle: str, url: str) -> bool:
+    handle_key = _identity_key(handle.lstrip('@'))
+    host = crawl_host_key(parse.urlsplit(url).hostname or '')
+    if not handle_key or not host:
+        return False
+    host_key = _identity_key(host)
+    stem_key = _identity_key(host.split('.', 1)[0])
+    return handle_key in {host_key, stem_key} or (
+        len(handle_key) >= 6 and (
+            host_key.startswith(handle_key) or handle_key.startswith(stem_key)
+        )
+    )
+
+
+def _brave_result_mentions_handle(row: dict[str, Any], handle: str) -> bool:
+    if not handle:
+        return False
+    needle = handle.casefold().lstrip('@')
+    haystack = ' '.join([
+        str(row.get('title') or ''),
+        str(row.get('description') or ''),
+        str(row.get('url') or ''),
+    ]).casefold()
+    return needle in haystack
+
+
 def _brave_locator(
     seller_lead: SellerLead,
     *,
@@ -555,10 +582,14 @@ def _brave_locator(
 ) -> tuple[list[str], list[EnrichmentObservation], list[str]]:
     api_key = (getattr(settings, 'BRAVE_SEARCH_API_KEY', '') or '').strip()
     search_client = client or BraveSearchClient(api_key=api_key)
-    websites: list[str] = []
     observations: list[EnrichmentObservation] = []
     errors: list[str] = []
-    seen_urls: set[str] = set()
+    handle = (seller_lead.instagram_username or '').strip().lstrip('@')
+
+    # Keep one row per URL and rank strong identity evidence before generic hits.
+    website_rows: dict[str, dict[str, Any]] = {}
+    seen_order: list[str] = []
+
     for query in _brave_queries(seller_lead):
         logger.info('Seller contact Brave locator query=%r', query)
         try:
@@ -566,15 +597,21 @@ def _brave_locator(
         except Exception as exc:
             errors.append(str(exc)[:300])
             continue
+
         for row in rows:
             url = str(row.get('url') or '').strip()
-            if not url or url in seen_urls:
+            if not url:
                 continue
-            seen_urls.add(url)
+
             if _blocked_locator_host(parse.urlsplit(url).hostname or ''):
-                if url.startswith(('http://', 'https://')):
-                    websites.append(url)
+                if url.startswith(('http://', 'https://')) and url not in website_rows:
+                    website_rows[url] = {
+                        'priority': 9,
+                        'order': len(seen_order),
+                    }
+                    seen_order.append(url)
                 continue
+
             phone = _explicit_whatsapp_url_phone(url)
             if phone and _title_mentions_lead(str(row.get('title') or ''), seller_lead.name):
                 observations.append(EnrichmentObservation(
@@ -588,8 +625,35 @@ def _brave_locator(
                     origin=SOURCE_BRAVE,
                 ))
                 continue
-            if url.startswith(('http://', 'https://')):
-                websites.append(url)
+
+            if not url.startswith(('http://', 'https://')):
+                continue
+
+            priority = 5
+            if 'официальный сайт' in query:
+                priority = 1
+            if _instagram_handle_matches_host(handle, url):
+                priority = 0
+            elif _brave_result_mentions_handle(row, handle):
+                priority = min(priority, 2)
+
+            existing = website_rows.get(url)
+            if existing is None:
+                website_rows[url] = {
+                    'priority': priority,
+                    'order': len(seen_order),
+                }
+                seen_order.append(url)
+            else:
+                existing['priority'] = min(existing['priority'], priority)
+
+    websites = sorted(
+        website_rows,
+        key=lambda url: (
+            website_rows[url]['priority'],
+            website_rows[url]['order'],
+        ),
+    )
     return websites, observations, errors
 
 
