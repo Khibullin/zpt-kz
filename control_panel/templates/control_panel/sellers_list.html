@@ -159,8 +159,8 @@
                   </td>
                   <td>
                     <div class="cp-row-actions">
-                      {% if row.invite_url %}
-                        <a class="cp-btn cp-btn-small" href="{{ row.invite_url }}" target="_blank" rel="noopener noreferrer">Открыть приглашение</a>
+                      {% if row.can_invite %}
+                        <a class="cp-btn cp-btn-small" href="{% url 'control_panel:seller_candidate_invite' row.pk %}" target="_blank" rel="noopener noreferrer">Открыть приглашение</a>
                       {% endif %}
                       {% if row.can_mark_invited %}
                         <form method="post" action="{% url 'control_panel:seller_candidate_mark_invited' row.pk %}" class="cp-inline-form">
@@ -337,8 +337,8 @@
                 <th>Товары</th>
                 <th>Получает заявки</th>
                 <th>Согласие</th>
-                <th>Отправлено</th>
-                <th>Открыто</th>
+                <th>Отправлено заявок</th>
+                <th>Открыто заявок</th>
                 <th>Контакты WA</th>
                 <th>Звонки</th>
                 <th>Нет в наличии</th>
