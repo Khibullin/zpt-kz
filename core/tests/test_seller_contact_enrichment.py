@@ -25,7 +25,9 @@ from core.models import (
 )
 from core.management.commands.enrich_seller_contacts import _observation_source_label
 from core.services.seller_contact_enrichment import (
+    EnrichmentObservation,
     SellerContactEnrichmentError,
+    _store_whatsapp,
     enrich_seller_lead_contacts,
 )
 from core.services.seller_contact_google_places import (
@@ -358,6 +360,48 @@ class WebsiteExtractionTests(TestCase):
             lead_name='Omega Motors',
             instagram=handle,
         ))
+
+
+class RejectedWhatsAppGuardTests(TestCase):
+    def test_manually_rejected_whatsapp_is_not_selected_again(self):
+        lead = _lead(whatsapp='')
+        SellerLeadContactCandidate.objects.create(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77011234567',
+            confidence='high',
+            status=SellerLeadContactCandidate.STATUS_REJECTED,
+            source_url='https://chinaparts.kz/',
+        )
+        observation = EnrichmentObservation(
+            field_name='whatsapp',
+            value='77011234567',
+            confidence=98,
+            explicit_whatsapp=True,
+            source_url='https://chinaparts.kz/',
+            excerpt='WhatsApp',
+            confirms_whatsapp=True,
+            origin='website',
+        )
+
+        _store_whatsapp(lead, observation, source=None, preferred=True)
+
+        lead.refresh_from_db()
+        self.assertEqual(lead.whatsapp, '')
+        self.assertFalse(
+            SellerLeadEvidence.objects.filter(
+                seller_lead=lead,
+                field_name='whatsapp',
+                normalized_value='77011234567',
+                is_selected=True,
+            ).exists()
+        )
+        candidate = SellerLeadContactCandidate.objects.get(
+            seller_lead=lead,
+            contact_type=SellerLeadContactCandidate.CONTACT_TYPE_WHATSAPP,
+            value='77011234567',
+        )
+        self.assertEqual(candidate.status, SellerLeadContactCandidate.STATUS_REJECTED)
 
 
 class WebsiteSafetyTests(TestCase):
