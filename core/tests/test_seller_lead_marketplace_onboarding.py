@@ -1,4 +1,4 @@
-from urllib.parse import parse_qs, urlparse
+from urllib.parse import urlparse
 
 from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
@@ -34,28 +34,58 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         return SellerLead.objects.create(**defaults)
 
     @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
-    def test_registration_url_is_prefilled_from_lead(self):
+    def test_registration_url_is_short_and_contains_no_lead_data(self):
         lead = self._lead()
 
         url = build_marketplace_registration_url(lead)
 
         parsed = urlparse(url)
-        self.assertEqual(f'{parsed.scheme}://{parsed.netloc}{parsed.path}', 'https://zpt.kz/seller/register/')
-        query = parse_qs(parsed.query)
-        self.assertEqual(query['name'], ['Invite Parts'])
-        self.assertEqual(query['phone'], ['77015550101'])
-        self.assertEqual(query['city'], ['Алматы'])
-        self.assertEqual(query['instagram'], ['https://www.instagram.com/invite_parts/'])
-        self.assertEqual(query['website'], ['https://invite-parts.example'])
+        self.assertTrue(parsed.path.startswith('/seller/join/'))
+        self.assertEqual(parsed.query, '')
+        self.assertNotIn('Invite Parts', url)
+        self.assertNotIn('77015550101', url)
+        self.assertNotIn('invite_parts', url)
+        self.assertLess(len(url), 180)
 
     @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
-    def test_invite_is_a_manual_whatsapp_link(self):
+    def test_invite_is_a_manual_whatsapp_link_with_short_join_url(self):
         lead = self._lead()
 
         url = build_marketplace_invite_whatsapp_url(lead)
 
         self.assertTrue(url.startswith('https://wa.me/77015550101?text='))
-        self.assertIn('zpt.kz/seller/register/', url)
+        self.assertIn('zpt.kz/seller/join/', url)
+        self.assertNotIn('name%3D', url)
+        self.assertNotIn('phone%3D', url)
+
+    def test_join_link_redirects_to_clean_register_and_prefills_from_session(self):
+        lead = self._lead()
+        join_url = build_marketplace_registration_url(
+            lead,
+            base_url='http://testserver',
+        )
+        parsed = urlparse(join_url)
+
+        response = self.client.get(parsed.path)
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, reverse('seller_register'))
+        register = self.client.get(reverse('seller_register'))
+        self.assertEqual(register.status_code, 200)
+        form = register.context['form']
+        self.assertEqual(form.initial['name'], 'Invite Parts')
+        self.assertEqual(form.initial['phone'], '77015550101')
+        self.assertEqual(form.initial['city'], 'Алматы')
+        self.assertEqual(
+            form.initial['instagram'],
+            'https://www.instagram.com/invite_parts/',
+        )
+        self.assertEqual(form.initial['website'], 'https://invite-parts.example')
+
+    def test_invalid_join_token_returns_404(self):
+        response = self.client.get('/seller/join/not-a-valid-token/')
+
+        self.assertEqual(response.status_code, 404)
 
     def test_registration_get_prefills_existing_form(self):
         response = self.client.get(reverse('seller_register'), {
