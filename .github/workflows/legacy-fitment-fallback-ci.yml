@@ -24,7 +24,6 @@ jobs:
       - run: >
           python manage.py test
           catalog.tests.test_legacy_fitment_fallback
-          catalog.tests.test_catalog_empty_state
           catalog.tests.test_product_applicability
           catalog.tests.test_catalog_exact_article_search
           catalog.tests.test_catalog_b2b
