@@ -581,3 +581,125 @@ a.cp-ext-link:hover { text-decoration: underline; }
   .cp-kpis-compact { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .cp-expand-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+
+/* Seller hub */
+.cp-tabs {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 14px;
+  flex-wrap: wrap;
+}
+.cp-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--cp-line);
+  background: #fff;
+  color: var(--cp-text);
+  text-decoration: none;
+  font-weight: 700;
+}
+.cp-tab span {
+  min-width: 24px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: #f3f4f6;
+  color: var(--cp-muted);
+  font-size: 12px;
+  text-align: center;
+}
+.cp-tab.is-active {
+  background: #111;
+  color: #fff;
+  border-color: #111;
+}
+.cp-tab.is-active span {
+  background: rgba(255,255,255,.16);
+  color: #fff;
+}
+.cp-seller-kpis {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-bottom: 12px;
+}
+.cp-seller-filters {
+  padding: 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: 12px;
+  background: #fff;
+}
+.cp-seller-filters label {
+  min-width: 150px;
+}
+.cp-seller-filters input,
+.cp-seller-filters select {
+  min-width: 150px;
+}
+.cp-quick-filters {
+  margin-bottom: 12px;
+}
+.cp-btn-secondary {
+  background: #fff;
+  color: #111;
+  border: 1px solid #d1d5db;
+  text-decoration: none;
+}
+.cp-btn-small {
+  padding: 6px 9px;
+  border-radius: 7px;
+  font-size: 12px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cp-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+  min-width: 230px;
+}
+.cp-inline-form {
+  display: inline;
+  margin: 0;
+}
+.cp-text-link {
+  font-size: 12px;
+  color: var(--cp-muted);
+}
+.cp-cell-sub {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--cp-muted);
+  white-space: normal;
+}
+.cp-messages {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 12px;
+}
+.cp-message {
+  padding: 9px 12px;
+  border: 1px solid var(--cp-line);
+  border-radius: 8px;
+  background: #fff;
+}
+.cp-message-success { background: #ecfdf5; color: #166534; border-color: #bbf7d0; }
+.cp-message-warning { background: #fffbeb; color: #92400e; border-color: #fde68a; }
+.cp-message-info { background: #eff6ff; color: #1e40af; border-color: #bfdbfe; }
+
+@media (max-width: 1100px) {
+  .cp-seller-kpis { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .cp-seller-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cp-seller-filters label,
+  .cp-seller-filters input,
+  .cp-seller-filters select {
+    width: 100%;
+    min-width: 0;
+  }
+}
