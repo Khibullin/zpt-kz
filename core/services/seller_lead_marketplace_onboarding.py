@@ -52,6 +52,49 @@ def build_marketplace_invite_whatsapp_url(lead: SellerLead) -> str:
     )
 
 
+def mark_seller_lead_invited(lead: SellerLead) -> bool:
+    """Record a manual marketplace invitation after the operator sends it.
+
+    This function does not send WhatsApp. It only moves a ready lead to
+    lifecycle=invited and keeps the legacy marketplace-planned fields aligned.
+    """
+    if lead.lifecycle_status == SellerLead.LIFECYCLE_INVITED:
+        return False
+    if lead.lifecycle_status != SellerLead.LIFECYCLE_READY_TO_INVITE:
+        return False
+    if not build_marketplace_invite_whatsapp_url(lead):
+        return False
+
+    now = timezone.now()
+    lead.lifecycle_status = SellerLead.LIFECYCLE_INVITED
+    update_fields = {'lifecycle_status', 'updated_at'}
+
+    if (
+        lead.marketplace_invitation_status
+        != SellerLead.MARKETPLACE_INVITATION_PLANNED
+    ):
+        lead.marketplace_invitation_status = (
+            SellerLead.MARKETPLACE_INVITATION_PLANNED
+        )
+        update_fields.add('marketplace_invitation_status')
+
+    if lead.marketplace_invitation_planned_at is None:
+        lead.marketplace_invitation_planned_at = now
+        update_fields.add('marketplace_invitation_planned_at')
+
+    if lead.reviewed_at is None:
+        lead.reviewed_at = now
+        update_fields.add('reviewed_at')
+
+    review_status = compute_review_status(lead)
+    if lead.review_status != review_status:
+        lead.review_status = review_status
+        update_fields.add('review_status')
+
+    lead.save(update_fields=sorted(update_fields))
+    return True
+
+
 def claim_seller_lead_after_registration(
     *,
     phone: str,
