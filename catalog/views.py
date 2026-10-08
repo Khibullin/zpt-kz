@@ -5,6 +5,7 @@ from urllib.parse import quote, urlencode
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.decorators import login_required
+from django.core import signing
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.mail import send_mail
 from django.conf import settings
@@ -19,7 +20,7 @@ from django.utils import timezone
 
 from core.forms import FeedbackForm
 from core.kazakhstan_locations import KAZAKHSTAN_CITIES
-from core.models import PartCategory, Seller as RequestSeller
+from core.models import PartCategory, Seller as RequestSeller, SellerLead
 from core.services.seller_identity import (
     SellerIdentityError,
     authenticate_shop_seller,
@@ -32,6 +33,7 @@ from core.services.seller_identity import (
 )
 from core.services.seller_lead_marketplace_onboarding import (
     claim_seller_lead_after_registration,
+    decode_seller_invite_token,
 )
 from core.services.seller_whatsapp_consent import (
     get_seller_whatsapp_marketing_consent_status,
@@ -729,6 +731,26 @@ def consignment_request_create(request):
     })
 
 
+def seller_join(request, token):
+    try:
+        lead_id = decode_seller_invite_token(token)
+    except (signing.BadSignature, signing.SignatureExpired):
+        raise Http404('Приглашение недействительно или срок действия истёк.')
+
+    lead = get_object_or_404(
+        SellerLead.objects.exclude(
+            lifecycle_status__in=(
+                SellerLead.LIFECYCLE_DUPLICATE,
+                SellerLead.LIFECYCLE_REJECTED,
+                SellerLead.LIFECYCLE_CLOSED,
+            )
+        ),
+        pk=lead_id,
+    )
+    request.session['seller_invite_lead_id'] = lead.pk
+    return redirect('seller_register')
+
+
 def seller_register(request):
     error_message = None
 
@@ -769,6 +791,7 @@ def seller_register(request):
                         'Seller account created but SellerLead claim sync failed',
                         extra={'seller_id': request_seller.pk},
                     )
+                request.session.pop('seller_invite_lead_id', None)
                 return redirect('seller_login')
             except SellerIdentityError as exc:
                 error_message = exc.message
@@ -782,6 +805,21 @@ def seller_register(request):
             'instagram': (request.GET.get('instagram') or '').strip()[:255],
             'website': (request.GET.get('website') or '').strip()[:500],
         }
+
+        invite_lead_id = request.session.get('seller_invite_lead_id')
+        if invite_lead_id:
+            invite_lead = SellerLead.objects.filter(pk=invite_lead_id).first()
+            if invite_lead is not None:
+                initial.update({
+                    'name': (invite_lead.name or '').strip()[:255],
+                    'phone': ''.join(
+                        ch for ch in (invite_lead.whatsapp or '') if ch.isdigit()
+                    )[:30],
+                    'city': (invite_lead.city or '').strip()[:120],
+                    'instagram': invite_lead.get_instagram_profile_url()[:255],
+                    'website': (invite_lead.website_url or '').strip()[:500],
+                })
+
         form = SellerRegisterForm(
             initial={key: value for key, value in initial.items() if value},
         )
