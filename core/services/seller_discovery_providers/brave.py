@@ -12,6 +12,8 @@ from urllib.parse import urlsplit
 from django.conf import settings
 from django.utils import timezone
 
+from core.kazakhstan_locations import canonical_kazakhstan_city
+
 from core.models import SellerLeadSource
 from core.services.seller_discovery_identity import normalize_instagram_identity, normalize_seller_phone
 from core.services.seller_discovery_providers.base import (
@@ -19,7 +21,6 @@ from core.services.seller_discovery_providers.base import (
     SellerDiscoveryHit,
     require_discovery_provider,
 )
-from core.services.seller_discovery_providers.catalog import resolve_city
 from core.services.seller_lead_search import (
     BraveSearchClient,
     parse_instagram_profile_url,
@@ -105,10 +106,19 @@ SKIPPED_RESULT_SUFFIXES = (
 )
 
 
+def _resolve_brave_city(city: str) -> str:
+    resolved = canonical_kazakhstan_city(city)
+    if not resolved:
+        raise DiscoveryProviderConfigError(
+            f'Город {city} не входит в справочник городов Казахстана.'
+        )
+    return resolved
+
+
 def build_brave_discovery_query(*, city: str, direction: str) -> str:
-    resolved = resolve_city(city)
+    resolved = _resolve_brave_city(city)
     term = ' '.join(str(direction or '').split())
-    return f'{term} {resolved.name} Казахстан'
+    return f'{term} {resolved} Казахстан'
 
 
 def parse_brave_web_result(
@@ -124,7 +134,7 @@ def parse_brave_web_result(
     if not result_url or _host_is_skipped(result_url):
         return None
 
-    resolved = resolve_city(city)
+    resolved = _resolve_brave_city(city)
     title = str(row.get('title') or '').strip()
     description = str(row.get('description') or '').strip()
     observed = observed_at or timezone.now()
@@ -163,14 +173,14 @@ def parse_brave_web_result(
         source_type=source_type,
         external_id='',
         name=name[:255],
-        city=resolved.name,
+        city=resolved,
         phone=phones[0] if phones else '',
         phones=tuple(phones),
         website=website[:500],
         instagram_url=instagram_url[:500],
         category_text='',
         source_url=result_url[:500],
-        search_query=build_brave_discovery_query(city=resolved.name, direction=direction)[:200],
+        search_query=build_brave_discovery_query(city=resolved, direction=direction)[:200],
         confidence=confidence,
         raw_data=raw,
         observed_at=observed,
@@ -191,16 +201,16 @@ class BraveWebDiscoveryProvider:
         limit: int | None = None,
         max_pages: int | None = None,
     ) -> list[SellerDiscoveryHit]:
-        resolved = resolve_city(city)
+        resolved = _resolve_brave_city(city)
         require_discovery_provider(PROVIDER_NAME)
-        query = build_brave_discovery_query(city=resolved.name, direction=direction)
+        query = build_brave_discovery_query(city=resolved, direction=direction)
         client = self.client or _client_from_settings()
         count = 5 if limit is None else max(1, min(int(limit), 20))
         rows = client.search(query, count=count)
         hits: list[SellerDiscoveryHit] = []
         seen_urls: set[str] = set()
         for row in rows:
-            hit = parse_brave_web_result(row, city=resolved.name, direction=direction)
+            hit = parse_brave_web_result(row, city=resolved, direction=direction)
             if hit is None or hit.source_url in seen_urls:
                 continue
             seen_urls.add(hit.source_url)
