@@ -13,11 +13,11 @@
     <a
       class="cp-tab{% if seller_view == 'sellers' %} is-active{% endif %}"
       href="{% url 'control_panel:seller_list' %}?view=sellers"
-    >Продавцы <span>{{ summary.total|default:seller_total }}</span></a>
+    >Продавцы <span>{{ seller_total }}</span></a>
     <a
       class="cp-tab{% if seller_view == 'candidates' %} is-active{% endif %}"
       href="{% url 'control_panel:seller_list' %}?view=candidates"
-    >Кандидаты <span>{{ candidate_total|default:summary.total }}</span></a>
+    >Кандидаты <span>{{ candidate_total }}</span></a>
   </div>
 
   {% if seller_view == 'candidates' %}
