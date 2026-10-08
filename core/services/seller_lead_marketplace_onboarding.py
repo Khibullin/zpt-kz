@@ -175,7 +175,6 @@ def mark_seller_lead_whatsapp_unavailable(lead: SellerLead) -> bool:
         SellerLead.LIFECYCLE_DUPLICATE,
         SellerLead.LIFECYCLE_REJECTED,
         SellerLead.LIFECYCLE_CLOSED,
-        SellerLead.LIFECYCLE_INVITED,
         SellerLead.LIFECYCLE_CLAIMED,
         SellerLead.LIFECYCLE_VERIFIED,
         SellerLead.LIFECYCLE_ACTIVE,
@@ -219,6 +218,8 @@ def mark_seller_lead_whatsapp_unavailable(lead: SellerLead) -> bool:
         locked.whatsapp_found_at = None
         locked.status = SellerLead.STATUS_NO_WHATSAPP
         locked.lifecycle_status = SellerLead.LIFECYCLE_CLASSIFIED
+        locked.marketplace_invitation_status = SellerLead.MARKETPLACE_INVITATION_NONE
+        locked.marketplace_invitation_planned_at = None
         locked.next_enrichment_at = now
         locked.reviewed_at = now
         locked.notes = (
@@ -234,11 +235,18 @@ def mark_seller_lead_whatsapp_unavailable(lead: SellerLead) -> bool:
             'whatsapp_found_at',
             'status',
             'lifecycle_status',
+            'marketplace_invitation_status',
+            'marketplace_invitation_planned_at',
             'next_enrichment_at',
             'reviewed_at',
             'notes',
             'updated_at',
         ])
+
+        review_status = compute_review_status(locked)
+        if locked.review_status != review_status:
+            locked.review_status = review_status
+            locked.save(update_fields=['review_status', 'updated_at'])
 
         from core.services.seller_discovery_identity import refresh_seller_lead_identity
         refresh_seller_lead_identity(locked)
