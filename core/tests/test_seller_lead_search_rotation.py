@@ -23,6 +23,7 @@ from core.services.seller_lead_search import build_search_queries
 from core.services.seller_lead_search_rotation import (
     ROTATION_EPOCH,
     SEARCH_ROTATION_PROFILES,
+    get_rotation_city,
     get_rotation_profile,
     resolve_pipeline_search,
 )
@@ -69,6 +70,20 @@ def _profile_row(username: str) -> dict:
     SELLER_SEARCH_ENABLED=True,
 )
 class SearchRotationProfileSelectionTests(SimpleTestCase):
+    def test_city_rotation_starts_with_first_kz_city(self):
+        city, index = get_rotation_city(ROTATION_EPOCH)
+        self.assertEqual(city, 'Алматы')
+        self.assertEqual(index, 0)
+
+    def test_city_rotation_moves_to_next_city(self):
+        city, index = get_rotation_city(ROTATION_EPOCH + timedelta(days=1))
+        self.assertEqual(city, 'Астана')
+        self.assertEqual(index, 1)
+
+    def test_city_rotation_is_deterministic(self):
+        target = date(2026, 8, 4)
+        self.assertEqual(get_rotation_city(target), get_rotation_city(target))
+
     def test_july_15_selects_general_parts(self):
         profile, index = get_rotation_profile(date(2026, 7, 15))
         self.assertEqual(profile.slug, 'general_parts')
@@ -199,6 +214,55 @@ class SearchRotationPipelineIntegrationTests(TestCase):
     def tearDown(self):
         if SQLITE_PIPELINE_LOCK.locked():
             release_pipeline_lock()
+
+    @override_settings(SELLER_LEAD_CRON_ROTATE_CITY=True)
+    def test_cron_command_rotates_city_without_changing_manual_default(self):
+        out = StringIO()
+        from core.services.seller_lead_pipeline import SellerLeadPipelineStats
+
+        with patch(
+            'core.management.commands.run_seller_lead_pipeline.get_rotation_city',
+            return_value=('Астана', 1),
+        ), patch(
+            'core.management.commands.run_seller_lead_pipeline.run_seller_lead_pipeline',
+            return_value=SellerLeadPipelineStats(dry_run=True),
+        ) as pipeline_mock:
+            call_command(
+                'run_seller_lead_pipeline',
+                '--rotate-search-term',
+                '--trigger',
+                'cron',
+                '--dry-run',
+                '--skip-enrichment',
+                stdout=out,
+            )
+
+        self.assertEqual(pipeline_mock.call_args.kwargs['city'], 'Астана')
+        self.assertIn('city: Астана', out.getvalue())
+        self.assertIn('city rotation: 2/', out.getvalue())
+
+    @override_settings(SELLER_LEAD_CRON_ROTATE_CITY=True)
+    def test_manual_command_does_not_rotate_city(self):
+        out = StringIO()
+        from core.services.seller_lead_pipeline import SellerLeadPipelineStats
+
+        with patch(
+            'core.management.commands.run_seller_lead_pipeline.get_rotation_city',
+            return_value=('Астана', 1),
+        ) as city_mock, patch(
+            'core.management.commands.run_seller_lead_pipeline.run_seller_lead_pipeline',
+            return_value=SellerLeadPipelineStats(dry_run=True),
+        ) as pipeline_mock:
+            call_command(
+                'run_seller_lead_pipeline',
+                '--rotate-search-term',
+                '--dry-run',
+                '--skip-enrichment',
+                stdout=out,
+            )
+
+        city_mock.assert_not_called()
+        self.assertEqual(pipeline_mock.call_args.kwargs['city'], 'Алматы')
 
     def test_rotate_search_term_passes_term_to_discovery(self):
         target_date = date(2026, 7, 16)
