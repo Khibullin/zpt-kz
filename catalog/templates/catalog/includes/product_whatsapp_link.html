@@ -4,7 +4,7 @@
 {% if wa_url %}
 <a
   class="{% if detail %}btn-green detail-wa-btn{% else %}btn-green product-wa-btn{% endif %}{% if product.price_on_request %} product-wa-btn--price-request{% endif %}"
-  href="{{ wa_url }}"
+  href="{% url 'product_whatsapp_redirect' product.pk %}?src={% if detail %}detail{% else %}card{% endif %}"
   target="_blank"
   rel="noopener noreferrer"
 >
