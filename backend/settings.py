@@ -437,5 +437,3 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = 'same-origin'
-# Temporary ops token for one-off seller WhatsApp recheck.
-SELLER_RECHECK_TOKEN = os.getenv('SELLER_RECHECK_TOKEN', '').strip()
