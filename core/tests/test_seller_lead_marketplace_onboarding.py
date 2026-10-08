@@ -68,6 +68,25 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertIn('zpt.kz/seller/join/', message)
 
     @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
+    def test_official_dealer_gets_business_invitation_copy(self):
+        lead = self._lead(
+            name='Audi Centre Almaty',
+            business_type=SellerLead.BUSINESS_TYPE_DEALER,
+        )
+
+        message = build_marketplace_invite_message(lead)
+
+        self.assertIn(
+            'ZPT.KZ развивает платформу поиска автозапчастей по Казахстану',
+            message,
+        )
+        self.assertIn('отдел запасных частей Audi Centre Almaty', message)
+        self.assertIn('дополнительный спрос покупателей на оригинальные запчасти', message)
+        self.assertIn('Подключение на текущем этапе бесплатное', message)
+        self.assertIn('zpt.kz/seller/join/', message)
+        self.assertNotIn('Можно создать кабинет продавца', message)
+
+    @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
     def test_invite_is_a_manual_whatsapp_link_with_short_join_url(self):
         lead = self._lead()
 
