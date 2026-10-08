@@ -1136,6 +1136,13 @@ body.home-vehicle-picker-open{
   </section>
 
   {% if products and not is_home_result %}
+  {% if legacy_model_fallback %}
+    <div class="home-parts-warning catalog-legacy-fitment-warning" role="status">
+      Точных совпадений по модели «{{ legacy_model_fallback_model.name }}» в структурированной применяемости нет.
+      Ниже показаны старые карточки, где эта модель явно указана продавцом в названии или поле «Подходит для».
+      Перед заказом обязательно проверьте применяемость по VIN.
+    </div>
+  {% endif %}
   <div
     id="catalog-results"
     class="products-head"
@@ -1150,7 +1157,11 @@ body.home-vehicle-picker-open{
     <div class="products{% if not is_listing %} home-showcase-products{% endif %}">
 
       {% for product in products %}
-        {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
+        {% if legacy_model_fallback %}
+          {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' compat_note='Применяемость найдена по тексту старой карточки. Проверьте по VIN.' %}
+        {% else %}
+          {% include 'catalog/includes/product_card.html' with product=product card_mode='retail' %}
+        {% endif %}
       {% endfor %}
 
     </div>
