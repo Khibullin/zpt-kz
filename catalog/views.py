@@ -52,9 +52,6 @@ from .commercial import (
     validate_consignment_request,
 )
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
-logger = logging.getLogger(__name__)
-
-
 from .models import (
     Product,
     ProductConsignmentRequest,
@@ -89,6 +86,9 @@ from .wholesale import (
     wholesale_storefront_condition_lines,
     wholesale_vat_price_suffix,
 )
+
+
+logger = logging.getLogger(__name__)
 from .wholesale_export import XLSX_CONTENT_TYPE, wholesale_price_xlsx_bytes
 from orders.attribution import capture_utm_from_request
 from orders.wholesale_analytics import (
