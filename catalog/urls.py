@@ -3,7 +3,7 @@ from django.urls import path
 from .fitment_slug_redirects import fitment_slug_urlpatterns
 from .legacy_product_urls import legacy_product_urlpatterns
 from .numeric_product_urls import numeric_product_entry
-from .seo_category_landings import oil_filter_landing
+from .seo_category_landings import category_landing, oil_filter_landing
 from .seo_landings import brand_landing
 from .views_maintenance_kits import (
     maintenance_kit_add_to_cart,
@@ -66,6 +66,30 @@ urlpatterns = [
         'avtozapchasti/maslyanye-filtry/',
         oil_filter_landing,
         name='seo_oil_filter_landing',
+    ),
+    path(
+        'avtozapchasti/kuzov/',
+        category_landing,
+        {'category_slug': 'kuzov'},
+        name='seo_body_parts_landing',
+    ),
+    path(
+        'avtozapchasti/dvigatel/',
+        category_landing,
+        {'category_slug': 'dvigatel'},
+        name='seo_engine_parts_landing',
+    ),
+    path(
+        'avtozapchasti/tormoza/',
+        category_landing,
+        {'category_slug': 'tormoza'},
+        name='seo_brake_parts_landing',
+    ),
+    path(
+        'avtozapchasti/hodovaya-chast/',
+        category_landing,
+        {'category_slug': 'hodovaya-chast'},
+        name='seo_suspension_parts_landing',
     ),
     path(
         'avtozapchasti/<slug:brand_slug>/',
