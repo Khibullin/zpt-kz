@@ -183,6 +183,12 @@ def seller_list(request):
 @control_staff_required
 def seller_candidate_invite(request, pk: int):
     lead = get_object_or_404(SellerLead, pk=pk, duplicate_of__isnull=True)
+    if lead.lifecycle_status != SellerLead.LIFECYCLE_READY_TO_INVITE:
+        messages.warning(
+            request,
+            f'#{lead.pk}: приглашение доступно только на этапе «Готов к приглашению».',
+        )
+        return redirect(reverse('control_panel:seller_list') + '?view=candidates')
     target = build_marketplace_invite_whatsapp_url(lead)
     if not target:
         messages.warning(request, f'#{lead.pk}: корректный WhatsApp не найден.')
