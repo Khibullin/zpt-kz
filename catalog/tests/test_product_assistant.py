@@ -356,7 +356,7 @@ class ProductAssistantEndpointTests(TestCase):
         )
         self.assertContains(response, 'Выбрано 0 из 5')
         self.assertContains(response, 'product-assistant-v1.js')
-        self.assertContains(response, 'product_assistant_v5')
+        self.assertContains(response, 'product_assistant_v6')
         self.assertContains(response, 'Найденные данные')
         self.assertContains(response, 'id_article')
         self.assertContains(
