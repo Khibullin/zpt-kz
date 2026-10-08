@@ -42,10 +42,21 @@
             <label for="{{ form.article.id_for_label }}">{{ form.article.label }}</label>
             <span class="product-article-row">
               {{ form.article }}
+              <button type="button" class="btn outline" id="js-article-recognition-btn">
+                📷 Распознать с фото
+              </button>
               <button type="button" class="btn red" id="js-product-assistant-btn">
                 ✨ Заполнить карточку с AI
               </button>
             </span>
+            <input
+              type="file"
+              id="js-article-recognition-file"
+              accept="image/jpeg,image/png,image/webp"
+              capture="environment"
+              hidden
+            >
+            <span class="field-hint" id="js-article-recognition-status" hidden></span>
             <span class="field-hint" id="js-product-assistant-status" hidden></span>
           </p>
           <div class="product-assistant-preview" id="js-product-assistant-preview" hidden>
@@ -246,6 +257,7 @@
   id="product-assistant-root"
   hidden
   data-assistant-url="{% url 'ajax_product_assistant' %}"
+  data-article-recognition-url="{% url 'ajax_product_article_recognition' %}"
   data-image-search-url="{% url 'ajax_product_image_search' %}"
   data-brands-url="{% url 'ajax_load_brands' %}"
   data-models-url="{% url 'ajax_load_models' %}"
@@ -254,7 +266,7 @@
   data-existing-extra-count="{% if product %}{{ product.images.count }}{% else %}0{% endif %}"
 ></div>
 <script src="{% static 'js/dom-safe.js' %}?v=dom_safe_v1"></script>
-<script src="{% static 'js/product-assistant-v1.js' %}?v=product_assistant_v5"></script>
+<script src="{% static 'js/product-assistant-v1.js' %}?v=product_assistant_v6"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const countrySelect = document.getElementById("id_country");
