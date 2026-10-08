@@ -81,6 +81,17 @@ def build_marketplace_registration_url(
 def build_marketplace_invite_message(lead: SellerLead) -> str:
     registration_url = build_marketplace_registration_url(lead)
     name = (lead.name or '').strip()
+
+    if lead.business_type == SellerLead.BUSINESS_TYPE_DEALER:
+        dealer_name = name or 'ваш отдел запасных частей'
+        return (
+            'Здравствуйте! ZPT.KZ развивает платформу поиска автозапчастей по Казахстану.\n\n'
+            f'Приглашаем отдел запасных частей {dealer_name} подключиться к платформе '
+            'и получать дополнительный спрос покупателей на оригинальные запчасти. '
+            'Подключение на текущем этапе бесплатное.\n'
+            f'Регистрация: {registration_url}'
+        )
+
     greeting = f'Здравствуйте! Приглашаем {name} подключиться к ZPT.KZ.' if name else (
         'Здравствуйте! Приглашаем ваш магазин подключиться к ZPT.KZ.'
     )
