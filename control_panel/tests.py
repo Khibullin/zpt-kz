@@ -22,6 +22,8 @@ from core.models import (
     Seller,
     SellerContactConsent,
     SellerLead,
+    SellerLeadContactCandidate,
+    SellerLeadEvidence,
     SellerLeadSource,
     SellerRequestPageEvent,
 )
