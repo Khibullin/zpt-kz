@@ -459,6 +459,12 @@
           button.disabled = false;
         });
     });
+
+    if (root.getAttribute('data-autostart-article-recognition') === '1') {
+      window.setTimeout(function () {
+        button.click();
+      }, 0);
+    }
   }
 
   function bindAssistant(root) {
