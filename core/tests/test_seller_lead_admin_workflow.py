@@ -17,9 +17,11 @@ from core.admin import (
     reject_seller_leads,
     return_seller_leads_to_review,
 )
-from core.models import Seller, SellerLead, SellerLeadContactCandidate
+from core.models import Brand, Country, Seller, SellerContactConsent, SellerLead, SellerLeadContactCandidate
 from core.services.seller_lead_admin_workflow import (
+    RequestSellerActivationProfile,
     WorkflowResultKind,
+    activate_invited_lead_for_requests,
     convert_lead_and_mark_marketplace_planned,
     convert_lead_to_request_seller,
     mark_marketplace_invitation_planned,
@@ -62,6 +64,85 @@ class SellerLeadAdminWorkflowTests(TestCase):
     def test_new_seller_lead_has_needs_review(self):
         lead = _make_lead()
         self.assertEqual(lead.review_status, SellerLead.REVIEW_NEEDS_REVIEW)
+
+    def test_invited_lead_can_be_activated_for_buyer_requests_without_marketing_consent(self):
+        country = Country.objects.create(name='Activation Country')
+        bmw = Brand.objects.create(
+            name='Activation BMW',
+            country=country,
+            transport_type='car',
+        )
+        lead = _make_lead(
+            name='Activation Parts',
+            whatsapp=FAKE_WHATSAPP_A,
+            lifecycle_status=SellerLead.LIFECYCLE_INVITED,
+            request_seller_transport_type='',
+        )
+
+        result = activate_invited_lead_for_requests(
+            lead,
+            RequestSellerActivationProfile(
+                transport_type='car',
+                all_categories=True,
+                all_countries=True,
+                all_brands=False,
+                all_models=True,
+                brand_names=('Activation BMW',),
+            ),
+        )
+
+        lead.refresh_from_db()
+        seller = Seller.objects.get(pk=result.seller_id)
+        self.assertTrue(result.created_seller)
+        self.assertTrue(seller.receive_requests)
+        self.assertTrue(seller.is_active)
+        self.assertFalse(seller.is_paused)
+        self.assertEqual(seller.transport_type, 'car')
+        self.assertTrue(seller.all_categories)
+        self.assertTrue(seller.all_countries)
+        self.assertFalse(seller.all_brands)
+        self.assertTrue(seller.all_models)
+        self.assertEqual(list(seller.selected_brands.all()), [bmw])
+        self.assertEqual(lead.request_seller_id, seller.pk)
+        self.assertEqual(lead.request_seller_transport_type, 'car')
+        self.assertEqual(SellerContactConsent.objects.count(), 0)
+
+    def test_request_activation_reuses_existing_linked_seller_without_duplicate(self):
+        seller = Seller.objects.create(
+            name='Existing Request Seller',
+            whatsapp=FAKE_WHATSAPP_B,
+            transport_type='car',
+            receive_requests=False,
+        )
+        lead = _make_lead(
+            name='Existing Request Seller',
+            whatsapp=FAKE_WHATSAPP_B,
+            lifecycle_status=SellerLead.LIFECYCLE_INVITED,
+            request_seller=seller,
+        )
+
+        result = activate_invited_lead_for_requests(
+            lead,
+            RequestSellerActivationProfile(transport_type='car'),
+        )
+
+        seller.refresh_from_db()
+        self.assertFalse(result.created_seller)
+        self.assertEqual(result.seller_id, seller.pk)
+        self.assertEqual(Seller.objects.filter(whatsapp=FAKE_WHATSAPP_B).count(), 1)
+        self.assertTrue(seller.receive_requests)
+
+    def test_request_activation_rejects_non_invited_lead(self):
+        lead = _make_lead(
+            whatsapp=FAKE_WHATSAPP_C,
+            lifecycle_status=SellerLead.LIFECYCLE_CLASSIFIED,
+        )
+        with self.assertRaises(ValueError):
+            activate_invited_lead_for_requests(
+                lead,
+                RequestSellerActivationProfile(transport_type='car'),
+            )
+        self.assertFalse(Seller.objects.filter(whatsapp=FAKE_WHATSAPP_C).exists())
 
     def test_valid_whatsapp_creates_request_seller(self):
         lead = _make_convertible_lead(whatsapp=FAKE_WHATSAPP_A)
