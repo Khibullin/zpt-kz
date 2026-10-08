@@ -169,7 +169,7 @@
                           <button class="cp-btn cp-btn-small cp-btn-secondary" type="submit">Отметить приглашённым</button>
                         </form>
                       {% endif %}
-                      {% if row.can_invite %}
+                      {% if row.can_mark_whatsapp_unavailable %}
                         <form method="post" action="{% url 'control_panel:seller_candidate_whatsapp_unavailable' row.pk %}" class="cp-inline-form">
                           {% csrf_token %}
                           <input type="hidden" name="next" value="{{ request.get_full_path }}">
