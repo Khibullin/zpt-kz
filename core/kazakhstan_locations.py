@@ -1,4 +1,4 @@
-"""Canonical Kazakhstan city names for public forms and checkout."""
+"""Canonical Kazakhstan city names for public forms, checkout, and seller discovery.\n\nThe registry contains all 90 cities reported by Kazakhstan official statistics\nas of 2026-07-01. Major cities stay first so daily seller discovery reaches\nthe largest markets early while still rotating through the full country.\n"""
 
 from __future__ import annotations
 
