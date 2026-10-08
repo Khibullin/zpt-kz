@@ -54,7 +54,7 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         url = build_marketplace_invite_whatsapp_url(lead)
 
         self.assertTrue(url.startswith('https://wa.me/77015550101?text='))
-        self.assertIn('seller%2Fregister%2F', url)
+        self.assertIn('zpt.kz/seller/register/', url)
 
     def test_registration_get_prefills_existing_form(self):
         response = self.client.get(reverse('seller_register'), {
