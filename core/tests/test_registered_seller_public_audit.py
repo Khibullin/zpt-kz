@@ -44,7 +44,7 @@ class RegisteredSellerPublicAuditTests(TestCase):
                     (seller_id, status, attempts, result, error, updated_at)
                 VALUES (%s, 'pending', 0, '{{}}'::jsonb, '', NOW())
                 ON CONFLICT (seller_id) DO UPDATE
-                SET status='pending', attempts=0, result='{}'::jsonb,
+                SET status='pending', attempts=0, result='{{}}'::jsonb,
                     error='', started_at=NULL, finished_at=NULL, updated_at=NOW()
                 """,
                 [seller_id],
