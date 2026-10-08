@@ -17,6 +17,6 @@ jobs:
       - run: |
           python - <<'PY'
           import os
-          for key in ('DATABASE_URL','SECRET_KEY','BRAVE_SEARCH_API_KEY','GOOGLE_PLACES_API_KEY'):
+          for key in ('DATABASE_URL','SECRET_KEY','BRAVE_SEARCH_API_KEY','GOOGLE_PLACES_API_KEY','RENDER_API_KEY','RENDER_TOKEN'):
               print(f"{key}={'present' if os.environ.get(key) else 'missing'}")
           PY
