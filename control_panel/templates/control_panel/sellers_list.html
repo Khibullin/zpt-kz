@@ -169,6 +169,13 @@
                           <button class="cp-btn cp-btn-small cp-btn-secondary" type="submit">Отметить приглашённым</button>
                         </form>
                       {% endif %}
+                      {% if row.can_invite %}
+                        <form method="post" action="{% url 'control_panel:seller_candidate_whatsapp_unavailable' row.pk %}" class="cp-inline-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                          <button class="cp-btn cp-btn-small cp-btn-danger" type="submit">WhatsApp не работает</button>
+                        </form>
+                      {% endif %}
                       <a class="cp-text-link" href="{{ row.admin_url }}">Тех. Admin</a>
                     </div>
                   </td>
