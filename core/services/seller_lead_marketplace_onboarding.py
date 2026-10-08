@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from urllib.parse import urlencode
-
 from django.conf import settings
+from django.core import signing
 from django.urls import reverse
 from django.utils import timezone
 
@@ -11,24 +10,41 @@ from core.phone_utils import build_whatsapp_url
 from core.services.seller_lead_admin_workflow import compute_review_status
 
 
+SELLER_INVITE_SIGNING_SALT = 'seller-marketplace-invite-v1'
+SELLER_INVITE_MAX_AGE_SECONDS = 60 * 60 * 24 * 30
+
+
+def build_seller_invite_token(lead: SellerLead) -> str:
+    """Signed, URL-safe invite token containing only the SellerLead id."""
+    return signing.dumps(
+        {'lead_id': lead.pk},
+        salt=SELLER_INVITE_SIGNING_SALT,
+        compress=True,
+    )
+
+
+def decode_seller_invite_token(token: str) -> int:
+    payload = signing.loads(
+        token,
+        salt=SELLER_INVITE_SIGNING_SALT,
+        max_age=SELLER_INVITE_MAX_AGE_SECONDS,
+    )
+    lead_id = payload.get('lead_id')
+    if not isinstance(lead_id, int) or lead_id <= 0:
+        raise signing.BadSignature('Invalid seller invite lead id')
+    return lead_id
+
+
 def build_marketplace_registration_url(
     lead: SellerLead,
     *,
     base_url: str | None = None,
 ) -> str:
-    """Public seller registration URL prefilled from a discovered SellerLead."""
-    params = {
-        'name': (lead.name or '').strip(),
-        'phone': normalize_seller_lead_whatsapp(lead.whatsapp),
-        'city': (lead.city or '').strip(),
-        'instagram': lead.get_instagram_profile_url(),
-        'website': (lead.website_url or '').strip(),
-    }
-    query = urlencode({key: value for key, value in params.items() if value})
-    relative = reverse('seller_register')
+    """Short public seller invite URL; lead details stay server-side."""
+    token = build_seller_invite_token(lead)
+    relative = reverse('seller_join', kwargs={'token': token})
     public_base = (base_url or getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz')).rstrip('/')
-    url = f'{public_base}{relative}'
-    return f'{url}?{query}' if query else url
+    return f'{public_base}{relative}'
 
 
 def build_marketplace_invite_message(lead: SellerLead) -> str:
