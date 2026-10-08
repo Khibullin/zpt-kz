@@ -70,7 +70,7 @@ class SellerWhatsappRecheckCampaignTests(TestCase):
     @patch(
         'core.services.seller_whatsapp_recheck_campaign.'
         'active_enrichment_sources',
-        return_value=['website'],
+        return_value=['website', 'brave'],
     )
     @patch(
         'core.services.seller_whatsapp_recheck_campaign.'
@@ -91,3 +91,32 @@ class SellerWhatsappRecheckCampaignTests(TestCase):
         self.assertEqual(result.outcome, 'complete')
         self.assertIsNone(result.lead_id)
         enrich.assert_not_called()
+
+
+    @patch(
+        'core.services.seller_whatsapp_recheck_campaign.'
+        'active_enrichment_sources',
+        return_value=['website'],
+    )
+    @patch(
+        'core.services.seller_whatsapp_recheck_campaign.'
+        'enrich_seller_lead_contacts',
+    )
+    def test_requires_brave_before_claiming_any_lead(
+        self,
+        enrich,
+        active_sources,
+    ):
+        lead = self._lead(
+            5,
+            last_enrichment_attempt_at=CAMPAIGN_STARTED_AT - timedelta(days=1),
+        )
+
+        result = recheck_next_seller_whatsapp()
+
+        self.assertEqual(result.outcome, 'configuration_error')
+        self.assertIn('brave', result.error)
+        self.assertEqual(result.remaining, 1)
+        enrich.assert_not_called()
+        lead.refresh_from_db()
+        self.assertLess(lead.last_enrichment_attempt_at, CAMPAIGN_STARTED_AT)
