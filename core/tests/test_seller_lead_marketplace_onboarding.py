@@ -9,6 +9,7 @@ from core.models import Seller, SellerLead
 from core.services.seller_identity import create_unified_seller_account
 from core.services.seller_lead_admin_workflow import convert_lead_to_request_seller
 from core.services.seller_lead_marketplace_onboarding import (
+    build_marketplace_invite_message,
     build_marketplace_invite_whatsapp_url,
     build_marketplace_registration_url,
     claim_seller_lead_after_registration,
@@ -46,6 +47,20 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertNotIn('77015550101', url)
         self.assertNotIn('invite_parts', url)
         self.assertLess(len(url), 180)
+
+    @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
+    def test_invite_copy_does_not_expose_scraped_profile_title(self):
+        lead = self._lead(
+            name='Китайские запчасти (@kitaisklad.kz) · Almaty',
+            instagram_username='kitaisklad.kz',
+        )
+
+        message = build_marketplace_invite_message(lead)
+
+        self.assertIn('Команда ZPT.KZ приглашает ваш магазин', message)
+        self.assertNotIn('kitaisklad.kz', message)
+        self.assertNotIn('Almaty', message)
+        self.assertIn('zpt.kz/seller/join/', message)
 
     @override_settings(PUBLIC_BASE_URL='https://zpt.kz')
     def test_invite_is_a_manual_whatsapp_link_with_short_join_url(self):
