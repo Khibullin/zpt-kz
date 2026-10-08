@@ -92,14 +92,19 @@ def recheck_next_seller_whatsapp() -> RecheckResult:
             error=str(exc),
         )
 
-    if not active:
+    required_sources = {'website', 'brave'}
+    if not active or not required_sources.issubset(set(active)):
+        missing = ','.join(sorted(required_sources - set(active)))
         return RecheckResult(
             lead_id=None,
             outcome='configuration_error',
             found_whatsapp=False,
-            active_sources=(),
+            active_sources=active,
             remaining=campaign_remaining_count(),
-            error='No active enrichment sources.',
+            error=(
+                'Required enrichment sources are not active'
+                + (f': {missing}' if missing else '.')
+            ),
         )
 
     lead = _claim_next_lead()
