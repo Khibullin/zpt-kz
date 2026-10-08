@@ -55,6 +55,7 @@ from .commercial import (
     validate_consignment_request,
 )
 from .forms import SellerRegisterForm, SellerProfileForm, ProductForm
+from .legacy_fitment import legacy_model_fallback_ids
 from .models import (
     Product,
     ProductConsignmentRequest,
@@ -452,11 +453,13 @@ def catalog_list(request):
     if query:
         products = filter_products_by_public_query(products, query)
 
+    # Apply all safe structured filters first, except the model itself.
+    # Legacy text fitment is considered only after every other active filter.
     products = filter_products_by_vehicle(
         products,
         country_id=country_id,
         brand_id=brand_id,
-        model_id=model_id,
+        model_id='',
     )
 
     if category_id:
@@ -467,6 +470,30 @@ def catalog_list(request):
 
     if selected_offer:
         products = filter_products_by_offer(products, selected_offer)
+
+    legacy_model_fallback = False
+    legacy_model_fallback_model = None
+    if model_id:
+        exact_products = filter_products_by_vehicle(
+            products,
+            model_id=model_id,
+        )
+        if exact_products.exists():
+            products = exact_products
+        else:
+            try:
+                selected_model = (
+                    CarModel.objects
+                    .select_related('brand')
+                    .get(pk=model_id)
+                )
+            except (CarModel.DoesNotExist, ValueError, TypeError):
+                products = products.none()
+            else:
+                fallback_ids = legacy_model_fallback_ids(products, selected_model)
+                products = products.filter(pk__in=fallback_ids)
+                legacy_model_fallback = bool(fallback_ids)
+                legacy_model_fallback_model = selected_model
 
     has_filters = any([
         query,
@@ -532,6 +559,8 @@ def catalog_list(request):
         'selected_country': country_id,
         'selected_brand': brand_id,
         'selected_model': model_id,
+        'legacy_model_fallback': legacy_model_fallback,
+        'legacy_model_fallback_model': legacy_model_fallback_model,
         'selected_category': category_id,
         'selected_city': city,
         'viewer_is_seller': viewer_is_seller,
