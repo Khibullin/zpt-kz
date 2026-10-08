@@ -1,110 +1,382 @@
 {% extends 'control_panel/base.html' %}
 
 {% block content %}
-  <form class="cp-filters" method="get">
-    <label>Поиск
-      <input name="q" value="{{ filters.q }}" placeholder="имя или город">
-    </label>
-    <label>Город
-      <select name="city">
-        <option value="">Все</option>
-        {% for city in cities %}
-          <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Активен
-      <select name="active">
-        <option value="">Все</option>
-        <option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>Да</option>
-        <option value="no" {% if filters.active == 'no' %}selected{% endif %}>Нет</option>
-      </select>
-    </label>
-    <label>Получает заявки
-      <select name="receive">
-        <option value="">Все</option>
-        <option value="yes" {% if filters.receive == 'yes' %}selected{% endif %}>Да</option>
-        <option value="no" {% if filters.receive == 'no' %}selected{% endif %}>Нет</option>
-      </select>
-    </label>
-    <label>Согласие
-      <select name="consent">
-        <option value="">Все</option>
-        <option value="granted" {% if filters.consent == 'granted' %}selected{% endif %}>Разрешено</option>
-        <option value="revoked" {% if filters.consent == 'revoked' %}selected{% endif %}>Отозвано</option>
-        <option value="unknown" {% if filters.consent == 'unknown' %}selected{% endif %}>Не подтверждено</option>
-      </select>
-    </label>
-    <label>Открывал заявки
-      <select name="opened">
-        <option value="">Все</option>
-        <option value="yes" {% if filters.opened == 'yes' %}selected{% endif %}>Да</option>
-        <option value="no" {% if filters.opened == 'no' %}selected{% endif %}>Нет</option>
-      </select>
-    </label>
-    <label>Активность
-      <select name="activity">
-        <option value="">Все</option>
-        <option value="yes" {% if filters.activity == 'yes' %}selected{% endif %}>Была</option>
-        <option value="no" {% if filters.activity == 'no' %}selected{% endif %}>Не было</option>
-      </select>
-    </label>
-    <label>Категория
-      <select name="category">
-        <option value="">Все</option>
-        {% for category in categories %}
-          <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Сортировка
-      <select name="sort">
-        {% for key, label in sort_choices %}
-          <option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <button class="cp-btn" type="submit">Показать</button>
-  </form>
-  <p class="cp-muted">Всего: {{ total }}</p>
-  <div class="cp-card">
-    {% if rows %}
-      <div class="cp-table-wrap">
-        <table class="cp-table cp-table-sticky">
-          <thead>
-            <tr>
-              <th>Продавец</th><th>Город</th><th>Категории</th><th>Активен</th>
-              <th>Получает заявки</th><th>Приостановлен</th><th>Согласие</th>
-              <th>Отправлено заявок</th><th>Открыто заявок</th><th>WhatsApp</th>
-              <th>Звонки</th><th>Нет в наличии</th><th>Не могу выполнить</th>
-              <th>Последняя активность</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% for row in rows %}
-              <tr>
-                <td><a href="{% url 'control_panel:seller_detail' row.pk %}">{{ row.name }}</a></td>
-                <td>{{ row.city }}</td>
-                <td>{{ row.categories }}</td>
-                <td>{% include 'control_panel/_pill.html' with text=row.is_active|yesno:'Активен,Не активен' tone=row.is_active|yesno:'on,off' %}</td>
-                <td>{% include 'control_panel/_pill.html' with text=row.receive_requests|yesno:'Получает заявки,Не получает' tone=row.receive_requests|yesno:'on,off' %}</td>
-                <td>{% include 'control_panel/_pill.html' with text=row.is_paused|yesno:'Приостановлен,Работает' tone=row.is_paused|yesno:'off,on' %}</td>
-                <td>{% include 'control_panel/_pill.html' with text=row.consent_label tone=row.consent_tone %}</td>
-                <td>{{ row.sent }}</td>
-                <td>{{ row.opened }}</td>
-                <td>{{ row.whatsapp }}</td>
-                <td>{{ row.called }}</td>
-                <td>{{ row.out_of_stock }}</td>
-                <td>{{ row.cannot_fulfill }}</td>
-                <td>{{ row.last_activity|date:'d.m.Y H:i'|default:'—' }}</td>
-              </tr>
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      {% include 'control_panel/_pagination.html' %}
-    {% else %}
-      <p class="cp-empty">Продавцов нет.</p>
-    {% endif %}
+  {% if messages %}
+    <div class="cp-messages">
+      {% for message in messages %}
+        <div class="cp-message cp-message-{{ message.tags|default:'info' }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <div class="cp-tabs" role="tablist" aria-label="Раздел продавцов">
+    <a
+      class="cp-tab{% if seller_view == 'sellers' %} is-active{% endif %}"
+      href="{% url 'control_panel:seller_list' %}?view=sellers"
+    >Продавцы <span>{{ summary.total|default:seller_total }}</span></a>
+    <a
+      class="cp-tab{% if seller_view == 'candidates' %} is-active{% endif %}"
+      href="{% url 'control_panel:seller_list' %}?view=candidates"
+    >Кандидаты <span>{{ candidate_total|default:summary.total }}</span></a>
   </div>
+
+  {% if seller_view == 'candidates' %}
+    <div class="cp-kpis cp-kpis-compact cp-seller-kpis">
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.total }}</div>
+        <div class="cp-kpi-label">Найдено кандидатов</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.with_whatsapp }}</div>
+        <div class="cp-kpi-label">Есть WhatsApp</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.ready }}</div>
+        <div class="cp-kpi-label">Готовы к приглашению</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.invited }}</div>
+        <div class="cp-kpi-label">Приглашены</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.registered }}</div>
+        <div class="cp-kpi-label">Зарегистрированы</div>
+      </div>
+    </div>
+
+    <div class="cp-chips cp-quick-filters">
+      <a class="cp-chip{% if filters.quick == '' %} is-active{% endif %}" href="?view=candidates">Все</a>
+      <a class="cp-chip{% if filters.quick == 'ready' %} is-active{% endif %}" href="?view=candidates&quick=ready">Готовы к приглашению</a>
+      <a class="cp-chip{% if filters.quick == 'invited' %} is-active{% endif %}" href="?view=candidates&quick=invited">Приглашены</a>
+      <a class="cp-chip{% if filters.quick == 'no_whatsapp' %} is-active{% endif %}" href="?view=candidates&quick=no_whatsapp">Без WhatsApp</a>
+      <a class="cp-chip{% if filters.quick == 'dismantler' %} is-active{% endif %}" href="?view=candidates&quick=dismantler">Авторазборы</a>
+      <a class="cp-chip{% if filters.quick == 'wholesaler' %} is-active{% endif %}" href="?view=candidates&quick=wholesaler">Оптовики</a>
+      <a class="cp-chip{% if filters.quick == 'unlinked' %} is-active{% endif %}" href="?view=candidates&quick=unlinked">Не связаны с Seller</a>
+    </div>
+
+    <form class="cp-filters cp-seller-filters" method="get">
+      <input type="hidden" name="view" value="candidates">
+      <label>Поиск
+        <input name="q" value="{{ filters.q }}" placeholder="название, Instagram, сайт">
+      </label>
+      <label>Город
+        <select name="city">
+          <option value="">Все</option>
+          {% for city in cities %}
+            <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Источник
+        <select name="source">
+          <option value="">Все</option>
+          {% for key, label in source_choices %}
+            <option value="{{ key }}" {% if filters.source == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Тип продавца
+        <select name="business_type">
+          <option value="">Все</option>
+          {% for key, label in business_type_choices %}
+            <option value="{{ key }}" {% if filters.business_type == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Этап подключения
+        <select name="stage">
+          <option value="">Все</option>
+          {% for key, label in stage_choices %}
+            <option value="{{ key }}" {% if filters.stage == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>WhatsApp
+        <select name="whatsapp_state">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.whatsapp_state == 'yes' %}selected{% endif %}>Есть</option>
+          <option value="no" {% if filters.whatsapp_state == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+      </label>
+      <label>Связан с Seller
+        <select name="linked">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.linked == 'yes' %}selected{% endif %}>Да</option>
+          <option value="no" {% if filters.linked == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+      </label>
+      <label>Сортировка
+        <select name="sort">
+          {% for key, label in sort_choices %}
+            <option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="cp-btn" type="submit">Показать</button>
+      <a class="cp-btn cp-btn-secondary" href="?view=candidates">Сбросить</a>
+    </form>
+
+    <p class="cp-muted">Найдено: {{ total }}</p>
+    <div class="cp-card cp-card-table">
+      {% if rows %}
+        <div class="cp-table-wrap">
+          <table class="cp-table cp-table-sticky">
+            <thead>
+              <tr>
+                <th>Кандидат</th>
+                <th>Город</th>
+                <th>Источник</th>
+                <th>Тип</th>
+                <th>Этап</th>
+                <th>WhatsApp</th>
+                <th>Связан с Seller</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  <td class="cp-cell-clip">
+                    <strong>{{ row.name }}</strong>
+                    {% if row.instagram_username %}
+                      <div class="cp-cell-sub">@{{ row.instagram_username }}</div>
+                    {% endif %}
+                    {% if row.website_url %}
+                      <div class="cp-cell-sub"><a href="{{ row.website_url }}" target="_blank" rel="noopener noreferrer">сайт ↗</a></div>
+                    {% endif %}
+                  </td>
+                  <td>{{ row.city }}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.source_label tone='neutral' %}</td>
+                  <td>{{ row.business_type_label }}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.stage_label tone='neutral' %}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.has_whatsapp|yesno:'Есть,Нет' tone=row.has_whatsapp|yesno:'on,off' %}</td>
+                  <td>
+                    {% if row.linked_seller_id %}
+                      <a href="{% url 'control_panel:seller_detail' row.linked_seller_id %}">Seller #{{ row.linked_seller_id }}</a>
+                    {% else %}
+                      —
+                    {% endif %}
+                  </td>
+                  <td>
+                    <div class="cp-row-actions">
+                      {% if row.invite_url %}
+                        <a class="cp-btn cp-btn-small" href="{{ row.invite_url }}" target="_blank" rel="noopener noreferrer">Открыть приглашение</a>
+                      {% endif %}
+                      {% if row.can_mark_invited %}
+                        <form method="post" action="{% url 'control_panel:seller_candidate_mark_invited' row.pk %}" class="cp-inline-form">
+                          {% csrf_token %}
+                          <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                          <button class="cp-btn cp-btn-small cp-btn-secondary" type="submit">Отметить приглашённым</button>
+                        </form>
+                      {% endif %}
+                      <a class="cp-text-link" href="{{ row.admin_url }}">Тех. Admin</a>
+                    </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include 'control_panel/_pagination.html' %}
+      {% else %}
+        <p class="cp-empty">Кандидатов по выбранным фильтрам нет.</p>
+      {% endif %}
+    </div>
+
+  {% else %}
+    <div class="cp-kpis cp-kpis-compact cp-seller-kpis">
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.total }}</div>
+        <div class="cp-kpi-label">Всего продавцов</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.receives }}</div>
+        <div class="cp-kpi-label">Получают заявки</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.registered }}</div>
+        <div class="cp-kpi-label">Есть кабинет</div>
+      </div>
+      <div class="cp-card cp-kpi">
+        <div class="cp-kpi-value">{{ summary.no_products }}</div>
+        <div class="cp-kpi-label">Без активных товаров</div>
+      </div>
+    </div>
+
+    <div class="cp-chips cp-quick-filters">
+      <a class="cp-chip{% if filters.quick == '' %} is-active{% endif %}" href="?view=sellers">Все</a>
+      <a class="cp-chip{% if filters.quick == 'ready' %} is-active{% endif %}" href="?view=sellers&quick=ready">Готовы к приглашению</a>
+      <a class="cp-chip{% if filters.quick == 'invited' %} is-active{% endif %}" href="?view=sellers&quick=invited">Приглашены</a>
+      <a class="cp-chip{% if filters.quick == 'no_whatsapp' %} is-active{% endif %}" href="?view=sellers&quick=no_whatsapp">Без WhatsApp</a>
+      <a class="cp-chip{% if filters.quick == 'dismantler' %} is-active{% endif %}" href="?view=sellers&quick=dismantler">Авторазборы</a>
+      <a class="cp-chip{% if filters.quick == 'wholesaler' %} is-active{% endif %}" href="?view=sellers&quick=wholesaler">Оптовики</a>
+      <a class="cp-chip{% if filters.quick == 'receives' %} is-active{% endif %}" href="?view=sellers&quick=receives">Получают заявки</a>
+      <a class="cp-chip{% if filters.quick == 'not_receives' %} is-active{% endif %}" href="?view=sellers&quick=not_receives">Не получают</a>
+      <a class="cp-chip{% if filters.quick == 'no_products' %} is-active{% endif %}" href="?view=sellers&quick=no_products">Без товаров</a>
+    </div>
+
+    <form class="cp-filters cp-seller-filters" method="get">
+      <input type="hidden" name="view" value="sellers">
+      <label>Поиск
+        <input name="q" value="{{ filters.q }}" placeholder="имя или город">
+      </label>
+      <label>Город
+        <select name="city">
+          <option value="">Все</option>
+          {% for city in cities %}
+            <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Источник
+        <select name="source">
+          <option value="">Все</option>
+          {% for key, label in source_choices %}
+            <option value="{{ key }}" {% if filters.source == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Тип продавца
+        <select name="business_type">
+          <option value="">Все</option>
+          {% for key, label in business_type_choices %}
+            <option value="{{ key }}" {% if filters.business_type == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Этап подключения
+        <select name="stage">
+          <option value="">Все</option>
+          {% for key, label in stage_choices %}
+            <option value="{{ key }}" {% if filters.stage == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>WhatsApp
+        <select name="whatsapp_state">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.whatsapp_state == 'yes' %}selected{% endif %}>Есть</option>
+          <option value="no" {% if filters.whatsapp_state == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+      </label>
+      <label>Товары
+        <select name="products">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.products == 'yes' %}selected{% endif %}>Есть активные</option>
+          <option value="no" {% if filters.products == 'no' %}selected{% endif %}>Нет активных</option>
+        </select>
+      </label>
+      <label>Получает заявки
+        <select name="receive">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.receive == 'yes' %}selected{% endif %}>Да</option>
+          <option value="no" {% if filters.receive == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+      </label>
+      <label>Согласие
+        <select name="consent">
+          <option value="">Все</option>
+          <option value="granted" {% if filters.consent == 'granted' %}selected{% endif %}>Разрешено</option>
+          <option value="revoked" {% if filters.consent == 'revoked' %}selected{% endif %}>Отозвано</option>
+          <option value="unknown" {% if filters.consent == 'unknown' %}selected{% endif %}>Не подтверждено</option>
+        </select>
+      </label>
+      <label>Открывал заявки
+        <select name="opened">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.opened == 'yes' %}selected{% endif %}>Да</option>
+          <option value="no" {% if filters.opened == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+      </label>
+      <label>Активность
+        <select name="activity">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.activity == 'yes' %}selected{% endif %}>Была</option>
+          <option value="no" {% if filters.activity == 'no' %}selected{% endif %}>Не было</option>
+        </select>
+      </label>
+      <label>Категория
+        <select name="category">
+          <option value="">Все</option>
+          {% for category in categories %}
+            <option value="{{ category }}" {% if filters.category == category %}selected{% endif %}>{{ category }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Активен
+        <select name="active">
+          <option value="">Все</option>
+          <option value="yes" {% if filters.active == 'yes' %}selected{% endif %}>Да</option>
+          <option value="no" {% if filters.active == 'no' %}selected{% endif %}>Нет</option>
+        </select>
+      </label>
+      <label>Сортировка
+        <select name="sort">
+          {% for key, label in sort_choices %}
+            <option value="{{ key }}" {% if filters.sort == key %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <button class="cp-btn" type="submit">Показать</button>
+      <a class="cp-btn cp-btn-secondary" href="?view=sellers">Сбросить</a>
+    </form>
+
+    <p class="cp-muted">Найдено: {{ total }}</p>
+    <div class="cp-card cp-card-table">
+      {% if rows %}
+        <div class="cp-table-wrap">
+          <table class="cp-table cp-table-sticky">
+            <thead>
+              <tr>
+                <th>Продавец</th>
+                <th>Город</th>
+                <th>Источник</th>
+                <th>Тип</th>
+                <th>Этап</th>
+                <th>WhatsApp</th>
+                <th>Товары</th>
+                <th>Получает заявки</th>
+                <th>Согласие</th>
+                <th>Отправлено</th>
+                <th>Открыто</th>
+                <th>Контакты WA</th>
+                <th>Звонки</th>
+                <th>Нет в наличии</th>
+                <th>Не могу выполнить</th>
+                <th>Последняя активность</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in rows %}
+                <tr>
+                  <td class="cp-cell-clip">
+                    <a href="{% url 'control_panel:seller_detail' row.pk %}"><strong>{{ row.name }}</strong></a>
+                    <div class="cp-cell-sub">{{ row.categories }}</div>
+                  </td>
+                  <td>{{ row.city }}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.source_label tone='neutral' %}</td>
+                  <td>{{ row.business_type_label }}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.stage_label tone=row.registered|yesno:'on,neutral' %}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.has_whatsapp|yesno:'Есть,Нет' tone=row.has_whatsapp|yesno:'on,off' %}</td>
+                  <td>{{ row.products_count }}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.receive_requests|yesno:'Получает,Не получает' tone=row.receive_requests|yesno:'on,off' %}</td>
+                  <td>{% include 'control_panel/_pill.html' with text=row.consent_label tone=row.consent_tone %}</td>
+                  <td>{{ row.sent }}</td>
+                  <td>{{ row.opened }}</td>
+                  <td>{{ row.whatsapp }}</td>
+                  <td>{{ row.called }}</td>
+                  <td>{{ row.out_of_stock }}</td>
+                  <td>{{ row.cannot_fulfill }}</td>
+                  <td>{{ row.last_activity|date:'d.m.Y H:i'|default:'—' }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% include 'control_panel/_pagination.html' %}
+      {% else %}
+        <p class="cp-empty">Продавцов по выбранным фильтрам нет.</p>
+      {% endif %}
+    </div>
+  {% endif %}
 {% endblock %}
