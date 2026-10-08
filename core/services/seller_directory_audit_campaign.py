@@ -361,7 +361,7 @@ def _audit_registered_sellers() -> tuple[int, int]:
         normalized = normalize_kz_phone(seller.whatsapp)
         if normalized and seller.whatsapp != normalized:
             seller.whatsapp = normalized
-            seller.save(update_fields=['whatsapp', 'updated_at'])
+            seller.save(update_fields=['whatsapp'])
             if profile.phone != normalized:
                 profile.phone = normalized
                 profile.save(update_fields=['phone'])
