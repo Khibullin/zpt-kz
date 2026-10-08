@@ -71,19 +71,26 @@ AMBIGUOUS_PRESENCE = (60, 79, 82, 90, 116)
 
 
 def _website_source(SellerLeadSource, lead_id, website, now):
+    # Source URL is unique per lead regardless of source_type. Reuse an
+    # existing Brave/web-search row instead of inserting a duplicate.
     source = SellerLeadSource.objects.filter(
         seller_lead_id=lead_id,
-        source_type='website',
         source_url=website,
     ).first()
     if source:
+        source.source_type = 'website'
+        source.provider = 'website'
         source.last_seen_at = now
         source.fetched_at = now
         source.is_active = True
         source.source_confidence = 100
+        source.metadata = {
+            'role': 'official_website',
+            'verified_by': 'full_whatsapp_recheck_2026-10-08',
+        }
         source.save(update_fields=[
-            'last_seen_at', 'fetched_at', 'is_active',
-            'source_confidence', 'updated_at',
+            'source_type', 'provider', 'last_seen_at', 'fetched_at',
+            'is_active', 'source_confidence', 'metadata', 'updated_at',
         ])
         return source
 
