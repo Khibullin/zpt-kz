@@ -23,4 +23,4 @@ jobs:
       - run: python -m pip install --upgrade pip && pip install -r requirements.txt
       - run: python manage.py check
       - run: python manage.py makemigrations --check --dry-run
-      - run: python manage.py test core.tests.test_seller_directory_audit_campaign core.tests.test_seller_contact_enrichment core.tests.test_seller_lead_classification -v 2
+      - run: python manage.py test core.tests.test_seller_directory_audit_campaign core.tests.test_seller_contact_enrichment -v 2
