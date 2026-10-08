@@ -155,7 +155,7 @@ def _route(routes):
 
 
 class BraveQueryPriorityTests(TestCase):
-    def test_exact_instagram_handle_queries_run_before_generic_name_queries(self):
+    def test_official_site_query_stays_before_handle_queries(self):
         lead = SellerLead(
             name='Автозапчасти Hyundai/Kia (@almaty_parts.kz)',
             instagram_username='almaty_parts.kz',
@@ -164,12 +164,17 @@ class BraveQueryPriorityTests(TestCase):
 
         queries = _brave_queries(lead)
 
-        self.assertEqual(queries[0], '"almaty_parts.kz" WhatsApp')
-        self.assertEqual(queries[1], '"almaty_parts.kz" Алматы контакты')
-        self.assertEqual(queries[2], '"almaty_parts.kz" официальный сайт')
-        self.assertTrue(
-            all('Автозапчасти Hyundai/Kia' not in query for query in queries[:3])
+        official_at = next(
+            index for index, query in enumerate(queries)
+            if 'официальный сайт' in query and 'Автозапчасти Hyundai/Kia' in query
         )
+        handle_at = next(
+            index for index, query in enumerate(queries)
+            if 'almaty_parts.kz' in query
+        )
+        self.assertLess(official_at, handle_at)
+        self.assertIn('"almaty_parts.kz" Алматы контакты', queries)
+        self.assertIn('"almaty_parts.kz" WhatsApp', queries)
 
 
 class WebsiteExtractionTests(TestCase):
