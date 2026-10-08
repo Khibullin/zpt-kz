@@ -325,18 +325,25 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertFalse(evidence.is_selected)
         self.assertIn('номер не зарегистрирован', lead.notes)
 
-    def test_unavailable_whatsapp_does_not_reset_already_invited_lead(self):
+    def test_unavailable_whatsapp_can_correct_already_invited_lead(self):
         lead = self._lead(
             whatsapp='77015550111',
             lifecycle_status=SellerLead.LIFECYCLE_INVITED,
+            marketplace_invitation_status=SellerLead.MARKETPLACE_INVITATION_PLANNED,
+            marketplace_invitation_planned_at=timezone.now(),
         )
 
         changed = mark_seller_lead_whatsapp_unavailable(lead)
 
-        self.assertFalse(changed)
+        self.assertTrue(changed)
         lead.refresh_from_db()
-        self.assertEqual(lead.whatsapp, '77015550111')
-        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_INVITED)
+        self.assertEqual(lead.whatsapp, '')
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_CLASSIFIED)
+        self.assertEqual(
+            lead.marketplace_invitation_status,
+            SellerLead.MARKETPLACE_INVITATION_NONE,
+        )
+        self.assertIsNone(lead.marketplace_invitation_planned_at)
 
     def test_claim_does_not_overwrite_conflicting_request_seller(self):
         lead = self._lead(whatsapp='77015550106')
