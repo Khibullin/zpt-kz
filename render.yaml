@@ -25,4 +25,3 @@ services:
   #   Command: python manage.py process_marketing_live_sends
   #   Note: safe while MARKETING_WHATSAPP_SEND_MODE=OFF (command exits immediately).
 
-# seller-whatsapp-recheck campaign deploy marker
