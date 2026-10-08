@@ -236,6 +236,7 @@ class WholesaleFunnelEvent(models.Model):
     EVENT_ADD_TO_CART = 'add_to_cart'
     EVENT_CHECKOUT_VIEW = 'checkout_view'
     EVENT_ORDER_CREATED = 'order_created'
+    EVENT_SELLER_WHATSAPP_CLICK = 'seller_whatsapp_click'
 
     EVENT_CHOICES = [
         (EVENT_STOREFRONT_VIEW, 'Витрина'),
@@ -244,6 +245,7 @@ class WholesaleFunnelEvent(models.Model):
         (EVENT_ADD_TO_CART, 'Добавление в корзину'),
         (EVENT_CHECKOUT_VIEW, 'Оформление'),
         (EVENT_ORDER_CREATED, 'Заказ'),
+        (EVENT_SELLER_WHATSAPP_CLICK, 'WhatsApp продавцу'),
     ]
 
     event_type = models.CharField(
