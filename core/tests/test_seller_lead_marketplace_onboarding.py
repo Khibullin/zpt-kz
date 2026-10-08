@@ -134,6 +134,62 @@ class SellerLeadMarketplaceOnboardingTests(TestCase):
         self.assertEqual(form.initial['instagram'], 'https://instagram.com/prefilled')
         self.assertEqual(form.initial['website'], 'https://prefilled.example')
 
+    def _login_admin(self):
+        user = get_user_model().objects.create_superuser(
+            username='invite-preview-admin',
+            email='invite-preview@example.test',
+            password=PASSWORD,
+        )
+        self.client.force_login(user)
+        return user
+
+    def test_admin_invite_preview_uses_clean_whatsapp_chat_url(self):
+        lead = self._lead(whatsapp='77015550110')
+        self._login_admin()
+
+        response = self.client.get(
+            reverse('admin:core_sellerlead_invite_preview', args=[lead.pk])
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['whatsapp_url'], 'https://wa.me/77015550110')
+        self.assertNotIn('?text=', response.context['whatsapp_url'])
+        self.assertIn(
+            'Команда ZPT.KZ приглашает ваш магазин',
+            response.context['invite_message'],
+        )
+        self.assertContains(response, 'Скопировать и открыть WhatsApp')
+        self.assertContains(response, 'Отправил — отметить приглашённым')
+
+    def test_admin_invite_preview_does_not_mark_invited_on_get(self):
+        lead = self._lead(
+            whatsapp='77015550111',
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+        self._login_admin()
+
+        self.client.get(
+            reverse('admin:core_sellerlead_invite_preview', args=[lead.pk])
+        )
+
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_READY_TO_INVITE)
+
+    def test_admin_invite_preview_post_marks_invited(self):
+        lead = self._lead(
+            whatsapp='77015550112',
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+        self._login_admin()
+        url = reverse('admin:core_sellerlead_invite_preview', args=[lead.pk])
+
+        response = self.client.post(url, {'mark_invited': '1'})
+
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.url, url)
+        lead.refresh_from_db()
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_INVITED)
+
     def test_unlinked_request_seller_can_be_claimed_by_unified_registration(self):
         existing = Seller.objects.create(
             name='Discovered Request Seller',
