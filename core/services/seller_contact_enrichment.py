@@ -521,15 +521,22 @@ def _two_gis_contacts_blocked(source: str, problem: str) -> bool:
 def _brave_queries(seller_lead: SellerLead) -> list[str]:
     name = seller_lead.name
     city = seller_lead.city
-    queries = [
+    handle = (seller_lead.instagram_username or '').strip().lstrip('@')
+    queries: list[str] = []
+    if handle:
+        # Exact social identity is stronger than a generic shop name. Run these
+        # first so the official site is not pushed out by the Brave website cap.
+        queries.extend([
+            f'"{handle}" WhatsApp'.strip(),
+            f'"{handle}" {city} контакты'.strip(),
+            f'"{handle}" официальный сайт'.strip(),
+        ])
+    queries.extend([
         f'"{name}" {city} WhatsApp'.strip(),
         f'"{name}" {city} контакты'.strip(),
         f'"{name}" wa.me'.strip(),
         f'"{name}" {city} официальный сайт'.strip(),
-    ]
-    handle = (seller_lead.instagram_username or '').strip().lstrip('@')
-    if handle:
-        queries.append(f'"{handle}" {city} контакты'.strip())
+    ])
     return queries
 
 
