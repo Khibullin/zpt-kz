@@ -25,6 +25,11 @@ urlpatterns = [
         name='seller_candidate_invite',
     ),
     path(
+        'partners/seller-leads/<int:pk>/whatsapp-unavailable/',
+        views.seller_candidate_whatsapp_unavailable,
+        name='seller_candidate_whatsapp_unavailable',
+    ),
+    path(
         'partners/seller-leads/<int:pk>/mark-invited/',
         views.seller_candidate_mark_invited,
         name='seller_candidate_mark_invited',
