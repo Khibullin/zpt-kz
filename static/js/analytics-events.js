@@ -6,6 +6,22 @@
     window.dataLayer.push(payload);
   }
 
+  function trackCatalogSearch() {
+    if (window.location.pathname !== '/' && window.location.pathname !== '/market/') return;
+
+    const params = new URLSearchParams(window.location.search || '');
+    const searchKeys = ['q', 'country', 'brand', 'model', 'category', 'city', 'offer', 'all'];
+    const hasSearch = searchKeys.some(function (key) {
+      return params.has(key) && String(params.get(key) || '').trim() !== '';
+    });
+    if (!hasSearch) return;
+
+    pushEvent({
+      event: 'zpt_catalog_search',
+      search_mode: params.has('q') && String(params.get('q') || '').trim() ? 'text' : 'filters',
+    });
+  }
+
   function trackBuyerRequestSuccess() {
     if (window.location.pathname !== '/request-parts/') return;
     const msg = document.getElementById('msg');
@@ -52,6 +68,7 @@
   }
 
   function init() {
+    trackCatalogSearch();
     trackBuyerRequestSuccess();
     trackOrderCreated();
   }
