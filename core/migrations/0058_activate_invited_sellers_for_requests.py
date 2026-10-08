@@ -47,13 +47,24 @@ def activate_invited_sellers(apps, schema_editor):
     Country = apps.get_model('core', 'Country')
 
     now = timezone.now()
+    target_lead_ids = set(
+        SellerLead.objects.filter(
+            pk__in=PROFILES,
+            duplicate_of__isnull=True,
+            lifecycle_status='invited',
+        ).values_list('pk', flat=True)
+    )
+    if not target_lead_ids:
+        return
+
     china = Country.objects.filter(name='Китай').first()
     if china is None:
         raise RuntimeError('Country "Китай" is required for seller activation.')
 
     required_brand_names = {
         brand
-        for profile in PROFILES.values()
+        for lead_id, profile in PROFILES.items()
+        if lead_id in target_lead_ids
         for brand in profile.get('brands', ())
     }
     available_brand_names = set(
