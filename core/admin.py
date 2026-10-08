@@ -3,7 +3,6 @@ from django.contrib import admin
 from django.contrib import messages
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import path, reverse
-from django.template.response import TemplateResponse
 from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
@@ -28,7 +27,7 @@ from core.services.seller_lead_whatsapp_state import (
     whatsapp_state_from_annotations,
 )
 from core.services.seller_lead_marketplace_onboarding import (
-    build_marketplace_invite_message,
+    build_marketplace_invite_whatsapp_url,
     mark_seller_lead_invited,
 )
 
@@ -2651,59 +2650,15 @@ class SellerLeadAdmin(admin.ModelAdmin):
             'Открыть WhatsApp',
         )
 
-    def get_urls(self):
-        custom_urls = [
-            path(
-                '<int:object_id>/invite-preview/',
-                self.admin_site.admin_view(self.invite_preview_view),
-                name='core_sellerlead_invite_preview',
-            ),
-        ]
-        return custom_urls + super().get_urls()
-
-    def invite_preview_view(self, request, object_id):
-        lead = get_object_or_404(SellerLead, pk=object_id)
-        whatsapp_url = lead.get_whatsapp_url()
-        if request.method == 'POST' and request.POST.get('mark_invited'):
-            if mark_seller_lead_invited(lead):
-                messages.success(request, 'Продавец отмечен как приглашённый.')
-            else:
-                messages.warning(
-                    request,
-                    'Статус не изменён. Проверьте lifecycle и WhatsApp продавца.',
-                )
-            return redirect(
-                reverse('admin:core_sellerlead_invite_preview', args=[lead.pk])
-            )
-
-        context = {
-            **self.admin_site.each_context(request),
-            'opts': self.model._meta,
-            'original': lead,
-            'title': 'Приглашение продавца',
-            'lead': lead,
-            'invite_message': build_marketplace_invite_message(lead),
-            'whatsapp_url': whatsapp_url,
-            'back_url': reverse('admin:core_sellerlead_change', args=[lead.pk]),
-        }
-        return TemplateResponse(
-            request,
-            'admin/core/sellerlead/invite_preview.html',
-            context,
-        )
-
     @admin.display(description='Приглашение')
     def marketplace_invite_link(self, obj):
         if not obj or not obj.pk:
             return '—'
-        if not obj.get_whatsapp_url():
+        url = build_marketplace_invite_whatsapp_url(obj)
+        if not url:
             return 'Нет WhatsApp'
-        url = reverse(
-            'admin:core_sellerlead_invite_preview',
-            args=[obj.pk],
-        )
         return format_html(
-            '<a href="{}">Открыть приглашение</a>',
+            '<a href="{}" target="_blank" rel="noopener noreferrer">Открыть приглашение</a>',
             url,
         )
 
