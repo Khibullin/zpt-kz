@@ -26,6 +26,9 @@ from core.services.seller_lead_whatsapp_state import (
     seller_lead_whatsapp_state,
     whatsapp_state_from_annotations,
 )
+from core.services.seller_lead_marketplace_onboarding import (
+    build_marketplace_invite_whatsapp_url,
+)
 
 from .models import (
     Country,
@@ -2349,6 +2352,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'review_status',
         'overall_confidence',
         'whatsapp',
+        'marketplace_invite_link',
         'website_url',
         'instagram_username',
         'sources_count',
@@ -2413,6 +2417,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'normalized_address',
         'instagram_profile_link',
         'whatsapp_link',
+        'marketplace_invite_link',
         'website_link',
         'source_link',
         'possible_duplicates_display',
@@ -2481,6 +2486,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'whatsapp_confidence',
                 'whatsapp_found_at',
                 'whatsapp_link',
+                'marketplace_invite_link',
                 'normalized_phone',
                 'website_url',
                 'website_link',
@@ -2619,6 +2625,18 @@ class SellerLeadAdmin(admin.ModelAdmin):
         return _seller_lead_external_link(
             obj.get_whatsapp_url(),
             'Открыть WhatsApp',
+        )
+
+    @admin.display(description='Приглашение')
+    def marketplace_invite_link(self, obj):
+        if not obj or not obj.pk:
+            return '—'
+        url = build_marketplace_invite_whatsapp_url(obj)
+        if not url:
+            return 'Нет WhatsApp'
+        return format_html(
+            '<a href="{}" target="_blank" rel="noopener noreferrer">Открыть приглашение</a>',
+            url,
         )
 
     @admin.display(description='Сайт')
