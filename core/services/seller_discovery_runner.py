@@ -19,6 +19,7 @@ from core.services.seller_discovery_providers.base import (
     DiscoveryProviderError,
     build_discovery_provider,
 )
+from core.kazakhstan_locations import canonical_kazakhstan_city
 from core.services.seller_discovery_providers.catalog import (
     SEARCH_DIRECTIONS,
     TWO_GIS_MAX_PAGES_CAP,
@@ -92,7 +93,10 @@ def run_seller_discovery(
     the hit budget by the size of that bounded provider response. The next unit
     is not started. Resume with city_offset and query_offset together.
     """
-    resolved_cities = _resolve_cities(cities)
+    active = list(providers) if providers is not None else [
+        build_discovery_provider(name) for name in provider_names
+    ]
+    resolved_cities = _resolve_cities(cities, providers=active)
     selected_cities, applied_limit, applied_offset = _select_city_batch(
         resolved_cities,
         city_limit=city_limit,
@@ -107,9 +111,6 @@ def run_seller_discovery(
         cap=TWO_GIS_MAX_PAGES_CAP,
         label='max_pages',
     )
-    active = list(providers) if providers is not None else [
-        build_discovery_provider(name) for name in provider_names
-    ]
     if not active:
         raise SellerDiscoveryRunError('Нужно указать хотя бы один источник: two_gis или brave.')
     work_units = [
@@ -245,17 +246,36 @@ def _select_city_batch(cities, *, city_limit, city_offset):
     return cities[offset:offset + limit], limit, offset
 
 
-def _resolve_cities(cities: list[str] | tuple[str, ...]):
+@dataclass(frozen=True)
+class DiscoveryRunCity:
+    name: str
+
+
+def _resolve_cities(
+    cities: list[str] | tuple[str, ...],
+    *,
+    providers: list[DiscoveryProvider],
+):
     if not cities:
-        raise SellerDiscoveryRunError('Укажите город MVP или все три города явно.')
+        raise SellerDiscoveryRunError('Укажите хотя бы один город Казахстана.')
+
+    requires_geo = any(getattr(provider, 'name', '') == 'two_gis' for provider in providers)
     resolved = []
     seen: set[str] = set()
+
     for name in cities:
-        city = resolve_city(name)
-        if city.name in seen:
+        if requires_geo:
+            city_name = resolve_city(name).name
+        else:
+            city_name = canonical_kazakhstan_city(name)
+            if not city_name:
+                raise SellerDiscoveryRunError(
+                    f'Город {name} не входит в справочник городов Казахстана.'
+                )
+        if city_name in seen:
             continue
-        seen.add(city.name)
-        resolved.append(city)
+        seen.add(city_name)
+        resolved.append(DiscoveryRunCity(name=city_name))
     return resolved
 
 
