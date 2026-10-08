@@ -5,6 +5,8 @@ from datetime import date
 
 from django.utils import timezone
 
+from core.services.seller_discovery_providers.catalog import KZ_DISCOVERY_CITY_NAMES
+
 ROTATION_EPOCH = date(2026, 7, 15)
 
 
@@ -80,6 +82,16 @@ class ResolvedPipelineSearch:
 
 class PipelineSearchConfigError(ValueError):
     """Ошибка конфигурации search_term / category pipeline."""
+
+
+def get_rotation_city(
+    target_date: date | None = None,
+) -> tuple[str, int]:
+    """Return one Kazakhstan discovery city for the local day."""
+    current_date = target_date or timezone.localdate()
+    day_offset = (current_date - ROTATION_EPOCH).days
+    index = day_offset % len(KZ_DISCOVERY_CITY_NAMES)
+    return KZ_DISCOVERY_CITY_NAMES[index], index
 
 
 def get_rotation_profile(
