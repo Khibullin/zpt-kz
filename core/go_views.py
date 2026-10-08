@@ -3,6 +3,7 @@ from __future__ import annotations
 from urllib.parse import urlencode
 
 from django.http import Http404, HttpResponseRedirect
+from django.shortcuts import get_object_or_404
 from django.views.decorators.http import require_http_methods
 
 from catalog.models import SellerProfile
@@ -46,6 +47,58 @@ def go_redirect(request, destination):
         target = GO_DESTINATIONS.get(destination)
         if target is None:
             raise Http404()
+    response = HttpResponseRedirect(target)
+    response['Cache-Control'] = 'no-store'
+    return response
+
+
+@require_http_methods(['GET', 'HEAD'])
+def product_whatsapp_redirect(request, product_id):
+    """Track an anonymous product WhatsApp click, then redirect to wa.me."""
+    from catalog.models import Product
+    from catalog.templatetags.product_extras import public_product_whatsapp_message
+    from core.phone_utils import build_whatsapp_url, normalize_phone_for_whatsapp
+    from orders.wholesale_analytics import (
+        EVENT_SELLER_WHATSAPP_CLICK,
+        track_wholesale_event,
+    )
+
+    product = get_object_or_404(
+        Product.objects.select_related('seller_profile'),
+        pk=product_id,
+    )
+    seller = product.seller_profile
+
+    if seller is None:
+        normalized = normalize_phone_for_whatsapp(product.whatsapp_number)
+        if normalized:
+            suffix = normalized[-10:]
+            matches = list(
+                SellerProfile.objects.filter(phone__icontains=suffix).order_by('pk')[:2]
+            )
+            if len(matches) == 1:
+                seller = matches[0]
+
+    phone = seller.phone if seller and seller.phone else product.whatsapp_number
+    target = build_whatsapp_url(
+        phone,
+        public_product_whatsapp_message(product),
+    )
+    if not target:
+        raise Http404()
+
+    if seller is not None:
+        surface = str(request.GET.get('src') or '').strip().lower()
+        if surface not in {'card', 'detail'}:
+            surface = 'unknown'
+        track_wholesale_event(
+            request,
+            EVENT_SELLER_WHATSAPP_CLICK,
+            seller,
+            product=product,
+            metadata={'surface': surface},
+        )
+
     response = HttpResponseRedirect(target)
     response['Cache-Control'] = 'no-store'
     return response
