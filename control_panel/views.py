@@ -11,13 +11,23 @@ from control_panel.selectors.parts_requests import (
     get_parts_request_detail,
     list_parts_requests,
 )
-from control_panel.selectors.sellers import get_seller_detail, list_sellers
+from control_panel.selectors.sellers import (
+    get_seller_detail,
+    list_seller_candidates,
+    list_sellers,
+)
 from control_panel.selectors.service_requests import (
     get_service_request_detail,
     list_service_requests,
 )
 from control_panel.selectors.sto import get_sto_detail, list_sto
-from django.shortcuts import render
+from django.contrib import messages
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.http import require_POST
+
+from core.models import SellerLead
+from core.services.seller_lead_marketplace_onboarding import mark_seller_lead_invited
 
 
 NAV_SECTIONS = (
@@ -159,8 +169,33 @@ def seller_list(request):
         ],
         title='Продавцы',
     )
-    context.update(list_sellers(request.GET))
+    view_mode = (request.GET.get('view') or 'sellers').strip()
+    if view_mode == 'candidates':
+        context.update(list_seller_candidates(request.GET))
+    else:
+        context.update(list_sellers(request.GET))
     return render(request, 'control_panel/sellers_list.html', context)
+
+
+@control_staff_required
+@require_POST
+def seller_candidate_mark_invited(request, pk: int):
+    lead = get_object_or_404(SellerLead, pk=pk, duplicate_of__isnull=True)
+    changed = mark_seller_lead_invited(lead)
+    if changed:
+        messages.success(request, f'#{lead.pk} отмечен как приглашённый.')
+    elif lead.lifecycle_status == SellerLead.LIFECYCLE_INVITED:
+        messages.info(request, f'#{lead.pk} уже отмечен как приглашённый.')
+    else:
+        messages.warning(
+            request,
+            f'#{lead.pk} нельзя отметить приглашённым: проверьте этап и WhatsApp.',
+        )
+
+    next_url = (request.POST.get('next') or '').strip()
+    if not next_url.startswith('/control/partners/sellers/'):
+        next_url = reverse('control_panel:seller_list') + '?view=candidates'
+    return redirect(next_url)
 
 
 @control_staff_required
