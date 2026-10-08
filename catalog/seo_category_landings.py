@@ -2,7 +2,7 @@ from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import render
 
-from .models import Product
+from .models import Category, Product
 from .seo_landings import SEO_BRAND_LANDINGS
 from .views import attach_sellers_to_products
 from .wholesale import attach_public_wholesale_flags, public_wholesale_prefetch
@@ -148,9 +148,10 @@ def category_landing(request, category_slug):
     if spec is None:
         raise Http404()
 
+    category = Category.objects.filter(name__iexact=spec['category_name']).first()
     products = (
         Product.objects
-        .filter(status='active', category__name__iexact=spec['category_name'])
+        .filter(status='active', category=category)
         .select_related(
             'brand',
             'brand__country',
@@ -174,6 +175,7 @@ def category_landing(request, category_slug):
     return render(request, 'catalog/seo_category_landing.html', {
         'landing': spec,
         'category_slug': category_slug,
+        'category_id': category.pk if category else '',
         'products': products,
         'brand_landings': brand_landings,
     })
