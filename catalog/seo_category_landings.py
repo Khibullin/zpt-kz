@@ -117,7 +117,8 @@ SEO_CATEGORY_LANDINGS = {
 
 def oil_filter_landing(request):
     products = Product.objects.filter(status='active').filter(
-        Q(title__icontains='масля') & Q(title__icontains='фильтр')
+        (Q(title__contains='масля') | Q(title__contains='Масля'))
+        & (Q(title__contains='фильтр') | Q(title__contains='Фильтр'))
     ).distinct().select_related(
         'brand',
         'brand__country',
