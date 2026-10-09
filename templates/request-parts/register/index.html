@@ -31,7 +31,7 @@
       <div class="field"><label>Название магазина</label><input id="name" required></div>
       <div class="field"><label>Номер WhatsApp</label><input id="whatsapp" placeholder="77071234567" required><div class="hint">Введите номер в формате 77071234567</div></div>
       <div class="field"><label>Ссылка на товары</label><input id="market_location" placeholder="Сайт, Instagram, Kaspi, каталог или другая ссылка"><div class="hint">Сайт, Instagram, Kaspi, каталог или другая ссылка</div></div>
-      <div class="field"><label>Город</label><select id="city" required><option value="">Выберите город</option></select></div>
+      <div class="field"><label>Город</label><select id="city" required><option value="">Выберите город</option>{% for city_name in kz_cities %}<option value="{{ city_name }}">{{ city_name }}</option>{% endfor %}</select></div>
       <div class="field"><label>Тип транспорта</label><select id="transport_type"><option value="car">Легковые</option><option value="truck">Грузовые</option></select></div>
       <div class="field"><label>Пароль</label><div class="pass-wrap"><input id="password" type="password" minlength="8"><button type="button" id="showPass">Показать</button></div></div>
       <div class="field"><label>Повторите пароль</label><input id="password2" type="password" minlength="8"></div>
