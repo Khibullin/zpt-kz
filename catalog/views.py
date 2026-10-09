@@ -19,7 +19,7 @@ from django.urls import reverse
 from django.utils import timezone
 
 from core.forms import FeedbackForm
-from core.kazakhstan_locations import KAZAKHSTAN_CITIES
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES, canonical_kazakhstan_city
 from core.models import PartCategory, Seller as RequestSeller, SellerLead
 from core.services.seller_identity import (
     SellerIdentityError,
@@ -411,7 +411,8 @@ def catalog_list(request):
     brand_id = request.GET.get('brand', '').strip()
     model_id = request.GET.get('model', '').strip()
     category_id = request.GET.get('category', '').strip()
-    city = request.GET.get('city', '').strip()
+    raw_city = request.GET.get('city', '').strip()
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
     offer_raw = request.GET.get('offer', '').strip()
 
     viewer_seller = get_request_seller_profile(request)
@@ -465,8 +466,10 @@ def catalog_list(request):
     if category_id:
         products = products.filter(category_id=category_id)
 
-    if city:
-        products = products.filter(city__icontains=city)
+    if raw_city and not city:
+        products = products.none()
+    elif city:
+        products = products.filter(city=city)
 
     if selected_offer:
         products = filter_products_by_offer(products, selected_offer)
@@ -832,7 +835,7 @@ def seller_register(request):
             'phone': ''.join(
                 ch for ch in (request.GET.get('phone') or '') if ch.isdigit()
             )[:30],
-            'city': (request.GET.get('city') or '').strip()[:120],
+            'city': canonical_kazakhstan_city(request.GET.get('city')) or '',
             'instagram': (request.GET.get('instagram') or '').strip()[:255],
             'website': (request.GET.get('website') or '').strip()[:500],
         }
@@ -846,7 +849,7 @@ def seller_register(request):
                     'phone': ''.join(
                         ch for ch in (invite_lead.whatsapp or '') if ch.isdigit()
                     )[:30],
-                    'city': (invite_lead.city or '').strip()[:120],
+                    'city': canonical_kazakhstan_city(invite_lead.city) or '',
                     'instagram': invite_lead.get_instagram_profile_url()[:255],
                     'website': (invite_lead.website_url or '').strip()[:500],
                 })
@@ -1059,6 +1062,9 @@ def seller_profile_edit(request):
                         profile=updated_seller,
                     )
                     updated_seller.refresh_from_db()
+                    if request_seller is not None and request_seller.city != updated_seller.city:
+                        request_seller.city = updated_seller.city
+                        request_seller.save(update_fields=['city'])
 
                     if old_name != updated_seller.name:
                         Product.objects.filter(seller_name=old_name).update(
