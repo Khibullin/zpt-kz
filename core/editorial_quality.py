@@ -47,7 +47,7 @@ def instagram_caption_for_article(page):
     """Prepare copy only. Does not call Instagram APIs or publish."""
     if page.status != EditorialPage.STATUS_PUBLISHED:
         raise ValidationError('Instagram-анонс допустим только для опубликованной статьи')
-    url = f'https://zpt.kz/guide/parts/{page.slug}/'
+    url = f'https://zpt.kz/guide/parts/{page.slug}/?utm_source=instagram&utm_medium=social&utm_campaign=editorial'
     return (
         f'{page.title}\n\n'
         'Подбираете запчасть? Сверяйте артикул, параметры и совместимость '
