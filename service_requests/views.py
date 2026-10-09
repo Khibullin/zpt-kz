@@ -27,6 +27,7 @@ from .models import (
 )
 
 from core.phone_utils import build_whatsapp_url
+from core.kazakhstan_locations import canonical_kazakhstan_city
 
 
 def _service_request_whatsapp_url(req):
@@ -129,6 +130,14 @@ def create_service_seller(request):
 
     whatsapp = data.get("whatsapp", "").strip()
 
+    try:
+        city, district = normalize_service_request_location(
+            data.get('city', ''),
+            data.get('district', ''),
+        )
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
     if ServiceSeller.objects.filter(whatsapp=whatsapp).exists():
         return JsonResponse(
             {"error": "Исполнитель с таким WhatsApp уже зарегистрирован"},
@@ -139,8 +148,8 @@ def create_service_seller(request):
         name=data.get("name", "").strip(),
         whatsapp=whatsapp,
         password=make_password(password),
-        city=data.get("city", "").strip(),
-        district=data.get("district", "").strip(),
+        city=city,
+        district=district,
         address=data.get("address", "").strip(),
         map_link=data.get("map_link", "").strip(),
         seller_type=data.get("seller_type", "sto"),
@@ -302,11 +311,19 @@ def update_service_seller_profile(request):
         if password_error:
             return JsonResponse({"error": password_error}, status=400)
 
+    try:
+        city, district = normalize_service_request_location(
+            data.get('city', seller.city),
+            data.get('district', seller.district),
+        )
+    except ValueError as exc:
+        return JsonResponse({'error': str(exc)}, status=400)
+
     service_names = data.get("services", [])
     fields = {
         "name": data.get("name", seller.name).strip(),
-        "city": data.get("city", seller.city).strip(),
-        "district": data.get("district", seller.district).strip(),
+        "city": city,
+        "district": district,
         "address": data.get("address", seller.address).strip(),
         "map_link": data.get("map_link", seller.map_link).strip(),
         "instagram": data.get("instagram", seller.instagram or "").strip(),
@@ -450,7 +467,8 @@ def services_catalog(request):
 
     q = request.GET.get('q', '').strip()
     seller_type = request.GET.get('type', '').strip()
-    city = request.GET.get('city', '').strip()
+    raw_city = request.GET.get('city', '').strip()
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
     district = request.GET.get('district', '').strip()
     service_name = request.GET.get('service', '').strip()
     page = request.GET.get('page', 1)
@@ -485,6 +503,9 @@ def services_catalog(request):
     sellers = ServiceSeller.objects.filter(
         is_active=True,
     ).prefetch_related('services')
+
+    if raw_city and not city:
+        sellers = ServiceSeller.objects.none()
 
     if seller_type:
         sellers = sellers.filter(
