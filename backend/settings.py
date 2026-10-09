@@ -449,3 +449,7 @@ SEO_EDITORIAL_ENABLED = os.getenv('SEO_EDITORIAL_ENABLED', 'False').lower() in (
 # AI edits are opt-in; no automatic public publication.
 EDITORIAL_AI_ENABLED = os.getenv('EDITORIAL_AI_ENABLED', 'False').lower() in ('true', '1', 'yes')
 EDITORIAL_AI_MODEL = os.getenv('EDITORIAL_AI_MODEL', 'gpt-5.6-luna')
+
+# Secured external cron trigger. By default disabled.
+EDITORIAL_CRON_TOKEN = (os.getenv('EDITORIAL_CRON_TOKEN', '') or '').strip()
+EDITORIAL_CRON_ENABLED = os.getenv('EDITORIAL_CRON_ENABLED', 'False').lower() in ('true','1','yes')

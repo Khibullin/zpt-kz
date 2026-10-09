@@ -3427,3 +3427,17 @@ class EditorialCandidate(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class EditorialDailyExecution(models.Model):
+    day = models.DateField(unique=True)
+    status = models.CharField(
+        max_length=16,
+        choices=[('running', 'Выполняется'), ('complete', 'Завершено'), ('failed', 'Ошибка')],
+        default='running',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Ежедневный SEO-запуск'
+        verbose_name_plural = 'Ежедневные SEO-запуски'

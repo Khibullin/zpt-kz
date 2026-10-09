@@ -80,6 +80,7 @@ NOINDEX_NOFOLLOW_PREFIXES = (
     '/control/',
     '/api/',
     '/marketing/',
+    '/internal/',
     '/ajax/',
     '/catalog/ajax/',
     '/go/',
