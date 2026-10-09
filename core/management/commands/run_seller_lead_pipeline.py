@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.core.management import call_command
 from django.core.management.base import BaseCommand, CommandError
 
 from core.models import SellerLeadPipelineRun
@@ -128,6 +129,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        if (
+            options['trigger'] == SellerLeadPipelineRun.TRIGGER_CRON
+            and bool(getattr(settings, 'SELLER_FIRST_CIRCLE_GROWTH_ENABLED', False))
+        ):
+            self.stdout.write('FIRST CIRCLE SELLER GROWTH: delegated from legacy cron entrypoint')
+            call_command(
+                'run_first_circle_seller_growth',
+                stdout=self.stdout,
+                stderr=self.stderr,
+            )
+            return
+
         try:
             resolved_search = resolve_pipeline_search(
                 category=options['category'],
