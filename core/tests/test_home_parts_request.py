@@ -1214,6 +1214,8 @@ class HomeShortMatchedSellerTests(TestCase):
         self.exact.save(update_fields=['is_active'])
         self.brand_level.is_active = False
         self.brand_level.save(update_fields=['is_active'])
+        self.other_brand.is_active = False
+        self.other_brand.save(update_fields=['is_active'])
 
         response = self._post(idempotency_key='key-city-kz-fallback')
         self.assertEqual(response.status_code, 200, response.content)
