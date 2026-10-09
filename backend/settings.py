@@ -90,6 +90,7 @@ TEMPLATES = [
                 'orders.context_processors.cart_count',
                 'marketing.context_processors.marketing_send_mode',
                 'core.seo.seo_context',
+                'core.context_processors.kazakhstan_cities',
             ],
         },
     },
