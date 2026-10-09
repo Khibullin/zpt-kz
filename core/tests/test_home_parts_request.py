@@ -196,7 +196,7 @@ class HomePartsRequestTests(TestCase):
         req = Request.objects.get()
         self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
-        self.assertEqual(req.search_scope, 'kazakhstan')
+        self.assertEqual(req.search_scope, 'city')
         self.assertEqual(req.category, 'Тормоза')
         self.assertEqual(req.phone, '77015556677')
         self.assertEqual(req.brand, 'Toyota')
@@ -449,9 +449,9 @@ class HomePartsRequestTests(TestCase):
             emergency_stop=False,
         )
         second = _seller(
-            name='Car Shymkent',
+            name='Car Almaty Second',
             whatsapp='77010000022',
-            city='Шымкент',
+            city='Алматы',
             brand='Toyota',
             model='Camry',
             category='Тормоза',
