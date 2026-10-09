@@ -11,6 +11,7 @@ from django.db.models import Q
 
 from catalog.models import Product, SellerProfile
 from core.models import Seller
+from core.kazakhstan_locations import canonical_kazakhstan_city
 from core.whatsapp_template_sender import normalize_whatsapp_phone
 
 User = get_user_model()
@@ -31,6 +32,18 @@ class SellerIdentityError(Exception):
 
 def normalize_seller_whatsapp(phone) -> str:
     return normalize_whatsapp_phone(phone)
+
+
+def normalize_seller_city(city, *, required: bool = False) -> str:
+    text = ' '.join(str(city or '').split())
+    if not text:
+        if required:
+            raise SellerIdentityError('Выберите город из списка.')
+        return ''
+    canonical = canonical_kazakhstan_city(text)
+    if canonical is None:
+        raise SellerIdentityError('Выберите город из списка.')
+    return canonical
 
 
 def phone_lookup_variants(phone) -> set[str]:
@@ -171,11 +184,12 @@ def ensure_seller_profile_for_user(user, *, name='', phone='', city='', extra=No
     if profile:
         return profile
     digits = normalize_seller_whatsapp(phone) or normalize_seller_whatsapp(user.username)
+    normalized_city = normalize_seller_city(city) if city else ''
     payload = {
         'user': user,
         'name': (name or user.get_username() or 'Продавец')[:255],
         'phone': (digits or user.get_username())[:30],
-        'city': (city or '')[:120],
+        'city': normalized_city[:120],
     }
     if extra:
         payload.update(extra)
@@ -203,7 +217,8 @@ def ensure_request_seller_for_user(
         or normalize_seller_whatsapp(user.username)
     )
     display_name = name or (profile.name if profile else '') or user.get_username()
-    display_city = city or (profile.city if profile else '') or ''
+    display_city_raw = city or (profile.city if profile else '') or ''
+    display_city = normalize_seller_city(display_city_raw) if display_city_raw else ''
 
     unlinked = [
         item for item in find_sellers_by_phone(digits)
@@ -349,6 +364,7 @@ def create_unified_seller_account(
 ):
     phone = normalize_seller_whatsapp(whatsapp)
     name = (name or '').strip()
+    normalized_city = normalize_seller_city(city, required=True)
     if not name:
         raise SellerIdentityError('Укажите название продавца')
     if not phone:
@@ -385,7 +401,7 @@ def create_unified_seller_account(
         'must_change_password': False,
         'seller_type': 'seller',
         'transport_type': transport_type or 'car',
-        'city': (city or '')[:100],
+        'city': normalized_city[:100],
         'is_active': True,
         'is_paused': False,
         'receive_requests': False,
@@ -405,7 +421,7 @@ def create_unified_seller_account(
             user=user,
             name=name[:255],
             phone=phone[:30],
-            city=(city or '')[:120],
+            city=normalized_city[:120],
             **profile_payload,
         )
         if claimable_seller is not None:
