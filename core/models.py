@@ -43,6 +43,21 @@ REQUEST_DISPATCH_MODE_CHOICES = [
     (REQUEST_DISPATCH_MODE_ALL_KZ, 'Все допущенные продавцы Казахстана'),
 ]
 
+REQUEST_ROUTING_MATCHED_CITY = 'matched_city'
+REQUEST_ROUTING_MATCHED_CUSTOM = 'matched_custom'
+REQUEST_ROUTING_MATCHED_KAZAKHSTAN = 'matched_kazakhstan'
+REQUEST_ROUTING_FALLBACK_KAZAKHSTAN = 'fallback_kazakhstan'
+REQUEST_ROUTING_ALL_KZ = 'all_kz'
+REQUEST_ROUTING_NO_MATCH = 'no_match'
+REQUEST_ROUTING_CHOICES = [
+    (REQUEST_ROUTING_MATCHED_CITY, 'Подобрано в городе'),
+    (REQUEST_ROUTING_MATCHED_CUSTOM, 'Подобрано в выбранных городах'),
+    (REQUEST_ROUTING_MATCHED_KAZAKHSTAN, 'Подобрано по Казахстану'),
+    (REQUEST_ROUTING_FALLBACK_KAZAKHSTAN, 'Fallback по Казахстану'),
+    (REQUEST_ROUTING_ALL_KZ, 'Все допущенные продавцы Казахстана'),
+    (REQUEST_ROUTING_NO_MATCH, 'Продавцы не найдены'),
+]
+
 BUYER_CONTACT_STATUS_ACTIVE = 'active'
 BUYER_CONTACT_STATUS_INVALID_PHONE = 'invalid_phone'
 BUYER_CONTACT_STATUS_WHATSAPP_UNAVAILABLE = 'whatsapp_unavailable'
@@ -306,6 +321,13 @@ class Request(models.Model):
     DISPATCH_MODE_MATCHED = REQUEST_DISPATCH_MODE_MATCHED
     DISPATCH_MODE_ALL_KZ = REQUEST_DISPATCH_MODE_ALL_KZ
     DISPATCH_MODE_CHOICES = REQUEST_DISPATCH_MODE_CHOICES
+    ROUTING_MATCHED_CITY = REQUEST_ROUTING_MATCHED_CITY
+    ROUTING_MATCHED_CUSTOM = REQUEST_ROUTING_MATCHED_CUSTOM
+    ROUTING_MATCHED_KAZAKHSTAN = REQUEST_ROUTING_MATCHED_KAZAKHSTAN
+    ROUTING_FALLBACK_KAZAKHSTAN = REQUEST_ROUTING_FALLBACK_KAZAKHSTAN
+    ROUTING_ALL_KZ = REQUEST_ROUTING_ALL_KZ
+    ROUTING_NO_MATCH = REQUEST_ROUTING_NO_MATCH
+    ROUTING_CHOICES = REQUEST_ROUTING_CHOICES
 
     transport_type = models.CharField(
         max_length=10,
@@ -361,6 +383,14 @@ class Request(models.Model):
         default=REQUEST_DISPATCH_MODE_MATCHED,
         db_index=True,
         verbose_name='Режим рассылки',
+    )
+    routing_strategy = models.CharField(
+        max_length=32,
+        choices=REQUEST_ROUTING_CHOICES,
+        blank=True,
+        default='',
+        db_index=True,
+        verbose_name='Фактический маршрут подбора',
     )
     idempotency_key = models.CharField(
         max_length=64,
