@@ -5,7 +5,8 @@ from django.views.generic import RedirectView, TemplateView
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect, product_whatsapp_redirect
 from core.help_views import platform_help_page
-from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static
+from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static, sitemap_content
+from core.editorial_views import editorial_detail, editorial_index
 from core.seller_whatsapp_consent_views import (
     seller_portal_whatsapp_consent,
     seller_whatsapp_consent_link,
@@ -38,6 +39,9 @@ urlpatterns = [
     path('robots.txt', robots_txt, name='robots_txt'),
     path('sitemap.xml', sitemap_index, name='sitemap_index'),
     path('sitemap-static.xml', sitemap_static, name='sitemap_static'),
+    path('sitemap-content.xml', sitemap_content, name='sitemap_content'),
+    path('guide/parts/', editorial_index, name='editorial_index'),
+    path('guide/parts/<slug:slug>/', editorial_detail, name='editorial_detail'),
     path('sitemap-products.xml', sitemap_products, name='sitemap_products'),
     path('privacy/', TemplateView.as_view(template_name='legal/privacy.html'), name='privacy'),
     path('zpt-gid/', zpt_guide_view, name='zpt_gid'),

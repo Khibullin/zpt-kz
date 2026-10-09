@@ -8,6 +8,7 @@ from django.views.decorators.http import require_GET
 
 from catalog.fitment_slug_redirects import public_product_slug
 from catalog.models import Product
+from core.models import EditorialPage
 from core.seo import canonical_url_for_path
 
 
@@ -92,6 +93,9 @@ def sitemap_index(request):
     if getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
         urls.append(canonical_url_for_path('/sitemap-products.xml'))
 
+    if getattr(settings, 'SEO_EDITORIAL_ENABLED', False):
+        urls.append(canonical_url_for_path('/sitemap-content.xml'))
+
     items = ''.join(f'<sitemap><loc>{escape(url)}</loc></sitemap>' for url in urls)
     xml = (
         '<?xml version="1.0" encoding="UTF-8"?>'
@@ -145,3 +149,19 @@ def sitemap_products(request):
         _urlset(''.join(items)),
         content_type='application/xml; charset=utf-8',
     )
+
+
+@require_GET
+def sitemap_content(request):
+    if not getattr(settings, 'SEO_EDITORIAL_ENABLED', False):
+        return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')
+    items = []
+    published = EditorialPage.objects.filter(status=EditorialPage.STATUS_PUBLISHED)
+    if published.exists():
+        index_url = escape(canonical_url_for_path('/guide/parts/'))
+        items.append(f'<url><loc>{index_url}</loc></url>')
+    for page in published.order_by('pk').iterator():
+        loc = escape(canonical_url_for_path(f'/guide/parts/{page.slug}/'))
+        lastmod = page.updated_at.date().isoformat()
+        items.append(f'<url><loc>{loc}</loc><lastmod>{lastmod}</lastmod></url>')
+    return HttpResponse(_urlset(''.join(items)), content_type='application/xml; charset=utf-8')

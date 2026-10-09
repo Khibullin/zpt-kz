@@ -3057,3 +3057,15 @@ class PlatformHelpMessageAdmin(admin.ModelAdmin):
     def content_short(self, obj):
         text = obj.content or ''
         return text if len(text) <= 80 else f'{text[:80]}…'
+
+from core.models import EditorialPage
+
+
+@admin.register(EditorialPage)
+class EditorialPageAdmin(admin.ModelAdmin):
+    list_display = ('title', 'status', 'updated_at', 'published_at')
+    list_filter = ('status',)
+    search_fields = ('title', 'slug', 'body')
+    prepopulated_fields = {'slug': ('title',)}
+    readonly_fields = ('created_at', 'updated_at', 'published_at')
+    fields = ('title', 'slug', 'seo_title', 'meta_description', 'body', 'status', 'created_at', 'updated_at', 'published_at')
