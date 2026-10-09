@@ -8,6 +8,7 @@ from typing import Iterable
 from django.db import transaction
 
 from core.buyer_portal import ensure_buyer_portal_access
+from core.kazakhstan_locations import canonical_kazakhstan_city
 from core.models import (
     BUYER_CONTACT_SOURCE_REQUEST,
     BUYER_CONTACT_STATUS_ACTIVE,
@@ -232,16 +233,13 @@ def _ensure_default_consents(buyer: BuyerContact) -> None:
 
 
 def parse_selected_cities(selected_cities: str) -> list[str]:
-    seen_normalized: set[str] = set()
+    seen: set[str] = set()
     cities: list[str] = []
     for part in (selected_cities or '').split(','):
-        city = part.strip()
-        if not city:
+        city = canonical_kazakhstan_city(part)
+        if not city or city in seen:
             continue
-        normalized = normalize_buyer_text(city)
-        if normalized in seen_normalized:
-            continue
-        seen_normalized.add(normalized)
+        seen.add(city)
         cities.append(city)
     return cities
 
@@ -314,6 +312,8 @@ def _most_common_display_value(requests: Iterable[Request], field_name: str) -> 
         raw = str(getattr(req, field_name, '') or '').strip()
         if not raw:
             continue
+        if field_name == 'city':
+            raw = canonical_kazakhstan_city(raw) or raw
         counts[normalize_buyer_text(raw)] += 1
 
     if not counts:
@@ -326,6 +326,8 @@ def _most_common_display_value(requests: Iterable[Request], field_name: str) -> 
         raw = str(getattr(req, field_name, '') or '').strip()
         if not raw:
             continue
+        if field_name == 'city':
+            raw = canonical_kazakhstan_city(raw) or raw
         if normalize_buyer_text(raw) in tied:
             return raw
 
@@ -439,6 +441,7 @@ def _rebuild_city_interests(
     for req in requests:
         city = str(req.city or '').strip()
         if city:
+            city = canonical_kazakhstan_city(city) or city
             key = (normalize_buyer_text(city), BUYER_CITY_INTEREST_REQUEST_CITY)
             groups[key].append((req, city))
 
