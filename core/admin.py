@@ -3075,7 +3075,7 @@ class EditorialPageReviewForm(forms.ModelForm):
     def clean(self):
         data = super().clean()
         from core.editorial_quality import editorial_release_errors
-        if data.get('status') == EditorialPage.STATUS_PUBLISHED and self.instance.status != EditorialPage.STATUS_PUBLISHED:
+        if data.get('status') == EditorialPage.STATUS_PUBLISHED and (not self.instance.pk or EditorialPage.objects.filter(pk=self.instance.pk).exclude(status=EditorialPage.STATUS_PUBLISHED).exists()):
             candidate_id = getattr(self.instance, 'source_candidate_id', None)
             # Validate form candidate if a new article is entered in admin.
             self.instance.title = data.get('title') or ''
