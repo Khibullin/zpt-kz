@@ -43,28 +43,6 @@ def activate_second_batch(apps, schema_editor):
     Country = apps.get_model('core', 'Country')
 
     now = timezone.now()
-    china = Country.objects.filter(name='Китай').first()
-    if china is None:
-        raise RuntimeError('Country "Китай" is required for seller activation.')
-
-    required_brands = {
-        name
-        for profile in PROFILES.values()
-        for name in profile.get('brands', ())
-    }
-    available = set(
-        Brand.objects.filter(
-            name__in=required_brands,
-            transport_type='car',
-        ).values_list('name', flat=True)
-    )
-    missing = sorted(required_brands - available)
-    if missing:
-        raise RuntimeError('Missing activation brands: ' + ', '.join(missing))
-
-    chinese_brands = list(
-        Brand.objects.filter(country=china, transport_type='car').order_by('id')
-    )
 
     for lead_id, profile in PROFILES.items():
         lead = SellerLead.objects.filter(
@@ -163,8 +141,19 @@ def activate_second_batch(apps, schema_editor):
                 raise RuntimeError(f'Brand profile mismatch for SellerLead #{lead.pk}')
             seller.selected_brands.add(*brands)
         elif mode == 'china':
+            china, _ = Country.objects.get_or_create(name='Китай')
+            chinese_brands = list(
+                Brand.objects.filter(
+                    country=china,
+                    transport_type=profile['transport'],
+                ).order_by('id')
+            )
             seller.selected_countries.add(china)
-            seller.selected_brands.add(*chinese_brands)
+            if chinese_brands:
+                seller.selected_brands.add(*chinese_brands)
+            else:
+                seller.all_brands = True
+                seller.save(update_fields=['all_brands'])
 
         lead.request_seller_transport_type = profile['transport']
         lead.reviewed_at = lead.reviewed_at or now
