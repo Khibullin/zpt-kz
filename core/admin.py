@@ -3063,6 +3063,33 @@ from core.models import EditorialPage
 
 @admin.register(EditorialPage)
 class EditorialPageAdmin(admin.ModelAdmin):
+    actions = ('improve_selected_drafts_with_ai',)
+
+    @admin.action(description='ИИ: улучшить выбранные черновики (не публиковать)')
+    def improve_selected_drafts_with_ai(self, request, queryset):
+        from django.conf import settings
+        from core.editorial_ai import improve_draft_with_ai
+
+        if not getattr(settings, 'EDITORIAL_AI_ENABLED', False):
+            self.message_user(request, 'Генерация ИИ выключена в настройках.', level=messages.WARNING)
+            return
+        if not getattr(settings, 'OPENAI_API_KEY', ''):
+            self.message_user(request, 'Ключ OpenAI не настроен.', level=messages.ERROR)
+            return
+        ids = list(queryset.filter(status=EditorialPage.STATUS_DRAFT, source_candidate__isnull=False).values_list('pk', flat=True)[:2])
+        if not ids:
+            self.message_user(request, 'Нет подходящих неопубликованных черновиков.', level=messages.WARNING)
+            return
+        success = 0
+        for pk in ids:
+            try:
+                improve_draft_with_ai(pk)
+                success += 1
+            except Exception as exc:
+                # Do not disclose credentials or untrusted upstream responses in admin.
+                self.message_user(request, f'Черновик #{pk}: ИИ не завершил обработку ({type(exc).__name__}).', level=messages.ERROR)
+        self.message_user(request, f'ИИ обработал черновиков: {success} из {len(ids)}. Публикация не выполнялась.', level=messages.INFO)
+
     list_display = ('title', 'status', 'updated_at', 'published_at')
     list_filter = ('status',)
     search_fields = ('title', 'slug', 'body')
