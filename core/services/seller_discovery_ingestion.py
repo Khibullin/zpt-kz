@@ -11,7 +11,7 @@ FUTURE_MATCHING_ROLE records that intent. This module does not match requests.
 
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from decimal import Decimal
 from urllib.parse import urlsplit
 
@@ -19,6 +19,7 @@ from django.db import IntegrityError, transaction
 from django.db.models import Q
 from django.utils import timezone
 
+from core.kazakhstan_locations import canonical_kazakhstan_city_or_original
 from core.models import (
     SellerLead,
     SellerLeadEvidence,
@@ -96,6 +97,9 @@ def ingest_seller_discovery_hit(
 ) -> IngestionResult:
     """Create or enrich one SellerLead. dry_run reads matches and writes nothing."""
     _validate_hit(hit)
+    normalized_city = canonical_kazakhstan_city_or_original(hit.city)
+    if normalized_city != (hit.city or ''):
+        hit = replace(hit, city=normalized_city)
     if not str(hit.name or '').strip():
         return IngestionResult(
             action='skipped',
