@@ -443,3 +443,5 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = 'same-origin'
+# Editorial SEO pages: disabled until first approved production rollout.
+SEO_EDITORIAL_ENABLED = os.getenv('SEO_EDITORIAL_ENABLED', 'False').lower() in ('true', '1', 'yes')
