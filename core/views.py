@@ -46,6 +46,10 @@ from core.whatsapp_template_sender import (
     wa_template_param,
 )
 from core.phone_utils import build_whatsapp_url
+from core.kazakhstan_locations import (
+    canonical_kazakhstan_city,
+    canonicalize_kazakhstan_cities,
+)
 from core.seller_request_consent import seller_request_template_kwargs
 from core.services.seller_request_access import (
     get_or_create_active_seller_request_access,
@@ -444,6 +448,49 @@ def _normalize_request_model(raw_model: str) -> str:
     if model in _CUSTOM_MODEL_MARKERS:
         raise ValueError('Укажите модель автомобиля.')
     return model
+
+
+VALID_REQUEST_SEARCH_SCOPES = {'city', 'kazakhstan', 'custom'}
+
+
+def _canonicalize_request_geography(data):
+    raw_city = str(data.get('city') or '').strip()
+    city = canonical_kazakhstan_city(raw_city)
+    if city is None:
+        raise ValueError('Выберите город из списка.')
+
+    search_scope = str(data.get('search_scope') or 'city').strip()
+    if search_scope not in VALID_REQUEST_SEARCH_SCOPES:
+        raise ValueError('Некорректный режим поиска продавцов.')
+
+    raw_selected = data.get('selected_cities') or []
+    if isinstance(raw_selected, str):
+        raw_selected = [
+            item.strip()
+            for item in raw_selected.split(',')
+            if item.strip()
+        ]
+    else:
+        raw_selected = [
+            str(item or '').strip()
+            for item in raw_selected
+            if str(item or '').strip()
+        ]
+
+    unknown = [
+        value for value in raw_selected
+        if canonical_kazakhstan_city(value) is None
+    ]
+    if unknown:
+        raise ValueError('Выберите города из списка.')
+
+    selected_cities = canonicalize_kazakhstan_cities(raw_selected)
+    if search_scope == 'custom' and not selected_cities:
+        raise ValueError('Выберите хотя бы один город для поиска продавцов.')
+    if search_scope != 'custom':
+        selected_cities = []
+
+    return city, search_scope, selected_cities
 
 
 def _parse_create_request_data(request):
@@ -1094,13 +1141,10 @@ def create_request(request):
         except ValueError as exc:
             return JsonResponse({'error': str(exc)}, status=400)
 
-        selected_cities = data.get('selected_cities') or []
-        if isinstance(selected_cities, str):
-            selected_cities = [
-                city.strip()
-                for city in selected_cities.split(',')
-                if city.strip()
-            ]
+        try:
+            city, search_scope, selected_cities = _canonicalize_request_geography(data)
+        except ValueError as exc:
+            return JsonResponse({'error': str(exc)}, status=400)
 
         stage_started = time.perf_counter()
         req = Request.objects.create(
@@ -1111,8 +1155,8 @@ def create_request(request):
             category=data.get('category', ''),
             article=data.get('article', ''),
             description=data.get('description', ''),
-            city=data.get('city', ''),
-            search_scope=data.get('search_scope', 'city'),
+            city=city,
+            search_scope=search_scope,
             selected_cities=','.join(selected_cities),
             phone=data.get('phone', ''),
         )
@@ -1733,9 +1777,14 @@ def update_seller_profile(request):
     new_whatsapp = _normalize_whatsapp(data.get('whatsapp', seller.whatsapp))
 
     # Основные данные магазина
+    requested_city = data.get('city', seller.city)
+    canonical_city = canonical_kazakhstan_city(requested_city)
+    if requested_city and canonical_city is None:
+        return JsonResponse({'error': 'Выберите город из списка.'}, status=400)
+
     seller.name = data.get('name', seller.name)
     seller.phone2 = data.get('phone2', seller.phone2)
-    seller.city = data.get('city', seller.city)
+    seller.city = canonical_city or ''
     seller.market_location = data.get('market_location', seller.market_location)
     seller.transport_type = data.get('transport_type', seller.transport_type)
 
@@ -1768,6 +1817,17 @@ def update_seller_profile(request):
         return JsonResponse({'error': exc.message}, status=exc.status)
 
     seller.save()
+
+    # Keep the marketplace profile and owned product city in sync with the
+    # request-routing seller. City has one canonical representation platform-wide.
+    if seller.user_id:
+        from catalog.models import Product, SellerProfile
+
+        profile = SellerProfile.objects.filter(user_id=seller.user_id).first()
+        if profile is not None and profile.city != seller.city:
+            profile.city = seller.city
+            profile.save(update_fields=['city'])
+            Product.objects.filter(seller_profile=profile).update(city=seller.city)
 
     # Настройки категорий / стран / марок / моделей
     if seller.all_categories:
@@ -1823,7 +1883,8 @@ def update_match_status(request):
 def parts_sellers_catalog(request):
     q = request.GET.get('q', '').strip()
     transport_type = request.GET.get('transport_type', '').strip()
-    city = request.GET.get('city', '').strip()
+    raw_city = request.GET.get('city', '').strip()
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
     category_id = request.GET.get('category', '').strip()
     country_id = request.GET.get('country', '').strip()
     brand_id = request.GET.get('brand', '').strip()
@@ -1839,6 +1900,9 @@ def parts_sellers_catalog(request):
         'selected_brands',
         'selected_models',
     )
+
+    if raw_city and not city:
+        sellers = Seller.objects.none()
 
     if transport_type:
         sellers = sellers.filter(
