@@ -69,6 +69,8 @@ def improve_draft_with_ai(page_id: int, *, session=None):
     new_body = '\n'.join(chunks).strip()
     if not 150 <= len(new_body) <= MAX_OUTPUT:
         raise ValueError('ИИ вернул материал неподходящего объёма')
+    if product.article.casefold() not in new_body.casefold():
+        raise ValueError('В тексте отсутствует исходный артикул товара')
     if FORBIDDEN.search(new_body):
         raise ValueError('ИИ выдал неподтверждённые утверждения')
     # Recheck state under lock to prevent an in-flight call overwriting approved content.
