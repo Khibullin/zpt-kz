@@ -134,6 +134,7 @@ def create_service_seller(request):
         city, district = normalize_service_request_location(
             data.get('city', ''),
             data.get('district', ''),
+            require_district=False,
         )
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
@@ -315,6 +316,7 @@ def update_service_seller_profile(request):
         city, district = normalize_service_request_location(
             data.get('city', seller.city),
             data.get('district', seller.district),
+            require_district=False,
         )
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
