@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.html import escape, format_html
 from django.utils.safestring import mark_safe
 from core.platform_help import build_help_whatsapp_reply_url
+from core.kazakhstan_locations import canonical_kazakhstan_city
 from .models import WhatsAppMessageLog
 
 from openpyxl import load_workbook
@@ -191,7 +192,8 @@ def parse_sellers_xlsx(file_obj):
         seller_name = get_cell(row, headers, 'seller_name')
         whatsapp = normalize_phone(get_cell(row, headers, 'whatsapp'))
         phone2 = normalize_phone(get_cell(row, headers, 'phone2'))
-        city = get_cell(row, headers, 'city', 'Алматы')
+        raw_city = get_cell(row, headers, 'city', 'Алматы')
+        city = canonical_kazakhstan_city(raw_city) or ''
         market_location = get_cell(row, headers, 'market_location')
         transport_type = get_cell(row, headers, 'transport_type', 'car').lower()
         categories = get_cell(row, headers, 'categories')
@@ -204,6 +206,9 @@ def parse_sellers_xlsx(file_obj):
         if not seller_name:
             seller_name = f"Seller {row_number}"
             notes = (notes + " | " if notes else "") + "Требует проверки: нет названия"
+
+        if raw_city and not city:
+            notes = (notes + " | " if notes else "") + "Требует проверки: неизвестный город"
 
         if not whatsapp:
             whatsapp = f"NO-WA-{row_number}"
