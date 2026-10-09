@@ -200,6 +200,11 @@ SELLER_PIPELINE_NOTIFICATION_EMAIL = os.getenv(
     ORDER_ADMIN_EMAIL or EMAIL_HOST_USER,
 )
 
+SELLER_FIRST_CIRCLE_GROWTH_ENABLED = os.getenv(
+    'SELLER_FIRST_CIRCLE_GROWTH_ENABLED',
+    'False',
+).lower() in ('true', '1', 'yes')
+
 # WhatsApp / Meta API
 
 WHATSAPP_TOKEN = (
