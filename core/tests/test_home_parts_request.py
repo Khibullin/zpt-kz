@@ -1201,7 +1201,7 @@ class HomeShortMatchedSellerTests(TestCase):
         seller_ids = self._seller_ids()
         self.assertEqual(
             seller_ids,
-            {self.exact.id, self.all_spec.id},
+            {self.exact.id},
         )
         self.assertNotIn(self.truck.id, seller_ids)
         self.assertNotIn(self.other_category.id, seller_ids)
