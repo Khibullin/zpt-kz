@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from core.kazakhstan_locations import canonical_kazakhstan_city
+
 SERVICE_REQUEST_CITY_DISTRICTS: dict[str, tuple[str, ...]] = {
     'Алматы': (
         'Алмалинский',
@@ -22,11 +24,15 @@ SERVICE_REQUEST_CITY_DISTRICTS: dict[str, tuple[str, ...]] = {
 
 
 def normalize_service_request_location(city: str, district: str) -> tuple[str, str]:
-    normalized_city = (city or '').strip()
+    raw_city = (city or '').strip()
     normalized_district = (district or '').strip()
 
-    if not normalized_city:
+    if not raw_city:
         raise ValueError('Укажите город.')
+
+    normalized_city = canonical_kazakhstan_city(raw_city)
+    if normalized_city is None:
+        raise ValueError('Выберите город из списка.')
 
     allowed = SERVICE_REQUEST_CITY_DISTRICTS.get(normalized_city)
     if allowed is None:
