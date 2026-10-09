@@ -7,6 +7,7 @@ from core.go_views import go_redirect, product_whatsapp_redirect
 from core.help_views import platform_help_page
 from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static, sitemap_content
 from core.editorial_views import editorial_detail, editorial_index
+from core.editorial_cron import editorial_daily_trigger
 from core.seller_whatsapp_consent_views import (
     seller_portal_whatsapp_consent,
     seller_whatsapp_consent_link,
@@ -37,6 +38,7 @@ from catalog.views_zpt_guide import zpt_guide_view
 
 urlpatterns = [
     path('robots.txt', robots_txt, name='robots_txt'),
+    path('internal/editorial/daily/', editorial_daily_trigger, name='editorial_daily_trigger'),
     path('sitemap.xml', sitemap_index, name='sitemap_index'),
     path('sitemap-static.xml', sitemap_static, name='sitemap_static'),
     path('sitemap-content.xml', sitemap_content, name='sitemap_content'),
