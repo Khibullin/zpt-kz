@@ -63,3 +63,15 @@ class EditorialSEOTests(TestCase):
         self.article.save()
         self.article.refresh_from_db()
         self.assertIsNotNone(self.article.published_at)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_index_lists_only_approved_pages(self):
+        self.assertNotContains(self.client.get('/guide/parts/'), 'Тестовый материал')
+        self.article.status = EditorialPage.STATUS_PUBLISHED
+        self.article.save()
+        self.assertContains(self.client.get('/guide/parts/'), 'Тестовый материал')
+        self.assertContains(self.client.get('/sitemap-content.xml'), '/guide/parts/')
+
+    @override_settings(SEO_EDITORIAL_ENABLED=False)
+    def test_index_disabled_by_default_flag(self):
+        self.assertEqual(self.client.get('/guide/parts/').status_code, 404)
