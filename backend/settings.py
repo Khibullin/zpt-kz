@@ -54,7 +54,7 @@ INSTALLED_APPS = [
     'catalog',
     'repricer',
 
-    'core',
+    'core.apps.CoreConfig',
     'service_requests',
     'orders',
     'payments.apps.PaymentsConfig',
