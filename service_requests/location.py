@@ -23,7 +23,12 @@ SERVICE_REQUEST_CITY_DISTRICTS: dict[str, tuple[str, ...]] = {
 }
 
 
-def normalize_service_request_location(city: str, district: str) -> tuple[str, str]:
+def normalize_service_request_location(
+    city: str,
+    district: str,
+    *,
+    require_district: bool = True,
+) -> tuple[str, str]:
     raw_city = (city or '').strip()
     normalized_district = (district or '').strip()
 
@@ -39,7 +44,9 @@ def normalize_service_request_location(city: str, district: str) -> tuple[str, s
         return normalized_city, ''
 
     if not normalized_district:
-        raise ValueError('Выберите район для выбранного города.')
+        if require_district:
+            raise ValueError('Выберите район для выбранного города.')
+        return normalized_city, ''
 
     if normalized_district not in allowed:
         raise ValueError('Выберите корректный район для выбранного города.')
