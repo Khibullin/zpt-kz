@@ -13,6 +13,7 @@ on:
       - 'core/tests/test_editorial_daily.py'
       - 'core/management/commands/improve_editorial_draft.py'
       - 'core/tests/test_editorial_ai.py'
+      - 'core/tests/test_editorial_admin_ai.py'
       - 'core/management/commands/prepare_editorial_draft.py'
       - 'core/tests/test_editorial_drafts.py'
       - 'core/management/commands/collect_editorial_candidates.py'
@@ -50,4 +51,4 @@ jobs:
       - name: Migration consistency
         run: python manage.py makemigrations --check --dry-run
       - name: Editorial SEO unit tests
-        run: python manage.py test core.tests.test_editorial_seo core.tests.test_editorial_candidates core.tests.test_editorial_drafts core.tests.test_editorial_ai core.tests.test_editorial_daily core.tests.test_editorial_cron --verbosity 2
+        run: python manage.py test core.tests.test_editorial_seo core.tests.test_editorial_candidates core.tests.test_editorial_drafts core.tests.test_editorial_ai core.tests.test_editorial_daily core.tests.test_editorial_cron core.tests.test_editorial_admin_ai --verbosity 2
