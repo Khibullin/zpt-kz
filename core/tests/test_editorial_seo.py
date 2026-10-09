@@ -99,3 +99,38 @@ class EditorialSEOTests(TestCase):
         sitemap = self.client.get('/sitemap-content.xml')
         self.assertContains(sitemap, '/guide/parts/guide--test/')
         self.assertIsNotNone(article.published_at)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_related_products_only_show_active_linked_products(self):
+        from catalog.models import Product
+
+        active = Product.objects.create(
+            title='Тестовый активный фильтр', slug='editorial-active-filter',
+            article='DEMO-A', seller_name='Тест', whatsapp_number='+77000000000',
+            status='active', price=5000,
+        )
+        hidden = Product.objects.create(
+            title='Тестовый скрытый фильтр', slug='editorial-hidden-filter',
+            article='DEMO-H', seller_name='Тест', whatsapp_number='+77000000000',
+            status='hidden', price=5000,
+        )
+        self.article.related_products.add(active, hidden)
+        self.article.status = EditorialPage.STATUS_PUBLISHED
+        self.article.save()
+        response = self.client.get('/guide/parts/test-part-guide/')
+        self.assertContains(response, 'Тестовый активный фильтр')
+        self.assertNotContains(response, 'Тестовый скрытый фильтр')
+        self.assertContains(response, 'editorial-active-filter')
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_related_products_not_available_on_draft_article(self):
+        self.assertEqual(self.client.get('/guide/parts/test-part-guide/').status_code, 404)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_editorial_design_and_request_cta_are_present(self):
+        self.article.status = EditorialPage.STATUS_PUBLISHED
+        self.article.save()
+        response = self.client.get('/guide/parts/test-part-guide/')
+        self.assertContains(response, 'css/editorial.css')
+        self.assertContains(response, '/request-parts/')
+        self.assertContains(response, 'Полезные материалы')
