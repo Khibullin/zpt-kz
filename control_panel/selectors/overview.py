@@ -4,10 +4,17 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from django.db.models import Count, Exists, OuterRef, Q
+from django.utils import timezone
 
+from core.kazakhstan_locations import (
+    FIRST_CIRCLE_CITIES,
+    FIRST_CIRCLE_SELLER_SATURATION_TARGET,
+)
 from core.models import (
     Request,
     RequestDispatch,
+    Seller,
+    SellerLead,
     SellerRequestPageEvent,
 )
 from control_panel.display import (
@@ -65,6 +72,19 @@ class AttentionItem:
     object_id: int | None = None
 
 
+@dataclass(frozen=True)
+class CityCoverageRow:
+    city: str
+    buyer_requests: int
+    active_sellers: int
+    seller_leads: int
+    new_leads_today: int
+    activated_today: int
+    active_service_sellers: int
+    service_requests: int
+    saturated: bool
+
+
 _KPI_EVENT_TYPES = (
     'page_open',
     'whatsapp_click',
@@ -91,6 +111,64 @@ def _event_counts(period: str) -> dict[str, int]:
         event_type: int(row.get(event_type) or 0)
         for event_type in _KPI_EVENT_TYPES
     }
+
+
+def _count_by_city(queryset) -> dict[str, int]:
+    return {
+        row['city']: int(row['count'])
+        for row in queryset.exclude(city='').values('city').annotate(count=Count('id'))
+    }
+
+
+def _city_coverage(parts_qs, service_qs) -> list[CityCoverageRow]:
+    today = timezone.localdate()
+    active_sellers = _count_by_city(
+        Seller.objects.filter(
+            is_active=True,
+            is_paused=False,
+            receive_requests=True,
+        )
+    )
+    seller_leads = _count_by_city(
+        SellerLead.objects.filter(market_scope='kz')
+    )
+    new_leads_today = _count_by_city(
+        SellerLead.objects.filter(
+            market_scope='kz',
+            collected_at__date=today,
+        )
+    )
+    activated_today = _count_by_city(
+        SellerLead.objects.filter(
+            lifecycle_status=SellerLead.LIFECYCLE_ACTIVE,
+            reviewed_at__date=today,
+        )
+    )
+    active_service_sellers = _count_by_city(
+        ServiceSeller.objects.filter(
+            is_active=True,
+            receive_requests=True,
+            is_paused=False,
+        )
+    )
+    buyer_requests = _count_by_city(parts_qs)
+    service_requests = _count_by_city(service_qs)
+
+    rows = []
+    for city in FIRST_CIRCLE_CITIES:
+        active = active_sellers.get(city, 0)
+        rows.append(CityCoverageRow(
+            city=city,
+            buyer_requests=buyer_requests.get(city, 0),
+            active_sellers=active,
+            seller_leads=seller_leads.get(city, 0),
+            new_leads_today=new_leads_today.get(city, 0),
+            activated_today=activated_today.get(city, 0),
+            active_service_sellers=active_service_sellers.get(city, 0),
+            service_requests=service_requests.get(city, 0),
+            saturated=active >= FIRST_CIRCLE_SELLER_SATURATION_TARGET,
+        ))
+    return rows
 
 
 def overview_context(period: str) -> dict:
@@ -297,4 +375,6 @@ def overview_context(period: str) -> dict:
         'recent_services': recent_services,
         'recent_events': recent_events,
         'attention_items': attention[:16],
+        'city_coverage': _city_coverage(parts_qs, service_qs),
+        'city_saturation_target': FIRST_CIRCLE_SELLER_SATURATION_TARGET,
     }
