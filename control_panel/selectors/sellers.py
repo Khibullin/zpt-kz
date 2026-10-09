@@ -25,6 +25,7 @@ from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
 from catalog.models import Product, SellerProfile
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES, canonical_kazakhstan_city
 from core.models import (
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
@@ -507,9 +508,12 @@ def list_sellers(params: QueryDict) -> dict:
         _consent_prefetch(),
         _lead_prefetch(),
     )
-    city = first_value(params, 'city')
-    if city:
-        queryset = queryset.filter(city__icontains=city)
+    raw_city = first_value(params, 'city')
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
+    if raw_city and not city:
+        queryset = queryset.none()
+    elif city:
+        queryset = queryset.filter(city=city)
 
     active = first_value(params, 'active')
     if active == 'yes':
@@ -650,12 +654,7 @@ def list_sellers(params: QueryDict) -> dict:
             )
         )
 
-    cities = list(
-        Seller.objects.exclude(city='')
-        .order_by('city')
-        .values_list('city', flat=True)
-        .distinct()
-    )
+    cities = list(KAZAKHSTAN_CITIES)
     category_names = set(
         PartCategory.objects.exclude(name='')
         .order_by('name')
@@ -792,9 +791,12 @@ def list_seller_candidates(params: QueryDict) -> dict:
             | Q(website_url__icontains=search)
         )
 
-    city = first_value(params, 'city')
-    if city:
-        queryset = queryset.filter(city__iexact=city)
+    raw_city = first_value(params, 'city')
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
+    if raw_city and not city:
+        queryset = queryset.none()
+    elif city:
+        queryset = queryset.filter(city=city)
 
     source = first_value(params, 'source')
     queryset = _candidate_source_filter(queryset, source)
@@ -908,14 +910,7 @@ def list_seller_candidates(params: QueryDict) -> dict:
             )
         )
 
-    cities = list(
-        SellerLead.objects
-        .filter(duplicate_of__isnull=True)
-        .exclude(city='')
-        .order_by('city')
-        .values_list('city', flat=True)
-        .distinct()
-    )
+    cities = list(KAZAKHSTAN_CITIES)
     return {
         'seller_view': 'candidates',
         'rows': rows,
