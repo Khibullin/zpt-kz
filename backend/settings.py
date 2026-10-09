@@ -445,3 +445,7 @@ if not DEBUG:
     SECURE_REFERRER_POLICY = 'same-origin'
 # Editorial SEO pages: disabled until first approved production rollout.
 SEO_EDITORIAL_ENABLED = os.getenv('SEO_EDITORIAL_ENABLED', 'False').lower() in ('true', '1', 'yes')
+
+# AI edits are opt-in; no automatic public publication.
+EDITORIAL_AI_ENABLED = os.getenv('EDITORIAL_AI_ENABLED', 'False').lower() in ('true', '1', 'yes')
+EDITORIAL_AI_MODEL = os.getenv('EDITORIAL_AI_MODEL', 'gpt-5.6-luna')
