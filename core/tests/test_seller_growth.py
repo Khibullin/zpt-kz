@@ -12,8 +12,10 @@ from core.models import (
     SellerLeadDiscoveredCategory,
 )
 from core.services.seller_growth import (
+    _city_candidate_ids,
     activate_qualified_lead_for_requests,
     city_active_request_seller_count,
+    lead_city_is_confirmed,
     lead_is_safe_for_auto_activation,
 )
 
@@ -102,14 +104,57 @@ class SellerGrowthActivationTests(TestCase):
         result = activate_qualified_lead_for_requests(lead)
 
         self.assertFalse(result.activated)
-        self.assertEqual(result.reason, 'linked_registered_seller')
+        self.assertEqual(result.reason, 'existing_seller')
         lead.refresh_from_db()
         seller.refresh_from_db()
-        self.assertEqual(lead.request_seller_id, seller.pk)
+        self.assertIsNone(lead.request_seller_id)
         self.assertTrue(seller.is_paused)
         self.assertFalse(seller.receive_requests)
         self.assertEqual(list(seller.selected_brands.all()), [self.bmw])
         self.assertEqual(SellerContactConsent.objects.count(), 0)
+
+    def test_russian_mobile_is_not_auto_activated_as_kazakhstan(self):
+        lead = self._lead(
+            name='Автозапчасти УРАЛ, отправим по РФ',
+            city='Уральск',
+            whatsapp='79512325963',
+        )
+
+        self.assertFalse(lead_is_safe_for_auto_activation(lead))
+        result = activate_qualified_lead_for_requests(lead)
+        self.assertFalse(result.activated)
+        self.assertEqual(Seller.objects.count(), 0)
+
+    def test_city_must_be_confirmed_by_business_evidence(self):
+        lead = self._lead(
+            name='Universal Auto Parts',
+            city='Конаев',
+            whatsapp='77754343424',
+        )
+
+        self.assertFalse(lead_city_is_confirmed(lead))
+        self.assertFalse(lead_is_safe_for_auto_activation(lead))
+
+    def test_preferred_candidate_from_other_city_is_excluded(self):
+        almaty = self._lead(
+            name='BMW Parts Almaty',
+            city='Алматы',
+            whatsapp='77015550004',
+        )
+        actobe = self._lead(
+            name='Автозапчасти Актобе',
+            city='Актобе',
+            whatsapp='77015550005',
+        )
+
+        candidate_ids = _city_candidate_ids(
+            'Актобе',
+            [almaty.pk, actobe.pk],
+            limit=8,
+        )
+
+        self.assertIn(actobe.pk, candidate_ids)
+        self.assertNotIn(almaty.pk, candidate_ids)
 
     def test_unresolved_duplicate_is_not_auto_activated(self):
         lead = self._lead()
