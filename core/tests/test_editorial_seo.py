@@ -1,5 +1,4 @@
 from django.test import TestCase, override_settings
-from django.urls import reverse
 from core.models import EditorialPage
 
 
@@ -39,3 +38,28 @@ class EditorialSEOTests(TestCase):
         self.article.save()
         self.assertNotIn('test-part-guide', self.client.get('/sitemap-content.xml').content.decode())
         self.assertEqual(self.client.get('/guide/parts/test-part-guide/').status_code, 404)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_article_text_is_escaped_not_html(self):
+        self.article.body = '<script>alert("unsafe")</script>'
+        self.article.status = EditorialPage.STATUS_PUBLISHED
+        self.article.save()
+        response = self.client.get('/guide/parts/test-part-guide/')
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, '<script>', html=False)
+        self.assertContains(response, '&lt;script&gt;', html=False)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_sitemap_index_includes_content_only_when_enabled(self):
+        response = self.client.get('/sitemap.xml')
+        self.assertContains(response, '/sitemap-content.xml')
+        with override_settings(SEO_EDITORIAL_ENABLED=False):
+            response = self.client.get('/sitemap.xml')
+            self.assertNotContains(response, '/sitemap-content.xml')
+
+    def test_publication_timestamp_set_on_publish(self):
+        self.assertIsNone(self.article.published_at)
+        self.article.status = EditorialPage.STATUS_PUBLISHED
+        self.article.save()
+        self.article.refresh_from_db()
+        self.assertIsNotNone(self.article.published_at)
