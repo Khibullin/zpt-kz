@@ -134,3 +134,20 @@ class EditorialSEOTests(TestCase):
         self.assertContains(response, 'css/editorial.css')
         self.assertContains(response, '/request-parts/')
         self.assertContains(response, 'Полезные материалы')
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_intro_article_seeded_and_indexed(self):
+        article = EditorialPage.objects.get(slug='kak-podobrat-avtozapchast-po-artikulu')
+        self.assertEqual(article.status, EditorialPage.STATUS_PUBLISHED)
+        self.assertEqual(
+            self.client.get('/guide/parts/kak-podobrat-avtozapchast-po-artikulu/').status_code,
+            200,
+        )
+        self.assertContains(self.client.get('/sitemap-content.xml'), article.slug)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_footer_links_to_guides_when_enabled(self):
+        self.assertContains(self.client.get('/guide/parts/'), 'Полезные материалы')
+        with override_settings(SEO_EDITORIAL_ENABLED=False):
+            response = self.client.get('/')
+            self.assertNotContains(response, 'href="/guide/parts/"', html=False)
