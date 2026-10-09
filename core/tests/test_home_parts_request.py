@@ -269,13 +269,14 @@ class HomePartsRequestTests(TestCase):
             req = Request.objects.get(idempotency_key=key)
             self.assertEqual(req.city, 'Алматы')
 
-        before = Request.objects.count()
-        unknown, _, _ = self._post(city='Аматы', idempotency_key='key-city-typo')
-        self.assertEqual(unknown.status_code, 400)
-        payload = unknown.json()
-        self.assertEqual(payload['fields']['city'], 'Выберите город из списка.')
-        self.assertEqual(Request.objects.count(), before)
+        legacy, _, _ = self._post(city='Аматы', idempotency_key='key-city-typo')
+        self.assertEqual(legacy.status_code, 200, legacy.content)
+        self.assertEqual(
+            Request.objects.get(idempotency_key='key-city-typo').city,
+            'Алматы',
+        )
 
+        before = Request.objects.count()
         missing, _, _ = self._post(
             city='Город-которого-нет',
             idempotency_key='key-city-unknown',
@@ -307,12 +308,14 @@ class HomePartsRequestTests(TestCase):
             req = Request.objects.get(idempotency_key=key)
             self.assertEqual(req.city, expected)
 
-        before = Request.objects.count()
-        typo, _, _ = self._post(city='Аматы', idempotency_key='key-city-alias-typo')
-        self.assertEqual(typo.status_code, 400)
-        self.assertEqual(typo.json()['fields']['city'], 'Выберите город из списка.')
-        self.assertEqual(Request.objects.count(), before)
+        legacy, _, _ = self._post(city='Аматы', idempotency_key='key-city-alias-typo')
+        self.assertEqual(legacy.status_code, 200, legacy.content)
+        self.assertEqual(
+            Request.objects.get(idempotency_key='key-city-alias-typo').city,
+            'Алматы',
+        )
 
+        before = Request.objects.count()
         unknown, _, _ = self._post(
             city='Город-которого-нет',
             idempotency_key='key-city-alias-unknown',
