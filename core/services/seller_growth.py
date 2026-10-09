@@ -341,22 +341,22 @@ def activate_qualified_lead_for_requests(lead: SellerLead) -> LeadActivationResu
             )
 
         seller = Seller.objects.create(
-                name=(locked.name or '')[:255],
-                whatsapp=whatsapp[:20],
-                city=city[:100],
-                transport_type=transport_type,
-                seller_type=seller_type,
-                notes=f'SellerLead #{locked.pk}; automatic request activation',
-                receive_requests=True,
-                is_active=True,
-                is_paused=False,
-                all_categories=not bool(categories),
-                all_countries=True,
-                all_brands=not bool(brands),
-                all_models=True,
-            )
-            locked.request_seller = seller
-            created = True
+            name=(locked.name or '')[:255],
+            whatsapp=whatsapp[:20],
+            city=city[:100],
+            transport_type=transport_type,
+            seller_type=seller_type,
+            notes=f'SellerLead #{locked.pk}; automatic request activation',
+            receive_requests=True,
+            is_active=True,
+            is_paused=False,
+            all_categories=not bool(categories),
+            all_countries=True,
+            all_brands=not bool(brands),
+            all_models=True,
+        )
+        locked.request_seller = seller
+        created = True
 
         seller.name = (locked.name or seller.name)[:255]
         seller.whatsapp = whatsapp[:20]
