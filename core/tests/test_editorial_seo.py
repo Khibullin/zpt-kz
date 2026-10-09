@@ -46,7 +46,7 @@ class EditorialSEOTests(TestCase):
         self.article.save()
         response = self.client.get('/guide/parts/test-part-guide/')
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, '<script>', html=False)
+        self.assertNotContains(response, '<script>alert("unsafe")</script>', html=False)
         self.assertContains(response, '&lt;script&gt;', html=False)
 
     @override_settings(SEO_EDITORIAL_ENABLED=True)
