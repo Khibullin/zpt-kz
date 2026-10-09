@@ -875,8 +875,8 @@ def _find_matching_sellers(req):
             'id',
         )
         if qs.exists():
-            return qs, 'all_kz'
-        return Seller.objects.none(), 'no_match'
+            return qs, Request.ROUTING_ALL_KZ
+        return Seller.objects.none(), Request.ROUTING_NO_MATCH
 
     base_qs = _base_sellers_queryset(req)
     base_qs = _apply_category_filter(base_qs, req)
@@ -924,7 +924,11 @@ def _find_matching_sellers(req):
         )
 
         if qs.exists():
-            return qs, 'matched'
+            if search_scope == 'city':
+                return qs, Request.ROUTING_MATCHED_CITY
+            if search_scope == 'custom':
+                return qs, Request.ROUTING_MATCHED_CUSTOM
+            return qs, Request.ROUTING_MATCHED_KAZAKHSTAN
 
     if search_scope in ['city', 'custom']:
 
@@ -946,9 +950,9 @@ def _find_matching_sellers(req):
             )
 
             if qs.exists():
-                return qs, 'fallback_kazakhstan'
+                return qs, Request.ROUTING_FALLBACK_KAZAKHSTAN
 
-    return Seller.objects.none(), 'no_match'
+    return Seller.objects.none(), Request.ROUTING_NO_MATCH
 
 def _seller_notification_text(req):
     return (
@@ -1181,6 +1185,8 @@ def create_request(request):
         sellers, strategy = _find_matching_sellers(req)
         matched = list(sellers)
         sellers_count = len(matched)
+        req.routing_strategy = strategy
+        req.save(update_fields=['routing_strategy'])
         _log_create_request_timing(request_id, 'seller_matching_finished', stage_started)
 
         print('TOTAL MATCHED SELLERS:', sellers_count)
