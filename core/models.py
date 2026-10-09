@@ -3376,6 +3376,7 @@ class EditorialPage(models.Model):
         (STATUS_PUBLISHED, 'Опубликовано'),
     ]
 
+    related_products = models.ManyToManyField('catalog.Product', blank=True, related_name='editorial_pages', verbose_name='Товары по теме')
     slug = models.SlugField(max_length=180, unique=True, verbose_name='Адрес страницы')
     title = models.CharField(max_length=240, verbose_name='Заголовок')
     seo_title = models.CharField(max_length=240, blank=True, default='', verbose_name='SEO-заголовок')

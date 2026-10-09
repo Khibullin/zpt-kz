@@ -1,18 +1,15 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}Полезные материалы об автозапчастях — ZPT.KZ{% endblock %}
-{% block meta_description %}Проверенные советы по выбору и поиску автозапчастей. Каталог, подбор и заявки продавцам на ZPT.KZ.{% endblock %}
+{% block meta_description %}Советы по выбору и поиску автозапчастей. Товары и заявки продавцам на ZPT.KZ.{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/editorial.css' %}">{% endblock %}
 {% block content %}
-<main style="max-width:900px;margin:32px auto;padding:0 20px">
-  <h1>Полезные материалы об автозапчастях</h1>
-  <p>Подбор запчастей, особенности деталей и полезные ответы на вопросы покупателей.</p>
-  {% for article in articles %}
-  <article style="border-bottom:1px solid #ddd;padding:16px 0">
-    <h2><a href="{% url 'editorial_detail' article.slug %}">{{ article.title }}</a></h2>
-    <p>{{ article.meta_description }}</p>
-  </article>
-  {% empty %}
-  <p>Проверенные материалы пока не опубликованы.</p>
-  {% endfor %}
-  <p><a href="/request-parts/">Нужна запчасть? Оставьте заявку продавцам</a></p>
-</main>
+<main class="editorial-shell">
+<nav class="editorial-crumbs"><a href="/">ZPT.KZ</a> / Полезные материалы</nav>
+<header class="editorial-hero"><span class="editorial-eyebrow">Справочник покупателя</span><h1>Полезные материалы об автозапчастях</h1><p class="editorial-lead">Подбор деталей, артикулы и полезные советы, чтобы найти подходящую запчасть.</p><div class="editorial-actions"><a class="editorial-btn" href="/request-parts/">Найти запчасть</a><a class="editorial-btn editorial-btn--secondary" href="/">Смотреть каталог</a></div></header>
+<section class="editorial-grid" aria-label="Материалы">
+{% for article in articles %}
+<article class="editorial-card"><span class="editorial-eyebrow">Подбор запчастей</span><h2><a href="{% url 'editorial_detail' article.slug %}">{{ article.title }}</a></h2><p>{{ article.meta_description }}</p>{% if article.published_at %}<span class="editorial-date">{{ article.published_at|date:"d.m.Y" }}</span>{% endif %}<a href="{% url 'editorial_detail' article.slug %}">Читать материал →</a></article>
+{% empty %}<p>Проверенные материалы пока не опубликованы. Посмотрите товары в каталоге.</p>{% endfor %}
+</section></main>
 {% endblock %}

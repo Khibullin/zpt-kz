@@ -1,14 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
 {% block title %}{{ article.seo_title|default:article.title }} — ZPT.KZ{% endblock %}
 {% block meta_description %}{{ article.meta_description }}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/editorial.css' %}">{% endblock %}
 {% block content %}
-<main style="max-width:860px;margin:32px auto;padding:0 20px">
-  <p><a href="/">ZPT.KZ</a> / Полезные материалы</p>
-  <article>
-    <h1>{{ article.title }}</h1>
-    <div style="white-space:pre-line;line-height:1.7">{{ article.body }}</div>
-  </article>
-  <p style="margin-top:32px"><a href="/request-parts/">Не нашли нужную запчасть? Оставьте заявку продавцам</a></p>
-  <p><a href="/">Перейти к каталогу запчастей</a></p>
+<main class="editorial-shell">
+<nav class="editorial-crumbs"><a href="/">ZPT.KZ</a> / <a href="{% url 'editorial_index' %}">Полезные материалы</a> / {{ article.title }}</nav>
+<article class="editorial-article"><header class="editorial-hero"><span class="editorial-eyebrow">Подбор запчастей</span><h1>{{ article.title }}</h1><p class="editorial-lead">{{ article.meta_description }}</p>{% if article.published_at %}<p class="editorial-date">Опубликовано: {{ article.published_at|date:"d.m.Y" }}</p>{% endif %}</header><div class="editorial-body">{{ article.body }}</div></article>
+{% if related_products %}
+<section aria-labelledby="related-products-heading"><h2 class="editorial-section-title" id="related-products-heading">Товары по теме</h2><div class="editorial-product-grid">
+{% for item in related_products %}<article class="editorial-product"><a href="{{ item.url }}">{% if item.product.main_image %}<img src="{{ item.product.main_image.url }}" loading="lazy" alt="{{ item.product.title }}">{% endif %}<h3>{{ item.product.title }}</h3></a>{% if item.product.article %}<p class="editorial-muted">Артикул: {{ item.product.article }}</p>{% endif %}{% if item.product.price %}<p class="editorial-price">{{ item.product.price }} ₸</p>{% else %}<p class="editorial-muted">Цена уточняется</p>{% endif %}<p class="editorial-muted">{{ item.product.seller_name }}</p><a href="{{ item.url }}">Посмотреть товар →</a></article>{% endfor %}
+</div></section>{% endif %}
+<section class="editorial-cta"><h2>Не нашли нужную запчасть?</h2><p>Оставьте заявку — продавцы смогут предложить подходящую деталь.</p><div class="editorial-actions"><a class="editorial-btn" href="/request-parts/">Оставить заявку</a><a class="editorial-btn editorial-btn--secondary" href="/">Перейти в каталог</a></div></section>
+{% if similar_articles %}<section><h2 class="editorial-section-title">Другие полезные материалы</h2><div class="editorial-grid">{% for other in similar_articles %}<article class="editorial-card"><h3><a href="{% url 'editorial_detail' other.slug %}">{{ other.title }}</a></h3><p>{{ other.meta_description }}</p></article>{% endfor %}</div></section>{% endif %}
 </main>
 {% endblock %}
