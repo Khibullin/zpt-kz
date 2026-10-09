@@ -3061,9 +3061,50 @@ class PlatformHelpMessageAdmin(admin.ModelAdmin):
 from core.models import EditorialPage
 
 
+class EditorialPageReviewForm(forms.ModelForm):
+    evidence_checked = forms.BooleanField(
+        required=False,
+        label='Подтверждаю, что технические сведения и применяемость проверены по независимым источникам',
+        help_text='Для публикации технических статей необходимо проверить производителя/каталог и VIN.',
+    )
+
+    class Meta:
+        model = EditorialPage
+        fields = '__all__'
+
+    def clean(self):
+        data = super().clean()
+        from core.editorial_quality import editorial_release_errors
+        if data.get('status') == EditorialPage.STATUS_PUBLISHED and self.instance.status != EditorialPage.STATUS_PUBLISHED:
+            candidate_id = getattr(self.instance, 'source_candidate_id', None)
+            # Validate form candidate if a new article is entered in admin.
+            self.instance.title = data.get('title') or ''
+            self.instance.body = data.get('body') or ''
+            self.instance.meta_description = data.get('meta_description') or ''
+            errors = editorial_release_errors(self.instance, evidence_confirmed=data.get('evidence_checked', False))
+            if errors:
+                raise forms.ValidationError(errors)
+        return data
+
+
 @admin.register(EditorialPage)
 class EditorialPageAdmin(admin.ModelAdmin):
-    actions = ('improve_selected_drafts_with_ai',)
+    form = EditorialPageReviewForm
+    actions = ('improve_selected_drafts_with_ai', 'prepare_instagram_caption')
+
+    @admin.action(description='Подготовить текст анонса Instagram (без публикации)')
+    def prepare_instagram_caption(self, request, queryset):
+        from core.editorial_quality import instagram_caption_for_article
+        from django.core.exceptions import ValidationError
+        from django.contrib import messages
+        for page in queryset[:2]:
+            try:
+                caption = instagram_caption_for_article(page)
+                self.message_user(request, caption, level=messages.INFO)
+            except ValidationError:
+                self.message_user(request, f'Статья #{page.pk} ещё не опубликована.', level=messages.WARNING)
+
+
 
     @admin.action(description='ИИ: улучшить выбранные черновики (не публиковать)')
     def improve_selected_drafts_with_ai(self, request, queryset):
@@ -3096,7 +3137,7 @@ class EditorialPageAdmin(admin.ModelAdmin):
     prepopulated_fields = {'slug': ('title',)}
     filter_horizontal = ('related_products',)
     readonly_fields = ('source_candidate', 'created_at', 'updated_at', 'published_at')
-    fields = ('title', 'slug', 'seo_title', 'meta_description', 'body', 'source_candidate', 'related_products', 'status', 'created_at', 'updated_at', 'published_at')
+    fields = ('title', 'slug', 'seo_title', 'meta_description', 'body', 'source_candidate', 'related_products', 'status', 'evidence_checked', 'created_at', 'updated_at', 'published_at')
 
 
 from core.models import EditorialCandidate
