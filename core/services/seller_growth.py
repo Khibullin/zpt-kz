@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass, field
 
 from django.conf import settings
@@ -9,6 +10,7 @@ from django.db import transaction
 from core.kazakhstan_locations import (
     FIRST_CIRCLE_CITIES,
     FIRST_CIRCLE_SELLER_SATURATION_TARGET,
+    KAZAKHSTAN_CITY_ALIASES,
     canonical_kazakhstan_city,
 )
 from core.models import (
@@ -139,10 +141,73 @@ def _unresolved_duplicate(lead: SellerLead) -> bool:
     )
 
 
+def _is_kz_mobile_whatsapp(value: str | None) -> bool:
+    digits = normalize_request_seller_whatsapp(value)
+    # Kazakhstan mobile WhatsApp numbers use +7 6xx / +7 7xx ranges.
+    # +7 9xx is a Russian mobile range and must not be auto-activated as KZ.
+    return len(digits) == 11 and digits.startswith(('76', '77'))
+
+
+def _city_markers(city: str) -> tuple[str, ...]:
+    markers = [city]
+    markers.extend(
+        alias
+        for alias, canonical in KAZAKHSTAN_CITY_ALIASES.items()
+        if canonical == city
+    )
+    return tuple(dict.fromkeys(markers))
+
+
+def _text_mentions_city(text: str, city: str) -> bool:
+    folded = ' '.join(str(text or '').casefold().replace('ё', 'е').split())
+    if not folded:
+        return False
+    for marker in _city_markers(city):
+        needle = ' '.join(str(marker or '').casefold().replace('ё', 'е').split())
+        if not needle:
+            continue
+        if re.search(r'(?<![\w])' + re.escape(needle) + r'(?![\w])', folded):
+            return True
+    return False
+
+
+def lead_city_is_confirmed(lead: SellerLead) -> bool:
+    city = canonical_kazakhstan_city(lead.city)
+    if city is None:
+        return False
+
+    # Business-owned text can corroborate the city. Search query text is never
+    # used because it is only the requested discovery location.
+    for value in (
+        lead.name,
+        lead.profile_description,
+        lead.category,
+    ):
+        if _text_mentions_city(value, city):
+            return True
+
+    for source in lead.sources.all().order_by('-last_seen_at', '-pk')[:20]:
+        if source.provider == 'two_gis':
+            metadata_city = canonical_kazakhstan_city(
+                (source.metadata or {}).get('city')
+            )
+            if metadata_city == city:
+                return True
+        if _text_mentions_city(source.display_name, city):
+            return True
+
+    for location in lead.locations.all():
+        if canonical_kazakhstan_city(location.city) != city:
+            continue
+        source = getattr(location, 'source', None)
+        if source is not None and source.provider == 'two_gis':
+            return True
+    return False
+
+
 def lead_is_safe_for_auto_activation(lead: SellerLead) -> bool:
     if lead.request_seller_id:
-        seller = Seller.objects.filter(pk=lead.request_seller_id).first()
-        return bool(seller and seller.receive_requests and seller.is_active and not seller.is_paused)
+        return False
     if lead.lifecycle_status in {
         SellerLead.LIFECYCLE_DUPLICATE,
         SellerLead.LIFECYCLE_REJECTED,
@@ -155,9 +220,11 @@ def lead_is_safe_for_auto_activation(lead: SellerLead) -> bool:
         return False
     if lead.whatsapp_confidence != 'high':
         return False
-    if not normalize_request_seller_whatsapp(lead.whatsapp):
+    if not _is_kz_mobile_whatsapp(lead.whatsapp):
         return False
-    return canonical_kazakhstan_city(lead.city) is not None
+    if canonical_kazakhstan_city(lead.city) is None:
+        return False
+    return lead_city_is_confirmed(lead)
 
 
 def _discovered_brand_objects(lead: SellerLead):
@@ -257,28 +324,23 @@ def activate_qualified_lead_for_requests(lead: SellerLead) -> LeadActivationResu
         created = False
 
         if locked.request_seller_id:
-            seller = Seller.objects.select_for_update().filter(pk=locked.request_seller_id).first()
-            if seller is None:
-                return LeadActivationResult(
-                    lead_id=locked.pk,
-                    seller_id=0,
-                    created_seller=False,
-                    activated=False,
-                    reason='linked_seller_missing',
-                )
-            if existing is not None and existing.pk != seller.pk:
-                return LeadActivationResult(
-                    lead_id=locked.pk,
-                    seller_id=seller.pk,
-                    created_seller=False,
-                    activated=False,
-                    reason='whatsapp_conflict',
-                )
-        elif existing is not None:
-            seller = Seller.objects.select_for_update().get(pk=existing.pk)
-            locked.request_seller = seller
-        else:
-            seller = Seller.objects.create(
+            return LeadActivationResult(
+                lead_id=locked.pk,
+                seller_id=locked.request_seller_id,
+                created_seller=False,
+                activated=False,
+                reason='already_linked',
+            )
+        if existing is not None:
+            return LeadActivationResult(
+                lead_id=locked.pk,
+                seller_id=existing.pk,
+                created_seller=False,
+                activated=False,
+                reason='existing_seller',
+            )
+
+        seller = Seller.objects.create(
                 name=(locked.name or '')[:255],
                 whatsapp=whatsapp[:20],
                 city=city[:100],
@@ -295,27 +357,6 @@ def activate_qualified_lead_for_requests(lead: SellerLead) -> LeadActivationResu
             )
             locked.request_seller = seller
             created = True
-
-        # Registered sellers own their settings. Discovery never silently
-        # overrides a seller's pause or specialization choices.
-        if seller.user_id:
-            locked.request_seller_transport_type = seller.transport_type
-            locked.review_status = SellerLead.REVIEW_CONVERTED_REQUESTS
-            locked.lifecycle_status = SellerLead.LIFECYCLE_ACTIVE
-            locked.save(update_fields=[
-                'request_seller',
-                'request_seller_transport_type',
-                'review_status',
-                'lifecycle_status',
-                'updated_at',
-            ])
-            return LeadActivationResult(
-                lead_id=locked.pk,
-                seller_id=seller.pk,
-                created_seller=False,
-                activated=bool(seller.receive_requests and seller.is_active and not seller.is_paused),
-                reason='linked_registered_seller',
-            )
 
         seller.name = (locked.name or seller.name)[:255]
         seller.whatsapp = whatsapp[:20]
@@ -388,11 +429,30 @@ def _city_candidate_ids(city: str, preferred_ids, *, limit: int) -> list[int]:
 
     ordered: list[int] = []
     seen: set[int] = set()
-    for lead_id in preferred_ids:
-        if not lead_id or lead_id in seen:
+
+    preferred_order = [
+        int(lead_id)
+        for lead_id in preferred_ids
+        if lead_id
+    ]
+    valid_preferred = set(
+        SellerLead.objects.filter(
+            pk__in=preferred_order,
+            city=canonical,
+            request_seller__isnull=True,
+        )
+        .exclude(lifecycle_status__in=[
+            SellerLead.LIFECYCLE_DUPLICATE,
+            SellerLead.LIFECYCLE_REJECTED,
+            SellerLead.LIFECYCLE_CLOSED,
+        ])
+        .values_list('pk', flat=True)
+    )
+    for lead_id in preferred_order:
+        if lead_id in seen or lead_id not in valid_preferred:
             continue
         seen.add(lead_id)
-        ordered.append(int(lead_id))
+        ordered.append(lead_id)
 
     queryset = (
         SellerLead.objects.filter(
@@ -479,6 +539,12 @@ def _process_candidate_ids(
         processed.add(lead_id)
         lead = SellerLead.objects.filter(pk=lead_id).first()
         if lead is None:
+            continue
+        if lead.request_seller_id:
+            result.skipped_candidates += 1
+            continue
+        if canonical_kazakhstan_city(lead.city) != result.city:
+            result.skipped_candidates += 1
             continue
         activated, enriched, reason = _prepare_and_activate_candidate(lead)
         if enriched:
