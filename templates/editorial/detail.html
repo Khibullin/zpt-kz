@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block title %}{{ article.seo_title|default:article.title }} — ZPT.KZ{% endblock %}
+{% block meta_description %}{{ article.meta_description }}{% endblock %}
+{% block content %}
+<main style="max-width:860px;margin:32px auto;padding:0 20px">
+  <p><a href="/">ZPT.KZ</a> / Полезные материалы</p>
+  <article>
+    <h1>{{ article.title }}</h1>
+    <div style="white-space:pre-line;line-height:1.7">{{ article.body }}</div>
+  </article>
+  <p style="margin-top:32px"><a href="/request-parts/">Не нашли нужную запчасть? Оставьте заявку продавцам</a></p>
+  <p><a href="/">Перейти к каталогу запчастей</a></p>
+</main>
+{% endblock %}
