@@ -36,6 +36,7 @@ def editorial_daily_trigger(request):
         # This fast bridge generates private template drafts only.
         # AI rewriting must remain a separate, bounded background worker.
         call_command('run_editorial_daily', limit=2, ai=False, stdout=out)
+        call_command('prepare_editorial_social_drafts', stdout=out)
         attempt.status = 'complete'
         attempt.save(update_fields=['status'])
         return JsonResponse({'status':'complete', 'date':str(local_day)})

@@ -3448,3 +3448,15 @@ class EditorialAIExecution(models.Model):
     day = models.DateField(db_index=True)
     status = models.CharField(max_length=16, default='running')
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class EditorialSocialDraft(models.Model):
+    article = models.OneToOneField('core.EditorialPage', on_delete=models.CASCADE, related_name='social_draft')
+    caption = models.TextField()
+    status = models.CharField(max_length=16, default='draft',
+        choices=[('draft','Черновик'),('approved','Одобрено'),('published','Опубликовано')])
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Анонс статьи для соцсетей'
+        verbose_name_plural = 'Анонсы статей для соцсетей'

@@ -3153,3 +3153,18 @@ class EditorialCandidateAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+
+from core.models import EditorialSocialDraft
+
+
+@admin.register(EditorialSocialDraft)
+class EditorialSocialDraftAdmin(admin.ModelAdmin):
+    list_display = ('article', 'status', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('article__title', 'caption')
+    readonly_fields = ('article', 'caption', 'created_at')
+    fields = ('article', 'caption', 'status', 'created_at')
+
+    def has_add_permission(self, request):
+        return False
