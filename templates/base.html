@@ -54,6 +54,7 @@
 {% endif %}
 {% block content %}{% endblock %}
 <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
+  {% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}" style="color:inherit;">Полезные материалы</a><span style="margin:0 8px;">·</span>{% endif %}
   <a href="{% url 'zpt_gid' %}" style="color:inherit;">ZPT Гид</a>
   <span style="margin:0 8px;">·</span>
   <a href="{% url 'privacy' %}" style="color:inherit;">Политика конфиденциальности</a>
