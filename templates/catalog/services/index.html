@@ -332,9 +332,9 @@ body{
 
           <select name="city">
             <option value="">Все города</option>
-            <option value="Алматы" {% if filters.city == 'Алматы' %}selected{% endif %}>Алматы</option>
-            <option value="Астана" {% if filters.city == 'Астана' %}selected{% endif %}>Астана</option>
-            <option value="Шымкент" {% if filters.city == 'Шымкент' %}selected{% endif %}>Шымкент</option>
+            {% for city_name in kz_cities %}
+            <option value="{{ city_name }}" {% if filters.city == city_name %}selected{% endif %}>{{ city_name }}</option>
+            {% endfor %}
           </select>
         </div>
 
