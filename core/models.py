@@ -3441,3 +3441,10 @@ class EditorialDailyExecution(models.Model):
     class Meta:
         verbose_name = 'Ежедневный SEO-запуск'
         verbose_name_plural = 'Ежедневные SEO-запуски'
+
+
+class EditorialAIExecution(models.Model):
+    page = models.OneToOneField('core.EditorialPage', on_delete=models.CASCADE, related_name='ai_execution')
+    day = models.DateField(db_index=True)
+    status = models.CharField(max_length=16, default='running')
+    created_at = models.DateTimeField(auto_now_add=True)
