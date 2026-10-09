@@ -132,19 +132,55 @@ def sync_linked_seller_cities(Seller, SellerProfile, Product):
 
 
 def normalize_buyer_city_interest(BuyerCityInterest):
-    for row in BuyerCityInterest.objects.all().iterator():
+    groups = {}
+    for row in BuyerCityInterest.objects.all().order_by('id'):
         old = row.city or ''
         new = canonical(old)
         normalized = new.casefold()
-        fields = []
-        if new != old:
-            row.city = new
-            fields.append('city')
-        if row.city_normalized != normalized:
-            row.city_normalized = normalized
-            fields.append('city_normalized')
-        if fields:
-            row.save(update_fields=fields)
+        key = (row.buyer_id, row.interest_type, normalized)
+        groups.setdefault(key, []).append((row, new, normalized))
+
+    for rows in groups.values():
+        # Prefer an already-canonical row so updating the keeper cannot collide
+        # with a unique (buyer, city_normalized, interest_type) row.
+        keeper_item = next(
+            (
+                item for item in rows
+                if (item[0].city or '') == item[1]
+                and item[0].city_normalized == item[2]
+            ),
+            rows[0],
+        )
+        keeper, new, normalized = keeper_item
+        duplicate_rows = [item[0] for item in rows if item[0].pk != keeper.pk]
+
+        first_seen_values = [
+            item[0].first_seen_at for item in rows if item[0].first_seen_at is not None
+        ]
+        last_seen_values = [
+            item[0].last_seen_at for item in rows if item[0].last_seen_at is not None
+        ]
+        total_requests = sum(int(item[0].requests_count or 0) for item in rows)
+
+        # Remove duplicates before canonicalizing the keeper to avoid the
+        # unique constraint during alias collapse (e.g. Almaty + Алматы).
+        if duplicate_rows:
+            BuyerCityInterest.objects.filter(
+                pk__in=[row.pk for row in duplicate_rows]
+            ).delete()
+
+        keeper.city = new
+        keeper.city_normalized = normalized
+        keeper.requests_count = total_requests
+        keeper.first_seen_at = min(first_seen_values) if first_seen_values else None
+        keeper.last_seen_at = max(last_seen_values) if last_seen_values else None
+        keeper.save(update_fields=[
+            'city',
+            'city_normalized',
+            'requests_count',
+            'first_seen_at',
+            'last_seen_at',
+        ])
 
 
 def normalize_platform_cities(apps, schema_editor):
