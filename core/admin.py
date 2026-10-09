@@ -1859,7 +1859,7 @@ def _apply_workflow_action(modeladmin, request, queryset, action_callable):
         messages.error(request, f'С ошибками: {error_count}.')
 
 
-@admin.action(description='Добавить в продавцы заявок')
+@admin.action(description='Подключить к активным продавцам заявок')
 def convert_seller_leads_to_request_sellers(modeladmin, request, queryset):
     from core.services.seller_lead_admin_workflow import convert_lead_to_request_seller
 
@@ -2574,8 +2574,6 @@ class SellerLeadAdmin(admin.ModelAdmin):
     actions = (
         refresh_seller_lead_identities,
         find_seller_lead_duplicates,
-        mark_seller_leads_ready_to_invite,
-        mark_seller_leads_invited,
         mark_seller_leads_lifecycle_rejected,
         convert_seller_leads_to_request_sellers,
         mark_seller_leads_marketplace_planned,
