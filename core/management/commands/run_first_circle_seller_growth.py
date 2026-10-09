@@ -9,6 +9,7 @@ from core.kazakhstan_locations import (
     canonical_kazakhstan_city,
 )
 from core.services.seller_growth import (
+    DEFAULT_CANDIDATES_PER_CITY,
     DEFAULT_DAILY_TARGET_PER_CITY,
     grow_first_circle_city,
 )
@@ -42,7 +43,7 @@ class Command(BaseCommand):
         parser.add_argument(
             '--candidate-limit',
             type=int,
-            default=12,
+            default=DEFAULT_CANDIDATES_PER_CITY,
         )
         parser.add_argument('--dry-run', action='store_true')
 
