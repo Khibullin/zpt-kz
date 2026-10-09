@@ -7,6 +7,8 @@ from django.db.models import Count, Exists, OuterRef, Prefetch, Q
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES, canonical_kazakhstan_city
+
 from core.models import (
     CONTACT_CONSENT_CHANNEL_WHATSAPP,
     CONTACT_CONSENT_PURPOSE_MARKETING,
@@ -122,9 +124,12 @@ def _apply_filters(queryset, params: QueryDict):
     if request_id.isdigit():
         queryset = queryset.filter(pk=int(request_id))
 
-    city = first_value(params, 'city')
-    if city:
-        queryset = queryset.filter(city__icontains=city)
+    raw_city = first_value(params, 'city')
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
+    if raw_city and not city:
+        queryset = queryset.none()
+    elif city:
+        queryset = queryset.filter(city=city)
 
     category = first_value(params, 'category')
     if category:
@@ -188,12 +193,7 @@ def list_parts_requests(params: QueryDict) -> dict:
         )
         for item in page.object_list
     ]
-    cities = list(
-        Request.objects.exclude(city='')
-        .order_by('city')
-        .values_list('city', flat=True)
-        .distinct()
-    )
+    cities = list(KAZAKHSTAN_CITIES)
     categories = list(
         Request.objects.exclude(category='')
         .order_by('category')
