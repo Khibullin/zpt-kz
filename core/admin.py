@@ -3070,3 +3070,18 @@ class EditorialPageAdmin(admin.ModelAdmin):
     filter_horizontal = ('related_products',)
     readonly_fields = ('created_at', 'updated_at', 'published_at')
     fields = ('title', 'slug', 'seo_title', 'meta_description', 'body', 'related_products', 'status', 'created_at', 'updated_at', 'published_at')
+
+
+from core.models import EditorialCandidate
+
+
+@admin.register(EditorialCandidate)
+class EditorialCandidateAdmin(admin.ModelAdmin):
+    list_display = ('title', 'source_product', 'status', 'created_at')
+    list_filter = ('status',)
+    search_fields = ('title', 'source_key', 'source_product__article')
+    readonly_fields = ('source_key', 'source_product', 'title', 'rationale', 'created_at')
+    fields = ('title', 'source_product', 'rationale', 'source_key', 'status', 'created_at')
+
+    def has_add_permission(self, request):
+        return False

@@ -4,6 +4,9 @@ on:
   pull_request:
     paths:
       - 'core/editorial_views.py'
+      - 'core/editorial_candidates.py'
+      - 'core/management/commands/collect_editorial_candidates.py'
+      - 'core/tests/test_editorial_candidates.py'
       - 'core/models.py'
       - 'core/admin.py'
       - 'core/seo_views.py'
@@ -37,4 +40,4 @@ jobs:
       - name: Migration consistency
         run: python manage.py makemigrations --check --dry-run
       - name: Editorial SEO unit tests
-        run: python manage.py test core.tests.test_editorial_seo --verbosity 2
+        run: python manage.py test core.tests.test_editorial_seo core.tests.test_editorial_candidates --verbosity 2
