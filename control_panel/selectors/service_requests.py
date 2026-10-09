@@ -7,6 +7,8 @@ from django.db.models import Count, Prefetch, Q
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES, canonical_kazakhstan_city
+
 from control_panel.display import (
     SERVICE_MATCH_STATUS_LABELS,
     SERVICE_TYPE_LABELS,
@@ -98,9 +100,12 @@ def list_service_requests(params: QueryDict) -> dict:
         if search.isdigit():
             query |= Q(pk=int(search))
         queryset = queryset.filter(query)
-    city = first_value(params, 'city')
-    if city:
-        queryset = queryset.filter(city__icontains=city)
+    raw_city = first_value(params, 'city')
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
+    if raw_city and not city:
+        queryset = queryset.none()
+    elif city:
+        queryset = queryset.filter(city=city)
     service_type = first_value(params, 'service_type')
     if service_type in SERVICE_TYPE_LABELS:
         queryset = queryset.filter(service_type=service_type)
@@ -127,12 +132,7 @@ def list_service_requests(params: QueryDict) -> dict:
         )
         for item in page.object_list
     ]
-    cities = list(
-        ServiceRequest.objects.exclude(city='')
-        .order_by('city')
-        .values_list('city', flat=True)
-        .distinct()
-    )
+    cities = list(KAZAKHSTAN_CITIES)
     return {
         'rows': rows,
         'page': page.page,
