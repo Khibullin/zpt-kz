@@ -1182,13 +1182,13 @@ class HomeShortMatchedSellerTests(TestCase):
     def _seller_ids(self):
         return set(RequestDispatch.objects.values_list('seller_id', flat=True))
 
-    def test_home_short_is_matched_kazakhstan_and_canonical_category(self):
+    def test_home_short_is_city_first_and_canonical_category(self):
         response = self._post(category='трансмиссия', idempotency_key='key-canon')
         self.assertEqual(response.status_code, 200, response.content)
         req = Request.objects.get()
         self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
-        self.assertEqual(req.search_scope, 'kazakhstan')
+        self.assertEqual(req.search_scope, 'city')
         self.assertEqual(req.transport_type, 'car')
         self.assertEqual(req.category, 'Трансмиссия')
         self.assertEqual(req.brand, 'Mercedes-Benz')
@@ -1201,7 +1201,7 @@ class HomeShortMatchedSellerTests(TestCase):
         seller_ids = self._seller_ids()
         self.assertEqual(
             seller_ids,
-            {self.exact.id, self.all_spec.id, self.other_city.id},
+            {self.exact.id, self.all_spec.id},
         )
         self.assertNotIn(self.truck.id, seller_ids)
         self.assertNotIn(self.other_category.id, seller_ids)
@@ -1265,7 +1265,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertEqual(req.model, '')
         self.assertEqual(req.transport_type, 'car')
         self.assertEqual(req.category, 'Кузов')
-        self.assertEqual(self._seller_ids(), {body.id, body_other_city.id})
+        self.assertEqual(self._seller_ids(), {body.id})
         self.assertNotIn(truck_body.id, self._seller_ids())
         self.assertNotIn(self.exact.id, self._seller_ids())
 
