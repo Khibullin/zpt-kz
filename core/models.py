@@ -3376,6 +3376,7 @@ class EditorialPage(models.Model):
         (STATUS_PUBLISHED, 'Опубликовано'),
     ]
 
+    source_candidate = models.OneToOneField('core.EditorialCandidate', on_delete=models.SET_NULL, null=True, blank=True, related_name='draft_page', verbose_name='Исходная тема')
     related_products = models.ManyToManyField('catalog.Product', blank=True, related_name='editorial_pages', verbose_name='Товары по теме')
     slug = models.SlugField(max_length=180, unique=True, verbose_name='Адрес страницы')
     title = models.CharField(max_length=240, verbose_name='Заголовок')
