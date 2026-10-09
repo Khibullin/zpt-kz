@@ -56,7 +56,7 @@ def improve_draft_with_ai(page_id: int, *, session=None):
             'max_output_tokens': 1300,
             'store': False,
         },
-        timeout=30,
+        timeout=18,
     )
     response.raise_for_status()
     data = response.json()
