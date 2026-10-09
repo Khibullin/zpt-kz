@@ -39,7 +39,7 @@ from core.services.seller_lead_qualification import (
 DEFAULT_DAILY_TARGET_PER_CITY = 3
 DEFAULT_DISCOVERY_LIMIT = 20
 DEFAULT_DISCOVERY_MAX_HITS = 50
-DEFAULT_CANDIDATES_PER_CITY = 12
+DEFAULT_CANDIDATES_PER_CITY = 8
 
 CORE_DIRECTIONS = (
     'автозапчасти',
@@ -463,6 +463,34 @@ def _prepare_and_activate_candidate(lead: SellerLead) -> tuple[bool, bool, str]:
     return result.activated, enriched, result.reason
 
 
+def _process_candidate_ids(
+    candidate_ids,
+    result: CityGrowthResult,
+    *,
+    target: int,
+    processed: set[int],
+) -> None:
+    for lead_id in candidate_ids:
+        if result.activated >= target:
+            break
+        lead_id = int(lead_id)
+        if lead_id in processed:
+            continue
+        processed.add(lead_id)
+        lead = SellerLead.objects.filter(pk=lead_id).first()
+        if lead is None:
+            continue
+        activated, enriched, reason = _prepare_and_activate_candidate(lead)
+        if enriched:
+            result.enriched += 1
+        if activated:
+            result.activated_lead_ids.append(lead_id)
+        else:
+            result.skipped_candidates += 1
+            if reason.startswith(('classify:', 'enrichment:', 'reclassify:')):
+                result.errors.append(f'lead#{lead_id}:{reason}')
+
+
 def grow_first_circle_city(
     city: str,
     *,
@@ -485,6 +513,24 @@ def grow_first_circle_city(
         saturated=active_before >= saturation_threshold,
     )
     if result.saturated or dry_run:
+        return result
+
+    # Use already collected leads first. New provider calls are made only when
+    # the city's daily target cannot be reached from the existing backlog.
+    processed: set[int] = set()
+    backlog_ids = _city_candidate_ids(
+        canonical,
+        (),
+        limit=candidate_limit,
+    )
+    _process_candidate_ids(
+        backlog_ids,
+        result,
+        target=target,
+        processed=processed,
+    )
+    if result.activated >= target:
+        result.active_after = city_active_request_seller_count(canonical)
         return result
 
     providers = configured_discovery_providers()
@@ -518,26 +564,17 @@ def grow_first_circle_city(
     else:
         result.errors.append('discovery:no_configured_provider')
 
-    candidate_ids = _city_candidate_ids(
+    remaining_ids = _city_candidate_ids(
         canonical,
         preferred_ids,
         limit=candidate_limit,
     )
-    for lead_id in candidate_ids:
-        if result.activated >= target:
-            break
-        lead = SellerLead.objects.filter(pk=lead_id).first()
-        if lead is None:
-            continue
-        activated, enriched, reason = _prepare_and_activate_candidate(lead)
-        if enriched:
-            result.enriched += 1
-        if activated:
-            result.activated_lead_ids.append(lead_id)
-        else:
-            result.skipped_candidates += 1
-            if reason.startswith(('classify:', 'enrichment:', 'reclassify:')):
-                result.errors.append(f'lead#{lead_id}:{reason}')
+    _process_candidate_ids(
+        remaining_ids,
+        result,
+        target=target,
+        processed=processed,
+    )
 
     result.active_after = city_active_request_seller_count(canonical)
     return result
