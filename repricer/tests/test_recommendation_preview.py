@@ -24,7 +24,7 @@ OWN_CODE = "TEST-OWN"
 OWN_NAME = "TEST-MERCHANT"
 
 
-def _listing(article, master_sku="1001"):
+def _listing(article, master_sku="1001_catalog"):
     product = Product.objects.create(
         title=f"Title {article}",
         article=article,
@@ -123,7 +123,7 @@ class RecommendationPreviewTests(TestCase):
 
     @override_settings(KASPI_OWN_MERCHANT_IDS=OWN_CODE, KASPI_REPRICER_UNDERCUT_AMOUNT=300)
     def test_listing_3_uses_foreign_min_not_own(self):
-        listing = _listing("REC-L3", master_sku="129914457")
+        listing = _listing("REC-L3", master_sku="129914457_catalog")
         now = timezone.now()
         _offer(listing, seller_name=OWN_NAME, seller_code=OWN_CODE, price="3740", captured_at=now)
         _offer(listing, seller_name="AMIOSPHY GROUP", seller_code="30440420", price="6864", captured_at=now)
@@ -138,7 +138,7 @@ class RecommendationPreviewTests(TestCase):
 
     @override_settings(KASPI_OWN_MERCHANT_IDS=OWN_CODE, KASPI_REPRICER_UNDERCUT_AMOUNT=300)
     def test_listing_7_own_cheapest_still_uses_foreign_min(self):
-        listing = _listing("REC-L7", master_sku="116207063")
+        listing = _listing("REC-L7", master_sku="116207063_catalog")
         listing.last_known_our_price = 1150
         listing.save(update_fields=["last_known_our_price"])
         now = timezone.now()
