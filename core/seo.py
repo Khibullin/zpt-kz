@@ -198,6 +198,7 @@ def robots_directive(request) -> str:
 
 def seo_context(request) -> dict[str, str]:
     return {
+        'seo_editorial_enabled': getattr(settings, 'SEO_EDITORIAL_ENABLED', False),
         'seo_canonical_url': canonical_url_for_path(request.path),
         'seo_robots': robots_directive(request),
     }
