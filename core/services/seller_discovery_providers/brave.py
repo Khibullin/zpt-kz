@@ -12,7 +12,11 @@ from urllib.parse import urlsplit
 from django.conf import settings
 from django.utils import timezone
 
-from core.kazakhstan_locations import canonical_kazakhstan_city
+from core.kazakhstan_locations import (
+    KAZAKHSTAN_CITIES,
+    KAZAKHSTAN_CITY_ALIASES,
+    canonical_kazakhstan_city,
+)
 
 from core.models import SellerLeadSource
 from core.services.seller_discovery_identity import normalize_instagram_identity, normalize_seller_phone
@@ -121,6 +125,34 @@ def build_brave_discovery_query(*, city: str, direction: str) -> str:
     return f'{term} {resolved} Казахстан'
 
 
+def _explicit_city_from_title(title: str, *, query_city: str) -> str:
+    folded = ' '.join(str(title or '').casefold().replace('ё', 'е').split())
+    if not folded:
+        return ''
+
+    found: list[str] = []
+    markers = [(city, city) for city in KAZAKHSTAN_CITIES]
+    markers.extend(
+        (alias, canonical)
+        for alias, canonical in KAZAKHSTAN_CITY_ALIASES.items()
+    )
+    for marker, canonical in markers:
+        needle = ' '.join(str(marker or '').casefold().replace('ё', 'е').split())
+        if not needle:
+            continue
+        if re.search(r'(?<![\w])' + re.escape(needle) + r'(?![\w])', folded):
+            if canonical not in found:
+                found.append(canonical)
+
+    if not found:
+        return ''
+    if query_city in found:
+        return query_city
+    if len(found) == 1:
+        return found[0]
+    return ''
+
+
 def parse_brave_web_result(
     row: dict,
     *,
@@ -137,6 +169,8 @@ def parse_brave_web_result(
     resolved = _resolve_brave_city(city)
     title = str(row.get('title') or '').strip()
     description = str(row.get('description') or '').strip()
+    explicit_city = _explicit_city_from_title(title, query_city=resolved)
+    hit_city = explicit_city or resolved
     observed = observed_at or timezone.now()
     profile = parse_instagram_profile_url(result_url)
     text = f'{title}\n{description}'
@@ -167,13 +201,15 @@ def parse_brave_web_result(
         'title': title,
         'url': result_url,
         'description': description,
+        'query_city': resolved,
+        'explicit_city': explicit_city,
     }
     return SellerDiscoveryHit(
         provider=PROVIDER_NAME,
         source_type=source_type,
         external_id='',
         name=name[:255],
-        city=resolved,
+        city=hit_city,
         phone=phones[0] if phones else '',
         phones=tuple(phones),
         website=website[:500],
