@@ -1,4 +1,5 @@
 """Public, editor-approved SEO knowledge pages for ZPT."""
+from django.conf import settings
 from django.http import Http404
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
@@ -8,6 +9,8 @@ from core.models import EditorialPage
 
 @require_GET
 def editorial_detail(request, slug):
+    if not getattr(settings, 'SEO_EDITORIAL_ENABLED', False):
+        raise Http404
     article = get_object_or_404(
         EditorialPage,
         slug=slug,
