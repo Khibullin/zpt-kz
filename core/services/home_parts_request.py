@@ -476,7 +476,7 @@ def create_home_parts_request_record(
                 year=payload.year,
                 vin=payload.vin,
                 city=payload.city,
-                search_scope='kazakhstan',
+                search_scope='city',
                 selected_cities='',
                 source=Request.SOURCE_HOME_SHORT,
                 dispatch_mode=Request.DISPATCH_MODE_MATCHED,
