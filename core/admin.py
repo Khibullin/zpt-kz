@@ -3067,5 +3067,6 @@ class EditorialPageAdmin(admin.ModelAdmin):
     list_filter = ('status',)
     search_fields = ('title', 'slug', 'body')
     prepopulated_fields = {'slug': ('title',)}
+    filter_horizontal = ('related_products',)
     readonly_fields = ('created_at', 'updated_at', 'published_at')
-    fields = ('title', 'slug', 'seo_title', 'meta_description', 'body', 'status', 'created_at', 'updated_at', 'published_at')
+    fields = ('title', 'slug', 'seo_title', 'meta_description', 'body', 'related_products', 'status', 'created_at', 'updated_at', 'published_at')
