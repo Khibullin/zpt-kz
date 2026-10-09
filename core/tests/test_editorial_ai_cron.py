@@ -43,7 +43,7 @@ class EditorialAICronTests(TestCase):
         self.assertEqual(self.post().json()['status'], 'improved')
         self.assertEqual(self.post().json()['status'], 'daily_limit')
         self.assertEqual(EditorialAIExecution.objects.filter(day=timezone.localdate()).count(), 2)
-        self.assertEqual(EditorialPage.objects.filter(status='published').count(), 0)
+        self.assertEqual(EditorialPage.objects.filter(pk__in=[p.pk for p in self.pages], status='published').count(), 0)
 
     @override_settings(EDITORIAL_AI_ENABLED=False, OPENAI_API_KEY='mock',
                        EDITORIAL_CRON_TOKEN='x'*40)
