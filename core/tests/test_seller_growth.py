@@ -97,7 +97,7 @@ class SellerGrowthActivationTests(TestCase):
         )
         seller.selected_brands.add(self.bmw)
         lead = self._lead(
-            name='Registered Seller',
+            name='Registered Seller Алматы',
             whatsapp='77015550002',
         )
 
