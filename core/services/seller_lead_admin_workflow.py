@@ -122,14 +122,58 @@ def _save_lead_workflow_fields(lead: SellerLead, *, update_fields: list[str]) ->
     lead.save(update_fields=sorted(fields))
 
 
+def _enable_request_delivery(seller: Seller) -> None:
+    update_fields: list[str] = []
+    if not seller.is_active:
+        seller.is_active = True
+        update_fields.append('is_active')
+    if seller.is_paused:
+        seller.is_paused = False
+        update_fields.append('is_paused')
+    if not seller.receive_requests:
+        seller.receive_requests = True
+        update_fields.append('receive_requests')
+    if update_fields:
+        seller.save(update_fields=update_fields)
+
+
+def _activate_linked_lead(
+    lead: SellerLead,
+    seller: Seller,
+    *,
+    now,
+    update_fields: list[str] | None = None,
+) -> None:
+    _enable_request_delivery(seller)
+    fields = list(update_fields or [])
+    if lead.request_seller_id != seller.pk:
+        lead.request_seller = seller
+        fields.append('request_seller')
+    if lead.request_seller_transport_type != seller.transport_type:
+        lead.request_seller_transport_type = seller.transport_type
+        fields.append('request_seller_transport_type')
+    if lead.reviewed_at is None:
+        lead.reviewed_at = now
+        fields.append('reviewed_at')
+    if lead.lifecycle_status != SellerLead.LIFECYCLE_ACTIVE:
+        lead.lifecycle_status = SellerLead.LIFECYCLE_ACTIVE
+        fields.append('lifecycle_status')
+    _save_lead_workflow_fields(lead, update_fields=fields)
+
+
 def convert_lead_to_request_seller(lead: SellerLead) -> WorkflowActionResult:
+    """Link/create a request Seller and enable buyer-request delivery immediately.
+
+    This is the default Seller Discovery conversion path. It does not send an
+    invitation, create a marketplace account, or grant marketing consent.
+    """
     label = _lead_label(lead)
 
     if has_unresolved_contact_conflict(lead):
         return WorkflowActionResult(
             kind=WorkflowResultKind.ERROR,
             message=(
-                f'{label}: невозможно добавить — '
+                f'{label}: невозможно подключить — '
                 'не выбран основной WhatsApp: требуется разрешить конфликт контактов'
             ),
             lead_id=lead.pk,
@@ -139,64 +183,44 @@ def convert_lead_to_request_seller(lead: SellerLead) -> WorkflowActionResult:
     if not whatsapp:
         return WorkflowActionResult(
             kind=WorkflowResultKind.WARNING,
-            message=f'{label}: невозможно добавить — WhatsApp отсутствует',
+            message=f'{label}: невозможно подключить — WhatsApp отсутствует',
             lead_id=lead.pk,
         )
 
     if not lead.name.strip():
         return WorkflowActionResult(
             kind=WorkflowResultKind.ERROR,
-            message=f'{label}: невозможно добавить — отсутствует название',
+            message=f'{label}: невозможно подключить — отсутствует название',
             lead_id=lead.pk,
         )
 
     existing_seller = find_request_seller_by_whatsapp(whatsapp)
     now = timezone.now()
-    update_fields = ['reviewed_at']
 
     if lead.request_seller_id:
-        if existing_seller and lead.request_seller_id == existing_seller.pk:
-            lead.reviewed_at = lead.reviewed_at or now
-            _save_lead_workflow_fields(lead, update_fields=update_fields)
+        linked = Seller.objects.filter(pk=lead.request_seller_id).first()
+        if linked is None:
             return WorkflowActionResult(
-                kind=WorkflowResultKind.WARNING,
-                message=f'{label} уже связан с существующим продавцом',
+                kind=WorkflowResultKind.ERROR,
+                message=f'{label}: связанный продавец не найден',
                 lead_id=lead.pk,
-                seller_id=existing_seller.pk,
-                linked_existing_seller=True,
             )
-        if existing_seller and lead.request_seller_id != existing_seller.pk:
-            lead.request_seller = existing_seller
-            update_fields.append('request_seller')
-            lead.reviewed_at = lead.reviewed_at or now
-            _save_lead_workflow_fields(lead, update_fields=update_fields)
-            return WorkflowActionResult(
-                kind=WorkflowResultKind.WARNING,
-                message=f'{label}: продавец уже существует, выполнено связывание',
-                lead_id=lead.pk,
-                seller_id=existing_seller.pk,
-                linked_existing_seller=True,
-            )
-        lead.reviewed_at = lead.reviewed_at or now
-        _save_lead_workflow_fields(lead, update_fields=update_fields)
+        if existing_seller is not None and existing_seller.pk != linked.pk:
+            linked = existing_seller
+        _activate_linked_lead(lead, linked, now=now)
         return WorkflowActionResult(
             kind=WorkflowResultKind.WARNING,
-            message=f'{label} уже связан с существующим продавцом',
+            message=f'{label}: существующий продавец подключён к заявкам',
             lead_id=lead.pk,
-            seller_id=lead.request_seller_id,
+            seller_id=linked.pk,
             linked_existing_seller=True,
         )
 
     if existing_seller:
-        lead.request_seller = existing_seller
-        lead.reviewed_at = now
-        _save_lead_workflow_fields(
-            lead,
-            update_fields=['request_seller', 'reviewed_at'],
-        )
+        _activate_linked_lead(lead, existing_seller, now=now)
         return WorkflowActionResult(
             kind=WorkflowResultKind.WARNING,
-            message=f'{label}: продавец уже существует, выполнено связывание',
+            message=f'{label}: существующий продавец подключён к заявкам',
             lead_id=lead.pk,
             seller_id=existing_seller.pk,
             linked_existing_seller=True,
@@ -220,18 +244,31 @@ def convert_lead_to_request_seller(lead: SellerLead) -> WorkflowActionResult:
             city=lead.city[:100],
             transport_type=transport_type,
             notes=build_request_seller_notes(lead),
-            receive_requests=False,
+            receive_requests=True,
+            is_active=True,
+            is_paused=False,
+            all_categories=True,
+            all_countries=True,
+            all_brands=True,
+            all_models=True,
         )
         lead.request_seller = seller
+        lead.request_seller_transport_type = transport_type
         lead.reviewed_at = now
+        lead.lifecycle_status = SellerLead.LIFECYCLE_ACTIVE
         _save_lead_workflow_fields(
             lead,
-            update_fields=['request_seller', 'reviewed_at'],
+            update_fields=[
+                'request_seller',
+                'request_seller_transport_type',
+                'reviewed_at',
+                'lifecycle_status',
+            ],
         )
 
     return WorkflowActionResult(
         kind=WorkflowResultKind.SUCCESS,
-        message=f'{label} успешно добавлен в продавцы заявок',
+        message=f'{label} подключён к активным продавцам заявок',
         lead_id=lead.pk,
         seller_id=seller.pk,
         created_seller=True,
@@ -242,13 +279,18 @@ def activate_invited_lead_for_requests(
     lead: SellerLead,
     profile: RequestSellerActivationProfile,
 ) -> RequestSellerActivationResult:
-    """Create/link Seller and enable buyer-request delivery for an invited lead.
+    """Create/link Seller and enable buyer-request delivery for a prepared lead.
 
     This does not register a marketplace user, does not grant marketing consent,
-    and does not send any WhatsApp message.
+    and does not send any WhatsApp message. Direct request activation is valid
+    for legacy invited leads and for the new ready-to-invite -> active flow.
     """
-    if lead.lifecycle_status != SellerLead.LIFECYCLE_INVITED:
-        raise ValueError('SellerLead must be invited before request activation.')
+    if lead.lifecycle_status not in (
+        SellerLead.LIFECYCLE_READY_TO_INVITE,
+        SellerLead.LIFECYCLE_INVITED,
+        SellerLead.LIFECYCLE_ACTIVE,
+    ):
+        raise ValueError('SellerLead must be prepared before request activation.')
     if profile.transport_type not in REQUEST_SELLER_TRANSPORT_TYPES:
         raise ValueError('Invalid request seller transport type.')
 
@@ -348,12 +390,14 @@ def activate_invited_lead_for_requests(
 
         locked.request_seller_transport_type = profile.transport_type
         locked.reviewed_at = locked.reviewed_at or timezone.now()
+        locked.lifecycle_status = SellerLead.LIFECYCLE_ACTIVE
         _save_lead_workflow_fields(
             locked,
             update_fields=[
                 'request_seller',
                 'request_seller_transport_type',
                 'reviewed_at',
+                'lifecycle_status',
             ],
         )
 
