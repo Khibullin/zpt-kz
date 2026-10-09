@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Полезные материалы об автозапчастях — ZPT.KZ{% endblock %}
+{% block meta_description %}Проверенные советы по выбору и поиску автозапчастей. Каталог, подбор и заявки продавцам на ZPT.KZ.{% endblock %}
+{% block content %}
+<main style="max-width:900px;margin:32px auto;padding:0 20px">
+  <h1>Полезные материалы об автозапчастях</h1>
+  <p>Подбор запчастей, особенности деталей и полезные ответы на вопросы покупателей.</p>
+  {% for article in articles %}
+  <article style="border-bottom:1px solid #ddd;padding:16px 0">
+    <h2><a href="{% url 'editorial_detail' article.slug %}">{{ article.title }}</a></h2>
+    <p>{{ article.meta_description }}</p>
+  </article>
+  {% empty %}
+  <p>Проверенные материалы пока не опубликованы.</p>
+  {% endfor %}
+  <p><a href="/request-parts/">Нужна запчасть? Оставьте заявку продавцам</a></p>
+</main>
+{% endblock %}
