@@ -422,6 +422,7 @@ class RequestAdmin(admin.ModelAdmin):
         'id',
         'source',
         'dispatch_mode',
+        'routing_strategy',
         'transport_type',
         'country',
         'brand',
@@ -438,6 +439,7 @@ class RequestAdmin(admin.ModelAdmin):
     list_filter = (
         'source',
         'dispatch_mode',
+        'routing_strategy',
         'transport_type',
         'status',
         'city',
