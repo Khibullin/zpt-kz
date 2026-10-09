@@ -486,13 +486,14 @@ def create_home_parts_request_record(
             )
             ensure_buyer_portal_access(req.phone)
             _save_request_photos(req, uploaded_photos)
-            sellers, _strategy = _find_matching_sellers(req)
+            sellers, routing_strategy = _find_matching_sellers(req)
             matched = list(sellers)
             if req.source == Request.SOURCE_HOME_SHORT:
                 matched = _unique_sellers_by_whatsapp(matched)
             dispatches = _build_dispatch_queue(req, matched)
             req.status = 'sent' if matched else 'no_sellers'
-            req.save(update_fields=['status'])
+            req.routing_strategy = routing_strategy
+            req.save(update_fields=['status', 'routing_strategy'])
     except IntegrityError:
         existing = _existing_by_key(payload.idempotency_key)
         if existing is None:
