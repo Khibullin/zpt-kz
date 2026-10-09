@@ -1,6 +1,7 @@
 from django import forms
 
 from core.phone_utils import normalize_phone_for_whatsapp
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES, canonical_kazakhstan_city
 
 from .models import (
     SellerProfile,
@@ -23,6 +24,9 @@ from .product_quality import (
 )
 
 IMAGE_UPLOAD_ACCEPT = 'image/jpeg,image/png,image/webp'
+KZ_CITY_CHOICES = [('', 'Выберите город')] + [
+    (city, city) for city in KAZAKHSTAN_CITIES
+]
 
 STORE_ADDRESS_PLACEHOLDER = 'г. Алматы, ул. Примерная, 1'
 PICKUP_ADDRESS_PLACEHOLDER = 'г. Алматы, склад / пункт выдачи'
@@ -131,9 +135,7 @@ class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
                 'placeholder': 'Например: 77713607040'
             }),
 
-            'city': forms.TextInput(attrs={
-                'placeholder': 'Например: Алматы'
-            }),
+            'city': forms.Select(choices=KZ_CITY_CHOICES),
 
             'address': forms.TextInput(attrs={
                 'placeholder': STORE_ADDRESS_PLACEHOLDER,
@@ -177,6 +179,7 @@ class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].required = True
+        self.fields['city'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
             self.fields['logo'].help_text = IMAGE_UPLOAD_HELP_TEXT
@@ -193,6 +196,12 @@ class SellerRegisterForm(SellerPickupFieldsMixin, forms.ModelForm):
         return optimize_uploaded_image(
             self.cleaned_data.get('logo')
         )
+
+    def clean_city(self):
+        city = canonical_kazakhstan_city(self.cleaned_data.get('city'))
+        if city is None:
+            raise forms.ValidationError('Выберите город из списка.')
+        return city
 
     def clean_instagram(self):
         instagram = (self.cleaned_data.get('instagram') or '').strip()
@@ -261,9 +270,7 @@ class SellerProfileForm(SellerPickupFieldsMixin, forms.ModelForm):
                 'placeholder': 'Например: 77713607040'
             }),
 
-            'city': forms.TextInput(attrs={
-                'placeholder': 'Например: Алматы'
-            }),
+            'city': forms.Select(choices=KZ_CITY_CHOICES),
 
             'address': forms.TextInput(attrs={
                 'placeholder': STORE_ADDRESS_PLACEHOLDER,
@@ -307,11 +314,18 @@ class SellerProfileForm(SellerPickupFieldsMixin, forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['name'].required = True
+        self.fields['city'].required = True
         if 'logo' in self.fields:
             self.fields['logo'].required = False
             self.fields['logo'].help_text = IMAGE_UPLOAD_HELP_TEXT
             self.fields['logo'].widget.attrs['accept'] = IMAGE_UPLOAD_ACCEPT
         self._setup_pickup_fields()
+
+    def clean_city(self):
+        city = canonical_kazakhstan_city(self.cleaned_data.get('city'))
+        if city is None:
+            raise forms.ValidationError('Выберите город из списка.')
+        return city
 
     def clean_logo(self):
         return optimize_uploaded_image(
