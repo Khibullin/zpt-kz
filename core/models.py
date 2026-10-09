@@ -3363,3 +3363,41 @@ class PlatformHelpMessage(models.Model):
 
     def __str__(self) -> str:
         return f'{self.role}: {self.content[:40]}'
+
+class EditorialPage(models.Model):
+    """Human-reviewed useful article, distinct from Instagram request postings."""
+
+    STATUS_DRAFT = 'draft'
+    STATUS_REVIEW = 'review'
+    STATUS_PUBLISHED = 'published'
+    STATUS_CHOICES = [
+        (STATUS_DRAFT, 'Черновик'),
+        (STATUS_REVIEW, 'На проверке'),
+        (STATUS_PUBLISHED, 'Опубликовано'),
+    ]
+
+    slug = models.SlugField(max_length=180, unique=True, verbose_name='Адрес страницы')
+    title = models.CharField(max_length=240, verbose_name='Заголовок')
+    seo_title = models.CharField(max_length=240, blank=True, default='', verbose_name='SEO-заголовок')
+    meta_description = models.CharField(max_length=300, verbose_name='Описание для поиска')
+    body = models.TextField(verbose_name='Проверенный текст')
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default=STATUS_DRAFT, verbose_name='Статус')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    published_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата публикации')
+
+    class Meta:
+        verbose_name = 'SEO-материал'
+        verbose_name_plural = 'SEO-материалы'
+        ordering = ['-updated_at']
+
+    def save(self, *args, **kwargs):
+        if self.status == self.STATUS_PUBLISHED and self.published_at is None:
+            self.published_at = timezone.now()
+            update_fields = kwargs.get('update_fields')
+            if update_fields is not None:
+                kwargs['update_fields'] = list(set(update_fields) | {'published_at'})
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return self.title
