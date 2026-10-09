@@ -272,6 +272,22 @@ class BraveDiscoveryTests(TestCase):
             direction='автоэлектрика',
         ))
 
+    def test_explicit_title_city_overrides_search_city(self):
+        hit = parse_brave_web_result(
+            {
+                'title': 'Запчасти для иномарок, Казахстан, г. Павлодар',
+                'url': 'https://epart.kz/',
+                'description': 'Интернет-магазин автозапчастей',
+            },
+            city='Конаев',
+            direction='автозапчасти',
+        )
+
+        self.assertIsNotNone(hit)
+        self.assertEqual(hit.city, 'Павлодар')
+        self.assertEqual(hit.raw_data['query_city'], 'Конаев')
+        self.assertEqual(hit.raw_data['explicit_city'], 'Павлодар')
+
     def test_brave_discovery_accepts_city_outside_old_geo_registry(self):
         hit = parse_brave_web_result(
             {
