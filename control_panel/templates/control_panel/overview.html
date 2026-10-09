@@ -17,6 +17,43 @@
     {% endfor %}
   </div>
 
+  <section class="cp-card">
+    <h2>Покрытие первого круга городов</h2>
+    <p class="cp-muted">Насыщение: {{ city_saturation_target }} активных продавцов заявок в городе. Заявки показаны за выбранный период.</p>
+    <div class="cp-table-wrap">
+      <table class="cp-table">
+        <thead>
+          <tr>
+            <th>Город</th>
+            <th>Заявки</th>
+            <th>Активные продавцы</th>
+            <th>SellerLead</th>
+            <th>Новые лиды сегодня</th>
+            <th>Активировано сегодня</th>
+            <th>Активные СТО</th>
+            <th>Заявки СТО</th>
+            <th>Статус</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in city_coverage %}
+          <tr>
+            <td><strong>{{ row.city }}</strong></td>
+            <td>{{ row.buyer_requests }}</td>
+            <td>{{ row.active_sellers }}</td>
+            <td>{{ row.seller_leads }}</td>
+            <td>{{ row.new_leads_today }}</td>
+            <td>{{ row.activated_today }}</td>
+            <td>{{ row.active_service_sellers }}</td>
+            <td>{{ row.service_requests }}</td>
+            <td>{% if row.saturated %}Насыщен{% else %}Наполняем{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
   <div class="cp-grid-2">
     <section class="cp-card">
       <h2>Последние заявки на запчасти</h2>
