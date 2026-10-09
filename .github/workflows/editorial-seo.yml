@@ -1,0 +1,40 @@
+name: Editorial SEO checks
+
+on:
+  pull_request:
+    paths:
+      - 'core/editorial_views.py'
+      - 'core/models.py'
+      - 'core/admin.py'
+      - 'core/seo_views.py'
+      - 'core/tests/test_editorial_seo.py'
+      - 'core/migrations/**'
+      - 'backend/settings.py'
+      - 'backend/urls.py'
+      - 'templates/editorial/**'
+      - '.github/workflows/editorial-seo.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  editorial-tests:
+    runs-on: ubuntu-latest
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'editorial-ci-only-not-production'
+      SEO_EDITORIAL_ENABLED: 'True'
+      ALLOWED_HOSTS: 'testserver,localhost,127.0.0.1,zpt.kz'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r requirements.txt
+      - name: Django system checks
+        run: python manage.py check
+      - name: Migration consistency
+        run: python manage.py makemigrations --check --dry-run
+      - name: Editorial SEO unit tests
+        run: python manage.py test core.tests.test_editorial_seo --verbosity 2
