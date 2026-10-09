@@ -42,10 +42,13 @@ FOREIGN_COUNTRY_MARKERS = (
     'беларус',
     'кыргыз',
     'россия',
+    'российская федерация',
+    'рф',
+    'russia',
     'узбекистан',
     'украина',
 )
-FOREIGN_TLDS = frozenset({'by', 'ru', 'kg', 'uz', 'ua'})
+FOREIGN_TLDS = frozenset({'by', 'ru', 'xn--p1ai', 'kg', 'uz', 'ua'})
 
 
 def _fold(value: str) -> str:
@@ -83,12 +86,22 @@ def _business_foreign_signals(lead: SellerLead) -> list[str]:
         ('instagram', lead.instagram_username),
         ('profile', lead.profile_description),
     ):
-        city = _matches_city(str(value or ''), FOREIGN_CITIES)
+        text = str(value or '')
+        city = _matches_city(text, FOREIGN_CITIES)
         if city:
             signals.append(f'{label}={city}')
+        country = next(
+            (marker for marker in FOREIGN_COUNTRY_MARKERS if _contains_term(text, marker)),
+            '',
+        )
+        if country:
+            signals.append(f'{label}_country={country}')
     tld = _website_tld(lead)
     if tld in FOREIGN_TLDS:
         signals.append(f'domain=.{tld}')
+    whatsapp = ''.join(ch for ch in str(lead.whatsapp or '') if ch.isdigit())
+    if len(whatsapp) == 11 and whatsapp.startswith('79'):
+        signals.append('phone=+7-9xx')
     for location in lead.locations.all():
         city = _matches_city(str(location.city or ''), FOREIGN_CITIES)
         if city:
