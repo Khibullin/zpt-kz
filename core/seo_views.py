@@ -156,7 +156,11 @@ def sitemap_content(request):
     if not getattr(settings, 'SEO_EDITORIAL_ENABLED', False):
         return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')
     items = []
-    for page in EditorialPage.objects.filter(status=EditorialPage.STATUS_PUBLISHED).order_by('pk').iterator():
+    published = EditorialPage.objects.filter(status=EditorialPage.STATUS_PUBLISHED)
+    if published.exists():
+        index_url = escape(canonical_url_for_path('/guide/parts/'))
+        items.append(f'<url><loc>{index_url}</loc></url>')
+    for page in published.order_by('pk').iterator():
         loc = escape(canonical_url_for_path(f'/guide/parts/{page.slug}/'))
         lastmod = page.updated_at.date().isoformat()
         items.append(f'<url><loc>{loc}</loc><lastmod>{lastmod}</lastmod></url>')
