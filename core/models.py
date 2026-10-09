@@ -3402,3 +3402,27 @@ class EditorialPage(models.Model):
 
     def __str__(self):
         return self.title
+
+
+class EditorialCandidate(models.Model):
+    """Unpublished content topic from known catalog data."""
+    STATUS_CHOICES = [
+        ('new', 'Новая тема'),
+        ('review', 'Проверить'),
+        ('rejected', 'Отклонена'),
+        ('used', 'Использована'),
+    ]
+    source_key = models.CharField(max_length=100, unique=True)
+    source_product = models.ForeignKey('catalog.Product', on_delete=models.CASCADE, related_name='editorial_candidates')
+    title = models.CharField(max_length=240)
+    rationale = models.TextField()
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='new')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Тема для статьи'
+        verbose_name_plural = 'Темы для статей'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return self.title
