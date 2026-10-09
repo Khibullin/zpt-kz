@@ -144,6 +144,23 @@ class SellerLeadAdminWorkflowTests(TestCase):
             )
         self.assertFalse(Seller.objects.filter(whatsapp=FAKE_WHATSAPP_C).exists())
 
+    def test_ready_to_invite_lead_can_be_activated_directly(self):
+        lead = _make_lead(
+            whatsapp=FAKE_WHATSAPP_D,
+            lifecycle_status=SellerLead.LIFECYCLE_READY_TO_INVITE,
+        )
+
+        result = activate_invited_lead_for_requests(
+            lead,
+            RequestSellerActivationProfile(transport_type='car'),
+        )
+
+        lead.refresh_from_db()
+        seller = Seller.objects.get(pk=result.seller_id)
+        self.assertTrue(seller.receive_requests)
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_ACTIVE)
+        self.assertEqual(SellerContactConsent.objects.count(), 0)
+
     def test_valid_whatsapp_creates_request_seller(self):
         lead = _make_convertible_lead(whatsapp=FAKE_WHATSAPP_A)
         result = convert_lead_to_request_seller(lead)
@@ -153,6 +170,9 @@ class SellerLeadAdminWorkflowTests(TestCase):
         self.assertTrue(result.created_seller)
         self.assertIsNotNone(lead.request_seller_id)
         self.assertEqual(Seller.objects.filter(whatsapp=FAKE_WHATSAPP_A).count(), 1)
+        self.assertTrue(lead.request_seller.receive_requests)
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_ACTIVE)
+        self.assertEqual(SellerContactConsent.objects.count(), 0)
 
     def test_created_seller_fields_mapped_correctly(self):
         lead = _make_convertible_lead(
@@ -171,7 +191,7 @@ class SellerLeadAdminWorkflowTests(TestCase):
         self.assertEqual(seller.whatsapp, FAKE_WHATSAPP_B)
         self.assertEqual(seller.city, 'Mapped City')
         self.assertEqual(seller.transport_type, 'car')
-        self.assertFalse(seller.receive_requests)
+        self.assertTrue(seller.receive_requests)
         self.assertIn(f'@{FAKE_USERNAME_B}', seller.notes)
         self.assertIn('https://example.test/source', seller.notes)
 
@@ -198,7 +218,10 @@ class SellerLeadAdminWorkflowTests(TestCase):
         self.assertTrue(result.linked_existing_seller)
         self.assertEqual(Seller.objects.filter(whatsapp=FAKE_WHATSAPP_C).count(), 1)
         lead.refresh_from_db()
+        existing.refresh_from_db()
         self.assertEqual(lead.request_seller_id, existing.pk)
+        self.assertTrue(existing.receive_requests)
+        self.assertEqual(lead.lifecycle_status, SellerLead.LIFECYCLE_ACTIVE)
 
     def test_seller_lead_links_to_existing_seller(self):
         existing = Seller.objects.create(
@@ -450,6 +473,8 @@ class SellerLeadAdminWorkflowTests(TestCase):
         lead_b.refresh_from_db()
         self.assertIsNotNone(lead_a.request_seller_id)
         self.assertIsNotNone(lead_b.request_seller_id)
+        self.assertTrue(lead_a.request_seller.receive_requests)
+        self.assertTrue(lead_b.request_seller.receive_requests)
 
     def test_mixed_bulk_action_success_and_warning(self):
         lead_ok = _make_convertible_lead(
