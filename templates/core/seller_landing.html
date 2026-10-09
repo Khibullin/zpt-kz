@@ -94,11 +94,10 @@
         <div class="seller-landing-field">
           <label for="seller-city">Город работы</label>
           <select id="seller-city" name="city" required>
-            <option value="Алматы">Алматы</option>
-            <option value="Астана">Астана</option>
-            <option value="Шымкент">Шымкент</option>
-            <option value="Караганда">Караганда</option>
-            <option value="Актобе">Актобе</option>
+            <option value="">Выберите город</option>
+            {% for city_name in kz_cities %}
+            <option value="{{ city_name }}">{{ city_name }}</option>
+            {% endfor %}
           </select>
         </div>
         <div class="seller-landing-field">
