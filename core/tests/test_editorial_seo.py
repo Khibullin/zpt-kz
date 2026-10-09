@@ -75,3 +75,27 @@ class EditorialSEOTests(TestCase):
     @override_settings(SEO_EDITORIAL_ENABLED=False)
     def test_index_disabled_by_default_flag(self):
         self.assertEqual(self.client.get('/guide/parts/').status_code, 404)
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_unpublished_article_is_removed_from_index_and_sitemap(self):
+        self.article.status = EditorialPage.STATUS_PUBLISHED
+        self.article.save()
+        self.assertEqual(self.client.get('/guide/parts/test-part-guide/').status_code, 200)
+        self.article.status = EditorialPage.STATUS_DRAFT
+        self.article.save()
+        self.assertEqual(self.client.get('/guide/parts/test-part-guide/').status_code, 404)
+        self.assertNotContains(self.client.get('/guide/parts/'), 'Тестовый материал')
+        self.assertNotContains(self.client.get('/sitemap-content.xml'), 'test-part-guide')
+
+    @override_settings(SEO_EDITORIAL_ENABLED=True)
+    def test_sitemap_escapes_article_urls(self):
+        article = EditorialPage.objects.create(
+            slug='guide--test',
+            title='Дополнительный материал',
+            meta_description='Дополнительная информация о выборе запчастей',
+            body='Проверенные сведения о подборе запчастей.',
+            status=EditorialPage.STATUS_PUBLISHED,
+        )
+        sitemap = self.client.get('/sitemap-content.xml')
+        self.assertContains(sitemap, '/guide/parts/guide--test/')
+        self.assertIsNotNone(article.published_at)
