@@ -7,6 +7,8 @@ from django.db.models import Count, F, Max, Prefetch, Q
 from django.http import QueryDict
 from django.shortcuts import get_object_or_404
 
+from core.kazakhstan_locations import KAZAKHSTAN_CITIES, canonical_kazakhstan_city
+
 from control_panel.display import (
     SERVICE_MATCH_STATUS_LABELS,
     SERVICE_TYPE_LABELS,
@@ -77,9 +79,12 @@ def list_sto(params: QueryDict) -> dict:
         received=Count('servicematch', distinct=True),
         last_activity=Max('wa_logs__created_at'),
     ).prefetch_related(_services_prefetch())
-    city = first_value(params, 'city')
-    if city:
-        queryset = queryset.filter(city__icontains=city)
+    raw_city = first_value(params, 'city')
+    city = canonical_kazakhstan_city(raw_city) if raw_city else ''
+    if raw_city and not city:
+        queryset = queryset.none()
+    elif city:
+        queryset = queryset.filter(city=city)
     district = first_value(params, 'district')
     if district:
         queryset = queryset.filter(district__icontains=district)
@@ -129,12 +134,7 @@ def list_sto(params: QueryDict) -> dict:
         )
         for item in page.object_list
     ]
-    cities = list(
-        ServiceSeller.objects.exclude(city='')
-        .order_by('city')
-        .values_list('city', flat=True)
-        .distinct()
-    )
+    cities = list(KAZAKHSTAN_CITIES)
     districts = list(
         ServiceSeller.objects.exclude(district='')
         .order_by('district')
