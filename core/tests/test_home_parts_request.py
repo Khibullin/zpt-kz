@@ -1189,6 +1189,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
         self.assertEqual(req.search_scope, 'city')
+        self.assertEqual(req.routing_strategy, Request.ROUTING_MATCHED_CITY)
         self.assertEqual(req.transport_type, 'car')
         self.assertEqual(req.category, 'Трансмиссия')
         self.assertEqual(req.brand, 'Mercedes-Benz')
@@ -1207,6 +1208,25 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertNotIn(self.other_category.id, seller_ids)
         self.assertNotIn(self.other_brand.id, seller_ids)
         self.assertNotIn(self.brand_level.id, seller_ids)
+
+    def test_city_without_local_match_falls_back_to_kazakhstan(self):
+        self.exact.is_active = False
+        self.exact.save(update_fields=['is_active'])
+        self.brand_level.is_active = False
+        self.brand_level.save(update_fields=['is_active'])
+
+        response = self._post(idempotency_key='key-city-kz-fallback')
+        self.assertEqual(response.status_code, 200, response.content)
+
+        req = Request.objects.get()
+        self.assertEqual(
+            req.routing_strategy,
+            Request.ROUTING_FALLBACK_KAZAKHSTAN,
+        )
+        self.assertEqual(
+            self._seller_ids(),
+            {self.all_spec.id, self.other_city.id},
+        )
 
     def test_brand_fallback_when_exact_model_seller_is_absent(self):
         self.exact.is_active = False
