@@ -27,11 +27,13 @@ jobs:
           core.tests.test_kazakhstan_city_registry
           core.tests.test_home_parts_request
           core.tests.test_seller_growth
+          core.tests.test_seller_city_identity
           core.tests.test_seller_lead_admin_workflow
           core.tests.test_seller_discovery_package2
           core.tests.test_create_request_result_verification
           service_requests.tests
           service_requests.test_service_seller_auth
           service_requests.test_dispatch_policy
+          catalog.tests.test_seller_pickup_address
           control_panel.tests
           -v 2
