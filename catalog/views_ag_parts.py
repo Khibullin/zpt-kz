@@ -75,7 +75,6 @@ def ag_parts_filter_finder(request):
         )
     )
 
-    # Build make/model and engine options only from currently active AG Parts items.
     model_ids = set()
     brand_ids = set()
     engine_options_by_model = {}
@@ -148,7 +147,7 @@ def ag_parts_filter_finder(request):
             status="active",
         ).select_related(
             "brand", "car_model", "car_model__brand", "category", "seller_profile",
-        ).prefetch_related("selected_models", "selected_brands", "kaspi_listings")
+        ).prefetch_related("selected_brands", "kaspi_listings")
         matching = filter_products_by_vehicle(matching, brand_id=brand_id)
         if model_id:
             matching = filter_products_by_vehicle(matching, model_id=model_id)
@@ -166,9 +165,7 @@ def ag_parts_filter_finder(request):
             ]
             matching = matching.filter(pk__in=matching_ids)
 
-        products = list(
-            public_wholesale_prefetch(matching).order_by("title", "id")
-        )
+        products = list(public_wholesale_prefetch(matching).order_by("title", "id"))
         attach_sellers_to_products(products)
         attach_public_wholesale_flags(products)
 
