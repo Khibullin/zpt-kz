@@ -204,7 +204,7 @@ class AgPartsFilterFinderTests(TestCase):
             "JOLION-EARLY-YEAR-FINDER",
             jolion,
             seller=self.seller,
-            engine_compatibility="GW4G15K\\nGW4B15D",
+            engine_compatibility="GW4G15K\nGW4B15D",
             compatibility=(
                 "Haval Jolion 1.5 GW4G15K (с 04.2021); "
                 "Haval Jolion 1.5 GW4B15D (с 2023)."
