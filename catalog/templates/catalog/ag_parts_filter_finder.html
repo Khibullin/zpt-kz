@@ -60,13 +60,13 @@
   {% if has_selection %}
     <section class="ag-finder__results" aria-live="polite">
       {% if selected_brand and not selected_model %}
-        <p class="ag-finder__result-count">Все товары AG Parts для марки {{ brands|dictsort:"name"|length }}{% if products %}: найдено {{ products|length }}{% endif %}</p>
+        <p class="ag-finder__result-count">Показаны все товары AG Parts для выбранной марки{% if products %}: {{ products|length }}{% endif %}</p>
       {% elif engine_not_recorded %}
         <p class="ag-finder__notice">Для этой модели в каталоге не указаны коды двигателей. Показаны все товары модели; перед покупкой проверьте применяемость по VIN.</p>
       {% elif selected_model and selected_engine and engine_missing_count %}
         <p class="ag-finder__notice">{{ engine_missing_count }} товар(а) не показаны: для них не указан код двигателя. Проверьте применяемость этих позиций по VIN.</p>
       {% elif selected_model and not selected_engine %}
-        <p class="ag-finder__result-count">Показаны все фильтры для выбранной модели{% if products %}: {{ products|length }} товар(а){% endif %}. Выберите двигатель, чтобы уточнить список.</p>
+        <p class="ag-finder__result-count">Показаны все фильтры для выбранной модели{% if products %}: {{ products|length }}{% endif %}. Выберите двигатель, чтобы уточнить список.</p>
       {% endif %}
       {% if products %}
         <h2>Товары AG Parts</h2>
