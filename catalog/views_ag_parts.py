@@ -16,23 +16,84 @@ from catalog.wholesale import (
 )
 
 
-def _explicitly_excludes_model_engine(product, model, engine):
-    """Honor a model+engine exclusion written explicitly in compatibility text."""
+def _product_fitment_models(product):
+    models = []
+    if product.car_model_id:
+        models.append(product.car_model)
+    models.extend(product.selected_models.all())
+    return list({model.pk: model for model in models}.values())
+
+
+def _model_is_named_in_clause(clause, model, sibling_names):
+    labels = (f"{model.brand.name} {model.name}", model.name)
+    for label in labels:
+        match = re.search(rf"(?<!\w){re.escape(label.casefold())}(?!\w)", clause.casefold())
+        if not match:
+            continue
+        remainder = clause[match.end():].casefold()
+        for sibling_name in sibling_names:
+            if sibling_name.casefold() == model.name.casefold():
+                continue
+            if sibling_name.casefold().startswith(model.name.casefold() + " "):
+                suffix = sibling_name[len(model.name):].casefold()
+                if remainder.startswith(suffix):
+                    break
+        else:
+            return True
+    return False
+
+
+def _engine_code_is_in_clause(engine, clause):
+    clause = clause.upper()
+    engine = engine.upper()
+    if re.search(rf"(?<![A-Z0-9]){re.escape(engine)}(?![A-Z0-9])", clause):
+        return True
+
+    # Expand short suffixes such as SQRE4T15B/C using the stored exact code.
+    for shorthand in re.findall(r"\b[A-Z0-9]+/[A-Z]\b", clause):
+        base, suffix = shorthand.split("/")
+        if base[-1:].isalpha() and engine == base[:-1] + suffix:
+            return True
+    return False
+
+
+def _model_engine_codes(product, model, sibling_names):
+    """Return only codes paired with this model in compatibility text."""
+    codes = parse_plain_list(product.engine_compatibility)
+    if not codes:
+        return set()
+
     compatibility = str(getattr(product, "compatibility", "") or "")
-    model_labels = (
-        f"{model.brand.name} {model.name}",
-        model.name,
-    )
-    for clause in re.split(r"[;\n.!]+", compatibility):
-        lowered = clause.casefold()
-        if not re.search(r"\b(?:не|not|except|excluding)\b", lowered):
+    clauses = re.split(r"[;\n]+", compatibility)
+    model_clauses = [
+        clause for clause in clauses
+        if _model_is_named_in_clause(clause, model, sibling_names)
+    ]
+    if not model_clauses:
+        # A product linked to one model has no cross-model ambiguity.
+        if len(_product_fitment_models(product)) == 1:
+            return {code for code in codes if not _explicitly_excludes_model_engine(product, model, code)}
+        return set()
+
+    compatible = set()
+    excluded = set()
+    for clause in model_clauses:
+        is_exclusion = bool(re.search(r"\b(?:не|not|except|excluding)\b", clause.casefold()))
+        for code in codes:
+            if _engine_code_is_in_clause(code, clause):
+                (excluded if is_exclusion else compatible).add(code)
+    return compatible - excluded
+
+
+def _explicitly_excludes_model_engine(product, model, engine):
+    """Honor an explicit negative fitment statement for a model and engine."""
+    compatibility = str(getattr(product, "compatibility", "") or "")
+    for clause in re.split(r"[;\n]+", compatibility):
+        if not re.search(r"\b(?:не|not|except|excluding)\b", clause.casefold()):
             continue
-        if engine.casefold() not in lowered:
+        if not _model_is_named_in_clause(clause, model, (model.name,)):
             continue
-        if any(
-            re.search(rf"(?<!\w){re.escape(label.casefold())}(?!\w)", lowered)
-            for label in model_labels if label
-        ):
+        if _engine_code_is_in_clause(engine, clause):
             return True
     return False
 
@@ -70,36 +131,19 @@ def ag_parts_filter_finder(request):
             status="active",
         ).select_related(
             "brand", "car_model", "car_model__brand", "category", "seller_profile",
-        ).prefetch_related(
-            "selected_models", "selected_brands", "kaspi_listings",
-        )
+        ).prefetch_related("selected_models", "selected_brands", "kaspi_listings")
     )
 
     model_ids = set()
     brand_ids = set()
-    engine_options_by_model = {}
-    engine_missing_counts = {}
     for product in base_products:
-        product_models = []
-        if product.car_model_id:
-            product_models.append(product.car_model)
-        product_models.extend(product.selected_models.all())
-
-        product_brands = set()
+        product_models = _product_fitment_models(product)
         if product.brand_id:
-            product_brands.add(product.brand_id)
-        product_brands.update(brand.pk for brand in product.selected_brands.all())
-
-        engines = parse_plain_list(product.engine_compatibility)
+            brand_ids.add(product.brand_id)
+        brand_ids.update(brand.pk for brand in product.selected_brands.all())
         for model in product_models:
             model_ids.add(model.pk)
-            product_brands.add(model.brand_id)
-            if not engines:
-                engine_missing_counts[model.pk] = engine_missing_counts.get(model.pk, 0) + 1
-            for engine in engines:
-                if not _explicitly_excludes_model_engine(product, model, engine):
-                    engine_options_by_model.setdefault(model.pk, set()).add(engine)
-        brand_ids.update(product_brands)
+            brand_ids.add(model.brand_id)
 
     model_options = list(
         CarModel.objects.filter(pk__in=model_ids)
@@ -108,6 +152,24 @@ def ag_parts_filter_finder(request):
         .values("id", "name", "brand_id", "brand__name")
     )
     brands = list(Brand.objects.filter(pk__in=brand_ids).order_by("name"))
+    model_names_by_brand = {}
+    for item in model_options:
+        model_names_by_brand.setdefault(item["brand_id"], []).append(item["name"])
+
+    engine_options_by_model = {}
+    engine_missing_counts = {}
+    for product in base_products:
+        for model in _product_fitment_models(product):
+            model_codes = _model_engine_codes(
+                product,
+                model,
+                model_names_by_brand.get(model.brand_id, ()),
+            )
+            if model_codes:
+                engine_options_by_model.setdefault(model.pk, set()).update(model_codes)
+            else:
+                engine_missing_counts[model.pk] = engine_missing_counts.get(model.pk, 0) + 1
+
     engine_options_by_model = {
         str(model_id): sorted(engines, key=str.casefold)
         for model_id, engines in engine_options_by_model.items()
@@ -152,20 +214,22 @@ def ag_parts_filter_finder(request):
         if model_id:
             matching = filter_products_by_vehicle(matching, model_id=model_id)
 
+        result_queryset = public_wholesale_prefetch(matching)
         if selected_engine and model_id:
             model = CarModel.objects.select_related("brand").get(pk=model_id)
-            candidates = list(matching.filter(engine_compatibility__icontains=selected_engine))
-            matching_ids = [
-                product.pk for product in candidates
-                if selected_engine.casefold() in {
-                    value.casefold()
-                    for value in parse_plain_list(product.engine_compatibility)
-                }
-                and not _explicitly_excludes_model_engine(product, model, selected_engine)
+            candidates = list(
+                result_queryset.filter(
+                    engine_compatibility__icontains=selected_engine,
+                ).order_by("title", "id")
+            )
+            sibling_names = model_names_by_brand.get(model.brand_id, ())
+            products = [
+                product for product in candidates
+                if selected_engine in _model_engine_codes(product, model, sibling_names)
             ]
-            matching = matching.filter(pk__in=matching_ids)
+        else:
+            products = list(result_queryset.order_by("title", "id"))
 
-        products = list(public_wholesale_prefetch(matching).order_by("title", "id"))
         attach_sellers_to_products(products)
         attach_public_wholesale_flags(products)
 
