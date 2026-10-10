@@ -5,6 +5,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=ag_store_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
+<link rel="stylesheet" href="{% static 'css/ag-parts-filter-finder.css' %}?v=1">
 {% endblock %}
 {% block content %}
 {% include 'catalog/includes/market_header.html' %}
@@ -14,6 +15,7 @@
     <p style="letter-spacing:.08em;font-weight:700;color:#d33;">МАГАЗИН AG PARTS</p>
     <h1>Наши товары</h1>
     <p>Подбирайте запчасти и фильтры по артикулу и автомобилю. Если у товара доступна подтверждённая ссылка, приобрести его можно на Kaspi. Остальные позиции доступны через ZPT.KZ.</p>
+    <p class="ag-finder-store-cta"><a href="{% url 'ag_parts_filter_finder' %}">Подобрать фильтр по автомобилю →</a></p>
     <p><a href="{% url 'maintenance_kit_list' %}">Посмотреть комплекты ТО →</a></p>
   </section>
   <section aria-label="Товары AG Parts">
