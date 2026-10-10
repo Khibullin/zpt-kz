@@ -20,16 +20,25 @@ class AgPartsFilterFinderTests(TestCase):
         self.tiggo7 = CarModel.objects.create(brand=self.brand, name="Tiggo 7")
         self.tiggo8 = CarModel.objects.create(brand=self.brand, name="Tiggo 8")
         self._product(
-            "Фильтр для Tiggo 7",
+            "Воздушный фильтр для Tiggo 7",
             "TIGGO7-FINDER",
             self.tiggo7,
             seller=self.seller,
+            engine_compatibility="1.5T\nSQRE4T15C",
+        )
+        self._product(
+            "Салонный фильтр для Tiggo 7",
+            "TIGGO7-CABIN-FINDER",
+            self.tiggo7,
+            seller=self.seller,
+            engine_compatibility="2.0T",
         )
         self._product(
             "Фильтр для Tiggo 8",
             "TIGGO8-FINDER",
             self.tiggo8,
             seller=self.seller,
+            engine_compatibility="2.0T",
         )
         self._product(
             "Товар другого продавца",
@@ -37,9 +46,19 @@ class AgPartsFilterFinderTests(TestCase):
             self.tiggo7,
             seller=None,
             seller_name="Другой продавец",
+            engine_compatibility="1.5T",
         )
 
-    def _product(self, title, article, model, *, seller, seller_name="AG Parts"):
+    def _product(
+        self,
+        title,
+        article,
+        model,
+        *,
+        seller,
+        seller_name="AG Parts",
+        engine_compatibility="",
+    ):
         return Product.objects.create(
             title=title,
             article=article,
@@ -52,19 +71,58 @@ class AgPartsFilterFinderTests(TestCase):
             seller_profile=seller,
             seller_name=seller_name,
             whatsapp_number="+77000000000",
+            engine_compatibility=engine_compatibility,
         )
 
-    def test_only_selected_model_products_from_ag_parts_are_shown(self):
+    def test_selected_engine_shows_only_exact_ag_parts_fitment(self):
         response = self.client.get(
             reverse("ag_parts_filter_finder"),
-            {"brand": self.brand.pk, "model": self.tiggo7.pk},
+            {
+                "brand": self.brand.pk,
+                "model": self.tiggo7.pk,
+                "engine": "1.5T",
+            },
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Фильтр для Tiggo 7")
+        self.assertContains(response, "Воздушный фильтр для Tiggo 7")
+        self.assertNotContains(response, "Салонный фильтр для Tiggo 7")
         self.assertNotContains(response, "Фильтр для Tiggo 8")
         self.assertNotContains(response, "Товар другого продавца")
-        self.assertContains(response, "Показать подходящие товары")
+        self.assertContains(response, "Двигатель")
+        self.assertContains(response, "1.5T")
+
+    def test_engine_must_be_one_of_the_selected_models_recorded_codes(self):
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {
+                "brand": self.brand.pk,
+                "model": self.tiggo7.pk,
+                "engine": "1.5",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
+        self.assertContains(response, "Выберите двигатель")
+
+    def test_model_without_engine_codes_keeps_model_results_with_warning(self):
+        model = CarModel.objects.create(brand=self.brand, name="Arrizo 8")
+        self._product(
+            "Фильтр для Arrizo 8",
+            "ARRIZO8-FINDER",
+            model,
+            seller=self.seller,
+        )
+
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": self.brand.pk, "model": model.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Фильтр для Arrizo 8")
+        self.assertContains(response, "не указаны коды двигателей")
 
     def test_model_must_belong_to_selected_brand(self):
         other_brand = Brand.objects.create(country=self.brand.country, name="Geely")
@@ -76,13 +134,14 @@ class AgPartsFilterFinderTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Фильтр для Tiggo 7")
+        self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
         self.assertContains(response, "Выберите модель")
 
-    def test_initial_page_has_two_vehicle_fields_and_no_results(self):
+    def test_initial_page_has_three_vehicle_fields_and_no_results(self):
         response = self.client.get(reverse("ag_parts_filter_finder"))
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="ag-finder-brand"')
         self.assertContains(response, 'id="ag-finder-model"')
-        self.assertNotContains(response, "Фильтр для Tiggo 7")
+        self.assertContains(response, 'id="ag-finder-engine"')
+        self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
