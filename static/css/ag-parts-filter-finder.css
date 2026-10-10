@@ -145,3 +145,19 @@
     border-radius: 16px;
   }
 }
+
+.ag-finder-store-cta a {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 16px;
+  border-radius: 9px;
+  background: #d93434;
+  color: #fff;
+  font-weight: 700;
+  text-decoration: none;
+}
+.ag-finder-store-cta a:hover {
+  background: #b92727;
+}
