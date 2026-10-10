@@ -5,7 +5,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=ag_store_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/ag-parts-filter-finder.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/ag-parts-filter-finder.css' %}?v=2">
 {% endblock %}
 {% block content %}
 {% include 'catalog/includes/market_header.html' %}
@@ -21,7 +21,7 @@
   <section class="ag-finder__hero">
     <p class="ag-finder__eyebrow">МАГАЗИН AG PARTS</p>
     <h1>Подберите фильтр для своего автомобиля</h1>
-    <p class="ag-finder__intro">Выберите марку и модель — покажем фильтры и свечи AG Parts с сохранённой применяемостью. VIN и данные двигателя для начала не нужны.</p>
+    <p class="ag-finder__intro">Выберите марку, модель и двигатель. Покажем товары AG Parts только с указанной для них применяемостью.</p>
 
     <form class="ag-finder__form" method="get" action="{% url 'ag_parts_filter_finder' %}">
       <div class="ag-finder__field">
@@ -42,24 +42,51 @@
           {% endfor %}
         </select>
       </div>
-      <button class="ag-finder__submit" type="submit" disabled>Показать подходящие товары</button>
+      <div class="ag-finder__field">
+        <label for="ag-finder-engine">Двигатель</label>
+        <select id="ag-finder-engine" name="engine" disabled>
+          <option value="">{% if selected_model %}Выберите двигатель{% else %}Сначала выберите модель{% endif %}</option>
+          {% for engine in model_engine_options %}
+            <option value="{{ engine }}" {% if selected_engine == engine %}selected{% endif %}>{{ engine }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="ag-finder__submit" type="submit" disabled>Показать фильтры</button>
     </form>
-    <p class="ag-finder__note">Мы показываем только товары, у которых применяемость к выбранной модели указана в каталоге AG Parts.</p>
+    {{ engine_options_by_model|json_script:"ag-finder-engine-map" }}
+    <p class="ag-finder__note">Товары без указанного кода двигателя не считаем подтверждёнными для выбранного двигателя. Перед покупкой можно дополнительно проверить применяемость по VIN.</p>
   </section>
 
-  {% if has_selection %}
+  {% if has_model_selection and needs_engine_selection %}
     <section class="ag-finder__results" aria-live="polite">
+      <div class="ag-finder__empty">
+        <h2>Выберите двигатель</h2>
+        <p>Для этой модели в каталоге есть несколько кодов двигателя. После выбора покажем подходящие товары, сгруппированные по типу фильтра.</p>
+      </div>
+    </section>
+  {% elif has_selection %}
+    <section class="ag-finder__results" aria-live="polite">
+      {% if engine_not_recorded %}
+        <p class="ag-finder__notice">Для товаров этой модели в каталоге не указаны коды двигателей. Результаты основаны только на применяемости к модели — перед покупкой проверьте VIN.</p>
+      {% elif engine_missing_count %}
+        <p class="ag-finder__notice">{{ engine_missing_count }} товар(а) не показаны: для них не указан код двигателя. Проверьте применяемость этих позиций по VIN.</p>
+      {% endif %}
       {% if products %}
         <h2>Подходящие товары AG Parts</h2>
-        <p class="ag-finder__result-count">Найдено товаров: {{ products|length }}</p>
-        <div class="products-container">
-          {% for product in products %}
-            {% include 'catalog/includes/product_card.html' with product=product %}
-          {% endfor %}
-        </div>
+        <p class="ag-finder__result-count">Найдено товаров: {{ products|length }}{% if selected_engine %} · двигатель {{ selected_engine }}{% endif %}</p>
+        {% for group in product_groups %}
+          <section class="ag-finder__product-group" aria-label="{{ group.label }}">
+            <h3>{{ group.label }}</h3>
+            <div class="products-container">
+              {% for product in group.products %}
+                {% include 'catalog/includes/product_card.html' with product=product %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endfor %}
       {% else %}
         <div class="ag-finder__empty">
-          <h2>Пока нет подтверждённых товаров для этой модели</h2>
+          <h2>Подтверждённых товаров для этого двигателя пока нет</h2>
           <p>Напишите AG Parts — продавец поможет проверить применяемость по VIN.</p>
           <a href="{% url 'public_seller_profile' slug=seller.slug %}">Связаться с AG Parts</a>
         </div>
@@ -67,5 +94,5 @@
     </section>
   {% endif %}
 </main>
-<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=1" defer></script>
+<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=2" defer></script>
 {% endblock %}
