@@ -6,13 +6,12 @@
   const engineMapElement = document.getElementById('ag-finder-engine-map');
   if (!brand || !model || !engine || !submit || !engineMapElement) return;
 
+  const form = brand.closest('form');
   const enginesByModel = JSON.parse(engineMapElement.textContent || '{}');
   const modelOptions = Array.from(model.options).filter((option) => option.value);
 
   const updateSubmit = () => {
-    const hasVehicle = Boolean(brand.value && model.value);
-    const engines = enginesByModel[model.value] || [];
-    submit.disabled = !hasVehicle || (engines.length > 0 && !engine.value);
+    submit.disabled = !brand.value;
   };
 
   const refreshEngines = (keepSelection) => {
@@ -22,11 +21,7 @@
 
     const placeholder = document.createElement('option');
     placeholder.value = '';
-    placeholder.textContent = !model.value
-      ? 'Сначала выберите модель'
-      : engines.length
-        ? 'Выберите двигатель'
-        : 'Код двигателя не указан';
+    placeholder.textContent = engines.length ? 'Все двигатели модели' : 'Коды двигателей не указаны';
     engine.append(placeholder);
 
     for (const code of engines) {
@@ -37,7 +32,6 @@
     }
 
     engine.disabled = !model.value || engines.length === 0;
-    engine.required = engines.length > 0;
     engine.value = engines.includes(previous) ? previous : '';
     updateSubmit();
   };
@@ -56,8 +50,14 @@
     refreshEngines(keepSelection);
   };
 
-  brand.addEventListener('change', () => refreshModels(false));
-  model.addEventListener('change', () => refreshEngines(false));
-  engine.addEventListener('change', updateSubmit);
+  brand.addEventListener('change', () => {
+    refreshModels(false);
+    form.requestSubmit();
+  });
+  model.addEventListener('change', () => {
+    refreshEngines(false);
+    form.requestSubmit();
+  });
+  engine.addEventListener('change', () => form.requestSubmit());
   refreshModels(true);
 })();
