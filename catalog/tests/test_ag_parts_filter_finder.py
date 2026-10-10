@@ -179,7 +179,7 @@ class AgPartsFilterFinderTests(TestCase):
             "JOLION-SENTENCE-FINDER",
             jolion,
             seller=self.seller,
-            engine_compatibility="GW4G15K\\nGW4B15D",
+            engine_compatibility="GW4G15K\nGW4B15D",
             compatibility=(
                 "Haval Jolion 1.5 GW4G15K / GW4B15D (с 04.2021). "
                 "OEM 1109104XGW02A. Не смешивать с 1109101XGW01A."
