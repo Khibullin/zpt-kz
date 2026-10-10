@@ -29,3 +29,15 @@ Preexisting links are marked `legacy` and are **not** retroactively certified as
 Changing a different existing link is blocked by default; use `--replace-existing` only after manually verifying both the SKU and the actual Kaspi Pay seller link.
 
 An ACTIVE XLSX export contains SKUs, prices and stock information, but does not prove a public URL or seller selection. The officially documented Kaspi API order-product endpoints provide product metadata, not a seller-specific buyer URL. Do not synthesize product URLs from numeric SKUs.
+
+## Prepare a seller link checklist
+
+To export the current AG Parts listings that lack URLs:
+
+```bash
+python manage.py export_ag_parts_kaspi_links missing_links.csv --missing-only
+```
+
+For a complete audit, omit `--missing-only`. The file contains `master_sku,public_url,article,product_title,zpt_url,link_source`. Fill **public_url** only with the direct link copied from your own Kaspi Pay store for that exact SKU. Do not change master_sku. Before importing with `import_ag_parts_kaspi_links`, retain only the `master_sku` and `public_url` columns and remove any rows without a URL. Preview before `--apply`.
+
+The exporter is a one-time reporting command, not a background scraper. It cannot obtain unexposed links from Kaspi.
