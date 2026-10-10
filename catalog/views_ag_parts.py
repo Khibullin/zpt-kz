@@ -50,7 +50,7 @@ def ag_parts_filter_finder(request):
     for product in base_products:
         if product.car_model_id:
             model_ids.add(product.car_model_id)
-        model_ids.update(product.selected_models.values_list("id", flat=True))
+        model_ids.update(model.pk for model in product.selected_models.all())
 
     model_options = list(
         CarModel.objects.filter(pk__in=model_ids)
