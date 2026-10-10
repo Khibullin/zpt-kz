@@ -128,8 +128,8 @@ class AgPartsFilterFinderTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "2.0T")
-        self.assertNotContains(response, "SQRE4T15C")
+        self.assertIn("2.0T", response.context["model_engine_options"])
+        self.assertNotIn("SQRE4T15C", response.context["model_engine_options"])
         self.assertContains(response, "Фильтр для Tiggo 8")
 
     def test_invalid_engine_is_ignored_without_hiding_model_results(self):
@@ -145,7 +145,7 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Воздушный фильтр для Tiggo 7")
         self.assertContains(response, "Салонный фильтр для Tiggo 7")
-        self.assertContains(response, "Все фильтры для выбранной модели")
+        self.assertContains(response, "Показаны все фильтры для выбранной модели")
 
     def test_model_must_belong_to_selected_brand(self):
         other_brand = Brand.objects.create(country=self.brand.country, name="Geely")
