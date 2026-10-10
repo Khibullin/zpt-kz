@@ -137,6 +137,13 @@ def _model_name_segments(clause, model, sibling_names):
     for index, (start, end, name) in enumerate(accepted):
         if name.casefold() != model.name.casefold():
             continue
+        prefix_tail = clause[max(0, start - 60):start]
+        if re.search(
+            r"\b(?:не|not|except|excluding)(?:\s+\S+){0,3}\s*$",
+            prefix_tail,
+            flags=re.IGNORECASE,
+        ):
+            continue
         next_start = accepted[index + 1][0] if index + 1 < len(accepted) else len(clause)
         segments.append(clause[end:next_start])
 
