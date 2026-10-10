@@ -58,6 +58,7 @@ class AgPartsFilterFinderTests(TestCase):
         seller,
         seller_name="AG Parts",
         engine_compatibility="",
+        compatibility="",
     ):
         return Product.objects.create(
             title=title,
@@ -72,7 +73,32 @@ class AgPartsFilterFinderTests(TestCase):
             seller_name=seller_name,
             whatsapp_number="+77000000000",
             engine_compatibility=engine_compatibility,
+            compatibility=compatibility,
         )
+
+    def test_brand_selection_shows_products_for_all_its_models(self):
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": self.brand.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Воздушный фильтр для Tiggo 7")
+        self.assertContains(response, "Салонный фильтр для Tiggo 7")
+        self.assertContains(response, "Фильтр для Tiggo 8")
+        self.assertNotContains(response, "Товар другого продавца")
+
+    def test_model_selection_shows_every_product_for_model_without_engine(self):
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": self.brand.pk, "model": self.tiggo7.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Воздушный фильтр для Tiggo 7")
+        self.assertContains(response, "Салонный фильтр для Tiggo 7")
+        self.assertNotContains(response, "Фильтр для Tiggo 8")
+        self.assertNotContains(response, "Выберите двигатель")
 
     def test_selected_engine_shows_only_exact_ag_parts_fitment(self):
         response = self.client.get(
@@ -89,10 +115,24 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertNotContains(response, "Салонный фильтр для Tiggo 7")
         self.assertNotContains(response, "Фильтр для Tiggo 8")
         self.assertNotContains(response, "Товар другого продавца")
-        self.assertContains(response, "Двигатель")
-        self.assertContains(response, "1.5T")
 
-    def test_engine_must_be_one_of_the_selected_models_recorded_codes(self):
+    def test_model_engine_option_respects_explicit_incompatibility(self):
+        product = Product.objects.get(article="TIGGO8-FINDER")
+        product.engine_compatibility = "2.0T\nSQRE4T15C"
+        product.compatibility = "Chery Tiggo 8 2.0T; Не Tiggo 8 SQRE4T15C."
+        product.save(update_fields=["engine_compatibility", "compatibility"])
+
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": self.brand.pk, "model": self.tiggo8.pk},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "2.0T")
+        self.assertNotContains(response, "SQRE4T15C")
+        self.assertContains(response, "Фильтр для Tiggo 8")
+
+    def test_invalid_engine_is_ignored_without_hiding_model_results(self):
         response = self.client.get(
             reverse("ag_parts_filter_finder"),
             {
@@ -103,26 +143,9 @@ class AgPartsFilterFinderTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
-        self.assertContains(response, "Выберите двигатель")
-
-    def test_model_without_engine_codes_keeps_model_results_with_warning(self):
-        model = CarModel.objects.create(brand=self.brand, name="Arrizo 8")
-        self._product(
-            "Фильтр для Arrizo 8",
-            "ARRIZO8-FINDER",
-            model,
-            seller=self.seller,
-        )
-
-        response = self.client.get(
-            reverse("ag_parts_filter_finder"),
-            {"brand": self.brand.pk, "model": model.pk},
-        )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Фильтр для Arrizo 8")
-        self.assertContains(response, "не указаны коды двигателей")
+        self.assertContains(response, "Воздушный фильтр для Tiggo 7")
+        self.assertContains(response, "Салонный фильтр для Tiggo 7")
+        self.assertContains(response, "Все фильтры для выбранной модели")
 
     def test_model_must_belong_to_selected_brand(self):
         other_brand = Brand.objects.create(country=self.brand.country, name="Geely")
@@ -134,8 +157,8 @@ class AgPartsFilterFinderTests(TestCase):
         )
 
         self.assertEqual(response.status_code, 200)
-        self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
         self.assertContains(response, "Выберите модель")
+        self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
 
     def test_initial_page_has_three_vehicle_fields_and_no_results(self):
         response = self.client.get(reverse("ag_parts_filter_finder"))
