@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=ag_store_v1">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
+{% endblock %}
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+<main class="container" style="padding-top:30px;padding-bottom:48px;">
+  <nav aria-label="Навигация"><a href="{% url 'catalog_list' %}">Каталог</a> → Наши товары</nav>
+  <section style="padding:20px 0 26px;">
+    <p style="letter-spacing:.08em;font-weight:700;color:#d33;">МАГАЗИН AG PARTS</p>
+    <h1>Наши товары</h1>
+    <p>Подбирайте запчасти и фильтры по артикулу и автомобилю. Если у товара доступна подтверждённая ссылка, приобрести его можно на Kaspi. Остальные позиции доступны через ZPT.KZ.</p>
+    <p><a href="{% url 'maintenance_kit_list' %}">Посмотреть комплекты ТО →</a></p>
+  </section>
+  <section aria-label="Товары AG Parts">
+    <p>Товаров в каталоге: {{ products|length }}</p>
+    <div class="products-container">
+      {% for product in products %}
+        {% include 'catalog/includes/product_card.html' with product=product %}
+      {% empty %}
+        <p>Сейчас товары недоступны.</p>
+      {% endfor %}
+    </div>
+  </section>
+</main>
+{% endblock %}
