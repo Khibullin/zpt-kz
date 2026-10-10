@@ -10,6 +10,7 @@ from pathlib import Path
 from django.core.exceptions import ValidationError
 from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.utils import timezone
 
 from catalog.kaspi_public_url import validate_kaspi_public_url
 from catalog.models import ProductKaspiListing
@@ -21,6 +22,7 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument("csv_file", type=Path)
         parser.add_argument("--apply", action="store_true", help="Save validated links.")
+        parser.add_argument("--replace-existing", action="store_true", help="Permit replacing an existing nonempty link after manual review.")
         parser.add_argument(
             "--seller-slug", default="ag-parts",
             help="SellerProfile slug (default: ag-parts).",
@@ -67,6 +69,9 @@ class Command(BaseCommand):
             if not listing.is_active or listing.product.status != "active":
                 errors.append(f"row {row_no}: {sku}: inactive listing or hidden product")
                 continue
+            if listing.public_url and listing.public_url != url and not options["replace_existing"]:
+                errors.append(f"row {row_no}: {sku}: existing URL differs; use --replace-existing only after verification")
+                continue
             changes.append((listing, url))
         if errors:
             for error in errors:
@@ -83,7 +88,7 @@ class Command(BaseCommand):
                 for listing, url in to_update:
                     updated = ProductKaspiListing.objects.filter(
                         pk=listing.pk, public_url=listing.public_url
-                    ).update(public_url=url)
+                    ).update(public_url=url, public_url_source="kaspi_pay_copy", public_url_verified_at=timezone.now())
                     if updated != 1:
                         raise CommandError("Concurrent update detected; rolled back.")
             self.stdout.write(self.style.SUCCESS(f"Updated {len(to_update)} AG Parts links."))
