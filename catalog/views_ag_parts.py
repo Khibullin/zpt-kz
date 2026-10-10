@@ -403,14 +403,26 @@ def ag_parts_filter_finder(request):
     has_selection = bool(brand_id)
     year_not_recorded = bool(model_id and not model_year_options)
     engine_not_recorded = bool(model_id and not all_model_engine_options)
-    if selected_year and all_model_engine_options and not model_engine_options:
+    if not model_id:
+        engine_placeholder = "Сначала выберите модель"
+    elif selected_year and all_model_engine_options and not model_engine_options:
         engine_placeholder = "Двигатели для этого года не подтверждены"
     elif engine_not_recorded:
         engine_placeholder = "Коды двигателей не указаны"
+    elif selected_year:
+        engine_placeholder = "Все двигатели для выбранного года"
     else:
         engine_placeholder = "Все двигатели модели"
-    engine_missing_count = engine_missing_counts.get(int(model_id), 0) if model_id else 0
 
+    if not model_id:
+        year_placeholder = "Сначала выберите модель"
+    elif year_not_recorded:
+        year_placeholder = "Годы в каталоге не указаны"
+    else:
+        year_placeholder = "Все годы модели"
+
+    engine_missing_count = engine_missing_counts.get(int(model_id), 0) if model_id else 0
+    year_missing_count = 0
     products = []
     product_groups = []
     if has_selection:
@@ -450,7 +462,6 @@ def ag_parts_filter_finder(request):
         else:
             products = list(result_queryset.order_by("title", "id"))
 
-        year_missing_count = 0
         if selected_year and selected_model:
             year = int(selected_year)
             year_filtered = []
@@ -498,6 +509,7 @@ def ag_parts_filter_finder(request):
         "model_year_options": model_year_options,
         "model_engine_options": model_engine_options,
         "engine_placeholder": engine_placeholder,
+        "year_placeholder": year_placeholder,
         "selected_brand": brand_id,
         "selected_model": model_id,
         "selected_year": selected_year,
