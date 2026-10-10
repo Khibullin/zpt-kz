@@ -103,4 +103,3 @@ class Migration(migrations.Migration):
     operations = [
         migrations.RunPython(save_verified_public_offers, migrations.RunPython.noop)
     ]
-}
