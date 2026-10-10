@@ -1,4 +1,6 @@
 """AG Parts curated store page using existing products, without duplicate catalog rows."""
+import re
+
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET
 
@@ -12,6 +14,27 @@ from catalog.wholesale import (
     public_wholesale_prefetch,
     wholesale_product_type,
 )
+
+
+def _explicitly_excludes_model_engine(product, model, engine):
+    """Honor a model+engine exclusion written explicitly in compatibility text."""
+    compatibility = str(getattr(product, "compatibility", "") or "")
+    model_labels = (
+        f"{model.brand.name} {model.name}",
+        model.name,
+    )
+    for clause in re.split(r"[;\n.!]+", compatibility):
+        lowered = clause.casefold()
+        if not re.search(r"\b(?:не|not|except|excluding)\b", lowered):
+            continue
+        if engine.casefold() not in lowered:
+            continue
+        if any(
+            re.search(rf"(?<!\w){re.escape(label.casefold())}(?!\w)", lowered)
+            for label in model_labels if label
+        ):
+            return True
+    return False
 
 
 @require_GET
@@ -39,34 +62,45 @@ def ag_parts_store(request):
 
 @require_GET
 def ag_parts_filter_finder(request):
-    """Make/model/engine picker using only AG Parts' saved fitment data."""
+    """Progressively filter AG Parts' existing products by make, model, and engine."""
     seller = get_object_or_404(SellerProfile, slug="ag-parts")
-    base_products = Product.objects.filter(
-        seller_profile=seller,
-        status="active",
-    ).select_related(
-        "brand", "car_model", "car_model__brand", "category", "seller_profile",
-    ).prefetch_related(
-        "selected_models", "selected_brands", "kaspi_listings",
+    base_products = list(
+        Product.objects.filter(
+            seller_profile=seller,
+            status="active",
+        ).select_related(
+            "brand", "car_model", "car_model__brand", "category", "seller_profile",
+        ).prefetch_related(
+            "selected_models", "selected_brands", "kaspi_listings",
+        )
     )
 
-    # Build available make/model and engine options from existing product data.
+    # Build make/model and engine options only from currently active AG Parts items.
     model_ids = set()
+    brand_ids = set()
     engine_options_by_model = {}
     engine_missing_counts = {}
     for product in base_products:
-        product_model_ids = set()
+        product_models = []
         if product.car_model_id:
-            product_model_ids.add(product.car_model_id)
-        product_model_ids.update(model.pk for model in product.selected_models.all())
-        model_ids.update(product_model_ids)
+            product_models.append(product.car_model)
+        product_models.extend(product.selected_models.all())
+
+        product_brands = set()
+        if product.brand_id:
+            product_brands.add(product.brand_id)
+        product_brands.update(brand.pk for brand in product.selected_brands.all())
 
         engines = parse_plain_list(product.engine_compatibility)
-        for model_id in product_model_ids:
-            if engines:
-                engine_options_by_model.setdefault(model_id, set()).update(engines)
-            else:
-                engine_missing_counts[model_id] = engine_missing_counts.get(model_id, 0) + 1
+        for model in product_models:
+            model_ids.add(model.pk)
+            product_brands.add(model.brand_id)
+            if not engines:
+                engine_missing_counts[model.pk] = engine_missing_counts.get(model.pk, 0) + 1
+            for engine in engines:
+                if not _explicitly_excludes_model_engine(product, model, engine):
+                    engine_options_by_model.setdefault(model.pk, set()).add(engine)
+        brand_ids.update(product_brands)
 
     model_options = list(
         CarModel.objects.filter(pk__in=model_ids)
@@ -74,7 +108,6 @@ def ag_parts_filter_finder(request):
         .order_by("brand__name", "name")
         .values("id", "name", "brand_id", "brand__name")
     )
-    brand_ids = {item["brand_id"] for item in model_options}
     brands = list(Brand.objects.filter(pk__in=brand_ids).order_by("name"))
     engine_options_by_model = {
         str(model_id): sorted(engines, key=str.casefold)
@@ -103,33 +136,33 @@ def ag_parts_filter_finder(request):
     if selected_engine not in model_engine_options:
         selected_engine = ""
 
-    has_model_selection = bool(brand_id and model_id)
-    needs_engine_selection = bool(model_engine_options and not selected_engine)
-    has_selection = has_model_selection and not needs_engine_selection
-    engine_not_recorded = has_model_selection and not model_engine_options
+    has_selection = bool(brand_id)
+    engine_not_recorded = bool(model_id and not model_engine_options)
     engine_missing_count = engine_missing_counts.get(int(model_id), 0) if model_id else 0
 
     products = []
     product_groups = []
     if has_selection:
-        result_base = Product.objects.filter(
+        matching = Product.objects.filter(
             seller_profile=seller,
             status="active",
         ).select_related(
             "brand", "car_model", "car_model__brand", "category", "seller_profile",
-        ).prefetch_related("selected_brands", "kaspi_listings")
-        matching = filter_products_by_vehicle(result_base, brand_id=brand_id)
-        matching = filter_products_by_vehicle(matching, model_id=model_id)
+        ).prefetch_related("selected_models", "selected_brands", "kaspi_listings")
+        matching = filter_products_by_vehicle(matching, brand_id=brand_id)
+        if model_id:
+            matching = filter_products_by_vehicle(matching, model_id=model_id)
 
-        if selected_engine:
+        if selected_engine and model_id:
+            model = CarModel.objects.select_related("brand").get(pk=model_id)
             candidates = list(matching.filter(engine_compatibility__icontains=selected_engine))
-            engine_key = selected_engine.casefold()
             matching_ids = [
                 product.pk for product in candidates
-                if engine_key in {
+                if selected_engine.casefold() in {
                     value.casefold()
                     for value in parse_plain_list(product.engine_compatibility)
                 }
+                and not _explicitly_excludes_model_engine(product, model, selected_engine)
             ]
             matching = matching.filter(pk__in=matching_ids)
 
@@ -163,8 +196,6 @@ def ag_parts_filter_finder(request):
         "selected_brand": brand_id,
         "selected_model": model_id,
         "selected_engine": selected_engine,
-        "has_model_selection": has_model_selection,
-        "needs_engine_selection": needs_engine_selection,
         "engine_not_recorded": engine_not_recorded,
         "engine_missing_count": engine_missing_count,
         "products": products,
