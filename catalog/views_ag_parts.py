@@ -122,7 +122,7 @@ def _model_name_segments(clause, model, sibling_names):
     names = sorted(set(sibling_names), key=lambda name: (-len(name), name.casefold()))
     mentions = []
     for name in names:
-        pattern = rf"(?<!\\w){re.escape(name)}(?!\\w)"
+        pattern = rf"(?<!\w){re.escape(name)}(?!\w)"
         for match in re.finditer(pattern, clause, flags=re.IGNORECASE):
             mentions.append((match.start(), match.end(), name))
 
@@ -145,19 +145,19 @@ def _model_name_segments(clause, model, sibling_names):
     return segments
 
 
-_YEAR_FRAGMENT = r"(?:(?:0?[1-9]|1[0-2])\\.)?(?:19|20)\\d{2}"
+_YEAR_FRAGMENT = r"(?:(?:0?[1-9]|1[0-2])\.)?(?:19|20)\d{2}"
 _YEAR_RANGE_RE = re.compile(
-    rf"(?<!\\d)(?P<start>{_YEAR_FRAGMENT})\\s*[–—-]\\s*(?P<end>{_YEAR_FRAGMENT})(?!\\d)",
+    rf"(?<!\d)(?P<start>{_YEAR_FRAGMENT})\s*[–—-]\s*(?P<end>{_YEAR_FRAGMENT})(?!\d)",
     re.IGNORECASE,
 )
 _YEAR_SINCE_RE = re.compile(
-    rf"\\bс\\s+(?P<year>{_YEAR_FRAGMENT})\\b",
+    rf"\bс\s+(?P<year>{_YEAR_FRAGMENT})\b",
     re.IGNORECASE,
 )
 
 
 def _year_in_fragment(fragment):
-    match = re.search(r"(?:19|20)\\d{2}", fragment)
+    match = re.search(r"(?:19|20)\d{2}", fragment)
     return int(match.group(0)) if match else None
 
 
@@ -196,7 +196,7 @@ def _engine_mentions_in_text(text, codes):
             )
         ]
         if not spans:
-            for match in re.finditer(r"\\b[A-Z0-9]+/[A-Z]\\b", upper_text):
+            for match in re.finditer(r"\b[A-Z0-9]+/[A-Z]\b", upper_text):
                 base, suffix = match.group(0).split("/")
                 if base[-1:].isalpha() and code_upper == base[:-1] + suffix:
                     spans.append(match.span())
@@ -232,7 +232,8 @@ def _product_model_years(product, model, sibling_names):
 
             unique_ranges = {(item[2], item[3]) for item in ranges}
             if len(unique_ranges) == 1:
-                covered = set(range(*[next(iter(unique_ranges))[0], next(iter(unique_ranges))[1] + 1]))
+                year_from, year_to = next(iter(unique_ranges))
+                covered = set(range(year_from, year_to + 1))
                 for code in mentions:
                     engine_years.setdefault(code, set()).update(covered)
                 continue
