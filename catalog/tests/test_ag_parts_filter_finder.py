@@ -196,6 +196,70 @@ class AgPartsFilterFinderTests(TestCase):
             {"GW4G15K", "GW4B15D"},
         )
 
+    def test_year_selection_filters_products_and_engine_options(self):
+        haval = Brand.objects.create(country=self.brand.country, name="Haval")
+        jolion = CarModel.objects.create(brand=haval, name="Jolion")
+        base = self._product(
+            "Фильтр Haval Jolion для раннего года",
+            "JOLION-EARLY-YEAR-FINDER",
+            jolion,
+            seller=self.seller,
+            engine_compatibility="GW4G15K\\nGW4B15D",
+            compatibility=(
+                "Haval Jolion 1.5 GW4G15K (с 04.2021); "
+                "Haval Jolion 1.5 GW4B15D (с 2023)."
+            ),
+        )
+        base.brand = haval
+        base.save(update_fields=["brand"])
+        late = self._product(
+            "Фильтр Haval Jolion для позднего года",
+            "JOLION-LATE-YEAR-FINDER",
+            jolion,
+            seller=self.seller,
+            engine_compatibility="GW4B15D",
+            compatibility="Haval Jolion 1.5 GW4B15D (с 2024).",
+        )
+        late.brand = haval
+        late.save(update_fields=["brand"])
+
+        model_response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": haval.pk, "model": jolion.pk},
+        )
+        self.assertEqual(model_response.status_code, 200)
+        self.assertIn(2022, model_response.context["model_year_options"])
+        self.assertIn(2024, model_response.context["model_year_options"])
+        self.assertEqual(
+            set(model_response.context["model_engine_options"]),
+            {"GW4G15K", "GW4B15D"},
+        )
+
+        early_year_response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": haval.pk, "model": jolion.pk, "year": "2022"},
+        )
+        self.assertEqual(early_year_response.status_code, 200)
+        self.assertContains(early_year_response, "Фильтр Haval Jolion для раннего года")
+        self.assertNotContains(early_year_response, "Фильтр Haval Jolion для позднего года")
+        self.assertEqual(
+            early_year_response.context["model_engine_options"],
+            ["GW4G15K"],
+        )
+
+        late_engine_response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {
+                "brand": haval.pk,
+                "model": jolion.pk,
+                "year": "2024",
+                "engine": "GW4B15D",
+            },
+        )
+        self.assertEqual(late_engine_response.status_code, 200)
+        self.assertEqual(late_engine_response.context["selected_engine"], "GW4B15D")
+        self.assertContains(late_engine_response, "Фильтр Haval Jolion для позднего года")
+
     def test_invalid_engine_is_ignored_without_hiding_model_results(self):
         response = self.client.get(
             reverse("ag_parts_filter_finder"),
@@ -227,5 +291,6 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'id="ag-finder-brand"')
         self.assertContains(response, 'id="ag-finder-model"')
+        self.assertContains(response, 'id="ag-finder-year"')
         self.assertContains(response, 'id="ag-finder-engine"')
         self.assertNotContains(response, "Воздушный фильтр для Tiggo 7")
