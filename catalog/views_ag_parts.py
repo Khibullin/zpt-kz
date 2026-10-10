@@ -58,9 +58,22 @@ def _engine_code_is_in_clause(engine, clause):
     return False
 
 
+def _compatibility_clauses(compatibility):
+    """Split model fitment from following negative notes without splitting decimals."""
+    return [
+        clause.strip()
+        for clause in re.split(
+            r"[;\n]+|(?<=[.!?])\s+(?=(?:не|not|except|excluding)\b)",
+            str(compatibility or ""),
+            flags=re.IGNORECASE,
+        )
+        if clause.strip()
+    ]
+
+
 def _explicitly_excludes_model_engine(product, model, engine, sibling_names):
     compatibility = str(getattr(product, "compatibility", "") or "")
-    for clause in re.split(r"[;\n]+", compatibility):
+    for clause in _compatibility_clauses(compatibility):
         if not re.search(r"\b(?:не|not|except|excluding)\b", clause.casefold()):
             continue
         if not _model_is_named_in_clause(clause, model, sibling_names):
@@ -77,7 +90,7 @@ def _model_engine_codes(product, model, sibling_names):
         return set()
 
     compatibility = str(getattr(product, "compatibility", "") or "")
-    clauses = re.split(r"[;\n]+", compatibility)
+    clauses = _compatibility_clauses(compatibility)
     model_clauses = [
         clause for clause in clauses
         if _model_is_named_in_clause(clause, model, sibling_names)
