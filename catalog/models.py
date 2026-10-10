@@ -1166,6 +1166,14 @@ class ProductKaspiListing(models.Model):
         ),
         validators=[validate_kaspi_public_url],
     )
+    public_url_source = models.CharField(
+        max_length=32, blank=True, default='',
+        verbose_name='Источник ссылки Kaspi',
+        help_text='kaspi_pay_copy — ссылка из кабинета продавца; legacy — историческая ссылка.',
+    )
+    public_url_verified_at = models.DateTimeField(
+        null=True, blank=True, verbose_name='Дата подтверждения ссылки Kaspi',
+    )
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Создано')
     updated_at = models.DateTimeField(auto_now=True, verbose_name='Обновлено')
 
