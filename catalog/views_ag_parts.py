@@ -26,11 +26,12 @@ def _product_fitment_models(product):
 
 def _model_is_named_in_clause(clause, model, sibling_names):
     labels = (f"{model.brand.name} {model.name}", model.name)
+    lowered_clause = clause.casefold()
     for label in labels:
-        match = re.search(rf"(?<!\w){re.escape(label.casefold())}(?!\w)", clause.casefold())
+        match = re.search(rf"(?<!\w){re.escape(label.casefold())}(?!\w)", lowered_clause)
         if not match:
             continue
-        remainder = clause[match.end():].casefold()
+        remainder = lowered_clause[match.end():]
         for sibling_name in sibling_names:
             if sibling_name.casefold() == model.name.casefold():
                 continue
@@ -57,6 +58,18 @@ def _engine_code_is_in_clause(engine, clause):
     return False
 
 
+def _explicitly_excludes_model_engine(product, model, engine, sibling_names):
+    compatibility = str(getattr(product, "compatibility", "") or "")
+    for clause in re.split(r"[;\n]+", compatibility):
+        if not re.search(r"\b(?:не|not|except|excluding)\b", clause.casefold()):
+            continue
+        if not _model_is_named_in_clause(clause, model, sibling_names):
+            continue
+        if _engine_code_is_in_clause(engine, clause):
+            return True
+    return False
+
+
 def _model_engine_codes(product, model, sibling_names):
     """Return only codes paired with this model in compatibility text."""
     codes = parse_plain_list(product.engine_compatibility)
@@ -70,9 +83,14 @@ def _model_engine_codes(product, model, sibling_names):
         if _model_is_named_in_clause(clause, model, sibling_names)
     ]
     if not model_clauses:
-        # A product linked to one model has no cross-model ambiguity.
+        # A single-model product has no cross-model ambiguity.
         if len(_product_fitment_models(product)) == 1:
-            return {code for code in codes if not _explicitly_excludes_model_engine(product, model, code)}
+            return {
+                code for code in codes
+                if not _explicitly_excludes_model_engine(
+                    product, model, code, sibling_names,
+                )
+            }
         return set()
 
     compatible = set()
@@ -83,19 +101,6 @@ def _model_engine_codes(product, model, sibling_names):
             if _engine_code_is_in_clause(code, clause):
                 (excluded if is_exclusion else compatible).add(code)
     return compatible - excluded
-
-
-def _explicitly_excludes_model_engine(product, model, engine):
-    """Honor an explicit negative fitment statement for a model and engine."""
-    compatibility = str(getattr(product, "compatibility", "") or "")
-    for clause in re.split(r"[;\n]+", compatibility):
-        if not re.search(r"\b(?:не|not|except|excluding)\b", clause.casefold()):
-            continue
-        if not _model_is_named_in_clause(clause, model, (model.name,)):
-            continue
-        if _engine_code_is_in_clause(engine, clause):
-            return True
-    return False
 
 
 @require_GET
@@ -137,11 +142,10 @@ def ag_parts_filter_finder(request):
     model_ids = set()
     brand_ids = set()
     for product in base_products:
-        product_models = _product_fitment_models(product)
         if product.brand_id:
             brand_ids.add(product.brand_id)
         brand_ids.update(brand.pk for brand in product.selected_brands.all())
-        for model in product_models:
+        for model in _product_fitment_models(product):
             model_ids.add(model.pk)
             brand_ids.add(model.brand_id)
 
@@ -160,11 +164,8 @@ def ag_parts_filter_finder(request):
     engine_missing_counts = {}
     for product in base_products:
         for model in _product_fitment_models(product):
-            model_codes = _model_engine_codes(
-                product,
-                model,
-                model_names_by_brand.get(model.brand_id, ()),
-            )
+            sibling_names = model_names_by_brand.get(model.brand_id, ())
+            model_codes = _model_engine_codes(product, model, sibling_names)
             if model_codes:
                 engine_options_by_model.setdefault(model.pk, set()).update(model_codes)
             else:
