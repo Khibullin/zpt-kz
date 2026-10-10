@@ -41,7 +41,7 @@ def ag_parts_filter_finder(request):
     ).select_related(
         "brand", "car_model", "car_model__brand", "category", "seller_profile",
     ).prefetch_related(
-        "selected_models__brand", "selected_brands", "kaspi_listings",
+        "selected_brands", "kaspi_listings",
     )
 
     # Offer only make/model pairs already recorded on AG Parts products.
