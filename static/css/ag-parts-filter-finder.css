@@ -14,7 +14,7 @@
   color: inherit;
 }
 .ag-finder__hero {
-  max-width: 880px;
+  max-width: 1020px;
   margin: 28px auto 34px;
   padding: clamp(24px, 5vw, 48px);
   border: 1px solid #e7e9ee;
@@ -37,7 +37,7 @@
   line-height: 1.08;
 }
 .ag-finder__intro {
-  max-width: 650px;
+  max-width: 720px;
   margin: 16px 0 24px;
   color: #59636f;
   font-size: 1.05rem;
@@ -45,7 +45,7 @@
 }
 .ag-finder__form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   align-items: end;
 }
@@ -73,6 +73,7 @@
   outline-offset: 2px;
 }
 .ag-finder__submit {
+  grid-column: 1 / -1;
   min-height: 50px;
   padding: 0 18px;
   border: 0;
@@ -88,11 +89,19 @@
   cursor: not-allowed;
 }
 .ag-finder__note,
+.ag-finder__notice,
 .ag-finder__result-count {
   margin: 13px 0 0;
   color: #68727e;
   font-size: .9rem;
   line-height: 1.45;
+}
+.ag-finder__notice {
+  margin: 0 0 20px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  background: #fff6e8;
+  color: #5f4a22;
 }
 .ag-finder__results {
   margin-top: 34px;
@@ -103,6 +112,13 @@
 }
 .ag-finder__result-count {
   margin-bottom: 18px;
+}
+.ag-finder__product-group {
+  margin: 28px 0;
+}
+.ag-finder__product-group h3 {
+  margin: 0 0 14px;
+  font-size: clamp(1.2rem, 2.5vw, 1.55rem);
 }
 .ag-finder__empty {
   max-width: 720px;
@@ -137,6 +153,7 @@
     grid-template-columns: 1fr;
   }
   .ag-finder__submit {
+    grid-column: 1;
     width: 100%;
   }
   .ag-finder__hero {
