@@ -4,7 +4,6 @@ from django.views.decorators.http import require_GET
 
 from catalog.models import Brand, CarModel, Product, SellerProfile
 from catalog.commercial import filter_products_by_vehicle
-from catalog.legacy_fitment import legacy_model_fallback_ids
 from catalog.views import attach_sellers_to_products
 from catalog.wholesale import attach_public_wholesale_flags, public_wholesale_prefetch
 
@@ -82,13 +81,7 @@ def ag_parts_filter_finder(request):
             base_products,
             brand_id=brand_id,
         )
-        exact = filter_products_by_vehicle(matching, model_id=model_id)
-        if exact.exists():
-            matching = exact
-        else:
-            selected_model = CarModel.objects.select_related("brand").get(pk=model_id)
-            fallback_ids = legacy_model_fallback_ids(matching, selected_model)
-            matching = matching.filter(pk__in=fallback_ids)
+        matching = filter_products_by_vehicle(matching, model_id=model_id)
         products = list(
             public_wholesale_prefetch(matching)
             .order_by("title", "id")
