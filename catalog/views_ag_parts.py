@@ -147,7 +147,15 @@ def _model_name_segments(clause, model, sibling_names):
         next_start = accepted[index + 1][0] if index + 1 < len(accepted) else len(clause)
         segments.append(clause[end:next_start])
 
-    if not segments and _model_is_named_in_clause(clause, model, sibling_names):
+    target_mention_found = any(
+        name.casefold() == model.name.casefold()
+        for _start, _end, name in accepted
+    )
+    if (
+        not segments
+        and not target_mention_found
+        and _model_is_named_in_clause(clause, model, sibling_names)
+    ):
         return [clause]
     return segments
 
