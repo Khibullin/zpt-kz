@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=ag_store_v1">
+<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
+<link rel="stylesheet" href="{% static 'css/ag-parts-filter-finder.css' %}?v=1">
+{% endblock %}
+{% block content %}
+{% include 'catalog/includes/market_header.html' %}
+<main class="container ag-finder">
+  <nav class="ag-finder__breadcrumbs" aria-label="Навигация">
+    <a href="{% url 'catalog_list' %}">Каталог</a>
+    <span aria-hidden="true">→</span>
+    <a href="{% url 'ag_parts_store' %}">AG Parts</a>
+    <span aria-hidden="true">→</span>
+    <span>Подбор фильтра</span>
+  </nav>
+
+  <section class="ag-finder__hero">
+    <p class="ag-finder__eyebrow">МАГАЗИН AG PARTS</p>
+    <h1>Подберите фильтр для своего автомобиля</h1>
+    <p class="ag-finder__intro">Выберите марку и модель — покажем фильтры и свечи AG Parts с сохранённой применяемостью. VIN и данные двигателя для начала не нужны.</p>
+
+    <form class="ag-finder__form" method="get" action="{% url 'ag_parts_filter_finder' %}">
+      <div class="ag-finder__field">
+        <label for="ag-finder-brand">Марка автомобиля</label>
+        <select id="ag-finder-brand" name="brand" required>
+          <option value="">Выберите марку</option>
+          {% for brand in brands %}
+            <option value="{{ brand.pk }}" {% if selected_brand == brand.pk|stringformat:"s" %}selected{% endif %}>{{ brand.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="ag-finder__field">
+        <label for="ag-finder-model">Модель</label>
+        <select id="ag-finder-model" name="model" required {% if not selected_brand %}disabled{% endif %}>
+          <option value="">Выберите модель</option>
+          {% for model in model_options %}
+            <option value="{{ model.id }}" data-brand-id="{{ model.brand_id }}" {% if selected_model == model.id|stringformat:"s" %}selected{% endif %}>{{ model.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <button class="ag-finder__submit" type="submit" disabled>Показать подходящие товары</button>
+    </form>
+    <p class="ag-finder__note">Мы показываем только товары, у которых применяемость к выбранной модели указана в каталоге AG Parts.</p>
+  </section>
+
+  {% if has_selection %}
+    <section class="ag-finder__results" aria-live="polite">
+      {% if products %}
+        <h2>Подходящие товары AG Parts</h2>
+        <p class="ag-finder__result-count">Найдено товаров: {{ products|length }}</p>
+        <div class="products-container">
+          {% for product in products %}
+            {% include 'catalog/includes/product_card.html' with product=product %}
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="ag-finder__empty">
+          <h2>Пока нет подтверждённых товаров для этой модели</h2>
+          <p>Напишите AG Parts — продавец поможет проверить применяемость по VIN.</p>
+          <a href="{% url 'public_seller_profile' slug=seller.slug %}">Связаться с AG Parts</a>
+        </div>
+      {% endif %}
+    </section>
+  {% endif %}
+</main>
+<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=1" defer></script>
+{% endblock %}
