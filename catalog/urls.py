@@ -1,4 +1,5 @@
 from django.urls import path
+from .views_ag_parts import ag_parts_store
 
 from .fitment_slug_redirects import fitment_slug_urlpatterns
 from .legacy_product_urls import legacy_product_urlpatterns
@@ -44,6 +45,8 @@ from .views import (
 urlpatterns = [
     path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
+
+    path('our-products/', ag_parts_store, name='ag_parts_store'),
 
     path('maintenance-kits/', maintenance_kit_list, name='maintenance_kit_list'),
     path(
