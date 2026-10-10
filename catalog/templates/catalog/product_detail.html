@@ -362,7 +362,7 @@
               </div>
             {% endif %}
             {% with kaspi_url=product|kaspi_buy_url %}
-            {% if not kaspi_url %}
+            {% if not kaspi_url and product.seller_profile.slug != 'ag-parts' %}
             <a href="{% url 'orders:cart' %}" class="btn outline" style="width:100%;margin-top:8px;text-align:center;">
               Перейти в корзину
             </a>

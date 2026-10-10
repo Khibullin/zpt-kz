@@ -3,6 +3,9 @@
 {% if kaspi_url %}
   <a class="product-buy-btn product-buy-btn--retail" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" style="display:flex;justify-content:center;align-items:center;text-decoration:none;min-height:44px;">Купить на Kaspi ↗</a>
 {% else %}
+{% if product.seller_profile.slug == 'ag-parts' %}
+  <p class="product-buy-unavailable" style="margin:8px 0;font-weight:600;">Переход на Kaspi для этого товара уточняется.</p>
+{% else %}
 {% with stock=product.public_stock show_wholesale=product.has_public_wholesale %}
 {% if not product.price_on_request or viewer_is_seller and product.has_b2b_buy_offer %}
 {% if not stock or stock.can_buy %}
@@ -57,5 +60,6 @@
 {% endif %}
 {% endif %}
 {% endwith %}
+{% endif %}
 {% endif %}
 {% endwith %}
