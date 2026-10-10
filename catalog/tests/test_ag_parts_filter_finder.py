@@ -171,6 +171,31 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertEqual(excluded_response.context["selected_engine"], "")
         self.assertContains(excluded_response, "Фильтр для Tiggo 8")
 
+    def test_positive_engine_fitment_survives_following_negative_sentence(self):
+        haval = Brand.objects.create(country=self.brand.country, name="Haval")
+        jolion = CarModel.objects.create(brand=haval, name="Jolion")
+        self._product(
+            "Фильтр Haval Jolion",
+            "JOLION-SENTENCE-FINDER",
+            jolion,
+            seller=self.seller,
+            engine_compatibility="GW4G15K\\nGW4B15D",
+            compatibility=(
+                "Haval Jolion 1.5 GW4G15K / GW4B15D (с 04.2021). "
+                "OEM 1109104XGW02A. Не смешивать с 1109101XGW01A."
+            ),
+        )
+
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"brand": haval.pk, "model": jolion.pk},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            set(response.context["model_engine_options"]),
+            {"GW4G15K", "GW4B15D"},
+        )
+
     def test_invalid_engine_is_ignored_without_hiding_model_results(self):
         response = self.client.get(
             reverse("ag_parts_filter_finder"),
