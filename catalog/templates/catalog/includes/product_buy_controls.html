@@ -1,4 +1,13 @@
-{% load l10n %}
+{% load l10n kaspi_buy %}
+{% if product.publish_to_kaspi %}
+  {% with kaspi_url=product|kaspi_buy_url %}
+    {% if kaspi_url %}
+      <a class="product-buy-btn product-buy-btn--retail" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" style="display:flex;justify-content:center;align-items:center;text-decoration:none;min-height:44px;">Купить на Kaspi ↗</a>
+    {% else %}
+      <p class="product-buy-unavailable">Ссылка на наш товар в Kaspi уточняется.</p>
+    {% endif %}
+  {% endwith %}
+{% else %}
 {% with stock=product.public_stock show_wholesale=product.has_public_wholesale %}
 {% if not product.price_on_request or viewer_is_seller and product.has_b2b_buy_offer %}
 {% if not stock or stock.can_buy %}
@@ -53,3 +62,4 @@
 {% endif %}
 {% endif %}
 {% endwith %}
+{% endif %}
