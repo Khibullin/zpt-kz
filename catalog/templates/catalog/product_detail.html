@@ -361,9 +361,11 @@
                 {% endif %}
               </div>
             {% endif %}
+            {% if not product.publish_to_kaspi %}
             <a href="{% url 'orders:cart' %}" class="btn outline" style="width:100%;margin-top:8px;text-align:center;">
               Перейти в корзину
             </a>
+            {% endif %}
           </div>
         {% endif %}
 
