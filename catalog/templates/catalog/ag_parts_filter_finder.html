@@ -21,7 +21,7 @@
   <section class="ag-finder__hero">
     <p class="ag-finder__eyebrow">МАГАЗИН AG PARTS</p>
     <h1>Подберите фильтр для своего автомобиля</h1>
-    <p class="ag-finder__intro">Сначала выберите марку — покажем все фильтры для неё. Модель и двигатель помогут уточнить список.</p>
+    <p class="ag-finder__intro">Выберите марку и модель, затем год выпуска и двигатель — покажем фильтры, подходящие вашему автомобилю.</p>
 
     <form class="ag-finder__form" method="get" action="{% url 'ag_parts_filter_finder' %}">
       <div class="ag-finder__field">
@@ -43,9 +43,18 @@
         </select>
       </div>
       <div class="ag-finder__field">
+        <label for="ag-finder-year">Год выпуска</label>
+        <select id="ag-finder-year" name="year" {% if not selected_model or not model_year_options %}disabled{% endif %}>
+          <option value="">{{ year_placeholder }}</option>
+          {% for year in model_year_options %}
+            <option value="{{ year }}" {% if selected_year == year|stringformat:"s" %}selected{% endif %}>{{ year }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="ag-finder__field">
         <label for="ag-finder-engine">Двигатель</label>
         <select id="ag-finder-engine" name="engine" {% if not selected_model or not model_engine_options %}disabled{% endif %}>
-          <option value="">Все двигатели модели</option>
+          <option value="">{{ engine_placeholder }}</option>
           {% for engine in model_engine_options %}
             <option value="{{ engine }}" {% if selected_engine == engine %}selected{% endif %}>{{ engine }}</option>
           {% endfor %}
@@ -54,19 +63,28 @@
       <button class="ag-finder__submit" type="submit" {% if not selected_brand %}disabled{% endif %}>Показать фильтры</button>
     </form>
     {{ engine_options_by_model|json_script:"ag-finder-engine-map" }}
-    <p class="ag-finder__note">После выбора марки и модели показываем все подходящие товары AG Parts. Выбор двигателя оставит только товары с таким кодом двигателя. Совместимость из каталога можно дополнительно проверить по VIN.</p>
+    {{ engine_options_by_model_and_year|json_script:"ag-finder-engine-year-map" }}
+    <p class="ag-finder__note">Год и двигатель уточняют применяемость по каталогу AG Parts. Если для товара год не указан, он не попадёт в список после выбора года; в таком случае проверьте совместимость по VIN.</p>
   </section>
 
   {% if has_selection %}
     <section class="ag-finder__results" aria-live="polite">
       {% if selected_brand and not selected_model %}
         <p class="ag-finder__result-count">Показаны все товары AG Parts для выбранной марки{% if products %}: {{ products|length }}{% endif %}</p>
-      {% elif engine_not_recorded %}
-        <p class="ag-finder__notice">Для этой модели нет подтверждённых связок с кодами двигателей. Показаны все товары модели; перед покупкой проверьте применяемость по VIN.</p>
-      {% elif selected_model and selected_engine and engine_missing_count %}
-        <p class="ag-finder__notice">{{ engine_missing_count }} товар(а) не показаны: для них нет подтверждённой связки «модель — двигатель». Проверьте применяемость этих позиций по VIN.</p>
-      {% elif selected_model and not selected_engine %}
-        <p class="ag-finder__result-count">Показаны все фильтры для выбранной модели{% if products %}: {{ products|length }}{% endif %}. Выберите двигатель, чтобы уточнить список.</p>
+      {% elif selected_model and not selected_year and not selected_engine %}
+        <p class="ag-finder__result-count">Показаны все фильтры для выбранной модели{% if products %}: {{ products|length }}{% endif %}. Выберите год и двигатель, чтобы уточнить список.</p>
+      {% endif %}
+      {% if year_not_recorded %}
+        <p class="ag-finder__notice">Для этой модели в каталоге AG Parts не указаны годы выпуска. Можно посмотреть все товары модели и уточнить применяемость по VIN.</p>
+      {% endif %}
+      {% if selected_year and year_missing_count %}
+        <p class="ag-finder__notice">{{ year_missing_count }} товар(а) не показаны: для выбранной комбинации нет подтверждённой применяемости по году и двигателю. Проверьте по VIN.</p>
+      {% endif %}
+      {% if engine_not_recorded %}
+        <p class="ag-finder__notice">Для этой модели нет подтверждённых связок с кодами двигателей. Показаны товары модели без уточнения по двигателю.</p>
+      {% endif %}
+      {% if selected_model and selected_engine and engine_missing_count %}
+        <p class="ag-finder__notice">{{ engine_missing_count }} товар(а) не имеют подтверждённой связки с выбранным двигателем. Проверьте по VIN.</p>
       {% endif %}
       {% if products %}
         <h2>Товары AG Parts</h2>
