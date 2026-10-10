@@ -37,16 +37,16 @@ class KaspiBuyUrlTests(SimpleTestCase):
             self.URL,
         )
 
-    def test_does_not_publish_disabled_product(self):
+    def test_buy_link_independent_of_export_flag(self):
         self.assertEqual(
             kaspi_buy_url(product_with_listings(listing(self.URL), published=False)),
-            "",
+            self.URL,
         )
 
-    def test_skips_unpublished_listing(self):
+    def test_link_independent_of_listing_export_flag(self):
         self.assertEqual(
             kaspi_buy_url(product_with_listings(listing(self.URL, published=False))),
-            "",
+            self.URL,
         )
 
     def test_skips_inactive_listing(self):
