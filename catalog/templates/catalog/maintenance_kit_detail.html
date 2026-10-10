@@ -62,8 +62,8 @@
           <th>Фото</th>
           <th>Позиция</th>
           <th>Кол-во</th>
-          <th>Цена</th>
-          <th>Сумма</th>
+          <th>Цена ZPT</th>
+          <th>Сумма ZPT</th>
           <th>Наличие</th>
         </tr>
       </thead>
@@ -145,8 +145,5 @@
 
     <p class="kit-stock">Цена и наличие на Kaspi могут отличаться от справочных цен ZPT.KZ. Проверьте каждую позицию перед оформлением заказа.</p>
   </section>
-  {% if kit_view.reason %}
-    <p class="kit-note">{{ kit_view.reason }}</p>
-  {% endif %}
 </main>
 {% endblock %}
