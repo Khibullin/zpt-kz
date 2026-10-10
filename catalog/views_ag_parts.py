@@ -141,10 +141,10 @@ def ag_parts_filter_finder(request):
 
         grouped = {}
         for product in products:
-            type_key = wholesale_product_type(product)
+            type_key = wholesale_product_type(product) or "other"
             grouped.setdefault(type_key, []).append(product)
 
-        type_labels = dict(WHOLESALE_TYPE_CHOICES)
+        type_labels = {key: label for key, label in WHOLESALE_TYPE_CHOICES if key}
         type_order = [key for key, _label in WHOLESALE_TYPE_CHOICES]
         for type_key in type_order + ["other"]:
             if type_key not in grouped:
