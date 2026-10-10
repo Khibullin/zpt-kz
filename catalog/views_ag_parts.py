@@ -238,20 +238,34 @@ def _product_model_years(product, model, sibling_names):
                     engine_years.setdefault(code, set()).update(covered)
                 continue
 
-            for code, spans in mentions.items():
-                if not spans:
-                    continue
-                code_position = spans[0][0]
-                nearest = min(
-                    ranges,
-                    key=lambda item: min(
-                        abs(code_position - item[0]),
-                        abs(code_position - item[1]),
-                    ),
-                )
-                if min(abs(code_position - nearest[0]), abs(code_position - nearest[1])) <= 120:
+            positioned_mentions = [
+                (code, span)
+                for code, spans in mentions.items()
+                for span in spans
+            ]
+            for year_range in ranges:
+                preceding = [
+                    (code, span)
+                    for code, span in positioned_mentions
+                    if span[1] <= year_range[0]
+                ]
+                if preceding:
+                    target_codes = {
+                        max(preceding, key=lambda item: item[1][1])[0]
+                    }
+                else:
+                    following = [
+                        (code, span)
+                        for code, span in positioned_mentions
+                        if span[0] >= year_range[1]
+                    ]
+                    target_codes = (
+                        {min(following, key=lambda item: item[1][0])[0]}
+                        if following else set()
+                    )
+                for code in target_codes:
                     engine_years.setdefault(code, set()).update(
-                        range(nearest[2], nearest[3] + 1)
+                        range(year_range[2], year_range[3] + 1)
                     )
 
     return {
