@@ -51,7 +51,7 @@
     {% if kit.description %}
       <p class="kit-meta">{{ kit.description }}</p>
     {% endif %}
-    <p class="kit-meta">Каждый компонент комплекта приобретается на Kaspi отдельно. Откройте нужные позиции и добавьте их в корзину Kaspi.</p>
+    <p class="kit-meta">При наличии ссылки компоненты приобретаются на Kaspi по отдельности. Для остальных позиций доступна карточка ZPT с текущим способом заказа.</p>
   </section>
 
   <section class="kit-add">
@@ -75,7 +75,7 @@
                 {% if kaspi_url %}
                   <a class="kit-card-cta" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" aria-label="Купить {{ line.display_name }} на Kaspi">Купить на Kaspi ↗</a>
                 {% else %}
-                  <span class="kit-ref-badge">Ссылка уточняется</span>
+                  <a href="{{ line.product|public_product_url }}" class="kit-card-cta">Открыть товар на ZPT</a>
                 {% endif %}
               {% endwith %}
             </td>
