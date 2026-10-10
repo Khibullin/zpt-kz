@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize product_extras l10n %}
+{% load static humanize product_extras l10n kaspi_buy %}
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ page_description }}{% endblock %}
@@ -51,49 +51,33 @@
     {% if kit.description %}
       <p class="kit-meta">{{ kit.description }}</p>
     {% endif %}
-    <p class="kit-meta">Отметьте нужные позиции. По умолчанию выбрано всё, что можно заказать сейчас.</p>
+    <p class="kit-meta">При наличии ссылки компоненты приобретаются на Kaspi по отдельности. Для остальных позиций доступна карточка ZPT с текущим способом заказа.</p>
   </section>
 
-  <form
-    class="kit-add"
-    method="post"
-    action="{% url 'maintenance_kit_add_to_cart' slug=kit.slug %}"
-    data-kit-select
-    data-cover-note="{{ cover_partial_caption }}"
-  >
-    {% csrf_token %}
+  <section class="kit-add">
     <table class="kit-table">
       <thead>
         <tr>
-          <th>Заказ</th>
+          <th>Купить на Kaspi</th>
           <th>Фото</th>
           <th>Позиция</th>
           <th>Кол-во</th>
-          <th>Цена</th>
-          <th>Сумма</th>
+          <th>Цена ZPT</th>
+          <th>Сумма ZPT</th>
           <th>Наличие</th>
         </tr>
       </thead>
       <tbody>
         {% for line in kit_view.lines %}
           <tr class="kit-line{% if not line.can_buy %} kit-line--unavailable{% endif %}" data-kit-line>
-            <td class="kit-line-check" data-label="Заказ">
-              {% if line.can_buy %}
-                <label class="kit-check">
-                  <input
-                    type="checkbox"
-                    name="item"
-                    value="{{ line.product.id|unlocalize }}"
-                    data-kit-item
-                    data-subtotal="{{ line.subtotal|default:0|unlocalize }}"
-                    {% if line.selected_by_default %}checked{% endif %}
-                    aria-label="В заказ"
-                  >
-                  <span>В заказ</span>
-                </label>
-              {% else %}
-                <input type="checkbox" disabled aria-hidden="true">
-              {% endif %}
+            <td class="kit-line-check" data-label="Купить на Kaspi">
+              {% with kaspi_url=line.product|kaspi_buy_url %}
+                {% if kaspi_url %}
+                  <a class="kit-card-cta" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" aria-label="Купить {{ line.display_name }} на Kaspi">Купить на Kaspi ↗</a>
+                {% else %}
+                  <a href="{{ line.product|public_product_url }}" class="kit-card-cta">Открыть товар на ZPT</a>
+                {% endif %}
+              {% endwith %}
             </td>
             <td class="kit-line-photo">
               {% if line.availability != 'unconfirmed' and line.product.main_image %}
@@ -140,7 +124,7 @@
         {% endfor %}
         {% for line in kit_view.reference_lines %}
           <tr class="kit-line kit-line--reference">
-            <td class="kit-line-check" data-label="Заказ">
+            <td class="kit-line-check" data-label="Купить на Kaspi">
               <span class="kit-ref-badge">Справочно</span>
             </td>
             <td class="kit-line-photo"><span class="kit-no-photo">—</span></td>
@@ -159,34 +143,7 @@
       </tbody>
     </table>
 
-    <div class="kit-total" data-kit-total>
-      {% if kit_view.total_price is not None %}
-        Итого: {{ kit_view.total_price|intcomma }} ₸
-      {% else %}
-        Итого: выберите позиции
-      {% endif %}
-    </div>
-    <div class="kit-stock">
-      {% if kit_view.has_unavailable and kit_view.orderable_count %}
-        Недоступные позиции не входят в заказ и итоговую стоимость.
-      {% elif kit_view.orderable_count == 0 %}
-        Сейчас нет позиций, которые можно добавить в корзину.
-      {% elif kit_view.available_kits is None %}
-        Наличие уточняется
-      {% elif kit_view.available_kits == 0 %}
-        Полный комплект сейчас не собрать — можно заказать доступные позиции.
-      {% else %}
-        Доступно полных комплектов: {{ kit_view.available_kits }}
-      {% endif %}
-    </div>
-
-    <button type="submit"{% if not kit_view.can_add %} disabled data-kit-locked{% endif %} data-kit-submit>
-      Добавить выбранное в корзину
-    </button>
-  </form>
-  {% if kit_view.reason %}
-    <p class="kit-note">{{ kit_view.reason }}</p>
-  {% endif %}
-  <script src="{% static 'js/maintenance-kits-select-v1.js' %}?v=kit_select_v3"></script>
+    <p class="kit-stock">Цена и наличие на Kaspi могут отличаться от справочных цен ZPT.KZ. Проверьте каждую позицию перед оформлением заказа.</p>
+  </section>
 </main>
 {% endblock %}

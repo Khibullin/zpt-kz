@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras product_extras seller_extras %}
+{% load static humanize phone_extras product_extras seller_extras kaspi_buy %}
 
 {% block title %}
 {{ product.title }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %}
@@ -361,9 +361,13 @@
                 {% endif %}
               </div>
             {% endif %}
+            {% with kaspi_url=product|kaspi_buy_url %}
+            {% if not kaspi_url %}
             <a href="{% url 'orders:cart' %}" class="btn outline" style="width:100%;margin-top:8px;text-align:center;">
               Перейти в корзину
             </a>
+            {% endif %}
+            {% endwith %}
           </div>
         {% endif %}
 
