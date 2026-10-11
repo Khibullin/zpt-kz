@@ -90,7 +90,7 @@ def build_daily_operations_email(*, now=None) -> str:
     requests = Request.objects.filter(created_at__gte=since, created_at__lte=moment).order_by('-created_at')
     publications = InstagramPublication.objects.filter(
         Q(created_at__gte=since, created_at__lte=moment)
-        | Q(published_at__gte=since, published_at__lte=moment)
+        | Q(published_at__gte=since, published_at__lte=moment)\n        | Q(last_attempt_at__gte=since, last_attempt_at__lte=moment)
     ).select_related('request').order_by('-created_at')
     runs = SellerLeadPipelineRun.objects.filter(
         trigger=SellerLeadPipelineRun.TRIGGER_CRON,
@@ -106,11 +106,11 @@ def build_daily_operations_email(*, now=None) -> str:
         'ПОИСК ПРОДАВЦОВ',
         f'Новых профилей: {leads.count()}',
     ]
-    by_source = leads.values('source').annotate(total=Count('pk')).order_by('source')
+    by_source = leads.values('source_type').annotate(total=Count('pk')).order_by('source_type')
     if by_source:
-        source_labels = dict(SellerLead.SOURCE_CHOICES)
+        source_labels = dict(SellerLead._meta.get_field('source_type').choices)
         lines.extend(
-            f'  {source_labels.get(item["source"], item["source"] or "Источник не указан")}: {item["total"]}'
+            f'  {source_labels.get(item["source_type"], item["source_type"] or "Источник не указан")}: {item["total"]}'
             for item in by_source
         )
     lines.append(f'Запусков поискового pipeline: {runs.count()}')
@@ -122,7 +122,7 @@ def build_daily_operations_email(*, now=None) -> str:
             f'{run.search_term or run.category or "поиск"}, новых профилей: {found}'
         )
     for lead in leads[:MAX_ITEMS_IN_EMAIL]:
-        profile_url = lead.instagram_url or lead.website or ''
+        profile_url = lead.instagram_url or lead.website_url or ''
         identity = f'@{lead.instagram_username}' if lead.instagram_username else lead.name
         lines.append(f'  {identity} — {lead.city or "город не указан"}{": " + profile_url if profile_url else ""}')
     if not leads.exists() and not runs.exists():
