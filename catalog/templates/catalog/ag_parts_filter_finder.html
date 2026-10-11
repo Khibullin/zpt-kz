@@ -62,8 +62,6 @@
       </div>
       <button class="ag-finder__submit" type="submit" {% if not selected_brand %}disabled{% endif %}>Показать фильтры</button>
     </form>
-    {{ engine_options_by_model|json_script:"ag-finder-engine-map" }}
-    {{ engine_options_by_model_and_year|json_script:"ag-finder-engine-year-map" }}
     <p class="ag-finder__note">Год и двигатель уточняют применяемость по каталогу AG Parts. Если для товара год не указан, он не попадёт в список после выбора года; в таком случае проверьте совместимость по VIN.</p>
   </section>
 
@@ -108,5 +106,5 @@
     </section>
   {% endif %}
 </main>
-<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=4" defer></script>
+<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=5" defer></script>
 {% endblock %}
