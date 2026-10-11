@@ -5,7 +5,7 @@
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=ag_store_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/ag-parts-filter-finder.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'css/ag-parts-filter-finder.css' %}?v=5">
 {% endblock %}
 {% block content %}
 {% include 'catalog/includes/market_header.html' %}
@@ -21,8 +21,19 @@
   <section class="ag-finder__hero">
     <p class="ag-finder__eyebrow">МАГАЗИН AG PARTS</p>
     <h1>Подберите фильтр для своего автомобиля</h1>
-    <p class="ag-finder__intro">Выберите марку и модель, затем год выпуска и двигатель — покажем фильтры, подходящие вашему автомобилю.</p>
+    <p class="ag-finder__intro">Найдите товар по артикулу или начните подбор с марки автомобиля. Для точного подбора по машине уточните модель, год и двигатель.</p>
 
+    <h2 class="ag-finder__mode-title">Поиск по артикулу</h2>
+    <form class="ag-finder__article-form" method="get" action="{% url 'ag_parts_filter_finder' %}">
+      <div class="ag-finder__field">
+        <label for="ag-finder-article">Артикул фильтра</label>
+        <input id="ag-finder-article" name="article" type="search" value="{{ article_query }}" placeholder="Например, 1109104XGW02A" autocomplete="off" required>
+      </div>
+      <button class="ag-finder__submit" type="submit">Найти по артикулу</button>
+    </form>
+
+    <p class="ag-finder__or">Или подберите по автомобилю</p>
+    <h2 class="ag-finder__mode-title">Подбор по марке автомобиля</h2>
     <form class="ag-finder__form" method="get" action="{% url 'ag_parts_filter_finder' %}">
       <div class="ag-finder__field">
         <label for="ag-finder-brand">Марка автомобиля</label>
@@ -67,7 +78,9 @@
 
   {% if has_selection %}
     <section class="ag-finder__results" aria-live="polite">
-      {% if selected_brand and not selected_model %}
+      {% if article_searched %}
+        <p class="ag-finder__result-count">{% if products %}По артикулу {{ article_query }} найдено товаров AG Parts: {{ products|length }}{% else %}Активный товар AG Parts с артикулом {{ article_query }} не найден.{% endif %}</p>
+      {% elif selected_brand and not selected_model %}
         <p class="ag-finder__result-count">Показаны все товары AG Parts для выбранной марки{% if products %}: {{ products|length }}{% endif %}</p>
       {% elif selected_model and not selected_year and not selected_engine %}
         <p class="ag-finder__result-count">Показаны все фильтры для выбранной модели{% if products %}: {{ products|length }}{% endif %}. Выберите год и двигатель, чтобы уточнить список.</p>
@@ -98,13 +111,18 @@
         {% endfor %}
       {% else %}
         <div class="ag-finder__empty">
-          <h2>Для выбранного автомобиля товары не найдены</h2>
-          <p>Напишите AG Parts — продавец поможет проверить применяемость по VIN.</p>
+          {% if article_searched %}
+            <h2>Товар по этому артикулу не найден</h2>
+            <p>Проверьте номер или выполните подбор по марке автомобиля.</p>
+          {% else %}
+            <h2>Для выбранного автомобиля товары не найдены</h2>
+            <p>Напишите AG Parts — продавец поможет проверить применяемость по VIN.</p>
+          {% endif %}
           <a href="{% url 'public_seller_profile' slug=seller.slug %}">Связаться с AG Parts</a>
         </div>
       {% endif %}
     </section>
   {% endif %}
 </main>
-<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=5" defer></script>
+<script src="{% static 'js/ag-parts-filter-finder-v1.js' %}?v=6" defer></script>
 {% endblock %}

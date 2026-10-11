@@ -401,6 +401,8 @@ def ag_parts_filter_finder(request):
     model_id = request.GET.get("model", "").strip()
     selected_year = request.GET.get("year", "").strip()
     selected_engine = request.GET.get("engine", "").strip()
+    article_query = request.GET.get("article", "").strip()
+    article_searched = bool(article_query)
     allowed_brand_ids = {str(brand.pk) for brand in brands}
     if brand_id not in allowed_brand_ids:
         brand_id = ""
@@ -429,7 +431,7 @@ def ag_parts_filter_finder(request):
     if selected_engine not in model_engine_options:
         selected_engine = ""
 
-    has_selection = bool(brand_id)
+    has_selection = bool(brand_id or article_searched)
     year_not_recorded = bool(model_id and not model_year_options)
     engine_not_recorded = bool(model_id and not all_model_engine_options)
     if not model_id:
@@ -454,7 +456,27 @@ def ag_parts_filter_finder(request):
     year_missing_count = 0
     products = []
     product_groups = []
-    if has_selection:
+    if article_searched:
+        normalized_article = article_query.casefold()
+        products = [
+            product for product in base_products
+            if str(product.article or "").strip().casefold() == normalized_article
+        ]
+        grouped = {}
+        for product in products:
+            type_key = wholesale_product_type(product) or "other"
+            grouped.setdefault(type_key, []).append(product)
+
+        type_labels = {key: label for key, label in WHOLESALE_TYPE_CHOICES if key}
+        type_order = [key for key, _label in WHOLESALE_TYPE_CHOICES]
+        for type_key in type_order + ["other"]:
+            if type_key not in grouped:
+                continue
+            product_groups.append({
+                "label": type_labels.get(type_key, "Другие товары"),
+                "products": grouped[type_key],
+            })
+    elif has_selection:
         matching = Product.objects.filter(
             seller_profile=seller,
             status="active",
@@ -543,6 +565,8 @@ def ag_parts_filter_finder(request):
         "selected_model": model_id,
         "selected_year": selected_year,
         "selected_engine": selected_engine,
+        "article_query": article_query,
+        "article_searched": article_searched,
         "year_not_recorded": year_not_recorded,
         "year_missing_count": year_missing_count if has_selection else 0,
         "engine_not_recorded": engine_not_recorded,

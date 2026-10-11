@@ -3,7 +3,7 @@
   const model = document.getElementById('ag-finder-model');
   const year = document.getElementById('ag-finder-year');
   const engine = document.getElementById('ag-finder-engine');
-  const submit = document.querySelector('.ag-finder__submit');
+  const submit = document.querySelector('.ag-finder__form .ag-finder__submit');
   if (!brand || !model || !year || !engine || !submit) return;
 
   const form = brand.closest('form');
