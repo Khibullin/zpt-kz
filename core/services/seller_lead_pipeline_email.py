@@ -62,6 +62,8 @@ def get_pipeline_notification_email() -> str:
 def should_send_pipeline_email(run: SellerLeadPipelineRun) -> bool:
     if not getattr(settings, 'SELLER_PIPELINE_EMAIL_ENABLED', False):
         return False
+    if not getattr(settings, 'SELLER_PIPELINE_RUN_EMAIL_ENABLED', True):
+        return False
     if run.trigger != SellerLeadPipelineRun.TRIGGER_CRON:
         return False
     if run.is_dry_run:
