@@ -462,6 +462,9 @@ def ag_parts_filter_finder(request):
             product for product in base_products
             if str(product.article or "").strip().casefold() == normalized_article
         ]
+        attach_sellers_to_products(products)
+        attach_public_wholesale_flags(products)
+
         grouped = {}
         for product in products:
             type_key = wholesale_product_type(product) or "other"
