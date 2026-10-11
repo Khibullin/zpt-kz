@@ -286,9 +286,37 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertContains(response, "Воздушный фильтр для Tiggo 7")
         self.assertContains(response, "Фильтр для Tiggo 8")
 
-    def test_initial_page_has_three_vehicle_fields_and_no_results(self):
+    def test_article_search_matches_exact_active_ag_parts_article_case_insensitively(self):
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"article": "tiggo7-finder"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context["article_searched"])
+        self.assertEqual(response.context["article_query"], "tiggo7-finder")
+        self.assertEqual(
+            [product.article for product in response.context["products"]],
+            ["TIGGO7-FINDER"],
+        )
+        self.assertContains(response, "Воздушный фильтр для Tiggo 7")
+        self.assertNotContains(response, "Салонный фильтр для Tiggo 7")
+        self.assertNotContains(response, "Фильтр для Tiggo 8")
+
+    def test_article_search_does_not_return_other_sellers_or_fuzzy_matches(self):
+        response = self.client.get(
+            reverse("ag_parts_filter_finder"),
+            {"article": "OTHER-SELLER-FINDER"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context["products"], [])
+        self.assertContains(response, "Товар по этому артикулу не найден")
+        self.assertNotContains(response, "Товар другого продавца")
+
+    def test_initial_page_has_article_and_vehicle_search_and_no_results(self):
         response = self.client.get(reverse("ag_parts_filter_finder"))
         self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'id="ag-finder-article"')
+        self.assertContains(response, 'name="article"')
         self.assertContains(response, 'id="ag-finder-brand"')
         self.assertContains(response, 'id="ag-finder-model"')
         self.assertContains(response, 'id="ag-finder-year"')
