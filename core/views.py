@@ -88,6 +88,7 @@ from .models import (
 )
 
 from catalog.instagram_service import schedule_instagram_publication_for_request
+from core.services.operations_email_notifications import notify_new_request
 
 from .services.buyer_contact_service import (
     SYNC_STATUS_SYNCED,
@@ -1222,6 +1223,10 @@ def create_request(request):
             lambda: schedule_instagram_publication_for_request(request_id)
         )
         _log_create_request_timing(request_id, 'instagram_scheduling_finished', stage_started)
+
+        transaction.on_commit(
+            lambda request_id=request_id: notify_new_request(request_id)
+        )
 
         seller_payload = build_seller_notifications_payload(
             req,
