@@ -298,6 +298,9 @@ class AgPartsFilterFinderTests(TestCase):
             [product.article for product in response.context["products"]],
             ["TIGGO7-FINDER"],
         )
+        matched_product = response.context["products"][0]
+        self.assertTrue(hasattr(matched_product, "has_public_wholesale"))
+        self.assertTrue(hasattr(matched_product, "public_stock"))
         self.assertContains(response, "Воздушный фильтр для Tiggo 7")
         self.assertNotContains(response, "Салонный фильтр для Tiggo 7")
         self.assertNotContains(response, "Фильтр для Tiggo 8")
