@@ -90,7 +90,8 @@ def build_daily_operations_email(*, now=None) -> str:
     requests = Request.objects.filter(created_at__gte=since, created_at__lte=moment).order_by('-created_at')
     publications = InstagramPublication.objects.filter(
         Q(created_at__gte=since, created_at__lte=moment)
-        | Q(published_at__gte=since, published_at__lte=moment)\n        | Q(last_attempt_at__gte=since, last_attempt_at__lte=moment)
+        | Q(published_at__gte=since, published_at__lte=moment)
+        | Q(last_attempt_at__gte=since, last_attempt_at__lte=moment)
     ).select_related('request').order_by('-created_at')
     runs = SellerLeadPipelineRun.objects.filter(
         trigger=SellerLeadPipelineRun.TRIGGER_CRON,
