@@ -27,7 +27,7 @@
     <form class="ag-finder__article-form" method="get" action="{% url 'ag_parts_filter_finder' %}">
       <div class="ag-finder__field">
         <label for="ag-finder-article">Артикул фильтра</label>
-        <input id="ag-finder-article" name="article" type="search" value="{{ article_query }}" placeholder="Например, 1109104XGW02A" autocomplete="off">
+        <input id="ag-finder-article" name="article" type="search" value="{{ article_query }}" placeholder="Например, 1109104XGW02A" autocomplete="off" required>
       </div>
       <button class="ag-finder__submit" type="submit">Найти по артикулу</button>
     </form>
