@@ -13,6 +13,7 @@ from core.services.seller_lead_pipeline import (
     run_seller_lead_pipeline,
     validate_pipeline_limits,
 )
+from core.services.operations_email_notifications import send_daily_operations_email
 from core.services.seller_lead_pipeline_execution import (
     execute_managed_seller_lead_pipeline,
     format_run_duration,
@@ -134,11 +135,14 @@ class Command(BaseCommand):
             and bool(getattr(settings, 'SELLER_FIRST_CIRCLE_GROWTH_ENABLED', False))
         ):
             self.stdout.write('FIRST CIRCLE SELLER GROWTH: delegated from legacy cron entrypoint')
-            call_command(
-                'run_first_circle_seller_growth',
-                stdout=self.stdout,
-                stderr=self.stderr,
-            )
+            try:
+                call_command(
+                    'run_first_circle_seller_growth',
+                    stdout=self.stdout,
+                    stderr=self.stderr,
+                )
+            finally:
+                send_daily_operations_email()
             return
 
         try:
@@ -215,6 +219,9 @@ class Command(BaseCommand):
             raise CommandError(str(exc)) from exc
         except Exception as exc:
             raise CommandError(str(exc)) from exc
+        finally:
+            if options['trigger'] == SellerLeadPipelineRun.TRIGGER_CRON:
+                send_daily_operations_email()
 
         if managed.lock_busy:
             self.stdout.write(
