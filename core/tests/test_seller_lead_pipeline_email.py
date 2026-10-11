@@ -154,6 +154,12 @@ class SellerLeadPipelineEmailTests(TestCase):
         self.assertFalse(self._send(run))
         self.assertEqual(len(mail.outbox), 0)
 
+    @override_settings(**{**EMAIL_SETTINGS, 'SELLER_PIPELINE_RUN_EMAIL_ENABLED': False})
+    def test_per_run_email_can_be_disabled_while_digest_stays_enabled(self):
+        run = _create_run()
+        self.assertFalse(self._send(run))
+        self.assertEqual(len(mail.outbox), 0)
+
     @override_settings(**{
         **EMAIL_SETTINGS,
         'SELLER_PIPELINE_NOTIFICATION_EMAIL': '',
