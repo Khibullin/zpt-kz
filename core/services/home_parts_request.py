@@ -476,7 +476,9 @@ def create_home_parts_request_record(
                 year=payload.year,
                 vin=payload.vin,
                 city=payload.city,
-                search_scope='city',
+                # Approved scope: all matching sellers across Kazakhstan.
+                # Changing dispatch business rules requires the owner's approval.
+                search_scope='kazakhstan',
                 selected_cities='',
                 source=Request.SOURCE_HOME_SHORT,
                 dispatch_mode=Request.DISPATCH_MODE_MATCHED,

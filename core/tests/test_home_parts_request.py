@@ -196,7 +196,7 @@ class HomePartsRequestTests(TestCase):
         req = Request.objects.get()
         self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
-        self.assertEqual(req.search_scope, 'city')
+        self.assertEqual(req.search_scope, 'kazakhstan')
         self.assertEqual(req.category, 'Тормоза')
         self.assertEqual(req.phone, '77015556677')
         self.assertEqual(req.brand, 'Toyota')
@@ -1182,14 +1182,14 @@ class HomeShortMatchedSellerTests(TestCase):
     def _seller_ids(self):
         return set(RequestDispatch.objects.values_list('seller_id', flat=True))
 
-    def test_home_short_is_city_first_and_canonical_category(self):
+    def test_home_short_is_kazakhstan_wide_and_canonical_category(self):
         response = self._post(category='трансмиссия', idempotency_key='key-canon')
         self.assertEqual(response.status_code, 200, response.content)
         req = Request.objects.get()
         self.assertEqual(req.source, Request.SOURCE_HOME_SHORT)
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
-        self.assertEqual(req.search_scope, 'city')
-        self.assertEqual(req.routing_strategy, Request.ROUTING_MATCHED_CITY)
+        self.assertEqual(req.search_scope, 'kazakhstan')
+        self.assertEqual(req.routing_strategy, Request.ROUTING_MATCHED_KAZAKHSTAN)
         self.assertEqual(req.transport_type, 'car')
         self.assertEqual(req.category, 'Трансмиссия')
         self.assertEqual(req.brand, 'Mercedes-Benz')
@@ -1202,14 +1202,14 @@ class HomeShortMatchedSellerTests(TestCase):
         seller_ids = self._seller_ids()
         self.assertEqual(
             seller_ids,
-            {self.exact.id},
+            {self.exact.id, self.all_spec.id, self.other_city.id},
         )
         self.assertNotIn(self.truck.id, seller_ids)
         self.assertNotIn(self.other_category.id, seller_ids)
         self.assertNotIn(self.other_brand.id, seller_ids)
         self.assertNotIn(self.brand_level.id, seller_ids)
 
-    def test_city_without_local_match_falls_back_to_kazakhstan(self):
+    def test_city_without_local_match_still_searches_kazakhstan(self):
         self.exact.is_active = False
         self.exact.save(update_fields=['is_active'])
         self.brand_level.is_active = False
@@ -1223,12 +1223,45 @@ class HomeShortMatchedSellerTests(TestCase):
         req = Request.objects.get()
         self.assertEqual(
             req.routing_strategy,
-            Request.ROUTING_FALLBACK_KAZAKHSTAN,
+            Request.ROUTING_MATCHED_KAZAKHSTAN,
         )
         self.assertEqual(
             self._seller_ids(),
             {self.all_spec.id, self.other_city.id},
         )
+
+    def test_local_match_does_not_limit_national_audience_or_later_waves(self):
+        for index in range(22):
+            self._specialist(
+                name=f'National specialist {index}',
+                whatsapp=f'7703000{index:04d}',
+                city='Астана' if index % 2 else 'Шымкент',
+                brand='Mercedes-Benz',
+                model='123',
+            )
+
+        with patch('core.views.send_whatsapp_template') as send:
+            response = self._post(idempotency_key='key-national-waves')
+
+        self.assertEqual(response.status_code, 200, response.content)
+        req = Request.objects.get()
+        dispatches = list(req.dispatches.order_by('position_number'))
+        self.assertEqual(len(dispatches), 25)
+        self.assertIn(self.exact.id, {item.seller_id for item in dispatches})
+        self.assertEqual(
+            [item.wave_number for item in dispatches],
+            [1] * 10 + [2] * 10 + [3] * 5,
+        )
+        self.assertTrue(all(item.status == RequestDispatch.STATUS_QUEUED for item in dispatches))
+        self.assertEqual(
+            (dispatches[10].scheduled_at - dispatches[0].scheduled_at).total_seconds(),
+            5 * 60,
+        )
+        self.assertEqual(
+            (dispatches[20].scheduled_at - dispatches[0].scheduled_at).total_seconds(),
+            10 * 60,
+        )
+        send.assert_not_called()
 
     def test_brand_fallback_when_exact_model_seller_is_absent(self):
         self.exact.is_active = False
@@ -1287,7 +1320,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertEqual(req.model, '')
         self.assertEqual(req.transport_type, 'car')
         self.assertEqual(req.category, 'Кузов')
-        self.assertEqual(self._seller_ids(), {body.id})
+        self.assertEqual(self._seller_ids(), {body.id, body_other_city.id})
         self.assertNotIn(truck_body.id, self._seller_ids())
         self.assertNotIn(self.exact.id, self._seller_ids())
 
