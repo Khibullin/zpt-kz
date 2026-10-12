@@ -183,8 +183,32 @@ def build_product_applicability(product):
     has_structured = bool(groups or engines or oem_refs)
     has_block = has_structured or bool(extra_compatibility)
     show_vin = has_block
+    fitment_rows = []
+    if getattr(product, 'fitment_reviewed_on', None):
+        for row in product.fitments.all():
+            def fragment(year, month):
+                return f'{month:02d}.{year}' if month else str(year)
+            if not row.year_from:
+                period = 'Требует уточнения'
+            elif row.year_to:
+                start = fragment(row.year_from, row.month_from)
+                end = fragment(row.year_to, row.month_to)
+                period = start if start == end else f'{start}–{end}'
+            else:
+                period = f'с {fragment(row.year_from, row.month_from)}'
+            fitment_rows.append({
+                'model': str(row.car_model),
+                'variant': ', '.join(str(value) for value in (row.generation, row.body, row.fuel, row.market, f'{row.power_kw} кВт' if row.power_kw else '') if value),
+                'engine': row.engine_code or row.get_engine_policy_display(),
+                'period': period,
+                'needs_check': row.status != 'confirmed',
+                'note': row.note,
+                'verified_on': row.verified_on,
+                'source_url': row.source_url,
+            })
     return {
         'groups': groups,
+        'fitment_rows': fitment_rows,
         'engines': engines,
         'oem_refs': oem_refs,
         'extra_compatibility': extra_compatibility,

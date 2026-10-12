@@ -99,6 +99,7 @@ def maintenance_kit_list(request):
         'items__product__car_model',
         'items__product__selected_models',
         'items__product__kaspi_listings',
+        'items__product__fitments__car_model__brand',
     )
     brand_query, model_query = _search_query(request)
     search_qs, search_active = _apply_car_search(base, brand_query, model_query)

@@ -169,7 +169,8 @@ class AgPartsFilterFinderTests(TestCase):
         )
         self.assertEqual(excluded_response.status_code, 200)
         self.assertEqual(excluded_response.context["selected_engine"], "")
-        self.assertContains(excluded_response, "Фильтр для Tiggo 8")
+        self.assertEqual(excluded_response.context['products'], [])
+        self.assertTrue(excluded_response.context['invalid_selection'])
 
     def test_positive_engine_fitment_survives_following_negative_sentence(self):
         haval = Brand.objects.create(country=self.brand.country, name="Haval")
@@ -260,7 +261,7 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertEqual(late_engine_response.context["selected_engine"], "GW4B15D")
         self.assertContains(late_engine_response, "Фильтр Haval Jolion для позднего года")
 
-    def test_invalid_engine_is_ignored_without_hiding_model_results(self):
+    def test_invalid_engine_does_not_silently_broaden_model_results(self):
         response = self.client.get(
             reverse("ag_parts_filter_finder"),
             {
@@ -270,9 +271,9 @@ class AgPartsFilterFinderTests(TestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Воздушный фильтр для Tiggo 7")
-        self.assertContains(response, "Салонный фильтр для Tiggo 7")
-        self.assertContains(response, "Показаны все фильтры для выбранной модели")
+        self.assertEqual(response.context['products'], [])
+        self.assertTrue(response.context['invalid_selection'])
+        self.assertContains(response, 'Выберите параметры из списка заново')
 
     def test_model_must_belong_to_selected_brand(self):
         other_brand = Brand.objects.create(country=self.brand.country, name="Geely")
@@ -285,6 +286,23 @@ class AgPartsFilterFinderTests(TestCase):
         self.assertEqual(response.context["selected_model"], "")
         self.assertContains(response, "Воздушный фильтр для Tiggo 7")
         self.assertContains(response, "Фильтр для Tiggo 8")
+
+    def test_inactive_sibling_model_still_separates_cs35_from_cs35_plus(self):
+        cs35 = CarModel.objects.create(brand=self.brand, name='CS35')
+        CarModel.objects.create(brand=self.brand, name='CS35 Plus')
+        self._product('CS35 filter', 'CS35-BOUNDARY', cs35, seller=self.seller,
+                      engine_compatibility='JL478QEE\nJL478QEP',
+                      compatibility='CS35 JL478QEE (с 10.2012); CS35 Plus JL478QEP (с 06.2018).')
+        response = self.client.get(reverse('ag_parts_filter_finder'), {'brand': self.brand.pk, 'model': cs35.pk})
+        self.assertEqual(response.context['model_engine_options'], ['JL478QEE'])
+
+    def test_not_all_engines_qualification_does_not_remove_named_codes(self):
+        product = Product.objects.get(article='TIGGO8-FINDER')
+        product.engine_compatibility = 'SQRE4T15B\nSQRE4T15C'
+        product.compatibility = 'Tiggo 8 SQRE4T15B/C (2020–2025; не все моторы Tiggo 8 без сверки).'
+        product.save(update_fields=['engine_compatibility', 'compatibility'])
+        response = self.client.get(reverse('ag_parts_filter_finder'), {'brand': self.brand.pk, 'model': self.tiggo8.pk})
+        self.assertEqual(set(response.context['model_engine_options']), {'SQRE4T15B', 'SQRE4T15C'})
 
     def test_article_search_matches_exact_active_ag_parts_article_case_insensitively(self):
         response = self.client.get(

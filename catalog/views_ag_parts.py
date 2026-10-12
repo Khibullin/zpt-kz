@@ -6,8 +6,8 @@ from catalog.vehicle_fitment import (
     _product_fitment_models,
     _model_engine_codes,
     _product_model_years,
+    product_selection_notices,
 )
-from catalog.commercial import filter_products_by_vehicle
 from catalog.models import Brand, CarModel, Product, SellerProfile
 from catalog.views import attach_sellers_to_products
 from catalog.wholesale import (
@@ -51,7 +51,7 @@ def ag_parts_filter_finder(request):
             status="active",
         ).select_related(
             "brand", "car_model", "car_model__brand", "category", "seller_profile",
-        ).prefetch_related("selected_models", "selected_brands", "kaspi_listings")
+        ).prefetch_related("selected_models__brand", "selected_brands", "kaspi_listings", "fitments__car_model__brand")
     )
 
     model_ids = set()
@@ -72,7 +72,7 @@ def ag_parts_filter_finder(request):
     )
     brands = list(Brand.objects.filter(pk__in=brand_ids).order_by("name"))
     model_names_by_brand = {}
-    for item in model_options:
+    for item in CarModel.objects.filter(brand_id__in=brand_ids).values("brand_id", "name"):
         model_names_by_brand.setdefault(item["brand_id"], []).append(item["name"])
 
     engine_options_by_model = {}
@@ -149,15 +149,18 @@ def ag_parts_filter_finder(request):
         selected_year = ""
         selected_engine = ""
 
+    invalid_selection = False
     model_year_options = year_options_by_model.get(model_id, [])
-    if selected_year not in {str(year) for year in model_year_options}:
+    if selected_year and selected_year not in {str(year) for year in model_year_options}:
+        invalid_selection = True
         selected_year = ""
 
     all_model_engine_options = engine_options_by_model.get(model_id, [])
     model_engine_options = all_model_engine_options
     if selected_year:
         model_engine_options = engine_options_by_model_and_year.get(model_id, {}).get(selected_year, [])
-    if selected_engine not in model_engine_options:
+    if selected_engine and selected_engine not in model_engine_options:
+        invalid_selection = True
         selected_engine = ""
 
     has_selection = bool(brand_id or article_searched)
@@ -209,16 +212,20 @@ def ag_parts_filter_finder(request):
                 "products": grouped[type_key],
             })
     elif has_selection:
+        matching_ids = [product.pk for product in base_products if (
+            (not brand_id or int(brand_id) in (
+                {product.brand_id}
+                | {brand.pk for brand in product.selected_brands.all()}
+                | {model.brand_id for model in _product_fitment_models(product)}
+            )) and (not model_id or int(model_id) in {model.pk for model in _product_fitment_models(product)})
+        )]
         matching = Product.objects.filter(
             seller_profile=seller,
             status="active",
+            pk__in=matching_ids,
         ).select_related(
             "brand", "car_model", "car_model__brand", "category", "seller_profile",
         ).prefetch_related("selected_brands", "kaspi_listings")
-        matching = filter_products_by_vehicle(matching, brand_id=brand_id)
-        if model_id:
-            matching = filter_products_by_vehicle(matching, model_id=model_id)
-
         result_queryset = public_wholesale_prefetch(matching)
         selected_model = (
             CarModel.objects.select_related("brand").get(pk=model_id)
@@ -228,22 +235,14 @@ def ag_parts_filter_finder(request):
             model_names_by_brand.get(selected_model.brand_id, ())
             if selected_model else ()
         )
-        if selected_engine and model_id:
-            candidates = list(
-                result_queryset.filter(
-                    engine_compatibility__icontains=selected_engine,
-                ).order_by("title", "id")
-            )
-            products = [
-                product for product in candidates
-                if selected_engine in _model_engine_codes(
-                    base_product_by_id.get(product.pk, product),
-                    selected_model,
-                    sibling_names,
-                )
-            ]
-        else:
-            products = list(result_queryset.order_by("title", "id"))
+        products = list(result_queryset.order_by("title", "id"))
+        if invalid_selection:
+            products = []
+        elif selected_engine and selected_model:
+            products = [product for product in products if (
+                selected_engine in _model_engine_codes(base_product_by_id[product.pk], selected_model, sibling_names)
+                or fitment_year_data[(product.pk, selected_model.pk)].get('engine_independent', False)
+            )]
 
         if selected_year and selected_model:
             year = int(selected_year)
@@ -255,7 +254,7 @@ def ag_parts_filter_finder(request):
                     year_data = _product_model_years(fitment_product, selected_model, sibling_names)
 
                 if selected_engine:
-                    covered_years = year_data["engine_years"].get(selected_engine, set())
+                    covered_years = year_data["engine_years"].get(selected_engine, set()) | year_data.get("wildcard_years", set())
                 else:
                     covered_years = year_data["years"]
 
@@ -283,7 +282,14 @@ def ag_parts_filter_finder(request):
                 "products": grouped[type_key],
             })
 
+    fitment_notices = []
+    if model_id and not article_searched and selected_year:
+        for product in products:
+            for notice in product_selection_notices(base_product_by_id[product.pk], selected_model, selected_year, selected_engine):
+                fitment_notices.append(f'{product.article}: {notice}')
     return render(request, "catalog/ag_parts_filter_finder.html", {
+        "invalid_selection": invalid_selection,
+        "fitment_notices": list(dict.fromkeys(fitment_notices)),
         "seller": seller,
         "brands": brands,
         "model_options": model_options,

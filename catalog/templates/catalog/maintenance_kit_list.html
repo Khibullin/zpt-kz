@@ -76,6 +76,8 @@
     <p class="kit-picker-notice" role="status">Некоторые комплекты не показаны: применяемость всех их позиций по году и двигателю требует уточнения.</p>
   {% endif %}
 
+  {% for notice in fitment_notices %}<p class="kit-picker-notice">{{ notice }}</p>{% endfor %}
+
   <form class="kit-car-search" method="get" action="{% url 'maintenance_kit_list' %}">
     <p class="kit-car-search-lead">Нет нужного автомобиля в списке выше? Укажите марку и модель — год и двигатель можно уточнить в заявке.</p>
     <div class="kit-car-search-row">
