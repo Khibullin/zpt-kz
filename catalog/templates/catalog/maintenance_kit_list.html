@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
-<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_collage_v1">
+<link rel="stylesheet" href="{% static 'css/maintenance-kits.css' %}?v=kit_picker_v2">
 {% endblock %}
 
 {% block content %}
@@ -27,6 +27,7 @@
     </p>
   </section>
 
+  <h2 class="kit-picker-title">Подбор комплекта ТО по марке, модели, году выпуска и двигателю</h2>
   <form class="kit-filter" method="get" action="{% url 'maintenance_kit_list' %}">
     <div>
       <label for="kit-brand">Марка</label>
@@ -39,17 +40,26 @@
     </div>
     <div>
       <label for="kit-model">Модель</label>
-      <select id="kit-model" name="model">
-        <option value="">Все модели</option>
+      <select id="kit-model" name="model"{% if not selected_brand %} disabled{% endif %}>
+        <option value="">{% if selected_brand %}Все модели марки{% else %}Сначала выберите марку{% endif %}</option>
         {% for model in models %}
           <option value="{{ model.id }}"{% if selected_model == model.id|stringformat:'s' %} selected{% endif %}>{{ model.name }}</option>
         {% endfor %}
       </select>
     </div>
     <div>
+      <label for="kit-year">Год выпуска</label>
+      <select id="kit-year" name="year"{% if not selected_model or not years %} disabled{% endif %}>
+        <option value="">{% if not selected_model %}Сначала выберите модель{% elif not years %}Годы требуют уточнения{% else %}Все годы модели{% endif %}</option>
+        {% for year in years %}
+          <option value="{{ year }}"{% if selected_year == year|stringformat:'s' %} selected{% endif %}>{{ year }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div>
       <label for="kit-engine">Двигатель</label>
-      <select id="kit-engine" name="engine">
-        <option value="">Все двигатели</option>
+      <select id="kit-engine" name="engine"{% if not selected_year or not engines %} disabled{% endif %}>
+        <option value="">{% if selected_year %}Все двигатели этого года{% else %}Сначала выберите год{% endif %}</option>
         {% for item in engines %}
           <option value="{{ item }}"{% if selected_engine == item %} selected{% endif %}>{{ item }}</option>
         {% endfor %}
@@ -57,6 +67,14 @@
     </div>
     <button type="submit">Подобрать</button>
   </form>
+  <p class="kit-picker-note">Для точного подбора выберите год выпуска и двигатель. Проверяется применяемость каждой позиции комплекта; отсутствие товара в наличии не исключает его из подбора.</p>
+  {% if invalid_selection %}
+    <p class="kit-picker-notice" role="status">Для переданного сочетания года и двигателя применяемость не подтверждена. Выберите параметры из списка заново.</p>
+  {% elif year_not_recorded %}
+    <p class="kit-picker-notice" role="status">Для этой модели годы и двигатели всех позиций комплекта пока не подтверждены. Показаны комплекты модели; точную применяемость нужно уточнить по VIN.</p>
+  {% elif selected_year and fitment_missing_count %}
+    <p class="kit-picker-notice" role="status">Некоторые комплекты не показаны: применяемость всех их позиций по году и двигателю требует уточнения.</p>
+  {% endif %}
 
   <form class="kit-car-search" method="get" action="{% url 'maintenance_kit_list' %}">
     <p class="kit-car-search-lead">Нет нужного автомобиля в списке выше? Укажите марку и модель — год и двигатель можно уточнить в заявке.</p>
@@ -146,4 +164,5 @@
     </div>
   {% endif %}
 </main>
+<script src="{% static 'js/maintenance-kit-picker.js' %}?v=1" defer></script>
 {% endblock %}

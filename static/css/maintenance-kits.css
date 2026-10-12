@@ -6,7 +6,7 @@
 .kit-hero h1{margin:0 0 12px;font-size:clamp(26px,4.5vw,44px);line-height:1.12;color:#111827}
 .kit-hero p{margin:0;color:#4b5563;font-size:16px;line-height:1.65}
 .kit-meta{color:#4b5563;font-size:16px;line-height:1.5}
-.kit-filter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) auto;gap:10px;margin:20px 0;align-items:end}
+.kit-filter{display:grid;grid-template-columns:repeat(4,minmax(0,1fr)) auto;gap:10px;margin:20px 0;align-items:end}
 .kit-filter label{display:block;font-size:13px;font-weight:600;margin-bottom:6px;color:#374151}
 .kit-filter select{width:100%;min-height:44px;border:1px solid #d1d5db;border-radius:10px;padding:0 12px;background:#fff}
 .kit-filter button{min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#ef3d2f;color:#fff;font-weight:700;cursor:pointer}
@@ -324,3 +324,9 @@
     max-width:100%;
   }
 }
+
+.kit-picker-title{font-size:20px;line-height:1.4;margin-top:24px}
+.kit-picker-note{color:#4b5563;font-size:14px;line-height:1.5}
+.kit-picker-notice{padding:12px 16px;border-radius:10px;background:#fff7ed;color:#7c2d12;line-height:1.5}
+.kit-filter select:disabled{background:#f3f4f6;color:#6b7280}
+@media(min-width:721px) and (max-width:1000px){.kit-filter{grid-template-columns:repeat(2,minmax(0,1fr))}.kit-filter button{grid-column:1/-1}}
