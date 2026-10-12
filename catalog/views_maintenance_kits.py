@@ -7,6 +7,7 @@ from django.views.decorators.http import require_GET, require_http_methods, requ
 
 from catalog.forms import MaintenanceKitCarRequestForm
 from catalog.maintenance_kit_requests import send_kit_car_request_notification
+from catalog.maintenance_kit_picker import build_kit_picker
 from catalog.maintenance_kits import (
     COVER_PARTIAL_CAPTION,
     add_kit_to_cart,
@@ -21,19 +22,6 @@ from orders.seller_utils import CartModeConflictError, CartSellerConflictError
 
 def _kit_queryset():
     return published_kits_queryset()
-
-
-def _filter_kits(queryset, request):
-    brand_id = str(request.GET.get('brand') or '').strip()
-    model_id = str(request.GET.get('model') or '').strip()
-    engine = str(request.GET.get('engine') or '').strip()
-    if brand_id.isdigit():
-        queryset = queryset.filter(brand_id=int(brand_id))
-    if model_id.isdigit():
-        queryset = queryset.filter(car_model_id=int(model_id))
-    if engine:
-        queryset = queryset.filter(engine=engine)
-    return queryset, brand_id, model_id, engine
 
 
 def _search_query(request):
@@ -66,7 +54,7 @@ def _missing_car_url(brand_query='', model_query=''):
     return url
 
 
-def _selection_summary(brand_id, model_id, engine, brands, models, search_active, brand_query, model_query):
+def _selection_summary(brand_id, model_id, year, engine, brands, models, search_active, brand_query, model_query):
     parts = []
     if search_active:
         searched = ' '.join(part for part in (brand_query, model_query) if part)
@@ -81,37 +69,11 @@ def _selection_summary(brand_id, model_id, engine, brands, models, search_active
             model = next((item for item in models if str(item.id) == model_id), None)
             if model:
                 parts.append(f'Модель: {model.name}')
+        if year:
+            parts.append(f'Год: {year}')
         if engine:
             parts.append(f'Двигатель: {engine}')
     return ' · '.join(parts)
-
-
-def _picker_choices(queryset, selected_brand, selected_model):
-    brands = []
-    seen_brands = set()
-    models = []
-    seen_models = set()
-    engines = []
-    seen_engines = set()
-    for kit in queryset:
-        if kit.brand_id not in seen_brands:
-            seen_brands.add(kit.brand_id)
-            brands.append(kit.brand)
-        if selected_brand and str(kit.brand_id) != str(selected_brand):
-            continue
-        if kit.car_model_id not in seen_models:
-            seen_models.add(kit.car_model_id)
-            models.append(kit.car_model)
-        if selected_model and str(kit.car_model_id) != str(selected_model):
-            continue
-        engine = (kit.engine or '').strip()
-        if engine and engine not in seen_engines:
-            seen_engines.add(engine)
-            engines.append(engine)
-    brands.sort(key=lambda brand: brand.name.lower())
-    models.sort(key=lambda model: model.name.lower())
-    engines.sort()
-    return brands, models, engines
 
 
 def _cart_error_redirect(request, detail_url, exc):
@@ -133,36 +95,35 @@ def _cart_error_redirect(request, detail_url, exc):
 
 @require_GET
 def maintenance_kit_list(request):
-    base = _kit_queryset()
+    base = _kit_queryset().prefetch_related(
+        'items__product__car_model',
+        'items__product__selected_models',
+        'items__product__kaspi_listings',
+    )
     brand_query, model_query = _search_query(request)
     search_qs, search_active = _apply_car_search(base, brand_query, model_query)
+    kits, picker = build_kit_picker(list(base), {} if search_active else request.GET)
     if search_active:
-        kits = search_qs
-        brand_id, model_id, engine = '', '', ''
-    else:
-        kits, brand_id, model_id, engine = _filter_kits(base, request)
-    brands, models, engines = _picker_choices(base, brand_id, model_id)
+        search_ids = set(search_qs.values_list('pk', flat=True))
+        kits = [kit for kit in kits if kit.pk in search_ids]
     kit_views = [build_kit_view(kit, request) for kit in kits]
     return render(request, 'catalog/maintenance_kit_list.html', {
         'kits': kit_views,
-        'brands': brands,
-        'models': models,
-        'engines': engines,
-        'selected_brand': brand_id,
-        'selected_model': model_id,
-        'selected_engine': engine,
+        **picker,
         'search_active': search_active,
         'search_brand': brand_query,
         'search_model': model_query,
         'selection_summary': _selection_summary(
-            brand_id, model_id, engine, brands, models,
+            picker['selected_brand'], picker['selected_model'],
+            picker['selected_year'], picker['selected_engine'],
+            picker['brands'], picker['models'],
             search_active, brand_query, model_query,
         ),
         'missing_car_url': _missing_car_url(brand_query, model_query),
         'page_title': 'Комплекты ТО — купить расходники для обслуживания | ZPT.KZ',
         'page_description': (
             'Готовые комплекты ТО для автомобилей в Казахстане: фильтры и свечи '
-            'под марку, модель и двигатель. Смотрите состав и наличие на ZPT.KZ.'
+            'под марку, модель, год выпуска и двигатель. Смотрите состав и наличие на ZPT.KZ.'
         ),
     })
 
