@@ -4,8 +4,71 @@ from datetime import date
 
 from catalog.applicability import parse_plain_list
 
+ELECTRIC_ENGINE = 'Электро (без ДВС)'
+BODY_FITMENT = 'По кузову / системе вентиляции'
+
+
+def _reviewed_rows(product):
+    if not getattr(product, 'fitment_reviewed_on', None):
+        return None
+    return list(product.fitments.all())
+
+
+def _fitment_months(row):
+    if not row.year_from:
+        return set()
+    # An open catalogue period stops at the date it was checked. A new year
+    # requires a new check, not an automatic promise for future modifications.
+    last_year = row.year_to or (row.verified_on.year if row.verified_on else None)
+    if not last_year:
+        return set()
+    last_month = (row.month_to or 12) if row.year_to else row.verified_on.month
+    first = row.year_from * 12 + (row.month_from or 1) - 1
+    last = last_year * 12 + last_month - 1
+    return set(range(first, last + 1))
+
+
+def _fitment_engine(row):
+    if row.engine_policy == 'required':
+        return row.engine_code
+    if row.engine_policy == 'not_applicable':
+        return ELECTRIC_ENGINE
+    if row.engine_policy == 'independent':
+        return BODY_FITMENT
+    return ''
+
+
+def _structured_year_data(product, model):
+    rows = _reviewed_rows(product)
+    if rows is None:
+        return None
+    years, engine_months, wildcard_months, options = set(), {}, set(), set()
+    confirmed = [row for row in rows if row.car_model_id == model.pk and row.status == 'confirmed']
+    for row in confirmed:
+        months = _fitment_months(row)
+        years.update(month // 12 for month in months)
+        engine = _fitment_engine(row)
+        if engine:
+            options.add(engine)
+            engine_months.setdefault(engine, set()).update(months)
+        if row.engine_policy == 'independent':
+            wildcard_months.update(months)
+    return {
+        'years': years,
+        'engine_years': {code: {month // 12 for month in months} for code, months in engine_months.items()},
+        'engine_months': engine_months,
+        'wildcard_months': wildcard_months,
+        'wildcard_years': {month // 12 for month in wildcard_months},
+        'engine_options': options,
+        'engine_independent': any(row.engine_policy == 'independent' for row in confirmed),
+        'rows': confirmed,
+    }
+
 
 def _product_fitment_models(product):
+    rows = _reviewed_rows(product)
+    if rows is not None:
+        return list({row.car_model_id: row.car_model for row in rows if row.status == 'confirmed'}.values())
     models = []
     if product.car_model_id:
         models.append(product.car_model)
@@ -52,7 +115,7 @@ def _compatibility_clauses(compatibility):
     return [
         clause.strip()
         for clause in re.split(
-            r"[;\n]+|(?<=[.!?])\s+(?=(?:не|not|except|excluding)\b)",
+            r"[;\n]+|(?<=[.!?])\s+(?=[A-ZА-ЯЁ])",
             str(compatibility or ""),
             flags=re.IGNORECASE,
         )
@@ -64,7 +127,7 @@ def _explicitly_excludes_model_engine(product, model, engine, sibling_names):
     compatibility = str(getattr(product, "compatibility", "") or "")
     for clause in _compatibility_clauses(compatibility):
         for segment in _model_name_segments(clause, model, sibling_names, include_exclusions=True):
-            if re.search(r"\b(?:не|not|except|excluding)\b", segment.casefold()):
+            if _is_exclusion(segment):
                 if _engine_code_is_in_clause(engine, segment):
                     return True
     return False
@@ -72,6 +135,9 @@ def _explicitly_excludes_model_engine(product, model, engine, sibling_names):
 
 def _model_engine_codes(product, model, sibling_names):
     """Return only codes paired with this model in compatibility text."""
+    structured = _structured_year_data(product, model)
+    if structured is not None:
+        return structured['engine_options']
     codes = parse_plain_list(product.engine_compatibility)
     if not codes:
         return set()
@@ -97,11 +163,20 @@ def _model_engine_codes(product, model, sibling_names):
     excluded = set()
     for clause in model_clauses:
         for segment in _model_name_segments(clause, model, sibling_names, include_exclusions=True):
-            is_exclusion = bool(re.search(r"\b(?:не|not|except|excluding)\b", segment.casefold()))
+            is_exclusion = _is_exclusion(segment)
             for code in codes:
                 if _engine_code_is_in_clause(code, segment):
                     (excluded if is_exclusion else compatible).add(code)
     return compatible - excluded
+
+
+def _is_exclusion(segment):
+    # Qualification (not all engines / not only this article) does not negate
+    # the explicitly listed modifications. Direct exclusions remain exclusions.
+    cleaned = re.sub(r'\([^)]*\bне\s+все\b[^)]*\)', '', segment, flags=re.IGNORECASE)
+    if re.search(r'\bне\s+утверждаем\b.*\bтолько\b', cleaned, re.IGNORECASE):
+        return False
+    return bool(re.search(r'\b(?:не(?!\s+(?:все|только)\b)|not(?!\s+(?:all|only)\b)|except|excluding)\b', cleaned, re.IGNORECASE))
 
 
 def _model_name_segments(clause, model, sibling_names, include_exclusions=False):
@@ -211,6 +286,9 @@ def _engine_mentions_in_text(text, codes):
 
 def _product_model_years(product, model, sibling_names):
     """Return year coverage for a model, plus coverage tied to exact engine codes."""
+    structured = _structured_year_data(product, model)
+    if structured is not None:
+        return structured
     codes = parse_plain_list(product.engine_compatibility)
     compatible_codes = _model_engine_codes(product, model, sibling_names)
     engine_years = {code: set() for code in compatible_codes}
@@ -276,5 +354,28 @@ def _product_model_years(product, model, sibling_names):
         "years": model_years,
         "engine_years": engine_years,
     }
+
+
+def product_selection_notices(product, model, year='', engine=''):
+    """Display the qualifications that a year-only picker cannot resolve."""
+    rows = _reviewed_rows(product)
+    if rows is None:
+        return []
+    notices = []
+    for row in rows:
+        if model and row.car_model_id != model.pk:
+            continue
+        if row.status != 'confirmed':
+            continue
+        if engine and _fitment_engine(row) not in (engine, BODY_FITMENT):
+            continue
+        if year and int(year) not in {m // 12 for m in _fitment_months(row)}:
+            continue
+        qualifiers = [v for v in (row.generation, row.body, row.fuel, row.market, f'{row.power_kw} кВт' if row.power_kw else '') if v]
+        if qualifiers:
+            notices.append('Модификация: ' + ', '.join(qualifiers) + '.')
+        if year and ((row.year_from == int(year) and row.month_from and row.month_from != 1) or (row.year_to == int(year) and row.month_to and row.month_to != 12)):
+            notices.append('Пограничный год: сверьте месяц выпуска по VIN и период в карточке товара.')
+    return list(dict.fromkeys(notices))
 
 

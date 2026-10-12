@@ -2,6 +2,26 @@
   <div class="detail-section-card product-applicability">
     <h2>Применяемость</h2>
 
+    {% if applicability.fitment_rows %}
+      <div class="product-fitment-table-wrap">
+        <table class="product-fitment-table">
+          <thead><tr><th scope="col">Автомобиль / модификация</th><th scope="col">Двигатель</th><th scope="col">Выпуск</th><th scope="col">Уточнения</th></tr></thead>
+          <tbody>
+          {% for row in applicability.fitment_rows %}
+            <tr>
+              <td>{{ row.model }}{% if row.variant %}<br><small>{{ row.variant }}</small>{% endif %}</td>
+              <td>{{ row.engine }}</td>
+              <td>{{ row.period }}</td>
+              <td>{% if row.needs_check %}<strong>Требует сверки.</strong> {% endif %}{{ row.note }}{% if row.source_url %}<br><a href="{{ row.source_url }}" target="_blank" rel="noopener noreferrer">Каталог</a>{% if row.verified_on %} · проверено {{ row.verified_on|date:"d.m.Y" }}{% endif %}{% endif %}</td>
+            </tr>
+          {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="product-applicability-vin">Периоды относятся к указанным модификациям. В пограничном году сверьте месяц выпуска по VIN. Открытый период проверен на указанную дату.</p>
+    {% endif %}
+
+    {% if not applicability.fitment_rows %}
     {% for group in applicability.groups %}
       <div class="product-applicability-group">
         <div class="product-applicability-brand">{{ group.brand.name }}:</div>
@@ -26,6 +46,7 @@
       </div>
     {% endif %}
 
+    {% endif %}
     {% if applicability.oem_refs %}
       <div class="product-applicability-group">
         <div class="product-applicability-brand">OEM / кросс-номера:</div>
@@ -37,7 +58,7 @@
       </div>
     {% endif %}
 
-    {% if applicability.extra_compatibility %}
+    {% if applicability.extra_compatibility and not applicability.fitment_rows %}
       <div class="product-applicability-group">
         {% if applicability.groups %}
           <div class="product-applicability-brand">Дополнительная применяемость</div>

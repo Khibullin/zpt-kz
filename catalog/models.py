@@ -520,6 +520,11 @@ class Product(models.Model):
         help_text='Применяемость по двигателям. По одному значению на строку или через точку с запятой. Без HTML.',
     )
 
+    fitment_reviewed_on = models.DateField(
+        null=True, blank=True, verbose_name='Дата аудита применимости',
+        help_text='После аудита подбор использует только отдельные записи применимости ниже.',
+    )
+
     oem_cross_references = models.TextField(
         blank=True,
         default='',
@@ -683,6 +688,62 @@ class Product(models.Model):
             self.slug = slug
 
         super().save(*args, **kwargs)
+
+
+class ProductFitment(models.Model):
+    """One sourced vehicle modification; unknown is never an engine wildcard."""
+    ENGINE_POLICIES = [
+        ('required', 'По коду двигателя'),
+        ('independent', 'По кузову / системе вентиляции'),
+        ('not_applicable', 'Электромобиль, ДВС отсутствует'),
+        ('unknown', 'Двигатель требует уточнения'),
+    ]
+    STATUSES = [('confirmed', 'Подтверждено каталогом'), ('needs_check', 'Требует сверки')]
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='fitments')
+    car_model = models.ForeignKey(CarModel, on_delete=models.PROTECT, verbose_name='Модель')
+    engine_policy = models.CharField(max_length=20, choices=ENGINE_POLICIES, default='unknown')
+    engine_code = models.CharField(max_length=64, blank=True, default='', verbose_name='Код двигателя')
+    generation = models.CharField(max_length=80, blank=True, default='', verbose_name='Поколение / версия')
+    body = models.CharField(max_length=80, blank=True, default='', verbose_name='Кузов')
+    market = models.CharField(max_length=80, blank=True, default='', verbose_name='Рынок')
+    fuel = models.CharField(max_length=40, blank=True, default='', verbose_name='Силовая установка')
+    power_kw = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='Мощность, кВт')
+    year_from = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='С года')
+    month_from = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(12)])
+    year_to = models.PositiveSmallIntegerField(null=True, blank=True, verbose_name='По год')
+    month_to = models.PositiveSmallIntegerField(null=True, blank=True, validators=[MinValueValidator(1), MaxValueValidator(12)])
+    status = models.CharField(max_length=20, choices=STATUSES, default='needs_check')
+    source_url = models.URLField(max_length=1000, blank=True, default='', verbose_name='Источник')
+    verified_on = models.DateField(null=True, blank=True, verbose_name='Дата проверки источника')
+    note = models.TextField(blank=True, default='', verbose_name='Ограничения / уточнения')
+
+    class Meta:
+        verbose_name = 'Применимость товара'
+        verbose_name_plural = 'Применимость товаров'
+        ordering = ['car_model__brand__name', 'car_model__name', 'engine_code', 'year_from', 'month_from', 'pk']
+        indexes = [models.Index(fields=['product', 'car_model'], name='fitment_product_model_idx')]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(month_from__isnull=True) | (models.Q(month_from__gte=1, month_from__lte=12) & models.Q(year_from__isnull=False)), name='fitment_start_month'),
+            models.CheckConstraint(condition=models.Q(month_to__isnull=True) | (models.Q(month_to__gte=1, month_to__lte=12) & models.Q(year_to__isnull=False)), name='fitment_end_month'),
+            models.CheckConstraint(condition=models.Q(year_from__isnull=True, year_to__isnull=True) | (models.Q(year_from__gte=1900, year_from__lte=2100) & (models.Q(year_to__isnull=True) | models.Q(year_to__gte=models.F('year_from'), year_to__lte=2100))), name='fitment_year_order'),
+        ]
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.engine_policy == 'required' and not self.engine_code.strip():
+            errors['engine_code'] = 'Укажите подтверждённый код двигателя.'
+        if self.engine_policy != 'required' and self.engine_code:
+            errors['engine_code'] = 'Код заполняется только для подбора по двигателю.'
+        if self.status == 'confirmed' and (not self.source_url or not self.verified_on):
+            errors['source_url'] = 'Для подтверждения нужны источник и дата проверки.'
+        if self.year_from and self.year_to and (self.year_from, self.month_from or 1) > (self.year_to, self.month_to or 12):
+            errors['year_to'] = 'Конец периода раньше начала.'
+        if errors:
+            raise ValidationError(errors)
+
+    def __str__(self):
+        return f'{self.car_model} · {self.engine_code or self.get_engine_policy_display()}'
 
 
 class ProductImage(models.Model):

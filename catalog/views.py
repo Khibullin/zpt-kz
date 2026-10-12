@@ -596,7 +596,7 @@ def product_detail(request, slug=None, pk=None):
         'seller_profile',
         'seller_profile__wholesale_terms',
     )
-    product_qs = public_wholesale_prefetch(product_qs)
+    product_qs = public_wholesale_prefetch(product_qs).prefetch_related('fitments__car_model__brand')
     if viewer_is_seller:
         product_qs = b2b_prefetch(product_qs)
 

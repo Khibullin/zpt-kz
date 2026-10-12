@@ -44,6 +44,7 @@ from .models import (
     CarModel,
     Category,
     Product,
+    ProductFitment,
     SellerProfile,
     SellerWholesaleTerms,
     ProductImage,
@@ -733,6 +734,27 @@ class ProductImageAdmin(admin.ModelAdmin):
     )
 
 
+class ProductFitmentInline(admin.StackedInline):
+    model = ProductFitment
+    extra = 0
+    autocomplete_fields = ('car_model',)
+    fields = (
+        ('car_model', 'status'), ('engine_policy', 'engine_code'),
+        ('generation', 'body', 'market'), ('fuel', 'power_kw'),
+        ('year_from', 'month_from', 'year_to', 'month_to'),
+        ('source_url', 'verified_on'), 'note',
+    )
+
+
+@admin.register(ProductFitment)
+class ProductFitmentAdmin(admin.ModelAdmin):
+    list_display = ('product', 'car_model', 'engine_code', 'engine_policy', 'year_from', 'year_to', 'status', 'verified_on')
+    list_filter = ('status', 'engine_policy', 'car_model__brand')
+    search_fields = ('product__article', 'car_model__name', 'engine_code')
+    autocomplete_fields = ('product', 'car_model')
+    list_select_related = ('product', 'car_model__brand')
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
@@ -796,6 +818,7 @@ class ProductAdmin(admin.ModelAdmin):
     )
 
     inlines = (
+        ProductFitmentInline,
         ProductImageInline,
         ProductFulfillmentInline,
         ProductBarcodeInline,
@@ -850,6 +873,7 @@ class ProductAdmin(admin.ModelAdmin):
                     'car_model',
                     'selected_brands',
                     'selected_models',
+                    'fitment_reviewed_on',
                     'compatibility',
                     'engine_compatibility',
                     'oem_cross_references',
