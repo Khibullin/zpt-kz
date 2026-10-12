@@ -219,14 +219,18 @@
 
 <div
   style="
-    color:#16a34a;
+    color:{% if product.public_stock.code == 'out' %}#6b7280{% else %}#16a34a{% endif %};
     font-weight:700;
     margin-top:8px;
     margin-bottom:6px;
     font-size:14px;
   "
 >
-  ✓ В наличии у продавца
+  {% if product.public_stock.code == 'out' %}
+    Нет в наличии
+  {% else %}
+    ✓ В наличии у продавца
+  {% endif %}
 </div>
 
 <div
