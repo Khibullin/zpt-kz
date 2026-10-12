@@ -41,6 +41,7 @@ class MaintenanceKitPickerTests(TestCase):
     def test_year_choices_intersect_every_component_and_separate_engine_periods(self):
         response = self.get()
         self.assertEqual(response.context['years'], [2025, 2024, 2023, 2022, 2021, 2020])
+        self.assertContains(response, '<option value="2023">2023</option>', html=True)
         self.assertEqual(response.context['engines'], [])
         response = self.get(year='2021')
         self.assertEqual(response.context['engines'], ['SQRE4T15B'])

@@ -52,7 +52,7 @@
       <select id="kit-year" name="year"{% if not selected_model or not years %} disabled{% endif %}>
         <option value="">{% if not selected_model %}Сначала выберите модель{% elif not years %}Годы требуют уточнения{% else %}Все годы модели{% endif %}</option>
         {% for year in years %}
-          <option value="{{ year }}"{% if selected_year == year|stringformat:'s' %} selected{% endif %}>{{ year }}</option>
+          <option value="{{ year|stringformat:'d' }}"{% if selected_year == year|stringformat:'s' %} selected{% endif %}>{{ year|stringformat:'d' }}</option>
         {% endfor %}
       </select>
     </div>
