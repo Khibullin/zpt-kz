@@ -1,4 +1,6 @@
 from django.urls import path
+from .views_interface import interface_section
+from core.views import dismantlers_catalog
 from .views_ag_parts import ag_parts_store, ag_parts_filter_finder
 
 from .fitment_slug_redirects import fitment_slug_urlpatterns
@@ -45,6 +47,10 @@ from .views import (
 urlpatterns = [
     path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
+
+    path('find-part/', catalog_list, name='interface_find_part'),
+    path('sections/<slug:section>/', interface_section, name='interface_section'),
+    path('auto-dismantlers/', dismantlers_catalog, name='dismantlers_catalog'),
 
     path('our-products/', ag_parts_store, name='ag_parts_store'),
     path('ag-parts/filters/', ag_parts_filter_finder, name='ag_parts_filter_finder'),

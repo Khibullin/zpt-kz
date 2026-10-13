@@ -1,0 +1,14 @@
+{% extends 'catalog/interface/base.html' %}{% load static interface_ui %}
+{% block title %}Автозапчасти, авторазборы и СТО в Казахстане | ZPT.KZ{% endblock %}
+{% block interface_content %}
+<section class="hero"><div class="hero-copy"><h1>{% ui 'hero' %}</h1><p>{% ui 'tagline' %}</p><a class="btn" href="{% url 'interface_section' section='choose' %}">{% ui 'request' %}{% ui_icon 'chevron' %}</a></div>{% ui_art 'hero' %}</section>
+<h2 class="section-title">{% ui 'need' %}</h2><section class="tiles" aria-label="Разделы">
+{% for tile in interface_tiles %}<a class="tile" href="{{ tile.url }}"><h3>{% ui tile.key %}</h3>{% ui_art tile.key %}{% ui_icon 'chevron' %}</a>{% endfor %}</section>
+<section class="directories"><a class="directory" href="{% url 'parts_sellers_catalog_public' %}"><span class="symbol">{% ui_icon 'store' %}</span><div><h3>{% ui 'sellers' %}</h3><p>{% ui 'chooseSeller' %}</p></div>{% ui_icon 'chevron' %}</a><a class="directory" href="{% url 'services_catalog' %}"><span class="symbol">{% ui_icon 'garage' %}</span><div><h3>{% ui 'services' %}</h3><p>{% ui 'chooseStation' %}</p></div>{% ui_icon 'chevron' %}</a></section>
+<section aria-labelledby="goods-heading"><div class="section-head"><h2 id="goods-heading" class="section-title">{% ui 'goods' %}</h2><a class="text-link" href="/?all=1">{% ui 'allGoods' %}{% ui_icon 'arrow' %}</a></div>
+<div class="products" id="interface-products">{% for product in products %}{% include 'catalog/interface/product_card.html' %}{% empty %}<p>{% ui 'empty' %}</p>{% endfor %}</div>
+<div class="more-row">{% if showcase_page.has_next %}<a id="showcase-more" class="btn secondary" href="/?showcase_page={{ showcase_page.next_page_number }}#interface-products">{% ui 'more' %}</a>{% else %}<a class="btn secondary" href="/?all=1">{% ui 'allGoods' %}{% ui_icon 'arrow' %}</a>{% endif %}</div></section>
+<aside class="business-strip">{% ui_icon 'growth' %}<div><h3>{% ui 'grow' %}</h3><p>{% ui 'growText' %}</p></div><a class="btn" href="{% url 'business_gateway' %}">{% ui 'join' %}</a></aside>
+<div class="mobile-links"><a href="{% url 'editorial_index' %}">{% ui 'articles' %}</a><a href="{% url 'feedback' %}">{% ui 'feedback' %}</a><a href="{% url 'privacy' %}">{% ui 'privacy' %}</a></div>
+<script>window.ZPT_CART={addUrl:'{% url "orders:cart_add_api" %}',countUrl:'{% url "orders:cart_count" %}'};</script><script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v13"></script>
+{% endblock %}

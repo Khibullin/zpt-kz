@@ -1458,7 +1458,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertGreater(dispatch_count, 0)
 
     def test_home_form_is_compact_matched_version(self):
-        page = self.client.get('/')
+        page = self.client.get('/find-part/')
         self.assertContains(page, 'home-parts-form-v8.js')
         self.assertNotContains(page, 'home-parts-form-v7.js')
         self.assertNotContains(page, 'home-parts-form-v6.js')

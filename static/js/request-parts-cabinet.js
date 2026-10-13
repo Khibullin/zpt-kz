@@ -199,6 +199,7 @@ async function enableEditProfile(){
     <div class="info-box"><b>Город</b><input id="edit_city" class="profile-input" value="${escHtml(sellerProfileData.city||sellerProfileData.market_location||'')}"></div>
     <div class="info-box"><b>Тип транспорта</b><select id="edit_transport_type" class="profile-input"><option value="car" ${sellerProfileData.transport_type==='truck'?'':'selected'}>Легковые</option><option value="truck" ${sellerProfileData.transport_type==='truck'?'selected':''}>Грузовые</option></select></div>
     <div class="info-box"><b>Получает заявки</b><label class="checkbox-item"><input id="edit_receive_requests" type="checkbox" ${sellerProfileData.receive_requests?'checked':''}><span>Получать заявки</span></label></div>
+    <div class="info-box"><b>Каталог авторазборов</b><label class="checkbox-item"><input id="edit_is_dismantler" type="checkbox" ${sellerProfileData.is_dismantler?'checked':''}><span>Моя компания — авторазбор</span></label></div>
     <div class="info-box"><b>Статус</b><label class="checkbox-item"><input id="edit_is_paused" type="checkbox" ${sellerProfileData.is_paused?'checked':''}><span>Поставить на паузу</span></label></div>
     <div class="profile-actions"><button class="btn btn-blue" type="button" onclick="saveProfile()">Сохранить</button><button class="btn btn-gray" type="button" onclick="cancelEditProfile()">Отмена</button></div>`;
 
@@ -227,6 +228,7 @@ async function saveProfile(){
     transport_type:document.getElementById('edit_transport_type').value,
     receive_requests:document.getElementById('edit_receive_requests').checked,
     is_paused:document.getElementById('edit_is_paused').checked,
+    is_dismantler:document.getElementById('edit_is_dismantler').checked,
     all_countries:document.getElementById('all_countries')?.checked || false,
     all_categories:document.getElementById('all_categories')?.checked || false,
     all_brands:document.getElementById('all_brands')?.checked || false,

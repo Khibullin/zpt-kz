@@ -24,23 +24,14 @@ class HomeKitsEntryTests(TestCase):
         ProductPriceTier.objects.create(product=product, min_qty=1, price=product.price)
         self.product = product
 
-    def test_homepage_has_single_kits_button_under_search_not_in_header(self):
+    def test_homepage_has_one_kits_tile_below_search(self):
         home = self.client.get(reverse('catalog_list'))
-        self.assertContains(home, 'class="home-kits-entry"')
-        self.assertContains(home, 'class="home-kits-entry-btn"')
-        self.assertContains(home, 'Комплекты ТО →')
-        self.assertContains(home, f'href="{reverse("maintenance_kit_list")}"')
-        self.assertContains(home, 'class="site-product-search"')
-        self.assertEqual(home.content.decode().count('Комплекты ТО →'), 1)
-
         html = home.content.decode()
-        header_end = html.find('</header>')
-        kits_pos = html.find('class="home-kits-entry"')
-        search_pos = html.find('class="site-product-search"')
-        self.assertGreater(header_end, 0)
-        self.assertGreater(kits_pos, header_end)
-        self.assertGreater(header_end, search_pos)
-        self.assertGreater(kits_pos, search_pos)
+        self.assertContains(home, 'class="tiles"')
+        self.assertContains(home, 'site-product-search')
+        target = f'href="{reverse("maintenance_kit_list")}"'
+        self.assertEqual(html.count(target), 1)
+        self.assertGreater(html.find(target), html.find('</header>'))
 
     def test_kits_button_stays_off_listing_and_other_header_pages(self):
         listing = self.client.get(reverse('catalog_list'), {'q': 'KITBTN-T218'})

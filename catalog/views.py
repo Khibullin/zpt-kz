@@ -515,12 +515,14 @@ def catalog_list(request):
     if viewer_is_seller:
         products = b2b_prefetch(products)
 
+    showcase_page = None
     if is_home_result_param:
         products = products.none()
     elif is_listing:
         products = products.order_by('-created_at')
     else:
-        products = products.order_by('?')[:8]
+        showcase_page = Paginator(products.order_by('-created_at', '-pk'), 12).get_page(request.GET.get('showcase_page', 1))
+        products = showcase_page.object_list
 
     products = attach_sellers_to_products(products)
     attach_b2b_offers(products, enabled=viewer_is_seller)
@@ -544,6 +546,7 @@ def catalog_list(request):
 
     context = {
         'products': products,
+        'showcase_page': showcase_page,
         'has_filters': has_filters,
         'show_all': show_all,
         'is_listing': is_listing,
@@ -572,7 +575,17 @@ def catalog_list(request):
         'catalog_all_url': catalog_all_url,
         **_build_home_seo_links(),
     }
-    response = render(request, 'catalog/catalog_list.html', context)
+    is_interface_home = (
+        not is_listing and not home_request_token
+        and request.resolver_match.url_name != 'interface_find_part'
+    )
+    if request.GET.get('condition') == 'used' and not query:
+        context['home_query_prefill'] = 'Б/У: '
+    if is_interface_home:
+        from .views_interface import homepage_tiles
+        context.update(interface_home=True, interface_tiles=homepage_tiles())
+    template = 'catalog/interface/home.html' if is_interface_home else 'catalog/catalog_list.html'
+    response = render(request, template, context)
     if home_request_token:
         response['Cache-Control'] = 'private, no-store'
         response['Pragma'] = 'no-cache'

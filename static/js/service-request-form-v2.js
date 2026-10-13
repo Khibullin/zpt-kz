@@ -272,3 +272,5 @@ if(document.readyState==='loading'){
 }else{
   initServiceRequestForm();
 }
+
+if (new URLSearchParams(location.search).get('type') === 'detailing') { setServiceType('detailing'); }
