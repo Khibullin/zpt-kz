@@ -1925,7 +1925,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
     )
 
     if dismantlers_only:
-        sellers = sellers.filter(is_dismantler=True)
+        sellers = sellers.filter(is_dismantler=True).select_related('brand_fk')
 
     if raw_city and not city:
         sellers = Seller.objects.none()
@@ -1968,12 +1968,20 @@ def parts_sellers_catalog(request, dismantlers_only=False):
         ).distinct()
 
     if q:
-        sellers = sellers.filter(
+        search_terms = (
             Q(name__icontains=q) |
             Q(city__icontains=q) |
             Q(market_location__icontains=q) |
             Q(notes__icontains=q)
-        ).distinct()
+        )
+        if dismantlers_only:
+            search_terms |= (
+                Q(selected_brands__name__icontains=q) |
+                Q(brand_fk__name__icontains=q) |
+                Q(selected_categories__name__icontains=q) |
+                Q(brand__icontains=q) | Q(category__icontains=q)
+            )
+        sellers = sellers.filter(search_terms).distinct()
 
     paginator = Paginator(
         sellers.order_by('name', 'pk'),
@@ -1999,11 +2007,18 @@ def parts_sellers_catalog(request, dismantlers_only=False):
         .order_by('city')
     )
 
+    if dismantlers_only:
+        cities = cities.filter(is_dismantler=True)
+
     return render(
         request,
-        'catalog/parts_sellers/index.html',
+        ('catalog/interface/dismantlers/catalog.html' if dismantlers_only
+         else 'catalog/parts_sellers/index.html'),
         {
             'is_dismantlers_catalog': dismantlers_only,
+            'section_title': 'dismantlers' if dismantlers_only else '',
+            'hide_product_search': dismantlers_only,
+            'has_directory_filters': any((q, transport_type, raw_city, category_id, country_id, brand_id, model_id)),
             'sellers': sellers_page,
             'page_obj': sellers_page,
             'filters': {

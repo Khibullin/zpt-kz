@@ -1359,6 +1359,11 @@ class RequestPhoto(models.Model):
 
 class Seller(models.Model):
     is_dismantler = models.BooleanField(default=False, verbose_name='Показывать в каталоге авторазборов')
+    directory_photo = models.ImageField(
+        upload_to='seller_directory/', blank=True,
+        verbose_name='Фото компании для каталога',
+        help_text='Реальная фотография вашего авторазбора или склада.',
+    )
     name = models.CharField(max_length=255)
     whatsapp = models.CharField(max_length=20)
     phone2 = models.CharField(max_length=20, blank=True, verbose_name='Доп. телефон')
