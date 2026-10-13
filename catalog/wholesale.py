@@ -226,6 +226,7 @@ def public_wholesale_prefetch(queryset):
         'seller_profile',
         'seller_profile__wholesale_terms',
     ).prefetch_related(
+        'kaspi_listings',
         'selected_brands',
         Prefetch(
             'selected_models',

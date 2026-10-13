@@ -105,10 +105,15 @@
   function setBuyButtonSuccess(button) {
     const textEl = button.querySelector('.product-buy-btn-text');
     const original = textEl ? textEl.textContent : button.textContent;
+    const labels = textEl && textEl.dataset.ru ? {ru: textEl.dataset.ru, kk: textEl.dataset.kk} : null;
     button.disabled = true;
     button.classList.add('is-success');
     if (textEl) {
-      textEl.textContent = 'В корзине! ✓';
+      if (labels) {
+        textEl.dataset.ru = 'В корзине! ✓';
+        textEl.dataset.kk = 'Себетте! ✓';
+      }
+      textEl.textContent = labels && document.documentElement.lang === 'kk' ? 'Себетте! ✓' : 'В корзине! ✓';
     } else {
       button.textContent = 'В корзине! ✓';
     }
@@ -116,7 +121,11 @@
       button.disabled = false;
       button.classList.remove('is-success');
       if (textEl) {
-        textEl.textContent = original;
+        if (labels) {
+          textEl.dataset.ru = labels.ru;
+          textEl.dataset.kk = labels.kk;
+        }
+        textEl.textContent = labels ? labels[document.documentElement.lang === 'kk' ? 'kk' : 'ru'] : original;
       } else {
         button.textContent = original;
       }

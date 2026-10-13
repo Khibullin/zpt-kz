@@ -12,6 +12,17 @@ def ui(key):
     ru, kk = WORDS[key]
     return format_html('<span data-ru="{}" data-kk="{}">{}</span>', ru, kk, ru)
 
+
+WORDS.update({
+    'cardDetails': ['Подробнее', 'Толығырақ'],
+    'cardKaspi': ['Купить на Kaspi', 'Kaspi-де сатып алу'],
+    'cardAskPrice': ['Узнать цену', 'Бағасын білу'],
+})
+ICONS.update({
+    'external': 'M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5',
+    'message': 'M21 15a3 3 0 0 1-3 3H7l-4 4V6a3 3 0 0 1 3-3h12a3 3 0 0 1 3 3z',
+})
+
 @register.simple_tag
 def ui_icon(key):
     return format_html('<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="{}"/></svg>', ICONS[key])
