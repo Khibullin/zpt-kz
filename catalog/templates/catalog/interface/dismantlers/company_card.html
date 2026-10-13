@@ -1,8 +1,8 @@
-{% load interface_ui phone_extras %}
+{% load interface_ui phone_extras dismantler_images %}
 <article class="dismantle-company">
   <a class="dismantle-company-photo" href="{% url 'parts_seller_detail_public' seller.pk %}" aria-label="{{ seller.name }}">
     {% if seller.directory_photo %}<img src="{{ seller.directory_photo.url }}" alt="{{ seller.name }}" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">{% endif %}
-    <span class="dismantle-company-placeholder"{% if seller.directory_photo %} hidden{% endif %}>{% ui_icon 'garage' %}{% ui 'dismantleShort' %}</span>
+    <span class="dismantle-company-illustration"{% if seller.directory_photo %} hidden{% endif %}>{% dismantler_art seller %}<span class="dismantle-illustration-label">{% ui 'dismantleIllustration' %}</span></span>
   </a>
   <div class="dismantle-company-body"><h2><a href="{% url 'parts_seller_detail_public' seller.pk %}">{{ seller.name }}</a></h2>
     {% if seller.city %}<p class="dismantle-company-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
