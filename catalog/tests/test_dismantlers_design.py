@@ -79,6 +79,36 @@ class DismantlersDesignTests(TestCase):
         self.assertContains(page, 'Каталог авторазборов наполняется')
         self.assertNotContains(page, 'Dismantler A')
 
+    def test_public_description_contacts_and_private_notes_are_separate(self):
+        self.seller.directory_description = 'Контрактные детали <script>alert(1)</script>'
+        self.seller.directory_description_kk = 'Қолданылған қосалқы бөлшектер'
+        self.seller.notes = 'PRIVATE_AUDIT_MARKER'
+        self.seller.phone2 = '+7 (707) 111-22-33'
+        self.seller.save()
+        url = reverse('parts_seller_detail_public', args=[self.seller.pk])
+        page = self.client.get(url)
+        self.assertTemplateUsed(page, 'catalog/interface/dismantlers/detail.html')
+        self.assertContains(page, 'tel:+77071112233')
+        self.assertContains(page, 'tel:+77001234567')
+        self.assertContains(page, 'href="/auto-dismantlers/"')
+        for page in (page, self.client.get('/auto-dismantlers/')):
+            self.assertContains(page, 'Контрактные детали &lt;script&gt;')
+            self.assertContains(page, 'Қолданылған қосалқы бөлшектер')
+            self.assertNotContains(page, '<script>alert(1)</script>')
+            self.assertNotContains(page, 'PRIVATE_AUDIT_MARKER')
+        for query, count in [('PRIVATE_AUDIT_MARKER', 0), ('Контрактные детали', 1), ('Қолданылған', 1)]:
+            page = self.client.get('/auto-dismantlers/', {'q': query})
+            self.assertEqual(page.context['page_obj'].paginator.count, count)
+
+    def test_paused_or_inactive_profiles_are_unavailable_and_ordinary_profile_is_unchanged(self):
+        url = reverse('parts_seller_detail_public', args=[self.seller.pk])
+        for changes in ({'is_paused': True}, {'is_paused': False, 'is_active': False}):
+            Seller.objects.filter(pk=self.seller.pk).update(**changes)
+            self.assertEqual(self.client.get(url).status_code, 404)
+        ordinary = Seller.objects.get(name='Ordinary store')
+        page = self.client.get(reverse('parts_seller_detail_public', args=[ordinary.pk]))
+        self.assertTemplateUsed(page, 'catalog/parts_sellers/detail.html')
+
     def test_pagination_preserves_escaped_search_and_filters(self):
         query = 'A&B + Разбор'
         Seller.objects.bulk_create([
