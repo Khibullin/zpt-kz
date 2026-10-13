@@ -42,9 +42,14 @@ document.addEventListener('click',async e=>{
     if(!response.ok)throw new Error('showcase');
     const page=new DOMParser().parseFromString(await response.text(),'text/html');
     const cards=page.querySelectorAll('#interface-products > .product');
-    if(!cards.length)throw new Error('showcase');
+    if(!page.querySelector('#interface-products'))throw new Error('showcase');
     const grid=document.querySelector('#interface-products');
-    cards.forEach(card=>grid.append(card));
+    const seen=new Set([...grid.querySelectorAll(':scope > .product')].map(card=>card.dataset.productId));
+    cards.forEach(card=>{
+      const id=card.dataset.productId;
+      if(id && seen.has(id))return;
+      grid.append(card);if(id)seen.add(id);
+    });
     document.dispatchEvent(new CustomEvent('zpt:products-added',{detail:grid}));
     const next=page.querySelector('#showcase-more');
     if(next)link.href=next.href;else link.parentElement.remove();

@@ -1,9 +1,9 @@
-{% load static humanize phone_extras product_extras interface_ui kaspi_buy %}
+{% load l10n static humanize phone_extras product_extras interface_ui kaspi_buy %}
 {% with stock=product.public_stock kaspi_url=product|kaspi_buy_url contact_phone=seller_phone|default:product.whatsapp_number|whatsapp_phone %}
-<article class="product product-v2 product-card-approved" data-card-mode="{{ card_mode|default:'retail' }}">
-  <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="{{ product.title }}">
+<article data-product-id="{{ product.pk|unlocalize }}" class="product product-v2 product-card-approved" data-card-mode="{{ card_mode|default:'retail' }}">
+  <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="{{ product|public_card_title }}">
     {% if product.main_image %}
-      <img loading="lazy" decoding="async" src="{{ product.main_image.url }}" alt="{{ product.title }}"
+      <img loading="lazy" decoding="async" src="{{ product.main_image.url }}" alt="{{ product|public_card_title }}"
         onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
     {% endif %}
     <span class="product-card-placeholder"{% if product.main_image %} hidden{% endif %}>
@@ -13,7 +13,7 @@
   </a>
   <div class="product-body">
     <div class="product-title-row">
-      <a href="{{ product|public_product_url }}" class="product-title-link" title="{{ product.title }}">
+      <a href="{{ product|public_product_url }}" class="product-title-link" title="{{ product|public_card_title }}">
         <div class="product-title">{{ product|public_card_title }}</div>
       </a>
       {% if not card_compact %}{% include 'catalog/includes/product_share_button.html' with product=product %}{% endif %}

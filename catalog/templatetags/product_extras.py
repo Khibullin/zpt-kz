@@ -41,8 +41,9 @@ def vehicle_line(product):
 
 @register.filter
 def public_card_title(product):
-    """Avoid repeating a trailing article; preserve all other product wording."""
-    title = str(getattr(product, 'title', '') or '').strip()
+    """Use exact reviewed translations and avoid repeating a trailing article."""
+    from catalog.product_display import public_product_title
+    title = public_product_title(product)
     article = str(getattr(product, 'article', '') or '').strip()
     if article:
         title = re.sub(r'\s+[—–-]\s*' + re.escape(article) + r'\s*$', '', title, flags=re.I)

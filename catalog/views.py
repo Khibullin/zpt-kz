@@ -516,12 +516,16 @@ def catalog_list(request):
         products = b2b_prefetch(products)
 
     showcase_page = None
+    showcase_snapshot = ''
     if is_home_result_param:
         products = products.none()
     elif is_listing:
         products = products.order_by('-created_at')
     else:
-        showcase_page = Paginator(products.order_by('-created_at', '-pk'), 12).get_page(request.GET.get('showcase_page', 1))
+        from .showcase import homepage_showcase_page
+        showcase_page, showcase_snapshot = homepage_showcase_page(
+            request, products, attach_sellers_to_products
+        )
         products = showcase_page.object_list
 
     products = attach_sellers_to_products(products)
@@ -547,6 +551,7 @@ def catalog_list(request):
     context = {
         'products': products,
         'showcase_page': showcase_page,
+        'showcase_snapshot': showcase_snapshot,
         'has_filters': has_filters,
         'show_all': show_all,
         'is_listing': is_listing,
