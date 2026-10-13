@@ -100,6 +100,14 @@ class DismantlersDesignTests(TestCase):
             page = self.client.get('/auto-dismantlers/', {'q': query})
             self.assertEqual(page.context['page_obj'].paginator.count, count)
 
+    def test_blank_description_preserves_known_specialization_without_notes(self):
+        self.seller.notes = 'PRIVATE_AUDIT_MARKER'
+        self.seller.save(update_fields=['notes'])
+        page = self.client.get(reverse('parts_seller_detail_public', args=[self.seller.pk]))
+        for name in ('Japan QA', 'Toyota QA', 'Camry QA', 'Engine QA'):
+            self.assertContains(page, name)
+        self.assertNotContains(page, 'PRIVATE_AUDIT_MARKER')
+
     def test_paused_or_inactive_profiles_are_unavailable_and_ordinary_profile_is_unchanged(self):
         url = reverse('parts_seller_detail_public', args=[self.seller.pk])
         for changes in ({'is_paused': True}, {'is_paused': False, 'is_active': False}):
