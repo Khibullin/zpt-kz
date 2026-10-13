@@ -1248,6 +1248,24 @@ def unmark_as_test_seller(modeladmin, request, queryset):
     messages.warning(request, f'Снят признак тестовых продавцов: {updated}.')
 
 
+class SellerDismantlerFilter(admin.SimpleListFilter):
+    title = 'Авторазборы'
+    parameter_name = 'is_dismantler'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('1', 'Авторазборы'),
+            ('0', 'Остальные'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == '1':
+            return queryset.filter(is_dismantler=True)
+        if self.value() == '0':
+            return queryset.filter(is_dismantler=False)
+        return queryset
+
+
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
     change_list_template = 'admin/core/seller/change_list.html'
@@ -1260,6 +1278,7 @@ class SellerAdmin(admin.ModelAdmin):
         'phone2',
         'transport_type',
         'seller_type',
+        'dismantler_status',
         'dispatch_priority',
         'receive_requests',
         'is_test_seller',
@@ -1276,6 +1295,7 @@ class SellerAdmin(admin.ModelAdmin):
     )
 
     list_filter = (
+        SellerDismantlerFilter,
         'transport_type',
         'seller_type',
         'receive_requests',
@@ -1320,10 +1340,6 @@ class SellerAdmin(admin.ModelAdmin):
                 'whatsapp',
                 'phone2',
                 'seller_type',
-                'is_dismantler',
-                'directory_photo',
-                'directory_description',
-                'directory_description_kk',
                 'transport_type',
                 'city',
                 'market_location',
@@ -1334,6 +1350,15 @@ class SellerAdmin(admin.ModelAdmin):
                 'is_test_seller',
                 'notes',
             )
+        }),
+
+        ('Каталог авторазборов', {
+            'fields': (
+                'is_dismantler',
+                'directory_photo',
+                'directory_description',
+                'directory_description_kk',
+            ),
         }),
 
         ('Старый одиночный режим', {
@@ -1363,6 +1388,10 @@ class SellerAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+    @admin.display(boolean=True, ordering='is_dismantler', description='Авторазбор')
+    def dismantler_status(self, obj):
+        return obj.is_dismantler
 
     def get_urls(self):
         urls = super().get_urls()

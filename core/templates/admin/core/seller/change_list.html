@@ -2,6 +2,11 @@
 
 {% block object-tools-items %}
     <li>
+        <a href="{% url 'admin:core_seller_changelist' %}?is_dismantler=1">
+            Авторазборы
+        </a>
+    </li>
+    <li>
         <a href="import-xlsx/" class="addlink">
             Импорт продавцов XLSX
         </a>
