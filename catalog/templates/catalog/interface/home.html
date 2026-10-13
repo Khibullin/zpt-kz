@@ -9,6 +9,6 @@
 <div class="products" id="interface-products">{% for product in products %}{% include 'catalog/interface/product_card.html' %}{% empty %}<p>{% ui 'empty' %}</p>{% endfor %}</div>
 <div class="more-row">{% if showcase_page.has_next %}<a id="showcase-more" class="btn secondary" href="/?showcase_page={{ showcase_page.next_page_number }}#interface-products">{% ui 'more' %}</a>{% else %}<a class="btn secondary" href="/?all=1">{% ui 'allGoods' %}{% ui_icon 'arrow' %}</a>{% endif %}</div></section>
 <aside class="business-strip">{% ui_icon 'growth' %}<div><h3>{% ui 'grow' %}</h3><p>{% ui 'growText' %}</p></div><a class="btn" href="{% url 'business_gateway' %}">{% ui 'join' %}</a></aside>
-<div class="mobile-links"><a href="{% url 'editorial_index' %}">{% ui 'articles' %}</a><a href="{% url 'feedback' %}">{% ui 'feedback' %}</a><a href="{% url 'privacy' %}">{% ui 'privacy' %}</a></div>
+<div class="mobile-links">{% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}">{% ui 'articles' %}</a>{% endif %}<a href="{% url 'feedback' %}">{% ui 'feedback' %}</a><a href="{% url 'privacy' %}">{% ui 'privacy' %}</a></div>
 <script>window.ZPT_CART={addUrl:'{% url "orders:cart_add_api" %}',countUrl:'{% url "orders:cart_count" %}'};</script><script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v13"></script>
 {% endblock %}
