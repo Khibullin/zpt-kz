@@ -1,13 +1,1 @@
-{% load static humanize phone_extras product_extras %}
-<article class="product product-v2" data-card-mode="retail">
-<a class="product-image-link" href="{{ product|public_product_url }}" aria-label="{{ product.title }}">
-{% if product.main_image %}<img loading="lazy" src="{{ product.main_image.url }}" alt="{{ product.title }}">{% else %}<img loading="lazy" src="{% static 'images/logo.png' %}" alt="{{ product.title }}">{% endif %}
-</a>
-<div class="product-body"><a href="{{ product|public_product_url }}" class="product-title-link"><div class="product-title">{{ product.title }}</div></a>
-<div class="product-card-prices">{% if product.price_on_request %}<span class="product-card-price-value">Цена по запросу</span>{% elif product.price is not None %}<span class="product-card-price-value">{{ product.price|intcomma|comma_to_space }} ₸</span>{% endif %}
-{% if product.has_public_wholesale and product.wholesale_unit_price %}<div class="product-card-price-label">Опт{% if product.wholesale_min_order_qty %} от {{ product.wholesale_min_order_qty }} шт{% endif %}: {{ product.wholesale_unit_price|intcomma|comma_to_space }} ₸/шт</div>{% endif %}</div>
-{% if product.public_stock %}<p class="product-card-stock">{{ product.public_stock.label }}</p>{% endif %}
-{% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
-</div>
-<div class="product-actions-v2">{% if product.price_on_request %}{% include 'catalog/includes/product_whatsapp_link.html' with product=product %}{% endif %}{% if product.status != 'sold' %}{% include 'catalog/includes/product_buy_controls.html' with product=product %}{% endif %}</div>
-</article>
+{% include 'catalog/includes/product_card.html' with card_mode='retail' card_compact=True %}

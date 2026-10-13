@@ -1,4 +1,4 @@
-{% load product_extras %}
+{% load product_extras interface_ui %}
 {% with wa_message=product|public_product_whatsapp_message %}
 {% with wa_url=seller_phone|default:product.whatsapp_number|whatsapp_url:wa_message %}
 {% if wa_url %}
@@ -9,7 +9,7 @@
   rel="noopener noreferrer"
 >
   {% if product.price_on_request %}
-    Узнать цену
+    {% if card_design %}{% ui_icon 'message' %}{% ui 'cardAskPrice' %}{% else %}Узнать цену{% endif %}
   {% elif detail %}
     WhatsApp продавцу
   {% else %}

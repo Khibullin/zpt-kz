@@ -1,105 +1,69 @@
-{% load static humanize phone_extras product_extras %}
-<article
-  class="product product-v2"
-  data-card-mode="{{ card_mode|default:'retail' }}"
->
-
-  <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="Подробнее о товаре {{ product.title }}">
-
+{% load static humanize phone_extras product_extras interface_ui kaspi_buy %}
+{% with stock=product.public_stock kaspi_url=product|kaspi_buy_url contact_phone=seller_phone|default:product.whatsapp_number|whatsapp_phone %}
+<article class="product product-v2 product-card-approved" data-card-mode="{{ card_mode|default:'retail' }}">
+  <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="{{ product.title }}">
     {% if product.main_image %}
-      <img
-        src="{{ product.main_image.url }}"
-        alt="{{ product.title }}"
-        onerror="this.onerror=null;this.src=&quot;{% static 'images/logo.png' %}&quot;;"
-      >
-    {% else %}
-      <img
-        src="{% static 'images/logo.png' %}"
-        alt="{{ product.title }}"
-      >
+      <img loading="lazy" decoding="async" src="{{ product.main_image.url }}" alt="{{ product.title }}"
+        onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
     {% endif %}
-
+    <span class="product-card-placeholder"{% if product.main_image %} hidden{% endif %}>
+      <svg aria-hidden="true" viewBox="0 0 48 48"><rect x="6" y="6" width="36" height="36" rx="5"/><circle cx="17" cy="17" r="4"/><path d="m7 35 11-11 8 8 6-6 9 9"/></svg>
+      <span data-ru="Фото уточняется" data-kk="Фото нақтылануда">Фото уточняется</span>
+    </span>
   </a>
-
   <div class="product-body">
-
     <div class="product-title-row">
-      <a href="{{ product|public_product_url }}" class="product-title-link">
-
-        <div class="product-title">
-          {{ product.title }}
-        </div>
-
+      <a href="{{ product|public_product_url }}" class="product-title-link" title="{{ product.title }}">
+        <div class="product-title">{{ product|public_card_title }}</div>
       </a>
-      {% include 'catalog/includes/product_share_button.html' with product=product %}
+      {% if not card_compact %}{% include 'catalog/includes/product_share_button.html' with product=product %}{% endif %}
     </div>
-
     {% with vehicle_line=product|public_card_fitment %}
-      {% if vehicle_line %}
-        <div class="product-title-vehicle product-card-fitment">{{ vehicle_line }}</div>
-      {% endif %}
+      {% if vehicle_line %}<div class="product-title-vehicle product-card-fitment" title="{{ vehicle_line }}">{{ vehicle_line }}</div>{% endif %}
     {% endwith %}
-
+    {% if product.article %}<div class="product-card-article"><span data-ru="Артикул" data-kk="Артикул">Артикул</span>: {{ product.article }}</div>{% endif %}
+    {% if not card_compact %}<div class="product-card-condition">{{ product.get_condition_display }}</div>{% endif %}
     {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
-
+    {% if compat_note %}<p class="home-compat-note">{{ compat_note }}</p>{% endif %}
     <div class="product-card-prices">
       {% if product.price_on_request %}
-        <div class="product-card-price product-card-price--retail">
-          <span class="product-card-price-value product-card-price-value--request">Цена по запросу</span>
-        </div>
+        <div class="product-card-price product-card-price--retail"><span class="product-card-price-value product-card-price-value--request" data-ru="Цена по запросу" data-kk="Баға сұрау бойынша">Цена по запросу</span></div>
       {% elif product.price is not None %}
         <div class="product-card-price product-card-price--retail">
-          <span class="product-card-price-label">Розница</span>
+          {% if product.has_public_wholesale %}<span class="product-card-price-label">Розница</span>{% endif %}
           <span class="product-card-price-value">{{ product.price|intcomma|comma_to_space }} ₸</span>
         </div>
       {% endif %}
       {% if product.has_public_wholesale and product.wholesale_unit_price %}
         <div class="product-card-price product-card-price--wholesale">
-          <span class="product-card-price-label">
-            {% if product.wholesale_min_order_qty %}
-              Опт от {{ product.wholesale_min_order_qty }} шт
-            {% else %}
-              Оптовая цена
-            {% endif %}
-          </span>
+          <span class="product-card-price-label">{% if product.wholesale_min_order_qty %}Опт от {{ product.wholesale_min_order_qty }} шт{% else %}Оптовая цена{% endif %}</span>
           <span class="product-card-price-value">{{ product.wholesale_unit_price|intcomma|comma_to_space }} ₸/шт</span>
         </div>
       {% endif %}
     </div>
-
+    {% if stock %}
+      <p class="product-card-stock product-card-stock--{{ stock.code }}">
+        {% if stock.code == 'in' %}<span data-ru="{{ stock.label }}" data-kk="Қолда бар: {{ stock.qty }} дана">{{ stock.label }}</span>
+        {% elif stock.code == 'out' %}{% ui 'unavailable' %}
+        {% else %}<span data-ru="Наличие уточняется" data-kk="Қолда бары нақтылануда">Наличие уточняется</span>{% endif %}
+      </p>
+    {% endif %}
     {% include 'catalog/includes/product_card_seller_meta.html' with product=product show_seller_socials=False %}
-
-    {% if compat_note %}
-      <p class="home-compat-note">{{ compat_note }}</p>
-    {% endif %}
-
-    <div class="product-meta-row muted product-meta-details">
-      <span>{{ product.get_condition_display }}</span>
-      {% if product.article %}
-        <span class="meta-sep">•</span>
-        <span>Арт. {{ product.article }}</span>
-      {% endif %}
-    </div>
-
-    {% if product.public_stock %}
-      <p class="product-card-stock">{{ product.public_stock.label }}</p>
-    {% endif %}
-
-    <div class="product-actions-v2{% if product.price_on_request %} product-actions-v2--price-request{% endif %}">
-      {% include 'catalog/includes/product_whatsapp_link.html' with product=product %}
-
-      <a
-        class="product-detail-link"
-        href="{{ product|public_product_url }}"
-      >
-        Подробнее
-      </a>
-
-      {% if product.status != 'sold' %}
-        {% include 'catalog/includes/product_buy_controls.html' with product=product %}
-      {% endif %}
-    </div>
-
   </div>
-
+  <div class="product-actions-v2{% if product.price_on_request %} product-actions-v2--price-request{% endif %}">
+    {% if product.price_on_request %}{% include 'catalog/includes/product_whatsapp_link.html' with product=product card_design=True %}{% endif %}
+    {% if product.status != 'sold' %}{% include 'catalog/includes/product_buy_controls.html' with product=product card_design=True %}{% endif %}
+    {% if product.status == 'sold' or stock and not stock.can_buy and not kaspi_url %}
+      {% include 'catalog/includes/product_card_details_button.html' %}
+    {% elif product.price_on_request and not contact_phone and not kaspi_url %}
+      {% if product.seller_profile.slug != 'ag-parts' %}{% include 'catalog/includes/product_card_details_button.html' %}{% endif %}
+    {% endif %}
+    {% if not card_compact %}
+      <div class="product-card-secondary">
+        <a href="{{ product|public_product_url }}">{% ui 'cardDetails' %}</a>
+        {% if not product.price_on_request %}{% include 'catalog/includes/product_whatsapp_link.html' with product=product %}{% endif %}
+      </div>
+    {% endif %}
+  </div>
 </article>
+{% endwith %}
