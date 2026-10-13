@@ -1,0 +1,21 @@
+{% extends 'catalog/interface/dismantlers/base.html' %}{% load static interface_ui %}
+{% block title %}Авторазборы и Б/У запчасти в Казахстане | ZPT.KZ{% endblock %}
+{% block meta_description %}Найдите Б/У запчасть для своего автомобиля или выберите авторазбор по городу, марке и специализации в отдельном каталоге ZPT.KZ.{% endblock %}
+{% block interface_content %}
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'dismantleShort' %}</span></nav>
+<section class="dismantle-hero" aria-labelledby="dismantle-heading">
+  <img class="dismantle-hero-photo" src="{% static 'interface/dismantlers/hero.webp' %}" alt="" fetchpriority="high" width="1942" height="809">
+  <div class="dismantle-hero-copy"><h1 id="dismantle-heading">{% ui 'dismantleTitle' %}</h1><p>{% ui 'dismantleIntro' %}</p></div>
+</section>
+<div class="dismantle-choices">
+  <a class="dismantle-choice" href="{% url 'interface_find_part' %}?condition=used">
+    <img src="{% static 'interface/dismantlers/parts.webp' %}" alt="" width="1983" height="793">
+    <div class="dismantle-choice-copy"><h2>{% ui 'dismantleFind' %}</h2><p>{% ui 'dismantleFindHint' %}</p><span class="btn">{% ui 'request' %}{% ui_icon 'arrow' %}</span></div>
+  </a>
+  <a class="dismantle-choice" href="{% url 'dismantlers_catalog' %}">
+    <img src="{% static 'interface/dismantlers/warehouse.webp' %}" alt="" width="1983" height="793">
+    <div class="dismantle-choice-copy"><h2>{% ui 'dismantlers' %}</h2><p>{% ui 'dismantleDirectoryHint' %}</p><span class="btn dismantle-outline">{% ui 'dismantleOpen' %}{% ui_icon 'arrow' %}</span></div>
+  </a>
+</div>
+<aside class="dismantle-owner">{% ui_icon 'garage' %}<strong>{% ui 'dismantleOwner' %}</strong><a href="/request-parts/cabinet/">{% ui 'dismantleAdd' %}{% ui_icon 'arrow' %}</a></aside>
+{% endblock %}

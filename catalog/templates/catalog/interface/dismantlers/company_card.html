@@ -1,0 +1,14 @@
+{% load interface_ui phone_extras %}
+<article class="dismantle-company">
+  <a class="dismantle-company-photo" href="{% url 'parts_seller_detail_public' seller.pk %}" aria-label="{{ seller.name }}">
+    {% if seller.directory_photo %}<img src="{{ seller.directory_photo.url }}" alt="{{ seller.name }}" loading="lazy" decoding="async" onerror="this.hidden=true;this.nextElementSibling.hidden=false;">{% endif %}
+    <span class="dismantle-company-placeholder"{% if seller.directory_photo %} hidden{% endif %}>{% ui_icon 'garage' %}{% ui 'dismantleShort' %}</span>
+  </a>
+  <div class="dismantle-company-body"><h2><a href="{% url 'parts_seller_detail_public' seller.pk %}">{{ seller.name }}</a></h2>
+    {% if seller.city %}<p class="dismantle-company-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
+    {% if seller.market_location %}<p class="dismantle-company-location">{{ seller.market_location }}</p>{% endif %}
+    <p class="dismantle-company-categories">{% if seller.all_categories %}{% ui 'dismantleAllCategories' %}{% else %}{% for category in seller.selected_categories.all %}{{ category.name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ seller.category }}{% endfor %}{% endif %}</p>
+    <div class="dismantle-company-brands">{% if seller.all_brands %}<span>{% ui 'dismantleAllBrands' %}</span>{% else %}{% for brand in seller.selected_brands.all %}<span>{{ brand.name }}</span>{% empty %}{% if seller.brand_fk %}<span>{{ seller.brand_fk.name }}</span>{% elif seller.brand %}<span>{{ seller.brand }}</span>{% endif %}{% endfor %}{% endif %}</div>
+    <div class="dismantle-company-actions"><a class="dismantle-profile-link" href="{% url 'parts_seller_detail_public' seller.pk %}">{% ui 'dismantleProfile' %}{% ui_icon 'arrow' %}</a>{% with wa_url=seller.whatsapp|whatsapp_url %}{% if wa_url %}<a class="dismantle-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener">{% ui_icon 'message' %}WhatsApp</a>{% endif %}{% endwith %}</div>
+  </div>
+</article>

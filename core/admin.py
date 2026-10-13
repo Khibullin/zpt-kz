@@ -1321,6 +1321,7 @@ class SellerAdmin(admin.ModelAdmin):
                 'phone2',
                 'seller_type',
                 'is_dismantler',
+                'directory_photo',
                 'transport_type',
                 'city',
                 'market_location',

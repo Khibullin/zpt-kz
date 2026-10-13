@@ -21,6 +21,11 @@ def homepage_tiles():
 def interface_section(request, section):
     parts = reverse('interface_find_part')
     used = parts + '?condition=used'
+    if section == 'dismantle':
+        return render(request, 'catalog/interface/dismantlers/landing.html', {
+            'section_title': 'dismantle',
+            'hide_product_search': True,
+        })
     config = {
         'choose': ('request', [('parts', parts, 'gear'), ('usedRequest', used, 'gear'),
                               ('repairRequest', '/service-request/?type=sto', 'garage'),
