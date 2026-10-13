@@ -71,6 +71,7 @@ def ui_art(key):
 
 WORDS.update({
     'dismantleCompany': ['Авторазбор', 'Автобөлшектеу'],
+    'dismantleIllustration': ['Иллюстрация', 'Көрнекі сурет'],
     'dismantleAbout': ['О компании', 'Компания туралы'],
     'dismantleContacts': ['Связаться с авторазбором', 'Автобөлшектеу орталығымен байланысу'],
     'dismantlePhone': ['Телефон', 'Телефон'],
