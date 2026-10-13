@@ -1364,6 +1364,13 @@ class Seller(models.Model):
         verbose_name='Фото компании для каталога',
         help_text='Реальная фотография вашего авторазбора или склада.',
     )
+    directory_description = models.TextField(
+        blank=True, verbose_name='Описание для каталога (русский)',
+        help_text='Публичное описание компании. Внутренние заметки сюда не переносите.',
+    )
+    directory_description_kk = models.TextField(
+        blank=True, verbose_name='Описание для каталога (казахский)',
+    )
     name = models.CharField(max_length=255)
     whatsapp = models.CharField(max_length=20)
     phone2 = models.CharField(max_length=20, blank=True, verbose_name='Доп. телефон')

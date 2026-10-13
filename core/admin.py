@@ -1322,6 +1322,8 @@ class SellerAdmin(admin.ModelAdmin):
                 'seller_type',
                 'is_dismantler',
                 'directory_photo',
+                'directory_description',
+                'directory_description_kk',
                 'transport_type',
                 'city',
                 'market_location',

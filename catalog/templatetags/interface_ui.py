@@ -68,3 +68,13 @@ def ui_art(key):
     return format_html(
         '<svg class="art" aria-hidden="true" focusable="false" viewBox="{}" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="art-{}"><polygon points="{}"/></clipPath></defs><image clip-path="url(#art-{})" href="{}" width="1536" height="1024"/></svg>',
         ' '.join(map(str, CROPS[key])), key, points, key, static('interface/approved-desktop.png'))
+
+WORDS.update({
+    'dismantleCompany': ['Авторазбор', 'Автобөлшектеу'],
+    'dismantleAbout': ['О компании', 'Компания туралы'],
+    'dismantleContacts': ['Связаться с авторазбором', 'Автобөлшектеу орталығымен байланысу'],
+    'dismantlePhone': ['Телефон', 'Телефон'],
+    'dismantleExtraPhone': ['Дополнительный телефон', 'Қосымша телефон'],
+    'dismantleBackCatalog': ['Все авторазборы', 'Барлық автобөлшектеу орталықтары'],
+    'dismantleAvailability': ['Наличие, состояние и стоимость нужной детали уточняйте у компании.', 'Қажетті бөлшектің бар-жоғын, күйін және бағасын компаниядан нақтылаңыз.'],
+})

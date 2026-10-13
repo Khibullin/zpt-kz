@@ -1971,16 +1971,19 @@ def parts_sellers_catalog(request, dismantlers_only=False):
         search_terms = (
             Q(name__icontains=q) |
             Q(city__icontains=q) |
-            Q(market_location__icontains=q) |
-            Q(notes__icontains=q)
+            Q(market_location__icontains=q)
         )
         if dismantlers_only:
             search_terms |= (
+                Q(directory_description__icontains=q) |
+                Q(directory_description_kk__icontains=q) |
                 Q(selected_brands__name__icontains=q) |
                 Q(brand_fk__name__icontains=q) |
                 Q(selected_categories__name__icontains=q) |
                 Q(brand__icontains=q) | Q(category__icontains=q)
             )
+        else:
+            search_terms |= Q(notes__icontains=q)
         sellers = sellers.filter(search_terms).distinct()
 
     paginator = Paginator(
@@ -2054,9 +2057,12 @@ def parts_seller_detail(request, seller_id):
 
     return render(
         request,
-        'catalog/parts_sellers/detail.html',
+        ('catalog/interface/dismantlers/detail.html' if seller.is_dismantler
+         else 'catalog/parts_sellers/detail.html'),
         {
             'seller': seller,
+            'section_title': 'dismantlers' if seller.is_dismantler else '',
+            'hide_product_search': seller.is_dismantler,
         }
     )
 

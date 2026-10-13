@@ -1,0 +1,29 @@
+{% extends 'catalog/interface/dismantlers/base.html' %}{% load interface_ui phone_extras %}
+{% block title %}{{ seller.name }} — авторазбор | ZPT.KZ{% endblock %}
+{% block meta_description %}{{ seller.name }}. {{ seller.city }}. {{ seller.directory_description|truncatechars:140 }}{% endblock %}
+{% block interface_content %}
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<a href="{% url 'dismantlers_catalog' %}">{% ui 'dismantlers' %}</a>{% ui_icon 'chevron' %}<span>{{ seller.name }}</span></nav>
+<article class="dismantle-detail">
+  <div class="dismantle-detail-main">
+    <p class="dismantle-detail-label">{% ui 'dismantleCompany' %}</p>
+    <h1>{{ seller.name }}</h1>
+    {% if seller.city %}<p class="dismantle-company-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
+    {% if seller.market_location %}<p class="dismantle-company-location">{{ seller.market_location }}</p>{% endif %}
+    {% if seller.directory_photo %}<img class="dismantle-detail-photo" src="{{ seller.directory_photo.url }}" alt="{{ seller.name }}" decoding="async" onerror="this.hidden=true;">{% endif %}
+    <h2>{% ui 'dismantleAbout' %}</h2>
+    {% if seller.directory_description or seller.directory_description_kk %}
+    <p class="dismantle-detail-description" data-ru="{{ seller.directory_description|default:seller.directory_description_kk }}" data-kk="{{ seller.directory_description_kk|default:seller.directory_description }}">{{ seller.directory_description|default:seller.directory_description_kk }}</p>
+    {% endif %}
+    <p class="dismantle-detail-hint">{% ui 'dismantleAvailability' %}</p>
+  </div>
+  <aside class="dismantle-detail-contacts">
+    <h2>{% ui 'dismantleContacts' %}</h2>
+    {% with phone=seller.whatsapp|whatsapp_phone wa_url=seller.whatsapp|whatsapp_url %}
+      {% if phone %}<span class="dismantle-contact-label">{% ui 'dismantlePhone' %}</span><a class="dismantle-contact-phone" href="tel:+{{ phone }}">{{ seller.whatsapp|format_phone }}</a>{% endif %}
+      {% if wa_url %}<a class="btn dismantle-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener">{% ui_icon 'message' %}WhatsApp</a>{% endif %}
+    {% endwith %}
+    {% with phone=seller.phone2|whatsapp_phone %}{% if phone %}<span class="dismantle-contact-label">{% ui 'dismantleExtraPhone' %}</span><a class="dismantle-contact-phone" href="tel:+{{ phone }}">{{ seller.phone2|format_phone }}</a>{% endif %}{% endwith %}
+  </aside>
+</article>
+<a class="btn secondary dismantle-detail-back" href="{% url 'dismantlers_catalog' %}">{% ui_icon 'back' %}{% ui 'dismantleBackCatalog' %}</a>
+{% endblock %}

@@ -95,3 +95,22 @@
  .dismantle-empty{padding:30px 18px;min-height:340px}.dismantle-empty h2{font-size:23px}.dismantle-empty p{font-size:14px}.dismantle-empty-actions{width:100%}.dismantle-empty-actions>.btn{width:100%}
 }
 @media(prefers-reduced-motion:no-preference){.dismantle-choice{transition:border-color .15s,box-shadow .15s}}
+
+.dismantle-detail{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:32px;align-items:start;margin:28px 0}
+.dismantle-detail-main{min-width:0;background:#fff;border:1px solid #dce1e6;border-radius:12px;padding:30px}
+.dismantle-detail-label{color:var(--red);font-size:14px;font-weight:600;margin:0 0 12px}
+.dismantle-detail h1{font-size:36px;line-height:1.15;letter-spacing:-.7px;margin:0 0 18px;overflow-wrap:anywhere}
+.dismantle-detail h2{font-size:22px;line-height:1.3;margin:26px 0 15px}
+.dismantle-detail-description{font-size:17px;line-height:1.65;white-space:pre-line;overflow-wrap:anywhere}
+.dismantle-detail-hint{font-size:14px;line-height:1.6;color:#6b7583;margin:20px 0 0}
+.dismantle-detail-photo{display:block;width:100%;max-height:360px;object-fit:cover;border-radius:8px;margin-top:24px}
+.dismantle-detail-photo[hidden]{display:none}
+.dismantle-detail-contacts{display:flex;flex-direction:column;align-items:stretch;border:1px solid #dce1e6;background:#f8f9fa;border-radius:12px;padding:24px}
+.dismantle-detail-contacts h2{margin:0 0 24px;font-size:23px}
+.dismantle-contact-label{font-size:13px;color:#667280;margin:0 0 4px}
+.dismantle-contact-phone{font-size:22px;font-weight:600;min-height:44px;display:flex;align-items:center;color:var(--ink);overflow-wrap:anywhere}
+.dismantle-contact-phone:hover{color:var(--red);text-decoration:underline}
+.dismantle-detail-contacts .dismantle-whatsapp{background:#168149;color:#fff;font-size:16px;margin:12px 0 24px}
+.dismantle-detail-contacts .dismantle-whatsapp:hover{background:#11673a}
+.dismantle-detail-back{margin:0 0 24px;max-width:100%;gap:12px}
+@media(max-width:760px){.dismantle-detail{grid-template-columns:1fr;gap:16px;margin:20px 0}.dismantle-detail-main,.dismantle-detail-contacts{padding:20px}.dismantle-detail h1{font-size:29px}.dismantle-detail-description{font-size:16px}}
