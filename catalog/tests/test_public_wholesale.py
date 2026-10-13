@@ -682,10 +682,10 @@ class PublicWholesaleStorefrontTests(TestCase):
         inner = match.group(1)
         self.assertIn(seller.name, inner)
         self.assertIn('card-seller-name-text', inner)
-        self.assertIn('verification-badge', inner)
-        self.assertIn('✓', inner)
-        self.assertNotIn('meta-city', inner)
-        self.assertNotIn(seller.city, inner)
+        self.assertIn('card-seller-icon', inner)
+        self.assertIn('В магазин', inner)
+        self.assertIn('meta-city', inner)
+        self.assertIn(seller.city, inner)
 
     def test_catalog_seller_name_links_to_public_profile(self):
         self.assertEqual(self.seller.slug, 'ag-parts')

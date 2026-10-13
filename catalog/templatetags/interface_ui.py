@@ -17,6 +17,7 @@ WORDS.update({
     'cardDetails': ['Подробнее', 'Толығырақ'],
     'cardKaspi': ['Купить на Kaspi', 'Kaspi-де сатып алу'],
     'cardAskPrice': ['Узнать цену', 'Бағасын білу'],
+    'cardVisitSeller': ['В магазин', 'Дүкенге өту'],
 })
 ICONS.update({
     'external': 'M14 3h7v7M21 3 10 14M10 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-5',

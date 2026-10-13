@@ -1,5 +1,5 @@
+{% load interface_ui %}
 <div class="product-meta-row product-meta-seller">
-
   <div class="seller-line">
 
     {% with card_seller=product.seller_profile|default:product.seller %}
@@ -7,14 +7,21 @@
         <a
           href="{% url 'public_seller_profile' card_seller.slug %}"
           class="card-seller-link"
-          title="Посмотреть профиль и все товары {{ card_seller.name }}"
         >
-          <span class="card-seller-name-text">{{ card_seller.name }}</span>
-          <span class="verification-badge">✓</span>
+          <span class="card-seller-icon">{% ui_icon 'store' %}</span>
+          <span class="card-seller-info">
+            <span class="card-seller-name-text">{{ card_seller.name }}</span>
+            {% if product.city %}<span class="meta-city">{{ product.city }}</span>{% endif %}
+          </span>
+          <span class="card-seller-visit">{% ui 'cardVisitSeller' %}{% ui_icon 'arrow' %}</span>
         </a>
       {% else %}
         <span class="seller-name">
-          {{ product.seller_name }} <span class="verification-badge">✓</span>
+          <span class="card-seller-icon">{% ui_icon 'store' %}</span>
+          <span class="card-seller-info">
+            <span class="card-seller-name-text">{{ product.seller_name }}</span>
+            {% if product.city %}<span class="meta-city">{{ product.city }}</span>{% endif %}
+          </span>
         </span>
       {% endif %}
 
@@ -22,9 +29,5 @@
     {% endwith %}
 
   </div>
-
-  {% if product.city %}
-    <span class="meta-city">{{ product.city }}</span>
-  {% endif %}
 
 </div>
