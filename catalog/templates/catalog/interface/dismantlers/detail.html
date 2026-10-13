@@ -13,6 +13,13 @@
     <h2>{% ui 'dismantleAbout' %}</h2>
     {% if seller.directory_description or seller.directory_description_kk %}
     <p class="dismantle-detail-description" data-ru="{{ seller.directory_description|default:seller.directory_description_kk }}" data-kk="{{ seller.directory_description_kk|default:seller.directory_description }}">{{ seller.directory_description|default:seller.directory_description_kk }}</p>
+    {% else %}
+    <div class="dismantle-detail-description">
+      {% if seller.selected_categories.all or seller.category %}<p>{% ui 'dismantleCategory' %}: {% for category in seller.selected_categories.all %}{{ category.name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ seller.category }}{% endfor %}</p>{% endif %}
+      {% if seller.selected_brands.all or seller.brand_fk or seller.brand %}<p>{% ui 'brand' %}: {% for brand in seller.selected_brands.all %}{{ brand.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% if seller.brand_fk %}{{ seller.brand_fk.name }}{% else %}{{ seller.brand }}{% endif %}{% endfor %}</p>{% endif %}
+      {% if seller.selected_models.all or seller.model_fk or seller.model %}<p>{% ui 'model' %}: {% for model in seller.selected_models.all %}{{ model.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% if seller.model_fk %}{{ seller.model_fk.name }}{% else %}{{ seller.model }}{% endif %}{% endfor %}</p>{% endif %}
+      {% if seller.selected_countries.all or seller.country_fk %}<p>{% ui 'dismantleCountry' %}: {% for country in seller.selected_countries.all %}{{ country.name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ seller.country_fk.name }}{% endfor %}</p>{% endif %}
+    </div>
     {% endif %}
     <p class="dismantle-detail-hint">{% ui 'dismantleAvailability' %}</p>
   </div>
