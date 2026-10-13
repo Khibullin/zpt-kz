@@ -5,7 +5,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Каталог продавцов автозапчастей | ZPT.KZ</title>
+<title>{% if is_dismantlers_catalog %}Каталог авторазборов{% else %}Каталог продавцов автозапчастей{% endif %} | ZPT.KZ</title>
 <link rel="icon" href="{% static 'favicon/favicon.ico' %}" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="{% static 'favicon/favicon-32x32.png' %}">
 <link rel="apple-touch-icon" href="{% static 'favicon/apple-touch-icon.png' %}">
@@ -318,6 +318,7 @@ body{
 </head>
 
 <body>
+{% include 'includes/interface_navigation.html' %}
 
 <header class="header site-header">
   <div class="header-inner site-container">
@@ -330,16 +331,18 @@ body{
 </header>
 
 <div class="wrap">
+{% if is_dismantlers_catalog %}<p><a href="/sections/dismantle/">← Авторазборы / Б/У запчасти</a></p>{% endif %}
 
   <section class="hero">
-    <h1>Каталог продавцов автозапчастей</h1>
+    <h1>{% if is_dismantlers_catalog %}Каталог авторазборов{% else %}Каталог продавцов автозапчастей{% endif %}</h1>
     <p>
       Найдите продавца запчастей по городу, марке автомобиля,
       категории или стране производителя и напишите напрямую в WhatsApp.
     </p>
   </section>
 
-  <section class="filters">
+  {% if is_dismantlers_catalog %}<p>Владелец авторазбора? <a href='/request-parts/cabinet/'>Отметьте «Моя компания — авторазбор» в кабинете продавца</a> или <a href='/business/'>подключите бизнес</a>.</p>{% endif %}
+<section class="filters">
     <form method="get">
 
       <div style="margin-bottom:20px;">
@@ -470,7 +473,7 @@ body{
         </button>
 
         <a
-          href="/api/parts-sellers/"
+          href="{% if is_dismantlers_catalog %}/auto-dismantlers/{% else %}/parts-sellers/{% endif %}"
           class="btn reset"
         >
           Сбросить
@@ -596,7 +599,7 @@ body{
     {% empty %}
 
     <div class="empty">
-      Продавцы по выбранным фильтрам пока не найдены.
+      {% if is_dismantlers_catalog %}Авторазборы по выбранным фильтрам пока не найдены. Каталог наполняется.{% else %}Продавцы по выбранным фильтрам пока не найдены.{% endif %}
     </div>
 
     {% endfor %}
@@ -646,5 +649,6 @@ body{
 
 </div>
 
+<script src="{% static 'interface/navigation.js' %}?v=20261013a" defer></script>
 </body>
 </html>

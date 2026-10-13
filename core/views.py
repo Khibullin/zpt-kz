@@ -1617,6 +1617,7 @@ def seller_login(request):
         'seller_id': seller.id,
         'seller_name': seller.name,
         'must_change_password': seller.must_change_password,
+        'is_dismantler': seller.is_dismantler,
     })
 
 
@@ -1735,6 +1736,7 @@ def seller_profile(request):
         'market_location': seller.market_location,
         'transport_type': seller.transport_type,
         'seller_type': seller.seller_type,
+        'is_dismantler': seller.is_dismantler,
         'is_active': seller.is_active,
         'is_paused': seller.is_paused,
         'receive_requests': seller.receive_requests,
@@ -1798,6 +1800,12 @@ def update_seller_profile(request):
     seller.city = canonical_city or ''
     seller.market_location = data.get('market_location', seller.market_location)
     seller.transport_type = data.get('transport_type', seller.transport_type)
+
+    # Public directory classification has no effect on request dispatch.
+    if 'is_dismantler' in data:
+        if not isinstance(data['is_dismantler'], bool):
+            return JsonResponse({'error': 'Некорректный тип авторазбора'}, status=400)
+        seller.is_dismantler = data['is_dismantler']
 
     # Статусы продавца
     seller.receive_requests = data.get('receive_requests', seller.receive_requests)
@@ -1891,7 +1899,11 @@ def update_match_status(request):
 
     return JsonResponse({'status': 'ok'})
 
-def parts_sellers_catalog(request):
+def dismantlers_catalog(request):
+    return parts_sellers_catalog(request, dismantlers_only=True)
+
+
+def parts_sellers_catalog(request, dismantlers_only=False):
     q = request.GET.get('q', '').strip()
     transport_type = request.GET.get('transport_type', '').strip()
     raw_city = request.GET.get('city', '').strip()
@@ -1911,6 +1923,9 @@ def parts_sellers_catalog(request):
         'selected_brands',
         'selected_models',
     )
+
+    if dismantlers_only:
+        sellers = sellers.filter(is_dismantler=True)
 
     if raw_city and not city:
         sellers = Seller.objects.none()
@@ -1961,7 +1976,7 @@ def parts_sellers_catalog(request):
         ).distinct()
 
     paginator = Paginator(
-        sellers,
+        sellers.order_by('name', 'pk'),
         20
     )
 
@@ -1988,6 +2003,7 @@ def parts_sellers_catalog(request):
         request,
         'catalog/parts_sellers/index.html',
         {
+            'is_dismantlers_catalog': dismantlers_only,
             'sellers': sellers_page,
             'page_obj': sellers_page,
             'filters': {

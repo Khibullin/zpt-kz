@@ -1,0 +1,3 @@
+{% load static %}
+<link rel="stylesheet" href="{% static 'interface/navigation.css' %}?v=20261013a">
+{% if not interface_home and not section_title %}<nav class="zpt-page-navigation" aria-label="Навигация"><a href="/" data-zpt-back>← Назад</a><a href="/">На главную</a><button type="button" data-zpt-language aria-label="Сменить язык / Тілді өзгерту">RU / KZ</button></nav>{% endif %}

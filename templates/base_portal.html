@@ -48,7 +48,8 @@
   </header>
   {% endblock %}
 
-  {% block content %}{% endblock %}
+  {% include 'includes/interface_navigation.html' %}
+{% block content %}{% endblock %}
 
   <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
     <a href="{% url 'privacy' %}" style="color:inherit;">Политика конфиденциальности</a>
@@ -63,5 +64,6 @@
     navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
   }
   </script>
+<script src="{% static 'interface/navigation.js' %}?v=20261013a" defer></script>
 </body>
 </html>

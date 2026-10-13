@@ -291,9 +291,18 @@
     });
   }
 
-  document.querySelectorAll('.product-buy-controls').forEach(function (root) {
-    bindQtyControls(root);
-    bindBuyButtons(root);
+  const initializedControls = new WeakSet();
+  function initializeBuyControls(container) {
+    container.querySelectorAll('.product-buy-controls').forEach(function (root) {
+      if (initializedControls.has(root)) return;
+      initializedControls.add(root);
+      bindQtyControls(root);
+      bindBuyButtons(root);
+    });
+  }
+  initializeBuyControls(document);
+  document.addEventListener('zpt:products-added', function (event) {
+    if (event.detail instanceof Element) initializeBuyControls(event.detail);
   });
 
   fetchCartState().catch(function () {

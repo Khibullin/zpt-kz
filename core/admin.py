@@ -1320,6 +1320,7 @@ class SellerAdmin(admin.ModelAdmin):
                 'whatsapp',
                 'phone2',
                 'seller_type',
+                'is_dismantler',
                 'transport_type',
                 'city',
                 'market_location',

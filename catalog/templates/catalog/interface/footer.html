@@ -1,0 +1,9 @@
+{% load interface_ui %}
+<footer id="footer"><div class="footer-desktop"><div class="container"><a class="logo" href="/">ZPT.<em>KZ</em></a><a href="{% url 'zpt_gid' %}">{% ui 'guide' %}</a>{% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}">{% ui 'articles' %}</a>{% endif %}<a href="{% url 'feedback' %}">{% ui 'feedback' %}</a><a href="{% url 'privacy' %}">{% ui 'privacy' %}</a></div></div>
+<nav class="mobile-nav" aria-label="Основное меню">
+<a href="/"{% if interface_home %} class="active" aria-current="page"{% endif %}>{% ui_icon 'home' %}{% ui 'home' %}</a>
+<a href="/?all=1">{% ui_icon 'list' %}{% ui 'catalog' %}</a>
+<a href="{% url 'orders:cart' %}">{% ui_icon 'cart' %}{% ui 'cart' %}</a>
+<a href="{% url 'zpt_gid' %}">{% ui_icon 'help' %}{% ui 'guide' %}</a>
+<a href="{% url 'interface_section' section='account' %}">{% ui_icon 'user' %}{% ui 'account' %}</a>
+</nav></footer>

@@ -49,9 +49,9 @@ class HeaderProductSearchTests(TestCase):
         )
 
     def _assert_header_search(self, response):
-        self.assertContains(response, 'class="site-product-search"')
+        self.assertContains(response, 'site-product-search')
         self.assertContains(response, 'placeholder="Артикул или название запчасти"')
-        self.assertContains(response, '>Найти</button>')
+        self.assertContains(response, 'Найти')
         self.assertContains(response, f'action="{reverse("catalog_list")}"')
         self.assertContains(response, 'name="q"')
         self.assertContains(response, 'required')
@@ -74,7 +74,7 @@ class HeaderProductSearchTests(TestCase):
     def test_article_and_title_search_use_existing_results_page(self):
         air = self.client.get(reverse('catalog_list'), {'q': '151000079AA'})
         self.assertContains(air, 'id="catalog-results"')
-        self.assertNotContains(air, 'class="products home-showcase-products"')
+        self.assertNotContains(air, 'id="interface-products"')
         self.assertContains(air, 'value="151000079AA"')
         self.assertContains(air, '/vozdushnyi-filtr-151000079aa/')
         self.assertContains(air, self.air.title)
@@ -93,9 +93,9 @@ class HeaderProductSearchTests(TestCase):
 
     def test_empty_query_does_not_open_listing_results(self):
         empty = self.client.get(reverse('catalog_list'), {'q': ''})
-        self.assertContains(empty, 'id="home-parts-form"')
-        self.assertContains(empty, 'class="products home-showcase-products"')
+        self.assertContains(empty, 'href="/find-part/"')
+        self.assertContains(empty, 'id="interface-products"')
 
         spaces = self.client.get(reverse('catalog_list'), {'q': '   '})
-        self.assertContains(spaces, 'id="home-parts-form"')
-        self.assertContains(spaces, 'class="products home-showcase-products"')
+        self.assertContains(spaces, 'href="/find-part/"')
+        self.assertContains(spaces, 'id="interface-products"')

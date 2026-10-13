@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% load static interface_ui %}
+{% block body_attrs %} class="zpt-interface" data-zpt-suppress-ios-pwa="1"{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14"><link rel="stylesheet" href="{% static 'interface/home.css' %}?v=20261013a">{% endblock %}
+{% block content %}
+{% include 'catalog/interface/header.html' %}
+<main class="container" id="main" tabindex="-1">{% block interface_content %}{% endblock %}</main>
+{% include 'catalog/interface/footer.html' %}
+{% endblock %}
