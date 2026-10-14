@@ -19,6 +19,9 @@ def homepage_tiles():
 
 
 def interface_section(request, section):
+    if section in ('repair', 'detailing'):
+        from service_requests.catalog_pages import service_directory
+        return service_directory(request, section=section)
     parts = reverse('interface_find_part')
     used = parts + '?condition=used'
     if section == 'dismantle':
