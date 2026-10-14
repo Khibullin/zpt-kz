@@ -16,4 +16,7 @@ def service_art(key):
     crop = (repair if is_repair else detail)[key]
     filename = 'repair-assets.webp' if is_repair else 'detailing-approved.webp'
     width, height = (1254,1254) if is_repair else (1036,1518)
-    return format_html('<svg class="service-art" aria-hidden="true" focusable="false" viewBox="{}" overflow="hidden"><image href="{}" width="{}" height="{}"/></svg>', ' '.join(map(str,crop)), static('interface/services/'+filename),width,height)
+    return format_html(
+        '<svg class="service-art" aria-hidden="true" focusable="false" viewBox="{}" overflow="hidden"><defs><clipPath id="service-art-{}"><rect x="{}" y="{}" width="{}" height="{}"/></clipPath></defs><image clip-path="url(#service-art-{})" href="{}" width="{}" height="{}"/></svg>',
+        ' '.join(map(str,crop)), key, *crop, key,
+        static('interface/services/'+filename), width, height)
