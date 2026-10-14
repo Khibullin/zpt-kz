@@ -1358,6 +1358,10 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    catalog_only = models.BooleanField(
+        default=False, editable=False,
+        verbose_name='Добавлен администратором, владелец не подключён',
+    )
     is_dismantler = models.BooleanField(default=False, verbose_name='Показывать в каталоге авторазборов')
     directory_photo = models.ImageField(
         upload_to='seller_directory/', blank=True,
@@ -2196,6 +2200,11 @@ class SellerLead(models.Model):
         blank=True,
         related_name='seller_leads',
         verbose_name='Продавец заявок',
+    )
+    service_seller = models.ForeignKey(
+        'service_requests.ServiceSeller', on_delete=models.SET_NULL,
+        null=True, blank=True, related_name='seller_leads',
+        verbose_name='Исполнитель в основной базе',
     )
     request_seller_transport_type = models.CharField(
         max_length=10,

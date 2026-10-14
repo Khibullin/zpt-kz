@@ -164,6 +164,8 @@ def clear_legacy_password(seller: Seller) -> None:
 
 
 def link_seller_to_user(seller: Seller, user) -> Seller:
+    if seller.catalog_only:
+        raise SellerIdentityError(AUTH_FAILED)
     if seller.user_id == user.pk:
         clear_legacy_password(seller)
         return seller
@@ -207,6 +209,8 @@ def ensure_request_seller_for_user(
 ) -> Seller | None:
     seller = Seller.objects.filter(user=user).first()
     if seller:
+        if seller.catalog_only:
+            raise SellerIdentityError(AUTH_FAILED)
         clear_legacy_password(seller)
         return seller
 
@@ -280,7 +284,7 @@ def provision_authenticated_user(request, user, *, remember_me=None):
 
 def provision_legacy_seller(request, seller: Seller, plaintext_password: str, *, remember_me=None):
     phone = normalize_seller_whatsapp(seller.whatsapp)
-    if not phone:
+    if seller.catalog_only or not phone:
         raise SellerIdentityError(AUTH_FAILED)
     if find_users_by_phone(phone):
         raise SellerIdentityError(AUTH_FAILED)
@@ -536,12 +540,12 @@ def logout_unified_seller(request) -> None:
 def get_logged_request_seller(request):
     seller_id = request.session.get('seller_id') if hasattr(request, 'session') else None
     if seller_id:
-        seller = Seller.objects.filter(id=seller_id).first()
+        seller = Seller.objects.filter(id=seller_id, catalog_only=False).first()
         if seller:
             return seller
     user = getattr(request, 'user', None)
     if user is not None and getattr(user, 'is_authenticated', False):
-        seller = Seller.objects.filter(user=user).first()
+        seller = Seller.objects.filter(user=user, catalog_only=False).first()
         if seller and hasattr(request, 'session'):
             request.session['seller_id'] = seller.id
         return seller

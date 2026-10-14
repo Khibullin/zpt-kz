@@ -38,7 +38,10 @@ def get_current_service_seller(request):
     if user is None or not user.is_authenticated:
         raise ServiceSellerAccessDenied(401, 'Требуется вход')
     try:
-        return user.service_seller_profile
+        seller = user.service_seller_profile
+        if seller.catalog_only:
+            raise ServiceSellerAccessDenied(403, 'Владелец организации не подключён')
+        return seller
     except ServiceSeller.DoesNotExist as exc:
         raise ServiceSellerAccessDenied(403, 'Доступ запрещён') from exc
 
@@ -61,6 +64,8 @@ def _authenticate_service_seller(request, whatsapp, password):
     if len(sellers) != 1:
         return None
     seller = sellers[0]
+    if seller.catalog_only:
+        return None
 
     if seller.user_id:
         return _login_linked_seller(request, seller.pk, phone, password)

@@ -75,6 +75,11 @@ class ServiceSeller(models.Model):
 
     name = models.CharField(max_length=255)
     whatsapp = models.CharField(max_length=20, unique=True)
+    catalog_only = models.BooleanField(
+        default=False, editable=False,
+        verbose_name='Добавлен администратором, владелец не подключён',
+    )
+    catalog_notes = models.TextField(blank=True, default='', verbose_name='Источники и контакты найденной карточки')
     password = models.CharField(max_length=128)
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL,
