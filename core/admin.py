@@ -1268,6 +1268,7 @@ class SellerDismantlerFilter(admin.SimpleListFilter):
 
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
+    readonly_fields = ('catalog_only',)
     change_list_template = 'admin/core/seller/change_list.html'
     inlines = (SellerContactConsentInline,)
 
@@ -1337,6 +1338,7 @@ class SellerAdmin(admin.ModelAdmin):
         ('Основное', {
             'fields': (
                 'name',
+                'catalog_only',
                 'whatsapp',
                 'phone2',
                 'seller_type',
@@ -1897,6 +1899,36 @@ def _apply_workflow_action(modeladmin, request, queryset, action_callable):
         messages.warning(request, f'С предупреждениями: {warning_count}.')
     if error_count:
         messages.error(request, f'С ошибками: {error_count}.')
+
+
+@admin.action(description='Перенести в СТО — без входа и рассылки', permissions=['change'])
+def transfer_leads_to_sto(modeladmin, request, queryset):
+    from core.services.lead_catalog_transfer import transfer_lead_to_catalog
+    if not request.user.has_perm('service_requests.add_serviceseller') or not request.user.has_perm('service_requests.view_serviceseller'):
+        messages.error(request, 'Нет прав на добавление и просмотр основной базы.')
+        return
+    _apply_workflow_action(modeladmin, request, queryset,
+                           lambda lead: transfer_lead_to_catalog(lead, target='sto'))
+
+
+@admin.action(description='Перенести в продавцы — без входа и рассылки', permissions=['change'])
+def transfer_leads_to_catalog_seller(modeladmin, request, queryset):
+    from core.services.lead_catalog_transfer import transfer_lead_to_catalog
+    if not request.user.has_perm('core.add_seller') or not request.user.has_perm('core.view_seller'):
+        messages.error(request, 'Нет прав на добавление и просмотр основной базы.')
+        return
+    _apply_workflow_action(modeladmin, request, queryset,
+                           lambda lead: transfer_lead_to_catalog(lead, target='seller'))
+
+
+@admin.action(description='Перенести в авторазборы — без входа и рассылки', permissions=['change'])
+def transfer_leads_to_catalog_dismantler(modeladmin, request, queryset):
+    from core.services.lead_catalog_transfer import transfer_lead_to_catalog
+    if not request.user.has_perm('core.add_seller') or not request.user.has_perm('core.view_seller'):
+        messages.error(request, 'Нет прав на добавление и просмотр основной базы.')
+        return
+    _apply_workflow_action(modeladmin, request, queryset,
+                           lambda lead: transfer_lead_to_catalog(lead, target='dismantler'))
 
 
 @admin.action(description='Подключить к активным продавцам заявок')
@@ -2584,6 +2616,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
     )
     readonly_fields = (
         'lead_id',
+        'service_seller',
         'business_type',
         'business_type_confidence',
         'business_type_evidence',
@@ -2612,6 +2645,9 @@ class SellerLeadAdmin(admin.ModelAdmin):
         'duplicate_of',
     )
     actions = (
+        transfer_leads_to_sto,
+        transfer_leads_to_catalog_seller,
+        transfer_leads_to_catalog_dismantler,
         refresh_seller_lead_identities,
         find_seller_lead_duplicates,
         mark_seller_leads_lifecycle_rejected,
@@ -2698,6 +2734,7 @@ class SellerLeadAdmin(admin.ModelAdmin):
                 'review_status',
                 'request_seller_transport_type',
                 'request_seller',
+                'service_seller',
                 'marketplace_invitation_status',
                 'marketplace_invitation_planned_at',
                 'reviewed_at',

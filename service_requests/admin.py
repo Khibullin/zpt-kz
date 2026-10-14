@@ -47,12 +47,18 @@ class ServiceAdmin(admin.ModelAdmin):
 
 @admin.register(ServiceSeller)
 class ServiceSellerAdmin(admin.ModelAdmin):
+    readonly_fields = ('catalog_only',)
+
+    def get_readonly_fields(self, request, obj=None):
+        fields = super().get_readonly_fields(request, obj)
+        return fields + ('password',) if obj and obj.catalog_only else fields
 
     list_display = (
         'id',
         'name',
         'whatsapp',
         'seller_type',
+        'catalog_only',
         'city',
         'district',
         'is_active',
@@ -71,6 +77,7 @@ class ServiceSellerAdmin(admin.ModelAdmin):
 
     list_filter = (
         'seller_type',
+        'catalog_only',
         'city',
         'is_active',
         'receive_requests',
@@ -91,6 +98,8 @@ class ServiceSellerAdmin(admin.ModelAdmin):
         ('Основное', {
             'fields': (
                 'name',
+                'catalog_only',
+                'catalog_notes',
                 'whatsapp',
                 'password',
                 'seller_type',
