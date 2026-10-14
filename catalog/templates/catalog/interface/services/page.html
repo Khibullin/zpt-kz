@@ -1,0 +1,45 @@
+{% extends 'catalog/interface/base.html' %}{% load static interface_ui service_art %}
+{% block title %}{{ service_title }} в Казахстане | ZPT.KZ{% endblock %}
+{% block meta_description %}{{ service_title }}: выберите город, услуги и исполнителя в каталоге ZPT.KZ.{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/services/pages.css' %}?v=20261014a">{% endblock %}
+{% block interface_content %}
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{{ service_title }}</span></nav>
+<section class="service-hero">
+<div class="service-hero-copy"><h1>{{ service_title }}</h1><p>{% if is_detailing %}Уход и индивидуальность вашего автомобиля{% else %}Найдите сервис для вашего автомобиля{% endif %}</p><a href="{{ request_url }}" class="service-request-link">{% ui 'request' %} →</a></div>
+{% if is_detailing %}{% service_art 'hero-detailing' %}{% else %}{% service_art 'hero-sto' %}{% endif %}
+</section>
+<form class="service-search" action="/catalog/services/" method="get">
+<input type="hidden" name="type" value="{{ service_kind }}">
+<label class="service-input"><span>{% ui 'city' %}</span><select name="city"><option value="">{% ui 'allKz' %}</option>{% for city in kz_cities %}<option{% if filters.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}</select></label>
+<label class="service-input service-query"><span>Услуга или название компании</span><input name="q" type="search" maxlength="200" value="{{ filters.q }}" placeholder="Какая услуга нужна?"></label>
+<button class="btn" type="submit">{% if is_detailing %}Найти студию{% else %}Найти сервис{% endif %}</button>
+</form>
+<div class="service-switch"><a href="/sections/repair/"{% if service_kind == 'sto' %} aria-current="page"{% endif %}>{% ui 'repair' %}</a><a href="/sections/detailing/"{% if is_detailing %} aria-current="page"{% endif %}>{% ui 'detailing' %}</a></div>
+<section aria-labelledby="service-directions"><h2 id="service-directions">Выберите направление</h2><div class="service-tiles">{% for tile in service_tiles %}<a class="service-tile" href="{{ tile.url }}"><h3>{{ tile.label }}</h3><span class="service-arrow" aria-hidden="true">›</span>{% service_art tile.key %}</a>{% endfor %}</div></section>
+<section id="service-catalog" class="service-catalog" aria-labelledby="service-catalog-title">
+<div class="service-catalog-heading"><h2 id="service-catalog-title">Каталог исполнителей</h2><span class="service-muted">{{ page_obj.paginator.count }} организаций</span></div>
+<div class="service-directory">
+<details class="service-filter-panel" open><summary>{% ui_icon 'filter' %}{% ui 'filters' %}</summary>
+<form action="/catalog/services/#service-catalog" method="get" class="service-filter-form">
+<input type="hidden" name="type" value="{{ service_kind }}">
+<label class="service-input"><span>{% ui 'city' %}</span><select name="city"><option value="">{% ui 'allKz' %}</option>{% for city in kz_cities %}<option{% if filters.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}</select></label>
+<label class="service-input"><span>Направление</span><select name="category"><option value="">Все направления</option>{% for tile in service_tiles %}<option value="{{ tile.key }}"{% if filters.category == tile.key %} selected{% endif %}>{{ tile.label }}</option>{% endfor %}</select></label>
+<label class="service-input"><span>Услуга</span><select name="service"><option value="">Все услуги</option>{% for option in service_options %}<option{% if option == filters.service %} selected{% endif %}>{{ option }}</option>{% endfor %}</select></label>
+<label class="service-input"><span>Название или адрес</span><input name="q" value="{{ filters.q }}" maxlength="200"></label>
+<label class="service-input"><span>Район</span><input name="district" value="{{ filters.district }}" maxlength="100"></label>
+<button class="btn" type="submit">{% ui 'apply' %}</button><a class="service-reset" href="{{ catalog_url }}#service-catalog">{% ui 'reset' %}</a>
+</form></details>
+<div class="service-results"><div class="service-cards">
+{% for card in sellers %}<article class="service-card">
+<a class="service-card-image" href="/catalog/services/{{ card.seller.pk }}/" aria-label="{{ card.seller.name }}">{% if card.seller.logo %}<img src="{{ card.seller.logo.url }}" alt="{{ card.seller.name }}" loading="lazy" width="360" height="190">{% else %}{% if is_detailing %}{% service_art 'hero-detailing' %}{% else %}{% service_art 'hero-sto' %}{% endif %}<span class="service-illustration">Иллюстрация</span>{% endif %}</a>
+<div class="service-card-body"><h3><a href="/catalog/services/{{ card.seller.pk }}/">{{ card.seller.name }}</a></h3><p class="service-location">{% ui_icon 'pin' %}{{ card.seller.city }}{% if card.seller.district %}, {{ card.seller.district }}{% endif %}</p>{% if card.seller.address %}<p class="service-address">{{ card.seller.address }}</p>{% endif %}
+<div class="service-tags">{% for service in card.services|slice:':3' %}<span>{{ service }}</span>{% endfor %}</div>
+<div class="service-card-actions"><a class="btn" href="/catalog/services/{{ card.seller.pk }}/">{% ui 'cardDetails' %}</a>{% if card.whatsapp_url %}<a class="btn service-whatsapp" href="{{ card.whatsapp_url }}" target="_blank" rel="noopener">{% ui_icon 'message' %}WhatsApp</a>{% endif %}</div></div></article>
+{% empty %}<div class="service-empty"><h3>Исполнители пока не найдены</h3><p>Измените фильтры или оставьте заявку на нужную услугу.</p><a class="btn" href="{{ request_url }}">{% ui 'request' %}</a></div>{% endfor %}
+</div>
+{% if page_obj.has_other_pages %}<nav class="service-pagination" aria-label="Страницы каталога">{% if page_obj.has_previous %}<a class="btn secondary" href="{{ page_obj.previous_url }}">← Назад</a>{% endif %}<span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="btn secondary" href="{{ page_obj.next_url }}">Далее →</a>{% endif %}</nav>{% endif %}
+</div></div></section>
+<aside class="service-owner"><div><h2>Есть свой автосервис?</h2><p>Добавьте организацию и расскажите о своих услугах.</p></div><a class="btn" href="/service-request/cabinet/">Добавить организацию</a></aside>
+<a class="service-all-link" href="{{ catalog_url }}">Открыть весь каталог →</a>
+<script src="{% static 'interface/services/pages.js' %}?v=20261014a" defer></script>
+{% endblock %}
