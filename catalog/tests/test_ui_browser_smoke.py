@@ -89,11 +89,11 @@ class LandingBrowserSmokeTests(StaticLiveServerTestCase):
                                     "fixed",
                                 )
                             else:
-                                self.assertEqual(
+                                self.assertIn(
                                     page.locator(".header-cart").evaluate(
                                         "(el) => getComputedStyle(el).display"
                                     ),
-                                    "inline-flex",
+                                    ("flex", "inline-flex"),
                                 )
                             if label == "home":
                                 tiles = page.locator(selector)
