@@ -27,7 +27,7 @@ class HomeKitsEntryTests(TestCase):
     def test_homepage_has_one_kits_tile_below_search(self):
         home = self.client.get(reverse('catalog_list'))
         html = home.content.decode()
-        self.assertContains(home, 'class="tiles"')
+        self.assertContains(home, 'class="tiles tiles-five"')
         self.assertContains(home, 'site-product-search')
         target = f'href="{reverse("consumables_landing")}"'
         self.assertEqual(html.count(target), 1)
