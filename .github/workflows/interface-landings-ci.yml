@@ -1,0 +1,49 @@
+name: Homepage and Landing Pages CI
+
+on:
+  pull_request:
+    paths:
+      - 'catalog/templates/catalog/interface/**'
+      - 'catalog/templatetags/interface_ui.py'
+      - 'catalog/views_interface.py'
+      - 'catalog/urls.py'
+      - 'catalog/tests/test_landing_pages.py'
+      - 'catalog/tests/test_interface_release.py'
+      - 'catalog/tests/test_home_kits_entry.py'
+      - 'static/interface/landing-refresh.css'
+      - '.github/workflows/interface-landings-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  django-interface:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      SECRET_KEY: ui-tests-only-do-not-use-in-production
+      DEBUG: 'True'
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      DATABASE_URL: sqlite:///db-ui-tests.sqlite3
+      EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install Django project requirements
+        run: pip install -r requirements.txt
+      - name: Django configuration check
+        run: python manage.py check
+      - name: Schema consistency
+        run: python manage.py makemigrations --check --dry-run
+      - name: Homepage, landings and related regression tests
+        run: |
+          python manage.py test \
+            catalog.tests.test_landing_pages \
+            catalog.tests.test_interface_release \
+            catalog.tests.test_home_kits_entry \
+            catalog.tests.test_showcase \
+            catalog.tests.test_dismantlers_design \
+            -v 2
