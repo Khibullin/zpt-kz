@@ -37,5 +37,5 @@ jobs:
           check "/" 'tiles-five'
           check "/to-i-rashodniki/" 'landing-consumables'
           check "/sto-i-uslugi/" 'landing-services'
-          check "/find-part/" 'create_home_parts_request'
+          check "/find-part/" 'home-parts-form-v8.js'
           check "/sections/dismantle/" 'dismantle-hero'
