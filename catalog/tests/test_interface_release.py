@@ -5,17 +5,21 @@ from core.models import Seller
 
 
 class InterfaceReleaseTests(TestCase):
-    def test_home_shows_eight_live_destinations_and_two_directories(self):
+    def test_home_shows_five_live_destinations_without_duplicate_directory_tiles(self):
         page = self.client.get('/')
         self.assertTemplateUsed(page, 'catalog/interface/home.html')
         html = page.content.decode()
-        self.assertEqual(html.count('class="tile"'), 8)
-        self.assertEqual(html.count('class="directory"'), 2)
+        self.assertEqual(len(page.context['interface_tiles']), 5)
+        self.assertEqual(html.count('class="tile tile-'), 5)
+        self.assertEqual(html.count('class="directory"'), 0)
         self.assertNotContains(page, 'DEMO-')
-        self.assertNotContains(page, 'Каталог авторазборов')
+        self.assertContains(page, 'class="hero hero-compact"')
+        self.assertNotContains(page, 'Оставить заявку')
         self.assertContains(page, 'data-zpt-language')
         self.assertContains(page, 'class="mobile-nav"')
         self.assertContains(page, 'class="footer-desktop"')
+        self.assertContains(page, reverse('consumables_landing'))
+        self.assertContains(page, reverse('services_landing'))
 
     def test_only_active_real_products_paginate_without_duplicates(self):
         for i in range(14):

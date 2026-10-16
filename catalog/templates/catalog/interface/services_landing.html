@@ -1,0 +1,32 @@
+{% extends 'catalog/interface/base.html' %}{% load static interface_ui service_art %}
+{% block title %}СТО и услуги — ремонт, детейлинг и тюнинг | ZPT.KZ{% endblock %}
+{% block meta_description %}Каталоги СТО, ремонта, детейлинга и тюнинга в Казахстане. Выберите организацию на ZPT.KZ.{% endblock %}
+{% block body_attrs %} class="zpt-interface ui-refresh" data-zpt-suppress-ios-pwa="1"{% endblock %}
+{% block interface_content %}
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'serviceHub' %}</span></nav>
+<section class="landing-hero landing-services">
+  <div class="landing-copy"><h1>{% ui 'serviceHub' %}</h1><p>Ремонт, обслуживание, детейлинг и тюнинг для вашего автомобиля</p><div class="landing-points"><span>{% ui_icon 'pin' %}Выбор по городу</span><span>{% ui_icon 'gear' %}Ремонт и уход</span></div></div>
+  <div class="landing-hero-visual">{% service_art 'hero-sto' %}</div>
+</section>
+<section class="landing-choices landing-two" aria-label="Направления услуг">
+  <a class="landing-choice" href="{% url 'interface_section' section='repair' %}"><div><h2>{% ui 'repair' %}</h2><p>Техническое обслуживание, диагностика, ремонт</p></div>{% service_art 'hero-sto' %}{% ui_icon 'chevron' %}</a>
+  <a class="landing-choice" href="{% url 'interface_section' section='detailing' %}"><div><h2>{% ui 'detailing' %}</h2><p>Уход за кузовом, салоном и улучшение внешнего вида</p></div>{% service_art 'hero-detailing' %}{% ui_icon 'chevron' %}</a>
+</section>
+<section class="landing-results" aria-labelledby="real-services">
+  <div class="section-head"><h2 class="section-title" id="real-services">Организации в каталоге</h2><a class="text-link" href="{% url 'services_catalog' %}">Смотреть все организации {% ui_icon 'arrow' %}</a></div>
+  {% if service_sellers %}
+  <div class="landing-orgs">{% for seller in service_sellers %}
+    <article class="landing-org">
+      <a href="{% url 'service_seller_detail' seller_id=seller.pk %}" class="landing-org-picture">
+      {% if seller.logo %}<img src="{{ seller.logo.url }}" alt="{{ seller.name }}" loading="lazy">
+      {% elif seller.seller_type == 'detailing' %}{% service_art 'hero-detailing' %}{% else %}{% service_art 'hero-sto' %}{% endif %}</a>
+      <div class="landing-org-info"><h3>{{ seller.name }}</h3><p>{% ui_icon 'pin' %}{{ seller.city }}</p>
+        <div class="landing-tags">{% for svc in seller.services.all|slice:":2" %}<span>{{ svc.name }}</span>{% empty %}<span>{{ seller.get_seller_type_display }}</span>{% endfor %}</div>
+        <a class="btn" href="{% url 'service_seller_detail' seller_id=seller.pk %}">Открыть</a>
+      </div>
+    </article>{% endfor %}
+  </div>
+  {% else %}<div class="landing-empty">Организации пока не добавлены. <a href="{% url 'services_catalog' %}">Перейти в каталог</a></div>{% endif %}
+</section>
+<aside class="landing-features"><h2>Почему удобно выбирать через ZPT.KZ</h2><div><span>{% ui_icon 'pin' %}Поиск по городу</span><span>{% ui_icon 'list' %}Каталоги направлений</span><span>{% ui_icon 'message' %}Контакты исполнителей</span><span>{% ui_icon 'check' %}Удобный выбор</span></div></aside>
+{% endblock %}
