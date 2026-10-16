@@ -40,7 +40,7 @@ jobs:
         run: python manage.py makemigrations --check --dry-run
       - name: Homepage, landings and related regression tests
         run: |
-          python manage.py test --no-migrations \
+          python manage.py test --settings backend.settings_ui_ci \
             catalog.tests.test_landing_pages \
             catalog.tests.test_interface_release \
             catalog.tests.test_home_kits_entry \
