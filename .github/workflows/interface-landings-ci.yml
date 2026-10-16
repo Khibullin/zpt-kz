@@ -38,6 +38,8 @@ jobs:
         run: python manage.py check
       - name: Schema consistency
         run: python manage.py makemigrations --check --dry-run
+      - name: Install browser test dependency
+        run: pip install playwright==1.56.0
       - name: Homepage, landings and related regression tests
         run: |
           python manage.py test --settings backend.settings_ui_ci \
@@ -46,4 +48,13 @@ jobs:
             catalog.tests.test_home_kits_entry \
             catalog.tests.test_showcase \
             catalog.tests.test_dismantlers_design \
+            catalog.tests.test_ui_browser_smoke \
             -v 2
+      - name: Upload desktop and mobile screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ui-layout-screenshots
+          path: artifacts/ui-layout/*.png
+          if-no-files-found: ignore
+          retention-days: 3
