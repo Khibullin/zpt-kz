@@ -29,9 +29,11 @@ class HomeKitsEntryTests(TestCase):
         html = home.content.decode()
         self.assertContains(home, 'class="tiles"')
         self.assertContains(home, 'site-product-search')
-        target = f'href="{reverse("maintenance_kit_list")}"'
+        target = f'href="{reverse("consumables_landing")}"'
         self.assertEqual(html.count(target), 1)
         self.assertGreater(html.find(target), html.find('</header>'))
+        self.assertContains(self.client.get(reverse('consumables_landing')),
+                            reverse('maintenance_kit_list'))
 
     def test_kits_button_stays_off_listing_and_other_header_pages(self):
         listing = self.client.get(reverse('catalog_list'), {'q': 'KITBTN-T218'})
