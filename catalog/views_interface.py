@@ -56,12 +56,11 @@ def consumables_landing(request):
     from .views import attach_sellers_to_products
     from .wholesale import attach_public_wholesale_flags, public_wholesale_prefetch
 
+    # Unicode-insensitive Russian matches on both PostgreSQL and SQLite.
+    # SQLite's LIKE/LOWER do not fold Cyrillic case, unlike the regex operator.
     products = Product.objects.filter(status='active').filter(
-        Q(title__icontains='фильтр') |
-        Q(title__icontains='свеч') |
-        Q(title__icontains='комплект ТО') |
-        Q(category__name__icontains='фильтр') |
-        Q(category__name__icontains='свеч')
+        Q(title__iregex=r'фильтр|свеч|комплект.{0,20}то') |
+        Q(category__name__iregex=r'фильтр|свеч')
     ).select_related('seller_profile', 'category', 'brand', 'car_model').order_by('-pk')
     products = attach_sellers_to_products(public_wholesale_prefetch(products)[:8])
     attach_public_wholesale_flags(products)
