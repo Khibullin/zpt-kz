@@ -50,10 +50,16 @@ class LandingPagesTests(TestCase):
             name='Hidden Service Workshop', whatsapp='+77001234565',
             city='Алматы', seller_type='sto', is_active=False,
         )
+        ServiceSeller.objects.create(
+            name='Test-only Workshop', whatsapp='+77001234564',
+            city='Алматы', seller_type='sto', is_active=True,
+            is_test_seller=True,
+        )
         page = self.client.get(reverse('services_landing'))
         self.assertTemplateUsed(page, 'catalog/interface/services_landing.html')
         self.assertContains(page, seller.name)
         self.assertNotContains(page, 'Hidden Service Workshop')
+        self.assertNotContains(page, 'Test-only Workshop')
         self.assertContains(page, reverse('interface_section', kwargs={'section': 'repair'}))
         self.assertContains(page, reverse('interface_section', kwargs={'section': 'detailing'}))
         self.assertContains(page, reverse('services_catalog'))

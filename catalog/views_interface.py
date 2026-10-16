@@ -71,7 +71,7 @@ def consumables_landing(request):
 def services_landing(request):
     """Only real active organizations, without fabricated ratings or profiles."""
     from service_requests.models import ServiceSeller
-    sellers = ServiceSeller.objects.filter(is_active=True).prefetch_related(
+    sellers = ServiceSeller.objects.filter(is_active=True, is_test_seller=False).prefetch_related(
         'services'
     ).order_by('name', 'pk')[:4]
     return render(request, 'catalog/interface/services_landing.html', {
