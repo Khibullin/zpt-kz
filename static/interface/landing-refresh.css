@@ -97,3 +97,15 @@
  .zpt-interface .landing-features span{font-size:11px}
  .zpt-interface .landing-features .icon{width:22px;height:22px}
 }
+
+/* Only the three redesigned pages: remove legacy duplicate navigation/footer. */
+body.zpt-interface.ui-refresh .zpt-page-navigation{display:none}
+body.zpt-interface.ui-refresh .footer-desktop{position:static;backdrop-filter:none;background:#fff}
+body.zpt-interface.ui-refresh .landing-hero-visual .art{mix-blend-mode:multiply}
+@media(max-width:760px){
+ body.zpt-interface.ui-refresh .header-tools a[aria-label="Кабинет"]{display:none}
+ body.zpt-interface.ui-refresh .header-tools .header-cart{display:inline-flex}
+ body.zpt-interface.ui-refresh .city-select{max-width:108px;font-size:11px}
+ body.zpt-interface.ui-refresh .header-tools{gap:5px}
+ body.zpt-interface.ui-refresh .header-tools .plain{font-size:11px}
+}

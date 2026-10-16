@@ -89,3 +89,6 @@ WORDS.update({
     'serviceHubHint': ['Ремонт, детейлинг, тюнинг', 'Жөндеу, детейлинг, тюнинг'],
     'wholesaleHint': ['Заявки на оптовые поставки', 'Көтерме жеткізуге өтінімдер'],
 })
+
+# Focus on the actual spark plugs within the existing approved ZPT art.
+CROPS.update({'spark': [1282, 416, 120, 65]})

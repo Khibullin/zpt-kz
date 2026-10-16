@@ -1,6 +1,7 @@
 {% extends 'catalog/interface/base.html' %}{% load static interface_ui %}
 {% block title %}ТО и расходники — фильтры, свечи, комплекты ТО | ZPT.KZ{% endblock %}
 {% block meta_description %}Фильтры, свечи и комплекты ТО для автомобиля. Актуальные товары из каталога ZPT.KZ.{% endblock %}
+{% block body_attrs %} class="zpt-interface ui-refresh" data-zpt-suppress-ios-pwa="1"{% endblock %}
 {% block interface_content %}
 <nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'consumables' %}</span></nav>
 <section class="landing-hero landing-consumables">
@@ -9,7 +10,7 @@
 </section>
 <section class="landing-choices landing-three" aria-label="Категории ТО">
   <a href="/?q=фильтр" class="landing-choice"><div><h2>Фильтры</h2><p>Воздушные, масляные, салонные</p></div>{% ui_art 'ag' %}{% ui_icon 'chevron' %}</a>
-  <a href="/?q=свеча" class="landing-choice"><div><h2>Свечи</h2><p>Свечи зажигания для разных авто</p></div>{% ui_art 'shop' %}{% ui_icon 'chevron' %}</a>
+  <a href="/?q=свеча" class="landing-choice"><div><h2>Свечи</h2><p>Свечи зажигания для разных авто</p></div>{% ui_art 'spark' %}{% ui_icon 'chevron' %}</a>
   <a href="{% url 'maintenance_kit_list' %}" class="landing-choice"><div><h2>Комплекты ТО</h2><p>Готовые наборы для обслуживания</p></div>{% ui_art 'kits' %}{% ui_icon 'chevron' %}</a>
 </section>
 <section class="landing-results" aria-labelledby="popular-parts">

@@ -1,5 +1,6 @@
 {% extends 'catalog/interface/base.html' %}{% load static interface_ui %}
 {% block title %}Автозапчасти, авторазборы и СТО в Казахстане | ZPT.KZ{% endblock %}
+{% block body_attrs %} class="zpt-interface ui-refresh" data-zpt-suppress-ios-pwa="1"{% endblock %}
 {% block interface_content %}
 <section class="hero hero-compact" aria-labelledby="hero-title">
   <div class="hero-copy"><h1 id="hero-title">{% ui 'hero' %}</h1><p>{% ui 'tagline' %}</p></div>
@@ -9,7 +10,7 @@
 <section class="tiles tiles-five" aria-label="Разделы">
   {% for tile in interface_tiles %}
   <a class="tile tile-{{ tile.key }}" href="{{ tile.url }}">
-    <div class="tile-copy"><h3>{% ui tile.key %}</h3><p>{% ui tile.caption %}</p></div>
+    <div class="tile-copy"><h3>{% if tile.title %}{% ui tile.title %}{% else %}{% ui tile.key %}{% endif %}</h3><p>{% ui tile.caption %}</p></div>
     {% ui_art tile.art %}{% ui_icon 'chevron' %}
   </a>
   {% endfor %}

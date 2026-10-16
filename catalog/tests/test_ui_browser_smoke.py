@@ -75,6 +75,26 @@ class LandingBrowserSmokeTests(StaticLiveServerTestCase):
                                 dimensions["viewport"] + 2,
                                 f"{device}/{label}: horizontal overflow {dimensions}",
                             )
+                            self.assertEqual(
+                                page.locator(".zpt-page-navigation").evaluate(
+                                    "(el) => getComputedStyle(el).display"
+                                ) if page.locator(".zpt-page-navigation").count() else "none",
+                                "none",
+                            )
+                            if device == "desktop":
+                                self.assertNotEqual(
+                                    page.locator(".footer-desktop").evaluate(
+                                        "(el) => getComputedStyle(el).position"
+                                    ),
+                                    "fixed",
+                                )
+                            else:
+                                self.assertEqual(
+                                    page.locator(".header-cart").evaluate(
+                                        "(el) => getComputedStyle(el).display"
+                                    ),
+                                    "inline-flex",
+                                )
                             if label == "home":
                                 tiles = page.locator(selector)
                                 first = tiles.nth(0).bounding_box()

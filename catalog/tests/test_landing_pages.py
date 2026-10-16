@@ -18,6 +18,8 @@ class LandingPagesTests(TestCase):
             ('wholesale', reverse('public_seller_wholesale', kwargs={'slug': 'ag-parts'})),
         ])
         self.assertNotContains(page, 'Оставить заявку')
+        self.assertNotContains(page, 'Авторазборы / Б/У запчасти')
+        self.assertContains(page, 'Авторазборы')
         self.assertContains(page, reverse('parts_sellers_catalog_public'))
 
     def test_consumables_uses_only_existing_active_products(self):

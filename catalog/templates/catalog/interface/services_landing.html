@@ -1,6 +1,7 @@
 {% extends 'catalog/interface/base.html' %}{% load static interface_ui service_art %}
 {% block title %}СТО и услуги — ремонт, детейлинг и тюнинг | ZPT.KZ{% endblock %}
 {% block meta_description %}Каталоги СТО, ремонта, детейлинга и тюнинга в Казахстане. Выберите организацию на ZPT.KZ.{% endblock %}
+{% block body_attrs %} class="zpt-interface ui-refresh" data-zpt-suppress-ios-pwa="1"{% endblock %}
 {% block interface_content %}
 <nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'serviceHub' %}</span></nav>
 <section class="landing-hero landing-services">
