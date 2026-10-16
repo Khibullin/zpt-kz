@@ -1,0 +1,23 @@
+{% extends 'catalog/interface/base.html' %}{% load static interface_ui %}
+{% block title %}ТО и расходники — фильтры, свечи, комплекты ТО | ZPT.KZ{% endblock %}
+{% block meta_description %}Фильтры, свечи и комплекты ТО для автомобиля. Актуальные товары из каталога ZPT.KZ.{% endblock %}
+{% block interface_content %}
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'consumables' %}</span></nav>
+<section class="landing-hero landing-consumables">
+  <div class="landing-copy"><h1>{% ui 'consumables' %}</h1><p>Фильтры, свечи и комплекты ТО для вашего автомобиля</p><div class="landing-points"><span>{% ui_icon 'gear' %}Для планового ТО</span><span>{% ui_icon 'check' %}Подбор по автомобилю</span></div></div>
+  <div class="landing-hero-visual">{% ui_art 'kits' %}</div>
+</section>
+<section class="landing-choices landing-three" aria-label="Категории ТО">
+  <a href="/?q=фильтр" class="landing-choice"><div><h2>Фильтры</h2><p>Воздушные, масляные, салонные</p></div>{% ui_art 'ag' %}{% ui_icon 'chevron' %}</a>
+  <a href="/?q=свеча" class="landing-choice"><div><h2>Свечи</h2><p>Свечи зажигания для разных авто</p></div>{% ui_art 'shop' %}{% ui_icon 'chevron' %}</a>
+  <a href="{% url 'maintenance_kit_list' %}" class="landing-choice"><div><h2>Комплекты ТО</h2><p>Готовые наборы для обслуживания</p></div>{% ui_art 'kits' %}{% ui_icon 'chevron' %}</a>
+</section>
+<section class="landing-results" aria-labelledby="popular-parts">
+  <div class="section-head"><h2 class="section-title" id="popular-parts">Популярные товары</h2><a class="text-link" href="/?all=1">Смотреть все товары {% ui_icon 'arrow' %}</a></div>
+  {% if products %}<div class="products">{% for product in products %}{% include 'catalog/interface/product_card.html' %}{% endfor %}</div>
+  {% else %}<div class="landing-empty">Товары пока не представлены. <a href="/?all=1">Открыть общий каталог</a></div>{% endif %}
+  <p class="landing-extra"><a href="{% url 'ag_parts_filter_finder' %}">Подбор фильтров AG Parts {% ui_icon 'arrow' %}</a></p>
+</section>
+<aside class="landing-features"><h2>Почему удобно покупать у нас</h2><div><span>{% ui_icon 'gear' %}Подбор по автомобилю</span><span>{% ui_icon 'cart' %}Каталог товаров</span><span>{% ui_icon 'check' %}Актуальные карточки</span><span>{% ui_icon 'pin' %}По Казахстану</span></div></aside>
+<script>window.ZPT_CART={addUrl:'{% url "orders:cart_add_api" %}',countUrl:'{% url "orders:cart_count" %}'};</script><script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v15"></script>
+{% endblock %}

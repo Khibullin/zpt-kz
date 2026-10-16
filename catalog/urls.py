@@ -1,5 +1,5 @@
 from django.urls import path
-from .views_interface import interface_section
+from .views_interface import interface_section, consumables_landing, services_landing
 from core.views import dismantlers_catalog
 from .views_ag_parts import ag_parts_store, ag_parts_filter_finder
 
@@ -49,6 +49,8 @@ urlpatterns = [
     path('', catalog_list, name='catalog_list'),
 
     path('find-part/', catalog_list, name='interface_find_part'),
+    path('to-i-rashodniki/', consumables_landing, name='consumables_landing'),
+    path('sto-i-uslugi/', services_landing, name='services_landing'),
     path('sections/<slug:section>/', interface_section, name='interface_section'),
     path('auto-dismantlers/', dismantlers_catalog, name='dismantlers_catalog'),
 

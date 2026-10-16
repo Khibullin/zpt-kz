@@ -7,14 +7,11 @@ from django.urls import reverse
 def homepage_tiles():
     section = lambda name: reverse('interface_section', kwargs={'section': name})
     return [
-        {'key': 'parts', 'url': reverse('interface_find_part')},
-        {'key': 'dismantle', 'url': section('dismantle')},
-        {'key': 'shop', 'url': '/?all=1'},
-        {'key': 'ag', 'url': reverse('ag_parts_filter_finder')},
-        {'key': 'kits', 'url': reverse('maintenance_kit_list')},
-        {'key': 'repair', 'url': section('repair')},
-        {'key': 'detailing', 'url': section('detailing')},
-        {'key': 'wholesale', 'url': reverse('public_seller_wholesale', kwargs={'slug': 'ag-parts'})},
+        {'key': 'parts', 'url': reverse('interface_find_part'), 'art': 'parts', 'caption': 'partsHint'},
+        {'key': 'dismantle', 'url': section('dismantle'), 'art': 'dismantle', 'caption': 'dismantleHint'},
+        {'key': 'consumables', 'url': reverse('consumables_landing'), 'art': 'kits', 'caption': 'consumablesHint'},
+        {'key': 'serviceHub', 'url': reverse('services_landing'), 'art': 'repair', 'caption': 'serviceHubHint'},
+        {'key': 'wholesale', 'url': reverse('public_seller_wholesale', kwargs={'slug':'ag-parts'}), 'art': 'wholesale', 'caption': 'wholesaleHint'},
     ]
 
 
@@ -49,4 +46,34 @@ def interface_section(request, section):
     return render(request, 'catalog/interface/section.html', {
         'section_title': title,
         'choices': [{'key': key, 'url': url, 'icon': icon} for key, url, icon in choices],
+    })
+
+
+def consumables_landing(request):
+    """Read-only selection of live consumables; checkout stays in the existing cards."""
+    from django.db.models import Q
+    from .models import Product
+    from .views import attach_sellers_to_products
+    from .wholesale import attach_public_wholesale_flags, public_wholesale_prefetch
+
+    products = Product.objects.filter(status='active').filter(
+        Q(title__icontains='фильтр') |
+        Q(title__icontains='свеч') |
+        Q(title__icontains='комплект ТО') |
+        Q(category__name__icontains='фильтр') |
+        Q(category__name__icontains='свеч')
+    ).select_related('seller_profile', 'category', 'brand', 'car_model').order_by('-pk')
+    products = attach_sellers_to_products(public_wholesale_prefetch(products)[:8])
+    attach_public_wholesale_flags(products)
+    return render(request, 'catalog/interface/consumables.html', {'products': products})
+
+
+def services_landing(request):
+    """Only real active organizations, without fabricated ratings or profiles."""
+    from service_requests.models import ServiceSeller
+    sellers = ServiceSeller.objects.filter(is_active=True).prefetch_related(
+        'services'
+    ).order_by('name', 'pk')[:4]
+    return render(request, 'catalog/interface/services_landing.html', {
+        'service_sellers': sellers,
     })
