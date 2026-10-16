@@ -1,0 +1,41 @@
+name: One-time ZPT.KZ Live Route Smoke
+
+on:
+  push:
+    branches:
+      - ui/home-consumables-services-20261016
+
+permissions:
+  contents: read
+
+jobs:
+  verify-live-routes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify current live HTML after approved deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          check() {
+            local path="$1" marker="$2" attempt=1 code
+            while [ "$attempt" -le 12 ]; do
+              code=$(curl --silent --show-error --location --connect-timeout 8 --max-time 20 \
+                --output /tmp/zpt-route.html --write-out '%{http_code}' \
+                "https://zpt.kz${path}" || true)
+              if [ "$code" = "200" ] && grep -Fq -- "$marker" /tmp/zpt-route.html; then
+                echo "OK ${path}: HTTP 200, expected marker found"
+                return 0
+              fi
+              echo "Waiting for deploy: ${path} attempt=${attempt} code=${code}"
+              attempt=$((attempt+1))
+              sleep 12
+            done
+            echo "::error::Route ${path} was not ready or its expected content was missing"
+            return 1
+          }
+          check "/" 'tiles-five'
+          check "/to-i-rashodniki/" 'landing-consumables'
+          check "/sto-i-uslugi/" 'landing-services'
+          check "/find-part/" 'create_home_parts_request'
+          check "/sections/dismantle/" 'dismantle-hero'
