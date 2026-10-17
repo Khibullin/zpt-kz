@@ -52,8 +52,8 @@ class InterfaceReleaseTests(TestCase):
         page=self.client.get('/find-part/',{'condition':'used'})
         self.assertContains(page,reverse('create_home_parts_request'))
         self.assertContains(page,'home-parts-form-v8.js')
-        self.assertContains(page,'Б/У:')
-        self.assertContains(page,'Ищем подходящих продавцов по всему Казахстану')
+        self.assertContains(page,'Запчасти с авторазборов')
+        self.assertContains(page,'Какая запчасть вам нужна?')
 
     def test_gateways_use_real_forms_and_correct_service_filters(self):
         for kind in ['repair','detailing']:
