@@ -1,0 +1,53 @@
+name: Unified Parts Request Checks
+
+on:
+  pull_request:
+    paths:
+      - 'core/models.py'
+      - 'core/views.py'
+      - 'core/request_dispatch_service.py'
+      - 'core/services/home_parts_request.py'
+      - 'core/services/vehicle_suggest.py'
+      - 'core/migrations/0087_seller_sells_new_parts.py'
+      - 'core/tests/test_unified_parts_form.py'
+      - 'core/tests/test_dismantler_request_scope.py'
+      - 'core/tests/test_home_parts_request.py'
+      - 'core/tests/test_request_dispatch_waves.py'
+      - 'catalog/views.py'
+      - 'catalog/templates/catalog/catalog_list.html'
+      - 'static/js/home-parts-form-v8.js'
+      - '.github/workflows/parts-request-routing-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  unified-form:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      SECRET_KEY: parts-ci-only-do-not-use-in-production
+      DEBUG: 'True'
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      DATABASE_URL: sqlite:///db-parts-ci.sqlite3
+      EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install project requirements
+        run: pip install -r requirements.txt
+      - name: Django configuration check
+        run: python manage.py check
+      - name: Check schema migrations
+        run: python manage.py makemigrations --check --dry-run
+      - name: Run routing and shared-form tests in isolated test database
+        run: |
+          python manage.py test --settings backend.settings_ui_ci \
+            core.tests.test_unified_parts_form \
+            core.tests.test_dismantler_request_scope \
+            core.tests.test_home_parts_request \
+            core.tests.test_request_dispatch_waves \
+            -v 2
