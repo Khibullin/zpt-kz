@@ -1369,6 +1369,19 @@ class Seller(models.Model):
         verbose_name='Добавлен администратором, владелец не подключён',
     )
     is_dismantler = models.BooleanField(default=False, verbose_name='Показывать в каталоге авторазборов')
+    sells_new_parts = models.BooleanField(
+        null=True,
+        blank=True,
+        default=None,
+        db_index=True,
+        verbose_name='Продаёт новые запчасти',
+        help_text=(
+            'Да — подтверждённый продавец новых запчастей; '
+            'Нет — не продаёт новые запчасти; '
+            'Неизвестно — требует проверки. '
+            'Возможна комбинация Да и Авторазбор.'
+        ),
+    )
     directory_photo = models.ImageField(
         upload_to='seller_directory/', blank=True,
         verbose_name='Фото компании для каталога',

@@ -1240,6 +1240,24 @@ def disable_receive_requests(modeladmin, request, queryset):
     messages.warning(request, f'Получение заявок выключено: {updated} продавцов.')
 
 
+@admin.action(description='Подтвердить продажу новых запчастей')
+def confirm_new_parts_sellers(modeladmin, request, queryset):
+    updated = queryset.update(sells_new_parts=True)
+    messages.success(request, f'Подтверждены новые запчасти: {updated} организаций.')
+
+
+@admin.action(description='Подтвердить отсутствие новых запчастей')
+def exclude_new_parts_sellers(modeladmin, request, queryset):
+    updated = queryset.update(sells_new_parts=False)
+    messages.warning(request, f'Не продают новые запчасти: {updated} организаций.')
+
+
+@admin.action(description='Отметить специализацию новых запчастей как непроверенную')
+def reset_new_parts_review(modeladmin, request, queryset):
+    updated = queryset.update(sells_new_parts=None)
+    messages.warning(request, f'Специализация требует проверки: {updated} организаций.')
+
+
 @admin.action(description='Пометить как тестовых продавцов')
 def mark_as_test_seller(modeladmin, request, queryset):
     updated = queryset.update(is_test_seller=True)
@@ -1284,6 +1302,7 @@ class SellerAdmin(admin.ModelAdmin):
         'transport_type',
         'seller_type',
         'dismantler_status',
+        'sells_new_parts',
         'dispatch_priority',
         'receive_requests',
         'is_test_seller',
@@ -1301,6 +1320,7 @@ class SellerAdmin(admin.ModelAdmin):
 
     list_filter = (
         SellerDismantlerFilter,
+        'sells_new_parts',
         'transport_type',
         'seller_type',
         'receive_requests',
@@ -1334,6 +1354,9 @@ class SellerAdmin(admin.ModelAdmin):
     actions = (
         enable_receive_requests,
         disable_receive_requests,
+        confirm_new_parts_sellers,
+        exclude_new_parts_sellers,
+        reset_new_parts_review,
         mark_as_test_seller,
         unmark_as_test_seller,
     )
@@ -1356,6 +1379,15 @@ class SellerAdmin(admin.ModelAdmin):
                 'is_test_seller',
                 'notes',
             )
+        }),
+
+        ('Специализация заявок', {
+            'fields': ('sells_new_parts',),
+            'description': (
+                'Да — новые запчасти; авторазбор — отдельный признак. '
+                'Оба направления можно включить только после проверки организации. '
+                'Неизвестно означает, что новые заявки ей пока не направляются.'
+            ),
         }),
 
         ('Каталог авторазборов', {
