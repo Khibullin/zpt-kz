@@ -421,6 +421,8 @@ class RequestAdmin(admin.ModelAdmin):
     list_display = (
         'id',
         'source',
+        'is_dismantler_request',
+        'search_scope',
         'dispatch_mode',
         'routing_strategy',
         'transport_type',
@@ -438,6 +440,8 @@ class RequestAdmin(admin.ModelAdmin):
 
     list_filter = (
         'source',
+        'is_dismantler_request',
+        'search_scope',
         'dispatch_mode',
         'routing_strategy',
         'transport_type',
