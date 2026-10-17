@@ -286,6 +286,7 @@ a.hero-b2b-strip-btn:hover,
 .home-parts-field-query,
 .home-parts-field-phone,
 .home-parts-field-transport,
+.home-parts-field-condition,
 .home-parts-scope,
 .home-parts-actions,
 .home-parts-consent-note,
@@ -413,6 +414,62 @@ a.hero-b2b-strip-btn:hover,
   cursor:not-allowed;
   opacity:.35;
 }
+.home-parts-field-hint{
+  margin:0;
+  font-size:12px;
+  color:#6b7280;
+}
+.home-parts-geography-options{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+}
+.home-parts-geography-options span{
+  padding:6px;
+  text-align:center;
+}
+.home-custom-cities{
+  padding:12px;
+  margin-top:6px;
+  border:1px solid #e5e7eb;
+  border-radius:12px;
+  background:#fafafa;
+}
+.home-custom-cities[hidden]{display:none;}
+.home-custom-cities-list{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:4px 10px;
+  max-height:225px;
+  overflow-y:auto;
+  padding:8px 0;
+}
+.home-custom-cities .home-city-choice{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:7px 4px;
+  font-size:13px;
+  font-weight:500;
+  cursor:pointer;
+}
+.home-custom-cities .home-city-choice[hidden]{display:none;}
+.home-custom-cities .home-city-choice input{
+  width:18px;
+  min-width:18px;
+  height:18px;
+  min-height:18px;
+  margin:0;
+  padding:0;
+  accent-color:#ff3b30;
+}
+@media(max-width:767px){
+  .home-parts-geography-options{
+    grid-template-columns:1fr;
+  }
+  .home-custom-cities-list{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
+
 body.home-vehicle-picker-open{
   overflow:hidden;
 }
@@ -851,13 +908,7 @@ body.home-vehicle-picker-open{
     <div class="hero-main">
 
       <header class="home-intro">
-        {% if home_is_dismantler_request %}
-          <h1 class="hero-title ds-h1">Б/У запчасти для вашего авто — одним запросом</h1>
-          <p class="hero-sub ds-body">Запрос получат только авторазборы — вашего города или всего Казахстана, по вашему выбору.</p>
-        {% else %}
-          <h1 class="hero-title ds-h1">Запчасти для вашего авто — одним запросом</h1>
-          <p class="hero-sub ds-body">Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки.</p>
-        {% endif %}
+        <h1 class="hero-title ds-h1" id="home-parts-title">{% if home_is_dismantler_request %}Запчасти с авторазборов{% else %}Новые запчасти{% endif %}</h1>
       </header>
 
       {% if is_home_result %}
@@ -894,20 +945,32 @@ body.home-vehicle-picker-open{
         {% if is_home_result %}hidden{% endif %}
       >
         {% csrf_token %}
-        {% if home_is_dismantler_request %}
-          <input type="hidden" name="is_dismantler_request" value="1">
-        {% endif %}
-        <h2 class="home-parts-heading">Оставить заявку</h2>
+        <input type="hidden" name="is_dismantler_request" id="home-parts-condition-flag" value="{% if home_is_dismantler_request %}1{% else %}0{% endif %}">
         <div class="home-parts-grid">
+          <div class="home-parts-field home-parts-field-condition">
+            <span class="home-parts-field-caption" id="home-condition-label">Тип запчасти</span>
+            <div class="home-parts-transport" role="radiogroup" aria-labelledby="home-condition-label">
+              <label class="home-parts-transport-option">
+                <input type="radio" name="part_condition" value="new" {% if not home_is_dismantler_request %}checked{% endif %}>
+                <span>Новая</span>
+              </label>
+              <label class="home-parts-transport-option">
+                <input type="radio" name="part_condition" value="used" {% if home_is_dismantler_request %}checked{% endif %}>
+                <span>С авторазбора</span>
+              </label>
+            </div>
+            <p class="home-parts-error" data-error-for="part_condition" hidden></p>
+          </div>
           <div class="home-parts-field home-parts-field-query">
-            <label for="home-query">Название, артикул или описание запчасти</label>
+            <label for="home-query">Какая запчасть вам нужна?</label>
             <textarea
               id="home-query"
               name="query"
               required
               maxlength="500"
-              placeholder="Передние колодки, рулевая рейка или 52119-0K040"
+              placeholder="Например, передняя фара, бампер, зеркало"
             >{{ home_query_prefill }}</textarea>
+            <p class="home-parts-field-hint">Если знаете артикул, можете указать его.</p>
             <p class="home-parts-error" data-error-for="query" hidden></p>
           </div>
 
@@ -1020,8 +1083,8 @@ body.home-vehicle-picker-open{
                 type="search"
                 autocomplete="off"
                 spellcheck="false"
-                placeholder="Начните вводить марку"
-                aria-label="Поиск марки или модели"
+                placeholder="Введите название или выберите из списка"
+                aria-label="Название марки или модели"
               >
               <p class="home-vehicle-picker-status" id="home-vehicle-picker-status" hidden></p>
               <ul
@@ -1040,6 +1103,11 @@ body.home-vehicle-picker-open{
           </div>
 
           <div class="home-parts-field">
+            <label for="home-year">Год выпуска (необязательно)</label>
+            <input id="home-year" name="year" type="number" inputmode="numeric" min="1950" max="{{ home_year_max }}" placeholder="Например, 2018" value="">
+            <p class="home-parts-error" data-error-for="year" hidden></p>
+          </div>
+          <div class="home-parts-field">
             <label for="home-category">Категория запчасти</label>
             <select id="home-category" name="category" required>
               <option value="">Выберите категорию</option>
@@ -1051,7 +1119,7 @@ body.home-vehicle-picker-open{
           </div>
 
           <div class="home-parts-field">
-            <label for="home-city">Город</label>
+            <label for="home-city">Ваш город</label>
             <input id="home-city" name="city" type="text" list="home-city-list" required placeholder="Алматы" autocomplete="address-level2" value="">
             <datalist id="home-city-list">
               {% for city_name in home_cities %}
@@ -1061,22 +1129,37 @@ body.home-vehicle-picker-open{
             <p class="home-parts-error" data-error-for="city" hidden></p>
           </div>
 
-          {% if home_is_dismantler_request %}
           <div class="home-parts-field home-parts-field-transport">
-            <span class="home-parts-field-caption" id="dismantler-scope-label">Где искать авторазборы</span>
-            <div class="home-parts-transport" role="radiogroup" aria-labelledby="dismantler-scope-label">
+            <span class="home-parts-field-caption" id="home-scope-label">Где нужны запчасти</span>
+            <div class="home-parts-transport home-parts-geography-options" role="radiogroup" aria-labelledby="home-scope-label">
               <label class="home-parts-transport-option">
                 <input type="radio" name="search_scope" value="city">
                 <span>Только мой город</span>
+              </label>
+              <label class="home-parts-transport-option">
+                <input type="radio" name="search_scope" value="custom">
+                <span>Выбрать города</span>
               </label>
               <label class="home-parts-transport-option">
                 <input type="radio" name="search_scope" value="kazakhstan" checked>
                 <span>Весь Казахстан</span>
               </label>
             </div>
+            <div class="home-custom-cities" id="home-custom-cities" hidden>
+              <label for="home-cities-filter">Отметьте нужные города</label>
+              <input id="home-cities-filter" type="search" placeholder="Найти город" autocomplete="off">
+              <div class="home-custom-cities-list" id="home-custom-cities-list">
+                {% for city_name in home_cities %}
+                <label class="home-city-choice">
+                  <input type="checkbox" name="selected_cities" value="{{ city_name }}">
+                  <span>{{ city_name }}</span>
+                </label>
+                {% endfor %}
+              </div>
+              <p class="home-parts-error" data-error-for="selected_cities" hidden></p>
+            </div>
             <p class="home-parts-error" data-error-for="search_scope" hidden></p>
           </div>
-          {% endif %}
 
           <div class="home-parts-field home-parts-field-phone">
             <label for="home-phone">Ваш WhatsApp</label>
@@ -1084,20 +1167,9 @@ body.home-vehicle-picker-open{
             <p class="home-parts-error" data-error-for="phone" hidden></p>
           </div>
 
-          {% if home_is_dismantler_request %}
-            <p class="home-parts-scope">Заявка будет направлена только подходящим авторазборам выбранной территории.</p>
-          {% else %}
-            <p class="home-parts-scope">Ищем подходящих продавцов по всему Казахстану</p>
-          {% endif %}
-
           <details class="home-parts-extra">
             <summary>Дополнительно</summary>
             <div class="home-parts-grid" style="margin-top:10px">
-              <div class="home-parts-field">
-                <label for="home-year">Год выпуска (необязательно)</label>
-                <input id="home-year" name="year" type="number" inputmode="numeric" min="1950" max="{{ home_year_max }}" placeholder="2018" value="">
-                <p class="home-parts-error" data-error-for="year" hidden></p>
-              </div>
               <div class="home-parts-field">
                 <label for="home-vin">VIN</label>
                 <input id="home-vin" name="vin" type="text" maxlength="17" autocomplete="off" spellcheck="false" placeholder="Необязательно" value="">
@@ -1244,7 +1316,7 @@ body.home-vehicle-picker-open{
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v15"></script>
-<script src="{% static 'js/home-parts-form-v8.js' %}?v=1"></script>
+<script src="{% static 'js/home-parts-form-v8.js' %}?v=2"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
   function scrollToCatalogTarget(el) {
