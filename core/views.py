@@ -1292,13 +1292,17 @@ def create_request(request):
 
 
 def vehicle_suggest(request):
-    from core.services.vehicle_suggest import suggest_brands, suggest_models
+    from core.services.vehicle_suggest import (
+        list_picker_brands, suggest_brands, suggest_models,
+    )
 
     kind = (request.GET.get('kind') or 'brand').strip().lower()
     query = request.GET.get('q', '')
     raw_transport = (request.GET.get('transport_type') or '').strip().lower()
     transport_type = raw_transport if raw_transport in ('car', 'truck') else ''
-    if kind == 'model':
+    if kind == 'brand_list':
+        items = list_picker_brands(transport_type=transport_type)
+    elif kind == 'model':
         items = suggest_models(
             query,
             brand_id=request.GET.get('brand_id'),
