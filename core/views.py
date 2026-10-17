@@ -757,6 +757,8 @@ def _base_sellers_queryset(req, *, match_transport: bool = True):
     }
     if match_transport and req.transport_type in ('car', 'truck'):
         filters['transport_type'] = req.transport_type
+    if getattr(req, 'is_dismantler_request', False):
+        filters['is_dismantler'] = True
 
     base = Seller.objects.filter(**filters)
 
@@ -875,6 +877,8 @@ def _find_matching_sellers(req):
             'dispatch_priority',
             'id',
         )
+        if getattr(req, 'is_dismantler_request', False) and req.search_scope == 'city':
+            qs = qs.filter(city=req.city)
         if qs.exists():
             return qs, Request.ROUTING_ALL_KZ
         return Seller.objects.none(), Request.ROUTING_NO_MATCH
@@ -931,7 +935,8 @@ def _find_matching_sellers(req):
                 return qs, Request.ROUTING_MATCHED_CUSTOM
             return qs, Request.ROUTING_MATCHED_KAZAKHSTAN
 
-    if search_scope in ['city', 'custom']:
+    # An explicit "only my city" dismantler request must never widen nationwide.
+    if search_scope in ['city', 'custom'] and not getattr(req, 'is_dismantler_request', False):
 
         for strategy in strategies:
             qs = base_qs
@@ -1005,6 +1010,14 @@ def _build_dispatch_queue(req, sellers):
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()
+    if getattr(req, 'is_dismantler_request', False):
+        # Keep both request-target and requested geography intact if another
+        # code path attempts to enqueue seller IDs directly.
+        sellers = [
+            seller for seller in sellers
+            if seller.is_dismantler
+            and (req.search_scope != 'city' or seller.city == req.city)
+        ]
     if getattr(req, 'dispatch_mode', '') == Request.DISPATCH_MODE_ALL_KZ:
         sellers = _unique_sellers_by_whatsapp(sellers)
 
@@ -1319,6 +1332,8 @@ def create_home_parts_request(request):
         'phone': request.POST.get('phone') or request.POST.get('whatsapp', ''),
         'transport_type': request.POST.get('transport_type', ''),
         'category': request.POST.get('category', ''),
+        'search_scope': request.POST.get('search_scope', ''),
+        'is_dismantler_request': request.POST.get('is_dismantler_request', ''),
         'idempotency_key': request.POST.get('idempotency_key', ''),
     }
     header_key = (request.headers.get('Idempotency-Key') or '').strip()
@@ -1413,7 +1428,11 @@ def create_home_parts_request(request):
         'queued': queued,
         'broadcast_active': broadcast_active,
         'matches': len(dispatches),
-        'result_url': f'/?home_request={req.access_token}',
+        'result_url': (
+            f'/find-part/?condition=used&home_request={req.access_token}'
+            if req.is_dismantler_request
+            else f'/?home_request={req.access_token}'
+        ),
         'products': products_payload,
         'search_failed': search_failed,
         'photos_saved': req.photos.count(),

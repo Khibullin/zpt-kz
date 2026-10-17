@@ -377,6 +377,12 @@ class Request(models.Model):
         db_index=True,
         verbose_name='Источник заявки',
     )
+    is_dismantler_request = models.BooleanField(
+        default=False,
+        db_index=True,
+        verbose_name='Заявка только авторазборам',
+        help_text='Из раздела авторазборов; получатели — только подходящие авторазборы.',
+    )
     dispatch_mode = models.CharField(
         max_length=20,
         choices=REQUEST_DISPATCH_MODE_CHOICES,

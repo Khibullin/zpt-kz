@@ -562,6 +562,7 @@ def catalog_list(request):
         'home_part_categories': PartCategory.objects.order_by('name'),
         'home_year_max': timezone.now().year + 1,
         'home_query_prefill': query,
+        'home_is_dismantler_request': request.GET.get('condition') == 'used',
         'countries': countries,
         'brands': brands,
         'models': models,

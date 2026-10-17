@@ -77,9 +77,14 @@ def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
     return None
 
 
-def seller_allowed_for_dispatch(seller, settings: BroadcastSettings) -> bool:
+def seller_allowed_for_dispatch(seller, settings: BroadcastSettings, request=None) -> bool:
     if not getattr(seller, 'is_active', True) or getattr(seller, 'is_paused', False):
         return False
+    if request is not None and getattr(request, 'is_dismantler_request', False):
+        if not getattr(seller, 'is_dismantler', False):
+            return False
+        if request.search_scope == 'city' and seller.city != request.city:
+            return False
     if settings.mode == BroadcastSettings.MODE_TEST:
         return bool(seller.is_test_seller)
     if settings.mode == BroadcastSettings.MODE_LIVE:
@@ -335,6 +340,16 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
         if locked_dispatch is None:
             return {'ok': False, 'skipped': True, 'reason': 'not_queued'}
 
+        req = locked_dispatch.request
+        seller = locked_dispatch.seller
+        if getattr(req, 'is_dismantler_request', False) and (
+            not seller.is_dismantler
+            or (req.search_scope == 'city' and seller.city != req.city)
+        ):
+            locked_dispatch.status = RequestDispatch.STATUS_PAUSED
+            locked_dispatch.save(update_fields=['status'])
+            return {'ok': False, 'skipped': True, 'reason': 'dismantler_scope_mismatch'}
+
         match, _ = Match.objects.get_or_create(
             request=locked_dispatch.request,
             seller=locked_dispatch.seller,
@@ -476,7 +491,7 @@ def process_due_dispatch_waves(*, writer=None) -> dict:
             )
 
             for dispatch in dispatches:
-                if not seller_allowed_for_dispatch(dispatch.seller, settings):
+                if not seller_allowed_for_dispatch(dispatch.seller, settings, dispatch.request):
                     if dispatch.status == RequestDispatch.STATUS_QUEUED:
                         dispatch.status = RequestDispatch.STATUS_PAUSED
                         dispatch.save(update_fields=['status'])

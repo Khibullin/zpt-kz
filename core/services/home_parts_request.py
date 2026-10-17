@@ -84,6 +84,8 @@ class HomePartsPayload:
     transport_type: str = ''
     category: str = ''
     article: str = ''
+    is_dismantler_request: bool = False
+    search_scope: str = 'kazakhstan'
 
 
 def _current_max_year() -> int:
@@ -135,6 +137,22 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
             fields={'city': 'Выберите город из списка.'},
         )
     city = canonical_city
+
+    request_type = str(data.get('is_dismantler_request') or '').strip()
+    if request_type not in ('', '0', '1'):
+        raise HomePartsRequestError(
+            'Некорректный тип заявки.',
+            fields={'is_dismantler_request': 'Некорректный тип заявки.'},
+        )
+    is_dismantler_request = request_type == '1'
+    search_scope = 'kazakhstan'
+    if is_dismantler_request:
+        search_scope = str(data.get('search_scope') or '').strip()
+        if search_scope not in ('city', 'kazakhstan'):
+            raise HomePartsRequestError(
+                'Укажите, где искать авторазборы.',
+                fields={'search_scope': 'Выберите «Только мой город» или «Весь Казахстан».'},
+            )
 
     phone = normalize_phone_for_whatsapp(data.get('phone') or data.get('whatsapp'))
     if not phone:
@@ -226,6 +244,8 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
         transport_type=transport_type,
         category=category,
         article=article,
+        is_dismantler_request=is_dismantler_request,
+        search_scope=search_scope,
     )
 
 
@@ -365,6 +385,9 @@ def compute_idempotency_fingerprint(payload: HomePartsPayload, uploaded_photos) 
         str(payload.year or ''),
         payload.vin,
     ]
+    # Preserve fingerprints of previously saved ordinary short-form requests.
+    if payload.is_dismantler_request:
+        parts.extend(('dismantlers', payload.search_scope))
     hasher.update('\n'.join(parts).encode('utf-8'))
     for uploaded in uploaded_photos or []:
         name = getattr(uploaded, 'name', '') or ''
@@ -408,6 +431,8 @@ def payload_matches_request(
         and payload.vehicle_country == (req.country or '')
         and payload.transport_type == (req.transport_type or '')
         and payload.category == (req.category or '')
+        and payload.is_dismantler_request == bool(getattr(req, 'is_dismantler_request', False))
+        and (not payload.is_dismantler_request or payload.search_scope == req.search_scope)
         and not uploaded_photos
     )
 
@@ -476,11 +501,12 @@ def create_home_parts_request_record(
                 year=payload.year,
                 vin=payload.vin,
                 city=payload.city,
-                # Approved scope: all matching sellers across Kazakhstan.
-                # Changing dispatch business rules requires the owner's approval.
-                search_scope='kazakhstan',
+                # Ordinary short form still targets all matching Kazakhstan sellers.
+                # Dismantler form targets only dismantlers, with buyer-selected geography.
+                search_scope=payload.search_scope,
                 selected_cities='',
                 source=Request.SOURCE_HOME_SHORT,
+                is_dismantler_request=payload.is_dismantler_request,
                 dispatch_mode=Request.DISPATCH_MODE_MATCHED,
                 idempotency_key=payload.idempotency_key,
                 idempotency_fingerprint=fingerprint,
