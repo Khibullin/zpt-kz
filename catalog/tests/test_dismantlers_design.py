@@ -58,12 +58,14 @@ class DismantlersDesignTests(TestCase):
         ordinary = self.client.get('/parts-sellers/', {'q': 'Toyota QA'})
         self.assertEqual(ordinary.context['page_obj'].paginator.count, 0)
 
-    def test_public_card_uses_real_profile_photo_and_valid_whatsapp(self):
+    def test_public_list_omits_images_and_preserves_contact_links(self):
         self.seller.directory_photo = 'seller_directory/actual-company.webp'
         self.seller.save(update_fields=['directory_photo'])
         page = self.client.get('/auto-dismantlers/')
         self.assertContains(page, reverse('parts_seller_detail_public', args=[self.seller.pk]))
-        self.assertContains(page, 'seller_directory/actual-company.webp')
+        self.assertNotContains(page, 'seller_directory/actual-company.webp')
+        self.assertContains(page, 'directory-profile')
+        self.assertContains(page, 'tel:+77001234567')
         self.assertContains(page, 'https://wa.me/77001234567')
         self.assertEqual(self.client.get(reverse('parts_seller_detail_public', args=[self.seller.pk])).status_code, 200)
         self.seller.whatsapp = 'invalid'
@@ -125,8 +127,26 @@ class DismantlersDesignTests(TestCase):
         ])
         page = self.client.get('/auto-dismantlers/', {'q': query, 'city': 'Алматы'})
         links = re.findall(r'href="([^"]*page=2[^"]*)"', page.content.decode())
-        self.assertEqual(len(links), 1)
+        self.assertEqual(len(links), 2)
         params = parse_qs(urlsplit(html.unescape(links[0])).query)
         self.assertEqual(params, {'q': [query], 'city': ['Алматы'], 'page': ['2']})
         second = self.client.get('/auto-dismantlers/' + html.unescape(links[0]))
         self.assertEqual(len(second.context['sellers']), 1)
+
+    def test_compact_directory_omits_duplicate_address_and_technical_labels(self):
+        self.seller.name = 'ALDI MART • Instagram photos and videos'
+        self.seller.address = 'улица Абая, 10'
+        self.seller.market_location = 'улица Абая, 10'
+        self.seller.brand = 'Multi'
+        self.seller.category = 'Multi'
+        self.seller.save()
+        page = self.client.get('/auto-dismantlers/')
+        self.assertContains(page, self.seller.address, count=1)
+        self.assertContains(page, 'ALDI MART')
+        self.assertNotContains(page, 'Instagram photos and videos')
+        self.assertNotContains(page, 'Multi')
+        cards = re.findall(r'<article class="directory-card">(.*?)</article>', page.content.decode(), re.S)
+        self.assertTrue(cards)
+        self.assertTrue(all('<img' not in card for card in cards))
+        self.seller.refresh_from_db()
+        self.assertEqual(self.seller.name, 'ALDI MART • Instagram photos and videos')

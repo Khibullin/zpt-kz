@@ -1,30 +1,33 @@
-{% extends 'catalog/interface/dismantlers/base.html' %}{% load static interface_ui %}
+{% extends 'catalog/interface/dismantlers/base.html' %}{% load static interface_ui dismantler_catalog %}
 {% block title %}Каталог авторазборов Казахстана | ZPT.KZ{% endblock %}
-{% block meta_description %}Отдельный каталог авторазборов Казахстана: поиск по городу, марке, модели и категориям запчастей. Профили и прямые контакты компаний.{% endblock %}
+{% block meta_description %}Каталог авторазборов Казахстана: поиск по городу, марке и специализации. Профили и прямые контакты организаций.{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/dismantler-catalog.css' %}?v=20261017a">{% endblock %}
 {% block interface_content %}
-<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<a href="{% url 'interface_section' section='dismantle' %}">{% ui 'dismantleShort' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'catalog' %}</span></nav>
-<div class="dismantle-directory-heading"><div><h1>{% ui 'dismantlers' %}</h1><p>{% ui 'dismantleCatalogIntro' %}</p></div><a class="btn dismantle-outline" href="/request-parts/cabinet/">{% ui 'dismantleAdd' %}</a></div>
-<form id="dismantlers-search" class="dismantle-search" method="get" action="{% url 'dismantlers_catalog' %}">
-  <label class="dismantle-search-input">{% ui_icon 'search' %}<input type="search" name="q" value="{{ filters.q }}" maxlength="200" aria-label="Поиск авторазбора" placeholder="Название, марка или специализация" data-placeholder-ru="Название, марка или специализация" data-placeholder-kk="Атауы, маркасы немесе мамандануы"></label><button class="btn" type="submit">{% ui 'find' %}</button>
+<div class="directory-page">
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'dismantlers' %}</span></nav>
+<div class="directory-heading"><div><h1>{% ui 'dismantlers' %}</h1><p data-ru="Найдите организацию и свяжитесь напрямую" data-kk="Ұйымды тауып, тікелей хабарласыңыз">Найдите организацию и свяжитесь напрямую</p></div><a class="btn dismantle-outline" href="/request-parts/cabinet/">{% ui 'dismantleAdd' %}</a></div>
+<div class="directory-controls">
+<form id="dismantlers-search" class="directory-search" method="get" action="{% url 'dismantlers_catalog' %}">
+<select id="dismantler-city" name="city" aria-label="Город"><option value="" data-ru="Все города" data-kk="Барлық қалалар">Все города</option>{% for city in cities %}<option value="{{ city }}"{% if filters.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}</select>
+<input type="search" name="q" value="{{ filters.q }}" maxlength="200" aria-label="Поиск авторазбора" placeholder="Название или адрес" data-placeholder-ru="Название или адрес" data-placeholder-kk="Атауы немесе мекенжайы">
+<button class="btn" type="submit">{% ui 'find' %}</button>
 </form>
-<div class="dismantle-directory-layout">
-  <details class="dismantle-filters" data-dismantlers-filters open>
-    <summary>{% ui_icon 'filter' %}{% ui 'filters' %}{% ui_icon 'down' %}</summary>
-    <div class="dismantle-filter-fields"><h2>{% ui 'filters' %}</h2>
-      <label for="dismantler-city">{% ui 'city' %}</label><select id="dismantler-city" name="city" form="dismantlers-search"><option value="" data-ru="Все города" data-kk="Барлық қалалар">Все города</option>{% for city in cities %}<option value="{{ city }}"{% if filters.city == city %} selected{% endif %}>{{ city }}</option>{% endfor %}</select>
-      <label for="dismantler-transport">{% ui 'dismantleTransport' %}</label><select id="dismantler-transport" name="transport_type" form="dismantlers-search"><option value="" data-ru="Все" data-kk="Барлығы">Все</option><option value="car"{% if filters.transport_type == 'car' %} selected{% endif %} data-ru="Легковые" data-kk="Жеңіл көліктер">Легковые</option><option value="truck"{% if filters.transport_type == 'truck' %} selected{% endif %} data-ru="Грузовые" data-kk="Жүк көліктері">Грузовые</option></select>
-      <label for="dismantler-brand">{% ui 'brand' %}</label><select id="dismantler-brand" name="brand" form="dismantlers-search"><option value="" data-ru="Все марки" data-kk="Барлық маркалар">Все марки</option>{% for brand in brands %}<option value="{{ brand.pk }}"{% if filters.brand == brand.pk|stringformat:'s' %} selected{% endif %}>{{ brand.name }}</option>{% endfor %}</select>
-      <label for="dismantler-model">{% ui 'model' %}</label><select id="dismantler-model" name="model" form="dismantlers-search"><option value="" data-ru="Все модели" data-kk="Барлық модельдер">Все модели</option>{% for model in models %}<option value="{{ model.pk }}"{% if filters.model == model.pk|stringformat:'s' %} selected{% endif %}>{{ model.name }}</option>{% endfor %}</select>
-      <label for="dismantler-category">{% ui 'dismantleCategory' %}</label><select id="dismantler-category" name="category" form="dismantlers-search"><option value="" data-ru="Все категории" data-kk="Барлық санаттар">Все категории</option>{% for category in categories %}<option value="{{ category.pk }}"{% if filters.category == category.pk|stringformat:'s' %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select>
-      <label for="dismantler-country">{% ui 'dismantleCountry' %}</label><select id="dismantler-country" name="country" form="dismantlers-search"><option value="" data-ru="Все страны" data-kk="Барлық елдер">Все страны</option>{% for country in countries %}<option value="{{ country.pk }}"{% if filters.country == country.pk|stringformat:'s' %} selected{% endif %}>{{ country.name }}</option>{% endfor %}</select>
+<details class="directory-filters"{% if filters.transport_type or filters.brand or filters.model or filters.category or filters.country %} open{% endif %}>
+<summary>{% ui_icon 'filter' %}{% ui 'filters' %}</summary>
+<div class="directory-extra">
+      <div class="directory-filter-field"><label for="dismantler-transport">{% ui 'dismantleTransport' %}</label><select id="dismantler-transport" name="transport_type" form="dismantlers-search"><option value="" data-ru="Все" data-kk="Барлығы">Все</option><option value="car"{% if filters.transport_type == 'car' %} selected{% endif %} data-ru="Легковые" data-kk="Жеңіл көліктер">Легковые</option><option value="truck"{% if filters.transport_type == 'truck' %} selected{% endif %} data-ru="Грузовые" data-kk="Жүк көліктері">Грузовые</option></select></div>
+      <div class="directory-filter-field"><label for="dismantler-brand">{% ui 'brand' %}</label><select id="dismantler-brand" name="brand" form="dismantlers-search"><option value="" data-ru="Все марки" data-kk="Барлық маркалар">Все марки</option>{% for brand in brands %}<option value="{{ brand.pk }}"{% if filters.brand == brand.pk|stringformat:'s' %} selected{% endif %}>{{ brand.name }}</option>{% endfor %}</select></div>
+      <div class="directory-filter-field"><label for="dismantler-model">{% ui 'model' %}</label><select id="dismantler-model" name="model" form="dismantlers-search"><option value="" data-ru="Все модели" data-kk="Барлық модельдер">Все модели</option>{% for model in models %}<option value="{{ model.pk }}"{% if filters.model == model.pk|stringformat:'s' %} selected{% endif %}>{{ model.name }}</option>{% endfor %}</select></div>
+      <div class="directory-filter-field"><label for="dismantler-category">{% ui 'dismantleCategory' %}</label><select id="dismantler-category" name="category" form="dismantlers-search"><option value="" data-ru="Все категории" data-kk="Барлық санаттар">Все категории</option>{% for category in categories %}<option value="{{ category.pk }}"{% if filters.category == category.pk|stringformat:'s' %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></div>
+      <div class="directory-filter-field"><label for="dismantler-country">{% ui 'dismantleCountry' %}</label><select id="dismantler-country" name="country" form="dismantlers-search"><option value="" data-ru="Все страны" data-kk="Барлық елдер">Все страны</option>{% for country in countries %}<option value="{{ country.pk }}"{% if filters.country == country.pk|stringformat:'s' %} selected{% endif %}>{{ country.name }}</option>{% endfor %}</select></div>
       <button class="btn" type="submit" form="dismantlers-search">{% ui 'apply' %}</button><a class="btn secondary" href="{% url 'dismantlers_catalog' %}">{% ui 'reset' %}</a>
-    </div>
-  </details>
-  <section class="dismantle-results" aria-label="Авторазборы">
-    {% if sellers %}<p class="dismantle-result-count">{% ui 'dismantleFound' %}: {{ page_obj.paginator.count }}</p><div class="dismantle-company-grid">{% for seller in sellers %}{% include 'catalog/interface/dismantlers/company_card.html' %}{% endfor %}</div>
+
+</div></details></div>
+{% if has_directory_filters %}<div class="directory-applied">{% if filters.city %}<span>{{ filters.city }}</span>{% endif %}{% if filters.q %}<span>{{ filters.q }}</span>{% endif %}<a href="{% url 'dismantlers_catalog' %}">{% ui 'reset' %}</a></div>{% endif %}
+<section class="directory-results" aria-label="Авторазборы">
+{% if sellers %}<p class="directory-result-count">{% ui 'dismantleFound' %}: {{ page_obj.paginator.count }}</p><div class="directory-list">{% for seller in sellers %}{% include 'catalog/interface/dismantlers/company_card.html' %}{% endfor %}</div>
     {% else %}<div class="dismantle-empty">{% ui_icon 'garage' %}<h2>{% if has_directory_filters %}{% ui 'dismantleNoMatches' %}{% else %}{% ui 'dismantleFilling' %}{% endif %}</h2><p>{% if has_directory_filters %}{% ui 'dismantleRetry' %}{% else %}{% ui 'dismantleEmptyHint' %}{% endif %}</p><div class="dismantle-empty-actions"><a class="btn" href="{% url 'interface_find_part' %}?condition=used">{% ui 'request' %}{% ui_icon 'arrow' %}</a>{% if has_directory_filters %}<a class="btn secondary" href="{% url 'dismantlers_catalog' %}">{% ui 'reset' %}</a>{% else %}<a class="btn dismantle-outline" href="/request-parts/cabinet/">{% ui 'dismantleAdd' %}</a>{% endif %}</div></div>{% endif %}
-    {% if page_obj.has_other_pages %}<nav class="dismantle-pagination" aria-label="Страницы каталога">{% if page_obj.has_previous %}<a class="btn secondary" href="{% querystring page=page_obj.previous_page_number %}">{% ui_icon 'back' %}{% ui 'back' %}</a>{% endif %}<span>{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span>{% if page_obj.has_next %}<a class="btn secondary" href="{% querystring page=page_obj.next_page_number %}">{% ui 'dismantleNext' %}{% ui_icon 'arrow' %}</a>{% endif %}</nav>{% endif %}
-  </section>
-</div>
-<script src="{% static 'interface/dismantlers.js' %}?v=20261013a" defer></script>
+
+{% if page_obj.has_other_pages %}{% directory_pages page_obj as page_numbers %}<nav class="directory-pagination" aria-label="Страницы каталога">{% if page_obj.has_previous %}<a href="{% querystring page=page_obj.previous_page_number %}">← {% ui 'back' %}</a>{% endif %}{% for number in page_numbers %}{% if number == page_obj.paginator.ELLIPSIS %}<span>{{ number }}</span>{% elif number == page_obj.number %}<span class="is-current" aria-current="page">{{ number }}</span>{% else %}<a href="{% querystring page=number %}" aria-label="Страница {{ number }}">{{ number }}</a>{% endif %}{% endfor %}{% if page_obj.has_next %}<a href="{% querystring page=page_obj.next_page_number %}">{% ui 'dismantleNext' %} →</a>{% endif %}</nav>{% endif %}
+</section></div>
 {% endblock %}
