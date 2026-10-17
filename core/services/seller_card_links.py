@@ -92,6 +92,7 @@ def clean_http_url(raw: object) -> tuple[str, str]:
     ]
     query_text = '&'.join(f'{key}={value}' for key, value in filtered)
     path = parsed.path or ''
+    path = path.rstrip('.,;')
     if path != '/' and path.endswith('/'):
         path = path[:-1]
     host = host_of(text)
