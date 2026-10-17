@@ -80,11 +80,17 @@ def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
 def seller_allowed_for_dispatch(seller, settings: BroadcastSettings, request=None) -> bool:
     if not getattr(seller, 'is_active', True) or getattr(seller, 'is_paused', False):
         return False
-    if request is not None and getattr(request, 'is_dismantler_request', False):
-        if not getattr(seller, 'is_dismantler', False):
+    if request is not None and request.source == request.SOURCE_HOME_SHORT:
+        if request.is_dismantler_request and not seller.is_dismantler:
+            return False
+        if not request.is_dismantler_request and seller.sells_new_parts is not True:
             return False
         if request.search_scope == 'city' and seller.city != request.city:
             return False
+        if request.search_scope == 'custom':
+            cities = (request.selected_cities or '').split(',')
+            if seller.city not in [city.strip() for city in cities if city.strip()]:
+                return False
     if settings.mode == BroadcastSettings.MODE_TEST:
         return bool(seller.is_test_seller)
     if settings.mode == BroadcastSettings.MODE_LIVE:
