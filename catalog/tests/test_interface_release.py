@@ -39,7 +39,7 @@ class InterfaceReleaseTests(TestCase):
 
     def test_dismantler_directory_is_separate_and_hides_inactive_profiles(self):
         Seller.objects.create(name='Real dismantler',whatsapp='+77000000001',transport_type='car',is_dismantler=True)
-        Seller.objects.create(name='Parts store only',whatsapp='+77000000002',transport_type='car')
+        Seller.objects.create(name='Parts store only',whatsapp='+77000000002',transport_type='car',sells_new_parts=True)
         Seller.objects.create(name='Paused dismantler',whatsapp='+77000000003',transport_type='car',is_dismantler=True,is_paused=True)
         page=self.client.get('/auto-dismantlers/')
         self.assertContains(page,'Real dismantler')

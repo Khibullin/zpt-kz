@@ -1984,6 +1984,10 @@ def parts_sellers_catalog(request, dismantlers_only=False):
 
     if dismantlers_only:
         sellers = sellers.filter(is_dismantler=True).select_related('brand_fk')
+    else:
+        sellers = sellers.filter(sells_new_parts=True, is_test_seller=False).select_related('brand_fk', 'model_fk', 'country_fk')
+
+    directory_sellers = sellers
 
     if raw_city and not city:
         sellers = Seller.objects.none()
@@ -2000,27 +2004,27 @@ def parts_sellers_catalog(request, dismantlers_only=False):
 
     if category_id:
         sellers = sellers.filter(
-            Q(all_categories=True) |
+            (Q(all_categories=True) if dismantlers_only else Q(pk__in=[])) |
             Q(selected_categories__id=category_id)
         ).distinct()
 
     if country_id:
         sellers = sellers.filter(
-            Q(all_countries=True) |
+            (Q(all_countries=True) if dismantlers_only else Q(pk__in=[])) |
             Q(selected_countries__id=country_id) |
             Q(country_fk_id=country_id)
         ).distinct()
 
     if brand_id:
         sellers = sellers.filter(
-            Q(all_brands=True) |
+            (Q(all_brands=True) if dismantlers_only else Q(pk__in=[])) |
             Q(selected_brands__id=brand_id) |
             Q(brand_fk_id=brand_id)
         ).distinct()
 
     if model_id:
         sellers = sellers.filter(
-            Q(all_models=True) |
+            (Q(all_models=True) if dismantlers_only else Q(pk__in=[])) |
             Q(selected_models__id=model_id) |
             Q(model_fk_id=model_id)
         ).distinct()
@@ -2042,7 +2046,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
                 Q(brand__icontains=q) | Q(category__icontains=q)
             )
         else:
-            search_terms |= Q(notes__icontains=q)
+            search_terms |= (Q(directory_description__icontains=q) | Q(directory_description_kk__icontains=q))
         sellers = sellers.filter(search_terms).distinct()
 
     paginator = Paginator(
@@ -2071,15 +2075,27 @@ def parts_sellers_catalog(request, dismantlers_only=False):
 
     if dismantlers_only:
         cities = cities.filter(is_dismantler=True)
+    else:
+        cities = cities.filter(sells_new_parts=True, is_test_seller=False)
+
+    categories = PartCategory.objects.all()
+    countries = Country.objects.all()
+    brands = Brand.objects.all()
+    models = CarModel.objects.all()
+    if not dismantlers_only:
+        categories = categories.filter(pk__in=directory_sellers.values('selected_categories')).distinct()
+        countries = countries.filter(Q(pk__in=directory_sellers.values('selected_countries')) | Q(pk__in=directory_sellers.values('country_fk'))).distinct()
+        brands = brands.filter(Q(pk__in=directory_sellers.values('selected_brands')) | Q(pk__in=directory_sellers.values('brand_fk'))).distinct()
+        models = models.filter(Q(pk__in=directory_sellers.values('selected_models')) | Q(pk__in=directory_sellers.values('model_fk'))).distinct()
 
     return render(
         request,
         ('catalog/interface/dismantlers/catalog.html' if dismantlers_only
-         else 'catalog/parts_sellers/index.html'),
+         else 'catalog/interface/parts_sellers/catalog.html'),
         {
             'is_dismantlers_catalog': dismantlers_only,
-            'section_title': 'dismantlers' if dismantlers_only else '',
-            'hide_product_search': dismantlers_only,
+            'section_title': 'dismantlers' if dismantlers_only else 'Каталог продавцов запчастей',
+            'hide_product_search': True,
             'has_directory_filters': any((q, transport_type, raw_city, category_id, country_id, brand_id, model_id)),
             'sellers': sellers_page,
             'page_obj': sellers_page,
@@ -2093,10 +2109,10 @@ def parts_sellers_catalog(request, dismantlers_only=False):
                 'model': model_id,
             },
             'cities': cities,
-            'categories': PartCategory.objects.all(),
-            'countries': Country.objects.all(),
-            'brands': Brand.objects.all(),
-            'models': CarModel.objects.all(),
+            'categories': categories,
+            'countries': countries,
+            'brands': brands,
+            'models': models,
         }
     )
 
@@ -2120,15 +2136,19 @@ def parts_seller_detail(request, seller_id):
         is_paused=False,
     )
 
+    show_dismantler_profile = seller.is_dismantler and not (
+        seller.sells_new_parts is True and request.GET.get('directory') == 'parts'
+    )
+
     return render(
         request,
-        ('catalog/interface/dismantlers/detail.html' if seller.is_dismantler
-         else 'catalog/parts_sellers/detail.html'),
+        ('catalog/interface/dismantlers/detail.html' if show_dismantler_profile
+         else 'catalog/interface/parts_sellers/detail.html'),
         {
             'seller': seller,
             'card': build_seller_card(seller),
-            'section_title': 'dismantlers' if seller.is_dismantler else '',
-            'hide_product_search': seller.is_dismantler,
+            'section_title': 'dismantlers' if show_dismantler_profile else 'Каталог продавцов запчастей',
+            'hide_product_search': True,
         }
     )
 

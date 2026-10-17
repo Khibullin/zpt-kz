@@ -110,14 +110,14 @@ class DismantlersDesignTests(TestCase):
             self.assertContains(page, name)
         self.assertNotContains(page, 'PRIVATE_AUDIT_MARKER')
 
-    def test_paused_or_inactive_profiles_are_unavailable_and_ordinary_profile_is_unchanged(self):
+    def test_paused_or_inactive_profiles_are_unavailable_and_ordinary_profile_uses_shared_design(self):
         url = reverse('parts_seller_detail_public', args=[self.seller.pk])
         for changes in ({'is_paused': True}, {'is_paused': False, 'is_active': False}):
             Seller.objects.filter(pk=self.seller.pk).update(**changes)
             self.assertEqual(self.client.get(url).status_code, 404)
         ordinary = Seller.objects.get(name='Ordinary store')
         page = self.client.get(reverse('parts_seller_detail_public', args=[ordinary.pk]))
-        self.assertTemplateUsed(page, 'catalog/parts_sellers/detail.html')
+        self.assertTemplateUsed(page, 'catalog/interface/parts_sellers/detail.html')
 
     def test_pagination_preserves_escaped_search_and_filters(self):
         query = 'A&B + Разбор'

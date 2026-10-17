@@ -1,14 +1,14 @@
 {% load interface_ui phone_extras dismantler_catalog %}{% directory_card seller as entry %}
 <article class="directory-card">
   <div class="directory-card-copy">
-    <h2><a href="{% url 'parts_seller_detail_public' seller.pk %}">{{ entry.name }}</a></h2>
+    <h2><a href="{% url 'parts_seller_detail_public' seller.pk %}{% if not is_dismantlers_catalog and seller.is_dismantler %}?directory=parts{% endif %}">{{ entry.name }}</a></h2>
     {% if seller.city %}<p class="directory-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
     {% if seller.address %}<p class="directory-address">{{ seller.address }}</p>{% endif %}
     {% if entry.location %}<p class="directory-address">{{ entry.location }}</p>{% endif %}
     {% if entry.description or entry.description_kk %}<p class="directory-description" data-ru="{{ entry.description|default:entry.description_kk|truncatechars:180 }}" data-kk="{{ entry.description_kk|default:entry.description|truncatechars:180 }}">{{ entry.description|default:entry.description_kk|truncatechars:180 }}</p>{% endif %}
   </div>
   <div class="directory-card-actions">
-    <a class="directory-profile" href="{% url 'parts_seller_detail_public' seller.pk %}">{% ui 'dismantleProfile' %}<span aria-hidden="true">→</span></a>
+    <a class="directory-profile" href="{% url 'parts_seller_detail_public' seller.pk %}{% if not is_dismantlers_catalog and seller.is_dismantler %}?directory=parts{% endif %}">{% ui 'dismantleProfile' %}<span aria-hidden="true">→</span></a>
     <div class="directory-contacts">
       {% with primary=seller.whatsapp|whatsapp_phone secondary=seller.phone2|whatsapp_phone wa_url=seller.whatsapp|whatsapp_url %}
       {% if primary or secondary %}<a class="directory-call" href="tel:+{{ primary|default:secondary }}" data-ru="Позвонить" data-kk="Қоңырау шалу">Позвонить</a>{% endif %}
