@@ -1,0 +1,90 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+
+<h1>Обогащение карточек авторазборов</h1>
+
+<p>
+    Подходят выгрузки 2ГИС и Яндекс Карт в формате MapsGrabs.
+    Новые организации не создаются. Заполненные поля при конфликте не перезаписываются.
+    Получение заявок, активность и публикация продавцов не меняются.
+</p>
+
+{% if errors %}
+    <div class="messagelist">
+        {% for error in errors %}
+            <div class="error">{{ error }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+{% if not report %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" name="action" value="preview" class="default">
+            Проверить без записи
+        </button>
+    </form>
+{% else %}
+    <h2>Предварительный разбор</h2>
+    <ul>
+        <li>Организаций в файле: {{ report.organizations }}</li>
+        <li>Однозначных совпадений: {{ report.matched_count }}</li>
+        <li>Будет обогащено карточек: {{ report.plan_count }}</li>
+        <li>Без совпадения: {{ report.unmatched_count }}</li>
+        <li>Неоднозначные: {{ report.ambiguous_count }}</li>
+        <li>Конфликты значений: {{ report.conflict_count }}</li>
+        <li>Некорректные ссылки и поля: {{ report.invalid_count }}</li>
+        <li>Подозрительные WhatsApp: {{ report.suspicious_count }}</li>
+    </ul>
+
+    {% if report.ambiguous %}
+        <h3>Неоднозначные совпадения</h3>
+        <ul>
+            {% for row in report.ambiguous %}
+                <li>{{ row.name }} / {{ row.external_id }} — {{ row.reasons|join:", " }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if report.conflicts %}
+        <h3>Конфликты</h3>
+        <ul>
+            {% for row in report.conflicts %}
+                <li>
+                    {{ row.seller_name|default:row.name }} — {{ row.field }}:
+                    «{{ row.current|default:"пусто" }}» и «{{ row.proposed|default:row.values }}»
+                </li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if report.invalid_links %}
+        <h3>Некорректные ссылки</h3>
+        <ul>
+            {% for row in report.invalid_links %}
+                <li>{{ row.name }}: {{ row.reason }} — {{ row.url }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if report.suspicious_whatsapp %}
+        <h3>Подозрительные номера WhatsApp</h3>
+        <ul>
+            {% for row in report.suspicious_whatsapp %}
+                <li>{{ row.name }}: {{ row.reason }} — {{ row.url }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="action" value="apply" class="default">
+            Записать однозначные данные
+        </button>
+        <a href="../">Отмена</a>
+    </form>
+{% endif %}
+
+{% endblock %}

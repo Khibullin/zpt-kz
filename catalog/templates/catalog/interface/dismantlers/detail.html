@@ -8,6 +8,7 @@
     <p class="dismantle-detail-label">{% ui 'dismantleCompany' %}</p>
     <h1>{{ seller.name }}</h1>
     {% if seller.city %}<p class="dismantle-company-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
+    {% if card.address %}<p class="dismantle-address">{{ card.address }}</p>{% endif %}
     {% if seller.market_location %}<p class="dismantle-company-location">{{ seller.market_location }}</p>{% endif %}
     {% if seller.directory_photo %}<img class="dismantle-detail-photo" src="{{ seller.directory_photo.url }}" alt="{{ seller.name }}" decoding="async" onerror="this.hidden=true;">{% endif %}
     <h2>{% ui 'dismantleAbout' %}</h2>
@@ -30,6 +31,45 @@
       {% if wa_url %}<a class="btn dismantle-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener">{% ui_icon 'message' %}WhatsApp</a>{% endif %}
     {% endwith %}
     {% with phone=seller.phone2|whatsapp_phone %}{% if phone %}<span class="dismantle-contact-label">{% ui 'dismantleExtraPhone' %}</span><a class="dismantle-contact-phone" href="tel:+{{ phone }}">{{ seller.phone2|format_phone }}</a>{% endif %}{% endwith %}
+    {% for phone in card.extra_phones %}
+      {% if phone.digits != seller.phone2|whatsapp_phone %}
+      <span class="dismantle-contact-label">{% ui 'dismantleExtraPhone' %}</span>
+      <a class="dismantle-contact-phone" href="{{ phone.tel }}">{{ phone.display }}</a>
+      {% endif %}
+    {% endfor %}
+    {% if card.routes %}
+    <details class="dismantle-route">
+      <summary class="btn secondary">Построить маршрут</summary>
+      <div class="dismantle-route-menu">
+        {% for route in card.routes %}
+        <a href="{{ route.url }}" target="_blank" rel="noopener noreferrer">{{ route.label }}</a>
+        {% endfor %}
+      </div>
+    </details>
+    {% endif %}
+    {% if card.schedule %}
+    <h2>Режим работы</h2>
+    <table class="dismantle-schedule">
+      {% for row in card.schedule %}
+      <tr><td>{{ row.day }}</td><td>{{ row.hours }}</td></tr>
+      {% endfor %}
+    </table>
+    {% endif %}
+    {% if card.socials or card.website %}
+    <div class="dismantle-socials">
+      {% for social in card.socials %}
+      <a class="btn secondary" href="{{ social.url }}" target="_blank" rel="noopener noreferrer">{{ social.label }}</a>
+      {% endfor %}
+      {% if card.website %}<a class="btn secondary" href="{{ card.website }}" target="_blank" rel="noopener noreferrer">Сайт организации</a>{% endif %}
+    </div>
+    {% endif %}
+    {% if card.sources %}
+    <div class="dismantle-sources">
+      {% for source in card.sources %}
+      <a class="dismantle-source-link" href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }}</a>
+      {% endfor %}
+    </div>
+    {% endif %}
   </aside>
 </article>
 <a class="btn secondary dismantle-detail-back" href="{% url 'dismantlers_catalog' %}">{% ui_icon 'back' %}{% ui 'dismantleBackCatalog' %}</a>

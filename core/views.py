@@ -1990,6 +1990,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
         search_terms = (
             Q(name__icontains=q) |
             Q(city__icontains=q) |
+            Q(address__icontains=q) |
             Q(market_location__icontains=q)
         )
         if dismantlers_only:
@@ -2062,12 +2063,18 @@ def parts_sellers_catalog(request, dismantlers_only=False):
 
 
 def parts_seller_detail(request, seller_id):
+    from core.services.seller_card_display import build_seller_card
+
     seller = get_object_or_404(
         Seller.objects.prefetch_related(
             'selected_categories',
             'selected_countries',
             'selected_brands',
             'selected_models',
+            'extra_phones',
+            'work_hours',
+            'social_links',
+            'external_cards',
         ),
         id=seller_id,
         is_active=True,
@@ -2080,6 +2087,7 @@ def parts_seller_detail(request, seller_id):
          else 'catalog/parts_sellers/detail.html'),
         {
             'seller': seller,
+            'card': build_seller_card(seller),
             'section_title': 'dismantlers' if seller.is_dismantler else '',
             'hide_product_search': seller.is_dismantler,
         }

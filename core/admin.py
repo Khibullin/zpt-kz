@@ -40,6 +40,10 @@ from .models import (
     BroadcastSettings,
     Request,
     Seller,
+    SellerExternalCard,
+    SellerExtraPhone,
+    SellerSocialLink,
+    SellerWorkInterval,
     SellerLead,
     SellerLeadContactCandidate,
     SellerLeadDiscoveredBrand,
@@ -860,6 +864,31 @@ class SellerContactConsentAdmin(admin.ModelAdmin):
         return mask_phone(obj.phone_normalized)
 
 
+class SellerExtraPhoneInline(admin.TabularInline):
+    model = SellerExtraPhone
+    extra = 0
+    fields = ('phone',)
+
+
+class SellerWorkIntervalInline(admin.TabularInline):
+    model = SellerWorkInterval
+    extra = 0
+    fields = ('weekday', 'opens', 'closes', 'is_closed', 'position')
+    ordering = ('weekday', 'position')
+
+
+class SellerSocialLinkInline(admin.TabularInline):
+    model = SellerSocialLink
+    extra = 0
+    fields = ('kind', 'url')
+
+
+class SellerExternalCardInline(admin.TabularInline):
+    model = SellerExternalCard
+    extra = 0
+    fields = ('source', 'external_id', 'card_url', 'exported_at')
+
+
 class SellerContactConsentInline(admin.TabularInline):
     model = SellerContactConsent
     extra = 0
@@ -1292,7 +1321,13 @@ class SellerDismantlerFilter(admin.SimpleListFilter):
 class SellerAdmin(admin.ModelAdmin):
     readonly_fields = ('catalog_only',)
     change_list_template = 'admin/core/seller/change_list.html'
-    inlines = (SellerContactConsentInline,)
+    inlines = (
+        SellerContactConsentInline,
+        SellerExtraPhoneInline,
+        SellerWorkIntervalInline,
+        SellerSocialLinkInline,
+        SellerExternalCardInline,
+    )
 
     list_display = (
         'id',
@@ -1341,6 +1376,7 @@ class SellerAdmin(admin.ModelAdmin):
         'brand',
         'model',
         'market_location',
+        'address',
         'notes',
     )
 
@@ -1396,6 +1432,10 @@ class SellerAdmin(admin.ModelAdmin):
                 'directory_photo',
                 'directory_description',
                 'directory_description_kk',
+                'address',
+                'latitude',
+                'longitude',
+                'website',
             ),
         }),
 
@@ -1439,6 +1479,11 @@ class SellerAdmin(admin.ModelAdmin):
                 'import-xlsx/',
                 self.admin_site.admin_view(self.import_xlsx_view),
                 name='core_seller_import_xlsx'
+            ),
+            path(
+                'enrich-cards/',
+                self.admin_site.admin_view(self.enrich_cards_view),
+                name='core_seller_enrich_cards'
             ),
         ]
 
@@ -1514,6 +1559,72 @@ class SellerAdmin(admin.ModelAdmin):
             return redirect('..')
 
         return render(request, 'admin/core/seller/import_sellers.html', context)
+
+    def enrich_cards_view(self, request):
+        from core.services.seller_card_enrichment import (
+            analyze_organizations,
+            apply_plans,
+            parse_mapsgrabs_xlsx,
+        )
+
+        context = {
+            **self.admin_site.each_context(request),
+            'title': 'Обогащение карточек авторазборов',
+            'opts': self.model._meta,
+            'form': SellerImportForm(),
+            'report': None,
+            'errors': [],
+        }
+
+        if request.method == 'POST' and request.POST.get('action') == 'preview':
+            form = SellerImportForm(request.POST, request.FILES)
+            if form.is_valid():
+                upload = request.FILES['file']
+                orgs, errors = parse_mapsgrabs_xlsx(upload, file_name=upload.name)
+                report = analyze_organizations(orgs)
+                request.session['seller_card_enrichment_orgs'] = orgs
+                context.update({
+                    'form': form,
+                    'report': _enrichment_preview(report),
+                    'errors': errors,
+                })
+                return render(request, 'admin/core/seller/enrich_cards.html', context)
+
+        if request.method == 'POST' and request.POST.get('action') == 'apply':
+            orgs = request.session.get('seller_card_enrichment_orgs') or []
+            report = analyze_organizations(orgs)
+            applied = apply_plans(report['plans'])
+            request.session.pop('seller_card_enrichment_orgs', None)
+            messages.success(
+                request,
+                'Обогащение записано в базу. '
+                f'Карточек обновлено: {applied["enriched_sellers"]}.'
+            )
+            return redirect('..')
+
+        return render(request, 'admin/core/seller/enrich_cards.html', context)
+
+
+def _enrichment_preview(report):
+    def head(rows, limit=40):
+        return list(rows[:limit])
+
+    return {
+        'organizations': report['organizations'],
+        'matched_count': len(report['matched']),
+        'unmatched_count': len(report['unmatched']),
+        'ambiguous_count': len(report['ambiguous']),
+        'conflict_count': len(report['conflicts']),
+        'invalid_count': len(report['invalid_links']),
+        'suspicious_count': len(report['suspicious_whatsapp']),
+        'plan_count': len(report['plans']),
+        'matched': head(report['matched']),
+        'unmatched': head(report['unmatched']),
+        'ambiguous': head(report['ambiguous']),
+        'conflicts': head(report['conflicts']),
+        'invalid_links': head(report['invalid_links']),
+        'suspicious_whatsapp': head(report['suspicious_whatsapp']),
+    }
 
 
 @admin.register(Match)

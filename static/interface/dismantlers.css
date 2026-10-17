@@ -114,4 +114,15 @@
 .dismantle-detail-contacts .dismantle-whatsapp{background:#168149;color:#fff;font-size:16px;margin:12px 0 24px}
 .dismantle-detail-contacts .dismantle-whatsapp:hover{background:#11673a}
 .dismantle-detail-back{margin:0 0 24px;max-width:100%;gap:12px}
+.dismantle-address,.dismantle-source-link,.dismantle-company-location{overflow-wrap:anywhere}
+.dismantle-schedule{width:100%;border-collapse:collapse;margin:0 0 16px}
+.dismantle-schedule td{padding:6px 0;vertical-align:top}
+.dismantle-schedule td:first-child{width:2.6em;font-weight:700;color:var(--red)}
+.dismantle-route{margin:8px 0 16px}
+.dismantle-route summary{cursor:pointer;list-style:none;text-align:center}
+.dismantle-route summary::-webkit-details-marker{display:none}
+.dismantle-route-menu{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+.dismantle-route-menu a,.dismantle-source-link{min-height:44px;display:flex;align-items:center;font-weight:600}
+.dismantle-socials,.dismantle-sources{display:flex;flex-direction:column;gap:8px;margin:8px 0 16px}
+.dismantle-socials .btn{text-align:center}
 @media(max-width:760px){.dismantle-detail{grid-template-columns:1fr;gap:16px;margin:20px 0}.dismantle-detail-main,.dismantle-detail-contacts{padding:20px}.dismantle-detail h1{font-size:29px}.dismantle-detail-description{font-size:16px}}

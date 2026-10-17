@@ -6,6 +6,7 @@
   </a>
   <div class="dismantle-company-body"><h2><a href="{% url 'parts_seller_detail_public' seller.pk %}">{{ seller.name }}</a></h2>
     {% if seller.city %}<p class="dismantle-company-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
+    {% if seller.address %}<p class="dismantle-company-location">{{ seller.address }}</p>{% endif %}
     {% if seller.market_location %}<p class="dismantle-company-location">{{ seller.market_location }}</p>{% endif %}
     {% if seller.directory_description or seller.directory_description_kk %}
     <p class="dismantle-company-categories" data-ru="{{ seller.directory_description|default:seller.directory_description_kk|truncatechars:190 }}" data-kk="{{ seller.directory_description_kk|default:seller.directory_description|truncatechars:190 }}">{{ seller.directory_description|default:seller.directory_description_kk|truncatechars:190 }}</p>

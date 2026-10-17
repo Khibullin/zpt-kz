@@ -7,7 +7,7 @@ from django.db import models
 from django.utils import timezone
 from django.utils.crypto import get_random_string
 
-from core.phone_utils import normalize_kz_phone
+from core.phone_utils import normalize_kz_phone, normalize_phone_for_whatsapp
 from core.services.buyer_contact_utils import mask_phone, normalize_buyer_text
 
 
@@ -1524,6 +1524,33 @@ class Seller(models.Model):
     all_models = models.BooleanField(default=False, verbose_name='Все модели')
     all_categories = models.BooleanField(default=False, verbose_name='Все категории')
 
+    address = models.CharField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Адрес',
+    )
+    latitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name='Широта',
+    )
+    longitude = models.DecimalField(
+        max_digits=9,
+        decimal_places=6,
+        null=True,
+        blank=True,
+        verbose_name='Долгота',
+    )
+    website = models.URLField(
+        max_length=500,
+        blank=True,
+        default='',
+        verbose_name='Сайт организации',
+    )
+
     class Meta:
         verbose_name = 'Продавец'
         verbose_name_plural = 'Продавцы'
@@ -1531,6 +1558,159 @@ class Seller(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class SellerExtraPhone(models.Model):
+    seller = models.ForeignKey(
+        Seller,
+        on_delete=models.CASCADE,
+        related_name='extra_phones',
+        verbose_name='Продавец',
+    )
+    phone = models.CharField(max_length=20, verbose_name='Телефон')
+
+    class Meta:
+        verbose_name = 'Дополнительный телефон'
+        verbose_name_plural = 'Дополнительные телефоны'
+        ordering = ['id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('seller', 'phone'),
+                name='uniq_seller_extra_phone',
+            ),
+        ]
+
+    def __str__(self):
+        return self.phone
+
+    def clean(self):
+        normalized = normalize_phone_for_whatsapp(self.phone)
+        if not normalized:
+            raise ValidationError({'phone': 'Телефон не удалось нормализовать.'})
+        self.phone = normalized
+
+
+class SellerWorkInterval(models.Model):
+    seller = models.ForeignKey(
+        Seller,
+        on_delete=models.CASCADE,
+        related_name='work_hours',
+        verbose_name='Продавец',
+    )
+    weekday = models.PositiveSmallIntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(6)],
+        verbose_name='День недели',
+    )
+    opens = models.TimeField(null=True, blank=True, verbose_name='Открытие')
+    closes = models.TimeField(null=True, blank=True, verbose_name='Закрытие')
+    is_closed = models.BooleanField(default=False, verbose_name='Выходной')
+    position = models.PositiveSmallIntegerField(default=0, verbose_name='Порядок')
+
+    class Meta:
+        verbose_name = 'Интервал работы'
+        verbose_name_plural = 'Режим работы'
+        ordering = ['weekday', 'position', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('seller', 'weekday', 'position'),
+                name='uniq_seller_work_interval',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.weekday} {self.opens or ""}–{self.closes or ""}'
+
+
+class SellerSocialLink(models.Model):
+    KIND_WHATSAPP = 'whatsapp'
+    KIND_INSTAGRAM = 'instagram'
+    KIND_TELEGRAM = 'telegram'
+    KIND_TIKTOK = 'tiktok'
+    KIND_VK = 'vk'
+    KIND_YOUTUBE = 'youtube'
+    KIND_CHOICES = [
+        (KIND_WHATSAPP, 'WhatsApp'),
+        (KIND_INSTAGRAM, 'Instagram'),
+        (KIND_TELEGRAM, 'Telegram'),
+        (KIND_TIKTOK, 'TikTok'),
+        (KIND_VK, 'VK'),
+        (KIND_YOUTUBE, 'YouTube'),
+    ]
+
+    seller = models.ForeignKey(
+        Seller,
+        on_delete=models.CASCADE,
+        related_name='social_links',
+        verbose_name='Продавец',
+    )
+    kind = models.CharField(max_length=20, choices=KIND_CHOICES, verbose_name='Площадка')
+    url = models.URLField(max_length=500, verbose_name='Ссылка')
+
+    class Meta:
+        verbose_name = 'Ссылка на соцсеть'
+        verbose_name_plural = 'Ссылки на соцсети'
+        ordering = ['kind', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('seller', 'kind', 'url'),
+                name='uniq_seller_social_link',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.get_kind_display()}: {self.url}'
+
+    def clean(self):
+        from core.services.seller_card_links import normalize_social_url
+
+        url, error = normalize_social_url(self.kind, self.url)
+        if error or not url:
+            raise ValidationError({'url': error or 'Укажите ссылку на соцсеть.'})
+        self.url = url
+
+
+class SellerExternalCard(models.Model):
+    SOURCE_TWO_GIS = 'two_gis'
+    SOURCE_YANDEX = 'yandex'
+    SOURCE_GOOGLE = 'google'
+    SOURCE_CHOICES = [
+        (SOURCE_TWO_GIS, '2ГИС'),
+        (SOURCE_YANDEX, 'Яндекс Карты'),
+        (SOURCE_GOOGLE, 'Google Карты'),
+    ]
+
+    seller = models.ForeignKey(
+        Seller,
+        on_delete=models.CASCADE,
+        related_name='external_cards',
+        verbose_name='Продавец',
+    )
+    source = models.CharField(max_length=20, choices=SOURCE_CHOICES, verbose_name='Источник')
+    external_id = models.CharField(max_length=64, verbose_name='Внешний ID')
+    card_url = models.URLField(max_length=500, verbose_name='Ссылка на карточку')
+    exported_at = models.DateTimeField(null=True, blank=True, verbose_name='Дата выгрузки')
+
+    class Meta:
+        verbose_name = 'Исходная карточка'
+        verbose_name_plural = 'Исходные карточки'
+        ordering = ['source', 'id']
+        constraints = [
+            models.UniqueConstraint(
+                fields=('source', 'external_id'),
+                name='uniq_seller_external_card',
+            ),
+        ]
+
+    def __str__(self):
+        return f'{self.get_source_display()} {self.external_id}'
+
+    def clean(self):
+        from core.services.seller_card_links import validate_card_url
+
+        url, error = validate_card_url(self.source, self.card_url)
+        if error or not url:
+            raise ValidationError({'card_url': error or 'Укажите ссылку на карточку.'})
+        self.card_url = url
 
 
 class Match(models.Model):
