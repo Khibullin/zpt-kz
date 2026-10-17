@@ -1,0 +1,39 @@
+name: Seller Classification Corrections
+
+on:
+  pull_request:
+    paths:
+      - 'core/migrations/0089_correct_existing_seller_specializations.py'
+      - 'core/tests/test_seller_specialization_corrections.py'
+      - '.github/workflows/seller-classification-corrections-ci.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  classification-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      SECRET_KEY: seller-classification-ci-only
+      DEBUG: 'True'
+      ALLOWED_HOSTS: localhost,127.0.0.1,testserver
+      DATABASE_URL: sqlite:///db-seller-classification-ci.sqlite3
+      EMAIL_BACKEND: django.core.mail.backends.locmem.EmailBackend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install requirements
+        run: pip install -r requirements.txt
+      - name: Django system and schema checks
+        run: |
+          python manage.py check
+          python manage.py makemigrations --check --dry-run
+      - name: Run isolated seller classification regression tests
+        run: |
+          python manage.py test --settings backend.settings_ui_ci \
+            core.tests.test_seller_specialization_corrections \
+            -v 2
