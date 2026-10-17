@@ -348,13 +348,25 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
 
         req = locked_dispatch.request
         seller = locked_dispatch.seller
-        if getattr(req, 'is_dismantler_request', False) and (
-            not seller.is_dismantler
-            or (req.search_scope == 'city' and seller.city != req.city)
-        ):
-            locked_dispatch.status = RequestDispatch.STATUS_PAUSED
-            locked_dispatch.save(update_fields=['status'])
-            return {'ok': False, 'skipped': True, 'reason': 'dismantler_scope_mismatch'}
+        if req.source == req.SOURCE_HOME_SHORT:
+            allowed = (
+                seller.is_dismantler if req.is_dismantler_request
+                else seller.sells_new_parts is True
+            )
+            if req.search_scope == 'city' and seller.city != req.city:
+                allowed = False
+            if req.search_scope == 'custom':
+                cities = [c.strip() for c in (req.selected_cities or '').split(',') if c.strip()]
+                if seller.city not in cities:
+                    allowed = False
+            if not allowed:
+                locked_dispatch.status = RequestDispatch.STATUS_PAUSED
+                locked_dispatch.save(update_fields=['status'])
+                reason = (
+                    'dismantler_scope_mismatch' if req.is_dismantler_request
+                    else 'new_parts_scope_mismatch'
+                )
+                return {'ok': False, 'skipped': True, 'reason': reason}
 
         match, _ = Match.objects.get_or_create(
             request=locked_dispatch.request,
