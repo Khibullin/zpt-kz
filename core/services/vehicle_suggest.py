@@ -215,6 +215,46 @@ def _transport_label(transport_type: str) -> str:
     return dict(TRANSPORT_CHOICES).get(transport_type, '')
 
 
+POPULAR_PICKER_BRANDS = (
+    'Toyota', 'Hyundai', 'Kia', 'Chevrolet', 'Nissan', 'Volkswagen',
+    'BMW', 'Mercedes-Benz', 'Lexus', 'Honda', 'Chery', 'Geely', 'Lada',
+)
+
+
+def list_picker_brands(*, transport_type: str = '') -> list[dict]:
+    """Show existing brands immediately, popular first, then the complete list.
+
+    The catalog is local; this does not perform external or paid lookups.
+    """
+    brands = Brand.objects.select_related('country').order_by('name', 'id')
+    if transport_type in ('car', 'truck'):
+        brands = brands.filter(transport_type=transport_type)
+    popular_position = {
+        item.casefold(): index for index, item in enumerate(POPULAR_PICKER_BRANDS)
+    }
+    seen = set()
+    items = []
+    for brand in brands:
+        key = (_fold(brand.name), brand.transport_type)
+        if key in seen:
+            continue
+        seen.add(key)
+        items.append({
+            'id': brand.id,
+            'name': brand.name,
+            'label': brand.name,
+            'country': brand.country.name if brand.country_id else '',
+            'transport_type': brand.transport_type,
+            'popular': brand.name.casefold() in popular_position,
+        })
+    items.sort(key=lambda item: (
+        0 if item['popular'] else 1,
+        popular_position.get(item['name'].casefold(), 999),
+        item['name'].casefold(),
+    ))
+    return items
+
+
 def suggest_brands(
     query: str,
     *,
