@@ -759,6 +759,9 @@ def _base_sellers_queryset(req, *, match_transport: bool = True):
         filters['transport_type'] = req.transport_type
     if getattr(req, 'is_dismantler_request', False):
         filters['is_dismantler'] = True
+    elif req.source == Request.SOURCE_HOME_SHORT:
+        # New-parts requests require separately verified specialization.
+        filters['sells_new_parts'] = True
 
     base = Seller.objects.filter(**filters)
 
@@ -877,8 +880,14 @@ def _find_matching_sellers(req):
             'dispatch_priority',
             'id',
         )
-        if getattr(req, 'is_dismantler_request', False) and req.search_scope == 'city':
-            qs = qs.filter(city=req.city)
+        if req.source == Request.SOURCE_HOME_SHORT:
+            if req.search_scope == 'city':
+                qs = qs.filter(city=req.city)
+            elif req.search_scope == 'custom':
+                qs = qs.filter(city__in=[
+                    item.strip() for item in (req.selected_cities or '').split(',')
+                    if item.strip()
+                ])
         if qs.exists():
             return qs, Request.ROUTING_ALL_KZ
         return Seller.objects.none(), Request.ROUTING_NO_MATCH
@@ -935,8 +944,9 @@ def _find_matching_sellers(req):
                 return qs, Request.ROUTING_MATCHED_CUSTOM
             return qs, Request.ROUTING_MATCHED_KAZAKHSTAN
 
-    # An explicit "only my city" dismantler request must never widen nationwide.
-    if search_scope in ['city', 'custom'] and not getattr(req, 'is_dismantler_request', False):
+    # Geography selected by any short-form buyer is strict; no nationwide fallback.
+    # Keep the historical classic-form fallback unchanged.
+    if search_scope in ['city', 'custom'] and req.source != Request.SOURCE_HOME_SHORT:
 
         for strategy in strategies:
             qs = base_qs
@@ -1010,13 +1020,17 @@ def _build_dispatch_queue(req, sellers):
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()
-    if getattr(req, 'is_dismantler_request', False):
-        # Keep both request-target and requested geography intact if another
-        # code path attempts to enqueue seller IDs directly.
+    if req.source == Request.SOURCE_HOME_SHORT:
+        # Recheck specialization/geography when enqueuing; do not trust callers.
+        allowed_cities = {
+            item.strip() for item in (req.selected_cities or '').split(',') if item.strip()
+        }
         sellers = [
             seller for seller in sellers
-            if seller.is_dismantler
+            if (seller.is_dismantler if req.is_dismantler_request
+                else seller.sells_new_parts is True)
             and (req.search_scope != 'city' or seller.city == req.city)
+            and (req.search_scope != 'custom' or seller.city in allowed_cities)
         ]
     if getattr(req, 'dispatch_mode', '') == Request.DISPATCH_MODE_ALL_KZ:
         sellers = _unique_sellers_by_whatsapp(sellers)
@@ -1278,13 +1292,17 @@ def create_request(request):
 
 
 def vehicle_suggest(request):
-    from core.services.vehicle_suggest import suggest_brands, suggest_models
+    from core.services.vehicle_suggest import (
+        list_picker_brands, suggest_brands, suggest_models,
+    )
 
     kind = (request.GET.get('kind') or 'brand').strip().lower()
     query = request.GET.get('q', '')
     raw_transport = (request.GET.get('transport_type') or '').strip().lower()
     transport_type = raw_transport if raw_transport in ('car', 'truck') else ''
-    if kind == 'model':
+    if kind == 'brand_list':
+        items = list_picker_brands(transport_type=transport_type)
+    elif kind == 'model':
         items = suggest_models(
             query,
             brand_id=request.GET.get('brand_id'),
@@ -1333,6 +1351,8 @@ def create_home_parts_request(request):
         'transport_type': request.POST.get('transport_type', ''),
         'category': request.POST.get('category', ''),
         'search_scope': request.POST.get('search_scope', ''),
+        'selected_cities': request.POST.getlist('selected_cities'),
+        'part_condition': request.POST.get('part_condition', ''),
         'is_dismantler_request': request.POST.get('is_dismantler_request', ''),
         'idempotency_key': request.POST.get('idempotency_key', ''),
     }

@@ -585,8 +585,6 @@ def catalog_list(request):
         not is_listing and not home_request_token
         and request.resolver_match.url_name != 'interface_find_part'
     )
-    if request.GET.get('condition') == 'used' and not query:
-        context['home_query_prefill'] = 'Б/У: '
     if is_interface_home:
         from .views_interface import homepage_tiles
         context.update(interface_home=True, interface_tiles=homepage_tiles())

@@ -29,6 +29,7 @@ class DismantlerRequestScopeTests(TestCase):
             'is_active': True,
             'is_paused': False,
             'receive_requests': True,
+            'sells_new_parts': True,
         }
         self.local_dismantler = Seller.objects.create(
             name='Almaty dismantler',
@@ -85,16 +86,17 @@ class DismantlerRequestScopeTests(TestCase):
     def test_dismantler_form_has_city_choice_but_regular_form_does_not(self):
         used = self.client.get('/find-part/?condition=used')
         self.assertEqual(used.status_code, 200)
-        self.assertContains(used, 'name="is_dismantler_request" value="1"')
+        self.assertContains(used, 'name="is_dismantler_request" id="home-parts-condition-flag" value="1"')
         self.assertContains(used, 'name="search_scope" value="city"')
         self.assertContains(used, 'name="search_scope" value="kazakhstan" checked')
+        self.assertContains(used, 'name="search_scope" value="custom"')
         self.assertContains(used, 'Только мой город')
         self.assertContains(used, 'Весь Казахстан')
 
         ordinary = self.client.get('/find-part/')
         self.assertEqual(ordinary.status_code, 200)
-        self.assertNotContains(ordinary, 'name="is_dismantler_request"')
-        self.assertNotContains(ordinary, 'name="search_scope"')
+        self.assertContains(ordinary, 'name="is_dismantler_request" id="home-parts-condition-flag" value="0"')
+        self.assertContains(ordinary, 'name="search_scope"')
 
     def test_used_parts_city_go_only_to_local_dismantlers(self):
         response = self._post(key='used-local', scope='city')
@@ -158,7 +160,7 @@ class DismantlerRequestScopeTests(TestCase):
     def test_invalid_scope_is_rejected_before_saving(self):
         response = self._post(key='used-invalid', scope='custom')
         self.assertEqual(response.status_code, 400)
-        self.assertIn('search_scope', response.json()['fields'])
+        self.assertIn('selected_cities', response.json()['fields'])
         self.assertFalse(Request.objects.filter(idempotency_key='used-invalid').exists())
 
     def test_same_idempotency_key_cannot_change_scope(self):

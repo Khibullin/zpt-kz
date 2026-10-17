@@ -20,7 +20,7 @@ from core.models import (
     Request,
     RequestDispatch,
 )
-from core.kazakhstan_locations import canonical_kazakhstan_city
+from core.kazakhstan_locations import canonical_kazakhstan_city, canonicalize_kazakhstan_cities
 from core.phone_utils import normalize_phone_for_whatsapp
 from core.services.home_parts_query import (
     MAX_PART_POSITIONS,
@@ -86,6 +86,7 @@ class HomePartsPayload:
     article: str = ''
     is_dismantler_request: bool = False
     search_scope: str = 'kazakhstan'
+    selected_cities: list[str] = field(default_factory=list)
 
 
 def _current_max_year() -> int:
@@ -145,13 +146,40 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
             fields={'is_dismantler_request': 'Некорректный тип заявки.'},
         )
     is_dismantler_request = request_type == '1'
-    search_scope = 'kazakhstan'
-    if is_dismantler_request:
-        search_scope = str(data.get('search_scope') or '').strip()
-        if search_scope not in ('city', 'kazakhstan'):
+    part_condition = str(data.get('part_condition') or '').strip()
+    if part_condition not in ('', 'new', 'used') or (
+        part_condition and (part_condition == 'used') != is_dismantler_request
+    ):
+        raise HomePartsRequestError(
+            'Проверьте тип запчасти.',
+            fields={'part_condition': 'Выберите «Новая» или «С авторазбора».'},
+        )
+
+    # Both request types use the same explicit geography controls.
+    # Legacy short-form requests without geography retain all Kazakhstan.
+    search_scope = str(data.get('search_scope') or 'kazakhstan').strip()
+    if search_scope not in ('city', 'custom', 'kazakhstan'):
+        raise HomePartsRequestError(
+            'Выберите территорию отправки заявки.',
+            fields={'search_scope': 'Выберите город, несколько городов или весь Казахстан.'},
+        )
+    selected_cities = []
+    if search_scope == 'custom':
+        raw_cities = data.get('selected_cities') or []
+        if isinstance(raw_cities, str):
+            raw_cities = [item.strip() for item in raw_cities.split(',') if item.strip()]
+        else:
+            raw_cities = [str(item).strip() for item in raw_cities if str(item).strip()]
+        if any(canonical_kazakhstan_city(item) is None for item in raw_cities):
             raise HomePartsRequestError(
-                'Укажите, где искать авторазборы.',
-                fields={'search_scope': 'Выберите «Только мой город» или «Весь Казахстан».'},
+                'Выберите города из списка.',
+                fields={'selected_cities': 'Выберите города из списка.'},
+            )
+        selected_cities = sorted(set(canonicalize_kazakhstan_cities(raw_cities)))
+        if not selected_cities:
+            raise HomePartsRequestError(
+                'Выберите хотя бы один город.',
+                fields={'selected_cities': 'Отметьте один или несколько городов.'},
             )
 
     phone = normalize_phone_for_whatsapp(data.get('phone') or data.get('whatsapp'))
@@ -246,6 +274,7 @@ def parse_home_parts_data(data: dict, *, idempotency_key: str = '') -> HomeParts
         article=article,
         is_dismantler_request=is_dismantler_request,
         search_scope=search_scope,
+        selected_cities=selected_cities,
     )
 
 
@@ -388,6 +417,10 @@ def compute_idempotency_fingerprint(payload: HomePartsPayload, uploaded_photos) 
     # Preserve fingerprints of previously saved ordinary short-form requests.
     if payload.is_dismantler_request:
         parts.extend(('dismantlers', payload.search_scope))
+    elif payload.search_scope != 'kazakhstan':
+        parts.extend(('new_parts_geography', payload.search_scope))
+    if payload.search_scope == 'custom':
+        parts.extend(payload.selected_cities)
     hasher.update('\n'.join(parts).encode('utf-8'))
     for uploaded in uploaded_photos or []:
         name = getattr(uploaded, 'name', '') or ''
@@ -432,7 +465,8 @@ def payload_matches_request(
         and payload.transport_type == (req.transport_type or '')
         and payload.category == (req.category or '')
         and payload.is_dismantler_request == bool(getattr(req, 'is_dismantler_request', False))
-        and (not payload.is_dismantler_request or payload.search_scope == req.search_scope)
+        and payload.search_scope == req.search_scope
+        and ','.join(payload.selected_cities) == (req.selected_cities or '')
         and not uploaded_photos
     )
 
@@ -504,7 +538,7 @@ def create_home_parts_request_record(
                 # Ordinary short form still targets all matching Kazakhstan sellers.
                 # Dismantler form targets only dismantlers, with buyer-selected geography.
                 search_scope=payload.search_scope,
-                selected_cities='',
+                selected_cities=','.join(payload.selected_cities),
                 source=Request.SOURCE_HOME_SHORT,
                 is_dismantler_request=payload.is_dismantler_request,
                 dispatch_mode=Request.DISPATCH_MODE_MATCHED,

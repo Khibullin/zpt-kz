@@ -25,6 +25,11 @@
   const categoryEl = document.getElementById('home-category');
   const cityEl = document.getElementById('home-city');
   const cityList = document.getElementById('home-city-list');
+  const partConditionFlag = document.getElementById('home-parts-condition-flag');
+  const partsTitle = document.getElementById('home-parts-title');
+  const customCitiesPanel = document.getElementById('home-custom-cities');
+  const customCitiesFilter = document.getElementById('home-cities-filter');
+  const customCitiesList = document.getElementById('home-custom-cities-list');
   const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
   const KEY_STORAGE = 'zptHomePartsIdempotency';
   let memoryKey = '';
@@ -186,6 +191,57 @@
     }
   }
 
+  function currentCondition() {
+    const radio = form.querySelector('input[name="part_condition"]:checked');
+    return radio ? radio.value : 'new';
+  }
+
+  function syncCondition() {
+    const isUsed = currentCondition() === 'used';
+    if (partConditionFlag) partConditionFlag.value = isUsed ? '1' : '0';
+    if (partsTitle) partsTitle.textContent = isUsed ? 'Запчасти с авторазборов' : 'Новые запчасти';
+  }
+
+  function currentScope() {
+    const radio = form.querySelector('input[name="search_scope"]:checked');
+    return radio ? radio.value : 'kazakhstan';
+  }
+
+  function syncCustomCitiesPanel() {
+    const show = currentScope() === 'custom';
+    if (!customCitiesPanel) return;
+    customCitiesPanel.hidden = !show;
+    customCitiesPanel.querySelectorAll('input[name="selected_cities"]').forEach(function (checkbox) {
+      checkbox.disabled = !show;
+    });
+  }
+
+  form.querySelectorAll('input[name="part_condition"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      rotateIdempotencyKey();
+      syncCondition();
+      clearErrors();
+    });
+  });
+  form.querySelectorAll('input[name="search_scope"]').forEach(function (radio) {
+    radio.addEventListener('change', function () {
+      rotateIdempotencyKey();
+      syncCustomCitiesPanel();
+      clearErrors();
+    });
+  });
+  if (customCitiesFilter && customCitiesList) {
+    customCitiesFilter.addEventListener('input', function () {
+      const query = String(customCitiesFilter.value || '').toLocaleLowerCase('ru').trim();
+      customCitiesList.querySelectorAll('.home-city-choice').forEach(function (item) {
+        const label = String(item.textContent || '').toLocaleLowerCase('ru');
+        item.hidden = Boolean(query) && !label.includes(query);
+      });
+    });
+  }
+  syncCondition();
+  syncCustomCitiesPanel();
+
   function currentTransportType() {
     const checked = form.querySelector('input[name="transport_type"]:checked');
     return checked ? checked.value : 'car';
@@ -265,14 +321,14 @@
     if (kind === 'model') {
       return {
         title: 'Выберите модель',
-        hint: 'Показываем модели только выбранной марки.',
-        placeholder: 'Например: CX-5, Camry, Tiggo 7',
+        hint: 'Выберите модель из списка. Если её нет, введите название вручную.',
+        placeholder: 'Напишите модель или выберите из списка',
       };
     }
     return {
       title: 'Выберите марку',
-      hint: 'Можно писать по-русски или латиницей: Mazda, Мазда, Chery…',
-      placeholder: 'Начните вводить марку',
+      hint: 'Выберите марку из списка или введите свою, если её нет.',
+      placeholder: 'Название марки',
     };
   }
 
@@ -344,13 +400,24 @@
       setPickerStatus(
         query
           ? 'Подходящих вариантов не найдено. Можно использовать введённое название.'
-          : (pickerKind === 'model' ? 'Выберите модель из списка или начните вводить название.' : 'Начните вводить название марки.')
+          : 'Вариантов в списке нет. Можно ввести название вручную.'
       );
       return;
     }
 
     setPickerStatus('');
+    let lastGroup = '';
     items.forEach(function (item) {
+      if (pickerKind === 'brand' && !query) {
+        const group = item.popular ? 'Популярные марки' : 'Все остальные марки';
+        if (lastGroup !== group) {
+          const label = document.createElement('li');
+          label.className = 'home-vehicle-picker-section';
+          label.textContent = group;
+          vehiclePickerResults.appendChild(label);
+          lastGroup = group;
+        }
+      }
       const li = document.createElement('li');
       const button = document.createElement('button');
       const main = document.createElement('span');
@@ -391,20 +458,19 @@
     if (pickerTimer) window.clearTimeout(pickerTimer);
 
     pickerTimer = window.setTimeout(function () {
-      if (pickerKind === 'brand' && !query) {
-        renderPickerResults([]);
-        return;
-      }
-
       const extra = {};
+      if (pickerKind === 'brand') {
+        extra.transport_type = currentTransportType();
+      }
       if (pickerKind === 'model') {
         extra.brand_id = brandIdEl.value;
         extra.brand = brandEl.value;
         extra.transport_type = currentTransportType();
       }
 
-      setPickerStatus('Ищем…');
-      fetchSuggest(pickerKind, query, extra).then(function (data) {
+      setPickerStatus(query ? 'Подбираем варианты…' : 'Загружаем марки…');
+      const source = pickerKind === 'brand' && !query ? 'brand_list' : pickerKind;
+      fetchSuggest(source, query, extra).then(function (data) {
         if (seq !== pickerSuggestSeq) return;
         renderPickerResults(data.items || []);
       });
@@ -424,7 +490,7 @@
     if (vehiclePickerTitle) vehiclePickerTitle.textContent = copy.title;
     if (vehiclePickerHint) vehiclePickerHint.textContent = copy.hint;
     vehiclePickerSearch.placeholder = copy.placeholder;
-    vehiclePickerSearch.value = pickerTarget(kind).input.value || '';
+    vehiclePickerSearch.value = '';
     vehiclePicker.hidden = false;
     vehiclePicker.setAttribute('aria-hidden', 'false');
     document.body.classList.add('home-vehicle-picker-open');
@@ -574,6 +640,8 @@
     rotateIdempotencyKey();
     form.hidden = false;
     form.reset();
+    syncCondition();
+    syncCustomCitiesPanel();
     brandIdEl.value = '';
     modelIdEl.value = '';
     closeVehiclePicker();
@@ -603,6 +671,15 @@
       showFieldError('category', 'Выберите категорию запчасти.');
       if (formError) {
         formError.textContent = 'Выберите категорию запчасти.';
+        formError.hidden = false;
+      }
+      return;
+    }
+    if (currentScope() === 'custom' && customCitiesPanel &&
+        !customCitiesPanel.querySelector('input[name="selected_cities"]:checked')) {
+      showFieldError('selected_cities', 'Отметьте хотя бы один город.');
+      if (formError) {
+        formError.textContent = 'Отметьте хотя бы один город.';
         formError.hidden = false;
       }
       return;

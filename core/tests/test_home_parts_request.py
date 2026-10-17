@@ -77,6 +77,8 @@ def _seller(**kwargs):
         'is_active': True,
         'is_paused': False,
         'receive_requests': True,
+        # Existing fixtures model confirmed sellers of new parts.
+        'sells_new_parts': True,
         'is_test_seller': False,
         'brand': 'Hyundai',
         'model': 'Solaris',
@@ -1464,7 +1466,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertNotContains(page, 'home-parts-form-v6.js')
         self.assertNotContains(page, 'home-parts-form-v5.js')
         self.assertNotContains(page, 'home-parts-form-v4.js')
-        self.assertContains(page, 'Название, артикул или описание запчасти')
+        self.assertContains(page, 'Какая запчасть вам нужна?')
         self.assertContains(page, 'id="home-parts-warning"')
         self.assertContains(page, 'id="home-vehicle-picker"')
         self.assertContains(page, 'id="home-brand-open"')
@@ -1482,11 +1484,11 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertContains(page, 'Грузовые')
         self.assertContains(page, 'name="category"')
         self.assertContains(page, '>Трансмиссия</option>')
-        self.assertContains(page, 'Ищем подходящих продавцов по всему Казахстану')
+        self.assertContains(page, 'Весь Казахстан')
         self.assertContains(page, '>Дополнительно</summary>')
-        self.assertContains(page, 'подходящие продавцы по Казахстану')
+        self.assertContains(page, 'Новые запчасти')
         self.assertNotContains(page, 'более 300')
-        self.assertNotContains(page, 'name="search_scope"')
+        self.assertContains(page, 'name="search_scope"')
         self.assertNotContains(page, 'Выберите страну')
 
     def test_category_mismatch_warns_without_creating_request(self):

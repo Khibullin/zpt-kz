@@ -80,11 +80,17 @@ def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
 def seller_allowed_for_dispatch(seller, settings: BroadcastSettings, request=None) -> bool:
     if not getattr(seller, 'is_active', True) or getattr(seller, 'is_paused', False):
         return False
-    if request is not None and getattr(request, 'is_dismantler_request', False):
-        if not getattr(seller, 'is_dismantler', False):
+    if request is not None and request.source == request.SOURCE_HOME_SHORT:
+        if request.is_dismantler_request and not seller.is_dismantler:
+            return False
+        if not request.is_dismantler_request and seller.sells_new_parts is not True:
             return False
         if request.search_scope == 'city' and seller.city != request.city:
             return False
+        if request.search_scope == 'custom':
+            cities = (request.selected_cities or '').split(',')
+            if seller.city not in [city.strip() for city in cities if city.strip()]:
+                return False
     if settings.mode == BroadcastSettings.MODE_TEST:
         return bool(seller.is_test_seller)
     if settings.mode == BroadcastSettings.MODE_LIVE:
@@ -342,13 +348,25 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
 
         req = locked_dispatch.request
         seller = locked_dispatch.seller
-        if getattr(req, 'is_dismantler_request', False) and (
-            not seller.is_dismantler
-            or (req.search_scope == 'city' and seller.city != req.city)
-        ):
-            locked_dispatch.status = RequestDispatch.STATUS_PAUSED
-            locked_dispatch.save(update_fields=['status'])
-            return {'ok': False, 'skipped': True, 'reason': 'dismantler_scope_mismatch'}
+        if req.source == req.SOURCE_HOME_SHORT:
+            allowed = (
+                seller.is_dismantler if req.is_dismantler_request
+                else seller.sells_new_parts is True
+            )
+            if req.search_scope == 'city' and seller.city != req.city:
+                allowed = False
+            if req.search_scope == 'custom':
+                cities = [c.strip() for c in (req.selected_cities or '').split(',') if c.strip()]
+                if seller.city not in cities:
+                    allowed = False
+            if not allowed:
+                locked_dispatch.status = RequestDispatch.STATUS_PAUSED
+                locked_dispatch.save(update_fields=['status'])
+                reason = (
+                    'dismantler_scope_mismatch' if req.is_dismantler_request
+                    else 'new_parts_scope_mismatch'
+                )
+                return {'ok': False, 'skipped': True, 'reason': reason}
 
         match, _ = Match.objects.get_or_create(
             request=locked_dispatch.request,
