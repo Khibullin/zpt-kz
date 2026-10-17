@@ -19,7 +19,8 @@ class LandingPagesTests(TestCase):
         ])
         self.assertNotContains(page, 'Оставить заявку')
         self.assertNotContains(page, 'Авторазборы / Б/У запчасти')
-        self.assertContains(page, 'Авторазборы')
+        self.assertContains(page, 'Новые запчасти')
+        self.assertContains(page, 'Запчасти с авторазборов')
         self.assertContains(page, reverse('parts_sellers_catalog_public'))
 
     def test_consumables_uses_only_existing_active_products(self):
