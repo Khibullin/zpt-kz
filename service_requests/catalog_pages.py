@@ -40,6 +40,9 @@ def service_directory(request, section=None):
     kind = {'repair': 'sto', 'detailing': 'detailing'}.get(section, request.GET.get('type', ''))
     if kind not in ('sto', 'detailing'):
         kind = ''
+    if kind == 'sto':
+        from .directory_display import repair_directory
+        return repair_directory(request)
     title = {'sto': 'СТО и ремонт', 'detailing': 'Детейлинг и тюнинг'}.get(kind, 'Каталог исполнителей')
     raw_city = request.GET.get('city', '').strip()
     city = canonical_kazakhstan_city(raw_city) if raw_city else ''

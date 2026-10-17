@@ -36,16 +36,17 @@ class CatalogPagesTests(TestCase):
         for section in ('repair','detailing'):
             r=self.client.get('/sections/'+section+'/')
             self.assertEqual(r.status_code,200)
-            self.assertContains(r,'service-tiles')
-            self.assertContains(r,'Исполнители пока не найдены')
+            self.assertContains(r,'org-entry-choices')
+            self.assertContains(r,'Открыть каталог')
             self.assertNotContains(r,'Пример сервиса')
             self.assertNotContains(r,'Демонстрационные карточки')
 
     def test_pagination_keeps_filters_and_has_no_duplicates(self):
-        for i in range(14): self.make('Garage '+str(i),f'77000001{i:03d}',['Диагностика'])
+        for i in range(22): self.make('Garage '+str(i),f'77000001{i:03d}',['Диагностика'])
         a=self.client.get('/catalog/services/',{'type':'sto','city':'Алматы','q':'Garage'})
         b=self.client.get('/catalog/services/',{'type':'sto','city':'Алматы','q':'Garage','page':2})
-        self.assertEqual(len(a.context['sellers']),12)
+        self.assertEqual(len(a.context['sellers']),20)
         self.assertEqual(len(b.context['sellers']),2)
-        self.assertIn('type=sto',a.context['sellers'].next_url)
+        self.assertContains(a,'type=sto&amp;city=')
+        self.assertContains(a,'page=2')
         self.assertFalse({c['seller'].pk for c in a.context['sellers']} & {c['seller'].pk for c in b.context['sellers']})

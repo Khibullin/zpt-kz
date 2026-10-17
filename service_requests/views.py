@@ -478,6 +478,12 @@ def service_seller_detail(request, seller_id):
         is_active=True
     )
 
+    from .catalog_pages import catalog_scopes
+    from .directory_display import repair_profile
+    scopes = catalog_scopes(seller, list(seller.services.values_list('name', flat=True)))
+    if 'sto' in scopes and (seller.seller_type == 'sto' or request.GET.get('directory') == 'sto'):
+        return repair_profile(request, seller)
+
     services_text = ', '.join(
         seller.services.values_list(
             'name',
