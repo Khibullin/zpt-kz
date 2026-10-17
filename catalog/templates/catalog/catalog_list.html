@@ -851,8 +851,13 @@ body.home-vehicle-picker-open{
     <div class="hero-main">
 
       <header class="home-intro">
-        <h1 class="hero-title ds-h1">Запчасти для вашего авто — одним запросом</h1>
-        <p class="hero-sub ds-body">Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки.</p>
+        {% if home_is_dismantler_request %}
+          <h1 class="hero-title ds-h1">Б/У запчасти для вашего авто — одним запросом</h1>
+          <p class="hero-sub ds-body">Запрос получат только авторазборы — вашего города или всего Казахстана, по вашему выбору.</p>
+        {% else %}
+          <h1 class="hero-title ds-h1">Запчасти для вашего авто — одним запросом</h1>
+          <p class="hero-sub ds-body">Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки.</p>
+        {% endif %>
       </header>
 
       {% if is_home_result %}
@@ -889,6 +894,9 @@ body.home-vehicle-picker-open{
         {% if is_home_result %}hidden{% endif %}
       >
         {% csrf_token %}
+        {% if home_is_dismantler_request %}
+          <input type="hidden" name="is_dismantler_request" value="1">
+        {% endif %}
         <h2 class="home-parts-heading">Оставить заявку</h2>
         <div class="home-parts-grid">
           <div class="home-parts-field home-parts-field-query">
@@ -1053,13 +1061,34 @@ body.home-vehicle-picker-open{
             <p class="home-parts-error" data-error-for="city" hidden></p>
           </div>
 
+          {% if home_is_dismantler_request %}
+          <div class="home-parts-field home-parts-field-transport">
+            <span class="home-parts-field-caption" id="dismantler-scope-label">Где искать авторазборы</span>
+            <div class="home-parts-transport" role="radiogroup" aria-labelledby="dismantler-scope-label">
+              <label class="home-parts-transport-option">
+                <input type="radio" name="search_scope" value="city">
+                <span>Только мой город</span>
+              </label>
+              <label class="home-parts-transport-option">
+                <input type="radio" name="search_scope" value="kazakhstan" checked>
+                <span>Весь Казахстан</span>
+              </label>
+            </div>
+            <p class="home-parts-error" data-error-for="search_scope" hidden></p>
+          </div>
+          {% endif %}
+
           <div class="home-parts-field home-parts-field-phone">
             <label for="home-phone">Ваш WhatsApp</label>
             <input id="home-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required placeholder="+7 701 123 45 67">
             <p class="home-parts-error" data-error-for="phone" hidden></p>
           </div>
 
-          <p class="home-parts-scope">Ищем подходящих продавцов по всему Казахстану</p>
+          {% if home_is_dismantler_request %}
+            <p class="home-parts-scope">Заявка будет направлена только подходящим авторазборам выбранной территории.</p>
+          {% else %}
+            <p class="home-parts-scope">Ищем подходящих продавцов по всему Казахстану</p>
+          {% endif %}
 
           <details class="home-parts-extra">
             <summary>Дополнительно</summary>
