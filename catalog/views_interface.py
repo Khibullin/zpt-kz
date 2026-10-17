@@ -8,7 +8,7 @@ def homepage_tiles():
     section = lambda name: reverse('interface_section', kwargs={'section': name})
     return [
         {'key': 'parts', 'url': reverse('interface_find_part'), 'art': 'parts', 'caption': 'partsHint'},
-        {'key': 'dismantle', 'url': section('dismantle'), 'title': 'dismantleShort', 'art': 'dismantle', 'caption': 'dismantleHint'},
+        {'key': 'dismantle', 'url': section('dismantle'), 'title': 'dismantleEntry', 'art': 'dismantle', 'caption': 'dismantleHint'},
         {'key': 'consumables', 'url': reverse('consumables_landing'), 'art': 'kits', 'caption': 'consumablesHint'},
         {'key': 'serviceHub', 'url': reverse('services_landing'), 'art': 'repair', 'caption': 'serviceHubHint'},
         {'key': 'wholesale', 'url': reverse('public_seller_wholesale', kwargs={'slug':'ag-parts'}), 'art': 'wholesale', 'caption': 'wholesaleHint'},
