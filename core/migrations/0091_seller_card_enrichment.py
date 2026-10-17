@@ -5,7 +5,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('core', '0087_seller_sells_new_parts'),
+        ('core', '0090_confirm_new_parts_by_exact_catalog_contacts'),
     ]
 
     operations = [
