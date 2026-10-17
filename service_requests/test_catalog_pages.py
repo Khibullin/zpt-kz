@@ -18,7 +18,7 @@ class CatalogPagesTests(TestCase):
             response=self.client.get('/catalog/services/',{'type':kind})
             self.assertEqual(response.status_code,200)
             ids={c['seller'].pk for c in response.context['sellers']}
-            self.assertEqual(ids,{wanted.pk,mixed.pk,unknown.pk})
+            self.assertEqual(ids,{wanted.pk,mixed.pk} | ({unknown.pk} if kind == 'sto' else set()))
             self.assertNotIn(excluded.pk,ids)
             self.assertNotContains(response,'Источники и контакты')
         unknown.refresh_from_db(); self.assertFalse(unknown.receive_requests)

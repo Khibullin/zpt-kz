@@ -26,10 +26,12 @@ def service_card(seller):
     }
 
 
-def repair_directory(request):
-    from .catalog_pages import REPAIR, catalog_scopes
+def repair_directory(request, kind="sto"):
+    from .catalog_pages import REPAIR, DETAIL, catalog_scopes
+    presentation = directory_presentation(kind)
+    categories = DETAIL if kind == "detailing" else REPAIR
     base = ServiceSeller.objects.filter(is_active=True, is_test_seller=False, is_paused=False).prefetch_related('services').order_by('name', 'pk')
-    cards = [service_card(s) for s in base if 'sto' in catalog_scopes(s, [x.name for x in s.services.all()])]
+    cards = [service_card(s) for s in base if kind in catalog_scopes(s, [x.name for x in s.services.all()])]
     cities = sorted({c['seller'].city for c in cards if c['seller'].city})
     services = sorted({name for c in cards for name in c['services']})
     q = request.GET.get('q', '').strip()[:200]
@@ -38,7 +40,7 @@ def repair_directory(request):
     service = request.GET.get('service', '').strip()
     district = request.GET.get('district', '').strip()[:100]
     category = request.GET.get('category', '').strip()
-    selected = next((item for item in REPAIR if item[0] == category), None)
+    selected = next((item for item in categories if item[0] == category), None)
     results = []
     for card in cards:
         seller = card['seller']
@@ -52,16 +54,33 @@ def repair_directory(request):
     page = Paginator(results, 20).get_page(request.GET.get('page', 1))
     return render(request, 'catalog/interface/services/repair_catalog.html', {
         'sellers': page, 'page_obj': page, 'cities': cities, 'service_options': services,
-        'categories': REPAIR, 'section_title': 'СТО и ремонт', 'hide_product_search': True,
+        **presentation, 'categories': categories, 'section_title': presentation['directory_title'], 'hide_product_search': True,
         'filters': {'q': q, 'city': raw_city, 'service': service, 'district': district, 'category': category},
         'has_directory_filters': any((q, raw_city, service, district, category)),
     })
 
 
-def repair_profile(request, seller):
+def repair_profile(request, seller, kind="sto"):
     if seller.is_test_seller or seller.is_paused:
         raise Http404
     return render(request, 'catalog/interface/services/repair_detail.html', {
         'seller': seller, 'card': service_card(seller),
-        'section_title': 'СТО и ремонт', 'hide_product_search': True,
+        **directory_presentation(kind),
+        'section_title': directory_presentation(kind)['directory_title'], 'hide_product_search': True,
     })
+
+
+def directory_presentation(kind):
+    detailing = kind == 'detailing'
+    return {
+        'directory_kind': kind,
+        'directory_title': 'Детейлинг и тюнинг' if detailing else 'СТО и ремонт',
+        'catalog_title': 'Каталог детейлинга и тюнинга' if detailing else 'Каталог СТО и ремонта',
+        'catalog_short': 'Каталог детейлинга и тюнинга' if detailing else 'Каталог СТО',
+        'entry_section': 'detailing' if detailing else 'repair',
+        'add_label': 'Добавить организацию' if detailing else 'Добавить СТО',
+        'search_label': 'Поиск детейлинга и тюнинга' if detailing else 'Поиск СТО',
+        'empty_title': 'Организации не найдены' if detailing else 'СТО не найдены',
+        'empty_description': 'Измените фильтры или оставьте заявку на услугу.' if detailing else 'Измените фильтры или оставьте заявку на ремонт.',
+        'back_label': 'Назад в каталог детейлинга и тюнинга' if detailing else 'Назад в каталог СТО',
+    }

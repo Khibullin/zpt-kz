@@ -481,6 +481,8 @@ def service_seller_detail(request, seller_id):
     from .catalog_pages import catalog_scopes
     from .directory_display import repair_profile
     scopes = catalog_scopes(seller, list(seller.services.values_list('name', flat=True)))
+    if 'detailing' in scopes and (request.GET.get('directory') == 'detailing' or (request.GET.get('directory') != 'sto' and (seller.seller_type == 'detailing' or 'sto' not in scopes))):
+        return repair_profile(request, seller, 'detailing')
     if 'sto' in scopes and (seller.seller_type == 'sto' or request.GET.get('directory') == 'sto'):
         return repair_profile(request, seller)
 

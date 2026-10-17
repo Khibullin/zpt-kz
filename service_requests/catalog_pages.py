@@ -26,7 +26,7 @@ DETAIL = [
 
 def catalog_scopes(seller, names):
     # Services are evidence of specialization. An unclassified imported profile
-    # must not inherit an exclusive scope from its legacy required seller_type.
+    # does not gain detailing membership without evidence of that specialization.
     text = ' '.join([seller.name, seller.description, *names]).casefold()
     repair = any(word in text for _, _, words in REPAIR for word in words) or 'кузовн' in text or 'ремонт' in text
     detail = any(word in text for _, _, words in DETAIL for word in words) or 'детейлинг' in text or 'мойка' in text
@@ -34,15 +34,15 @@ def catalog_scopes(seller, names):
         detail = True
     if repair or detail:
         return {kind for kind, found in [('sto', repair), ('detailing', detail)] if found}
-    return {'sto', 'detailing'}
+    return {'sto'}
 
 def service_directory(request, section=None):
     kind = {'repair': 'sto', 'detailing': 'detailing'}.get(section, request.GET.get('type', ''))
     if kind not in ('sto', 'detailing'):
         kind = ''
-    if kind == 'sto':
+    if kind in ('sto', 'detailing'):
         from .directory_display import repair_directory
-        return repair_directory(request)
+        return repair_directory(request, kind)
     title = {'sto': 'СТО и ремонт', 'detailing': 'Детейлинг и тюнинг'}.get(kind, 'Каталог исполнителей')
     raw_city = request.GET.get('city', '').strip()
     city = canonical_kazakhstan_city(raw_city) if raw_city else ''

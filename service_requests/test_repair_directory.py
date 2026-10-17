@@ -16,8 +16,8 @@ class RepairDirectoryTests(TestCase):
         self.assertContains(page,'tel:+77012223344')
         self.assertContains(page,'wa.me/77012223344')
         self.assertNotContains(page,'PRIVATE NOTE')
-        self.assertTemplateUsed(self.client.get('/catalog/services/?type=detailing'),'catalog/interface/services/page.html')
-        self.assertTemplateUsed(self.client.get(f'/catalog/services/{detail.pk}/'),'catalog/services/detail.html')
+        self.assertTemplateUsed(self.client.get('/catalog/services/?type=detailing'),'catalog/interface/services/repair_catalog.html')
+        self.assertTemplateUsed(self.client.get(f'/catalog/services/{detail.pk}/'),'catalog/interface/services/repair_detail.html')
 
     def test_profile_only_stored_values_and_safe_links(self):
         s=self.make('СТО', '87012223344', address='Улица, 1',working_hours='Пн–Пт 09:00–18:00',map_link='https://2gis.kz/almaty/firm/123',instagram='https://instagram.com/example',website='javascript:alert(1)',catalog_notes='PRIVATE NOTE')
@@ -40,3 +40,31 @@ class RepairDirectoryTests(TestCase):
         page=self.client.get('/catalog/services/',{'type':'sto','city':'Алматы','district':'Центральный','service':'Диагностика','q':'Тестовая','category':'diagnostics'})
         self.assertEqual([c['seller'].pk for c in page.context['sellers']],[s2.pk])
         self.assertEqual(self.client.get('/catalog/services/?type=sto&city=invalid').context['page_obj'].paginator.count,0)
+
+    def test_detailing_filters_profiles_and_mixed_navigation(self):
+        mixed=self.make('Ремонт и полировка', '77010000001', address='Абая, 10', district='Центр')
+        mixed.services.add(Service.objects.create(name='Полировка'))
+        self.make('Обычная станция', '77010000002')
+        self.make('Полировка скрыта', '77010000003', is_paused=True)
+        page=self.client.get('/catalog/services/', {'type':'detailing','category':'polish','city':'Алматы','service':'Полировка','district':'Центр'})
+        self.assertEqual([c['seller'].pk for c in page.context['sellers']], [mixed.pk])
+        self.assertContains(page, 'Каталог детейлинга и тюнинга')
+        self.assertContains(page, '?directory=detailing')
+        self.assertContains(page, 'value="detailing"')
+        self.assertNotContains(page, 'Добавить СТО')
+        for kind,title in [('sto','Назад в каталог СТО'),('detailing','Назад в каталог детейлинга и тюнинга')]:
+            profile=self.client.get(f'/catalog/services/{mixed.pk}/', {'directory':kind})
+            self.assertContains(profile,title)
+            self.assertNotContains(profile,'★')
+        mixed.refresh_from_db()
+        self.assertEqual(mixed.seller_type, 'sto')
+
+    def test_detailing_pagination_and_unavailable_profiles(self):
+        for i in range(21):
+            self.make(f'Тюнинг {i:02}', f'77020000{i:03}')
+        page=self.client.get('/catalog/services/?type=detailing&q=Тюнинг')
+        self.assertEqual(len(page.context['sellers']),20)
+        self.assertContains(page,'type=detailing&amp;q=')
+        self.assertContains(page,'page=2')
+        hidden=self.make('Тюнинг тестовый','77030000001',is_test_seller=True)
+        self.assertEqual(self.client.get(f'/catalog/services/{hidden.pk}/?directory=detailing').status_code,404)
