@@ -17,8 +17,11 @@ def homepage_tiles():
 
 def interface_section(request, section):
     if section in ('repair', 'detailing'):
-        from service_requests.catalog_pages import service_directory
-        return service_directory(request, section=section)
+        # Preserve existing filtered links; the plain section URL is the entry page.
+        if request.GET:
+            from service_requests.catalog_pages import service_directory
+            return service_directory(request, section=section)
+        return organization_entry(request, section)
     parts = reverse('interface_find_part')
     used = parts + '?condition=used'
     if section == 'dismantle':
@@ -75,4 +78,56 @@ def services_landing(request):
     ).order_by('name', 'pk')[:4]
     return render(request, 'catalog/interface/services_landing.html', {
         'service_sellers': sellers,
+    })
+
+
+def parts_entry(request):
+    """Keep all existing parameterized form/result URLs and POST handling intact."""
+    if request.GET or request.method != 'GET':
+        from .views import catalog_list
+        return catalog_list(request)
+    return organization_entry(request, 'parts')
+
+
+def organization_entry(request, kind):
+    pages = {
+        'parts': {
+            'title': 'Найти запчасть', 'subtitle': 'Отправьте заявку или выберите продавца самостоятельно',
+            'request_title': 'Отправить заявку',
+            'request_text': 'Укажите автомобиль и нужную запчасть. Заявка поступит подходящим продавцам.',
+            'request_button': 'Найти запчасть', 'request_url': reverse('interface_find_part') + '?request=1',
+            'catalog_title': 'Каталог продавцов',
+            'catalog_text': 'Выберите магазин по городу и специализации. Посмотрите контакты и свяжитесь напрямую.',
+            'catalog_url': reverse('parts_sellers_catalog_public'),
+            'request_icon': 'file', 'catalog_icon': 'store',
+            'cross_text': 'Нужна запчасть с авторазбора?', 'cross_label': 'Перейти к авторазборам',
+            'cross_url': reverse('interface_section', kwargs={'section': 'dismantle'}),
+        },
+        'repair': {
+            'title': 'СТО и ремонт', 'subtitle': 'Оставьте заявку или выберите СТО самостоятельно',
+            'request_title': 'Заявка на ремонт',
+            'request_text': 'Укажите автомобиль и опишите проблему. Заявка поступит подходящим СТО.',
+            'request_button': 'Оставить заявку', 'request_url': '/service-request/?type=sto',
+            'catalog_title': 'Каталог СТО',
+            'catalog_text': 'Выберите станцию по городу и видам услуг. Посмотрите контакты и свяжитесь напрямую.',
+            'catalog_url': reverse('services_catalog') + '?type=sto',
+            'request_icon': 'tool', 'catalog_icon': 'garage',
+            'cross_text': 'Нужен уход за автомобилем?', 'cross_label': 'Детейлинг и тюнинг',
+            'cross_url': reverse('interface_section', kwargs={'section': 'detailing'}),
+        },
+        'detailing': {
+            'title': 'Детейлинг и тюнинг', 'subtitle': 'Найдите специалиста по уходу и доработке автомобиля',
+            'request_title': 'Заявка на услугу',
+            'request_text': 'Опишите, что хотите сделать с автомобилем. Заявка поступит профильным исполнителям.',
+            'request_button': 'Оставить заявку', 'request_url': '/service-request/?type=detailing',
+            'catalog_title': 'Каталог исполнителей',
+            'catalog_text': 'Выберите организацию по городу и услугам. Посмотрите контакты и свяжитесь напрямую.',
+            'catalog_url': reverse('services_catalog') + '?type=detailing',
+            'request_icon': 'car', 'catalog_icon': 'store',
+            'cross_text': 'Нужен ремонт автомобиля?', 'cross_label': 'СТО и ремонт',
+            'cross_url': reverse('interface_section', kwargs={'section': 'repair'}),
+        },
+    }
+    return render(request, 'catalog/interface/organization_entry.html', {
+        'entry': pages[kind], 'section_title': pages[kind]['title'], 'hide_product_search': True,
     })

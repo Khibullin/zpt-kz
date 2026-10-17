@@ -1,0 +1,18 @@
+/* Approved entry screens only; existing forms and catalogs retain their styles. */
+body.organization-entry-page{background:#eff6fc}
+.org-entry{max-width:1120px;margin:0 auto;padding-bottom:44px;color:#193b56}
+.org-entry *{box-sizing:border-box}.org-entry .breadcrumbs{flex-wrap:wrap}.org-entry .breadcrumbs a{color:#2671a3}
+.org-entry-heading{margin:36px 0 30px}.org-entry-heading h1{font-size:42px;line-height:1.15;letter-spacing:-.7px;margin:0 0 12px}.org-entry-heading p{font-size:20px;line-height:1.5;color:#526b82;margin:0}
+.org-entry-choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}
+.org-entry-card{display:flex;flex-direction:column;min-width:0;padding:28px;background:#fff;border:1px solid #b6d8f3;border-radius:14px}
+.org-entry-icon{display:flex;align-items:center;justify-content:center;width:84px;height:84px;background:#eff6fc;border-radius:50%;margin-bottom:18px;color:#193b56}.org-entry-icon .icon{width:42px;height:42px}
+.org-entry-card h2{font-size:26px;line-height:1.25;margin:0 0 12px}.org-entry-card p{font-size:17px;line-height:1.55;color:#526b82;margin:0 0 24px}
+.org-entry-button{display:flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:12px 16px;border:1px solid transparent;border-radius:8px;font-size:17px;line-height:1.4;font-weight:700;text-decoration:none!important;margin-top:auto;text-align:center}
+.org-entry-primary{background:#e81028;color:#fff!important}.org-entry-primary:hover{background:#ca1024}
+.org-entry-catalog{background:#fce3e3;border-color:#efb9bc;color:#a92d36!important}.org-entry-catalog:hover{background:#f8d3d5}
+.org-entry-cross{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-top:24px;padding:22px 28px;border:1px solid #b6d8f3;border-radius:12px;background:#fff;line-height:1.5}
+.org-entry-cross a{display:flex;gap:12px;align-items:center;color:#185c91;font-weight:600;text-decoration:none}.org-entry-cross a:hover{text-decoration:underline}
+.org-entry a:focus-visible{outline:3px solid #2671a3;outline-offset:4px}
+@media(max-width:760px){.org-entry{padding-bottom:24px}.org-entry-heading{margin:22px 0 20px}.org-entry-heading h1{font-size:29px;letter-spacing:-.4px}.org-entry-heading p{font-size:16px}.org-entry-choices{grid-template-columns:1fr;gap:16px}.org-entry-card{padding:20px}.org-entry-icon{width:60px;height:60px;margin-bottom:12px}.org-entry-icon .icon{width:32px;height:32px}.org-entry-card h2{font-size:22px;margin-bottom:8px}.org-entry-card p{font-size:15px;margin-bottom:16px}.org-entry-button{font-size:16px;min-height:46px}.org-entry-cross{align-items:flex-start;flex-direction:column;gap:6px;padding:16px 20px;font-size:14px;margin-top:16px}}
+
+.organization-entry-page .header-tools>label{display:none}

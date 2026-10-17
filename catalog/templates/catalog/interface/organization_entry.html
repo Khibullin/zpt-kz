@@ -1,0 +1,16 @@
+{% extends 'catalog/interface/base.html' %}{% load static interface_ui %}
+{% block title %}{{ entry.title }} | ZPT.KZ{% endblock %}
+{% block meta_description %}{{ entry.subtitle }}. ZPT.KZ{% endblock %}
+{% block body_attrs %} class="zpt-interface organization-entry-page" data-zpt-suppress-ios-pwa="1"{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/organization-entry.css' %}?v=20261017a">{% endblock %}
+{% block interface_content %}
+<div class="org-entry">
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{{ entry.title }}</span></nav>
+<header class="org-entry-heading"><h1>{{ entry.title }}</h1><p>{{ entry.subtitle }}</p></header>
+<section class="org-entry-choices" aria-label="Выберите способ поиска">
+<article class="org-entry-card"><span class="org-entry-icon" aria-hidden="true">{% if entry.request_icon == 'tool' %}<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M14 6a6 6 0 0 0-7 7l-5 5a3 3 0 0 0 4 4l5-5a6 6 0 0 0 7-7l-4 4-4-4z"/></svg>{% elif entry.request_icon == 'car' %}<svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m3 11 2-6h12l2 6M3 11h16v8H3zM6 19v3m10-3v3M6 15h2m6 0h2M20 1v6m-3-3h6"/></svg>{% else %}{% ui_icon entry.request_icon %}{% endif %}</span><h2>{{ entry.request_title }}</h2><p>{{ entry.request_text }}</p><a class="org-entry-button org-entry-primary" href="{{ entry.request_url }}">{{ entry.request_button }}<span aria-hidden="true">→</span></a></article>
+<article class="org-entry-card"><span class="org-entry-icon" aria-hidden="true">{% ui_icon entry.catalog_icon %}</span><h2>{{ entry.catalog_title }}</h2><p>{{ entry.catalog_text }}</p><a class="org-entry-button org-entry-catalog" href="{{ entry.catalog_url }}">Открыть каталог<span aria-hidden="true">→</span></a></article>
+</section>
+<aside class="org-entry-cross"><strong>{{ entry.cross_text }}</strong><a href="{{ entry.cross_url }}">{{ entry.cross_label }}<span aria-hidden="true">→</span></a></aside>
+</div>
+{% endblock %}
