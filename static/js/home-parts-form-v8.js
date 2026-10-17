@@ -660,7 +660,7 @@
     submitting = false;
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.textContent = 'Отправить запрос';
+      submitBtn.textContent = 'Отправить заявку';
     }
   }
 
