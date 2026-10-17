@@ -94,7 +94,7 @@ def _phone_entry(raw: object) -> dict | None:
 
 
 def build_seller_card(seller) -> dict:
-    primary = _phone_entry(seller.whatsapp)
+    primary = _phone_entry(seller.whatsapp) or _phone_entry(seller.phone2)
     seen = {primary['digits']} if primary else set()
     extra_phones = []
     for raw in [seller.phone2, *[item.phone for item in seller.extra_phones.all()]]:

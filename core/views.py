@@ -1985,7 +1985,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
     if dismantlers_only:
         sellers = sellers.filter(is_dismantler=True).select_related('brand_fk')
     else:
-        sellers = sellers.filter(sells_new_parts=True, is_test_seller=False).select_related('brand_fk', 'model_fk', 'country_fk')
+        sellers = sellers.filter(Q(sells_new_parts=True) | Q(directory_parts=True), is_test_seller=False).select_related('brand_fk', 'model_fk', 'country_fk')
 
     directory_sellers = sellers
 
@@ -2076,7 +2076,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
     if dismantlers_only:
         cities = cities.filter(is_dismantler=True)
     else:
-        cities = cities.filter(sells_new_parts=True, is_test_seller=False)
+        cities = cities.filter(Q(sells_new_parts=True) | Q(directory_parts=True), is_test_seller=False)
 
     categories = PartCategory.objects.all()
     countries = Country.objects.all()
@@ -2137,7 +2137,7 @@ def parts_seller_detail(request, seller_id):
     )
 
     show_dismantler_profile = seller.is_dismantler and not (
-        seller.sells_new_parts is True and request.GET.get('directory') == 'parts'
+        (seller.sells_new_parts is True or seller.directory_parts) and request.GET.get('directory') == 'parts'
     )
 
     return render(

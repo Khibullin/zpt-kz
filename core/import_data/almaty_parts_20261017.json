@@ -1,0 +1,1812 @@
+{
+  "source": "Алматы 50 .xlsx",
+  "sha256": "dfc4ab5d944eff578ea55ecd655441b4ce81cabc1e7c9dc2003de519d1d83446",
+  "plans": [
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001094213400",
+        "name": "China Town, магазин автозапчастей для китайских автомобилей",
+        "address": "улица Ырысты, 46/2",
+        "city": "Алматы",
+        "latitude": "43.262388",
+        "longitude": "76.855043",
+        "phones": [
+          "77076655306",
+          "77479198087"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/chinatown_autoparts"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076655306"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479198087"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001094213400",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 2,
+      "categories": "Запчасти для легковых автомобилей",
+      "directory_parts": true,
+      "seller": {
+        "id": 234,
+        "name": "JB Motors",
+        "whatsapp": "77076655306",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/chinatown_autoparts, https://wa.me/77076655306, https://wa.me/77479198087"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001044440989",
+        "name": "Barys Auto, центр авторазбора",
+        "address": "Алматы-Бишкек трасса, 122/3",
+        "city": "Каскелен",
+        "latitude": "43.219521",
+        "longitude": "76.630361",
+        "phones": [
+          "77006350000",
+          "77006340000"
+        ],
+        "website": "https://sites.google.com/view/barysauto",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autorazbor_barys_auto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77006350000"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77006340000"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001044440989",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 3,
+      "categories": "Запчасти для легковых автомобилей | Авторазбор | Контрактные автозапчасти",
+      "directory_parts": false,
+      "seller": {
+        "id": 735,
+        "name": "Barys Auto, центр авторазбора",
+        "whatsapp": "77006350000",
+        "city": "Каскелен"
+      },
+      "service": null,
+      "source_email": "barysauto2019@gmail.com",
+      "source_websites": "http://sites.google.com/view/barysauto",
+      "source_socials": "https://instagram.com/autorazbor_barys_auto, https://wa.me/77006350000, https://wa.me/77006340000"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001019930149",
+        "name": "EXPERT OIL SERVICE + UNITED OIL, №8, Сеть пунктов замены масел и автомагазинов",
+        "address": "улица Рыскулбекова, 43а",
+        "city": "Алматы",
+        "latitude": "43.204601",
+        "longitude": "76.866822",
+        "phones": [],
+        "website": "https://expertoil.kz/",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/expertoilalmaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77009787000"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001019930149",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 4,
+      "categories": "Запчасти для легковых автомобилей | Замена масла | Автохимия | Автомобильные аккумуляторы | Компьютерная диагностика автомобилей | Легковой автосервис | Обслуживание автомобильных климатических систем",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@expertoil.kz",
+      "source_websites": "http://www.expertoil.kz/",
+      "source_socials": "https://vk.com/expertoilalmaty, https://facebook.com/expertoilkz, https://wa.me/77009787000"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001111672336",
+        "name": "DN Auto, компания по продаже автозапчастей",
+        "address": "микрорайон Баянауыл, 57а",
+        "city": "Алматы",
+        "latitude": "43.238386",
+        "longitude": "76.822452",
+        "phones": [
+          "77766618686",
+          "77714904272"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77766618686"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714904272"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001111672336",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 6,
+      "categories": "Запчасти для легковых автомобилей",
+      "directory_parts": true,
+      "seller": {
+        "id": 423,
+        "name": "DN Auto",
+        "whatsapp": "77766618686",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://wa.me/77766618686, https://wa.me/77714904272"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001082575277",
+        "name": "Subarushopkz, магазин автозапчастей и автосервис",
+        "address": "Гёте улица, 281",
+        "city": "Алматы",
+        "latitude": "43.333915",
+        "longitude": "76.969700",
+        "phones": [
+          "77002323146",
+          "77008257691",
+          "77078257691"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subarushopkz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002323146"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77008257691"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001082575277",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 7,
+      "categories": "Запчасти для легковых автомобилей | Ремонт ходовой части автомобиля | Ремонт АКПП | Ремонт бензиновых двигателей | Ремонт рулевых реек | Ремонт инжекторов | Замена масла | Легковой автосервис | Контрактные автозапчасти | Компьютерная диагностика автомобилей",
+      "directory_parts": true,
+      "seller": {
+        "id": 572,
+        "name": "АВТОЗАПЧАСТИ И СЕРВИС СУБАРУ АЛМАТЫ (@subarushopkz) • Instagram profile",
+        "whatsapp": "77778257691",
+        "city": "Алматы"
+      },
+      "service": {
+        "id": 122,
+        "name": "Subarushopkz",
+        "whatsapp": "77002323146"
+      },
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/subarushopkz, https://wa.me/77002323146, https://wa.me/77008257691"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001088145175",
+        "name": "Aspara motors Абая, центр авторазбора",
+        "address": "Килыбай Медеубекова улица, 21",
+        "city": "Алматы",
+        "latitude": "43.203766",
+        "longitude": "76.777600",
+        "phones": [
+          "77478492222",
+          "77006330000",
+          "77078330000"
+        ],
+        "website": "https://asparamotors.com/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/aspara_motors"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478492222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77006330000"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078330000"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77006330000"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@asparamotors_"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001088145175",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 8,
+      "categories": "Запчасти для легковых автомобилей | Авторазбор | Контрактные автозапчасти",
+      "directory_parts": false,
+      "seller": {
+        "id": 734,
+        "name": "Aspara motors Абая, центр авторазбора",
+        "whatsapp": "77478492222",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "asparamotors.official@gmail.com",
+      "source_websites": "http://www.asparamotors.com/, http://tiktok.com/@asparamotors_",
+      "source_socials": "https://instagram.com/aspara_motors, https://wa.me/77478492222, https://wa.me/77006330000, https://wa.me/77078330000, https://t.me/+77006330000"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001064969148",
+        "name": "Sati Auto, автосервис",
+        "address": "улица Войкова, 2",
+        "city": "Алматы",
+        "latitude": "43.252649",
+        "longitude": "76.853431",
+        "phones": [
+          "77478508530",
+          "77072172224"
+        ],
+        "website": "https://satiauto.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/sati.auto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478508530"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072172224"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001064969148",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 9,
+      "categories": "Запчасти для легковых автомобилей | Ремонт бензиновых двигателей | Компьютерная диагностика автомобилей | Ремонт стартеров и генераторов | Ремонт электронных систем авто | Легковой автосервис | Ремонт ходовой части автомобиля | Замена масла | Ремонт АКПП | Ремонт инжекторов",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "satiauto111@gmail.com",
+      "source_websites": "http://www.satiauto.kz/",
+      "source_socials": "https://instagram.com/sati.auto, https://wa.me/77478508530, https://wa.me/77072172224"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001104927985",
+        "name": "AutoPapa, автосервис",
+        "address": "улица Зеина Шашкина, 29",
+        "city": "Алматы",
+        "latitude": "43.219406",
+        "longitude": "76.936448",
+        "phones": [
+          "77071110450"
+        ],
+        "website": "https://autopapa.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autopapakz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071110450"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001104927985",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 10,
+      "categories": "Запчасти для легковых автомобилей | Ремонт ходовой части автомобиля | Развал-схождение | Ремонт электронных систем авто | Легковой автосервис | Замена масла | Компьютерная диагностика автомобилей | Ремонт инжекторов | Автохимия | Обслуживание автомобильных климатических систем | Ремонт бензиновых двигателей | Шиномонтаж",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@avto-papa.kz",
+      "source_websites": "http://autopapa.kz/",
+      "source_socials": "https://instagram.com/autopapakz, https://wa.me/77071110450"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001023699747",
+        "name": "Porsche Centre Almaty, Автосалон",
+        "address": "Кульджинский тракт, 12/1",
+        "city": "Алматы",
+        "latitude": "43.292956",
+        "longitude": "76.995025",
+        "phones": [
+          "77780254414",
+          "77273558080"
+        ],
+        "website": "https://dealer.porsche.com/kz/almaty/ru-RU",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/porsche_centre_almaty"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/porsche_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777155540"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001023699747",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 11,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@porsche-almaty.kz",
+      "source_websites": "http://dealer.porsche.com/kz/almaty/ru-RU",
+      "source_socials": "https://instagram.com/porsche_centre_almaty, https://facebook.com/PorscheCenterAlm, https://wa.me/77777155540, https://t.me/porsche_kz"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001086754562",
+        "name": "Allur, официальный дилер Škoda",
+        "address": "улица Майлина, 240а",
+        "city": "Алматы",
+        "latitude": "43.324080",
+        "longitude": "76.975147",
+        "phones": [
+          "77750964847"
+        ],
+        "website": "https://allur.kz/brands/skoda",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/skoda.allur_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023205522"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001086754562",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 12,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Легковой автосервис | Шины и диски | Компьютерная диагностика автомобилей | Обслуживание автомобильных климатических систем | Ремонт АКПП | Ремонт стартеров и генераторов | Ремонт ходовой части автомобиля | Ремонт электронных систем авто | Замена масла | Шиномонтаж",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@allur.kz",
+      "source_websites": "http://allur.kz/brands/skoda",
+      "source_socials": "https://instagram.com/skoda.allur_almaty, https://wa.me/77023205522"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001040993619",
+        "name": "Mobil 1 Center, пункт замены масла",
+        "address": "улица Палладина, 172а",
+        "city": "Алматы",
+        "latitude": "43.322421",
+        "longitude": "76.921412",
+        "phones": [
+          "77713380505"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mobil1kz"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mobil1centerdiz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77713380505"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001040993619",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 13,
+      "categories": "Запчасти для легковых автомобилей | Замена масла | Автохимия",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "akt01@kulanoil.kz",
+      "source_websites": "http://adkulan.kz/, http://kulanoil.kz/",
+      "source_socials": "https://instagram.com/mobil1kz, https://instagram.com/mobil1centerdiz, https://wa.me/77713380505"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001117356381",
+        "name": "Lixiangshop.kz, магазин автозапчастей",
+        "address": "улица Аносова, 93",
+        "city": "Алматы",
+        "latitude": "43.251276",
+        "longitude": "76.884707",
+        "phones": [],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/viton.kz"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001117356381",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 14,
+      "categories": "Запчасти для легковых автомобилей",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/viton.kz"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001042972416",
+        "name": "Subaru Pro service, автосервис",
+        "address": "улица Жангельдина, 193г/1",
+        "city": "Алматы",
+        "latitude": "43.293596",
+        "longitude": "76.954785",
+        "phones": [
+          "77075840208"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subaru_pro_service.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075840208"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001042972416",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 15,
+      "categories": "Запчасти для легковых автомобилей | Ремонт бензиновых двигателей | Ремонт ходовой части автомобиля | Замена масла | Компьютерная диагностика автомобилей | Легковой автосервис | Обслуживание автомобильных климатических систем | Ремонт стартеров и генераторов",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/subaru_pro_service.kz, https://wa.me/77075840208"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001076635625",
+        "name": "Ford service, сервисный центр",
+        "address": "улица Сагадат Нурмагамбетов, 118",
+        "city": "Алматы",
+        "latitude": "43.258132",
+        "longitude": "76.980793",
+        "phones": [
+          "77778005533",
+          "77778009955"
+        ],
+        "website": "https://rr-service.kz/page126530396.html",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/serviceford.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778005533"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778009955"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001076635625",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 16,
+      "categories": "Контрактные автозапчасти | Легковой автосервис | Компьютерная диагностика автомобилей | Ремонт ходовой части автомобиля | Развал-схождение | Запчасти для легковых автомобилей | Авторазбор | Замена масла | Обслуживание автомобильных климатических систем | Ремонт бензиновых двигателей",
+      "directory_parts": false,
+      "seller": {
+        "id": 431,
+        "name": "Ford service",
+        "whatsapp": "77778005533",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://rr-service.kz/page126530396.html",
+      "source_socials": "https://instagram.com/serviceford.kz, https://wa.me/77778005533, https://wa.me/77778009955"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001082061874",
+        "name": "E-Car-cn Auto Service, автосервис электроавтомобилей",
+        "address": "улица Розыбакиева, 105/1",
+        "city": "Алматы",
+        "latitude": "43.231475",
+        "longitude": "76.888579",
+        "phones": [
+          "77471666067"
+        ],
+        "website": "https://e-car-cn.com/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/e_car_cn.service"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471666067"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001082061874",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 17,
+      "categories": "Запчасти для легковых автомобилей | Легковой автосервис | Замена масла | Компьютерная диагностика автомобилей | Ремонт электронных систем авто | Кузовной ремонт | Ремонт электроавтомобилей | Тюнинг | Детейлинг | Автоаксессуары | Ремонт гибридных автомобилей | Ремонт подушек безопасности | Ремонт ходовой части автомобиля | Шины и диски",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://e-car-cn.com/",
+      "source_socials": "https://instagram.com/e_car_cn.service, https://wa.me/77471666067"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001113062332",
+        "name": "Grand Auto Motors, сервисный центр",
+        "address": "улица Майлина, 79/2",
+        "city": "Алматы",
+        "latitude": "43.334988",
+        "longitude": "76.979067",
+        "phones": [
+          "77710719214"
+        ],
+        "website": "https://grandautomotors.com/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/grandautomotors.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77710719214"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001113062332",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 18,
+      "categories": "Запчасти для легковых автомобилей | Ремонт ходовой части автомобиля | Кузовной ремонт | Ремонт электронных систем авто | Легковой автосервис | Ремонт АКПП | Ремонт МКПП | Ремонт бензиновых двигателей | Ремонт рулевых реек | Детейлинг | Автомойки | Компьютерная диагностика автомобилей | Замена масла | Эвакуатор | Ремонт стартеров и генераторов | Развал-схождение | Обслуживание автомобильных климатических систем | Ремонт подушек безопасности",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://grandautomotors.com/",
+      "source_socials": "https://instagram.com/grandautomotors.kz, https://wa.me/77710719214"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940000790700",
+        "name": "Toyota Almaty, официальный дилер Toyota",
+        "address": "проспект Суюнбая, 151",
+        "city": "Алматы",
+        "latitude": "43.286872",
+        "longitude": "76.948470",
+        "phones": [
+          "77750970457",
+          "77750970458"
+        ],
+        "website": "https://toyota-almaty.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/toyota.almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77753331771"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940000790700",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 19,
+      "categories": "Запчасти для легковых автомобилей | Легковой автосервис | Ремонт ходовой части автомобиля | Ремонт МКПП | Отогрев автомобилей | Ремонт выхлопных систем | Ремонт стартеров и генераторов | Компьютерная диагностика автомобилей | Шиномонтаж | Переоборудование автомобилей | Тонирование автостёкол | Установка и ремонт автостёкол | Кузовной ремонт | Ремонт электронных систем авто | Автохимия | Шины и диски | Автоаксессуары | Хранение шин | Продажа легковых автомобилей",
+      "directory_parts": true,
+      "seller": {
+        "id": 641,
+        "name": "Тойота Алматы (@toyota.almaty) • Instagram photos and videos",
+        "whatsapp": "77753331771",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "office@toyota-almaty.kz",
+      "source_websites": "http://toyota-almaty.kz/",
+      "source_socials": "https://instagram.com/toyota.almaty, https://wa.me/77753331771"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001049695959",
+        "name": "Allur, официальный дилер Kia",
+        "address": "проспект Суюнбая, 159а",
+        "city": "Алматы",
+        "latitude": "43.296650",
+        "longitude": "76.949221",
+        "phones": [
+          "77750964843"
+        ],
+        "website": "https://allursuyunbaya.kia.com.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kia.allur.suynbaya"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/allur_auto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023205522"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001049695959",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 20,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Шины и диски | Легковой автосервис | Компьютерная диагностика автомобилей | Обслуживание автомобильных климатических систем | Ремонт АКПП | Ремонт стартеров и генераторов | Ремонт ходовой части автомобиля | Ремонт электронных систем авто | Замена масла",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@allur.kz",
+      "source_websites": "http://allursuyunbaya.kia.com.kz/",
+      "source_socials": "https://instagram.com/kia.allur.suynbaya, https://facebook.com/Kiaallursuynbaya, https://wa.me/77023205522, https://t.me/allur_auto"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001075088590",
+        "name": "Vag Gans Service, СТО",
+        "address": "улица Майкы би, 6",
+        "city": "Алматы",
+        "latitude": "43.499811",
+        "longitude": "77.036587",
+        "phones": [
+          "77778349944",
+          "77083665396"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778349944"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001075088590",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 21,
+      "categories": "Запчасти для легковых автомобилей | Ремонт бензиновых двигателей | Замена масла | Ремонт ходовой части автомобиля | Ремонт дизельных двигателей | Легковой автосервис",
+      "directory_parts": true,
+      "seller": null,
+      "service": {
+        "id": 34,
+        "name": "Vag Gans Service",
+        "whatsapp": "77778349944"
+      },
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://wa.me/77778349944"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001051848961",
+        "name": "Mycar Almaty, мультибрендовый автоцентр",
+        "address": "Кульджинский тракт, 100/1",
+        "city": "Алматы",
+        "latitude": "43.311575",
+        "longitude": "77.019683",
+        "phones": [
+          "77028811111",
+          "77750076259"
+        ],
+        "website": "https://mycar.kz/autocenters/almaty?dealershipId=40?utm_source=2gis",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mycar__almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028811111"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001051848961",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 22,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Детейлинг | Автоаксессуары | Легковой автосервис | Замена масла | Тюнинг | Хранение шин | Кузовной ремонт | Автосигнализации | Ремонт АКПП",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@mycar.kz",
+      "source_websites": "http://mycar.kz/autocenters/almaty?dealershipId=40%3Futm_source%3D2gis",
+      "source_socials": "https://instagram.com/mycar__almaty, https://wa.me/77028811111"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001038594845",
+        "name": "Retrofit.kz, магазин и центр автосвета",
+        "address": "улица Помяловского, 17",
+        "city": "Алматы",
+        "latitude": "43.330952",
+        "longitude": "76.931973",
+        "phones": [
+          "77016832122",
+          "77000832122"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/retrofit.kz"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/channel/UCWvj6hs3X5N-fGuI4qqUAhQ"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016832122"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001038594845",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 23,
+      "categories": "Запчасти для легковых автомобилей | Установка и ремонт автооптики | Автозвук | Автосигнализации | Автостекло | Детейлинг | Запчасти для грузовых авто | Тюнинг | Автоаксессуары",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "retrofitkz@gmail.com",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/retrofit.kz, https://youtube.com/channel/UCWvj6hs3X5N-fGuI4qqUAhQ, https://wa.me/77016832122"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940001553185",
+        "name": "Hyundai | Genesis Premium Al-Farabi, автосалон",
+        "address": "проспект Аль-Фараби, 107/1",
+        "city": "Алматы",
+        "latitude": "43.200293",
+        "longitude": "76.902743",
+        "phones": [
+          "77750967446",
+          "77750970581"
+        ],
+        "website": "https://hyundai-premium.kz/ru",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/hyundai_premium_alfarabi"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012207943"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940001553185",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 24,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Автоаксессуары | Легковой автосервис | Ремонт бензиновых двигателей | Ремонт АКПП | Ремонт ходовой части автомобиля | Ремонт стартеров и генераторов | Ремонт электронных систем авто | Обслуживание автомобильных климатических систем | Автосигнализации | Развал-схождение | Шиномонтаж | Детейлинг | Шины и диски | Тонирование автостёкол | Хранение шин | Компьютерная диагностика автомобилей | Автозвук | Автохимия | Тонировочные и защитные плёнки для авто | Ремонт выхлопных систем",
+      "directory_parts": true,
+      "seller": null,
+      "service": {
+        "id": 14,
+        "name": "Hyundai Premium Al-Farabi",
+        "whatsapp": "77012207943"
+      },
+      "source_email": "receptionhpa@hyundai.kz",
+      "source_websites": "http://hyundai-premium.kz/ru/",
+      "source_socials": "https://instagram.com/hyundai_premium_alfarabi, https://wa.me/77012207943"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001099712210",
+        "name": "Транс Стартер Казахстан, компания по ремонту и продаже стартеров и генераторов",
+        "address": "проспект Суюнбая, 407",
+        "city": "Алматы",
+        "latitude": "43.344817",
+        "longitude": "76.967989",
+        "phones": [
+          "77750074173"
+        ],
+        "website": "https://alm.tstarter.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051907880"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001099712210",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 25,
+      "categories": "Запчасти для легковых автомобилей | Запчасти для грузовых авто | Запчасти для спецтехники | Запчасти к сельхозтехнике | Легковой автосервис | Ремонт стартеров и генераторов | Обслуживание автомобильных климатических систем",
+      "directory_parts": true,
+      "seller": null,
+      "service": {
+        "id": 64,
+        "name": "Транс Стартер Казахстан",
+        "whatsapp": "77750074173"
+      },
+      "source_email": "kz@tstarter.ru",
+      "source_websites": "http://alm.tstarter.kz/",
+      "source_socials": "https://wa.me/77051907880"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001059334515",
+        "name": "ГАЗель запчасти DAP, магазин автозапчастей",
+        "address": "проспект Суюнбая, 461а",
+        "city": "Алматы",
+        "latitude": "43.350365",
+        "longitude": "76.971936",
+        "phones": [
+          "77776886894",
+          "77053058380"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/gazalmaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053058380"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001059334515",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 26,
+      "categories": "Запчасти для легковых автомобилей | Грузовой автосервис | Ремонт ходовой части автомобиля | Автоаксессуары",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "gazalmaty@gmail.com",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/gazalmaty, https://wa.me/77053058380"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001104620088",
+        "name": "Changan Zhayik, автосалон",
+        "address": "проспект Турара Рыскулова, 130а",
+        "city": "Алматы",
+        "latitude": "43.274876",
+        "longitude": "76.893642",
+        "phones": [
+          "77089011079"
+        ],
+        "website": "https://changan-zhayik.kz/ru",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/changan.zhayik_ryskulova"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089011079"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001104620088",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 27,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Автоаксессуары | Автозвук | Автосигнализации | Автохимия | Замена масла | Компьютерная диагностика автомобилей | Кузовной ремонт | Легковой автосервис | Обслуживание автомобильных климатических систем | Развал-схождение | Ремонт АКПП | Ремонт бензиновых двигателей | Ремонт выхлопных систем | Ремонт электронных систем авто | Шиномонтаж | Шины и диски",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://changan-zhayik.kz/ru",
+      "source_socials": "https://instagram.com/changan.zhayik_ryskulova, https://wa.me/77089011079"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001035494901",
+        "name": "Bra Masters BMW, автосервис",
+        "address": "проспект Турара Рыскулова, 61/6",
+        "city": "Алматы",
+        "latitude": "43.289296",
+        "longitude": "76.917471",
+        "phones": [
+          "77074805868"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/bra_masters_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074805868"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001035494901",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 28,
+      "categories": "Запчасти для легковых автомобилей | Ремонт ходовой части автомобиля | Легковой автосервис | Ремонт бензиновых двигателей | Ремонт дизельных двигателей | Ремонт выхлопных систем | Замена масла | Компьютерная диагностика автомобилей | Тюнинг",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@bmwmaster.kz",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/bra_masters_almaty, https://wa.me/77074805868"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001021338826",
+        "name": "T4.kz, магазин автозапчастей и аксессуаров",
+        "address": "проспект Райымбека, 519/16",
+        "city": "Алматы",
+        "latitude": "43.239341",
+        "longitude": "76.804327",
+        "phones": [
+          "77086909878"
+        ],
+        "website": "https://t4.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/t4.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77086909878"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001021338826",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 29,
+      "categories": "Запчасти для легковых автомобилей | Автоаксессуары | Каркасно-тентовые конструкции",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "profender4x4@mail.ru, www.t4.kz@gmail.com",
+      "source_websites": "http://t4.kz/",
+      "source_socials": "https://instagram.com/t4.kz, https://facebook.com/t4.kzshop, https://wa.me/77086909878"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001041860299",
+        "name": "Hyundai Qalqaman, автосалон",
+        "address": "проспект Райымбека, 521/2",
+        "city": "Алматы",
+        "latitude": "43.235400",
+        "longitude": "76.800645",
+        "phones": [
+          "77750308635",
+          "77750308645"
+        ],
+        "website": "https://hyundai-qalqaman.kz/ru",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/hyundai_qalqaman"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013029258"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001041860299",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 30,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Замена масла | Легковой автосервис | Автоаксессуары | Ремонт АКПП | Автохимия | Ремонт ходовой части автомобиля | Продажа грузовых автомобилей | Обслуживание автомобильных климатических систем | Установка и ремонт автостёкол | Ремонт бензиновых двигателей | Ремонт электронных систем авто | Детейлинг | Компьютерная диагностика автомобилей | Хранение шин | Автосигнализации | Тонирование автостёкол | Ремонт выхлопных систем | Шиномонтаж | Развал-схождение",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "hyundai-batys@hyundai.kz",
+      "source_websites": "http://hyundai-qalqaman.kz/ru/",
+      "source_socials": "https://facebook.com/100063710395831, https://instagram.com/hyundai_qalqaman, https://wa.me/77013029258"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001080184363",
+        "name": "Service Kentoff, автосервис",
+        "address": "улица Енбек, 63",
+        "city": "Алматы",
+        "latitude": "43.206389",
+        "longitude": "76.804206",
+        "phones": [
+          "77772722190"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/service.kentoff"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772722190"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001080184363",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 31,
+      "categories": "Запчасти для легковых автомобилей | Замена масла | Автоаксессуары | Ремонт ходовой части автомобиля | Легковой автосервис | Автохимия | Компьютерная диагностика автомобилей | Ремонт электронных систем авто | Ремонт инжекторов",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "srvkentoff@gmail.com",
+      "source_websites": "",
+      "source_socials": "https://instagram.com/service.kentoff, https://wa.me/77772722190"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940001678074",
+        "name": "Бавария Алматы",
+        "address": "проспект Аль-Фараби, 107",
+        "city": "Алматы",
+        "latitude": "43.200868",
+        "longitude": "76.903568",
+        "phones": [
+          "77750967492",
+          "77750967652"
+        ],
+        "website": "https://bavaria-almaty.kz/ru",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/bavaria_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014092722"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940001678074",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 32,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Шины и диски | Автоаксессуары | Легковой автосервис | Ремонт ходовой части автомобиля | Ремонт стартеров и генераторов | Обслуживание автомобильных климатических систем | Установка и ремонт автостёкол | Тюнинг | Шиномонтаж | Тонирование автостёкол | Ремонт АКПП | Отогрев автомобилей | Ремонт инжекторов | Компьютерная диагностика автомобилей | Развал-схождение | Ремонт электронных систем авто | Хранение шин",
+      "directory_parts": true,
+      "seller": {
+        "id": 446,
+        "name": "BMW Алматы (@bavaria_almaty) • Instagram photos and videos",
+        "whatsapp": "77750964795",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "atz@bavaria.kz",
+      "source_websites": "http://bavaria-almaty.kz/ru/",
+      "source_socials": "https://facebook.com/BMW.Kazakhstan, https://instagram.com/bavaria_almaty, https://wa.me/77014092722"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940001052978",
+        "name": "Volkswagen Centre Almaty, автосалон",
+        "address": "Халиуллина улица, 196Б",
+        "city": "Алматы",
+        "latitude": "43.292912",
+        "longitude": "77.015470",
+        "phones": [
+          "77719333337"
+        ],
+        "website": "https://volkswagen-almaty.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/volkswagen_almaty"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940001052978",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 33,
+      "categories": "Запчасти для легковых автомобилей | Легковой автосервис | Продажа легковых автомобилей | Обслуживание автомобильных климатических систем | Кузовной ремонт | Шины и диски | Автохимия | Автомобильные аккумуляторы | Автосигнализации | Детейлинг | Компьютерная диагностика автомобилей | Развал-схождение | Ремонт бензиновых двигателей | Ремонт ходовой части автомобиля | Ремонт электронных систем авто | Тонирование автостёкол | Замена масла | Шиномонтаж | Ремонт МКПП | Ремонт дизельных двигателей | Установка и ремонт автостёкол | Хранение шин",
+      "directory_parts": true,
+      "seller": {
+        "id": 620,
+        "name": "Volkswagen Kazakhstan (@volkswagen_kazakhstan) • Instagram photos and videos",
+        "whatsapp": "77719333337",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "marketing@volkswagen-almaty.kz",
+      "source_websites": "http://www.volkswagen-almaty.kz/",
+      "source_socials": "https://instagram.com/volkswagen_almaty"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001117134333",
+        "name": "Jetta Centre Almaty, автосалон",
+        "address": "Халиуллина улица, 196Б",
+        "city": "Алматы",
+        "latitude": "43.292912",
+        "longitude": "77.015470",
+        "phones": [
+          "77719333337"
+        ],
+        "website": "https://jetta-almaty.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/jetta_almaty"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001117134333",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 34,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Легковой автосервис | Обслуживание автомобильных климатических систем | Кузовной ремонт | Шины и диски | Автохимия | Автомобильные аккумуляторы | Автосигнализации | Детейлинг | Компьютерная диагностика автомобилей | Развал-схождение | Ремонт бензиновых двигателей | Ремонт ходовой части автомобиля | Ремонт электронных систем авто | Тонирование автостёкол | Замена масла | Шиномонтаж | Ремонт МКПП | Ремонт дизельных двигателей | Установка и ремонт автостёкол | Хранение шин",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "marketing@volkswagen-almaty.kz",
+      "source_websites": "http://jetta-almaty.kz/",
+      "source_socials": "https://instagram.com/jetta_almaty"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001117111888",
+        "name": "Замена масла рядом, пункт замены масла",
+        "address": "микрорайон Жетысу-4, 32",
+        "city": "Алматы",
+        "latitude": "43.222849",
+        "longitude": "76.835499",
+        "phones": [
+          "77068090100"
+        ],
+        "website": "",
+        "socials": [],
+        "card_url": "https://2gis.ru/firm/70000001117111888",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 35,
+      "categories": "Запчасти для легковых автомобилей | Замена масла | Автоаксессуары | Автомобильные аккумуляторы | Легковой автосервис | Ремонт бензиновых двигателей | Установка и ремонт автооптики | Компьютерная диагностика автомобилей",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": ""
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001116503789",
+        "name": "Leo Service kz, автомагазин и автосервис",
+        "address": "улица Толе би, 301/3",
+        "city": "Алматы",
+        "latitude": "43.243280",
+        "longitude": "76.842354",
+        "phones": [
+          "77767772393"
+        ],
+        "website": "https://leo-service.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/leo_service.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767772393"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001116503789",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 36,
+      "categories": "Запчасти для легковых автомобилей | Ремонт гибридных автомобилей | Развал-схождение | Автоаксессуары | Компьютерная диагностика автомобилей",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "ulancarcity@gmail.com",
+      "source_websites": "http://leo-service.kz/",
+      "source_socials": "https://instagram.com/leo_service.kz, https://wa.me/77767772393"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001090745598",
+        "name": "RYDANZ TRANSMATE SUNNY, шинный центр",
+        "address": "улица Манысай, 2а",
+        "city": "Алматы",
+        "latitude": "43.237075",
+        "longitude": "76.800974",
+        "phones": [
+          "77003002423",
+          "77066609857",
+          "77716713732",
+          "77001185608"
+        ],
+        "website": "https://rydanz.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Mir.shin.almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77716713732"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472028444"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001090745598",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 37,
+      "categories": "Запчасти для легковых автомобилей | Шины и диски | Автохимия | Автоаксессуары | Замена масла | Шиномонтаж | Хранение шин | Обслуживание автомобильных климатических систем",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "kazparts.marketing@gmail.com",
+      "source_websites": "http://rydanz.kz/",
+      "source_socials": "https://instagram.com/Mir.shin.almaty, https://wa.me/77472028444, https://wa.me/77716713732"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001034547358",
+        "name": "Audi Centre Almaty, центр",
+        "address": "Кульджинский тракт, 12/2",
+        "city": "Алматы",
+        "latitude": "43.293188",
+        "longitude": "76.995961",
+        "phones": [
+          "77780254138"
+        ],
+        "website": "https://audi-almaty.kz/ru/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/audi_centre_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777155510"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001034547358",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 38,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Легковой автосервис | Кузовной ремонт | Ремонт стартеров и генераторов | Ремонт АКПП | Автохимия | Шины и диски | Автомобильные аккумуляторы | Автоаксессуары | Компьютерная диагностика автомобилей | Развал-схождение | Обслуживание автомобильных климатических систем | Шиномонтаж | Замена масла | Автосигнализации | Детейлинг | Тонирование автостёкол | Тюнинг | Тонировочные и защитные плёнки для авто | Русификация | Установка и ремонт автооптики",
+      "directory_parts": true,
+      "seller": {
+        "id": 550,
+        "name": "Audi Centre Almaty (@audi_centre_almaty) • Instagram photos and videos",
+        "whatsapp": "77780189860",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "info@audi-almaty.kz",
+      "source_websites": "http://audi-almaty.kz/ru//",
+      "source_socials": "https://instagram.com/audi_centre_almaty, https://wa.me/77777155510"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940000790396",
+        "name": "Subaru Almaty, автосалон",
+        "address": "проспект Суюнбая, 151/1",
+        "city": "Алматы",
+        "latitude": "43.287418",
+        "longitude": "76.948674",
+        "phones": [
+          "77750312662",
+          "77750312666"
+        ],
+        "website": "https://subaru-almaty.kz/ru",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subaru.motor.almaty"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/c/SubaruKazakhstan"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77010312431"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010312431"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940000790396",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 39,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Замена масла | Шины и диски | Ремонт АКПП | Ремонт электронных систем авто | Компьютерная диагностика автомобилей | Легковой автосервис",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "reception@subaru.kz",
+      "source_websites": "http://subaru-almaty.kz/ru/",
+      "source_socials": "https://instagram.com/subaru.motor.almaty, https://youtube.com/c/SubaruKazakhstan, https://wa.me/77010312431, https://t.me/+77010312431"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001066332030",
+        "name": "GT oil service, сеть автомагазинов и автосервисов",
+        "address": "микрорайон Баянауыл, 57а",
+        "city": "Алматы",
+        "latitude": "43.238479",
+        "longitude": "76.821982",
+        "phones": [
+          "77787770753"
+        ],
+        "website": "https://gtoilservice.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/gtoilservicekz"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@gtoilservice.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022777571"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055777967"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001066332030",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 40,
+      "categories": "Запчасти для легковых автомобилей | Автохимия | Ремонт гибридных автомобилей | Ремонт электроавтомобилей | Обслуживание автомобильных климатических систем",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "office@gtoilservice.kz",
+      "source_websites": "http://gtoilservice.kz/, http://tiktok.com/@gtoilservice.kz",
+      "source_socials": "https://instagram.com/gtoilservicekz, https://wa.me/77022777571, https://wa.me/77055777967"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001099891584",
+        "name": "Allur Mailina, автосервис",
+        "address": "улица Майлина, 240а",
+        "city": "Алматы",
+        "latitude": "43.323715",
+        "longitude": "76.975490",
+        "phones": [
+          "77750964845"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77717227597"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001099891584",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 41,
+      "categories": "Запчасти для легковых автомобилей | Автоаксессуары | Автохимия | Замена масла | Легковой автосервис | Обслуживание автомобильных климатических систем | Хранение шин | Шиномонтаж | Кузовной ремонт | Ремонт ходовой части автомобиля | Детейлинг | Шины и диски | Ремонт электронных систем авто",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://wa.me/77717227597"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001029659359",
+        "name": "Jaguar Land Rover Astana Motors, автосалон",
+        "address": "проспект Аль-Фараби, 115",
+        "city": "Алматы",
+        "latitude": "43.199199",
+        "longitude": "76.899774",
+        "phones": [
+          "77750970710",
+          "77750967511"
+        ],
+        "website": "https://landrover.astana-motors.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/jaguar_landrover_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073531919"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001029659359",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 42,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Автоаксессуары | Шины и диски | Автохимия | Легковой автосервис | Ремонт ходовой части автомобиля",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "reception@jlr-almaty.kz",
+      "source_websites": "http://landrover.astana-motors.kz/",
+      "source_socials": "https://instagram.com/jaguar_landrover_almaty, https://facebook.com/jlralmaty, https://wa.me/77073531919"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001094187683",
+        "name": "Real Service Mercedes, автосервис",
+        "address": "улица Минусинская, 17",
+        "city": "Алматы",
+        "latitude": "43.228749",
+        "longitude": "76.935223",
+        "phones": [
+          "77777777743",
+          "77779857777",
+          "77776427777"
+        ],
+        "website": "https://realservice.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/realservice"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001094187683",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 43,
+      "categories": "Запчасти для легковых автомобилей | Легковой автосервис | Ремонт бензиновых двигателей | Обслуживание автомобильных климатических систем | Ремонт инжекторов | Замена масла | Компьютерная диагностика автомобилей | Ремонт электронных систем авто | Ремонт АКПП | Ремонт ходовой части автомобиля | Ремонт стартеров и генераторов | Ремонт дизельных двигателей",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "realservice001@gmail.com",
+      "source_websites": "http://realservice.kz/",
+      "source_socials": "https://instagram.com/realservice"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940000787689",
+        "name": "Hyundai | Genesis Suyunbay, автосалон",
+        "address": "проспект Суюнбая, 245а",
+        "city": "Алматы",
+        "latitude": "43.320452",
+        "longitude": "76.959107",
+        "phones": [
+          "77750967038",
+          "77750970345"
+        ],
+        "website": "https://almaty.hyundai.kz/ru",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/hyundai_suyunbay"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/hyundai_auto_almaty_bot"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940000787689",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 44,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Детейлинг | Автохимия | Шиномонтаж | Легковой автосервис | Ремонт стартеров и генераторов | Обслуживание автомобильных климатических систем | Ремонт ходовой части автомобиля | Тюнинг | Ремонт бензиновых двигателей | Ремонт выхлопных систем | Отогрев автомобилей | Автозвук | Автосигнализации | Ремонт электронных систем авто | Развал-схождение | Ремонт АКПП | Замена масла | Компьютерная диагностика автомобилей | Ремонт инжекторов | Тонирование автостёкол | Установка и ремонт автостёкол | Хранение шин",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "reception.almaty@hyundai.kz",
+      "source_websites": "http://almaty.hyundai.kz/ru/",
+      "source_socials": "https://instagram.com/hyundai_suyunbay, https://facebook.com/100086650994470, https://t.me/hyundai_auto_almaty_bot"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001067906829",
+        "name": "Changan Almaty, автоцентр",
+        "address": "проспект Суюнбая, 66г",
+        "city": "Алматы",
+        "latitude": "43.282201",
+        "longitude": "76.947229",
+        "phones": [
+          "77074449644",
+          "77077777171",
+          "77477149400"
+        ],
+        "website": "https://changan-almaty.kz/ru",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077777171"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/changan.almaty_abs"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77477149400"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001067906829",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 45,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Легковой автосервис | Обслуживание автомобильных климатических систем | Ремонт бензиновых двигателей | Ремонт электронных систем авто | Замена масла | Кузовной ремонт | Автостекло | Компьютерная диагностика автомобилей | Развал-схождение | Автоаксессуары | Автозвук | Автосигнализации | Автохимия | Ремонт АКПП | Шиномонтаж | Шины и диски",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "info@abscars.kz",
+      "source_websites": "http://changan-almaty.kz/ru",
+      "source_socials": "https://wa.me/77077777171, https://instagram.com/changan.almaty_abs, https://wa.me/77477149400"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001100841297",
+        "name": "Jdm service, автосервис и пункт замены масла",
+        "address": "Ораза Жандосова улица, 43",
+        "city": "Алматы",
+        "latitude": "43.220949",
+        "longitude": "76.880833",
+        "phones": [
+          "77027772859"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/jdm_autoservice_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027772859"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@jdm_autoservice_almaty"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001100841297",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 46,
+      "categories": "Запчасти для легковых автомобилей | Замена масла | Ремонт бензиновых двигателей | Компьютерная диагностика автомобилей | Ремонт стартеров и генераторов | Ремонт рулевых реек | Легковой автосервис | Автоаксессуары | Автохимия | Ремонт дизельных двигателей | Ремонт дизельной топливной системы | Ремонт турбин | Ремонт ходовой части автомобиля | Ремонт выхлопных систем",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://www.tiktok.com/@jdm_autoservice_almaty",
+      "source_socials": "https://instagram.com/jdm_autoservice_almaty, https://wa.me/77027772859"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "70000001025083351",
+        "name": "Шанырак, центр авторазбора",
+        "address": "улица Махамбет Утемисова, 75Б",
+        "city": "Алматы",
+        "latitude": "43.292410",
+        "longitude": "76.862776",
+        "phones": [
+          "77057777005",
+          "77012222005"
+        ],
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057777005"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012222005"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/70000001025083351",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 47,
+      "categories": "Запчасти для легковых автомобилей | Авторазбор",
+      "directory_parts": false,
+      "seller": {
+        "id": 728,
+        "name": "Шанырак, центр авторазбора",
+        "whatsapp": "77057777005",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "",
+      "source_websites": "",
+      "source_socials": "https://wa.me/77057777005, https://wa.me/77012222005"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940000790702",
+        "name": "Тойота Центр Жетысу, автоцентр",
+        "address": "проспект Райымбека, 505",
+        "city": "Алматы",
+        "latitude": "43.243357",
+        "longitude": "76.826076",
+        "phones": [
+          "77750967085",
+          "77273131505"
+        ],
+        "website": "https://toyota7su.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/toyota7su_official"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77005748370"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940000790702",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 49,
+      "categories": "Запчасти для легковых автомобилей | Продажа легковых автомобилей | Автоаксессуары | Шины и диски | Автохимия | Легковой автосервис | Кузовной ремонт | Ремонт ходовой части автомобиля | Развал-схождение | Шиномонтаж | Установка и ремонт автооптики | Ремонт бензиновых двигателей | Ремонт АКПП",
+      "directory_parts": true,
+      "seller": {
+        "id": 617,
+        "name": "Тойота Центр Жетысу | Официальный дилер (@toyota7su_official) • Instagram photos and videos",
+        "whatsapp": "77273131505",
+        "city": "Алматы"
+      },
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://toyota7su.kz/",
+      "source_socials": "https://instagram.com/toyota7su_official, https://facebook.com/toyota7su, https://wa.me/77005748370"
+    },
+    {
+      "org": {
+        "source": "two_gis",
+        "external_id": "9429940000797386",
+        "name": "Лексус Алматы, автоцентр",
+        "address": "проспект Аль-Фараби, 140/4",
+        "city": "Алматы",
+        "latitude": "43.214177",
+        "longitude": "76.924110",
+        "phones": [
+          "77273131202",
+          "77750967816",
+          "77020100550"
+        ],
+        "website": "https://lexus-almaty.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lexus_almaty_official"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77080158315"
+          }
+        ],
+        "card_url": "https://2gis.ru/firm/9429940000797386",
+        "exported_at": "2026-10-17T14:21:47.830Z"
+      },
+      "row": 50,
+      "categories": "Запчасти для легковых автомобилей | Легковой автосервис | Продажа легковых автомобилей | Шины и диски | Автоаксессуары | Ремонт ходовой части автомобиля | Автосигнализации | Ремонт бензиновых двигателей | Ремонт электронных систем авто | Тонирование автостёкол | Ремонт выхлопных систем | Ремонт стартеров и генераторов | Ремонт АКПП | Ремонт МКПП | Компьютерная диагностика автомобилей | Замена масла | Ремонт карбюраторов | Ремонт инжекторов | Ремонт карданных валов | Ремонт рулевых реек | Установка и ремонт автооптики | Обслуживание автомобильных климатических систем | Развал-схождение",
+      "directory_parts": true,
+      "seller": null,
+      "service": null,
+      "source_email": "",
+      "source_websites": "http://www.lexus-almaty.kz/",
+      "source_socials": "https://instagram.com/lexus_almaty_official, https://facebook.com/lexusalmaty, https://wa.me/77080158315"
+    }
+  ],
+  "held": [
+    {
+      "row": 5,
+      "reason": "Existing seller #463 city Astana; source branch Almaty. Do not mix branch addresses."
+    },
+    {
+      "row": 48,
+      "reason": "Automotive market, not an individual seller."
+    },
+    {
+      "row": 51,
+      "reason": "Automotive market, not an individual seller."
+    }
+  ]
+}

@@ -1364,6 +1364,7 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    directory_parts = models.BooleanField(default=False, verbose_name="Показывать в каталоге продавцов запчастей", help_text="Публикация по источнику. Не подтверждает новые запчасти и не включает рассылку.")
     catalog_only = models.BooleanField(
         default=False, editable=False,
         verbose_name='Добавлен администратором, владелец не подключён',
