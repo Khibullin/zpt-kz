@@ -142,7 +142,9 @@
     warningEl.classList.add('home-parts-rejection');
     const title = document.createElement('p');
     title.className = 'home-parts-rejection-title';
-    title.textContent = 'Эта форма предназначена только для поиска и покупки автозапчастей.';
+    title.textContent = data.rejection_code === 'category_mismatch'
+      ? 'Название запчасти не соответствует категории.'
+      : 'Эта форма предназначена только для поиска и покупки автозапчастей.';
     warningEl.appendChild(title);
     const message = String(data.rejection_message || '');
     if (message && message !== title.textContent) {
@@ -152,6 +154,17 @@
     }
     const actions = document.createElement('div');
     actions.className = 'home-parts-warning-actions';
+    if (data.suggested_category && categoryEl) {
+      const suggested = String(data.suggested_category);
+      const match = Array.from(categoryEl.options).find(function (opt) {
+        return opt.value === suggested || String(opt.textContent || '').trim() === suggested;
+      });
+      if (match) actions.appendChild(warningButton('Выбрать “' + suggested + '”', function () {
+        categoryEl.value = match.value;
+        hideWarning();
+        categoryEl.focus();
+      }));
+    }
     actions.appendChild(warningButton('Исправить запрос', function () {
       hideWarning();
       if (queryEl) queryEl.focus();

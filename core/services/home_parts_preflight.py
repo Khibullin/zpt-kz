@@ -1,6 +1,7 @@
 """Content preflight for the short homepage request.
 
 Three results: pass, warning, or reject. Deterministic phrase lists only.
+An explicit category mismatch is rejected until the category is corrected.
 A doubtful technical description is allowed through. A wrong block is worse
 than a missed one. Exact articles skip this check.
 
@@ -69,11 +70,14 @@ class HomePartsPreflight:
 
     def as_response(self) -> dict:
         if self.is_reject:
-            return {
+            body = {
                 'rejected': True,
                 'rejection_code': self.code,
                 'rejection_message': self.message,
             }
+            if self.suggested_category:
+                body['suggested_category'] = self.suggested_category
+            return body
         body = {
             'warning_required': True,
             'warning_code': self.code,
@@ -113,7 +117,7 @@ def evaluate_home_parts_preflight(
         suggested = next(iter(matched))
         if suggested.casefold() != normalize_preflight_text(category):
             return HomePartsPreflight(
-                kind=_KIND_WARNING,
+                kind=_KIND_REJECT,
                 code=WARNING_CATEGORY_MISMATCH,
                 message=_category_mismatch_message(suggested, category),
                 suggested_category=suggested,
@@ -151,7 +155,7 @@ def _category_mismatch_message(suggested: str, selected: str) -> str:
     chosen = ' '.join(str(selected or '').split())
     return (
         f'По тексту запроса похоже, что вам нужна категория “{suggested}”, '
-        f'а выбрана “{chosen}”. Проверьте категорию.'
+        f'а выбрана “{chosen}”. Исправьте категорию перед отправкой.'
     )
 
 

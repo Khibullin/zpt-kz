@@ -420,6 +420,7 @@ def _collect_request_uploads(request):
 
 def _post_fields_from_request(request):
     return {
+        'warning_confirmed': request.POST.get('warning_confirmed', ''),
         'transport_type': request.POST.get('transport_type'),
         'country': request.POST.get('country', ''),
         'brand': request.POST.get('brand', ''),
@@ -534,6 +535,7 @@ def _parse_create_request_data(request):
             )
 
             return {
+                'warning_confirmed': data.get('warning_confirmed', ''),
                 'transport_type': data.get('transport_type'),
                 'country': data.get('country', ''),
                 'brand': data.get('brand', ''),
@@ -1152,6 +1154,12 @@ def _log_create_request_timing(request_id: int, stage: str, started: float) -> N
 
 @csrf_exempt
 def create_request(request):
+    from core.services.home_parts_preflight import (
+        PREFLIGHT_HTTP_STATUS,
+        evaluate_home_parts_preflight,
+        warning_is_confirmed,
+    )
+
     if request.method != 'POST':
         return JsonResponse({'error': 'invalid method'}, status=405)
 
@@ -1160,6 +1168,17 @@ def create_request(request):
 
     try:
         data, uploaded_photos, upload_mode = _parse_create_request_data(request)
+
+        preflight = evaluate_home_parts_preflight(
+            query=data.get('description') or data.get('article') or '',
+            category=data.get('category', ''),
+        )
+        if preflight is not None and (
+            preflight.is_reject or not warning_is_confirmed(data.get('warning_confirmed'))
+        ):
+            body = preflight.as_response()
+            body['error'] = preflight.message
+            return JsonResponse(body, status=PREFLIGHT_HTTP_STATUS)
 
         transport_type = data.get('transport_type') or 'car'
         if transport_type not in ('car', 'truck'):
