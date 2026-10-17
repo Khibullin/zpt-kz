@@ -1,76 +1,29 @@
-{% extends 'catalog/interface/dismantlers/base.html' %}{% load interface_ui phone_extras %}
+{% extends 'catalog/interface/dismantlers/base.html' %}{% load static interface_ui dismantler_detail %}
 {% block title %}{{ seller.name }} — авторазбор | ZPT.KZ{% endblock %}
 {% block meta_description %}{{ seller.name }}. {{ seller.city }}. {{ seller.directory_description|truncatechars:140 }}{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/dismantler-detail.css' %}?v=20261017b">{% endblock %}
 {% block interface_content %}
+{% dismantler_profile seller card as profile %}
+<div class="org-detail">
 <nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<a href="{% url 'dismantlers_catalog' %}">{% ui 'dismantlers' %}</a>{% ui_icon 'chevron' %}<span>{{ seller.name }}</span></nav>
-<article class="dismantle-detail">
-  <div class="dismantle-detail-main">
-    <p class="dismantle-detail-label">{% ui 'dismantleCompany' %}</p>
-    <h1>{{ seller.name }}</h1>
-    {% if seller.city %}<p class="dismantle-company-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
-    {% if card.address %}<p class="dismantle-address">{{ card.address }}</p>{% endif %}
-    {% if seller.market_location %}<p class="dismantle-company-location">{{ seller.market_location }}</p>{% endif %}
-    {% if seller.directory_photo %}<img class="dismantle-detail-photo" src="{{ seller.directory_photo.url }}" alt="{{ seller.name }}" decoding="async" onerror="this.hidden=true;">{% endif %}
-    <h2>{% ui 'dismantleAbout' %}</h2>
-    {% if seller.directory_description or seller.directory_description_kk %}
-    <p class="dismantle-detail-description" data-ru="{{ seller.directory_description|default:seller.directory_description_kk }}" data-kk="{{ seller.directory_description_kk|default:seller.directory_description }}">{{ seller.directory_description|default:seller.directory_description_kk }}</p>
-    {% else %}
-    <div class="dismantle-detail-description">
-      {% if seller.selected_categories.all or seller.category %}<p>{% ui 'dismantleCategory' %}: {% for category in seller.selected_categories.all %}{{ category.name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ seller.category }}{% endfor %}</p>{% endif %}
-      {% if seller.selected_brands.all or seller.brand_fk or seller.brand %}<p>{% ui 'brand' %}: {% for brand in seller.selected_brands.all %}{{ brand.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% if seller.brand_fk %}{{ seller.brand_fk.name }}{% else %}{{ seller.brand }}{% endif %}{% endfor %}</p>{% endif %}
-      {% if seller.selected_models.all or seller.model_fk or seller.model %}<p>{% ui 'model' %}: {% for model in seller.selected_models.all %}{{ model.name }}{% if not forloop.last %}, {% endif %}{% empty %}{% if seller.model_fk %}{{ seller.model_fk.name }}{% else %}{{ seller.model }}{% endif %}{% endfor %}</p>{% endif %}
-      {% if seller.selected_countries.all or seller.country_fk %}<p>{% ui 'dismantleCountry' %}: {% for country in seller.selected_countries.all %}{{ country.name }}{% if not forloop.last %}, {% endif %}{% empty %}{{ seller.country_fk.name }}{% endfor %}</p>{% endif %}
-    </div>
-    {% endif %}
-    <p class="dismantle-detail-hint">{% ui 'dismantleAvailability' %}</p>
-  </div>
-  <aside class="dismantle-detail-contacts">
-    <h2>{% ui 'dismantleContacts' %}</h2>
-    {% with phone=seller.whatsapp|whatsapp_phone wa_url=seller.whatsapp|whatsapp_url %}
-      {% if phone %}<span class="dismantle-contact-label">{% ui 'dismantlePhone' %}</span><a class="dismantle-contact-phone" href="tel:+{{ phone }}">{{ seller.whatsapp|format_phone }}</a>{% endif %}
-      {% if wa_url %}<a class="btn dismantle-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener">{% ui_icon 'message' %}WhatsApp</a>{% endif %}
-    {% endwith %}
-    {% with phone=seller.phone2|whatsapp_phone %}{% if phone %}<span class="dismantle-contact-label">{% ui 'dismantleExtraPhone' %}</span><a class="dismantle-contact-phone" href="tel:+{{ phone }}">{{ seller.phone2|format_phone }}</a>{% endif %}{% endwith %}
-    {% for phone in card.extra_phones %}
-      {% if phone.digits != seller.phone2|whatsapp_phone %}
-      <span class="dismantle-contact-label">{% ui 'dismantleExtraPhone' %}</span>
-      <a class="dismantle-contact-phone" href="{{ phone.tel }}">{{ phone.display }}</a>
-      {% endif %}
-    {% endfor %}
-    {% if card.routes %}
-    <details class="dismantle-route">
-      <summary class="btn secondary">Построить маршрут</summary>
-      <div class="dismantle-route-menu">
-        {% for route in card.routes %}
-        <a href="{{ route.url }}" target="_blank" rel="noopener noreferrer">{{ route.label }}</a>
-        {% endfor %}
-      </div>
-    </details>
-    {% endif %}
-    {% if card.schedule %}
-    <h2>Режим работы</h2>
-    <table class="dismantle-schedule">
-      {% for row in card.schedule %}
-      <tr><td>{{ row.day }}</td><td>{{ row.hours }}</td></tr>
-      {% endfor %}
-    </table>
-    {% endif %}
-    {% if card.socials or card.website %}
-    <div class="dismantle-socials">
-      {% for social in card.socials %}
-      <a class="btn secondary" href="{{ social.url }}" target="_blank" rel="noopener noreferrer">{{ social.label }}</a>
-      {% endfor %}
-      {% if card.website %}<a class="btn secondary" href="{{ card.website }}" target="_blank" rel="noopener noreferrer">Сайт организации</a>{% endif %}
-    </div>
-    {% endif %}
-    {% if card.sources %}
-    <div class="dismantle-sources">
-      {% for source in card.sources %}
-      <a class="dismantle-source-link" href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }}</a>
-      {% endfor %}
-    </div>
-    {% endif %}
-  </aside>
-</article>
-<a class="btn secondary dismantle-detail-back" href="{% url 'dismantlers_catalog' %}">{% ui_icon 'back' %}{% ui 'dismantleBackCatalog' %}</a>
+<header class="org-heading"><p class="org-label">{% ui 'dismantleCompany' %}</p><h1>{{ seller.name }}</h1>{% if card.city %}<p class="org-city">{% ui_icon 'pin' %}{{ card.city }}</p>{% endif %}</header>
+<div class="org-grid">
+{% if card.address or profile.location or card.routes or card.schedule %}
+<section class="org-panel org-location" aria-labelledby="org-address-title">
+<h2 id="org-address-title">Адрес и режим работы</h2>
+{% if card.address %}<p class="org-address">{% ui_icon 'pin' %}<span>{{ card.address }}</span></p>{% endif %}
+{% if profile.location %}<p class="org-location-note">{{ profile.location }}</p>{% endif %}
+{% if card.routes %}<details class="org-route"><summary>Построить маршрут</summary><div class="org-map-links">{% for route in card.routes %}<a href="{{ route.url }}" target="_blank" rel="noopener noreferrer">{{ route.label }}</a>{% endfor %}</div></details>{% endif %}
+{% if card.schedule %}<div class="org-hours"><h3>Режим работы</h3><dl class="org-schedule">{% for row in profile.schedule %}<div><dt>{{ row.days }}</dt><dd>{{ row.hours }}</dd></div>{% endfor %}</dl><details class="org-days"><summary>Расписание по дням</summary><dl class="org-schedule">{% for row in card.schedule %}<div><dt>{{ row.day }}</dt><dd>{{ row.hours }}</dd></div>{% endfor %}</dl></details></div>{% endif %}
+</section>{% endif %}
+{% if card.primary_phone or card.extra_phones or card.whatsapp_url or card.socials or card.website %}
+<aside class="org-panel org-contacts" aria-labelledby="org-contact-title"><h2 id="org-contact-title">Связаться с организацией</h2>
+<div class="org-actions">{% if card.primary_phone %}<a class="org-action org-call" href="{{ card.primary_phone.tel }}">Позвонить</a>{% elif card.extra_phones %}<a class="org-action org-call" href="{{ card.extra_phones.0.tel }}">Позвонить</a>{% endif %}{% if card.whatsapp_url %}<a class="org-action org-whatsapp" href="{{ card.whatsapp_url }}" target="_blank" rel="noopener noreferrer">{% ui_icon 'message' %}WhatsApp</a>{% endif %}</div>
+<div class="org-phones">{% if card.primary_phone %}<div><span>{% ui 'dismantlePhone' %}</span><a href="{{ card.primary_phone.tel }}">{{ card.primary_phone.display }}</a></div>{% endif %}{% for phone in card.extra_phones %}<div><span>{% ui 'dismantleExtraPhone' %}</span><a href="{{ phone.tel }}">{{ phone.display }}</a></div>{% endfor %}</div>
+{% if card.socials or card.website %}<div class="org-socials">{% for social in card.socials %}<a href="{{ social.url }}" target="_blank" rel="noopener noreferrer">{{ social.label }}</a>{% endfor %}{% if card.website %}<a href="{{ card.website }}" target="_blank" rel="noopener noreferrer">Сайт организации</a>{% endif %}</div>{% endif %}
+</aside>{% endif %}
+{% if profile.description or profile.description_kk or profile.specializations or seller.directory_photo %}<section class="org-panel org-about"><h2>{% ui 'dismantleAbout' %}</h2>{% if seller.directory_photo %}<img class="org-photo" src="{{ seller.directory_photo.url }}" alt="{{ seller.name }}" loading="lazy" decoding="async" onerror="this.hidden=true;">{% endif %}{% if profile.description or profile.description_kk %}<p class="org-description" data-ru="{{ profile.description|default:profile.description_kk }}" data-kk="{{ profile.description_kk|default:profile.description }}">{{ profile.description|default:profile.description_kk }}</p>{% else %}<dl class="org-specializations">{% for row in profile.specializations %}<div><dt>{{ row.label }}</dt><dd>{{ row.value }}</dd></div>{% endfor %}</dl>{% endif %}</section>{% endif %}
+</div>
+<footer class="org-footer">{% if card.sources %}<div class="org-sources">{% for source in card.sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }} ↗</a>{% endfor %}</div>{% endif %}<p>{% ui 'dismantleAvailability' %}</p><a class="org-back" href="{% url 'dismantlers_catalog' %}">{% ui_icon 'back' %}{% ui 'dismantleBackCatalog' %}</a></footer>
+</div>
 {% endblock %}
