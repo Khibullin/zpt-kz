@@ -160,7 +160,7 @@ class DismantlerRequestScopeTests(TestCase):
     def test_invalid_scope_is_rejected_before_saving(self):
         response = self._post(key='used-invalid', scope='custom')
         self.assertEqual(response.status_code, 400)
-        self.assertIn('search_scope', response.json()['fields'])
+        self.assertIn('selected_cities', response.json()['fields'])
         self.assertFalse(Request.objects.filter(idempotency_key='used-invalid').exists())
 
     def test_same_idempotency_key_cannot_change_scope(self):
