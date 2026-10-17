@@ -39,6 +39,13 @@ NON_PARTS_PHRASES: tuple[str, ...] = (
 # A query is meaningless when every remaining word is in this set.
 # Checked only after part phrases and non-parts phrases.
 MEANINGLESS_TOKENS: frozenset[str] = frozenset({
+    'абракадабра',
+    'asdf',
+    'asdfgh',
+    'qwerty',
+    'йцукен',
+    'фыва',
+    'фывапр',
     'нужно',
     'надо',
     'помогите',

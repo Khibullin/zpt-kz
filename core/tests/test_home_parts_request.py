@@ -1473,7 +1473,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertContains(page, 'id="home-model-open"')
         from pathlib import Path
         script = Path('static/js/home-parts-form-v8.js').read_text(encoding='utf-8')
-        rejection_ui = script.split('function showRejection', 1)[1].split('function ', 1)[0]
+        rejection_ui = script.split('function showRejection', 1)[1].split('function showFieldError', 1)[0]
         self.assertIn('Исправить запрос', rejection_ui)
         self.assertNotIn('Всё равно отправить', rejection_ui)
         self.assertIn("openVehiclePicker('brand')", script)
@@ -1491,66 +1491,29 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertContains(page, 'name="search_scope"')
         self.assertNotContains(page, 'Выберите страну')
 
-    def test_category_mismatch_warns_without_creating_request(self):
-        response = self._post(
-            query='колодки',
-            category='Трансмиссия',
-            idempotency_key='key-warn-pads',
-        )
-        self.assertEqual(response.status_code, 422, response.content)
-        payload = response.json()
-        self.assertTrue(payload['warning_required'])
-        self.assertEqual(payload['warning_code'], 'category_mismatch')
-        self.assertEqual(payload['suggested_category'], 'Тормоза')
-        self.assertEqual(
-            payload['warning_message'],
-            'По тексту запроса похоже, что вам нужна категория “Тормоза”, '
-            'а выбрана “Трансмиссия”. Проверьте категорию.',
-        )
-        self.assertNotIn('id', payload)
-        self.assertEqual(Request.objects.count(), 0)
-        self.assertEqual(RequestDispatch.objects.count(), 0)
-
-    def test_confirmed_category_mismatch_creates_one_request(self):
-        warned = self._post(
-            query='колодки',
-            category='Трансмиссия',
-            idempotency_key='key-warn-confirm',
-        )
-        self.assertEqual(warned.status_code, 422, warned.content)
-        self.assertEqual(Request.objects.count(), 0)
-
+    def test_category_mismatch_requires_correction_before_create(self):
+        for confirmed in ('', '1'):
+            response = self._post(
+                query='Стекло лобовое', category='Трансмиссия',
+                idempotency_key='key-glass-correction', warning_confirmed=confirmed,
+            )
+            self.assertEqual(response.status_code, 422, response.content)
+            self.assertTrue(response.json()['rejected'])
+            self.assertEqual(response.json()['rejection_code'], 'category_mismatch')
+            self.assertEqual(response.json()['suggested_category'], 'Кузов')
+            self.assertEqual(Request.objects.count(), 0)
+            self.assertEqual(RequestDispatch.objects.count(), 0)
         created = self._post(
-            query='колодки',
-            category='Трансмиссия',
-            idempotency_key='key-warn-confirm',
-            warning_confirmed='1',
+            query='Стекло лобовое', category='Кузов',
+            idempotency_key='key-glass-correction',
         )
         self.assertEqual(created.status_code, 200, created.content)
-        self.assertFalse(created.json().get('warning_required', False))
-        self.assertFalse(created.json()['replay'])
-        req = Request.objects.get()
-        self.assertEqual(req.category, 'Трансмиссия')
-        dispatch_count = RequestDispatch.objects.count()
-
+        self.assertEqual(Request.objects.get().category, 'Кузов')
         replay = self._post(
-            query='колодки',
-            category='Трансмиссия',
-            idempotency_key='key-warn-confirm',
-            warning_confirmed='1',
+            query='Стекло лобовое', category='Кузов',
+            idempotency_key='key-glass-correction',
         )
-        self.assertEqual(replay.status_code, 200, replay.content)
         self.assertTrue(replay.json()['replay'])
-        self.assertEqual(Request.objects.count(), 1)
-        self.assertEqual(RequestDispatch.objects.count(), dispatch_count)
-
-        without_flag = self._post(
-            query='колодки',
-            category='Трансмиссия',
-            idempotency_key='key-warn-confirm',
-        )
-        self.assertEqual(without_flag.status_code, 200, without_flag.content)
-        self.assertTrue(without_flag.json()['replay'])
         self.assertEqual(Request.objects.count(), 1)
 
     def test_matching_brake_and_transmission_queries_do_not_warn(self):
@@ -1579,7 +1542,7 @@ class HomeShortMatchedSellerTests(TestCase):
         )
         self.assertEqual(response.status_code, 422, response.content)
         payload = response.json()
-        self.assertEqual(payload['warning_code'], 'category_mismatch')
+        self.assertEqual(payload['rejection_code'], 'category_mismatch')
         self.assertEqual(payload['suggested_category'], 'Трансмиссия')
         self.assertEqual(Request.objects.count(), 0)
         self.assertEqual(RequestDispatch.objects.count(), 0)
@@ -1631,7 +1594,7 @@ class HomeShortMatchedSellerTests(TestCase):
         )
         self.assertEqual(mismatch.status_code, 422, mismatch.content)
         payload = mismatch.json()
-        self.assertEqual(payload['warning_code'], 'category_mismatch')
+        self.assertEqual(payload['rejection_code'], 'category_mismatch')
         self.assertEqual(payload['suggested_category'], 'Тормоза')
         self.assertEqual(Request.objects.count(), 0)
         self.assertEqual(RequestDispatch.objects.count(), 0)
@@ -1642,7 +1605,7 @@ class HomeShortMatchedSellerTests(TestCase):
             idempotency_key='key-pads-genitive',
         )
         self.assertEqual(genitive.status_code, 422, genitive.content)
-        self.assertEqual(genitive.json()['warning_code'], 'category_mismatch')
+        self.assertEqual(genitive.json()['rejection_code'], 'category_mismatch')
         self.assertEqual(genitive.json()['suggested_category'], 'Тормоза')
 
         matched = self._post(
@@ -1664,9 +1627,8 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertEqual(warned.status_code, 422, warned.content)
         created = self._post(
             query='колодки',
-            category='Трансмиссия',
+            category='Тормоза',
             idempotency_key='key-warn-rate',
-            warning_confirmed='1',
         )
         self.assertEqual(created.status_code, 200, created.content)
         self.assertEqual(Request.objects.count(), 1)
@@ -1689,7 +1651,7 @@ class HomeShortMatchedSellerTests(TestCase):
             idempotency_key='key-radiator',
         )
         self.assertEqual(radiator.status_code, 422, radiator.content)
-        self.assertEqual(radiator.json()['warning_code'], 'category_mismatch')
+        self.assertEqual(radiator.json()['rejection_code'], 'category_mismatch')
         self.assertEqual(radiator.json()['suggested_category'], 'Охлаждение')
         self.assertEqual(Request.objects.count(), 0)
         self.assertEqual(RequestDispatch.objects.count(), 0)

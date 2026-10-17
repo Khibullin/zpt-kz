@@ -41,7 +41,7 @@ class HomePartsPreflightDecisionTests(SimpleTestCase):
         decision = self._decision('нужен радиатор и замена', 'Трансмиссия')
         self.assertEqual(decision.code, WARNING_CATEGORY_MISMATCH)
         self.assertEqual(decision.suggested_category, 'Охлаждение')
-        self.assertFalse(decision.is_reject)
+        self.assertTrue(decision.is_reject)
 
     def test_car_repair_without_a_part_is_rejected(self):
         decision = self._decision('нужен ремонт автомобиля')
@@ -79,9 +79,26 @@ class HomePartsPreflightDecisionTests(SimpleTestCase):
                     forbidden,
                 )
                 if decision is not None:
-                    self.assertFalse(decision.is_reject)
+                    self.assertEqual(decision.code, WARNING_CATEGORY_MISMATCH)
 
     def test_exact_article_skips_content_preflight(self):
         self.assertIsNone(self._decision('52119-0K040', 'Трансмиссия'))
         self.assertIsNone(self._decision('M111109111', 'Кузов'))
         self.assertIsNone(self._decision('1109190CR01', 'Охлаждение'))
+
+    def test_glass_variants_require_body_category(self):
+        for query in ('Стекло лобовое', 'лобовое стекло', 'нужно лобовое стекло',
+                      'стекло ветровое', 'замена лобового стекла', 'стекло задней двери'):
+            with self.subTest(query=query):
+                decision = self._decision(query, 'Топливная система')
+                self.assertTrue(decision.is_reject)
+                self.assertEqual(decision.suggested_category, 'Кузов')
+                self.assertIsNone(self._decision(query, 'Кузов'))
+
+    def test_known_garbage_is_rejected_but_unlisted_parts_are_allowed(self):
+        for query in ('абракадабра', 'qwerty', 'нужна фыва'):
+            self.assertTrue(self._decision(query).is_reject)
+        self.assertIsNone(self._decision('синхронизатор третьей передачи', 'Трансмиссия'))
+
+    def test_longer_interior_phrase_wins_over_body_plural(self):
+        self.assertIsNone(self._decision('обшивка двери', 'Салон'))

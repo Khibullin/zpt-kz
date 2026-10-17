@@ -372,8 +372,17 @@ if(
       setMessage('Ошибка отправки заявки. Сервер вернул неожиданный ответ.','error');
       return;
     }
-    if(!r.ok || data.error){
-      setMessage(data.error || 'Ошибка отправки заявки. Попробуйте ещё раз.','error');
+    if(data.warning_required && !data.rejected){
+      if(!window.confirm(data.warning_message + '\n\nВсё равно отправить?')){
+        setMessage(data.warning_message,'error');
+        return;
+      }
+      formData.set('warning_confirmed','1');
+      r=await fetch(API+'/create-request/',{method:'POST',body:formData});
+      data=await r.json();
+    }
+    if(!r.ok || data.error || data.rejected){
+      setMessage(data.rejection_message || data.error || 'Ошибка отправки заявки. Попробуйте ещё раз.','error');
       return;
     }
     renderResult(data);
