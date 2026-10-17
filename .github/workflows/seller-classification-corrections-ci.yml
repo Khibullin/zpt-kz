@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - 'core/migrations/0089_correct_existing_seller_specializations.py'
+      - 'core/migrations/0090_confirm_new_parts_by_exact_catalog_contacts.py'
+      - 'core/tests/test_confirm_new_parts_by_catalog_contacts.py'
       - 'core/tests/test_seller_specialization_corrections.py'
       - '.github/workflows/seller-classification-corrections-ci.yml'
 
@@ -36,4 +38,5 @@ jobs:
         run: |
           python manage.py test --settings backend.settings_ui_ci \
             core.tests.test_seller_specialization_corrections \
+            core.tests.test_confirm_new_parts_by_catalog_contacts \
             -v 2
