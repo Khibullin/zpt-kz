@@ -1,0 +1,1730 @@
+{
+  "source_file": "Авторазбор Караганда 71.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": {
+        "id": 384,
+        "name": "Авторазбор09",
+        "city": "Караганда",
+        "whatsapp": "77755065656"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор09, центр автозапчастей для Mercedes, BMW, Audi, Volkswagen",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001028125605",
+        "card_url": "https://2gis.ru/firm/70000001028125605",
+        "address": "Кайрата Тлеугабылова улица, участок 88",
+        "latitude": "49.759493",
+        "longitude": "73.163798",
+        "website": "https://avtorazbor09.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor09"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77755065656"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77755065656"
+        ],
+        "whatsapp": "77755065656"
+      }
+    },
+    {
+      "row": 5,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "MotorLand",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001083763991",
+        "card_url": "https://2gis.ru/firm/70000001083763991",
+        "address": "улица Бадина, 174/2",
+        "latitude": "49.793566",
+        "longitude": "73.048390",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/motorland.krg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003433850"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77003433850"
+        ],
+        "whatsapp": "77003433850"
+      }
+    },
+    {
+      "row": 6,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мирхат KZ, центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302954488",
+        "card_url": "https://2gis.ru/firm/11822477302954488",
+        "address": "улица Жилстроевская, 1а",
+        "latitude": "49.813074",
+        "longitude": "73.058585",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.mirhatkz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016272675"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77786727779"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77016272675",
+          "77786727779"
+        ],
+        "whatsapp": "77016272675"
+      }
+    },
+    {
+      "row": 7,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001024414836",
+        "card_url": "https://2gis.ru/firm/70000001024414836",
+        "address": "улица Западная, 122",
+        "latitude": "49.792860",
+        "longitude": "73.056142",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mers_avtorazbor_krg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027798025"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77027798025"
+        ],
+        "whatsapp": "77027798025"
+      }
+    },
+    {
+      "row": 9,
+      "seller": {
+        "id": 624,
+        "name": "КореяАвтоРазбор09",
+        "city": "Караганда",
+        "whatsapp": "77019443550"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "КореяАвтоРазбор, магазин контрактных автозапчастей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302924206",
+        "card_url": "https://2gis.ru/firm/11822477302924206",
+        "address": "улица Резника, 10",
+        "latitude": "49.804547",
+        "longitude": "73.123189",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/koreaavtorazbor09_hyundai_kia"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77019443550"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77019443090"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77019443550",
+          "77019443090"
+        ],
+        "whatsapp": "77019443550"
+      }
+    },
+    {
+      "row": 10,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Autojaponiya",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302917560",
+        "card_url": "https://2gis.ru/firm/11822477302917560",
+        "address": "улица Космонавтов, 216",
+        "latitude": "49.803845",
+        "longitude": "73.127192",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autojaponiya_karaganda"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77004000338"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77004000887"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003418888"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77004000338",
+          "77004000887",
+          "77003418888"
+        ],
+        "whatsapp": "77004000338"
+      }
+    },
+    {
+      "row": 12,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Евроразбор",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001037177842",
+        "card_url": "https://2gis.ru/firm/70000001037177842",
+        "address": "улица Гоголя, 71 к2",
+        "latitude": "49.802678",
+        "longitude": "73.109190",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/eurorazbor_krg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77020585821"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77750686822"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77020585821",
+          "77750686822"
+        ],
+        "whatsapp": "77020585821"
+      }
+    },
+    {
+      "row": 13,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001097474470",
+        "card_url": "https://2gis.ru/firm/70000001097474470",
+        "address": "улица Камская, 45",
+        "latitude": "49.813630",
+        "longitude": "73.131705",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77789998522",
+          "77479274955"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 15,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Motorshop_krg",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001095719997",
+        "card_url": "https://2gis.ru/firm/70000001095719997",
+        "address": "улица Куприна, 2а",
+        "latitude": "49.826916",
+        "longitude": "73.094662",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77075852897"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 16,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001082352951",
+        "card_url": "https://2gis.ru/firm/70000001082352951",
+        "address": "улица Нахимова, 18",
+        "latitude": "49.812193",
+        "longitude": "73.048365",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77021802777"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subarukrg09"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77021802777"
+        ],
+        "whatsapp": "77021802777"
+      }
+    },
+    {
+      "row": 17,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "vk-motors.krg, центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001094392144",
+        "card_url": "https://2gis.ru/firm/70000001094392144",
+        "address": "улица Нахимова, 18",
+        "latitude": "49.812007",
+        "longitude": "73.048550",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_bmw_nahimova18"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052666265"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@vk-motors.krg"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77052666265"
+        ],
+        "whatsapp": "77052666265"
+      }
+    },
+    {
+      "row": 18,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Кемпинг, центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001031611246",
+        "card_url": "https://2gis.ru/firm/70000001031611246",
+        "address": "108-й учетный квартал, ст032",
+        "latitude": "49.831386",
+        "longitude": "73.065130",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072166760"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77072166760"
+        ],
+        "whatsapp": "77072166760"
+      }
+    },
+    {
+      "row": 19,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "KrgCity, центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001055537218",
+        "card_url": "https://2gis.ru/firm/70000001055537218",
+        "address": "улица Складская, 18/1",
+        "latitude": "49.800361",
+        "longitude": "73.108551",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015510087"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77015510087"
+        ],
+        "whatsapp": "77015510087"
+      }
+    },
+    {
+      "row": 20,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Шрот 47, Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001026848741",
+        "card_url": "https://2gis.ru/firm/70000001026848741",
+        "address": "улица Лизы Чайкиной, 157/1",
+        "latitude": "49.866577",
+        "longitude": "73.043666",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/schrot_47"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77025012580"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774867640"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77774867640",
+          "77025012580"
+        ],
+        "whatsapp": "77025012580"
+      }
+    },
+    {
+      "row": 21,
+      "seller": {
+        "id": 409,
+        "name": "KMotors",
+        "city": "Караганда",
+        "whatsapp": "77010634949"
+      },
+      "confirm_dismantler": true,
+      "transport_type": "car",
+      "org": {
+        "name": "KMotors",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001063794434",
+        "card_url": "https://2gis.ru/firm/70000001063794434",
+        "address": "улица Орлова, 109Б",
+        "latitude": "49.772529",
+        "longitude": "73.092172",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010634949"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77010634949"
+        ],
+        "whatsapp": "77010634949"
+      }
+    },
+    {
+      "row": 22,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора немецких автомобилей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001041259080",
+        "card_url": "https://2gis.ru/firm/70000001041259080",
+        "address": "Волгодонская улица, 69/4",
+        "latitude": "49.831310",
+        "longitude": "73.107526",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/karaganda.shrot"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77025111513"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77071021888",
+          "77025111513",
+          "77775747722"
+        ],
+        "whatsapp": "77025111513"
+      }
+    },
+    {
+      "row": 23,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001032590671",
+        "card_url": "https://2gis.ru/firm/70000001032590671",
+        "address": "улица Кузнецова, 11",
+        "latitude": "49.824731",
+        "longitude": "73.092816",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/bmwline_09"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77003368813"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 26,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302958939",
+        "card_url": "https://2gis.ru/firm/11822477302958939",
+        "address": "улица Затаевича, 87а к2",
+        "latitude": "49.790029",
+        "longitude": "73.109863",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77762639848"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77004503165",
+          "77004503164",
+          "77770502000",
+          "77762639848"
+        ],
+        "whatsapp": "77762639848"
+      }
+    },
+    {
+      "row": 27,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор на Гудермесской",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302837938",
+        "card_url": "https://2gis.ru/firm/11822477302837938",
+        "address": "улица Гудермесская, 136",
+        "latitude": "49.809614",
+        "longitude": "73.136617",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77212422491",
+          "77003131535"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 30,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ChinaProParts.kz",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001109979203",
+        "card_url": "https://2gis.ru/firm/70000001109979203",
+        "address": "Камали Дюсембекова улица, 5/2",
+        "latitude": "49.783175",
+        "longitude": "73.127674",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/chinaproparts.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776060709"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77776060709"
+        ],
+        "whatsapp": "77776060709"
+      }
+    },
+    {
+      "row": 31,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302924211",
+        "card_url": "https://2gis.ru/firm/11822477302924211",
+        "address": "улица Космонавтов, ст58",
+        "latitude": "49.796425",
+        "longitude": "73.115325",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_region"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471509717"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471915161"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77471509717",
+          "77471915161"
+        ],
+        "whatsapp": "77471509717"
+      }
+    },
+    {
+      "row": 32,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Akenani, СТО и магазин автозапчастей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001116110122",
+        "card_url": "https://2gis.ru/firm/70000001116110122",
+        "address": "улица Нуржанова, 18",
+        "latitude": "49.793835",
+        "longitude": "73.124035",
+        "website": "https://gazuaz.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011412227"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77011412227"
+        ],
+        "whatsapp": "77011412227"
+      }
+    },
+    {
+      "row": 33,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 020, центр новых и контрактных автозапчастей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302967434",
+        "card_url": "https://2gis.ru/firm/11822477302967434",
+        "address": "Стартовый переулок, 11",
+        "latitude": "49.811537",
+        "longitude": "73.141939",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/toyota_avto_razbor_krg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015166367"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77015166367"
+        ],
+        "whatsapp": "77015166367"
+      }
+    },
+    {
+      "row": 34,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001043377699",
+        "card_url": "https://2gis.ru/firm/70000001043377699",
+        "address": "улица Пригородная, 1Б/3",
+        "latitude": "49.821291",
+        "longitude": "73.123690",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77001051380"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77001051380"
+        ],
+        "whatsapp": "77001051380"
+      }
+    },
+    {
+      "row": 35,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Forward",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001101486798",
+        "card_url": "https://2gis.ru/firm/70000001101486798",
+        "address": "улица Потанина, 76/1",
+        "latitude": "49.790686",
+        "longitude": "73.043742",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77003945405",
+          "77077830387"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 36,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ДЭУ 50, центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001031671788",
+        "card_url": "https://2gis.ru/firm/70000001031671788",
+        "address": "Спасское шоссе 6 километр, 1 к6",
+        "latitude": "49.757265",
+        "longitude": "73.164770",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474595538"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77474595538"
+        ],
+        "whatsapp": "77474595538"
+      }
+    },
+    {
+      "row": 37,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор на Камской",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302919555",
+        "card_url": "https://2gis.ru/firm/11822477302919555",
+        "address": "улица Камская, ст91/4",
+        "latitude": "49.818230",
+        "longitude": "73.140494",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor767krg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024507172"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780287676"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77024507172",
+          "77780287676"
+        ],
+        "whatsapp": "77024507172"
+      }
+    },
+    {
+      "row": 38,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Gamaga, магазин автозапчастей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001025173985",
+        "card_url": "https://2gis.ru/firm/70000001025173985",
+        "address": "улица Камская, 91/4",
+        "latitude": "49.818041",
+        "longitude": "73.141347",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017416016"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77017416016"
+        ],
+        "whatsapp": "77017416016"
+      }
+    },
+    {
+      "row": 39,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Новоузенский Авторазбор, центр авторазбора для автомобилей из Германии",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001030714373",
+        "card_url": "https://2gis.ru/firm/70000001030714373",
+        "address": "089-й учетный квартал, ст354",
+        "latitude": "49.885400",
+        "longitude": "73.039562",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_novousenka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77475317317"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471740470"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77473998214"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77475317317",
+          "77471740470",
+          "77473998214"
+        ],
+        "whatsapp": "77475317317"
+      }
+    },
+    {
+      "row": 40,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора немецких и японских автомобилей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001036013360",
+        "card_url": "https://2gis.ru/firm/70000001036013360",
+        "address": "улица Штурманская, 61Б",
+        "latitude": "49.806601",
+        "longitude": "73.142586",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756206024"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77756206024"
+        ],
+        "whatsapp": "77756206024"
+      }
+    },
+    {
+      "row": 41,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302837940",
+        "card_url": "https://2gis.ru/firm/11822477302837940",
+        "address": "улица Штурманская, 1/9 ст1",
+        "latitude": "49.806373",
+        "longitude": "73.139781",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/shrot.karaganda"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072241250"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77212974678",
+          "77012250996",
+          "77003370164",
+          "77072241250"
+        ],
+        "whatsapp": "77072241250"
+      }
+    },
+    {
+      "row": 42,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервис авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001093837428",
+        "card_url": "https://2gis.ru/firm/70000001093837428",
+        "address": "улица Штурманская, 61Б",
+        "latitude": "49.806326",
+        "longitude": "73.142320",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77755085910"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77755085910"
+        ],
+        "whatsapp": "77755085910"
+      }
+    },
+    {
+      "row": 43,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 111",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001094107672",
+        "card_url": "https://2gis.ru/firm/70000001094107672",
+        "address": "улица Муканова, ст55в/1",
+        "latitude": "49.786681",
+        "longitude": "73.162526",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/toyota_lexus_avtorazbor_111"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075574137"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77005574138"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77075574137",
+          "77005574138"
+        ],
+        "whatsapp": "77075574137"
+      }
+    },
+    {
+      "row": 44,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001110331425",
+        "card_url": "https://2gis.ru/firm/70000001110331425",
+        "address": "улица Углесборочная, 26",
+        "latitude": "49.744560",
+        "longitude": "73.053931",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77083209540"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77083209540"
+        ],
+        "whatsapp": "77083209540"
+      }
+    },
+    {
+      "row": 45,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор на Бабушкиной",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302933772",
+        "card_url": "https://2gis.ru/firm/11822477302933772",
+        "address": "Бабушкина улица, 55",
+        "latitude": "49.860775",
+        "longitude": "73.190008",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015238528"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77015238528"
+        ],
+        "whatsapp": "77015238528"
+      }
+    },
+    {
+      "row": 46,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001041189788",
+        "card_url": "https://2gis.ru/firm/70000001041189788",
+        "address": "Спасское шоссе 6 километр, 1 к7",
+        "latitude": "49.756844",
+        "longitude": "73.164403",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77787293737"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77787293737"
+        ],
+        "whatsapp": "77787293737"
+      }
+    },
+    {
+      "row": 48,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервис авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001094546741",
+        "card_url": "https://2gis.ru/firm/70000001094546741",
+        "address": "улица Мусоргского, 12а",
+        "latitude": "49.874176",
+        "longitude": "73.194014",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77754633636"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77754633636"
+        ],
+        "whatsapp": "77754633636"
+      }
+    },
+    {
+      "row": 51,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автохаус, центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001060680529",
+        "card_url": "https://2gis.ru/firm/70000001060680529",
+        "address": "микрорайон Восток-1, ст15/2",
+        "latitude": "49.854866",
+        "longitude": "73.180118",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77004995516"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77004995516"
+        ],
+        "whatsapp": "77004995516"
+      }
+    },
+    {
+      "row": 52,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001099739657",
+        "card_url": "https://2gis.ru/firm/70000001099739657",
+        "address": "улица Коммунистическая, 98/1",
+        "latitude": "49.863149",
+        "longitude": "73.187520",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756585456"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77756585456"
+        ],
+        "whatsapp": "77756585456"
+      }
+    },
+    {
+      "row": 53,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервис авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001115817301",
+        "card_url": "https://2gis.ru/firm/70000001115817301",
+        "address": "Спасское шоссе 6 километр, 1 к2",
+        "latitude": "49.757477",
+        "longitude": "73.165139",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029799090"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056276694"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77056276694",
+          "77002496140",
+          "77029799090"
+        ],
+        "whatsapp": "77029799090"
+      }
+    },
+    {
+      "row": 54,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Компания по выкупу и утилизации автомобилей",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001092517238",
+        "card_url": "https://2gis.ru/firm/70000001092517238",
+        "address": "улица Букетова, 3/6",
+        "latitude": "49.797214",
+        "longitude": "73.140142",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075988869"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77075988869"
+        ],
+        "whatsapp": "77075988869"
+      }
+    },
+    {
+      "row": 56,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Motor shop",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001094444902",
+        "card_url": "https://2gis.ru/firm/70000001094444902",
+        "address": "улица Арман, 40",
+        "latitude": "49.904000",
+        "longitude": "73.090332",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.09.krg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055037075"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77055037075"
+        ],
+        "whatsapp": "77055037075"
+      }
+    },
+    {
+      "row": 57,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "11822477302924202",
+        "card_url": "https://2gis.ru/firm/11822477302924202",
+        "address": "микрорайон 11а, 17 ст1",
+        "latitude": "49.891967",
+        "longitude": "73.209613",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77755067138"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77059791085"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77755067138",
+          "77059791085",
+          "77757935862"
+        ],
+        "whatsapp": "77755067138"
+      }
+    },
+    {
+      "row": 58,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Атлант",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001097249335",
+        "card_url": "https://2gis.ru/firm/70000001097249335",
+        "address": "089-й учетный квартал, участок 037",
+        "latitude": "49.897708",
+        "longitude": "73.047910",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079323043"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77079323043"
+        ],
+        "whatsapp": "77079323043"
+      }
+    },
+    {
+      "row": 60,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Сарань",
+        "source": "two_gis",
+        "external_id": "70000001101946228",
+        "card_url": "https://2gis.ru/firm/70000001101946228",
+        "address": "улица Стадионная, 21",
+        "latitude": "49.799343",
+        "longitude": "72.814183",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtobarahlo09"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77072280909"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77022280099"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 61,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "СТО",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "70000001031310129",
+        "card_url": "https://2gis.ru/firm/70000001031310129",
+        "address": "проспект Металлургов, 21/5",
+        "latitude": "50.054901",
+        "longitude": "72.974070",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/u_albertaa"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003725449"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777940542"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77003725449",
+          "77777940542"
+        ],
+        "whatsapp": "77003725449"
+      }
+    },
+    {
+      "row": 62,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Aynali motors, центр авторазбора для иномарок",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "11822477302827001",
+        "card_url": "https://2gis.ru/firm/11822477302827001",
+        "address": "улица Ушинского, 4",
+        "latitude": "50.049979",
+        "longitude": "72.995551",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003070067"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77003070067"
+        ],
+        "whatsapp": "77003070067"
+      }
+    },
+    {
+      "row": 63,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора немецких автомобилей",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "70000001055443419",
+        "card_url": "https://2gis.ru/firm/70000001055443419",
+        "address": "Сетевой участок, 5",
+        "latitude": "50.063944",
+        "longitude": "72.929324",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003799574"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77003799574"
+        ],
+        "whatsapp": "77003799574"
+      }
+    },
+    {
+      "row": 64,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автосервис",
+        "city": "Караганда",
+        "source": "two_gis",
+        "external_id": "70000001093518010",
+        "card_url": "https://2gis.ru/firm/70000001093518010",
+        "address": "улица Менделеева, 41/1",
+        "latitude": "49.954296",
+        "longitude": "73.198367",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77085588208"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77085588208"
+        ],
+        "whatsapp": "77085588208"
+      }
+    },
+    {
+      "row": 65,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Камаз Мастер",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "70000001060588363",
+        "card_url": "https://2gis.ru/firm/70000001060588363",
+        "address": "улица Амангельды, 100",
+        "latitude": "50.047129",
+        "longitude": "72.952448",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028702999"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77028702999"
+        ],
+        "whatsapp": "77028702999"
+      }
+    },
+    {
+      "row": 66,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора немецких автомобилей",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "70000001044066424",
+        "card_url": "https://2gis.ru/firm/70000001044066424",
+        "address": "улица Абая, 210",
+        "latitude": "50.061198",
+        "longitude": "72.924792",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756206999"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77756206999",
+          "77016577451"
+        ],
+        "whatsapp": "77756206999"
+      }
+    },
+    {
+      "row": 69,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "LPG Service KZ",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "70000001105675659",
+        "card_url": "https://2gis.ru/firm/70000001105675659",
+        "address": "8-й микрорайон, 138Б",
+        "latitude": "50.046634",
+        "longitude": "72.948404",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lpgservicekz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474445383"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77474445383"
+        ],
+        "whatsapp": "77474445383"
+      }
+    },
+    {
+      "row": 70,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Deutsche Autos, центр авторазбора и автозапчастей из Германии",
+        "city": "Темиртау",
+        "source": "two_gis",
+        "external_id": "70000001045138427",
+        "card_url": "https://2gis.ru/firm/70000001045138427",
+        "address": "проспект Металлургов, ст25",
+        "latitude": "50.053160",
+        "longitude": "72.968897",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014786400"
+          }
+        ],
+        "exported_at": "2026-10-18T11:54:08.437Z",
+        "phones": [
+          "77014786400"
+        ],
+        "whatsapp": "77014786400"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 3,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 4,
+      "reason": "Одно название Euroshrot, разные адреса и контакты; связь филиалов не установлена"
+    },
+    {
+      "row": 8,
+      "reason": "Одно название Euroshrot, разные адреса и контакты; связь филиалов не установлена"
+    },
+    {
+      "row": 11,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 14,
+      "reason": "Одно название Euroshrot, разные адреса и контакты; связь филиалов не установлена"
+    },
+    {
+      "row": 24,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 25,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 28,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 29,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 47,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 49,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 50,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 55,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 59,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 67,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 68,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 71,
+      "reason": "Нет контактов"
+    }
+  ]
+}
