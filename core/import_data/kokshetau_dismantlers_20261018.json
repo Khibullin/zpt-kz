@@ -1,0 +1,860 @@
+{
+  "source_file": "Авторазбор Кокшетау 28.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": {
+        "id": 848,
+        "name": "Motorshop Qazaqstan, магазин запчастей для двигателя",
+        "city": "Кокшетау",
+        "whatsapp": "77073210597"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Motorshop Qazaqstan, магазин запчастей для двигателя",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001066969058",
+        "card_url": "https://2gis.ru/firm/70000001066969058",
+        "address": "улица Кызыл жар, 180",
+        "latitude": "53.311148",
+        "longitude": "69.291155",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kokshdvizhki"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073210597"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078885645"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77073210597",
+          "77017245538",
+          "77078885645",
+          "77471950347"
+        ],
+        "whatsapp": "77073210597"
+      }
+    },
+    {
+      "row": 3,
+      "seller": {
+        "id": 849,
+        "name": "Магазин двигателей и коробок",
+        "city": "Кокшетау",
+        "whatsapp": "77752800448"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин двигателей и коробок",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001075322233",
+        "card_url": "https://2gis.ru/firm/70000001075322233",
+        "address": "улица Тараса Шевченко, 64Б",
+        "latitude": "53.268653",
+        "longitude": "69.380003",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/berlin.tokio.motors"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77752800448"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77752800448"
+        ],
+        "whatsapp": "77752800448"
+      }
+    },
+    {
+      "row": 4,
+      "seller": {
+        "id": 859,
+        "name": "Авторазбор Кокшетау",
+        "city": "Кокшетау",
+        "whatsapp": "77054262183"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Кокшетау",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001103629780",
+        "card_url": "https://2gis.ru/firm/70000001103629780",
+        "address": "улица Жумабека Ташенова, 127в",
+        "latitude": "53.265893",
+        "longitude": "69.408647",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054262183"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77054262183"
+        ],
+        "whatsapp": "77054262183"
+      }
+    },
+    {
+      "row": 5,
+      "seller": {
+        "id": 693,
+        "name": "Vagparts",
+        "city": "Кокшетау",
+        "whatsapp": "77074570404"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Vagparts, магазин автозапчастей для иномарок",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001088139899",
+        "card_url": "https://2gis.ru/firm/70000001088139899",
+        "address": "улица Талгата Бегельдинова, 78а",
+        "latitude": "53.279046",
+        "longitude": "69.404632",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vag.parts.kz"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/vag.partskz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074570404"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77074570404"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77074570404"
+        ],
+        "whatsapp": "77074570404"
+      }
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 851,
+        "name": "СТО у Тимы",
+        "city": "Кокшетау",
+        "whatsapp": "77761247856"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "СТО у Тимы",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001093070949",
+        "card_url": "https://2gis.ru/firm/70000001093070949",
+        "address": "улица Атамура, 19",
+        "latitude": "53.289921",
+        "longitude": "69.430442",
+        "website": "",
+        "socials": [
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77761247856"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77761247856"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77761247856"
+        ],
+        "whatsapp": "77761247856"
+      }
+    },
+    {
+      "row": 7,
+      "seller": {
+        "id": 691,
+        "name": "Магнит",
+        "city": "Кокшетау",
+        "whatsapp": "77018017000"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магнит, центр авторазбора автомобилей",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001034625942",
+        "card_url": "https://2gis.ru/firm/70000001034625942",
+        "address": "улица Оразбека Куанышева, 129",
+        "latitude": "53.269627",
+        "longitude": "69.407456",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018017000"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77162771907",
+          "77018017000"
+        ],
+        "whatsapp": "77018017000"
+      }
+    },
+    {
+      "row": 8,
+      "seller": {
+        "id": 855,
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77767254874"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001115467009",
+        "card_url": "https://2gis.ru/firm/70000001115467009",
+        "address": "улица Жусупбека Аймаутова, 87",
+        "latitude": "53.288969",
+        "longitude": "69.426843",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767254874"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77767254874"
+        ],
+        "whatsapp": "77767254874"
+      }
+    },
+    {
+      "row": 9,
+      "seller": {
+        "id": 850,
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77762544554"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001093456218",
+        "card_url": "https://2gis.ru/firm/70000001093456218",
+        "address": "улица Кудайбергенова, 53",
+        "latitude": "53.254705",
+        "longitude": "69.382383",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_kokshe03"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77762544554"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77762544554"
+        ],
+        "whatsapp": "77762544554"
+      }
+    },
+    {
+      "row": 10,
+      "seller": {
+        "id": 692,
+        "name": "Nika Avto",
+        "city": "Кокшетау",
+        "whatsapp": "77022388095"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Nika Avto, центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001089525939",
+        "card_url": "https://2gis.ru/firm/70000001089525939",
+        "address": "улица Каныша Сатпаева, 90",
+        "latitude": "53.269314",
+        "longitude": "69.385222",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_kokshetau__"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022388095"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77022388095",
+          "77472728888"
+        ],
+        "whatsapp": "77022388095"
+      }
+    },
+    {
+      "row": 11,
+      "seller": {
+        "id": 854,
+        "name": "Авто Кros`s, центр авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77770390509"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авто Кros`s, центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001037087042",
+        "card_url": "https://2gis.ru/firm/70000001037087042",
+        "address": "улица Толеу Сулейменова, 4в",
+        "latitude": "53.291313",
+        "longitude": "69.402174",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autocross_razbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77770390509"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtozapchasti_14"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022348951"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77770390509",
+          "77162323343",
+          "77022348951"
+        ],
+        "whatsapp": "77770390509"
+      }
+    },
+    {
+      "row": 12,
+      "seller": {
+        "id": 858,
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77012300365"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001060168642",
+        "card_url": "https://2gis.ru/firm/70000001060168642",
+        "address": "улица Акан Серэ, 204Б",
+        "latitude": "53.282665",
+        "longitude": "69.409254",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012300365"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77012300365",
+          "77018925061",
+          "77162326235"
+        ],
+        "whatsapp": "77012300365"
+      }
+    },
+    {
+      "row": 13,
+      "seller": {
+        "id": 857,
+        "name": "060, центр авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77070600899"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "060, центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001117154936",
+        "card_url": "https://2gis.ru/firm/70000001117154936",
+        "address": "улица Жумабека Ташенова, 193/2",
+        "latitude": "53.257088",
+        "longitude": "69.411683",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77070600899"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77072120899",
+          "77070600899"
+        ],
+        "whatsapp": "77070600899"
+      }
+    },
+    {
+      "row": 14,
+      "seller": {
+        "id": 592,
+        "name": "Авторазбор на Сулейменова",
+        "city": "Кокшетау",
+        "whatsapp": "77015016100"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001034261415",
+        "card_url": "https://2gis.ru/firm/70000001034261415",
+        "address": "улица Толеу Сулейменова, 15а/2",
+        "latitude": "53.304754",
+        "longitude": "69.397700",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_kokshetau"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015016003"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015016100"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77015016100",
+          "77015016003"
+        ],
+        "whatsapp": "77015016003"
+      }
+    },
+    {
+      "row": 15,
+      "seller": {
+        "id": 860,
+        "name": "VipVaz",
+        "city": "Кокшетау",
+        "whatsapp": "77011031036"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "VipVaz",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001100594622",
+        "card_url": "https://2gis.ru/firm/70000001100594622",
+        "address": "улица Жумабека Ташенова, 127Б",
+        "latitude": "53.265637",
+        "longitude": "69.409123",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011031036"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77011031036"
+        ],
+        "whatsapp": "77011031036"
+      }
+    },
+    {
+      "row": 16,
+      "seller": {
+        "id": 861,
+        "name": "Пункт авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77016005800"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Пункт авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001079080967",
+        "card_url": "https://2gis.ru/firm/70000001079080967",
+        "address": "20-й проезд, у5",
+        "latitude": "53.272367",
+        "longitude": "69.441226",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016005800"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77770350417"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77770350417",
+          "77016005800"
+        ],
+        "whatsapp": "77016005800"
+      }
+    },
+    {
+      "row": 19,
+      "seller": {
+        "id": 856,
+        "name": "Компания по авторазбору",
+        "city": "Кокшетау",
+        "whatsapp": "77056811315"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Компания по авторазбору",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001069618809",
+        "card_url": "https://2gis.ru/firm/70000001069618809",
+        "address": "улица Мухтара Ауэзова, 2",
+        "latitude": "53.292792",
+        "longitude": "69.326832",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056811315"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77056811315"
+        ],
+        "whatsapp": "77056811315"
+      }
+    },
+    {
+      "row": 20,
+      "seller": {
+        "id": 853,
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77011657922"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001103021128",
+        "card_url": "https://2gis.ru/firm/70000001103021128",
+        "address": "улица Кызыл жар, 126",
+        "latitude": "53.307663",
+        "longitude": "69.300689",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011657922"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77770407087"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77770407087",
+          "77011657922"
+        ],
+        "whatsapp": "77011657922"
+      }
+    },
+    {
+      "row": 21,
+      "seller": {
+        "id": 852,
+        "name": "Магазин авторазбора",
+        "city": "Кокшетау",
+        "whatsapp": "77052984858"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин авторазбора",
+        "city": "Кокшетау",
+        "source": "two_gis",
+        "external_id": "70000001045393259",
+        "card_url": "https://2gis.ru/firm/70000001045393259",
+        "address": "улица Шагалалы, 149",
+        "latitude": "53.308279",
+        "longitude": "69.293701",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052984858"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77052984858"
+        ],
+        "whatsapp": "77052984858"
+      }
+    },
+    {
+      "row": 26,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магнит, пункт авторазбора",
+        "city": "Щучинск",
+        "source": "two_gis",
+        "external_id": "70000001059711359",
+        "card_url": "https://2gis.ru/firm/70000001059711359",
+        "address": "улица Талгата Бегельдинова, 36/2",
+        "latitude": "52.959548",
+        "longitude": "70.154423",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054270664"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072385895"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471848110"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77054270664",
+          "77471848110",
+          "77072385895",
+          "77774130478",
+          "77056464422"
+        ],
+        "whatsapp": "77054270664"
+      }
+    },
+    {
+      "row": 27,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ProServis, шиномонтажная мастерская",
+        "city": "Щучинск",
+        "source": "two_gis",
+        "external_id": "70000001066909325",
+        "card_url": "https://2gis.ru/firm/70000001066909325",
+        "address": "улица Окжетпес, 130",
+        "latitude": "52.932430",
+        "longitude": "70.175561",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77085754063"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078240777"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77022367501"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77472525200",
+          "77085754063",
+          "77006437945",
+          "77078240777"
+        ],
+        "whatsapp": "77085754063"
+      }
+    },
+    {
+      "row": 28,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервисный центр авторазбора",
+        "city": "Щучинск",
+        "source": "two_gis",
+        "external_id": "70000001075588300",
+        "card_url": "https://2gis.ru/firm/70000001075588300",
+        "address": "улица Михаила Ломоносова, 70",
+        "latitude": "52.939668",
+        "longitude": "70.192114",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_shchuchinsk"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054214226"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77054214226"
+        ],
+        "whatsapp": "77054214226"
+      }
+    },
+    {
+      "row": 29,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor",
+        "city": "Акколь",
+        "source": "two_gis",
+        "external_id": "70000001102944822",
+        "card_url": "https://2gis.ru/firm/70000001102944822",
+        "address": "улица Александра Пушкина, 141",
+        "latitude": "52.000074",
+        "longitude": "70.921340",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052941880"
+          }
+        ],
+        "exported_at": "2026-10-18T11:28:08.156Z",
+        "phones": [
+          "77052941880",
+          "77024050115"
+        ],
+        "whatsapp": "77052941880"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 17,
+      "name": "Центр авторазбора",
+      "reason": "Нет контактов для проверки дублей"
+    },
+    {
+      "row": 18,
+      "name": "Авторазбор ВАЗ",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 22,
+      "name": "Пункт приема металлолома и авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 23,
+      "name": "Центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 24,
+      "name": "Центр разбора тракторов",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 25,
+      "name": "Пункт металлоприема",
+      "reason": "Не указан город"
+    }
+  ],
+  "rejected_whatsapp": [
+    {
+      "row": 7,
+      "url": "https://wa.me/77778247755",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 27,
+      "url": "https://wa.me/77022367501",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    }
+  ]
+}
