@@ -1,0 +1,595 @@
+{
+  "source_files": [
+    "Авторазбор Петрапавловск 21.xlsx",
+    "Авторазбор Туркестан 1.xlsx"
+  ],
+  "plans": [
+    {
+      "row": "petropavlovsk:2",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Zebra Parts, компания по авторазбору и продаже запчастей",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038382653",
+        "card_url": "https://2gis.ru/firm/70000001038382653",
+        "address": "улица Украинская, 81",
+        "latitude": "54.852012",
+        "longitude": "69.163099",
+        "website": "https://zparts.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/zebraparts"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772418350"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472418350"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77772418350",
+          "77472418350"
+        ],
+        "whatsapp": "77772418350"
+      }
+    },
+    {
+      "row": "petropavlovsk:3",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Mega, центр авторазбора",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038678610",
+        "card_url": "https://2gis.ru/firm/70000001038678610",
+        "address": "улица Украинская, 183/1",
+        "latitude": "54.852670",
+        "longitude": "69.180561",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mega.razbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77712895999"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/megaavtorazbor"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77712895999"
+        ],
+        "whatsapp": "77712895999"
+      }
+    },
+    {
+      "row": "petropavlovsk:4",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor_vazikoff, центр авторазбора",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001081318357",
+        "card_url": "https://2gis.ru/firm/70000001081318357",
+        "address": "улица Каныша Сатпаева, 168",
+        "latitude": "54.860338",
+        "longitude": "69.197894",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_vazikoff"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051499492"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77051499492"
+        ],
+        "whatsapp": "77051499492"
+      }
+    },
+    {
+      "row": "petropavlovsk:5",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001111540225",
+        "card_url": "https://2gis.ru/firm/70000001111540225",
+        "address": "улица Воровского, 219",
+        "latitude": "54.861508",
+        "longitude": "69.202324",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77009581847"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77009581847"
+        ],
+        "whatsapp": "77009581847"
+      }
+    },
+    {
+      "row": "petropavlovsk:6",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ZDV, магазин запчастей авторазбора",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001041828238",
+        "card_url": "https://2gis.ru/firm/70000001041828238",
+        "address": "улица Николая Островского, 38в",
+        "latitude": "54.854126",
+        "longitude": "69.164002",
+        "website": "https://zdv.kz/",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/club132207877"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/user/290706ful"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/zdv_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076293180"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478672518"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77076293180",
+          "77478672518"
+        ],
+        "whatsapp": "77076293180"
+      }
+    },
+    {
+      "row": "petropavlovsk:7",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Максимум, сервис авторазбора и СТО",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001083612435",
+        "card_url": "https://2gis.ru/firm/70000001083612435",
+        "address": "улица Щорса, 48",
+        "latitude": "54.846638",
+        "longitude": "69.196616",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_petropavlovsk"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77081627578"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avtorazbor_petropavlovsk"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77081627578"
+        ],
+        "whatsapp": "77081627578"
+      }
+    },
+    {
+      "row": "petropavlovsk:8",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Berloga, автосервис и центр авторазбора",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001090649620",
+        "card_url": "https://2gis.ru/firm/70000001090649620",
+        "address": "улица Сергея Гуденко, 1",
+        "latitude": "54.880695",
+        "longitude": "69.130703",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto_razbor_berloga"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77716579234"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77716579234"
+        ],
+        "whatsapp": "77716579234"
+      }
+    },
+    {
+      "row": "petropavlovsk:9",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Винт, мастерская по авторазбору",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001039954438",
+        "card_url": "https://2gis.ru/firm/70000001039954438",
+        "address": "улица Украинская, 218",
+        "latitude": "54.853340",
+        "longitude": "69.182173",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor.vint"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055454619"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77055454619"
+        ],
+        "whatsapp": "77055454619"
+      }
+    },
+    {
+      "row": "petropavlovsk:10",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038780679",
+        "card_url": "https://2gis.ru/firm/70000001038780679",
+        "address": "улица Космонавтов, 28",
+        "latitude": "54.842995",
+        "longitude": "69.172964",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052085230"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776076750"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77776076750",
+          "77052085230"
+        ],
+        "whatsapp": "77052085230"
+      }
+    },
+    {
+      "row": "petropavlovsk:11",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "АвтоПлюс, склад №2",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038541112",
+        "card_url": "https://2gis.ru/firm/70000001038541112",
+        "address": "улица Украинская, 244",
+        "latitude": "54.853983",
+        "longitude": "69.194779",
+        "website": "https://autoplus-razbor.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775551407"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079785775"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77079785775",
+          "77775551407"
+        ],
+        "whatsapp": "77775551407"
+      }
+    },
+    {
+      "row": "petropavlovsk:12",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская по авторазбору",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001040930102",
+        "card_url": "https://2gis.ru/firm/70000001040930102",
+        "address": "улица Белинского, 60",
+        "latitude": "54.846950",
+        "longitude": "69.174152",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77055454905"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "petropavlovsk:14",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "15 Регион, центр авторазбора и закупа авто",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038903051",
+        "card_url": "https://2gis.ru/firm/70000001038903051",
+        "address": "Индустриальный проезд, 12а",
+        "latitude": "54.885079",
+        "longitude": "69.172799",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774170305"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77774170305"
+        ],
+        "whatsapp": "77774170305"
+      }
+    },
+    {
+      "row": "petropavlovsk:15",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Подстанция, центр авторазбора",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001042965185",
+        "card_url": "https://2gis.ru/firm/70000001042965185",
+        "address": "проезд Ильи Залманова, 12/1",
+        "latitude": "54.864797",
+        "longitude": "69.161670",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773267630"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77773267630",
+          "77078079076"
+        ],
+        "whatsapp": "77773267630"
+      }
+    },
+    {
+      "row": "petropavlovsk:16",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервис авторазбора из Германии",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038778652",
+        "card_url": "https://2gis.ru/firm/70000001038778652",
+        "address": "улица Садовая, 11а",
+        "latitude": "54.848503",
+        "longitude": "69.186918",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77025411411"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77715330565"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77057011010",
+          "77025411411",
+          "77715330565"
+        ],
+        "whatsapp": "77025411411"
+      }
+    },
+    {
+      "row": "petropavlovsk:18",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "15_region_swap, СТО и авторазбор японских автомобилей",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001062888345",
+        "card_url": "https://2gis.ru/firm/70000001062888345",
+        "address": "улица Чернышевского, 81/1",
+        "latitude": "54.877029",
+        "longitude": "69.109463",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazborjapan15region"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77058664237"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77058664237"
+        ],
+        "whatsapp": "77058664237"
+      }
+    },
+    {
+      "row": "petropavlovsk:19",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Ауди & Фольксваген, авторазбор",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001111436075",
+        "card_url": "https://2gis.ru/firm/70000001111436075",
+        "address": "1-й Карьерный проезд, 8",
+        "latitude": "54.904549",
+        "longitude": "69.082171",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77058900907"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avtorazbor_vag"
+          }
+        ],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77058900907"
+        ],
+        "whatsapp": "77058900907"
+      }
+    },
+    {
+      "row": "petropavlovsk:21",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Авто-парус, центр по грузовому авторазбору и ремонту грузовой техники",
+        "city": "Петропавловск",
+        "source": "two_gis",
+        "external_id": "70000001038727812",
+        "card_url": "https://2gis.ru/firm/70000001038727812",
+        "address": "улица Перминовых, 73",
+        "latitude": "54.864156",
+        "longitude": "69.109676",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:06:10.503Z",
+        "phones": [
+          "77711356767",
+          "77711353377"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "turkestan:2",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автосервис",
+        "city": "Туркестан",
+        "source": "two_gis",
+        "external_id": "70000001115056471",
+        "card_url": "https://2gis.ru/firm/70000001115056471",
+        "address": "улица Акбастау, 5",
+        "latitude": "43.327847",
+        "longitude": "68.314794",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:07:32.701Z",
+        "phones": [
+          "77716952185"
+        ],
+        "whatsapp": ""
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": "petropavlovsk:13",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "petropavlovsk:17",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "petropavlovsk:20",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "petropavlovsk:22",
+      "reason": "Нет контактов"
+    }
+  ]
+}
