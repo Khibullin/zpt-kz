@@ -1,0 +1,1284 @@
+{
+  "source_file": "Авторазбор Костанай 47.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": {
+        "id": 590,
+        "name": "NaRazbor.kz",
+        "city": "Костанай",
+        "whatsapp": "77089537999"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Narazbor.kz, сервисный центр",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001041760342",
+        "card_url": "https://2gis.ru/firm/70000001041760342",
+        "address": "улица Баумана, 4/5",
+        "latitude": "53.192857",
+        "longitude": "63.606362",
+        "website": "https://narazbor.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/narazbor.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089537999"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055038002"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780613100"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77089537999",
+          "77780613100",
+          "77055038002",
+          "77085269002",
+          "77476453240"
+        ],
+        "whatsapp": "77089537999"
+      }
+    },
+    {
+      "row": 3,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Центр грузового авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001044612104",
+        "card_url": "https://2gis.ru/firm/70000001044612104",
+        "address": "улица Наримановская, 98",
+        "latitude": "53.205573",
+        "longitude": "63.620203",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772374197"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773017164"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77772374197",
+          "77773017164"
+        ],
+        "whatsapp": "77772374197"
+      }
+    },
+    {
+      "row": 4,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001083265896",
+        "card_url": "https://2gis.ru/firm/70000001083265896",
+        "address": "улица Хакимжановой, 10",
+        "latitude": "53.195629",
+        "longitude": "63.629549",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051454422"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77051454422",
+          "77142500713"
+        ],
+        "whatsapp": "77051454422"
+      }
+    },
+    {
+      "row": 5,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001037282457",
+        "card_url": "https://2gis.ru/firm/70000001037282457",
+        "address": "улица Чехова, 73",
+        "latitude": "53.215087",
+        "longitude": "63.618650",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775817498"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776354602"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77775817498",
+          "77776354602"
+        ],
+        "whatsapp": "77775817498"
+      }
+    },
+    {
+      "row": 6,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001042776747",
+        "card_url": "https://2gis.ru/firm/70000001042776747",
+        "address": "улица Ленинградская, 42",
+        "latitude": "53.200557",
+        "longitude": "63.596329",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/auto_razbor_10"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714299269"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77714299269"
+        ],
+        "whatsapp": "77714299269"
+      }
+    },
+    {
+      "row": 7,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001036589822",
+        "card_url": "https://2gis.ru/firm/70000001036589822",
+        "address": "проспект Аль-Фараби, 111Б/4",
+        "latitude": "53.217176",
+        "longitude": "63.618293",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052154778"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77052154778"
+        ],
+        "whatsapp": "77052154778"
+      }
+    },
+    {
+      "row": 8,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001111497988",
+        "card_url": "https://2gis.ru/firm/70000001111497988",
+        "address": "проспект Аль-Фараби, 111Б/3",
+        "latitude": "53.218726",
+        "longitude": "63.618539",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011864868"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77011864868"
+        ],
+        "whatsapp": "77011864868"
+      }
+    },
+    {
+      "row": 10,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001043875799",
+        "card_url": "https://2gis.ru/firm/70000001043875799",
+        "address": "улица Майлина, 2/1А",
+        "latitude": "53.220825",
+        "longitude": "63.611185",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/auto_razbor_kst"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012061402"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77012061402"
+        ],
+        "whatsapp": "77012061402"
+      }
+    },
+    {
+      "row": 13,
+      "seller": {
+        "id": 590,
+        "name": "NaRazbor.kz",
+        "city": "Костанай",
+        "whatsapp": "77089537999"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Narazbor.kz, центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001043166675",
+        "card_url": "https://2gis.ru/firm/70000001043166675",
+        "address": "улица Карбышева, 44/1а",
+        "latitude": "53.167907",
+        "longitude": "63.581986",
+        "website": "https://narazbor.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/narazbor.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089537999"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055038002"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780613100"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77089537999",
+          "77780613100",
+          "77055038002",
+          "77085269002",
+          "77476453240"
+        ],
+        "whatsapp": "77089537999"
+      }
+    },
+    {
+      "row": 14,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Contract Motors, магазин контрактных автозапчастей",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001092451248",
+        "card_url": "https://2gis.ru/firm/70000001092451248",
+        "address": "улица Дощанова, 186Б",
+        "latitude": "53.222033",
+        "longitude": "63.604985",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/contractmotorsqostanay"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772470333"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77772470333"
+        ],
+        "whatsapp": "77772470333"
+      }
+    },
+    {
+      "row": 15,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Auto restar dvs, отдел автозапчастей",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001035471482",
+        "card_url": "https://2gis.ru/firm/70000001035471482",
+        "address": "проспект Аль-Фараби, 111а",
+        "latitude": "53.220938",
+        "longitude": "63.618671",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774429678"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77774429678"
+        ],
+        "whatsapp": "77774429678"
+      }
+    },
+    {
+      "row": 16,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Vazoovvv Team, СТО",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001081798094",
+        "card_url": "https://2gis.ru/firm/70000001081798094",
+        "address": "",
+        "latitude": "53.230458",
+        "longitude": "63.660098",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vazoovvv"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051617274"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77051617274"
+        ],
+        "whatsapp": "77051617274"
+      }
+    },
+    {
+      "row": 17,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ВсеАвто, центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001045599770",
+        "card_url": "https://2gis.ru/firm/70000001045599770",
+        "address": "проспект Нурсултана Назарбаева, 153",
+        "latitude": "53.230054",
+        "longitude": "63.629579",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772761678"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772860196"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77772860196",
+          "77772761678"
+        ],
+        "whatsapp": "77772761678"
+      }
+    },
+    {
+      "row": 18,
+      "seller": {
+        "id": 580,
+        "name": "Avtorazbor10.kz",
+        "city": "Костанай",
+        "whatsapp": "77714303030"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor10.kz, центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001039159448",
+        "card_url": "https://2gis.ru/firm/70000001039159448",
+        "address": "улица Челябинская, 28а",
+        "latitude": "53.196340",
+        "longitude": "63.575240",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772746265"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714303030"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77714303030",
+          "77772746265"
+        ],
+        "whatsapp": "77772746265"
+      }
+    },
+    {
+      "row": 19,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001066564242",
+        "card_url": "https://2gis.ru/firm/70000001066564242",
+        "address": "проспект Абая, 316а/1",
+        "latitude": "53.225072",
+        "longitude": "63.656534",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_tymarkst"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77087650551"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771854716"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77087650551",
+          "77771854716"
+        ],
+        "whatsapp": "77087650551"
+      }
+    },
+    {
+      "row": 20,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Тобыл",
+        "source": "two_gis",
+        "external_id": "70000001052141877",
+        "card_url": "https://2gis.ru/firm/70000001052141877",
+        "address": "улица Ленина, 241",
+        "latitude": "53.209340",
+        "longitude": "63.687846",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77475145485"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77475145485"
+        ],
+        "whatsapp": "77475145485"
+      }
+    },
+    {
+      "row": 21,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Peetron contract parts, магазин",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001075158689",
+        "card_url": "https://2gis.ru/firm/70000001075158689",
+        "address": "улица Бородина, 235Б/1",
+        "latitude": "53.240990",
+        "longitude": "63.652128",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079988772"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077888814"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77079988772",
+          "77077888814"
+        ],
+        "whatsapp": "77079988772"
+      }
+    },
+    {
+      "row": 22,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Компания по авторазбору",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001091753774",
+        "card_url": "https://2gis.ru/firm/70000001091753774",
+        "address": "улица Шақшақ Жəнібек батыра, 50в",
+        "latitude": "53.233941",
+        "longitude": "63.557690",
+        "website": "",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/id483824524"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767131581"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77767131581"
+        ],
+        "whatsapp": "77767131581"
+      }
+    },
+    {
+      "row": 23,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "АвтоКуб, центр разбора японских автомобилей",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001036731902",
+        "card_url": "https://2gis.ru/firm/70000001036731902",
+        "address": "улица Орджоникидзе, 25В",
+        "latitude": "53.232357",
+        "longitude": "63.657904",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774159306"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77142559506",
+          "77774159306"
+        ],
+        "whatsapp": "77774159306"
+      }
+    },
+    {
+      "row": 24,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001042769423",
+        "card_url": "https://2gis.ru/firm/70000001042769423",
+        "address": "улица Карбышева, 18Б/12",
+        "latitude": "53.186340",
+        "longitude": "63.582232",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/auto_zapchasti_kst"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054521955"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77054521955"
+        ],
+        "whatsapp": "77054521955"
+      }
+    },
+    {
+      "row": 25,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "​Центр авторазбора для автомобилей из Германии",
+        "city": "Тобыл",
+        "source": "two_gis",
+        "external_id": "70000001079128974",
+        "card_url": "https://2gis.ru/firm/70000001079128974",
+        "address": "улица 40 лет Октября, 74/3а",
+        "latitude": "53.207370",
+        "longitude": "63.696745",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autorazbor10"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779698811"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77779698811"
+        ],
+        "whatsapp": "77779698811"
+      }
+    },
+    {
+      "row": 27,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "IQ auto, центр по авторазбору японских автомобилей",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001075846647",
+        "card_url": "https://2gis.ru/firm/70000001075846647",
+        "address": "проспект Нурсултана Назарбаева, 180а",
+        "latitude": "53.252380",
+        "longitude": "63.595203",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774470921"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77715901126"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77774470921",
+          "77715901126"
+        ],
+        "whatsapp": "77774470921"
+      }
+    },
+    {
+      "row": 28,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора, г. Костанай",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001036773437",
+        "card_url": "https://2gis.ru/firm/70000001036773437",
+        "address": "улица Лермонтова, 26Б",
+        "latitude": "53.230748",
+        "longitude": "63.654806",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055077762"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77055077762"
+        ],
+        "whatsapp": "77055077762"
+      }
+    },
+    {
+      "row": 29,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001036829090",
+        "card_url": "https://2gis.ru/firm/70000001036829090",
+        "address": "улица Карбышева, 50в",
+        "latitude": "53.169156",
+        "longitude": "63.590998",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/tema_avtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776391705"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77776391705"
+        ],
+        "whatsapp": "77776391705"
+      }
+    },
+    {
+      "row": 31,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001100554821",
+        "card_url": "https://2gis.ru/firm/70000001100554821",
+        "address": "",
+        "latitude": "53.176495",
+        "longitude": "63.573046",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_kst"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774120200"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77774120200"
+        ],
+        "whatsapp": "77774120200"
+      }
+    },
+    {
+      "row": 32,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Центр грузового авторазбора",
+        "city": "Тобыл",
+        "source": "two_gis",
+        "external_id": "70000001062784205",
+        "card_url": "https://2gis.ru/firm/70000001062784205",
+        "address": "улица Семина, 9/1",
+        "latitude": "53.187800",
+        "longitude": "63.683364",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77473339595"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77473339595"
+        ],
+        "whatsapp": "77473339595"
+      }
+    },
+    {
+      "row": 33,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001055458429",
+        "card_url": "https://2gis.ru/firm/70000001055458429",
+        "address": "проспект Кобыланды батыра, 3д",
+        "latitude": "53.233864",
+        "longitude": "63.662103",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor7505"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053667505"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77053667505"
+        ],
+        "whatsapp": "77053667505"
+      }
+    },
+    {
+      "row": 34,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "AsCar, центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001080662289",
+        "card_url": "https://2gis.ru/firm/70000001080662289",
+        "address": "улица Орджоникидзе, 54/8",
+        "latitude": "53.234992",
+        "longitude": "63.657732",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_as_car"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77470273187"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77470273187"
+        ],
+        "whatsapp": "77470273187"
+      }
+    },
+    {
+      "row": 35,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001060830657",
+        "card_url": "https://2gis.ru/firm/70000001060830657",
+        "address": "улица Пионерская, 6",
+        "latitude": "53.158657",
+        "longitude": "63.547257",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053041178"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77053041178"
+        ],
+        "whatsapp": "77053041178"
+      }
+    },
+    {
+      "row": 36,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ПроАвто, центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001103212018",
+        "card_url": "https://2gis.ru/firm/70000001103212018",
+        "address": "ПКСТ Краснопартизанская, 706",
+        "latitude": "53.130831",
+        "longitude": "63.559675",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77762401501"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77762401501"
+        ],
+        "whatsapp": "77762401501"
+      }
+    },
+    {
+      "row": 37,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Фирма по авторазбору",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001081325015",
+        "card_url": "https://2gis.ru/firm/70000001081325015",
+        "address": "улица Лермонтова, 28а",
+        "latitude": "53.234615",
+        "longitude": "63.648311",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055923658"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77055923658"
+        ],
+        "whatsapp": "77055923658"
+      }
+    },
+    {
+      "row": 38,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "СТО",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001039024637",
+        "card_url": "https://2gis.ru/firm/70000001039024637",
+        "address": "проспект Кобыланды батыра, 21/1",
+        "latitude": "53.242752",
+        "longitude": "63.674205",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772497033"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77772497033"
+        ],
+        "whatsapp": "77772497033"
+      }
+    },
+    {
+      "row": 39,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Тобыл",
+        "source": "two_gis",
+        "external_id": "70000001075179309",
+        "card_url": "https://2gis.ru/firm/70000001075179309",
+        "address": "улица 40 лет Октября, 3",
+        "latitude": "53.197210",
+        "longitude": "63.687136",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016201699"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77016201699"
+        ],
+        "whatsapp": "77016201699"
+      }
+    },
+    {
+      "row": 41,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Japan Express, центр авторазбора",
+        "city": "Тобыл",
+        "source": "two_gis",
+        "external_id": "70000001040892790",
+        "card_url": "https://2gis.ru/firm/70000001040892790",
+        "address": "",
+        "latitude": "53.191458",
+        "longitude": "63.692765",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77059017788"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77059017788"
+        ],
+        "whatsapp": "77059017788"
+      }
+    },
+    {
+      "row": 42,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001105261091",
+        "card_url": "https://2gis.ru/firm/70000001105261091",
+        "address": "",
+        "latitude": "53.170554",
+        "longitude": "63.576271",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77770277029"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 44,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001089633065",
+        "card_url": "https://2gis.ru/firm/70000001089633065",
+        "address": "",
+        "latitude": "53.243569",
+        "longitude": "63.664975",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto.razborca"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775803473"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77775803473"
+        ],
+        "whatsapp": "77775803473"
+      }
+    },
+    {
+      "row": 45,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр приема металлолома",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001083738511",
+        "card_url": "https://2gis.ru/firm/70000001083738511",
+        "address": "улица Гольдаде, 43",
+        "latitude": "53.257974",
+        "longitude": "63.709614",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77776509279"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 47,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Тобыл",
+        "source": "two_gis",
+        "external_id": "70000001083788070",
+        "card_url": "https://2gis.ru/firm/70000001083788070",
+        "address": "",
+        "latitude": "53.200093",
+        "longitude": "63.719552",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772473200"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77772473200"
+        ],
+        "whatsapp": "77772473200"
+      }
+    },
+    {
+      "row": 48,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Костанай",
+        "source": "two_gis",
+        "external_id": "70000001036840358",
+        "card_url": "https://2gis.ru/firm/70000001036840358",
+        "address": "улица Поповича, 1/1а",
+        "latitude": "53.262954",
+        "longitude": "63.660390",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77751427050"
+          }
+        ],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77751427050"
+        ],
+        "whatsapp": "77751427050"
+      }
+    },
+    {
+      "row": 50,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Рудный",
+        "source": "two_gis",
+        "external_id": "70000001118608207",
+        "card_url": "https://2gis.ru/firm/70000001118608207",
+        "address": "",
+        "latitude": "52.957727",
+        "longitude": "63.159093",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:56:00.192Z",
+        "phones": [
+          "77754595938"
+        ],
+        "whatsapp": ""
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 9,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 11,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 12,
+      "reason": "Общий Instagram, разные адреса и телефоны"
+    },
+    {
+      "row": 26,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 30,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    },
+    {
+      "row": 40,
+      "reason": "Общий Instagram, разные адреса и телефоны"
+    },
+    {
+      "row": 43,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 46,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 49,
+      "reason": "Общий телефон, различаются организация, адрес или город"
+    }
+  ]
+}
