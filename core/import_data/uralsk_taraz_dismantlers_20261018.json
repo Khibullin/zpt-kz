@@ -1,0 +1,1657 @@
+{
+  "source_files": [
+    "Авторазборы Уральск 20.xlsx",
+    "Авторазбор Тараз 46.xlsx"
+  ],
+  "plans": [
+    {
+      "row": "uralsk:2",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Urazap, магазин автозапчастей",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001063461392",
+        "card_url": "https://2gis.ru/firm/70000001063461392",
+        "address": "проспект Абулхаир хана, 1/7 к1",
+        "latitude": "51.230437",
+        "longitude": "51.391655",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/urazap_autoparts"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772555787"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77074526225"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77772555787"
+        ],
+        "whatsapp": "77772555787"
+      }
+    },
+    {
+      "row": "uralsk:3",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Alatay, рынок автозапчастей",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001025299277",
+        "card_url": "https://2gis.ru/firm/70000001025299277",
+        "address": "улица Тюленина, 72",
+        "latitude": "51.253124",
+        "longitude": "51.404221",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074451993"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051914166"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77051914166",
+          "77075885307",
+          "77051662691",
+          "77074451993"
+        ],
+        "whatsapp": "77074451993"
+      }
+    },
+    {
+      "row": "uralsk:4",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Байтерек, рынок авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001025381584",
+        "card_url": "https://2gis.ru/firm/70000001025381584",
+        "address": "Придорожная улица, 18",
+        "latitude": "51.264135",
+        "longitude": "51.409550",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472351983"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77472351983"
+        ],
+        "whatsapp": "77472351983"
+      }
+    },
+    {
+      "row": "uralsk:5",
+      "seller": {
+        "id": 871,
+        "name": "Barys Service, автокомплекс",
+        "city": "Уральск",
+        "whatsapp": "77016566252"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Barys Service, автокомплекс",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001025306676",
+        "card_url": "https://2gis.ru/firm/70000001025306676",
+        "address": "улица Тюленина, 49Б",
+        "latitude": "51.252109",
+        "longitude": "51.403510",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016566252"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775267878"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77016566252",
+          "77775267878",
+          "77758419441"
+        ],
+        "whatsapp": "77016566252"
+      }
+    },
+    {
+      "row": "uralsk:6",
+      "seller": {
+        "id": 872,
+        "name": "ArlanMotors, магазин б/у запчастей",
+        "city": "Уральск",
+        "whatsapp": "77052689653"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ArlanMotors, магазин б/у запчастей",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001089817781",
+        "card_url": "https://2gis.ru/firm/70000001089817781",
+        "address": "улица Тюленина, 72",
+        "latitude": "51.253231",
+        "longitude": "51.404481",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/arlanmotors"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052689653"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77026536663"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77052689653",
+          "77026536663",
+          "77776536663"
+        ],
+        "whatsapp": "77052689653"
+      }
+    },
+    {
+      "row": "uralsk:7",
+      "seller": {
+        "id": 873,
+        "name": "Арсмоторс, автокомплекс",
+        "city": "Уральск",
+        "whatsapp": "77775675843"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Арсмоторс, автокомплекс",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001077216318",
+        "card_url": "https://2gis.ru/firm/70000001077216318",
+        "address": "улица Тюленина, 49/7",
+        "latitude": "51.253599",
+        "longitude": "51.403710",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775675843"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77775675843"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77775675843"
+        ],
+        "whatsapp": "77775675843"
+      }
+    },
+    {
+      "row": "uralsk:8",
+      "seller": {
+        "id": 874,
+        "name": "Auto time, магазин автозапчастей",
+        "city": "Уральск",
+        "whatsapp": "77774761092"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Auto time, магазин автозапчастей",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001079889363",
+        "card_url": "https://2gis.ru/firm/70000001079889363",
+        "address": "улица Тюленина, 72",
+        "latitude": "51.253540",
+        "longitude": "51.404833",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto_razbor07"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774761092"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77750057105"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77774761092",
+          "77750057105"
+        ],
+        "whatsapp": "77774761092"
+      }
+    },
+    {
+      "row": "uralsk:9",
+      "seller": {
+        "id": 876,
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "whatsapp": "77052173356"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001089660276",
+        "card_url": "https://2gis.ru/firm/70000001089660276",
+        "address": "Конечный тупик, 2/2",
+        "latitude": "51.237137",
+        "longitude": "51.461408",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052173356"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77052173356"
+        ],
+        "whatsapp": "77052173356"
+      }
+    },
+    {
+      "row": "uralsk:11",
+      "seller": {
+        "id": 875,
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "whatsapp": "77773726630"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001061596543",
+        "card_url": "https://2gis.ru/firm/70000001061596543",
+        "address": "улица Тюленина, 72",
+        "latitude": "51.254095",
+        "longitude": "51.404809",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor442020"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773726630"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072609484"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77773726630",
+          "77072609484"
+        ],
+        "whatsapp": "77773726630"
+      }
+    },
+    {
+      "row": "uralsk:12",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Бутик автозапчастей",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001043999696",
+        "card_url": "https://2gis.ru/firm/70000001043999696",
+        "address": "улица Тюленина, 72",
+        "latitude": "51.253319",
+        "longitude": "51.404752",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77013193722",
+          "77016582159"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "uralsk:13",
+      "seller": {
+        "id": 881,
+        "name": "Центр авторазбора и шиномонтажа",
+        "city": "Уральск",
+        "whatsapp": "77075003366"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора и шиномонтажа",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001109512642",
+        "card_url": "https://2gis.ru/firm/70000001109512642",
+        "address": "улица Базарбая Жуманиязова, 5/2",
+        "latitude": "51.259201",
+        "longitude": "51.419220",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_uralsk_zko"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075003366"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77084940251"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77075003366",
+          "77084940251"
+        ],
+        "whatsapp": "77075003366"
+      }
+    },
+    {
+      "row": "uralsk:15",
+      "seller": {
+        "id": 878,
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "whatsapp": "77058020099"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001100622411",
+        "card_url": "https://2gis.ru/firm/70000001100622411",
+        "address": "Придорожная улица, 16а",
+        "latitude": "51.263732",
+        "longitude": "51.410021",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_uralsk"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77058020099"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77058020099"
+        ],
+        "whatsapp": "77058020099"
+      }
+    },
+    {
+      "row": "uralsk:16",
+      "seller": {
+        "id": 879,
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "whatsapp": "77474401637"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001110555757",
+        "card_url": "https://2gis.ru/firm/70000001110555757",
+        "address": "Придорожная улица, 16а",
+        "latitude": "51.263784",
+        "longitude": "51.410113",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474401637"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77474401637"
+        ],
+        "whatsapp": "77474401637"
+      }
+    },
+    {
+      "row": "uralsk:17",
+      "seller": {
+        "id": 880,
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "whatsapp": "77079507459"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001103736650",
+        "card_url": "https://2gis.ru/firm/70000001103736650",
+        "address": "Придорожная улица, 16а",
+        "latitude": "51.263962",
+        "longitude": "51.410247",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079507459"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77079507459"
+        ],
+        "whatsapp": "77079507459"
+      }
+    },
+    {
+      "row": "uralsk:18",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001115177101",
+        "card_url": "https://2gis.ru/firm/70000001115177101",
+        "address": "Придорожная улица, 16а",
+        "latitude": "51.263962",
+        "longitude": "51.410247",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_da"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77076266464"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "uralsk:19",
+      "seller": {
+        "id": 877,
+        "name": "Razborkz, центр авторазбора",
+        "city": "Уральск",
+        "whatsapp": "77766000107"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Razborkz, центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001090626981",
+        "card_url": "https://2gis.ru/firm/70000001090626981",
+        "address": "Придорожная улица, 18",
+        "latitude": "51.264135",
+        "longitude": "51.409550",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razborkz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77766000107"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77766000107"
+        ],
+        "whatsapp": "77766000107"
+      }
+    },
+    {
+      "row": "uralsk:20",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "​центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001112706742",
+        "card_url": "https://2gis.ru/firm/70000001112706742",
+        "address": "Придорожная улица, 18",
+        "latitude": "51.264135",
+        "longitude": "51.409550",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77753761151",
+          "77058404007"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "uralsk:21",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Уральск",
+        "source": "two_gis",
+        "external_id": "70000001113740747",
+        "card_url": "https://2gis.ru/firm/70000001113740747",
+        "address": "Придорожная улица, 16а",
+        "latitude": "51.263962",
+        "longitude": "51.410247",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474191996"
+          }
+        ],
+        "exported_at": "2026-10-18T11:44:28.227Z",
+        "phones": [
+          "77474191996"
+        ],
+        "whatsapp": "77474191996"
+      }
+    },
+    {
+      "row": "taraz:2",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Fosser, пункт замены масла",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001057868124",
+        "card_url": "https://2gis.ru/firm/70000001057868124",
+        "address": "Ровненский переулок, 2а",
+        "latitude": "42.936768",
+        "longitude": "71.408441",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_taraz__08"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77085700641"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77058302796",
+          "77085700641"
+        ],
+        "whatsapp": "77085700641"
+      }
+    },
+    {
+      "row": "taraz:3",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автокомек",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001116200862",
+        "card_url": "https://2gis.ru/firm/70000001116200862",
+        "address": "улица Аскарова, 160",
+        "latitude": "42.919463",
+        "longitude": "71.379675",
+        "website": "https://autokomek.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autokomek_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055565252"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77055565252"
+        ],
+        "whatsapp": "77055565252"
+      }
+    },
+    {
+      "row": "taraz:4",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автосервис",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001054797889",
+        "card_url": "https://2gis.ru/firm/70000001054797889",
+        "address": "улица Нурманбетова, 37",
+        "latitude": "42.901872",
+        "longitude": "71.430209",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77774070180"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "taraz:5",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Майс",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001101558405",
+        "card_url": "https://2gis.ru/firm/70000001101558405",
+        "address": "",
+        "latitude": "42.895872",
+        "longitude": "71.397888",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77079699905"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "taraz:6",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Car City, торговый центр автозапчастей",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001058936485",
+        "card_url": "https://2gis.ru/firm/70000001058936485",
+        "address": "улица Каратая Турысова, 10",
+        "latitude": "42.890178",
+        "longitude": "71.345158",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/carcity_08"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071330026"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77071330026"
+        ],
+        "whatsapp": "77071330026"
+      }
+    },
+    {
+      "row": "taraz:7",
+      "seller": {
+        "id": 655,
+        "name": "Megarazbor 307",
+        "city": "Тараз",
+        "whatsapp": "77763073071"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Megarazbor 307, магазин автозапчастей",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001057693399",
+        "card_url": "https://2gis.ru/firm/70000001057693399",
+        "address": "улица Аскарова, 295а",
+        "latitude": "42.941652",
+        "longitude": "71.365395",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor307"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77763073071"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77763073072"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77763073071",
+          "77763073072"
+        ],
+        "whatsapp": "77763073071"
+      }
+    },
+    {
+      "row": "taraz:8",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автомастерская",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001054530018",
+        "card_url": "https://2gis.ru/firm/70000001054530018",
+        "address": "улица Сыпатай батыра, 15/2",
+        "latitude": "42.908501",
+        "longitude": "71.403574",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771445837"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77771445837"
+        ],
+        "whatsapp": "77771445837"
+      }
+    },
+    {
+      "row": "taraz:9",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автосервис",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001054643412",
+        "card_url": "https://2gis.ru/firm/70000001054643412",
+        "address": "улица Сенкибая, 35/1",
+        "latitude": "42.921387",
+        "longitude": "71.399812",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77004007039"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "taraz:11",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 777",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001053854835",
+        "card_url": "https://2gis.ru/firm/70000001053854835",
+        "address": "улица Аскарова, 283",
+        "latitude": "42.941935",
+        "longitude": "71.369661",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/ermek_erdos"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075469365"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474038982"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77075469365"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77474038982"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@tarazavto777"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77075469365",
+          "77474038982"
+        ],
+        "whatsapp": "77075469365"
+      }
+    },
+    {
+      "row": "taraz:12",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001054917100",
+        "card_url": "https://2gis.ru/firm/70000001054917100",
+        "address": "улица Богембаева, 57а/1",
+        "latitude": "42.926635",
+        "longitude": "71.432102",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774666508"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77774666508"
+        ],
+        "whatsapp": "77774666508"
+      }
+    },
+    {
+      "row": "taraz:13",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "888, мастерская по авторазбору",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001104473218",
+        "card_url": "https://2gis.ru/firm/70000001104473218",
+        "address": "улица Аскарова, 289/1",
+        "latitude": "42.941777",
+        "longitude": "71.368585",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054658600"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@nurlybek92.888"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77054658600"
+        ],
+        "whatsapp": "77054658600"
+      }
+    },
+    {
+      "row": "taraz:15",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "BMW, мастерская авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001063186474",
+        "card_url": "https://2gis.ru/firm/70000001063186474",
+        "address": "улица Махамбет батыра, 12",
+        "latitude": "42.910798",
+        "longitude": "71.323615",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazborbmw.taraz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77473600007"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77473600007"
+        ],
+        "whatsapp": "77473600007"
+      }
+    },
+    {
+      "row": "taraz:16",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001117658463",
+        "card_url": "https://2gis.ru/firm/70000001117658463",
+        "address": "переулок Смаилова, 25",
+        "latitude": "42.941688",
+        "longitude": "71.406453",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77766445171"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77766445171"
+        ],
+        "whatsapp": "77766445171"
+      }
+    },
+    {
+      "row": "taraz:17",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "255, автосервис",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001053832428",
+        "card_url": "https://2gis.ru/firm/70000001053832428",
+        "address": "улица Аскарова, 257",
+        "latitude": "42.931126",
+        "longitude": "71.377369",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003507607"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77003507607"
+        ],
+        "whatsapp": "77003507607"
+      }
+    },
+    {
+      "row": "taraz:19",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская по авторазбору",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001086914574",
+        "card_url": "https://2gis.ru/firm/70000001086914574",
+        "address": "улица Аскарова, 281Б",
+        "latitude": "42.942147",
+        "longitude": "71.369789",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77084989707"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77084989707"
+        ],
+        "whatsapp": "77084989707"
+      }
+    },
+    {
+      "row": "taraz:21",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001103267681",
+        "card_url": "https://2gis.ru/firm/70000001103267681",
+        "address": "проспект Абая, 282",
+        "latitude": "42.871462",
+        "longitude": "71.395116",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto.razbor.taraz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77005822002"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77080880287"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77005822002",
+          "77080880287"
+        ],
+        "whatsapp": "77005822002"
+      }
+    },
+    {
+      "row": "taraz:23",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Центр грузового авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001068542080",
+        "card_url": "https://2gis.ru/firm/70000001068542080",
+        "address": "улица Акбулым, 63",
+        "latitude": "42.912545",
+        "longitude": "71.464177",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77760076102"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77760076102"
+        ],
+        "whatsapp": "77760076102"
+      }
+    },
+    {
+      "row": "taraz:25",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001118268950",
+        "card_url": "https://2gis.ru/firm/70000001118268950",
+        "address": "улица Сулейменова, 71",
+        "latitude": "42.914756",
+        "longitude": "71.355854",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77088073070"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77088073070"
+        ],
+        "whatsapp": "77088073070"
+      }
+    },
+    {
+      "row": "taraz:26",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001115138828",
+        "card_url": "https://2gis.ru/firm/70000001115138828",
+        "address": "улица Байзак батыра, 259в",
+        "latitude": "42.858674",
+        "longitude": "71.353434",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77084509252"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77084509252"
+        ],
+        "whatsapp": "77084509252"
+      }
+    },
+    {
+      "row": "taraz:27",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001064083971",
+        "card_url": "https://2gis.ru/firm/70000001064083971",
+        "address": "улица Лермонтова, 81",
+        "latitude": "42.878297",
+        "longitude": "71.353781",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lada_razbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77477244745"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77477244745"
+        ],
+        "whatsapp": "77477244745"
+      }
+    },
+    {
+      "row": "taraz:28",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "​Центр авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001104333154",
+        "card_url": "https://2gis.ru/firm/70000001104333154",
+        "address": "улица Назарбекова, 16",
+        "latitude": "42.940892",
+        "longitude": "71.371281",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771177019"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77771177019"
+        ],
+        "whatsapp": "77771177019"
+      }
+    },
+    {
+      "row": "taraz:31",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001053832313",
+        "card_url": "https://2gis.ru/firm/70000001053832313",
+        "address": "улица Аскарова, 283",
+        "latitude": "42.941935",
+        "longitude": "71.369661",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77058457427"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77058457427"
+        ],
+        "whatsapp": "77058457427"
+      }
+    },
+    {
+      "row": "taraz:34",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001102893241",
+        "card_url": "https://2gis.ru/firm/70000001102893241",
+        "address": "улица Аскарова, 301а",
+        "latitude": "42.942576",
+        "longitude": "71.367060",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789905313"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055430996"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77055430996",
+          "77789905313"
+        ],
+        "whatsapp": "77789905313"
+      }
+    },
+    {
+      "row": "taraz:36",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр по разборке автомобилей",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001107458502",
+        "card_url": "https://2gis.ru/firm/70000001107458502",
+        "address": "улица Ниеткалиева, 97",
+        "latitude": "42.915596",
+        "longitude": "71.335286",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002552128"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77002552128"
+        ],
+        "whatsapp": "77002552128"
+      }
+    },
+    {
+      "row": "taraz:37",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автосервис",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001057829347",
+        "card_url": "https://2gis.ru/firm/70000001057829347",
+        "address": "улица Сейфуллина, 1",
+        "latitude": "42.875381",
+        "longitude": "71.333142",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_4kolesa"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057776956"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77052551155",
+          "77057776956"
+        ],
+        "whatsapp": "77057776956"
+      }
+    },
+    {
+      "row": "taraz:38",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская по авторазбору",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001100804287",
+        "card_url": "https://2gis.ru/firm/70000001100804287",
+        "address": "",
+        "latitude": "42.921236",
+        "longitude": "71.478006",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77715426872"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077600201"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77715426872",
+          "77077600201"
+        ],
+        "whatsapp": "77715426872"
+      }
+    },
+    {
+      "row": "taraz:39",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Асеке, Автозапчасти",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001110915899",
+        "card_url": "https://2gis.ru/firm/70000001110915899",
+        "address": "",
+        "latitude": "42.851243",
+        "longitude": "71.338791",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77072345791"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "taraz:40",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Гараж 707, автосервис",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001076544876",
+        "card_url": "https://2gis.ru/firm/70000001076544876",
+        "address": "",
+        "latitude": "42.887990",
+        "longitude": "71.326417",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77784885688"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77784885688"
+        ],
+        "whatsapp": "77784885688"
+      }
+    },
+    {
+      "row": "taraz:41",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001117736929",
+        "card_url": "https://2gis.ru/firm/70000001117736929",
+        "address": "улица Санырак батыра, 5/2",
+        "latitude": "42.874396",
+        "longitude": "71.335410",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073218331"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77016199693",
+          "77073218331"
+        ],
+        "whatsapp": "77073218331"
+      }
+    },
+    {
+      "row": "taraz:42",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазборная мастерская",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001089459278",
+        "card_url": "https://2gis.ru/firm/70000001089459278",
+        "address": "улица Сейфуллина, 1Б",
+        "latitude": "42.875587",
+        "longitude": "71.333534",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77768777377"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77768777377",
+          "77071331215"
+        ],
+        "whatsapp": "77768777377"
+      }
+    },
+    {
+      "row": "taraz:43",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Beibarys, центр авторазбора",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001117710086",
+        "card_url": "https://2gis.ru/firm/70000001117710086",
+        "address": "улица Сейфуллина, 1а",
+        "latitude": "42.874919",
+        "longitude": "71.332341",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071080844"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77071080844"
+        ],
+        "whatsapp": "77071080844"
+      }
+    },
+    {
+      "row": "taraz:45",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "СТО",
+        "city": "Тараз",
+        "source": "two_gis",
+        "external_id": "70000001088136376",
+        "card_url": "https://2gis.ru/firm/70000001088136376",
+        "address": "улица Санырак батыра, 55д",
+        "latitude": "42.888624",
+        "longitude": "71.321410",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055796200"
+          }
+        ],
+        "exported_at": "2026-10-18T11:46:13.382Z",
+        "phones": [
+          "77055796200"
+        ],
+        "whatsapp": "77055796200"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": "uralsk:10",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "uralsk:14",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:10",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:14",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:18",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:20",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:22",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:24",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:29",
+      "reason": "Нет контактов"
+    },
+    {
+      "row": "taraz:30",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:32",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:33",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:35",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:44",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:46",
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": "taraz:47",
+      "reason": "Общий телефон, различаются адреса или названия"
+    }
+  ]
+}
