@@ -1,0 +1,744 @@
+{
+  "source_file": "Авторазбор Семей 24.xlsx",
+  "source_rows": 23,
+  "plans": [
+    {
+      "row": 2,
+      "seller": {
+        "id": 665,
+        "name": "ERB Avtodom — авторазбор и СТО",
+        "city": "Семей",
+        "whatsapp": "77079372827"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "ERB Avtodom, авторазбор и магазин автозапчастей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001052211628",
+        "card_url": "https://2gis.ru/firm/70000001052211628",
+        "address": "улица 1-я Каржаубайулы, 19/1",
+        "latitude": "50.450588",
+        "longitude": "80.284898",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789372826"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054655562"
+          }
+        ],
+        "phones": [
+          "77789372826",
+          "77054655562"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 3,
+      "seller": {
+        "id": 829,
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77774771277"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001100116531",
+        "card_url": "https://2gis.ru/firm/70000001100116531",
+        "address": "Галима Елемесова улица, 52",
+        "latitude": "50.419048",
+        "longitude": "80.241246",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazborr_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774771277"
+          }
+        ],
+        "phones": [
+          "77774771277"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 4,
+      "seller": {
+        "id": 828,
+        "name": "Toyama, автокомплекс",
+        "city": "Семей",
+        "whatsapp": "77716240557"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Toyama, автокомплекс",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001053405354",
+        "card_url": "https://2gis.ru/firm/70000001053405354",
+        "address": "улица Сеченова, 11",
+        "latitude": "50.440405",
+        "longitude": "80.255086",
+        "website": "https://toyama.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77716240557"
+          }
+        ],
+        "phones": [
+          "77077570155",
+          "77716240557",
+          "77222342563"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 5,
+      "seller": {
+        "id": 827,
+        "name": "Авторазбор Ваз, мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77009504030"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Авторазбор Ваз, мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001090681854",
+        "card_url": "https://2gis.ru/firm/70000001090681854",
+        "address": "переулок Сеченова, 9/4а",
+        "latitude": "50.447372",
+        "longitude": "80.257909",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_semey_"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77009504030"
+          }
+        ],
+        "phones": [
+          "77009504030"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 835,
+        "name": "Кайсар, СТО",
+        "city": "Семей",
+        "whatsapp": "77002359694"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Кайсар, СТО",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001103057325",
+        "card_url": "https://2gis.ru/firm/70000001103057325",
+        "address": "улица Гагарина, 209/1",
+        "latitude": "50.416768",
+        "longitude": "80.235852",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002359694"
+          }
+        ],
+        "phones": [
+          "77002359694"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 7,
+      "seller": {
+        "id": 832,
+        "name": "Vip Service, СТО",
+        "city": "Семей",
+        "whatsapp": "77714868848"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Авторазбор Семей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001085759257",
+        "card_url": "https://2gis.ru/firm/70000001085759257",
+        "address": "улица Пржевальского, 69",
+        "latitude": "50.427321",
+        "longitude": "80.298035",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714868848"
+          }
+        ],
+        "phones": [
+          "77714868848"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 8,
+      "seller": {
+        "id": 843,
+        "name": "Ерлан, мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77076542777"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Ерлан, мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001101461831",
+        "card_url": "https://2gis.ru/firm/70000001101461831",
+        "address": "",
+        "latitude": "50.423688",
+        "longitude": "80.226389",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076542777"
+          }
+        ],
+        "phones": [
+          "77076542777"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 9,
+      "seller": {
+        "id": 825,
+        "name": "BAЗ, центр авторазбора",
+        "city": "Семей",
+        "whatsapp": "77471018486"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "BAЗ, центр авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001089703540",
+        "card_url": "https://2gis.ru/firm/70000001089703540",
+        "address": "улица Асылхана Бекбаева, 39",
+        "latitude": "50.399345",
+        "longitude": "80.308217",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471018486"
+          }
+        ],
+        "phones": [
+          "77471018486"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 10,
+      "seller": {
+        "id": 837,
+        "name": "Авторазбор",
+        "city": "Семей",
+        "whatsapp": "77771465676"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Авторазбор",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001060262710",
+        "card_url": "https://2gis.ru/firm/70000001060262710",
+        "address": "улица Шугаева, 157Б/1",
+        "latitude": "50.442346",
+        "longitude": "80.229068",
+        "website": "",
+        "socials": [],
+        "phones": [
+          "77771465676"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 11,
+      "seller": {
+        "id": 844,
+        "name": "СТО",
+        "city": "Семей",
+        "whatsapp": "77779800880"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "СТО",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001112477103",
+        "card_url": "https://2gis.ru/firm/70000001112477103",
+        "address": "Гусмана Косанова улица, 85",
+        "latitude": "50.417747",
+        "longitude": "80.274058",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtoelektrik_semei_siti"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779800880"
+          }
+        ],
+        "phones": [
+          "77779800880"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 12,
+      "seller": {
+        "id": 832,
+        "name": "Vip Service, СТО",
+        "city": "Семей",
+        "whatsapp": "77714868848"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Vip Service, СТО",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001110566499",
+        "card_url": "https://2gis.ru/firm/70000001110566499",
+        "address": "улица Пржевальского, 69",
+        "latitude": "50.427321",
+        "longitude": "80.298035",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714868848"
+          }
+        ],
+        "phones": [
+          "77714868848"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 13,
+      "seller": {
+        "id": 834,
+        "name": "Dos888",
+        "city": "Семей",
+        "whatsapp": "77051914969"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Dos888",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001109726517",
+        "card_url": "https://2gis.ru/firm/70000001109726517",
+        "address": "улица Декоративный Питомник, 2/2",
+        "latitude": "50.407282",
+        "longitude": "80.281026",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_dos_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051914969"
+          }
+        ],
+        "phones": [
+          "77051914969"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 14,
+      "seller": {
+        "id": 836,
+        "name": "Шығыс Auto, центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "whatsapp": "77775658049"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Шығыс Auto, центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001059726115",
+        "card_url": "https://2gis.ru/firm/70000001059726115",
+        "address": "Абая Кунанбаева улица, 79",
+        "latitude": "50.402391",
+        "longitude": "80.249938",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775658049"
+          }
+        ],
+        "phones": [
+          "77222564714",
+          "77775658049"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 15,
+      "seller": {
+        "id": 830,
+        "name": "Lada razbor016, мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77714073807"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Lada razbor016, мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001087424107",
+        "card_url": "https://2gis.ru/firm/70000001087424107",
+        "address": "улица Бейсена Жумагелдина, 80",
+        "latitude": "50.410193",
+        "longitude": "80.304475",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lada_razbor016"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714073807"
+          }
+        ],
+        "phones": [
+          "77714073807"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 16,
+      "seller": {
+        "id": 826,
+        "name": "Грузовой авторазбор и магазин автозапчастей, Магазин грузовых автозапчастей",
+        "city": "Семей",
+        "whatsapp": "77773788620"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Грузовой авторазбор и магазин автозапчастей, Магазин грузовых автозапчастей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001067040971",
+        "card_url": "https://2gis.ru/firm/70000001067040971",
+        "address": "Тихий переулок, 10",
+        "latitude": "50.401024",
+        "longitude": "80.199276",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773788620"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779900799"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076532674"
+          }
+        ],
+        "phones": [
+          "77773788620",
+          "77779900799",
+          "77076532674"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 17,
+      "seller": {
+        "id": 838,
+        "name": "Салон авторазбора, г. Семей",
+        "city": "Семей",
+        "whatsapp": "77773538180"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Салон авторазбора, г. Семей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001053671930",
+        "card_url": "https://2gis.ru/firm/70000001053671930",
+        "address": "улица Аюченко, 1а/3",
+        "latitude": "50.409672",
+        "longitude": "80.291117",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773538180"
+          }
+        ],
+        "phones": [
+          "77773538180"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 18,
+      "seller": {
+        "id": 831,
+        "name": "Думан, авторазбор",
+        "city": "Семей",
+        "whatsapp": "77079251982"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Думан, авторазбор",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001092500047",
+        "card_url": "https://2gis.ru/firm/70000001092500047",
+        "address": "посёлок Левый Восточный, 2831",
+        "latitude": "50.396839",
+        "longitude": "80.325191",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079251982"
+          }
+        ],
+        "phones": [
+          "77079251982"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 20,
+      "seller": {
+        "id": 840,
+        "name": "Салон авторазбора",
+        "city": "Семей",
+        "whatsapp": "77775852863"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Салон авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001052783364",
+        "card_url": "https://2gis.ru/firm/70000001052783364",
+        "address": "улица Мукатая Абеулова, 23",
+        "latitude": "50.402981",
+        "longitude": "80.297073",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775852863"
+          }
+        ],
+        "phones": [
+          "77775852863"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 21,
+      "seller": {
+        "id": 841,
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77771704265"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001053844644",
+        "card_url": "https://2gis.ru/firm/70000001053844644",
+        "address": "переулок Кок-Терек, 6",
+        "latitude": "50.398334",
+        "longitude": "80.296655",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771704265"
+          }
+        ],
+        "phones": [
+          "77771704265"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 22,
+      "seller": {
+        "id": 833,
+        "name": "Авторазбор Бэха",
+        "city": "Семей",
+        "whatsapp": "77054453044"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Авторазбор Бэха",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001082744881",
+        "card_url": "https://2gis.ru/firm/70000001082744881",
+        "address": "Каныша Сатпаева улица, 282",
+        "latitude": "50.466469",
+        "longitude": "80.176031",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054453044"
+          }
+        ],
+        "phones": [
+          "77054453044"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 23,
+      "seller": {
+        "id": 839,
+        "name": "Нуржан",
+        "city": "Семей",
+        "whatsapp": "77718560256"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Нуржан",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001104146869",
+        "card_url": "https://2gis.ru/firm/70000001104146869",
+        "address": "посёлок Левый Восточный, 2925",
+        "latitude": "50.395233",
+        "longitude": "80.324850",
+        "website": "",
+        "socials": [],
+        "phones": [
+          "77718560256",
+          "77472007489"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    },
+    {
+      "row": 24,
+      "seller": {
+        "id": 842,
+        "name": "Центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "whatsapp": "77027289388"
+      },
+      "confirm_dismantler": false,
+      "org": {
+        "name": "Центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001062596798",
+        "card_url": "https://2gis.ru/firm/70000001062596798",
+        "address": "посёлок Правый Восточный, 2050",
+        "latitude": "50.392176",
+        "longitude": "80.320400",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027289388"
+          }
+        ],
+        "phones": [
+          "77077289389",
+          "77027289388"
+        ],
+        "exported_at": "2026-10-18T11:20:41.096Z"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 19,
+      "name": "Авторазбор иномарок",
+      "reason": "Общий телефон с мастерской в строке 3; название и адрес отличаются"
+    }
+  ],
+  "rejected_whatsapp": [
+    {
+      "row": 13,
+      "url": "https://wa.me/77765655515",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    }
+  ]
+}
