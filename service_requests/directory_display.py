@@ -12,7 +12,14 @@ from .models import ServiceSeller
 
 def service_card(seller):
     phone = normalize_phone_for_whatsapp(seller.whatsapp)
+    specializations = []
+    for label, value in [('Марки', seller.directory_brands), ('Тип транспорта', seller.directory_transport), ('Обслуживание', seller.directory_powertrain)]:
+        if clean_value(value):
+            specializations.append({'label': label, 'value': clean_value(value)})
+    if seller.directory_mobile_service is True:
+        specializations.append({'label': 'Выездной ремонт', 'value': 'Есть'})
     return {
+        'specializations': specializations,
         'seller': seller,
         'phone': format_phone(seller.whatsapp) if phone else '',
         'tel': '+%s' % phone if phone else '',

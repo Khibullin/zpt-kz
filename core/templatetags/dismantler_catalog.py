@@ -1,7 +1,7 @@
 """Read-only formatting for the dismantler directory list."""
 import re
 from django import template
-from core.templatetags.dismantler_detail import clean_value, address_key
+from core.templatetags.dismantler_detail import clean_value, address_key, seller_specializations
 
 register = template.Library()
 
@@ -13,6 +13,7 @@ def directory_card(seller):
     if address_key(location) == address_key(seller.address):
         location = ''
     return {'name': name or seller.name, 'location': location,
+            'specializations': seller_specializations(seller),
             'description': clean_value(seller.directory_description),
             'description_kk': clean_value(seller.directory_description_kk)}
 

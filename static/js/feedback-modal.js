@@ -47,6 +47,18 @@
     }
 
     resetModalState();
+    var trigger = event && event.currentTarget;
+    var action = trigger && trigger.getAttribute('data-organization-action');
+    var title = document.getElementById('feedbackModalTitle');
+    var lead = modal.querySelector('.feedback-modal-lead');
+    if (title) title.textContent = action === 'claim' ? 'Это моя организация' : action === 'correction' ? 'Сообщить об ошибке' : 'Обратная связь';
+    if (lead) lead.textContent = action === 'claim' ? 'Укажите вашу связь с организацией. Мы свяжемся с вами для подтверждения перед изменением карточки.' : 'Оставьте сообщение — мы свяжемся с вами в ближайшее время.';
+    var message = document.getElementById('feedbackModalMessage');
+    if (action && message) {
+      var name = trigger.getAttribute('data-organization-name') || '';
+      var url = window.location.origin + window.location.pathname;
+      message.value = (action === 'claim' ? 'Запрос на подтверждение организации: ' : 'Ошибка в карточке организации: ') + name + '\n' + url + '\n\n' + (action === 'claim' ? 'Моя связь с организацией: ' : 'Что нужно исправить: ');
+    }
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('feedback-modal-open');

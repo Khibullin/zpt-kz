@@ -16,14 +16,18 @@ def address_key(value):
     return re.sub(r'[\W_]+', '', str(value or '').casefold())
 
 
-@register.simple_tag
-def dismantler_profile(seller, card):
-    rows = []
+def seller_specializations(seller):
+    directions = ['Авторазбор'] if seller.is_dismantler else ['Продавец запчастей']
+    if 'контрактные автозапчасти' in (seller.directory_description or '').casefold():
+        directions.append('Контрактные запчасти')
+    rows = [{'label': 'Направление', 'value': ', '.join(directions)}]
+    transport = {'car': 'Легковые автомобили', 'truck': 'Грузовые автомобили'}.get(seller.transport_type, '')
+    if transport:
+        rows.append({'label': 'Тип транспорта', 'value': transport})
     for label, relation, fallback in (
-        ('Категории', 'selected_categories', seller.category),
+        ('Категории запчастей', 'selected_categories', seller.category),
         ('Марки', 'selected_brands', seller.brand_fk.name if seller.brand_fk else seller.brand),
         ('Модели', 'selected_models', seller.model_fk.name if seller.model_fk else seller.model),
-        ('Страны', 'selected_countries', seller.country_fk.name if seller.country_fk else ''),
     ):
         values = [clean_value(item.name) for item in getattr(seller, relation).all()]
         values = list(dict.fromkeys(value for value in values if value))
@@ -32,6 +36,12 @@ def dismantler_profile(seller, card):
             values = [value] if value else []
         if values:
             rows.append({'label': label, 'value': ', '.join(values)})
+    return rows
+
+
+@register.simple_tag
+def dismantler_profile(seller, card):
+    rows = seller_specializations(seller)
     schedule = card['schedule']
     groups = []
     day_order = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']

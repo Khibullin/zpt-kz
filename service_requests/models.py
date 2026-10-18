@@ -68,6 +68,12 @@ class Service(models.Model):
 # ================================
 
 class ServiceSeller(models.Model):
+    directory_brands = models.CharField(max_length=500, blank=True, verbose_name='Марки автомобилей для каталога')
+    directory_transport = models.CharField(max_length=300, blank=True, verbose_name='Типы транспорта для каталога')
+    directory_powertrain = models.CharField(max_length=300, blank=True, verbose_name='Электромобили и гибриды: подтверждённое обслуживание')
+    directory_mobile_service = models.BooleanField(null=True, blank=True, default=None, verbose_name='Выездной ремонт')
+    directory_contact_label = models.CharField(max_length=100, blank=True, verbose_name='Назначение контакта')
+    directory_entrance = models.CharField(max_length=500, blank=True, verbose_name='Уточнение входа из источника')
     SELLER_TYPES = [
         ('sto', 'СТО'),
         ('detailing', 'Детейлинг'),

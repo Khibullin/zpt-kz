@@ -106,7 +106,7 @@ class DismantlersDesignTests(TestCase):
         self.seller.notes = 'PRIVATE_AUDIT_MARKER'
         self.seller.save(update_fields=['notes'])
         page = self.client.get(reverse('parts_seller_detail_public', args=[self.seller.pk]))
-        for name in ('Japan QA', 'Toyota QA', 'Camry QA', 'Engine QA'):
+        for name in ('Toyota QA', 'Camry QA', 'Engine QA'):
             self.assertContains(page, name)
         self.assertNotContains(page, 'PRIVATE_AUDIT_MARKER')
 

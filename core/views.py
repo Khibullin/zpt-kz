@@ -1983,7 +1983,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
     )
 
     if dismantlers_only:
-        sellers = sellers.filter(is_dismantler=True).select_related('brand_fk')
+        sellers = sellers.filter(is_dismantler=True).select_related('brand_fk', 'model_fk')
     else:
         sellers = sellers.filter(Q(sells_new_parts=True) | Q(directory_parts=True), is_test_seller=False).select_related('brand_fk', 'model_fk', 'country_fk')
 

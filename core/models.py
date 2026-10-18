@@ -1364,6 +1364,9 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    directory_contact_label = models.CharField(max_length=100, blank=True, verbose_name='Назначение основного контакта')
+    directory_phone2_label = models.CharField(max_length=100, blank=True, verbose_name='Назначение дополнительного контакта')
+    directory_entrance = models.CharField(max_length=500, blank=True, verbose_name='Уточнение входа из источника')
     directory_parts = models.BooleanField(default=False, verbose_name="Показывать в каталоге продавцов запчастей", help_text="Публикация по источнику. Не подтверждает новые запчасти и не включает рассылку.")
     catalog_only = models.BooleanField(
         default=False, editable=False,
@@ -1562,6 +1565,7 @@ class Seller(models.Model):
 
 
 class SellerExtraPhone(models.Model):
+    label = models.CharField(max_length=100, blank=True, verbose_name='Назначение контакта')
     seller = models.ForeignKey(
         Seller,
         on_delete=models.CASCADE,

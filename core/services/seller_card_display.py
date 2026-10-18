@@ -95,10 +95,14 @@ def _phone_entry(raw: object) -> dict | None:
 
 def build_seller_card(seller) -> dict:
     primary = _phone_entry(seller.whatsapp) or _phone_entry(seller.phone2)
+    if primary:
+        primary['label'] = seller.directory_contact_label if _phone_entry(seller.whatsapp) else seller.directory_phone2_label
     seen = {primary['digits']} if primary else set()
     extra_phones = []
-    for raw in [seller.phone2, *[item.phone for item in seller.extra_phones.all()]]:
+    for raw, label in [(seller.phone2, seller.directory_phone2_label), *[(item.phone, item.label) for item in seller.extra_phones.all()]]:
         entry = _phone_entry(raw)
+        if entry:
+            entry['label'] = label
         if entry and entry['digits'] not in seen:
             seen.add(entry['digits'])
             extra_phones.append(entry)

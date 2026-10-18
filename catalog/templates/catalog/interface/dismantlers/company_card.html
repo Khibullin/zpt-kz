@@ -5,6 +5,7 @@
     {% if seller.city %}<p class="directory-city">{% ui_icon 'pin' %}{{ seller.city }}</p>{% endif %}
     {% if seller.address %}<p class="directory-address">{{ seller.address }}</p>{% endif %}
     {% if entry.location %}<p class="directory-address">{{ entry.location }}</p>{% endif %}
+    {% for row in entry.specializations %}{% if row.label != "Модели" %}<p class="directory-description"><strong>{{ row.label }}:</strong> {{ row.value|truncatechars:110 }}</p>{% endif %}{% endfor %}
     {% if entry.description or entry.description_kk %}<p class="directory-description" data-ru="{{ entry.description|default:entry.description_kk|truncatechars:180 }}" data-kk="{{ entry.description_kk|default:entry.description|truncatechars:180 }}">{{ entry.description|default:entry.description_kk|truncatechars:180 }}</p>{% endif %}
   </div>
   <div class="directory-card-actions">

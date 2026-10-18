@@ -867,7 +867,7 @@ class SellerContactConsentAdmin(admin.ModelAdmin):
 class SellerExtraPhoneInline(admin.TabularInline):
     model = SellerExtraPhone
     extra = 0
-    fields = ('phone',)
+    fields = ('phone', 'label')
 
 
 class SellerWorkIntervalInline(admin.TabularInline):
@@ -1426,9 +1426,12 @@ class SellerAdmin(admin.ModelAdmin):
             ),
         }),
 
-        ('Каталог авторазборов', {
+        ('Публичные сведения каталога', {
             'fields': (
                 'is_dismantler',
+                'directory_contact_label',
+                'directory_phone2_label',
+                'directory_entrance',
                 'directory_photo',
                 'directory_description',
                 'directory_description_kk',

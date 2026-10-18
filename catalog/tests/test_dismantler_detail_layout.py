@@ -16,7 +16,8 @@ class DismantlerDetailLayoutTests(TestCase):
         page = self.client.get(f'/parts-seller/{self.seller.pk}/')
         self.assertContains(page, self.seller.address, count=1)
         self.assertNotContains(page, 'Multi')
-        self.assertNotContains(page, 'org-about')
+        self.assertContains(page, 'Легковые автомобили')
+        self.assertNotContains(page, '<dt>Марки</dt>')
         self.assertContains(page, 'tel:+77001234567')
         self.assertContains(page, 'https://wa.me/77001234567')
 
