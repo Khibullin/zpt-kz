@@ -1,0 +1,883 @@
+{
+  "source_file": "Авторазбор Павлодар 30.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001118114110",
+        "card_url": "https://2gis.ru/firm/70000001118114110",
+        "address": "улица Циолковского, 29/18",
+        "latitude": "52.273299",
+        "longitude": "76.993510",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479741646"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77479741646"
+        ],
+        "whatsapp": "77479741646"
+      }
+    },
+    {
+      "row": 3,
+      "seller": {
+        "id": 568,
+        "name": "Osaka",
+        "city": "Павлодар",
+        "whatsapp": "77772878343"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Osaka, центр авторазбора и специализированный сервис по обслуживанию автомобилей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001098475817",
+        "card_url": "https://2gis.ru/firm/70000001098475817",
+        "address": "улица Украинская, 98",
+        "latitude": "52.293765",
+        "longitude": "77.007427",
+        "website": "",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/auto_razbor_pvl"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772878343"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77772878343",
+          "77478576634"
+        ],
+        "whatsapp": "77772878343"
+      }
+    },
+    {
+      "row": 4,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Box 123, СТО",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001033818040",
+        "card_url": "https://2gis.ru/firm/70000001033818040",
+        "address": "улица Ломова, 6/123",
+        "latitude": "52.266650",
+        "longitude": "77.040764",
+        "website": "",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/pvl_box123"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.pvl.box123"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77757550419"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77757550419"
+        ],
+        "whatsapp": "77757550419"
+      }
+    },
+    {
+      "row": 5,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001034164737",
+        "card_url": "https://2gis.ru/firm/70000001034164737",
+        "address": "улица Баратбаева, 23",
+        "latitude": "52.254548",
+        "longitude": "76.967970",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775488226"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777598773"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77777598773",
+          "77775488226"
+        ],
+        "whatsapp": "77775488226"
+      }
+    },
+    {
+      "row": 6,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Mercedes Garage14, центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001053020062",
+        "card_url": "https://2gis.ru/firm/70000001053020062",
+        "address": "улица Ворушина, 129",
+        "latitude": "52.247266",
+        "longitude": "76.995190",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053134144"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77053134144"
+        ],
+        "whatsapp": "77053134144"
+      }
+    },
+    {
+      "row": 7,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Turbo, центр авторазбора отечественных автомобилей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001086813470",
+        "card_url": "https://2gis.ru/firm/70000001086813470",
+        "address": "улица Усолка, 74/3",
+        "latitude": "52.241217",
+        "longitude": "76.980703",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051650841"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77051650841"
+        ],
+        "whatsapp": "77051650841"
+      }
+    },
+    {
+      "row": 8,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Al-Avto, центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001066181278",
+        "card_url": "https://2gis.ru/firm/70000001066181278",
+        "address": "улица Циолковского, 11/11",
+        "latitude": "52.272453",
+        "longitude": "76.992071",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtozapchasti_pvl"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77717000300"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77717000500"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003000555"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77717000300",
+          "77717000500",
+          "77003000555"
+        ],
+        "whatsapp": "77717000300"
+      }
+    },
+    {
+      "row": 9,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Volvo, центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001019057067",
+        "card_url": "https://2gis.ru/firm/70000001019057067",
+        "address": "улица Исы Байзакова, 131/3",
+        "latitude": "52.279076",
+        "longitude": "76.959718",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013417967"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77182321201",
+          "77013417967"
+        ],
+        "whatsapp": "77013417967"
+      }
+    },
+    {
+      "row": 10,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001019057190",
+        "card_url": "https://2gis.ru/firm/70000001019057190",
+        "address": "улица Сулейменова, 54/2",
+        "latitude": "52.297430",
+        "longitude": "77.024243",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_koreya_pvl"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785886061"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77785886061",
+          "77776051414"
+        ],
+        "whatsapp": "77785886061"
+      }
+    },
+    {
+      "row": 11,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора и контрактных автозапчастей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001033676201",
+        "card_url": "https://2gis.ru/firm/70000001033676201",
+        "address": "улица Валиханова, 57",
+        "latitude": "52.257355",
+        "longitude": "76.959168",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77776467101",
+          "77053433398"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 12,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин автозапчастей для отечественных автомобилей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001081589451",
+        "card_url": "https://2gis.ru/firm/70000001081589451",
+        "address": "улица Железнодорожников, 3",
+        "latitude": "52.303049",
+        "longitude": "77.006115",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/garazhpvl"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77768224444"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77768224444"
+        ],
+        "whatsapp": "77768224444"
+      }
+    },
+    {
+      "row": 14,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001034380448",
+        "card_url": "https://2gis.ru/firm/70000001034380448",
+        "address": "улица Камзина, 49а",
+        "latitude": "52.280916",
+        "longitude": "76.983615",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057053033"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77057053033"
+        ],
+        "whatsapp": "77057053033"
+      }
+    },
+    {
+      "row": 15,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автосервис и центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001022293411",
+        "card_url": "https://2gis.ru/firm/70000001022293411",
+        "address": "улица Торайгырова, 70/7",
+        "latitude": "52.299467",
+        "longitude": "76.959075",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_germany_pvl"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77713703737",
+          "77774616177"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 16,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Element, мастерская авторазбора и магазин автозапчастей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001019057011",
+        "card_url": "https://2gis.ru/firm/70000001019057011",
+        "address": "улица Дерова, 11/3",
+        "latitude": "52.302340",
+        "longitude": "77.024187",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto_zapchasti_pavlodar"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77780503565"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 17,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Европа, автосервис",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001018641118",
+        "card_url": "https://2gis.ru/firm/70000001018641118",
+        "address": "улица Барнаульская, 50",
+        "latitude": "52.293307",
+        "longitude": "76.984056",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777622025"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77777622025"
+        ],
+        "whatsapp": "77777622025"
+      }
+    },
+    {
+      "row": 18,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Немецкий, пункт авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001114723461",
+        "card_url": "https://2gis.ru/firm/70000001114723461",
+        "address": "улица Путейская, 60",
+        "latitude": "52.301254",
+        "longitude": "76.958260",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089776748"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avtorazbor7182"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77089776748"
+        ],
+        "whatsapp": "77089776748"
+      }
+    },
+    {
+      "row": 19,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001037164134",
+        "card_url": "https://2gis.ru/firm/70000001037164134",
+        "address": "Братьев Дюсембиновых улица, 1/14",
+        "latitude": "52.258006",
+        "longitude": "76.998098",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/katalizator_pavlodar_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013888111"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77013888111"
+        ],
+        "whatsapp": "77013888111"
+      }
+    },
+    {
+      "row": 20,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора и сервис по заказу автозапчастей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001109540681",
+        "card_url": "https://2gis.ru/firm/70000001109540681",
+        "address": "улица Украинская, 98/1",
+        "latitude": "52.294240",
+        "longitude": "77.007216",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055222144"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77055222144"
+        ],
+        "whatsapp": "77055222144"
+      }
+    },
+    {
+      "row": 21,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин автозапчастей, ИП Мукажанов Ж.С.",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001034760865",
+        "card_url": "https://2gis.ru/firm/70000001034760865",
+        "address": "проспект Нурсултана Назарбаева, 41г/1",
+        "latitude": "52.285263",
+        "longitude": "76.972139",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/pavlodarsaiman"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77758610494"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054444476"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77758610494",
+          "77054444476"
+        ],
+        "whatsapp": "77758610494"
+      }
+    },
+    {
+      "row": 22,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001077398773",
+        "card_url": "https://2gis.ru/firm/70000001077398773",
+        "address": "улица Генерала Дюсенова, 381",
+        "latitude": "52.261103",
+        "longitude": "76.948139",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079808377"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77079808377"
+        ],
+        "whatsapp": "77079808377"
+      }
+    },
+    {
+      "row": 23,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001117519715",
+        "card_url": "https://2gis.ru/firm/70000001117519715",
+        "address": "улица Путейская, 60 к д",
+        "latitude": "52.300601",
+        "longitude": "76.959049",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057505044"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77057505044"
+        ],
+        "whatsapp": "77057505044"
+      }
+    },
+    {
+      "row": 24,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автошрот",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001038348629",
+        "card_url": "https://2gis.ru/firm/70000001038348629",
+        "address": "проспект Нурсултана Назарбаева, 41в",
+        "latitude": "52.286107",
+        "longitude": "76.971993",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor7konteiner_pvl"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022106771"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77719024477"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77022106771",
+          "77719024477"
+        ],
+        "whatsapp": "77022106771"
+      }
+    },
+    {
+      "row": 25,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "077, центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001063832036",
+        "card_url": "https://2gis.ru/firm/70000001063832036",
+        "address": "улица Малайсары батыра, 19а",
+        "latitude": "52.286367",
+        "longitude": "77.001116",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor077pvl"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053422282"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77053422282"
+        ],
+        "whatsapp": "77053422282"
+      }
+    },
+    {
+      "row": 26,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001019056848",
+        "card_url": "https://2gis.ru/firm/70000001019056848",
+        "address": "Академика Бектурова улица, 340",
+        "latitude": "52.262590",
+        "longitude": "76.949863",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774503669"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77774503669"
+        ],
+        "whatsapp": "77774503669"
+      }
+    },
+    {
+      "row": 27,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "MotorLand14",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001114348366",
+        "card_url": "https://2gis.ru/firm/70000001114348366",
+        "address": "улица Камзина, 39",
+        "latitude": "52.285832",
+        "longitude": "76.983158",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010145299"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77010145299"
+        ],
+        "whatsapp": "77010145299"
+      }
+    },
+    {
+      "row": 28,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Магазин автозапчастей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001041111850",
+        "card_url": "https://2gis.ru/firm/70000001041111850",
+        "address": "улица Малайсары батыра, 89",
+        "latitude": "52.294116",
+        "longitude": "77.041963",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/t5_volkswagen_zapchasti_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77711827788"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77711827788"
+        ],
+        "whatsapp": "77711827788"
+      }
+    },
+    {
+      "row": 30,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "У Петра, центр авторазбора",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001047616142",
+        "card_url": "https://2gis.ru/firm/70000001047616142",
+        "address": "Торговая улица, 1Б",
+        "latitude": "52.309816",
+        "longitude": "76.924710",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77769757059"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77016092973",
+          "77769757059"
+        ],
+        "whatsapp": "77769757059"
+      }
+    },
+    {
+      "row": 31,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора автомобилей",
+        "city": "Павлодар",
+        "source": "two_gis",
+        "external_id": "70000001036242060",
+        "card_url": "https://2gis.ru/firm/70000001036242060",
+        "address": "Северная промышленная зона, 7/1а",
+        "latitude": "52.354413",
+        "longitude": "76.931033",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056400556"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77082471957"
+          }
+        ],
+        "exported_at": "2026-10-18T13:03:45.319Z",
+        "phones": [
+          "77056400556",
+          "77082471957"
+        ],
+        "whatsapp": "77056400556"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 13,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 29,
+      "reason": "Не указан город"
+    }
+  ]
+}
