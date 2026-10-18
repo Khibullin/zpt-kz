@@ -86,7 +86,7 @@ class UnifiedPartsFormTests(TestCase):
         )
 
     def test_form_copy_and_default_modes(self):
-        normal = self.client.get('/find-part/')
+        normal = self.client.get('/find-part/?request=1')
         used = self.client.get('/find-part/?condition=used')
         self.assertEqual(normal.status_code, 200)
         self.assertEqual(used.status_code, 200)

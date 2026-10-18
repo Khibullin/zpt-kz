@@ -1,0 +1,1006 @@
+{
+  "authorization": "Owner explicitly approved activation of all imported organisations on 2026-10-18. Future requests only. Existing geography/dispatch rules unchanged.",
+  "plans": [
+    {
+      "id": 423,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "all_countries": false,
+        "name": "DN Auto",
+        "whatsapp": "77766618686",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "all_countries": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 431,
+      "before": {
+        "is_dismantler": false,
+        "name": "Ford service",
+        "whatsapp": "77778005533",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "is_dismantler": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 446,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "name": "BMW Алматы (@bavaria_almaty) • Instagram photos and videos",
+        "whatsapp": "77750964795",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true
+      },
+      "add_brands": [
+        41
+      ]
+    },
+    {
+      "id": 550,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "name": "Audi Centre Almaty (@audi_centre_almaty) • Instagram photos and videos",
+        "whatsapp": "77780189860",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 572,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "name": "АВТОЗАПЧАСТИ И СЕРВИС СУБАРУ АЛМАТЫ (@subarushopkz) • Instagram profile",
+        "whatsapp": "77778257691",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 617,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "name": "Тойота Центр Жетысу | Официальный дилер (@toyota7su_official) • Instagram photos and videos",
+        "whatsapp": "77273131505",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 620,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "name": "Volkswagen Kazakhstan (@volkswagen_kazakhstan) • Instagram photos and videos",
+        "whatsapp": "77719333337",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 641,
+      "before": {
+        "receive_requests": true,
+        "sells_new_parts": null,
+        "name": "Тойота Алматы (@toyota.almaty) • Instagram photos and videos",
+        "whatsapp": "77753331771",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 905,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "EXPERT OIL SERVICE + UNITED OIL, №8, Сеть пунктов замены масел и автомагазинов",
+        "whatsapp": "77009787000",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 906,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Sati Auto, автосервис",
+        "whatsapp": "77478508530",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 907,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "AutoPapa, автосервис",
+        "whatsapp": "77071110450",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 908,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "brand": "",
+        "name": "Porsche Centre Almaty, Автосалон",
+        "whatsapp": "77777155540",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false,
+        "brand": "Porsche"
+      },
+      "add_brands": []
+    },
+    {
+      "id": 909,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Allur, официальный дилер Škoda",
+        "whatsapp": "77023205522",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        45
+      ]
+    },
+    {
+      "id": 910,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Mobil 1 Center, пункт замены масла",
+        "whatsapp": "77713380505",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 912,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Subaru Pro service, автосервис",
+        "whatsapp": "77075840208",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        55
+      ]
+    },
+    {
+      "id": 913,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "E-Car-cn Auto Service, автосервис электроавтомобилей",
+        "whatsapp": "77471666067",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 914,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Grand Auto Motors, сервисный центр",
+        "whatsapp": "77710719214",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 915,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Allur, официальный дилер Kia",
+        "whatsapp": "77023205522",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        60
+      ]
+    },
+    {
+      "id": 916,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Vag Gans Service, СТО",
+        "whatsapp": "77778349944",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 917,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Mycar Almaty, мультибрендовый автоцентр",
+        "whatsapp": "77028811111",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 918,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Retrofit.kz, магазин и центр автосвета",
+        "whatsapp": "77016832122",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 919,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Hyundai | Genesis Premium Al-Farabi, автосалон",
+        "whatsapp": "77012207943",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        59,
+        61
+      ]
+    },
+    {
+      "id": 920,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Транс Стартер Казахстан, компания по ремонту и продаже стартеров и генераторов",
+        "whatsapp": "77051907880",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 921,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "ГАЗель запчасти DAP, магазин автозапчастей",
+        "whatsapp": "77053058380",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        3
+      ]
+    },
+    {
+      "id": 922,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Changan Zhayik, автосалон",
+        "whatsapp": "77089011079",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        17
+      ]
+    },
+    {
+      "id": 923,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Bra Masters BMW, автосервис",
+        "whatsapp": "77074805868",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        41
+      ]
+    },
+    {
+      "id": 924,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "T4.kz, магазин автозапчастей и аксессуаров",
+        "whatsapp": "77086909878",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 925,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Hyundai Qalqaman, автосалон",
+        "whatsapp": "77013029258",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        59
+      ]
+    },
+    {
+      "id": 926,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Service Kentoff, автосервис",
+        "whatsapp": "77772722190",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 929,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Leo Service kz, автомагазин и автосервис",
+        "whatsapp": "77767772393",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 930,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "RYDANZ TRANSMATE SUNNY, шинный центр",
+        "whatsapp": "77716713732",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 931,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Subaru Almaty, автосалон",
+        "whatsapp": "77010312431",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        55
+      ]
+    },
+    {
+      "id": 932,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "GT oil service, сеть автомагазинов и автосервисов",
+        "whatsapp": "77022777571",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 933,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Allur Mailina, автосервис",
+        "whatsapp": "77717227597",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 934,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "brand": "",
+        "name": "Jaguar Land Rover Astana Motors, автосалон",
+        "whatsapp": "77073531919",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false,
+        "brand": "Jaguar"
+      },
+      "add_brands": [
+        82
+      ]
+    },
+    {
+      "id": 937,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Changan Almaty, автоцентр",
+        "whatsapp": "77077777171",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        17
+      ]
+    },
+    {
+      "id": 938,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Jdm service, автосервис и пункт замены масла",
+        "whatsapp": "77027772859",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": true
+      },
+      "add_brands": []
+    },
+    {
+      "id": 939,
+      "before": {
+        "receive_requests": false,
+        "sells_new_parts": null,
+        "transport_type": "",
+        "all_categories": false,
+        "all_countries": false,
+        "all_models": false,
+        "all_brands": false,
+        "name": "Лексус Алматы, автоцентр",
+        "whatsapp": "77080158315",
+        "is_active": true,
+        "is_paused": false,
+        "is_test_seller": false
+      },
+      "updates": {
+        "receive_requests": true,
+        "sells_new_parts": true,
+        "transport_type": "car",
+        "all_categories": true,
+        "all_countries": true,
+        "all_models": true,
+        "all_brands": false
+      },
+      "add_brands": [
+        57
+      ]
+    }
+  ],
+  "held_ids": [
+    911,
+    927,
+    928,
+    935,
+    936
+  ],
+  "service": {
+    "id": 204,
+    "name": "Sto Tdk",
+    "whatsapp": "77004414184",
+    "services": {
+      "2": "Ходовая часть",
+      "3": "Двигатель",
+      "7": "Кондиционер / печка",
+      "12": "Электрика"
+    }
+  }
+}

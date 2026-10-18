@@ -93,7 +93,7 @@ class DismantlerRequestScopeTests(TestCase):
         self.assertContains(used, 'Только мой город')
         self.assertContains(used, 'Весь Казахстан')
 
-        ordinary = self.client.get('/find-part/')
+        ordinary = self.client.get('/find-part/?request=1')
         self.assertEqual(ordinary.status_code, 200)
         self.assertContains(ordinary, 'name="is_dismantler_request" id="home-parts-condition-flag" value="0"')
         self.assertContains(ordinary, 'name="search_scope"')
