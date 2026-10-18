@@ -1,0 +1,1927 @@
+{
+  "source_files": [
+    "Авторазбор Усть каменогорскь 62.xlsx",
+    "Авторазбор Жезказган 3.xlsx"
+  ],
+  "plans": [
+    {
+      "row": "ust:2",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ФаворитAvto, центр авторазбора запчастей на иномарки",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001084304181",
+        "card_url": "https://2gis.ru/firm/70000001084304181",
+        "address": "улица Тимофеева, 68",
+        "latitude": "49.973258",
+        "longitude": "82.650981",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/favoritavto_avtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777933382"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767933382"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77777933382",
+          "77767933382"
+        ],
+        "whatsapp": "77777933382"
+      }
+    },
+    {
+      "row": "ust:3",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Car City, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721373168",
+        "card_url": "https://2gis.ru/firm/12807639721373168",
+        "address": "проспект Абая, 222",
+        "latitude": "50.003487",
+        "longitude": "82.676298",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/car_city_yka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772951177"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77762951177"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77772951177",
+          "77762951177"
+        ],
+        "whatsapp": "77772951177"
+      }
+    },
+    {
+      "row": "ust:4",
+      "seller": {
+        "id": 364,
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "whatsapp": "77773007419"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721314251",
+        "card_url": "https://2gis.ru/firm/12807639721314251",
+        "address": "улица Широкая, 21",
+        "latitude": "49.975139",
+        "longitude": "82.647802",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773007419"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77773007419"
+        ],
+        "whatsapp": "77773007419"
+      }
+    },
+    {
+      "row": "ust:6",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Sakura motors, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721313950",
+        "card_url": "https://2gis.ru/firm/12807639721313950",
+        "address": "улица Бажова, 190",
+        "latitude": "49.988725",
+        "longitude": "82.586024",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/sakuramotors"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771735555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051753637"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778327171"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77771735555",
+          "77778327171",
+          "77051753637",
+          "77771595005"
+        ],
+        "whatsapp": "77771735555"
+      }
+    },
+    {
+      "row": "ust:7",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Kuzov Market, магазин кузовных автозапчастей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001110610121",
+        "card_url": "https://2gis.ru/firm/70000001110610121",
+        "address": "улица Отдельная, 71г",
+        "latitude": "49.980479",
+        "longitude": "82.653138",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kuzov__market"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071375127"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77071375127"
+        ],
+        "whatsapp": "77071375127"
+      }
+    },
+    {
+      "row": "ust:9",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Широкая 19, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721314247",
+        "card_url": "https://2gis.ru/firm/12807639721314247",
+        "address": "улица Широкая, 19",
+        "latitude": "49.975081",
+        "longitude": "82.648092",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor19"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055058903"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77055058903"
+        ],
+        "whatsapp": "77055058903"
+      }
+    },
+    {
+      "row": "ust:10",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721373176",
+        "card_url": "https://2gis.ru/firm/12807639721373176",
+        "address": "улица Ковпака, 1",
+        "latitude": "49.974330",
+        "longitude": "82.656887",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055089629"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77055089629"
+        ],
+        "whatsapp": "77055089629"
+      }
+    },
+    {
+      "row": "ust:11",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Субарик, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721342963",
+        "card_url": "https://2gis.ru/firm/12807639721342963",
+        "address": "улица Калихан Ыскак, 77а",
+        "latitude": "49.971691",
+        "longitude": "82.570559",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772759278"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77772759278"
+        ],
+        "whatsapp": "77772759278"
+      }
+    },
+    {
+      "row": "ust:12",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Болашак, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001083423578",
+        "card_url": "https://2gis.ru/firm/70000001083423578",
+        "address": "улица Саялы, 20",
+        "latitude": "49.940209",
+        "longitude": "82.563519",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055663260"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77055663260"
+        ],
+        "whatsapp": "77055663260"
+      }
+    },
+    {
+      "row": "ust:14",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001060326199",
+        "card_url": "https://2gis.ru/firm/70000001060326199",
+        "address": "СТ Урожай, 101",
+        "latitude": "49.962324",
+        "longitude": "82.684391",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77476261446"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77476261446"
+        ],
+        "whatsapp": "77476261446"
+      }
+    },
+    {
+      "row": "ust:15",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора и автозапчастей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001094414055",
+        "card_url": "https://2gis.ru/firm/70000001094414055",
+        "address": "улица Голованова, 6",
+        "latitude": "49.968723",
+        "longitude": "82.646488",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subaru_parts_ukg"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779802200"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77779802200"
+        ],
+        "whatsapp": "77779802200"
+      }
+    },
+    {
+      "row": "ust:16",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора для легковых автомобилей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001028255427",
+        "card_url": "https://2gis.ru/firm/70000001028255427",
+        "address": "улица Тимофеева, 29",
+        "latitude": "49.971366",
+        "longitude": "82.646444",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/evakuator77777161777"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77711759927"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77711759927"
+        ],
+        "whatsapp": "77711759927"
+      }
+    },
+    {
+      "row": "ust:17",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Yokohama, центр автозапчастей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721314250",
+        "card_url": "https://2gis.ru/firm/12807639721314250",
+        "address": "улица Бажова, 356",
+        "latitude": "50.002184",
+        "longitude": "82.561633",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772476265"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77772476265",
+          "77772846099",
+          "77232212095"
+        ],
+        "whatsapp": "77772476265"
+      }
+    },
+    {
+      "row": "ust:18",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Алтай Моторс, центр авторазбора иномарок",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721397056",
+        "card_url": "https://2gis.ru/firm/12807639721397056",
+        "address": "Восточник-1 улица, 1",
+        "latitude": "49.973345",
+        "longitude": "82.559893",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779865366"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772887518"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77772887518",
+          "77772699845",
+          "77779865366",
+          "77053298022"
+        ],
+        "whatsapp": "77779865366"
+      }
+    },
+    {
+      "row": "ust:19",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Aqtau Service",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001110593816",
+        "card_url": "https://2gis.ru/firm/70000001110593816",
+        "address": "проспект Абая, 196",
+        "latitude": "50.001261",
+        "longitude": "82.671626",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kairat_uka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776541010"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@kairat_aqtau_servis"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77776541010"
+        ],
+        "whatsapp": "77776541010"
+      }
+    },
+    {
+      "row": "ust:20",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721373171",
+        "card_url": "https://2gis.ru/firm/12807639721373171",
+        "address": "улица Широкая, 15",
+        "latitude": "49.974987",
+        "longitude": "82.649075",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055298475"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77055298475"
+        ],
+        "whatsapp": "77055298475"
+      }
+    },
+    {
+      "row": "ust:21",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора отечественных машин",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001078960739",
+        "card_url": "https://2gis.ru/firm/70000001078960739",
+        "address": "улица Астафьева, 27",
+        "latitude": "49.973476",
+        "longitude": "82.647174",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057018084"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77778504141",
+          "77057018084"
+        ],
+        "whatsapp": "77057018084"
+      }
+    },
+    {
+      "row": "ust:22",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора для немецких автомобилей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721317724",
+        "card_url": "https://2gis.ru/firm/12807639721317724",
+        "address": "проспект Шакарим, 32",
+        "latitude": "49.966510",
+        "longitude": "82.619001",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771484952"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77771484952"
+        ],
+        "whatsapp": "77771484952"
+      }
+    },
+    {
+      "row": "ust:23",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "АвтоЯпония",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001025870664",
+        "card_url": "https://2gis.ru/firm/70000001025870664",
+        "address": "проспект Абая, 204",
+        "latitude": "50.002171",
+        "longitude": "82.673579",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_japan_uk"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775438393"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774950988"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77775438393",
+          "77774950988"
+        ],
+        "whatsapp": "77775438393"
+      }
+    },
+    {
+      "row": "ust:24",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора отечественных автомобилей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001043067628",
+        "card_url": "https://2gis.ru/firm/70000001043067628",
+        "address": "Западный переулок, 5",
+        "latitude": "49.986923",
+        "longitude": "82.576979",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772832437"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77772832437"
+        ],
+        "whatsapp": "77772832437"
+      }
+    },
+    {
+      "row": "ust:25",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор на маслозаводе, компания по продаже ДВС и КПП на автомобили",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721363159",
+        "card_url": "https://2gis.ru/firm/12807639721363159",
+        "address": "улица Степная, 1/1 к1",
+        "latitude": "49.946474",
+        "longitude": "82.656550",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_na_maslozavode"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057792285"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055000078"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77055000078",
+          "77057792285"
+        ],
+        "whatsapp": "77057792285"
+      }
+    },
+    {
+      "row": "ust:26",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721318086",
+        "card_url": "https://2gis.ru/firm/12807639721318086",
+        "address": "улица Бажова, 467",
+        "latitude": "50.016009",
+        "longitude": "82.518998",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77232779101",
+          "77715461824",
+          "77715461823",
+          "77232779215"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "ust:27",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Кронос 626, Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001025030228",
+        "card_url": "https://2gis.ru/firm/70000001025030228",
+        "address": "улица Серикбаева, 39а к3",
+        "latitude": "49.955108",
+        "longitude": "82.584832",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779850529"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77779850529"
+        ],
+        "whatsapp": "77779850529"
+      }
+    },
+    {
+      "row": "ust:29",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Центр грузового авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001047200391",
+        "card_url": "https://2gis.ru/firm/70000001047200391",
+        "address": "улица Толебай, 377",
+        "latitude": "49.954087",
+        "longitude": "82.544830",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054962112"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77054962112"
+        ],
+        "whatsapp": "77054962112"
+      }
+    },
+    {
+      "row": "ust:30",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автоконтинент, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001035644541",
+        "card_url": "https://2gis.ru/firm/70000001035644541",
+        "address": "улица Евгения Брусиловского, 59",
+        "latitude": "49.966792",
+        "longitude": "82.621116",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtokontinent_uka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778578833"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77778578833"
+        ],
+        "whatsapp": "77778578833"
+      }
+    },
+    {
+      "row": "ust:32",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин новых и б/у автозапчастей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001024602680",
+        "card_url": "https://2gis.ru/firm/70000001024602680",
+        "address": "улица Жақсылық Үшкемпіров, 20",
+        "latitude": "49.976298",
+        "longitude": "82.597460",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013613795"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77232784369",
+          "77013613795",
+          "77779069787"
+        ],
+        "whatsapp": "77013613795"
+      }
+    },
+    {
+      "row": "ust:33",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001032213306",
+        "card_url": "https://2gis.ru/firm/70000001032213306",
+        "address": "посёлок Загородный, 9а",
+        "latitude": "50.011961",
+        "longitude": "82.649305",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_uka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779956531"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77779956531"
+        ],
+        "whatsapp": "77779956531"
+      }
+    },
+    {
+      "row": "ust:34",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора и продаж автозапчастей для отечественных автомобилей",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001019478768",
+        "card_url": "https://2gis.ru/firm/70000001019478768",
+        "address": "улица Городская, 89а",
+        "latitude": "50.016737",
+        "longitude": "82.706170",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vaz.zapchasti.deshewle.uka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771485886"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77771485886"
+        ],
+        "whatsapp": "77771485886"
+      }
+    },
+    {
+      "row": "ust:35",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "AutoУгол, центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001040729799",
+        "card_url": "https://2gis.ru/firm/70000001040729799",
+        "address": "улица Алматинская, 24",
+        "latitude": "49.972805",
+        "longitude": "82.604453",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77055205218"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "ust:36",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "12807639721317742",
+        "card_url": "https://2gis.ru/firm/12807639721317742",
+        "address": "улица Сафонова, 74/1а",
+        "latitude": "49.985812",
+        "longitude": "82.566504",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779803344"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77779803344",
+          "77772292530",
+          "77232532573"
+        ],
+        "whatsapp": "77779803344"
+      }
+    },
+    {
+      "row": "ust:37",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Усть-Каменогорск",
+        "source": "two_gis",
+        "external_id": "70000001115676111",
+        "card_url": "https://2gis.ru/firm/70000001115676111",
+        "address": "улица Щербакова, 50",
+        "latitude": "50.014526",
+        "longitude": "82.539594",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razborsubarushop"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471117843"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77471117843"
+        ],
+        "whatsapp": "77471117843"
+      }
+    },
+    {
+      "row": "ust:38",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Auto Japan 16, центр авторазбора",
+        "city": "Риддер",
+        "source": "two_gis",
+        "external_id": "70000001099173814",
+        "card_url": "https://2gis.ru/firm/70000001099173814",
+        "address": "Семипалатинская улица, 58а",
+        "latitude": "50.334271",
+        "longitude": "83.518618",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/auto_japan16"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77085386160"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "ust:39",
+      "seller": {
+        "id": 825,
+        "name": "BAЗ, центр авторазбора",
+        "city": "Семей",
+        "whatsapp": "77471018486"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "BAЗ, центр авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001089703540",
+        "card_url": "https://2gis.ru/firm/70000001089703540",
+        "address": "улица Асылхана Бекбаева, 39",
+        "latitude": "50.399345",
+        "longitude": "80.308217",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471018486"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77471018486"
+        ],
+        "whatsapp": "77471018486"
+      }
+    },
+    {
+      "row": "ust:40",
+      "seller": {
+        "id": 832,
+        "name": "Vip Service, СТО",
+        "city": "Семей",
+        "whatsapp": "77714868848"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Семей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001085759257",
+        "card_url": "https://2gis.ru/firm/70000001085759257",
+        "address": "улица Пржевальского, 69",
+        "latitude": "50.427321",
+        "longitude": "80.298035",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714868848"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77714868848"
+        ],
+        "whatsapp": "77714868848"
+      }
+    },
+    {
+      "row": "ust:41",
+      "seller": {
+        "id": 827,
+        "name": "Авторазбор Ваз, мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77009504030"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Ваз, мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001090681854",
+        "card_url": "https://2gis.ru/firm/70000001090681854",
+        "address": "переулок Сеченова, 9/4а",
+        "latitude": "50.447372",
+        "longitude": "80.257909",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_semey_"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77009504030"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77009504030"
+        ],
+        "whatsapp": "77009504030"
+      }
+    },
+    {
+      "row": "ust:42",
+      "seller": {
+        "id": 826,
+        "name": "Грузовой авторазбор и магазин автозапчастей, Магазин грузовых автозапчастей",
+        "city": "Семей",
+        "whatsapp": "77773788620"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Грузовой авторазбор и магазин автозапчастей, Магазин грузовых автозапчастей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001067040971",
+        "card_url": "https://2gis.ru/firm/70000001067040971",
+        "address": "Тихий переулок, 10",
+        "latitude": "50.401024",
+        "longitude": "80.199276",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773788620"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779900799"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076532674"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77773788620",
+          "77779900799",
+          "77076532674"
+        ],
+        "whatsapp": "77773788620"
+      }
+    },
+    {
+      "row": "ust:43",
+      "seller": {
+        "id": 828,
+        "name": "Toyama, автокомплекс",
+        "city": "Семей",
+        "whatsapp": "77716240557"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Toyama, автокомплекс",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001053405354",
+        "card_url": "https://2gis.ru/firm/70000001053405354",
+        "address": "улица Сеченова, 11",
+        "latitude": "50.440405",
+        "longitude": "80.255086",
+        "website": "https://toyama.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77716240557"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77077570155",
+          "77716240557",
+          "77222342563"
+        ],
+        "whatsapp": "77716240557"
+      }
+    },
+    {
+      "row": "ust:44",
+      "seller": {
+        "id": 830,
+        "name": "Lada razbor016, мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77714073807"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Lada razbor016, мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001087424107",
+        "card_url": "https://2gis.ru/firm/70000001087424107",
+        "address": "улица Бейсена Жумагелдина, 80",
+        "latitude": "50.410193",
+        "longitude": "80.304475",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lada_razbor016"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714073807"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77714073807"
+        ],
+        "whatsapp": "77714073807"
+      }
+    },
+    {
+      "row": "ust:45",
+      "seller": {
+        "id": 829,
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77774771277"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001100116531",
+        "card_url": "https://2gis.ru/firm/70000001100116531",
+        "address": "Галима Елемесова улица, 52",
+        "latitude": "50.419048",
+        "longitude": "80.241246",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazborr_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774771277"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77774771277"
+        ],
+        "whatsapp": "77774771277"
+      }
+    },
+    {
+      "row": "ust:46",
+      "seller": {
+        "id": 831,
+        "name": "Думан, авторазбор",
+        "city": "Семей",
+        "whatsapp": "77079251982"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Думан, авторазбор",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001092500047",
+        "card_url": "https://2gis.ru/firm/70000001092500047",
+        "address": "посёлок Левый Восточный, 2831",
+        "latitude": "50.396839",
+        "longitude": "80.325191",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079251982"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77079251982"
+        ],
+        "whatsapp": "77079251982"
+      }
+    },
+    {
+      "row": "ust:47",
+      "seller": {
+        "id": 665,
+        "name": "ERB Avtodom — авторазбор и СТО",
+        "city": "Семей",
+        "whatsapp": "77079372827"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ERB Avtodom, авторазбор и магазин автозапчастей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001052211628",
+        "card_url": "https://2gis.ru/firm/70000001052211628",
+        "address": "улица 1-я Каржаубайулы, 19/1",
+        "latitude": "50.450588",
+        "longitude": "80.284898",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789372826"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054655562"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77789372826",
+          "77054655562"
+        ],
+        "whatsapp": "77789372826"
+      }
+    },
+    {
+      "row": "ust:48",
+      "seller": {
+        "id": 832,
+        "name": "Vip Service, СТО",
+        "city": "Семей",
+        "whatsapp": "77714868848"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Vip Service, СТО",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001110566499",
+        "card_url": "https://2gis.ru/firm/70000001110566499",
+        "address": "улица Пржевальского, 69",
+        "latitude": "50.427321",
+        "longitude": "80.298035",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714868848"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77714868848"
+        ],
+        "whatsapp": "77714868848"
+      }
+    },
+    {
+      "row": "ust:49",
+      "seller": {
+        "id": 833,
+        "name": "Авторазбор Бэха",
+        "city": "Семей",
+        "whatsapp": "77054453044"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор Бэха",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001082744881",
+        "card_url": "https://2gis.ru/firm/70000001082744881",
+        "address": "Каныша Сатпаева улица, 282",
+        "latitude": "50.466469",
+        "longitude": "80.176031",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054453044"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77054453044"
+        ],
+        "whatsapp": "77054453044"
+      }
+    },
+    {
+      "row": "ust:50",
+      "seller": {
+        "id": 834,
+        "name": "Dos888",
+        "city": "Семей",
+        "whatsapp": "77051914969"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Dos888",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001109726517",
+        "card_url": "https://2gis.ru/firm/70000001109726517",
+        "address": "улица Декоративный Питомник, 2/2",
+        "latitude": "50.407282",
+        "longitude": "80.281026",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_dos_semey"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051914969"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77051914969"
+        ],
+        "whatsapp": "77051914969"
+      }
+    },
+    {
+      "row": "ust:51",
+      "seller": {
+        "id": 835,
+        "name": "Кайсар, СТО",
+        "city": "Семей",
+        "whatsapp": "77002359694"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Кайсар, СТО",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001103057325",
+        "card_url": "https://2gis.ru/firm/70000001103057325",
+        "address": "улица Гагарина, 209/1",
+        "latitude": "50.416768",
+        "longitude": "80.235852",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002359694"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77002359694"
+        ],
+        "whatsapp": "77002359694"
+      }
+    },
+    {
+      "row": "ust:52",
+      "seller": {
+        "id": 836,
+        "name": "Шығыс Auto, центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "whatsapp": "77775658049"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Шығыс Auto, центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001059726115",
+        "card_url": "https://2gis.ru/firm/70000001059726115",
+        "address": "Абая Кунанбаева улица, 79",
+        "latitude": "50.402391",
+        "longitude": "80.249938",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775658049"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77222564714",
+          "77775658049"
+        ],
+        "whatsapp": "77775658049"
+      }
+    },
+    {
+      "row": "ust:53",
+      "seller": {
+        "id": 838,
+        "name": "Салон авторазбора, г. Семей",
+        "city": "Семей",
+        "whatsapp": "77773538180"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Салон авторазбора, г. Семей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001053671930",
+        "card_url": "https://2gis.ru/firm/70000001053671930",
+        "address": "улица Аюченко, 1а/3",
+        "latitude": "50.409672",
+        "longitude": "80.291117",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773538180"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77773538180"
+        ],
+        "whatsapp": "77773538180"
+      }
+    },
+    {
+      "row": "ust:54",
+      "seller": {
+        "id": 839,
+        "name": "Нуржан",
+        "city": "Семей",
+        "whatsapp": "77718560256"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Нуржан",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001104146869",
+        "card_url": "https://2gis.ru/firm/70000001104146869",
+        "address": "посёлок Левый Восточный, 2925",
+        "latitude": "50.395233",
+        "longitude": "80.324850",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77718560256",
+          "77472007489"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "ust:55",
+      "seller": {
+        "id": 837,
+        "name": "Авторазбор",
+        "city": "Семей",
+        "whatsapp": "77771465676"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001060262710",
+        "card_url": "https://2gis.ru/firm/70000001060262710",
+        "address": "улица Шугаева, 157Б/1",
+        "latitude": "50.442346",
+        "longitude": "80.229068",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77771465676"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "ust:56",
+      "seller": {
+        "id": 842,
+        "name": "Центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "whatsapp": "77027289388"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора японских автомобилей",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001062596798",
+        "card_url": "https://2gis.ru/firm/70000001062596798",
+        "address": "посёлок Правый Восточный, 2050",
+        "latitude": "50.392176",
+        "longitude": "80.320400",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027289388"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77077289389",
+          "77027289388"
+        ],
+        "whatsapp": "77027289388"
+      }
+    },
+    {
+      "row": "ust:57",
+      "seller": {
+        "id": 841,
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77771704265"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001053844644",
+        "card_url": "https://2gis.ru/firm/70000001053844644",
+        "address": "переулок Кок-Терек, 6",
+        "latitude": "50.398334",
+        "longitude": "80.296655",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771704265"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77771704265"
+        ],
+        "whatsapp": "77771704265"
+      }
+    },
+    {
+      "row": "ust:58",
+      "seller": {
+        "id": 840,
+        "name": "Салон авторазбора",
+        "city": "Семей",
+        "whatsapp": "77775852863"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Салон авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001052783364",
+        "card_url": "https://2gis.ru/firm/70000001052783364",
+        "address": "улица Мукатая Абеулова, 23",
+        "latitude": "50.402981",
+        "longitude": "80.297073",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775852863"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77775852863"
+        ],
+        "whatsapp": "77775852863"
+      }
+    },
+    {
+      "row": "ust:59",
+      "seller": {
+        "id": 843,
+        "name": "Ерлан, мастерская авторазбора",
+        "city": "Семей",
+        "whatsapp": "77076542777"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Ерлан, мастерская авторазбора",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001101461831",
+        "card_url": "https://2gis.ru/firm/70000001101461831",
+        "address": "",
+        "latitude": "50.423688",
+        "longitude": "80.226389",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076542777"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77076542777"
+        ],
+        "whatsapp": "77076542777"
+      }
+    },
+    {
+      "row": "ust:61",
+      "seller": {
+        "id": 844,
+        "name": "СТО",
+        "city": "Семей",
+        "whatsapp": "77779800880"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "СТО",
+        "city": "Семей",
+        "source": "two_gis",
+        "external_id": "70000001112477103",
+        "card_url": "https://2gis.ru/firm/70000001112477103",
+        "address": "Гусмана Косанова улица, 85",
+        "latitude": "50.417747",
+        "longitude": "80.274058",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtoelektrik_semei_siti"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779800880"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77779800880"
+        ],
+        "whatsapp": "77779800880"
+      }
+    },
+    {
+      "row": "ust:63",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервис авторазбора",
+        "city": "Аягоз",
+        "source": "two_gis",
+        "external_id": "70000001116507920",
+        "card_url": "https://2gis.ru/firm/70000001116507920",
+        "address": "",
+        "latitude": "47.972751",
+        "longitude": "80.412961",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024650939"
+          }
+        ],
+        "exported_at": "2026-10-18T13:10:17.057Z",
+        "phones": [
+          "77024650939"
+        ],
+        "whatsapp": "77024650939"
+      }
+    },
+    {
+      "row": "zhez:2",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Сатпаев",
+        "source": "two_gis",
+        "external_id": "70000001096827144",
+        "card_url": "https://2gis.ru/firm/70000001096827144",
+        "address": "улица Толе Би, 17",
+        "latitude": "47.895367",
+        "longitude": "67.558341",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorasbor_satpaev"
+          }
+        ],
+        "exported_at": "2026-10-18T13:08:59.714Z",
+        "phones": [
+          "77712594480",
+          "77478585921",
+          "77053148832",
+          "77765098959"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": "zhez:3",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtokuzov_20",
+        "city": "Сатпаев",
+        "source": "two_gis",
+        "external_id": "70000001111709191",
+        "card_url": "https://2gis.ru/firm/70000001111709191",
+        "address": "",
+        "latitude": "47.914946",
+        "longitude": "67.529201",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtokuzov_20"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777589898"
+          }
+        ],
+        "exported_at": "2026-10-18T13:08:59.714Z",
+        "phones": [
+          "77712051010",
+          "77777589898",
+          "77479556002",
+          "77785389999"
+        ],
+        "whatsapp": "77777589898"
+      }
+    },
+    {
+      "row": "zhez:4",
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Сатпаев",
+        "source": "two_gis",
+        "external_id": "70000001069630473",
+        "card_url": "https://2gis.ru/firm/70000001069630473",
+        "address": "",
+        "latitude": "47.895283",
+        "longitude": "67.535007",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053344039"
+          }
+        ],
+        "exported_at": "2026-10-18T13:08:59.714Z",
+        "phones": [
+          "77053344039"
+        ],
+        "whatsapp": "77053344039"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": "ust:5",
+      "reason": "Мототехника: нет соответствующего типа транспорта в каталоге"
+    },
+    {
+      "row": "ust:8",
+      "reason": "Общие контакты с организацией в другом городе"
+    },
+    {
+      "row": "ust:13",
+      "reason": "Общий телефон у разных организаций и адресов"
+    },
+    {
+      "row": "ust:28",
+      "reason": "Смешанная легковая и грузовая специализация требует уточнения"
+    },
+    {
+      "row": "ust:31",
+      "reason": "Общий телефон у разных организаций и адресов"
+    },
+    {
+      "row": "ust:60",
+      "reason": "Общий телефон, другой адрес и название"
+    },
+    {
+      "row": "ust:62",
+      "reason": "Нет контактов"
+    }
+  ]
+}
