@@ -1,0 +1,990 @@
+{
+  "source_file": "Авторазбор Атырау 32.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": {
+        "id": 884,
+        "name": "Avtorazbor R8, центр по продаже автозапчастей",
+        "city": "Атырау",
+        "whatsapp": "77087618258"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor R8, центр по продаже автозапчастей",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001057217797",
+        "card_url": "https://2gis.ru/firm/70000001057217797",
+        "address": "трасса Атырау-Доссор, ст110",
+        "latitude": "47.151315",
+        "longitude": "51.992622",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_r8"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77087618258"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789572334"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77789572334",
+          "77087618258"
+        ],
+        "whatsapp": "77087618258"
+      }
+    },
+    {
+      "row": 3,
+      "seller": {
+        "id": 883,
+        "name": "Avtorazbor.Turbo, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77022761530"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor.Turbo, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001083336283",
+        "card_url": "https://2gis.ru/firm/70000001083336283",
+        "address": "1-й проезд, 3",
+        "latitude": "47.115943",
+        "longitude": "51.962723",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.turbo"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022761530"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013406489"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011013637"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77011013637",
+          "77022761530",
+          "77013406489"
+        ],
+        "whatsapp": "77022761530"
+      }
+    },
+    {
+      "row": 4,
+      "seller": {
+        "id": 885,
+        "name": "AvtoRazbor7122, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77752742697"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "AvtoRazbor7122, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001100066221",
+        "card_url": "https://2gis.ru/firm/70000001100066221",
+        "address": "",
+        "latitude": "47.129633",
+        "longitude": "51.899523",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto_razbor_7122"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77752742697"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77073009806"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77752742697",
+          "77024445099"
+        ],
+        "whatsapp": "77752742697"
+      }
+    },
+    {
+      "row": 5,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Doha Guw, пункт авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001115000131",
+        "card_url": "https://2gis.ru/firm/70000001115000131",
+        "address": "улица Роза Багланова, 23",
+        "latitude": "47.101963",
+        "longitude": "51.864408",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/doha_guw"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77786489888"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 589,
+        "name": "Atyrau Auto Crash",
+        "city": "Атырау",
+        "whatsapp": "77010999209"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Atyrau Auto Crash, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001035680341",
+        "card_url": "https://2gis.ru/firm/70000001035680341",
+        "address": "улица Курмангазы, 119/6",
+        "latitude": "47.125483",
+        "longitude": "51.892257",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Atyrau_autocrash"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010999209"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77010999209"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77010999209"
+        ],
+        "whatsapp": "77010999209"
+      }
+    },
+    {
+      "row": 7,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Atyrau Auto Service, СТО",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001046531403",
+        "card_url": "https://2gis.ru/firm/70000001046531403",
+        "address": "улица Шанкула Каженова, 7",
+        "latitude": "47.107685",
+        "longitude": "51.842832",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autorazboratyrau06"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780999209"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77780999209"
+        ],
+        "whatsapp": "77780999209"
+      }
+    },
+    {
+      "row": 8,
+      "seller": {
+        "id": 888,
+        "name": "Захар, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77018770797"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Захар, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001075866272",
+        "card_url": "https://2gis.ru/firm/70000001075866272",
+        "address": "",
+        "latitude": "47.166671",
+        "longitude": "51.888734",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018770797"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474502902"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77474502902",
+          "77018770797"
+        ],
+        "whatsapp": "77018770797"
+      }
+    },
+    {
+      "row": 9,
+      "seller": {
+        "id": 899,
+        "name": "Центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77786111407"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001087682295",
+        "card_url": "https://2gis.ru/firm/70000001087682295",
+        "address": "улица Тажигали Садыкова, 49",
+        "latitude": "47.101452",
+        "longitude": "51.866817",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_atyrau_06"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77786111407"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77786111407"
+        ],
+        "whatsapp": "77786111407"
+      }
+    },
+    {
+      "row": 10,
+      "seller": {
+        "id": 887,
+        "name": "Ismail, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77770109595"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Ismail, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001094335769",
+        "card_url": "https://2gis.ru/firm/70000001094335769",
+        "address": "проезд Рахымжан Кошкарбаев, 10а",
+        "latitude": "47.135942",
+        "longitude": "51.945388",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/ismail.avtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77770109595"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756493230"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77770109595",
+          "77756493230"
+        ],
+        "whatsapp": "77770109595"
+      }
+    },
+    {
+      "row": 12,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "АлемТранс, центр по ремонту грузовых автомобилей",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001056987695",
+        "card_url": "https://2gis.ru/firm/70000001056987695",
+        "address": "Северная промышленная зона, 66а",
+        "latitude": "47.145680",
+        "longitude": "51.872193",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028660857"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77028660857",
+          "77776658857"
+        ],
+        "whatsapp": "77028660857"
+      }
+    },
+    {
+      "row": 13,
+      "seller": {
+        "id": 900,
+        "name": "Центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77023628787"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001089909610",
+        "card_url": "https://2gis.ru/firm/70000001089909610",
+        "address": "улица Мендекеш Сатыбалдиева, 5",
+        "latitude": "47.084614",
+        "longitude": "51.862364",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023628787"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022020102"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77023628787",
+          "77022020102"
+        ],
+        "whatsapp": "77023628787"
+      }
+    },
+    {
+      "row": 14,
+      "seller": {
+        "id": 891,
+        "name": "Микс, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77026170818"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Микс, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001089582970",
+        "card_url": "https://2gis.ru/firm/70000001089582970",
+        "address": "1-й проезд, 8/1",
+        "latitude": "47.065537",
+        "longitude": "51.896042",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mixavtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77026170818"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77782960999"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77782960999",
+          "77026170818"
+        ],
+        "whatsapp": "77026170818"
+      }
+    },
+    {
+      "row": 15,
+      "seller": {
+        "id": 894,
+        "name": "Хасан, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77713912381"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Хасан, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001045490209",
+        "card_url": "https://2gis.ru/firm/70000001045490209",
+        "address": "проезд Узакбай Караманов, 8",
+        "latitude": "47.106178",
+        "longitude": "51.939420",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_atyrau_hasan"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77713912381"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77713912381"
+        ],
+        "whatsapp": "77713912381"
+      }
+    },
+    {
+      "row": 16,
+      "seller": {
+        "id": 892,
+        "name": "Авторазбор",
+        "city": "Атырау",
+        "whatsapp": "77780858989"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001075789816",
+        "card_url": "https://2gis.ru/firm/70000001075789816",
+        "address": "Сарымолда Досмухамбетулы улица, 198",
+        "latitude": "47.065775",
+        "longitude": "51.899415",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780858989"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77784994693"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77784994693",
+          "77780858989"
+        ],
+        "whatsapp": "77780858989"
+      }
+    },
+    {
+      "row": 19,
+      "seller": {
+        "id": 895,
+        "name": "Авторазбор из Европы, магазин автозапчастей",
+        "city": "Атырау",
+        "whatsapp": "77010900092"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор из Европы, магазин автозапчастей",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001063794269",
+        "card_url": "https://2gis.ru/firm/70000001063794269",
+        "address": "улица Отешкали Атамбаев, 16",
+        "latitude": "47.087797",
+        "longitude": "51.930044",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010900092"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780011092"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77010900092",
+          "77780011092"
+        ],
+        "whatsapp": "77010900092"
+      }
+    },
+    {
+      "row": 20,
+      "seller": {
+        "id": 886,
+        "name": "Джума, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77024412065"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Джума, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001082901930",
+        "card_url": "https://2gis.ru/firm/70000001082901930",
+        "address": "улица Караш Калиев, 32а",
+        "latitude": "47.162712",
+        "longitude": "51.979778",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024412065"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77024412065",
+          "77760818989"
+        ],
+        "whatsapp": "77024412065"
+      }
+    },
+    {
+      "row": 22,
+      "seller": {
+        "id": 897,
+        "name": "Автозапчасти",
+        "city": "Атырау",
+        "whatsapp": "77052200593"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Автозапчасти",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001117484459",
+        "card_url": "https://2gis.ru/firm/70000001117484459",
+        "address": "улица Шукыр Еркинов, 75а",
+        "latitude": "47.124501",
+        "longitude": "51.950514",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052200593"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77052200593"
+        ],
+        "whatsapp": "77052200593"
+      }
+    },
+    {
+      "row": 23,
+      "seller": {
+        "id": 896,
+        "name": "V-Service Atyrau",
+        "city": "Атырау",
+        "whatsapp": "77787141414"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "V-Service Atyrau",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001099138374",
+        "card_url": "https://2gis.ru/firm/70000001099138374",
+        "address": "микрорайон Береке, 10В",
+        "latitude": "47.138340",
+        "longitude": "51.952536",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vservice_atyrau"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77787141414"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77787141414"
+        ],
+        "whatsapp": "77787141414"
+      }
+    },
+    {
+      "row": 25,
+      "seller": {
+        "id": 894,
+        "name": "Хасан, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77713912381"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Хасан, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001118166182",
+        "card_url": "https://2gis.ru/firm/70000001118166182",
+        "address": "",
+        "latitude": "47.057959",
+        "longitude": "51.867747",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_atyrau_hasan"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77713912381"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77713912381"
+        ],
+        "whatsapp": "77713912381"
+      }
+    },
+    {
+      "row": 26,
+      "seller": {
+        "id": 893,
+        "name": "Сервис по авторазбору",
+        "city": "Атырау",
+        "whatsapp": "77783744404"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Сервис по авторазбору",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001062602981",
+        "card_url": "https://2gis.ru/firm/70000001062602981",
+        "address": "улица Назира Торекулова, 22",
+        "latitude": "47.042042",
+        "longitude": "51.899337",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77783744404"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77783744404"
+        ],
+        "whatsapp": "77783744404"
+      }
+    },
+    {
+      "row": 27,
+      "seller": {
+        "id": 889,
+        "name": "Yusuf auto razbor, точка продажи автозапчастей",
+        "city": "Атырау",
+        "whatsapp": "77064049595"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Yusuf auto razbor, точка продажи автозапчастей",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001110303205",
+        "card_url": "https://2gis.ru/firm/70000001110303205",
+        "address": "улица Курмангазы, 92",
+        "latitude": "47.209890",
+        "longitude": "51.949257",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Yusuf_autorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77064049595"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77068089595"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77064049595",
+          "77068089595"
+        ],
+        "whatsapp": "77064049595"
+      }
+    },
+    {
+      "row": 28,
+      "seller": {
+        "id": 890,
+        "name": "Саламат, центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77023097787"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Саламат, центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001083984499",
+        "card_url": "https://2gis.ru/firm/70000001083984499",
+        "address": "улица Ержигита Нурханулы, 15",
+        "latitude": "47.204719",
+        "longitude": "51.965891",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_ipsum_alfard_estima"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023097787"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77023097787"
+        ],
+        "whatsapp": "77023097787"
+      }
+    },
+    {
+      "row": 29,
+      "seller": {
+        "id": 898,
+        "name": "Центр авторазбора",
+        "city": "Атырау",
+        "whatsapp": "77020598041"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001097162056",
+        "card_url": "https://2gis.ru/firm/70000001097162056",
+        "address": "",
+        "latitude": "47.145129",
+        "longitude": "51.958386",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77020598041"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780146104"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77780146104",
+          "77020598041"
+        ],
+        "whatsapp": "77020598041"
+      }
+    },
+    {
+      "row": 30,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Car Parsing, интернет-магазин",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001058953622",
+        "card_url": "https://2gis.ru/firm/70000001058953622",
+        "address": "",
+        "latitude": null,
+        "longitude": null,
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/car_parsing.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029111222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77086974909"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77029111222",
+          "77086974909"
+        ],
+        "whatsapp": "77029111222"
+      }
+    },
+    {
+      "row": 31,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "​Центр авторазбора",
+        "city": "Атырау",
+        "source": "two_gis",
+        "external_id": "70000001105606208",
+        "card_url": "https://2gis.ru/firm/70000001105606208",
+        "address": "14-я улица, 9",
+        "latitude": "47.196905",
+        "longitude": "51.973532",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77788716366"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 33,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кульсары",
+        "source": "two_gis",
+        "external_id": "70000001078724251",
+        "card_url": "https://2gis.ru/firm/70000001078724251",
+        "address": "",
+        "latitude": "46.946067",
+        "longitude": "53.973975",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_kulsary_06"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77787007969"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785124389"
+          }
+        ],
+        "exported_at": "2026-10-18T11:41:10.591Z",
+        "phones": [
+          "77787007969",
+          "77785124389"
+        ],
+        "whatsapp": "77787007969"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 11,
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": 24,
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": 17,
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": 18,
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": 21,
+      "reason": "Общий телефон, различаются адреса или названия"
+    },
+    {
+      "row": 32,
+      "reason": "Не указан город"
+    }
+  ]
+}
