@@ -1,0 +1,387 @@
+{
+  "source_file": "Авторазбор Кызылорда 16.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Пункт авторазбора",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001076145592",
+        "card_url": "https://2gis.ru/firm/70000001076145592",
+        "address": "улица Ниеткалиева, 24",
+        "latitude": "44.822344",
+        "longitude": "65.544106",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027061044"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77027061044"
+        ],
+        "whatsapp": "77027061044"
+      }
+    },
+    {
+      "row": 4,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor korea kzo, центр авторазбора",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001101712447",
+        "card_url": "https://2gis.ru/firm/70000001101712447",
+        "address": "переулок Казахстана, 13",
+        "latitude": "44.858177",
+        "longitude": "65.521159",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_korea_kzo"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052462295"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77052462295"
+        ],
+        "whatsapp": "77052462295"
+      }
+    },
+    {
+      "row": 5,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин автозапчастей",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001094526356",
+        "card_url": "https://2gis.ru/firm/70000001094526356",
+        "address": "улица Алисова, 66",
+        "latitude": "44.846781",
+        "longitude": "65.477297",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77765557375"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77765557375",
+          "77474567513"
+        ],
+        "whatsapp": "77765557375"
+      }
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 660,
+        "name": "Авторазбор Кызылорда (avtorazbor.kzo)",
+        "city": "Кызылорда",
+        "whatsapp": "77004304939"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001085410775",
+        "card_url": "https://2gis.ru/firm/70000001085410775",
+        "address": "улица Коркыт Ата, 269",
+        "latitude": "44.868238",
+        "longitude": "65.541768",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.kzo"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056379286"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77056379286"
+        ],
+        "whatsapp": "77056379286"
+      }
+    },
+    {
+      "row": 8,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Mustang, СТО",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001117417360",
+        "card_url": "https://2gis.ru/firm/70000001117417360",
+        "address": "улица Гани Муратбаева, 42 к1",
+        "latitude": "44.829303",
+        "longitude": "65.521863",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017059505"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051069011"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77017059505",
+          "77051069011"
+        ],
+        "whatsapp": "77017059505"
+      }
+    },
+    {
+      "row": 9,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Korea orda, авторазбор",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001114689101",
+        "card_url": "https://2gis.ru/firm/70000001114689101",
+        "address": "улица Рустембекова, 42",
+        "latitude": "44.879742",
+        "longitude": "65.465233",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/koreaorda_avtorazbor"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77771020406",
+          "77027412920"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 10,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Аян авторазбор, магазин автозапчастей",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001106050723",
+        "card_url": "https://2gis.ru/firm/70000001106050723",
+        "address": "улица Амре Кашаубаева, 62",
+        "latitude": "44.874237",
+        "longitude": "65.453822",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/zapchasti.kzo"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785990606"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77785990606"
+        ],
+        "whatsapp": "77785990606"
+      }
+    },
+    {
+      "row": 11,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Руслан, пункт авторазбора",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001074373633",
+        "card_url": "https://2gis.ru/firm/70000001074373633",
+        "address": "улица Асана Тайманова, 75а",
+        "latitude": "44.777266",
+        "longitude": "65.533980",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076235009"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77786350227"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77076235009",
+          "77786350227"
+        ],
+        "whatsapp": "77076235009"
+      }
+    },
+    {
+      "row": 12,
+      "seller": {
+        "id": 660,
+        "name": "Авторазбор Кызылорда (avtorazbor.kzo)",
+        "city": "Кызылорда",
+        "whatsapp": "77004304939"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001068226295",
+        "card_url": "https://2gis.ru/firm/70000001068226295",
+        "address": "улица Коркыт Ата, 165",
+        "latitude": "44.856661",
+        "longitude": "65.530894",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.kzo"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77004304939"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77004304939"
+        ],
+        "whatsapp": "77004304939"
+      }
+    },
+    {
+      "row": 13,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Пункт авторазбора, ИП Али-Абылай",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001088240186",
+        "card_url": "https://2gis.ru/firm/70000001088240186",
+        "address": "",
+        "latitude": "44.849206",
+        "longitude": "65.534500",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771651970"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77475029707"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479707905"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77771651970",
+          "77479707905",
+          "77475029707"
+        ],
+        "whatsapp": "77771651970"
+      }
+    },
+    {
+      "row": 15,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Магазин автозапчастей и центр авторазбора",
+        "city": "Кызылорда",
+        "source": "two_gis",
+        "external_id": "70000001063715667",
+        "card_url": "https://2gis.ru/firm/70000001063715667",
+        "address": "улица Хон Бом До, 20 к2",
+        "latitude": "44.861959",
+        "longitude": "65.475702",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77005212244"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avtorazbor_kzo"
+          }
+        ],
+        "exported_at": "2026-10-18T12:58:21.258Z",
+        "phones": [
+          "77005212244"
+        ],
+        "whatsapp": "77005212244"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 3,
+      "reason": "Общий Instagram, разные названия, адреса и телефоны"
+    },
+    {
+      "row": 7,
+      "reason": "Общий Instagram, разные названия, адреса и телефоны"
+    },
+    {
+      "row": 14,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 16,
+      "reason": "Не указан город"
+    },
+    {
+      "row": 17,
+      "reason": "Не указан город"
+    }
+  ]
+}
