@@ -1,0 +1,1634 @@
+{
+  "source_file": "Авторазбор Актобе 60.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Raismoto.kz, компания",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001032759217",
+        "card_url": "https://2gis.ru/firm/70000001032759217",
+        "address": "улица Кайрата Рыскулбекова, 42",
+        "latitude": "50.272076",
+        "longitude": "57.210127",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/raismoto.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767606060"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077606060"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77767606060",
+          "77077606060"
+        ],
+        "whatsapp": "77767606060"
+      }
+    },
+    {
+      "row": 3,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "truck",
+      "org": {
+        "name": "Erasil, магазин автозапчастей",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001037121929",
+        "card_url": "https://2gis.ru/firm/70000001037121929",
+        "address": "улица Бурабай, 12",
+        "latitude": "50.298676",
+        "longitude": "57.222511",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053786373"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77765949413"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77053786373",
+          "77765949413"
+        ],
+        "whatsapp": "77053786373"
+      }
+    },
+    {
+      "row": 4,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Кок разбор 909",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001105678695",
+        "card_url": "https://2gis.ru/firm/70000001105678695",
+        "address": "Богословская трасса, 7а/15",
+        "latitude": "50.245289",
+        "longitude": "57.179735",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77786668333"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77786668333"
+        ],
+        "whatsapp": "77786668333"
+      }
+    },
+    {
+      "row": 5,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "R8, компания по авторазбору",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001074990485",
+        "card_url": "https://2gis.ru/firm/70000001074990485",
+        "address": "улица Аз Наурыз, 1а",
+        "latitude": "50.291518",
+        "longitude": "57.198897",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtozap_r8"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77070171217"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77070171217"
+        ],
+        "whatsapp": "77070171217"
+      }
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 591,
+        "name": "Авторазбор №14",
+        "city": "Актобе",
+        "whatsapp": "77075562423"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №14, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001052547752",
+        "card_url": "https://2gis.ru/firm/70000001052547752",
+        "address": "Богословская трасса, 109",
+        "latitude": "50.241187",
+        "longitude": "57.170434",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075562423"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77018917892",
+          "77075562423"
+        ],
+        "whatsapp": "77075562423"
+      }
+    },
+    {
+      "row": 7,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Таз, авторазбор",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001111759031",
+        "card_url": "https://2gis.ru/firm/70000001111759031",
+        "address": "Богословская трасса, 7а/19",
+        "latitude": "50.246286",
+        "longitude": "57.178273",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77757456945"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@razbor.aktobe"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77757456945"
+        ],
+        "whatsapp": "77757456945"
+      }
+    },
+    {
+      "row": 8,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Көк разбор 9",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001113158003",
+        "card_url": "https://2gis.ru/firm/70000001113158003",
+        "address": "Богословская трасса, 7а/14",
+        "latitude": "50.245392",
+        "longitude": "57.179552",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023647892"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77023647892"
+        ],
+        "whatsapp": "77023647892"
+      }
+    },
+    {
+      "row": 9,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Кок Разбор Ома",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001117156972",
+        "card_url": "https://2gis.ru/firm/70000001117156972",
+        "address": "Богословская трасса, 7а",
+        "latitude": "50.249579",
+        "longitude": "57.180851",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055603978"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@1000tg_kok"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77055603978",
+          "77021464533"
+        ],
+        "whatsapp": "77055603978"
+      }
+    },
+    {
+      "row": 10,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "ГСК 5, СТО",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001041064418",
+        "card_url": "https://2gis.ru/firm/70000001041064418",
+        "address": "проспект Санкибай батыра, 366Б/15",
+        "latitude": "50.275042",
+        "longitude": "57.160550",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_aktobe_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778000255"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074548706"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77778000255",
+          "77074548706",
+          "77471351802"
+        ],
+        "whatsapp": "77778000255"
+      }
+    },
+    {
+      "row": 11,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №17 ERJ Motors",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150965",
+        "card_url": "https://2gis.ru/firm/70000001089150965",
+        "address": "Богословская трасса, 7а/25",
+        "latitude": "50.246377",
+        "longitude": "57.177561",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77710255225"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77710255225"
+        ],
+        "whatsapp": "77710255225"
+      }
+    },
+    {
+      "row": 12,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 15",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001117093812",
+        "card_url": "https://2gis.ru/firm/70000001117093812",
+        "address": "Богословская трасса, 7г/4",
+        "latitude": "50.247734",
+        "longitude": "57.177255",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kn_avtorazbor04"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771207080"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77771207080"
+        ],
+        "whatsapp": "77771207080"
+      }
+    },
+    {
+      "row": 13,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "№5, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001100304783",
+        "card_url": "https://2gis.ru/firm/70000001100304783",
+        "address": "Богословская трасса, 7г/3",
+        "latitude": "50.247903",
+        "longitude": "57.178362",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077808801"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77077808801"
+        ],
+        "whatsapp": "77077808801"
+      }
+    },
+    {
+      "row": 15,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора из Европы",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001104412942",
+        "card_url": "https://2gis.ru/firm/70000001104412942",
+        "address": "Богословская трасса, 105/1",
+        "latitude": "50.243310",
+        "longitude": "57.175937",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785981206"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@autorazbor_europa"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77785981206"
+        ],
+        "whatsapp": "77785981206"
+      }
+    },
+    {
+      "row": 16,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "#15, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001102577933",
+        "card_url": "https://2gis.ru/firm/70000001102577933",
+        "address": "Богословская трасса, 18/4",
+        "latitude": "50.242170",
+        "longitude": "57.172565",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77771200060"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 17,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Avtorazbor.d04",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001104884297",
+        "card_url": "https://2gis.ru/firm/70000001104884297",
+        "address": "Богословская трасса, 13",
+        "latitude": "50.241941",
+        "longitude": "57.174559",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.d04"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77755060444"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77083420240"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77755060444",
+          "77083420240"
+        ],
+        "whatsapp": "77755060444"
+      }
+    },
+    {
+      "row": 18,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Осман, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089152106",
+        "card_url": "https://2gis.ru/firm/70000001089152106",
+        "address": "Богословская трасса, 7г/9",
+        "latitude": "50.248923",
+        "longitude": "57.180060",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773505555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77712446342"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77712446342",
+          "77773505555"
+        ],
+        "whatsapp": "77773505555"
+      }
+    },
+    {
+      "row": 19,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №10",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089151802",
+        "card_url": "https://2gis.ru/firm/70000001089151802",
+        "address": "Богословская трасса, 7а/9",
+        "latitude": "50.245329",
+        "longitude": "57.179403",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077067740"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77077067740"
+        ],
+        "whatsapp": "77077067740"
+      }
+    },
+    {
+      "row": 20,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 77 из Европы, центр",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001103632563",
+        "card_url": "https://2gis.ru/firm/70000001103632563",
+        "address": "Богословская трасса, 15Б/9",
+        "latitude": "50.242884",
+        "longitude": "57.176786",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028432826"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@autorazbor_77_aktobe"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77028432826"
+        ],
+        "whatsapp": "77028432826"
+      }
+    },
+    {
+      "row": 21,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Трансформер, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001104949279",
+        "card_url": "https://2gis.ru/firm/70000001104949279",
+        "address": "Богословская трасса, 15Б/1",
+        "latitude": "50.243909",
+        "longitude": "57.175329",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/suinalyalmat"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012705085"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77012705085"
+        ],
+        "whatsapp": "77012705085"
+      }
+    },
+    {
+      "row": 22,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Моторы Актобе",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001082692033",
+        "card_url": "https://2gis.ru/firm/70000001082692033",
+        "address": "СК АЗХС-1, 120",
+        "latitude": "50.322667",
+        "longitude": "57.124058",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012425188"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077133703"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77012425188",
+          "77077133703"
+        ],
+        "whatsapp": "77012425188"
+      }
+    },
+    {
+      "row": 23,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Batys Аvto",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150173",
+        "card_url": "https://2gis.ru/firm/70000001089150173",
+        "address": "Богословская трасса, 7г/7",
+        "latitude": "50.248593",
+        "longitude": "57.179524",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056031998"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77770504950"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77770504950",
+          "77056031998"
+        ],
+        "whatsapp": "77056031998"
+      }
+    },
+    {
+      "row": 24,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Байбек, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150375",
+        "card_url": "https://2gis.ru/firm/70000001089150375",
+        "address": "Богословская трасса, 7г/6",
+        "latitude": "50.248187",
+        "longitude": "57.178840",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77026750983"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77026750983"
+        ],
+        "whatsapp": "77026750983"
+      }
+    },
+    {
+      "row": 26,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №04",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150445",
+        "card_url": "https://2gis.ru/firm/70000001089150445",
+        "address": "Богословская трасса, 7г/2",
+        "latitude": "50.247751",
+        "longitude": "57.178105",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074774430"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77074774430"
+        ],
+        "whatsapp": "77074774430"
+      }
+    },
+    {
+      "row": 27,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №3",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089152089",
+        "card_url": "https://2gis.ru/firm/70000001089152089",
+        "address": "Богословская трасса, 7а/24",
+        "latitude": "50.245584",
+        "longitude": "57.179071",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075500346"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024036066"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77075500346",
+          "77024036066"
+        ],
+        "whatsapp": "77075500346"
+      }
+    },
+    {
+      "row": 28,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "baza, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001034314683",
+        "card_url": "https://2gis.ru/firm/70000001034314683",
+        "address": "Богословская трасса, 17а",
+        "latitude": "50.244398",
+        "longitude": "57.174692",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazboraktobe"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027408811"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77027408811"
+        ],
+        "whatsapp": "77027408811"
+      }
+    },
+    {
+      "row": 29,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 6Б",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001082707706",
+        "card_url": "https://2gis.ru/firm/70000001082707706",
+        "address": "Богословская трасса, 18/1",
+        "latitude": "50.243310",
+        "longitude": "57.173654",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77000900470"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77000900470"
+        ],
+        "whatsapp": "77000900470"
+      }
+    },
+    {
+      "row": 30,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 9А",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001091612233",
+        "card_url": "https://2gis.ru/firm/70000001091612233",
+        "address": "Богословская трасса, 18/3",
+        "latitude": "50.242790",
+        "longitude": "57.172898",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_04_region"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77087081194"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77087081194"
+        ],
+        "whatsapp": "77087081194"
+      }
+    },
+    {
+      "row": 31,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №23",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089151991",
+        "card_url": "https://2gis.ru/firm/70000001089151991",
+        "address": "Богословская трасса, 7а/10",
+        "latitude": "50.245432",
+        "longitude": "57.179491",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77712293612"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77712293612"
+        ],
+        "whatsapp": "77712293612"
+      }
+    },
+    {
+      "row": 34,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 8",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001074568193",
+        "card_url": "https://2gis.ru/firm/70000001074568193",
+        "address": "Богословская трасса, 18/Б",
+        "latitude": "50.243053",
+        "longitude": "57.173702",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016255244"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472075529"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77472075529",
+          "77016255244"
+        ],
+        "whatsapp": "77016255244"
+      }
+    },
+    {
+      "row": 35,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 1А",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001081053742",
+        "card_url": "https://2gis.ru/firm/70000001081053742",
+        "address": "Богословская трасса, 17",
+        "latitude": "50.244089",
+        "longitude": "57.174849",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002701995"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012806624"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77012806624",
+          "77002701995"
+        ],
+        "whatsapp": "77002701995"
+      }
+    },
+    {
+      "row": 36,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 13",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001091464005",
+        "card_url": "https://2gis.ru/firm/70000001091464005",
+        "address": "Богословская трасса, 14",
+        "latitude": "50.240772",
+        "longitude": "57.172893",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054005298"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77054005298"
+        ],
+        "whatsapp": "77054005298"
+      }
+    },
+    {
+      "row": 37,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "13+, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001111701976",
+        "card_url": "https://2gis.ru/firm/70000001111701976",
+        "address": "Богословская трасса, 18/4",
+        "latitude": "50.242170",
+        "longitude": "57.172565",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015502566"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77015502566"
+        ],
+        "whatsapp": "77015502566"
+      }
+    },
+    {
+      "row": 38,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Autoparts, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001103345617",
+        "card_url": "https://2gis.ru/firm/70000001103345617",
+        "address": "Богословская трасса, 18/5",
+        "latitude": "50.242159",
+        "longitude": "57.171930",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_15_aktobe"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052920693"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77052920693"
+        ],
+        "whatsapp": "77052920693"
+      }
+    },
+    {
+      "row": 39,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Рустем, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001102909185",
+        "card_url": "https://2gis.ru/firm/70000001102909185",
+        "address": "Богословская трасса, 17Б",
+        "latitude": "50.244054",
+        "longitude": "57.174795",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017474711"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77017474711"
+        ],
+        "whatsapp": "77017474711"
+      }
+    },
+    {
+      "row": 40,
+      "seller": {
+        "id": 563,
+        "name": "Авторазбор 22",
+        "city": "Актобе",
+        "whatsapp": "77077306951"
+      },
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 22",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001103643719",
+        "card_url": "https://2gis.ru/firm/70000001103643719",
+        "address": "Богословская трасса, 15Б/4",
+        "latitude": "50.241701",
+        "longitude": "57.170646",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77783892672"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avto_razbor_aktobe.04"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77783892672"
+        ],
+        "whatsapp": "77783892672"
+      }
+    },
+    {
+      "row": 41,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 2",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001103265040",
+        "card_url": "https://2gis.ru/firm/70000001103265040",
+        "address": "Богословская трасса, 15Б/2",
+        "latitude": "50.243904",
+        "longitude": "57.175007",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77088212637"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771676107"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77088212637",
+          "77771676107"
+        ],
+        "whatsapp": "77088212637"
+      }
+    },
+    {
+      "row": 42,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №03",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150572",
+        "card_url": "https://2gis.ru/firm/70000001089150572",
+        "address": "Богословская трасса, 7г/1",
+        "latitude": "50.247589",
+        "longitude": "57.177832",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073345802"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77073345802"
+        ],
+        "whatsapp": "77073345802"
+      }
+    },
+    {
+      "row": 43,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150507",
+        "card_url": "https://2gis.ru/firm/70000001089150507",
+        "address": "Богословская трасса, 7г",
+        "latitude": "50.247512",
+        "longitude": "57.177703",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767448585"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77767448585"
+        ],
+        "whatsapp": "77767448585"
+      }
+    },
+    {
+      "row": 46,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №21",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089150754",
+        "card_url": "https://2gis.ru/firm/70000001089150754",
+        "address": "Богословская трасса, 7а/21",
+        "latitude": "50.246012",
+        "longitude": "57.178384",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775544147"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77775544147"
+        ],
+        "whatsapp": "77775544147"
+      }
+    },
+    {
+      "row": 47,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №2",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089151968",
+        "card_url": "https://2gis.ru/firm/70000001089151968",
+        "address": "Богословская трасса, 7а/1",
+        "latitude": "50.245755",
+        "longitude": "57.178790",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77475944302",
+          "77479824393"
+        ],
+        "whatsapp": ""
+      }
+    },
+    {
+      "row": 48,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор №11",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001089151082",
+        "card_url": "https://2gis.ru/firm/70000001089151082",
+        "address": "Богословская трасса, 7а/12",
+        "latitude": "50.245345",
+        "longitude": "57.179622",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028664040"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77028664040"
+        ],
+        "whatsapp": "77028664040"
+      }
+    },
+    {
+      "row": 49,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 19",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001118238791",
+        "card_url": "https://2gis.ru/firm/70000001118238791",
+        "address": "Богословская трасса, 15Б/5",
+        "latitude": "50.241512",
+        "longitude": "57.170939",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785639005"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77785639005"
+        ],
+        "whatsapp": "77785639005"
+      }
+    },
+    {
+      "row": 51,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 7а",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001079972669",
+        "card_url": "https://2gis.ru/firm/70000001079972669",
+        "address": "Богословская трасса, 18а",
+        "latitude": "50.243152",
+        "longitude": "57.173413",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023926236"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003701981"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77023926236",
+          "77003701981"
+        ],
+        "whatsapp": "77023926236"
+      }
+    },
+    {
+      "row": 52,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001118226042",
+        "card_url": "https://2gis.ru/firm/70000001118226042",
+        "address": "Богословская трасса, 18/6",
+        "latitude": "50.242919",
+        "longitude": "57.173498",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77713802939"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77713802939",
+          "77023802939"
+        ],
+        "whatsapp": "77713802939"
+      }
+    },
+    {
+      "row": 53,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Аралбай",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001110666674",
+        "card_url": "https://2gis.ru/firm/70000001110666674",
+        "address": "Богословская трасса, 5а/1",
+        "latitude": "50.244704",
+        "longitude": "57.175245",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77782177792"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77782177792"
+        ],
+        "whatsapp": "77782177792"
+      }
+    },
+    {
+      "row": 54,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора иномарок",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001103683405",
+        "card_url": "https://2gis.ru/firm/70000001103683405",
+        "address": "переулок Балкытушылар, 5Б",
+        "latitude": "50.300206",
+        "longitude": "57.146797",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77768594747"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77778594747",
+          "77768594747"
+        ],
+        "whatsapp": "77768594747"
+      }
+    },
+    {
+      "row": 55,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор 33",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001104382535",
+        "card_url": "https://2gis.ru/firm/70000001104382535",
+        "address": "Богословская трасса, 96",
+        "latitude": "50.242800",
+        "longitude": "57.176005",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785088881"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77785088881"
+        ],
+        "whatsapp": "77785088881"
+      }
+    },
+    {
+      "row": 56,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Авторазбор_04",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001096976821",
+        "card_url": "https://2gis.ru/firm/70000001096976821",
+        "address": "улица Тургенева, 8/1",
+        "latitude": "50.324541",
+        "longitude": "57.148972",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_aktobe_vaz04"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77007521998"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076697635"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77076697635",
+          "77007521998"
+        ],
+        "whatsapp": "77007521998"
+      }
+    },
+    {
+      "row": 57,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001112329105",
+        "card_url": "https://2gis.ru/firm/70000001112329105",
+        "address": "Богословская трасса, 105/3",
+        "latitude": "50.242252",
+        "longitude": "57.175855",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029666537"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77029666537"
+        ],
+        "whatsapp": "77029666537"
+      }
+    },
+    {
+      "row": 58,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Адайцы, центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001055580854",
+        "card_url": "https://2gis.ru/firm/70000001055580854",
+        "address": "Богословская трасса, 12",
+        "latitude": "50.241512",
+        "longitude": "57.174763",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtozapchasti04_"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071870087"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77071870087"
+        ],
+        "whatsapp": "77071870087"
+      }
+    },
+    {
+      "row": 59,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Актобе",
+        "source": "two_gis",
+        "external_id": "70000001117737269",
+        "card_url": "https://2gis.ru/firm/70000001117737269",
+        "address": "улица Ильяса Есенберлина, 1",
+        "latitude": "50.359424",
+        "longitude": "57.395270",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077100392"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77077100392"
+        ],
+        "whatsapp": "77077100392"
+      }
+    },
+    {
+      "row": 60,
+      "seller": null,
+      "confirm_dismantler": false,
+      "transport_type": "car",
+      "org": {
+        "name": "Центр авторазбора №1",
+        "city": "Алга",
+        "source": "two_gis",
+        "external_id": "70000001110853153",
+        "card_url": "https://2gis.ru/firm/70000001110853153",
+        "address": "улица Кемер, 16",
+        "latitude": "49.898565",
+        "longitude": "57.327044",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazborvaz.alga.kemer16"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771201288"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@user84967280866050"
+          }
+        ],
+        "exported_at": "2026-10-18T11:35:58.241Z",
+        "phones": [
+          "77771201288"
+        ],
+        "whatsapp": "77771201288"
+      }
+    }
+  ],
+  "held": [
+    {
+      "row": 14,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 25,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 32,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 33,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 45,
+      "reason": "Нет контактов"
+    },
+    {
+      "row": 44,
+      "reason": "Общий телефон с другой карточкой, разные названия и адреса"
+    },
+    {
+      "row": 50,
+      "reason": "Общий телефон с другой карточкой, разные названия и адреса"
+    }
+  ]
+}
