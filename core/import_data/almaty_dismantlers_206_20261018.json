@@ -1,0 +1,6824 @@
+{
+  "source_file": "Авторазбор Алматы 206.xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": {
+        "id": 736,
+        "name": "Авторазбор ASTANA, центр авторазбора немецких автомобилей",
+        "city": "Астана",
+        "whatsapp": "77029979999"
+      },
+      "org": {
+        "name": "Авторазбор ASTANA, центр авторазбора немецких автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001049479673",
+        "card_url": "https://2gis.ru/firm/70000001049479673",
+        "address": "улица Александра Пушкина, 52",
+        "latitude": "51.184233",
+        "longitude": "71.494590",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.astana.01"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029979999"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77029979999"
+        ],
+        "whatsapp": "77029979999"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 4,
+      "seller": {
+        "id": 741,
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77079018351"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001075866612",
+        "card_url": "https://2gis.ru/firm/70000001075866612",
+        "address": "улица Кумкент, 5",
+        "latitude": "51.138832",
+        "longitude": "71.513669",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079018351"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77079018351"
+        ],
+        "whatsapp": "77079018351"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 5,
+      "seller": {
+        "id": 753,
+        "name": "Магазин по продаже автозапчастей",
+        "city": "Астана",
+        "whatsapp": "77479163814"
+      },
+      "org": {
+        "name": "Магазин по продаже автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001089239351",
+        "card_url": "https://2gis.ru/firm/70000001089239351",
+        "address": "переулок Дегелен, 16",
+        "latitude": "51.153147",
+        "longitude": "71.521501",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479163814"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77479163814"
+        ],
+        "whatsapp": "77479163814"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 762,
+        "name": "Асай-Мүсей",
+        "city": "Астана",
+        "whatsapp": "77789784888"
+      },
+      "org": {
+        "name": "Асай-Мүсей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001024423905",
+        "card_url": "https://2gis.ru/firm/70000001024423905",
+        "address": "улица Габидена Мустафина, 22",
+        "latitude": "51.150678",
+        "longitude": "71.507388",
+        "website": "https://bazaparts.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778555529"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789784888"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77789784888",
+          "77778555529"
+        ],
+        "whatsapp": "77778555529"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 7,
+      "seller": {
+        "id": 761,
+        "name": "Most Аuto, цех по авторазбору",
+        "city": "Астана",
+        "whatsapp": "77018885812"
+      },
+      "org": {
+        "name": "Most Аuto, цех по авторазбору",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001041959540",
+        "card_url": "https://2gis.ru/firm/70000001041959540",
+        "address": "улица Александра Пушкина, 41/2",
+        "latitude": "51.171811",
+        "longitude": "71.479867",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mostautokz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018885812"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/mostautobot"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77018885812"
+        ],
+        "whatsapp": "77018885812"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 8,
+      "seller": {
+        "id": 731,
+        "name": "Гранд Мотор, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77478639960"
+      },
+      "org": {
+        "name": "Гранд Мотор, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940001058676",
+        "card_url": "https://2gis.ru/firm/9429940001058676",
+        "address": "улица Кокорай, 50",
+        "latitude": "43.273377",
+        "longitude": "76.861553",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478639960"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77478639960"
+        ],
+        "whatsapp": "77478639960"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 9,
+      "seller": {
+        "id": 749,
+        "name": "Dartuning",
+        "city": "Астана",
+        "whatsapp": "77757006006"
+      },
+      "org": {
+        "name": "Dartuning",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001040106576",
+        "card_url": "https://2gis.ru/firm/70000001040106576",
+        "address": "переулок Кобда, 2/1",
+        "latitude": "51.137933",
+        "longitude": "71.531446",
+        "website": "https://dartuning.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/dar_tuning"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77757006006"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77716362196"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77757006006"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77757006006",
+          "77716362196"
+        ],
+        "whatsapp": "77757006006"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 10,
+      "seller": {
+        "id": 761,
+        "name": "Most Аuto, цех по авторазбору",
+        "city": "Астана",
+        "whatsapp": "77018885812"
+      },
+      "org": {
+        "name": "Most Аuto, магазин автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001019332354",
+        "card_url": "https://2gis.ru/firm/70000001019332354",
+        "address": "улица Александра Пушкина, 41/2",
+        "latitude": "51.171811",
+        "longitude": "71.479867",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mostautokz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018885812"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/mostautobot"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77018885812"
+        ],
+        "whatsapp": "77018885812"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 11,
+      "seller": {
+        "id": 781,
+        "name": "Сварочный цех",
+        "city": "Астана",
+        "whatsapp": "77074991894"
+      },
+      "org": {
+        "name": "Сварочный цех",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001088029280",
+        "card_url": "https://2gis.ru/firm/70000001088029280",
+        "address": "улица Балкантау, 61",
+        "latitude": "51.136095",
+        "longitude": "71.500495",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074991894"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77074991894"
+        ],
+        "whatsapp": "77074991894"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 12,
+      "seller": {
+        "id": 773,
+        "name": "Autotap, магазин запчастей для китайских автомобилей",
+        "city": "Астана",
+        "whatsapp": "77013666988"
+      },
+      "org": {
+        "name": "Autotap, магазин запчастей для китайских автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001113177105",
+        "card_url": "https://2gis.ru/firm/70000001113177105",
+        "address": "переулок Кобда, 2/1",
+        "latitude": "51.137933",
+        "longitude": "71.531446",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013666988"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77013666988"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@serik.bakyt7"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77013666988"
+        ],
+        "whatsapp": "77013666988"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 13,
+      "seller": {
+        "id": 772,
+        "name": "Astana Auto Crash, центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77020660166"
+      },
+      "org": {
+        "name": "Astana Auto Crash, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001114199649",
+        "card_url": "https://2gis.ru/firm/70000001114199649",
+        "address": "проспект Бауыржан Момышулы, 4а",
+        "latitude": "51.136957",
+        "longitude": "71.471728",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Atyrau_autocrash"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77020660166"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77020660166"
+        ],
+        "whatsapp": "77020660166"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 14,
+      "seller": {
+        "id": 961,
+        "name": "DVS-Service",
+        "city": "Астана",
+        "whatsapp": "77024049033"
+      },
+      "org": {
+        "name": "DVS-Service",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001045195192",
+        "card_url": "https://2gis.ru/firm/70000001045195192",
+        "address": "переулок Кобда, 4/1а",
+        "latitude": "51.146112",
+        "longitude": "71.533623",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024049033"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77024049033",
+          "77714441441"
+        ],
+        "whatsapp": "77024049033"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 15,
+      "seller": {
+        "id": 959,
+        "name": "Магазин б/у автозапчастей",
+        "city": "Астана",
+        "whatsapp": ""
+      },
+      "org": {
+        "name": "Магазин б/у автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001110978546",
+        "card_url": "https://2gis.ru/firm/70000001110978546",
+        "address": "переулок Кобда, 2л",
+        "latitude": "51.137667",
+        "longitude": "71.532664",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77008108878"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 16,
+      "seller": {
+        "id": 728,
+        "name": "Шанырак, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77057777005"
+      },
+      "org": {
+        "name": "Шанырак, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001025083351",
+        "card_url": "https://2gis.ru/firm/70000001025083351",
+        "address": "улица Махамбет Утемисова, 75Б",
+        "latitude": "43.292410",
+        "longitude": "76.862776",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057777005"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012222005"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77057777005",
+          "77012222005"
+        ],
+        "whatsapp": "77057777005"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 17,
+      "seller": {
+        "id": 732,
+        "name": "GS AutoService, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77078114484"
+      },
+      "org": {
+        "name": "GS AutoService, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001019601912",
+        "card_url": "https://2gis.ru/firm/70000001019601912",
+        "address": "улица Караоткел, 4",
+        "latitude": "43.255196",
+        "longitude": "76.865308",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/gs_service_"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77770003332"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078114484"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77078114484",
+          "77770003332"
+        ],
+        "whatsapp": "77770003332"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 18,
+      "seller": {
+        "id": 730,
+        "name": "SuБарин, автоцентр",
+        "city": "Алматы",
+        "whatsapp": "77776665352"
+      },
+      "org": {
+        "name": "SuБарин, автоцентр",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001040777829",
+        "card_url": "https://2gis.ru/firm/70000001040777829",
+        "address": "Алматинская улица, 30",
+        "latitude": "43.265672",
+        "longitude": "76.850425",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subarin_avtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776665352"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@666sub6"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77776665352",
+          "77027231438"
+        ],
+        "whatsapp": "77776665352"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 19,
+      "seller": {
+        "id": 720,
+        "name": "Dvizhоk, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77775555587"
+      },
+      "org": {
+        "name": "Dvizhоk, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001109514131",
+        "card_url": "https://2gis.ru/firm/70000001109514131",
+        "address": "улица Жангельдина, 140",
+        "latitude": "43.283604",
+        "longitude": "76.954936",
+        "website": "https://dvizh-ok.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/dvizh.okk"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/@DvizhOkAlm/shorts"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775555587"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77775555587"
+        ],
+        "whatsapp": "77775555587"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 20,
+      "seller": null,
+      "org": {
+        "name": "Razbor 777, салон авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000791441",
+        "card_url": "https://2gis.ru/firm/9429940000791441",
+        "address": "проспект Турара Рыскулова, 57в/7",
+        "latitude": "43.288197",
+        "longitude": "76.919700",
+        "website": "https://razbor777.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor777.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772710084"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072710084"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77272942065",
+          "77772710084",
+          "77072710084"
+        ],
+        "whatsapp": "77772710084"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 21,
+      "seller": {
+        "id": 717,
+        "name": "Центр авторазбора — Еркиндик, 54",
+        "city": "Алматы",
+        "whatsapp": "77083215418"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001097873077",
+        "card_url": "https://2gis.ru/firm/70000001097873077",
+        "address": "улица Еркиндик, 54",
+        "latitude": "43.280337",
+        "longitude": "76.832179",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77476660567"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77083215418"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77083215418",
+          "77476660567",
+          "77025573747"
+        ],
+        "whatsapp": "77476660567"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 22,
+      "seller": {
+        "id": 724,
+        "name": "Айгерим, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77071201111"
+      },
+      "org": {
+        "name": "Айгерим, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001032571667",
+        "card_url": "https://2gis.ru/firm/70000001032571667",
+        "address": "улица Саги Ашимова, 25",
+        "latitude": "43.276634",
+        "longitude": "76.846783",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autozapchasti__kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77001201111"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071201111"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77071201111",
+          "77001201111"
+        ],
+        "whatsapp": "77001201111"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 23,
+      "seller": {
+        "id": 719,
+        "name": "Nnn Service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77073807175"
+      },
+      "org": {
+        "name": "Nnn Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001117135085",
+        "card_url": "https://2gis.ru/firm/70000001117135085",
+        "address": "улица Фаризы Онгарсыновой, 1а",
+        "latitude": "43.243614",
+        "longitude": "76.804611",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/_nn_service"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478239899"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avtorazbor_02_almaty"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073807175",
+          "77478239899"
+        ],
+        "whatsapp": "77478239899"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 24,
+      "seller": {
+        "id": 716,
+        "name": "avto.japan_kz, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77079095262"
+      },
+      "org": {
+        "name": "avto.japan_kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001099770663",
+        "card_url": "https://2gis.ru/firm/70000001099770663",
+        "address": "улица Талбесик, 10",
+        "latitude": "43.289471",
+        "longitude": "76.880740",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto.japan_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079095262"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avto.japan_kz"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77079095262",
+          "77755626813"
+        ],
+        "whatsapp": "77079095262"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 25,
+      "seller": {
+        "id": 634,
+        "name": "Quattro Centre",
+        "city": "Алматы",
+        "whatsapp": "77017137155"
+      },
+      "org": {
+        "name": "Quattro centre, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001020254573",
+        "card_url": "https://2gis.ru/firm/70000001020254573",
+        "address": "улица Полесская, 15а",
+        "latitude": "43.340204",
+        "longitude": "76.965620",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/quattrocentre"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077137155"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077007155"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077137150"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77077137155",
+          "77077007155",
+          "77077137150"
+        ],
+        "whatsapp": "77077137155"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 26,
+      "seller": {
+        "id": 734,
+        "name": "Aspara motors Абая, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77478492222"
+      },
+      "org": {
+        "name": "Aspara motors Абая, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001088145175",
+        "card_url": "https://2gis.ru/firm/70000001088145175",
+        "address": "Килыбай Медеубекова улица, 21",
+        "latitude": "43.203766",
+        "longitude": "76.777600",
+        "website": "https://asparamotors.com/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/aspara_motors"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478492222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77006330000"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078330000"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77006330000"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@asparamotors_"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77478492222",
+          "77006330000",
+          "77078330000"
+        ],
+        "whatsapp": "77478492222"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 27,
+      "seller": {
+        "id": 616,
+        "name": "Avtobak",
+        "city": "Алматы",
+        "whatsapp": "77773946644"
+      },
+      "org": {
+        "name": "Avtobak, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001018893169",
+        "card_url": "https://2gis.ru/firm/70000001018893169",
+        "address": "улица Александрова, 17",
+        "latitude": "43.295759",
+        "longitude": "76.936172",
+        "website": "https://autobak.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778282222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051934444"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77778282222",
+          "77051934444",
+          "77770296060",
+          "77072179696",
+          "77776842222"
+        ],
+        "whatsapp": "77778282222"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 28,
+      "seller": null,
+      "org": {
+        "name": "Nuk, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001038228860",
+        "card_url": "https://2gis.ru/firm/70000001038228860",
+        "address": "проспект Суюнбая, 201",
+        "latitude": "43.310708",
+        "longitude": "76.956461",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/nukauto"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073234444",
+          "77076077777"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 29,
+      "seller": {
+        "id": 729,
+        "name": "VAG Service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77474098451"
+      },
+      "org": {
+        "name": "VAG Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001036862906",
+        "card_url": "https://2gis.ru/firm/70000001036862906",
+        "address": "улица Златоустовская, 29",
+        "latitude": "43.248172",
+        "longitude": "76.856734",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vagservicealmaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474098451"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77474098451",
+          "77072155254"
+        ],
+        "whatsapp": "77474098451"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 30,
+      "seller": {
+        "id": 640,
+        "name": "S_Line Motors",
+        "city": "Алматы",
+        "whatsapp": "77089099946"
+      },
+      "org": {
+        "name": "S_Line Motors, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001035617087",
+        "card_url": "https://2gis.ru/firm/70000001035617087",
+        "address": "улица Омарова, 96в",
+        "latitude": "43.303676",
+        "longitude": "76.927326",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/s_line_motors_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011382424"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089099946"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471382424"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77089099946",
+          "77011382424",
+          "77078370787",
+          "77471382424"
+        ],
+        "whatsapp": "77011382424"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 31,
+      "seller": {
+        "id": 712,
+        "name": "Pro car service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77771222228"
+      },
+      "org": {
+        "name": "Pro car service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001029202626",
+        "card_url": "https://2gis.ru/firm/70000001029202626",
+        "address": "улица Ратушного, 51",
+        "latitude": "43.287837",
+        "longitude": "76.913696",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771222228"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773888889"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771222228",
+          "77017033700",
+          "77773888889",
+          "77054777754"
+        ],
+        "whatsapp": "77771222228"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 32,
+      "seller": {
+        "id": 863,
+        "name": "Верный",
+        "city": "Алматы",
+        "whatsapp": "77013040555"
+      },
+      "org": {
+        "name": "Верный, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001031061626",
+        "card_url": "https://2gis.ru/firm/70000001031061626",
+        "address": "улица Гамарника, 9",
+        "latitude": "43.358821",
+        "longitude": "76.930873",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lexparts.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013040555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052020222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055050050"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77773030030",
+          "77052020222",
+          "77055050050",
+          "77013040555"
+        ],
+        "whatsapp": "77013040555"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 34,
+      "seller": {
+        "id": 721,
+        "name": "Proff-Razbor, центр авторазбора внедорожников",
+        "city": "Алматы",
+        "whatsapp": "77072288456"
+      },
+      "org": {
+        "name": "Proff-Razbor, центр авторазбора внедорожников",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001020834312",
+        "card_url": "https://2gis.ru/firm/70000001020834312",
+        "address": "улица Сулейменова, 1а",
+        "latitude": "43.257284",
+        "longitude": "76.835524",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072288456"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/proff_razbor_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089873085"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77082288456"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77072288456",
+          "77089873085",
+          "77473807785",
+          "77012288456"
+        ],
+        "whatsapp": "77072288456"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 35,
+      "seller": {
+        "id": 727,
+        "name": "Smart Technology Service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77474969212"
+      },
+      "org": {
+        "name": "Smart Technology Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001082742630",
+        "card_url": "https://2gis.ru/firm/70000001082742630",
+        "address": "улица Байтурсынова, 27д",
+        "latitude": "43.255679",
+        "longitude": "76.924176",
+        "website": "https://sts-autoservice.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474969212"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77474969212"
+        ],
+        "whatsapp": "77474969212"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 36,
+      "seller": {
+        "id": 723,
+        "name": "Ангар, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77077782516"
+      },
+      "org": {
+        "name": "Ангар, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001046554036",
+        "card_url": "https://2gis.ru/firm/70000001046554036",
+        "address": "микрорайон Аксай-1, 11/1",
+        "latitude": "43.243130",
+        "longitude": "76.833484",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077782516"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77077782516"
+        ],
+        "whatsapp": "77077782516"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 37,
+      "seller": {
+        "id": 555,
+        "name": "Vit Service / BMW Motors",
+        "city": "Алматы",
+        "whatsapp": "77072900900"
+      },
+      "org": {
+        "name": "Vit Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000901166",
+        "card_url": "https://2gis.ru/firm/9429940000901166",
+        "address": "улица Жангельдина, 214а",
+        "latitude": "43.294347",
+        "longitude": "76.954908",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/bmwservice_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072900900"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77072900900"
+        ],
+        "whatsapp": "77072900900"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 38,
+      "seller": {
+        "id": 718,
+        "name": "Camry_Razbor_777, магазин автозапчастей",
+        "city": "Алматы",
+        "whatsapp": "77074823201"
+      },
+      "org": {
+        "name": "Camry_Razbor_777, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001113074161",
+        "card_url": "https://2gis.ru/firm/70000001113074161",
+        "address": "улица Толе би, 315Б",
+        "latitude": "43.234711",
+        "longitude": "76.817901",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Camry_donor_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074823201"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@camry_razbor_777"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77074823201"
+        ],
+        "whatsapp": "77074823201"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 39,
+      "seller": {
+        "id": 882,
+        "name": "Delica_baron_almaty, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77771755034"
+      },
+      "org": {
+        "name": "Delica_baron_almaty, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001064783625",
+        "card_url": "https://2gis.ru/firm/70000001064783625",
+        "address": "улица Сазановская, 194",
+        "latitude": "43.294948",
+        "longitude": "76.979872",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/delica_baron_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771755034"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@delica_baron_almaty"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771755034",
+          "77770218444",
+          "77778152772"
+        ],
+        "whatsapp": "77771755034"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 40,
+      "seller": {
+        "id": 704,
+        "name": "На Белинского, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77053085998"
+      },
+      "org": {
+        "name": "На Белинского, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940001217983",
+        "card_url": "https://2gis.ru/firm/9429940001217983",
+        "address": "улица Ильяса Жансугурова, 143",
+        "latitude": "43.289373",
+        "longitude": "76.937462",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77053085998"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77273977903",
+          "77053085998"
+        ],
+        "whatsapp": "77053085998"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 41,
+      "seller": {
+        "id": 726,
+        "name": "GR Company, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77072225422"
+      },
+      "org": {
+        "name": "GR Company, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001019254656",
+        "card_url": "https://2gis.ru/firm/70000001019254656",
+        "address": "12-й микрорайон, 9а",
+        "latitude": "43.219660",
+        "longitude": "76.859798",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_shaliapina_beregovo"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052225422"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072225422"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052222163"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77072225422",
+          "77052222163",
+          "77052225422"
+        ],
+        "whatsapp": "77052225422"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 42,
+      "seller": {
+        "id": 722,
+        "name": "bmv_avtorazbor_almaty, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77010556005"
+      },
+      "org": {
+        "name": "bmv_avtorazbor_almaty, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001113341267",
+        "card_url": "https://2gis.ru/firm/70000001113341267",
+        "address": "улица Фонвизина, 17а",
+        "latitude": "43.232800",
+        "longitude": "76.960311",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010556005"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77010556005"
+        ],
+        "whatsapp": "77010556005"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 43,
+      "seller": {
+        "id": 425,
+        "name": "Nissan Almaty Japan",
+        "city": "Алматы",
+        "whatsapp": "77471110444"
+      },
+      "org": {
+        "name": "Nissan Almaty Japan, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001059982145",
+        "card_url": "https://2gis.ru/firm/70000001059982145",
+        "address": "проспект Райымбека, 312Б",
+        "latitude": "43.257018",
+        "longitude": "76.875225",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/nissan_almaty_japan"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471110444"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471110555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471110666"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77471110666"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@nissan_almaty_japan"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77471110444",
+          "77471110666",
+          "77471110454",
+          "77471110555"
+        ],
+        "whatsapp": "77471110444"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": true
+    },
+    {
+      "row": 44,
+      "seller": {
+        "id": 725,
+        "name": "Suleon China Parts, магазин автотоваров и запчастей для китайских электромобилей и гибридов",
+        "city": "Алматы",
+        "whatsapp": "77007231992"
+      },
+      "org": {
+        "name": "Suleon China Parts, магазин автотоваров и запчастей для китайских электромобилей и гибридов",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001088142906",
+        "card_url": "https://2gis.ru/firm/70000001088142906",
+        "address": "улица Прокофьева, 244",
+        "latitude": "43.236088",
+        "longitude": "76.876781",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/suleon.parts"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77007231992",
+          "77077752224",
+          "77004572005",
+          "77054009992"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 45,
+      "seller": {
+        "id": 711,
+        "name": "AutoRazborSNS, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77774354750"
+      },
+      "org": {
+        "name": "AutoRazborSNS, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001035391033",
+        "card_url": "https://2gis.ru/firm/70000001035391033",
+        "address": "улица Жалайыр, 7",
+        "latitude": "43.278241",
+        "longitude": "76.867555",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/pajero_montero_patrol_razbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774354750"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77774354750",
+          "77004354750",
+          "77474610027"
+        ],
+        "whatsapp": "77774354750"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 46,
+      "seller": null,
+      "org": {
+        "name": "Mb Group, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001043533264",
+        "card_url": "https://2gis.ru/firm/70000001043533264",
+        "address": "микрорайон Жас Канат, 581",
+        "latitude": "43.323663",
+        "longitude": "76.980391",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mb_group_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77787777604"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77787777602"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77787777604",
+          "77787777602",
+          "77787777603"
+        ],
+        "whatsapp": "77787777604"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 47,
+      "seller": {
+        "id": 431,
+        "name": "Ford service",
+        "city": "Алматы",
+        "whatsapp": "77778005533"
+      },
+      "org": {
+        "name": "Ford service, сервисный центр",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001076635625",
+        "card_url": "https://2gis.ru/firm/70000001076635625",
+        "address": "улица Сагадат Нурмагамбетов, 118",
+        "latitude": "43.258132",
+        "longitude": "76.980793",
+        "website": "https://rr-service.kz/page126530396.html",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/serviceford.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778005533"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778009955"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77778005533",
+          "77778009955"
+        ],
+        "whatsapp": "77778005533"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 48,
+      "seller": {
+        "id": 428,
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77071225464"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001093726598",
+        "card_url": "https://2gis.ru/firm/70000001093726598",
+        "address": "улица Толе би, 300/3",
+        "latitude": "43.242771",
+        "longitude": "76.849787",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/lexus_kazakhstan01"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002221507"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071225464"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77071225464",
+          "77002221507"
+        ],
+        "whatsapp": "77002221507"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 49,
+      "seller": {
+        "id": 701,
+        "name": "ProMotor, центра авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77773333014"
+      },
+      "org": {
+        "name": "ProMotor, центра авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001040166936",
+        "card_url": "https://2gis.ru/firm/70000001040166936",
+        "address": "улица Махамбет Утемисова, 73Б",
+        "latitude": "43.291869",
+        "longitude": "76.863076",
+        "website": "",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/promotorsh"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773333014"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77773333014",
+          "77013336086"
+        ],
+        "whatsapp": "77773333014"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 50,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001098754250",
+        "card_url": "https://2gis.ru/firm/70000001098754250",
+        "address": "улица Жалагаш, 15",
+        "latitude": "43.320766",
+        "longitude": "76.876670",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77010327946",
+          "77087586802"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 51,
+      "seller": null,
+      "org": {
+        "name": "Vrule.kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001089038289",
+        "card_url": "https://2gis.ru/firm/70000001089038289",
+        "address": "улица Палладина, 225",
+        "latitude": "43.331071",
+        "longitude": "76.926860",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vrule.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023555484"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074747114"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77023555484",
+          "77074747114"
+        ],
+        "whatsapp": "77023555484"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 52,
+      "seller": null,
+      "org": {
+        "name": "Karasu motors, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001032807838",
+        "card_url": "https://2gis.ru/firm/70000001032807838",
+        "address": "улица Баганалы Орда, 64",
+        "latitude": "43.333668",
+        "longitude": "76.906660",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014727555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016666216"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011654909"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77014727555",
+          "77016666216",
+          "77011654909"
+        ],
+        "whatsapp": "77014727555"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 53,
+      "seller": {
+        "id": 700,
+        "name": "Oppozit service, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77012232883"
+      },
+      "org": {
+        "name": "Oppozit service, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001023005747",
+        "card_url": "https://2gis.ru/firm/70000001023005747",
+        "address": "Шушенская улица, 34",
+        "latitude": "43.287236",
+        "longitude": "76.931681",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_555_oppozit_service"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012232883"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77081223388"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77012232883",
+          "77081223388"
+        ],
+        "whatsapp": "77012232883"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 54,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001041191343",
+        "card_url": "https://2gis.ru/firm/70000001041191343",
+        "address": "улица Юности, 30",
+        "latitude": "43.362739",
+        "longitude": "76.936421",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/gosha_razbor_bmw"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77766699700"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77766699700"
+        ],
+        "whatsapp": "77766699700"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 55,
+      "seller": {
+        "id": 697,
+        "name": "Жомарт, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77759353595"
+      },
+      "org": {
+        "name": "Жомарт, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001047219954",
+        "card_url": "https://2gis.ru/firm/70000001047219954",
+        "address": "проспект Райымбека, 550",
+        "latitude": "43.232110",
+        "longitude": "76.792247",
+        "website": "https://auto-razbor-zhomart.vercel.app/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/zapchasty_almaty_bu"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777058686"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77759353595",
+          "77777058686"
+        ],
+        "whatsapp": "77777058686"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 56,
+      "seller": {
+        "id": 713,
+        "name": "Volvo Сlub Service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77771203320"
+      },
+      "org": {
+        "name": "Volvo Сlub Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001054231056",
+        "card_url": "https://2gis.ru/firm/70000001054231056",
+        "address": "проспект Турара Рыскулова, 103",
+        "latitude": "43.273299",
+        "longitude": "76.887990",
+        "website": "https://volvoservice.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/volvo_service_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771203320"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/kzvolvo"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771203320",
+          "77001203320"
+        ],
+        "whatsapp": "77771203320"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 58,
+      "seller": {
+        "id": 712,
+        "name": "Pro car service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77771222228"
+      },
+      "org": {
+        "name": "Pro car service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000971092",
+        "card_url": "https://2gis.ru/firm/9429940000971092",
+        "address": "улица Яблочкова, 21",
+        "latitude": "43.285011",
+        "longitude": "76.929743",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771222228"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773888889"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771222228",
+          "77017033700",
+          "77773888889"
+        ],
+        "whatsapp": "77771222228"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 59,
+      "seller": null,
+      "org": {
+        "name": "Движок, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001106065089",
+        "card_url": "https://2gis.ru/firm/70000001106065089",
+        "address": "улица Жангельдина, 50",
+        "latitude": "43.273065",
+        "longitude": "76.956700",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77716884024"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 60,
+      "seller": null,
+      "org": {
+        "name": "Компания по продаже автозапчастей для легковых автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001117048491",
+        "card_url": "https://2gis.ru/firm/70000001117048491",
+        "address": "улица Соболева, 118",
+        "latitude": "43.359274",
+        "longitude": "76.998607",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077008780"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022435059"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77022435059",
+          "77077008780"
+        ],
+        "whatsapp": "77077008780"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 61,
+      "seller": {
+        "id": 625,
+        "name": "MB Razbor KZ",
+        "city": "Алматы",
+        "whatsapp": "77012999980"
+      },
+      "org": {
+        "name": "Mb razbor kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001027371175",
+        "card_url": "https://2gis.ru/firm/70000001027371175",
+        "address": "улица Казакпаева, 20а",
+        "latitude": "43.310447",
+        "longitude": "76.958016",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mb_razbor_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012999908"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012999980"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012999970"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77012999985",
+          "77012999980",
+          "77012999970",
+          "77012999908"
+        ],
+        "whatsapp": "77012999908"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 62,
+      "seller": null,
+      "org": {
+        "name": "Get cars, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001110672420",
+        "card_url": "https://2gis.ru/firm/70000001110672420",
+        "address": "улица Бес арыс, 73",
+        "latitude": "43.271345",
+        "longitude": "76.797455",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/getcars_zapchast"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772119919"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@getcars_zapchast"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77772119919"
+        ],
+        "whatsapp": "77772119919"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 63,
+      "seller": null,
+      "org": {
+        "name": "Pajero, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001061240064",
+        "card_url": "https://2gis.ru/firm/70000001061240064",
+        "address": "улица Щелково, 51",
+        "latitude": "43.335506",
+        "longitude": "76.968099",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773889008"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77773889008"
+        ],
+        "whatsapp": "77773889008"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 64,
+      "seller": {
+        "id": 709,
+        "name": "MB Razbor Bedelbay, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77776284244"
+      },
+      "org": {
+        "name": "MB Razbor Bedelbay, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001114429780",
+        "card_url": "https://2gis.ru/firm/70000001114429780",
+        "address": "улица Беделбай, 9",
+        "latitude": "43.245410",
+        "longitude": "76.823790",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776284244"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@user27024442065608"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77776284244"
+        ],
+        "whatsapp": "77776284244"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 66,
+      "seller": {
+        "id": 706,
+        "name": "Автосервис по ремонту грузовых автомобилей и авторазбору",
+        "city": "Алматы",
+        "whatsapp": "77775571474"
+      },
+      "org": {
+        "name": "Автосервис по ремонту грузовых автомобилей и авторазбору",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000797783",
+        "card_url": "https://2gis.ru/firm/9429940000797783",
+        "address": "улица Азаттык, 41",
+        "latitude": "43.273885",
+        "longitude": "76.850336",
+        "website": "https://renovod.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772163612"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77775571474",
+          "77272467846",
+          "77772163612"
+        ],
+        "whatsapp": "77772163612"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 67,
+      "seller": null,
+      "org": {
+        "name": "Garage 30, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001105086348",
+        "card_url": "https://2gis.ru/firm/70000001105086348",
+        "address": "улица Папанина, 30",
+        "latitude": "43.298748",
+        "longitude": "76.954840",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072540004"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77072540004"
+        ],
+        "whatsapp": "77072540004"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 68,
+      "seller": {
+        "id": 715,
+        "name": "mb_avtorazbor, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77015577885"
+      },
+      "org": {
+        "name": "mb_avtorazbor, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001044355864",
+        "card_url": "https://2gis.ru/firm/70000001044355864",
+        "address": "улица Балбобек, 11",
+        "latitude": "43.188373",
+        "longitude": "76.895833",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mb_avtorazbor"
+          },
+          {
+            "kind": "vk",
+            "url": "https://vk.com/mb_avtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015577885"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77015577885",
+          "77273285598"
+        ],
+        "whatsapp": "77015577885"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 70,
+      "seller": {
+        "id": 714,
+        "name": "Avtorazboralmaty.qz, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77020599994"
+      },
+      "org": {
+        "name": "Avtorazboralmaty.qz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001052579898",
+        "card_url": "https://2gis.ru/firm/70000001052579898",
+        "address": "улица Толе би, 293в",
+        "latitude": "43.245572",
+        "longitude": "76.847924",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/toyota_rav4_shop"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073844462"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072949999"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77020599994"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77020599994",
+          "77072949999",
+          "77073844462"
+        ],
+        "whatsapp": "77073844462"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 71,
+      "seller": null,
+      "org": {
+        "name": "Спринтер, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001068978292",
+        "card_url": "https://2gis.ru/firm/70000001068978292",
+        "address": "проспект Суюнбая, 201а",
+        "latitude": "43.310366",
+        "longitude": "76.956962",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mb.sprinter_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014499990"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77014499990"
+        ],
+        "whatsapp": "77014499990"
+      },
+      "transport_type": "truck",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 72,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001024964565",
+        "card_url": "https://2gis.ru/firm/70000001024964565",
+        "address": "улица Акатаева, 69/9",
+        "latitude": "43.275123",
+        "longitude": "76.840544",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073837848"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073837848"
+        ],
+        "whatsapp": "77073837848"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 73,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001115264116",
+        "card_url": "https://2gis.ru/firm/70000001115264116",
+        "address": "улица Галиевой, 52",
+        "latitude": "43.327058",
+        "longitude": "76.900959",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.bmw.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77712325011"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77712325011"
+        ],
+        "whatsapp": "77712325011"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 75,
+      "seller": {
+        "id": 430,
+        "name": "Центр авторазбора для корейских автомобилей",
+        "city": "Алматы",
+        "whatsapp": "77057991837"
+      },
+      "org": {
+        "name": "Центр авторазбора для корейских автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001041256125",
+        "card_url": "https://2gis.ru/firm/70000001041256125",
+        "address": "улица Ауэзова, 3/10а",
+        "latitude": "43.256369",
+        "longitude": "76.899825",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057991837"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072758777"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072757787"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77057991837",
+          "77072757787",
+          "77072758777"
+        ],
+        "whatsapp": "77057991837"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 76,
+      "seller": {
+        "id": 173,
+        "name": "Subaru разбор",
+        "city": "Алматы",
+        "whatsapp": "77055759744"
+      },
+      "org": {
+        "name": "Subie_razbor, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001034791386",
+        "card_url": "https://2gis.ru/firm/70000001034791386",
+        "address": "микрорайон Мамыр-4, 81",
+        "latitude": "43.217596",
+        "longitude": "76.852225",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subie_razbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055759744"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075292555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77755336666"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77055759744",
+          "77075292555",
+          "77755336666"
+        ],
+        "whatsapp": "77055759744"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 77,
+      "seller": null,
+      "org": {
+        "name": "Svetofor_Avtorazbor, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001045806383",
+        "card_url": "https://2gis.ru/firm/70000001045806383",
+        "address": "улица Бокейханова, 147а/27",
+        "latitude": "43.292506",
+        "longitude": "76.907712",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/svetofor_avtorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772600215"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072600215"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77772600215"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77772600215",
+          "77072600215",
+          "77082600215"
+        ],
+        "whatsapp": "77772600215"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 78,
+      "seller": null,
+      "org": {
+        "name": "VAG, центр авторазбора немецких автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001041523414",
+        "card_url": "https://2gis.ru/firm/70000001041523414",
+        "address": "Мухаммеда Физули улица, 64а",
+        "latitude": "43.331876",
+        "longitude": "76.974247",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772551050"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77772551050",
+          "77015618000",
+          "77005618000"
+        ],
+        "whatsapp": "77772551050"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 79,
+      "seller": {
+        "id": 615,
+        "name": "JPmotors",
+        "city": "Алматы",
+        "whatsapp": "77001000675"
+      },
+      "org": {
+        "name": "JPmotors, центр",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940001371110",
+        "card_url": "https://2gis.ru/firm/9429940001371110",
+        "address": "МТФ-1 улица, 9",
+        "latitude": "43.277532",
+        "longitude": "76.852508",
+        "website": "https://jpmotors.kz/",
+        "socials": [
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/channel/UCyc1fo6vOQUdM0_xx__9bFQ"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/jpmotors.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778200180"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77273936300",
+          "77778200180"
+        ],
+        "whatsapp": "77778200180"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 80,
+      "seller": {
+        "id": 705,
+        "name": "Triada Parts, разбор китайских автомобилей",
+        "city": "Алматы",
+        "whatsapp": "77776668046"
+      },
+      "org": {
+        "name": "Triada Parts, разбор китайских автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001112610504",
+        "card_url": "https://2gis.ru/firm/70000001112610504",
+        "address": "Алматинская улица, 40/1",
+        "latitude": "43.264787",
+        "longitude": "76.850861",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/triadapart.s"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776668046"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@triada.parts.orig"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77776668046",
+          "77776668036",
+          "77776661065"
+        ],
+        "whatsapp": "77776668046"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 81,
+      "seller": {
+        "id": 707,
+        "name": "Avtorazbor_yaris_Camry_Almaty, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77754545555"
+      },
+      "org": {
+        "name": "Avtorazbor_yaris_Camry_Almaty, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001109504703",
+        "card_url": "https://2gis.ru/firm/70000001109504703",
+        "address": "улица Столетова, 7",
+        "latitude": "43.271914",
+        "longitude": "76.894402",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_yaris_camry_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77754545555"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77754545555"
+        ],
+        "whatsapp": "77754545555"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 82,
+      "seller": null,
+      "org": {
+        "name": "Autodizel Expert, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001057487270",
+        "card_url": "https://2gis.ru/firm/70000001057487270",
+        "address": "Гёте улица, 424/1а",
+        "latitude": "43.337663",
+        "longitude": "76.968944",
+        "website": "https://autodizel.expert/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autodizel.expert"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77074954587"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 83,
+      "seller": {
+        "id": 436,
+        "name": "Razbor.mb",
+        "city": "Алматы",
+        "whatsapp": "77029511116"
+      },
+      "org": {
+        "name": "Razbor.mb, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001082000274",
+        "card_url": "https://2gis.ru/firm/70000001082000274",
+        "address": "улица Львова, 10",
+        "latitude": "43.299311",
+        "longitude": "76.961538",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor.mb"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029511116"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072095095"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77029511116",
+          "77072095095"
+        ],
+        "whatsapp": "77029511116"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 84,
+      "seller": null,
+      "org": {
+        "name": "Vinкод, магазин автозапчастей для электромобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001094351681",
+        "card_url": "https://2gis.ru/firm/70000001094351681",
+        "address": "улица Хмельницкого, 38",
+        "latitude": "43.322011",
+        "longitude": "76.967658",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vin.kod.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77005278490"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089031461"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77005278490",
+          "77089031461"
+        ],
+        "whatsapp": "77005278490"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 85,
+      "seller": null,
+      "org": {
+        "name": "Motor Land, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001024156353",
+        "card_url": "https://2gis.ru/firm/70000001024156353",
+        "address": "улица Свердлова, 38",
+        "latitude": "43.320967",
+        "longitude": "76.967651",
+        "website": "https://motor-land.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771445445"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/motorland.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011445445"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071445445"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771445445",
+          "77011445445",
+          "77071445445"
+        ],
+        "whatsapp": "77771445445"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 86,
+      "seller": {
+        "id": 702,
+        "name": "Авто Аптека, центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77754890949"
+      },
+      "org": {
+        "name": "Авто Аптека, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001066328368",
+        "card_url": "https://2gis.ru/firm/70000001066328368",
+        "address": "улица Аптечная, 37/2",
+        "latitude": "43.275069",
+        "longitude": "76.878630",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtoapteka.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77754890949"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77754890949"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://vm.tiktok.com/ZMhX2Pxyg"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77754890949"
+        ],
+        "whatsapp": "77754890949"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 87,
+      "seller": null,
+      "org": {
+        "name": "Авторазбор №1, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001035792328",
+        "card_url": "https://2gis.ru/firm/70000001035792328",
+        "address": "проспект Турара Рыскулова, 68",
+        "latitude": "43.287003",
+        "longitude": "76.923330",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078329367"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016331161"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77078329367",
+          "77016331161"
+        ],
+        "whatsapp": "77078329367"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 88,
+      "seller": {
+        "id": 710,
+        "name": "Avtorazbor — Мамыр-4, 145",
+        "city": "Алматы",
+        "whatsapp": "77088118007"
+      },
+      "org": {
+        "name": "Avtorazbor",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001101706107",
+        "card_url": "https://2gis.ru/firm/70000001101706107",
+        "address": "микрорайон Мамыр-4, 145",
+        "latitude": "43.215079",
+        "longitude": "76.846441",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_lexus_gs_ls"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77088118007"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77088118007"
+        ],
+        "whatsapp": "77088118007"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 89,
+      "seller": null,
+      "org": {
+        "name": "Arsenal Parts.kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001055119003",
+        "card_url": "https://2gis.ru/firm/70000001055119003",
+        "address": "улица Култегин, 31",
+        "latitude": "43.283515",
+        "longitude": "76.853194",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/arsenalparts.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015553416"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77059777779"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077008717"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77015553416",
+          "77059777779",
+          "77077008717"
+        ],
+        "whatsapp": "77015553416"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 90,
+      "seller": {
+        "id": 628,
+        "name": "Kparts",
+        "city": "Алматы",
+        "whatsapp": "77004957299"
+      },
+      "org": {
+        "name": "Kparts, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000958780",
+        "card_url": "https://2gis.ru/firm/9429940000958780",
+        "address": "Карпатская улица, 16Б",
+        "latitude": "43.255983",
+        "longitude": "76.847595",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/k_parts_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772949499"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77004957299"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77004957299",
+          "77772949499"
+        ],
+        "whatsapp": "77772949499"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 91,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001117262078",
+        "card_url": "https://2gis.ru/firm/70000001117262078",
+        "address": "улица Собинова, 1Б",
+        "latitude": "43.351622",
+        "longitude": "76.993108",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077690919"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77077690919"
+        ],
+        "whatsapp": "77077690919"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 92,
+      "seller": null,
+      "org": {
+        "name": "Vag Pro Service, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001090068605",
+        "card_url": "https://2gis.ru/firm/70000001090068605",
+        "address": "Центральная улица, 155",
+        "latitude": "43.338993",
+        "longitude": "76.912512",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vag.proservice"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77475898815"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77086621008"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77086621008",
+          "77475898815"
+        ],
+        "whatsapp": "77475898815"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 93,
+      "seller": {
+        "id": 647,
+        "name": "Stasova64 Razbor",
+        "city": "Алматы",
+        "whatsapp": "77015544441"
+      },
+      "org": {
+        "name": "Stasova64_razbor",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001086847710",
+        "card_url": "https://2gis.ru/firm/70000001086847710",
+        "address": "Стасова улица, 64",
+        "latitude": "43.330107",
+        "longitude": "76.956566",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/stasova64_razbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015544441"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479094800"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77015544441",
+          "77479094800"
+        ],
+        "whatsapp": "77015544441"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 94,
+      "seller": null,
+      "org": {
+        "name": "Autoparts, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001100305180",
+        "card_url": "https://2gis.ru/firm/70000001100305180",
+        "address": "улица Жанкожа батыра, 91",
+        "latitude": "43.292543",
+        "longitude": "76.850653",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075474150"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77075474150"
+        ],
+        "whatsapp": "77075474150"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 95,
+      "seller": null,
+      "org": {
+        "name": "Ld Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000788315",
+        "card_url": "https://2gis.ru/firm/9429940000788315",
+        "address": "улица Нурсая, 49",
+        "latitude": "43.350483",
+        "longitude": "76.954059",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078029296"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77078029296"
+        ],
+        "whatsapp": "77078029296"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 96,
+      "seller": null,
+      "org": {
+        "name": "Aidyn motors, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001104293523",
+        "card_url": "https://2gis.ru/firm/70000001104293523",
+        "address": "улица Бектемисова, 1а",
+        "latitude": "43.254179",
+        "longitude": "76.830702",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77010323434"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77010323434",
+          "77012329798"
+        ],
+        "whatsapp": "77010323434"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 99,
+      "seller": {
+        "id": 699,
+        "name": "Redcar, магазин автозапчастей",
+        "city": "Алматы",
+        "whatsapp": "77076491145"
+      },
+      "org": {
+        "name": "Redcar, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001083272561",
+        "card_url": "https://2gis.ru/firm/70000001083272561",
+        "address": "микрорайон Баянауыл, 57а",
+        "latitude": "43.238386",
+        "longitude": "76.822452",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/redcar_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076491145"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77076491145"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77076491145"
+        ],
+        "whatsapp": "77076491145"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 100,
+      "seller": null,
+      "org": {
+        "name": "Benzbavaria.kz",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001099944051",
+        "card_url": "https://2gis.ru/firm/70000001099944051",
+        "address": "Тулпар улица, 87",
+        "latitude": "43.320495",
+        "longitude": "76.997534",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/benzbavaria.kz"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@benzbavaria.kz"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77770565674"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 101,
+      "seller": {
+        "id": 708,
+        "name": "Electronic Service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77028985886"
+      },
+      "org": {
+        "name": "Electronic Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001081206591",
+        "card_url": "https://2gis.ru/firm/70000001081206591",
+        "address": "улица Абиша Кекилбайулы, 28Б",
+        "latitude": "43.210517",
+        "longitude": "76.888996",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028985886"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mercedes_electronic_service"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77028985886"
+        ],
+        "whatsapp": "77028985886"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 102,
+      "seller": null,
+      "org": {
+        "name": "Japan Motors Subaru, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001032070426",
+        "card_url": "https://2gis.ru/firm/70000001032070426",
+        "address": "улица Сокпакбаева, 71а/1",
+        "latitude": "43.270544",
+        "longitude": "76.882044",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772335563"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77772335563"
+        ],
+        "whatsapp": "77772335563"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 103,
+      "seller": null,
+      "org": {
+        "name": "Hiace, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001076087218",
+        "card_url": "https://2gis.ru/firm/70000001076087218",
+        "address": "Сортировочная улица, 1а",
+        "latitude": "43.345600",
+        "longitude": "76.948280",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/hiace_h300.200.106"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056108171"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77056108171"
+        ],
+        "whatsapp": "77056108171"
+      },
+      "transport_type": "truck",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 104,
+      "seller": null,
+      "org": {
+        "name": "Korea avto service",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001103973670",
+        "card_url": "https://2gis.ru/firm/70000001103973670",
+        "address": "улица Аубакирова, 14",
+        "latitude": "43.281057",
+        "longitude": "76.846765",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77082212993"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074255959"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@korea_auto_service"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77074255959",
+          "77082212993"
+        ],
+        "whatsapp": "77082212993"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 105,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001062342374",
+        "card_url": "https://2gis.ru/firm/70000001062342374",
+        "address": "улица Филатова, 5а",
+        "latitude": "43.291890",
+        "longitude": "76.939839",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_cayenne_audi_vw"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77759761051"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77759761051"
+        ],
+        "whatsapp": "77759761051"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 106,
+      "seller": {
+        "id": 733,
+        "name": "IR Vag Service, автосервис",
+        "city": "Алматы",
+        "whatsapp": "77059513331"
+      },
+      "org": {
+        "name": "IR Vag Service, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001112737899",
+        "card_url": "https://2gis.ru/firm/70000001112737899",
+        "address": "улица Даулеткерея, 200",
+        "latitude": "43.179615",
+        "longitude": "76.803794",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77059513331"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77059513331"
+        ],
+        "whatsapp": "77059513331"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 107,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алатау",
+        "source": "two_gis",
+        "external_id": "70000001044841189",
+        "card_url": "https://2gis.ru/firm/70000001044841189",
+        "address": "Бауыржан Момышулы улица, 221в",
+        "latitude": "43.382340",
+        "longitude": "76.936464",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto_razbormercedes"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023339334"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77713329633"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77023339334",
+          "77713329633"
+        ],
+        "whatsapp": "77023339334"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 108,
+      "seller": null,
+      "org": {
+        "name": "AMG_Parts, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001064907937",
+        "card_url": "https://2gis.ru/firm/70000001064907937",
+        "address": "Шалкоде улица, 98",
+        "latitude": "43.332397",
+        "longitude": "76.892464",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mb_amg_parts"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018686236"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77018686236"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77018686236",
+          "77759183345"
+        ],
+        "whatsapp": "77018686236"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 109,
+      "seller": null,
+      "org": {
+        "name": "autojapan.almaty, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001078919168",
+        "card_url": "https://2gis.ru/firm/70000001078919168",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237145",
+        "longitude": "76.804804",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autojapan.almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017730011"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77017730011"
+        ],
+        "whatsapp": "77017730011"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 110,
+      "seller": null,
+      "org": {
+        "name": "Dr motors lexus, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001047513467",
+        "card_url": "https://2gis.ru/firm/70000001047513467",
+        "address": "улица Бекмаханова, 96/4Б",
+        "latitude": "43.350536",
+        "longitude": "76.975328",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/dr_motors_lexus"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076668123"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77081070337"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77076668123",
+          "77081070337"
+        ],
+        "whatsapp": "77076668123"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 111,
+      "seller": null,
+      "org": {
+        "name": "Bms, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001046981463",
+        "card_url": "https://2gis.ru/firm/70000001046981463",
+        "address": "улица Шоссейная, 16",
+        "latitude": "43.292129",
+        "longitude": "76.889103",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072222488"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052482222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012443999"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77072222488",
+          "77052482222",
+          "77012443999",
+          "77052432222"
+        ],
+        "whatsapp": "77072222488"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 112,
+      "seller": {
+        "id": 703,
+        "name": "Центр авторазбора — Мамыр-1, 29/5",
+        "city": "Алматы",
+        "whatsapp": "77086761495"
+      },
+      "org": {
+        "name": "​Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001110701153",
+        "card_url": "https://2gis.ru/firm/70000001110701153",
+        "address": "микрорайон Мамыр-1, 29/5",
+        "latitude": "43.213544",
+        "longitude": "76.844018",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77086761495"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@.toyota.camry.40"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77086761495"
+        ],
+        "whatsapp": "77086761495"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 113,
+      "seller": null,
+      "org": {
+        "name": "Армада, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001032488706",
+        "card_url": "https://2gis.ru/firm/70000001032488706",
+        "address": "улица Аубакирова, 3",
+        "latitude": "43.282897",
+        "longitude": "76.845687",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051111140"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77051111140"
+        ],
+        "whatsapp": "77051111140"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 114,
+      "seller": null,
+      "org": {
+        "name": "Autorex, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001051471545",
+        "card_url": "https://2gis.ru/firm/70000001051471545",
+        "address": "проспект Райымбека, 540",
+        "latitude": "43.238775",
+        "longitude": "76.811621",
+        "website": "https://autorex.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autorex.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77766111111"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@autorex.kz"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77766111111"
+        ],
+        "whatsapp": "77766111111"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 115,
+      "seller": null,
+      "org": {
+        "name": "AutoPartsZone, оптово-розничный магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001103031948",
+        "card_url": "https://2gis.ru/firm/70000001103031948",
+        "address": "улица Тайторы батыра, 16",
+        "latitude": "43.225582",
+        "longitude": "76.818322",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autopartszone.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073344818"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77767887837"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017233221"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073344818",
+          "77767887837",
+          "77017233221"
+        ],
+        "whatsapp": "77073344818"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 116,
+      "seller": {
+        "id": 427,
+        "name": "Rx Razbor",
+        "city": "Алматы",
+        "whatsapp": "77008089797"
+      },
+      "org": {
+        "name": "Rx Razbor, центр авторазбора и магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001095212740",
+        "card_url": "https://2gis.ru/firm/70000001095212740",
+        "address": "Аймусин улица, 13",
+        "latitude": "43.232705",
+        "longitude": "76.817155",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/rx_razbor.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77008089797"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77000007478"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77081109393"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77008089797"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77008089797",
+          "77000007478",
+          "77081109393"
+        ],
+        "whatsapp": "77008089797"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 117,
+      "seller": null,
+      "org": {
+        "name": "karasu.auto.kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001084318109",
+        "card_url": "https://2gis.ru/firm/70000001084318109",
+        "address": "улица Зеренды, 52а",
+        "latitude": "43.342197",
+        "longitude": "76.901950",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/karasu_auto.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013577700"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075750747"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77013577700",
+          "77075750747"
+        ],
+        "whatsapp": "77013577700"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 118,
+      "seller": null,
+      "org": {
+        "name": "Blue sky, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001090391338",
+        "card_url": "https://2gis.ru/firm/70000001090391338",
+        "address": "улица Фадеева, 12",
+        "latitude": "43.261414",
+        "longitude": "76.871940",
+        "website": "",
+        "socials": [
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/@blueskycompany/featured"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77752136061"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777023311"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77752136061",
+          "77777023311"
+        ],
+        "whatsapp": "77752136061"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 119,
+      "seller": {
+        "id": 698,
+        "name": "Pitstop, магазин автозапчастей",
+        "city": "Алматы",
+        "whatsapp": "77052112233"
+      },
+      "org": {
+        "name": "Pitstop, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001021687421",
+        "card_url": "https://2gis.ru/firm/70000001021687421",
+        "address": "улица Жарокова, 39",
+        "latitude": "43.246200",
+        "longitude": "76.898110",
+        "website": "https://pitstopp.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/pitstopavtozapchasti"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052112233"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77052112233"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77052112233",
+          "77017214909",
+          "77273173537"
+        ],
+        "whatsapp": "77052112233"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 120,
+      "seller": {
+        "id": 426,
+        "name": "Stockcar_kz",
+        "city": "Алматы",
+        "whatsapp": "77759817692"
+      },
+      "org": {
+        "name": "Stockcar_kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001060969671",
+        "card_url": "https://2gis.ru/firm/70000001060969671",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237240",
+        "longitude": "76.805018",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/stockcar_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77759817692"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77759817692"
+        ],
+        "whatsapp": "77759817692"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": true
+    },
+    {
+      "row": 121,
+      "seller": {
+        "id": 866,
+        "name": "Subarik.kz",
+        "city": "Алматы",
+        "whatsapp": "77071370192"
+      },
+      "org": {
+        "name": "Subarik.kz, салон авторазбора и контрактных автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940001543555",
+        "card_url": "https://2gis.ru/firm/9429940001543555",
+        "address": "улица Саги Ашимова, 56",
+        "latitude": "43.273627",
+        "longitude": "76.848040",
+        "website": "https://subarik.kz/",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071370192"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77071370192"
+        ],
+        "whatsapp": "77071370192"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 122,
+      "seller": null,
+      "org": {
+        "name": "Auto Saiman.kz, склад",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001100557269",
+        "card_url": "https://2gis.ru/firm/70000001100557269",
+        "address": "микрорайон Баянауыл, 47а",
+        "latitude": "43.239113",
+        "longitude": "76.821533",
+        "website": "https://autosaiman.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autosaiman.kz1"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089740484"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/autosaimankzz"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77089740484"
+        ],
+        "whatsapp": "77089740484"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 123,
+      "seller": {
+        "id": 668,
+        "name": "Авторазбор BMW — Аубакирова 36",
+        "city": "Алматы",
+        "whatsapp": "77075557080"
+      },
+      "org": {
+        "name": "Пункт авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001043517918",
+        "card_url": "https://2gis.ru/firm/70000001043517918",
+        "address": "улица Аубакирова, 36",
+        "latitude": "43.283305",
+        "longitude": "76.846083",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autorazborbmw_rus"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075557080"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77085557080"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77075557080",
+          "77085557080"
+        ],
+        "whatsapp": "77075557080"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 124,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001037476828",
+        "card_url": "https://2gis.ru/firm/70000001037476828",
+        "address": "бульвар Садовый, 1ж",
+        "latitude": "43.198208",
+        "longitude": "76.839486",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471826108"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77471826108"
+        ],
+        "whatsapp": "77471826108"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 125,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора газелей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "9429940000996782",
+        "card_url": "https://2gis.ru/firm/9429940000996782",
+        "address": "Павлодарская улица, 5/1",
+        "latitude": "43.345674",
+        "longitude": "76.924257",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073828883"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073828883"
+        ],
+        "whatsapp": "77073828883"
+      },
+      "transport_type": "truck",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 126,
+      "seller": null,
+      "org": {
+        "name": "Автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001018247192",
+        "card_url": "https://2gis.ru/firm/70000001018247192",
+        "address": "улица Жалагаш, 13/1",
+        "latitude": "43.320373",
+        "longitude": "76.876779",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479751777"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472717820"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77479751777",
+          "77017184037",
+          "77472717820"
+        ],
+        "whatsapp": "77479751777"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 128,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001113210350",
+        "card_url": "https://2gis.ru/firm/70000001113210350",
+        "address": "улица Бейсебаева, 99",
+        "latitude": "43.327614",
+        "longitude": "76.882987",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/_9iliya6_"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073003868"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@1razboralmaty"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073003868"
+        ],
+        "whatsapp": "77073003868"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 129,
+      "seller": null,
+      "org": {
+        "name": "NovAuto, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001033175743",
+        "card_url": "https://2gis.ru/firm/70000001033175743",
+        "address": "Стасова улица, 58",
+        "latitude": "43.329825",
+        "longitude": "76.957891",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/nov_auto_razbor_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014257727"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77026565741"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055999961"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77026565741",
+          "77014257727",
+          "77055999961"
+        ],
+        "whatsapp": "77014257727"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 130,
+      "seller": null,
+      "org": {
+        "name": "RND, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001116741212",
+        "card_url": "https://2gis.ru/firm/70000001116741212",
+        "address": "микрорайон Аксай-1а, 25",
+        "latitude": "43.240985",
+        "longitude": "76.823866",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076947208"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77076947208"
+        ],
+        "whatsapp": "77076947208"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 131,
+      "seller": null,
+      "org": {
+        "name": "Japanese_car_house, склад-магазин",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001100710149",
+        "card_url": "https://2gis.ru/firm/70000001100710149",
+        "address": "улица Бродского, 37а",
+        "latitude": "43.270723",
+        "longitude": "76.901755",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079302525"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77059503535"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77059503535",
+          "77079302525"
+        ],
+        "whatsapp": "77079302525"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 132,
+      "seller": null,
+      "org": {
+        "name": "Nomad Auto Parts, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001110879633",
+        "card_url": "https://2gis.ru/firm/70000001110879633",
+        "address": "микрорайон Баянауыл, 36",
+        "latitude": "43.240350",
+        "longitude": "76.821749",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/nomad_autoparts"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@nomad_carcity"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77066601660",
+          "77079087528"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 133,
+      "seller": null,
+      "org": {
+        "name": "MikhailSTi, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001086767565",
+        "card_url": "https://2gis.ru/firm/70000001086767565",
+        "address": "проспект Турара Рыскулова, 232а",
+        "latitude": "43.258496",
+        "longitude": "76.850202",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mikhailsti"
+          },
+          {
+            "kind": "vk",
+            "url": "https://vk.com/rstjpjapan"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77058729446"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778729446"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77718729446",
+          "77058729446",
+          "77778729446",
+          "77058729436"
+        ],
+        "whatsapp": "77058729446"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 134,
+      "seller": null,
+      "org": {
+        "name": "Avtorazbor_almaty13, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001097506897",
+        "card_url": "https://2gis.ru/firm/70000001097506897",
+        "address": "Северное Кольцо шоссе, 122/3",
+        "latitude": "43.323878",
+        "longitude": "76.905981",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_almaty13"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77784579696"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@bmwmersedes13"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77784579696"
+        ],
+        "whatsapp": "77784579696"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 135,
+      "seller": null,
+      "org": {
+        "name": "AutoShop JJ",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001069515147",
+        "card_url": "https://2gis.ru/firm/70000001069515147",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237624",
+        "longitude": "76.805862",
+        "website": "",
+        "socials": [
+          {
+            "kind": "vk",
+            "url": "https://vk.com/razboralmaty"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto.razbor.ka"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77758288884"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77758288884"
+        ],
+        "whatsapp": "77758288884"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 136,
+      "seller": null,
+      "org": {
+        "name": "Mitsubishi Baurzhan, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001118226579",
+        "card_url": "https://2gis.ru/firm/70000001118226579",
+        "address": "улица Балкурай, 4/4",
+        "latitude": "43.325163",
+        "longitude": "76.904425",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075474647"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77075474647"
+        ],
+        "whatsapp": "77075474647"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 137,
+      "seller": null,
+      "org": {
+        "name": "Магазин-склад по продаже запчастей для легковых автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001116434183",
+        "card_url": "https://2gis.ru/firm/70000001116434183",
+        "address": "улица Сыздыкова, 36",
+        "latitude": "43.249856",
+        "longitude": "76.836474",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471821466"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052797666"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77052797666",
+          "77471821466"
+        ],
+        "whatsapp": "77471821466"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 138,
+      "seller": {
+        "id": 434,
+        "name": "Japan Autorazbor",
+        "city": "Алматы",
+        "whatsapp": "77778877449"
+      },
+      "org": {
+        "name": "Japan Autorazbor, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001078595698",
+        "card_url": "https://2gis.ru/firm/70000001078595698",
+        "address": "улица Бродского, 37Б/2",
+        "latitude": "43.272603",
+        "longitude": "76.900120",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/japan_autorazbor"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77476172091"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778877449"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77476627569"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77778877449",
+          "77476627569",
+          "77476172091"
+        ],
+        "whatsapp": "77476172091"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 139,
+      "seller": null,
+      "org": {
+        "name": "Subariki_Almaty, авторазбор",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001116126631",
+        "card_url": "https://2gis.ru/firm/70000001116126631",
+        "address": "проспект Райымбека, 486/2",
+        "latitude": "43.247768",
+        "longitude": "76.846772",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subariki_almaty3"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472947761"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@subariki_almaty3"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77472947761"
+        ],
+        "whatsapp": "77472947761"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 140,
+      "seller": null,
+      "org": {
+        "name": "Kuanysh_auto, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001077377479",
+        "card_url": "https://2gis.ru/firm/70000001077377479",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237327",
+        "longitude": "76.805214",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kuanysh_auto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776514314"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@kuanysh_auto_"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77776514314"
+        ],
+        "whatsapp": "77776514314"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 141,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001084335081",
+        "card_url": "https://2gis.ru/firm/70000001084335081",
+        "address": "улица Камшат, 1",
+        "latitude": "43.248550",
+        "longitude": "76.790592",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77473710249"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77473710249"
+        ],
+        "whatsapp": "77473710249"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 142,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001100275302",
+        "card_url": "https://2gis.ru/firm/70000001100275302",
+        "address": "улица Бродского, 37Б",
+        "latitude": "43.271920",
+        "longitude": "76.900864",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77772077976"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77086676040",
+          "77772077976"
+        ],
+        "whatsapp": "77772077976"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 143,
+      "seller": {
+        "id": 904,
+        "name": "Авторазбор",
+        "city": "Алматы",
+        "whatsapp": "77085761709"
+      },
+      "org": {
+        "name": "avto.partskz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001046763435",
+        "card_url": "https://2gis.ru/firm/70000001046763435",
+        "address": "Северное Кольцо шоссе, 55",
+        "latitude": "43.351604",
+        "longitude": "76.931785",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avto.partskz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77085761709"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77085761709"
+        ],
+        "whatsapp": "77085761709"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 145,
+      "seller": null,
+      "org": {
+        "name": "Дос, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001103031263",
+        "card_url": "https://2gis.ru/firm/70000001103031263",
+        "address": "улица Набережная, 31",
+        "latitude": "43.271347",
+        "longitude": "76.850796",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77011989819"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771989819",
+          "77011989819"
+        ],
+        "whatsapp": "77011989819"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 146,
+      "seller": null,
+      "org": {
+        "name": "Пункт авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001091826223",
+        "card_url": "https://2gis.ru/firm/70000001091826223",
+        "address": "Московская улица, 63",
+        "latitude": "43.349552",
+        "longitude": "76.960971",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77054102255"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77003265252"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77054102255"
+        ],
+        "whatsapp": "77054102255"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 147,
+      "seller": null,
+      "org": {
+        "name": "Легковой авторазбор",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001100826098",
+        "card_url": "https://2gis.ru/firm/70000001100826098",
+        "address": "улица Байтенова Нояна, 104",
+        "latitude": "43.269992",
+        "longitude": "76.836450",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77074040485"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 150,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001118085667",
+        "card_url": "https://2gis.ru/firm/70000001118085667",
+        "address": "улица Акжолтай, 23а",
+        "latitude": "43.351153",
+        "longitude": "76.844709",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77089643102"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@avtorazbotbyryndai8"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77089643102"
+        ],
+        "whatsapp": "77089643102"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 151,
+      "seller": null,
+      "org": {
+        "name": "Iron Nomad Almaty, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001110992018",
+        "card_url": "https://2gis.ru/firm/70000001110992018",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237145",
+        "longitude": "76.804804",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777434703"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77769000084"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77769000084",
+          "77777434703"
+        ],
+        "whatsapp": "77777434703"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 153,
+      "seller": null,
+      "org": {
+        "name": "Vag Razbore Service, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001089438336",
+        "card_url": "https://2gis.ru/firm/70000001089438336",
+        "address": "Красногорская улица, 9",
+        "latitude": "43.380756",
+        "longitude": "76.995383",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vag.razbor.service02"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079114444"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77079114444"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77079114444",
+          "77082035317"
+        ],
+        "whatsapp": "77079114444"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 154,
+      "seller": {
+        "id": 558,
+        "name": "Салон авторазбора Audi / Volkswagen",
+        "city": "Алматы",
+        "whatsapp": "77773272874"
+      },
+      "org": {
+        "name": "Салон авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001026750999",
+        "card_url": "https://2gis.ru/firm/70000001026750999",
+        "address": "улица Биянху, 127",
+        "latitude": "43.281238",
+        "longitude": "76.885032",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor.audi.vw.almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773272874"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77028503074"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77773272874",
+          "77028503074"
+        ],
+        "whatsapp": "77773272874"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 155,
+      "seller": null,
+      "org": {
+        "name": "Cosmos Auto, компания по авторазбору Lada",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001103649324",
+        "card_url": "https://2gis.ru/firm/70000001103649324",
+        "address": "улица Козайым, 46",
+        "latitude": "43.251787",
+        "longitude": "76.799638",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77476784801"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071909796"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77476784801",
+          "77071909796"
+        ],
+        "whatsapp": "77476784801"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 156,
+      "seller": null,
+      "org": {
+        "name": "Бекзат, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001067072645",
+        "card_url": "https://2gis.ru/firm/70000001067072645",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237064",
+        "longitude": "76.804622",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77475285548"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77475285548"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77475285548"
+        ],
+        "whatsapp": "77475285548"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 157,
+      "seller": null,
+      "org": {
+        "name": "Макс Транс, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001046355398",
+        "card_url": "https://2gis.ru/firm/70000001046355398",
+        "address": "улица Казыбаева, 12а",
+        "latitude": "43.276076",
+        "longitude": "76.911782",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016182517"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77016182517"
+        ],
+        "whatsapp": "77016182517"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 159,
+      "seller": null,
+      "org": {
+        "name": "СТО для автомобилей Mercedes-Benz Vito",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001067614151",
+        "card_url": "https://2gis.ru/firm/70000001067614151",
+        "address": "улица Ыкылас, 3в/1",
+        "latitude": "43.205230",
+        "longitude": "76.852205",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777888806"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77777888806"
+        ],
+        "whatsapp": "77777888806"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 160,
+      "seller": null,
+      "org": {
+        "name": "Pro Parts, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001021525404",
+        "card_url": "https://2gis.ru/firm/70000001021525404",
+        "address": "проспект Турара Рыскулова, 68/4",
+        "latitude": "43.286311",
+        "longitude": "76.924648",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075750293"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051836837"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77075750293",
+          "77051836837"
+        ],
+        "whatsapp": "77075750293"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 161,
+      "seller": null,
+      "org": {
+        "name": "MB razbor02, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001046696740",
+        "card_url": "https://2gis.ru/firm/70000001046696740",
+        "address": "улица Ашимова, 12",
+        "latitude": "43.224272",
+        "longitude": "76.803213",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/daimler.ata"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77000231523"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77000231523"
+        ],
+        "whatsapp": "77000231523"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 162,
+      "seller": null,
+      "org": {
+        "name": "Almaty_avtotovari, магазин автотоваров",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001077454922",
+        "card_url": "https://2gis.ru/firm/70000001077454922",
+        "address": "улица Черноморская, 38",
+        "latitude": "43.285909",
+        "longitude": "76.934960",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/almaty_avtotovari"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052483960"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77052483960"
+        ],
+        "whatsapp": "77052483960"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 163,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора для японских автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001051406740",
+        "card_url": "https://2gis.ru/firm/70000001051406740",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.236664",
+        "longitude": "76.801535",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77784095897"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77784095897"
+        ],
+        "whatsapp": "77784095897"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 164,
+      "seller": null,
+      "org": {
+        "name": "Naj Parts, магазин кузовных автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001118170896",
+        "card_url": "https://2gis.ru/firm/70000001118170896",
+        "address": "микрорайон Баянауыл, 36а",
+        "latitude": "43.240280",
+        "longitude": "76.821393",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/naj_parts"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77066579291"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77087679291"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/naj_please"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@naj_genuine_parts"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77066579291",
+          "77087679291"
+        ],
+        "whatsapp": "77066579291"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 165,
+      "seller": null,
+      "org": {
+        "name": "RafaCar, автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001032071984",
+        "card_url": "https://2gis.ru/firm/70000001032071984",
+        "address": "проспект Турара Рыскулова, 103/18Б",
+        "latitude": "43.262536",
+        "longitude": "76.857073",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/rafacar.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073966936"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77753966936",
+          "77073966936"
+        ],
+        "whatsapp": "77073966936"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 167,
+      "seller": null,
+      "org": {
+        "name": "AvtoRazbor_Mercedes_008, автомагазин запчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001100105056",
+        "card_url": "https://2gis.ru/firm/70000001100105056",
+        "address": "улица Бокейханова, 147а/27",
+        "latitude": "43.292506",
+        "longitude": "76.907712",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_008"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77058099930"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77058099930"
+        ],
+        "whatsapp": "77058099930"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 168,
+      "seller": null,
+      "org": {
+        "name": "Центр по продаже автозапчастей и авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001030691806",
+        "card_url": "https://2gis.ru/firm/70000001030691806",
+        "address": "улица Аптечная, 37/2",
+        "latitude": "43.275170",
+        "longitude": "76.878618",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014000909"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071082558"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078306559"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77071082558",
+          "77078306559",
+          "77014000909"
+        ],
+        "whatsapp": "77014000909"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 169,
+      "seller": null,
+      "org": {
+        "name": "IRIauto, магазин автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001062064236",
+        "card_url": "https://2gis.ru/firm/70000001062064236",
+        "address": "улица Хмельницкого, 36",
+        "latitude": "43.322070",
+        "longitude": "76.967089",
+        "website": "https://iriauto.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/iri.autoclub"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002536493"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77751504470"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77002536493"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77751504470"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77002536493",
+          "77751504470"
+        ],
+        "whatsapp": "77002536493"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 170,
+      "seller": {
+        "id": 901,
+        "name": "AutoHod",
+        "city": "Алматы",
+        "whatsapp": "77083489988"
+      },
+      "org": {
+        "name": "AutoHod.kz, компания",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001080863017",
+        "card_url": "https://2gis.ru/firm/70000001080863017",
+        "address": "проспект Турара Рыскулова, 103/5",
+        "latitude": "43.272283",
+        "longitude": "76.884107",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autohod.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029149990"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77083489988"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77029149990",
+          "77083489988"
+        ],
+        "whatsapp": "77029149990"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 171,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001069350242",
+        "card_url": "https://2gis.ru/firm/70000001069350242",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237401",
+        "longitude": "76.805381",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756273033"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77756273033"
+        ],
+        "whatsapp": "77756273033"
+      },
+      "transport_type": "truck",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 172,
+      "seller": {
+        "id": 677,
+        "name": "DAT Motors Almaty",
+        "city": "Алматы",
+        "whatsapp": "77713355566"
+      },
+      "org": {
+        "name": "Dat Motors Almaty, бутик автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001040945009",
+        "card_url": "https://2gis.ru/firm/70000001040945009",
+        "address": "микрорайон Баянауыл, 36",
+        "latitude": "43.240338",
+        "longitude": "76.821692",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/zapchastihyundaikiaalmaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77713355566"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77713355566"
+        ],
+        "whatsapp": "77713355566"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 174,
+      "seller": null,
+      "org": {
+        "name": "Auto-parts, ​магазин автозапчастей для внедорожников",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001094395481",
+        "card_url": "https://2gis.ru/firm/70000001094395481",
+        "address": "Килыбай Медеубекова улица, 1/1",
+        "latitude": "43.176336",
+        "longitude": "76.790507",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77777880511"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77006540672"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77777880511",
+          "77006540672"
+        ],
+        "whatsapp": "77777880511"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 175,
+      "seller": {
+        "id": 903,
+        "name": "Autoyard",
+        "city": "Алматы",
+        "whatsapp": "77079303535"
+      },
+      "org": {
+        "name": "Autoyard, центр авторазбора и автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001039413631",
+        "card_url": "https://2gis.ru/firm/70000001039413631",
+        "address": "улица Казыбаева, 246а",
+        "latitude": "43.295732",
+        "longitude": "76.916998",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079303535"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77079303535"
+        ],
+        "whatsapp": "77079303535"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 178,
+      "seller": null,
+      "org": {
+        "name": "Qms, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001112782329",
+        "card_url": "https://2gis.ru/firm/70000001112782329",
+        "address": "Северное Кольцо шоссе, 37/5Б",
+        "latitude": "43.327204",
+        "longitude": "76.910164",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77780190033"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77780190033"
+        ],
+        "whatsapp": "77780190033"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 179,
+      "seller": null,
+      "org": {
+        "name": "Магазин контрактных двигателей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001094766155",
+        "card_url": "https://2gis.ru/firm/70000001094766155",
+        "address": "проспект Райымбека, 517/6",
+        "latitude": "43.237024",
+        "longitude": "76.801899",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/dvigatel.almaty_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022808689"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77022808689"
+        ],
+        "whatsapp": "77022808689"
+      },
+      "transport_type": "truck",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 180,
+      "seller": null,
+      "org": {
+        "name": "4Х4, авторазбор",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001118216728",
+        "card_url": "https://2gis.ru/firm/70000001118216728",
+        "address": "ПК Кок-Озек территория, 11а",
+        "latitude": "43.335860",
+        "longitude": "76.832208",
+        "website": "",
+        "socials": [],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77079696496"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 181,
+      "seller": null,
+      "org": {
+        "name": "Jafar Gauhar, центр авторазбора для японских автомобилей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001076639878",
+        "card_url": "https://2gis.ru/firm/70000001076639878",
+        "address": "улица Курылыс, 1а",
+        "latitude": "43.248996",
+        "longitude": "76.785834",
+        "website": "",
+        "socials": [
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/@jafargauhari1992"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77082566662"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072566662"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77082566662"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@japanautoparts2021"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77072566662",
+          "77082566662"
+        ],
+        "whatsapp": "77082566662"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 182,
+      "seller": {
+        "id": 902,
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "whatsapp": "77754859353"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001083230875",
+        "card_url": "https://2gis.ru/firm/70000001083230875",
+        "address": "улица Спасская, 6",
+        "latitude": "43.350017",
+        "longitude": "76.946209",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77754859353"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77754859353",
+          "77472908603"
+        ],
+        "whatsapp": "77754859353"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 183,
+      "seller": null,
+      "org": {
+        "name": "Автомагазин",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001104432466",
+        "card_url": "https://2gis.ru/firm/70000001104432466",
+        "address": "улица Степная, 1Б",
+        "latitude": "43.200620",
+        "longitude": "76.839787",
+        "website": "https://hongqi-eqm5-club.pluse.kz/",
+        "socials": [],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77018337662"
+        ],
+        "whatsapp": ""
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 185,
+      "seller": null,
+      "org": {
+        "name": "Dvigateli_almaty, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001095184750",
+        "card_url": "https://2gis.ru/firm/70000001095184750",
+        "address": "улица Жолымбет, 90/2",
+        "latitude": "43.371260",
+        "longitude": "76.929008",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/dvigateli_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073354184"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051223307"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@dvigateli_almaty"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073354184",
+          "77051223307"
+        ],
+        "whatsapp": "77073354184"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 186,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001115766590",
+        "card_url": "https://2gis.ru/firm/70000001115766590",
+        "address": "улица Кенсуат, 13",
+        "latitude": "43.374758",
+        "longitude": "76.938626",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_almaty_lexus"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051027245"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77051027245"
+        ],
+        "whatsapp": "77051027245"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 187,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001117997500",
+        "card_url": "https://2gis.ru/firm/70000001117997500",
+        "address": "улица Балкурай, 6",
+        "latitude": "43.325488",
+        "longitude": "76.904436",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052331446"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@toyotaa_carina"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77052331446"
+        ],
+        "whatsapp": "77052331446"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 188,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001113535060",
+        "card_url": "https://2gis.ru/firm/70000001113535060",
+        "address": "проспект Райымбека, 550",
+        "latitude": "43.232129",
+        "longitude": "76.792638",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77781643997"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77781643997"
+        ],
+        "whatsapp": "77781643997"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 189,
+      "seller": null,
+      "org": {
+        "name": "Razbor Kz, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001074877374",
+        "card_url": "https://2gis.ru/firm/70000001074877374",
+        "address": "проспект Суюнбая, 201а",
+        "latitude": "43.310094",
+        "longitude": "76.957058",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/razbor_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472222058"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77472222058"
+        ],
+        "whatsapp": "77472222058"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 190,
+      "seller": null,
+      "org": {
+        "name": "Finik, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001062783733",
+        "card_url": "https://2gis.ru/firm/70000001062783733",
+        "address": "Щепеткова улица, 41",
+        "latitude": "43.222676",
+        "longitude": "76.876183",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077797559"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77077797559"
+        ],
+        "whatsapp": "77077797559"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 191,
+      "seller": null,
+      "org": {
+        "name": "Автосервис",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001098488569",
+        "card_url": "https://2gis.ru/firm/70000001098488569",
+        "address": "Красногорская улица, 9",
+        "latitude": "43.380756",
+        "longitude": "76.995383",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_sto_mercedes_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078564887"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77078564887"
+        ],
+        "whatsapp": "77078564887"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 192,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001118090633",
+        "card_url": "https://2gis.ru/firm/70000001118090633",
+        "address": "ПКСТ Теплоэнергетик, 50",
+        "latitude": "43.308067",
+        "longitude": "76.787976",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77477555514"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77477555514"
+        ],
+        "whatsapp": "77477555514"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 193,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001055338569",
+        "card_url": "https://2gis.ru/firm/70000001055338569",
+        "address": "Северное Кольцо шоссе, 118/4",
+        "latitude": "43.323656",
+        "longitude": "76.903222",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773886885"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77773886885"
+        ],
+        "whatsapp": "77773886885"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 194,
+      "seller": null,
+      "org": {
+        "name": "​центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001080150845",
+        "card_url": "https://2gis.ru/firm/70000001080150845",
+        "address": "микрорайон Жас Канат, 211/27",
+        "latitude": "43.327690",
+        "longitude": "76.989123",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77085915226"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77085915226"
+        ],
+        "whatsapp": "77085915226"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 195,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001063704505",
+        "card_url": "https://2gis.ru/firm/70000001063704505",
+        "address": "улица Енисейская, 26Б/2",
+        "latitude": "43.316669",
+        "longitude": "76.962891",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771553363"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77771553363"
+        ],
+        "whatsapp": "77771553363"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 196,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001053872957",
+        "card_url": "https://2gis.ru/firm/70000001053872957",
+        "address": "улица Казыбаева, 246а/1",
+        "latitude": "43.298549",
+        "longitude": "76.916012",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472084987"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071012545"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77472084987",
+          "77071012545"
+        ],
+        "whatsapp": "77472084987"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 197,
+      "seller": null,
+      "org": {
+        "name": "Saff motors, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001102851516",
+        "card_url": "https://2gis.ru/firm/70000001102851516",
+        "address": "улица Алдияр, 1а",
+        "latitude": "43.247053",
+        "longitude": "76.803452",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073976097"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@saff.motors"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77073976097"
+        ],
+        "whatsapp": "77073976097"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 198,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001059275128",
+        "card_url": "https://2gis.ru/firm/70000001059275128",
+        "address": "проспект Турара Рыскулова, 276/2",
+        "latitude": "43.252728",
+        "longitude": "76.840117",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/alexey_956"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77014406022"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77014406022",
+          "77273173949"
+        ],
+        "whatsapp": "77014406022"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 199,
+      "seller": null,
+      "org": {
+        "name": "Компания по продаже автозапчастей",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001096867621",
+        "card_url": "https://2gis.ru/firm/70000001096867621",
+        "address": "микрорайон Аксай-1а, 24",
+        "latitude": "43.241607",
+        "longitude": "76.824900",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474398888"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77474398888"
+        ],
+        "whatsapp": "77474398888"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 200,
+      "seller": null,
+      "org": {
+        "name": "AutoRev, сервисный центр",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001106134134",
+        "card_url": "https://2gis.ru/firm/70000001106134134",
+        "address": "улица Серпер, 2а/1",
+        "latitude": "43.277256",
+        "longitude": "76.964445",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/_autorev_"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071666902"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@_autorev_"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77071666902"
+        ],
+        "whatsapp": "77071666902"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 201,
+      "seller": null,
+      "org": {
+        "name": "Плеяда звёзд, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001076228446",
+        "card_url": "https://2gis.ru/firm/70000001076228446",
+        "address": "улица Маршака, 83",
+        "latitude": "43.240284",
+        "longitude": "76.879183",
+        "website": "",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/subaru_6stars_almaty"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472256744"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77472256744"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77273929476",
+          "77472256744"
+        ],
+        "whatsapp": "77472256744"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 202,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001115406503",
+        "card_url": "https://2gis.ru/firm/70000001115406503",
+        "address": "улица Нурмакова, 77",
+        "latitude": "43.247969",
+        "longitude": "76.906551",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075058877"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77075058877"
+        ],
+        "whatsapp": "77075058877"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 203,
+      "seller": null,
+      "org": {
+        "name": "Sakado, авторазбор",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001113615272",
+        "card_url": "https://2gis.ru/firm/70000001113615272",
+        "address": "улица Аптечная, 37/2",
+        "latitude": "43.274910",
+        "longitude": "76.878649",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77020187971"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77020187971"
+        ],
+        "whatsapp": "77020187971"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    },
+    {
+      "row": 204,
+      "seller": {
+        "id": 433,
+        "name": "Import Auto Parts",
+        "city": "Алматы",
+        "whatsapp": "77019092992"
+      },
+      "org": {
+        "name": "Import Auto Parts, центр авторазбора",
+        "city": "Алматы",
+        "source": "two_gis",
+        "external_id": "70000001036673043",
+        "card_url": "https://2gis.ru/firm/70000001036673043",
+        "address": "улица Кокорай, 2а/8",
+        "latitude": "43.267780",
+        "longitude": "76.864294",
+        "website": "https://importautoparts.kz/",
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/importautoparts.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77768262394"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77019092992"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77019092992",
+          "77768262394"
+        ],
+        "whatsapp": "77768262394"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": true
+    },
+    {
+      "row": 207,
+      "seller": null,
+      "org": {
+        "name": "Авторазбор",
+        "city": "Алатау",
+        "source": "two_gis",
+        "external_id": "70000001112455303",
+        "card_url": "https://2gis.ru/firm/70000001112455303",
+        "address": "улица Уалиханова, 128/1",
+        "latitude": "43.678509",
+        "longitude": "77.109767",
+        "website": "",
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013324478"
+          }
+        ],
+        "exported_at": "2026-10-18T11:05:00.239Z",
+        "phones": [
+          "77013324478",
+          "77079009382"
+        ],
+        "whatsapp": "77013324478"
+      },
+      "transport_type": "car",
+      "confirm_dismantler": false
+    }
+  ],
+  "held": [
+    {
+      "row": 3,
+      "name": "AutoMart, автокомплекс",
+      "reason": "Общий телефон с Autotap, другое название"
+    },
+    {
+      "row": 33,
+      "name": "Nuk, центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 57,
+      "name": "Motor Land, центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 65,
+      "name": "Range Rover Service, сервисный центр",
+      "reason": "Общий телефон с Ford service, другое название"
+    },
+    {
+      "row": 69,
+      "name": "Nazar auto, центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 74,
+      "name": "Askar auto",
+      "reason": "Нет телефонов и WhatsApp для сверки дублей"
+    },
+    {
+      "row": 97,
+      "name": "Центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 98,
+      "name": "mb_parts_kz, центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 127,
+      "name": "Корея Авто Алматы, центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 144,
+      "name": "Parts Shop, центр авторазбора",
+      "reason": "Телефон уже связан с JDM Partshop в Астане"
+    },
+    {
+      "row": 148,
+      "name": "mb_parts_almaty, центр авторазбора",
+      "reason": "Нет телефонов и WhatsApp для сверки дублей"
+    },
+    {
+      "row": 149,
+      "name": "Бекзат, магазин автозапчастей",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 152,
+      "name": "Original engine, авторазборная мастерская",
+      "reason": "Нет телефонов и WhatsApp для сверки дублей"
+    },
+    {
+      "row": 158,
+      "name": "Шаттык 20, центр авторазбора",
+      "reason": "Не указан город"
+    },
+    {
+      "row": 166,
+      "name": "Kettik.kz, центр авторазбора",
+      "reason": "Нет телефонов и WhatsApp для сверки дублей"
+    },
+    {
+      "row": 173,
+      "name": "Центр авторазбора и автозапчастей",
+      "reason": "Нет телефонов и WhatsApp для сверки дублей"
+    },
+    {
+      "row": 176,
+      "name": "RPI Service, магазин автозапчастей",
+      "reason": "Телефон уже связан с Avtorazbor_astana_rpiavto в Астане"
+    },
+    {
+      "row": 177,
+      "name": "Auto-parts, ​магазин автозапчастей для внедорожников",
+      "reason": "Другой адрес при общем телефоне с Auto-parts, требуется сверка филиалов"
+    },
+    {
+      "row": 184,
+      "name": "Центр авторазбора",
+      "reason": "Город Алатау конфликтует с Алматы в существующей карточке"
+    },
+    {
+      "row": 205,
+      "name": "AvtoRazbor_Mercedes_008, автомагазин запчастей",
+      "reason": "Другой адрес при общем телефоне с AvtoRazbor_Mercedes_008, требуется сверка филиалов"
+    },
+    {
+      "row": 206,
+      "name": "Авторазбор",
+      "reason": "Нет телефонов и WhatsApp для сверки дублей"
+    }
+  ],
+  "rejected_whatsapp": [
+    {
+      "row": 12,
+      "name": "Autotap, магазин запчастей для китайских автомобилей",
+      "url": "https://wa.me/77066389097",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 20,
+      "name": "Razbor 777, салон авторазбора",
+      "url": "https://wa.me/77780470084",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 27,
+      "name": "Avtobak, центр авторазбора",
+      "url": "https://wa.me/77779654141",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 59,
+      "name": "Движок, центр авторазбора",
+      "url": "https://wa.me/77087103380",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 66,
+      "name": "Автосервис по ремонту грузовых автомобилей и авторазбору",
+      "url": "https://wa.me/77772211612",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 79,
+      "name": "JPmotors, центр",
+      "url": "https://wa.me/77772710080",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 93,
+      "name": "Stasova64_razbor",
+      "url": "https://wa.me/77077995347",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 104,
+      "name": "Korea avto service",
+      "url": "https://wa.me/77079000393",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 132,
+      "name": "Nomad Auto Parts, центр авторазбора",
+      "url": "https://wa.me/77783660936",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 183,
+      "name": "Автомагазин",
+      "url": "https://wa.me/77064114177",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    },
+    {
+      "row": 200,
+      "name": "AutoRev, сервисный центр",
+      "url": "https://wa.me/77066268772",
+      "reason": "номер WhatsApp не совпадает с телефонами карточки"
+    }
+  ]
+}
