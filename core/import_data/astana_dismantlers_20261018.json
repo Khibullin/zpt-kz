@@ -1,0 +1,2652 @@
+{
+  "source_file": "Авторазборы Астана 81 шт (3).xlsx",
+  "plans": [
+    {
+      "row": 2,
+      "seller": null,
+      "org": {
+        "name": "Titan Auto",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001034343089",
+        "card_url": "https://2gis.ru/firm/70000001034343089",
+        "address": "улица Мыржакыпа Дулатова, 180/1в",
+        "latitude": 51.203324,
+        "longitude": 71.358947,
+        "website": "",
+        "phones": [
+          "77019146440",
+          "77019146460",
+          "77015310775",
+          "77012174735"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/titan_auto01"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012174735"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77019146440"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77019146460"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/titan_auto_kz"
+          }
+        ],
+        "whatsapp": "77012174735"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 3,
+      "seller": {
+        "id": 739,
+        "name": "Alliance China Parts",
+        "city": "Астана",
+        "whatsapp": "77472992964"
+      },
+      "org": {
+        "name": "Alliance China Parts",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001113637730",
+        "card_url": "https://2gis.ru/firm/70000001113637730",
+        "address": "улица Карталы, 2/1",
+        "latitude": 51.20032,
+        "longitude": 71.388304,
+        "website": "http://alliance-dostar.kz/",
+        "phones": [
+          "77472992964",
+          "77472992966"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/alliance_dostar.kz_china"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472992964"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77472992966"
+          }
+        ],
+        "whatsapp": "77472992964"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 4,
+      "seller": {
+        "id": 738,
+        "name": "Q-Motors",
+        "city": "Астана",
+        "whatsapp": "77077360806"
+      },
+      "org": {
+        "name": "Q-Motors",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001052072182",
+        "card_url": "https://2gis.ru/firm/70000001052072182",
+        "address": "",
+        "latitude": 51.188878,
+        "longitude": 71.315635,
+        "website": "",
+        "phones": [
+          "77077360806"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077360806"
+          }
+        ],
+        "whatsapp": "77077360806"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 5,
+      "seller": {
+        "id": 736,
+        "name": "Авторазбор ASTANA, центр авторазбора немецких автомобилей",
+        "city": "Астана",
+        "whatsapp": "77029979999"
+      },
+      "org": {
+        "name": "Авторазбор ASTANA, центр авторазбора немецких автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001049479673",
+        "card_url": "https://2gis.ru/firm/70000001049479673",
+        "address": "улица Александра Пушкина, 52",
+        "latitude": 51.184233,
+        "longitude": 71.49459,
+        "website": "",
+        "phones": [
+          "77029979999"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.astana.01"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77029979999"
+          }
+        ],
+        "whatsapp": "77029979999"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 6,
+      "seller": {
+        "id": 737,
+        "name": "Vag Service",
+        "city": "Астана",
+        "whatsapp": "77016660975"
+      },
+      "org": {
+        "name": "Vag Service",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001117135481",
+        "card_url": "https://2gis.ru/firm/70000001117135481",
+        "address": "улица Ушкыштар, 6",
+        "latitude": 51.10742,
+        "longitude": 71.440986,
+        "website": "",
+        "phones": [
+          "77016660975"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/vagservicealmaty_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016660975"
+          }
+        ],
+        "whatsapp": "77016660975"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 8,
+      "seller": {
+        "id": 743,
+        "name": "Auto Kraft",
+        "city": "Астана",
+        "whatsapp": "77072123272"
+      },
+      "org": {
+        "name": "Auto Kraft",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001022947837",
+        "card_url": "https://2gis.ru/firm/70000001022947837",
+        "address": "шоссе Алаш, 11/1",
+        "latitude": 51.192666,
+        "longitude": 71.460812,
+        "website": "http://autokraft.satu.kz/",
+        "phones": [
+          "77072123272",
+          "77474374585",
+          "77078548662"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autokraft_kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474374585"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078548662"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072123272"
+          }
+        ],
+        "whatsapp": "77474374585"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 9,
+      "seller": {
+        "id": 747,
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77771234556"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001035379792",
+        "card_url": "https://2gis.ru/firm/70000001035379792",
+        "address": "улица Аспандияр Кенжин, 5",
+        "latitude": 51.189008,
+        "longitude": 71.319181,
+        "website": "",
+        "phones": [
+          "77771234556"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771234556"
+          }
+        ],
+        "whatsapp": "77771234556"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 10,
+      "seller": {
+        "id": 740,
+        "name": "Баварец, СТО",
+        "city": "Астана",
+        "whatsapp": "77711474444"
+      },
+      "org": {
+        "name": "Баварец, СТО",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001022299768",
+        "card_url": "https://2gis.ru/firm/70000001022299768",
+        "address": "улица Сакен Сейфуллин, 11/1",
+        "latitude": 51.17027,
+        "longitude": 71.409822,
+        "website": "http://www.bavarec.kz/",
+        "phones": [
+          "77711474444",
+          "77471474444",
+          "77761474444"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471474444"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77711474444"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77761474444"
+          }
+        ],
+        "whatsapp": "77471474444"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 11,
+      "seller": {
+        "id": 742,
+        "name": "Korea Auto Parts",
+        "city": "Астана",
+        "whatsapp": "77071054888"
+      },
+      "org": {
+        "name": "Korea Auto Parts",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001100329303",
+        "card_url": "https://2gis.ru/firm/70000001100329303",
+        "address": "улица Жанибека Тархана, 12Б",
+        "latitude": 51.159658,
+        "longitude": 71.452189,
+        "website": "",
+        "phones": [
+          "77071054888"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071054888"
+          }
+        ],
+        "whatsapp": "77071054888"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 12,
+      "seller": {
+        "id": 741,
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77079018351"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001075866612",
+        "card_url": "https://2gis.ru/firm/70000001075866612",
+        "address": "улица Кумкент, 5",
+        "latitude": 51.138832,
+        "longitude": 71.513669,
+        "website": "",
+        "phones": [
+          "77079018351"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77079018351"
+          }
+        ],
+        "whatsapp": "77079018351"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 13,
+      "seller": {
+        "id": 744,
+        "name": "Автосервис",
+        "city": "Астана",
+        "whatsapp": "77762334531"
+      },
+      "org": {
+        "name": "Автосервис",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001103788118",
+        "card_url": "https://2gis.ru/firm/70000001103788118",
+        "address": "улица Сарысу, 19Б",
+        "latitude": 51.177094,
+        "longitude": 71.475297,
+        "website": "",
+        "phones": [
+          "77762334531",
+          "77474149316",
+          "77055639053"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/orazkhan___s"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77762334531"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474149316"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055639053"
+          }
+        ],
+        "whatsapp": "77762334531"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 14,
+      "seller": {
+        "id": 748,
+        "name": "Original, центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77023666111"
+      },
+      "org": {
+        "name": "Original, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001024425063",
+        "card_url": "https://2gis.ru/firm/70000001024425063",
+        "address": "улица Талапкерская, 22а",
+        "latitude": 51.184181,
+        "longitude": 71.373194,
+        "website": "",
+        "phones": [
+          "77023666111",
+          "77015889808"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023666111"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015889808"
+          }
+        ],
+        "whatsapp": "77023666111"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 15,
+      "seller": {
+        "id": 745,
+        "name": "The Parts Master",
+        "city": "Астана",
+        "whatsapp": "77757341401"
+      },
+      "org": {
+        "name": "The Parts Master",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001098289281",
+        "card_url": "https://2gis.ru/firm/70000001098289281",
+        "address": "улица Капал, 12",
+        "latitude": 51.130954,
+        "longitude": 71.531715,
+        "website": "",
+        "phones": [
+          "77757341401",
+          "77773306667"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/astana_zapchasti8"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77757341401"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773306667"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@the.parts.master"
+          }
+        ],
+        "whatsapp": "77757341401"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 16,
+      "seller": {
+        "id": 746,
+        "name": "Kaynar Avto, магазин по продаже б/у автозапчастей",
+        "city": "Астана",
+        "whatsapp": "77774467777"
+      },
+      "org": {
+        "name": "Kaynar Avto, магазин по продаже б/у автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001023219868",
+        "card_url": "https://2gis.ru/firm/70000001023219868",
+        "address": "улица Аспандияр Кенжин, 8/1",
+        "latitude": 51.190722,
+        "longitude": 71.323127,
+        "website": "",
+        "phones": [
+          "77774467777",
+          "77782999981"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77782999981"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kaynaravto_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77774467777"
+          }
+        ],
+        "whatsapp": "77782999981"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 17,
+      "seller": {
+        "id": 639,
+        "name": "AutoHub",
+        "city": "Астана",
+        "whatsapp": "77056869858"
+      },
+      "org": {
+        "name": "AutoHub",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001046504497",
+        "card_url": "https://2gis.ru/firm/70000001046504497",
+        "address": "улица Баршын, 30/1",
+        "latitude": 51.200653,
+        "longitude": 71.326091,
+        "website": "http://japanautohub.kz/",
+        "phones": [
+          "77056869858",
+          "77078953996",
+          "77057420385"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autohub01"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056869858"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078953996"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057420385"
+          }
+        ],
+        "whatsapp": "77056869858"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 18,
+      "seller": {
+        "id": 751,
+        "name": "Витязь и К, автосервис",
+        "city": "Астана",
+        "whatsapp": "77017304460"
+      },
+      "org": {
+        "name": "Витязь и К, автосервис",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001018086620",
+        "card_url": "https://2gis.ru/firm/70000001018086620",
+        "address": "улица Енлик-Кебек, 11",
+        "latitude": 51.174263,
+        "longitude": 71.344277,
+        "website": "",
+        "phones": [
+          "77017304460",
+          "77015778717",
+          "77787680008"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015778717"
+          }
+        ],
+        "whatsapp": "77015778717"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 19,
+      "seller": {
+        "id": 750,
+        "name": "Пункт авторазбора",
+        "city": "Астана",
+        "whatsapp": "77051031945"
+      },
+      "org": {
+        "name": "Пункт авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001094702608",
+        "card_url": "https://2gis.ru/firm/70000001094702608",
+        "address": "улица Анарская, 31",
+        "latitude": 51.179652,
+        "longitude": 71.475936,
+        "website": "",
+        "phones": [
+          "77051031945"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77051031945"
+          }
+        ],
+        "whatsapp": "77051031945"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 20,
+      "seller": {
+        "id": 756,
+        "name": "У Виктора",
+        "city": "Астана",
+        "whatsapp": "77013111144"
+      },
+      "org": {
+        "name": "У Виктора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001032598857",
+        "card_url": "https://2gis.ru/firm/70000001032598857",
+        "address": "Муса Жалел улица, 75",
+        "latitude": 51.189342,
+        "longitude": 71.376397,
+        "website": "",
+        "phones": [
+          "77013111144"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013111144"
+          }
+        ],
+        "whatsapp": "77013111144"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 21,
+      "seller": {
+        "id": 749,
+        "name": "Dartuning",
+        "city": "Астана",
+        "whatsapp": "77757006006"
+      },
+      "org": {
+        "name": "Dartuning",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001040106576",
+        "card_url": "https://2gis.ru/firm/70000001040106576",
+        "address": "переулок Кобда, 2/1",
+        "latitude": 51.137933,
+        "longitude": 71.531446,
+        "website": "http://dartuning.kz/",
+        "phones": [
+          "77757006006",
+          "77716362196"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/dar_tuning"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77757006006"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77716362196"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77757006006"
+          }
+        ],
+        "whatsapp": "77757006006"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 22,
+      "seller": {
+        "id": 755,
+        "name": "Motor Center Astana, автоцентр двигателей",
+        "city": "Астана",
+        "whatsapp": "77784700555"
+      },
+      "org": {
+        "name": "Motor Center Astana, автоцентр двигателей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001042675257",
+        "card_url": "https://2gis.ru/firm/70000001042675257",
+        "address": "улица Сулуколь, 4а",
+        "latitude": 51.178094,
+        "longitude": 71.345237,
+        "website": "",
+        "phones": [
+          "77784700555",
+          "77714700555"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/motor_center_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77784700555"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77714700555"
+          }
+        ],
+        "whatsapp": "77784700555"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 23,
+      "seller": {
+        "id": 753,
+        "name": "Магазин по продаже автозапчастей",
+        "city": "Астана",
+        "whatsapp": "77479163814"
+      },
+      "org": {
+        "name": "Магазин по продаже автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001089239351",
+        "card_url": "https://2gis.ru/firm/70000001089239351",
+        "address": "переулок Дегелен, 16",
+        "latitude": 51.153147,
+        "longitude": 71.521501,
+        "website": "",
+        "phones": [
+          "77479163814"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77479163814"
+          }
+        ],
+        "whatsapp": "77479163814"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 24,
+      "seller": {
+        "id": 763,
+        "name": "СТО",
+        "city": "Астана",
+        "whatsapp": "77079799221"
+      },
+      "org": {
+        "name": "СТО",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001055964573",
+        "card_url": "https://2gis.ru/firm/70000001055964573",
+        "address": "шоссе Коргалжын, 28а",
+        "latitude": 51.149126,
+        "longitude": 71.34925,
+        "website": "",
+        "phones": [
+          "77079799221",
+          "77052013136"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77052013136"
+          }
+        ],
+        "whatsapp": "77052013136"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 25,
+      "seller": {
+        "id": 752,
+        "name": "Alliance dostar, центр по разбору автомобилей",
+        "city": "Астана",
+        "whatsapp": "77083805339"
+      },
+      "org": {
+        "name": "Alliance dostar, центр по разбору автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001034232633",
+        "card_url": "https://2gis.ru/firm/70000001034232633",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188521,
+        "longitude": 71.317622,
+        "website": "http://alliance-dostar.kz/",
+        "phones": [
+          "77083805339",
+          "77021665500",
+          "77055873530"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/alliance_dostar.kz_2"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77083805339"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77021665500"
+          }
+        ],
+        "whatsapp": "77083805339"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 26,
+      "seller": {
+        "id": 754,
+        "name": "Autodvizhok.Kz, автоцентр двигателей",
+        "city": "Астана",
+        "whatsapp": "77013289697"
+      },
+      "org": {
+        "name": "Autodvizhok.Kz, автоцентр двигателей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001036051448",
+        "card_url": "https://2gis.ru/firm/70000001036051448",
+        "address": "улица Аспандияр Кенжин, 5/6",
+        "latitude": 51.189439,
+        "longitude": 71.318768,
+        "website": "http://autodvizhok.kz/",
+        "phones": [
+          "77013289697",
+          "77764971484",
+          "77073279697"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autodvizhok.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013289697"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77073279697"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77764971484"
+          }
+        ],
+        "whatsapp": "77013289697"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 27,
+      "seller": {
+        "id": 778,
+        "name": "Union parts",
+        "city": "Астана",
+        "whatsapp": "77012131187"
+      },
+      "org": {
+        "name": "Union parts",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001065453271",
+        "card_url": "https://2gis.ru/firm/70000001065453271",
+        "address": "шоссе Коргалжын, 28а",
+        "latitude": 51.149126,
+        "longitude": 71.34925,
+        "website": "",
+        "phones": [
+          "77012131187"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012131187"
+          }
+        ],
+        "whatsapp": "77012131187"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 28,
+      "seller": {
+        "id": 772,
+        "name": "Astana Auto Crash, центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77020660166"
+      },
+      "org": {
+        "name": "Astana Auto Crash, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001114199649",
+        "card_url": "https://2gis.ru/firm/70000001114199649",
+        "address": "проспект Бауыржан Момышулы, 4а",
+        "latitude": 51.136957,
+        "longitude": 71.471728,
+        "website": "",
+        "phones": [
+          "77020660166"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Atyrau_autocrash"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77020660166"
+          }
+        ],
+        "whatsapp": "77020660166"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 29,
+      "seller": {
+        "id": 761,
+        "name": "Most Аuto, цех по авторазбору",
+        "city": "Астана",
+        "whatsapp": "77018885812"
+      },
+      "org": {
+        "name": "Most Аuto, цех по авторазбору",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001041959540",
+        "card_url": "https://2gis.ru/firm/70000001041959540",
+        "address": "улица Александра Пушкина, 41/2",
+        "latitude": 51.171811,
+        "longitude": 71.479867,
+        "website": "",
+        "phones": [
+          "77018885812"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mostautokz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018885812"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/mostautobot"
+          }
+        ],
+        "whatsapp": "77018885812"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 30,
+      "seller": {
+        "id": 762,
+        "name": "Асай-Мүсей",
+        "city": "Астана",
+        "whatsapp": "77789784888"
+      },
+      "org": {
+        "name": "Асай-Мүсей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001024423905",
+        "card_url": "https://2gis.ru/firm/70000001024423905",
+        "address": "улица Габидена Мустафина, 22",
+        "latitude": 51.150678,
+        "longitude": 71.507388,
+        "website": "http://bazaparts.kz/",
+        "phones": [
+          "77789784888",
+          "77778555529"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778555529"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789784888"
+          }
+        ],
+        "whatsapp": "77778555529"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 31,
+      "seller": {
+        "id": 757,
+        "name": "Yamada avto",
+        "city": "Астана",
+        "whatsapp": "77022810751"
+      },
+      "org": {
+        "name": "Yamada avto",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001046639732",
+        "card_url": "https://2gis.ru/firm/70000001046639732",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188566,
+        "longitude": 71.317688,
+        "website": "",
+        "phones": [
+          "77022810751"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77022810751"
+          }
+        ],
+        "whatsapp": "77022810751"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 32,
+      "seller": {
+        "id": 758,
+        "name": "JapartsKz, центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77081169915"
+      },
+      "org": {
+        "name": "JapartsKz, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001090147296",
+        "card_url": "https://2gis.ru/firm/70000001090147296",
+        "address": "улица Актогай, 5",
+        "latitude": 51.197673,
+        "longitude": 71.356969,
+        "website": "",
+        "phones": [
+          "77081169915",
+          "77026023272"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77081169915"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77026023272"
+          }
+        ],
+        "whatsapp": "77081169915"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 33,
+      "seller": {
+        "id": 760,
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77025605009"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001036419065",
+        "card_url": "https://2gis.ru/firm/70000001036419065",
+        "address": "улица Акмола, 20а",
+        "latitude": 51.19395,
+        "longitude": 71.33766,
+        "website": "",
+        "phones": [
+          "77025605009",
+          "77775577799",
+          "77076016005",
+          "77051153212"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77025605009"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77775577799"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076016005"
+          }
+        ],
+        "whatsapp": "77025605009"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 34,
+      "seller": {
+        "id": 759,
+        "name": "Мегаразбор, центр авторазбора японских автомобилей",
+        "city": "Астана",
+        "whatsapp": "77753322063"
+      },
+      "org": {
+        "name": "Мегаразбор, центр авторазбора японских автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001020138624",
+        "card_url": "https://2gis.ru/firm/70000001020138624",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.189527,
+        "longitude": 71.317942,
+        "website": "http://megarazbor.kz/",
+        "phones": [
+          "77753322063",
+          "77782799990",
+          "77476606718",
+          "77711071896"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/megarazbor.kz"
+          },
+          {
+            "kind": "vk",
+            "url": "https://vk.com/megarazbor.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77753322063"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77782799990"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77476606718"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77753322063"
+          }
+        ],
+        "whatsapp": "77753322063"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 35,
+      "seller": {
+        "id": 767,
+        "name": "Kzb Transmission, автосервис",
+        "city": "Астана",
+        "whatsapp": "77075587540"
+      },
+      "org": {
+        "name": "Kzb Transmission, автосервис",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001095205977",
+        "card_url": "https://2gis.ru/firm/70000001095205977",
+        "address": "улица Шугыла, 23/2",
+        "latitude": 51.185272,
+        "longitude": 71.352479,
+        "website": "",
+        "phones": [
+          "77075587540"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/kzb_transmission"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77075587540"
+          }
+        ],
+        "whatsapp": "77075587540"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 36,
+      "seller": {
+        "id": 765,
+        "name": "Авторазбор Беркана",
+        "city": "Астана",
+        "whatsapp": "77078118303"
+      },
+      "org": {
+        "name": "Авторазбор Беркана",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001033937127",
+        "card_url": "https://2gis.ru/firm/70000001033937127",
+        "address": "улица Аспандияр Кенжин, 7/6а",
+        "latitude": 51.188952,
+        "longitude": 71.318821,
+        "website": "",
+        "phones": [
+          "77078118303",
+          "77017235883"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77078118303"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017235883"
+          }
+        ],
+        "whatsapp": "77078118303"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 37,
+      "seller": {
+        "id": 781,
+        "name": "Сварочный цех",
+        "city": "Астана",
+        "whatsapp": "77074991894"
+      },
+      "org": {
+        "name": "Сварочный цех",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001088029280",
+        "card_url": "https://2gis.ru/firm/70000001088029280",
+        "address": "улица Балкантау, 61",
+        "latitude": 51.136095,
+        "longitude": 71.500495,
+        "website": "",
+        "phones": [
+          "77074991894"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77074991894"
+          }
+        ],
+        "whatsapp": "77074991894"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 38,
+      "seller": {
+        "id": 766,
+        "name": "Titan М5_Astana, центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77072223743"
+      },
+      "org": {
+        "name": "Titan М5_Astana, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001102338737",
+        "card_url": "https://2gis.ru/firm/70000001102338737",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188761,
+        "longitude": 71.316142,
+        "website": "",
+        "phones": [
+          "77072223743",
+          "77782223743"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/m5_bmwrazbor_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77782223743"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072223743"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@.bmw_astana"
+          }
+        ],
+        "whatsapp": "77782223743"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 39,
+      "seller": {
+        "id": 761,
+        "name": "Most Аuto, цех по авторазбору",
+        "city": "Астана",
+        "whatsapp": "77018885812"
+      },
+      "org": {
+        "name": "Most Аuto, магазин автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001019332354",
+        "card_url": "https://2gis.ru/firm/70000001019332354",
+        "address": "улица Александра Пушкина, 41/2",
+        "latitude": 51.171811,
+        "longitude": 71.479867,
+        "website": "",
+        "phones": [
+          "77018885812"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mostautokz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018885812"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/mostautobot"
+          }
+        ],
+        "whatsapp": "77018885812"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 40,
+      "seller": {
+        "id": 771,
+        "name": "Korea_mobis_avtozapchast",
+        "city": "Астана",
+        "whatsapp": "77002982960"
+      },
+      "org": {
+        "name": "Korea_mobis_avtozapchast",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001096825710",
+        "card_url": "https://2gis.ru/firm/70000001096825710",
+        "address": "переулок Дайрабай, 6",
+        "latitude": 51.187135,
+        "longitude": 71.322225,
+        "website": "",
+        "phones": [
+          "77002982960"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/korea_mobis_avtozapchast"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002982960"
+          }
+        ],
+        "whatsapp": "77002982960"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 41,
+      "seller": {
+        "id": 779,
+        "name": "GP-motors",
+        "city": "Астана",
+        "whatsapp": "77088881751"
+      },
+      "org": {
+        "name": "GP-motors",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001063179600",
+        "card_url": "https://2gis.ru/firm/70000001063179600",
+        "address": "улица Жетиген, 35/3",
+        "latitude": 51.184356,
+        "longitude": 71.467869,
+        "website": "http://gpmotors.kz/",
+        "phones": [
+          "77088881751"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtopodborast"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77088881751"
+          }
+        ],
+        "whatsapp": "77088881751"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 42,
+      "seller": {
+        "id": 769,
+        "name": "Автоаптека, магазин контрактных автозапчастей",
+        "city": "Астана",
+        "whatsapp": "77756630511"
+      },
+      "org": {
+        "name": "Автоаптека, магазин контрактных автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001020138566",
+        "card_url": "https://2gis.ru/firm/70000001020138566",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188848,
+        "longitude": 71.316988,
+        "website": "",
+        "phones": [
+          "77756630511"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtoapteka.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756630511"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77756630511"
+          }
+        ],
+        "whatsapp": "77756630511"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 43,
+      "seller": {
+        "id": 774,
+        "name": "Bavaria_parts_Astana",
+        "city": "Астана",
+        "whatsapp": "77778819161"
+      },
+      "org": {
+        "name": "Bavaria_parts_Astana",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001035575896",
+        "card_url": "https://2gis.ru/firm/70000001035575896",
+        "address": "Куляш Байсеитовой, 10/1",
+        "latitude": 51.194298,
+        "longitude": 71.388362,
+        "website": "",
+        "phones": [
+          "77778819161"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/ask_service_01"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77778819161"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77778819161"
+          }
+        ],
+        "whatsapp": "77778819161"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 44,
+      "seller": {
+        "id": 780,
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "whatsapp": "77023666166"
+      },
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001029187785",
+        "card_url": "https://2gis.ru/firm/70000001029187785",
+        "address": "улица Антона Чехова, 69а",
+        "latitude": 51.188971,
+        "longitude": 71.372554,
+        "website": "",
+        "phones": [
+          "77023666166",
+          "77055818180"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77055818180"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77023666166"
+          }
+        ],
+        "whatsapp": "77055818180"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 45,
+      "seller": {
+        "id": 770,
+        "name": "Форсаж, центр по разбору автомобилей",
+        "city": "Астана",
+        "whatsapp": "77027214144"
+      },
+      "org": {
+        "name": "Форсаж, центр по разбору автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001020138288",
+        "card_url": "https://2gis.ru/firm/70000001020138288",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.189579,
+        "longitude": 71.318016,
+        "website": "",
+        "phones": [
+          "77027214144",
+          "77012550472",
+          "77784445252",
+          "77016739268"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autoparts_forsage"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027214144"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012550472"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77784445252"
+          }
+        ],
+        "whatsapp": "77027214144"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 46,
+      "seller": {
+        "id": 776,
+        "name": "AutoMix",
+        "city": "Астана",
+        "whatsapp": "77018886364"
+      },
+      "org": {
+        "name": "AutoMix",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001079604364",
+        "card_url": "https://2gis.ru/firm/70000001079604364",
+        "address": "улица Аспандияр Кенжин, 5а",
+        "latitude": 51.188421,
+        "longitude": 71.317853,
+        "website": "",
+        "phones": [
+          "77018886364",
+          "77779992900",
+          "77789992320"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/automix.ast"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77779992900"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77789992320"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77018886364"
+          }
+        ],
+        "whatsapp": "77779992900"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 47,
+      "seller": {
+        "id": 777,
+        "name": "JDM Partshop",
+        "city": "Астана",
+        "whatsapp": "77013947373"
+      },
+      "org": {
+        "name": "JDM Partshop",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001081227734",
+        "card_url": "https://2gis.ru/firm/70000001081227734",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188738,
+        "longitude": 71.316832,
+        "website": "",
+        "phones": [
+          "77013947373",
+          "77071011222",
+          "77764181919"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/jdm_part_shopp"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013947373"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77071011222"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77477010010"
+          }
+        ],
+        "whatsapp": "77013947373"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 48,
+      "seller": {
+        "id": 775,
+        "name": "ПМК",
+        "city": "Астана",
+        "whatsapp": "77759074444"
+      },
+      "org": {
+        "name": "ПМК",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001028554526",
+        "card_url": "https://2gis.ru/firm/70000001028554526",
+        "address": "улица Аспандияр Кенжин, 5/7",
+        "latitude": 51.189264,
+        "longitude": 71.318814,
+        "website": "",
+        "phones": [
+          "77759074444",
+          "77004770047",
+          "77002026062",
+          "77058077171"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77004770047"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77759074444"
+          },
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/astana.avtorazbor"
+          },
+          {
+            "kind": "youtube",
+            "url": "https://youtube.com/@PMKastana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77002026062"
+          }
+        ],
+        "whatsapp": "77004770047"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 49,
+      "seller": {
+        "id": 764,
+        "name": "No.blink service",
+        "city": "Астана",
+        "whatsapp": "77083200740"
+      },
+      "org": {
+        "name": "No.blink service",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001105139797",
+        "card_url": "https://2gis.ru/firm/70000001105139797",
+        "address": "",
+        "latitude": 51.199672,
+        "longitude": 71.491105,
+        "website": "",
+        "phones": [
+          "77083200740"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/no.blink_service"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77083200740"
+          }
+        ],
+        "whatsapp": "77083200740"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 50,
+      "seller": {
+        "id": 768,
+        "name": "Avtorazbor_astana_rpiavto",
+        "city": "Астана",
+        "whatsapp": "77773217988"
+      },
+      "org": {
+        "name": "Avtorazbor_astana_rpiavto",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001113505209",
+        "card_url": "https://2gis.ru/firm/70000001113505209",
+        "address": "улица Озен, 9а",
+        "latitude": 51.217758,
+        "longitude": 71.384374,
+        "website": "",
+        "phones": [
+          "77773217988"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor_astana_rpiavto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77773217988"
+          }
+        ],
+        "whatsapp": "77773217988"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 51,
+      "seller": {
+        "id": 773,
+        "name": "Autotap, магазин запчастей для китайских автомобилей",
+        "city": "Астана",
+        "whatsapp": "77013666988"
+      },
+      "org": {
+        "name": "Autotap, магазин запчастей для китайских автомобилей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001113177105",
+        "card_url": "https://2gis.ru/firm/70000001113177105",
+        "address": "переулок Кобда, 2/1",
+        "latitude": 51.137933,
+        "longitude": 71.531446,
+        "website": "",
+        "phones": [
+          "77013666988"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013666988"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77066389097"
+          },
+          {
+            "kind": "telegram",
+            "url": "https://t.me/+77013666988"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@serik.bakyt7"
+          }
+        ],
+        "whatsapp": "77013666988"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 52,
+      "seller": null,
+      "org": {
+        "name": "Магазин автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001023201395",
+        "card_url": "https://2gis.ru/firm/70000001023201395",
+        "address": "улица Жаханша Досмухамедулы, 38/4",
+        "latitude": 51.18776,
+        "longitude": 71.475951,
+        "website": "",
+        "phones": [
+          "77015160879",
+          "77771472222"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77771472222"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77015160879"
+          }
+        ],
+        "whatsapp": "77771472222"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 53,
+      "seller": null,
+      "org": {
+        "name": "M-Garage",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001090270356",
+        "card_url": "https://2gis.ru/firm/70000001090270356",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.189351,
+        "longitude": 71.316244,
+        "website": "",
+        "phones": [
+          "77761386753"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/m.garage.ast"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77761386753"
+          }
+        ],
+        "whatsapp": "77761386753"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 54,
+      "seller": null,
+      "org": {
+        "name": "AvtoLine",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001095524494",
+        "card_url": "https://2gis.ru/firm/70000001095524494",
+        "address": "улица Аспандияр Кенжин, 5/5Б",
+        "latitude": 51.189316,
+        "longitude": 71.318261,
+        "website": "",
+        "phones": [
+          "77077694337"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtoline_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77077694337"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@autoline_"
+          }
+        ],
+        "whatsapp": "77077694337"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 55,
+      "seller": null,
+      "org": {
+        "name": "West-auto",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001040557840",
+        "card_url": "https://2gis.ru/firm/70000001040557840",
+        "address": "улица Аспандияр Кенжин, 5а",
+        "latitude": 51.188878,
+        "longitude": 71.318505,
+        "website": "",
+        "phones": [
+          "77072221814"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/westauto07"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072221814"
+          }
+        ],
+        "whatsapp": "77072221814"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 56,
+      "seller": null,
+      "org": {
+        "name": "Motor land",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001044449909",
+        "card_url": "https://2gis.ru/firm/70000001044449909",
+        "address": "улица Аспандияр Кенжин, 5г",
+        "latitude": 51.189863,
+        "longitude": 71.318636,
+        "website": "",
+        "phones": [
+          "77755371050",
+          "77471401040"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/motorland_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77755371050"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77471401040"
+          }
+        ],
+        "whatsapp": "77755371050"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 57,
+      "seller": null,
+      "org": {
+        "name": "Tulpar auto",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001083951646",
+        "card_url": "https://2gis.ru/firm/70000001083951646",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188943,
+        "longitude": 71.315989,
+        "website": "",
+        "phones": [
+          "77027010042",
+          "77474591059",
+          "77470286900"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77474591059"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77027010042"
+          }
+        ],
+        "whatsapp": "77474591059"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 58,
+      "seller": null,
+      "org": {
+        "name": "Avto parts",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001083951640",
+        "card_url": "https://2gis.ru/firm/70000001083951640",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.18882,
+        "longitude": 71.318049,
+        "website": "",
+        "phones": [
+          "77756282944"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77756282944"
+          }
+        ],
+        "whatsapp": "77756282944"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 59,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001052196530",
+        "card_url": "https://2gis.ru/firm/70000001052196530",
+        "address": "улица Аспандияр Кенжин, 5/5Б",
+        "latitude": 51.189316,
+        "longitude": 71.318261,
+        "website": "",
+        "phones": [
+          "77013148788"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77013148788"
+          }
+        ],
+        "whatsapp": "77013148788"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 60,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001049969509",
+        "card_url": "https://2gis.ru/firm/70000001049969509",
+        "address": "улица Мыржакыпа Дулатова, 177/1",
+        "latitude": 51.204572,
+        "longitude": 71.361285,
+        "website": "",
+        "phones": [
+          "77026997859"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77026997859"
+          }
+        ],
+        "whatsapp": "77026997859"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 61,
+      "seller": null,
+      "org": {
+        "name": "Kas7unit",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001100395269",
+        "card_url": "https://2gis.ru/firm/70000001100395269",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.189479,
+        "longitude": 71.317875,
+        "website": "",
+        "phones": [
+          "77056757744"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77056757744"
+          }
+        ],
+        "whatsapp": "77056757744"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 62,
+      "seller": null,
+      "org": {
+        "name": "autobar_astana, магазин автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001038070405",
+        "card_url": "https://2gis.ru/firm/70000001038070405",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.188924,
+        "longitude": 71.317094,
+        "website": "",
+        "phones": [
+          "77016105000"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/autobar_astana"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77016105000"
+          }
+        ],
+        "whatsapp": "77016105000"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 63,
+      "seller": null,
+      "org": {
+        "name": "Yanu Auto",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001110591415",
+        "card_url": "https://2gis.ru/firm/70000001110591415",
+        "address": "улица Аспандияр Кенжин, 5в",
+        "latitude": 51.188736,
+        "longitude": 71.319307,
+        "website": "",
+        "phones": [
+          "77072227893"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/yanu_auto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77072227893"
+          }
+        ],
+        "whatsapp": "77072227893"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 64,
+      "seller": null,
+      "org": {
+        "name": "Автосервис",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001032300958",
+        "card_url": "https://2gis.ru/firm/70000001032300958",
+        "address": "улица Аспандияр Кенжин, 5",
+        "latitude": 51.189078,
+        "longitude": 71.318994,
+        "website": "",
+        "phones": [
+          "77076404322"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77076404322"
+          }
+        ],
+        "whatsapp": "77076404322"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 65,
+      "seller": null,
+      "org": {
+        "name": "Юг авто",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001101190370",
+        "card_url": "https://2gis.ru/firm/70000001101190370",
+        "address": "улица Аспандияр Кенжин, 5/5Б",
+        "latitude": 51.189316,
+        "longitude": 71.318261,
+        "website": "",
+        "phones": [
+          "77471693539",
+          "77022743535"
+        ],
+        "socials": [],
+        "whatsapp": ""
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 66,
+      "seller": null,
+      "org": {
+        "name": "Boksavto, магазин автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001052559126",
+        "card_url": "https://2gis.ru/firm/70000001052559126",
+        "address": "улица Аспандияр Кенжин, 5/5",
+        "latitude": 51.189168,
+        "longitude": 71.317438,
+        "website": "",
+        "phones": [
+          "77017507887",
+          "77007718617",
+          "77057142917",
+          "77719000071"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/boksavto"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77017507887"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77057142917"
+          }
+        ],
+        "whatsapp": "77017507887"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 67,
+      "seller": null,
+      "org": {
+        "name": "Аиша",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001117183100",
+        "card_url": "https://2gis.ru/firm/70000001117183100",
+        "address": "улица Аспандияр Кенжин, 5/1",
+        "latitude": 51.189904,
+        "longitude": 71.319669,
+        "website": "",
+        "phones": [
+          "77478266828",
+          "77758808020"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/Astana_avto_zapchasti"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77478266828"
+          }
+        ],
+        "whatsapp": "77478266828"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 68,
+      "seller": null,
+      "org": {
+        "name": "Назар, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001045919115",
+        "card_url": "https://2gis.ru/firm/70000001045919115",
+        "address": "улица Аспандияр Кенжин, 5/1г",
+        "latitude": 51.189035,
+        "longitude": 71.318432,
+        "website": "",
+        "phones": [
+          "77024692009",
+          "77470657049"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/mercedes_razbor_nazar"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024692009"
+          }
+        ],
+        "whatsapp": "77024692009"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 70,
+      "seller": null,
+      "org": {
+        "name": "Zangar",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001083951638",
+        "card_url": "https://2gis.ru/firm/70000001083951638",
+        "address": "улица Аспандияр Кенжин, 5а",
+        "latitude": 51.188421,
+        "longitude": 71.317853,
+        "website": "",
+        "phones": [
+          "77024356777",
+          "77021154443",
+          "77761246671"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77021154443"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77761246671"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024356777"
+          }
+        ],
+        "whatsapp": "77021154443"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 71,
+      "seller": null,
+      "org": {
+        "name": "Магазин б/у автозапчастей",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001110978546",
+        "card_url": "https://2gis.ru/firm/70000001110978546",
+        "address": "переулок Кобда, 2л",
+        "latitude": 51.137667,
+        "longitude": 71.532664,
+        "website": "",
+        "phones": [
+          "77008108878"
+        ],
+        "socials": [],
+        "whatsapp": ""
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 73,
+      "seller": null,
+      "org": {
+        "name": "Центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001031601235",
+        "card_url": "https://2gis.ru/firm/70000001031601235",
+        "address": "переулок Жетисай, 53",
+        "latitude": 51.210198,
+        "longitude": 71.379259,
+        "website": "",
+        "phones": [
+          "77012650500"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77012650500"
+          }
+        ],
+        "whatsapp": "77012650500"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 74,
+      "seller": null,
+      "org": {
+        "name": "DVS-Service",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001045195192",
+        "card_url": "https://2gis.ru/firm/70000001045195192",
+        "address": "переулок Кобда, 4/1а",
+        "latitude": 51.146112,
+        "longitude": 71.533623,
+        "website": "",
+        "phones": [
+          "77024049033",
+          "77714441441"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77024049033"
+          }
+        ],
+        "whatsapp": "77024049033"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 76,
+      "seller": null,
+      "org": {
+        "name": "СТО грузовых авто",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001115255460",
+        "card_url": "https://2gis.ru/firm/70000001115255460",
+        "address": "шоссе Алаш, 52",
+        "latitude": 51.212537,
+        "longitude": 71.509058,
+        "website": "",
+        "phones": [
+          "77757617151"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77757617151"
+          },
+          {
+            "kind": "tiktok",
+            "url": "https://tiktok.com/@simbat083"
+          }
+        ],
+        "whatsapp": "77757617151"
+      },
+      "transport_type": "truck"
+    },
+    {
+      "row": 78,
+      "seller": null,
+      "org": {
+        "name": "СТО",
+        "city": "Косшы",
+        "source": "two_gis",
+        "external_id": "70000001062985465",
+        "card_url": "https://2gis.ru/firm/70000001062985465",
+        "address": "улица Республики, 1/1в",
+        "latitude": 50.984522,
+        "longitude": 71.359497,
+        "website": "",
+        "phones": [
+          "77785100027"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77785100027"
+          }
+        ],
+        "whatsapp": "77785100027"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 80,
+      "seller": null,
+      "org": {
+        "name": "Батыс, центр авторазбора",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001063562447",
+        "card_url": "https://2gis.ru/firm/70000001063562447",
+        "address": "улица Аспандияр Кенжин, 5Б",
+        "latitude": 51.188332,
+        "longitude": 71.316777,
+        "website": "",
+        "phones": [
+          "77006050800",
+          "77776050800"
+        ],
+        "socials": [
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77006050800"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77776050800"
+          }
+        ],
+        "whatsapp": "77006050800"
+      },
+      "transport_type": "car"
+    },
+    {
+      "row": 82,
+      "seller": {
+        "id": 638,
+        "name": "Instagram",
+        "city": "Астана",
+        "whatsapp": "77759365640"
+      },
+      "org": {
+        "name": "Avtorazbor.kz",
+        "city": "Астана",
+        "source": "two_gis",
+        "external_id": "70000001083445054",
+        "card_url": "https://2gis.ru/firm/70000001083445054",
+        "address": "улица Аспандияр Кенжин, 5/5в",
+        "latitude": 51.188794,
+        "longitude": 71.317076,
+        "website": "",
+        "phones": [
+          "77759365640"
+        ],
+        "socials": [
+          {
+            "kind": "instagram",
+            "url": "https://instagram.com/avtorazbor.kz"
+          },
+          {
+            "kind": "whatsapp",
+            "url": "https://wa.me/77759365640"
+          }
+        ],
+        "whatsapp": "77759365640"
+      },
+      "transport_type": "car"
+    }
+  ],
+  "held": [
+    {
+      "row": 7,
+      "name": "AutoMart, автокомплекс",
+      "reason": "Shared phone with Autotap, different identity"
+    },
+    {
+      "row": 69,
+      "name": "BarsAuto",
+      "reason": "Shared phone with Car Parsing"
+    },
+    {
+      "row": 72,
+      "name": "Car Parsing",
+      "reason": "Shared phone with BarsAuto"
+    },
+    {
+      "row": 75,
+      "name": "titan_avtozapchasti, автосервис",
+      "reason": "Auto-dismantler category not confirmed"
+    },
+    {
+      "row": 77,
+      "name": "Центр авторазбора",
+      "reason": "City missing"
+    },
+    {
+      "row": 79,
+      "name": "ИП Жаксыбаев Е.",
+      "reason": "City missing"
+    },
+    {
+      "row": 81,
+      "name": "Auto-haus",
+      "reason": "City missing"
+    }
+  ]
+}
