@@ -73,11 +73,19 @@ def consumables_landing(request):
 def services_landing(request):
     """Only real active organizations, without fabricated ratings or profiles."""
     from service_requests.models import ServiceSeller
-    sellers = ServiceSeller.objects.filter(is_active=True, is_test_seller=False).prefetch_related(
+    from service_requests.directory_display import service_card
+    from service_requests.catalog_pages import catalog_scopes
+    sellers = ServiceSeller.objects.filter(is_active=True, is_test_seller=False, is_paused=False).prefetch_related(
         'services'
     ).order_by('name', 'pk')[:4]
+    cards = []
+    for seller in sellers:
+        card = service_card(seller)
+        scopes = catalog_scopes(seller, card['services'])
+        card['directory_kind'] = 'detailing' if scopes == {'detailing'} else 'sto'
+        cards.append(card)
     return render(request, 'catalog/interface/services_landing.html', {
-        'service_sellers': sellers,
+        'service_sellers': sellers, 'service_cards': cards,
     })
 
 
