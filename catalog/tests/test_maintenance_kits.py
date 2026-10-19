@@ -399,14 +399,14 @@ class MaintenanceKitCartTests(TestCase):
         # for orderable products with an unknown numerical balance.
         self.assertContains(response, 'Можно заказать')
         self.assertContains(response, self.spark.article)
-        self.assertContains(response, 'Добавить выбранное в корзину')
+        # The published kit page now offers individual Kaspi links / ZPT
+        # item cards; the older checkbox/cart form was intentionally retired.
+        # Cart API behavior is covered separately by the add-to-cart tests.
+        self.assertContains(response, 'Купить на Kaspi')
+        self.assertContains(response, 'Открыть товар на ZPT')
         self.assertContains(response, 'Свеча зажигания — SPK-C')
-        self.assertContains(response, 'type="checkbox"')
-        self.assertRegex(response.content.decode('utf-8'), r'data-subtotal="\d+"')
-        self.assertRegex(
-            response.content.decode('utf-8'),
-            r'name="item"\s+value="\d+"',
-        )
+        self.assertNotContains(response, 'type="checkbox"')
+        self.assertNotContains(response, 'data-subtotal=')
         self.assertNotContains(response, 'class="kit-cover-wrap"')
 
     def test_detail_hides_foreign_model_from_product_title(self):
