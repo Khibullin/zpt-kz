@@ -6,7 +6,8 @@ from django.views.generic import RedirectView, TemplateView
 from backend.pwa_views import manifest_json, service_worker_js
 from core.go_views import go_redirect, product_whatsapp_redirect
 from core.help_views import platform_help_page
-from core.seo_views import robots_txt, sitemap_index, sitemap_products, sitemap_static, sitemap_content
+from core.seo_views import (robots_txt, sitemap_index, sitemap_products, sitemap_static, sitemap_content, sitemap_organizations, sitemap_kits, sitemap_cities)
+from core.directory_seo import city_parts, city_dismantlers, city_sto, city_detailing
 from core.editorial_views import editorial_detail, editorial_index
 from core.editorial_cron import editorial_daily_trigger
 from core.editorial_ai_cron import editorial_ai_trigger
@@ -55,6 +56,10 @@ urlpatterns = [
     path('guide/parts/', editorial_index, name='editorial_index'),
     path('guide/parts/<slug:slug>/', editorial_detail, name='editorial_detail'),
     path('sitemap-products.xml', sitemap_products, name='sitemap_products'),
+    path('sitemap-organizations.xml', sitemap_organizations, name='sitemap_organizations'),
+    path('sitemap-organizations-<int:page>.xml', sitemap_organizations, name='sitemap_organizations_page'),
+    path('sitemap-kits.xml', sitemap_kits, name='sitemap_kits'),
+    path('sitemap-cities.xml', sitemap_cities, name='sitemap_cities'),
     path('privacy/', TemplateView.as_view(template_name='legal/privacy.html'), name='privacy'),
     path('zpt-gid/', zpt_guide_view, name='zpt_gid'),
 
@@ -193,6 +198,11 @@ urlpatterns = [
         parts_seller_detail,
         name='parts_seller_detail_public',
     ),
+    # Stable city landing routes, publicly available only with real listings.
+    path('parts-sellers/<slug:city_slug>/', city_parts, name='seo_parts_city'),
+    path('auto-dismantlers/<slug:city_slug>/', city_dismantlers, name='seo_dismantlers_city'),
+    path('sto/<slug:city_slug>/', city_sto, name='seo_sto_city'),
+    path('detailing/<slug:city_slug>/', city_detailing, name='seo_detailing_city'),
 
     # СТО / ДЕТЕЙЛИНГ
     path(

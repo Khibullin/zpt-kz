@@ -164,12 +164,13 @@ class SeoEndpointTests(TestCase):
             'https://zpt.kz/',
             'https://zpt.kz/request-parts/',
             'https://zpt.kz/request-parts/guide/',
-            'https://zpt.kz/request-parts/faq/',
+            'https://zpt.kz/zpt-gid/',
             'https://zpt.kz/prodavat/',
         ):
             self.assertIn(url, body)
-        self.assertNotIn('https://zpt.kz/catalog/services/', body)
-        self.assertNotIn('https://zpt.kz/parts-sellers/', body)
+        self.assertIn('https://zpt.kz/catalog/services/', body)
+        self.assertIn('https://zpt.kz/parts-sellers/', body)
+        self.assertIn('https://zpt.kz/auto-dismantlers/', body)
 
     @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
     def test_sitemap_index_adds_products_when_enabled(self):
