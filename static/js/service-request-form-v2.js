@@ -186,6 +186,7 @@ function initServiceRequestForm(){
 
   document.getElementById('serviceForm').addEventListener('submit', async function(e){
     e.preventDefault();
+    if(submitBtn.disabled || this.hidden) return;
     clearMessage();
 
     const services = getSelectedServices();
@@ -248,15 +249,17 @@ function initServiceRequestForm(){
         return;
       }
 
-      if(!data.success){
+      if(!r.ok || !data.success){
         setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');
         return;
       }
 
-      renderSuccessResult(data);
-      document.getElementById('serviceForm').reset();
-      setServiceType('sto');
-      updateDistrictField();
+      window.ZPTRequestAccepted(document.getElementById('serviceForm'), {
+        message: data.sellers_count > 0
+          ? 'Ответы исполнителей поступят в WhatsApp на указанный номер.'
+          : data.message,
+        url: data.result_url,
+      });
 
     }catch(err){
       setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error');

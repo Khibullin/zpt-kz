@@ -286,7 +286,9 @@ ${strategyNote}
 }
 
 requestForm.addEventListener('submit',async function(e){
-  e.preventDefault();clearMessage();
+  e.preventDefault();
+  if(submitBtn.disabled || requestForm.hidden) return;
+  clearMessage();
   let country=getSelectedText(countryEl);
   let brand=getSelectedText(brandEl);
   let model=resolveModelForSubmit();
@@ -385,11 +387,12 @@ if(
       setMessage(data.rejection_message || data.error || 'Ошибка отправки заявки. Попробуйте ещё раз.','error');
       return;
     }
-    renderResult(data);
-    requestForm.reset();
-    hideCustomModel();
-    setTransport('car');
-    await loadCategories();
+    window.ZPTRequestAccepted(requestForm, {
+      message: data.matches > 0
+        ? 'Ответы продавцов поступят в WhatsApp на указанный номер.'
+        : 'В выбранной территории подходящие продавцы пока не найдены. Ваша заявка сохранена.',
+      url: data.request_page_url || data.photo_view_url,
+    });
   }catch(err){setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error')}
   finally{submitBtn.disabled=false;submitBtn.innerText='Отправить заявку'}
 });
