@@ -76,6 +76,7 @@
       <p id="pageSubtitle">Здесь отображаются заявки покупателей, которые подходят вашему магазину.</p>
     </section>
 
+    <p><a class="btn btn-gray" href="{% url 'seller_request_filters' %}">Настроить фильтр получения заявок</a></p>
     <section class="tabs">
       <button id="tabRequests" class="tab active" onclick="showTab('requests')">Заявки</button>
       <button id="tabProfile" class="tab" onclick="showTab('profile')">Мой профиль</button>
@@ -169,5 +170,5 @@
 {% endblock %}
 
 {% block portal_js %}
-<script src="{% static 'js/request-parts-cabinet.js' %}?v=interface20261013"></script>
+<script src="{% static 'js/request-parts-cabinet.js' %}?v=filters20261019"></script>
 {% endblock %}

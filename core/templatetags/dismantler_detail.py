@@ -21,6 +21,9 @@ def seller_specializations(seller):
     if 'контрактные автозапчасти' in (seller.directory_description or '').casefold():
         directions.append('Контрактные запчасти')
     rows = [{'label': 'Направление', 'value': ', '.join(directions)}]
+    if seller.request_filters is not None:
+        from core.services.seller_request_filters import filter_rows
+        return rows + filter_rows(seller.request_filters)
     transport = {'car': 'Легковые автомобили', 'truck': 'Грузовые автомобили'}.get(seller.transport_type, '')
     if transport:
         rows.append({'label': 'Тип транспорта', 'value': transport})

@@ -244,6 +244,13 @@
           <p id="sr-decline-error" class="sr-error" hidden></p>
         </div>
       {% endif %}
+      {% if filter_token %}
+      <div class="sr-extra">
+        <h2>Получаете неподходящие заявки?</h2>
+        <p>Укажите марки, модели и категории запчастей, с которыми работаете.</p>
+        <a class="sr-btn sr-btn-extra" href="filters/">Настроить фильтр получения заявок</a>
+      </div>
+      {% endif %}
     {% elif page_state == 'expired' %}
       <h1>Заявка ZPT.KZ</h1>
       <p>Срок действия ссылки истёк.</p>

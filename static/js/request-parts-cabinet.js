@@ -94,7 +94,7 @@ function renderProfile(data){
     <div class="info-box"><b>Название магазина</b><div>${escHtml(data.name||'-')}</div></div>
     <div class="info-box"><b>WhatsApp</b><div>${escHtml(data.whatsapp||'-')}</div></div>
     <div class="info-box"><b>Город</b><div>${escHtml(data.city||data.market_location||'-')}</div></div>
-    <div class="info-box"><b>Тип транспорта</b><div>${data.transport_type==='truck'?'Грузовые':'Легковые'}</div></div>
+    <div class="info-box"><b>Тип транспорта</b><div>${escHtml((data.request_filter_rows||[]).find(r=>r.label==='Тип транспорта')?.value || (data.transport_type==='truck'?'Грузовые':'Легковые'))}</div></div>
     <div class="info-box"><b>Получает заявки</b><div>${data.receive_requests?'Да':'Нет'}</div></div>
     <div class="info-box"><b>Статус</b><div>${data.is_paused?'Пауза':'Активен'}</div></div>`;
 
@@ -103,6 +103,11 @@ function renderProfile(data){
   let brands=(data.all_brands?'Все марки':(data.selected_brands||[]).map(x=>x.name).join(', ')||'-');
   let models=(data.all_models?'Все модели':(data.selected_models||[]).map(x=>x.name).join(', ')||'-');
 
+  if(data.request_filter_rows?.length){
+    settingsBox.className='profile-grid';
+    settingsBox.innerHTML=data.request_filter_rows.map(r=>`<div class="info-box"><b>${escHtml(r.label)}</b><div>${escHtml(r.value)}</div></div>`).join('');
+    return;
+  }
   settingsBox.className='profile-grid';
   settingsBox.innerHTML=`
     <div class="info-box"><b>Страны производителей</b><div>${escHtml(countries)}</div></div>
@@ -206,11 +211,9 @@ async function enableEditProfile(){
   let editBtn=document.getElementById('editProfileBtn');
   if(editBtn)editBtn.classList.add('hidden');
 
-  try{
-    await loadEditDictionaries();
-    renderSettingsEdit();
-  }catch(e){
-    settingsBox.innerHTML='<p class="error">Не удалось загрузить справочники.</p>';
+  settingsBox.innerHTML='<a href="/request-parts/filters/">Настроить фильтр получения заявок →</a>';
+  if(sellerProfileData.request_filter_rows?.length){
+    document.getElementById('edit_transport_type').disabled=true;
   }
 }
 
@@ -229,14 +232,7 @@ async function saveProfile(){
     receive_requests:document.getElementById('edit_receive_requests').checked,
     is_paused:document.getElementById('edit_is_paused').checked,
     is_dismantler:document.getElementById('edit_is_dismantler').checked,
-    all_countries:document.getElementById('all_countries')?.checked || false,
-    all_categories:document.getElementById('all_categories')?.checked || false,
-    all_brands:document.getElementById('all_brands')?.checked || false,
-    all_models:document.getElementById('all_models')?.checked || false,
-    selected_country_ids:checkedIds('countries'),
-    selected_category_ids:checkedIds('categories'),
-    selected_brand_ids:checkedIds('brands'),
-    selected_model_ids:checkedIds('models')
+
   };
 
   try{
