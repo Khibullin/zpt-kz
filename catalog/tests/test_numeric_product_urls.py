@@ -44,6 +44,12 @@ class NumericProductUrlTests(TestCase):
         self.assertEqual(response.status_code, 301)
         self.assertEqual(response['Location'], '/general-motors-filter/')
 
+    def test_numeric_article_follows_fitment_canonical_slug(self):
+        self.make_product(slug='changan-cs55', article='4801012010')
+        response = self.client.get('/4801012010/')
+        self.assertEqual(response.status_code, 301)
+        self.assertEqual(response['Location'], '/masljanyi-filtr-4801012010/')
+
     def test_numeric_article_preserves_leading_zeroes(self):
         self.make_product(slug='leading-zero-product', article='0012345678')
 

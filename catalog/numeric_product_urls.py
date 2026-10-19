@@ -3,14 +3,14 @@ from __future__ import annotations
 from django.http import Http404, HttpResponsePermanentRedirect, HttpResponseRedirect
 from django.urls import reverse
 
-from .legacy_product_urls import LEGACY_PRODUCT_SLUG_REDIRECTS
+from .fitment_slug_redirects import public_product_slug
 from .models import Product
 
 
 def _public_product_path(product: Product) -> str:
     slug = (product.slug or '').strip()
     if slug:
-        public_slug = LEGACY_PRODUCT_SLUG_REDIRECTS.get(slug, slug)
+        public_slug = public_product_slug(slug)
         return reverse('product_detail', kwargs={'slug': public_slug})
     return reverse('product_detail_old', kwargs={'pk': product.pk})
 
