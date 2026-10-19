@@ -763,7 +763,8 @@ def _base_sellers_queryset(req, *, match_transport: bool = True):
         # New-parts requests require separately verified specialization.
         filters['sells_new_parts'] = True
 
-    base = Seller.objects.filter(**filters)
+    # Universal test contacts are added after ordinary fallback selection.
+    base = Seller.objects.filter(**filters).exclude(is_test_seller=True, test_all_requests_since__isnull=False)
     if match_transport and req.transport_type in ('car', 'truck'):
         base = base.filter(Q(request_filters__isnull=False) | Q(transport_type=req.transport_type))
     from core.services.seller_request_filters import filter_queryset
@@ -879,6 +880,29 @@ def _unique_sellers_by_whatsapp(sellers):
 
 
 def _find_matching_sellers(req):
+    from core.services.test_receivers import universal_test_q
+    qs, routing = _find_matching_sellers_standard(req)
+    qs = qs.exclude(is_test_seller=True, test_all_requests_since__isnull=False)
+    settings = BroadcastSettings.load()
+    if settings.emergency_stop or settings.mode not in ('test', 'live'):
+        return qs, routing
+    universal = Seller.objects.filter(universal_test_q(req), is_active=True, is_paused=False, receive_requests=True)
+    from core.phone_utils import normalize_phone_for_whatsapp
+    seen = {normalize_phone_for_whatsapp(phone) for phone in qs.values_list('whatsapp', flat=True)}
+    ids = []
+    for seller in universal.order_by('dispatch_priority', 'id'):
+        phone = normalize_phone_for_whatsapp(seller.whatsapp)
+        if phone and phone not in seen:
+            ids.append(seller.pk)
+            seen.add(phone)
+    if ids:
+        qs = (qs | universal.filter(pk__in=ids)).distinct().order_by('dispatch_priority', 'id')
+        if routing == Request.ROUTING_NO_MATCH:
+            routing = Request.ROUTING_MATCHED_KAZAKHSTAN
+    return qs, routing
+
+
+def _find_matching_sellers_standard(req):
     if getattr(req, 'dispatch_mode', '') == Request.DISPATCH_MODE_ALL_KZ:
         qs = _base_sellers_queryset(req, match_transport=False).order_by(
             'dispatch_priority',
@@ -1022,7 +1046,9 @@ def _send_dispatch(dispatch):
 def _build_dispatch_queue(req, sellers):
     """Create RequestDispatch rows only. Sending is done by dispatch_request_waves."""
     from core.services.seller_request_filters import matches_request
-    sellers = [seller for seller in sellers if matches_request(seller.request_filters, req)]
+    from core.services.test_receivers import test_receiver_decision
+    sellers = [seller for seller in sellers if test_receiver_decision(seller, req) is True or
+               (test_receiver_decision(seller, req) is None and matches_request(seller.request_filters, req))]
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()
@@ -1033,10 +1059,10 @@ def _build_dispatch_queue(req, sellers):
         }
         sellers = [
             seller for seller in sellers
-            if (seller.is_dismantler if req.is_dismantler_request
+            if test_receiver_decision(seller, req) is True or ((seller.is_dismantler if req.is_dismantler_request
                 else seller.sells_new_parts is True)
             and (req.search_scope != 'city' or seller.city == req.city)
-            and (req.search_scope != 'custom' or seller.city in allowed_cities)
+            and (req.search_scope != 'custom' or seller.city in allowed_cities))
         ]
     if getattr(req, 'dispatch_mode', '') == Request.DISPATCH_MODE_ALL_KZ:
         sellers = _unique_sellers_by_whatsapp(sellers)

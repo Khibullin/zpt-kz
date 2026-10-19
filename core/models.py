@@ -1364,6 +1364,7 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    test_all_requests_since = models.DateTimeField(null=True, blank=True, editable=False, verbose_name="Все новые заявки тестовому получателю с")
     request_filters = models.JSONField(null=True, blank=True, default=None, verbose_name="Подтверждённый фильтр заявок")
     request_filters_updated_at = models.DateTimeField(null=True, blank=True, verbose_name="Фильтр обновлён")
     directory_contact_label = models.CharField(max_length=100, blank=True, verbose_name='Назначение основного контакта')

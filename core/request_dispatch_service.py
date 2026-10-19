@@ -78,6 +78,11 @@ def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
 
 
 def seller_allowed_for_dispatch(seller, settings: BroadcastSettings, request=None) -> bool:
+    from core.services.test_receivers import test_receiver_decision
+    decision = test_receiver_decision(seller, request)
+    if decision is not None:
+        return bool(decision and seller.is_active and not seller.is_paused and seller.receive_requests
+                    and not settings.emergency_stop and settings.mode in ('test', 'live'))
     from core.services.seller_request_filters import matches_request
     if request is not None and not matches_request(getattr(seller, 'request_filters', None), request):
         return False
@@ -352,11 +357,17 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
         req = locked_dispatch.request
         seller = locked_dispatch.seller
         from core.services.seller_request_filters import matches_request
-        if not matches_request(seller.request_filters, req):
+        from core.services.test_receivers import test_receiver_decision
+        decision = test_receiver_decision(seller, req)
+        if decision is not None and not seller_allowed_for_dispatch(seller, BroadcastSettings.load(), req):
+            locked_dispatch.status = RequestDispatch.STATUS_PAUSED
+            locked_dispatch.save(update_fields=['status'])
+            return {'ok': False, 'skipped': True, 'reason': 'test_receiver_not_allowed'}
+        if decision is None and not matches_request(seller.request_filters, req):
             locked_dispatch.status = RequestDispatch.STATUS_PAUSED
             locked_dispatch.save(update_fields=['status'])
             return {'ok': False, 'skipped': True, 'reason': 'seller_filter_mismatch'}
-        if req.source == req.SOURCE_HOME_SHORT:
+        if decision is None and req.source == req.SOURCE_HOME_SHORT:
             allowed = (
                 seller.is_dismantler if req.is_dismantler_request
                 else seller.sells_new_parts is True

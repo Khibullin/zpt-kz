@@ -68,6 +68,7 @@ class Service(models.Model):
 # ================================
 
 class ServiceSeller(models.Model):
+    test_all_requests_since = models.DateTimeField(null=True, blank=True, editable=False, verbose_name="Все новые заявки тестовому получателю с")
     request_filters = models.JSONField(null=True, blank=True, default=None)
     request_filters_updated_at = models.DateTimeField(null=True, blank=True)
     directory_brands = models.CharField(max_length=500, blank=True, verbose_name='Марки автомобилей для каталога')
