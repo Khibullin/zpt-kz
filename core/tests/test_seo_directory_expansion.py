@@ -2,7 +2,9 @@
 import json
 import re
 
+from django.db import connection
 from django.test import TestCase
+from django.test.utils import CaptureQueriesContext
 
 from catalog.models import Brand, CarModel, Country, MaintenanceKit
 from core.models import Seller
@@ -76,6 +78,18 @@ class DirectorySeoExpansionTests(TestCase):
         self.assertEqual(self.client.get('/parts-sellers/karaganda/').status_code, 404)
         self.assertEqual(self.client.get('/parts-sellers/unknown/').status_code, 404)
         self.assertNotContains(self.client.get('/parts-sellers/almaty/'), self.hidden.name)
+
+    def test_city_sitemap_generation_scales_in_two_grouped_queries(self):
+        from core.directory_seo import published_city_page_paths
+
+        with CaptureQueriesContext(connection) as queries:
+            paths = list(published_city_page_paths())
+
+        self.assertLessEqual(len(queries), 2, [q['sql'] for q in queries])
+        self.assertIn('/parts-sellers/almaty/', paths)
+        self.assertIn('/auto-dismantlers/astana/', paths)
+        self.assertIn('/sto/shymkent/', paths)
+        self.assertIn('/detailing/taraz/', paths)
 
     def test_city_sitemap_includes_only_eligible_routes(self):
         result = self.client.get('/sitemap-cities.xml')

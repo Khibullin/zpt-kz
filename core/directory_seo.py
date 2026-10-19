@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from urllib.parse import urlencode
 
-from django.db.models import Q
+from django.db.models import Count, Q
 from django.http import Http404
 from django.shortcuts import render
 from django.urls import reverse
@@ -130,11 +130,48 @@ def city_slug(city: str) -> str | None:
     return next((slug for slug, name in SEO_CITY_SLUGS.items() if name == city), None)
 
 
+def ready_city_landing_pairs() -> set[tuple[str, str]]:
+    """Find city landing candidates in two grouped SQL queries, not 80 counts.
+
+    Use exactly the same published/contactable scopes as city_organizations.
+    Clear the queryset's PK ordering before grouping so count remains per-city.
+    """
+    ready: set[tuple[str, str]] = set()
+    seller_counts = (
+        public_parts_organizations()
+        .order_by()
+        .values('city')
+        .annotate(
+            parts_count=Count(
+                'pk', filter=Q(sells_new_parts=True) | Q(directory_parts=True),
+            ),
+            dismantlers_count=Count('pk', filter=Q(is_dismantler=True)),
+        )
+    )
+    for record in seller_counts:
+        if record['parts_count'] >= CITY_PAGE_MIN_ORGANIZATIONS:
+            ready.add(('parts', record['city']))
+        if record['dismantlers_count'] >= CITY_PAGE_MIN_ORGANIZATIONS:
+            ready.add(('dismantlers', record['city']))
+
+    service_counts = (
+        public_service_organizations()
+        .order_by()
+        .values('city', 'seller_type')
+        .annotate(organizations_count=Count('pk'))
+    )
+    for record in service_counts:
+        if record['organizations_count'] >= CITY_PAGE_MIN_ORGANIZATIONS:
+            ready.add((record['seller_type'], record['city']))
+    return ready
+
+
 def published_city_page_paths():
     """Called by sitemap generation, using exactly the same quality gate as views."""
+    ready = ready_city_landing_pairs()
     for kind, route in CITY_ROUTES.items():
         for slug, city in SEO_CITY_SLUGS.items():
-            if city_organizations(kind, city).count() >= CITY_PAGE_MIN_ORGANIZATIONS:
+            if (kind, city) in ready:
                 yield reverse(route, kwargs={'city_slug': slug})
 
 

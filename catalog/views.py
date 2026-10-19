@@ -147,12 +147,13 @@ def _build_home_seo_links():
             url = f'{catalog_url}?q={quote(lookup)}'
         category_links.append({'label': label, 'url': url})
 
-    from core.directory_seo import CITY_PAGE_MIN_ORGANIZATIONS, city_organizations, city_slug
+    from core.directory_seo import city_slug, ready_city_landing_pairs
 
+    ready_cities = ready_city_landing_pairs()
     city_links = []
     for name in POPULAR_SEO_CITIES:
         slug = city_slug(name)
-        if slug and city_organizations('parts', name).count() >= CITY_PAGE_MIN_ORGANIZATIONS:
+        if slug and ('parts', name) in ready_cities:
             url = reverse('seo_parts_city', kwargs={'city_slug': slug})
         else:
             url = f'{catalog_url}?city={quote(name)}'
@@ -583,7 +584,7 @@ def catalog_list(request):
         'selected_offer': selected_offer,
         'offer_links': offer_links,
         'catalog_all_url': catalog_all_url,
-        **_build_home_seo_links(),
+        **(_build_home_seo_links() if is_listing else {}),
     }
     is_interface_home = (
         not is_listing and not home_request_token
