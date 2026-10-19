@@ -1,0 +1,53 @@
+{% extends 'catalog/interface/dismantlers/base.html' %}
+{% load static interface_ui %}
+{% block title %}{{ page_title }}{% endblock %}
+{% block meta_description %}{{ page_description }}{% endblock %}
+{% block body_attrs %} class="zpt-interface dismantlers-page directory-catalog-page" data-zpt-suppress-ios-pwa="1"{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/dismantler-catalog.css' %}?v=20261017c">{% endblock %}
+{% block interface_content %}
+<div class="directory-page">
+  <nav class="breadcrumbs" aria-label="Навигация">
+    <a href="/">ZPT.KZ</a>{% ui_icon 'chevron' %}
+    <span>{{ page_heading }}</span>
+  </nav>
+  <div class="directory-heading">
+    <div>
+      <h1>{{ page_heading }}</h1>
+      <p>{{ page_intro }}</p>
+    </div>
+  </div>
+  <section class="directory-results" aria-label="{{ page_heading }}">
+    <p class="directory-result-count">Организаций в городе {{ city_name }}: {{ count }}</p>
+    <div class="directory-list">
+      {% for seller in sellers %}
+      <article class="directory-card">
+        <div class="directory-card-copy">
+          <h2>
+            {% if is_service %}
+              <a href="{% url 'service_seller_detail' seller.pk %}">{{ seller.name }}</a>
+            {% else %}
+              <a href="{% url 'parts_seller_detail_public' seller.pk %}">{{ seller.name }}</a>
+            {% endif %}
+          </h2>
+          <p class="directory-city">{{ seller.city }}</p>
+          {% if seller.address %}<p class="directory-address">{{ seller.address }}</p>{% endif %}
+          {% if is_service %}
+            {% if seller.description %}<p class="directory-description">{{ seller.description|truncatechars:180 }}</p>{% endif %}
+          {% else %}
+            {% if seller.directory_description %}<p class="directory-description">{{ seller.directory_description|truncatechars:180 }}</p>{% endif %}
+          {% endif %}
+        </div>
+        <div class="directory-card-actions">
+          {% if is_service %}
+            <a class="directory-profile" href="{% url 'service_seller_detail' seller.pk %}">Профиль и контакты →</a>
+          {% else %}
+            <a class="directory-profile" href="{% url 'parts_seller_detail_public' seller.pk %}">Профиль и контакты →</a>
+          {% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </div>
+    <p><a class="btn" href="{{ directory_url }}">Все организации города {{ city_name }} →</a></p>
+  </section>
+</div>
+{% endblock %}
