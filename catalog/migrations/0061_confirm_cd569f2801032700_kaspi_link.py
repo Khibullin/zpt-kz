@@ -22,6 +22,14 @@ def add_confirmed_link(apps, schema_editor):
         product__seller_profile__slug="ag-parts",
         is_active=True,
     ))
+    if not candidates:
+        # A clean installation or CI database may have no imported Kaspi
+        # inventory. Do not fabricate a listing just to satisfy this historical
+        # production-only confirmation. Preserve the strict mismatch check if
+        # the target master SKU actually exists.
+        if not Listing.objects.using(db).filter(master_sku=SKU).exists():
+            return
+        raise RuntimeError("Cannot uniquely identify confirmed AG Parts Kaspi listing")
     if len(candidates) != 1:
         raise RuntimeError("Cannot uniquely identify confirmed AG Parts Kaspi listing")
     listing = candidates[0]
