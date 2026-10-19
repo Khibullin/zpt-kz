@@ -1,0 +1,235 @@
+"""Search-indexable local directories, built only from published organization records.
+
+This module never modifies organizations, request distribution, or their filters.
+Every city landing is available only after at least three public, contactable
+organizations are present; no empty SEO pages are created.
+"""
+from __future__ import annotations
+
+from urllib.parse import urlencode
+
+from django.db.models import Count, Q
+from django.http import Http404
+from django.shortcuts import render
+from django.urls import reverse
+
+from core.models import Seller
+from service_requests.models import ServiceSeller
+
+
+SEO_CITY_SLUGS = {
+    'almaty': 'Алматы',
+    'astana': 'Астана',
+    'shymkent': 'Шымкент',
+    'aktobe': 'Актобе',
+    'karaganda': 'Караганда',
+    'taraz': 'Тараз',
+    'atyrau': 'Атырау',
+    'ust-kamenogorsk': 'Усть-Каменогорск',
+    'pavlodar': 'Павлодар',
+    'semey': 'Семей',
+    'kyzylorda': 'Кызылорда',
+    'kostanay': 'Костанай',
+    'aktau': 'Актау',
+    'uralsk': 'Уральск',
+    'petropavlovsk': 'Петропавловск',
+    'turkestan': 'Туркестан',
+    'kokshetau': 'Кокшетау',
+    'taldykorgan': 'Талдыкорган',
+    'konaev': 'Конаев',
+    'zhezkazgan': 'Жезказган',
+}
+
+# Grammatical city forms used only for human-facing copy.
+CITY_PREPOSITIONAL = {
+    'Алматы': 'Алматы',
+    'Астана': 'Астане',
+    'Шымкент': 'Шымкенте',
+    'Актобе': 'Актобе',
+    'Караганда': 'Караганде',
+    'Тараз': 'Таразе',
+    'Атырау': 'Атырау',
+    'Усть-Каменогорск': 'Усть-Каменогорске',
+    'Павлодар': 'Павлодаре',
+    'Семей': 'Семее',
+    'Кызылорда': 'Кызылорде',
+    'Костанай': 'Костанае',
+    'Актау': 'Актау',
+    'Уральск': 'Уральске',
+    'Петропавловск': 'Петропавловске',
+    'Туркестан': 'Туркестане',
+    'Кокшетау': 'Кокшетау',
+    'Талдыкорган': 'Талдыкоргане',
+    'Конаев': 'Конаеве',
+    'Жезказган': 'Жезказгане',
+}
+
+CITY_PAGE_MIN_ORGANIZATIONS = 3
+CITY_PAGE_PROFILE_LIMIT = 30
+
+CITY_ROUTES = {
+    'parts': 'seo_parts_city',
+    'dismantlers': 'seo_dismantlers_city',
+    'sto': 'seo_sto_city',
+    'detailing': 'seo_detailing_city',
+}
+
+CITY_LABELS = {
+    'parts': 'Магазины автозапчастей',
+    'dismantlers': 'Авторазборы',
+    'sto': 'СТО и ремонт автомобилей',
+    'detailing': 'Детейлинг и тюнинг',
+}
+
+
+def public_parts_organizations():
+    """Same publication scope as the public parts and dismantler catalogues."""
+    return (
+        Seller.objects.filter(is_active=True, is_paused=False, is_test_seller=False)
+        .filter(Q(sells_new_parts=True) | Q(directory_parts=True) | Q(is_dismantler=True))
+        .exclude(name='')
+        .exclude(city='')
+        .filter(Q(address__gt='') | Q(whatsapp__gt=''))
+        .order_by('pk')
+    )
+
+
+def public_service_organizations():
+    return (
+        ServiceSeller.objects.filter(
+            is_active=True,
+            is_paused=False,
+            is_test_seller=False,
+            seller_type__in=('sto', 'detailing'),
+        )
+        .exclude(name='')
+        .exclude(city='')
+        .filter(Q(address__gt='') | Q(whatsapp__gt=''))
+        .order_by('pk')
+    )
+
+
+def city_organizations(kind: str, city: str):
+    if kind == 'parts':
+        return public_parts_organizations().filter(
+            Q(sells_new_parts=True) | Q(directory_parts=True),
+            city=city,
+        ).order_by('name', 'pk')
+    if kind == 'dismantlers':
+        return public_parts_organizations().filter(
+            is_dismantler=True, city=city,
+        ).order_by('name', 'pk')
+    if kind in ('sto', 'detailing'):
+        return public_service_organizations().filter(
+            seller_type=kind, city=city,
+        ).order_by('name', 'pk')
+    raise ValueError('Unknown organization kind')
+
+
+def city_slug(city: str) -> str | None:
+    return next((slug for slug, name in SEO_CITY_SLUGS.items() if name == city), None)
+
+
+def ready_city_landing_pairs() -> set[tuple[str, str]]:
+    """Find city landing candidates in two grouped SQL queries, not 80 counts.
+
+    Use exactly the same published/contactable scopes as city_organizations.
+    Clear the queryset's PK ordering before grouping so count remains per-city.
+    """
+    ready: set[tuple[str, str]] = set()
+    seller_counts = (
+        public_parts_organizations()
+        .order_by()
+        .values('city')
+        .annotate(
+            parts_count=Count(
+                'pk', filter=Q(sells_new_parts=True) | Q(directory_parts=True),
+            ),
+            dismantlers_count=Count('pk', filter=Q(is_dismantler=True)),
+        )
+    )
+    for record in seller_counts:
+        if record['parts_count'] >= CITY_PAGE_MIN_ORGANIZATIONS:
+            ready.add(('parts', record['city']))
+        if record['dismantlers_count'] >= CITY_PAGE_MIN_ORGANIZATIONS:
+            ready.add(('dismantlers', record['city']))
+
+    service_counts = (
+        public_service_organizations()
+        .order_by()
+        .values('city', 'seller_type')
+        .annotate(organizations_count=Count('pk'))
+    )
+    for record in service_counts:
+        if record['organizations_count'] >= CITY_PAGE_MIN_ORGANIZATIONS:
+            ready.add((record['seller_type'], record['city']))
+    return ready
+
+
+def published_city_page_paths():
+    """Called by sitemap generation, using exactly the same quality gate as views."""
+    ready = ready_city_landing_pairs()
+    for kind, route in CITY_ROUTES.items():
+        for slug, city in SEO_CITY_SLUGS.items():
+            if (kind, city) in ready:
+                yield reverse(route, kwargs={'city_slug': slug})
+
+
+def city_directory(request, city_slug, kind):
+    city = SEO_CITY_SLUGS.get(city_slug)
+    if city is None:
+        raise Http404('Unknown city')
+    queryset = city_organizations(kind, city)
+    count = queryset.count()
+    if count < CITY_PAGE_MIN_ORGANIZATIONS:
+        raise Http404('Not enough published organizations for an SEO landing')
+
+    label = CITY_LABELS[kind]
+    city_in = CITY_PREPOSITIONAL[city]
+    description = (
+        f'{label} в {city_in}: адреса и контакты опубликованных организаций '
+        'на ZPT.KZ. Откройте профиль для связи и уточнения доступности услуг или запчастей.'
+    )
+
+    if kind == 'parts':
+        directory_url = reverse('parts_sellers_catalog_public')
+    elif kind == 'dismantlers':
+        directory_url = reverse('dismantlers_catalog')
+    else:
+        directory_url = reverse('services_catalog')
+
+    filters = {'city': city}
+    if kind in ('sto', 'detailing'):
+        filters['type'] = kind
+
+    return render(request, 'catalog/seo_city_directory.html', {
+        'page_title': f'{label} в {city_in} — адреса и контакты | ZPT.KZ',
+        'page_description': description,
+        'page_heading': f'{label} в {city_in}',
+        'page_intro': (
+            f'В каталоге ZPT.KZ представлены организации города {city}. '
+            'Выберите профиль, проверьте адрес и свяжитесь напрямую.'
+        ),
+        'city_name': city,
+        'kind': kind,
+        'is_service': kind in ('sto', 'detailing'),
+        'count': count,
+        'sellers': queryset[:CITY_PAGE_PROFILE_LIMIT],
+        'directory_url': directory_url + '?' + urlencode(filters),
+    })
+
+
+def city_parts(request, city_slug):
+    return city_directory(request, city_slug, 'parts')
+
+
+def city_dismantlers(request, city_slug):
+    return city_directory(request, city_slug, 'dismantlers')
+
+
+def city_sto(request, city_slug):
+    return city_directory(request, city_slug, 'sto')
+
+
+def city_detailing(request, city_slug):
+    return city_directory(request, city_slug, 'detailing')

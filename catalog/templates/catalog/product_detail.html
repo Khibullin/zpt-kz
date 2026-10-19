@@ -2,8 +2,7 @@
 {% load static humanize phone_extras product_extras seller_extras kaspi_buy %}
 
 {% block title %}
-{{ product.title }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %}
-— Купить в Казахстане | ZPT Market
+Купить {{ product|public_product_seo_name }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %} в Казахстане — цена и наличие | ZPT.KZ
 {% endblock %}
 
 {% block extra_css %}
@@ -155,9 +154,9 @@
       <div class="product-gallery">
         <div class="product-main-image">
           {% if product.main_image %}
-            <img src="{{ product.main_image.url }}" alt="{{ product.title }}" id="mainImage" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
+            <img src="{{ product.main_image.url }}" alt="{{ product|public_product_seo_name }} — фото" id="mainImage" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
           {% else %}
-            <img src="{% static 'images/product-placeholder.svg' %}" alt="{{ product.title }}" id="mainImage" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
+            <img src="{% static 'images/product-placeholder.svg' %}" alt="{{ product|public_product_seo_name }} — фото" id="mainImage" onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;">
           {% endif %}
         </div>
 
@@ -168,7 +167,7 @@
 
       <img
         src="{{ img.image.url }}"
-        alt="{{ product.title }}"
+        alt="{{ product|public_product_seo_name }} — фото"
         onclick="changeImage(this)"
         onerror="this.onerror=null;this.src=&quot;{% static 'images/product-placeholder.svg' %}&quot;;"
       >
@@ -192,7 +191,7 @@
 
 <div class="product-detail-title-row">
   <h1 class="product-detail-title">
-    {{ product.title }}
+    {{ product|public_product_seo_name }}
   </h1>
   {% include 'catalog/includes/product_share_button.html' with product=product detail=True %}
 </div>
@@ -224,18 +223,14 @@
 
 <div
   style="
-    color:{% if product.public_stock.code == 'out' %}#6b7280{% else %}#16a34a{% endif %};
+    color:{% if stock_status.code == 'out' or stock_status.code == 'unknown' %}#6b7280{% else %}#16a34a{% endif %};
     font-weight:700;
     margin-top:8px;
     margin-bottom:6px;
     font-size:14px;
   "
 >
-  {% if product.public_stock.code == 'out' %}
-    Нет в наличии
-  {% else %}
-    ✓ В наличии у продавца
-  {% endif %}
+  {% if stock_status.code == 'in' %}✓ {% endif %}{{ stock_status.label }}
 </div>
 
 <div

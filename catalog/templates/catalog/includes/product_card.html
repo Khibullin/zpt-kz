@@ -3,7 +3,7 @@
 <article data-product-id="{{ product.pk|unlocalize }}" class="product product-v2 product-card-approved" data-card-mode="{{ card_mode|default:'retail' }}">
   <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="{{ product|public_card_title }}">
     {% if product.main_image %}
-      <img loading="lazy" decoding="async" src="{{ product.main_image.url }}" alt="{{ product|public_card_title }}"
+      <img loading="lazy" decoding="async" src="{{ product.main_image.url }}" alt="{{ product|public_product_seo_name }} — фото"
         onerror="this.hidden=true;this.nextElementSibling.hidden=false;">
     {% endif %}
     <span class="product-card-placeholder"{% if product.main_image %} hidden{% endif %}>

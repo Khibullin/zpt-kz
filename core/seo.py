@@ -95,6 +95,10 @@ NOINDEX_NOFOLLOW_PREFIXES = (
     '/seller/edit/',
     '/seller/delete/',
     '/request-parts/cabinet/',
+    '/request-parts/filters/',
+    '/service-request/filters/',
+    '/service-request/personal/',
+    '/seller/join/',
     '/my-request/',
     '/my-requests/',
     '/service-request/cabinet/',
@@ -166,9 +170,19 @@ def robots_directive(request) -> str:
     ):
         return 'noindex, follow'
 
-    if path == '/parts-sellers/' and PARTS_SELLERS_FILTER_QUERY_KEYS.intersection(
+    if path in ('/parts-sellers/', '/auto-dismantlers/') and PARTS_SELLERS_FILTER_QUERY_KEYS.intersection(
         request.GET.keys()
     ):
+        return 'noindex, follow'
+
+    # The city landing has one indexable URL; filter combinations are duplicates.
+    city_prefixes = ('/parts-sellers/', '/auto-dismantlers/', '/sto/', '/detailing/')
+    city_filters = PARTS_SELLERS_FILTER_QUERY_KEYS | SERVICES_FILTER_QUERY_KEYS
+    if any(path.startswith(prefix) for prefix in city_prefixes) and city_filters.intersection(request.GET.keys()):
+        return 'noindex, follow'
+
+    # Dual-role sellers and service organizations retain one canonical profile.
+    if path.startswith(('/parts-seller/', '/catalog/services/')) and 'directory' in request.GET:
         return 'noindex, follow'
 
     if path == '/catalog/services/' and SERVICES_FILTER_QUERY_KEYS.intersection(

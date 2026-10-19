@@ -1460,7 +1460,11 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertGreater(dispatch_count, 0)
 
     def test_home_form_is_compact_matched_version(self):
-        page = self.client.get('/find-part/')
+        # The clean /find-part/ route is the approved choice landing. The
+        # existing form opens on the explicit request=1 route.
+        landing = self.client.get('/find-part/')
+        self.assertContains(landing, '/find-part/?request=1')
+        page = self.client.get('/find-part/?request=1')
         self.assertContains(page, 'home-parts-form-v8.js')
         self.assertNotContains(page, 'home-parts-form-v7.js')
         self.assertNotContains(page, 'home-parts-form-v6.js')

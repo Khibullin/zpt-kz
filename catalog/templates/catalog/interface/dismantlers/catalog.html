@@ -5,7 +5,7 @@
 {% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/dismantler-catalog.css' %}?v=20261017c">{% endblock %}
 {% block interface_content %}
 <div class="directory-page">
-<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui 'dismantlers' %}</span></nav>
+<nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<a href="{% url 'interface_section' section='dismantle' %}">{% ui 'dismantlers' %}</a></nav>
 <div class="directory-heading"><div><h1>{% ui 'dismantlers' %}</h1><p data-ru="Найдите организацию и свяжитесь напрямую" data-kk="Ұйымды тауып, тікелей хабарласыңыз">Найдите организацию и свяжитесь напрямую</p></div><a class="btn dismantle-outline" href="/request-parts/cabinet/">{% ui 'dismantleAdd' %}</a></div>
 <div class="directory-controls">
 <form id="dismantlers-search" class="directory-search" method="get" action="{% url 'dismantlers_catalog' %}">

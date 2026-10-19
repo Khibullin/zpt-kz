@@ -1,0 +1,99 @@
+name: Directory and Product SEO checks
+
+on:
+  pull_request:
+    paths:
+      - 'core/seo.py'
+      - 'core/seo_views.py'
+      - 'core/directory_seo.py'
+      - 'core/templatetags/organization_seo.py'
+      - 'core/tests/test_seo_readiness.py'
+      - 'core/tests/test_seo_directory_expansion.py'
+      - 'catalog/templatetags/product_extras.py'
+      - 'catalog/views.py'
+      - 'catalog/templates/catalog/product_detail.html'
+      - 'catalog/templates/catalog/maintenance_kit_detail.html'
+      - 'catalog/templates/catalog/includes/product_card.html'
+      - 'catalog/templates/catalog/interface/**'
+      - 'catalog/templates/catalog/seo_city_directory.html'
+      - 'catalog/tests/test_product_structured_data.py'
+      - 'backend/urls.py'
+      - 'templates/base.html'
+      - 'templates/catalog/services/detail.html'
+      - '.github/workflows/seo-directory-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  django-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'ci-seo-testing-key-only'
+      ALLOWED_HOSTS: 'testserver,localhost,127.0.0.1,zpt.kz,zpt-kz-backend.onrender.com'
+      DATABASE_URL: 'sqlite:///db-seo-tests.sqlite3'
+      EMAIL_BACKEND: 'django.core.mail.backends.locmem.EmailBackend'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install project requirements
+        run: pip install -r requirements.txt
+      - name: Django configuration
+        run: python manage.py check
+      - name: Migration consistency
+        run: python manage.py makemigrations --check --dry-run
+      - name: Public SEO regression suite
+        run: |
+          python manage.py test --settings backend.settings_ui_ci \
+            core.tests.test_seo_readiness \
+            core.tests.test_seo_directory_expansion \
+            core.tests.test_seo_seller_filters \
+            catalog.tests.test_product_structured_data \
+            catalog.tests.test_product_meta_description \
+            catalog.tests.test_seo_brand_landings \
+            catalog.tests.test_seo_demand_category_landings \
+            catalog.tests.test_seo_oil_filter_landing \
+            core.tests.test_seo_brand_filter_redirects \
+            core.tests.test_astana_directory_publication \
+            catalog.tests.test_parts_directory_design \
+            catalog.tests.test_directory_public_details \
+            catalog.tests.test_maintenance_kits.MaintenanceKitModelTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitPricingStockTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitCartTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitMissingCarTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitSeedTests \
+            catalog.tests.test_maintenance_kit_picker \
+            catalog.tests.test_maintenance_kit_covers \
+            catalog.tests.test_home_kits_entry \
+            catalog.tests.test_product_card_design \
+            catalog.tests.test_public_product_urls \
+            catalog.tests.test_public_seller_meta_description \
+            catalog.tests.test_legacy_product_slug_redirects \
+            service_requests.test_repair_directory \
+            -v 2
+
+
+  migration-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'seo-migration-ci-testing-only'
+      ALLOWED_HOSTS: 'testserver,localhost,127.0.0.1,zpt.kz'
+      DATABASE_URL: 'sqlite:///db-seo-migrations.sqlite3'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install project requirements
+        run: pip install -r requirements.txt
+      - name: Verify historical migration on a real disposable migration schema
+        run: python manage.py test catalog.tests.test_maintenance_kits.MaintenanceKitCarRequestMigrationTests -v 2

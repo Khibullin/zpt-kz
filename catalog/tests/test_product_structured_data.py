@@ -36,7 +36,7 @@ class ProductStructuredDataTests(SimpleTestCase):
         self.assertEqual(data['url'], 'https://zpt.kz/test-product/')
         self.assertEqual(data['name'], 'Масляный фильтр TEST 123')
         self.assertEqual(data['sku'], 'TEST-123')
-        self.assertEqual(data['brand']['name'], 'Chery')
+        self.assertNotIn('brand', data)  # Chery is vehicle make, not part maker.
         self.assertEqual(data['category'], 'Масляные фильтры')
         self.assertEqual(data['image'], ['https://zpt.kz/products/test.jpg'])
         self.assertEqual(data['offers']['priceCurrency'], 'KZT')
@@ -45,6 +45,12 @@ class ProductStructuredDataTests(SimpleTestCase):
             data['offers']['availability'],
             'https://schema.org/InStock',
         )
+
+    def test_explicit_ag_parts_brand_is_not_confused_with_vehicle_make(self):
+        product = self._product(title='Салонный фильтр AG Parts Chery Tiggo')
+        data = json.loads(str(product_json_ld(product)))
+
+        self.assertEqual(data['brand']['name'], 'AG Parts')
 
     def test_unknown_stock_does_not_claim_availability(self):
         data = json.loads(str(product_json_ld(self._product(stock_qty=None))))
@@ -121,6 +127,12 @@ class ProductStructuredDataIntegrationTests(TestCase):
             article='HU71151X',
             **common,
         )
+
+    def test_product_article_in_h1_and_image_alt_without_duplication(self):
+        response = self.client.get('/structured-data-public-product/')
+
+        self.assertContains(response, 'Structured Data Public Product SD-100')
+        self.assertContains(response, 'alt="Structured Data Public Product SD-100 — фото"')
 
     def test_public_product_page_emits_product_json_ld(self):
         response = self.client.get('/structured-data-public-product/')
