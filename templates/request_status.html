@@ -253,6 +253,8 @@
       </span>
     </div>
 
+    {% if sellers_count %}<p>Ваша заявка принята. Ожидайте ответы продавцов в WhatsApp.</p>{% endif %}
+
     <div class="details-grid">
       <div class="detail-item">
         <div class="detail-label">Марка</div>
@@ -286,10 +288,6 @@
         <div class="detail-label">Создана</div>
         <div class="detail-value">{{ req.created_at|date:"d.m.Y H:i" }}</div>
       </div>
-      <div class="detail-item">
-        <div class="detail-label">Продавцов</div>
-        <div class="detail-value">{{ sellers_count }}</div>
-      </div>
     </div>
 
     <div class="photos-section">
@@ -316,53 +314,6 @@
       {% endif %}
     </div>
 
-    <div class="sellers-section">
-      <label>Продавцы по вашей заявке:{% if sellers_count %} ({{ sellers_count }}){% endif %}</label>
-      {% if sellers_count %}
-        {% for seller in sellers_visible %}
-          <div class="seller-card">
-            <div class="seller-name">{{ seller.name }}</div>
-            {% if seller.city %}
-              <div class="seller-meta">{{ seller.city }}</div>
-            {% endif %}
-            <span class="seller-status{% if seller.status_label == 'Заявка отправлена продавцу' %} is-sent{% elif seller.status_label == 'Можно написать продавцу напрямую' %} is-direct{% endif %}">
-              {{ seller.status_label }}
-            </span>
-            <div class="seller-actions">
-              {% if seller.whatsapp_url %}
-                <a class="btn-wa" href="{{ seller.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a>
-              {% endif %}
-              <a class="btn-profile" href="{{ seller.profile_url }}">Открыть профиль продавца</a>
-            </div>
-          </div>
-        {% endfor %}
-        {% for seller in sellers_hidden %}
-          <div class="seller-card is-hidden">
-            <div class="seller-name">{{ seller.name }}</div>
-            {% if seller.city %}
-              <div class="seller-meta">{{ seller.city }}</div>
-            {% endif %}
-            <span class="seller-status{% if seller.status_label == 'Заявка отправлена продавцу' %} is-sent{% elif seller.status_label == 'Можно написать продавцу напрямую' %} is-direct{% endif %}">
-              {{ seller.status_label }}
-            </span>
-            <div class="seller-actions">
-              {% if seller.whatsapp_url %}
-                <a class="btn-wa" href="{{ seller.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Написать в WhatsApp</a>
-              {% endif %}
-              <a class="btn-profile" href="{{ seller.profile_url }}">Открыть профиль продавца</a>
-            </div>
-          </div>
-        {% endfor %}
-        {% if sellers_hidden_count %}
-          <button type="button" class="btn-show-more-sellers" id="show-more-sellers-btn">
-            Показать ещё {{ sellers_hidden_count }} продавцов
-          </button>
-        {% endif %}
-      {% else %}
-        <p class="sellers-empty">Подходящие продавцы пока не найдены. Мы продолжаем обработку заявки.</p>
-      {% endif %}
-    </div>
-
     <div class="page-actions">
       <a class="btn-primary" href="{{ repeat_url }}">Повторить заявку</a>
       <a class="btn-secondary" href="{{ new_request_url }}">Подать новую заявку</a>
@@ -381,14 +332,5 @@
 <script>
   const lightbox = GLightbox({ selector: '.glightbox' });
 
-  const showMoreSellersBtn = document.getElementById('show-more-sellers-btn');
-  if (showMoreSellersBtn) {
-    showMoreSellersBtn.addEventListener('click', () => {
-      document.querySelectorAll('.seller-card.is-hidden').forEach((card) => {
-        card.classList.add('is-expanded');
-      });
-      showMoreSellersBtn.remove();
-    });
-  }
 </script>
 {% endblock %}
