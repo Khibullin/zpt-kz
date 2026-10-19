@@ -127,6 +127,14 @@
     border: 1px solid #d1d5db;
     font-weight: 600;
   }
+  .sr-btn-filter {
+    background: #fff1f2;
+    color: #991b1b;
+    border: 1px solid #dc3035;
+    font-weight: 700;
+  }
+  .sr-btn-filter:hover { background: #ffe4e6; }
+  .sr-btn-filter:focus-visible { outline: 3px solid #dc3035; outline-offset: 3px; }
   .sr-note {
     margin-top: 10px;
     font-size: 15px;
@@ -248,7 +256,7 @@
       <div class="sr-extra">
         <h2>Получаете неподходящие заявки?</h2>
         <p>Укажите марки, модели и категории запчастей, с которыми работаете.</p>
-        <a class="sr-btn sr-btn-extra" href="filters/">Настроить фильтр получения заявок</a>
+        <a class="sr-btn sr-btn-filter" href="filters/">Настроить фильтр получения заявок</a>
       </div>
       {% endif %}
     {% elif page_state == 'expired' %}
