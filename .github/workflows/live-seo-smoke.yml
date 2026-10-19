@@ -1,0 +1,130 @@
+name: Live SEO smoke (read-only)
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/live-seo-smoke.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  live-seo:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify live SEO endpoints using read-only HTTP GET
+        env:
+          SITE_ORIGIN: https://zpt.kz
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          import re
+          from urllib.parse import urlsplit
+          from urllib.request import Request, urlopen
+          from xml.etree import ElementTree
+
+          base = os.environ['SITE_ORIGIN'].rstrip('/')
+          ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
+          checked = 0
+
+          def get(path, *, canonical=True):
+              global checked
+              request = Request(base + path, headers={
+                  'User-Agent': 'Mozilla/5.0 (compatible; ZPTSEOQA/1.0; read-only deploy check)',
+                  'Accept': 'text/html,application/xml,text/plain,*/*',
+              })
+              with urlopen(request, timeout=25) as response:
+                  raw = response.read()
+                  status = response.status
+                  final_path = urlsplit(response.url).path
+                  if status != 200:
+                      raise AssertionError(f'{path}: unexpected HTTP status {status}')
+                  if canonical and final_path != urlsplit(path).path:
+                      raise AssertionError(f'{path}: unexpected redirect to {response.url}')
+                  checked += 1
+                  print(f'HTTP 200 {path} [{len(raw)} bytes]')
+                  return raw.decode('utf-8'), response.headers
+
+          def xml_urls(path):
+              text, _ = get(path)
+              doc = ElementTree.fromstring(text)
+              urls = [x.text for x in doc.findall('s:url/s:loc', ns)]
+              assert len(urls) == len(set(urls)), f'{path}: duplicate URLs'
+              assert all(u.startswith(base + '/') for u in urls), f'{path}: wrong origin'
+              return urls
+
+          robots, _ = get('/robots.txt')
+          assert 'Sitemap: https://zpt.kz/sitemap.xml' in robots, 'robots missing sitemap link'
+          assert 'Disallow: /admin/' in robots, 'robots missing admin exclusion'
+
+          index, _ = get('/sitemap.xml')
+          root = ElementTree.fromstring(index)
+          sitemap_urls = [x.text for x in root.findall('s:sitemap/s:loc', ns)]
+          required = [
+              base + '/sitemap-static.xml',
+              base + '/sitemap-products.xml',
+              base + '/sitemap-organizations.xml',
+              base + '/sitemap-kits.xml',
+              base + '/sitemap-cities.xml',
+          ]
+          for url in required:
+              assert url in sitemap_urls, f'Sitemap index missing {url}'
+          print('Sitemap indexes:', len(sitemap_urls))
+
+          static_urls = xml_urls('/sitemap-static.xml')
+          product_urls = xml_urls('/sitemap-products.xml')
+          org_urls = xml_urls('/sitemap-organizations.xml')
+          kit_urls = xml_urls('/sitemap-kits.xml')
+          city_urls = xml_urls('/sitemap-cities.xml')
+          assert len(product_urls) >= 50, f'Too few product URLs: {len(product_urls)}'
+          assert len(org_urls) >= 1000, f'Too few organization URLs: {len(org_urls)}'
+          assert len(kit_urls) >= 10, f'Too few kit URLs: {len(kit_urls)}'
+          assert len(city_urls) >= 15, f'Too few city URLs: {len(city_urls)}'
+          print('URL counts: static=%d products=%d organizations=%d kits=%d cities=%d' % (
+              len(static_urls),len(product_urls),len(org_urls),len(kit_urls),len(city_urls)))
+
+          # Sitemap URLs must be retrievable, canonical, non-empty HTML pages.
+          paths = [urlsplit(u).path for u in static_urls]
+          paths += [
+              urlsplit(product_urls[0]).path,
+              urlsplit(org_urls[0]).path,
+              urlsplit(kit_urls[0]).path,
+              urlsplit(city_urls[0]).path,
+              '/parts-sellers/almaty/',
+              '/auto-dismantlers/astana/',
+              '/sto/almaty/',
+              '/detailing/almaty/',
+          ]
+          # Keep read-only smoke lightweight; no crawling whole catalogs.
+          for path in dict.fromkeys(paths):
+              html, headers = get(path)
+              if '<html' not in html.lower():
+                  raise AssertionError(f'{path}: no HTML content')
+              if path != '/':
+                  expected_canonical = '<link rel="canonical" href="' + base + path + '">'
+                  assert expected_canonical in html, f'{path}: canonical mismatch'
+              assert '<h1' in html, f'{path}: missing heading'
+              assert 'noindex' not in headers.get('X-Robots-Tag', '').lower(), f'{path}: noindex header'
+              assert not re.search(r'<meta\s+name="robots"\s+content="noindex',html,re.I), f'{path}: noindex HTML'
+
+          for path, schema_type in [
+              (urlsplit(product_urls[0]).path, 'Product'),
+              (urlsplit(org_urls[0]).path, None),
+              (urlsplit(kit_urls[0]).path, 'Product'),
+          ]:
+              html, _ = get(path)
+              scripts = re.findall(r'<script type="application/ld\+json">(.*?)</script>', html, re.S)
+              data = [json.loads(x) for x in scripts]
+              assert data, f'{path}: no JSON-LD'
+              if schema_type is not None:
+                  assert any(x.get('@type') == schema_type for x in data), f'{path}: JSON-LD missing {schema_type}'
+              else:
+                  assert any(x.get('@type') in ('AutoPartsStore','LocalBusiness','AutoRepair','AutomotiveBusiness') for x in data), f'{path}: no organization schema'
+
+          filtered, h = get('/parts-sellers/?city=%D0%90%D0%BB%D0%BC%D0%B0%D1%82%D1%8B')
+          assert 'noindex' in h.get('X-Robots-Tag', '').lower(), 'Filtered catalog missing noindex'
+
+          print(f'PASS: {checked} public URLs checked; all sitemap and SEO smoke checks passed.')
+          PY
