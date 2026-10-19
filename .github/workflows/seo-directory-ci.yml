@@ -59,4 +59,17 @@ jobs:
             catalog.tests.test_seo_brand_landings \
             catalog.tests.test_seo_demand_category_landings \
             catalog.tests.test_seo_oil_filter_landing \
+            core.tests.test_seo_brand_filter_redirects \
+            core.tests.test_astana_directory_publication \
+            catalog.tests.test_parts_directory_design \
+            catalog.tests.test_directory_public_details \
+            catalog.tests.test_maintenance_kits \
+            catalog.tests.test_maintenance_kit_picker \
+            catalog.tests.test_maintenance_kit_covers \
+            catalog.tests.test_home_kits_entry \
+            catalog.tests.test_product_card_design \
+            catalog.tests.test_public_product_urls \
+            catalog.tests.test_public_seller_meta_description \
+            catalog.tests.test_legacy_product_slug_redirects \
+            service_requests.test_repair_directory \
             -v 2
