@@ -76,6 +76,28 @@ def service_request_template_call(req, seller) -> dict:
     ) or '-'
     from service_requests.filter_views import personal_request_url
     url = personal_request_url(req, seller)
+    from .notification_template import approved_service_template, TEMPLATE_NAME, SERVICE_LABELS
+    if url and approved_service_template():
+        # The signed URL is kept in a native button, never truncated into the comment.
+        suffix = url.split('/service-request/personal/', 1)[1]
+        return {
+            'to_phone': seller.whatsapp,
+            'template_name': TEMPLATE_NAME,
+            'template_language': 'ru',
+            'body_parameters': [
+                wa_template_param(req.id),
+                wa_template_param(SERVICE_LABELS.get(req.service_type, 'Автосервис')),
+                wa_template_param(req.brand),
+                wa_template_param(req.model),
+                wa_template_param(services_text),
+                wa_template_param(req.city),
+                wa_template_param(req.description),
+            ],
+            'button_components': [{
+                'type': 'button', 'sub_type': 'url', 'index': '0',
+                'parameters': [wa_template_param(suffix)],
+            }],
+        }
     description = req.description
     if url:
         description = (description[:120] + ' Откройте заявку, чтобы: 1. Посмотреть подробности и связаться с покупателем. 2. Настроить фильтр получения заявок. ' + url).strip()

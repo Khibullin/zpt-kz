@@ -3,17 +3,17 @@
 {% block seo_meta %}<meta name="robots" content="noindex,nofollow">{% endblock %}
 {% block title %}Заявка №{{ req.pk }} — ZPT.KZ{% endblock %}
 {% block extra_head %}<meta name="referrer" content="no-referrer"><meta name="robots" content="noindex,nofollow">{% endblock %}
-{% block portal_css %}<link rel="stylesheet" href="{% static 'css/seller-request-filters.css' %}?v=2">{% endblock %}
+{% block portal_css %}<link rel="stylesheet" href="{% static 'css/seller-request-filters.css' %}?v=3">{% endblock %}
 {% block content %}
 <main class="rf-wrap">
 <h1>Заявка №{{ req.pk }}</h1>
 <section class="rf-card">
-<h2>{{ req.get_service_type_display }}</h2>
+<h2>{{ service_type_label }}</h2>
 <p>{{ req.get_transport_type_display }} · {{ req.brand }} {{ req.model }}</p>
 <p><strong>Работы и услуги:</strong> {% for service in services %}{{ service.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
 <p><strong>Город:</strong> {{ req.city }}{% if req.district %}, {{ req.district }}{% endif %}</p>
 {% if req.description %}<p>{{ req.description }}</p>{% endif %}
-<div class="rf-actions">{% if whatsapp_url %}<a href="{{ whatsapp_url }}" rel="noreferrer">Связаться с покупателем в WhatsApp</a>{% endif %}{% if phone %}<a href="tel:{{ phone }}">Позвонить</a>{% endif %}</div>
+<div class="rf-contact-actions">{% if whatsapp_url %}<a class="rf-contact-wa" href="{{ whatsapp_url }}" rel="noreferrer">Написать клиенту в WhatsApp</a>{% endif %}{% if phone %}<a class="rf-contact-call" href="tel:{{ phone }}">Позвонить клиенту</a>{% endif %}</div>
 </section>
 <section class="rf-card"><h2>Получайте заявки по вашей специализации</h2><p>Укажите транспорт, марки, модели и выполняемые работы.</p><a class="rf-filter-button" href="filters/">Настроить фильтр получения заявок</a></section>
 </main>

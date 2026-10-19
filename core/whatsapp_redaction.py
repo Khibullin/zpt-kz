@@ -51,6 +51,8 @@ def _redact_string(text: str) -> str:
     result = _ACCESS_TOKEN_QUERY_PATTERN.sub(f'access_token={_REDACTED}', result)
     result = _META_TOKEN_LIKE_PATTERN.sub(_REDACTED, result)
     result = re.sub(r'(/service-request/personal/)[^/\s\"\']+', r'\1[REDACTED]', result)
+    # Personal service tokens can also appear as a bare dynamic button suffix.
+    result = re.sub(r'\beyJ[A-Za-z0-9_-]+:[A-Za-z0-9_-]+:[A-Za-z0-9_-]+/?', _REDACTED, result)
     return result
 
 

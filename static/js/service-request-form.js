@@ -53,7 +53,7 @@ function renderSuccessResult(data){
   ZPTDom.clearElement(msg);
 
   const title=document.createElement('strong');
-  title.textContent=data.title || '✅ Заявка принята и отправлена подходящим исполнителям.';
+  title.textContent=data.title || '✅ Ваша заявка принята.';
   msg.appendChild(title);
 
   appendTextBlock(msg,'Что дальше?');

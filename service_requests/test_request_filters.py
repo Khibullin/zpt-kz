@@ -105,7 +105,7 @@ class ServiceFilterTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.seller.refresh_from_db(); self.assertIsNotNone(self.seller.request_filters)
         response = client.get(self.path)
-        self.assertContains(response, 'Связаться с покупателем')
+        self.assertContains(response, 'Написать клиенту в WhatsApp')
         self.assertNotContains(response, 'googletagmanager.com')
         self.assertNotContains(client.get(url), 'googletagmanager.com')
         self.assertEqual(response['Referrer-Policy'], 'no-referrer')
