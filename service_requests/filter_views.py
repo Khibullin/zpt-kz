@@ -36,7 +36,7 @@ def resolve_match(token):
         match = None
     if match is None:
         return None, HttpResponse('Ссылка недействительна.', status=404)
-    if not match.seller.is_active or match.seller.is_test_seller:
+    if not match.seller.is_active:
         return None, HttpResponse('Доступ к этой организации недоступен.', status=403)
     return match, None
 
@@ -80,7 +80,7 @@ def request_filters(request, token=None):
                 return redirect('/service-request/cabinet/')
             return private_response(HttpResponse(exc.message, status=exc.status))
         back_url = '/service-request/cabinet/'
-    if not seller.is_active or seller.is_test_seller:
+    if not seller.is_active:
         return private_response(HttpResponse('Настройка фильтра для этой организации недоступна.', status=403))
     if seller.seller_type not in ('sto', 'detailing'):
         return private_response(HttpResponse('Направление организации не определено.', status=403))

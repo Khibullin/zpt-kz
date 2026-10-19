@@ -87,11 +87,20 @@ class SellerRequestFilterTests(TestCase):
         self.assertEqual(client.post(self.url,{'filters':json.dumps(self.data),'csrfmiddlewaretoken':token}).status_code,410)
         self.assertEqual(client.get('/sr/not-a-real-token/filters/').status_code,404)
 
-    def test_unbound_and_test_links_cannot_edit(self):
+    def test_unbound_links_denied_and_test_owner_can_edit(self):
         access=create_seller_request_access(request=self.req)
         self.assertEqual(self.client.get(reverse('seller_request_filters_link',kwargs={'token':access.token})).status_code,404)
-        self.seller.is_test_seller=True;self.seller.save()
-        self.assertEqual(self.client.post(self.url,{'filters':json.dumps(self.data)}).status_code,403)
+        self.seller.is_test_seller=True
+        self.seller.test_all_requests_since=timezone.now()
+        self.seller.save()
+        self.assertContains(self.client.get('/sr/' + self.access.token + '/'), 'Настроить фильтр')
+        self.assertContains(self.client.get(self.url), 'не ограничивает тестовую рассылку')
+        self.assertEqual(self.client.post(self.url,{'filters':json.dumps(self.data)}).status_code,302)
+        self.seller.refresh_from_db()
+        self.assertIsNotNone(self.seller.request_filters)
+        self.assertIsNotNone(self.seller.test_all_requests_since)
+        self.seller.is_active=False;self.seller.save()
+        self.assertEqual(self.client.get(self.url).status_code,403)
 
     def test_unconfigured_sellers_keep_existing_matching(self):
         self.assertIsNone(self.seller.request_filters)
