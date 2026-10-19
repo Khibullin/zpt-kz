@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static humanize phone_extras product_extras %}
 
-{% block title %}Автозапчасти в Казахстане для легковых и грузовых авто | ZPT.KZ{% endblock %}
+{% block title %}Автозапчасти, авторазборы и СТО в Казахстане — ZPT.KZ{% endblock %}
 
 {% block body_attrs %}{% if not is_listing %} data-zpt-suppress-ios-pwa="1"{% endif %}{% if is_home_result %} data-zpt-home-result="1"{% endif %}{% endblock %}
 
@@ -11,7 +11,7 @@
 {% endif %}
 {% endblock %}
 
-{% block meta_description %}Отправьте заявку — подходящие продавцы по Казахстану предложат наличие, цену и сроки. Запчасти для легковых и грузовых авто.{% endblock %}
+{% block meta_description %}ZPT.KZ — платформа автозапчастей в Казахстане: новые и б/у запчасти, авторазборы, комплекты ТО, СТО, детейлинг и тюнинг. Ищите продавцов и отправляйте заявки.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">

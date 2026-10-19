@@ -51,6 +51,20 @@ def public_card_title(product):
 
 
 @register.filter
+def public_product_seo_name(product):
+    """Public product title with an article added once, when available."""
+    from catalog.product_display import public_product_title
+
+    title = re.sub(r'\s+', ' ', public_product_title(product)).strip()
+    article = re.sub(r'\s+', ' ', str(getattr(product, 'article', '') or '')).strip()
+    if not article:
+        return title
+    if re.search(r'(?<![\w])' + re.escape(article) + r'(?![\w])', title, flags=re.I):
+        return title
+    return f'{title} {article}'.strip()
+
+
+@register.filter
 def public_card_fitment(product):
     from catalog.applicability import public_card_fitment as build_public_card_fitment
 
@@ -166,10 +180,11 @@ def product_json_ld(product):
     if description:
         data['description'] = description
 
-    brand = getattr(product, 'brand', None)
-    brand_name = str(getattr(brand, 'name', '') or '').strip()
-    if brand_name:
-        data['brand'] = {'@type': 'Brand', 'name': brand_name}
+    # Product.brand identifies a *vehicle make*, not the product manufacturer.
+    # Never publish it as the schema.org product brand. Only explicitly
+    # identified house-branded items have reliable manufacturer evidence here.
+    if re.search(r'(?<![\w])AG[\s-]+Parts(?![\w])', data['name'], re.I):
+        data['brand'] = {'@type': 'Brand', 'name': 'AG Parts'}
 
     category = getattr(product, 'category', None)
     category_name = str(getattr(category, 'name', '') or '').strip()
@@ -202,11 +217,15 @@ def product_json_ld(product):
         if condition in condition_map:
             offer['itemCondition'] = condition_map[condition]
 
-        stock_qty = getattr(product, 'stock_qty', None)
-        if stock_qty is not None:
+        # Keep Schema.org aligned with the same stock policy used on the
+        # public product page; an unknown balance must not claim InStock.
+        from catalog.wholesale import public_stock_status
+
+        stock_code = public_stock_status(product)['code']
+        if stock_code in ('in', 'out'):
             offer['availability'] = (
                 'https://schema.org/InStock'
-                if int(stock_qty) > 0
+                if stock_code == 'in'
                 else 'https://schema.org/OutOfStock'
             )
         data['offers'] = offer

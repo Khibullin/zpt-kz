@@ -694,6 +694,7 @@ def product_detail(request, slug=None, pk=None):
         'title_vehicle_line': title_vehicle_line,
         'commercial_quote': commercial_quote,
         'public_wholesale': public_wholesale,
+        'stock_status': public_stock_status(product),
     })
 
 
