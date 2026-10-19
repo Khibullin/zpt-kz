@@ -44,6 +44,10 @@ def save_filters(seller, data):
 
 
 def matches_request(seller, req, service_names=None):
+    from core.services.test_receivers import test_receiver_decision
+    decision = test_receiver_decision(seller, req)
+    if decision is not None:
+        return decision
     f = seller.request_filters
     if f is None:
         return True

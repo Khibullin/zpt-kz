@@ -42,13 +42,13 @@ def select_service_sellers_for_request(req):
     if not service_names:
         return []
 
+    from core.services.test_receivers import universal_test_q, test_receiver_decision
     sellers = ServiceSeller.objects.filter(
         is_active=True,
         receive_requests=True,
         is_paused=False,
-        seller_type=req.service_type,
-        city=req.city,
-    ).filter(Q(request_filters__isnull=False) | Q(services__name__in=service_names))
+    ).filter(universal_test_q(req) | (Q(seller_type=req.service_type, city=req.city) &
+             (Q(request_filters__isnull=False) | Q(services__name__in=service_names))))
     if mode == ServiceBroadcastSettings.MODE_TEST:
         sellers = sellers.filter(is_test_seller=True)
 
@@ -56,7 +56,7 @@ def select_service_sellers_for_request(req):
     sellers = [s for s in sellers if matches_request(s, req, service_names)]
     district = (req.district or '').strip()
     if district:
-        district_sellers = [s for s in sellers if s.district == district]
+        district_sellers = [s for s in sellers if s.district == district and test_receiver_decision(s, req) is not True]
         if district_sellers:
-            return district_sellers
+            return [s for s in sellers if s.district == district or test_receiver_decision(s, req) is True]
     return list(sellers)
