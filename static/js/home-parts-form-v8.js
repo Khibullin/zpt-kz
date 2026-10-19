@@ -38,6 +38,7 @@
   let pickerSuggestSeq = 0;
   let pickerPreviousFocus = null;
   let submitting = false;
+  let acceptedPanel = null;
 
   function csrfToken() {
     return csrfInput ? csrfInput.value : '';
@@ -650,6 +651,9 @@
   window.ZPTHomePartsApplyGuideDraft = applyGuideDraft;
 
   function showNewRequestForm() {
+    if (acceptedPanel) acceptedPanel.remove();
+    acceptedPanel = null;
+    finishSubmitAttempt();
     rotateIdempotencyKey();
     form.hidden = false;
     form.reset();
@@ -737,9 +741,14 @@
         return { ok: false, status: response.status, data: {} };
       });
     }).then(function (result) {
-      if (result.ok && result.data && result.data.result_url) {
+      if (result.ok && result.data && result.data.status === 'ok' && result.data.result_url) {
         rotateIdempotencyKey();
-        window.location.assign(result.data.result_url);
+        acceptedPanel = window.ZPTRequestAccepted(form, {
+          message: result.data.broadcast_active
+            ? 'Ответы продавцов поступят в WhatsApp на указанный номер.'
+            : result.data.message,
+          url: result.data.result_url,
+        });
         return;
       }
       const data = result.data || {};
