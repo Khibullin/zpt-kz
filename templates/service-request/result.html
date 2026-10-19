@@ -1,4 +1,3 @@
-```html
 {% load static phone_extras %}
 <!DOCTYPE html>
 <html lang="ru">
@@ -200,29 +199,7 @@ body{
 
       <br><br>
 
-      Подходящие исполнители найдены.
-      Мы уведомим их в WhatsApp.
-
-      <br><br>
-
-      <b>
-        Найдено:
-      </b>
-
-      {{ sellers_count }}
-
-      исполнителей.
-
-      <br><br>
-
-      Ничего делать не нужно —
-      СТО и мастера сами напишут вам в WhatsApp
-      с ценой, сроками и условиями.
-
-      <br><br>
-
-      Обычно первые ответы приходят
-      в течение 5–15 минут.
+      Ожидайте ответы исполнителей в WhatsApp.
       {% else %}
       <b>
         ✅ Заявка №{{ req.id }} принята.
@@ -279,89 +256,6 @@ body{
 
     </div>
 
-    <div class="section-title">
-      {% if sellers_count %}
-      Подходящие исполнители
-      {% else %}
-      Исполнители по заявке
-      {% endif %}
-    </div>
-
-    <div class="sellers">
-
-      {% for seller in sellers %}
-
-      <div class="seller-card">
-
-        <div class="seller-name">
-          {{ seller.name }}
-        </div>
-
-        <div>
-          <b>Район:</b>
-          {{ seller.district }}
-        </div>
-
-        <div style="margin-top:6px;">
-          <b>Адрес:</b>
-          {{ seller.address }}
-        </div>
-
-        <div class="buttons">
-
-          {% with wa_url=seller.whatsapp|whatsapp_url %}
-          {% if wa_url %}
-          <a
-            class="btn wa"
-            target="_blank"
-            href="{{ wa_url }}"
-          >
-            WhatsApp
-          </a>
-          {% endif %}
-          {% endwith %}
-
-          {% if seller.map_link %}
-
-          <a
-            class="btn map"
-            target="_blank"
-            href="{{ seller.map_link }}"
-          >
-            2GIS
-          </a>
-
-          {% endif %}
-
-          <a
-            class="btn catalog"
-            href="/catalog/services/{{ seller.id }}/"
-          >
-            Подробнее
-          </a>
-
-        </div>
-      </div>
-
-      {% empty %}
-
-      <div class="seller-card">
-
-        <b>
-          Подходящие исполнители пока не найдены.
-        </b>
-
-        <div style="margin-top:10px;line-height:1.6;">
-          Попробуйте изменить район,
-          услуги или отправить заявку позже.
-        </div>
-
-      </div>
-
-      {% endfor %}
-
-    </div>
-
     <div class="bottom">
 
       <a
@@ -379,4 +273,3 @@ body{
 
 </body>
 </html>
-```

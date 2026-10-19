@@ -144,8 +144,10 @@ class CreateRequestOutboxTests(WhatsAppDispatchTestCase):
 
         page = self.client.get(data['result_url'])
         content = page.content.decode('utf-8')
-        self.assertIn('Подходящие исполнители', content)
-        self.assertIn('Мы уведомим их в WhatsApp', content)
+        self.assertNotIn('Подходящие исполнители', content)
+        self.assertNotIn('Найдено:', content)
+        self.assertNotIn('class="seller-card"', content)
+        self.assertIn('Ожидайте ответы исполнителей в WhatsApp', content)
         self.assertNotIn('отправлена исполнителям', content)
         self.assertNotIn('Исполнители, которым отправлена заявка', content)
         self.assertNotIn('Отправлено:', content)

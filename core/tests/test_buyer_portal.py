@@ -156,9 +156,10 @@ class BuyerPortalAccessTests(TestCase):
             },
         )
         response = self.client.get(url)
-        self.assertContains(response, 'Тестовый продавец')
-        self.assertContains(response, 'Продавцы по вашей заявке')
-        self.assertContains(response, 'Заявка отправлена продавцу')
+        self.assertNotContains(response, 'Тестовый продавец')
+        self.assertNotContains(response, 'Продавцы по вашей заявке')
+        self.assertNotContains(response, '>Продавцов<')
+        self.assertContains(response, 'Ожидайте ответы продавцов в WhatsApp')
 
     def test_sent_dispatch_status_label(self):
         url = reverse(
@@ -169,7 +170,7 @@ class BuyerPortalAccessTests(TestCase):
             },
         )
         response = self.client.get(url)
-        self.assertContains(response, 'Заявка отправлена продавцу')
+        self.assertContains(response, 'Ожидайте ответы продавцов в WhatsApp')
         self.assertNotContains(response, '>sent<')
 
     def test_repeat_request_url_contains_form_values(self):
@@ -245,7 +246,8 @@ class BuyerPortalSellerStatusTests(TestCase):
             status='error',
         )
         response = self.client.get(self.page_url)
-        self.assertContains(response, BUYER_STATUS_SENT)
+        self.assertEqual(build_request_sellers(self.request)['items'][0]['status_label'], BUYER_STATUS_SENT)
+        self.assertNotContains(response, BUYER_STATUS_SENT)
         self.assertNotContains(response, 'Ошибка отправки')
 
     def test_failed_dispatch_shows_direct_contact_label(self):
@@ -257,7 +259,8 @@ class BuyerPortalSellerStatusTests(TestCase):
             status='error',
         )
         response = self.client.get(self.page_url)
-        self.assertContains(response, BUYER_STATUS_DIRECT)
+        self.assertEqual(build_request_sellers(self.request)['items'][0]['status_label'], BUYER_STATUS_DIRECT)
+        self.assertNotContains(response, BUYER_STATUS_DIRECT)
         self.assertNotContains(response, 'Ошибка отправки')
         self.assertNotContains(response, 'Ошибка отправки WhatsApp')
 
@@ -278,7 +281,8 @@ class BuyerPortalSellerStatusTests(TestCase):
             message_id='wamid.test-success',
         )
         response = self.client.get(self.page_url)
-        self.assertContains(response, BUYER_STATUS_SENT)
+        self.assertEqual(build_request_sellers(self.request)['items'][0]['status_label'], BUYER_STATUS_SENT)
+        self.assertNotContains(response, BUYER_STATUS_SENT)
         self.assertNotContains(response, 'Ошибка отправки')
 
     def test_public_page_has_no_whatsapp_error_text(self):
@@ -293,7 +297,7 @@ class BuyerPortalSellerStatusTests(TestCase):
         self.assertNotContains(response, 'Ошибка отправки WhatsApp')
         self.assertNotContains(response, 'Ошибка отправки')
 
-    def test_more_than_eight_sellers_shows_show_more_button(self):
+    def test_more_than_eight_sellers_still_hidden(self):
         for index in range(2, 11):
             seller = Seller.objects.create(
                 name=f'Seller {index}',
@@ -315,13 +319,13 @@ class BuyerPortalSellerStatusTests(TestCase):
         self.assertGreater(sellers_data['hidden_count'], 0)
 
         response = self.client.get(self.page_url)
-        self.assertContains(
+        self.assertNotContains(
             response,
             f'Показать ещё {sellers_data["hidden_count"]} продавцов',
         )
         self.assertEqual(
             response.content.count(b'class="seller-card is-hidden"'),
-            sellers_data['hidden_count'],
+            0,
         )
 
     def test_sellers_sorted_sent_before_pending_before_error(self):
