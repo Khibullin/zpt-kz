@@ -25,6 +25,8 @@ from service_requests.models import (
 )
 from service_requests.services.dispatch_policy import get_service_broadcast_mode
 
+from service_requests.services.request_filters import matches_request
+
 logger = logging.getLogger(__name__)
 
 MAX_ATTEMPTS = 3
@@ -49,6 +51,9 @@ def enqueue_service_request_dispatches(req, sellers):
     """
     matched = []
     for position, seller in enumerate(sellers, start=1):
+        seller.refresh_from_db()
+        if not matches_request(seller, req):
+            continue
         ServiceMatch.objects.get_or_create(
             request=req,
             seller=seller,
@@ -69,6 +74,11 @@ def service_request_template_call(req, seller) -> dict:
     services_text = ', '.join(
         req.services.order_by('pk').values_list('name', flat=True)
     ) or '-'
+    from service_requests.filter_views import personal_request_url
+    url = personal_request_url(req, seller)
+    description = req.description
+    if url:
+        description = (description[:120] + ' Откройте заявку, чтобы: 1. Посмотреть подробности и связаться с покупателем. 2. Настроить фильтр получения заявок. ' + url).strip()
     return {
         'to_phone': seller.whatsapp,
         'template_name': os.getenv(
@@ -85,7 +95,7 @@ def service_request_template_call(req, seller) -> dict:
             wa_template_param(req.model),
             wa_template_param(services_text),
             wa_template_param(req.city),
-            wa_template_param(req.description),
+            wa_template_param(description),
             wa_template_param(req.phone),
         ],
     }
@@ -153,6 +163,8 @@ def _process_dispatch(dispatch_id) -> str:
         return 'sent'
     if dispatch.status == ServiceRequestDispatch.STATUS_FAILED:
         return 'failed'
+    if dispatch.status == ServiceRequestDispatch.STATUS_SKIPPED:
+        return 'skipped'
     return 'retried'
 
 
@@ -232,6 +244,8 @@ def _runtime_skip_reason(dispatch) -> str:
         return SKIP_SELLER_PAUSED
     if mode == ServiceBroadcastSettings.MODE_TEST and not seller.is_test_seller:
         return SKIP_NOT_TEST_SELLER
+    if not matches_request(seller, dispatch.request):
+        return 'specialization_mismatch'
     return ''
 
 
@@ -253,6 +267,12 @@ def _deliver_claimed_dispatch(dispatch_id):
         ServiceRequestDispatch.objects.select_related('request', 'seller')
         .get(pk=dispatch_id)
     )
+    skip_reason = _runtime_skip_reason(dispatch)
+    if skip_reason:
+        dispatch.status = ServiceRequestDispatch.STATUS_SKIPPED
+        dispatch.skip_reason = skip_reason
+        dispatch.save(update_fields=['status', 'skip_reason', 'updated_at'])
+        return
     try:
         result = send_whatsapp_template_message(
             **service_request_template_call(dispatch.request, dispatch.seller),

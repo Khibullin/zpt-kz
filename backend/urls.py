@@ -1,3 +1,4 @@
+from service_requests.filter_views import request_filters as service_request_filters, personal_request as service_personal_request
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView, TemplateView
@@ -39,6 +40,9 @@ from catalog.views_zpt_guide import zpt_guide_view
 
 
 urlpatterns = [
+    path('service-request/filters/', service_request_filters, name='service_request_filters'),
+    path('service-request/personal/<str:token>/', service_personal_request, name='service_personal_request'),
+    path('service-request/personal/<str:token>/filters/', service_request_filters, name='service_personal_filters'),
     path('sr/<str:token>/filters/', seller_request_filters, name='seller_request_filters_link'),
     path('request-parts/filters/', seller_request_filters, name='seller_request_filters'),
     path('robots.txt', robots_txt, name='robots_txt'),

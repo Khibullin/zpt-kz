@@ -40,7 +40,7 @@ catalog.categories.forEach(c=>$('category-list').append(checkbox(c.name,categori
 function summary(){
  $('brand-picker').hidden=mode('brands_mode')==='all';$('category-list').hidden=mode('categories_mode')==='all';
  const brands=mode('brands_mode')==='all'?'Все марки и модели':activeBrands().map(b=>{const s=chosen.get(b.id);return b.name+': '+(s.all_models?'все модели':catalog.models.filter(m=>m.brand_id===b.id&&s.model_ids.has(m.id)).map(m=>m.name).join(', ')||'модели не выбраны');}).join('; ')||'Марки не выбраны';
- const cats=mode('categories_mode')==='all'?'Все категории':catalog.categories.filter(c=>categories.has(c.id)).map(c=>c.name).join(', ')||'Категории не выбраны';
+ const cats=mode('categories_mode')==='all'?(catalog.all_label||'Все категории'):catalog.categories.filter(c=>categories.has(c.id)).map(c=>c.name).join(', ')||(catalog.empty_label||'Категории не выбраны');
  $('filter-summary').textContent=[transports().map(t=>t==='car'?'Легковые':'Грузовые').join(', ')||'Тип транспорта не выбран',brands,cats].join(' · ');
 }
 form.querySelectorAll('[name=brands_mode],[name=categories_mode]').forEach(e=>e.addEventListener('change',()=>{renderModels();summary();}));
@@ -48,7 +48,7 @@ $('brand-search').addEventListener('input',renderBrands);
 form.addEventListener('submit',event=>{
  if($('filter-save').disabled){event.preventDefault();return;}
  const data={transport_types:transports(),all_brands:mode('brands_mode')==='all',all_categories:mode('categories_mode')==='all',category_ids:Array.from(categories),brands:activeBrands().map(b=>{const s=chosen.get(b.id);return {id:b.id,all_models:s.all_models,model_ids:Array.from(s.model_ids)};})};
- let error='';if(!data.transport_types.length)error='Выберите тип транспорта.';else if(!data.all_brands&&!data.brands.length)error='Выберите хотя бы одну марку.';else if(!data.all_brands&&data.brands.some(b=>!b.all_models&&!b.model_ids.length))error='Выберите модели или отметьте «Все модели».';else if(!data.all_categories&&!data.category_ids.length)error='Выберите хотя бы одну категорию.';
+ let error='';if(!data.transport_types.length)error='Выберите тип транспорта.';else if(!data.all_brands&&!data.brands.length)error='Выберите хотя бы одну марку.';else if(!data.all_brands&&data.brands.some(b=>!b.all_models&&!b.model_ids.length))error='Выберите модели или отметьте «Все модели».';else if(!data.all_categories&&!data.category_ids.length)error=catalog.error_label||'Выберите хотя бы одну категорию.';
  if(error){event.preventDefault();$('filter-error').textContent=error;$('filter-error').hidden=false;$('filter-error').scrollIntoView({block:'center'});return;}
  $('filter-payload').value=JSON.stringify(data);$('filter-save').disabled=true;$('filter-save').textContent='Сохраняем…';
 });

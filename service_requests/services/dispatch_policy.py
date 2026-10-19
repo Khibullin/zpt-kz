@@ -1,3 +1,5 @@
+from django.db.models import Q
+from service_requests.services.request_filters import matches_request
 from service_requests.models import ServiceBroadcastSettings, ServiceSeller
 
 _KNOWN_MODES = frozenset({
@@ -46,15 +48,15 @@ def select_service_sellers_for_request(req):
         is_paused=False,
         seller_type=req.service_type,
         city=req.city,
-        services__name__in=service_names,
-    )
+    ).filter(Q(request_filters__isnull=False) | Q(services__name__in=service_names))
     if mode == ServiceBroadcastSettings.MODE_TEST:
         sellers = sellers.filter(is_test_seller=True)
 
     sellers = sellers.distinct().order_by('dispatch_priority', 'pk')
+    sellers = [s for s in sellers if matches_request(s, req, service_names)]
     district = (req.district or '').strip()
     if district:
-        district_sellers = list(sellers.filter(district=district))
+        district_sellers = [s for s in sellers if s.district == district]
         if district_sellers:
             return district_sellers
     return list(sellers)

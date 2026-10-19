@@ -283,9 +283,9 @@ class ServiceRequestCityDistrictTests(TestCase):
         self.assertIn("'Алматы'", content)
         self.assertIn("'Астана'", content)
 
-    def test_template_uses_service_result_v5_cache_bust(self):
+    def test_template_uses_service_filters_cache_bust(self):
         response = self.client.get('/service-request/')
-        self.assertContains(response, 'service-request-form-v2.js?v=service_result_v6')
+        self.assertContains(response, 'service-request-form-v2.js?v=filters_20261019')
         self.assertContains(response, 'portal-forms.css?v=service_result_v4')
 
     @patch('service_requests.services.whatsapp_dispatch.send_whatsapp_template_message')

@@ -71,6 +71,8 @@ def _inject_missing_gtm(response):
     configured, inject the same snippets into those responses without touching
     JSON/files/streaming responses or duplicating an existing snippet.
     """
+    if getattr(response, 'disable_analytics', False):
+        return response
     if getattr(response, 'streaming', False):
         return response
     if response.status_code >= 400:

@@ -564,6 +564,10 @@ class TemplateContractTests(WhatsAppDispatchTestCase):
         self.assertEqual(kwargs['template_language'], 'kk')
         self.assertEqual(kwargs['to_phone'], seller.whatsapp)
         texts = [item['text'] for item in kwargs['body_parameters']]
+        self.assertIn('Стук в ходовой', texts[5])
+        self.assertIn('/service-request/personal/', texts[5])
+        self.assertLessEqual(len(texts[5]), 500)
+        texts[5] = 'Стук в ходовой'
         self.assertEqual(texts, [
             str(req.id),
             'Toyota',
