@@ -41,6 +41,7 @@ from catalog.views_zpt_guide import zpt_guide_view
 
 urlpatterns = [
     path('service-request/filters/', service_request_filters, name='service_request_filters'),
+    path('service-request/personal/filters/<str:token>/', service_request_filters, name='service_personal_filters_button'),
     path('service-request/personal/<str:token>/', service_personal_request, name='service_personal_request'),
     path('service-request/personal/<str:token>/filters/', service_request_filters, name='service_personal_filters'),
     path('sr/<str:token>/filters/', seller_request_filters, name='seller_request_filters_link'),
