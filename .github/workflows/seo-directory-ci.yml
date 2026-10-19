@@ -33,7 +33,7 @@ jobs:
     env:
       DEBUG: 'True'
       SECRET_KEY: 'ci-seo-testing-key-only'
-      ALLOWED_HOSTS: 'testserver,localhost,127.0.0.1,zpt.kz'
+      ALLOWED_HOSTS: 'testserver,localhost,127.0.0.1,zpt.kz,zpt-kz-backend.onrender.com'
       DATABASE_URL: 'sqlite:///db-seo-tests.sqlite3'
       EMAIL_BACKEND: 'django.core.mail.backends.locmem.EmailBackend'
     steps:
