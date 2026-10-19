@@ -1,4 +1,4 @@
-{% extends 'catalog/interface/dismantlers/base.html' organization_seo %}{% load static interface_ui dismantler_detail %}
+{% extends 'catalog/interface/dismantlers/base.html' %}{% load static interface_ui dismantler_detail organization_seo %}
 {% block title %}{{ seller.name }} — авторазбор | ZPT.KZ{% endblock %}
 {% block meta_description %}{{ seller.name }}. {{ seller.city }}. {{ seller.directory_description|truncatechars:140 }}{% endblock %}
 {% block extra_head %}{{ block.super }}<script type="application/ld+json">{% organization_json_ld seller 'dismantlers' %}</script>{% endblock %}
