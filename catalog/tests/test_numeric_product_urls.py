@@ -68,8 +68,11 @@ class NumericProductUrlTests(TestCase):
 
     def test_pk_equal_to_article_without_slug_does_not_self_redirect(self):
         product = self.make_product(slug='', article='temporary')
-        product.article = str(product.pk)
-        product.save(update_fields=['article'])
+        # Product.save() generates a slug for new blank-slug records. Simulate
+        # a genuinely legacy blank-slug row through a direct DB update.
+        Product.objects.filter(pk=product.pk).update(slug='', article=str(product.pk))
+        product.refresh_from_db()
+        self.assertEqual(product.slug, '')
 
         with patch('catalog.views.product_detail', return_value=HttpResponse('product')) as detail:
             response = self.client.get(f'/{product.pk}/')
