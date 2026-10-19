@@ -165,7 +165,7 @@ class ProductStructuredDataIntegrationTests(TestCase):
         self.assertContains(response, 'Арт. 4801012010')
         page = response.content.decode('utf-8')
         import re
-        scripts = re.findall(r'<script type="application/ld\\+json">(.*?)</script>', page, re.S)
+        scripts = re.findall(r'<script type="application/ld\+json">(.*?)</script>', page, re.S)
         self.assertEqual(len(scripts), 1)
         data = json.loads(scripts[0])
         self.assertEqual(data['@type'], 'Product')
