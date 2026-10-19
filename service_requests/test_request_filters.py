@@ -117,6 +117,12 @@ class ServiceFilterTests(TestCase):
         self.assertEqual(client.post(expired + 'filters/', {'csrfmiddlewaretoken': csrf, 'filters': json.dumps(self.data)}).status_code, 410)
         self.assertEqual(client.get('/service-request/personal/invalid/filters/').status_code, 404)
         self.seller.is_test_seller = True; self.seller.save()
+        self.assertContains(client.get(self.path), 'Настроить фильтр')
+        self.assertEqual(client.get(url).status_code, 200)
+        self.assertEqual(client.post(url, {'csrfmiddlewaretoken': csrf, 'filters': json.dumps(self.data)}).status_code, 302)
+        self.seller.refresh_from_db()
+        self.assertIsNotNone(self.seller.request_filters)
+        self.seller.is_active = False; self.seller.save()
         self.assertEqual(client.get(url).status_code, 403)
 
     def test_cabinet_requires_owner_and_contact_save_preserves_filters(self):

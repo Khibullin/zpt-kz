@@ -28,7 +28,7 @@ def seller_request_filters(request, token=None):
         if seller is None:
             return redirect('request_parts_cabinet')
         back_url = reverse('request_parts_cabinet')
-    if not seller.is_active or seller.is_test_seller:
+    if not seller.is_active:
         return HttpResponse('Настройка фильтра для этой организации недоступна.', status=403)
     error = ''
     initial = initial_filters(seller)
