@@ -119,6 +119,7 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
     year = str(req.year or '').strip()
     vin = (req.vin or '').strip()
     context.update({
+        'filter_token': bool(access.seller_id and access.seller.is_active and not access.seller.is_test_seller),
         'request_number': str(req.pk),
         'vehicle': vehicle,
         'year': year,

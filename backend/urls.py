@@ -26,6 +26,7 @@ from core.views import (
 )
 from core.public_part_request_views import public_part_request
 from core.seller_request_link_views import seller_request_link
+from core.seller_request_filter_views import seller_request_filters
 
 from service_requests.views import (
     service_request_legacy_result,
@@ -38,6 +39,8 @@ from catalog.views_zpt_guide import zpt_guide_view
 
 
 urlpatterns = [
+    path('sr/<str:token>/filters/', seller_request_filters, name='seller_request_filters_link'),
+    path('request-parts/filters/', seller_request_filters, name='seller_request_filters'),
     path('robots.txt', robots_txt, name='robots_txt'),
     path('internal/editorial/daily/', editorial_daily_trigger, name='editorial_daily_trigger'),
     path('internal/editorial/ai/', editorial_ai_trigger, name='editorial_ai_trigger'),

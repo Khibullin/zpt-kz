@@ -757,8 +757,6 @@ def _base_sellers_queryset(req, *, match_transport: bool = True):
         'is_active': True,
         'is_paused': False,
     }
-    if match_transport and req.transport_type in ('car', 'truck'):
-        filters['transport_type'] = req.transport_type
     if getattr(req, 'is_dismantler_request', False):
         filters['is_dismantler'] = True
     elif req.source == Request.SOURCE_HOME_SHORT:
@@ -766,6 +764,10 @@ def _base_sellers_queryset(req, *, match_transport: bool = True):
         filters['sells_new_parts'] = True
 
     base = Seller.objects.filter(**filters)
+    if match_transport and req.transport_type in ('car', 'truck'):
+        base = base.filter(Q(request_filters__isnull=False) | Q(transport_type=req.transport_type))
+    from core.services.seller_request_filters import filter_queryset
+    base = filter_queryset(base, req)
 
     if settings.emergency_stop:
         return Seller.objects.none()
@@ -800,7 +802,7 @@ def _apply_category_filter(qs, req):
         )
     )
     return qs.filter(
-        Q(all_categories=True) |
+        Q(request_filters__isnull=False) | Q(all_categories=True) |
         Q(category=req.category) |
         selected_category_exists
     )
@@ -817,7 +819,7 @@ def _apply_country_filter(qs, req):
         )
     )
     return qs.filter(
-        Q(all_countries=True) |
+        Q(request_filters__isnull=False) | Q(all_countries=True) |
         Q(country_fk__name=req.country) |
         selected_country_exists
     )
@@ -834,7 +836,7 @@ def _apply_brand_filter(qs, req):
         )
     )
     return qs.filter(
-        Q(all_brands=True) |
+        Q(request_filters__isnull=False) | Q(all_brands=True) |
         Q(brand=req.brand) |
         Q(brand_fk__name=req.brand) |
         selected_brand_exists
@@ -852,7 +854,7 @@ def _apply_model_filter(qs, req):
         )
     )
     return qs.filter(
-        Q(all_brands=True) |
+        Q(request_filters__isnull=False) | Q(all_brands=True) |
         Q(all_models=True) |
         Q(model=req.model) |
         Q(model_fk__name=req.model) |
@@ -1019,6 +1021,8 @@ def _send_dispatch(dispatch):
 
 def _build_dispatch_queue(req, sellers):
     """Create RequestDispatch rows only. Sending is done by dispatch_request_waves."""
+    from core.services.seller_request_filters import matches_request
+    sellers = [seller for seller in sellers if matches_request(seller.request_filters, req)]
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()
@@ -1780,12 +1784,14 @@ def seller_requests(request):
 
 
 def seller_profile(request):
+    from core.services.seller_request_filters import filter_rows
     seller = _get_logged_seller(request)
 
     if not seller:
         return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
 
     return JsonResponse({
+        'request_filter_rows': filter_rows(seller.request_filters),
         'id': seller.id,
         'name': seller.name,
         'whatsapp': seller.whatsapp,
@@ -1857,7 +1863,8 @@ def update_seller_profile(request):
     seller.phone2 = data.get('phone2', seller.phone2)
     seller.city = canonical_city or ''
     seller.market_location = data.get('market_location', seller.market_location)
-    seller.transport_type = data.get('transport_type', seller.transport_type)
+    if seller.request_filters is None:
+        seller.transport_type = data.get('transport_type', seller.transport_type)
 
     # Public directory classification has no effect on request dispatch.
     if 'is_dismantler' in data:
@@ -1870,11 +1877,12 @@ def update_seller_profile(request):
     seller.is_paused = data.get('is_paused', seller.is_paused)
     seller.is_test_seller = data.get('is_test_seller', seller.is_test_seller)
 
-    # Флаги выбора
-    seller.all_categories = data.get('all_categories', seller.all_categories)
-    seller.all_countries = data.get('all_countries', seller.all_countries)
-    seller.all_brands = data.get('all_brands', seller.all_brands)
-    seller.all_models = data.get('all_models', seller.all_models)
+    if seller.request_filters is None:
+        # Флаги выбора
+        seller.all_categories = data.get('all_categories', seller.all_categories)
+        seller.all_countries = data.get('all_countries', seller.all_countries)
+        seller.all_brands = data.get('all_brands', seller.all_brands)
+        seller.all_models = data.get('all_models', seller.all_models)
 
     try:
         if seller.user_id:
@@ -1893,7 +1901,7 @@ def update_seller_profile(request):
     except SellerIdentityError as exc:
         return JsonResponse({'error': exc.message}, status=exc.status)
 
-    seller.save()
+    seller.save(update_fields=['name', 'phone2', 'city', 'market_location', 'transport_type', 'is_dismantler', 'receive_requests', 'is_paused', 'is_test_seller', 'all_categories', 'all_countries', 'all_brands', 'all_models', 'whatsapp'])
 
     # Keep the marketplace profile and owned product city in sync with the
     # request-routing seller. City has one canonical representation platform-wide.
@@ -1906,26 +1914,27 @@ def update_seller_profile(request):
             profile.save(update_fields=['city'])
             Product.objects.filter(seller_profile=profile).update(city=seller.city)
 
-    # Настройки категорий / стран / марок / моделей
-    if seller.all_categories:
-        seller.selected_categories.clear()
-    else:
-        seller.selected_categories.set(data.get('selected_category_ids', []))
+    if seller.request_filters is None and any(key in data for key in ('all_categories', 'all_brands', 'all_models', 'all_countries', 'selected_category_ids', 'selected_brand_ids', 'selected_model_ids', 'selected_country_ids')):
+        # Настройки категорий / стран / марок / моделей
+        if seller.all_categories:
+            seller.selected_categories.clear()
+        else:
+            seller.selected_categories.set(data.get('selected_category_ids', []))
 
-    if seller.all_countries:
-        seller.selected_countries.clear()
-    else:
-        seller.selected_countries.set(data.get('selected_country_ids', []))
+        if seller.all_countries:
+            seller.selected_countries.clear()
+        else:
+            seller.selected_countries.set(data.get('selected_country_ids', []))
 
-    if seller.all_brands:
-        seller.selected_brands.clear()
-    else:
-        seller.selected_brands.set(data.get('selected_brand_ids', []))
+        if seller.all_brands:
+            seller.selected_brands.clear()
+        else:
+            seller.selected_brands.set(data.get('selected_brand_ids', []))
 
-    if seller.all_models:
-        seller.selected_models.clear()
-    else:
-        seller.selected_models.set(data.get('selected_model_ids', []))
+        if seller.all_models:
+            seller.selected_models.clear()
+        else:
+            seller.selected_models.set(data.get('selected_model_ids', []))
 
     return JsonResponse({'status': 'ok'})
 
@@ -2062,7 +2071,7 @@ def parts_sellers_catalog(request, dismantlers_only=False):
         Seller.objects.filter(
             is_active=True,
             is_paused=False,
-            
+
         )
         .exclude(city='')
         .values_list(

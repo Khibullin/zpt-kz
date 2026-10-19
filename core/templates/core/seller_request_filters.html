@@ -1,0 +1,30 @@
+{% extends 'base_portal.html' %}{% load static %}
+{% block title %}Фильтр получения заявок — ZPT.KZ{% endblock %}
+{% block extra_head %}<meta name="referrer" content="no-referrer">{% endblock %}
+{% block portal_css %}<link rel="stylesheet" href="{% static 'css/seller-request-filters.css' %}?v=1">{% endblock %}
+{% block content %}
+<main class="rf-wrap">
+  <a class="rf-back" href="{{ back_url }}">← {% if back_url == '../' %}К заявке{% else %}В кабинет{% endif %}</a>
+  <h1>Настроить фильтр получения заявок</h1>
+  <p class="rf-intro">{{ seller.name }} · {% if seller.is_dismantler and seller.sells_new_parts %}Новые запчасти и авторазбор{% elif seller.is_dismantler %}Авторазбор{% else %}Новые запчасти{% endif %}</p>
+  <p class="rf-intro">Выберите вашу специализацию. Настройки появятся в кабинете и карточке организации.</p>
+  {% if not confirmed %}<p class="rf-note">Вы ещё не настроили специализацию. Проверьте выбранные значения перед сохранением.</p>{% endif %}
+  {% if saved %}<section class="rf-success" role="status"><strong>Настройки сохранены.</strong><p>Заявки будут подбираться с учётом вашей специализации. Кабинет и карточка организации обновлены.</p></section>{% endif %}
+  {% if error %}<p class="rf-error" role="alert">{{ error }}</p>{% endif %}
+  <form id="request-filter-form" method="post">
+    {% csrf_token %}<input type="hidden" name="filters" id="filter-payload">
+    <div class="rf-grid">
+      <section class="rf-card"><h2><span>1</span>Тип транспорта</h2><label><input type="checkbox" name="transport" value="car">Легковые</label><label><input type="checkbox" name="transport" value="truck">Грузовые</label></section>
+      <section class="rf-card"><h2><span>2</span>Марки автомобилей</h2><label><input type="radio" name="brands_mode" value="all">Все марки</label><label><input type="radio" name="brands_mode" value="selected">Выбрать марки</label><div id="brand-picker"><input type="search" id="brand-search" placeholder="Поиск марки" aria-label="Поиск марки"><div id="brand-list" class="rf-options"></div></div></section>
+      <section class="rf-card"><h2><span>3</span>Модели автомобилей</h2><p class="rf-muted">По умолчанию — все модели выбранных марок.</p><div id="model-list"></div></section>
+      <section class="rf-card"><h2><span>4</span>Категории запчастей</h2><label><input type="radio" name="categories_mode" value="all">Все категории</label><label><input type="radio" name="categories_mode" value="selected">Выбрать категории</label><div id="category-list" class="rf-options"></div></section>
+    </div>
+    <section class="rf-summary"><strong>Вы будете получать заявки</strong><p id="filter-summary" aria-live="polite"></p><small>Территория получения заявок остаётся прежней.</small></section>
+    <p id="filter-error" class="rf-error" role="alert" hidden></p>
+    <div class="rf-actions"><button id="filter-save" type="submit">Сохранить настройки</button><a href="{{ back_url }}">Отмена</a></div>
+    <noscript><p>Для настройки фильтра включите JavaScript в браузере.</p></noscript>
+  </form>
+</main>
+{{ filter_data|json_script:'request-filter-data' }}{{ filter_catalog|json_script:'request-filter-catalog' }}
+{% endblock %}
+{% block portal_js %}<script src="{% static 'js/seller-request-filters.js' %}?v=1"></script>{% endblock %}
