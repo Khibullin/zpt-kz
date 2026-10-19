@@ -49,7 +49,9 @@ class ServiceNotificationChainTests(TestCase):
                 self.assertContains(response, 'Написать клиенту в WhatsApp')
                 self.assertContains(response, 'Позвонить клиенту')
                 self.assertContains(response, 'Настроить фильтр получения заявок')
-                self.assertEqual(self.client.get(path + 'filters/').status_code, 200)
+                filter_suffix = call['button_components'][1]['parameters'][0]['text']
+                self.assertEqual(filter_suffix, suffix)
+                self.assertEqual(self.client.get('/service-request/personal/filters/' + filter_suffix).status_code, 200)
                 self.assertNotIn(suffix.rstrip('/'), json.dumps(redact_whatsapp_sensitive_data(call)))
                 self.assertEqual(self.client.get(path + '?seller_id=999').context['req'].pk, self.req.pk)
 
@@ -64,6 +66,8 @@ class ServiceNotificationChainTests(TestCase):
         payload = build_meta_template_payload(self.template)
         buttons = next(c['buttons'] for c in payload['components'] if c['type'] == 'BUTTONS')
         self.assertEqual(buttons[0]['example'], ['https://zpt.kz/service-request/personal/example/'])
+        self.assertEqual(buttons[1]['text'], 'Настроить фильтр')
+        self.assertIn('example', buttons[1])
         self.template.allow_test_campaign = True
         self.assertFalse(template_is_compatible_with_campaign(self.template, purpose='test_campaign'))
         self.assertNotIn('автозапчасть', TEMPLATE_BODY)

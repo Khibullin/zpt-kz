@@ -46,6 +46,8 @@ def build_meta_template_payload_with_examples(template) -> dict:
                 for button in component.get('buttons', []):
                     if button.get('url') == 'https://zpt.kz/service-request/personal/{{1}}':
                         button['example'] = ['https://zpt.kz/service-request/personal/example/']
+                    elif button.get('url') == 'https://zpt.kz/service-request/personal/filters/{{1}}':
+                        button['example'] = ['https://zpt.kz/service-request/personal/filters/example/']
     body_text = str(getattr(template, 'body_text', '') or '')
     examples = _body_examples(template, body_text)
     if not examples:

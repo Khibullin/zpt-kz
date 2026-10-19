@@ -96,6 +96,9 @@ def service_request_template_call(req, seller) -> dict:
             'button_components': [{
                 'type': 'button', 'sub_type': 'url', 'index': '0',
                 'parameters': [wa_template_param(suffix)],
+            }, {
+                'type': 'button', 'sub_type': 'url', 'index': '1',
+                'parameters': [wa_template_param(suffix)],
             }],
         }
     description = req.description
