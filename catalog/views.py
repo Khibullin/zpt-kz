@@ -147,12 +147,16 @@ def _build_home_seo_links():
             url = f'{catalog_url}?q={quote(lookup)}'
         category_links.append({'label': label, 'url': url})
 
+    from core.directory_seo import CITY_PAGE_MIN_ORGANIZATIONS, city_organizations, city_slug
+
     city_links = []
     for name in POPULAR_SEO_CITIES:
-        city_links.append({
-            'label': name,
-            'url': f'{catalog_url}?city={quote(name)}',
-        })
+        slug = city_slug(name)
+        if slug and city_organizations('parts', name).count() >= CITY_PAGE_MIN_ORGANIZATIONS:
+            url = reverse('seo_parts_city', kwargs={'city_slug': slug})
+        else:
+            url = f'{catalog_url}?city={quote(name)}'
+        city_links.append({'label': name, 'url': url})
 
     return {
         'seo_brand_links': brand_links,

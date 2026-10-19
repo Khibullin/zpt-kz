@@ -231,3 +231,33 @@ def product_json_ld(product):
         data['offers'] = offer
 
     return _safe_json_ld(data)
+
+
+
+@register.filter
+def kit_json_ld(kit):
+    """Maintenance kit metadata without a potentially misleading fixed Offer.
+
+    Buyers may remove items, so the total changes with their selection.
+    Vehicle brand is not the brand/manufacturer of this bundle.
+    """
+    url = _absolute_public_url(reverse('maintenance_kit_detail', kwargs={'slug': kit.slug}))
+    data = {
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        '@id': f'{url}#kit',
+        'name': str(kit.name or '').strip(),
+        'url': url,
+        'category': 'Комплект ТО',
+    }
+    if getattr(kit, 'description', ''):
+        data['description'] = str(kit.description).strip()
+    if getattr(kit, 'cover', None):
+        try:
+            data['image'] = [_absolute_public_url(kit.cover.url)]
+        except (AttributeError, ValueError):
+            pass
+    marking = getattr(kit, 'marking', '')
+    if marking:
+        data['sku'] = marking
+    return _safe_json_ld(data)

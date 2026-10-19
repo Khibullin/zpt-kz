@@ -63,9 +63,9 @@ class DirectorySeoExpansionTests(TestCase):
     def test_city_landings_require_real_public_organizations(self):
         cases = {
             '/parts-sellers/almaty/': 'Магазины автозапчастей в Алматы',
-            '/auto-dismantlers/astana/': 'Авторазборы в Астана',
-            '/sto/shymkent/': 'СТО и ремонт автомобилей в Шымкент',
-            '/detailing/taraz/': 'Детейлинг и тюнинг в Тараз',
+            '/auto-dismantlers/astana/': 'Авторазборы в Астане',
+            '/sto/shymkent/': 'СТО и ремонт автомобилей в Шымкенте',
+            '/detailing/taraz/': 'Детейлинг и тюнинг в Таразе',
         }
         for path, heading in cases.items():
             with self.subTest(path=path):

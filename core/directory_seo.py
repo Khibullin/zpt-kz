@@ -40,6 +40,30 @@ SEO_CITY_SLUGS = {
     'zhezkazgan': 'Жезказган',
 }
 
+# Grammatical city forms used only for human-facing copy.
+CITY_PREPOSITIONAL = {
+    'Алматы': 'Алматы',
+    'Астана': 'Астане',
+    'Шымкент': 'Шымкенте',
+    'Актобе': 'Актобе',
+    'Караганда': 'Караганде',
+    'Тараз': 'Таразе',
+    'Атырау': 'Атырау',
+    'Усть-Каменогорск': 'Усть-Каменогорске',
+    'Павлодар': 'Павлодаре',
+    'Семей': 'Семее',
+    'Кызылорда': 'Кызылорде',
+    'Костанай': 'Костанае',
+    'Актау': 'Актау',
+    'Уральск': 'Уральске',
+    'Петропавловск': 'Петропавловске',
+    'Туркестан': 'Туркестане',
+    'Кокшетау': 'Кокшетау',
+    'Талдыкорган': 'Талдыкоргане',
+    'Конаев': 'Конаеве',
+    'Жезказган': 'Жезказгане',
+}
+
 CITY_PAGE_MIN_ORGANIZATIONS = 3
 CITY_PAGE_PROFILE_LIMIT = 30
 
@@ -124,8 +148,9 @@ def city_directory(request, city_slug, kind):
         raise Http404('Not enough published organizations for an SEO landing')
 
     label = CITY_LABELS[kind]
+    city_in = CITY_PREPOSITIONAL[city]
     description = (
-        f'{label} в городе {city}: адреса и контакты опубликованных организаций '
+        f'{label} в {city_in}: адреса и контакты опубликованных организаций '
         'на ZPT.KZ. Откройте профиль для связи и уточнения доступности услуг или запчастей.'
     )
 
@@ -141,9 +166,9 @@ def city_directory(request, city_slug, kind):
         filters['type'] = kind
 
     return render(request, 'catalog/seo_city_directory.html', {
-        'page_title': f'{label} в {city} — адреса и контакты | ZPT.KZ',
+        'page_title': f'{label} в {city_in} — адреса и контакты | ZPT.KZ',
         'page_description': description,
-        'page_heading': f'{label} в {city}',
+        'page_heading': f'{label} в {city_in}',
         'page_intro': (
             f'В каталоге ZPT.KZ представлены организации города {city}. '
             'Выберите профиль, проверьте адрес и свяжитесь напрямую.'

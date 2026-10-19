@@ -1,4 +1,4 @@
-{% load static phone_extras %}
+{% load static phone_extras organization_seo %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
 <title>{{ seller.name }} | Каталог услуг ZPT.KZ</title>
+<meta name="robots" content="{{ seo_robots }}">
+<link rel="canonical" href="{{ seo_canonical_url }}">
+<meta name="description" content="{{ seller.name }} — {{ seller.city }}. Контакты и сведения об услугах на ZPT.KZ.">
+<script type="application/ld+json">{% organization_json_ld seller seller.seller_type %}</script>
 
 <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=1">
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=1">

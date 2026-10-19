@@ -3,6 +3,7 @@
 
 {% block title %}{{ page_title }}{% endblock %}
 {% block meta_description %}{{ page_description }}{% endblock %}
+{% block extra_head %}{{ block.super }}<script type="application/ld+json">{{ kit|kit_json_ld }}</script>{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/portal-common.css' %}?v=market_v111">

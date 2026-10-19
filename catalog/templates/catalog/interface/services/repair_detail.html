@@ -1,6 +1,7 @@
-{% extends 'catalog/interface/dismantlers/base.html' %}{% load static interface_ui %}
+{% extends 'catalog/interface/dismantlers/base.html' organization_seo %}{% load static interface_ui %}
 {% block title %}{{ seller.name }} — {{ directory_title }} | ZPT.KZ{% endblock %}
 {% block meta_description %}{{ seller.name }}. {{ seller.city }}. {{ card.description|truncatechars:140 }}{% endblock %}
+{% block extra_head %}{{ block.super }}<script type="application/ld+json">{% organization_json_ld seller directory_kind %}</script>{% endblock %}
 {% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/dismantler-detail.css' %}?v=20261018a">{% endblock %}
 {% block interface_content %}
 <div class="org-detail">
