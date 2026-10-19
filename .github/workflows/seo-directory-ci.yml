@@ -55,6 +55,8 @@ jobs:
             core.tests.test_seo_directory_expansion \
             core.tests.test_seo_seller_filters \
             catalog.tests.test_product_structured_data \
+            catalog.tests.test_public_product_urls \
+            catalog.tests.test_numeric_product_urls \
             catalog.tests.test_product_meta_description \
             catalog.tests.test_seo_brand_landings \
             catalog.tests.test_seo_demand_category_landings \

@@ -127,6 +127,12 @@ class ProductStructuredDataIntegrationTests(TestCase):
             article='HU71151X',
             **common,
         )
+        cls.fitment_product = Product.objects.create(
+            title='Масляный фильтр Chery Tiggo 7',
+            slug='changan-cs55',
+            article='4801012010',
+            **common,
+        )
 
     def test_product_article_in_h1_and_image_alt_without_duplication(self):
         response = self.client.get('/structured-data-public-product/')
@@ -149,6 +155,23 @@ class ProductStructuredDataIntegrationTests(TestCase):
         self.assertContains(response, '<script type="application/ld+json">')
         self.assertContains(response, 'Structured Data Legacy Product')
         self.assertContains(response, 'https://zpt.kz/peugeot-308-hu71151x/')
+
+    def test_fitment_alias_page_emits_product_json_ld_and_product_meta(self):
+        response = self.client.get('/masljanyi-filtr-4801012010/')
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<meta property="og:type" content="product">', html=True)
+        self.assertContains(response, '<script type="application/ld+json">')
+        self.assertContains(response, '<meta name="description"')
+        self.assertContains(response, 'Арт. 4801012010')
+        page = response.content.decode('utf-8')
+        import re
+        scripts = re.findall(r'<script type="application/ld\+json">(.*?)</script>', page, re.S)
+        self.assertEqual(len(scripts), 1)
+        data = json.loads(scripts[0])
+        self.assertEqual(data['@type'], 'Product')
+        self.assertEqual(data['url'], 'https://zpt.kz/masljanyi-filtr-4801012010/')
+        self.assertEqual(data['sku'], '4801012010')
+        self.assertNotIn('brand', data)  # car make is not component manufacturer
 
     def test_home_page_does_not_emit_product_json_ld(self):
         response = self.client.get('/')

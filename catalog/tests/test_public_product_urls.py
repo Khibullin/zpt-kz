@@ -17,6 +17,13 @@ class PublicProductUrlTests(SimpleTestCase):
             '/peugeot-308-hu71151x/',
         )
 
+    def test_fitment_slug_uses_canonical_article_page(self):
+        product = SimpleNamespace(slug='changan-cs55', pk=314)
+        self.assertEqual(
+            public_product_url(product),
+            '/masljanyi-filtr-4801012010/',
+        )
+
     def test_regular_slug_is_unchanged(self):
         product = SimpleNamespace(slug='ordinary-product', pk=1)
 

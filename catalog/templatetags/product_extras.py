@@ -74,11 +74,11 @@ def public_card_fitment(product):
 @register.filter
 def public_product_url(product):
     """Return the public canonical path for a product without a legacy redirect hop."""
-    from catalog.legacy_product_urls import LEGACY_PRODUCT_SLUG_REDIRECTS
+    from catalog.fitment_slug_redirects import public_product_slug
 
     slug = (getattr(product, 'slug', '') or '').strip()
     if slug:
-        public_slug = LEGACY_PRODUCT_SLUG_REDIRECTS.get(slug, slug)
+        public_slug = public_product_slug(slug)
         return reverse('product_detail', kwargs={'slug': public_slug})
     return reverse('product_detail_old', kwargs={'pk': product.pk})
 
@@ -105,6 +105,7 @@ def is_public_product_detail_request(request):
         'product_detail',
         'canonical_product_alias',
         'numeric_product_entry',
+        'fitment_canonical_alias',
     }
 
 
