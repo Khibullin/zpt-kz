@@ -38,6 +38,14 @@ def build_meta_template_payload_with_examples(template) -> dict:
     remain byte-for-byte equivalent apart from normal dict identity.
     """
     payload = _ORIGINAL_BUILD_META_TEMPLATE_PAYLOAD(template)
+    # Meta requires an example for the personal URL button. This is a non-live
+    # sample, not an actual customer link or an authorization token.
+    if getattr(template, 'meta_template_name', '') == 'zpt_service_request_notification_v1':
+        for component in payload.get('components', []):
+            if component.get('type') == 'BUTTONS':
+                for button in component.get('buttons', []):
+                    if button.get('url') == 'https://zpt.kz/service-request/personal/{{1}}':
+                        button['example'] = ['https://zpt.kz/service-request/personal/example/']
     body_text = str(getattr(template, 'body_text', '') or '')
     examples = _body_examples(template, body_text)
     if not examples:

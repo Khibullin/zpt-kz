@@ -30,7 +30,8 @@ def template_is_compatible_with_campaign(
     *,
     purpose: str,
 ) -> bool:
-    if is_reserved_service_template_name(template.meta_template_name):
+    if (template.meta_template_name == 'zpt_service_request_notification_v1'
+            or is_reserved_service_template_name(template.meta_template_name)):
         return False
     return template_is_selectable(template) and template_allows_purpose(template, purpose)
 

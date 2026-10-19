@@ -12,6 +12,7 @@ from core.models import Brand, CarModel
 from core.phone_utils import build_whatsapp_url, normalize_phone_for_whatsapp
 from .models import ServiceMatch
 from .services.service_seller_identity import get_current_service_seller, ServiceSellerAccessDenied
+from .services.notification_template import SERVICE_LABELS
 from .services.request_filters import initial_filters, save_filters, service_options
 
 SALT = 'service-request-owner-link-v1'
@@ -57,7 +58,8 @@ def personal_request(request, token):
     req = match.request
     phone = normalize_phone_for_whatsapp(req.phone)
     return private_response(render(request, 'service-request/personal_request.html', {
-        'req': req, 'services': req.services.all(),
+        'req': req, 'service_type_label': SERVICE_LABELS.get(req.service_type, 'Автосервис'),
+        'services': req.services.all(),
         'whatsapp_url': build_whatsapp_url(req.phone), 'phone': '+' + phone if phone else '',
     }))
 
