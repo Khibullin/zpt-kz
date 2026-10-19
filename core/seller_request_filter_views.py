@@ -53,5 +53,6 @@ def seller_request_filters(request, token=None):
             'categories': list(PartCategory.objects.order_by('name').values('id', 'name')),
         },
     }, status=400 if error else 200)
+    response.disable_analytics = True
     response['Referrer-Policy'] = 'no-referrer'
     return response

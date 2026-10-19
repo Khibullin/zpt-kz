@@ -16,6 +16,9 @@ def service_card(seller):
     for label, value in [('Марки', seller.directory_brands), ('Тип транспорта', seller.directory_transport), ('Обслуживание', seller.directory_powertrain)]:
         if clean_value(value):
             specializations.append({'label': label, 'value': clean_value(value)})
+    if seller.request_filters is not None:
+        from .services.request_filters import filter_rows
+        specializations = filter_rows(seller.request_filters) + [r for r in specializations if r['label'] == 'Обслуживание']
     if seller.directory_mobile_service is True:
         specializations.append({'label': 'Выездной ремонт', 'value': 'Есть'})
     return {

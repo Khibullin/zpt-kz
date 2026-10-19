@@ -193,6 +193,7 @@ function initServiceRequestForm(){
 
     const payload = {
       service_type: serviceType,
+      transport_type: document.getElementById('transportType').value,
 
       brand: brandEl.value.trim(),
       model: modelEl.value.trim(),

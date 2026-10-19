@@ -50,6 +50,7 @@ def _redact_string(text: str) -> str:
     result = _BEARER_PATTERN.sub(f'Bearer {_REDACTED}', result)
     result = _ACCESS_TOKEN_QUERY_PATTERN.sub(f'access_token={_REDACTED}', result)
     result = _META_TOKEN_LIKE_PATTERN.sub(_REDACTED, result)
+    result = re.sub(r'(/service-request/personal/)[^/\s\"\']+', r'\1[REDACTED]', result)
     return result
 
 

@@ -26,17 +26,17 @@
   <link rel="stylesheet" href="{% static 'css/portal-common.css' %}">
   {% block portal_css %}{% endblock %}
   {% block extra_css %}{% endblock %}
-  {% if 'home_request' not in request.GET %}
+  {% block analytics_head %}{% if 'home_request' not in request.GET %}
   {% google_tag_manager_head %}
-  {% endif %}
+  {% endif %}{% endblock %}
 </head>
 <body
   data-api-base="/api/"
   data-service-api-base="/api/service/"
 >
-  {% if 'home_request' not in request.GET %}
+  {% block analytics_body %}{% if 'home_request' not in request.GET %}
   {% google_tag_manager_body %}
-  {% endif %}
+  {% endif %}{% endblock %}
   {% block portal_header %}
   <header class="header site-header">
     <div class="header-inner site-container">
@@ -58,7 +58,7 @@
   <script src="{% static 'js/dom-safe.js' %}"></script>
   <script src="{% static 'js/portal-config.js' %}"></script>
   {% block portal_js %}{% endblock %}
-  <script src="{% static 'js/analytics-events.js' %}?v=1"></script>
+  {% block analytics_events %}<script src="{% static 'js/analytics-events.js' %}?v=1"></script>{% endblock %}
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js', { scope: '/' });

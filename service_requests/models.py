@@ -68,6 +68,8 @@ class Service(models.Model):
 # ================================
 
 class ServiceSeller(models.Model):
+    request_filters = models.JSONField(null=True, blank=True, default=None)
+    request_filters_updated_at = models.DateTimeField(null=True, blank=True)
     directory_brands = models.CharField(max_length=500, blank=True, verbose_name='Марки автомобилей для каталога')
     directory_transport = models.CharField(max_length=300, blank=True, verbose_name='Типы транспорта для каталога')
     directory_powertrain = models.CharField(max_length=300, blank=True, verbose_name='Электромобили и гибриды: подтверждённое обслуживание')
@@ -181,6 +183,7 @@ class ServiceRequest(models.Model):
         ('detailing', 'Детейлинг'),
     ]
 
+    transport_type = models.CharField(max_length=10, choices=[('car', 'Легковые'), ('truck', 'Грузовые')], default='car')
     service_type = models.CharField(max_length=20, choices=REQUEST_TYPES)
 
     brand = models.CharField(max_length=100, blank=True)

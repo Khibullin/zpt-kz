@@ -203,8 +203,12 @@ def create_service_request(request):
     except ValueError as exc:
         return JsonResponse({'error': str(exc)}, status=400)
 
+    transport = data.get('transport_type', 'car')
+    if transport not in ('car', 'truck'):
+        return JsonResponse({'error': 'Выберите тип транспорта.'}, status=400)
     with transaction.atomic():
         req = ServiceRequest.objects.create(
+            transport_type=transport,
             service_type=data.get("service_type", "sto"),
             brand=data.get("brand", "").strip(),
             model=data.get("model", "").strip(),
@@ -258,7 +262,10 @@ def _service_request_item(match):
 
 
 def _service_seller_profile_payload(seller):
+    from .services.request_filters import filter_rows
     return {
+        'request_filter_rows': filter_rows(seller.request_filters),
+        'request_filters_confirmed': seller.request_filters is not None,
         "id": seller.id,
         "name": seller.name,
         "whatsapp": seller.whatsapp,
@@ -338,15 +345,18 @@ def update_service_seller_profile(request):
 
     with transaction.atomic():
         seller = ServiceSeller.objects.select_for_update().get(pk=seller.pk)
+        if seller.request_filters is not None:
+            fields.pop('seller_type', None)
         for field, value in fields.items():
             setattr(seller, field, value)
         if new_password:
             seller.password = ''
         seller.save()
-        seller.services.clear()
-        for name in service_names:
-            service, _ = Service.objects.get_or_create(name=name)
-            seller.services.add(service)
+        if seller.request_filters is None:
+            seller.services.clear()
+            for name in service_names:
+                service, _ = Service.objects.get_or_create(name=name)
+                seller.services.add(service)
         if new_password:
             request.user.set_password(new_password)
             request.user.save(update_fields=['password'])
