@@ -50,7 +50,7 @@ jobs:
         run: python manage.py makemigrations --check --dry-run
       - name: Public SEO regression suite
         run: |
-          python manage.py test \
+          python manage.py test --settings backend.settings_ui_ci \
             core.tests.test_seo_readiness \
             core.tests.test_seo_directory_expansion \
             core.tests.test_seo_seller_filters \
