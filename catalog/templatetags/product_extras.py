@@ -235,7 +235,7 @@ def product_json_ld(product):
 
 
 @register.filter
-def kit_json_ld(kit):
+def kit_json_ld(kit, view=None):
     """Maintenance kit metadata without a potentially misleading fixed Offer.
 
     Buyers may remove items, so the total changes with their selection.
@@ -252,11 +252,11 @@ def kit_json_ld(kit):
     }
     if getattr(kit, 'description', ''):
         data['description'] = str(kit.description).strip()
-    if getattr(kit, 'cover', None):
-        try:
-            data['image'] = [_absolute_public_url(kit.cover.url)]
-        except (AttributeError, ValueError):
-            pass
+    # The approved kit UI may render a verified collage rather than the raw
+    # uploaded cover. Only describe the exact image actually shown to buyers.
+    visible_cover_url = str(getattr(view, 'cover_image_url', '') or '').strip()
+    if visible_cover_url:
+        data['image'] = [_absolute_public_url(visible_cover_url)]
     marking = getattr(kit, 'marking', '')
     if marking:
         data['sku'] = marking

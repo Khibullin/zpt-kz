@@ -63,7 +63,11 @@ jobs:
             core.tests.test_astana_directory_publication \
             catalog.tests.test_parts_directory_design \
             catalog.tests.test_directory_public_details \
-            catalog.tests.test_maintenance_kits \
+            catalog.tests.test_maintenance_kits.MaintenanceKitModelTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitPricingStockTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitCartTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitMissingCarTests \
+            catalog.tests.test_maintenance_kits.MaintenanceKitSeedTests \
             catalog.tests.test_maintenance_kit_picker \
             catalog.tests.test_maintenance_kit_covers \
             catalog.tests.test_home_kits_entry \
@@ -73,3 +77,23 @@ jobs:
             catalog.tests.test_legacy_product_slug_redirects \
             service_requests.test_repair_directory \
             -v 2
+
+
+  migration-compatibility:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'seo-migration-ci-testing-only'
+      ALLOWED_HOSTS: 'testserver,localhost,127.0.0.1,zpt.kz'
+      DATABASE_URL: 'sqlite:///db-seo-migrations.sqlite3'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install project requirements
+        run: pip install -r requirements.txt
+      - name: Verify historical migration on a real disposable migration schema
+        run: python manage.py test catalog.tests.test_maintenance_kits.MaintenanceKitCarRequestMigrationTests -v 2

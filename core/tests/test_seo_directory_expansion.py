@@ -6,7 +6,10 @@ from django.db import connection
 from django.test import TestCase
 from django.test.utils import CaptureQueriesContext
 
+from types import SimpleNamespace
+
 from catalog.models import Brand, CarModel, Country, MaintenanceKit
+from catalog.templatetags.product_extras import kit_json_ld
 from core.models import Seller
 from service_requests.models import ServiceSeller
 
@@ -130,6 +133,24 @@ class DirectorySeoExpansionTests(TestCase):
         content = self.client.get('/sitemap-kits.xml').content.decode()
         self.assertIn('/maintenance-kits/seo-published-kit/', content)
         self.assertNotIn('/maintenance-kits/seo-hidden-kit/', content)
+
+    def test_kit_schema_uses_visible_cover_not_stored_hidden_image(self):
+        kit = SimpleNamespace(
+            slug='seo-bundle', name='Комплект ТО', description='',
+            marking='TO-012/4',
+            cover=SimpleNamespace(url='/products/maintenance_kits/uploaded.jpg'),
+        )
+        hidden = json.loads(str(kit_json_ld(kit, SimpleNamespace(cover_image_url=''))))
+        self.assertNotIn('image', hidden)
+
+        collage = json.loads(str(kit_json_ld(
+            kit, SimpleNamespace(cover_image_url='/static/images/kits/verified-collage.jpg'),
+        )))
+        self.assertEqual(
+            collage['image'],
+            ['https://zpt.kz/static/images/kits/verified-collage.jpg'],
+        )
+        self.assertNotIn('uploaded.jpg', json.dumps(collage))
 
     def test_structured_data_uses_public_company_fields_only(self):
         company = self.parts[0]

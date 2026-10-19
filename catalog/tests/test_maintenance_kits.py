@@ -395,7 +395,9 @@ class MaintenanceKitCartTests(TestCase):
             reverse('maintenance_kit_detail', kwargs={'slug': self.kit.slug})
         )
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Наличие уточняется')
+        # The approved three-state stock language uses "Можно заказать"
+        # for orderable products with an unknown numerical balance.
+        self.assertContains(response, 'Можно заказать')
         self.assertContains(response, self.spark.article)
         self.assertContains(response, 'Добавить выбранное в корзину')
         self.assertContains(response, 'Свеча зажигания — SPK-C')
@@ -1148,7 +1150,16 @@ class MaintenanceKitSeedTests(TestCase):
         html = response.content.decode('utf-8')
         self.assertIn('OEM неизвестен', html)
         self.assertIn('Справочно', html)
-        self.assertNotIn('Купить', html.split('Справочно', 1)[1])
+        # The column header contains "Купить на Kaspi"; reference rows
+        # themselves must not contain links, buy buttons, or cart inputs.
+        reference_rows = [
+            segment.split('</tr>', 1)[0]
+            for segment in html.split('<tr class="kit-line kit-line--reference">')[1:]
+        ]
+        self.assertEqual(len(reference_rows), 2)
+        for row in reference_rows:
+            self.assertNotIn('<a ', row)
+            self.assertNotIn('name="item"', row)
         post = self.client.post(
             '/maintenance-kits/nabor-to-changan-uni-v-15/add-to-cart/',
             data={'item': [str(air.id)]},

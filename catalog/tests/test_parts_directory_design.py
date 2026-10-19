@@ -49,7 +49,10 @@ class PartsDirectoryDesignTests(TestCase):
         self.assertTemplateUsed(page,'catalog/interface/parts_sellers/detail.html')
         for text in ['tel:+77012223344','wa.me/77012223344','09:00–18:00','Построить маршрут','Публичное описание']:
             self.assertContains(page,text)
-        self.assertContains(page,'Адрес магазина, 1',count=1)
+        # JSON-LD legitimately repeats the public street address in <head>.
+        # The visible organization card must still display it exactly once.
+        visible_card = page.content.decode('utf-8').split('<div class="org-detail">', 1)[1]
+        self.assertEqual(visible_card.count('Адрес магазина, 1'), 1)
         self.assertNotContains(page,'PRIVATE INTERNAL NOTE')
         page=self.client.get(f'/parts-seller/{self.mixed.pk}/?directory=parts')
         self.assertTemplateUsed(page,'catalog/interface/parts_sellers/detail.html')
