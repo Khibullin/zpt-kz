@@ -1328,7 +1328,8 @@ def create_request(request):
             'id': req.id,
             'matches': len(matched),
             'strategy': strategy,
-            'message': 'Ваша заявка принята! Мы передадим её подходящим продавцам. Если понадобятся уточнения, свяжемся с вами.',
+            'message': ('Ваша заявка принята! Мы передадим её подходящим продавцам. Если понадобятся уточнения, свяжемся с вами.'
+                        if settings.MANUAL_REQUEST_PROCESSING else 'Заявка поставлена в очередь согласно настройкам рассылки'),
             'photo_view_url': request_page_url(req),
             'request_page_url': request_page_url(req),
             'history_url': buyer_history_url(req),
