@@ -42,11 +42,16 @@ def resolve_match(token):
     return match, None
 
 
-def private_response(response):
+def private_response(response, *, referrer_policy='no-referrer'):
     response.disable_analytics = True
-    response['Referrer-Policy'] = 'no-referrer'
+    response['Referrer-Policy'] = referrer_policy
     response['X-Robots-Tag'] = 'noindex, nofollow'
     return response
+
+
+def filter_form_response(response):
+    """Same-origin Referer is required for the HTTPS CSRF check on this form."""
+    return private_response(response, referrer_policy='same-origin')
 
 
 @never_cache
@@ -93,9 +98,9 @@ def request_filters(request, token=None):
         except (ValueError, TypeError) as exc:
             error = str(exc) if isinstance(exc, ValueError) and not isinstance(exc, json.JSONDecodeError) else 'Проверьте настройки.'
         else:
-            return private_response(HttpResponseRedirect('?saved=1'))
+            return filter_form_response(HttpResponseRedirect('?saved=1'))
     sto = seller.seller_type == 'sto'
-    return private_response(render(request, 'core/seller_request_filters.html', {
+    return filter_form_response(render(request, 'core/seller_request_filters.html', {
         'seller': seller, 'back_url': back_url, 'error': error,
         'saved': request.GET.get('saved') == '1' and seller.request_filters is not None,
         'confirmed': seller.request_filters is not None,
