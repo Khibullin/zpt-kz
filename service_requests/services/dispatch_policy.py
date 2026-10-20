@@ -31,6 +31,10 @@ def select_service_sellers_for_request(req):
     District matches are preferred. An ineligible district seller does not
     block the city fallback.
     """
+    from core.services.manual_request_processing import manual_processing_enabled
+    from core.models import BroadcastSettings
+    if manual_processing_enabled() or BroadcastSettings.load().emergency_stop:
+        return []
     mode = get_service_broadcast_mode()
     if mode not in (
         ServiceBroadcastSettings.MODE_TEST,

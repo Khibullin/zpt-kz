@@ -253,7 +253,7 @@
       </span>
     </div>
 
-    {% if sellers_count %}<p>Ваша заявка принята. Ожидайте ответы продавцов в WhatsApp.</p>{% endif %}
+    {% if manual_processing %}<p>Ваша заявка принята! Мы передадим её подходящим продавцам. Если понадобятся уточнения, свяжемся с вами.</p>{% elif sellers_count %}<p>Ваша заявка принята. Ожидайте ответы продавцов в WhatsApp.</p>{% endif %}
 
     <div class="details-grid">
       <div class="detail-item">

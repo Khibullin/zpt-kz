@@ -214,6 +214,10 @@ REQUEST_OWNER_EMAIL = os.getenv('REQUEST_OWNER_EMAIL', ORDER_ADMIN_EMAIL or EMAI
 REQUEST_OWNER_EMAIL_ENABLED = os.getenv('REQUEST_OWNER_EMAIL_ENABLED', 'True').lower() in ('true', '1', 'yes')
 EMAIL_TIMEOUT = 10
 
+# Owner-approved temporary mode while awaiting Meta approval. Explicitly disable
+# only after approval; this does not enable or change existing broadcast controls.
+MANUAL_REQUEST_PROCESSING = os.getenv('MANUAL_REQUEST_PROCESSING', 'True').lower() in ('true', '1', 'yes')
+
 # WhatsApp / Meta API
 
 WHATSAPP_TOKEN = (

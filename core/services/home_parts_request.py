@@ -384,6 +384,9 @@ _BROADCAST_PROMISED_STATUSES = {
 
 
 def broadcast_promised(*, statuses=None, queued: bool = False) -> bool:
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return False
     values = {str(item) for item in (statuses or []) if item}
     return bool(queued or values & _BROADCAST_PROMISED_STATUSES)
 
@@ -486,6 +489,9 @@ def _replay_or_conflict(
 
 
 def broadcast_can_queue() -> tuple[bool, str]:
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return False, 'manual_request_processing'
     settings = BroadcastSettings.load()
     if settings.emergency_stop:
         return False, 'emergency_stop'

@@ -86,6 +86,14 @@ def send_whatsapp_template_message(
     # not only the seller wave worker. Read it afresh for every send.
     from core.models import BroadcastSettings
 
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return {
+            'ok': False, 'status_code': None,
+            'error_code': 'manual_request_processing',
+            'error': 'Automatic WhatsApp sending is paused for manual processing',
+            'message_id': '',
+        }
     if BroadcastSettings.load().emergency_stop:
         return {
             'ok': False,

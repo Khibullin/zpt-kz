@@ -279,6 +279,9 @@ def _send_buyer_whatsapp_notification(req, sellers_count):
 
 
 def _send_buyer_whatsapp_notification_async(req, sellers_count):
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return
     request_id = req.id
     buyer_phone = req.phone
 
@@ -751,6 +754,9 @@ def part_categories_list(request):
 
 
 def _base_sellers_queryset(req, *, match_transport: bool = True):
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return Seller.objects.none()
     settings = BroadcastSettings.load()
 
     filters = {
@@ -1045,6 +1051,9 @@ def _send_dispatch(dispatch):
 
 def _build_dispatch_queue(req, sellers):
     """Create RequestDispatch rows only. Sending is done by dispatch_request_waves."""
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return []
     from core.services.seller_request_filters import matches_request
     from core.services.test_receivers import test_receiver_decision
     sellers = [seller for seller in sellers if test_receiver_decision(seller, req) is True or
@@ -1319,7 +1328,7 @@ def create_request(request):
             'id': req.id,
             'matches': len(matched),
             'strategy': strategy,
-            'message': 'Заявка поставлена в очередь согласно настройкам рассылки',
+            'message': 'Ваша заявка принята! Мы передадим её подходящим продавцам. Если понадобятся уточнения, свяжемся с вами.',
             'photo_view_url': request_page_url(req),
             'request_page_url': request_page_url(req),
             'history_url': buyer_history_url(req),
@@ -1540,7 +1549,8 @@ def _render_request_status(request, req):
         'req': req,
         'photos': photos,
         'photos_count': len(photos),
-        'status_label': REQUEST_STATUS_LABELS.get(req.status, req.status),
+        'manual_processing': settings.MANUAL_REQUEST_PROCESSING,
+        'status_label': ('Принята в обработку' if settings.MANUAL_REQUEST_PROCESSING and req.status in ('new', 'no_sellers') else REQUEST_STATUS_LABELS.get(req.status, req.status)),
         'sellers_visible': sellers_data['visible'],
         'sellers_hidden': sellers_data['hidden'],
         'sellers_hidden_count': sellers_data['hidden_count'],
@@ -1578,7 +1588,7 @@ def view_buyer_request_history(request, access_token):
             'request': item,
             'open_url': request_page_url(item),
             'repeat_url': repeat_request_url(item),
-            'status_label': REQUEST_STATUS_LABELS.get(item.status, item.status),
+            'status_label': ('Принята в обработку' if settings.MANUAL_REQUEST_PROCESSING and item.status in ('new', 'no_sellers') else REQUEST_STATUS_LABELS.get(item.status, item.status)),
         })
 
     return render(request, 'buyer_request_history.html', {

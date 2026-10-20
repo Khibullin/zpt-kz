@@ -192,7 +192,10 @@ body{
 
     <div class="success">
 
-      {% if sellers_count %}
+      {% if confirmation_message %}
+      <b>✅ Заявка №{{ req.id }} принята.</b><br><br>
+      {{ confirmation_message }}
+      {% elif sellers_count %}
       <b>
         ✅ Заявка №{{ req.id }} принята.
       </b>

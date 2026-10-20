@@ -70,6 +70,9 @@ def resolve_whatsapp_status(
 
 
 def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return 'manual_request_processing'
     if settings.emergency_stop:
         return 'emergency_stop'
     if settings.mode == BroadcastSettings.MODE_OFF:

@@ -49,6 +49,10 @@ def enqueue_service_request_dispatches(req, sellers):
 
     Repeated calls keep the existing row for the same request and seller.
     """
+    from core.services.manual_request_processing import manual_processing_enabled
+    from core.models import BroadcastSettings
+    if manual_processing_enabled() or BroadcastSettings.load().emergency_stop:
+        return []
     matched = []
     for position, seller in enumerate(sellers, start=1):
         seller.refresh_from_db()
@@ -127,6 +131,10 @@ def service_request_template_call(req, seller) -> dict:
 
 
 def process_due_service_request_dispatches(*, writer=None, batch_size=BATCH_SIZE) -> dict:
+    from core.services.manual_request_processing import manual_processing_enabled
+    from core.models import BroadcastSettings
+    if manual_processing_enabled() or BroadcastSettings.load().emergency_stop:
+        return dict(recovered=0, sent=0, retried=0, failed=0, skipped=0, reconciled=0)
     now = timezone.now()
     recovered = _recover_stale_processing(now)
     due_ids = list(

@@ -388,9 +388,9 @@ if(
       return;
     }
     window.ZPTRequestAccepted(requestForm, {
-      message: data.matches > 0
+      message: data.message || (data.matches > 0
         ? 'Ответы продавцов поступят в WhatsApp на указанный номер.'
-        : 'В выбранной территории подходящие продавцы пока не найдены. Ваша заявка сохранена.',
+        : 'Ваша заявка принята. Мы передадим её подходящим продавцам.'),
       url: data.request_page_url || data.photo_view_url,
     });
   }catch(err){setMessage('Ошибка отправки заявки. Попробуйте ещё раз.','error')}
