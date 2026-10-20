@@ -68,7 +68,14 @@ def build_service_request_success_payload(
     sellers_count = len(sellers)
     services_names = list(req.services.values_list('name', flat=True))
 
-    if sellers_count > 0:
+    from core.services.manual_request_processing import manual_processing_enabled, SERVICE_ACCEPTED_MESSAGE
+    if manual_processing_enabled():
+        title = '✅ Заявка принята.'
+        message = SERVICE_ACCEPTED_MESSAGE
+        timing_hint = ''
+        catalog_hint = 'Вы также можете самостоятельно посмотреть каталог исполнителей.'
+        result_button_label = 'Открыть страницу заявки'
+    elif sellers_count > 0:
         title = '✅ Заявка принята.'
         message = (
             'Ожидайте ответы исполнителей в WhatsApp на указанный номер.'
@@ -473,6 +480,7 @@ def service_request_result(request, request_id, access_token):
             'sellers': sellers,
             'service_type_label': service_type_label,
             'sellers_count': len(sellers),
+            'confirmation_message': build_service_request_success_payload(req, sellers)['message'],
         }
     )
     return _service_result_privacy(response)

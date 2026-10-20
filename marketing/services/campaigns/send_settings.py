@@ -50,6 +50,9 @@ def marketing_test_whatsapp_send_enabled() -> bool:
 
 
 def marketing_live_whatsapp_send_enabled() -> bool:
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return False
     return get_marketing_whatsapp_send_mode() == MARKETING_WHATSAPP_SEND_MODE_LIVE
 
 

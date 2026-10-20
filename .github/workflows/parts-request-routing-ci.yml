@@ -7,6 +7,8 @@ on:
       - 'core/views.py'
       - 'core/request_dispatch_service.py'
       - 'core/services/home_parts_request.py'
+      - 'core/services/manual_request_processing.py'
+      - 'core/tests/test_manual_request_processing.py'
       - 'core/services/vehicle_suggest.py'
       - 'core/migrations/0087_seller_sells_new_parts.py'
       - 'core/tests/test_unified_parts_form.py'
@@ -46,6 +48,7 @@ jobs:
       - name: Run routing and shared-form tests in isolated test database
         run: |
           python manage.py test --settings backend.settings_ui_ci \
+            core.tests.test_manual_request_processing \
             core.tests.test_unified_parts_form \
             core.tests.test_dismantler_request_scope \
             core.tests.test_home_parts_request \

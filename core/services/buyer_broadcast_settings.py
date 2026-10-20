@@ -25,6 +25,9 @@ def get_buyer_broadcast_mode() -> str:
 
 
 def buyer_test_broadcast_enabled() -> bool:
+    from core.services.manual_request_processing import manual_processing_enabled
+    if manual_processing_enabled():
+        return False
     return get_buyer_broadcast_mode() == BUYER_BROADCAST_MODE_TEST
 
 
