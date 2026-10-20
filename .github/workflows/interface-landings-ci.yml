@@ -46,6 +46,7 @@ jobs:
             catalog.tests.test_landing_pages \
             catalog.tests.test_interface_release \
             catalog.tests.test_home_kits_entry \
+            core.tests.test_privacy_page \
             catalog.tests.test_showcase \
             catalog.tests.test_dismantlers_design \
             catalog.tests.test_ui_browser_smoke \

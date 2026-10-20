@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}Контакты и реквизиты — ZPT.KZ{% endblock %}
+{% block meta_description %}Контакты оператора платформы ZPT.KZ — ТОО «Азия Грейт», БИН 120140021357.{% endblock %}
+{% block content %}
+{% include 'includes/site_header_simple.html' %}
+<section class="section"><div class="container" style="max-width:900px;line-height:1.65;overflow-wrap:anywhere;">
+<h1>Контакты и реквизиты</h1>
+<p>ZPT.KZ — автомобильная платформа для поиска запчастей, продавцов, авторазборов и автосервисов. Оператор платформы — ТОО «Азия Грейт».</p>
+{% include 'legal/operator_details.html' %}
+<p><a href="{% url 'feedback' %}">Обратная связь</a> · <a href="{% url 'privacy' %}">Политика конфиденциальности</a></p>
+</div></section>
+{% endblock %}
