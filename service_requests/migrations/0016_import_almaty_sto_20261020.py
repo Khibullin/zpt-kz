@@ -2,6 +2,7 @@
 import json
 import re
 from pathlib import Path
+from urllib.parse import urlsplit, urlunsplit
 from django.db import migrations
 from django.contrib.auth.hashers import make_password
 
@@ -42,7 +43,12 @@ def apply_batch(apps, rows):
             counts['existing']+=1;new=False
         values={}
         for field in ('address','description','website','instagram','map_link'):
-            if not getattr(seller,field) and row[field]: values[field]=row[field]
+            value=row[field]
+            if field=='website' and len(value)>200:
+                parts=urlsplit(value)
+                value=urlunsplit((parts.scheme,parts.netloc,parts.path,'',''))
+                if len(value)>200:value=''
+            if not getattr(seller,field) and value: values[field]=value
         if exact and not seller.map_link.startswith(('https://','http://')):values['map_link']=row['map_link']
         if row['city'] and (new or exact): values['city']=row['city']
         if not seller.directory_transport:values['directory_transport']=row['transport']
