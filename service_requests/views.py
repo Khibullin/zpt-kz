@@ -1,3 +1,4 @@
+from core.services.operations_email_notifications import notify_new_request
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
@@ -222,6 +223,9 @@ def create_service_request(request):
             req.services.add(service)
 
         matched = match_services(req)
+        transaction.on_commit(
+            lambda request_id=req.pk: notify_new_request(request_id, service=True)
+        )
 
     sellers = []
 

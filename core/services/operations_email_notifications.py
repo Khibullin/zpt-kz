@@ -43,42 +43,58 @@ def _request_summary(request: Request) -> str:
     return f'Заявка #{request.pk}: {vehicle}; {item}; {city}; статус: {request.status or "—"}'
 
 
-def notify_new_request(request_id: int) -> bool:
-    """Send a short admin email after a request is committed. Never expose buyer contact data."""
-    if not _enabled():
+def notify_new_request(request_id: int, *, service: bool = False) -> bool:
+    """Email the owner a new committed request for manual WhatsApp processing."""
+    if not getattr(settings, 'REQUEST_OWNER_EMAIL_ENABLED', False):
         return False
-    recipient = get_pipeline_notification_email()
+    recipient = getattr(settings, 'REQUEST_OWNER_EMAIL', '').strip()
     if not recipient:
-        logger.warning('New request email skipped: no recipient, request=%s', request_id)
         return False
-
-    request = Request.objects.filter(pk=request_id).first()
-    if request is None:
-        logger.warning('New request email skipped: request=%s no longer exists', request_id)
-        return False
-
-    lines = [
-        'ZPT.KZ — поступила новая заявка',
-        '',
-        _request_summary(request),
-        '',
-    ]
-    request_url = _admin_url('admin:core_request_change', request.pk)
-    if request_url:
-        lines.extend(['Открыть заявку:', request_url])
-
     try:
-        send_mail(
-            subject=f'ZPT.KZ: новая заявка #{request.pk}',
-            message='\n'.join(lines),
-            from_email=_from_email(),
-            recipient_list=[recipient],
-            fail_silently=False,
-        )
+        if service:
+            from service_requests.models import ServiceRequest
+            request = ServiceRequest.objects.filter(pk=request_id).first()
+        else:
+            request = Request.objects.filter(pk=request_id).first()
+        if request is None:
+            return False
+        direction = (request.get_service_type_display() if service else
+                     ('Авторазборы / б/у запчасти' if request.is_dismantler_request else 'Новые запчасти'))
+        lines = [
+            'ZPT.KZ — заявка для ручной обработки',
+            'Текст для пересылки в WhatsApp:', '',
+            f'Заявка #{request.pk} — {direction}',
+            f'Город: {request.city}',
+            f'Автомобиль: {request.brand} {request.model}',
+            f'Тип транспорта: {request.get_transport_type_display()}',
+        ]
+        if service:
+            lines.extend([f'Район: {request.district}',
+                          'Услуги: ' + ', '.join(request.services.values_list('name', flat=True))])
+        else:
+            lines.extend([f'Категория: {request.category}', f'Артикул: {request.article}',
+                          f'Год: {request.year or ""}', f'VIN: {request.vin}',
+                          f'Территория поиска: {request.get_search_scope_display()}',
+                          f'Выбранные города: {request.selected_cities}'])
+        lines.extend([f'Описание: {request.description}', f'Телефон клиента: {request.phone}'])
+        if not service:
+            for photo in request.photos.all():
+                url = photo.image.url
+                if not url.startswith(('https://', 'http://')):
+                    url = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/') + '/' + url.lstrip('/')
+                lines.append(f'Фото: {url}')
+        admin_name = 'admin:service_requests_servicerequest_change' if service else 'admin:core_request_change'
+        request_url = _admin_url(admin_name, request.pk)
+        if request_url:
+            lines.extend(['', 'Для владельца — открыть заявку:', request_url])
+        return bool(send_mail(
+            subject=f'ZPT.KZ: {direction} — заявка #{request.pk}',
+            message='\n'.join(lines), from_email=_from_email(),
+            recipient_list=[recipient], fail_silently=False,
+        ))
     except Exception:
-        logger.exception('New request email failed: request=%s', request_id)
+        logger.exception('Owner request email failed: request=%s service=%s', request_id, service)
         return False
-    return True
 
 
 def build_daily_operations_email(*, now=None) -> str:

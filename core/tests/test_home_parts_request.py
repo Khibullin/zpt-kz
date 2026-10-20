@@ -425,7 +425,7 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         payload = response.json()
         self.assertFalse(payload['queued'])
-        self.assertIn('сохранена', payload['message'])
+        self.assertIn('Ваша заявка принята!', payload['message'])
         self.assertEqual(Request.objects.count(), 1)
         self.assertEqual(RequestDispatch.objects.count(), 0)
 
@@ -948,8 +948,8 @@ class HomePartsRequestTests(TestCase):
             status=RequestDispatch.STATUS_PAUSED,
         )
         paused_page = self.client.get('/', {'home_request': str(req.access_token)})
-        self.assertContains(paused_page, 'заявка сохранена')
-        self.assertContains(paused_page, 'отправить не можем')
+        self.assertContains(paused_page, 'Ваша заявка принята!')
+        self.assertNotContains(paused_page, 'отправить не можем')
         self.assertNotContains(paused_page, 'Ожидайте предложения в WhatsApp')
 
     def test_home_request_omits_gtm_when_configured(self):
