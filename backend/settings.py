@@ -209,6 +209,11 @@ SELLER_FIRST_CIRCLE_GROWTH_ENABLED = os.getenv(
     'False',
 ).lower() in ('true', '1', 'yes')
 
+# Owner-approved manual processing of new requests (20 October 2026).
+REQUEST_OWNER_EMAIL = os.getenv('REQUEST_OWNER_EMAIL', ORDER_ADMIN_EMAIL or EMAIL_HOST_USER)
+REQUEST_OWNER_EMAIL_ENABLED = os.getenv('REQUEST_OWNER_EMAIL_ENABLED', 'True').lower() in ('true', '1', 'yes')
+EMAIL_TIMEOUT = 10
+
 # WhatsApp / Meta API
 
 WHATSAPP_TOKEN = (

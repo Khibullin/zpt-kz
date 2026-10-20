@@ -16,6 +16,8 @@ from core.services.operations_email_notifications import (
     DEFAULT_FROM_EMAIL='zpt@test.local',
     EMAIL_HOST_USER='zpt@test.local',
     SELLER_PIPELINE_EMAIL_ENABLED=True,
+    REQUEST_OWNER_EMAIL_ENABLED=True,
+    REQUEST_OWNER_EMAIL='owner@test.local',
     SELLER_PIPELINE_NOTIFICATION_EMAIL='owner@test.local',
     PUBLIC_BASE_URL='https://zpt.kz',
 )
@@ -31,7 +33,7 @@ class OperationsEmailNotificationTests(TestCase):
             city='Алматы',
         )
 
-    def test_new_request_email_contains_summary_but_not_private_contact_or_vin(self):
+    def test_new_request_email_contains_details_for_manual_processing(self):
         with patch('core.services.operations_email_notifications.send_mail') as send:
             self.assertTrue(notify_new_request(self.request.pk))
 
@@ -40,8 +42,8 @@ class OperationsEmailNotificationTests(TestCase):
         self.assertIn(f'Заявка #{self.request.pk}', message)
         self.assertIn('Toyota Camry', message)
         self.assertIn('Алматы', message)
-        self.assertNotIn('+77001234567', message)
-        self.assertNotIn('VIN-PRIVATE-123', message)
+        self.assertIn('+77001234567', message)
+        self.assertIn('VIN-PRIVATE-123', message)
         self.assertEqual(send.call_args.kwargs['recipient_list'], ['owner@test.local'])
 
     def test_daily_digest_includes_seller_request_and_instagram_statuses(self):
@@ -62,7 +64,7 @@ class OperationsEmailNotificationTests(TestCase):
 
         self.assertIn('ПОИСК ПРОДАВЦОВ', report)
         self.assertIn('Новых профилей: 1', report)
-        self.assertIn('Instagram: 1', report)
+        self.assertIn('instagram: 1', report.lower())
         self.assertIn('ПУБЛИКАЦИИ В INSTAGRAM', report)
         self.assertIn('Опубликовано: 1', report)
         self.assertIn('ЗАЯВКИ ПОКУПАТЕЛЕЙ', report)
@@ -78,8 +80,29 @@ class OperationsEmailNotificationTests(TestCase):
         self.assertEqual(send.call_args.kwargs['recipient_list'], ['owner@test.local'])
         self.assertIn('утренняя сводка', send.call_args.kwargs['subject'].lower())
 
-    @override_settings(SELLER_PIPELINE_EMAIL_ENABLED=False)
-    def test_request_email_is_disabled_with_existing_pipeline_email_switch(self):
+    @override_settings(REQUEST_OWNER_EMAIL_ENABLED=False)
+    def test_request_email_can_be_disabled_separately(self):
         with patch('core.services.operations_email_notifications.send_mail') as send:
             self.assertFalse(notify_new_request(self.request.pk))
         send.assert_not_called()
+
+    @override_settings(SELLER_PIPELINE_EMAIL_ENABLED=False)
+    def test_manual_email_is_independent_of_pipeline_reports(self):
+        with patch('core.services.operations_email_notifications.send_mail', return_value=1) as send:
+            self.assertTrue(notify_new_request(self.request.pk))
+        send.assert_called_once()
+
+    def test_smtp_failure_does_not_break_request(self):
+        with patch('core.services.operations_email_notifications.send_mail', side_effect=OSError('SMTP unavailable')):
+            self.assertFalse(notify_new_request(self.request.pk))
+
+    def test_service_email_includes_services_and_contact(self):
+        from service_requests.models import ServiceRequest, Service
+        req = ServiceRequest.objects.create(service_type='sto', city='Алматы', phone='77012345678', description='Проверить тормоза')
+        req.services.add(Service.objects.create(name='Диагностика'))
+        with patch('core.services.operations_email_notifications.send_mail', return_value=1) as send:
+            self.assertTrue(notify_new_request(req.pk, service=True))
+        message = send.call_args.kwargs['message']
+        self.assertIn('Диагностика', message)
+        self.assertIn('77012345678', message)
+        self.assertIn('Проверить тормоза', message)

@@ -1484,6 +1484,10 @@ def create_home_parts_request(request):
             lambda: schedule_instagram_publication_for_request(request_id)
         )
 
+        transaction.on_commit(
+            lambda request_id=request_id: notify_new_request(request_id)
+        )
+
     _groups, products_payload, search_failed = search_catalog_safe(payload)
     statuses = dispatch_status_set(dispatches)
     queued = RequestDispatch.STATUS_QUEUED in statuses
