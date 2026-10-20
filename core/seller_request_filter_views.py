@@ -40,7 +40,9 @@ def seller_request_filters(request, token=None):
             error = str(exc) if isinstance(exc, ValueError) and not isinstance(exc, json.JSONDecodeError) else 'Проверьте настройки.'
         else:
             # POST/Redirect/GET: refresh never resubmits profile changes.
-            return HttpResponseRedirect('?saved=1')
+            redirect = HttpResponseRedirect('?saved=1')
+            redirect['Referrer-Policy'] = 'same-origin'
+            return redirect
     response = render(request, 'core/seller_request_filters.html', {
         'seller': seller, 'back_url': back_url, 'error': error,
         'saved': request.GET.get('saved') == '1' and seller.request_filters is not None,
@@ -54,5 +56,5 @@ def seller_request_filters(request, token=None):
         },
     }, status=400 if error else 200)
     response.disable_analytics = True
-    response['Referrer-Policy'] = 'no-referrer'
+    response['Referrer-Policy'] = 'same-origin'
     return response

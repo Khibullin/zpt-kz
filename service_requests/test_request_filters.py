@@ -98,7 +98,10 @@ class ServiceFilterTests(TestCase):
     def test_csrf_expiration_and_bound_identity(self):
         client = Client(enforce_csrf_checks=True)
         url = self.path + 'filters/'
-        self.assertEqual(client.get(url).status_code, 200)
+        filters_page = client.get(url)
+        self.assertEqual(filters_page.status_code, 200)
+        self.assertEqual(filters_page['Referrer-Policy'], 'same-origin')
+        self.assertContains(filters_page, 'name="referrer" content="same-origin"')
         self.assertEqual(client.post(url, {'filters': json.dumps(self.data)}).status_code, 403)
         csrf = client.cookies['csrftoken'].value
         response = client.post(url, {'filters': json.dumps(self.data), 'csrfmiddlewaretoken': csrf, 'seller_id': 999999})
@@ -167,3 +170,114 @@ class ServiceFilterTests(TestCase):
         self.assertEqual(ServiceRequest.objects.latest('pk').transport_type, 'truck')
         data['transport_type'] = 'invalid'
         self.assertEqual(self.client.post('/api/service/create-service-request/', json.dumps(data), content_type='application/json').status_code, 400)
+
+    def _service_link(self, seller, req):
+        match = ServiceMatch.objects.create(request=req, seller=seller)
+        return urlsplit(personal_request_url(req, seller)).path + 'filters/', match
+
+    def _assert_https_service_filter_save(self, seller, url, match, user, label):
+        client = Client(enforce_csrf_checks=True)
+        page = client.get(url, secure=True)
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(page['Referrer-Policy'], 'same-origin')
+        self.assertContains(page, 'name="referrer" content="same-origin"')
+        self.assertContains(page, 'referrerpolicy="same-origin"')
+        self.assertNotContains(page, 'content="no-referrer"')
+        self.assertContains(page, 'name="csrfmiddlewaretoken"')
+        self.assertContains(page, label)
+        token = client.cookies['csrftoken'].value
+        body = {'filters': json.dumps(self.data), 'seller_id': '99999'}
+        referer = {'HTTP_REFERER': 'https://testserver' + url}
+        self.assertEqual(client.post(url, body, secure=True, **referer).status_code, 403)
+        other = Client(enforce_csrf_checks=True)
+        other.get(url, secure=True)
+        wrong = {**body, 'csrfmiddlewaretoken': other.cookies['csrftoken'].value}
+        self.assertEqual(client.post(url, wrong, secure=True, **referer).status_code, 403)
+        with self.assertLogs('django.security.csrf', level='WARNING') as bare:
+            bare_response = client.post(url, {**body, 'csrfmiddlewaretoken': token}, secure=True)
+        self.assertEqual(bare_response.status_code, 403)
+        self.assertIn('Referer checking failed - no Referer.', '\n'.join(bare.output))
+        with self.assertLogs('django.security.csrf', level='WARNING') as foreign:
+            foreign_response = client.post(
+                url, {**body, 'csrfmiddlewaretoken': token}, secure=True,
+                HTTP_ORIGIN='https://evil.example', **referer,
+            )
+        self.assertEqual(foreign_response.status_code, 403)
+        self.assertIn('Origin checking failed - https://evil.example', '\n'.join(foreign.output))
+        with self.assertLogs('django.security.csrf', level='WARNING') as null_origin:
+            null_response = client.post(
+                url, {**body, 'csrfmiddlewaretoken': token}, secure=True,
+                HTTP_ORIGIN='null', **referer,
+            )
+        self.assertEqual(null_response.status_code, 403)
+        self.assertIn('Origin checking failed - null', '\n'.join(null_origin.output))
+        seller.refresh_from_db()
+        self.assertIsNone(seller.request_filters)
+        saved = client.post(url, {**body, 'csrfmiddlewaretoken': token}, secure=True, **referer)
+        self.assertEqual(saved.status_code, 302)
+        self.assertEqual(saved['Referrer-Policy'], 'same-origin')
+        seller.refresh_from_db()
+        self.assertEqual(initial_filters(seller)['category_ids'], [1])
+        self.assertEqual(initial_filters(seller)['brands'][0]['model_ids'], [self.model.pk])
+        reopened = client.get(url + '?saved=1', secure=True)
+        self.assertContains(reopened, 'Настройки сохранены')
+        self.assertEqual(reopened.context['filter_data'], initial_filters(seller))
+        client.force_login(user)
+        cabinet_url = '/service-request/filters/'
+        cabinet = client.get(cabinet_url, secure=True)
+        self.assertEqual(cabinet.status_code, 200)
+        self.assertEqual(cabinet['Referrer-Policy'], 'same-origin')
+        self.assertEqual(cabinet.context['filter_data'], initial_filters(seller))
+        token = client.cookies['csrftoken'].value
+        updated = {**self.data, 'all_categories': True, 'category_ids': []}
+        cabinet_saved = client.post(
+            cabinet_url,
+            {'filters': json.dumps(updated), 'csrfmiddlewaretoken': token},
+            secure=True,
+            HTTP_REFERER='https://testserver' + cabinet_url,
+        )
+        self.assertEqual(cabinet_saved.status_code, 302)
+        seller.refresh_from_db()
+        self.assertTrue(initial_filters(seller)['all_categories'])
+        cabinet_again = client.get(cabinet_url + '?saved=1', secure=True)
+        self.assertContains(cabinet_again, 'Настройки сохранены')
+        self.assertTrue(cabinet_again.context['filter_data']['all_categories'])
+        with patch('django.core.signing.time.time', return_value=1):
+            expired_token = signing.dumps({'match': match.pk}, salt=SALT)
+        expired_url = '/service-request/personal/' + expired_token + '/filters/'
+        blocked = {
+            'filters': json.dumps({**self.data, 'all_brands': True, 'brands': []}),
+            'csrfmiddlewaretoken': token,
+        }
+        self.assertEqual(client.post(
+            expired_url, blocked, secure=True,
+            HTTP_REFERER='https://testserver' + expired_url,
+        ).status_code, 410)
+        seller.refresh_from_db()
+        self.assertTrue(initial_filters(seller)['all_categories'])
+        self.assertFalse(initial_filters(seller)['all_brands'])
+        self.assertEqual(client.post(
+            '/service-request/personal/invalid/filters/',
+            {**body, 'csrfmiddlewaretoken': token},
+            secure=True,
+            HTTP_REFERER='https://testserver/service-request/personal/invalid/filters/',
+        ).status_code, 404)
+
+    def test_https_same_origin_save_for_sto_and_detailing(self):
+        self._assert_https_service_filter_save(
+            self.seller, self.path + 'filters/', self.match, self.user, 'СТО и ремонт',
+        )
+        sto_filters = self.seller.request_filters
+        user = get_user_model().objects.create_user(username='detail-owner', password='some-test-password')
+        seller = ServiceSeller.objects.create(
+            name='Детейлинг', whatsapp='77011112244', seller_type='detailing',
+            city='Алматы', district='Бостандыкский', user=user,
+        )
+        req = ServiceRequest.objects.create(
+            service_type='detailing', city='Алматы', district='Бостандыкский',
+            brand='Toyota', model='Camry', phone='77012223355',
+        )
+        url, match = self._service_link(seller, req)
+        self._assert_https_service_filter_save(seller, url, match, user, 'Детейлинг и тюнинг')
+        self.seller.refresh_from_db()
+        self.assertEqual(self.seller.request_filters, sto_filters)

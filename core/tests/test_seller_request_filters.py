@@ -74,6 +74,8 @@ class SellerRequestFilterTests(TestCase):
     def test_link_and_cabinet_same_profile_csrf_and_expiration(self):
         client=Client(enforce_csrf_checks=True)
         page=client.get(self.url);self.assertEqual(page.status_code,200)
+        self.assertEqual(page['Referrer-Policy'], 'same-origin')
+        self.assertContains(page, 'name="referrer" content="same-origin"')
         self.assertContains(page,'Вы ещё не настроили специализацию')
         self.assertEqual(client.post(self.url,{'filters':json.dumps(self.data)}).status_code,403)
         token=client.cookies['csrftoken'].value
@@ -86,6 +88,119 @@ class SellerRequestFilterTests(TestCase):
         self.assertEqual(client.get(self.url).status_code,410)
         self.assertEqual(client.post(self.url,{'filters':json.dumps(self.data),'csrfmiddlewaretoken':token}).status_code,410)
         self.assertEqual(client.get('/sr/not-a-real-token/filters/').status_code,404)
+
+    def _bind_parts_cabinet(self, client, seller):
+        session = client.session
+        session['seller_id'] = seller.pk
+        session.save()
+
+    def _assert_https_parts_filter_save(self, seller, url, access, label):
+        client = Client(enforce_csrf_checks=True)
+        page = client.get(url, secure=True)
+        self.assertEqual(page.status_code, 200)
+        self.assertEqual(page['Referrer-Policy'], 'same-origin')
+        self.assertContains(page, 'name="referrer" content="same-origin"')
+        self.assertContains(page, 'referrerpolicy="same-origin"')
+        self.assertNotContains(page, 'content="no-referrer"')
+        self.assertContains(page, 'name="csrfmiddlewaretoken"')
+        self.assertContains(page, label)
+        token = client.cookies['csrftoken'].value
+        body = {'filters': json.dumps(self.data), 'seller_id': '99999'}
+        self.assertEqual(client.post(url, body, secure=True, HTTP_REFERER='https://testserver' + url).status_code, 403)
+        other = Client(enforce_csrf_checks=True)
+        other.get(url, secure=True)
+        wrong = {**body, 'csrfmiddlewaretoken': other.cookies['csrftoken'].value}
+        self.assertEqual(client.post(url, wrong, secure=True, HTTP_REFERER='https://testserver' + url).status_code, 403)
+        with self.assertLogs('django.security.csrf', level='WARNING') as bare:
+            bare_response = client.post(url, {**body, 'csrfmiddlewaretoken': token}, secure=True)
+        self.assertEqual(bare_response.status_code, 403)
+        self.assertIn('Referer checking failed - no Referer.', '\n'.join(bare.output))
+        with self.assertLogs('django.security.csrf', level='WARNING') as foreign:
+            foreign_response = client.post(
+                url, {**body, 'csrfmiddlewaretoken': token}, secure=True,
+                HTTP_ORIGIN='https://evil.example', HTTP_REFERER='https://testserver' + url,
+            )
+        self.assertEqual(foreign_response.status_code, 403)
+        self.assertIn('Origin checking failed - https://evil.example', '\n'.join(foreign.output))
+        with self.assertLogs('django.security.csrf', level='WARNING') as null_origin:
+            null_response = client.post(
+                url, {**body, 'csrfmiddlewaretoken': token}, secure=True,
+                HTTP_ORIGIN='null', HTTP_REFERER='https://testserver' + url,
+            )
+        self.assertEqual(null_response.status_code, 403)
+        self.assertIn('Origin checking failed - null', '\n'.join(null_origin.output))
+        seller.refresh_from_db()
+        self.assertIsNone(seller.request_filters)
+        saved = client.post(
+            url, {**body, 'csrfmiddlewaretoken': token}, secure=True,
+            HTTP_REFERER='https://testserver' + url,
+        )
+        self.assertEqual(saved.status_code, 302)
+        self.assertEqual(saved['Referrer-Policy'], 'same-origin')
+        self.assertIn('saved=1', saved['Location'])
+        seller.refresh_from_db()
+        self.assertEqual(initial_filters(seller)['brands'][0]['model_ids'], [self.camry.pk])
+        self.assertIn(self.optics.pk, initial_filters(seller)['category_ids'])
+        reopened = client.get(url + '?saved=1', secure=True)
+        self.assertContains(reopened, 'Настройки сохранены')
+        self.assertEqual(reopened.context['filter_data'], initial_filters(seller))
+        self.assertEqual(reopened['Referrer-Policy'], 'same-origin')
+        cabinet_url = reverse('seller_request_filters')
+        self._bind_parts_cabinet(client, seller)
+        cabinet = client.get(cabinet_url, secure=True)
+        self.assertEqual(cabinet.status_code, 200)
+        self.assertEqual(cabinet['Referrer-Policy'], 'same-origin')
+        self.assertEqual(cabinet.context['filter_data'], initial_filters(seller))
+        updated = {**self.data, 'all_categories': True, 'category_ids': []}
+        cabinet_saved = client.post(
+            cabinet_url,
+            {'filters': json.dumps(updated), 'csrfmiddlewaretoken': token},
+            secure=True,
+            HTTP_REFERER='https://testserver' + cabinet_url,
+        )
+        self.assertEqual(cabinet_saved.status_code, 302)
+        seller.refresh_from_db()
+        self.assertTrue(initial_filters(seller)['all_categories'])
+        cabinet_again = client.get(cabinet_url + '?saved=1', secure=True)
+        self.assertContains(cabinet_again, 'Настройки сохранены')
+        self.assertTrue(cabinet_again.context['filter_data']['all_categories'])
+        access.expires_at = timezone.now() - timedelta(seconds=1)
+        access.save(update_fields=['expires_at'])
+        blocked = {
+            'filters': json.dumps({**self.data, 'all_brands': True, 'brands': []}),
+            'csrfmiddlewaretoken': token,
+        }
+        self.assertEqual(
+            client.post(url, blocked, secure=True, HTTP_REFERER='https://testserver' + url).status_code,
+            410,
+        )
+        seller.refresh_from_db()
+        self.assertTrue(initial_filters(seller)['all_categories'])
+        self.assertFalse(initial_filters(seller)['all_brands'])
+        self.assertEqual(client.post(
+            '/sr/not-a-real-token/filters/',
+            {**body, 'csrfmiddlewaretoken': token},
+            secure=True,
+            HTTP_REFERER='https://testserver/sr/not-a-real-token/filters/',
+        ).status_code, 404)
+
+    def test_https_same_origin_save_for_parts_and_dismantler(self):
+        self._assert_https_parts_filter_save(self.seller, self.url, self.access, 'Новые запчасти')
+        parts_filters = self.seller.request_filters
+        dismantler = Seller.objects.create(
+            name='Разбор', whatsapp='77011234568', transport_type='car', city='Алматы',
+            receive_requests=True, sells_new_parts=False, is_dismantler=True,
+            all_categories=True, all_brands=True, all_models=True, all_countries=True,
+        )
+        access = create_seller_request_access(request=self.req, seller=dismantler)
+        self._assert_https_parts_filter_save(
+            dismantler,
+            reverse('seller_request_filters_link', kwargs={'token': access.token}),
+            access,
+            'Авторазбор',
+        )
+        self.seller.refresh_from_db()
+        self.assertEqual(self.seller.request_filters, parts_filters)
 
     def test_unbound_links_denied_and_test_owner_can_edit(self):
         access=create_seller_request_access(request=self.req)

@@ -2,7 +2,7 @@
 {% block analytics_head %}{% endblock %}{% block analytics_body %}{% endblock %}{% block analytics_events %}{% endblock %}
 {% block seo_meta %}<meta name="robots" content="noindex,nofollow">{% endblock %}
 {% block title %}Фильтр получения заявок — ZPT.KZ{% endblock %}
-{% block extra_head %}<meta name="referrer" content="no-referrer">{% endblock %}
+{% block extra_head %}<meta name="referrer" content="same-origin">{% endblock %}
 {% block portal_css %}<link rel="stylesheet" href="{% static 'css/seller-request-filters.css' %}?v=1">{% endblock %}
 {% block content %}
 <main class="rf-wrap">
@@ -14,7 +14,7 @@
   {% if not confirmed %}<p class="rf-note">Вы ещё не настроили специализацию. Проверьте выбранные значения перед сохранением.</p>{% endif %}
   {% if saved %}<section class="rf-success" role="status"><strong>Настройки сохранены.</strong><p>{% if seller.is_test_seller and seller.test_all_requests_since %}Фильтр сохранён. Получение всех новых тестовых заявок остаётся включённым.{% else %}Заявки будут подбираться с учётом вашей специализации. Кабинет и карточка организации обновлены.{% endif %}</p></section>{% endif %}
   {% if error %}<p class="rf-error" role="alert">{{ error }}</p>{% endif %}
-  <form id="request-filter-form" method="post">
+  <form id="request-filter-form" method="post" referrerpolicy="same-origin">
     {% csrf_token %}<input type="hidden" name="filters" id="filter-payload">
     <div class="rf-grid">
       <section class="rf-card"><h2><span>1</span>Тип транспорта</h2><label><input type="checkbox" name="transport" value="car">Легковые</label><label><input type="checkbox" name="transport" value="truck">Грузовые</label></section>
