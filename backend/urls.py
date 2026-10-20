@@ -60,6 +60,7 @@ urlpatterns = [
     path('sitemap-organizations-<int:page>.xml', sitemap_organizations, name='sitemap_organizations_page'),
     path('sitemap-kits.xml', sitemap_kits, name='sitemap_kits'),
     path('sitemap-cities.xml', sitemap_cities, name='sitemap_cities'),
+    path('contacts/', TemplateView.as_view(template_name='legal/contacts.html'), name='platform_contacts'),
     path('privacy/', TemplateView.as_view(template_name='legal/privacy.html'), name='privacy'),
     path('zpt-gid/', zpt_guide_view, name='zpt_gid'),
 
