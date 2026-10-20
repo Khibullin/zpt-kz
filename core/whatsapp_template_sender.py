@@ -82,6 +82,19 @@ def send_whatsapp_template_message(
     include_image_header: bool = False,
     header_image_url: str | None = None,
 ) -> dict:
+    # The incident stop must cover buyer receipts and direct/template sends,
+    # not only the seller wave worker. Read it afresh for every send.
+    from core.models import BroadcastSettings
+
+    if BroadcastSettings.load().emergency_stop:
+        return {
+            'ok': False,
+            'status_code': None,
+            'error_code': 'whatsapp_emergency_stop',
+            'error': 'WhatsApp sending is paused by Emergency Stop',
+            'message_id': '',
+        }
+
     try:
         phone_number_id, access_token = validate_whatsapp_sender_config()
     except WhatsAppSenderConfigError:
