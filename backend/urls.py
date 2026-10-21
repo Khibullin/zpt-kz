@@ -50,6 +50,8 @@ urlpatterns = [
     path('robots.txt', robots_txt, name='robots_txt'),
     path('internal/editorial/daily/', editorial_daily_trigger, name='editorial_daily_trigger'),
     path('internal/editorial/ai/', editorial_ai_trigger, name='editorial_ai_trigger'),
+    # Strictly read-only AG Parts server-to-server catalog. Disabled by default.
+    path('internal/agparts/v1/', include('catalog.agparts_api_urls')),
     path('sitemap.xml', sitemap_index, name='sitemap_index'),
     path('sitemap-static.xml', sitemap_static, name='sitemap_static'),
     path('sitemap-content.xml', sitemap_content, name='sitemap_content'),

@@ -466,3 +466,12 @@ EDITORIAL_AI_MODEL = os.getenv('EDITORIAL_AI_MODEL', 'gpt-5.6-luna')
 # Secured external cron trigger. By default disabled.
 EDITORIAL_CRON_TOKEN = (os.getenv('EDITORIAL_CRON_TOKEN', '') or '').strip()
 EDITORIAL_CRON_ENABLED = os.getenv('EDITORIAL_CRON_ENABLED', 'False').lower() in ('true','1','yes')
+
+# AG Parts v1 catalog: read-only integration, always OFF until owner-approved
+# token, official-brand product manifest, stock freshness and deployment.
+# Never place real secrets or supplier decisions in Git.
+AGPARTS_CATALOG_API_ENABLED = os.getenv('AGPARTS_CATALOG_API_ENABLED', 'False').strip().lower() in ('1', 'true', 'yes')
+AGPARTS_CATALOG_API_TOKEN = (os.getenv('AGPARTS_CATALOG_API_TOKEN', '') or '').strip()
+AGPARTS_CATALOG_MANIFEST_JSON = os.getenv('AGPARTS_CATALOG_MANIFEST_JSON', '')
+# Set only after verifying our merchant ID and per-SKU packaging. No price write actions.
+AGPARTS_KASPI_MERCHANT_ID = (os.getenv('AGPARTS_KASPI_MERCHANT_ID', '') or '').strip()
