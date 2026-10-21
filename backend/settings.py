@@ -473,3 +473,5 @@ EDITORIAL_CRON_ENABLED = os.getenv('EDITORIAL_CRON_ENABLED', 'False').lower() in
 AGPARTS_CATALOG_API_ENABLED = os.getenv('AGPARTS_CATALOG_API_ENABLED', 'False').strip().lower() in ('1', 'true', 'yes')
 AGPARTS_CATALOG_API_TOKEN = (os.getenv('AGPARTS_CATALOG_API_TOKEN', '') or '').strip()
 AGPARTS_CATALOG_MANIFEST_JSON = os.getenv('AGPARTS_CATALOG_MANIFEST_JSON', '')
+# Set only after verifying our merchant ID and per-SKU packaging. No price write actions.
+AGPARTS_KASPI_MERCHANT_ID = (os.getenv('AGPARTS_KASPI_MERCHANT_ID', '') or '').strip()
