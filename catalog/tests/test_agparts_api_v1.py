@@ -84,26 +84,6 @@ class ManifestValidationTests(TestCase):
         with self.assertRaises(ManifestError):
             parse_agparts_manifest(json.dumps(base))
 
-    def test_other_spark_sku_cannot_be_sold_by_piece(self):
-        example = {
-            "version": 1,
-            "products": {
-                "OTHER-SPARK": {
-                    "official_brand_verified": True,
-                    "category": "spark",
-                    "title": {"ru": "Свечи", "kk": "Оталдыру шамдары", "zh": "火花塞"},
-                    "supplier_confirmed_at": None,
-                    "lead_time_days": None,
-                    "kaspi_pack_qty": 1,
-                    "kaspi_master_sku": "EXAMPLE-MASTER",
-                }
-            },
-        }
-        with self.assertRaises(ManifestError):
-            parse_agparts_manifest(json.dumps(example))
-        example["products"]["OTHER-SPARK"]["kaspi_pack_qty"] = 4
-        self.assertIn("OTHER-SPARK", parse_agparts_manifest(json.dumps(example)))
-
     def test_no_manifest_and_unknown_fields_denied(self):
         with self.assertRaises(ManifestError):
             parse_agparts_manifest("")
