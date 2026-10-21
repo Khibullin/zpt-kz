@@ -33,10 +33,10 @@ def ag_parts_store(request):
     return render(request, "catalog/ag_parts_store.html", {
         "seller": seller,
         "products": products,
-        "page_title": "Наши товары AG Parts — автозапчасти | ZPT.KZ",
+        "page_title": "Фильтры и свечи зажигания AG Parts — купить в Казахстане | ZPT.KZ",
         "page_description": (
-            "Ассортимент магазина AG Parts на ZPT.KZ. "
-            "Подбор фильтров и запчастей, покупка через Kaspi при наличии прямой ссылки."
+            "Салонные, воздушные и масляные фильтры, свечи зажигания AG Parts. "
+            "Подбор по автомобилю и артикулу, цены и применимость в каталоге ZPT.KZ."
         ),
     })
 

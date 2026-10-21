@@ -1,7 +1,8 @@
 {% extends 'base.html' %}
 {% load static humanize phone_extras seller_extras %}
 
-{% block title %}{{ seller.name }} — оптовые поставки{% endblock %}
+{% block title %}{% if seller.slug == 'ag-parts' %}Фильтры и свечи AG Parts оптом в Казахстане | ZPT.KZ{% else %}{{ seller.name }} — оптовые поставки{% endif %}{% endblock %}
+{% block meta_description %}{% if seller.slug == 'ag-parts' and seller.wholesale_terms.vat_mode == 'included' and seller.wholesale_terms.delivery_kz_enabled and seller.wholesale_terms.confirm_stock_before_payment %}AG Parts для магазинов автозапчастей и СТО. Оптовый заказ от {{ seller.wholesale_min_order_qty }} единиц в ассортименте. Цены с НДС, доставка по Казахстану. Наличие подтверждается перед оплатой.{% else %}{{ block.super }}{% endif %}{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/style.css' %}?v=seller_logo_v1">
@@ -20,7 +21,7 @@
 
       <header class="wholesale-hero">
         <p class="wholesale-hero-kicker">Постоянные оптовые цены</p>
-        <h1>{{ seller.name }} — оптовые автозапчасти для китайских автомобилей</h1>
+        <h1>{% if seller.slug == 'ag-parts' %}Фильтры и свечи зажигания AG Parts оптом{% else %}{{ seller.name }} — оптовые автозапчасти для китайских автомобилей{% endif %}</h1>
         <p class="wholesale-hero-lead">
           Постоянные оптовые поставки для магазинов автозапчастей,
           продавцов и СТО по Казахстану.

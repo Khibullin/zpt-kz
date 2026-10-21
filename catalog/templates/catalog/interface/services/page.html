@@ -1,11 +1,11 @@
 {% extends 'catalog/interface/base.html' %}{% load static interface_ui service_art %}
-{% block title %}{{ service_title }} в Казахстане | ZPT.KZ{% endblock %}
-{% block meta_description %}{{ service_title }}: выберите город, услуги и исполнителя в каталоге ZPT.KZ.{% endblock %}
+{% block title %}СТО, ремонт и детейлинг в Казахстане — каталог | ZPT.KZ{% endblock %}
+{% block meta_description %}Найдите СТО, автосервис или детейлинг по городу и нужной услуге. Адреса, контакты и направления работ. Оставьте заявку на ремонт или обслуживание на ZPT.KZ.{% endblock %}
 {% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/services/pages.css' %}?v=20261014a">{% endblock %}
 {% block interface_content %}
 <nav class="breadcrumbs" aria-label="Навигация"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{{ service_title }}</span></nav>
 <section class="service-hero">
-<div class="service-hero-copy"><h1>{{ service_title }}</h1><p>{% if is_detailing %}Уход и индивидуальность вашего автомобиля{% else %}Найдите сервис для вашего автомобиля{% endif %}</p><a href="{{ request_url }}" class="service-request-link">{% ui 'request' %} →</a></div>
+<div class="service-hero-copy"><h1>СТО, ремонт и детейлинг в Казахстане</h1><p>{% if is_detailing %}Уход и индивидуальность вашего автомобиля{% else %}Найдите сервис для вашего автомобиля{% endif %}</p><a href="{{ request_url }}" class="service-request-link">{% ui 'request' %} →</a></div>
 {% if is_detailing %}{% service_art 'hero-detailing' %}{% else %}{% service_art 'hero-sto' %}{% endif %}
 </section>
 <form class="service-search" action="/catalog/services/" method="get">
