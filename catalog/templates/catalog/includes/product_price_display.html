@@ -1,5 +1,17 @@
-{% load humanize phone_extras %}
-{% if product.price_on_request %}
+{% load humanize phone_extras agparts_primary_price %}
+{% agparts_kaspi_retail product as ag_kaspi %}
+{% if ag_kaspi %}
+  {% if ag_kaspi.price is not None %}
+    <div class="{{ price_class|default:'product-price' }}">
+      {{ ag_kaspi.price|intcomma|comma_to_space }} ₸
+      {% if ag_kaspi.package_quantity == 4 %}
+        <small class="agparts-price-package">за комплект 4 шт.</small>
+      {% endif %}
+    </div>
+  {% else %}
+    <div class="{{ price_class|default:'product-price' }} product-price--on-request">Цена Kaspi уточняется</div>
+  {% endif %}
+{% elif product.price_on_request %}
   <div class="{{ price_class|default:'product-price' }} product-price--on-request">Цена по запросу</div>
 {% elif product.price is not None %}
   <div class="{{ price_class|default:'product-price' }}">{{ product.price|intcomma|comma_to_space }} ₸</div>
