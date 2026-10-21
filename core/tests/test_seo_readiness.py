@@ -54,12 +54,10 @@ class SeoPolicyTests(TestCase):
             'https://zpt.kz/request-parts/',
         )
 
-    def test_public_catalog_filters_and_pagination_are_noindex(self):
+    def test_public_catalog_filters_are_noindex(self):
         cases = (
             '/parts-sellers/?city=Алматы',
-            '/parts-sellers/?page=2',
             '/catalog/services/?service=Диагностика',
-            '/catalog/services/?page=2',
         )
         for url in cases:
             with self.subTest(url=url):

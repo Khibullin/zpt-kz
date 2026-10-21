@@ -8,6 +8,7 @@ on:
       - 'core/directory_seo.py'
       - 'core/templatetags/organization_seo.py'
       - 'core/tests/test_seo_readiness.py'
+      - 'core/tests/test_seo_first_package.py'
       - 'core/tests/test_seo_directory_expansion.py'
       - 'catalog/templatetags/product_extras.py'
       - 'catalog/views.py'
@@ -52,6 +53,7 @@ jobs:
         run: |
           python manage.py test --settings backend.settings_ui_ci \
             core.tests.test_seo_readiness \
+            core.tests.test_seo_first_package \
             core.tests.test_seo_directory_expansion \
             core.tests.test_seo_seller_filters \
             catalog.tests.test_product_structured_data \

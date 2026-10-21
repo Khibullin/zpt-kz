@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
-{% block title %}{{ article.seo_title|default:article.title }} — ZPT.KZ{% endblock %}
+{% block title %}{% with title=article.seo_title|default:article.title %}{{ title }}{% if 'zpt.kz' not in title|lower %} — ZPT.KZ{% endif %}{% endwith %}{% endblock %}
 {% block meta_description %}{{ article.meta_description }}{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/editorial.css' %}">{% endblock %}
 {% block content %}

@@ -21,6 +21,9 @@ from core.seo import canonical_url_for_path
 # Keep the public static sitemap limited to reviewed indexable landing pages.
 STATIC_SITEMAP_PATHS = (
     '/',
+    '/contacts/',
+    '/find-part/',
+    '/seller/ag-parts/wholesale/',
     '/request-parts/',
     '/request-parts/guide/',
     '/zpt-gid/',

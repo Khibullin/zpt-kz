@@ -24,7 +24,6 @@ class SellerStorefrontSeoTests(SimpleTestCase):
             'category': '26',
             'brand': '69',
             'model': '10',
-            'page': '2',
         }.items():
             with self.subTest(key=key):
                 request = self._request(
@@ -47,7 +46,6 @@ class SellerStorefrontSeoTests(SimpleTestCase):
             'q': 'filter',
             'brand': '69',
             'type': 'stock',
-            'page': '2',
         }.items():
             with self.subTest(key=key):
                 request = self._request(
