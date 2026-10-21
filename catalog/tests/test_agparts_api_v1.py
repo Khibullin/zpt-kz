@@ -13,7 +13,7 @@ from django.utils import timezone
 
 from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
 from catalog.models import (
-    Brand, CarModel, Country, Product, ProductFitment,
+    Brand, CarModel, Country, Product, ProductFitment, ProductKaspiListing,
     ProductWarehouseStock, SellerProfile, Warehouse,
 )
 
@@ -223,3 +223,53 @@ class CatalogApiTests(TestCase):
                 with self.subTest(path=path):
                     self.assertEqual(self.client.get(path).status_code, 404)
 
+
+    def test_unknown_engine_does_not_become_universal(self):
+        ProductFitment.objects.filter(product=self.product).update(
+            engine_policy="unknown", engine_code=""
+        )
+        result = self.call().json()
+        self.assertEqual(result["products"][0]["confirmed_fitments"], [])
+
+    def test_kaspi_link_requires_both_publication_flags(self):
+        url = "https://kaspi.kz/shop/p/example-filter-12345678/"
+        ProductKaspiListing.objects.create(
+            product=self.product,
+            master_sku="EXAMPLE-MASTER",
+            is_active=True,
+            publish_to_kaspi=True,
+            public_url=url,
+            public_url_verified_at=timezone.now(),
+        )
+        self.assertIsNone(self.call().json()["products"][0]["kaspi_public_url"])
+        self.product.publish_to_kaspi = True
+        self.product.save(update_fields=["publish_to_kaspi"])
+        self.assertEqual(self.call().json()["products"][0]["kaspi_public_url"], url)
+
+    def test_signed_cursor_rejects_snapshot_changes(self):
+        second = Product.objects.create(
+            title="Second test item", article="000AG-SECOND",
+            seller_profile=self.seller, seller_name="AG Parts", whatsapp_number="00",
+            status="active", price=1500, city="Алматы",
+        )
+        ProductWarehouseStock.objects.create(product=second, warehouse=self.pp2, quantity=2)
+        self.manifest["products"]["000AG-SECOND"] = {
+            "official_brand_verified": True,
+            "category": "oil",
+            "title": {"ru": "Тест второй", "kk": "Екінші сынақ", "zh": "第二个测试"},
+            "supplier_confirmed_at": None,
+            "lead_time_days": None,
+        }
+        with patch("catalog.agparts_api.PAGE_SIZE", 1):
+            first = self.call()
+            self.assertEqual(first.status_code, 200)
+            cursor = first.json()["next_cursor"]
+            self.assertTrue(cursor)
+            second_page = self.call(LIST_URL + "?cursor=" + cursor)
+            self.assertEqual(second_page.status_code, 200)
+            self.assertIsNone(second_page.json()["next_cursor"])
+            Product.objects.filter(pk=second.pk).update(price=1700)
+            self.assertEqual(self.call(LIST_URL + "?cursor=" + cursor).status_code, 409)
+
+    def test_invalid_cursor_is_rejected(self):
+        self.assertEqual(self.call(LIST_URL + "?cursor=not-a-signed-token").status_code, 409)
