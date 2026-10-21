@@ -23,6 +23,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 
 from catalog.applicability import build_product_applicability
+from catalog.agparts_verified_offers import approved_offer_entry
 from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
 from catalog.kaspi_public_url import display_kaspi_public_url
 from catalog.models import Product, ProductFitment, ProductImage, ProductWarehouseStock, SellerProfile, Warehouse
@@ -211,7 +212,7 @@ def _kaspi_offer(product, entry, now):
         except ValueError:
             continue
         offer = (KaspiCompetitorOfferSnapshot.objects.filter(
-            listing_id=listing.pk, seller_code="30363568", source="office_collector"
+            listing_id=listing.pk, seller_code="30363568", source__in=("office_collector", "manual_browser_review")
         ).order_by("-captured_at", "-pk").first())
         if not offer or not offer.is_available or not _recent(offer.captured_at, now, timedelta(hours=24)):
             continue
@@ -222,6 +223,7 @@ def _kaspi_offer(product, entry, now):
     return candidates[0] if len(candidates) == 1 else (None, None)
 
 def _project(product, entry, now):
+    entry = approved_offer_entry(product, entry)
     stock_rows = product.agparts_pp2_rows
     if len(stock_rows) > 1:
         raise CatalogUnavailable("duplicated PP2 balance")
