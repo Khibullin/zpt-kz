@@ -11,7 +11,7 @@ MAX_MANIFEST_BYTES = 250_000
 MAX_PRODUCTS = 1000
 ENTRY_FIELDS = frozenset({
     "official_brand_verified", "category", "title",
-    "supplier_confirmed_at", "lead_time_days",
+    "supplier_confirmed_at", "lead_time_days", "kaspi_pack_qty",
 })
 
 
@@ -53,6 +53,9 @@ def parse_agparts_manifest(raw):
             raise ManifestError("three approved product translations required")
         if any(not isinstance(v, str) or not v.strip() or len(v) > 255 for v in titles.values()):
             raise ManifestError("empty or overlong translation")
+        pack_qty = entry["kaspi_pack_qty"]
+        if pack_qty is not None and (type(pack_qty) is not int or pack_qty < 1 or pack_qty > 100):
+            raise ManifestError("kaspi_pack_qty must be an explicitly verified count (1..100) or null")
         confirmed = entry["supplier_confirmed_at"]
         days = entry["lead_time_days"]
         if confirmed is not None:
