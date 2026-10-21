@@ -11,7 +11,7 @@ import json
 import logging
 from datetime import datetime, timedelta, timezone as dt_timezone
 from functools import wraps
-from urllib.parse import urlsplit
+from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
 from django.core import signing
@@ -179,20 +179,39 @@ def _image_list(product):
     return images
 
 
-def _kaspi_url(product):
-    # Stored URLs are not evidence of a currently sellable offer. Until both
-    # existing publication flags AND a verified URL agree, export no link.
-    if not product.publish_to_kaspi:
+def _kaspi_url(product, entry, now):
+    """Exact, fresh merchant offer for an approved package, never by SKU guess.
+
+    Kaspi export flags do not control public purchase links. A stored
+    direct URL is not enough: the correct master SKU, package size and our
+    observed price must all be verified. No outbound Kaspi requests.
+    """
+    pack_qty = entry["kaspi_pack_qty"]
+    master = entry["kaspi_master_sku"]
+    merchant_id = getattr(settings, "AGPARTS_KASPI_MERCHANT_ID", "")
+    if (pack_qty is None or not master or not merchant_id
+            or not product.price or product.price_on_request):
         return None
+    candidates = []
     for listing in product.kaspi_listings.all():
-        if not (listing.is_active and listing.publish_to_kaspi
-                and listing.public_url_verified_at):
+        if not (listing.is_active and listing.master_sku == master
+                and listing.public_url_verified_at and
+                listing.last_synced_at and
+                _recent(listing.last_synced_at, now, timedelta(hours=24)) and
+                listing.last_known_our_price == product.price):
             continue
         link = display_kaspi_public_url(listing.public_url)
-        if link:
-            return link
-    return None
-
+        if not link:
+            continue
+        try:
+            parsed = urlsplit(link)
+            query = parse_qs(parsed.query, keep_blank_values=True)
+            if query.get("m") != [str(merchant_id)] or query.get("ms") != ["true"]:
+                continue
+        except ValueError:
+            continue
+        candidates.append(link)
+    return candidates[0] if len(candidates) == 1 else None
 
 def _project(product, entry, now):
     stock_rows = product.agparts_pp2_rows
@@ -237,7 +256,8 @@ def _project(product, entry, now):
         "lead_time_days": entry["lead_time_days"] if supplier_at else None,
         "confirmed_fitments": _confirmed_fitments(product),
         "images": _image_list(product),
-        "kaspi_public_url": _kaspi_url(product),
+        "kaspi_public_url": _kaspi_url(product, entry, now),
+        "kaspi_pack_qty": entry["kaspi_pack_qty"],
     }
 
 
