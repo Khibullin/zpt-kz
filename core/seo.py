@@ -64,7 +64,12 @@ MAINTENANCE_KIT_FILTER_QUERY_KEYS = frozenset({
     'brand',
     'model',
     'engine',
+    'year',
+    'q_brand',
+    'q_model',
 })
+
+AG_PARTS_FILTER_QUERY_KEYS = frozenset({'brand', 'model', 'year', 'engine', 'article'})
 
 NOINDEX_FOLLOW_PREFIXES = (
     '/cart/',
@@ -126,6 +131,36 @@ def canonical_url_for_path(path: str) -> str:
     return f'{origin}{canonical_path(path)}'
 
 
+def plain_pagination_number(request):
+    """Only real list routes with a positive page and no content filters qualify."""
+    path = canonical_path(request.path)
+    url_name = getattr(getattr(request, 'resolver_match', None), 'url_name', '')
+    filters = None
+    if path in ('/parts-sellers/', '/auto-dismantlers/'):
+        filters = PARTS_SELLERS_FILTER_QUERY_KEYS
+    elif path == '/catalog/services/':
+        filters = SERVICES_FILTER_QUERY_KEYS
+    elif url_name == 'public_seller_profile':
+        filters = PUBLIC_SELLER_FILTER_QUERY_KEYS
+    elif url_name == 'public_seller_wholesale':
+        filters = PUBLIC_WHOLESALE_FILTER_QUERY_KEYS
+    if filters is None or (filters - {'page'}).intersection(request.GET.keys()):
+        return None
+    if 'directory' in request.GET or len(request.GET.getlist('page')) != 1:
+        return None
+    raw = request.GET.get('page', '')
+    if not raw.isascii() or not raw.isdigit() or len(raw) > 9:
+        return None
+    number = int(raw)
+    return number if number > 0 else None
+
+
+def canonical_url_for_request(request):
+    url = canonical_url_for_path(request.path)
+    number = plain_pagination_number(request)
+    return f'{url}?page={number}' if number and number > 1 else url
+
+
 def robots_directive(request) -> str:
     raw_path = request.path or '/'
     path = canonical_path(raw_path)
@@ -170,6 +205,9 @@ def robots_directive(request) -> str:
     ):
         return 'noindex, follow'
 
+    if plain_pagination_number(request) is not None:
+        return 'index, follow'
+
     if path in ('/parts-sellers/', '/auto-dismantlers/') and PARTS_SELLERS_FILTER_QUERY_KEYS.intersection(
         request.GET.keys()
     ):
@@ -190,9 +228,7 @@ def robots_directive(request) -> str:
     ):
         return 'noindex, follow'
 
-    # Public seller storefronts are indexable only at their clean path. Search,
-    # vehicle/category filters and pagination are crawlable duplicates that keep
-    # the clean self-canonical but must not become separate search results.
+    # Search and vehicle/category filters remain excluded from the index.
     if url_name == 'public_seller_profile' and PUBLIC_SELLER_FILTER_QUERY_KEYS.intersection(
         request.GET.keys()
     ):
@@ -208,12 +244,15 @@ def robots_directive(request) -> str:
     ):
         return 'noindex, follow'
 
+    if path == '/our-products/' and AG_PARTS_FILTER_QUERY_KEYS.intersection(request.GET.keys()):
+        return 'noindex, follow'
+
     return 'index, follow'
 
 
 def seo_context(request) -> dict[str, str]:
     return {
         'seo_editorial_enabled': getattr(settings, 'SEO_EDITORIAL_ENABLED', False),
-        'seo_canonical_url': canonical_url_for_path(request.path),
+        'seo_canonical_url': canonical_url_for_request(request),
         'seo_robots': robots_directive(request),
     }
