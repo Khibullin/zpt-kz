@@ -1,5 +1,6 @@
-{% load l10n static humanize phone_extras product_extras interface_ui kaspi_buy %}
+{% load l10n static humanize phone_extras product_extras interface_ui kaspi_buy agparts_primary_price %}
 {% with stock=product.public_stock kaspi_url=product|kaspi_buy_url contact_phone=seller_phone|default:product.whatsapp_number|whatsapp_phone %}
+{% agparts_kaspi_retail product as ag_kaspi %}
 <article data-product-id="{{ product.pk|unlocalize }}" class="product product-v2 product-card-approved" data-card-mode="{{ card_mode|default:'retail' }}">
   <a class="product-image-link" href="{{ product|public_product_url }}" aria-label="{{ product|public_card_title }}">
     {% if product.main_image %}
@@ -26,7 +27,19 @@
     {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
     {% if compat_note %}<p class="home-compat-note">{{ compat_note }}</p>{% endif %}
     <div class="product-card-prices">
-      {% if product.price_on_request %}
+      {% if ag_kaspi %}
+        <div class="product-card-price product-card-price--retail">
+          <span class="product-card-price-label" data-ru="Наша цена Kaspi" data-kk="Kaspi-дегі біздің баға">Наша цена Kaspi</span>
+          {% if ag_kaspi.price is not None %}
+            <span class="product-card-price-value">{{ ag_kaspi.price|intcomma|comma_to_space }} ₸</span>
+            {% if ag_kaspi.package_quantity == 4 %}
+              <span class="product-card-price-label" data-ru="Комплект 4 шт." data-kk="4 дана жиынтық">Комплект 4 шт.</span>
+            {% endif %}
+          {% else %}
+            <span class="product-card-price-value product-card-price-value--request" data-ru="Цена уточняется" data-kk="Бағасы нақтылануда">Цена уточняется</span>
+          {% endif %}
+        </div>
+      {% elif product.price_on_request %}
         <div class="product-card-price product-card-price--retail"><span class="product-card-price-value product-card-price-value--request" data-ru="Цена по запросу" data-kk="Баға сұрау бойынша">Цена по запросу</span></div>
       {% elif product.price is not None %}
         <div class="product-card-price product-card-price--retail">
@@ -34,14 +47,20 @@
           <span class="product-card-price-value">{{ product.price|intcomma|comma_to_space }} ₸</span>
         </div>
       {% endif %}
-      {% if product.has_public_wholesale and product.wholesale_unit_price %}
+      {% if ag_kaspi.package_quantity == 4 %}
+        <div class="product-card-price product-card-price--wholesale">
+          <span class="product-card-price-label" data-ru="Оптовые условия комплекта уточняются" data-kk="Жиынтықтың көтерме шарттары нақтылануда">Оптовые условия комплекта уточняются</span>
+        </div>
+      {% elif product.has_public_wholesale and product.wholesale_unit_price %}
         <div class="product-card-price product-card-price--wholesale">
           <span class="product-card-price-label">{% if product.wholesale_min_order_qty %}Опт от {{ product.wholesale_min_order_qty }} шт{% else %}Оптовая цена{% endif %}</span>
           <span class="product-card-price-value">{{ product.wholesale_unit_price|intcomma|comma_to_space }} ₸/шт</span>
         </div>
       {% endif %}
     </div>
-    {% if stock %}
+    {% if ag_kaspi.package_quantity == 4 %}
+      <p class="product-card-stock product-card-stock--unknown" data-ru="Наличие комплекта уточняется" data-kk="Жиынтықтың қолда бары нақтылануда">Наличие комплекта уточняется</p>
+    {% elif stock %}
       <p class="product-card-stock product-card-stock--{{ stock.code }}">
         {% if stock.code == 'in' %}<span data-ru="{{ stock.label }}" data-kk="Қолда бар: {{ stock.qty }} дана">{{ stock.label }}</span>
         {% elif stock.code == 'out' %}{% ui 'unavailable' %}
