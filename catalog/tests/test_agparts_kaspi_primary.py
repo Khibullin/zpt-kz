@@ -253,7 +253,9 @@ class AgpartsKaspiPrimaryPricingTests(TestCase):
         self.assertEqual(kaspi_buy_url(product), listing.public_url)
         html = render_to_string("catalog/includes/product_price_display.html", {"product": product})
         self.assertIn("комплект 4 шт.", html)
-        self.assertNotIn("2450", "".join(html.split()))
+        compact = "".join(html.split())
+        self.assertIn(">12450₸", compact)
+        self.assertNotIn(">2450₸", compact)
 
     def test_four_pack_still_identified_when_collector_has_no_current_price(self):
         product = Product.objects.create(
@@ -279,7 +281,7 @@ class AgpartsKaspiPrimaryPricingTests(TestCase):
         )
         self.assertIsNone(get_agparts_verified_retail(product))
         html = render_to_string("catalog/includes/product_price_display.html", {"product": product})
-        self.assertIn("2 400", html)
+        self.assertIn("2 400", html.replace("\\xa0", " "))
 
     def test_whitelist_of_valid_merchant_links(self):
         self.assertTrue(_merchant_card(self.listing.public_url, "30363568"))
