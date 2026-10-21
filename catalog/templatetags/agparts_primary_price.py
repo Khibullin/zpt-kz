@@ -29,7 +29,9 @@ def get_agparts_verified_retail(product):
     info = {
         "is_agparts": True,
         "price": None,
-        "package_quantity": None,
+        # Owner-approved sale unit is ALWAYS four plugs, even if
+        # the Kaspi observation goes stale while the page is viewed.
+        "package_quantity": 4 if (product.article or "").strip().upper() == "F4J163707010" else None,
         "source": "kaspi",
         "kaspi_url": "",
     }
