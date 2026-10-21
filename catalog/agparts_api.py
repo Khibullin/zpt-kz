@@ -196,18 +196,28 @@ def _kaspi_url(product):
 
 def _project(product, entry, now):
     stock_rows = product.agparts_pp2_rows
-    if len(stock_rows) != 1:
-        raise CatalogUnavailable("unverified PP2 balance")
-    stock = stock_rows[0]
-    # updated_at indicates a write, not necessarily a WMS verification. The
-    # entire integration must remain off until upstream freshness is proven.
-    if not _recent(stock.updated_at, now):
-        raise CatalogUnavailable("stale PP2 balance")
-    qty = int(stock.quantity)
-    if qty < 0:
-        raise CatalogUnavailable("negative stock")
-    supplier_at = entry["supplier_confirmed_at"] if qty == 0 and _supply_available(entry["supplier_confirmed_at"], now) else None
-    status = "in_stock" if qty > 0 else ("supplier_confirmed" if supplier_at else "inquiry")
+    if len(stock_rows) > 1:
+        raise CatalogUnavailable("duplicated PP2 balance")
+    # A missing/stale PP2 record is NOT zero stock and cannot establish
+    # either "in stock" or "supplier confirmed". Mask quantity and date.
+    # PP1 and Product.stock_qty never enter the calculation.
+    stock = stock_rows[0] if stock_rows else None
+    if stock is not None and (type(stock.quantity) is not int or stock.quantity < 0):
+        raise CatalogUnavailable("invalid PP2 quantity")
+    if stock is None or not _recent(stock.updated_at, now):
+        qty = None
+        stock_as_of = None
+        supplier_at = None
+        status = "unknown"
+    else:
+        qty = int(stock.quantity)
+        stock_as_of = stock.updated_at.isoformat()
+        supplier_at = (
+            entry["supplier_confirmed_at"]
+            if qty == 0 and _supply_available(entry["supplier_confirmed_at"], now)
+            else None
+        )
+        status = "in_stock" if qty > 0 else ("supplier_confirmed" if supplier_at else "inquiry")
     price = product.price if not product.price_on_request else None
     if price is not None and (type(price) is not int or price <= 0):
         raise CatalogUnavailable("invalid retail price")
@@ -221,7 +231,7 @@ def _project(product, entry, now):
         "title": entry["title"],
         "retail_price_kzt": price,
         "available_pp2_qty": qty,
-        "stock_as_of": stock.updated_at.isoformat(),
+        "stock_as_of": stock_as_of,
         "availability": status,
         "supplier_confirmed_at": supplier_at,
         "lead_time_days": entry["lead_time_days"] if supplier_at else None,
