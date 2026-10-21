@@ -157,7 +157,7 @@ def evaluate_one(product, *, now=None) -> PriceDecision:
         raise PriceReconciliationError("not an AG Parts seller product")
     if product.status != "active" or not product.article:
         raise PriceReconciliationError("not an active SKU")
-    if _positive_kzt(product.price) != product.price:
+    if _positive_kzt(product.price) is None:
         return _base_decision(product, status=BAD_PRODUCT, reason="Missing or invalid ZPT retail price")
 
     candidates = []
