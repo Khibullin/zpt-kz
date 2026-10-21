@@ -59,10 +59,8 @@ def parse_agparts_manifest(raw):
         pack_qty = entry["kaspi_pack_qty"]
         if pack_qty is not None and (type(pack_qty) is not int or pack_qty < 1 or pack_qty > 100):
             raise ManifestError("kaspi_pack_qty must be an explicitly verified count (1..100) or null")
-        # A missing package keeps the Kaspi link disabled. A single-plug
-        # listing can never be enabled as an official AG Parts spark offer.
-        if entry["category"] == "spark" and pack_qty == 1:
-            raise ManifestError("individual spark plug sale is prohibited")
+        # Owner's decision is specifically for F4J163707010; do not
+        # silently impose this package rule on unrelated spark SKUs.
         if article.upper() == FOUR_PACK_ONLY_ARTICLE:
             if entry["category"] != "spark" or pack_qty not in (None, 4):
                 raise ManifestError("F4J163707010 is sold only in four-plug sets")
