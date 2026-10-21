@@ -281,7 +281,7 @@ class AgpartsKaspiPrimaryPricingTests(TestCase):
         )
         self.assertIsNone(get_agparts_verified_retail(product))
         html = render_to_string("catalog/includes/product_price_display.html", {"product": product})
-        self.assertIn("2 400", html.replace("\\xa0", " "))
+        self.assertIn("2 400", html.replace(chr(160), " "))
 
     def test_whitelist_of_valid_merchant_links(self):
         self.assertTrue(_merchant_card(self.listing.public_url, "30363568"))
