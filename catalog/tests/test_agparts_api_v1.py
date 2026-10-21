@@ -1,0 +1,225 @@
+"""AG Parts internal v1 API regression tests (isolated test DB only).
+
+Never reach production, supplier APIs, Kaspi, or paid services.
+"""
+import json
+from datetime import timedelta
+from unittest.mock import patch
+
+from django.contrib.auth.models import User
+from django.core.cache import cache
+from django.test import TestCase, override_settings
+from django.utils import timezone
+
+from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
+from catalog.models import (
+    Brand, CarModel, Country, Product, ProductFitment,
+    ProductWarehouseStock, SellerProfile, Warehouse,
+)
+
+
+TEST_TOKEN = "test-AG-parts-" + "x" * 44
+LIST_URL = "/internal/agparts/v1/products/"
+VEHICLES_URL = "/internal/agparts/v1/vehicles/"
+
+
+class ManifestValidationTests(TestCase):
+    def test_manifest_denies_invalid_brand_category_and_translation(self):
+        doc = {
+            "version": 1,
+            "products": {
+                "001234": {
+                    "official_brand_verified": True,
+                    "category": "cabin",
+                    "title": {"ru": "Тест", "kk": "Сынақ", "zh": "测试"},
+                    "supplier_confirmed_at": None,
+                    "lead_time_days": None,
+                },
+            },
+        }
+        self.assertIn("001234", parse_agparts_manifest(json.dumps(doc)))
+        for key, value in (
+            ("official_brand_verified", False),
+            ("category", "engine_oil"),
+            ("title", {"ru": "Тест"}),
+            ("lead_time_days", 3),
+        ):
+            with self.subTest(field=key):
+                altered = json.loads(json.dumps(doc))
+                altered["products"]["001234"][key] = value
+                with self.assertRaises(ManifestError):
+                    parse_agparts_manifest(json.dumps(altered))
+
+    def test_no_manifest_and_unknown_fields_denied(self):
+        with self.assertRaises(ManifestError):
+            parse_agparts_manifest("")
+        with self.assertRaises(ManifestError):
+            parse_agparts_manifest('{"version":1,"products":{},"secret":"oops"}')
+
+
+class CatalogApiTests(TestCase):
+    def setUp(self):
+        cache.clear()
+        user = User.objects.create_user(username="agparts-api-local-test", password="local-test-secret")
+        self.seller = SellerProfile.objects.create(
+            user=user, name="AG Parts", slug="ag-parts", phone="0000000000", city="Алматы",
+        )
+        country = Country.objects.create(name="Testland")
+        brand = Brand.objects.create(name="ExampleAuto", country=country)
+        model = CarModel.objects.create(name="ExampleModel", brand=brand)
+        self.product = Product.objects.create(
+            title="Sample Product", article="000AG-TEST", price=3200,
+            seller_profile=self.seller, seller_name="AG Parts",
+            whatsapp_number="77700000000", city="Алматы", status="active",
+            cost_price=1111, stock_qty=999, publish_to_kaspi=False,
+            fitment_reviewed_on=timezone.localdate(),
+            main_image="products/example-filter.png",
+        )
+        self.pp2, _ = Warehouse.objects.get_or_create(code="PP2", defaults={"name": "Fulfillment"})
+        self.pp1, _ = Warehouse.objects.get_or_create(code="PP1", defaults={"name": "Reserve"})
+        ProductWarehouseStock.objects.create(product=self.product, warehouse=self.pp2, quantity=4)
+        ProductWarehouseStock.objects.create(product=self.product, warehouse=self.pp1, quantity=999)
+        ProductFitment.objects.create(
+            product=self.product, car_model=model,
+            engine_policy="required", engine_code="ENGINE-TEST",
+            year_from=2024, month_from=3, year_to=2025, month_to=11,
+            market="KZ", body="Example body", generation="Example gen",
+            fuel="gasoline", power_kw=90, note="Check month of production",
+            status="confirmed", source_url="https://example.com/catalog",
+            verified_on=timezone.localdate(),
+        )
+        self.manifest = {
+            "version": 1,
+            "products": {
+                "000AG-TEST": {
+                    "official_brand_verified": True,
+                    "category": "cabin",
+                    "title": {"ru": "Фильтр (тест)", "kk": "Сынақ сүзгісі", "zh": "测试滤清器"},
+                    "supplier_confirmed_at": None,
+                    "lead_time_days": None,
+                },
+            },
+        }
+
+    def call(self, path=LIST_URL, *, token=TEST_TOKEN, manifest=None, method="get", enabled=True):
+        raw = json.dumps(manifest if manifest is not None else self.manifest, ensure_ascii=False)
+        with override_settings(AGPARTS_CATALOG_API_ENABLED=enabled,
+                               AGPARTS_CATALOG_API_TOKEN=TEST_TOKEN,
+                               AGPARTS_CATALOG_MANIFEST_JSON=raw):
+            return getattr(self.client, method)(
+                path, HTTP_AUTHORIZATION="Bearer " + token,
+            )
+
+    def test_feature_off_by_default(self):
+        with override_settings(AGPARTS_CATALOG_API_ENABLED=False):
+            response = self.client.get(LIST_URL, HTTP_AUTHORIZATION="Bearer " + TEST_TOKEN)
+        self.assertEqual(response.status_code, 404)
+
+    def test_authentication_and_get_only(self):
+        self.assertEqual(self.call(token="wrong").status_code, 404)
+        self.assertEqual(self.call(method="post").status_code, 405)
+        with override_settings(AGPARTS_CATALOG_API_ENABLED=True,
+                               AGPARTS_CATALOG_API_TOKEN="",
+                               AGPARTS_CATALOG_MANIFEST_JSON=json.dumps(self.manifest)):
+            self.assertEqual(self.client.get(LIST_URL).status_code, 503)
+
+    def test_products_no_internal_fields(self):
+        response = self.call()
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("no-store", response["Cache-Control"])
+        self.assertIn("noindex", response["X-Robots-Tag"])
+        document = response.json()
+        self.assertEqual(document["schema_version"], "agparts.catalog.v1")
+        item = document["products"][0]
+        self.assertEqual(item["article"], "000AG-TEST")
+        self.assertEqual(item["retail_price_kzt"], 3200)
+        self.assertEqual(item["available_pp2_qty"], 4)
+        self.assertEqual(item["availability"], "in_stock")
+        self.assertEqual(item["category"], "cabin")
+        self.assertIn("/products/products/example-filter.png", item["images"][0])
+        for banned in ("cost_price", "seller_profile_id", "customer_phone",
+                       "whatsapp_number", "stock_qty", "secret", "email", "password"):
+            self.assertNotIn(banned, json.dumps(document))
+
+    def test_fitment_preserves_month_and_qualifiers(self):
+        response = self.call()
+        self.assertEqual(response.status_code, 200)
+        record = response.json()["products"][0]["confirmed_fitments"][0]
+        self.assertEqual(record["month_from"], 3)
+        self.assertEqual(record["month_to"], 11)
+        self.assertEqual(record["market"], "KZ")
+        self.assertEqual(record["body"], "Example body")
+        self.assertEqual(record["engine_code"], "ENGINE-TEST")
+
+    def test_pp1_not_included_and_no_order_for_zero_pp2(self):
+        ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).update(quantity=0)
+        response = self.call()
+        self.assertEqual(response.status_code, 200)
+        item = response.json()["products"][0]
+        self.assertEqual(item["available_pp2_qty"], 0)
+        self.assertEqual(item["availability"], "inquiry")
+
+    def test_supplier_confirmation_separate_from_stock(self):
+        ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).update(quantity=0)
+        self.manifest["products"]["000AG-TEST"]["supplier_confirmed_at"] = timezone.now().isoformat()
+        self.manifest["products"]["000AG-TEST"]["lead_time_days"] = 10
+        item = self.call().json()["products"][0]
+        self.assertEqual(item["availability"], "supplier_confirmed")
+        self.assertEqual(item["lead_time_days"], 10)
+
+    def test_stale_pp2_rejects_entire_snapshot(self):
+        ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).update(
+            updated_at=timezone.now() - timedelta(days=2))
+        response = self.call()
+        self.assertEqual(response.status_code, 503)
+        self.assertNotIn("3200", response.content.decode())
+
+    def test_missing_pp2_record_fails_closed(self):
+        ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).delete()
+        self.assertEqual(self.call().status_code, 503)
+
+    def test_hidden_product_not_exposed(self):
+        self.product.status = "hidden"
+        self.product.save(update_fields=["status"])
+        self.assertEqual(self.call().status_code, 503)
+
+    def test_approved_seller_only_and_no_unlisted_product(self):
+        seller_other = SellerProfile.objects.create(
+            user=User.objects.create_user(username="unrelated-company"),
+            name="Other", slug="other-company", phone="11111111", city="Астана",
+        )
+        extra = Product.objects.create(
+            title="Other product", article="OTHER-TEST", seller_profile=seller_other,
+            seller_name="Other", whatsapp_number="123", status="active", price=100,
+        )
+        self.assertEqual(self.call().json()["products"][0]["id"], self.product.pk)
+        self.assertEqual(self.call(f"/internal/agparts/v1/products/{extra.pk}/").status_code, 404)
+
+    def test_manifest_bogus_category_and_product_denied(self):
+        self.manifest["products"]["000AG-TEST"]["category"] = "suspension"
+        self.assertEqual(self.call().status_code, 503)
+
+    def test_vehicles_are_advisory_not_auto_compatible(self):
+        response = self.call(VEHICLES_URL)
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertFalse(body["selection_ready"])
+        self.assertEqual(body["fitments"][0]["month_from"], 3)
+        self.assertEqual(body["fitments"][0]["product_id"], self.product.pk)
+
+    def test_request_does_not_mutate_product_or_stocks(self):
+        before = self.product.price
+        before_stock = ProductWarehouseStock.objects.get(product=self.product, warehouse=self.pp2).quantity
+        self.assertEqual(self.call().status_code, 200)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.price, before)
+        self.assertEqual(ProductWarehouseStock.objects.get(product=self.product, warehouse=self.pp2).quantity, before_stock)
+
+    def test_no_public_unauthenticated_data(self):
+        with override_settings(AGPARTS_CATALOG_API_ENABLED=True,
+                               AGPARTS_CATALOG_API_TOKEN=TEST_TOKEN,
+                               AGPARTS_CATALOG_MANIFEST_JSON=json.dumps(self.manifest)):
+            for path in (LIST_URL, VEHICLES_URL, f"/internal/agparts/v1/products/{self.product.pk}/"):
+                with self.subTest(path=path):
+                    self.assertEqual(self.client.get(path).status_code, 404)
+
