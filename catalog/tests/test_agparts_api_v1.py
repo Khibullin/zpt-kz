@@ -167,16 +167,50 @@ class CatalogApiTests(TestCase):
         self.assertEqual(item["availability"], "supplier_confirmed")
         self.assertEqual(item["lead_time_days"], 10)
 
-    def test_stale_pp2_rejects_entire_snapshot(self):
+    def test_stale_pp2_keeps_approved_product_price_but_masks_stock(self):
         ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).update(
             updated_at=timezone.now() - timedelta(days=2))
         response = self.call()
-        self.assertEqual(response.status_code, 503)
-        self.assertNotIn("3200", response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        item = response.json()["products"][0]
+        self.assertEqual(item["retail_price_kzt"], 3200)
+        self.assertEqual(item["article"], "000AG-TEST")
+        self.assertEqual(item["availability"], "unknown")
+        self.assertIsNone(item["available_pp2_qty"])
+        self.assertIsNone(item["stock_as_of"])
+        self.assertIsNone(item["supplier_confirmed_at"])
+        self.assertIsNone(item["lead_time_days"])
+        self.assertNotIn("999", response.content.decode())  # PP1 + old Product.stock_qty
 
-    def test_missing_pp2_record_fails_closed(self):
+    def test_stale_zero_with_supplier_confirmation_must_still_be_unknown(self):
+        ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).update(
+            quantity=0, updated_at=timezone.now() - timedelta(days=2))
+        self.manifest["products"]["000AG-TEST"]["supplier_confirmed_at"] = timezone.now().isoformat()
+        self.manifest["products"]["000AG-TEST"]["lead_time_days"] = 10
+        item = self.call().json()["products"][0]
+        self.assertEqual(item["availability"], "unknown")
+        self.assertIsNone(item["available_pp2_qty"])
+        self.assertIsNone(item["supplier_confirmed_at"])
+        self.assertIsNone(item["lead_time_days"])
+
+    def test_missing_pp2_record_is_unknown_not_zero(self):
         ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).delete()
-        self.assertEqual(self.call().status_code, 503)
+        response = self.call()
+        self.assertEqual(response.status_code, 200)
+        item = response.json()["products"][0]
+        self.assertEqual(item["availability"], "unknown")
+        self.assertIsNone(item["available_pp2_qty"])
+        self.assertIsNone(item["stock_as_of"])
+        self.assertEqual(item["retail_price_kzt"], 3200)
+
+    def test_missing_pp2_with_supplier_confirmation_is_not_preorder(self):
+        ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).delete()
+        self.manifest["products"]["000AG-TEST"]["supplier_confirmed_at"] = timezone.now().isoformat()
+        self.manifest["products"]["000AG-TEST"]["lead_time_days"] = 7
+        item = self.call().json()["products"][0]
+        self.assertEqual(item["availability"], "unknown")
+        self.assertIsNone(item["supplier_confirmed_at"])
+        self.assertIsNone(item["lead_time_days"])
 
     def test_hidden_product_not_exposed(self):
         self.product.status = "hidden"
