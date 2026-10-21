@@ -244,7 +244,7 @@ def robots_directive(request) -> str:
     ):
         return 'noindex, follow'
 
-    if path == '/our-products/' and AG_PARTS_FILTER_QUERY_KEYS.intersection(request.GET.keys()):
+    if path in ('/our-products/', '/ag-parts/filters/') and AG_PARTS_FILTER_QUERY_KEYS.intersection(request.GET.keys()):
         return 'noindex, follow'
 
     return 'index, follow'

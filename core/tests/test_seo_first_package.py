@@ -51,6 +51,7 @@ class FirstSeoPackageTests(SimpleTestCase):
         for path, keys in (
             ('/maintenance-kits/', ('brand', 'model', 'year', 'engine', 'q_brand', 'q_model')),
             ('/our-products/', ('brand', 'model', 'year', 'engine', 'article')),
+            ('/ag-parts/filters/', ('brand', 'model', 'year', 'engine', 'article')),
         ):
             self.assertEqual(self.context(path)['seo_robots'], 'index, follow')
             for key in keys:
