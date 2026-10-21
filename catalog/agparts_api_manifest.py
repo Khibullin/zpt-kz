@@ -5,7 +5,6 @@ No DB writes, networks, inferred product categories, or automatic approvals.
 """
 import json
 from datetime import datetime
-from django.core.exceptions import ImproperlyConfigured
 
 ALLOWED_TYPES = frozenset({"cabin", "air", "oil", "spark"})
 MAX_MANIFEST_BYTES = 250_000
