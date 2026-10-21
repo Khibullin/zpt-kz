@@ -42,4 +42,12 @@ jobs:
       - name: Django system check
         run: python manage.py check
       - name: Isolated Kaspi price tests
-        run: python manage.py test catalog.tests.test_agparts_kaspi_primary --verbosity 2
+        run: |
+          python manage.py test \
+            catalog.tests.test_agparts_kaspi_primary \
+            catalog.tests.test_kaspi_buy_filter \
+            catalog.tests.test_product_structured_data \
+            catalog.tests.test_public_wholesale \
+            catalog.tests.test_price_on_request \
+            catalog.tests.test_product_card_design \
+            --verbosity 1
