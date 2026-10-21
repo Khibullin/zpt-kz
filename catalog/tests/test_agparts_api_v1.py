@@ -52,6 +52,58 @@ class ManifestValidationTests(TestCase):
                 with self.assertRaises(ManifestError):
                     parse_agparts_manifest(json.dumps(altered))
 
+    def test_f4j_spark_is_four_pack_only(self):
+        base = {
+            "version": 1,
+            "products": {
+                "F4J163707010": {
+                    "official_brand_verified": True,
+                    "category": "spark",
+                    "title": {
+                        "ru": "Свечи AG Parts, комплект 4 шт.",
+                        "kk": "AG Parts оталдыру шамдары, 4 дана",
+                        "zh": "AG Parts 4支火花塞套装",
+                    },
+                    "supplier_confirmed_at": None,
+                    "lead_time_days": None,
+                    "kaspi_pack_qty": 4,
+                    "kaspi_master_sku": "EXAMPLE-FOUR-PACK",
+                },
+            },
+        }
+        approved = parse_agparts_manifest(json.dumps(base))
+        self.assertEqual(approved["F4J163707010"]["kaspi_pack_qty"], 4)
+        entry = base["products"]["F4J163707010"]
+        for invalid in (1, 2, 3, 5):
+            with self.subTest(invalid_qty=invalid):
+                entry["kaspi_pack_qty"] = invalid
+                with self.assertRaises(ManifestError):
+                    parse_agparts_manifest(json.dumps(base))
+        entry["kaspi_pack_qty"] = 4
+        entry["category"] = "oil"
+        with self.assertRaises(ManifestError):
+            parse_agparts_manifest(json.dumps(base))
+
+    def test_other_spark_sku_cannot_be_sold_by_piece(self):
+        example = {
+            "version": 1,
+            "products": {
+                "OTHER-SPARK": {
+                    "official_brand_verified": True,
+                    "category": "spark",
+                    "title": {"ru": "Свечи", "kk": "Оталдыру шамдары", "zh": "火花塞"},
+                    "supplier_confirmed_at": None,
+                    "lead_time_days": None,
+                    "kaspi_pack_qty": 1,
+                    "kaspi_master_sku": "EXAMPLE-MASTER",
+                }
+            },
+        }
+        with self.assertRaises(ManifestError):
+            parse_agparts_manifest(json.dumps(example))
+        example["products"]["OTHER-SPARK"]["kaspi_pack_qty"] = 4
+        self.assertIn("OTHER-SPARK", parse_agparts_manifest(json.dumps(example)))
+
     def test_no_manifest_and_unknown_fields_denied(self):
         with self.assertRaises(ManifestError):
             parse_agparts_manifest("")
