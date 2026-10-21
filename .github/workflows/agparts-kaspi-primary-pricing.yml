@@ -1,0 +1,38 @@
+name: AG Parts Kaspi-primary price reconciliation
+
+on:
+  push:
+    branches:
+      - feature/agparts-kaspi-primary-pricing
+    paths:
+      - catalog/agparts_kaspi_primary.py
+      - catalog/management/commands/review_agparts_kaspi_prices.py
+      - catalog/tests/test_agparts_kaspi_primary.py
+      - .github/workflows/agparts-kaspi-primary-pricing.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  dry-run-pricing:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'ci-local-only-agparts-price-policy-not-production'
+      DATABASE_URL: 'sqlite:////tmp/agparts-primary-pricing-test.sqlite3'
+      AGPARTS_KASPI_PRICE_APPLY_ENABLED: 'False'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install Django app requirements
+        run: python -m pip install -r requirements.txt
+      - name: Python compile
+        run: python -m compileall -q catalog/agparts_kaspi_primary.py catalog/management/commands/review_agparts_kaspi_prices.py catalog/tests/test_agparts_kaspi_primary.py
+      - name: Django system check
+        run: python manage.py check
+      - name: Isolated Kaspi price tests
+        run: python manage.py test catalog.tests.test_agparts_kaspi_primary --verbosity 2
