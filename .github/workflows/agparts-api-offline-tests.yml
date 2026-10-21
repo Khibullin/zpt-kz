@@ -1,0 +1,46 @@
+name: AG Parts ZPT read-only API isolation
+
+on:
+  push:
+    branches:
+      - feature/agparts-readonly-catalog-api
+    paths:
+      - catalog/agparts_api.py
+      - catalog/agparts_api_urls.py
+      - catalog/agparts_api_manifest.py
+      - catalog/tests/test_agparts_api_v1.py
+      - backend/urls.py
+      - backend/settings.py
+      - .github/workflows/agparts-api-offline-tests.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'local-ci-only-agparts-zpt-not-production'
+      DATABASE_URL: 'sqlite:////tmp/agparts-zpt-ci.sqlite3'
+      AGPARTS_CATALOG_API_ENABLED: 'False'
+      AGPARTS_CATALOG_API_TOKEN: ''
+      AGPARTS_CATALOG_MANIFEST_JSON: ''
+      DJANGO_SETTINGS_MODULE: 'backend.settings'
+    steps:
+      - name: Check out isolated API branch
+        uses: actions/checkout@v4
+      - name: Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install approved project dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Syntax check
+        run: python -m compileall -q catalog/agparts_api.py catalog/agparts_api_manifest.py catalog/agparts_api_urls.py catalog/tests/test_agparts_api_v1.py
+      - name: Django project check
+        run: python manage.py check
+      - name: Tests on temporary SQLite (never production PostgreSQL)
+        run: python manage.py test catalog.tests.test_agparts_api_v1 --verbosity 2
