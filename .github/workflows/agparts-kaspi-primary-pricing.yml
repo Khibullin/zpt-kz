@@ -8,6 +8,13 @@ on:
       - catalog/agparts_kaspi_primary.py
       - catalog/management/commands/review_agparts_kaspi_prices.py
       - catalog/tests/test_agparts_kaspi_primary.py
+      - catalog/templatetags/agparts_primary_price.py
+      - catalog/templatetags/kaspi_buy.py
+      - catalog/templatetags/product_extras.py
+      - catalog/templates/catalog/includes/product_card.html
+      - catalog/templates/catalog/includes/product_price_display.html
+      - catalog/templates/catalog/includes/product_buy_controls.html
+      - catalog/templates/catalog/product_detail.html
       - .github/workflows/agparts-kaspi-primary-pricing.yml
   workflow_dispatch:
 
