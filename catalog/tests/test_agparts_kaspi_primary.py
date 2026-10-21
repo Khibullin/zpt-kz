@@ -6,6 +6,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.core.management import call_command
 from django.test import TestCase, override_settings
+from django.template.loader import render_to_string
 from django.utils import timezone
 
 from catalog.agparts_kaspi_primary import (
@@ -14,6 +15,8 @@ from catalog.agparts_kaspi_primary import (
     _merchant_card, apply_previewed_prices, evaluate_one, fingerprint, price_review,
 )
 from catalog.models import Product, ProductKaspiListing, ProductPriceTier, SellerProfile
+from catalog.templatetags.agparts_primary_price import get_agparts_verified_retail
+from catalog.templatetags.kaspi_buy import kaspi_buy_url
 from repricer.models import KaspiCompetitorOfferSnapshot
 
 
@@ -199,6 +202,84 @@ class AgpartsKaspiPrimaryPricingTests(TestCase):
         self.assertEqual(self.tier.price, 390)
         self.assertEqual(self.offer.price, Decimal("1300.00"))
         self.assertFalse(self.listing.publish_to_kaspi)
+
+    def test_zpt_product_card_price_uses_kaspi_not_stale_product_price(self):
+        offer = get_agparts_verified_retail(self.filter)
+        self.assertEqual(offer["price"], 1300)
+        self.assertEqual(offer["kaspi_url"], self.listing.public_url)
+        self.assertIsNone(offer["package_quantity"])
+        self.assertEqual(kaspi_buy_url(self.filter), self.listing.public_url)
+        html = render_to_string(
+            "catalog/includes/product_price_display.html",
+            {"product": self.filter, "price_class": "detail-price"},
+        )
+        self.assertIn("₸", html)
+        self.assertNotIn("1547", "".join(html.split()))
+
+    def test_zpt_card_never_falls_back_to_stale_product_price(self):
+        self.offer.captured_at = self.now - timedelta(days=8)
+        self.offer.save(update_fields=["captured_at"])
+        offer = get_agparts_verified_retail(self.filter)
+        self.assertIsNone(offer["price"])
+        self.assertEqual(offer["kaspi_url"], "")
+        self.assertEqual(kaspi_buy_url(self.filter), "")
+        html = render_to_string(
+            "catalog/includes/product_price_display.html",
+            {"product": self.filter},
+        )
+        self.assertIn("Цена Kaspi уточняется", html)
+        self.assertNotIn("1547", "".join(html.split()))
+
+    def test_four_plug_bundle_shows_pack_price_only_and_no_local_stock_promise(self):
+        product = Product.objects.create(
+            seller_profile=self.profile, seller_name="AG Parts",
+            title="Свеча зажигания", article="F4J163707010",
+            whatsapp_number="0000000000", status="active", price=2450,
+        )
+        ProductPriceTier.objects.create(product=product, min_qty=1, price=740, is_active=True)
+        listing = ProductKaspiListing.objects.create(
+            product=product, master_sku="835932711", merchant_sku=product.article,
+            is_active=True, public_url_verified_at=self.now,
+            public_url="https://kaspi.kz/shop/p/four-plugs-133904131/?m=30363568&ms=true",
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing, seller_code="30363568", seller_name="AG Parts",
+            price=Decimal("12450.00"), is_available=True,
+            captured_at=self.now, source="office_collector",
+        )
+        info = get_agparts_verified_retail(product)
+        self.assertEqual(info["price"], 12450)
+        self.assertEqual(info["package_quantity"], 4)
+        self.assertEqual(kaspi_buy_url(product), listing.public_url)
+        html = render_to_string("catalog/includes/product_price_display.html", {"product": product})
+        self.assertIn("комплект 4 шт.", html)
+        self.assertNotIn("2450", "".join(html.split()))
+
+    def test_four_pack_still_identified_when_collector_has_no_current_price(self):
+        product = Product.objects.create(
+            seller_profile=self.profile, seller_name="AG Parts",
+            title="Свеча зажигания", article="F4J163707010",
+            whatsapp_number="0000000000", status="active", price=2450,
+        )
+        info = get_agparts_verified_retail(product)
+        self.assertIsNone(info["price"])
+        self.assertEqual(info["package_quantity"], 4)
+        self.assertEqual(info["kaspi_url"], "")
+
+    def test_other_sellers_keep_original_zpt_price_template(self):
+        other = SellerProfile.objects.create(
+            user=User.objects.create_user(username="other-price-seller"),
+            slug="other-price-seller", name="Other Seller",
+            phone="0000000000", city="Астана",
+        )
+        product = Product.objects.create(
+            seller_profile=other, seller_name="Other Seller",
+            title="Фильтр другого продавца", article="OTHERSKU",
+            whatsapp_number="0000000000", status="active", price=2400,
+        )
+        self.assertIsNone(get_agparts_verified_retail(product))
+        html = render_to_string("catalog/includes/product_price_display.html", {"product": product})
+        self.assertIn("2 400", html)
 
     def test_whitelist_of_valid_merchant_links(self):
         self.assertTrue(_merchant_card(self.listing.public_url, "30363568"))
