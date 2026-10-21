@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras product_extras seller_extras kaspi_buy %}
+{% load static humanize phone_extras product_extras seller_extras kaspi_buy agparts_primary_price %}
 
 {% block title %}
 Купить {{ product|public_product_seo_name }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %} в Казахстане — цена и наличие | ZPT.KZ
@@ -123,6 +123,7 @@
 {% endblock %}
 
 {% block content %}
+{% agparts_kaspi_retail product as ag_kaspi %}
 {% csrf_token %}
 {% include 'includes/site_header_with_cart.html' with show_cart=True %}
 
@@ -211,16 +212,26 @@
   Новые, б/у и контрактные запчасти
 </div>
 
-        {% if public_wholesale %}
+        {% if ag_kaspi %}
+          {% include 'catalog/includes/product_price_display.html' with product=product price_class='detail-price' %}
+          {% if public_wholesale and ag_kaspi.package_quantity != 4 %}
+            {% include 'catalog/includes/product_wholesale_cta.html' %}
+          {% endif %}
+        {% elif public_wholesale %}
           {% include 'catalog/includes/product_wholesale_cta.html' %}
         {% else %}
           {% include 'catalog/includes/product_price_display.html' with product=product price_class='detail-price' %}
         {% endif %}
 
-        {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
+        {% if ag_kaspi.package_quantity != 4 %}
+          {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
+        {% endif %}
 
         {% include 'catalog/includes/b2b_seller_terms.html' with product=product %}
 
+{% if ag_kaspi.package_quantity == 4 %}
+<p class="product-buy-unavailable" style="font-weight:600;margin:8px 0 12px;">Наличие комплекта 4 шт. уточняется</p>
+{% else %}
 <div
   style="
     color:{% if stock_status.code == 'out' or stock_status.code == 'unknown' %}#6b7280{% else %}#16a34a{% endif %};
@@ -232,6 +243,7 @@
 >
   {% if stock_status.code == 'in' %}✓ {% endif %}{{ stock_status.label }}
 </div>
+{% endif %}
 
 <div
   style="
