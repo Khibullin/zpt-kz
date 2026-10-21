@@ -1,4 +1,5 @@
 """Kaspi-first ZPT prices: isolated test DB, no collector or production writes."""
+import json
 from datetime import timedelta
 from decimal import Decimal
 
@@ -17,6 +18,7 @@ from catalog.agparts_kaspi_primary import (
 from catalog.models import Product, ProductKaspiListing, ProductPriceTier, SellerProfile
 from catalog.templatetags.agparts_primary_price import get_agparts_verified_retail
 from catalog.templatetags.kaspi_buy import kaspi_buy_url
+from catalog.templatetags.product_extras import product_json_ld
 from repricer.models import KaspiCompetitorOfferSnapshot
 
 
@@ -230,6 +232,15 @@ class AgpartsKaspiPrimaryPricingTests(TestCase):
         self.assertIn("Цена Kaspi уточняется", html)
         self.assertNotIn("1547", "".join(html.split()))
 
+    def test_agparts_schema_product_uses_kaspi_main_price_only(self):
+        data = json.loads(product_json_ld(self.filter))
+        self.assertEqual(data["offers"]["price"], 1300)
+        self.assertNotIn("availability", data["offers"])
+        self.offer.captured_at = self.now - timedelta(days=8)
+        self.offer.save(update_fields=["captured_at"])
+        refreshed = Product.objects.get(pk=self.filter.pk)
+        self.assertNotIn("offers", json.loads(product_json_ld(refreshed)))
+
     def test_four_plug_bundle_shows_pack_price_only_and_no_local_stock_promise(self):
         product = Product.objects.create(
             seller_profile=self.profile, seller_name="AG Parts",
@@ -256,6 +267,9 @@ class AgpartsKaspiPrimaryPricingTests(TestCase):
         compact = "".join(html.split())
         self.assertIn(">12450₸", compact)
         self.assertNotIn(">2450₸", compact)
+        structured = json.loads(product_json_ld(product))
+        self.assertEqual(structured["offers"]["price"], 12450)
+        self.assertNotIn("availability", structured["offers"])
 
     def test_four_pack_still_identified_when_collector_has_no_current_price(self):
         product = Product.objects.create(
