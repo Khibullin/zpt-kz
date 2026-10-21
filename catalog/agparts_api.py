@@ -23,7 +23,7 @@ from django.utils import timezone
 
 from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
 from catalog.kaspi_public_url import display_kaspi_public_url
-from catalog.models import Product, ProductImage, ProductWarehouseStock, SellerProfile, Warehouse
+from catalog.models import Product, ProductFitment, ProductImage, ProductWarehouseStock, SellerProfile, Warehouse
 from catalog.warehouses import WAREHOUSE_CODE_PP2
 
 logger = logging.getLogger(__name__)
@@ -246,10 +246,7 @@ def _snapshot(now):
                      queryset=ProductWarehouseStock.objects.filter(warehouse__code=WAREHOUSE_CODE_PP2,
                                                                     warehouse__is_active=True),
                      to_attr="agparts_pp2_rows"),
-            Prefetch("fitments", queryset=(
-                __import__("catalog.models", fromlist=["ProductFitment"]).ProductFitment.objects
-                .select_related("car_model__brand")
-            )),
+            Prefetch("fitments", queryset=ProductFitment.objects.select_related("car_model__brand")),
             Prefetch("images", queryset=ProductImage.objects.order_by("sort_order", "pk")),
             "kaspi_listings",
         )
