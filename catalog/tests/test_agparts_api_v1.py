@@ -12,6 +12,7 @@ from django.test import TestCase, override_settings
 from django.utils import timezone
 
 from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
+from repricer.models import KaspiCompetitorOfferSnapshot
 from catalog.models import (
     Brand, CarModel, Country, Product, ProductFitment, ProductKaspiListing,
     ProductWarehouseStock, SellerProfile, Warehouse,
@@ -168,7 +169,7 @@ class CatalogApiTests(TestCase):
         self.assertEqual(document["schema_version"], "agparts.catalog.v1")
         item = document["products"][0]
         self.assertEqual(item["article"], "000AG-TEST")
-        self.assertEqual(item["retail_price_kzt"], 3200)
+        self.assertIsNone(item["retail_price_kzt"])
         self.assertEqual(item["available_pp2_qty"], 4)
         self.assertEqual(item["availability"], "in_stock")
         self.assertEqual(item["category"], "cabin")
@@ -209,7 +210,7 @@ class CatalogApiTests(TestCase):
         response = self.call()
         self.assertEqual(response.status_code, 200)
         item = response.json()["products"][0]
-        self.assertEqual(item["retail_price_kzt"], 3200)
+        self.assertIsNone(item["retail_price_kzt"])
         self.assertEqual(item["article"], "000AG-TEST")
         self.assertEqual(item["availability"], "unknown")
         self.assertIsNone(item["available_pp2_qty"])
@@ -237,7 +238,7 @@ class CatalogApiTests(TestCase):
         self.assertEqual(item["availability"], "unknown")
         self.assertIsNone(item["available_pp2_qty"])
         self.assertIsNone(item["stock_as_of"])
-        self.assertEqual(item["retail_price_kzt"], 3200)
+        self.assertIsNone(item["retail_price_kzt"])
 
     def test_missing_pp2_with_supplier_confirmation_is_not_preorder(self):
         ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).delete()
@@ -306,13 +307,17 @@ class CatalogApiTests(TestCase):
                "?c=750000000&m=30363568&ms=true")
         listing = ProductKaspiListing.objects.create(
             product=self.product,
-            master_sku="EXAMPLE-MASTER",
+            master_sku="EXAMPLE-MASTER", merchant_sku=self.product.article,
             is_active=True,
             publish_to_kaspi=False,
             public_url=url,
             public_url_verified_at=timezone.now(),
             last_synced_at=timezone.now(),
             last_known_our_price=self.product.price,
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing, seller_code="30363568", seller_name="AG Parts",
+            price=4100, is_available=True, source="office_collector", captured_at=timezone.now(),
         )
         # A stored URL, even a verified one, is not a buy link until the
         # owner has approved exact Kaspi master SKU and package quantity.
@@ -325,6 +330,9 @@ class CatalogApiTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["products"][0]["kaspi_public_url"], url)
         self.assertEqual(response.json()["products"][0]["kaspi_pack_qty"], 1)
+        self.assertEqual(response.json()["products"][0]["retail_price_kzt"], 4100)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.price, 3200)
         # The export switches remain false and are independent of the link.
         self.assertFalse(self.product.publish_to_kaspi)
         self.assertFalse(listing.publish_to_kaspi)
@@ -336,7 +344,7 @@ class CatalogApiTests(TestCase):
         url = ("https://kaspi.kz/shop/p/example-filter-12345678/"
                "?c=750000000&m=30363568&ms=true")
         listing = ProductKaspiListing.objects.create(
-            product=self.product, master_sku="EXAMPLE-MASTER",
+            product=self.product, master_sku="EXAMPLE-MASTER", merchant_sku=self.product.article,
             is_active=True, public_url=url,
             public_url_verified_at=timezone.now(),
             last_synced_at=timezone.now() - timedelta(days=4),
@@ -364,6 +372,40 @@ class CatalogApiTests(TestCase):
         manifest["kaspi_pack_qty"] = 4
         self.assertEqual(self.call().status_code, 200)
 
+    def test_four_pack_uses_own_snapshot_without_converting_stock_or_price(self):
+        self.product.article = "F4J163707010"
+        self.product.save(update_fields=["article"])
+        entry = self.manifest["products"].pop("000AG-TEST")
+        self.manifest["products"][self.product.article] = entry
+        entry.update(category="spark", kaspi_pack_qty=4, kaspi_master_sku="FOUR-PACK")
+        listing = ProductKaspiListing.objects.create(
+            product=self.product, master_sku="FOUR-PACK", merchant_sku=self.product.article,
+            is_active=True, public_url="https://kaspi.kz/shop/p/example-12345678/?m=30363568&ms=true",
+            public_url_verified_at=timezone.now(),
+        )
+        own = KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing, seller_code="30363568", seller_name="AG Parts",
+            price=12450, is_available=True, source="office_collector", captured_at=timezone.now(),
+        )
+        KaspiCompetitorOfferSnapshot.objects.create(
+            listing=listing, seller_code="other", seller_name="Other",
+            price=100, is_available=True, source="office_collector", captured_at=timezone.now(),
+        )
+        with override_settings(AGPARTS_KASPI_MERCHANT_ID="30363568"):
+            item = self.call().json()["products"][0]
+            self.assertEqual(item["retail_price_kzt"], 12450)
+            self.assertEqual(item["availability"], "unknown")
+            self.assertIsNone(item["available_pp2_qty"])
+            self.product.refresh_from_db()
+            self.assertEqual(self.product.price, 3200)
+            self.assertEqual(ProductWarehouseStock.objects.get(product=self.product, warehouse=self.pp2).quantity, 4)
+            KaspiCompetitorOfferSnapshot.objects.filter(pk=own.pk).update(captured_at=timezone.now()-timedelta(days=2))
+            item = self.call().json()["products"][0]
+            self.assertIsNone(item["retail_price_kzt"])
+            self.assertIsNone(item["kaspi_public_url"])
+            KaspiCompetitorOfferSnapshot.objects.filter(pk=own.pk).update(captured_at=timezone.now(), is_available=False)
+            self.assertIsNone(self.call().json()["products"][0]["retail_price_kzt"])
+
     def test_signed_cursor_rejects_snapshot_changes(self):
         second = Product.objects.create(
             title="Second test item", article="000AG-SECOND",
@@ -388,8 +430,9 @@ class CatalogApiTests(TestCase):
             second_page = self.call(LIST_URL + "?cursor=" + cursor)
             self.assertEqual(second_page.status_code, 200)
             self.assertIsNone(second_page.json()["next_cursor"])
-            Product.objects.filter(pk=second.pk).update(price=1700)
+            ProductWarehouseStock.objects.filter(product=second, warehouse=self.pp2).update(quantity=3)
             self.assertEqual(self.call(LIST_URL + "?cursor=" + cursor).status_code, 409)
 
     def test_invalid_cursor_is_rejected(self):
         self.assertEqual(self.call(LIST_URL + "?cursor=not-a-signed-token").status_code, 409)
+

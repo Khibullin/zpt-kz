@@ -11,6 +11,7 @@ import json
 import logging
 from datetime import datetime, timedelta, timezone as dt_timezone
 from functools import wraps
+from decimal import Decimal
 from urllib.parse import parse_qs, urlsplit
 
 from django.conf import settings
@@ -25,6 +26,7 @@ from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
 from catalog.kaspi_public_url import display_kaspi_public_url
 from catalog.models import Product, ProductFitment, ProductImage, ProductWarehouseStock, SellerProfile, Warehouse
 from catalog.warehouses import WAREHOUSE_CODE_PP2
+from repricer.models import KaspiCompetitorOfferSnapshot
 
 logger = logging.getLogger(__name__)
 SCHEMA = "agparts.catalog.v1"
@@ -179,7 +181,7 @@ def _image_list(product):
     return images
 
 
-def _kaspi_url(product, entry, now):
+def _kaspi_offer(product, entry, now):
     """Exact, fresh merchant offer for an approved package, never by SKU guess.
 
     Kaspi export flags do not control public purchase links. A stored
@@ -189,16 +191,13 @@ def _kaspi_url(product, entry, now):
     pack_qty = entry["kaspi_pack_qty"]
     master = entry["kaspi_master_sku"]
     merchant_id = getattr(settings, "AGPARTS_KASPI_MERCHANT_ID", "")
-    if (pack_qty is None or not master or not merchant_id
-            or not product.price or product.price_on_request):
-        return None
+    if pack_qty is None or not master or str(merchant_id) != "30363568":
+        return None, None
     candidates = []
     for listing in product.kaspi_listings.all():
         if not (listing.is_active and listing.master_sku == master
-                and listing.public_url_verified_at and
-                listing.last_synced_at and
-                _recent(listing.last_synced_at, now, timedelta(hours=24)) and
-                listing.last_known_our_price == product.price):
+                and listing.merchant_sku.strip().casefold() == product.article.strip().casefold()
+                and _recent(listing.public_url_verified_at, now, timedelta(days=45))):
             continue
         link = display_kaspi_public_url(listing.public_url)
         if not link:
@@ -210,8 +209,16 @@ def _kaspi_url(product, entry, now):
                 continue
         except ValueError:
             continue
-        candidates.append(link)
-    return candidates[0] if len(candidates) == 1 else None
+        offer = (KaspiCompetitorOfferSnapshot.objects.filter(
+            listing_id=listing.pk, seller_code="30363568", source="office_collector"
+        ).order_by("-captured_at", "-pk").first())
+        if not offer or not offer.is_available or not _recent(offer.captured_at, now, timedelta(hours=24)):
+            continue
+        price = Decimal(str(offer.price))
+        if not price.is_finite() or price <= 0 or price > 1_000_000_000 or price != price.to_integral_value():
+            continue
+        candidates.append((link, int(price)))
+    return candidates[0] if len(candidates) == 1 else (None, None)
 
 def _project(product, entry, now):
     stock_rows = product.agparts_pp2_rows
@@ -237,9 +244,11 @@ def _project(product, entry, now):
             else None
         )
         status = "in_stock" if qty > 0 else ("supplier_confirmed" if supplier_at else "inquiry")
-    price = product.price if not product.price_on_request else None
-    if price is not None and (type(price) is not int or price <= 0):
-        raise CatalogUnavailable("invalid retail price")
+    # Read-only presentation of our exact approved Kaspi package. Never copy
+    # a bundle price into Product.price or reinterpret warehouse sale units.
+    kaspi_url, price = _kaspi_offer(product, entry, now)
+    if product.article.strip().upper() == "F4J163707010":
+        qty, stock_as_of, supplier_at, status = None, None, None, "unknown"
     return {
         "id": product.pk,
         "article": product.article,
@@ -256,7 +265,7 @@ def _project(product, entry, now):
         "lead_time_days": entry["lead_time_days"] if supplier_at else None,
         "confirmed_fitments": _confirmed_fitments(product),
         "images": _image_list(product),
-        "kaspi_public_url": _kaspi_url(product, entry, now),
+        "kaspi_public_url": kaspi_url,
         "kaspi_pack_qty": entry["kaspi_pack_qty"],
     }
 
@@ -370,3 +379,4 @@ def vehicles(request):
         "selection_ready": False,
         "fitments": variants,
     })
+
