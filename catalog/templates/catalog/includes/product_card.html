@@ -58,8 +58,14 @@
         </div>
       {% endif %}
     </div>
-    {% if ag_kaspi.package_quantity == 4 %}
-      <p class="product-card-stock product-card-stock--unknown" data-ru="Наличие комплекта уточняется" data-kk="Жиынтықтың қолда бары нақтылануда">Наличие комплекта уточняется</p>
+    {% if ag_kaspi %}
+      <p class="product-card-stock product-card-stock--unknown">
+        {% if ag_kaspi.package_quantity == 4 %}
+          <span data-ru="Наличие комплекта уточняется" data-kk="Жиынтықтың қолда бары нақтылануда">Наличие комплекта уточняется</span>
+        {% else %}
+          <span data-ru="Наличие уточняется" data-kk="Қолда бары нақтылануда">Наличие уточняется</span>
+        {% endif %}
+      </p>
     {% elif stock %}
       <p class="product-card-stock product-card-stock--{{ stock.code }}">
         {% if stock.code == 'in' %}<span data-ru="{{ stock.label }}" data-kk="Қолда бар: {{ stock.qty }} дана">{{ stock.label }}</span>
