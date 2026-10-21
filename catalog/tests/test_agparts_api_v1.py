@@ -34,6 +34,8 @@ class ManifestValidationTests(TestCase):
                     "title": {"ru": "Тест", "kk": "Сынақ", "zh": "测试"},
                     "supplier_confirmed_at": None,
                     "lead_time_days": None,
+                    "kaspi_pack_qty": None,
+                    "kaspi_master_sku": None,
                 },
             },
         }
@@ -97,6 +99,8 @@ class CatalogApiTests(TestCase):
                     "title": {"ru": "Фильтр (тест)", "kk": "Сынақ сүзгісі", "zh": "测试滤清器"},
                     "supplier_confirmed_at": None,
                     "lead_time_days": None,
+                    "kaspi_pack_qty": None,
+                    "kaspi_master_sku": None,
                 },
             },
         }
@@ -265,20 +269,68 @@ class CatalogApiTests(TestCase):
         result = self.call().json()
         self.assertEqual(result["products"][0]["confirmed_fitments"], [])
 
-    def test_kaspi_link_requires_both_publication_flags(self):
-        url = "https://kaspi.kz/shop/p/example-filter-12345678/"
-        ProductKaspiListing.objects.create(
+    def test_kaspi_link_uses_exact_fresh_merchant_offer_not_export_flags(self):
+        url = ("https://kaspi.kz/shop/p/example-filter-12345678/"
+               "?c=750000000&m=30363568&ms=true")
+        listing = ProductKaspiListing.objects.create(
             product=self.product,
             master_sku="EXAMPLE-MASTER",
             is_active=True,
-            publish_to_kaspi=True,
+            publish_to_kaspi=False,
             public_url=url,
             public_url_verified_at=timezone.now(),
+            last_synced_at=timezone.now(),
+            last_known_our_price=self.product.price,
         )
-        self.assertIsNone(self.call().json()["products"][0]["kaspi_public_url"])
-        self.product.publish_to_kaspi = True
-        self.product.save(update_fields=["publish_to_kaspi"])
-        self.assertEqual(self.call().json()["products"][0]["kaspi_public_url"], url)
+        # A stored URL, even a verified one, is not a buy link until the
+        # owner has approved exact Kaspi master SKU and package quantity.
+        with override_settings(AGPARTS_KASPI_MERCHANT_ID="30363568"):
+            self.assertIsNone(self.call().json()["products"][0]["kaspi_public_url"])
+            item = self.manifest["products"]["000AG-TEST"]
+            item["kaspi_pack_qty"] = 1
+            item["kaspi_master_sku"] = "EXAMPLE-MASTER"
+            response = self.call()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["products"][0]["kaspi_public_url"], url)
+        self.assertEqual(response.json()["products"][0]["kaspi_pack_qty"], 1)
+        # The export switches remain false and are independent of the link.
+        self.assertFalse(self.product.publish_to_kaspi)
+        self.assertFalse(listing.publish_to_kaspi)
+
+    def test_kaspi_link_rejects_stale_price_wrong_merchant_and_pack_mismatch(self):
+        owner = self.manifest["products"]["000AG-TEST"]
+        owner["kaspi_master_sku"] = "EXAMPLE-MASTER"
+        owner["kaspi_pack_qty"] = 4
+        url = ("https://kaspi.kz/shop/p/example-filter-12345678/"
+               "?c=750000000&m=30363568&ms=true")
+        listing = ProductKaspiListing.objects.create(
+            product=self.product, master_sku="EXAMPLE-MASTER",
+            is_active=True, public_url=url,
+            public_url_verified_at=timezone.now(),
+            last_synced_at=timezone.now() - timedelta(days=4),
+            last_known_our_price=self.product.price,
+        )
+        with override_settings(AGPARTS_KASPI_MERCHANT_ID="30363568"):
+            # Old Kaspi observation cannot authorize a current buy button.
+            self.assertIsNone(self.call().json()["products"][0]["kaspi_public_url"])
+            listing.last_synced_at = timezone.now()
+            listing.last_known_our_price = self.product.price + 100
+            listing.save(update_fields=["last_synced_at", "last_known_our_price"])
+            # Our site price must match the observed price for the exact pack.
+            self.assertIsNone(self.call().json()["products"][0]["kaspi_public_url"])
+            listing.last_known_our_price = self.product.price
+            listing.public_url = url.replace("m=30363568", "m=99999999")
+            listing.save(update_fields=["last_known_our_price", "public_url"])
+            self.assertIsNone(self.call().json()["products"][0]["kaspi_public_url"])
+
+    def test_manifest_requires_matched_kaspi_listing_and_quantity(self):
+        manifest = self.manifest["products"]["000AG-TEST"]
+        manifest["kaspi_master_sku"] = "EXAMPLE-MASTER"
+        self.assertEqual(self.call().status_code, 503)
+        manifest["kaspi_pack_qty"] = 0
+        self.assertEqual(self.call().status_code, 503)
+        manifest["kaspi_pack_qty"] = 4
+        self.assertEqual(self.call().status_code, 200)
 
     def test_signed_cursor_rejects_snapshot_changes(self):
         second = Product.objects.create(
@@ -293,6 +345,8 @@ class CatalogApiTests(TestCase):
             "title": {"ru": "Тест второй", "kk": "Екінші сынақ", "zh": "第二个测试"},
             "supplier_confirmed_at": None,
             "lead_time_days": None,
+                    "kaspi_pack_qty": None,
+                    "kaspi_master_sku": None,
         }
         with patch("catalog.agparts_api.PAGE_SIZE", 1):
             first = self.call()
