@@ -22,6 +22,7 @@ from django.db.models import Prefetch
 from django.http import JsonResponse
 from django.utils import timezone
 
+from catalog.applicability import build_product_applicability
 from catalog.agparts_api_manifest import ManifestError, parse_agparts_manifest
 from catalog.kaspi_public_url import display_kaspi_public_url
 from catalog.models import Product, ProductFitment, ProductImage, ProductWarehouseStock, SellerProfile, Warehouse
@@ -270,7 +271,29 @@ def _project(product, entry, now):
     }
 
 
-def _snapshot(now):
+def _public_details(product):
+    """Same presentation as ZPT's public card; never imply verified equivalence."""
+    app = build_product_applicability(product)
+    rows = []
+    for row in app["fitment_rows"][:100]:
+        row = dict(row)
+        row["verified_on"] = row["verified_on"].isoformat() if row["verified_on"] else ""
+        parsed = urlsplit(row["source_url"] or "")
+        if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
+            row["source_url"] = ""
+        rows.append(row)
+    return {
+        "description": product.description or "",
+        "oem_refs": app["oem_refs"][:100],
+        "engines": app["engines"][:100],
+        "vehicles": [" ".join([g["brand"].name, ", ".join(m.name for m in g["models"])])
+                     for g in app["groups"]][:100],
+        "fitment_rows": rows,
+        "extra_compatibility": app["extra_compatibility"] if not rows else "",
+    }
+
+
+def _snapshot(now, include_details=False):
     manifest = parse_agparts_manifest(getattr(settings, "AGPARTS_CATALOG_MANIFEST_JSON", ""))
     if not SellerProfile.objects.filter(slug="ag-parts").exists():
         raise CatalogUnavailable("AG Parts seller not found")
@@ -280,20 +303,23 @@ def _snapshot(now):
         Product.objects.filter(
             seller_profile__slug="ag-parts", status="active",
             article__in=list(manifest),
-        ).order_by("pk").prefetch_related(
+        ).select_related("brand", "car_model__brand").order_by("pk").prefetch_related(
             Prefetch("warehouse_stocks",
                      queryset=ProductWarehouseStock.objects.filter(warehouse__code=WAREHOUSE_CODE_PP2,
                                                                     warehouse__is_active=True),
                      to_attr="agparts_pp2_rows"),
             Prefetch("fitments", queryset=ProductFitment.objects.select_related("car_model__brand")),
             Prefetch("images", queryset=ProductImage.objects.order_by("sort_order", "pk")),
-            "kaspi_listings",
+            "kaspi_listings", "selected_models__brand", "selected_brands",
         )
     )
     by_article = {product.article: product for product in rows}
     if len(by_article) != len(manifest) or set(by_article) != set(manifest):
         raise CatalogUnavailable("manifest is not reconciled with active seller products")
     items = [_project(by_article[article], entry, now) for article, entry in manifest.items()]
+    if include_details:
+        for item in items:
+            item["details"] = _public_details(by_article[item["article"]])
     items.sort(key=lambda item: item["id"])
     fingerprint = hashlib.sha256(json.dumps(items, sort_keys=True, ensure_ascii=False,
                                            separators=(",", ":")).encode("utf-8")).hexdigest()
@@ -310,17 +336,17 @@ def _envelope(products, snapshot, now, cursor=None):
     }
 
 
-def _prepare():
+def _prepare(include_details=False):
     now = timezone.now().astimezone(dt_timezone.utc)
-    items, snapshot = _snapshot(now)
+    items, snapshot = _snapshot(now, include_details=include_details)
     return now, items, snapshot
 
 
 @_gate
 def products(request):
-    if set(request.GET) - {"cursor"}:
+    if set(request.GET) - {"cursor", "details"} or request.GET.get("details", "1") != "1":
         return _json({"error": "invalid_query"}, 400)
-    now, items, snapshot = _prepare()
+    now, items, snapshot = _prepare(include_details=request.GET.get("details") == "1")
     offset = 0
     if "cursor" in request.GET:
         cursor = request.GET.get("cursor", "")

@@ -147,6 +147,31 @@ class CatalogApiTests(TestCase):
                 path, HTTP_AUTHORIZATION="Bearer " + token,
             )
 
+    def test_opt_in_details_match_public_card_without_changing_v1_default(self):
+        self.product.oem_cross_references = "OEM-001; OEM-001; OEM-002"
+        self.product.description = "Public description"
+        self.product.save(update_fields=["oem_cross_references", "description"])
+        original = self.call().json()["products"][0]
+        self.assertNotIn("details", original)
+        response = self.call(LIST_URL + "?details=1")
+        self.assertEqual(response.status_code, 200)
+        details = response.json()["products"][0]["details"]
+        self.assertEqual(details["oem_refs"], ["OEM-001", "OEM-002"])
+        self.assertEqual(details["description"], "Public description")
+        row = details["fitment_rows"][0]
+        self.assertEqual(row["period"], "03.2024–11.2025")
+        self.assertFalse(row["needs_check"])
+        self.assertEqual(self.call(LIST_URL + "?details=invalid").status_code, 400)
+
+    def test_unconfirmed_fitment_stays_marked_and_unsafe_source_is_removed(self):
+        row = self.product.fitments.first()
+        row.status = "candidate"
+        row.source_url = "javascript:alert(1)"
+        row.save(update_fields=["status", "source_url"])
+        details = self.call(LIST_URL + "?details=1").json()["products"][0]["details"]
+        self.assertTrue(details["fitment_rows"][0]["needs_check"])
+        self.assertEqual(details["fitment_rows"][0]["source_url"], "")
+
     def test_feature_off_by_default(self):
         with override_settings(AGPARTS_CATALOG_API_ENABLED=False):
             response = self.client.get(LIST_URL, HTTP_AUTHORIZATION="Bearer " + TEST_TOKEN)
@@ -217,7 +242,7 @@ class CatalogApiTests(TestCase):
         self.assertIsNone(item["stock_as_of"])
         self.assertIsNone(item["supplier_confirmed_at"])
         self.assertIsNone(item["lead_time_days"])
-        self.assertNotIn("999", response.content.decode())  # PP1 + old Product.stock_qty
+        self.assertNotIn(999, item.values())  # PP1 + old Product.stock_qty
 
     def test_stale_zero_with_supplier_confirmation_must_still_be_unknown(self):
         ProductWarehouseStock.objects.filter(product=self.product, warehouse=self.pp2).update(
