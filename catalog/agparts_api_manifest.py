@@ -11,7 +11,7 @@ MAX_MANIFEST_BYTES = 250_000
 MAX_PRODUCTS = 1000
 ENTRY_FIELDS = frozenset({
     "official_brand_verified", "category", "title",
-    "supplier_confirmed_at", "lead_time_days", "kaspi_pack_qty",
+    "supplier_confirmed_at", "lead_time_days", "kaspi_pack_qty", "kaspi_master_sku",
 })
 
 
@@ -56,6 +56,12 @@ def parse_agparts_manifest(raw):
         pack_qty = entry["kaspi_pack_qty"]
         if pack_qty is not None and (type(pack_qty) is not int or pack_qty < 1 or pack_qty > 100):
             raise ManifestError("kaspi_pack_qty must be an explicitly verified count (1..100) or null")
+        master_sku = entry["kaspi_master_sku"]
+        if master_sku is not None:
+            if not isinstance(master_sku, str) or not 1 <= len(master_sku.strip()) <= 128:
+                raise ManifestError("invalid approved Kaspi listing master SKU")
+        if (master_sku is None) != (pack_qty is None):
+            raise ManifestError("Kaspi master SKU and approved pack quantity must be provided together")
         confirmed = entry["supplier_confirmed_at"]
         days = entry["lead_time_days"]
         if confirmed is not None:
