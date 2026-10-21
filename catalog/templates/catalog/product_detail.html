@@ -227,7 +227,7 @@
           {% include 'catalog/includes/b2b_offer_badges.html' with product=product %}
         {% endif %}
 
-        {% include 'catalog/includes/b2b_seller_terms.html' with product=product %}
+        {% if ag_kaspi.package_quantity != 4 %}{% include 'catalog/includes/b2b_seller_terms.html' with product=product %}{% endif %}
 
 {% if ag_kaspi.package_quantity == 4 %}
 <p class="product-buy-unavailable" style="font-weight:600;margin:8px 0 12px;">Наличие комплекта 4 шт. уточняется</p>
@@ -355,10 +355,10 @@
 
         {% if product.status != 'sold' %}
           <div class="product-detail-buy">
-            {% if not public_wholesale %}
+            {% if not public_wholesale or ag_kaspi %}
               {% include 'catalog/includes/product_buy_controls.html' with product=product %}
             {% endif %}
-            {% if viewer_is_seller %}
+            {% if viewer_is_seller and ag_kaspi.package_quantity != 4 %}
               <div
                 class="b2b-price-preview"
                 data-b2b-price-preview
