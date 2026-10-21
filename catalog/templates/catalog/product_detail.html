@@ -229,8 +229,14 @@
 
         {% if ag_kaspi.package_quantity != 4 %}{% include 'catalog/includes/b2b_seller_terms.html' with product=product %}{% endif %}
 
-{% if ag_kaspi.package_quantity == 4 %}
-<p class="product-buy-unavailable" style="font-weight:600;margin:8px 0 12px;">Наличие комплекта 4 шт. уточняется</p>
+{% if ag_kaspi %}
+<p class="product-buy-unavailable" style="font-weight:600;margin:8px 0 12px;">
+  {% if ag_kaspi.package_quantity == 4 %}
+    Наличие комплекта 4 шт. уточняется
+  {% else %}
+    Наличие уточняется — склад PP2 требует подтверждения
+  {% endif %}
+</p>
 {% else %}
 <div
   style="
