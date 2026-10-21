@@ -7,6 +7,9 @@ import json
 from datetime import datetime
 
 ALLOWED_TYPES = frozenset({"cabin", "air", "oil", "spark"})
+# Owner decision 21.10.2026: spark plugs are not sold individually.
+# F4J163707010 is offered only as a set of exactly four plugs.
+FOUR_PACK_ONLY_ARTICLE = "F4J163707010"
 MAX_MANIFEST_BYTES = 250_000
 MAX_PRODUCTS = 1000
 ENTRY_FIELDS = frozenset({
@@ -56,6 +59,13 @@ def parse_agparts_manifest(raw):
         pack_qty = entry["kaspi_pack_qty"]
         if pack_qty is not None and (type(pack_qty) is not int or pack_qty < 1 or pack_qty > 100):
             raise ManifestError("kaspi_pack_qty must be an explicitly verified count (1..100) or null")
+        # A missing package keeps the Kaspi link disabled. A single-plug
+        # listing can never be enabled as an official AG Parts spark offer.
+        if entry["category"] == "spark" and pack_qty == 1:
+            raise ManifestError("individual spark plug sale is prohibited")
+        if article.upper() == FOUR_PACK_ONLY_ARTICLE:
+            if entry["category"] != "spark" or pack_qty not in (None, 4):
+                raise ManifestError("F4J163707010 is sold only in four-plug sets")
         master_sku = entry["kaspi_master_sku"]
         if master_sku is not None:
             if not isinstance(master_sku, str) or not 1 <= len(master_sku.strip()) <= 128:
