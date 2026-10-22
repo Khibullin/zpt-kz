@@ -99,11 +99,13 @@ CONTACT_CONSENT_CHANNEL_CHOICES = [
 CONTACT_CONSENT_PURPOSE_SERVICE = 'service'
 CONTACT_CONSENT_PURPOSE_INFORMATION = 'information'
 CONTACT_CONSENT_PURPOSE_MARKETING = 'marketing'
+CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS = 'buyer_requests'
 
 CONTACT_CONSENT_PURPOSE_CHOICES = [
     (CONTACT_CONSENT_PURPOSE_SERVICE, 'Сервисные'),
     (CONTACT_CONSENT_PURPOSE_INFORMATION, 'Информационные'),
     (CONTACT_CONSENT_PURPOSE_MARKETING, 'Рекламные'),
+    (CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS, 'Заявки покупателей'),
 ]
 
 CONTACT_CONSENT_STATUS_UNKNOWN = 'unknown'
@@ -158,6 +160,8 @@ SELLER_REQUEST_PAGE_EVENT_WHATSAPP_CLICK = 'whatsapp_click'
 SELLER_REQUEST_PAGE_EVENT_CALL_CLICK = 'call_click'
 SELLER_REQUEST_PAGE_EVENT_CONSENT_YES = 'marketing_consent_yes'
 SELLER_REQUEST_PAGE_EVENT_CONSENT_NO = 'marketing_consent_no'
+SELLER_REQUEST_PAGE_EVENT_REQUESTS_YES = 'requests_yes'
+SELLER_REQUEST_PAGE_EVENT_REQUESTS_NO = 'requests_no'
 SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK = 'out_of_stock'
 SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL = 'cannot_fulfill'
 
@@ -167,6 +171,8 @@ SELLER_REQUEST_PAGE_EVENT_CHOICES = [
     (SELLER_REQUEST_PAGE_EVENT_CALL_CLICK, 'Клик звонка'),
     (SELLER_REQUEST_PAGE_EVENT_CONSENT_YES, 'Согласие на предложения'),
     (SELLER_REQUEST_PAGE_EVENT_CONSENT_NO, 'Отказ от предложений'),
+    (SELLER_REQUEST_PAGE_EVENT_REQUESTS_YES, 'Подписка на заявки покупателей'),
+    (SELLER_REQUEST_PAGE_EVENT_REQUESTS_NO, 'Отказ от заявок покупателей'),
     (SELLER_REQUEST_PAGE_EVENT_OUT_OF_STOCK, 'Нет в наличии'),
     (SELLER_REQUEST_PAGE_EVENT_CANNOT_FULFILL, 'Не могу выполнить заявку'),
 ]
@@ -1741,16 +1747,25 @@ class Match(models.Model):
 
 
 class RequestDispatch(models.Model):
+    STATUS_PREPARED = 'prepared'
     STATUS_QUEUED = 'queued'
     STATUS_SENT = 'sent'
     STATUS_PAUSED = 'paused'
     STATUS_FAILED = 'failed'
 
     STATUS_CHOICES = [
+        (STATUS_PREPARED, 'Подготовлено вручную'),
         (STATUS_QUEUED, 'В очереди'),
         (STATUS_SENT, 'Отправлено'),
         (STATUS_PAUSED, 'Остановлено'),
         (STATUS_FAILED, 'Ошибка'),
+    ]
+
+    DELIVERY_META = 'meta'
+    DELIVERY_MANUAL = 'manual_whatsapp'
+    DELIVERY_CHOICES = [
+        (DELIVERY_META, 'Meta API'),
+        (DELIVERY_MANUAL, 'Ручной WhatsApp'),
     ]
 
     request = models.ForeignKey(
@@ -1775,6 +1790,20 @@ class RequestDispatch(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_QUEUED,
         verbose_name='Статус'
+    )
+
+    delivery_channel = models.CharField(
+        max_length=20,
+        choices=DELIVERY_CHOICES,
+        default=DELIVERY_META,
+        db_index=True,
+        verbose_name='Канал отправки',
+    )
+    permission_evidence = models.CharField(
+        max_length=300,
+        blank=True,
+        default='',
+        verbose_name='Разрешение на разовую отправку',
     )
 
     scheduled_at = models.DateTimeField(verbose_name='Запланировано на')
