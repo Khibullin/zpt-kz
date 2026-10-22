@@ -50,8 +50,8 @@ def _legacy_selected(seller, req) -> bool:
 
 
 def validate_manual_recipient(req, seller):
-    if not seller.is_active or seller.is_paused:
-        raise ValidationError('Продавец неактивен или поставлен на паузу.')
+    if not seller.is_active or seller.is_paused or seller.catalog_only:
+        raise ValidationError('Продавец не подключён к получению заявок.')
     if not normalize_phone_for_whatsapp(seller.whatsapp):
         raise ValidationError('У продавца нет корректного номера WhatsApp.')
 
@@ -150,6 +150,9 @@ def confirm_manual_dispatch_sent(dispatch):
         if match.sent_at is None:
             match.sent_at = now
         match.save(update_fields=['status', 'sent_at'])
+    if dispatch.request.status == 'no_sellers':
+        dispatch.request.status = 'sent'
+        dispatch.request.save(update_fields=['status'])
     return dispatch
 
 
