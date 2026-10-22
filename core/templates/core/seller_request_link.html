@@ -253,6 +253,23 @@
         </div>
       {% endif %}
       {% if filter_token %}
+      <div class="sr-extra" id="sr-request-subscription">
+        <h2>Получать будущие заявки покупателей в WhatsApp?</h2>
+        <p>Вы сами выбираете категории и марки запчастей. Это согласие
+        только на заявки покупателей — не на рекламу. Выбор можно изменить.</p>
+        {% if requests_consent_status == 'granted' %}
+          <p id="sr-request-subscription-status" class="sr-note">Подключено: будущие заявки покупателей.</p>
+        {% elif requests_consent_status == 'revoked' %}
+          <p id="sr-request-subscription-status" class="sr-note">Отключено: будущие заявки не отправляются.</p>
+        {% else %}
+          <p id="sr-request-subscription-status" class="sr-note">Согласие на будущие заявки пока не получено.</p>
+        {% endif %}
+        <div class="sr-extra-row" style="margin-top:12px">
+          <button class="sr-btn sr-btn-yes" type="button" data-sr-request-subscription="requests_yes">Да, подключить заявки</button>
+          <button class="sr-btn sr-btn-no" type="button" data-sr-request-subscription="requests_no">Нет, не получать</button>
+        </div>
+        <p id="sr-request-subscription-error" class="sr-error" hidden></p>
+      </div>
       <div class="sr-extra">
         <h2>Получаете неподходящие заявки?</h2>
         <p>Укажите марки, модели и категории запчастей, с которыми работаете.</p>
@@ -281,7 +298,7 @@
   >
     <div class="sr-modal-card">
       <h2 id="sr-consent-title">Получать выгодные предложения ZPT.KZ в WhatsApp?</h2>
-      <p id="sr-consent-text">Вы продолжите получать заявки покупателей независимо от выбора.</p>
+      <p id="sr-consent-text">Это отдельное согласие только на рекламные предложения. Получение заявок покупателей настраивается отдельно на странице.</p>
       <div class="sr-modal-actions">
         <button class="sr-btn sr-btn-yes" type="button" data-sr-consent="consent_yes">Да, получать</button>
         <button class="sr-btn sr-btn-no" type="button" data-sr-consent="consent_no">Нет, только заявки</button>
@@ -294,6 +311,6 @@
 
 {% block portal_js %}
 {% if page_state == 'valid' %}
-<script src="{% static 'js/seller-request-page.js' %}?v=2"></script>
+<script src="{% static 'js/seller-request-page.js' %}?v=3"></script>
 {% endif %}
 {% endblock %}
