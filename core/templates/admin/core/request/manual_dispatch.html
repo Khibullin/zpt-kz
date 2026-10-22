@@ -1,4 +1,5 @@
 {% extends "admin/base_site.html" %}
+{% load l10n %}
 {% block content %}
 <div style="max-width: 1050px">
   <p><a href="{{ change_url }}">← Вернуться к заявке №{{ request_obj.pk }}</a></p>
@@ -79,7 +80,7 @@
         <form method="post" style="margin-top:10px">
           {% csrf_token %}
           <input type="hidden" name="action" value="confirm_sent">
-          <input type="hidden" name="dispatch_id" value="{{ entry.dispatch.id }}">
+          <input type="hidden" name="dispatch_id" value="{{ entry.dispatch.id|unlocalize }}">
           <label><input type="checkbox" name="did_send" value="yes" required>
             Я нажал «Отправить» в WhatsApp и вижу отправленное сообщение в чате</label>
           <button class="button default" type="submit">Подтвердить ручную отправку</button>
