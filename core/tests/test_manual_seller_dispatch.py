@@ -97,6 +97,8 @@ class ManualSellerDispatchTests(TestCase):
         self.assertIsNotNone(dispatch.sent_at)
         match = Match.objects.get(request=self.req, seller=self.seller)
         self.assertEqual(match.status, 'sent')
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.status, 'sent')
         confirm_manual_dispatch_sent(dispatch)
         self.assertEqual(Match.objects.filter(request=self.req, seller=self.seller).count(), 1)
         self.assertEqual(RequestDispatch.objects.filter(request=self.req).count(), 1)
@@ -127,6 +129,15 @@ class ManualSellerDispatchTests(TestCase):
             prepare_manual_dispatch(
                 self.req, self.seller,
                 permission_evidence='22.10.2026: разрешено по телефону',
+            )
+
+    def test_catalog_only_seller_cannot_get_manual_link(self):
+        self.seller.catalog_only = True
+        self.seller.save(update_fields=['catalog_only'])
+        with self.assertRaises(ValidationError):
+            prepare_manual_dispatch(
+                self.req, self.seller,
+                permission_evidence='22.10.2026: продавец разрешил по телефону',
             )
 
     def test_buyer_request_subscription_is_distinct_from_marketing(self):
