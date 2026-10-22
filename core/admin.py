@@ -464,7 +464,31 @@ class RequestAdmin(admin.ModelAdmin):
         'vin',
     )
 
-    readonly_fields = ('buyer_contact', 'idempotency_key')
+    readonly_fields = ('buyer_contact', 'idempotency_key', 'manual_dispatch_link')
+
+    @admin.display(description='Ручная обработка')
+    def manual_dispatch_link(self, obj):
+        if not obj.pk:
+            return 'Сначала сохраните заявку.'
+        return format_html(
+            '<a href="{}">Подобрать продавцов, персональные ссылки и учёт отправок</a>',
+            reverse('admin:core_request_manual_dispatch', args=[obj.pk]),
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        custom = [
+            path(
+                '<int:request_id>/manual-dispatch/',
+                self.admin_site.admin_view(self.manual_dispatch_view),
+                name='core_request_manual_dispatch',
+            ),
+        ]
+        return custom + urls
+
+    def manual_dispatch_view(self, request, request_id):
+        from core.manual_seller_dispatch_admin import manual_dispatch_admin_view
+        return manual_dispatch_admin_view(self, request, request_id)
 
     def get_queryset(self, request):
         return (
@@ -1700,17 +1724,17 @@ class SellerRequestReactionFilter(admin.SimpleListFilter):
 
 @admin.action(description='Остановить выбранные волны')
 def pause_dispatches(modeladmin, request, queryset):
-    updated = queryset.exclude(status=RequestDispatch.STATUS_SENT).update(
-        status=RequestDispatch.STATUS_PAUSED
-    )
+    updated = queryset.filter(delivery_channel=RequestDispatch.DELIVERY_META).exclude(
+        status=RequestDispatch.STATUS_SENT
+    ).update(status=RequestDispatch.STATUS_PAUSED)
     messages.warning(request, f'Остановлено волн/отправок: {updated}.')
 
 
 @admin.action(description='Вернуть выбранные волны в очередь')
 def queue_dispatches(modeladmin, request, queryset):
-    updated = queryset.exclude(status=RequestDispatch.STATUS_SENT).update(
-        status=RequestDispatch.STATUS_QUEUED
-    )
+    updated = queryset.filter(delivery_channel=RequestDispatch.DELIVERY_META).exclude(
+        status=RequestDispatch.STATUS_SENT
+    ).update(status=RequestDispatch.STATUS_QUEUED)
     messages.success(request, f'Возвращено в очередь: {updated}.')
 
 
@@ -1723,6 +1747,7 @@ class RequestDispatchAdmin(admin.ModelAdmin):
         'wave_number',
         'position_number',
         'status',
+        'delivery_channel',
         'seller_reaction',
         'scheduled_at',
         'sent_at',
