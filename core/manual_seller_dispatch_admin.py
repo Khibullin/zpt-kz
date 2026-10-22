@@ -90,6 +90,9 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id):
                 raise ValidationError('Неизвестное действие.')
         except ValidationError as exc:
             messages.error(http_request, '; '.join(exc.messages))
+        except Exception as exc:
+            logging.getLogger(__name__).exception('Manual dispatch action failed: request=%s action=%s', req.pk, action)
+            messages.error(http_request, 'Действие не завершено: ' + type(exc).__name__)
         return redirect(_admin_url(req))
 
     candidate_qs = Seller.objects.filter(
