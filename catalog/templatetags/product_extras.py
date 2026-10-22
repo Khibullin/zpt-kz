@@ -189,8 +189,10 @@ def product_json_ld(product):
 
     category = getattr(product, 'category', None)
     category_name = str(getattr(category, 'name', '') or '').strip()
-    if category_name:
-        data['category'] = category_name
+    # Every Product on this marketplace is an auto part. An uncategorized
+    # item can truthfully use the broad category, but we must not infer a
+    # narrower component type from a title, description, or vehicle make.
+    data['category'] = category_name or 'Автозапчасти'
 
     main_image = getattr(product, 'main_image', None)
     try:

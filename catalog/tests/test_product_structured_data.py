@@ -1,6 +1,8 @@
 import json
+from io import StringIO
 from types import SimpleNamespace
 
+from django.core.management import call_command
 from django.test import SimpleTestCase, TestCase, override_settings
 
 from catalog.models import Brand, Category, Country, Product
@@ -45,6 +47,23 @@ class ProductStructuredDataTests(SimpleTestCase):
             data['offers']['availability'],
             'https://schema.org/InStock',
         )
+
+    def test_missing_specific_category_uses_truthful_autoparts_fallback(self):
+        data = json.loads(str(product_json_ld(self._product(category=None))))
+        self.assertEqual(data['category'], 'Автозапчасти')
+
+    def test_blank_specific_category_uses_autoparts_fallback(self):
+        data = json.loads(str(product_json_ld(
+            self._product(category=SimpleNamespace(name='   '))
+        )))
+        self.assertEqual(data['category'], 'Автозапчасти')
+
+    def test_unverified_shipping_returns_and_reviews_are_not_invented(self):
+        data = json.loads(str(product_json_ld(self._product())))
+        self.assertNotIn('shippingDetails', data['offers'])
+        self.assertNotIn('hasMerchantReturnPolicy', data['offers'])
+        self.assertNotIn('review', data)
+        self.assertNotIn('aggregateRating', data)
 
     def test_explicit_ag_parts_brand_is_not_confused_with_vehicle_make(self):
         product = self._product(title='Салонный фильтр AG Parts Chery Tiggo')
@@ -172,6 +191,29 @@ class ProductStructuredDataIntegrationTests(TestCase):
         self.assertEqual(data['url'], 'https://zpt.kz/masljanyi-filtr-4801012010/')
         self.assertEqual(data['sku'], '4801012010')
         self.assertNotIn('brand', data)  # car make is not component manufacturer
+
+    def test_read_only_product_schema_audit_reports_unknown_stock_and_category(self):
+        product = Product.objects.create(
+            title='Сальник тестовый',
+            slug='test-schema-audit-unknown',
+            seller_name='SEO Testing Seller',
+            whatsapp_number='+77010000000',
+            status='active',
+            price=1000,
+            price_on_request=False,
+            stock_qty=None,
+            category=None,
+        )
+        output = StringIO()
+        call_command('audit_product_schema', '--limit', '25', stdout=output)
+        report = output.getvalue()
+        self.assertIn('unknown_stock_count=1', report)
+        self.assertIn('missing_specific_category_count=1', report)
+        self.assertIn('/test-schema-audit-unknown/', report)
+        self.assertIn('stock=unknown,specific_category=missing', report)
+        product.refresh_from_db()
+        self.assertIsNone(product.stock_qty)
+        self.assertIsNone(product.category)
 
     def test_home_page_does_not_emit_product_json_ld(self):
         response = self.client.get('/')
