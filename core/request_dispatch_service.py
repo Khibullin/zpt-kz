@@ -162,6 +162,7 @@ def _previous_wave_allows_next(
         request_id=request_id,
         wave_number=previous_wave,
         status=RequestDispatch.STATUS_QUEUED,
+        delivery_channel=RequestDispatch.DELIVERY_META,
     ).exists():
         return False
 
@@ -170,6 +171,7 @@ def _previous_wave_allows_next(
             request_id=request_id,
             wave_number=previous_wave,
             status=RequestDispatch.STATUS_SENT,
+            delivery_channel=RequestDispatch.DELIVERY_META,
             sent_at__isnull=False,
         ).aggregate(max_sent_at=Max('sent_at'))['max_sent_at']
     )
@@ -192,6 +194,7 @@ def get_next_sendable_wave(
         RequestDispatch.objects.filter(
             request_id=request_id,
             status=RequestDispatch.STATUS_QUEUED,
+            delivery_channel=RequestDispatch.DELIVERY_META,
         )
         .values_list('wave_number', flat=True)
         .distinct()
@@ -205,6 +208,7 @@ def get_next_sendable_wave(
     if RequestDispatch.objects.filter(
         request_id=request_id,
         status=RequestDispatch.STATUS_QUEUED,
+        delivery_channel=RequestDispatch.DELIVERY_META,
         wave_number__lt=next_wave,
     ).exists():
         return None
@@ -350,6 +354,7 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
             .filter(
                 pk=dispatch.pk,
                 status=RequestDispatch.STATUS_QUEUED,
+                delivery_channel=RequestDispatch.DELIVERY_META,
             )
             .select_related('request', 'seller')
             .first()
@@ -480,7 +485,10 @@ def process_due_dispatch_waves(*, writer=None) -> dict:
         }
 
     request_ids = list(
-        RequestDispatch.objects.filter(status=RequestDispatch.STATUS_QUEUED)
+        RequestDispatch.objects.filter(
+            status=RequestDispatch.STATUS_QUEUED,
+            delivery_channel=RequestDispatch.DELIVERY_META,
+        )
         .values_list('request_id', flat=True)
         .distinct()
         .order_by('request_id'),
@@ -514,6 +522,7 @@ def process_due_dispatch_waves(*, writer=None) -> dict:
                     request_id=request_id,
                     wave_number=wave_number,
                     status=RequestDispatch.STATUS_QUEUED,
+                    delivery_channel=RequestDispatch.DELIVERY_META,
                 )
                 .select_related('request', 'seller')
                 .order_by('position_number'),

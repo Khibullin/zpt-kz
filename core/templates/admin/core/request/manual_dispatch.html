@@ -1,0 +1,84 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<div style="max-width: 1050px">
+  <p><a href="{{ change_url }}">← Вернуться к заявке №{{ request_obj.pk }}</a></p>
+  <p><strong>Автомобиль:</strong> {{ request_obj.brand }} {{ request_obj.model }},
+    {{ request_obj.year|default:"год не указан" }}.
+    <strong>Город:</strong> {{ request_obj.city }}.
+    <strong>Категория:</strong> {{ request_obj.category }}.</p>
+  <p><strong>Комментарий:</strong> {{ request_obj.description|default:"Не заполнен" }}</p>
+  <p style="padding:12px;background:#fff5dc;color:#664800;border-radius:6px">
+    Перед отправкой проверьте и сохраните актуальную комплектацию, количество деталей,
+    VIN и комментарий покупателя в основной карточке заявки. Это содержимое увидит
+    продавец на персональной странице. В этом режиме Meta API не вызывается,
+    а аварийная остановка рассылки остаётся включённой.
+  </p>
+  <h2>Подготовить персональную заявку</h2>
+  <p>Сначала получите разрешение продавца на эту <strong>разовую</strong> заявку
+    (например, при телефонном разговоре). Не отправляйте первое бизнес-сообщение
+    в WhatsApp без разрешения. Позже продавец отдельно решит, получать ли будущие заявки.</p>
+  <form method="post" style="border:1px solid #ccc;padding:16px;border-radius:8px">
+    {% csrf_token %}
+    <input type="hidden" name="action" value="prepare">
+    <div style="margin-bottom:12px">
+      <label for="id_seller">ID продавца из ZPT.KZ:</label>
+      <input type="number" min="1" id="id_seller" name="seller_id" required style="width:120px;margin-left:8px">
+    </div>
+    <div style="margin-bottom:12px">
+      <label for="id_evidence">Доказательство разового разрешения:</label><br>
+      <input id="id_evidence" name="permission_evidence" maxlength="300"
+        style="width:100%;max-width:750px" placeholder="Например: 22.10.2026, телефонный разговор, продавец разрешил прислать заявку №515">
+    </div>
+    <div style="margin-bottom:12px">
+      <label><input type="checkbox" name="one_time_permission" value="yes">
+        Подтверждаю, что продавец разрешил прислать эту заявку в WhatsApp.
+        Для имеющего отдельное согласие на заявки отметка не нужна.</label>
+    </div>
+    <button type="submit" class="button default">Создать персональную ссылку</button>
+  </form>
+  <h3>Подходящие организации из каталога (до 20)</h3>
+  {% if candidates %}
+  <table style="width:100%;margin:12px 0">
+    <thead><tr><th>ID</th><th>Продавец</th><th>WhatsApp</th><th>Согласие на будущие заявки</th></tr></thead>
+    <tbody>
+    {% for entry in candidates %}
+      <tr><td>{{ entry.seller.pk }}</td>
+        <td><a href="{% url 'admin:core_seller_change' entry.seller.pk %}">{{ entry.seller.name }}</a></td>
+        <td>{{ entry.seller.whatsapp }}</td><td>{{ entry.consent }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}<p>Нет найденных профильных продавцов. Проверьте город, категорию и фильтры.</p>{% endif %}
+  <h2>Ручные отправки по заявке</h2>
+  {% if rows %}
+  {% for entry in rows %}
+    <section style="margin:16px 0;padding:14px;border:1px solid #aaa;border-radius:8px">
+      <h3>{{ entry.dispatch.seller.name }} · {{ entry.dispatch.seller.whatsapp }}</h3>
+      <p>Статус: <strong>{{ entry.dispatch.get_status_display }}</strong>.
+         Согласие на будущие заявки: {{ entry.subscription }}.</p>
+      <p>Основание для разовой отправки: {{ entry.dispatch.permission_evidence }}</p>
+      {% if entry.url %}
+        <p>Персональная ссылка (72 часа): <a href="{{ entry.url }}" target="_blank" rel="noopener noreferrer">{{ entry.url }}</a></p>
+      {% else %}
+        <p><strong>Ссылка истекла.</strong> Повторно подтвердите разрешение и подготовьте ссылку через форму выше.</p>
+      {% endif %}
+      {% if entry.whatsapp_url %}
+        <p><a class="button" href="{{ entry.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Открыть WhatsApp с заявкой</a>
+           <span style="margin-left:8px">Ссылка открывает текст, но <strong>не отправляет</strong> его.</span></p>
+        <details><summary>Текст для копирования</summary>
+          <textarea readonly rows="13" style="width:100%;max-width:850px">{{ entry.message }}</textarea>
+        </details>
+        <form method="post" style="margin-top:10px">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="confirm_sent">
+          <input type="hidden" name="dispatch_id" value="{{ entry.dispatch.id }}">
+          <label><input type="checkbox" name="did_send" value="yes" required>
+            Я нажал «Отправить» в WhatsApp и вижу отправленное сообщение в чате</label>
+          <button class="button default" type="submit">Подтвердить ручную отправку</button>
+        </form>
+      {% endif %}
+    </section>
+  {% endfor %}
+  {% else %}<p>Для этой заявки пока нет подготовленных ручных отправок.</p>{% endif %}
+</div>
+{% endblock %}

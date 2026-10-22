@@ -22,6 +22,14 @@ from core.services.seller_request_page_events import (
     save_seller_request_consent_choice,
     save_seller_request_outcome,
 )
+from core.services.seller_buyer_request_consent import (
+    request_consent_status,
+    save_request_consent,
+)
+from core.models import (
+    SELLER_REQUEST_PAGE_EVENT_REQUESTS_YES,
+    SELLER_REQUEST_PAGE_EVENT_REQUESTS_NO,
+)
 from core.services.seller_whatsapp_consent import (
     SellerWhatsAppConsentError,
     seller_needs_request_page_marketing_prompt,
@@ -31,6 +39,8 @@ TEMPLATE = 'core/seller_request_link.html'
 
 ACTION_CONSENT_YES = 'consent_yes'
 ACTION_CONSENT_NO = 'consent_no'
+ACTION_REQUESTS_YES = 'requests_yes'
+ACTION_REQUESTS_NO = 'requests_no'
 ACTION_UNAVAILABLE = 'unavailable'
 ACTION_DECLINE = 'decline'
 ACTION_WHATSAPP_CLICK = 'whatsapp_click'
@@ -44,6 +54,8 @@ ACTION_TO_OUTCOME = {
 JSON_ACTIONS = frozenset({
     ACTION_CONSENT_YES,
     ACTION_CONSENT_NO,
+    ACTION_REQUESTS_YES,
+    ACTION_REQUESTS_NO,
     ACTION_UNAVAILABLE,
     ACTION_DECLINE,
     ACTION_WHATSAPP_CLICK,
@@ -98,6 +110,7 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'whatsapp_url': '',
         'tel_url': '',
         'needs_consent': False,
+        'requests_consent_status': '',
         'can_decline': False,
         'match_status': '',
         'decline_message': '',
@@ -129,6 +142,7 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'comment': (req.description or '').strip(),
         **_contact_urls(req),
         'needs_consent': seller_needs_request_page_marketing_prompt(access.seller),
+        'requests_consent_status': request_consent_status(access.seller),
         'can_decline': bool(access.seller_id) and not outcome_type,
         'match_status': outcome_type,
         'decline_message': OUTCOME_MESSAGES.get(outcome_type, ''),
@@ -221,6 +235,27 @@ def _handle_consent(access, req, granted: bool):
     })
 
 
+def _handle_request_subscription(access, req, granted: bool):
+    if access.seller is None or not access.seller.is_active:
+        return _json({'ok': False, 'error': 'Согласие недоступно.'}, status=400)
+    try:
+        consent = save_request_consent(
+            access.seller,
+            granted=granted,
+            evidence_reference=f'buyer_requests:access:{access.pk}:request:{req.pk}',
+        )
+    except ValueError as exc:
+        return _json({'ok': False, 'error': str(exc)}, status=400)
+    record_page_event(
+        access,
+        SELLER_REQUEST_PAGE_EVENT_REQUESTS_YES if granted
+        else SELLER_REQUEST_PAGE_EVENT_REQUESTS_NO,
+        request=req,
+        seller=access.seller,
+    )
+    return _json({'ok': True, 'requests_consent_status': consent.status})
+
+
 def _handle_outcome(access, req, action: str):
     if access.seller is None:
         return _json({'ok': False, 'error': 'Действие недоступно.'}, status=400)
@@ -265,6 +300,10 @@ def _handle_post(http_request, access, req):
         return _handle_consent(access, req, True)
     if action == ACTION_CONSENT_NO:
         return _handle_consent(access, req, False)
+    if action == ACTION_REQUESTS_YES:
+        return _handle_request_subscription(access, req, True)
+    if action == ACTION_REQUESTS_NO:
+        return _handle_request_subscription(access, req, False)
     return _handle_outcome(access, req, action)
 
 

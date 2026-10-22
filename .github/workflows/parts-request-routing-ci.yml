@@ -8,6 +8,15 @@ on:
       - 'core/request_dispatch_service.py'
       - 'core/services/home_parts_request.py'
       - 'core/services/manual_request_processing.py'
+      - 'core/services/manual_seller_dispatch.py'
+      - 'core/services/seller_buyer_request_consent.py'
+      - 'core/manual_seller_dispatch_admin.py'
+      - 'core/seller_request_link_views.py'
+      - 'core/templates/core/seller_request_link.html'
+      - 'core/templates/admin/core/request/manual_dispatch.html'
+      - 'core/migrations/0124_manual_seller_dispatch_and_requests_consent.py'
+      - 'core/tests/test_manual_seller_dispatch.py'
+      - 'static/js/seller-request-page.js'
       - 'core/tests/test_manual_request_processing.py'
       - 'core/services/vehicle_suggest.py'
       - 'core/migrations/0087_seller_sells_new_parts.py'
@@ -53,4 +62,7 @@ jobs:
             core.tests.test_dismantler_request_scope \
             core.tests.test_home_parts_request \
             core.tests.test_request_dispatch_waves \
+            core.tests.test_manual_seller_dispatch \
+            core.tests.test_seller_request_link \
+            core.tests.test_seller_request_response_control \
             -v 2
