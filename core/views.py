@@ -35,6 +35,7 @@ from core.services.seller_identity import (
     logout_unified_seller,
     sync_login_phone,
 )
+from core.services.seller_buyer_request_consent import request_consent_status
 from core.services.seller_whatsapp_consent import (
     get_seller_whatsapp_marketing_consent_status,
     is_whatsapp_marketing_opt_in,
@@ -1848,6 +1849,7 @@ def seller_profile(request):
         'is_test_seller': seller.is_test_seller,
         'must_change_password': seller.must_change_password,
         'whatsapp_marketing_consent': get_seller_whatsapp_marketing_consent_status(seller),
+        'whatsapp_buyer_requests_consent': request_consent_status(seller),
 
         'selected_categories': list(seller.selected_categories.values('id', 'name')),
         'selected_countries': list(seller.selected_countries.values('id', 'name')),
