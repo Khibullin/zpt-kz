@@ -240,3 +240,19 @@ class ManualSellerDispatchTests(TestCase):
         log = LogEntry.objects.get(user=user, object_id=str(self.req.pk))
         self.assertIn(payload['assignment_reason'], log.get_change_message())
         self.assertIn(str(self.seller.pk), log.get_change_message())
+
+    @override_settings(USE_THOUSAND_SEPARATOR=True, LANGUAGE_CODE='ru')
+    def test_confirmation_form_keeps_large_id_machine_readable(self):
+        import re
+        dispatch, _ = prepare_manual_dispatch(self.req, self.seller,
+            permission_evidence='Продавец разрешил разовую заявку по телефону')
+        RequestDispatch.objects.filter(pk=dispatch.pk).update(id=16489)
+        user = get_user_model().objects.create_superuser(username='large-id-admin', password='test-only-password')
+        self.client.force_login(user)
+        url = reverse('admin:core_request_manual_dispatch', args=[self.req.pk])
+        response = self.client.get(url)
+        match = re.search(r'name="dispatch_id" value="([^"]+)"', response.content.decode())
+        self.assertIsNotNone(match)
+        self.assertEqual(match.group(1), '16489')
+        self.client.post(url, {'action': 'confirm_sent', 'dispatch_id': match.group(1), 'did_send': 'yes'})
+        self.assertEqual(RequestDispatch.objects.get(pk=16489).status, RequestDispatch.STATUS_SENT)
