@@ -34,6 +34,14 @@
         Подтверждаю, что продавец разрешил прислать эту заявку в WhatsApp.
         Для имеющего отдельное согласие на заявки отметка не нужна.</label>
     </div>
+    <div style="margin-bottom:12px">
+      <label><input type="checkbox" name="one_time_assignment" value="yes">
+        Назначить продавца только на эту заявку вне его фильтра специализации</label>
+      <p>Постоянные фильтры сохраняются. Город, направление и активность продавца проверяются.</p>
+      <label for="id_assignment_reason">Причина разового назначения (обязательно при отметке):</label><br>
+      <input id="id_assignment_reason" name="assignment_reason" maxlength="1000" style="width:100%;max-width:750px">
+      <p>Причина и сотрудник будут записаны в историю изменений заявки.</p>
+    </div>
     <button type="submit" class="button default">Создать персональную ссылку</button>
   </form>
   <h3>Подходящие организации из каталога (до 20)</h3>

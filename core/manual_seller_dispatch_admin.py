@@ -45,11 +45,23 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id):
                         'Разовое согласие на получение этой заявки нужно '
                         'сначала получить вне WhatsApp и подтвердить в форме.'
                     )
+                assignment_reason = ''
+                if http_request.POST.get('one_time_assignment') == 'yes':
+                    assignment_reason = http_request.POST.get('assignment_reason', '').strip()
+                    if len(assignment_reason) < 12:
+                        raise ValidationError('Укажите причину разового назначения (от 12 символов).')
                 prepare_manual_dispatch(
                     req,
                     seller,
                     permission_evidence=http_request.POST.get('permission_evidence', ''),
+                    assignment_reason=assignment_reason,
                 )
+                if assignment_reason:
+                    model_admin.log_change(http_request, req, [{
+                        'changed': {'fields': [
+                            f'Разовое назначение продавца #{seller.pk}: {assignment_reason}',
+                        ]},
+                    }])
                 messages.success(
                     http_request,
                     'Персональная заявка подготовлена. '
