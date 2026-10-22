@@ -199,3 +199,44 @@ class ManualSellerDispatchTests(TestCase):
         })
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Match.objects.filter(request=self.req, seller=self.seller).exists())
+
+    def test_one_time_assignment_preserves_filters_and_requires_permission(self):
+        self.seller.all_categories = False
+        self.seller.save(update_fields=['all_categories'])
+        with self.assertRaises(ValidationError):
+            prepare_manual_dispatch(self.req, self.seller, assignment_reason='По решению владельца для этой заявки')
+        dispatch, _ = prepare_manual_dispatch(
+            self.req, self.seller,
+            assignment_reason='По решению владельца для этой заявки',
+            permission_evidence='Разрешение продавца подтверждено владельцем',
+        )
+        self.seller.refresh_from_db()
+        self.assertFalse(self.seller.all_categories)
+        self.assertIsNone(self.seller.request_filters)
+        self.assertEqual(dispatch.status, RequestDispatch.STATUS_PREPARED)
+        self.seller.city = 'Астана'
+        self.seller.save(update_fields=['city'])
+        with self.assertRaises(ValidationError):
+            prepare_manual_dispatch(self.req, self.seller,
+                assignment_reason='По решению владельца для этой заявки',
+                permission_evidence='Разрешение продавца подтверждено владельцем')
+
+    def test_admin_assignment_requires_reason_and_records_actor(self):
+        from django.contrib.admin.models import LogEntry
+        user = get_user_model().objects.create_superuser(
+            username='assignment-admin', password='test-only-password')
+        self.client.force_login(user)
+        self.seller.all_categories = False
+        self.seller.save(update_fields=['all_categories'])
+        url = reverse('admin:core_request_manual_dispatch', args=[self.req.pk])
+        payload = {'action': 'prepare', 'seller_id': self.seller.pk,
+            'one_time_permission': 'yes', 'one_time_assignment': 'yes',
+            'permission_evidence': 'Разрешение продавца подтверждено владельцем'}
+        self.client.post(url, payload)
+        self.assertFalse(RequestDispatch.objects.filter(request=self.req).exists())
+        payload['assignment_reason'] = 'Владелец назначил на одну заявку вручную'
+        self.client.post(url, payload)
+        self.assertTrue(RequestDispatch.objects.filter(request=self.req).exists())
+        log = LogEntry.objects.get(user=user, object_id=str(self.req.pk))
+        self.assertIn(payload['assignment_reason'], log.get_change_message())
+        self.assertIn(str(self.seller.pk), log.get_change_message())

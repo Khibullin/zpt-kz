@@ -49,7 +49,7 @@ def _legacy_selected(seller, req) -> bool:
     return True
 
 
-def validate_manual_recipient(req, seller):
+def validate_manual_recipient(req, seller, *, assignment_reason=""):
     if not seller.is_active or seller.is_paused or seller.catalog_only:
         raise ValidationError('Продавец не подключён к получению заявок.')
     if not normalize_phone_for_whatsapp(seller.whatsapp):
@@ -75,17 +75,20 @@ def validate_manual_recipient(req, seller):
         cities = {c.strip() for c in (req.selected_cities or '').split(',') if c.strip()}
         if seller.city not in cities:
             raise ValidationError('Продавец вне выбранных покупателем городов.')
-    if not _legacy_selected(seller, req):
+    if not assignment_reason and not _legacy_selected(seller, req):
         raise ValidationError('Заявка не соответствует фильтрам продавца.')
 
 
 @transaction.atomic
-def prepare_manual_dispatch(req, seller, *, permission_evidence=''):
+def prepare_manual_dispatch(req, seller, *, permission_evidence='', assignment_reason=''):
     """Create a per-seller link only after one-off permission or prior opt-in.
 
     No Match row, sent timestamp, Meta call or queued wave is created yet.
     """
-    validate_manual_recipient(req, seller)
+    assignment_reason = str(assignment_reason or '').strip()
+    if assignment_reason and len(assignment_reason) < MIN_EVIDENCE_LENGTH:
+        raise ValidationError('Укажите подробную причину разового назначения (от 12 символов).')
+    validate_manual_recipient(req, seller, assignment_reason=assignment_reason)
     consent = get_request_consent(seller)
     if consent and consent.status == 'granted':
         evidence = 'buyer_requests:consent:' + str(consent.pk)
