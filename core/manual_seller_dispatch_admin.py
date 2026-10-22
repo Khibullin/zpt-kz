@@ -1,6 +1,8 @@
 """Private Django admin UI for per-seller, consent-aware manual WhatsApp sends."""
 from __future__ import annotations
 
+import logging
+
 from django.contrib import messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db.models import Q
@@ -76,7 +78,11 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id):
                 )
                 if http_request.POST.get('did_send') != 'yes':
                     raise ValidationError('Подтвердите фактическую ручную отправку.')
-                confirm_manual_dispatch_sent(dispatch)
+                try:
+                    confirm_manual_dispatch_sent(dispatch)
+                except Exception as exc:
+                    logging.getLogger(__name__).exception('Manual dispatch confirmation failed: dispatch=%s', dispatch.pk)
+                    raise ValidationError('Учёт отправки не сохранён: ' + type(exc).__name__) from exc
                 messages.success(
                     http_request, 'Отправка учтена в истории заявки и кабинете продавца.'
                 )
