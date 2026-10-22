@@ -39,6 +39,19 @@ class Migration(migrations.Migration):
             ),
         ),
         migrations.AlterField(
+            model_name='contactconsent',
+            name='purpose',
+            field=models.CharField(
+                choices=[
+                    ('service', 'Сервисные'),
+                    ('information', 'Информационные'),
+                    ('marketing', 'Рекламные'),
+                    ('buyer_requests', 'Заявки покупателей'),
+                ],
+                max_length=16, verbose_name='Цель',
+            ),
+        ),
+        migrations.AlterField(
             model_name='sellercontactconsent',
             name='purpose',
             field=models.CharField(
