@@ -78,15 +78,17 @@ class ApprovedBrowserTests(TestCase):
         from core.models import SellerChannelConnection
         SellerChannelConnection.objects.update_or_create(seller=self.seller, defaults={'whatsapp_consent': True})
         pages['admin-manual-prepared'] = self.client.post(reverse('workflow_admin_manual', args=[self.req.pk]), {'seller': self.seller.pk, 'channel': 'whatsapp', 'action': 'prepare'}).content.decode()
+        self.assertIn('Скопировать сообщение', pages['admin-manual-prepared'])
         pages['admin-history'] = self.client.get(reverse('workflow_admin_control', args=[self.req.pk]) + '?view=history').content.decode()
         css = Path('core/static/core/connections.css').read_text()
+        helpers = Path('core/static/core/connections.js').read_text()
         output = Path('var/reports/workflow-ui').resolve()
         output.mkdir(parents=True, exist_ok=True)
         with tempfile.TemporaryDirectory() as folder:
             for name, html in pages.items():
                 self.assertNotIn('Traceback', html)
                 self.assertIn('<main', html, name)
-                Path(folder, name + '.html').write_text(html.replace('</head>', '<style>' + css + '</style></head>'))
+                Path(folder, name + '.html').write_text(html.replace('</head>', '<style>' + css + '</style><script>' + helpers + '</script></head>'))
             script = r'''
 const {chromium}=require('playwright');
 const fs=require('fs'); const path=require('path');
@@ -96,6 +98,16 @@ await page.route('**/*',route=>route.abort());
 for(const file of fs.readdirSync(process.argv[1])) {
 await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
 if(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)) throw new Error('Horizontal overflow: '+file+' width '+width);
+if(file==='admin-manual-prepared.html') {
+await page.getByRole('button',{name:'Скопировать сообщение'}).click();
+if(await page.locator('input[name=confirmed]').isChecked()) throw new Error('Copy marked message as sent');
+}
+if(file==='admin-telegram-prepare.html') {
+const originalText=await page.locator('#id_text').inputValue();
+await page.locator('#id_text').fill('Проверка предпросмотра');
+if(await page.locator('#telegram-preview-text').textContent()!=='Проверка предпросмотра') throw new Error('Preview did not update');
+await page.locator('#id_text').fill(originalText);
+}
 await page.screenshot({path:path.join(process.argv[2],width+'-'+file+'.png'),fullPage:true});
 } await page.close(); } await browser.close(); })().catch(e=>{console.error(e);process.exit(1)});
 '''

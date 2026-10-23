@@ -14,6 +14,7 @@ class ClaimPhoneForm(forms.Form):
 
 
 class NewShopForm(ClaimPhoneForm):
+    field_order = ['name', 'city', 'phone', 'brand', 'category', 'new_parts', 'used_parts', 'consent']
     name = forms.CharField(label='Название магазина', max_length=255)
     city = forms.CharField(label='Город', max_length=100)
     brand = forms.CharField(label='Марки автомобилей', max_length=100, required=False)
