@@ -1,0 +1,1 @@
+{% load l10n %}<div class="request-summary"><div class="summary-auto"><span>Автомобиль</span><strong>{{ req.brand }} {{ req.model }}{% if req.year %} · {{ req.year|unlocalize }}{% endif %}</strong></div><div class="summary-city"><span>Город</span><strong>{{ req.city }}</strong></div><div class="summary-part"><span>Что требуется</span><p>{{ req.public_summary }}</p></div></div>

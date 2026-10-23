@@ -35,11 +35,11 @@ class ApprovedBrowserTests(TestCase):
         pages['new-shop'] = self.client.get(reverse('workflow_claim') + '?new=1').content.decode()
         for state in ('claim_status', 'claim_confirm', 'access_ready', 'expired', 'closed'):
             pages[state] = render_to_string('core/connections/' + state + '.html', {'claim': SimpleNamespace(seller=shop, get_status_display='Ожидает проверки'), 'shop_name': shop.name, 'city': shop.city})
+        participate(self.req, self.seller)
         self.req.purchase_result = 'purchased'
         self.req.save(update_fields=['purchase_result'])
         pages['buyer-purchased'] = self.client.get(self.buyer('done')).content.decode()
         pages['buyer-seller'] = self.client.get(self.buyer('seller')).content.decode()
-        participate(self.req, self.seller)
         from core.services.request_connections import record
         record(self.req, self.seller, 'buyer', 'purchase_confirmed')
         pages['buyer-review'] = self.client.get(self.buyer('review')).content.decode()
