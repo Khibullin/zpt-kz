@@ -360,7 +360,7 @@ def telegram_login(request):
             request.session['telegram_login_ticket'] = str(ticket.pk)
         elif ticket:
             with transaction.atomic():
-                ticket = TelegramSellerLogin.objects.select_for_update().select_related('seller__user').get(pk=ticket.pk)
+                ticket = TelegramSellerLogin.objects.select_for_update(of=('self',)).select_related('seller__user').get(pk=ticket.pk)
                 if (ticket.seller_id and ticket.seller.user_id and ticket.seller.user.is_active
                         and ticket.seller.contact_access_verified and service.seller_can_participate(ticket.seller)
                         and ticket.expires_at > timezone.now() and not ticket.consumed_at):

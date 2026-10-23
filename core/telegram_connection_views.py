@@ -36,6 +36,8 @@ def telegram_connection_webhook(request):
         return HttpResponse(status=400)
     message = data.get('message') or {}
     callback = data.get('callback_query') or {}
+    if not isinstance(message, dict) or not isinstance(callback, dict):
+        return HttpResponse(status=400)
     if message:
         chat, sender = message.get('chat', {}), message.get('from', {})
         text = message.get('text', '')
