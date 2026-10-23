@@ -30,7 +30,7 @@ jobs:
       - run: python manage.py makemigrations --check --dry-run
       - run: >-
           python manage.py test
-          core.tests.test_request_connections core.tests.test_connection_admin
+          core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin
           core.tests.test_seller_request_link core.tests.test_buyer_portal
           core.tests.test_manual_seller_dispatch core.tests.test_seller_request_response_control
           core.tests.test_telegram_channel core.tests.test_unified_seller_account
@@ -65,6 +65,40 @@ jobs:
       - run: pip install -r requirements.txt
       - run: >-
           python manage.py test
-          core.tests.test_request_connections core.tests.test_connection_admin
+          core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin
           core.tests.test_request_connection_concurrency
           --settings=backend.settings_ui_ci --noinput
+  approved-ui:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'ci-only-approved-workflow-ui'
+      DATABASE_URL: 'sqlite:////tmp/approved-ui.sqlite3'
+      REQUEST_OWNER_EMAIL_ENABLED: 'False'
+      ZPT_BROWSER_QA: '1'
+      NODE_PATH: '/tmp/zpt-browser-qa/node_modules'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: pip install -r requirements.txt
+      - run: npm install --prefix /tmp/zpt-browser-qa playwright@1.62.1
+      - name: Use installed Chrome or install Chromium
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "ZPT_BROWSER_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            node /tmp/zpt-browser-qa/node_modules/playwright/cli.js install --with-deps chromium
+          fi
+      - run: python manage.py test core.tests.test_approved_workflow_browser --settings=backend.settings_ui_ci --noinput
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: approved-workflow-desktop-mobile
+          path: var/reports/workflow-ui/

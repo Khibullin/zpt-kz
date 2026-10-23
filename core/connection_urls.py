@@ -11,3 +11,27 @@ urlpatterns = [
     path('buyer/<int:req_id>/<uuid:access_token>/', views.buyer, name='connection_buyer'),
     path('buyer/<int:req_id>/<uuid:access_token>/<int:seller_id>/<str:channel>/', views.buyer_contact, name='connection_buyer_contact'),
 ]
+
+from core import workflow_views as workflow
+urlpatterns += [
+    path('seller/connect/', workflow.connect, name='workflow_connect'),
+    path('seller/claim/', workflow.claim, name='workflow_claim'),
+    path('seller/claim/<int:seller_id>/', workflow.claim_confirm, name='workflow_claim_confirm'),
+    path('seller/access-status/', workflow.claim_status, name='workflow_claim_status'),
+    path('seller/access/<uuid:token>/', workflow.redeem_access, name='workflow_redeem'),
+    path('seller/edit/', workflow.profile_edit, name='workflow_profile_edit'),
+    path('seller/channels/', workflow.channels, name='workflow_channels'),
+    path('seller/telegram/', workflow.telegram_connect, name='workflow_telegram_connect'),
+    path('buyer/<int:req_id>/<uuid:access_token>/step/<str:step>/', workflow.buyer_step, name='workflow_buyer_step'),
+    path('buyer/<int:req_id>/<uuid:access_token>/shop/<int:seller_id>/', workflow.buyer_shop, name='workflow_buyer_shop'),
+]
+urlpatterns += [
+    path('request/<int:req_id>/contact/', workflow.seller_contact_page, name='workflow_seller_contact_page'),
+    path('request/<int:req_id>/result/', workflow.seller_result, name='workflow_seller_result'),
+]
+from core.telegram_connection_views import telegram_connection_webhook
+urlpatterns += [path('telegram/webhook/', telegram_connection_webhook, name='workflow_telegram_webhook')]
+from core.workflow_admin import urlpatterns as staff_urls
+urlpatterns += staff_urls
+urlpatterns += [path('seller/telegram-login/', workflow.telegram_login, name='workflow_telegram_login')]
+urlpatterns += [path('buyer/<int:req_id>/<uuid:access_token>/channels/', workflow.buyer_channels, name='workflow_buyer_channels')]

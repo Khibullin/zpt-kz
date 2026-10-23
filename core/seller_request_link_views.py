@@ -328,6 +328,9 @@ def seller_request_link(request, token):
     if access.is_expired():
         if request.method == 'POST':
             return _json({'ok': False, 'error': 'Срок действия ссылки истёк.'}, status=410)
+        from core.services.request_connections import enabled
+        if enabled():
+            return render(request, 'core/connections/expired.html', status=410)
         return _page(request, page_state='expired', status=410)
     req = access.request
     from core.services import request_connections as connections
@@ -336,6 +339,11 @@ def seller_request_link(request, token):
         seller = get_logged_request_seller(request)
         if (not seller or not request.user.is_authenticated or seller.user_id != request.user.pk
                 or seller.pk != access.seller_id or not connections.can_open_contacts(req, seller)):
+            if request.method == 'GET' and seller and seller.pk == access.seller_id and seller.contact_access_verified and req.contact_consent_at and not req.access_revoked and req.purchase_result not in ('purchased', 'closed'):
+                from django.shortcuts import redirect
+                return redirect('connection_detail', req_id=req.pk)
+            if request.method == 'GET':
+                return render(request, 'core/connections/connect.html', {'req_id': req.pk, 'source': 'whatsapp'}, status=403)
             return _json({'ok': False, 'error': 'Войдите под допущенным продавцом и подтвердите интерес к заявке.'}, status=403)
         if request.method == 'GET':
             connections.record(req, seller, 'seller', 'opened')

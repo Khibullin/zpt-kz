@@ -68,11 +68,14 @@ class ConnectionTests(TestCase):
         self.client.logout()
         self.assertEqual(self.client.get(self.detail).status_code, 302)
 
-    def test_feed_requires_login(self):
+    def test_anonymous_feed_only_exposes_consented_safe_summaries(self):
         self.client.logout()
         response = self.client.get(reverse('connection_feed'))
-        self.assertEqual(response.status_code, 302)
-        self.assertNotIn(self.req.public_summary, response.content.decode())
+        self.assertEqual(response.status_code, 200)
+        self.assertNotContains(response, self.req.phone)
+        self.req.public_consent_at = None
+        self.req.save()
+        self.assertNotContains(self.client.get(reverse('connection_feed')), self.req.public_summary)
 
     def test_double_interest_reuses_match_and_access(self):
         first = self.client.post(self.detail, {'action': 'interest'})

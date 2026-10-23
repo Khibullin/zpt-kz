@@ -478,3 +478,6 @@ AGPARTS_KASPI_MERCHANT_ID = (os.getenv('AGPARTS_KASPI_MERCHANT_ID', '') or '').s
 
 # Two-way contact rollout is separate from Meta broadcast and disabled until approved.
 TWO_WAY_REQUESTS_ENABLED = _env_flag('TWO_WAY_REQUESTS_ENABLED', False)
+
+# Separate from the bot credential. No webhook is installed by migrations or startup.
+TELEGRAM_CONNECTION_WEBHOOK_SECRET = os.getenv('TELEGRAM_CONNECTION_WEBHOOK_SECRET', '')

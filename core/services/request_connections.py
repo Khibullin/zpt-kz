@@ -4,6 +4,7 @@ import re
 
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Count, Avg
 from django.utils import timezone
 
 from core.models import Match, RequestInteraction, RequestOffer, Seller
@@ -131,7 +132,9 @@ def recommendations(req):
     sellers = Seller.objects.filter(is_active=True, is_paused=False, direct_contacts_enabled=True).select_related(
         'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'social_links')
     offers = {o.seller_id: o for o in RequestOffer.objects.filter(request=req, expires_at__gt=timezone.now(), fitment_confirmed=True)}
-    purchases = set(RequestInteraction.objects.filter(kind='purchase_confirmed', actor='buyer').values_list('seller_id', flat=True))
+    purchases = dict(RequestInteraction.objects.filter(kind='purchase_confirmed', actor='buyer', request__purchase_result='purchased').values('seller_id').annotate(n=Count('id')).values_list('seller_id', 'n'))
+    from core.models import RequestSellerReview
+    reviews = dict(RequestSellerReview.objects.filter(moderated=True, public_consent=True, request__purchase_result='purchased').values('seller_id').annotate(score=Avg('rating')).values_list('seller_id', 'score'))
     result = []
     for seller in sellers:
         offer = offers.get(seller.pk)
@@ -166,7 +169,8 @@ def recommendations(req):
                        'has_telegram': bool(seller_contact(seller, req, 'telegram')),
                        'reason': ('Продавец подтвердил применимость; условия указаны ниже' if offer else 'Профиль соответствует запросу; наличие уточняется'),
                        '_key': (offer is None, seller.notification_state != 'active', *value_order,
-                                seller.pk not in purchases, seller.pk)})
+                                -purchases.get(seller.pk, 0), -reviews.get(seller.pk, 0),
+                                -sum(bool(x) for x in (seller.directory_description, seller.directory_photo, seller.city, seller.brand or seller.all_brands, seller.category or seller.all_categories)), seller.pk)})
     result.sort(key=lambda x: x['_key'])
     return result
 

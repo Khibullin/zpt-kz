@@ -1581,7 +1581,7 @@ def view_request_status_secure(request, req_id, access_token):
     req = get_object_or_404(Request, pk=req_id, access_token=access_token)
     from core.services.request_connections import enabled
     if enabled():
-        return redirect('connection_buyer', req_id=req.pk, access_token=req.access_token)
+        return redirect('workflow_buyer_step', req_id=req.pk, access_token=req.access_token, step='accepted')
     return _render_request_status(request, req)
 
 

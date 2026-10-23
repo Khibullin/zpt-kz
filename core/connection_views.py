@@ -35,7 +35,7 @@ def seller_or_none(request):
 
 
 def login_redirect(req_id=None, source='site'):
-    url = reverse('connection_login')
+    url = reverse('workflow_connect')
     return redirect(url + (f'?request={req_id}&source={source}' if req_id else ''))
 
 
@@ -44,7 +44,9 @@ def login_redirect(req_id=None, source='site'):
 def seller_login(request):
     req_id = request.GET.get('request', '')
     req_id = int(req_id) if req_id.isdigit() else None
-    source = 'telegram' if request.GET.get('source') == 'telegram' else 'site'
+    source = request.GET.get('source') if request.GET.get('source') in ('telegram', 'whatsapp') else 'site'
+    if seller_or_none(request):
+        return redirect('connection_detail', req_id=req_id) if req_id else redirect('connection_feed')
     form = SellerLoginForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         # The cache key contains no phone or credential. Production needs a shared cache.
@@ -67,7 +69,7 @@ def seller_login(request):
 def seller_join(request):
     req_id = request.GET.get('request', '')
     req_id = int(req_id) if req_id.isdigit() else None
-    source = 'telegram' if request.GET.get('source') == 'telegram' else 'site'
+    source = request.GET.get('source') if request.GET.get('source') in ('telegram', 'whatsapp') else 'site'
     form = SellerJoinForm(request.POST or None)
     if request.method == 'POST' and form.is_valid():
         key = 'request-join:' + request.META.get('REMOTE_ADDR', '')
@@ -93,14 +95,20 @@ def seller_join(request):
 @require_http_methods(['GET'])
 def feed(request):
     seller = seller_or_none(request)
-    if not seller:
-        return login_redirect()
     rows = []
     qs = Request.objects.filter(seller_feed_enabled=True).exclude(purchase_result__in=['purchased', 'closed']).order_by('-created_at')
     for req in qs.iterator():
         summary = service.safe_summary(req)
         if summary:
-            rows.append({'request_id': req.pk, 'summary': summary})
+            rows.append({'request_id': req.pk, 'summary': summary, 'req': req, 'interested': bool(seller and req.interactions.filter(seller=seller, kind='interest').exists())})
+    if request.GET.get('mine') == '1':
+        rows = [x for x in rows if x['interested']]
+    for key in ('city', 'brand', 'category'):
+        value = request.GET.get(key, '').strip()
+        if value:
+            rows = [x for x in rows if getattr(x['req'], key).casefold() == value.casefold()]
+    if not seller:
+        rows = [x for x in rows if x['req'].public_consent_at]
     return render(request, 'core/connections/feed.html', {'page': Paginator(rows, 20).get_page(request.GET.get('page')), 'seller': seller})
 
 
@@ -118,17 +126,17 @@ def detail(request, req_id):
     message = ''
     if request.method == 'POST':
         if not seller:
-            return login_redirect(req.pk, 'telegram' if request.POST.get('source') == 'telegram' else 'site')
+            return login_redirect(req.pk, request.POST.get('source') if request.POST.get('source') in ('telegram', 'whatsapp') else 'site')
         if req.purchase_result in ('purchased', 'closed'):
             return HttpResponse('Заявка закрыта.', status=409)
         action = request.POST.get('action')
         if action == 'interest':
             try:
-                access = service.participate(req, seller, 'telegram' if request.POST.get('source') == 'telegram' else 'site')
+                access = service.participate(req, seller, request.POST.get('source') if request.POST.get('source') in ('telegram', 'whatsapp') else 'site')
             except ValueError as exc:
                 return HttpResponse(str(exc), status=400)
             if service.can_open_contacts(req, seller):
-                return redirect('seller_request_link', token=access.token)
+                return redirect('workflow_seller_contact_page', req_id=req.pk)
             message = 'Интерес сохранён. Контакты откроются после допуска продавца и разрешения покупателя.'
         elif action == 'offer':
             if not RequestInteraction.objects.filter(request=req, seller=seller, actor='seller', kind='interest').exists():
@@ -145,6 +153,9 @@ def detail(request, req_id):
                     offer.request, offer.seller = req, seller
                     offer.save()
                 return redirect('connection_detail', req_id=req.pk)
+        elif action == 'out_of_stock':
+            service.record(req, seller, 'seller', 'out_of_stock', request.POST.get('source') if request.POST.get('source') in ('telegram', 'whatsapp') else 'site')
+            return redirect('connection_detail', req_id=req.pk)
         elif action in ('contact_confirmed', 'supply_confirmed', 'purchase_reported', 'out_of_stock', 'cannot_fulfill'):
             if not RequestInteraction.objects.filter(request=req, seller=seller, actor='seller', kind='interest').exists():
                 return HttpResponseForbidden()
@@ -155,6 +166,7 @@ def detail(request, req_id):
         else:
             return HttpResponse('Неизвестное действие.', status=400)
     if seller:
+        service.record(req, seller, 'seller', 'opened', request.GET.get('source') if request.GET.get('source') in ('telegram', 'whatsapp') else 'site')
         form = form or OfferForm(instance=RequestOffer.objects.filter(request=req, seller=seller).first())
     return render(request, 'core/connections/detail.html', {
         'req': req, 'summary': service.safe_summary(req), 'seller': seller, 'form': form,
@@ -162,7 +174,7 @@ def detail(request, req_id):
         'seller_actions': [('contact_confirmed', 'Общение состоялось'), ('supply_confirmed', 'Могу поставить'),
                            ('purchase_reported', 'Сообщить о продаже'), ('out_of_stock', 'Нет в наличии'),
                            ('cannot_fulfill', 'Не могу выполнить')],
-        'source': 'telegram' if request.GET.get('source') == 'telegram' else 'site'})
+        'source': request.GET.get('source') if request.GET.get('source') in ('telegram', 'whatsapp') else 'site', 'interested': bool(seller and req.interactions.filter(seller=seller, kind='interest').exists())})
 
 
 @guarded
@@ -237,6 +249,11 @@ def buyer_contact(request, req_id, access_token, seller_id, channel):
     with transaction.atomic():
         Match.objects.get_or_create(request=req, seller=item['seller'])
         service.record(req, item['seller'], 'buyer', channel + '_click')
+    if channel == 'call':
+        from django.http import HttpResponseRedirect
+        class PhoneRedirect(HttpResponseRedirect):
+            allowed_schemes = ['https', 'http', 'tel']
+        return PhoneRedirect(target)
     return redirect(target)
 
 
@@ -269,9 +286,18 @@ def seller_contact(request, req_id, channel):
     elif channel == 'whatsapp':
         from core.phone_utils import build_whatsapp_url
         target = build_whatsapp_url(req.phone, f'Здравствуйте! По заявке ZPT.KZ №{req.pk}.')
+    elif channel == 'call':
+        from core.services.seller_identity import normalize_seller_whatsapp
+        number = normalize_seller_whatsapp(req.phone)
+        target = 'tel:+' + number if number else ''
     else:
         raise Http404
     if not target:
         raise Http404
-    service.record(req, seller, 'seller', channel + '_click')
+    service.record(req, seller, 'seller', ('call' if channel == 'call' else channel) + '_click')
+    if channel == 'call':
+        from django.http import HttpResponseRedirect
+        class PhoneRedirect(HttpResponseRedirect):
+            allowed_schemes = ['https', 'http', 'tel']
+        return PhoneRedirect(target)
     return redirect(target)
