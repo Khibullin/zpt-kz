@@ -464,7 +464,22 @@ class RequestAdmin(admin.ModelAdmin):
         'vin',
     )
 
-    readonly_fields = ('buyer_contact', 'idempotency_key', 'manual_dispatch_link')
+    readonly_fields = ('buyer_contact', 'idempotency_key', 'manual_dispatch_link', 'telegram_prepare_link', 'connection_result')
+
+    @admin.display(description='Telegram')
+    def telegram_prepare_link(self, obj):
+        if not obj.pk:
+            return 'Сначала сохраните заявку.'
+        return format_html('<a href="{}">Подготовить для Telegram</a>',
+                           reverse('admin:core_request_telegram', args=[obj.pk]))
+
+    @admin.display(description='Результат и действия')
+    def connection_result(self, obj):
+        if not obj.pk:
+            return ''
+        from core.services.request_connections import result_label
+        return format_html('{} · <a href="{}?request__id__exact={}">Журнал действий</a>',
+                           result_label(obj), reverse('admin:core_requestinteraction_changelist'), obj.pk)
 
     @admin.display(description='Ручная обработка')
     def manual_dispatch_link(self, obj):
@@ -478,6 +493,9 @@ class RequestAdmin(admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         custom = [
+            path('<int:request_id>/telegram/',
+                 self.admin_site.admin_view(self.telegram_prepare_view),
+                 name='core_request_telegram'),
             path(
                 '<int:request_id>/manual-dispatch/',
                 self.admin_site.admin_view(self.manual_dispatch_view),
@@ -485,6 +503,10 @@ class RequestAdmin(admin.ModelAdmin):
             ),
         ]
         return custom + urls
+
+    def telegram_prepare_view(self, request, request_id):
+        from core.connection_admin import prepare_publication
+        return prepare_publication(self, request, request_id)
 
     def manual_dispatch_view(self, request, request_id):
         from core.manual_seller_dispatch_admin import manual_dispatch_admin_view
@@ -1425,6 +1447,10 @@ class SellerAdmin(admin.ModelAdmin):
         ('Основное', {
             'fields': (
                 'name',
+                'contact_access_verified',
+                'direct_contacts_enabled',
+                'notification_state',
+                'notification_note',
                 'catalog_only',
                 'whatsapp',
                 'phone2',
@@ -3413,3 +3439,6 @@ class EditorialSocialDraftAdmin(admin.ModelAdmin):
 
     def has_add_permission(self, request):
         return False
+
+# Additional views over existing request workflow; no automatic sends.
+from core import connection_admin  # noqa: E402,F401

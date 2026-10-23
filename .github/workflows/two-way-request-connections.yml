@@ -1,0 +1,70 @@
+name: Two-way request connections
+on:
+  pull_request:
+    paths:
+      - 'core/**'
+      - 'backend/**'
+      - 'templates/request-parts/cabinet/**'
+      - 'static/js/request-parts-cabinet.js'
+      - '.github/workflows/two-way-request-connections.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  offline-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'ci-only-two-way-request-offline-tests'
+      DATABASE_URL: 'sqlite:////tmp/two-way-request-tests.sqlite3'
+      REQUEST_OWNER_EMAIL_ENABLED: 'False'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py makemigrations --check --dry-run
+      - run: >-
+          python manage.py test
+          core.tests.test_request_connections core.tests.test_connection_admin
+          core.tests.test_seller_request_link core.tests.test_buyer_portal
+          core.tests.test_manual_seller_dispatch core.tests.test_seller_request_response_control
+          core.tests.test_telegram_channel core.tests.test_unified_seller_account
+          core.tests.test_seller_request_filters core.tests.test_request_dispatch_waves
+          --settings=backend.settings_ui_ci --noinput
+  postgres-concurrency:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: connections
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U test_user -d connections"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DEBUG: 'True'
+      SECRET_KEY: 'ci-only-two-way-request-postgres-tests'
+      DATABASE_URL: 'postgresql://test_user:test_password@localhost:5432/connections'
+      REQUEST_OWNER_EMAIL_ENABLED: 'False'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: >-
+          python manage.py test
+          core.tests.test_request_connections core.tests.test_connection_admin
+          core.tests.test_request_connection_concurrency
+          --settings=backend.settings_ui_ci --noinput

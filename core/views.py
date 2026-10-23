@@ -1512,11 +1512,11 @@ def create_home_parts_request(request):
         'queued': queued,
         'broadcast_active': broadcast_active,
         'matches': len(dispatches),
-        'result_url': (
+        'result_url': (request_page_url(req) if getattr(settings, 'TWO_WAY_REQUESTS_ENABLED', False) else (
             f'/find-part/?condition=used&home_request={req.access_token}'
             if req.is_dismantler_request
             else f'/?home_request={req.access_token}'
-        ),
+        )),
         'products': products_payload,
         'search_failed': search_failed,
         'photos_saved': req.photos.count(),
@@ -1579,6 +1579,9 @@ def short_request_redirect(request, pk, token):
 
 def view_request_status_secure(request, req_id, access_token):
     req = get_object_or_404(Request, pk=req_id, access_token=access_token)
+    from core.services.request_connections import enabled
+    if enabled():
+        return redirect('connection_buyer', req_id=req.pk, access_token=req.access_token)
     return _render_request_status(request, req)
 
 
@@ -1818,6 +1821,19 @@ def seller_requests(request):
             'match_id': match.id,
             'match_status': seller_match_status_label(display_status),
         })
+    if getattr(settings, 'TWO_WAY_REQUESTS_ENABLED', False):
+        from core.services.request_connections import can_open_contacts, safe_summary
+        if not request.user.is_authenticated or seller.user_id != request.user.pk:
+            return JsonResponse({'error': 'Требуется вход продавца'}, status=401)
+        for item in data:
+            req = next(match.request for match in matches if match.request_id == item['id'])
+            # Contact jumps must go through the event-recording endpoint.
+            item['whatsapp_url'] = ''
+            item['phone'] = ''
+            item['description'] = safe_summary(req)
+            item['connection_url'] = reverse('connection_detail', args=[req.pk])
+            if not can_open_contacts(req, seller):
+                item['match_status'] = 'Контакты после допуска и разрешения покупателя'
 
     return JsonResponse({
         'count': len(data),
@@ -1998,6 +2014,10 @@ def update_match_status(request):
 
     match_id = data.get('match_id')
     status = data.get('status')
+    if status not in {'prepared', 'viewed', 'contacted', 'done', 'unavailable', 'declined'}:
+        return JsonResponse({'error': 'Неизвестный статус'}, status=400)
+    if getattr(settings, 'TWO_WAY_REQUESTS_ENABLED', False) and status in {'contacted', 'done'}:
+        return JsonResponse({'error': 'Подтвердите результат на странице заявки'}, status=400)
 
     try:
         match = Match.objects.get(id=match_id, seller=seller)

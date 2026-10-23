@@ -148,6 +148,10 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'decline_message': OUTCOME_MESSAGES.get(outcome_type, ''),
         'photos': list(req.photos.all()),
     })
+    from core.services.request_connections import enabled, telegram_contact
+    if enabled():
+        context['connection_request_id'] = req.pk
+        context['buyer_has_telegram'] = bool(telegram_contact(req.buyer_telegram))
     return context
 
 
@@ -180,6 +184,9 @@ def _handle_contact_click(access, req, event_type: str):
     target_url = urls['whatsapp_url'] if event_type == EVENT_WHATSAPP_CLICK else urls['tel_url']
     if not target_url:
         return _json({'ok': False, 'error': 'Контакт покупателя недоступен.'}, status=400)
+    from core.services import request_connections as connections
+    if connections.enabled():
+        connections.record(req, access.seller, 'seller', event_type)
     if can_record_page_event(access, req):
         event, _created = record_page_event(
             access,
@@ -280,6 +287,9 @@ def _handle_outcome(access, req, action: str):
             },
             status=409,
         )
+    from core.services import request_connections as connections
+    if connections.enabled():
+        connections.record(req, access.seller, 'seller', outcome)
     return _json({
         'ok': True,
         'outcome': event.event_type,
@@ -320,6 +330,15 @@ def seller_request_link(request, token):
             return _json({'ok': False, 'error': 'Срок действия ссылки истёк.'}, status=410)
         return _page(request, page_state='expired', status=410)
     req = access.request
+    from core.services import request_connections as connections
+    if connections.enabled() and req is not None:
+        from core.services.seller_identity import get_logged_request_seller
+        seller = get_logged_request_seller(request)
+        if (not seller or not request.user.is_authenticated or seller.user_id != request.user.pk
+                or seller.pk != access.seller_id or not connections.can_open_contacts(req, seller)):
+            return _json({'ok': False, 'error': 'Войдите под допущенным продавцом и подтвердите интерес к заявке.'}, status=403)
+        if request.method == 'GET':
+            connections.record(req, seller, 'seller', 'opened')
     if req is None:
         if request.method == 'POST':
             return _json({'ok': False, 'error': 'Заявка недоступна.'}, status=404)

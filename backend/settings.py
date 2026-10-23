@@ -475,3 +475,6 @@ AGPARTS_CATALOG_API_TOKEN = (os.getenv('AGPARTS_CATALOG_API_TOKEN', '') or '').s
 AGPARTS_CATALOG_MANIFEST_JSON = os.getenv('AGPARTS_CATALOG_MANIFEST_JSON', '')
 # Set only after verifying our merchant ID and per-SKU packaging. No price write actions.
 AGPARTS_KASPI_MERCHANT_ID = (os.getenv('AGPARTS_KASPI_MERCHANT_ID', '') or '').strip()
+
+# Two-way contact rollout is separate from Meta broadcast and disabled until approved.
+TWO_WAY_REQUESTS_ENABLED = _env_flag('TWO_WAY_REQUESTS_ENABLED', False)

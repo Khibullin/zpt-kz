@@ -1,0 +1,1 @@
+<nav>{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}">Назад</a>{% endif %}{% if page.has_next %}<a href="?page={{ page.next_page_number }}">Показать следующие {{ page.paginator.per_page }}</a>{% endif %}</nav>

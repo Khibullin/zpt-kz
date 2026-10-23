@@ -22,6 +22,9 @@ def seller_request_filters(request, token=None):
         if access.is_expired():
             return HttpResponse('Срок действия ссылки истёк. Откройте новую заявку или войдите в кабинет.', status=410)
         seller = access.seller
+        from core.services.request_connections import enabled
+        if enabled() and (not request.user.is_authenticated or seller.user_id != request.user.pk):
+            return HttpResponse('Войдите под владельцем организации.', status=403)
         back_url = '../'
     else:
         seller = get_logged_request_seller(request)
