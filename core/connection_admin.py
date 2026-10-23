@@ -20,6 +20,7 @@ class PublicationForm(forms.ModelForm):
 
 @admin.register(TelegramRequestPublication)
 class PublicationAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/core/telegramrequestpublication/change_form.html'
     form = PublicationForm
     list_display = ('request', 'status', 'message_id', 'message_url', 'updated_at')
     readonly_fields = ('status', 'message_id', 'message_url', 'created_by', 'updated_at')

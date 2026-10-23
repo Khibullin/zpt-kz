@@ -41,7 +41,7 @@ def publish(publication_id, actor):
             'chat_id': '@zpt_kz_zakaz', 'text': publication.text,
             'link_preview_options': {'is_disabled': True},
             'reply_markup': {'inline_keyboard': [[{
-                'text': 'Есть запчасть / Связаться с покупателем',
+                'text': 'Есть запчасть / Связаться',
                 'url': 'https://zpt.kz' + reverse('connection_detail', kwargs={'req_id': publication.request_id}) + '?source=telegram'}]]}})
         message_id = result.get('message_id')
         if type(message_id) is not int or message_id <= 0:

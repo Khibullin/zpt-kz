@@ -3822,3 +3822,100 @@ class RequestConsentEvent(models.Model):
 
     class Meta:
         ordering = ['created_at', 'id']
+
+
+class SellerAccessClaim(models.Model):
+    """A claim is not proof of identity; staff verifies the pre-existing contact."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    seller = models.ForeignKey(Seller, on_delete=models.PROTECT, related_name='access_claims')
+    request = models.ForeignKey(Request, null=True, blank=True, on_delete=models.SET_NULL)
+    source = models.CharField(max_length=16, default='site')
+    comment = models.TextField(blank=True, max_length=1000)
+    status = models.CharField(max_length=16, default='pending', choices=[('pending', 'Ожидает проверки'), ('clarify', 'Нужны уточнения'), ('approved', 'Представитель подтверждён'), ('rejected', 'Доступ не подтверждён')])
+    reason = models.TextField(blank=True)
+    reviewed_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    login_token = models.UUIDField(null=True, blank=True, editable=False, unique=True)
+    token_expires_at = models.DateTimeField(null=True, blank=True)
+    redeemed_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RequestOutcomeEvent(models.Model):
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='outcome_events')
+    result = models.CharField(max_length=24)
+    seller = models.ForeignKey(Seller, null=True, blank=True, on_delete=models.SET_NULL)
+    comment = models.TextField(blank=True, max_length=2000)
+    source = models.CharField(max_length=16, default='buyer_page')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at', 'id']
+
+
+class RequestSellerReview(models.Model):
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='seller_review')
+    seller = models.ForeignKey(Seller, on_delete=models.PROTECT)
+    rating = models.PositiveSmallIntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
+    text = models.TextField(blank=True, max_length=2000)
+    public_consent = models.BooleanField(default=False)
+    moderated = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class SellerChannelConnection(models.Model):
+    seller = models.OneToOneField(Seller, on_delete=models.CASCADE, related_name='channel_connection')
+    telegram_id = models.BigIntegerField(null=True, blank=True, unique=True)
+    telegram_consent = models.BooleanField(default=False)
+    whatsapp_consent = models.BooleanField(default=False)
+    binding_token = models.UUIDField(null=True, blank=True, unique=True, editable=False)
+    binding_expires_at = models.DateTimeField(null=True, blank=True)
+    pending_telegram_id = models.BigIntegerField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class SellerChannelConsentEvent(models.Model):
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name='channel_consent_events')
+    channel = models.CharField(max_length=16)
+    granted = models.BooleanField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RequestSellerNotification(models.Model):
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='seller_notifications')
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name='request_notifications')
+    channel = models.CharField(max_length=16, choices=[('whatsapp', 'WhatsApp'), ('telegram', 'Telegram')])
+    status = models.CharField(max_length=16, default='prepared', choices=[('prepared', 'Подготовлено'), ('sending', 'Отправляется'), ('manual', 'Отправка отмечена сотрудником'), ('sent', 'Принято Telegram'), ('unknown', 'Результат неизвестен')])
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    message_id = models.BigIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['request', 'seller', 'channel'], name='unique_seller_channel_notification')]
+
+
+class TelegramSellerLogin(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    seller = models.ForeignKey(Seller, null=True, blank=True, on_delete=models.CASCADE)
+    expires_at = models.DateTimeField()
+    consumed_at = models.DateTimeField(null=True, blank=True)
+
+
+class RequestBuyerChannel(models.Model):
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='buyer_channel')
+    telegram_id = models.BigIntegerField(null=True, blank=True)
+    telegram_consent = models.BooleanField(default=False)
+    binding_token = models.UUIDField(null=True, blank=True, unique=True)
+    binding_expires_at = models.DateTimeField(null=True, blank=True)
+    pending_telegram_id = models.BigIntegerField(null=True, blank=True)
+    consent_at = models.DateTimeField(null=True, blank=True)
+
+
+class RequestBuyerFollowup(models.Model):
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='buyer_followup')
+    channel = models.CharField(max_length=16)
+    status = models.CharField(max_length=16, default='prepared')
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
+    message_id = models.BigIntegerField(null=True, blank=True)
+    updated_at = models.DateTimeField(auto_now=True)

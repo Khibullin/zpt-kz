@@ -478,8 +478,7 @@ class RequestAdmin(admin.ModelAdmin):
         if not obj.pk:
             return ''
         from core.services.request_connections import result_label
-        return format_html('{} · <a href="{}?request__id__exact={}">Журнал действий</a>',
-                           result_label(obj), reverse('admin:core_requestinteraction_changelist'), obj.pk)
+        return format_html('{} · <a href="{}">Контроль и история заявки</a>', result_label(obj), reverse('workflow_admin_control', args=[obj.pk]))
 
     @admin.display(description='Ручная обработка')
     def manual_dispatch_link(self, obj):
@@ -1365,7 +1364,14 @@ class SellerDismantlerFilter(admin.SimpleListFilter):
 
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
-    readonly_fields = ('catalog_only',)
+    readonly_fields = ('catalog_only', 'workflow_activity')
+
+    @admin.display(description='Активность и уведомления')
+    def workflow_activity(self, obj):
+        if not obj.pk:
+            return 'Сначала сохраните карточку.'
+        return format_html('<a href="{}">Активность продавца</a>', reverse('workflow_admin_activity', args=[obj.pk]))
+
     change_list_template = 'admin/core/seller/change_list.html'
     inlines = (
         SellerContactConsentInline,
