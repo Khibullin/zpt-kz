@@ -95,6 +95,7 @@
 
       <section class="panel">
         <h2>Фильтр</h2>
+        {% if request_connections_enabled %}<p><a href="/connect/requests/">Все заявки</a> · <a href="/connect/seller/quality/">Мой рейтинг и рекомендации</a></p>{% endif %}
         <div class="filters">
           <div class="filter-group">
             <span class="filter-title">Период:</span>

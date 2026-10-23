@@ -81,6 +81,9 @@ def broadcast_settings_block_reason(settings: BroadcastSettings) -> str | None:
 
 
 def seller_allowed_for_dispatch(seller, settings: BroadcastSettings, request=None) -> bool:
+    from core.services.request_connections import enabled
+    if enabled() and getattr(seller, 'notification_state', 'active') == 'suspended':
+        return False
     from core.services.test_receivers import test_receiver_decision
     decision = test_receiver_decision(seller, request)
     if decision is not None:

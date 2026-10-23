@@ -388,6 +388,9 @@ def create_unified_seller_account(
         raise SellerIdentityError(PHONE_TAKEN)
 
     claimable_seller = claimable_sellers[0] if len(claimable_sellers) == 1 else None
+    from core.services.request_connections import enabled
+    if enabled() and claimable_seller is not None:
+        raise SellerIdentityError('Организация уже есть в базе. Подтвердите владение карточкой через ZPT.KZ.')
 
     if len(password or '') < MIN_PASSWORD_LENGTH:
         raise SellerIdentityError(

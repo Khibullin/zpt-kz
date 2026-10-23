@@ -320,6 +320,21 @@ class BroadcastSettings(models.Model):
 
 
 class Request(models.Model):
+    requested_quantity = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+    buyer_priority = models.CharField(max_length=12, default='balanced', choices=[
+        ('balanced', 'Подходящие условия'), ('price', 'Выгоднее по цене'),
+        ('urgent', 'Нужно быстрее'), ('original', 'Только оригинал')])
+    buyer_budget = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
+    seller_feed_enabled = models.BooleanField(default=False, verbose_name='Проверена для общего потока продавцов')
+    public_summary = models.CharField(max_length=500, blank=True, verbose_name='Проверенный обезличенный текст')
+    public_consent_at = models.DateTimeField(null=True, blank=True, verbose_name='Согласие на публичную публикацию')
+    contact_consent_at = models.DateTimeField(null=True, blank=True, verbose_name='Разрешение контакта с продавцами')
+    buyer_telegram = models.CharField(max_length=100, blank=True, verbose_name='Telegram покупателя')
+    access_expires_at = models.DateTimeField(null=True, blank=True)
+    access_revoked = models.BooleanField(default=False)
+    purchase_result = models.CharField(max_length=24, blank=True, choices=[
+        ('purchased', 'Покупка подтверждена покупателем'),
+        ('closed', 'Закрыта без покупки'), ('search_again', 'Требуется повторный поиск')])
     SEARCH_SCOPE_CHOICES = REQUEST_SEARCH_SCOPE_CHOICES
     SOURCE_CLASSIC = REQUEST_SOURCE_CLASSIC
     SOURCE_HOME_SHORT = REQUEST_SOURCE_HOME_SHORT
@@ -469,6 +484,10 @@ class Request(models.Model):
         return f"{self.brand} {self.model} ({self.phone})"
 
     def save(self, *args, **kwargs):
+        if self._state.adding and getattr(settings, 'TWO_WAY_REQUESTS_ENABLED', False) and self.access_expires_at is None:
+            from datetime import timedelta
+            self.access_expires_at = timezone.now() + timedelta(days=30)
+
         if not self.short_token:
             allowed_chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
             while True:
@@ -1370,6 +1389,11 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    contact_access_verified = models.BooleanField(default=False, verbose_name='Допущен к контактам покупателей')
+    direct_contacts_enabled = models.BooleanField(default=False, verbose_name='Разрешает прямые обращения покупателей')
+    notification_state = models.CharField(max_length=16, default='active', choices=[
+        ('active', 'Активен'), ('inactive', 'Неактивен'), ('suspended', 'Уведомления приостановлены')])
+    notification_note = models.CharField(max_length=300, blank=True)
     test_all_requests_since = models.DateTimeField(null=True, blank=True, editable=False, verbose_name="Все новые заявки тестовому получателю с")
     request_filters = models.JSONField(null=True, blank=True, default=None, verbose_name="Подтверждённый фильтр заявок")
     request_filters_updated_at = models.DateTimeField(null=True, blank=True, verbose_name="Фильтр обновлён")
@@ -3718,3 +3742,83 @@ class EditorialSocialDraft(models.Model):
     class Meta:
         verbose_name = 'Анонс статьи для соцсетей'
         verbose_name_plural = 'Анонсы статей для соцсетей'
+
+
+class RequestInteraction(models.Model):
+    """Observed actions and separate statements; never inferred sales."""
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='interactions')
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name='interactions')
+    actor = models.CharField(max_length=12, choices=[('buyer', 'Покупатель'), ('seller', 'Продавец')])
+    kind = models.CharField(max_length=32, choices=[
+        ('interest', 'Есть запчасть'), ('opened', 'Открыл'),
+        ('whatsapp_click', 'Переход в WhatsApp'), ('telegram_click', 'Переход в Telegram'), ('call_click', 'Нажатие Позвонить'),
+        ('contact_confirmed', 'Подтвердил общение'), ('supply_confirmed', 'Может поставить'),
+        ('out_of_stock', 'Нет в наличии'), ('cannot_fulfill', 'Не может выполнить'),
+        ('purchase_reported', 'Продавец сообщил о продаже'),
+        ('purchase_confirmed', 'Покупатель подтвердил покупку'),
+        ('no_purchase', 'Без покупки'), ('search_again', 'Повторный поиск'),
+        ('impression', 'Показ')])
+    source = models.CharField(max_length=16, default='site')
+    position = models.PositiveIntegerField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['request', 'seller', 'actor', 'kind'], name='unique_request_interaction')]
+        ordering = ['created_at', 'id']
+
+
+class RequestOffer(models.Model):
+    is_original = models.BooleanField(default=False, verbose_name='Оригинал по заявлению продавца')
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='offers')
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE, related_name='request_offers')
+    product = models.ForeignKey('catalog.Product', null=True, blank=True, on_delete=models.SET_NULL)
+    article = models.CharField(max_length=100)
+    manufacturer = models.CharField(max_length=100)
+    condition = models.CharField(max_length=8, choices=[('new', 'Новая'), ('used', 'Б/у')])
+    quantity = models.PositiveIntegerField(validators=[MinValueValidator(1)])
+    price = models.PositiveIntegerField(validators=[MinValueValidator(1)], verbose_name='Цена за всё количество, ₸')
+    delivery_price = models.PositiveIntegerField(null=True, blank=True, verbose_name='Доставка, ₸; пусто — неизвестна')
+    delivery_days = models.PositiveIntegerField()
+    availability = models.CharField(max_length=12, choices=[('stock', 'В наличии по данным продавца'), ('order', 'Под заказ')])
+    warranty = models.CharField(max_length=300)
+    fitment_confirmed = models.BooleanField(default=False, verbose_name='Продавец проверил применимость')
+    expires_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['request', 'seller'], name='unique_request_offer')]
+
+
+class TelegramRequestPublication(models.Model):
+    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='telegram_publication')
+    text = models.TextField(max_length=1500)
+    reviewed = models.BooleanField(default=False, verbose_name='Текст проверен: без персональных данных')
+    message_id = models.PositiveBigIntegerField(null=True, blank=True)
+    status = models.CharField(max_length=12, default='draft', choices=[
+        ('draft', 'Черновик'), ('sending', 'Отправляется'), ('published', 'Опубликована'),
+        ('unknown', 'Результат неизвестен: сверить вручную')])
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def message_url(self):
+        return f'https://t.me/zpt_kz_zakaz/{self.message_id}' if self.message_id else ''
+
+
+class TelegramPublicationAttempt(models.Model):
+    publication = models.ForeignKey(TelegramRequestPublication, on_delete=models.CASCADE, related_name='attempts')
+    actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, on_delete=models.SET_NULL)
+    result = models.CharField(max_length=32)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+class RequestConsentEvent(models.Model):
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='connection_consents')
+    purpose = models.CharField(max_length=12, choices=[('public', 'Публичная публикация'), ('contact', 'Контакт продавца')])
+    granted = models.BooleanField()
+    source = models.CharField(max_length=24, default='buyer_request_page')
+    text_version = models.CharField(max_length=24, default='two_way_v1')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['created_at', 'id']

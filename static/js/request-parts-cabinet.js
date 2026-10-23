@@ -265,11 +265,12 @@ function renderRequests(){
   let html='';
   filtered.forEach(x=>{
     let waUrl=x.whatsapp_url || '';
+    let connectionActions=x.connection_url ? '<a class="btn btn-green" href="'+escHtml(x.connection_url)+'">Открыть заявку / Результат</a>' : '';
     let auto=`${x.brand||'-'} ${x.model||''}`.trim();
     html+=`<div class="request-card">
       <div class="request-title"><h3><span class="badge ${statusClass(x.match_status)}">${labelStatus(x.match_status)}</span> Заявка №${x.id}</h3><span class="muted">${x.created_at||''}</span></div>
       <div class="request-body"><div>${x.city||'-'} • ${auto}</div><div>Категория: ${x.category||'-'}</div><div class="request-description">${escHtml(x.description||'-')}</div></div>
-      <div class="actions">${waUrl?`<a class="btn btn-green" target="_blank" href="${waUrl}">Написать клиенту</a>`:''}<button class="btn btn-blue" onclick="setMatchStatus(${x.match_id},'contacted')">Связался</button><button class="btn btn-red" onclick="setMatchStatus(${x.match_id},'done')">Отказ</button></div>
+      <div class="actions">${connectionActions || `${waUrl?`<a class="btn btn-green" target="_blank" href="${waUrl}">Написать клиенту</a>`:''}<button class="btn btn-blue" onclick="setMatchStatus(${x.match_id},'contacted')">Связался</button><button class="btn btn-red" onclick="setMatchStatus(${x.match_id},'done')">Отказ</button>`}</div>
     </div>`;
   });
   requestsContent.innerHTML=html;

@@ -205,6 +205,10 @@
     {% if page_state == 'valid' %}
       <h1>Страница заявки</h1>
       <p class="sr-meta">Заявка №{{ request_number }}</p>
+      {% if connection_request_id %}
+        <p><a href="{% url 'connection_detail' connection_request_id %}">Предложение и результат работы</a></p>
+        {% if buyer_has_telegram %}<form method="post" action="{% url 'connection_seller_contact' connection_request_id 'telegram' %}">{% csrf_token %}<button class="sr-btn" type="submit">Написать покупателю в Telegram</button></form>{% endif %}
+      {% endif %}
       {% if vehicle %}<p class="sr-line">{{ vehicle }}</p>{% endif %}
       {% if year %}<p class="sr-line">Год: {{ year }}</p>{% endif %}
       {% if vin %}<p class="sr-line">VIN: {{ vin }}</p>{% endif %}
