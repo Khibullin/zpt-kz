@@ -78,7 +78,8 @@ def claim(request):
                 form.add_error(None, 'Карточка не найдена. Проверьте телефон или добавьте магазин.')
     # Only the public name and city are rendered, not the raw model/contact.
     return render(request, 'core/connections/claim.html', {'form': form, 'new': new,
-        'candidates': [{'pk': s.pk, 'name': s.name, 'city': s.city} for s in sellers]})
+        'candidates': [{'pk': s.pk, 'name': s.name, 'city': s.city} for s in sellers],
+        'req_id': context_request(request), 'source': source(request)})
 
 
 @guarded
@@ -295,8 +296,33 @@ def buyer_shop(request, req_id, access_token, seller_id):
         return render(request, 'core/connections/expired.html', status=410)
     item = next((x for x in service.recommendations(req) if x['seller'].pk == seller_id), None)
     if item is None:
+        item = next((x for x in service.directory_suggestions(req) if x['seller'].pk == seller_id), None)
+    if item is None:
         raise Http404
+    from core.services.seller_card_display import build_seller_card
+    item['public_card'] = build_seller_card(item['seller'])
     return render(request, 'core/connections/shop.html', {'req': req, 'item': item, 'reviews': RequestSellerReview.objects.filter(seller_id=seller_id, public_consent=True, moderated=True, request__purchase_result='purchased').order_by('-created_at')[:10]})
+
+
+@guarded
+@require_http_methods(['POST'])
+def buyer_directory_contact(request, req_id, access_token, seller_id, channel):
+    req = buyer_request(req_id, access_token)
+    if req is None:
+        return HttpResponse(status=410)
+    if channel not in ('whatsapp', 'telegram', 'call'):
+        raise Http404
+    item = next((x for x in service.directory_suggestions(req) if x['seller'].pk == seller_id), None)
+    target = service.directory_contact(item['seller'], req, channel) if item else ''
+    if not target:
+        raise Http404
+    service.record(req, item['seller'], 'buyer', channel + '_click', source='public_directory')
+    if channel == 'call':
+        from django.http import HttpResponseRedirect
+        class PhoneRedirect(HttpResponseRedirect):
+            allowed_schemes = ['https', 'http', 'tel']
+        return PhoneRedirect(target)
+    return redirect(target)
 
 
 @guarded

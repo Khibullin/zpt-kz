@@ -128,11 +128,41 @@ def relevant(seller, req):
                 and (seller.all_categories or req.category.casefold() in categories))
 
 
+def seller_display_name(seller):
+    name = re.sub(r'\s*[•|]\s*Instagram\b.*$', '', seller.name, flags=re.I)
+    name = re.sub(r'\s*\(@[A-Za-z0-9_.]+\)', '', name)
+    return ' '.join(name.split())
+
+
+def _brand_words(value):
+    return ' '.join(re.findall(r'\w+', (value or '').casefold()))
+
+
+def _directory_brand_terms():
+    from core.models import Brand
+    aliases = {
+        'toyota': ('тойота', 'тоёта'), 'subaru': ('субару',),
+        'volkswagen': ('фольксваген', 'фольксваген ваг'),
+        'chevrolet': ('шевроле', 'шевролет'), 'hyundai': ('хендай', 'хундай', 'хёндэ'),
+        'kia': ('киа',), 'mercedes benz': ('mercedes', 'мерседес', 'мерседес бенц'),
+        'bmw': ('бмв',), 'nissan': ('ниссан',), 'honda': ('хонда',),
+        'mazda': ('мазда',), 'mitsubishi': ('митсубиси', 'мицубиси'),
+        'lexus': ('лексус',), 'audi': ('ауди',), 'ford': ('форд',),
+        'renault': ('рено',), 'lada': ('лада', 'ваз'), 'suzuki': ('сузуки',),
+    }
+    terms = {_brand_words(name): _brand_words(name) for name in Brand.objects.values_list('name', flat=True)
+             if len(_brand_words(name)) >= 3}
+    for canonical, alternatives in aliases.items():
+        for term in (canonical, *alternatives):
+            terms[_brand_words(term)] = canonical
+    return terms
+
+
 def directory_suggestions(req, excluded_ids=()):
     """Suggest already public shops without asserting a contact opt-in or stock."""
     from core.directory_seo import public_parts_organizations
     shops = public_parts_organizations().exclude(pk__in=excluded_ids).select_related(
-        'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories')
+        'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'social_links')
     if req.search_scope == 'city':
         shops = shops.filter(city=req.city)
     elif req.search_scope == 'custom':
@@ -141,14 +171,47 @@ def directory_suggestions(req, excluded_ids=()):
         shops = shops.filter(is_dismantler=True)
     else:
         shops = shops.filter(sells_new_parts=True)
-    items = [{'seller': s, 'directory_only': True,
-              'reason': 'Магазин из каталога; наличие и цену уточняйте напрямую'}
-             for s in shops if relevant(s, req)]
-    items.sort(key=lambda x: (x['seller'].city != req.city,
+    terms = _directory_brand_terms()
+    wanted = terms.get(_brand_words(req.brand), _brand_words(req.brand))
+    items = []
+    for seller in shops:
+        if not relevant(seller, req):
+            continue
+        name = seller_display_name(seller)
+        words = ' ' + _brand_words(name) + ' '
+        named_brands = {brand for term, brand in terms.items() if ' ' + term + ' ' in words}
+        specific = [seller.brand, seller.brand_fk.name if seller.brand_fk_id else '',
+                    *[b.name for b in seller.selected_brands.all()]]
+        explicit = {terms.get(_brand_words(b), _brand_words(b)) for b in specific if b}
+        # Imported all_brands=True must not override a clearly different brand in the shop title.
+        if named_brands and wanted not in named_brands and wanted not in explicit:
+            continue
+        items.append({'seller': seller, 'display_name': name, 'directory_only': True,
+                      'brand_specific': wanted in named_brands or wanted in explicit,
+                      'has_whatsapp': bool(directory_contact(seller, req, 'whatsapp')),
+                      'has_telegram': bool(directory_contact(seller, req, 'telegram')),
+                      'reason': 'Магазин из каталога'})
+    items.sort(key=lambda x: (not x['brand_specific'], x['seller'].city != req.city,
         -sum(bool(v) for v in (x['seller'].directory_description, x['seller'].directory_photo,
                                x['seller'].brand or x['seller'].all_brands,
                                x['seller'].category or x['seller'].all_categories)), x['seller'].pk))
     return items
+
+
+def directory_contact(seller, req, channel):
+    """Public business contacts only; never grants a seller access to buyer data."""
+    if channel == 'whatsapp':
+        return build_whatsapp_url(seller.whatsapp,
+            f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. Категория: {req.category}. Уточните наличие и цену.')
+    if channel == 'telegram':
+        for link in seller.social_links.all():
+            if link.kind == 'telegram' and (target := telegram_contact(link.url)):
+                return target
+    if channel == 'call':
+        from core.phone_utils import normalize_phone_for_whatsapp
+        digits = normalize_phone_for_whatsapp(seller.whatsapp) or normalize_phone_for_whatsapp(seller.phone2)
+        return 'tel:+' + digits if digits else ''
+    return ''
 
 
 def recommendations(req):
@@ -187,7 +250,7 @@ def recommendations(req):
         price_order = (comparable is None, comparable or 0)
         time_order = (offer.delivery_days if offer else 9999,)
         value_order = time_order + price_order if req.buyer_priority == 'urgent' else price_order + time_order
-        result.append({'seller': seller, 'offer': offer, 'total_price': total,
+        result.append({'seller': seller, 'display_name': seller_display_name(seller), 'offer': offer, 'total_price': total,
                        'has_whatsapp': bool(seller_contact(seller, req, 'whatsapp')),
                        'has_telegram': bool(seller_contact(seller, req, 'telegram')),
                        'reason': ('Продавец подтвердил применимость; условия указаны ниже' if offer else 'Профиль соответствует запросу; наличие уточняется'),

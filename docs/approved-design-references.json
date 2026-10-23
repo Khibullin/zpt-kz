@@ -1,0 +1,436 @@
+{
+  "project": "ZPT.KZ",
+  "purpose": "Original owner-approved visual references. Match rendered desktop and mobile pages to these images; functional tests alone do not establish design compliance.",
+  "screens": [
+    {
+      "screen": 1,
+      "reference": "Обновлённый ZPT.kz на десктопе и мобильном.png"
+    },
+    {
+      "screen": 2,
+      "reference": "Продавцы по вашей заявке.png"
+    },
+    {
+      "screen": 3,
+      "reference": "Профиль магазина «Пример 1».png"
+    },
+    {
+      "screen": 4,
+      "reference": "Уточнение заявки на автозапчасти.png"
+    },
+    {
+      "screen": 5,
+      "reference": "Результат заявки: выбор статуса покупки.png"
+    },
+    {
+      "screen": 6,
+      "reference": "Зелёная кнопка связи на двух экранах.png"
+    },
+    {
+      "screen": 7,
+      "reference": "Связаться с покупателем: WhatsApp и Telegram.png"
+    },
+    {
+      "screen": 8,
+      "reference": "Результат общения по заявке.png"
+    },
+    {
+      "screen": 9,
+      "reference": "Экран заявок для продавца ZPT.kz.png"
+    },
+    {
+      "screen": 10,
+      "reference": "Карточка и рейтинг продавца.png"
+    },
+    {
+      "screen": 11,
+      "reference": "Редактирование карточки продавца.png"
+    },
+    {
+      "screen": 12,
+      "reference": "Подключение к заявкам: найдите или добавьте магазин.png"
+    },
+    {
+      "screen": 13,
+      "reference": "Поиск карточки магазина по телефону.png"
+    },
+    {
+      "screen": 14,
+      "reference": "Форма добавления магазина.png"
+    },
+    {
+      "screen": 15,
+      "reference": "Запрос на подтверждение магазина.png"
+    },
+    {
+      "screen": 16,
+      "reference": "Запрос принят — ожидание подтверждения доступа.png"
+    },
+    {
+      "screen": 17,
+      "reference": "Доступ к заявке подтверждён.png"
+    },
+    {
+      "screen": 18,
+      "reference": "Ссылка устарела — продолжение в ZPT.KZ.png"
+    },
+    {
+      "screen": 19,
+      "reference": "Закрытая заявка на ZPT.kz.png"
+    },
+    {
+      "screen": 20,
+      "reference": "Форма выбора продавца после покупки.png"
+    },
+    {
+      "screen": 21,
+      "reference": "Отзыв о продавце.png"
+    },
+    {
+      "screen": 22,
+      "reference": "Покупка подтверждена в ZPT.kz.png"
+    },
+    {
+      "screen": 23,
+      "reference": "Продолжить поиск запчасти.png"
+    },
+    {
+      "screen": 24,
+      "reference": "Подтверждение закрытия заявки без покупки.png"
+    },
+    {
+      "screen": 25,
+      "reference": "Админ-панель контроля заявки.png"
+    },
+    {
+      "screen": 26,
+      "reference": "Подготовка публикации в Telegram.png"
+    },
+    {
+      "screen": 27,
+      "reference": "Подтверждение публикации в Telegram.png"
+    },
+    {
+      "screen": 28,
+      "reference": "Проверка публикации в Telegram.png"
+    },
+    {
+      "screen": 29,
+      "reference": "Форма привязки публикации к заявке.png"
+    },
+    {
+      "screen": 30,
+      "reference": "Экран проверки доступа продавца.png"
+    },
+    {
+      "screen": 31,
+      "reference": "История заявки: таймлайн событий.png"
+    },
+    {
+      "screen": 32,
+      "reference": "Админ-панель: заявки в работе.png"
+    },
+    {
+      "screen": 33,
+      "reference": "Настройки уведомлений о заявках.png"
+    },
+    {
+      "screen": 34,
+      "reference": "Подключить Telegram к магазину.png"
+    },
+    {
+      "screen": 35,
+      "reference": "Подтверждение привязки магазина в Telegram.png"
+    },
+    {
+      "screen": 36,
+      "reference": "Telegram подключён: настройка уведомлений.png"
+    },
+    {
+      "screen": 37,
+      "reference": "Telegram: новая заявка на запчасти.png"
+    },
+    {
+      "screen": 38,
+      "reference": "Заявка в WhatsApp: настольная и мобильная версии.png"
+    },
+    {
+      "screen": 39,
+      "reference": "Вопрос покупателю в WhatsApp и Telegram.png"
+    },
+    {
+      "screen": 40,
+      "reference": "Ручная отправка заявки в WhatsApp.png"
+    },
+    {
+      "screen": 41,
+      "reference": "Активность продавца и решение администратора.png"
+    }
+  ],
+  "references": [
+    {
+      "name": "Активность продавца и решение администратора.png",
+      "library_file_id": "libfile_3ad5ac72d29881919d2360c048548e92",
+      "file_id": "file_00000000dc888246acb44a19a534ede0",
+      "library_path": "/ZPT.KZ/Активность продавца и решение администратора.png"
+    },
+    {
+      "name": "Ручная отправка заявки в WhatsApp.png",
+      "library_file_id": "libfile_cf3d360dfc608191b1b0312c7ee2efd0",
+      "file_id": "file_000000007de881f4ac965ba837ecab05",
+      "library_path": "/ZPT.KZ/Ручная отправка заявки в WhatsApp.png"
+    },
+    {
+      "name": "Вопрос покупателю в WhatsApp и Telegram.png",
+      "library_file_id": "libfile_18e428aee9c08191a28f342200bc5f9a",
+      "file_id": "file_0000000084a481f48a882bd52ec976fd",
+      "library_path": "/ZPT.KZ/Вопрос покупателю в WhatsApp и Telegram.png"
+    },
+    {
+      "name": "Заявка в WhatsApp: настольная и мобильная версии.png",
+      "library_file_id": "libfile_21ce76e841a08191919c191dc9d0463c",
+      "file_id": "file_00000000d39c81f48ff4cb2359b3874d",
+      "library_path": "/ZPT.KZ/Заявка в WhatsApp: настольная и мобильная версии.png"
+    },
+    {
+      "name": "Telegram: новая заявка на запчасти.png",
+      "library_file_id": "libfile_484b25f26ad08191a1bc702f38f30a4b",
+      "file_id": "file_00000000ab8481f4b6c6993b4a719d8a",
+      "library_path": "/ZPT.KZ/Telegram: новая заявка на запчасти.png"
+    },
+    {
+      "name": "Telegram подключён: настройка уведомлений.png",
+      "library_file_id": "libfile_a4dae6a4aaac8191b21859d12168b289",
+      "file_id": "file_00000000153c820abd0b3d9d34393093",
+      "library_path": "/ZPT.KZ/Telegram подключён: настройка уведомлений.png"
+    },
+    {
+      "name": "Подтверждение привязки магазина в Telegram.png",
+      "library_file_id": "libfile_ad5889fbddf48191826de36542f670c4",
+      "file_id": "file_000000009b34820aaa35069cfb993c91",
+      "library_path": "/ZPT.KZ/Подтверждение привязки магазина в Telegram.png"
+    },
+    {
+      "name": "Подключить Telegram к магазину.png",
+      "library_file_id": "libfile_39116c55a8c081918a0a034c54093f23",
+      "file_id": "file_00000000bee0820a95e64ad49be51bb2",
+      "library_path": "/ZPT.KZ/Подключить Telegram к магазину.png"
+    },
+    {
+      "name": "Настройки уведомлений о заявках.png",
+      "library_file_id": "libfile_dadf2541f62081919f10c63fc990760a",
+      "file_id": "file_00000000e6188243acb145a26d7e0a9b",
+      "library_path": "/ZPT.KZ/Настройки уведомлений о заявках.png"
+    },
+    {
+      "name": "Админ-панель: заявки в работе.png",
+      "library_file_id": "libfile_6b6131e576cc8191823807e80d91ea54",
+      "file_id": "file_00000000ee78820a98d166d8bd3ffdb5",
+      "library_path": "/ZPT.KZ/Админ-панель: заявки в работе.png"
+    },
+    {
+      "name": "История заявки: таймлайн событий.png",
+      "library_file_id": "libfile_1fffbe4907208191a7a20497a6c54c57",
+      "file_id": "file_00000000ac48820a862bd5d17f58aa58",
+      "library_path": "/ZPT.KZ/История заявки: таймлайн событий.png"
+    },
+    {
+      "name": "Экран проверки доступа продавца.png",
+      "library_file_id": "libfile_e751ac1694688191a9c3fcc4b75517fa",
+      "file_id": "file_000000003e94820ab9625abe7d04be99",
+      "library_path": "/ZPT.KZ/Экран проверки доступа продавца.png"
+    },
+    {
+      "name": "Форма привязки публикации к заявке.png",
+      "library_file_id": "libfile_301dc97788148191a54d1bba965df650",
+      "file_id": "file_000000007c78820a95aeac5203f3ed61",
+      "library_path": "/ZPT.KZ/Форма привязки публикации к заявке.png"
+    },
+    {
+      "name": "Проверка публикации в Telegram.png",
+      "library_file_id": "libfile_1aad67eb6e208191ae80e9fd2df21357",
+      "file_id": "file_00000000709881f486a0edd6a4cee0e0",
+      "library_path": "/ZPT.KZ/Проверка публикации в Telegram.png"
+    },
+    {
+      "name": "Подтверждение публикации в Telegram.png",
+      "library_file_id": "libfile_6df7cd88bfc08191b040f5207d696111",
+      "file_id": "file_000000005c1081f4b315c9d2a6962845",
+      "library_path": "/ZPT.KZ/Подтверждение публикации в Telegram.png"
+    },
+    {
+      "name": "Подготовка публикации в Telegram.png",
+      "library_file_id": "libfile_e1fab96b93d481919a0f737db3578ba7",
+      "file_id": "file_000000004f8c821196b10adeb46946de",
+      "library_path": "/ZPT.KZ/Подготовка публикации в Telegram.png"
+    },
+    {
+      "name": "Админ-панель контроля заявки.png",
+      "library_file_id": "libfile_57a93a68689c819194c08fabdd750007",
+      "file_id": "file_00000000123481f592dc7cff37f9c5a2",
+      "library_path": "/ZPT.KZ/Админ-панель контроля заявки.png"
+    },
+    {
+      "name": "Подтверждение закрытия заявки без покупки.png",
+      "library_file_id": "libfile_382f738b05088191a149d48854b0b50b",
+      "file_id": "file_00000000e1488211810a31697bc8aa02",
+      "library_path": "/ZPT.KZ/Подтверждение закрытия заявки без покупки.png"
+    },
+    {
+      "name": "Продолжить поиск запчасти.png",
+      "library_file_id": "libfile_727c75f8561881919f335b99d0e8de54",
+      "file_id": "file_000000007c008211a6e4657503035d55",
+      "library_path": "/ZPT.KZ/Продолжить поиск запчасти.png"
+    },
+    {
+      "name": "Покупка подтверждена в ZPT.kz.png",
+      "library_file_id": "libfile_df59907ac0008191b29619c599cfd65f",
+      "file_id": "file_00000000521c81f4a689afdbadee80af",
+      "library_path": "/ZPT.KZ/Покупка подтверждена в ZPT.kz.png"
+    },
+    {
+      "name": "Отзыв о продавце.png",
+      "library_file_id": "libfile_fd10cce53bec8191a0b3354b12f05cb6",
+      "file_id": "file_00000000f9dc81f48bc81c288d3b115b",
+      "library_path": "/ZPT.KZ/Отзыв о продавце.png"
+    },
+    {
+      "name": "Форма выбора продавца после покупки.png",
+      "library_file_id": "libfile_ec4e0e1155c881919de13e7da5816c9d",
+      "file_id": "file_0000000019e8820aaa310b7afab5fe19",
+      "library_path": "/ZPT.KZ/Форма выбора продавца после покупки.png"
+    },
+    {
+      "name": "Закрытая заявка на ZPT.kz.png",
+      "library_file_id": "libfile_ad49f7a5704081918aa2eafc1220d9b0",
+      "file_id": "file_000000006af0820ab7159d002342bd35",
+      "library_path": "/ZPT.KZ/Закрытая заявка на ZPT.kz.png"
+    },
+    {
+      "name": "Ссылка устарела — продолжение в ZPT.KZ.png",
+      "library_file_id": "libfile_60e8a8eafb208191b31d82b3bac3f739",
+      "file_id": "file_000000006be4820a9d2a17474497d7dc",
+      "library_path": "/ZPT.KZ/Ссылка устарела — продолжение в ZPT.KZ.png"
+    },
+    {
+      "name": "Доступ к заявке подтверждён.png",
+      "library_file_id": "libfile_908a29b079bc81919ca2901b5a558ed7",
+      "file_id": "file_000000006f0c81f489bbf227e78c0f39",
+      "library_path": "/ZPT.KZ/Доступ к заявке подтверждён.png"
+    },
+    {
+      "name": "Запрос принят — ожидание подтверждения доступа.png",
+      "library_file_id": "libfile_656c9ef28c2c8191afb7d33789390a42",
+      "file_id": "file_0000000030008211bee85177fb27d684",
+      "library_path": "/ZPT.KZ/Запрос принят — ожидание подтверждения доступа.png"
+    },
+    {
+      "name": "Запрос на подтверждение магазина.png",
+      "library_file_id": "libfile_72ea67d737ac81919042fce0aa1c6314",
+      "file_id": "file_000000005998820a995be083487092dd",
+      "library_path": "/ZPT.KZ/Запрос на подтверждение магазина.png"
+    },
+    {
+      "name": "Форма добавления магазина.png",
+      "library_file_id": "libfile_ce807ce6ed108191aa8512491edfd9e1",
+      "file_id": "file_00000000dda0820abe1657ecb6872e5f",
+      "library_path": "/ZPT.KZ/Форма добавления магазина.png"
+    },
+    {
+      "name": "Поиск карточки магазина по телефону.png",
+      "library_file_id": "libfile_53e88099d8c48191a71cf83a3dc98a03",
+      "file_id": "file_00000000d644820e88ef9491d193f10d",
+      "library_path": "/ZPT.KZ/Поиск карточки магазина по телефону.png"
+    },
+    {
+      "name": "Подключение к заявкам: найдите или добавьте магазин.png",
+      "library_file_id": "libfile_819f3b7b8fe48191818c37fc88a7a038",
+      "file_id": "file_0000000006888243a637f1172003a728",
+      "library_path": "/ZPT.KZ/Подключение к заявкам: найдите или добавьте магазин.png"
+    },
+    {
+      "name": "Вход продавца к заявке.png",
+      "library_file_id": "libfile_0bd23655b6c08191885387ab2e00a08e",
+      "file_id": "file_000000002ebc820aaf1e4ed52999e1ab",
+      "library_path": "/ZPT.KZ/Вход продавца к заявке.png"
+    },
+    {
+      "name": "Редактирование карточки продавца.png",
+      "library_file_id": "libfile_e9466711954081918688f224e65e7e5e",
+      "file_id": "file_00000000b7688211b63fce250a2acf4c",
+      "library_path": "/ZPT.KZ/Редактирование карточки продавца.png"
+    },
+    {
+      "name": "Карточка и рейтинг продавца.png",
+      "library_file_id": "libfile_24ebc40a1ccc81919bf94c4a0e851edf",
+      "file_id": "file_00000000df8c820aa0559c2f93f817c8",
+      "library_path": "/ZPT.KZ/Карточка и рейтинг продавца.png"
+    },
+    {
+      "name": "Экран заявок для продавца ZPT.kz.png",
+      "library_file_id": "libfile_34e2c8b8f898819186e6efdf2c357eae",
+      "file_id": "file_000000005a10820c97fe906ac37e642d",
+      "library_path": "/ZPT.KZ/Экран заявок для продавца ZPT.kz.png"
+    },
+    {
+      "name": "Результат общения по заявке.png",
+      "library_file_id": "libfile_191b252d8eb08191b606d04f41f7838e",
+      "file_id": "file_00000000c0e8820aa825285342db2bfd",
+      "library_path": "/ZPT.KZ/Результат общения по заявке.png"
+    },
+    {
+      "name": "Связаться с покупателем: WhatsApp и Telegram.png",
+      "library_file_id": "libfile_bd3b50d2311c81918de1cf6522473de9",
+      "file_id": "file_00000000c7d881f6bb729e990a375578",
+      "library_path": "/ZPT.KZ/Связаться с покупателем: WhatsApp и Telegram.png"
+    },
+    {
+      "name": "Зелёная кнопка связи на двух экранах.png",
+      "library_file_id": "libfile_7a94db822acc8191b705e13b0096adbe",
+      "file_id": "file_0000000038308211a1d22e1aff5412f5",
+      "library_path": "/ZPT.KZ/Зелёная кнопка связи на двух экранах.png"
+    },
+    {
+      "name": "Заявка продавца: детали и интерес.png",
+      "library_file_id": "libfile_bb36ae4fcef881919dcf7df1c832d986",
+      "file_id": "file_000000001a8481f48d264f298f7dea22",
+      "library_path": "/ZPT.KZ/Заявка продавца: детали и интерес.png"
+    },
+    {
+      "name": "Результат заявки: выбор статуса покупки.png",
+      "library_file_id": "libfile_a1842b4ef2348191809495d28c9c54fe",
+      "file_id": "file_000000004f3881f4aff5ccd2a0a3f162",
+      "library_path": "/ZPT.KZ/Результат заявки: выбор статуса покупки.png"
+    },
+    {
+      "name": "Уточнение заявки на автозапчасти.png",
+      "library_file_id": "libfile_7445e1a633c881919f5aab31b6d3f3f6",
+      "file_id": "file_000000007ab481f6b14fc6e3bfded48a",
+      "library_path": "/ZPT.KZ/Уточнение заявки на автозапчасти.png"
+    },
+    {
+      "name": "Профиль магазина «Пример 1».png",
+      "library_file_id": "libfile_97fa1486b8688191b8bba27088856e38",
+      "file_id": "file_000000008954820a95187c29e0e66487",
+      "library_path": "/ZPT.KZ/Профиль магазина «Пример 1».png"
+    },
+    {
+      "name": "Продавцы по вашей заявке.png",
+      "library_file_id": "libfile_8dc4e9453eb88191b146629b6c69b1e2",
+      "file_id": "file_000000002314820a9ebbe576390e6ea2",
+      "library_path": "/ZPT.KZ/Продавцы по вашей заявке.png"
+    },
+    {
+      "name": "Обновлённый ZPT.kz на десктопе и мобильном.png",
+      "library_file_id": "libfile_753614264d4881919c45dcb6330c2a23",
+      "file_id": "file_00000000bca4820aa8b7a0fe0705f749",
+      "library_path": "/ZPT.KZ/Обновлённый ZPT.kz на десктопе и мобильном.png"
+    },
+    {
+      "name": "Принятая заявка ZPT.kz — десктоп и мобильная версия.png",
+      "library_file_id": "libfile_306dd1075ff4819192485204a71a317d",
+      "file_id": "file_0000000062b4820aaa4fee7ec9161b03",
+      "library_path": "/ZPT.KZ/Принятая заявка ZPT.kz — десктоп и мобильная версия.png"
+    }
+  ]
+}

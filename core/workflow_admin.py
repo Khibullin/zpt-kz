@@ -27,6 +27,8 @@ class ClaimAdminForm(forms.ModelForm):
     class Meta:
         model = SellerAccessClaim
         fields = ['status', 'reason']
+        labels = {'status': 'Результат проверки', 'reason': 'Основание решения'}
+        widgets = {'status': forms.RadioSelect(), 'reason': forms.Textarea(attrs={'rows': 3})}
     def clean(self):
         values = super().clean()
         if values.get('status') == 'approved' and not values.get('reason', '').strip():
@@ -36,6 +38,7 @@ class ClaimAdminForm(forms.ModelForm):
 
 @admin.register(SellerAccessClaim)
 class ClaimAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/core/selleraccessclaim/change_form.html'
     form = ClaimAdminForm
     list_display = ['seller', 'status', 'created_at', 'reviewed_by']
     list_filter = ['status']
@@ -49,6 +52,11 @@ class ClaimAdmin(admin.ModelAdmin):
             return 'https://zpt.kz' + reverse('workflow_redeem', args=[obj.login_token]) + ' — передать только по проверенному контакту магазина'
         return 'Не сформирована / использована'
     verified_access_link.short_description = 'Одноразовая ссылка для проверенного представителя'
+    def render_change_form(self, request, context, *args, **kwargs):
+        obj = context.get('original')
+        context['verified_link'] = self.verified_access_link(obj) if obj else ''
+        return super().render_change_form(request, context, *args, **kwargs)
+
     def save_model(self, request, obj, form, change):
         with transaction.atomic():
             current = SellerAccessClaim.objects.select_for_update().get(pk=obj.pk)
@@ -143,8 +151,28 @@ def requests_list(request):
 @admin_view
 def control(request, req_id):
     req = get_object_or_404(Request, pk=req_id)
+    if request.GET.get('view') == 'history':
+        group = request.GET.get('group', 'all')
+        interactions = req.interactions.select_related('seller')
+        if group == 'sellers':
+            interactions = interactions.filter(actor='seller')
+        elif group == 'contact':
+            interactions = interactions.filter(kind__in=['whatsapp_click', 'telegram_click', 'call_click', 'contact_confirmed'])
+        elif group == 'result':
+            interactions = interactions.filter(kind__in=['supply_confirmed', 'purchase_reported', 'purchase_confirmed', 'no_purchase', 'search_again', 'cannot_fulfill'])
+        timeline = [{'at': item.created_at, 'title': item.get_kind_display(), 'seller': item.seller.name,
+                     'detail': item.get_actor_display() + ' · ' + item.source} for item in interactions]
+        if group in ('all', 'result'):
+            titles = {'purchased': 'Покупатель подтвердил покупку', 'closed': 'Заявка закрыта без покупки',
+                      'search_again': 'Требуется повторный поиск', 'edited': 'Покупатель уточнил заявку',
+                      'attribution': 'Покупатель указал продавца'}
+            timeline += [{'at': item.created_at, 'title': titles.get(item.result, item.result),
+                          'seller': item.seller.name if item.seller_id else '', 'detail': item.comment}
+                         for item in req.outcome_events.select_related('seller')]
+        timeline.sort(key=lambda item: item['at'])
+        return render(request, 'core/connections/admin_history.html', {'req': req, 'timeline': timeline, 'group': group})
     return render(request, 'core/connections/admin_control.html', {'req': req, 'label': service.result_label(req),
-        'events': req.interactions.select_related('seller'), 'outcomes': req.outcome_events.select_related('seller'),
+        'events': req.interactions.select_related('seller'), 'overview_events': req.interactions.exclude(kind='impression').select_related('seller').order_by('-created_at')[:8], 'outcomes': req.outcome_events.select_related('seller'),
         'publication': TelegramRequestPublication.objects.filter(request=req).first()})
 
 

@@ -49,7 +49,9 @@ class ApprovedWorkflowTests(TestCase):
             sells_new_parts=True, all_brands=True, all_categories=True, transport_type='car', is_active=False)
         page = self.client.get(self.buyer('sellers'))
         self.assertContains(page, shop.name)
-        self.assertContains(page, reverse('parts_seller_detail_public', args=[shop.pk]))
+        shop_url = reverse('workflow_buyer_shop', args=[self.req.pk, self.req.access_token, shop.pk])
+        self.assertContains(page, shop_url)
+        self.assertContains(self.client.get(shop_url), f'Вы обращаетесь по заявке №{self.req.pk}')
         self.assertNotContains(page, hidden.name)
         shop.refresh_from_db()
         self.assertFalse(shop.direct_contacts_enabled)
@@ -57,6 +59,51 @@ class ApprovedWorkflowTests(TestCase):
         self.assertFalse(Match.objects.filter(request=self.req, seller=shop).exists())
         contact = reverse('connection_buyer_contact', args=[self.req.pk, self.req.access_token, shop.pk, 'whatsapp'])
         self.assertEqual(self.client.post(contact).status_code, 404)
+
+    def test_directory_brand_filter_and_clean_names(self):
+        self.req.brand, self.req.transport_type = 'Toyota', 'car'
+        self.req.save(update_fields=['brand', 'transport_type'])
+        for name in ('СУБАРУ АЛМАТЫ (@subarushopkz) • Instagram profile',
+                     'Volkswagen Kazakhstan (@volkswagen_kazakhstan) • Instagram photos and videos',
+                     'Тойота Центр Жетысу (@toyota7su_official) • Instagram photos and videos', 'Общий магазин'):
+            Seller.objects.create(name=name, whatsapp='77009998877', city='Алматы', sells_new_parts=True,
+                all_brands=True, all_categories=True, transport_type='car', catalog_only=True)
+        page = self.client.get(self.buyer('sellers'))
+        self.assertContains(page, 'Тойота Центр Жетысу')
+        self.assertNotContains(page, 'Instagram')
+        self.assertNotContains(page, '@toyota7su')
+        self.assertNotContains(page, 'СУБАРУ АЛМАТЫ')
+        self.assertNotContains(page, 'Volkswagen Kazakhstan')
+        names = [i['display_name'] for i in page.context['page'] if i.get('directory_only')]
+        self.assertLess(names.index('Тойота Центр Жетысу'), names.index('Общий магазин'))
+
+    def test_directory_contact_tracks_click_without_private_access_or_interest(self):
+        self.req.transport_type = 'car'
+        self.req.save(update_fields=['transport_type'])
+        shop = Seller.objects.create(name='Магазин', whatsapp='77009998877', city='Алматы',
+            sells_new_parts=True, all_brands=True, all_categories=True, transport_type='car', catalog_only=True)
+        url = reverse('workflow_buyer_directory_contact', args=[self.req.pk, self.req.access_token, shop.pk, 'whatsapp'])
+        self.assertEqual(self.client.get(url).status_code, 405)
+        self.assertEqual(Client(enforce_csrf_checks=True).post(url).status_code, 403)
+        self.assertFalse(RequestInteraction.objects.filter(seller=shop, kind='whatsapp_click').exists())
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith('https://wa.me/'))
+        self.assertNotIn(str(self.req.access_token), response.url)
+        self.assertNotIn(self.req.vin, response.url)
+        self.assertTrue(RequestInteraction.objects.filter(request=self.req, seller=shop, actor='buyer', kind='whatsapp_click', source='public_directory').exists())
+        self.assertFalse(Match.objects.filter(request=self.req, seller=shop).exists())
+        self.assertFalse(RequestInteraction.objects.filter(seller=shop, kind__in=['interest', 'contact_confirmed', 'purchase_confirmed']).exists())
+        shop.refresh_from_db()
+        self.assertFalse(shop.contact_access_verified)
+        shop.is_active = False
+        shop.save(update_fields=['is_active'])
+        self.assertEqual(self.client.post(url).status_code, 404)
+        shop.is_active = True
+        shop.save(update_fields=['is_active'])
+        self.req.access_expires_at = timezone.now() - timedelta(seconds=1)
+        self.req.save(update_fields=['access_expires_at'])
+        self.assertEqual(self.client.post(url).status_code, 410)
     def test_correction_removes_stale_purchase_and_review(self):
         Match.objects.create(request=self.req, seller=self.seller)
         self.client.post(self.buyer('result'), {'result': 'purchased'})
