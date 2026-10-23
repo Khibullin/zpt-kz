@@ -35,3 +35,4 @@ from core.workflow_admin import urlpatterns as staff_urls
 urlpatterns += staff_urls
 urlpatterns += [path('seller/telegram-login/', workflow.telegram_login, name='workflow_telegram_login')]
 urlpatterns += [path('buyer/<int:req_id>/<uuid:access_token>/channels/', workflow.buyer_channels, name='workflow_buyer_channels')]
+urlpatterns += [path('buyer/<int:req_id>/<uuid:access_token>/directory/<int:seller_id>/<str:channel>/', workflow.buyer_directory_contact, name='workflow_buyer_directory_contact')]

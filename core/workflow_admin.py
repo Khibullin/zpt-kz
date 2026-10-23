@@ -36,6 +36,7 @@ class ClaimAdminForm(forms.ModelForm):
 
 @admin.register(SellerAccessClaim)
 class ClaimAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/core/selleraccessclaim/change_form.html'
     form = ClaimAdminForm
     list_display = ['seller', 'status', 'created_at', 'reviewed_by']
     list_filter = ['status']
@@ -49,6 +50,11 @@ class ClaimAdmin(admin.ModelAdmin):
             return 'https://zpt.kz' + reverse('workflow_redeem', args=[obj.login_token]) + ' — передать только по проверенному контакту магазина'
         return 'Не сформирована / использована'
     verified_access_link.short_description = 'Одноразовая ссылка для проверенного представителя'
+    def render_change_form(self, request, context, *args, **kwargs):
+        obj = context.get('original')
+        context['verified_link'] = self.verified_access_link(obj) if obj else ''
+        return super().render_change_form(request, context, *args, **kwargs)
+
     def save_model(self, request, obj, form, change):
         with transaction.atomic():
             current = SellerAccessClaim.objects.select_for_update().get(pk=obj.pk)
