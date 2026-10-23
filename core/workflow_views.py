@@ -154,6 +154,7 @@ def buyer_step(request, req_id, access_token, step):
     if step == 'sellers':
         from django.core.paginator import Paginator
         items = service.recommendations(req)
+        items += service.directory_suggestions(req, [item['seller'].pk for item in items])
         page = Paginator(items, 10).get_page(request.GET.get('page'))
         for index, item in enumerate(page, start=page.start_index()):
             service.record(req, item['seller'], 'buyer', 'impression', position=index)

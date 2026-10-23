@@ -26,8 +26,11 @@ class ApprovedWorkflowTests(TestCase):
     def buyer(self, step):
         return reverse('workflow_buyer_step', args=[self.req.pk, self.req.access_token, step])
     def test_buyer_screens_and_no_mandatory_seller_for_purchase(self):
+        self.req.year = 2001
+        self.req.save(update_fields=['year'])
         for step in ('accepted', 'sellers', 'edit', 'result', 'search', 'close', 'done'):
             self.assertEqual(self.client.get(self.buyer(step)).status_code, 200, step)
+        self.assertContains(self.client.get(self.buyer('accepted')), ' · 2001')
         self.assertEqual(self.client.post(self.buyer('result'), {'result': 'purchased'}).status_code, 302)
         self.req.refresh_from_db()
         self.assertEqual(self.req.purchase_result, 'purchased')
@@ -36,6 +39,24 @@ class ApprovedWorkflowTests(TestCase):
     def test_attribution_rejects_other_request_seller(self):
         self.req.purchase_result = 'purchased'; self.req.save()
         self.assertEqual(self.client.post(self.buyer('seller'), {'seller': self.seller.pk}).status_code, 404)
+
+    def test_public_directory_shop_visible_without_enabling_private_access(self):
+        self.req.transport_type = 'car'
+        self.req.save(update_fields=['transport_type'])
+        shop = Seller.objects.create(name='Публичный магазин', whatsapp='77009998877', city='Алматы',
+            sells_new_parts=True, all_brands=True, all_categories=True, transport_type='car', catalog_only=True)
+        hidden = Seller.objects.create(name='Неопубликованный магазин', whatsapp='77009998877', city='Алматы',
+            sells_new_parts=True, all_brands=True, all_categories=True, transport_type='car', is_active=False)
+        page = self.client.get(self.buyer('sellers'))
+        self.assertContains(page, shop.name)
+        self.assertContains(page, reverse('parts_seller_detail_public', args=[shop.pk]))
+        self.assertNotContains(page, hidden.name)
+        shop.refresh_from_db()
+        self.assertFalse(shop.direct_contacts_enabled)
+        self.assertFalse(shop.contact_access_verified)
+        self.assertFalse(Match.objects.filter(request=self.req, seller=shop).exists())
+        contact = reverse('connection_buyer_contact', args=[self.req.pk, self.req.access_token, shop.pk, 'whatsapp'])
+        self.assertEqual(self.client.post(contact).status_code, 404)
     def test_correction_removes_stale_purchase_and_review(self):
         Match.objects.create(request=self.req, seller=self.seller)
         self.client.post(self.buyer('result'), {'result': 'purchased'})

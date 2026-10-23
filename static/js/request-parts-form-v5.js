@@ -387,6 +387,10 @@ if(
       setMessage(data.rejection_message || data.error || 'Ошибка отправки заявки. Попробуйте ещё раз.','error');
       return;
     }
+    if (data.accepted_url) {
+      window.location.assign(data.accepted_url);
+      return;
+    }
     window.ZPTRequestAccepted(requestForm, {
       message: data.message || (data.matches > 0
         ? 'Ответы продавцов поступят в WhatsApp на указанный номер.'

@@ -32,6 +32,7 @@ class ManualRequestProcessingTests(TestCase):
         config.assert_not_called()
         http.assert_not_called()
 
+    @override_settings(TWO_WAY_REQUESTS_ENABLED=True)
     @patch('core.views.schedule_instagram_publication_for_request')
     @patch('core.services.operations_email_notifications.send_mail', return_value=1)
     @patch('core.whatsapp_template_sender.urllib.request.urlopen')
@@ -45,12 +46,17 @@ class ManualRequestProcessingTests(TestCase):
                 response = self.client.post('/api/home-parts-request/', data)
             self.assertEqual(response.status_code, 200, response.content)
             req = Request.objects.get(pk=response.json()['id'])
+            accepted_url = response.json()['accepted_url']
+            self.assertEqual(accepted_url, f'/connect/buyer/{req.pk}/{req.access_token}/step/accepted/')
+            accepted = self.client.get(accepted_url)
+            self.assertContains(accepted, 'Посмотреть продавцов')
             self.assertEqual(req.is_dismantler_request, used)
             self.assertFalse(response.json()['queued'])
             self.assertIn('Ваша заявка принята', response.json()['message'])
             with self.captureOnCommitCallbacks(execute=True):
                 replay = self.client.post('/api/home-parts-request/', data)
             self.assertTrue(replay.json()['replay'])
+            self.assertEqual(replay.json()['accepted_url'], accepted_url)
         self.assertEqual(mail.call_count, 2)
         self.assertFalse(RequestDispatch.objects.exists())
         http.assert_not_called()
@@ -77,6 +83,7 @@ class ManualRequestProcessingTests(TestCase):
     @patch('core.views.schedule_instagram_publication_for_request')
     @patch('core.services.operations_email_notifications.send_mail', return_value=1)
     @patch('core.whatsapp_template_sender.urllib.request.urlopen')
+    @override_settings(TWO_WAY_REQUESTS_ENABLED=True)
     def test_classic_parts_form_saves_and_emails(self, http, mail, instagram):
         with self.captureOnCommitCallbacks(execute=True):
             response = self.client.post('/api/create-request/', dict(brand='Toyota', model='Camry',
@@ -84,6 +91,8 @@ class ManualRequestProcessingTests(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         self.assertIn('Ваша заявка принята', response.json()['message'])
         self.assertEqual(Request.objects.count(), 1)
+        accepted = self.client.get(response.json()['accepted_url'])
+        self.assertContains(accepted, 'Посмотреть продавцов')
         self.assertFalse(RequestDispatch.objects.exists())
         mail.assert_called_once()
         http.assert_not_called()

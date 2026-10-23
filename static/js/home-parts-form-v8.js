@@ -743,6 +743,10 @@
     }).then(function (result) {
       if (result.ok && result.data && result.data.status === 'ok' && result.data.result_url) {
         rotateIdempotencyKey();
+        if (result.data.accepted_url) {
+          window.location.assign(result.data.accepted_url);
+          return;
+        }
         acceptedPanel = window.ZPTRequestAccepted(form, {
           message: result.data.broadcast_active
             ? 'Ответы продавцов поступят в WhatsApp на указанный номер.'
