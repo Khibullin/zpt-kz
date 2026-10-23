@@ -2,7 +2,7 @@
 from concurrent.futures import ThreadPoolExecutor
 from unittest import skipUnless
 from django.contrib.auth import get_user_model
-from django.db import close_old_connections, connection
+from django.db import close_old_connections, connection, connections
 from django.test import TransactionTestCase, override_settings
 from django.utils import timezone
 from core.models import Request, Seller, Match, SellerRequestAccess, RequestInteraction
@@ -23,7 +23,9 @@ class RequestConnectionConcurrencyTests(TransactionTestCase):
             try:
                 return participate(Request.objects.get(pk=req.pk), Seller.objects.get(pk=seller.pk)).pk
             finally:
-                close_old_connections()
+                # Each worker owns its connection. Close it even when still usable,
+                # otherwise PostgreSQL cannot drop the temporary test database.
+                connections.close_all()
 
         with ThreadPoolExecutor(max_workers=2) as pool:
             futures = [pool.submit(respond) for _ in range(2)]
