@@ -89,7 +89,13 @@ jobs:
           node-version: '22'
       - run: pip install -r requirements.txt
       - run: npm install --prefix /tmp/zpt-browser-qa playwright@1.62.1
-      - run: node /tmp/zpt-browser-qa/node_modules/playwright/cli.js install --with-deps chromium
+      - name: Use installed Chrome or install Chromium
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "ZPT_BROWSER_CHANNEL=chrome" >> "$GITHUB_ENV"
+          else
+            node /tmp/zpt-browser-qa/node_modules/playwright/cli.js install --with-deps chromium
+          fi
       - run: python manage.py test core.tests.test_approved_workflow_browser --settings=backend.settings_ui_ci --noinput
       - uses: actions/upload-artifact@v4
         if: always()

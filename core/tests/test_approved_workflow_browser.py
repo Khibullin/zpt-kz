@@ -45,7 +45,7 @@ class ApprovedBrowserTests(TestCase):
             script = r'''
 const {chromium}=require('playwright');
 const fs=require('fs'); const path=require('path');
-(async()=>{ const browser=await chromium.launch({headless:true});
+(async()=>{ const browser=await chromium.launch({headless:true, channel:process.env.ZPT_BROWSER_CHANNEL || undefined});
 for(const width of [390,1440]) { const page=await browser.newPage({viewport:{width,height:1000}});
 await page.route('**/*',route=>route.abort());
 for(const file of fs.readdirSync(process.argv[1])) {
