@@ -59,3 +59,18 @@ class PrepareAdminTests(TestCase):
                 self.assertTrue(TelegramRequestPublication.objects.filter(pk=publication.pk).exists())
                 with self.assertRaises(ProtectedError):
                     self.req.delete()
+
+    def test_history_is_staff_only_and_distinguishes_contact_from_purchase(self):
+        from core.models import Seller, RequestInteraction, RequestOutcomeEvent
+        seller = Seller.objects.create(name='History seller', whatsapp='77001112233')
+        RequestInteraction.objects.create(request=self.req, seller=seller, actor='seller', kind='whatsapp_click')
+        RequestOutcomeEvent.objects.create(request=self.req, result='purchased', comment='Buyer statement')
+        url = reverse('workflow_admin_control', args=[self.req.pk]) + '?view=history'
+        contact = self.client.get(url + '&group=contact')
+        self.assertContains(contact, 'Переход в WhatsApp')
+        self.assertNotContains(contact, 'Покупатель подтвердил покупку')
+        result = self.client.get(url + '&group=result')
+        self.assertContains(result, 'Покупатель подтвердил покупку')
+        self.assertNotContains(result, 'Переход в WhatsApp')
+        self.client.logout()
+        self.assertEqual(self.client.get(url).status_code, 302)

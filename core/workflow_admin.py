@@ -149,8 +149,28 @@ def requests_list(request):
 @admin_view
 def control(request, req_id):
     req = get_object_or_404(Request, pk=req_id)
+    if request.GET.get('view') == 'history':
+        group = request.GET.get('group', 'all')
+        interactions = req.interactions.select_related('seller')
+        if group == 'sellers':
+            interactions = interactions.filter(actor='seller')
+        elif group == 'contact':
+            interactions = interactions.filter(kind__in=['whatsapp_click', 'telegram_click', 'call_click', 'contact_confirmed'])
+        elif group == 'result':
+            interactions = interactions.filter(kind__in=['supply_confirmed', 'purchase_reported', 'purchase_confirmed', 'no_purchase', 'search_again', 'cannot_fulfill'])
+        timeline = [{'at': item.created_at, 'title': item.get_kind_display(), 'seller': item.seller.name,
+                     'detail': item.get_actor_display() + ' · ' + item.source} for item in interactions]
+        if group in ('all', 'result'):
+            titles = {'purchased': 'Покупатель подтвердил покупку', 'closed': 'Заявка закрыта без покупки',
+                      'search_again': 'Требуется повторный поиск', 'edited': 'Покупатель уточнил заявку',
+                      'attribution': 'Покупатель указал продавца'}
+            timeline += [{'at': item.created_at, 'title': titles.get(item.result, item.result),
+                          'seller': item.seller.name if item.seller_id else '', 'detail': item.comment}
+                         for item in req.outcome_events.select_related('seller')]
+        timeline.sort(key=lambda item: item['at'])
+        return render(request, 'core/connections/admin_history.html', {'req': req, 'timeline': timeline, 'group': group})
     return render(request, 'core/connections/admin_control.html', {'req': req, 'label': service.result_label(req),
-        'events': req.interactions.select_related('seller'), 'outcomes': req.outcome_events.select_related('seller'),
+        'events': req.interactions.select_related('seller'), 'overview_events': req.interactions.exclude(kind='impression').select_related('seller').order_by('-created_at')[:8], 'outcomes': req.outcome_events.select_related('seller'),
         'publication': TelegramRequestPublication.objects.filter(request=req).first()})
 
 

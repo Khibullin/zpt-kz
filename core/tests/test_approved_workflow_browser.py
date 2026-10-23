@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.template.loader import render_to_string
 from types import SimpleNamespace
 from core.services.request_connections import participate
-from core.models import Seller
+from core.models import Seller, SellerSocialLink, SellerWorkInterval
 from core.tests.test_approved_workflow import ApprovedWorkflowTests
 
 
@@ -27,6 +27,10 @@ class ApprovedBrowserTests(TestCase):
         self.req.save(update_fields=['transport_type', 'year', 'model', 'description', 'public_summary'])
         shop = Seller.objects.create(name='Магазин «Пример 1»', whatsapp='77009998877', city='Алматы', brand='Mercedes-Benz', address='Тестовый адрес магазина', directory_description='Новые запчасти для легковых автомобилей. Наличие, производителя и условия покупки уточняйте у продавца.',
             sells_new_parts=True, all_brands=True, all_categories=True, transport_type='car', catalog_only=True)
+        shop.latitude, shop.longitude = '43.238949', '76.889709'
+        shop.save(update_fields=['latitude', 'longitude'])
+        SellerSocialLink.objects.create(seller=shop, kind='telegram', url='https://t.me/zpt_test_shop')
+        SellerWorkInterval.objects.create(seller=shop, weekday=0, opens='09:00', closes='18:00')
         pages['buyer-directory-shop'] = self.client.get(reverse('workflow_buyer_shop', args=[self.req.pk, self.req.access_token, shop.pk])).content.decode()
         for step in ('accepted', 'sellers', 'edit', 'result', 'search', 'close', 'done'):
             pages['buyer-' + step] = self.client.get(self.buyer(step)).content.decode()
@@ -61,6 +65,17 @@ class ApprovedBrowserTests(TestCase):
             response = self.client.get(reverse(name, args=args))
             self.assertEqual(response.status_code, 200, name)
             pages[name] = response.content.decode()
+        from core.models import TelegramRequestPublication, SellerAccessClaim
+        claim = SellerAccessClaim.objects.create(seller=shop, source='site')
+        pages['admin-access-review'] = self.client.get(reverse('admin:core_selleraccessclaim_change', args=[claim.pk])).content.decode()
+        pages['admin-telegram-prepare'] = self.client.get(reverse('admin:core_request_telegram', args=[self.req.pk])).content.decode()
+        publication = TelegramRequestPublication.objects.create(request=self.req, text=self.req.public_summary, created_by=self.staff)
+        for state in ('draft', 'published', 'unknown'):
+            publication.status = state
+            publication.message_id = 123 if state == 'published' else None
+            publication.save()
+            pages['admin-telegram-' + state] = self.client.get(reverse('admin:core_telegramrequestpublication_change', args=[publication.pk])).content.decode()
+        pages['admin-history'] = self.client.get(reverse('workflow_admin_control', args=[self.req.pk]) + '?view=history').content.decode()
         css = Path('core/static/core/connections.css').read_text()
         output = Path('var/reports/workflow-ui').resolve()
         output.mkdir(parents=True, exist_ok=True)
