@@ -75,6 +75,9 @@ class ApprovedBrowserTests(TestCase):
             publication.message_id = 123 if state == 'published' else None
             publication.save()
             pages['admin-telegram-' + state] = self.client.get(reverse('admin:core_telegramrequestpublication_change', args=[publication.pk])).content.decode()
+        from core.models import SellerChannelConnection
+        SellerChannelConnection.objects.update_or_create(seller=self.seller, defaults={'whatsapp_consent': True})
+        pages['admin-manual-prepared'] = self.client.post(reverse('workflow_admin_manual', args=[self.req.pk]), {'seller': self.seller.pk, 'channel': 'whatsapp', 'action': 'prepare'}).content.decode()
         pages['admin-history'] = self.client.get(reverse('workflow_admin_control', args=[self.req.pk]) + '?view=history').content.decode()
         css = Path('core/static/core/connections.css').read_text()
         output = Path('var/reports/workflow-ui').resolve()

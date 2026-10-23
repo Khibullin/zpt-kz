@@ -27,6 +27,8 @@ class ClaimAdminForm(forms.ModelForm):
     class Meta:
         model = SellerAccessClaim
         fields = ['status', 'reason']
+        labels = {'status': 'Результат проверки', 'reason': 'Основание решения'}
+        widgets = {'status': forms.RadioSelect(), 'reason': forms.Textarea(attrs={'rows': 3})}
     def clean(self):
         values = super().clean()
         if values.get('status') == 'approved' and not values.get('reason', '').strip():
