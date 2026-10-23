@@ -78,7 +78,8 @@ def claim(request):
                 form.add_error(None, 'Карточка не найдена. Проверьте телефон или добавьте магазин.')
     # Only the public name and city are rendered, not the raw model/contact.
     return render(request, 'core/connections/claim.html', {'form': form, 'new': new,
-        'candidates': [{'pk': s.pk, 'name': s.name, 'city': s.city} for s in sellers]})
+        'candidates': [{'pk': s.pk, 'name': s.name, 'city': s.city} for s in sellers],
+        'req_id': context_request(request), 'source': source(request)})
 
 
 @guarded
