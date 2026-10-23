@@ -163,8 +163,7 @@ def recommendations(req):
                        'has_whatsapp': bool(seller_contact(seller, req, 'whatsapp')),
                        'has_telegram': bool(seller_contact(seller, req, 'telegram')),
                        'reason': ('Продавец подтвердил применимость; условия указаны ниже' if offer else 'Профиль соответствует запросу; наличие уточняется'),
-                       '_key': (offer is None, *value_order,
-                                seller.notification_state != 'active',
+                       '_key': (offer is None, seller.notification_state != 'active', *value_order,
                                 seller.pk not in purchases, seller.pk)})
     result.sort(key=lambda x: x['_key'])
     return result

@@ -210,6 +210,13 @@ class ConnectionTests(TestCase):
         self.req.buyer_priority = 'urgent'
         self.req.save()
         self.assertEqual(service.recommendations(self.req)[0]['seller'].pk, other.pk)
+        self.req.buyer_priority = 'price'
+        self.req.save()
+        RequestOffer.objects.filter(seller=self.seller).update(price=5000)
+        self.assertEqual(service.recommendations(self.req)[0]['seller'].pk, self.seller.pk)
+        self.seller.notification_state = 'inactive'
+        self.seller.save()
+        self.assertEqual(service.recommendations(self.req)[0]['seller'].pk, other.pk)
 
     def test_wrong_quantity_original_and_expired_offers_not_confirmed(self):
         offer = self.offer(quantity=1)
