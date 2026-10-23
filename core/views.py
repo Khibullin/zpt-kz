@@ -141,6 +141,14 @@ def _request_page_url(req):
     return request_page_url(req)
 
 
+def _accepted_request_url(req):
+    if not getattr(settings, 'TWO_WAY_REQUESTS_ENABLED', False):
+        return None
+    return reverse('workflow_buyer_step', kwargs={
+        'req_id': req.pk, 'access_token': req.access_token, 'step': 'accepted',
+    })
+
+
 def _description_with_request_link(req):
     if not req.short_token:
         req.save(update_fields=['short_token'])
@@ -1333,6 +1341,7 @@ def create_request(request):
                         if settings.MANUAL_REQUEST_PROCESSING else 'Заявка поставлена в очередь согласно настройкам рассылки'),
             'photo_view_url': request_page_url(req),
             'request_page_url': request_page_url(req),
+            'accepted_url': _accepted_request_url(req),
             'history_url': buyer_history_url(req),
             'upload_mode': upload_mode,
             'files_keys': list(request.FILES.keys()),
@@ -1508,6 +1517,7 @@ def create_home_parts_request(request):
         'status': 'ok',
         'id': req.id,
         'replay': replay,
+        'accepted_url': _accepted_request_url(req),
         'message': message,
         'queued': queued,
         'broadcast_active': broadcast_active,

@@ -128,6 +128,29 @@ def relevant(seller, req):
                 and (seller.all_categories or req.category.casefold() in categories))
 
 
+def directory_suggestions(req, excluded_ids=()):
+    """Suggest already public shops without asserting a contact opt-in or stock."""
+    from core.directory_seo import public_parts_organizations
+    shops = public_parts_organizations().exclude(pk__in=excluded_ids).select_related(
+        'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories')
+    if req.search_scope == 'city':
+        shops = shops.filter(city=req.city)
+    elif req.search_scope == 'custom':
+        shops = shops.filter(city__in=[x.strip() for x in req.selected_cities.split(',')])
+    if req.is_dismantler_request:
+        shops = shops.filter(is_dismantler=True)
+    else:
+        shops = shops.filter(sells_new_parts=True)
+    items = [{'seller': s, 'directory_only': True,
+              'reason': 'Магазин из каталога; наличие и цену уточняйте напрямую'}
+             for s in shops if relevant(s, req)]
+    items.sort(key=lambda x: (x['seller'].city != req.city,
+        -sum(bool(v) for v in (x['seller'].directory_description, x['seller'].directory_photo,
+                               x['seller'].brand or x['seller'].all_brands,
+                               x['seller'].category or x['seller'].all_categories)), x['seller'].pk))
+    return items
+
+
 def recommendations(req):
     sellers = Seller.objects.filter(is_active=True, is_paused=False, direct_contacts_enabled=True).select_related(
         'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'social_links')

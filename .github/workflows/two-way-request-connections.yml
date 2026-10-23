@@ -31,6 +31,7 @@ jobs:
       - run: >-
           python manage.py test
           core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin
+          core.tests.test_manual_request_processing
           core.tests.test_seller_request_link core.tests.test_buyer_portal
           core.tests.test_manual_seller_dispatch core.tests.test_seller_request_response_control
           core.tests.test_telegram_channel core.tests.test_unified_seller_account
