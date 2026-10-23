@@ -154,6 +154,8 @@ def recommendations(req):
         total = offer.price + offer.delivery_price if offer and offer.delivery_price is not None else None
         if total is not None and req.buyer_budget and total > req.buyer_budget:
             offer, total = None, None
+            if not relevant(seller, req):
+                continue
         # Without requested quantity, totals of different sets are not comparable.
         comparable = total if req.requested_quantity else None
         price_order = (comparable is None, comparable or 0)

@@ -26,6 +26,10 @@ class PublicationAdmin(admin.ModelAdmin):
     actions = ['publish_selected']
     autocomplete_fields = ['request']
 
+    def has_delete_permission(self, request, obj=None):
+        # History is also the duplicate-send guard, including uncertain sends.
+        return False
+
     def save_model(self, request, obj, form, change):
         if not obj.created_by_id:
             obj.created_by = request.user

@@ -3790,7 +3790,7 @@ class RequestOffer(models.Model):
 
 
 class TelegramRequestPublication(models.Model):
-    request = models.OneToOneField(Request, on_delete=models.CASCADE, related_name='telegram_publication')
+    request = models.OneToOneField(Request, on_delete=models.PROTECT, related_name='telegram_publication')
     text = models.TextField(max_length=1500)
     reviewed = models.BooleanField(default=False, verbose_name='Текст проверен: без персональных данных')
     message_id = models.PositiveBigIntegerField(null=True, blank=True)

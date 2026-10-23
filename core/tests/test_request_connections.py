@@ -218,6 +218,14 @@ class ConnectionTests(TestCase):
         self.seller.save()
         self.assertEqual(service.recommendations(self.req)[0]['seller'].pk, other.pk)
 
+    def test_over_budget_offer_does_not_admit_unrelated_profile(self):
+        other = Seller.objects.create(name='Другой профиль', whatsapp='77009998877', city='Алматы',
+            direct_contacts_enabled=True, contact_access_verified=True)
+        self.offer(other, price=50000)
+        self.req.buyer_budget = 10000
+        self.assertNotIn(other.pk, [x['seller'].pk for x in service.recommendations(self.req)])
+        self.assertIn(self.seller.pk, [x['seller'].pk for x in service.recommendations(self.req)])
+
     def test_wrong_quantity_original_and_expired_offers_not_confirmed(self):
         offer = self.offer(quantity=1)
         self.assertIsNone(service.recommendations(self.req)[0]['offer'])

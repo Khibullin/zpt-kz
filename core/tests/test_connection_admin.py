@@ -44,3 +44,18 @@ class PrepareAdminTests(TestCase):
         user = get_user_model().objects.create_user(username='limited', is_staff=True)
         self.client.force_login(user)
         self.assertEqual(self.client.get(self.url).status_code, 403)
+
+    def test_publications_and_attempt_history_cannot_be_deleted_from_admin(self):
+        from django.db.models.deletion import ProtectedError
+        from core.models import TelegramPublicationAttempt
+        for state in ['draft', 'published', 'unknown']:
+            with self.subTest(state=state):
+                publication, _ = TelegramRequestPublication.objects.get_or_create(request=self.req, defaults={'text': 'ШРУС'})
+                publication.status = state
+                publication.save()
+                TelegramPublicationAttempt.objects.get_or_create(publication=publication, result='started')
+                url = reverse('admin:core_telegramrequestpublication_delete', args=[publication.pk])
+                self.assertEqual(self.client.post(url, {'post': 'yes'}).status_code, 403)
+                self.assertTrue(TelegramRequestPublication.objects.filter(pk=publication.pk).exists())
+                with self.assertRaises(ProtectedError):
+                    self.req.delete()
