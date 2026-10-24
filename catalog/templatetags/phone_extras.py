@@ -48,3 +48,9 @@ def whatsapp_url(value, text=None):
     from core.phone_utils import build_whatsapp_url
 
     return build_whatsapp_url(value, text)
+
+
+@register.filter
+def seller_whatsapp_url(seller, text=None):
+    from core.phone_utils import seller_whatsapp_url as build_url
+    return build_url(seller, text)

@@ -32,6 +32,13 @@ class ApprovedBrowserTests(TestCase):
         SellerSocialLink.objects.create(seller=shop, kind='telegram', url='https://t.me/zpt_test_shop')
         SellerWorkInterval.objects.create(seller=shop, weekday=0, opens='09:00', closes='18:00')
         pages['buyer-directory-shop'] = self.client.get(reverse('workflow_buyer_shop', args=[self.req.pk, self.req.access_token, shop.pk])).content.decode()
+        shop.whatsapp, shop.phone2 = '77271234567', '77009998877'
+        shop.save(update_fields=['whatsapp', 'phone2'])
+        pages['buyer-shop-city-phone'] = self.client.get(reverse('workflow_buyer_shop', args=[self.req.pk, self.req.access_token, shop.pk])).content.decode()
+        from core.phone_utils import seller_whatsapp_phone
+        self.assertEqual(seller_whatsapp_phone(shop), '77009998877')
+        shop.whatsapp, shop.phone2 = '77009998877', ''
+        shop.save(update_fields=['whatsapp', 'phone2'])
         for step in ('accepted', 'sellers', 'edit', 'result', 'search', 'close', 'done'):
             pages['buyer-' + step] = self.client.get(self.buyer(step)).content.decode()
         original_name = self.seller.name

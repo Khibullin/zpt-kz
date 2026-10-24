@@ -4,7 +4,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from django.shortcuts import render
 from core.kazakhstan_locations import canonical_kazakhstan_city
-from core.phone_utils import build_whatsapp_url
+from core.phone_utils import seller_whatsapp_url
 from .models import ServiceSeller
 
 REPAIR = [
@@ -73,7 +73,7 @@ def service_directory(request, section=None):
         evidence = ' '.join([seller.name, seller.description, *names]).casefold()
         if selected and not any(word in evidence for word in selected[2]):
             continue
-        cards.append({'seller': seller, 'services': names, 'whatsapp_url': build_whatsapp_url(seller.whatsapp)})
+        cards.append({'seller': seller, 'services': names, 'whatsapp_url': seller_whatsapp_url(seller)})
     page = Paginator(cards, 12).get_page(request.GET.get('page', 1))
     params = request.GET.copy()
     params.pop('page', None)

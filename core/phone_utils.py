@@ -55,10 +55,59 @@ def normalize_phone_for_whatsapp(raw_phone: object) -> str | None:
 def build_whatsapp_url(phone: object, text: object = None) -> str:
     """Build https://wa.me/<digits> or return '' when the number is invalid."""
     digits = normalize_phone_for_whatsapp(phone)
-    if not digits:
+    if not digits or is_excluded_city_whatsapp(digits):
         return ''
     url = f'https://wa.me/{digits}'
     message = str(text or '').strip()
     if message:
         url += f'?text={quote(message)}'
     return url
+
+
+def is_excluded_city_whatsapp(raw_phone: object) -> bool:
+    """Owner rule: old 327 and current 727 city numbers are calls only.
+
+    Match the complete +7 area code, never digits inside a mobile number.
+    Normalization stays usable for telephone display and account identity.
+    """
+    digits = normalize_phone_for_whatsapp(raw_phone)
+    return bool(digits and len(digits) == 11 and digits[:4] in ('7327', '7727'))
+
+
+def seller_whatsapp_phone(seller) -> str:
+    """Select this card's next stored contact only when its primary is excluded.
+
+    Does not rewrite the primary phone (also used for calls/account lookup),
+    infer contacts from organization names, or check/send WhatsApp messages.
+    """
+    primary = getattr(seller, 'whatsapp', '')
+    if not is_excluded_city_whatsapp(primary):
+        return normalize_phone_for_whatsapp(primary) or ''
+    candidates = [getattr(seller, 'phone2', '')]
+    extras = getattr(seller, 'extra_phones', None)
+    if extras is not None:
+        candidates.extend(item.phone for item in extras.all())
+    # ServiceSeller keeps imported contacts in an existing structured source row.
+    # Parse only the contacts column, not arbitrary digits/IDs in the notes.
+    import json
+    import re
+    notes = getattr(seller, 'catalog_notes', '') or ''
+    start = notes.find('{')
+    if start >= 0:
+        try:
+            row, _ = json.JSONDecoder().raw_decode(notes[start:])
+        except (ValueError, TypeError):
+            row = None
+        if isinstance(row, dict):
+            contacts = row.get('Контакты')
+            if isinstance(contacts, str):
+                candidates.extend(re.split(r'[,;\n|]', contacts))
+    for candidate in candidates:
+        digits = normalize_phone_for_whatsapp(candidate)
+        if digits and not is_excluded_city_whatsapp(digits):
+            return digits
+    return ''
+
+
+def seller_whatsapp_url(seller, text: object = None) -> str:
+    return build_whatsapp_url(seller_whatsapp_phone(seller), text)

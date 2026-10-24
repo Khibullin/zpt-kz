@@ -219,7 +219,7 @@ def manual(request, req_id):
             error = 'Нет согласия на этот канал или уведомления приостановлены.'
         else:
             from core.services.manual_seller_dispatch import prepare_manual_dispatch, confirm_manual_dispatch_sent
-            from core.phone_utils import build_whatsapp_url
+            from core.phone_utils import seller_whatsapp_url
             from django.core.exceptions import ValidationError
             from core.models import RequestDispatch, SellerRequestAccess
             if req.pk == 515 and seller.pk not in (464, 466):
@@ -236,7 +236,7 @@ def manual(request, req_id):
             access = SellerRequestAccess.objects.filter(request=req, seller=seller, expires_at__gt=timezone.now()).order_by('-created_at').first() if dispatch else None
             if access and not error:
                 text = 'Здравствуйте!\n' + service.safe_summary(req) + '\nhttps://zpt.kz' + reverse('seller_request_link', args=[access.token])
-                target = build_whatsapp_url(seller.whatsapp, text) if channel == 'whatsapp' else ''
+                target = seller_whatsapp_url(seller, text) if channel == 'whatsapp' else ''
             if request.method == 'POST' and request.POST.get('action') == 'sent' and not error:
                 if request.POST.get('confirmed') != 'on' or not dispatch or not access:
                     error = 'Сначала подготовьте и отправьте сообщение, затем подтвердите отправку.'

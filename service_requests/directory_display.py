@@ -3,7 +3,7 @@ from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import render
 from core.kazakhstan_locations import canonical_kazakhstan_city
-from core.phone_utils import build_whatsapp_url, normalize_phone_for_whatsapp
+from core.phone_utils import seller_whatsapp_url, normalize_phone_for_whatsapp
 from core.services.seller_card_links import clean_http_url
 from core.services.seller_card_display import format_phone
 from core.templatetags.dismantler_detail import clean_value
@@ -26,7 +26,7 @@ def service_card(seller):
         'seller': seller,
         'phone': format_phone(seller.whatsapp) if phone else '',
         'tel': '+%s' % phone if phone else '',
-        'whatsapp_url': build_whatsapp_url(seller.whatsapp),
+        'whatsapp_url': seller_whatsapp_url(seller),
         'address': clean_value(seller.address), 'district': clean_value(seller.district),
         'description': clean_value(seller.description), 'hours': clean_value(seller.working_hours),
         'services': [s.name for s in seller.services.all() if clean_value(s.name)],

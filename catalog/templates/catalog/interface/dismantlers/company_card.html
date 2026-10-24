@@ -11,7 +11,7 @@
   <div class="directory-card-actions">
     <a class="directory-profile" href="{% url 'parts_seller_detail_public' seller.pk %}{% if not is_dismantlers_catalog and seller.is_dismantler %}?directory=parts{% endif %}">{% ui 'dismantleProfile' %}<span aria-hidden="true">→</span></a>
     <div class="directory-contacts">
-      {% with primary=seller.whatsapp|whatsapp_phone secondary=seller.phone2|whatsapp_phone wa_url=seller.whatsapp|whatsapp_url %}
+      {% with primary=seller.whatsapp|whatsapp_phone secondary=seller.phone2|whatsapp_phone wa_url=seller|seller_whatsapp_url %}
       {% if primary or secondary %}<a class="directory-call" href="tel:+{{ primary|default:secondary }}" data-ru="Позвонить" data-kk="Қоңырау шалу">Позвонить</a>{% endif %}
       {% if wa_url %}<a class="directory-whatsapp" href="{{ wa_url }}" target="_blank" rel="noopener noreferrer">{% ui_icon 'message' %}WhatsApp</a>{% endif %}
       {% endwith %}
