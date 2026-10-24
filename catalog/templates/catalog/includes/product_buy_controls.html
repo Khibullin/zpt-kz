@@ -1,7 +1,7 @@
 {% load l10n kaspi_buy interface_ui %}
 {% with kaspi_url=product|kaspi_buy_url %}
 {% if kaspi_url %}
-  <a class="product-buy-btn product-buy-btn--retail" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" style="display:flex;justify-content:center;align-items:center;text-decoration:none;min-height:44px;">{% if card_design %}{% ui_icon 'external' %}{% ui 'cardKaspi' %}{% else %}Купить на Kaspi ↗{% endif %}</a>
+  <a class="product-buy-btn product-buy-btn--retail" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" style="display:flex;justify-content:center;align-items:center;text-decoration:none;min-height:44px;">{% if product.seller_profile.slug == 'ag-parts' and product.article == 'F4J163707010' %}<span data-ru="Купить на Kaspi · комплект 4 шт." data-kk="Kaspi-де сатып алу · 4 дана жиынтық">Купить на Kaspi · комплект 4 шт.</span>{% elif card_design %}{% ui_icon 'external' %}{% ui 'cardKaspi' %}{% else %}Купить на Kaspi ↗{% endif %}</a>
 {% else %}
 {% if product.seller_profile.slug == 'ag-parts' %}
   {% if card_design %}
