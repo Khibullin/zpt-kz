@@ -19,3 +19,9 @@ document.addEventListener('input', (event) => {
   const preview = document.getElementById('telegram-preview-text');
   if (preview) preview.textContent = event.target.value;
 });
+
+document.addEventListener('change', (event) => {
+  if (!event.target.matches('.field-photo input[type=file]')) return;
+  const status = event.target.closest('.field-photo').querySelector('.upload-name');
+  if (status) status.textContent = Array.from(event.target.files || [], file => file.name).join(', ');
+});

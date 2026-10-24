@@ -43,6 +43,8 @@ class ApprovedBrowserTests(TestCase):
         self.seller.save(update_fields=['name'])
         pages['connect'] = self.client.get(reverse('workflow_connect')).content.decode()
         pages['claim'] = self.client.get(reverse('workflow_claim')).content.decode()
+        from core.workflow_forms import ClaimPhoneForm
+        pages['claim-found'] = render_to_string('core/connections/claim.html', {'form': ClaimPhoneForm(), 'candidates': [{'pk': shop.pk, 'name': shop.name, 'city': shop.city}], 'source': 'site'})
         pages['new-shop'] = self.client.get(reverse('workflow_claim') + '?new=1').content.decode()
         for state in ('claim_status', 'claim_confirm', 'access_ready', 'expired', 'closed'):
             pages[state] = render_to_string('core/connections/' + state + '.html', {'claim': SimpleNamespace(seller=shop, get_status_display='Ожидает проверки'), 'shop_name': shop.name, 'city': shop.city})
@@ -65,6 +67,10 @@ class ApprovedBrowserTests(TestCase):
             response = self.client.get(reverse(name, args=args))
             self.assertEqual(response.status_code, 200, name)
             pages[name] = response.content.decode()
+        pages['telegram-prepared'] = self.client.post(reverse('workflow_telegram_connect'), follow=True).content.decode()
+        from core.models import SellerChannelConnection
+        SellerChannelConnection.objects.filter(seller=self.seller).update(telegram_id=900001)
+        pages['telegram-connected'] = self.client.get(reverse('workflow_telegram_connect')).content.decode()
         self.client.force_login(self.staff)
         for name, args in [('workflow_admin_list', []), ('workflow_admin_control', [self.req.pk]),
                            ('workflow_admin_reconcile', [self.req.pk]), ('workflow_admin_activity', [self.seller.pk]),
@@ -104,6 +110,10 @@ for(const width of [390,1440]) { const page=await browser.newPage({viewport:{wid
 await page.route('**/*',route=>route.abort());
 for(const file of fs.readdirSync(process.argv[1])) {
 await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
+if(file==='buyer-edit.html') {
+await page.locator('input[type=file]').setInputFiles({name:'test-photo.png',mimeType:'image/png',buffer:Buffer.from('synthetic filename check')});
+if(await page.locator('.upload-name').textContent()!=='test-photo.png') throw new Error('Selected photo filename not visible');
+}
 if(file==='buyer-sellers-long-name.html') {
 const title=page.locator('.seller-copy h2').first();
 if(await title.evaluate(el=>el.getBoundingClientRect().height>parseFloat(getComputedStyle(el).lineHeight)*2+1)) throw new Error('Seller title exceeds two lines');

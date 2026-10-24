@@ -1737,3 +1737,94 @@ button,.button {
 .shop-panel .shop-description details {margin:8px 0 0}
 .shop-panel .shop-description summary {font-size:13px;font-weight:400;color:#526f9b;cursor:pointer}
 .shop-panel .shop-description details p {margin-top:10px}
+/* Final visual review of approved screens 4–41: common form rhythm and actions. */
+main>.narrow {box-shadow:0 2px 8px #243b530a;border-radius:10px;border-color:#e5eaf2}
+.buyer-step:not(.accepted),.onboarding,.state-card {line-height:1.45}
+.buyer-step:not(.accepted)>h1,.onboarding>h1,.state-card>h1 {letter-spacing:-.5px}
+.buyer-step>.back {display:block;text-align:left;font-size:14px;margin-bottom:16px}
+.buyer-step .choice,.seller-result-panel .choice {display:flex;gap:10px;align-items:flex-start;padding:10px 12px;margin:9px 0;border-color:#e5eaf2;border-radius:6px}
+.buyer-step .choice input,.seller-result-panel .choice input {flex:0 0 auto;margin:4px 0 0}
+.choice small {display:block;font-size:12px;line-height:1.4;margin-top:2px;font-weight:400}
+.buyer-step .choice:has(input:checked),.seller-result-panel .choice:has(input:checked) {border-color:#8cafd3;background:#f5f9fd}
+.buyer-step .form-actions {margin:16px 0 0}
+.buyer-step .form-actions .secondary {min-width:125px}
+.upload-control {font-size:14px!important;width:max-content;cursor:pointer;gap:8px;margin:8px 0!important}
+.upload-control .icon {width:18px;height:18px}
+.upload-control:has(+input:focus-visible) {outline:2px solid #2a61ad;outline-offset:3px}
+.field-photo {position:relative}
+.field-photo input[type=file] {position:absolute;width:1px;height:1px;padding:0;border:0;clip-path:inset(50%);overflow:hidden}
+.upload-name {display:block;font-size:13px;color:var(--muted);overflow-wrap:anywhere}
+.buyer-step>.actions {padding-top:12px;border-top:1px solid #edf0f5;font-size:13px}
+.seller-result-panel .secondary.full {margin-top:10px}
+.seller-result-panel section>p.muted {font-size:12px;margin:12px 0 0}
+.connection-card {background:linear-gradient(115deg,#f7f9ff,#fff);border-color:#e7ecf5}
+.connection-card h2 {display:flex;align-items:center;gap:12px}
+.connection-card h2 .icon,.connection-card .add-symbol {width:28px;height:28px;flex-shrink:0;color:#6175a7}
+.connection-card .add-symbol {font-size:28px;line-height:1}
+.connection-card p {margin-left:40px}
+.onboarding .connection-card .button {min-height:44px}
+.state-card .state-extra {display:block;font-size:13px;margin:14px 0}
+.state-card .notice {font-size:13px;text-align:left}
+.state-card .summary {border-color:#e5eaf3;background:#f5f8fc;border-radius:7px}
+.state-card ol {counter-reset:steps;list-style:none;padding:0;margin:18px 0}
+.state-card ol li {counter-increment:steps;position:relative;padding-left:32px;min-height:25px;margin:9px 0;line-height:1.5}
+.state-card ol li:before {content:counter(steps);position:absolute;left:0;top:0;background:#eaf1fc;color:#6383ba;width:23px;height:23px;border-radius:50%;text-align:center;font-weight:600}
+.claim-confirm>.back {display:block;text-align:left;font-size:13px}
+.claim-confirm .summary h2 {margin-bottom:6px}
+.quality-panel .grid>section {background:linear-gradient(135deg,#fbfcff,#fff);border-color:#e7ecf3}
+.quality-panel .quality-check {display:flex;gap:12px;align-items:center;border-bottom:1px solid #eef2f7;padding:12px 0}
+.quality-check>span {display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;flex-shrink:0;border-radius:50%;font-size:16px}
+.quality-check .completed {background:#21b768;color:white}
+.quality-check .incomplete {color:#9ba8bf;border:1px solid #c7d2e2}
+.profile-edit-panel details {padding:12px 16px;margin:10px 0;border-color:#e4eaf3}
+.profile-edit-panel details summary {list-style:none;cursor:pointer;position:relative;padding-right:24px}
+.profile-edit-panel details summary::-webkit-details-marker {display:none}
+.profile-edit-panel details summary:after {content:'⌄';position:absolute;right:0;color:#7288b0}
+.profile-edit-panel details[open] summary:after {content:'⌃'}
+.profile-edit-panel details>p {font-size:14px;margin:14px 0}
+.profile-edit-panel .actions {display:grid;grid-template-columns:1.2fr 1fr auto;gap:12px}
+.profile-edit-panel .cancel-link {font-size:14px;text-align:center}
+.channels-panel .grid section {background:linear-gradient(120deg,#f8fbff,#fff);border-color:#e4eaf3}
+.channels-panel .grid p {font-size:14px}
+.activity-counts {margin:0}
+.activity-counts>div {display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:1px solid #e9eef5;padding:12px 0;font-size:14px}
+.activity-counts dd {font-size:20px;font-weight:700;color:#36569b;margin:0}
+.history-panel .tabs {gap:10px;border:0;flex-wrap:wrap}
+.history-panel .tabs a {padding:5px 12px;border:1px solid #e3e9f2;border-radius:18px;font-size:13px;text-decoration:none}
+.history-panel .tabs a[aria-current=page] {background:#244bbd;color:#fff;border-color:#244bbd}
+.history-panel .timeline li {padding-top:12px;padding-bottom:12px}
+.reconcile-card form .field:has(input[type=checkbox]) label {display:flex;align-items:flex-start;gap:8px;font-size:14px}
+.reconcile-card form input[type=checkbox] {flex-shrink:0;margin:4px 0 0}
+.reconcile-card .request-summary {margin:16px 0}
+@media(max-width:700px) {
+ .buyer-step:not(.accepted) {padding:20px 18px}
+ .buyer-step .form-actions {display:flex;flex-direction:column;gap:9px}
+ .buyer-step .form-actions>* {width:100%}
+ .buyer-step .choice,.seller-result-panel .choice {padding:10px;font-size:14px}
+ .buyer-step>.actions {gap:10px;justify-content:space-between}
+ .onboarding .connection-card p {margin-left:0}
+ .connection-card h2 {gap:9px}
+ .profile-edit-panel .actions {display:flex;flex-direction:column;align-items:stretch;gap:9px}
+ .profile-edit-panel .actions>* {width:100%}
+ .quality-panel .quality-check {padding:10px 0;gap:10px}
+ .state-card {padding:24px 18px}
+ .reconcile-card .actions {flex-direction:column;align-items:stretch}
+ .history-panel .tabs {gap:7px}
+ .history-panel .tabs a {padding:4px 9px;font-size:12px}
+}
+
+.workflow-panel:not(.shop-panel):not(.sellers-panel)>h1 {font-size:32px}
+.result-actions {display:flex;gap:12px;align-items:center;margin-top:16px}
+.result-actions>* {flex:1}
+@media(max-width:700px) {
+ .workflow-panel:not(.shop-panel):not(.sellers-panel)>h1 {font-size:24px}
+ .result-actions {flex-direction:column;gap:9px}
+ .result-actions>* {width:100%}
+}
+
+.onboarding .claim-candidate {background:#f6f8fd;padding:16px;border-color:#e5ebf5}
+.candidate-identity {display:flex;gap:14px;align-items:center;text-align:left;margin-bottom:12px}
+.candidate-identity>.icon {width:32px;height:32px;color:#7184ad;flex-shrink:0}
+.candidate-identity h2 {font-size:17px;margin:0 0 4px}
+.candidate-identity p {font-size:13px;color:var(--muted);margin:0}
+.claim-candidate .button {min-height:40px;font-size:14px}
