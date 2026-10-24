@@ -481,3 +481,9 @@ TWO_WAY_REQUESTS_ENABLED = _env_flag('TWO_WAY_REQUESTS_ENABLED', False)
 
 # Separate from the bot credential. No webhook is installed by migrations or startup.
 TELEGRAM_CONNECTION_WEBHOOK_SECRET = os.getenv('TELEGRAM_CONNECTION_WEBHOOK_SECRET', '')
+
+# Private opt-in Telegram delivery uses the existing dispatch worker.
+# All three values must be explicitly configured; no historical backfill.
+TELEGRAM_SUBSCRIBER_DELIVERY_ENABLED = _env_flag('TELEGRAM_SUBSCRIBER_DELIVERY_ENABLED', False)
+TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID', '')
+TELEGRAM_SUBSCRIBER_DELIVERY_SINCE = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_SINCE', '')

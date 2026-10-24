@@ -265,6 +265,50 @@ class ApprovedWorkflowTests(TestCase):
             call_command('send_seller_telegram_request', apply=True, stdout=StringIO(), **args)
         self.assertEqual(api.call_count, 1)
 
+    @patch('core.management.commands.dispatch_request_waves.process_due_service_request_dispatches')
+    @patch('core.management.commands.dispatch_request_waves.process_due_dispatch_waves')
+    @patch('core.services.workflow_notifications._call_api', return_value={'message_id': 778})
+    def test_worker_delivers_only_new_reviewed_opt_in_requests(self, api, parts, services):
+        from django.core.management import call_command
+        from io import StringIO
+        from core.models import SellerChannelConsentEvent
+        SellerChannelConnection.objects.create(seller=self.seller, telegram_id=555, telegram_consent=True)
+        consent = SellerChannelConsentEvent.objects.create(seller=self.seller, channel='telegram', granted=True)
+        cutoff = timezone.now()
+        req = Request.objects.create(brand='Toyota', model='Camry', city='Алматы', phone='',
+            description='Synthetic worker test', public_summary='Тест уведомления', seller_feed_enabled=True)
+        Request.objects.create(phone='', public_summary='На проверке', seller_feed_enabled=False)
+        revoked = Request.objects.create(phone='', public_summary='Отозвана', seller_feed_enabled=True, access_revoked=True)
+        # Disabled by default even when subscriptions exist.
+        call_command('dispatch_request_waves', stdout=StringIO(), stderr=StringIO())
+        api.assert_not_called()
+        with self.settings(TELEGRAM_SUBSCRIBER_DELIVERY_ENABLED=True,
+                TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID=str(self.staff.pk),
+                TELEGRAM_SUBSCRIBER_DELIVERY_SINCE=cutoff.isoformat()):
+            call_command('dispatch_request_waves', stdout=StringIO(), stderr=StringIO())
+            self.assertEqual(api.call_count, 1)
+            notice = RequestSellerNotification.objects.get()
+            self.assertEqual(notice.request_id, req.pk)
+            call_command('dispatch_request_waves', stdout=StringIO(), stderr=StringIO())
+            self.assertEqual(api.call_count, 1)
+            # Consent withdrawal blocks later eligible requests.
+            conn = SellerChannelConnection.objects.get(seller=self.seller)
+            conn.telegram_consent = False
+            conn.save()
+            Request.objects.create(phone='', public_summary='Следующая', seller_feed_enabled=True)
+            call_command('dispatch_request_waves', stdout=StringIO(), stderr=StringIO())
+            self.assertEqual(api.call_count, 1)
+        self.assertFalse(RequestInteraction.objects.exists())
+        self.assertFalse(RequestSellerNotification.objects.filter(request=revoked).exists())
+
+    def test_delivery_rejects_invalid_start_timestamp(self):
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+        from io import StringIO
+        for value in ('bad', '2026-10-24T12:00:00'):
+            with self.assertRaises(CommandError):
+                call_command('notify_telegram_request_subscribers', since=value, stdout=StringIO())
+
     def test_imported_new_shop_duplicate_phone_uses_existing_card(self):
         count=Seller.objects.count()
         self.client.post(reverse('workflow_claim')+'?new=1',{'name':'Другой','phone':'77001112233','city':'Алматы','consent':'on'})

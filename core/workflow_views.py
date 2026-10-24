@@ -256,7 +256,7 @@ def channels(request):
                     SellerChannelConsentEvent.objects.create(seller=seller, channel=channel, granted=value)
                 setattr(conn, field, value)
             conn.save()
-        messages.success(request, 'Настройки сохранены.')
+        messages.success(request, 'Настройки сохранены.', extra_tags='seller_channels')
         return redirect(request.path)
     return render(request, 'core/connections/channels.html', {'conn': conn, 'seller': seller})
 
