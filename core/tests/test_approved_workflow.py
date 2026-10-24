@@ -164,7 +164,9 @@ class ApprovedWorkflowTests(TestCase):
             self.assertEqual(self.client.get(reverse(name)).status_code, 200, name)
         conn=SellerChannelConnection.objects.get(seller=self.seller)
         self.assertFalse(conn.telegram_consent); self.assertIsNone(conn.binding_token)
-        self.client.post(reverse('workflow_channels'), {'telegram': 'on'})
+        response = self.client.post(reverse('workflow_channels'), {'telegram': 'on'}, follow=True)
+        self.assertContains(response, 'Настройки сохранены.')
+        self.assertNotContains(self.client.get(reverse('workflow_channels')), 'Настройки сохранены.')
         conn.refresh_from_db(); self.assertTrue(conn.telegram_consent)
         self.client.post(reverse('workflow_channels'), {})
         conn.refresh_from_db(); self.assertFalse(conn.telegram_consent)
@@ -238,6 +240,31 @@ class ApprovedWorkflowTests(TestCase):
         call_command('notify_telegram_request_subscribers',stdout=StringIO())
         api.assert_not_called()
         self.assertFalse(RequestSellerNotification.objects.exists())
+    @patch('core.services.workflow_notifications._call_api', return_value={'message_id': 777})
+    def test_explicit_telegram_delivery_records_send_without_contact(self, api):
+        from django.core.management import call_command
+        from io import StringIO
+        SellerChannelConnection.objects.create(seller=self.seller, telegram_id=555, telegram_consent=True)
+        args = {'request': self.req.pk, 'seller': self.seller.pk, 'actor': self.staff.pk}
+        call_command('send_seller_telegram_request', stdout=StringIO(), **args)
+        api.assert_not_called()
+        call_command('send_seller_telegram_request', apply=True, stdout=StringIO(), **args)
+        self.assertEqual(api.call_count, 1)
+        notice = RequestSellerNotification.objects.get(request=self.req, seller=self.seller)
+        self.assertEqual((notice.status, notice.message_id), ('sent', 777))
+        payload = api.call_args.args[1]
+        self.assertNotIn(self.req.phone, payload['text'])
+        self.assertNotIn(self.req.vin, payload['text'])
+        target = payload['reply_markup']['inline_keyboard'][0][0]['url']
+        self.assertNotIn(str(self.req.access_token), target)
+        self.assertFalse(RequestInteraction.objects.filter(request=self.req).exists())
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.purchase_result, '')
+        from django.core.management.base import CommandError
+        with self.assertRaises(CommandError):
+            call_command('send_seller_telegram_request', apply=True, stdout=StringIO(), **args)
+        self.assertEqual(api.call_count, 1)
+
     def test_imported_new_shop_duplicate_phone_uses_existing_card(self):
         count=Seller.objects.count()
         self.client.post(reverse('workflow_claim')+'?new=1',{'name':'Другой','phone':'77001112233','city':'Алматы','consent':'on'})
