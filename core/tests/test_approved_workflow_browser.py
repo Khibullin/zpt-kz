@@ -38,6 +38,7 @@ class ApprovedBrowserTests(TestCase):
         self.seller.name = 'Тойота Центр Жетысу | Официальный дилер — магазин запчастей и сервисный центр с длинным названием'
         self.seller.save(update_fields=['name'])
         pages['buyer-sellers-long-name'] = self.client.get(self.buyer('sellers')).content.decode()
+        pages['buyer-shop-long-name'] = self.client.get(reverse('workflow_buyer_shop', args=[self.req.pk, self.req.access_token, self.seller.pk])).content.decode()
         self.seller.name = original_name
         self.seller.save(update_fields=['name'])
         pages['connect'] = self.client.get(reverse('workflow_connect')).content.decode()
