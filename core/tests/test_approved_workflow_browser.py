@@ -34,6 +34,12 @@ class ApprovedBrowserTests(TestCase):
         pages['buyer-directory-shop'] = self.client.get(reverse('workflow_buyer_shop', args=[self.req.pk, self.req.access_token, shop.pk])).content.decode()
         for step in ('accepted', 'sellers', 'edit', 'result', 'search', 'close', 'done'):
             pages['buyer-' + step] = self.client.get(self.buyer(step)).content.decode()
+        original_name = self.seller.name
+        self.seller.name = 'Тойота Центр Жетысу | Официальный дилер — магазин запчастей и сервисный центр с длинным названием'
+        self.seller.save(update_fields=['name'])
+        pages['buyer-sellers-long-name'] = self.client.get(self.buyer('sellers')).content.decode()
+        self.seller.name = original_name
+        self.seller.save(update_fields=['name'])
         pages['connect'] = self.client.get(reverse('workflow_connect')).content.decode()
         pages['claim'] = self.client.get(reverse('workflow_claim')).content.decode()
         pages['new-shop'] = self.client.get(reverse('workflow_claim') + '?new=1').content.decode()
@@ -97,6 +103,10 @@ for(const width of [390,1440]) { const page=await browser.newPage({viewport:{wid
 await page.route('**/*',route=>route.abort());
 for(const file of fs.readdirSync(process.argv[1])) {
 await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
+if(file==='buyer-sellers-long-name.html') {
+const title=page.locator('.seller-copy h2').first();
+if(await title.evaluate(el=>el.getBoundingClientRect().height>parseFloat(getComputedStyle(el).lineHeight)*2+1)) throw new Error('Seller title exceeds two lines');
+}
 if(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)) throw new Error('Horizontal overflow: '+file+' width '+width);
 if(file==='admin-manual-prepared.html') {
 await page.getByRole('button',{name:'Скопировать сообщение'}).click();

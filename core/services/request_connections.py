@@ -139,6 +139,26 @@ def seller_display_name(seller):
     return ' '.join(name.split())
 
 
+def seller_specialization(seller):
+    """Present stored specialization without deriving promises from a shop name."""
+    def distinct(values):
+        result, seen = [], set()
+        for value in values:
+            value = ' '.join((value or '').split())
+            if value and value.casefold() not in seen:
+                result.append(value)
+                seen.add(value.casefold())
+        return result
+    brands = distinct([seller.brand, seller.brand_fk.name if seller.brand_fk_id else '',
+                       *[brand.name for brand in seller.selected_brands.all()]])
+    categories = distinct([seller.category, *[category.name for category in seller.selected_categories.all()]])
+    if brands:
+        return 'Запчасти для ' + ', '.join(brands)
+    if categories:
+        return ', '.join(categories)
+    return 'Специализацию уточните у продавца'
+
+
 def _brand_words(value):
     return ' '.join(re.findall(r'\w+', (value or '').casefold()))
 
@@ -310,6 +330,8 @@ def buyer_seller_page(req, number):
     current = {item['seller'].pk: item for item in directory_suggestions(req, seller_ids=wanted)} if wanted else {}
     page.object_list = [current[item['directory_id']] if 'directory_id' in item else item
                         for item in page if 'directory_id' not in item or item['directory_id'] in current]
+    for item in page:
+        item['specialization'] = seller_specialization(item['seller'])
     return page
 
 
