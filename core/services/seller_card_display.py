@@ -9,7 +9,7 @@ from __future__ import annotations
 from collections import defaultdict
 from decimal import Decimal
 
-from core.phone_utils import build_whatsapp_url, normalize_phone_for_whatsapp
+from core.phone_utils import normalize_phone_for_whatsapp, seller_whatsapp_url, seller_whatsapp_phone, is_excluded_city_whatsapp
 from core.services.seller_card_links import validate_card_url, whatsapp_digits
 
 DAY_LABELS = ('Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс')
@@ -107,12 +107,12 @@ def build_seller_card(seller) -> dict:
             seen.add(entry['digits'])
             extra_phones.append(entry)
     socials = []
-    primary_wa = build_whatsapp_url(seller.whatsapp)
-    primary_digits = normalize_phone_for_whatsapp(seller.whatsapp) or ''
+    primary_wa = seller_whatsapp_url(seller)
+    primary_digits = seller_whatsapp_phone(seller)
     for link in seller.social_links.all():
         if link.kind == 'whatsapp':
             digits = whatsapp_digits(link.url)
-            if digits and digits == primary_digits:
+            if is_excluded_city_whatsapp(digits) or (digits and digits == primary_digits):
                 continue
         socials.append({
             'kind': link.kind,

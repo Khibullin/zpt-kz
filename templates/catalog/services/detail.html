@@ -296,7 +296,7 @@ h1{
 
         <div class="buttons">
 
-          {% with wa_url=seller.whatsapp|whatsapp_url %}
+          {% with wa_url=seller|seller_whatsapp_url %}
           {% if wa_url %}
           <a
             class="btn wa"

@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from urllib.parse import parse_qs, urlparse, urlunparse
 
-from core.phone_utils import normalize_phone_for_whatsapp
+from core.phone_utils import normalize_phone_for_whatsapp, is_excluded_city_whatsapp
 
 
 SAFE_SCHEMES = {'http', 'https'}
@@ -159,7 +159,7 @@ def assess_whatsapp_link(raw: object, contact_phones: set[str]) -> tuple[str, st
     if not digits_raw:
         return '', '', 'в ссылке WhatsApp нет номера'
     normalized = normalize_phone_for_whatsapp(digits_raw)
-    if not normalized:
+    if not normalized or is_excluded_city_whatsapp(normalized):
         return '', '', 'подозрительный номер WhatsApp'
     for contact in contact_phones:
         if contact and contact != normalized and contact in normalized:

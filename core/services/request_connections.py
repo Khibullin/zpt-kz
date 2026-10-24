@@ -13,7 +13,7 @@ import json
 from django.utils import timezone
 
 from core.models import Match, RequestInteraction, RequestOffer, Seller
-from core.phone_utils import build_whatsapp_url
+from core.phone_utils import seller_whatsapp_url
 from core.services.seller_request_access import get_or_create_active_seller_request_access
 from core.services.seller_request_filters import matches_request
 
@@ -89,7 +89,7 @@ def seller_contact(seller, req, channel):
     if not seller.is_active or seller.is_paused or not seller.direct_contacts_enabled:
         return ''
     if channel == 'whatsapp':
-        return build_whatsapp_url(seller.whatsapp, f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. {req.public_summary}')
+        return seller_whatsapp_url(seller, f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. {req.public_summary}')
     if channel == 'telegram':
         for link in seller.social_links.all():
             if link.kind != 'telegram':
@@ -347,7 +347,7 @@ def record_impressions(req, page):
 def directory_contact(seller, req, channel):
     """Public business contacts only; never grants a seller access to buyer data."""
     if channel == 'whatsapp':
-        return build_whatsapp_url(seller.whatsapp,
+        return seller_whatsapp_url(seller,
             f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. Категория: {req.category}. Уточните наличие и цену.')
     if channel == 'telegram':
         for link in seller.social_links.all():

@@ -8,7 +8,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from core.models import Match, RequestDispatch, Seller
-from core.phone_utils import normalize_phone_for_whatsapp
+from core.phone_utils import seller_whatsapp_phone
 from core.services.seller_buyer_request_consent import get_request_consent
 from core.services.seller_request_access import (
     build_seller_request_access_url,
@@ -52,7 +52,7 @@ def _legacy_selected(seller, req) -> bool:
 def validate_manual_recipient(req, seller, *, assignment_reason=""):
     if not seller.is_active or seller.is_paused or seller.catalog_only:
         raise ValidationError('Продавец не подключён к получению заявок.')
-    if not normalize_phone_for_whatsapp(seller.whatsapp):
+    if not seller_whatsapp_phone(seller):
         raise ValidationError('У продавца нет корректного номера WhatsApp.')
 
     # The owner's already-authorized test recipients match *new* requests only.
@@ -182,6 +182,8 @@ def manual_whatsapp_message(req, url: str) -> str:
 
 
 def manual_whatsapp_url(seller, req, access) -> str:
-    phone = normalize_phone_for_whatsapp(seller.whatsapp)
+    phone = seller_whatsapp_phone(seller)
     url = build_seller_request_access_url(access)
+    if not phone:
+        return ''
     return 'https://wa.me/' + phone + '?text=' + quote(manual_whatsapp_message(req, url), safe='')

@@ -46,7 +46,7 @@ from core.whatsapp_template_sender import (
     send_whatsapp_template_message,
     wa_template_param,
 )
-from core.phone_utils import build_whatsapp_url
+from core.phone_utils import build_whatsapp_url, seller_whatsapp_phone
 from core.kazakhstan_locations import (
     canonical_kazakhstan_city,
     canonicalize_kazakhstan_cities,
@@ -1135,7 +1135,7 @@ def _dispatch_to_json(dispatch, req):
         'status': dispatch.status,
         'whatsapp_status': whatsapp_status,
         'buyer_wa_link': _buyer_contact_link(
-            seller.whatsapp,
+            seller_whatsapp_phone(seller),
             req
         ),
     }

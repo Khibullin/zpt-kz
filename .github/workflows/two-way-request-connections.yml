@@ -30,7 +30,7 @@ jobs:
       - run: python manage.py makemigrations --check --dry-run
       - run: >-
           python manage.py test
-          core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin core.tests.test_request_latency
+          core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin core.tests.test_request_latency core.tests.test_seller_whatsapp_selection core.tests.test_phone_utils
           core.tests.test_manual_request_processing
           core.tests.test_seller_request_link core.tests.test_buyer_portal
           core.tests.test_manual_seller_dispatch core.tests.test_seller_request_response_control
@@ -66,7 +66,7 @@ jobs:
       - run: pip install -r requirements.txt
       - run: >-
           python manage.py test
-          core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin core.tests.test_request_latency
+          core.tests.test_approved_workflow core.tests.test_request_connections core.tests.test_connection_admin core.tests.test_request_latency core.tests.test_seller_whatsapp_selection core.tests.test_phone_utils
           core.tests.test_request_connection_concurrency
           --settings=backend.settings_ui_ci --noinput
   approved-ui:
