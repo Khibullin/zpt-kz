@@ -67,7 +67,7 @@ class ApprovedBrowserTests(TestCase):
             response = self.client.get(reverse(name, args=args))
             self.assertEqual(response.status_code, 200, name)
             pages[name] = response.content.decode()
-        pages['telegram-prepared'] = self.client.post(reverse('workflow_telegram_connect')).content.decode()
+        pages['telegram-prepared'] = self.client.post(reverse('workflow_telegram_connect'), follow=True).content.decode()
         from core.models import SellerChannelConnection
         SellerChannelConnection.objects.filter(seller=self.seller).update(telegram_id=900001)
         pages['telegram-connected'] = self.client.get(reverse('workflow_telegram_connect')).content.decode()
