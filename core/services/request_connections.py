@@ -4,7 +4,12 @@ import re
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Count, Avg
+from django.db.models import Count, Avg, Case, When, Value, BooleanField
+from django.core.cache import cache
+from hashlib import sha256
+from collections import defaultdict
+from types import SimpleNamespace
+import json
 from django.utils import timezone
 
 from core.models import Match, RequestInteraction, RequestOffer, Seller
@@ -158,11 +163,44 @@ def _directory_brand_terms():
     return terms
 
 
-def directory_suggestions(req, excluded_ids=()):
-    """Suggest already public shops without asserting a contact opt-in or stock."""
+def _brand_term_index(terms):
+    index = defaultdict(list)
+    for term, brand in terms.items():
+        words = tuple(term.split())
+        if words:
+            index[words[0]].append((words, brand))
+    return index
+
+
+def _named_brands(name, index):
+    words = tuple(_brand_words(name).split())
+    return {brand for offset, word in enumerate(words)
+            for term, brand in index.get(word, ())
+            if words[offset:offset + len(term)] == term}
+
+
+def _directory_brand_specific(seller, wanted, terms, index):
+    named = _named_brands(seller_display_name(seller), index)
+    specific = [seller.brand, seller.brand_fk.name if seller.brand_fk_id else '',
+                *[b.name for b in seller.selected_brands.all()]]
+    explicit = {terms.get(_brand_words(name), _brand_words(name)) for name in specific if name}
+    # Imported all_brands must not override a clearly different brand in the title.
+    if named and wanted not in named and wanted not in explicit:
+        return None
+    return wanted in named or wanted in explicit
+
+
+def _directory_sort_key(seller, specific_brand, req):
+    completeness = sum(bool(value) for value in (seller.directory_description, seller.directory_photo,
+                       seller.brand or seller.all_brands, seller.category or seller.all_categories))
+    return not specific_brand, seller.city != req.city, -completeness, seller.pk
+
+
+def _directory_queryset(req, excluded_ids=(), seller_ids=None):
     from core.directory_seo import public_parts_organizations
-    shops = public_parts_organizations().exclude(pk__in=excluded_ids).select_related(
-        'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'social_links')
+    shops = public_parts_organizations().exclude(pk__in=excluded_ids)
+    if seller_ids is not None:
+        shops = shops.filter(pk__in=seller_ids)
     if req.search_scope == 'city':
         shops = shops.filter(city=req.city)
     elif req.search_scope == 'custom':
@@ -171,31 +209,117 @@ def directory_suggestions(req, excluded_ids=()):
         shops = shops.filter(is_dismantler=True)
     else:
         shops = shops.filter(sells_new_parts=True)
+    return shops
+
+
+def directory_suggestions(req, excluded_ids=(), *, seller_ids=None):
+    """Recheck current public eligibility before rendering or a contact action."""
+    shops = _directory_queryset(req, excluded_ids, seller_ids).select_related(
+        'brand_fk', 'model_fk').prefetch_related(
+        'selected_brands', 'selected_models', 'selected_categories', 'social_links')
     terms = _directory_brand_terms()
+    term_index = _brand_term_index(terms)
     wanted = terms.get(_brand_words(req.brand), _brand_words(req.brand))
     items = []
     for seller in shops:
         if not relevant(seller, req):
             continue
         name = seller_display_name(seller)
-        words = ' ' + _brand_words(name) + ' '
-        named_brands = {brand for term, brand in terms.items() if ' ' + term + ' ' in words}
-        specific = [seller.brand, seller.brand_fk.name if seller.brand_fk_id else '',
-                    *[b.name for b in seller.selected_brands.all()]]
-        explicit = {terms.get(_brand_words(b), _brand_words(b)) for b in specific if b}
-        # Imported all_brands=True must not override a clearly different brand in the shop title.
-        if named_brands and wanted not in named_brands and wanted not in explicit:
+        brand_specific = _directory_brand_specific(seller, wanted, terms, term_index)
+        if brand_specific is None:
             continue
         items.append({'seller': seller, 'display_name': name, 'directory_only': True,
-                      'brand_specific': wanted in named_brands or wanted in explicit,
+                      'brand_specific': brand_specific,
                       'has_whatsapp': bool(directory_contact(seller, req, 'whatsapp')),
                       'has_telegram': bool(directory_contact(seller, req, 'telegram')),
                       'reason': 'Магазин из каталога'})
-    items.sort(key=lambda x: (not x['brand_specific'], x['seller'].city != req.city,
-        -sum(bool(v) for v in (x['seller'].directory_description, x['seller'].directory_photo,
-                               x['seller'].brand or x['seller'].all_brands,
-                               x['seller'].category or x['seller'].all_categories)), x['seller'].pk))
+    items.sort(key=lambda item: _directory_sort_key(item['seller'], item['brand_specific'], req))
     return items
+
+
+class _ProfileNames:
+    def __init__(self, names=()):
+        self.names = tuple(SimpleNamespace(name=name) for name in names)
+
+    def all(self):
+        return self.names
+
+
+def _directory_order(req, excluded_ids):
+    """Rank lightweight public profiles, without loading photos, texts or contacts.
+
+    The same relevant() predicate is used for these profiles and live Seller rows.
+    """
+    shops = _directory_queryset(req, excluded_ids)
+    relations = {}
+    for field_name in ('selected_brands', 'selected_models', 'selected_categories'):
+        field = Seller._meta.get_field(field_name)
+        target = field.m2m_reverse_field_name()
+        rows = field.remote_field.through.objects.filter(seller_id__in=shops.values('pk'))
+        by_seller = defaultdict(list)
+        for pk, name in rows.values_list('seller_id', target + '__name'):
+            by_seller[pk].append(name)
+        relations[field_name] = {pk: _ProfileNames(names) for pk, names in by_seller.items()}
+    empty = _ProfileNames()
+    rows = shops.annotate(has_description=Case(
+        When(directory_description='', then=Value(False)), default=Value(True), output_field=BooleanField()
+    )).values('pk', 'name', 'city', 'transport_type', 'sells_new_parts', 'is_dismantler', 'request_filters',
+              'all_brands', 'all_models', 'all_categories', 'brand', 'model', 'category',
+              'brand_fk_id', 'brand_fk__name', 'model_fk_id', 'model_fk__name',
+              'directory_photo', 'has_description')
+    terms = _directory_brand_terms()
+    index = _brand_term_index(terms)
+    wanted = terms.get(_brand_words(req.brand), _brand_words(req.brand))
+    ranked = []
+    for row in rows:
+        profile = SimpleNamespace(**row)
+        profile.brand_fk = SimpleNamespace(name=row['brand_fk__name'])
+        profile.model_fk = SimpleNamespace(name=row['model_fk__name'])
+        for name, mapping in relations.items():
+            setattr(profile, name, mapping.get(profile.pk, empty))
+        if not relevant(profile, req):
+            continue
+        specific_brand = _directory_brand_specific(profile, wanted, terms, index)
+        if specific_brand is None:
+            continue
+        profile.directory_description = row['has_description']
+        ranked.append((_directory_sort_key(profile, specific_brand, req), profile.pk))
+    ranked.sort()
+    return [pk for _key, pk in ranked]
+
+
+def buyer_seller_page(req, number):
+    """Cache public directory ordering only; hydrate and recheck every displayed shop.
+
+    Request access, direct opt-ins, offers and prices are never cached here.
+    Actions always resolve their own current eligibility independently.
+    """
+    from django.core.paginator import Paginator
+    direct = recommendations(req)
+    excluded = [item['seller'].pk for item in direct]
+    signature = (str(req.access_token), req.pk, req.brand, req.model, req.category,
+                 req.transport_type, req.city, req.search_scope, req.selected_cities,
+                 req.is_dismantler_request, sorted(excluded))
+    key = 'buyer-directory-order:v1:' + sha256(json.dumps(signature).encode()).hexdigest()
+    ids = cache.get(key)
+    if ids is None:
+        ids = _directory_order(req, excluded)
+        cache.set(key, ids, timeout=60)
+    page = Paginator(direct + [{'directory_id': pk} for pk in ids], 10).get_page(number)
+    wanted = [item['directory_id'] for item in page if 'directory_id' in item]
+    current = {item['seller'].pk: item for item in directory_suggestions(req, seller_ids=wanted)} if wanted else {}
+    page.object_list = [current[item['directory_id']] if 'directory_id' in item else item
+                        for item in page if 'directory_id' not in item or item['directory_id'] in current]
+    return page
+
+
+def record_impressions(req, page):
+    # One bounded INSERT instead of up to thirty round trips per page.
+    RequestInteraction.objects.bulk_create([
+        RequestInteraction(request=req, seller=item['seller'], actor='buyer', kind='impression',
+                           source='site', position=index)
+        for index, item in enumerate(page, start=page.start_index())
+    ], ignore_conflicts=True)
 
 
 def directory_contact(seller, req, channel):

@@ -89,7 +89,7 @@ from .models import (
 )
 
 from catalog.instagram_service import schedule_instagram_publication_for_request
-from core.services.operations_email_notifications import notify_new_request
+from core.services.operations_email_notifications import notify_new_request_async as notify_new_request
 
 from .services.buyer_contact_service import (
     SYNC_STATUS_SYNCED,

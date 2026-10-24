@@ -1,4 +1,4 @@
-from core.services.operations_email_notifications import notify_new_request
+from core.services.operations_email_notifications import notify_new_request_async as notify_new_request
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404

@@ -153,12 +153,8 @@ def buyer_step(request, req_id, access_token, step):
     form = None
     participants = Match.objects.filter(request=req).select_related('seller')
     if step == 'sellers':
-        from django.core.paginator import Paginator
-        items = service.recommendations(req)
-        items += service.directory_suggestions(req, [item['seller'].pk for item in items])
-        page = Paginator(items, 10).get_page(request.GET.get('page'))
-        for index, item in enumerate(page, start=page.start_index()):
-            service.record(req, item['seller'], 'buyer', 'impression', position=index)
+        page = service.buyer_seller_page(req, request.GET.get('page'))
+        service.record_impressions(req, page)
         return render(request, 'core/connections/buyer_sellers.html', {'req': req, 'page': page})
     if step == 'permissions':
         from core.connection_views import buyer
@@ -296,7 +292,7 @@ def buyer_shop(request, req_id, access_token, seller_id):
         return render(request, 'core/connections/expired.html', status=410)
     item = next((x for x in service.recommendations(req) if x['seller'].pk == seller_id), None)
     if item is None:
-        item = next((x for x in service.directory_suggestions(req) if x['seller'].pk == seller_id), None)
+        item = next((x for x in service.directory_suggestions(req, seller_ids=[seller_id]) if x['seller'].pk == seller_id), None)
     if item is None:
         raise Http404
     from core.services.seller_card_display import build_seller_card
@@ -312,7 +308,7 @@ def buyer_directory_contact(request, req_id, access_token, seller_id, channel):
         return HttpResponse(status=410)
     if channel not in ('whatsapp', 'telegram', 'call'):
         raise Http404
-    item = next((x for x in service.directory_suggestions(req) if x['seller'].pk == seller_id), None)
+    item = next((x for x in service.directory_suggestions(req, seller_ids=[seller_id]) if x['seller'].pk == seller_id), None)
     target = service.directory_contact(item['seller'], req, channel) if item else ''
     if not target:
         raise Http404

@@ -11,3 +11,6 @@ DATABASES["default"]["TEST"] = {"MIGRATE": False}
 MANUAL_REQUEST_PROCESSING = False
 REQUEST_OWNER_EMAIL_ENABLED = False
 EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend'
+
+# Keep ordinary transactional email assertions deterministic; async tests opt in.
+REQUEST_OWNER_EMAIL_ASYNC = False
