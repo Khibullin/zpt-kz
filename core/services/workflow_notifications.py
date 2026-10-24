@@ -7,7 +7,7 @@ from core.services.telegram_channel import _call_api, TelegramChannelError
 
 
 def eligible(req, seller, channel):
-    if not enabled() or not req.seller_feed_enabled or not safe_summary(req) or req.purchase_result in ('purchased', 'closed'):
+    if not enabled() or not req.seller_feed_enabled or req.access_revoked or not safe_summary(req) or req.purchase_result in ('purchased', 'closed'):
         return False
     conn = SellerChannelConnection.objects.filter(seller=seller).first()
     return bool(conn and seller.is_active and not seller.is_paused and seller.notification_state == 'active'
