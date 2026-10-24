@@ -1690,3 +1690,50 @@ button,.button {
   .sellers-panel .seller-actions button {min-height:36px;padding:5px 12px;font-size:14px}
   .sellers-panel .shop-link {font-size:13px;margin-top:0}
 }
+
+/* Screen 3: restrained shop profile, matching the approved reference. */
+.shop-panel {padding:24px 30px;line-height:1.45;box-shadow:0 2px 7px #243b5310}
+.shop-panel>.back {margin-bottom:18px}
+.shop-panel>h1 {font-size:32px;line-height:1.18;letter-spacing:-.65px;max-width:30ch;overflow-wrap:anywhere;margin:0 0 22px}
+.shop-panel .shop-grid {grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start}
+.shop-panel .shop-identity {gap:26px;margin:0 0 16px}
+.shop-panel .shop-identity .shop-avatar {width:150px;height:126px;background:linear-gradient(135deg,#edf2f6,#f5f7fa)}
+.shop-panel .shop-identity p {font-size:16px;margin:0 0 10px;color:#293e67}
+.shop-panel .shop-identity p>.icon {flex-shrink:0;color:#8591aa;width:22px;height:22px}
+.shop-panel .shop-description {font-size:15px;line-height:1.6;color:#273b60;overflow-wrap:anywhere}
+.shop-panel .shop-about {padding-top:16px}
+.shop-panel .shop-about h2,.shop-panel .shop-contact h2 {font-size:21px;line-height:1.25;margin:0 0 14px;letter-spacing:-.3px}
+.shop-panel .shop-contact {padding:18px 16px;border-color:#e3e9f1;box-shadow:0 1px 5px #243b5308;border-radius:9px}
+.shop-panel .shop-contact button {min-height:50px;font-size:17px;border-radius:7px}
+.shop-panel .shop-contact .channel-icon {width:28px;height:28px}
+.shop-panel .shop-contact>p {font-size:13px;margin:8px 0;line-height:1.5}
+.shop-panel .shop-contact>a {display:inline-block;margin-top:10px;font-size:14px}
+.shop-panel .shop-request {display:flex;gap:12px;align-items:flex-start;border-top:1px solid #e3e9f1;margin:20px 0 10px;padding:14px 12px;font-size:14px;border-radius:7px}
+.shop-panel .shop-request>.icon {width:26px;height:26px;flex-shrink:0;color:#8996ae;margin-top:3px}
+.shop-panel .shop-request p {font-size:13px;color:#697fa2}
+.shop-panel .shop-facts>div {grid-template-columns:140px minmax(0,1fr);gap:12px;font-size:14px;padding:10px 0;align-items:center}
+.shop-panel .shop-facts>.address-row {grid-template-columns:140px minmax(0,1fr) auto}
+.shop-panel .shop-facts dd {overflow-wrap:anywhere}
+.shop-panel .shop-facts .button {font-size:13px;min-height:36px;border-radius:6px}
+.shop-panel .shop-bottom {margin-top:24px;padding-top:18px;font-size:14px}
+@media(max-width:700px) {
+ .shop-panel {padding:18px 16px}
+ .shop-panel>.back {font-size:13px;margin-bottom:14px}
+ .shop-panel>h1 {font-size:24px;line-height:1.2;margin-bottom:18px;letter-spacing:-.4px}
+ .shop-panel .shop-grid {display:flex;gap:0}
+ .shop-panel .shop-identity {gap:16px;margin-bottom:14px}
+ .shop-panel .shop-identity .shop-avatar {width:88px;height:82px}
+ .shop-panel .shop-identity p {font-size:13px;margin-bottom:6px}
+ .shop-panel .shop-description {font-size:14px;margin-bottom:18px}
+ .shop-panel .shop-contact {padding:16px;border:1px solid #e3e9f1;border-radius:9px;margin-bottom:20px}
+ .shop-panel .shop-contact h2,.shop-panel .shop-about h2 {font-size:18px}
+ .shop-panel .shop-contact button {min-height:46px;font-size:16px}
+ .shop-panel .shop-facts>div,.shop-panel .shop-facts>.address-row {grid-template-columns:90px minmax(0,1fr);font-size:13px;gap:10px}
+ .shop-panel .shop-facts .map-links {grid-column:1 / -1}
+ .shop-panel .shop-bottom {margin-top:18px}
+}
+
+.shop-panel .shop-description p {margin:0 0 8px}
+.shop-panel .shop-description details {margin:8px 0 0}
+.shop-panel .shop-description summary {font-size:13px;font-weight:400;color:#526f9b;cursor:pointer}
+.shop-panel .shop-description details p {margin-top:10px}
