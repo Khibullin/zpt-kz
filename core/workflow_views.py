@@ -3,6 +3,7 @@ from datetime import timedelta
 from uuid import uuid4
 from urllib.parse import urlencode
 
+from django.contrib import messages
 from django.contrib.auth import get_user_model, login
 from django.core.cache import cache
 from django.db import transaction
@@ -255,6 +256,7 @@ def channels(request):
                     SellerChannelConsentEvent.objects.create(seller=seller, channel=channel, granted=value)
                 setattr(conn, field, value)
             conn.save()
+        messages.success(request, 'Настройки сохранены.')
         return redirect(request.path)
     return render(request, 'core/connections/channels.html', {'conn': conn, 'seller': seller})
 
