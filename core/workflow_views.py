@@ -297,6 +297,7 @@ def buyer_shop(request, req_id, access_token, seller_id):
         raise Http404
     from core.services.seller_card_display import build_seller_card
     item['public_card'] = build_seller_card(item['seller'])
+    item['specialization'] = service.seller_specialization(item['seller'])
     return render(request, 'core/connections/shop.html', {'req': req, 'item': item, 'reviews': RequestSellerReview.objects.filter(seller_id=seller_id, public_consent=True, moderated=True, request__purchase_result='purchased').order_by('-created_at')[:10]})
 
 
