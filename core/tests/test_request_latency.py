@@ -90,6 +90,26 @@ class SellerPageLatencyTests(TestCase):
         excluded = expected[:3]
         self.assertEqual(service._directory_order(self.req, excluded), expected[3:])
 
+    def test_specialization_uses_stored_brand_fields_without_guessing_from_name(self):
+        from core.models import PartCategory
+        seller = Seller.objects.first()
+        # The imported name and broad routing flags alone are not a specialization.
+        self.assertEqual(service.seller_specialization(seller), 'Специализацию уточните у продавца')
+        country = Country.objects.first()
+        brand = Brand.objects.create(country=country, name='Toyota')
+        seller.brand_fk = brand
+        seller.save(update_fields=['brand_fk'])
+        seller.selected_brands.add(brand)
+        page = service.buyer_seller_page(self.req, 1)
+        item = next(item for item in page if item['seller'].pk == seller.pk)
+        self.assertEqual(item['specialization'], 'Запчасти для Toyota')
+        seller.brand_fk = None
+        seller.save(update_fields=['brand_fk'])
+        seller.selected_brands.clear()
+        category = PartCategory.objects.create(name='Свечи зажигания')
+        seller.selected_categories.add(category)
+        self.assertEqual(service.seller_specialization(seller), category.name)
+
     def test_brand_word_index_matches_previous_overlapping_semantics(self):
         terms = {'land rover': 'land rover', 'rover': 'rover', 'toyota': 'toyota', 'тойота': 'toyota'}
         index = service._brand_term_index(terms)
