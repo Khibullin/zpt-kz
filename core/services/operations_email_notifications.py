@@ -1,12 +1,15 @@
 from __future__ import annotations
 
 import logging
+from concurrent.futures import ThreadPoolExecutor
+from threading import Lock
 from datetime import timedelta
 from typing import Any
 
 from django.conf import settings
 from django.core.mail import send_mail
 from django.db.models import Count, Q
+from django.db import close_old_connections, connections
 from django.urls import NoReverseMatch, reverse
 from django.utils import timezone
 
@@ -94,6 +97,41 @@ def notify_new_request(request_id: int, *, service: bool = False) -> bool:
         ))
     except Exception:
         logger.exception('Owner request email failed: request=%s service=%s', request_id, service)
+        return False
+
+
+_owner_email_executor = None
+_owner_email_lock = Lock()
+
+
+def _get_owner_email_executor():
+    global _owner_email_executor
+    with _owner_email_lock:
+        if _owner_email_executor is None:
+            # Non-daemon executor workers finish pending mail on normal shutdown.
+            _owner_email_executor = ThreadPoolExecutor(max_workers=2, thread_name_prefix='owner-email')
+    return _owner_email_executor
+
+
+def _owner_email_job(request_id, service):
+    close_old_connections()
+    try:
+        return notify_new_request(request_id, service=service)
+    finally:
+        connections.close_all()
+
+
+def notify_new_request_async(request_id: int, *, service: bool = False) -> bool:
+    """Enqueue only after commit; SMTP must not hold the buyer's HTTP response."""
+    if not getattr(settings, 'REQUEST_OWNER_EMAIL_ENABLED', False):
+        return False
+    if not getattr(settings, 'REQUEST_OWNER_EMAIL_ASYNC', True):
+        return notify_new_request(request_id, service=service)
+    try:
+        _get_owner_email_executor().submit(_owner_email_job, request_id, service)
+        return True
+    except Exception:
+        logger.exception('Owner email enqueue failed: request=%s service=%s', request_id, service)
         return False
 
 

@@ -61,6 +61,26 @@ class ManualRequestProcessingTests(TestCase):
         self.assertFalse(RequestDispatch.objects.exists())
         http.assert_not_called()
 
+    @override_settings(REQUEST_OWNER_EMAIL_ASYNC=True)
+    @patch('core.services.operations_email_notifications._get_owner_email_executor')
+    @patch('core.services.operations_email_notifications.send_mail')
+    @patch('core.views.schedule_instagram_publication_for_request')
+    def test_submission_enqueues_email_only_after_commit_without_waiting(self, instagram, mail, executor):
+        data = dict(query='тормозные колодки', brand='Toyota', model='Camry',
+                    brand_id=self.brand.pk, model_id=self.model.pk, city='Алматы',
+                    phone='77015556677', transport_type='car', category='Тормоза',
+                    idempotency_key='async-email-request')
+        with self.captureOnCommitCallbacks(execute=False) as callbacks:
+            response = self.client.post('/api/home-parts-request/', data)
+        self.assertEqual(response.status_code, 200)
+        executor.assert_not_called()
+        for callback in callbacks:
+            callback()
+        executor.return_value.submit.assert_called_once()
+        self.assertEqual(executor.return_value.submit.call_args.args[1:], (response.json()['id'], False))
+        mail.assert_not_called()
+        self.assertTrue(Request.objects.filter(pk=response.json()['id']).exists())
+
     @patch('core.services.operations_email_notifications.send_mail', return_value=1)
     @patch('core.whatsapp_template_sender.urllib.request.urlopen')
     def test_sto_and_detailing_save_email_and_render_without_queue(self, http, mail):
