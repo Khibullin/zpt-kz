@@ -4,7 +4,11 @@
 {% block body_attrs %} class="zpt-interface ui-refresh" data-zpt-suppress-ios-pwa="1"{% endblock %}
 {% block interface_content %}
 <section class="hero hero-compact" aria-labelledby="hero-title">
-  <div class="hero-copy"><h1 id="hero-title">{% ui 'hero' %}</h1><p>{% ui 'tagline' %}</p></div>
+  <div class="hero-copy"><h1 id="hero-title">{% ui 'hero' %}</h1><p>{% ui 'tagline' %}</p>
+    <div class="home-conversion-actions">
+      <a class="btn" href="{% url 'interface_find_part' %}?request=1" data-zpt-entry="buyer">{% ui 'findPartAction' %}{% ui_icon 'arrow' %}</a>
+      <a class="btn home-seller-action" href="{% url 'seller_landing' %}#register-form" data-zpt-entry="seller">{% ui 'sellerRegisterAction' %}</a>
+    </div><p class="home-conversion-note">{% ui 'buyerBenefit' %}</p></div>
   {% ui_art 'hero' %}
 </section>
 <h2 class="section-title">{% ui 'need' %}</h2>

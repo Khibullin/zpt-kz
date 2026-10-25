@@ -3,7 +3,7 @@
 
 {% block title %}Продавать на ZPT.KZ — поток клиентов для автомагазинов и СТО в Казахстане{% endblock %}
 
-{% block meta_description %}Подключите автомагазин или СТО к ZPT.KZ: размещайте товары в каталоге и получайте заявки от автовладельцев напрямую в WhatsApp.{% endblock %}
+{% block meta_description %}Подключите автомагазин или СТО к ZPT.KZ: размещайте товары в каталоге, находите заявки и общайтесь с покупателями напрямую в WhatsApp или Telegram.{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/seller-landing.css' %}?v=5">
@@ -22,7 +22,7 @@
     <section class="seller-landing-hero ds-section">
       <h1 class="ds-h1">Получайте клиентов для вашего автобизнеса в Казахстане</h1>
       <p class="seller-landing-hero-lead ds-body">
-        Подключите свой магазин запчастей или СТО к платформе ZPT.KZ, размещайте товары в каталоге и получайте готовые заявки от автовладельцев напрямую в WhatsApp.
+        Подключите магазин запчастей, авторазбор или СТО к ZPT.KZ. Размещайте товары в каталоге, находите заявки и предлагайте покупателям цену и наличие напрямую в WhatsApp или Telegram.
       </p>
       <div class="seller-landing-hero-actions">
         <a href="#register-form" class="btn-primary seller-landing-btn-primary">
@@ -32,6 +32,7 @@
           Войти в личный кабинет
         </a>
       </div>
+      <p class="ds-body">Уже зарегистрированы? <a href="{% url 'connection_feed' %}">Посмотреть заявки покупателей →</a></p>
     </section>
 
     <section class="seller-landing-section ds-section">
@@ -49,8 +50,8 @@
         </article>
         <article class="seller-landing-step-card">
           <div class="seller-landing-step-num">3</div>
-          <h3 class="ds-h3">Продажи в WhatsApp</h3>
-          <p class="ds-body">Система автоматически подберёт ваши заявки. Отвечайте клиентам напрямую в мессенджер без комиссий.</p>
+          <h3 class="ds-h3">Предложения покупателям</h3>
+          <p class="ds-body">Открывайте опубликованные заявки и предлагайте покупателям цену, наличие и условия покупки в WhatsApp или Telegram.</p>
         </article>
       </div>
     </section>
@@ -60,14 +61,14 @@
       <div class="seller-landing-benefits">
         <article class="seller-landing-benefit-card">
           <h3 class="ds-h3">Прямые сделки без комиссии</h3>
-          <p class="ds-body">Вы общаетесь с покупателем напрямую в WhatsApp и не платите сайту проценты с проданных запчастей.</p>
+          <p class="ds-body">Вы общаетесь с покупателем напрямую в WhatsApp или Telegram и не платите сайту проценты с проданных запчастей.</p>
         </article>
         <article class="seller-landing-benefit-card">
           <h3 class="ds-h3">Только целевые клиенты</h3>
-          <p class="ds-body">Благодаря умным фильтрам, вы получаете заявки только по тем маркам и городам, которые настроили сами.</p>
+          <p class="ds-body">Укажите марки и категории, с которыми работаете. Выбирайте подходящие заявки и отправляйте своё предложение покупателю.</p>
         </article>
         <article class="seller-landing-benefit-card">
-          <h3 class="ds-h3">Готовый магазин за 5 минут</h3>
+          <h3 class="ds-h3">Ваш магазин в каталоге</h3>
           <p class="ds-body">Ваш личный каталог товаров полностью доступен для поиска по артикулам и наименованиям в Казахстане 24/7.</p>
         </article>
       </div>
@@ -75,7 +76,7 @@
 
     <section id="register-form" class="seller-landing-form-wrap site-container site-container--narrow">
       <h3 class="ds-h3">Стать партнёром ZPT.KZ</h3>
-      <p class="seller-landing-form-note ds-body">Заполните форму, чтобы начать получать заказы</p>
+      <p class="seller-landing-form-note ds-body">Создайте кабинет, заполните профиль и предложите свои товары покупателям.</p>
 
       {% if messages %}
         <div class="seller-landing-messages">
@@ -85,10 +86,10 @@
         </div>
       {% endif %}
 
-      <form method="post" action="{% url 'register_seller' %}" class="seller-landing-form">
+      <form method="post" action="{% url 'register_seller' %}" class="seller-landing-form" data-zpt-funnel="seller">
         {% csrf_token %}
         <div class="seller-landing-field">
-          <label for="seller-company-name">Название магазина или СТО</label>
+          <label for="seller-company-name">Название магазина, авторазбора или СТО</label>
           <input id="seller-company-name" type="text" name="company_name" required placeholder="Например: AutoParts Almaty">
         </div>
         <div class="seller-landing-field">
@@ -102,11 +103,11 @@
         </div>
         <div class="seller-landing-field">
           <label for="seller-whatsapp">Номер WhatsApp</label>
-          <input id="seller-whatsapp" type="tel" name="whatsapp_phone" required placeholder="+7 (707) 123-45-67">
+          <input id="seller-whatsapp" type="tel" name="whatsapp_phone" data-kz-phone inputmode="tel" autocomplete="tel" required placeholder="+7 (707) 123-45-67">
         </div>
         <div class="seller-landing-field">
           <label for="seller-password">Придумайте пароль</label>
-          <input id="seller-password" type="password" name="password" required placeholder="••••••••" minlength="8">
+          <input id="seller-password" type="password" name="password" autocomplete="new-password" required placeholder="••••••••" minlength="8">
         </div>
         <label class="seller-consent-optin">
           <input type="checkbox" name="whatsapp_marketing_consent" value="on">
@@ -120,4 +121,5 @@
 
   </div>
 </div>
+<script defer src="{% static 'core/connections.js' %}?v=phone-format-20261025-1"></script>
 {% endblock %}

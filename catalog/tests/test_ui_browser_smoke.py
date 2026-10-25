@@ -103,7 +103,10 @@ class LandingBrowserSmokeTests(StaticLiveServerTestCase):
                                 self.assertAlmostEqual(first["y"], second["y"], delta=3)
                                 self.assertGreater(second["x"], first["x"])
                                 self.assertGreater(fifth["width"], first["width"] * 1.6)
-                                self.assertEqual(page.locator(".hero .btn").count(), 0)
+                                self.assertEqual(page.locator(".hero .btn").count(), 2)
+                                self.assertTrue(page.locator('[data-zpt-entry="buyer"]').is_visible())
+                                self.assertTrue(page.locator('[data-zpt-entry="seller"]').is_visible())
+                                self.assertIn('?request=1', page.locator('[data-zpt-entry="buyer"]').get_attribute('href'))
                             page.screenshot(
                                 path=str(self.screenshots / f"{label}-{device}.png"),
                                 full_page=True, animations="disabled",

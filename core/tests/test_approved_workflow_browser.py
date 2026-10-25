@@ -120,7 +120,8 @@ class ApprovedBrowserTests(TestCase):
         sto = ServiceSeller.objects.create(name='Автосервис — проверка крупного текста',
             whatsapp='77005554433', seller_type='sto', city='Алматы', address='Тестовая улица, 1')
         for name, url in {
-            'public-home': '/', 'public-products': reverse('catalog_list'),
+            'public-home': '/', 'public-seller-registration': reverse('seller_landing'),
+            'public-buyer-entry': reverse('interface_find_part'), 'public-products': reverse('catalog_list'),
             'public-product': product.get_absolute_url(),
             'public-dismantlers': '/auto-dismantlers/',
             'public-dismantler': f'/parts-seller/{shop.pk}/',

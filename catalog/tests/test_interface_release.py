@@ -85,3 +85,21 @@ class InterfaceReleaseTests(TestCase):
         request.session=session
         import json
         self.assertTrue(json.loads(seller_profile(request).content)['is_dismantler'])
+
+
+class BusinessEntryTests(TestCase):
+    def test_buyer_and_seller_have_direct_entries_on_home(self):
+        page = self.client.get('/')
+        self.assertContains(page, 'data-zpt-entry="buyer"')
+        self.assertContains(page, 'data-zpt-entry="seller"')
+        self.assertContains(page, reverse('interface_find_part'))
+        self.assertContains(page, reverse('seller_landing') + '#register-form')
+
+    def test_registration_covers_priority_cities_and_real_contact_flow(self):
+        page = self.client.get(reverse('seller_landing'))
+        self.assertEqual(page.status_code, 200)
+        for city in ['Алматы', 'Астана']:
+            self.assertContains(page, f'value="{city}"')
+        self.assertContains(page, 'data-kz-phone')
+        self.assertContains(page, reverse('connection_feed'))
+        self.assertNotContains(page, 'готовые заявки от автовладельцев напрямую в WhatsApp')

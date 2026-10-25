@@ -355,6 +355,9 @@ class UnifiedSellerAccountTests(TestCase):
         self.assertEqual(seller.whatsapp, '77015550017')
         self.assertEqual(profile.phone, '77015550017')
         self.assertEqual(seller.password_hash, '')
+        dashboard = self.client.get(reverse('seller_dashboard'))
+        self.assertContains(dashboard, 'data-zpt-seller-registered')
+        self.assertNotContains(self.client.get(reverse('seller_dashboard')), 'data-zpt-seller-registered')
 
     def _register_request_account(self, phone):
         created = self._json_post('/api/create-seller/', {

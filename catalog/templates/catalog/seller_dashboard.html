@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+{% if seller_registered %}<span hidden data-zpt-seller-registered></span>{% endif %}
 <header class="market-header seller-cabinet-header site-header">
   <div class="site-container market-header-inner">
     {% include 'includes/site_logo.html' %}

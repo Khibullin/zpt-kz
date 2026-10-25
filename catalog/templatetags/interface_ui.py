@@ -93,3 +93,9 @@ WORDS.update({
 
 # Focus on the actual spark plugs within the existing approved ZPT art.
 CROPS.update({'spark': [1282, 416, 120, 65]})
+
+WORDS.update({
+    'findPartAction': ['Найти запчасть', 'Қосалқы бөлшек табу'],
+    'sellerRegisterAction': ['Зарегистрироваться продавцом', 'Сатушы ретінде тіркелу'],
+    'buyerBenefit': ['Оставьте заявку и получите предложения продавцов. Цену и наличие обсудите напрямую.', 'Өтінім қалдырып, сатушылардың ұсыныстарын алыңыз. Баға мен қолда барын тікелей талқылаңыз.'],
+})
