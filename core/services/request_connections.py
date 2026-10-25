@@ -321,6 +321,29 @@ def _directory_order(req, excluded_ids):
     return [pk for _key, pk in ranked]
 
 
+def decorate_buyer_seller_cards(items):
+    """Hydrate display facts in two bounded queries, independent of routing."""
+    from core.models import SellerExternalCard, RequestSellerReview
+    from core.services.seller_card_links import validate_card_url
+    from core.services.seller_card_display import route_links
+    ids = [item['seller'].pk for item in items]
+    stats = {row['seller_id']: row for row in RequestSellerReview.objects.filter(
+        seller_id__in=ids, public_consent=True, moderated=True,
+        request__purchase_result='purchased').values('seller_id')
+        .annotate(review_count=Count('pk'), review_rating=Avg('rating'))}
+    maps = {}
+    for card in SellerExternalCard.objects.filter(seller_id__in=ids, source='two_gis'):
+        url, error = validate_card_url('two_gis', card.card_url)
+        if url and not error:
+            maps.setdefault(card.seller_id, url)
+    for item in items:
+        seller = item['seller']
+        routes = route_links(seller.latitude, seller.longitude)
+        item['two_gis_url'] = maps.get(seller.pk) or (routes[0]['url'] if routes else '')
+        item.update(stats.get(seller.pk, {'review_count': 0, 'review_rating': None}))
+    return items
+
+
 def buyer_seller_page(req, number):
     """Cache public directory ordering only; hydrate and recheck every displayed shop.
 
@@ -345,6 +368,7 @@ def buyer_seller_page(req, number):
                         for item in page if 'directory_id' not in item or item['directory_id'] in current]
     for item in page:
         item['specialization'] = seller_specialization(item['seller'])
+    decorate_buyer_seller_cards(page.object_list)
     return page
 
 
@@ -361,7 +385,7 @@ def directory_contact(seller, req, channel):
     """Public business contacts only; never grants a seller access to buyer data."""
     if channel == 'whatsapp':
         return seller_whatsapp_url(seller,
-            f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. Категория: {req.category}. Уточните наличие и цену.')
+            f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. {req.public_summary or req.category}. Уточните наличие и цену.')
     if channel == 'telegram':
         for link in seller.social_links.all():
             if link.kind == 'telegram' and (target := telegram_contact(link.url)):

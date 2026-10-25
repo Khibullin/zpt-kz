@@ -25,6 +25,59 @@ class ApprovedWorkflowTests(TestCase):
         self.staff = get_user_model().objects.create_superuser(username='staff', email='staff@example.com', password='test-secret')
     def buyer(self, step):
         return reverse('workflow_buyer_step', args=[self.req.pk, self.req.access_token, step])
+    def test_buyer_cards_show_saved_address_map_and_real_review_state(self):
+        self.req.transport_type = 'car'
+        self.req.save(update_fields=['transport_type'])
+        from core.models import SellerExternalCard
+        self.seller.address = 'ул. Проверочная, 12'
+        self.seller.save(update_fields=['address'])
+        SellerExternalCard.objects.create(seller=self.seller, source='two_gis',
+            external_id='700000010000001', card_url='https://2gis.kz/almaty/firm/700000010000001')
+        response = self.client.get(self.buyer('sellers'))
+        for value in ('ул. Проверочная, 12', 'Посмотреть в 2ГИС', 'Пока нет отзывов',
+                      'Оставить отзыв', 'О продавце', 'Написать продавцу',
+                      'https://2gis.kz/almaty/firm/700000010000001'):
+            self.assertContains(response, value)
+        self.assertNotContains(response, 'Специализацию уточните')
+        self.assertNotContains(response, 'store-icon')
+        reviewed = Request.objects.create(purchase_result='purchased')
+        RequestSellerReview.objects.create(request=reviewed, seller=self.seller, rating=4,
+                                          public_consent=True, moderated=True)
+        private = Request.objects.create(purchase_result='purchased')
+        RequestSellerReview.objects.create(request=private, seller=self.seller, rating=1,
+                                          public_consent=False, moderated=True)
+        response = self.client.get(self.buyer('sellers'))
+        self.assertContains(response, 'Отзывы: 1')
+        self.assertNotContains(response, 'Пока нет отзывов')
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.purchase_result, '')
+
+    def test_contacted_directory_seller_can_be_reviewed_after_confirmed_purchase(self):
+        shop = Seller.objects.create(name='Авторазбор из каталога', city='Алматы')
+        RequestInteraction.objects.create(request=self.req, seller=shop, actor='buyer', kind='whatsapp_click', source='public_directory')
+        self.assertFalse(Match.objects.filter(request=self.req, seller=shop).exists())
+        self.assertEqual(self.client.post(self.buyer('result'), {'result': 'purchased'}).status_code, 302)
+        self.assertEqual(self.client.post(self.buyer('seller'), {'seller': str(shop.pk)}).status_code, 302)
+        response = self.client.post(self.buyer('review'), {'rating': 5, 'text': 'Спасибо', 'public_consent': 'on'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(RequestSellerReview.objects.get(request=self.req).seller, shop)
+        self.assertFalse(Match.objects.filter(request=self.req, seller=shop).exists())
+
+    def test_dismantler_cards_use_same_design_and_real_coordinates(self):
+        self.req.transport_type = 'car'
+        self.req.save(update_fields=['transport_type'])
+        self.req.is_dismantler_request = True
+        self.req.save(update_fields=['is_dismantler_request'])
+        self.seller.is_dismantler = True
+        self.seller.latitude, self.seller.longitude = '43.238949', '76.889709'
+        self.seller.save()
+        response = self.client.get(self.buyer('sellers'))
+        self.assertContains(response, 'Авторазборы по вашей заявке')
+        self.assertContains(response, 'Посмотреть в 2ГИС')
+        self.assertContains(response, '76.889709,43.238949')
+        self.assertContains(response, 'Написать продавцу')
+        self.assertNotContains(response, 'Примерная')
+
     def test_buyer_screens_and_no_mandatory_seller_for_purchase(self):
         self.req.year = 2001
         self.req.save(update_fields=['year'])

@@ -154,6 +154,14 @@ def buyer_step(request, req_id, access_token, step):
         raise Http404
     form = None
     participants = Match.objects.filter(request=req).select_related('seller')
+    if step in ('seller', 'review'):
+        from types import SimpleNamespace
+        participants = list(participants)
+        known = {match.seller_id for match in participants}
+        contacted = RequestInteraction.objects.filter(request=req, actor='buyer',
+            kind__in=['whatsapp_click', 'telegram_click', 'call_click']).values_list('seller_id', flat=True)
+        participants += [SimpleNamespace(seller=seller, seller_id=seller.pk)
+                         for seller in Seller.objects.filter(pk__in=contacted).exclude(pk__in=known)]
     if step == 'sellers':
         page = service.buyer_seller_page(req, request.GET.get('page'))
         service.record_impressions(req, page)
@@ -200,7 +208,9 @@ def buyer_step(request, req_id, access_token, step):
         return redirect('workflow_buyer_step', req.pk, req.access_token, 'result')
     if step == 'seller' and request.method == 'POST':
         seller_id = request.POST.get('seller')
-        seller = get_object_or_404(participants, seller_id=seller_id).seller if str(seller_id).isdigit() else None
+        seller = next((match.seller for match in participants if str(match.seller.pk) == seller_id), None)
+        if str(seller_id).isdigit() and seller is None:
+            raise Http404
         if seller_id not in ('other', 'skip') and seller is None:
             return HttpResponse('Выберите продавца или пропустите вопрос.', status=400)
         with transaction.atomic():
@@ -299,9 +309,10 @@ def buyer_shop(request, req_id, access_token, seller_id):
     if item is None:
         raise Http404
     from core.services.seller_card_display import build_seller_card
+    service.decorate_buyer_seller_cards([item])
     item['public_card'] = build_seller_card(item['seller'])
     item['specialization'] = service.seller_specialization(item['seller'])
-    return render(request, 'core/connections/shop.html', {'req': req, 'item': item, 'reviews': RequestSellerReview.objects.filter(seller_id=seller_id, public_consent=True, moderated=True, request__purchase_result='purchased').order_by('-created_at')[:10]})
+    return render(request, 'core/connections/shop.html', {'req': req, 'item': item, 'can_review': req.purchase_result == 'purchased' and RequestInteraction.objects.filter(request=req, seller_id=seller_id, actor='buyer', kind='purchase_confirmed').exists(), 'reviews': RequestSellerReview.objects.filter(seller_id=seller_id, public_consent=True, moderated=True, request__purchase_result='purchased').order_by('-created_at')[:10]})
 
 
 @guarded
