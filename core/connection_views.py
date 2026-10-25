@@ -269,6 +269,7 @@ def seller_quality(request):
         return redirect(request.path)
     events = seller.interactions
     return render(request, 'core/connections/quality.html', {'seller': seller,
+        'response_metrics': service.response_metrics([seller])[seller.pk],
         'impressions': events.filter(actor='buyer', kind='impression').count(),
         'clicks': events.filter(kind__in=['whatsapp_click', 'telegram_click']).count(),
         'purchases': events.filter(actor='buyer', kind='purchase_confirmed').count()})
