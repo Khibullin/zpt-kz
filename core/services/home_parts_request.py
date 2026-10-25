@@ -514,6 +514,7 @@ def create_home_parts_request_record(
     uploaded_photos,
     *,
     replay=False,
+    campaign_attribution=None,
 ) -> tuple[Request, list[RequestDispatch], bool]:
     from core.buyer_portal import ensure_buyer_portal_access
     from core.views import (
@@ -531,6 +532,7 @@ def create_home_parts_request_record(
     try:
         with transaction.atomic():
             req = Request.objects.create(
+                campaign_attribution=campaign_attribution or {},
                 transport_type=payload.transport_type,
                 country=payload.vehicle_country,
                 brand=payload.brand_name,

@@ -212,6 +212,20 @@ class HomePartsRequestTests(TestCase):
         buyer_wa.assert_called_once()
         instagram.assert_called_once()
 
+    def test_campaign_survives_form_submission_and_replay(self):
+        self.client.get('/find-part/?request=1&utm_source=telegram&utm_medium=paid_post&utm_campaign=auto_news_kz')
+        response, _, _ = self._post()
+        self.assertEqual(response.status_code, 200, response.content)
+        req = Request.objects.get()
+        expected = {'utm_source': 'telegram', 'utm_medium': 'paid_post', 'utm_campaign': 'auto_news_kz'}
+        self.assertEqual(req.campaign_attribution, expected)
+        self.client.get('/find-part/?request=1&utm_source=other&utm_campaign=second')
+        response, _, _ = self._post()
+        self.assertEqual(response.status_code, 200, response.content)
+        req.refresh_from_db()
+        self.assertEqual(Request.objects.count(), 1)
+        self.assertEqual(req.campaign_attribution, expected)
+
     def test_article_without_vehicle(self):
         response, _, _ = self._post(
             query='52119-0K040',

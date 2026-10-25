@@ -464,7 +464,7 @@ class RequestAdmin(admin.ModelAdmin):
         'vin',
     )
 
-    readonly_fields = ('buyer_contact', 'idempotency_key', 'manual_dispatch_link', 'telegram_prepare_link', 'connection_result')
+    readonly_fields = ('buyer_contact', 'idempotency_key', 'manual_dispatch_link', 'telegram_prepare_link', 'connection_result', 'campaign_attribution')
 
     @admin.display(description='Telegram')
     def telegram_prepare_link(self, obj):
