@@ -75,13 +75,13 @@ def is_excluded_city_whatsapp(raw_phone: object) -> bool:
 
 
 def seller_whatsapp_phone(seller) -> str:
-    """Select this card's next stored contact only when its primary is excluded.
+    """Select the next stored contact when the primary is blank or excluded.
 
     Does not rewrite the primary phone (also used for calls/account lookup),
     infer contacts from organization names, or check/send WhatsApp messages.
     """
     primary = getattr(seller, 'whatsapp', '')
-    if not is_excluded_city_whatsapp(primary):
+    if str(primary or '').strip() and not is_excluded_city_whatsapp(primary):
         return normalize_phone_for_whatsapp(primary) or ''
     candidates = [getattr(seller, 'phone2', '')]
     extras = getattr(seller, 'extra_phones', None)
