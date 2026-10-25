@@ -4,7 +4,7 @@ from core.services.seller_identity import normalize_seller_whatsapp, normalize_s
 
 
 class ClaimPhoneForm(forms.Form):
-    phone = forms.CharField(label='Телефон магазина', max_length=30, widget=forms.TextInput(attrs={'placeholder': '+7 (___) ___-__-__', 'inputmode': 'tel', 'autocomplete': 'tel'}))
+    phone = forms.CharField(label='Телефон магазина', max_length=30, widget=forms.TextInput(attrs={'type': 'tel', 'placeholder': '+7 (777) 123-45-67', 'inputmode': 'tel', 'autocomplete': 'tel', 'data-kz-phone': '1'}))
 
     def clean_phone(self):
         phone = normalize_seller_whatsapp(self.cleaned_data['phone'])
