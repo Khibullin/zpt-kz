@@ -31,6 +31,17 @@ class SellerWhatsappSelectionTests(SimpleTestCase):
         shop.whatsapp = '77021234567'
         self.assertEqual(seller_whatsapp_phone(shop), '77021234567')
 
+    def test_blank_primary_uses_stored_secondary_and_keeps_invalid_primary_closed(self):
+        shop = SimpleNamespace(whatsapp='', phone2='8 (701) 123-45-67')
+        self.assertEqual(seller_whatsapp_phone(shop), '77011234567')
+        self.assertEqual(shop.whatsapp, '')
+        shop.whatsapp = '   '
+        self.assertEqual(seller_whatsapp_phone(shop), '77011234567')
+        shop.whatsapp = 'src70000001012345678'
+        self.assertEqual(seller_whatsapp_phone(shop), '')
+        shop.whatsapp, shop.phone2 = '', '77271234567'
+        self.assertEqual(seller_whatsapp_phone(shop), '')
+
     def test_service_import_contacts_are_read_in_order_only_from_contacts_column(self):
         shop = SimpleNamespace(whatsapp='77271234567', catalog_notes='IMPORT 77099999999\n' + json.dumps({
             'ID организации': '77088888888', 'Контакты': '+77271234567, +7 (747) 123-45-67, +77021234567'}))
@@ -67,6 +78,21 @@ class SellerWhatsappCardTests(TestCase):
         self.assertEqual(card['primary_phone']['tel'], 'tel:+77271234567')
         req = SimpleNamespace(pk=1, brand='Toyota', model='Camry', category='Двигатель')
         self.assertEqual(directory_contact(self.shop, req, 'whatsapp'), '')
+
+    def test_blank_primary_restores_public_button_from_extra_phone_without_identity_change(self):
+        self.shop.whatsapp, self.shop.phone2 = '', ''
+        self.shop.save(update_fields=['whatsapp', 'phone2'])
+        SellerExtraPhone.objects.create(seller=self.shop, phone='77271234569')
+        SellerExtraPhone.objects.create(seller=self.shop, phone='77011234567')
+        card = build_seller_card(self.shop)
+        self.assertEqual(card['whatsapp_url'], 'https://wa.me/77011234567')
+        page = self.client.get(f'/parts-seller/{self.shop.pk}/')
+        self.assertContains(page, 'https://wa.me/77011234567')
+        req = SimpleNamespace(pk=1, brand='Toyota', model='Camry', category='Двигатель')
+        self.assertTrue(directory_contact(self.shop, req, 'whatsapp').startswith('https://wa.me/77011234567?text='))
+        self.shop.refresh_from_db()
+        self.assertEqual(self.shop.whatsapp, '')
+        self.assertEqual(self.shop.phone2, '')
 
     def test_template_filters_use_the_same_next_number(self):
         from django.template import Context, Template
