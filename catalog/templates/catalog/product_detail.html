@@ -230,7 +230,7 @@
     font-size:14px;
   "
 >
-  {% if stock_status.code == 'in' %}✓ {% endif %}{{ stock_status.label }}
+  {% if stock_status.code == 'in' %}{% endif %}{{ stock_status.label }}
 </div>
 
 <div
@@ -263,11 +263,11 @@
                 href="{% url 'public_seller_profile' seller.slug %}"
                 class="product-seller-name"
               >
-                {{ seller.name }} ✓
+                {{ seller.name }}
               </a>
             {% else %}
               <div class="seller-trust-name">
-                {{ product.seller_name }} ✓
+                {{ product.seller_name }}
               </div>
             {% endif %}
 
@@ -410,10 +410,10 @@
               </a>
 
               {% if seller.city %}
-                <p>📍 {{ seller.city }}</p>
+                <p> {{ seller.city }}</p>
               {% endif %}
 
-              <p>📱 {{ seller.phone|format_phone }}</p>
+              <p> {{ seller.phone|format_phone }}</p>
             </div>
           </div>
 

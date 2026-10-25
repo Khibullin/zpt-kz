@@ -80,6 +80,13 @@ def claim(request):
                 request.session['claim_source'] = source(request)
             else:
                 form.add_error(None, 'Карточка не найдена. Проверьте телефон или добавьте магазин.')
+    # A test mirror must not appear as a second real shop in public onboarding.
+    # Keep the identity lookup and both stored accounts intact.
+    ordinary_keys = {(s.name.strip().casefold(), s.city.strip().casefold()) for s in sellers if not s.is_test_seller}
+    sellers = [s for s in sellers if not s.is_test_seller or
+               (s.name.strip().casefold(), s.city.strip().casefold()) not in ordinary_keys]
+    if sellers:
+        request.session['claim_candidates'] = [s.pk for s in sellers]
     # Only the public name and city are rendered, not the raw model/contact.
     return render(request, 'core/connections/claim.html', {'form': form, 'new': new,
         'candidates': [{'pk': s.pk, 'name': s.name, 'city': s.city} for s in sellers],

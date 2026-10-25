@@ -43,6 +43,10 @@ document.addEventListener('change', (event) => {
     if (digits.length > 8) value += '-' + digits.slice(8);
     return value;
   }
+  function warn(field, text) {
+    const status = field.parentElement.querySelector('[data-phone-warning]');
+    if (status) { status.textContent = text; status.hidden = !text; }
+  }
   function update(field, caret) {
     const original = field.value;
     const {digits, country} = parts(original);
@@ -51,6 +55,7 @@ document.addEventListener('change', (event) => {
     const nationalBefore = Math.max(0, before - (country ? 1 : 0));
     field.value = digits || document.activeElement === field ? formatted(digits) : '';
     field.setCustomValidity(digits.length === 10 ? '' : 'Введите 10 цифр номера после +7.');
+    warn(field, digits.length > 10 ? 'Слишком много цифр. После +7 должно быть ровно 10 цифр.' : '');
     if (document.activeElement !== field) return;
     let target = field.value.length;
     if (offset < original.length) {
@@ -64,11 +69,28 @@ document.addEventListener('change', (event) => {
   }
   function init() {
     document.querySelectorAll('[data-kz-phone]').forEach(field => {
+      const status = document.createElement('span');
+      status.dataset.phoneWarning = '1';
+      status.className = 'phone-warning';
+      status.setAttribute('role', 'status');
+      status.setAttribute('aria-live', 'polite');
+      status.id = (field.id || 'shop-phone') + '-warning';
+      status.hidden = true;
+      field.after(status);
+      field.setAttribute('aria-describedby', [field.getAttribute('aria-describedby'), status.id].filter(Boolean).join(' '));
       update(field);
       field.addEventListener('focus', () => update(field));
       field.addEventListener('input', () => update(field));
       field.addEventListener('blur', () => update(field));
       field.addEventListener('beforeinput', event => {
+        if (event.inputType && event.inputType.startsWith('insert') && event.data) {
+          const next = field.value.slice(0, field.selectionStart) + event.data + field.value.slice(field.selectionEnd);
+          if (parts(next).digits.length > 10) {
+            event.preventDefault();
+            warn(field, 'Номер уже заполнен: после +7 — только 10 цифр. Лишние цифры не добавлены.');
+            return;
+          }
+        }
         if (!['deleteContentBackward', 'deleteContentForward'].includes(event.inputType)) return;
         const start = field.selectionStart;
         if (start !== field.selectionEnd) return;

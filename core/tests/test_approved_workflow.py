@@ -493,3 +493,23 @@ class NewShopSpecializationTests(TestCase):
         seller = Seller.objects.get(whatsapp='77009991122')
         self.assertFalse(seller.selected_brands.exists())
         self.assertFalse(seller.selected_categories.exists())
+
+
+@override_settings(TWO_WAY_REQUESTS_ENABLED=True, ALLOWED_HOSTS=['testserver'])
+class ShopClaimDuplicateTests(TestCase):
+    def test_test_mirror_is_hidden_without_deleting_or_merging_accounts(self):
+        real = Seller.objects.create(name='AG Parts', city='Алматы', whatsapp='77713607040')
+        mirror = Seller.objects.create(name='AG Parts', city='Алматы', whatsapp='77713607040', is_test_seller=True)
+        branch = Seller.objects.create(name='Другой магазин', city='Алматы', whatsapp='77713607040')
+        response = self.client.post(reverse('workflow_claim'), {'phone':'+7 (771) 360-70-40'})
+        self.assertEqual([s['pk'] for s in response.context['candidates']], [real.pk, branch.pk])
+        self.assertEqual(self.client.session['claim_candidates'], [real.pk, branch.pk])
+        self.assertTrue(Seller.objects.filter(pk=mirror.pk, is_test_seller=True).exists())
+        self.assertNotContains(response, '<svg')
+
+    def test_overlong_phone_is_rejected_without_a_lookup(self):
+        with patch('core.workflow_views.find_sellers_by_phone') as lookup:
+            response = self.client.post(reverse('workflow_claim'), {'phone':'+7 (771) 360-70-401'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.context['form'].errors.get('phone'))
+        lookup.assert_not_called()
