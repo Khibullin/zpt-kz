@@ -515,6 +515,7 @@ def create_home_parts_request_record(
     *,
     replay=False,
     campaign_attribution=None,
+    publication_consent_version="",
 ) -> tuple[Request, list[RequestDispatch], bool]:
     from core.buyer_portal import ensure_buyer_portal_access
     from core.views import (
@@ -554,6 +555,9 @@ def create_home_parts_request_record(
                 idempotency_fingerprint=fingerprint,
                 phone=payload.phone,
             )
+            if publication_consent_version == 'submit_telegram_v1':
+                from core.services.telegram_auto_publication import record_submission_consent
+                record_submission_consent(req)
             ensure_buyer_portal_access(req.phone)
             _save_request_photos(req, uploaded_photos)
             sellers, routing_strategy = _find_matching_sellers(req)
