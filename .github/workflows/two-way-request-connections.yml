@@ -5,6 +5,8 @@ on:
       - 'core/**'
       - 'service_requests/migrations/0017_fix_audited_map_links.py'
       - 'service_requests/test_audited_map_links.py'
+      - 'service_requests/migrations/0018_verified_address_details.py'
+      - 'service_requests/test_verified_address_details.py'
       - 'static/css/card-refresh.css'
       - 'templates/base*.html'
       - 'catalog/tests/test_dismantler_detail_layout.py'
@@ -43,7 +45,7 @@ jobs:
           core.tests.test_seller_request_filters core.tests.test_request_dispatch_waves
           catalog.tests.test_interface_release catalog.tests.test_dismantlers_design
           catalog.tests.test_dismantler_detail_layout catalog.tests.test_product_card_design
-          service_requests.test_audited_map_links service_requests.test_repair_directory
+          service_requests.test_audited_map_links service_requests.test_repair_directory service_requests.test_verified_address_details
           --settings=backend.settings_ui_ci --noinput
   postgres-concurrency:
     runs-on: ubuntu-latest
