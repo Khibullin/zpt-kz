@@ -3828,6 +3828,12 @@ class RequestConsentEvent(models.Model):
         ordering = ['created_at', 'id']
 
 
+SELLER_ACCESS_NOTICE_CHOICES = [
+    ('pending', 'В очереди'), ('sending', 'Отправляется'), ('sent', 'Принято почтовым сервером'),
+    ('failed', 'Ошибка отправки'), ('skipped', 'Не поставлено в очередь'),
+]
+
+
 class SellerAccessClaim(models.Model):
     """A claim is not proof of identity; staff verifies the pre-existing contact."""
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -3843,6 +3849,9 @@ class SellerAccessClaim(models.Model):
     token_expires_at = models.DateTimeField(null=True, blank=True)
     redeemed_at = models.DateTimeField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    owner_notice_status = models.CharField(max_length=16, default='pending', choices=SELLER_ACCESS_NOTICE_CHOICES)
+    owner_notice_sent_at = models.DateTimeField(null=True, blank=True)
+    owner_notice_recipient = models.EmailField(blank=True)
 
 
 class RequestOutcomeEvent(models.Model):
