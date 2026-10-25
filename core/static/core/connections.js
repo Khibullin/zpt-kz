@@ -83,7 +83,7 @@ document.addEventListener('change', (event) => {
       field.addEventListener('input', () => update(field));
       field.addEventListener('blur', () => update(field));
       field.addEventListener('beforeinput', event => {
-        if (event.inputType && event.inputType.startsWith('insert') && event.data) {
+        if (event.inputType && event.inputType.startsWith('insert') && event.data && /^\d$/.test(event.data)) {
           const next = field.value.slice(0, field.selectionStart) + event.data + field.value.slice(field.selectionEnd);
           if (parts(next).digits.length > 10) {
             event.preventDefault();
