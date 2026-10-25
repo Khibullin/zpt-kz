@@ -341,3 +341,40 @@ class ApprovedWorkflowTests(TestCase):
         self.assertFalse(RequestBuyerFollowup.objects.exists())
         self.client.post(url,{'action':'manual','confirmed':'on'})
         self.assertEqual(RequestBuyerFollowup.objects.get().status,'manual')
+
+    @patch('core.management.commands.send_buyer_result_question._call_api', return_value={'message_id': 901})
+    def test_result_question_channels_are_explicit_and_do_not_confirm_purchase(self, api):
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+        from io import StringIO
+        from core.models import RequestBuyerChannel, RequestBuyerFollowup
+        args = {'request': self.req.pk, 'actor': self.staff.pk, 'stdout': StringIO()}
+        with self.assertRaises(CommandError):
+            call_command('send_buyer_result_question', apply=True, **args)
+        api.assert_not_called()
+        RequestBuyerChannel.objects.create(request=self.req, telegram_id=123, telegram_consent=True)
+        call_command('send_buyer_result_question', **args)
+        api.assert_not_called()
+        call_command('send_buyer_result_question', apply=True, **args)
+        self.assertEqual(api.call_count, 1)
+        with self.assertRaises(CommandError):
+            call_command('send_buyer_result_question', apply=True, **args)
+        self.assertEqual(api.call_count, 1)
+        self.assertEqual(RequestBuyerFollowup.objects.get().status, 'sent')
+        self.req.refresh_from_db()
+        self.assertNotIn(self.req.purchase_result, ('purchased', 'closed'))
+        self.assertFalse(RequestInteraction.objects.filter(kind__in=['contact_confirmed', 'purchase_confirmed']).exists())
+
+    def test_close_and_repeat_search_require_buyer_confirmation_and_preserve_history(self):
+        for choice, expected in [('close', 'closed'), ('search', 'search_again')]:
+            response = self.client.post(self.buyer('result'), {'result': choice})
+            self.assertEqual(response.status_code, 302)
+            self.req.refresh_from_db()
+            self.assertNotEqual(self.req.purchase_result, expected)
+            for _ in range(2):
+                self.client.post(self.buyer(choice), {'reason': 'Не нашёл', 'comment': 'Тест результата'})
+            self.req.refresh_from_db()
+            self.assertEqual(self.req.purchase_result, expected)
+            self.assertEqual(RequestOutcomeEvent.objects.filter(request=self.req, result=expected).count(), 1)
+        self.assertFalse(RequestInteraction.objects.filter(kind='purchase_confirmed').exists())
+        self.assertFalse(RequestSellerNotification.objects.exists())
