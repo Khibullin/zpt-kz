@@ -155,9 +155,9 @@ class ApprovedWorkflowTests(TestCase):
         self.assertEqual(self.client.post(reverse('connection_seller_contact', args=[self.req.pk, 'call'])).status_code, 302)
         self.assertTrue(RequestInteraction.objects.filter(kind='call_click').exists())
         self.req.refresh_from_db(); self.assertEqual(self.req.purchase_result, '')
-    def test_no_contact_without_interest(self):
+    def test_contact_page_opens_without_separate_interest_step(self):
         self.client.force_login(self.user)
-        self.assertEqual(self.client.get(reverse('workflow_seller_contact_page', args=[self.req.pk])).status_code, 403)
+        self.assertEqual(self.client.get(reverse('workflow_seller_contact_page', args=[self.req.pk])).status_code, 200)
     def test_channel_consents_and_binding_not_auto_on_get(self):
         self.client.force_login(self.user)
         for name in ('workflow_channels', 'workflow_telegram_connect', 'workflow_profile_edit', 'connection_quality'):

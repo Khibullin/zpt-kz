@@ -40,6 +40,19 @@ def seller_can_participate(seller):
     return bool(seller and seller.user_id and seller.is_active and not seller.is_paused and not seller.catalog_only)
 
 
+def can_start_buyer_contact(req, seller):
+    """A contact click can create participation; no separate interest step."""
+    return bool(seller_can_participate(seller) and seller.contact_access_verified
+                and req.contact_consent_at and not req.access_revoked
+                and req.seller_feed_enabled and safe_summary(req)
+                and req.purchase_result not in ('purchased', 'closed'))
+
+
+def buyer_message(req):
+    vehicle = ' '.join(str(value) for value in (req.brand, req.model, req.year) if value)
+    return f'Здравствуйте! По вашей заявке ZPT.KZ №{req.pk}: {req.public_summary}. Автомобиль: {vehicle}. '
+
+
 def can_open_contacts(req, seller):
     return bool(seller_can_participate(seller) and seller.contact_access_verified
                 and req.contact_consent_at and not req.access_revoked

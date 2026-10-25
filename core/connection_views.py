@@ -11,6 +11,7 @@ from django.views.decorators.http import require_http_methods, require_POST
 
 from core.connection_forms import BuyerPermissionsForm, OfferForm, SellerLoginForm, SellerJoinForm
 from core.models import Match, Request, RequestInteraction, RequestOffer, RequestConsentEvent
+from core.phone_utils import build_whatsapp_url as buyer_whatsapp_url
 from core.services import request_connections as service
 from core.services.seller_identity import authenticate_unified_seller, get_logged_request_seller, SellerIdentityError, create_unified_seller_account
 
@@ -170,7 +171,9 @@ def detail(request, req_id):
         form = form or OfferForm(instance=RequestOffer.objects.filter(request=req, seller=seller).first())
     return render(request, 'core/connections/detail.html', {
         'req': req, 'summary': service.safe_summary(req), 'seller': seller, 'form': form,
-        'can_contact': service.can_open_contacts(req, seller), 'message': message,
+        'can_contact': service.can_start_buyer_contact(req, seller), 'message': message,
+        'whatsapp': bool(buyer_whatsapp_url(req.phone)),
+        'telegram': bool(service.telegram_contact(req.buyer_telegram)),
         'seller_actions': [('contact_confirmed', 'Общение состоялось'), ('supply_confirmed', 'Могу поставить'),
                            ('purchase_reported', 'Сообщить о продаже'), ('out_of_stock', 'Нет в наличии'),
                            ('cannot_fulfill', 'Не могу выполнить')],
@@ -280,22 +283,34 @@ def seller_quality(request):
 def seller_contact(request, req_id, channel):
     req = get_object_or_404(Request, pk=req_id)
     seller = seller_or_none(request)
-    if not service.can_open_contacts(req, seller):
-        return HttpResponseForbidden()
-    if channel == 'telegram':
-        target = service.telegram_contact(req.buyer_telegram)
-    elif channel == 'whatsapp':
-        from core.phone_utils import build_whatsapp_url
-        target = build_whatsapp_url(req.phone, f'Здравствуйте! По заявке ZPT.KZ №{req.pk}.')
-    elif channel == 'call':
-        from core.services.seller_identity import normalize_seller_whatsapp
-        number = normalize_seller_whatsapp(req.phone)
-        target = 'tel:+' + number if number else ''
-    else:
-        raise Http404
-    if not target:
-        raise Http404
-    service.record(req, seller, 'seller', ('call' if channel == 'call' else channel) + '_click')
+    if not seller:
+        return login_redirect(req.pk, request.POST.get('source', 'site') if request.POST.get('source') in ('telegram', 'whatsapp') else 'site')
+    if not service.can_start_buyer_contact(req, seller):
+        return HttpResponseForbidden('Для связи нужен подтверждённый аккаунт продавца и действующее согласие покупателя.')
+    with transaction.atomic():
+        req = Request.objects.select_for_update().get(pk=req.pk)
+        if not service.can_start_buyer_contact(req, seller):
+            return HttpResponseForbidden()
+        if channel == 'telegram':
+            from urllib.parse import urlencode
+            target = service.telegram_contact(req.buyer_telegram)
+            if target:
+                target += '?' + urlencode({'text': service.buyer_message(req)})
+        elif channel == 'whatsapp':
+            from core.phone_utils import build_whatsapp_url
+            target = build_whatsapp_url(req.phone, service.buyer_message(req))
+        elif channel == 'call':
+            from core.services.seller_identity import normalize_seller_whatsapp
+            number = normalize_seller_whatsapp(req.phone)
+            target = 'tel:+' + number if number else ''
+        else:
+            raise Http404
+        if not target:
+            raise Http404
+        service.participate(req, seller, request.POST.get('source') if request.POST.get('source') in ('telegram', 'whatsapp') else 'site')
+        if not service.can_open_contacts(req, seller):
+            return HttpResponseForbidden()
+        service.record(req, seller, 'seller', ('call' if channel == 'call' else channel) + '_click')
     if channel == 'call':
         from django.http import HttpResponseRedirect
         class PhoneRedirect(HttpResponseRedirect):
