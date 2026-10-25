@@ -42,7 +42,7 @@
       data-product-article="{{ product.article|default:'' }}"
       data-product-supplier="{{ product.supplier|default:'local' }}"
     >
-      <span class="product-buy-btn-icon" aria-hidden="true">{% if card_design %}{% ui_icon 'cart' %}{% else %}🛒{% endif %}</span>
+      <span class="product-buy-btn-icon" aria-hidden="true">{% if card_design %}{% ui_icon 'cart' %}{% else %}{% endif %}</span>
       <span class="product-buy-btn-text"{% if card_design %} data-ru="В корзину" data-kk="Себетке"{% endif %}>{% if card_design %}В корзину{% else %}Купить{% endif %}</span>
     </button>
     {% if show_wholesale %}
@@ -55,7 +55,7 @@
       data-product-article="{{ product.article|default:'' }}"
       data-product-supplier="{{ product.supplier|default:'local' }}"
     >
-      <span class="product-buy-btn-icon" aria-hidden="true">🛒</span>
+      <span class="product-buy-btn-icon" aria-hidden="true"></span>
       <span class="product-buy-btn-text">Купить оптом</span>
     </button>
     {% endif %}

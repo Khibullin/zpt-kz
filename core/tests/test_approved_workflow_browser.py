@@ -168,6 +168,9 @@ await phone.focus();
 if(await phone.inputValue()!=='+7') throw new Error('Phone prefix is missing');
 await phone.pressSequentially('7771234567');
 if(await phone.inputValue()!=='+7 (777) 123-45-67') throw new Error('Phone typing format');
+await phone.pressSequentially('9');
+if(await phone.inputValue()!=='+7 (777) 123-45-67') throw new Error('Extra typed digit was not blocked');
+if(!await page.locator('[data-phone-warning]').isVisible()) throw new Error('Extra digit warning missing');
 for(const value of ['87771234567','7771234567','+7 (777) 123-45-67','77771234567']) {
 await phone.fill(value);
 if(await phone.inputValue()!=='+7 (777) 123-45-67') throw new Error('Phone paste format: '+value);
@@ -183,6 +186,7 @@ await page.keyboard.insertText('701');
 if(await phone.inputValue()!=='+7 (701) 123-45-67') throw new Error('Phone middle editing');
 await phone.fill('777123456789');
 if(await phone.evaluate(el=>el.checkValidity())) throw new Error('Overlong phone silently truncated');
+if(!await page.locator('[data-phone-warning]').isVisible()) throw new Error('Overlong paste warning missing');
 await phone.fill('7771234567');
 }
 if(file==='new-shop.html') {
@@ -215,6 +219,9 @@ if((await card.boundingBox()).width<(await grid.boundingBox()).width-2) throw ne
 }
 if(file==='public-dismantler.html') {
 if(await page.locator('.org-phones a').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)<22)) throw new Error('Directory phone is too small');
+}
+for(const icon of await page.locator('svg[aria-hidden="true"]:not(.art):not(.service-art):not(.dismantle-company-art)').all()) {
+if(await icon.isVisible()) throw new Error('Decorative icon is still visible: '+file);
 }
 if(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)) throw new Error('Horizontal overflow: '+file+' width '+width);
 if(file==='admin-manual-prepared.html') {

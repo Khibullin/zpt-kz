@@ -222,3 +222,19 @@ body .product.product-v2.product-card-approved :is(.product-buy-btn,.product-det
 body .product-info-card :is(button,.btn,.product-detail-buy a){box-sizing:border-box;max-width:100%;min-height:48px;font-size:17px;white-space:normal}
 body .product-info-card .detail-box-whatsapp .detail-value{font-size:22px;font-weight:800;color:var(--card-ink)}
 body .product.product-card-approved .product-card-stock--unknown,body .product.product-card-approved .product-card-stock--out{color:#526176}
+
+/* Owner request: text-only controls and cards, no decorative icons. */
+body :is(svg[aria-hidden="true"]:not(.art):not(.service-art):not(.dismantle-company-art),
+.icon,.store-icon,.channel-icon,.state-symbol,.add-symbol,.check,.org-entry-icon,
+.card-seller-icon,.card-icon,.symbol,.seller-contact-icon,.info-icon,.market-cart-icon,
+.market-mobile-business-icon,.product-buy-btn-icon,.ios-pwa-prompt-inline-icon,.faq-icon){display:none!important}
+body .user-label,body .market-cart-label,body .market-mobile-business-text,body .product-share-label{display:inline!important}
+body .product-share-btn{width:auto!important;min-width:44px;padding:8px 12px!important}
+body .header-cart,body .cart-link{width:auto;min-width:0;font-size:14px}
+body .candidate-identity{gap:0}
+body .mobile-nav{align-items:center}
+body .mobile-nav a{min-height:48px;justify-content:center}
+body .phone-warning:not([hidden]){display:block;margin-top:7px;color:#b42318;font-size:14px;font-weight:600;line-height:1.4}
+
+@media(max-width:760px){body .header-tools>a[aria-label="Кабинет"]{display:none!important}body .header-tools{gap:3px}body .header-tools .plain{padding:2px;font-size:12px}body .header-tools .city-select{max-width:70px}body .header-cart{font-size:12px}}
+body .zpt-guide-dialog__mic{width:auto;min-width:64px}

@@ -53,7 +53,8 @@ WORDS.update({
 
 @register.simple_tag
 def ui_icon(key):
-    return format_html('<svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="{}"/></svg>', ICONS[key])
+    # Owner requested text-only navigation and cards site-wide.
+    return ''
 
 @register.simple_tag
 def ui_art(key):

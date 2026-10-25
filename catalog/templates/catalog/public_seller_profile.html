@@ -29,10 +29,10 @@
               <h1>{{ seller.name }}</h1>
 
               {% if seller.city %}
-                <p class="seller-profile-city">📍 {{ seller.city }}</p>
+                <p class="seller-profile-city"> {{ seller.city }}</p>
               {% endif %}
 
-              <p class="seller-profile-phone">📱 {{ seller.phone|format_phone }}</p>
+              <p class="seller-profile-phone"> {{ seller.phone|format_phone }}</p>
 
               {% include 'catalog/includes/seller_social_chips.html' with seller=seller show_seller_socials=True wrapper_class='public-seller-socials' only %}
             </div>
@@ -41,13 +41,13 @@
           <div class="seller-profile-aside">
             <div class="seller-trust-badges">
               <div class="seller-trust-badge">
-                📦 На складе: {{ products_count }} запчастей
+                 На складе: {{ products_count }} запчастей
               </div>
               <div class="seller-trust-badge">
-                🛡️ Проверен ZPT
+                 Проверен ZPT
               </div>
               <div class="seller-trust-badge">
-                📅 На платформе с {{ platform_year }} г.
+                 На платформе с {{ platform_year }} г.
               </div>
             </div>
             {% if wholesale_storefront %}
@@ -68,7 +68,7 @@
         <div class="contacts-box seller-contacts-grid">
           {% if seller.address %}
           <div class="seller-contact-row">
-            <span class="seller-contact-icon" aria-hidden="true">📍</span>
+            <span class="seller-contact-icon" aria-hidden="true"></span>
             <div class="seller-contact-body">
               <div class="seller-contact-label">Адрес магазина</div>
               <div class="seller-contact-value">
@@ -79,7 +79,7 @@
           {% endif %}
 
           <div class="seller-contact-row">
-            <span class="seller-contact-icon" aria-hidden="true">📦</span>
+            <span class="seller-contact-icon" aria-hidden="true"></span>
             <div class="seller-contact-body">
               <div class="seller-contact-label">Самовывоз</div>
               <div class="seller-contact-value">
@@ -95,7 +95,7 @@
           </div>
 
           <div class="seller-contact-row">
-            <span class="seller-contact-icon" aria-hidden="true">🕒</span>
+            <span class="seller-contact-icon" aria-hidden="true"></span>
             <div class="seller-contact-body">
               <div class="seller-contact-label">График работы</div>
               <div class="seller-contact-value">
@@ -105,7 +105,7 @@
           </div>
 
           <div class="seller-contact-row">
-            <span class="seller-contact-icon" aria-hidden="true">📞</span>
+            <span class="seller-contact-icon" aria-hidden="true"></span>
             <div class="seller-contact-body">
               <div class="seller-contact-label">Телефоны для связи</div>
               <div class="seller-contact-value seller-contact-phones">
@@ -127,7 +127,7 @@
           </div>
 
           <div class="seller-contact-row">
-            <span class="seller-contact-icon" aria-hidden="true">🚚</span>
+            <span class="seller-contact-icon" aria-hidden="true"></span>
             <div class="seller-contact-body">
               <div class="seller-contact-label">Доставка и оплата</div>
               <div class="seller-contact-value">
