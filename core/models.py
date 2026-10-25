@@ -320,6 +320,10 @@ class BroadcastSettings(models.Model):
 
 
 class Request(models.Model):
+    campaign_attribution = models.JSONField(
+        default=dict, blank=True, verbose_name='Источник рекламы',
+        help_text='Метки кампании при создании заявки; не подтверждают покупку.',
+    )
     requested_quantity = models.PositiveIntegerField(null=True, blank=True, validators=[MinValueValidator(1)])
     buyer_priority = models.CharField(max_length=12, default='balanced', choices=[
         ('balanced', 'Подходящие условия'), ('price', 'Выгоднее по цене'),

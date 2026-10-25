@@ -91,6 +91,9 @@ def services_landing(request):
 
 def parts_entry(request):
     """Keep all existing parameterized form/result URLs and POST handling intact."""
+    from core.services.request_attribution import capture_request_campaign
+    if request.method == 'GET':
+        capture_request_campaign(request)
     if request.GET or request.method != 'GET':
         from .views import catalog_list
         return catalog_list(request)

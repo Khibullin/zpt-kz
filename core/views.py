@@ -1467,9 +1467,11 @@ def create_home_parts_request(request):
         )
 
     try:
+        from core.services.request_attribution import get_request_campaign
         req, dispatches, replay = create_home_parts_request_record(
             payload,
             uploaded_photos,
+            campaign_attribution=get_request_campaign(request),
         )
     except HomePartsRequestError as exc:
         body = {'error': exc.message, 'fields': exc.fields}
