@@ -1185,14 +1185,15 @@ body.home-vehicle-picker-open{
           <div class="home-parts-warning" id="home-parts-warning" hidden role="status"></div>
           <p class="home-parts-form-error" id="home-parts-form-error" hidden></p>
 
+          <p class="home-parts-consent-note">
+            Нажимая «Отправить заявку», вы соглашаетесь на <a href="{% url 'privacy' %}">обработку данных</a>,
+            передачу заявки подходящим продавцам и её автоматическую публикацию в Telegram-канале ZPT.KZ.
+            Имя, телефон и другие контактные данные в канале не публикуются.
+          </p>
+          <input type="hidden" name="publication_consent_version" value="submit_telegram_v1">
           <div class="home-parts-actions">
             <button type="submit" class="home-parts-submit" id="home-parts-submit">Отправить заявку</button>
           </div>
-          <p class="home-parts-consent-note">
-            Нажимая кнопку, вы соглашаетесь на
-            <a href="{% url 'privacy' %}">обработку данных</a>
-            и передачу запроса и телефона продавцам для подбора запчасти.
-          </p>
         </div>
       </form>
 

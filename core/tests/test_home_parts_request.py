@@ -186,6 +186,29 @@ class HomePartsRequestTests(TestCase):
                 response = self.client.post('/api/home-parts-request/', data=data)
         return response, buyer_wa, instagram
 
+    def test_submit_records_publication_consent_only_with_current_notice(self):
+        response, _, _ = self._post(publication_consent_version='submit_telegram_v1')
+        self.assertEqual(response.status_code, 200)
+        req = Request.objects.get()
+        self.assertIsNotNone(req.public_consent_at)
+        self.assertIsNotNone(req.contact_consent_at)
+        self.assertEqual(req.connection_consents.filter(
+            text_version='submit_telegram_v1', source='request_submit', granted=True).count(), 2)
+        req.public_consent_at = None
+        req.save(update_fields=['public_consent_at'])
+        response, _, _ = self._post(publication_consent_version='submit_telegram_v1')
+        self.assertEqual(response.status_code, 200)
+        req.refresh_from_db()
+        self.assertIsNone(req.public_consent_at)
+        self.assertEqual(req.connection_consents.count(), 2)
+
+    def test_old_form_does_not_gain_publication_consent(self):
+        response, _, _ = self._post()
+        self.assertEqual(response.status_code, 200)
+        req = Request.objects.get()
+        self.assertIsNone(req.public_consent_at)
+        self.assertFalse(req.connection_consents.exists())
+
     def test_home_short_creates_matched_kazakhstan_request(self):
         response, buyer_wa, instagram = self._post()
         self.assertEqual(response.status_code, 200, response.content)

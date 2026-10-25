@@ -1246,19 +1246,23 @@ def create_request(request):
             return JsonResponse({'error': str(exc)}, status=400)
 
         stage_started = time.perf_counter()
-        req = Request.objects.create(
-            transport_type=transport_type,
-            country=data.get('country', ''),
-            brand=data.get('brand', ''),
-            model=model,
-            category=data.get('category', ''),
-            article=data.get('article', ''),
-            description=data.get('description', ''),
-            city=city,
-            search_scope=search_scope,
-            selected_cities=','.join(selected_cities),
-            phone=data.get('phone', ''),
-        )
+        with transaction.atomic():
+            req = Request.objects.create(
+                transport_type=transport_type,
+                country=data.get('country', ''),
+                brand=data.get('brand', ''),
+                model=model,
+                category=data.get('category', ''),
+                article=data.get('article', ''),
+                description=data.get('description', ''),
+                city=city,
+                search_scope=search_scope,
+                selected_cities=','.join(selected_cities),
+                phone=data.get('phone', ''),
+            )
+            if request.POST.get('publication_consent_version') == 'submit_telegram_v1':
+                from core.services.telegram_auto_publication import record_submission_consent
+                record_submission_consent(req)
         request_id = req.id
         _log_create_request_timing(request_id, 'request_created', stage_started)
 
@@ -1472,6 +1476,7 @@ def create_home_parts_request(request):
             payload,
             uploaded_photos,
             campaign_attribution=get_request_campaign(request),
+            publication_consent_version=request.POST.get('publication_consent_version', ''),
         )
     except HomePartsRequestError as exc:
         body = {'error': exc.message, 'fields': exc.fields}

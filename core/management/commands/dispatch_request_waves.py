@@ -28,6 +28,13 @@ class Command(BaseCommand):
 
         failures = []
         try:
+            from core.services.telegram_auto_publication import process_new_submissions
+            process_new_submissions()
+        except Exception:
+            self.stderr.write('Telegram publication processor failed; inspect publication history.')
+            failures.append('Telegram channel')
+
+        try:
             process_due_dispatch_waves(writer=writer)
         except Exception as exc:
             logger.exception('core RequestDispatch processor failed')
