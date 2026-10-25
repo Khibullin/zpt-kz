@@ -1,4 +1,5 @@
 from datetime import time
+import re
 from django.test import TestCase
 from core.models import Seller, SellerWorkInterval
 from core.services.seller_card_display import build_seller_card
@@ -14,7 +15,9 @@ class DismantlerDetailLayoutTests(TestCase):
 
     def test_no_duplicate_address_or_placeholder_about(self):
         page = self.client.get(f'/parts-seller/{self.seller.pk}/')
-        self.assertContains(page, self.seller.address, count=1)
+        # JSON-LD also contains the address; it is not duplicate visible content.
+        visible_html = re.sub(r'<script\b[^>]*>.*?</script>', '', page.content.decode(), flags=re.S)
+        self.assertEqual(visible_html.count(self.seller.address), 1)
         self.assertNotContains(page, 'Multi')
         self.assertContains(page, 'Легковые автомобили')
         self.assertNotContains(page, '<dt>Марки</dt>')

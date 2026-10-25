@@ -29,6 +29,7 @@
   {% block analytics_head %}{% if 'home_request' not in request.GET %}
   {% google_tag_manager_head %}
   {% endif %}{% endblock %}
+<link rel="stylesheet" href="{% static 'css/card-refresh.css' %}?v=20261025-1">
 </head>
 <body
   data-api-base="/api/"

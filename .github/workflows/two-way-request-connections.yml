@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'core/**'
+      - 'static/css/card-refresh.css'
+      - 'templates/base*.html'
+      - 'catalog/tests/test_dismantler_detail_layout.py'
       - 'backend/**'
       - 'templates/request-parts/cabinet/**'
       - 'static/js/request-parts-cabinet.js'
@@ -36,6 +39,8 @@ jobs:
           core.tests.test_manual_seller_dispatch core.tests.test_seller_request_response_control
           core.tests.test_telegram_channel core.tests.test_unified_seller_account
           core.tests.test_seller_request_filters core.tests.test_request_dispatch_waves
+          catalog.tests.test_interface_release catalog.tests.test_dismantlers_design
+          catalog.tests.test_dismantler_detail_layout catalog.tests.test_product_card_design
           --settings=backend.settings_ui_ci --noinput
   postgres-concurrency:
     runs-on: ubuntu-latest
