@@ -157,6 +157,29 @@ for(const width of [360,390,1440]) { const page=await browser.newPage({viewport:
 await page.route('**/*',route=>route.abort());
 for(const file of fs.readdirSync(process.argv[1])) {
 await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
+if(file==='claim.html' || file==='new-shop.html') {
+const phone=page.locator('[data-kz-phone]');
+await phone.focus();
+if(await phone.inputValue()!=='+7') throw new Error('Phone prefix is missing');
+await phone.pressSequentially('7771234567');
+if(await phone.inputValue()!=='+7 (777) 123-45-67') throw new Error('Phone typing format');
+for(const value of ['87771234567','7771234567','+7 (777) 123-45-67','77771234567']) {
+await phone.fill(value);
+if(await phone.inputValue()!=='+7 (777) 123-45-67') throw new Error('Phone paste format: '+value);
+if(!await phone.evaluate(el=>el.checkValidity())) throw new Error('Full phone rejected');
+}
+await phone.press('End');
+await phone.press('Backspace');
+if(await phone.inputValue()!=='+7 (777) 123-45-6') throw new Error('Phone backspace');
+if(await phone.evaluate(el=>el.checkValidity())) throw new Error('Incomplete phone accepted');
+await phone.fill('+7 (777) 123-45-67');
+await phone.evaluate(el=>el.setSelectionRange(4,7));
+await page.keyboard.insertText('701');
+if(await phone.inputValue()!=='+7 (701) 123-45-67') throw new Error('Phone middle editing');
+await phone.fill('777123456789');
+if(await phone.evaluate(el=>el.checkValidity())) throw new Error('Overlong phone silently truncated');
+await phone.fill('7771234567');
+}
 if(file==='buyer-edit.html') {
 await page.locator('input[type=file]').setInputFiles({name:'test-photo.png',mimeType:'image/png',buffer:Buffer.from('synthetic filename check')});
 if(await page.locator('.upload-name').textContent()!=='test-photo.png') throw new Error('Selected photo filename not visible');

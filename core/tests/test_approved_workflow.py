@@ -178,6 +178,17 @@ class ApprovedWorkflowTests(TestCase):
         self.req.access_expires_at = timezone.now() - timedelta(seconds=1); self.req.save()
         self.assertEqual(self.client.get(self.buyer('result')).status_code, 410)
         self.assertEqual(self.client.get(reverse('workflow_buyer_step', args=[self.req.pk, uuid4(), 'result'])).status_code, 404)
+    @patch('core.workflow_views.limited', return_value=False)
+    def test_claim_phone_formats_find_same_card_without_granting_access(self, _limited):
+        for phone in ('+7 (700) 111-22-33', '87001112233', '7001112233', '77001112233'):
+            with self.subTest(phone=phone):
+                response = self.client.post(reverse('workflow_claim'), {'phone': phone})
+                self.assertContains(response, 'Это мой магазин')
+                self.assertEqual(self.client.session['claim_candidates'], [self.seller.pk])
+                self.assertNotIn('_auth_user_id', self.client.session)
+        from core.workflow_forms import ClaimPhoneForm
+        self.assertFalse(ClaimPhoneForm({'phone': '+7 (700) 11'}).is_valid())
+
     def test_claim_phone_does_not_authenticate(self):
         self.client.post(reverse('workflow_claim'), {'phone': '77001112233'})
         response = self.client.post(reverse('workflow_claim_confirm', args=[self.seller.pk]), {'comment': 'Это я'})
