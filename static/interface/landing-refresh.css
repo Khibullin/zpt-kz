@@ -114,5 +114,5 @@ body.zpt-interface.ui-refresh .landing-hero-visual .art{mix-blend-mode:multiply}
 .home-conversion-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:20px}
 .home-conversion-actions .btn{font-size:17px;min-height:48px;padding:13px 20px;white-space:normal;text-align:center}
 .home-conversion-actions .home-seller-action{background:#fff2ce;color:#713e08;border:2px solid #e8ac38}
-.hero-copy .home-conversion-note{font-size:16px;line-height:1.5;margin-top:14px;max-width:620px}
-@media(max-width:600px){.home-conversion-actions{flex-direction:column}.home-conversion-actions .btn{width:100%;box-sizing:border-box}}
+.zpt-interface .hero-compact .home-conversion-note{font-size:16px;line-height:1.5;margin-top:14px;max-width:620px}
+@media(max-width:600px){.zpt-interface .hero-compact .art{height:112px;top:0;bottom:auto}.home-conversion-actions{flex-direction:column}.home-conversion-actions .btn{width:100%;box-sizing:border-box}}
