@@ -88,3 +88,33 @@ class AutoPublicationTests(TestCase):
             pass
         self.assertFalse(RequestConsentEvent.objects.exists())
         self.assertFalse(Request.objects.exists())
+
+    @patch('core.services.telegram_auto_publication.publish')
+    def test_abs_sensor_and_cyrillic_spelling_resume_held_drafts(self, publish):
+        for text in ['Датчик ABS', 'Датчик АВС', 'Датчик АБС']:
+            req = self.request(description=text)
+            self.consent(req)
+            TelegramRequestPublication.objects.create(request=req, text='', reviewed=False)
+        self.assertEqual(process_new_submissions(), 3)
+        self.assertEqual(publish.call_count, 3)
+        self.assertEqual(TelegramRequestPublication.objects.filter(reviewed=True).count(), 3)
+
+    @patch('core.services.telegram_auto_publication.publish')
+    def test_held_private_text_stays_held(self, publish):
+        req = self.request(description='Датчик ABS Иван Иванов')
+        self.consent(req)
+        TelegramRequestPublication.objects.create(request=req, text='', reviewed=False)
+        self.assertEqual(process_new_submissions(), 0)
+        self.assertEqual(process_new_submissions(), 0)
+        self.assertEqual(TelegramRequestPublication.objects.count(), 1)
+        publish.assert_not_called()
+
+    @patch('core.services.telegram_auto_publication.publish')
+    def test_manual_draft_is_not_rewritten(self, publish):
+        from django.contrib.auth import get_user_model
+        actor = get_user_model().objects.create_user(username='reviewer')
+        req = self.request(description='Датчик ABS')
+        self.consent(req)
+        TelegramRequestPublication.objects.create(request=req, text='', reviewed=False, created_by=actor)
+        self.assertEqual(process_new_submissions(), 0)
+        publish.assert_not_called()
