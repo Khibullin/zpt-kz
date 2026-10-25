@@ -1923,3 +1923,11 @@ main.shop-panel .shop-facts .button{font-size:17px;min-height:46px;border-radius
 main.shop-panel .shop-request p{font-size:17px;color:#3f5268;line-height:1.5}
 main.shop-panel .shop-about h2{font-size:25px}
 main.shop-panel .shop-contact>a{font-size:17px}
+
+/* Multi-select shop specialization works without JavaScript or API requests. */
+.shop-choice-picker{border:1px solid #b7ced0;border-radius:8px;background:#fff}
+.shop-choice-picker summary{padding:12px;cursor:pointer;color:#075e67;font-weight:600;min-height:46px}
+.shop-choice-options{max-height:240px;overflow:auto;padding:4px 12px 12px;border-top:1px solid #d8e6e6}
+.shop-choice-options label{display:flex!important;align-items:center;gap:10px;padding:8px 0;margin:0!important;font-size:16px!important;font-weight:400!important;cursor:pointer}
+.shop-choice-options input[type=checkbox]{width:20px!important;height:20px;min-height:0;padding:0;flex:0 0 20px;margin:0;accent-color:#008d78}
+.field-brand small,.field-category small{display:block;font-size:13px;line-height:1.4;margin-top:7px;color:#36545a}

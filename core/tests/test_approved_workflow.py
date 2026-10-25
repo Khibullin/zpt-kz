@@ -442,3 +442,54 @@ class ApprovedWorkflowTests(TestCase):
             self.assertEqual(RequestOutcomeEvent.objects.filter(request=self.req, result=expected).count(), 1)
         self.assertFalse(RequestInteraction.objects.filter(kind='purchase_confirmed').exists())
         self.assertFalse(RequestSellerNotification.objects.exists())
+
+
+@override_settings(TWO_WAY_REQUESTS_ENABLED=True, ALLOWED_HOSTS=['testserver'])
+class NewShopSpecializationTests(TestCase):
+    def setUp(self):
+        from core.models import Country, Brand, PartCategory
+        country = Country.objects.create(name='Япония')
+        self.brand = Brand.objects.create(name='Toyota', country=country)
+        self.other = Brand.objects.create(name='Lexus', country=country)
+        self.truck = Brand.objects.create(name='Hino', country=country, transport_type='truck')
+        self.category = PartCategory.objects.create(name='Фильтры')
+        self.other_category = PartCategory.objects.create(name='Тормоза')
+        self.url = reverse('workflow_claim') + '?new=1'
+        self.data = dict(name='Новый магазин', phone='77009991122', city='Астана', consent='on',
+                         brand=[self.brand.pk, self.other.pk], category=[self.category.pk, self.other_category.pk])
+
+    def test_choices_render_and_multiple_selections_are_saved_without_granting_access(self):
+        page = self.client.get(self.url)
+        self.assertContains(page, 'Toyota')
+        self.assertContains(page, 'Фильтры')
+        self.assertNotContains(page, 'Hino')
+        self.assertContains(page, 'type="checkbox" name="brand"')
+        result = self.client.post(self.url, self.data)
+        self.assertRedirects(result, reverse('workflow_claim_status'))
+        seller = Seller.objects.get(whatsapp='77009991122')
+        self.assertSetEqual(set(seller.selected_brands.values_list('pk', flat=True)), {self.brand.pk, self.other.pk})
+        self.assertSetEqual(set(seller.selected_categories.values_list('pk', flat=True)), {self.category.pk, self.other_category.pk})
+        self.assertEqual(seller.city, 'Астана')
+        self.assertTrue(seller.catalog_only)
+        self.assertFalse(seller.contact_access_verified)
+        self.assertIsNone(seller.sells_new_parts)
+        self.assertFalse(seller.is_dismantler)
+        self.assertNotIn('_auth_user_id', self.client.session)
+
+    def test_invalid_choices_are_rejected_and_valid_choices_survive_other_errors(self):
+        result = self.client.post(self.url, {**self.data, 'brand':[self.truck.pk]})
+        self.assertEqual(result.status_code, 200)
+        self.assertTrue(result.context['form'].errors.get('brand'))
+        self.assertFalse(Seller.objects.exists())
+        result = self.client.post(self.url, {**self.data, 'name':''})
+        self.assertEqual(result.status_code, 200)
+        self.assertRegex(result.content.decode(), rf'name="brand"[^>]*value="{self.brand.pk}"[^>]*checked')
+        self.assertRegex(result.content.decode(), rf'name="category"[^>]*value="{self.category.pk}"[^>]*checked')
+        self.assertFalse(Seller.objects.exists())
+
+    def test_optional_specialization_can_be_completed_later(self):
+        result = self.client.post(self.url, {**self.data, 'brand':[], 'category':[]})
+        self.assertEqual(result.status_code, 302)
+        seller = Seller.objects.get(whatsapp='77009991122')
+        self.assertFalse(seller.selected_brands.exists())
+        self.assertFalse(seller.selected_categories.exists())
