@@ -220,6 +220,10 @@ if((await card.boundingBox()).width<(await grid.boundingBox()).width-2) throw ne
 if(file==='public-dismantler.html') {
 if(await page.locator('.org-phones a').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)<22)) throw new Error('Directory phone is too small');
 }
+if(file==='public-home.html') {
+const seller=page.locator('.card-seller-info').first();
+if(await seller.count() && (await seller.boundingBox()).width<100) throw new Error('Seller copy stayed in the removed icon column');
+}
 for(const icon of await page.locator('svg[aria-hidden="true"]:not(.art):not(.service-art):not(.dismantle-company-art)').all()) {
 if(await icon.isVisible()) throw new Error('Decorative icon is still visible: '+file);
 }

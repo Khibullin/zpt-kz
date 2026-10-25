@@ -238,3 +238,6 @@ body .phone-warning:not([hidden]){display:block;margin-top:7px;color:#b42318;fon
 
 @media(max-width:760px){body .header-tools>a[aria-label="Кабинет"]{display:none!important}body .header-tools{gap:3px}body .header-tools .plain{padding:2px;font-size:12px}body .header-tools .city-select{max-width:70px}body .header-cart{font-size:12px}}
 body .zpt-guide-dialog__mic{width:auto;min-width:64px}
+
+body .product.product-v2.product-card-approved .product-meta-seller :is(.card-seller-link,.seller-name){grid-template-columns:minmax(0,1fr)!important}
+body .product-card-approved .card-seller-info,body .product-card-approved .card-seller-visit{grid-column:1!important;min-width:0}
