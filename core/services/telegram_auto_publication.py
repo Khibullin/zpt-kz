@@ -13,11 +13,11 @@ from core.services.home_parts_query import looks_like_exact_article
 # publishing names or other identifiers that a phone/URL regex cannot detect.
 TECHNICAL_WORDS = set(re.findall(r'\w+', ' '.join(
     phrase for _, phrases in CATEGORY_PHRASES for phrase in phrases)))
-TECHNICAL_WORDS.update('нужен нужна нужно нужны ищу куплю купить передний передняя переднее передние задний задняя заднее задние левый левая левое левые правый правая правое правые наружный наружная внутренний внутренняя верхний верхняя нижний нижняя новый новая новое новые бу б у оригинал аналог комплект комплекта шт штуки штука рестайлинг дорестайлинг белый черный синий красный серый цвет в сборе без с на для и или отдельно обе оба по одной два две четыре'.split())
+TECHNICAL_WORDS.update('датчик датчика датчики abs абс авс abc esp есп sensor нужен нужна нужно нужны ищу куплю купить передний передняя переднее передние задний задняя заднее задние левый левая левое левые правый правая правое правые наружный наружная внутренний внутренняя верхний верхняя нижний нижняя новый новая новое новые бу б у оригинал аналог комплект комплекта шт штуки штука рестайлинг дорестайлинг белый черный синий красный серый цвет в сборе без с на для и или отдельно обе оба по одной два две четыре'.split())
 
 
 def safe_automatic_description(req):
-    summary = ' '.join(req.description.split())
+    summary = ' '.join((req.description or req.article).split())
     if not summary or len(summary) > 500:
         return ''
     if PII.search(summary) or SENSITIVE.search(summary):
@@ -54,25 +54,43 @@ def record_submission_consent(req):
 def process_new_submissions(limit=50):
     if not enabled():
         return 0
-    ids = Request.objects.filter(
+    eligible = Request.objects.filter(
         connection_consents__source='request_submit',
         connection_consents__text_version=VERSION,
         connection_consents__purpose='public', connection_consents__granted=True,
-        public_consent_at__isnull=False, telegram_publication__isnull=True,
-    ).exclude(purchase_result__in=['purchased', 'closed']).order_by('pk').values_list('pk', flat=True)[:limit]
+        public_consent_at__isnull=False,
+    ).exclude(purchase_result__in=['purchased', 'closed'])
+    # New submissions take priority; previously held automatic drafts rotate
+    # by update time so neither new work nor other held drafts is starved.
+    ids = list(eligible.filter(telegram_publication__isnull=True)
+               .order_by('pk').values_list('pk', flat=True)[:limit])
+    if len(ids) < limit:
+        ids += list(eligible.filter(
+            telegram_publication__status='draft',
+            telegram_publication__reviewed=False,
+            telegram_publication__text='',
+            telegram_publication__created_by__isnull=True,
+        ).order_by('telegram_publication__updated_at', 'pk')
+          .values_list('pk', flat=True)[:limit - len(ids)])
     count = 0
-    for pk in list(ids):
+    for pk in ids:
         with transaction.atomic():
             req = Request.objects.select_for_update().get(pk=pk)
-            if not req.public_consent_at or TelegramRequestPublication.objects.filter(request=req).exists():
+            if not req.public_consent_at or req.purchase_result in ('purchased', 'closed'):
+                continue
+            publication = TelegramRequestPublication.objects.filter(request=req).first()
+            if publication and not (publication.status == 'draft' and not publication.reviewed
+                                    and not publication.text and publication.created_by_id is None):
                 continue
             summary = safe_automatic_description(req)
             fields = [req.brand, req.model, req.city]
             unsafe = (not summary or any(
                 PII.search(x or '') or SENSITIVE.search(x or '') for x in fields))
             if unsafe:
-                TelegramRequestPublication.objects.create(
-                    request=req, text='', reviewed=False)
+                if publication:
+                    publication.save(update_fields=['updated_at'])
+                else:
+                    TelegramRequestPublication.objects.create(request=req, text='', reviewed=False)
                 continue
             req.public_summary = summary
             req.seller_feed_enabled = True
@@ -80,7 +98,12 @@ def process_new_submissions(limit=50):
             text = safe_summary(req)
             if not text:
                 continue
-            publication = TelegramRequestPublication.objects.create(request=req, text=text, reviewed=True)
+            if publication:
+                publication.text = text
+                publication.reviewed = True
+                publication.save(update_fields=['text', 'reviewed', 'updated_at'])
+            else:
+                TelegramRequestPublication.objects.create(request=req, text=text, reviewed=True)
     # Separate preparation from delivery: a worker interruption after creating
     # the durable draft cannot strand it. Attempts with unknown outcomes are
     # never retried automatically, including a crash during sendMessage.
