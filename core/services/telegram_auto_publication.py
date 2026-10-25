@@ -27,6 +27,11 @@ def safe_automatic_description(req):
         return ''
     if looks_like_exact_article(summary):
         return summary
+    # A pasted completion can repeat a word without a separator (фараФара).
+    # Normalize only the public copy, then apply the same complete vocabulary
+    # check; unknown words and personal information still stay on review.
+    summary = re.sub(r'(?<=[а-яё])(?=[А-ЯЁ])', ' ', summary)
+    summary = re.sub(r'\b(\w+)(?:\s+\1)+\b', r'\1', summary, flags=re.I)
     words = re.findall(r'\w+', summary.casefold().replace('ё', 'е'))
     if any(word not in TECHNICAL_WORDS for word in words):
         return ''

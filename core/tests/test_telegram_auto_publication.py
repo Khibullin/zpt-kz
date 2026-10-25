@@ -118,3 +118,20 @@ class AutoPublicationTests(TestCase):
         TelegramRequestPublication.objects.create(request=req, text='', reviewed=False, created_by=actor)
         self.assertEqual(process_new_submissions(), 0)
         publish.assert_not_called()
+
+    @patch('core.services.telegram_auto_publication.publish')
+    def test_pasted_repeated_part_word_is_normalized_in_public_copy(self, publish):
+        req = self.request(description='фараФара передняя левая')
+        self.consent(req)
+        TelegramRequestPublication.objects.create(request=req, text='', reviewed=False)
+        self.assertEqual(process_new_submissions(), 1)
+        req.refresh_from_db()
+        self.assertEqual(req.description, 'фараФара передняя левая')
+        self.assertEqual(req.public_summary, 'фара передняя левая')
+        publish.assert_called_once()
+
+    @patch('core.services.telegram_auto_publication.publish')
+    def test_normalization_does_not_allow_appended_name(self, publish):
+        self.consent(self.request(description='фараИванИванов'))
+        self.assertEqual(process_new_submissions(), 0)
+        publish.assert_not_called()
