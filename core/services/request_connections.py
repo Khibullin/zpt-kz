@@ -4,7 +4,7 @@ import re
 
 from django.conf import settings
 from django.db import transaction
-from django.db.models import Count, Avg, Case, When, Value, BooleanField
+from django.db.models import Count, Avg, Case, When, Value, BooleanField, Q
 from django.core.cache import cache
 from hashlib import sha256
 from collections import defaultdict
@@ -360,6 +360,41 @@ def directory_contact(seller, req, channel):
     return ''
 
 
+def response_metrics(sellers):
+    """One mature, relevant, confirmed delivery per request, across both channels.
+
+    Telegram acceptance/manual WhatsApp confirmation is not proof of reading.
+    Opening alone is not a response. New sellers start with a neutral prior.
+    """
+    from datetime import timedelta
+    from fractions import Fraction
+    from core.models import RequestSellerNotification
+    sellers = {seller.pk: seller for seller in sellers}
+    metrics = {pk: {'received': 0, 'responded': 0, 'score': Fraction(1, 2)} for pk in sellers}
+    if not sellers:
+        return metrics
+    cutoff = timezone.now() - timedelta(hours=72)
+    notices = RequestSellerNotification.objects.filter(
+        seller_id__in=sellers, updated_at__lte=cutoff,
+        request__access_revoked=False,
+    ).filter(Q(channel='telegram', status='sent', message_id__gt=0) |
+             Q(channel='whatsapp', status='manual')).select_related('request')
+    pairs = set()
+    for notice in notices:
+        if relevant(sellers[notice.seller_id], notice.request):
+            pairs.add((notice.seller_id, notice.request_id))
+    responses = set(RequestInteraction.objects.filter(
+        seller_id__in=sellers, request_id__in={request_id for _, request_id in pairs}, actor='seller',
+        kind__in=('interest', 'out_of_stock', 'cannot_fulfill', 'contact_confirmed', 'supply_confirmed'),
+    ).values_list('seller_id', 'request_id')) if pairs else set()
+    for seller_id, request_id in pairs:
+        metrics[seller_id]['received'] += 1
+        metrics[seller_id]['responded'] += (seller_id, request_id) in responses
+    for item in metrics.values():
+        item['score'] = Fraction(item['responded'] + 1, item['received'] + 2)
+    return metrics
+
+
 def recommendations(req):
     sellers = Seller.objects.filter(is_active=True, is_paused=False, direct_contacts_enabled=True).select_related(
         'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'social_links')
@@ -367,6 +402,8 @@ def recommendations(req):
     purchases = dict(RequestInteraction.objects.filter(kind='purchase_confirmed', actor='buyer', request__purchase_result='purchased').values('seller_id').annotate(n=Count('id')).values_list('seller_id', 'n'))
     from core.models import RequestSellerReview
     reviews = dict(RequestSellerReview.objects.filter(moderated=True, public_consent=True, request__purchase_result='purchased').values('seller_id').annotate(score=Avg('rating')).values_list('seller_id', 'score'))
+    sellers = list(sellers)
+    responses = response_metrics(sellers)
     result = []
     for seller in sellers:
         offer = offers.get(seller.pk)
@@ -402,6 +439,7 @@ def recommendations(req):
                        'reason': ('Продавец подтвердил применимость; условия указаны ниже' if offer else 'Профиль соответствует запросу; наличие уточняется'),
                        '_key': (offer is None, seller.notification_state != 'active', *value_order,
                                 -purchases.get(seller.pk, 0), -reviews.get(seller.pk, 0),
+                                -responses[seller.pk]['score'],
                                 -sum(bool(x) for x in (seller.directory_description, seller.directory_photo, seller.city, seller.brand or seller.all_brands, seller.category or seller.all_categories)), seller.pk)})
     result.sort(key=lambda x: x['_key'])
     return result
