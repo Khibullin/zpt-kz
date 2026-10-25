@@ -28,6 +28,12 @@ class Command(BaseCommand):
 
         failures = []
         try:
+            from core.services.seller_access_notifications import process_owner_notices
+            process_owner_notices()
+        except Exception:
+            self.stderr.write('Seller access owner notice processor failed; inspect access requests.')
+            failures.append('Seller access owner notices')
+        try:
             from core.services.telegram_auto_publication import process_new_submissions
             process_new_submissions()
         except Exception:

@@ -40,7 +40,14 @@ class ClaimAdminForm(forms.ModelForm):
 class ClaimAdmin(admin.ModelAdmin):
     change_form_template = 'admin/core/selleraccessclaim/change_form.html'
     form = ClaimAdminForm
-    list_display = ['seller', 'status', 'created_at', 'reviewed_by']
+    list_display = ['seller', 'status', 'owner_notice_status', 'created_at', 'reviewed_by']
+    actions = ['retry_owner_notice']
+
+    @admin.action(description='Повторить уведомление администратору при ошибке отправки')
+    def retry_owner_notice(self, request, queryset):
+        count = queryset.filter(status__in=['pending', 'clarify'], owner_notice_status__in=['failed', 'skipped']).update(owner_notice_status='pending')
+        self.message_user(request, f'Поставлено в очередь уведомлений: {count}.')
+
     list_filter = ['status']
     readonly_fields = ['seller', 'request', 'source', 'comment', 'created_at', 'reviewed_at', 'reviewed_by', 'verified_access_link', 'redeemed_at']
     def has_add_permission(self, request):

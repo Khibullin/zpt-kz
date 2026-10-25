@@ -513,3 +513,84 @@ class ShopClaimDuplicateTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTrue(response.context['form'].errors.get('phone'))
         lookup.assert_not_called()
+
+
+@override_settings(REQUEST_OWNER_EMAIL_ENABLED=True, REQUEST_OWNER_EMAIL='owner@test.local',
+                  EMAIL_BACKEND='django.core.mail.backends.locmem.EmailBackend', DEFAULT_FROM_EMAIL='zpt@test.local')
+class SellerAccessOwnerNoticeTests(TestCase):
+    def setUp(self):
+        self.seller = Seller.objects.create(name='AG Parts', whatsapp='77713607040', city='Алматы')
+        self.claim = SellerAccessClaim.objects.create(seller=self.seller)
+
+    def test_owner_receives_one_notice_without_login_token_or_auto_approval(self):
+        from django.core import mail
+        from core.services.seller_access_notifications import process_owner_notices
+        self.claim.login_token = uuid4()
+        self.claim.save()
+        self.assertEqual(process_owner_notices(), 1)
+        self.assertEqual(process_owner_notices(), 0)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['owner@test.local'])
+        self.assertIn(reverse('admin:core_selleraccessclaim_change', args=[self.claim.pk]), mail.outbox[0].body)
+        self.assertNotIn(str(self.claim.login_token), mail.outbox[0].body)
+        self.claim.refresh_from_db()
+        self.assertEqual(self.claim.status, 'pending')
+        self.assertEqual(self.claim.owner_notice_status, 'sent')
+        self.assertIsNotNone(self.claim.owner_notice_sent_at)
+        self.assertEqual(self.claim.owner_notice_recipient, 'owner@test.local')
+        self.seller.refresh_from_db()
+        self.assertFalse(self.seller.contact_access_verified)
+
+    def test_failed_or_inflight_notice_is_not_retried_automatically(self):
+        from core.services.seller_access_notifications import process_owner_notices
+        with patch('core.services.seller_access_notifications.send_mail', side_effect=TimeoutError):
+            self.assertEqual(process_owner_notices(), 0)
+        self.claim.refresh_from_db()
+        self.assertEqual(self.claim.owner_notice_status, 'failed')
+        with patch('core.services.seller_access_notifications.send_mail') as sender:
+            process_owner_notices()
+            self.claim.owner_notice_status = 'sending'
+            self.claim.save()
+            process_owner_notices()
+        sender.assert_not_called()
+
+    def test_notice_is_claimed_before_smtp_and_nested_worker_cannot_duplicate(self):
+        from core.services.seller_access_notifications import process_owner_notices
+        def send(**kwargs):
+            self.assertEqual(process_owner_notices(), 0)
+            return 1
+        with patch('core.services.seller_access_notifications.send_mail', side_effect=send) as sender:
+            self.assertEqual(process_owner_notices(), 1)
+        sender.assert_called_once()
+
+    def test_disabled_mail_and_reviewed_claims_are_not_sent(self):
+        from core.services.seller_access_notifications import process_owner_notices
+        with self.settings(REQUEST_OWNER_EMAIL_ENABLED=False):
+            self.assertEqual(process_owner_notices(), 0)
+        self.claim.refresh_from_db()
+        self.assertEqual(self.claim.owner_notice_status, 'pending')
+        self.claim.status = 'approved'
+        self.claim.save()
+        with patch('core.services.seller_access_notifications.send_mail') as sender:
+            self.assertEqual(process_owner_notices(), 0)
+        sender.assert_not_called()
+
+    def test_backfill_only_queues_reported_claim_and_preserves_sent_results(self):
+        from importlib import import_module
+        from types import SimpleNamespace
+        from django.apps import apps
+        batch = import_module('core.migrations.0131_seller_access_owner_notices')
+        target = Seller.objects.create(pk=569, name='Target', whatsapp='77001112244')
+        reported = SellerAccessClaim.objects.create(pk='b2332467-1e87-432c-a79e-8c725628cc01',
+            seller=target, owner_notice_status='skipped')
+        self.claim.owner_notice_status = 'skipped'
+        self.claim.save()
+        editor = SimpleNamespace(connection=SimpleNamespace(alias='default'))
+        batch.enqueue_reported_claim(apps, editor)
+        reported.refresh_from_db(); self.claim.refresh_from_db()
+        self.assertEqual(reported.owner_notice_status, 'pending')
+        self.assertEqual(self.claim.owner_notice_status, 'skipped')
+        reported.owner_notice_status = 'sent'; reported.save()
+        batch.undo_enqueue(apps, editor)
+        reported.refresh_from_db()
+        self.assertEqual(reported.owner_notice_status, 'sent')
