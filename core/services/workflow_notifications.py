@@ -33,7 +33,7 @@ def send_one(req, seller, actor):
         if not eligible(req, seller, 'telegram'):
             raise ValueError('Уведомления отключены.')
         result = _call_api('sendMessage', {'chat_id': conn.telegram_id, 'text': 'Новая заявка на запчасти\n' + safe_summary(req),
-            'reply_markup': {'inline_keyboard': [[{'text': 'Есть запчасть / Связаться',
+            'reply_markup': {'inline_keyboard': [[{'text': 'Написать покупателю',
                 'url': 'https://zpt.kz' + reverse('connection_detail', args=[req.pk]) + '?source=telegram'}],
                 [{'text': 'Настроить уведомления', 'url': 'https://zpt.kz/connect/seller/channels/'}]]}})
         message_id = result.get('message_id')

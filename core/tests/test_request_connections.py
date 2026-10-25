@@ -43,6 +43,44 @@ class ConnectionTests(TestCase):
         fields.update(extra)
         return RequestOffer.objects.create(**fields)
 
+    def test_direct_write_buttons_without_interest_step(self):
+        response = self.client.get(self.detail)
+        self.assertContains(response, 'Написать в WhatsApp')
+        self.assertNotContains(response, 'Написать в Telegram')
+        self.assertNotContains(response, 'Отметьте интерес')
+        self.assertFalse(RequestInteraction.objects.filter(kind='interest').exists())
+        response = self.client.post(reverse('connection_seller_contact', args=[self.req.pk, 'whatsapp']))
+        self.assertEqual(response.status_code, 302)
+        from urllib.parse import urlsplit, parse_qs
+        message = parse_qs(urlsplit(response.url).query)['text'][0]
+        self.assertIn(str(self.req.pk), message)
+        self.assertIn('Передний наружный ШРУС', message)
+        self.assertIn('Mercedes-Benz E400', message)
+        self.assertTrue(RequestInteraction.objects.filter(kind='whatsapp_click').exists())
+        self.assertFalse(RequestInteraction.objects.filter(kind='contact_confirmed').exists())
+        self.assertFalse(RequestOffer.objects.exists())
+
+    def test_telegram_button_requires_valid_buyer_username(self):
+        self.req.buyer_telegram = 'real_buyer'
+        self.req.save()
+        self.assertContains(self.client.get(self.detail), 'Написать в Telegram')
+        response = self.client.post(reverse('connection_seller_contact', args=[self.req.pk, 'telegram']))
+        from urllib.parse import urlsplit, parse_qs
+        self.assertEqual(urlsplit(response.url).path, '/real_buyer')
+        self.assertIn('Передний наружный ШРУС', parse_qs(urlsplit(response.url).query)['text'][0])
+
+    def test_direct_write_respects_identity_and_withdrawn_consent(self):
+        url = reverse('connection_seller_contact', args=[self.req.pk, 'whatsapp'])
+        self.seller.contact_access_verified = False
+        self.seller.save()
+        self.assertEqual(self.client.post(url).status_code, 403)
+        self.seller.contact_access_verified = True
+        self.seller.save()
+        self.req.contact_consent_at = None
+        self.req.save()
+        self.assertEqual(self.client.post(url).status_code, 403)
+        self.assertFalse(RequestInteraction.objects.filter(kind='whatsapp_click').exists())
+
     def test_incomplete_profile_can_view_and_respond_without_dispatch(self):
         self.seller.all_brands = self.seller.all_categories = False
         self.seller.save()
@@ -132,7 +170,7 @@ class ConnectionTests(TestCase):
         access.expires_at = timezone.now() - timedelta(seconds=1)
         access.save()
         self.assertEqual(self.client.get(reverse('seller_request_link', args=[access.token])).status_code, 410)
-        self.assertEqual(self.client.post(reverse('connection_seller_contact', args=[self.req.pk, 'whatsapp'])).status_code, 403)
+        self.assertEqual(self.client.post(reverse('connection_seller_contact', args=[self.req.pk, 'whatsapp'])).status_code, 302)
         renewed = service.participate(self.req, self.seller)
         self.assertNotEqual(access.pk, renewed.pk)
         self.assertEqual(Match.objects.count(), 1)
@@ -158,7 +196,7 @@ class ConnectionTests(TestCase):
         self.req.save()
         service.participate(self.req, self.seller)
         response = self.client.post(reverse('connection_seller_contact', args=[self.req.pk, 'telegram']))
-        self.assertEqual(response.url, 'https://t.me/real_buyer')
+        self.assertTrue(response.url.startswith('https://t.me/real_buyer?text='))
         self.assertEqual(RequestInteraction.objects.filter(kind='telegram_click').count(), 2)
 
     def test_unsafe_telegram_links_rejected(self):

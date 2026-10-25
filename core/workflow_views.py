@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 
 from core.connection_views import guarded, seller_or_none, login_redirect
+from core.phone_utils import build_whatsapp_url as buyer_whatsapp_url
 from core.models import (Seller, Request, Match, RequestInteraction, RequestOutcomeEvent,
     SellerAccessClaim, SellerChannelConnection, SellerChannelConsentEvent, RequestSellerReview)
 from core.services import request_connections as service
@@ -333,9 +334,11 @@ def seller_contact_page(request, req_id):
         return login_redirect(req_id)
     if req.purchase_result in ('purchased', 'closed'):
         return render(request, 'core/connections/closed.html')
-    if not service.can_open_contacts(req, seller):
-        return HttpResponseForbidden('Сначала подтвердите доступ и отметьте интерес к заявке.')
+    if not service.can_start_buyer_contact(req, seller):
+        return HttpResponseForbidden('Для связи подтвердите аккаунт продавца.')
     if request.method == 'POST':
+        if not service.can_open_contacts(req, seller):
+            return HttpResponseForbidden()
         action = request.POST.get('action')
         if action not in ('contact_confirmed', 'contact_pending'):
             return HttpResponse(status=400)
@@ -344,7 +347,7 @@ def seller_contact_page(request, req_id):
             return redirect('workflow_seller_result', req_id)
         RequestOutcomeEvent.objects.create(request=req, seller=seller, source='seller', result=action)
         return redirect(request.path)
-    return render(request, 'core/connections/seller_contact.html', {'req': req, 'telegram': bool(service.telegram_contact(req.buyer_telegram))})
+    return render(request, 'core/connections/seller_contact.html', {'req': req, 'whatsapp': bool(buyer_whatsapp_url(req.phone)), 'telegram': bool(service.telegram_contact(req.buyer_telegram))})
 
 
 @guarded
