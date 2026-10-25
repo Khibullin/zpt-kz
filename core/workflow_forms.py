@@ -1,5 +1,5 @@
 from django import forms
-from core.models import Request, Seller, RequestSellerReview
+from core.models import Request, Seller, RequestSellerReview, Brand, PartCategory
 from core.services.seller_identity import normalize_seller_whatsapp, normalize_seller_city, SellerIdentityError
 
 
@@ -17,8 +17,8 @@ class NewShopForm(ClaimPhoneForm):
     field_order = ['name', 'city', 'phone', 'brand', 'category', 'new_parts', 'used_parts', 'consent']
     name = forms.CharField(label='Название магазина', max_length=255)
     city = forms.CharField(label='Город', max_length=100)
-    brand = forms.CharField(label='Марки автомобилей', max_length=100, required=False)
-    category = forms.CharField(label='Категории запчастей', max_length=100, required=False)
+    brand = forms.ModelMultipleChoiceField(label='Марки автомобилей', queryset=Brand.objects.filter(transport_type='car').order_by('name', 'pk'), required=False, widget=forms.CheckboxSelectMultiple)
+    category = forms.ModelMultipleChoiceField(label='Категории запчастей', queryset=PartCategory.objects.order_by('name'), required=False, widget=forms.CheckboxSelectMultiple)
     new_parts = forms.BooleanField(label='Новые', required=False)
     used_parts = forms.BooleanField(label='Б/у', required=False)
     consent = forms.BooleanField(label='Согласен с условиями сервиса и обработкой персональных данных')

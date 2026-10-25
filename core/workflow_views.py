@@ -66,8 +66,10 @@ def claim(request):
                 data = form.cleaned_data
                 with transaction.atomic():
                     seller = Seller.objects.create(name=data['name'], whatsapp=data['phone'], city=data['city'],
-                        brand=data['brand'], category=data['category'], transport_type='car',
+                        transport_type='car',
                         catalog_only=True, sells_new_parts=None, is_dismantler=False)
+                    seller.selected_brands.set(data['brand'])
+                    seller.selected_categories.set(data['category'])
                     claim_obj = SellerAccessClaim.objects.create(seller=seller, request_id=context_request(request),
                         source=source(request), comment='Новый магазин. Новые: %s; б/у: %s' % (data['new_parts'], data['used_parts']))
                 request.session['seller_claim'] = str(claim_obj.pk)

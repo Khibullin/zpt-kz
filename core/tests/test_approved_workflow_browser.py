@@ -54,6 +54,10 @@ class ApprovedBrowserTests(TestCase):
         pages['claim'] = self.client.get(reverse('workflow_claim')).content.decode()
         from core.workflow_forms import ClaimPhoneForm
         pages['claim-found'] = render_to_string('core/connections/claim.html', {'form': ClaimPhoneForm(), 'candidates': [{'pk': shop.pk, 'name': shop.name, 'city': shop.city}], 'source': 'site'})
+        from core.models import Country as CoreCountry, Brand as CoreBrand, PartCategory
+        country = CoreCountry.objects.create(name='Япония QA')
+        CoreBrand.objects.create(country=country, name='Toyota QA')
+        PartCategory.objects.create(name='Фильтры QA')
         pages['new-shop'] = self.client.get(reverse('workflow_claim') + '?new=1').content.decode()
         for state in ('claim_status', 'claim_confirm', 'access_ready', 'expired', 'closed'):
             pages[state] = render_to_string('core/connections/' + state + '.html', {'claim': SimpleNamespace(seller=shop, get_status_display='Ожидает проверки'), 'shop_name': shop.name, 'city': shop.city})
@@ -180,6 +184,16 @@ if(await phone.inputValue()!=='+7 (701) 123-45-67') throw new Error('Phone middl
 await phone.fill('777123456789');
 if(await phone.evaluate(el=>el.checkValidity())) throw new Error('Overlong phone silently truncated');
 await phone.fill('7771234567');
+}
+if(file==='new-shop.html') {
+await page.locator('.field-brand summary').click();
+const brand=page.locator('input[name=brand]').first();
+await brand.check();
+if(!await brand.isChecked()) throw new Error('Shop brand is not selectable');
+await page.locator('.field-category summary').click();
+const category=page.locator('input[name=category]').first();
+await category.check();
+if(!await category.isChecked()) throw new Error('Shop category is not selectable');
 }
 if(file==='buyer-edit.html') {
 await page.locator('input[type=file]').setInputFiles({name:'test-photo.png',mimeType:'image/png',buffer:Buffer.from('synthetic filename check')});
