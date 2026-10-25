@@ -34,11 +34,11 @@
 
   function renderEmpty() {
     if (desktopEl) {
-      desktopEl.textContent = '🛒 Корзина пуста · минимум ' + minQty + ' шт.';
+      desktopEl.textContent = 'Корзина пуста · минимум ' + minQty + ' шт.';
     }
     setNote('');
     if (mobileEl) {
-      mobileEl.textContent = '🛒 Корзина пуста';
+      mobileEl.textContent = 'Корзина пуста';
     }
     if (ctaDesktopEl) {
       ctaDesktopEl.textContent = 'Корзина';
@@ -50,11 +50,11 @@
 
   function renderRetail(count) {
     if (desktopEl) {
-      desktopEl.textContent = '🛒 В корзине розничный заказ · ' + count + ' шт.';
+      desktopEl.textContent = 'В корзине розничный заказ · ' + count + ' шт.';
     }
     setNote('');
     if (mobileEl) {
-      mobileEl.textContent = '🛒 В корзине розничный заказ · ' + count + ' шт.';
+      mobileEl.textContent = 'В корзине розничный заказ · ' + count + ' шт.';
     }
     if (ctaDesktopEl) {
       ctaDesktopEl.textContent = 'Перейти в корзину';
@@ -72,13 +72,13 @@
     const totalLabel = formatKzt(data.cart_total);
 
     if (desktopEl) {
-      desktopEl.textContent = '🛒 Корзина: ' + qty + ' шт. · ' + totalLabel;
+      desktopEl.textContent = 'Корзина: ' + qty + ' шт. · ' + totalLabel;
     }
     if (mobileEl) {
       if (remaining > 0) {
-        mobileEl.textContent = '🛒 ' + qty + ' шт. · ещё ' + remaining + ' до минимума';
+        mobileEl.textContent = '' + qty + ' шт. · ещё ' + remaining + ' до минимума';
       } else {
-        mobileEl.textContent = '🛒 ' + qty + ' шт. · минимум набран';
+        mobileEl.textContent = '' + qty + ' шт. · минимум набран';
       }
     }
 
