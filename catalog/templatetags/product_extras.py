@@ -210,6 +210,16 @@ def product_json_ld(product):
 
     price = getattr(product, 'price', None)
     price_on_request = bool(getattr(product, 'price_on_request', False))
+    seller = getattr(product, 'seller_profile', None)
+    is_agparts = bool(seller is not None and getattr(seller, 'slug', '') == 'ag-parts')
+    if is_agparts:
+        # Never advertise obsolete Product.price as the current Kaspi
+        # retail price in Google's structured data. The same verified
+        # offer is used by cards, detail view and Kaspi purchase link.
+        from catalog.templatetags.agparts_primary_price import get_agparts_verified_retail
+        current = get_agparts_verified_retail(product)
+        price = current['price'] if current else None
+
     if price is not None and not price_on_request:
         offer = {
             '@type': 'Offer',
@@ -220,17 +230,18 @@ def product_json_ld(product):
         if condition in condition_map:
             offer['itemCondition'] = condition_map[condition]
 
-        # Keep Schema.org aligned with the same stock policy used on the
-        # public product page; an unknown balance must not claim InStock.
-        from catalog.wholesale import public_stock_status
-
-        stock_code = public_stock_status(product)['code']
-        if stock_code in ('in', 'out'):
-            offer['availability'] = (
-                'https://schema.org/InStock'
-                if stock_code == 'in'
-                else 'https://schema.org/OutOfStock'
-            )
+        # No PP2 claim for AG Parts when the stock record may be stale,
+        # especially F4J163707010 with one 4-plug sale unit not yet
+        # converted in the ZPT warehouse. Other sellers are unchanged.
+        if not is_agparts:
+            from catalog.wholesale import public_stock_status
+            stock_code = public_stock_status(product)['code']
+            if stock_code in ('in', 'out'):
+                offer['availability'] = (
+                    'https://schema.org/InStock'
+                    if stock_code == 'in'
+                    else 'https://schema.org/OutOfStock'
+                )
         data['offers'] = offer
 
     return _safe_json_ld(data)
