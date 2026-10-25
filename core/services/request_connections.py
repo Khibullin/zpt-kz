@@ -385,7 +385,7 @@ def directory_contact(seller, req, channel):
     """Public business contacts only; never grants a seller access to buyer data."""
     if channel == 'whatsapp':
         return seller_whatsapp_url(seller,
-            f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. {req.public_summary or req.category}. Уточните наличие и цену.')
+            f'Здравствуйте! По заявке ZPT.KZ №{req.pk}: {req.brand} {req.model}. {getattr(req, "public_summary", "") or req.category}. Уточните наличие и цену.')
     if channel == 'telegram':
         for link in seller.social_links.all():
             if link.kind == 'telegram' and (target := telegram_contact(link.url)):
