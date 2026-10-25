@@ -2297,6 +2297,7 @@ def register_seller(request):
         )
         return _seller_landing_form_redirect()
 
+    request.session['zpt_seller_registered'] = True
     if whatsapp_marketing_consent:
         maybe_grant_registration_whatsapp_consent(seller)
 

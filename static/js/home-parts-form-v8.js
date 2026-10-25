@@ -744,6 +744,8 @@
       if (result.ok && result.data && result.data.status === 'ok' && result.data.result_url) {
         rotateIdempotencyKey();
         if (result.data.accepted_url) {
+      window.dataLayer = window.dataLayer || [];
+      window.dataLayer.push({event: 'zpt_request_submitted'});
           window.location.assign(result.data.accepted_url);
           return;
         }

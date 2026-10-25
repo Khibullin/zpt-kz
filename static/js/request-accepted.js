@@ -1,6 +1,8 @@
 (function () {
   'use strict';
   window.ZPTRequestAccepted = function (form, options) {
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({event: 'zpt_request_submitted'});
     const panel = document.createElement('section');
     panel.setAttribute('role', 'status');
     panel.setAttribute('tabindex', '-1');

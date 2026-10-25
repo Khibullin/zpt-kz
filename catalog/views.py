@@ -987,6 +987,7 @@ def seller_dashboard(request):
     )
 
     return render(request, 'catalog/seller_dashboard.html', {
+        'seller_registered': request.session.pop('zpt_seller_registered', False),
         'seller': seller,
         'request_seller': request_seller,
         'consent_status': consent_status,

@@ -68,6 +68,19 @@
   }
 
   function init() {
+    document.querySelectorAll('[data-zpt-entry]').forEach(function (link) {
+      link.addEventListener('click', function () {
+        pushEvent({event: 'zpt_funnel_entry', audience: link.dataset.zptEntry});
+      });
+    });
+    document.querySelectorAll('[data-zpt-funnel], #requestForm, #serviceForm, #home-parts-form').forEach(function (form) {
+      form.addEventListener('input', function () {
+        pushEvent({event: form.dataset.zptFunnel === 'seller' ? 'zpt_seller_registration_started' : 'zpt_request_started'});
+      }, {once: true});
+    });
+    if (document.querySelector('[data-zpt-seller-registered]')) {
+      pushEvent({event: 'zpt_seller_registered'});
+    }
     trackCatalogSearch();
     trackBuyerRequestSuccess();
     trackOrderCreated();
