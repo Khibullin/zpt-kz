@@ -48,6 +48,7 @@
     {% if 'home_request' not in request.GET %}
     {% google_tag_manager_head %}
     {% endif %}
+<link rel="stylesheet" href="{% static 'css/card-refresh.css' %}?v=20261025-1">
 </head>
 <body{% block body_attrs %}{% endblock %}>
 {% if 'home_request' not in request.GET %}

@@ -1,0 +1,224 @@
+/* Owner-approved site-wide card refresh, 25 October 2026.
+   Loaded last by public layouts. Keep status colors, photos and business actions. */
+:root {
+  --card-ink: #101b36;
+  --card-copy: #3f5268;
+  --card-teal: #008e98;
+  --card-teal-dark: #006c76;
+  --card-aqua: #e9f8f7;
+  --card-amber: #fff0d7;
+  --card-border: #cce5e5;
+  --card-shadow: 0 6px 22px rgba(18, 73, 87, .07);
+}
+body { background-color: #fcfaf5; }
+body.zpt-interface, body.directory-catalog-page {
+  background: linear-gradient(135deg, #effafa 0, #fffaf1 65%, #fff 100%);
+}
+/* Explicit card families, including older public layouts and cabinets. */
+body :is(.card, .panel, .action-card, .gateway-card, .profile-card,
+  .seller-card, .seller-page-card, .seller-profile-card, .public-seller-profile-card,
+  .seller-trust-card, .directory-card, .org-panel, .org-entry-card,
+  .service-card, .kit-card, .product-info-card, .detail-section-card, .detail-box,
+  .editorial-card, .faq-card, .guide-card, .feedback-landing-card,
+  .seller-landing-benefit-card, .seller-landing-step-card,
+  .checkout-card, .order-success-card, .summary-card, .history-card,
+  .b2b-auth-card, .seller-product-form-card, .rf-card, .sr-card,
+  .seller-consent-card, .connection-card, .state-card, .settings-card, .request-card, .result-card) {
+  min-width: 0;
+  border: 1px solid var(--card-border);
+  border-top: 4px solid var(--card-teal);
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fff 60%, #f0faf8);
+  box-shadow: var(--card-shadow);
+  color: var(--card-ink);
+  font-size: 17px;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+body :is(.directory-card, .service-card, .kit-card, .editorial-card, .gateway-card):hover {
+  border-color: #72bdc1;
+  box-shadow: 0 9px 26px rgba(18, 73, 87, .12);
+}
+body :is(.card, .panel, .action-card, .gateway-card, .profile-card,
+  .seller-card, .seller-page-card, .seller-profile-card, .public-seller-profile-card,
+  .directory-card, .org-panel, .service-card, .kit-card,
+  .product-info-card, .detail-section-card, .editorial-card,
+  .faq-card, .guide-card, .checkout-card, .summary-card, .rf-card, .sr-card,
+  .connection-card, .state-card) :is(h2, h3, .card-title, .card-heading) {
+  color: var(--card-ink);
+  font-size: clamp(21px, 1.8vw, 26px);
+  line-height: 1.3;
+}
+body :is(.directory-address, .directory-description, .directory-city,
+  .service-address, .service-location, .service-muted, .org-description,
+  .org-location-note, .org-schedule, .org-specializations, .org-socials a,
+  .card-desc, .detail-label, .detail-value, .kit-card-meta,
+  .seller-profile-phone, .seller-phone, .rf-muted,
+  .editorial-muted, .seller-landing-benefit-card p, .seller-landing-step-card p) {
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--card-copy);
+}
+body :is(.directory-card h2 a, .service-card h3 a, .kit-card h2 a,
+  .org-address, .detail-value, .seller-card-name) { color: var(--card-ink); }
+body :is(.directory-profile, .directory-call, .org-call, .org-map-links a,
+  .org-route summary, .org-socials a, .kit-card-cta,
+  .card-btn-secondary, .card-btn-requests-outline, .card-btn-service-outline) {
+  background: #fff;
+  color: var(--card-teal-dark) !important;
+  border: 1px solid var(--card-teal);
+  border-radius: 11px;
+  font-size: 17px;
+  font-weight: 700;
+  min-height: 48px;
+  padding: 11px 16px;
+  line-height: 1.4;
+  white-space: normal;
+}
+body :is(.directory-profile, .directory-call, .org-call, .org-map-links a,
+  .org-route summary, .org-socials a):hover { background: #dcf3f1; }
+body :is(.directory-whatsapp, .org-whatsapp, .service-whatsapp) {
+  background: #008b43;
+  border-color: #008b43;
+  color: #fff !important;
+  font-size: 17px;
+  min-height: 48px;
+  border-radius: 11px;
+}
+body :is(.directory-whatsapp, .org-whatsapp, .service-whatsapp):hover { background: #006e35; }
+body :is(.org-contacts, .detail-box-whatsapp, .seller-contact-phones) {
+  background: linear-gradient(145deg, #e3f7f4, #f7fffe);
+}
+body :is(.org-phones a, .seller-profile-phone, .seller-phone,
+  .seller-contact-phones a[href^="tel:"], .seller-page-card a[href^="tel:"],
+  .public-seller-profile-card a[href^="tel:"], .card .info a[href^="tel:"]) {
+  color: var(--card-ink);
+  font-size: clamp(22px, 2.2vw, 30px);
+  font-weight: 800;
+  line-height: 1.45;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+body .org-phones span { color: var(--card-copy); font-size: 16px; }
+body .org-city {
+  color: var(--card-teal-dark);
+  background: var(--card-aqua);
+  border-radius: 12px;
+  padding: 8px 14px;
+  width: fit-content;
+  font-weight: 700;
+  font-size: 18px;
+}
+body :is(.org-label, .kit-card-price, .editorial-price) { color: #9d4800; }
+body :is(.org-location .org-address, .kit-card-price) {
+  background: var(--card-amber);
+  padding: 14px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+body :is(.card, .panel, .profile-card, .org-panel, .checkout-card,
+  .summary-card, .rf-card, .sr-card, .state-card) :is(.muted, .text-muted, small) {
+  color: var(--card-copy);
+  font-size: 16px;
+  line-height: 1.5;
+}
+/* Home and service navigation tiles retain their illustrations. */
+body.zpt-interface :is(.tile, .service-tile, .landing-org, .landing-step) {
+  border: 1px solid var(--card-border);
+  border-radius: 18px;
+  background-color: var(--card-aqua);
+  box-shadow: var(--card-shadow);
+}
+body.zpt-interface :is(.tile, .service-tile):nth-child(even) { background-color: var(--card-amber); }
+body.zpt-interface :is(.tile h3, .service-tile h3, .landing-org h3) { font-size: 23px; color: var(--card-ink); }
+body.zpt-interface :is(.tile p, .landing-org p, .landing-step p, .landing-features span) {
+  font-size: 16px;
+  color: var(--card-copy);
+  line-height: 1.5;
+}
+/* Product cards: keep real images and prices, stock semantics and purchase controls. */
+body .product.product-v2.product-card-approved {
+  border-color: var(--card-border);
+  border-top: 4px solid var(--card-teal);
+  border-radius: 18px;
+  box-shadow: var(--card-shadow);
+  padding: 16px;
+}
+body .product.product-card-approved .product-image-link { background: #f0faf8; }
+body .product.product-card-approved .product-title {
+  font-size: 18px;
+  line-height: 1.4;
+  max-height: none;
+  color: var(--card-ink);
+}
+body .product.product-card-approved :is(.product-card-article, .product-card-fitment,
+  .product-card-price-label, .product-card-secondary, .product-card-secondary a,
+  .product-meta-details, .product-card-condition) {
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--card-copy);
+}
+body .product.product-card-approved .product-card-price-value { font-size: 25px; color: var(--card-ink); }
+body .product.product-card-approved .product-card-stock { font-size: 16px; }
+body .product.product-card-approved :is(.product-buy-btn, .product-detail-link, .product-wa-btn--price-request) {
+  font-size: 16px;
+  min-height: 48px;
+  border-radius: 11px;
+}
+body .product.product-v2.product-card-approved .product-meta-seller .card-seller-link {
+  background: var(--card-aqua);
+  border-color: var(--card-border);
+  grid-template-columns: 26px minmax(0, 1fr);
+}
+body .product-card-approved .card-seller-visit { grid-column: 2; color: var(--card-teal-dark); font-size: 15px; }
+body .product.product-v2.product-card-approved .product-meta-seller .meta-city { font-size: 15px; color: var(--card-copy); }
+body .product-card-approved .card-seller-icon { color: var(--card-teal); }
+/* Detail pages and forms use the same readable scale. */
+body :is(.product-detail, .detail-seller-layout, .kit-page) { color: var(--card-ink); }
+body :is(.product-detail, .detail-seller-layout, .kit-page) :is(.muted, .detail-label, .detail-value, .product-card-fitment) {
+  font-size: 17px;
+  color: var(--card-copy);
+}
+body :is(.ds-body, p.ds-body) { font-size: 17px; color: var(--card-copy); }
+body :is(.btn-primary, .btn-secondary, .seller-landing-btn-primary, .seller-landing-btn-secondary) {
+  font-size: 17px;
+  min-height: 48px;
+}
+body :is(.card, .panel, .org-panel, .rf-card, .sr-card, .checkout-card) :is(input, select, textarea) { font-size: 17px; }
+body :is(.card, .panel, .org-panel, .directory-card, .service-card, .kit-card, .product-card-approved) :focus-visible {
+  outline: 3px solid #007b85;
+  outline-offset: 3px;
+}
+@media (max-width: 760px) {
+  body :is(.directory-card, .org-panel, .service-card, .kit-card, .card, .rf-card, .sr-card) { border-radius: 14px; }
+  body :is(.directory-card-actions, .org-actions, .service-card-actions) { width: 100%; }
+  body :is(.directory-contacts a, .org-action, .service-card-actions .btn) { flex: 1 1 100%; }
+  body :is(.org-specializations > div) { flex-wrap: wrap; gap: 4px 12px; }
+  body.zpt-interface :is(.tile h3, .service-tile h3) { font-size: 20px; }
+  body.zpt-interface .tile { min-height: 150px; }
+  body.zpt-interface .tile .tile-copy { position: relative; z-index: 1; }
+  body .products:has(> .product-card-approved),
+  body .products-container:has(> .product-card-approved) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+}
+@media (max-width: 540px) {
+  body .products:has(> .product-card-approved),
+  body .products-container:has(> .product-card-approved) { grid-template-columns: minmax(0, 1fr) !important; }
+}
+/* More specific legacy tile rules used by the homepage. */
+body.zpt-interface .tiles-five .tile{height:auto;min-height:170px;background:linear-gradient(115deg,#e1f6f2,#f8fffd);border-radius:18px}
+body.zpt-interface .tiles-five .tile:nth-child(even){background:linear-gradient(115deg,#ffeacb,#fffaf0)}
+body.zpt-interface .tiles-five .tile h3{font-size:24px;line-height:1.25}
+body.zpt-interface .tiles-five .tile p{font-size:17px;line-height:1.5;color:#3f5268}
+body :is(.kit-hero,.kit-summary,.detail-section-card){border:1px solid #cce5e5;border-top:4px solid #008e98;border-radius:18px;background:linear-gradient(130deg,#fff,#e9f8f7);box-shadow:var(--card-shadow)}
+body .product-info-card :is(.product-vehicle-line,.detail-article,.product-meta,.detail-label,.detail-value){font-size:17px;color:#3f5268}
+body .product-info-card .product-detail-title{font-size:clamp(25px,2.5vw,34px);line-height:1.3}
+@media(max-width:760px){body.zpt-interface .tiles-five .tile{min-height:170px}body.zpt-interface .tiles-five .tile h3{font-size:21px}body.zpt-interface .tiles-five .tile p{font-size:16px}}
+
+body :is(.request-card,.settings-card,.result-card) :is(h2,h3,.request-title){font-size:23px;color:var(--card-ink)}
+body :is(.request-card,.settings-card,.result-card) :is(.request-body,.request-meta,p,label){font-size:17px;line-height:1.55;color:var(--card-copy)}
+body :is(.request-card,.settings-card,.result-card) .btn{font-size:17px;min-height:48px}
+
+body .product.product-v2.product-card-approved :is(.product-buy-btn,.product-detail-link,.product-wa-btn--price-request){font-size:17px;min-height:48px}
+body .product-info-card :is(button,.btn,.product-detail-buy a){box-sizing:border-box;max-width:100%;min-height:48px;font-size:17px;white-space:normal}
+body .product-info-card .detail-box-whatsapp .detail-value{font-size:22px;font-weight:800;color:var(--card-ink)}
+body .product.product-card-approved .product-card-stock--unknown,body .product.product-card-approved .product-card-stock--out{color:#526176}

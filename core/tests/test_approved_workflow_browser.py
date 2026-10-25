@@ -1,5 +1,7 @@
 """Real Chromium layout checks, opt-in in CI; synthetic rendered pages only."""
 import os
+import re
+from django.contrib.staticfiles import finders
 from pathlib import Path
 import subprocess
 import tempfile
@@ -100,6 +102,37 @@ class ApprovedBrowserTests(TestCase):
         pages['admin-manual-prepared'] = self.client.post(reverse('workflow_admin_manual', args=[self.req.pk]), {'seller': self.seller.pk, 'channel': 'whatsapp', 'action': 'prepare'}).content.decode()
         self.assertIn('Скопировать сообщение', pages['admin-manual-prepared'])
         pages['admin-history'] = self.client.get(reverse('workflow_admin_control', args=[self.req.pk]) + '?view=history').content.decode()
+        # Exercise the real public card families with their own stylesheet cascade.
+        self.client.logout()
+        from catalog.models import Product, Country, Brand, CarModel, MaintenanceKit, MaintenanceKitItem
+        from service_requests.models import ServiceSeller
+        product = Product.objects.create(title='Воздушный фильтр — крупное читаемое название',
+            article='QA-FILTER', price=12500, status='active', stock_qty=5,
+            seller_name='Магазин запчастей', whatsapp_number='+77009998877')
+        country = Country.objects.create(name='QA страна')
+        brand = Brand.objects.create(country=country, name='Toyota QA')
+        model = CarModel.objects.create(brand=brand, name='Highlander QA')
+        kit = MaintenanceKit.objects.create(name='Комплект ТО Toyota Highlander', slug='qa-readable-kit',
+            brand=brand, car_model=model, is_active=True)
+        MaintenanceKitItem.objects.create(kit=kit, product=product, quantity=1)
+        shop.is_dismantler = True
+        shop.save(update_fields=['is_dismantler'])
+        sto = ServiceSeller.objects.create(name='Автосервис — проверка крупного текста',
+            whatsapp='77005554433', seller_type='sto', city='Алматы', address='Тестовая улица, 1')
+        for name, url in {
+            'public-home': '/', 'public-products': reverse('catalog_list'),
+            'public-product': product.get_absolute_url(),
+            'public-dismantlers': '/auto-dismantlers/',
+            'public-dismantler': f'/parts-seller/{shop.pk}/',
+            'public-parts-sellers': '/parts-sellers/',
+            'public-services': '/catalog/services/?type=sto',
+            'public-service': f'/catalog/services/{sto.pk}/',
+            'public-kits': reverse('maintenance_kit_list'),
+            'public-kit': reverse('maintenance_kit_detail', args=[kit.slug]),
+        }.items():
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200, name)
+            pages[name] = response.content.decode()
         css = Path('core/static/core/connections.css').read_text()
         helpers = Path('core/static/core/connections.js').read_text()
         output = Path('var/reports/workflow-ui').resolve()
@@ -107,13 +140,20 @@ class ApprovedBrowserTests(TestCase):
         with tempfile.TemporaryDirectory() as folder:
             for name, html in pages.items():
                 self.assertNotIn('Traceback', html)
-                self.assertIn('<main', html, name)
-                Path(folder, name + '.html').write_text(html.replace('</head>', '<style>' + css + '</style><script>' + helpers + '</script></head>'))
+                self.assertIn('<body' if name.startswith('public-') else '<main', html, name)
+                def inline_css(match):
+                    url = match.group(1).split('?')[0]
+                    asset = finders.find(url.removeprefix('/static/')) if url.startswith('/static/') else None
+                    return '<style>' + Path(asset).read_text() + '</style>' if asset else match.group(0)
+                html = re.sub(r'<link[^>]*href="([^\"]+\.css(?:\?[^\"]*)?)"[^>]*>', inline_css, html)
+                # Admin pages retain their existing synthetic workflow fallback.
+                fallback = '' if 'card-refresh.css' in pages[name] else '<style>' + css + '</style>'
+                Path(folder, name + '.html').write_text(html.replace('</head>', fallback + '<script>' + helpers + '</script></head>'))
             script = r'''
 const {chromium}=require('playwright');
 const fs=require('fs'); const path=require('path');
 (async()=>{ const browser=await chromium.launch({headless:true, executablePath:process.env.ZPT_BROWSER_EXECUTABLE || undefined, channel:process.env.ZPT_BROWSER_CHANNEL || undefined});
-for(const width of [390,1440]) { const page=await browser.newPage({viewport:{width,height:1000}});
+for(const width of [360,390,1440]) { const page=await browser.newPage({viewport:{width,height:1000}});
 await page.route('**/*',route=>route.abort());
 for(const file of fs.readdirSync(process.argv[1])) {
 await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
@@ -124,6 +164,19 @@ if(await page.locator('.upload-name').textContent()!=='test-photo.png') throw ne
 if(file==='buyer-sellers-long-name.html') {
 const title=page.locator('.seller-copy h2').first();
 if(await title.evaluate(el=>el.getBoundingClientRect().height>parseFloat(getComputedStyle(el).lineHeight)*2+1)) throw new Error('Seller title exceeds two lines');
+}
+if(file==='buyer-shop-city-phone.html') {
+const phone=page.locator('.shop-phone').first();
+if(await phone.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)<24)) throw new Error('Shop phone is too small');
+if((await page.locator('body').innerText()).includes('Специализацию уточните')) throw new Error('Unapproved specialization placeholder');
+}
+if(file==='public-home.html' && width<540) {
+const card=page.locator('#interface-products>.product').first();
+const grid=page.locator('#interface-products');
+if((await card.boundingBox()).width<(await grid.boundingBox()).width-2) throw new Error('Mobile product card is not full width');
+}
+if(file==='public-dismantler.html') {
+if(await page.locator('.org-phones a').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)<22)) throw new Error('Directory phone is too small');
 }
 if(await page.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth+1)) throw new Error('Horizontal overflow: '+file+' width '+width);
 if(file==='admin-manual-prepared.html') {
