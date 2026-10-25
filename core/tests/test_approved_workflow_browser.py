@@ -170,6 +170,11 @@ const phone=page.locator('.shop-phone').first();
 if(await phone.evaluate(el=>parseFloat(getComputedStyle(el).fontSize)<24)) throw new Error('Shop phone is too small');
 if((await page.locator('body').innerText()).includes('Специализацию уточните')) throw new Error('Unapproved specialization placeholder');
 }
+if(file==='public-home.html' && width<540) {
+const card=page.locator('#interface-products>.product').first();
+const grid=page.locator('#interface-products');
+if((await card.boundingBox()).width<(await grid.boundingBox()).width-2) throw new Error('Mobile product card is not full width');
+}
 if(file==='public-dismantler.html') {
 if(await page.locator('.org-phones a').first().evaluate(el=>parseFloat(getComputedStyle(el).fontSize)<22)) throw new Error('Directory phone is too small');
 }

@@ -1918,3 +1918,8 @@ main .request-facts :is(dt,dd){font-size:17px}
 .detail-panel .request-two-column{grid-template-columns:minmax(0,1fr)}
 .detail-panel .request-summary strong,.detail-panel .request-summary .summary-part p{font-size:21px}
 }
+
+main.shop-panel .shop-facts .button{font-size:17px;min-height:46px;border-radius:11px}
+main.shop-panel .shop-request p{font-size:17px;color:#3f5268;line-height:1.5}
+main.shop-panel .shop-about h2{font-size:25px}
+main.shop-panel .shop-contact>a{font-size:17px}

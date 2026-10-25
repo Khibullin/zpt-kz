@@ -202,7 +202,7 @@ body :is(.card, .panel, .org-panel, .directory-card, .service-card, .kit-card, .
 }
 @media (max-width: 540px) {
   body .products:has(> .product-card-approved),
-  body .products-container:has(> .product-card-approved) { grid-template-columns: minmax(0, 1fr); }
+  body .products-container:has(> .product-card-approved) { grid-template-columns: minmax(0, 1fr) !important; }
 }
 /* More specific legacy tile rules used by the homepage. */
 body.zpt-interface .tiles-five .tile{height:auto;min-height:170px;background:linear-gradient(115deg,#e1f6f2,#f8fffd);border-radius:18px}
@@ -217,3 +217,8 @@ body .product-info-card .product-detail-title{font-size:clamp(25px,2.5vw,34px);l
 body :is(.request-card,.settings-card,.result-card) :is(h2,h3,.request-title){font-size:23px;color:var(--card-ink)}
 body :is(.request-card,.settings-card,.result-card) :is(.request-body,.request-meta,p,label){font-size:17px;line-height:1.55;color:var(--card-copy)}
 body :is(.request-card,.settings-card,.result-card) .btn{font-size:17px;min-height:48px}
+
+body .product.product-v2.product-card-approved :is(.product-buy-btn,.product-detail-link,.product-wa-btn--price-request){font-size:17px;min-height:48px}
+body .product-info-card :is(button,.btn,.product-detail-buy a){box-sizing:border-box;max-width:100%;min-height:48px;font-size:17px;white-space:normal}
+body .product-info-card .detail-box-whatsapp .detail-value{font-size:22px;font-weight:800;color:var(--card-ink)}
+body .product.product-card-approved .product-card-stock--unknown,body .product.product-card-approved .product-card-stock--out{color:#526176}
