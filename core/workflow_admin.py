@@ -169,6 +169,21 @@ def control(request, req_id):
             timeline += [{'at': item.created_at, 'title': titles.get(item.result, item.result),
                           'seller': item.seller.name if item.seller_id else '', 'detail': item.comment}
                          for item in req.outcome_events.select_related('seller')]
+        # Keep the established /sr/ event journal visible alongside the new flow.
+        legacy_kinds = {'page_open': 'opened', 'whatsapp_click': 'whatsapp_click',
+                        'call_click': 'call_click', 'out_of_stock': 'out_of_stock',
+                        'cannot_fulfill': 'cannot_fulfill'}
+        observed = {(item.seller_id, item.kind) for item in interactions if item.actor == 'seller'}
+        for event in req.seller_page_events.select_related('seller'):
+            kind = legacy_kinds.get(event.event_type)
+            if not kind or (event.seller_id, kind) in observed:
+                continue
+            if group == 'contact' and kind not in ('whatsapp_click', 'call_click'):
+                continue
+            if group == 'result' and kind not in ('out_of_stock', 'cannot_fulfill'):
+                continue
+            timeline.append({'at': event.created_at, 'title': event.get_event_type_display(),
+                             'seller': event.seller.name, 'detail': 'Персональная страница продавца /sr/'})
         if group in ('all', 'sellers'):
             for notice in req.seller_notifications.select_related('seller'):
                 timeline.append({'at': notice.updated_at,

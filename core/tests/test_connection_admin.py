@@ -92,3 +92,14 @@ class PrepareAdminTests(TestCase):
         self.assertNotContains(self.client.get(url+'?view=history&group=sellers'), 'Вопрос покупателю о результате')
         self.client.logout()
         self.assertNotEqual(self.client.get(url+'?view=history').status_code, 200)
+
+    def test_legacy_personal_page_actions_are_visible_without_duplicate_new_actions(self):
+        from core.models import Seller, SellerRequestPageEvent, RequestInteraction
+        from core.services.seller_request_access import create_seller_request_access
+        seller = Seller.objects.create(name='Legacy seller', whatsapp='77001112233')
+        access = create_seller_request_access(request=self.req, seller=seller)
+        SellerRequestPageEvent.objects.create(request=self.req, seller=seller, access=access, event_type='whatsapp_click')
+        url = reverse('workflow_admin_control', args=[self.req.pk])+'?view=history&group=contact'
+        self.assertContains(self.client.get(url), 'Персональная страница продавца /sr/')
+        RequestInteraction.objects.create(request=self.req, seller=seller, actor='seller', kind='whatsapp_click')
+        self.assertNotContains(self.client.get(url), 'Персональная страница продавца /sr/')
