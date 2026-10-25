@@ -169,6 +169,26 @@ def control(request, req_id):
             timeline += [{'at': item.created_at, 'title': titles.get(item.result, item.result),
                           'seller': item.seller.name if item.seller_id else '', 'detail': item.comment}
                          for item in req.outcome_events.select_related('seller')]
+        if group in ('all', 'sellers'):
+            for notice in req.seller_notifications.select_related('seller'):
+                timeline.append({'at': notice.updated_at,
+                    'title': 'Уведомление продавцу: ' + notice.get_status_display(),
+                    'seller': notice.seller.name,
+                    'detail': notice.get_channel_display() + ' · Отправка не подтверждает прочтение или контакт'})
+        if group in ('all', 'result'):
+            from core.models import RequestBuyerFollowup
+            followup = RequestBuyerFollowup.objects.filter(request=req).first()
+            if followup:
+                statuses = {'prepared': 'Подготовлен', 'sending': 'Отправляется',
+                            'sent': 'Принят Telegram', 'manual': 'Отправка отмечена сотрудником',
+                            'unknown': 'Результат отправки неизвестен'}
+                timeline.append({'at': followup.updated_at, 'title': 'Вопрос покупателю о результате',
+                    'seller': '', 'detail': ('Telegram' if followup.channel == 'telegram' else 'WhatsApp')
+                    + ' · ' + statuses.get(followup.status, 'Неизвестный статус')
+                    + ' · Покупка этим не подтверждается'})
+        if group == 'all':
+            timeline.append({'at': req.created_at, 'title': 'Заявка принята', 'seller': '',
+                             'detail': 'Сохранена в ZPT.KZ'})
         timeline.sort(key=lambda item: item['at'])
         return render(request, 'core/connections/admin_history.html', {'req': req, 'timeline': timeline, 'group': group})
     return render(request, 'core/connections/admin_control.html', {'req': req, 'label': service.result_label(req),

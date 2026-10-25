@@ -74,3 +74,21 @@ class PrepareAdminTests(TestCase):
         self.assertNotContains(result, 'Переход в WhatsApp')
         self.client.logout()
         self.assertEqual(self.client.get(url).status_code, 302)
+
+    def test_history_includes_delivery_and_followup_without_claiming_contact(self):
+        from core.models import Seller, RequestSellerNotification, RequestBuyerFollowup
+        seller = Seller.objects.create(name='Тестовый продавец', whatsapp='77001112233')
+        RequestSellerNotification.objects.create(request=self.req, seller=seller, channel='telegram', status='sent', message_id=10)
+        RequestBuyerFollowup.objects.create(request=self.req, channel='whatsapp', status='manual', actor=self.user)
+        url = reverse('workflow_admin_control', args=[self.req.pk])
+        response = self.client.get(url+'?view=history')
+        self.assertContains(response, 'Заявка принята')
+        self.assertContains(response, 'Уведомление продавцу: Принято Telegram')
+        self.assertContains(response, 'Вопрос покупателю о результате')
+        self.assertContains(response, 'Покупка этим не подтверждается')
+        self.assertNotContains(response, str(self.req.access_token))
+        self.assertNotContains(response, self.req.phone)
+        self.assertNotContains(self.client.get(url+'?view=history&group=contact'), 'Уведомление продавцу:')
+        self.assertNotContains(self.client.get(url+'?view=history&group=sellers'), 'Вопрос покупателю о результате')
+        self.client.logout()
+        self.assertNotEqual(self.client.get(url+'?view=history').status_code, 200)
