@@ -109,3 +109,42 @@ document.addEventListener('change', (event) => {
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();
 })();
+
+// Save buyer choices in place: submitting a checkbox must not navigate or scroll.
+document.addEventListener('submit', async (event) => {
+  const form = event.target;
+  if (!form.matches('.sellers-panel .selection-toggle')) return;
+  const checkbox = form.querySelector('input[type="checkbox"]');
+  if (!checkbox) return;
+  event.preventDefault();
+  checkbox.disabled = true;
+  let status = form.querySelector('[data-selection-status]');
+  if (!status) {
+    status = document.createElement('span');
+    status.dataset.selectionStatus = '1';
+    status.setAttribute('role', 'status');
+    form.append(status);
+  }
+  status.textContent = '';
+  try {
+    const response = await fetch(form.action, {
+      method: 'POST', body: new FormData(form), credentials: 'same-origin'
+    });
+    if (!response.ok) throw new Error('Selection save failed');
+    const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+    const saved = Array.from(page.querySelectorAll('.selection-toggle')).find(item =>
+      item.getAttribute('action') === form.getAttribute('action'));
+    const savedCheckbox = saved && saved.querySelector('input[type="checkbox"]');
+    const counter = page.querySelector('.selection-nav a');
+    if (!savedCheckbox || !counter) throw new Error('Selection response missing');
+    checkbox.checked = savedCheckbox.checked;
+    document.querySelector('.selection-nav a').textContent = counter.textContent;
+    status.textContent = Array.from(page.querySelectorAll('.selection-notice'))
+      .map(item => item.textContent).join(' ');
+  } catch (_) {
+    checkbox.checked = !checkbox.checked;
+    status.textContent = 'Не удалось сохранить выбор. Попробуйте ещё раз.';
+  } finally {
+    checkbox.disabled = false;
+  }
+});
