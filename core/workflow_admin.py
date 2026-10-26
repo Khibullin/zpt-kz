@@ -122,10 +122,18 @@ class ReconcileForm(forms.Form):
     def clean_url(self):
         parsed = urlsplit(self.cleaned_data['url'])
         bits = parsed.path.strip('/').split('/')
-        if (parsed.scheme != 'https' or parsed.netloc != 't.me' or parsed.query or parsed.fragment
-                or len(bits) != 2 or bits[0] != 'zpt_kz_zakaz' or not bits[1].isdigit() or int(bits[1]) <= 0):
-            raise forms.ValidationError('Укажите сообщение канала zpt_kz_zakaz.')
-        return int(bits[1])
+        valid_origin = parsed.scheme == 'https' and parsed.netloc == 't.me' and not parsed.query and not parsed.fragment
+        destinations = {'zpt_kz_zakaz': '@zpt_kz_zakaz', 'zpt_kz_parts': '-1004326627260'}
+        if len(bits) == 2 and bits[0] in destinations:
+            self.destination = destinations[bits[0]]
+        elif len(bits) == 3 and bits[:2] == ['c', '4326627260']:
+            self.destination = '-1004326627260'
+        else:
+            raise forms.ValidationError('Укажите сообщение сообщества ZPT.KZ.')
+        if not valid_origin or not bits[-1].isdigit() or int(bits[-1]) <= 0:
+            raise forms.ValidationError('Укажите сообщение сообщества ZPT.KZ.')
+        return int(bits[-1])
+
 
 
 def admin_view(view):
@@ -235,15 +243,15 @@ def reconcile(request, req_id):
             pub, _ = TelegramRequestPublication.objects.get_or_create(request=req,
                 defaults={'text': service.safe_summary(req), 'created_by': request.user})
             message_id = form.cleaned_data['url']
-            if pub.message_id and pub.message_id != message_id:
+            if pub.message_id and (pub.message_id != message_id or pub.chat_id != form.destination):
                 form.add_error(None, 'Другой номер сообщения уже сохранён. Изменение запрещено.')
-            elif TelegramRequestPublication.objects.exclude(pk=pub.pk).filter(message_id=message_id).exists():
+            elif TelegramRequestPublication.objects.exclude(pk=pub.pk).filter(message_id=message_id, chat_id=form.destination).exists():
                 form.add_error(None, 'Это сообщение уже связано с другой заявкой.')
             elif pub.status == 'sending':
                 form.add_error(None, 'Дождитесь завершения текущей отправки.')
             else:
-                pub.message_id, pub.status = message_id, 'published'
-                pub.save(update_fields=['message_id', 'status', 'updated_at'])
+                pub.message_id, pub.status, pub.chat_id = message_id, 'published', form.destination
+                pub.save(update_fields=['message_id', 'status', 'chat_id', 'updated_at'])
                 TelegramPublicationAttempt.objects.create(publication=pub, actor=request.user, result='manually_reconciled')
                 log(request.user, req, 'Существующая публикация сверена и привязана без отправки')
                 return redirect('workflow_admin_control', req.pk)

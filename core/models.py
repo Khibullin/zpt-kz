@@ -3799,6 +3799,7 @@ class TelegramRequestPublication(models.Model):
     text = models.TextField(max_length=1500)
     reviewed = models.BooleanField(default=False, verbose_name='Текст проверен: без персональных данных')
     message_id = models.PositiveBigIntegerField(null=True, blank=True)
+    chat_id = models.CharField(max_length=64, default='@zpt_kz_zakaz')
     status = models.CharField(max_length=12, default='draft', choices=[
         ('draft', 'Черновик'), ('sending', 'Отправляется'), ('published', 'Опубликована'),
         ('unknown', 'Результат неизвестен: сверить вручную')])
@@ -3807,7 +3808,11 @@ class TelegramRequestPublication(models.Model):
 
     @property
     def message_url(self):
-        return f'https://t.me/zpt_kz_zakaz/{self.message_id}' if self.message_id else ''
+        if not self.message_id:
+            return ''
+        if self.chat_id.startswith('-100'):
+            return f'https://t.me/c/{self.chat_id[4:]}/{self.message_id}'
+        return f'https://t.me/{self.chat_id.lstrip("@")}/{self.message_id}'
 
 
 class TelegramPublicationAttempt(models.Model):

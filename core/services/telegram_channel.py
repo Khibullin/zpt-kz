@@ -10,7 +10,8 @@ import requests
 
 
 BOT_USERNAME = "zpt_kz_zakaz_bot"
-CHANNEL = "@zpt_kz_zakaz"
+CHANNEL = "-1004326627260"
+REQUEST_TOPIC_ID = 16
 TEST_MESSAGE = (
     "✅ ZPT.KZ — тест подключения Telegram.\n"
     "Это техническое сообщение, не заявка покупателя.\n"
@@ -70,18 +71,16 @@ def verify_channel() -> dict:
         )
 
     chat = _call_api("getChat", {"chat_id": CHANNEL})
-    if (
-        chat.get("type") != "channel"
-        or str(chat.get("username", "")).casefold() != CHANNEL[1:]
-    ):
-        raise TelegramChannelError("Целевой канал ZPT.KZ не подтверждён.")
+    if chat.get('type') != 'supergroup' or str(chat.get('id')) != CHANNEL or not chat.get('is_forum'):
+        raise TelegramChannelError('Общая группа ZPT.KZ с темами не подтверждена.')
 
-    member = _call_api(
-        "getChatMember",
-        {"chat_id": CHANNEL, "user_id": bot["id"]},
-    )
-    if member.get("status") != "administrator" or member.get("can_post_messages") is not True:
-        raise TelegramChannelError("У бота нет права Post Messages.")
+    member = _call_api('getChatMember', {'chat_id': CHANNEL, 'user_id': bot['id']})
+    status = member.get('status')
+    if status not in ('creator', 'administrator', 'member'):
+        raise TelegramChannelError('Бот не подключён к общей группе ZPT.KZ.')
+    permissions = chat.get('permissions', {})
+    if status == 'member' and permissions.get('can_send_messages') is not True:
+        raise TelegramChannelError('В группе запрещена отправка сообщений ботом.')
     return {"bot": BOT_USERNAME, "channel": CHANNEL}
 
 
@@ -90,6 +89,7 @@ def send_test_post() -> int:
     verify_channel()
     result = _call_api("sendMessage", {
         "chat_id": CHANNEL,
+        "message_thread_id": REQUEST_TOPIC_ID,
         "text": TEST_MESSAGE,
         "link_preview_options": {"is_disabled": True},
     })

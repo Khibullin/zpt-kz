@@ -7,6 +7,7 @@ from django.core.management import call_command
 from django.test import SimpleTestCase
 
 from core.services.telegram_channel import (
+    REQUEST_TOPIC_ID,
     BOT_USERNAME,
     CHANNEL,
     TEST_MESSAGE,
@@ -29,7 +30,7 @@ def response(result, status=200):
 def verify_responses():
     return [
         response({"is_bot": True, "id": 123, "username": BOT_USERNAME}),
-        response({"type": "channel", "username": CHANNEL[1:]}),
+        response({"type": "supergroup", "id": int(CHANNEL), "is_forum": True}),
         response({"status": "administrator", "can_post_messages": True}),
     ]
 
@@ -53,6 +54,7 @@ class TelegramChannelTests(SimpleTestCase):
         self.assertTrue(post.call_args.args[0].endswith("/sendMessage"))
         params = post.call_args.kwargs["json"]
         self.assertEqual(params["chat_id"], CHANNEL)
+        self.assertEqual(params["message_thread_id"], REQUEST_TOPIC_ID)
         self.assertEqual(params["text"], TEST_MESSAGE)
         self.assertNotIn("phone", params)
         self.assertEqual(params["link_preview_options"], {"is_disabled": True})
@@ -78,7 +80,7 @@ class TelegramChannelTests(SimpleTestCase):
     @patch("core.services.telegram_channel.requests.post")
     def test_missing_post_right_fails_closed(self, post):
         replies = verify_responses()
-        replies[2] = response({"status": "administrator", "can_post_messages": False})
+        replies[2] = response({"status": "left"})
         post.side_effect = replies
         with self.assertRaises(TelegramChannelError):
             verify_channel()
@@ -134,3 +136,20 @@ class TelegramTokenMissingTests(SimpleTestCase):
         with self.assertRaises(TelegramChannelError):
             verify_channel()
         post.assert_not_called()
+
+
+class CommunityLinksTests(SimpleTestCase):
+    def test_destination_specific_message_links(self):
+        from core.models import TelegramRequestPublication
+        pub = TelegramRequestPublication(message_id=42, chat_id='-1004326627260')
+        self.assertEqual(pub.message_url, 'https://t.me/c/4326627260/42')
+        pub.chat_id = '@zpt_kz_zakaz'
+        self.assertEqual(pub.message_url, 'https://t.me/zpt_kz_zakaz/42')
+
+    def test_reconcile_accepts_only_our_destinations(self):
+        from core.workflow_admin import ReconcileForm
+        for url in ['https://t.me/zpt_kz_parts/42', 'https://t.me/c/4326627260/42']:
+            form = ReconcileForm({'url':url, 'reviewed':True})
+            self.assertTrue(form.is_valid(), form.errors)
+            self.assertEqual(form.destination, '-1004326627260')
+        self.assertFalse(ReconcileForm({'url':'https://t.me/other/42', 'reviewed':True}).is_valid())
