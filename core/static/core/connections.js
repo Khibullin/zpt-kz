@@ -150,3 +150,23 @@ document.addEventListener('submit', async (event) => {
     checkbox.disabled = false;
   }
 });
+
+// Territory changes only filter the buyer's catalog, never the request itself.
+document.addEventListener('change', event => {
+  const form = event.target.closest('[data-seller-territory]');
+  if (!form) return;
+  const mode = form.querySelector('[data-territory-mode]');
+  const other = form.querySelector('[data-other-city]');
+  const city = form.querySelector('[name="city"]');
+  if (event.target === mode && mode.value === 'other') {
+    other.hidden = false;
+    city.focus();
+    return;
+  }
+  const value = mode.value === 'home' ? form.dataset.homeCity : mode.value === 'all' ? '*' : city.value;
+  if (!value) return;
+  const target = new URL(location.href);
+  target.searchParams.set('city', value);
+  target.searchParams.delete('page');
+  location.assign(target.href);
+});

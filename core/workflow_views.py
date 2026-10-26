@@ -179,7 +179,7 @@ def buyer_step(request, req_id, access_token, step):
         for item in page:
             item['selected'] = item['seller'].pk in chosen_ids
         service.record_impressions(req, page)
-        return render(request, 'core/connections/buyer_sellers.html', {'req': req, 'page': page, 'city_filter': city, 'chosen_count': len(chosen_ids)})
+        return render(request, 'core/connections/buyer_sellers.html', {'req': req, 'page': page, 'city_filter': city, 'chosen_count': len(chosen_ids), 'seller_cities': Seller.objects.exclude(city='').order_by('city').values_list('city', flat=True).distinct()})
     if step == 'permissions':
         from core.connection_views import buyer
         return buyer(request, req_id, access_token)

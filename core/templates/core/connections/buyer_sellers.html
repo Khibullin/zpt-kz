@@ -3,12 +3,12 @@
 {% block main_class %}workflow-panel sellers-panel{% endblock %}
 {% block content %}
 <a class="back" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">← К заявке</a>
-<h1>{% if req.is_dismantler_request %}Авторазборы{% else %}Продавцы{% endif %} по вашей заявке</h1>
+<h1>Выберите продавцов по вашей заявке</h1>
 <div class="summary request-strip"><span>Заявка №{{ req.pk }} · {{ req.city }}</span><span>{{ req.brand }} {{ req.model }}{% if req.year %} · {{ req.year|unlocalize }}{% endif %}</span><span>{{ req.public_summary|default:req.description }}</span></div>
-<p>Напишите продавцам по вашей заявке — узнайте наличие, сравните цены и выберите подходящее предложение.</p>
-<nav class="selection-nav"><a data-selection-next href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Перейти к отправке заявки ({{ chosen_count }})</a><a href="{% url 'buyer_selection' req.pk req.access_token 'history' %}">История заявки</a><a href="{% url 'buyer_selection' req.pk req.access_token 'help' %}">Подберите за меня</a></nav>
+<p>Выберите до 10 продавцов. На следующем шаге вы сможете проверить текст заявки и отправить его выбранным продавцам.</p>
+<nav class="selection-nav"><a data-selection-next href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Далее — подготовить сообщение ({{ chosen_count }})</a></nav>
 {% for message in messages %}<p class="selection-notice" role="status">{{ message }}</p>{% endfor %}
-<form method="get" class="selection-filters"><div><label for="selection-city">Город продавца</label><input id="selection-city" name="city" maxlength="100" value="{% if city_filter != '*' %}{{ city_filter|default:req.city }}{% endif %}" placeholder="Например, Алматы"></div><button>Показать продавцов</button><button name="city" value="*" type="button" onclick="location.href='?city=*'">Все города Казахстана</button></form>
+<form method="get" class="selection-filters" data-seller-territory data-home-city="{{ req.city }}"><div><label for="seller-territory">Где искать продавцов</label><select id="seller-territory" data-territory-mode><option value="home" {% if not city_filter or city_filter == req.city %}selected{% endif %}>Мой город — {{ req.city }}</option><option value="all" {% if city_filter == '*' %}selected{% endif %}>Весь Казахстан</option><option value="other" {% if city_filter and city_filter != '*' and city_filter != req.city %}selected{% endif %}>Другой город…</option></select></div><div data-other-city {% if not city_filter or city_filter == '*' or city_filter == req.city %}hidden{% endif %}><label for="selection-city">Выберите город</label><select id="selection-city" name="city"><option value="">Выберите город</option>{% for seller_city in seller_cities %}<option value="{{ seller_city }}" {% if city_filter == seller_city %}selected{% endif %}>{{ seller_city }}</option>{% endfor %}</select></div><noscript><button>Применить город</button></noscript></form>
 <p class="muted">Показаны продавцы по категории и автомобилю из заявки. Выберите до 10. Территория исходной заявки не меняется.</p>
 {% for item in page %}
 <article class="seller-row{% if item.seller.directory_photo %} has-photo{% endif %}">
@@ -29,6 +29,6 @@
 </div></article>
 {% empty %}<section><h2>Поиск продолжается</h2><p>Продавцов для прямого обращения пока нет. Ваша заявка сохранена. Измените город или обратитесь к оператору.</p><a href="{% url 'buyer_selection' req.pk req.access_token 'help' %}">Помощь оператора</a></section>{% endfor %}
 {% if page.has_previous %}<a href="?city={{ city_filter|urlencode }}&page={{ page.previous_page_number }}">Назад</a>{% endif %} <span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span> {% if page.has_next %}<a href="?city={{ city_filter|urlencode }}&page={{ page.next_page_number }}">Далее</a>{% endif %}
-<nav class="selection-nav" aria-label="Отправка выбранным продавцам"><a data-selection-next href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Перейти к отправке заявки ({{ chosen_count }})</a></nav>
+<nav class="selection-nav" aria-label="Отправка выбранным продавцам"><a data-selection-next href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Далее — подготовить сообщение ({{ chosen_count }})</a></nav>
 <div class="footer-links"><a href="{% url 'workflow_buyer_step' req.pk req.access_token 'edit' %}">Уточнить заявку</a><a href="{% url 'workflow_buyer_step' req.pk req.access_token 'result' %}">Сообщить результат</a><a href="{% url 'connection_buyer' req.pk req.access_token %}">Разрешения и связь</a></div>
 {% endblock %}
