@@ -319,6 +319,15 @@ def parts_request_process(request, pk: int):
         raise PermissionDenied
     target = reverse('control_panel:parts_request_process', args=[pk])
     from control_panel.request_workspace import with_workspace_stage, STAGE_PREFIX, STAGE_LABELS
+    receipt_marker = 'Ручное уведомление покупателя: заявка принята'
+    receipt_logs = LogEntry.objects.filter(content_type=ContentType.objects.get_for_model(Request),
+        object_id=str(pk), action_flag=CHANGE, change_message=receipt_marker)
+    if request.method == 'POST' and request.POST.get('action') == 'buyer_receipt_sent':
+        from core.phone_utils import build_whatsapp_url
+        if build_whatsapp_url(req.phone, 'receipt') and not receipt_logs.exists():
+            model_admin.log_change(request, req, receipt_marker)
+            messages.success(request, 'Уведомление покупателю отмечено отправленным.')
+        return redirect(target)
     if request.method == 'POST' and request.POST.get('action') in ('waiting', 'resume'):
         stage = 'waiting' if request.POST['action'] == 'waiting' else 'active'
         model_admin.log_change(request, req, STAGE_PREFIX + stage)
@@ -375,6 +384,10 @@ def parts_request_process(request, pk: int):
         else:
             clarification_hint = ('В заявке мало сведений для точного подбора. При необходимости '
                                   'уточните характеристики детали, количество и VIN либо артикул.')
+    from core.services.buyer_receipt import receipt_text
+    from core.phone_utils import build_whatsapp_url
+    context.update(buyer_receipt_url=build_whatsapp_url(req.phone, receipt_text(req)),
+                   buyer_receipt_sent=receipt_logs.order_by('-action_time').first())
     context.update(clarification_hint=clarification_hint, buyer_question=text)
     context.update(buyer_whatsapp=('https://wa.me/' + phone + '?text=' + quote(text, safe=''))
                    if 10 <= len(phone) <= 15 else '', buyer_phone=phone,
