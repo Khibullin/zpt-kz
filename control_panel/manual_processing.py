@@ -123,6 +123,7 @@ def seller_picker(request, pk):
     page = Paginator(rows, 50).get_page(request.GET.get('page'))
     if request.method == 'POST':
         action = request.POST.get('action')
+        preparation_failed = False
         if action in ('select', 'select_all', 'prepare'):
             # Only replace the visible page's selections; preserve selections from other pages.
             visible = {row['seller'].pk for row in page}
@@ -157,6 +158,7 @@ def seller_picker(request, pk):
                     errors.append(seller.name + ': ' + '; '.join(exc.messages))
             if prepared:
                 messages.success(request, f'Готово к ручной отправке: {prepared}. Нажмите «Отправить в WhatsApp» у нужного магазина.')
+            preparation_failed = bool(errors) or not selected
             if errors:
                 messages.error(request, 'Не подготовлены: ' + ' | '.join(errors))
             if not selected:
@@ -174,17 +176,26 @@ def seller_picker(request, pk):
             else:
                 messages.error(request, 'Подтвердите, что сообщение действительно отправлено.')
         request.session[key] = sorted(selected)
-        return redirect(request.get_full_path() + ('#send' if action == 'prepare' else ''))
+        anchor = ('#selection-feedback' if preparation_failed else '#send') if action == 'prepare' else ''
+        return redirect(request.get_full_path() + anchor)
     for row in page:
         row['selected'] = row['seller'].pk in selected
     context = _base_context(active_nav='parts', title=f'Продавцы для заявки №{pk}', breadcrumbs=[
         {'label': 'Заявки на запчасти', 'url': 'control_panel:parts_request_list'}, {'label': f'Выбор продавцов №{pk}'},
     ])
     query = request.GET.copy(); query.pop('page', None)
+    selected_sellers = Seller.objects.filter(pk__in=selected).select_related('channel_connection').prefetch_related('contact_consents')
+    permission_required_names = [seller.name for seller in selected_sellers if manual_consent_status(seller) != 'granted']
+    deliveries = list(RequestDispatch.objects.filter(request=req, delivery_channel=RequestDispatch.DELIVERY_MANUAL)
+                      .select_related('seller').order_by('created_at', 'id'))
+    prepared_deliveries = [d for d in deliveries if d.status == RequestDispatch.STATUS_PREPARED]
+    sent_deliveries = [d for d in deliveries if d.status == RequestDispatch.STATUS_SENT]
+    context.update(permission_required_names=permission_required_names,
+                   prepared_deliveries=prepared_deliveries, sent_deliveries=sent_deliveries,
+                   prepared_count=len(prepared_deliveries))
     context.update(req=req, page=page, filters=request.GET, query=query.urlencode(), total=len(rows),
                    ready=len(eligible), selected_count=len(selected),
-                   deliveries=RequestDispatch.objects.filter(request=req, delivery_channel=RequestDispatch.DELIVERY_MANUAL)
-                   .select_related('seller').order_by('created_at', 'id'))
+                   deliveries=deliveries)
     return render(request, 'control_panel/parts_sellers.html', context)
 
 

@@ -269,3 +269,30 @@ class ManualWorkspaceTests(TestCase):
         self.assertLessEqual(len(large),len(small)+1)
         self.assertLessEqual(len(large),10)
         print(f'MANUAL_PICKER_QUERIES one={len(small)} five_hundred={len(large)}')
+
+    def test_prepare_failure_stays_at_visible_feedback_and_opens_permission_form(self):
+        response=self.client.post(self.picker(),{'action':'prepare','seller_ids':[self.seller.pk]})
+        self.assertEqual(response.url,self.picker()+'#selection-feedback')
+        response=self.client.get(response.url)
+        self.assertContains(response,'Нужно согласие продавца')
+        self.assertContains(response,'не найдено сохранённое согласие')
+        self.assertContains(response,'id="one-time-permission" open')
+        html=response.content.decode()
+        self.assertLess(html.index('id="prepare-selected"'),html.index('<table'))
+        self.assertEqual(html.count('name="action" value="prepare"'),1)
+        self.assertFalse(RequestDispatch.objects.exists())
+
+    def test_prepare_success_goes_to_ready_messages_and_sent_history_is_separate(self):
+        from core.models import SellerChannelConnection
+        SellerChannelConnection.objects.create(seller=self.seller,whatsapp_consent=True)
+        response=self.client.post(self.picker(),{'action':'prepare','seller_ids':[self.seller.pk]})
+        self.assertEqual(response.url,self.picker()+'#send')
+        response=self.client.get(self.picker())
+        self.assertEqual(response.context['prepared_count'],1)
+        self.assertContains(response,'Отправить в WhatsApp')
+        dispatch=RequestDispatch.objects.get()
+        self.client.post(self.picker(),{'action':'confirm_sent','dispatch_id':dispatch.pk,'did_send':'yes'})
+        response=self.client.get(self.picker())
+        self.assertEqual(response.context['prepared_count'],0)
+        self.assertContains(response,'История отправок: 1')
+        self.assertNotContains(response,'>Отправить в WhatsApp</button>')

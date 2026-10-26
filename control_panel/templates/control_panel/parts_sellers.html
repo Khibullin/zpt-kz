@@ -1,7 +1,14 @@
 {% extends 'control_panel/base.html' %}{% load l10n %}
 {% block content %}
-<style>.sp-actions{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}.sp-note{background:#fff1d5;padding:14px;border-radius:10px}.sp-phone{font-weight:700;white-space:nowrap}.sp-wide{max-width:100%;width:100%;padding:10px}.sp-selected{background:#e4f6f4}.sp-bar{padding:16px;background:#e4f6f4;border-radius:12px}.sp-card{border-top:4px solid #009ca6}button.cp-btn{cursor:pointer}.sp-pager{display:flex;gap:20px;align-items:center;margin:20px 0}</style>
-{% for message in messages %}<p role="status" class="sp-note">{{ message }}</p>{% endfor %}
+<style>.sp-actions{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0}.sp-note{background:#fff1d5;padding:14px;border-radius:10px}.sp-phone{font-weight:700;white-space:nowrap}.sp-wide{max-width:100%;width:100%;padding:10px}.sp-selected{background:#e4f6f4}.sp-bar{padding:16px;background:#e4f6f4;border-radius:12px}.sp-card{border-top:4px solid #009ca6}button.cp-btn{cursor:pointer}.sp-pager{display:flex;gap:20px;align-items:center;margin:20px 0}
+.cp-main .cp-btn{background:#008d98;color:#fff;border:1px solid #008d98;white-space:normal}
+.cp-main .cp-btn:hover{background:#006f78;border-color:#006f78}
+.cp-main .cp-btn-secondary{background:#f0fbfa;color:#006f78;border-color:#8fcacb}
+.sp-primary-actions{position:sticky;top:var(--cp-header-h,57px);z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border:1px solid #a9dbd9;box-shadow:0 5px 18px #173b4310}
+.sp-primary-actions .cp-btn{padding:13px 20px;font-weight:700}
+#selection-feedback,#send{scroll-margin-top:90px}.sp-permission{margin:16px 0;padding:16px;border:1px solid #e5c987;border-radius:12px;background:#fff9eb}
+@media(max-width:650px){.sp-primary-actions{top:57px}.sp-primary-actions .cp-btn{width:100%}.sp-actions .cp-btn{flex:1 1 180px}}
+</style>
 <p><a href="{% url 'control_panel:parts_request_process' req.pk %}">К заявке и уточнениям покупателя</a></p>
 <section class="cp-card sp-card"><strong>{{ req.brand }} {{ req.model }} · {{ req.year|default:'Год не указан' }} · {{ req.city }}</strong><p>{{ req.description }}</p><p>{{ req.category }} · Территория: {{ req.get_search_scope_display }}{% if req.selected_cities %} · {{ req.selected_cities }}{% endif %}</p></section>
 <form method="get" class="cp-filters">
@@ -16,19 +23,25 @@
 <button class="cp-btn">Показать</button></form>
 {% if filters.scope == 'all' %}<p class="sp-note">Ручной поиск по всему Казахстану. Выбранные магазины вне территории заявки будут отмечены в истории. Исходная территория заявки покупателя сохраняется.</p>{% endif %}
 <form method="post">{% csrf_token %}
-<div class="sp-bar">Найдено: <strong>{{ total }}</strong> · Можно выбрать: <strong>{{ ready }}</strong> · Сохранено в выборе: <strong>{{ selected_count }}</strong><span id="current-selection" aria-live="polite"></span></div>
+<div id="selection-feedback">{% for message in messages %}<p role="status" class="sp-note">{{ message }}</p>{% endfor %}</div>
+<div class="sp-bar sp-primary-actions"><div>Найдено: <strong>{{ total }}</strong> · Можно выбрать: <strong>{{ ready }}</strong> · Сохранено в выборе: <strong>{{ selected_count }}</strong><span id="current-selection" aria-live="polite"></span></div>
+<button class="cp-btn" id="prepare-selected" name="action" value="prepare">Перейти к отправке выбранным продавцам</button></div>
+{% if prepared_count %}<p><a href="#send">Открыть подготовленные отправки: {{ prepared_count }}</a></p>{% endif %}
 <div class="sp-actions"><button class="cp-btn" name="action" value="select">Сохранить выбор страницы</button><button class="cp-btn" name="action" value="select_all">Выбрать всех доступных по фильтру</button><button class="cp-btn cp-btn-secondary" name="action" value="clear">Снять весь выбор</button></div>
+<details class="sp-permission" id="one-time-permission" {% if permission_required_names %}open{% endif %}><summary>Разовое разрешение для выбранных магазинов без сохранённого согласия</summary>
+{% if permission_required_names %}<p><strong>Для {{ permission_required_names|join:', ' }} не найдено сохранённое согласие.</strong> Если продавец разрешил эту отправку, укажите подтверждение ниже. Иначе снимите его с выбора.</p>{% endif %}<p><label><input type="checkbox" name="one_time_permission" value="yes"> Выбранные продавцы разрешили прислать эту заявку.</label></p><label>Источник, дата и подтверждение каждого продавца<input class="sp-wide" name="permission_evidence" maxlength="300"></label></details>
 <section class="cp-card sp-card"><div class="cp-table-wrap"><table class="cp-table"><thead><tr><th>Выбрать</th><th>Магазин</th><th>Город</th><th>WhatsApp</th><th>Согласие</th><th>Доступность</th></tr></thead><tbody>
 {% for row in page %}<tr{% if row.selected %} class="sp-selected"{% endif %}><td><input type="checkbox" name="seller_ids" value="{{ row.seller.pk|unlocalize }}" aria-label="Выбрать {{ row.seller.name }}" {% if row.selected %}checked{% endif %} {% if row.reason %}disabled{% endif %}></td><td><a href="{% url 'control_panel:seller_detail' row.seller.pk %}">{{ row.seller.name }}</a>{% if row.universal %}<p>Тестовый получатель: все новые заявки</p>{% endif %}</td><td>{{ row.seller.city }}{% if row.outside %}<p>Вне территории заявки</p>{% endif %}</td><td class="sp-phone">{{ row.phone|default:'Нет номера' }}</td><td>{% if row.consent == 'granted' %}Есть согласие{% elif row.consent == 'revoked' %}Отозвано{% else %}Не подтверждено{% endif %}</td><td>{{ row.reason|default:'Можно выбрать' }}</td></tr>{% empty %}<tr><td colspan="6">По этим условиям продавцов не найдено. Измените фильтры.</td></tr>{% endfor %}
 </tbody></table></div></section>
 <p>Выбор сохраняется между страницами после нажатия «Сохранить выбор страницы». Кнопка «Выбрать всех» охватывает весь результат фильтра.</p>
-<details><summary>Разовое разрешение для выбранных магазинов без сохранённого согласия</summary><p><label><input type="checkbox" name="one_time_permission" value="yes"> Выбранные продавцы разрешили прислать эту заявку.</label></p><label>Источник, дата и подтверждение каждого продавца<input class="sp-wide" name="permission_evidence" maxlength="300"></label></details>
-<p><button class="cp-btn" name="action" value="prepare">Перейти к отправке выбранным продавцам</button></p>
+
+
 </form>
 <nav class="sp-pager">{% if page.has_previous %}<a href="?{{ query }}&page={{ page.previous_page_number }}">Предыдущая</a>{% endif %}<span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?{{ query }}&page={{ page.next_page_number }}">Следующая</a>{% endif %}</nav>
 <section class="cp-card sp-card" id="send"><h2>Отправка выбранным продавцам</h2><p>Кнопка открывает чат конкретного магазина с готовым текстом. Нажмите «Отправить» в WhatsApp, затем отметьте отправку здесь.</p>
-{% for item in deliveries %}<article><h3>{{ item.seller.name }} · {{ item.seller.city }}</h3><p>{{ item.get_status_display }}{% if item.sent_at %} · {{ item.sent_at|date:'d.m.Y H:i' }}{% endif %}</p>
+{% for item in prepared_deliveries %}<article><h3>{{ item.seller.name }} · {{ item.seller.city }}</h3><p>{{ item.get_status_display }}{% if item.sent_at %} · {{ item.sent_at|date:'d.m.Y H:i' }}{% endif %}</p>
 {% if item.status == 'prepared' %}<form method="post" action="{% url 'control_panel:parts_request_manual_send' req.pk item.pk %}" target="_blank">{% csrf_token %}<button class="cp-btn">Отправить в WhatsApp</button></form>
-<form method="post">{% csrf_token %}<input type="hidden" name="dispatch_id" value="{{ item.pk|unlocalize }}"><p><label><input type="checkbox" name="did_send" value="yes" required> Сообщение действительно отправлено в WhatsApp.</label></p><button class="cp-btn cp-btn-secondary" name="action" value="confirm_sent">Отметить отправку</button></form>{% endif %}</article>{% empty %}<p>Выберите магазины в таблице и перейдите к отправке.</p>{% endfor %}</section>
-<script>document.querySelectorAll('input[name="seller_ids"]').forEach(function(el){el.addEventListener('change',function(){document.getElementById('current-selection').textContent=' · На странице отмечено: '+document.querySelectorAll('input[name="seller_ids"]:checked').length;});});</script>
+<form method="post">{% csrf_token %}<input type="hidden" name="dispatch_id" value="{{ item.pk|unlocalize }}"><p><label><input type="checkbox" name="did_send" value="yes" required> Сообщение действительно отправлено в WhatsApp.</label></p><button class="cp-btn cp-btn-secondary" name="action" value="confirm_sent">Отметить отправку</button></form>{% endif %}</article>{% empty %}<p>Выберите магазины в таблице и перейдите к отправке.</p>{% endfor %}
+{% if sent_deliveries %}<details><summary>История отправок: {{ sent_deliveries|length }}</summary>{% for item in sent_deliveries %}<p><strong>{{ item.seller.name }}</strong> · Отправлено {{ item.sent_at|date:'d.m.Y H:i' }}</p>{% endfor %}</details>{% endif %}</section>
+<script>document.querySelectorAll('input[name="seller_ids"]').forEach(function(el){el.addEventListener('change',function(){document.getElementById('current-selection').textContent=' · На странице отмечено: '+document.querySelectorAll('input[name="seller_ids"]:checked').length;});});document.querySelectorAll('button[name="action"][value="prepare"]').forEach(function(button){button.form.addEventListener('submit',function(event){if(event.submitter===button){button.setAttribute('aria-busy','true');button.textContent='Проверяем выбранные магазины…';}});});</script>
 {% endblock %}
