@@ -38,3 +38,36 @@ body .buyer-workspace .selection-status {background:#e8f6ed;color:#21643b}
   body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.button,button) {max-width:100%}
   body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.form-actions,.selection-actions,.result-actions) :is(button,.button) {width:100%;box-sizing:border-box}
 }
+
+/* Owner-approved palette, limited to the buyer request chain. */
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel),
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) * {
+  box-shadow:none !important;
+  text-shadow:none !important;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) {
+  --muted:#667085; --line:#d9dde3;
+  color:#17212f;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.selection-card,.seller-row) {
+  background:#fff; border:1px solid #d9dde3;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(button,.button,.secondary,.upload-control),
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.selection-nav,.selection-tabs) a {
+  --action-bg:#e32636; --action-ink:#fff; --action-border:#e32636;
+  background:var(--action-bg);color:var(--action-ink);border-color:var(--action-border);
+  transition:background-color .16s ease,border-color .16s ease;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.whatsapp,form[action$="/whatsapp/"] button) {
+  --action-bg:#128c4a; --action-border:#128c4a;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.telegram,form[action$="/telegram/"] button) {
+  --action-bg:#087eb5; --action-border:#087eb5;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(button,.button,.selection-nav a,.selection-tabs a):hover {
+  background:color-mix(in srgb,var(--action-bg) 92%,black);
+  border-color:color-mix(in srgb,var(--action-border) 92%,black);
+  color:var(--action-ink);filter:none;opacity:1;transform:none;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) input[type="checkbox"] {accent-color:#e32636}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.muted,.seller-city,.seller-message-hint) {color:#667085}
