@@ -73,12 +73,12 @@ class ManualWorkspaceTests(TestCase):
     def picker(self):
         return reverse('control_panel:parts_request_sellers', args=[self.req.pk])
 
-    def test_picker_includes_universal_receiver_channel_consent_and_catalog_reason(self):
+    def test_picker_includes_channel_consent_and_catalog_reason(self):
         from django.utils import timezone
         from datetime import timedelta
         from core.models import SellerChannelConnection
-        owner = Seller.objects.create(name='AG Parts', whatsapp='77011013033', city='Алматы',
-            transport_type='truck', is_active=True, is_test_seller=True,
+        owner = Seller.objects.create(name='AG Parts', whatsapp='77011013033', city='Актобе',
+            transport_type='car', is_active=True, sells_new_parts=True, all_brands=True, all_categories=True,
             test_all_requests_since=self.req.created_at - timedelta(days=1))
         SellerChannelConnection.objects.create(seller=owner, whatsapp_consent=True)
         catalog = Seller.objects.create(name='Каталог Актобе', city='Актобе', transport_type='car',
@@ -106,6 +106,30 @@ class ManualWorkspaceTests(TestCase):
         self.assertEqual(self.client.get(send_url).status_code, 405)
         self.assertContains(self.client.get(self.picker()+'?consent=granted'), 'AG Parts')
         self.assertNotIn(catalog.pk, [row['seller'].pk for row in self.client.get(self.picker()+'?consent=granted').context['page']])
+
+    def test_test_sellers_hidden_and_cannot_enter_manual_basket(self):
+        from datetime import timedelta
+        from core.services.test_receivers import test_receiver_decision
+        self.seller.is_test_seller = True
+        self.seller.test_all_requests_since = self.req.created_at - timedelta(days=1)
+        self.seller.save()
+        self.assertIs(test_receiver_decision(self.seller, self.req), True)
+        for query in ('', '?scope=all', '?tab=selected', '?tab=blocked', '?consent=granted'):
+            self.assertNotContains(self.client.get(self.picker()+query), self.seller.name)
+        self.client.post(self.picker(), {'action':'select_all'})
+        key = f'manual_recipients:{self.req.pk}'
+        self.assertNotIn(self.seller.pk, self.client.session[key])
+        response = self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        self.assertEqual(response.status_code, 400)
+        session = self.client.session
+        session[key] = [self.seller.pk]
+        session.save()
+        self.assertEqual(self.client.get(self.review()).context['selected_count'], 0)
+        self.client.post(self.review(), {'action':'prepare', 'one_time_permission':'yes'})
+        self.assertFalse(RequestDispatch.objects.exists())
+        self.seller.refresh_from_db()
+        self.assertTrue(self.seller.is_test_seller)
+        self.assertIs(test_receiver_decision(self.seller, self.req), True)
 
     def test_selection_spans_pages_and_filters_and_revalidates_post(self):
         from core.models import SellerChannelConnection

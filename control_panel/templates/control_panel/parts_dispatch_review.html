@@ -1,5 +1,5 @@
 {% extends 'control_panel/base.html' %}{% load l10n static %}{% block content %}
-<link rel="stylesheet" href="{% static 'css/manual-seller-picker.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/manual-seller-picker.css' %}?v=2">
 <p><a href="{{ picker_target }}{% if filters.scope == 'all' %}?scope=all{% endif %}">Вернуться к выбору магазинов</a></p><h2>Отправка заявки №{{ req.pk|unlocalize }}</h2><p>{{ req.brand }} {{ req.model }} · {{ req.city }} · {{ req.description }}</p>
 <div id="selection-feedback">{% for message in messages %}<p class="mp-message" role="status">{{ message }}</p>{% endfor %}</div>
 <section class="mp-review"><h3>Выбрано магазинов: {{ selected_count }}</h3>
