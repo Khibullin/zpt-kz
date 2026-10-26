@@ -12,6 +12,13 @@
 <details class="rw-edit" id="edit-details" {% if workspace_stage == 'waiting' %}open{% endif %}><summary>Изменить и уточнить заявку</summary><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_details"><label>Описание, двигатель и количество<textarea name="description" rows="5" maxlength="10000" required>{{ request_obj.description }}</textarea></label><div class="rw-two-fields"><label>Артикул<input name="article" maxlength="100" value="{{ request_obj.article }}"></label><label>VIN<input name="vin" maxlength="32" value="{{ request_obj.vin }}"></label></div><button class="cp-btn">Сохранить уточнения</button></form></details>
 </section>
 <aside class="rw-card rw-next"><h2>Следующий шаг</h2>
+{% if buyer_receipt_url %}
+<a class="rw-action rw-whatsapp" href="{{ buyer_receipt_url }}" target="_blank" rel="noopener noreferrer">Сообщить покупателю: заявка принята</a>
+<p class="rw-intro">Откроется WhatsApp с готовым текстом. Отправьте сообщение покупателю вручную.</p>
+{% if buyer_receipt_sent %}<p role="status">Уведомление отмечено отправленным: {{ buyer_receipt_sent.action_time|date:'d.m.Y H:i' }}</p>
+{% else %}<form method="post">{% csrf_token %}<button class="rw-action rw-secondary" name="action" value="buyer_receipt_sent">Отметить отправленным</button></form>{% endif %}
+{% endif %}
+
 {% if workspace_stage == 'done' %}<p>Заявка завершена. Результаты и история сохранены ниже.</p><a class="rw-action rw-secondary" href="#request-activity">Посмотреть историю</a>
 {% elif workspace_stage == 'waiting' %}<p>Ждём ответ покупателя. Когда он ответит, сохраните уточнения в карточке.</p><a class="rw-action" href="#edit-details">Дополнить данные заявки</a><form method="post">{% csrf_token %}<button class="rw-text-button" name="action" value="resume">Продолжить работу без уточнения</button></form>
 {% elif prepared_count %}<p>Подготовлено сообщений: <strong>{{ prepared_count }}</strong>. Можно перейти к ручной отправке.</p><a class="rw-action" href="{% url 'control_panel:parts_request_dispatch_review' request_obj.pk %}">Перейти к отправке</a>
