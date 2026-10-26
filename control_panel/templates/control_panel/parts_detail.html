@@ -1,6 +1,7 @@
 {% extends 'control_panel/base.html' %}
 
 {% block content %}
+  {% if perms.core.change_request %}<p><a class="cp-btn" href="{% url 'control_panel:parts_request_process' parts_request.pk %}">Обработать вручную</a></p>{% endif %}
   <section class="cp-card">
     <dl class="cp-dl">
       <dt>Номер</dt><dd>{{ parts_request.pk }}</dd>
