@@ -19,6 +19,7 @@ from core.models import (
     SellerRequestAccess,
     SellerRequestPageEvent,
 )
+from control_panel.request_workspace import with_workspace_stage, STAGES, STAGE_LABELS
 from control_panel.display import (
     dash,
     event_label,
@@ -44,6 +45,9 @@ class PartsRequestRow:
     whatsapp: int
     called: int
     result: str
+    description: str
+    stage: str
+    stage_label: str
 
 
 @dataclass(frozen=True)
@@ -166,6 +170,7 @@ def _apply_filters(queryset, params: QueryDict):
             | Q(model__icontains=search)
             | Q(category__icontains=search)
             | Q(city__icontains=search)
+            | Q(description__icontains=search)
         )
         if search.isdigit():
             query |= Q(pk=int(search))
@@ -175,10 +180,20 @@ def _apply_filters(queryset, params: QueryDict):
 
 
 def list_parts_requests(params: QueryDict) -> dict:
-    queryset = _apply_filters(_base_queryset(), params).order_by('-created_at', '-id')
+    queryset = _apply_filters(with_workspace_stage(_base_queryset()), params)
+    stage_counts = queryset.aggregate(**{key: Count('pk', filter=Q(workspace_stage=key), distinct=True) for key, _ in STAGES})
+    stage = first_value(params, 'stage')
+    stage_tabs = []
+    for key, label in [('all', 'Все')] + STAGES:
+        query = params.copy(); query.pop('page', None); query['stage'] = key
+        stage_tabs.append({'key': key, 'label': label, 'count': sum(stage_counts.values()) if key == 'all' else stage_counts[key], 'url': '?' + query.urlencode()})
+    if stage in dict(STAGES):
+        queryset = queryset.filter(workspace_stage=stage)
+    queryset = queryset.order_by('-created_at', '-id')
     page = paginate(queryset, params)
     rows = [
         PartsRequestRow(
+            description=item.description, stage=item.workspace_stage, stage_label=STAGE_LABELS[item.workspace_stage],
             pk=item.pk,
             created_at=item.created_at,
             vehicle=vehicle_label(item.brand, item.model),
@@ -189,7 +204,7 @@ def list_parts_requests(params: QueryDict) -> dict:
             opened=item.opened,
             whatsapp=item.whatsapp,
             called=item.called,
-            result=_result_label(item.stock_count, item.decline_count),
+            result=({'purchased': 'Покупка подтверждена', 'closed': 'Заявка закрыта'}.get(item.purchase_result) or _result_label(item.stock_count, item.decline_count)),
         )
         for item in page.object_list
     ]
@@ -208,6 +223,7 @@ def list_parts_requests(params: QueryDict) -> dict:
     )
     return {
         'rows': rows,
+        'stage_tabs': stage_tabs, 'active_stage': stage or 'all',
         'page': page.page,
         'querystring': page.querystring,
         'total': page.total,

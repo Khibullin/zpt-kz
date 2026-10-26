@@ -1,19 +1,12 @@
-{% extends 'control_panel/base.html' %}
+{% extends 'control_panel/base.html' %}{% load static %}
 
 {% block content %}
+<link rel="stylesheet" href="{% static 'control_panel/request-workspace.css' %}?v=1">
+<p class="rw-intro">Заявки покупателей, отправки магазинам и результаты — в одном месте.</p>
+<nav class="rw-tabs" aria-label="Этап обработки">{% for tab in stage_tabs %}<a href="{{ tab.url }}" {% if tab.key == active_stage %}aria-current="page"{% endif %}>{{ tab.label }} <span>{{ tab.count }}</span></a>{% endfor %}</nav>
   <form class="cp-filters" method="get">
-    <label>Период
-      <select name="period">
-        {% for key, label in list_period_choices %}
-          <option value="{{ key }}" {% if filters.period == key %}selected{% endif %}>{{ label }}</option>
-        {% endfor %}
-      </select>
-    </label>
-    <label>Номер заявки
-      <input name="request_id" value="{{ filters.request_id }}" inputmode="numeric">
-    </label>
     <label>Поиск
-      <input name="q" value="{{ filters.q }}" placeholder="марка, модель, город">
+      <input name="q" value="{{ filters.q }}" placeholder="Номер, автомобиль или деталь">
     </label>
     <label>Город
       <select name="city">
@@ -22,6 +15,17 @@
           <option value="{{ city }}" {% if filters.city == city %}selected{% endif %}>{{ city }}</option>
         {% endfor %}
       </select>
+    </label>
+    <button class="cp-btn" type="submit">Показать</button>
+    <details class="rw-more-filters" {% if filters.request_id or filters.category or filters.status or filters.opened or filters.contact %}open{% endif %}><summary>Дополнительные фильтры</summary><div class="cp-filters">    <label>Период
+      <select name="period">
+        {% for key, label in list_period_choices %}
+          <option value="{{ key }}" {% if filters.period == key %}selected{% endif %}>{{ label }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Номер заявки
+      <input name="request_id" value="{{ filters.request_id }}" inputmode="numeric">
     </label>
     <label>Категория
       <select name="category">
@@ -53,7 +57,8 @@
         <option value="no" {% if filters.contact == 'no' %}selected{% endif %}>Не было контакта</option>
       </select>
     </label>
-    <button class="cp-btn" type="submit">Показать</button>
+</div></details>
+    {% if active_stage != 'all' %}<input type="hidden" name="stage" value="{{ active_stage }}">{% endif %}
   </form>
 
   <p class="cp-muted">Всего: {{ total }}</p>
@@ -63,24 +68,17 @@
         <table class="cp-table cp-table-sticky">
           <thead>
             <tr>
-              <th>№</th><th>Дата</th><th>Авто</th><th>Категория</th><th>Город</th>
-              <th>Статус</th><th>Отправлено продавцам</th><th>Открыли заявку</th>
-              <th>WhatsApp</th><th>Звонки</th><th>Результат</th>
+              <th>Заявка</th><th>Автомобиль и деталь</th><th>Город</th><th>Состояние</th><th>Отправки</th><th>Результат</th>
             </tr>
           </thead>
           <tbody>
             {% for row in rows %}
               <tr>
-                <td><a href="{% url 'control_panel:parts_request_detail' row.pk %}">№{{ row.pk }}</a>{% if perms.core.change_request %}<br><a href="{% url 'control_panel:parts_request_process' row.pk %}">Обработать</a>{% endif %}</td>
-                <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
-                <td>{{ row.vehicle }}</td>
-                <td>{{ row.category }}</td>
+                <td><a class="rw-request-number" href="{% url 'control_panel:parts_request_detail' row.pk %}">№{{ row.pk }}</a><small class="rw-sub">{{ row.created_at|date:'d.m.Y H:i' }}</small></td>
+                <td><strong>{{ row.vehicle }}</strong><p class="rw-description">{{ row.description|truncatechars:100 }}</p><small class="rw-sub">{{ row.category }}</small></td>
                 <td>{{ row.city }}</td>
-                <td>{{ row.status }}</td>
-                <td>{{ row.sellers_received }}</td>
-                <td>{{ row.opened }}</td>
-                <td>{{ row.whatsapp }}</td>
-                <td>{{ row.called }}</td>
+                <td><span class="rw-badge rw-{{ row.stage }}">{{ row.stage_label }}</span><small class="rw-sub">{{ row.status }}</small></td>
+                <td><span class="rw-metric">Отправлено {{ row.sellers_received }}</span><small class="rw-sub">Открыли {{ row.opened }}</small></td>
                 <td>{{ row.result }}</td>
               </tr>
             {% endfor %}
