@@ -26,7 +26,9 @@ def _admin_url(req):
     return reverse('admin:core_request_manual_dispatch', args=(req.pk,))
 
 
-def manual_dispatch_admin_view(model_admin, http_request, request_id):
+def manual_dispatch_admin_view(model_admin, http_request, request_id, *,
+                               template_name="admin/core/request/manual_dispatch.html",
+                               workspace_context=None, return_url=None):
     req = get_object_or_404(Request, pk=request_id)
     if not model_admin.has_change_permission(http_request, req):
         raise PermissionDenied
@@ -93,10 +95,9 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id):
         except Exception as exc:
             logging.getLogger(__name__).exception('Manual dispatch action failed: request=%s action=%s', req.pk, action)
             messages.error(http_request, 'Действие не завершено: ' + type(exc).__name__)
-        return redirect(_admin_url(req))
+        return redirect(return_url or _admin_url(req))
 
     candidate_qs = Seller.objects.filter(
-        city=req.city,
         transport_type=req.transport_type,
         is_active=True,
         is_paused=False,
@@ -107,14 +108,22 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id):
             candidate_qs = candidate_qs.filter(is_dismantler=True)
         else:
             candidate_qs = candidate_qs.filter(sells_new_parts=True)
-    if req.brand:
+    if workspace_context is None or req.search_scope == 'city':
+        candidate_qs = candidate_qs.filter(city=req.city)
+    elif req.search_scope == 'custom':
+        candidate_qs = candidate_qs.filter(city__in=[c.strip() for c in (req.selected_cities or '').split(',') if c.strip()])
+    if req.brand and workspace_context is None:
         candidate_qs = candidate_qs.filter(
             Q(name__icontains=req.brand)
             | Q(notes__icontains=req.brand)
             | Q(selected_brands__name__iexact=req.brand)
         ).distinct()
     candidates = []
-    for seller in candidate_qs.order_by('name', 'id')[:80]:
+    candidate_qs = candidate_qs.select_related('brand_fk', 'model_fk').prefetch_related(
+        'selected_brands', 'selected_models', 'selected_categories',
+    ).order_by('name', 'id')
+    candidate_source = candidate_qs[:80] if workspace_context is None else candidate_qs.iterator(chunk_size=100)
+    for seller in candidate_source:
         try:
             validate_manual_recipient(req, seller)
         except ValidationError:
@@ -167,4 +176,5 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id):
         original=req,
         change_url=reverse('admin:core_request_change', args=(req.pk,)),
     )
-    return render(http_request, 'admin/core/request/manual_dispatch.html', context)
+    context.update(workspace_context or {})
+    return render(http_request, template_name, context)

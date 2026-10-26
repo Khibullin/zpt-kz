@@ -71,7 +71,7 @@
           <tbody>
             {% for row in rows %}
               <tr>
-                <td><a href="{% url 'control_panel:parts_request_detail' row.pk %}">№{{ row.pk }}</a></td>
+                <td><a href="{% url 'control_panel:parts_request_detail' row.pk %}">№{{ row.pk }}</a>{% if perms.core.change_request %}<br><a href="{% url 'control_panel:parts_request_process' row.pk %}">Обработать</a>{% endif %}</td>
                 <td>{{ row.created_at|date:'d.m.Y H:i' }}</td>
                 <td>{{ row.vehicle }}</td>
                 <td>{{ row.category }}</td>

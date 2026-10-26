@@ -6,6 +6,7 @@ app_name = 'control_panel'
 
 urlpatterns = [
     path('', views.overview, name='overview'),
+    path('requests/parts/<int:pk>/process/', views.parts_request_process, name='parts_request_process'),
     path('requests/parts/', views.parts_request_list, name='parts_request_list'),
     path(
         'requests/parts/<int:pk>/',

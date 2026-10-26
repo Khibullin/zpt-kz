@@ -298,3 +298,59 @@ def kaspi_product_list(request):
     )
     context.update(list_kaspi_products(request.GET))
     return render(request, 'control_panel/kaspi_products.html', context)
+
+
+@control_staff_required
+def parts_request_process(request, pk: int):
+    """Owner workspace backed by the existing consent-aware manual delivery service."""
+    from urllib.parse import quote
+    from django.contrib import admin
+    from django.core.exceptions import PermissionDenied
+    from django.contrib.admin.models import LogEntry, CHANGE
+    from django.contrib.contenttypes.models import ContentType
+    from core.models import Request
+    from core.manual_seller_dispatch_admin import manual_dispatch_admin_view
+
+    req = get_object_or_404(Request, pk=pk)
+    model_admin = admin.site._registry[Request]
+    if not model_admin.has_change_permission(request, req):
+        raise PermissionDenied
+    target = reverse('control_panel:parts_request_process', args=[pk])
+    if request.method == 'POST' and request.POST.get('action') == 'save_details':
+        # Update only operator clarification fields; never alter geography or dispatch flags.
+        description = request.POST.get('description', '').strip()
+        article = request.POST.get('article', '').strip()
+        vin = request.POST.get('vin', '').strip()
+        if not description or len(description) > 10000 or len(article) > 100 or len(vin) > 32:
+            messages.error(request, 'Заполните описание (до 10 000 символов), артикул до 100 и VIN до 32 символов.')
+        else:
+            Request.objects.filter(pk=pk).update(description=description, article=article, vin=vin)
+            model_admin.log_change(request, req, 'Уточнены описание, артикул и VIN в рабочей карточке.')
+            messages.success(request, 'Уточнения сохранены. Продавцы увидят их в персональной заявке.')
+        return redirect(target)
+    if request.method == 'POST' and request.POST.get('action') == 'note':
+        note = request.POST.get('note', '').strip()
+        if note and len(note) <= 2000:
+            model_admin.log_change(request, req, 'Ручная обработка: ' + note)
+            messages.success(request, 'Заметка сохранена.')
+        else:
+            messages.error(request, 'Введите заметку до 2000 символов.')
+        return redirect(target)
+    context = _base_context(active_nav='parts', breadcrumbs=[
+        {'label': 'Заявки на запчасти', 'url': 'control_panel:parts_request_list'},
+        {'label': f'Обработка №{pk}'},
+    ], title=f'Ручная обработка заявки №{pk}')
+    phone = ''.join(c for c in req.phone if c.isdigit())
+    if len(phone) == 11 and phone.startswith('8'):
+        phone = '7' + phone[1:]
+    text = (f'Здравствуйте! Вы оставили на ZPT.KZ заявку №{pk}: {req.description}. '
+            f'Автомобиль: {req.brand} {req.model}, {req.year or "год не указан"}. '
+            'Уточните, пожалуйста, двигатель, количество деталей и пришлите VIN '
+            'или фото старой детали с артикулом для точного подбора.')
+    context.update(buyer_whatsapp=('https://wa.me/' + phone + '?text=' + quote(text, safe=''))
+                   if 10 <= len(phone) <= 15 else '', buyer_phone=phone,
+                   notes=LogEntry.objects.filter(content_type=ContentType.objects.get_for_model(Request),
+                       object_id=str(pk), action_flag=CHANGE, change_message__startswith='Ручная обработка: '
+                   ).select_related('user').order_by('-action_time')[:50])
+    return manual_dispatch_admin_view(model_admin, request, pk,
+        template_name='control_panel/parts_process.html', workspace_context=context, return_url=target)

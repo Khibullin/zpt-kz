@@ -1,0 +1,53 @@
+{% extends 'control_panel/base.html' %}
+{% load l10n %}
+{% block content %}
+<style>
+.mp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.mp-actions{display:flex;flex-wrap:wrap;gap:12px;margin:15px 0}.mp-link,.mp-submit{display:inline-block;background:#008d98;color:white!important;padding:12px 18px;border:0;border-radius:10px;text-decoration:none;font:inherit;cursor:pointer}.mp-green{background:#008b49}.mp-field{display:block;margin:12px 0}.mp-field input,.mp-field textarea,.mp-field select{box-sizing:border-box;display:block;width:100%;padding:12px;border:1px solid #b4ccd3;border-radius:8px;font:inherit}.mp-phone{font-size:24px;font-weight:700}.mp-note{padding:12px;background:#fff1d5;border-radius:10px}.mp-step{border-top:4px solid #009ba8}.mp-check{display:block;margin:12px 0}.mp-history{border-bottom:1px solid #d6e7e8;padding:12px 0}@media(max-width:800px){.mp-grid{grid-template-columns:1fr}}
+</style>
+{% for message in messages %}<p class="mp-note" role="status">{{ message }}</p>{% endfor %}
+<p><a href="{% url 'control_panel:parts_request_list' %}">К списку входящих заявок</a> · <a href="{% url 'control_panel:parts_request_detail' request_obj.pk %}">Отправки и реакции продавцов</a></p>
+<div class="mp-grid">
+<section class="cp-card mp-step">
+<h2>1. Уточнить у покупателя</h2>
+<p><strong>{{ request_obj.brand }} {{ request_obj.model }} · {{ request_obj.year|default:'Год не указан' }}</strong></p>
+<p>{{ request_obj.city }} · {{ request_obj.category }} · {% if request_obj.is_dismantler_request %}Б/у запчасти{% else %}Новые запчасти{% endif %}</p>
+<p class="mp-note">{{ request_obj.description|linebreaksbr }}</p>
+<p>Территория: <strong>{{ request_obj.get_search_scope_display }}</strong>{% if request_obj.selected_cities %} · {{ request_obj.selected_cities }}{% endif %}</p>
+<p class="mp-phone">{{ request_obj.phone }}</p>
+<div class="mp-actions">{% if buyer_whatsapp %}<a class="mp-link mp-green" href="{{ buyer_whatsapp }}" target="_blank" rel="noopener noreferrer">Уточнить в WhatsApp</a>{% endif %}{% if buyer_phone %}<a class="mp-link" href="tel:+{{ buyer_phone }}">Позвонить</a>{% endif %}</div>
+<p>Откроется готовый текст. Отправьте его самостоятельно.</p>
+{% for photo in request_obj.photos.all %}<p><a href="{{ photo.image.url }}" target="_blank" rel="noopener noreferrer">Фото детали {{ forloop.counter }}</a></p>{% endfor %}
+<details><summary>Сохранить уточнения покупателя</summary>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_details">
+<label class="mp-field">Описание, двигатель и количество<textarea name="description" rows="5" maxlength="10000" required>{{ request_obj.description }}</textarea></label>
+<label class="mp-field">Артикул<input name="article" maxlength="100" value="{{ request_obj.article }}"></label>
+<label class="mp-field">VIN<input name="vin" maxlength="32" value="{{ request_obj.vin }}"></label>
+<button class="mp-submit">Сохранить уточнения</button></form></details>
+</section>
+<section class="cp-card mp-step"><h2>2. Выбрать продавца</h2>
+<p>Подбор учитывает действующие ограничения заявки и фильтры продавцов. География поиска покупателя сохраняется.</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="prepare">
+<label class="mp-field">Подходящие продавцы (до 20)<select name="seller_id" required><option value="">Выберите продавца</option>{% for entry in candidates %}<option value="{{ entry.seller.pk|unlocalize }}">{{ entry.seller.name }} · {{ entry.seller.city }} · {{ entry.seller.whatsapp }}</option>{% endfor %}</select></label>
+{% if not candidates %}<p class="mp-note">Подходящих продавцов пока не найдено. Проверьте специализацию в каталоге.</p>{% endif %}
+<label class="mp-check"><input type="checkbox" name="one_time_permission" value="yes"> Продавец разрешил прислать эту заявку.</label>
+<label class="mp-field">Источник и дата разрешения<input name="permission_evidence" maxlength="300" placeholder="Дата, телефонный разговор, согласие продавца"></label>
+<p>Если продавец уже согласился получать заявки, разовое подтверждение не требуется.</p>
+<button class="mp-submit">Подготовить заявку продавцу</button></form>
+{% if candidates %}<details><summary>Контакты для согласования</summary>{% for entry in candidates %}<p><strong>{{ entry.seller.name }}</strong> · {{ entry.seller.whatsapp }} · {{ entry.seller.city }}<br>Согласие: {{ entry.consent }}</p>{% endfor %}</details>{% endif %}
+</section></div>
+<section class="cp-card mp-step"><h2>3. Отправить и отметить результат</h2>
+<p>Открытие WhatsApp не означает отправку. Отмечайте её после отправки сообщения в чате.</p>
+{% for entry in rows %}<article class="mp-history"><h3>{{ entry.dispatch.seller.name }} · {{ entry.dispatch.seller.whatsapp }}</h3>
+<p>{{ entry.dispatch.get_status_display }}{% if entry.dispatch.sent_at %} · {{ entry.dispatch.sent_at|date:'d.m.Y H:i' }}{% endif %}</p>
+{% if entry.whatsapp_url %}<p><a class="mp-link mp-green" href="{{ entry.whatsapp_url }}" target="_blank" rel="noopener noreferrer">Открыть WhatsApp с заявкой</a></p>
+<details><summary>Текст для копирования</summary><label class="mp-field"><textarea readonly rows="10">{{ entry.message }}</textarea></label></details>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="confirm_sent"><input type="hidden" name="dispatch_id" value="{{ entry.dispatch.pk|unlocalize }}">
+<label class="mp-check"><input type="checkbox" name="did_send" value="yes" required> Сообщение действительно отправлено в WhatsApp.</label><button class="mp-submit">Отметить отправку</button></form>
+{% elif not entry.url %}<p>Персональная ссылка истекла. Подготовьте её повторно после проверки разрешения.</p>{% endif %}
+</article>{% empty %}<p>Ручных отправок пока нет.</p>{% endfor %}
+</section>
+<section class="cp-card mp-step"><h2>4. Ответы и рабочие заметки</h2><p>Запишите ответ покупателя или продавца, цену и следующий шаг. Заметки видны сотрудникам.</p>
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="note"><label class="mp-field">Заметка<textarea name="note" maxlength="2000" rows="3" required placeholder="Например: уточнили двигатель, ждём фото форсунки"></textarea></label><button class="mp-submit">Сохранить заметку</button></form>
+{% for note in notes %}<div class="mp-history"><p>{{ note.change_message|linebreaksbr }}</p><small>{{ note.action_time|date:'d.m.Y H:i' }} · {{ note.user.get_username }}</small></div>{% empty %}<p>Заметок пока нет.</p>{% endfor %}
+</section>
+{% endblock %}

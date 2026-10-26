@@ -86,7 +86,7 @@ def notify_new_request(request_id: int, *, service: bool = False) -> bool:
                 if not url.startswith(('https://', 'http://')):
                     url = getattr(settings, 'PUBLIC_BASE_URL', 'https://zpt.kz').rstrip('/') + '/' + url.lstrip('/')
                 lines.append(f'Фото: {url}')
-        admin_name = 'admin:service_requests_servicerequest_change' if service else 'admin:core_request_change'
+        admin_name = 'admin:service_requests_servicerequest_change' if service else 'control_panel:parts_request_process'
         request_url = _admin_url(admin_name, request.pk)
         if request_url:
             lines.extend(['', 'Для владельца — открыть заявку:', request_url])
