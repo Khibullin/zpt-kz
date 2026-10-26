@@ -118,7 +118,72 @@ def parts_request_list(request):
 
 
 @control_staff_required
-def parts_reques…682 tokens truncated…t_object_or_404(SellerLead, pk=pk, duplicate_of__isnull=True)
+def parts_request_detail(request, pk: int):
+    detail = get_parts_request_detail(pk)
+    context = _base_context(
+        active_nav='parts',
+        breadcrumbs=[
+            {'label': 'Обзор', 'url': 'control_panel:overview'},
+            {'label': 'Заявки на запчасти', 'url': 'control_panel:parts_request_list'},
+            {'label': f'Заявка №{pk}'},
+        ],
+        title=f'Заявка №{pk}',
+    )
+    context.update(detail)
+    return render(request, 'control_panel/parts_detail.html', context)
+
+
+@control_staff_required
+def service_request_list(request):
+    context = _base_context(
+        active_nav='services',
+        breadcrumbs=[
+            {'label': 'Обзор', 'url': 'control_panel:overview'},
+            {'label': 'Заявки СТО'},
+        ],
+        title='Заявки СТО',
+    )
+    context.update(list_service_requests(request.GET))
+    return render(request, 'control_panel/services_list.html', context)
+
+
+@control_staff_required
+def service_request_detail(request, pk: int):
+    detail = get_service_request_detail(pk)
+    context = _base_context(
+        active_nav='services',
+        breadcrumbs=[
+            {'label': 'Обзор', 'url': 'control_panel:overview'},
+            {'label': 'Заявки СТО', 'url': 'control_panel:service_request_list'},
+            {'label': f'Заявка СТО №{pk}'},
+        ],
+        title=f'Заявка СТО №{pk}',
+    )
+    context.update(detail)
+    return render(request, 'control_panel/services_detail.html', context)
+
+
+@control_staff_required
+def seller_list(request):
+    context = _base_context(
+        active_nav='sellers',
+        breadcrumbs=[
+            {'label': 'Обзор', 'url': 'control_panel:overview'},
+            {'label': 'Продавцы'},
+        ],
+        title='Продавцы',
+    )
+    view_mode = (request.GET.get('view') or 'sellers').strip()
+    if view_mode == 'candidates':
+        context.update(list_seller_candidates(request.GET))
+    else:
+        context.update(list_sellers(request.GET))
+    return render(request, 'control_panel/sellers_list.html', context)
+
+
+@control_staff_required
+def seller_candidate_invite(request, pk: int):
+    lead = get_object_or_404(SellerLead, pk=pk, duplicate_of__isnull=True)
     if lead.lifecycle_status != SellerLead.LIFECYCLE_READY_TO_INVITE:
         messages.warning(
             request,
