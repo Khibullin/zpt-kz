@@ -316,6 +316,17 @@ def parts_request_process(request, pk: int):
     if not model_admin.has_change_permission(request, req):
         raise PermissionDenied
     target = reverse('control_panel:parts_request_process', args=[pk])
+    if request.method == 'POST' and request.POST.get('action') == 'buyer_question':
+        from core.phone_utils import build_whatsapp_url
+        question = request.POST.get('question', '').strip()
+        if not question or len(question) > 2000:
+            messages.error(request, 'Введите вопрос покупателю до 2000 символов.')
+            return redirect(target)
+        whatsapp = build_whatsapp_url(req.phone, question)
+        if not whatsapp:
+            messages.error(request, 'У покупателя не указан корректный номер WhatsApp.')
+            return redirect(target)
+        return redirect(whatsapp)
     if request.method == 'POST' and request.POST.get('action') == 'save_details':
         # Update only operator clarification fields; never alter geography or dispatch flags.
         description = request.POST.get('description', '').strip()
@@ -347,6 +358,15 @@ def parts_request_process(request, pk: int):
             f'Автомобиль: {req.brand} {req.model}, {req.year or "год не указан"}. '
             'Уточните, пожалуйста, двигатель, количество деталей и пришлите VIN '
             'или фото старой детали с артикулом для точного подбора.')
+    clarification_hint = ''
+    if not req.vin.strip() and not req.article.strip() and len(req.description.split()) < 5:
+        if 'форсунк' in req.description.casefold():
+            clarification_hint = ('Недостаточно данных для точного подбора. Уточните двигатель, '
+                                  'количество форсунок и VIN либо артикул старой детали.')
+        else:
+            clarification_hint = ('В заявке мало сведений для точного подбора. При необходимости '
+                                  'уточните характеристики детали, количество и VIN либо артикул.')
+    context.update(clarification_hint=clarification_hint, buyer_question=text)
     context.update(buyer_whatsapp=('https://wa.me/' + phone + '?text=' + quote(text, safe=''))
                    if 10 <= len(phone) <= 15 else '', buyer_phone=phone,
                    notes=LogEntry.objects.filter(content_type=ContentType.objects.get_for_model(Request),

@@ -13,10 +13,16 @@
 <p><strong>{{ request_obj.brand }} {{ request_obj.model }} · {{ request_obj.year|default:'Год не указан' }}</strong></p>
 <p>{{ request_obj.city }} · {{ request_obj.category }} · {% if request_obj.is_dismantler_request %}Б/у запчасти{% else %}Новые запчасти{% endif %}</p>
 <p class="mp-note">{{ request_obj.description|linebreaksbr }}</p>
+{% if clarification_hint %}<aside class="mp-note" aria-label="Уточнение заявки"><strong>{{ clarification_hint }}</strong><p>Подсказка рекомендательная. Если данных достаточно, можно сразу выбрать продавцов.</p></aside>{% endif %}
 <p>Территория: <strong>{{ request_obj.get_search_scope_display }}</strong>{% if request_obj.selected_cities %} · {{ request_obj.selected_cities }}{% endif %}</p>
 <p class="mp-phone">{{ request_obj.phone }}</p>
-<div class="mp-actions">{% if buyer_whatsapp %}<a class="mp-link mp-green" href="{{ buyer_whatsapp }}" target="_blank" rel="noopener noreferrer">Уточнить в WhatsApp</a>{% endif %}{% if buyer_phone %}<a class="mp-link" href="tel:+{{ buyer_phone }}">Позвонить</a>{% endif %}</div>
-<p>Откроется готовый текст. Отправьте его самостоятельно.</p>
+{% if buyer_whatsapp %}<details><summary class="mp-link mp-green">Задать вопрос покупателю</summary>
+<form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="action" value="buyer_question">
+<label class="mp-field">Вопрос покупателю — можно отредактировать<textarea name="question" rows="6" maxlength="2000" required>{{ buyer_question }}</textarea></label>
+<button class="mp-submit mp-green" type="submit">Открыть WhatsApp с вопросом</button>
+<p>Откроется чат с вашим текстом. Отправьте сообщение самостоятельно в WhatsApp.</p>
+</form></details>{% endif %}
+{% if buyer_phone %}<p><a class="mp-link" href="tel:+{{ buyer_phone }}">Позвонить</a></p>{% endif %}
 {% for photo in request_obj.photos.all %}<p><a href="{{ photo.image.url }}" target="_blank" rel="noopener noreferrer">Фото детали {{ forloop.counter }}</a></p>{% endfor %}
 <details><summary>Сохранить уточнения покупателя</summary>
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_details">
