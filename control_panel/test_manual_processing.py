@@ -20,6 +20,19 @@ class ManualWorkspaceTests(TestCase):
         self.url = reverse('control_panel:parts_request_process', args=[self.req.pk])
         self.client.force_login(self.user)
 
+    def test_manual_buyer_receipt(self):
+        response = self.client.get(self.url)
+        self.assertContains(response, 'Сообщить покупателю: заявка принята')
+        from urllib.parse import unquote
+        self.assertIn('Ваша заявка №', unquote(response.context['buyer_receipt_url']))
+        self.assertIn(str(self.req.access_token), unquote(response.context['buyer_receipt_url']))
+        marker = 'Ручное уведомление покупателя: заявка принята'
+        self.assertFalse(LogEntry.objects.filter(change_message=marker).exists())
+        for _ in range(2):
+            self.client.post(self.url, {'action': 'buyer_receipt_sent'})
+        self.assertEqual(LogEntry.objects.filter(change_message=marker).count(), 1)
+        self.assertContains(self.client.get(self.url), 'Уведомление отмечено отправленным:')
+
     def test_access_and_read_only_get(self):
         self.client.logout()
         self.assertEqual(self.client.get(self.url).status_code, 302)
