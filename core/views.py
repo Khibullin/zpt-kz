@@ -265,11 +265,7 @@ def _buyer_template_button_components(req):
 
 
 def _send_buyer_whatsapp_notification(req, sellers_count):
-    from core.services.buyer_receipt import send_receipt
-    result = send_receipt(req)
-    if not result.get('ok'):
-        logger.info('Buyer receipt for request #%s: %s', req.pk, result.get('error_code', 'send_error'))
-    return result
+    return {'ok': False, 'error_code': 'buyer_receipt_manual_only'}
 
 
 def _send_buyer_whatsapp_notification_async(req, sellers_count):
