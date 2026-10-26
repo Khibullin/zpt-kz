@@ -2,6 +2,7 @@ from django.contrib.auth.models import Permission, User
 from django.contrib.admin.models import LogEntry
 from django.test import TestCase, override_settings, Client
 from django.urls import reverse
+from django.utils import timezone
 from core.models import Request, Seller, RequestDispatch, Match
 
 
@@ -12,7 +13,7 @@ class ManualWorkspaceTests(TestCase):
         self.user.user_permissions.add(Permission.objects.get(codename='change_request', content_type__app_label='core'))
         self.req = Request.objects.create(source='home_short', transport_type='car', brand='BMW',
             model='5 Series', year=1993, city='Актобе', category='Топливная система',
-            search_scope='city', description='Форсунки', phone='77072812731')
+            search_scope='city', description='Форсунки', phone='77072812731',contact_consent_at=timezone.now())
         self.seller = Seller.objects.create(name='BMW Актобе', whatsapp='77011013032',
             city='Актобе', transport_type='car', sells_new_parts=True, all_brands=True,
             all_categories=True, is_active=True, is_paused=False, catalog_only=False)
@@ -134,3 +135,34 @@ class ManualWorkspaceTests(TestCase):
         self.assertIsNone(self.seller.user_id)
         self.req.access_revoked = True; self.req.save(update_fields=['access_revoked'])
         self.assertEqual(self.client.get(url).status_code,403)
+
+    def test_sent_recipient_cannot_be_selected_again_and_selection_is_cleared(self):
+        from core.models import SellerChannelConnection
+        SellerChannelConnection.objects.create(seller=self.seller, whatsapp_consent=True)
+        self.client.post(self.picker(), {'action':'prepare','seller_ids':[self.seller.pk]})
+        dispatch=RequestDispatch.objects.get()
+        self.client.post(self.picker(), {'action':'confirm_sent','dispatch_id':dispatch.pk,'did_send':'yes'})
+        self.assertNotIn(self.seller.pk,self.client.session[f'manual_recipients:{self.req.pk}'])
+        response=self.client.get(self.picker())
+        self.assertContains(response,'Эта заявка уже отправлена магазину.')
+        self.assertEqual(response.context['ready'],0)
+        self.client.post(self.picker(), {'action':'select_all'})
+        self.assertEqual(self.client.session[f'manual_recipients:{self.req.pk}'],[])
+        url=reverse('control_panel:parts_request_manual_send',args=[self.req.pk,dispatch.pk])
+        self.assertEqual(self.client.post(url).status_code,404)
+        self.assertEqual(RequestDispatch.objects.count(),1)
+
+    def test_send_rechecks_consent_and_request_lifecycle(self):
+        from core.models import SellerChannelConnection
+        conn=SellerChannelConnection.objects.create(seller=self.seller,whatsapp_consent=True)
+        self.client.post(self.picker(), {'action':'prepare','seller_ids':[self.seller.pk]})
+        dispatch=RequestDispatch.objects.get()
+        url=reverse('control_panel:parts_request_manual_send',args=[self.req.pk,dispatch.pk])
+        conn.whatsapp_consent=False;conn.save(update_fields=['whatsapp_consent'])
+        self.assertRedirects(self.client.post(url),self.picker())
+        conn.whatsapp_consent=True;conn.save(update_fields=['whatsapp_consent'])
+        self.req.purchase_result='closed';self.req.save(update_fields=['purchase_result'])
+        self.assertRedirects(self.client.post(url),self.picker())
+        dispatch.refresh_from_db()
+        self.assertEqual(dispatch.status,'prepared')
+        self.assertFalse(Match.objects.exists())
