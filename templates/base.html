@@ -49,6 +49,7 @@
     {% google_tag_manager_head %}
     {% endif %}
 <link rel="stylesheet" href="{% static 'css/card-refresh.css' %}?v=text-only-20261025-2">
+{% include 'includes/no_shadows.html' %}
 </head>
 <body{% block body_attrs %}{% endblock %}>
 {% if 'home_request' not in request.GET %}
