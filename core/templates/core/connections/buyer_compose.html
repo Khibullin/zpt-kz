@@ -13,7 +13,8 @@
 <h1>Отправьте сообщение продавцам</h1><p>Отправлено {{ sent }} из {{ total }}{% if skipped_count %} · Пропущено {{ skipped_count }}{% endif %}</p>
 {% if entry %}<section class="selection-card" style="display:block"><h2>{{ entry.seller.name }}</h2><p>{{ entry.seller.city }}{% if entry.seller.address %} · {{ entry.seller.address }}{% endif %}</p><details><summary>Посмотреть общий текст сообщения</summary><p style="white-space:pre-wrap">{{ entry.message }}</p></details>
 <p>Откройте WhatsApp, отправьте сообщение и вернитесь сюда.</p>
-<form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button class="whatsapp" name="action" value="whatsapp">Открыть WhatsApp с сообщением</button></form>
+<form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button class="whatsapp" name="action" value="whatsapp">Написать продавцу в WhatsApp</button></form>
+<p class="muted">Откроется чат с готовым текстом. Нажмите отправку в WhatsApp.</p>
 <p class="muted">Неподключённому продавцу добавится персональное приглашение в Telegram ZPT.KZ.</p>
 <form method="post" class="selection-actions">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button name="action" value="sent">Отправил — следующий</button><button class="secondary" name="action" value="skip">Пропустить</button></form></section>
 {% else %}<section class="selection-card" style="display:block"><h2>Вы прошли выбранных продавцов</h2><p>Отправлено: {{ sent }}. Пропущено: {{ skipped_count }}.</p><a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">Вернуться к заявке</a></section>{% endif %}
