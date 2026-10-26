@@ -47,7 +47,7 @@ class ManualWorkspaceTests(TestCase):
         dispatch = RequestDispatch.objects.get()
         self.assertEqual(dispatch.status, 'prepared')
         self.assertFalse(Match.objects.exists())
-        self.assertContains(self.client.get(self.url), 'Открыть WhatsApp с заявкой')
+        self.assertContains(self.client.get(self.picker()), 'Отправить в WhatsApp')
         self.client.post(self.url, {'action':'confirm_sent', 'dispatch_id':dispatch.pk})
         dispatch.refresh_from_db()
         self.assertEqual(dispatch.status, 'prepared')
