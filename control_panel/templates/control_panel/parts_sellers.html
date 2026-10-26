@@ -38,7 +38,7 @@
 
 </form>
 <nav class="sp-pager">{% if page.has_previous %}<a href="?{{ query }}&page={{ page.previous_page_number }}">Предыдущая</a>{% endif %}<span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?{{ query }}&page={{ page.next_page_number }}">Следующая</a>{% endif %}</nav>
-<section class="cp-card sp-card" id="send"><h2>Отправка выбранным продавцам</h2><p>Кнопка открывает чат конкретного магазина с готовым текстом. Нажмите «Отправить» в WhatsApp, затем отметьте отправку здесь.</p>
+<section class="cp-card sp-card" id="send"><h2>Отправка выбранным продавцам</h2><p>Кнопка открывает чат конкретного магазина с готовым текстом. Нажмите «Отправить» в WhatsApp, затем отметьте отправку здесь.</p><p>В конце сообщения автоматически добавляется персональная ссылка подключения Telegram и настройки фильтра заявок.</p>
 {% for item in prepared_deliveries %}<article><h3>{{ item.seller.name }} · {{ item.seller.city }}</h3><p>{{ item.get_status_display }}{% if item.sent_at %} · {{ item.sent_at|date:'d.m.Y H:i' }}{% endif %}</p>
 {% if item.status == 'prepared' %}<form method="post" action="{% url 'control_panel:parts_request_manual_send' req.pk item.pk %}" target="_blank">{% csrf_token %}<button class="cp-btn">Отправить в WhatsApp</button></form>
 <form method="post">{% csrf_token %}<input type="hidden" name="dispatch_id" value="{{ item.pk|unlocalize }}"><p><label><input type="checkbox" name="did_send" value="yes" required> Сообщение действительно отправлено в WhatsApp.</label></p><button class="cp-btn cp-btn-secondary" name="action" value="confirm_sent">Отметить отправку</button></form>{% endif %}</article>{% empty %}<p>Выберите магазины в таблице и перейдите к отправке.</p>{% endfor %}

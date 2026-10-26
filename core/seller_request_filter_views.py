@@ -15,6 +15,8 @@ from core.services.seller_request_filters import initial_filters, save_filters, 
 @csrf_protect
 @require_http_methods(['GET', 'POST'])
 def seller_request_filters(request, token=None):
+    notification_conn = None
+    ticket = request.GET.get('notifications', '')
     if token is not None:
         access = find_seller_request_access(token)
         if access is None or access.seller_id is None or access.request_id is None:
@@ -23,7 +25,12 @@ def seller_request_filters(request, token=None):
             return HttpResponse('Срок действия ссылки истёк. Откройте новую заявку или войдите в кабинет.', status=410)
         seller = access.seller
         from core.services.request_connections import enabled
-        if enabled() and (not request.user.is_authenticated or seller.user_id != request.user.pk):
+        if ticket:
+            from core.services.manual_telegram_invitation import settings_connection
+            notification_conn = settings_connection(access, ticket)
+            if notification_conn is None:
+                return HttpResponse('Ссылка настройки недействительна. Откройте подключение в Telegram заново.', status=403)
+        if not notification_conn and enabled() and (not request.user.is_authenticated or seller.user_id != request.user.pk):
             return HttpResponse('Войдите под владельцем организации.', status=403)
         back_url = '../'
     else:
@@ -38,16 +45,42 @@ def seller_request_filters(request, token=None):
     if request.method == 'POST':
         try:
             data = json.loads(request.POST.get('filters', ''))
-            seller = save_filters(seller, data)
+            from django.db import transaction
+            from core.kazakhstan_locations import KAZAKHSTAN_CITIES
+            cities = request.POST.getlist('telegram_cities') if notification_conn and request.POST.get('telegram_all_cities') != 'on' else []
+            if notification_conn and request.POST.get('telegram_all_cities') != 'on' and not cities:
+                raise ValueError('Выберите города или отметьте «Все города Казахстана».')
+            if any(city not in KAZAKHSTAN_CITIES for city in cities):
+                raise ValueError('Проверьте выбранные города.')
+            with transaction.atomic():
+                seller = save_filters(seller, data)
+                if notification_conn:
+                    from core.models import SellerChannelConnection, SellerChannelConsentEvent
+                    conn = SellerChannelConnection.objects.select_for_update().get(pk=notification_conn.pk)
+                    if conn.telegram_id != notification_conn.telegram_id:
+                        raise ValueError('Подключение изменилось. Откройте настройки в Telegram заново.')
+                    granted = request.POST.get('telegram_notifications') == 'on'
+                    if granted != conn.telegram_consent:
+                        SellerChannelConsentEvent.objects.create(seller=seller, channel='telegram', granted=granted)
+                    conn.telegram_consent = granted
+                    conn.save(update_fields=['telegram_consent', 'updated_at'])
+                    seller.request_filters['telegram_cities'] = list(dict.fromkeys(cities))
+                    seller.save(update_fields=['request_filters'])
         except (ValueError, TypeError) as exc:
             error = str(exc) if isinstance(exc, ValueError) and not isinstance(exc, json.JSONDecodeError) else 'Проверьте настройки.'
         else:
             # POST/Redirect/GET: refresh never resubmits profile changes.
-            redirect = HttpResponseRedirect('?saved=1')
-            redirect['Referrer-Policy'] = 'same-origin'
-            return redirect
+            from urllib.parse import urlencode
+            response = HttpResponseRedirect('?' + urlencode({'saved': '1', **({'notifications': ticket} if ticket else {})}))
+            response['Referrer-Policy'] = 'same-origin'
+            return response
+    from core.kazakhstan_locations import KAZAKHSTAN_CITIES
+    selected_cities = (seller.request_filters or {}).get('telegram_cities', [])
     response = render(request, 'core/seller_request_filters.html', {
         'seller': seller, 'back_url': back_url, 'error': error,
+        'notification_conn': notification_conn,
+        'notification_all_cities': not selected_cities,
+        'notification_cities': [(city, city in selected_cities) for city in KAZAKHSTAN_CITIES],
         'saved': request.GET.get('saved') == '1' and seller.request_filters is not None,
         'confirmed': seller.request_filters is not None,
         'filter_rows': filter_rows(seller.request_filters),

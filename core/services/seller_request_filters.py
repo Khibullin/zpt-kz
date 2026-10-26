@@ -83,6 +83,8 @@ def save_filters(seller, data):
     filters = normalize_filters(data)
     with transaction.atomic():
         seller = Seller.objects.select_for_update().get(pk=seller.pk)
+        if seller.request_filters and 'telegram_cities' in seller.request_filters:
+            filters['telegram_cities'] = seller.request_filters['telegram_cities']
         seller.request_filters = filters
         seller.request_filters_updated_at = timezone.now()
         # Mirror existing public profile fields, without changing direction or geography.

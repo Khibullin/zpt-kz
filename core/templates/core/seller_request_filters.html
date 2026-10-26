@@ -22,7 +22,15 @@
       <section class="rf-card"><h2><span>3</span>Модели автомобилей</h2><p class="rf-muted">По умолчанию — все модели выбранных марок.</p><div id="model-list"></div></section>
       <section class="rf-card"><h2><span>4</span>{{ category_heading|default:'Категории запчастей' }}</h2><label><input type="radio" name="categories_mode" value="all">{{ category_all_label|default:'Все категории' }}</label><label><input type="radio" name="categories_mode" value="selected">{{ category_select_label|default:'Выбрать категории' }}</label><div id="category-list" class="rf-options"></div></section>
     </div>
-    <section class="rf-summary"><strong>{% if seller.is_test_seller and seller.test_all_requests_since %}Выбранная специализация{% else %}Вы будете получать заявки{% endif %}</strong><p id="filter-summary" aria-live="polite"></p><small>Территория получения заявок остаётся прежней.</small></section>
+    {% if notification_conn %}
+    <section class="rf-card"><h2>Получение заявок в Telegram</h2>
+      <label><input type="checkbox" name="telegram_notifications" {% if notification_conn.telegram_consent %}checked{% endif %}>Получать подходящие заявки в Telegram</label>
+      <h3>Города покупателей</h3><label><input type="checkbox" name="telegram_all_cities" {% if notification_all_cities %}checked{% endif %}>Все города Казахстана</label>
+      <details {% if not notification_all_cities %}open{% endif %}><summary>Выбрать города</summary><p>Для выбора отдельных городов снимите отметку «Все города Казахстана».</p><div class="rf-options">{% for city, selected in notification_cities %}<label><input type="checkbox" name="telegram_cities" value="{{ city }}" {% if selected %}checked{% endif %}>{{ city }}</label>{% endfor %}</div></details>
+      <p>Учитываются выбранные категории, марки и модели. Территория поиска, указанная покупателем, также соблюдается. Уведомления можно отключить здесь.</p>
+    </section>
+    {% endif %}
+    <section class="rf-summary"><strong>{% if seller.is_test_seller and seller.test_all_requests_since %}Выбранная специализация{% else %}Вы будете получать заявки{% endif %}</strong><p id="filter-summary" aria-live="polite"></p>{% if not notification_conn %}<small>Территория получения заявок остаётся прежней.</small>{% endif %}</section>
     <p id="filter-error" class="rf-error" role="alert" hidden></p>
     <div class="rf-actions"><button id="filter-save" type="submit">Сохранить настройки</button><a href="{{ back_url }}">Отмена</a></div>
     <noscript><p>Для настройки фильтра включите JavaScript в браузере.</p></noscript>

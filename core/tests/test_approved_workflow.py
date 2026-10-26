@@ -19,7 +19,7 @@ class ApprovedWorkflowTests(TestCase):
         self.seller = Seller.objects.create(user=self.user, name='Магазин', whatsapp='77001112233', city='Алматы',
             contact_access_verified=True, direct_contacts_enabled=True, transport_type='car', sells_new_parts=True,
             all_brands=True, all_categories=True)
-        self.req = Request.objects.create(brand='Mercedes-Benz', model='E400', city='Алматы', phone='77002223344',
+        self.req = Request.objects.create(transport_type='car', brand='Mercedes-Benz', model='E400', city='Алматы', phone='77002223344',
             vin='WDD12345678901234', description='Нужен ШРУС', public_summary='Новый ШРУС', seller_feed_enabled=True,
             public_consent_at=timezone.now(), contact_consent_at=timezone.now())
         self.staff = get_user_model().objects.create_superuser(username='staff', email='staff@example.com', password='test-secret')
@@ -339,7 +339,7 @@ class ApprovedWorkflowTests(TestCase):
         SellerChannelConnection.objects.create(seller=self.seller, telegram_id=555, telegram_consent=True)
         consent = SellerChannelConsentEvent.objects.create(seller=self.seller, channel='telegram', granted=True)
         cutoff = timezone.now()
-        req = Request.objects.create(brand='Toyota', model='Camry', city='Алматы', phone='',
+        req = Request.objects.create(transport_type='car', brand='Toyota', model='Camry', city='Алматы', phone='',
             description='Synthetic worker test', public_summary='Тест уведомления', seller_feed_enabled=True)
         Request.objects.create(phone='', public_summary='На проверке', seller_feed_enabled=False)
         revoked = Request.objects.create(phone='', public_summary='Отозвана', seller_feed_enabled=True, access_revoked=True)
