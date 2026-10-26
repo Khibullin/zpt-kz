@@ -219,11 +219,10 @@ def manual_whatsapp_message(req, url: str, *, telegram_url='', telegram_connecte
         'Комментарий покупателя:',
         req.description or '—',
         '',
-        'Откройте персональную заявку для просмотра деталей и ответа:',
+        'Открыть заявку:',
         url,
         '',
-        'Ссылка персональная, действует 72 часа. '
-        'Получение будущих заявок можно отдельно подтвердить на странице.',
+        'Ссылка персональная, действует 72 часа.',
     ]
     if telegram_url:
         lines.extend(['', ('Telegram уже подключён. Настройте категории запчастей, марки, модели автомобилей и города, по которым хотите получать заявки:' if telegram_connected else 'Получайте заявки покупателей автоматически в Telegram. Подключите магазин и выберите категории запчастей, марки, модели автомобилей и города, по которым хотите получать заявки:'), telegram_url])
@@ -232,11 +231,11 @@ def manual_whatsapp_message(req, url: str, *, telegram_url='', telegram_connecte
 
 def manual_whatsapp_url(seller, req, access) -> str:
     phone = seller_whatsapp_phone(seller)
-    url = build_seller_request_access_url(access)
+    from core.services.manual_short_links import short_url
+    url = short_url(access)
     if not phone:
         return ''
-    from core.services.manual_telegram_invitation import bot_url
     conn = getattr(seller, 'channel_connection', None)
-    message = manual_whatsapp_message(req, url, telegram_url=bot_url(access),
+    message = manual_whatsapp_message(req, url, telegram_url=short_url(access, telegram=True),
         telegram_connected=bool(conn and conn.telegram_id and conn.telegram_consent))
     return 'https://wa.me/' + phone + '?text=' + quote(message, safe='')

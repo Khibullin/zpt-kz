@@ -1850,6 +1850,7 @@ class RequestDispatch(models.Model):
 
 
 class SellerRequestAccess(models.Model):
+    short_code = models.CharField(max_length=16, unique=True, null=True, blank=True, editable=False)
     token = models.CharField(
         max_length=SELLER_REQUEST_ACCESS_TOKEN_MAX_LENGTH,
         unique=True,
