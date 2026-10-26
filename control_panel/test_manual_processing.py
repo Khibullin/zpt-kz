@@ -166,6 +166,36 @@ class ManualWorkspaceTests(TestCase):
         self.assertEqual(response.context['selected_count'], 1)
         self.assertContains(response, self.seller.name)
 
+    def test_unified_card_and_operator_stage_do_not_send_or_close_request(self):
+        detail_url = reverse('control_panel:parts_request_detail', args=[self.req.pk])
+        listing = reverse('control_panel:parts_request_list')
+        response = self.client.get(detail_url)
+        self.assertContains(response, 'Следующий шаг')
+        self.assertContains(response, 'Отправки и реакции')
+        self.assertContains(response, 'VIN')
+        self.assertNotContains(response, 'Обработать вручную')
+        self.client.post(detail_url, {'action':'buyer_question', 'question':'Уточните двигатель'})
+        self.assertEqual(self.client.get(detail_url).context['workspace_stage'], 'new')
+        self.client.post(detail_url, {'action':'waiting'})
+        self.assertEqual(self.client.get(detail_url).context['workspace_stage'], 'waiting')
+        response = self.client.get(listing+'?period=all&stage=waiting')
+        self.assertContains(response, f'№{self.req.pk}')
+        self.assertNotContains(response, '>Обработать<')
+        tabs = {tab['key']:tab['count'] for tab in response.context['stage_tabs']}
+        self.assertEqual(tabs['waiting'], 1)
+        self.client.post(detail_url, {'action':'save_details', 'description':'Форсунки M50, 6 штук', 'vin':'VIN123'})
+        self.assertEqual(self.client.get(detail_url).context['workspace_stage'], 'active')
+        self.assertNotContains(self.client.get(listing+'?period=all&stage=waiting'), f'№{self.req.pk}')
+        self.assertContains(self.client.get(listing+'?period=all&q=M50'), f'№{self.req.pk}')
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.purchase_result, '')
+        self.assertFalse(RequestDispatch.objects.exists())
+        self.assertFalse(Match.objects.exists())
+        self.req.purchase_result = 'purchased'
+        self.req.save(update_fields=['purchase_result'])
+        self.assertEqual(self.client.get(detail_url).context['workspace_stage'], 'done')
+        self.assertContains(self.client.get(listing+'?period=all&stage=done'), 'Покупка подтверждена')
+
     def test_selection_spans_pages_and_filters_and_revalidates_post(self):
         from core.models import SellerChannelConnection
         for n in range(55):

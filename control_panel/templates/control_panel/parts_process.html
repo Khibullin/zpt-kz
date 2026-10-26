@@ -1,43 +1,28 @@
-{% extends 'control_panel/base.html' %}
-{% load l10n %}
+{% extends 'control_panel/base.html' %}{% load l10n static %}
 {% block content %}
-<style>
-.mp-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px}.mp-actions{display:flex;flex-wrap:wrap;gap:12px;margin:15px 0}.mp-link,.mp-submit{display:inline-block;background:#008d98;color:white!important;padding:12px 18px;border:0;border-radius:10px;text-decoration:none;font:inherit;cursor:pointer}.mp-green{background:#008b49}.mp-field{display:block;margin:12px 0}.mp-field input,.mp-field textarea,.mp-field select{box-sizing:border-box;display:block;width:100%;padding:12px;border:1px solid #b4ccd3;border-radius:8px;font:inherit}.mp-phone{font-size:24px;font-weight:700}.mp-note{padding:12px;background:#fff1d5;border-radius:10px}.mp-step{border-top:4px solid #009ba8}.mp-check{display:block;margin:12px 0}.mp-history{border-bottom:1px solid #d6e7e8;padding:12px 0}@media(max-width:800px){.mp-grid{grid-template-columns:1fr}}
-</style>
-{% for message in messages %}<p class="mp-note" role="status">{{ message }}</p>{% endfor %}
-<p><a href="{% url 'control_panel:parts_request_list' %}">К списку входящих заявок</a> · <a href="{% url 'control_panel:parts_request_detail' request_obj.pk %}">Отправки и реакции продавцов</a></p>
-<div class="mp-grid">
-<section class="cp-card mp-step">
-<h2>1. Заявка покупателя</h2>
-<p>Если информации достаточно, переходите к выбору продавцов. Если нужны детали, задайте покупателю вопрос.</p>
-<p><strong>{{ request_obj.brand }} {{ request_obj.model }} · {{ request_obj.year|default:'Год не указан' }}</strong></p>
-<p>{{ request_obj.city }} · {{ request_obj.category }} · {% if request_obj.is_dismantler_request %}Б/у запчасти{% else %}Новые запчасти{% endif %}</p>
-<p class="mp-note">{{ request_obj.description|linebreaksbr }}</p>
-{% if clarification_hint %}<aside class="mp-note" aria-label="Уточнение заявки"><strong>{{ clarification_hint }}</strong><p>Подсказка рекомендательная. Если данных достаточно, можно сразу выбрать продавцов.</p></aside>{% endif %}
-<p>Территория: <strong>{{ request_obj.get_search_scope_display }}</strong>{% if request_obj.selected_cities %} · {{ request_obj.selected_cities }}{% endif %}</p>
-<p class="mp-phone">{{ request_obj.phone }}</p>
-{% if buyer_whatsapp %}<details><summary class="mp-link mp-green">Задать вопрос покупателю</summary>
-<form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="action" value="buyer_question">
-<label class="mp-field">Вопрос покупателю — можно отредактировать<textarea name="question" rows="6" maxlength="2000" required>{{ buyer_question }}</textarea></label>
-<button class="mp-submit mp-green" type="submit">Открыть WhatsApp с вопросом</button>
-<p>Откроется чат с вашим текстом. Отправьте сообщение самостоятельно в WhatsApp.</p>
-</form></details>{% endif %}
-{% if buyer_phone %}<p><a class="mp-link" href="tel:+{{ buyer_phone }}">Позвонить</a></p>{% endif %}
-{% for photo in request_obj.photos.all %}<p><a href="{{ photo.image.url }}" target="_blank" rel="noopener noreferrer">Фото детали {{ forloop.counter }}</a></p>{% endfor %}
-<details><summary>Сохранить уточнения покупателя</summary>
-<form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_details">
-<label class="mp-field">Описание, двигатель и количество<textarea name="description" rows="5" maxlength="10000" required>{{ request_obj.description }}</textarea></label>
-<label class="mp-field">Артикул<input name="article" maxlength="100" value="{{ request_obj.article }}"></label>
-<label class="mp-field">VIN<input name="vin" maxlength="32" value="{{ request_obj.vin }}"></label>
-<button class="mp-submit">Сохранить уточнения</button></form></details>
+<link rel="stylesheet" href="{% static 'control_panel/request-workspace.css' %}?v=1">
+{% for message in messages %}<p class="rw-notice" role="status">{{ message }}</p>{% endfor %}
+<div class="rw-heading"><div><p class="rw-vehicle">{{ request_obj.brand }} {{ request_obj.model }} · {% if request_obj.year %}{{ request_obj.year|unlocalize }}{% else %}Год не указан{% endif %}</p><p>{{ request_obj.city }} · {{ request_obj.category }} · {% if request_obj.is_dismantler_request %}Б/у запчасти{% else %}Новые запчасти{% endif %}</p></div><span class="rw-badge rw-{{ workspace_stage }}">{{ workspace_label }}</span></div>
+<nav class="rw-steps" aria-label="Работа с заявкой"><a href="#request-data" aria-current="step">1. Данные заявки</a><a href="{% url 'control_panel:parts_request_sellers' request_obj.pk %}">2. Выбор магазинов</a><a href="{% url 'control_panel:parts_request_dispatch_review' request_obj.pk %}">3. Отправка</a></nav>
+<div class="rw-workspace">
+<section id="request-data" class="rw-card"><h2>Что нужно покупателю</h2><p class="rw-request-text">{{ request_obj.description|linebreaksbr }}</p>
+<dl class="rw-facts"><div><dt>VIN</dt><dd>{{ request_obj.vin|default:'Не указан' }}</dd></div><div><dt>Артикул</dt><dd>{{ request_obj.article|default:'Не указан' }}</dd></div><div><dt>Территория поиска</dt><dd>{{ request_obj.get_search_scope_display }}{% if request_obj.selected_cities %} · {{ request_obj.selected_cities }}{% endif %}</dd></div></dl>
+{% for photo in request_obj.photos.all %}<a class="rw-photo" href="{{ photo.image.url }}" target="_blank" rel="noopener noreferrer"><img src="{{ photo.image.url }}" alt="Фото детали {{ forloop.counter }}" loading="lazy"></a>{% endfor %}
+{% if clarification_hint %}<aside class="rw-notice"><strong>Что можно уточнить</strong><p>{{ clarification_hint }}</p><small>Если данных достаточно, можно сразу выбрать магазины.</small></aside>{% endif %}
+<details class="rw-edit" id="edit-details" {% if workspace_stage == 'waiting' %}open{% endif %}><summary>Изменить и уточнить заявку</summary><form method="post">{% csrf_token %}<input type="hidden" name="action" value="save_details"><label>Описание, двигатель и количество<textarea name="description" rows="5" maxlength="10000" required>{{ request_obj.description }}</textarea></label><div class="rw-two-fields"><label>Артикул<input name="article" maxlength="100" value="{{ request_obj.article }}"></label><label>VIN<input name="vin" maxlength="32" value="{{ request_obj.vin }}"></label></div><button class="cp-btn">Сохранить уточнения</button></form></details>
 </section>
-<section class="cp-card mp-step"><h2>2. Выбрать продавцов и отправить заявку</h2>
-<p>Если данных достаточно, переходите к списку продавцов. Уточнять заявку у покупателя нужно только при необходимости.</p>
-<p><a class="mp-link" href="{% url 'control_panel:parts_request_sellers' request_obj.pk %}">Выбрать продавцов</a></p>
-<p>Таблица с поиском, согласиями и выбором нескольких магазинов.</p>
-</section></div>
-<section class="cp-card mp-step"><h2>Ответы и рабочие заметки</h2><p>Запишите ответ покупателя или продавца, цену и следующий шаг. Заметки видны сотрудникам.</p>
-<form method="post">{% csrf_token %}<input type="hidden" name="action" value="note"><label class="mp-field">Заметка<textarea name="note" maxlength="2000" rows="3" required placeholder="Например: уточнили двигатель, ждём фото форсунки"></textarea></label><button class="mp-submit">Сохранить заметку</button></form>
-{% for note in notes %}<div class="mp-history"><p>{{ note.change_message|linebreaksbr }}</p><small>{{ note.action_time|date:'d.m.Y H:i' }} · {{ note.user.get_username }}</small></div>{% empty %}<p>Заметок пока нет.</p>{% endfor %}
-</section>
+<aside class="rw-card rw-next"><h2>Следующий шаг</h2>
+{% if workspace_stage == 'done' %}<p>Заявка завершена. Результаты и история сохранены ниже.</p><a class="rw-action rw-secondary" href="#request-activity">Посмотреть историю</a>
+{% elif workspace_stage == 'waiting' %}<p>Ждём ответ покупателя. Когда он ответит, сохраните уточнения в карточке.</p><a class="rw-action" href="#edit-details">Дополнить данные заявки</a><form method="post">{% csrf_token %}<button class="rw-text-button" name="action" value="resume">Продолжить работу без уточнения</button></form>
+{% elif prepared_count %}<p>Подготовлено сообщений: <strong>{{ prepared_count }}</strong>. Можно перейти к ручной отправке.</p><a class="rw-action" href="{% url 'control_panel:parts_request_dispatch_review' request_obj.pk %}">Перейти к отправке</a>
+{% elif sent_count %}<p>Заявка уже направлена магазинам. Следите за реакциями и предложениями.</p><a class="rw-action" href="#request-activity">Посмотреть реакции продавцов</a>
+{% elif clarification_hint and buyer_whatsapp %}<p>Для точного подбора могут понадобиться дополнительные данные.</p><a class="rw-action rw-whatsapp" href="#buyer-question">Задать вопрос покупателю</a>
+{% else %}<p>Проверьте данные и выберите подходящие магазины.</p><a class="rw-action" href="{% url 'control_panel:parts_request_sellers' request_obj.pk %}">Выбрать продавцов</a>{% endif %}
+{% if workspace_stage != 'done' %}{% if sent_count or prepared_count or clarification_hint or workspace_stage == 'waiting' %}<a class="rw-action rw-secondary" href="{% url 'control_panel:parts_request_sellers' request_obj.pk %}">{% if sent_count %}Выбрать ещё магазины{% else %}Выбрать продавцов{% endif %}</a>{% endif %}{% endif %}
+<div class="rw-stats"><div><strong>{{ sent_count }}</strong><span>Отправлено</span></div><div><strong>{{ opened_count }}</strong><span>Открыли</span></div><div><strong>{{ prepared_count }}</strong><span>Готово к отправке</span></div></div>
+<h3>Покупатель</h3><p class="rw-phone">{{ request_obj.phone }}</p>{% if buyer_phone %}<a class="rw-text-button" href="tel:+{{ buyer_phone }}">Позвонить покупателю</a>{% endif %}
+</aside></div>
+{% if buyer_whatsapp %}<section id="buyer-question" class="rw-card"><h2>Задать вопрос покупателю</h2><p class="rw-intro">Готовый текст можно отредактировать. Сообщение отправляете вы в WhatsApp.</p><form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="action" value="buyer_question"><label>Текст вопроса<textarea name="question" rows="4" maxlength="2000" required>{{ buyer_question }}</textarea></label><button class="rw-action rw-whatsapp">Открыть WhatsApp с вопросом</button></form>{% if workspace_stage != 'done' %}<form method="post" class="rw-followup">{% csrf_token %}<span>После фактической отправки вопроса:</span><button class="rw-action rw-secondary" name="action" value="waiting">Отметить «Ждём уточнения»</button></form>{% endif %}</section>{% endif %}
+<section class="rw-card"><h2>Рабочие заметки</h2><p class="rw-intro">Ответ покупателя, предложение магазина или следующий шаг. Видно только сотрудникам.</p><form method="post">{% csrf_token %}<input type="hidden" name="action" value="note"><label>Новая заметка<textarea name="note" maxlength="2000" rows="2" required placeholder="Например: магазин предложил 6 форсунок, ждём цену"></textarea></label><button class="cp-btn">Сохранить заметку</button></form>{% for note in notes %}<div class="rw-note">{{ note.change_message|linebreaksbr }}<small class="rw-sub">{{ note.action_time|date:'d.m.Y H:i' }} · {{ note.user.get_username }}</small></div>{% endfor %}</section>
+<section id="request-activity" class="rw-card"><h2>Отправки и реакции</h2><p>Отправлено {{ sent_count }} · Открыли {{ opened_count }}</p><details {% if sent_count %}open{% endif %}><summary>Магазины, реакции и хронология</summary>{% include 'control_panel/_parts_activity.html' %}</details><details><summary>Технические сведения</summary><p>{{ status_label }} · Ссылок доступа создано: {{ access_count }} · В очереди: {{ queued_count }} · Ошибок: {{ failed_count }}</p></details></section>
 {% endblock %}

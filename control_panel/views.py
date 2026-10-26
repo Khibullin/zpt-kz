@@ -119,6 +119,8 @@ def parts_request_list(request):
 
 @control_staff_required
 def parts_request_detail(request, pk: int):
+    if request.user.has_perm('core.change_request'):
+        return parts_request_process(request, pk)
     detail = get_parts_request_detail(pk)
     context = _base_context(
         active_nav='parts',
@@ -316,6 +318,12 @@ def parts_request_process(request, pk: int):
     if not model_admin.has_change_permission(request, req):
         raise PermissionDenied
     target = reverse('control_panel:parts_request_process', args=[pk])
+    from control_panel.request_workspace import with_workspace_stage, STAGE_PREFIX, STAGE_LABELS
+    if request.method == 'POST' and request.POST.get('action') in ('waiting', 'resume'):
+        stage = 'waiting' if request.POST['action'] == 'waiting' else 'active'
+        model_admin.log_change(request, req, STAGE_PREFIX + stage)
+        messages.success(request, 'Ждём уточнения покупателя.' if stage == 'waiting' else 'Заявка возвращена в работу.')
+        return redirect(target)
     if request.method == 'POST' and request.POST.get('action') == 'buyer_question':
         from core.phone_utils import build_whatsapp_url
         question = request.POST.get('question', '').strip()
@@ -337,6 +345,7 @@ def parts_request_process(request, pk: int):
         else:
             Request.objects.filter(pk=pk).update(description=description, article=article, vin=vin)
             model_admin.log_change(request, req, 'Уточнены описание, артикул и VIN в рабочей карточке.')
+            model_admin.log_change(request, req, STAGE_PREFIX + 'active')
             messages.success(request, 'Уточнения сохранены. Продавцы увидят их в персональной заявке.')
         return redirect(target)
     if request.method == 'POST' and request.POST.get('action') == 'note':
@@ -349,8 +358,8 @@ def parts_request_process(request, pk: int):
         return redirect(target)
     context = _base_context(active_nav='parts', breadcrumbs=[
         {'label': 'Заявки на запчасти', 'url': 'control_panel:parts_request_list'},
-        {'label': f'Обработка №{pk}'},
-    ], title=f'Ручная обработка заявки №{pk}')
+        {'label': f'Заявка №{pk}'},
+    ], title=f'Заявка №{pk}')
     phone = ''.join(c for c in req.phone if c.isdigit())
     if len(phone) == 11 and phone.startswith('8'):
         phone = '7' + phone[1:]
@@ -372,5 +381,13 @@ def parts_request_process(request, pk: int):
                    notes=LogEntry.objects.filter(content_type=ContentType.objects.get_for_model(Request),
                        object_id=str(pk), action_flag=CHANGE, change_message__startswith='Ручная обработка: '
                    ).select_related('user').order_by('-action_time')[:50])
-    return manual_dispatch_admin_view(model_admin, request, pk,
-        template_name='control_panel/parts_process.html', workspace_context=context, return_url=target)
+    if request.method == 'POST':
+        return manual_dispatch_admin_view(model_admin, request, pk,
+            template_name='control_panel/parts_process.html', workspace_context=context, return_url=target)
+    detail = get_parts_request_detail(pk)
+    context.update(detail)
+    stage = with_workspace_stage(Request.objects.filter(pk=pk)).values_list('workspace_stage', flat=True).get()
+    context.update(request_obj=detail['parts_request'], workspace_stage=stage, workspace_label=STAGE_LABELS[stage],
+        opened_count=sum(row.opened for row in detail['reactions']),
+        prepared_count=sum(d.status == 'prepared' for d in detail['dispatches']))
+    return render(request, 'control_panel/parts_process.html', context)

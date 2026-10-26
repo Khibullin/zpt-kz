@@ -1,5 +1,8 @@
 {% extends 'control_panel/base.html' %}{% load l10n static %}{% block content %}
 <link rel="stylesheet" href="{% static 'css/manual-seller-picker.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'control_panel/request-workspace.css' %}?v=1">
+<nav class="rw-steps" aria-label="Работа с заявкой"><a href="{% url 'control_panel:parts_request_detail' req.pk %}">1. Данные заявки</a><a href="{% url 'control_panel:parts_request_sellers' req.pk %}">2. Выбор магазинов</a><a href="{% url 'control_panel:parts_request_dispatch_review' req.pk %}" aria-current="step">3. Отправка</a></nav>
+
 <p><a href="{{ picker_target }}{% if filters.scope == 'all' %}?scope=all{% endif %}">Вернуться к выбору магазинов</a></p><h2>Отправка заявки №{{ req.pk|unlocalize }}</h2><p>{{ req.brand }} {{ req.model }} · {{ req.city }} · {{ req.description }}</p>
 <div id="selection-feedback">{% for message in messages %}<p class="mp-message" role="status">{{ message }}</p>{% endfor %}</div>
 <section class="mp-review"><h3>Выбрано магазинов: {{ selected_count }}</h3>
