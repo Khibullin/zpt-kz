@@ -135,10 +135,12 @@ document.addEventListener('submit', async (event) => {
     const saved = Array.from(page.querySelectorAll('.selection-toggle')).find(item =>
       item.getAttribute('action') === form.getAttribute('action'));
     const savedCheckbox = saved && saved.querySelector('input[type="checkbox"]');
-    const counter = page.querySelector('.selection-nav a');
+    const counter = page.querySelector('[data-selection-next]');
     if (!savedCheckbox || !counter) throw new Error('Selection response missing');
     checkbox.checked = savedCheckbox.checked;
-    document.querySelector('.selection-nav a').textContent = counter.textContent;
+    document.querySelectorAll('[data-selection-next]').forEach(link => {
+      link.textContent = counter.textContent;
+    });
     status.textContent = Array.from(page.querySelectorAll('.selection-notice'))
       .map(item => item.textContent).join(' ');
   } catch (_) {
