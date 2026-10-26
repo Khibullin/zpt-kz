@@ -166,12 +166,16 @@ class SellerRequestLinkTests(TestCase):
         self.assertNotContains(response, 'Нет в наличии')
         self.assertContains(response, 'https://wa.me/77019990011')
 
-    def test_consent_prompt_shown_when_unknown(self):
+    def test_unknown_marketing_consent_does_not_interrupt_buyer_contact(self):
         response = self.client.get(self.url)
-        self.assertContains(response, 'Получать выгодные предложения ZPT.KZ в WhatsApp?')
-        self.assertContains(response, 'Да, получать')
-        self.assertContains(response, 'Нет, только заявки')
-        self.assertContains(response, 'data-needs-consent="1"')
+        self.assertNotContains(response, 'Получать выгодные предложения')
+        self.assertNotContains(response, 'sr-consent-modal')
+        self.assertContains(response, 'data-needs-consent="0"')
+        response = self.client.post(self.url, {'action': 'whatsapp_click'})
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()['ok'])
+        self.assertIn('https://wa.me/77019990011', response.json()['whatsapp_url'])
+        self.assertFalse(SellerContactConsent.objects.filter(seller=self.seller).exists())
 
     def test_consent_prompt_hidden_when_already_decided(self):
         now = timezone.now()

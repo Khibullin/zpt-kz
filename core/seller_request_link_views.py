@@ -32,7 +32,6 @@ from core.models import (
 )
 from core.services.seller_whatsapp_consent import (
     SellerWhatsAppConsentError,
-    seller_needs_request_page_marketing_prompt,
 )
 
 TEMPLATE = 'core/seller_request_link.html'
@@ -141,7 +140,7 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'city': (req.city or '').strip(),
         'comment': (req.description or '').strip(),
         **_contact_urls(req),
-        'needs_consent': seller_needs_request_page_marketing_prompt(access.seller),
+        'needs_consent': False,
         'requests_consent_status': request_consent_status(access.seller),
         'can_decline': bool(access.seller_id) and not outcome_type,
         'match_status': outcome_type,
