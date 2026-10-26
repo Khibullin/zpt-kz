@@ -1,25 +1,25 @@
 {% extends 'core/connections/base.html' %}{% load static %}
 {% block content %}
-<div class="buyer-workspace">
+<div class="buyer-workspace{% if step == 'selected' %} shortlist-page{% endif %}">
 <a class="back" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">К заявке №{{ req.pk }}</a>
 <nav class="selection-nav" aria-label="Работа с заявкой">
 <a href="{% url 'workflow_buyer_step' req.pk req.access_token 'edit' %}">Уточнить заявку</a>
 <a href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Выбрать продавцов</a>
-<a href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Выбранные ({{ total }})</a>
+<a {% if step == 'selected' %}aria-current="page"{% endif %} href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Выбранные ({{ total }})</a>
 <a href="{% url 'buyer_selection' req.pk req.access_token 'history' %}">История</a></nav>
 {% for message in messages %}<p class="selection-notice" role="status">{{ message }}</p>{% endfor %}
 {% if step == 'selected' %}
 <h1>Выбранные продавцы <span class="muted">{{ total }} из 10</span></h1>
 <p>Готовый текст можно дополнить. Каждому продавцу сообщение отправляете вы сами.</p>
-<div class="selection-tabs"><a href="?tab=all">Все ({{ total }})</a><a href="?tab=ready">Можно отправить ({{ ready }})</a><a href="?tab=sent">Отправлено ({{ sent }})</a></div>
+<div class="selection-tabs"><a href="?tab=all" {% if tab == 'all' %}aria-current="page"{% endif %}>Все ({{ total }})</a><a href="?tab=ready" {% if tab == 'ready' %}aria-current="page"{% endif %}>Можно отправить ({{ ready }})</a><a href="?tab=sent" {% if tab == 'sent' %}aria-current="page"{% endif %}>Отправлено ({{ sent }})</a></div>
 {% for item in entries %}<article class="selection-card">
 <div><h2>{{ item.seller.name }}</h2><p>{{ item.seller.city }}{% if item.seller.address %} · {{ item.seller.address }}{% endif %}</p>
 {% if item.sent_at %}<p class="selection-status">Отправлено покупателем · {{ item.sent_at|date:'d.m.Y H:i' }}</p>{% else %}<p class="muted">Ещё не отмечено как отправленное</p>{% endif %}
 {% if item.result %}<p>{{ item.get_result_display }}{% if item.comment %} · {{ item.comment }}{% endif %}</p>{% endif %}</div>
 <div class="selection-actions">
 <a class="button" href="{% url 'buyer_selection' req.pk req.access_token 'message' %}?seller={{ item.seller_id }}">Подготовить сообщение</a>
-<a href="{% url 'buyer_selection' req.pk req.access_token 'confirm' %}?seller={{ item.seller_id }}">Отметить отправку</a>
-<a href="{% url 'buyer_selection' req.pk req.access_token 'outcome' %}?seller={{ item.seller_id }}">Результат общения</a>
+<a class="button secondary" href="{% url 'buyer_selection' req.pk req.access_token 'confirm' %}?seller={{ item.seller_id }}">Отметить отправку</a>
+<a class="button secondary" href="{% url 'buyer_selection' req.pk req.access_token 'outcome' %}?seller={{ item.seller_id }}">Результат общения</a>
 <form method="post">{% csrf_token %}<input type="hidden" name="seller" value="{{ item.seller_id }}"><button class="secondary selection-remove" name="action" value="remove">Убрать из выбранных</button></form>
 </div></article>{% empty %}<div class="selection-card"><p>В этом списке пока нет продавцов.</p><a class="button" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Выбрать продавцов</a></div>{% endfor %}
 <a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Добавить продавцов</a>
