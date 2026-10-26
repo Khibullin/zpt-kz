@@ -67,7 +67,17 @@ def _legacy_selected(seller, req) -> bool:
     return True
 
 
-def validate_manual_recipient(req, seller, *, assignment_reason=""):
+def outside_request_territory(req, seller):
+    if test_receiver_decision(seller, req) is True:
+        return False
+    if req.search_scope == "city":
+        return req.city != seller.city
+    if req.search_scope == "custom":
+        return seller.city not in {c.strip() for c in (req.selected_cities or "").split(",") if c.strip()}
+    return False
+
+
+def validate_manual_recipient(req, seller, *, assignment_reason="", allow_outside_territory=False):
     if not seller.is_active or seller.is_paused or seller.catalog_only:
         raise ValidationError('Продавец не подключён к получению заявок.')
     if not seller_whatsapp_phone(seller):
@@ -87,9 +97,9 @@ def validate_manual_recipient(req, seller, *, assignment_reason=""):
             raise ValidationError('Заявка адресована только авторазборам.')
         if not req.is_dismantler_request and seller.sells_new_parts is not True:
             raise ValidationError('Продавец не подтверждён для новых запчастей.')
-    if req.search_scope == 'city' and req.city != seller.city:
+    if not allow_outside_territory and req.search_scope == 'city' and req.city != seller.city:
         raise ValidationError('Продавец вне выбранного покупателем города.')
-    if req.search_scope == 'custom':
+    if not allow_outside_territory and req.search_scope == 'custom':
         cities = {c.strip() for c in (req.selected_cities or '').split(',') if c.strip()}
         if seller.city not in cities:
             raise ValidationError('Продавец вне выбранных покупателем городов.')
@@ -98,7 +108,7 @@ def validate_manual_recipient(req, seller, *, assignment_reason=""):
 
 
 @transaction.atomic
-def prepare_manual_dispatch(req, seller, *, permission_evidence='', assignment_reason=''):
+def prepare_manual_dispatch(req, seller, *, permission_evidence='', assignment_reason='', allow_outside_territory=False):
     """Create a per-seller link only after one-off permission or prior opt-in.
 
     No Match row, sent timestamp, Meta call or queued wave is created yet.
@@ -106,7 +116,7 @@ def prepare_manual_dispatch(req, seller, *, permission_evidence='', assignment_r
     assignment_reason = str(assignment_reason or '').strip()
     if assignment_reason and len(assignment_reason) < MIN_EVIDENCE_LENGTH:
         raise ValidationError('Укажите подробную причину разового назначения (от 12 символов).')
-    validate_manual_recipient(req, seller, assignment_reason=assignment_reason)
+    validate_manual_recipient(req, seller, assignment_reason=assignment_reason, allow_outside_territory=allow_outside_territory)
     consent = get_request_consent(seller)
     if manual_consent_status(seller) == 'granted':
         evidence = ('buyer_requests:consent:' + str(consent.pk) if consent else
