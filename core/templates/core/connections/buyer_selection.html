@@ -20,7 +20,7 @@
 <a class="button" href="{% url 'buyer_selection' req.pk req.access_token 'message' %}?seller={{ item.seller_id }}">Подготовить сообщение</a>
 <a href="{% url 'buyer_selection' req.pk req.access_token 'confirm' %}?seller={{ item.seller_id }}">Отметить отправку</a>
 <a href="{% url 'buyer_selection' req.pk req.access_token 'outcome' %}?seller={{ item.seller_id }}">Результат общения</a>
-<form method="post">{% csrf_token %}<input type="hidden" name="seller" value="{{ item.seller_id }}"><button class="secondary" name="action" value="remove">Убрать из выбранных</button></form>
+<form method="post">{% csrf_token %}<input type="hidden" name="seller" value="{{ item.seller_id }}"><button class="secondary selection-remove" name="action" value="remove">Убрать из выбранных</button></form>
 </div></article>{% empty %}<div class="selection-card"><p>В этом списке пока нет продавцов.</p><a class="button" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Выбрать продавцов</a></div>{% endfor %}
 <a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Добавить продавцов</a>
 {% elif step == 'message' %}
