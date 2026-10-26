@@ -8,11 +8,14 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
 from control_panel.auth import control_staff_required
-from core.models import Request, Seller, RequestDispatch, SellerRequestAccess
+from core.models import (Request, Seller, RequestDispatch, SellerRequestAccess,
+    SellerContactConsent, SellerChannelConnection, CONTACT_CONSENT_CHANNEL_WHATSAPP,
+    CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS, CONTACT_CONSENT_PURPOSE_MARKETING)
 from core.phone_utils import seller_whatsapp_phone
 from core.services.manual_seller_dispatch import (
     validate_manual_recipient, prepare_manual_dispatch, confirm_manual_dispatch_sent,
     manual_consent_status, manual_whatsapp_url, _legacy_selected, outside_request_territory,
+    LEGACY_REQUEST_CONSENT_VERSIONS,
 )
 from core.services.test_receivers import universal_test_q, test_receiver_decision
 from core.services.request_connections import buyer_access_valid
@@ -51,7 +54,17 @@ def recipient_rows(req, params):
     qs = Seller.objects.all()
     if params.get('scope') != 'all' and req.search_scope in ('city', 'custom'):
         qs = qs.filter(territory | universal)
-    qs = qs.select_related('brand_fk', 'model_fk', 'channel_connection').prefetch_related(
+    if params.get('consent') == 'granted':
+        # Cheap database prefilter before loading thousands of unrelated profiles.
+        historical = SellerContactConsent.objects.filter(
+            channel=CONTACT_CONSENT_CHANNEL_WHATSAPP, status='granted',
+        ).filter(Q(purpose=CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS) | Q(
+            purpose=CONTACT_CONSENT_PURPOSE_MARKETING,
+            consent_text_version__in=LEGACY_REQUEST_CONSENT_VERSIONS,
+        )).values_list('seller_id', flat=True)
+        channels = SellerChannelConnection.objects.filter(whatsapp_consent=True).values_list('seller_id', flat=True)
+        qs = qs.filter(Q(pk__in=historical) | Q(pk__in=channels))
+    qs = qs.defer('notes').select_related('brand_fk', 'model_fk', 'channel_connection').prefetch_related(
         'selected_brands', 'selected_models', 'selected_categories', 'extra_phones', 'contact_consents',
     ).order_by('-is_test_seller', 'name', 'id')
     q = params.get('q', '').strip()
@@ -66,7 +79,7 @@ def recipient_rows(req, params):
             setattr(probe, field, params[field].strip())
     sent_ids = set(RequestDispatch.objects.filter(request=req, status=RequestDispatch.STATUS_SENT).values_list('seller_id', flat=True))
     rows = []
-    for seller in qs.iterator(chunk_size=200):
+    for seller in qs:
         test = test_receiver_decision(seller, req) is True
         # Narrow by the request specialization; registration state stays visible separately.
         if not test and (seller.transport_type != req.transport_type or not _legacy_selected(seller, req)):

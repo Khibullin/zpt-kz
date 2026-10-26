@@ -8,10 +8,12 @@ from django.db import transaction
 from django.utils import timezone
 
 from core.models import (Match, RequestDispatch, Seller,
-    CONTACT_CONSENT_CHANNEL_WHATSAPP, CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS)
+    CONTACT_CONSENT_CHANNEL_WHATSAPP, CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS,
+    CONTACT_CONSENT_PURPOSE_MARKETING, SELLER_REGISTRATION_WHATSAPP_CONSENT_VERSION,
+    SELLER_PORTAL_WHATSAPP_CONSENT_VERSION, SELLER_LINK_WHATSAPP_CONSENT_VERSION,
+    SELLER_REQUEST_PAGE_WHATSAPP_CONSENT_VERSION, SELLER_PLATFORM_CONFIRM_TEMPLATE)
 from core.phone_utils import normalize_kz_phone
 from core.phone_utils import seller_whatsapp_phone
-from core.services.seller_buyer_request_consent import get_request_consent
 from core.services.seller_request_access import (
     build_seller_request_access_url,
     get_or_create_active_seller_request_access,
@@ -22,20 +24,39 @@ from core.services.test_receivers import test_receiver_decision
 MIN_EVIDENCE_LENGTH = 12
 
 
-def manual_consent_status(seller):
-    """Respect explicit request opt-out; otherwise accept the saved channel opt-in."""
-    if 'contact_consents' in getattr(seller, '_prefetched_objects_cache', {}):
-        phone = normalize_kz_phone(seller.whatsapp)
-        records = [c for c in seller.contact_consents.all() if c.phone_normalized == phone
-                   and c.channel == CONTACT_CONSENT_CHANNEL_WHATSAPP
-                   and c.purpose == CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS]
-        consent = max(records, key=lambda c: (c.updated_at, c.pk), default=None)
-    else:
-        consent = get_request_consent(seller)
+LEGACY_REQUEST_CONSENT_VERSIONS = (
+    SELLER_REGISTRATION_WHATSAPP_CONSENT_VERSION, SELLER_PORTAL_WHATSAPP_CONSENT_VERSION,
+    SELLER_LINK_WHATSAPP_CONSENT_VERSION, SELLER_REQUEST_PAGE_WHATSAPP_CONSENT_VERSION,
+    SELLER_PLATFORM_CONFIRM_TEMPLATE,
+)
+
+
+def manual_consent_info(seller):
+    """Read existing request permissions without inventing a new consent record.
+
+    Listed historical texts explicitly included buyer requests. Unrelated advertising
+    consent is never used. Explicit request choice (including opt-out) has priority.
+    """
+    phone = normalize_kz_phone(seller.whatsapp)
+    records = [c for c in seller.contact_consents.all() if phone and c.phone_normalized == phone
+               and c.channel == CONTACT_CONSENT_CHANNEL_WHATSAPP]
+    request_records = [c for c in records if c.purpose == CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS]
+    consent = max(request_records, key=lambda c: (c.updated_at, c.pk), default=None)
     if consent:
-        return consent.status
+        return consent.status, 'buyer_requests:consent:' + str(consent.pk)
+    legacy = [c for c in records if c.purpose == CONTACT_CONSENT_PURPOSE_MARKETING
+              and c.consent_text_version in LEGACY_REQUEST_CONSENT_VERSIONS]
+    consent = max(legacy, key=lambda c: (c.updated_at, c.pk), default=None)
+    if consent:
+        return consent.status, 'buyer_requests:legacy_consent:' + str(consent.pk)
     channel = getattr(seller, 'channel_connection', None)
-    return 'granted' if channel and channel.whatsapp_consent else ''
+    if channel and channel.whatsapp_consent:
+        return 'granted', 'buyer_requests:whatsapp_channel:seller:' + str(seller.pk)
+    return '', ''
+
+
+def manual_consent_status(seller):
+    return manual_consent_info(seller)[0]
 
 
 def _legacy_selected(seller, req) -> bool:
@@ -117,11 +138,8 @@ def prepare_manual_dispatch(req, seller, *, permission_evidence='', assignment_r
     if assignment_reason and len(assignment_reason) < MIN_EVIDENCE_LENGTH:
         raise ValidationError('Укажите подробную причину разового назначения (от 12 символов).')
     validate_manual_recipient(req, seller, assignment_reason=assignment_reason, allow_outside_territory=allow_outside_territory)
-    consent = get_request_consent(seller)
-    if manual_consent_status(seller) == 'granted':
-        evidence = ('buyer_requests:consent:' + str(consent.pk) if consent else
-                    'buyer_requests:whatsapp_channel:seller:' + str(seller.pk))
-    else:
+    consent_status, evidence = manual_consent_info(seller)
+    if consent_status != 'granted':
         evidence = str(permission_evidence or '').strip()
         if len(evidence) < MIN_EVIDENCE_LENGTH:
             raise ValidationError(

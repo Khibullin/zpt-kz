@@ -123,7 +123,7 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id, *,
     candidate_qs = candidate_qs.select_related('brand_fk', 'model_fk').prefetch_related(
         'selected_brands', 'selected_models', 'selected_categories',
     ).order_by('name', 'id')
-    candidate_source = candidate_qs[:80] if workspace_context is None else candidate_qs.iterator(chunk_size=100)
+    candidate_source = candidate_qs[:80] if workspace_context is None else []
     for seller in candidate_source:
         try:
             validate_manual_recipient(req, seller)
@@ -144,7 +144,7 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id, *,
         .select_related('seller')
         .order_by('created_at', 'id')
     )
-    for dispatch in deliveries:
+    for dispatch in (deliveries if workspace_context is None else []):
         access = (
             SellerRequestAccess.objects.filter(
                 request=req,

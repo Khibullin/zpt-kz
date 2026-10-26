@@ -225,3 +225,47 @@ class ManualWorkspaceTests(TestCase):
         self.assertFalse(Match.objects.exists())
         self.req.vin = 'VIN123'; self.req.save(update_fields=['vin'])
         self.assertNotContains(self.client.get(self.url), 'Недостаточно данных для точного подбора.')
+
+    def test_historical_request_consent_is_recognized_without_creating_new_consent(self):
+        from core.models import SellerContactConsent, CONTACT_CONSENT_SOURCE_REGISTRATION
+        from core.services.manual_seller_dispatch import manual_consent_status
+        consent=SellerContactConsent.objects.create(seller=self.seller,phone_normalized=self.seller.whatsapp,
+            channel='whatsapp',purpose='marketing',status='granted',source=CONTACT_CONSENT_SOURCE_REGISTRATION,
+            consent_text_version='seller_registration_whatsapp_v1',consented_at=timezone.now())
+        response=self.client.get(self.picker()+'?scope=all&consent=granted')
+        self.assertContains(response,self.seller.name)
+        self.client.post(self.picker()+'?consent=granted',{'action':'prepare','seller_ids':[self.seller.pk]})
+        self.assertIn('legacy_consent:',RequestDispatch.objects.get().permission_evidence)
+        self.assertEqual(SellerContactConsent.objects.count(),1)
+        consent.status='revoked';consent.revoked_at=timezone.now();consent.save(update_fields=['status','revoked_at'])
+        self.assertEqual(manual_consent_status(self.seller),'revoked')
+        self.assertEqual(self.client.get(self.picker()+'?consent=granted').context['total'],0)
+
+    def test_unknown_advertising_consent_does_not_grant_requests_and_explicit_opt_out_wins(self):
+        from core.models import SellerContactConsent, SellerChannelConnection
+        from core.services.manual_seller_dispatch import manual_consent_status
+        SellerContactConsent.objects.create(seller=self.seller,phone_normalized=self.seller.whatsapp,
+            channel='whatsapp',purpose='marketing',status='granted',
+            consent_text_version='advertising_only',consented_at=timezone.now())
+        self.assertEqual(manual_consent_status(self.seller),'')
+        SellerChannelConnection.objects.create(seller=self.seller,whatsapp_consent=True)
+        SellerContactConsent.objects.create(seller=self.seller,phone_normalized=self.seller.whatsapp,
+            channel='whatsapp',purpose='buyer_requests',status='revoked',revoked_at=timezone.now())
+        self.assertEqual(self.client.get(self.picker()+'?consent=granted').context['total'],0)
+
+    def test_full_picker_query_count_does_not_grow_with_each_seller(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from django.http import QueryDict
+        from control_panel.manual_processing import recipient_rows
+        with CaptureQueriesContext(connection) as small:
+            recipient_rows(self.req,QueryDict('scope=all'))
+        Seller.objects.bulk_create([Seller(name=f'Профиль {n}',city='Актобе',transport_type='car',
+            whatsapp=f'7701001{n:04}',sells_new_parts=True,all_brands=True,all_categories=True)
+            for n in range(500)])
+        with CaptureQueriesContext(connection) as large:
+            rows=recipient_rows(self.req,QueryDict('scope=all'))
+        self.assertEqual(len(rows),501)
+        self.assertLessEqual(len(large),len(small)+1)
+        self.assertLessEqual(len(large),10)
+        print(f'MANUAL_PICKER_QUERIES one={len(small)} five_hundred={len(large)}')
