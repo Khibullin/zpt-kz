@@ -96,8 +96,6 @@ def recipient_rows(req, params):
             validate_manual_recipient(req, seller, allow_outside_territory=params.get('scope') == 'all')
         except ValidationError as exc:
             reason = '; '.join(exc.messages)
-        if seller.catalog_only:
-            reason = 'Карточка в каталоге: владелец ещё не подключён к заявкам.'
         if seller.pk in sent_ids:
             reason = 'Эта заявка уже отправлена магазину.'
         if params.get('availability') == 'ready' and reason:
@@ -149,7 +147,9 @@ def seller_picker(request, pk):
                         raise ValidationError('Эта заявка уже отправлена магазину.')
                     outside = outside_request_territory(req, seller)
                     allow_outside = request.GET.get('scope') == 'all'
-                    prepare_manual_dispatch(req, seller, permission_evidence=request.POST.get('permission_evidence', ''),
+                    prepare_manual_dispatch(req, seller, permission_evidence=(request.POST.get('permission_evidence', '').strip()
+                        or (f'Устное разрешение на заявку №{req.pk} подтверждено сотрудником {request.user.get_username()} {timezone.now().isoformat()}'
+                            if request.POST.get('one_time_permission') == 'yes' else '')),
                         allow_outside_territory=allow_outside)
                     if outside and allow_outside:
                         admin.site._registry[Request].log_change(request, req, territory_marker(seller))

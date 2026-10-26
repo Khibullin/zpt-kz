@@ -131,14 +131,16 @@ class ManualSellerDispatchTests(TestCase):
                 permission_evidence='22.10.2026: разрешено по телефону',
             )
 
-    def test_catalog_only_seller_cannot_get_manual_link(self):
+    def test_catalog_only_seller_can_get_one_off_manual_link_without_enrollment(self):
         self.seller.catalog_only = True
         self.seller.save(update_fields=['catalog_only'])
-        with self.assertRaises(ValidationError):
-            prepare_manual_dispatch(
-                self.req, self.seller,
-                permission_evidence='22.10.2026: продавец разрешил по телефону',
-            )
+        dispatch, access = prepare_manual_dispatch(self.req, self.seller,
+            permission_evidence='26.10.2026: продавец разрешил по телефону')
+        self.assertEqual(dispatch.status, RequestDispatch.STATUS_PREPARED)
+        self.assertEqual(access.seller_id, self.seller.pk)
+        self.seller.refresh_from_db()
+        self.assertTrue(self.seller.catalog_only)
+        self.assertFalse(SellerContactConsent.objects.filter(seller=self.seller).exists())
 
     def test_buyer_request_subscription_is_distinct_from_marketing(self):
         access = SellerRequestAccess.objects.create(

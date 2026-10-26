@@ -355,7 +355,7 @@ def seller_request_link(request, token):
     ).exclude(permission_evidence='').exists())
     if direct_manual:
         seller = access.seller
-        if (not seller.is_active or seller.is_paused or seller.catalog_only
+        if (not seller.is_active or seller.is_paused
                 or not req.contact_consent_at or not connections.buyer_access_valid(req)
                 or req.purchase_result in ('purchased', 'closed')):
             if request.method == 'POST':
