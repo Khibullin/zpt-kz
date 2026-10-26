@@ -120,34 +120,6 @@
     });
   }
 
-  const requestSubscription = document.getElementById('sr-request-subscription');
-  if (requestSubscription) {
-    const subscriptionError = document.getElementById('sr-request-subscription-error');
-    requestSubscription.querySelectorAll('[data-sr-request-subscription]').forEach(function (button) {
-      button.addEventListener('click', function () {
-        const action = button.getAttribute('data-sr-request-subscription');
-        if (!window.confirm(
-          action === 'requests_yes'
-            ? 'Подтвердить получение будущих заявок покупателей в WhatsApp на номер вашей организации?'
-            : 'Отключить будущие заявки покупателей в WhatsApp?'
-        )) return;
-        button.disabled = true;
-        setError(subscriptionError, '');
-        postAction(action).then(function (data) {
-          button.disabled = false;
-          if (!data.ok) {
-            setError(subscriptionError, data.error || 'Не удалось сохранить выбор.');
-            return;
-          }
-          window.location.reload();
-        }).catch(function () {
-          button.disabled = false;
-          setError(subscriptionError, 'Не удалось сохранить выбор.');
-        });
-      });
-    });
-  }
-
   if (declineActions) {
     declineActions.querySelectorAll('[data-sr-action]').forEach(function (button) {
       button.addEventListener('click', function () {

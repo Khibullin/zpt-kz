@@ -1,258 +1,63 @@
 {% extends 'base_portal.html' %}
 {% load static %}
-
-{% block title %}Страница заявки — ZPT.KZ{% endblock %}
-
-{% block extra_head %}
-<meta name="csrf-token" content="{{ csrf_token }}">
+{% block title %}Заявка №{{ request_number }} — ZPT.KZ{% endblock %}
+{% block extra_head %}<meta name="csrf-token" content="{{ csrf_token }}">{% endblock %}
+{% block seo_meta %}<meta name="robots" content="{{ seo_robots }}">{% endblock %}
+{% block analytics_head %}{% endblock %}{% block analytics_body %}{% endblock %}{% block analytics_events %}{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/seller-request-page.css' %}?v=approved-20261026">{% endblock %}
+{% block portal_header %}
+<header class="sr-header"><div class="sr-header-inner">
+  <a class="sr-brand" href="{% url 'home' %}">ZPT.KZ</a><span class="sr-header-caption">Заявки покупателей</span>
+  <nav class="sr-nav" aria-label="Кабинет продавца"><a class="sr-nav-current" href="{% url 'connection_feed' %}">Заявки</a><a href="{% url 'connection_quality' %}">Мой магазин</a><a href="{% url 'workflow_channels' %}">Настройки</a></nav>
+</div></header>
 {% endblock %}
-
-{% block seo_meta %}
-<meta name="robots" content="{{ seo_robots }}">
-{% endblock %}
-
-{% block extra_css %}
-<style>
-  .sr-page {
-    max-width: 560px;
-    margin: 0 auto;
-    padding: 24px 16px 48px;
-  }
-  .sr-card {
-    background: #fff;
-    border: 1px solid #ececec;
-    border-radius: 16px;
-    padding: 24px 20px;
-  }
-  .sr-card h1 {
-    margin: 0 0 16px;
-    font-size: 22px;
-    line-height: 1.3;
-  }
-  .sr-card p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #374151;
-  }
-  .sr-meta {
-    margin: 0 0 8px;
-    font-size: 18px;
-    font-weight: 700;
-    color: #111;
-  }
-  .sr-line {
-    margin: 0 0 6px;
-    font-size: 16px;
-    color: #111;
-  }
-  .sr-photos {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-    gap: 8px;
-    margin: 12px 0 16px;
-  }
-  .sr-photos img {
-    display: block;
-    width: 100%;
-    height: 96px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid #ececec;
-  }
-  .sr-label {
-    margin: 16px 0 6px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #6b7280;
-  }
-  .sr-comment {
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.5;
-    color: #111;
-    white-space: pre-wrap;
-  }
-  .sr-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 20px;
-  }
-  .sr-btn {
-    display: block;
-    width: 100%;
-    box-sizing: border-box;
-    text-align: center;
-    text-decoration: none;
-    border: 0;
-    border-radius: 12px;
-    padding: 12px 16px;
-    font-size: 16px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: inherit;
-  }
-  .sr-btn:disabled {
-    opacity: .6;
-    cursor: default;
-  }
-  .sr-btn-wa {
-    background: #25D366;
-    color: #fff;
-  }
-  .sr-btn-call {
-    background: #111;
-    color: #fff;
-  }
-  .sr-extra {
-    margin-top: 24px;
-    padding-top: 16px;
-    border-top: 1px solid #ececec;
-  }
-  .sr-extra h2 {
-    margin: 0 0 10px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #6b7280;
-  }
-  .sr-extra-row {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .sr-btn-extra {
-    background: #fff;
-    color: #374151;
-    border: 1px solid #d1d5db;
-    font-weight: 600;
-  }
-  .sr-btn-filter {
-    background: #fff1f2;
-    color: #991b1b;
-    border: 1px solid #dc3035;
-    font-weight: 700;
-  }
-  .sr-btn-filter:hover { background: #ffe4e6; }
-  .sr-btn-filter:focus-visible { outline: 3px solid #dc3035; outline-offset: 3px; }
-  .sr-note {
-    margin-top: 10px;
-    font-size: 15px;
-    color: #111;
-  }
-  .sr-error {
-    margin-top: 10px;
-    font-size: 14px;
-    color: #b91c1c;
-  }
-  .sr-btn-yes {
-    background: #111;
-    color: #fff;
-  }
-  .sr-btn-no {
-    background: #f3f4f6;
-    color: #111;
-  }
-</style>
-{% endblock %}
-
 {% block content %}
 <main class="sr-page">
-  <section class="sr-card">
-    {% if page_state == 'valid' %}
-      <h1>Страница заявки</h1>
-      <p class="sr-meta">Заявка №{{ request_number }}</p>
-      {% if direct_manual %}
-        {% if buyer_telegram_url %}<p><a class="sr-btn" href="{{ buyer_telegram_url }}" target="_blank" rel="noopener noreferrer">Написать покупателю в Telegram</a></p>{% endif %}
-      {% elif connection_request_id %}
-        <p><a href="{% url 'connection_detail' connection_request_id %}">Предложение и результат работы</a></p>
-        {% if buyer_has_telegram %}<form method="post" action="{% url 'connection_seller_contact' connection_request_id 'telegram' %}">{% csrf_token %}<button class="sr-btn" type="submit">Написать покупателю в Telegram</button></form>{% endif %}
-      {% endif %}
-      {% if vehicle %}<p class="sr-line">{{ vehicle }}</p>{% endif %}
-      {% if year %}<p class="sr-line">Год: {{ year }}</p>{% endif %}
-      {% if vin %}<p class="sr-line">VIN: {{ vin }}</p>{% endif %}
-      {% if photos %}
-        <div class="sr-photos">
-          {% for photo in photos %}
-            <a href="{{ photo.image.url }}" target="_blank" rel="noopener">
-              <img src="{{ photo.image.url }}" alt="Фото заявки">
-            </a>
-          {% endfor %}
-        </div>
-      {% endif %}
-      {% if category %}<p class="sr-line">{{ category }}</p>{% endif %}
-      {% if city %}<p class="sr-line">{{ city }}</p>{% endif %}
-      {% if comment %}
-        <p class="sr-label">Комментарий покупателя:</p>
-        <p class="sr-comment">{{ comment }}</p>
-      {% endif %}
-
-      <div
-        id="sr-page-root"
-        class="sr-actions"
-        data-needs-consent="{% if needs_consent %}1{% else %}0{% endif %}"
-        data-whatsapp-url="{{ whatsapp_url }}"
-        data-tel-url="{{ tel_url }}"
-      >
-        {% csrf_token %}
-        {% if whatsapp_url %}
-          <button type="button" class="sr-btn sr-btn-wa" id="sr-whatsapp">Написать покупателю в WhatsApp</button>
-        {% endif %}
-        {% if tel_url %}
-          <button type="button" class="sr-btn sr-btn-call" id="sr-call">Позвонить покупателю</button>
-        {% endif %}
-        <p id="sr-contact-error" class="sr-error" hidden></p>
-      </div>
-
-      {% if can_decline or decline_message %}
-        <div class="sr-extra">
-          <h2>Дополнительно:</h2>
-          <div id="sr-decline-actions" class="sr-extra-row"{% if not can_decline %} hidden{% endif %}>
-            <button class="sr-btn sr-btn-extra" type="button" data-sr-action="unavailable">Нет в наличии</button>
-            <button class="sr-btn sr-btn-extra" type="button" data-sr-action="decline">Не могу выполнить заявку</button>
-          </div>
-          <p id="sr-decline-note" class="sr-note"{% if not decline_message %} hidden{% endif %}>{{ decline_message }}</p>
-          <p id="sr-decline-error" class="sr-error" hidden></p>
-        </div>
-      {% endif %}
-      {% if filter_token %}
-      <div class="sr-extra" id="sr-request-subscription">
-        <h2>Получать будущие заявки покупателей в WhatsApp?</h2>
-        <p>Вы сами выбираете категории и марки запчастей. Это согласие
-        только на заявки покупателей — не на рекламу. Выбор можно изменить.</p>
-        {% if requests_consent_status == 'granted' %}
-          <p id="sr-request-subscription-status" class="sr-note">Подключено: будущие заявки покупателей.</p>
-        {% elif requests_consent_status == 'revoked' %}
-          <p id="sr-request-subscription-status" class="sr-note">Отключено: будущие заявки не отправляются.</p>
-        {% else %}
-          <p id="sr-request-subscription-status" class="sr-note">Согласие на будущие заявки пока не получено.</p>
-        {% endif %}
-        <div class="sr-extra-row" style="margin-top:12px">
-          <button class="sr-btn sr-btn-yes" type="button" data-sr-request-subscription="requests_yes">Да, подключить заявки</button>
-          <button class="sr-btn sr-btn-no" type="button" data-sr-request-subscription="requests_no">Нет, не получать</button>
-        </div>
-        <p id="sr-request-subscription-error" class="sr-error" hidden></p>
-      </div>
-      <div class="sr-extra">
-        <h2>Получаете неподходящие заявки?</h2>
-        <p>Укажите марки, модели и категории запчастей, с которыми работаете.</p>
-        <a class="sr-btn sr-btn-filter" href="filters/">Настроить фильтр получения заявок</a>
-      </div>
-      {% endif %}
-    {% elif page_state == 'expired' %}
-      <h1>Заявка ZPT.KZ</h1>
-      <p>Срок действия ссылки истёк.</p>
-    {% else %}
-      <h1>Заявка ZPT.KZ</h1>
-      <p>Ссылка недействительна или больше не доступна.</p>
-    {% endif %}
-  </section>
-</main>
-
-{% endblock %}
-
-{% block portal_js %}
 {% if page_state == 'valid' %}
-<script src="{% static 'js/seller-request-page.js' %}?v=4"></script>
+  <header class="sr-heading"><h1>Заявка №{{ request_number }}</h1><p>{{ request_kind }}</p></header>
+  <section class="sr-request-card" aria-labelledby="sr-title">
+    <h2 id="sr-title">{{ part_title }}</h2>
+    <dl class="sr-facts">
+      {% if vehicle %}<div><dt>Автомобиль:</dt><dd>{{ vehicle }}</dd></div>{% endif %}
+      {% if year %}<div><dt>Год:</dt><dd>{{ year }}</dd></div>{% endif %}
+      {% if city %}<div><dt>Город:</dt><dd>{{ city }}</dd></div>{% endif %}
+      {% if category %}<div><dt>Категория:</dt><dd>{{ category }}</dd></div>{% endif %}
+      {% if vin %}<div class="sr-wide"><dt>VIN:</dt><dd>{{ vin }}</dd></div>{% endif %}
+      {% if comment %}<div class="sr-wide sr-comment"><dt>Комментарий покупателя:</dt><dd>{{ comment }}</dd></div>{% endif %}
+    </dl>
+    {% if photos %}<div class="sr-photos">{% for photo in photos %}<a href="{{ photo.image.url }}" target="_blank" rel="noopener"><img src="{{ photo.image.url }}" alt="Фото заявки" loading="lazy"></a>{% endfor %}</div>{% endif %}
+    <div id="sr-page-root" class="sr-actions" data-needs-consent="0" data-whatsapp-url="{{ whatsapp_url }}" data-tel-url="{{ tel_url }}">
+      {% csrf_token %}
+      {% if whatsapp_url %}<button type="button" class="sr-btn sr-btn-wa" id="sr-whatsapp">Ответить в WhatsApp</button>{% endif %}
+      {% if tel_url %}<button type="button" class="sr-btn sr-btn-call" id="sr-call">Позвонить покупателю</button>{% endif %}
+      <p id="sr-contact-error" class="sr-error sr-wide" hidden></p>
+    </div>
+    {% if whatsapp_url %}<p class="sr-contact-note">Откроется чат с покупателем. Сообщение отправляете вы.</p>{% endif %}
+    {% if direct_manual %}
+      {% if buyer_telegram_url %}<p class="sr-additional"><a class="sr-btn sr-btn-call" href="{{ buyer_telegram_url }}" target="_blank" rel="noopener noreferrer">Написать покупателю в Telegram</a></p>{% endif %}
+    {% elif connection_request_id %}
+      <div class="sr-additional"><a href="{% url 'connection_detail' connection_request_id %}">Предложение и результат работы</a>
+      {% if buyer_has_telegram %}<form method="post" action="{% url 'connection_seller_contact' connection_request_id 'telegram' %}">{% csrf_token %}<button class="sr-btn sr-btn-call" type="submit">Написать покупателю в Telegram</button></form>{% endif %}</div>
+    {% endif %}
+    {% if can_decline or decline_message %}<div class="sr-outcomes">
+      <div id="sr-decline-actions" class="sr-extra-row"{% if not can_decline %} hidden{% endif %}>
+        <button class="sr-btn sr-btn-extra" type="button" data-sr-action="unavailable">Нет в наличии</button>
+        <button class="sr-btn sr-btn-extra" type="button" data-sr-action="decline">Не могу выполнить заявку</button>
+      </div>
+      <p id="sr-decline-note" class="sr-note"{% if not decline_message %} hidden{% endif %}>{{ decline_message }}</p><p id="sr-decline-error" class="sr-error" hidden></p>
+    </div>{% endif %}
+  </section>
+  {% if filter_token %}<section class="sr-telegram" aria-labelledby="sr-telegram-title">
+    <h2 id="sr-telegram-title">Подходящие заявки в Telegram</h2>
+    <p>Выберите категории запчастей, марки, модели автомобилей и города, по которым хотите получать заявки.</p>
+    <a class="sr-btn sr-btn-telegram" href="{{ telegram_subscription_url }}" target="_blank" rel="noopener noreferrer">{% if telegram_subscribed %}Настроить фильтр заявок{% else %}Подключить Telegram{% endif %}</a>
+    <p class="sr-contact-note">{% if telegram_subscribed %}Магазин уже подключён. Откроются настройки уведомлений.{% else %}Если магазин уже подключён — откроются настройки уведомлений.{% endif %}</p>
+    {% if not telegram_invitation %}<a class="sr-filter-link" href="filters/">Настроить фильтр получения заявок</a>{% endif %}
+  </section>{% endif %}
+  <p class="sr-page-footer">Персональная страница магазина</p>
+{% else %}
+  <section class="sr-request-card"><h1>Заявка ZPT.KZ</h1><p>{% if page_state == 'expired' %}Срок действия ссылки истёк.{% else %}Ссылка недействительна или больше не доступна.{% endif %}</p></section>
 {% endif %}
+</main>
 {% endblock %}
+{% block portal_js %}{% if page_state == 'valid' %}<script src="{% static 'js/seller-request-page.js' %}?v=5"></script>{% endif %}{% endblock %}

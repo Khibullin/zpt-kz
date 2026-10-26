@@ -142,3 +142,23 @@ class ManualTelegramInvitationTests(TestCase):
         ticket.refresh_from_db()
         self.assertIsNone(ticket.seller_id)
         api.assert_not_called()
+
+    def test_approved_request_page_offers_personal_telegram_without_whatsapp_subscription(self):
+        self.req.contact_consent_at = timezone.now()
+        self.req.phone = '77019990011'
+        self.req.save(update_fields=['contact_consent_at', 'phone'])
+        url = reverse('seller_request_link', args=[self.access.token])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, 'Ответить в WhatsApp')
+        self.assertContains(response, 'Подходящие заявки в Telegram')
+        self.assertContains(response, 'Подключить Telegram')
+        self.assertContains(response, 'https://t.me/zpt_kz_zakaz_bot?start=invite_' + self.access.token)
+        self.assertNotContains(response, 'Получать будущие заявки покупателей в WhatsApp?')
+        self.assertNotContains(response, 'data-sr-request-subscription')
+        self.assertNotContains(response, 'sr-consent-modal')
+        self.assertFalse(SellerChannelConsentEvent.objects.exists())
+        SellerChannelConnection.objects.create(seller=self.seller, telegram_id=123, telegram_consent=True)
+        response = self.client.get(url)
+        self.assertContains(response, 'Настроить фильтр заявок')
+        self.assertNotContains(response, '>Подключить Telegram<')

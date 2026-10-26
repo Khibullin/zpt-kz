@@ -147,6 +147,18 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
         'decline_message': OUTCOME_MESSAGES.get(outcome_type, ''),
         'photos': list(req.photos.all()),
     })
+    context['part_title'] = ((req.public_summary or '').strip()
+        or ((req.description or '').strip() if len((req.description or '').strip()) <= 90 else '')
+        or 'Детали заявки')
+    context['request_kind'] = ('Запчасти с авторазбора' if req.is_dismantler_request
+        else 'Новые запчасти' if req.source == req.SOURCE_HOME_SHORT else 'Заявка на запчасти')
+    from django.urls import reverse
+    from core.services.manual_telegram_invitation import invitation_access, bot_url
+    invitation = invitation_access(access.token) if access.seller_id else None
+    conn = getattr(access.seller, 'channel_connection', None) if access.seller_id else None
+    context['telegram_subscribed'] = bool(conn and conn.telegram_id and conn.telegram_consent)
+    context['telegram_invitation'] = bool(invitation)
+    context['telegram_subscription_url'] = bot_url(access) if invitation else reverse('workflow_telegram_connect')
     from core.services.request_connections import enabled, telegram_contact
     if enabled():
         context['buyer_telegram_url'] = telegram_contact(req.buyer_telegram)
