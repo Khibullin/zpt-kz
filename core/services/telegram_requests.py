@@ -3,7 +3,7 @@ from django.db import transaction
 from django.urls import reverse
 from core.models import TelegramRequestPublication, TelegramPublicationAttempt, Request
 from core.services.request_connections import enabled, safe_summary, PII
-from core.services.telegram_channel import _call_api, verify_channel, TelegramChannelError
+from core.services.telegram_channel import _call_api, verify_channel, TelegramChannelError, CHANNEL, REQUEST_TOPIC_ID
 
 
 def validate_publication(publication):
@@ -38,7 +38,7 @@ def publish(publication_id, actor):
         publication.request.refresh_from_db()
         validate_publication(publication)
         result = _call_api('sendMessage', {
-            'chat_id': '@zpt_kz_zakaz', 'text': publication.text,
+            'chat_id': CHANNEL, 'message_thread_id': REQUEST_TOPIC_ID, 'text': publication.text,
             'link_preview_options': {'is_disabled': True},
             'reply_markup': {'inline_keyboard': [[{
                 'text': 'Написать покупателю',
@@ -50,6 +50,6 @@ def publish(publication_id, actor):
         TelegramRequestPublication.objects.filter(pk=publication.pk).update(status='unknown')
         TelegramPublicationAttempt.objects.filter(pk=attempt.pk).update(result='unknown')
         raise ValueError('Результат не подтверждён. Проверьте канал вручную; повторная отправка заблокирована.') from None
-    TelegramRequestPublication.objects.filter(pk=publication.pk).update(status='published', message_id=message_id)
+    TelegramRequestPublication.objects.filter(pk=publication.pk).update(status='published', message_id=message_id, chat_id=CHANNEL)
     TelegramPublicationAttempt.objects.filter(pk=attempt.pk).update(result='published')
     return message_id
