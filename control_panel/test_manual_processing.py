@@ -196,6 +196,20 @@ class ManualWorkspaceTests(TestCase):
         self.assertEqual(self.client.get(detail_url).context['workspace_stage'], 'done')
         self.assertContains(self.client.get(listing+'?period=all&stage=done'), 'Покупка подтверждена')
 
+    def test_stage_counts_do_not_join_delivery_or_event_history(self):
+        from django.db import connection
+        from django.test.utils import CaptureQueriesContext
+        from control_panel.selectors.parts_requests import list_parts_requests
+        from django.http import QueryDict
+        with CaptureQueriesContext(connection) as queries:
+            result = list_parts_requests(QueryDict('period=all'))
+        self.assertEqual(result['total'], 1)
+        stage_queries = [q['sql'] for q in queries if 'django_admin_log' in q['sql']]
+        self.assertEqual(len(stage_queries), 1)
+        self.assertNotIn('JOIN "core_match"', stage_queries[0])
+        self.assertNotIn('JOIN "core_sellerrequestpageevent"', stage_queries[0])
+        self.assertNotIn('COUNT(', stage_queries[0])
+
     def test_selection_spans_pages_and_filters_and_revalidates_post(self):
         from core.models import SellerChannelConnection
         for n in range(55):

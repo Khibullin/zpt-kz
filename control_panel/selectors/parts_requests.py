@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime
 
@@ -180,20 +181,24 @@ def _apply_filters(queryset, params: QueryDict):
 
 
 def list_parts_requests(params: QueryDict) -> dict:
-    queryset = _apply_filters(with_workspace_stage(_base_queryset()), params)
-    stage_counts = queryset.aggregate(**{key: Count('pk', filter=Q(workspace_stage=key), distinct=True) for key, _ in STAGES})
+    # Count stages on one row per request. Combining these correlated lookups
+    # with the match/event aggregate multiplies history rows and can time out.
+    stage_source = _apply_filters(with_workspace_stage(Request.objects.all()), params)
+    stages_by_id = dict(stage_source.values_list('pk', 'workspace_stage'))
+    stage_counts = Counter(stages_by_id.values())
     stage = first_value(params, 'stage')
+    if stage not in dict(STAGES):
+        stage = 'all'
     stage_tabs = []
     for key, label in [('all', 'Все')] + STAGES:
         query = params.copy(); query.pop('page', None); query['stage'] = key
-        stage_tabs.append({'key': key, 'label': label, 'count': sum(stage_counts.values()) if key == 'all' else stage_counts[key], 'url': '?' + query.urlencode()})
-    if stage in dict(STAGES):
-        queryset = queryset.filter(workspace_stage=stage)
-    queryset = queryset.order_by('-created_at', '-id')
+        stage_tabs.append({'key': key, 'label': label, 'count': len(stages_by_id) if key == 'all' else stage_counts[key], 'url': '?' + query.urlencode()})
+    selected_ids = [pk for pk, value in stages_by_id.items() if stage == 'all' or value == stage]
+    queryset = _base_queryset().filter(pk__in=selected_ids).order_by('-created_at', '-id')
     page = paginate(queryset, params)
     rows = [
         PartsRequestRow(
-            description=item.description, stage=item.workspace_stage, stage_label=STAGE_LABELS[item.workspace_stage],
+            description=item.description, stage=stages_by_id[item.pk], stage_label=STAGE_LABELS[stages_by_id[item.pk]],
             pk=item.pk,
             created_at=item.created_at,
             vehicle=vehicle_label(item.brand, item.model),
