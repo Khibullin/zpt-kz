@@ -28,7 +28,7 @@ class ManualWorkspaceTests(TestCase):
         self.assertEqual(self.client.get(self.url).status_code, 403)
         self.user.user_permissions.add(Permission.objects.get(codename='change_request', content_type__app_label='core'))
         response = self.client.get(self.url)
-        self.assertContains(response, 'Уточнить в WhatsApp')
+        self.assertContains(response, 'Задать вопрос покупателю')
         self.assertContains(response, 'Выбрать продавцов')
         self.assertEqual(response['Cache-Control'], 'private, no-store')
         self.assertFalse(RequestDispatch.objects.exists())
@@ -207,3 +207,21 @@ class ManualWorkspaceTests(TestCase):
         other.all_categories=False;other.category='Кузов'
         other.save(update_fields=['all_categories','category'])
         self.assertNotContains(self.client.get(self.picker()+'?scope=all'),other.name)
+
+
+    def test_clarification_hint_and_editable_question_do_not_block_selection(self):
+        from urllib.parse import urlsplit, parse_qs
+        response = self.client.get(self.url)
+        self.assertContains(response, 'Недостаточно данных для точного подбора.')
+        self.assertContains(response, 'количество форсунок')
+        self.assertContains(response, 'Выбрать продавцов')
+        question = 'Уточните двигатель и пришлите фото: номер на форсунке?'
+        response = self.client.post(self.url, {'action': 'buyer_question', 'question': question})
+        self.assertEqual(response.status_code, 302)
+        target = urlsplit(response.url)
+        self.assertEqual(target.netloc, 'wa.me')
+        self.assertEqual(parse_qs(target.query)['text'], [question])
+        self.assertFalse(RequestDispatch.objects.exists())
+        self.assertFalse(Match.objects.exists())
+        self.req.vin = 'VIN123'; self.req.save(update_fields=['vin'])
+        self.assertNotContains(self.client.get(self.url), 'Недостаточно данных для точного подбора.')
