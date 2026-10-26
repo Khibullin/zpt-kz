@@ -1,3 +1,40 @@
 /* Standard ZPT colours, shared by the desktop and mobile buyer flow. */
 .buyer-workspace{max-width:1000px;margin:auto}.buyer-workspace h1{font-size:30px}.selection-nav,.selection-tabs{display:flex;gap:12px;flex-wrap:wrap;margin:20px 0}.selection-nav a,.selection-tabs a{padding:10px 14px;border:1px solid #cce5e5;border-radius:12px;background:#e9f8f7;color:#006c76;text-decoration:none}.selection-card{display:flex;justify-content:space-between;gap:24px;background:linear-gradient(135deg,#fff 65%,#effafa);border:1px solid #cce5e5;border-top:4px solid #008e98;border-radius:18px;padding:24px;margin:18px 0;box-shadow:0 6px 22px #12495712}.selection-card h2{margin-top:0}.selection-actions{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin:18px 0}.selection-card>.selection-actions{flex-direction:column;align-items:stretch;min-width:220px}.selection-status{color:#006c76;background:#e9f8f7;padding:10px 14px;border-radius:10px}.selection-notice{padding:16px;border-radius:12px;background:#fff0d7;color:#664410}.selection-stats{display:flex;gap:18px}.selection-stats>div{padding:18px;background:#fff0d7;border-radius:14px}.selection-event{display:flex;gap:20px;border-bottom:1px solid #cce5e5;padding:18px 0}.selection-event time{white-space:nowrap;color:#526477}.selection-filters{display:flex;gap:12px;align-items:end;flex-wrap:wrap;padding:18px;background:#fff0d7;border-radius:14px;margin:20px 0}.selection-filters label{display:block}.buyer-workspace textarea{width:100%;box-sizing:border-box;line-height:1.6}.buyer-workspace button,.buyer-workspace .button,.selection-toggle button,.selection-filters button{background:#008e98;color:white;border-color:#008e98}.buyer-workspace .secondary{background:#fff;color:#006c76;border:1px solid #a7cfd0}.buyer-workspace .whatsapp{background:#159c56;border-color:#159c56}.buyer-workspace .telegram{background:#249bd2;border-color:#249bd2}.buyer-workspace button:hover,.buyer-workspace .button:hover,.selection-filters button:hover,.selection-toggle button:hover{filter:none;opacity:1;box-shadow:0 4px 12px #12495726}.buyer-workspace button:focus-visible,.buyer-workspace a:focus-visible{outline:3px solid #e3a329;outline-offset:3px}.selection-toggle{margin-bottom:12px}.selection-toggle .secondary{background:#e9f8f7;color:#006c76}.buyer-workspace fieldset{border:1px solid #cce5e5;border-radius:12px;padding:15px}.selection-check input{width:20px;height:20px;accent-color:#008e98}.selection-check{display:flex;align-items:center;gap:10px;margin-bottom:10px}
 @media(max-width:640px){.selection-card{display:block;padding:18px}.buyer-workspace h1{font-size:25px}.selection-card>.selection-actions{min-width:0}.selection-actions{flex-direction:column;align-items:stretch}.selection-actions .button,.selection-actions button{width:100%;box-sizing:border-box}.selection-nav{gap:7px}.selection-nav a{padding:9px;font-size:14px}.selection-event{display:block}.selection-event time{display:block;margin-bottom:8px}.selection-filters{display:block}.selection-filters button{margin-top:12px}.selection-stats{gap:8px}.selection-stats>div{padding:12px}.selection-tabs{gap:8px}.selection-tabs a{font-size:14px;padding:9px}.buyer-workspace textarea{font-size:16px}}
+
+/* Approved ZPT action palette: red site actions, green WhatsApp, blue Telegram. */
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(button,.button) {
+  --action-bg:#e32636; --action-ink:#fff; --action-border:#e32636;
+  background:var(--action-bg); color:var(--action-ink); border:1px solid var(--action-border);
+  border-radius:12px; min-height:48px; font-weight:600; text-decoration:none;
+  transition:box-shadow .16s ease;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.secondary,.upload-control) {
+  --action-bg:#fff; --action-ink:#006c76; --action-border:#97c9cc;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.whatsapp,form[action$="/whatsapp/"] button) {
+  --action-bg:#128c4a; --action-ink:#fff; --action-border:#128c4a;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.telegram,form[action$="/telegram/"] button) {
+  --action-bg:#087eb5; --action-ink:#fff; --action-border:#087eb5;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(button,.button):hover {
+  background:var(--action-bg); color:var(--action-ink); border-color:var(--action-border);
+  filter:none; opacity:1; box-shadow:0 4px 14px #183e4524;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(button,.button):focus-visible {
+  outline:3px solid #e8ae35; outline-offset:3px;
+}
+body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) button:disabled {
+  background:var(--action-bg); color:var(--action-ink); border-color:var(--action-border);
+  opacity:.7; cursor:not-allowed; box-shadow:none;
+}
+body .buyer-workspace .selection-remove {
+  --action-bg:transparent; --action-ink:#526477; --action-border:transparent;
+  padding:6px 0; min-height:36px; font-weight:400; text-decoration:underline;
+}
+body .buyer-workspace .selection-status {background:#e8f6ed;color:#21643b}
+@media(max-width:640px) {
+  body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.button,button) {max-width:100%}
+  body :is(.buyer-workspace,.buyer-step,.sellers-panel,.shop-panel) :is(.form-actions,.selection-actions,.result-actions) :is(button,.button) {width:100%;box-sizing:border-box}
+}
