@@ -23,6 +23,8 @@ def workspace(request, req_id, access_token, step):
     req = buyer_request(req_id, access_token)
     if req is None:
         return render(request, 'core/connections/expired.html', status=410)
+    if step in ('selected', 'send'):
+        return compose_flow(request, req, step)
     if step not in ('selected', 'message', 'confirm', 'outcome', 'history', 'help'):
         raise Http404
     selected = req.buyer_selections.select_related('seller', 'access')
@@ -141,3 +143,84 @@ def toggle(request, req_id, access_token, seller_id):
     from urllib.parse import urlencode
     return redirect(reverse('workflow_buyer_step', args=[req.pk, req.access_token, 'sellers']) +
                     '?' + urlencode({'city': city, 'page': request.POST.get('page', '1')}))
+
+def compose_flow(request, req, step):
+    entries = req.buyer_selections.select_related('seller', 'access')
+    total = entries.count()
+    first = entries.first()
+    vehicle = ' '.join(str(v) for v in (req.brand, req.model, req.year) if v)
+    base = f'Здравствуйте! Ищу запчасть на {vehicle}.\n{req.description}\nГород: {req.city}.'
+    if req.requested_quantity:
+        base += f'\nКоличество: {req.requested_quantity} шт.'
+    suggestion = 'Подскажите наличие, производителя, артикул, цену и условия гарантии.'
+    hints = []
+    if not req.requested_quantity:
+        hints.append('Укажите нужное количество деталей.')
+    if any(word in req.description.lower() for word in ('крыл', 'бампер', 'фар', 'двер', 'зеркал', 'шрус')):
+        hints.append('Проверьте сторону и расположение детали; при наличии добавьте артикул или фото.')
+    hints.append('При необходимости добавьте объём двигателя и желаемое состояние детали: новая или б/у.')
+    key = f'buyer-send-skipped:{req.pk}'
+    skipped = request.session.get(key, [])
+    pending = entries.filter(sent_at__isnull=True).exclude(pk__in=skipped)
+    entry = pending.first() if step == 'send' else None
+    if entry and not entry.message:
+        return redirect(destination(req))
+    error = ''
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if step == 'selected' and action == 'prepare':
+            text = request.POST.get('message', '').strip()
+            if not text or len(text) > 3000:
+                error = 'Введите сообщение длиной до 3000 символов.'
+            elif not total:
+                error = 'Сначала выберите продавцов.'
+            else:
+                with transaction.atomic():
+                    Request.objects.select_for_update().get(pk=req.pk)
+                    entries.update(message=text)
+                request.session[key] = []
+                return redirect(destination(req, 'send'))
+        elif step == 'send' and entry:
+            # Bind the action to the displayed recipient; never advance on a stale tab.
+            if request.POST.get('selection') != str(entry.pk):
+                return redirect(destination(req, 'send'))
+            if action == 'sent':
+                with transaction.atomic():
+                    locked = BuyerSellerSelection.objects.select_for_update().get(pk=entry.pk)
+                    if locked.sent_at is None:
+                        locked.sent_at = timezone.now()
+                        locked.save(update_fields=['sent_at'])
+                        RequestOutcomeEvent.objects.create(request=req, seller=entry.seller,
+                            result='buyer_sent', comment='Покупатель подтвердил ручную отправку')
+                return redirect(destination(req, 'send'))
+            if action == 'skip':
+                request.session[key] = skipped + [entry.pk]
+                return redirect(destination(req, 'send'))
+            if action == 'whatsapp':
+                item = next(iter(selection_service.eligible(req, '*', [entry.seller_id])), None)
+                if not item:
+                    error = 'Контакт недоступен. Пропустите продавца.'
+                elif not entry.message:
+                    return redirect(destination(req))
+                else:
+                    from core.phone_utils import seller_whatsapp_url
+                    if not service.directory_contact(entry.seller, req, 'whatsapp'):
+                        error = 'WhatsApp недоступен. Пропустите продавца.'
+                    else:
+                        text = entry.message
+                        if not entry.access or entry.access.is_expired():
+                            from core.services.seller_request_access import create_seller_request_access
+                            entry.access = create_seller_request_access(request=req, seller=entry.seller, require_binding=True)
+                            entry.save(update_fields=['access'])
+                        # Keep the approved common message unchanged; invitation is personal.
+                        invitation = selection_service.default_message(req, entry)
+                        if '\n\nПолучайте' in invitation:
+                            text += '\n\nПолучайте' + invitation.split('\n\nПолучайте', 1)[1]
+                        service.record(req, entry.seller, 'buyer', 'whatsapp_click', source='buyer_shortlist')
+                        return redirect(seller_whatsapp_url(entry.seller, text))
+    text = request.POST.get('message', '') if error and step == 'selected' else (first.message if first and first.message else base)
+    return render(request, 'core/connections/buyer_compose.html', {
+        'req': req, 'step': step, 'total': total, 'text': text, 'base': base,
+        'suggestion': suggestion, 'hints': hints, 'entry': entry, 'error': error,
+        'sent': entries.filter(sent_at__isnull=False).count(), 'skipped_count': len(skipped),
+    })

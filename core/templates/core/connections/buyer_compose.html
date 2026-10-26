@@ -1,0 +1,29 @@
+{% extends 'core/connections/base.html' %}
+{% block content %}<div class="buyer-workspace shortlist-page">
+<a class="back" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">← К выбору продавцов</a>
+{% if error %}<p class="selection-notice" role="alert">{{ error }}</p>{% endif %}
+{% if step == 'selected' %}
+<h1>Подготовьте сообщение</h1><p>Выбрано {{ total }} из 10 продавцов. Проверьте текст один раз — он будет общим для всех.</p>
+{% if total %}<form method="post">{% csrf_token %}
+<label for="common-message">Сообщение продавцам</label><textarea id="common-message" name="message" rows="8" maxlength="3000" required>{{ text }}</textarea>
+<section class="selection-card" style="display:block"><h2>Рекомендуем добавить</h2><p id="suggested-text">{{ suggestion }}</p><button type="button" class="secondary" id="add-suggestion">Добавить в сообщение</button><p class="muted">Вы можете изменить текст или оставить свой вариант.</p><ul>{% for hint in hints %}<li>{{ hint }}</li>{% endfor %}</ul></section>
+<button name="action" value="prepare">Сохранить и перейти к отправке ({{ total }})</button></form>
+{% else %}<p>Сначала выберите продавцов для вашей заявки.</p>{% endif %}
+{% else %}
+<h1>Отправьте сообщение продавцам</h1><p>Отправлено {{ sent }} из {{ total }}{% if skipped_count %} · Пропущено {{ skipped_count }}{% endif %}</p>
+{% if entry %}<section class="selection-card" style="display:block"><h2>{{ entry.seller.name }}</h2><p>{{ entry.seller.city }}{% if entry.seller.address %} · {{ entry.seller.address }}{% endif %}</p><details><summary>Посмотреть общий текст сообщения</summary><p style="white-space:pre-wrap">{{ entry.message }}</p></details>
+<p>Откройте WhatsApp, отправьте сообщение и вернитесь сюда.</p>
+<form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button class="whatsapp" name="action" value="whatsapp">Открыть WhatsApp с сообщением</button></form>
+<p class="muted">Неподключённому продавцу добавится персональное приглашение в Telegram ZPT.KZ.</p>
+<form method="post" class="selection-actions">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button name="action" value="sent">Отправил — следующий</button><button class="secondary" name="action" value="skip">Пропустить</button></form></section>
+{% else %}<section class="selection-card" style="display:block"><h2>Вы прошли выбранных продавцов</h2><p>Отправлено: {{ sent }}. Пропущено: {{ skipped_count }}.</p><a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">Вернуться к заявке</a></section>{% endif %}
+<a href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Изменить общий текст</a>
+{% endif %}</div>
+<script>
+document.getElementById('add-suggestion')?.addEventListener('click', function () {
+ const field = document.getElementById('common-message');
+ const text = document.getElementById('suggested-text').textContent;
+ if (!field.value.includes(text)) field.value = field.value.trimEnd() + '\n' + text;
+ this.disabled = true; this.textContent = 'Добавлено';
+});
+</script>{% endblock %}
