@@ -69,7 +69,7 @@ body.cp-body {
 .cp-logout button,
 .cp-btn {
   border: 0;
-  background: #111;
+  background: #008d98;
   color: #fff;
   border-radius: 8px;
   padding: 8px 12px;
@@ -706,3 +706,8 @@ a.cp-ext-link:hover { text-decoration: underline; }
 
 .cp-btn-danger { background:#fff; color:#991b1b; border:1px solid #fecaca; }
 .cp-btn-danger:hover { background:#fef2f2; }
+
+/* Owner-approved control actions: stable brand color and readable hover. */
+.cp-btn:not(.cp-btn-danger):hover,.cp-logout button:hover{background:#008d98;color:#fff;text-decoration:none;box-shadow:0 3px 10px #16475b24}
+.cp-btn.cp-btn-secondary:hover{background:#fff;color:#111}
+.cp-btn:focus-visible,.cp-logout button:focus-visible{outline:3px solid #e99b28;outline-offset:3px}

@@ -131,6 +131,41 @@ class ManualWorkspaceTests(TestCase):
         self.assertTrue(self.seller.is_test_seller)
         self.assertIs(test_receiver_decision(self.seller, self.req), True)
 
+    def test_sent_one_time_consent_display_and_filter_are_request_specific(self):
+        from core.models import SellerContactConsent
+        key = f'manual_recipients:{self.req.pk}'
+        self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        self.client.post(self.review(), {'action':'prepare', 'one_time_permission':'yes'})
+        dispatch = RequestDispatch.objects.get(seller=self.seller)
+        self.assertNotContains(self.client.get(self.picker()), 'Устное согласие на эту заявку')
+        self.client.post(self.review(), {'action':'confirm_sent', 'dispatch_id':dispatch.pk, 'did_send':'yes'})
+        self.assertContains(self.client.get(self.picker()+'?tab=sent'), 'Устное согласие на эту заявку')
+        self.assertContains(self.client.get(self.picker()+'?tab=sent&consent=granted'), self.seller.name)
+        self.assertNotContains(self.client.get(self.picker()+'?tab=sent&consent=missing'), self.seller.name)
+        self.assertFalse(SellerContactConsent.objects.exists())
+        other = Request.objects.create(source='home_short', transport_type='car', brand='BMW', city='Актобе',
+            category='Топливная система', search_scope='city', phone='77072812731')
+        other_url = reverse('control_panel:parts_request_sellers', args=[other.pk])
+        self.assertContains(self.client.get(other_url), 'Нет записи')
+        dispatch.permission_evidence = ''
+        dispatch.save(update_fields=['permission_evidence'])
+        self.assertNotContains(self.client.get(self.picker()+'?tab=sent'), 'Устное согласие на эту заявку')
+
+    def test_tab_counts_remain_complete_on_selected_tab_and_follow_filters(self):
+        self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        second = Seller.objects.create(name='Второй магазин', city='Актобе', transport_type='car',
+            whatsapp='77011013039', sells_new_parts=True, all_brands=True, all_categories=True)
+        for tab in ('ready', 'selected', 'sent', 'blocked'):
+            response = self.client.get(self.picker()+'?tab='+tab)
+            self.assertEqual(response.context['counts']['ready'], 2)
+            self.assertEqual(response.context['counts']['sent'], 0)
+            self.assertContains(response, 'Можно отправить — 2')
+            self.assertContains(response, 'Уже отправлено — 0')
+        response = self.client.get(self.picker()+'?tab=selected&q=Второй')
+        self.assertEqual(response.context['counts']['ready'], 1)
+        self.assertEqual(response.context['selected_count'], 1)
+        self.assertContains(response, self.seller.name)
+
     def test_selection_spans_pages_and_filters_and_revalidates_post(self):
         from core.models import SellerChannelConnection
         for n in range(55):
