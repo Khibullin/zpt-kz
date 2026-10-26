@@ -10,7 +10,7 @@
   <div class="cp-kpis">
     {% for kpi in kpis %}
       <article class="cp-card cp-kpi">
-        <div class="cp-kpi-value">{{ kpi.value }}</div>
+        <div class="cp-kpi-value">{% if kpi.key == 'offers_sent' %}<a href="{% url 'control_panel:overview_activity' 'sent' %}?period={{ period }}" aria-label="Посмотреть отправки уведомлений">{{ kpi.value }}</a>{% elif kpi.key == 'page_open' %}<a href="{% url 'control_panel:overview_activity' 'opened' %}?period={{ period }}" aria-label="Посмотреть открытия заявок">{{ kpi.value }}</a>{% else %}{{ kpi.value }}{% endif %}</div>
         <div class="cp-kpi-label">{{ kpi.label }}</div>
         <div class="cp-kpi-hint">{{ kpi.hint }}</div>
       </article>

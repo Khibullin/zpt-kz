@@ -1,0 +1,15 @@
+{% extends 'control_panel/base.html' %}{% load l10n %}
+{% block content %}
+<a href="{{ overview_url }}">Вернуться к обзору</a>
+<div class="cp-period">{% for key, label in period_choices %}<a class="{% if period == key %}is-active{% endif %}" href="?period={{ key }}">{{ label }}</a>{% endfor %}</div>
+<section class="cp-card">
+<p>Всего записей: <strong>{{ page.paginator.count }}</strong>. Один магазин может встречаться по нескольким заявкам или ссылкам.</p>
+<div class="cp-table-wrap"><table class="cp-table"><thead><tr><th>Дата и время</th><th>Магазин</th><th>Город</th><th>Номер заявки</th></tr></thead><tbody>
+{% for row in rows %}<tr><td>{{ row.time|date:'d.m.Y H:i:s' }}</td><td>{% if row.seller_id %}<a href="{% url 'control_panel:seller_detail' row.seller_id %}">{{ row.seller_name }}</a>{% else %}{{ row.seller_name }}{% endif %}</td><td>{{ row.city }}</td><td><a href="{% url 'control_panel:parts_request_detail' row.request_id %}">№{{ row.request_id|unlocalize }}</a></td></tr>
+{% empty %}<tr><td colspan="4">За выбранный период записей нет.</td></tr>{% endfor %}
+</tbody></table></div>
+{% if page.has_previous %}<a href="?period={{ period }}&amp;page={{ page.previous_page_number }}">Назад</a>{% endif %}
+{% if page.paginator.num_pages > 1 %}<span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span>{% endif %}
+{% if page.has_next %}<a href="?period={{ period }}&amp;page={{ page.next_page_number }}">Далее</a>{% endif %}
+</section>
+{% endblock %}

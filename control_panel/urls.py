@@ -3,10 +3,13 @@ from django.urls import path
 from control_panel import views
 from control_panel.manual_processing import seller_picker, manual_send, seller_dispatch_review
 
+from control_panel.overview_activity import overview_activity
+
 app_name = 'control_panel'
 
 urlpatterns = [
     path('', views.overview, name='overview'),
+    path('activity/<str:kind>/', overview_activity, name='overview_activity'),
     path('requests/parts/<int:pk>/dispatch/', seller_dispatch_review, name='parts_request_dispatch_review'),
     path('requests/parts/<int:pk>/sellers/', seller_picker, name='parts_request_sellers'),
     path('requests/parts/<int:pk>/send/<int:dispatch_id>/', manual_send, name='parts_request_manual_send'),
