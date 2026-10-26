@@ -206,7 +206,7 @@ def confirm_manual_dispatch_sent(dispatch):
     return dispatch
 
 
-def manual_whatsapp_message(req, url: str) -> str:
+def manual_whatsapp_message(req, url: str, *, telegram_url='', telegram_connected=False) -> str:
     vehicle = ' '.join(filter(None, [req.brand, req.model]))
     lines = [
         f'ZPT.KZ — новая заявка №{req.pk}',
@@ -225,6 +225,8 @@ def manual_whatsapp_message(req, url: str) -> str:
         'Ссылка персональная, действует 72 часа. '
         'Получение будущих заявок можно отдельно подтвердить на странице.',
     ]
+    if telegram_url:
+        lines.extend(['', ('Telegram уже подключён. Настройте категории запчастей, марки, модели автомобилей и города, по которым хотите получать заявки:' if telegram_connected else 'Получайте заявки покупателей автоматически в Telegram. Подключите магазин и выберите категории запчастей, марки, модели автомобилей и города, по которым хотите получать заявки:'), telegram_url])
     return '\n'.join(lines)
 
 
@@ -233,4 +235,8 @@ def manual_whatsapp_url(seller, req, access) -> str:
     url = build_seller_request_access_url(access)
     if not phone:
         return ''
-    return 'https://wa.me/' + phone + '?text=' + quote(manual_whatsapp_message(req, url), safe='')
+    from core.services.manual_telegram_invitation import bot_url
+    conn = getattr(seller, 'channel_connection', None)
+    message = manual_whatsapp_message(req, url, telegram_url=bot_url(access),
+        telegram_connected=bool(conn and conn.telegram_id and conn.telegram_consent))
+    return 'https://wa.me/' + phone + '?text=' + quote(message, safe='')

@@ -3879,6 +3879,7 @@ class RequestSellerReview(models.Model):
 class SellerChannelConnection(models.Model):
     seller = models.OneToOneField(Seller, on_delete=models.CASCADE, related_name='channel_connection')
     telegram_id = models.BigIntegerField(null=True, blank=True, unique=True)
+    telegram_login_allowed = models.BooleanField(default=True)
     telegram_consent = models.BooleanField(default=False)
     whatsapp_consent = models.BooleanField(default=False)
     binding_token = models.UUIDField(null=True, blank=True, unique=True, editable=False)

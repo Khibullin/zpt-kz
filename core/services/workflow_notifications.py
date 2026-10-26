@@ -9,6 +9,15 @@ from core.services.telegram_channel import _call_api, TelegramChannelError
 def eligible(req, seller, channel):
     if not enabled() or not req.seller_feed_enabled or req.access_revoked or not safe_summary(req) or req.purchase_result in ('purchased', 'closed'):
         return False
+    if channel == 'telegram':
+        from core.services.request_connections import relevant
+        from core.services.test_receivers import test_receiver_decision
+        decision = test_receiver_decision(seller, req)
+        if decision is False or (decision is not True and not relevant(seller, req)):
+            return False
+        cities = (seller.request_filters or {}).get('telegram_cities', [])
+        if decision is not True and cities and req.city not in cities:
+            return False
     conn = SellerChannelConnection.objects.filter(seller=seller).first()
     return bool(conn and seller.is_active and not seller.is_paused and seller.notification_state == 'active'
                 and getattr(conn, channel + '_consent', False)
