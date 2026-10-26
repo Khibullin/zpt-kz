@@ -15,6 +15,7 @@ from core.services.manual_seller_dispatch import (
     manual_consent_status, manual_whatsapp_url, _legacy_selected,
 )
 from core.services.test_receivers import universal_test_q, test_receiver_decision
+from core.services.request_connections import buyer_access_valid
 from django.utils import timezone
 
 
@@ -47,6 +48,7 @@ def recipient_rows(req, params):
     for field in ('brand', 'model', 'category'):
         if params.get(field, '').strip():
             setattr(probe, field, params[field].strip())
+    sent_ids = set(RequestDispatch.objects.filter(request=req, status=RequestDispatch.STATUS_SENT).values_list('seller_id', flat=True))
     rows = []
     for seller in qs.iterator(chunk_size=200):
         test = test_receiver_decision(seller, req) is True
@@ -67,6 +69,8 @@ def recipient_rows(req, params):
             reason = '; '.join(exc.messages)
         if seller.catalog_only:
             reason = 'Карточка в каталоге: владелец ещё не подключён к заявкам.'
+        if seller.pk in sent_ids:
+            reason = 'Эта заявка уже отправлена магазину.'
         if params.get('availability') == 'ready' and reason:
             continue
         if params.get('availability') == 'blocked' and not reason:
@@ -105,6 +109,13 @@ def seller_picker(request, pk):
                 try:
                     if manual_consent_status(seller) != 'granted' and request.POST.get('one_time_permission') != 'yes':
                         raise ValidationError('Нужно согласие продавца или подтверждение разового разрешения.')
+                    if req.purchase_result in ('purchased', 'closed') or not buyer_access_valid(req):
+                        raise ValidationError('Заявка закрыта или доступ отозван/истёк.')
+                    if not req.contact_consent_at:
+                        raise ValidationError('Нет сохранённого разрешения покупателя на контакт с продавцами.')
+                    existing = RequestDispatch.objects.filter(request=req, seller=seller).first()
+                    if existing and existing.status == RequestDispatch.STATUS_SENT:
+                        raise ValidationError('Эта заявка уже отправлена магазину.')
                     prepare_manual_dispatch(req, seller, permission_evidence=request.POST.get('permission_evidence', ''))
                     prepared += 1
                 except ValidationError as exc:
@@ -121,6 +132,7 @@ def seller_picker(request, pk):
             if request.POST.get('did_send') == 'yes':
                 try:
                     confirm_manual_dispatch_sent(dispatch)
+                    selected.discard(dispatch.seller_id)
                     messages.success(request, 'Фактическая ручная отправка учтена.')
                 except ValidationError as exc:
                     messages.error(request, '; '.join(exc.messages))
@@ -150,6 +162,12 @@ def manual_send(request, pk, dispatch_id):
     target = reverse('control_panel:parts_request_sellers', args=[pk])
     try:
         validate_manual_recipient(req, dispatch.seller)
+        if req.purchase_result in ('purchased', 'closed') or not buyer_access_valid(req):
+            raise ValidationError('Заявка закрыта или доступ отозван/истёк.')
+        if not req.contact_consent_at:
+            raise ValidationError('Нет сохранённого разрешения покупателя на контакт с продавцами.')
+        if dispatch.permission_evidence.startswith('buyer_requests:') and manual_consent_status(dispatch.seller) != 'granted':
+            raise ValidationError('Сохранённое согласие отозвано. Получите новое разрешение перед отправкой.')
         access = SellerRequestAccess.objects.filter(request=req, seller=dispatch.seller,
             expires_at__gt=timezone.now()).order_by('-created_at', '-pk').first()
         if not access:
