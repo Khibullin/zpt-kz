@@ -99,7 +99,7 @@ def outside_request_territory(req, seller):
 
 
 def validate_manual_recipient(req, seller, *, assignment_reason="", allow_outside_territory=False):
-    if not seller.is_active or seller.is_paused or seller.catalog_only:
+    if not seller.is_active or seller.is_paused:
         raise ValidationError('Продавец не подключён к получению заявок.')
     if not seller_whatsapp_phone(seller):
         raise ValidationError('У продавца нет корректного номера WhatsApp.')

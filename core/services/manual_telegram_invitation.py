@@ -14,7 +14,7 @@ def invitation_access(token):
     if not access or access.is_expired() or not access.seller_id or not access.request_id:
         return None
     seller, req = access.seller, access.request
-    if (not seller.is_active or seller.is_paused or seller.catalog_only or req.access_revoked):
+    if (not seller.is_active or seller.is_paused or req.access_revoked):
         return None
     if not RequestDispatch.objects.filter(request=req, seller=seller,
             delivery_channel=RequestDispatch.DELIVERY_MANUAL,

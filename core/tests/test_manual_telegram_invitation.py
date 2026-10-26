@@ -162,3 +162,19 @@ class ManualTelegramInvitationTests(TestCase):
         response = self.client.get(url)
         self.assertContains(response, 'Настроить фильтр заявок')
         self.assertNotContains(response, '>Подключить Telegram<')
+
+    @patch('core.telegram_connection_views._call_api', return_value={'message_id': 1})
+    def test_catalog_invitation_requires_explicit_subscription_and_never_claims_store(self, api):
+        self.seller.catalog_only = True
+        self.seller.save(update_fields=['catalog_only'])
+        self.start()
+        conn = SellerChannelConnection.objects.get(seller=self.seller)
+        self.assertFalse(conn.telegram_consent)
+        self.assertIsNone(conn.telegram_id)
+        self.confirm()
+        conn.refresh_from_db()
+        self.assertTrue(conn.telegram_consent)
+        self.assertFalse(conn.telegram_login_allowed)
+        self.seller.refresh_from_db()
+        self.assertTrue(self.seller.catalog_only)
+        self.assertIsNone(self.seller.user_id)

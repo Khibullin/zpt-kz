@@ -83,7 +83,14 @@ class ManualWorkspaceTests(TestCase):
         response = self.client.get(self.picker())
         self.assertContains(response, 'AG Parts')
         self.assertContains(response, 'Есть согласие')
-        self.assertContains(response, 'владелец ещё не подключён')
+        self.assertContains(response, 'Можно отправить вручную')
+        response = self.client.post(self.picker(), {'action':'prepare', 'seller_ids':[catalog.pk], 'one_time_permission':'yes'})
+        catalog_dispatch = RequestDispatch.objects.get(seller=catalog)
+        self.assertIn('Устное разрешение', catalog_dispatch.permission_evidence)
+        catalog.refresh_from_db()
+        self.assertTrue(catalog.catalog_only)
+        response = self.client.post(reverse('control_panel:parts_request_manual_send', args=[self.req.pk, catalog_dispatch.pk]))
+        self.assertTrue(response.url.startswith('https://wa.me/77011013034?text='))
         response = self.client.post(self.picker(), {'action':'prepare', 'seller_ids':[owner.pk]})
         self.assertEqual(response.status_code, 302)
         dispatch = RequestDispatch.objects.get(seller=owner)
@@ -95,7 +102,7 @@ class ManualWorkspaceTests(TestCase):
         self.assertTrue(response.url.startswith('https://wa.me/77011013033?text='))
         self.assertEqual(self.client.get(send_url).status_code, 405)
         self.assertContains(self.client.get(self.picker()+'?consent=granted'), 'AG Parts')
-        self.assertNotContains(self.client.get(self.picker()+'?consent=granted'), 'Каталог Актобе')
+        self.assertNotIn(catalog.pk, [row['seller'].pk for row in self.client.get(self.picker()+'?consent=granted').context['page']])
 
     def test_selection_spans_pages_and_filters_and_revalidates_post(self):
         from core.models import SellerChannelConnection
