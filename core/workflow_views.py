@@ -172,9 +172,14 @@ def buyer_step(request, req_id, access_token, step):
         participants += [SimpleNamespace(seller=seller, seller_id=seller.pk)
                          for seller in Seller.objects.filter(pk__in=contacted).exclude(pk__in=known)]
     if step == 'sellers':
-        page = service.buyer_seller_page(req, request.GET.get('page'))
+        from core.services.buyer_selection import catalog_page
+        city = request.GET.get('city', '')[:100]
+        page = catalog_page(req, city, request.GET.get('page'))
+        chosen_ids = set(req.buyer_selections.values_list('seller_id', flat=True))
+        for item in page:
+            item['selected'] = item['seller'].pk in chosen_ids
         service.record_impressions(req, page)
-        return render(request, 'core/connections/buyer_sellers.html', {'req': req, 'page': page})
+        return render(request, 'core/connections/buyer_sellers.html', {'req': req, 'page': page, 'city_filter': city, 'chosen_count': len(chosen_ids)})
     if step == 'permissions':
         from core.connection_views import buyer
         return buyer(request, req_id, access_token)
@@ -190,6 +195,7 @@ def buyer_step(request, req_id, access_token, step):
                     edited.seller_feed_enabled = False
                     edited.public_summary = ''
                     edited.save()
+                    edited.buyer_selections.update(message='')
                     if form.cleaned_data.get('photo'):
                         from core.models import RequestPhoto
                         RequestPhoto.objects.create(request=edited, image=form.cleaned_data['photo'])
@@ -312,16 +318,19 @@ def buyer_shop(request, req_id, access_token, seller_id):
     req = buyer_request(req_id, access_token)
     if req is None:
         return render(request, 'core/connections/expired.html', status=410)
-    item = next((x for x in service.recommendations(req) if x['seller'].pk == seller_id), None)
-    if item is None:
-        item = next((x for x in service.directory_suggestions(req, seller_ids=[seller_id]) if x['seller'].pk == seller_id), None)
+    from core.services.buyer_selection import eligible
+    city = request.GET.get('city', '')[:100]
+    if req.buyer_selections.filter(seller_id=seller_id).exists():
+        city = '*'
+    item = next(iter(eligible(req, city, [seller_id])), None)
     if item is None:
         raise Http404
     from core.services.seller_card_display import build_seller_card
     service.decorate_buyer_seller_cards([item])
     item['public_card'] = build_seller_card(item['seller'])
     item['specialization'] = service.seller_specialization(item['seller'])
-    return render(request, 'core/connections/shop.html', {'req': req, 'item': item, 'can_review': req.purchase_result == 'purchased' and RequestInteraction.objects.filter(request=req, seller_id=seller_id, actor='buyer', kind='purchase_confirmed').exists(), 'reviews': RequestSellerReview.objects.filter(seller_id=seller_id, public_consent=True, moderated=True, request__purchase_result='purchased').order_by('-created_at')[:10]})
+    item['selected'] = req.buyer_selections.filter(seller_id=seller_id).exists()
+    return render(request, 'core/connections/shop.html', {'req': req, 'item': item, 'city_filter': city, 'can_review': req.purchase_result == 'purchased' and RequestInteraction.objects.filter(request=req, seller_id=seller_id, actor='buyer', kind='purchase_confirmed').exists(), 'reviews': RequestSellerReview.objects.filter(seller_id=seller_id, public_consent=True, moderated=True, request__purchase_result='purchased').order_by('-created_at')[:10]})
 
 
 @guarded

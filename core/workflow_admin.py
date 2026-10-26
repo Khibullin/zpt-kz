@@ -172,7 +172,12 @@ def control(request, req_id):
         if group in ('all', 'result'):
             titles = {'purchased': 'Покупатель подтвердил покупку', 'closed': 'Заявка закрыта без покупки',
                       'search_again': 'Требуется повторный поиск', 'edited': 'Покупатель уточнил заявку',
-                      'attribution': 'Покупатель указал продавца'}
+                      'attribution': 'Покупатель указал продавца',
+                      'help_requested': 'Покупатель просит подобрать продавцов',
+                      'buyer_sent': 'Покупатель отметил отправку продавцу',
+                      'buyer_answered': 'Продавец ответил покупателю',
+                      'buyer_unavailable': 'Покупатель: нет в наличии',
+                      'buyer_offer': 'Покупатель получил предложение'}
             timeline += [{'at': item.created_at, 'title': titles.get(item.result, item.result),
                           'seller': item.seller.name if item.seller_id else '', 'detail': item.comment}
                          for item in req.outcome_events.select_related('seller')]

@@ -36,3 +36,11 @@ urlpatterns += staff_urls
 urlpatterns += [path('seller/telegram-login/', workflow.telegram_login, name='workflow_telegram_login')]
 urlpatterns += [path('buyer/<int:req_id>/<uuid:access_token>/channels/', workflow.buyer_channels, name='workflow_buyer_channels')]
 urlpatterns += [path('buyer/<int:req_id>/<uuid:access_token>/directory/<int:seller_id>/<str:channel>/', workflow.buyer_directory_contact, name='workflow_buyer_directory_contact')]
+
+from core import buyer_selection_views
+urlpatterns += [
+    path('buyer/<int:req_id>/<uuid:access_token>/selection/<str:step>/', buyer_selection_views.workspace, name='buyer_selection'),
+    path('buyer/<int:req_id>/<uuid:access_token>/select/<int:seller_id>/', buyer_selection_views.toggle, name='buyer_selection_toggle'),
+]
+from core.buyer_selection_preview import preview as buyer_selection_preview
+urlpatterns += [path('buyer-preview/', buyer_selection_preview, name='buyer_selection_preview')]
