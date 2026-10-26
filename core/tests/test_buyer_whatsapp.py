@@ -71,6 +71,7 @@ class BuyerWhatsAppTemplateTests(TestCase):
         )
 
     @override_settings(
+        MANUAL_REQUEST_PROCESSING=False,
         WHATSAPP_BUYER_TEMPLATE_NAME='zpt_buyer_request_receipt',
         WHATSAPP_TEMPLATE_LANG='ru',
     )

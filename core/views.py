@@ -265,32 +265,14 @@ def _buyer_template_button_components(req):
 
 
 def _send_buyer_whatsapp_notification(req, sellers_count):
-    buyer_template = getattr(
-        settings,
-        'WHATSAPP_BUYER_TEMPLATE_NAME',
-        None,
-    ) or os.getenv('WHATSAPP_BUYER_TEMPLATE_NAME', 'zpt_buyer_request_receipt')
-    if not buyer_template:
-        return
-
-    send_whatsapp_template(
-        req.phone,
-        req,
-        'Покупатель',
-        template_name=buyer_template,
-        body_parameters=_buyer_template_body_params(
-            req,
-            sellers_count=sellers_count,
-        ),
-        button_components=_buyer_template_button_components(req),
-        include_image_header=False,
-    )
+    from core.services.buyer_receipt import send_receipt
+    result = send_receipt(req)
+    if not result.get('ok'):
+        logger.info('Buyer receipt for request #%s: %s', req.pk, result.get('error_code', 'send_error'))
+    return result
 
 
 def _send_buyer_whatsapp_notification_async(req, sellers_count):
-    from core.services.manual_request_processing import manual_processing_enabled
-    if manual_processing_enabled():
-        return
     request_id = req.id
     buyer_phone = req.phone
 
@@ -307,7 +289,8 @@ def _send_buyer_whatsapp_notification_async(req, sellers_count):
                 exc_info=True,
             )
 
-    threading.Thread(target=_worker, daemon=True).start()
+    from django.db import transaction
+    transaction.on_commit(lambda: threading.Thread(target=_worker, daemon=True).start())
 
 
 def _is_probably_image(uploaded_file):
