@@ -81,14 +81,13 @@ def send_whatsapp_template_message(
     button_components: list | None = None,
     include_image_header: bool = False,
     header_image_url: str | None = None,
-    buyer_receipt: bool = False,
 ) -> dict:
     # The incident stop must cover buyer receipts and direct/template sends,
     # not only the seller wave worker. Read it afresh for every send.
     from core.models import BroadcastSettings
 
     from core.services.manual_request_processing import manual_processing_enabled
-    if manual_processing_enabled() and not (buyer_receipt and template_name == 'zpt_customer_request_receipt_v1'):
+    if manual_processing_enabled():
         return {
             'ok': False, 'status_code': None,
             'error_code': 'manual_request_processing',
