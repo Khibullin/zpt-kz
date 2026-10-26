@@ -3,7 +3,7 @@ from urllib.parse import urlencode
 from django.conf import settings
 from django.core import signing
 from django.urls import reverse
-from core.models import RequestDispatch, SellerChannelConnection
+from core.models import RequestDispatch, SellerChannelConnection, BuyerSellerSelection
 from core.services.seller_request_access import find_seller_request_access
 
 SALT = 'manual-seller-notifications-v1'
@@ -16,7 +16,8 @@ def invitation_access(token):
     seller, req = access.seller, access.request
     if (not seller.is_active or seller.is_paused or req.access_revoked):
         return None
-    if not RequestDispatch.objects.filter(request=req, seller=seller,
+    buyer_invitation = BuyerSellerSelection.objects.filter(request=req, seller=seller, access=access).exists()
+    if not buyer_invitation and not RequestDispatch.objects.filter(request=req, seller=seller,
             delivery_channel=RequestDispatch.DELIVERY_MANUAL,
             status__in=[RequestDispatch.STATUS_PREPARED, RequestDispatch.STATUS_SENT]).exclude(permission_evidence='').exists():
         return None

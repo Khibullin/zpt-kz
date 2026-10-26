@@ -41,8 +41,9 @@ class BuyerEditForm(forms.ModelForm):
 
     class Meta:
         model = Request
-        fields = ['brand', 'model', 'year', 'city', 'description']
-        labels = {'brand': 'Марка', 'model': 'Модель', 'year': 'Год', 'city': 'Город', 'description': 'Что требуется'}
+        fields = ['brand', 'model', 'year', 'city', 'requested_quantity', 'description']
+        labels = {'brand': 'Марка', 'model': 'Модель', 'year': 'Год', 'city': 'Город', 'requested_quantity': 'Количество (необязательно)', 'description': 'Что требуется'}
+        help_texts = {'description': 'Укажите двигатель, сторону детали, новое или б/у и другие важные уточнения.'}
         widgets = {'description': forms.Textarea(attrs={'rows': 4})}
 
 

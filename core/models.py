@@ -3934,3 +3934,20 @@ class RequestBuyerFollowup(models.Model):
     actor = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL)
     message_id = models.BigIntegerField(null=True, blank=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+
+class BuyerSellerSelection(models.Model):
+    """Buyer shortlist; never a dispatch, seller consent or proof of delivery."""
+    request = models.ForeignKey(Request, on_delete=models.CASCADE, related_name='buyer_selections')
+    seller = models.ForeignKey(Seller, on_delete=models.CASCADE)
+    access = models.OneToOneField('SellerRequestAccess', null=True, blank=True, on_delete=models.SET_NULL)
+    message = models.TextField(blank=True, max_length=4000)
+    sent_at = models.DateTimeField(null=True, blank=True)
+    result = models.CharField(max_length=20, blank=True, choices=[
+        ('answered', 'Ответил'), ('unavailable', 'Нет в наличии'), ('offer', 'Есть предложение')])
+    comment = models.TextField(blank=True, max_length=2000)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['request', 'seller'], name='unique_buyer_seller_selection')]
+        ordering = ['created_at', 'pk']

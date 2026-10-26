@@ -6,7 +6,10 @@
 <h1>{% if req.is_dismantler_request %}Авторазборы{% else %}Продавцы{% endif %} по вашей заявке</h1>
 <div class="summary request-strip"><span>Заявка №{{ req.pk }} · {{ req.city }}</span><span>{{ req.brand }} {{ req.model }}{% if req.year %} · {{ req.year|unlocalize }}{% endif %}</span><span>{{ req.public_summary|default:req.description }}</span></div>
 <p>Напишите продавцам по вашей заявке — узнайте наличие, сравните цены и выберите подходящее предложение.</p>
-<p class="muted">Сначала наиболее подходящие вашему запросу</p>
+<nav class="selection-nav"><a href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Выбранные продавцы ({{ chosen_count }} из 10)</a><a href="{% url 'buyer_selection' req.pk req.access_token 'history' %}">История заявки</a><a href="{% url 'buyer_selection' req.pk req.access_token 'help' %}">Подберите за меня</a></nav>
+{% for message in messages %}<p class="selection-notice" role="status">{{ message }}</p>{% endfor %}
+<form method="get" class="selection-filters"><div><label for="selection-city">Город продавца</label><input id="selection-city" name="city" maxlength="100" value="{% if city_filter != '*' %}{{ city_filter|default:req.city }}{% endif %}" placeholder="Например, Алматы"></div><button>Показать продавцов</button><button name="city" value="*" type="button" onclick="location.href='?city=*'">Все города Казахстана</button></form>
+<p class="muted">Показаны продавцы по категории и автомобилю из заявки. Выберите до 10. Территория исходной заявки не меняется.</p>
 {% for item in page %}
 <article class="seller-row{% if item.seller.directory_photo %} has-photo{% endif %}">
 {% if item.seller.directory_photo %}<div class="shop-avatar"><img src="{{ item.seller.directory_photo.url }}" alt="{{ item.display_name|default:item.seller.name }}" loading="lazy"></div>{% endif %}
@@ -17,14 +20,14 @@
 <div class="seller-reviews">{% if item.review_count %}<a class="seller-review-status" href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#reviews">★ {{ item.review_rating|floatformat:1 }} · Отзывы: {{ item.review_count }}</a>{% else %}<span class="seller-review-status">Пока нет отзывов</span>{% endif %}<a href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#leave-review">Оставить отзыв</a></div>
 {% if item.offer %}<p>{{ item.offer.manufacturer }} · {{ item.offer.article }} · {{ item.offer.quantity }} шт.</p><p>За всё количество: {{ item.offer.price }} ₸. {% if item.total_price %}С доставкой: {{ item.total_price }} ₸.{% else %}Доставку уточняйте у продавца.{% endif %}</p>{% endif %}
 </div>
-<div class="seller-actions">
+<div class="seller-actions"><form class="selection-toggle" method="post" action="{% url 'buyer_selection_toggle' req.pk req.access_token item.seller.pk %}">{% csrf_token %}<input type="hidden" name="city" value="{{ city_filter }}"><input type="hidden" name="page" value="{{ page.number }}"><label class="selection-check"><input type="checkbox" {% if item.selected %}checked{% endif %} onchange="this.form.requestSubmit()">Выбрать продавца</label><noscript><button class="{% if item.selected %}secondary{% endif %}">{% if item.selected %}Убрать из выбранных{% else %}Выбрать{% endif %}</button></noscript></form>
 {% if item.has_whatsapp %}<form method="post" action="{% if item.directory_only %}{% url 'workflow_buyer_directory_contact' req.pk req.access_token item.seller.pk 'whatsapp' %}{% else %}{% url 'connection_buyer_contact' req.pk req.access_token item.seller.pk 'whatsapp' %}{% endif %}">{% csrf_token %}<button>{% include 'core/connections/contact_icon.html' with channel='whatsapp' %}Написать продавцу</button></form>{% endif %}
 {% if item.has_whatsapp %}<p class="seller-message-hint">Данные вашей заявки уже в сообщении</p>{% endif %}
 {% if item.has_telegram %}<form method="post" action="{% if item.directory_only %}{% url 'workflow_buyer_directory_contact' req.pk req.access_token item.seller.pk 'telegram' %}{% else %}{% url 'connection_buyer_contact' req.pk req.access_token item.seller.pk 'telegram' %}{% endif %}">{% csrf_token %}<button class="telegram">{% include 'core/connections/contact_icon.html' with channel='telegram' %}Написать в Telegram</button></form>{% endif %}
 
-<a class="shop-link" href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}">О продавце →</a>
+<a class="shop-link" href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}?city={{ city_filter|urlencode }}">О продавце →</a>
 </div></article>
-{% empty %}<section><h2>Поиск продолжается</h2><p>Продавцов для прямого обращения пока нет. Ваша заявка сохранена.</p></section>{% endfor %}
-{% include 'core/connections/pagination.html' %}
+{% empty %}<section><h2>Поиск продолжается</h2><p>Продавцов для прямого обращения пока нет. Ваша заявка сохранена. Измените город или обратитесь к оператору.</p><a href="{% url 'buyer_selection' req.pk req.access_token 'help' %}">Помощь оператора</a></section>{% endfor %}
+{% if page.has_previous %}<a href="?city={{ city_filter|urlencode }}&page={{ page.previous_page_number }}">Назад</a>{% endif %} <span>Страница {{ page.number }} из {{ page.paginator.num_pages }}</span> {% if page.has_next %}<a href="?city={{ city_filter|urlencode }}&page={{ page.next_page_number }}">Далее</a>{% endif %}
 <div class="footer-links"><a href="{% url 'workflow_buyer_step' req.pk req.access_token 'edit' %}">Уточнить заявку</a><a href="{% url 'workflow_buyer_step' req.pk req.access_token 'result' %}">Сообщить результат</a><a href="{% url 'connection_buyer' req.pk req.access_token %}">Разрешения и связь</a></div>
 {% endblock %}

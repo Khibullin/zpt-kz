@@ -1,0 +1,67 @@
+{% extends 'core/connections/base.html' %}{% load static %}
+{% block content %}
+<div class="buyer-workspace">
+<a class="back" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">К заявке №{{ req.pk }}</a>
+<nav class="selection-nav" aria-label="Работа с заявкой">
+<a href="{% url 'workflow_buyer_step' req.pk req.access_token 'edit' %}">Уточнить заявку</a>
+<a href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Выбрать продавцов</a>
+<a href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Выбранные ({{ total }})</a>
+<a href="{% url 'buyer_selection' req.pk req.access_token 'history' %}">История</a></nav>
+{% for message in messages %}<p class="selection-notice" role="status">{{ message }}</p>{% endfor %}
+{% if step == 'selected' %}
+<h1>Выбранные продавцы <span class="muted">{{ total }} из 10</span></h1>
+<p>Готовый текст можно дополнить. Каждому продавцу сообщение отправляете вы сами.</p>
+<div class="selection-tabs"><a href="?tab=all">Все ({{ total }})</a><a href="?tab=ready">Можно отправить ({{ ready }})</a><a href="?tab=sent">Отправлено ({{ sent }})</a></div>
+{% for item in entries %}<article class="selection-card">
+<div><h2>{{ item.seller.name }}</h2><p>{{ item.seller.city }}{% if item.seller.address %} · {{ item.seller.address }}{% endif %}</p>
+{% if item.sent_at %}<p class="selection-status">Отправлено покупателем · {{ item.sent_at|date:'d.m.Y H:i' }}</p>{% else %}<p class="muted">Ещё не отмечено как отправленное</p>{% endif %}
+{% if item.result %}<p>{{ item.get_result_display }}{% if item.comment %} · {{ item.comment }}{% endif %}</p>{% endif %}</div>
+<div class="selection-actions">
+<a class="button" href="{% url 'buyer_selection' req.pk req.access_token 'message' %}?seller={{ item.seller_id }}">Подготовить сообщение</a>
+<a href="{% url 'buyer_selection' req.pk req.access_token 'confirm' %}?seller={{ item.seller_id }}">Отметить отправку</a>
+<a href="{% url 'buyer_selection' req.pk req.access_token 'outcome' %}?seller={{ item.seller_id }}">Результат общения</a>
+<form method="post">{% csrf_token %}<input type="hidden" name="seller" value="{{ item.seller_id }}"><button class="secondary" name="action" value="remove">Убрать из выбранных</button></form>
+</div></article>{% empty %}<div class="selection-card"><p>В этом списке пока нет продавцов.</p><a class="button" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Выбрать продавцов</a></div>{% endfor %}
+<a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Добавить продавцов</a>
+{% elif step == 'message' %}
+<h1>Сообщение продавцу</h1><p><strong>{{ entry.seller.name }}</strong> · {{ entry.seller.city }}</p>
+<p>Проверьте текст. Приглашение в Telegram добавляется только неподключённому продавцу.</p>
+<form method="post" id="message-form">{% csrf_token %}
+<label for="seller-message">Текст сообщения</label><textarea id="seller-message" name="message" maxlength="4000" rows="13" required>{{ text }}</textarea>
+<div class="selection-actions"><button type="button" class="secondary" id="copy-message">Скопировать текст</button><button name="action" value="save" class="secondary">Сохранить текст</button>
+{% if contacts.whatsapp %}<button name="action" value="whatsapp" class="whatsapp" formtarget="_blank">Написать в WhatsApp</button>{% endif %}
+{% if contacts.telegram %}<button name="action" value="telegram" class="telegram" formtarget="_blank">Написать в Telegram</button>{% endif %}</div>
+<p id="copy-status" role="status" aria-live="polite"></p>
+{% if contacts.telegram %}<p class="muted">В Telegram при необходимости вставьте скопированный текст.</p>{% endif %}
+{% if not contacts.whatsapp and not contacts.telegram %}<p>Контакт недоступен. Выберите другого продавца.</p>{% endif %}
+</form>
+<a class="button full" href="{% url 'buyer_selection' req.pk req.access_token 'confirm' %}?seller={{ entry.seller_id }}">Я отправил сообщение — отметить</a>
+{% elif step == 'confirm' %}
+<h1>Удалось отправить сообщение?</h1><p>{{ entry.seller.name }} · {{ entry.seller.city }}</p>
+<p>Открытие мессенджера не означает отправку. Подтвердите после того, как сами отправили сообщение продавцу.</p>
+<form method="post" class="selection-actions">{% csrf_token %}<button name="action" value="sent">Отправил</button><button name="action" value="not_sent" class="secondary">Пока не отправил</button></form>
+{% elif step == 'outcome' %}
+<h1>Результат общения</h1><p>{{ entry.seller.name }}</p>
+<form method="post">{% csrf_token %}<fieldset><legend>Что ответил продавец?</legend>
+<label class="choice"><input type="radio" name="result" value="answered" required {% if entry.result == 'answered' %}checked{% endif %}>Ответил</label>
+<label class="choice"><input type="radio" name="result" value="unavailable" {% if entry.result == 'unavailable' %}checked{% endif %}>Нет в наличии</label>
+<label class="choice"><input type="radio" name="result" value="offer" {% if entry.result == 'offer' %}checked{% endif %}>Есть предложение</label></fieldset>
+<label for="comment">Цена и комментарий (необязательно)</label><textarea id="comment" name="comment" rows="3" maxlength="2000">{{ entry.comment }}</textarea><button>Сохранить результат</button></form>
+<a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'result' %}">Купил — сообщить результат заявки</a>
+{% elif step == 'history' %}
+<h1>История заявки №{{ req.pk }}</h1>
+<p class="selection-status">{% if req.purchase_result == 'purchased' %}Покупка подтверждена{% elif req.purchase_result == 'closed' %}Заявка закрыта{% else %}Поиск продолжается{% endif %}</p>
+<div class="selection-stats"><div><strong>{{ total }}</strong> выбрано</div><div><strong>{{ sent }}</strong> отправлено покупателем</div></div>
+{% if help_requested %}<p class="selection-notice">Запрошена помощь оператора.</p>{% endif %}
+{% for event in events %}<article class="selection-event"><time>{{ event.created_at|date:'d.m.Y H:i' }}</time><div>
+{% if event.result == 'buyer_sent' %}Покупатель отметил отправку{% elif event.result == 'help_requested' %}Запрошена помощь оператора{% elif event.result == 'buyer_answered' %}Продавец ответил{% elif event.result == 'buyer_unavailable' %}Нет в наличии{% elif event.result == 'buyer_offer' %}Есть предложение{% elif event.result == 'edited' %}Заявка уточнена{% elif event.result == 'purchased' %}Покупка подтверждена{% elif event.result == 'closed' %}Заявка закрыта{% elif event.result == 'search_again' %}Поиск возобновлён{% elif event.result == 'attribution' %}Сохранён ответ о продавце{% else %}Обновлён результат заявки{% endif %}
+{% if event.seller %} · {{ event.seller.name }}{% endif %}{% if event.comment and event.result != 'attribution' %}<p>{{ event.comment }}</p>{% endif %}</div></article>{% empty %}<p>Заявка сохранена. Здесь появятся уточнения и результаты общения.</p>{% endfor %}
+<a class="button" href="{% url 'workflow_buyer_step' req.pk req.access_token 'result' %}">Сообщить результат / возобновить поиск</a>
+{% elif step == 'help' %}
+<h1>Подберите продавцов за меня</h1><p>Передайте заявку оператору. Ваши уточнения и выбранные продавцы сохранятся.</p>
+<form method="post">{% csrf_token %}<label for="help-comment">Комментарий оператору (необязательно)</label><textarea id="help-comment" name="comment" maxlength="2000" rows="4"></textarea><button>Передать оператору</button></form>
+{% endif %}
+<div class="footer-links"><a href="{% url 'buyer_selection' req.pk req.access_token 'help' %}">Помощь с подбором</a><a href="{% url 'workflow_buyer_step' req.pk req.access_token 'result' %}">Сообщить результат покупки</a></div>
+</div>
+<script defer src="{% static 'core/buyer-selection.js' %}"></script>
+{% endblock %}
