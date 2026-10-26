@@ -27,4 +27,27 @@ class OverviewActivityTests(TestCase):
         self.assertEqual(self.client.get('/control/activity/opened/?period=30d').context['page'].paginator.count, 1)
         self.assertEqual(self.client.get('/control/activity/invalid/').status_code, 404)
         self.assertContains(self.client.get('/control/?period=30d'), '/control/activity/opened/?period=30d')
-        self.assertContains(self.client.get('/control/?period=30d'), '/control/activity/sent/?period=30d')
+        self.assertContains(self.client.get('/control/?period=30d'), '/control/activity/offers_sent/?period=30d')
+
+    def test_all_event_counters_have_matching_lists(self):
+        staff, _ = _staff()
+        self.client.force_login(staff)
+        seller = _seller()
+        req = _request()
+        access = create_seller_request_access(request=req, seller=seller)
+        kinds = {'page_open': 'page_open', 'whatsapp_click': 'whatsapp_click',
+                 'call_click': 'call_click', 'out_of_stock': 'out_of_stock',
+                 'cannot_fulfill': 'cannot_fulfill', 'consent_yes': 'marketing_consent_yes',
+                 'consent_no': 'marketing_consent_no'}
+        for kind, event_type in kinds.items():
+            SellerRequestPageEvent.objects.all().delete()
+            SellerRequestPageEvent.objects.create(request=req, seller=seller, access=access, event_type=event_type)
+            response = self.client.get('/control/activity/'+kind+'/?period=today')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.context['page'].paginator.count, 1)
+            self.assertEqual(response.context['rows'][0]['request_id'], req.pk)
+        response = self.client.get('/control/?period=today')
+        for kind in (*(k for k in kinds if k not in ('page_open', 'whatsapp_click')), 'opened', 'whatsapp', 'offers_sent'):
+            self.assertContains(response, '/control/activity/'+kind+'/?period=today')
+        self.assertContains(response, '/control/requests/parts/?period=today')
+        self.assertContains(response, '/control/requests/services/?period=today')
