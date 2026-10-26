@@ -121,6 +121,7 @@ class BuyerSelectionTests(TestCase):
             response = self.client.get(reverse('buyer_selection_preview'), {'screen': screen})
             self.assertEqual(response.status_code, 200, screen)
             self.assertContains(response, 'демонстрационные данные')
+            self.assertNotContains(response, '/connect/buyer/0/')
             self.assertNotContains(response, str(self.req.access_token))
         self.assertEqual(self.client.post(reverse('buyer_selection_preview')).status_code, 405)
         self.assertFalse(BuyerSellerSelection.objects.exists())

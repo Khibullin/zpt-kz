@@ -46,7 +46,7 @@ def preview(request):
     html = html.replace('<main', nav + '<main', 1)
     html = html.replace('</head>', '<style>.preview-banner{max-width:1100px;margin:20px auto;padding:18px;background:#fff0d7;border:1px solid #edcf96;border-radius:14px}.preview-banner nav{display:flex;flex-wrap:wrap;gap:14px}.preview-banner a{color:#006c76}button:disabled{opacity:.65;cursor:default}</style></head>')
     # Rewrite only known fictional request links. No real token/data enters the preview.
-    prefix = f'/connections/buyer/0/{UUID(int=0)}/'
+    prefix = reverse('workflow_buyer_step', args=[0, UUID(int=0), 'accepted']).rsplit('step/', 1)[0]
     html = re.sub(re.escape(prefix) + r'(?:step|selection)/([a-z]+)/?(?:\?[^"<>]*)?',
         lambda m: base + '?screen=' + (m.group(1) if m.group(1) in screens else 'history'), html)
     html = re.sub(re.escape(prefix) + r'[^"<>\s]*', base + '?screen=selected', html)
