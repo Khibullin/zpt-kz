@@ -150,17 +150,18 @@ def _page_context(page_state: str, *, access=None, req=None) -> dict:
     })
     from core.services.request_connections import enabled, telegram_contact
     if enabled():
+        context['buyer_telegram_url'] = telegram_contact(req.buyer_telegram)
         context['connection_request_id'] = req.pk
-        context['buyer_has_telegram'] = bool(telegram_contact(req.buyer_telegram))
+        context['buyer_has_telegram'] = bool(context['buyer_telegram_url'])
     return context
 
 
-def _page(http_request, *, page_state: str, status: int, access=None, req=None):
+def _page(http_request, *, page_state: str, status: int, access=None, req=None, direct_manual=False):
     return _no_store(
         render(
             http_request,
             TEMPLATE,
-            _page_context(page_state, access=access, req=req),
+            {**_page_context(page_state, access=access, req=req), 'direct_manual': direct_manual},
             status=status,
         )
     )
@@ -334,7 +335,22 @@ def seller_request_link(request, token):
         return _page(request, page_state='expired', status=410)
     req = access.request
     from core.services import request_connections as connections
-    if connections.enabled() and req is not None:
+    # A private manual dispatch token identifies only its bound seller and request.
+    # It does not sign in, claim a store, or grant access to other requests.
+    from core.models import RequestDispatch
+    direct_manual = bool(req and access.seller_id and RequestDispatch.objects.filter(
+        request=req, seller=access.seller, delivery_channel=RequestDispatch.DELIVERY_MANUAL,
+        status__in=[RequestDispatch.STATUS_PREPARED, RequestDispatch.STATUS_SENT],
+    ).exclude(permission_evidence='').exists())
+    if direct_manual:
+        seller = access.seller
+        if (not seller.is_active or seller.is_paused or seller.catalog_only
+                or not req.contact_consent_at or not connections.buyer_access_valid(req)
+                or req.purchase_result in ('purchased', 'closed')):
+            if request.method == 'POST':
+                return _json({'ok': False, 'error': 'Заявка недоступна.'}, status=403)
+            return _page(request, page_state='invalid', status=403)
+    if connections.enabled() and req is not None and not direct_manual:
         from core.services.seller_identity import get_logged_request_seller
         seller = get_logged_request_seller(request)
         if (not seller or not request.user.is_authenticated or seller.user_id != request.user.pk
@@ -354,4 +370,4 @@ def seller_request_link(request, token):
     if request.method == 'POST':
         return _handle_post(request, access, req)
     _maybe_record_page_open(request, access, req)
-    return _page(request, page_state='valid', status=200, access=access, req=req)
+    return _page(request, page_state='valid', status=200, access=access, req=req, direct_manual=direct_manual)

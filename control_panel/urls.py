@@ -1,11 +1,14 @@
 from django.urls import path
 
 from control_panel import views
+from control_panel.manual_processing import seller_picker, manual_send
 
 app_name = 'control_panel'
 
 urlpatterns = [
     path('', views.overview, name='overview'),
+    path('requests/parts/<int:pk>/sellers/', seller_picker, name='parts_request_sellers'),
+    path('requests/parts/<int:pk>/send/<int:dispatch_id>/', manual_send, name='parts_request_manual_send'),
     path('requests/parts/<int:pk>/process/', views.parts_request_process, name='parts_request_process'),
     path('requests/parts/', views.parts_request_list, name='parts_request_list'),
     path(

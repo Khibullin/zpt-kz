@@ -7,7 +7,9 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.utils import timezone
 
-from core.models import Match, RequestDispatch, Seller
+from core.models import (Match, RequestDispatch, Seller,
+    CONTACT_CONSENT_CHANNEL_WHATSAPP, CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS)
+from core.phone_utils import normalize_kz_phone
 from core.phone_utils import seller_whatsapp_phone
 from core.services.seller_buyer_request_consent import get_request_consent
 from core.services.seller_request_access import (
@@ -20,12 +22,28 @@ from core.services.test_receivers import test_receiver_decision
 MIN_EVIDENCE_LENGTH = 12
 
 
+def manual_consent_status(seller):
+    """Respect explicit request opt-out; otherwise accept the saved channel opt-in."""
+    if 'contact_consents' in getattr(seller, '_prefetched_objects_cache', {}):
+        phone = normalize_kz_phone(seller.whatsapp)
+        records = [c for c in seller.contact_consents.all() if c.phone_normalized == phone
+                   and c.channel == CONTACT_CONSENT_CHANNEL_WHATSAPP
+                   and c.purpose == CONTACT_CONSENT_PURPOSE_BUYER_REQUESTS]
+        consent = max(records, key=lambda c: (c.updated_at, c.pk), default=None)
+    else:
+        consent = get_request_consent(seller)
+    if consent:
+        return consent.status
+    channel = getattr(seller, 'channel_connection', None)
+    return 'granted' if channel and channel.whatsapp_consent else ''
+
+
 def _legacy_selected(seller, req) -> bool:
     """Keep historical brand/model/category restrictions for non-JSON profiles."""
     if seller.request_filters is not None:
         return matches_request(seller.request_filters, req)
     if not seller.all_brands:
-        brands = set(seller.selected_brands.values_list('name', flat=True))
+        brands = {b.name for b in seller.selected_brands.all()}
         if seller.brand:
             brands.add(seller.brand)
         if seller.brand_fk_id:
@@ -33,7 +51,7 @@ def _legacy_selected(seller, req) -> bool:
         if not brands or req.brand.casefold() not in {b.casefold() for b in brands}:
             return False
         if not seller.all_models:
-            models = set(seller.selected_models.values_list('name', flat=True))
+            models = {m.name for m in seller.selected_models.all()}
             if seller.model:
                 models.add(seller.model)
             if seller.model_fk_id:
@@ -41,7 +59,7 @@ def _legacy_selected(seller, req) -> bool:
             if models and req.model.casefold() not in {m.casefold() for m in models}:
                 return False
     if not seller.all_categories:
-        categories = set(seller.selected_categories.values_list('name', flat=True))
+        categories = {c.name for c in seller.selected_categories.all()}
         if seller.category:
             categories.add(seller.category)
         if not categories or req.category.casefold() not in {c.casefold() for c in categories}:
@@ -90,8 +108,9 @@ def prepare_manual_dispatch(req, seller, *, permission_evidence='', assignment_r
         raise ValidationError('Укажите подробную причину разового назначения (от 12 символов).')
     validate_manual_recipient(req, seller, assignment_reason=assignment_reason)
     consent = get_request_consent(seller)
-    if consent and consent.status == 'granted':
-        evidence = 'buyer_requests:consent:' + str(consent.pk)
+    if manual_consent_status(seller) == 'granted':
+        evidence = ('buyer_requests:consent:' + str(consent.pk) if consent else
+                    'buyer_requests:whatsapp_channel:seller:' + str(seller.pk))
     else:
         evidence = str(permission_evidence or '').strip()
         if len(evidence) < MIN_EVIDENCE_LENGTH:
