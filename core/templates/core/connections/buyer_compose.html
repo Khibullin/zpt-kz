@@ -11,16 +11,20 @@
 {% else %}<p>Сначала выберите продавцов для вашей заявки.</p>{% endif %}
 {% else %}
 <h1>Отправьте сообщение продавцам</h1><p>Отправлено {{ sent }} из {{ total }}{% if skipped_count %} · Пропущено {{ skipped_count }}{% endif %}</p>
-{% if entry %}<section class="selection-card" style="display:block"><h2>{{ entry.seller.name }}</h2><p>{{ entry.seller.city }}{% if entry.seller.address %} · {{ entry.seller.address }}{% endif %}</p><details><summary>Посмотреть общий текст сообщения</summary><p style="white-space:pre-wrap">{{ entry.message }}</p></details>
-<p>Откройте WhatsApp, отправьте сообщение и вернитесь сюда.</p>
-<form method="post" target="_blank">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button class="whatsapp" name="action" value="whatsapp">Написать продавцу в WhatsApp</button></form>
-<p class="muted">Откроется чат с готовым текстом. Нажмите отправку в WhatsApp.</p>
+{% if entry %}<section class="selection-card" style="display:block"><p class="muted">Продавец {{ current_number }} из {{ total }}</p><h2>{{ entry.seller.name }}</h2><p>{{ entry.seller.city }}{% if entry.seller.address %} · {{ entry.seller.address }}{% endif %}</p><details><summary>Посмотреть общий текст сообщения</summary><p style="white-space:pre-wrap">{{ entry.message }}</p></details>
+<p>1. Отправьте сообщение продавцу</p>
+<form method="post" target="_blank" id="open-seller-whatsapp">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button class="whatsapp" name="action" value="whatsapp">Написать {{ entry.seller.name }} в WhatsApp</button></form>
+<p class="muted">В WhatsApp нажмите отправку, затем вернитесь на эту страницу.</p>
 <p class="muted">Неподключённому продавцу добавится персональное приглашение в Telegram ZPT.KZ.</p>
-<form method="post" class="selection-actions">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button name="action" value="sent">Отправил — следующий</button><button class="secondary" name="action" value="skip">Пропустить</button></form></section>
+<h3>2. После отправки</h3><p id="return-reminder" class="selection-notice" hidden role="status">Отправили сообщение? Подтвердите ниже, чтобы перейти к следующему продавцу.</p>
+<form method="post" class="selection-actions">{% csrf_token %}<input type="hidden" name="selection" value="{{ entry.pk }}"><button name="action" value="sent">{% if next_number %}Сообщение отправлено — к продавцу {{ next_number }} из {{ total }}{% else %}Сообщение отправлено — завершить{% endif %}</button><button class="secondary" name="action" value="skip">Пропустить продавца</button></form></section>
 {% else %}<section class="selection-card" style="display:block"><h2>Вы прошли выбранных продавцов</h2><p>Отправлено: {{ sent }}. Пропущено: {{ skipped_count }}.</p><a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">Вернуться к заявке</a></section>{% endif %}
 <a href="{% url 'buyer_selection' req.pk req.access_token 'selected' %}">Изменить общий текст</a>
 {% endif %}</div>
 <script>
+document.getElementById('open-seller-whatsapp')?.addEventListener('submit', () => {
+ document.getElementById('return-reminder').hidden = false;
+});
 document.getElementById('add-suggestion')?.addEventListener('click', function () {
  const field = document.getElementById('common-message');
  const text = document.getElementById('suggested-text').textContent;

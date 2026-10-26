@@ -165,6 +165,10 @@ def compose_flow(request, req, step):
     entry = pending.first() if step == 'send' else None
     if entry and not entry.message:
         return redirect(destination(req))
+    ordered_ids = list(entries.values_list('pk', flat=True))
+    current_number = ordered_ids.index(entry.pk) + 1 if entry else 0
+    next_entry = pending.exclude(pk=entry.pk).first() if entry else None
+    next_number = ordered_ids.index(next_entry.pk) + 1 if next_entry else None
     error = ''
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -222,5 +226,5 @@ def compose_flow(request, req, step):
     return render(request, 'core/connections/buyer_compose.html', {
         'req': req, 'step': step, 'total': total, 'text': text, 'base': base,
         'suggestion': suggestion, 'hints': hints, 'entry': entry, 'error': error,
-        'sent': entries.filter(sent_at__isnull=False).count(), 'skipped_count': len(skipped),
+        'sent': entries.filter(sent_at__isnull=False).count(), 'skipped_count': len(skipped), 'current_number': current_number, 'next_number': next_number,
     })
