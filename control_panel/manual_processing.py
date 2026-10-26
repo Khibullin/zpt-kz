@@ -52,7 +52,7 @@ def recipient_rows(req, params, *, seller_ids=None):
         territory = Q(city__in=[c.strip() for c in req.selected_cities.split(',') if c.strip()])
     else:
         territory = Q()
-    qs = Seller.objects.all()
+    qs = Seller.objects.filter(is_test_seller=False)
     if seller_ids is not None:
         qs = qs.filter(pk__in=seller_ids)
     if params.get('scope') != 'all' and req.search_scope in ('city', 'custom'):
@@ -118,7 +118,9 @@ def seller_picker(request, pk, review=False):
     req = authorized(request, pk)
     target = reverse('control_panel:parts_request_sellers', args=[pk])
     key = f'manual_recipients:{pk}'
-    selected = set(request.session.get(key, []))
+    selected = set(Seller.objects.filter(pk__in=request.session.get(key, []),
+        is_test_seller=False).values_list('pk', flat=True))
+    request.session[key] = sorted(selected)
     review_target = reverse('control_panel:parts_request_dispatch_review', args=[pk])
     if request.method == 'POST' and request.POST.get('action') == 'toggle':
         if not request.POST.get('seller_id', '').isdigit() or request.POST.get('checked') not in ('yes', 'no'):
@@ -126,6 +128,8 @@ def seller_picker(request, pk, review=False):
         seller = get_object_or_404(Seller, pk=request.POST['seller_id'])
         if request.POST.get('checked') == 'yes':
             try:
+                if seller.is_test_seller:
+                    raise ValidationError('Тестовый магазин исключён из ручного выбора.')
                 validate_manual_recipient(req, seller, allow_outside_territory=request.GET.get('scope') == 'all')
                 if RequestDispatch.objects.filter(request=req, seller=seller, status=RequestDispatch.STATUS_SENT).exists():
                     raise ValidationError('Эта заявка уже отправлена магазину.')
