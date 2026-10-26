@@ -76,7 +76,7 @@ class SellerRequestLinkTests(TestCase):
     def test_valid_token_returns_200(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, 'Страница заявки')
+        self.assertContains(response, 'Заявки покупателей')
         self.assertContains(response, f'Заявка №{self.request_obj.pk}')
 
     def test_valid_page_shows_request_summary(self):
@@ -86,7 +86,7 @@ class SellerRequestLinkTests(TestCase):
         self.assertContains(response, 'SecretCategoryXYZ')
         self.assertContains(response, 'SecretCityXYZ')
         self.assertContains(response, 'VIN SECRET123456789 buyer comment')
-        self.assertContains(response, 'Написать покупателю в WhatsApp')
+        self.assertContains(response, 'Ответить в WhatsApp')
         self.assertContains(response, 'Позвонить покупателю')
         self.assertContains(response, 'https://wa.me/77019990011')
         self.assertContains(response, 'tel:+77019990011')
