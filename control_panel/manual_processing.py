@@ -57,6 +57,9 @@ def recipient_rows(req, params, *, seller_ids=None):
         qs = qs.filter(pk__in=seller_ids)
     if params.get('scope') != 'all' and req.search_scope in ('city', 'custom'):
         qs = qs.filter(territory | universal)
+    one_time_sent = RequestDispatch.objects.filter(request=req, status=RequestDispatch.STATUS_SENT,
+        delivery_channel=RequestDispatch.DELIVERY_MANUAL).exclude(permission_evidence='').exclude(
+        permission_evidence__startswith='buyer_requests:')
     if params.get('consent') == 'granted':
         # Cheap database prefilter before loading thousands of unrelated profiles.
         historical = SellerContactConsent.objects.filter(
@@ -66,7 +69,7 @@ def recipient_rows(req, params, *, seller_ids=None):
             consent_text_version__in=LEGACY_REQUEST_CONSENT_VERSIONS,
         )).values_list('seller_id', flat=True)
         channels = SellerChannelConnection.objects.filter(whatsapp_consent=True).values_list('seller_id', flat=True)
-        qs = qs.filter(Q(pk__in=historical) | Q(pk__in=channels))
+        qs = qs.filter(Q(pk__in=historical) | Q(pk__in=channels) | Q(pk__in=one_time_sent.values('seller_id')))
     qs = qs.defer('notes').select_related('brand_fk', 'model_fk', 'channel_connection').prefetch_related(
         'selected_brands', 'selected_models', 'selected_categories', 'extra_phones', 'contact_consents',
     ).order_by('-is_test_seller', 'name', 'id')
@@ -80,7 +83,8 @@ def recipient_rows(req, params, *, seller_ids=None):
     for field in ('brand', 'model', 'category'):
         if params.get(field, '').strip():
             setattr(probe, field, params[field].strip())
-    sent_ids = set(RequestDispatch.objects.filter(request=req, status=RequestDispatch.STATUS_SENT).values_list('seller_id', flat=True))
+    sent_records = {d.seller_id: d for d in RequestDispatch.objects.filter(request=req, status=RequestDispatch.STATUS_SENT)}
+    sent_ids = set(sent_records)
     rows = []
     for seller in qs:
         test = test_receiver_decision(seller, req) is True
@@ -90,9 +94,12 @@ def recipient_rows(req, params, *, seller_ids=None):
         if any(params.get(k, '').strip() for k in ('brand', 'model', 'category')) and not _legacy_selected(seller, probe):
             continue
         consent = manual_consent_status(seller)
-        if params.get('consent') == 'granted' and consent != 'granted':
+        dispatch = sent_records.get(seller.pk)
+        if not consent and dispatch and dispatch.delivery_channel == RequestDispatch.DELIVERY_MANUAL and dispatch.permission_evidence.strip() and not dispatch.permission_evidence.startswith('buyer_requests:'):
+            consent = 'one_time'
+        if params.get('consent') == 'granted' and consent not in ('granted', 'one_time'):
             continue
-        if params.get('consent') == 'missing' and consent == 'granted':
+        if params.get('consent') == 'missing' and consent in ('granted', 'one_time'):
             continue
         reason = ''
         try:
@@ -143,15 +150,18 @@ def seller_picker(request, pk, review=False):
     tab = request.GET.get('tab', 'ready')
     if tab not in ('ready', 'selected', 'sent', 'blocked'):
         tab = 'ready'
-    params = request.GET.copy()
+    count_params = request.GET.copy()
+    count_params.pop('availability', None)
+    params = count_params.copy()
     if review or tab == 'selected':
         # The basket spans pages, cities and filters; selection never enrolls a store.
         params.clear(); params['scope'] = 'all'
     rows = recipient_rows(req, params, seller_ids=selected if review or tab == 'selected' else None)
     eligible = {row['seller'].pk for row in rows if not row['reason']}
-    counts = {'ready': len(eligible), 'selected': len(selected),
-        'sent': sum(row['sent'] for row in rows),
-        'blocked': sum(bool(row['reason']) and not row['sent'] for row in rows)}
+    count_rows = recipient_rows(req, count_params) if tab == 'selected' and not review else rows
+    counts = {'ready': sum(not row['reason'] for row in count_rows), 'selected': len(selected),
+        'sent': sum(row['sent'] for row in count_rows),
+        'blocked': sum(bool(row['reason']) and not row['sent'] for row in count_rows)}
     if review or tab == 'selected':
         visible_rows = rows
     elif tab == 'sent':
