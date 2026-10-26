@@ -7,16 +7,10 @@
   const csrfToken = (csrfInput && csrfInput.value) || (csrfMeta && csrfMeta.content) || '';
   const whatsappBtn = document.getElementById('sr-whatsapp');
   const callBtn = document.getElementById('sr-call');
-  const modal = document.getElementById('sr-consent-modal');
-  const consentError = document.getElementById('sr-consent-error');
   const contactError = document.getElementById('sr-contact-error');
   const declineActions = document.getElementById('sr-decline-actions');
   const declineNote = document.getElementById('sr-decline-note');
   const declineError = document.getElementById('sr-decline-error');
-
-  function needsConsent() {
-    return root.getAttribute('data-needs-consent') === '1';
-  }
 
   function whatsappUrl() {
     return root.getAttribute('data-whatsapp-url') || '';
@@ -82,18 +76,6 @@
     });
   }
 
-  function showModal() {
-    if (!modal) return;
-    modal.hidden = false;
-    const first = modal.querySelector('[data-sr-consent]');
-    if (first) first.focus();
-  }
-
-  function hideModal() {
-    if (!modal) return;
-    modal.hidden = true;
-  }
-
   function registerWhatsAppThenOpen() {
     setError(contactError, '');
     if (whatsappBtn) whatsappBtn.disabled = true;
@@ -114,11 +96,6 @@
   if (whatsappBtn) {
     whatsappBtn.addEventListener('click', function (event) {
       event.preventDefault();
-      if (needsConsent()) {
-        setError(consentError, '');
-        showModal();
-        return;
-      }
       registerWhatsAppThenOpen();
     });
   }
@@ -139,36 +116,6 @@
       }).catch(function () {
         callBtn.disabled = false;
         setError(contactError, 'Не удалось сохранить действие. Попробуйте ещё раз.');
-      });
-    });
-  }
-
-  if (modal) {
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) hideModal();
-    });
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape' && !modal.hidden) hideModal();
-    });
-    modal.querySelectorAll('[data-sr-consent]').forEach(function (button) {
-      button.addEventListener('click', function () {
-        const action = button.getAttribute('data-sr-consent');
-        button.disabled = true;
-        setError(consentError, '');
-        postAction(action).then(function (data) {
-          button.disabled = false;
-          if (!data.ok) {
-            setError(consentError, data.error || 'Не удалось сохранить выбор.');
-            return;
-          }
-          root.setAttribute('data-needs-consent', '0');
-          applyUrls(data);
-          hideModal();
-          registerWhatsAppThenOpen();
-        }).catch(function () {
-          button.disabled = false;
-          setError(consentError, 'Не удалось сохранить выбор.');
-        });
       });
     });
   }

@@ -145,44 +145,6 @@
     font-size: 14px;
     color: #b91c1c;
   }
-  .sr-modal[hidden] {
-    display: none;
-  }
-  .sr-modal {
-    position: fixed;
-    inset: 0;
-    z-index: 80;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 16px;
-    background: rgba(17, 24, 39, .45);
-  }
-  .sr-modal-card {
-    width: 100%;
-    max-width: 420px;
-    background: #fff;
-    border-radius: 16px;
-    padding: 20px 18px 18px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, .18);
-  }
-  .sr-modal-card h2 {
-    margin: 0 0 8px;
-    font-size: 18px;
-    line-height: 1.35;
-    color: #111;
-  }
-  .sr-modal-card p {
-    margin: 0 0 16px;
-    font-size: 15px;
-    line-height: 1.45;
-    color: #4b5563;
-  }
-  .sr-modal-actions {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
   .sr-btn-yes {
     background: #111;
     color: #fff;
@@ -190,11 +152,6 @@
   .sr-btn-no {
     background: #f3f4f6;
     color: #111;
-  }
-  @media (min-width: 560px) {
-    .sr-modal {
-      align-items: center;
-    }
   }
 </style>
 {% endblock %}
@@ -292,31 +249,10 @@
   </section>
 </main>
 
-{% if page_state == 'valid' and needs_consent %}
-  <div
-    class="sr-modal"
-    id="sr-consent-modal"
-    hidden
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="sr-consent-title"
-    aria-describedby="sr-consent-text"
-  >
-    <div class="sr-modal-card">
-      <h2 id="sr-consent-title">Получать выгодные предложения ZPT.KZ в WhatsApp?</h2>
-      <p id="sr-consent-text">Это отдельное согласие только на рекламные предложения. Получение заявок покупателей настраивается отдельно на странице.</p>
-      <div class="sr-modal-actions">
-        <button class="sr-btn sr-btn-yes" type="button" data-sr-consent="consent_yes">Да, получать</button>
-        <button class="sr-btn sr-btn-no" type="button" data-sr-consent="consent_no">Нет, только заявки</button>
-      </div>
-      <p id="sr-consent-error" class="sr-error" hidden></p>
-    </div>
-  </div>
-{% endif %}
 {% endblock %}
 
 {% block portal_js %}
 {% if page_state == 'valid' %}
-<script src="{% static 'js/seller-request-page.js' %}?v=3"></script>
+<script src="{% static 'js/seller-request-page.js' %}?v=4"></script>
 {% endif %}
 {% endblock %}
