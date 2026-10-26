@@ -166,3 +166,44 @@ class ManualWorkspaceTests(TestCase):
         dispatch.refresh_from_db()
         self.assertEqual(dispatch.status,'prepared')
         self.assertFalse(Match.objects.exists())
+
+    def test_manual_countrywide_selection_is_explicit_and_keeps_buyer_scope(self):
+        from core.models import SellerChannelConnection
+        from core.services.manual_seller_dispatch import validate_manual_recipient
+        from django.core.exceptions import ValidationError
+        other=Seller.objects.create(name='Внешний магазин',city='Алматы',transport_type='car',
+            whatsapp='77011013999',sells_new_parts=True,all_brands=True,all_categories=True)
+        SellerChannelConnection.objects.create(seller=other,whatsapp_consent=True)
+        self.assertNotContains(self.client.get(self.picker()),'Внешний магазин')
+        expanded=self.picker()+'?scope=all&city=Алматы'
+        response=self.client.get(expanded)
+        self.assertContains(response,'Внешний магазин')
+        self.assertContains(response,'Вне территории заявки')
+        self.client.post(expanded,{'action':'prepare','seller_ids':[other.pk]})
+        dispatch=RequestDispatch.objects.get(seller=other)
+        self.assertTrue(LogEntry.objects.filter(change_message=f'manual_territory_override:{other.pk}:Алматы').exists())
+        self.req.refresh_from_db()
+        self.assertEqual(self.req.search_scope,'city')
+        self.assertEqual(self.req.city,'Актобе')
+        with self.assertRaises(ValidationError):
+            validate_manual_recipient(self.req,other)
+        send=reverse('control_panel:parts_request_manual_send',args=[self.req.pk,dispatch.pk])
+        self.assertTrue(self.client.post(send).url.startswith('https://wa.me/77011013999?'))
+        # An audit decision for one city cannot silently authorize a later move.
+        other.city='Астана';other.save(update_fields=['city'])
+        self.assertRedirects(self.client.post(send),self.picker())
+
+    def test_expansion_does_not_bypass_specialization_or_selected_cities_default(self):
+        from core.models import SellerChannelConnection
+        other=Seller.objects.create(name='За пределами выбранных',city='Алматы',transport_type='car',
+            whatsapp='77011013998',sells_new_parts=True,all_brands=True,all_categories=True)
+        SellerChannelConnection.objects.create(seller=other,whatsapp_consent=True)
+        self.req.search_scope='custom';self.req.selected_cities='Актобе, Атырау'
+        self.req.save(update_fields=['search_scope','selected_cities'])
+        self.assertNotContains(self.client.get(self.picker()),other.name)
+        self.client.post(self.picker(),{'action':'prepare','seller_ids':[other.pk]})
+        self.assertFalse(RequestDispatch.objects.filter(seller=other).exists())
+        self.assertContains(self.client.get(self.picker()+'?scope=all'),other.name)
+        other.all_categories=False;other.category='Кузов'
+        other.save(update_fields=['all_categories','category'])
+        self.assertNotContains(self.client.get(self.picker()+'?scope=all'),other.name)

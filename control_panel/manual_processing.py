@@ -12,7 +12,7 @@ from core.models import Request, Seller, RequestDispatch, SellerRequestAccess
 from core.phone_utils import seller_whatsapp_phone
 from core.services.manual_seller_dispatch import (
     validate_manual_recipient, prepare_manual_dispatch, confirm_manual_dispatch_sent,
-    manual_consent_status, manual_whatsapp_url, _legacy_selected,
+    manual_consent_status, manual_whatsapp_url, _legacy_selected, outside_request_territory,
 )
 from core.services.test_receivers import universal_test_q, test_receiver_decision
 from core.services.request_connections import buyer_access_valid
@@ -26,16 +26,32 @@ def authorized(request, pk):
     return req
 
 
+def territory_marker(seller):
+    return f'manual_territory_override:{seller.pk}:{seller.city}'
+
+
+def territory_authorized(req, seller):
+    from django.contrib.admin.models import LogEntry, CHANGE
+    from django.contrib.contenttypes.models import ContentType
+    return LogEntry.objects.filter(content_type=ContentType.objects.get_for_model(Request),
+        object_id=str(req.pk), action_flag=CHANGE, change_message=territory_marker(seller)).exists()
+
+
 def recipient_rows(req, params):
     # Test receivers must be OR-ed before geography, type or direction prefilters.
     universal = universal_test_q(req)
-    if req.search_scope == 'city':
+    if params.get('scope') == 'all':
+        territory = Q()
+    elif req.search_scope == 'city':
         territory = Q(city=req.city)
     elif req.search_scope == 'custom':
         territory = Q(city__in=[c.strip() for c in req.selected_cities.split(',') if c.strip()])
     else:
         territory = Q()
-    qs = Seller.objects.filter(territory | universal).select_related('brand_fk', 'model_fk', 'channel_connection').prefetch_related(
+    qs = Seller.objects.all()
+    if params.get('scope') != 'all' and req.search_scope in ('city', 'custom'):
+        qs = qs.filter(territory | universal)
+    qs = qs.select_related('brand_fk', 'model_fk', 'channel_connection').prefetch_related(
         'selected_brands', 'selected_models', 'selected_categories', 'extra_phones', 'contact_consents',
     ).order_by('-is_test_seller', 'name', 'id')
     q = params.get('q', '').strip()
@@ -64,7 +80,7 @@ def recipient_rows(req, params):
             continue
         reason = ''
         try:
-            validate_manual_recipient(req, seller)
+            validate_manual_recipient(req, seller, allow_outside_territory=params.get('scope') == 'all')
         except ValidationError as exc:
             reason = '; '.join(exc.messages)
         if seller.catalog_only:
@@ -76,7 +92,8 @@ def recipient_rows(req, params):
         if params.get('availability') == 'blocked' and not reason:
             continue
         rows.append({'seller': seller, 'phone': seller_whatsapp_phone(seller),
-                     'consent': consent, 'reason': reason, 'universal': test})
+                     'consent': consent, 'reason': reason, 'universal': test,
+                     'outside': outside_request_territory(req, seller)})
     return rows
 
 
@@ -116,7 +133,12 @@ def seller_picker(request, pk):
                     existing = RequestDispatch.objects.filter(request=req, seller=seller).first()
                     if existing and existing.status == RequestDispatch.STATUS_SENT:
                         raise ValidationError('Эта заявка уже отправлена магазину.')
-                    prepare_manual_dispatch(req, seller, permission_evidence=request.POST.get('permission_evidence', ''))
+                    outside = outside_request_territory(req, seller)
+                    allow_outside = request.GET.get('scope') == 'all'
+                    prepare_manual_dispatch(req, seller, permission_evidence=request.POST.get('permission_evidence', ''),
+                        allow_outside_territory=allow_outside)
+                    if outside and allow_outside:
+                        admin.site._registry[Request].log_change(request, req, territory_marker(seller))
                     prepared += 1
                 except ValidationError as exc:
                     errors.append(seller.name + ': ' + '; '.join(exc.messages))
@@ -161,7 +183,8 @@ def manual_send(request, pk, dispatch_id):
         delivery_channel=RequestDispatch.DELIVERY_MANUAL, status=RequestDispatch.STATUS_PREPARED)
     target = reverse('control_panel:parts_request_sellers', args=[pk])
     try:
-        validate_manual_recipient(req, dispatch.seller)
+        validate_manual_recipient(req, dispatch.seller,
+            allow_outside_territory=territory_authorized(req, dispatch.seller))
         if req.purchase_result in ('purchased', 'closed') or not buyer_access_valid(req):
             raise ValidationError('Заявка закрыта или доступ отозван/истёк.')
         if not req.contact_consent_at:
