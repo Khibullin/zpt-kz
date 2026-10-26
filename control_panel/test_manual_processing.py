@@ -48,7 +48,7 @@ class ManualWorkspaceTests(TestCase):
         dispatch = RequestDispatch.objects.get()
         self.assertEqual(dispatch.status, 'prepared')
         self.assertFalse(Match.objects.exists())
-        self.assertContains(self.client.get(self.picker()), 'Отправить в WhatsApp')
+        self.assertContains(self.client.get(self.review()), 'Отправить в WhatsApp')
         self.client.post(self.url, {'action':'confirm_sent', 'dispatch_id':dispatch.pk})
         dispatch.refresh_from_db()
         self.assertEqual(dispatch.status, 'prepared')
@@ -66,6 +66,9 @@ class ManualWorkspaceTests(TestCase):
         csrf_client = Client(enforce_csrf_checks=True)
         csrf_client.force_login(self.user)
         self.assertEqual(csrf_client.post(self.url, {'action':'note', 'note':'x'}).status_code, 403)
+
+    def review(self):
+        return reverse('control_panel:parts_request_dispatch_review', args=[self.req.pk])
 
     def picker(self):
         return reverse('control_panel:parts_request_sellers', args=[self.req.pk])
@@ -150,7 +153,7 @@ class ManualWorkspaceTests(TestCase):
         dispatch=RequestDispatch.objects.get()
         self.client.post(self.picker(), {'action':'confirm_sent','dispatch_id':dispatch.pk,'did_send':'yes'})
         self.assertNotIn(self.seller.pk,self.client.session[f'manual_recipients:{self.req.pk}'])
-        response=self.client.get(self.picker())
+        response=self.client.get(self.picker()+'?tab=sent')
         self.assertContains(response,'Эта заявка уже отправлена магазину.')
         self.assertEqual(response.context['ready'],0)
         self.client.post(self.picker(), {'action':'select_all'})
@@ -185,7 +188,7 @@ class ManualWorkspaceTests(TestCase):
         expanded=self.picker()+'?scope=all&city=Алматы'
         response=self.client.get(expanded)
         self.assertContains(response,'Внешний магазин')
-        self.assertContains(response,'Вне территории заявки')
+        self.assertContains(response,'Другой город')
         self.client.post(expanded,{'action':'prepare','seller_ids':[other.pk]})
         dispatch=RequestDispatch.objects.get(seller=other)
         self.assertTrue(LogEntry.objects.filter(change_message=f'manual_territory_override:{other.pk}:Алматы').exists())
@@ -279,13 +282,13 @@ class ManualWorkspaceTests(TestCase):
 
     def test_prepare_failure_stays_at_visible_feedback_and_opens_permission_form(self):
         response=self.client.post(self.picker(),{'action':'prepare','seller_ids':[self.seller.pk]})
-        self.assertEqual(response.url,self.picker()+'#selection-feedback')
+        self.assertEqual(response.url,self.review()+'#selection-feedback')
         response=self.client.get(response.url)
         self.assertContains(response,'Нужно согласие продавца')
         self.assertContains(response,'не найдено сохранённое согласие')
-        self.assertContains(response,'id="one-time-permission" open')
+        self.assertContains(response,'id="one-time-permission"')
         html=response.content.decode()
-        self.assertLess(html.index('id="prepare-selected"'),html.index('<table'))
+        self.assertNotIn('<table', html)
         self.assertEqual(html.count('name="action" value="prepare"'),1)
         self.assertFalse(RequestDispatch.objects.exists())
 
@@ -293,13 +296,55 @@ class ManualWorkspaceTests(TestCase):
         from core.models import SellerChannelConnection
         SellerChannelConnection.objects.create(seller=self.seller,whatsapp_consent=True)
         response=self.client.post(self.picker(),{'action':'prepare','seller_ids':[self.seller.pk]})
-        self.assertEqual(response.url,self.picker()+'#send')
-        response=self.client.get(self.picker())
+        self.assertEqual(response.url,self.review()+'#send')
+        response=self.client.get(self.review())
         self.assertEqual(response.context['prepared_count'],1)
         self.assertContains(response,'Отправить в WhatsApp')
         dispatch=RequestDispatch.objects.get()
         self.client.post(self.picker(),{'action':'confirm_sent','dispatch_id':dispatch.pk,'did_send':'yes'})
-        response=self.client.get(self.picker())
+        response=self.client.get(self.review())
         self.assertEqual(response.context['prepared_count'],0)
         self.assertContains(response,'История отправок: 1')
         self.assertNotContains(response,'>Отправить в WhatsApp</button>')
+
+    def test_immediate_selection_persists_across_filters_without_dispatch(self):
+        key = f'manual_recipients:{self.req.pk}'
+        r = self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        self.assertEqual(r.json(), {'ok':True, 'selected_count':1})
+        self.assertEqual(self.client.session[key], [self.seller.pk])
+        r = self.client.get(self.picker()+'?tab=selected&city=НетТакогоГорода')
+        self.assertContains(r, self.seller.name)
+        self.assertTrue(r.context['page'][0]['selected'])
+        self.assertFalse(RequestDispatch.objects.exists())
+        self.assertNotContains(self.client.get(self.picker()), 'Подготовить сообщения')
+        self.assertContains(self.client.get(self.review()), 'Подготовить сообщения')
+        self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'no'})
+        self.assertEqual(self.client.session[key], [])
+
+    def test_review_requires_explicit_outside_decision_and_saves_audit(self):
+        self.seller.city = 'Алматы'; self.seller.save(update_fields=['city'])
+        r = self.client.post(self.picker()+'?scope=all', {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        self.assertTrue(r.json()['ok'])
+        self.client.post(self.review(), {'action':'prepare', 'one_time_permission':'yes'})
+        self.assertFalse(RequestDispatch.objects.exists())
+        self.client.post(self.review(), {'action':'prepare', 'one_time_permission':'yes', 'allow_outside':'yes'})
+        self.assertTrue(RequestDispatch.objects.filter(seller=self.seller, status='prepared').exists())
+        self.assertTrue(LogEntry.objects.filter(change_message=f'manual_territory_override:{self.seller.pk}:Алматы').exists())
+        self.req.refresh_from_db(); self.assertEqual(self.req.search_scope, 'city')
+
+    def test_toggle_cannot_select_sent_or_paused_seller_and_requires_csrf(self):
+        self.seller.is_paused = True; self.seller.save(update_fields=['is_paused'])
+        r = self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        self.assertEqual(r.status_code, 400)
+        other = Client(enforce_csrf_checks=True); other.force_login(self.user)
+        self.assertEqual(other.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'}).status_code,403)
+
+    def test_stale_selected_store_remains_visible_and_can_be_removed(self):
+        self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
+        self.seller.transport_type='truck'; self.seller.save(update_fields=['transport_type'])
+        response=self.client.get(self.picker()+'?tab=selected')
+        self.assertContains(response,self.seller.name)
+        self.assertContains(response,'Тип транспорта не совпадает.')
+        self.assertTrue(response.context['page'][0]['selected'])
+        self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'no'})
+        self.assertEqual(self.client.session[f'manual_recipients:{self.req.pk}'],[])

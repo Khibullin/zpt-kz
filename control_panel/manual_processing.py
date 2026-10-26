@@ -4,6 +4,7 @@ from django.contrib import admin, messages
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_POST
@@ -40,7 +41,7 @@ def territory_authorized(req, seller):
         object_id=str(req.pk), action_flag=CHANGE, change_message=territory_marker(seller)).exists()
 
 
-def recipient_rows(req, params):
+def recipient_rows(req, params, *, seller_ids=None):
     # Test receivers must be OR-ed before geography, type or direction prefilters.
     universal = universal_test_q(req)
     if params.get('scope') == 'all':
@@ -52,6 +53,8 @@ def recipient_rows(req, params):
     else:
         territory = Q()
     qs = Seller.objects.all()
+    if seller_ids is not None:
+        qs = qs.filter(pk__in=seller_ids)
     if params.get('scope') != 'all' and req.search_scope in ('city', 'custom'):
         qs = qs.filter(territory | universal)
     if params.get('consent') == 'granted':
@@ -82,7 +85,7 @@ def recipient_rows(req, params):
     for seller in qs:
         test = test_receiver_decision(seller, req) is True
         # Narrow by the request specialization; registration state stays visible separately.
-        if not test and (seller.transport_type != req.transport_type or not _legacy_selected(seller, req)):
+        if seller_ids is None and not test and (seller.transport_type != req.transport_type or not _legacy_selected(seller, req)):
             continue
         if any(params.get(k, '').strip() for k in ('brand', 'model', 'category')) and not _legacy_selected(seller, probe):
             continue
@@ -104,25 +107,60 @@ def recipient_rows(req, params):
             continue
         rows.append({'seller': seller, 'phone': seller_whatsapp_phone(seller),
                      'consent': consent, 'reason': reason, 'universal': test,
-                     'outside': outside_request_territory(req, seller)})
+                     'outside': outside_request_territory(req, seller), 'sent': seller.pk in sent_ids})
     return rows
 
 
 @control_staff_required
 @require_http_methods(['GET', 'POST'])
-def seller_picker(request, pk):
+def seller_picker(request, pk, review=False):
     from control_panel.views import _base_context
     req = authorized(request, pk)
     target = reverse('control_panel:parts_request_sellers', args=[pk])
     key = f'manual_recipients:{pk}'
     selected = set(request.session.get(key, []))
-    rows = recipient_rows(req, request.GET)
+    review_target = reverse('control_panel:parts_request_dispatch_review', args=[pk])
+    if request.method == 'POST' and request.POST.get('action') == 'toggle':
+        if not request.POST.get('seller_id', '').isdigit() or request.POST.get('checked') not in ('yes', 'no'):
+            return JsonResponse({'ok': False, 'error': 'Проверьте выбранный магазин.'}, status=400)
+        seller = get_object_or_404(Seller, pk=request.POST['seller_id'])
+        if request.POST.get('checked') == 'yes':
+            try:
+                validate_manual_recipient(req, seller, allow_outside_territory=request.GET.get('scope') == 'all')
+                if RequestDispatch.objects.filter(request=req, seller=seller, status=RequestDispatch.STATUS_SENT).exists():
+                    raise ValidationError('Эта заявка уже отправлена магазину.')
+            except ValidationError as exc:
+                return JsonResponse({'ok': False, 'error': '; '.join(exc.messages)}, status=400)
+            selected.add(seller.pk)
+        else:
+            selected.discard(seller.pk)
+        request.session[key] = sorted(selected)
+        return JsonResponse({'ok': True, 'selected_count': len(selected)})
+    tab = request.GET.get('tab', 'ready')
+    if tab not in ('ready', 'selected', 'sent', 'blocked'):
+        tab = 'ready'
+    params = request.GET.copy()
+    if review or tab == 'selected':
+        # The basket spans pages, cities and filters; selection never enrolls a store.
+        params.clear(); params['scope'] = 'all'
+    rows = recipient_rows(req, params, seller_ids=selected if review or tab == 'selected' else None)
     eligible = {row['seller'].pk for row in rows if not row['reason']}
-    page = Paginator(rows, 50).get_page(request.GET.get('page'))
+    counts = {'ready': len(eligible), 'selected': len(selected),
+        'sent': sum(row['sent'] for row in rows),
+        'blocked': sum(bool(row['reason']) and not row['sent'] for row in rows)}
+    if review or tab == 'selected':
+        visible_rows = rows
+    elif tab == 'sent':
+        visible_rows = [row for row in rows if row['sent']]
+    elif tab == 'blocked':
+        visible_rows = [row for row in rows if row['reason'] and not row['sent']]
+    else:
+        visible_rows = [row for row in rows if not row['reason']]
+    page = Paginator(visible_rows, 50).get_page(request.GET.get('page'))
     if request.method == 'POST':
         action = request.POST.get('action')
         preparation_failed = False
-        if action in ('select', 'select_all', 'prepare'):
+        if action in ('select', 'select_all', 'prepare') and not review:
             # Only replace the visible page's selections; preserve selections from other pages.
             visible = {row['seller'].pk for row in page}
             submitted = {int(v) for v in request.POST.getlist('seller_ids') if v.isdigit()}
@@ -146,7 +184,7 @@ def seller_picker(request, pk):
                     if existing and existing.status == RequestDispatch.STATUS_SENT:
                         raise ValidationError('Эта заявка уже отправлена магазину.')
                     outside = outside_request_territory(req, seller)
-                    allow_outside = request.GET.get('scope') == 'all'
+                    allow_outside = request.POST.get('allow_outside') == 'yes' if review else request.GET.get('scope') == 'all'
                     prepare_manual_dispatch(req, seller, permission_evidence=(request.POST.get('permission_evidence', '').strip()
                         or (f'Устное разрешение на заявку №{req.pk} подтверждено сотрудником {request.user.get_username()} {timezone.now().isoformat()}'
                             if request.POST.get('one_time_permission') == 'yes' else '')),
@@ -177,10 +215,12 @@ def seller_picker(request, pk):
                 messages.error(request, 'Подтвердите, что сообщение действительно отправлено.')
         request.session[key] = sorted(selected)
         anchor = ('#selection-feedback' if preparation_failed else '#send') if action == 'prepare' else ''
+        if action in ('prepare', 'confirm_sent'):
+            return redirect(review_target + anchor)
         return redirect(request.get_full_path() + anchor)
     for row in page:
         row['selected'] = row['seller'].pk in selected
-    context = _base_context(active_nav='parts', title=f'Продавцы для заявки №{pk}', breadcrumbs=[
+    context = _base_context(active_nav='parts', title=f'Отправка заявки №{pk}' if review else f'Продавцы для заявки №{pk}', breadcrumbs=[
         {'label': 'Заявки на запчасти', 'url': 'control_panel:parts_request_list'}, {'label': f'Выбор продавцов №{pk}'},
     ])
     query = request.GET.copy(); query.pop('page', None)
@@ -193,10 +233,18 @@ def seller_picker(request, pk):
     context.update(permission_required_names=permission_required_names,
                    prepared_deliveries=prepared_deliveries, sent_deliveries=sent_deliveries,
                    prepared_count=len(prepared_deliveries))
+    tabs = []
+    for name, label in [('ready', 'Можно отправить'), ('selected', 'Выбрано'), ('sent', 'Уже отправлено'), ('blocked', 'Недоступны')]:
+        tab_query = query.copy(); tab_query['tab'] = name
+        tabs.append({'name': name, 'label': label, 'url': '?' + tab_query.urlencode(), 'count': counts[name]})
+    review_query = 'scope=all' if request.GET.get('scope') == 'all' else ''
+    context.update(review=review, active_tab=tab, tabs=tabs, review_target=review_target,
+                   picker_target=target, review_query=review_query, counts=counts,
+                   outside_selected=any(row['outside'] for row in rows) if review else False)
     context.update(req=req, page=page, filters=request.GET, query=query.urlencode(), total=len(rows),
                    ready=len(eligible), selected_count=len(selected),
                    deliveries=deliveries)
-    return render(request, 'control_panel/parts_sellers.html', context)
+    return render(request, 'control_panel/parts_dispatch_review.html' if review else 'control_panel/parts_sellers.html', context)
 
 
 @control_staff_required
@@ -223,3 +271,7 @@ def manual_send(request, pk, dispatch_id):
     except ValidationError as exc:
         messages.error(request, '; '.join(exc.messages))
         return redirect(target)
+
+
+def seller_dispatch_review(request, pk):
+    return seller_picker(request, pk, review=True)
