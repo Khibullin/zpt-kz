@@ -17,6 +17,7 @@ from core.services.manual_seller_dispatch import (
     manual_whatsapp_url,
     prepare_manual_dispatch,
     validate_manual_recipient,
+    manual_consent_status,
 )
 from core.services.seller_buyer_request_consent import request_consent_status
 from core.services.seller_request_access import build_seller_request_access_url
@@ -42,7 +43,7 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id, *,
                     pk=http_request.POST.get('seller_id') or 0,
                 )
                 if (
-                    request_consent_status(seller) != 'granted'
+                    manual_consent_status(seller) != 'granted'
                     and http_request.POST.get('one_time_permission') != 'yes'
                 ):
                     raise ValidationError(
@@ -130,7 +131,7 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id, *,
             continue
         candidates.append({
             'seller': seller,
-            'consent': request_consent_status(seller) or 'не подтверждено',
+            'consent': manual_consent_status(seller) or 'не подтверждено',
         })
         if len(candidates) == 20:
             break
@@ -163,7 +164,7 @@ def manual_dispatch_admin_view(model_admin, http_request, request_id, *,
                 manual_whatsapp_message(req, build_seller_request_access_url(access))
                 if access else ''
             ),
-            'subscription': request_consent_status(dispatch.seller) or 'не подтверждено',
+            'subscription': manual_consent_status(dispatch.seller) or 'не подтверждено',
         })
 
     context = dict(

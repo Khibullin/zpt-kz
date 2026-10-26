@@ -24,16 +24,10 @@
 <label class="mp-field">VIN<input name="vin" maxlength="32" value="{{ request_obj.vin }}"></label>
 <button class="mp-submit">Сохранить уточнения</button></form></details>
 </section>
-<section class="cp-card mp-step"><h2>2. Выбрать продавца</h2>
-<p>Подбор учитывает действующие ограничения заявки и фильтры продавцов. География поиска покупателя сохраняется.</p>
-<form method="post">{% csrf_token %}<input type="hidden" name="action" value="prepare">
-<label class="mp-field">Подходящие продавцы (до 20)<select name="seller_id" required><option value="">Выберите продавца</option>{% for entry in candidates %}<option value="{{ entry.seller.pk|unlocalize }}">{{ entry.seller.name }} · {{ entry.seller.city }} · {{ entry.seller.whatsapp }}</option>{% endfor %}</select></label>
-{% if not candidates %}<p class="mp-note">Подходящих продавцов пока не найдено. Проверьте специализацию в каталоге.</p>{% endif %}
-<label class="mp-check"><input type="checkbox" name="one_time_permission" value="yes"> Продавец разрешил прислать эту заявку.</label>
-<label class="mp-field">Источник и дата разрешения<input name="permission_evidence" maxlength="300" placeholder="Дата, телефонный разговор, согласие продавца"></label>
-<p>Если продавец уже согласился получать заявки, разовое подтверждение не требуется.</p>
-<button class="mp-submit">Подготовить заявку продавцу</button></form>
-{% if candidates %}<details><summary>Контакты для согласования</summary>{% for entry in candidates %}<p><strong>{{ entry.seller.name }}</strong> · {{ entry.seller.whatsapp }} · {{ entry.seller.city }}<br>Согласие: {{ entry.consent }}</p>{% endfor %}</details>{% endif %}
+<section class="cp-card mp-step"><h2>2. Выбрать продавцов и отправить заявку</h2>
+<p>Если данных достаточно, переходите к списку продавцов. Уточнять заявку у покупателя нужно только при необходимости.</p>
+<p><a class="mp-link" href="{% url 'control_panel:parts_request_sellers' request_obj.pk %}">Выбрать продавцов</a></p>
+<p>Таблица с поиском, согласиями и выбором нескольких магазинов.</p>
 </section></div>
 <section class="cp-card mp-step"><h2>3. Отправить и отметить результат</h2>
 <p>Открытие WhatsApp не означает отправку. Отмечайте её после отправки сообщения в чате.</p>
