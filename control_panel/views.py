@@ -43,6 +43,7 @@ NAV_SECTIONS = (
         'title': 'Клиенты и спрос',
         'items': (
             ('parts', 'Заявки на запчасти', 'control_panel:parts_request_list'),
+            ('price_inquiries', 'Запросы цен товаров', 'admin:catalog_productpriceinquiry_changelist'),
             ('services', 'Заявки СТО', 'control_panel:service_request_list'),
         ),
     },

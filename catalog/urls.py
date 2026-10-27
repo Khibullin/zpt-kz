@@ -44,7 +44,10 @@ from .views import (
     feedback_view,
 )
 
+from .price_inquiries import product_price_inquiry
+
 urlpatterns = [
+    path('products/<int:product_id>/price-inquiry/', product_price_inquiry, name='product_price_inquiry'),
     path('', catalog_list, name='home'),
     path('', catalog_list, name='catalog_list'),
 

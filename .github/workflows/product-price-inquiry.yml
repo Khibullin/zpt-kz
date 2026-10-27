@@ -1,0 +1,38 @@
+name: Product price inquiry
+on:
+  pull_request:
+    paths:
+      - 'catalog/price_inquiries.py'
+      - 'catalog/models.py'
+      - 'catalog/admin.py'
+      - 'catalog/migrations/0075_product_price_inquiry.py'
+      - 'catalog/templates/catalog/includes/price_inquiry_form.html'
+      - 'catalog/templates/catalog/includes/product_whatsapp_link.html'
+      - 'catalog/templates/catalog/price_inquiry_page.html'
+      - 'catalog/templatetags/price_inquiry.py'
+      - 'catalog/tests/test_product_price_inquiry.py'
+      - 'static/js/price-inquiry.js'
+      - 'static/css/price-inquiry.css'
+      - '.github/workflows/product-price-inquiry.yml'
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SECRET_KEY: ci-only-price-inquiry
+      DEBUG: 'True'
+      DATABASE_URL: sqlite:////tmp/price-inquiry-ci.sqlite3
+      REQUEST_OWNER_EMAIL_ENABLED: 'False'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py makemigrations --check --dry-run
+      - run: node --check static/js/price-inquiry.js
+      - run: python manage.py test catalog.tests.test_product_price_inquiry catalog.tests.test_price_on_request catalog.tests.test_product_card_design --settings=backend.settings_ui_ci --noinput

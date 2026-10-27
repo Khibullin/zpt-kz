@@ -28,6 +28,12 @@ class Command(BaseCommand):
 
         failures = []
         try:
+            from catalog.price_inquiries import process_price_inquiry_emails
+            process_price_inquiry_emails()
+        except Exception:
+            self.stderr.write('Product price inquiry mail processor failed; inspect inquiry queue.')
+            failures.append('Product price inquiry email')
+        try:
             from core.services.seller_access_notifications import process_owner_notices
             process_owner_notices()
         except Exception:
