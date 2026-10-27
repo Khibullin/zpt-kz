@@ -108,10 +108,33 @@ SKIPPED_BRAVE_HOSTS = frozenset({
     'yandex.com',
     'maps.yandex.ru',
     'optoviki.kz',
+    'zoon.kz',
+    'spravker.ru',
+    'razborka.org',
+    'raz-bor.ru',
+    'incatalog.kz',
+    'website.informer.com',
+    'bizfam.ru',
+    'thehrd.ru',
+    'rusprofile.ru',
+    'list-org.com',
+    'wikipedia.org',
+    'checko.ru',
+    'career.habr.com',
 })
 MAX_BRAVE_RESULTS = 5
 MAX_BRAVE_WEBSITE_CANDIDATES = 2
 WEBSITE_DOMAIN_CAP = 5
+CONTACT_LOCATOR_PATH_MARKERS = (
+    'contact',
+    'contacts',
+    'kontakt',
+    'kontakty',
+    'kontakti',
+    'kontaktyi',
+    'контакт',
+    'контакты',
+)
 
 
 class SellerContactEnrichmentError(Exception):
@@ -204,6 +227,7 @@ def enrich_seller_lead_contacts(
     websites_skipped_brave_cap: list[str] = []
     websites_skipped_blocked: list[str] = []
     crawled_domains: set[str] = set()
+    successful_preferred_hosts: set[str] = set()
     prior_website = (seller_lead.website_url or '').strip()
     prior_domain = registrable_domain(normalize_domain(prior_website)) if prior_website else ''
     prior_host_key = crawl_host_key(parse.urlsplit(prior_website).hostname or '') if prior_website else ''
@@ -218,6 +242,7 @@ def enrich_seller_lead_contacts(
             errors=errors,
             websites_considered=websites_considered,
             crawled_domains=crawled_domains,
+            successful_preferred_hosts=successful_preferred_hosts,
             prior_domain=prior_domain,
             prior_host_key=prior_host_key,
             urlopen=urlopen,
@@ -345,6 +370,7 @@ def enrich_seller_lead_contacts(
             errors=errors,
             websites_considered=websites_considered,
             crawled_domains=crawled_domains,
+            successful_preferred_hosts=successful_preferred_hosts,
             prior_domain=prior_domain,
             prior_host_key=prior_host_key,
             urlopen=urlopen,
@@ -665,6 +691,7 @@ def _crawl_candidates(
     errors: list[str],
     websites_considered: list[str],
     crawled_domains: set[str],
+    successful_preferred_hosts: set[str],
     prior_domain: str,
     prior_host_key: str,
     urlopen: Callable[..., Any] | None,
@@ -672,13 +699,24 @@ def _crawl_candidates(
     outcome: str,
     stop_on_verified_whatsapp: bool,
 ) -> tuple[str, str]:
-    for website_url in _unique_domains(website_urls):
+    for website_url in _unique_crawl_urls(website_urls):
         host = crawl_host_key(parse.urlsplit(website_url).hostname or '')
-        if not host or host in crawled_domains:
+        if not host or website_url in websites_considered:
             continue
-        if len(crawled_domains) >= _website_domain_limit():
-            break
-        crawled_domains.add(host)
+        if host in successful_preferred_hosts and not _is_contact_locator_url(website_url):
+            continue
+        already_crawled = host in crawled_domains
+        host_attempts = sum(
+            1
+            for considered in websites_considered
+            if crawl_host_key(parse.urlsplit(considered).hostname or '') == host
+        )
+        if already_crawled and host_attempts >= 2:
+            continue
+        if not already_crawled:
+            if len(crawled_domains) >= _website_domain_limit():
+                break
+            crawled_domains.add(host)
         websites_considered.append(website_url)
         is_prior = bool(prior_host_key) and host == prior_host_key
         crawled = crawl_official_website(
@@ -708,7 +746,20 @@ def _crawl_candidates(
             continue
         if not accepted_site:
             accepted_site = crawled.final_url
-        observations.extend(_observations_from_website(crawled))
+        website_observations = _observations_from_website(crawled)
+        if _is_contact_locator_url(website_url) and website_observations:
+            preferred_fields = {item.field_name for item in website_observations}
+            observations[:] = [
+                item
+                for item in observations
+                if not (
+                    item.origin == SOURCE_WEBSITE
+                    and item.field_name in preferred_fields
+                    and crawl_host_key(parse.urlsplit(item.source_url or '').hostname or '') == host
+                )
+            ]
+            successful_preferred_hosts.add(host)
+        observations.extend(website_observations)
         outcome = 'no_contacts'
         if stop_on_verified_whatsapp and len(_verified_numbers(observations)) == 1:
             break
@@ -882,11 +933,21 @@ def _prioritize_website_candidates(
                 blocked_seen.add(host)
                 blocked_urls.append(hit.website_url)
             continue
+        is_contact = _is_contact_locator_url(hit.website_url)
         bucket = hosts.get(host)
         if bucket is None:
-            bucket = {'url': hit.website_url, 'sources': set()}
+            bucket = {
+                'url': hit.website_url,
+                'contact_url': hit.website_url if is_contact else '',
+                'fallback_url': '' if is_contact else hit.website_url,
+                'sources': set(),
+            }
             hosts[host] = bucket
             seen_order.append(host)
+        elif is_contact and not bucket['contact_url']:
+            bucket['contact_url'] = hit.website_url
+        elif not is_contact and not bucket['fallback_url']:
+            bucket['fallback_url'] = hit.website_url
         bucket['sources'].add(hit.source)
     brave_only_kept = 0
     ranked_hosts: list[str] = []
@@ -897,7 +958,7 @@ def _prioritize_website_candidates(
         brave_only = locator_sources == {SOURCE_BRAVE}
         if brave_only:
             if brave_only_kept >= MAX_BRAVE_WEBSITE_CANDIDATES:
-                dropped_brave.append(hosts[host]['url'])
+                dropped_brave.append(_website_bucket_primary_url(hosts[host]))
                 continue
             brave_only_kept += 1
         ranked_hosts.append(host)
@@ -905,10 +966,39 @@ def _prioritize_website_candidates(
     limit = _website_domain_limit()
     selected = ranked_hosts[:limit]
     skipped_hosts = ranked_hosts[limit:]
-    discovered = [hosts[host]['url'] for host in ranked_hosts] + dropped_brave
-    crawl_urls = [hosts[host]['url'] for host in selected]
-    skipped_budget = [hosts[host]['url'] for host in skipped_hosts]
+    discovered = [_website_bucket_primary_url(hosts[host]) for host in ranked_hosts] + dropped_brave
+    crawl_urls = []
+    for host in selected:
+        bucket = hosts[host]
+        contact_url = bucket['contact_url']
+        fallback_url = bucket['fallback_url']
+        if contact_url:
+            crawl_urls.append(contact_url)
+        if fallback_url and fallback_url != contact_url:
+            crawl_urls.append(fallback_url)
+        if not contact_url and not fallback_url:
+            crawl_urls.append(bucket['url'])
+    skipped_budget = [_website_bucket_primary_url(hosts[host]) for host in skipped_hosts]
     return discovered, crawl_urls, skipped_budget, dropped_brave, blocked_urls
+
+
+def _is_contact_locator_url(url: str) -> bool:
+    parts = parse.urlsplit(str(url or ''))
+    path = parse.unquote(parts.path or '').casefold()
+    for segment in (piece for piece in path.split('/') if piece):
+        for marker in CONTACT_LOCATOR_PATH_MARKERS:
+            if (
+                segment == marker
+                or segment.startswith(marker + '-')
+                or segment.startswith(marker + '_')
+                or segment.startswith(marker + '.')
+            ):
+                return True
+    return False
+
+
+def _website_bucket_primary_url(bucket: dict[str, Any]) -> str:
+    return bucket.get('contact_url') or bucket.get('fallback_url') or bucket.get('url') or ''
 
 
 def _website_priority(sources: set[str]) -> int:
@@ -1405,6 +1495,19 @@ def _blocked_locator_host(hostname: str) -> bool:
         if '.'.join(parts[index:]) in SKIPPED_BRAVE_HOSTS:
             return True
     return False
+
+
+def _unique_crawl_urls(urls: list[str]) -> list[str]:
+    seen: set[str] = set()
+    result = []
+    for url in urls:
+        raw = str(url or '').strip()
+        host = crawl_host_key(parse.urlsplit(raw).hostname or '')
+        if not raw or not host or raw in seen or _blocked_locator_host(host):
+            continue
+        seen.add(raw)
+        result.append(raw)
+    return result
 
 
 def _unique_domains(urls: list[str]) -> list[str]:
