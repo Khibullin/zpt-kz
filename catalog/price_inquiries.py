@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 from django.core import signing
 from django.core.mail import send_mail
-from django.db import transaction
+from django.db import transaction, close_old_connections, connections
 from django.http import Http404, JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -81,7 +81,7 @@ def product_price_inquiry(request, product_id):
                     from .templatetags.product_extras import public_product_url
                     data = form.cleaned_data
                     with transaction.atomic():
-                        inquiry, _ = ProductPriceInquiry.objects.get_or_create(
+                        inquiry, created = ProductPriceInquiry.objects.get_or_create(
                             submission_id=submission_id, defaults={
                                 'product': product, 'product_title': product.title,
                                 'article': product.article, 'seller_name': product.seller_name,
@@ -91,6 +91,8 @@ def product_price_inquiry(request, product_id):
                                 'session_key': request.session.session_key,
                                 'consent_version': CONSENT_VERSION,
                             })
+                        if created:
+                            transaction.on_commit(lambda: notify_price_inquiry(inquiry.pk))
                     return _success(request, inquiry, ajax)
         if ajax:
             return JsonResponse({'success': False, 'errors': form.errors.get_json_data()}, status=400)
@@ -114,10 +116,32 @@ def _success(request, inquiry, ajax):
     return render(request, 'catalog/price_inquiry_page.html', {'inquiry_success': message})
 
 
-def process_price_inquiry_emails(limit=10):
+def notify_price_inquiry(inquiry_id):
+    # Use the web process's existing transactional SMTP credentials.
+    # The dispatch worker is intentionally not used for these owner-only messages.
+    if not getattr(settings, 'REQUEST_OWNER_EMAIL_ASYNC', True):
+        return process_price_inquiry_emails(inquiry_id=inquiry_id)
+    try:
+        from core.services.operations_email_notifications import _get_owner_email_executor
+        _get_owner_email_executor().submit(_price_inquiry_email_job, inquiry_id)
+    except Exception as exc:
+        logger.warning('Price inquiry mail enqueue failed: id=%s type=%s', inquiry_id, type(exc).__name__)
+
+
+def _price_inquiry_email_job(inquiry_id):
+    close_old_connections()
+    try:
+        return process_price_inquiry_emails(inquiry_id=inquiry_id)
+    finally:
+        connections.close_all()
+
+
+def process_price_inquiry_emails(limit=10, *, inquiry_id=None):
     """Claim each queued message once. Uncertain SMTP failures require staff review."""
-    ids = list(ProductPriceInquiry.objects.filter(mail_status='pending')
-        .order_by('created_at').values_list('pk', flat=True)[:limit])
+    queued = ProductPriceInquiry.objects.filter(mail_status='pending')
+    if inquiry_id is not None:
+        queued = queued.filter(pk=inquiry_id)
+    ids = list(queued.order_by('created_at').values_list('pk', flat=True)[:limit])
     sent = 0
     for pk in ids:
         if not ProductPriceInquiry.objects.filter(pk=pk, mail_status='pending').update(mail_status='sending'):
@@ -140,7 +164,8 @@ def process_price_inquiry_emails(limit=10):
                 raise RuntimeError('Email backend did not accept message')
         except Exception as exc:
             ProductPriceInquiry.objects.filter(pk=pk, mail_status='sending').update(mail_status='failed')
-            logger.warning('Price inquiry mail failed: id=%s type=%s', pk, type(exc).__name__)
+            logger.warning('Price inquiry mail failed: id=%s type=%s smtp_code=%s password_configured=%s',
+                pk, type(exc).__name__, getattr(exc, 'smtp_code', 'n/a'), bool(settings.EMAIL_HOST_PASSWORD))
         else:
             ProductPriceInquiry.objects.filter(pk=pk, mail_status='sending').update(
                 mail_status='sent', mail_sent_at=timezone.now())

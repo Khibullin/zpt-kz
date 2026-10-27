@@ -108,3 +108,26 @@ class ProductPriceInquiryTests(TestCase):
         response = strict.post(self.url, {**data, 'csrfmiddlewaretoken': token})
         self.assertContains(response, 'Запрос принят')
         self.assertEqual(ProductPriceInquiry.objects.count(), 1)
+
+    @override_settings(REQUEST_OWNER_EMAIL_ASYNC=False)
+    def test_committed_submission_uses_web_email_once(self):
+        data = self.payload()
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(mail.outbox), 1)
+        self.assertEqual(mail.outbox[0].to, ['rkhaibullin@gmail.com'])
+        with self.captureOnCommitCallbacks(execute=True):
+            self.client.post(self.url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+        self.assertEqual(len(mail.outbox), 1)
+
+    @override_settings(REQUEST_OWNER_EMAIL_ASYNC=True)
+    @patch('core.services.operations_email_notifications._get_owner_email_executor')
+    def test_async_submission_is_queued_after_commit(self, executor):
+        data = self.payload()
+        with self.captureOnCommitCallbacks(execute=True):
+            response = self.client.post(self.url, data, HTTP_X_REQUESTED_WITH='XMLHttpRequest')
+            executor.return_value.submit.assert_not_called()
+        self.assertEqual(response.status_code, 200)
+        executor.return_value.submit.assert_called_once()
+        self.assertEqual(len(mail.outbox), 0)
