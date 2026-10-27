@@ -1672,7 +1672,11 @@ class ProductPriceInquiryAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False
 
-    @admin.action(description='Повторить отправку писем с ошибкой', permissions=['change'])
+    @admin.action(description='После проверки повторить неотправленные письма', permissions=['change'])
     def retry_failed_email(self, request, queryset):
-        count = queryset.filter(mail_status='failed').update(mail_status='pending')
-        self.message_user(request, f'В очередь возвращено писем: {count}')
+        from catalog.price_inquiries import notify_price_inquiry
+        ids = list(queryset.filter(mail_status__in=['failed', 'pending']).values_list('pk', flat=True))
+        ProductPriceInquiry.objects.filter(pk__in=ids).update(mail_status='pending')
+        for pk in ids:
+            notify_price_inquiry(pk)
+        self.message_user(request, f'В очередь возвращено писем: {len(ids)}')
