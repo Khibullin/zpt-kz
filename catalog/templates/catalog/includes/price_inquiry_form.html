@@ -1,0 +1,21 @@
+{% load product_extras %}
+<div class="zpt-price-form">
+  <div class="zpt-price-heading"><span class="zpt-price-brand">ZPT<span>.KZ</span></span><button type="button" class="zpt-price-close" data-price-close aria-label="Закрыть">×</button></div>
+  <h2 id="zpt-price-title">Узнать цену</h2>
+  <p class="zpt-price-intro">Оставьте контакты — мы уточним цену и свяжемся с вами</p>
+  <div class="zpt-price-product">
+    {% if inquiry_product.main_image %}<img src="{{ inquiry_product.main_image.url }}" alt="" loading="lazy">{% endif %}
+    <div><strong>{{ inquiry_product|public_card_title }}</strong>{% if inquiry_product.article %}<span>Артикул: {{ inquiry_product.article }}</span>{% endif %}<span>Продавец: {{ inquiry_product.seller_name }}</span></div>
+  </div>
+  <form method="post" action="{% url 'product_price_inquiry' inquiry_product.pk %}" data-price-form>
+    {% csrf_token %}{{ inquiry_form.submission }}{{ inquiry_form.website }}
+    <div role="alert" class="zpt-price-errors" data-price-errors>{{ inquiry_form.non_field_errors }}</div>
+    {% for field in inquiry_form.visible_fields %}{% if field.name != 'consent' %}
+      <div class="zpt-price-field"><label for="{{ field.id_for_label }}">{{ field.label }}{% if field.field.required %} <span>*</span>{% endif %}</label>{{ field }}<div data-price-error="{{ field.name }}" class="zpt-price-error">{{ field.errors }}</div></div>
+    {% endif %}{% endfor %}
+    <div class="zpt-price-consent">{{ inquiry_form.consent }}<label for="{{ inquiry_form.consent.id_for_label }}">Согласен на <a href="{% url 'privacy' %}" target="_blank" rel="noopener">обработку персональных данных</a></label></div>
+    <div data-price-error="consent" class="zpt-price-error">{{ inquiry_form.consent.errors }}</div>
+    <button type="submit" class="zpt-price-submit">Отправить запрос</button>
+    <p class="zpt-price-note">Мы свяжемся с вами по указанному телефону</p>
+  </form>
+</div>

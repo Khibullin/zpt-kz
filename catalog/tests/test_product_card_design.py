@@ -66,14 +66,14 @@ class ProductCardDesignTests(TestCase):
         detail_controls = render_to_string('catalog/includes/product_buy_controls.html', {'product': product})
         self.assertIn('Переход на Kaspi для этого товара уточняется', detail_controls)
 
-    def test_request_price_keeps_contact_route_and_falls_back_without_phone(self):
+    def test_request_price_opens_owner_form_without_changing_cart(self):
         product = self.make_product(price=None, price_on_request=True)
         html = self.render_card(product)
         self.assertIn('Узнать цену', html)
-        self.assertIn('?src=card', html)
+        self.assertIn('data-price-inquiry', html)
         self.assertNotIn('data-cart-add', html)
         product.whatsapp_number = 'invalid'
-        self.assertIn('product-detail-link', self.render_card(product))
+        self.assertIn('data-price-inquiry', self.render_card(product))
 
     def test_real_image_and_article_survive_with_safe_missing_image_placeholder(self):
         product = self.make_product(main_image='products/original.jpg')

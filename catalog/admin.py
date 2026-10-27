@@ -1650,3 +1650,29 @@ class MaintenanceKitCarRequestAdmin(admin.ModelAdmin):
     def mark_new(self, request, queryset):
         updated = queryset.update(status=MaintenanceKitCarRequest.STATUS_NEW)
         self.message_user(request, f'Вернуто в «Новая»: {updated}.')
+
+
+from .models import ProductPriceInquiry
+
+
+@admin.register(ProductPriceInquiry)
+class ProductPriceInquiryAdmin(admin.ModelAdmin):
+    list_display = ('id', 'created_at', 'product_title', 'seller_name', 'name', 'phone', 'quantity', 'mail_status')
+    list_filter = ('mail_status', 'created_at')
+    search_fields = ('product_title', 'article', 'name', 'phone', 'seller_name')
+    readonly_fields = ('product', 'submission_id', 'product_title', 'article', 'seller_name',
+        'product_url', 'name', 'phone', 'quantity', 'comment', 'consent_version',
+        'created_at', 'mail_status', 'mail_sent_at')
+    exclude = ('session_key',)
+    actions = ('retry_failed_email',)
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    @admin.action(description='Повторить отправку писем с ошибкой', permissions=['change'])
+    def retry_failed_email(self, request, queryset):
+        count = queryset.filter(mail_status='failed').update(mail_status='pending')
+        self.message_user(request, f'В очередь возвращено писем: {count}')

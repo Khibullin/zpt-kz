@@ -1,0 +1,4 @@
+{% extends 'base.html' %}{% load static %}
+{% block title %}Узнать цену — ZPT.KZ{% endblock %}
+{% block extra_css %}<link rel="stylesheet" href="{% static 'css/price-inquiry.css' %}?v=20261027a">{% endblock %}
+{% block content %}<main class="zpt-price-page">{% if inquiry_success %}<h1>Запрос принят</h1><p>{{ inquiry_success }}</p><a href="{% url 'catalog_list' %}">Вернуться к товарам</a>{% else %}{% include 'catalog/includes/price_inquiry_form.html' %}{% endif %}</main>{% endblock %}

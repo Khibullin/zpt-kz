@@ -2338,3 +2338,32 @@ class MaintenanceKitCarRequest(models.Model):
 
     def __str__(self):
         return f'{self.brand} {self.model} {self.year} {self.engine}'.strip()
+
+
+class ProductPriceInquiry(models.Model):
+    product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL,
+        related_name='price_inquiries', verbose_name='Товар')
+    submission_id = models.UUIDField(unique=True, editable=False)
+    product_title = models.CharField(max_length=255, verbose_name='Название товара')
+    article = models.CharField(max_length=100, blank=True, verbose_name='Артикул')
+    seller_name = models.CharField(max_length=255, blank=True, verbose_name='Продавец')
+    product_url = models.URLField(max_length=1000, verbose_name='Карточка товара')
+    name = models.CharField(max_length=120, verbose_name='Покупатель')
+    phone = models.CharField(max_length=30, verbose_name='Телефон')
+    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
+    comment = models.TextField(blank=True, verbose_name='Комментарий')
+    consent_version = models.CharField(max_length=60, verbose_name='Версия согласия')
+    session_key = models.CharField(max_length=40, editable=False)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Получен')
+    mail_status = models.CharField(max_length=12, default='pending', db_index=True,
+        choices=[('pending', 'Ожидает отправки'), ('sending', 'Отправляется'),
+                 ('sent', 'Принят почтовым сервером'), ('failed', 'Ошибка отправки')], verbose_name='Письмо владельцу')
+    mail_sent_at = models.DateTimeField(null=True, blank=True, verbose_name='Письмо отправлено')
+
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = 'Запрос цены товара'
+        verbose_name_plural = 'Запросы цен товаров'
+
+    def __str__(self):
+        return f'№{self.pk} — {self.product_title}'
