@@ -43,6 +43,7 @@ from catalog.views_zpt_guide import zpt_guide_view
 from core.manual_short_link_views import short_link
 
 urlpatterns = [
+    path('office/procurement/', include('procurement.urls')),
     path('s/<str:code>/', short_link, name='manual_short_request'),
     path('t/<str:code>/', short_link, {'telegram': True}, name='manual_short_telegram'),
     path('connect/', include('core.connection_urls')),

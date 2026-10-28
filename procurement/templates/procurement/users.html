@@ -1,0 +1,12 @@
+{% extends 'procurement/base.html' %}{% block content %}<header>
+<h1>Пользователи и роли</h1>
+</header>
+<section class="panel">
+<p>Пользователь: просмотр, личные расчёты и закупки. Менеджер: дополнительно импорт, проверка совпадений и черновики Kaspi. Администратор: дополнительно назначение ролей. Глобальные права ZPT.KZ не меняются.</p>
+<form class="actions" method="post">{% csrf_token %}<select name="user_id" required aria-label="Пользователь">
+<option value="">Выберите учётную запись</option>{% for account in accounts %}<option value="{{ account.pk }}">{{ account.get_username }}</option>{% endfor %}</select>
+<select name="role" required aria-label="Роль">{% for value,label in roles %}<option value="{{ value }}">{{ label }}</option>{% endfor %}</select>
+<button class="primary">Назначить роль</button>
+</form>
+<ul>{% for membership in members %}<li>{{ membership.user.get_username }} — {{ membership.get_role_display }}{% if not membership.active %} (отключён){% endif %}</li>{% endfor %}</ul>
+</section>{% endblock %}

@@ -1,0 +1,7 @@
+{% extends 'procurement/base.html' %}{% block content %}<section class="panel">
+<h1>Вход в кабинет закупок</h1>
+<p>Вход по учётной записи ZPT.KZ. Доступ к закупкам назначает администратор.</p>
+<form class="form" method="post">{% csrf_token %}{{ form.as_p }}<input type="hidden" name="next" value="{{ next }}">
+<button class="primary">Войти</button>
+</form>
+</section>{% endblock %}

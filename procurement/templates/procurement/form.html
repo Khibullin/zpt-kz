@@ -1,0 +1,9 @@
+{% extends 'procurement/base.html' %}{% block content %}<header>
+<h1>{{ title }}</h1>
+<a href="{% url 'procurement:dashboard' %}">← Подбор товаров</a>
+</header>
+<section class="panel">
+<p class="help">{{ help }}</p>
+<form class="form" method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button class="primary">Сохранить</button>
+</form>
+</section>{% endblock %}
