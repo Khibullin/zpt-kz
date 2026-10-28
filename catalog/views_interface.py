@@ -46,10 +46,20 @@ def interface_section(request, section):
     if section not in config:
         raise Http404
     title, choices = config[section]
-    return render(request, 'catalog/interface/section.html', {
+    choices = [{'key': key, 'url': url, 'icon': icon} for key, url, icon in choices]
+    if section == 'account':
+        from procurement.permissions import workspace_role
+        if workspace_role(request.user) is not None:
+            choices.append({'label': 'Кабинет закупок', 'url': reverse('procurement:dashboard'), 'icon': 'store'})
+    response = render(request, 'catalog/interface/section.html', {
         'section_title': title,
-        'choices': [{'key': key, 'url': url, 'icon': icon} for key, url, icon in choices],
+        'choices': choices,
     })
+    if section == 'account':
+        from django.utils.cache import patch_vary_headers
+        response['Cache-Control'] = 'private, no-store'
+        patch_vary_headers(response, ('Cookie',))
+    return response
 
 
 def consumables_landing(request):

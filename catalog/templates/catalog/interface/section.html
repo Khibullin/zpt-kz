@@ -2,4 +2,4 @@
 {% block title %}ZPT.KZ{% endblock %}
 {% block interface_content %}<nav class="breadcrumbs"><a href="/">{% ui 'home' %}</a>{% ui_icon 'chevron' %}<span>{% ui section_title %}</span></nav>
 <h1 class="page-heading">{% ui section_title %}</h1><p class="lead">{% ui 'chooseAction' %}</p>
-<div class="choices">{% for choice in choices %}<a class="choice" href="{{ choice.url }}">{% ui_icon choice.icon %}<div><h3>{% ui choice.key %}</h3>{% if choice.description %}<p>{% ui choice.description %}</p>{% endif %}</div></a>{% endfor %}</div><a class="btn secondary" href="/">{% ui_icon 'back' %}{% ui 'toHome' %}</a>{% endblock %}
+<div class="choices">{% for choice in choices %}<a class="choice" href="{{ choice.url }}">{% ui_icon choice.icon %}<div><h3>{% if choice.label %}{{ choice.label }}{% else %}{% ui choice.key %}{% endif %}</h3>{% if choice.description %}<p>{% ui choice.description %}</p>{% endif %}</div></a>{% endfor %}</div><a class="btn secondary" href="/">{% ui_icon 'back' %}{% ui 'toHome' %}</a>{% endblock %}

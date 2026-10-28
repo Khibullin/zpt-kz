@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="ru">
-<head>
+<head><meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="no-referrer">
 <meta charset="utf-8">
 {% if request.GET.compact %}<base target="_top">{% endif %}<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{% block title %}Закупки и продажи · ZPT.KZ{% endblock %}</title>
@@ -9,13 +9,13 @@
 </style>
 </head>
 <body>
-{% if not request.GET.compact %}<aside>
+{% if can_access_procurement and not request.GET.compact %}<aside>
 <a class="logo" href="{% url 'procurement:dashboard' %}">ZPT<span>.KZ</span>
 </a>
 <a href="{% url 'procurement:dashboard' %}">Подбор товаров</a><a href="{% url 'procurement:dashboard' %}?favorites=1">Избранное</a>
 <a href="{% url 'procurement:basket' %}">Список закупки · {{ basket_count }}</a>{% if can_manage %}<a href="{% url 'procurement:upload' %}">Загрузка прайсов</a>{% endif %}<a href="{% url 'procurement:settings' %}">Алгоритм и настройки</a>{% if role == 'admin' %}<a href="{% url 'procurement:users' %}">Пользователи и роли</a>{% endif %}<div class="role">{{ request.user.get_username }}<br>{% if role == 'admin' %}Администратор{% elif role == 'sales' %}Менеджер-продажник{% else %}Пользователь{% endif %}</div>{% if request.user.is_authenticated %}<form method="post" action="{% url 'procurement:logout' %}">{% csrf_token %}<button>Выйти</button>
 </form>{% endif %}</aside>{% endif %}
-<main{% if request.GET.compact %} style="margin-left:0;padding:16px"{% endif %}>{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>
+<main{% if request.GET.compact or not can_access_procurement %} style="margin-left:0;padding:16px"{% endif %}>{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>
 </main>
 </body>
 </html>

@@ -1,11 +1,12 @@
 from django.urls import path
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LogoutView
 from . import views
+from .auth import WorkspaceLoginView
 
 app_name = 'procurement'
 urlpatterns = [
     path('', views.dashboard, name='dashboard'),
-    path('login/', LoginView.as_view(template_name='procurement/login.html', next_page='/office/procurement/'), name='login'),
+    path('login/', WorkspaceLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='/office/procurement/login/'), name='logout'),
     path('settings/', views.settings, name='settings'),
     path('upload/', views.upload, name='upload'),

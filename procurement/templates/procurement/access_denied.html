@@ -1,0 +1,9 @@
+{% extends 'procurement/base.html' %}
+{% block content %}
+<section class="panel">
+<h1>Доступ к кабинету закупок не выдан</h1>
+<p>Вы вошли в ZPT.KZ, но у вашей учётной записи нет активной роли в кабинете закупок. Доступ выдаёт администратор.</p>
+<a class="button" href="/">На главную ZPT.KZ</a>
+{% if request.user.is_authenticated %}<form method="post" action="{% url 'procurement:logout' %}" style="margin-top:16px">{% csrf_token %}<button>Выйти и войти другой учётной записью</button></form>{% endif %}
+</section>
+{% endblock %}
