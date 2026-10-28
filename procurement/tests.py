@@ -467,15 +467,15 @@ class WorkspaceTests(TestCase):
         Selection.objects.create(user=self.user, offer=self.offer, quantity=quantity)
         response = self.client.get(self.url('purchase_confirm', supplier_id=self.supplier.pk))
         form = response.context['form']
-        return {'order_number': 'OMEGA-123', 'confirmed': 'on', 'request_key': str(form['request_key'].value()), 'selection_token': form['selection_token'].value()}
+        return {'supplier_order_number': '', 'comment': '', 'request_key': str(form['request_key'].value()), 'selection_token': form['selection_token'].value()}
 
-    def test_basket_has_clear_supplier_and_copy_actions(self):
+    def test_basket_creates_internal_orders_without_external_actions(self):
         self.prepare_purchase()
         response = self.client.get(self.url('basket'))
-        for text in ('Перейти к заказу у Omega', 'Скопировать заказ', 'Отметить как заказанное', 'Оформленные заказы'):
-            self.assertContains(response, text)
-        self.assertContains(response, 'https://omega-auto-parts.kz/transmissiya/test-part')
-        self.assertContains(response, 'EEP · 00123 — Деталь — 2 шт.')
+        self.assertContains(response, 'Создать закупочный заказ')
+        self.assertContains(response, 'Закупочные заказы ZPT.KZ')
+        for text in ('Перейти к заказу у Omega', 'Скопировать заказ', 'Отметить как заказанное', 'Скачать CSV'):
+            self.assertNotContains(response, text)
 
     def test_purchase_record_is_private_snapshot_and_repeat_is_idempotent(self):
         from .models import PurchaseOrder
@@ -512,19 +512,84 @@ class WorkspaceTests(TestCase):
         data['selection_token'] = 'tampered'
         self.assertEqual(self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data).status_code, 400)
 
-    def test_purchase_requires_confirmation_and_status_is_audited(self):
+    def edit_purchase_data(self, order, **overrides):
+        data = {field: getattr(order, field) for field in ('status', 'supplier_order_number', 'invoice_number', 'waybill_number', 'comment', 'version')}
+        data.update({'lines-TOTAL_FORMS': str(len(order.items)), 'lines-INITIAL_FORMS': str(len(order.items)), 'lines-MIN_NUM_FORMS': '0', 'lines-MAX_NUM_FORMS': '20000'})
+        for index, item in enumerate(order.items):
+            data[f'lines-{index}-quantity'] = item['quantity']
+            data[f'lines-{index}-cost'] = item['cost']
+        data.update(overrides)
+        return data
+
+    def create_internal_purchase(self):
         from .models import PurchaseOrder
         data = self.prepare_purchase()
-        invalid = dict(data, confirmed='')
-        self.assertEqual(self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), invalid).status_code, 400)
-        self.assertFalse(PurchaseOrder.objects.exists())
         self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data)
-        order = PurchaseOrder.objects.get()
-        self.assertContains(self.client.get(self.url('purchase_detail', pk=order.pk)), 'Заказано')
+        return PurchaseOrder.objects.get(user=self.user)
+
+    def test_internal_number_draft_and_optional_supplier_metadata(self):
+        order = self.create_internal_purchase()
+        self.assertEqual(order.order_number, f'ЗК-{order.pk:06d}')
+        self.assertEqual(order.status, 'draft')
+        self.assertEqual(order.supplier_order_number, '')
+        self.assertEqual(order.original_items, order.items)
+        self.assertContains(self.client.get(self.url('purchase_detail', pk=order.pk)), 'Выгрузить заказ в Excel')
+        response = self.client.post(self.url('purchase_detail', pk=order.pk), self.edit_purchase_data(order, status='confirmed', supplier_order_number='OMG-55', invoice_number='INV-17', comment='Подтвердили наличие'))
+        self.assertEqual(response.status_code, 302)
         order.refresh_from_db()
-        self.assertEqual(order.status, 'ordered')
-        self.client.post(self.url('purchase_detail', pk=order.pk), {'status':'received'})
+        self.assertEqual(order.status, 'confirmed')
+        self.assertEqual(order.supplier_order_number, 'OMG-55')
+        self.assertEqual(order.invoice_number, 'INV-17')
+        self.assertTrue(Activity.objects.filter(action='purchase_updated').exists())
+
+    def test_quantity_price_edits_keep_originals_and_reject_stale_version(self):
+        order = self.create_internal_purchase()
+        old = self.edit_purchase_data(order, **{'lines-0-quantity': '3', 'lines-0-cost': '1500.00'})
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), old).status_code, 302)
         order.refresh_from_db()
-        self.assertEqual(order.status, 'received')
-        self.assertTrue(Activity.objects.filter(action='purchase_status', user=self.user).exists())
-        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), {'status':'invalid'}).status_code, 400)
+        self.assertEqual(order.total, Decimal(4500))
+        self.assertEqual(order.original_items[0]['quantity'], 2)
+        self.assertEqual(order.original_items[0]['cost'], '1000.00')
+        self.assertEqual(order.estimated_total, Decimal(2000))
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), old).status_code, 400)
+        invalid = self.edit_purchase_data(order, **{'lines-0-cost': '-1'})
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), invalid).status_code, 400)
+        order.refresh_from_db()
+        self.assertEqual(order.total, Decimal(4500))
+
+    def test_excel_is_private_uses_current_values_and_preserves_articles(self):
+        from openpyxl import load_workbook
+        order = self.create_internal_purchase()
+        order.items[0]['name'] = '=HYPERLINK("https://example.com")'
+        order.save(update_fields=['items'])
+        response = self.client.get(self.url('purchase_excel', pk=order.pk))
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('.xlsx', response['Content-Disposition'])
+        book = load_workbook(BytesIO(b''.join(response.streaming_content)), data_only=False)
+        sheet = book['Заказ']
+        self.assertEqual(sheet['B8'].value, '00123')
+        self.assertEqual(sheet['B8'].data_type, 's')
+        self.assertEqual(sheet['D8'].data_type, 's')
+        self.assertEqual(sheet['E8'].value, 2)
+        self.assertEqual(sheet['F8'].value, 1000)
+        self.assertEqual(sheet['G8'].value, '=E8*F8')
+        self.assertIn(order.order_number, sheet['A1'].value)
+        self.login(self.other)
+        self.assertEqual(self.client.get(self.url('purchase_excel', pk=order.pk)).status_code, 404)
+
+    def test_documents_are_private_and_invalid_upload_rolls_back_edits(self):
+        from .models import PurchaseDocument
+        order = self.create_internal_purchase()
+        data = self.edit_purchase_data(order, invoice_file=SimpleUploadedFile('invoice.pdf', b'%PDF-test'))
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), data).status_code, 302)
+        doc = PurchaseDocument.objects.get(order=order)
+        response = self.client.get(self.url('purchase_document', pk=order.pk, document_id=doc.pk))
+        self.assertEqual(b''.join(response.streaming_content), b'%PDF-test')
+        self.assertIn('attachment', response['Content-Disposition'])
+        order.refresh_from_db()
+        bad = self.edit_purchase_data(order, status='paid', invoice_file=SimpleUploadedFile('unsafe.html', b'<script>'))
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), bad).status_code, 400)
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'draft')
+        self.login(self.other)
+        self.assertEqual(self.client.get(self.url('purchase_document', pk=order.pk, document_id=doc.pk)).status_code, 404)
