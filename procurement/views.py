@@ -41,14 +41,23 @@ def context(request, **extra):
 
 
 def filtered_rows(request, preferences, filters):
-    query = Offer.objects.select_related('supplier').all()
+    query = Offer.objects.select_related('supplier').prefetch_related('fitments').all()
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
     if filters.get('supplier'):
         query = query.filter(supplier=filters['supplier'])
     if filters.get('category'):
-        query = query.filter(category=filters['category'])
+        query = query.filter(category__in=['Тех обслуживание и сервис', 'Техобслуживание и сервис']) if filters['category'] == 'Тех обслуживание и сервис' else query.filter(category=filters['category'])
+    fitment_filters = {'fitments__verified': True}
+    if filters.get('vehicle_make'):
+        fitment_filters['fitments__make'] = filters['vehicle_make']
+    if filters.get('vehicle_model'):
+        fitment_filters['fitments__model'] = filters['vehicle_model']
+    if filters.get('vehicle_make') or filters.get('vehicle_model') or filters.get('fitment') == 'verified':
+        query = query.filter(**fitment_filters).distinct()
+    if filters.get('fitment') == 'unknown':
+        query = query.exclude(fitments__verified=True)
     if filters.get('max_cost') is not None:
         query = query.filter(cost__lte=filters['max_cost'])
     if filters.get('verified'):
@@ -99,7 +108,7 @@ def dashboard(request):
         return response
     page = Paginator(rows, 40).get_page(request.GET.get('page'))
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
-                  filter_form=form, basic_filters=[form[name] for name in ('supplier', 'category', 'availability', 'demand')],
+                  filter_form=form, page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'difference'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
 

@@ -104,3 +104,20 @@ class Favorite(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=['user', 'offer'], name='procurement_user_favorite')]
+
+
+class VehicleFitment(models.Model):
+    """One sourced make/model pair; never infer fitment from the part brand."""
+    offer = models.ForeignKey(Offer, related_name='fitments', on_delete=models.CASCADE)
+    make = models.CharField('Марка автомобиля', max_length=100)
+    model = models.CharField('Модель автомобиля', max_length=150)
+    details = models.CharField('Поколение, годы, двигатель, ограничения', max_length=500, blank=True)
+    source_url = models.URLField('Источник применимости')
+    verified = models.BooleanField('Применимость проверена', default=False)
+
+    class Meta:
+        ordering = ['make', 'model', 'pk']
+        constraints = [models.UniqueConstraint(fields=['offer', 'make', 'model', 'details'], name='procurement_vehicle_fitment')]
+
+    def __str__(self):
+        return f'{self.make} {self.model} {self.details}'.strip()

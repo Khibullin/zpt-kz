@@ -22,6 +22,7 @@
 {% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
 </div>
 <details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, наценка и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
+<p class="muted">Категории Omega. Марки и модели доступны по проверенной применимости; незаполненные сведения не угадываются по названию детали.</p>
 <div class="actions" style="margin:12px 0 18px"><button>Применить фильтры</button>
 <a class="button" href="{% url 'procurement:dashboard' %}">Сбросить</a>
 </div>
@@ -54,7 +55,7 @@
 <strong>{{ row.offer.name }}</strong>
 </a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
-<small>{{ row.offer.applicability|default:'Применимость не проверена'|truncatechars:100 }}</small>
+{% include 'procurement/fitments.html' with offer=row.offer compact=True %}
 </td>
 <td>{{ row.offer.supplier.name }}<small>{{ row.offer.stock|default:'Остаток неизвестен' }}</small>
 <small>Цена: {{ row.offer.checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</small>
@@ -91,15 +92,25 @@
 </tr>{% endfor %}</tbody>
 </table>
 </div>
-<nav class="pagination" aria-label="Страницы">{% if page.has_previous %}<a href="{% querystring page=page.previous_page_number download=None %}">← Назад</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="{% querystring page=page.next_page_number download=None %}">Далее →</a>{% endif %}</nav>
+<nav class="pagination" aria-label="Страницы">
+{% if page.has_previous %}<a href="{% querystring page=1 download=None %}">Первая</a><a href="{% querystring page=page.previous_page_number download=None %}">← Назад</a>{% endif %}
+{% for number in page_numbers %}{% if number == page.paginator.ELLIPSIS %}<span>{{ number }}</span>{% elif number == page.number %}<strong aria-current="page">{{ number }}</strong>{% else %}<a href="{% querystring page=number download=None %}" aria-label="Страница {{ number }}">{{ number }}</a>{% endif %}{% endfor %}
+<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>
+{% if page.has_next %}<a href="{% querystring page=page.next_page_number download=None %}">Далее →</a><a href="{% querystring page=page.paginator.num_pages download=None %}">Последняя →</a>{% endif %}
+<form method="get" class="page-jump">{% for key,value in request.GET.items %}{% if key != 'page' and key != 'download' %}<input type="hidden" name="{{ key }}" value="{{ value }}">{% endif %}{% endfor %}<label>Страница <input type="number" name="page" min="1" max="{{ page.paginator.num_pages }}" value="{{ page.number }}" required aria-label="Номер страницы"></label><button>Перейти</button></form>
+</nav>
 <dialog id="product-drawer" aria-label="Быстрый просмотр товара">
 <form method="dialog"><button autofocus>Закрыть просмотр</button></form>
 <iframe title="Карточка товара" id="product-frame"></iframe>
 </dialog>
 <style>
-.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.filter-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#536b82}.filter-field input[type=checkbox]{align-self:flex-start}.filter-field input,.filter-field select{width:100%;min-width:0}.filter-field input[type=checkbox]{width:auto}.errorlist{color:#a32b20}summary{cursor:pointer;padding:7px 0}#product-drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(1080px,95vw);max-width:100vw;height:100dvh;max-height:100dvh;border:1px solid #dbe4ee;padding:12px;background:#f3f7fb}#product-drawer::backdrop{background:#142e4d77}#product-frame{width:100%;height:calc(100% - 54px);border:0;margin-top:12px}.quick-view{margin-bottom:7px}td:last-child{min-width:115px}@media(max-width:950px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#product-drawer{width:100vw}}
+.pagination{display:flex;flex-wrap:wrap;align-items:center;gap:14px}.page-jump{display:flex;align-items:center;gap:8px}.page-jump input[type=number]{width:80px}.pagination [aria-current]{padding:8px 12px;background:#e3edf8;border-radius:5px}.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.filter-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#536b82}.filter-field input[type=checkbox]{align-self:flex-start}.filter-field input,.filter-field select{width:100%;min-width:0}.filter-field input[type=checkbox]{width:auto}.errorlist{color:#a32b20}summary{cursor:pointer;padding:7px 0}#product-drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(1080px,95vw);max-width:100vw;height:100dvh;max-height:100dvh;border:1px solid #dbe4ee;padding:12px;background:#f3f7fb}#product-drawer::backdrop{background:#142e4d77}#product-frame{width:100%;height:calc(100% - 54px);border:0;margin-top:12px}.quick-view{margin-bottom:7px}td:last-child{min-width:115px}@media(max-width:950px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#product-drawer{width:100vw}}
 </style>
+{{ filter_form.vehicle_models|json_script:"vehicle-model-options" }}
 <script>
+const makeSelect=document.getElementById("id_vehicle_make"),modelSelect=document.getElementById("id_vehicle_model");
+const modelOptions=JSON.parse(document.getElementById("vehicle-model-options").textContent);
+makeSelect.addEventListener("change",()=>{modelSelect.replaceChildren(new Option(makeSelect.value?"Все модели":"Сначала выберите марку",""));(modelOptions[makeSelect.value]||[]).forEach(model=>modelSelect.add(new Option(model,model)));});
 const drawer=document.getElementById('product-drawer');const productFrame=document.getElementById('product-frame');
 document.querySelectorAll('.quick-view').forEach(button=>button.addEventListener('click',()=>{productFrame.src=button.dataset.url;drawer.showModal();}));
 drawer.addEventListener('close',()=>productFrame.removeAttribute('src'));

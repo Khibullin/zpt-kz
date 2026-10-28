@@ -9,7 +9,7 @@
 <div class="grid">
 <section class="panel">{% if offer.photo_url %}<img class="photo" src="{{ offer.photo_url }}" alt="{{ offer.name }}" referrerpolicy="no-referrer">{% else %}<div class="photo placeholder">Нет фотографии</div>{% endif %}<h2>Описание и характеристики</h2>
 <p>{{ offer.description|default:'Описание отсутствует. Добавьте проверенные сведения в черновик.' }}</p>
-<p>Применимость: {{ offer.applicability|default:'Не проверена' }}</p>{% for name,value in offer.characteristics.items %}<p>{{ name }}: {{ value }}</p>{% endfor %}<h2>Спрос</h2>
+<h3>Применимость</h3>{% include 'procurement/fitments.html' %}{% for name,value in offer.characteristics.items %}<p>{{ name }}: {{ value }}</p>{% endfor %}<h2>Спрос</h2>
 <p>
 <span class="badge">{{ analysis.signal }}</span>
 </p>
