@@ -8,7 +8,7 @@
 </div>
 </header>
 <div class="modes">
-<a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница в тенге, до расходов</small>
+<a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница после комиссии, до прочих расходов</small>
 </a>
 <a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Прибыль + проверенное совпадение + признаки спроса</small>
 </a>
@@ -21,7 +21,7 @@
 <div class="filter-grid">
 {% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
 </div>
-<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, наценка и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
+<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
 <p class="muted">Категории Omega. Марки и модели доступны по проверенной применимости; незаполненные сведения не угадываются по названию детали.</p>
 <div class="actions" style="margin:12px 0 18px"><button>Применить фильтры</button>
 <a class="button" href="{% url 'procurement:dashboard' %}">Сбросить</a>
@@ -34,7 +34,8 @@
 <a class="button" href="{% querystring favorites='1' page=None download=None %}">Избранное</a>
 <a class="button" href="{% querystring download='csv' page=None %}">Скачать подборку CSV</a>
 </div>
-{% if preferences.commission == None or preferences.expenses == None %}<div class="notice">Прибыль пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию и расходы</a>. Разница цен не является чистой прибылью.</div>{% endif %}
+<p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Прочие расходы на единицу: {% if preferences.expenses == None %}не заданы{% else %}{{ preferences.expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{% url 'procurement:settings' %}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
+{% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{% url 'procurement:settings' %}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
 <p class="muted">Найдено {{ total }} · Сведения о спросе и цены старше 7 дней не участвуют в рекомендациях. Новое совпадение Kaspi требует ручной проверки.</p>
 <div class="tablewrap">
 <table>
@@ -44,7 +45,7 @@
 <th>Поставщик</th>
 <th>Закупка, ₸</th>
 <th>Kaspi, ₸</th>
-<th>Разница, ₸ / наценка</th>
+<th>Разница после комиссии, ₸ / доходность</th>
 <th>Прибыль после расходов</th>
 <th>Продавцы Kaspi и спрос</th>
 <th>Действия</th>
@@ -61,12 +62,12 @@
 <small>Цена: {{ row.offer.checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</small>
 </td>
 <td class="money">{{ row.offer.cost|floatformat:0 }}</td>
-<td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}</td>
+<td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}<small>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }}</small><small>После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }}</small></td>
 <td class="money">
-<span class="delta">{{ row.difference|floatformat:0|default:'Нет данных' }}</span>
+<span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
 <small>{{ row.markup|floatformat:1|default:'—' }}%</small>
 </td>
-<td class="money">{{ row.profit|floatformat:0|default:'Нет данных' }}<small>{{ row.margin|floatformat:1|default:'—' }}% от выручки</small>
+<td class="money">{{ row.profit|floatformat:2|default:'Нет данных' }}<small>{{ row.margin|floatformat:1|default:'—' }}% от выручки</small>
 </td>
 <td>
 {% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}

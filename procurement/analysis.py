@@ -1,4 +1,5 @@
 from datetime import timedelta
+from decimal import Decimal
 import re
 
 from django.utils import timezone
@@ -14,17 +15,28 @@ def stock_status(stock):
 
 def evaluate(offer, preferences, today=None):
     today = today or timezone.localdate()
-    result = {'difference': None, 'markup': None, 'profit': None, 'margin': None,
+    commission = Decimal(str(preferences.commission)).normalize() if preferences.commission is not None else None
+    result = {'gross_difference': None, 'commission_rate': commission,
+              'commission_amount': None, 'kaspi_after_commission': None, 'expenses': preferences.expenses,
+              'difference': None, 'markup': None, 'profit': None, 'margin': None,
               'signal': 'Данных недостаточно', 'qualified': False, 'reasons': []}
-    if offer.kaspi_price is not None and offer.cost > 0:
-        result['difference'] = offer.kaspi_price - offer.cost
-        result['markup'] = result['difference'] / offer.cost * 100
-        if preferences.commission is not None and preferences.expenses is not None:
-            result['profit'] = offer.kaspi_price * (100 - preferences.commission) / 100 - offer.cost - preferences.expenses
-            if offer.kaspi_price > 0:
-                result['margin'] = result['profit'] / offer.kaspi_price * 100
+    if offer.kaspi_price is not None:
+        price, cost = Decimal(str(offer.kaspi_price)), Decimal(str(offer.cost))
+        result['gross_difference'] = price - cost
+        if preferences.commission is not None:
+            result['commission_amount'] = price * commission / Decimal(100)
+            result['kaspi_after_commission'] = price - result['commission_amount']
+            result['difference'] = result['kaspi_after_commission'] - cost
+            if cost > 0:
+                result['markup'] = result['difference'] / cost * Decimal(100)
+            if preferences.expenses is not None:
+                result['profit'] = result['difference'] - Decimal(str(preferences.expenses))
+                if price > 0:
+                    result['margin'] = result['profit'] / price * Decimal(100)
+            else:
+                result['reasons'].append('Задайте прочие расходы: разница после комиссии известна, чистая прибыль пока неизвестна.')
         else:
-            result['reasons'].append('Задайте комиссию и расходы: чистая прибыль пока неизвестна.')
+            result['reasons'].append('Задайте комиссию Kaspi без НДС: разница после комиссии и чистая прибыль пока неизвестны.')
     price_fresh = offer.checked_on is not None and timedelta(0) <= today - offer.checked_on <= timedelta(days=7)
     evidence_fresh = offer.evidence_date is not None and timedelta(0) <= today - offer.evidence_date <= timedelta(days=7)
     sales = evidence_fresh and offer.sales_30 is not None and offer.sales_30 > 0
