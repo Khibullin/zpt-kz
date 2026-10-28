@@ -1,0 +1,70 @@
+{% extends 'procurement/base.html' %}{% block content %}<header>
+<div>
+<a href="{% url 'procurement:dashboard' %}">← Подбор товаров</a>
+<h1>{{ offer.name }}</h1>
+<div class="muted">{{ offer.brand }} · {{ offer.article }}</div>
+</div>
+<div class="actions">{% if can_manage %}<a class="button primary" href="{% url 'procurement:draft' offer.pk %}">Подготовить для Kaspi</a>{% endif %}</div>
+</header>
+<div class="grid">
+<section class="panel">{% if offer.photo_url %}<img class="photo" src="{{ offer.photo_url }}" alt="{{ offer.name }}" referrerpolicy="no-referrer">{% else %}<div class="photo placeholder">Нет фотографии</div>{% endif %}<h2>Описание и характеристики</h2>
+<p>{{ offer.description|default:'Описание отсутствует. Добавьте проверенные сведения в черновик.' }}</p>
+<p>Применимость: {{ offer.applicability|default:'Не проверена' }}</p>{% for name,value in offer.characteristics.items %}<p>{{ name }}: {{ value }}</p>{% endfor %}<h2>Спрос</h2>
+<p>
+<span class="badge">{{ analysis.signal }}</span>
+</p>
+<p>Подтверждённые продажи за 30 дней: {{ offer.sales_30|default_if_none:'Нет данных' }}</p>
+<p>Отзывы товара: {{ offer.review_count|default_if_none:'Нет данных' }}; найдено за 90 дней: {{ offer.recent_reviews|default_if_none:'Нет данных' }}.</p>
+<p>Последняя прочитанная дата: {{ offer.last_review|date:'d.m.Y'|default:'Нет данных' }}. Проверка: {{ offer.evidence_date|date:'d.m.Y'|default:'не проводилась' }}.</p>
+<p class="muted">Источник спроса: {{ offer.evidence_source|default:'Нет данных' }}</p>
+</section>
+<section class="panel">
+<h2>Расчёт и объяснение</h2>
+<p>Закупка: {{ offer.cost }} ₸ · Kaspi: {{ offer.kaspi_price|default_if_none:'Нет данных' }}</p>
+<p>Разница: {{ analysis.difference|floatformat:0|default:'Нет данных' }} ₸ · Наценка: {{ analysis.markup|floatformat:1|default:'—' }}%</p>
+<p>
+<strong>Прибыль после расходов: {{ analysis.profit|floatformat:0|default:'Нет данных' }} ₸</strong>
+</p>
+<p>{{ analysis.qualified|yesno:'Кандидат для минимального теста,Условия рекомендации не выполнены' }}</p>
+<ul>{% for reason in analysis.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
+<a href="{% url 'procurement:settings' %}">Изменить расходы и правила</a>{% if offer.kaspi_url %}<p>
+<a href="{{ offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Открыть карточку Kaspi</a>
+</p>{% endif %}{% if can_manage and not offer.match_verified %}<form method="post" action="{% url 'procurement:verify' offer.pk %}">{% csrf_token %}<p>
+<label>
+<input type="checkbox" name="confirmed" value="yes" required> Проверены бренд, артикул, применимость и комплектность</label>
+</p>
+<button>Подтвердить совпадение</button>
+</form>{% endif %}</section>
+</div>
+<section class="panel">
+<h2>Сравнение поставщиков одной детали</h2>
+<div class="tablewrap">
+<table>
+<thead>
+<tr>
+<th>Поставщик</th>
+<th>Закупка</th>
+<th>Наличие</th>
+<th>Минимум</th>
+<th>Дата цены</th>
+<th>
+</th>
+</tr>
+</thead>
+<tbody>{% for item in alternatives %}<tr>
+<td>{{ item.supplier.name }}</td>
+<td>{{ item.cost }} ₸</td>
+<td>{{ item.stock|default:'Нет данных' }}</td>
+<td>{{ item.min_order }}</td>
+<td>{{ item.checked_on|date:'d.m.Y'|default:'Нет данных' }}</td>
+<td>
+<a href="{% url 'procurement:detail' item.pk %}">Выбрать</a>
+</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+<form class="actions" method="post" action="{% url 'procurement:select' offer.pk %}" style="margin-top:18px">{% csrf_token %}<label>Количество <input type="number" min="{{ offer.min_order }}" max="100000" value="{{ offer.min_order }}" name="quantity" required>
+</label>
+<button class="primary">В список закупки</button>
+</form>
+</section>{% endblock %}

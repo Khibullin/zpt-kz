@@ -1,0 +1,76 @@
+{% extends 'procurement/base.html' %}{% block content %}
+<header>
+<div>
+<h1>Подбор к закупке</h1>
+<div class="muted">Закупки и продажи · внутренний кабинет</div>
+</div>
+<div class="actions">{% if can_manage %}<a class="button" href="{% url 'procurement:upload' %}">Загрузить файл</a>{% endif %}<a class="button primary" href="{% url 'procurement:basket' %}">Список закупки · {{ basket_count }}</a>
+</div>
+</header>
+<div class="modes">
+<a class="button primary" href="?mode=difference&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">Максимальная разница с Kaspi<small>Сначала наибольшая разница в тенге, до расходов</small>
+</a>
+<a class="button teal" href="?mode=best&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">Самые выгодные к закупке<small>Прибыль + проверенное совпадение + признаки спроса</small>
+</a>
+<a class="button" href="{% url 'procurement:settings' %}">Алгоритм<br>и настройки</a>
+</div>
+<form class="search" method="get">
+<input type="hidden" name="mode" value="{{ mode }}">
+<input type="search" name="q" value="{{ q }}" placeholder="Название, бренд, артикул или применимость" aria-label="Поиск товара">
+<select name="supplier" aria-label="Поставщик">
+<option value="">Все поставщики</option>{% for supplier in suppliers %}<option value="{{ supplier.pk }}" {% if selected_supplier == supplier.pk|stringformat:'s' %}selected{% endif %}>{{ supplier.name }}</option>{% endfor %}</select>
+<button>Найти</button>
+<a class="button" href="{% url 'procurement:dashboard' %}">Сбросить</a>
+</form>
+{% if preferences.commission == None or preferences.expenses == None %}<div class="notice">Прибыль пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию и расходы</a>. Разница цен не является чистой прибылью.</div>{% endif %}
+<p class="muted">Найдено {{ total }} · Сведения о спросе и цены старше 7 дней не участвуют в рекомендациях. Новое совпадение Kaspi требует ручной проверки.</p>
+<div class="tablewrap">
+<table>
+<thead>
+<tr>
+<th>Товар</th>
+<th>Поставщик</th>
+<th>Закупка, ₸</th>
+<th>Kaspi, ₸</th>
+<th>Разница, ₸ / наценка</th>
+<th>Прибыль после расходов</th>
+<th>Спрос</th>
+<th>Действия</th>
+</tr>
+</thead>
+<tbody>{% for row in page %}<tr>
+<td class="product">{% if row.offer.photo_url %}<img src="{{ row.offer.photo_url }}" alt="" width="52" height="52" loading="lazy" referrerpolicy="no-referrer" style="object-fit:contain;float:left;margin:0 10px 6px 0">{% else %}<small>Фото пока нет</small>{% endif %}<a href="{% url 'procurement:detail' row.offer.pk %}">
+<strong>{{ row.offer.name }}</strong>
+</a>
+<small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
+<small>{{ row.offer.applicability|default:'Применимость не проверена'|truncatechars:100 }}</small>
+</td>
+<td>{{ row.offer.supplier.name }}<small>{{ row.offer.stock|default:'Остаток неизвестен' }}</small>
+<small>Цена: {{ row.offer.checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</small>
+</td>
+<td class="money">{{ row.offer.cost|floatformat:0 }}</td>
+<td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}</td>
+<td class="money">
+<span class="delta">{{ row.difference|floatformat:0|default:'Нет данных' }}</span>
+<small>{{ row.markup|floatformat:1|default:'—' }}%</small>
+</td>
+<td class="money">{{ row.profit|floatformat:0|default:'Нет данных' }}<small>{{ row.margin|floatformat:1|default:'—' }}% от выручки</small>
+</td>
+<td>
+<span class="badge {% if row.offer.recent_reviews %}weak{% endif %}">{{ row.signal }}</span>
+<small>Продажи / 30 дней: {{ row.offer.sales_30|default_if_none:'неизвестны' }}</small>
+<small>Найдено отзывов / 90 дней: {{ row.offer.recent_reviews|default_if_none:'нет данных' }}</small>
+<small>Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</small>
+</td>
+<td>
+<a class="button" href="{% url 'procurement:detail' row.offer.pk %}">Подробнее</a>
+<form method="post" action="{% url 'procurement:select' row.offer.pk %}" style="margin-top:8px">{% csrf_token %}<button class="primary">+ В закупку</button>
+</form>
+</td>
+</tr>{% empty %}<tr>
+<td colspan="8">{% if mode == 'best' %}Нет товаров, прошедших проверку. Проверьте расходы, актуальность данных и подтверждение совпадений.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
+</tr>{% endfor %}</tbody>
+</table>
+</div>
+<nav class="pagination" aria-label="Страницы">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&amp;mode={{ mode }}&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">← Назад</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?page={{ page.next_page_number }}&amp;mode={{ mode }}&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">Далее →</a>{% endif %}</nav>
+{% endblock %}
