@@ -135,7 +135,9 @@ class SeoRobotsHeaderMiddleware:
             response['X-Robots-Tag'] = 'noindex, nofollow, noarchive, nosnippet'
             response['Cache-Control'] = 'private, no-store, max-age=0, must-revalidate'
             response['Pragma'] = 'no-cache'
-            response['Referrer-Policy'] = 'no-referrer'
+            # Keep same-origin HTTPS form submissions compatible with CSRF.
+            # External destinations still receive no referrer.
+            response['Referrer-Policy'] = 'same-origin'
             patch_vary_headers(response, ('Cookie',))
             response.disable_analytics = True
             return response

@@ -445,3 +445,17 @@ class WorkspaceTests(TestCase):
         self.offer.refresh_from_db()
         self.assertEqual(self.offer.category, '')
         self.assertFalse(Activity.objects.filter(action='fitment_import').exists())
+
+
+    def test_https_forms_keep_csrf_and_do_not_send_external_referrers(self):
+        import re
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        response = client.get(self.url('settings'), secure=True)
+        self.assertEqual(response['Referrer-Policy'], 'same-origin')
+        self.assertContains(response, 'name="referrer" content="same-origin"')
+        token = re.search(r'name="csrfmiddlewaretoken" value="([^"]+)"', response.content.decode()).group(1)
+        data = {'csrfmiddlewaretoken': token, 'commission': '10', 'expenses': '100', 'min_profit': '1000', 'min_markup': '30'}
+        self.assertEqual(client.post(self.url('settings'), data, secure=True).status_code, 403)
+        response = client.post(self.url('settings'), data, secure=True, HTTP_REFERER='https://testserver' + self.url('settings'))
+        self.assertEqual(response.status_code, 302)
