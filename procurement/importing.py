@@ -104,6 +104,8 @@ def import_offers(file, supplier_name, date, user):
                 for field, value in defaults.items():
                     setattr(offer, field, value)
                 if changed_match:
+                    from .models import KaspiSellerSnapshot
+                    KaspiSellerSnapshot.objects.filter(offer=offer).delete()
                     offer.match_verified = False
                     for field in ('review_count', 'recent_reviews', 'sales_30', 'last_review', 'evidence_date'):
                         setattr(offer, field, None)
@@ -269,4 +271,82 @@ def import_enrichment(file, supplier_name, date, user):
         offer.characteristics = characteristics
         offer.save(update_fields=['category', 'description', 'characteristics'])
     Activity.objects.create(user=user, action='fitment_import', details={'supplier': supplier.name, 'offers': len(rows), 'make_model_pairs': total_fitments, 'date': date.isoformat()})
+    return len(rows)
+
+
+@transaction.atomic
+def import_competitors(file, supplier_name, date, user):
+    import json
+    import re
+    from urllib.parse import urlsplit
+    from django.core.validators import URLValidator
+    from django.core.exceptions import ValidationError
+    from .models import KaspiSellerSnapshot
+    supplier = Supplier.objects.filter(name=supplier_name.strip()).first()
+    if supplier is None:
+        raise ValueError('Поставщик не найден.')
+    try:
+        payload = json.load(file)
+    except (ValueError, UnicodeError):
+        raise ValueError('Нужен JSON-файл продавцов Kaspi.')
+    if not isinstance(payload, dict) or payload.get('checked_on') != date.isoformat():
+        raise ValueError('Дата файла не совпадает с датой проверки.')
+    rows = payload.get('offers')
+    if not isinstance(rows, list) or not rows or len(rows) > 20000:
+        raise ValueError('Нужен список offers от 1 до 20 000 товаров.')
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict) or row.get('error'):
+            raise ValueError('Карточка содержит ошибку проверки.')
+        key = (str(row.get('brand', '')).strip(), str(row.get('article', '')).strip())
+        if key in seen:
+            raise ValueError('Дублируются бренд и артикул.')
+        seen.add(key)
+        offer = Offer.objects.filter(supplier=supplier, brand=key[0], article=key[1]).first()
+        source = row.get('source_url', '')
+        if offer is None or not offer.kaspi_url or source != offer.kaspi_url:
+            raise ValueError('Источник не совпадает с карточкой Kaspi выбранного товара.')
+        if urlsplit(source).hostname != 'kaspi.kz' or urlsplit(source).scheme != 'https' or not re.search(r'/shop/p/.+-[0-9]+/', source):
+            raise ValueError('Некорректная карточка Kaspi.')
+        if row.get('city') != '750000000' or not isinstance(row.get('complete'), bool):
+            raise ValueError('Нужны данные Алматы и признак полноты проверки.')
+        sellers = row.get('sellers')
+        if not isinstance(sellers, list) or len(sellers) > 1000:
+            raise ValueError('Некорректный список продавцов.')
+        normalized = {}
+        for seller in sellers:
+            if not isinstance(seller, dict):
+                raise ValueError('Некорректный продавец.')
+            merchant = str(seller.get('merchant_id', ''))
+            name = str(seller.get('name') or '').strip()
+            if not merchant.isdigit() or not name or len(name) > 250:
+                raise ValueError('Не указаны магазин и идентификатор продавца.')
+            price = money(seller.get('price'))
+            if price <= 0:
+                raise ValueError('Цена продавца должна быть больше нуля.')
+            rating = seller.get('rating')
+            if rating is not None:
+                try:
+                    rating = Decimal(str(rating))
+                    if not rating.is_finite() or not 0 <= rating <= 5:
+                        raise ValueError()
+                except (ValueError, InvalidOperation):
+                    raise ValueError('Рейтинг должен быть от 0 до 5 или пустым.')
+            reviews = seller.get('reviews')
+            if reviews is not None and (isinstance(reviews, bool) or not isinstance(reviews, int) or not 0 <= reviews <= 2147483647):
+                raise ValueError('Количество отзывов должно быть неотрицательным целым или пустым.')
+            link = seller.get('url', '')
+            try:
+                URLValidator(schemes=['https'])(link)
+            except ValidationError:
+                raise ValueError('Некорректная ссылка магазина.')
+            if urlsplit(link).hostname != 'kaspi.kz' or not urlsplit(link).path.startswith(f'/shop/m/{merchant}/'):
+                raise ValueError('Ссылка не соответствует продавцу Kaspi.')
+            item = {'merchant_id': merchant, 'name': name, 'url': link, 'price': str(price),
+                    'rating': str(rating) if rating is not None else None, 'reviews': reviews}
+            if merchant not in normalized or price < Decimal(normalized[merchant]['price']):
+                normalized[merchant] = item
+        KaspiSellerSnapshot.objects.update_or_create(offer=offer, defaults={'source_url': source, 'city': row['city'],
+            'checked_on': date, 'complete': row['complete'], 'sellers': list(normalized.values())})
+    Activity.objects.create(user=user, action='competitors_import', details={'supplier': supplier.name, 'offers': len(rows), 'date': date.isoformat()})
     return len(rows)

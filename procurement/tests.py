@@ -593,3 +593,51 @@ class WorkspaceTests(TestCase):
         self.assertEqual(order.status, 'draft')
         self.login(self.other)
         self.assertEqual(self.client.get(self.url('purchase_document', pk=order.pk, document_id=doc.pk)).status_code, 404)
+
+    def competitor_file(self, sellers=None, source=None):
+        import json
+        sellers = sellers if sellers is not None else [
+            {'merchant_id':'111','name':'A','url':'https://kaspi.kz/shop/m/111/products','price':'2000','rating':None,'reviews':None},
+            {'merchant_id':'222','name':'B','url':'https://kaspi.kz/shop/m/222/products','price':'2000','rating':'4.8','reviews':15},
+            {'merchant_id':'333','name':'C','url':'https://kaspi.kz/shop/m/333/products','price':'2000','rating':'4.8','reviews':25},
+            {'merchant_id':'444','name':'D','url':'https://kaspi.kz/shop/m/444/products','price':'1900','rating':'4.1','reviews':3}]
+        return SimpleUploadedFile('competitors.json', json.dumps({'checked_on':timezone.localdate().isoformat(),'offers':[{'brand':self.offer.brand,'article':self.offer.article,'source_url':source or self.offer.kaspi_url,'city':'750000000','complete':False,'sellers':sellers}]}).encode())
+
+    def test_competitor_sorting_and_import_do_not_change_cost_or_demand(self):
+        from .importing import import_competitors
+        from .models import KaspiSellerSnapshot
+        for _ in range(2):
+            self.assertEqual(import_competitors(self.competitor_file(), 'Omega', timezone.localdate(), self.sales), 1)
+        snapshot = KaspiSellerSnapshot.objects.get(offer=self.offer)
+        self.assertEqual([s['name'] for s in snapshot.ranked_sellers], ['D','C','B','A'])
+        self.assertEqual(KaspiSellerSnapshot.objects.count(), 1)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.cost, 1000)
+        self.assertEqual(self.offer.kaspi_price, 3000)
+        self.assertEqual(self.offer.recent_reviews, 1)
+        self.assertTrue(self.offer.match_verified)
+        self.login()
+        response = self.client.get(self.url('dashboard'))
+        self.assertContains(response, 'Отзывы магазина: 25')
+        self.assertContains(response, 'Проверена часть предложений')
+        self.assertContains(self.client.get(self.url('detail', pk=self.offer.pk)), 'Рейтинг магазина')
+
+    def test_competitor_wrong_card_and_invalid_rating_are_rejected(self):
+        from .importing import import_competitors
+        from .models import KaspiSellerSnapshot
+        with self.assertRaises(ValueError):
+            import_competitors(self.competitor_file(source='https://kaspi.kz/shop/p/other-999/'), 'Omega', timezone.localdate(), self.sales)
+        invalid=[{'merchant_id':'111','name':'A','url':'https://kaspi.kz/shop/m/111/products','price':'2000','rating':'6','reviews':1}]
+        with self.assertRaises(ValueError):
+            import_competitors(self.competitor_file(sellers=invalid), 'Omega', timezone.localdate(), self.sales)
+        self.assertFalse(KaspiSellerSnapshot.objects.exists())
+
+    def test_unknown_competitors_are_distinct_from_confirmed_empty(self):
+        from .models import KaspiSellerSnapshot
+        self.login()
+        self.assertContains(self.client.get(self.url('dashboard')), 'Продавцы Kaspi ещё не проверены')
+        snapshot=KaspiSellerSnapshot.objects.create(offer=self.offer, source_url=self.offer.kaspi_url, checked_on=timezone.localdate(), sellers=[], complete=False)
+        self.assertContains(self.client.get(self.url('dashboard')), 'Данные продавцов не получены')
+        snapshot.complete=True
+        snapshot.save()
+        self.assertContains(self.client.get(self.url('dashboard')), 'Нет предложений на дату проверки')

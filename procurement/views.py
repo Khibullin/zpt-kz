@@ -24,7 +24,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from .analysis import evaluate
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
-from .importing import import_offers, import_demand, import_enrichment
+from .importing import import_offers, import_demand, import_enrichment, import_competitors
 from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder, PurchaseDocument
 
 
@@ -47,7 +47,7 @@ def context(request, **extra):
 
 
 def filtered_rows(request, preferences, filters):
-    query = Offer.objects.select_related('supplier').all()
+    query = Offer.objects.select_related('supplier', 'kaspi_sellers').all()
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
@@ -124,7 +124,7 @@ def dashboard(request):
 @access()
 @xframe_options_sameorigin
 def detail(request, pk):
-    offer = get_object_or_404(Offer.objects.select_related('supplier'), pk=pk)
+    offer = get_object_or_404(Offer.objects.select_related('supplier', 'kaspi_sellers'), pk=pk)
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     alternatives = Offer.objects.filter(brand__iexact=offer.brand, article__iexact=offer.article).select_related('supplier').order_by('cost')
     return render(request, 'procurement/detail.html', context(request, offer=offer, analysis=evaluate(offer, preferences), alternatives=alternatives))
@@ -166,7 +166,7 @@ def upload(request):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment}[form.cleaned_data['kind']]
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'competitors': import_competitors}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.
@@ -174,7 +174,7 @@ def upload(request):
             else:
                 messages.success(request, f'Загружено товаров: {count}.')
                 return redirect('procurement:dashboard')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Загрузка данных', help='Применимость Omega: JSON с датой checked_on и массивом offers (brand, article, source_url, category, fitments). Импорт применимости не изменяет цены и спрос. Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title='Загрузка данных', help='Продавцы Kaspi: JSON с checked_on и offers (brand, article, source_url, city, complete, sellers). Цены самого предложения и спрос не изменяются. Применимость Omega: JSON с датой checked_on и массивом offers (brand, article, source_url, category, fitments). Импорт применимости не изменяет цены и спрос. Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
 
 
 @access()
