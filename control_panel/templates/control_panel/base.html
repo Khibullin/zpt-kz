@@ -13,6 +13,7 @@
     <button type="button" class="cp-menu-toggle" id="cp-menu-toggle" aria-label="Меню">☰</button>
     <div class="cp-brand">ZPT.KZ Control</div>
     <div class="cp-header-right">
+      {% if can_access_procurement %}<a href="{% url 'procurement:dashboard' %}">Кабинет закупок</a>{% endif %}
       <span class="cp-user">{{ request.user.get_username }}</span>
       <form method="post" action="{% url 'admin:logout' %}" class="cp-logout">
         {% csrf_token %}

@@ -15,6 +15,7 @@
     {% include 'includes/site_logo.html' %}
 
     <nav class="market-nav">
+      {% if can_access_procurement %}<a href="{% url 'procurement:dashboard' %}" class="btn-add">Кабинет закупок</a>{% endif %}
       <a href="{% url 'add_product' %}?mode=photo" class="btn-add">
          Добавить по фото
       </a>

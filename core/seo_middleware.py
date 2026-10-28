@@ -129,6 +129,16 @@ class SeoRobotsHeaderMiddleware:
             return brand_redirect
 
         response = self.get_response(request)
+        if request.path.startswith('/office/procurement/'):
+            # Never cache wholesale data or inject third-party analytics here.
+            from django.utils.cache import patch_vary_headers
+            response['X-Robots-Tag'] = 'noindex, nofollow, noarchive, nosnippet'
+            response['Cache-Control'] = 'private, no-store, max-age=0, must-revalidate'
+            response['Pragma'] = 'no-cache'
+            response['Referrer-Policy'] = 'no-referrer'
+            patch_vary_headers(response, ('Cookie',))
+            response.disable_analytics = True
+            return response
         directive = robots_directive(request)
         if directive.startswith('noindex'):
             response['X-Robots-Tag'] = directive

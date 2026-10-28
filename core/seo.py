@@ -81,6 +81,7 @@ NOINDEX_FOLLOW_PREFIXES = (
 )
 
 NOINDEX_NOFOLLOW_PREFIXES = (
+    '/office/procurement/',
     '/admin/',
     '/control/',
     '/api/',

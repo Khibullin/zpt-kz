@@ -1,6 +1,7 @@
 from datetime import timedelta
 from decimal import Decimal
 from io import BytesIO
+from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -301,3 +302,69 @@ class WorkspaceTests(TestCase):
         self.assertContains(response, 'margin-left:0;padding:16px')
         self.login(self.outsider)
         self.assertEqual(self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1}).status_code, 403)
+
+    def test_account_entry_visible_only_to_active_workspace_members(self):
+        account = reverse('interface_section', kwargs={'section': 'account'})
+        self.assertNotContains(self.client.get(account), 'Кабинет закупок')
+        self.login(self.outsider)
+        self.assertNotContains(self.client.get(account), 'Кабинет закупок')
+        self.login()
+        response = self.client.get(account)
+        self.assertContains(response, 'Кабинет закупок')
+        self.assertContains(response, self.url('dashboard'))
+        self.assertIn('no-store', response['Cache-Control'])
+        self.assertIn('Cookie', response['Vary'])
+        Membership.objects.filter(user=self.user).update(active=False)
+        self.assertNotContains(self.client.get(account), 'Кабинет закупок')
+
+    def test_anonymous_deep_link_returns_after_successful_login(self):
+        target = self.url('detail', pk=self.offer.pk)
+        response = self.client.get(target)
+        self.assertRedirects(response, self.url('login')+'?next='+target)
+        response = self.client.post(self.url('login'), {'username': 'buyer', 'password': 'test-password-123', 'next': target})
+        self.assertRedirects(response, target)
+
+    def test_successful_login_defaults_to_workspace(self):
+        response = self.client.post(self.url('login'), {'username': 'buyer', 'password': 'test-password-123'})
+        self.assertRedirects(response, self.url('dashboard'))
+
+    def test_login_rejects_accounts_without_assigned_role(self):
+        response = self.client.post(self.url('login'), {'username': 'outsider', 'password': 'test-password-123'})
+        self.assertContains(response, 'Доступ к кабинету закупок не выдан')
+        self.assertNotIn('_auth_user_id', self.client.session)
+        self.assertFalse(Membership.objects.filter(user=self.outsider).exists())
+
+    def test_already_signed_in_member_bypasses_login_form(self):
+        self.login()
+        self.assertRedirects(self.client.get(self.url('login')), self.url('dashboard'))
+        self.login(self.outsider)
+        response = self.client.get(self.url('login'))
+        self.assertEqual(response.status_code, 403)
+        self.assertContains(response, 'Доступ к кабинету закупок не выдан', status_code=403)
+        self.assertNotContains(response, '<aside>', status_code=403)
+
+    def test_login_does_not_redirect_to_external_next(self):
+        response = self.client.post(self.url('login'), {'username': 'buyer', 'password': 'test-password-123', 'next': 'https://evil.example/'})
+        self.assertRedirects(response, self.url('dashboard'))
+
+    def test_private_headers_on_pages_redirects_errors_and_exports(self):
+        for user in [None, self.user, self.outsider]:
+            self.client.logout()
+            if user:
+                self.login(user)
+            for url in [self.url('dashboard'), self.url('export'), self.url('login'), self.url('detail', pk=999999)]:
+                response = self.client.get(url)
+                self.assertEqual(response['X-Robots-Tag'], 'noindex, nofollow, noarchive, nosnippet')
+                self.assertIn('private', response['Cache-Control'])
+                self.assertIn('no-store', response['Cache-Control'])
+                self.assertIn('Cookie', response['Vary'])
+
+    @patch.dict('os.environ', {'GOOGLE_TAG_MANAGER_ID': 'GTM-TEST123'})
+    def test_external_analytics_not_injected_into_workspace(self):
+        self.login()
+        response = self.client.get(self.url('dashboard'))
+        self.assertNotContains(response, 'googletagmanager.com')
+        self.assertContains(response, 'noindex,nofollow,noarchive,nosnippet')
+
+    def test_robots_excludes_workspace(self):
+        self.assertContains(self.client.get('/robots.txt'), 'Disallow: /office/procurement/')

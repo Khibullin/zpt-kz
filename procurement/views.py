@@ -5,7 +5,6 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -17,6 +16,7 @@ from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
 from .analysis import evaluate
+from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm
 from .importing import import_offers, import_demand
 from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite
@@ -27,10 +27,9 @@ def access(*roles):
         @login_required(login_url='procurement:login')
         @wraps(view)
         def wrapped(request, *args, **kwargs):
-            membership = Membership.objects.filter(user=request.user, active=True).first()
-            request.procurement_role = 'admin' if request.user.is_superuser else membership.role if membership else None
+            request.procurement_role = workspace_role(request.user)
             if request.procurement_role is None or (roles and request.procurement_role not in roles):
-                raise PermissionDenied('Нет доступа к кабинету закупок.')
+                return render(request, 'procurement/access_denied.html', status=403)
             return view(request, *args, **kwargs)
         return wrapped
     return decorate
