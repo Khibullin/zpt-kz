@@ -297,5 +297,7 @@ class WorkspaceTests(TestCase):
         response = self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1})
         self.assertEqual(response['X-Frame-Options'], 'SAMEORIGIN')
         self.assertContains(response, '<base target="_top">', html=True)
+        self.assertNotContains(response, '<aside>')
+        self.assertContains(response, 'margin-left:0;padding:16px')
         self.login(self.outsider)
         self.assertEqual(self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1}).status_code, 403)
