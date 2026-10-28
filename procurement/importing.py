@@ -243,14 +243,20 @@ def import_enrichment(file, supplier_name, date, user):
             group = grouped.setdefault((make.strip(), model.strip()), [])
             if configuration not in group:
                 group.append(configuration)
+        existing_items = {(item.make, item.model): item for item in
+                          VehicleFitment.objects.filter(offer=offer, source_url=source, details='')}
+        creates, updates = [], []
         for (make, model), configurations in grouped.items():
-            # A sourced make/model has one compact row and all original modifications.
-            existing = VehicleFitment.objects.filter(offer=offer, make=make, model=model, source_url=source, details='').first()
-            item = existing or VehicleFitment(offer=offer, make=make, model=model, source_url=source)
+            item = existing_items.get((make, model)) or VehicleFitment(offer=offer, make=make, model=model, source_url=source)
             item.configurations = configurations
             item.verified = True
-            item.full_clean()
-            item.save()
+            # FK and unique identity are already resolved above; the database keeps
+            # the unique constraint. Avoid thousands of redundant validation queries.
+            item.full_clean(exclude=['offer'], validate_unique=False, validate_constraints=False)
+            (updates if item.pk else creates).append(item)
+        VehicleFitment.objects.bulk_create(creates, batch_size=200)
+        if updates:
+            VehicleFitment.objects.bulk_update(updates, ['configurations', 'verified'], batch_size=200)
         total_fitments += len(grouped)
         characteristics = dict(offer.characteristics or {})
         characteristics['omega_applicability_source'] = source
