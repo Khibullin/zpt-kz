@@ -1,4 +1,8 @@
 import csv
+import uuid
+from urllib.parse import urlsplit
+from django.core import signing
+from django.db import transaction
 from functools import wraps
 from decimal import Decimal
 
@@ -17,9 +21,9 @@ from django.utils.http import url_has_allowed_host_and_scheme
 
 from .analysis import evaluate
 from .permissions import workspace_role
-from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm
+from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseStatusForm
 from .importing import import_offers, import_demand, import_enrichment
-from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment
+from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder
 
 
 def access(*roles):
@@ -192,12 +196,87 @@ def remove(request, pk):
     return redirect('procurement:basket')
 
 
+def purchase_snapshot(rows):
+    return [{'offer_id': row.offer_id, 'selection_id': row.pk, 'brand': row.offer.brand,
+             'article': row.offer.article, 'name': row.offer.name, 'quantity': row.quantity,
+             'cost': str(row.offer.cost), 'subtotal': str(row.quantity * row.offer.cost),
+             'supplier_url': row.offer.supplier_url} for row in rows]
+
+
+def supplier_purchase_url(supplier, rows):
+    candidate = rows[0].offer.supplier_url if len(rows) == 1 else supplier.website
+    if not candidate and rows:
+        parsed = urlsplit(rows[0].offer.supplier_url)
+        candidate = f'{parsed.scheme}://{parsed.netloc}/' if parsed.scheme in ('http', 'https') and parsed.netloc else ''
+    return candidate if urlsplit(candidate).scheme in ('http', 'https') else ''
+
+
 @access()
 def basket(request):
-    rows = list(Selection.objects.filter(user=request.user).select_related('offer__supplier'))
+    rows = list(Selection.objects.filter(user=request.user).select_related('offer__supplier').order_by('offer__supplier__name', 'pk'))
+    grouped = {}
     for row in rows:
         row.subtotal = row.quantity * row.offer.cost
-    return render(request, 'procurement/basket.html', context(request, selections=rows, budget=sum((r.subtotal for r in rows), Decimal(0))))
+        group = grouped.setdefault(row.offer.supplier_id, {'supplier': row.offer.supplier, 'rows': [], 'total': Decimal(0)})
+        group['rows'].append(row)
+        group['total'] += row.subtotal
+    for group in grouped.values():
+        group['purchase_url'] = supplier_purchase_url(group['supplier'], group['rows'])
+        group['copy_text'] = '\n'.join([f"Заказ автозапчастей — {group['supplier'].name}"] +
+            [f"{row.offer.brand} · {row.offer.article} — {row.offer.name} — {row.quantity} шт." for row in group['rows']])
+    orders = PurchaseOrder.objects.filter(user=request.user).select_related('supplier')
+    return render(request, 'procurement/basket.html', context(request, selections=rows, supplier_groups=list(grouped.values()),
+        purchases=orders, budget=sum((r.subtotal for r in rows), Decimal(0))))
+
+
+@access()
+def purchase_confirm(request, supplier_id):
+    supplier = get_object_or_404(Supplier, pk=supplier_id)
+    def selection_rows(lock=False):
+        query = Selection.objects.filter(user=request.user, offer__supplier=supplier).select_related('offer').order_by('pk')
+        return list(query.select_for_update(of=('self',)) if lock else query)
+    rows = selection_rows()
+    form = PurchaseConfirmationForm(request.POST or None, initial={'request_key': uuid.uuid4(),
+        'selection_token': signing.dumps(purchase_snapshot(rows), salt='procurement-purchase')})
+    if request.method == 'POST' and form.is_valid():
+        existing = PurchaseOrder.objects.filter(user=request.user, request_key=form.cleaned_data['request_key']).first()
+        if existing:
+            return redirect('procurement:purchase_detail', pk=existing.pk)
+        try:
+            reviewed = signing.loads(form.cleaned_data['selection_token'], salt='procurement-purchase', max_age=3600)
+        except signing.BadSignature:
+            reviewed = None
+        with transaction.atomic():
+            rows = selection_rows(lock=True)
+            snapshot = purchase_snapshot(rows)
+            if not rows or reviewed != snapshot:
+                form.add_error(None, 'Список или цены изменились либо подтверждение устарело. Откройте подтверждение заново.')
+            else:
+                order = PurchaseOrder.objects.create(user=request.user, supplier=supplier,
+                    request_key=form.cleaned_data['request_key'], order_number=form.cleaned_data['order_number'],
+                    items=snapshot, estimated_total=sum((row.quantity * row.offer.cost for row in rows), Decimal(0)))
+                Selection.objects.filter(pk__in=[row.pk for row in rows], user=request.user).delete()
+                Activity.objects.create(user=request.user, action='purchase_recorded', details={'purchase': order.pk, 'supplier': supplier.pk, 'positions': len(rows)})
+                messages.success(request, 'Заказ отмечен. Товары перенесены из списка закупки в историю заказов.')
+                return redirect('procurement:purchase_detail', pk=order.pk)
+    return render(request, 'procurement/purchase_confirm.html', context(request, supplier=supplier, form=form,
+        selections=rows, budget=sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), status=400 if request.method == 'POST' else 200)
+
+
+@access()
+def purchase_detail(request, pk):
+    order = get_object_or_404(PurchaseOrder.objects.select_related('supplier'), pk=pk, user=request.user)
+    form = PurchaseStatusForm(request.POST or None, initial={'status': order.status})
+    if request.method == 'POST' and form.is_valid():
+        with transaction.atomic():
+            order = PurchaseOrder.objects.select_for_update().get(pk=order.pk, user=request.user)
+            previous = order.status
+            order.status = form.cleaned_data['status']
+            order.save(update_fields=['status', 'updated_at'])
+            Activity.objects.create(user=request.user, action='purchase_status', details={'purchase': order.pk, 'from': previous, 'to': order.status})
+        messages.success(request, 'Статус сохранён.')
+        return redirect('procurement:purchase_detail', pk=order.pk)
+    return render(request, 'procurement/purchase_detail.html', context(request, purchase=order, form=form), status=400 if request.method == 'POST' else 200)
 
 
 def safe_csv(value):

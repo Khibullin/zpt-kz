@@ -122,3 +122,24 @@ class VehicleFitment(models.Model):
 
     def __str__(self):
         return f'{self.make} {self.model} {self.details}'.strip()
+
+
+class PurchaseOrder(models.Model):
+    class Status(models.TextChoices):
+        ORDERED = 'ordered', 'Заказано'
+        RECEIVED = 'received', 'Получено'
+        CANCELLED = 'cancelled', 'Отменено'
+
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    order_number = models.CharField(max_length=100)
+    request_key = models.UUIDField()
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.ORDERED)
+    items = models.JSONField(default=list)
+    estimated_total = models.DecimalField(max_digits=26, decimal_places=2)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at', '-pk']
+        constraints = [models.UniqueConstraint(fields=['user', 'request_key'], name='procurement_purchase_request')]

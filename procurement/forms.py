@@ -1,5 +1,5 @@
 from django import forms
-from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment
+from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
 from .categories import OMEGA_CATEGORIES
 
@@ -72,3 +72,14 @@ class UploadForm(forms.Form):
         if not file.name.lower().endswith(('.csv', '.xlsx', '.json')):
             raise forms.ValidationError('Поддерживаются CSV, XLSX и JSON применимости.')
         return file
+
+
+class PurchaseConfirmationForm(forms.Form):
+    order_number = forms.CharField(label='Номер заказа у поставщика', max_length=100)
+    confirmed = forms.BooleanField(label='Заказ уже оформлен у поставщика')
+    request_key = forms.UUIDField(widget=forms.HiddenInput)
+    selection_token = forms.CharField(widget=forms.HiddenInput)
+
+
+class PurchaseStatusForm(forms.Form):
+    status = forms.ChoiceField(label='Статус заказа', choices=PurchaseOrder.Status.choices)

@@ -459,3 +459,72 @@ class WorkspaceTests(TestCase):
         self.assertEqual(client.post(self.url('settings'), data, secure=True).status_code, 403)
         response = client.post(self.url('settings'), data, secure=True, HTTP_REFERER='https://testserver' + self.url('settings'))
         self.assertEqual(response.status_code, 302)
+
+    def prepare_purchase(self, quantity=2):
+        self.login()
+        self.offer.supplier_url = 'https://omega-auto-parts.kz/transmissiya/test-part'
+        self.offer.save()
+        Selection.objects.create(user=self.user, offer=self.offer, quantity=quantity)
+        response = self.client.get(self.url('purchase_confirm', supplier_id=self.supplier.pk))
+        form = response.context['form']
+        return {'order_number': 'OMEGA-123', 'confirmed': 'on', 'request_key': str(form['request_key'].value()), 'selection_token': form['selection_token'].value()}
+
+    def test_basket_has_clear_supplier_and_copy_actions(self):
+        self.prepare_purchase()
+        response = self.client.get(self.url('basket'))
+        for text in ('Перейти к заказу у Omega', 'Скопировать заказ', 'Отметить как заказанное', 'Оформленные заказы'):
+            self.assertContains(response, text)
+        self.assertContains(response, 'https://omega-auto-parts.kz/transmissiya/test-part')
+        self.assertContains(response, 'EEP · 00123 — Деталь — 2 шт.')
+
+    def test_purchase_record_is_private_snapshot_and_repeat_is_idempotent(self):
+        from .models import PurchaseOrder
+        data = self.prepare_purchase()
+        Selection.objects.create(user=self.other, offer=self.offer, quantity=5)
+        response = self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data)
+        order = PurchaseOrder.objects.get(user=self.user)
+        self.assertRedirects(response, self.url('purchase_detail', pk=order.pk))
+        self.assertEqual(order.estimated_total, Decimal(2000))
+        self.assertEqual(order.items[0]['quantity'], 2)
+        self.assertFalse(Selection.objects.filter(user=self.user).exists())
+        self.assertTrue(Selection.objects.filter(user=self.other).exists())
+        self.assertEqual(self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data).status_code, 302)
+        self.assertEqual(PurchaseOrder.objects.count(), 1)
+        self.offer.cost = 9999
+        self.offer.name = 'Новое имя'
+        self.offer.save()
+        self.assertContains(self.client.get(self.url('purchase_detail', pk=order.pk)), 'Деталь')
+        order.refresh_from_db()
+        self.assertEqual(order.items[0]['cost'], '1000.00')
+        self.login(self.other)
+        self.assertEqual(self.client.get(self.url('purchase_detail', pk=order.pk)).status_code, 404)
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), {'status':'received'}).status_code, 404)
+        self.assertNotContains(self.client.get(self.url('basket')), 'OMEGA-123')
+
+    def test_changed_or_tampered_basket_cannot_be_recorded(self):
+        from .models import PurchaseOrder
+        data = self.prepare_purchase()
+        Selection.objects.filter(user=self.user).update(quantity=3)
+        response = self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(PurchaseOrder.objects.exists())
+        self.assertEqual(Selection.objects.get(user=self.user).quantity, 3)
+        data['selection_token'] = 'tampered'
+        self.assertEqual(self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data).status_code, 400)
+
+    def test_purchase_requires_confirmation_and_status_is_audited(self):
+        from .models import PurchaseOrder
+        data = self.prepare_purchase()
+        invalid = dict(data, confirmed='')
+        self.assertEqual(self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), invalid).status_code, 400)
+        self.assertFalse(PurchaseOrder.objects.exists())
+        self.client.post(self.url('purchase_confirm', supplier_id=self.supplier.pk), data)
+        order = PurchaseOrder.objects.get()
+        self.assertContains(self.client.get(self.url('purchase_detail', pk=order.pk)), 'Заказано')
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'ordered')
+        self.client.post(self.url('purchase_detail', pk=order.pk), {'status':'received'})
+        order.refresh_from_db()
+        self.assertEqual(order.status, 'received')
+        self.assertTrue(Activity.objects.filter(action='purchase_status', user=self.user).exists())
+        self.assertEqual(self.client.post(self.url('purchase_detail', pk=order.pk), {'status':'invalid'}).status_code, 400)
