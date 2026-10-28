@@ -61,14 +61,14 @@ class DraftForm(forms.ModelForm):
 
 
 class UploadForm(forms.Form):
-    kind = forms.ChoiceField(label='Тип файла', choices=[('catalog', 'Прайс поставщика'), ('demand', 'Отчёт спроса Kaspi (подготовленный CSV/XLSX)')])
+    kind = forms.ChoiceField(label='Тип файла', choices=[('catalog', 'Прайс поставщика'), ('demand', 'Отчёт спроса Kaspi (подготовленный CSV/XLSX)'), ('enrichment', 'Применимость и категории Omega (JSON)')])
     supplier = forms.CharField(label='Поставщик', max_length=160)
-    file = forms.FileField(label='Прайс CSV или Excel (.xlsx)')
-    checked_on = forms.DateField(label='Дата актуальности цен', widget=forms.DateInput(attrs={'type': 'date'}))
+    file = forms.FileField(label='Файл CSV, Excel или JSON применимости')
+    checked_on = forms.DateField(label='Дата актуальности данных', widget=forms.DateInput(attrs={'type': 'date'}))
     def clean_file(self):
         file = self.cleaned_data['file']
-        if file.size > 10 * 1024 * 1024:
-            raise forms.ValidationError('Максимальный размер — 10 МБ.')
-        if not file.name.lower().endswith(('.csv', '.xlsx')):
-            raise forms.ValidationError('Поддерживаются CSV и XLSX.')
+        if file.size > 50 * 1024 * 1024:
+            raise forms.ValidationError('Максимальный размер — 50 МБ.')
+        if not file.name.lower().endswith(('.csv', '.xlsx', '.json')):
+            raise forms.ValidationError('Поддерживаются CSV, XLSX и JSON применимости.')
         return file
