@@ -17,4 +17,5 @@ urlpatterns = [
     path('product/<int:pk>/select/', views.select, name='select'),
     path('product/<int:pk>/draft/', views.draft, name='draft'),
     path('product/<int:pk>/verify/', views.verify, name='verify'),
+    path('product/<int:pk>/favorite/', views.favorite, name='favorite'),
 ]

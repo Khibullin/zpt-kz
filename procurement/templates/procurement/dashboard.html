@@ -8,20 +8,31 @@
 </div>
 </header>
 <div class="modes">
-<a class="button primary" href="?mode=difference&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">Максимальная разница с Kaspi<small>Сначала наибольшая разница в тенге, до расходов</small>
+<a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница в тенге, до расходов</small>
 </a>
-<a class="button teal" href="?mode=best&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">Самые выгодные к закупке<small>Прибыль + проверенное совпадение + признаки спроса</small>
+<a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Прибыль + проверенное совпадение + признаки спроса</small>
 </a>
 <a class="button" href="{% url 'procurement:settings' %}">Алгоритм<br>и настройки</a>
 </div>
-<form class="search" method="get">
+<form method="get" class="selection-filters">
 <input type="hidden" name="mode" value="{{ mode }}">
-<input type="search" name="q" value="{{ q }}" placeholder="Название, бренд, артикул или применимость" aria-label="Поиск товара">
-<select name="supplier" aria-label="Поставщик">
-<option value="">Все поставщики</option>{% for supplier in suppliers %}<option value="{{ supplier.pk }}" {% if selected_supplier == supplier.pk|stringformat:'s' %}selected{% endif %}>{{ supplier.name }}</option>{% endfor %}</select>
-<button>Найти</button>
+{{ filter_form.non_field_errors }}
+<label class="filter-field" style="margin-bottom:12px">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label>
+<div class="filter-grid">
+{% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
+</div>
+<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, наценка и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
+<div class="actions" style="margin:12px 0 18px"><button>Применить фильтры</button>
 <a class="button" href="{% url 'procurement:dashboard' %}">Сбросить</a>
+</div>
 </form>
+<div class="actions" style="margin-bottom:16px">
+<a class="button" href="{% querystring mode='difference' demand=None page=None favorites=None download=None %}">Все товары</a>
+<a class="button" href="{% querystring mode='difference' demand='reviews' page=None download=None %}">Есть свежие отзывы</a>
+<a class="button" href="{% querystring mode='difference' demand='sales' page=None download=None %}">Есть продажи</a>
+<a class="button" href="{% querystring favorites='1' page=None download=None %}">Избранное</a>
+<a class="button" href="{% querystring download='csv' page=None %}">Скачать подборку CSV</a>
+</div>
 {% if preferences.commission == None or preferences.expenses == None %}<div class="notice">Прибыль пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию и расходы</a>. Разница цен не является чистой прибылью.</div>{% endif %}
 <p class="muted">Найдено {{ total }} · Сведения о спросе и цены старше 7 дней не участвуют в рекомендациях. Новое совпадение Kaspi требует ручной проверки.</p>
 <div class="tablewrap">
@@ -63,14 +74,34 @@
 <small>Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</small>
 </td>
 <td>
+<button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog" title="Быстрый просмотр товара">Просмотр</button>
+<details><summary>Действия</summary>
 <a class="button" href="{% url 'procurement:detail' row.offer.pk %}">Подробнее</a>
+<form method="post" action="{% url 'procurement:favorite' row.offer.pk %}" style="margin-top:8px">{% csrf_token %}
+<input type="hidden" name="next" value="{{ request.get_full_path }}">
+<input type="hidden" name="action" value="{% if row.favorite %}remove{% else %}add{% endif %}">
+<button>{% if row.favorite %}Убрать из избранного{% else %}В избранное{% endif %}</button>
+</form>
 <form method="post" action="{% url 'procurement:select' row.offer.pk %}" style="margin-top:8px">{% csrf_token %}<button class="primary">+ В закупку</button>
 </form>
+</details>
 </td>
 </tr>{% empty %}<tr>
 <td colspan="8">{% if mode == 'best' %}Нет товаров, прошедших проверку. Проверьте расходы, актуальность данных и подтверждение совпадений.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
 </tr>{% endfor %}</tbody>
 </table>
 </div>
-<nav class="pagination" aria-label="Страницы">{% if page.has_previous %}<a href="?page={{ page.previous_page_number }}&amp;mode={{ mode }}&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">← Назад</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="?page={{ page.next_page_number }}&amp;mode={{ mode }}&amp;q={{ q|urlencode }}&amp;supplier={{ selected_supplier }}">Далее →</a>{% endif %}</nav>
+<nav class="pagination" aria-label="Страницы">{% if page.has_previous %}<a href="{% querystring page=page.previous_page_number download=None %}">← Назад</a>{% endif %}<span>{{ page.number }} / {{ page.paginator.num_pages }}</span>{% if page.has_next %}<a href="{% querystring page=page.next_page_number download=None %}">Далее →</a>{% endif %}</nav>
+<dialog id="product-drawer" aria-label="Быстрый просмотр товара">
+<form method="dialog"><button autofocus>Закрыть просмотр</button></form>
+<iframe title="Карточка товара" id="product-frame"></iframe>
+</dialog>
+<style>
+.filter-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.filter-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#536b82}.filter-field input[type=checkbox]{align-self:flex-start}.filter-field input,.filter-field select{width:100%;min-width:0}.filter-field input[type=checkbox]{width:auto}.errorlist{color:#a32b20}summary{cursor:pointer;padding:7px 0}#product-drawer{position:fixed;inset:0 0 0 auto;margin:0;width:min(1080px,95vw);max-width:100vw;height:100dvh;max-height:100dvh;border:1px solid #dbe4ee;padding:12px;background:#f3f7fb}#product-drawer::backdrop{background:#142e4d77}#product-frame{width:100%;height:calc(100% - 54px);border:0;margin-top:12px}.quick-view{margin-bottom:7px}td:last-child{min-width:115px}@media(max-width:950px){.filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#product-drawer{width:100vw}}
+</style>
+<script>
+const drawer=document.getElementById('product-drawer');const productFrame=document.getElementById('product-frame');
+document.querySelectorAll('.quick-view').forEach(button=>button.addEventListener('click',()=>{productFrame.src=button.dataset.url;drawer.showModal();}));
+drawer.addEventListener('close',()=>productFrame.removeAttribute('src'));
+</script>
 {% endblock %}

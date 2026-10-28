@@ -95,3 +95,12 @@ class Activity(models.Model):
     action = models.CharField(max_length=80)
     details = models.JSONField(default=dict)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Favorite(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    offer = models.ForeignKey(Offer, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['user', 'offer'], name='procurement_user_favorite')]

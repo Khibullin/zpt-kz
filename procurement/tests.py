@@ -10,7 +10,7 @@ from django.utils import timezone
 
 from .analysis import evaluate
 from .importing import import_offers, import_demand
-from .models import Membership, Supplier, Offer, Preferences, Selection, Activity
+from .models import Membership, Supplier, Offer, Preferences, Selection, Activity, Favorite
 
 
 class WorkspaceTests(TestCase):
@@ -226,3 +226,76 @@ class WorkspaceTests(TestCase):
         with self.assertRaises(ValueError):
             import_offers(self.csv('article,brand,name,cost,photo_url\nA,TEST,Good,100,javascript:alert(1)\n'), 'Photo', timezone.localdate(), self.sales)
         self.assertFalse(Supplier.objects.filter(name='Photo').exists())
+
+    def test_category_stock_and_cost_filters(self):
+        self.login()
+        self.offer.category = 'Двигатель'
+        self.offer.save()
+        self.assertContains(self.client.get(self.url('dashboard'), {'category': 'Двигатель', 'availability': 'in_stock', 'max_cost': 1000}), '00123')
+        self.assertEqual(self.client.get(self.url('dashboard'), {'max_cost': 999}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'availability': 'unknown'}).context['total'], 0)
+
+    def test_unknown_profit_never_matches_minimum(self):
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'min_profit': 0})
+        self.assertEqual(response.context['total'], 0)
+        Preferences.objects.filter(user=self.user).update(commission=10, expenses=100)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'min_profit': 1600}).context['total'], 1)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'min_profit': 1601}).context['total'], 0)
+
+    def test_demand_filter_separates_reviews_and_sales(self):
+        self.login()
+        self.assertEqual(self.client.get(self.url('dashboard'), {'demand': 'reviews'}).context['total'], 1)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'demand': 'sales'}).context['total'], 0)
+        self.offer.evidence_date = timezone.localdate()-timedelta(days=8)
+        self.offer.save()
+        self.assertEqual(self.client.get(self.url('dashboard'), {'demand': 'reviews'}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'demand': 'unknown'}).context['total'], 1)
+
+    def test_favorites_are_private_and_idempotent(self):
+        self.login()
+        url = self.url('favorite', pk=self.offer.pk)
+        self.assertEqual(self.client.get(url).status_code, 405)
+        for _ in range(2):
+            self.client.post(url, {'action': 'add'})
+        self.assertEqual(Favorite.objects.filter(user=self.user).count(), 1)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'favorites': 1}).context['total'], 1)
+        self.login(self.other)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'favorites': 1}).context['total'], 0)
+        self.client.post(url, {'action': 'remove'})
+        self.assertTrue(Favorite.objects.filter(user=self.user).exists())
+
+    def test_favorite_redirect_does_not_leave_site(self):
+        self.login()
+        response = self.client.post(self.url('favorite', pk=self.offer.pk), {'action': 'add', 'next': 'https://evil.example/'})
+        self.assertEqual(response.url, self.url('dashboard'))
+
+    def test_current_selection_export_uses_same_filters(self):
+        self.login()
+        Favorite.objects.create(user=self.other, offer=self.offer)
+        response = self.client.get(self.url('dashboard'), {'favorites': 1, 'download': 'csv'})
+        self.assertNotIn('00123', response.content.decode('utf-8-sig'))
+        response = self.client.get(self.url('dashboard'), {'demand': 'reviews', 'download': 'csv'})
+        self.assertIn('00123', response.content.decode('utf-8-sig'))
+        self.assertIn('attachment;', response['Content-Disposition'])
+
+    def test_invalid_filter_visible_not_silently_ignored(self):
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'min_profit': 'nan'})
+        self.assertEqual(response.status_code, 400)
+        self.assertTrue(response.context['filter_form'].errors)
+
+    def test_mode_links_keep_active_filters(self):
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'availability': 'in_stock', 'q': '00123'})
+        self.assertContains(response, 'availability=in_stock')
+        self.assertContains(response, 'q=00123')
+        self.assertContains(response, 'product-drawer')
+
+    def test_quick_view_allows_only_same_origin_and_still_requires_role(self):
+        self.login()
+        response = self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1})
+        self.assertEqual(response['X-Frame-Options'], 'SAMEORIGIN')
+        self.assertContains(response, '<base target="_top">', html=True)
+        self.login(self.outsider)
+        self.assertEqual(self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1}).status_code, 403)

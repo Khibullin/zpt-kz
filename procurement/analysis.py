@@ -4,6 +4,14 @@ import re
 from django.utils import timezone
 
 
+def stock_status(stock):
+    stock = (stock or '').strip().lower()
+    number = re.match(r'^\s*[><≥≤]?\s*(\d+)(?:\s|$)', stock)
+    if number:
+        return 'in_stock' if int(number.group(1)) > 0 else 'unavailable'
+    return 'unavailable' if stock in ('нет', 'нет в наличии', 'отсутствует') else 'unknown'
+
+
 def evaluate(offer, preferences, today=None):
     today = today or timezone.localdate()
     result = {'difference': None, 'markup': None, 'profit': None, 'margin': None,
@@ -21,8 +29,12 @@ def evaluate(offer, preferences, today=None):
     evidence_fresh = offer.evidence_date is not None and timedelta(0) <= today - offer.evidence_date <= timedelta(days=7)
     sales = evidence_fresh and offer.sales_30 is not None and offer.sales_30 > 0
     reviews = evidence_fresh and offer.recent_reviews is not None and offer.recent_reviews > 0
-    stock_number = re.match(r'^\s*[><≥≤]?\s*(\d+)(?:\s|$)', offer.stock or '')
-    in_stock = stock_number is not None and int(stock_number.group(1)) > 0
+    result['stock_status'] = stock_status(offer.stock)
+    in_stock = result['stock_status'] == 'in_stock'
+    result['fresh_reviews'] = bool(reviews)
+    result['confirmed_sales'] = bool(sales)
+    result['evidence_fresh'] = evidence_fresh
+    result['price_fresh'] = price_fresh
     if sales:
         result['signal'] = 'Есть подтверждённые продажи'
     elif reviews:
