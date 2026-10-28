@@ -46,7 +46,7 @@
 <th>Kaspi, ₸</th>
 <th>Разница, ₸ / наценка</th>
 <th>Прибыль после расходов</th>
-<th>Спрос</th>
+<th>Продавцы Kaspi и спрос</th>
 <th>Действия</th>
 </tr>
 </thead>
@@ -69,10 +69,12 @@
 <td class="money">{{ row.profit|floatformat:0|default:'Нет данных' }}<small>{{ row.margin|floatformat:1|default:'—' }}% от выручки</small>
 </td>
 <td>
+{% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}
+<details><summary>Спрос на товар</summary>
 <span class="badge {% if row.offer.recent_reviews %}weak{% endif %}">{{ row.signal }}</span>
 <small>Продажи / 30 дней: {{ row.offer.sales_30|default_if_none:'неизвестны' }}</small>
 <small>Найдено отзывов / 90 дней: {{ row.offer.recent_reviews|default_if_none:'нет данных' }}</small>
-<small>Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</small>
+<small>Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</small></details>
 </td>
 <td>
 <button type="button" class="quick-view" data-url="{% url 'procurement:detail' row.offer.pk %}?compact=1" aria-haspopup="dialog" title="Быстрый просмотр товара">Просмотр</button>

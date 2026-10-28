@@ -168,3 +168,18 @@ class PurchaseDocument(models.Model):
     name = models.CharField(max_length=255)
     data = models.BinaryField()
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class KaspiSellerSnapshot(models.Model):
+    offer = models.OneToOneField(Offer, related_name='kaspi_sellers', on_delete=models.CASCADE)
+    source_url = models.URLField()
+    city = models.CharField(max_length=20, default='750000000')
+    checked_on = models.DateField()
+    complete = models.BooleanField(default=False)
+    sellers = models.JSONField(default=list)
+
+    @property
+    def ranked_sellers(self):
+        return sorted(self.sellers, key=lambda seller: (Decimal(str(seller['price'])),
+            seller.get('rating') is None, -Decimal(str(seller['rating'])) if seller.get('rating') is not None else Decimal(0),
+            seller.get('reviews') is None, -(seller.get('reviews') or 0), seller['name'].casefold()))

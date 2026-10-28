@@ -62,7 +62,7 @@ class DraftForm(forms.ModelForm):
 
 
 class UploadForm(forms.Form):
-    kind = forms.ChoiceField(label='Тип файла', choices=[('catalog', 'Прайс поставщика'), ('demand', 'Отчёт спроса Kaspi (подготовленный CSV/XLSX)'), ('enrichment', 'Применимость и категории Omega (JSON)')])
+    kind = forms.ChoiceField(label='Тип файла', choices=[('catalog', 'Прайс поставщика'), ('demand', 'Отчёт спроса Kaspi (подготовленный CSV/XLSX)'), ('enrichment', 'Применимость и категории Omega (JSON)'), ('competitors', 'Продавцы Kaspi (JSON)')])
     supplier = forms.CharField(label='Поставщик', max_length=160)
     file = forms.FileField(label='Файл CSV, Excel или JSON применимости')
     checked_on = forms.DateField(label='Дата актуальности данных', widget=forms.DateInput(attrs={'type': 'date'}))
