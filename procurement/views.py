@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.db.models import Q, Prefetch, prefetch_related_objects
-from django.http import HttpResponse, FileResponse
+from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
@@ -181,13 +181,23 @@ def upload(request):
 @require_POST
 def select(request, pk):
     offer = get_object_or_404(Offer, pk=pk)
+    as_json = 'application/json' in request.headers.get('Accept', '')
+    def invalid_quantity(message):
+        return JsonResponse({'error': message}, status=400) if as_json else HttpResponse(message, status=400)
     try:
         quantity = int(request.POST.get('quantity', offer.min_order))
     except (ValueError, TypeError):
-        return HttpResponse('Количество должно быть целым.', status=400)
+        return invalid_quantity('Количество должно быть целым.')
     if quantity < offer.min_order or quantity > 100000:
-        return HttpResponse('Количество вне допустимого диапазона.', status=400)
+        return invalid_quantity('Количество вне допустимого диапазона.')
     Selection.objects.update_or_create(user=request.user, offer=offer, defaults={'quantity': quantity})
+    if as_json:
+        return JsonResponse({'basket_count': Selection.objects.filter(user=request.user).count(),
+                             'message': 'Добавлено в список закупки.'})
+    target = request.POST.get('next', '')
+    if url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        messages.success(request, 'Добавлено в список закупки.')
+        return redirect(target)
     return redirect('procurement:basket')
 
 

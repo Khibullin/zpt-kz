@@ -92,6 +92,63 @@ class WorkspaceTests(TestCase):
         for value in ['0', '-1', '1.5', 'abc', '100001']:
             self.assertEqual(self.client.post(self.url('select', pk=self.offer.pk), {'quantity': value}).status_code, 400)
 
+    def test_selection_json_stays_on_catalog_and_counts_only_current_user(self):
+        Selection.objects.create(user=self.other, offer=self.offer, quantity=3)
+        self.login()
+        for quantity in (2, 4):
+            response = self.client.post(self.url('select', pk=self.offer.pk), {'quantity': quantity},
+                                        HTTP_ACCEPT='application/json')
+            self.assertEqual(response.status_code, 200)
+            self.assertNotIn('Location', response)
+            self.assertEqual(response.json(), {'basket_count': 1, 'message': 'Добавлено в список закупки.'})
+        self.assertEqual(Selection.objects.get(user=self.user, offer=self.offer).quantity, 4)
+        self.assertEqual(Selection.objects.get(user=self.other, offer=self.offer).quantity, 3)
+
+    def test_selection_json_reports_validation_errors_without_mutating_basket(self):
+        self.login()
+        for value in ('abc', '0', '100001'):
+            response = self.client.post(self.url('select', pk=self.offer.pk), {'quantity': value},
+                                        HTTP_ACCEPT='application/json')
+            self.assertEqual(response.status_code, 400)
+            self.assertIn('error', response.json())
+        self.assertFalse(Selection.objects.filter(user=self.user).exists())
+
+    def test_selection_fallback_preserves_catalog_filters_and_page(self):
+        self.login()
+        target = self.url('dashboard') + '?category=Трансмиссия&mode=difference&page=3'
+        response = self.client.post(self.url('select', pk=self.offer.pk), {'next': target})
+        self.assertRedirects(response, target, fetch_redirect_response=False)
+
+    def test_selection_fallback_rejects_external_return_url(self):
+        self.login()
+        response = self.client.post(self.url('select', pk=self.offer.pk), {'next': 'https://other.example/'})
+        self.assertRedirects(response, self.url('basket'), fetch_redirect_response=False)
+
+    def test_catalog_and_compact_card_expose_inline_selection(self):
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'q': '00123', 'mode': 'difference'})
+        self.assertContains(response, 'data-selection-form')
+        self.assertContains(response, 'data-basket-count', count=2)
+        self.assertContains(response, '?q=00123&amp;mode=difference')
+        self.assertContains(response, 'procurement/selection.js')
+        compact = self.client.get(self.url('detail', pk=self.offer.pk), {'compact': 1})
+        self.assertContains(compact, 'data-selection-form')
+        self.assertContains(compact, 'data-selection-status')
+
+    def test_selection_json_remains_protected_by_csrf_and_membership(self):
+        client = Client(enforce_csrf_checks=True)
+        client.force_login(self.user)
+        self.assertEqual(client.post(self.url('select', pk=self.offer.pk), {},
+                                    HTTP_ACCEPT='application/json').status_code, 403)
+        client.get(self.url('dashboard'))
+        response = client.post(self.url('select', pk=self.offer.pk),
+                               {'csrfmiddlewaretoken': client.cookies['csrftoken'].value},
+                               HTTP_ACCEPT='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.login(self.outsider)
+        self.assertEqual(self.client.post(self.url('select', pk=self.offer.pk), {},
+                                         HTTP_ACCEPT='application/json').status_code, 403)
+
     def test_csrf_protected(self):
         client = Client(enforce_csrf_checks=True)
         client.force_login(self.user)
