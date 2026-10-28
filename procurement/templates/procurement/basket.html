@@ -1,22 +1,13 @@
 {% extends 'procurement/base.html' %}{% block content %}
-<header><div><h1>Список закупки</h1><div class="muted">Выберите товары → оформите у поставщика → сохраните номер заказа</div></div><a class="button" href="{% url 'procurement:export' %}">Скачать CSV</a></header>
+<header><div><h1>Список закупки</h1><div class="muted">Выберите товары → создайте заказ в ZPT.KZ → выгрузите Excel</div></div></header>
 {% if selections %}<h2>Бюджет: {{ budget|floatformat:0 }} ₸</h2><p>Расчётная стоимость по прайсу. Окончательные цены и наличие подтвердит поставщик.</p>{% endif %}
 {% for group in supplier_groups %}<section class="panel">
 <h2>{{ group.supplier.name }} · {{ group.total|floatformat:0 }} ₸</h2>
-<p>Оформите заказ на сайте поставщика. После оформления сохраните здесь его номер.</p>
-<div class="actions" style="margin:16px 0">
-{% if group.purchase_url %}<a class="button primary" href="{{ group.purchase_url }}" target="_blank" rel="noopener noreferrer">Перейти к заказу у {{ group.supplier.name }}</a>{% else %}<span class="muted">Ссылка поставщика пока не указана</span>{% endif %}
-<button type="button" class="copy-order" data-target="order-text-{{ group.supplier.pk }}">Скопировать заказ</button>
-<a class="button" href="{% url 'procurement:purchase_confirm' group.supplier.pk %}">Отметить как заказанное</a></div>
-{% if group.rows|length > 1 %}<p class="muted">Для каждой позиции ниже есть ссылка на карточку поставщика.</p>{% endif %}
-<textarea id="order-text-{{ group.supplier.pk }}" class="order-copy-text" hidden readonly aria-label="Текст заказа {{ group.supplier.name }}">{{ group.copy_text }}</textarea>
-<div class="copy-status" role="status" aria-live="polite"></div>
+<p>Создайте закупочный заказ в нашей системе. Он получит свой номер, а состав можно будет выгрузить в Excel.</p>
+<div class="actions" style="margin:16px 0"><a class="button primary" href="{% url 'procurement:purchase_confirm' group.supplier.pk %}">Создать закупочный заказ</a></div>
 <div class="tablewrap"><table><thead><tr><th>Товар</th><th>Количество</th><th>Закупка, ₸</th><th>Сумма, ₸</th><th>Действия</th></tr></thead><tbody>
 {% for item in group.rows %}<tr><td><a href="{% url 'procurement:detail' item.offer.pk %}">{{ item.offer.name }}</a><small>{{ item.offer.brand }} · {{ item.offer.article }}</small></td>
 <td><form method="post" action="{% url 'procurement:select' item.offer.pk %}">{% csrf_token %}<input name="quantity" type="number" min="{{ item.offer.min_order }}" max="100000" value="{{ item.quantity }}" style="width:90px" required><button>Изменить</button></form></td>
-<td>{{ item.offer.cost }}</td><td>{{ item.subtotal }}</td><td>{% if item.offer.supplier_url %}<a class="button" href="{{ item.offer.supplier_url }}" target="_blank" rel="noopener noreferrer">Открыть у поставщика</a>{% endif %}<form method="post" action="{% url 'procurement:remove' item.pk %}" style="margin-top:8px">{% csrf_token %}<button>Убрать</button></form></td></tr>{% endfor %}
+<td>{{ item.offer.cost }}</td><td>{{ item.subtotal }}</td><td><form method="post" action="{% url 'procurement:remove' item.pk %}" style="margin-top:8px">{% csrf_token %}<button>Убрать</button></form></td></tr>{% endfor %}
 </tbody></table></div></section>{% empty %}<section class="panel"><p>Список закупки пуст.</p><a class="button primary" href="{% url 'procurement:dashboard' %}">Подобрать товары</a></section>{% endfor %}
-<section class="panel"><h2>Оформленные заказы</h2><p class="muted">Отметки о заказах, которые вы оформили у поставщиков.</p><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Поставщик</th><th>Номер заказа</th><th>Статус</th><th>Сумма по прайсу, ₸</th></tr></thead><tbody>{% for order in purchases %}<tr><td>{{ order.created_at|date:'d.m.Y H:i' }}</td><td>{{ order.supplier.name }}</td><td><a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.order_number }}</a></td><td>{{ order.get_status_display }}</td><td>{{ order.estimated_total }}</td></tr>{% empty %}<tr><td colspan="5">Пока нет отмеченных заказов.</td></tr>{% endfor %}</tbody></table></div></section>
-<style>.order-copy-text{width:100%;min-height:140px;margin-bottom:12px}.copy-status:not(:empty){margin:10px 0;color:#176344}</style>
-<script>document.querySelectorAll('.copy-order').forEach(button=>button.addEventListener('click',async()=>{const text=document.getElementById(button.dataset.target);const status=button.closest('section').querySelector('.copy-status');try{await navigator.clipboard.writeText(text.value);status.textContent='Заказ скопирован. Вставьте его в сообщение менеджеру поставщика.';}catch(error){text.hidden=false;text.focus();text.select();status.textContent='Текст заказа выделен. Скопируйте его вручную.';}}));</script>
-{% endblock %}
+<section class="panel"><h2>Закупочные заказы ZPT.KZ</h2><div class="tablewrap"><table><thead><tr><th>Дата</th><th>Наш номер</th><th>Поставщик</th><th>Статус</th><th>Сумма, ₸</th><th>Excel</th></tr></thead><tbody>{% for order in purchases %}<tr><td>{{ order.created_at|date:'d.m.Y H:i' }}</td><td><a href="{% url 'procurement:purchase_detail' order.pk %}">{{ order.order_number }}</a></td><td>{{ order.supplier.name }}</td><td>{{ order.get_status_display }}</td><td>{{ order.total }}</td><td><a class="button" href="{% url 'procurement:purchase_excel' order.pk %}">Выгрузить Excel</a></td></tr>{% empty %}<tr><td colspan="6">Закупочных заказов пока нет.</td></tr>{% endfor %}</tbody></table></div></section>{% endblock %}

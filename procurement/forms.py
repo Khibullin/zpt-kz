@@ -1,4 +1,5 @@
 from django import forms
+from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
 from .categories import OMEGA_CATEGORIES
@@ -75,11 +76,36 @@ class UploadForm(forms.Form):
 
 
 class PurchaseConfirmationForm(forms.Form):
-    order_number = forms.CharField(label='Номер заказа у поставщика', max_length=100)
-    confirmed = forms.BooleanField(label='Заказ уже оформлен у поставщика')
+    supplier_order_number = forms.CharField(label='Номер заказа у поставщика (если есть)', max_length=100, required=False)
+    comment = forms.CharField(label='Комментарий', max_length=3000, required=False, widget=forms.Textarea(attrs={'rows': 3}))
     request_key = forms.UUIDField(widget=forms.HiddenInput)
     selection_token = forms.CharField(widget=forms.HiddenInput)
 
 
-class PurchaseStatusForm(forms.Form):
-    status = forms.ChoiceField(label='Статус заказа', choices=PurchaseOrder.Status.choices)
+class PurchaseEditForm(forms.ModelForm):
+    version = forms.IntegerField(min_value=1, widget=forms.HiddenInput)
+    invoice_file = forms.FileField(label='Прикрепить счёт', required=False)
+    waybill_file = forms.FileField(label='Прикрепить накладную', required=False)
+
+    def clean(self):
+        data = super().clean()
+        for field in ('invoice_file', 'waybill_file'):
+            file = data.get(field)
+            if file and (file.size > 5 * 1024 * 1024 or not file.name.lower().endswith(('.pdf', '.xlsx', '.jpg', '.jpeg', '.png'))):
+                self.add_error(field, 'PDF, XLSX, JPG или PNG, не более 5 МБ.')
+        return data
+
+    class Meta:
+        model = PurchaseOrder
+        fields = ['status', 'supplier_order_number', 'invoice_number', 'waybill_number', 'comment']
+        labels = {'status': 'Статус', 'supplier_order_number': 'Номер заказа у поставщика',
+                  'invoice_number': 'Номер счёта', 'waybill_number': 'Номер накладной', 'comment': 'Комментарий'}
+        widgets = {'comment': forms.Textarea(attrs={'rows': 3})}
+
+
+class PurchaseLineForm(forms.Form):
+    quantity = forms.IntegerField(label='Количество', min_value=0, max_value=100000)
+    cost = forms.DecimalField(label='Цена, ₸', min_value=0, max_value=999999999999, max_digits=14, decimal_places=2)
+
+
+PurchaseLineFormSet = formset_factory(PurchaseLineForm, extra=0, max_num=20000, absolute_max=20000, validate_max=True)

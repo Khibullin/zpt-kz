@@ -126,15 +126,23 @@ class VehicleFitment(models.Model):
 
 class PurchaseOrder(models.Model):
     class Status(models.TextChoices):
-        ORDERED = 'ordered', 'Заказано'
+        DRAFT = 'draft', 'Черновик'
+        SENT = 'sent', 'Отправлен поставщику'
+        CONFIRMED = 'confirmed', 'Подтверждён'
+        PAID = 'paid', 'Оплачен'
         RECEIVED = 'received', 'Получено'
         CANCELLED = 'cancelled', 'Отменено'
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
-    order_number = models.CharField(max_length=100)
+    supplier_order_number = models.CharField(max_length=100, blank=True)
+    invoice_number = models.CharField(max_length=100, blank=True)
+    waybill_number = models.CharField(max_length=100, blank=True)
+    comment = models.TextField(blank=True)
+    version = models.PositiveIntegerField(default=1)
+    original_items = models.JSONField(default=list)
     request_key = models.UUIDField()
-    status = models.CharField(max_length=12, choices=Status.choices, default=Status.ORDERED)
+    status = models.CharField(max_length=12, choices=Status.choices, default=Status.DRAFT)
     items = models.JSONField(default=list)
     estimated_total = models.DecimalField(max_digits=26, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -143,3 +151,20 @@ class PurchaseOrder(models.Model):
     class Meta:
         ordering = ['-created_at', '-pk']
         constraints = [models.UniqueConstraint(fields=['user', 'request_key'], name='procurement_purchase_request')]
+
+
+    @property
+    def order_number(self):
+        return f'ЗК-{self.pk:06d}'
+
+    @property
+    def total(self):
+        return sum((Decimal(str(item['cost'])) * item['quantity'] for item in self.items), Decimal(0))
+
+
+class PurchaseDocument(models.Model):
+    order = models.ForeignKey(PurchaseOrder, related_name='documents', on_delete=models.CASCADE)
+    kind = models.CharField(max_length=12, choices=[('invoice', 'Счёт'), ('waybill', 'Накладная')])
+    name = models.CharField(max_length=255)
+    data = models.BinaryField()
+    created_at = models.DateTimeField(auto_now_add=True)
