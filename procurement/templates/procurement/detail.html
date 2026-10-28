@@ -64,8 +64,9 @@
 </tr>{% endfor %}</tbody>
 </table>
 </div>
-<form class="actions" method="post" action="{% url 'procurement:select' offer.pk %}" style="margin-top:18px">{% csrf_token %}<label>Количество <input type="number" min="{{ offer.min_order }}" max="100000" value="{{ offer.min_order }}" name="quantity" required>
+<form class="actions" method="post" action="{% url 'procurement:select' offer.pk %}" data-selection-form style="margin-top:18px">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><label>Количество <input type="number" min="{{ offer.min_order }}" max="100000" value="{{ offer.min_order }}" name="quantity" required>
 </label>
 <button class="primary">В список закупки</button>
+<small data-selection-status role="status" aria-live="polite"></small>
 </form>
 </section>{% endblock %}

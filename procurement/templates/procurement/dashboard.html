@@ -4,7 +4,7 @@
 <h1>Подбор к закупке</h1>
 <div class="muted">Закупки и продажи · внутренний кабинет</div>
 </div>
-<div class="actions">{% if can_manage %}<a class="button" href="{% url 'procurement:upload' %}">Загрузить файл</a>{% endif %}<a class="button primary" href="{% url 'procurement:basket' %}">Список закупки · {{ basket_count }}</a>
+<div class="actions">{% if can_manage %}<a class="button" href="{% url 'procurement:upload' %}">Загрузить файл</a>{% endif %}<a class="button primary" href="{% url 'procurement:basket' %}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a>
 </div>
 </header>
 <div class="modes">
@@ -85,7 +85,7 @@
 <input type="hidden" name="action" value="{% if row.favorite %}remove{% else %}add{% endif %}">
 <button>{% if row.favorite %}Убрать из избранного{% else %}В избранное{% endif %}</button>
 </form>
-<form method="post" action="{% url 'procurement:select' row.offer.pk %}" style="margin-top:8px">{% csrf_token %}<button class="primary">+ В закупку</button>
+<form method="post" action="{% url 'procurement:select' row.offer.pk %}" data-selection-form style="margin-top:8px">{% csrf_token %}<input type="hidden" name="next" value="{{ request.get_full_path }}"><button class="primary">+ В закупку</button><small data-selection-status role="status" aria-live="polite"></small>
 </form>
 </details>
 </td>
