@@ -6,7 +6,7 @@ from copy import deepcopy
 from django.core import signing
 from django.db import transaction
 from functools import wraps
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -107,15 +107,23 @@ def dashboard(request):
         response['Content-Disposition'] = 'attachment; filename="procurement-selection.csv"'
         response.write('\ufeff')
         writer = csv.writer(response, delimiter=';')
-        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница, ₸', 'Наценка, %', 'Прибыль, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi'])
+        def exported_number(value):
+            return Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if value is not None else None
+        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница после комиссии, ₸', 'Доходность после комиссии, %', 'Прибыль после комиссии и прочих расходов, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi', 'Комиссия без НДС, %', 'Комиссия, ₸', 'Kaspi после комиссии, ₸', 'Прочие расходы, ₸'])
         for row in rows:
             offer = row['offer']
-            writer.writerow([safe_csv(x) for x in [offer.article, offer.brand, offer.name, offer.supplier.name, offer.cost, offer.kaspi_price, row['difference'], row['markup'], row['profit'], row['signal'], offer.sales_30, offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url]])
+            writer.writerow([safe_csv(x) for x in [offer.article, offer.brand, offer.name, offer.supplier.name,
+                exported_number(offer.cost), exported_number(offer.kaspi_price), exported_number(row['difference']),
+                exported_number(row['markup']), exported_number(row['profit']), row['signal'], offer.sales_30,
+                offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url,
+                exported_number(row['commission_rate']), exported_number(row['commission_amount']),
+                exported_number(row['kaspi_after_commission']), exported_number(row['expenses'])]])
         return response
     page = Paginator(rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
         Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')))
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
+                  commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   filter_form=form, page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'difference'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
@@ -155,7 +163,7 @@ def settings(request):
         form.save()
         messages.success(request, 'Параметры расчёта сохранены.')
         return redirect('procurement:dashboard')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Прибыль = Kaspi − закупка − комиссия − все прочие расходы на единицу. Для отбора нужны проверенное совпадение, цены и сведения о спросе не старше 7 дней, положительные продажи за 30 дней или найденные отзывы за 90 дней. Отзывы не равны продажам. Пороги задаются ниже. Неизвестные расходы не считаются нулевыми.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Для отбора нужны проверенное совпадение, цены и сведения о спросе не старше 7 дней, положительные продажи за 30 дней или найденные отзывы за 90 дней. Отзывы не равны продажам. Пороги задаются ниже. Неизвестные комиссия и расходы не считаются нулевыми.'))
 
 
 @access('sales', 'admin')
@@ -320,6 +328,8 @@ def purchase_document(request, pk, document_id):
 
 
 def safe_csv(value):
+    if isinstance(value, (Decimal, int)):
+        return str(value)
     text = str(value if value is not None else '')
     return "'" + text if text.lstrip().startswith(('=', '+', '-', '@')) else text
 

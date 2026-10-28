@@ -1,6 +1,7 @@
 from datetime import timedelta
+import csv
 from decimal import Decimal
-from io import BytesIO
+from io import BytesIO, StringIO
 from unittest.mock import patch
 
 from django.contrib.auth import get_user_model
@@ -157,7 +158,8 @@ class WorkspaceTests(TestCase):
     def test_unknown_expenses_are_not_zero(self):
         preferences = Preferences(user=self.user)
         result = evaluate(self.offer, preferences)
-        self.assertEqual(result['difference'], 2000)
+        self.assertEqual(result['gross_difference'], 2000)
+        self.assertIsNone(result['difference'])
         self.assertIsNone(result['profit'])
         self.assertFalse(result['qualified'])
 
@@ -165,9 +167,136 @@ class WorkspaceTests(TestCase):
         preferences = Preferences(user=self.user, commission=Decimal(10), expenses=Decimal(100), min_profit=Decimal(1000))
         result = evaluate(self.offer, preferences)
         self.assertEqual(result['profit'], Decimal(1600))
-        self.assertEqual(result['markup'], Decimal(200))
+        self.assertEqual(result['difference'], Decimal(1700))
+        self.assertEqual(result['markup'], Decimal(170))
         self.assertTrue(result['qualified'])
         self.assertEqual(result['signal'], 'Слабый свежий сигнал')
+
+    def test_commission_10_9_uses_input_prices_without_vat_recalculation(self):
+        self.offer.cost, self.offer.kaspi_price = Decimal('37862'), Decimal('54280')
+        result = evaluate(self.offer, Preferences(user=self.user, commission=Decimal('10.9')))
+        self.assertEqual(result['gross_difference'], Decimal('16418'))
+        self.assertEqual(result['commission_amount'], Decimal('5916.52'))
+        self.assertEqual(result['kaspi_after_commission'], Decimal('48363.48'))
+        self.assertEqual(result['difference'], Decimal('10501.48'))
+        self.assertIsNone(result['profit'])
+        self.assertEqual(self.offer.cost, Decimal('37862'))
+        self.assertEqual(self.offer.kaspi_price, Decimal('54280'))
+
+    def test_commission_is_not_subtracted_twice_from_profit(self):
+        result = evaluate(self.offer, Preferences(user=self.user, commission=Decimal('10.9'), expenses=Decimal('123.45')))
+        self.assertEqual(result['commission_amount'], Decimal('327'))
+        self.assertEqual(result['difference'], Decimal('1673'))
+        self.assertEqual(result['profit'], Decimal('1549.55'))
+        self.assertEqual(result['profit'], result['difference'] - Decimal('123.45'))
+
+    def test_calculation_keeps_fractional_tenge_until_display(self):
+        self.offer.cost = self.offer.kaspi_price = Decimal('0.01')
+        result = evaluate(self.offer, Preferences(user=self.user, commission=Decimal('10.9'), expenses=Decimal('0.01')))
+        self.assertEqual(result['commission_amount'], Decimal('0.00109'))
+        self.assertEqual(result['kaspi_after_commission'], Decimal('0.00891'))
+        self.assertEqual(result['difference'], Decimal('-0.00109'))
+        self.assertEqual(result['markup'], Decimal('-10.9'))
+        self.assertEqual(result['profit'], Decimal('-0.01109'))
+
+    def test_zero_commission_and_zero_expenses_are_known(self):
+        result = evaluate(self.offer, Preferences(user=self.user, commission=Decimal('0'), expenses=Decimal('0')))
+        self.assertEqual(result['commission_amount'], Decimal('0'))
+        self.assertEqual(result['kaspi_after_commission'], Decimal('3000'))
+        self.assertEqual(result['difference'], Decimal('2000'))
+        self.assertEqual(result['profit'], Decimal('2000'))
+
+    def test_missing_commission_or_price_does_not_fall_back_to_gross_difference(self):
+        preferences = Preferences(user=self.user, expenses=Decimal('0'))
+        result = evaluate(self.offer, preferences)
+        for field in ('commission_amount', 'kaspi_after_commission', 'difference', 'markup', 'profit'):
+            self.assertIsNone(result[field])
+        self.assertEqual(result['gross_difference'], Decimal('2000'))
+        self.offer.kaspi_price = None
+        preferences.commission = Decimal('10.9')
+        result = evaluate(self.offer, preferences)
+        self.assertIsNone(result['gross_difference'])
+        self.assertIsNone(result['difference'])
+        self.assertIsNone(result['profit'])
+
+    def test_zero_price_and_zero_cost_keep_known_difference_without_division(self):
+        preferences = Preferences(user=self.user, commission=Decimal('10.9'), expenses=Decimal('0'))
+        self.offer.kaspi_price = Decimal('0')
+        result = evaluate(self.offer, preferences)
+        self.assertEqual(result['commission_amount'], Decimal('0'))
+        self.assertEqual(result['difference'], Decimal('-1000'))
+        self.assertEqual(result['markup'], Decimal('-100'))
+        self.assertIsNone(result['margin'])
+        self.offer.cost = Decimal('0')
+        result = evaluate(self.offer, preferences)
+        self.assertEqual(result['difference'], Decimal('0'))
+        self.assertEqual(result['profit'], Decimal('0'))
+        self.assertIsNone(result['markup'])
+        self.assertIsNone(result['margin'])
+
+    def test_after_commission_sorting_and_filter_use_personal_rate(self):
+        self.login()
+        self.offer.cost, self.offer.kaspi_price = Decimal('37862'), Decimal('54280')
+        self.offer.save()
+        taiho = Offer.objects.create(supplier=self.supplier, brand='TAIHO', article='046232', name='Вкладыши',
+                                     cost=Decimal('2424'), kaspi_price=Decimal('15500'))
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'))
+        response = self.client.get(self.url('dashboard'))
+        rows = list(response.context['page'])
+        self.assertEqual([row['offer'].pk for row in rows], [taiho.pk, self.offer.pk])
+        self.assertEqual(rows[0]['difference'], Decimal('11386.50'))
+        self.assertEqual(rows[1]['difference'], Decimal('10501.48'))
+        self.assertTrue(all(row['profit'] is None for row in rows))
+        self.assertEqual(self.client.get(self.url('dashboard'), {'min_markup': 28}).context['total'], 1)
+        self.login(self.other)
+        Preferences.objects.create(user=self.other, commission=0)
+        other_rows = list(self.client.get(self.url('dashboard')).context['page'])
+        self.assertEqual([row['offer'].pk for row in other_rows], [self.offer.pk, taiho.pk])
+        self.assertEqual(Preferences.objects.get(user=self.user).commission, Decimal('10.9'))
+
+    def test_new_comparison_csv_exports_commission_values_and_unknown_expenses(self):
+        self.login()
+        self.offer.cost, self.offer.kaspi_price = Decimal('37862'), Decimal('54280')
+        self.offer.save()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'))
+        response = self.client.get(self.url('dashboard'), {'download': 'csv'})
+        row = next(csv.DictReader(StringIO(response.content.decode('utf-8-sig')), delimiter=';'))
+        self.assertEqual(row['Комиссия без НДС, %'], '10.90')
+        self.assertEqual(row['Комиссия, ₸'], '5916.52')
+        self.assertEqual(row['Kaspi после комиссии, ₸'], '48363.48')
+        self.assertEqual(row['Разница после комиссии, ₸'], '10501.48')
+        self.assertEqual(row['Прибыль после комиссии и прочих расходов, ₸'], '')
+        self.assertEqual(row['Прочие расходы, ₸'], '')
+        self.assertEqual(row['Закупка, ₸'], '37862.00')
+        self.assertEqual(row['Kaspi, ₸'], '54280.00')
+
+    def test_negative_comparison_csv_stays_numeric_and_escapes_product_formulas(self):
+        self.login()
+        self.offer.cost, self.offer.kaspi_price, self.offer.name = Decimal('1000'), Decimal('1000'), '=SUM(1,2)'
+        self.offer.save()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=Decimal('0'))
+        response = self.client.get(self.url('dashboard'), {'download': 'csv'})
+        row = next(csv.DictReader(StringIO(response.content.decode('utf-8-sig')), delimiter=';'))
+        self.assertEqual(row['Разница после комиссии, ₸'], '-109.00')
+        self.assertEqual(row['Доходность после комиссии, %'], '-10.90')
+        self.assertEqual(row['Прибыль после комиссии и прочих расходов, ₸'], '-109.00')
+        self.assertEqual(row['Наименование'], "'=SUM(1,2)")
+
+    def test_comparison_pages_show_personal_commission_and_settings_source(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'))
+        dashboard = self.client.get(self.url('dashboard'))
+        self.assertContains(dashboard, 'Комиссия Kaspi без НДС: 10,9%')
+        self.assertContains(dashboard, 'Разница после комиссии')
+        self.assertContains(dashboard, 'ваши личные настройки')
+        detail = self.client.get(self.url('detail', pk=self.offer.pk))
+        for label in ('Комиссия Kaspi без НДС: 10,9%', 'Сумма комиссии:', 'Kaspi после комиссии:',
+                      'Разница после комиссии, до прочих расходов:', 'Прочие расходы на единицу:',
+                      'Прибыль после комиссии и прочих расходов: Нет данных'):
+            self.assertContains(detail, label)
+        settings = self.client.get(self.url('settings'))
+        self.assertContains(settings, 'Комиссия Kaspi без НДС, %')
+        self.assertContains(settings, 'комиссия повторно не вычитается')
 
     def test_stale_and_future_evidence_excluded(self):
         preferences = Preferences(user=self.user, commission=0, expenses=0)

@@ -21,9 +21,13 @@
 <section class="panel">
 <h2>Расчёт и объяснение</h2>
 <p>Закупка: {{ offer.cost }} ₸ · Kaspi: {{ offer.kaspi_price|default_if_none:'Нет данных' }}</p>
-<p>Разница: {{ analysis.difference|floatformat:0|default:'Нет данных' }} ₸ · Наценка: {{ analysis.markup|floatformat:1|default:'—' }}%</p>
+<p>Комиссия Kaspi без НДС: {% if analysis.commission_rate == None %}не задана{% else %}{{ analysis.commission_rate }}%{% endif %} · Сумма комиссии: {{ analysis.commission_amount|floatformat:2|default:'Нет данных' }} ₸.</p>
+<p>Kaspi после комиссии: {{ analysis.kaspi_after_commission|floatformat:2|default:'Нет данных' }} ₸.</p>
+<p>Разница после комиссии, до прочих расходов: {{ analysis.difference|floatformat:2|default:'Нет данных' }} ₸ · Доходность после комиссии: {{ analysis.markup|floatformat:1|default:'—' }}%.</p>
+{% if analysis.commission_rate == None %}<p class="muted">Разница исходных цен до комиссии: {{ analysis.gross_difference|floatformat:2|default:'Нет данных' }} ₸. Она не используется для сортировки после комиссии.</p>{% endif %}
+<p>Прочие расходы на единицу: {{ analysis.expenses|floatformat:2|default:'Нет данных' }} ₸. Источник ставки и расходов — <a href="{% url 'procurement:settings' %}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
 <p>
-<strong>Прибыль после расходов: {{ analysis.profit|floatformat:0|default:'Нет данных' }} ₸</strong>
+<strong>Прибыль после комиссии и прочих расходов: {{ analysis.profit|floatformat:2|default:'Нет данных' }} ₸</strong>
 </p>
 <p>{{ analysis.qualified|yesno:'Кандидат для минимального теста,Условия рекомендации не выполнены' }}</p>
 <ul>{% for reason in analysis.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>

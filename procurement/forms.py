@@ -17,7 +17,7 @@ class SelectionFilterForm(forms.Form):
     demand = forms.ChoiceField(label='Спрос', required=False, choices=[('', 'Любые признаки спроса'), ('reviews', 'Есть свежие отзывы'), ('sales', 'Есть подтверждённые продажи'), ('unknown', 'Нет свежих подтверждений')])
     max_cost = forms.DecimalField(label='Закупка до, ₸', required=False, min_value=0, max_value=999999999999, max_digits=14, decimal_places=2)
     min_profit = forms.DecimalField(label='Прибыль от, ₸', required=False, min_value=0, max_value=999999999999, max_digits=14, decimal_places=2)
-    min_markup = forms.DecimalField(label='Наценка от, %', required=False, min_value=0, max_value=9999999, max_digits=9, decimal_places=2)
+    min_markup = forms.DecimalField(label='Доходность после комиссии от, %', required=False, min_value=0, max_value=9999999, max_digits=9, decimal_places=2)
     verified = forms.BooleanField(label='Только проверенные совпадения', required=False)
     favorites = forms.BooleanField(label='Только избранное', required=False)
 
@@ -41,8 +41,8 @@ class PreferencesForm(forms.ModelForm):
     class Meta:
         model = Preferences
         fields = ['commission', 'expenses', 'min_profit', 'min_markup']
-        labels = {'commission': 'Комиссия, %', 'expenses': 'Все прочие расходы на единицу, ₸',
-                  'min_profit': 'Минимальная прибыль, ₸', 'min_markup': 'Минимальная наценка, %'}
+        labels = {'commission': 'Комиссия Kaspi без НДС, %', 'expenses': 'Все прочие расходы на единицу, ₸',
+                  'min_profit': 'Минимальная прибыль, ₸', 'min_markup': 'Минимальная доходность после комиссии, %'}
 
 
 class DraftForm(forms.ModelForm):
