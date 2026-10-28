@@ -11,12 +11,15 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_POST
+from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.core.paginator import Paginator
+from django.urls import reverse
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .analysis import evaluate
-from .forms import PreferencesForm, UploadForm, DraftForm
+from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm
 from .importing import import_offers, import_demand
-from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity
+from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite
 
 
 def access(*roles):
@@ -38,33 +41,94 @@ def context(request, **extra):
             'basket_count': Selection.objects.filter(user=request.user).count(), **extra}
 
 
-@access()
-def dashboard(request):
-    preferences, _ = Preferences.objects.get_or_create(user=request.user)
+def filtered_rows(request, preferences, filters):
     query = Offer.objects.select_related('supplier').all()
-    term = request.GET.get('q', '').strip()[:200]
+    term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
-    supplier = request.GET.get('supplier', '')
-    if supplier.isdigit():
-        query = query.filter(supplier_id=int(supplier))
-    rows = [{'offer': offer, **evaluate(offer, preferences)} for offer in query]
+    if filters.get('supplier'):
+        query = query.filter(supplier=filters['supplier'])
+    if filters.get('category'):
+        query = query.filter(category=filters['category'])
+    if filters.get('max_cost') is not None:
+        query = query.filter(cost__lte=filters['max_cost'])
+    if filters.get('verified'):
+        query = query.filter(match_verified=True)
+    favorites = set(Favorite.objects.filter(user=request.user).values_list('offer_id', flat=True))
+    if filters.get('favorites'):
+        query = query.filter(pk__in=favorites)
+    rows = []
+    for offer in query:
+        row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences)}
+        if filters.get('availability') and row['stock_status'] != filters['availability']:
+            continue
+        demand = filters.get('demand')
+        if demand == 'reviews' and not row['fresh_reviews']:
+            continue
+        if demand == 'sales' and not row['confirmed_sales']:
+            continue
+        if demand == 'unknown' and (row['fresh_reviews'] or row['confirmed_sales']):
+            continue
+        if any(filters.get(key) is not None and (row[field] is None or row[field] < filters[key])
+               for key, field in [('min_profit', 'profit'), ('min_markup', 'markup')]):
+            continue
+        rows.append(row)
     mode = request.GET.get('mode', 'difference')
     if mode == 'best':
         rows = [r for r in rows if r['qualified']]
         rows.sort(key=lambda r: r['profit'], reverse=True)
     else:
         rows.sort(key=lambda r: (r['difference'] is not None, r['difference'] or Decimal(0)), reverse=True)
-    page = Paginator(rows, 40).get_page(request.GET.get('page'))
-    return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), suppliers=Supplier.objects.all(), preferences=preferences, q=term, mode=mode, selected_supplier=supplier))
+    return rows
 
 
 @access()
+def dashboard(request):
+    preferences, _ = Preferences.objects.get_or_create(user=request.user)
+    form = SelectionFilterForm(request.GET)
+    valid = form.is_valid()
+    rows = filtered_rows(request, preferences, form.cleaned_data) if valid else []
+    if request.GET.get('download') == 'csv' and valid:
+        response = HttpResponse(content_type='text/csv; charset=utf-8')
+        response['Content-Disposition'] = 'attachment; filename="procurement-selection.csv"'
+        response.write('\ufeff')
+        writer = csv.writer(response, delimiter=';')
+        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница, ₸', 'Наценка, %', 'Прибыль, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi'])
+        for row in rows:
+            offer = row['offer']
+            writer.writerow([safe_csv(x) for x in [offer.article, offer.brand, offer.name, offer.supplier.name, offer.cost, offer.kaspi_price, row['difference'], row['markup'], row['profit'], row['signal'], offer.sales_30, offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url]])
+        return response
+    page = Paginator(rows, 40).get_page(request.GET.get('page'))
+    return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
+                  filter_form=form, basic_filters=[form[name] for name in ('supplier', 'category', 'availability', 'demand')],
+                  advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
+                  mode=request.GET.get('mode', 'difference'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
+
+
+@access()
+@xframe_options_sameorigin
 def detail(request, pk):
     offer = get_object_or_404(Offer.objects.select_related('supplier'), pk=pk)
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     alternatives = Offer.objects.filter(brand__iexact=offer.brand, article__iexact=offer.article).select_related('supplier').order_by('cost')
     return render(request, 'procurement/detail.html', context(request, offer=offer, analysis=evaluate(offer, preferences), alternatives=alternatives))
+
+
+@access()
+@require_POST
+def favorite(request, pk):
+    offer = get_object_or_404(Offer, pk=pk)
+    action = request.POST.get('action')
+    if action == 'add':
+        Favorite.objects.get_or_create(user=request.user, offer=offer)
+    elif action == 'remove':
+        Favorite.objects.filter(user=request.user, offer=offer).delete()
+    else:
+        return HttpResponse('Неизвестное действие.', status=400)
+    target = request.POST.get('next', '')
+    if not url_has_allowed_host_and_scheme(target, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        target = reverse('procurement:dashboard')
+    return redirect(target)
 
 
 @access()
