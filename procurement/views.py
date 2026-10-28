@@ -5,7 +5,7 @@ from decimal import Decimal
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.db.models import Q
+from django.db.models import Q, Prefetch, prefetch_related_objects
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -19,7 +19,7 @@ from .analysis import evaluate
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm
 from .importing import import_offers, import_demand, import_enrichment
-from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite
+from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment
 
 
 def access(*roles):
@@ -41,7 +41,7 @@ def context(request, **extra):
 
 
 def filtered_rows(request, preferences, filters):
-    query = Offer.objects.select_related('supplier').prefetch_related('fitments').all()
+    query = Offer.objects.select_related('supplier').all()
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
@@ -107,6 +107,8 @@ def dashboard(request):
             writer.writerow([safe_csv(x) for x in [offer.article, offer.brand, offer.name, offer.supplier.name, offer.cost, offer.kaspi_price, row['difference'], row['markup'], row['profit'], row['signal'], offer.sales_30, offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url]])
         return response
     page = Paginator(rows, 40).get_page(request.GET.get('page'))
+    prefetch_related_objects([row['offer'] for row in page.object_list],
+        Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')))
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   filter_form=form, page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
