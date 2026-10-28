@@ -54,7 +54,7 @@
 <td class="product">{% if row.offer.photo_url %}<img src="{{ row.offer.photo_url }}" alt="" width="52" height="52" loading="lazy" referrerpolicy="no-referrer" style="object-fit:contain;float:left;margin:0 10px 6px 0">{% else %}<small>Фото пока нет</small>{% endif %}<a href="{% url 'procurement:detail' row.offer.pk %}">
 <strong>{{ row.offer.name }}</strong>
 </a>
-<small>{{ row.offer.brand }} · {{ row.offer.article }}</small>
+<small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{{ row.offer.category }}</small>
 {% include 'procurement/fitments.html' with offer=row.offer compact=True %}
 </td>
 <td>{{ row.offer.supplier.name }}<small>{{ row.offer.stock|default:'Остаток неизвестен' }}</small>

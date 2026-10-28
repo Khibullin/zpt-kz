@@ -173,3 +173,94 @@ def import_demand(file, supplier_name, date, user):
         offer.save()
     Activity.objects.create(user=user, action='demand_import', details={'supplier': supplier.name, 'rows': len(rows), 'date': date.isoformat()})
     return len(rows)
+
+
+@transaction.atomic
+def import_enrichment(file, supplier_name, date, user):
+    """Apply sourced fitment only; never renew prices, sales or Kaspi verification."""
+    import json
+    from urllib.parse import urlsplit
+    from django.core.validators import URLValidator
+    from django.core.exceptions import ValidationError
+    from .models import VehicleFitment
+    from .categories import OMEGA_CATEGORIES
+
+    supplier = Supplier.objects.filter(name=supplier_name.strip()).first()
+    if supplier is None:
+        raise ValueError('Сначала загрузите прайс поставщика.')
+    try:
+        payload = json.load(file)
+    except (ValueError, UnicodeError):
+        raise ValueError('Нужен JSON-файл применимости Omega.')
+    if not isinstance(payload, dict) or payload.get('checked_on') != date.isoformat():
+        raise ValueError('Дата файла должна совпадать с датой проверки.')
+    rows = payload.get('offers')
+    if not isinstance(rows, list) or not rows or len(rows) > 20000:
+        raise ValueError('Нужен список offers: от 1 до 20 000 товаров.')
+    seen = set()
+    total_fitments = 0
+    for row in rows:
+        if not isinstance(row, dict) or row.get('error'):
+            raise ValueError('Файл содержит непроверенную карточку или ошибку чтения.')
+        key = (str(row.get('brand', '')).strip(), str(row.get('article', '')).strip())
+        if key in seen:
+            raise ValueError('Бренд и артикул дублируются.')
+        seen.add(key)
+        offer = Offer.objects.filter(supplier=supplier, brand=key[0], article=key[1]).first()
+        if offer is None:
+            raise ValueError('Товар из файла не найден у выбранного поставщика.')
+        source = row.get('source_url', '')
+        if not isinstance(source, str):
+            raise ValueError('Не указана ссылка на источник.')
+        try:
+            URLValidator(schemes=['https'])(source)
+        except ValidationError:
+            raise ValueError('Источник должен быть HTTPS-ссылкой Omega.')
+        if urlsplit(source).hostname != 'omega-auto-parts.kz' or source.rstrip('/') != offer.supplier_url.rstrip('/'):
+            raise ValueError('Источник не совпадает с карточкой товара Omega в прайсе.')
+        category = row.get('category', '')
+        if category == 'Техобслуживание и сервис':
+            category = 'Тех обслуживание и сервис'
+        if category not in OMEGA_CATEGORIES:
+            raise ValueError('Категория отсутствует в каталоге Omega.')
+        fitments = row.get('fitments', [])
+        if not isinstance(fitments, list) or len(fitments) > 20000:
+            raise ValueError('Некорректный список модификаций.')
+        grouped = {}
+        names = {'Поколение (Omega)': 'generation', 'Шасси': 'chassis', 'Годы': 'years',
+                 'Двигатель': 'engine', 'Объём': 'capacity', 'Топливо': 'fuel', 'КПП': 'transmission',
+                 'Кузов': 'body', 'Привод': 'drive'}
+        for fit in fitments:
+            if not isinstance(fit, dict):
+                raise ValueError('Некорректная применимость.')
+            make, model = fit.get('make'), fit.get('model')
+            if not isinstance(make, str) or not make.strip() or len(make) > 100 or not isinstance(model, str) or not model.strip() or len(model) > 150:
+                raise ValueError('Для применимости обязательны марка и модель.')
+            specs = fit.get('specifications', {})
+            if not isinstance(specs, dict) or any(not isinstance(k, str) or not isinstance(v, str) or len(v) > 500 for k, v in specs.items()):
+                raise ValueError('Некорректные параметры автомобиля.')
+            configuration = {names[k]: v for k, v in specs.items() if k in names and v}
+            group = grouped.setdefault((make.strip(), model.strip()), [])
+            if configuration not in group:
+                group.append(configuration)
+        for (make, model), configurations in grouped.items():
+            # A sourced make/model has one compact row and all original modifications.
+            existing = VehicleFitment.objects.filter(offer=offer, make=make, model=model, source_url=source, details='').first()
+            item = existing or VehicleFitment(offer=offer, make=make, model=model, source_url=source)
+            item.configurations = configurations
+            item.verified = True
+            item.full_clean()
+            item.save()
+        total_fitments += len(grouped)
+        characteristics = dict(offer.characteristics or {})
+        characteristics['omega_applicability_source'] = source
+        characteristics['omega_applicability_checked_on'] = date.isoformat()
+        characteristics['omega_applicability_status'] = 'sourced' if grouped else 'not_provided'
+        offer.category = category
+        description = row.get('description')
+        if isinstance(description, str) and description:
+            offer.description = description
+        offer.characteristics = characteristics
+        offer.save(update_fields=['category', 'description', 'characteristics'])
+    Activity.objects.create(user=user, action='fitment_import', details={'supplier': supplier.name, 'offers': len(rows), 'make_model_pairs': total_fitments, 'date': date.isoformat()})
+    return len(rows)

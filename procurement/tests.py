@@ -410,3 +410,38 @@ class WorkspaceTests(TestCase):
         last = self.client.get(self.url('dashboard'), {'category': 'Двигатель', 'page': 3})
         self.assertEqual(len(last.context['page']), 10)
         self.assertContains(last, 'Первая')
+
+    def enrichment_file(self, rows=None):
+        import json
+        return SimpleUploadedFile('fitments.json', json.dumps({'checked_on': timezone.localdate().isoformat(), 'offers': rows if rows is not None else [{'brand': self.offer.brand, 'article': self.offer.article, 'source_url': self.offer.supplier_url, 'category': 'Трансмиссия', 'fitments': [{'make': 'TOYOTA', 'model': 'CAMRY', 'specifications': {'Шасси': 'ASV50L', 'Годы': '2011–2017', 'Двигатель': '2AR-FE', 'Поколение (Omega)': 'v50-2011-2017'}}]}]}).encode())
+
+    def test_enrichment_preserves_prices_demand_and_selection_and_is_idempotent(self):
+        from .importing import import_enrichment
+        from .models import VehicleFitment
+        self.offer.supplier_url = 'https://omega-auto-parts.kz/transmissiya/test-part'
+        self.offer.save()
+        Selection.objects.create(user=self.user, offer=self.offer, quantity=3)
+        original = (self.offer.cost, self.offer.kaspi_price, self.offer.checked_on, self.offer.evidence_date, self.offer.recent_reviews, self.offer.match_verified)
+        for _ in range(2):
+            self.assertEqual(import_enrichment(self.enrichment_file(), 'Omega', timezone.localdate(), self.sales), 1)
+        self.offer.refresh_from_db()
+        self.assertEqual(original, (self.offer.cost, self.offer.kaspi_price, self.offer.checked_on, self.offer.evidence_date, self.offer.recent_reviews, self.offer.match_verified))
+        self.assertEqual(Selection.objects.get(user=self.user).quantity, 3)
+        self.assertEqual(VehicleFitment.objects.filter(offer=self.offer).count(), 1)
+        fit = self.offer.fitments.get()
+        self.assertEqual(fit.configurations[0]['engine'], '2AR-FE')
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'vehicle_make': 'TOYOTA', 'vehicle_model': 'CAMRY', 'category': 'Трансмиссия'})
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(self.client.get(self.url('detail', pk=self.offer.pk)), 'ASV50L')
+
+    def test_enrichment_wrong_source_rolls_back_all_changes(self):
+        from .importing import import_enrichment
+        self.offer.supplier_url = 'https://omega-auto-parts.kz/transmissiya/test-part'
+        self.offer.save()
+        rows = [{'brand': self.offer.brand, 'article': self.offer.article, 'source_url': 'https://other.example/part', 'category': 'Двигатель', 'fitments': []}]
+        with self.assertRaises(ValueError):
+            import_enrichment(self.enrichment_file(rows), 'Omega', timezone.localdate(), self.sales)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.category, '')
+        self.assertFalse(Activity.objects.filter(action='fitment_import').exists())

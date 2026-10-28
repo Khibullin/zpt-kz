@@ -18,7 +18,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from .analysis import evaluate
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm
-from .importing import import_offers, import_demand
+from .importing import import_offers, import_demand, import_enrichment
 from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite
 
 
@@ -158,7 +158,7 @@ def upload(request):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = import_demand if form.cleaned_data['kind'] == 'demand' else import_offers
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.
@@ -166,7 +166,7 @@ def upload(request):
             else:
                 messages.success(request, f'Загружено товаров: {count}.')
                 return redirect('procurement:dashboard')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Загрузка данных', help='Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title='Загрузка данных', help='Применимость Omega: JSON с датой checked_on и массивом offers (brand, article, source_url, category, fitments). Импорт применимости не изменяет цены и спрос. Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
 
 
 @access()

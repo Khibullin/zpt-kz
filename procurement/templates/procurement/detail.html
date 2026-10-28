@@ -9,7 +9,7 @@
 <div class="grid">
 <section class="panel">{% if offer.photo_url %}<img class="photo" src="{{ offer.photo_url }}" alt="{{ offer.name }}" referrerpolicy="no-referrer">{% else %}<div class="photo placeholder">Нет фотографии</div>{% endif %}<h2>Описание и характеристики</h2>
 <p>{{ offer.description|default:'Описание отсутствует. Добавьте проверенные сведения в черновик.' }}</p>
-<h3>Применимость</h3>{% include 'procurement/fitments.html' %}{% for name,value in offer.characteristics.items %}<p>{{ name }}: {{ value }}</p>{% endfor %}<h2>Спрос</h2>
+<p>Категория: {{ offer.category|default:"Не указана" }}</p><h3>Применимость по данным поставщика</h3>{% if offer.characteristics.omega_applicability_checked_on %}<p class="muted">Сверено с Omega: {{ offer.characteristics.omega_applicability_checked_on }}. Перед заказом проверьте VIN и ограничения модификации.</p>{% endif %}{% include 'procurement/fitments.html' %}{% for name,value in offer.characteristics.items %}{% if 'omega_applicability_' not in name %}<p>{{ name }}: {{ value }}</p>{% endif %}{% endfor %}<h2>Спрос</h2>
 <p>
 <span class="badge">{{ analysis.signal }}</span>
 </p>
