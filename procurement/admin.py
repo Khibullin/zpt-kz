@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Membership, Supplier, Offer, Draft, Activity
+from .models import Membership, Supplier, Offer, Draft, Activity, VehicleFitment
 
 @admin.register(Membership)
 class MembershipAdmin(admin.ModelAdmin):
@@ -7,8 +7,14 @@ class MembershipAdmin(admin.ModelAdmin):
     list_filter = ['role', 'active']
     autocomplete_fields = ['user']
 
+class VehicleFitmentInline(admin.TabularInline):
+    model = VehicleFitment
+    extra = 0
+
+
 @admin.register(Offer)
 class OfferAdmin(admin.ModelAdmin):
+    inlines = [VehicleFitmentInline]
     list_display = ['article', 'brand', 'name', 'supplier', 'cost', 'checked_on']
     search_fields = ['article', 'brand', 'name']
     list_filter = ['supplier', 'match_verified']

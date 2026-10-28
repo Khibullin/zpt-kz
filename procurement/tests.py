@@ -368,3 +368,45 @@ class WorkspaceTests(TestCase):
 
     def test_robots_excludes_workspace(self):
         self.assertContains(self.client.get('/robots.txt'), 'Disallow: /office/procurement/')
+
+    def test_omega_categories_include_empty_sectors(self):
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'category': 'Электрооборудование'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 0)
+        self.assertContains(response, 'Тех обслуживание и сервис')
+
+    def test_vehicle_pairs_do_not_cross_match_or_include_unverified(self):
+        from .models import VehicleFitment
+        for make, model, verified in [('Toyota', 'Camry', True), ('Lexus', 'RX', True), ('Toyota', 'RX', False)]:
+            VehicleFitment.objects.create(offer=self.offer, make=make, model=model, verified=verified, source_url='https://example.com/fitment')
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'vehicle_make': 'Toyota', 'vehicle_model': 'Camry'})
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(response, 'Toyota Camry')
+        response = self.client.get(self.url('dashboard'), {'vehicle_make': 'Toyota', 'vehicle_model': 'RX'})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'fitment': 'unknown'}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'fitment': 'verified'}).context['total'], 1)
+        self.assertEqual(self.client.get(self.url('dashboard')).context['total'], 1)
+
+    def test_text_applicability_does_not_create_verified_vehicle_match(self):
+        self.offer.applicability = 'Toyota Camry'
+        self.offer.save()
+        self.login()
+        self.assertEqual(self.client.get(self.url('dashboard'), {'fitment': 'verified'}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'fitment': 'unknown'}).context['total'], 1)
+
+    def test_pagination_last_and_jump_keep_filters(self):
+        Offer.objects.bulk_create([Offer(supplier=self.supplier, brand='EEP', article=f'P{i}', name='Деталь', cost=100, category='Двигатель') for i in range(90)])
+        self.login()
+        response = self.client.get(self.url('dashboard'), {'category': 'Двигатель', 'page': 2})
+        self.assertEqual(response.context['page'].number, 2)
+        self.assertContains(response, 'Последняя →')
+        self.assertContains(response, 'page=3')
+        self.assertContains(response, 'name="category" value="Двигатель"')
+        self.assertContains(response, 'aria-current="page">2')
+        last = self.client.get(self.url('dashboard'), {'category': 'Двигатель', 'page': 3})
+        self.assertEqual(len(last.context['page']), 10)
+        self.assertContains(last, 'Первая')

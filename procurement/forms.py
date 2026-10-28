@@ -1,5 +1,7 @@
 from django import forms
-from .models import Preferences, Draft, Membership, Supplier, Offer
+from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment
+
+from .categories import OMEGA_CATEGORIES
 
 
 class SelectionFilterForm(forms.Form):
@@ -7,6 +9,9 @@ class SelectionFilterForm(forms.Form):
                         widget=forms.TextInput(attrs={'type': 'search', 'placeholder': 'Название, бренд, артикул или применимость'}))
     supplier = forms.ModelChoiceField(label='Поставщик', required=False, queryset=Supplier.objects.none(), empty_label='Все поставщики')
     category = forms.ChoiceField(label='Категория', required=False)
+    vehicle_make = forms.ChoiceField(label='Марка автомобиля', required=False)
+    vehicle_model = forms.ChoiceField(label='Модель автомобиля', required=False)
+    fitment = forms.ChoiceField(label='Применимость', required=False, choices=[('', 'Любая применимость'), ('verified', 'Есть проверенная применимость'), ('unknown', 'Применимость не проверена')])
     availability = forms.ChoiceField(label='Наличие', required=False, choices=[('', 'Любое наличие'), ('in_stock', 'Есть в наличии'), ('unavailable', 'Нет в наличии'), ('unknown', 'Остаток неизвестен')])
     demand = forms.ChoiceField(label='Спрос', required=False, choices=[('', 'Любые признаки спроса'), ('reviews', 'Есть свежие отзывы'), ('sales', 'Есть подтверждённые продажи'), ('unknown', 'Нет свежих подтверждений')])
     max_cost = forms.DecimalField(label='Закупка до, ₸', required=False, min_value=0, max_value=999999999999, max_digits=14, decimal_places=2)
@@ -18,7 +23,17 @@ class SelectionFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['supplier'].queryset = Supplier.objects.order_by('name')
-        self.fields['category'].choices = [('', 'Все категории')] + [(x, x) for x in Offer.objects.exclude(category='').order_by('category').values_list('category', flat=True).distinct()]
+        categories = list(OMEGA_CATEGORIES)
+        categories += [x for x in Offer.objects.exclude(category='').order_by('category').values_list('category', flat=True).distinct() if x not in categories and x != 'Техобслуживание и сервис']
+        self.fields['category'].choices = [('', 'Все категории')] + [(x, x) for x in categories]
+        fitments = VehicleFitment.objects.filter(verified=True)
+        makes = list(fitments.order_by('make').values_list('make', flat=True).distinct())
+        self.fields['vehicle_make'].choices = [('', 'Все марки' if makes else 'Нет проверенных данных о марках')] + [(x, x) for x in makes]
+        selected_make = self.data.get('vehicle_make', '') if self.is_bound else ''
+        models = list(fitments.filter(make=selected_make).order_by('model').values_list('model', flat=True).distinct()) if selected_make else []
+        self.fields['vehicle_model'].choices = [('', 'Все модели' if selected_make else 'Сначала выберите марку')] + [(x, x) for x in models]
+        self.vehicle_models = {make: list(fitments.filter(make=make).order_by('model').values_list('model', flat=True).distinct()) for make in makes}
+
 
 
 class PreferencesForm(forms.ModelForm):
