@@ -24,7 +24,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from .analysis import evaluate
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
-from .importing import import_offers, import_demand, import_enrichment, import_competitors
+from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches
 from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder, PurchaseDocument
 
 
@@ -166,7 +166,7 @@ def settings(request):
         form.save()
         messages.success(request, 'Параметры расчёта сохранены.')
         return redirect('procurement:dashboard')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Прочие расходы и пороги минимальной прибыли и доходности из личных настроек не ограничивают этот рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Сопоставление с Kaspi выполняется по порядку: 1) точный артикул с буквами и суффиксами; 2) название детали, сторона установки и комплектность; 3) бренд. Подтверждение ставится только при совпадении всех трёх признаков по данным Kaspi. Недостаточные или противоречивые данные остаются непроверенными. Применимость отдельно не является условием сравнения цен при совпадении артикула, названия и бренда. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Прочие расходы и пороги минимальной прибыли и доходности из личных настроек не ограничивают этот рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
 
 
 @access('sales', 'admin')
@@ -177,7 +177,7 @@ def upload(request):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'competitors': import_competitors}[form.cleaned_data['kind']]
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'competitors': import_competitors, 'matches': import_matches}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.
@@ -370,10 +370,10 @@ def draft(request, pk):
 def verify(request, pk):
     offer = get_object_or_404(Offer, pk=pk)
     if request.POST.get('confirmed') != 'yes' or not offer.kaspi_url:
-        return HttpResponse('Подтвердите бренд, артикул, комплектность и применимость карточки.', status=400)
+        return HttpResponse('Подтвердите артикул, название и комплектность, затем бренд карточки.', status=400)
     offer.match_verified = True
     offer.save(update_fields=['match_verified'])
-    Activity.objects.create(user=request.user, action='match_verified', details={'offer': offer.pk})
+    Activity.objects.create(user=request.user, action='match_verified', details={'offer': offer.pk, 'method': 'manual_article_name_brand', 'source_url': offer.kaspi_url, 'article': offer.article, 'name': offer.name, 'brand': offer.brand})
     return redirect('procurement:detail', pk=pk)
 
 

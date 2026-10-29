@@ -921,3 +921,39 @@ class WorkspaceTests(TestCase):
         snapshot.complete=True
         snapshot.save()
         self.assertContains(self.client.get(self.url('dashboard')), 'Нет предложений на дату проверки')
+
+
+class IdentityMatchingTests(TestCase):
+    setUpTestData = classmethod(WorkspaceTests.setUpTestData.__func__)
+    def test_article_name_brand_priority_and_identity_mismatches(self):
+        from .matching import compare_identity
+        self.offer.name = 'Амортизатор задний R EEP 00123'
+        self.assertTrue(compare_identity(self.offer, 'EEP амортизатор задний R 00123', '00123', 'eep')[0])
+        for title, article, brand, reason in [
+            ('Амортизатор задний R', '00123A', 'EEP', 'Артикул'),
+            ('Амортизатор задний L EEP 00123', '00123', 'EEP', 'Название'),
+            ('Амортизатор задний R EEP 00123 комплект 2 шт', '00123', 'EEP', 'Название'),
+            ('Амортизатор задний R EEP 00123', '00123', '', 'Бренд')]:
+            valid, explanation = compare_identity(self.offer, title, article, brand)
+            self.assertFalse(valid)
+            self.assertIn(reason, explanation)
+
+    def test_identity_import_preserves_prices_and_records_actual_source_date(self):
+        import json
+        from .importing import import_matches
+        row = {'brand': 'EEP', 'article': '00123', 'source_url': self.offer.kaspi_url,
+               'source_date': '2026-10-28', 'title': 'Деталь EEP 00123',
+               'kaspi_article': '00123', 'kaspi_brand': 'EEP'}
+        payload = {'checked_on': '2026-10-29', 'offers': [row]}
+        before = self.offer.cost, self.offer.kaspi_price, self.offer.checked_on
+        count = import_matches(SimpleUploadedFile('matches.json', json.dumps(payload).encode()),
+                               'Omega', timezone.datetime(2026,10,29).date(), self.sales)
+        self.assertEqual(count, 1)
+        self.offer.refresh_from_db()
+        self.assertTrue(self.offer.match_verified)
+        self.assertEqual((self.offer.cost, self.offer.kaspi_price, self.offer.checked_on), before)
+        self.assertEqual(self.offer.characteristics['kaspi_identity']['source_date'], '2026-10-28')
+        row['source_url'] = 'https://kaspi.kz/shop/p/another-123/'
+        with self.assertRaises(ValueError):
+            import_matches(SimpleUploadedFile('matches.json', json.dumps(payload).encode()),
+                           'Omega', timezone.datetime(2026,10,29).date(), self.sales)
