@@ -9,13 +9,14 @@ def seller_audit_public(seller):
 
 @register.inclusion_tag('core/connections/seller_audit_internal.html')
 def seller_audit_internal(seller, match_reason=""):
+    from core.phone_utils import seller_whatsapp_phone
     countries = ', '.join(x.name for x in seller.selected_countries.all())
     if not countries and seller.country_fk_id:
         countries = seller.country_fk.name
     brands = ', '.join(x.name for x in seller.selected_brands.all()) or seller.brand
     models = ', '.join(x.name for x in seller.selected_models.all()) or seller.model
     categories = ', '.join(x.name for x in seller.selected_categories.all()) or seller.category
-    return {'audit': presentation(seller, internal=True), 'seller': seller, 'rating': rating(seller), 'status_code': seller.audit_status, 'match_reason': match_reason,
+    return {'audit': presentation(seller, internal=True), 'seller': seller, 'phone': audit_phone(seller_whatsapp_phone(seller)), 'rating': rating(seller), 'status_code': seller.audit_status, 'match_reason': match_reason,
             'countries': countries or ('Все страны' if seller.all_countries else 'Страна не указана'),
             'brands': brands or ('Все марки' if seller.all_brands else 'Марки не указаны'),
             'models': models or ('Все модели' if seller.all_models else 'Модели не указаны'),

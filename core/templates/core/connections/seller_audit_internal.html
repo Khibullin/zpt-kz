@@ -1,5 +1,5 @@
 <section class="seller-audit audit-full-card">
-<div class="audit-full-heading"><div><p class="audit-specialization">{{ countries }} · {{ brands }} · {{ models }} · {{ categories }}</p>{% if seller.address %}<p class="audit-address">{{ seller.city }} · {{ seller.address }}</p>{% endif %}<span class="audit-status audit-status--{{ status_code }}">{{ audit.status }}</span></div>{% include 'core/connections/seller_audit_score.html' %}</div>
+<div class="audit-full-heading"><div><p class="audit-specialization">{{ countries }} · {{ brands }} · {{ models }} · {{ categories }}</p><p class="audit-address">{{ seller.city }}{% if seller.address %} · {{ seller.address }}{% endif %}</p>{% if phone %}<p class="mp-card-contact"><strong>{{ phone }}</strong></p>{% endif %}<span class="audit-status audit-status--{{ status_code }}">{{ audit.status }}</span></div>{% include 'core/connections/seller_audit_score.html' %}</div>
 {% include 'core/connections/seller_audit_details.html' %}
 <p class="mp-rating-note">Оценка подтверждённости данных — не рейтинг обслуживания и не гарантия наличия детали.</p>
 </section>
