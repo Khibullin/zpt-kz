@@ -379,6 +379,20 @@ def import_matches(file, supplier_name, date, user):
         source_date = Date.fromisoformat(row['source_date'])
         if source_date > date:
             raise ValueError('Дата источника позже даты проверки.')
+        previous = (offer.characteristics or {}).get('kaspi_identity', {})
+        if (previous.get('source_url') == source and
+                ((previous.get('checked_on') or '') > date.isoformat() or
+                 (previous.get('source_date') or '') > source_date.isoformat())):
+            raise ValueError('Проверка старее уже сохранённого результата Kaspi.')
+        decision = row.get('review_decision')
+        review_reason = row.get('review_reason', '')
+        if decision is not None:
+            if decision != 'requires_review':
+                raise ValueError('Неверный результат ручной проверки Kaspi.')
+            if (row.get('name_reviewed') is not False or
+                    not isinstance(review_reason, str) or
+                    not review_reason.strip() or len(review_reason) > 2000):
+                raise ValueError('Для уточнения нужны name_reviewed=false и причина до 2000 символов.')
         title = row.get('title', '')
         if not isinstance(title, str) or len(title) > 1000:
             raise ValueError('Неверное название Kaspi.')
@@ -394,9 +408,15 @@ def import_matches(file, supplier_name, date, user):
                            for value in (offer.article, offer.brand))
             if article_ok and brand_ok and observed:
                 confirmed, reason = True, 'Название и комплектность проверены; артикул и бренд совпадают'
+        # An explicit negative staff review wins over an exact title match.
+        # It can only withhold confirmation, never bypass article/brand checks.
+        if decision == 'requires_review':
+            confirmed, reason = False, 'Ручная проверка: ' + review_reason.strip()
         evidence = {'source_url': source, 'source_date': source_date.isoformat(), 'checked_on': date.isoformat(),
                     'title': title, 'article': row.get('kaspi_article'), 'brand': row.get('kaspi_brand'),
                     'confirmed': confirmed, 'reason': reason, 'name_reviewed': row.get('name_reviewed') is True, 'method': 'article_name_brand_v1'}
+        if decision is not None:
+            evidence.update(review_decision=decision, review_reason=review_reason.strip())
         offer.characteristics = {**offer.characteristics, 'kaspi_identity': evidence}
         offer.match_verified = confirmed
         offer.save(update_fields=['characteristics', 'match_verified'])
