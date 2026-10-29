@@ -2,8 +2,8 @@
 <header><div><h1>Список закупки</h1><div class="muted">Выберите товары → создайте заказ в ZPT.KZ → выгрузите Excel</div></div></header>
 {% if selections %}<h2>Бюджет: {{ budget|floatformat:0 }} ₸</h2><p>Расчётная стоимость по прайсу. Окончательные цены и наличие подтвердит поставщик.</p>{% endif %}
 {% for group in supplier_groups %}<section class="panel">
-<h2>{{ group.supplier.name }} · {{ group.total|floatformat:0 }} ₸</h2>
-<p>Создайте закупочный заказ в нашей системе. Он получит свой номер, а состав можно будет выгрузить в Excel.</p>
+<h2><a href="{% url 'procurement:supplier_detail' group.supplier.pk %}">{{ group.supplier.name }}</a> · {{ group.total|floatformat:0 }} ₸</h2>
+{% include 'procurement/supplier_terms.html' with terms=group.terms %}<p>Создайте закупочный заказ в нашей системе. Он получит свой номер, а состав можно будет выгрузить в Excel.</p>
 <div class="actions" style="margin:16px 0"><a class="button primary" href="{% url 'procurement:purchase_confirm' group.supplier.pk %}">Создать закупочный заказ</a></div>
 <div class="tablewrap"><table><thead><tr><th>Товар</th><th>Количество</th><th>Закупка, ₸</th><th>Сумма, ₸</th><th>Действия</th></tr></thead><tbody>
 {% for item in group.rows %}<tr><td><a href="{% url 'procurement:detail' item.offer.pk %}">{{ item.offer.name }}</a><small>{{ item.offer.brand }} · {{ item.offer.article }}</small></td>
