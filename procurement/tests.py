@@ -409,6 +409,51 @@ class WorkspaceTests(TestCase):
         self.client.post(self.url('settings'), {'commission': 10, 'expenses': 2000, 'min_profit': 1000, 'min_markup': 30})
         self.assertNotContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
 
+    def test_best_mode_orders_by_return_then_after_commission_earnings(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0,
+                                   min_profit=0, min_markup=0)
+        self.offer.cost = 5000
+        self.offer.kaspi_price = 10000
+        self.offer.save()
+        def candidate(article, cost, price):
+            return Offer.objects.create(supplier=self.supplier, brand='EEP', article=article,
+                name=article, cost=cost, kaspi_price=price, checked_on=timezone.localdate(),
+                evidence_date=timezone.localdate(), recent_reviews=1, stock='10 шт.', match_verified=True)
+        expensive = candidate('EXPENSIVE', 20000, 30000)
+        tied = candidate('SAME-RETURN', 10000, 20000)
+        response = self.client.get(self.url('dashboard'), {'mode': 'best'})
+        ids = [row['offer'].pk for row in response.context['page']]
+        self.assertEqual(ids, [tied.pk, self.offer.pk, expensive.pk])
+        self.assertEqual(response.context['page'][1]['markup'], Decimal('78.2'))
+        self.assertContains(response, 'Доходность закупки, %')
+        self.assertContains(response, 'Расчёт до доставки и прочих расходов')
+        exported = self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'})
+        rows = list(csv.reader(StringIO(exported.content.decode('utf-8-sig')), delimiter=';'))
+        self.assertEqual([row[0] for row in rows[1:]], ['SAME-RETURN', '00123', 'EXPENSIVE'])
+        self.assertEqual(Decimal(rows[2][7]), Decimal('78.20'))
+
+    def test_best_mode_excludes_nonpositive_difference_even_with_zero_thresholds(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=0, expenses=0, min_profit=0, min_markup=0)
+        self.offer.kaspi_price = self.offer.cost
+        self.offer.save()
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
+        self.offer.cost = 0
+        self.offer.save()
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
+
+    def test_best_mode_keeps_verification_and_demand_requirements(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0)
+        for changes in ({'match_verified': False}, {'evidence_date': None}, {'checked_on': None},
+                        {'stock': 'нет'}, {'recent_reviews': None}):
+            with self.subTest(changes=changes):
+                original = {key: getattr(self.offer, key) for key in changes}
+                Offer.objects.filter(pk=self.offer.pk).update(**changes)
+                self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
+                Offer.objects.filter(pk=self.offer.pk).update(**original)
+
     def test_photo_import_rejects_script_url(self):
         with self.assertRaises(ValueError):
             import_offers(self.csv('article,brand,name,cost,photo_url\nA,TEST,Good,100,javascript:alert(1)\n'), 'Photo', timezone.localdate(), self.sales)
