@@ -41,7 +41,7 @@ class PreferencesForm(forms.ModelForm):
     class Meta:
         model = Preferences
         fields = ['commission', 'expenses', 'min_profit', 'min_markup']
-        labels = {'commission': 'Комиссия Kaspi без НДС, %', 'expenses': 'Все прочие расходы на единицу, ₸',
+        labels = {'commission': 'Комиссия Kaspi без НДС, %', 'expenses': 'Все расходы на единицу, включая упаковку 250 ₸',
                   'min_profit': 'Минимальная прибыль, ₸', 'min_markup': 'Минимальная доходность после комиссии, %'}
 
 

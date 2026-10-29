@@ -29,6 +29,7 @@
 <p>
 <strong>Прибыль после комиссии и прочих расходов: {{ analysis.profit|floatformat:2|default:'Нет данных' }} ₸</strong>
 </p>
+<p>Упаковка: {{ analysis.packaging_cost|floatformat:0 }} ₸ за деталь, уже включена в расходы и повторно не вычитается.</p>
 <p>{{ analysis.qualified|yesno:'Кандидат для минимального теста,Условия рекомендации не выполнены' }}</p>
 <ul>{% for reason in analysis.reasons %}<li>{{ reason }}</li>{% endfor %}</ul>
 <a href="{% url 'procurement:settings' %}">Изменить расходы и правила</a>{% if offer.kaspi_url %}<p>

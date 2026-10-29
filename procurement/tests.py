@@ -166,7 +166,7 @@ class WorkspaceTests(TestCase):
     def test_financial_calculation_and_qualification(self):
         preferences = Preferences(user=self.user, commission=Decimal(10), expenses=Decimal(100), min_profit=Decimal(1000))
         result = evaluate(self.offer, preferences)
-        self.assertEqual(result['profit'], Decimal(1600))
+        self.assertEqual(result['profit'], Decimal(1450))
         self.assertEqual(result['difference'], Decimal(1700))
         self.assertEqual(result['markup'], Decimal(170))
         self.assertTrue(result['qualified'])
@@ -187,8 +187,8 @@ class WorkspaceTests(TestCase):
         result = evaluate(self.offer, Preferences(user=self.user, commission=Decimal('10.9'), expenses=Decimal('123.45')))
         self.assertEqual(result['commission_amount'], Decimal('327'))
         self.assertEqual(result['difference'], Decimal('1673'))
-        self.assertEqual(result['profit'], Decimal('1549.55'))
-        self.assertEqual(result['profit'], result['difference'] - Decimal('123.45'))
+        self.assertEqual(result['profit'], Decimal('1423'))
+        self.assertEqual(result['profit'], result['difference'] - Decimal('250'))
 
     def test_calculation_keeps_fractional_tenge_until_display(self):
         self.offer.cost = self.offer.kaspi_price = Decimal('0.01')
@@ -197,14 +197,14 @@ class WorkspaceTests(TestCase):
         self.assertEqual(result['kaspi_after_commission'], Decimal('0.00891'))
         self.assertEqual(result['difference'], Decimal('-0.00109'))
         self.assertEqual(result['markup'], Decimal('-10.9'))
-        self.assertEqual(result['profit'], Decimal('-0.01109'))
+        self.assertEqual(result['profit'], Decimal('-250.00109'))
 
     def test_zero_commission_and_zero_expenses_are_known(self):
         result = evaluate(self.offer, Preferences(user=self.user, commission=Decimal('0'), expenses=Decimal('0')))
         self.assertEqual(result['commission_amount'], Decimal('0'))
         self.assertEqual(result['kaspi_after_commission'], Decimal('3000'))
         self.assertEqual(result['difference'], Decimal('2000'))
-        self.assertEqual(result['profit'], Decimal('2000'))
+        self.assertEqual(result['profit'], Decimal('1750'))
 
     def test_missing_commission_or_price_does_not_fall_back_to_gross_difference(self):
         preferences = Preferences(user=self.user, expenses=Decimal('0'))
@@ -230,7 +230,7 @@ class WorkspaceTests(TestCase):
         self.offer.cost = Decimal('0')
         result = evaluate(self.offer, preferences)
         self.assertEqual(result['difference'], Decimal('0'))
-        self.assertEqual(result['profit'], Decimal('0'))
+        self.assertEqual(result['profit'], Decimal('-250'))
         self.assertIsNone(result['markup'])
         self.assertIsNone(result['margin'])
 
@@ -279,7 +279,7 @@ class WorkspaceTests(TestCase):
         row = next(csv.DictReader(StringIO(response.content.decode('utf-8-sig')), delimiter=';'))
         self.assertEqual(row['Разница после комиссии, ₸'], '-109.00')
         self.assertEqual(row['Доходность после комиссии, %'], '-10.90')
-        self.assertEqual(row['Прибыль после комиссии и прочих расходов, ₸'], '-109.00')
+        self.assertEqual(row['Прибыль после комиссии и прочих расходов, ₸'], '-359.00')
         self.assertEqual(row['Наименование'], "'=SUM(1,2)")
 
     def test_comparison_pages_show_personal_commission_and_settings_source(self):
@@ -405,12 +405,12 @@ class WorkspaceTests(TestCase):
         self.assertTrue(self.user.is_active)
         self.assertFalse(Membership.objects.get(user=self.user).active)
 
-    def test_best_mode_is_not_excluded_by_personal_profit_threshold_or_expenses(self):
+    def test_best_mode_excludes_profit_below_1000_after_expenses(self):
         self.login()
         Preferences.objects.create(user=self.user, commission=10, expenses=100)
         self.assertContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
         self.client.post(self.url('settings'), {'commission': 10, 'expenses': 2000, 'min_profit': 1000, 'min_markup': 30})
-        self.assertContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
+        self.assertNotContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
 
     def test_best_mode_orders_by_return_then_after_commission_earnings(self):
         self.login()
@@ -430,7 +430,7 @@ class WorkspaceTests(TestCase):
         self.assertEqual(ids, [tied.pk, self.offer.pk, expensive.pk])
         self.assertEqual(response.context['page'][1]['markup'], Decimal('78.2'))
         self.assertContains(response, 'Доходность закупки, %')
-        self.assertContains(response, 'Расчёт до доставки и прочих расходов')
+        self.assertContains(response, 'прибыль рядом — после расходов и упаковки')
         exported = self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'})
         rows = list(csv.reader(StringIO(exported.content.decode('utf-8-sig')), delimiter=';'))
         self.assertEqual([row[0] for row in rows[1:]], ['SAME-RETURN', '00123', 'EXPENSIVE'])
@@ -448,15 +448,15 @@ class WorkspaceTests(TestCase):
 
     def test_best_mode_includes_positive_returns_without_demand_stock_or_freshness(self):
         self.login()
-        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=None,
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=250,
                                    min_profit=999999, min_markup=9999)
         Offer.objects.filter(pk=self.offer.pk).update(match_verified=False, evidence_date=None,
             checked_on=None, stock='', recent_reviews=None, sales_30=None)
         response = self.client.get(self.url('dashboard'), {'mode': 'best'})
         self.assertEqual(response.context['total'], 1)
-        self.assertIsNone(response.context['page'][0]['profit'])
+        self.assertEqual(response.context['page'][0]['profit'], Decimal('1423'))
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'demand': 'reviews'}).context['total'], 0)
-        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'min_profit': 0}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'min_profit': 0}).context['total'], 1)
         Preferences.objects.filter(user=self.user).update(commission=None)
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
 
@@ -503,6 +503,21 @@ class WorkspaceTests(TestCase):
         difference = self.client.get(self.url('dashboard'), {'mode': 'difference'})
         self.assertEqual([r['offer'].pk for r in difference.context['page']], [self.offer.pk, shock.pk])
 
+    def test_packaging_once_and_best_profit_boundary(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=0, expenses=250)
+        for sale, expected in [('2249.99', 0), ('2250.00', 1), ('2250.01', 1)]:
+            Offer.objects.filter(pk=self.offer.pk).update(kaspi_price=Decimal(sale))
+            response = self.client.get(self.url('dashboard'), {'mode': 'best'})
+            self.assertEqual(response.context['total'], expected)
+            if expected:
+                self.assertEqual(response.context['page'][0]['profit'], Decimal(sale)-1000-250)
+        self.offer.kaspi_price = Decimal('2250')
+        for expense in (0, 250, 350):
+            result = evaluate(self.offer, Preferences(user=self.user, commission=0, expenses=expense))
+            self.assertEqual(result['profit'], Decimal('1250')-max(250,expense))
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'}).status_code, 200)
+
     def test_photo_import_rejects_script_url(self):
         with self.assertRaises(ValueError):
             import_offers(self.csv('article,brand,name,cost,photo_url\nA,TEST,Good,100,javascript:alert(1)\n'), 'Photo', timezone.localdate(), self.sales)
@@ -521,8 +536,8 @@ class WorkspaceTests(TestCase):
         response = self.client.get(self.url('dashboard'), {'min_profit': 0})
         self.assertEqual(response.context['total'], 0)
         Preferences.objects.filter(user=self.user).update(commission=10, expenses=100)
-        self.assertEqual(self.client.get(self.url('dashboard'), {'min_profit': 1600}).context['total'], 1)
-        self.assertEqual(self.client.get(self.url('dashboard'), {'min_profit': 1601}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'min_profit': 1450}).context['total'], 1)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'min_profit': 1451}).context['total'], 0)
 
     def test_demand_filter_separates_reviews_and_sales(self):
         self.login()
