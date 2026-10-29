@@ -54,7 +54,7 @@ def evaluate(offer, preferences, today=None):
     elif evidence_fresh and offer.review_count == 0:
         result['signal'] = 'Отзывы отсутствуют; продажи неизвестны'
     result['qualified'] = bool(
-        price_fresh and in_stock and (sales or reviews) and offer.match_verified
+        price_fresh and in_stock and (sales or reviews)
         and result['profit'] is not None and result['profit'] >= preferences.min_profit
         and result['markup'] is not None and result['markup'] >= preferences.min_markup
     )

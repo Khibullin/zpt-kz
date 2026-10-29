@@ -10,7 +10,7 @@
 <div class="modes">
 <a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница после комиссии, до прочих расходов</small>
 </a>
-<a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Доходность закупки + проверенное совпадение + признаки спроса</small>
+<a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Доходность закупки + наличие + признаки спроса</small>
 </a>
 <a class="button" href="{% url 'procurement:settings' %}">Алгоритм<br>и настройки</a>
 </div>
@@ -36,8 +36,8 @@
 </div>
 <p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Прочие расходы на единицу: {% if preferences.expenses == None %}не заданы{% else %}{{ preferences.expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{% url 'procurement:settings' %}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
 {% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{% url 'procurement:settings' %}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
-{% if mode == 'best' %}<div class="notice"><strong>Сначала больше заработка на вложенный тенге.</strong> Доходность закупки = (Kaspi после комиссии − закупка) / закупка × 100%. При равной доходности выше заработок в тенге. Расчёт до доставки и прочих расходов. Сохраняются проверки совпадения, наличия, актуальности, спроса и ваши пороги отбора.</div>{% endif %}
-<p class="muted">Найдено {{ total }} · Сведения о спросе и цены старше 7 дней не участвуют в рекомендациях. Новое совпадение Kaspi требует ручной проверки.</p>
+{% if mode == 'best' %}<div class="notice"><strong>Сначала больше заработка на вложенный тенге.</strong> Доходность закупки = (Kaspi после комиссии − закупка) / закупка × 100%. При равной доходности выше заработок в тенге. Расчёт до доставки и прочих расходов. Подтверждение совпадения с Kaspi не обязательно. Учитываются наличие, актуальность, спрос и ваши пороги отбора.</div>{% endif %}
+<p class="muted">Найдено {{ total }} · Сведения о спросе и цены старше 7 дней не участвуют в рекомендациях. Непроверенное совпадение с Kaspi отмечено отдельно и не исключает товар из рекомендаций.</p>
 <div class="tablewrap">
 <table>
 <thead>
@@ -56,7 +56,7 @@
 <td class="product">{% if row.offer.photo_url %}<img src="{{ row.offer.photo_url }}" alt="" width="52" height="52" loading="lazy" referrerpolicy="no-referrer" style="object-fit:contain;float:left;margin:0 10px 6px 0">{% else %}<small>Фото пока нет</small>{% endif %}<a href="{% url 'procurement:detail' row.offer.pk %}">
 <strong>{{ row.offer.name }}</strong>
 </a>
-<small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{{ row.offer.category }}</small>
+<small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{% if row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</small><small>{{ row.offer.category }}</small>
 {% include 'procurement/fitments.html' with offer=row.offer compact=True %}
 </td>
 <td>{{ row.offer.supplier.name }}<small>{{ row.offer.stock|default:'Остаток неизвестен' }}</small>
