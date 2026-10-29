@@ -14,11 +14,24 @@ class ManualWorkspaceTests(TestCase):
         self.req = Request.objects.create(source='home_short', transport_type='car', brand='BMW',
             model='5 Series', year=1993, city='Актобе', category='Топливная система',
             search_scope='city', description='Форсунки', phone='77072812731',contact_consent_at=timezone.now())
-        self.seller = Seller.objects.create(name='BMW Актобе', whatsapp='77011013032',
+        self.seller = Seller.objects.create(password_hash='existing-registration-hash', name='BMW Актобе', whatsapp='77011013032',
             city='Актобе', transport_type='car', sells_new_parts=True, all_brands=True,
             all_categories=True, is_active=True, is_paused=False, catalog_only=False)
         self.url = reverse('control_panel:parts_request_process', args=[self.req.pk])
         self.client.force_login(self.user)
+
+    def test_unknown_catalog_card_is_separate_and_cannot_be_selected(self):
+        unknown = Seller.objects.create(name='Непроверенный каталог', whatsapp='77010000999',
+            city=self.req.city, transport_type='car', sells_new_parts=True,
+            all_brands=True, all_categories=True, catalog_only=True)
+        response = self.client.get(self.picker())
+        self.assertNotContains(response, unknown.name)
+        self.assertEqual(response.context['counts']['review'], 1)
+        self.assertContains(self.client.get(self.picker()+'?tab=review'), unknown.name)
+        response = self.client.post(self.picker(), {'action':'toggle', 'seller_id':unknown.pk, 'checked':'yes'})
+        self.assertEqual(response.status_code, 400)
+        self.client.post(self.picker(), {'action':'select_all'})
+        self.assertNotIn(unknown.pk, self.client.session.get(f'manual_recipients:{self.req.pk}', []))
 
     def test_manual_buyer_receipt(self):
         response = self.client.get(self.url)
@@ -90,12 +103,13 @@ class ManualWorkspaceTests(TestCase):
         from django.utils import timezone
         from datetime import timedelta
         from core.models import SellerChannelConnection
-        owner = Seller.objects.create(name='AG Parts', whatsapp='77011013033', city='Актобе',
+        owner = Seller.objects.create(password_hash='existing-registration-hash', name='AG Parts', whatsapp='77011013033', city='Актобе',
             transport_type='car', is_active=True, sells_new_parts=True, all_brands=True, all_categories=True,
             test_all_requests_since=self.req.created_at - timedelta(days=1))
         SellerChannelConnection.objects.create(seller=owner, whatsapp_consent=True)
-        catalog = Seller.objects.create(name='Каталог Актобе', city='Актобе', transport_type='car',
-            whatsapp='77011013034', catalog_only=True, all_brands=True, all_categories=True, sells_new_parts=True)
+        catalog = Seller.objects.create(password_hash='existing-registration-hash', name='Каталог Актобе', city='Актобе', transport_type='car',
+            whatsapp='77011013034', catalog_only=True, brand='BMW', all_models=True,
+            category='Топливная система', sells_new_parts=True)
         response = self.client.get(self.picker())
         self.assertContains(response, 'AG Parts')
         self.assertContains(response, 'Есть согласие')
@@ -166,7 +180,7 @@ class ManualWorkspaceTests(TestCase):
 
     def test_tab_counts_remain_complete_on_selected_tab_and_follow_filters(self):
         self.client.post(self.picker(), {'action':'toggle', 'seller_id':self.seller.pk, 'checked':'yes'})
-        second = Seller.objects.create(name='Второй магазин', city='Актобе', transport_type='car',
+        second = Seller.objects.create(password_hash='existing-registration-hash', name='Второй магазин', city='Актобе', transport_type='car',
             whatsapp='77011013039', sells_new_parts=True, all_brands=True, all_categories=True)
         for tab in ('ready', 'selected', 'sent', 'blocked'):
             response = self.client.get(self.picker()+'?tab='+tab)
@@ -226,7 +240,7 @@ class ManualWorkspaceTests(TestCase):
     def test_selection_spans_pages_and_filters_and_revalidates_post(self):
         from core.models import SellerChannelConnection
         for n in range(55):
-            seller = Seller.objects.create(name=f'Магазин {n:02}', city='Актобе', transport_type='car',
+            seller = Seller.objects.create(password_hash='existing-registration-hash', name=f'Магазин {n:02}', city='Актобе', transport_type='car',
                 whatsapp=f'7701001{n:04}', sells_new_parts=True, all_brands=True, all_categories=True)
             SellerChannelConnection.objects.create(seller=seller, whatsapp_consent=True)
         response = self.client.get(self.picker())
@@ -297,7 +311,7 @@ class ManualWorkspaceTests(TestCase):
         from core.models import SellerChannelConnection
         from core.services.manual_seller_dispatch import validate_manual_recipient
         from django.core.exceptions import ValidationError
-        other=Seller.objects.create(name='Внешний магазин',city='Алматы',transport_type='car',
+        other=Seller.objects.create(password_hash='existing-registration-hash', name='Внешний магазин',city='Алматы',transport_type='car',
             whatsapp='77011013999',sells_new_parts=True,all_brands=True,all_categories=True)
         SellerChannelConnection.objects.create(seller=other,whatsapp_consent=True)
         self.assertNotContains(self.client.get(self.picker()),'Внешний магазин')
@@ -321,7 +335,7 @@ class ManualWorkspaceTests(TestCase):
 
     def test_expansion_does_not_bypass_specialization_or_selected_cities_default(self):
         from core.models import SellerChannelConnection
-        other=Seller.objects.create(name='За пределами выбранных',city='Алматы',transport_type='car',
+        other=Seller.objects.create(password_hash='existing-registration-hash', name='За пределами выбранных',city='Алматы',transport_type='car',
             whatsapp='77011013998',sells_new_parts=True,all_brands=True,all_categories=True)
         SellerChannelConnection.objects.create(seller=other,whatsapp_consent=True)
         self.req.search_scope='custom';self.req.selected_cities='Актобе, Атырау'

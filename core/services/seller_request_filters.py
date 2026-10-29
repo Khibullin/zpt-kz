@@ -14,16 +14,19 @@ def matches_request(filters, req):
         return True  # Existing sellers retain their established routing.
     if req.transport_type not in filters.get('transport_types', []):
         return False
-    if not filters.get('all_categories') and _fold(req.category) not in {
+    from core.services.seller_matching import category_names
+    if not filters.get('all_categories') and not category_names(req) & {
         _fold(x['name']) for x in filters.get('categories', [])
     }:
         return False
     if filters.get('all_brands'):
         return True
+    from core.services.seller_matching import requested_models
+    wanted_models = {_fold(m) for m in requested_models(req)}
     for brand in filters.get('brands', []):
         if brand['transport_type'] != req.transport_type or _fold(brand['name']) != _fold(req.brand):
             continue
-        if brand['all_models'] or _fold(req.model) in {_fold(m['name']) for m in brand['models']}:
+        if brand['all_models'] or bool(wanted_models & {_fold(m['name']) for m in brand['models']}):
             return True
     return False
 

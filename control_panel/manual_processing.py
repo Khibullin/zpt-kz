@@ -70,8 +70,8 @@ def recipient_rows(req, params, *, seller_ids=None):
         )).values_list('seller_id', flat=True)
         channels = SellerChannelConnection.objects.filter(whatsapp_consent=True).values_list('seller_id', flat=True)
         qs = qs.filter(Q(pk__in=historical) | Q(pk__in=channels) | Q(pk__in=one_time_sent.values('seller_id')))
-    qs = qs.defer('notes').select_related('brand_fk', 'model_fk', 'channel_connection').prefetch_related(
-        'selected_brands', 'selected_models', 'selected_categories', 'extra_phones', 'contact_consents',
+    qs = qs.defer('notes').select_related('brand_fk', 'model_fk', 'country_fk', 'channel_connection').prefetch_related(
+        'selected_brands', 'selected_models', 'selected_categories', 'selected_countries', 'extra_phones', 'contact_consents',
     ).order_by('-is_test_seller', 'name', 'id')
     q = params.get('q', '').strip()
     if q:
@@ -85,11 +85,13 @@ def recipient_rows(req, params, *, seller_ids=None):
             setattr(probe, field, params[field].strip())
     sent_records = {d.seller_id: d for d in RequestDispatch.objects.filter(request=req, status=RequestDispatch.STATUS_SENT)}
     sent_ids = set(sent_records)
+    from core.services.seller_matching import assess
     rows = []
     for seller in qs:
         test = test_receiver_decision(seller, req) is True
         # Narrow by the request specialization; registration state stays visible separately.
-        if seller_ids is None and not test and (seller.transport_type != req.transport_type or not _legacy_selected(seller, req)):
+        assessment = assess(seller, req)
+        if seller_ids is None and not test and assessment.status == 'excluded':
             continue
         if any(params.get(k, '').strip() for k in ('brand', 'model', 'category')) and not _legacy_selected(seller, probe):
             continue
@@ -114,7 +116,9 @@ def recipient_rows(req, params, *, seller_ids=None):
             continue
         rows.append({'seller': seller, 'phone': seller_whatsapp_phone(seller),
                      'consent': consent, 'reason': reason, 'universal': test,
+                     'match_status': assessment.status, 'match_reason': assessment.reason, 'match_rank': assessment.rank,
                      'outside': outside_request_territory(req, seller), 'sent': seller.pk in sent_ids})
+    rows.sort(key=lambda row: (row['match_status'] != 'matched', row['match_rank'], row['consent'] != 'granted', row['seller'].name.casefold(), row['seller'].pk))
     return rows
 
 
@@ -148,7 +152,7 @@ def seller_picker(request, pk, review=False):
         request.session[key] = sorted(selected)
         return JsonResponse({'ok': True, 'selected_count': len(selected)})
     tab = request.GET.get('tab', 'ready')
-    if tab not in ('ready', 'selected', 'sent', 'blocked'):
+    if tab not in ('ready', 'selected', 'sent', 'blocked', 'review'):
         tab = 'ready'
     count_params = request.GET.copy()
     count_params.pop('availability', None)
@@ -161,13 +165,16 @@ def seller_picker(request, pk, review=False):
     count_rows = recipient_rows(req, count_params) if tab == 'selected' and not review else rows
     counts = {'ready': sum(not row['reason'] for row in count_rows), 'selected': len(selected),
         'sent': sum(row['sent'] for row in count_rows),
-        'blocked': sum(bool(row['reason']) and not row['sent'] for row in count_rows)}
+        'review': sum(row['match_status'] == 'review' and not row['sent'] for row in count_rows),
+        'blocked': sum(bool(row['reason']) and row['match_status'] != 'review' and not row['sent'] for row in count_rows)}
     if review or tab == 'selected':
         visible_rows = rows
     elif tab == 'sent':
         visible_rows = [row for row in rows if row['sent']]
+    elif tab == 'review':
+        visible_rows = [row for row in rows if row['match_status'] == 'review' and not row['sent']]
     elif tab == 'blocked':
-        visible_rows = [row for row in rows if row['reason'] and not row['sent']]
+        visible_rows = [row for row in rows if row['reason'] and row['match_status'] != 'review' and not row['sent']]
     else:
         visible_rows = [row for row in rows if not row['reason']]
     page = Paginator(visible_rows, 50).get_page(request.GET.get('page'))
@@ -248,7 +255,7 @@ def seller_picker(request, pk, review=False):
                    prepared_deliveries=prepared_deliveries, sent_deliveries=sent_deliveries,
                    prepared_count=len(prepared_deliveries))
     tabs = []
-    for name, label in [('ready', 'Можно отправить'), ('selected', 'Выбрано'), ('sent', 'Уже отправлено'), ('blocked', 'Недоступны')]:
+    for name, label in [('ready', 'Можно отправить'), ('selected', 'Выбрано'), ('sent', 'Уже отправлено'), ('review', 'Требует проверки'), ('blocked', 'Недоступны')]:
         tab_query = query.copy(); tab_query['tab'] = name
         tabs.append({'name': name, 'label': label, 'url': '?' + tab_query.urlencode(), 'count': counts[name]})
     review_query = 'scope=all' if request.GET.get('scope') == 'all' else ''

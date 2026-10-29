@@ -21,7 +21,7 @@ class SellerRequestFilterTests(TestCase):
         self.rav=CarModel.objects.create(name='RAV4',brand=self.toyota,transport_type='car')
         self.rx=CarModel.objects.create(name='RX',brand=self.lexus,transport_type='car')
         self.optics=PartCategory.objects.create(name='Оптика')
-        self.seller=Seller.objects.create(name='Магазин',whatsapp='77011234567',transport_type='car',city='Алматы',receive_requests=True,sells_new_parts=True,all_categories=True,all_brands=True,all_models=True,all_countries=True)
+        self.seller=Seller.objects.create(name='Магазин',password_hash='existing-registration-hash',whatsapp='77011234567',transport_type='car',city='Алматы',receive_requests=True,sells_new_parts=True,all_categories=True,all_brands=True,all_models=True,all_countries=True)
         self.req=Request.objects.create(transport_type='car',brand='Toyota',model='Camry',category='Оптика',city='Алматы',phone='77011112233',source=Request.SOURCE_HOME_SHORT,search_scope='city')
         self.access=create_seller_request_access(request=self.req,seller=self.seller)
         self.url=reverse('seller_request_filters_link',kwargs={'token':self.access.token})
@@ -217,12 +217,12 @@ class SellerRequestFilterTests(TestCase):
         self.seller.is_active=False;self.seller.save()
         self.assertEqual(self.client.get(self.url).status_code,403)
 
-    def test_unconfigured_sellers_keep_existing_matching(self):
+    def test_legacy_profile_uses_explicit_specialization_without_brand_fallback(self):
         self.assertIsNone(self.seller.request_filters)
         self.assertTrue(_find_matching_sellers(self.req)[0].exists())
         self.seller.all_brands=False;self.seller.brand='Lexus';self.seller.save()
-        # Legacy fallback still applies to unconfirmed sellers.
-        self.assertTrue(_find_matching_sellers(self.req)[0].exists())
+        # A different declared brand no longer becomes eligible through fallback.
+        self.assertFalse(_find_matching_sellers(self.req)[0].exists())
 
     def test_contact_save_cannot_overwrite_confirmed_filters(self):
         self.save();snapshot=self.seller.request_filters

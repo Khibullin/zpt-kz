@@ -15,6 +15,7 @@
 {% if item.seller.directory_photo %}<div class="shop-avatar"><img src="{{ item.seller.directory_photo.url }}" alt="{{ item.display_name|default:item.seller.name }}" loading="lazy"></div>{% endif %}
 <div class="seller-copy">
 <h2 title="{{ item.display_name|default:item.seller.name }}">{{ item.display_name|default:item.seller.name }}</h2>
+<p class="muted">{{ item.match_reason }} · Наличие уточняется</p>
 <p class="seller-city">{% ui_icon 'pin' %} {{ item.seller.city }}{% if item.seller.address %} · {{ item.seller.address }}{% endif %}</p>
 {% if item.two_gis_url %}<a class="seller-map" href="{{ item.two_gis_url }}" target="_blank" rel="noopener noreferrer">Посмотреть в 2ГИС ↗</a>{% endif %}
 <div class="seller-reviews">{% if item.review_count %}<a class="seller-review-status" href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#reviews">★ {{ item.review_rating|floatformat:1 }} · Отзывы: {{ item.review_count }}</a>{% else %}<span class="seller-review-status">Пока нет отзывов</span>{% endif %}<a href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#leave-review">Оставить отзыв</a></div>

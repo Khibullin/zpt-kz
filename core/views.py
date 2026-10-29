@@ -875,8 +875,35 @@ def _unique_sellers_by_whatsapp(sellers):
 
 def _find_matching_sellers(req):
     from core.services.test_receivers import universal_test_q
-    qs, routing = _find_matching_sellers_standard(req)
+    if req.source == Request.SOURCE_HOME_SHORT:
+        qs = _base_sellers_queryset(req)
+        if req.search_scope == 'city':
+            qs = qs.filter(city=req.city)
+        elif req.search_scope == 'custom':
+            qs = qs.filter(city__in=[x.strip() for x in (req.selected_cities or '').split(',') if x.strip()])
+        routing = {'city': Request.ROUTING_MATCHED_CITY, 'custom': Request.ROUTING_MATCHED_CUSTOM}.get(
+            req.search_scope, Request.ROUTING_MATCHED_KAZAKHSTAN)
+    else:
+        qs, routing = _find_matching_sellers_standard(req)
     qs = qs.exclude(is_test_seller=True, test_all_requests_since__isnull=False)
+    if req.source == Request.SOURCE_HOME_SHORT:
+        from core.services.seller_matching import assess
+        profiles = qs.select_related('brand_fk', 'model_fk', 'country_fk').prefetch_related(
+            'selected_brands', 'selected_models', 'selected_categories', 'selected_countries')
+        ranked = []
+        for seller in profiles:
+            match = assess(seller, req)
+            if match.status == 'matched':
+                ranked.append((match.rank, seller.dispatch_priority, seller.pk))
+        ranked.sort()
+        from django.db.models import Case, When, IntegerField
+        ids = [item[2] for item in ranked]
+        qs = qs.filter(pk__in=ids)
+        if ids:
+            qs = qs.order_by(Case(*[When(pk=pk, then=i) for i, pk in enumerate(ids)], output_field=IntegerField()))
+        else:
+            routing = Request.ROUTING_NO_MATCH
+
     settings = BroadcastSettings.load()
     if settings.emergency_stop or settings.mode not in ('test', 'live'):
         return qs, routing
@@ -1043,9 +1070,11 @@ def _build_dispatch_queue(req, sellers):
     if manual_processing_enabled():
         return []
     from core.services.seller_request_filters import matches_request
+    from core.services.seller_matching import assess
     from core.services.test_receivers import test_receiver_decision
     sellers = [seller for seller in sellers if test_receiver_decision(seller, req) is True or
-               (test_receiver_decision(seller, req) is None and matches_request(seller.request_filters, req))]
+               (test_receiver_decision(seller, req) is None and matches_request(seller.request_filters, req)
+                and (req.source != Request.SOURCE_HOME_SHORT or assess(seller, req).status == 'matched'))]
     dispatches = []
     now = timezone.now()
     settings = BroadcastSettings.load()

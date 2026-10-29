@@ -89,8 +89,11 @@ def seller_allowed_for_dispatch(seller, settings: BroadcastSettings, request=Non
     if decision is not None:
         return bool(decision and seller.is_active and not seller.is_paused and seller.receive_requests
                     and not settings.emergency_stop and settings.mode in ('test', 'live'))
+    from core.services.seller_matching import assess
     from core.services.seller_request_filters import matches_request
-    if request is not None and not matches_request(getattr(seller, 'request_filters', None), request):
+    if request is not None and not matches_request(seller.request_filters, request):
+        return False
+    if request is not None and request.source == request.SOURCE_HOME_SHORT and assess(seller, request).status != 'matched':
         return False
     if not getattr(seller, 'is_active', True) or getattr(seller, 'is_paused', False):
         return False
@@ -367,6 +370,7 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
 
         req = locked_dispatch.request
         seller = locked_dispatch.seller
+        from core.services.seller_matching import assess
         from core.services.seller_request_filters import matches_request
         from core.services.test_receivers import test_receiver_decision
         decision = test_receiver_decision(seller, req)
@@ -374,7 +378,8 @@ def send_single_dispatch(dispatch: RequestDispatch) -> dict:
             locked_dispatch.status = RequestDispatch.STATUS_PAUSED
             locked_dispatch.save(update_fields=['status'])
             return {'ok': False, 'skipped': True, 'reason': 'test_receiver_not_allowed'}
-        if decision is None and not matches_request(seller.request_filters, req):
+        if decision is None and (not matches_request(seller.request_filters, req) or
+                (req.source == req.SOURCE_HOME_SHORT and assess(seller, req).status != 'matched')):
             locked_dispatch.status = RequestDispatch.STATUS_PAUSED
             locked_dispatch.save(update_fields=['status'])
             return {'ok': False, 'skipped': True, 'reason': 'seller_filter_mismatch'}

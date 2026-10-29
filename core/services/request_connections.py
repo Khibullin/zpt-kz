@@ -122,28 +122,8 @@ def relevant(seller, req):
         return False
     if not req.is_dismantler_request and seller.sells_new_parts is not True:
         return False
-    if seller.request_filters is not None:
-        return matches_request(seller.request_filters, req)
-    if seller.transport_type and seller.transport_type != req.transport_type:
-        return False
-    # Empty profile is allowed to respond, but not claimed to be relevant.
-    brands = {x.name.casefold() for x in seller.selected_brands.all()}
-    if seller.brand:
-        brands.add(seller.brand.casefold())
-    if seller.brand_fk_id:
-        brands.add(seller.brand_fk.name.casefold())
-    known_models = {x.name.casefold() for x in seller.selected_models.all()}
-    if seller.model:
-        known_models.add(seller.model.casefold())
-    if seller.model_fk_id:
-        known_models.add(seller.model_fk.name.casefold())
-    if known_models and not seller.all_models and req.model.casefold() not in known_models:
-        return False
-    categories = {x.name.casefold() for x in seller.selected_categories.all()}
-    if seller.category:
-        categories.add(seller.category.casefold())
-    return bool((seller.all_brands or req.brand.casefold() in brands)
-                and (seller.all_categories or req.category.casefold() in categories))
+    from core.services.seller_matching import assess
+    return assess(seller, req).status == 'matched'
 
 
 def seller_display_name(seller):
@@ -226,7 +206,8 @@ def _directory_brand_specific(seller, wanted, terms, index):
 def _directory_sort_key(seller, specific_brand, req):
     completeness = sum(bool(value) for value in (seller.directory_description, seller.directory_photo,
                        seller.brand or seller.all_brands, seller.category or seller.all_categories))
-    return not specific_brand, seller.city != req.city, -completeness, seller.pk
+    from core.services.seller_matching import assess
+    return (*assess(seller, req).rank, not specific_brand, seller.city != req.city, -completeness, seller.pk)
 
 
 def _directory_queryset(req, excluded_ids=(), seller_ids=None):
@@ -248,8 +229,8 @@ def _directory_queryset(req, excluded_ids=(), seller_ids=None):
 def directory_suggestions(req, excluded_ids=(), *, seller_ids=None):
     """Recheck current public eligibility before rendering or a contact action."""
     shops = _directory_queryset(req, excluded_ids, seller_ids).select_related(
-        'brand_fk', 'model_fk').prefetch_related(
-        'selected_brands', 'selected_models', 'selected_categories', 'social_links')
+        'brand_fk', 'model_fk', 'country_fk').prefetch_related(
+        'selected_brands', 'selected_models', 'selected_categories', 'selected_countries', 'social_links')
     terms = _directory_brand_terms()
     term_index = _brand_term_index(terms)
     wanted = terms.get(_brand_words(req.brand), _brand_words(req.brand))
@@ -285,7 +266,7 @@ def _directory_order(req, excluded_ids):
     """
     shops = _directory_queryset(req, excluded_ids)
     relations = {}
-    for field_name in ('selected_brands', 'selected_models', 'selected_categories'):
+    for field_name in ('selected_brands', 'selected_models', 'selected_categories', 'selected_countries'):
         field = Seller._meta.get_field(field_name)
         target = field.m2m_reverse_field_name()
         rows = field.remote_field.through.objects.filter(seller_id__in=shops.values('pk'))
@@ -296,9 +277,10 @@ def _directory_order(req, excluded_ids):
     empty = _ProfileNames()
     rows = shops.annotate(has_description=Case(
         When(directory_description='', then=Value(False)), default=Value(True), output_field=BooleanField()
-    )).values('pk', 'name', 'city', 'transport_type', 'sells_new_parts', 'is_dismantler', 'request_filters',
-              'all_brands', 'all_models', 'all_categories', 'brand', 'model', 'category',
-              'brand_fk_id', 'brand_fk__name', 'model_fk_id', 'model_fk__name',
+    ), has_registration_password=Case(When(password_hash='', then=Value(False)), default=Value(True), output_field=BooleanField())
+    ).values('pk', 'name', 'city', 'transport_type', 'sells_new_parts', 'is_dismantler', 'request_filters',
+              'all_brands', 'all_models', 'all_categories', 'brand', 'model', 'category', 'catalog_only',
+              'brand_fk_id', 'brand_fk__name', 'model_fk_id', 'model_fk__name', 'country_fk_id', 'country_fk__name', 'all_countries', 'user_id', 'has_registration_password',
               'directory_photo', 'has_description')
     terms = _directory_brand_terms()
     index = _brand_term_index(terms)
@@ -308,6 +290,7 @@ def _directory_order(req, excluded_ids):
         profile = SimpleNamespace(**row)
         profile.brand_fk = SimpleNamespace(name=row['brand_fk__name'])
         profile.model_fk = SimpleNamespace(name=row['model_fk__name'])
+        profile.country_fk = SimpleNamespace(name=row['country_fk__name'])
         for name, mapping in relations.items():
             setattr(profile, name, mapping.get(profile.pk, empty))
         if not relevant(profile, req):
@@ -355,8 +338,8 @@ def buyer_seller_page(req, number):
     excluded = [item['seller'].pk for item in direct]
     signature = (str(req.access_token), req.pk, req.brand, req.model, req.category,
                  req.transport_type, req.city, req.search_scope, req.selected_cities,
-                 req.is_dismantler_request, sorted(excluded))
-    key = 'buyer-directory-order:v1:' + sha256(json.dumps(signature).encode()).hexdigest()
+                 req.is_dismantler_request, req.country, req.description, sorted(excluded))
+    key = 'buyer-directory-order:v2:' + sha256(json.dumps(signature).encode()).hexdigest()
     ids = cache.get(key)
     if ids is None:
         ids = _directory_order(req, excluded)
@@ -434,7 +417,7 @@ def response_metrics(sellers):
 
 def recommendations(req):
     sellers = Seller.objects.filter(is_active=True, is_paused=False, direct_contacts_enabled=True).select_related(
-        'brand_fk', 'model_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'social_links')
+        'brand_fk', 'model_fk', 'country_fk').prefetch_related('selected_brands', 'selected_models', 'selected_categories', 'selected_countries', 'social_links')
     offers = {o.seller_id: o for o in RequestOffer.objects.filter(request=req, expires_at__gt=timezone.now(), fitment_confirmed=True)}
     purchases = dict(RequestInteraction.objects.filter(kind='purchase_confirmed', actor='buyer', request__purchase_result='purchased').values('seller_id').annotate(n=Count('id')).values_list('seller_id', 'n'))
     from core.models import RequestSellerReview

@@ -46,6 +46,7 @@ class ManualSellerDispatchTests(TestCase):
         )
         self.seller = Seller.objects.create(
             name='Магазин Mercedes',
+            password_hash='existing-registration-hash',
             whatsapp='77011013032',
             transport_type='car',
             city='Алматы',
@@ -133,7 +134,10 @@ class ManualSellerDispatchTests(TestCase):
 
     def test_catalog_only_seller_can_get_one_off_manual_link_without_enrollment(self):
         self.seller.catalog_only = True
-        self.seller.save(update_fields=['catalog_only'])
+        self.seller.brand = 'Mercedes-Benz'
+        self.seller.category = 'Трансмиссия'
+        self.seller.all_models = True
+        self.seller.save(update_fields=['catalog_only', 'brand', 'category', 'all_models'])
         dispatch, access = prepare_manual_dispatch(self.req, self.seller,
             permission_evidence='26.10.2026: продавец разрешил по телефону')
         self.assertEqual(dispatch.status, RequestDispatch.STATUS_PREPARED)
@@ -202,20 +206,21 @@ class ManualSellerDispatchTests(TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Match.objects.filter(request=self.req, seller=self.seller).exists())
 
-    def test_one_time_assignment_preserves_filters_and_requires_permission(self):
+    def test_one_time_assignment_cannot_bypass_specialization(self):
         self.seller.all_categories = False
         self.seller.save(update_fields=['all_categories'])
         with self.assertRaises(ValidationError):
             prepare_manual_dispatch(self.req, self.seller, assignment_reason='По решению владельца для этой заявки')
-        dispatch, _ = prepare_manual_dispatch(
-            self.req, self.seller,
-            assignment_reason='По решению владельца для этой заявки',
-            permission_evidence='Разрешение продавца подтверждено владельцем',
-        )
+        with self.assertRaises(ValidationError):
+            prepare_manual_dispatch(
+                self.req, self.seller,
+                assignment_reason='По решению владельца для этой заявки',
+                permission_evidence='Разрешение продавца подтверждено владельцем',
+            )
         self.seller.refresh_from_db()
         self.assertFalse(self.seller.all_categories)
         self.assertIsNone(self.seller.request_filters)
-        self.assertEqual(dispatch.status, RequestDispatch.STATUS_PREPARED)
+        self.assertFalse(RequestDispatch.objects.filter(request=self.req).exists())
         self.seller.city = 'Астана'
         self.seller.save(update_fields=['city'])
         with self.assertRaises(ValidationError):
@@ -223,7 +228,7 @@ class ManualSellerDispatchTests(TestCase):
                 assignment_reason='По решению владельца для этой заявки',
                 permission_evidence='Разрешение продавца подтверждено владельцем')
 
-    def test_admin_assignment_requires_reason_and_records_actor(self):
+    def test_admin_assignment_cannot_bypass_specialization(self):
         from django.contrib.admin.models import LogEntry
         user = get_user_model().objects.create_superuser(
             username='assignment-admin', password='test-only-password')
@@ -238,10 +243,8 @@ class ManualSellerDispatchTests(TestCase):
         self.assertFalse(RequestDispatch.objects.filter(request=self.req).exists())
         payload['assignment_reason'] = 'Владелец назначил на одну заявку вручную'
         self.client.post(url, payload)
-        self.assertTrue(RequestDispatch.objects.filter(request=self.req).exists())
-        log = LogEntry.objects.get(user=user, object_id=str(self.req.pk))
-        self.assertIn(payload['assignment_reason'], log.get_change_message())
-        self.assertIn(str(self.seller.pk), log.get_change_message())
+        self.assertFalse(RequestDispatch.objects.filter(request=self.req).exists())
+        self.assertFalse(LogEntry.objects.filter(user=user, object_id=str(self.req.pk)).exists())
 
     @override_settings(USE_THOUSAND_SEPARATOR=True, LANGUAGE_CODE='ru')
     def test_confirmation_form_keeps_large_id_machine_readable(self):

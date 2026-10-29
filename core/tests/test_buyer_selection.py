@@ -13,7 +13,7 @@ class BuyerSelectionTests(TestCase):
         self.req = Request.objects.create(brand='Mercedes-Benz', model='E400', city='Алматы',
             transport_type='car', description='Нужны два ШРУСа', category='Трансмиссия',
             search_scope='city', public_summary='ШРУС', contact_consent_at=timezone.now())
-        self.shop = Seller.objects.create(name='Тест каталога', city='Алматы', whatsapp='77001112233',
+        self.shop = Seller.objects.create(brand='Mercedes-Benz', category='Трансмиссия', name='Тест каталога', city='Алматы', whatsapp='77001112233',
             sells_new_parts=True, all_brands=True, all_models=True, all_categories=True,
             transport_type='car', direct_contacts_enabled=True)
 

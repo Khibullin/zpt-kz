@@ -18,7 +18,6 @@ from core.services.seller_request_access import (
     build_seller_request_access_url,
     get_or_create_active_seller_request_access,
 )
-from core.services.seller_request_filters import matches_request
 from core.services.test_receivers import test_receiver_decision
 
 MIN_EVIDENCE_LENGTH = 12
@@ -60,32 +59,9 @@ def manual_consent_status(seller):
 
 
 def _legacy_selected(seller, req) -> bool:
-    """Keep historical brand/model/category restrictions for non-JSON profiles."""
-    if seller.request_filters is not None:
-        return matches_request(seller.request_filters, req)
-    if not seller.all_brands:
-        brands = {b.name for b in seller.selected_brands.all()}
-        if seller.brand:
-            brands.add(seller.brand)
-        if seller.brand_fk_id:
-            brands.add(seller.brand_fk.name)
-        if not brands or req.brand.casefold() not in {b.casefold() for b in brands}:
-            return False
-        if not seller.all_models:
-            models = {m.name for m in seller.selected_models.all()}
-            if seller.model:
-                models.add(seller.model)
-            if seller.model_fk_id:
-                models.add(seller.model_fk.name)
-            if models and req.model.casefold() not in {m.casefold() for m in models}:
-                return False
-    if not seller.all_categories:
-        categories = {c.name for c in seller.selected_categories.all()}
-        if seller.category:
-            categories.add(seller.category)
-        if not categories or req.category.casefold() not in {c.casefold() for c in categories}:
-            return False
-    return True
+    """Use the same specialization gate for display, selection and sending."""
+    from core.services.seller_matching import assess
+    return assess(seller, req).status == 'matched'
 
 
 def outside_request_territory(req, seller):
@@ -111,7 +87,7 @@ def validate_manual_recipient(req, seller, *, assignment_reason="", allow_outsid
     if test_decision is False:
         raise ValidationError('Тестовый продавец не получает исторические заявки.')
 
-    if req.transport_type != seller.transport_type:
+    if seller.request_filters is None and req.transport_type != seller.transport_type:
         raise ValidationError('Тип транспорта не совпадает.')
     if req.source == req.SOURCE_HOME_SHORT:
         if req.is_dismantler_request and not seller.is_dismantler:
@@ -124,8 +100,9 @@ def validate_manual_recipient(req, seller, *, assignment_reason="", allow_outsid
         cities = {c.strip() for c in (req.selected_cities or '').split(',') if c.strip()}
         if seller.city not in cities:
             raise ValidationError('Продавец вне выбранных покупателем городов.')
-    if not assignment_reason and not _legacy_selected(seller, req):
-        raise ValidationError('Заявка не соответствует фильтрам продавца.')
+    if not _legacy_selected(seller, req):
+        from core.services.seller_matching import assess
+        raise ValidationError(assess(seller, req).reason)
 
 
 @transaction.atomic

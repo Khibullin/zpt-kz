@@ -31,8 +31,8 @@ def catalog_page(req, city, number):
     from django.core.cache import cache
     from hashlib import sha256
     signature = repr((req.pk, str(req.access_token), req.brand, req.model, req.category,
-                      req.transport_type, req.is_dismantler_request, req.city, city, excluded))
-    key = 'buyer-shortlist-order:' + sha256(signature.encode()).hexdigest()
+                      req.transport_type, req.is_dismantler_request, req.country, req.description, req.city, city, excluded))
+    key = 'buyer-shortlist-order:v2:' + sha256(signature.encode()).hexdigest()
     ids = cache.get(key)
     if ids is None:
         ids = service._directory_order(scoped, excluded)
@@ -44,6 +44,9 @@ def catalog_page(req, city, number):
     current = {item['seller'].pk: item for item in service.directory_suggestions(scoped, seller_ids=wanted)} if wanted else {}
     page.object_list = [current[item['directory_id']] if 'directory_id' in item else item
                        for item in page if 'directory_id' not in item or item['directory_id'] in current]
+    from core.services.seller_matching import assess
+    for item in page:
+        item['match_reason'] = 'Продавец подтвердил применимость' if item.get('offer') else assess(item['seller'], scoped).reason
     service.decorate_buyer_seller_cards(page.object_list)
     return page
 
