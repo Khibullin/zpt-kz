@@ -2,6 +2,7 @@ from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
 from .auth import WorkspaceLoginView
+from .invitations import invite_manager, accept_invitation, activate_invitation
 
 app_name = 'procurement'
 urlpatterns = [
@@ -11,6 +12,9 @@ urlpatterns = [
     path('settings/', views.settings, name='settings'),
     path('upload/', views.upload, name='upload'),
     path('users/', views.users, name='users'),
+    path('users/invite/', invite_manager, name='invite_manager'),
+    path('invitation/<str:token>/', accept_invitation, name='accept_invitation'),
+    path('activate/', activate_invitation, name='activate_invitation'),
     path('basket/', views.basket, name='basket'),
     path('purchases/new/<int:supplier_id>/', views.purchase_confirm, name='purchase_confirm'),
     path('purchases/<int:pk>/', views.purchase_detail, name='purchase_detail'),

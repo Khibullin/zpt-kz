@@ -7,6 +7,14 @@ from .permissions import workspace_role
 
 
 class WorkspaceAuthenticationForm(AuthenticationForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].label = 'Логин или email'
+
+    def clean_username(self):
+        value = self.cleaned_data['username'].strip()
+        return value.lower() if '@' in value else value
+
     def confirm_login_allowed(self, user):
         super().confirm_login_allowed(user)
         if workspace_role(user) is None:
