@@ -63,3 +63,31 @@ class SupplierWorkspaceTests(TestCase):
         response = self.client.post(reverse('procurement:upload'), {'supplier': self.valtec.name, 'kind': 'catalog', 'checked_on': '2026-10-29', 'file': file})
         self.assertRedirects(response, f'{self.url}?supplier={self.valtec.pk}')
         self.assertEqual(Offer.objects.get(supplier=self.valtec, article='NEW').cost, 500)
+
+    def test_other_tab_cannot_change_explicit_upload_supplier(self):
+        response = self.client.get(self.url, {'supplier': self.valtec.pk})
+        upload_url = response.context['upload_url']
+        settings_url = response.context['settings_url']
+        basket_url = response.context['basket_url']
+        self.client.get(self.url, {'supplier': self.omega.pk})
+        response = self.client.get(upload_url)
+        self.assertEqual(response.context['form'].initial['supplier'], self.valtec.name)
+        self.assertEqual(response.context['selected_supplier'], self.valtec)
+        self.assertEqual(response.context['catalog_url'], f'{self.url}?supplier={self.valtec.pk}')
+        response = self.client.get(basket_url)
+        self.assertEqual(response.context['selected_supplier'], self.valtec)
+        response = self.client.get(settings_url)
+        self.assertEqual(response.context['selected_supplier'], self.valtec)
+        response = self.client.post(settings_url, {'commission': '10.9', 'expenses': '250', 'min_profit': '1000', 'min_markup': '30'})
+        self.assertRedirects(response, f'{self.url}?supplier={self.valtec.pk}')
+
+    def test_explicit_all_suppliers_upload_does_not_use_another_tabs_supplier(self):
+        self.client.get(self.url, {'supplier': self.omega.pk})
+        response = self.client.get(reverse('procurement:upload') + '?supplier=')
+        self.assertEqual(response.context['form'].initial['supplier'], '')
+        self.assertIsNone(response.context['selected_supplier'])
+
+    def test_product_context_belongs_to_its_supplier(self):
+        self.client.get(self.url, {'supplier': self.omega.pk})
+        response = self.client.get(reverse('procurement:detail', args=[self.b.pk]))
+        self.assertEqual(response.context['selected_supplier'], self.valtec)

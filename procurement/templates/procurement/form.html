@@ -1,6 +1,6 @@
 {% extends 'procurement/base.html' %}{% block content %}<header>
 <h1>{{ title }}</h1>
-<a href="{% url 'procurement:dashboard' %}">← Подбор товаров</a>
+<a href="{{ catalog_url }}">← Подбор товаров</a>
 </header>
 <section class="panel">
 <p class="help">{{ help }}</p>
