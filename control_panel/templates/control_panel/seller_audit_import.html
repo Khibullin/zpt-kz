@@ -1,0 +1,9 @@
+{% extends 'control_panel/base.html' %}
+{% block content %}
+{% for message in messages %}<p class="cp-message" role="status">{{ message }}</p>{% endfor %}
+<p>Закрытая загрузка результатов внешней проверки. У каждого продавца проверяются ID, имя, исходный телефон, город и прежний статус. При несовпадении пакет целиком отменяется.</p>
+<p>Изменяются только сведения проверки. Контакты, специализация, согласия и подключения не меняются.</p>
+{% if error %}<p role="alert" style="color:#a23c22">{{ error }}</p>{% endif %}
+<form method="post">{% csrf_token %}<label for="audit-payload">Пакет проверки (JSON)</label><textarea id="audit-payload" name="payload" rows="14" maxlength="200000" required style="display:block;width:100%;box-sizing:border-box;margin:12px 0">{{ payload }}</textarea><button class="cp-btn" type="submit">Сохранить результаты проверки</button></form>
+<p><a href="{% url 'control_panel:seller_list' %}">К продавцам</a></p>
+{% endblock %}

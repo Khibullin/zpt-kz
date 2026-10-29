@@ -278,7 +278,7 @@ def _directory_order(req, excluded_ids):
     rows = shops.annotate(has_description=Case(
         When(directory_description='', then=Value(False)), default=Value(True), output_field=BooleanField()
     ), has_registration_password=Case(When(password_hash='', then=Value(False)), default=Value(True), output_field=BooleanField())
-    ).values('pk', 'name', 'city', 'transport_type', 'sells_new_parts', 'is_dismantler', 'request_filters',
+    ).values('pk', 'name', 'city', 'audit_status', 'transport_type', 'sells_new_parts', 'is_dismantler', 'request_filters',
               'all_brands', 'all_models', 'all_categories', 'brand', 'model', 'category', 'catalog_only',
               'brand_fk_id', 'brand_fk__name', 'model_fk_id', 'model_fk__name', 'country_fk_id', 'country_fk__name', 'all_countries', 'user_id', 'has_registration_password',
               'directory_photo', 'has_description')

@@ -1,6 +1,6 @@
 {% extends 'control_panel/base.html' %}
 
-{% block content %}
+{% block content %}{% load seller_audit %}{% seller_audit_internal seller %}
   <section class="cp-card">
     <h2>Основная информация</h2>
     <dl class="cp-dl">

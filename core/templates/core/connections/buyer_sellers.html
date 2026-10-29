@@ -1,7 +1,7 @@
 {% extends 'core/connections/base.html' %}
 {% load l10n interface_ui %}
 {% block main_class %}workflow-panel sellers-panel{% endblock %}
-{% block content %}
+{% block content %}{% load seller_audit %}
 <a class="back" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">← К заявке</a>
 <h1>Выберите продавцов по вашей заявке</h1>
 <div class="summary request-strip"><span>Заявка №{{ req.pk }} · {{ req.city }}</span><span>{{ req.brand }} {{ req.model }}{% if req.year %} · {{ req.year|unlocalize }}{% endif %}</span><span>{{ req.public_summary|default:req.description }}</span></div>
@@ -18,7 +18,7 @@
 <p class="muted">{{ item.match_reason }} · Наличие уточняется</p>
 <p class="seller-city">{% ui_icon 'pin' %} {{ item.seller.city }}{% if item.seller.address %} · {{ item.seller.address }}{% endif %}</p>
 {% if item.two_gis_url %}<a class="seller-map" href="{{ item.two_gis_url }}" target="_blank" rel="noopener noreferrer">Посмотреть в 2ГИС ↗</a>{% endif %}
-<div class="seller-reviews">{% if item.review_count %}<a class="seller-review-status" href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#reviews">★ {{ item.review_rating|floatformat:1 }} · Отзывы: {{ item.review_count }}</a>{% else %}<span class="seller-review-status">Пока нет отзывов</span>{% endif %}<a href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#leave-review">Оставить отзыв</a></div>
+{% seller_audit_public item.seller %}<div class="seller-reviews">{% if item.review_count %}<a class="seller-review-status" href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#reviews">★ {{ item.review_rating|floatformat:1 }} · Отзывы: {{ item.review_count }}</a>{% else %}<span class="seller-review-status">Пока нет отзывов</span>{% endif %}<a href="{% url 'workflow_buyer_shop' req.pk req.access_token item.seller.pk %}#leave-review">Оставить отзыв</a></div>
 {% if item.offer %}<p>{{ item.offer.manufacturer }} · {{ item.offer.article }} · {{ item.offer.quantity }} шт.</p><p>За всё количество: {{ item.offer.price }} ₸. {% if item.total_price %}С доставкой: {{ item.total_price }} ₸.{% else %}Доставку уточняйте у продавца.{% endif %}</p>{% endif %}
 </div>
 <div class="seller-actions"><form class="selection-toggle" method="post" action="{% url 'buyer_selection_toggle' req.pk req.access_token item.seller.pk %}">{% csrf_token %}<input type="hidden" name="city" value="{{ city_filter }}"><input type="hidden" name="page" value="{{ page.number }}"><label class="selection-check"><input type="checkbox" {% if item.selected %}checked{% endif %} onchange="this.form.requestSubmit()">Выбрать продавца</label><noscript><button class="{% if item.selected %}secondary{% endif %}">{% if item.selected %}Убрать из выбранных{% else %}Выбрать{% endif %}</button></noscript></form>

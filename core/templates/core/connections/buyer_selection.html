@@ -1,5 +1,5 @@
 {% extends 'core/connections/base.html' %}{% load static %}
-{% block content %}
+{% block content %}{% load seller_audit %}
 <div class="buyer-workspace{% if step == 'selected' %} shortlist-page{% endif %}">
 <a class="back" href="{% url 'workflow_buyer_step' req.pk req.access_token 'accepted' %}">К заявке №{{ req.pk }}</a>
 <nav class="selection-nav" aria-label="Работа с заявкой">
@@ -14,7 +14,7 @@
 <div class="selection-tabs"><a href="?tab=all" {% if tab == 'all' %}aria-current="page"{% endif %}>Все ({{ total }})</a><a href="?tab=ready" {% if tab == 'ready' %}aria-current="page"{% endif %}>Можно отправить ({{ ready }})</a><a href="?tab=sent" {% if tab == 'sent' %}aria-current="page"{% endif %}>Отправлено ({{ sent }})</a></div>
 {% for item in entries %}<article class="selection-card">
 <div><h2>{{ item.seller.name }}</h2><p>{{ item.seller.city }}{% if item.seller.address %} · {{ item.seller.address }}{% endif %}</p>
-{% if item.sent_at %}<p class="selection-status">Отправлено покупателем · {{ item.sent_at|date:'d.m.Y H:i' }}</p>{% else %}<p class="muted">Ещё не отмечено как отправленное</p>{% endif %}
+{% seller_audit_public item.seller %}{% if item.sent_at %}<p class="selection-status">Отправлено покупателем · {{ item.sent_at|date:'d.m.Y H:i' }}</p>{% else %}<p class="muted">Ещё не отмечено как отправленное</p>{% endif %}
 {% if item.result %}<p>{{ item.get_result_display }}{% if item.comment %} · {{ item.comment }}{% endif %}</p>{% endif %}</div>
 <div class="selection-actions">
 <a class="button" href="{% url 'buyer_selection' req.pk req.access_token 'message' %}?seller={{ item.seller_id }}">Подготовить сообщение</a>
@@ -24,7 +24,7 @@
 </div></article>{% empty %}<div class="selection-card"><p>В этом списке пока нет продавцов.</p><a class="button" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Выбрать продавцов</a></div>{% endfor %}
 <a class="button secondary" href="{% url 'workflow_buyer_step' req.pk req.access_token 'sellers' %}">Добавить продавцов</a>
 {% elif step == 'message' %}
-<h1>Сообщение продавцу</h1><p><strong>{{ entry.seller.name }}</strong> · {{ entry.seller.city }}</p>
+<h1>Сообщение продавцу</h1><p><strong>{{ entry.seller.name }}</strong> · {{ entry.seller.city }}</p>{% seller_audit_public entry.seller %}
 <p>Проверьте текст. Приглашение в Telegram добавляется только неподключённому продавцу.</p>
 <form method="post" id="message-form">{% csrf_token %}
 <label for="seller-message">Текст сообщения</label><textarea id="seller-message" name="message" maxlength="4000" rows="13" required>{{ text }}</textarea>

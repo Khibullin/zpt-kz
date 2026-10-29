@@ -1473,6 +1473,14 @@ class SellerAdmin(admin.ModelAdmin):
             )
         }),
 
+        ('Проверка и обогащение продавца', {
+            'fields': ('audit_status', 'audit_checked_at', 'audit_note', 'audit_public_summary',
+                       'audit_city', 'audit_address', 'audit_delivery', 'audit_activity',
+                       'audit_signal_date', 'audit_kaspi', 'audit_sources'),
+            'description': 'Проверка не означает наличие детали и не даёт согласия на заявки. '
+                           'При расхождениях публичные сведения проверки скрыты до уточнения.',
+        }),
+
         ('Специализация заявок', {
             'fields': ('sells_new_parts',),
             'description': (

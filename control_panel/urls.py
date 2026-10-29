@@ -4,10 +4,12 @@ from control_panel import views
 from control_panel.manual_processing import seller_picker, manual_send, seller_dispatch_review
 
 from control_panel.overview_activity import overview_activity
+from control_panel.seller_audit import audit_import
 
 app_name = 'control_panel'
 
 urlpatterns = [
+    path('partners/sellers/audit-import/', audit_import, name='seller_audit_import'),
     path('', views.overview, name='overview'),
     path('activity/<str:kind>/', overview_activity, name='overview_activity'),
     path('requests/parts/<int:pk>/dispatch/', seller_dispatch_review, name='parts_request_dispatch_review'),
