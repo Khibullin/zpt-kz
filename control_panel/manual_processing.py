@@ -97,6 +97,12 @@ def recipient_rows(req, params, *, seller_ids=None):
     from core.services.seller_matching import assess
     rows = []
     for seller in qs:
+        requested_rating = params.get('rating', '')
+        if requested_rating in ('unchecked', '0', '1', '2', '3', '4', '5'):
+            from core.services.seller_audit import rating
+            score = rating(seller)['score']
+            if (requested_rating == 'unchecked' and score is not None) or (requested_rating != 'unchecked' and score != int(requested_rating)):
+                continue
         test = test_receiver_decision(seller, req) is True
         # Narrow by the request specialization; registration state stays visible separately.
         assessment = assess(seller, req)

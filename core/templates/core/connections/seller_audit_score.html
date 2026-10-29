@@ -1,0 +1,4 @@
+<div class="audit-score" aria-label="Подтверждённость данных{% if rating.checked %}: {{ rating.score }} из 5{% else %}: не проверен{% endif %}">
+{% if rating.checked %}<div class="audit-score-heading"><span>Подтверждённость данных</span><strong>{{ rating.score }}/5</strong></div><div class="audit-score-segments" aria-hidden="true">{% for filled in rating.segments %}<span{% if filled %} class="is-filled"{% endif %}></span>{% endfor %}</div><p class="audit-score-date">Проверено {{ rating.checked_at|date:'d.m.Y' }}</p>{% else %}<span class="audit-status">Не проверен</span><p class="audit-score-date">Оценка появится после проверки</p>{% endif %}
+{% if rating.conflict %}<p class="audit-warning">Требует проверки: есть расхождения</p>{% endif %}
+</div>

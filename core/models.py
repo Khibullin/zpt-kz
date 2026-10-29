@@ -1,4 +1,4 @@
-from core.services.seller_audit import validate_sources as validate_seller_audit_sources
+from core.services.seller_audit import validate_sources as validate_seller_audit_sources, validate_evidence, validate_evidence_for_seller
 import uuid
 
 from django.conf import settings
@@ -1394,6 +1394,10 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    audit_evidence = models.JSONField(default=dict, blank=True, validators=[validate_evidence],
+        verbose_name='Основания пятибалльной оценки', help_text='Критерии contacts, location, specialization, independent, freshness. '
+        'Каждый: confirmed (true/false), urls (подтверждённые источники), note (основание). '
+        'Баллы вычисляются автоматически; свежесть — датированный сигнал за последние 180 дней.')
     audit_status = models.CharField(max_length=16, default='unchecked', db_index=True,
         choices=[('unchecked', 'Не проверен'), ('linked', 'Есть внешнее подтверждение'),
                  ('unconfirmed', 'Совпадение не найдено'), ('conflict', 'Обнаружены расхождения')],
@@ -1628,6 +1632,7 @@ class Seller(models.Model):
                 errors['audit_kaspi'] = 'Для подтверждения Kaspi нужен сопоставленный источник kind=kaspi.'
         if errors:
             raise ValidationError(errors)
+        validate_evidence_for_seller(self)
 
     class Meta:
         verbose_name = 'Продавец'

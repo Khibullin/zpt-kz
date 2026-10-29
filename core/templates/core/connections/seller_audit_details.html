@@ -1,0 +1,13 @@
+<div class="audit-criteria"><h3>Из чего складывается оценка</h3>
+{% for criterion in rating.criteria %}<div class="audit-criterion"><strong>{{ criterion.label }}</strong><span class="{% if criterion.confirmed %}audit-confirmed{% else %}audit-unknown{% endif %}">{{ criterion.state }}</span><b>{% if criterion.confirmed %}+1{% else %}+0{% endif %}</b><div>{% if criterion.note %}<p>{{ criterion.note }}</p>{% endif %}{% for source in criterion.sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }}</a>{% if not forloop.last %} · {% endif %}{% endfor %}</div></div>{% endfor %}
+<p class="audit-score-help">Свежесть — содержательный сигнал торговли за последние 180 дней. Дата обхода сайта и заполненность карточки баллов не добавляют.</p>
+</div>
+{% if match_reason %}<p><b>Соответствие заявке:</b> {{ match_reason }}</p>{% endif %}
+{% if audit.note %}<p>{{ audit.note|linebreaksbr }}</p>{% endif %}
+{% if audit.city %}<p><b>Город по источнику:</b> {{ audit.city }}</p>{% endif %}
+{% if audit.address %}<p><b>Адрес по источнику:</b> {{ audit.address }}</p>{% endif %}
+{% if audit.delivery %}<p><b>Доставка:</b> {{ audit.delivery }}</p>{% endif %}
+{% if audit.checked %}<p>Kaspi: {{ audit.kaspi }} · {{ audit.activity }}{% if audit.signal_date %} · {{ audit.signal_date|date:'d.m.Y' }}{% endif %}</p>{% endif %}
+<div class="audit-source-links">{% for source in audit.sources %}<p><a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }}</a> — {% if source.confirmed %}сопоставлен{% else %}кандидат, принадлежность не подтверждена{% endif %}</p>{% endfor %}</div>
+{% if audit.summary %}<p><b>Покупателю:</b> {{ audit.summary }}</p>{% endif %}
+<a class="audit-edit" href="{% url 'admin:core_seller_change' seller.pk %}" target="_blank" rel="noopener">Редактировать проверку</a>

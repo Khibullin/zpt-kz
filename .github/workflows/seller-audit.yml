@@ -9,6 +9,8 @@ on:
       - 'core/templates/core/connections/seller_audit*'
       - 'core/tests/test_seller_audit.py'
       - 'core/migrations/013[678]*'
+      - 'control_panel/templates/control_panel/seller_picker_card.html'
+      - 'core/templates/core/connections/seller_audit*'
       - 'control_panel/manual_processing.py'
       - 'control_panel/templates/control_panel/parts_sellers.html'
       - '.github/workflows/seller-audit.yml'
