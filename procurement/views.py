@@ -42,15 +42,27 @@ def access(*roles):
     return decorate
 
 
+def request_supplier(request):
+    # An explicit tab URL takes precedence over another tab's last selection.
+    supplier_id = request.GET.get('supplier', request.session.get('procurement_supplier'))
+    if not supplier_id or not str(supplier_id).isdigit() or len(str(supplier_id)) > 18:
+        return None
+    return Supplier.objects.filter(pk=supplier_id).first()
+
+
 def context(request, **extra):
-    supplier_id = request.session.get('procurement_supplier')
-    selected_supplier = Supplier.objects.filter(pk=supplier_id).first() if supplier_id else None
+    selected_supplier = extra.get('supplier') or getattr(extra.get('offer'), 'supplier', None) or request_supplier(request)
     catalog_url = reverse('procurement:dashboard')
+    scope_query = '?supplier='
     if selected_supplier:
-        catalog_url += f'?supplier={selected_supplier.pk}'
+        scope_query += str(selected_supplier.pk)
+    catalog_url += scope_query
     return {'role': request.procurement_role, 'can_manage': request.procurement_role in ('sales', 'admin'),
             'selected_supplier': selected_supplier, 'catalog_url': catalog_url,
-            'favorites_url': catalog_url + ('&' if selected_supplier else '?') + 'favorites=1',
+            'favorites_url': catalog_url + '&favorites=1',
+            'upload_url': reverse('procurement:upload') + scope_query,
+            'settings_url': reverse('procurement:settings') + scope_query,
+            'basket_url': reverse('procurement:basket') + scope_query,
             'basket_count': Selection.objects.filter(user=request.user).count(), **extra}
 
 
@@ -192,13 +204,14 @@ def settings(request):
     if request.method == 'POST' and form.is_valid():
         form.save()
         messages.success(request, 'Параметры расчёта сохранены.')
-        return redirect('procurement:dashboard')
+        supplier = request_supplier(request)
+        return redirect(reverse('procurement:dashboard') + '?supplier=' + (str(supplier.pk) if supplier else ''))
     return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Сопоставление с Kaspi выполняется по порядку: 1) точный артикул с буквами и суффиксами; 2) название детали, сторона установки и комплектность; 3) бренд. Подтверждение ставится только при совпадении всех трёх признаков по данным Kaspi. Недостаточные или противоречивые данные остаются непроверенными. Применимость отдельно не является условием сравнения цен при совпадении артикула, названия и бренда. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Упаковка стоит 250 ₸ за каждую деталь и вычитается один раз. Поле общих расходов включает упаковку: при значении 250 ₸ повторного вычитания нет; меньше 250 ₸ в расчёте не применяется. Неизвестные дополнительные расходы не считаются нулём. Вкладка выгодных закупок включает только прибыль от 1 000 ₸ после комиссии и расходов с упаковкой; ровно 1 000 ₸ проходит. Личный порог доходности не ограничивает рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Скидки поставщиков индивидуальны: шкала хранится в карточке конкретного поставщика и показывается рядом с его суммой заказа. Товары других поставщиков в порог не входят. До подтверждения базы расчёта и включения скидки в прайс шкала справочная, цены и прибыль автоматически не пересчитываются. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
 
 
 @access('sales', 'admin')
 def upload(request):
-    supplier = Supplier.objects.filter(pk=request.session.get('procurement_supplier')).first()
+    supplier = request_supplier(request)
     form = UploadForm(request.POST or None, request.FILES or None,
                       initial={'supplier': supplier.name if supplier else ''})
     if request.method == 'POST' and form.is_valid():

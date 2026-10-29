@@ -5,7 +5,7 @@
 <div class="muted">Закупки и продажи · внутренний кабинет</div>
 {% if selected_supplier %}<p><strong>Поставщик: {{ selected_supplier.name }}</strong></p>{% endif %}
 </div>
-<div class="actions">{% if can_manage %}<a class="button" href="{% url 'procurement:upload' %}">Загрузить файл</a>{% endif %}<a class="button primary" href="{% url 'procurement:basket' %}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a>
+<div class="actions">{% if can_manage %}<a class="button" href="{{ upload_url }}">Загрузить файл</a>{% endif %}<a class="button primary" href="{{ basket_url }}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a>
 </div>
 </header>
 {% if supplier_stats %}<div class="notice">{{ selected_supplier.name }}: загружено <strong>{{ supplier_stats.loaded }}</strong> · Ссылки Kaspi: {{ supplier_stats.linked }} · Есть цена Kaspi: {{ supplier_stats.priced }} · Совпадение подтверждено: {{ supplier_stats.verified }}.{% if not supplier_stats.priced %}<br>Сверка с Kaspi ещё не выполнена. Для расчёта выгодности нужны цены сопоставленных товаров.{% endif %}</div>{% endif %}
@@ -15,7 +15,7 @@
 </a>
 <a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Сначала больший процент заработка на вложенные деньги</small>
 </a>
-<a class="button" href="{% url 'procurement:settings' %}">Алгоритм<br>и настройки</a>
+<a class="button" href="{{ settings_url }}">Алгоритм<br>и настройки</a>
 </div>
 <form method="get" class="selection-filters">
 <input type="hidden" name="mode" value="{{ mode }}">
@@ -37,8 +37,8 @@
 <a class="button" href="{% querystring favorites='1' page=None download=None %}">Избранное</a>
 <a class="button" href="{% querystring download='csv' page=None %}">Скачать подборку CSV</a>
 </div>
-<p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Расходы на единицу (включают упаковку 250 ₸): {% if preferences.expenses == None %}не заданы{% else %}{{ effective_expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{% url 'procurement:settings' %}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
-{% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{% url 'procurement:settings' %}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
+<p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Расходы на единицу (включают упаковку 250 ₸): {% if preferences.expenses == None %}не заданы{% else %}{{ effective_expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{{ settings_url }}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
+{% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{{ settings_url }}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{{ settings_url }}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
 {% if mode == 'best' %}<div class="notice"><strong>Сначала больше заработка на вложенный тенге.</strong> Доходность закупки = (Kaspi после комиссии − закупка) / закупка × 100%. При равной доходности выше заработок в тенге. Процент рассчитан до расходов; прибыль рядом — после расходов и упаковки. Включены товары с известными ценами, комиссией и положительной доходностью. Спрос, совпадение, наличие и даты — справочная информация. Прибыль после комиссии и расходов с упаковкой 250 ₸ — от 1 000 ₸; дополнительные фильтры применяются по вашему выбору.</div>{% endif %}
 <p class="muted">Найдено {{ total }} · {% if mode == 'best' %}Даты цен и сведения о спросе не ограничивают рейтинг доходности.{% else %}Даты цен и спроса доступны в таблице и карточке.{% endif %} Непроверенное совпадение с Kaspi отмечено отдельно и не исключает товар из рекомендаций.</p>
 <div class="tablewrap">

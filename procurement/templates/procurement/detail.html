@@ -1,6 +1,6 @@
 {% extends 'procurement/base.html' %}{% block content %}<header>
 <div>
-<a href="{% url 'procurement:dashboard' %}">← Подбор товаров</a>
+<a href="{{ catalog_url }}">← Подбор товаров</a>
 <h1>{{ offer.name }}</h1><p>Поставщик: <a href="{% url 'procurement:supplier_detail' offer.supplier.pk %}">{{ offer.supplier.name }} · условия закупки</a></p>
 <div class="muted">{{ offer.brand }} · {{ offer.article }}</div>
 </div>
