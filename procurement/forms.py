@@ -24,10 +24,19 @@ class SelectionFilterForm(forms.Form):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['supplier'].queryset = Supplier.objects.order_by('name')
-        categories = list(OMEGA_CATEGORIES)
-        categories += [x for x in Offer.objects.exclude(category='').order_by('category').values_list('category', flat=True).distinct() if x not in categories and x != 'Техобслуживание и сервис']
+        selected_supplier = self.data.get('supplier', '') if self.is_bound else ''
+        offers = Offer.objects.all()
+        if str(selected_supplier).isdigit():
+            offers = offers.filter(supplier_id=selected_supplier)
+        categories = list(OMEGA_CATEGORIES) if not selected_supplier else []
+        for value in offers.exclude(category='').order_by('category').values_list('category', flat=True).distinct():
+            value = 'Тех обслуживание и сервис' if value == 'Техобслуживание и сервис' else value
+            if value not in categories:
+                categories.append(value)
         self.fields['category'].choices = [('', 'Все категории')] + [(x, x) for x in categories]
         fitments = VehicleFitment.objects.filter(verified=True)
+        if str(selected_supplier).isdigit():
+            fitments = fitments.filter(offer__supplier_id=selected_supplier)
         makes = list(fitments.order_by('make').values_list('make', flat=True).distinct())
         self.fields['vehicle_make'].choices = [('', 'Все марки' if makes else 'Нет проверенных данных о марках')] + [(x, x) for x in makes]
         selected_make = self.data.get('vehicle_make', '') if self.is_bound else ''
