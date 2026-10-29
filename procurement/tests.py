@@ -311,9 +311,12 @@ class WorkspaceTests(TestCase):
         self.assertFalse(result['qualified'])
         self.assertEqual(result['signal'], 'Данных недостаточно')
 
-    def test_unverified_match_excluded(self):
+    def test_unverified_match_is_eligible_without_changing_verification(self):
         self.offer.match_verified = False
-        self.assertFalse(evaluate(self.offer, Preferences(user=self.user, commission=0, expenses=0))['qualified'])
+        result = evaluate(self.offer, Preferences(user=self.user, commission=0, expenses=0))
+        self.assertTrue(result['qualified'])
+        self.assertFalse(self.offer.match_verified)
+        self.assertTrue(any('требуют подтверждения' in reason for reason in result['reasons']))
 
     def test_zero_kaspi_and_cost_do_not_divide_by_zero(self):
         self.offer.kaspi_price = 0
@@ -443,16 +446,29 @@ class WorkspaceTests(TestCase):
         self.offer.save()
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
 
-    def test_best_mode_keeps_verification_and_demand_requirements(self):
+    def test_best_mode_keeps_demand_freshness_and_stock_requirements(self):
         self.login()
         Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0)
-        for changes in ({'match_verified': False}, {'evidence_date': None}, {'checked_on': None},
+        for changes in ({'evidence_date': None}, {'checked_on': None},
                         {'stock': 'нет'}, {'recent_reviews': None}):
             with self.subTest(changes=changes):
                 original = {key: getattr(self.offer, key) for key in changes}
                 Offer.objects.filter(pk=self.offer.pk).update(**changes)
                 self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
                 Offer.objects.filter(pk=self.offer.pk).update(**original)
+
+    def test_best_mode_includes_unverified_match_and_csv_but_respects_explicit_filter(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0)
+        Offer.objects.filter(pk=self.offer.pk).update(match_verified=False)
+        response = self.client.get(self.url('dashboard'), {'mode': 'best'})
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(response, 'Совпадение с Kaspi не проверено')
+        self.assertContains(self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'}), '00123')
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'verified': '1'}).context['total'], 0)
+        self.offer.refresh_from_db()
+        self.assertFalse(self.offer.match_verified)
+        self.assertContains(self.client.get(self.url('settings')), 'Подтверждение совпадения с карточкой Kaspi не обязательно')
 
     def test_photo_import_rejects_script_url(self):
         with self.assertRaises(ValueError):
