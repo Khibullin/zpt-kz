@@ -12,7 +12,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.db.models import Q, Prefetch, prefetch_related_objects
+from django.db.models import Q, Prefetch, prefetch_related_objects, Count
 from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -43,7 +43,14 @@ def access(*roles):
 
 
 def context(request, **extra):
+    supplier_id = request.session.get('procurement_supplier')
+    selected_supplier = Supplier.objects.filter(pk=supplier_id).first() if supplier_id else None
+    catalog_url = reverse('procurement:dashboard')
+    if selected_supplier:
+        catalog_url += f'?supplier={selected_supplier.pk}'
     return {'role': request.procurement_role, 'can_manage': request.procurement_role in ('sales', 'admin'),
+            'selected_supplier': selected_supplier, 'catalog_url': catalog_url,
+            'favorites_url': catalog_url + ('&' if selected_supplier else '?') + 'favorites=1',
             'basket_count': Selection.objects.filter(user=request.user).count(), **extra}
 
 
@@ -103,9 +110,24 @@ def filtered_rows(request, preferences, filters):
 
 @access()
 def dashboard(request):
+    if 'supplier' not in request.GET and request.session.get('procurement_supplier'):
+        params = request.GET.copy()
+        params['supplier'] = request.session['procurement_supplier']
+        return redirect(reverse('procurement:dashboard') + '?' + params.urlencode())
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     form = SelectionFilterForm(request.GET)
     valid = form.is_valid()
+    if valid:
+        supplier = form.cleaned_data.get('supplier')
+        request.session['procurement_supplier'] = supplier.pk if supplier else None
+    else:
+        supplier = form.cleaned_data.get('supplier')
+    supplier_stats = None
+    if supplier:
+        supplier_stats = Offer.objects.filter(supplier=supplier).aggregate(
+            loaded=Count('pk'), linked=Count('pk', filter=~Q(kaspi_url='')),
+            priced=Count('pk', filter=Q(kaspi_price__isnull=False)),
+            verified=Count('pk', filter=Q(match_verified=True)))
     rows = filtered_rows(request, preferences, form.cleaned_data) if valid else []
     if request.GET.get('download') == 'csv' and valid:
         response = HttpResponse(content_type='text/csv; charset=utf-8')
@@ -130,7 +152,9 @@ def dashboard(request):
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
+                  filter_form=form, supplier_stats=supplier_stats,
+                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier='),
+                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
 
@@ -174,7 +198,9 @@ def settings(request):
 
 @access('sales', 'admin')
 def upload(request):
-    form = UploadForm(request.POST or None, request.FILES or None)
+    supplier = Supplier.objects.filter(pk=request.session.get('procurement_supplier')).first()
+    form = UploadForm(request.POST or None, request.FILES or None,
+                      initial={'supplier': supplier.name if supplier else ''})
     if request.method == 'POST' and form.is_valid():
         if form.cleaned_data['checked_on'] > timezone.localdate():
             form.add_error('checked_on', 'Дата не может быть в будущем.')
@@ -187,7 +213,9 @@ def upload(request):
                 form.add_error(None, str(error) if isinstance(error, ValueError) else 'Файл не прочитан. Проверьте формат и структуру.')
             else:
                 messages.success(request, f'Загружено товаров: {count}.')
-                return redirect('procurement:dashboard')
+                imported_supplier = Supplier.objects.get(name=form.cleaned_data['supplier'].strip())
+                request.session['procurement_supplier'] = imported_supplier.pk
+                return redirect(reverse('procurement:dashboard') + f'?supplier={imported_supplier.pk}')
     return render(request, 'procurement/form.html', context(request, form=form, title='Загрузка данных', help='Продавцы Kaspi: JSON с checked_on и offers (brand, article, source_url, city, complete, sellers). Цены самого предложения и спрос не изменяются. Применимость Omega: JSON с датой checked_on и массивом offers (brand, article, source_url, category, fitments). Импорт применимости не изменяет цены и спрос. Прайс: article, brand, name, cost; необязательно category, stock, min_order, kaspi_price, kaspi_url, supplier_url. Поддерживается исходный Excel Omega. Отчёт спроса: article, brand, sales_30, review_count, recent_reviews, last_review (YYYY-MM-DD). Неизвестные значения оставьте пустыми. Для sales_30 обязательны period_start и period_end: ровно 30 календарных дней включительно до указанной даты. Отчёт спроса должен быть приведён к этим колонкам; автоматическое чтение любого формата Kaspi пока не поддерживается. Импорт атомарный.'))
 
 

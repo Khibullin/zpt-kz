@@ -3,10 +3,12 @@
 <div>
 <h1>Подбор к закупке</h1>
 <div class="muted">Закупки и продажи · внутренний кабинет</div>
+{% if selected_supplier %}<p><strong>Поставщик: {{ selected_supplier.name }}</strong></p>{% endif %}
 </div>
 <div class="actions">{% if can_manage %}<a class="button" href="{% url 'procurement:upload' %}">Загрузить файл</a>{% endif %}<a class="button primary" href="{% url 'procurement:basket' %}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a>
 </div>
 </header>
+{% if supplier_stats %}<div class="notice">{{ selected_supplier.name }}: загружено <strong>{{ supplier_stats.loaded }}</strong> · Ссылки Kaspi: {{ supplier_stats.linked }} · Есть цена Kaspi: {{ supplier_stats.priced }} · Совпадение подтверждено: {{ supplier_stats.verified }}.{% if not supplier_stats.priced %}<br>Сверка с Kaspi ещё не выполнена. Для расчёта выгодности нужны цены сопоставленных товаров.{% endif %}</div>{% endif %}
 <p class="muted">Текущая сортировка: <strong>{% if mode == 'difference' %}по сумме разницы в тенге{% else %}по доходности закупки, % — от большей к меньшей{% endif %}</strong></p>
 <div class="modes">
 <a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница после комиссии, до прочих расходов</small>
@@ -23,9 +25,9 @@
 {% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
 </div>
 <details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
-<p class="muted">Категории Omega. Марки и модели доступны по проверенной применимости; незаполненные сведения не угадываются по названию детали.</p>
+<p class="muted">{% if selected_supplier %}Категории и проверенная применимость поставщика «{{ selected_supplier.name }}».{% else %}Категории загруженных поставщиков.{% endif %} Марки и модели доступны по проверенной применимости; незаполненные сведения не угадываются по названию детали.</p>
 <div class="actions" style="margin:12px 0 18px"><button>Применить фильтры</button>
-<a class="button" href="{% url 'procurement:dashboard' %}">Сбросить</a>
+<a class="button" href="{{ reset_url }}">Сбросить фильтры</a>
 </div>
 </form>
 <div class="actions" style="margin-bottom:16px">
@@ -115,6 +117,11 @@
 {{ filter_form.vehicle_models|json_script:"vehicle-model-options" }}
 <script>
 const makeSelect=document.getElementById("id_vehicle_make"),modelSelect=document.getElementById("id_vehicle_model");
+document.getElementById('id_supplier').addEventListener('change',event=>{
+const form=event.target.form;
+form.querySelectorAll('input,select').forEach(field=>{if(field.name!=='supplier'&&field.name!=='mode'){if(field.type==='checkbox')field.checked=false;else field.value='';}});
+form.requestSubmit();
+});
 const modelOptions=JSON.parse(document.getElementById("vehicle-model-options").textContent);
 makeSelect.addEventListener("change",()=>{modelSelect.replaceChildren(new Option(makeSelect.value?"Все модели":"Сначала выберите марку",""));(modelOptions[makeSelect.value]||[]).forEach(model=>modelSelect.add(new Option(model,model)));});
 const drawer=document.getElementById('product-drawer');const productFrame=document.getElementById('product-frame');
