@@ -10,6 +10,8 @@ from .models import Supplier, Offer, Activity
 ALIASES = {'Артикул': 'article', 'Бренд': 'brand', 'Наименование': 'name', 'Категория': 'category',
            'Оптовая цена, ₸': 'cost', 'Остаток на сайте': 'stock', 'Мин. заказ, шт.': 'min_order',
            'Карточка товара': 'supplier_url', 'Цена продажи на Kaspi, ₸': 'kaspi_price', 'Ссылка на Kaspi': 'kaspi_url'}
+ALIASES.update({'Торговая марка': 'brand', 'Цена, за 1шт': 'cost', 'Цена, за 1шт со скидкой': 'cost',
+                'Остаток': 'stock', 'Миним заказ, шт': 'min_order', 'В продаже': 'active'})
 REQUIRED = {'article', 'brand', 'name', 'cost'}
 
 

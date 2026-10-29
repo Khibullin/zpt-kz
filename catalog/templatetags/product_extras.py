@@ -186,6 +186,10 @@ def product_json_ld(product):
     # identified house-branded items have reliable manufacturer evidence here.
     if re.search(r'(?<![\w])AG[\s-]+Parts(?![\w])', data['name'], re.I):
         data['brand'] = {'@type': 'Brand', 'name': 'AG Parts'}
+    if getattr(product, 'supplier', '') == 'omega':
+        listing = getattr(product, 'omega_listing', None)
+        if listing:
+            data['brand'] = {'@type': 'Brand', 'name': listing.offer.brand}
 
     category = getattr(product, 'category', None)
     category_name = str(getattr(category, 'name', '') or '').strip()

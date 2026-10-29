@@ -69,6 +69,16 @@ class Offer(models.Model):
         ordering = ['brand', 'article', 'pk']
 
 
+class RetailListing(models.Model):
+    offer = models.OneToOneField(Offer, on_delete=models.PROTECT, related_name='retail_listing')
+    product = models.OneToOneField('catalog.Product', on_delete=models.PROTECT, related_name='omega_listing')
+    pack_size = models.PositiveIntegerField(default=1)
+    source_content = models.JSONField(default=dict)
+    enabled = models.BooleanField(default=True)
+    hold_reason = models.TextField(blank=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Preferences(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     commission = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])

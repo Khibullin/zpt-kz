@@ -14,7 +14,7 @@
 <a class="logo" href="{{ catalog_url|default:'/office/procurement/' }}">ZPT<span>.KZ</span>
 </a>
 {% if selected_supplier %}<div class="role">Поставщик<br><strong>{{ selected_supplier.name }}</strong></div>{% endif %}
-<a href="{{ catalog_url|default:'/office/procurement/' }}">Подбор товаров</a><a href="{{ favorites_url|default:'/office/procurement/?favorites=1' }}">Избранное</a>
+<a href="{{ catalog_url|default:'/office/procurement/' }}">Подбор товаров</a><a href="{% url 'procurement:retail' %}">Товары AG Parts · Excel</a><a href="{{ favorites_url|default:'/office/procurement/?favorites=1' }}">Избранное</a>
 <a href="{{ basket_url }}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a>{% if can_manage %}<a href="{{ upload_url }}">Загрузка прайсов</a>{% endif %}<a href="{{ settings_url }}">Алгоритм и настройки</a>{% if role == 'admin' %}<a href="{% url 'procurement:users' %}">Пользователи и роли</a>{% endif %}<div class="role">{{ request.user.get_username }}<br>{% if role == 'admin' %}Администратор{% elif role == 'sales' %}Менеджер-продажник{% else %}Пользователь{% endif %}</div>{% if request.user.is_authenticated %}<form method="post" action="{% url 'procurement:logout' %}">{% csrf_token %}<button>Выйти</button>
 </form>{% endif %}</aside>{% endif %}
 <main{% if request.GET.compact or not can_access_procurement %} style="margin-left:0;padding:16px"{% endif %}>{% for message in messages %}<div class="notice" role="status">{{ message }}</div>{% endfor %}{% block content %}{% endblock %}<footer>Закупки и продажи · ZPT.KZ · Неизвестные данные не считаются нулём. Отзывы не равны продажам.</footer>

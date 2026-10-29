@@ -396,6 +396,22 @@ def resolve_commercial_price(product, quantity, seller_profile=None, now=None):
     if qty == 0:
         return _failed_quote(qty, QTY_INVALID_MESSAGE)
 
+    if product.supplier == 'omega':
+        from procurement.models import RetailListing
+        from procurement.retail import price_for
+        listing = RetailListing.objects.select_related('offer').filter(product=product).first()
+        if listing is None or not listing.enabled:
+            return _failed_quote(qty, 'Товар временно недоступен.')
+        source_date = listing.offer.checked_on
+        from datetime import timedelta
+        if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
+            return _failed_quote(qty, 'Подтверждаем актуальные цену и наличие перед заказом.')
+        current_price, reason = price_for(listing.offer, listing.pack_size)
+        if reason or product.price_on_request:
+            return _failed_quote(qty, 'Цена и условия заказа требуют подтверждения AG Parts.')
+        if current_price != product.price:
+            return _failed_quote(qty, 'Цена обновляется. Обновите страницу перед заказом.')
+
     stock_error = check_stock_qty(product, qty)
     if stock_error:
         return _failed_quote(qty, stock_error)
