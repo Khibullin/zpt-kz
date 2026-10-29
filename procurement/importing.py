@@ -319,7 +319,7 @@ def import_competitors(file, supplier_name, date, user):
                 raise ValueError('Некорректный продавец.')
             merchant = str(seller.get('merchant_id', ''))
             name = str(seller.get('name') or '').strip()
-            if not merchant.isdigit() or not name or len(name) > 250:
+            if not re.fullmatch(r'[A-Za-z0-9_-]{1,100}', merchant) or not name or len(name) > 250:
                 raise ValueError('Не указаны магазин и идентификатор продавца.')
             price = money(seller.get('price'))
             if price <= 0:
