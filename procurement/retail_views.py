@@ -3,13 +3,14 @@ import json
 import requests
 from datetime import date
 from django import forms
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib import messages
 from django.http import HttpResponse
 from django.shortcuts import render,redirect
 from django.utils import timezone
 from openpyxl import Workbook
 from .views import access,context
-from .models import RetailListing
+from .models import RetailListing,Supplier
 from .retail import prepare_updates,apply_updates,publish_one,validate_publication
 
 
@@ -48,18 +49,18 @@ def retail_workspace(request):
                     rows=prepare_updates(f,form.cleaned_data['checked_on']);kind='updates'
                 pending={'kind':kind,'rows':rows}
                 request.session['omega_retail_preview']=pending
-        except (ValueError,KeyError,TypeError,OverflowError,requests.RequestException) as error:
+        except (ValueError,KeyError,TypeError,OverflowError,ObjectDoesNotExist,ValidationError,requests.RequestException) as error:
             messages.error(request,str(error))
     listings=RetailListing.objects.select_related('offer','product').filter(offer__supplier__name='Omega').order_by('pk')
-    return render(request,'procurement/retail.html',context(request,form=form,pending=pending,listings=listings))
+    return render(request,'procurement/retail.html',context(request,supplier=Supplier.objects.filter(name='Omega').first(),form=form,pending=pending,listings=listings))
 
 
 @access('admin','sales')
 def retail_excel(request):
     book=Workbook();sheet=book.active;sheet.title='Корректировка AG Parts'
-    sheet.append(['brand','article','cost','stock','active'])
+    sheet.append(['brand','article','cost','stock','active','min_order'])
     for item in RetailListing.objects.select_related('offer').filter(offer__supplier__name='Omega').order_by('pk'):
-        sheet.append([item.offer.brand,item.offer.article,float(item.offer.cost),item.offer.stock,int(item.enabled)])
+        sheet.append([item.offer.brand,item.offer.article,float(item.offer.cost),item.offer.stock,int(item.enabled),item.offer.min_order])
     sheet.freeze_panes='A2'
     for col,width in [('A',22),('B',24),('C',18),('D',22),('E',18)]:sheet.column_dimensions[col].width=width
     output=io.BytesIO();book.save(output)
