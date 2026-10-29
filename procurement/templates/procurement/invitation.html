@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="same-origin">
+<title>Приглашение в кабинет закупок · ZPT.KZ</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f3f7fb;color:#152d4c;font:16px Arial,sans-serif}main{max-width:620px;margin:40px auto;padding:24px;background:white;border:1px solid #dbe4ee;border-radius:8px}h1{font-size:25px}p,li{line-height:1.5}a{color:#075fbd}input{display:block;width:100%;padding:12px;border:1px solid #cad8e7;border-radius:5px;font:inherit;margin-top:8px}button,.button{display:inline-block;background:#00a994;color:white;border:0;border-radius:6px;padding:12px 18px;text-decoration:none;font:inherit;cursor:pointer}.errorlist{color:#9e3429}label{font-weight:bold}.helptext{display:block;font-size:14px;margin-top:8px;color:#62748a}.logo{color:#cf362d;font-size:26px;font-weight:bold}input:focus-visible,button:focus-visible,a:focus-visible{outline:3px solid #74badc;outline-offset:2px}@media(max-width:650px){main{margin:16px;padding:20px}}
+</style></head><body><main><div class="logo">ZPT.KZ</div>
+{% if create %}
+<h1>Пригласить менеджера</h1>
+<p>Одноразовое приглашение на 72 часа. Менеджер сам задаст пароль и получит доступ только к кабинету закупок: подбор товаров, личные закупки, импорт и проверка совпадений, черновики Kaspi.</p>
+<p>Начальные значения комиссии и расходов будут скопированы из ваших личных настроек. Магазин и доступ к администрированию сайта не создаются.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Создать приглашение</button></form>
+<p><a href="{% url 'procurement:users' %}">Назад к пользователям</a></p>
+{% elif created %}
+<h1>Приглашение готово</h1><p>Менеджер: <strong>{{ email }}</strong></p>
+<p>Действует до {{ expires_at|date:'d.m.Y H:i T' }}. Повторное создание приглашения на эту почту отменит прежнюю ссылку.</p>
+<label for="invitation-url">Скопируйте и перешлите менеджеру:</label><input id="invitation-url" type="text" readonly value="{{ invitation_url }}">
+<p>По ссылке он задаст пароль, затем войдёт по email. Ссылка персональная: передавайте её только этому менеджеру.</p>
+<p><a href="{% url 'procurement:users' %}">К пользователям</a></p>
+{% elif invalid %}
+<h1>Приглашение недействительно</h1><p>Ссылка использована, истекла или отменена. Обратитесь к Ринату. Если аккаунт уже активирован, войдите по email и своему паролю.</p>
+<a class="button" href="{% url 'procurement:login' %}">Войти в кабинет закупок</a>
+{% elif activated %}
+<h1>Доступ активирован</h1><p>Ваша почта для входа: <strong>{{ email }}</strong></p><p>Войдите с паролем, который вы только что задали.</p>
+<a class="button" href="{% url 'procurement:login' %}">Войти в кабинет закупок</a>
+{% else %}
+<h1>Доступ к кабинету закупок</h1><p>Приглашение для <strong>{{ email }}</strong>. Роль: менеджер-продажник.</p>
+<p>Придумайте пароль для входа. Регистрировать магазин не нужно.</p>
+<form method="post">{% csrf_token %}{{ form.as_p }}<button type="submit">Активировать доступ</button></form>
+<p class="helptext">Ссылка действует до {{ expires_at|date:'d.m.Y H:i T' }} и используется один раз.</p>
+{% endif %}</main></body></html>

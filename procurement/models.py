@@ -27,6 +27,16 @@ class Supplier(models.Model):
         return self.name
 
 
+class ManagerInvitation(models.Model):
+    email = models.EmailField(unique=True)
+    token_digest = models.CharField(max_length=64, unique=True)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, related_name='procurement_invitations')
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    used_at = models.DateTimeField(null=True, blank=True)
+    accepted_by = models.OneToOneField(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.PROTECT, related_name='procurement_invitation')
+
+
 class Offer(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
     brand = models.CharField(max_length=100)

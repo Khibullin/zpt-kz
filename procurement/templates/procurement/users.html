@@ -1,5 +1,6 @@
 {% extends 'procurement/base.html' %}{% block content %}<header>
 <h1>Пользователи и роли</h1>
+<a class="button teal" href="{% url 'procurement:invite_manager' %}">Пригласить менеджера</a>
 </header>
 <section class="panel">
 <p>Пользователь: просмотр, личные расчёты и закупки. Менеджер: дополнительно импорт, проверка совпадений и черновики Kaspi. Администратор: дополнительно назначение ролей. Глобальные права ZPT.KZ не меняются.</p>

@@ -137,7 +137,7 @@ class SeoRobotsHeaderMiddleware:
             response['Pragma'] = 'no-cache'
             # Keep same-origin HTTPS form submissions compatible with CSRF.
             # External destinations still receive no referrer.
-            response['Referrer-Policy'] = 'same-origin'
+            response.setdefault('Referrer-Policy', 'same-origin')
             patch_vary_headers(response, ('Cookie',))
             response.disable_analytics = True
             return response
