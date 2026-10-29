@@ -241,7 +241,7 @@ class WorkspaceTests(TestCase):
         taiho = Offer.objects.create(supplier=self.supplier, brand='TAIHO', article='046232', name='Вкладыши',
                                      cost=Decimal('2424'), kaspi_price=Decimal('15500'))
         Preferences.objects.create(user=self.user, commission=Decimal('10.9'))
-        response = self.client.get(self.url('dashboard'))
+        response = self.client.get(self.url('dashboard'), {'mode': 'difference'})
         rows = list(response.context['page'])
         self.assertEqual([row['offer'].pk for row in rows], [taiho.pk, self.offer.pk])
         self.assertEqual(rows[0]['difference'], Decimal('11386.50'))
@@ -250,7 +250,7 @@ class WorkspaceTests(TestCase):
         self.assertEqual(self.client.get(self.url('dashboard'), {'min_markup': 28}).context['total'], 1)
         self.login(self.other)
         Preferences.objects.create(user=self.other, commission=0)
-        other_rows = list(self.client.get(self.url('dashboard')).context['page'])
+        other_rows = list(self.client.get(self.url('dashboard'), {'mode': 'difference'}).context['page'])
         self.assertEqual([row['offer'].pk for row in other_rows], [self.offer.pk, taiho.pk])
         self.assertEqual(Preferences.objects.get(user=self.user).commission, Decimal('10.9'))
 
@@ -486,6 +486,22 @@ class WorkspaceTests(TestCase):
         self.offer.refresh_from_db()
         self.assertFalse(self.offer.match_verified)
         self.assertContains(self.client.get(self.url('settings')), 'Сортировка строго по доходности закупки')
+
+    def test_default_catalog_orders_whole_column_by_return_not_money(self):
+        self.login()
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'))
+        Offer.objects.filter(pk=self.offer.pk).update(cost=28428, kaspi_price=38736)
+        shock = Offer.objects.create(supplier=self.supplier, article='51945', brand='ESCE',
+            name='Амортизатор', cost=7632, kaspi_price=14947)
+        response = self.client.get(self.url('dashboard'))
+        self.assertEqual([r['offer'].pk for r in response.context['page']], [shock.pk, self.offer.pk])
+        self.assertContains(response, 'по доходности закупки, % — от большей к меньшей')
+        self.assertContains(response, '?mode=roi&amp;demand=reviews')
+        self.assertContains(response, 'Доходность закупки, %')
+        rows = list(csv.reader(StringIO(self.client.get(self.url('dashboard'), {'download': 'csv'}).content.decode('utf-8-sig')), delimiter=';'))
+        self.assertEqual([r[0] for r in rows[1:]], ['51945', '00123'])
+        difference = self.client.get(self.url('dashboard'), {'mode': 'difference'})
+        self.assertEqual([r['offer'].pk for r in difference.context['page']], [self.offer.pk, shock.pk])
 
     def test_photo_import_rejects_script_url(self):
         with self.assertRaises(ValueError):
