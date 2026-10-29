@@ -7,6 +7,7 @@
 <div class="actions">{% if can_manage %}<a class="button" href="{% url 'procurement:upload' %}">Загрузить файл</a>{% endif %}<a class="button primary" href="{% url 'procurement:basket' %}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a>
 </div>
 </header>
+<p class="muted">Текущая сортировка: <strong>{% if mode == 'difference' %}по сумме разницы в тенге{% else %}по доходности закупки, % — от большей к меньшей{% endif %}</strong></p>
 <div class="modes">
 <a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница после комиссии, до прочих расходов</small>
 </a>
@@ -28,9 +29,9 @@
 </div>
 </form>
 <div class="actions" style="margin-bottom:16px">
-<a class="button" href="{% querystring mode='difference' demand=None page=None favorites=None download=None %}">Все товары</a>
-<a class="button" href="{% querystring mode='difference' demand='reviews' page=None download=None %}">Есть свежие отзывы</a>
-<a class="button" href="{% querystring mode='difference' demand='sales' page=None download=None %}">Есть продажи</a>
+<a class="button" href="{% querystring mode=mode demand=None page=None favorites=None download=None %}">Все товары</a>
+<a class="button" href="{% querystring mode=mode demand='reviews' page=None download=None %}">Есть свежие отзывы</a>
+<a class="button" href="{% querystring mode=mode demand='sales' page=None download=None %}">Есть продажи</a>
 <a class="button" href="{% querystring favorites='1' page=None download=None %}">Избранное</a>
 <a class="button" href="{% querystring download='csv' page=None %}">Скачать подборку CSV</a>
 </div>
@@ -46,7 +47,7 @@
 <th>Поставщик</th>
 <th>Закупка, ₸</th>
 <th>Kaspi, ₸</th>
-<th>{% if mode == 'best' %}Доходность закупки, % / заработок после комиссии, ₸{% else %}Разница после комиссии, ₸ / доходность{% endif %}</th>
+<th>{% if mode != 'difference' %}Доходность закупки, % / заработок после комиссии, ₸{% else %}Разница после комиссии, ₸ / доходность{% endif %}</th>
 <th>Прибыль после расходов</th>
 <th>Продавцы Kaspi и спрос</th>
 <th>Действия</th>
@@ -65,7 +66,7 @@
 <td class="money">{{ row.offer.cost|floatformat:0 }}</td>
 <td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}<small>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }}</small><small>После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }}</small></td>
 <td class="money">
-{% if mode == 'best' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span><small>{{ row.difference|floatformat:2|default:'Нет данных' }} ₸ после комиссии</small>{% else %}
+{% if mode != 'difference' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span><small>{{ row.difference|floatformat:2|default:'Нет данных' }} ₸ после комиссии</small>{% else %}
 <span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
 <small>{{ row.markup|floatformat:1|default:'—' }}%</small>{% endif %}
 </td>
