@@ -31,3 +31,24 @@ jobs:
       - run: pip install -r requirements.txt
       - run: python manage.py makemigrations --check --dry-run
       - run: python manage.py test core.tests.test_seller_audit core.tests.test_strict_seller_matching core.tests.test_buyer_selection core.tests.test_manual_seller_dispatch control_panel.test_manual_processing --settings=backend.settings_ui_ci --noinput
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: npm install --prefix /tmp/zpt-audit-browser playwright@1.62.1
+      - name: Use Chrome or install Chromium
+        run: |
+          if command -v google-chrome >/dev/null 2>&1; then
+            echo "ZPT_BROWSER_EXECUTABLE=$(command -v google-chrome)" >> "$GITHUB_ENV"
+          else
+            node /tmp/zpt-audit-browser/node_modules/playwright/cli.js install --with-deps chromium
+          fi
+      - name: Check admin and buyer layouts
+        env:
+          ZPT_AUDIT_BROWSER_QA: '1'
+          NODE_PATH: /tmp/zpt-audit-browser/node_modules
+        run: python manage.py test core.tests.test_seller_audit.SellerAuditTests.test_admin_and_buyer_pages_show_different_audit_details --settings=backend.settings_ui_ci --noinput
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: seller-audit-desktop-mobile
+          path: /tmp/zpt-audit-*.png

@@ -143,13 +143,13 @@ class SellerAuditTests(TestCase):
                 Path(folder, name+'.html').write_text(html)
             script = r'''
 const {chromium}=require('playwright');const fs=require('fs');const path=require('path');
-(async()=>{const browser=await chromium.launch({headless:true,args:['--no-sandbox']});
+(async()=>{const browser=await chromium.launch({headless:true,args:['--no-sandbox'],executablePath:process.env.ZPT_BROWSER_EXECUTABLE||undefined});
 for(const width of [390,1440]){const page=await browser.newPage({viewport:{width,height:1000}});
 await page.route('**/*',r=>r.abort());
 for(const file of fs.readdirSync(process.argv[1])){await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
 await page.locator('details').evaluateAll(nodes=>nodes.forEach(n=>n.open=true));
-if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('Overflow '+file+' '+width);
-await page.screenshot({path:'/tmp/zpt-audit-'+file+'-'+width+'.png',fullPage:true});}
+await page.screenshot({path:'/tmp/zpt-audit-'+file+'-'+width+'.png',fullPage:true});
+if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('Overflow '+file+' '+width);}
 await page.close();}await browser.close();})().catch(e=>{console.error(e);process.exit(1)});'''
             subprocess.run(['node','-e',script,folder],check=True,timeout=60)
 
