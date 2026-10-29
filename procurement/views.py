@@ -1,3 +1,4 @@
+from .supplier_terms import supplier_terms
 import csv
 import uuid
 from io import BytesIO
@@ -168,7 +169,7 @@ def settings(request):
         form.save()
         messages.success(request, 'Параметры расчёта сохранены.')
         return redirect('procurement:dashboard')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Сопоставление с Kaspi выполняется по порядку: 1) точный артикул с буквами и суффиксами; 2) название детали, сторона установки и комплектность; 3) бренд. Подтверждение ставится только при совпадении всех трёх признаков по данным Kaspi. Недостаточные или противоречивые данные остаются непроверенными. Применимость отдельно не является условием сравнения цен при совпадении артикула, названия и бренда. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Упаковка стоит 250 ₸ за каждую деталь и вычитается один раз. Поле общих расходов включает упаковку: при значении 250 ₸ повторного вычитания нет; меньше 250 ₸ в расчёте не применяется. Неизвестные дополнительные расходы не считаются нулём. Вкладка выгодных закупок включает только прибыль от 1 000 ₸ после комиссии и расходов с упаковкой; ровно 1 000 ₸ проходит. Личный порог доходности не ограничивает рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Сопоставление с Kaspi выполняется по порядку: 1) точный артикул с буквами и суффиксами; 2) название детали, сторона установки и комплектность; 3) бренд. Подтверждение ставится только при совпадении всех трёх признаков по данным Kaspi. Недостаточные или противоречивые данные остаются непроверенными. Применимость отдельно не является условием сравнения цен при совпадении артикула, названия и бренда. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Упаковка стоит 250 ₸ за каждую деталь и вычитается один раз. Поле общих расходов включает упаковку: при значении 250 ₸ повторного вычитания нет; меньше 250 ₸ в расчёте не применяется. Неизвестные дополнительные расходы не считаются нулём. Вкладка выгодных закупок включает только прибыль от 1 000 ₸ после комиссии и расходов с упаковкой; ровно 1 000 ₸ проходит. Личный порог доходности не ограничивает рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Скидки поставщиков индивидуальны: шкала хранится в карточке конкретного поставщика и показывается рядом с его суммой заказа. Товары других поставщиков в порог не входят. До подтверждения базы расчёта и включения скидки в прайс шкала справочная, цены и прибыль автоматически не пересчитываются. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
 
 
 @access('sales', 'admin')
@@ -237,6 +238,8 @@ def basket(request):
         group = grouped.setdefault(row.offer.supplier_id, {'supplier': row.offer.supplier, 'rows': [], 'total': Decimal(0)})
         group['rows'].append(row)
         group['total'] += row.subtotal
+    for group in grouped.values():
+        group['terms'] = supplier_terms(group['supplier'], group['total'])
     orders = PurchaseOrder.objects.filter(user=request.user).select_related('supplier')
     return render(request, 'procurement/basket.html', context(request, selections=rows, supplier_groups=list(grouped.values()),
         purchases=orders, budget=sum((r.subtotal for r in rows), Decimal(0))))
@@ -273,7 +276,7 @@ def purchase_confirm(request, supplier_id):
                 messages.success(request, 'Закупочный заказ создан в ZPT.KZ. Теперь его можно выгрузить в Excel.')
                 return redirect('procurement:purchase_detail', pk=order.pk)
     return render(request, 'procurement/purchase_confirm.html', context(request, supplier=supplier, form=form,
-        selections=rows, budget=sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), status=400 if request.method == 'POST' else 200)
+        selections=rows, terms=supplier_terms(supplier, sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), budget=sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), status=400 if request.method == 'POST' else 200)
 
 
 @access()
@@ -312,7 +315,7 @@ def purchase_detail(request, pk):
                     Activity.objects.create(user=request.user, action='purchase_updated', details={'purchase': current.pk, 'before': before, 'version': current.version})
                     messages.success(request, 'Изменения закупочного заказа сохранены.')
                     return redirect('procurement:purchase_detail', pk=current.pk)
-    return render(request, 'procurement/purchase_detail.html', context(request, purchase=order, form=form, lines=lines,
+    return render(request, 'procurement/purchase_detail.html', context(request, purchase=order, terms=supplier_terms(order.supplier, order.total), form=form, lines=lines,
         item_forms=list(zip(order.items, lines.forms)), documents=order.documents.defer('data').all()), status=400 if request.method == 'POST' else 200)
 
 
@@ -392,3 +395,9 @@ def users(request):
         messages.success(request, 'Роль сохранена. Глобальные права пользователя не изменены.')
         return redirect('procurement:users')
     return render(request, 'procurement/users.html', context(request, members=Membership.objects.select_related('user'), accounts=get_user_model().objects.filter(is_active=True, is_superuser=False).exclude(pk=request.user.pk).order_by('username'), roles=[*Membership.Role.choices, ('disabled', 'Отключить доступ к закупкам')]))
+
+
+@access()
+def supplier_detail(request, pk):
+    supplier = get_object_or_404(Supplier, pk=pk)
+    return render(request, 'procurement/supplier.html', context(request, supplier=supplier, terms=supplier_terms(supplier)))

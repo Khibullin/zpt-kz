@@ -15,6 +15,7 @@ urlpatterns = [
     path('users/invite/', invite_manager, name='invite_manager'),
     path('invitation/<str:token>/', accept_invitation, name='accept_invitation'),
     path('activate/', activate_invitation, name='activate_invitation'),
+    path('suppliers/<int:pk>/', views.supplier_detail, name='supplier_detail'),
     path('basket/', views.basket, name='basket'),
     path('purchases/new/<int:supplier_id>/', views.purchase_confirm, name='purchase_confirm'),
     path('purchases/<int:pk>/', views.purchase_detail, name='purchase_detail'),

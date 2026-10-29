@@ -1,0 +1,8 @@
+{% if terms %}<div class="notice">
+<strong>Условия скидок · {{ terms.supplier.name }}</strong>
+{% if terms.total != None %}<p>Сумма товаров этого поставщика: {{ terms.total|floatformat:2 }} ₸.</p>
+{% if terms.boundary %}<p><strong>Сумма на границе ступеней — размер скидки подтвердите у Omega.</strong></p>{% else %}<p>Справочная скидка по шкале: <strong>{{ terms.rate }}%</strong>.</p>{% endif %}
+{% if terms.next_threshold %}<p>Следующий порог: {{ terms.next_threshold|floatformat:0 }} ₸ · скидка {{ terms.next_rate }}%. До порога: <strong>{{ terms.remaining|floatformat:2 }} ₸</strong>.</p>{% else %}<p>Достигнута верхняя ступень шкалы.</p>{% endif %}{% endif %}
+<p class="muted">Условия предоставлены Omega 29.10.2026. Шкала справочная: уточняются период накопления, применение на точных границах и включение скидки в текущий прайс. Цены заказа и прибыль автоматически не изменяются. Суммы других поставщиков не учитываются.</p>
+<details><summary>Все ступени скидок</summary><div style="overflow:auto"><table style="min-width:0"><thead><tr><th>Сумма закупки</th><th>Скидка</th></tr></thead><tbody>{% for threshold,rate,label in terms.bands %}<tr><td>{{ label }}</td><td>{{ rate }}%</td></tr>{% endfor %}</tbody></table></div></details>
+</div>{% endif %}
