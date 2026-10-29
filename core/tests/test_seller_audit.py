@@ -189,7 +189,8 @@ class SellerEvidenceScoreTests(TestCase):
     render = SellerAuditTests.render
 
     def evidence(self, keys):
-        return {key: {'confirmed':True, 'urls':['https://example.com/'], 'note':'Сопоставлено по источнику'} for key in keys}
+        from core.services.seller_audit import evidence_identity
+        return {key: {'confirmed':True, 'urls':['https://example.com/'], 'note':'Сопоставлено по источнику', 'identity':evidence_identity(self.seller,key)} for key in keys}
 
     def test_unchecked_is_not_zero_and_filling_profile_does_not_score(self):
         from core.services.seller_audit import rating
@@ -265,3 +266,13 @@ class SellerEvidenceScoreTests(TestCase):
         self.seller.audit_evidence={'contacts':{'confirmed':True,'urls':['https://another.example/'],'note':'Нет сопоставления'}}
         self.assertEqual(rating(self.seller)['score'],0)
         with self.assertRaises(ValidationError):self.seller.clean()
+
+    def test_changed_contacts_and_location_invalidate_old_points(self):
+        from core.services.seller_audit import rating
+        self.seller.audit_evidence=self.evidence(['contacts','location','specialization'])
+        self.assertEqual(rating(self.seller)['score'],3)
+        self.seller.whatsapp='77019999999'
+        self.assertEqual(rating(self.seller)['score'],1)
+        self.seller.address='Новый адрес'
+        self.assertEqual(rating(self.seller)['score'],0)
+        self.seller.clean()  # Ordinary edits remain possible without reattesting old facts.

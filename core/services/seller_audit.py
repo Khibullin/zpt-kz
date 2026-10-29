@@ -84,6 +84,8 @@ def import_audits(rows):
                 raise ValidationError(f"Карточка №{row['pk']} изменилась или не соответствует исходным данным. Импорт отменён.")
             for key, value in values.items():
                 setattr(seller, key, Seller._meta.get_field(key).clean(value, seller))
+            if 'audit_evidence' in values:
+                bind_evidence(seller)
             seller.clean()
             seller.save(update_fields=list(values))
             sellers.append(seller)
@@ -119,7 +121,7 @@ def source_group(url):
     return '.'.join(host.split('.')[-2:])
 
 
-def rating(seller):
+def rating(seller, *, check_identity=True, check_freshness=True):
     """Five explicit evidence points, evaluated afresh; no points for completeness alone."""
     from datetime import timedelta
     from django.utils import timezone
@@ -144,16 +146,18 @@ def rating(seller):
         urls = urls if isinstance(urls, list) else []
         confirmed = bool(checked and item.get('confirmed') is True and isinstance(item.get('note'), str) and item['note'].strip()
                          and urls and all(isinstance(url, str) and url in valid_sources for url in urls))
+        if check_identity:
+            confirmed = confirmed and item.get('identity') == evidence_identity(seller, key)
         if key == 'independent':
             confirmed = confirmed and len({source_group(url) for url in urls if isinstance(url, str) and safe_url(url)}) >= 2
-        if key == 'freshness':
+        if key == 'freshness' and check_freshness:
             today = timezone.localdate()
             confirmed = bool(confirmed and seller.audit_activity == 'recent' and seller.audit_signal_date
                              and today - timedelta(days=180) <= seller.audit_signal_date <= today)
         if key == 'location' and seller.audit_status == 'conflict':
             confirmed = False
         criteria.append({'key': key, 'label': label, 'confirmed': confirmed,
-                         'state': 'Подтверждено' if confirmed else 'Нет подтверждения',
+                         'state': 'Подтверждено' if confirmed else ('Данные изменились' if check_identity and item.get('identity') and item.get('identity') != evidence_identity(seller, key) else 'Нет подтверждения'),
                          'note': str(item.get('note', '')),
                          'sources': [{'url': url, 'label': urlsplit(url).hostname} for url in urls if isinstance(url, str) and safe_url(url)]})
     score = sum(item['confirmed'] for item in criteria) if checked else None
@@ -164,8 +168,20 @@ def rating(seller):
 
 def validate_evidence_for_seller(seller):
     validate_evidence(seller.audit_evidence)
-    result = rating(seller)
+    result = rating(seller, check_identity=False, check_freshness=False)
     for criterion in result['criteria']:
         if seller.audit_evidence.get(criterion['key'], {}).get('confirmed') and not criterion['confirmed']:
             raise ValidationError({'audit_evidence': 'Не подтверждён критерий «' + criterion['label'] +
                 '»: проверьте источники, дату, статус Kaspi и расхождения. Свежесть — не более 180 дней.'})
+
+
+def evidence_identity(seller, key):
+    fields = ('name', 'city', 'address') if key == 'location' else ('name', 'whatsapp')
+    return {field: ' '.join(str(getattr(seller, field, '') or '').split()).casefold() for field in fields}
+
+
+def bind_evidence(seller):
+    if isinstance(seller.audit_evidence, dict):
+        for key, item in seller.audit_evidence.items():
+            if isinstance(item, dict) and item.get('confirmed') is True:
+                item['identity'] = evidence_identity(seller, key)
