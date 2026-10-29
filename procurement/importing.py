@@ -350,3 +350,53 @@ def import_competitors(file, supplier_name, date, user):
             'checked_on': date, 'complete': row['complete'], 'sellers': list(normalized.values())})
     Activity.objects.create(user=user, action='competitors_import', details={'supplier': supplier.name, 'offers': len(rows), 'date': date.isoformat()})
     return len(rows)
+
+
+@transaction.atomic
+def import_matches(file, supplier_name, date, user):
+    import json
+    from datetime import date as Date
+    from urllib.parse import urlsplit
+    from .matching import compare_identity
+    payload = json.load(file)
+    if not isinstance(payload, dict) or payload.get('checked_on') != date.isoformat():
+        raise ValueError('Дата файла не совпадает с датой проверки.')
+    rows = payload.get('offers')
+    if not isinstance(rows, list) or not rows or len(rows) > 20000:
+        raise ValueError('Нужен список offers от 1 до 20 000 товаров.')
+    supplier = Supplier.objects.get(name=supplier_name.strip())
+    seen = set()
+    for row in rows:
+        offer = Offer.objects.select_for_update().get(supplier=supplier, brand=row['brand'], article=row['article'])
+        if offer.pk in seen:
+            raise ValueError('Повтор товара в файле.')
+        seen.add(offer.pk)
+        source = row.get('source_url', '')
+        if urlsplit(source).hostname != 'kaspi.kz' or source != offer.kaspi_url:
+            raise ValueError('Ссылка не совпадает с текущей карточкой Kaspi.')
+        source_date = Date.fromisoformat(row['source_date'])
+        if source_date > date:
+            raise ValueError('Дата источника позже даты проверки.')
+        title = row.get('title', '')
+        if not isinstance(title, str) or len(title) > 1000:
+            raise ValueError('Неверное название Kaspi.')
+        confirmed, reason = compare_identity(offer, title, row.get('kaspi_article'), row.get('kaspi_brand'))
+        # A staff review may resolve wording/applicability differences in the name,
+        # but never override a missing/different article or brand.
+        if not confirmed and row.get('name_reviewed') is True and reason.startswith('Название'):
+            import re
+            from .matching import normalize
+            article_ok = normalize(row.get('kaspi_article')) == normalize(offer.article)
+            brand_ok = normalize(row.get('kaspi_brand')) == normalize(offer.brand)
+            observed = all(re.search(r'(?<!\w)' + re.escape(normalize(value)) + r'(?!\w)', normalize(title))
+                           for value in (offer.article, offer.brand))
+            if article_ok and brand_ok and observed:
+                confirmed, reason = True, 'Название и комплектность проверены; артикул и бренд совпадают'
+        evidence = {'source_url': source, 'source_date': source_date.isoformat(), 'checked_on': date.isoformat(),
+                    'title': title, 'article': row.get('kaspi_article'), 'brand': row.get('kaspi_brand'),
+                    'confirmed': confirmed, 'reason': reason, 'name_reviewed': row.get('name_reviewed') is True, 'method': 'article_name_brand_v1'}
+        offer.characteristics = {**offer.characteristics, 'kaspi_identity': evidence}
+        offer.match_verified = confirmed
+        offer.save(update_fields=['characteristics', 'match_verified'])
+        Activity.objects.create(user=user, action='match_checked', details={'offer': offer.pk, **evidence})
+    return len(rows)

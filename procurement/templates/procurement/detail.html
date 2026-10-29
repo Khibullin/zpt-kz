@@ -35,7 +35,7 @@
 <a href="{{ offer.kaspi_url }}" target="_blank" rel="noopener noreferrer">Открыть карточку Kaspi</a>
 </p>{% endif %}{% if can_manage and not offer.match_verified %}<form method="post" action="{% url 'procurement:verify' offer.pk %}">{% csrf_token %}<p>
 <label>
-<input type="checkbox" name="confirmed" value="yes" required> Проверены бренд, артикул, применимость и комплектность</label>
+<input type="checkbox" name="confirmed" value="yes" required> Проверены: 1. Артикул → 2. Название, сторона и комплектность → 3. Бренд</label>
 </p>
 <button>Подтвердить совпадение</button>
 </form>{% endif %}</section>
