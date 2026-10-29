@@ -3,9 +3,12 @@ from django.contrib.auth.views import LogoutView
 from . import views
 from .auth import WorkspaceLoginView
 from .invitations import invite_manager, accept_invitation, activate_invitation
+from .retail_views import retail_workspace, retail_excel
 
 app_name = 'procurement'
 urlpatterns = [
+    path('retail/', retail_workspace, name='retail'),
+    path('retail/excel/', retail_excel, name='retail_excel'),
     path('', views.dashboard, name='dashboard'),
     path('login/', WorkspaceLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='/office/procurement/login/'), name='logout'),

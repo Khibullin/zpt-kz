@@ -1,0 +1,14 @@
+{% extends 'procurement/base.html' %}{% block content %}
+<h1>Товары Omega — продавец AG Parts</h1>
+<p>Розничная цена: закупка +30%, с ограничением подтверждённой актуальной цены Kaspi. Упаковка и состав указаны в карточке. Закупочные цены видны только сотрудникам.</p>
+<section class="panel"><h2>Обновление ассортимента, наличия и цен</h2>
+<p><a class="button" href="{% url 'procurement:retail_excel' %}">Скачать Excel для корректировки</a></p>
+<p>brand — производитель; article — артикул (сохраняйте ведущие нули); cost — закупочная цена одной единицы поставщика, ₸; stock — остаток у поставщика; active — 1 продавать, 0 скрыть. Пустые поля не изменяются. Отсутствие строки не удаляет товар. Поддерживается также исходный XLSX Omega. Обновляются только уже подключённые товары AG Parts.</p>
+<form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}{{ form.as_p }}<button class="primary">Проверить файл</button></form>
+</section>
+{% if pending %}<section class="panel"><h2>Предпросмотр: {{ pending.rows|length }} товаров</h2>
+{% for row in pending.rows %}<p>{{ row.brand }} · {{ row.article }}{% if pending.kind == 'updates' %} · Было: {{ row.before_cost }} ₸; {{ row.before_stock }}. Изменения: {{ row.changes }}{% else %} · {{ row.title }} · фотографий: {{ row.images|length }}{% endif %}</p>{% endfor %}
+<form method="post">{% csrf_token %}<input type="hidden" name="action" value="apply"><button class="primary">Применить изменения</button></form></section>{% endif %}
+<section class="panel"><h2>Подключённые карточки: {{ listings|length }}</h2>
+{% for item in listings %}<p><a href="{{ item.product.get_absolute_url }}" target="_blank">{{ item.product.title }}</a> · {{ item.product.price }} ₸ за упаковку · {{ item.pack_size }} ед. · {% if item.enabled %}В ассортименте{% else %}Скрыт{% endif %}{% if item.hold_reason %}<br><strong class="danger">{{ item.hold_reason }}</strong>{% endif %}</p>{% empty %}<p>Карточки ещё не подключены.</p>{% endfor %}</section>
+{% endblock %}

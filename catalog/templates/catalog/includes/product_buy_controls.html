@@ -3,7 +3,7 @@
 {% if kaspi_url %}
   <a class="product-buy-btn product-buy-btn--retail" href="{{ kaspi_url }}" target="_blank" rel="noopener noreferrer" style="display:flex;justify-content:center;align-items:center;text-decoration:none;min-height:44px;">{% if card_design %}{% ui_icon 'external' %}{% ui 'cardKaspi' %}{% else %}Купить на Kaspi ↗{% endif %}</a>
 {% else %}
-{% if product.seller_profile.slug == 'ag-parts' %}
+{% if product.seller_profile.slug == 'ag-parts' and product.supplier != 'omega' %}
   {% if card_design %}
     {% if not product.public_stock or product.public_stock.can_buy %}{% include 'catalog/includes/product_card_details_button.html' %}{% endif %}
   {% else %}
