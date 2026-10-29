@@ -163,13 +163,14 @@ def prepare_updates(file,checked_on):
     # Accept the original supplier workbook as well as the compact correction sheet.
     rows=load_rows(file,required={'article','brand'})
     result=[];seen=set()
+    connected={(item.offer.brand,item.offer.article):item for item in RetailListing.objects.select_related('offer','product').filter(offer__supplier__name='Omega')}
     for number,row in rows:
         brand=str(row.get('brand') or '').strip();article=str(row.get('article') or '').strip()
         key=(brand,article)
+        listing=connected.get(key)
+        if listing is None:continue
         if key in seen:raise ValueError(f'Строка {number}: повтор бренда и артикула.')
         seen.add(key)
-        listing=RetailListing.objects.select_related('offer','product').filter(offer__supplier__name='Omega',offer__brand=brand,offer__article=article).first()
-        if listing is None:continue  # Full supplier files must not publish the remaining catalogue.
         offer=listing.offer
         if offer.checked_on and checked_on<offer.checked_on:raise ValueError(f'Строка {number}: файл старее действующих данных.')
         changes={}
@@ -179,6 +180,10 @@ def prepare_updates(file,checked_on):
             if stock.endswith('>'):stock='>'+stock[:-1]
             if stock_quantity(stock) is None:raise ValueError(f'Строка {number}: остаток должен быть количеством.')
             changes['stock']=stock
+        if row.get('min_order') not in (None,''):
+            minimum=Decimal(str(row['min_order']))
+            if not minimum.is_finite() or minimum!=int(minimum) or not 1<=minimum<=10000:raise ValueError('Минимальная партия: целое число от 1 до 10000.')
+            changes['min_order']=int(minimum)
         if row.get('active') not in (None,''):
             value=str(row['active']).strip().lower()
             if value not in ('1','0','да','нет','true','false'):raise ValueError('active: 1 или 0.')
@@ -197,9 +202,11 @@ def apply_updates(rows,user):
         offer=Offer.objects.select_for_update().get(pk=row['offer_id'],supplier__name='Omega')
         listing=RetailListing.objects.select_for_update().select_related('product').get(offer=offer)
         if fingerprint(offer,listing)!=row['fingerprint']:raise ValueError('Данные изменились после предпросмотра. Загрузите файл заново.')
-        for field in ('cost','stock'):
+        for field in ('cost','stock','min_order'):
             if field in row['changes']:setattr(offer,field,money(row['changes'][field]) if field=='cost' else row['changes'][field])
-        offer.checked_on=date.fromisoformat(row['checked_on']);offer.full_clean();offer.save()
+        if 'cost' in row['changes'] and 'stock' in row['changes']:
+            offer.checked_on=date.fromisoformat(row['checked_on'])
+        offer.full_clean();offer.save()
         if 'active' in row['changes']:listing.enabled=row['changes']['active'];listing.save(update_fields=['enabled'])
         refresh_listing(listing)
     Activity.objects.create(user=user,action='retail_excel',details={'rows':len(rows),'changes':rows})

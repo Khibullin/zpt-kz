@@ -84,6 +84,22 @@ class RetailTests(TestCase):
         with self.assertRaises(ValueError):prepare_updates(self.csv('brand,article,cost\nWXQP,other,2000\n'),timezone.localdate())
         self.assertEqual(RetailListing.objects.count(),1)
 
+    def test_full_supplier_file_uses_one_query_and_ignores_unconnected_duplicates(self):
+        text='brand,article,cost,stock\n'+('OTHER,unused,100,5\n'*1000)+'WXQP,00042,2200,10\n'
+        with self.assertNumQueries(1):rows=prepare_updates(self.csv(text),timezone.localdate())
+        self.assertEqual(len(rows),1)
+
+    def test_visibility_only_does_not_renew_source_date(self):
+        self.offer.checked_on=timezone.localdate()-timedelta(days=1);self.offer.save()
+        rows=prepare_updates(self.csv('brand,article,active\nWXQP,00042,0\n'),timezone.localdate())
+        apply_updates(rows,self.user);self.offer.refresh_from_db()
+        self.assertEqual(self.offer.checked_on,timezone.localdate()-timedelta(days=1))
+
+    def test_package_update_changes_price_and_stock_together(self):
+        rows=prepare_updates(self.csv('brand,article,cost,stock,min_order\nWXQP,00042,2000,20,4\n'),timezone.localdate())
+        apply_updates(rows,self.user);self.product.refresh_from_db()
+        self.assertEqual((self.product.price,self.product.stock_qty),(10400,5))
+
     @override_settings(MEDIA_ROOT='/tmp/omega-retail-test-media')
     def test_publish_idempotent_photos_and_no_private_description(self):
         offer=Offer.objects.create(supplier=self.supplier,brand='TAIHO',article='T-1',name='Вкладыши',cost=2500,stock='3 шт.',checked_on=timezone.localdate(),supplier_url='https://omega-auto-parts.kz/dvigatel/t-1')
