@@ -21,7 +21,7 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.utils.http import url_has_allowed_host_and_scheme
 
-from .analysis import evaluate
+from .analysis import evaluate, MIN_BEST_PROFIT, PACKAGING_COST
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
 from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches
@@ -89,7 +89,8 @@ def filtered_rows(request, preferences, filters):
         rows.append(row)
     mode = request.GET.get('mode', 'roi')
     if mode == 'best':
-        rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0]
+        rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
+                and r['profit'] is not None and r['profit'] >= MIN_BEST_PROFIT]
         rows.sort(key=lambda r: (-r['markup'], -r['difference'], r['offer'].pk))
     elif mode == 'difference':
         rows.sort(key=lambda r: (r['difference'] is not None, r['difference'] or Decimal(0)), reverse=True)
@@ -127,6 +128,7 @@ def dashboard(request):
         Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')))
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
+                  effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
@@ -166,7 +168,7 @@ def settings(request):
         form.save()
         messages.success(request, 'Параметры расчёта сохранены.')
         return redirect('procurement:dashboard')
-    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Сопоставление с Kaspi выполняется по порядку: 1) точный артикул с буквами и суффиксами; 2) название детали, сторона установки и комплектность; 3) бренд. Подтверждение ставится только при совпадении всех трёх признаков по данным Kaspi. Недостаточные или противоречивые данные остаются непроверенными. Применимость отдельно не является условием сравнения цен при совпадении артикула, названия и бренда. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Прочие расходы и пороги минимальной прибыли и доходности из личных настроек не ограничивают этот рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
+    return render(request, 'procurement/form.html', context(request, form=form, title='Алгоритм и настройки', help='Комиссия Kaspi указывается без НДС и применяется к цене продажи. Разница после комиссии = Kaspi × (1 − комиссия / 100) − закупка. Доходность после комиссии = эта разница / закупка × 100%. Чистая прибыль = разница после комиссии − все прочие расходы на единицу; комиссия повторно не вычитается. Входные цены по НДС не пересчитываются. Ставка и расходы берутся из ваших личных настроек. Сопоставление с Kaspi выполняется по порядку: 1) точный артикул с буквами и суффиксами; 2) название детали, сторона установки и комплектность; 3) бренд. Подтверждение ставится только при совпадении всех трёх признаков по данным Kaspi. Недостаточные или противоречивые данные остаются непроверенными. Применимость отдельно не является условием сравнения цен при совпадении артикула, названия и бренда. Принцип заполнения вкладки «Самые выгодные к закупке»: известные закупочная цена больше нуля, цена Kaspi и комиссия, положительная доходность закупки. Сортировка строго по доходности закупки по убыванию, при равной — по заработку после комиссии в тенге по убыванию. Спрос, отзывы, совпадение с Kaspi, наличие и даты показаны справочно: отсутствие или устаревание этих данных не исключает товар и не понижает его позицию. Упаковка стоит 250 ₸ за каждую деталь и вычитается один раз. Поле общих расходов включает упаковку: при значении 250 ₸ повторного вычитания нет; меньше 250 ₸ в расчёте не применяется. Неизвестные дополнительные расходы не считаются нулём. Вкладка выгодных закупок включает только прибыль от 1 000 ₸ после комиссии и расходов с упаковкой; ровно 1 000 ₸ проходит. Личный порог доходности не ограничивает рейтинг. Дополнительные фильтры каталога применяются только при вашем явном выборе. Обычный вход в каталог также сортирует всю колонку по проценту доходности; неизвестные значения находятся внизу. Быстрые фильтры сохраняют текущую сортировку. Режим «Максимальная разница с Kaspi» выбирается отдельно и сортирует по сумме в тенге. CSV повторяет состав и порядок списка. Доходность рассчитана после комиссии, до прочих расходов; чистая прибыль показана отдельно. Отзывы не равны продажам. Неизвестные комиссия и расходы не считаются нулевыми.'))
 
 
 @access('sales', 'admin')

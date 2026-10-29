@@ -5,6 +5,10 @@ import re
 from django.utils import timezone
 
 
+PACKAGING_COST = Decimal('250')
+MIN_BEST_PROFIT = Decimal('1000')
+
+
 def stock_status(stock):
     stock = (stock or '').strip().lower()
     number = re.match(r'^\s*[><≥≤]?\s*(\d+)(?:\s|$)', stock)
@@ -17,7 +21,8 @@ def evaluate(offer, preferences, today=None):
     today = today or timezone.localdate()
     commission = Decimal(str(preferences.commission)).normalize() if preferences.commission is not None else None
     result = {'gross_difference': None, 'commission_rate': commission,
-              'commission_amount': None, 'kaspi_after_commission': None, 'expenses': preferences.expenses,
+              'commission_amount': None, 'kaspi_after_commission': None, 'packaging_cost': PACKAGING_COST,
+              'expenses': max(PACKAGING_COST, Decimal(str(preferences.expenses))) if preferences.expenses is not None else None,
               'difference': None, 'markup': None, 'profit': None, 'margin': None,
               'signal': 'Данных недостаточно', 'qualified': False, 'reasons': []}
     if offer.kaspi_price is not None:
@@ -30,7 +35,7 @@ def evaluate(offer, preferences, today=None):
             if cost > 0:
                 result['markup'] = result['difference'] / cost * Decimal(100)
             if preferences.expenses is not None:
-                result['profit'] = result['difference'] - Decimal(str(preferences.expenses))
+                result['profit'] = result['difference'] - result['expenses']
                 if price > 0:
                     result['margin'] = result['profit'] / price * Decimal(100)
             else:
