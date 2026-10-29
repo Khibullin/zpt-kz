@@ -5,6 +5,7 @@ on:
       - 'core/services/seller_audit.py'
       - 'core/services/seller_matching.py'
       - 'core/templatetags/seller_audit.py'
+      - 'static/css/manual-seller-picker-design.css'
       - 'core/templates/core/connections/seller_audit*'
       - 'core/tests/test_seller_audit.py'
       - 'core/migrations/013[678]*'
