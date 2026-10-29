@@ -89,8 +89,8 @@ def filtered_rows(request, preferences, filters):
         rows.append(row)
     mode = request.GET.get('mode', 'difference')
     if mode == 'best':
-        rows = [r for r in rows if r['qualified']]
-        rows.sort(key=lambda r: r['profit'], reverse=True)
+        rows = [r for r in rows if r['qualified'] and r['difference'] > 0]
+        rows.sort(key=lambda r: (-r['markup'], -r['difference'], r['offer'].pk))
     else:
         rows.sort(key=lambda r: (r['difference'] is not None, r['difference'] or Decimal(0)), reverse=True)
     return rows

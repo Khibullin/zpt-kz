@@ -10,7 +10,7 @@
 <div class="modes">
 <a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница после комиссии, до прочих расходов</small>
 </a>
-<a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Прибыль + проверенное совпадение + признаки спроса</small>
+<a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Доходность закупки + проверенное совпадение + признаки спроса</small>
 </a>
 <a class="button" href="{% url 'procurement:settings' %}">Алгоритм<br>и настройки</a>
 </div>
@@ -36,6 +36,7 @@
 </div>
 <p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Прочие расходы на единицу: {% if preferences.expenses == None %}не заданы{% else %}{{ preferences.expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{% url 'procurement:settings' %}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
 {% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{% url 'procurement:settings' %}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{% url 'procurement:settings' %}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
+{% if mode == 'best' %}<div class="notice"><strong>Сначала больше заработка на вложенный тенге.</strong> Доходность закупки = (Kaspi после комиссии − закупка) / закупка × 100%. При равной доходности выше заработок в тенге. Расчёт до доставки и прочих расходов. Сохраняются проверки совпадения, наличия, актуальности, спроса и ваши пороги отбора.</div>{% endif %}
 <p class="muted">Найдено {{ total }} · Сведения о спросе и цены старше 7 дней не участвуют в рекомендациях. Новое совпадение Kaspi требует ручной проверки.</p>
 <div class="tablewrap">
 <table>
@@ -45,7 +46,7 @@
 <th>Поставщик</th>
 <th>Закупка, ₸</th>
 <th>Kaspi, ₸</th>
-<th>Разница после комиссии, ₸ / доходность</th>
+<th>{% if mode == 'best' %}Доходность закупки, % / заработок после комиссии, ₸{% else %}Разница после комиссии, ₸ / доходность{% endif %}</th>
 <th>Прибыль после расходов</th>
 <th>Продавцы Kaspi и спрос</th>
 <th>Действия</th>
@@ -64,8 +65,9 @@
 <td class="money">{{ row.offer.cost|floatformat:0 }}</td>
 <td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}<small>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }}</small><small>После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }}</small></td>
 <td class="money">
+{% if mode == 'best' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span><small>{{ row.difference|floatformat:2|default:'Нет данных' }} ₸ после комиссии</small>{% else %}
 <span class="delta">{{ row.difference|floatformat:2|default:'Нет данных' }}</span>
-<small>{{ row.markup|floatformat:1|default:'—' }}%</small>
+<small>{{ row.markup|floatformat:1|default:'—' }}%</small>{% endif %}
 </td>
 <td class="money">{{ row.profit|floatformat:2|default:'Нет данных' }}<small>{{ row.margin|floatformat:1|default:'—' }}% от выручки</small>
 </td>
