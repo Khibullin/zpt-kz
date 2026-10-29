@@ -1362,8 +1362,27 @@ class SellerDismantlerFilter(admin.SimpleListFilter):
         return queryset
 
 
+class SellerAuditAdminForm(forms.ModelForm):
+    class Meta:
+        model = Seller
+        fields = '__all__'
+
+    def clean(self):
+        data = super().clean()
+        if 'audit_evidence' in data and any(key in self.changed_data for key in ('audit_evidence', 'audit_checked_at')):
+            from copy import deepcopy
+            from types import SimpleNamespace
+            from core.services.seller_audit import bind_evidence
+            proxy = SimpleNamespace(audit_evidence=deepcopy(data['audit_evidence']), **{
+                key: data.get(key, getattr(self.instance, key, '')) for key in ('name', 'whatsapp', 'city', 'address')})
+            bind_evidence(proxy)
+            data['audit_evidence'] = proxy.audit_evidence
+        return data
+
+
 @admin.register(Seller)
 class SellerAdmin(admin.ModelAdmin):
+    form = SellerAuditAdminForm
     readonly_fields = ('catalog_only', 'workflow_activity')
 
     @admin.display(description='Активность и уведомления')
@@ -1476,7 +1495,7 @@ class SellerAdmin(admin.ModelAdmin):
         ('Проверка и обогащение продавца', {
             'fields': ('audit_status', 'audit_checked_at', 'audit_note', 'audit_public_summary',
                        'audit_city', 'audit_address', 'audit_delivery', 'audit_activity',
-                       'audit_signal_date', 'audit_kaspi', 'audit_sources'),
+                       'audit_signal_date', 'audit_kaspi', 'audit_sources', 'audit_evidence'),
             'description': 'Проверка не означает наличие детали и не даёт согласия на заявки. '
                            'При расхождениях публичные сведения проверки скрыты до уточнения.',
         }),

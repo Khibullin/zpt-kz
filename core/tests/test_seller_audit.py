@@ -119,13 +119,16 @@ class SellerAuditTests(TestCase):
             self.assertContains(response, 'Кандидат Kaspi')
             self.assertContains(response, 'Страна специализации')
             admin_html = response.content.decode()
+            detail = self.client.get(reverse('control_panel:seller_detail', args=[self.seller.pk]))
+            self.assertContains(detail, 'Из чего складывается оценка')
+            detail_html = detail.content.decode()
             self.client.logout()
             response = self.client.get(reverse('workflow_buyer_step', args=[self.req.pk, self.req.access_token, 'sellers']))
             self.assertEqual(response.status_code, 200)
             self.assertContains(response, 'Телефон совпадает с сайтом.')
             self.assertNotContains(response, 'Внутренняя заметка')
             self.assertNotContains(response, 'kaspi.kz')
-            self._browser_check({'admin': admin_html, 'buyer': response.content.decode()})
+            self._browser_check({'admin': admin_html, 'detail': detail_html, 'buyer': response.content.decode()})
 
     def _browser_check(self, pages):
         import os, re, subprocess, tempfile
@@ -148,6 +151,7 @@ for(const width of [390,1440]){const page=await browser.newPage({viewport:{width
 await page.route('**/*',r=>r.abort());
 for(const file of fs.readdirSync(process.argv[1])){await page.setContent(fs.readFileSync(path.join(process.argv[1],file),'utf8'));
 await page.locator('details').evaluateAll(nodes=>nodes.forEach(n=>n.open=true));
+if(file==='admin.html') await page.locator('[data-seller-row]').first().scrollIntoViewIfNeeded();
 await page.screenshot({path:'/tmp/zpt-audit-'+file+'-'+width+'.png',fullPage:true});
 if(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1))throw Error('Overflow '+file+' '+width);}
 await page.close();}await browser.close();})().catch(e=>{console.error(e);process.exit(1)});'''
@@ -178,3 +182,97 @@ await page.close();}await browser.close();})().catch(e=>{console.error(e);proces
             self.seller.refresh_from_db()
             self.assertEqual(self.seller.audit_note, 'Приватное обновление')
             self.assertTrue(LogEntry.objects.filter(object_id=str(self.seller.pk), user=owner).exists())
+
+
+class SellerEvidenceScoreTests(TestCase):
+    setUp = SellerAuditTests.setUp
+    render = SellerAuditTests.render
+
+    def evidence(self, keys):
+        from core.services.seller_audit import evidence_identity
+        return {key: {'confirmed':True, 'urls':['https://example.com/'], 'note':'Сопоставлено по источнику', 'identity':evidence_identity(self.seller,key)} for key in keys}
+
+    def test_unchecked_is_not_zero_and_filling_profile_does_not_score(self):
+        from core.services.seller_audit import rating
+        self.seller.audit_status='unchecked'
+        self.assertIsNone(rating(self.seller)['score'])
+        self.seller.audit_status='linked'
+        self.assertEqual(rating(self.seller)['score'], 0)
+        self.assertNotIn('Подтверждённость данных', self.render())
+
+    def test_all_five_require_explicit_evidence_and_distinct_sources(self):
+        from django.utils import timezone
+        from core.services.seller_audit import rating, CRITERIA
+        self.seller.audit_sources.append({'label':'Карта','url':'https://2gis.kz/almaty/firm/123','kind':'two_gis','confirmed':True,'public':False})
+        self.seller.audit_evidence=self.evidence([key for key, _ in CRITERIA])
+        self.seller.audit_evidence['independent']['urls'].append('https://2gis.kz/almaty/firm/123')
+        self.seller.audit_activity='recent'; self.seller.audit_signal_date=timezone.localdate()
+        self.seller.clean()
+        result=rating(self.seller)
+        self.assertEqual(result['score'], 5)
+        self.assertEqual(sum(result['segments']), 5)
+        self.assertIn('5/5', self.render(False))
+        self.seller.audit_sources[0]['confirmed']=False
+        self.assertEqual(rating(self.seller)['score'], 0)
+
+    def test_kaspi_name_candidate_and_two_pages_of_same_source_do_not_score(self):
+        from core.services.seller_audit import rating
+        kaspi='https://kaspi.kz/shop/m/123/products/'
+        self.seller.audit_sources[1].update(confirmed=True)
+        self.seller.audit_evidence={'contacts':{'confirmed':True,'urls':[kaspi],'note':'Только название'}}
+        self.assertEqual(rating(self.seller)['score'], 0)
+        self.seller.audit_sources.extend([
+            {'label':'Карта','url':'https://2gis.kz/almaty/firm/123','confirmed':True},
+            {'label':'Та же карта','url':'https://2gis.ru/firm/123','confirmed':True}])
+        self.seller.audit_evidence={'independent':{'confirmed':True,'urls':['https://2gis.kz/almaty/firm/123','https://2gis.ru/firm/123'],'note':'Те же данные'}}
+        self.assertEqual(rating(self.seller)['score'], 0)
+        with self.assertRaises(ValidationError):self.seller.clean()
+
+    def test_freshness_expires_and_future_signals_do_not_score(self):
+        from datetime import timedelta
+        from django.utils import timezone
+        from core.services.seller_audit import rating
+        self.seller.audit_evidence=self.evidence(['freshness'])
+        self.seller.audit_activity='recent'
+        for age, expected in [(0,1),(180,1),(181,0),(-1,0)]:
+            self.seller.audit_signal_date=timezone.localdate()-timedelta(days=age)
+            self.assertEqual(rating(self.seller)['score'], expected)
+
+    def test_conflict_remains_warning_even_with_points(self):
+        from core.services.seller_audit import rating
+        self.seller.audit_evidence=self.evidence(['contacts','location','specialization'])
+        self.seller.audit_status='conflict'
+        result=rating(self.seller)
+        self.assertEqual(result['score'], 2)
+        self.assertTrue(result['conflict'])
+        self.assertEqual(assess(self.seller,self.req).status,'review')
+        self.assertEqual(self.render().strip(),'')
+
+    def test_score_filter_and_date_changes_do_not_change_consent(self):
+        self.seller.audit_evidence=self.evidence(['contacts','location','specialization'])
+        self.seller.save()
+        rows=recipient_rows(self.req,QueryDict('rating=3'))
+        self.assertEqual([r['seller'].pk for r in rows],[self.seller.pk])
+        self.assertFalse(recipient_rows(self.req,QueryDict('rating=unchecked')))
+        self.assertFalse(recipient_rows(self.req,QueryDict('rating=5')))
+        self.seller.refresh_from_db()
+        self.assertFalse(self.seller.contact_access_verified)
+        self.assertFalse(self.seller.receive_requests)
+
+    def test_invalid_schema_and_missing_source_are_rejected(self):
+        from core.services.seller_audit import validate_evidence, rating
+        for value in ([], {'unknown':{}}, {'contacts':{'confirmed':True,'urls':[],'note':'нет источника'}}):
+            with self.assertRaises(ValidationError):validate_evidence(value)
+        self.seller.audit_evidence={'contacts':{'confirmed':True,'urls':['https://another.example/'],'note':'Нет сопоставления'}}
+        self.assertEqual(rating(self.seller)['score'],0)
+        with self.assertRaises(ValidationError):self.seller.clean()
+
+    def test_changed_contacts_and_location_invalidate_old_points(self):
+        from core.services.seller_audit import rating
+        self.seller.audit_evidence=self.evidence(['contacts','location','specialization'])
+        self.assertEqual(rating(self.seller)['score'],3)
+        self.seller.whatsapp='77019999999'
+        self.assertEqual(rating(self.seller)['score'],1)
+        self.seller.address='Новый адрес'
+        self.assertEqual(rating(self.seller)['score'],0)
+        self.seller.clean()  # Ordinary edits remain possible without reattesting old facts.

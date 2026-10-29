@@ -1,5 +1,5 @@
 from django import template
-from core.services.seller_audit import presentation
+from core.services.seller_audit import presentation, rating
 
 register = template.Library()
 
@@ -15,7 +15,7 @@ def seller_audit_internal(seller, match_reason=""):
     brands = ', '.join(x.name for x in seller.selected_brands.all()) or seller.brand
     models = ', '.join(x.name for x in seller.selected_models.all()) or seller.model
     categories = ', '.join(x.name for x in seller.selected_categories.all()) or seller.category
-    return {'audit': presentation(seller, internal=True), 'seller': seller, 'status_code': seller.audit_status, 'match_reason': match_reason,
+    return {'audit': presentation(seller, internal=True), 'seller': seller, 'rating': rating(seller), 'status_code': seller.audit_status, 'match_reason': match_reason,
             'countries': countries or ('Все страны' if seller.all_countries else 'Страна не указана'),
             'brands': brands or ('Все марки' if seller.all_brands else 'Марки не указаны'),
             'models': models or ('Все модели' if seller.all_models else 'Модели не указаны'),
@@ -29,3 +29,10 @@ def audit_phone(value):
     if not phone:
         return value
     return f'+7 ({phone[1:4]}) {phone[4:7]}-{phone[7:9]}-{phone[9:11]}'
+
+
+@register.inclusion_tag('control_panel/seller_picker_card.html')
+def seller_picker_card(row):
+    context = seller_audit_internal(row['seller'], row.get('match_reason', ''))
+    context.update(row=row, phone=audit_phone(row.get('phone')))
+    return context

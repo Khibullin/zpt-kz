@@ -11,7 +11,7 @@ form.querySelectorAll('[name=seller_ids]').forEach(box=>box.addEventListener('ch
    const body=new FormData();body.set('action','toggle');body.set('seller_id',box.value);body.set('checked',checked?'yes':'no');
    const response=await fetch(location.pathname+location.search,{method:'POST',body,credentials:'same-origin',headers:{'X-CSRFToken':csrf}});
    if(!response.ok){let data;try{data=await response.json();}catch(_){}throw Error(data?.error||'Не удалось сохранить выбор.');}
-   const data=await response.json();showCount(data.selected_count);box.closest('tr').classList.toggle('mp-selected',checked);
+   const data=await response.json();showCount(data.selected_count);box.closest('[data-seller-row],tr').classList.toggle('mp-selected',checked);
   }catch(error){failed=true;box.checked=!checked;status.textContent=error.message+' Обновите страницу перед продолжением.';}
   finally{pending--;box.disabled=false;if(!pending&&!failed)status.textContent='Выбор сохранён';}
  });

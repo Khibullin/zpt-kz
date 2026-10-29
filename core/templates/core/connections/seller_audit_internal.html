@@ -1,16 +1,5 @@
-<div class="seller-audit">
-<p class="audit-specialization"><span>{{ countries }}</span> · <span>{{ brands }}</span> · <span>{{ models }}</span> · <span>{{ categories }}</span></p>
-{% if seller.address %}<p class="audit-address">{{ seller.address }}</p>{% endif %}
-<div class="audit-status-row"><span class="audit-status audit-status--{{ status_code }}">{{ audit.status }}</span>{% if audit.checked_at %} <span class="audit-date">{{ audit.checked_at|date:'d.m.Y' }}</span>{% endif %}{% if audit.checked %} <span class="audit-kaspi">Kaspi: {{ audit.kaspi }}</span>{% endif %}</div>
-{% if audit.checked or match_reason %}<details class="audit-details"><summary>Результаты проверки</summary><div class="audit-details-body">
-{% if match_reason %}<p><b>Соответствие заявке:</b> {{ match_reason }}</p>{% endif %}
-{% if audit.checked %}<p>{{ audit.activity }}{% if audit.signal_date %} · {{ audit.signal_date|date:'d.m.Y' }}{% endif %}</p>{% endif %}
-{% if audit.note %}<p>{{ audit.note|linebreaksbr }}</p>{% endif %}
-{% if audit.city %}<p><b>Город по источнику:</b> {{ audit.city }}</p>{% endif %}
-{% if audit.address %}<p><b>Адрес по источнику:</b> {{ audit.address }}</p>{% endif %}
-{% if audit.delivery %}<p><b>Доставка:</b> {{ audit.delivery }}</p>{% endif %}
-{% for source in audit.sources %}<p><a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }}</a> — {% if source.confirmed %}сопоставлен{% else %}кандидат, принадлежность не подтверждена{% endif %}</p>{% endfor %}
-{% if audit.summary %}<p><b>Покупателю:</b> {{ audit.summary }}</p>{% endif %}
-</div></details>{% endif %}
-<a class="audit-edit" href="{% url 'admin:core_seller_change' seller.pk %}" target="_blank" rel="noopener">Редактировать проверку</a>
-</div>
+<section class="seller-audit audit-full-card">
+<div class="audit-full-heading"><div><p class="audit-specialization">{{ countries }} · {{ brands }} · {{ models }} · {{ categories }}</p>{% if seller.address %}<p class="audit-address">{{ seller.city }} · {{ seller.address }}</p>{% endif %}<span class="audit-status audit-status--{{ status_code }}">{{ audit.status }}</span></div>{% include 'core/connections/seller_audit_score.html' %}</div>
+{% include 'core/connections/seller_audit_details.html' %}
+<p class="mp-rating-note">Оценка подтверждённости данных — не рейтинг обслуживания и не гарантия наличия детали.</p>
+</section>
