@@ -1,3 +1,4 @@
+from core.services.seller_audit import validate_sources as validate_seller_audit_sources
 import uuid
 
 from django.conf import settings
@@ -1393,6 +1394,28 @@ class RequestPhoto(models.Model):
 
 
 class Seller(models.Model):
+    audit_status = models.CharField(max_length=16, default='unchecked', db_index=True,
+        choices=[('unchecked', 'Не проверен'), ('linked', 'Есть внешнее подтверждение'),
+                 ('unconfirmed', 'Совпадение не найдено'), ('conflict', 'Обнаружены расхождения')],
+        verbose_name='Проверка продавца')
+    audit_checked_at = models.DateField(null=True, blank=True, verbose_name='Дата проверки')
+    audit_note = models.TextField(blank=True, verbose_name='Основания и замечания (только сотрудникам)')
+    audit_public_summary = models.TextField(blank=True, verbose_name='Что подтверждено (покупателю)')
+    audit_city = models.CharField(max_length=120, blank=True, verbose_name='Город по источнику')
+    audit_address = models.CharField(max_length=500, blank=True, verbose_name='Адрес по источнику')
+    audit_delivery = models.CharField(max_length=300, blank=True, verbose_name='Подтверждённая доставка')
+    audit_activity = models.CharField(max_length=16, default='unknown',
+        choices=[('unknown', 'Свежесть торговли неизвестна'), ('recent', 'Есть датированные признаки торговли')],
+        verbose_name='Внешние признаки торговли')
+    audit_signal_date = models.DateField(null=True, blank=True, verbose_name='Дата последнего признака торговли')
+    audit_kaspi = models.CharField(max_length=16, default='unchecked', db_index=True,
+        choices=[('unchecked', 'Не проверено'), ('candidate', 'Найден кандидат'),
+                 ('confirmed', 'Принадлежность подтверждена'), ('not_found', 'Не найдено')],
+        verbose_name='Магазин Kaspi')
+    audit_sources = models.JSONField(default=list, blank=True, validators=[validate_seller_audit_sources], verbose_name='Источники проверки',
+        help_text='Список объектов: label, url, kind (website/kaspi/two_gis/social/other), confirmed, public. '
+                  'Публичная ссылка требует confirmed=true; кандидаты доступны только сотрудникам.')
+
     contact_access_verified = models.BooleanField(default=False, verbose_name='Допущен к контактам покупателей')
     direct_contacts_enabled = models.BooleanField(default=False, verbose_name='Разрешает прямые обращения покупателей')
     notification_state = models.CharField(max_length=16, default='active', choices=[
@@ -1591,6 +1614,20 @@ class Seller(models.Model):
         default='',
         verbose_name='Сайт организации',
     )
+
+    def clean(self):
+        super().clean()
+        errors = {}
+        if self.audit_status != 'unchecked' and not self.audit_checked_at:
+            errors['audit_checked_at'] = 'Укажите дату проверки.'
+        if self.audit_activity == 'recent' and not self.audit_signal_date:
+            errors['audit_signal_date'] = 'Нужна дата содержательного признака торговли.'
+        if self.audit_kaspi == 'confirmed':
+            sources = self.audit_sources if isinstance(self.audit_sources, list) else []
+            if not any(isinstance(x, dict) and x.get('kind') == 'kaspi' and x.get('confirmed') is True for x in sources):
+                errors['audit_kaspi'] = 'Для подтверждения Kaspi нужен сопоставленный источник kind=kaspi.'
+        if errors:
+            raise ValidationError(errors)
 
     class Meta:
         verbose_name = 'Продавец'

@@ -29,6 +29,8 @@ class Assessment:
 
 
 def assess(seller, req):
+    if getattr(seller, 'audit_status', 'unchecked') == 'conflict':
+        return Assessment('review', 'Требует проверки: обнаружены расхождения города или специализации.')
     from core.services.seller_request_filters import matches_request
     brands = {fold(x.name) for x in seller.selected_brands.all()}
     models = {fold(x.name) for x in seller.selected_models.all()}
@@ -99,6 +101,6 @@ def assess(seller, req):
         model_specific = any(not b.get('all_models') for b in filters.get('brands', []) if fold(b['name']) == fold(req.brand))
     model_label = ', '.join(matched) if model_specific else 'все модели'
     category_label = ', '.join(sorted(category_names(req) & categories)) if explicit_category and categories else (req.category if explicit_category else 'все категории')
-    reason = ' · '.join(x for x in (seller.city, req.brand if explicit_brand else (country + ' · все марки' if country_match else 'все марки'), model_label, category_label) if x)
-    rank = (not explicit_brand, not model_specific, not explicit_category, not registered)
+    reason = ' · '.join(x for x in (seller.city, country if country_match else '', req.brand if explicit_brand else 'все марки', model_label, category_label) if x)
+    rank = (not country_match, not explicit_brand, not model_specific, not explicit_category, not registered)
     return Assessment('matched', reason, matched, rank)

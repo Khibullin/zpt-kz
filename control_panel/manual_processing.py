@@ -70,6 +70,15 @@ def recipient_rows(req, params, *, seller_ids=None):
         )).values_list('seller_id', flat=True)
         channels = SellerChannelConnection.objects.filter(whatsapp_consent=True).values_list('seller_id', flat=True)
         qs = qs.filter(Q(pk__in=historical) | Q(pk__in=channels) | Q(pk__in=one_time_sent.values('seller_id')))
+    if params.get('audit_status') in dict(Seller._meta.get_field('audit_status').choices):
+        qs = qs.filter(audit_status=params['audit_status'])
+    if params.get('kaspi') in dict(Seller._meta.get_field('audit_kaspi').choices):
+        qs = qs.filter(audit_kaspi=params['kaspi'])
+    if params.get('activity') in dict(Seller._meta.get_field('audit_activity').choices):
+        qs = qs.filter(audit_activity=params['activity'])
+    country = params.get('country', '').strip()
+    if country:
+        qs = qs.filter(Q(selected_countries__name__iexact=country) | Q(country_fk__name__iexact=country)).distinct()
     qs = qs.defer('notes').select_related('brand_fk', 'model_fk', 'country_fk', 'channel_connection').prefetch_related(
         'selected_brands', 'selected_models', 'selected_categories', 'selected_countries', 'extra_phones', 'contact_consents',
     ).order_by('-is_test_seller', 'name', 'id')

@@ -1,0 +1,9 @@
+{% if audit %}<div class="seller-audit" style="margin:12px 0;overflow-wrap:anywhere">
+<p><strong>Данные проверены</strong> · {{ audit.checked_at|date:'d.m.Y' }}</p>
+{% if audit.summary %}<p>{{ audit.summary }}</p>{% endif %}
+{% if audit.address %}<p>Адрес по источнику: {% if audit.city %}{{ audit.city }}, {% endif %}{{ audit.address }}</p>{% endif %}
+{% if audit.delivery %}<p>Доставка: {{ audit.delivery }}</p>{% endif %}
+{% if audit.kaspi %}<p>Kaspi: {{ audit.kaspi }}</p>{% endif %}
+<div style="display:flex;gap:10px;flex-wrap:wrap">{% for source in audit.sources %}<a href="{{ source.url }}" target="_blank" rel="noopener noreferrer">{{ source.label }}</a>{% endfor %}</div>
+<p class="muted">{{ audit.activity }}{% if audit.signal_date %} · {{ audit.signal_date|date:'d.m.Y' }}{% endif %}. Наличие нужной детали уточняется у продавца.</p>
+</div>{% endif %}
