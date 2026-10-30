@@ -15,7 +15,7 @@ VEHICLE_PATHS = {
  'model': ('car_model','selected_models'),
 }
 FITMENT_PATHS = {'country':'fitments__car_model__brand__country','brand':'fitments__car_model__brand','model':'fitments__car_model'}
-LOGOS = {name:f'interface/brands/{slug}.webp' for name,slug in [('toyota','toyota'),('volkswagen','vw'),('vw','vw'),('audi','audi'),('lexus','lexus'),('nissan','nissan'),('mitsubishi','mitsubishi'),('hyundai','hyundai'),('kia','kia'),('mazda','mazda'),('honda','honda'),('bmw','bmw'),('chevrolet','chevrolet'),('chery','chery'),('changan','changan'),('haval','haval'),('geely','geely'),('exeed','exeed'),('jetour','jetour')]}
+LOGOS = {name:f'interface/brands/{slug}.webp' for name,slug in [('toyota','toyota'),('volkswagen','vw'),('vw','vw'),('audi','audi'),('lexus','lexus'),('nissan','nissan'),('mitsubishi','mitsubishi'),('hyundai','hyundai'),('kia','kia'),('mazda','mazda'),('honda','honda'),('bmw','bmw'),('chevrolet','chevrolet'),('chery','chery'),('changan','changan'),('haval','haval'),('geely','geely')]}
 
 
 def retail_products():
@@ -89,6 +89,8 @@ def storefront(request):
     def url(**changes):
         return '/?'+urlencode({k:v for k,v in {**selected,**changes}.items() if v!=''})
     def facet(key):
+        if key=='model' and not selected['brand']:
+            return []
         if key in ('year','engine') and not selected['model']:
             return []
         scope=apply_filters(base,selected,(key,*RESET.get(key,())))
