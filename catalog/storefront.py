@@ -44,10 +44,10 @@ def apply_filters(qs, selected, omit=()):
         if not value.isdecimal():
             return qs.none()
         vehicle = True
-        structured[FITMENT_PATHS[key]+'__pk'] = value
+        structured[FITMENT_PATHS[key].removeprefix('fitments__')+'__pk'] = value
         clause = Q()
         for path in VEHICLE_PATHS[key]:
-            clause |= Q(**{path+'__pk':value})
+            clause |= Q(pk__in=Product.objects.filter(**{path+'__pk':value}).values('pk'))
         legacy &= clause
     if selected['year'] and 'year' not in omit:
         value=selected['year']
@@ -55,20 +55,21 @@ def apply_filters(qs, selected, omit=()):
             return qs.none()
         year=int(value)
         vehicle=True
-        structured['fitments__year_from__lte']=year
+        structured['year_from__lte']=year
         # Closed periods or open periods checked in this year or later.
-        period=Q(fitments__year_to__gte=year)|Q(fitments__year_to__isnull=True,fitments__verified_on__year__gte=year)
+        period=Q(year_to__gte=year)|Q(year_to__isnull=True,verified_on__year__gte=year)
         legacy=Q(pk__in=[])
     else:
         period=Q()
     if selected['engine'] and 'engine' not in omit:
         vehicle=True
-        engine=Q(fitments__engine_code=selected['engine'])|Q(fitments__engine_policy='independent')
+        engine=Q(engine_code=selected['engine'])|Q(engine_policy='independent')
         legacy=Q(pk__in=[])
     else:
         engine=Q()
     if vehicle:
-        confirmed=Q(fitment_reviewed_on__isnull=False,fitments__status='confirmed',**structured)&period&engine
+        rows=ProductFitment.objects.filter(status='confirmed',**structured).filter(period&engine)
+        confirmed=Q(fitment_reviewed_on__isnull=False,pk__in=rows.values('product_id'))
         qs=qs.filter(confirmed | (Q(fitment_reviewed_on__isnull=True)&legacy))
     for key,field in [('category','category_id'),('subgroup','retail_subgroup'),('maker','retail_maker')]:
         if selected[key] and key not in omit:
