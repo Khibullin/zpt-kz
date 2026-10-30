@@ -22,7 +22,7 @@ function translate(root=document.body){
     });
   });
   document.documentElement.lang=lang;
-  document.querySelectorAll('[data-zpt-language]').forEach(b=>{b.textContent=lang==='kk'?'RU / КZ ✓':'RU ✓ / KZ';b.setAttribute('aria-label',lang==='kk'?'Переключить на русский':'Қазақшаға ауыстыру');});
+  document.querySelectorAll('[data-zpt-language]').forEach(b=>{b.innerHTML=lang==='kk'?'<span>RU</span> / <strong>KZ</strong>':'<strong>RU</strong> / <span>KZ</span>';b.setAttribute('aria-label',lang==='kk'?'Переключить на русский':'Қазақшаға ауыстыру');});
 }
 document.addEventListener('click',e=>{
   if(e.target.closest('[data-zpt-language]')){lang=lang==='ru'?'kk':'ru';try{localStorage.setItem('zpt-language',lang);}catch(_){}translate();}

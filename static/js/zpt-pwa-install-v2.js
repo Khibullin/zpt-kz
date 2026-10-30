@@ -235,6 +235,49 @@
     }
   }
 
+  function initStorefrontInstall() {
+    var banner = document.querySelector('[data-zpt-install-banner]');
+    var dialog = document.querySelector('[data-zpt-install-dialog]');
+    if (!dialog) return;
+    var installed = isStandalone();
+    function hideInstalled() {
+      installed = true;
+      if (banner) banner.hidden = true;
+      document.querySelectorAll('[data-zpt-install-entry]').forEach(function (entry) { entry.hidden = true; });
+      if (dialog.open) dialog.close();
+    }
+    if (installed) hideInstalled();
+    else if (banner) banner.hidden = wasDismissedThisVisit();
+    document.addEventListener('click', function (event) {
+      if (event.target.closest('[data-zpt-install-dismiss]')) {
+        if (banner) banner.hidden = true;
+        markDismissedThisVisit();
+      }
+      if (event.target.closest('[data-zpt-install-close]')) dialog.close();
+      if (!event.target.closest('[data-zpt-install-open]')) return;
+      event.preventDefault();
+      if (installed) return;
+      if (deferredPrompt && !isIos() && !isWebView()) {
+        var prompt = deferredPrompt;
+        deferredPrompt = null;
+        prompt.prompt();
+        if (prompt.userChoice) prompt.userChoice.then(function (choice) {
+          if (choice.outcome === 'accepted') hideInstalled();
+        }).catch(function () { /* Browser dismissed installation. */ });
+      } else {
+        var kind = detectedKind();
+        var text = instructionsFor(kind);
+        if (kind === 'desktop') text = 'Для установки на телефон откройте zpt.kz на телефоне и нажмите «Установить». На iPhone: Safari → «Поделиться» → «На экран «Домой»» → «Добавить».';
+        dialog.querySelector('[data-zpt-install-help]').textContent = text;
+        dialog.showModal();
+      }
+    });
+    window.addEventListener('appinstalled', hideInstalled);
+    window.matchMedia('(display-mode: standalone)').addEventListener('change', function (event) {
+      if (event.matches) hideInstalled();
+    });
+  }
+
   window.addEventListener('beforeinstallprompt', function (event) {
     event.preventDefault();
     deferredPrompt = event;
@@ -243,6 +286,7 @@
   function init() {
     maybeShowHomePrompt();
     initGuidePanel();
+    initStorefrontInstall();
   }
 
   if (document.readyState === 'loading') {

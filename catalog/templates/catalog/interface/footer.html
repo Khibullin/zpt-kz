@@ -3,7 +3,7 @@
 <nav class="mobile-nav" aria-label="Основное меню">
 <a href="/"{% if interface_home %} class="active" aria-current="page"{% endif %}>{% ui_icon 'home' %}{% ui 'home' %}</a>
 <a href="/?all=1">{% ui_icon 'list' %}{% ui 'catalog' %}</a>
-<a href="{% url 'orders:cart' %}">{% ui_icon 'cart' %}{% ui 'cart' %}</a>
+<a href="{% url 'orders:cart' %}">{% ui_icon 'cart' %}<span>{% ui 'cart' %} (<span data-cart-count data-cart-show-zero>{{ cart_count|default:0 }}</span>)</span></a>
 <a href="{% url 'zpt_gid' %}">{% ui_icon 'help' %}{% ui 'guide' %}</a>
 <a href="{% url 'interface_section' section='account' %}">{% ui_icon 'user' %}{% ui 'account' %}</a>
 </nav></footer>

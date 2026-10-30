@@ -42,6 +42,7 @@
 <link rel="stylesheet" href="{% static 'css/design-system.css' %}?v=6">
 <link rel="stylesheet" href="{% static 'css/faq-feedback.css' %}?v=market_v110">
 <link rel="stylesheet" href="{% static 'css/ios-pwa-prompt.css' %}?v=ios_pwa_v1">
+    <link rel="stylesheet" href="{% static 'interface/storefront-navigation.css' %}?v=20261030a">
     {% block extra_css %}{% endblock %}
     <link rel="stylesheet" href="{% static 'css/header-search.css' %}?v=header_search_v1">
     <link rel="stylesheet" href="{% static 'css/product-cards.css' %}?v=20261013b">
@@ -57,6 +58,7 @@
 {% endif %}
 {% include 'includes/interface_navigation.html' %}
 {% block content %}{% endblock %}
+{% include 'includes/storefront_footer_links.html' %}
 <footer style="padding:18px 16px;text-align:center;font-size:12px;color:#6b7280;">
   {% if seo_editorial_enabled %}<a href="{% url 'editorial_index' %}" style="color:inherit;">Полезные материалы</a><span style="margin:0 8px;">·</span>{% endif %}
   <a href="{% url 'zpt_gid' %}" style="color:inherit;">ZPT Гид</a>
@@ -70,7 +72,7 @@
 {% include 'catalog/includes/feedback_modal.html' %}
 <script src="{% static 'js/feedback-modal.js' %}?v=directory_20261018"></script>
 <script src="{% static 'js/ios-pwa-prompt.js' %}?v=ios_pwa_v2"></script>
-<script src="{% static 'js/zpt-pwa-install-v2.js' %}?v=1"></script>
+<script src="{% static 'js/zpt-pwa-install-v2.js' %}?v=20261030a"></script>
 <script src="{% static 'js/product-share.js' %}?v=product_share_v1"></script>
 <script src="{% static 'js/analytics-events.js' %}?v=business-20261025"></script>
 <script>
@@ -78,7 +80,7 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
 }
 </script>
-<script src="{% static 'interface/navigation.js' %}?v=20261013b" defer></script>
+<script src="{% static 'interface/navigation.js' %}?v=20261030a" defer></script>
 <script src="{% static 'js/price-inquiry.js' %}?v=20261027a" defer></script>
 </body>
 </html>

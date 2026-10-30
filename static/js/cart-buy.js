@@ -66,7 +66,7 @@
   function updateCartBadge(count) {
     document.querySelectorAll('[data-cart-count]').forEach(function (el) {
       el.textContent = String(count);
-      el.hidden = count <= 0;
+      el.hidden = count <= 0 && !el.hasAttribute('data-cart-show-zero');
     });
   }
 
