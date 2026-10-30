@@ -257,7 +257,7 @@
       if (!event.target.closest('[data-zpt-install-open]')) return;
       event.preventDefault();
       if (installed) return;
-      if (deferredPrompt && !isIos() && !isWebView()) {
+      if (deferredPrompt && isAndroid() && !isWebView()) {
         var prompt = deferredPrompt;
         deferredPrompt = null;
         prompt.prompt();
