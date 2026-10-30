@@ -206,6 +206,30 @@ def build_product_applicability(product):
                 'verified_on': row.verified_on,
                 'source_url': row.source_url,
             })
+    # Supplier configurations are displayed as sourced data, never as verified vehicle fitment.
+    if not fitment_rows:
+        from django.core.exceptions import ObjectDoesNotExist
+        try:
+            supplier_rows = product.omega_listing.offer.fitments.all()
+        except (ObjectDoesNotExist, AttributeError):
+            supplier_rows = []
+        for supplier in supplier_rows:
+            configurations = supplier.configurations or [{}]
+            for config in configurations:
+                if not isinstance(config, dict):
+                    continue
+                variant = ', '.join(str(config.get(key) or '') for key in ('generation', 'chassis', 'body', 'fuel') if config.get(key))
+                note = '; '.join(str(config.get(key) or '') for key in ('capacity', 'transmission', 'drive') if config.get(key))
+                fitment_rows.append({
+                    'model': f'{supplier.make} {supplier.model}', 'variant': variant,
+                    'engine': config.get('engine') or 'Не указан',
+                    'period': config.get('years') or 'Требует уточнения',
+                    'needs_check': not supplier.verified,
+                    'note': '; '.join(part for part in (supplier.details, note) if part),
+                    'source_url': '', 'verified_on': None,
+                })
+    has_block = has_block or bool(fitment_rows)
+    show_vin = has_block
     return {
         'groups': groups,
         'fitment_rows': fitment_rows,

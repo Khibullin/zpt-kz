@@ -554,3 +554,5 @@
     padding-left:0;
   }
 }
+
+.guide-retail-search{margin-bottom:24px;padding:22px;border:1px solid #dfe4eb;border-radius:8px;background:#fff}.guide-retail-search h2{font-size:22px;margin:0 0 10px}.guide-retail-search p{font-size:15px;line-height:1.6}.guide-retail-search form{display:flex;gap:10px;flex-wrap:wrap}.guide-retail-search label{flex-basis:100%;font-size:14px}.guide-retail-search input[type=search]{flex:1;min-width:180px;min-height:42px;padding:8px 12px;border:1px solid #d7dce3}.guide-retail-search button{border:1px solid #ed1018;background:#ed1018;color:#fff;border-radius:4px;padding:8px 18px}.guide-retail-links{display:flex;gap:12px 20px;flex-wrap:wrap;margin-top:18px;font-size:14px}.guide-retail-links a{color:#b30e14}@media(max-width:600px){.guide-retail-search{padding:16px}.guide-retail-search button{width:100%}}

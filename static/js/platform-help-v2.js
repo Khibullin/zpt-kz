@@ -377,7 +377,7 @@
       try {
         sessionStorage.setItem(DRAFT_KEY, JSON.stringify(requestDraft));
       } catch (err) { /* ignore */ }
-      window.location.href = '/';
+      window.location.href = '/find-part/?request=1';
     });
   }
 

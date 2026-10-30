@@ -2,6 +2,7 @@
   <div class="detail-section-card product-applicability">
     <h2>Применяемость</h2>
 
+    <details class="applicability-details"{% if applicability.fitment_rows|length <= 8 and applicability.groups|length <= 3 %} open{% endif %}><summary>Показать применимость полностью</summary>
     {% if applicability.fitment_rows %}
       <div class="product-fitment-table-wrap">
         <table class="product-fitment-table">
@@ -18,22 +19,15 @@
           </tbody>
         </table>
       </div>
-      <p class="product-applicability-vin">Периоды относятся к указанным модификациям. В пограничном году сверьте месяц выпуска по VIN. Открытый период проверен на указанную дату.</p>
+      <p class="product-applicability-vin">Периоды относятся к указанным модификациям. Годы, двигатель и кузов сверяйте по VIN перед покупкой. Если точные сведения отсутствуют, требуется уточнение.</p>
     {% endif %}
 
     {% if not applicability.fitment_rows %}
-    {% for group in applicability.groups %}
-      <div class="product-applicability-group">
-        <div class="product-applicability-brand">{{ group.brand.name }}:</div>
-        {% if group.models %}
-          <ul class="product-applicability-models">
-            {% for model in group.models %}
-              <li>{{ model.name }}</li>
-            {% endfor %}
-          </ul>
-        {% endif %}
-      </div>
-    {% endfor %}
+    {% if applicability.groups %}
+    <div class="product-fitment-table-wrap"><table class="product-fitment-table"><thead><tr><th>Марка</th><th>Модель</th><th>Годы и модификация</th></tr></thead><tbody>
+    {% for group in applicability.groups %}{% for model in group.models %}<tr><td>{{ group.brand.name }}</td><td>{{ model.name }}</td><td>Уточняются перед покупкой</td></tr>{% empty %}<tr><td>{{ group.brand.name }}</td><td>Модель не указана</td><td>Уточняются перед покупкой</td></tr>{% endfor %}{% endfor %}
+    </tbody></table></div>
+    {% endif %}
 
     {% if applicability.engines %}
       <div class="product-applicability-group">
@@ -67,6 +61,7 @@
       </div>
     {% endif %}
 
+    </details>
     {% if applicability.show_vin_warning %}
       <p class="product-applicability-vin">{{ applicability.vin_warning }}</p>
     {% endif %}

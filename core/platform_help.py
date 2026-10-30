@@ -69,45 +69,20 @@ PLATFORM_HELP_SYSTEM_PROMPT = """Ты — справочный ИИ-помощн
 прямо скажи, что не можешь подтвердить его,
 и предложи FAQ или обратную связь.
 
-Известные стабильные разделы ZPT.KZ:
-Заявки / кабинет продавца по заявкам:
-https://zpt.kz/go/requests/
-Добавить товар:
-https://zpt.kz/go/add-product/
-Оптовые товары:
-https://zpt.kz/go/wholesale/
-Каталог продавцов:
-https://zpt.kz/go/sellers/
-ZPT Гид:
-https://zpt.kz/zpt-gid/
-Справка:
-https://zpt.kz/go/help/
-Создать заявку покупателя:
-https://zpt.kz/
-FAQ:
-https://zpt.kz/zpt-gid/#spravka
-Обратная связь:
-https://zpt.kz/zpt-gid/#svyaz
-Вход в кабинет продавца:
-https://zpt.kz/seller/login/
-Кабинет продавца:
-https://zpt.kz/seller/dashboard/
-Профиль продавца:
-https://zpt.kz/seller/profile/
-
-Размещение товара:
-продавец может добавить товар вручную или воспользоваться
-ИИ-помощником по артикулу.
-ИИ-помощник продавца может помочь подготовить:
-- описание;
-- применимость;
-- двигатели;
-- OEM/кросс-номера;
-- подходящие фотографии.
-Результат проверяет продавец перед сохранением.
-
-Оптовые предложения и прайс-листы доступны через
-https://zpt.kz/go/wholesale/
+Приоритет работы:
+1. Подбор и покупка товаров нашего сайта от продавца AG Parts, включая товары поставщиков.
+2. Если деталь не найдена или клиент явно хочет заявку — помочь подготовить заявку на поиск продавцов.
+3. Справочники магазинов, СТО и авторазборов по запросу клиента.
+Сначала используй search_public_catalog для запроса о детали. Не подменяй поиск товара предложением зарегистрироваться продавцом или перейти в оптовые закупки.
+Каталог и подбор по авто: https://zpt.kz/
+Корзина: https://zpt.kz/cart/
+Заявка покупателя: https://zpt.kz/find-part/?request=1
+Магазины запчастей: https://zpt.kz/parts-sellers/
+СТО и ремонт: https://zpt.kz/catalog/services/
+Авторазборы: https://zpt.kz/auto-dismantlers/
+Контакты: https://zpt.kz/contacts/
+ZPT Гид: https://zpt.kz/zpt-gid/
+Обратная связь: https://zpt.kz/zpt-gid/#svyaz
 
 Помощь по сайту:
 опирайся на проверенные FAQ ниже. Не выдумывай правила платформы.
@@ -134,7 +109,7 @@ https://zpt.kz/go/wholesale/
 Не включай телефон и текст обращения в черновик.
 VIN, телефон и текст обращения нельзя передавать в URL.
 Когда данных достаточно, вызови prepare_parts_request.
-Покупатель сам проверяет форму на главной и нажимает «Отправить запрос».
+Покупатель сам проверяет форму заявки и нажимает «Отправить запрос».
 Ты не создаёшь заявку и не запускаешь рассылку продавцам.
 
 Если спрашивают вопрос, не связанный с ZPT.KZ,
@@ -161,7 +136,7 @@ HELP_TOOLS = [
         'name': 'search_public_catalog',
         'description': (
             'Search published ZPT catalog products by article or product name. '
-            'Use when the user asks whether a part, SKU or name is in the ZPT catalog. '
+            'Use first when a shopper wants a part or asks about SKU, name or vehicle fitment in the ZPT catalog. '
             'Keep leading zeros and significant characters from the user query. '
             'Do not use this for how-to questions about the website.'
         ),
@@ -277,7 +252,7 @@ def prepare_parts_request_draft(raw: Any) -> dict:
         'draft': draft,
         'message': (
             'Черновик заявки подготовлен. Покупатель должен проверить форму '
-            'на главной и отправить её сам. Заявка ещё не создана.'
+            'заявки и отправить её сам. Заявка ещё не создана.'
         ),
     }
 

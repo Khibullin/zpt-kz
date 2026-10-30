@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Обратная связь — ZPT Market{% endblock %}
+{% block title %}Обратная связь — ZPT.KZ{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
@@ -15,7 +15,7 @@
     <header class="faq-page-header">
       <h1>Обратная связь</h1>
       <p class="faq-page-lead">
-        Есть вопрос, предложение или нашли ошибку? Напишите нам — мы ответим в ближайшее время.
+        Есть вопрос о товаре, заказе, доставке или работе сайта? Напишите нам — мы ответим в ближайшее время.
       </p>
     </header>
 
@@ -28,7 +28,7 @@
 
     <div class="faq-page-actions">
       <a href="{% url 'faq' %}" class="faq-btn faq-btn-outline">Частые вопросы</a>
-      <a href="{% url 'catalog_list' %}" class="faq-btn faq-btn-outline">← В маркет</a>
+      <a href="{% url 'catalog_list' %}" class="faq-btn faq-btn-outline">В каталог запчастей</a>
     </div>
   </section>
 </div>

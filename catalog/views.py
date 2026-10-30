@@ -621,7 +621,7 @@ def product_detail(request, slug=None, pk=None):
         'seller_profile',
         'seller_profile__wholesale_terms',
     )
-    product_qs = public_wholesale_prefetch(product_qs).prefetch_related('fitments__car_model__brand')
+    product_qs = public_wholesale_prefetch(product_qs).prefetch_related('fitments__car_model__brand', 'omega_listing__offer__fitments')
     if viewer_is_seller:
         product_qs = b2b_prefetch(product_qs)
 
@@ -640,6 +640,8 @@ def product_detail(request, slug=None, pk=None):
     attach_b2b_offers([product], enabled=viewer_is_seller)
     attach_public_wholesale_flags([product])
     applicability = build_product_applicability(product)
+    from .product_description import readable_description
+    description_content = readable_description(product.description)
     title_vehicle_line = vehicle_line_if_not_in_title(product)
     commercial_quote = None
     if viewer_is_seller:
@@ -699,6 +701,7 @@ def product_detail(request, slug=None, pk=None):
         'seller_products': seller_products,
         'viewer_is_seller': viewer_is_seller,
         'applicability': applicability,
+        'description_content': description_content,
         'title_vehicle_line': title_vehicle_line,
         'commercial_quote': commercial_quote,
         'public_wholesale': public_wholesale,

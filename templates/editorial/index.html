@@ -6,7 +6,7 @@
 {% block content %}
 <main class="editorial-shell">
 <nav class="editorial-crumbs"><a href="/">ZPT.KZ</a> / Полезные материалы</nav>
-<header class="editorial-hero"><span class="editorial-eyebrow">Справочник покупателя</span><h1>Полезные материалы об автозапчастях</h1><p class="editorial-lead">Подбор деталей, артикулы и полезные советы, чтобы найти подходящую запчасть.</p><div class="editorial-actions"><a class="editorial-btn" href="/request-parts/">Найти запчасть</a><a class="editorial-btn editorial-btn--secondary" href="/">Смотреть каталог</a></div></header>
+<header class="editorial-hero"><span class="editorial-eyebrow">Справочник покупателя</span><h1>Полезные материалы об автозапчастях</h1><p class="editorial-lead">Помогаем выбрать запчасти из каталога AG Parts, проверить артикулы и применимость. Если нужного товара нет, можно оставить заявку на поиск продавцов.</p><div class="editorial-actions"><a class="editorial-btn" href="/">Подобрать запчасть</a><a class="editorial-btn editorial-btn--secondary" href="/find-part/?request=1">Оставить заявку</a></div></header>
 <section class="editorial-grid" aria-label="Материалы">
 {% for article in articles %}
 <article class="editorial-card"><span class="editorial-eyebrow">Подбор запчастей</span><h2><a href="{% url 'editorial_detail' article.slug %}">{{ article.title }}</a></h2><p>{{ article.meta_description }}</p>{% if article.published_at %}<span class="editorial-date">{{ article.published_at|date:"d.m.Y" }}</span>{% endif %}<a href="{% url 'editorial_detail' article.slug %}">Читать материал →</a></article>

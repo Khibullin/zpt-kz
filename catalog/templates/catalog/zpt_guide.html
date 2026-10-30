@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}ZPT Гид — частые вопросы и помощь | ZPT.KZ{% endblock %}
+{% block title %}ZPT Гид — подбор запчастей и помощь покупателю | ZPT.KZ{% endblock %}
 {% block body_attrs %} data-zpt-suppress-ios-pwa="1"{% endblock %}
 
 {% block meta_description %}ZPT Гид: частые вопросы, обратная связь и ИИ-помощник по работе сайта и каталогу запчастей.{% endblock %}
@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="{% static 'css/market-catalog.css' %}?v=market_v146">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
 <link rel="stylesheet" href="{% static 'css/platform-help.css' %}?v=5">
-<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=7">
+<link rel="stylesheet" href="{% static 'css/zpt-guide.css' %}?v=20261030a">
 {% endblock %}
 
 {% block content %}
@@ -29,6 +29,13 @@
       </button>
     </nav>
   </header>
+
+  <section class="zpt-guide__panel guide-retail-search" aria-labelledby="guide-parts-heading">
+    <h2 id="guide-parts-heading">Подобрать запчасть на сайте</h2>
+    <p>Сначала найдём товар в каталоге AG Parts. Если нужной детали нет — поможем найти продавцов по заявке.</p>
+    <form action="/" method="get"><input type="hidden" name="picker" value="1"><label for="guide-catalog-query">Артикул или название запчасти</label><input id="guide-catalog-query" name="q" type="search" maxlength="200" required placeholder="Например, фильтр масляный"><button type="submit">Найти товар</button></form>
+    <nav class="guide-retail-links"><a href="/">Подбор по автомобилю</a><a href="/find-part/?request=1">Оставить заявку</a><a href="/parts-sellers/">Магазины запчастей</a><a href="/catalog/services/">СТО и ремонт</a><a href="/auto-dismantlers/">Авторазборы</a></nav>
+  </section>
 
   <section class="zpt-guide__panel" id="spravka" data-guide-panel="faq">
     <label class="zpt-guide__search-wrap" for="zpt-guide-search">
@@ -114,7 +121,7 @@
 
   <section class="zpt-guide__panel" id="svyaz" data-guide-panel="feedback" hidden>
     <h2 class="zpt-guide__block-title">Написать специалисту</h2>
-    <p class="zpt-guide__lead">Напишите нам — специалист ответит по указанному контакту.</p>
+    <p class="zpt-guide__lead">По вопросам товара, заказа, доставки или работы сайта напишите нам — специалист ответит по указанному контакту. Для поиска сторонних продавцов используйте «Оставить заявку».</p>
     <p class="zpt-guide__feedback-success" id="zpt-guide-feedback-success" hidden role="status"></p>
     <p class="zpt-guide__feedback-error" id="zpt-guide-feedback-error" hidden role="alert"></p>
     <form
@@ -162,7 +169,7 @@
   <div class="zpt-guide-dialog__bar">
     <div>
       <h2 id="zpt-guide-assistant-title">ИИ-помощник</h2>
-      <p class="zpt-guide-dialog__lead">Помогу разобраться с сайтом и найти запчасть в каталоге</p>
+      <p class="zpt-guide-dialog__lead">Помогу найти запчасть в каталоге и оформить заявку, если товара нет</p>
     </div>
     <button type="button" class="zpt-guide-dialog__close" id="zpt-guide-assistant-close" aria-label="Закрыть">
       Закрыть
@@ -230,6 +237,6 @@
   };
 </script>
 <script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v15"></script>
-<script src="{% static 'js/platform-help-v2.js' %}?v=2"></script>
+<script src="{% static 'js/platform-help-v2.js' %}?v=20261030a"></script>
 <script src="{% static 'js/zpt-guide-v2.js' %}?v=2"></script>
 {% endblock %}

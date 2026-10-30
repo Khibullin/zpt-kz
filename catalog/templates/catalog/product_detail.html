@@ -9,6 +9,7 @@
 <link rel="stylesheet" href="{% static 'css/market-product.css' %}?v=product_share_v1">
 <link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14">
 <link rel="stylesheet" href="{% static 'css/wholesale.css' %}?v=wholesale_v6">
+<link rel="stylesheet" href="{% static 'css/product-description.css' %}?v=20261030a">
 <style>
 .b2b-seller-terms{
   margin:16px 0;
@@ -382,7 +383,7 @@
           <div class="product-request-text">Оставьте заявку — продавцы сами предложат варианты.</div>
           <a
             class="btn red product-request-btn"
-            href="/request-parts/"
+            href="/find-part/?request=1"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -488,54 +489,11 @@
 
     {% include 'catalog/includes/product_applicability.html' %}
 
-    {% if product.description %}
-      <div class="detail-section-card">
-        <h2>Описание</h2>
-        <p>{{ product.description }}</p>
-      </div>
-    {% endif %}
-
-    {% if seller_products %}
-      <div class="detail-section-card">
-
-        <h2>Другие товары продавца</h2>
-
-        <div class="products">
-
-          {% for p in seller_products %}
-            <article class="product">
-              <a
-                class="seller-related-product-link"
-                href="{{ p|public_product_url }}"
-                style="display: flex !important; flex-direction: column !important; height: auto !important; max-height: none !important; overflow: visible !important; text-decoration: none;"
-              >
-                {% if p.main_image %}
-                  <img
-                    src="{{ p.main_image.url }}"
-                    alt="{{ p.title }}"
-                    loading="lazy"
-                  >
-                {% else %}
-                  <img
-                    src="{% static 'images/product-placeholder.svg' %}"
-                    alt="{{ p.title }}"
-                    loading="lazy"
-                  >
-                {% endif %}
-
-                {% include 'catalog/includes/seller_product_card_info.html' with card_product=p %}
-              </a>
-            </article>
-          {% endfor %}
-
-        </div>
-
-      </div>
-    {% endif %}
+    {% include 'catalog/includes/product_readable_description.html' %}
 
     <div class="detail-section-card">
       <h2>Не нашли нужный вариант?</h2>
-      <p>Оставьте заявку и получите предложения от продавцов</p>
+      <p>Оставьте заявку — поможем найти продавцов нужной запчасти</p>
       <div style="
         display:flex;
         gap:14px;
@@ -544,7 +502,7 @@
       ">
 
          <a
-          href="/request-parts/"
+          href="/find-part/?request=1"
           style="
             background:#ef4438;
             color:#fff;

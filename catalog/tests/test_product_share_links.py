@@ -30,10 +30,10 @@ class ProductShareLinksTests(TestCase):
         )
         self.seller = SellerProfile.objects.create(
             user=self.user,
-            name='Share Seller',
+            name='AG Parts',
             phone='77001112233',
             city='Алматы',
-            slug='share-seller',
+            slug='ag-parts',
         )
 
     def _product(self, *, title, slug, article, seller_profile=None, seller_name=''):
@@ -73,10 +73,9 @@ class ProductShareLinksTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(canonical_path, f'/{CANONICAL_SLUG}/')
-        self.assertIn(canonical_path, share_paths(html))
+        self.assertContains(response, f'href="{canonical_path}"')
         self._assert_no_search_share_urls(html)
-        self.assertContains(response, 'data-product-share')
-        self.assertContains(response, 'aria-label="Поделиться товаром"')
+        self.assertContains(response, 'class="retail-row"')
         self.assertContains(response, 'js/product-share.js')
         self.assertContains(
             response,
@@ -104,7 +103,7 @@ class ProductShareLinksTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(public_product_url(product), f'/{REMAPPED_SLUG}/')
-        self.assertIn(f'/{REMAPPED_SLUG}/', paths)
+        self.assertContains(response, f'href="/{REMAPPED_SLUG}/"')
         self.assertNotIn(f'/{LEGACY_SLUG}/', paths)
         self._assert_no_search_share_urls(html)
 
@@ -162,8 +161,9 @@ class ProductShareLinksTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertIn(related, response.context['seller_products'])
-        self.assertContains(response, 'seller-related-product-link')
-        self.assertContains(response, f'href="/{REMAPPED_SLUG}/"')
+        self.assertNotContains(response, 'seller-related-product-link')
+        self.assertNotContains(response, 'Другие товары продавца')
+        self.assertContains(response, '/find-part/?request=1')
         self.assertNotContains(response, f'href="/{LEGACY_SLUG}/"')
         self.assertEqual(public_product_url(related), f'/{REMAPPED_SLUG}/')
 

@@ -26,16 +26,17 @@ from core.zpt_guide_faq import (
 
 class ZptGuideFaqSourceTests(TestCase):
     def test_faq_has_unique_questions_and_shared_source(self):
-        self.assertEqual(faq_item_count(), 31)
+        self.assertEqual(faq_item_count(), 41)
         questions = [item['question'] for _, item in _iter_items()]
-        self.assertEqual(len(set(questions)), 31)
+        self.assertEqual(len(set(questions)), 41)
         prompt = faq_prompt_block()
         self.assertIn('ZPT Гид', prompt)
         self.assertNotIn('GPT Guide', prompt)
         self.assertNotIn('GPT Гид', prompt)
         combined = platform_help_system_prompt()
         self.assertIn('Как оставить заявку на запчасть?', combined)
-        self.assertIn('Что входит в комплект и входит ли масло?', combined)
+        self.assertIn('Как найти запчасть в каталоге ZPT.KZ?', combined)
+        self.assertNotIn('Оптовые предложения и прайс-листы доступны', combined)
         self.assertIn(prompt, combined)
 
     def test_kit_answers_stay_in_source_but_have_no_public_topic(self):
@@ -45,14 +46,7 @@ class ZptGuideFaqSourceTests(TestCase):
         titles = [topic['title'] for topic in PUBLIC_TOPICS]
         self.assertEqual(
             titles,
-            [
-                'Поиск запчастей и заявка',
-                'Предложения продавцов',
-                'Покупка, оплата и доставка',
-                'Возврат и гарантия',
-                'Оптовые покупки',
-                'Продавцам',
-            ],
+            ['Подбор и покупка запчастей', 'Заявка и поиск продавцов', 'Магазины, СТО и авторазборы'],
         )
         all_topic_ids = {faq_id for topic in PUBLIC_TOPICS for faq_id in topic['item_ids']}
         self.assertNotIn('q14', all_topic_ids)
@@ -61,16 +55,9 @@ class ZptGuideFaqSourceTests(TestCase):
     def test_top10_uses_canonical_records(self):
         items = top10_items()
         self.assertEqual([item['id'] for item in items], list(TOP10_IDS))
-        self.assertEqual(items[0]['question'], 'Как оставить заявку на запчасть?')
-        self.assertEqual(items[1]['question'], 'Что делать, если я не знаю артикул?')
-        self.assertEqual(items[2]['question'], 'Можно ли отправить VIN или фото запчасти?')
-        self.assertEqual(items[3]['question'], 'Куда придут предложения продавцов?')
-        self.assertEqual(items[4]['question'], 'Что делать, если продавцы не ответили?')
-        self.assertEqual(items[5]['question'], 'Как уточнить наличие и цену?')
-        self.assertEqual(items[6]['question'], 'Как проверить, подойдёт ли запчасть?')
-        self.assertEqual(items[7]['question'], 'Как договориться об оплате и доставке?')
-        self.assertEqual(items[8]['question'], 'Как обратиться по возврату или гарантии?')
-        self.assertEqual(items[9]['question'], 'Как связаться со специалистом ZPT?')
+        self.assertEqual(items[0]['id'], 'retail-search')
+        self.assertEqual(items[1]['id'], 'retail-buy')
+        self.assertIn('q1', [item['id'] for item in items])
         for item in items:
             self.assertTrue(item['updated_at'])
             self.assertNotEqual(item['updated_at'].strftime('%d.%m.%Y'), '01.01.1970')
@@ -97,7 +84,7 @@ class ZptGuidePageTests(TestCase):
         self.assertContains(response, 'Топ 10 вопросов')
         self.assertContains(response, 'Поиск по вопросам')
         self.assertContains(response, 'Написать специалисту')
-        self.assertContains(response, 'Напишите нам — специалист ответит по указанному контакту.')
+        self.assertContains(response, 'специалист ответит по указанному контакту.')
         self.assertContains(response, 'Телефон / WhatsApp')
         self.assertContains(response, '+7 701 123 45 67')
         self.assertContains(response, 'aria-label="Отправить"')
@@ -120,7 +107,7 @@ class ZptGuidePageTests(TestCase):
         self.assertNotContains(response, '<p class="zpt-guide__install-wrap"')
         self.assertContains(response, 'Добавить иконку ZPT')
         self.assertContains(response, 'Как оставить заявку на запчасть?')
-        self.assertContains(response, 'Поиск запчастей и заявка')
+        self.assertContains(response, 'Подбор и покупка запчастей')
         self.assertNotContains(response, 'Чем помочь?')
         self.assertNotContains(response, 'Справка')
         self.assertNotContains(response, 'Поиск по вопросам и ответам ZPT Гида')
@@ -141,13 +128,13 @@ class ZptGuidePageTests(TestCase):
 
     def test_helper_dialog_copy_is_short(self):
         response = self.client.get(reverse('zpt_gid'))
-        self.assertContains(response, 'Помогу разобраться с сайтом и найти запчасть в каталоге')
+        self.assertContains(response, 'Помогу найти запчасть в каталоге и оформить заявку, если товара нет')
         self.assertContains(response, 'Ответ даёт ИИ и появляется в этом окне.')
         js = Path('static/js/platform-help-v2.js').read_text(encoding='utf-8')
         self.assertNotIn('Я помощник ZPT.KZ', js)
         self.assertNotIn('Задать вопрос голосом', js)
         self.assertIn('zptGuideRequestDraft', js)
-        self.assertIn('window.location.href = \'/\';', js)
+        self.assertIn('window.location.href = \'/find-part/?request=1\';', js)
         home_js = Path('static/js/home-parts-form-v5.js').read_text(encoding='utf-8')
         self.assertIn("fillIfEmpty(vinEl, draft.vin)", home_js)
         self.assertIn('fillIfEmpty', home_js)
@@ -322,7 +309,8 @@ class HomeShowcaseLimitTests(TestCase):
         user = User.objects.create_user('showcase-limit', password='secret12345')
         seller = SellerProfile.objects.create(
             user=user,
-            name='Limit Seller',
+            name='AG Parts',
+            slug='ag-parts',
             phone='77019990001',
             city='Алматы',
         )
@@ -338,20 +326,13 @@ class HomeShowcaseLimitTests(TestCase):
                 city='Алматы',
             )
 
-    def test_home_renders_eight_cards_catalog_keeps_more(self):
-        home = self.client.get(reverse('catalog_list'))
-        self.assertEqual(home.status_code, 200)
-        self.assertContains(home, 'class="products home-showcase-products"')
-        self.assertEqual(home.content.decode().count('class="product product-v2"'), 8)
-
-        listing = self.client.get(reverse('catalog_list'), {'all': '1'})
-        self.assertEqual(listing.status_code, 200)
-        self.assertNotContains(listing, 'class="products home-showcase-products"')
-        self.assertGreaterEqual(listing.content.decode().count('class="product product-v2"'), 10)
-        self.assertContains(listing, 'Популярные марки')
-        self.assertNotContains(home, 'Популярные марки')
-        self.assertNotContains(home, 'Распродажа')
-        self.assertNotContains(home, 'Автозапчасти для автомобилей в Казахстане')
+    def test_home_and_catalog_show_retail_rows(self):
+        for params in ({}, {'all': '1'}):
+            response = self.client.get(reverse('catalog_list'), params)
+            self.assertEqual(response.status_code, 200)
+            self.assertContains(response, 'class="retail-row"', count=10)
+            self.assertNotContains(response, 'class="products home-showcase-products"')
+            self.assertNotContains(response, 'Зарегистрироваться продавцом')
 
 
 class HomePwaPromptTests(TestCase):

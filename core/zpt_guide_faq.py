@@ -551,7 +551,7 @@ def topic_items(topic_id: str) -> list[dict]:
 
 
 def public_faq_items() -> list[dict]:
-    return list(FAQ_ITEMS.values())
+    return [FAQ_ITEMS[key] for key in PUBLIC_FAQ_IDS]
 
 
 def format_updated_at(value: date | None) -> str:
@@ -562,7 +562,7 @@ def format_updated_at(value: date | None) -> str:
 
 def faq_client_payload() -> list[dict]:
     payload = []
-    for item in FAQ_ITEMS.values():
+    for item in public_faq_items():
         payload.append({
             'id': item['id'],
             'question': item['question'],
@@ -584,6 +584,8 @@ def faq_prompt_block() -> str:
         '',
     ]
     for section, item in iter_faq_items():
+        if item['id'] not in PUBLIC_FAQ_IDS:
+            continue
         lines.append(f"Вопрос ({section['title']}): {item['question']}")
         lines.append(f"Ответ: {item['answer']}")
         if item['links']:
@@ -591,3 +593,34 @@ def faq_prompt_block() -> str:
             lines.append(f'Ссылки: {link_text}')
         lines.append('')
     return '\n'.join(lines).strip()
+
+
+# Retail-first knowledge, approved 30.10.2026. Legacy FAQ IDs remain available
+# for old votes and internal references, but are not promoted to shoppers.
+_RETAIL_DATE = date(2026, 10, 30)
+_RETAIL_COPY = (
+ ('retail-search', 'Как найти запчасть в каталоге ZPT.KZ?', 'Введите артикул или название в поиске на главной. Для подбора по автомобилю выберите марку и модель, затем категорию и производителя. В каталоге продаются товары продавца AG Parts, включая ассортимент поставщиков.', (('/', 'Подобрать запчасть'),)),
+ ('retail-buy', 'Как купить запчасть на сайте?', 'Откройте карточку, сверьте артикул и применимость, выберите количество и добавьте товар в корзину. При оформлении укажите контакт и доставку. Если в карточке есть кнопка покупки на Kaspi, заказ оформляется на Kaspi.', (('/cart/', 'Корзина'),)),
+ ('retail-stock', 'Что означает «У поставщика»?', 'Товар предлагается через поставщика. Это не остаток на нашем складе. Наличие, цену и срок поставки подтверждаем перед оплатой; показанное предложение не гарантирует резерв.', (('/', 'Каталог'),)),
+ ('retail-price', 'Где посмотреть цену и доступное количество?', 'Актуальное предложение показано в карточке товара. Если цена или наличие требуют уточнения, обратитесь к нам до оплаты. Неизвестное наличие не означает отсутствие детали.', (('/zpt-gid/#svyaz', 'Уточнить у специалиста'),)),
+ ('retail-missing', 'Что делать, если в каталоге нет нужной детали?', 'Нажмите «Оставить заявку». Укажите деталь, автомобиль, город и контакт. После отправки мы поможем подобрать продавцов; доступен существующий выбор продавцов и ручная связь. Отправка заявки не является покупкой и не гарантирует ответ или наличие.', (('/find-part/?request=1', 'Оставить заявку'),)),
+ ('retail-sellers', 'Где открыть каталог магазинов запчастей?', 'Откройте «Каталоги» в нижней панели и выберите «Магазины запчастей». Это справочник сторонних организаций. Покупки у стороннего магазина согласовываются с ним отдельно.', (('/parts-sellers/', 'Магазины запчастей'),)),
+ ('retail-service', 'Как найти СТО и ремонт?', 'В разделе «Каталоги» выберите «СТО и ремонт». Посмотрите специализацию и контакты организации, условия и запись уточняйте непосредственно в сервисе.', (('/catalog/services/', 'СТО и ремонт'),)),
+ ('retail-used', 'Где найти авторазборы и б/у запчасти?', 'Откройте каталог авторазборов. Состояние, комплектность и совместимость детали уточняйте у организации. Основной каталог товаров ZPT.KZ и справочник авторазборов — разные способы поиска.', (('/auto-dismantlers/', 'Авторазборы'),)),
+ ('retail-delivery', 'Как уточнить оплату и доставку заказа AG Parts?', 'Способ оплаты, стоимость и срок доставки уточняются при обработке заказа до оплаты. Не переводите деньги по непроверенным реквизитам. Для заказа на Kaspi действуют условия, показанные при оформлении на Kaspi.', (('/contacts/', 'Контакты'),)),
+ ('retail-support', 'Как обратиться по заказу, возврату или гарантии?', 'Напишите нам, укажите номер заказа, артикул и опишите вопрос. Условия рассмотрения зависят от товара и покупки. По заказу у стороннего магазина обращайтесь к фактическому продавцу.', (('/zpt-gid/#svyaz', 'Обратная связь'),)),
+)
+for key, question, answer, links in _RETAIL_COPY:
+    FAQ_ITEMS[key] = _item(key, question, answer, links=links, updated_at=_RETAIL_DATE)
+FAQ_ITEMS['q1'] = _item('q1', 'Как оставить заявку на запчасть?', 'Если нужной детали нет в нашем каталоге, нажмите «Оставить заявку». Опишите деталь и автомобиль, выберите территорию поиска и укажите контакт. Мы поможем найти подходящих продавцов. Доступны выбор продавцов и ручная связь; мгновенная рассылка или гарантированный ответ не обещаются.', links=(('/find-part/?request=1', 'Оставить заявку'),), updated_at=_RETAIL_DATE)
+for _key in ('q2', 'q3', 'q4', 'q5'):
+    FAQ_ITEMS[_key] = {**FAQ_ITEMS[_key], 'links': tuple(('/find-part/?request=1' if url == HOME_URL else url, label) for url, label in FAQ_ITEMS[_key]['links'])}
+FAQ_SECTIONS = tuple({**section, 'items': tuple(FAQ_ITEMS[item['id']] for item in section['items'])} for section in FAQ_SECTIONS)
+FAQ_SECTIONS = (*FAQ_SECTIONS, {'id': 'retail', 'title': 'Покупка запчастей на ZPT.KZ', 'items': tuple(FAQ_ITEMS[item[0]] for item in _RETAIL_COPY)})
+PUBLIC_FAQ_IDS = tuple(item[0] for item in _RETAIL_COPY) + ('q1', 'q2', 'q3', 'q4', 'q5', 'q31')
+TOP10_IDS = ('retail-search', 'retail-buy', 'retail-stock', 'retail-price', 'retail-missing', 'q1', 'retail-sellers', 'retail-service', 'retail-used', 'retail-support')
+PUBLIC_TOPICS = (
+ {'id': 'purchase', 'title': 'Подбор и покупка запчастей', 'item_ids': ('retail-search', 'retail-buy', 'retail-stock', 'retail-price', 'retail-delivery', 'retail-support')},
+ {'id': 'search', 'title': 'Заявка и поиск продавцов', 'item_ids': ('retail-missing', 'q1', 'q2', 'q3', 'q4', 'q5')},
+ {'id': 'directories', 'title': 'Магазины, СТО и авторазборы', 'item_ids': ('retail-sellers', 'retail-service', 'retail-used')},
+)

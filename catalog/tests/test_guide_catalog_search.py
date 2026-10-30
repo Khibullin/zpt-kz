@@ -5,7 +5,8 @@ from django.test import TestCase, override_settings
 from unittest.mock import patch
 
 from catalog.guide_catalog_search import STOCK_UNKNOWN_LABEL, search_public_catalog
-from catalog.models import Product, ProductWarehouseStock, Warehouse
+from django.contrib.auth.models import User
+from catalog.models import SellerProfile, Product, ProductWarehouseStock, Warehouse
 from catalog.warehouses import WAREHOUSE_CODE_PP1, WAREHOUSE_CODE_PP2
 from catalog.warehouse_stock_sync import ensure_default_warehouses
 
@@ -25,6 +26,14 @@ def _product(**kwargs):
 
 
 class GuideCatalogSearchTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.seller = SellerProfile.objects.create(user=User.objects.create(username='guide-retail'), name='AG Parts', slug='ag-parts')
+
+    def test_other_sellers_are_excluded(self):
+        _product(title='Hidden vendor part', article='OTHER', seller_name='Another seller')
+        self.assertEqual(search_public_catalog('OTHER')['results'], [])
+
     def test_exact_article_is_first_and_keeps_leading_zeros(self):
         exact = _product(
             title='Датчик с нулями',

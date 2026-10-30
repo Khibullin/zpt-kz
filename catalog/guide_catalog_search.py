@@ -11,7 +11,7 @@ import logging
 from django.conf import settings
 
 from catalog.article_utils import compact_article_expression, normalize_article
-from catalog.models import Product
+from catalog.models import Product, SellerProfile
 from catalog.templatetags.product_extras import public_product_url
 from catalog.wholesale import public_stock_status
 
@@ -23,16 +23,8 @@ SEARCH_UNAVAILABLE = 'Сейчас не удалось проверить кат
 
 
 def _public_products():
-    return Product.objects.filter(status='active').only(
-        'id',
-        'title',
-        'article',
-        'slug',
-        'price',
-        'price_on_request',
-        'stock_qty',
-        'status',
-    )
+    seller = SellerProfile.objects.filter(slug='ag-parts').first()
+    return Product.objects.filter(status='active').owned_by_seller(seller).select_related('omega_listing__offer', 'seller_profile')
 
 
 def _compact_article_expr():
