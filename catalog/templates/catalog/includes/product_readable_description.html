@@ -4,6 +4,6 @@
 {% if description_content.summary %}<div class="description-summary">{{ description_content.summary|linebreaks }}</div>{% endif %}
 {% if description_content.facts %}<h3>Характеристики поставщика</h3><dl class="description-facts">{% for fact in description_content.facts %}<dt>{{ fact.label }}</dt><dd>{% if fact.value|length > 220 %}{{ fact.value|truncatechars:160 }}<details><summary>Показать полностью</summary>{{ fact.value }}</details>{% else %}{{ fact.value }}{% endif %}</dd>{% endfor %}</dl>{% endif %}
 {% if description_content.compatibility %}<details class="description-source"><summary>Дополнительные сведения о применимости</summary><p>Сведения поставщика. Перед покупкой сверьте артикул и совместимость по VIN.</p><ul>{% for line in description_content.compatibility %}<li>{{ line }}</li>{% endfor %}</ul></details>{% endif %}
-<details class="description-source"><summary>Исходное описание поставщика</summary><div>{{ description_content.original|linebreaks }}</div></details>
+<details class="description-source"><summary>Исходное описание поставщика</summary><div data-no-translate>{{ description_content.original|linebreaks }}</div></details>
 </section>
 {% endif %}
