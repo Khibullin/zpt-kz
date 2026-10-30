@@ -3,11 +3,11 @@
   <div class="market-topbar-inner topbar-inner header-inner market-header-flex site-container">
 
     <div class="market-brand-block">
-    {% include 'includes/site_logo.html' with show_subtitle=True subtitle='Маркетплейс' %}
+    {% include 'includes/site_logo.html' with show_subtitle=True subtitle='Автозапчасти' %}
     </div>
 
     <div class="market-topbar-actions market-header-actions">
-      <a href="{% url 'ag_parts_store' %}" class="market-guide-link no-underline">Наши товары</a>
+      <a href="/" class="market-guide-link no-underline">Каталог запчастей</a>
       <a href="{% url 'zpt_gid' %}" class="market-guide-link no-underline">ZPT Гид</a>
 
       <a href="{% url 'orders:cart' %}" class="market-cart-link no-underline" title="Корзина">
@@ -18,16 +18,13 @@
         </span>
       </a>
 
-      <a href="{% url 'business_gateway' %}" class="market-mobile-business-btn no-underline" aria-label="Автобизнес: войти / начать" title="Автобизнес">
+      <a href="{% url 'interface_section' section='account' %}" class="market-mobile-business-btn no-underline" aria-label="Кабинет" title="Кабинет">
         <span class="market-mobile-business-icon" aria-hidden="true"></span>
         <span class="market-mobile-business-text">Вход</span>
       </a>
 
-      <a href="{% url 'business_gateway' %}" class="seller-cabinet-btn market-header-cabinet market-header-cabinet--desktop no-underline">
-        <svg class="seller-cabinet-icon" viewBox="0 0 24 24" aria-hidden="true" width="16" height="16">
-          <path fill="currentColor" d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-        </svg>
-        <span class="seller-cabinet-label">Автобизнесу: войти / начать</span>
+      <a href="{% url 'interface_section' section='account' %}" class="seller-cabinet-btn market-header-cabinet market-header-cabinet--desktop no-underline">
+        <span class="seller-cabinet-label">Кабинет</span>
       </a>
     </div>
 
