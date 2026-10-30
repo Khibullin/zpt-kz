@@ -1,7 +1,7 @@
 {% extends 'catalog/interface/base.html' %}{% load static product_extras humanize phone_extras interface_ui %}
 {% block title %}Купить автозапчасти AG Parts — подбор по автомобилю | ZPT.KZ{% endblock %}
 {% block meta_description %}Подбор автозапчастей по марке, модели, году и двигателю. Товары продавца AG Parts: фото, цены и наличие.{% endblock %}
-{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/storefront.css' %}?v=20261030compact">{% endblock %}
+{% block extra_css %}{{ block.super }}<link rel="stylesheet" href="{% static 'interface/storefront.css' %}?v=20261030logo">{% endblock %}
 {% block interface_content %}<div class="retail-home">
 <h1>Запчасти для вашего автомобиля</h1><p class="retail-muted">Продавец — AG Parts</p>
 <div class="retail-search-actions"><form class="retail-search" action="/" method="get"><input type="hidden" name="picker" value="1"><input name="q" value="{{ selected.q }}" placeholder="Артикул или название запчасти" aria-label="Артикул или название запчасти" maxlength="200"><button class="btn">Найти</button></form><a class="request-link" href="{% url 'interface_find_part' %}?request=1" data-ru="Оставить заявку" data-kk="Өтінім қалдыру">Оставить заявку</a></div>

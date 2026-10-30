@@ -7,7 +7,7 @@
 /* Compact storefront masthead; catalog typography and brand marks stay at their established sizes. */
 body.zpt-storefront #header{font-family:RetailOpenSans,'Open Sans',Arial,sans-serif;font-size:14px}
 body.zpt-storefront #header .topbar{height:52px;gap:24px}
-body.zpt-storefront #header .logo{font-size:34px}
+body.zpt-storefront #header .logo{font-family:'Inter',Arial,sans-serif;font-size:34px;font-weight:900;font-style:italic}
 body.zpt-storefront #header .toplinks{font-size:14px;gap:26px;margin-left:32px}
 body.zpt-storefront #header .header-tools{gap:10px}
 body.zpt-storefront #header .plain{font-size:14px;line-height:20px;min-height:40px;gap:4px}
