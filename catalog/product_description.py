@@ -13,7 +13,7 @@ def readable_description(text):
     clean = re.sub(r'[▼►▶]', '\n', clean)
     clean = _HEADERS.sub('', clean)
     summary, separator, rest = clean.partition('Характеристики поставщика:')
-    if not separator:
+    if not separator and len(clean) > 700:
         summary, separator, rest = clean.partition('Применимость')
         if separator:
             rest = 'Применимость' + rest
@@ -33,4 +33,13 @@ def readable_description(text):
     summary = summary.strip()
     if len(summary) > 700:
         summary = summary[:600].rsplit(' ', 1)[0] + '…'
-    return {'original': original, 'summary': summary, 'facts': facts, 'compatibility': compatibility}
+    from catalog.product_localization import kazakh_description_summary
+    summary_kk = kazakh_description_summary(text, summary)
+    # A few legacy descriptions concatenate headings and dimensions without spaces.
+    # Add presentation breaks only; the canonical source and lookup stay unchanged.
+    labels = ('Технические характеристики', 'Материал:', 'Геометрические размеры:',
+              'Малый внутренний диаметр', 'Большой внутренний диаметр',
+              'Высота пыльника:', 'ПрименимостьСогласно')
+    pattern = r'(?<=[^\n])(?=(?:' + '|'.join(re.escape(label) for label in labels) + r'))'
+    display = re.sub(pattern, '\n', summary).replace('ПрименимостьСогласно', 'Применимость\nСогласно')
+    return {'original': original, 'summary': summary, 'summary_display': display, 'summary_kk': summary_kk, 'facts': facts, 'compatibility': compatibility}
