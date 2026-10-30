@@ -1,5 +1,5 @@
 {% extends 'base.html' %}{% load static interface_ui %}
-{% block body_attrs %} class="zpt-interface" data-zpt-suppress-ios-pwa="1"{% endblock %}
+{% block body_attrs %} class="zpt-interface{% if interface_home %} zpt-storefront{% endif %}" data-zpt-suppress-ios-pwa="1"{% endblock %}
 {% block extra_css %}<link rel="stylesheet" href="{% static 'css/cart-buy.css' %}?v=cart_buy_v14"><link rel="stylesheet" href="{% static 'interface/home.css' %}?v=20261016a"><link rel="stylesheet" href="{% static 'interface/landing-refresh.css' %}?v=business-20261025">{% endblock %}
 {% block content %}
 {% include 'catalog/interface/header.html' %}
