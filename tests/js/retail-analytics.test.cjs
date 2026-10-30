@@ -1,0 +1,32 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('static/js/analytics-events.js','utf8');
+function setup(path='/',search='?q=77015556677'){
+ const handlers={};
+ const window={location:{pathname:path,search,origin:'https://zpt.kz'},dataLayer:[],localStorage:{getItem:()=>null,setItem:()=>{}}};
+ const document={readyState:'complete',querySelectorAll:()=>[],querySelector:s=>s==='[data-zpt-product-view]'?{dataset:{zptProductView:'1234'}}:null,getElementById:id=>id==='checkoutForm'?{}:null,addEventListener:(name,fn)=>{(handlers[name]||=[]).push(fn);}};
+ vm.runInNewContext(source,{window,document,URL,URLSearchParams,MutationObserver:class{observe(){}}});
+ return {window,emit:(name,event={})=>(handlers[name]||[]).forEach(fn=>fn(event))};
+}
+const t=setup();
+const events=name=>t.window.dataLayer.filter(item=>item.event===name);
+assert.equal(events('zpt_catalog_search').length,1);
+t.emit('zpt:products-added');assert.equal(events('zpt_catalog_search').length,1);
+t.window.location.search='?maker=EEP';t.emit('zpt:products-added');
+assert.equal(events('zpt_catalog_search').length,2);
+assert.equal(events('zpt_catalog_search')[1].search_mode,'filters');
+t.emit('zpt:cart-added',{detail:{productId:1234,quantity:2,phone:'77015556677'}});
+assert.equal(events('zpt_add_to_cart').length,1);
+t.emit('zpt:cart-added',{detail:{productId:'bad',quantity:2}});
+t.emit('zpt:cart-added',{detail:{productId:1234,quantity:-1}});
+assert.equal(events('zpt_add_to_cart').length,1);
+assert.equal(events('zpt_product_view').length,1);
+assert.equal(events('zpt_checkout_started').length,1);
+t.emit('click',{target:{closest:()=>({href:'https://kaspi.kz/shop/p/test/'})}});
+assert.equal(events('zpt_kaspi_buy_click').length,1);
+t.emit('click',{target:{closest:()=>({href:'https://evilkaspi.kz/shop/'})}});
+assert.equal(events('zpt_kaspi_buy_click').length,1);
+const serialized=JSON.stringify(t.window.dataLayer);
+for(const secret of ['77015556677','phone','customer','search_term','?q='])assert.equal(serialized.includes(secret),false);
+const success=setup('/orders/5/1111-2222/success/','');
+assert.equal(success.window.dataLayer.filter(e=>e.event==='zpt_order_created').length,1);
+console.log('Retail analytics: AJAX deduplication, confirmed cart adds, checkout, Kaspi and privacy checks passed');

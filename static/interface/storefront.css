@@ -30,3 +30,9 @@ body.zpt-storefront .vehicle-picker>.region-pills{margin:12px 0}
  body.zpt-storefront .retail-home h1{font-size:22px;line-height:28px}
  body.zpt-storefront .retail-home .retail-search-actions{gap:10px;margin:12px 0 14px}
 }
+
+/* Keep long Kazakh labels within the existing mobile layout. */
+.retail-product-title,.vehicle-name,.retail-stock{overflow-wrap:anywhere}
+.retail-description,.retail-stock,.results-heading form{min-width:0}
+.results-heading select{max-width:100%}
+@media(max-width:767px){.retail-search input{min-width:0}.mobile-nav>a,.mobile-nav .directory-menu{min-width:0}.mobile-nav>a>span{overflow-wrap:anywhere}.retail-search-actions{max-width:100%}}

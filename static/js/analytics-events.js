@@ -6,15 +6,21 @@
     window.dataLayer.push(payload);
   }
 
+  let lastSearchSignature = null;
+
   function trackCatalogSearch() {
     if (window.location.pathname !== '/' && window.location.pathname !== '/market/') return;
 
     const params = new URLSearchParams(window.location.search || '');
-    const searchKeys = ['q', 'country', 'brand', 'model', 'category', 'city', 'offer', 'all'];
+    const searchKeys = ['q', 'country', 'brand', 'model', 'category', 'city', 'offer', 'all', 'year', 'engine', 'subgroup', 'maker', 'stock'];
     const hasSearch = searchKeys.some(function (key) {
       return params.has(key) && String(params.get(key) || '').trim() !== '';
     });
     if (!hasSearch) return;
+    // The URL is used only for in-memory deduplication, never sent to analytics.
+    const signature = window.location.pathname + window.location.search;
+    if (signature === lastSearchSignature) return;
+    lastSearchSignature = signature;
 
     pushEvent({
       event: 'zpt_catalog_search',
@@ -81,6 +87,27 @@
     if (document.querySelector('[data-zpt-seller-registered]')) {
       pushEvent({event: 'zpt_seller_registered'});
     }
+    document.addEventListener('zpt:products-added', trackCatalogSearch);
+    document.addEventListener('zpt:cart-added', function (event) {
+      const detail = event.detail || {};
+      const productId = Number(detail.productId);
+      const quantity = Number(detail.quantity);
+      if (!Number.isSafeInteger(productId) || productId <= 0 || !Number.isSafeInteger(quantity) || quantity <= 0) return;
+      pushEvent({event: 'zpt_add_to_cart', product_id: productId, quantity: quantity});
+    });
+    const product = document.querySelector('[data-zpt-product-view]');
+    if (product) {
+      const productId = Number(product.dataset.zptProductView);
+      if (Number.isSafeInteger(productId) && productId > 0) pushEvent({event: 'zpt_product_view', product_id: productId});
+    }
+    if (document.getElementById('checkoutForm')) pushEvent({event: 'zpt_checkout_started'});
+    document.addEventListener('click', function (event) {
+      const link = event.target.closest('a.product-buy-btn');
+      if (!link) return;
+      let url;
+      try { url = new URL(link.href, window.location.origin); } catch (_) { return; }
+      if (url.hostname === 'kaspi.kz' || url.hostname.endsWith('.kaspi.kz')) pushEvent({event:'zpt_kaspi_buy_click'});
+    });
     trackCatalogSearch();
     trackBuyerRequestSuccess();
     trackOrderCreated();

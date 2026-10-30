@@ -283,6 +283,7 @@
               );
             }
             notifyCartState(data);
+            document.dispatchEvent(new CustomEvent('zpt:cart-added', {detail: {productId: data.product_id || productId, quantity: quantity}}));
             if (hasWholesaleCartBar()) {
               fetchCartState().catch(function () {
                 /* ignore */

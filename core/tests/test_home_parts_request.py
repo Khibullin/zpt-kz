@@ -267,7 +267,8 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(req.category, 'Тормоза')
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
         queued_ids = set(req.dispatches.values_list('seller_id', flat=True))
-        self.assertEqual(queued_ids, {self.live_car.id})
+        self.assertEqual(queued_ids, set())
+        self.assertEqual(Request.objects.count(), 1)  # Saved for manual clarification, not a broad dispatch.
 
     def test_name_without_vehicle_rejected(self):
         response, _, _ = self._post(
@@ -757,7 +758,10 @@ class HomePartsRequestTests(TestCase):
         self.assertEqual(req.dispatch_mode, Request.DISPATCH_MODE_MATCHED)
 
     def test_legacy_catalog_query_still_lists_products(self):
+        self.profile.slug = 'ag-parts'
+        self.profile.save(update_fields=['slug'])
         Product.objects.create(
+            seller_profile=self.profile,
             title='Фара Camry',
             slug='headlight-legacy',
             article='LMP-1',
@@ -769,7 +773,8 @@ class HomePartsRequestTests(TestCase):
         response = self.client.get('/', {'q': 'Фара Camry'})
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Фара Camry')
-        self.assertContains(response, 'Запчасти в наличии')
+        self.assertContains(response, 'headlight-legacy/')
+        self.assertContains(response, 'Подбор по автомобилю')
 
     def test_request_parts_page_still_works(self):
         response = self.client.get('/request-parts/')
@@ -1302,7 +1307,7 @@ class HomeShortMatchedSellerTests(TestCase):
         )
         send.assert_not_called()
 
-    def test_brand_fallback_when_exact_model_seller_is_absent(self):
+    def test_wrong_model_is_not_fallback_when_exact_model_seller_is_absent(self):
         self.exact.is_active = False
         self.exact.save(update_fields=['is_active'])
         self.all_spec.is_active = False
@@ -1311,7 +1316,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.other_city.save(update_fields=['is_active'])
         response = self._post(idempotency_key='key-fallback')
         self.assertEqual(response.status_code, 200, response.content)
-        self.assertEqual(self._seller_ids(), {self.brand_level.id})
+        self.assertEqual(self._seller_ids(), set())
 
     def test_article_only_keeps_transport_and_category_limits(self):
         body = _seller(
@@ -1359,7 +1364,7 @@ class HomeShortMatchedSellerTests(TestCase):
         self.assertEqual(req.model, '')
         self.assertEqual(req.transport_type, 'car')
         self.assertEqual(req.category, 'Кузов')
-        self.assertEqual(self._seller_ids(), {body.id, body_other_city.id})
+        self.assertEqual(self._seller_ids(), set())  # Unknown vehicle requires manual clarification.
         self.assertNotIn(truck_body.id, self._seller_ids())
         self.assertNotIn(self.exact.id, self._seller_ids())
 
@@ -1371,6 +1376,7 @@ class HomeShortMatchedSellerTests(TestCase):
             city='Алматы',
             transport_type='car',
             category='Трансмиссия',
+            brand='Mercedes-Benz', model='123',
             all_brands=True,
             all_models=True,
             all_countries=True,
@@ -1381,6 +1387,7 @@ class HomeShortMatchedSellerTests(TestCase):
             city='Астана',
             transport_type='car',
             category='Трансмиссия',
+            brand='Mercedes-Benz', model='123',
             all_brands=True,
             all_models=True,
             all_countries=True,

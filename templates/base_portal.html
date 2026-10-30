@@ -62,12 +62,12 @@
   <script src="{% static 'js/dom-safe.js' %}"></script>
   <script src="{% static 'js/portal-config.js' %}"></script>
   {% block portal_js %}{% endblock %}
-  {% block analytics_events %}<script src="{% static 'js/analytics-events.js' %}?v=business-20261025"></script>{% endblock %}
+  {% block analytics_events %}<script src="{% static 'js/analytics-events.js' %}?v=20261030retail"></script>{% endblock %}
   <script>
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
   }
   </script>
-<script src="{% static 'interface/navigation.js' %}?v=20261030kz3" defer></script>
+<script src="{% static 'interface/navigation.js' %}?v=20261030retailhalf" defer></script>
 </body>
 </html>

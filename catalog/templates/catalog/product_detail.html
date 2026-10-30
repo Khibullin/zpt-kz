@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static humanize phone_extras product_extras seller_extras kaspi_buy %}
+{% load static humanize phone_extras product_extras seller_extras kaspi_buy l10n %}
 
 {% block title %}
 Купить {{ product|public_product_seo_name }}{% if title_vehicle_line %} {{ title_vehicle_line }}{% endif %} в Казахстане — цена и наличие | ZPT.KZ
@@ -127,7 +127,7 @@
 {% csrf_token %}
 {% include 'includes/site_header_with_cart.html' with show_cart=True %}
 
-<section class="section">
+<section class="section" data-zpt-product-view="{{ product.id|unlocalize }}">
   <div class="container">
 <div class="breadcrumbs">
 
@@ -487,6 +487,7 @@
       </div>
     </div>
 
+    {% include 'catalog/includes/purchase_terms.html' %}
     {% include 'catalog/includes/product_applicability.html' %}
 
     {% include 'catalog/includes/product_readable_description.html' %}
@@ -530,7 +531,7 @@
     countUrl: '{% url "orders:cart_count" %}',
   };
 </script>
-<script src="{% static 'js/cart-buy.js' %}?v=cart_buy_v15"></script>
+<script src="{% static 'js/cart-buy.js' %}?v=20261030retail"></script>
 <script src="{% static 'js/catalog-b2b.js' %}?v=catalog_b2b_v1"></script>
 <script>
 function changeImage(el) {

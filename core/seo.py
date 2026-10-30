@@ -4,6 +4,7 @@ from django.conf import settings
 
 
 CATALOG_FILTER_QUERY_KEYS = frozenset({
+    'year', 'engine', 'subgroup', 'maker', 'stock', 'picker',
     'q',
     'country',
     'brand',
