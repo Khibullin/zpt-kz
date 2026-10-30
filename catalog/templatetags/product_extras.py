@@ -274,3 +274,21 @@ def kit_json_ld(kit, view=None):
 def seller_whatsapp_url(seller, text=None):
     from core.phone_utils import seller_whatsapp_url as build_url
     return build_url(seller, text)
+
+
+@register.filter
+def kazakh_product_seo_name(product):
+    """Translate an exact catalogue title and preserve the article once."""
+    from catalog.product_localization import kazakh_product_title
+    from catalog.product_display import public_product_title
+
+    original = public_product_title(product)
+    title = kazakh_product_title(public_card_title(product))
+    if not title:
+        title = kazakh_product_title(original)
+    if not title:
+        return public_product_seo_name(product)
+    article = re.sub(r'\s+', ' ', str(getattr(product, 'article', '') or '')).strip()
+    if article and not re.search(r'(?<![\w])' + re.escape(article) + r'(?![\w])', title, flags=re.I):
+        title = f'{title} {article}'
+    return title

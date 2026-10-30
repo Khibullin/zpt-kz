@@ -15,7 +15,7 @@ const accessible={closest:()=>false,hasAttribute:key=>key in attrs,getAttribute:
 const input = {placeholder:'Артикул или название запчасти',dataset:{}};
 const document = {documentElement:{},querySelectorAll:()=>[]};
 const root = {querySelectorAll:selector=>selector==='input[placeholder],textarea[placeholder]'?[input]:selector.startsWith('label,')?[el(node),el(technical),el(original),deliveryOption]:selector==='[aria-label],img[alt]'?[accessible]:[]};
-const context=vm.createContext({document,lang:'kk',translations:dictionary,originals:new WeakMap(),attributeOriginals:new WeakMap()});
+const context=vm.createContext({window:{},document,lang:'kk',translations:dictionary,originals:new WeakMap(),attributeOriginals:new WeakMap()});
 vm.runInContext(functionSource,context);context.translate(root);
 assert.equal(node.textContent,'  Автомобиль бойынша таңдау  ');
 assert.equal(technical.textContent,'Audi 100 C4 4A0959455C');

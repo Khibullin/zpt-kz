@@ -191,7 +191,7 @@
         </div>
 
 <div class="product-detail-title-row">
-  <h1 class="product-detail-title">
+  <h1 class="product-detail-title" data-ru="{{ product|public_product_seo_name }}" data-kk="{{ product|kazakh_product_seo_name }}">
     {{ product|public_product_seo_name }}
   </h1>
   {% include 'catalog/includes/product_share_button.html' with product=product detail=True %}

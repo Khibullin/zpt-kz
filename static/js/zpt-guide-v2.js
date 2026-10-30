@@ -228,7 +228,10 @@
       return;
     }
     var ids = items.filter(function (item) {
-      return normalize(item.question + ' ' + item.answer).indexOf(needle) !== -1;
+      var original = item.question + ' ' + item.answer;
+      var i18n = window.ZPTI18n;
+      var kazakh = i18n ? i18n.translateText(item.question) + ' ' + i18n.translateText(item.answer) : '';
+      return normalize(original + ' ' + kazakh).indexOf(needle) !== -1;
     }).map(function (item) { return item.id; });
     showResults('Результаты поиска', ids, false);
   }
