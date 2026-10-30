@@ -1,0 +1,3 @@
+document.querySelectorAll('[data-filter-search]').forEach(input=>input.addEventListener('input',()=>{const q=input.value.toLocaleLowerCase();input.nextElementSibling.querySelectorAll('.filter-option').forEach(option=>option.hidden=!option.textContent.toLocaleLowerCase().includes(q));}));
+document.querySelectorAll('[data-expand]').forEach(button=>button.addEventListener('click',()=>{button.previousElementSibling.querySelectorAll('[hidden]').forEach(card=>card.hidden=false);button.hidden=true;}));
+const retailFilters=document.querySelector('.retail-filters');if(retailFilters&&matchMedia('(max-width:767px)').matches)retailFilters.open=false;

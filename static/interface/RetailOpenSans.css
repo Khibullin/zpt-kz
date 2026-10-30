@@ -1,0 +1,16 @@
+@font-face {
+  font-family: RetailOpenSans;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(../fonts/storefront-RetailOpenSans-0.ttf) format('truetype');
+}
+@font-face {
+  font-family: RetailOpenSans;
+  font-style: normal;
+  font-weight: 600;
+  font-stretch: normal;
+  font-display: swap;
+  src: url(../fonts/storefront-RetailOpenSans-1.ttf) format('truetype');
+}

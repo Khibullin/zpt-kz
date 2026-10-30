@@ -411,6 +411,9 @@ def _load_home_request_result(token: str):
 
 @ensure_csrf_cookie
 def catalog_list(request):
+    if request.method == 'GET' and request.resolver_match.url_name != 'interface_find_part' and not request.GET.get('home_request') and not request.GET.get('request'):
+        from .storefront import storefront
+        return storefront(request)
     query = request.GET.get('q', '').strip()
     country_id = request.GET.get('country', '').strip()
     brand_id = request.GET.get('brand', '').strip()
