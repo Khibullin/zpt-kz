@@ -21,7 +21,7 @@ LOGOS = {name:f'interface/brands/{slug}.webp' for name,slug in [('toyota','toyot
 def retail_products():
     seller = SellerProfile.objects.filter(slug='ag-parts').first()
     return Product.objects.filter(status='active').owned_by_seller(seller).annotate(
-        retail_maker=Case(When(omega_listing__offer__brand__gt='',then=F('omega_listing__offer__brand')),default=Value('AG Parts'),output_field=CharField()),
+        retail_maker=Case(When(omega_listing__offer__brand__gt='',then=F('omega_listing__offer__brand')),When(title__icontains='AG Parts',then=Value('AG Parts')),default=Value('Не указан'),output_field=CharField()),
         retail_subgroup=Case(
             When(title__iregex=r'фильтр.*масл|маслян.*фильтр',then=Value('Фильтры масляные')),
             When(title__iregex=r'фильтр.*возд|воздуш.*фильтр',then=Value('Фильтры воздушные')),
@@ -121,6 +121,9 @@ def storefront(request):
             for row in scope.order_by().values_list(*fields).distinct():
                 if row[1]:
                     value=str(row[1]);values[value].add(row[0]);labels[value]=row[2] if key=='category' else value
+        if key=='brand':
+            automotive={str(pk) for pk in Brand.objects.filter(models__isnull=False).values_list('pk',flat=True).distinct()}
+            values={v:ids for v,ids in values.items() if v in automotive}
         if key=='brand' and selected['country'].isdecimal():
             allowed={str(pk) for pk in Brand.objects.filter(country_id=selected['country']).values_list('pk',flat=True)}
             values={v:ids for v,ids in values.items() if v in allowed}
