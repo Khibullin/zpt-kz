@@ -63,21 +63,8 @@ def interface_section(request, section):
 
 
 def consumables_landing(request):
-    """Read-only selection of live consumables; checkout stays in the existing cards."""
-    from django.db.models import Q
-    from .models import Product
-    from .views import attach_sellers_to_products
-    from .wholesale import attach_public_wholesale_flags, public_wholesale_prefetch
-
-    # Unicode-insensitive Russian matches on both PostgreSQL and SQLite.
-    # SQLite's LIKE/LOWER do not fold Cyrillic case, unlike the regex operator.
-    products = Product.objects.filter(status='active').filter(
-        Q(title__iregex=r'фильтр|свеч|комплект.{0,20}то') |
-        Q(category__name__iregex=r'фильтр|свеч')
-    ).select_related('seller_profile', 'category', 'brand', 'car_model').order_by('-pk')
-    products = attach_sellers_to_products(public_wholesale_prefetch(products)[:8])
-    attach_public_wholesale_flags(products)
-    return render(request, 'catalog/interface/consumables.html', {'products': products})
+    from django.shortcuts import redirect
+    return redirect('/', permanent=True)
 
 
 def services_landing(request):
