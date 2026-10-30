@@ -1,0 +1,12 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const source=fs.readFileSync('static/interface/navigation.js','utf8');
+let listeners=0,observers=0;
+const root={querySelectorAll:()=>[]};
+const document={body:root,documentElement:{},querySelector:()=>null,querySelectorAll:()=>[],addEventListener:()=>{listeners++;}};
+const window={addEventListener:()=>{listeners++;}};
+const context=vm.createContext({document,window,localStorage:{getItem:()=>null},WeakMap,MutationObserver:class{constructor(){observers++;}observe(){}},queueMicrotask:()=>{}});
+vm.runInContext(source,context);const initial=listeners;
+assert.equal(observers,1);
+vm.runInContext(source,context);
+assert.equal(listeners,initial);assert.equal(observers,1);
+console.log('Navigation loads once even when both base layout and directory include it');
