@@ -46,3 +46,9 @@ class StorefrontTests(TestCase):
         r=self.client.get('/',{'brand':self.brand.pk,'sort':'price'})
         self.assertEqual(r.context['products'][0].price,100)
         self.assertIn('brand=',r.context['next_url']);self.assertIn('sort=price',r.context['next_url'])
+
+    def test_picker_brand_link_stays_in_storefront(self):
+        r=self.client.get('/',{'brand':self.brand.pk,'picker':'1'})
+        self.assertEqual(r.status_code,200)
+        self.assertTemplateUsed(r,'catalog/interface/storefront.html')
+        self.assertContains(r,'picker=1')

@@ -87,7 +87,7 @@ def storefront(request):
     base=retail_products()
     selected={key:request.GET.get(key,'').strip()[:200] for key in KEYS}
     def url(**changes):
-        return '/?'+urlencode({k:v for k,v in {**selected,**changes}.items() if v!=''})
+        return '/?'+urlencode({**{k:v for k,v in {**selected,**changes}.items() if v!=''}, 'picker':'1'})
     def facet(key):
         if key=='model' and not selected['brand']:
             return []
