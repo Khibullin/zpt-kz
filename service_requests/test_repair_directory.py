@@ -5,6 +5,44 @@ class RepairDirectoryTests(TestCase):
     def make(self,name,phone,**kw):
         return ServiceSeller.objects.create(name=name,whatsapp=phone,city='Алматы',seller_type='sto',**kw)
 
+    def test_main_url_uses_approved_compact_directory(self):
+        self.make('Проверенная СТО', '77000000001')
+        page = self.client.get('/catalog/services/')
+        self.assertTemplateUsed(page, 'catalog/interface/services/repair_catalog.html')
+        self.assertContains(page, 'directory-card')
+        self.assertContains(page, 'Фильтры')
+        self.assertNotContains(page, 'Выберите направление')
+        self.assertNotContains(page, 'Иллюстрация')
+        self.assertNotContains(page, 'Найдите сервис для вашего автомобиля')
+
+    def test_vehicle_filters_use_known_evidence_and_do_not_write(self):
+        known = self.make('Мастерская', '77000000002', directory_transport='Легковые автомобили', directory_brands='Toyota, Lexus', catalog_only=True, receive_requests=False)
+        self.make('Неизвестная специализация', '77000000003')
+        truck = self.make('Грузовая мастерская', '77000000004')
+        truck.services.add(Service.objects.create(name='Грузовой автосервис'))
+        for params, wanted in [({'transport_type':'car', 'brand':'Toyota'}, known), ({'transport_type':'truck'}, truck)]:
+            page = self.client.get('/catalog/services/', params)
+            self.assertEqual([c['seller'].pk for c in page.context['sellers']], [wanted.pk])
+        page = self.client.get('/catalog/services/', {'brand':'Toyota', 'model':'Camry'})
+        self.assertEqual(page.context['page_obj'].paginator.count, 0)
+        known.refresh_from_db()
+        self.assertFalse(known.receive_requests)
+        self.assertIsNone(known.request_filters)
+
+    def test_confirmed_models_are_filtered_and_pagination_keeps_selection(self):
+        snapshot = {'transport_types':['car'], 'all_brands':False, 'all_categories':True, 'categories':[], 'service_type':'sto',
+                    'brands':[{'id':1,'name':'Toyota','transport_type':'car','all_models':False,'models':[{'id':1,'name':'Camry'}]}]}
+        for i in range(21):
+            self.make(f'Автосервис {i:02}', f'77080000{i:03}', request_filters=snapshot)
+        params = {'transport_type':'car','brand':'Toyota','model':'Camry'}
+        page = self.client.get('/catalog/services/', params)
+        self.assertEqual(page.context['page_obj'].paginator.count, 21)
+        self.assertContains(page, 'brand=Toyota')
+        self.assertContains(page, 'model=Camry')
+        self.assertContains(page, 'page=2')
+        self.assertEqual(page.context['model_options'], ['Camry'])
+        self.assertEqual(self.client.get('/catalog/services/', {**params,'model':'Corolla'}).context['page_obj'].paginator.count, 0)
+
     def test_scope_and_unavailable_records(self):
         good=self.make('Ремонт','87012223344',catalog_notes='PRIVATE NOTE')
         for i,flags in enumerate([{'is_active':False},{'is_paused':True},{'is_test_seller':True}]):

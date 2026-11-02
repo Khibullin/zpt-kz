@@ -1,4 +1,5 @@
 """Presentation for the approved repair directory. No request dispatch writes."""
+import re
 from django.core.paginator import Paginator
 from django.http import Http404
 from django.shortcuts import render
@@ -8,6 +9,40 @@ from core.services.seller_card_links import clean_http_url
 from core.services.seller_card_display import format_phone
 from core.templatetags.dismantler_detail import clean_value
 from .models import ServiceSeller
+
+
+def vehicle_facets(card):
+    seller = card['seller']
+    confirmed = seller.request_filters
+    if isinstance(confirmed, dict):
+        return {
+            'transports': set(confirmed.get('transport_types', [])),
+            'all_brands': bool(confirmed.get('all_brands')),
+            'brands': confirmed.get('brands', []),
+        }
+    text = ' '.join([seller.directory_transport, *card['services']]).casefold()
+    transports = {key for key, word in [('car', 'легков'), ('truck', 'грузов')] if word in text}
+    brands = [{'name': name.strip(), 'all_models': False, 'models': []}
+              for name in re.split(r'[,;|]', seller.directory_brands)
+              if clean_value(name.strip()) and name.strip().casefold() not in ('все', 'все марки')]
+    return {'transports': transports, 'all_brands': False, 'brands': brands}
+
+
+def matches_vehicle(facets, transport, brand, model):
+    if transport and transport not in facets['transports']:
+        return False
+    if not brand and not model:
+        return True
+    if facets['all_brands']:
+        return True
+    for item in facets['brands']:
+        if transport and item.get('transport_type') and item['transport_type'] != transport:
+            continue
+        if brand and item.get('name', '').casefold() != brand.casefold():
+            continue
+        if not model or (brand and item.get('all_models')) or any(m.get('name', '').casefold() == model.casefold() for m in item.get('models', [])):
+            return True
+    return False
 
 
 def service_card(seller):
@@ -50,6 +85,15 @@ def repair_directory(request, kind="sto"):
     service = request.GET.get('service', '').strip()
     district = request.GET.get('district', '').strip()[:100]
     category = request.GET.get('category', '').strip()
+    transport = request.GET.get('transport_type', '').strip()[:20]
+    brand = request.GET.get('brand', '').strip()[:100]
+    model = request.GET.get('model', '').strip()[:100]
+    for card in cards:
+        card['vehicle_facets'] = vehicle_facets(card)
+    brands = sorted({b['name'] for c in cards for b in c['vehicle_facets']['brands'] if b.get('name')})
+    models = sorted({m['name'] for c in cards for b in c['vehicle_facets']['brands']
+                     if not brand or b.get('name', '').casefold() == brand.casefold()
+                     for m in b.get('models', []) if m.get('name')})
     selected = next((item for item in categories if item[0] == category), None)
     results = []
     for card in cards:
@@ -60,13 +104,16 @@ def repair_directory(request, kind="sto"):
         if service and service not in card['services']: continue
         if district and district.casefold() not in seller.district.casefold(): continue
         if selected and not any(word in text for word in selected[2]): continue
+        if not matches_vehicle(card['vehicle_facets'], transport, brand, model): continue
         results.append(card)
     page = Paginator(results, 20).get_page(request.GET.get('page', 1))
     return render(request, 'catalog/interface/services/repair_catalog.html', {
         'sellers': page, 'page_obj': page, 'cities': cities, 'service_options': services,
+        'brand_options': brands, 'model_options': models,
         **presentation, 'categories': categories, 'section_title': presentation['directory_title'], 'hide_product_search': True,
-        'filters': {'q': q, 'city': raw_city, 'service': service, 'district': district, 'category': category},
-        'has_directory_filters': any((q, raw_city, service, district, category)),
+        'filters': {'q': q, 'city': raw_city, 'service': service, 'district': district, 'category': category,
+                    'transport_type': transport, 'brand': brand, 'model': model},
+        'has_directory_filters': any((q, raw_city, service, district, category, transport, brand, model)),
     })
 
 
