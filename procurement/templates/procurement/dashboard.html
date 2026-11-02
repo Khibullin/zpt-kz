@@ -33,7 +33,7 @@
 {% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
 </div>
 <details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
-<p class="muted">{% if selected_supplier %}Категории и проверенная применимость поставщика «{{ selected_supplier.name }}».{% else %}Категории загруженных поставщиков.{% endif %} Марки и модели доступны по проверенной применимости; незаполненные сведения не угадываются по названию детали.</p>
+<p class="muted">{% if selected_supplier %}Категории и проверенная применимость поставщика «{{ selected_supplier.name }}».{% else %}Категории загруженных поставщиков.{% endif %} Страна определяется по марке автомобиля в справочнике. Марки и модели доступны по проверенной применимости; незаполненные сведения не угадываются по названию детали.</p>
 <div class="actions" style="margin:12px 0 18px"><button>Применить фильтры</button>
 <a class="button" href="{{ reset_url }}">Сбросить фильтры</a>
 </div>
@@ -131,6 +131,9 @@ document.getElementById('id_supplier').addEventListener('change',event=>{
 const form=event.target.form;
 form.querySelectorAll('input,select').forEach(field=>{if(field.name!=='supplier'&&field.name!=='mode'){if(field.type==='checkbox')field.checked=false;else field.value='';}});
 form.requestSubmit();
+});
+document.getElementById('id_vehicle_country').addEventListener('change',event=>{
+makeSelect.value='';modelSelect.value='';event.target.form.requestSubmit();
 });
 const modelOptions=JSON.parse(document.getElementById("vehicle-model-options").textContent);
 makeSelect.addEventListener("change",()=>{modelSelect.replaceChildren(new Option(makeSelect.value?"Все модели":"Сначала выберите марку",""));(modelOptions[makeSelect.value]||[]).forEach(model=>modelSelect.add(new Option(model,model)));});

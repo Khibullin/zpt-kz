@@ -1,0 +1,26 @@
+name: Procurement filters
+on:
+  push:
+    branches: ['codex/procurement-country-filter']
+  pull_request:
+    paths: ['procurement/**', '.github/workflows/procurement-filters.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SECRET_KEY: ci-only-procurement-filter
+      DEBUG: 'True'
+      DATABASE_URL: sqlite:////tmp/procurement-filter-ci.sqlite3
+      REQUEST_OWNER_EMAIL_ENABLED: 'False'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - run: pip install -r requirements.txt
+      - run: python manage.py check
+      - run: python manage.py test procurement --settings=backend.settings_ui_ci --noinput

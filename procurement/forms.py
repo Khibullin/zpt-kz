@@ -3,6 +3,8 @@ from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
 from .categories import OMEGA_CATEGORIES
+from core.models import Country
+from .vehicle_countries import country_makes
 
 
 class SelectionFilterForm(forms.Form):
@@ -10,6 +12,7 @@ class SelectionFilterForm(forms.Form):
                         widget=forms.TextInput(attrs={'type': 'search', 'placeholder': 'Название, бренд, артикул или применимость'}))
     supplier = forms.ModelChoiceField(label='Поставщик', required=False, queryset=Supplier.objects.none(), empty_label='Все поставщики')
     category = forms.ChoiceField(label='Категория', required=False)
+    vehicle_country = forms.ModelChoiceField(label='Страна автомобиля', required=False, queryset=Country.objects.none(), empty_label='Все страны')
     vehicle_make = forms.ChoiceField(label='Марка автомобиля', required=False)
     vehicle_model = forms.ChoiceField(label='Модель автомобиля', required=False)
     fitment = forms.ChoiceField(label='Применимость', required=False, choices=[('', 'Любая применимость'), ('verified', 'Есть проверенная применимость'), ('unknown', 'Применимость не проверена')])
@@ -37,6 +40,10 @@ class SelectionFilterForm(forms.Form):
         fitments = VehicleFitment.objects.filter(verified=True)
         if str(selected_supplier).isdigit():
             fitments = fitments.filter(offer__supplier_id=selected_supplier)
+        self.fields['vehicle_country'].queryset = Country.objects.order_by('name')
+        selected_country = self.data.get('vehicle_country', '') if self.is_bound else ''
+        if str(selected_country).isdigit():
+            fitments = fitments.filter(make__in=country_makes(selected_country))
         makes = list(fitments.order_by('make').values_list('make', flat=True).distinct())
         self.fields['vehicle_make'].choices = [('', 'Все марки' if makes else 'Нет проверенных данных о марках')] + [(x, x) for x in makes]
         selected_make = self.data.get('vehicle_make', '') if self.is_bound else ''
