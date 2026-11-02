@@ -3,7 +3,7 @@ import io
 import json
 import re
 import zipfile
-from collections import Counter
+from collections import Counter, defaultdict
 from urllib.parse import urlsplit
 
 from openpyxl import load_workbook
@@ -123,9 +123,24 @@ def apply_rows(rows, user, dry_run=True):
                 cursor.execute('SELECT pg_advisory_xact_lock(%s)', [2026110201])
         existing = list(ServiceSeller.objects.select_for_update().all())
         occupied = {p for s in existing for p in phones(s.whatsapp)}
+        by_source, by_address = defaultdict(list), defaultdict(list)
+        def index_seller(seller):
+            source = re.search(r'/firm/(\d+)(?:[/?#]|$)', seller.map_link or '')
+            if source:
+                by_source[source[1]].append(seller)
+            else:
+                for source_id in re.findall(re.escape(MARKER) + r' (\d+)\n', seller.catalog_notes):
+                    by_source[source_id].append(seller)
+                if norm(seller.name) not in ('сто', 'cto'):
+                    by_address[(norm(seller.name), norm(seller.city), norm(seller.address))].append(seller)
+        for seller in existing:
+            index_seller(seller)
         for row in rows:
-            exact = [s for s in existing if re.search(r'/firm/' + row['id'] + r'(?:[/?#]|$)', s.map_link or '') or MARKER + ' ' + row['id'] + '\n' in s.catalog_notes]
-            address = [s for s in existing if norm(s.name) == norm(row['name']) and norm(s.city) == norm(row['city']) and norm(s.address) == norm(row['address'])]
+            exact = by_source[row['id']]
+            address = by_address[(norm(row['name']), norm(row['city']), norm(row['address']))]
+            # Distinct source IDs are distinct records even for anonymous STOs
+            # sharing a yard. Never use address similarity to override source ID.
+            address = [s for s in address if not re.search(r'/firm/\d+', s.map_link or '') and norm(s.name) not in ('сто', 'cto')]
             matches = exact or address
             if len(matches) > 1:
                 results.append({'id': row['id'], 'name': row['name'], 'status': 'ambiguous'})
@@ -162,8 +177,38 @@ def apply_rows(rows, user, dry_run=True):
                 if new or changed:
                     from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
                     LogEntry.objects.log_actions(user_id=user.pk, queryset=ServiceSeller.objects.filter(pk=seller.pk), action_flag=ADDITION if new else CHANGE, change_message=MARKER)
-            if new: existing.append(seller)
+            if new: index_seller(seller)
             results.append({'id': row['id'], 'name': row['name'], 'city': row['city'],
                             'status': 'created' if new else 'updated' if changed else 'unchanged',
                             'pk': seller.pk})
     return results
+
+
+def repair_import_aliases(rows, user):
+    """Undo only this import's accidental address aliases; preserve original rows."""
+    from django.db import transaction
+    from django.contrib.admin.models import LogEntry, CHANGE
+    from service_requests.models import ServiceSeller
+    by_id = {r['id']: r for r in rows}
+    repaired = 0
+    with transaction.atomic():
+        for seller in ServiceSeller.objects.select_for_update().filter(catalog_only=True, user__isnull=True, receive_requests=False, is_active=True, is_paused=False, is_test_seller=False, catalog_notes__startswith=MARKER):
+            ids = re.findall(re.escape(MARKER) + r' (\d+)\n', seller.catalog_notes)
+            if len(ids) < 2:
+                continue
+            original = by_id.get(ids[0])
+            if not original or seller.map_link != original['map_link'] or seller.whatsapp not in original['phones']:
+                continue
+            if (seller.name, seller.city, seller.address, seller.description) != (original['name'], original['city'], original['address'], original['description']):
+                continue
+            # Only empty original links could have been filled by an alias.
+            fields = ['catalog_notes']
+            seller.catalog_notes = original['notes']
+            for field in ('website', 'instagram'):
+                aliases = [by_id[i] for i in ids[1:] if i in by_id]
+                if not original[field] and any(getattr(seller, field) == alias[field] for alias in aliases):
+                    setattr(seller, field, ''); fields.append(field)
+            seller.save(update_fields=fields)
+            LogEntry.objects.log_actions(user_id=user.pk, queryset=ServiceSeller.objects.filter(pk=seller.pk), action_flag=CHANGE, change_message=MARKER + ' исправлено совпадение адресов разных ID')
+            repaired += 1
+    return repaired

@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from service_requests.models import ServiceSeller
-from service_requests.sto_import import apply_rows, MARKER
+from service_requests.sto_import import apply_rows, repair_import_aliases, MARKER
 from django.urls import reverse
 
 
@@ -43,6 +43,22 @@ class StoImportTests(TestCase):
         self.assertEqual(seller.whatsapp, '77098765432')
         self.assertTrue(seller.receive_requests)
         self.assertEqual(seller.request_filters, {'confirmed': True})
+
+    def test_distinct_source_ids_same_address_stay_separate(self):
+        apply_rows([self.row], self.user, dry_run=False)
+        other = {**self.row, 'id': '70000001123456788', 'phones': ['77012345679'],
+                 'map_link': 'https://2gis.ru/firm/70000001123456788', 'notes': MARKER + ' 70000001123456788\nother'}
+        self.assertEqual(apply_rows([other], self.user, dry_run=False)[0]['status'], 'created')
+        self.assertEqual(ServiceSeller.objects.count(), 2)
+
+    def test_alias_repair_is_scoped_to_unconnected_import(self):
+        apply_rows([self.row], self.user, dry_run=False)
+        seller = ServiceSeller.objects.get()
+        seller.catalog_notes += '\n' + MARKER + ' 70000001123456788\nother'
+        seller.save()
+        self.assertEqual(repair_import_aliases([self.row], self.user), 1)
+        seller.refresh_from_db()
+        self.assertEqual(seller.catalog_notes, self.row['notes'])
 
     def test_connected_account_is_protected(self):
         apply_rows([self.row], self.user, dry_run=False)

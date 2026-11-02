@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.http import require_http_methods
 from control_panel.auth import control_staff_required
 from control_panel.views import _base_context
-from service_requests.sto_import import read_archive, apply_rows
+from service_requests.sto_import import read_archive, apply_rows, repair_import_aliases
 
 
 @control_staff_required
@@ -32,6 +32,8 @@ def sto_import(request):
             preview_key = f'{digest}:{start}:{limit}'
             if apply and request.session.get('sto_import_preview') != preview_key:
                 raise ValueError('Сначала выполните предпросмотр этой партии.')
+            if apply:
+                repair_import_aliases(ready, request.user)
             results = apply_rows(ready[start:start + limit], request.user, dry_run=not apply)
             if not apply:
                 request.session['sto_import_preview'] = preview_key
