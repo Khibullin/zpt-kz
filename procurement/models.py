@@ -80,6 +80,9 @@ class RetailListing(models.Model):
 
 
 class Preferences(models.Model):
+    difference_min_profit = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])
+    best_min_profit = models.DecimalField(max_digits=12, decimal_places=2, default=1000, validators=[MinValueValidator(1000)])
+    no_sellers_days = models.PositiveIntegerField(default=7, validators=[MinValueValidator(1), MaxValueValidator(30)])
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     commission = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0), MaxValueValidator(100)])
     expenses = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True, validators=[MinValueValidator(0)])

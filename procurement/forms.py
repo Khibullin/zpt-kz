@@ -47,11 +47,25 @@ class SelectionFilterForm(forms.Form):
 
 
 class PreferencesForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Older open settings forms may omit newly introduced controls.
+        for name in ('best_min_profit', 'no_sellers_days'):
+            self.fields[name].required = False
+
+    def clean_best_min_profit(self):
+        return self.cleaned_data.get('best_min_profit') or self.instance.best_min_profit
+
+    def clean_no_sellers_days(self):
+        return self.cleaned_data.get('no_sellers_days') or self.instance.no_sellers_days
+
     class Meta:
         model = Preferences
-        fields = ['commission', 'expenses', 'min_profit', 'min_markup']
+        fields = ['commission', 'expenses', 'difference_min_profit', 'best_min_profit', 'no_sellers_days']
         labels = {'commission': 'Комиссия Kaspi без НДС, %', 'expenses': 'Все расходы на единицу, включая упаковку 250 ₸',
-                  'min_profit': 'Минимальная прибыль, ₸', 'min_markup': 'Минимальная доходность после комиссии, %'}
+                  'difference_min_profit': 'Минимальная прибыль для максимальной разницы, ₸ (необязательно)',
+                  'best_min_profit': 'Минимальная прибыль выгодной закупки, ₸ (от 1 000)',
+                  'no_sellers_days': 'Срок актуальности проверки продавцов, дней (1–30)'}
 
 
 class DraftForm(forms.ModelForm):

@@ -9,15 +9,23 @@
 </div>
 </header>
 {% if supplier_stats %}<div class="notice">{{ selected_supplier.name }}: загружено <strong>{{ supplier_stats.loaded }}</strong> · Ссылки Kaspi: {{ supplier_stats.linked }} · Есть цена Kaspi: {{ supplier_stats.priced }} · Совпадение подтверждено: {{ supplier_stats.verified }}.{% if not supplier_stats.priced %}<br>Сверка с Kaspi ещё не выполнена. Для расчёта выгодности нужны цены сопоставленных товаров.{% endif %}</div>{% endif %}
-<p class="muted">Текущая сортировка: <strong>{% if mode == 'difference' %}по сумме разницы в тенге{% else %}по доходности закупки, % — от большей к меньшей{% endif %}</strong></p>
+<p class="muted">Текущая сортировка: <strong>{% if mode == 'no_sellers' %}по подтверждённому спросу, затем свежести проверки{% elif mode == 'difference' %}по прибыли после комиссии и расходов, ₸{% else %}по доходности закупки, % — от большей к меньшей{% endif %}</strong></p>
 <div class="modes">
-<a class="button primary" href="{% querystring mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая разница после комиссии, до прочих расходов</small>
+<a class="button primary" {% if mode == 'difference' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая прибыль после комиссии и расходов</small>
 </a>
-<a class="button teal" href="{% querystring mode='best' page=None download=None %}">Самые выгодные к закупке<small>Сначала больший процент заработка на вложенные деньги</small>
+<a class="button teal" {% if mode == 'best' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='best' page=None download=None %}">Самые выгодные к закупке<small>Сначала больший процент заработка на вложенные деньги</small>
 </a>
-<a class="button" href="{{ settings_url }}">Алгоритм<br>и настройки</a>
+<a class="button opportunity" {% if mode == 'no_sellers' %}aria-current="page"{% endif %} href="{% querystring mode='no_sellers' page=None download=None %}">Нет продавцов на Kaspi<small>Товары поставщика без активных предложений в Алматы</small></a>
 </div>
+{% if mode == 'no_sellers' %}
+<div class="notice"><strong>Отдельный алгоритм: свободные предложения на Kaspi.</strong> Подтверждённая карточка, полная проверка продавцов для Алматы не старше {{ preferences.no_sellers_days }} дней и положительный остаток поставщика. Отсутствие продавцов в Алматы не означает их отсутствие по всему Казахстану. Отзывы — признак спроса, не продажи. Старая цена Kaspi не используется как ожидаемая цена продажи.</div>
+<div class="actions" style="margin-bottom:16px">
+<a class="button" href="{% querystring kaspi_presence=None page=None download=None %}">Карточка есть — продавцов нет</a>
+<a class="button" href="{% querystring kaspi_presence='no_card' page=None download=None %}">Карточка не найдена после проверки</a></div>
+{% if request.GET.kaspi_presence == 'no_card' %}<div class="notice">Проверенные результаты отсутствия карточки ещё не загружены. Пустая ссылка и ошибка доступа не подтверждают отсутствие товара.</div>{% endif %}
+{% endif %}
 <form method="get" class="selection-filters">
+{% if request.GET.kaspi_presence == 'no_card' %}<input type="hidden" name="kaspi_presence" value="no_card">{% endif %}
 <input type="hidden" name="mode" value="{{ mode }}">
 {{ filter_form.non_field_errors }}
 <label class="filter-field" style="margin-bottom:12px">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label>
@@ -39,8 +47,9 @@
 </div>
 <p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Расходы на единицу (включают упаковку 250 ₸): {% if preferences.expenses == None %}не заданы{% else %}{{ effective_expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{{ settings_url }}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
 {% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{{ settings_url }}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{{ settings_url }}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
-{% if mode == 'best' %}<div class="notice"><strong>Сначала больше заработка на вложенный тенге.</strong> Доходность закупки = (Kaspi после комиссии − закупка) / закупка × 100%. При равной доходности выше заработок в тенге. Процент рассчитан до расходов; прибыль рядом — после расходов и упаковки. Включены товары с известными ценами, комиссией и положительной доходностью. Спрос, совпадение, наличие и даты — справочная информация. Прибыль после комиссии и расходов с упаковкой 250 ₸ — от 1 000 ₸; дополнительные фильтры применяются по вашему выбору.</div>{% endif %}
-<p class="muted">Найдено {{ total }} · {% if mode == 'best' %}Даты цен и сведения о спросе не ограничивают рейтинг доходности.{% else %}Даты цен и спроса доступны в таблице и карточке.{% endif %} Непроверенное совпадение с Kaspi отмечено отдельно и не исключает товар из рекомендаций.</p>
+{% if mode == 'best' %}<div class="notice"><strong>Сначала больше заработка на вложенный тенге.</strong> Доходность закупки = (Kaspi после комиссии − закупка) / закупка × 100%. При равной доходности выше заработок в тенге. Процент рассчитан до расходов; прибыль рядом — после расходов и упаковки. Включены товары с известными ценами, комиссией и положительной доходностью. Спрос, совпадение, наличие и даты — справочная информация. Прибыль после комиссии и расходов с упаковкой 250 ₸ — от {{ preferences.best_min_profit|floatformat:0 }} ₸; дополнительные фильтры применяются по вашему выбору.</div>{% endif %}
+{% if mode != 'no_sellers' %}<p class="muted">Найдено {{ total }} · {% if mode == 'best' %}Даты цен и сведения о спросе не ограничивают рейтинг доходности.{% else %}Даты цен и спроса доступны в таблице и карточке.{% endif %} Непроверенное совпадение с Kaspi отмечено отдельно и не исключает товар из рекомендаций.</p>
+{% else %}<p class="muted">Найдено {{ total }} · Только подтверждённые результаты проверки. Непроверенные товары сюда не включаются.</p>{% endif %}
 <div class="tablewrap">
 <table>
 <thead>
@@ -48,8 +57,8 @@
 <th>Товар</th>
 <th>Поставщик</th>
 <th>Закупка, ₸</th>
-<th>Kaspi, ₸</th>
-<th>{% if mode != 'difference' %}Доходность закупки, % / заработок после комиссии, ₸{% else %}Разница после комиссии, ₸ / доходность{% endif %}</th>
+<th>{% if mode == 'no_sellers' %}Проверка Kaspi{% else %}Kaspi, ₸{% endif %}</th>
+<th>{% if mode == 'no_sellers' %}Цена продажи{% elif mode != 'difference' %}Доходность закупки, % / заработок после комиссии, ₸{% else %}Разница после комиссии, ₸ / доходность{% endif %}</th>
 <th>Прибыль после расходов</th>
 <th>Продавцы Kaspi и спрос</th>
 <th>Действия</th>
@@ -66,6 +75,7 @@
 <small>Цена: {{ row.offer.checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</small>
 </td>
 <td class="money">{{ row.offer.cost|floatformat:0 }}</td>
+{% if mode == 'no_sellers' %}<td>Карточка есть — продавцов нет<small>Алматы · {{ row.offer.kaspi_sellers.checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
 <td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}<small>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }}</small><small>После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }}</small></td>
 <td class="money">
 {% if mode != 'difference' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span><small>{{ row.difference|floatformat:2|default:'Нет данных' }} ₸ после комиссии</small>{% else %}
@@ -74,7 +84,7 @@
 </td>
 <td class="money">{{ row.profit|floatformat:2|default:'Нет данных' }}<small>{{ row.margin|floatformat:1|default:'—' }}% от выручки</small>
 </td>
-<td>
+{% endif %}<td>
 {% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}
 <details><summary>Спрос на товар</summary>
 <span class="badge {% if row.offer.recent_reviews %}weak{% endif %}">{{ row.signal }}</span>
@@ -96,7 +106,7 @@
 </details>
 </td>
 </tr>{% empty %}<tr>
-<td colspan="8">{% if mode == 'best' %}Нет товаров с прибылью от 1 000 ₸ после комиссии и расходов с упаковкой 250 ₸ по выбранным фильтрам.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
+<td colspan="8">{% if mode == 'no_sellers' %}Подтверждённых товаров без продавцов по выбранным фильтрам пока нет.{% elif mode == 'best' %}Нет товаров с прибылью от {{ preferences.best_min_profit|floatformat:0 }} ₸ после комиссии и расходов с упаковкой 250 ₸ по выбранным фильтрам.{% else %}Товаров пока нет. Менеджер может загрузить прайс поставщика.{% endif %}</td>
 </tr>{% endfor %}</tbody>
 </table>
 </div>
