@@ -1,0 +1,19 @@
+{% extends 'control_panel/base.html' %}
+{% block content %}
+<p>Загрузка архива MapsGrabs в каталог СТО. Сначала проверьте партию, затем загрузите тот же файл с теми же параметрами. Новые карточки не подключаются к рассылке. Существующие контакты, фильтры, согласия и заполненные поля сохраняются.</p>
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}
+{% if counts %}
+<h2>{% if applied %}Партия сохранена{% else %}Предпросмотр — данные не изменены{% endif %}</h2>
+<p>Готово в архиве: {{ counts.ready }}. Исходных строк: {{ counts.source_rows }}. Следующая начальная строка: {{ next_start }}.</p>
+<div role="status">{% for key,value in totals.items %}{{ key }}: {{ value }}; {% endfor %}</div>
+<details><summary>Проверка архива</summary>{% for key,value in counts.items %}<p>{{ key }}: {{ value }}</p>{% endfor %}</details>
+<table><thead><tr><th>ID 2ГИС</th><th>Название</th><th>Город</th><th>Результат</th></tr></thead><tbody>{% for row in results %}<tr><td>{{ row.id }}</td><td>{{ row.name }}</td><td>{{ row.city }}</td><td>{{ row.status }}{% if row.pk %} · {{ row.pk }}{% endif %}</td></tr>{% endfor %}</tbody></table>
+{% endif %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}
+<p><label>Архив ZIP <input type="file" name="archive" accept=".zip" required></label></p>
+<p><label>Начальная строка <input type="number" name="start" value="{{ start|default:0 }}" min="0" required></label></p>
+<p><label>Размер партии <input type="number" name="limit" value="{{ limit|default:50 }}" min="1" max="500" required></label></p>
+<button class="cp-btn" name="action" value="preview">Проверить партию</button>
+<button class="cp-btn" name="action" value="apply">Сохранить проверенную партию</button>
+</form>
+{% endblock %}

@@ -1,6 +1,7 @@
 {% extends 'control_panel/base.html' %}
 
 {% block content %}
+  <p><a class="cp-btn" href="{% url 'control_panel:sto_import' %}">Загрузить каталог СТО</a></p>
   <form class="cp-filters" method="get">
     <label>Поиск
       <input name="q" value="{{ filters.q }}" placeholder="название или город">

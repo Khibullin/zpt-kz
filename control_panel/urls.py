@@ -5,10 +5,12 @@ from control_panel.manual_processing import seller_picker, manual_send, seller_d
 
 from control_panel.overview_activity import overview_activity
 from control_panel.seller_audit import audit_import
+from control_panel.sto_import import sto_import
 
 app_name = 'control_panel'
 
 urlpatterns = [
+    path('partners/services/import/', sto_import, name='sto_import'),
     path('partners/sellers/audit-import/', audit_import, name='seller_audit_import'),
     path('', views.overview, name='overview'),
     path('activity/<str:kind>/', overview_activity, name='overview_activity'),
