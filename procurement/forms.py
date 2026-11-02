@@ -44,12 +44,15 @@ class SelectionFilterForm(forms.Form):
         selected_country = self.data.get('vehicle_country', '') if self.is_bound else ''
         if str(selected_country).isdigit():
             fitments = fitments.filter(make__in=country_makes(selected_country))
-        makes = list(fitments.order_by('make').values_list('make', flat=True).distinct())
+        # Read the make/model matrix once instead of one query for every make.
+        self.vehicle_models = {}
+        for make, model in fitments.order_by('make', 'model').values_list('make', 'model').distinct():
+            self.vehicle_models.setdefault(make, []).append(model)
+        makes = list(self.vehicle_models)
         self.fields['vehicle_make'].choices = [('', 'Все марки' if makes else 'Нет проверенных данных о марках')] + [(x, x) for x in makes]
         selected_make = self.data.get('vehicle_make', '') if self.is_bound else ''
-        models = list(fitments.filter(make=selected_make).order_by('model').values_list('model', flat=True).distinct()) if selected_make else []
+        models = self.vehicle_models.get(selected_make, [])
         self.fields['vehicle_model'].choices = [('', 'Все модели' if selected_make else 'Сначала выберите марку')] + [(x, x) for x in models]
-        self.vehicle_models = {make: list(fitments.filter(make=make).order_by('model').values_list('model', flat=True).distinct()) for make in makes}
 
 
 

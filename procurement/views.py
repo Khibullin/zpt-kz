@@ -14,7 +14,7 @@ from decimal import Decimal, ROUND_HALF_UP
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
-from django.db.models import Q, Prefetch, prefetch_related_objects, Count
+from django.db.models import Q, Prefetch, prefetch_related_objects, Count, F
 from django.http import HttpResponse, FileResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
@@ -69,7 +69,26 @@ def context(request, **extra):
 
 
 def filtered_rows(request, preferences, filters):
-    query = Offer.objects.select_related('supplier', 'kaspi_sellers').all()
+    # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
+    # are not needed for every item in the supplier catalogue.
+    query = Offer.objects.select_related('supplier').defer('description', 'characteristics', 'supplier_url')
+    mode = request.GET.get('mode', 'roi')
+    today = timezone.localdate()
+    if mode == 'best':
+        if preferences.commission is None or preferences.expenses is None:
+            query = query.none()
+        else:
+            query = query.filter(kaspi_price__isnull=False, cost__gt=0)
+    elif mode == 'no_sellers':
+        if request.GET.get('kaspi_presence') == 'no_card':
+            query = query.none()
+        else:
+            query = query.select_related('kaspi_sellers').filter(
+                match_verified=True, kaspi_sellers__complete=True,
+                kaspi_sellers__sellers=[], kaspi_sellers__city='750000000',
+                kaspi_sellers__source_url=F('kaspi_url'),
+                kaspi_sellers__checked_on__gte=today - timedelta(days=preferences.no_sellers_days),
+                kaspi_sellers__checked_on__lte=today).exclude(kaspi_url='')
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
@@ -97,7 +116,7 @@ def filtered_rows(request, preferences, filters):
         query = query.filter(pk__in=favorites)
     rows = []
     for offer in query:
-        row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences)}
+        row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
         if filters.get('availability') and row['stock_status'] != filters['availability']:
             continue
         demand = filters.get('demand')
@@ -111,7 +130,6 @@ def filtered_rows(request, preferences, filters):
                for key, field in [('min_profit', 'profit'), ('min_markup', 'markup')]):
             continue
         rows.append(row)
-    mode = request.GET.get('mode', 'roi')
     if mode == 'best':
         rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
                 and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)]
@@ -183,7 +201,8 @@ def dashboard(request):
         return response
     page = Paginator(rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
-        Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')))
+        Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')),
+        'kaspi_sellers')
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
