@@ -330,13 +330,14 @@ TWO_GIS_CATALOG_API_URL = (
 # Defaults stay off. These flags do not send messages and do not create sellers.
 SELLER_CONTACT_ENRICHMENT_ENABLED = _discovery_flag('SELLER_CONTACT_ENRICHMENT_ENABLED')
 SELLER_CONTACT_WEBSITE_ENABLED = _discovery_flag('SELLER_CONTACT_WEBSITE_ENABLED')
-SELLER_CONTACT_GOOGLE_PLACES_ENABLED = _discovery_flag('SELLER_CONTACT_GOOGLE_PLACES_ENABLED')
+# Owner disabled Google Places on 2 November 2026. Environment flags cannot re-enable it.
+SELLER_CONTACT_GOOGLE_PLACES_ENABLED = False
 SELLER_CONTACT_BRAVE_ENABLED = _discovery_flag('SELLER_CONTACT_BRAVE_ENABLED')
 SELLER_CONTACT_2GIS_ENABLED = _discovery_flag('SELLER_CONTACT_2GIS_ENABLED')
 SELLER_CONTACT_YANDEX_ENABLED = _discovery_flag('SELLER_CONTACT_YANDEX_ENABLED')
 # How many different website hosts one SellerLead may be crawled for. Hard cap is 5.
 SELLER_CONTACT_MAX_WEBSITE_DOMAINS = _discovery_int('SELLER_CONTACT_MAX_WEBSITE_DOMAINS', 5, 5)
-GOOGLE_PLACES_API_KEY = (os.getenv('GOOGLE_PLACES_API_KEY', '') or '').strip()
+GOOGLE_PLACES_API_KEY = ''
 YANDEX_ORG_SEARCH_API_KEY = (os.getenv('YANDEX_ORG_SEARCH_API_KEY', '') or '').strip()
 
 # Seller product assistant (OpenAI Responses API + web_search)
