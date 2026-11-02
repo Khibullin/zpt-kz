@@ -15,17 +15,18 @@
 </a>
 <a class="button teal" {% if mode == 'best' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='best' page=None download=None %}">Самые выгодные к закупке<small>Сначала больший процент заработка на вложенные деньги</small>
 </a>
-<a class="button opportunity" {% if mode == 'no_sellers' %}aria-current="page"{% endif %} href="{% querystring mode='no_sellers' page=None download=None %}">Нет продавцов на Kaspi<small>Товары поставщика без активных предложений в Алматы</small></a>
+<a class="button opportunity" {% if mode == 'no_sellers' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='no_sellers' page=None download=None %}">Нет продавцов на Kaspi<small>Товары поставщика без активных предложений в Алматы</small></a>
 </div>
 {% if mode == 'no_sellers' %}
-<div class="notice"><strong>Отдельный алгоритм: свободные предложения на Kaspi.</strong> Подтверждённая карточка, полная проверка продавцов для Алматы не старше {{ preferences.no_sellers_days }} дней и положительный остаток поставщика. Отсутствие продавцов в Алматы не означает их отсутствие по всему Казахстану. Отзывы — признак спроса, не продажи. Старая цена Kaspi не используется как ожидаемая цена продажи.</div>
+<div class="notice"><strong>Отдельный алгоритм: свободные предложения на Kaspi.</strong> Карточка есть — полная проверка отсутствия продавцов в Алматы; карточка не найдена — просмотрены результаты поиска по артикулу, бренду с артикулом и названию. Проверка не старше {{ preferences.no_sellers_days }} дней и положительный остаток поставщика. Отсутствие продавцов в Алматы не означает их отсутствие по всему Казахстану. Отзывы — признак спроса, не продажи. Старая цена Kaspi не используется как ожидаемая цена продажи.</div>
 <div class="actions" style="margin-bottom:16px">
-<a class="button" href="{% querystring kaspi_presence=None page=None download=None %}">Карточка есть — продавцов нет</a>
+<a class="button" href="{% querystring kaspi_presence=None page=None download=None %}">Все без продавцов</a>
+<a class="button" href="{% querystring kaspi_presence='has_card' page=None download=None %}">Карточка есть — продавцов нет</a>
 <a class="button" href="{% querystring kaspi_presence='no_card' page=None download=None %}">Карточка не найдена после проверки</a></div>
-{% if request.GET.kaspi_presence == 'no_card' %}<div class="notice">Проверенные результаты отсутствия карточки ещё не загружены. Пустая ссылка и ошибка доступа не подтверждают отсутствие товара.</div>{% endif %}
+<p class="muted">«Карточка не найдена» — результат завершённого поиска, а не гарантия отсутствия карточки во всём каталоге Kaspi. Пустая ссылка и ошибка доступа не подтверждают отсутствие товара.</p>
 {% endif %}
 <form method="get" class="selection-filters">
-{% if request.GET.kaspi_presence == 'no_card' %}<input type="hidden" name="kaspi_presence" value="no_card">{% endif %}
+{% if request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
 <input type="hidden" name="mode" value="{{ mode }}">
 {{ filter_form.non_field_errors }}
 <label class="filter-field" style="margin-bottom:12px">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label>
@@ -68,14 +69,14 @@
 <td class="product">{% if row.offer.photo_url %}<img src="{{ row.offer.photo_url }}" alt="" width="52" height="52" loading="lazy" referrerpolicy="no-referrer" style="object-fit:contain;float:left;margin:0 10px 6px 0">{% else %}<small>Фото пока нет</small>{% endif %}<a href="{% url 'procurement:detail' row.offer.pk %}">
 <strong>{{ row.offer.name }}</strong>
 </a>
-<small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{% if row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</small><small>{{ row.offer.category }}</small>
+<small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{% if row.kaspi_presence == 'no_card' %}Карточка Kaspi не найдена после проверки{% elif row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</small><small>{{ row.offer.category }}</small>
 {% include 'procurement/fitments.html' with offer=row.offer compact=True %}
 </td>
 <td>{{ row.offer.supplier.name }}<small>{{ row.offer.stock|default:'Остаток неизвестен' }}</small>
 <small>Цена: {{ row.offer.checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</small>
 </td>
 <td class="money">{{ row.offer.cost|floatformat:0 }}</td>
-{% if mode == 'no_sellers' %}<td>Карточка есть — продавцов нет<small>Алматы · {{ row.offer.kaspi_sellers.checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
+{% if mode == 'no_sellers' %}<td>{% if row.kaspi_presence == 'no_card' %}Карточка не найдена после проверки{% else %}Карточка есть — продавцов нет{% endif %}<small>Алматы · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small></td><td>Цена продажи не задана</td><td>Прибыль не рассчитана</td>{% else %}
 <td class="money">{{ row.offer.kaspi_price|floatformat:0|default:'Нет данных' }}<small>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }}</small><small>После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }}</small></td>
 <td class="money">
 {% if mode != 'difference' %}<span class="delta">{{ row.markup|floatformat:2|default:'—' }}%</span><small>{{ row.difference|floatformat:2|default:'Нет данных' }} ₸ после комиссии</small>{% else %}

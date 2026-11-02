@@ -41,6 +41,7 @@
 <button>Подтвердить совпадение</button>
 </form>{% endif %}</section>
 </div>
+{% if not offer.kaspi_url and offer.kaspi_card_search.complete %}<section class="panel"><h2>Карточка Kaspi не найдена после проверки</h2><p>Алматы · {{ offer.kaspi_card_search.checked_on|date:'d.m.Y' }}. Результат поиска, не гарантия отсутствия карточки во всём каталоге.</p>{% for check in offer.kaspi_card_search.checks %}<p><a href="{{ check.source_url }}" target="_blank" rel="noopener noreferrer">{{ check.query }}</a> — точное совпадение не найдено</p>{% endfor %}</section>{% endif %}
 {% include 'procurement/kaspi_sellers.html' %}
 <section class="panel">
 <h2>Сравнение поставщиков одной детали</h2>

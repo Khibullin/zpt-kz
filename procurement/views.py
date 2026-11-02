@@ -27,7 +27,7 @@ from django.utils.http import url_has_allowed_host_and_scheme
 from .analysis import evaluate, MIN_BEST_PROFIT, PACKAGING_COST
 from .permissions import workspace_role
 from .forms import PreferencesForm, UploadForm, DraftForm, SelectionFilterForm, PurchaseConfirmationForm, PurchaseEditForm, PurchaseLineFormSet
-from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches
+from .importing import import_offers, import_demand, import_enrichment, import_competitors, import_matches, import_card_searches
 from .models import Membership, Supplier, Offer, Selection, Preferences, Draft, Activity, Favorite, VehicleFitment, PurchaseOrder, PurchaseDocument
 
 
@@ -80,15 +80,18 @@ def filtered_rows(request, preferences, filters):
         else:
             query = query.filter(kaspi_price__isnull=False, cost__gt=0)
     elif mode == 'no_sellers':
-        if request.GET.get('kaspi_presence') == 'no_card':
-            query = query.none()
-        else:
-            query = query.select_related('kaspi_sellers').filter(
-                match_verified=True, kaspi_sellers__complete=True,
-                kaspi_sellers__sellers=[], kaspi_sellers__city='750000000',
-                kaspi_sellers__source_url=F('kaspi_url'),
-                kaspi_sellers__checked_on__gte=today - timedelta(days=preferences.no_sellers_days),
-                kaspi_sellers__checked_on__lte=today).exclude(kaspi_url='')
+        fresh = today - timedelta(days=preferences.no_sellers_days)
+        empty_card = Q(match_verified=True, kaspi_sellers__complete=True,
+            kaspi_sellers__sellers=[], kaspi_sellers__city='750000000',
+            kaspi_sellers__source_url=F('kaspi_url'),
+            kaspi_sellers__checked_on__gte=fresh, kaspi_sellers__checked_on__lte=today) & ~Q(kaspi_url='')
+        no_card = Q(kaspi_url='', kaspi_card_search__complete=True,
+            kaspi_card_search__city='750000000', kaspi_card_search__checked_on__gte=fresh,
+            kaspi_card_search__checked_on__lte=today, kaspi_card_search__checked_brand=F('brand'),
+            kaspi_card_search__checked_article=F('article'), kaspi_card_search__checked_name=F('name'))
+        presence = request.GET.get('kaspi_presence')
+        query = query.select_related('kaspi_sellers', 'kaspi_card_search').filter(
+            no_card if presence == 'no_card' else empty_card if presence == 'has_card' else empty_card | no_card)
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
@@ -140,19 +143,22 @@ def filtered_rows(request, preferences, filters):
         rows.sort(key=lambda r: (r['profit'] is None, -(r['profit'] or Decimal(0)),
                                 r['difference'] is None, -(r['difference'] or Decimal(0)), r['offer'].pk))
     elif mode == 'no_sellers':
-        today = timezone.localdate()
         eligible = []
         for row in rows:
+            if row['stock_status'] != 'in_stock':
+                continue
             offer = row['offer']
-            snapshot = getattr(offer, 'kaspi_sellers', None)
-            if (snapshot and snapshot.complete and snapshot.sellers == [] and
-                    snapshot.city == '750000000' and snapshot.source_url == offer.kaspi_url and
-                    offer.kaspi_url and offer.match_verified and row['stock_status'] == 'in_stock' and
-                    timedelta(0) <= today - snapshot.checked_on <= timedelta(days=preferences.no_sellers_days)):
-                eligible.append(row)
-        rows = eligible if request.GET.get('kaspi_presence') != 'no_card' else []
+            search = getattr(offer, 'kaspi_card_search', None)
+            if not offer.kaspi_url and search:
+                row['kaspi_presence'] = 'no_card'
+                row['kaspi_checked_on'] = search.checked_on
+            else:
+                row['kaspi_presence'] = 'has_card'
+                row['kaspi_checked_on'] = offer.kaspi_sellers.checked_on
+            eligible.append(row)
+        rows = eligible
         rows.sort(key=lambda r: (-int(r['confirmed_sales']), -int(r['fresh_reviews']),
-                                -r['offer'].kaspi_sellers.checked_on.toordinal(), r['offer'].pk))
+                                -r['kaspi_checked_on'].toordinal(), r['offer'].pk))
     else:
         rows.sort(key=lambda r: (r['markup'] is None, -(r['markup'] or Decimal(0)),
                                  -(r['difference'] or Decimal(0)), r['offer'].pk))
@@ -216,7 +222,7 @@ def dashboard(request):
 @access()
 @xframe_options_sameorigin
 def detail(request, pk):
-    offer = get_object_or_404(Offer.objects.select_related('supplier', 'kaspi_sellers'), pk=pk)
+    offer = get_object_or_404(Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search'), pk=pk)
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     alternatives = Offer.objects.filter(brand__iexact=offer.brand, article__iexact=offer.article).select_related('supplier').order_by('cost')
     return render(request, 'procurement/detail.html', context(request, offer=offer, analysis=evaluate(offer, preferences), alternatives=alternatives))
@@ -261,7 +267,7 @@ def upload(request):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'competitors': import_competitors, 'matches': import_matches}[form.cleaned_data['kind']]
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'competitors': import_competitors, 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.

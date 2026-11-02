@@ -206,3 +206,15 @@ class KaspiSellerSnapshot(models.Model):
         return sorted(self.sellers, key=lambda seller: (Decimal(str(seller['price'])),
             seller.get('rating') is None, -Decimal(str(seller['rating'])) if seller.get('rating') is not None else Decimal(0),
             seller.get('reviews') is None, -(seller.get('reviews') or 0), seller['name'].casefold()))
+
+
+class KaspiCardSearch(models.Model):
+    """A reviewed search outcome, never inferred from a missing product URL."""
+    offer = models.OneToOneField(Offer, related_name='kaspi_card_search', on_delete=models.CASCADE)
+    checked_on = models.DateField()
+    city = models.CharField(max_length=20, default='750000000')
+    complete = models.BooleanField(default=False)
+    checked_brand = models.CharField(max_length=100)
+    checked_article = models.CharField(max_length=120)
+    checked_name = models.CharField(max_length=500)
+    checks = models.JSONField(default=list)

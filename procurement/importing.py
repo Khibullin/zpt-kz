@@ -422,3 +422,61 @@ def import_matches(file, supplier_name, date, user):
         offer.save(update_fields=['characteristics', 'match_verified'])
         Activity.objects.create(user=user, action='match_checked', details={'offer': offer.pk, **evidence})
     return len(rows)
+
+
+@transaction.atomic
+def import_card_searches(file, supplier_name, date, user):
+    import json
+    from urllib.parse import urlsplit, parse_qs
+    from django.utils import timezone
+    from .models import KaspiCardSearch
+    payload = json.load(file)
+    if date > timezone.localdate() or not isinstance(payload, dict) or payload.get('checked_on') != date.isoformat():
+        raise ValueError('Неверная дата проверки.')
+    rows = payload.get('offers')
+    if not isinstance(rows, list) or not rows or len(rows) > 20000:
+        raise ValueError('Нужен непустой список offers, не более 20 000.')
+    supplier = Supplier.objects.get(name=supplier_name.strip())
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError('Неверный результат поиска.')
+        offer = Offer.objects.select_for_update().get(supplier=supplier, brand=row.get('brand'), article=row.get('article'))
+        if offer.pk in seen or offer.kaspi_url:
+            raise ValueError('Дубликат или у товара уже есть ссылка Kaspi: требуется отдельная проверка.')
+        seen.add(offer.pk)
+        if row.get('name') != offer.name or row.get('city') != '750000000' or row.get('complete') is not True:
+            raise ValueError('Нужны текущее название, Алматы и завершённая проверка.')
+        checks = row.get('checks')
+        required = {'article': offer.article, 'brand_article': offer.brand + ' ' + offer.article, 'name': offer.name}
+        if not isinstance(checks, list) or len(checks) != 3:
+            raise ValueError('Нужны три поиска: артикул, бренд с артикулом, название.')
+        kinds = set()
+        for check in checks:
+            if not isinstance(check, dict):
+                raise ValueError('Неверное основание поиска.')
+            kind = check.get('kind')
+            source = urlsplit(check.get('source_url', ''))
+            query = check.get('query')
+            if (kind not in required or kind in kinds or query != required[kind] or
+                    source.scheme != 'https' or source.hostname != 'kaspi.kz' or source.path != '/shop/search/' or
+                    parse_qs(source.query).get('text') != [query] or
+                    check.get('outcome') != 'no_exact_match' or check.get('reviewed') is not True or
+                    check.get('all_pages_reviewed') is not True or check.get('city') != '750000000' or
+                    check.get('error') or not isinstance(check.get('result_titles'), list) or
+                    any(not isinstance(title, str) or len(title) > 1000 for title in check['result_titles'])):
+                raise ValueError('Не подтверждены запрос, источник, просмотр всех страниц или результат поиска.')
+            # A result bearing this exact article needs identity review, not an absence claim.
+            from .matching import normalize
+            if any(normalize(offer.article) in normalize(title) for title in check['result_titles']):
+                raise ValueError('Найден точный артикул: сначала проверьте карточку.')
+            kinds.add(kind)
+        previous = KaspiCardSearch.objects.filter(offer=offer).first()
+        if previous and previous.checked_on > date:
+            raise ValueError('Проверка старее сохранённой.')
+        KaspiCardSearch.objects.update_or_create(offer=offer, defaults={
+            'checked_on': date, 'city': row['city'], 'complete': True, 'checked_brand': offer.brand,
+            'checked_article': offer.article, 'checked_name': offer.name, 'checks': checks})
+    Activity.objects.create(user=user, action='kaspi_card_search_import', details={
+        'supplier': supplier.name, 'offers': len(rows), 'date': date.isoformat()})
+    return len(rows)
