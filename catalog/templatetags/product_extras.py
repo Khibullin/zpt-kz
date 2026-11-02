@@ -177,7 +177,11 @@ def product_json_ld(product):
     if article:
         data['sku'] = article
 
-    description = str(getattr(product, 'description', '') or '').strip()
+    # Reuse the summary visible on the card, excluding supplier fitment tables.
+    from catalog.product_description import readable_description
+
+    description = readable_description(getattr(product, 'description', ''))['summary']
+    description = Truncator(re.sub(r'\s+', ' ', description).strip()).chars(5000, truncate='…')
     if description:
         data['description'] = description
 
