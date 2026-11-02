@@ -48,6 +48,19 @@ class ProductStructuredDataTests(SimpleTestCase):
             'https://schema.org/InStock',
         )
 
+    def test_supplier_fitment_table_is_not_copied_into_schema_description(self):
+        summary = 'Вентилятор WXQP 351273. OEM: 4A0959455C.'
+        source = summary + '\n\nХарактеристики поставщика:\nМарка авто: AUDI\nПрименимость: ' + 'AUDI 100 1990–1994 ' * 900
+        product = self._product(description=source)
+        data = json.loads(str(product_json_ld(product)))
+        self.assertEqual(data['description'], summary)
+        self.assertEqual(product.description, source)
+
+    def test_long_unstructured_description_is_bounded(self):
+        data = json.loads(str(product_json_ld(self._product(description='Описание детали ' * 1000))))
+        self.assertLessEqual(len(data['description']), 5000)
+        self.assertTrue(data['description'].startswith('Описание детали'))
+
     def test_missing_specific_category_uses_truthful_autoparts_fallback(self):
         data = json.loads(str(product_json_ld(self._product(category=None))))
         self.assertEqual(data['category'], 'Автозапчасти')
