@@ -28,6 +28,12 @@ class Filters(forms.Form):
 @never_cache
 @access('admin')
 def dashboard(request, section='overview'):
+    if section == 'stock' and request.GET.get('raw') != '1':
+        from .document_views import items
+        params=request.GET.copy()
+        if 'state' in params:params['stock_state']=params['state']
+        request.GET=params
+        return items(request)
     form = Filters(request.GET)
     stocks = StockSnapshot.objects.none()
     pp1 = ImportBatch.objects.filter(kind='pp1').order_by('-as_of','-pk').first()
@@ -77,9 +83,26 @@ def dashboard(request, section='overview'):
         receipt_debt += receipt.quantity * receipt.unit_cost - paid
     if request.GET.get('export')=='xlsx':
         from .tools_views import xlsx_response
+        if section == 'overview':
+            from .document_views import items
+            params=request.GET.copy()
+            if 'state' in params:params['stock_state']=params['state']
+            request.GET=params
+            return items(request)
         if section in ['sales','finance']:return xlsx_response('kaspi-operations',['Дата','Заказ','Операция','Товар','Выручка','Комиссия','Kaspi Pay','Доставка','Бонусы товара','Бонусы отзыва','Прочее','После расходов'],([r.occurred_on,r.order_id,r.operation,r.product,r.revenue,r.commission,r.pay_fee,r.delivery,r.product_bonus,r.review_bonus,r.other_fees,r.after_fees] for r in ops))
         return xlsx_response('stock-snapshots',['SKU','Название','Бренд','Склад','Количество предложения','Цена','Дата снимка'],([r.sku,r.name,r.brand,r.warehouse,r.quantity,r.price,r.batch.as_of] for r in stocks))
-    response = render(request,'inventory/dashboard.html',dict(cash_accounts=cash_accounts,receipt_debt=receipt_debt,section=section,form=form,latest=latest,pp1=pp1,page=page,query=query.urlencode(),totals=totals,fees=fees,net=net,has_ops=has_ops,stock_count=stocks.count(),batches=ImportBatch.objects.order_by('-pk')[:8]))
+    from .stock_reporting import stock_rows, stock_summary
+    overview_items=stock_rows() if section == 'overview' else []
+    if section == 'overview' and valid:
+        search=form.cleaned_data['q'].casefold()
+        if search:overview_items=[i for i in overview_items if search in (' '.join([i.code,i.article,i.name,i.brand])).casefold()]
+        field={'PP1':'pp1','PP2':'pp2'}.get(form.cleaned_data['warehouse'],'total')
+        state=form.cleaned_data['state']
+        if state=='positive':overview_items=[i for i in overview_items if getattr(i,field) is not None and getattr(i,field)>0]
+        if state=='zero':overview_items=[i for i in overview_items if getattr(i,field)==0]
+        if state=='unknown':overview_items=[i for i in overview_items if getattr(i,field) is None]
+    elif section == 'overview':overview_items=[]
+    response = render(request,'inventory/dashboard.html',dict(summary=stock_summary(overview_items),item_count=len(overview_items),cash_accounts=cash_accounts,receipt_debt=receipt_debt,section=section,form=form,latest=latest,pp1=pp1,page=page,query=query.urlencode(),totals=totals,fees=fees,net=net,has_ops=has_ops,stock_count=stocks.count(),batches=ImportBatch.objects.order_by('-pk')[:8]))
     response['X-Robots-Tag'] = 'noindex, nofollow'
     return response
 
