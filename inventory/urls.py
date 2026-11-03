@@ -1,7 +1,11 @@
 from django.urls import path
+from . import purchasing
 from . import views, document_views, matching_views, tools_views
 app_name = 'inventory'
 urlpatterns = [
+    path('purchases/',purchasing.purchases,name='purchases'),
+    path('purchases/<int:pk>/action/<str:action>/',purchasing.purchase_action,name='purchase_action'),
+    path('purchases/<int:pk>/listing/<int:line>/',purchasing.listing,name='purchase_listing'),
     path('cash/check/',tools_views.bank_check,name='bank_check'),
     path('documents/<int:pk>/amounts/',tools_views.financial_details,name='financial_details'),
     path('edit/<str:kind>/<int:pk>/',tools_views.edit,name='edit'),

@@ -158,6 +158,11 @@ class PurchaseOrder(models.Model):
 
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    title = models.CharField('Название закупки', max_length=200, blank=True)
+    expected_date = models.DateField('Плановая дата доставки', null=True, blank=True)
+    destination = models.CharField('Склад поставки', max_length=3, choices=[('PP2','PP2 · Rapida'),('PP1','PP1 · Asia Grade')], default='PP2')
+    delivery_stage = models.CharField('Этап поставки', max_length=12, choices=[('draft','Черновик'),('sent','Отправлен поставщику'),('waiting','Ожидается'),('shipped','В пути'),('cancelled','Отменён')], default='draft')
+    archived = models.BooleanField(default=False)
     supplier_order_number = models.CharField(max_length=100, blank=True)
     invoice_number = models.CharField(max_length=100, blank=True)
     waybill_number = models.CharField(max_length=100, blank=True)
@@ -179,6 +184,10 @@ class PurchaseOrder(models.Model):
     @property
     def order_number(self):
         return f'ЗК-{self.pk:06d}'
+
+    @property
+    def display_title(self):
+        return self.title or f'{self.supplier.name} · {self.order_number}' + (f' · поставка {self.expected_date:%d.%m.%Y}' if self.expected_date else '')
 
     @property
     def total(self):

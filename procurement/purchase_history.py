@@ -6,12 +6,18 @@ from .models import PurchaseOrder
 
 
 def supplier_history(user, supplier_id, before_pk=None):
-    result=defaultdict(lambda:{'ordered':0,'received':0,'last_date':None,'pp2':None})
-    orders=PurchaseOrder.objects.filter(user=user,supplier_id=supplier_id).exclude(status='cancelled')
+    result=defaultdict(lambda:{'ordered':0,'received':0,'last_date':None,'pp2':None,'expected':0})
+    orders=PurchaseOrder.objects.filter(user=user,supplier_id=supplier_id,archived=False).exclude(status='cancelled')
     if before_pk is not None:orders=orders.filter(pk__lt=before_pk)
     for order in orders:
         for line in order.items:
             result[(line['article'],line['brand'])]['ordered']+=line['quantity']
+    from inventory.purchase_receiving import received_quantities
+    for order in orders:
+        if order.status=='cancelled' or order.delivery_stage in ['draft','cancelled']:continue
+        received=received_quantities(order)
+        for index,line in enumerate(order.items):
+            result[(line['article'],line['brand'])]['expected']+=max(0,line['quantity']-received.get(index,0))
     receipts=StockDocument.objects.filter(purchase_order__in=orders,status='posted',kind='receipt').select_related('purchase_order','item')
     for doc in receipts:
         source=doc.purchase_order.items[doc.purchase_line]

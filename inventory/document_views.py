@@ -93,12 +93,12 @@ def document_action(request,pk):
 @never_cache
 @access('admin')
 def cash(request):
-    rows=CashEntry.objects.select_related('account','stock_document','cancelled_by').order_by('-date','-pk')
+    rows=CashEntry.objects.select_related('account','stock_document','cancelled_by','purchase_order__supplier').order_by('-date','-pk')
     rows,filter_form=date_filter(request,rows)
     if request.GET.get('state')=='cancelled':rows=rows.filter(cancelled=True)
     elif request.GET.get('state')!='all':rows=rows.filter(cancelled=False)
     q=request.GET.get('q','').strip()
-    if q:rows=rows.filter(Q(reference__icontains=q)|Q(counterparty__icontains=q)|Q(category__icontains=q))
+    if q:rows=rows.filter(Q(reference__icontains=q)|Q(counterparty__icontains=q)|Q(category__icontains=q)|Q(purchase_order__title__icontains=q))
     account=request.GET.get('account','')
     if account.isdigit():rows=rows.filter(account_id=account)
     if request.GET.get('kind'):rows=rows.filter(kind=request.GET['kind'])
@@ -111,7 +111,7 @@ def cash(request):
     for r in rows:
         if r.signed_amount>0:incoming+=r.signed_amount
         else:outgoing-=r.signed_amount
-    if request.GET.get('export')=='xlsx':return xlsx_response('cash-journal',['Дата','Счёт','Операция','Контрагент','Статья','Сумма со знаком','Основание','Отменено','Причина'],([r.date,str(r.account),r.get_kind_display(),r.counterparty,r.category,r.signed_amount,r.reference,r.cancelled,r.cancellation_note] for r in rows))
+    if request.GET.get('export')=='xlsx':return xlsx_response('cash-journal',['Дата','Счёт','Операция','Контрагент','Статья','Сумма со знаком','Основание','Отменено','Причина','Закупочный заказ'],([r.date,str(r.account),r.get_kind_display(),r.counterparty,r.category,r.signed_amount,r.reference,r.cancelled,r.cancellation_note,r.purchase_order.order_number if r.purchase_order_id else ''] for r in rows))
     query=request.GET.copy();query.pop('page',None)
     return render(request,'inventory/cash.html',{'page':Paginator(rows,50).get_page(request.GET.get('page')),'accounts':accounts,'kinds':CashEntry._meta.get_field('kind').choices,'q':q,'query':query.urlencode(),'filter_form':filter_form,'incoming':incoming,'outgoing':outgoing,'net_cash':incoming-outgoing})
 

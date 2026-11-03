@@ -36,6 +36,13 @@ def available_lots(item):
                 transit[doc.pk].extend(take(stocks[entry.warehouse],-entry.quantity))
             elif entry.warehouse == doc.destination and entry.quantity > 0:
                 stocks[entry.warehouse].extend(take(transit[doc.pk],entry.quantity))
+        elif doc.kind == 'supplier_return' and entry.quantity < 0:
+            remaining=-entry.quantity
+            for lot in stocks[entry.warehouse]:
+                if lot['origin']==doc.related_receipt_id:
+                    used=min(remaining,lot['quantity']);lot['quantity']-=used;remaining-=used
+            if remaining:raise ValidationError('Недостаточно партии исходного прихода для возврата.')
+            stocks[entry.warehouse]=[lot for lot in stocks[entry.warehouse] if lot['quantity']]
         elif doc.kind in ['sale','writeoff'] and entry.quantity < 0:
             take(stocks[entry.warehouse],-entry.quantity)
         elif doc.kind == 'return' and entry.quantity > 0:

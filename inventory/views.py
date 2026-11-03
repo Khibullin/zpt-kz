@@ -78,9 +78,13 @@ def dashboard(request, section='overview'):
     for a in cash_accounts: a.current_balance = a.opening_balance
     for entry in CashEntry.objects.all(): accounts_by_id[entry.account_id].current_balance += entry.signed_amount
     receipt_debt = Decimal('0')
-    for receipt in StockDocument.objects.filter(kind='receipt',status='posted'):
+    for receipt in StockDocument.objects.filter(kind='receipt',status='posted',purchase_order__isnull=True):
         paid = CashEntry.objects.filter(stock_document=receipt,kind='supplier',cancelled=False).aggregate(total=Sum('amount'))['total'] or Decimal('0')
         receipt_debt += receipt.quantity * receipt.unit_cost - paid
+    from procurement.models import PurchaseOrder
+    from .purchasing import order_summary
+    for purchase in PurchaseOrder.objects.filter(archived=False):
+        receipt_debt += order_summary(purchase)['balance']
     if request.GET.get('export')=='xlsx':
         from .tools_views import xlsx_response
         if section == 'overview':

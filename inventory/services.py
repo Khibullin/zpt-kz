@@ -26,7 +26,16 @@ def post_document(pk, user):
         raise ValidationError('Дата раньше уже проведённых движений этого товара. Заднее число требует отдельной сверки.')
     if doc.kind not in StockDocument.Kind.values:raise ValidationError('Неизвестная операция')
     if doc.kind in ['adjustment','writeoff'] and not doc.note.strip():raise ValidationError('Укажите причину инвентаризационной корректировки.')
-    if doc.kind == 'writeoff':
+    if doc.kind == 'supplier_return':
+        receipt=doc.related_receipt
+        if not receipt or receipt.kind!='receipt' or receipt.status!='posted' or receipt.item_id!=doc.item_id or not doc.note.strip():
+            raise ValidationError('Для возврата поставщику укажите исходный приход и причину.')
+        lots=[lot for lot in available_lots(doc.item)[doc.warehouse] if lot['origin']==receipt.pk]
+        doc.cost_allocations=take(lots,doc.quantity)
+        doc.total_cost=total_cost(doc.cost_allocations)
+        StockEntry.objects.create(document=doc,warehouse=doc.warehouse,quantity=-doc.quantity,created_by=user)
+        doc.status='posted'
+    elif doc.kind == 'writeoff':
         doc.cost_allocations=take(available_lots(doc.item)[doc.warehouse],doc.quantity)
         doc.total_cost=total_cost(doc.cost_allocations)
         StockEntry.objects.create(document=doc,warehouse=doc.warehouse,quantity=-doc.quantity,created_by=user)
