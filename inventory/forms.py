@@ -12,6 +12,11 @@ class AliasForm(forms.ModelForm):
         model=ItemAlias
         fields=['item','source','code','multiplier']
 
+    def clean_item(self):
+        item=self.cleaned_data['item']
+        if item.unit=='pending':raise forms.ValidationError('Сначала подтвердите единицу учёта товара при сопоставлении')
+        return item
+
 class DocumentForm(forms.ModelForm):
     class Meta:
         model=StockDocument

@@ -273,3 +273,39 @@ class MappingTests(TestCase):
                 dest.writestr(info.filename,content)
         from .importing import parse_file
         self.assertEqual(len(parse_file(output.getvalue(),'rapida')),1)
+    def test_preparation_is_idempotent_and_does_not_confirm_units(self):
+        from .matching import prepare_items
+        from .models import Item,ItemAlias,StockEntry
+        # Existing hand-created card is retained.
+        self.assertEqual(prepare_items(self.user),(0,1))
+        source=StockSnapshot.objects.create(batch=self.pp1,warehouse='PP1',sku='NEW-123',name='NEW-123',quantity=3)
+        StockSnapshot.objects.create(batch=self.pp2,warehouse='PP2',sku='NEW-SKU',name='Масляный фильтр NEW-123',quantity=1)
+        self.assertEqual(prepare_items(self.user),(1,1))
+        new=Item.objects.get(article='NEW-123')
+        self.assertEqual(new.unit,'pending')
+        self.assertEqual(new.name,'Масляный фильтр NEW-123')
+        self.assertEqual(new.preparation['pp1_snapshot'],source.pk)
+        self.assertEqual(prepare_items(self.user),(0,2))
+        self.assertFalse(ItemAlias.objects.exists())
+        self.assertFalse(StockEntry.objects.exists())
+    def test_pending_item_cannot_post_until_explicit_unit_confirmation(self):
+        from .models import Item,StockDocument
+        from .services import post_document
+        from .matching import confirm_mapping
+        from django.core.exceptions import ValidationError
+        pending=Item.objects.create(code='PENDING',name='Не проверен',unit='pending')
+        doc=StockDocument.objects.create(kind='opening',item=pending,warehouse='PP2',quantity=2,date=date.today(),created_by=self.user)
+        with self.assertRaises(ValidationError):post_document(doc.pk,self.user)
+        with self.assertRaises(ValidationError):confirm_mapping(self.row.pk,pending,1,self.user)
+        confirm_mapping(self.row.pk,pending,1,self.user,unit='piece')
+        pending.refresh_from_db();self.assertEqual(pending.unit,'piece')
+        post_document(doc.pk,self.user)
+        doc.refresh_from_db();self.assertEqual(doc.status,'posted')
+    def test_prepared_card_suggested_on_mapping_screen(self):
+        self.client.force_login(self.user)
+        response=self.client.get(reverse('inventory:reconciliation'))
+        rows=list(response.context['page'])
+        row=next(r for r in rows if r['snapshot'].pk==self.row.pk)
+        self.assertEqual(row['form'].initial['item'],self.item)
+        self.assertEqual(row['form'].initial['unit'],'piece')
+        self.assertContains(response,'Подготовить карточки по PP1')
