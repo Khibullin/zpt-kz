@@ -70,3 +70,72 @@ class AccountingTests(TestCase):
         r=self.client.get(reverse('inventory:stock'),{'warehouse':'PP1','state':'unknown'})
         self.assertContains(r,'unknown')
         self.assertNotContains(r,'>known</td>')
+
+class StockDocumentsTests(TestCase):
+    def setUp(self):
+        from .models import Item
+        self.user=get_user_model().objects.create_superuser(username='stock-admin',password='test-password')
+        self.item=Item.objects.create(code='FILTER',name='Фильтр')
+        self.client.force_login(self.user)
+    def document(self,**kwargs):
+        from .models import StockDocument
+        data=dict(item=self.item,warehouse='PP1',quantity=10,date=date.today(),created_by=self.user,kind='opening')
+        data.update(kwargs)
+        return StockDocument.objects.create(**data)
+    def test_transfer_partial_receipt_and_conservation(self):
+        from .services import post_document,receive_transfer,balance
+        from .models import StockEvent
+        from django.core.exceptions import ValidationError
+        opening=self.document();post_document(opening.pk,self.user)
+        transfer=self.document(kind='transfer',destination='PP2',quantity=7)
+        post_document(transfer.pk,self.user)
+        self.assertEqual([balance(self.item,w) for w in ['PP1','PP2','TRANSIT']],[3,0,7])
+        receive_transfer(transfer.pk,3,self.user)
+        self.assertEqual([balance(self.item,w) for w in ['PP1','PP2','TRANSIT']],[3,3,4])
+        with self.assertRaises(ValidationError):receive_transfer(transfer.pk,5,self.user)
+        receive_transfer(transfer.pk,4,self.user)
+        self.assertEqual([balance(self.item,w) for w in ['PP1','PP2','TRANSIT']],[3,7,0])
+        with self.assertRaises(ValidationError):post_document(transfer.pk,self.user)
+        with self.assertRaises(ValidationError):receive_transfer(transfer.pk,1,self.user)
+        self.assertEqual(StockEvent.objects.filter(document=transfer).count(),3)
+    def test_insufficient_stock_and_duplicate_opening(self):
+        from .services import post_document,balance
+        from .models import StockEntry
+        from django.core.exceptions import ValidationError
+        transfer=self.document(kind='transfer',destination='PP2')
+        with self.assertRaises(ValidationError):post_document(transfer.pk,self.user)
+        self.assertFalse(StockEntry.objects.exists())
+        post_document(self.document().pk,self.user)
+        with self.assertRaises(ValidationError):post_document(self.document().pk,self.user)
+        self.assertEqual(balance(self.item,'PP1'),10)
+    def test_receipt_requires_cost_and_supplier(self):
+        from .services import post_document,balance
+        from django.core.exceptions import ValidationError
+        doc=self.document(kind='receipt')
+        with self.assertRaises(ValidationError):post_document(doc.pk,self.user)
+        doc.unit_cost=Decimal('1200');doc.counterparty='Поставщик';doc.save()
+        post_document(doc.pk,self.user)
+        self.assertEqual(balance(self.item,'PP1'),10)
+    def test_pages_and_cash_validation(self):
+        from .models import MoneyAccount
+        from .forms import CashForm
+        account=MoneyAccount.objects.create(name='Банк',opening_balance=10000,opening_date=date(2026,11,1),created_by=self.user)
+        data={'account':account.pk,'date':'2026-10-31','kind':'supplier','amount':'2000','reference':'PAY1'}
+        self.assertFalse(CashForm(data).is_valid())
+        data['date']='2026-11-03'
+        self.assertTrue(CashForm(data).is_valid())
+        response=self.client.post(reverse('inventory:create',args=['cash']),data)
+        self.assertEqual(response.status_code,302)
+        duplicate=CashForm(data)
+        self.assertFalse(duplicate.is_valid())
+        for route in ['items','documents','cash']:
+            self.assertEqual(self.client.get(reverse('inventory:'+route)).status_code,200)
+        for kind in ['item','alias','document','account','cash']:
+            self.assertEqual(self.client.get(reverse('inventory:create',args=[kind])).status_code,200)
+        self.assertEqual(self.client.get(reverse('inventory:cash')).context['accounts'][0].current_balance,Decimal('8000'))
+    def test_actions_post_only_and_access(self):
+        doc=self.document()
+        self.assertEqual(self.client.get(reverse('inventory:document_action',args=[doc.pk])).status_code,405)
+        self.client.logout()
+        self.assertEqual(self.client.post(reverse('inventory:document_action',args=[doc.pk]),{'action':'post'}).status_code,302)
+        doc.refresh_from_db();self.assertEqual(doc.status,'draft')

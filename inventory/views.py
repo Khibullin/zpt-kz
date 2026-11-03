@@ -9,7 +9,7 @@ from django.shortcuts import render, redirect
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
 from procurement.views import access
-from .models import ImportBatch, StockSnapshot, KaspiOperation
+from .models import ImportBatch, StockSnapshot, KaspiOperation, MoneyAccount, CashEntry, StockDocument
 from .importing import parse_file, import_file
 
 class UploadForm(forms.Form):
@@ -67,7 +67,15 @@ def dashboard(request, section='overview'):
     data = ops if section in ['sales','finance'] else stocks
     page = Paginator(data,50).get_page(request.GET.get('page'))
     query = request.GET.copy(); query.pop('page',None)
-    response = render(request,'inventory/dashboard.html',dict(section=section,form=form,latest=latest,pp1=pp1,page=page,query=query.urlencode(),totals=totals,fees=fees,net=net,has_ops=has_ops,stock_count=stocks.count(),batches=ImportBatch.objects.order_by('-pk')[:8]))
+    cash_accounts = list(MoneyAccount.objects.order_by('name'))
+    accounts_by_id = {a.pk:a for a in cash_accounts}
+    for a in cash_accounts: a.current_balance = a.opening_balance
+    for entry in CashEntry.objects.all(): accounts_by_id[entry.account_id].current_balance += entry.signed_amount
+    receipt_debt = Decimal('0')
+    for receipt in StockDocument.objects.filter(kind='receipt',status='posted'):
+        paid = CashEntry.objects.filter(stock_document=receipt,kind='supplier').aggregate(total=Sum('amount'))['total'] or Decimal('0')
+        receipt_debt += receipt.quantity * receipt.unit_cost - paid
+    response = render(request,'inventory/dashboard.html',dict(cash_accounts=cash_accounts,receipt_debt=receipt_debt,section=section,form=form,latest=latest,pp1=pp1,page=page,query=query.urlencode(),totals=totals,fees=fees,net=net,has_ops=has_ops,stock_count=stocks.count(),batches=ImportBatch.objects.order_by('-pk')[:8]))
     response['X-Robots-Tag'] = 'noindex, nofollow'
     return response
 
