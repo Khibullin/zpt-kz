@@ -58,6 +58,24 @@ class WorkspaceTests(TestCase):
         catalog = self.client.get(self.url('dashboard'), {'supplier': self.supplier.pk})
         self.assertContains(catalog, 'class="selection-filters"')
 
+    def test_best_restores_preliminary_candidates_without_faking_sales(self):
+        self.login()
+        self.qualify_best()
+        self.offer.sales_30 = None
+        self.offer.save()
+        Preferences.objects.update_or_create(user=self.user, defaults={'commission': Decimal('12.5'), 'expenses': Decimal('250')})
+        response = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk})
+        self.assertEqual(response.context['total'], 0)
+        self.assertTrue(response.context['preliminary'])
+        self.assertEqual(response.context['preliminary_total'], 1)
+        self.assertContains(response, '00123')
+        self.assertContains(response, 'Предварительно выгодные товары')
+        exported = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk, 'download': 'csv'})
+        self.assertContains(exported, '00123')
+        self.assertContains(exported, 'Предварительная подборка')
+        self.offer.refresh_from_db()
+        self.assertIsNone(self.offer.sales_30)
+
     def test_anonymous_redirects_and_login_page_renders(self):
         self.assertEqual(self.client.get(self.url('dashboard')).status_code, 302)
         self.assertContains(self.client.get(self.url('login')), 'Вход в кабинет закупок')

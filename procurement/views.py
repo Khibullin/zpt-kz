@@ -160,6 +160,13 @@ def filtered_rows(request, preferences, filters):
             continue
         rows.append(row)
     if mode == 'best':
+        request.best_candidates = [r for r in rows if r['offer'].match_verified
+            and r['stock_status'] == 'in_stock' and r['price_fresh']
+            and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
+            and r['kaspi_status_code'] not in ('empty', 'missing')]
+        for candidate in request.best_candidates:
+            candidate['markup'] = candidate['profit'] / candidate['offer'].cost * 100
+        request.best_candidates.sort(key=lambda r: (-r['markup'], -r['profit'], r['offer'].pk))
         rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
                 and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
                 and r['offer'].match_verified and r['stock_status'] == 'in_stock'
@@ -236,6 +243,8 @@ def dashboard(request):
             best_empty_reason = 'Пока ни один товар не соответствует всем условиям алгоритма одновременно. Проверьте остатки, совпадения, даты цен, продавцов Kaspi и прибыль после расходов.'
     counts = getattr(request, 'catalog_status_counts', {})
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
+    preliminary = request.GET.get('mode') == 'best' and not rows and bool(getattr(request, 'best_candidates', []))
+    displayed_rows = request.best_candidates if preliminary else rows
     if request.GET.get('download') == 'csv' and valid:
         response = HttpResponse(content_type='text/csv; charset=utf-8')
         response['Content-Disposition'] = 'attachment; filename="procurement-selection.csv"'
@@ -243,8 +252,8 @@ def dashboard(request):
         writer = csv.writer(response, delimiter=';')
         def exported_number(value):
             return Decimal(value).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP) if value is not None else None
-        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница после комиссии, ₸', 'Доходность после комиссии, %', 'Прибыль после комиссии и прочих расходов, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi', 'Комиссия без НДС, %', 'Комиссия, ₸', 'Kaspi после комиссии, ₸', 'Прочие расходы, ₸'])
-        for row in rows:
+        writer.writerow(['Артикул', 'Бренд', 'Наименование', 'Поставщик', 'Закупка, ₸', 'Kaspi, ₸', 'Разница после комиссии, ₸', 'Доходность после комиссии, %', 'Прибыль после комиссии и прочих расходов, ₸', 'Спрос', 'Продажи / 30 дней', 'Найдено отзывов / 90 дней', 'Дата цены', 'Дата проверки спроса', 'Ссылка Kaspi', 'Комиссия без НДС, %', 'Комиссия, ₸', 'Kaspi после комиссии, ₸', 'Прочие расходы, ₸', 'Статус подбора'])
+        for row in displayed_rows:
             offer = row['offer']
             if request.GET.get('mode') == 'no_sellers':
                 row = {**row, **{key: None for key in ('difference', 'markup', 'profit', 'commission_amount', 'kaspi_after_commission')}}
@@ -253,16 +262,16 @@ def dashboard(request):
                 exported_number(row['markup']), exported_number(row['profit']), row['signal'], offer.sales_30,
                 offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url,
                 exported_number(row['commission_rate']), exported_number(row['commission_amount']),
-                exported_number(row['kaspi_after_commission']), exported_number(row['expenses'])]])
+                exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), 'Предварительная подборка — требует проверки спроса и продавцов Kaspi' if preliminary else 'Основная подборка']])
         return response
-    page = Paginator(rows, 40).get_page(request.GET.get('page'))
+    page = Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
         Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')),
         'kaspi_sellers')
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
+                  filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category')],
                   advanced_filters=[form[name] for name in ('sort', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],

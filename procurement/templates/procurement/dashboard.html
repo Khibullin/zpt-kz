@@ -2,7 +2,7 @@
 <header>
 <div>
 <h1>{% if mode == "best" %}Самые выгодные к закупке{% else %}Все товары поставщика{% endif %}</h1>
-<p><strong>Всего товаров: {{ catalogue_total }} · {% if mode == "best" %}Отобрано алгоритмом{% else %}По фильтрам найдено{% endif %}: {{ total }}</strong></p>
+<p><strong>Всего товаров: {{ catalogue_total }} · {% if mode == "best" %}Полностью подтверждено{% else %}По фильтрам найдено{% endif %}: {{ total }}{% if preliminary %} · Предварительно выгодных: {{ preliminary_total }}{% endif %}</strong></p>
 <div class="muted">Закупки и продажи · внутренний кабинет</div>
 {% if selected_supplier %}<p><strong>Поставщик: {{ selected_supplier.name }}</strong></p>{% endif %}
 </div>
@@ -47,8 +47,9 @@
 <p class="muted">Комиссия Kaspi без НДС: {% if commission_rate == None %}не задана{% else %}{{ commission_rate }}%{% endif %} · Расходы на единицу (включают упаковку 250 ₸): {% if preferences.expenses == None %}не заданы{% else %}{{ effective_expenses|floatformat:2 }} ₸{% endif %}. Источник — <a href="{{ settings_url }}">ваши личные настройки</a>. Входные цены по НДС не пересчитываются.</p>
 {% if preferences.commission == None or preferences.expenses == None %}<div class="notice">{% if preferences.commission == None %}Разница после комиссии пока неизвестна: <a href="{{ settings_url }}">задайте комиссию без НДС</a>. {% endif %}Прибыль пока неизвестна{% if preferences.expenses == None %}: <a href="{{ settings_url }}">задайте прочие расходы</a>{% endif %}. Разница после комиссии не учитывает прочие расходы.</div>{% endif %}
 {% if mode == 'best' %}<details class="notice" open><summary>Как отбираются товары · Условия утверждённого алгоритма</summary>Положительный остаток, подтверждённое совпадение с карточкой Kaspi и продавцы Kaspi в Алматы. Цена и отчёт о спросе не старше 7 дней; проверка продавцов не старше {{ preferences.no_sellers_days }} дней. Спрос подтверждается продажами за 30 дней из загруженного отчёта; отзывы отдельно и не считаются продажами. Прибыль после личной комиссии и расходов (упаковка учитывается один раз) от {{ preferences.best_min_profit }} ₸. Доходность вложений = прибыль / закупка × 100%. Сначала наибольшая доходность, затем прибыль в тенге.</details>{% endif %}
-{% if mode != 'no_sellers' %}<p class="muted">Найдено {{ total }} · {% if mode == 'best' %}Цены и подтверждённые продажи актуальны не более 7 дней.{% else %}Даты цен и спроса доступны в таблице и карточке.{% endif %} Статус совпадения и спрос показаны отдельно.</p>
+{% if preliminary %}<p class="muted">Показана предварительная подборка: {{ preliminary_total }} · Полностью подтверждённых по всем условиям: {{ total }}.</p>{% elif mode != 'no_sellers' %}<p class="muted">Найдено {{ total }} · {% if mode == 'best' %}Цены и подтверждённые продажи актуальны не более 7 дней.{% else %}Даты цен и спроса доступны в таблице и карточке.{% endif %} Статус совпадения и спрос показаны отдельно.</p>
 {% else %}<p class="muted">Найдено {{ total }} · Только подтверждённые результаты проверки. Непроверенные товары сюда не включаются.</p>{% endif %}
+{% if preliminary %}<section class="notice"><h2>Предварительно выгодные товары · {{ preliminary_total }}</h2><p>Восстановленная подборка по расчётной прибыли: от {{ preferences.best_min_profit|floatformat:0 }} ₸ после комиссии и расходов, положительный остаток, свежая сохранённая цена и подтверждённое совпадение с Kaspi. Сначала наибольшая доходность вложений.</p><p><strong>Это кандидаты к закупке. Подтверждённый спрос отсутствует либо не выполнены все условия строгого отбора.</strong> {{ best_empty_reason }} Проверка продавцов и спрос указаны у каждого товара.</p></section>{% endif %}
 <div class="tablewrap">
 <table>
 <thead>
@@ -65,7 +66,7 @@
 </thead>
 <tbody>{% for row in page %}<tr>
 <td class="product">{% if row.offer.photo_url %}<img src="{{ row.offer.photo_url }}" alt="" width="52" height="52" loading="lazy" referrerpolicy="no-referrer" style="object-fit:contain;float:left;margin:0 10px 6px 0">{% else %}<small>Фото пока нет</small>{% endif %}<a href="{% url 'procurement:detail' row.offer.pk %}">
-<strong>{{ row.offer.name }}</strong>
+<strong>{{ row.offer.name }}</strong>{% if preliminary %}<small class="badge weak">Предварительно выгодный · требует проверки спроса и продавцов Kaspi</small>{% endif %}
 <small><b>{{ row.kaspi_status }}</b> · {{ row.kaspi_checked_on|date:'d.m.Y'|default:'ещё не проверено' }}</small>
 </a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{% if row.kaspi_presence == 'no_card' %}Карточка Kaspi не найдена после проверки{% elif row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</small><small>{{ row.offer.category }}</small>
