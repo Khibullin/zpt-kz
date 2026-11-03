@@ -17,7 +17,7 @@ from .services import post_document
 
 class ReceiveForm(forms.Form):
     warehouse = forms.ChoiceField(label='Склад приёмки', choices=[('PP2','PP2 · Rapida'),('PP1','PP1 · Asia Grade')], initial='PP2')
-    date = forms.DateField(label='Дата фактической приёмки', initial=timezone.localdate, widget=forms.DateInput(attrs={'type':'date'}))
+    date = forms.DateField(label='Дата фактической приёмки', initial=timezone.localdate, widget=forms.DateInput(format='%Y-%m-%d',attrs={'type':'date'}))
     waybill = forms.CharField(label='Номер накладной', max_length=100, required=False)
     version = forms.IntegerField(widget=forms.HiddenInput)
     key = forms.UUIDField(widget=forms.HiddenInput)
