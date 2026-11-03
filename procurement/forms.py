@@ -60,20 +60,25 @@ class SelectionFilterForm(forms.Form):
         models = self.vehicle_models.get(selected_make, [])
         self.fields['vehicle_model'].choices = [('', 'Все модели' if selected_make else 'Сначала выберите марку')] + [(x, x) for x in models]
         selected_model = self.data.get('vehicle_model', '') if self.is_bound else ''
-        configurations = fitments
+        configurations = fitments if selected_make and selected_model else fitments.none()
         if selected_make:
             configurations = configurations.filter(make=selected_make)
         if selected_model:
             configurations = configurations.filter(model=selected_model)
-        specs = [config for values in configurations.values_list('configurations', flat=True)
-                 for config in values if isinstance(config, dict)]
-        generations = sorted({config['generation'] for config in specs if config.get('generation')})
-        self.fields['vehicle_generation'].choices = [('', 'Все поколения')] + [(x, x) for x in generations]
+        generations, year_values = set(), set()
         selected_generation = self.data.get('vehicle_generation', '') if self.is_bound else ''
-        years = sorted({year for config in specs
-                        if not selected_generation or config.get('generation') == selected_generation
-                        for year in configuration_years(config.get('years'))}, reverse=True)
-        self.fields['vehicle_year'].choices = [('', 'Все годы')] + [(str(x), str(x)) for x in years]
+        # Stream large supplier fitment JSON instead of retaining every configuration.
+        for values in configurations.values_list('configurations', flat=True).iterator(chunk_size=20):
+            for config in values:
+                if not isinstance(config, dict):
+                    continue
+                if config.get('generation'):
+                    generations.add(config['generation'])
+                if not selected_generation or config.get('generation') == selected_generation:
+                    year_values.add(str(config.get('years', '')))
+        self.fields['vehicle_generation'].choices = [('', 'Все поколения' if selected_make and selected_model else 'Сначала выберите модель')] + [(x, x) for x in sorted(generations)]
+        years = sorted({year for value in year_values for year in configuration_years(value)}, reverse=True)
+        self.fields['vehicle_year'].choices = [('', 'Все годы' if selected_make and selected_model else 'Сначала выберите модель')] + [(str(x), str(x)) for x in years]
 
 
 

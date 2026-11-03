@@ -132,8 +132,8 @@ def filtered_rows(request, preferences, filters):
     if filters.get('vehicle_country') or filters.get('vehicle_make') or filters.get('vehicle_model') or filters.get('fitment') == 'verified':
         query = query.filter(**fitment_filters).distinct()
     if filters.get('vehicle_generation') or filters.get('vehicle_year'):
-        fitments = VehicleFitment.objects.filter(**{key.removeprefix('fitments__'): value for key, value in fitment_filters.items()})
-        eligible = {fitment.offer_id for fitment in fitments.only('offer_id', 'configurations')
+        fitments = VehicleFitment.objects.filter(offer__in=query.values('pk'), **{key.removeprefix('fitments__'): value for key, value in fitment_filters.items()})
+        eligible = {fitment.offer_id for fitment in fitments.only('offer_id', 'configurations').iterator(chunk_size=20)
                     if matches_configuration(fitment.configurations, filters.get('vehicle_generation', ''), filters.get('vehicle_year'))}
         query = query.filter(pk__in=eligible)
     if filters.get('fitment') == 'unknown':
