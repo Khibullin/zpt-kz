@@ -309,3 +309,126 @@ class MappingTests(TestCase):
         self.assertEqual(row['form'].initial['item'],self.item)
         self.assertEqual(row['form'].initial['unit'],'piece')
         self.assertContains(response,'Подготовить карточки по PP1')
+
+class AccountingToolsTests(TestCase):
+    setUp=StockDocumentsTests.setUp
+    document=StockDocumentsTests.document
+    def test_opening_preparation_repeat_and_duplicate_skus(self):
+        from .models import ImportBatch,ItemAlias,StockDocument,StockEntry
+        batch=ImportBatch.objects.create(kind='stock',digest='tools',filename='old.xlsx',as_of=date(2020,1,1),created_by=self.user)
+        ItemAlias.objects.create(item=self.item,source='kaspi',code='SKU',multiplier=2,confirmed_by=self.user)
+        StockSnapshot.objects.create(batch=batch,warehouse='PP2',sku='SKU',name='Filter',quantity=3)
+        url=reverse('inventory:prepare_openings')
+        data={'batch':batch.pk,'date':'2026-11-03','checked':'on'}
+        self.client.post(url,data);self.client.post(url,data)
+        doc=StockDocument.objects.get(kind='opening')
+        self.assertEqual(doc.quantity,6);self.assertEqual(doc.status,'draft');self.assertIsNone(doc.unit_cost)
+        self.assertFalse(StockEntry.objects.exists())
+        ItemAlias.objects.create(item=self.item,source='kaspi',code='SKU2',confirmed_by=self.user)
+        StockSnapshot.objects.create(batch=batch,warehouse='PP2',sku='SKU2',name='Filter',quantity=4)
+        self.client.post(reverse('inventory:cancel_document',args=[doc.pk]))
+        self.client.post(url,data)
+        self.assertEqual(StockDocument.objects.count(),1)
+
+    def test_money_transfer_cancel_both_sides_and_duplicate_atomic(self):
+        from .models import MoneyAccount,CashEntry
+        a=MoneyAccount.objects.create(name='A',opening_balance=100,opening_date=date(2026,1,1),created_by=self.user)
+        b=MoneyAccount.objects.create(name='B',opening_balance=200,opening_date=date(2026,1,1),created_by=self.user)
+        data={'source':a.pk,'destination':b.pk,'date':'2026-11-03','amount':'50','reference':'TRANSFER'}
+        self.client.post(reverse('inventory:transfer_money'),data)
+        self.assertEqual(CashEntry.objects.count(),2)
+        self.assertEqual(sum(r.signed_amount for r in CashEntry.objects.all()),0)
+        self.client.post(reverse('inventory:transfer_money'),data)
+        self.assertEqual(CashEntry.objects.count(),2)
+        entry=CashEntry.objects.first()
+        self.client.post(reverse('inventory:cancel_cash',args=[entry.pk]),{'reason':'Ошибка'})
+        self.assertEqual(CashEntry.objects.filter(cancelled=True).count(),2)
+        self.assertEqual(sum(r.signed_amount for r in CashEntry.objects.all()),0)
+        balances=self.client.get(reverse('inventory:cash')).context['accounts']
+        self.assertEqual([a.current_balance for a in balances],[100,200])
+
+    def test_edit_posted_guard_and_unit_lock(self):
+        from .services import post_document
+        doc=self.document();post_document(doc.pk,self.user)
+        self.client.post(reverse('inventory:edit',args=['document',doc.pk]),{'quantity':'99'})
+        doc.refresh_from_db();self.assertEqual(doc.quantity,10)
+        self.client.post(reverse('inventory:cancel_document',args=[doc.pk]))
+        doc.refresh_from_db();self.assertEqual(doc.status,'posted')
+        self.client.post(reverse('inventory:edit',args=['item',self.item.pk]),{'code':'FILTER','name':'Updated','unit':'set'})
+        self.item.refresh_from_db();self.assertEqual(self.item.unit,'piece');self.assertEqual(self.item.name,'Updated')
+
+    def test_supplier_debt_ignores_cancelled_payments(self):
+        from .services import post_document
+        from .models import MoneyAccount,CashEntry
+        doc=self.document(kind='receipt',unit_cost=100,counterparty='Vendor');post_document(doc.pk,self.user)
+        a=MoneyAccount.objects.create(name='A',opening_date=date.today(),created_by=self.user)
+        payment=CashEntry.objects.create(account=a,date=date.today(),kind='supplier',amount=400,reference='P',stock_document=doc,created_by=self.user)
+        url=reverse('inventory:settlements')
+        self.assertEqual(self.client.get(url).context['due'],600)
+        self.client.post(reverse('inventory:cancel_cash',args=[payment.pk]),{'reason':'Wrong'})
+        self.assertEqual(self.client.get(url).context['due'],1000)
+
+    def test_report_margin_return_and_missing_fields(self):
+        from .services import post_document
+        receipt=self.document(kind='receipt',warehouse='PP2',unit_cost=100,counterparty='V');post_document(receipt.pk,self.user)
+        sale=self.document(kind='sale',warehouse='PP2',quantity=2,external_number='S',sale_amount=1000,selling_costs=50);post_document(sale.pk,self.user)
+        ret=self.document(kind='return',warehouse='PP2',quantity=1,related_sale=sale,return_condition='good',sale_amount=500,selling_costs=0);post_document(ret.pk,self.user)
+        url=reverse('inventory:operating_report')
+        self.assertEqual(self.client.get(url).context['margin'],350)
+        type(sale).objects.filter(pk=sale.pk).update(selling_costs=None)
+        self.assertIsNone(self.client.get(url).context['margin'])
+
+    def test_exports_safe_and_all_new_views_protected(self):
+        import openpyxl
+        self.item.name='=HYPERLINK("bad")';self.item.save()
+        response=self.client.get(reverse('inventory:items'),{'export':'xlsx'})
+        book=openpyxl.load_workbook(BytesIO(response.content));self.assertEqual(book.active['C2'].data_type,'s')
+        for route in ['settlements','operating_report','prepare_openings','transfer_money']:
+            self.assertEqual(self.client.get(reverse('inventory:'+route)).status_code,200)
+        for route in ['items','documents','cash','settlements','operating_report','stock','sales']:
+            response=self.client.get(reverse('inventory:'+route),{'export':'xlsx'})
+            self.assertEqual(response.status_code,200)
+            self.assertTrue(response.content.startswith(b'PK'))
+        self.client.logout()
+        for route in ['settlements','operating_report','prepare_openings','transfer_money']:
+            self.assertEqual(self.client.get(reverse('inventory:'+route)).status_code,302)
+
+    def test_invalid_dates_do_not_show_unfiltered_records(self):
+        self.document()
+        for route in ['documents','cash','settlements','operating_report']:
+            self.assertEqual(self.client.get(reverse('inventory:'+route),{'start':'bad'}).context['page'].paginator.count,0)
+
+    def test_inventory_correction_fifo_and_reason(self):
+        from .services import post_document,balance
+        from django.core.exceptions import ValidationError
+        add=self.document(kind='adjustment',quantity=3,unit_cost=100,note='Инвентаризация')
+        post_document(add.pk,self.user)
+        remove=self.document(kind='writeoff',quantity=2,note='Недостача')
+        result=post_document(remove.pk,self.user)
+        self.assertEqual(result.total_cost,200);self.assertEqual(balance(self.item,'PP1'),1)
+        with self.assertRaises(ValidationError):post_document(self.document(kind='writeoff',quantity=1).pk,self.user)
+
+    def test_financial_clarification_preserves_stock_and_audits_previous(self):
+        from .services import post_document,balance
+        from .models import StockEvent
+        post_document(self.document(kind='receipt',warehouse='PP2',unit_cost=100,counterparty='V').pk,self.user)
+        doc=post_document(self.document(kind='sale',warehouse='PP2',quantity=2,external_number='AUDIT').pk,self.user)
+        self.client.post(reverse('inventory:financial_details',args=[doc.pk]),{'sale_amount':'1000','selling_costs':'50','reason':'Получен отчёт'})
+        doc.refresh_from_db()
+        self.assertEqual(doc.total_cost,200);self.assertEqual(doc.sale_amount,1000)
+        self.assertEqual(balance(self.item,'PP2'),8)
+        self.assertIn('Сумма: None',doc.note)
+        self.assertTrue(StockEvent.objects.filter(document=doc,action='Уточнены суммы продажи').exists())
+
+    def test_bank_check_and_stock_filter_multiple_aliases(self):
+        from .models import MoneyAccount,CashEntry,ItemAlias
+        from .services import post_document
+        a=MoneyAccount.objects.create(name='Check',opening_date=date(2026,1,1),opening_balance=100,created_by=self.user)
+        CashEntry.objects.create(account=a,date=date(2026,11,3),kind='kaspi',amount=50,reference='X',created_by=self.user)
+        result=self.client.get(reverse('inventory:bank_check'),{'account':a.pk,'date':'2026-11-03','actual':150})
+        self.assertEqual(result.context['difference'],0)
+        for code in ['a','b']:ItemAlias.objects.create(item=self.item,source='kaspi',code=code,confirmed_by=self.user)
+        post_document(self.document().pk,self.user)
+        response=self.client.get(reverse('inventory:items'),{'warehouse':'PP1','stock_state':'positive','mapped':'yes'})
+        self.assertEqual(response.context['page'].paginator.count,1)
+        self.assertEqual(list(response.context['page'])[0].filtered_stock,10)
