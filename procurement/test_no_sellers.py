@@ -45,3 +45,19 @@ class NoSellerModeTests(TestCase):
         self.preferences.refresh_from_db()
         self.assertEqual(self.preferences.best_min_profit, Decimal(1500))
         self.assertEqual(self.preferences.no_sellers_days, 3)
+
+    def test_all_found_includes_sellers_and_incomplete_without_counting_as_empty(self):
+        self.snapshot.sellers = [{'name': 'Shop', 'price': '2000'}]
+        self.snapshot.complete = False
+        self.snapshot.save()
+        Offer.objects.create(supplier=self.supplier, brand='B', article='unseen', name='Unseen', cost=1)
+        response = self.get_results(mode='reviewed')
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(response, 'Продавцы есть')
+        self.assertEqual(self.get_results().context['total'], 0)
+        self.snapshot.sellers = []
+        self.snapshot.save()
+        response = self.get_results(mode='reviewed')
+        self.assertEqual(response.context['total'], 1)
+        self.assertContains(response, 'Проверка не завершена')
+        self.assertEqual(self.get_results().context['total'], 0)

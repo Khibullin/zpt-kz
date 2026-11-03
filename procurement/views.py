@@ -79,6 +79,9 @@ def filtered_rows(request, preferences, filters):
             query = query.none()
         else:
             query = query.filter(kaspi_price__isnull=False, cost__gt=0)
+    elif mode == 'reviewed':
+        query = query.select_related('kaspi_sellers', 'kaspi_card_search').filter(
+            Q(kaspi_sellers__isnull=False) | Q(kaspi_card_search__isnull=False))
     elif mode == 'no_sellers':
         fresh = today - timedelta(days=preferences.no_sellers_days)
         empty_card = Q(match_verified=True, kaspi_sellers__complete=True,
@@ -137,6 +140,22 @@ def filtered_rows(request, preferences, filters):
         rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
                 and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)]
         rows.sort(key=lambda r: (-r['markup'], -r['difference'], r['offer'].pk))
+    elif mode == 'reviewed':
+        for row in rows:
+            offer = row['offer']
+            snapshot = getattr(offer, 'kaspi_sellers', None)
+            search = getattr(offer, 'kaspi_card_search', None)
+            row['kaspi_checked_on'] = max([x.checked_on for x in (snapshot, search) if x])
+            row['kaspi_status'] = 'Проверка не завершена'
+            fresh = today - timedelta(days=preferences.no_sellers_days)
+            if snapshot and snapshot.source_url == offer.kaspi_url and snapshot.city == '750000000' and fresh <= snapshot.checked_on <= today:
+                if snapshot.sellers:
+                    row['kaspi_status'] = 'Продавцы есть'
+                elif snapshot.complete and offer.match_verified:
+                    row['kaspi_status'] = 'Карточка есть — продавцов нет'
+            if not offer.kaspi_url and search and search.complete and search.city == '750000000' and fresh <= search.checked_on <= today and (search.checked_brand, search.checked_article, search.checked_name) == (offer.brand, offer.article, offer.name):
+                row['kaspi_status'] = 'Карточка не найдена после проверки'
+        rows.sort(key=lambda r: (-r['kaspi_checked_on'].toordinal(), r['offer'].pk))
     elif mode == 'difference':
         if preferences.difference_min_profit is not None:
             rows = [r for r in rows if r['profit'] is not None and r['profit'] >= preferences.difference_min_profit]
@@ -213,7 +232,7 @@ def dashboard(request):
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, supplier_stats=supplier_stats,
-                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers') else ''),
+                  reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)

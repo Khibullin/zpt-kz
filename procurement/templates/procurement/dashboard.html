@@ -9,14 +9,16 @@
 </div>
 </header>
 {% if supplier_stats %}<div class="notice">{{ selected_supplier.name }}: загружено <strong>{{ supplier_stats.loaded }}</strong> · Ссылки Kaspi: {{ supplier_stats.linked }} · Есть цена Kaspi: {{ supplier_stats.priced }} · Совпадение подтверждено: {{ supplier_stats.verified }}.{% if not supplier_stats.priced %}<br>Сверка с Kaspi ещё не выполнена. Для расчёта выгодности нужны цены сопоставленных товаров.{% endif %}</div>{% endif %}
-<p class="muted">Текущая сортировка: <strong>{% if mode == 'no_sellers' %}по подтверждённому спросу, затем свежести проверки{% elif mode == 'difference' %}по прибыли после комиссии и расходов, ₸{% else %}по доходности закупки, % — от большей к меньшей{% endif %}</strong></p>
+<p class="muted">Текущая сортировка: <strong>{% if mode == 'reviewed' %}по дате проверки Kaspi{% elif mode == 'no_sellers' %}по подтверждённому спросу, затем свежести проверки{% elif mode == 'difference' %}по прибыли после комиссии и расходов, ₸{% else %}по доходности закупки, % — от большей к меньшей{% endif %}</strong></p>
 <div class="modes">
+<a class="button" href="{% querystring kaspi_presence=None mode='reviewed' page=None download=None %}">Все найденные товары<small>Все сохранённые проверки Kaspi, включая товары с продавцами</small></a>
 <a class="button primary" {% if mode == 'difference' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='difference' page=None download=None %}">Максимальная разница с Kaspi<small>Сначала наибольшая прибыль после комиссии и расходов</small>
 </a>
 <a class="button teal" {% if mode == 'best' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='best' page=None download=None %}">Самые выгодные к закупке<small>Сначала больший процент заработка на вложенные деньги</small>
 </a>
 <a class="button opportunity" {% if mode == 'no_sellers' %}aria-current="page"{% endif %} href="{% querystring kaspi_presence=None mode='no_sellers' page=None download=None %}">Нет продавцов на Kaspi<small>Товары поставщика без активных предложений в Алматы</small></a>
 </div>
+{% if mode == 'reviewed' %}<div class="notice">Все найденные товары с сохранённой проверкой Kaspi. Статус указан у каждой позиции. Неполные и устаревшие проверки не подтверждают отсутствие продавцов. <a href="{% querystring mode='no_sellers' kaspi_presence=None page=None download=None %}">Только подтверждённые товары без продавцов →</a></div>{% endif %}
 {% if mode == 'no_sellers' %}
 <div class="notice"><strong>Отдельный алгоритм: свободные предложения на Kaspi.</strong> Карточка есть — полная проверка отсутствия продавцов в Алматы; карточка не найдена — просмотрены результаты поиска по артикулу, бренду с артикулом и названию. Проверка не старше {{ preferences.no_sellers_days }} дней и положительный остаток поставщика. Отсутствие продавцов в Алматы не означает их отсутствие по всему Казахстану. Отзывы — признак спроса, не продажи. Старая цена Kaspi не используется как ожидаемая цена продажи.</div>
 <div class="actions" style="margin-bottom:16px">
@@ -68,6 +70,7 @@
 <tbody>{% for row in page %}<tr>
 <td class="product">{% if row.offer.photo_url %}<img src="{{ row.offer.photo_url }}" alt="" width="52" height="52" loading="lazy" referrerpolicy="no-referrer" style="object-fit:contain;float:left;margin:0 10px 6px 0">{% else %}<small>Фото пока нет</small>{% endif %}<a href="{% url 'procurement:detail' row.offer.pk %}">
 <strong>{{ row.offer.name }}</strong>
+{% if mode == 'reviewed' %}<small><b>{{ row.kaspi_status }}</b> · {{ row.kaspi_checked_on|date:'d.m.Y' }}</small>{% endif %}
 </a>
 <small>{{ row.offer.brand }} · {{ row.offer.article }}</small><small>{% if row.kaspi_presence == 'no_card' %}Карточка Kaspi не найдена после проверки{% elif row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</small><small>{{ row.offer.category }}</small>
 {% include 'procurement/fitments.html' with offer=row.offer compact=True %}
