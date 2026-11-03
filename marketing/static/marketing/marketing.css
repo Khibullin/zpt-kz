@@ -18,7 +18,7 @@
 
 .marketing-header {
   background: var(--marketing-white);
-  border-bottom: 3px solid var(--marketing-red);
+  border-bottom: 0;
 }
 
 .marketing-header__inner {
@@ -117,7 +117,7 @@
   padding: 10px 20px;
   color: var(--marketing-text);
   text-decoration: none;
-  border-left: 3px solid transparent;
+  border-left: 0;
 }
 
 .marketing-nav__link:hover {
@@ -1404,7 +1404,7 @@
 
 .simple-mailing__result-item--highlight {
   padding-left: 16px;
-  border-left: 3px solid var(--marketing-red);
+  border-left: 0;
 }
 
 .simple-mailing__result-label {

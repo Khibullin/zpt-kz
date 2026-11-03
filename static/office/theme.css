@@ -1,2 +1,115 @@
 /* Loaded only by internal workspace templates. Public storefront is independent. */
 :root{--office-navy:#142e4d;--office-teal:#00a994;--office-bg:#f3f7fb;--office-border:#cbd8e7;--cp-red:#142e4d;--cp-bg:#f3f7fb;--cp-text:#142e4d;--cp-line:#dbe4ee;--marketing-red:#00a994;--marketing-bg:#f3f7fb;--marketing-text:#142e4d;--marketing-border:#dbe4ee;--primary:#00a994;--secondary:#142e4d;--accent:#fff;--header-bg:#142e4d;--header-color:#fff;--header-branding-color:#fff;--link-fg:#142e4d;--link-selected-fg:#008b7d;--button-bg:#00a994;--button-hover-bg:#008b7d;--default-button-bg:#142e4d;--default-button-hover-bg:#22496e}.office-back-link{display:inline-block;font:600 14px Arial,sans-serif;color:#142e4d;text-decoration:none;padding:8px 0;margin-right:18px}.office-back-link:hover{text-decoration:underline}.cp-nav-link:hover{background:#e6f5f2;color:#142e4d}.cp-brand,.marketing-header__logo{color:#142e4d}.cp-header-right .office-back-link,.marketing-header__meta .office-back-link{color:#142e4d}.marketing-btn--danger{color:#991b1b!important;border-color:#fecaca!important;background:#fff!important}#header a.office-admin-home{color:white;font-size:14px;margin-left:20px;font-weight:400}#branding h1{color:white}a.deletelink,.deletelink{color:#fff}.office-admin-logo{font-weight:800}.office-admin-logo span{color:#00b4a0}
+
+/* Approved service typography and spacing, shared by every internal screen. */
+:root{--office-font:Arial,Helvetica,sans-serif;--office-text:#142e4d;--office-muted:#58677a;--office-radius:8px;--office-control-radius:6px;--office-space:24px;--office-menu-width:240px}
+body.office-workspace{font-family:var(--office-font);font-size:16px;line-height:1.5;color:var(--office-text);background:var(--office-bg)!important}
+.office-workspace main h1,.office-workspace .marketing-page-title,.office-workspace .cp-h1{font:700 32px/1.2 var(--office-font);color:var(--office-navy);margin:0 0 24px;white-space:normal}
+.office-workspace main h2{font:700 24px/1.3 var(--office-font);color:var(--office-navy);margin:0 0 16px}
+.office-workspace main h3{font:700 18px/1.35 var(--office-font);color:var(--office-navy)}
+.office-workspace main p{line-height:1.5}
+.office-workspace main label,.office-workspace main legend,.office-workspace .filter-field,.office-workspace #id_kaspi_status,.office-workspace .supplier-picker label{font:400 14px/1.45 var(--office-font)}
+.office-workspace main button,.office-workspace main .button,.office-workspace main .marketing-btn,.office-workspace main .cp-btn,.office-workspace main .rw-action{font:600 16px/1.3 var(--office-font);padding:10px 16px;min-height:42px;border-radius:var(--office-control-radius);box-shadow:none}
+.office-workspace main button:hover,.office-workspace main .button:hover,.office-workspace main .cp-btn:hover,.office-workspace main .rw-action:hover{box-shadow:none}
+.office-workspace main input:not([type=checkbox]):not([type=radio]):not([type=hidden]):not([type=submit]),.office-workspace main select,.office-workspace main textarea{font:400 16px/1.35 var(--office-font);padding:10px 12px;min-height:42px;border:1px solid var(--office-border);border-radius:var(--office-control-radius);background:#fff;color:var(--office-navy);max-width:100%;box-sizing:border-box}
+.office-workspace main textarea{min-height:110px}
+.office-workspace main input[type=checkbox],.office-workspace main input[type=radio]{min-height:0;width:16px;height:16px;accent-color:var(--office-teal);vertical-align:middle;flex-shrink:0}
+.office-workspace main table,.office-workspace main table th,.office-workspace main table td{font:400 14px/1.45 var(--office-font)}
+.office-workspace main table th{font-weight:600;background:#eef3f8;color:var(--office-navy)}
+.office-workspace main table th,.office-workspace main table td{padding:12px 14px}
+.office-workspace main small,.office-workspace main .muted,.office-workspace main .cp-kpi-hint,.office-workspace main .product-evidence summary,.office-workspace main .rw-stats span{font:400 14px/1.45 var(--office-font)}
+.office-workspace main .panel,.office-workspace main .card,.office-workspace main .cp-card,.office-workspace main .rw-card,.office-workspace main .marketing-card{border-radius:var(--office-radius);box-shadow:none}
+.office-workspace main .panel{padding:24px;margin-bottom:24px}
+.office-workspace main .actions{gap:12px}
+.office-workspace main .notice{font-size:14px;line-height:1.5;border-radius:var(--office-radius);padding:16px}
+.office-workspace main .pagination,.office-workspace main .cp-breadcrumbs,.office-workspace main .results-toolbar strong{font-size:14px;line-height:1.5}
+.office-workspace main .errorlist{color:#a42b25;font-size:14px}
+.office-workspace footer{font:400 14px/1.5 var(--office-font)}
+.office-workspace .office-back-link{font:600 16px/1.4 var(--office-font);margin:0}
+.office-workspace .office-back-link:hover{color:#008b7d}
+
+/* Accounting workspace. Data, tables and existing navigation stay intact. */
+.office-inventory>header{display:flex;align-items:center;flex-wrap:wrap;gap:24px;padding:18px 28px;min-height:74px;border:0;font:600 18px/1.4 var(--office-font);background:white}
+.office-inventory>header>a:first-child{font-size:30px;font-weight:800;text-decoration:none;color:var(--office-navy)}
+.office-inventory>header .office-back-link{margin-left:auto;color:var(--office-navy)}
+.office-inventory>aside{top:78px;bottom:0;width:var(--office-menu-width);max-height:none;padding:20px 12px;background:var(--office-navy);overflow-y:auto}
+.office-inventory>aside>a{font:400 16px/1.4 var(--office-font);color:#fff;padding:12px 14px;border-radius:6px;text-decoration:none}
+.office-inventory>aside>a:hover{background:#22496e;color:#fff}
+.office-inventory>main{margin-left:var(--office-menu-width);padding:28px;max-width:1900px;min-width:0}
+.office-inventory main>a,.office-inventory main p>a:not(.button){color:var(--office-navy)}
+.office-inventory main button:not(.secondary):not(.danger),.office-inventory main .button:not(.secondary):not(.danger){background:var(--office-teal);border-color:var(--office-teal);color:#fff;text-decoration:none}
+.office-inventory main .secondary{background:white;color:var(--office-navy);border-color:var(--office-border)}
+.office-inventory main .danger{background:#a42b25;border-color:#a42b25;color:white}
+.office-inventory main .filters{background:#eef7f9;gap:16px;align-items:end}
+.office-inventory main .filters label{gap:8px}
+.office-inventory main .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:20px;margin-bottom:24px}
+.office-inventory main .cards .card{min-width:0;margin:0;padding:24px}
+.office-inventory main .card strong{font:700 26px/1.25 var(--office-font);color:var(--office-navy);margin-top:14px;overflow-wrap:anywhere}
+.office-inventory main .card strong a{font:600 18px/1.35 var(--office-font);color:var(--office-navy);text-decoration:none}
+.office-inventory main .card strong a:hover{text-decoration:underline}
+.office-inventory main .columns{gap:20px}.office-inventory main .columns>.panel{min-width:min(330px,100%)}
+
+/* Procurement uses the same measures while retaining its two mode colours. */
+.office-procurement>aside{width:var(--office-menu-width);height:100dvh;overflow-y:auto;padding:20px 12px;background:var(--office-navy)}
+.office-procurement>aside>a{font:400 16px/1.4 var(--office-font);padding:12px 14px;margin:0 0 4px;color:white}
+.office-procurement>aside .logo{font-size:30px;font-weight:800;margin:12px 12px 20px;padding:0}
+.office-procurement>aside .role{font-size:14px;padding:16px 14px;color:#c6d6e6}
+.office-procurement>main{margin-left:var(--office-menu-width);padding:28px;min-width:0;max-width:1900px}
+.office-procurement main .compact-header{gap:16px;margin-bottom:20px}
+.office-procurement main .compact-tabs{gap:12px;margin-bottom:18px}
+.office-procurement main .compact-tabs a.button{padding:12px 18px;font-size:16px;border-radius:6px}
+.office-procurement main .catalog-tab{background:#FDEBE8!important;border-color:#E7A39A!important;color:#142E4D!important}
+.office-procurement main .compact-tabs .teal{background:#00a994!important;border-color:#00a994!important;color:#fff!important}
+.office-procurement main .catalog-filters{background:#fff5f3;border:1px solid #E7A39A;border-radius:8px;padding:20px}
+.office-procurement main .catalog-filters.best-filters{background:#eefaf5;border-color:#8bcfbc}
+.office-procurement main .catalog-filters .filter-grid{gap:16px}
+.office-procurement main .catalog-filters .filter-field{gap:8px}
+.office-procurement main .catalog-filters .selection-filters{gap:16px}
+.office-procurement main .catalog-filters .selection-filters fieldset{padding:4px 0}
+.office-procurement main .catalog-filters .selection-filters fieldset legend{margin-bottom:10px}
+.office-procurement main .filter-field select,.office-procurement main .filter-field input{font-size:16px}
+.office-procurement main .product strong{font-size:16px;font-weight:600;line-height:1.4}
+.office-procurement main .tablewrap{border-radius:8px}
+.office-procurement main .product a:not(.button){color:#142e4d}
+.office-procurement main .supplier-picker label{gap:10px}
+.office-procurement>aside button{font:600 16px/1.3 var(--office-font);border-radius:6px;min-height:42px}
+
+/* Other linked service tools share typography, cards and navigation colours. */
+.office-control .cp-sidebar{background:var(--office-navy);border:0;width:var(--office-menu-width);padding:20px 12px}
+.office-control .cp-nav-link{font-size:16px;line-height:1.4;color:#fff;padding:12px 14px;border-radius:6px}
+.office-control .cp-nav-link:hover,.office-control .cp-nav-link.is-active{background:#22496e;color:#fff}
+.office-control .cp-nav-title{font-size:14px;color:#c6d6e6;text-transform:none}
+.office-control .cp-header{border:0;min-height:74px;padding:18px 24px}
+.office-control .cp-brand{font:700 22px/1.3 var(--office-font)}
+.office-control .cp-main{padding:28px}
+.office-control .cp-card{border-radius:8px}
+.office-control main .cp-btn:not(.cp-btn-danger):not(.rw-whatsapp){font-size:16px}
+.office-control main .cp-kpi-value{font-size:26px;line-height:1.3;color:var(--office-navy)}
+.office-control .cp-card,.office-control .rw-card,.office-control .rw-stats{box-shadow:none}
+.office-marketing .marketing-header{border:0}
+.office-marketing .marketing-layout{max-width:1900px;--marketing-sidebar-width:240px}
+.office-marketing .marketing-sidebar{background:var(--office-navy);border:0;padding:20px 12px}
+.office-marketing .marketing-nav__link{border:0;border-radius:6px;font-size:16px;line-height:1.4;color:white;padding:12px 14px}
+.office-marketing .marketing-nav__link:hover,.office-marketing .marketing-nav__link.is-active{background:#22496e;color:white;border:0}
+.office-marketing .marketing-nav__section-title{font-size:14px;text-transform:none;color:#c6d6e6}
+.office-marketing .marketing-main{padding:28px;min-width:0}
+.office-marketing .simple-mailing__result-item--highlight{padding-left:0;border-left:0}
+.office-marketing .marketing-header__inner{padding:18px 28px;max-width:1900px}
+.office-marketing main .marketing-btn--danger{background:#a42b25!important;border-color:#a42b25!important;color:white!important}
+.office-workspace .marketing-header__logo{font-size:28px;font-weight:800}
+.office-workspace .marketing-header__title,.office-workspace .marketing-user{font-size:14px}
+
+/* No decorative bands, header separators or accent lines. Card/table outlines remain. */
+.office-body .office-header,.office-body .office-header-title,.office-body .office-footer{border:0}
+.office-body .office-header-title{padding-left:0}
+.office-body .office-card-main{border-top:1px solid var(--office-border)}
+.office-body .office-card-turquoise{border-top-color:var(--office-border)}
+.office-workspace .marketing-nav__link,.office-workspace .simple-mailing__result-item--highlight{border-left:0}
+.office-admin{font-family:var(--office-font);font-size:16px}
+.office-admin #header{font-family:var(--office-font)}
+.office-admin #content h1{font:700 32px/1.2 var(--office-font);color:var(--office-navy)}
+.office-admin input,.office-admin select,.office-admin textarea,.office-admin button{font-family:var(--office-font);font-size:14px}
+.office-admin .module caption,.office-admin .module h2{background:var(--office-navy);font-family:var(--office-font)}
+@media(max-width:1100px){.office-workspace main h1,.office-workspace .cp-h1{font-size:28px}.office-inventory main .cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:950px){.office-inventory>aside,.office-procurement>aside{position:static;inset:auto;bottom:auto;top:auto;width:auto;height:auto;max-height:none;display:flex;align-items:center;flex-wrap:wrap;gap:4px;padding:12px}.office-inventory>aside>a,.office-procurement>aside>a{padding:8px 12px;margin:0;font-size:14px}.office-inventory>main,.office-procurement>main{margin-left:0;padding:20px}.office-inventory>header{padding:16px 20px}.office-inventory>header .office-back-link{margin-left:0}.office-procurement>aside .logo{margin:0 10px}.office-marketing .marketing-main,.office-control .cp-main{padding:20px}}
+@media(max-width:600px){.office-workspace main h1,.office-workspace .cp-h1{font-size:26px}.office-workspace main h2{font-size:22px}.office-inventory>main,.office-procurement>main{padding:16px}.office-workspace main .panel{padding:18px}.office-inventory main .cards{grid-template-columns:1fr}.office-inventory main .cards .card{padding:20px}.office-inventory main .columns>.panel{min-width:100%}.office-workspace main button,.office-workspace main .button{white-space:normal}.office-workspace main .filters label{flex:1 1 160px}.office-marketing .marketing-main,.office-control .cp-main{padding:16px}}

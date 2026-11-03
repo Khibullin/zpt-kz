@@ -9,7 +9,7 @@
 [data-selection-status]{display:block;width:100%;line-height:1.4;min-height:2.8em}
 </style>
 {% include "includes/office_favicon.html" %}</head>
-<body>
+<body class="office-workspace office-procurement">
 {% if can_access_procurement and not request.GET.compact %}<aside>
 <a href="{% url 'office_home' %}">Служебный кабинет</a>
 <a class="logo" href="{{ catalog_url|default:'/office/procurement/' }}">ZPT<span>.KZ</span>

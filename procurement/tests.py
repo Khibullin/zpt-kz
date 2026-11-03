@@ -658,9 +658,9 @@ class WorkspaceTests(TestCase):
         response = self.client.post(self.url('login'), {'username': 'buyer', 'password': 'test-password-123', 'next': target})
         self.assertRedirects(response, target)
 
-    def test_successful_login_defaults_to_workspace(self):
+    def test_successful_login_defaults_to_office_home(self):
         response = self.client.post(self.url('login'), {'username': 'buyer', 'password': 'test-password-123'})
-        self.assertRedirects(response, self.url('dashboard'))
+        self.assertRedirects(response, reverse('office_home'))
 
     def test_login_rejects_accounts_without_assigned_role(self):
         response = self.client.post(self.url('login'), {'username': 'outsider', 'password': 'test-password-123'})
@@ -670,7 +670,7 @@ class WorkspaceTests(TestCase):
 
     def test_already_signed_in_member_bypasses_login_form(self):
         self.login()
-        self.assertRedirects(self.client.get(self.url('login')), self.url('dashboard'))
+        self.assertRedirects(self.client.get(self.url('login')), reverse('office_home'))
         self.login(self.outsider)
         response = self.client.get(self.url('login'))
         self.assertEqual(response.status_code, 403)
@@ -679,7 +679,7 @@ class WorkspaceTests(TestCase):
 
     def test_login_does_not_redirect_to_external_next(self):
         response = self.client.post(self.url('login'), {'username': 'buyer', 'password': 'test-password-123', 'next': 'https://evil.example/'})
-        self.assertRedirects(response, self.url('dashboard'))
+        self.assertRedirects(response, reverse('office_home'))
 
     def test_private_headers_on_pages_redirects_errors_and_exports(self):
         for user in [None, self.user, self.outsider]:
