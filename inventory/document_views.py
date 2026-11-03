@@ -41,31 +41,24 @@ def items(request):
     if q: rows=rows.filter(Q(code__icontains=q)|Q(article__icontains=q)|Q(name__icontains=q)|Q(aliases__code__icontains=q)).distinct()
     if request.GET.get('unit'):rows=rows.filter(unit=request.GET['unit'])
     if request.GET.get('brand'):rows=rows.filter(brand=request.GET['brand'])
-    warehouses=[request.GET['warehouse']] if request.GET.get('warehouse') in ['PP1','PP2'] else ['PP1','PP2']
-    stock_totals=StockEntry.objects.filter(document__item_id=OuterRef('pk'),warehouse__in=warehouses).values('document__item_id').annotate(total=Sum('quantity')).values('total')
-    rows=rows.annotate(filtered_stock=Subquery(stock_totals))
-    stock_state=request.GET.get('stock_state')
-    if stock_state=='positive':rows=rows.filter(filtered_stock__gt=0)
-    if stock_state=='zero':rows=rows.filter(filtered_stock=0)
-    if stock_state=='unknown':rows=rows.filter(filtered_stock__isnull=True)
     state=request.GET.get('mapped')
     if state=='yes':rows=rows.filter(aliases__isnull=False).distinct()
     if state=='no':rows=rows.filter(aliases__isnull=True)
     rows=rows.order_by(request.GET.get('sort') if request.GET.get('sort') in ['name','-name','code','-code'] else 'code')
+    from .stock_reporting import stock_rows, stock_summary, stock_export, STOCK_HEADERS
+    rows=stock_rows(rows)
+    field={'PP1':'pp1','PP2':'pp2','Kaspi':'kaspi'}.get(request.GET.get('warehouse'),'total')
+    for item in rows:item.filtered_stock=getattr(item,field)
+    stock_state=request.GET.get('stock_state')
+    if stock_state=='positive':rows=[i for i in rows if getattr(i,field) is not None and getattr(i,field)>0]
+    if stock_state=='zero':rows=[i for i in rows if getattr(i,field)==0]
+    if stock_state=='unknown':rows=[i for i in rows if getattr(i,field) is None]
+    summary=stock_summary(rows)
     if request.GET.get('export')=='xlsx':
-        totals={}
-        for r in StockEntry.objects.values('document__item_id','warehouse').annotate(total=Sum('quantity')):totals[(r['document__item_id'],r['warehouse'])]=r['total']
-        return xlsx_response('stock-balances',['Код','Артикул','Название','Бренд','Единица','PP1','PP2','В пути','Брак'],([i.code,i.article,i.name,i.brand,i.get_unit_display(),*[totals.get((i.pk,w)) for w in ['PP1','PP2','TRANSIT','DAMAGED']]] for i in rows))
+        return xlsx_response('stock-balances',STOCK_HEADERS,stock_export(rows))
     page=Paginator(rows,50).get_page(request.GET.get('page'))
-    balances={}
-    ids=[i.pk for i in page]
-    for r in StockEntry.objects.filter(document__item_id__in=ids).values('document__item_id','warehouse').annotate(total=Sum('quantity')):
-        balances.setdefault(r['document__item_id'],{})[r['warehouse']]=r['total']
-    for item in page:
-        b=balances.get(item.pk,{})
-        item.pp1=b.get('PP1');item.pp2=b.get('PP2');item.transit=b.get('TRANSIT');item.damaged=b.get('DAMAGED')
     query=request.GET.copy();query.pop('page',None)
-    return render(request,'inventory/items.html',{'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
+    return render(request,'inventory/items.html',{'summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
 
 @never_cache
 @access('admin')
