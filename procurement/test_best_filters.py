@@ -109,3 +109,24 @@ class BestFiltersTests(TestCase):
         self.assertEqual(self.get(vehicle_make='TOYOTA', vehicle_model='CAMRY', vehicle_generation='XV40',
             year_mode='range', year_from='2012', year_to='2015').context['total'], 0)
         self.assertEqual(self.get(year_mode='selected', vehicle_years=['2007', '2015'], download='csv').status_code, 200)
+
+    def test_seller_intervals_include_boundaries_and_exclude_unknown(self):
+        snapshots = list(KaspiSellerSnapshot.objects.order_by('pk'))
+        snapshots[0].sellers = []
+        snapshots[0].save()
+        snapshots[1].sellers = [{'name': str(i), 'price': '5000'} for i in range(3)]
+        snapshots[1].save()
+        self.assertEqual(self.get(mode='roi', seller_mode='max', seller_max='3').context['total'], 2)
+        self.assertEqual(self.get(mode='roi', seller_mode='max', seller_max='2').context['total'], 1)
+        for mode in ('roi', 'best'):
+            self.assertEqual(self.get(mode=mode, seller_mode='range', seller_min='2', seller_max='3').context['total'], 1)
+            self.assertEqual(self.get(mode=mode, seller_mode='exact', kaspi_seller_count='3').context['total'], 1)
+            self.assertEqual(self.get(mode=mode, seller_mode='range', seller_min='4', seller_max='2').status_code, 400)
+            self.assertEqual(self.get(mode=mode, seller_mode='max').status_code, 400)
+        snapshots[1].complete = False
+        snapshots[1].save()
+        self.assertEqual(self.get(mode='roi', seller_mode='max', seller_max='3').context['total'], 1)
+        self.assertEqual(self.get(mode='roi', seller_mode='', kaspi_seller_count='4').context['total'], 2)
+        csv = self.get(mode='roi', seller_mode='max', seller_max='0', download='csv').content.decode('utf-8-sig')
+        self.assertIn(snapshots[0].offer.name, csv)
+        self.assertNotIn(snapshots[1].offer.name, csv)

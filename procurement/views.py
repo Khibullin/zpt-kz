@@ -113,17 +113,20 @@ def filtered_rows(request, preferences, filters, paginate=False):
         presence = request.GET.get('kaspi_presence')
         query = query.select_related('kaspi_sellers', 'kaspi_card_search').filter(
             no_card if presence == 'no_card' else empty_card if presence == 'has_card' else empty_card | no_card)
-    count = filters.get('kaspi_seller_count')
-    if count is not None:
+    bounds = filters.get('seller_bounds')
+    if bounds is not None:
+        low, high = bounds
         query = query.filter(kaspi_sellers__complete=True, kaspi_sellers__city='750000000',
             kaspi_sellers__source_url=F('kaspi_url'),
             kaspi_sellers__checked_on__gte=today - timedelta(days=preferences.no_sellers_days),
             kaspi_sellers__checked_on__lte=today).exclude(kaspi_url='')
-        if count == 0:
-            query = query.filter(kaspi_sellers__sellers=[], match_verified=True)
+        # Array indices implement inclusive bounds in SQLite and PostgreSQL,
+        # retaining SQL pagination instead of loading all seller lists.
+        query = query.filter(**{f'kaspi_sellers__sellers__{high}__isnull': True})
+        if low > 0:
+            query = query.filter(**{f'kaspi_sellers__sellers__{low - 1}__isnull': False})
         else:
-            query = query.filter(**{f'kaspi_sellers__sellers__{count - 1}__isnull': False,
-                                    f'kaspi_sellers__sellers__{count}__isnull': True})
+            query = query.filter(~Q(kaspi_sellers__sellers=[]) | Q(match_verified=True))
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))

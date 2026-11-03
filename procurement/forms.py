@@ -27,6 +27,9 @@ class SelectionFilterForm(forms.Form):
     availability = forms.ChoiceField(label='Наличие', required=False, choices=[('', 'Любое наличие'), ('in_stock', 'Есть в наличии'), ('unavailable', 'Нет в наличии'), ('unknown', 'Остаток неизвестен')])
     demand = forms.ChoiceField(label='Спрос', required=False, choices=[('', 'Любые признаки спроса'), ('reviews', 'Есть свежие отзывы'), ('sales', 'Есть подтверждённые продажи'), ('unknown', 'Нет свежих подтверждений')])
     kaspi_seller_count = forms.IntegerField(label='Количество продавцов на Kaspi', required=False, min_value=0, max_value=100000, widget=forms.NumberInput(attrs={'list': 'kaspi-seller-counts', 'placeholder': 'Все', 'step': '1'}))
+    seller_mode = forms.ChoiceField(label='Количество продавцов на Kaspi', required=False, choices=[('', 'Все'), ('max', 'До'), ('exact', 'Ровно'), ('range', 'Интервал')])
+    seller_min = forms.IntegerField(label='От', required=False, min_value=0, max_value=100000)
+    seller_max = forms.IntegerField(label='До', required=False, min_value=0, max_value=100000)
     kaspi_status = forms.MultipleChoiceField(label='Статус на Kaspi', required=False, widget=forms.CheckboxSelectMultiple, choices=[('sellers', 'Карточка есть — есть продавцы Kaspi'), ('empty', 'Карточка есть — нет продавцов Kaspi'), ('missing', 'Карточка Kaspi не найдена'), ('pending', 'Проверка Kaspi не завершена')])
     sort = forms.ChoiceField(label='Сортировка', required=False, choices=[('', 'Доходность — сначала наибольшая'), ('profit', 'Прибыль — сначала наибольшая')])
     brand = forms.CharField(label='Бренд детали', required=False, max_length=160)
@@ -96,8 +99,29 @@ class SelectionFilterForm(forms.Form):
             else:
                 self.data['vehicle_years'] = [self.data['vehicle_year']]
 
+        if self.is_bound and 'seller_mode' not in self.data and self.data.get('kaspi_seller_count') not in (None, ''):
+            self.data = self.data.copy()
+            self.data['seller_mode'] = 'exact'
+
     def clean(self):
         data = super().clean()
+        seller_mode = data.get('seller_mode')
+        low = high = None
+        if seller_mode == 'exact':
+            low = high = data.get('kaspi_seller_count')
+            if high is None:
+                self.add_error('kaspi_seller_count', 'Укажите количество продавцов.')
+        elif seller_mode == 'max':
+            low, high = 0, data.get('seller_max')
+            if high is None:
+                self.add_error('seller_max', 'Укажите максимальное количество.')
+        elif seller_mode == 'range':
+            low, high = data.get('seller_min'), data.get('seller_max')
+            if low is None or high is None:
+                self.add_error('seller_min', 'Укажите обе границы интервала.')
+            elif low > high:
+                self.add_error('seller_max', 'Верхняя граница должна быть не меньше нижней.')
+        data['seller_bounds'] = (low, high) if low is not None and high is not None else None
         mode = data.get('year_mode')
         data['selected_years'] = []
         if mode == 'selected':
