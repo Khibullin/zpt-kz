@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'catalog',
     'repricer',
     'procurement',
+    'inventory',
 
     'core',
     'service_requests',

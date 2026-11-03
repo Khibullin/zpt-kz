@@ -88,6 +88,7 @@ def robots_txt(request):
         'User-agent: *',
         'Disallow: /admin/',
         'Disallow: /office/procurement/',
+        'Disallow: /office/accounting/',
         'Disallow: /control/',
         'Disallow: /api/',
         'Disallow: /marketing/',
