@@ -46,6 +46,18 @@ class WorkspaceTests(TestCase):
     def login(self, user=None):
         self.client.force_login(user or self.user)
 
+    def test_best_ignores_catalog_filters_and_hides_controls(self):
+        self.login()
+        self.qualify_best()
+        Preferences.objects.update_or_create(user=self.user, defaults={'commission': Decimal('12.5'), 'expenses': Decimal('250')})
+        response = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk, 'q': 'does-not-exist', 'kaspi_status': 'missing', 'min_profit': 'invalid', 'favorites': '1'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.context['total'], 1)
+        self.assertNotContains(response, 'class="selection-filters"')
+        self.assertContains(response, 'Условия утверждённого алгоритма')
+        catalog = self.client.get(self.url('dashboard'), {'supplier': self.supplier.pk})
+        self.assertContains(catalog, 'class="selection-filters"')
+
     def test_anonymous_redirects_and_login_page_renders(self):
         self.assertEqual(self.client.get(self.url('dashboard')).status_code, 302)
         self.assertContains(self.client.get(self.url('login')), 'Вход в кабинет закупок')

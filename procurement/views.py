@@ -91,6 +91,8 @@ def filtered_rows(request, preferences, filters):
     mode = request.GET.get('mode', 'roi')
     today = timezone.localdate()
     if mode == 'best':
+        filters = {'supplier': filters.get('supplier')}
+    if mode == 'best':
         if preferences.commission is None or preferences.expenses is None:
             query = query.none()
         else:
@@ -208,7 +210,10 @@ def dashboard(request):
         params['supplier'] = request.session['procurement_supplier']
         return redirect(reverse('procurement:dashboard') + '?' + params.urlencode())
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
-    form = SelectionFilterForm(request.GET)
+    filter_data = request.GET
+    if request.GET.get('mode') == 'best':
+        filter_data = {'supplier': request.GET.get('supplier', '')}
+    form = SelectionFilterForm(filter_data)
     valid = form.is_valid()
     if valid:
         supplier = form.cleaned_data.get('supplier')
@@ -222,6 +227,13 @@ def dashboard(request):
             priced=Count('pk', filter=Q(kaspi_price__isnull=False)),
             verified=Count('pk', filter=Q(match_verified=True)))
     rows = filtered_rows(request, preferences, form.cleaned_data) if valid else []
+    best_empty_reason = ''
+    if request.GET.get('mode') == 'best' and not rows:
+        scope = Offer.objects.filter(supplier=supplier) if supplier else Offer.objects.all()
+        if not scope.filter(sales_30__gt=0, evidence_date__gte=timezone.localdate() - timedelta(days=7), evidence_date__lte=timezone.localdate()).exists():
+            best_empty_reason = 'У поставщика нет товаров со свежими подтверждёнными продажами за 30 дней. Для подборки нужен загруженный отчёт о продажах; отзывы Kaspi его не заменяют.'
+        else:
+            best_empty_reason = 'Пока ни один товар не соответствует всем условиям алгоритма одновременно. Проверьте остатки, совпадения, даты цен, продавцов Kaspi и прибыль после расходов.'
     counts = getattr(request, 'catalog_status_counts', {})
     form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
     if request.GET.get('download') == 'csv' and valid:
@@ -250,10 +262,10 @@ def dashboard(request):
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
+                  filter_form=form, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
-                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'brand', 'sort', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
-                  advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
+                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category')],
+                  advanced_filters=[form[name] for name in ('sort', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
 
 
