@@ -55,4 +55,9 @@ def catalog_page(query, preferences, filters, mode, number, today):
         query = query.order_by(F('_catalog_roi').desc(nulls_last=True), 'pk')
     else:
         query = query.order_by(F('_catalog_roi').desc(nulls_last=True), Coalesce('_catalog_difference', Value(Decimal(0))).desc(), 'pk')
-    return Paginator(query, 40).get_page(number), counts
+    # Sort narrow IDs, not large offer/JSON rows from the joined tables.
+    page = Paginator(query.values_list('pk', flat=True), 40).get_page(number)
+    ids = list(page.object_list)
+    offers = {offer.pk: offer for offer in query.filter(pk__in=ids).order_by()}
+    page.object_list = [offers[pk] for pk in ids]
+    return page, counts
