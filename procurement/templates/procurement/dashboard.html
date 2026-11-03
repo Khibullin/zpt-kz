@@ -6,12 +6,12 @@
 <div class="actions">{% if can_manage %}<a class="button" href="{{ upload_url }}">Загрузить файл</a>{% endif %}<a class="button primary" href="{{ basket_url }}">Список закупки · <span data-basket-count>{{ basket_count }}</span></a></div>
 </header>
 <nav class="compact-tabs" aria-label="Разделы товаров">
-<a class="button catalog-tab" href="{{ catalog_url }}" {% if mode != 'best' %}aria-current="page"{% endif %}>Все товары · {{ catalogue_total }}</a>
-<a class="button teal" href="{{ catalog_url }}&amp;mode=best" {% if mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке · {% if preliminary %}{{ preliminary_total }}{% elif mode == 'best' %}{{ total }}{% else %}→{% endif %}</a>
+<a class="button catalog-tab" href="{% querystring mode=None page=None download=None %}" {% if mode != 'best' %}aria-current="page"{% endif %}>Все товары · {{ catalogue_total }}</a>
+<a class="button teal" href="{% querystring mode='best' page=None download=None kaspi_status=None kaspi_presence=None verified=None sort=None %}" {% if mode == 'best' %}aria-current="page"{% endif %}>Выгодные к закупке · {% if preliminary %}{{ preliminary_total }}{% elif mode == 'best' %}{{ total }}{% else %}→{% endif %}</a>
 </nav>
-{% if mode != 'best' %}<section class="catalog-filters" aria-label="Фильтры всех товаров">
+<section class="catalog-filters" aria-label="Фильтры товаров">
 <form method="get" class="selection-filters">
-{% if request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
+{% if mode != 'best' and request.GET.kaspi_presence %}<input type="hidden" name="kaspi_presence" value="{{ request.GET.kaspi_presence }}">{% endif %}
 <input type="hidden" name="mode" value="{{ mode }}"><input type="hidden" name="supplier" value="{{ selected_supplier.pk|default:'' }}">
 {{ filter_form.non_field_errors }}
 
@@ -19,13 +19,13 @@
 <div class="filter-grid">
 {% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
 </div>
-<fieldset><legend>Статус на Kaspi</legend>{{ filter_form.kaspi_status }}{{ filter_form.kaspi_status.errors }}</fieldset><details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
+{% if mode != 'best' %}<fieldset><legend>Статус на Kaspi</legend>{{ filter_form.kaspi_status }}{{ filter_form.kaspi_status.errors }}</fieldset>{% endif %}<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
 
 <div class="actions" style="margin:12px 0 18px"><button>Показать товары</button>
 <a class="button" href="{{ reset_url }}">Сбросить фильтры</a>
 </div>
 </form>
-</section>{% endif %}
+</section>
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 <div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>
@@ -102,10 +102,16 @@ form.querySelectorAll('input,select').forEach(field=>{if(field.name!=='supplier'
 form.requestSubmit();
 });
 document.getElementById('id_vehicle_country')?.addEventListener('change',event=>{
-makeSelect.value='';modelSelect.value='';event.target.form.requestSubmit();
+makeSelect.value='';modelSelect.value='';document.getElementById('id_vehicle_generation').value='';document.getElementById('id_vehicle_year').value='';event.target.form.requestSubmit();
 });
 const modelOptions=JSON.parse(document.getElementById("vehicle-model-options").textContent);
-makeSelect?.addEventListener("change",()=>{modelSelect.replaceChildren(new Option(makeSelect.value?"Все модели":"Сначала выберите марку",""));(modelOptions[makeSelect.value]||[]).forEach(model=>modelSelect.add(new Option(model,model)));});
+function refreshVehicles(event){
+if(event.target===makeSelect)modelSelect.value='';
+if(event.target.id!=='id_vehicle_generation')document.getElementById('id_vehicle_generation').value='';
+document.getElementById('id_vehicle_year').value='';
+event.target.form.requestSubmit();
+}
+[makeSelect,modelSelect,document.getElementById('id_vehicle_generation')].forEach(field=>field?.addEventListener('change',refreshVehicles));
 const drawer=document.getElementById('product-drawer');const productFrame=document.getElementById('product-frame');
 document.querySelectorAll('.quick-view').forEach(button=>button.addEventListener('click',()=>{productFrame.src=button.dataset.url;drawer.showModal();}));
 drawer.addEventListener('close',()=>productFrame.removeAttribute('src'));

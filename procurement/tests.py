@@ -46,14 +46,15 @@ class WorkspaceTests(TestCase):
     def login(self, user=None):
         self.client.force_login(user or self.user)
 
-    def test_best_ignores_catalog_filters_and_hides_controls(self):
+    def test_best_applies_catalog_filters_and_shows_controls(self):
         self.login()
         self.qualify_best()
         Preferences.objects.update_or_create(user=self.user, defaults={'commission': Decimal('12.5'), 'expenses': Decimal('250')})
-        response = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk, 'q': 'does-not-exist', 'kaspi_status': 'missing', 'min_profit': 'invalid', 'favorites': '1'})
+        response = self.client.get(self.url('dashboard'), {'mode': 'best', 'supplier': self.supplier.pk, 'q': 'does-not-exist', 'kaspi_status': 'missing', 'min_profit': '1000'})
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.context['total'], 1)
-        self.assertNotContains(response, 'class="selection-filters"')
+        self.assertEqual(response.context['total'], 0)
+        self.assertContains(response, 'class="selection-filters"')
+        self.assertNotContains(response, 'id="id_kaspi_status"')
         self.assertContains(response, 'Алгоритм и настройки')
         self.assertNotContains(response, 'Как отбираются товары')
         catalog = self.client.get(self.url('dashboard'), {'supplier': self.supplier.pk})

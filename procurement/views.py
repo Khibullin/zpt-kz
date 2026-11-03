@@ -1,3 +1,4 @@
+from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
 from .vehicle_countries import country_makes
 import csv
@@ -91,7 +92,7 @@ def filtered_rows(request, preferences, filters):
     mode = request.GET.get('mode', 'roi')
     today = timezone.localdate()
     if mode == 'best':
-        filters = {'supplier': filters.get('supplier')}
+        filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
     if mode == 'best':
         if preferences.commission is None or preferences.expenses is None:
             query = query.none()
@@ -130,6 +131,11 @@ def filtered_rows(request, preferences, filters):
         fitment_filters['fitments__model'] = filters['vehicle_model']
     if filters.get('vehicle_country') or filters.get('vehicle_make') or filters.get('vehicle_model') or filters.get('fitment') == 'verified':
         query = query.filter(**fitment_filters).distinct()
+    if filters.get('vehicle_generation') or filters.get('vehicle_year'):
+        fitments = VehicleFitment.objects.filter(**{key.removeprefix('fitments__'): value for key, value in fitment_filters.items()})
+        eligible = {fitment.offer_id for fitment in fitments.only('offer_id', 'configurations')
+                    if matches_configuration(fitment.configurations, filters.get('vehicle_generation', ''), filters.get('vehicle_year'))}
+        query = query.filter(pk__in=eligible)
     if filters.get('fitment') == 'unknown':
         query = query.exclude(fitments__verified=True)
     if filters.get('max_cost') is not None:
@@ -219,7 +225,9 @@ def dashboard(request):
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     filter_data = request.GET
     if request.GET.get('mode') == 'best':
-        filter_data = {'supplier': request.GET.get('supplier', '')}
+        filter_data = request.GET.copy()
+        for key in ('kaspi_status', 'verified', 'sort'):
+            filter_data.pop(key, None)
     form = SelectionFilterForm(filter_data)
     valid = form.is_valid()
     if valid:
@@ -273,8 +281,8 @@ def dashboard(request):
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
-                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category')],
-                  advanced_filters=[form[name] for name in ('sort', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
+                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year')],
+                  advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
 
 

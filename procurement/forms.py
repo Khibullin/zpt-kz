@@ -2,6 +2,7 @@ from django import forms
 from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
+from .fitment_filters import configuration_years
 from .categories import OMEGA_CATEGORIES
 from core.models import Country
 from .vehicle_countries import country_makes
@@ -15,6 +16,8 @@ class SelectionFilterForm(forms.Form):
     vehicle_country = forms.ModelChoiceField(label='Страна автомобиля', required=False, queryset=Country.objects.none(), empty_label='Все страны')
     vehicle_make = forms.ChoiceField(label='Марка автомобиля', required=False)
     vehicle_model = forms.ChoiceField(label='Модель автомобиля', required=False)
+    vehicle_generation = forms.ChoiceField(label='Поколение автомобиля', required=False)
+    vehicle_year = forms.TypedChoiceField(label='Год выпуска автомобиля', required=False, coerce=int, empty_value=None)
     fitment = forms.ChoiceField(label='Применимость', required=False, choices=[('', 'Любая применимость'), ('verified', 'Есть проверенная применимость'), ('unknown', 'Применимость не проверена')])
     availability = forms.ChoiceField(label='Наличие', required=False, choices=[('', 'Любое наличие'), ('in_stock', 'Есть в наличии'), ('unavailable', 'Нет в наличии'), ('unknown', 'Остаток неизвестен')])
     demand = forms.ChoiceField(label='Спрос', required=False, choices=[('', 'Любые признаки спроса'), ('reviews', 'Есть свежие отзывы'), ('sales', 'Есть подтверждённые продажи'), ('unknown', 'Нет свежих подтверждений')])
@@ -56,6 +59,22 @@ class SelectionFilterForm(forms.Form):
         selected_make = self.data.get('vehicle_make', '') if self.is_bound else ''
         models = self.vehicle_models.get(selected_make, [])
         self.fields['vehicle_model'].choices = [('', 'Все модели' if selected_make else 'Сначала выберите марку')] + [(x, x) for x in models]
+        selected_model = self.data.get('vehicle_model', '') if self.is_bound else ''
+        configurations = fitments
+        if selected_make:
+            configurations = configurations.filter(make=selected_make)
+        if selected_model:
+            configurations = configurations.filter(model=selected_model)
+        specs = [config for values in configurations.values_list('configurations', flat=True)
+                 for config in values if isinstance(config, dict)]
+        generations = sorted({config['generation'] for config in specs if config.get('generation')})
+        self.fields['vehicle_generation'].choices = [('', 'Все поколения')] + [(x, x) for x in generations]
+        selected_generation = self.data.get('vehicle_generation', '') if self.is_bound else ''
+        years = sorted({year for config in specs
+                        if not selected_generation or config.get('generation') == selected_generation
+                        for year in configuration_years(config.get('years'))}, reverse=True)
+        self.fields['vehicle_year'].choices = [('', 'Все годы')] + [(str(x), str(x)) for x in years]
+
 
 
 

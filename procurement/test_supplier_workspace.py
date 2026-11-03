@@ -40,7 +40,7 @@ class SupplierWorkspaceTests(TestCase):
         response = self.client.get(self.url, {'mode': 'best'}, follow=True)
         self.assertEqual(response.context['selected_supplier'], self.valtec)
         self.assertEqual(response.context['mode'], 'best')
-        self.assertContains(response, 'загружено <strong>1</strong>', html=False)
+        self.assertContains(response, 'Все товары · 1')
 
     def test_explicit_all_suppliers_clears_session_and_invalid_does_not(self):
         self.client.get(self.url, {'supplier': self.valtec.pk})
