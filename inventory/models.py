@@ -2,6 +2,9 @@ from django.conf import settings
 from django.db import models
 
 class ImportBatch(models.Model):
+    def __str__(self):
+        return f'{self.filename} · {self.as_of}'
+
     kind = models.CharField(max_length=20)
     digest = models.CharField(max_length=64)
     filename = models.CharField(max_length=255)
@@ -63,12 +66,17 @@ class ItemAlias(models.Model):
         constraints = [models.UniqueConstraint(fields=['source','code'], name='inventory_alias_unique'), models.CheckConstraint(condition=models.Q(multiplier__gte=1), name='inventory_alias_multiplier_positive')]
 
 class StockDocument(models.Model):
+    def __str__(self):
+        return f'№{self.pk} · {self.get_kind_display()} · {self.item.code} · {self.quantity}'
+
     class Kind(models.TextChoices):
         OPENING='opening','Начальный остаток'
         RECEIPT='receipt','Приход от поставщика'
         TRANSFER='transfer','Перемещение'
         SALE='sale','Отгрузка покупателю'
         RETURN='return','Возврат покупателя'
+        ADJUSTMENT='adjustment','Оприходование излишка'
+        WRITEOFF='writeoff','Списание / недостача'
     kind = models.CharField('Операция', max_length=15, choices=Kind.choices)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     warehouse = models.CharField('Склад', max_length=3, choices=[('PP1','PP1 · Asia Grade'),('PP2','PP2 · Rapida')])
@@ -79,10 +87,12 @@ class StockDocument(models.Model):
     external_number = models.CharField('Номер внешнего документа', max_length=120, blank=True)
     date = models.DateField('Дата документа')
     note = models.TextField('Комментарий', blank=True)
-    status = models.CharField(max_length=15, choices=[('draft','Черновик'),('posted','Проведён'),('sent','Отправлен'),('partial','Принят частично'),('received','Принят полностью')], default='draft')
+    status = models.CharField(max_length=15, choices=[('draft','Черновик'),('posted','Проведён'),('sent','Отправлен'),('partial','Принят частично'),('received','Принят полностью'),('cancelled','Отменён')], default='draft')
     received_quantity = models.PositiveIntegerField(default=0)
     related_sale = models.ForeignKey('self', verbose_name='Исходная отгрузка', on_delete=models.PROTECT, null=True, blank=True, related_name='returns')
     return_condition = models.CharField('Состояние возврата', max_length=15, blank=True, choices=[('good','Проверен, годен к продаже'),('damaged','Брак, исключить из продажи')])
+    sale_amount = models.DecimalField('Сумма продажи / возврата, ₸', max_digits=14, decimal_places=2, null=True, blank=True)
+    selling_costs = models.DecimalField('Расходы продажи / возвращённые расходы, ₸', max_digits=14, decimal_places=2, null=True, blank=True)
     cost_allocations = models.JSONField(default=list, editable=False)
     total_cost = models.DecimalField(max_digits=16, decimal_places=2, null=True, editable=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -115,7 +125,7 @@ class MoneyAccount(models.Model):
 class CashEntry(models.Model):
     account = models.ForeignKey(MoneyAccount, on_delete=models.PROTECT)
     date = models.DateField('Дата')
-    kind = models.CharField('Операция', max_length=20, choices=[('supplier','Оплата поставщику'),('kaspi','Выплата Kaspi'),('expense','Расход'),('owner_in','Внесение владельца'),('owner_out','Изъятие владельца')])
+    kind = models.CharField('Операция', max_length=20, choices=[('supplier','Оплата поставщику'),('kaspi','Выплата Kaspi'),('expense','Расход'),('owner_in','Внесение владельца'),('owner_out','Изъятие владельца'),('transfer_in','Перевод: поступление'),('transfer_out','Перевод: списание'),('customer','Оплата покупателя'),('refund','Возврат денег покупателю')])
     amount = models.DecimalField('Сумма, ₸', max_digits=14, decimal_places=2)
     counterparty = models.CharField('Контрагент', max_length=250, blank=True)
     category = models.CharField('Статья', max_length=150, blank=True)
@@ -126,9 +136,15 @@ class CashEntry(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
         constraints = [models.CheckConstraint(condition=models.Q(amount__gt=0), name='inventory_cash_positive'), models.UniqueConstraint(fields=['account','reference'], name='inventory_cash_reference')]
+    cancelled = models.BooleanField(default=False)
+    cancellation_note = models.TextField(blank=True)
+    cancelled_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT, null=True, blank=True, related_name='+')
+    cancelled_at = models.DateTimeField(null=True, blank=True)
+    transfer_key = models.CharField(max_length=36, blank=True, db_index=True, editable=False)
     @property
     def signed_amount(self):
-        return self.amount if self.kind in ['kaspi','owner_in'] else -self.amount
+        if self.cancelled: return 0
+        return self.amount if self.kind in ['kaspi','owner_in','transfer_in','customer'] else -self.amount
 
 class RapidaReference(models.Model):
     batch = models.ForeignKey(ImportBatch, on_delete=models.PROTECT)

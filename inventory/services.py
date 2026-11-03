@@ -24,7 +24,14 @@ def post_document(pk, user):
     latest = StockEntry.objects.filter(document__item=doc.item).aggregate(latest=Max('document__date'))['latest']
     if latest and doc.date < latest:
         raise ValidationError('Дата раньше уже проведённых движений этого товара. Заднее число требует отдельной сверки.')
-    if doc.kind == 'sale':
+    if doc.kind not in StockDocument.Kind.values:raise ValidationError('Неизвестная операция')
+    if doc.kind in ['adjustment','writeoff'] and not doc.note.strip():raise ValidationError('Укажите причину инвентаризационной корректировки.')
+    if doc.kind == 'writeoff':
+        doc.cost_allocations=take(available_lots(doc.item)[doc.warehouse],doc.quantity)
+        doc.total_cost=total_cost(doc.cost_allocations)
+        StockEntry.objects.create(document=doc,warehouse=doc.warehouse,quantity=-doc.quantity,created_by=user)
+        doc.status='posted'
+    elif doc.kind == 'sale':
         if doc.warehouse != 'PP2' or not doc.external_number:
             raise ValidationError('Для отгрузки укажите PP2 и номер заказа Kaspi.')
         if StockDocument.objects.filter(kind='sale',item=doc.item,external_number=doc.external_number).exclude(pk=doc.pk).exists():

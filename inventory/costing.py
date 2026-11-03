@@ -29,14 +29,14 @@ def available_lots(item):
     transit=defaultdict(list)
     for entry in StockEntry.objects.filter(document__item=item).select_related('document').order_by('pk'):
         doc=entry.document
-        if doc.kind in ['opening','receipt']:
+        if doc.kind in ['opening','receipt','adjustment']:
             stocks[entry.warehouse].append({'origin':doc.pk,'quantity':entry.quantity,'unit_cost':str(doc.unit_cost) if doc.unit_cost is not None else None})
         elif doc.kind == 'transfer':
             if entry.warehouse == doc.warehouse and entry.quantity < 0:
                 transit[doc.pk].extend(take(stocks[entry.warehouse],-entry.quantity))
             elif entry.warehouse == doc.destination and entry.quantity > 0:
                 stocks[entry.warehouse].extend(take(transit[doc.pk],entry.quantity))
-        elif doc.kind == 'sale' and entry.quantity < 0:
+        elif doc.kind in ['sale','writeoff'] and entry.quantity < 0:
             take(stocks[entry.warehouse],-entry.quantity)
         elif doc.kind == 'return' and entry.quantity > 0:
             stocks[entry.warehouse].extend(dict(lot) for lot in doc.cost_allocations)
