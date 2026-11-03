@@ -68,10 +68,26 @@ def context(request, **extra):
             'basket_count': Selection.objects.filter(user=request.user).count(), **extra}
 
 
+def kaspi_status(offer, preferences, today):
+    snapshot = getattr(offer, 'kaspi_sellers', None)
+    search = getattr(offer, 'kaspi_card_search', None)
+    fresh = today - timedelta(days=preferences.no_sellers_days)
+    code = 'pending'
+    if snapshot and offer.kaspi_url and snapshot.source_url == offer.kaspi_url and snapshot.city == '750000000' and fresh <= snapshot.checked_on <= today:
+        if snapshot.sellers:
+            code = 'sellers'
+        elif snapshot.complete and offer.match_verified:
+            code = 'empty'
+    if not offer.kaspi_url and search and search.complete and search.city == '750000000' and fresh <= search.checked_on <= today and (search.checked_brand, search.checked_article, search.checked_name) == (offer.brand, offer.article, offer.name):
+        code = 'missing'
+    labels = {'sellers': 'Карточка есть — есть продавцы Kaspi', 'empty': 'Карточка есть — нет продавцов Kaspi', 'missing': 'Карточка Kaspi не найдена', 'pending': 'Проверка Kaspi не завершена'}
+    return {'kaspi_status_code': code, 'kaspi_status': labels[code], 'kaspi_checked_on': max((x.checked_on for x in (snapshot, search) if x), default=None)}
+
+
 def filtered_rows(request, preferences, filters):
     # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
     # are not needed for every item in the supplier catalogue.
-    query = Offer.objects.select_related('supplier').defer('description', 'characteristics', 'supplier_url')
+    query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
     mode = request.GET.get('mode', 'roi')
     today = timezone.localdate()
     if mode == 'best':
@@ -80,8 +96,7 @@ def filtered_rows(request, preferences, filters):
         else:
             query = query.filter(kaspi_price__isnull=False, cost__gt=0)
     elif mode == 'reviewed':
-        query = query.select_related('kaspi_sellers', 'kaspi_card_search').filter(
-            Q(kaspi_sellers__isnull=False) | Q(kaspi_card_search__isnull=False))
+        pass  # Legacy URL now opens the complete supplier catalogue.
     elif mode == 'no_sellers':
         fresh = today - timedelta(days=preferences.no_sellers_days)
         empty_card = Q(match_verified=True, kaspi_sellers__complete=True,
@@ -100,6 +115,8 @@ def filtered_rows(request, preferences, filters):
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
     if filters.get('supplier'):
         query = query.filter(supplier=filters['supplier'])
+    if filters.get('brand'):
+        query = query.filter(brand__icontains=filters['brand'])
     if filters.get('category'):
         query = query.filter(category__in=['Тех обслуживание и сервис', 'Техобслуживание и сервис']) if filters['category'] == 'Тех обслуживание и сервис' else query.filter(category=filters['category'])
     fitment_filters = {'fitments__verified': True}
@@ -123,6 +140,10 @@ def filtered_rows(request, preferences, filters):
     rows = []
     for offer in query:
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
+        row.update(kaspi_status(offer, preferences, today))
+        row['kaspi_price'] = offer.kaspi_price
+        if row['kaspi_status_code'] in ('empty', 'missing'):
+            row.update({key: None for key in ('kaspi_price', 'difference', 'markup', 'profit', 'margin', 'commission_amount', 'kaspi_after_commission')})
         if filters.get('availability') and row['stock_status'] != filters['availability']:
             continue
         demand = filters.get('demand')
@@ -138,24 +159,14 @@ def filtered_rows(request, preferences, filters):
         rows.append(row)
     if mode == 'best':
         rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
-                and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)]
-        rows.sort(key=lambda r: (-r['markup'], -r['difference'], r['offer'].pk))
-    elif mode == 'reviewed':
+                and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
+                and r['offer'].match_verified and r['stock_status'] == 'in_stock'
+                and r['price_fresh'] and r['confirmed_sales'] and r['kaspi_status_code'] == 'sellers']
         for row in rows:
-            offer = row['offer']
-            snapshot = getattr(offer, 'kaspi_sellers', None)
-            search = getattr(offer, 'kaspi_card_search', None)
-            row['kaspi_checked_on'] = max([x.checked_on for x in (snapshot, search) if x])
-            row['kaspi_status'] = 'Проверка не завершена'
-            fresh = today - timedelta(days=preferences.no_sellers_days)
-            if snapshot and snapshot.source_url == offer.kaspi_url and snapshot.city == '750000000' and fresh <= snapshot.checked_on <= today:
-                if snapshot.sellers:
-                    row['kaspi_status'] = 'Продавцы есть'
-                elif snapshot.complete and offer.match_verified:
-                    row['kaspi_status'] = 'Карточка есть — продавцов нет'
-            if not offer.kaspi_url and search and search.complete and search.city == '750000000' and fresh <= search.checked_on <= today and (search.checked_brand, search.checked_article, search.checked_name) == (offer.brand, offer.article, offer.name):
-                row['kaspi_status'] = 'Карточка не найдена после проверки'
-        rows.sort(key=lambda r: (-r['kaspi_checked_on'].toordinal(), r['offer'].pk))
+            row['markup'] = row['profit'] / row['offer'].cost * 100
+        rows.sort(key=lambda r: (-r['markup'], -r['profit'], r['offer'].pk))
+    elif mode == 'reviewed':
+        rows.sort(key=lambda r: (r['markup'] is None, -(r['markup'] or Decimal(0)), r['offer'].pk))
     elif mode == 'difference':
         if preferences.difference_min_profit is not None:
             rows = [r for r in rows if r['profit'] is not None and r['profit'] >= preferences.difference_min_profit]
@@ -181,6 +192,12 @@ def filtered_rows(request, preferences, filters):
     else:
         rows.sort(key=lambda r: (r['markup'] is None, -(r['markup'] or Decimal(0)),
                                  -(r['difference'] or Decimal(0)), r['offer'].pk))
+    if getattr(request, 'catalog_status_counts', None) is None:
+        request.catalog_status_counts = {key: sum(r['kaspi_status_code'] == key for r in rows) for key in ('sellers', 'empty', 'missing', 'pending')}
+    if filters.get('kaspi_status'):
+        rows = [r for r in rows if r['kaspi_status_code'] in filters['kaspi_status']]
+    if filters.get('sort') == 'profit' and mode != 'best':
+        rows.sort(key=lambda r: (r['profit'] is None, -(r['profit'] or Decimal(0)), r['offer'].pk))
     return rows
 
 
@@ -205,6 +222,8 @@ def dashboard(request):
             priced=Count('pk', filter=Q(kaspi_price__isnull=False)),
             verified=Count('pk', filter=Q(match_verified=True)))
     rows = filtered_rows(request, preferences, form.cleaned_data) if valid else []
+    counts = getattr(request, 'catalog_status_counts', {})
+    form.fields['kaspi_status'].choices = [(key, f'{label} ({counts.get(key, 0)})') for key, label in form.fields['kaspi_status'].choices]
     if request.GET.get('download') == 'csv' and valid:
         response = HttpResponse(content_type='text/csv; charset=utf-8')
         response['Content-Disposition'] = 'attachment; filename="procurement-selection.csv"'
@@ -218,7 +237,7 @@ def dashboard(request):
             if request.GET.get('mode') == 'no_sellers':
                 row = {**row, **{key: None for key in ('difference', 'markup', 'profit', 'commission_amount', 'kaspi_after_commission')}}
             writer.writerow([safe_csv(x) for x in [offer.article, offer.brand, offer.name, offer.supplier.name,
-                exported_number(offer.cost), exported_number(offer.kaspi_price) if request.GET.get('mode') != 'no_sellers' else None, exported_number(row['difference']),
+                exported_number(offer.cost), exported_number(row['kaspi_price']) if request.GET.get('mode') != 'no_sellers' else None, exported_number(row['difference']),
                 exported_number(row['markup']), exported_number(row['profit']), row['signal'], offer.sales_30,
                 offer.recent_reviews, offer.checked_on, offer.evidence_date, offer.kaspi_url,
                 exported_number(row['commission_rate']), exported_number(row['commission_amount']),
@@ -231,9 +250,9 @@ def dashboard(request):
     return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
-                  filter_form=form, supplier_stats=supplier_stats,
+                  filter_form=form, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
-                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
+                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('supplier', 'category', 'brand', 'sort', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'fitment', 'availability', 'demand')],
                   advanced_filters=[form[name] for name in ('max_cost', 'min_profit', 'min_markup', 'verified', 'favorites')],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
 

@@ -12,7 +12,7 @@ from django.utils import timezone
 
 from .analysis import evaluate
 from .importing import import_offers, import_demand
-from .models import Membership, Supplier, Offer, Preferences, Selection, Activity, Favorite
+from .models import Membership, Supplier, Offer, Preferences, Selection, Activity, Favorite, KaspiSellerSnapshot
 
 
 class WorkspaceTests(TestCase):
@@ -29,6 +29,16 @@ class WorkspaceTests(TestCase):
         cls.offer = Offer.objects.create(supplier=cls.supplier, article='00123', brand='EEP', name='Деталь', cost=1000,
             kaspi_price=3000, checked_on=timezone.localdate(), evidence_date=timezone.localdate(),
             recent_reviews=1, stock='>20 шт.', match_verified=True, kaspi_url='https://kaspi.kz/shop/p/test-123/')
+
+    def qualify_best(self, offer=None):
+        offer = offer or self.offer
+        offer.sales_30 = 2
+        offer.evidence_date = offer.checked_on = timezone.localdate()
+        offer.match_verified = True
+        offer.stock = '20'
+        offer.kaspi_url = offer.kaspi_url or f'https://kaspi.kz/shop/p/test-{offer.pk}/'
+        offer.save()
+        KaspiSellerSnapshot.objects.update_or_create(offer=offer, defaults={'source_url': offer.kaspi_url, 'checked_on': timezone.localdate(), 'complete': True, 'sellers': [{'name': 'Shop', 'price': str(offer.kaspi_price)}]})
 
     def url(self, name, **kwargs):
         return reverse('procurement:' + name, kwargs=kwargs or None)
@@ -406,6 +416,7 @@ class WorkspaceTests(TestCase):
         self.assertFalse(Membership.objects.get(user=self.user).active)
 
     def test_best_mode_excludes_profit_below_1000_after_expenses(self):
+        self.qualify_best()
         self.login()
         Preferences.objects.create(user=self.user, commission=10, expenses=100)
         self.assertContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
@@ -413,6 +424,7 @@ class WorkspaceTests(TestCase):
         self.assertNotContains(self.client.get(self.url('dashboard')+'?mode=best'), '00123')
 
     def test_best_mode_orders_by_return_then_after_commission_earnings(self):
+        self.qualify_best()
         self.login()
         Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0,
                                    min_profit=0, min_markup=0)
@@ -425,16 +437,18 @@ class WorkspaceTests(TestCase):
                 evidence_date=timezone.localdate(), recent_reviews=1, stock='10 шт.', match_verified=True)
         expensive = candidate('EXPENSIVE', 20000, 30000)
         tied = candidate('SAME-RETURN', 10000, 20000)
+        self.qualify_best(expensive)
+        self.qualify_best(tied)
         response = self.client.get(self.url('dashboard'), {'mode': 'best'})
         ids = [row['offer'].pk for row in response.context['page']]
         self.assertEqual(ids, [tied.pk, self.offer.pk, expensive.pk])
-        self.assertEqual(response.context['page'][1]['markup'], Decimal('78.2'))
-        self.assertContains(response, 'Доходность закупки, %')
-        self.assertContains(response, 'прибыль рядом — после расходов и упаковки')
+        self.assertEqual(response.context['page'][1]['markup'], Decimal('73.2'))
+        self.assertContains(response, 'Доходность после расходов, %')
+        self.assertContains(response, 'Как отбираются товары')
         exported = self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'})
         rows = list(csv.reader(StringIO(exported.content.decode('utf-8-sig')), delimiter=';'))
         self.assertEqual([row[0] for row in rows[1:]], ['SAME-RETURN', '00123', 'EXPENSIVE'])
-        self.assertEqual(Decimal(rows[2][7]), Decimal('78.20'))
+        self.assertEqual(Decimal(rows[2][7]), Decimal('73.20'))
 
     def test_best_mode_excludes_nonpositive_difference_even_with_zero_thresholds(self):
         self.login()
@@ -446,46 +460,38 @@ class WorkspaceTests(TestCase):
         self.offer.save()
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
 
-    def test_best_mode_includes_positive_returns_without_demand_stock_or_freshness(self):
+    def test_best_mode_excludes_unknown_demand_stock_or_freshness(self):
         self.login()
-        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=250,
-                                   min_profit=999999, min_markup=9999)
-        Offer.objects.filter(pk=self.offer.pk).update(match_verified=False, evidence_date=None,
-            checked_on=None, stock='', recent_reviews=None, sales_30=None)
-        response = self.client.get(self.url('dashboard'), {'mode': 'best'})
-        self.assertEqual(response.context['total'], 1)
-        self.assertEqual(response.context['page'][0]['profit'], Decimal('1423'))
-        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'demand': 'reviews'}).context['total'], 0)
-        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'min_profit': 0}).context['total'], 1)
-        Preferences.objects.filter(user=self.user).update(commission=None)
-        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
+        Preferences.objects.create(user=self.user, commission=10, expenses=250)
+        self.qualify_best()
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 1)
+        for field, value in [('evidence_date', None), ('checked_on', None), ('stock', ''), ('sales_30', None), ('match_verified', False)]:
+            self.qualify_best()
+            Offer.objects.filter(pk=self.offer.pk).update(**{field: value})
+            self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
 
-    def test_best_mode_places_74_percent_without_reviews_above_49_with_reviews(self):
+    def test_best_mode_orders_confirmed_candidates_by_net_return(self):
         self.login()
         Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=250)
-        Offer.objects.filter(pk=self.offer.pk).update(cost=2919, kaspi_price=4881)
-        shock = Offer.objects.create(supplier=self.supplier, article='51945', brand='ESCE',
-            name='Амортизатор', cost=7632, kaspi_price=14947, recent_reviews=None,
-            stock='>20 шт.', match_verified=False)
+        self.offer.cost, self.offer.kaspi_price = 2919, 4881
+        self.qualify_best()
+        shock = Offer.objects.create(supplier=self.supplier, article='51945', brand='ESCE', name='Амортизатор', cost=7632, kaspi_price=14947)
+        self.qualify_best(shock)
         response = self.client.get(self.url('dashboard'), {'mode': 'best'})
         self.assertEqual([r['offer'].pk for r in response.context['page']], [shock.pk, self.offer.pk])
-        self.assertEqual(response.context['page'][0]['difference'], Decimal('5685.777'))
         exported = self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'})
         rows = list(csv.reader(StringIO(exported.content.decode('utf-8-sig')), delimiter=';'))
         self.assertEqual([r[0] for r in rows[1:]], ['51945', '00123'])
 
-    def test_best_mode_includes_unverified_match_and_csv_but_respects_explicit_filter(self):
+    def test_best_mode_excludes_unverified_match_and_csv(self):
         self.login()
-        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=0)
+        Preferences.objects.create(user=self.user, commission=Decimal('10.9'), expenses=250)
+        self.qualify_best()
         Offer.objects.filter(pk=self.offer.pk).update(match_verified=False)
-        response = self.client.get(self.url('dashboard'), {'mode': 'best'})
-        self.assertEqual(response.context['total'], 1)
-        self.assertContains(response, 'Совпадение с Kaspi не проверено')
-        self.assertContains(self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'}), '00123')
-        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best', 'verified': '1'}).context['total'], 0)
+        self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)
+        self.assertNotContains(self.client.get(self.url('dashboard'), {'mode': 'best', 'download': 'csv'}), '00123')
         self.offer.refresh_from_db()
         self.assertFalse(self.offer.match_verified)
-        self.assertContains(self.client.get(self.url('settings')), 'Сортировка строго по доходности закупки')
 
     def test_default_catalog_orders_whole_column_by_return_not_money(self):
         self.login()
@@ -504,6 +510,7 @@ class WorkspaceTests(TestCase):
         self.assertEqual([r['offer'].pk for r in difference.context['page']], [self.offer.pk, shock.pk])
 
     def test_packaging_once_and_best_profit_boundary(self):
+        self.qualify_best()
         self.login()
         Preferences.objects.create(user=self.user, commission=0, expenses=250)
         for sale, expected in [('2249.99', 0), ('2250.00', 1), ('2250.01', 1)]:
