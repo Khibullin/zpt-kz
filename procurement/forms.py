@@ -2,6 +2,7 @@ from django import forms
 from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
+from .filter_options import supplier_options
 from .fitment_filters import configuration_years
 from .categories import OMEGA_CATEGORIES
 from core.models import Country
@@ -34,26 +35,25 @@ class SelectionFilterForm(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields['supplier'].queryset = Supplier.objects.order_by('name')
         selected_supplier = self.data.get('supplier', '') if self.is_bound else ''
-        offers = Offer.objects.all()
-        if str(selected_supplier).isdigit():
-            offers = offers.filter(supplier_id=selected_supplier)
+        supplier_id = int(selected_supplier) if str(selected_supplier).isdigit() else None
+        category_values, models_by_make = supplier_options(supplier_id)
         categories = list(OMEGA_CATEGORIES) if not selected_supplier else []
-        for value in offers.exclude(category='').order_by('category').values_list('category', flat=True).distinct():
+        for value in category_values:
             value = 'Тех обслуживание и сервис' if value == 'Техобслуживание и сервис' else value
             if value not in categories:
                 categories.append(value)
         self.fields['category'].choices = [('', 'Все категории')] + [(x, x) for x in categories]
         fitments = VehicleFitment.objects.filter(verified=True)
-        if str(selected_supplier).isdigit():
-            fitments = fitments.filter(offer__supplier_id=selected_supplier)
+        if supplier_id:
+            fitments = fitments.filter(offer__supplier_id=supplier_id)
         self.fields['vehicle_country'].queryset = Country.objects.order_by('name')
         selected_country = self.data.get('vehicle_country', '') if self.is_bound else ''
+        allowed_makes = None
         if str(selected_country).isdigit():
-            fitments = fitments.filter(make__in=country_makes(selected_country))
-        # Read the make/model matrix once instead of one query for every make.
-        self.vehicle_models = {}
-        for make, model in fitments.order_by('make', 'model').values_list('make', 'model').distinct():
-            self.vehicle_models.setdefault(make, []).append(model)
+            allowed_makes = set(country_makes(selected_country))
+            fitments = fitments.filter(make__in=allowed_makes)
+        self.vehicle_models = {make: models for make, models in models_by_make.items()
+                               if allowed_makes is None or make in allowed_makes}
         makes = list(self.vehicle_models)
         self.fields['vehicle_make'].choices = [('', 'Все марки' if makes else 'Нет проверенных данных о марках')] + [(x, x) for x in makes]
         selected_make = self.data.get('vehicle_make', '') if self.is_bound else ''

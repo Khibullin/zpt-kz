@@ -47,7 +47,7 @@ class SelectionPerformanceTests(TestCase):
         with patch('procurement.views.evaluate', wraps=evaluate) as calculator:
             rows = filtered_rows(self.request('best'), self.prefs, {})
         self.assertEqual(rows, [])  # Price alone does not qualify without confirmed sales.
-        self.assertEqual(calculator.call_count, 1)
+        self.assertEqual(calculator.call_count, 0)  # Stale/undated prices are excluded in SQL.
 
     def test_no_sellers_does_not_evaluate_unchecked_catalogue(self):
         with patch('procurement.views.evaluate', wraps=evaluate) as calculator:
@@ -63,3 +63,45 @@ class SelectionPerformanceTests(TestCase):
         self.assertEqual(response.context['total'], 1000)
         self.assertLessEqual(len(queries), 25)
         self.assertContains(response, 'Нет предложений на дату проверки')
+
+    def test_catalogue_paginates_before_calculating_full_rows(self):
+        self.client.force_login(self.user)
+        with patch('procurement.views.evaluate', wraps=evaluate) as calculator:
+            response = self.client.get(reverse('procurement:dashboard'), {'supplier': self.supplier.pk})
+        self.assertEqual(response.context['total'], 1000)
+        self.assertEqual(calculator.call_count, 40)
+        self.assertEqual(len(response.context['page']), 40)
+
+    def test_sql_pages_preserve_reference_order_counts_and_filters(self):
+        from decimal import Decimal
+        for index, (price, cost) in enumerate([(501, 101), (500, 100), (300, 211), (50, 100), (2000, 0)]):
+            offer = self.offers[index + 1]
+            offer.kaspi_price = Decimal(price)
+            offer.cost = Decimal(cost)
+            offer.save(update_fields=['kaspi_price', 'cost'])
+        self.client.force_login(self.user)
+        for mode, sort in [('roi', ''), ('roi', 'profit'), ('reviewed', '')]:
+            request = self.request(mode)
+            filters = {'supplier': self.supplier, 'sort': sort}
+            expected = filtered_rows(request, self.prefs, filters)
+            for page_number in (1, 2, 25):
+                response = self.client.get(reverse('procurement:dashboard'),
+                    {'supplier': self.supplier.pk, 'mode': mode, 'sort': sort, 'page': page_number})
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.context['total'], len(expected))
+                self.assertEqual([r['offer'].pk for r in response.context['page']],
+                                 [r['offer'].pk for r in expected[(page_number-1)*40:page_number*40]])
+            response = self.client.get(reverse('procurement:dashboard'),
+                {'supplier': self.supplier.pk, 'mode': mode, 'sort': sort, 'kaspi_status': 'empty'})
+            self.assertEqual(response.context['total'], 1)
+            self.assertEqual(response.context['page'][0]['offer'].pk, self.priced.pk)
+
+    @patch('procurement.filter_options.options_cache_allowed', return_value=True)
+    def test_filter_dictionary_reused_and_invalidated_on_change(self, allowed):
+        SelectionFilterForm({'supplier': self.supplier.pk})
+        with CaptureQueriesContext(connection) as queries:
+            SelectionFilterForm({'supplier': self.supplier.pk})
+        self.assertEqual(len(queries), 0)
+        VehicleFitment.objects.create(offer=self.offers[0], make='NEW', model='NEW MODEL', verified=True)
+        form = SelectionFilterForm({'supplier': self.supplier.pk, 'vehicle_make': 'NEW'})
+        self.assertEqual(form.fields['vehicle_model'].choices[-1], ('NEW MODEL', 'NEW MODEL'))

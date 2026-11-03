@@ -6,6 +6,7 @@ from decimal import Decimal, InvalidOperation
 
 from django.db import transaction
 from .models import Supplier, Offer, Activity
+from .filter_options import refresh_options_after_import
 
 ALIASES = {'Артикул': 'article', 'Бренд': 'brand', 'Наименование': 'name', 'Категория': 'category',
            'Оптовая цена, ₸': 'cost', 'Остаток на сайте': 'stock', 'Мин. заказ, шт.': 'min_order',
@@ -179,6 +180,7 @@ def import_demand(file, supplier_name, date, user):
     return len(rows)
 
 
+@refresh_options_after_import
 @transaction.atomic
 def import_enrichment(file, supplier_name, date, user):
     """Apply sourced fitment only; never renew prices, sales or Kaspi verification."""

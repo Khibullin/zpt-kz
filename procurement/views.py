@@ -1,3 +1,4 @@
+from .catalog_paging import catalog_page, best_candidates_query
 from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
 from .vehicle_countries import country_makes
@@ -85,7 +86,7 @@ def kaspi_status(offer, preferences, today):
     return {'kaspi_status_code': code, 'kaspi_status': labels[code], 'kaspi_checked_on': max((x.checked_on for x in (snapshot, search) if x), default=None)}
 
 
-def filtered_rows(request, preferences, filters):
+def filtered_rows(request, preferences, filters, paginate=False):
     # Ranking uses scalar offer facts; detailed descriptions/JSON and seller lists
     # are not needed for every item in the supplier catalogue.
     query = Offer.objects.select_related('supplier', 'kaspi_sellers', 'kaspi_card_search').defer('description', 'characteristics', 'supplier_url')
@@ -94,10 +95,7 @@ def filtered_rows(request, preferences, filters):
     if mode == 'best':
         filters = {key: value for key, value in filters.items() if key not in ('kaspi_status', 'verified', 'sort')}
     if mode == 'best':
-        if preferences.commission is None or preferences.expenses is None:
-            query = query.none()
-        else:
-            query = query.filter(kaspi_price__isnull=False, cost__gt=0)
+        query = best_candidates_query(query, preferences, today)
     elif mode == 'reviewed':
         pass  # Legacy URL now opens the complete supplier catalogue.
     elif mode == 'no_sellers':
@@ -145,6 +143,10 @@ def filtered_rows(request, preferences, filters):
     favorites = set(Favorite.objects.filter(user=request.user).values_list('offer_id', flat=True))
     if filters.get('favorites'):
         query = query.filter(pk__in=favorites)
+    if paginate and mode in ('roi', 'reviewed') and not any(filters.get(key) for key in ('availability', 'demand')) and all(filters.get(key) is None for key in ('min_profit', 'min_markup')):
+        request.catalog_page, request.catalog_status_counts = catalog_page(query, preferences, filters, mode, request.GET.get('page'), today)
+        request.catalog_total = request.catalog_page.paginator.count
+        query = request.catalog_page.object_list
     rows = []
     for offer in query:
         row = {'offer': offer, 'favorite': offer.pk in favorites, **evaluate(offer, preferences, today=today)}
@@ -213,6 +215,8 @@ def filtered_rows(request, preferences, filters):
         rows = [r for r in rows if r['kaspi_status_code'] in filters['kaspi_status']]
     if filters.get('sort') == 'profit' and mode != 'best':
         rows.sort(key=lambda r: (r['profit'] is None, -(r['profit'] or Decimal(0)), r['offer'].pk))
+    if hasattr(request, 'catalog_page'):
+        request.catalog_page.object_list = rows
     return rows
 
 
@@ -241,7 +245,7 @@ def dashboard(request):
             loaded=Count('pk'), linked=Count('pk', filter=~Q(kaspi_url='')),
             priced=Count('pk', filter=Q(kaspi_price__isnull=False)),
             verified=Count('pk', filter=Q(match_verified=True)))
-    rows = filtered_rows(request, preferences, form.cleaned_data) if valid else []
+    rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
     best_empty_reason = ''
     if request.GET.get('mode') == 'best' and not rows:
         scope = Offer.objects.filter(supplier=supplier) if supplier else Offer.objects.all()
@@ -272,11 +276,11 @@ def dashboard(request):
                 exported_number(row['commission_rate']), exported_number(row['commission_amount']),
                 exported_number(row['kaspi_after_commission']), exported_number(row['expenses']), 'Предварительная подборка — требует проверки спроса и продавцов Kaspi' if preliminary else 'Основная подборка']])
         return response
-    page = Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
+    page = getattr(request, 'catalog_page', None) or Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
         Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')),
         'kaspi_sellers')
-    return render(request, 'procurement/dashboard.html', context(request, page=page, total=len(rows), preferences=preferences,
+    return render(request, 'procurement/dashboard.html', context(request, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
