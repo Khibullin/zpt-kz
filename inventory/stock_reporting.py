@@ -6,7 +6,7 @@ from .matching import candidate_articles
 
 
 def stock_rows(items=None):
-    items = list(items if items is not None else Item.objects.prefetch_related('aliases').order_by('code'))
+    items = list(items if items is not None else Item.objects.prefetch_related('aliases','supplier_links__supplier').order_by('code'))
     batches = {kind: ImportBatch.objects.filter(kind=kind).order_by('-as_of', '-pk').first() for kind in ('pp1', 'stock')}
     snapshots = defaultdict(list)
     for s in StockSnapshot.objects.filter(batch_id__in=[b.pk for b in batches.values() if b]):
@@ -69,7 +69,7 @@ def stock_summary(rows):
 
 def stock_export(rows):
     fields = ['pp1', 'pp2', 'kaspi', 'total', 'difference', 'transit', 'damaged']
-    data = [[i.code, i.article, i.name, i.brand, i.get_unit_display(), *[getattr(i, f) if getattr(i, f) is not None else 'Не указано' for f in fields], i.pp1_source, i.pp2_source, i.kaspi_source] for i in rows]
+    data = [[i.code, i.article, i.name, i.brand, i.get_unit_display(), *[getattr(i, f) if getattr(i, f) is not None else 'Не указано' for f in fields], i.pp1_source, i.pp2_source, i.kaspi_source, "; ".join(link.supplier.name for link in i.supplier_links.all())] for i in rows]
     data.append(['Всего наименований', len(rows)])
     for column in stock_summary(rows):
         for group in column['groups']:
@@ -77,4 +77,4 @@ def stock_export(rows):
         data.append([column['label'], 'Без установленного остатка', column['unknown']])
     return data
 
-STOCK_HEADERS = ['Код', 'Артикул', 'Название', 'Бренд', 'Единица', 'PP1', 'PP2', 'Kaspi', 'Всего PP1 + PP2', 'PP2 − Kaspi', 'В пути', 'Брак', 'Источник PP1', 'Источник PP2', 'Источник Kaspi']
+STOCK_HEADERS = ['Код', 'Артикул', 'Название', 'Бренд', 'Единица', 'PP1', 'PP2', 'Kaspi', 'Всего PP1 + PP2', 'PP2 − Kaspi', 'В пути', 'Брак', 'Источник PP1', 'Источник PP2', 'Источник Kaspi', 'Закуплено у поставщика']

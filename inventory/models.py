@@ -78,6 +78,9 @@ class StockDocument(models.Model):
         ADJUSTMENT='adjustment','Оприходование излишка'
         WRITEOFF='writeoff','Списание / недостача'
     kind = models.CharField('Операция', max_length=15, choices=Kind.choices)
+    purchase_order = models.ForeignKey('procurement.PurchaseOrder', null=True, blank=True, on_delete=models.PROTECT, related_name='stock_receipts')
+    purchase_line = models.PositiveIntegerField(null=True, blank=True)
+    receipt_key = models.UUIDField(null=True, blank=True, editable=False)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     warehouse = models.CharField('Склад', max_length=3, choices=[('PP1','PP1 · Asia Grade'),('PP2','PP2 · Rapida')])
     destination = models.CharField('Склад получения', max_length=3, blank=True, choices=[('PP1','PP1 · Asia Grade'),('PP2','PP2 · Rapida')])
@@ -154,3 +157,13 @@ class RapidaReference(models.Model):
     accepted = models.PositiveIntegerField()
     class Meta:
         constraints = [models.UniqueConstraint(fields=['batch','article','barcode'], name='inventory_rapida_reference')]
+
+
+class SupplierItem(models.Model):
+    supplier = models.ForeignKey('procurement.Supplier', on_delete=models.PROTECT)
+    article = models.CharField(max_length=120)
+    brand = models.CharField(max_length=100)
+    item = models.ForeignKey(Item, on_delete=models.PROTECT, related_name='supplier_links')
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['supplier', 'article', 'brand'], name='inventory_supplier_item')]

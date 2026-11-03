@@ -37,7 +37,7 @@ def create(request, kind):
 @access('admin')
 def items(request):
     q=request.GET.get('q','').strip()
-    rows=Item.objects.prefetch_related('aliases').order_by('code')
+    rows=Item.objects.prefetch_related('aliases','supplier_links__supplier').order_by('code')
     if q: rows=rows.filter(Q(code__icontains=q)|Q(article__icontains=q)|Q(name__icontains=q)|Q(aliases__code__icontains=q)).distinct()
     if request.GET.get('unit'):rows=rows.filter(unit=request.GET['unit'])
     if request.GET.get('brand'):rows=rows.filter(brand=request.GET['brand'])
