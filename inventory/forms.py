@@ -15,17 +15,23 @@ class AliasForm(forms.ModelForm):
 class DocumentForm(forms.ModelForm):
     class Meta:
         model=StockDocument
-        fields=['kind','item','warehouse','destination','quantity','unit_cost','counterparty','external_number','date','note']
+        fields=['kind','item','warehouse','destination','quantity','unit_cost','counterparty','external_number','date','related_sale','return_condition','note']
         widgets={'date':forms.DateInput(attrs={'type':'date'})}
     def clean(self):
         data=super().clean()
-        if data.get('quantity',0) < 1: self.add_error('quantity','Минимум 1')
+        if data.get('quantity') is not None and data['quantity'] < 1: self.add_error('quantity','Минимум 1')
         if data.get('unit_cost') is not None and data['unit_cost'] < 0: self.add_error('unit_cost','Не меньше нуля')
         if data.get('kind') == 'transfer' and (not data.get('destination') or data.get('destination') == data.get('warehouse')):
             self.add_error('destination','Выберите другой склад')
         if data.get('kind') == 'receipt':
             if data.get('unit_cost') is None: self.add_error('unit_cost','Укажите фактическую себестоимость')
             if not data.get('counterparty'): self.add_error('counterparty','Укажите поставщика')
+        if data.get('kind') == 'sale':
+            if data.get('warehouse') != 'PP2': self.add_error('warehouse','Продажи выполняются только с PP2')
+            if not data.get('external_number'): self.add_error('external_number','Укажите номер заказа Kaspi')
+        if data.get('kind') == 'return':
+            if not data.get('related_sale'): self.add_error('related_sale','Выберите исходную отгрузку')
+            if not data.get('return_condition'): self.add_error('return_condition','Укажите результат проверки возврата')
         return data
 
 class AccountForm(forms.ModelForm):

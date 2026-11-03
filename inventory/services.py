@@ -1,7 +1,8 @@
 from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.db import transaction
-from django.db.models import Sum
+from django.db.models import Sum, Max
+from .costing import available_lots, take, slice_allocations, total_cost
 from .models import Item, StockDocument, StockEntry, StockEvent
 
 def balance(item, warehouse):
@@ -18,7 +19,32 @@ def post_document(pk, user):
         raise ValidationError('Количество должно быть положительным.')
     if doc.unit_cost is not None and doc.unit_cost < 0:
         raise ValidationError('Себестоимость не может быть отрицательной.')
-    if doc.kind == 'transfer':
+    latest = StockEntry.objects.filter(document__item=doc.item).aggregate(latest=Max('document__date'))['latest']
+    if latest and doc.date < latest:
+        raise ValidationError('Дата раньше уже проведённых движений этого товара. Заднее число требует отдельной сверки.')
+    if doc.kind == 'sale':
+        if doc.warehouse != 'PP2' or not doc.external_number:
+            raise ValidationError('Для отгрузки укажите PP2 и номер заказа Kaspi.')
+        if StockDocument.objects.filter(kind='sale',item=doc.item,external_number=doc.external_number).exclude(pk=doc.pk).exists():
+            raise ValidationError('Отгрузка этого товара по заказу уже существует.')
+        doc.cost_allocations = take(available_lots(doc.item)['PP2'],doc.quantity)
+        doc.total_cost = total_cost(doc.cost_allocations)
+        StockEntry.objects.create(document=doc,warehouse='PP2',quantity=-doc.quantity,created_by=user)
+        doc.status = 'posted'
+    elif doc.kind == 'return':
+        if not doc.related_sale_id or doc.return_condition not in ['good','damaged']:
+            raise ValidationError('Укажите исходную отгрузку и результат проверки возврата.')
+        sale = StockDocument.objects.get(pk=doc.related_sale_id)
+        if sale.kind != 'sale' or sale.status != 'posted' or sale.item_id != doc.item_id or doc.warehouse != 'PP2':
+            raise ValidationError('Возврат должен соответствовать проведённой отгрузке того же товара на PP2.')
+        returned = sale.returns.filter(status='posted').aggregate(q=Sum('quantity'))['q'] or 0
+        if returned + doc.quantity > sale.quantity:
+            raise ValidationError('Возврат превышает количество исходной отгрузки.')
+        doc.cost_allocations = slice_allocations(sale.cost_allocations,returned,doc.quantity)
+        doc.total_cost = total_cost(doc.cost_allocations)
+        StockEntry.objects.create(document=doc,warehouse='PP2' if doc.return_condition == 'good' else 'DAMAGED',quantity=doc.quantity,created_by=user)
+        doc.status = 'posted'
+    elif doc.kind == 'transfer':
         if doc.warehouse == doc.destination or doc.destination not in ['PP1','PP2']:
             raise ValidationError('Выберите другой склад получения.')
         if balance(doc.item,doc.warehouse) < doc.quantity:
@@ -33,7 +59,7 @@ def post_document(pk, user):
             raise ValidationError('Начальный остаток по этому товару и складу уже установлен или были движения.')
         StockEntry.objects.create(document=doc,warehouse=doc.warehouse,quantity=doc.quantity,created_by=user)
         doc.status = 'posted'
-    doc.save(update_fields=['status'])
+    doc.save(update_fields=['status','cost_allocations','total_cost'])
     StockEvent.objects.create(document=doc,action=doc.status,quantity=doc.quantity,user=user)
     return doc
 
