@@ -50,7 +50,7 @@
 <p><b>{{ row.kaspi_status }}</b> · {{ row.kaspi_checked_on|date:'d.m.Y'|default:'ещё не проверено' }}</p>
 <p>{% if row.offer.match_verified %}Совпадение с Kaspi подтверждено{% else %}Совпадение с Kaspi не проверено{% endif %}</p>
 <p>Категория: {{ row.offer.category }} · Остаток: {{ row.offer.stock|default:'неизвестен' }} · Цена: {{ row.offer.checked_on|date:'d.m.Y'|default:'дата неизвестна' }}</p>
-{% include 'procurement/fitments.html' with offer=row.offer compact=True %}
+{% include 'procurement/fitments.html' with offer=row.offer compact=True fitments=row.offer.compact_fitments %}
 {% include 'procurement/kaspi_sellers.html' with offer=row.offer compact=True %}
 <p>{{ row.signal }} · Продажи / 30 дней: {{ row.offer.sales_30|default_if_none:'неизвестны' }} · Отзывы / 90 дней: {{ row.offer.recent_reviews|default_if_none:'нет данных' }} · Спрос проверен: {{ row.offer.evidence_date|date:'d.m.Y'|default:'не проверен' }}</p>
 <p>Комиссия: {{ row.commission_amount|floatformat:2|default:'Нет данных' }} ₸ · После комиссии: {{ row.kaspi_after_commission|floatformat:2|default:'Нет данных' }} ₸ · Заработок после комиссии: {{ row.difference|floatformat:2|default:'Нет данных' }} ₸</p>

@@ -1,4 +1,4 @@
-{% for fitment in offer.fitments.all %}
+{% for fitment in fitments %}
 {% if compact %}{% if forloop.counter <= 3 %}<small>{{ fitment.make }} {{ fitment.model }}{% if not fitment.verified %} — требует проверки{% endif %}</small>{% elif forloop.counter == 4 %}<small><a href="{% url 'procurement:detail' offer.pk %}">Все модели и модификации →</a></small>{% endif %}
 {% else %}<details style="margin:10px 0"><summary><strong>{{ fitment.make }} {{ fitment.model }}</strong>{% if fitment.configurations %} · модификаций: {{ fitment.configurations|length }}{% endif %}{% if not fitment.verified %} — требует проверки{% endif %}</summary>
 <p>{{ fitment.details }} <a href="{{ fitment.source_url }}" target="_blank" rel="noopener noreferrer">Источник: карточка поставщика</a></p>

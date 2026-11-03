@@ -105,3 +105,15 @@ class SelectionPerformanceTests(TestCase):
         VehicleFitment.objects.create(offer=self.offers[0], make='NEW', model='NEW MODEL', verified=True)
         form = SelectionFilterForm({'supplier': self.supplier.pk, 'vehicle_make': 'NEW'})
         self.assertEqual(form.fields['vehicle_model'].choices[-1], ('NEW MODEL', 'NEW MODEL'))
+
+    def test_list_limits_fitments_but_detail_retains_all(self):
+        VehicleFitment.objects.bulk_create([
+            VehicleFitment(offer=self.offers[0], make='EXTRA', model=f'Model {i}', verified=True)
+            for i in range(20)])
+        self.client.force_login(self.user)
+        response = self.client.get(reverse('procurement:dashboard'), {'supplier': self.supplier.pk})
+        offer = next(row['offer'] for row in response.context['page'] if row['offer'].pk == self.offers[0].pk)
+        self.assertEqual(len(offer.compact_fitments), 4)
+        self.assertContains(response, 'Все модели и модификации')
+        detail = self.client.get(reverse('procurement:detail', args=[offer.pk]))
+        self.assertEqual(detail.context['offer'].fitments.count(), 21)

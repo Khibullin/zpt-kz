@@ -3,6 +3,8 @@ from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
 from .vehicle_countries import country_makes
 import csv
+import logging
+from time import perf_counter
 import uuid
 from io import BytesIO
 from pathlib import PurePath
@@ -226,6 +228,7 @@ def dashboard(request):
         params = request.GET.copy()
         params['supplier'] = request.session['procurement_supplier']
         return redirect(reverse('procurement:dashboard') + '?' + params.urlencode())
+    started = perf_counter()
     preferences, _ = Preferences.objects.get_or_create(user=request.user)
     filter_data = request.GET
     if request.GET.get('mode') == 'best':
@@ -234,6 +237,7 @@ def dashboard(request):
             filter_data.pop(key, None)
     form = SelectionFilterForm(filter_data)
     valid = form.is_valid()
+    form_finished = perf_counter()
     if valid:
         supplier = form.cleaned_data.get('supplier')
         request.session['procurement_supplier'] = supplier.pk if supplier else None
@@ -246,6 +250,7 @@ def dashboard(request):
             priced=Count('pk', filter=Q(kaspi_price__isnull=False)),
             verified=Count('pk', filter=Q(match_verified=True)))
     rows = filtered_rows(request, preferences, form.cleaned_data, paginate=request.GET.get('download') != 'csv') if valid else []
+    rows_finished = perf_counter()
     best_empty_reason = ''
     if request.GET.get('mode') == 'best' and not rows:
         scope = Offer.objects.filter(supplier=supplier) if supplier else Offer.objects.all()
@@ -278,9 +283,9 @@ def dashboard(request):
         return response
     page = getattr(request, 'catalog_page', None) or Paginator(displayed_rows, 40).get_page(request.GET.get('page'))
     prefetch_related_objects([row['offer'] for row in page.object_list],
-        Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')),
+        Prefetch('fitments', queryset=VehicleFitment.objects.only('id', 'offer_id', 'make', 'model', 'verified')[:4], to_attr='compact_fitments'),
         'kaspi_sellers')
-    return render(request, 'procurement/dashboard.html', context(request, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
+    response = render(request, 'procurement/dashboard.html', context(request, page=page, total=getattr(request, 'catalog_total', len(rows)), preferences=preferences,
                   commission_rate=preferences.commission.normalize() if preferences.commission is not None else None,
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
@@ -288,6 +293,13 @@ def dashboard(request):
                   page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
+    finished = perf_counter()
+    durations = [(form_finished-started)*1000, (rows_finished-form_finished)*1000, (finished-rows_finished)*1000]
+    response['Server-Timing'] = ', '.join(f'{name};dur={duration:.1f}' for name, duration in zip(('filters', 'catalogue', 'render'), durations))
+    logging.getLogger('gunicorn.error').info('Procurement performance: mode=%s filters=%.1fms catalogue=%.1fms render=%.1fms',
+        'best' if request.GET.get('mode') == 'best' else 'catalogue', *durations)
+    return response
+
 
 
 @access()
