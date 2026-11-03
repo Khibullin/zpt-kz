@@ -32,7 +32,7 @@ def reconciliation(request):
     page=Paginator(rows,30).get_page(request.GET.get('page'))
     item_choices=[('', '---------')]+[(item.pk,str(item)) for item in Item.objects.order_by('code')]
     for row in page:
-        row['form']=MappingForm(initial={'snapshot':row['snapshot']})
+        row['form']=MappingForm(initial={'snapshot':row['snapshot']},auto_id=f"snapshot_{row['snapshot'].pk}_%s")
         row['form'].fields['item'].choices=item_choices
     query=request.GET.copy();query.pop('page',None)
     return render(request,'inventory/reconciliation.html',{'page':page,'q':request.GET.get('q',''),'total':total,'confirmed':confirmed,'query':query.urlencode()})
