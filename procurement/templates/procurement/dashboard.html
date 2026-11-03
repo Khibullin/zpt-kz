@@ -17,7 +17,11 @@
 
 <label class="filter-field" style="margin-bottom:12px">{{ filter_form.q.label }}{{ filter_form.q }}{{ filter_form.q.errors }}</label>
 <div class="filter-grid">
-{% for field in basic_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}
+{% for field in basic_filters %}{% if field.name == 'vehicle_year' %}
+<div class="filter-field year-filter"><label for="id_year_mode">Годы выпуска автомобиля</label>{{ filter_form.year_mode }}{{ filter_form.year_mode.errors }}
+<details id="year-selected" {% if filter_form.vehicle_years.errors %}open{% endif %}><summary>Выбрать годы <span id="year-count"></span></summary><div class="year-checks">{{ filter_form.vehicle_years }}</div>{{ filter_form.vehicle_years.errors }}</details>
+<div id="year-range" class="year-range"><label>С {{ filter_form.year_from }}{{ filter_form.year_from.errors }}</label><label>По {{ filter_form.year_to }}{{ filter_form.year_to.errors }}</label></div></div>
+{% else %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endif %}{% endfor %}
 </div>
 {% if mode != 'best' %}<fieldset><legend>Статус на Kaspi</legend>{{ filter_form.kaspi_status }}{{ filter_form.kaspi_status.errors }}</fieldset>{% endif %}<details style="margin-top:12px" {% if filter_form.errors %}open{% endif %}><summary>Дополнительные фильтры: бюджет, прибыль, доходность и проверка</summary><div class="filter-grid" style="margin-top:12px">{% for field in advanced_filters %}<label class="filter-field">{{ field.label }}{{ field }}{{ field.errors }}</label>{% endfor %}</div></details>
 
@@ -101,7 +105,14 @@
 </style>
 <datalist id="kaspi-seller-counts"><option value="0"><option value="1"><option value="2"><option value="3"><option value="5"></datalist>
 {{ filter_form.vehicle_models|json_script:"vehicle-model-options" }}
+<style>.year-checks{max-height:190px;overflow:auto;background:white;padding:8px;border:1px solid #ccd9d5}.year-checks #id_vehicle_years{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}.year-checks label{display:flex;align-items:center;gap:5px}.year-checks input[type=checkbox]{width:auto;min-height:0}.year-range{display:flex;gap:8px}.year-range label{flex:1}.year-filter details{margin-top:6px}.year-filter [hidden]{display:none!important}</style>
 <script>
+const yearMode=document.getElementById('id_year_mode');
+function updateYearMode(){document.getElementById('year-selected').hidden=yearMode.value!=='selected';document.getElementById('year-range').hidden=yearMode.value!=='range';}
+yearMode.addEventListener('change',updateYearMode);updateYearMode();
+function updateYearCount(){const n=document.querySelectorAll('[name=vehicle_years]:checked').length;document.getElementById('year-count').textContent=n?'('+n+')':'';}
+document.querySelectorAll('[name=vehicle_years]').forEach(x=>x.addEventListener('change',updateYearCount));updateYearCount();
+
 const makeSelect=document.getElementById("id_vehicle_make"),modelSelect=document.getElementById("id_vehicle_model");
 document.getElementById('id_supplier').addEventListener('change',event=>{
 const form=event.target.form;

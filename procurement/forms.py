@@ -19,6 +19,10 @@ class SelectionFilterForm(forms.Form):
     vehicle_model = forms.ChoiceField(label='Модель автомобиля', required=False)
     vehicle_generation = forms.ChoiceField(label='Поколение автомобиля', required=False)
     vehicle_year = forms.TypedChoiceField(label='Год выпуска автомобиля', required=False, coerce=int, empty_value=None)
+    year_mode = forms.ChoiceField(label='Годы выпуска', required=False, choices=[('', 'Все годы'), ('selected', 'Выбрать годы'), ('range', 'Интервал')])
+    vehicle_years = forms.TypedMultipleChoiceField(label='Выберите годы', required=False, coerce=int, widget=forms.CheckboxSelectMultiple)
+    year_from = forms.TypedChoiceField(label='С', required=False, coerce=int, empty_value=None)
+    year_to = forms.TypedChoiceField(label='По', required=False, coerce=int, empty_value=None)
     fitment = forms.ChoiceField(label='Применимость', required=False, choices=[('', 'Любая применимость'), ('verified', 'Есть проверенная применимость'), ('unknown', 'Применимость не проверена')])
     availability = forms.ChoiceField(label='Наличие', required=False, choices=[('', 'Любое наличие'), ('in_stock', 'Есть в наличии'), ('unavailable', 'Нет в наличии'), ('unknown', 'Остаток неизвестен')])
     demand = forms.ChoiceField(label='Спрос', required=False, choices=[('', 'Любые признаки спроса'), ('reviews', 'Есть свежие отзывы'), ('sales', 'Есть подтверждённые продажи'), ('unknown', 'Нет свежих подтверждений')])
@@ -79,7 +83,37 @@ class SelectionFilterForm(forms.Form):
                     year_values.add(str(config.get('years', '')))
         self.fields['vehicle_generation'].choices = [('', 'Все поколения' if selected_make and selected_model else 'Сначала выберите модель')] + [(x, x) for x in sorted(generations)]
         years = supplier_years(supplier_id)
-        self.fields['vehicle_year'].choices = [('', 'Все годы')] + [(str(x), str(x)) for x in years]
+        choices = [(str(x), str(x)) for x in years]
+        self.fields['vehicle_year'].choices = [('', 'Все годы')] + choices
+        self.fields['vehicle_years'].choices = choices
+        for field in ('year_from', 'year_to'):
+            self.fields[field].choices = [('', 'Выберите год')] + choices
+        if self.is_bound and 'year_mode' not in self.data and self.data.get('vehicle_year'):
+            self.data = self.data.copy()
+            self.data['year_mode'] = 'selected'
+            if hasattr(self.data, 'setlist'):
+                self.data.setlist('vehicle_years', [self.data['vehicle_year']])
+            else:
+                self.data['vehicle_years'] = [self.data['vehicle_year']]
+
+    def clean(self):
+        data = super().clean()
+        mode = data.get('year_mode')
+        data['selected_years'] = []
+        if mode == 'selected':
+            data['selected_years'] = data.get('vehicle_years', [])
+            if not data['selected_years']:
+                self.add_error('vehicle_years', 'Выберите хотя бы один год.')
+        elif mode == 'range':
+            start, end = data.get('year_from'), data.get('year_to')
+            if start is None or end is None:
+                self.add_error('year_from', 'Укажите начало и конец интервала.')
+            elif start > end:
+                self.add_error('year_to', 'Конец интервала должен быть не раньше начала.')
+            else:
+                data['selected_years'] = list(range(start, end + 1))
+        data['vehicle_year'] = None
+        return data
 
 
 

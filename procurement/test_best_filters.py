@@ -32,7 +32,7 @@ class BestFiltersTests(TestCase):
     def test_best_has_shared_filters_without_kaspi_controls(self):
         response = self.get()
         self.assertEqual(response.status_code, 200)
-        for field in ('q', 'brand', 'category', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year'):
+        for field in ('q', 'brand', 'category', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'year_mode'):
             self.assertContains(response, f'id="id_{field}"')
         self.assertNotContains(response, 'id="id_kaspi_status"')
         self.assertNotContains(response, 'id="id_verified"')
@@ -93,3 +93,19 @@ class BestFiltersTests(TestCase):
         snapshot.complete = False
         snapshot.save()
         self.assertEqual(self.get(mode='roi', kaspi_seller_count='0').context['total'], 0)
+
+    def test_multiple_years_and_range_in_both_tabs(self):
+        for mode in ('roi', 'best'):
+            self.assertEqual(self.get(mode=mode, year_mode='selected', vehicle_years=['2007', '2015']).context['total'], 2)
+            self.assertEqual(self.get(mode=mode, year_mode='range', year_from='2007', year_to='2015').context['total'], 2)
+            self.assertEqual(self.get(mode=mode, year_mode='range', year_from='2015', year_to='2007').status_code, 400)
+            self.assertEqual(self.get(mode=mode, year_mode='selected').status_code, 400)
+            self.assertEqual(self.get(mode=mode, year_mode='', vehicle_years=['2007']).context['total'], 2)
+        response = self.get(year_mode='selected', vehicle_years=['2007', '2015'], vehicle_make='TOYOTA', kaspi_seller_count='1')
+        self.assertEqual(response.context['total'], 2)
+        self.assertContains(response, 'vehicle_years=2007&amp;vehicle_years=2015')
+
+    def test_interval_matches_any_year_but_same_generation(self):
+        self.assertEqual(self.get(vehicle_make='TOYOTA', vehicle_model='CAMRY', vehicle_generation='XV40',
+            year_mode='range', year_from='2012', year_to='2015').context['total'], 0)
+        self.assertEqual(self.get(year_mode='selected', vehicle_years=['2007', '2015'], download='csv').status_code, 200)

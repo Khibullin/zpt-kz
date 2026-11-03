@@ -142,10 +142,10 @@ def filtered_rows(request, preferences, filters, paginate=False):
         fitment_filters['fitments__model'] = filters['vehicle_model']
     if filters.get('vehicle_country') or filters.get('vehicle_make') or filters.get('vehicle_model') or filters.get('fitment') == 'verified':
         query = query.filter(**fitment_filters).distinct()
-    if filters.get('vehicle_generation') or filters.get('vehicle_year'):
+    if filters.get('vehicle_generation') or filters.get('vehicle_year') or filters.get('selected_years'):
         fitments = VehicleFitment.objects.filter(offer__in=query.values('pk'), **{key.removeprefix('fitments__'): value for key, value in fitment_filters.items()})
         eligible = {fitment.offer_id for fitment in fitments.only('offer_id', 'configurations').iterator(chunk_size=20)
-                    if matches_configuration(fitment.configurations, filters.get('vehicle_generation', ''), filters.get('vehicle_year'))}
+                    if matches_configuration(fitment.configurations, filters.get('vehicle_generation', ''), filters.get('vehicle_year'), filters.get('selected_years'))}
         query = query.filter(pk__in=eligible)
     if filters.get('fitment') == 'unknown':
         query = query.exclude(fitments__verified=True)

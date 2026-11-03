@@ -17,7 +17,8 @@ def configuration_years(value):
     return []
 
 
-def matches_configuration(configurations, generation='', year=None):
+def matches_configuration(configurations, generation='', year=None, years=None):
     return any((not generation or config.get('generation') == generation)
                and (not year or int(year) in configuration_years(config.get('years')))
+               and (not years or set(years).intersection(configuration_years(config.get('years'))))
                for config in configurations if isinstance(config, dict))
