@@ -13,7 +13,7 @@ from .models import ImportBatch, StockSnapshot, KaspiOperation, MoneyAccount, Ca
 from .importing import parse_file, import_file
 
 class UploadForm(forms.Form):
-    kind = forms.ChoiceField(label='Тип файла', choices=[('stock','Остатки Kaspi → PP2'),('pp1','Начальные остатки PP1'),('sales','Финансовый отчёт Kaspi')])
+    kind = forms.ChoiceField(label='Тип файла', choices=[('stock','Остатки Kaspi → PP2'),('pp1','Начальные остатки PP1'),('sales','Финансовый отчёт Kaspi'),('rapida','Акт Rapida · штрихкоды и расхождения')])
     as_of = forms.DateField(label='Дата состояния / отчёта', widget=forms.DateInput(attrs={'type':'date'}), initial=date.today)
     file = forms.FileField(label='Файл XLSX')
 

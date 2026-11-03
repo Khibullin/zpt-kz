@@ -1,5 +1,6 @@
 import hashlib
 import json
+from itertools import islice
 from collections import Counter
 from datetime import datetime
 from decimal import Decimal, InvalidOperation
@@ -7,7 +8,7 @@ from io import BytesIO
 from zipfile import ZipFile
 from openpyxl import load_workbook
 from django.db import transaction
-from .models import ImportBatch, StockSnapshot, KaspiOperation
+from .models import ImportBatch, StockSnapshot, KaspiOperation, RapidaReference
 
 def money(value, nullable=False):
     if value is None or value == '':
@@ -29,9 +30,11 @@ def parse_file(raw, kind):
     workbook = load_workbook(BytesIO(raw), read_only=True, data_only=True)
     try:
         sheet = workbook.worksheets[0]
-        if sheet.max_row > 20000:
+        if sheet.max_row is not None and sheet.max_row > 20000:
             raise ValueError('Не более 20 000 строк за загрузку')
-        rows = list(sheet.iter_rows(values_only=True))
+        rows = list(islice(sheet.iter_rows(values_only=True),20001))
+        if len(rows)>20000:
+            raise ValueError('Не более 20 000 строк за загрузку')
         result = []
         if kind == 'stock':
             if list(rows[0][:6]) != ['SKU','model','brand','price','PP1','PP2']:
@@ -48,6 +51,20 @@ def parse_file(raw, kind):
                 if not q.is_finite() or q < 0 or q != q.to_integral_value():
                     raise ValueError(f'Неверное количество PP2: {sku}')
                 result.append(dict(sku=sku, name=str(r[1] or ''), brand=str(r[2] or ''), quantity=int(q), price=money(r[3], True)))
+        elif kind == 'rapida':
+            header = next((i for i,r in enumerate(rows) if 'Штрихкод Rapida' in r and 'Принято Rapida' in r), None)
+            if header is None: raise ValueError('Ожидается акт приёмки Rapida с артикулами и штрихкодами')
+            columns = {v:i for i,v in enumerate(rows[header]) if v}
+            for r in rows[header+1:]:
+                if not isinstance(r[0],int): continue
+                article=str(r[columns['Артикул']] or '').strip()
+                barcode=str(r[columns['Штрихкод Rapida']] or '').strip()
+                def count(label):
+                    n=Decimal(str(r[columns[label]]))
+                    if not n.is_finite() or n<0 or n!=n.to_integral_value():raise ValueError('Неверное количество в акте Rapida')
+                    return int(n)
+                if not article or not barcode:raise ValueError('В акте отсутствует артикул или штрихкод')
+                result.append(dict(article=article,barcode=barcode,planned=count('По накладной'),accepted=count('Принято Rapida')))
         elif kind == 'pp1':
             header = next((i for i,r in enumerate(rows) if 'PP1 после, шт.' in r and 'Артикул' in r), None)
             if header is None:
@@ -104,6 +121,9 @@ def import_file(raw, kind, filename, as_of, user):
     for data in parsed:
         if kind in ['stock','pp1']:
             StockSnapshot.objects.create(batch=batch, warehouse='PP1' if kind == 'pp1' else 'PP2', **data)
+            count += 1
+        elif kind == 'rapida':
+            RapidaReference.objects.create(batch=batch,**data)
             count += 1
         else:
             _, created = KaspiOperation.objects.get_or_create(fingerprint=data['fingerprint'], defaults=dict(batch=batch, **{k:v for k,v in data.items() if k != 'fingerprint'}))

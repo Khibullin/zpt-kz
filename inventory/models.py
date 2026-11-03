@@ -128,3 +128,12 @@ class CashEntry(models.Model):
     @property
     def signed_amount(self):
         return self.amount if self.kind in ['kaspi','owner_in'] else -self.amount
+
+class RapidaReference(models.Model):
+    batch = models.ForeignKey(ImportBatch, on_delete=models.PROTECT)
+    article = models.CharField(max_length=120)
+    barcode = models.CharField(max_length=120)
+    planned = models.PositiveIntegerField()
+    accepted = models.PositiveIntegerField()
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['batch','article','barcode'], name='inventory_rapida_reference')]
