@@ -201,3 +201,75 @@ class CostingTests(TestCase):
         self.assertEqual(response.context['unknown'],1)
         self.assertContains(response,'Неизвестна')
         self.assertEqual(self.client.get(reverse('inventory:cost_report'),{'start':'invalid'}).context['page'].paginator.count,0)
+
+class MappingTests(TestCase):
+    def setUp(self):
+        from .models import Item,ImportBatch
+        self.user=get_user_model().objects.create_superuser(username='mapping',password='test-password')
+        self.item=Item.objects.create(code='FILTER-MAP',article='ABC-123',name='Фильтр')
+        self.pp1=ImportBatch.objects.create(kind='pp1',digest='pp1',filename='pp1.xlsx',as_of=date.today(),created_by=self.user)
+        self.pp2=ImportBatch.objects.create(kind='stock',digest='pp2',filename='stock.xlsx',as_of=date.today(),created_by=self.user)
+        StockSnapshot.objects.create(batch=self.pp1,warehouse='PP1',sku='ABC-123',name='ABC-123',quantity=5)
+        self.row=StockSnapshot.objects.create(batch=self.pp2,warehouse='PP2',sku='SKU1',name='Фильтр ABC-123',quantity=2)
+    def test_candidates_preserve_suffixes_and_boundaries(self):
+        from .matching import candidate_articles
+        self.assertEqual(candidate_articles('sku','Фильтр ABC123',['ABC-123','ABC-123A']),['ABC-123'])
+        self.assertEqual(candidate_articles('sku','Фильтр XABC123Y',['ABC-123']),[])
+        self.assertEqual(candidate_articles('sku','ABC-123A',['ABC-123']),[])
+    def test_duplicate_skus_are_flagged_not_summed(self):
+        from .matching import reconciliation_rows
+        StockSnapshot.objects.create(batch=self.pp2,warehouse='PP2',sku='SKU2',name='Фильтр ABC123',quantity=3)
+        rows=[r for r in reconciliation_rows() if r['source']=='kaspi']
+        self.assertEqual(len(rows),2)
+        self.assertTrue(all(r['shared_count']==2 for r in rows))
+    def test_confirmation_idempotent_and_no_stock_movement(self):
+        from .matching import confirm_mapping
+        from .models import StockEntry,Item
+        from django.core.exceptions import ValidationError
+        _,created=confirm_mapping(self.row.pk,self.item,1,self.user)
+        self.assertTrue(created)
+        _,created=confirm_mapping(self.row.pk,self.item,1,self.user)
+        self.assertFalse(created)
+        with self.assertRaises(ValidationError):confirm_mapping(self.row.pk,self.item,2,self.user)
+        self.assertFalse(StockEntry.objects.exists())
+    def test_stale_snapshot_cannot_be_confirmed(self):
+        from .matching import confirm_mapping
+        from .models import ImportBatch
+        from django.core.exceptions import ValidationError
+        ImportBatch.objects.create(kind='stock',digest='new-stock',filename='new.xlsx',as_of=date.today(),created_by=self.user)
+        with self.assertRaises(ValidationError):confirm_mapping(self.row.pk,self.item,1,self.user)
+    def test_page_and_confirmation_require_explicit_check(self):
+        self.client.force_login(self.user)
+        response=self.client.get(reverse('inventory:reconciliation'))
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.context['total'],2)
+        response=self.client.post(reverse('inventory:confirm_mapping'),{'snapshot':self.row.pk,'item':self.item.pk,'multiplier':1})
+        from .models import ItemAlias
+        self.assertFalse(ItemAlias.objects.exists())
+    def test_rapida_import_only_reference(self):
+        from .models import RapidaReference,StockEntry
+        w=Workbook();s=w.active
+        s.append(['№','Артикул','По накладной','Принято Rapida','Штрихкод Rapida'])
+        s.append([1,'ABC-123',5,4,'00123456789'])
+        b=BytesIO();w.save(b)
+        _,count=import_file(b.getvalue(),'rapida','rapida.xlsx',date.today(),self.user)
+        self.assertEqual(count,1)
+        ref=RapidaReference.objects.get()
+        self.assertEqual(ref.barcode,'00123456789')
+        self.assertEqual(ref.accepted-ref.planned,-1)
+        self.assertFalse(StockEntry.objects.exists())
+    def test_xlsx_without_dimensions(self):
+        from zipfile import ZipFile,ZIP_DEFLATED
+        import re
+        w=Workbook();s=w.active
+        s.append(['№','Артикул','По накладной','Принято Rapida','Штрихкод Rapida'])
+        s.append([1,'ABC-123',5,4,'00123456789'])
+        original=BytesIO();w.save(original)
+        output=BytesIO()
+        with ZipFile(BytesIO(original.getvalue())) as source,ZipFile(output,'w',ZIP_DEFLATED) as dest:
+            for info in source.infolist():
+                content=source.read(info.filename)
+                if info.filename=='xl/worksheets/sheet1.xml':content=re.sub(rb'<dimension[^>]*/>',b'',content)
+                dest.writestr(info.filename,content)
+        from .importing import parse_file
+        self.assertEqual(len(parse_file(output.getvalue(),'rapida')),1)
