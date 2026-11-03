@@ -1,4 +1,6 @@
 from service_requests.filter_views import request_filters as service_request_filters, personal_request as service_personal_request
+from core.office_views import office_home, OfficeLoginView
+from django.contrib.auth.views import LogoutView
 from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView, TemplateView
@@ -43,6 +45,9 @@ from catalog.views_zpt_guide import zpt_guide_view
 from core.manual_short_link_views import short_link
 
 urlpatterns = [
+    path('office/', office_home, name='office_home'),
+    path('office/login/', OfficeLoginView.as_view(), name='office_login'),
+    path('office/logout/', LogoutView.as_view(next_page='/office/login/'), name='office_logout'),
     path('office/accounting/', include('inventory.urls')),
     path('office/procurement/', include('procurement.urls')),
     path('s/<str:code>/', short_link, name='manual_short_request'),

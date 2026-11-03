@@ -24,7 +24,7 @@ class WorkspaceAuthenticationForm(AuthenticationForm):
 class WorkspaceLoginView(LoginView):
     template_name = 'procurement/login.html'
     authentication_form = WorkspaceAuthenticationForm
-    next_page = '/office/procurement/'
+    next_page = '/office/'
 
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
