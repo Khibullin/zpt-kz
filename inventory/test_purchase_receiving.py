@@ -56,6 +56,7 @@ class PurchaseAcceptanceTests(TestCase):
         response=self.client.get(url)
         self.assertContains(response,'Поставщик: Omega')
         self.assertContains(response,'PP2 · Rapida')
+        self.assertContains(response,'value="'+date.today().isoformat()+'"')
         self.assertFalse(StockEntry.objects.exists())
         data={'warehouse':'PP2','date':date.today().isoformat(),'waybill':'N1','version':1,'key':str(uuid.uuid4()),'lines-TOTAL_FORMS':1,'lines-INITIAL_FORMS':1,'lines-0-quantity':4,'lines-0-cost':'250','lines-0-unit':'set'}
         self.assertEqual(self.client.post(url,data).status_code,302)
