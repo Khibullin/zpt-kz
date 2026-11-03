@@ -59,7 +59,7 @@ class AccountForm(forms.ModelForm):
 class CashForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['kind'].choices=[c for c in self.fields['kind'].choices if c[0] not in ['transfer_in','transfer_out']]
+        self.fields['kind'].choices=[c for c in self.fields['kind'].choices if c[0] not in ['transfer_in','transfer_out','supplier_refund']]
         self.fields['stock_document'].queryset=StockDocument.objects.filter(kind='receipt',status='posted').select_related('item')
 
     class Meta:

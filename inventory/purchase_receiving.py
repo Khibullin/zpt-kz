@@ -33,7 +33,7 @@ ReceiveLines = formset_factory(ReceiveLine, extra=0, max_num=20000, absolute_max
 
 
 def received_quantities(order):
-    return {r['purchase_line']:r['total'] for r in order.stock_receipts.filter(status='posted').values('purchase_line').annotate(total=Sum('quantity'))}
+    return {r['purchase_line']:r['total'] for r in order.stock_receipts.filter(status='posted',kind='receipt').values('purchase_line').annotate(total=Sum('quantity'))}
 
 
 @transaction.atomic
@@ -44,7 +44,7 @@ def accept_purchase(pk, user, header, lines):
         return False
     if order.version != header['version']:
         raise ValidationError('Заказ изменился. Откройте приёмку заново.')
-    if order.status == 'cancelled':
+    if order.status == 'cancelled' or order.archived or order.delivery_stage=='cancelled':
         raise ValidationError('Отменённый заказ нельзя принять.')
     if len(lines) != len(order.items):
         raise ValidationError('Состав заказа изменился. Обновите страницу.')
@@ -96,7 +96,7 @@ def receive_purchase(request,pk):
     for index,source in enumerate(order.items):
         item=links.get((source['article'],source['brand']))
         initial.append({'quantity':max(0,source['quantity']-received.get(index,0)),'cost':source['cost'],'unit':item.unit if item else ''})
-    form=ReceiveForm(request.POST or None,initial={'warehouse':'PP2','date':timezone.localdate(),'waybill':order.waybill_number,'version':order.version,'key':uuid.uuid4()})
+    form=ReceiveForm(request.POST or None,initial={'warehouse':order.destination,'date':timezone.localdate(),'waybill':order.waybill_number,'version':order.version,'key':uuid.uuid4()})
     lines=ReceiveLines(request.POST or None,prefix='lines',initial=initial)
     if request.method=='POST' and form.is_valid() and lines.is_valid():
         try:

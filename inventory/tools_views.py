@@ -154,7 +154,7 @@ def prepare_openings(request):
 @never_cache
 @access('admin')
 def settlements(request):
-    rows=StockDocument.objects.filter(kind='receipt',status='posted').select_related('item').order_by('-date','-pk')
+    rows=StockDocument.objects.filter(kind='receipt',status='posted',purchase_order__isnull=True).select_related('item').order_by('-date','-pk')
     rows,form=date_filter(request,rows)
     q=request.GET.get('q','').strip()
     if q:rows=rows.filter(Q(counterparty__icontains=q)|Q(external_number__icontains=q)|Q(item__article__icontains=q))
@@ -167,8 +167,24 @@ def settlements(request):
         if state=='paid' and doc.due!=0:continue
         if state=='overpaid' and doc.due>=0:continue
         result.append(doc);total+=doc.amount;paid+=doc.paid
+    from procurement.models import PurchaseOrder
+    from .purchasing import order_summary
+    from types import SimpleNamespace
+    orders=PurchaseOrder.objects.filter(archived=False).select_related('supplier')
+    if form.is_valid():
+        if form.cleaned_data.get('start'):orders=orders.filter(created_at__date__gte=form.cleaned_data['start'])
+        if form.cleaned_data.get('end'):orders=orders.filter(created_at__date__lte=form.cleaned_data['end'])
+    else:orders=orders.none()
+    if q:orders=orders.filter(Q(supplier__name__icontains=q)|Q(title__icontains=q)|Q(items__icontains=q))
+    for order in orders:
+        summary=order_summary(order)
+        if not summary['received'] and not summary['paid']:continue
+        due=summary['balance'];state=request.GET.get('payment','')
+        if state=='unpaid' and due<=0 or state=='paid' and due!=0 or state=='overpaid' and due>=0:continue
+        result.append(SimpleNamespace(pk=order.order_number,date=order.created_at.date(),counterparty=order.supplier.name,external_number=order.display_title,item='Закупочный заказ · все приходы и платежи',amount=summary['receipt_value'],paid=summary['paid'],due=due))
+        total+=summary['receipt_value'];paid+=summary['paid']
     if request.GET.get('export')=='xlsx':return xlsx_response('supplier-settlements',['Документ','Дата','Поставщик','Основание','Товар','Приход, ₸','Оплачено, ₸','Сальдо, ₸'],([d.pk,d.date,d.counterparty,d.external_number,str(d.item),d.amount,d.paid,d.due] for d in result))
-    unlinked=CashEntry.objects.filter(kind='supplier',cancelled=False,stock_document__isnull=True).aggregate(total=Sum('amount'))['total']
+    unlinked=CashEntry.objects.filter(kind='supplier',cancelled=False,stock_document__isnull=True,purchase_order__isnull=True).aggregate(total=Sum('amount'))['total']
     query=request.GET.copy();query.pop('page',None)
     return render(request,'inventory/settlements.html',{'form':form,'page':Paginator(result,50).get_page(request.GET.get('page')),'total':total,'paid':paid,'due':total-paid,'unlinked':unlinked,'query':query.urlencode()})
 

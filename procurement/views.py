@@ -429,7 +429,9 @@ def basket(request):
         history=supplier_history(request.user,group['supplier'].pk)
         for row in group['rows']:row.purchase_history=history[(row.offer.article,row.offer.brand)]
         group['terms'] = supplier_terms(group['supplier'], group['total'])
-    orders = PurchaseOrder.objects.filter(user=request.user).select_related('supplier')
+    orders = PurchaseOrder.objects.filter(user=request.user,archived=False).select_related('supplier')
+    from inventory.purchasing import order_summary
+    for order in orders:order.workflow=order_summary(order)
     return render(request, 'procurement/basket.html', context(request, selections=rows, supplier_groups=list(grouped.values()),
         purchases=orders, budget=sum((r.subtotal for r in rows), Decimal(0))))
 
@@ -477,6 +479,8 @@ def purchase_detail(request, pk):
     form = PurchaseEditForm(request.POST or None, request.FILES or None, instance=order, initial={'version': order.version})
     lines = PurchaseLineFormSet(request.POST or None, prefix='lines', initial=[{'quantity': item['quantity'], 'cost': item['cost']} for item in order.items])
     has_receipts = order.stock_receipts.exists()
+    from inventory.purchasing import order_summary
+    workflow=order_summary(order)
     if request.method == 'POST':
         valid = form.is_valid() and lines.is_valid()
         if valid and len(lines.forms) != len(order.items):
@@ -485,14 +489,17 @@ def purchase_detail(request, pk):
         if valid:
             with transaction.atomic():
                 current = PurchaseOrder.objects.select_for_update().get(pk=order.pk, user=request.user)
-                if form.cleaned_data['version'] != current.version:
+                if current.archived or form.cleaned_data['version'] != current.version:
                     form.add_error(None, 'Заказ изменён в другой вкладке. Обновите страницу перед сохранением.')
                 else:
-                    if current.stock_receipts.exists():
+                    if current.stock_receipts.exists() or current.payments.exists():
                         changed=any(line['quantity'] != item['quantity'] or line['cost'] != Decimal(str(item['cost'])) for item,line in zip(current.items,lines.cleaned_data))
                         if changed or form.cleaned_data['status']=='cancelled':
                             messages.error(request,'После приёмки нельзя менять состав и цены заказа или отменять его. Реквизиты и документы можно дополнить.')
                             return redirect('procurement:purchase_detail',pk=pk)
+                    if form.cleaned_data['status'] in ['paid','received'] and form.cleaned_data['status']!=current.status:
+                        messages.error(request,'Оплата и приёмка рассчитываются по операциям. Используйте соответствующие кнопки заказа.')
+                        return redirect('procurement:purchase_detail',pk=pk)
                     fields = ['status', 'supplier_order_number', 'invoice_number', 'waybill_number', 'comment']
                     before = {field: getattr(current, field) for field in fields}
                     before['items'] = deepcopy(current.items)
@@ -503,9 +510,11 @@ def purchase_detail(request, pk):
                         item['subtotal'] = str(line['quantity'] * line['cost'])
                     for field in fields:
                         setattr(current, field, form.cleaned_data[field])
+                    if current.status!=before['status'] and current.status in ['draft','sent','confirmed','cancelled']:
+                        current.delivery_stage={'draft':'draft','sent':'sent','confirmed':'waiting','cancelled':'cancelled'}[current.status]
                     current.items = updated_items
                     current.version += 1
-                    current.save(update_fields=fields + ['items', 'version', 'updated_at'])
+                    current.save(update_fields=fields + ['items', 'version', 'updated_at','delivery_stage'])
                     for field, kind in [('invoice_file', 'invoice'), ('waybill_file', 'waybill')]:
                         file = form.cleaned_data.get(field)
                         if file:
@@ -513,8 +522,13 @@ def purchase_detail(request, pk):
                     Activity.objects.create(user=request.user, action='purchase_updated', details={'purchase': current.pk, 'before': before, 'version': current.version})
                     messages.success(request, 'Изменения закупочного заказа сохранены.')
                     return redirect('procurement:purchase_detail', pk=current.pk)
+    events=list(Activity.objects.filter(user=request.user,details__purchase=pk).order_by('-pk')[:50])
+    labels={'purchase_created':'Заказ создан','purchase_updated':'Реквизиты или состав изменены','purchase_planned':'План поставки изменён','purchase_stock_received':'Приёмка на склад','purchase_payment':'Денежная операция','purchase_delete':'Заказ удалён','purchase_restore':'Заказ восстановлен','purchase_remove':'Позиция убрана из заказа','purchase_listing':'Состояние продажи изменено','purchase_supplier_return':'Товар возвращён поставщику'}
+    for event in events:
+        event.display_action=labels.get(event.action,'Изменение закупки')
+        event.reason=event.details.get('reason','')
     return render(request, 'procurement/purchase_detail.html', context(request, purchase=order, terms=supplier_terms(order.supplier, order.total), form=form, lines=lines,
-        has_receipts=has_receipts, receipt_complete=has_receipts and sum(order.stock_receipts.filter(status='posted').values_list('quantity',flat=True)) >= sum(i['quantity'] for i in order.items), stock_receipts=order.stock_receipts.select_related('item').order_by('pk'), item_forms=list(zip(order.items, lines.forms)), documents=order.documents.defer('data').all()), status=400 if request.method == 'POST' else 200)
+        purchase_events=events, workflow=workflow, has_receipts=has_receipts, receipt_complete=has_receipts and sum(order.stock_receipts.filter(status='posted',kind='receipt').values_list('quantity',flat=True)) >= sum(i['quantity'] for i in order.items), stock_receipts=order.stock_receipts.select_related('item').order_by('pk'), item_forms=list(zip(order.items, lines.forms)), documents=order.documents.defer('data').all()), status=400 if request.method == 'POST' else 200)
 
 
 @access()
