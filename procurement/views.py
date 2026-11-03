@@ -424,7 +424,10 @@ def basket(request):
         group = grouped.setdefault(row.offer.supplier_id, {'supplier': row.offer.supplier, 'rows': [], 'total': Decimal(0)})
         group['rows'].append(row)
         group['total'] += row.subtotal
+    from .purchase_history import supplier_history
     for group in grouped.values():
+        history=supplier_history(request.user,group['supplier'].pk)
+        for row in group['rows']:row.purchase_history=history[(row.offer.article,row.offer.brand)]
         group['terms'] = supplier_terms(group['supplier'], group['total'])
     orders = PurchaseOrder.objects.filter(user=request.user).select_related('supplier')
     return render(request, 'procurement/basket.html', context(request, selections=rows, supplier_groups=list(grouped.values()),
@@ -461,6 +464,9 @@ def purchase_confirm(request, supplier_id):
                 Activity.objects.create(user=request.user, action='purchase_created', details={'purchase': order.pk, 'supplier': supplier.pk, 'positions': len(rows)})
                 messages.success(request, 'Закупочный заказ создан в ZPT.KZ. Теперь его можно выгрузить в Excel.')
                 return redirect('procurement:purchase_detail', pk=order.pk)
+    from .purchase_history import supplier_history
+    history=supplier_history(request.user,supplier.pk)
+    for row in rows:row.purchase_history=history[(row.offer.article,row.offer.brand)]
     return render(request, 'procurement/purchase_confirm.html', context(request, supplier=supplier, form=form,
         selections=rows, terms=supplier_terms(supplier, sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), budget=sum((row.quantity * row.offer.cost for row in rows), Decimal(0))), status=400 if request.method == 'POST' else 200)
 
@@ -470,6 +476,7 @@ def purchase_detail(request, pk):
     order = get_object_or_404(PurchaseOrder.objects.select_related('supplier'), pk=pk, user=request.user)
     form = PurchaseEditForm(request.POST or None, request.FILES or None, instance=order, initial={'version': order.version})
     lines = PurchaseLineFormSet(request.POST or None, prefix='lines', initial=[{'quantity': item['quantity'], 'cost': item['cost']} for item in order.items])
+    has_receipts = order.stock_receipts.exists()
     if request.method == 'POST':
         valid = form.is_valid() and lines.is_valid()
         if valid and len(lines.forms) != len(order.items):
@@ -481,6 +488,11 @@ def purchase_detail(request, pk):
                 if form.cleaned_data['version'] != current.version:
                     form.add_error(None, 'Заказ изменён в другой вкладке. Обновите страницу перед сохранением.')
                 else:
+                    if current.stock_receipts.exists():
+                        changed=any(line['quantity'] != item['quantity'] or line['cost'] != Decimal(str(item['cost'])) for item,line in zip(current.items,lines.cleaned_data))
+                        if changed or form.cleaned_data['status']=='cancelled':
+                            messages.error(request,'После приёмки нельзя менять состав и цены заказа или отменять его. Реквизиты и документы можно дополнить.')
+                            return redirect('procurement:purchase_detail',pk=pk)
                     fields = ['status', 'supplier_order_number', 'invoice_number', 'waybill_number', 'comment']
                     before = {field: getattr(current, field) for field in fields}
                     before['items'] = deepcopy(current.items)
@@ -502,7 +514,7 @@ def purchase_detail(request, pk):
                     messages.success(request, 'Изменения закупочного заказа сохранены.')
                     return redirect('procurement:purchase_detail', pk=current.pk)
     return render(request, 'procurement/purchase_detail.html', context(request, purchase=order, terms=supplier_terms(order.supplier, order.total), form=form, lines=lines,
-        item_forms=list(zip(order.items, lines.forms)), documents=order.documents.defer('data').all()), status=400 if request.method == 'POST' else 200)
+        has_receipts=has_receipts, receipt_complete=has_receipts and sum(order.stock_receipts.filter(status='posted').values_list('quantity',flat=True)) >= sum(i['quantity'] for i in order.items), stock_receipts=order.stock_receipts.select_related('item').order_by('pk'), item_forms=list(zip(order.items, lines.forms)), documents=order.documents.defer('data').all()), status=400 if request.method == 'POST' else 200)
 
 
 @access()

@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
+from inventory.purchase_receiving import receive_purchase
 from .auth import WorkspaceLoginView
 from .invitations import invite_manager, accept_invitation, activate_invitation
 from .retail_views import retail_workspace, retail_excel
@@ -21,6 +22,7 @@ urlpatterns = [
     path('suppliers/<int:pk>/', views.supplier_detail, name='supplier_detail'),
     path('basket/', views.basket, name='basket'),
     path('purchases/new/<int:supplier_id>/', views.purchase_confirm, name='purchase_confirm'),
+    path('purchases/<int:pk>/receive/', receive_purchase, name='purchase_receive'),
     path('purchases/<int:pk>/', views.purchase_detail, name='purchase_detail'),
     path('purchases/<int:pk>/excel/', views.purchase_excel, name='purchase_excel'),
     path('purchases/<int:pk>/documents/<int:document_id>/', views.purchase_document, name='purchase_document'),

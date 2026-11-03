@@ -64,6 +64,21 @@ def export_order(order):
     sheet.page_setup.fitToHeight = 0
     sheet.print_options.horizontalCentered = True
     sheet.print_area = f'A1:G{total}'
+    # Keep the supplier order sheet unchanged; repeat-purchase context is separate.
+    from .purchase_history import supplier_history
+    history=supplier_history(order.user,order.supplier_id,before_pk=order.pk)
+    past=workbook.create_sheet('История закупок')
+    past.append(['Поставщик','Артикул','Бренд','Ранее заказано','Ранее принято на склад','Последняя приёмка','Текущий проведённый остаток PP2'])
+    for item in order.items:
+        h=history[(item['article'],item['brand'])]
+        values=[order.supplier.name,item['article'],item['brand'],h['ordered'],h['received'],h['last_date'],h['pp2'] if h['pp2'] is not None else 'Не установлен']
+        past.append(values)
+        for col in (1,2,3,7):
+            cell=past.cell(past.max_row,col)
+            if isinstance(cell.value,str):cell.data_type='s'
+        past.cell(past.max_row,6).number_format='DD.MM.YYYY'
+    past.freeze_panes='D2'
+    for col in range(1,8):past.column_dimensions[get_column_letter(col)].width=26
     output = BytesIO()
     workbook.save(output)
     output.seek(0)
