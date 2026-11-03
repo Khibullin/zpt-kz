@@ -2,6 +2,7 @@ from django.urls import path
 from . import views, document_views
 app_name = 'inventory'
 urlpatterns = [
+    path('costs/',document_views.cost_report,name='cost_report'),
     path('items/',document_views.items,name='items'),
     path('documents/',document_views.documents,name='documents'),
     path('documents/<int:pk>/action/',document_views.document_action,name='document_action'),

@@ -139,3 +139,65 @@ class StockDocumentsTests(TestCase):
         self.client.logout()
         self.assertEqual(self.client.post(reverse('inventory:document_action',args=[doc.pk]),{'action':'post'}).status_code,302)
         doc.refresh_from_db();self.assertEqual(doc.status,'draft')
+
+class CostingTests(TestCase):
+    def setUp(self):
+        from .models import Item
+        self.user=get_user_model().objects.create_superuser(username='fifo',password='test-password')
+        self.item=Item.objects.create(code='FIFO',name='Фильтр')
+    def post(self,kind,quantity,**kwargs):
+        from .models import StockDocument
+        from .services import post_document
+        data=dict(kind=kind,item=self.item,warehouse='PP2',quantity=quantity,date=date.today(),created_by=self.user)
+        data.update(kwargs)
+        doc=StockDocument.objects.create(**data)
+        return post_document(doc.pk,self.user)
+    def test_fifo_across_batches_and_partial_returns(self):
+        from .services import balance,post_document
+        from django.core.exceptions import ValidationError
+        self.post('receipt',2,unit_cost=100,counterparty='A')
+        self.post('receipt',3,unit_cost=200,counterparty='B')
+        sale=self.post('sale',4,external_number='ORDER1')
+        self.assertEqual(sale.total_cost,Decimal('600'))
+        ret=self.post('return',1,related_sale=sale,return_condition='good')
+        self.assertEqual(ret.total_cost,Decimal('100'))
+        ret=self.post('return',2,related_sale=sale,return_condition='damaged')
+        self.assertEqual(ret.total_cost,Decimal('300'))
+        self.assertEqual(balance(self.item,'PP2'),2)
+        self.assertEqual(balance(self.item,'DAMAGED'),2)
+        self.post('return',1,related_sale=sale,return_condition='good')
+        with self.assertRaises(ValidationError):self.post('return',1,related_sale=sale,return_condition='good')
+    def test_transfer_preserves_batch_cost(self):
+        from .services import receive_transfer,balance
+        self.post('receipt',4,warehouse='PP1',unit_cost=700,counterparty='A')
+        transfer=self.post('transfer',3,warehouse='PP1',destination='PP2')
+        receive_transfer(transfer.pk,2,self.user)
+        sale=self.post('sale',2,external_number='TRANSFER-SALE')
+        self.assertEqual(sale.total_cost,Decimal('1400'))
+        self.assertEqual(balance(self.item,'TRANSIT'),1)
+    def test_unknown_cost_not_zero_and_no_overselling(self):
+        from .services import balance
+        from django.core.exceptions import ValidationError
+        self.post('opening',2)
+        sale=self.post('sale',1,external_number='UNKNOWN')
+        self.assertIsNone(sale.total_cost)
+        with self.assertRaises(ValidationError):self.post('sale',2,external_number='TOO-MANY')
+        self.assertEqual(balance(self.item,'PP2'),1)
+    def test_pp1_cannot_sell_and_return_must_match(self):
+        from .models import Item
+        from django.core.exceptions import ValidationError
+        self.post('opening',2,warehouse='PP1')
+        with self.assertRaises(ValidationError):self.post('sale',1,warehouse='PP1',external_number='BAD')
+        self.post('receipt',2,unit_cost=20,counterparty='A')
+        sale=self.post('sale',1,external_number='GOOD')
+        other=Item.objects.create(code='OTHER',name='Другая деталь')
+        with self.assertRaises(ValidationError):self.post('return',1,item=other,related_sale=sale,return_condition='good')
+    def test_cost_report_marks_missing_cost(self):
+        self.post('opening',2)
+        self.post('sale',1,external_number='REPORT')
+        self.client.force_login(self.user)
+        response=self.client.get(reverse('inventory:cost_report'))
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.context['unknown'],1)
+        self.assertContains(response,'Неизвестна')
+        self.assertEqual(self.client.get(reverse('inventory:cost_report'),{'start':'invalid'}).context['page'].paginator.count,0)

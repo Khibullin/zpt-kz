@@ -66,6 +66,8 @@ class StockDocument(models.Model):
         OPENING='opening','Начальный остаток'
         RECEIPT='receipt','Приход от поставщика'
         TRANSFER='transfer','Перемещение'
+        SALE='sale','Отгрузка покупателю'
+        RETURN='return','Возврат покупателя'
     kind = models.CharField('Операция', max_length=15, choices=Kind.choices)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     warehouse = models.CharField('Склад', max_length=3, choices=[('PP1','PP1 · Asia Grade'),('PP2','PP2 · Rapida')])
@@ -78,14 +80,18 @@ class StockDocument(models.Model):
     note = models.TextField('Комментарий', blank=True)
     status = models.CharField(max_length=15, choices=[('draft','Черновик'),('posted','Проведён'),('sent','Отправлен'),('partial','Принят частично'),('received','Принят полностью')], default='draft')
     received_quantity = models.PositiveIntegerField(default=0)
+    related_sale = models.ForeignKey('self', verbose_name='Исходная отгрузка', on_delete=models.PROTECT, null=True, blank=True, related_name='returns')
+    return_condition = models.CharField('Состояние возврата', max_length=15, blank=True, choices=[('good','Проверен, годен к продаже'),('damaged','Брак, исключить из продажи')])
+    cost_allocations = models.JSONField(default=list, editable=False)
+    total_cost = models.DecimalField(max_digits=16, decimal_places=2, null=True, editable=False)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
-        constraints = [models.CheckConstraint(condition=models.Q(quantity__gte=1), name='inventory_document_positive'),models.CheckConstraint(condition=models.Q(received_quantity__lte=models.F('quantity')), name='inventory_received_limit'),models.CheckConstraint(condition=models.Q(unit_cost__isnull=True)|models.Q(unit_cost__gte=0), name='inventory_cost_nonnegative')]
+        constraints = [models.UniqueConstraint(fields=['item','external_number'],condition=models.Q(kind='sale') & ~models.Q(external_number=''), name='inventory_sale_order_item'),models.CheckConstraint(condition=models.Q(quantity__gte=1), name='inventory_document_positive'),models.CheckConstraint(condition=models.Q(received_quantity__lte=models.F('quantity')), name='inventory_received_limit'),models.CheckConstraint(condition=models.Q(unit_cost__isnull=True)|models.Q(unit_cost__gte=0), name='inventory_cost_nonnegative')]
 
 class StockEntry(models.Model):
     document = models.ForeignKey(StockDocument, on_delete=models.PROTECT, related_name='entries')
-    warehouse = models.CharField(max_length=7, choices=[('PP1','PP1'),('PP2','PP2'),('TRANSIT','В пути')])
+    warehouse = models.CharField(max_length=7, choices=[('PP1','PP1'),('PP2','PP2'),('TRANSIT','В пути'),('DAMAGED','Брак')])
     quantity = models.IntegerField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)

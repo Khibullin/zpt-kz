@@ -14,7 +14,7 @@ from .forms import ItemForm, AliasForm, DocumentForm, AccountForm, CashForm
 from .models import Item, ItemAlias, StockDocument, StockEntry, MoneyAccount, CashEntry
 from .services import post_document, receive_transfer
 
-FORMS={'item':(ItemForm,'Новый товар'),'alias':(AliasForm,'Связать код товара'),'document':(DocumentForm,'Новый складской документ'),'account':(AccountForm,'Новый денежный счёт'),'cash':(CashForm,'Денежная операция')}
+FORMS={'item':(ItemForm,'Новый товар'),'alias':(AliasForm,'Связать код товара'),'document':(DocumentForm,'Новый документ движения товара'),'account':(AccountForm,'Новый денежный счёт'),'cash':(CashForm,'Денежная операция')}
 
 @never_cache
 @access('admin')
@@ -45,7 +45,7 @@ def items(request):
         balances.setdefault(r['document__item_id'],{})[r['warehouse']]=r['total']
     for item in page:
         b=balances.get(item.pk,{})
-        item.pp1=b.get('PP1');item.pp2=b.get('PP2');item.transit=b.get('TRANSIT')
+        item.pp1=b.get('PP1');item.pp2=b.get('PP2');item.transit=b.get('TRANSIT');item.damaged=b.get('DAMAGED')
     return render(request,'inventory/items.html',{'page':page,'q':q})
 
 @never_cache
@@ -89,3 +89,26 @@ def cash(request):
     byid={a.pk:a for a in accounts}
     for row in CashEntry.objects.all():byid[row.account_id].current_balance+=row.signed_amount
     return render(request,'inventory/cash.html',{'page':Paginator(rows,50).get_page(request.GET.get('page')),'accounts':accounts,'kinds':CashEntry._meta.get_field('kind').choices,'q':q})
+
+@never_cache
+@access('admin')
+def cost_report(request):
+    from .views import Filters
+    form=Filters(request.GET)
+    rows=StockDocument.objects.filter(kind__in=['sale','return'],status='posted').select_related('item').order_by('-date','-pk')
+    if form.is_valid():
+        f=form.cleaned_data
+        if f['start']:rows=rows.filter(date__gte=f['start'])
+        if f['end']:rows=rows.filter(date__lte=f['end'])
+        if f['warehouse']:rows=rows.filter(warehouse=f['warehouse'])
+        if f['q']:rows=rows.filter(Q(item__name__icontains=f['q'])|Q(item__article__icontains=f['q'])|Q(external_number__icontains=f['q']))
+        if f['start'] and f['end'] and f['start']>f['end']:
+            form.add_error('end','Конечная дата раньше начальной');rows=rows.none()
+    else:rows=rows.none()
+    sums={}
+    for kind in ['sale','return']:
+        sums[kind]=rows.filter(kind=kind,total_cost__isnull=False).aggregate(total=Sum('total_cost'))['total'] or Decimal('0')
+    unknown=rows.filter(total_cost__isnull=True).count()
+    damage=rows.filter(kind='return',return_condition='damaged',total_cost__isnull=False).aggregate(total=Sum('total_cost'))['total'] or Decimal('0')
+    query=request.GET.copy();query.pop('page',None)
+    return render(request,'inventory/cost_report.html',{'form':form,'page':Paginator(rows,50).get_page(request.GET.get('page')),'unknown':unknown,'sold_cost':sums['sale'],'return_cost':sums['return'],'net_cost':sums['sale']-sums['return'],'damage_cost':damage,'query':query.urlencode()})
