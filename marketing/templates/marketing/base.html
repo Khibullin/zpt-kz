@@ -7,7 +7,7 @@
   <title>{% block title %}Рассылки и уведомления ZPT.KZ{% endblock %}</title>
   <link rel="stylesheet" href="{% static 'css/design-system.css' %}">
   <link rel="stylesheet" href="{% static 'marketing/marketing.css' %}?v=5">
-</head>
+{% include "includes/office_favicon.html" %}</head>
 <body class="marketing-body">
   <header class="marketing-header">
     <div class="marketing-header__inner">
@@ -15,7 +15,7 @@
         <span class="marketing-header__logo">ZPT.KZ</span>
         <span class="marketing-header__title">Рассылки и уведомления</span>
       </div>
-      <div class="marketing-header__meta">
+      <div class="marketing-header__meta"><a class="office-back-link" href="{% url 'office_home' %}">Служебный кабинет</a>
         <span class="marketing-mode-badge marketing-mode-badge--{{ marketing_whatsapp_send_mode|lower }}">
           Режим: {{ marketing_whatsapp_send_mode_label }}
         </span>
