@@ -113,6 +113,17 @@ def filtered_rows(request, preferences, filters, paginate=False):
         presence = request.GET.get('kaspi_presence')
         query = query.select_related('kaspi_sellers', 'kaspi_card_search').filter(
             no_card if presence == 'no_card' else empty_card if presence == 'has_card' else empty_card | no_card)
+    count = filters.get('kaspi_seller_count')
+    if count is not None:
+        query = query.filter(kaspi_sellers__complete=True, kaspi_sellers__city='750000000',
+            kaspi_sellers__source_url=F('kaspi_url'),
+            kaspi_sellers__checked_on__gte=today - timedelta(days=preferences.no_sellers_days),
+            kaspi_sellers__checked_on__lte=today).exclude(kaspi_url='')
+        if count == 0:
+            query = query.filter(kaspi_sellers__sellers=[], match_verified=True)
+        else:
+            query = query.filter(**{f'kaspi_sellers__sellers__{count - 1}__isnull': False,
+                                    f'kaspi_sellers__sellers__{count}__isnull': True})
     term = filters.get('q', '').strip()
     if term:
         query = query.filter(Q(name__icontains=term) | Q(article__icontains=term) | Q(brand__icontains=term) | Q(applicability__icontains=term))
@@ -290,7 +301,7 @@ def dashboard(request):
                   effective_expenses=max(PACKAGING_COST, preferences.expenses) if preferences.expenses is not None else None,
                   filter_form=form, preliminary=preliminary, preliminary_total=len(displayed_rows) if preliminary else 0, best_empty_reason=best_empty_reason, supplier_stats=supplier_stats, catalogue_total=Offer.objects.filter(supplier=supplier).count() if supplier else Offer.objects.count(),
                   reset_url=reverse('procurement:dashboard') + (f'?supplier={supplier.pk}' if supplier else '?supplier=') + ('&mode=' + request.GET['mode'] if request.GET.get('mode') in ('best', 'difference', 'no_sellers', 'reviewed') else ''),
-                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year')],
+                  page_numbers=page.paginator.get_elided_page_range(page.number, on_each_side=2, on_ends=1), basic_filters=[form[name] for name in ('brand', 'category', 'vehicle_country', 'vehicle_make', 'vehicle_model', 'vehicle_generation', 'vehicle_year', 'kaspi_seller_count')],
                   advanced_filters=[form[name] for name in (('sort', 'fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'verified', 'favorites') if request.GET.get('mode') != 'best' else ('fitment', 'availability', 'demand', 'max_cost', 'min_profit', 'min_markup', 'favorites'))],
                   mode=request.GET.get('mode', 'roi'), favorites=bool(form.cleaned_data.get('favorites')) if valid else False), status=200 if valid else 400)
     finished = perf_counter()

@@ -53,7 +53,7 @@ class BestFiltersTests(TestCase):
 
     def test_year_and_generation_must_match_same_configuration(self):
         response = self.get(vehicle_make='TOYOTA', vehicle_model='CAMRY', vehicle_generation='XV40', vehicle_year='2015')
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.context['total'], 0)
         response = self.get(vehicle_make='TOYOTA', vehicle_model='CAMRY', vehicle_year='2015')
         self.assertEqual(response.context['total'], 1)
 
@@ -70,3 +70,26 @@ class BestFiltersTests(TestCase):
         self.assertEqual(list(configuration_years('2006–2011')), list(range(2006, 2012)))
         self.assertEqual(list(configuration_years('2010')), [2010])
         self.assertEqual(list(configuration_years('неизвестно')), [])
+
+    def test_independent_year_and_seller_count(self):
+        for mode in ('roi', 'best'):
+            self.assertEqual(self.get(mode=mode, vehicle_year='2010').context['total'], 2)
+            self.assertEqual(self.get(mode=mode, kaspi_seller_count='1').context['total'], 2)
+            self.assertEqual(self.get(mode=mode, kaspi_seller_count='2').context['total'], 0)
+            self.assertEqual(self.get(mode=mode, vehicle_year='2010', kaspi_seller_count='1').context['total'], 2)
+        snapshot = KaspiSellerSnapshot.objects.first()
+        snapshot.complete = False
+        snapshot.save()
+        self.assertEqual(self.get(kaspi_seller_count='1').context['total'], 1)
+
+    def test_zero_excludes_unknown_and_export_keeps_count(self):
+        snapshot = KaspiSellerSnapshot.objects.first()
+        snapshot.sellers = []
+        snapshot.save()
+        response = self.get(mode='roi', kaspi_seller_count='0')
+        self.assertEqual(response.context['total'], 1)
+        csv = self.get(mode='roi', kaspi_seller_count='0', download='csv').content.decode('utf-8-sig')
+        self.assertIn(snapshot.offer.name, csv)
+        snapshot.complete = False
+        snapshot.save()
+        self.assertEqual(self.get(mode='roi', kaspi_seller_count='0').context['total'], 0)

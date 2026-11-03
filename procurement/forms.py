@@ -2,7 +2,7 @@ from django import forms
 from django.forms import formset_factory
 from .models import Preferences, Draft, Membership, Supplier, Offer, VehicleFitment, PurchaseOrder
 
-from .filter_options import supplier_options
+from .filter_options import supplier_options, supplier_years
 from .fitment_filters import configuration_years
 from .categories import OMEGA_CATEGORIES
 from core.models import Country
@@ -22,6 +22,7 @@ class SelectionFilterForm(forms.Form):
     fitment = forms.ChoiceField(label='Применимость', required=False, choices=[('', 'Любая применимость'), ('verified', 'Есть проверенная применимость'), ('unknown', 'Применимость не проверена')])
     availability = forms.ChoiceField(label='Наличие', required=False, choices=[('', 'Любое наличие'), ('in_stock', 'Есть в наличии'), ('unavailable', 'Нет в наличии'), ('unknown', 'Остаток неизвестен')])
     demand = forms.ChoiceField(label='Спрос', required=False, choices=[('', 'Любые признаки спроса'), ('reviews', 'Есть свежие отзывы'), ('sales', 'Есть подтверждённые продажи'), ('unknown', 'Нет свежих подтверждений')])
+    kaspi_seller_count = forms.IntegerField(label='Количество продавцов на Kaspi', required=False, min_value=0, max_value=100000, widget=forms.NumberInput(attrs={'list': 'kaspi-seller-counts', 'placeholder': 'Все', 'step': '1'}))
     kaspi_status = forms.MultipleChoiceField(label='Статус на Kaspi', required=False, widget=forms.CheckboxSelectMultiple, choices=[('sellers', 'Карточка есть — есть продавцы Kaspi'), ('empty', 'Карточка есть — нет продавцов Kaspi'), ('missing', 'Карточка Kaspi не найдена'), ('pending', 'Проверка Kaspi не завершена')])
     sort = forms.ChoiceField(label='Сортировка', required=False, choices=[('', 'Доходность — сначала наибольшая'), ('profit', 'Прибыль — сначала наибольшая')])
     brand = forms.CharField(label='Бренд детали', required=False, max_length=160)
@@ -77,8 +78,8 @@ class SelectionFilterForm(forms.Form):
                 if not selected_generation or config.get('generation') == selected_generation:
                     year_values.add(str(config.get('years', '')))
         self.fields['vehicle_generation'].choices = [('', 'Все поколения' if selected_make and selected_model else 'Сначала выберите модель')] + [(x, x) for x in sorted(generations)]
-        years = sorted({year for value in year_values for year in configuration_years(value)}, reverse=True)
-        self.fields['vehicle_year'].choices = [('', 'Все годы' if selected_make and selected_model else 'Сначала выберите модель')] + [(str(x), str(x)) for x in years]
+        years = supplier_years(supplier_id)
+        self.fields['vehicle_year'].choices = [('', 'Все годы')] + [(str(x), str(x)) for x in years]
 
 
 

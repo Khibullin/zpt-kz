@@ -99,6 +99,7 @@
 @media(max-width:950px){.catalog-filters .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:600px){.catalog-filters .filter-grid{grid-template-columns:1fr}}
 </style>
+<datalist id="kaspi-seller-counts"><option value="0"><option value="1"><option value="2"><option value="3"><option value="5"></datalist>
 {{ filter_form.vehicle_models|json_script:"vehicle-model-options" }}
 <script>
 const makeSelect=document.getElementById("id_vehicle_make"),modelSelect=document.getElementById("id_vehicle_model");
@@ -108,13 +109,13 @@ form.querySelectorAll('input,select').forEach(field=>{if(field.name!=='supplier'
 form.requestSubmit();
 });
 document.getElementById('id_vehicle_country')?.addEventListener('change',event=>{
-makeSelect.value='';modelSelect.value='';document.getElementById('id_vehicle_generation').value='';document.getElementById('id_vehicle_year').value='';event.target.form.requestSubmit();
+makeSelect.value='';modelSelect.value='';document.getElementById('id_vehicle_generation').value='';event.target.form.requestSubmit();
 });
 const modelOptions=JSON.parse(document.getElementById("vehicle-model-options").textContent);
 function refreshVehicles(event){
 if(event.target===makeSelect)modelSelect.value='';
 if(event.target.id!=='id_vehicle_generation')document.getElementById('id_vehicle_generation').value='';
-document.getElementById('id_vehicle_year').value='';
+
 event.target.form.requestSubmit();
 }
 [makeSelect,modelSelect,document.getElementById('id_vehicle_generation')].forEach(field=>field?.addEventListener('change',refreshVehicles));
