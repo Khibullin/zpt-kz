@@ -3,6 +3,7 @@ from . import views, document_views, matching_views
 app_name = 'inventory'
 urlpatterns = [
     path('reconciliation/',matching_views.reconciliation,name='reconciliation'),
+    path('reconciliation/prepare/',matching_views.prepare,name='prepare_items'),
     path('reconciliation/confirm/',matching_views.confirm,name='confirm_mapping'),
     path('costs/',document_views.cost_report,name='cost_report'),
     path('items/',document_views.items,name='items'),

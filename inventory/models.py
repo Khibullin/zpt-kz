@@ -47,7 +47,8 @@ class Item(models.Model):
     name = models.CharField('Название', max_length=300)
     brand = models.CharField('Бренд', max_length=120, blank=True)
     article = models.CharField('Артикул', max_length=120, blank=True)
-    unit = models.CharField('Единица учёта', max_length=15, choices=[('piece','Штука'),('set','Комплект')], default='piece')
+    unit = models.CharField('Единица учёта', max_length=15, choices=[('pending','Требует проверки'),('piece','Штука'),('set','Комплект')], default='piece')
+    preparation = models.JSONField(default=dict, blank=True, editable=False)
     def __str__(self):
         return f'{self.code} · {self.name}'
 

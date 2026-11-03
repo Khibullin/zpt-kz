@@ -13,6 +13,8 @@ def post_document(pk, user):
     doc = StockDocument.objects.select_for_update().get(pk=pk)
     # Serialize all stock changes of one item, including concurrent documents.
     Item.objects.select_for_update().get(pk=doc.item_id)
+    if doc.item.unit == 'pending':
+        raise ValidationError('Сначала подтвердите единицу учёта товара: штука или комплект.')
     if doc.status != 'draft':
         raise ValidationError('Документ уже проведён. Повторное проведение запрещено.')
     if doc.quantity < 1:

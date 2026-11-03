@@ -34,17 +34,51 @@ def reconciliation_rows():
     return result
 
 @transaction.atomic
-def confirm_mapping(snapshot_id, item, multiplier, user):
+def confirm_mapping(snapshot_id, item, multiplier, user, unit=None):
     snapshot=StockSnapshot.objects.select_for_update().get(pk=snapshot_id)
     latest=ImportBatch.objects.filter(kind=snapshot.batch.kind).order_by('-as_of','-pk').first()
     if not latest or latest.pk!=snapshot.batch_id:raise ValidationError('Снимок устарел. Обновите страницу.')
     if multiplier<1:raise ValidationError('Количество единиц в упаковке должно быть больше нуля')
     if snapshot.warehouse=='PP1' and multiplier!=1:raise ValidationError('Для PP1 единицы исходного файла сохраняются: множитель 1')
     source='pp1' if snapshot.warehouse=='PP1' else 'kaspi'
-    Item.objects.select_for_update().get(pk=item.pk)
+    item=Item.objects.select_for_update().get(pk=item.pk)
+    if unit is not None and unit not in ['piece','set']:raise ValidationError('Выберите штуку или комплект')
+    if item.unit=='pending':
+        if unit not in ['piece','set']:raise ValidationError('Подтвердите единицу учёта товара')
+        item.unit=unit
+        item.save(update_fields=['unit'])
+    elif unit is not None and unit!=item.unit:
+        raise ValidationError('Единица товара уже подтверждена иначе. Существующие данные не изменены.')
     alias=ItemAlias.objects.filter(source=source,code=snapshot.sku).first()
     if alias:
         if alias.item_id!=item.pk or alias.multiplier!=multiplier:raise ValidationError('Код уже связан иначе. Существующая связь не перезаписана.')
         return alias,False
     alias=ItemAlias.objects.create(source=source,code=snapshot.sku,item=item,multiplier=multiplier,confirmed_by=user)
     return alias,True
+
+
+@transaction.atomic
+def prepare_items(user):
+    """Prepare draft cards without asserting package size or changing stock."""
+    batch=ImportBatch.objects.filter(kind='pp1').order_by('-as_of','-pk').first()
+    if not batch:raise ValidationError('Сначала загрузите снимок PP1')
+    ImportBatch.objects.select_for_update().get(pk=batch.pk)
+    rows=reconciliation_rows()
+    byarticle=defaultdict(list)
+    for row in rows:
+        if row['source']=='kaspi' and len(row['candidates'])==1:
+            byarticle[row['candidates'][0]].append(row['snapshot'])
+    created=0;existing=0
+    for source in StockSnapshot.objects.filter(batch=batch).order_by('pk'):
+        # Preserve source spelling and significant suffixes, never guess at identity.
+        if Item.objects.filter(article=source.sku).exists():
+            existing+=1;continue
+        code='AG-'+source.sku
+        if Item.objects.filter(code=code).exists():
+            existing+=1;continue
+        candidates=byarticle.get(source.sku,[])
+        names={s.name for s in candidates if s.name}
+        brands={s.brand for s in candidates if s.brand}
+        item=Item.objects.create(code=code,article=source.sku,name=next(iter(names))[:300] if len(names)==1 else 'Артикул '+source.sku,brand=next(iter(brands)) if len(brands)==1 else '',unit='pending',preparation={'pp1_snapshot':source.pk,'kaspi_snapshots':[s.pk for s in candidates],'created_by':user.pk,'source':'PP1 and Kaspi candidates; units not confirmed'})
+        created+=1
+    return created,existing
