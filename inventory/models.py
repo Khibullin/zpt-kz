@@ -103,6 +103,7 @@ class StockDocument(models.Model):
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
     class Meta:
+        permissions = [("manage_accounting", "Работа в учёте товаров и денег в качестве менеджера")]
         constraints = [models.UniqueConstraint(fields=['item','external_number'],condition=models.Q(kind='sale') & ~models.Q(external_number=''), name='inventory_sale_order_item'),models.CheckConstraint(condition=models.Q(quantity__gte=1), name='inventory_document_positive'),models.CheckConstraint(condition=models.Q(received_quantity__lte=models.F('quantity')), name='inventory_received_limit'),models.CheckConstraint(condition=models.Q(unit_cost__isnull=True)|models.Q(unit_cost__gte=0), name='inventory_cost_nonnegative')]
 
 class StockEntry(models.Model):

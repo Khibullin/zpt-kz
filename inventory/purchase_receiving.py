@@ -9,7 +9,7 @@ from django.db.models import Sum
 from django.forms import formset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
-from procurement.views import access
+from .permissions import accounting_access
 from procurement.models import PurchaseOrder, Activity, Supplier
 from .models import Item, SupplierItem, StockDocument
 from .services import post_document
@@ -87,7 +87,7 @@ def accept_purchase(pk, user, header, lines):
     return True
 
 
-@access('admin')
+@accounting_access
 def receive_purchase(request,pk):
     order=get_object_or_404(PurchaseOrder.objects.select_related('supplier'),pk=pk,user=request.user)
     received=received_quantities(order)

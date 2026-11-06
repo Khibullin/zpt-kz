@@ -9,7 +9,7 @@ from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
-from procurement.views import access
+from .permissions import accounting_access
 from .forms import ItemForm, AliasForm, DocumentForm, AccountForm, CashForm
 from .models import Item, ItemAlias, StockDocument, StockEntry, MoneyAccount, CashEntry
 from .services import post_document, receive_transfer
@@ -18,7 +18,7 @@ from .tools_views import date_filter, xlsx_response
 FORMS={'item':(ItemForm,'Новый товар'),'alias':(AliasForm,'Связать код товара'),'document':(DocumentForm,'Новый документ движения товара'),'account':(AccountForm,'Новый денежный счёт'),'cash':(CashForm,'Денежная операция')}
 
 @never_cache
-@access('admin')
+@accounting_access
 def create(request, kind):
     if kind not in FORMS: raise Http404
     cls,title=FORMS[kind]
@@ -34,7 +34,7 @@ def create(request, kind):
     return render(request,'inventory/form.html',{'form':form,'title':title})
 
 @never_cache
-@access('admin')
+@accounting_access
 def items(request):
     q=request.GET.get('q','').strip()
     rows=Item.objects.prefetch_related('aliases','supplier_links__supplier').order_by('code')
@@ -61,7 +61,7 @@ def items(request):
     return render(request,'inventory/items.html',{'summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
 
 @never_cache
-@access('admin')
+@accounting_access
 def documents(request):
     rows=StockDocument.objects.select_related('item','created_by').prefetch_related('events__user').order_by('-date','-pk')
     for key in ['kind','status','warehouse']:
@@ -75,7 +75,7 @@ def documents(request):
     return render(request,'inventory/documents.html',{'page':Paginator(rows,50).get_page(request.GET.get('page')),'q':q,'filter_form':filter_form,'query':query.urlencode(),'kinds':StockDocument.Kind.choices,'statuses':StockDocument._meta.get_field('status').choices})
 
 @never_cache
-@access('admin')
+@accounting_access
 @require_POST
 def document_action(request,pk):
     try:
@@ -91,7 +91,7 @@ def document_action(request,pk):
     return redirect('inventory:documents')
 
 @never_cache
-@access('admin')
+@accounting_access
 def cash(request):
     rows=CashEntry.objects.select_related('account','stock_document','cancelled_by','purchase_order__supplier').order_by('-date','-pk')
     rows,filter_form=date_filter(request,rows)
@@ -116,7 +116,7 @@ def cash(request):
     return render(request,'inventory/cash.html',{'page':Paginator(rows,50).get_page(request.GET.get('page')),'accounts':accounts,'kinds':CashEntry._meta.get_field('kind').choices,'q':q,'query':query.urlencode(),'filter_form':filter_form,'incoming':incoming,'outgoing':outgoing,'net_cash':incoming-outgoing})
 
 @never_cache
-@access('admin')
+@accounting_access
 def cost_report(request):
     from .views import Filters
     form=Filters(request.GET)

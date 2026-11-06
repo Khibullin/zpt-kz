@@ -5,7 +5,7 @@ from django.core.paginator import Paginator
 from django.shortcuts import redirect, render
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
-from procurement.views import access
+from .permissions import accounting_access
 from .models import Item, StockSnapshot
 from .matching import reconciliation_rows, confirm_mapping, prepare_items
 
@@ -17,7 +17,7 @@ class MappingForm(forms.Form):
     checked=forms.BooleanField(label='Проверены артикул, тип товара и комплектность')
 
 @never_cache
-@access('admin')
+@accounting_access
 def reconciliation(request):
     rows=reconciliation_rows()
     q=request.GET.get('q','').strip().casefold()
@@ -45,7 +45,7 @@ def reconciliation(request):
     return render(request,'inventory/reconciliation.html',{'page':page,'q':request.GET.get('q',''),'total':total,'confirmed':confirmed,'query':query.urlencode()})
 
 @never_cache
-@access('admin')
+@accounting_access
 @require_POST
 def confirm(request):
     form=MappingForm(request.POST)
@@ -59,7 +59,7 @@ def confirm(request):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 @require_POST
 def prepare(request):
     try:

@@ -10,4 +10,6 @@ def workspace_role(user):
 
 
 def navigation_access(request):
-    return {'can_access_procurement': workspace_role(request.user) is not None}
+    from inventory.permissions import can_access_accounting
+    return {'can_access_procurement': workspace_role(request.user) is not None,
+            'can_access_accounting': can_access_accounting(request.user)}

@@ -13,7 +13,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_POST
-from procurement.views import access
+from .permissions import accounting_access
 from .models import Item, ItemAlias, StockDocument, StockEntry, StockEvent, MoneyAccount, CashEntry, StockSnapshot
 from .forms import ItemForm, DocumentForm, MoneyTransferForm, OpeningForm
 from .views import Filters
@@ -51,7 +51,7 @@ def date_filter(request, rows, field='date'):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def edit(request, kind, pk):
     if kind not in ['item','document']:raise Http404
     model,cls=(Item,ItemForm) if kind=='item' else (StockDocument,DocumentForm)
@@ -72,7 +72,7 @@ def edit(request, kind, pk):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 @require_POST
 def cancel_document(request,pk):
     with transaction.atomic():
@@ -86,7 +86,7 @@ def cancel_document(request,pk):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def transfer_money(request):
     form=MoneyTransferForm(request.POST or None)
     if request.method=='POST' and form.is_valid():
@@ -103,7 +103,7 @@ def transfer_money(request):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 @require_POST
 def cancel_cash(request,pk):
     reason=request.POST.get('reason','').strip()
@@ -119,7 +119,7 @@ def cancel_cash(request,pk):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def prepare_openings(request):
     form=OpeningForm(request.POST or None);created=0;skipped=[]
     if request.method=='POST' and form.is_valid():
@@ -152,7 +152,7 @@ def prepare_openings(request):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def settlements(request):
     rows=StockDocument.objects.filter(kind='receipt',status='posted',purchase_order__isnull=True).select_related('item').order_by('-date','-pk')
     rows,form=date_filter(request,rows)
@@ -190,7 +190,7 @@ def settlements(request):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def operating_report(request):
     docs,form=date_filter(request,StockDocument.objects.filter(kind__in=['sale','return'],status='posted').select_related('item'))
     q=request.GET.get('q','').strip()
@@ -212,7 +212,7 @@ def operating_report(request):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def financial_details(request,pk):
     from .forms import FinancialDetailsForm
     with transaction.atomic():
@@ -229,7 +229,7 @@ def financial_details(request,pk):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def bank_check(request):
     from .forms import BankCheckForm
     form=BankCheckForm(request.GET or None);expected=difference=None

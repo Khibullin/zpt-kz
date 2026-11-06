@@ -8,7 +8,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import require_http_methods
-from procurement.views import access
+from .permissions import accounting_access
 from .models import ImportBatch, StockSnapshot, KaspiOperation, MoneyAccount, CashEntry, StockDocument
 from .importing import parse_file, import_file
 
@@ -26,7 +26,7 @@ class Filters(forms.Form):
     sort = forms.ChoiceField(label='Сортировка', required=False, choices=[('','По умолчанию'),('name','Название'),('quantity','Количество ↑'),('-quantity','Количество ↓'),('revenue','Выручка ↑'),('-revenue','Выручка ↓')])
 
 @never_cache
-@access('admin')
+@accounting_access
 def dashboard(request, section='overview'):
     if section == 'stock' and request.GET.get('raw') != '1':
         from .document_views import items
@@ -111,7 +111,7 @@ def dashboard(request, section='overview'):
     return response
 
 @never_cache
-@access('admin')
+@accounting_access
 @require_http_methods(['GET','POST'])
 def upload(request):
     form = UploadForm(request.POST or None,request.FILES or None)

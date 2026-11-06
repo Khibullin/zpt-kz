@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.cache import never_cache
 from procurement.models import PurchaseOrder, Activity
-from procurement.views import access
+from .permissions import accounting_access
 from .models import CashEntry, MoneyAccount, StockDocument, SupplierItem, PurchaseListing, StockEntry
 from .purchase_receiving import received_quantities
 from .services import post_document
@@ -86,7 +86,7 @@ def locked_order(pk,user):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def purchases(request):
     rows=PurchaseOrder.objects.filter(user=request.user,archived=request.GET.get('deleted')=='1').select_related('supplier').order_by('-pk')
     q=request.GET.get('q','').strip()
@@ -117,7 +117,7 @@ def purchases(request):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def purchase_action(request,pk,action):
     order=get_object_or_404(PurchaseOrder.objects.select_related('supplier'),pk=pk,user=request.user)
     summary=order_summary(order)
@@ -212,7 +212,7 @@ def purchase_action(request,pk,action):
 
 
 @never_cache
-@access('admin')
+@accounting_access
 def listing(request,pk,line):
     order=get_object_or_404(PurchaseOrder,pk=pk,user=request.user,archived=False)
     if not 0<=line<len(order.items):
