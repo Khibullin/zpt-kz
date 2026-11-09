@@ -57,10 +57,11 @@ def copy_vehicle_filters(listings):
     brands = {b.name.upper(): b for b in Brand.objects.all()}
     Brand.objects.bulk_create([Brand(name=make, country=country) for make in makes if make.upper() not in brands])
     brands = {b.name.upper(): b for b in Brand.objects.all()}
-    models = {(m.brand_id, m.name): m for m in CarModel.objects.filter(brand_id__in=[b.pk for b in brands.values()])}
+    relevant_brand_ids = {brands[make.upper()].pk for make in makes}
+    models = {(m.brand_id, m.name): m for m in CarModel.objects.filter(brand_id__in=relevant_brand_ids)}
     needed = {(brands[fit.make[:100].upper()].pk, fit.model[:100]) for fit in fits if fit.make and fit.model}
     CarModel.objects.bulk_create([CarModel(brand_id=brand, name=name) for brand, name in needed if (brand, name) not in models], ignore_conflicts=True)
-    models = {(m.brand_id, m.name): m for m in CarModel.objects.filter(brand_id__in=[b.pk for b in brands.values()])}
+    models = {(m.brand_id, m.name): m for m in CarModel.objects.filter(brand_id__in=relevant_brand_ids)}
     bm, mm = Product.selected_brands.through, Product.selected_models.through
     brand_links, model_links = set(), set()
     for fit in fits:
@@ -82,7 +83,8 @@ def advance_publication(run_id, batch_size=200):
     seller = SellerProfile.objects.select_for_update().get(slug='ag-parts')
     row_query = Offer.objects.filter(supplier__name__in=SUPPLIERS, pk__gt=run.cursor, pk__lte=run.max_offer_id)
     if 'offer_ids' in run.summary:
-        row_query = row_query.filter(pk__in=run.summary['offer_ids'])
+        pending_ids = sorted(pk for pk in run.summary['offer_ids'] if pk > run.cursor)[:batch_size]
+        row_query = row_query.filter(pk__in=pending_ids)
     rows = list(row_query.order_by('pk')[:batch_size])
     if not rows:
         run.status = 'done'
