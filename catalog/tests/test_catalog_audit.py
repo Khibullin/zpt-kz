@@ -111,3 +111,12 @@ class CatalogueAuditTests(TestCase):
         page_queries=[q['sql'] for q in queries if 'ORDER BY' in q['sql'] and 'LIMIT 24' in q['sql']]
         self.assertTrue(page_queries)
         self.assertNotIn('"description"',page_queries[0])
+
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True,SEO_EDITORIAL_ENABLED=True)
+    def test_cached_index_respects_feature_switches(self):
+        first=self.client.get('/sitemap.xml')
+        self.assertContains(first,'sitemap-content.xml')
+        with override_settings(SEO_EDITORIAL_ENABLED=False,SEO_PRODUCT_SITEMAP_ENABLED=False):
+            changed=self.client.get('/sitemap.xml')
+            self.assertNotContains(changed,'sitemap-content.xml')
+            self.assertNotContains(changed,'sitemap-products.xml')
