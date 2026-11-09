@@ -2,7 +2,7 @@
 <h1>Товары ZPT — продавец AG Parts</h1>
 <section class="panel"><h2>Наличие трёх оптовиков — наценка 30%</h2>
 <p>Публикуем товары в наличии у Омеги, Фаэтона и ЗаказАвто. Цена ZPT — закупочная цена × 1,30. Проверка Kaspi, наличие карточки и подтверждение спроса не требуются. Подшипники также входят в каталог. Одинаковые бренд и артикул объединяются; фотографии и ссылки сохраняются. Цена указана за минимальную упаковку.</p>
-<form method="post">{% csrf_token %}<button class="primary" name="action" value="publish_stock">Опубликовать / обновить всё наличие трёх поставщиков</button></form>
+<form method="post">{% csrf_token %}<button class="primary" name="action" value="publish_stock">Опубликовать / обновить всё наличие трёх поставщиков</button> <button name="action" value="publish_missing_stock">Добавить ещё не опубликованное наличие</button></form>
 {% if publication_run %}<h3>Обработка {% if publication_run.status == 'done' %}завершена{% else %}продолжается{% endif %}</h3>
 <p>Проверено строк: {{ publication_run.processed }} / {{ publication_run.total }}.</p>
 <p>Создано карточек: {{ publication_run.summary.created|default:0 }}. Обновлений: {{ publication_run.summary.updated|default:0 }}. Строк без положительного наличия / цены: {{ publication_run.summary.unavailable|default:0 }}. Совпадений с существующими отдельными товарами: {{ publication_run.summary.protected|default:0 }}.</p>
