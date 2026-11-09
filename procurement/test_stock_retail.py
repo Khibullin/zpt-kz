@@ -85,12 +85,13 @@ class StockRetailTests(TestCase):
         self.finish()
         self.assertEqual(Product.objects.get(article='A01').status,'hidden')
 
-    def test_existing_unlinked_agparts_products_are_protected(self):
+    def test_unlinked_products_keep_their_price_and_supplier_variant_is_separate(self):
         self.offer()
         Product.objects.create(seller_profile=self.seller,article='A01',title='Existing',price=999)
         self.finish()
-        self.assertEqual(Product.objects.count(),1)
-        self.assertEqual(Product.objects.get().price,999)
+        self.assertEqual(Product.objects.count(),2)
+        self.assertEqual(Product.objects.get(title='Existing').price,999)
+        self.assertEqual(RetailListing.objects.get().offer.brand,'555')
 
     def test_workspace_no_preferences_or_kaspi_required(self):
         self.offer()
