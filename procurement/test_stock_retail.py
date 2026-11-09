@@ -113,3 +113,17 @@ class StockRetailTests(TestCase):
         self.assertEqual(run.status, 'done')
         self.assertEqual(Product.objects.count(),2)
         self.assertNotIn('offer_ids',run.summary)
+
+    def test_consumer_continues_previously_deferred_variants_once(self):
+        from django.core.management import call_command
+        from .models import RetailPublicationRun
+        run = self.finish()
+        self.offer(article='DEFERRED')
+        run.summary = {'protected': 1}
+        run.save(update_fields=['summary'])
+        call_command('process_price_updates')
+        self.assertEqual(Product.objects.count(), 1)
+        self.assertEqual(RetailPublicationRun.objects.count(), 2)
+        self.assertEqual(RetailPublicationRun.objects.latest('pk').status, 'done')
+        call_command('process_price_updates')
+        self.assertEqual(RetailPublicationRun.objects.count(), 2)

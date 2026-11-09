@@ -39,7 +39,11 @@ class Command(BaseCommand):
                         batch = advance_update(batch.pk, prepared_rows=rows)
                     self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
                 from procurement.models import RetailPublicationRun
-                from procurement.stock_retail import advance_publication
+                from procurement.stock_retail import advance_publication, start_publication
+                # Continue an already-authorized run that previously deferred OEM variants.
+                last_retail_run = RetailPublicationRun.objects.select_related('user').order_by('-pk').first()
+                if last_retail_run and last_retail_run.status == 'done' and last_retail_run.summary.get('protected', 0):
+                    start_publication(last_retail_run.user, missing_only=True)
                 for retail_run in RetailPublicationRun.objects.filter(status='running').order_by('pk'):
                     while running and retail_run.status == 'running':
                         retail_run = advance_publication(retail_run.pk)

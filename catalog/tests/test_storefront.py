@@ -70,8 +70,9 @@ class StorefrontTests(TestCase):
         self.assertEqual(len(r.context['products']),24)
         self.assertEqual(r.context['facets']['brand'][0]['count'],1501)
 
-    def test_head_uses_the_same_bounded_storefront_as_get(self):
-        r = self.client.head('/')
+    def test_head_probe_does_not_load_the_catalogue(self):
+        with self.assertNumQueries(0):
+            r = self.client.head('/')
         self.assertEqual(r.status_code,200)
-        self.assertTemplateUsed(r,'catalog/interface/storefront.html')
-        self.assertEqual(r.context['result_count'],1)
+        self.assertTrue(r.streaming)
+        self.assertEqual(b''.join(r.streaming_content), b'')
