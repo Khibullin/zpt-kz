@@ -45,9 +45,12 @@ def prepare_rows(file):
                     raise ValueError('Некорректное количество в упаковке.')
                 item['_pack_size'] = int(pack)
             # Only supplier-owned fields are accepted; Kaspi columns are ignored.
-            for field in ('category', 'supplier_url'):
+            for field in ('category', 'supplier_url', 'applicability', 'description'):
                 if field in row:
-                    item[field] = str(row[field] or '').strip()
+                    value = str(row[field] or '').strip()
+                    # Empty supplier cells must not erase previously sourced details.
+                    if value or field not in ('applicability', 'description'):
+                        item[field] = value
             test = Offer(supplier_id=1, **{k:v for k,v in item.items() if not k.startswith('_')})
             test.full_clean(exclude=['supplier'] + (['brand'] if not identity['brand'] else []), validate_unique=False, validate_constraints=False)
             if key in seen:
@@ -144,7 +147,7 @@ def advance_update(batch_id, prepared_rows=None):
     existing = {(o.brand, o.article): o for o in Offer.objects.filter(
         supplier=batch.supplier, brand__in=brands, article__in=articles)}
     creates, updates, affected, invalidated = [], [], [], []
-    update_fields = ['name', 'category', 'supplier_url', 'cost', 'stock', 'min_order',
+    update_fields = ['name', 'category', 'supplier_url', 'applicability', 'description', 'cost', 'stock', 'min_order',
                      'supplier_checked_on', 'match_verified', 'characteristics']
     for row in rows:
         offer = existing.get((row['brand'], row['article']))

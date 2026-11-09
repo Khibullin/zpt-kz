@@ -15,6 +15,8 @@ ALIASES.update({'Торговая марка': 'brand', 'Цена, за 1шт': 
                 'Остаток': 'stock', 'Миним заказ, шт': 'min_order', 'В продаже': 'active'})
 ALIASES.update({'Номенклатура': 'name', 'Цена': 'cost', 'Алматы СКЛАД': 'stock',
                 '№ по кат.': 'article', 'Производитель': 'brand', 'Количество(в ед.хранения)': 'stock'})
+ALIASES.update({'Применимость': 'applicability', 'Применяемость': 'applicability',
+                'Описание': 'description'})
 REQUIRED = {'article', 'brand', 'name', 'cost'}
 
 

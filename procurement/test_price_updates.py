@@ -83,6 +83,33 @@ class PriceUpdateTests(TestCase):
             stage_update(self.file('BRAND;001A;Фильтр;900\n', 'brand;article;name;cost\n'),
                          self.supplier, self.user, self.today)
 
+    def test_supplier_applicability_survives_updates_without_fitment_columns(self):
+        self.offer.applicability = 'MAZDA MAZDA3, BLEFP, 2009 -'
+        self.offer.description = 'Source catalogue details'
+        self.offer.save()
+        advance_update(self.stage().pk)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.applicability, 'MAZDA MAZDA3, BLEFP, 2009 -')
+        self.assertEqual(self.offer.description, 'Source catalogue details')
+
+    def test_supplier_applicability_is_transferred_but_not_marked_verified(self):
+        file = self.file('BRAND;001A;Фильтр;900;5;MAZDA3 BLEFP 2009 -;Описание детали\n',
+                         'brand;article;name;cost;stock;Применяемость;Описание\n')
+        advance_update(stage_update(file, self.supplier, self.user, self.today).pk)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.applicability, 'MAZDA3 BLEFP 2009 -')
+        self.assertEqual(self.offer.description, 'Описание детали')
+        self.assertFalse(self.offer.fitments.exists())
+
+    def test_blank_supplier_applicability_does_not_erase_sourced_text(self):
+        self.offer.applicability = 'MAZDA3 BLEFP 2009 -'
+        self.offer.save()
+        file = self.file('BRAND;001A;Фильтр;900;5;\n',
+                         'brand;article;name;cost;stock;applicability\n')
+        advance_update(stage_update(file, self.supplier, self.user, self.today).pk)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.applicability, 'MAZDA3 BLEFP 2009 -')
+
     def test_name_change_invalidates_matching_and_creates_review(self):
         KaspiSellerSnapshot.objects.create(offer=self.offer, source_url=self.offer.kaspi_url, checked_on=self.today, complete=True)
         batch = stage_update(self.file('BRAND;001A;Фильтр комплект 2 шт;900;5\n'), self.supplier, self.user, self.today)
