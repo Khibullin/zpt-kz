@@ -7,6 +7,12 @@ import os
 import subprocess
 import sys
 
+# Uploading two supplier files can exceed the sync worker's heartbeat timeout
+# while Django reads the request body. Keep the heartbeat in the main thread,
+# with a second request thread available while the upload is in progress.
+worker_class = 'gthread'
+threads = 2
+
 
 def on_starting(server):
     if os.environ.get('PRICE_UPDATE_WORKER_ENABLED', 'true').lower() == 'true':
