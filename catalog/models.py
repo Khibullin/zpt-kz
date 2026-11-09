@@ -368,11 +368,13 @@ class Product(models.Model):
     SUPPLIER_LOCAL = 'local'
     SUPPLIER_PHAETON = 'phaeton'
     SUPPLIER_OMEGA = 'omega'
+    SUPPLIER_PROCUREMENT = 'procurement'
 
     SUPPLIER_CHOICES = [
         (SUPPLIER_LOCAL, 'Локальный склад'),
         (SUPPLIER_PHAETON, 'Phaeton (внешний API)'),
         (SUPPLIER_OMEGA, 'Omega (продавец AG Parts)'),
+        (SUPPLIER_PROCUREMENT, 'Поставщики ZPT (продавец AG Parts)'),
     ]
 
     title = models.CharField(
