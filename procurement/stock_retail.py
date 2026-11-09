@@ -21,13 +21,10 @@ def key_for(offer):
 
 def stock_price(offer, pack):
     quantity = stock_quantity(offer.stock)
-    fresh = timezone.localdate() - timedelta(days=7)
     if offer.cost <= 0:
         return 0, 'Закупочная цена отсутствует.'
     if quantity is None or quantity < pack:
         return 0, 'Нет подтверждённого наличия для минимальной партии.'
-    if not offer.supplier_checked_on or not fresh <= offer.supplier_checked_on <= timezone.localdate():
-        return 0, 'Наличие и цена поставщика требуют обновления.'
     return int((offer.cost * pack * Decimal('1.30')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)), ''
 
 
@@ -141,7 +138,7 @@ def advance_publication(run_id, batch_size=200):
         product.status = 'active' if item.enabled else 'hidden'
         product.price_on_request = False
         product.category_id = category_ids[offer.category[:100] or 'Запчасти']
-        product.description = item.source_content['description'] + f'\n\nПроизводитель: {offer.brand or "уточняется"}. Артикул: {offer.article}.\nКоличество в цене: {item.pack_size} шт.\nНа складе поставщика. Наличие подтверждаем перед оплатой.'
+        product.description = item.source_content['description'] + f'\n\nПроизводитель: {offer.brand or "уточняется"}. Артикул: {offer.article}.\nКоличество в цене: {item.pack_size} шт.\nНаличие по прайсу поставщика. Дата данных: {offer.supplier_checked_on.isoformat() if offer.supplier_checked_on else "не указана"}. Наличие подтверждаем перед оплатой.'
         product.updated_at = timezone.now()
         item.updated_at = timezone.now()
     Product.objects.bulk_create(new_products, batch_size=200)

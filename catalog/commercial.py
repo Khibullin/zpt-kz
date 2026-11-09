@@ -404,7 +404,7 @@ def resolve_commercial_price(product, quantity, seller_profile=None, now=None):
             return _failed_quote(qty, 'Товар временно недоступен.')
         source_date = listing.offer.supplier_checked_on if listing.source_content.get('pricing_policy') in ('kaspi_minus_5', 'supplier_plus_30') else listing.offer.checked_on
         from datetime import timedelta
-        if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
+        if listing.source_content.get('pricing_policy') != 'supplier_plus_30' and (not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7)):
             return _failed_quote(qty, 'Подтверждаем актуальные цену и наличие перед заказом.')
         from procurement.retail import stock_quantity
         source_quantity = stock_quantity(listing.offer.stock)

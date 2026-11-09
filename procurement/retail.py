@@ -53,7 +53,7 @@ def refresh_listing(listing):
     if qty is None:
         reason = reason or 'Остаток требует уточнения.'
     source_date = offer.supplier_checked_on if listing.source_content.get('pricing_policy') in ('kaspi_minus_5', 'supplier_plus_30') else offer.checked_on
-    if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
+    if listing.source_content.get('pricing_policy') != 'supplier_plus_30' and (not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7)):
         reason = reason or 'Цена и наличие требуют обновления.'
     listing.hold_reason = reason
     content = listing.source_content
@@ -67,6 +67,8 @@ def refresh_listing(listing):
     product.price_on_request = bool(reason)
     product.status = 'active' if listing.enabled and not (listing.source_content.get('pricing_policy') in ('kaspi_minus_5', 'supplier_plus_30') and (reason or not product.stock_qty)) else 'hidden'
     product.description = content['description'] + f'\n\nПроизводитель: {offer.brand}. Артикул: {offer.article}.\nКоличество в цене: {pack} шт. Цена за упаковку.\nНаличие у поставщика подтверждаем перед оплатой. Доставка и самовывоз — по условиям AG Parts.'
+    if listing.source_content.get('pricing_policy') == 'supplier_plus_30':
+        product.description += f'\nДата прайса поставщика: {offer.supplier_checked_on.isoformat() if offer.supplier_checked_on else "не указана"}.'
     product.compatibility = content.get('compatibility','')
     product.oem_cross_references = content.get('oem','')
     product.save()

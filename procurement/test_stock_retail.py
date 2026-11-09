@@ -70,17 +70,20 @@ class StockRetailTests(TestCase):
         self.assertEqual(item.product.main_image.name,'kept.jpg')
         self.assertEqual(item.product.get_absolute_url(),url)
 
-    def test_no_stock_unknown_price_stale_are_not_published_and_disappearance_hides(self):
+    def test_no_stock_unknown_price_are_not_published_old_source_date_is_preserved(self):
         a = self.offer()
         self.offer(article='ZERO',stock='0')
         self.offer(article='UNKNOWN',stock='?')
         self.offer(article='FREE',cost=0)
         self.offer(article='OLD',supplier_checked_on=timezone.localdate()-timedelta(days=8))
         self.finish()
-        self.assertEqual(Product.objects.count(),1)
+        self.assertEqual(Product.objects.count(),2)
+        old = Product.objects.get(article='OLD')
+        self.assertIn((timezone.localdate()-timedelta(days=8)).isoformat(), old.description)
+        self.assertTrue(resolve_commercial_price(old,1).can_buy)
         a.stock='0';a.save()
         self.finish()
-        self.assertEqual(Product.objects.get().status,'hidden')
+        self.assertEqual(Product.objects.get(article='A01').status,'hidden')
 
     def test_existing_unlinked_agparts_products_are_protected(self):
         self.offer()
