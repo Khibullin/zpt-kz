@@ -106,6 +106,27 @@ def vehicle_facet_counts(sources):
         return cursor.fetchall()
 
 
+def root_vehicle_facet_counts(base):
+    """Read shared vehicle relationships once for the home brand/country counts."""
+    sources=[(base.filter(fitment_reviewed_on__isnull=True),p) for p in VEHICLE_PATHS['brand']]
+    sources.append((base.filter(fitment_reviewed_on__isnull=False,fitments__status='confirmed'),FITMENT_PATHS['brand']))
+    queries=[qs.order_by().annotate(facet_product=F('pk'),facet_brand=F(path+'__pk'),
+        brand_label=F(path+'__name'),facet_country=F(path+'__country__pk'),
+        country_label=F(path+'__country__name')).values(
+            'facet_product','facet_brand','brand_label','facet_country','country_label') for qs,path in sources]
+    try:
+        sql,params=queries[0].union(*queries[1:]).query.sql_with_params()
+    except EmptyResultSet:
+        return []
+    with connection.cursor() as cursor:
+        cursor.execute("WITH vehicle_rows AS MATERIALIZED ("+sql+") "
+            "SELECT 'brand',facet_brand,brand_label,COUNT(DISTINCT facet_product) FROM vehicle_rows "
+            "WHERE facet_brand IS NOT NULL GROUP BY facet_brand,brand_label UNION ALL "
+            "SELECT 'country',facet_country,country_label,COUNT(DISTINCT facet_product) FROM vehicle_rows "
+            "WHERE facet_country IS NOT NULL GROUP BY facet_country,country_label",params)
+        return cursor.fetchall()
+
+
 def storefront(request):
     started=perf_counter()
     base=retail_products()
@@ -143,7 +164,16 @@ def storefront(request):
         scope=apply_filters(base,filter_selection,(key,*RESET.get(key,())))
         values=defaultdict(set)
         labels={}
-        if key in VEHICLE_PATHS:
+        if key in ('country','brand') and not any(selected[k] for k in KEYS if k!='sort'):
+            common_cache=caches['storefront_common']
+            rows=common_cache.get('v2:root-vehicles')
+            if rows is None:
+                rows=root_vehicle_facet_counts(base)
+                common_cache.set('v2:root-vehicles',rows,120)
+            for kind,value,label,count in rows:
+                if kind==key:
+                    value=str(value);values[value]=count;labels[value]=label
+        elif key in VEHICLE_PATHS:
             sources=[(scope.filter(fitment_reviewed_on__isnull=True),p) for p in VEHICLE_PATHS[key]]
             sources.append((scope.filter(fitment_reviewed_on__isnull=False,fitments__status='confirmed'),FITMENT_PATHS[key]))
             for value,label,count in vehicle_facet_counts(sources):
@@ -179,7 +209,11 @@ def storefront(request):
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
     found=apply_filters(base,filter_selection).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True)}.get(selected['sort'],'title')
-    page=Paginator(found.order_by(order,'pk'),24).get_page(request.GET.get('page'))
+    # Sort a narrow ID projection; evaluate costly annotations and load related
+    # data only for the current 24 cards, not the entire catalogue.
+    page=Paginator(found.order_by(order,'pk').values_list('pk',flat=True),24).get_page(request.GET.get('page'))
+    page_ids=list(page.object_list)
+    page.object_list=list(found.filter(pk__in=page_ids).order_by(order,'pk'))
     for product in page:
         product.public_stock=public_stock_status(product)
         product.has_public_wholesale=False
