@@ -71,9 +71,7 @@ def updates(request):
             return redirect('procurement:price_updates')
     batches = PriceUpdate.objects.select_related('supplier').defer('rows')[:30]
     for batch in batches:
-        batch.source_conflicts = []
-        if batch.summary.get('conflicts'):
-            batch.source_conflicts = [r for r in batch.rows if r.get('_conflict')]
+        batch.source_conflicts = batch.summary.get('conflict_items', [])
     pending = KaspiReviewTask.objects.filter(status__in=['pending', 'checking', 'blocked']).count()
     return render(request, 'procurement/price_updates.html', context(request,
         form=form, batches=batches, pending=pending,

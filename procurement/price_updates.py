@@ -85,7 +85,8 @@ def stage_update(file, supplier, user, date, full_catalog=False):
             raise ValueError('Полный прайс содержит менее половины текущего каталога. Проверьте файл или используйте частичное обновление.')
     batch = PriceUpdate.objects.create(supplier=supplier, user=user, filename=file.name[:255],
         sha256=digest, checked_on=date, full_catalog=full_catalog, rows=rows, row_count=len(rows),
-        summary={'new': 0, 'changed': 0, 'unchanged': 0, 'unavailable': 0, 'queued': 0, 'reused': 0, 'conflicts': 0})
+        summary={'new': 0, 'changed': 0, 'unchanged': 0, 'unavailable': 0, 'queued': 0, 'reused': 0, 'conflicts': 0,
+                 'conflict_items': [{k:r[k] for k in ('brand', 'article', 'name')} for r in rows if r.get('_conflict')][:100]})
     Activity.objects.create(user=user, action='price_update_staged', details={
         'batch': batch.pk, 'supplier': supplier.pk, 'rows': len(rows), 'sha256': digest,
         'full_catalog': full_catalog})
