@@ -101,3 +101,14 @@ class StockRetailTests(TestCase):
         response=self.client.get(reverse('procurement:retail'))
         self.assertContains(response,'Обработка завершена')
         self.assertContains(response,'30%')
+
+    def test_missing_only_targets_unpublished_identities(self):
+        self.offer()
+        self.finish()
+        other = self.offer(article='B02')
+        run = start_publication(self.user, missing_only=True)
+        self.assertEqual(run.total, 1)
+        run = advance_publication(run.pk)
+        self.assertEqual(run.status, 'done')
+        self.assertEqual(Product.objects.count(),2)
+        self.assertNotIn('offer_ids',run.summary)

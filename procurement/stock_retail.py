@@ -29,12 +29,19 @@ def stock_price(offer, pack):
 
 
 @transaction.atomic
-def start_publication(user):
+def start_publication(user, missing_only=False):
     SellerProfile.objects.select_for_update().get(slug='ag-parts')
     existing = RetailPublicationRun.objects.filter(status='running').first()
     if existing:
         return existing
     query = Offer.objects.filter(supplier__name__in=SUPPLIERS)
+    if missing_only:
+        query = query.annotate(_retail_key=Concat(Upper(Trim('brand')), Value('\x1f'), Upper(Trim('article')))).exclude(
+            _retail_key__in=RetailListing.objects.filter(product__status='active', source_content__pricing_policy=POLICY).exclude(catalog_key__isnull=True).values('catalog_key'))
+        query = query.filter(cost__gt=0, stock__regex=r'^\s*[>≥]?\s*[1-9][0-9]*(\s|$)')
+        ids = list(query.values_list('pk', flat=True))
+        return RetailPublicationRun.objects.create(user=user, total=len(ids), max_offer_id=max(ids, default=0),
+            summary={'offer_ids': ids}, status='running' if ids else 'done')
     return RetailPublicationRun.objects.create(user=user, total=query.count(),
         max_offer_id=query.aggregate(value=Max('pk'))['value'] or 0)
 
@@ -73,11 +80,14 @@ def advance_publication(run_id, batch_size=200):
     if run.status != 'running':
         return run
     seller = SellerProfile.objects.select_for_update().get(slug='ag-parts')
-    rows = list(Offer.objects.filter(supplier__name__in=SUPPLIERS, pk__gt=run.cursor,
-                                     pk__lte=run.max_offer_id).order_by('pk')[:batch_size])
+    row_query = Offer.objects.filter(supplier__name__in=SUPPLIERS, pk__gt=run.cursor, pk__lte=run.max_offer_id)
+    if 'offer_ids' in run.summary:
+        row_query = row_query.filter(pk__in=run.summary['offer_ids'])
+    rows = list(row_query.order_by('pk')[:batch_size])
     if not rows:
         run.status = 'done'
-        run.save(update_fields=['status', 'updated_at'])
+        run.summary.pop('offer_ids', None)
+        run.save(update_fields=['status', 'summary', 'updated_at'])
         return run
     keys = {key_for(offer) for offer in rows}
     # Inspect all three sources for each identity, so another source can replace unavailable stock.
@@ -157,5 +167,7 @@ def advance_publication(run_id, batch_size=200):
     run.status = 'done' if len(rows) < batch_size or run.cursor >= run.max_offer_id else 'running'
     run.save(update_fields=['cursor', 'processed', 'summary', 'status', 'updated_at'])
     if run.status == 'done':
+        run.summary.pop('offer_ids', None)
+        run.save(update_fields=['summary'])
         Activity.objects.create(user=run.user, action='retail_stock_done', details={'run': run.pk, **run.summary})
     return run

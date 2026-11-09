@@ -29,9 +29,9 @@ def retail_workspace(request):
     pending=None
     if request.method=='POST':
         try:
-            if request.POST.get('action') == 'publish_stock':
+            if request.POST.get('action') in ('publish_stock', 'publish_missing_stock'):
                 from .stock_retail import start_publication
-                run = start_publication(request.user)
+                run = start_publication(request.user, missing_only=request.POST.get('action') == 'publish_missing_stock')
                 messages.success(request, f'Публикация наличия запущена: {run.total} позиций к проверке. Цена — закупка +30%, без Kaspi.')
                 return redirect('procurement:retail')
             if request.POST.get('action') == 'publish_best':
