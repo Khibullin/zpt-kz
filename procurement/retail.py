@@ -19,6 +19,9 @@ from .importing import load_rows, money
 
 
 def price_for(offer, pack, policy=None):
+    if policy and policy.get('pricing_policy') == 'supplier_plus_30':
+        from .stock_retail import stock_price
+        return stock_price(offer, pack)
     if policy and policy.get("pricing_policy") == "kaspi_minus_5":
         from .retail_bulk import retail_price
         return retail_price(offer, pack, policy)
@@ -49,7 +52,7 @@ def refresh_listing(listing):
     qty = stock_quantity(offer.stock)
     if qty is None:
         reason = reason or 'Остаток требует уточнения.'
-    source_date = offer.supplier_checked_on if listing.source_content.get('pricing_policy') == 'kaspi_minus_5' else offer.checked_on
+    source_date = offer.supplier_checked_on if listing.source_content.get('pricing_policy') in ('kaspi_minus_5', 'supplier_plus_30') else offer.checked_on
     if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
         reason = reason or 'Цена и наличие требуют обновления.'
     listing.hold_reason = reason
@@ -62,7 +65,7 @@ def refresh_listing(listing):
     product.cost_price = int((offer.cost*pack).quantize(Decimal('1'), rounding=ROUND_HALF_UP))
     product.stock_qty = qty//pack if qty is not None else 0
     product.price_on_request = bool(reason)
-    product.status = 'active' if listing.enabled and not (listing.source_content.get('pricing_policy') == 'kaspi_minus_5' and (reason or not product.stock_qty)) else 'hidden'
+    product.status = 'active' if listing.enabled and not (listing.source_content.get('pricing_policy') in ('kaspi_minus_5', 'supplier_plus_30') and (reason or not product.stock_qty)) else 'hidden'
     product.description = content['description'] + f'\n\nПроизводитель: {offer.brand}. Артикул: {offer.article}.\nКоличество в цене: {pack} шт. Цена за упаковку.\nНаличие у поставщика подтверждаем перед оплатой. Доставка и самовывоз — по условиям AG Parts.'
     product.compatibility = content.get('compatibility','')
     product.oem_cross_references = content.get('oem','')

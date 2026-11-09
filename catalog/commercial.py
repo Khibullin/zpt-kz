@@ -402,10 +402,14 @@ def resolve_commercial_price(product, quantity, seller_profile=None, now=None):
         listing = RetailListing.objects.select_related('offer').filter(product=product).first()
         if listing is None or not listing.enabled:
             return _failed_quote(qty, 'Товар временно недоступен.')
-        source_date = listing.offer.supplier_checked_on if listing.source_content.get('pricing_policy') == 'kaspi_minus_5' else listing.offer.checked_on
+        source_date = listing.offer.supplier_checked_on if listing.source_content.get('pricing_policy') in ('kaspi_minus_5', 'supplier_plus_30') else listing.offer.checked_on
         from datetime import timedelta
         if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
             return _failed_quote(qty, 'Подтверждаем актуальные цену и наличие перед заказом.')
+        from procurement.retail import stock_quantity
+        source_quantity = stock_quantity(listing.offer.stock)
+        if source_quantity is not None and qty > source_quantity // listing.pack_size:
+            return _failed_quote(qty, 'Недостаточно товара на складе поставщика.')
         current_price, reason = price_for(listing.offer, listing.pack_size, listing.source_content)
         if reason or product.price_on_request:
             return _failed_quote(qty, 'Цена и условия заказа требуют подтверждения AG Parts.')
