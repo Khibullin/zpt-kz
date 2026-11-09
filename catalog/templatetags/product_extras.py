@@ -59,7 +59,8 @@ def public_product_seo_name(product):
     article = re.sub(r'\s+', ' ', str(getattr(product, 'article', '') or '')).strip()
     if not article:
         return title
-    if re.search(r'(?<![\w])' + re.escape(article) + r'(?![\w])', title, flags=re.I):
+    from catalog.product_display import title_has_article
+    if title_has_article(title,article):
         return title
     return f'{title} {article}'.strip()
 

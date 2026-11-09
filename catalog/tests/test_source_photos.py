@@ -75,3 +75,18 @@ class SupplierAssetTests(TestCase):
         self.assertFalse(called)
         for path,agent in [('/?maker=TEST','Mozilla/5.0'),('/?maker=TEST','Googlebot'),('/?page=2','Bytespider'),('/part-1/','Bytespider'),('/sitemap.xml','Bytespider')]:
             self.assertEqual(middleware(factory.get(path,HTTP_USER_AGENT=agent)).status_code,200)
+
+    def test_seo_heading_does_not_repeat_differently_formatted_article(self):
+        from catalog.templatetags.product_extras import public_product_seo_name
+        self.product.title='Фильтр SRR OE AF-69376 — упаковка 5 шт.'
+        self.product.article='AF69376'
+        self.assertEqual(public_product_seo_name(self.product),self.product.title)
+        self.assertEqual(self.product.article,'AF69376')
+        self.product.article='AF693760'
+        self.assertTrue(public_product_seo_name(self.product).endswith('AF693760'))
+
+    def test_formatted_article_match_requires_whole_token(self):
+        from catalog.product_display import title_has_article
+        self.assertTrue(title_has_article('Деталь E-01/STD','E01STD'))
+        self.assertFalse(title_has_article('Деталь E01STDX','E01STD'))
+        self.assertFalse(title_has_article('Деталь 123','А123'))
