@@ -72,6 +72,7 @@ class Offer(models.Model):
 
 
 class RetailListing(models.Model):
+    catalog_key = models.CharField(max_length=250, null=True, blank=True, unique=True)
     offer = models.OneToOneField(Offer, on_delete=models.PROTECT, related_name='retail_listing')
     product = models.OneToOneField('catalog.Product', on_delete=models.PROTECT, related_name='omega_listing')
     pack_size = models.PositiveIntegerField(default=1)
@@ -261,4 +262,16 @@ class KaspiReviewTask(models.Model):
     priority = models.PositiveSmallIntegerField(default=3)
     status = models.CharField(max_length=20, default='pending', choices=[
         ('pending', 'Требует проверки'), ('checking', 'Проверяется'), ('blocked', 'Источник недоступен'), ('done', 'Проверено')])
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+class RetailPublicationRun(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    cursor = models.PositiveIntegerField(default=0)
+    max_offer_id = models.PositiveIntegerField(default=0)
+    processed = models.PositiveIntegerField(default=0)
+    total = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=12, default='running')
+    summary = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

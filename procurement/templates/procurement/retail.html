@@ -1,10 +1,15 @@
 {% extends 'procurement/base.html' %}{% block content %}
 <h1>Товары ZPT — продавец AG Parts</h1>
-<section class="panel"><h2>Выгодные товары трёх поставщиков</h2>
-<p>Цена на ZPT — на 5% ниже минимальной подтверждённой цены Kaspi в Алматы. Прибыль после расходов — от 1 000 ₸ на единицу. Нужны актуальные цены и наличие, подтверждённое совпадение и продажи по правилам «Выгодных». Новые фото не загружаются; сохранённые фото остаются.</p>
-<p>Готово к публикации: <strong>{{ publication_total }}</strong>.</p>
-{% for supplier,count in publication_summary.items %}<p>{{ supplier }}: {{ count }}</p>{% endfor %}
-{% if publication_total %}<form method="post">{% csrf_token %}<button class="primary" name="action" value="publish_best">Опубликовать / обновить следующие 20</button></form>{% else %}<p>Подтверждённых товаров для публикации пока нет. Предварительные кандидаты без подтверждённых продаж сюда не входят.</p>{% endif %}
+<section class="panel"><h2>Наличие трёх оптовиков — наценка 30%</h2>
+<p>Публикуем товары в наличии у Омеги, Фаэтона и ЗаказАвто. Цена ZPT — закупочная цена × 1,30. Проверка Kaspi, наличие карточки и подтверждение спроса не требуются. Подшипники также входят в каталог. Одинаковые бренд и артикул объединяются; фотографии и ссылки сохраняются. Цена указана за минимальную упаковку.</p>
+<form method="post">{% csrf_token %}<button class="primary" name="action" value="publish_stock">Опубликовать / обновить всё наличие трёх поставщиков</button></form>
+{% if publication_run %}<h3>Обработка {% if publication_run.status == 'done' %}завершена{% else %}продолжается{% endif %}</h3>
+<p>Проверено строк: {{ publication_run.processed }} / {{ publication_run.total }}.</p>
+<p>Создано карточек: {{ publication_run.summary.created|default:0 }}. Обновлений: {{ publication_run.summary.updated|default:0 }}. Строк без актуального наличия / цены: {{ publication_run.summary.unavailable|default:0 }}. Совпадений с существующими отдельными товарами: {{ publication_run.summary.protected|default:0 }}.</p>
+{% if publication_run.status == 'running' %}<p>Можно закрыть страницу: обработка продолжится в фоне. Прогресс сохраняется.</p><script>setTimeout(function(){window.location.reload();},10000);</script>{% endif %}
+{% endif %}
+<h3>Опубликовано по правилу +30%</h3>
+{% for row in published_summary %}<p>{{ row.offer__supplier__name }}: {{ row.count }}</p>{% empty %}<p>Публикация ещё не выполнена.</p>{% endfor %}
 </section>
 <section class="panel"><h2>Корректировка ранее подключённых товаров Omega</h2>
 <p><a class="button" href="{% url 'procurement:retail_excel' %}">Скачать Excel для корректировки</a></p>
@@ -14,6 +19,7 @@
 {% if pending %}<section class="panel"><h2>Предпросмотр: {{ pending.rows|length }} товаров</h2>
 {% for row in pending.rows %}<p>{{ row.brand }} · {{ row.article }}{% if pending.kind == 'updates' %} · Было: {{ row.before_cost }} ₸; {{ row.before_stock }}. Изменения: {{ row.changes }}{% else %} · {{ row.title }} · фотографий: {{ row.images|length }}{% endif %}</p>{% endfor %}
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="apply"><button class="primary">Применить изменения</button></form></section>{% endif %}
-<section class="panel"><h2>Подключённые карточки: {{ listings|length }}</h2>
+<section class="panel"><h2>Подключённые карточки: {{ listing_total }}</h2>
+<p>Первые 100 карточек. Полный ассортимент доступен в публичном каталоге.</p>
 {% for item in listings %}<p><a href="{{ item.product.get_absolute_url }}" target="_blank">{{ item.product.title }}</a> · {{ item.offer.supplier.name }} · {{ item.product.price }} ₸ за упаковку · {{ item.pack_size }} ед. · {% if item.enabled %}В ассортименте{% else %}Скрыт{% endif %}{% if item.hold_reason %}<br><strong class="danger">{{ item.hold_reason }}</strong>{% endif %}</p>{% empty %}<p>Карточки ещё не подключены.</p>{% endfor %}</section>
 {% endblock %}

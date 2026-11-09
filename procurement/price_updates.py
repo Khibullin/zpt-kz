@@ -220,6 +220,11 @@ def advance_update(batch_id, prepared_rows=None):
     from .models import RetailListing
     from .retail import refresh_listing
     listing_query = RetailListing.objects.filter(offer__supplier_id=batch.supplier_id)
+    if batch.status == 'done' and listing_query.filter(source_content__pricing_policy='supplier_plus_30').exists():
+        from .stock_retail import start_publication
+        start_publication(batch.user)
+    # Large stock publications are resynchronised by the durable consumer.
+    listing_query = listing_query.exclude(source_content__pricing_policy='supplier_plus_30')
     if batch.status != 'done':
         listing_query = listing_query.filter(offer_id__in=[offer.pk for offer in affected])
     for listing in listing_query.select_related('offer', 'product'):

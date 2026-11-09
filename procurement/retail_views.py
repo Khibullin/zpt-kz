@@ -29,6 +29,11 @@ def retail_workspace(request):
     pending=None
     if request.method=='POST':
         try:
+            if request.POST.get('action') == 'publish_stock':
+                from .stock_retail import start_publication
+                run = start_publication(request.user)
+                messages.success(request, f'Публикация наличия запущена: {run.total} позиций к проверке. Цена — закупка +30%, без Kaspi.')
+                return redirect('procurement:retail')
             if request.POST.get('action') == 'publish_best':
                 from .retail_bulk import publication_candidates, publish_candidate
                 from collections import Counter
@@ -61,12 +66,14 @@ def retail_workspace(request):
                 request.session['omega_retail_preview']=pending
         except (ValueError,KeyError,TypeError,OverflowError,ObjectDoesNotExist,ValidationError,requests.RequestException) as error:
             messages.error(request,str(error))
-    listings=RetailListing.objects.select_related('offer','offer__supplier','product').order_by('pk')
-    from .retail_bulk import publication_candidates
-    from collections import Counter
-    candidates = publication_candidates(request.user) if hasattr(request.user, 'preferences') else []
-    publication_summary = Counter(row[0].supplier.name for row in candidates)
-    return render(request,'procurement/retail.html',context(request,supplier=Supplier.objects.filter(name='Omega').first(),form=form,pending=pending,listings=listings,publication_total=len(candidates),publication_summary=dict(publication_summary)))
+    from .models import RetailPublicationRun
+    from django.db.models import Count
+    listings = RetailListing.objects.select_related('offer','offer__supplier','product').order_by('pk')
+    run = RetailPublicationRun.objects.order_by('-pk').first()
+    published_summary = listings.filter(product__status='active', source_content__pricing_policy='supplier_plus_30').values('offer__supplier__name').annotate(count=Count('pk')).order_by('offer__supplier__name')
+    return render(request,'procurement/retail.html',context(request,
+        supplier=Supplier.objects.filter(name='Omega').first(),form=form,pending=pending,
+        listings=listings[:100],listing_total=listings.count(),publication_run=run,published_summary=published_summary))
 
 
 @access('admin','sales')

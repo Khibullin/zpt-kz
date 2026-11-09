@@ -38,6 +38,12 @@ class Command(BaseCommand):
                     while running and batch.status != 'done':
                         batch = advance_update(batch.pk, prepared_rows=rows)
                     self.stdout.write(f'Price update {batch.pk}: {batch.cursor}/{batch.row_count}')
+                from procurement.models import RetailPublicationRun
+                from procurement.stock_retail import advance_publication
+                for retail_run in RetailPublicationRun.objects.filter(status='running').order_by('pk'):
+                    while running and retail_run.status == 'running':
+                        retail_run = advance_publication(retail_run.pk)
+                    self.stdout.write(f'Retail publication {retail_run.pk}: {retail_run.processed}/{retail_run.total}')
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,

@@ -596,6 +596,7 @@ class Product(models.Model):
                 condition=(
                     models.Q(seller_profile__isnull=False)
                     & ~models.Q(article='')
+                    & ~models.Q(supplier='procurement')
                 ),
                 name='uniq_prod_article_per_seller',
             ),

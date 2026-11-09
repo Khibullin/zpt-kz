@@ -36,7 +36,7 @@ class BulkRetailTests(TestCase):
         self.client.force_login(self.user)
         response = self.client.get(reverse('procurement:retail'))
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, '5%')
+        self.assertContains(response, '30%')
         self.client.logout()
         response = self.client.get(listing.product.get_absolute_url())
         self.assertContains(response, 'data-cart-add')
