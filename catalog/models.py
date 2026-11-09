@@ -2380,3 +2380,19 @@ class StorefrontFacetSnapshot(models.Model):
     key = models.CharField(max_length=32, primary_key=True)
     payload = models.JSONField(default=dict)
     built_at = models.DateTimeField(null=True, blank=True)
+
+
+class PublicSitemapSnapshot(models.Model):
+    key = models.CharField(max_length=240, primary_key=True)
+    xml = models.TextField(blank=True)
+    built_at = models.DateTimeField(null=True, blank=True)
+
+
+class SupplierPhotoTask(models.Model):
+    product = models.OneToOneField(Product,on_delete=models.CASCADE)
+    offer = models.ForeignKey('procurement.Offer',on_delete=models.PROTECT)
+    source_url = models.URLField(max_length=600)
+    status = models.CharField(max_length=16,default='pending')
+    evidence = models.JSONField(default=dict)
+    note = models.CharField(max_length=400,blank=True)
+    updated_at = models.DateTimeField(auto_now=True)

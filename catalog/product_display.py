@@ -29,4 +29,10 @@ CJK = re.compile(r'[\u3400-\u9fff]')
 def public_product_title(product):
     original = str(getattr(product, 'title', '') or '').strip()
     normalized = unicodedata.normalize('NFKC', original)
-    return CHINESE_PRODUCT_TITLES_RU.get(normalized, original)
+    translated=CHINESE_PRODUCT_TITLES_RU.get(normalized, original)
+    article=str(getattr(product,'article','') or '').strip()
+    if article:
+        # Remove an import separator only after the complete exact SKU prefix.
+        # Never rewrite punctuation within the SKU or stored supplier title.
+        translated=re.sub(r'^('+re.escape(article)+r')_+\s*',r'\1 — ',translated,flags=re.I)
+    return translated.rstrip('!').strip()

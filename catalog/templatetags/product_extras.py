@@ -164,13 +164,14 @@ def _safe_json_ld(data):
 @register.filter
 def product_json_ld(product):
     """Serialize truthful schema.org Product data for a public product detail page."""
+    from catalog.product_display import public_product_title
     canonical_url = _absolute_public_url(public_product_url(product))
     data = {
         '@context': 'https://schema.org',
         '@type': 'Product',
         '@id': f'{canonical_url}#product',
         'url': canonical_url,
-        'name': str(getattr(product, 'title', '') or '').strip(),
+        'name': public_product_title(product),
     }
 
     article = str(getattr(product, 'article', '') or '').strip()
