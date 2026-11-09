@@ -1,7 +1,12 @@
 {% extends 'procurement/base.html' %}{% block content %}
-<h1>Товары Omega — продавец AG Parts</h1>
-<p>Розничная цена: закупка +30%, с ограничением подтверждённой актуальной цены Kaspi. Упаковка и состав указаны в карточке. Закупочные цены видны только сотрудникам.</p>
-<section class="panel"><h2>Обновление ассортимента, наличия и цен</h2>
+<h1>Товары ZPT — продавец AG Parts</h1>
+<section class="panel"><h2>Выгодные товары трёх поставщиков</h2>
+<p>Цена на ZPT — на 5% ниже минимальной подтверждённой цены Kaspi в Алматы. Прибыль после расходов — от 1 000 ₸ на единицу. Нужны актуальные цены и наличие, подтверждённое совпадение и продажи по правилам «Выгодных». Новые фото не загружаются; сохранённые фото остаются.</p>
+<p>Готово к публикации: <strong>{{ publication_total }}</strong>.</p>
+{% for supplier,count in publication_summary.items %}<p>{{ supplier }}: {{ count }}</p>{% endfor %}
+{% if publication_total %}<form method="post">{% csrf_token %}<button class="primary" name="action" value="publish_best">Опубликовать / обновить следующие 20</button></form>{% else %}<p>Подтверждённых товаров для публикации пока нет. Предварительные кандидаты без подтверждённых продаж сюда не входят.</p>{% endif %}
+</section>
+<section class="panel"><h2>Корректировка ранее подключённых товаров Omega</h2>
 <p><a class="button" href="{% url 'procurement:retail_excel' %}">Скачать Excel для корректировки</a></p>
 <p>brand — производитель; article — артикул (сохраняйте ведущие нули); cost — закупочная цена одной единицы поставщика, ₸; stock — остаток у поставщика; active — 1 продавать, 0 скрыть. min_order — количество единиц в упаковке. Пустые поля не изменяются. Для обновления даты актуальности заполните одновременно cost и stock. Отсутствие строки не удаляет товар. Поддерживается также исходный XLSX Omega. Обновляются только уже подключённые товары AG Parts.</p>
 <form method="post" enctype="multipart/form-data" class="form">{% csrf_token %}{{ form.as_p }}<button class="primary">Проверить файл</button></form>
@@ -10,5 +15,5 @@
 {% for row in pending.rows %}<p>{{ row.brand }} · {{ row.article }}{% if pending.kind == 'updates' %} · Было: {{ row.before_cost }} ₸; {{ row.before_stock }}. Изменения: {{ row.changes }}{% else %} · {{ row.title }} · фотографий: {{ row.images|length }}{% endif %}</p>{% endfor %}
 <form method="post">{% csrf_token %}<input type="hidden" name="action" value="apply"><button class="primary">Применить изменения</button></form></section>{% endif %}
 <section class="panel"><h2>Подключённые карточки: {{ listings|length }}</h2>
-{% for item in listings %}<p><a href="{{ item.product.get_absolute_url }}" target="_blank">{{ item.product.title }}</a> · {{ item.product.price }} ₸ за упаковку · {{ item.pack_size }} ед. · {% if item.enabled %}В ассортименте{% else %}Скрыт{% endif %}{% if item.hold_reason %}<br><strong class="danger">{{ item.hold_reason }}</strong>{% endif %}</p>{% empty %}<p>Карточки ещё не подключены.</p>{% endfor %}</section>
+{% for item in listings %}<p><a href="{{ item.product.get_absolute_url }}" target="_blank">{{ item.product.title }}</a> · {{ item.offer.supplier.name }} · {{ item.product.price }} ₸ за упаковку · {{ item.pack_size }} ед. · {% if item.enabled %}В ассортименте{% else %}Скрыт{% endif %}{% if item.hold_reason %}<br><strong class="danger">{{ item.hold_reason }}</strong>{% endif %}</p>{% empty %}<p>Карточки ещё не подключены.</p>{% endfor %}</section>
 {% endblock %}

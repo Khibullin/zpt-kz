@@ -396,17 +396,17 @@ def resolve_commercial_price(product, quantity, seller_profile=None, now=None):
     if qty == 0:
         return _failed_quote(qty, QTY_INVALID_MESSAGE)
 
-    if product.supplier == 'omega':
+    if product.supplier in ('omega', 'procurement'):
         from procurement.models import RetailListing
         from procurement.retail import price_for
         listing = RetailListing.objects.select_related('offer').filter(product=product).first()
         if listing is None or not listing.enabled:
             return _failed_quote(qty, 'Товар временно недоступен.')
-        source_date = listing.offer.checked_on
+        source_date = listing.offer.supplier_checked_on if listing.source_content.get('pricing_policy') == 'kaspi_minus_5' else listing.offer.checked_on
         from datetime import timedelta
         if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
             return _failed_quote(qty, 'Подтверждаем актуальные цену и наличие перед заказом.')
-        current_price, reason = price_for(listing.offer, listing.pack_size)
+        current_price, reason = price_for(listing.offer, listing.pack_size, listing.source_content)
         if reason or product.price_on_request:
             return _failed_quote(qty, 'Цена и условия заказа требуют подтверждения AG Parts.')
         if current_price != product.price:

@@ -29,6 +29,16 @@ def retail_workspace(request):
     pending=None
     if request.method=='POST':
         try:
+            if request.POST.get('action') == 'publish_best':
+                from .retail_bulk import publication_candidates, publish_candidate
+                from collections import Counter
+                candidates = publication_candidates(request.user)
+                # Bounded writes keep the existing web service responsive.
+                remaining = [row for row in candidates if not RetailListing.objects.filter(
+                    offer=row[0], source_content__pricing_policy='kaspi_minus_5', product__price=row[1]).exists()]
+                counts = Counter(publish_candidate(row[0].pk, request.user) for row in remaining[:20])
+                messages.success(request, f'Опубликовано/обновлено: {counts["published"]}; дубли: {counts["duplicate"]}; пропущено: {counts["skipped"]}. Осталось проверить: {max(0, len(remaining)-20)}.')
+                return redirect('procurement:retail')
             if request.POST.get('action')=='apply':
                 payload=request.session.pop('omega_retail_preview',None)
                 if not payload:raise ValueError('Загрузите файл для предпросмотра.')
@@ -51,8 +61,12 @@ def retail_workspace(request):
                 request.session['omega_retail_preview']=pending
         except (ValueError,KeyError,TypeError,OverflowError,ObjectDoesNotExist,ValidationError,requests.RequestException) as error:
             messages.error(request,str(error))
-    listings=RetailListing.objects.select_related('offer','product').filter(offer__supplier__name='Omega').order_by('pk')
-    return render(request,'procurement/retail.html',context(request,supplier=Supplier.objects.filter(name='Omega').first(),form=form,pending=pending,listings=listings))
+    listings=RetailListing.objects.select_related('offer','offer__supplier','product').order_by('pk')
+    from .retail_bulk import publication_candidates
+    from collections import Counter
+    candidates = publication_candidates(request.user) if hasattr(request.user, 'preferences') else []
+    publication_summary = Counter(row[0].supplier.name for row in candidates)
+    return render(request,'procurement/retail.html',context(request,supplier=Supplier.objects.filter(name='Omega').first(),form=form,pending=pending,listings=listings,publication_total=len(candidates),publication_summary=dict(publication_summary)))
 
 
 @access('admin','sales')

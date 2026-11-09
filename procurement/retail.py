@@ -18,7 +18,10 @@ from .models import Offer, RetailListing
 from .importing import load_rows, money
 
 
-def price_for(offer, pack):
+def price_for(offer, pack, policy=None):
+    if policy and policy.get("pricing_policy") == "kaspi_minus_5":
+        from .retail_bulk import retail_price
+        return retail_price(offer, pack, policy)
     cost = offer.cost * pack
     price = (cost * Decimal('1.30')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
     # A URL or an unverified candidate is not evidence of an identical item.
@@ -42,11 +45,12 @@ def refresh_listing(listing):
     product = listing.product
     pack = max(1, offer.min_order)
     listing.pack_size = pack
-    price, reason = price_for(offer, pack)
+    price, reason = price_for(offer, pack, listing.source_content)
     qty = stock_quantity(offer.stock)
     if qty is None:
         reason = reason or 'Остаток требует уточнения.'
-    if not offer.checked_on or not timedelta(0) <= timezone.localdate()-offer.checked_on <= timedelta(days=7):
+    source_date = offer.supplier_checked_on if listing.source_content.get('pricing_policy') == 'kaspi_minus_5' else offer.checked_on
+    if not source_date or not timedelta(0) <= timezone.localdate()-source_date <= timedelta(days=7):
         reason = reason or 'Цена и наличие требуют обновления.'
     listing.hold_reason = reason
     content = listing.source_content
@@ -58,7 +62,7 @@ def refresh_listing(listing):
     product.cost_price = int((offer.cost*pack).quantize(Decimal('1'), rounding=ROUND_HALF_UP))
     product.stock_qty = qty//pack if qty is not None else 0
     product.price_on_request = bool(reason)
-    product.status = 'active' if listing.enabled else 'hidden'
+    product.status = 'active' if listing.enabled and not (listing.source_content.get('pricing_policy') == 'kaspi_minus_5' and (reason or not product.stock_qty)) else 'hidden'
     product.description = content['description'] + f'\n\nПроизводитель: {offer.brand}. Артикул: {offer.article}.\nКоличество в цене: {pack} шт. Цена за упаковку.\nНаличие у поставщика подтверждаем перед оплатой. Доставка и самовывоз — по условиям AG Parts.'
     product.compatibility = content.get('compatibility','')
     product.oem_cross_references = content.get('oem','')

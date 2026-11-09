@@ -217,5 +217,12 @@ def advance_update(batch_id, prepared_rows=None):
             batch.summary['unavailable'] = len(absent)
         batch.status = 'done'
         Activity.objects.create(user=batch.user, action='price_update_done', details={'batch': batch.pk, **batch.summary})
+    from .models import RetailListing
+    from .retail import refresh_listing
+    listing_query = RetailListing.objects.filter(offer__supplier_id=batch.supplier_id)
+    if batch.status != 'done':
+        listing_query = listing_query.filter(offer_id__in=[offer.pk for offer in affected])
+    for listing in listing_query.select_related('offer', 'product'):
+        refresh_listing(listing)
     batch.save(update_fields=['cursor', 'status', 'summary', 'updated_at'])
     return batch
