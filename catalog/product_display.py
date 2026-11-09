@@ -36,3 +36,11 @@ def public_product_title(product):
         # Never rewrite punctuation within the SKU or stored supplier title.
         translated=re.sub(r'^('+re.escape(article)+r')_+\s*',r'\1 — ',translated,flags=re.I)
     return translated.rstrip('!').strip()
+
+
+def title_has_article(title, article):
+    """Treat punctuation-only SKU formatting as the same visible article."""
+    compact=re.sub(r'[-\s/._]+','',str(article or ''))
+    if not compact:return False
+    pattern=r'[-\s/._]*'.join(re.escape(char) for char in compact)
+    return bool(re.search(r'(?<!\w)'+pattern+r'(?!\w)',str(title or ''),re.I))
