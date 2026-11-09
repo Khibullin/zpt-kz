@@ -127,6 +127,94 @@ def root_vehicle_facet_counts(base):
         return cursor.fetchall()
 
 
+def facet_values(key, base, selected, filter_selection, root_rows=None):
+    scope=apply_filters(base,filter_selection,(key,*RESET.get(key,())))
+    values=defaultdict(set)
+    labels={}
+    if key in ('country','brand') and not any(selected[k] for k in KEYS if k!='sort'):
+        rows=root_rows if root_rows is not None else root_vehicle_facet_counts(base)
+        for kind,value,label,count in rows:
+            if kind==key:
+                value=str(value);values[value]=count;labels[value]=label
+    elif key in VEHICLE_PATHS:
+        sources=[(scope.filter(fitment_reviewed_on__isnull=True),p) for p in VEHICLE_PATHS[key]]
+        sources.append((scope.filter(fitment_reviewed_on__isnull=False,fitments__status='confirmed'),FITMENT_PATHS[key]))
+        for value,label,count in vehicle_facet_counts(sources):
+            value=str(value); values[value]=count; labels[value]=label
+    elif key in ('year','engine'):
+        rows=ProductFitment.objects.filter(product_id__in=scope.values('pk'),product__fitment_reviewed_on__isnull=False,status='confirmed')
+        if selected['model'].isdecimal():rows=rows.filter(car_model_id=selected['model'])
+        if selected['brand'].isdecimal():rows=rows.filter(car_model__brand_id=selected['brand'])
+        if key=='engine' and selected['year'].isdecimal():
+            year=int(selected['year']); rows=rows.filter(year_from__lte=year).filter(Q(year_to__gte=year)|Q(year_to__isnull=True,verified_on__year__gte=year))
+        for row in rows.iterator(chunk_size=200):
+            if key=='engine':
+                if row.engine_code:values[row.engine_code].add(row.product_id)
+            elif row.year_from:
+                end=row.year_to or (row.verified_on.year if row.verified_on else row.year_from)
+                for year in range(row.year_from,min(end,2100)+1):values[str(year)].add(row.product_id)
+    else:
+        field={'category':'category_id','subgroup':'retail_subgroup','maker':'retail_maker'}[key]
+        fields=(field,'category__name') if key=='category' else (field,)
+        for row in scope.order_by().values(*fields).annotate(_facet_count=Count('pk',distinct=True)):
+            if row[field]:
+                value=str(row[field]); values[value]=row['_facet_count']; labels[value]=row['category__name'] if key=='category' else value
+    if key=='brand':
+        automotive={str(pk) for pk in Brand.objects.filter(models__isnull=False).values_list('pk',flat=True).distinct()}
+        values={v:ids for v,ids in values.items() if v in automotive}
+    if key=='brand' and selected['country'].isdecimal():
+        allowed={str(pk) for pk in Brand.objects.filter(country_id=selected['country']).values_list('pk',flat=True)}
+        values={v:ids for v,ids in values.items() if v in allowed}
+    if key=='model' and selected['brand'].isdecimal():
+        allowed={str(pk) for pk in CarModel.objects.filter(brand_id=selected['brand']).values_list('pk',flat=True)}
+        values={v:ids for v,ids in values.items() if v in allowed}
+    return {v:len(ids) if isinstance(ids,set) else ids for v,ids in values.items()}, labels
+
+def load_home_facets():
+    """A public request never computes whole-catalogue facet aggregations."""
+    from .models import StorefrontFacetSnapshot, Country, Category
+    payload=StorefrontFacetSnapshot.objects.filter(pk='home').values_list('payload',flat=True).first()
+    if payload and payload.get('version')==1:
+        return payload['facets']
+    # Fast first-deploy fallback. The existing consumer builds counts shortly;
+    # options without a count remain usable and never pretend there are 0 items.
+    def options(rows):
+        rows=list(rows)
+        return ({str(pk):None for pk,label in rows},{str(pk):label for pk,label in rows})
+    return {'country':options(Country.objects.values_list('pk','name')),
+            'brand':options(Brand.objects.filter(models__isnull=False).values_list('pk','name').distinct()),
+            'category':options(Category.objects.values_list('pk','name'))}
+
+
+def build_home_facets():
+    """Run only in the existing consumer or an explicit maintenance command."""
+    base=retail_products()
+    selected={key:'' for key in KEYS}
+    rows=root_vehicle_facet_counts(base)
+    return {'version':1,'facets':{key:facet_values(key,base,selected,selected,rows)
+        for key in ('country','brand','category','subgroup','maker')}}
+
+
+def refresh_home_facets(force=False):
+    from datetime import timedelta
+    from django.db import transaction
+    from django.utils import timezone
+    from .models import StorefrontFacetSnapshot
+    # Refresh one shared row at a time. Readers keep the last complete result
+    # while this transaction calculates and atomically replaces the snapshot.
+    StorefrontFacetSnapshot.objects.get_or_create(pk='home')
+    with transaction.atomic():
+        snapshot=StorefrontFacetSnapshot.objects.select_for_update(skip_locked=True).filter(pk='home').first()
+        if snapshot is None:
+            return False
+        if not force and snapshot.built_at and timezone.now()-snapshot.built_at<timedelta(minutes=5):
+            return False
+        snapshot.payload=build_home_facets()
+        snapshot.built_at=timezone.now()
+        snapshot.save(update_fields=['payload','built_at'])
+    return True
+
+
 def storefront(request):
     started=perf_counter()
     base=retail_products()
@@ -141,71 +229,31 @@ def storefront(request):
         if any(params.get(k) for k in KEYS if k!='sort'):
             params['picker']='1'
         return '/?'+urlencode(params) if params else '/'
+    common=not any(selected[k] for k in KEYS if k!='sort')
+    home_facets=load_home_facets() if common else None
     def facet(key):
         if key=='model' and not selected['brand']:
             return []
         if key in ('year','engine') and not selected['model']:
             return []
         cache_key='v1:'+key+':'+sha256(urlencode({k:selected[k] for k in KEYS if k!='sort'}).encode()).hexdigest()
-        # Bot requests for rare combinations must not evict the home facets.
-        common=not any(selected[k] for k in KEYS if k!='sort')
+        if common:
+            values,labels=home_facets.get(key, ({},{}))
+            return facet_options(key,values,labels)
+        # Filter-specific counters retain their short, bounded cache.
         facet_cache=caches['storefront_common' if common else 'storefront_facets']
         cached=facet_cache.get(cache_key)
         if cached is not None:
             values,labels=cached
         else:
-            values,labels=facet_values(key)
+            values,labels=facet_values(key,base,selected,filter_selection)
             facet_cache.set(cache_key,(values,labels),120)
+        return facet_options(key,values,labels)
+    def facet_options(key,values,labels):
         return [dict(value=v,label=labels.get(v,v),count=count,selected=selected[key]==v,
                      url=url(**{key:'' if selected[key]==v else v,**{r:'' for r in RESET.get(key,())}}),
                      logo=LOGOS.get(labels.get(v,v).casefold(),''))
                 for v,count in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
-    def facet_values(key):
-        scope=apply_filters(base,filter_selection,(key,*RESET.get(key,())))
-        values=defaultdict(set)
-        labels={}
-        if key in ('country','brand') and not any(selected[k] for k in KEYS if k!='sort'):
-            common_cache=caches['storefront_common']
-            rows=common_cache.get('v2:root-vehicles')
-            if rows is None:
-                rows=root_vehicle_facet_counts(base)
-                common_cache.set('v2:root-vehicles',rows,120)
-            for kind,value,label,count in rows:
-                if kind==key:
-                    value=str(value);values[value]=count;labels[value]=label
-        elif key in VEHICLE_PATHS:
-            sources=[(scope.filter(fitment_reviewed_on__isnull=True),p) for p in VEHICLE_PATHS[key]]
-            sources.append((scope.filter(fitment_reviewed_on__isnull=False,fitments__status='confirmed'),FITMENT_PATHS[key]))
-            for value,label,count in vehicle_facet_counts(sources):
-                value=str(value); values[value]=count; labels[value]=label
-        elif key in ('year','engine'):
-            rows=ProductFitment.objects.filter(product_id__in=scope.values('pk'),product__fitment_reviewed_on__isnull=False,status='confirmed')
-            if selected['model'].isdecimal():rows=rows.filter(car_model_id=selected['model'])
-            if selected['brand'].isdecimal():rows=rows.filter(car_model__brand_id=selected['brand'])
-            if key=='engine' and selected['year'].isdecimal():
-                year=int(selected['year']); rows=rows.filter(year_from__lte=year).filter(Q(year_to__gte=year)|Q(year_to__isnull=True,verified_on__year__gte=year))
-            for row in rows.iterator(chunk_size=200):
-                if key=='engine':
-                    if row.engine_code:values[row.engine_code].add(row.product_id)
-                elif row.year_from:
-                    end=row.year_to or (row.verified_on.year if row.verified_on else row.year_from)
-                    for year in range(row.year_from,min(end,2100)+1):values[str(year)].add(row.product_id)
-        else:
-            field={'category':'category_id','subgroup':'retail_subgroup','maker':'retail_maker'}[key]
-            fields=(field,'category__name') if key=='category' else (field,)
-            for row in scope.order_by().values(*fields).annotate(_facet_count=Count('pk',distinct=True)):
-                if row[field]:
-                    value=str(row[field]); values[value]=row['_facet_count']; labels[value]=row['category__name'] if key=='category' else value
-        if key=='brand':
-            automotive={str(pk) for pk in Brand.objects.filter(models__isnull=False).values_list('pk',flat=True).distinct()}
-            values={v:ids for v,ids in values.items() if v in automotive}
-        if key=='brand' and selected['country'].isdecimal():
-            allowed={str(pk) for pk in Brand.objects.filter(country_id=selected['country']).values_list('pk',flat=True)}
-            values={v:ids for v,ids in values.items() if v in allowed}
-        if key=='model' and selected['brand'].isdecimal():
-            allowed={str(pk) for pk in CarModel.objects.filter(brand_id=selected['brand']).values_list('pk',flat=True)}
-            values={v:ids for v,ids in values.items() if v in allowed}
-        return {v:len(ids) if isinstance(ids,set) else ids for v,ids in values.items()}, labels
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
     found=apply_filters(base,filter_selection).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True)}.get(selected['sort'],'title')
@@ -223,7 +271,7 @@ def storefront(request):
             label=next((o['label'] for o in facets.get(key,[]) if o['value']==selected[key]),selected[key])
             chips.append(dict(label=label,url=url(**{key:'',**{r:'' for r in RESET.get(key,())}})))
     response=render(request,'catalog/interface/storefront.html',dict(interface_home=True,hide_product_search=True,
-        facets=facets,selected=selected,chips=chips,products=page,result_count=page.paginator.count,
+        facets=facets,selected=selected,chips=chips,filters_pending=bool(common and 'maker' not in home_facets),products=page,result_count=page.paginator.count,
         previous_url=url(page=page.previous_page_number()) if page.has_previous() else '',
         next_url=url(page=page.next_page_number()) if page.has_next() else '',
         filter_groups=[dict(key=k,title=t,options=facets[k]) for k,t in [('category','Категория'),('subgroup','Подгруппа'),('brand','Марка авто'),('model','Модель'),('maker','Производитель')]]))
