@@ -5,7 +5,7 @@
 <form method="post">{% csrf_token %}<button class="primary" name="action" value="publish_stock">Опубликовать / обновить всё наличие трёх поставщиков</button></form>
 {% if publication_run %}<h3>Обработка {% if publication_run.status == 'done' %}завершена{% else %}продолжается{% endif %}</h3>
 <p>Проверено строк: {{ publication_run.processed }} / {{ publication_run.total }}.</p>
-<p>Создано карточек: {{ publication_run.summary.created|default:0 }}. Обновлений: {{ publication_run.summary.updated|default:0 }}. Строк без актуального наличия / цены: {{ publication_run.summary.unavailable|default:0 }}. Совпадений с существующими отдельными товарами: {{ publication_run.summary.protected|default:0 }}.</p>
+<p>Создано карточек: {{ publication_run.summary.created|default:0 }}. Обновлений: {{ publication_run.summary.updated|default:0 }}. Строк без положительного наличия / цены: {{ publication_run.summary.unavailable|default:0 }}. Совпадений с существующими отдельными товарами: {{ publication_run.summary.protected|default:0 }}.</p>
 {% if publication_run.status == 'running' %}<p>Можно закрыть страницу: обработка продолжится в фоне. Прогресс сохраняется.</p><script>setTimeout(function(){window.location.reload();},10000);</script>{% endif %}
 {% endif %}
 <h3>Опубликовано по правилу +30%</h3>
