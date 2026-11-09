@@ -2373,3 +2373,10 @@ class ProductPriceInquiry(models.Model):
 
     def __str__(self):
         return f'№{self.pk} — {self.product_title}'
+
+
+class StorefrontFacetSnapshot(models.Model):
+    """Persistent public filter counters; contains no prices or user data."""
+    key = models.CharField(max_length=32, primary_key=True)
+    payload = models.JSONField(default=dict)
+    built_at = models.DateTimeField(null=True, blank=True)

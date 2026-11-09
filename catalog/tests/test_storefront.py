@@ -9,6 +9,8 @@ class StorefrontTests(TestCase):
         caches["storefront_facets"].clear()
         caches["storefront_common"].clear()
         caches["seo_sitemaps"].clear()
+        from catalog.storefront import refresh_home_facets
+        refresh_home_facets(force=True)
 
     @classmethod
     def setUpTestData(cls):
@@ -70,6 +72,8 @@ class StorefrontTests(TestCase):
         Product.objects.bulk_create([Product(title=f'Массовый товар {i}', article=f'BULK-{i}',
             seller_profile=self.seller, brand=self.brand, category=self.category, price=1300, stock_qty=2)
             for i in range(1500)], batch_size=200)
+        from catalog.storefront import refresh_home_facets
+        refresh_home_facets(force=True)
         r = self.client.get('/')
         self.assertEqual(r.status_code,200)
         self.assertEqual(r.context['result_count'],1501)

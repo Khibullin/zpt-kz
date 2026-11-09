@@ -24,7 +24,9 @@ class CatalogueAuditTests(TestCase):
         Product.objects.filter(pk=self.p.pk).update(price=2600,stock_qty=0)
         with CaptureQueriesContext(connection) as second:
             response=self.client.get('/')
-        self.assertLess(len(second),len(first))
+        for query in second:
+            self.assertNotIn('GROUP BY',query['sql'])
+        self.assertLessEqual(len(second),len(first))
         self.assertEqual(response.context['products'][0].price,2600)
         self.assertFalse(response.context['products'][0].public_stock['can_buy'])
 
@@ -89,7 +91,8 @@ class CatalogueAuditTests(TestCase):
 
     def test_filter_traffic_cannot_evict_common_home_facets(self):
         self.client.get('/')
-        self.assertTrue(caches['storefront_common']._cache)
+        from catalog.storefront import refresh_home_facets
+        refresh_home_facets(force=True)
         for n in range(40):
             caches['storefront_facets'].set(f'rare-{n}',n)
         with patch('catalog.storefront.root_vehicle_facet_counts') as counts:
