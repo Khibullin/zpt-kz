@@ -109,9 +109,6 @@ def advance_publication(run_id, batch_size=200):
     category_ids = dict(Category.objects.filter(name__in=categories).values_list('name', 'pk'))
     new_products, new_listings, changed_products, changed_listings = [], [], [], []
     counts = Counter()
-    # Unlinked existing AG Parts articles must not be overwritten implicitly.
-    protected_articles = set(Product.objects.filter(seller_profile=seller, article__in=[r.article for r in rows],
-        omega_listing__isnull=True).values_list('article', flat=True))
     for key in sorted(keys):
         offer = best.get(key)
         item = existing.get(key)
@@ -121,9 +118,6 @@ def advance_publication(run_id, batch_size=200):
                 item.product.status = 'hidden'; item.product.stock_qty = 0
                 item.hold_reason = 'Нет актуального наличия у трёх поставщиков.'
                 changed_products.append(item.product); changed_listings.append(item)
-            continue
-        if item is None and offer.article in protected_articles:
-            counts['protected'] += 1
             continue
         if item is None:
             product = Product(article=offer.article, seller_profile=seller, seller_name=seller.name,
