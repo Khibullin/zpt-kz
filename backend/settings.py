@@ -491,3 +491,13 @@ TELEGRAM_CONNECTION_WEBHOOK_SECRET = os.getenv('TELEGRAM_CONNECTION_WEBHOOK_SECR
 TELEGRAM_SUBSCRIBER_DELIVERY_ENABLED = _env_flag('TELEGRAM_SUBSCRIBER_DELIVERY_ENABLED', False)
 TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_ACTOR_ID', '')
 TELEGRAM_SUBSCRIBER_DELIVERY_SINCE = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_SINCE', '')
+
+# Cache only public facet counts, never prices, availability, users or carts.
+CACHES = {
+    "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "storefront_facets": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "storefront-facets",
+        "OPTIONS": {"MAX_ENTRIES": 32},
+    },
+}

@@ -4,6 +4,8 @@ from math import ceil
 from xml.sax.saxutils import escape
 
 from django.conf import settings
+from django.db.models import Q
+from django.db.models.functions import Length, Trim
 from django.http import Http404, HttpResponse
 from django.views.decorators.http import require_GET
 
@@ -56,6 +58,21 @@ STATIC_SITEMAP_PATHS = (
 
 MIN_PRODUCT_DESCRIPTION_LENGTH = 40
 ORGANIZATIONS_SITEMAP_PAGE_SIZE = 10_000
+PRODUCT_SITEMAP_PAGE_SIZE = 10_000
+
+def sitemap_product_queryset():
+    # Vehicle make is not manufacturer. A sourced brand/article identifies a
+    # supplier part even while its vehicle fitment and photograph are pending.
+    legacy=Q(brand_id__isnull=False) & ~Q(main_image='')
+    supplier=Q(supplier__in=('omega','procurement'), omega_listing__enabled=True,
+        omega_listing__offer__brand__gt='', article__gt='')
+    return Product.objects.filter(status='active',category_id__isnull=False).exclude(slug='').annotate(
+        description_length=Length(Trim('description'))).filter(
+        description_length__gte=MIN_PRODUCT_DESCRIPTION_LENGTH).filter(legacy|supplier)
+
+def product_sitemap_paths():
+    pages=max(1,ceil(sitemap_product_queryset().count()/PRODUCT_SITEMAP_PAGE_SIZE))
+    return ['/sitemap-products.xml' if n==1 else f'/sitemap-products-{n}.xml' for n in range(1,pages+1)]
 
 
 def _urlset(items: str = '') -> str:
@@ -108,6 +125,10 @@ def robots_txt(request):
         'Disallow: /service-request/result/',
         'Disallow: /request-parts/cabinet/',
         'Disallow: /service-request/cabinet/',
+        # Match root catalogue query URLs only; leave reviewed landing pages,
+        # clean pagination and individual product URLs crawlable.
+        *[f'Disallow: /?{prefix}{key}=' for key in ('picker','country','brand','model','year','engine','category','subgroup','maker','stock','q','sort','all') for prefix in ('','*&')],
+        'Disallow: /market/',
         'Allow: /static/',
         'Allow: /products/',
         '',
@@ -133,7 +154,7 @@ def organization_sitemap_paths():
 def sitemap_index(request):
     urls = [canonical_url_for_path('/sitemap-static.xml')]
     if getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
-        urls.append(canonical_url_for_path('/sitemap-products.xml'))
+        urls.extend(canonical_url_for_path(path) for path in product_sitemap_paths())
 
     if getattr(settings, 'SEO_EDITORIAL_ENABLED', False):
         urls.append(canonical_url_for_path('/sitemap-content.xml'))
@@ -164,26 +185,20 @@ def sitemap_static(request):
 
 
 @require_GET
-def sitemap_products(request):
+def sitemap_products(request, page=1):
     if not getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
         return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')
 
     seen_slugs: set[str] = set()
     items: list[str] = []
 
-    products = Product.objects.filter(status='active').exclude(slug='').order_by('pk').only(
-        'slug',
-        'title',
-        'brand_id',
-        'category_id',
-        'main_image',
-        'description',
-        'updated_at',
-    )
-    for product in products.iterator():
-        if not _product_is_sitemap_ready(product):
-            continue
-
+    page=int(page)
+    total=sitemap_product_queryset().count()
+    if page < 1 or (page > 1 and (page-1)*PRODUCT_SITEMAP_PAGE_SIZE >= total):
+        raise Http404
+    products = sitemap_product_queryset().order_by('pk').only('slug','updated_at')[
+        (page-1)*PRODUCT_SITEMAP_PAGE_SIZE:page*PRODUCT_SITEMAP_PAGE_SIZE]
+    for product in products.iterator(chunk_size=500):
         public_slug = _public_product_slug(product.slug)
         if public_slug in seen_slugs:
             continue

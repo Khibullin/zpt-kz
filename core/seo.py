@@ -138,7 +138,11 @@ def plain_pagination_number(request):
     path = canonical_path(request.path)
     url_name = getattr(getattr(request, 'resolver_match', None), 'url_name', '')
     filters = None
-    if path in ('/parts-sellers/', '/auto-dismantlers/'):
+    if path == '/':
+        filters = CATALOG_FILTER_QUERY_KEYS - {'picker'}
+        if 'picker' in request.GET:
+            return None
+    elif path in ('/parts-sellers/', '/auto-dismantlers/'):
         filters = PARTS_SELLERS_FILTER_QUERY_KEYS
     elif path == '/catalog/services/':
         filters = SERVICES_FILTER_QUERY_KEYS
@@ -196,6 +200,9 @@ def robots_directive(request) -> str:
 
     if path == '/' and request.GET.get('home_request'):
         return 'noindex, nofollow'
+
+    if path == '/' and plain_pagination_number(request) is not None:
+        return 'index, follow'
 
     if path == '/' and CATALOG_FILTER_QUERY_KEYS.intersection(request.GET.keys()):
         return 'noindex, follow'
