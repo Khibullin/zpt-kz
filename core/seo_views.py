@@ -8,6 +8,7 @@ from django.db.models import Q
 from django.db.models.functions import Length, Trim
 from django.http import Http404, HttpResponse
 from django.views.decorators.http import require_GET
+from django.views.decorators.cache import cache_page
 
 from catalog.fitment_slug_redirects import public_product_slug
 from catalog.models import MaintenanceKit, Product
@@ -151,6 +152,7 @@ def organization_sitemap_paths():
 
 
 @require_GET
+@cache_page(300, cache='seo_sitemaps')
 def sitemap_index(request):
     urls = [canonical_url_for_path('/sitemap-static.xml')]
     if getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
@@ -185,6 +187,7 @@ def sitemap_static(request):
 
 
 @require_GET
+@cache_page(300, cache='seo_sitemaps')
 def sitemap_products(request, page=1):
     if not getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
         return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')

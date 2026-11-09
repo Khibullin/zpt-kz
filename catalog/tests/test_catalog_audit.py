@@ -12,6 +12,8 @@ from procurement.models import Supplier, Offer, RetailListing
 class CatalogueAuditTests(TestCase):
     def setUp(self):
         caches['storefront_facets'].clear()
+        caches['storefront_common'].clear()
+        caches['seo_sitemaps'].clear()
         self.seller=SellerProfile.objects.create(user=User.objects.create(username='audit'),name='AG Parts',slug='ag-parts')
         self.category=Category.objects.create(name='Фильтры audit')
         self.p=Product.objects.create(title='Фильтр TEST',article='AUDIT-1',price=1300,stock_qty=2,seller_profile=self.seller,category=self.category)
@@ -76,3 +78,27 @@ class CatalogueAuditTests(TestCase):
             second=self.client.get('/sitemap-products-2.xml').content.decode()
             self.assertIn('supplier-second',second)
             self.assertNotIn('<loc>https://zpt.kz/filtr-test/',second)
+
+    @override_settings(SEO_PRODUCT_SITEMAP_ENABLED=True)
+    def test_sitemap_cache_avoids_catalogue_queries(self):
+        self.client.get('/sitemap-products.xml')
+        with self.assertNumQueries(0):
+            response=self.client.get('/sitemap-products.xml')
+        self.assertEqual(response.status_code,200)
+        self.assertIn('max-age=300',response['Cache-Control'])
+
+    def test_filter_traffic_cannot_evict_common_home_facets(self):
+        self.client.get('/')
+        self.assertTrue(caches['storefront_common']._cache)
+        for n in range(40):
+            caches['storefront_facets'].set(f'rare-{n}',n)
+        with patch('catalog.storefront.vehicle_facet_counts') as counts:
+            response=self.client.get('/')
+        self.assertEqual(response.status_code,200)
+        counts.assert_not_called()
+
+    def test_dynamic_catalogue_supports_compression(self):
+        response=self.client.get('/',HTTP_ACCEPT_ENCODING='gzip')
+        self.assertEqual(response['Content-Encoding'],'gzip')
+        import gzip
+        self.assertIn(b'retail-results',gzip.decompress(response.content))

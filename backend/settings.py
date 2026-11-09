@@ -66,6 +66,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'core.seo_middleware.SeoRobotsHeaderMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -495,6 +496,16 @@ TELEGRAM_SUBSCRIBER_DELIVERY_SINCE = os.getenv('TELEGRAM_SUBSCRIBER_DELIVERY_SIN
 # Cache only public facet counts, never prices, availability, users or carts.
 CACHES = {
     "default": {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"},
+    "storefront_common": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "storefront-common",
+        "OPTIONS": {"MAX_ENTRIES": 16},
+    },
+    "seo_sitemaps": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "seo-sitemaps",
+        "OPTIONS": {"MAX_ENTRIES": 16},
+    },
     "storefront_facets": {
         "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
         "LOCATION": "storefront-facets",

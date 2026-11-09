@@ -585,6 +585,7 @@ class Product(models.Model):
         verbose_name_plural = 'Товары'
         ordering = ['-created_at']
         indexes = [
+            models.Index(fields=['id'], condition=models.Q(fitment_reviewed_on__isnull=False), name='cat_prod_reviewed_idx'),
             models.Index(
                 fields=['article', 'brand', 'supplier'],
                 name='cat_prod_lookup_idx',
