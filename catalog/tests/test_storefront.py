@@ -7,6 +7,8 @@ class StorefrontTests(TestCase):
     def setUp(self):
         from django.core.cache import caches
         caches["storefront_facets"].clear()
+        caches["storefront_common"].clear()
+        caches["seo_sitemaps"].clear()
 
     @classmethod
     def setUpTestData(cls):

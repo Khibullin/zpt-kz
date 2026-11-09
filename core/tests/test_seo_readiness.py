@@ -108,6 +108,10 @@ class SeoPolicyTests(TestCase):
 
 
 class SeoEndpointTests(TestCase):
+    def setUp(self):
+        from django.core.cache import caches
+        caches["seo_sitemaps"].clear()
+
     def _ready_product(self, **overrides):
         country, _ = Country.objects.get_or_create(name='SEO Test Country')
         brand, _ = Brand.objects.get_or_create(country=country, name='SEO Test Brand')

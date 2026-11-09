@@ -1,6 +1,7 @@
 """Public AG Parts storefront. Filtering never changes supplier or retail data."""
 from collections import defaultdict
 from hashlib import sha256
+from time import perf_counter
 from django.core.cache import caches
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
@@ -106,6 +107,7 @@ def vehicle_facet_counts(sources):
 
 
 def storefront(request):
+    started=perf_counter()
     base=retail_products()
     selected={key:request.GET.get(key,'').strip()[:200] for key in KEYS}
     # Resolve exact article/OEM candidates once, rather than once per facet.
@@ -124,7 +126,9 @@ def storefront(request):
         if key in ('year','engine') and not selected['model']:
             return []
         cache_key='v1:'+key+':'+sha256(urlencode({k:selected[k] for k in KEYS if k!='sort'}).encode()).hexdigest()
-        facet_cache=caches['storefront_facets']
+        # Bot requests for rare combinations must not evict the home facets.
+        common=not any(selected[k] for k in KEYS if k!='sort')
+        facet_cache=caches['storefront_common' if common else 'storefront_facets']
         cached=facet_cache.get(cache_key)
         if cached is not None:
             values,labels=cached
@@ -184,8 +188,11 @@ def storefront(request):
         if selected[key]:
             label=next((o['label'] for o in facets.get(key,[]) if o['value']==selected[key]),selected[key])
             chips.append(dict(label=label,url=url(**{key:'',**{r:'' for r in RESET.get(key,())}})))
-    return render(request,'catalog/interface/storefront.html',dict(interface_home=True,hide_product_search=True,
+    response=render(request,'catalog/interface/storefront.html',dict(interface_home=True,hide_product_search=True,
         facets=facets,selected=selected,chips=chips,products=page,result_count=page.paginator.count,
         previous_url=url(page=page.previous_page_number()) if page.has_previous() else '',
         next_url=url(page=page.next_page_number()) if page.has_next() else '',
         filter_groups=[dict(key=k,title=t,options=facets[k]) for k,t in [('category','Категория'),('subgroup','Подгруппа'),('brand','Марка авто'),('model','Модель'),('maker','Производитель')]]))
+
+    response["Server-Timing"]=f"catalog;dur={(perf_counter()-started)*1000:.1f}"
+    return response
