@@ -21,6 +21,7 @@
           if (data.status === 'done') delete row.dataset.priceUpdate;
         }
       }
+      if (rows.length) window.location.reload();
     } catch (error) {
       resume.hidden = false;
       resume.textContent = 'Продолжить обработку';
