@@ -1,5 +1,7 @@
 """Public AG Parts storefront. Filtering never changes supplier or retail data."""
 from collections import defaultdict
+from hashlib import sha256
+from django.core.cache import caches
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
 from django.db.models import Q, F, Value, Case, When, CharField, Count
@@ -83,7 +85,9 @@ def apply_filters(qs, selected, omit=()):
     if selected['q']:
         from .article_utils import filter_products_by_public_query
         qs=filter_products_by_public_query(qs,selected['q'])
-    return qs.distinct()
+    # All to-many vehicle matching uses PK subqueries. The base annotation
+    # joins only a one-to-one listing, so DISTINCT just sorts wide product rows.
+    return qs
 
 
 def vehicle_facet_counts(sources):
@@ -104,14 +108,35 @@ def vehicle_facet_counts(sources):
 def storefront(request):
     base=retail_products()
     selected={key:request.GET.get(key,'').strip()[:200] for key in KEYS}
+    # Resolve exact article/OEM candidates once, rather than once per facet.
+    filter_selection={**selected, 'q':''}
+    if selected['q']:
+        from .article_utils import filter_products_by_public_query
+        base=filter_products_by_public_query(base, selected['q'])
     def url(**changes):
-        return '/?'+urlencode({**{k:v for k,v in {**selected,**changes}.items() if v!=''}, 'picker':'1'})
+        params={k:v for k,v in {**selected,**changes}.items() if v!=''}
+        if any(params.get(k) for k in KEYS if k!='sort'):
+            params['picker']='1'
+        return '/?'+urlencode(params) if params else '/'
     def facet(key):
         if key=='model' and not selected['brand']:
             return []
         if key in ('year','engine') and not selected['model']:
             return []
-        scope=apply_filters(base,selected,(key,*RESET.get(key,())))
+        cache_key='v1:'+key+':'+sha256(urlencode({k:selected[k] for k in KEYS if k!='sort'}).encode()).hexdigest()
+        facet_cache=caches['storefront_facets']
+        cached=facet_cache.get(cache_key)
+        if cached is not None:
+            values,labels=cached
+        else:
+            values,labels=facet_values(key)
+            facet_cache.set(cache_key,(values,labels),120)
+        return [dict(value=v,label=labels.get(v,v),count=count,selected=selected[key]==v,
+                     url=url(**{key:'' if selected[key]==v else v,**{r:'' for r in RESET.get(key,())}}),
+                     logo=LOGOS.get(labels.get(v,v).casefold(),''))
+                for v,count in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
+    def facet_values(key):
+        scope=apply_filters(base,filter_selection,(key,*RESET.get(key,())))
         values=defaultdict(set)
         labels={}
         if key in VEHICLE_PATHS:
@@ -146,12 +171,9 @@ def storefront(request):
         if key=='model' and selected['brand'].isdecimal():
             allowed={str(pk) for pk in CarModel.objects.filter(brand_id=selected['brand']).values_list('pk',flat=True)}
             values={v:ids for v,ids in values.items() if v in allowed}
-        return [dict(value=v,label=labels.get(v,v),count=len(ids) if isinstance(ids,set) else ids,selected=selected[key]==v,
-                     url=url(**{key:'' if selected[key]==v else v,**{r:'' for r in RESET.get(key,())}}),
-                     logo=LOGOS.get(labels.get(v,v).casefold(),''))
-                for v,ids in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
+        return {v:len(ids) if isinstance(ids,set) else ids for v,ids in values.items()}, labels
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
-    found=apply_filters(base,selected).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
+    found=apply_filters(base,filter_selection).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
     order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True)}.get(selected['sort'],'title')
     page=Paginator(found.order_by(order,'pk'),24).get_page(request.GET.get('page'))
     for product in page:

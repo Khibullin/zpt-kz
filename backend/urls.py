@@ -70,6 +70,7 @@ urlpatterns = [
     path('guide/parts/', editorial_index, name='editorial_index'),
     path('guide/parts/<slug:slug>/', editorial_detail, name='editorial_detail'),
     path('sitemap-products.xml', sitemap_products, name='sitemap_products'),
+    path('sitemap-products-<int:page>.xml', sitemap_products, name='sitemap_products_page'),
     path('sitemap-organizations.xml', sitemap_organizations, name='sitemap_organizations'),
     path('sitemap-organizations-<int:page>.xml', sitemap_organizations, name='sitemap_organizations_page'),
     path('sitemap-kits.xml', sitemap_kits, name='sitemap_kits'),

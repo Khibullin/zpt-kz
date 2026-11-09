@@ -4,6 +4,10 @@ from django.test import TestCase
 from catalog.models import Country, Brand, CarModel, Category, Product, SellerProfile, ProductFitment
 
 class StorefrontTests(TestCase):
+    def setUp(self):
+        from django.core.cache import caches
+        caches["storefront_facets"].clear()
+
     @classmethod
     def setUpTestData(cls):
         cls.seller=SellerProfile.objects.create(user=User.objects.create(username='retail'),name='AG Parts',slug='ag-parts')
