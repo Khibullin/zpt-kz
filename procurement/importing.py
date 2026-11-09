@@ -13,10 +13,11 @@ ALIASES = {'Артикул': 'article', 'Бренд': 'brand', 'Наименов
            'Карточка товара': 'supplier_url', 'Цена продажи на Kaspi, ₸': 'kaspi_price', 'Ссылка на Kaspi': 'kaspi_url'}
 ALIASES.update({'Торговая марка': 'brand', 'Цена, за 1шт': 'cost', 'Цена, за 1шт со скидкой': 'cost',
                 'Остаток': 'stock', 'Миним заказ, шт': 'min_order', 'В продаже': 'active'})
+ALIASES.update({'Номенклатура': 'name', 'Цена': 'cost', 'Алматы СКЛАД': 'stock'})
 REQUIRED = {'article', 'brand', 'name', 'cost'}
 
 
-def load_rows(file, required=None):
+def load_rows(file, required=None, max_rows=20000):
     required = required or REQUIRED
     if file.name.lower().endswith('.xlsx'):
         from openpyxl import load_workbook
@@ -27,7 +28,7 @@ def load_rows(file, required=None):
         book = load_workbook(file, read_only=True, data_only=True)
         try:
             sheet = book['Оптовой каталог'] if 'Оптовой каталог' in book.sheetnames else book.worksheets[0]
-            rows = list(itertools.islice(sheet.iter_rows(values_only=True), 20031))
+            rows = list(itertools.islice(sheet.iter_rows(values_only=True), max_rows + 31))
         finally:
             book.close()
     else:
@@ -36,9 +37,9 @@ def load_rows(file, required=None):
             dialect = csv.Sniffer().sniff(text[:8192], delimiters=',;\t')
         except csv.Error:
             dialect = csv.excel
-        rows = list(itertools.islice(csv.reader(io.StringIO(text), dialect), 20031))
-    if len(rows) > 20030:
-        raise ValueError('Не более 20 000 строк данных и 30 строк заголовка.')
+        rows = list(itertools.islice(csv.reader(io.StringIO(text), dialect), max_rows + 31))
+    if len(rows) > max_rows + 30:
+        raise ValueError(f'Не более {max_rows:,} строк данных и 30 строк заголовка.')
     for index, row in enumerate(rows[:30]):
         keys = [ALIASES.get(str(v).strip(), str(v).strip()) for v in row]
         if required.issubset(keys):
@@ -46,9 +47,13 @@ def load_rows(file, required=None):
             for number, row in enumerate(rows[index + 1:], index + 2):
                 if not any(v is not None and str(v).strip() for v in row):
                     continue
-                result.append((number, dict(zip(keys, row))))
-                if len(result) > 20000:
-                    raise ValueError('Не более 20 000 строк за загрузку.')
+                values = dict(zip(keys, row))
+                if (not any(values.get(k) for k in ('article', 'brand', 'name', 'cost'))
+                        and str(values.get('stock') or '').strip() == 'Количество'):
+                    continue  # Phaeton's second header row.
+                result.append((number, values))
+                if len(result) > max_rows:
+                    raise ValueError(f'Не более {max_rows:,} строк за загрузку.')
             if not result:
                 raise ValueError('Прайс пуст.')
             return result
@@ -71,6 +76,10 @@ def money(value, optional=False):
 def import_offers(file, supplier_name, date, user):
     rows = load_rows(file)
     supplier, _ = Supplier.objects.get_or_create(name=supplier_name.strip())
+    Supplier.objects.select_for_update().get(pk=supplier.pk)
+    from .models import PriceUpdate
+    if PriceUpdate.objects.filter(supplier=supplier, status__in=['ready', 'running']).exists():
+        raise ValueError('Сначала завершите обновление прайса этого поставщика.')
     seen = set()
     for number, row in rows:
         article, brand, name = [str(row.get(k) or '').strip() for k in ('article', 'brand', 'name')]
@@ -85,7 +94,7 @@ def import_offers(file, supplier_name, date, user):
             if minimum < 1:
                 raise ValueError('Минимальный заказ должен быть больше нуля.')
             defaults = dict(name=name, category=str(row.get('category') or ''), cost=money(row['cost']),
-                            stock=str(row.get('stock') or ''), min_order=minimum, checked_on=date)
+                            stock=str(row.get('stock') if row.get('stock') is not None else ''), min_order=minimum, supplier_checked_on=date)
             from django.core.validators import URLValidator
             from django.core.exceptions import ValidationError
             for field in ('supplier_url', 'kaspi_url', 'photo_url'):
@@ -101,9 +110,12 @@ def import_offers(file, supplier_name, date, user):
                     defaults[field] = str(row[field] or '')
             if 'kaspi_price' in row:
                 defaults['kaspi_price'] = money(row['kaspi_price'], optional=True)
+                defaults['kaspi_price_checked_on'] = date
+                defaults['checked_on'] = date
             offer, created = Offer.objects.get_or_create(supplier=supplier, brand=brand, article=article, defaults=defaults)
             if not created:
-                changed_match = defaults.get('kaspi_url', offer.kaspi_url) != offer.kaspi_url
+                changed_match = (defaults.get('kaspi_url', offer.kaspi_url) != offer.kaspi_url
+                                 or defaults['name'] != offer.name)
                 for field, value in defaults.items():
                     setattr(offer, field, value)
                 if changed_match:
@@ -308,6 +320,9 @@ def import_competitors(file, supplier_name, date, user):
         seen.add(key)
         offer = Offer.objects.filter(supplier=supplier, brand=key[0], article=key[1]).first()
         source = row.get('source_url', '')
+        previous = KaspiSellerSnapshot.objects.filter(offer=offer).first() if offer else None
+        if previous and previous.checked_on > date:
+            raise ValueError('Проверка продавцов старее сохранённой.')
         if offer is None or not offer.kaspi_url or source != offer.kaspi_url:
             raise ValueError('Источник не совпадает с карточкой Kaspi выбранного товара.')
         if urlsplit(source).hostname != 'kaspi.kz' or urlsplit(source).scheme != 'https' or not re.search(r'/shop/p/.+-[0-9]+/', source):
@@ -352,6 +367,14 @@ def import_competitors(file, supplier_name, date, user):
                 normalized[merchant] = item
         KaspiSellerSnapshot.objects.update_or_create(offer=offer, defaults={'source_url': source, 'city': row['city'],
             'checked_on': date, 'complete': row['complete'], 'sellers': list(normalized.values())})
+        # Complete seller observations renew only the Kaspi price date.
+        if row['complete'] and normalized:
+            offer.kaspi_price = min(Decimal(item['price']) for item in normalized.values())
+            offer.kaspi_price_checked_on = date
+            offer.save(update_fields=['kaspi_price', 'kaspi_price_checked_on'])
+            if offer.match_verified:
+                from .models import KaspiReviewTask
+                KaspiReviewTask.objects.filter(offer=offer).update(status='done', reason='Цена и продавцы проверены')
     Activity.objects.create(user=user, action='competitors_import', details={'supplier': supplier.name, 'offers': len(rows), 'date': date.isoformat()})
     return len(rows)
 

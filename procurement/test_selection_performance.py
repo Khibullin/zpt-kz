@@ -61,7 +61,8 @@ class SelectionPerformanceTests(TestCase):
             response = self.client.get(reverse('procurement:dashboard'), {'supplier': self.supplier.pk})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.context['total'], 1000)
-        self.assertLessEqual(len(queries), 25)
+        # Baseline includes the shared office membership lookup.
+        self.assertLessEqual(len(queries), 26)
         self.assertContains(response, 'Нет предложений на дату проверки')
 
     def test_catalogue_paginates_before_calculating_full_rows(self):

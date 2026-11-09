@@ -1,6 +1,7 @@
 from django.urls import path
 from django.contrib.auth.views import LogoutView
 from . import views
+from . import price_update_views
 from inventory.purchase_receiving import receive_purchase
 from .auth import WorkspaceLoginView
 from .invitations import invite_manager, accept_invitation, activate_invitation
@@ -8,6 +9,10 @@ from .retail_views import retail_workspace, retail_excel
 
 app_name = 'procurement'
 urlpatterns = [
+    path('price-updates/<int:pk>/retry-kaspi/', price_update_views.retry_kaspi, name='price_update_retry_kaspi'),
+    path('price-updates/', price_update_views.updates, name='price_updates'),
+    path('price-updates/queue/', price_update_views.queue_export, name='price_review_queue'),
+    path('price-updates/<int:pk>/advance/', price_update_views.advance, name='price_update_advance'),
     path('retail/', retail_workspace, name='retail'),
     path('retail/excel/', retail_excel, name='retail_excel'),
     path('', views.dashboard, name='dashboard'),

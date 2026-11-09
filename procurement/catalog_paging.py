@@ -14,8 +14,10 @@ def best_candidates_query(query, preferences, today):
         F('kaspi_price') * Value((Decimal(100) - preferences.commission) / Decimal(100))
         - F('cost') - Value(max(Decimal(250), preferences.expenses)),
         output_field=DecimalField(max_digits=38, decimal_places=12))
+    query = query.exclude(Q(name__iregex='подшипник|bearing') | Q(category__iregex='подшипник|bearing'))
     return query.filter(kaspi_price__isnull=False, cost__gt=0, match_verified=True,
-                        checked_on__gte=today - timedelta(days=7), checked_on__lte=today).annotate(
+                        supplier_checked_on__gte=today - timedelta(days=7), supplier_checked_on__lte=today,
+                        kaspi_price_checked_on__gte=today - timedelta(days=7), kaspi_price_checked_on__lte=today).annotate(
                             _best_profit=profit).filter(_best_profit__gte=max(Decimal(1000), preferences.best_min_profit))
 
 

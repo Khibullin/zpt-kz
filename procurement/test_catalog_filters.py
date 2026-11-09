@@ -31,7 +31,7 @@ class CatalogFilterTests(TestCase):
     def test_best_requires_sales_identity_and_stock(self):
         self.empty.kaspi_price = 5000
         self.empty.stock = '5'
-        self.empty.checked_on = self.empty.evidence_date = timezone.localdate()
+        self.empty.supplier_checked_on = self.empty.kaspi_price_checked_on = self.empty.checked_on = self.empty.evidence_date = timezone.localdate()
         self.empty.sales_30 = 2
         self.empty.save()
         snapshot = self.empty.kaspi_sellers
