@@ -23,8 +23,8 @@ def prepare_rows(file):
     for number, row in raw:
         try:
             identity = {key: str(row.get(key) or '').strip() for key in ('brand', 'article', 'name')}
-            if not all(identity.values()):
-                raise ValueError('Нужны бренд, артикул и название.')
+            if not identity['article'] or not identity['name']:
+                raise ValueError('Нужны артикул и название.')
             key = (identity['brand'], identity['article'])
             # A missing stock column must not silently erase confirmed stock.
             if 'stock' not in row:
@@ -35,6 +35,8 @@ def prepare_rows(file):
             item = {**identity, 'cost': str(money(row['cost'])) if row['cost'] is not None and str(row['cost']).strip() else '0',
                     'stock': str(row['stock'] if row['stock'] is not None else '').strip(),
                     'min_order': int(minimum)}
+            if not identity['brand']:
+                item['_conflict'] = 'В прайсе не указан бренд'
             if row['cost'] is None or not str(row['cost']).strip():
                 item['_conflict'] = 'В прайсе отсутствует закупочная цена'
             if row.get('Количество в упаковке') is not None:
@@ -47,7 +49,7 @@ def prepare_rows(file):
                 if field in row:
                     item[field] = str(row[field] or '').strip()
             test = Offer(supplier_id=1, **{k:v for k,v in item.items() if not k.startswith('_')})
-            test.full_clean(exclude=['supplier'], validate_unique=False, validate_constraints=False)
+            test.full_clean(exclude=['supplier'] + (['brand'] if not identity['brand'] else []), validate_unique=False, validate_constraints=False)
             if key in seen:
                 previous = seen[key]
                 if {k:v for k,v in previous.items() if k != '_conflict'} != {k:v for k,v in item.items() if k != '_conflict'}:
@@ -148,7 +150,9 @@ def advance_update(batch_id, prepared_rows=None):
         offer = existing.get((row['brand'], row['article']))
         if row.get('_conflict'):
             batch.summary['conflicts'] += 1
-            if offer:
+            if not row['brand']:
+                Offer.objects.filter(supplier=batch.supplier, article=row['article']).update(stock='')
+            elif offer:
                 Offer.objects.filter(pk=offer.pk).update(stock='')
             continue
         item = {**{k:v for k,v in row.items() if not k.startswith('_')}, 'cost': Decimal(row['cost'])}
@@ -201,8 +205,9 @@ def advance_update(batch_id, prepared_rows=None):
         if batch.full_catalog:
             # Only finalize after every validated row was applied. Never act on a partial upload.
             keys = {(row['brand'], row['article']) for row in all_rows}
+            unknown_brand_articles = {row['article'] for row in all_rows if not row['brand']}
             absent = [o.pk for o in Offer.objects.filter(supplier=batch.supplier).only('pk', 'brand', 'article')
-                      if (o.brand, o.article) not in keys]
+                      if (o.brand, o.article) not in keys and o.article not in unknown_brand_articles]
             for start in range(0, len(absent), 500):
                 Offer.objects.filter(pk__in=absent[start:start+500]).update(stock='0', supplier_checked_on=batch.checked_on)
                 KaspiReviewTask.objects.filter(offer_id__in=absent[start:start+500]).update(status='done', reason='Нет в полном прайсе')

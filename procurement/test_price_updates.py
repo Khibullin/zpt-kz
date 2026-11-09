@@ -167,3 +167,37 @@ class PriceUpdateTests(TestCase):
         self.offer.refresh_from_db(); task.refresh_from_db()
         self.assertEqual(self.offer.kaspi_price, Decimal(5000))
         self.assertEqual(task.status, 'blocked')
+
+    def test_supplier_excel_with_mixed_case_strings_and_wrong_dimension(self):
+        from io import BytesIO
+        from openpyxl import Workbook
+        import zipfile
+        from .price_updates import prepare_rows
+        book = Workbook(); sheet = book.active
+        sheet.append(['Номенклатура', '№ по кат.', 'Производитель', 'Цена', 'Количество(в ед.хранения)'])
+        sheet.append(['Диск', '001A', 'PART', 1000, 2])
+        raw = BytesIO(); book.save(raw); result = BytesIO()
+        with zipfile.ZipFile(BytesIO(raw.getvalue())) as src, zipfile.ZipFile(result, 'w') as dst:
+            for name in src.namelist():
+                data = src.read(name)
+                if name == 'xl/worksheets/sheet1.xml':
+                    data = data.replace(b'ref="A1:E2"', b'ref="F7555"')
+                if name == '[Content_Types].xml':
+                    data = data.replace(b'</Types>', b'<Override PartName="/xl/sharedStrings.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sharedStrings+xml"/></Types>')
+                dst.writestr(name, data)
+            dst.writestr('xl/SharedStrings.xml', '<sst xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"/>')
+        rows = prepare_rows(SimpleUploadedFile('zakazauto.xlsx', result.getvalue()))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['article'], '001A')
+        self.assertEqual(rows[0]['stock'], '2')
+
+    def test_missing_brand_is_quarantined_without_guessing_or_removing_article(self):
+        batch = stage_update(self.file(';001A;Фильтр;900;5\nBRAND;NEW;Диск;500;3\n'),
+            self.supplier, self.user, self.today, True)
+        final = advance_update(batch.pk)
+        self.offer.refresh_from_db()
+        self.assertEqual(self.offer.cost, Decimal(1000))
+        self.assertEqual(self.offer.stock, '')
+        self.assertEqual(final.summary['conflicts'], 1)
+        self.assertEqual(final.summary['unavailable'], 0)
+        self.assertFalse(Offer.objects.filter(brand='').exists())
