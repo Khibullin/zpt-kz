@@ -63,7 +63,7 @@ class ManagerInvitationTests(TestCase):
         self.assertEqual(invitation.accepted_by, user)
         self.assertIsNotNone(invitation.used_at)
         logged_in = manager.post(reverse('procurement:login'), {'username': 'NEW.MANAGER@example.com', 'password': 'A-new-unique-password-2026!'})
-        self.assertRedirects(logged_in, reverse('procurement:dashboard'))
+        self.assertRedirects(logged_in, reverse('office_home'))
         self.assertEqual(manager.get(reverse('procurement:upload')).status_code, 200)
         self.assertEqual(manager.get(reverse('procurement:users')).status_code, 403)
         self.assertEqual(manager.get(reverse('procurement:invite_manager')).status_code, 403)

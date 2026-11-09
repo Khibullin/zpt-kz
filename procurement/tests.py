@@ -27,13 +27,13 @@ class WorkspaceTests(TestCase):
             Membership.objects.create(user=user, role=role)
         cls.supplier = Supplier.objects.create(name='Omega')
         cls.offer = Offer.objects.create(supplier=cls.supplier, article='00123', brand='EEP', name='Деталь', cost=1000,
-            kaspi_price=3000, checked_on=timezone.localdate(), evidence_date=timezone.localdate(),
+            kaspi_price=3000, checked_on=timezone.localdate(), supplier_checked_on=timezone.localdate(), kaspi_price_checked_on=timezone.localdate(), evidence_date=timezone.localdate(),
             recent_reviews=1, stock='>20 шт.', match_verified=True, kaspi_url='https://kaspi.kz/shop/p/test-123/')
 
     def qualify_best(self, offer=None):
         offer = offer or self.offer
         offer.sales_30 = 2
-        offer.evidence_date = offer.checked_on = timezone.localdate()
+        offer.supplier_checked_on = offer.kaspi_price_checked_on = offer.evidence_date = offer.checked_on = timezone.localdate()
         offer.match_verified = True
         offer.stock = '20'
         offer.kaspi_url = offer.kaspi_url or f'https://kaspi.kz/shop/p/test-{offer.pk}/'
@@ -497,7 +497,7 @@ class WorkspaceTests(TestCase):
         Preferences.objects.create(user=self.user, commission=10, expenses=250)
         self.qualify_best()
         self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 1)
-        for field, value in [('evidence_date', None), ('checked_on', None), ('stock', ''), ('sales_30', None), ('match_verified', False)]:
+        for field, value in [('evidence_date', None), ('kaspi_price_checked_on', None), ('stock', ''), ('sales_30', None), ('match_verified', False)]:
             self.qualify_best()
             Offer.objects.filter(pk=self.offer.pk).update(**{field: value})
             self.assertEqual(self.client.get(self.url('dashboard'), {'mode': 'best'}).context['total'], 0)

@@ -20,6 +20,7 @@
 </section>
 <section class="panel">
 <h2>Расчёт и объяснение</h2>
+<p class="muted">Прайс поставщика: {{ offer.supplier_checked_on|date:'d.m.Y'|default:'нет данных' }} · Цена Kaspi: {{ offer.kaspi_price_checked_on|date:'d.m.Y'|default:'нужна проверка' }}.</p>
 <p>Закупка: {{ offer.cost }} ₸ · Kaspi: {{ offer.kaspi_price|default_if_none:'Нет данных' }}</p>
 <p>Комиссия Kaspi без НДС: {% if analysis.commission_rate == None %}не задана{% else %}{{ analysis.commission_rate }}%{% endif %} · Сумма комиссии: {{ analysis.commission_amount|floatformat:2|default:'Нет данных' }} ₸.</p>
 <p>Kaspi после комиссии: {{ analysis.kaspi_after_commission|floatformat:2|default:'Нет данных' }} ₸.</p>

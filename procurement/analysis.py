@@ -42,12 +42,15 @@ def evaluate(offer, preferences, today=None):
                 result['reasons'].append('Задайте прочие расходы: разница после комиссии известна, чистая прибыль пока неизвестна.')
         else:
             result['reasons'].append('Задайте комиссию Kaspi без НДС: разница после комиссии и чистая прибыль пока неизвестны.')
-    price_fresh = offer.checked_on is not None and timedelta(0) <= today - offer.checked_on <= timedelta(days=7)
+    price_date = offer.kaspi_price_checked_on
+    price_fresh = price_date is not None and timedelta(0) <= today - price_date <= timedelta(days=7)
     evidence_fresh = offer.evidence_date is not None and timedelta(0) <= today - offer.evidence_date <= timedelta(days=7)
     sales = evidence_fresh and offer.sales_30 is not None and offer.sales_30 > 0
     reviews = evidence_fresh and offer.recent_reviews is not None and offer.recent_reviews > 0
     result['stock_status'] = stock_status(offer.stock)
-    in_stock = result['stock_status'] == 'in_stock'
+    supplier_fresh = offer.supplier_checked_on is not None and timedelta(0) <= today - offer.supplier_checked_on <= timedelta(days=7)
+    in_stock = result['stock_status'] == 'in_stock' and supplier_fresh
+    result['supplier_fresh'] = supplier_fresh
     result['fresh_reviews'] = bool(reviews)
     result['confirmed_sales'] = bool(sales)
     result['evidence_fresh'] = evidence_fresh

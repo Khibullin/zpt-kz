@@ -18,7 +18,7 @@ class BestFiltersTests(TestCase):
         for article, model in [('CAM', 'CAMRY'), ('COR', 'COROLLA')]:
             offer = Offer.objects.create(supplier=self.supplier, brand='PART', article=article,
                 name=model + ' filter', category='Фильтры', cost=100, kaspi_price=5000,
-                stock='5', match_verified=True, checked_on=timezone.localdate(),
+                stock='5', match_verified=True, checked_on=timezone.localdate(), supplier_checked_on=timezone.localdate(), kaspi_price_checked_on=timezone.localdate(),
                 sales_30=2, evidence_date=timezone.localdate(), kaspi_url=f'https://kaspi.kz/shop/p/{article}-123/')
             KaspiSellerSnapshot.objects.create(offer=offer, source_url=offer.kaspi_url,
                 checked_on=timezone.localdate(), complete=True, sellers=[{'name': 'Shop', 'price': '5000'}])

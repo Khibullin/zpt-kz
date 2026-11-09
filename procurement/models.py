@@ -62,6 +62,8 @@ class Offer(models.Model):
     evidence_date = models.DateField(null=True, blank=True)
     evidence_source = models.CharField(max_length=250, blank=True)
     checked_on = models.DateField(null=True, blank=True)
+    supplier_checked_on = models.DateField(null=True, blank=True)
+    kaspi_price_checked_on = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -227,3 +229,36 @@ class KaspiCardSearch(models.Model):
     checked_article = models.CharField(max_length=120)
     checked_name = models.CharField(max_length=500)
     checks = models.JSONField(default=list)
+
+
+class PriceUpdate(models.Model):
+    supplier = models.ForeignKey(Supplier, on_delete=models.PROTECT)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    filename = models.CharField(max_length=255)
+    sha256 = models.CharField(max_length=64)
+    checked_on = models.DateField()
+    full_catalog = models.BooleanField(default=False)
+    rows = models.JSONField(default=list)
+    row_count = models.PositiveIntegerField(default=0)
+    cursor = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=20, default='ready', choices=[
+        ('ready', 'Готов к обработке'), ('running', 'Обновление каталога'),
+        ('done', 'Каталог обновлён')])
+    summary = models.JSONField(default=dict)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['supplier'],
+            condition=models.Q(status__in=['ready', 'running']), name='one_active_price_update')]
+        ordering = ['-pk']
+
+
+class KaspiReviewTask(models.Model):
+    offer = models.OneToOneField(Offer, on_delete=models.CASCADE, related_name='review_task')
+    batch = models.ForeignKey(PriceUpdate, null=True, on_delete=models.SET_NULL)
+    reason = models.CharField(max_length=250)
+    priority = models.PositiveSmallIntegerField(default=3)
+    status = models.CharField(max_length=20, default='pending', choices=[
+        ('pending', 'Требует проверки'), ('checking', 'Проверяется'), ('blocked', 'Источник недоступен'), ('done', 'Проверено')])
+    updated_at = models.DateTimeField(auto_now=True)

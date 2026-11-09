@@ -185,7 +185,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
         rows.append(row)
     if mode == 'best':
         request.best_candidates = [r for r in rows if r['offer'].match_verified
-            and r['stock_status'] == 'in_stock' and r['price_fresh']
+            and r['stock_status'] == 'in_stock' and r['supplier_fresh'] and r['price_fresh']
             and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
             and r['kaspi_status_code'] not in ('empty', 'missing')]
         for candidate in request.best_candidates:
@@ -194,7 +194,7 @@ def filtered_rows(request, preferences, filters, paginate=False):
         rows = [r for r in rows if r['markup'] is not None and r['markup'] > 0
                 and r['profit'] is not None and r['profit'] >= max(MIN_BEST_PROFIT, preferences.best_min_profit)
                 and r['offer'].match_verified and r['stock_status'] == 'in_stock'
-                and r['price_fresh'] and r['confirmed_sales'] and r['kaspi_status_code'] == 'sellers']
+                and r['supplier_fresh'] and r['price_fresh'] and r['confirmed_sales'] and r['kaspi_status_code'] == 'sellers']
         for row in rows:
             row['markup'] = row['profit'] / row['offer'].cost * 100
         rows.sort(key=lambda r: (-r['markup'], -r['profit'], r['offer'].pk))
