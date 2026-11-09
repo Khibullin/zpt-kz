@@ -22,7 +22,8 @@ class PriceUpdateForm(forms.Form):
                 queryset=Supplier.objects.order_by('name'), required=False)
             self.fields[key + '_file'] = forms.FileField(label=label + ' — файл XLSX / CSV', required=False,
                 widget=forms.ClearableFileInput(attrs={'accept': '.xlsx,.csv,.tsv'}))
-            self.fields[key + '_full'] = forms.BooleanField(label='Это полный каталог поставщика: снять наличие отсутствующих позиций', required=False)
+            self.fields[key + '_full'] = forms.BooleanField(label='Загружаю полный прайс-лист поставщика', required=False,
+                help_text='С галочкой — полный прайс: товары, которых нет в файле, будут отмечены как отсутствующие и убраны из «Выгодных к закупке». Без галочки — частичные изменения: обновятся только товары из файла, остальные сохранят прежние цены и наличие.')
             aliases = {'phaeton': ['Phaeton', 'Фаэтон'], 'zakazauto': ['ZakazAuto', 'ЗаказАвто'], 'omega': ['Omega', 'Омега']}
             matches = Supplier.objects.filter(name__in=aliases[key])
             if matches.count() == 1:

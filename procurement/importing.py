@@ -13,7 +13,8 @@ ALIASES = {'Артикул': 'article', 'Бренд': 'brand', 'Наименов
            'Карточка товара': 'supplier_url', 'Цена продажи на Kaspi, ₸': 'kaspi_price', 'Ссылка на Kaspi': 'kaspi_url'}
 ALIASES.update({'Торговая марка': 'brand', 'Цена, за 1шт': 'cost', 'Цена, за 1шт со скидкой': 'cost',
                 'Остаток': 'stock', 'Миним заказ, шт': 'min_order', 'В продаже': 'active'})
-ALIASES.update({'Номенклатура': 'name', 'Цена': 'cost', 'Алматы СКЛАД': 'stock'})
+ALIASES.update({'Номенклатура': 'name', 'Цена': 'cost', 'Алматы СКЛАД': 'stock',
+                '№ по кат.': 'article', 'Производитель': 'brand', 'Количество(в ед.хранения)': 'stock'})
 REQUIRED = {'article', 'brand', 'name', 'cost'}
 
 
@@ -21,13 +22,28 @@ def load_rows(file, required=None, max_rows=20000):
     required = required or REQUIRED
     if file.name.lower().endswith('.xlsx'):
         from openpyxl import load_workbook
+        workbook_file = file
         with zipfile.ZipFile(file) as archive:
             if sum(item.file_size for item in archive.infolist()) > 100 * 1024 * 1024:
                 raise ValueError('Распакованный Excel превышает 100 МБ.')
-        file.seek(0)
-        book = load_workbook(file, read_only=True, data_only=True)
+            # ZakazAuto exports SharedStrings.xml but references sharedStrings.xml.
+            # Repair only this known casing mismatch, in memory; source bytes stay unchanged.
+            names = archive.namelist()
+            if 'xl/sharedStrings.xml' not in names:
+                candidates = [name for name in names if name.casefold() == 'xl/sharedstrings.xml']
+                if len(candidates) == 1:
+                    workbook_file = io.BytesIO()
+                    with zipfile.ZipFile(workbook_file, 'w', zipfile.ZIP_DEFLATED) as repaired:
+                        for name in names:
+                            target = 'xl/sharedStrings.xml' if name == candidates[0] else name
+                            repaired.writestr(target, archive.read(name))
+        workbook_file.seek(0)
+        book = load_workbook(workbook_file, read_only=True, data_only=True)
         try:
             sheet = book['Оптовой каталог'] if 'Оптовой каталог' in book.sheetnames else book.worksheets[0]
+            # Supplier exports can declare a last cell as the entire dimension.
+            # Stream real worksheet rows rather than trusting that metadata.
+            sheet.reset_dimensions()
             rows = list(itertools.islice(sheet.iter_rows(values_only=True), max_rows + 31))
         finally:
             book.close()
