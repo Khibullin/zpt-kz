@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from math import ceil
+from functools import wraps
 from xml.sax.saxutils import escape
 
 from django.conf import settings
@@ -74,6 +75,15 @@ def sitemap_product_queryset():
 def product_sitemap_paths():
     pages=max(1,ceil(sitemap_product_queryset().count()/PRODUCT_SITEMAP_PAGE_SIZE))
     return ['/sitemap-products.xml' if n==1 else f'/sitemap-products-{n}.xml' for n in range(1,pages+1)]
+
+
+def cache_sitemap(view):
+    """Keep feature switches effective even while a public XML response is cached."""
+    @wraps(view)
+    def cached(request, *args, **kwargs):
+        prefix=f"v2:{int(settings.SEO_PRODUCT_SITEMAP_ENABLED)}:{int(settings.SEO_EDITORIAL_ENABLED)}"
+        return cache_page(300, cache='seo_sitemaps', key_prefix=prefix)(view)(request,*args,**kwargs)
+    return cached
 
 
 def _urlset(items: str = '') -> str:
@@ -152,7 +162,7 @@ def organization_sitemap_paths():
 
 
 @require_GET
-@cache_page(300, cache='seo_sitemaps')
+@cache_sitemap
 def sitemap_index(request):
     urls = [canonical_url_for_path('/sitemap-static.xml')]
     if getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
@@ -187,7 +197,7 @@ def sitemap_static(request):
 
 
 @require_GET
-@cache_page(300, cache='seo_sitemaps')
+@cache_sitemap
 def sitemap_products(request, page=1):
     if not getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
         return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')
