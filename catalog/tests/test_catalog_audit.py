@@ -92,7 +92,7 @@ class CatalogueAuditTests(TestCase):
         self.assertTrue(caches['storefront_common']._cache)
         for n in range(40):
             caches['storefront_facets'].set(f'rare-{n}',n)
-        with patch('catalog.storefront.vehicle_facet_counts') as counts:
+        with patch('catalog.storefront.root_vehicle_facet_counts') as counts:
             response=self.client.get('/')
         self.assertEqual(response.status_code,200)
         counts.assert_not_called()
@@ -102,3 +102,12 @@ class CatalogueAuditTests(TestCase):
         self.assertEqual(response['Content-Encoding'],'gzip')
         import gzip
         self.assertIn(b'retail-results',gzip.decompress(response.content))
+
+    def test_page_projection_loads_only_the_selected_cards(self):
+        Product.objects.bulk_create([Product(title=f'Z part {i}',seller_profile=self.seller) for i in range(30)])
+        with CaptureQueriesContext(connection) as queries:
+            response=self.client.get('/')
+        self.assertEqual(len(response.context['products']),24)
+        page_queries=[q['sql'] for q in queries if 'ORDER BY' in q['sql'] and 'LIMIT 24' in q['sql']]
+        self.assertTrue(page_queries)
+        self.assertNotIn('"description"',page_queries[0])
