@@ -12,7 +12,7 @@ from django.conf import settings
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.db import transaction
 from django.db.models import Q, Prefetch
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse, StreamingHttpResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_POST
 from django.urls import reverse
@@ -411,6 +411,9 @@ def _load_home_request_result(token: str):
 
 @ensure_csrf_cookie
 def catalog_list(request):
+    # Port/readiness probes must not build catalogue facets or load products.
+    if request.method == 'HEAD':
+        return StreamingHttpResponse((), content_type='text/html; charset=utf-8')
     if request.method in ('GET', 'HEAD') and request.resolver_match.url_name != 'interface_find_part' and not request.GET.get('home_request') and not request.GET.get('request'):
         from .storefront import storefront
         return storefront(request)
