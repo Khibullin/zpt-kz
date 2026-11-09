@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.gzip.GZipMiddleware',
+    'core.crawler_budget.CrawlerFilterBudgetMiddleware',
     'core.seo_middleware.SeoRobotsHeaderMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',

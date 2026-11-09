@@ -52,6 +52,11 @@ class Command(BaseCommand):
                     from catalog.storefront import refresh_home_facets
                     if refresh_home_facets():
                         self.stdout.write('Public storefront filter snapshot refreshed')
+                    from core.seo_views import refresh_sitemap_snapshots
+                    if refresh_sitemap_snapshots():
+                        self.stdout.write('Public sitemap snapshots refreshed')
+                    from catalog.source_photos import process_photo_tasks
+                    process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,

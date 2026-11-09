@@ -86,6 +86,71 @@ def cache_sitemap(view):
     return cached
 
 
+def sitemap_snapshot_key(path):
+    return f'{int(settings.SEO_PRODUCT_SITEMAP_ENABLED)}:{int(settings.SEO_EDITORIAL_ENABLED)}:{path}'
+
+
+def stored_sitemap(path):
+    from catalog.models import PublicSitemapSnapshot
+    xml=PublicSitemapSnapshot.objects.filter(pk=sitemap_snapshot_key(path)).values_list('xml',flat=True).first()
+    if xml:
+        return HttpResponse(xml,content_type='application/xml; charset=utf-8')
+    return None
+
+
+def refresh_sitemap_snapshots(force=False):
+    from datetime import timedelta
+    from django.db import transaction
+    from django.utils import timezone
+    from catalog.models import PublicSitemapSnapshot
+    key=sitemap_snapshot_key('refresh-lock')
+    PublicSitemapSnapshot.objects.get_or_create(pk=key)
+    with transaction.atomic():
+        lock=PublicSitemapSnapshot.objects.select_for_update(skip_locked=True).filter(pk=key).first()
+        if lock is None or (not force and lock.built_at and timezone.now()-lock.built_at<timedelta(minutes=15)):
+            return False
+        documents={}
+        if settings.SEO_PRODUCT_SITEMAP_ENABLED:
+            # One bounded iterator over eligible rows; no count per XML part.
+            items=[];seen=set();page=1
+            for product in sitemap_product_queryset().order_by('pk').only('slug','updated_at').iterator(chunk_size=500):
+                slug=_public_product_slug(product.slug)
+                if slug in seen:
+                    continue
+                seen.add(slug)
+                loc=escape(canonical_url_for_path(f'/{slug}/'))
+                items.append(f'<url><loc>{loc}</loc><lastmod>{product.updated_at.date().isoformat()}</lastmod></url>')
+                if len(items)==PRODUCT_SITEMAP_PAGE_SIZE:
+                    path='/sitemap-products.xml' if page==1 else f'/sitemap-products-{page}.xml'
+                    documents[path]=_urlset(''.join(items));items=[];page+=1
+            if items or page==1:
+                path='/sitemap-products.xml' if page==1 else f'/sitemap-products-{page}.xml'
+                documents[path]=_urlset(''.join(items))
+        else:
+            documents['/sitemap-products.xml']=_urlset()
+        # Keep the same reviewed non-product pages and derive the product parts
+        # from the documents just built, rather than recounting the catalogue.
+        urls=[canonical_url_for_path('/sitemap-static.xml')]
+        if settings.SEO_PRODUCT_SITEMAP_ENABLED:
+            urls.extend(canonical_url_for_path(path) for path in documents)
+        if settings.SEO_EDITORIAL_ENABLED:
+            urls.append(canonical_url_for_path('/sitemap-content.xml'))
+        urls.extend(canonical_url_for_path(path) for path in organization_sitemap_paths())
+        if MaintenanceKit.objects.filter(is_active=True).exclude(slug='').exists():urls.append(canonical_url_for_path('/sitemap-kits.xml'))
+        if any(published_city_page_paths()):urls.append(canonical_url_for_path('/sitemap-cities.xml'))
+        documents['/sitemap.xml']=('<?xml version="1.0" encoding="UTF-8"?>'
+            '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'+
+            ''.join(f'<sitemap><loc>{escape(url)}</loc></sitemap>' for url in urls)+'</sitemapindex>')
+        now=timezone.now()
+        for path,xml in documents.items():
+            PublicSitemapSnapshot.objects.update_or_create(pk=sitemap_snapshot_key(path),defaults={'xml':xml,'built_at':now})
+        # Drop obsolete trailing parts only from this feature-switch variant.
+        PublicSitemapSnapshot.objects.filter(key__startswith=sitemap_snapshot_key('/sitemap-products')).exclude(
+            pk__in=[sitemap_snapshot_key(path) for path in documents]).delete()
+        lock.built_at=now;lock.save(update_fields=['built_at'])
+    return True
+
+
 def _urlset(items: str = '') -> str:
     return (
         '<?xml version="1.0" encoding="UTF-8"?>'
@@ -164,6 +229,10 @@ def organization_sitemap_paths():
 @require_GET
 @cache_sitemap
 def sitemap_index(request):
+    return stored_sitemap('/sitemap.xml') or render_sitemap_index(request)
+
+
+def render_sitemap_index(request):
     urls = [canonical_url_for_path('/sitemap-static.xml')]
     if getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
         urls.extend(canonical_url_for_path(path) for path in product_sitemap_paths())
@@ -199,6 +268,11 @@ def sitemap_static(request):
 @require_GET
 @cache_sitemap
 def sitemap_products(request, page=1):
+    path='/sitemap-products.xml' if int(page)==1 else f'/sitemap-products-{int(page)}.xml'
+    return stored_sitemap(path) or render_sitemap_products(request,page)
+
+
+def render_sitemap_products(request, page=1):
     if not getattr(settings, 'SEO_PRODUCT_SITEMAP_ENABLED', False):
         return HttpResponse(_urlset(), content_type='application/xml; charset=utf-8')
 

@@ -1,0 +1,124 @@
+"""Bounded, owner-staged public supplier-photo import; never changes prices/stock."""
+import io
+import json
+import re
+import shutil
+import time
+from pathlib import Path
+from urllib.parse import urlsplit
+import requests
+from PIL import Image
+from django.conf import settings
+from django.db import transaction
+from django.core.files.base import ContentFile
+from django.utils import timezone
+from .models import Product, SupplierPhotoTask
+
+MAX_BYTES=2*1024*1024
+
+class SourceUnavailable(ValueError):
+    pass
+
+
+def public_page_url(url):
+    parsed=urlsplit(url)
+    if parsed.scheme!='https' or parsed.netloc!='omega-auto-parts.kz' or parsed.query or parsed.fragment or not parsed.path.startswith('/'):
+        raise ValueError('Недопустимый адрес поставщика.')
+    return url
+
+
+def matching_image(html,brand,article):
+    """Only the matching JSON-LD Product; never images of recommended products."""
+    def products(data):
+        if isinstance(data,list):
+            for item in data:yield from products(item)
+        elif isinstance(data,dict):
+            kind=data.get('@type')
+            if kind=='Product' or isinstance(kind,list) and 'Product' in kind:yield data
+            if '@graph' in data:yield from products(data['@graph'])
+    for raw in re.findall(r'<script\b[^>]*type=[\"\']application/ld\+json[\"\'][^>]*>(.*?)</script>',html,re.I|re.S):
+        try:data=json.loads(raw)
+        except (ValueError,TypeError):continue
+        for product in products(data):
+            maker=product.get('brand',{})
+            maker=maker.get('name','') if isinstance(maker,dict) else maker
+            if str(product.get('sku','')).strip().upper()!=article.strip().upper() or str(maker).strip().casefold()!=brand.strip().casefold():continue
+            images=product.get('image',[])
+            if isinstance(images,str):images=[images]
+            for url in images if isinstance(images,list) else []:
+                if not isinstance(url,str):continue
+                from procurement.retail import validate_image_url
+                try:validate_image_url(url)
+                except ValueError:continue
+                if Path(urlsplit(url).path).stem.casefold() in ('spg','no_image','no-image','placeholder','default'):continue
+                return url
+    return ''
+
+
+def fetch_bytes(url,maximum=MAX_BYTES):
+    with requests.get(url,timeout=(4,8),stream=True,allow_redirects=False) as response:
+        if response.status_code in (403,429,503):
+            raise SourceUnavailable(f'Поставщик недоступен: HTTP {response.status_code}; обработка остановлена без обхода ограничений.')
+        response.raise_for_status()
+        if response.status_code!=200:raise ValueError('Перенаправление или пустой источник не принимается.')
+        data=bytearray()
+        for chunk in response.iter_content(65536):
+            data.extend(chunk)
+            if len(data)>maximum:raise ValueError('Файл превышает установленный размер.')
+    return bytes(data)
+
+
+def process_photo_tasks(limit=10):
+    # A source block stops the pilot, rather than retrying other URLs around it.
+    if SupplierPhotoTask.objects.filter(status='blocked').exists():return 0
+    done=0
+    for task_id in list(SupplierPhotoTask.objects.filter(status='pending').order_by('pk').values_list('pk',flat=True)[:limit]):
+        with transaction.atomic():
+            task=SupplierPhotoTask.objects.select_for_update(skip_locked=True,of=('self',)).select_related('product','offer').filter(pk=task_id,status='pending').first()
+            if task is None:continue
+            try:
+                product=task.product;offer=task.offer
+                if product.main_image:
+                    task.status='skipped';task.note='Существующая фотография сохранена.'
+                elif product.status!='active' or product.article.strip().upper()!=offer.article.strip().upper():
+                    task.status='skipped';task.note='Карточка изменилась; автоматическое добавление отменено.'
+                else:
+                    from procurement.models import RetailListing
+                    listing=RetailListing.objects.select_related('offer').filter(product=product,enabled=True).first()
+                    if not listing or listing.offer.brand.strip().casefold()!=offer.brand.strip().casefold():
+                        raise ValueError('Не подтверждено совпадение производителя.')
+                    html=fetch_bytes(public_page_url(task.source_url)).decode('utf-8',errors='replace')
+                    image_url=matching_image(html,offer.brand,offer.article)
+                    if not image_url:
+                        task.status='skipped';task.note='Точное совпадение или реальная фотография не найдены.'
+                    else:
+                        data=fetch_bytes(image_url)
+                        with Image.open(io.BytesIO(data)) as picture:
+                            if picture.format not in ('JPEG','PNG','WEBP') or picture.width*picture.height>20_000_000:
+                                raise ValueError('Неподходящий формат или размер изображения.')
+                            extension={'JPEG':'jpg','PNG':'png','WEBP':'webp'}[picture.format]
+                            picture.verify()
+                        media=Path(settings.MEDIA_ROOT);media.mkdir(parents=True,exist_ok=True)
+                        if shutil.disk_usage(media).free<len(data)+64*1024*1024:
+                            task.status='blocked';task.note='Недостаточно свободного места; тариф не изменён.'
+                        else:
+                            # Re-read immediately before saving; do not replace an image
+                            # a manager added while the external source was loading.
+                            product=Product.objects.select_for_update().get(pk=product.pk)
+                            if product.main_image or product.status!='active' or product.article.strip().upper()!=offer.article.strip().upper():
+                                task.status='skipped';task.note='Карточка обновлена менеджером; фото сохранено без изменений.'
+                            else:
+                                product.main_image.save(f'supplier-{offer.pk}.{extension}',ContentFile(data),save=False)
+                                product.updated_at=timezone.now()
+                                product.save(update_fields=['main_image','updated_at'])
+                                type(offer).objects.filter(pk=offer.pk,photo_url='').update(photo_url=image_url)
+                                task.status='done';task.note='Фотография точного товара из открытого каталога поставщика.'
+                                task.evidence={'source_url':task.source_url,'image_url':image_url,'brand':offer.brand,'article':offer.article,'bytes':len(data),'checked_at':timezone.now().isoformat()}
+            except SourceUnavailable as error:
+                task.status='blocked';task.note=str(error)[:400]
+            except (requests.RequestException,ValueError,OSError,SyntaxError) as error:
+                task.status='skipped';task.note=str(error)[:400]
+            task.save(update_fields=['status','note','evidence','updated_at']);done+=1
+            if task.status=='blocked':break
+        time.sleep(.3)
+    return done
