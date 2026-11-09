@@ -2,7 +2,9 @@
 from collections import defaultdict
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
-from django.db.models import Q, F, Value, Case, When, CharField
+from django.db.models import Q, F, Value, Case, When, CharField, Count
+from django.db import connection
+from django.core.exceptions import EmptyResultSet
 from django.shortcuts import render
 from .models import Product, SellerProfile, ProductFitment, Brand, CarModel
 from .wholesale import public_stock_status
@@ -84,6 +86,21 @@ def apply_filters(qs, selected, omit=()):
     return qs.distinct()
 
 
+def vehicle_facet_counts(sources):
+    """Deduplicate product/vehicle pairs in SQL, without retaining every product ID."""
+    queries = [qs.order_by().annotate(facet_product=F('pk'), facet_value=F(path+'__pk'),
+        facet_label=F(path+'__name')).values('facet_product','facet_value','facet_label') for qs,path in sources]
+    combined = queries[0].union(*queries[1:])
+    try:
+        sql, params = combined.query.sql_with_params()
+    except EmptyResultSet:
+        return []
+    with connection.cursor() as cursor:
+        cursor.execute('SELECT facet_value, facet_label, COUNT(DISTINCT facet_product) FROM (' + sql +
+            ') facet_rows WHERE facet_value IS NOT NULL GROUP BY facet_value, facet_label', params)
+        return cursor.fetchall()
+
+
 def storefront(request):
     base=retail_products()
     selected={key:request.GET.get(key,'').strip()[:200] for key in KEYS}
@@ -100,17 +117,15 @@ def storefront(request):
         if key in VEHICLE_PATHS:
             sources=[(scope.filter(fitment_reviewed_on__isnull=True),p) for p in VEHICLE_PATHS[key]]
             sources.append((scope.filter(fitment_reviewed_on__isnull=False,fitments__status='confirmed'),FITMENT_PATHS[key]))
-            for qs,path in sources:
-                for pk,value,label in qs.order_by().values_list('pk',path+'__pk',path+'__name').distinct():
-                    if value is not None:
-                        value=str(value); values[value].add(pk); labels[value]=label
+            for value,label,count in vehicle_facet_counts(sources):
+                value=str(value); values[value]=count; labels[value]=label
         elif key in ('year','engine'):
             rows=ProductFitment.objects.filter(product_id__in=scope.values('pk'),product__fitment_reviewed_on__isnull=False,status='confirmed')
             if selected['model'].isdecimal():rows=rows.filter(car_model_id=selected['model'])
             if selected['brand'].isdecimal():rows=rows.filter(car_model__brand_id=selected['brand'])
             if key=='engine' and selected['year'].isdecimal():
                 year=int(selected['year']); rows=rows.filter(year_from__lte=year).filter(Q(year_to__gte=year)|Q(year_to__isnull=True,verified_on__year__gte=year))
-            for row in rows:
+            for row in rows.iterator(chunk_size=200):
                 if key=='engine':
                     if row.engine_code:values[row.engine_code].add(row.product_id)
                 elif row.year_from:
@@ -118,10 +133,10 @@ def storefront(request):
                     for year in range(row.year_from,min(end,2100)+1):values[str(year)].add(row.product_id)
         else:
             field={'category':'category_id','subgroup':'retail_subgroup','maker':'retail_maker'}[key]
-            fields=('pk',field,'category__name') if key=='category' else ('pk',field)
-            for row in scope.order_by().values_list(*fields).distinct():
-                if row[1]:
-                    value=str(row[1]);values[value].add(row[0]);labels[value]=row[2] if key=='category' else value
+            fields=(field,'category__name') if key=='category' else (field,)
+            for row in scope.order_by().values(*fields).annotate(_facet_count=Count('pk',distinct=True)):
+                if row[field]:
+                    value=str(row[field]); values[value]=row['_facet_count']; labels[value]=row['category__name'] if key=='category' else value
         if key=='brand':
             automotive={str(pk) for pk in Brand.objects.filter(models__isnull=False).values_list('pk',flat=True).distinct()}
             values={v:ids for v,ids in values.items() if v in automotive}
@@ -131,7 +146,7 @@ def storefront(request):
         if key=='model' and selected['brand'].isdecimal():
             allowed={str(pk) for pk in CarModel.objects.filter(brand_id=selected['brand']).values_list('pk',flat=True)}
             values={v:ids for v,ids in values.items() if v in allowed}
-        return [dict(value=v,label=labels.get(v,v),count=len(ids),selected=selected[key]==v,
+        return [dict(value=v,label=labels.get(v,v),count=len(ids) if isinstance(ids,set) else ids,selected=selected[key]==v,
                      url=url(**{key:'' if selected[key]==v else v,**{r:'' for r in RESET.get(key,())}}),
                      logo=LOGOS.get(labels.get(v,v).casefold(),''))
                 for v,ids in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]

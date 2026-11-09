@@ -52,3 +52,20 @@ class StorefrontTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertTemplateUsed(r,'catalog/interface/storefront.html')
         self.assertContains(r,'picker=1')
+
+    def test_vehicle_counts_deduplicate_multiple_paths(self):
+        self.product.selected_brands.add(self.brand)
+        self.product.selected_models.add(self.model)
+        r = self.client.get('/')
+        self.assertEqual(r.context['facets']['brand'][0]['count'], 1)
+        self.assertEqual(r.context['facets']['country'][0]['count'], 1)
+
+    def test_large_catalogue_is_counted_without_loading_all_cards(self):
+        Product.objects.bulk_create([Product(title=f'Массовый товар {i}', article=f'BULK-{i}',
+            seller_profile=self.seller, brand=self.brand, category=self.category, price=1300, stock_qty=2)
+            for i in range(1500)], batch_size=200)
+        r = self.client.get('/')
+        self.assertEqual(r.status_code,200)
+        self.assertEqual(r.context['result_count'],1501)
+        self.assertEqual(len(r.context['products']),24)
+        self.assertEqual(r.context['facets']['brand'][0]['count'],1501)
