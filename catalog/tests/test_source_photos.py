@@ -83,6 +83,23 @@ class SupplierAssetTests(TestCase):
         self.product.main_image='products/manager-replacement.jpg'
         self.assertEqual(self.product.storefront_image.name,'products/manager-replacement.jpg')
 
+    def test_removing_one_product_photo_keeps_shared_file_available(self):
+        from catalog.image_storage import clear_main_image
+        from django.core.files.base import ContentFile
+        with tempfile.TemporaryDirectory() as folder,override_settings(MEDIA_ROOT=folder):
+            storage=self.product.main_image.storage
+            name=save_shared_image(storage,b'shared-photo')
+            self.product.main_image=name
+            self.product.supplier_thumbnail=name
+            clear_main_image(self.product)
+            self.assertTrue(storage.exists(name))
+            self.assertFalse(self.product.main_image)
+            self.assertFalse(self.product.supplier_thumbnail)
+            ordinary=storage.save('products/ordinary.jpg',ContentFile(b'ordinary'))
+            self.product.main_image=ordinary
+            clear_main_image(self.product)
+            self.assertFalse(storage.exists(ordinary))
+
     def test_cleanup_preserves_sku_and_raw_supplier_title(self):
         self.assertEqual(public_product_title(self.product),'PART-1 — фильтр')
         self.assertEqual(self.product.title,'PART-1_фильтр!')
