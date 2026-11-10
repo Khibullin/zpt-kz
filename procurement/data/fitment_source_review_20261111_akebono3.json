@@ -1,0 +1,356 @@
+{
+  "checked_on": "2026-11-11",
+  "before": {
+    "verified_offers": 4268,
+    "products_with_photo": 19105,
+    "queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "after": {
+    "new_imports": [
+      {
+        "action": "catalogue_fitment_import",
+        "details": {
+          "date": "2026-11-11",
+          "make_model_pairs": 4,
+          "offers": 1,
+          "supplier": "Фаетон"
+        }
+      },
+      {
+        "action": "catalogue_fitment_import",
+        "details": {
+          "date": "2026-11-11",
+          "make_model_pairs": 2,
+          "offers": 2,
+          "supplier": "Фаетон"
+        }
+      }
+    ],
+    "products_with_photo": 19105,
+    "queue": {
+      "done": 18745,
+      "needs_source": 29126,
+      "skipped": 1622
+    },
+    "verified_offers": 4271
+  },
+  "imported": {
+    "supplier_id": 3,
+    "offer_ids": [
+      22581,
+      22582,
+      22590
+    ],
+    "offers": 3,
+    "make_model_pairs": 6,
+    "configurations": 20
+  },
+  "offers": [
+    {
+      "brand": "AKEBONO",
+      "article": "AN-855WK",
+      "source_brand": "AKEBONO",
+      "source_article": "AN-855WK",
+      "source_url": "https://www.akebono-brake.com/product_technology/aftermarket/docs/pf01_toyota.pdf",
+      "status": "sourced",
+      "note": "Official 2025 Japanese application catalogue, printed page 25 (PDF page 25). Japanese-market chassis configurations only. R6=2024, R3=2021 per printed conversion table. Blank End stays unspecified. No engine codes or other markets inferred.",
+      "rows": [
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "TRJ250W",
+          "displacement": "2700 cc",
+          "years": "2024-04–",
+          "position": "Front",
+          "notes": "Japanese-market application; source start R6.4; source end blank; no engine code specified. Exact AN-855WK in Front column.",
+          "source_page": "25"
+        },
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "GDJ250W",
+          "displacement": "2800 cc",
+          "years": "2024-04–",
+          "position": "Front",
+          "notes": "Japanese-market application; source start R6.4; source end blank; no engine code specified. Exact AN-855WK in Front column.",
+          "source_page": "25"
+        },
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "FJA300W",
+          "displacement": "3300 cc",
+          "years": "2021-08–",
+          "position": "Front",
+          "notes": "Japanese-market application; source start R3.8; source end blank; no engine code specified. Exact AN-855WK in Front column.",
+          "source_page": "25"
+        },
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "VJA300W",
+          "displacement": "3500 cc",
+          "years": "2021-08–",
+          "position": "Front",
+          "notes": "Japanese-market application; source start R3.8; source end blank; no engine code specified. Exact AN-855WK in Front column.",
+          "source_page": "25"
+        }
+      ]
+    },
+    {
+      "brand": "AKEBONO",
+      "article": "AN-856K",
+      "source_brand": "AKEBONO",
+      "source_article": "AN-856K",
+      "source_url": "https://www.akebono-brake.com/product_technology/aftermarket/docs/pf01_toyota.pdf",
+      "status": "sourced",
+      "note": "Official 2025 Japanese application catalogue, printed page 25 (PDF page 25). Japanese-market chassis configurations only. R6=2024, R3=2021 per printed conversion table. Blank End stays unspecified. No engine codes or other markets inferred.",
+      "rows": [
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "TRJ250W",
+          "displacement": "2700 cc",
+          "years": "2024-04–",
+          "position": "Rear",
+          "notes": "Japanese-market application; source start R6.4; source end blank; no engine code specified. Exact AN-856K in Rear column.",
+          "source_page": "25"
+        },
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "GDJ250W",
+          "displacement": "2800 cc",
+          "years": "2024-04–",
+          "position": "Rear",
+          "notes": "Japanese-market application; source start R6.4; source end blank; no engine code specified. Exact AN-856K in Rear column.",
+          "source_page": "25"
+        },
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "FJA300W",
+          "displacement": "3300 cc",
+          "years": "2021-08–",
+          "position": "Rear",
+          "notes": "Japanese-market application; source start R3.8; source end blank; no engine code specified. Exact AN-856K in Rear column.",
+          "source_page": "25"
+        },
+        {
+          "make": "TOYOTA",
+          "model": "LAND CRUISER",
+          "chassis": "VJA300W",
+          "displacement": "3500 cc",
+          "years": "2021-08–",
+          "position": "Rear",
+          "notes": "Japanese-market application; source start R3.8; source end blank; no engine code specified. Exact AN-856K in Rear column.",
+          "source_page": "25"
+        }
+      ]
+    },
+    {
+      "brand": "AKEBONO",
+      "article": "NN3067",
+      "source_brand": "AKEBONO",
+      "source_article": "NN3067",
+      "source_url": "https://www.akebono-brake.com/product_technology/aftermarket/docs/pf03_mitsubishi.pdf",
+      "status": "sourced",
+      "note": "Official Japanese-market 2025 catalogue. Parking column prints NN3067 F/R; F/R annotation preserved. DELICA D:5 parking cell spans all listed model rows, confirmed visually. Heisei year H+1988; R+2018. No engine code or end date inferred.",
+      "rows": [
+        {
+          "make": "MITSUBISHI",
+          "model": "GALANT FORTIS SPORTBACK",
+          "chassis": "CX4A",
+          "displacement": "2000 cc",
+          "years": "2008-12–2015-04",
+          "restriction": "Ralliart",
+          "position": "Parking",
+          "source_page": "70",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "GRANDIS",
+          "chassis": "NA4W",
+          "displacement": "2400 cc",
+          "years": "2003-05–2009-03",
+          "restriction": "",
+          "position": "Parking",
+          "source_page": "71",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV2W",
+          "displacement": "2000 cc",
+          "years": "2011-12–2012-07",
+          "restriction": "",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV2W",
+          "displacement": "2000 cc",
+          "years": "2012-07–",
+          "restriction": "Chassis No.0800101~",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV4W",
+          "displacement": "2000 cc",
+          "years": "2010-01–2011-12",
+          "restriction": "",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV1W",
+          "displacement": "2200 cc",
+          "years": "2013-01–2019-01",
+          "restriction": "",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV1W",
+          "displacement": "2200 cc",
+          "years": "2019-02–",
+          "restriction": "Chassis No.2100201~",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV5W",
+          "displacement": "2400 cc",
+          "years": "2007-01–2012-07",
+          "restriction": "",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "DELICA D:5",
+          "chassis": "CV5W",
+          "displacement": "2400 cc",
+          "years": "2012-07–",
+          "restriction": "Chassis No.0800101~",
+          "position": "Parking",
+          "source_page": "73",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "LANCER",
+          "chassis": "CZ4A",
+          "displacement": "2000 cc",
+          "years": "2007-10–",
+          "restriction": "Evolution X RS",
+          "position": "Parking",
+          "source_page": "76",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "LANCER",
+          "chassis": "CZ4A",
+          "displacement": "2000 cc",
+          "years": "2007-10–",
+          "restriction": "Option of RS",
+          "position": "Parking",
+          "source_page": "76",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        },
+        {
+          "make": "MITSUBISHI",
+          "model": "LANCER",
+          "chassis": "CZ4A",
+          "displacement": "2000 cc",
+          "years": "2007-10–",
+          "restriction": "GSR",
+          "position": "Parking",
+          "source_page": "76",
+          "notes": "Japanese-market application. Exact catalogue parking entry: NN3067 F/R. Blank source end stays unspecified."
+        }
+      ]
+    }
+  ],
+  "verification": {
+    "official_index": "https://www.akebono-brake.com/product_technology/aftermarket/lineup.html",
+    "toyota_pdf_screenshot_pages": [
+      25
+    ],
+    "mitsubishi_pdf_screenshot_pages": [
+      4,
+      5,
+      7,
+      10
+    ],
+    "notes": [
+      "Read actual table screenshots, including row-spanning NN3067 F/R Parking column for all DELICA D:5 rows.",
+      "Original Japanese year labels converted using H+1988 and R+2018; blank ending dates remain blank.",
+      "No AX-755WK/AN-755WK substitution; no broader market or engine-code inference.",
+      "Fresh empty fitment checks before each import; DB and activity records verify 3 offers / 6 pairs / 20 configurations.",
+      "First import visibly confirmed by UI: 2 products loaded. Last NN3067 DB import verified; final office DOM observation timed out twice, without resubmitting.",
+      "No code deployment, restart, competing consumer or photo staging."
+    ]
+  },
+  "research_pending": [
+    {
+      "brand": "AKEBONO",
+      "article": "AN-286WK",
+      "source": "pf03_mitsubishi.pdf",
+      "result": "No exact text found; absence in this catalogue does not prove no fitment."
+    },
+    {
+      "brand": "AKEBONO",
+      "articles": [
+        "AN-340K",
+        "AN-366WK",
+        "AN-450WK"
+      ],
+      "source": "pf02_nissan.pdf",
+      "result": "No exact text found; not imported."
+    },
+    {
+      "brand": "AKEBONO",
+      "article": "AN-658WK",
+      "source": "pf05_honda.pdf",
+      "result": "No exact text found; not imported."
+    },
+    {
+      "brand": "AKEBONO",
+      "article": "NR1090",
+      "source": "pf03_mitsubishi.pdf",
+      "result": "No exact text found; not imported."
+    }
+  ],
+  "continuation": [
+    "Task is incomplete; keep automation enabled.",
+    "Start with fresh DB; photo queue has needs_source only, no confirmed crash.",
+    "Continue independent allowed sources, prioritizing missing best supplier3/5.",
+    "Official AKEBONO Japanese lineup gives readable 2025 PDF catalogues. Exact old articles may be absent; do not replace similar article/suffix.",
+    "Previous ASVA / Alta-Karter prohibition and all recorded source restrictions remain in force. BLUE PRINT photo candidate still unstaged until supported by existing safe consumer."
+  ]
+}
