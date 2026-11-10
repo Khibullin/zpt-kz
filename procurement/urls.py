@@ -9,6 +9,7 @@ from .retail_views import retail_workspace, retail_excel
 
 app_name = 'procurement'
 urlpatterns = [
+    path('fitments/refresh/', views.refresh_shared_fitments, name='refresh_shared_fitments'),
     path('price-updates/<int:pk>/retry-kaspi/', price_update_views.retry_kaspi, name='price_update_retry_kaspi'),
     path('price-updates/', price_update_views.updates, name='price_updates'),
     path('price-updates/queue/', price_update_views.queue_export, name='price_review_queue'),

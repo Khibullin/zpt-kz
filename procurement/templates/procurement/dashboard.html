@@ -34,6 +34,12 @@
 </div>
 </form>
 </section>
+{% if can_manage and selected_supplier %}
+<form method="post" action="{% url 'procurement:refresh_shared_fitments' %}?supplier={{ selected_supplier.pk }}" style="margin:12px 0">{% csrf_token %}
+<button>Дополнить применимость из общей базы</button>
+<small>Точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
+</form>
+{% endif %}
 <div class="results-toolbar">
 <strong>{% if preliminary %}{{ preliminary_total }} товаров · <span class="preliminary-status">Спрос не подтверждён</span>{% else %}Найдено {{ total }}{% endif %}</strong>
 <div class="actions"><a href="{{ settings_url }}">Алгоритм и настройки</a><a class="button" href="{% querystring download='csv' page=None %}">Скачать CSV</a></div>

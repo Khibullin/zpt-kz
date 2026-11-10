@@ -1,3 +1,5 @@
+from .catalogue_import import import_catalogue_fitments
+from .shared_fitments import fill_from_shared_base
 from .catalog_paging import catalog_page, best_candidates_query
 from .fitment_filters import matches_configuration
 from .supplier_terms import supplier_terms
@@ -364,7 +366,7 @@ def upload(request):
             form.add_error('checked_on', 'Дата не может быть в будущем.')
         else:
             try:
-                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'competitors': import_competitors, 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
+                handler = {'demand': import_demand, 'catalog': import_offers, 'enrichment': import_enrichment, 'catalogue_fitments': import_catalogue_fitments, 'competitors': import_competitors, 'matches': import_matches, 'card_searches': import_card_searches}[form.cleaned_data['kind']]
                 count = handler(form.cleaned_data['file'], form.cleaned_data['supplier'], form.cleaned_data['checked_on'], request.user)
             except Exception as error:
                 # Import transaction rolls back completely; never expose file contents or credentials.
@@ -613,3 +615,16 @@ def users(request):
 def supplier_detail(request, pk):
     supplier = get_object_or_404(Supplier, pk=pk)
     return render(request, 'procurement/supplier.html', context(request, supplier=supplier, terms=supplier_terms(supplier)))
+
+
+@access('sales', 'admin')
+@require_POST
+def refresh_shared_fitments(request):
+    supplier = request_supplier(request)
+    if supplier is None:
+        return HttpResponse('Выберите поставщика.', status=400)
+    result = fill_from_shared_base(supplier, request.user)
+    messages.success(request, f"Применимость дополнена у {result['offers']} товаров: "
+        f"{result['make_model_pairs']} пар марка/модель. "
+        f"Расхождений, оставленных на проверку: {result['conflicts']}.")
+    return redirect(reverse('procurement:dashboard') + f'?supplier={supplier.pk}&mode=best')
