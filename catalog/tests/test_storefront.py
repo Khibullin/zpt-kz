@@ -104,3 +104,27 @@ class StorefrontTests(TestCase):
         r=self.client.get('/')
         self.assertContains(r,'Доступно к заказу')
         self.assertNotContains(r,'По прайсу поставщика')
+
+    def test_photos_rotate_categories_across_pages_without_losing_products(self):
+        brakes=Category.objects.create(name='Тормоза')
+        suspension=Category.objects.create(name='Подвеска')
+        photos=[]
+        for category,prefix in ((self.category,'А'),(brakes,'Б'),(suspension,'В')):
+            for i in range(10):
+                photos.append(Product.objects.create(title=f'{prefix} деталь {i:02}',
+                    main_image='products/test.webp',category=category,
+                    seller_profile=self.seller,price=1000+i,stock_qty=2))
+        first=self.client.get('/').context['products']
+        self.assertEqual(len({p.category_id for p in list(first)[:3]}),3)
+        self.assertTrue(all(p.main_image for p in first))
+        second=self.client.get('/',{'page':2}).context['products']
+        ids=[p.pk for p in first]+[p.pk for p in second]
+        self.assertEqual(len(ids),len(set(ids)))
+        self.assertEqual(set(ids),{p.pk for p in photos}|{self.product.pk})
+        # Every group of three photographed products continues the rotation.
+        ordered=list(first)+list(second)
+        for start in range(0,30,3):
+            self.assertEqual(len({p.category_id for p in ordered[start:start+3]}),3)
+        self.assertEqual(ordered[-1].pk,self.product.pk)
+        explicit=self.client.get('/',{'sort':'title'}).context['products']
+        self.assertEqual([p.pk for p in list(explicit)[:3]],[p.pk for p in photos[:3]])

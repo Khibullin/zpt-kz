@@ -5,7 +5,8 @@ from time import perf_counter
 from django.core.cache import caches
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
-from django.db.models import Q, F, Value, Case, When, CharField, Count, IntegerField
+from django.db.models import Q, F, Value, Case, When, CharField, Count, IntegerField, Window
+from django.db.models.functions import RowNumber
 from django.db import connection
 from django.core.exceptions import EmptyResultSet
 from django.shortcuts import render
@@ -262,14 +263,23 @@ def storefront(request):
         found=found.annotate(storefront_photo_rank=Case(
             When(Q(main_image__isnull=True)|Q(main_image=''),then=Value(1)),
             default=Value(0),output_field=IntegerField()))
-        ordering=('storefront_photo_rank','title','pk')
+        # Take one photographed product per category before its second product.
+        # Keep the ranking in SQL so the full catalogue is never loaded.
+        found=found.annotate(storefront_category_row=Window(
+            expression=RowNumber(),
+            partition_by=[F('category_id'),F('storefront_photo_rank')],
+            order_by=[F('title').asc(),F('pk').asc()]))
+        ordering=('storefront_photo_rank','storefront_category_row','category__name','title','pk')
     else:
         ordering=(order,'pk')
     # Sort a narrow ID projection; evaluate costly annotations and load related
     # data only for the current 24 cards, not the entire catalogue.
     page=Paginator(found.order_by(*ordering).values_list('pk',flat=True),24).get_page(request.GET.get('page'))
     page_ids=list(page.object_list)
-    page.object_list=list(found.filter(pk__in=page_ids).order_by(*ordering))
+    # Hydration must retain the global page order: recomputing the window on
+    # only these IDs would restart each category's row numbers on every page.
+    cards={product.pk:product for product in found.filter(pk__in=page_ids).order_by()}
+    page.object_list=[cards[pk] for pk in page_ids]
     for product in page:
         product.public_stock=public_stock_status(product)
         product.has_public_wholesale=False
