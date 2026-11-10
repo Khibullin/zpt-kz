@@ -79,6 +79,7 @@ def prepare_items(user):
         candidates=byarticle.get(source.sku,[])
         names={s.name for s in candidates if s.name}
         brands={s.brand for s in candidates if s.brand}
-        item=Item.objects.create(code=code,article=source.sku,name=next(iter(names))[:300] if len(names)==1 else 'Артикул '+source.sku,brand=next(iter(brands)) if len(brands)==1 else '',unit='pending',preparation={'pp1_snapshot':source.pk,'kaspi_snapshots':[s.pk for s in candidates],'created_by':user.pk,'source':'PP1 and Kaspi candidates; units not confirmed'})
+        from .labels import ASIA_SUPPLIER
+        item=Item.objects.create(code=code,article=source.sku,name=next(iter(names))[:300] if len(names)==1 else 'Артикул '+source.sku,brand='AG Parts',source_supplier=ASIA_SUPPLIER,unit='pending',preparation={'pp1_snapshot':source.pk,'source_brand_candidates':sorted(brands),'kaspi_snapshots':[s.pk for s in candidates],'created_by':user.pk,'source':'PP1 and Kaspi candidates; units not confirmed'})
         created+=1
     return created,existing

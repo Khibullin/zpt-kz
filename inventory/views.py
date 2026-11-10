@@ -74,6 +74,9 @@ def dashboard(request, section='overview'):
     net = (totals['revenue'] or 0) + fees if has_ops else None
     data = ops if section in ['sales','finance'] else stocks
     page = Paginator(data,50).get_page(request.GET.get('page'))
+    from .labels import brand_name
+    if section=='stock':
+        for row in page: row.brand=brand_name(row.brand)
     query = request.GET.copy(); query.pop('page',None)
     cash_accounts = list(MoneyAccount.objects.order_by('name'))
     accounts_by_id = {a.pk:a for a in cash_accounts}
@@ -96,7 +99,7 @@ def dashboard(request, section='overview'):
             request.GET=params
             return items(request)
         if section in ['sales','finance']:return xlsx_response('kaspi-operations',['Дата','Заказ','Операция','Товар','Выручка','Комиссия','Kaspi Pay','Доставка','Бонусы товара','Бонусы отзыва','Прочее','После расходов'],([r.occurred_on,r.order_id,r.operation,r.product,r.revenue,r.commission,r.pay_fee,r.delivery,r.product_bonus,r.review_bonus,r.other_fees,r.after_fees] for r in ops))
-        return xlsx_response('stock-snapshots',['SKU','Название','Бренд','Склад','Количество предложения','Цена','Дата снимка'],([r.sku,r.name,r.brand,r.warehouse,r.quantity,r.price,r.batch.as_of] for r in stocks))
+        return xlsx_response('stock-snapshots',['SKU','Название','Бренд','Склад','Количество предложения','Цена','Дата снимка'],([r.sku,r.name,brand_name(r.brand),r.warehouse,r.quantity,r.price,r.batch.as_of] for r in stocks))
     from .stock_reporting import stock_rows, stock_summary
     overview_items=stock_rows() if section == 'overview' else []
     if section == 'overview' and valid:

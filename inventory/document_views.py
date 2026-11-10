@@ -40,13 +40,32 @@ def items(request):
     rows=Item.objects.prefetch_related('aliases','supplier_links__supplier').order_by('code')
     if q: rows=rows.filter(Q(code__icontains=q)|Q(article__icontains=q)|Q(name__icontains=q)|Q(aliases__code__icontains=q)).distinct()
     if request.GET.get('unit'):rows=rows.filter(unit=request.GET['unit'])
-    if request.GET.get('brand'):rows=rows.filter(brand=request.GET['brand'])
+    from .labels import brand_name, supplier_name
+    if request.GET.get('brand'):rows=rows.filter(brand=brand_name(request.GET['brand']))
     state=request.GET.get('mapped')
     if state=='yes':rows=rows.filter(aliases__isnull=False).distinct()
     if state=='no':rows=rows.filter(aliases__isnull=True)
     rows=rows.order_by(request.GET.get('sort') if request.GET.get('sort') in ['name','-name','code','-code'] else 'code')
     from .stock_reporting import stock_rows, stock_summary, stock_export, STOCK_HEADERS
-    rows=stock_rows(rows)
+    rows=stock_rows(rows,supplier=request.GET.get('supplier',''))
+    supplier_options=sorted({name for item in rows for name in item.supplier_names})
+    if request.GET.get('supplier'):rows=[i for i in rows if i.matches_supplier]
+    basis=request.GET.get('basis','')
+    # A combined warehouse selection means either warehouse, not a missing total flag.
+    # For a chosen source show only quantities from that source, never a snapshot
+    # under a ledger label. The combined number is explicitly a known subtotal.
+    if basis in ['posted','snapshot']:
+        for item in rows:
+            for attr in ['pp1','pp2']:
+                posted=getattr(item,attr+'_posted')
+                if basis=='posted' and not posted:setattr(item,attr,None)
+                elif basis=='snapshot':
+                    setattr(item,attr,getattr(item,attr+'_snapshot'))
+                    setattr(item,attr+'_source',getattr(item,attr+'_snapshot_source'))
+                    setattr(item,attr+'_posted',False)
+            known=[v for v in [item.pp1,item.pp2] if v is not None]
+            item.total=sum(known) if known else None
+            item.partial_total=len(known)==1
     field={'PP1':'pp1','PP2':'pp2','Kaspi':'kaspi'}.get(request.GET.get('warehouse'),'total')
     for item in rows:
         item.filtered_stock=getattr(item,field)
@@ -56,17 +75,17 @@ def items(request):
     if stock_state=='positive':rows=[i for i in rows if getattr(i,field) is not None and getattr(i,field)>0]
     if stock_state=='zero':rows=[i for i in rows if getattr(i,field)==0]
     if stock_state=='unknown':rows=[i for i in rows if getattr(i,field) is None]
-    if request.GET.get('basis')=='posted':rows=[i for i in rows if getattr(i,field+'_posted',False)]
-    if request.GET.get('basis')=='snapshot':rows=[i for i in rows if not getattr(i,field+'_posted',False) and getattr(i,field) is not None]
+    if basis=='posted':rows=[i for i in rows if getattr(i,field+'_posted',False)]
+    if basis=='snapshot':rows=[i for i in rows if getattr(i,field) is not None]
     summary=stock_summary(rows)
     if request.GET.get('export')=='xlsx':
         if request.GET.get('warehouse') in ['PP1','PP2'] and request.GET.get('compare')!='1':
-            return xlsx_response('warehouse-balances',['Артикул','Бренд','Товар','Склад','Количество','Единица','Источник'],([i.article,i.brand,i.name,request.GET['warehouse'],i.filtered_stock,i.get_unit_display(),i.filtered_source] for i in rows))
+            return xlsx_response('warehouse-balances',['Артикул','Бренд','Товар','Склад','Количество','Единица','Источник','Поставщик'],([i.article,i.brand,i.name,request.GET['warehouse'],i.filtered_stock,i.get_unit_display(),i.filtered_source,i.supplier_label] for i in rows))
         return xlsx_response('stock-balances',STOCK_HEADERS,stock_export(rows))
     page=Paginator(rows,50).get_page(request.GET.get('page'))
     query=request.GET.copy();query.pop('page',None)
     selected_summary=next((s for s in summary if s['label']=={'PP1':'PP1','PP2':'PP2 · Rapida','Kaspi':'Kaspi'}.get(request.GET.get('warehouse'),'Всего PP1 + PP2')),summary[-1])
-    return render(request,'inventory/items.html',{'selected_summary':selected_summary,'selected_warehouse':request.GET.get('warehouse',''),'compare':request.GET.get('compare')=='1','summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
+    return render(request,'inventory/items.html',{'supplier_options':supplier_options,'selected_supplier':supplier_name(request.GET.get('supplier','')),'selected_brand':brand_name(request.GET.get('brand','')),'selected_summary':selected_summary,'selected_warehouse':request.GET.get('warehouse',''),'compare':request.GET.get('compare')=='1','summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
 
 @never_cache
 @accounting_access

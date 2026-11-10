@@ -21,6 +21,7 @@ from .models import (GoodsDocument, DocumentAttachment, StockDocument, StockEntr
     StockEvent, Item, ImportBatch, StockSnapshot, KaspiOperation, SaleReconciliation)
 from .bundles import describe, document_identity, attach, post_bundle, receive_bundle, existing_document
 from .tools_views import xlsx_response
+from .labels import ASIA_SUPPLIER, supplier_name
 
 WAREHOUSES = [('', 'Все склады'), ('PP1', 'PP1 · Asia Grade'), ('PP2', 'PP2 · Rapida')]
 
@@ -31,6 +32,11 @@ class JournalFilter(forms.Form):
     start = forms.DateField(label='С даты', required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     end = forms.DateField(label='По дату', required=False, widget=forms.DateInput(attrs={'type': 'date'}))
     state = forms.ChoiceField(label='Состояние', required=False, choices=[('', 'Все'), ('draft', 'Черновики'), ('posted', 'Проведённые / принятые'), ('transit', 'В пути / частичная приёмка'), ('cancelled', 'Отменённые')])
+    supplier = forms.ChoiceField(label='Поставщик',required=False)
+    def __init__(self,*args,**kwargs):
+        super().__init__(*args,**kwargs)
+        names=sorted({supplier_name(v) for v in GoodsDocument.objects.exclude(counterparty='').values_list('counterparty',flat=True)})
+        self.fields['supplier'].choices=[('','Все поставщики')]+[(name,name) for name in names]
     def clean(self):
         data = super().clean()
         if data.get('start') and data.get('end') and data['start'] > data['end']:
@@ -40,7 +46,9 @@ class JournalFilter(forms.Form):
 
 def filtered_bundles(request, kind=None):
     rows = GoodsDocument.objects.select_related('purchase_order__supplier').prefetch_related('lines__item', Prefetch('attachments',queryset=DocumentAttachment.objects.defer('data'))).order_by('-date', '-pk')
-    if kind:
+    if kind=='receipt':
+        rows=rows.filter(kind__in=['receipt','transfer'])
+    elif kind:
         rows = rows.filter(kind=kind)
     form = JournalFilter(request.GET)
     if not form.is_valid():
@@ -56,6 +64,9 @@ def filtered_bundles(request, kind=None):
         rows = rows.filter(Q(warehouse=f['warehouse']) | Q(destination=f['warehouse']))
     if f['start']: rows = rows.filter(date__gte=f['start'])
     if f['end']: rows = rows.filter(date__lte=f['end'])
+    if f['supplier']:
+        values=[v for v in GoodsDocument.objects.values_list('counterparty',flat=True).distinct() if supplier_name(v)==f['supplier']]
+        rows=rows.filter(counterparty__in=values)
     return rows, form
 
 
@@ -72,11 +83,11 @@ def journal(request, kind=None):
     total = sum((b.amount for b in result if b.amount is not None), Decimal(0))
     if request.GET.get('export') == 'xlsx':
         return xlsx_response('goods-documents', ['Документ', 'Дата', 'Приёмка', 'Операция', 'Поставщик', 'Склад', 'Получатель', 'Позиций', 'Сумма, ₸', 'Статус'],
-            ([b.number, b.date, b.accepted_on, b.get_kind_display(), b.counterparty, b.warehouse, b.destination, b.position_count, b.amount, b.state] for b in result))
+            ([b.number, b.date, b.accepted_on, b.get_kind_display(), supplier_name(b.counterparty), b.warehouse, b.destination, b.position_count, b.amount, b.state] for b in result))
     query = request.GET.copy(); query.pop('page', None)
     return render(request, 'inventory/journal.html', {'title': {'receipt': 'Приходы и накладные', 'transfer': 'Перемещения', 'sale': 'Продажи и возвраты'}.get(kind, 'Все складские документы'), 'kind': kind or '', 'form': form,
         'page': Paginator(result, 40).get_page(request.GET.get('page')), 'query': query.urlencode(), 'count': len(result), 'total': total,
-        'unknown': sum(b.amount is None for b in result), 'acceptance_count': sum(b.acceptance_count for b in result), 'draft_count': sum(b.can_post for b in result)})
+        'receipt_count':sum(b.kind=='receipt' for b in result),'transfer_count':sum(b.kind=='transfer' for b in result),'unknown': sum(b.amount is None for b in result), 'acceptance_count': sum(b.acceptance_count for b in result), 'draft_count': sum(b.can_post for b in result)})
 
 
 class BundleForm(forms.Form):
@@ -534,9 +545,9 @@ def archive_transfer(request):
                 for line in lines:
                     fact=by_article.get(line['article'])
                     if fact:line.update(accepted=fact['accepted'],barcode=fact['barcode'],act_planned=fact['planned'])
-            identity=document_identity('transfer',d['number'],d['date'],'PP1 → Rapida','PP1','PP2')
+            identity=document_identity('transfer',d['number'],d['date'],ASIA_SUPPLIER,'PP1','PP2')
             with transaction.atomic():
-                doc,created=GoodsDocument.objects.get_or_create(identity=identity,defaults={'kind':'transfer','number':d['number'],'date':d['date'],'warehouse':'PP1','destination':'PP2','counterparty':'PP1 → Rapida','note':d['note'],'evidence_only':True,'source_lines':lines,'created_by':request.user})
+                doc,created=GoodsDocument.objects.get_or_create(identity=identity,defaults={'kind':'transfer','number':d['number'],'date':d['date'],'warehouse':'PP1','destination':'PP2','counterparty':ASIA_SUPPLIER,'note':d['note'],'evidence_only':True,'source_lines':lines,'created_by':request.user})
                 if not doc.evidence_only or doc.source_lines!=lines:raise ValidationError('Документ с такими реквизитами уже есть с другим составом. Проверьте архив.')
                 for key in ['plan','act','calculation','balance']:
                     if d.get(key):attach(doc,d[key],request.user)

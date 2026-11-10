@@ -6,7 +6,7 @@ from .models import Item, ItemAlias, StockDocument, MoneyAccount, CashEntry, Goo
 class ItemForm(forms.ModelForm):
     class Meta:
         model=Item
-        fields=['code','name','brand','article','unit']
+        fields=['code','name','brand','article','unit','source_supplier']
 
 class AliasForm(forms.ModelForm):
     class Meta:

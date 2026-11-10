@@ -39,6 +39,8 @@ def attach(document, uploaded, user):
 
 
 def describe(bundle):
+    from .labels import supplier_name
+    bundle.supplier_label=supplier_name(bundle.counterparty) or 'Не указан'
     if bundle.evidence_only:
         bundle.state='Архивный документ'
         bundle.position_count=len(bundle.source_lines)
@@ -87,7 +89,7 @@ def describe(bundle):
             bundle.unknown_cost = True
         else:
             bundle.amount += value
-            if d.status == 'posted':
+            if d.status == 'posted' and d.kind == 'receipt' and d.unit_cost is not None:
                 bundle.accepted_amount += d.quantity * d.unit_cost
     if bundle.unknown_cost:
         bundle.amount = None

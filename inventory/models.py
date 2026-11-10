@@ -48,9 +48,16 @@ class KaspiOperation(models.Model):
         return (self.revenue or 0) + self.commission + self.pay_fee + self.delivery + self.product_bonus + self.review_bonus + self.other_fees
 
 class Item(models.Model):
+    def save(self, *args, **kwargs):
+        from .labels import brand_name, supplier_name
+        self.brand=brand_name(self.brand)
+        self.source_supplier=supplier_name(self.source_supplier)
+        super().save(*args, **kwargs)
+
     code = models.CharField('Внутренний код', max_length=120, unique=True)
     name = models.CharField('Название', max_length=300)
     brand = models.CharField('Бренд', max_length=120, blank=True)
+    source_supplier = models.CharField('Поставщик исходного остатка', max_length=250, blank=True)
     article = models.CharField('Артикул', max_length=120, blank=True)
     unit = models.CharField('Единица учёта', max_length=15, choices=[('pending','Единица не подтверждена'),('piece','Штука'),('set','Комплект')], default='piece')
     preparation = models.JSONField(default=dict, blank=True, editable=False)

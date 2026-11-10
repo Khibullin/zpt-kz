@@ -27,6 +27,67 @@ class DocumentWorkspaceTests(TestCase):
     def line(self,bundle,item=None,quantity=2,**kwargs):
         return StockDocument.objects.create(bundle=bundle,kind=bundle.kind,item=item or self.item,quantity=quantity,warehouse=bundle.warehouse,destination=bundle.destination,date=bundle.date,external_number=bundle.number,counterparty=bundle.counterparty,unit_cost=Decimal(100),created_by=self.user,**kwargs)
 
+    def test_combined_posted_filter_keeps_stock_from_either_warehouse(self):
+        receipt=self.bundle();self.line(receipt,quantity=7);post_bundle(receipt.pk,self.user)
+        other=self.bundle(warehouse='PP1',number='N2');self.line(other,self.other,quantity=3);post_bundle(other.pk,self.user)
+        response=self.client.get(reverse('inventory:items'),{'basis':'posted'})
+        self.assertEqual(response.context['item_count'],2)
+        rows={i.pk:i for i in response.context['page']}
+        self.assertEqual((rows[self.item.pk].total,rows[self.other.pk].total),(7,3))
+        self.assertTrue(rows[self.item.pk].partial_total)
+
+    def test_supplier_filter_follows_fifo_origins_across_transfer(self):
+        b=self.bundle(warehouse='PP1');b.counterparty='ТОО Азия Грейт';b.save()
+        self.line(b,quantity=10);post_bundle(b.pk,self.user)
+        b2=self.bundle(number='OMEGA');b2.counterparty='Omega';b2.save()
+        self.line(b2,quantity=7);post_bundle(b2.pk,self.user)
+        move=self.bundle('transfer','PP1','PP2',number='MOVE');line=self.line(move,quantity=4);post_bundle(move.pk,self.user)
+        receive_bundle(move.pk,{str(line.pk):'3'},self.user)
+        for supplier,expected,transit in [('ТОО Азия Грейт',3,1),('Омега',7,0)]:
+            response=self.client.get(reverse('inventory:items'),{'warehouse':'PP2','basis':'posted','supplier':supplier})
+            self.assertEqual(response.context['item_count'],1)
+            row=response.context['page'][0]
+            self.assertEqual((row.filtered_stock,row.transit),(expected,transit))
+            self.assertContains(response,supplier)
+        self.assertEqual(balance(self.item,'PP2'),10)
+
+    def test_file_source_shows_snapshot_without_adding_to_ledger(self):
+        from .models import ImportBatch,StockSnapshot,ItemAlias
+        batch=ImportBatch.objects.create(kind='pp1',digest='file',filename='stock.xlsx',as_of=date.today(),created_by=self.user)
+        StockSnapshot.objects.create(batch=batch,warehouse='PP1',sku='001',name='Товар',quantity=11)
+        ItemAlias.objects.create(item=self.item,source='pp1',code='001',confirmed_by=self.user)
+        b=self.bundle(warehouse='PP1');self.line(b,quantity=4);post_bundle(b.pk,self.user)
+        for basis,expected in [('posted',4),('snapshot',11)]:
+            r=self.client.get(reverse('inventory:items'),{'warehouse':'PP1','basis':basis})
+            self.assertEqual(r.context['page'][0].filtered_stock,expected)
+        self.assertEqual(balance(self.item,'PP1'),4)
+
+    def test_transfer_invoice_in_two_lists_is_one_document_without_stock(self):
+        b=self.bundle('transfer','PP1','PP2');b.evidence_only=True;b.counterparty='ТОО Азия Грейт';b.source_lines=[{'article':'001','unit':'шт.','planned':20,'accepted':19}];b.save()
+        for route in ['receipts','transfers']:
+            r=self.client.get(reverse('inventory:'+route),{'supplier':'ТОО Азия Грейт'})
+            self.assertEqual(r.context['page'].paginator.count,1)
+            self.assertEqual(r.context['page'][0].pk,b.pk)
+            self.assertContains(r,'ТОО Азия Грейт')
+        self.assertEqual(GoodsDocument.objects.count(),1)
+        self.assertFalse(StockEntry.objects.exists())
+
+    def test_original_supplier_migration_preserves_other_manufacturers(self):
+        from importlib import import_module
+        from django.apps import apps
+        from .models import ImportBatch,StockSnapshot
+        batch=ImportBatch.objects.create(kind='pp1',digest='legacy',filename='legacy.xlsx',as_of=date.today(),created_by=self.user)
+        snap=StockSnapshot.objects.create(batch=batch,warehouse='PP1',sku='001',name='Товар',quantity=11)
+        Item.objects.filter(pk=self.item.pk).update(brand='ag-parts',preparation={'pp1_snapshot':snap.pk})
+        self.other.brand='WXQP';self.other.save()
+        b=self.bundle('transfer','PP1','PP2');b.evidence_only=True;b.counterparty='PP1 → Rapida';b.save()
+        import_module('inventory.migrations.0015_confirm_stock_suppliers').confirm(apps,None)
+        self.item.refresh_from_db();self.other.refresh_from_db();b.refresh_from_db()
+        self.assertEqual((self.item.brand,self.item.source_supplier),('AG Parts','ТОО Азия Грейт'))
+        self.assertEqual(self.other.brand,'WXQP')
+        self.assertEqual(b.identity,document_identity(b.kind,b.number,b.date,b.counterparty,b.warehouse,b.destination))
+        self.assertFalse(StockEntry.objects.exists())
+
     def test_multi_line_post_is_atomic_and_repeat_cannot_add_stock(self):
         b=self.bundle();self.line(b);self.other.unit='pending';self.other.save();bad=self.line(b,self.other)
         with self.assertRaises(ValidationError):post_bundle(b.pk,self.user)
@@ -91,7 +152,7 @@ class DocumentWorkspaceTests(TestCase):
     def test_selected_warehouse_table_and_summary(self):
         b=self.bundle();self.line(b,quantity=7);post_bundle(b.pk,self.user)
         response=self.client.get(reverse('inventory:items'),{'warehouse':'PP2'})
-        self.assertContains(response,'Остаток PP2');self.assertContains(response,'Проведённые документы')
+        self.assertContains(response,'Остаток PP2');self.assertContains(response,'По складскому учёту')
         self.assertNotContains(response,'Открыть остатки по каждому товару')
         response=self.client.get(reverse('inventory:items'),{'warehouse':'PP2','basis':'posted'})
         self.assertEqual(response.context['item_count'],1)
