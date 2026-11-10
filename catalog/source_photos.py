@@ -122,6 +122,9 @@ def fetch_bytes(url,maximum=MAX_BYTES):
 def process_photo_tasks(limit=10):
     # A source block stops the pilot, rather than retrying other URLs around it.
     if SupplierPhotoTask.objects.filter(status='blocked').exists():return 0
+    # Prepared work is activated by the deployed consumer, not the old process
+    # while Render runs schema/data migrations for the next release.
+    SupplierPhotoTask.objects.filter(status='prepared').update(status='pending')
     done=0
     for task_id in list(SupplierPhotoTask.objects.filter(status='pending').order_by('pk').values_list('pk',flat=True)[:limit]):
         with transaction.atomic():
@@ -161,7 +164,7 @@ def process_photo_tasks(limit=10):
                                 product.save(update_fields=['main_image','supplier_thumbnail','updated_at'])
                                 type(offer).objects.filter(pk=offer.pk,photo_url='').update(photo_url=image_url)
                                 task.status='done';task.note='Фотография точного товара из открытого каталога поставщика.'
-                                task.evidence={'source_url':task.source_url,'image_url':image_url,'brand':offer.brand,'article':offer.article,'source_bytes':len(data),'bytes':len(main)+len(thumb),'main_bytes':len(main),'thumbnail_bytes':len(thumb),'main_size':main_size,'thumbnail_size':thumb_size,'main_path':product.main_image.name,'thumbnail_path':product.supplier_thumbnail.name,'checked_at':timezone.now().isoformat()}
+                                task.evidence={**task.evidence,'source_url':task.source_url,'image_url':image_url,'brand':offer.brand,'article':offer.article,'source_bytes':len(data),'bytes':len(main)+len(thumb),'main_bytes':len(main),'thumbnail_bytes':len(thumb),'main_size':main_size,'thumbnail_size':thumb_size,'main_path':product.main_image.name,'thumbnail_path':product.supplier_thumbnail.name,'free_disk_bytes':shutil.disk_usage(media).free,'checked_at':timezone.now().isoformat()}
             except SourceUnavailable as error:
                 task.status='blocked';task.note=str(error)[:400]
             except (requests.RequestException,ValueError,OSError,SyntaxError,Image.DecompressionBombError) as error:
