@@ -69,6 +69,13 @@ class SupplierAssetTests(TestCase):
             self.assertEqual(first,second)
             self.assertEqual(len(list(Path(folder).rglob('*.webp'))),1)
 
+    def test_manager_replacement_takes_priority_over_old_thumbnail(self):
+        self.product.main_image='products/optimized/old.webp'
+        self.product.supplier_thumbnail='products/optimized/small.webp'
+        self.assertEqual(self.product.storefront_image.name,'products/optimized/small.webp')
+        self.product.main_image='products/manager-replacement.jpg'
+        self.assertEqual(self.product.storefront_image.name,'products/manager-replacement.jpg')
+
     def test_cleanup_preserves_sku_and_raw_supplier_title(self):
         self.assertEqual(public_product_title(self.product),'PART-1 — фильтр')
         self.assertEqual(self.product.title,'PART-1_фильтр!')
