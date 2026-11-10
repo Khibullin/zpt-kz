@@ -12,7 +12,7 @@ from django.utils import timezone
 from .permissions import accounting_access
 from procurement.models import PurchaseOrder, Activity, Supplier
 from .models import Item, SupplierItem, StockDocument, GoodsDocument
-from .bundles import document_identity, attach
+from .bundles import document_identity, attach, existing_document
 from .services import post_document
 
 
@@ -60,7 +60,8 @@ def accept_purchase(pk, user, header, lines):
     number=header['waybill'] or order.waybill_number or order.order_number
     invoice_date=header.get('waybill_date') or header['date']
     identity=document_identity('receipt',number,invoice_date,order.supplier.name,header['warehouse'])
-    bundle=GoodsDocument.objects.select_for_update().filter(identity=identity).first()
+    bundle=existing_document('receipt',number,invoice_date,order.supplier.name,header['warehouse'])
+    if bundle:bundle=GoodsDocument.objects.select_for_update().get(pk=bundle.pk)
     if bundle and bundle.purchase_order_id != order.pk:
         raise ValidationError('Эта накладная уже сохранена отдельно или по другому заказу. Проверьте её в разделе приходов.')
     if not bundle:

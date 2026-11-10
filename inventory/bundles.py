@@ -17,6 +17,17 @@ def document_identity(kind, number, date, counterparty, warehouse, destination='
     return hashlib.sha256(normal.encode()).hexdigest()
 
 
+def existing_document(kind,number,date,counterparty,warehouse,destination='',exclude_pk=None):
+    """An invoice's issue/acceptance date mix-up must not create a second receipt."""
+    identity=document_identity(kind,number,date,counterparty,warehouse,destination)
+    if not identity:return None
+    from django.db.models import Q
+    exact=Q(identity=identity)
+    if kind=='receipt':
+        exact|=Q(kind=kind,number__iexact=number.strip(),counterparty__iexact=counterparty.strip(),warehouse=warehouse,date__year=date.year)
+    return GoodsDocument.objects.filter(exact).exclude(pk=exclude_pk).first()
+
+
 def attach(document, uploaded, user):
     if uploaded.size > 15 * 1024 * 1024:
         raise ValidationError('Размер вложения — не более 15 МБ.')
@@ -32,9 +43,15 @@ def describe(bundle):
         bundle.state='Архивный документ'
         bundle.position_count=len(bundle.source_lines)
         bundle.quantity_groups={}
+        bundle.accepted_groups={}
+        bundle.difference_count=0
         for row in bundle.source_lines:
             unit=row.get('unit','По исходному документу')
             bundle.quantity_groups[unit]=bundle.quantity_groups.get(unit,0)+row.get('planned',0)
+            row['difference']=None if row.get('accepted') is None else row['accepted']-row['planned']
+            if row.get('accepted') is not None:
+                bundle.accepted_groups[unit]=bundle.accepted_groups.get(unit,0)+row['accepted']
+                if row['difference']:bundle.difference_count+=1
         bundle.acceptance_count=0
         bundle.amount=None
         bundle.accepted_amount=Decimal(0)

@@ -64,6 +64,11 @@ class DocumentWorkspaceTests(TestCase):
         b=document_identity('receipt','n-1',date.today(),'VENDOR ','PP2')
         self.assertEqual(a,b)
 
+    def test_duplicate_invoice_is_found_even_when_acceptance_date_used(self):
+        from .bundles import existing_document
+        b=self.bundle();b.date=date.today()-timedelta(days=2);b.save()
+        self.assertEqual(existing_document('receipt','n1',date.today(),'vendor','PP2').pk,b.pk)
+
     def test_new_invoice_pack_conversion_idempotence_and_total(self):
         key=str(uuid.uuid4())
         data={'key':key,'number':'N-21','date':date.today(),'accepted_on':date.today(),'warehouse':'PP2','counterparty':'Vendor','lines-TOTAL_FORMS':'1','lines-INITIAL_FORMS':'0','lines-0-item':self.item.pk,'lines-0-packages':'1','lines-0-multiplier':'2','lines-0-cost':'300'}
@@ -122,7 +127,8 @@ class DocumentWorkspaceTests(TestCase):
         import json
         from procurement.models import Supplier,PurchaseOrder
         supplier=Supplier.objects.create(name='Vendor')
-        data={'number':2,'supplier':supplier.pk,'date':date.today(),'warehouse':'PP2','total':'200','composition':json.dumps([{'article':'A','brand':'AG','name':'Товар','quantity':2,'cost':'100'}]),'reason':'Восстановление по оригиналу','source':SimpleUploadedFile('invoice.pdf',b'%PDF-source')}
+        book=Workbook();sheet=book.active;sheet.append(['№','Артикул','Бренд','Наименование','Количество, шт.','Цена, ₸']);sheet.append([1,'A','AG','Товар',2,100]);stream=BytesIO();book.save(stream)
+        data={'number':2,'supplier':supplier.pk,'date':date.today(),'warehouse':'PP2','total':'200','reason':'Восстановление по оригиналу','source':SimpleUploadedFile('order.xlsx',stream.getvalue())}
         response=self.client.post(reverse('inventory:restore_order'),data)
         self.assertEqual(response.status_code,302);self.assertEqual(PurchaseOrder.objects.get(pk=2).total,200)
         self.assertFalse(StockEntry.objects.exists())

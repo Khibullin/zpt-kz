@@ -19,7 +19,7 @@ from django.views.decorators.cache import never_cache
 from .permissions import accounting_access
 from .models import (GoodsDocument, DocumentAttachment, StockDocument, StockEntry,
     StockEvent, Item, ImportBatch, StockSnapshot, KaspiOperation, SaleReconciliation)
-from .bundles import describe, document_identity, attach, post_bundle, receive_bundle
+from .bundles import describe, document_identity, attach, post_bundle, receive_bundle, existing_document
 from .tools_views import xlsx_response
 
 WAREHOUSES = [('', 'Все склады'), ('PP1', 'PP1 · Asia Grade'), ('PP2', 'PP2 · Rapida')]
@@ -47,7 +47,7 @@ def filtered_bundles(request, kind=None):
         return rows.none(), form
     f = form.cleaned_data
     if f['q']:
-        q = f['q']; search = Q(number__icontains=q) | Q(counterparty__icontains=q) | Q(lines__item__name__icontains=q) | Q(lines__item__article__icontains=q) | Q(lines__item__code__icontains=q)
+        q = f['q']; search = Q(number__icontains=q) | Q(counterparty__icontains=q) | Q(note__icontains=q) | Q(lines__item__name__icontains=q) | Q(lines__item__article__icontains=q) | Q(lines__item__code__icontains=q)
         num = q.upper().replace('ЗК-', '')
         if num.isdigit():
             search |= Q(purchase_order_id=int(num))
@@ -83,8 +83,8 @@ class BundleForm(forms.Form):
     key = forms.UUIDField(widget=forms.HiddenInput)
     version = forms.IntegerField(widget=forms.HiddenInput,required=False)
     number = forms.CharField(label='Номер накладной / документа', max_length=120, required=False)
-    date = forms.DateField(label='Дата документа', initial=timezone.localdate, widget=forms.DateInput(attrs={'type': 'date'}))
-    accepted_on = forms.DateField(label='Дата фактической приёмки / отправки', initial=timezone.localdate, widget=forms.DateInput(attrs={'type': 'date'}))
+    date = forms.DateField(label='Дата документа', initial=timezone.localdate, widget=forms.DateInput(format='%Y-%m-%d',attrs={'type': 'date'}))
+    accepted_on = forms.DateField(label='Дата фактической приёмки / отправки', initial=timezone.localdate, widget=forms.DateInput(format='%Y-%m-%d',attrs={'type': 'date'}))
     warehouse = forms.ChoiceField(label='Склад', choices=WAREHOUSES[1:], initial='PP2')
     destination = forms.ChoiceField(label='Склад получения', choices=WAREHOUSES[1:], required=False)
     counterparty = forms.CharField(label='Поставщик / основание', max_length=250, required=False)
@@ -164,7 +164,7 @@ def new_document(request, kind, pk=None):
                 existing = GoodsDocument.objects.filter(request_key=d['key']).first() if not editing else None
                 if existing: return redirect('inventory:goods_detail', pk=existing.pk)
                 identity = document_identity(kind, d['number'], d['date'], d['counterparty'], d['warehouse'], d.get('destination', ''))
-                if identity and GoodsDocument.objects.filter(identity=identity).exclude(pk=pk).exists():
+                if existing_document(kind,d['number'],d['date'],d['counterparty'],d['warehouse'],d.get('destination',''),exclude_pk=pk):
                     raise ValidationError('Документ с такими реквизитами уже существует. Найдите его в журнале; повторный приход не создан.')
                 if editing:
                     bundle=GoodsDocument.objects.select_for_update().get(pk=pk)
@@ -192,7 +192,7 @@ def new_document(request, kind, pk=None):
                         if not item: item = Item.objects.create(code='ART-' + uuid.uuid4().hex[:20], article=f['article'], brand=f['brand'], name=f['name'], unit=f['unit'])
                     if item.pk in seen: raise ValidationError('Один товар указан дважды. Объедините количество в одну строку.')
                     seen.add(item.pk)
-                    note = f"По документу: {f['packages']} × {f['multiplier']} единиц учёта. " + d['note']
+                    note = f"По документу: {f['packages']} × {f['multiplier']} единиц учёта."
                     StockDocument.objects.create(bundle=bundle, kind=kind, item=item, quantity=f['packages'] * f['multiplier'], unit_cost=f['cost'] / f['multiplier'] if f.get('cost') is not None else None,
                         warehouse=d['warehouse'], destination=d.get('destination', ''), counterparty=d['counterparty'], external_number=d['number'], date=d['accepted_on'], note=note,
                         related_sale=f.get('related_sale'), return_condition=f.get('return_condition') or '', sale_amount=f.get('sale_amount'), selling_costs=f.get('selling_costs'), created_by=request.user,
@@ -247,6 +247,7 @@ def render_detail(request, bundle, form):
         d.remaining = d.quantity - d.received_quantity
         d.amount = d.quantity * d.unit_cost if d.unit_cost is not None else None
         d.open_lots = []
+        d.display_note = d.note.replace(bundle.note,'').strip() if bundle.note else d.note
     return render(request, 'inventory/goods_detail.html', {'document': describe(bundle), 'lines': docs, 'attachment_form': form, 'attachments': bundle.attachments.defer('data')})
 
 
@@ -276,8 +277,9 @@ def item_detail(request, pk):
     except ValidationError as exc:
         lot_error = '; '.join(exc.messages)
     sources = StockDocument.objects.filter(item=item).select_related('bundle', 'purchase_order').order_by('-date', '-pk')
+    archives = [b for b in GoodsDocument.objects.filter(evidence_only=True,source_lines__icontains=item.article).order_by('-date') if item.article and any(r.get('article')==item.article for r in b.source_lines)]
     if request.GET.get('export') == 'xlsx': return xlsx_response('item-movements', ['Дата', 'Документ', 'Операция', 'Склад', 'Изменение'], ([m.effective_on, m.document.external_number, m.document.get_kind_display(), m.warehouse, m.quantity] for m in movements))
-    return render(request, 'inventory/item_detail.html', {'item': row, 'movements': movements[:300], 'movement_count': movements.count(), 'lots': lots, 'lot_error': lot_error, 'sources': sources[:300]})
+    return render(request, 'inventory/item_detail.html', {'item': row, 'movements': movements[:300], 'movement_count': movements.count(), 'lots': lots, 'lot_error': lot_error, 'sources': sources[:300], 'archives':archives})
 
 
 @never_cache
@@ -372,12 +374,13 @@ class RestoreOrderForm(forms.Form):
     date = forms.DateField(label='Дата исходного заказа',widget=forms.DateInput(attrs={'type':'date'}))
     warehouse = forms.ChoiceField(label='Склад поставки',choices=WAREHOUSES[1:],initial='PP2')
     total = forms.DecimalField(label='Контрольная сумма заказа, ₸',max_digits=16,decimal_places=2,min_value=0)
-    composition = forms.CharField(label='Проверенный состав (JSON: article, brand, name, quantity, cost)',widget=forms.Textarea)
-    source = forms.FileField(label='Исходный документ PDF / XLSX / фото')
+    composition = forms.CharField(required=False,widget=forms.HiddenInput)
+    source = forms.FileField(label='Исходный закупочный заказ XLSX')
     reason = forms.CharField(label='Основание восстановления',widget=forms.Textarea)
     def clean_composition(self):
         import json
         raw = self.cleaned_data['composition']
+        if not raw:return []
         if len(raw)>200000: raise forms.ValidationError('Слишком большой состав.')
         try:
             rows=json.loads(raw)
@@ -395,6 +398,39 @@ class RestoreOrderForm(forms.Form):
             return rows
         except Exception:
             raise forms.ValidationError('Проверьте JSON, точные бренд/артикул, целое положительное количество и цену.')
+
+    def clean(self):
+        d=super().clean()
+        source=d.get('source')
+        if not source:return d
+        try:
+            if source.size>15*1024*1024 or not source.name.lower().endswith('.xlsx'):raise ValueError('Нужен исходный закупочный заказ XLSX, до 15 МБ.')
+            from openpyxl import load_workbook
+            from zipfile import ZipFile
+            from itertools import islice
+            raw=source.read();source.seek(0)
+            with ZipFile(BytesIO(raw)) as z:
+                if sum(i.file_size for i in z.infolist())>50*1024*1024:raise ValueError('Слишком большой распакованный файл.')
+            book=load_workbook(BytesIO(raw),data_only=True,read_only=True)
+            try:rows=list(islice(book.worksheets[0].values,20001))
+            finally:book.close()
+            if len(rows)>20000:raise ValueError('Слишком много строк.')
+            header=next((i for i,r in enumerate(rows) if 'Артикул' in r and 'Бренд' in r and 'Количество, шт.' in r and 'Цена, ₸' in r),None)
+            if header is None:raise ValueError('Не найдены колонки закупочного заказа: артикул, бренд, наименование, количество и цена.')
+            columns={v:i for i,v in enumerate(rows[header]) if v};items=[];seen=set()
+            for row in rows[header+1:]:
+                if not row or not isinstance(row[0],int):continue
+                article=str(row[columns['Артикул']] or '').strip();brand=str(row[columns['Бренд']] or '').strip();name=str(row[columns['Наименование']] or '').strip()
+                quantity=row[columns['Количество, шт.']];cost=Decimal(str(row[columns['Цена, ₸']]))
+                if not article or not brand or not name or not isinstance(quantity,(int,float)) or int(quantity)!=quantity or not 1<=quantity<=1000000 or not cost.is_finite() or cost<0 or cost!=cost.quantize(Decimal('.01')):raise ValueError('Некорректный артикул, бренд, количество или цена в исходном заказе.')
+                if (article,brand) in seen:raise ValueError('Повтор товара в исходном заказе.')
+                seen.add((article,brand));items.append(dict(article=article,brand=brand,name=name,quantity=int(quantity),cost=str(cost)))
+            if not 1<=len(items)<=300:raise ValueError('Нужно от 1 до 300 позиций.')
+            if d.get('composition') and d['composition']!=items:raise ValueError('Состав не совпадает с исходным файлом.')
+            d['composition']=items
+        except Exception as exc:
+            self.add_error('source',str(exc) if isinstance(exc,ValueError) else 'Файл не удалось прочитать как закупочный заказ XLSX.')
+        return d
 
 
 @never_cache
@@ -417,7 +453,7 @@ def restore_order(request):
                 if d['date']>timezone.localdate(): raise ValidationError('Дата исходного заказа не может быть в будущем.')
                 file=d['source']
                 if file.size>15*1024*1024: raise ValidationError('Оригинал не более 15 МБ.')
-                if file.name.rsplit('.',1)[-1].lower() not in ['pdf','xlsx','jpg','jpeg','png']: raise ValidationError('Прикрепите исходный PDF, XLSX или фото.')
+                if not file.name.lower().endswith('.xlsx'): raise ValidationError('Прикрепите исходный закупочный заказ XLSX.')
                 order=PurchaseOrder.objects.create(pk=d['number'],user=request.user,supplier=d['supplier'],request_key=uuid.uuid4(),items=d['composition'],original_items=d['composition'],estimated_total=total,destination=d['warehouse'],status='confirmed',delivery_stage='waiting',comment='Восстановлено по исходному документу. '+d['reason'])
                 PurchaseOrder.objects.filter(pk=order.pk).update(created_at=timezone.make_aware(__import__('datetime').datetime.combine(d['date'],__import__('datetime').time(12))))
                 PurchaseDocument.objects.create(order=order,kind='waybill',name=file.name[:255],data=file.read())
@@ -506,7 +542,7 @@ def archive_transfer(request):
                     if d.get(key):attach(doc,d[key],request.user)
             messages.success(request,'Историческое перемещение и оригиналы сохранены. Текущие остатки не пересчитаны повторно.')
             return redirect('inventory:goods_detail',pk=doc.pk)
-        except (ValidationError,ValueError,KeyError,IndexError,IntegrityError) as exc:
+        except (ValidationError,ValueError,KeyError,IndexError,IntegrityError,__import__('zipfile').BadZipFile) as exc:
             form.add_error(None,'; '.join(exc.messages) if isinstance(exc,ValidationError) else 'Проверьте формат исходных файлов и уникальность документа.')
     return render(request,'inventory/form.html',{'form':form,'title':'Добавить историческое перемещение и акт Rapida'})
 
