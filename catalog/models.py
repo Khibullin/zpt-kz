@@ -512,6 +512,8 @@ class Product(models.Model):
         verbose_name='Главное фото'
     )
 
+    supplier_thumbnail = models.ImageField(upload_to='products/', blank=True, default='')
+
     compatibility = models.TextField(
         blank=True,
         verbose_name='Совместимость'
