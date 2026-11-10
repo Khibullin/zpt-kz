@@ -54,6 +54,28 @@ class SupplierAssetTests(TestCase):
         with patch('catalog.source_photos.fetch_bytes',side_effect=AssertionError('No bypass')):
             self.assertEqual(process_photo_tasks(),0)
 
+    def test_full_queue_stages_sources_and_records_missing_sources_idempotently(self):
+        from catalog.photo_queue import stage_all_photos
+        self.task.delete()
+        self.offer.supplier_url='https://omega-auto-parts.kz/part-1'
+        Offer.objects.filter(pk=self.offer.pk).update(supplier_url=self.offer.supplier_url)
+        other=Product.objects.create(title='OTHER-2',article='OTHER-2',seller_profile=self.product.seller_profile,price=1300,stock_qty=2)
+        offer=Offer.objects.create(supplier=Supplier.objects.create(name='Фаетон'),brand='TEST',article='OTHER-2',name='Деталь',cost=1000,stock='2')
+        RetailListing.objects.create(product=other,offer=offer)
+        counts=stage_all_photos()
+        self.assertEqual(counts['prepared'],1)
+        self.assertEqual(counts['needs_source'],1)
+        self.assertEqual(SupplierPhotoTask.objects.get(product=self.product).status,'prepared')
+        self.assertEqual(SupplierPhotoTask.objects.get(product=other).status,'needs_source')
+        stage_all_photos()
+        self.assertEqual(SupplierPhotoTask.objects.count(),2)
+        source=Offer.objects.create(supplier=self.offer.supplier,brand='TEST',article='OTHER-2',name='Деталь',cost=999,stock='0',supplier_url='https://omega-auto-parts.kz/other-2')
+        stage_all_photos()
+        queued=SupplierPhotoTask.objects.get(product=other)
+        self.assertEqual(queued.status,'prepared')
+        self.assertEqual(queued.offer_id,source.pk)
+        self.assertEqual(RetailListing.objects.get(product=other).offer_id,offer.pk)
+
     def test_compression_preserves_full_aspect_ratio_and_does_not_upscale(self):
         output=io.BytesIO()
         Image.new('RGB',(1600,800),'red').save(output,'PNG')
