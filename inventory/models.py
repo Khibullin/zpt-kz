@@ -257,3 +257,20 @@ class SaleReconciliation(models.Model):
     document = models.ForeignKey(StockDocument, on_delete=models.PROTECT, related_name='kaspi_links')
     confirmed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ImportPreview(models.Model):
+    """Owner-bound review of file bytes before they become imported evidence."""
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
+    committed_at = models.DateTimeField(null=True)
+
+
+class PreviewFile(models.Model):
+    preview = models.ForeignKey(ImportPreview, on_delete=models.CASCADE, related_name='files')
+    kind = models.CharField(max_length=20)
+    filename = models.CharField(max_length=255)
+    as_of = models.DateField()
+    data = models.BinaryField()
+    result = models.CharField(max_length=300, blank=True)

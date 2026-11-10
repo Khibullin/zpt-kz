@@ -8,7 +8,7 @@ from .labels import supplier_name
 
 def stock_rows(items=None, supplier=''):
     items = list(items if items is not None else Item.objects.prefetch_related('aliases','supplier_links__supplier').order_by('code'))
-    batches = {kind: ImportBatch.objects.filter(kind=kind).order_by('-as_of', '-pk').first() for kind in ('pp1', 'stock')}
+    batches = {kind: ImportBatch.objects.filter(kind=kind).order_by('-as_of', '-pk').first() for kind in ('pp1', 'stock', 'pp2')}
     snapshots = defaultdict(list)
     for s in StockSnapshot.objects.filter(batch_id__in=[b.pk for b in batches.values() if b]):
         snapshots[s.batch.kind].append(s)
@@ -44,13 +44,15 @@ def stock_rows(items=None, supplier=''):
                 provisional = bool(matched) and kind == 'stock'
             matched = [s for s in matched if owners.get((source, s.sku), item.pk) == item.pk]
             value = None
-            label = 'Не указано'
+            label = 'Нет строки товара в загруженном файле'
             if len(matched) == 1:
                 s = matched[0]
                 value = s.quantity * (links[s.sku].multiplier if s.sku in links else 1) if s.quantity is not None else None
-                label = f'Файл от {s.batch.as_of:%d.%m.%Y}' + (' · сопоставление предварительное' if provisional else '')
+                label = ('В файле не указано количество · ' if s.quantity is None else '') + f'Файл от {s.batch.as_of:%d.%m.%Y}' + (' · сопоставление предварительное' if provisional else '')
             elif len(matched) > 1:
                 label = 'Несколько SKU · требуется сверка'
+            setattr(item, attr + '_present', bool(matched))
+            setattr(item, attr + '_snapshot_present', bool(matched))
             setattr(item, attr + '_snapshot', value)
             setattr(item, attr + '_snapshot_source', label)
             if warehouse and (item.pk, warehouse) in ledger:
@@ -60,26 +62,62 @@ def stock_rows(items=None, supplier=''):
             setattr(item, attr + '_source', label)
         item.pp2_snapshot = item.kaspi_snapshot
         item.pp2_snapshot_source = 'По Kaspi · ' + item.kaspi_snapshot_source
-        item.pp2 = ledger.get((item.pk, 'PP2'), item.kaspi)
-        item.pp2_source = ('По складскому учёту' + (f' · по {dates[item.pk,"PP2"]:%d.%m.%Y}' if dates.get((item.pk,'PP2')) else '')) if (item.pk, 'PP2') in ledger else 'По Kaspi · ' + item.kaspi_source
+        # A separate Rapida export supersedes the historical Kaspi fallback.
+        if batches.get('pp2'):
+            pp2_links={a.code:a for a in aliases if a.source=='rapida'}
+            matched=[s for s in snapshots['pp2'] if s.sku==item.article or s.sku in pp2_links]
+            matched=[s for s in matched if owners.get(('rapida',s.sku),item.pk)==item.pk]
+            item.pp2_snapshot=None
+            item.pp2_snapshot_source='Нет строки товара в файле PP2'
+            if len(matched)==1:
+                snap=matched[0]
+                item.pp2_snapshot=snap.quantity* (pp2_links[snap.sku].multiplier if snap.sku in pp2_links else 1) if snap.quantity is not None else None
+                item.pp2_snapshot_source=f'Файл PP2 от {snap.batch.as_of:%d.%m.%Y}'
+                if snap.quantity is None:item.pp2_snapshot_source+=' · количество не указано'
+            elif len(matched)>1:item.pp2_snapshot_source='Несколько строк PP2 · требуется сопоставление кодов'
+            item.pp2_present=bool(matched)
+            item.pp2_snapshot_present=bool(matched)
+        else:
+            item.pp2_present=item.kaspi_present
+            item.pp2_snapshot_present=item.kaspi_snapshot_present
+        item.pp2 = ledger.get((item.pk, 'PP2'), item.pp2_snapshot)
+        item.pp2_source = ('По складскому учёту' + (f' · по {dates[item.pk,"PP2"]:%d.%m.%Y}' if dates.get((item.pk,'PP2')) else '')) if (item.pk, 'PP2') in ledger else item.pp2_snapshot_source
         item.pp1_posted = (item.pk, 'PP1') in ledger
         item.pp2_posted = (item.pk, 'PP2') in ledger
+        item.pp1_present = item.pp1_present or item.pp1_posted
+        item.pp2_present = item.pp2_present or item.pp2_posted
         item.total_posted = item.pp1_posted or item.pp2_posted
         item.supplier_names=sorted(suppliers[item.pk] | ({supplier_name(item.source_supplier)} if item.source_supplier else set()))
         item.supplier_label='; '.join(item.supplier_names) or 'Не указан'
         item.matches_supplier=not supplier or supplier in item.supplier_names
+        from .costing import available_lots
+        from django.core.exceptions import ValidationError
+        item.valuation_error=False
+        origin_history=defaultdict(set)
+        try:lots=available_lots(item,include_transit=True,origins_by_warehouse=origin_history) if item.total_posted else {}
+        except ValidationError:
+            lots={};item.valuation_error=True
+        item.current_lots={wh:[lot for lot in group if not supplier or origin_names.get(lot['origin'])==supplier] for wh,group in lots.items()}
         if supplier and item.matches_supplier:
-            from .costing import available_lots
-            lots=available_lots(item,include_transit=True) if item.total_posted else {}
             for attr,warehouse in [('pp1','PP1'),('pp2','PP2')]:
                 if getattr(item,attr+'_posted'):
                     setattr(item,attr,sum(lot['quantity'] for lot in lots.get(warehouse,[]) if origin_names.get(lot['origin'])==supplier))
                 elif supplier_name(item.source_supplier)!=supplier:
                     setattr(item,attr,None)
-                if supplier_name(item.source_supplier)!=supplier:setattr(item,attr+'_snapshot',None)
+                if supplier_name(item.source_supplier)!=supplier:
+                    setattr(item,attr+'_snapshot',None)
+                    setattr(item,attr+'_snapshot_present',False)
+                setattr(item,attr+'_present',any(origin_names.get(origin)==supplier for origin in origin_history[warehouse]) or (supplier_name(item.source_supplier)==supplier and getattr(item,attr+'_present')))
             if supplier_name(item.source_supplier)!=supplier:item.kaspi=None
             item.supplier_label=supplier
-        item.total = item.pp1 + item.pp2 if item.pp1 is not None and item.pp2 is not None else None
+        for attr in ['pp1','pp2']:
+            if not getattr(item,attr+'_present') and item.total_posted and (supplier or not item.source_supplier):
+                setattr(item,attr,0)
+                setattr(item,attr+'_source','Движений по этому складу нет')
+        known=[v for v in [item.pp1,item.pp2] if v is not None]
+        item.total=sum(known) if len(known)==2 else None
+        item.partial_total=len(known)==1
+        item.total_present=item.pp1_present or item.pp2_present
         item.difference = item.pp2 - item.kaspi if item.pp2 is not None and item.kaspi is not None else None
         item.transit = ledger.get((item.pk, 'TRANSIT'))
         item.damaged = ledger.get((item.pk, 'DAMAGED'))

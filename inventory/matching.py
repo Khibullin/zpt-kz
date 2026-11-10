@@ -16,14 +16,15 @@ def candidate_articles(sku, name, articles):
 def reconciliation_rows():
     pp1=ImportBatch.objects.filter(kind='pp1').order_by('-as_of','-pk').first()
     pp2=ImportBatch.objects.filter(kind='stock').order_by('-as_of','-pk').first()
-    articles=list(StockSnapshot.objects.filter(batch=pp1).values_list('sku',flat=True)) if pp1 else []
+    rapida=ImportBatch.objects.filter(kind='pp2').order_by('-as_of','-pk').first()
+    articles=sorted(set(Item.objects.exclude(article='').values_list('article',flat=True)) | (set(StockSnapshot.objects.filter(batch=pp1).values_list('sku',flat=True)) if pp1 else set()))
     mapped={(a.source,a.code):a for a in ItemAlias.objects.select_related('item')}
     refs=defaultdict(list)
     for r in RapidaReference.objects.select_related('batch').order_by('-batch__as_of','-batch_id','pk'):
         refs[normalized(r.article)].append(r)
     result=[]
-    for snapshot in StockSnapshot.objects.filter(batch_id__in=[b.pk for b in [pp1,pp2] if b]).order_by('warehouse','sku'):
-        source='pp1' if snapshot.warehouse=='PP1' else 'kaspi'
+    for snapshot in StockSnapshot.objects.filter(batch_id__in=[b.pk for b in [pp1,pp2,rapida] if b]).order_by('warehouse','sku'):
+        source='pp1' if snapshot.warehouse=='PP1' else 'rapida' if snapshot.batch.kind=='pp2' else 'kaspi'
         candidates=[snapshot.sku] if source=='pp1' else candidate_articles(snapshot.sku,snapshot.name,articles)
         result.append({'snapshot':snapshot,'source':source,'candidates':candidates,'alias':mapped.get((source,snapshot.sku)), 'references':refs.get(normalized(candidates[0]),[]) if len(candidates)==1 else []})
     groups=defaultdict(list)
@@ -40,7 +41,7 @@ def confirm_mapping(snapshot_id, item, multiplier, user, unit=None):
     if not latest or latest.pk!=snapshot.batch_id:raise ValidationError('Снимок устарел. Обновите страницу.')
     if multiplier<1:raise ValidationError('Количество единиц в упаковке должно быть больше нуля')
     if snapshot.warehouse=='PP1' and multiplier!=1:raise ValidationError('Для PP1 единицы исходного файла сохраняются: множитель 1')
-    source='pp1' if snapshot.warehouse=='PP1' else 'kaspi'
+    source='pp1' if snapshot.warehouse=='PP1' else 'rapida' if snapshot.batch.kind=='pp2' else 'kaspi'
     item=Item.objects.select_for_update().get(pk=item.pk)
     if unit is not None and unit not in ['piece','set']:raise ValidationError('Выберите штуку или комплект')
     if item.unit=='pending':

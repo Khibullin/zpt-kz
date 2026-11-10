@@ -13,7 +13,7 @@ from .models import ImportBatch, StockSnapshot, KaspiOperation, MoneyAccount, Ca
 from .importing import parse_file, import_file
 
 class UploadForm(forms.Form):
-    kind = forms.ChoiceField(label='Тип файла', choices=[('stock','Остатки Kaspi → PP2'),('pp1','Начальные остатки PP1'),('sales','Финансовый отчёт Kaspi'),('rapida','Акт Rapida · штрихкоды и расхождения')])
+    kind = forms.ChoiceField(label='Тип файла', choices=[('stock','Остатки Kaspi → PP2'),('pp1','Остатки PP1'),('pp2','Остатки PP2 · Rapida'),('sales','Финансовый отчёт Kaspi'),('rapida','Акт Rapida · штрихкоды и расхождения')])
     as_of = forms.DateField(label='Дата состояния / отчёта', widget=forms.DateInput(attrs={'type':'date'}), initial=date.today)
     file = forms.FileField(label='Файл XLSX')
 
@@ -40,10 +40,8 @@ def dashboard(request, section='overview'):
     stocks = StockSnapshot.objects.none()
     pp1 = ImportBatch.objects.filter(kind='pp1').order_by('-as_of','-pk').first()
     latest = ImportBatch.objects.filter(kind='stock').order_by('-as_of','-pk').first()
-    if latest:
-        stocks = StockSnapshot.objects.filter(batch=latest)
-    if pp1:
-        stocks = StockSnapshot.objects.filter(batch_id__in=[b.pk for b in [latest,pp1] if b])
+    pp2=ImportBatch.objects.filter(kind='pp2').order_by('-as_of','-pk').first()
+    stocks=StockSnapshot.objects.filter(batch_id__in=[b.pk for b in [latest,pp1,pp2] if b])
     ops = KaspiOperation.objects.select_related('reconciliation__document__bundle').all()
     valid = form.is_valid()
     if valid:
@@ -119,7 +117,7 @@ def dashboard(request, section='overview'):
 @accounting_access
 @require_http_methods(['GET','POST'])
 def upload(request):
-    form = UploadForm(request.POST or None,request.FILES or None)
+    form = UploadForm(request.POST or None,request.FILES or None,initial={'kind':request.GET.get('kind','stock')})
     preview = None
     if request.method == 'POST' and form.is_valid():
         try:

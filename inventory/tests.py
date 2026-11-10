@@ -382,7 +382,7 @@ class AccountingToolsTests(TestCase):
         import openpyxl
         self.item.name='=HYPERLINK("bad")';self.item.save()
         response=self.client.get(reverse('inventory:items'),{'export':'xlsx'})
-        book=openpyxl.load_workbook(BytesIO(response.content));self.assertEqual(book.active['C2'].data_type,'s')
+        book=openpyxl.load_workbook(BytesIO(response.content));header=next(row[0].row for row in book.active if row[0].value=='Артикул');self.assertEqual(book.active.cell(header+1,3).data_type,'s')
         for route in ['settlements','operating_report','prepare_openings','transfer_money']:
             self.assertEqual(self.client.get(reverse('inventory:'+route)).status_code,200)
         for route in ['items','documents','cash','settlements','operating_report','stock','sales']:

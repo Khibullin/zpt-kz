@@ -1,0 +1,24 @@
+{% extends 'inventory/base.html' %}{% block content %}
+<h1>Обновить остатки / загрузить файлы</h1>
+<p class="actions"><a href="{% url 'inventory:items' %}">К товарам и остаткам</a><a href="{% url 'inventory:money' %}">Деньги и расчёты</a><a href="{% url 'inventory:upload' %}?kind=rapida">Загрузить акт Rapida со штрихкодами</a></p>
+<p>Выберите один или несколько файлов XLSX. Сначала проверьте изменения, затем сохраните выбранные файлы. Дату указывайте по исходному файлу.</p>
+{% if expired %}<p class="notice">Время проверки истекло. Выберите файлы заново — данные не были загружены.</p>{% endif %}
+{% if preview and not expired %}
+<section class="panel"><h2>{% if preview.committed_at %}Результат загрузки{% else %}Проверка перед загрузкой{% endif %}</h2>
+{% for r in reviews %}<section><h3>{{ r.label }}</h3><p>{{ r.filename }} · Дата данных: {{ r.as_of|date:'d.m.Y' }}</p>
+{% if r.result %}<p>{{ r.result }}</p>{% else %}
+<p>Строк: {{ r.count }} · Новых: {{ r.new }} · Изменённых: {{ r.changed }} · Без изменений / уже загружено: {{ r.unchanged }}{% if r.removed %} · Отсутствуют в новом файле: {{ r.removed }}{% endif %}</p>
+{% if r.older %}<p class="notice">Дата файла старше текущих данных. Он сохранится в истории и не заменит более новый снимок.</p>{% endif %}
+{% if r.unmapped %}<p>Без однозначной привязки к карточке товара: {{ r.unmapped }}. После загрузки проверьте <a href="{% url 'inventory:reconciliation' %}">сопоставление кодов</a>.</p>{% endif %}
+{% if r.conflict_count %}<p class="notice">Расхождений со складским учётом: {{ r.conflict_count }}. Файл сохранится отдельно; проведённые остатки не изменятся.</p><table><tr><th>Код товара</th><th>В файле</th><th>По складскому учёту</th></tr>{% for c in r.conflicts %}<tr><td>{{ c.sku }}</td><td>{{ c.file|default_if_none:'Не указано' }}</td><td>{{ c.ledger }}</td></tr>{% endfor %}</table>{% if r.conflict_count > 20 %}<p>Показаны первые 20 расхождений.</p>{% endif %}{% endif %}
+<div class="tablewrap"><table><tr>{% if r.kind == 'sales' %}<th>Заказ</th><th>Товар</th><th>Операция</th><th>Сумма, ₸</th>{% else %}<th>Код товара</th><th>Название</th><th>Бренд</th><th>Количество в файле</th>{% endif %}</tr>{% for row in r.rows %}<tr>{% if r.kind == 'sales' %}<td>{{ row.order_id }}</td><td>{{ row.product }}</td><td>{{ row.operation }}</td><td>{{ row.revenue|default_if_none:'Не указана' }}</td>{% else %}<td>{{ row.sku }}</td><td>{{ row.name }}</td><td>{{ row.brand }}</td><td>{{ row.quantity|default_if_none:'Не указано' }}</td>{% endif %}</tr>{% endfor %}</table></div><p><small>Показаны первые 8 строк. При подтверждении загрузятся все {{ r.count }} строк.</small></p>
+{% endif %}</section>{% endfor %}
+{% if not preview.committed_at %}<form method="post">{% csrf_token %}<input type="hidden" name="preview_id" value="{{ preview.pk }}"><button name="action" value="confirm">Загрузить выбранные файлы</button> <a href="{% url 'inventory:updates' %}">Выбрать другие файлы</a></form>{% endif %}</section>
+{% endif %}
+<form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.non_field_errors }}<div class="cards">
+{% for b in blocks %}<section class="card" id="{{ b.kind }}"><h2>{{ b.label }}</h2><p>{{ b.hint }}</p>
+{% if b.latest %}<p>Дата данных: <b>{{ b.latest.as_of|date:'d.m.Y' }}</b><br>Последняя загрузка: {{ b.latest.created_at|date:'d.m.Y H:i' }}<br>Файл: <a href="{% url 'inventory:batch_file' b.latest.pk %}">{{ b.latest.filename }}</a><br>Сохранено строк: {{ b.count }}</p>{% else %}<p>Файл ещё не загружен.{% if b.kind == 'pp2' %} Пока используются данные Kaspi при отсутствии складских документов.{% endif %}</p>{% endif %}
+<p><label>{{ b.date.label }}{{ b.date }}</label>{{ b.date.errors }}</p><p><label>{{ b.file.label }}{{ b.file }}</label>{{ b.file.errors }}</p></section>{% endfor %}</div>
+<button name="action" value="preview">Проверить выбранные файлы</button></form>
+<p>Загрузка сохраняет исходные файлы и даты. Остатки из файлов не прибавляются к проведённым документам. Финансовый отчёт Kaspi не создаёт складские отгрузки или банковские выплаты. Повторные файлы и операции не дублируются.</p>
+{% endblock %}

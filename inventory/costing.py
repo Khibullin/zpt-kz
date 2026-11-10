@@ -24,18 +24,24 @@ def total_cost(allocations):
     if any(lot['unit_cost'] is None for lot in allocations):return None
     return sum((Decimal(lot['unit_cost'])*lot['quantity'] for lot in allocations),Decimal('0'))
 
-def available_lots(item, include_transit=False):
+def available_lots(item, include_transit=False, origins_by_warehouse=None):
     stocks=defaultdict(list)
+    def remember(warehouse,lots):
+        if origins_by_warehouse is not None:origins_by_warehouse[warehouse].update(lot['origin'] for lot in lots)
+
     transit=defaultdict(list)
     for entry in StockEntry.objects.filter(document__item=item).select_related('document').order_by('pk'):
         doc=entry.document
         if doc.kind in ['opening','receipt','adjustment']:
             stocks[entry.warehouse].append({'origin':doc.pk,'quantity':entry.quantity,'unit_cost':str(doc.unit_cost) if doc.unit_cost is not None else None})
+            remember(entry.warehouse,[{'origin':doc.pk}])
         elif doc.kind == 'transfer':
             if entry.warehouse == doc.warehouse and entry.quantity < 0:
                 transit[doc.pk].extend(take(stocks[entry.warehouse],-entry.quantity))
             elif entry.warehouse == doc.destination and entry.quantity > 0:
-                stocks[entry.warehouse].extend(take(transit[doc.pk],entry.quantity))
+                received=take(transit[doc.pk],entry.quantity)
+                stocks[entry.warehouse].extend(received)
+                remember(entry.warehouse,received)
         elif doc.kind == 'supplier_return' and entry.quantity < 0:
             remaining=-entry.quantity
             for lot in stocks[entry.warehouse]:
@@ -47,6 +53,7 @@ def available_lots(item, include_transit=False):
             take(stocks[entry.warehouse],-entry.quantity)
         elif doc.kind == 'return' and entry.quantity > 0:
             stocks[entry.warehouse].extend(dict(lot) for lot in doc.cost_allocations)
+            remember(entry.warehouse,doc.cost_allocations)
     if include_transit:
         for lots in transit.values():
             stocks['TRANSIT'].extend(dict(lot) for lot in lots)

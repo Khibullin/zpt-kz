@@ -51,6 +51,21 @@ def parse_file(raw, kind):
                 if not q.is_finite() or q < 0 or q != q.to_integral_value():
                     raise ValueError(f'Неверное количество PP2: {sku}')
                 result.append(dict(sku=sku, name=str(r[1] or ''), brand=str(r[2] or ''), quantity=int(q), price=money(r[3], True)))
+        elif kind == 'pp2':
+            aliases={'Артикул':'sku','SKU':'sku','Штрихкод Rapida':'sku','Штрихкод':'sku','Количество':'quantity','Остаток':'quantity','Количество, шт.':'quantity','Остаток PP2':'quantity','Наименование':'name','Название':'name','Бренд':'brand'}
+            header=next((i for i,r in enumerate(rows) if any(aliases.get(v)=='sku' for v in r) and any(aliases.get(v)=='quantity' for v in r)),None)
+            if header is None:raise ValueError('Ожидаются колонки Артикул (или Штрихкод Rapida), Количество. Дополнительно: Название, Бренд.')
+            columns={aliases[v]:i for i,v in enumerate(rows[header]) if v in aliases}
+            seen=set()
+            for row in rows[header+1:]:
+                if not row[columns['sku']]:continue
+                sku=str(row[columns['sku']]).strip()
+                if sku in seen:raise ValueError(f'Повтор кода PP2: {sku}. Укажите один код на строку.')
+                seen.add(sku)
+                raw_q=row[columns['quantity']]
+                qty=None if raw_q in [None,''] else Decimal(str(raw_q))
+                if qty is not None and (not qty.is_finite() or qty<0 or qty!=qty.to_integral_value()):raise ValueError(f'Неверное количество PP2: {sku}')
+                result.append(dict(sku=sku,name=str(row[columns['name']] or '') if 'name' in columns else sku,brand=str(row[columns['brand']] or '') if 'brand' in columns else '',quantity=int(qty) if qty is not None else None,price=None))
         elif kind == 'rapida':
             header = next((i for i,r in enumerate(rows) if 'Штрихкод Rapida' in r and 'Принято Rapida' in r), None)
             if header is None: raise ValueError('Ожидается акт приёмки Rapida с артикулами и штрихкодами')
@@ -122,7 +137,7 @@ def import_file(raw, kind, filename, as_of, user):
         return batch, 0
     count = 0
     for data in parsed:
-        if kind in ['stock','pp1']:
+        if kind in ['stock','pp1','pp2']:
             StockSnapshot.objects.create(batch=batch, warehouse='PP1' if kind == 'pp1' else 'PP2', **data)
             count += 1
         elif kind == 'rapida':

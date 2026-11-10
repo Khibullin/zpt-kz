@@ -1,9 +1,11 @@
 from django.urls import path
+from . import update_views
 from . import purchasing
 from . import views, document_views, matching_views, tools_views
 from . import workspace_views as workspace
 app_name = 'inventory'
 urlpatterns = [
+    path('updates/', update_views.updates, name='updates'),
     path('search/', workspace.search, name='search'),
     path('archive-transfer/', workspace.archive_transfer, name='archive_transfer'),
     path('balances-at/', workspace.balances_at, name='balances_at'),
