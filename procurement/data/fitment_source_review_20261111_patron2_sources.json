@@ -1,0 +1,192 @@
+{
+  "checked_on": "2026-11-11",
+  "before": {
+    "verified_offers": 4271,
+    "products_with_photo": 19105,
+    "queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "after": {
+    "products_with_photo": 19105,
+    "queue": {
+      "done": 18745,
+      "needs_source": 29126,
+      "skipped": 1622
+    },
+    "verified_offers": 4273
+  },
+  "imported": {
+    "offers": 2,
+    "make_model_pairs": 3,
+    "configurations": 9,
+    "supplier_id": 5,
+    "offer_ids": [
+      25594,
+      25764
+    ]
+  },
+  "offers": [
+    {
+      "brand": "PATRON",
+      "article": "P10-0130",
+      "source_brand": "PATRON",
+      "source_article": "P10-0130",
+      "source_url": "https://patron.ru/ru/catalog/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%20%D0%BF%D0%BE%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%D1%83/P10-0130/part/P10-0130?searchText=P10-0130&pageNumber=1&alt=%D0%91%D0%B0%D1%87%D0%BE%D0%BA%20%D1%80%D0%B0%D1%81%D1%88%D0%B8%D1%80%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%8B%20%D0%BE%D1%85%D0%BB%D0%B0%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F&alternateImg=&id=33650986&image=20782%2F207822073_1.jpg&name=%D0%91%D0%B0%D1%87%D0%BE%D0%BA%20%D1%80%D0%B0%D1%81%D1%88%D0%B8%D1%80%D0%B8%D1%82%D0%B5%D0%BB%D1%8C%D0%BD%D1%8B%D0%B9%20%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%8B%20%D0%BE%D1%85%D0%BB%D0%B0%D0%B6%D0%B4%D0%B5%D0%BD%D0%B8%D1%8F&number=P10-0130",
+      "status": "sourced",
+      "rows": [
+        {
+          "make": "CHEVROLET",
+          "model": "TRACKER",
+          "years": "12.2012 -",
+          "engine": "1.4; LUJ",
+          "power": "103 kW / 140 hp",
+          "displacement": "1364 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "CHEVROLET",
+          "model": "TRACKER",
+          "years": "12.2012 -",
+          "engine": "1.4 AWD; LUJ",
+          "power": "103 kW / 140 hp",
+          "displacement": "1364 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA / MOKKA X (J13)",
+          "years": "04.2013 -",
+          "engine": "1.4 (_76); A 14 NET, B 14 NET, D 14 NET",
+          "power": "103 kW / 140 hp",
+          "displacement": "1364 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA / MOKKA X (J13)",
+          "years": "06.2012 -",
+          "engine": "1.4 4x4 (_76); A 14 NET, B 14 NET, D 14 NET",
+          "power": "103 kW / 140 hp",
+          "displacement": "1364 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA / MOKKA X (J13)",
+          "years": "04.2013 -",
+          "engine": "1.4 LPG (_76); A 14 NET, B 14 NET, D 14 NET",
+          "power": "103 kW / 140 hp",
+          "displacement": "1364 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA / MOKKA X (J13)",
+          "years": "06.2012 -",
+          "engine": "1.6 (_76); A 16 XER, B 16 XER, D 16 XER",
+          "power": "85 kW / 116 hp",
+          "displacement": "1598 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA / MOKKA X (J13)",
+          "years": "06.2012 -",
+          "engine": "1.7 CDTI (_76); A 17 DTS",
+          "power": "96 kW / 131 hp",
+          "displacement": "1686 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        },
+        {
+          "make": "OPEL",
+          "model": "MOKKA / MOKKA X (J13)",
+          "years": "06.2012 -",
+          "engine": "1.7 CDTI 4x4 (_76); A 17 DTS",
+          "power": "96 kW / 131 hp",
+          "displacement": "1686 cc",
+          "cylinders": "4",
+          "notes": "Coolant expansion tank; end date not specified in source."
+        }
+      ]
+    },
+    {
+      "brand": "PATRON",
+      "article": "PDS0590",
+      "source_brand": "PATRON",
+      "source_article": "PDS0590",
+      "source_url": "https://patron.ru/ru/catalog/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%20%D0%BF%D0%BE%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%D1%83/PDS0590/part/PDS0590?searchText=PDS0590&pageNumber=1&alt=%D0%9F%D0%BE%D0%BB%D1%83%D0%BE%D1%81%D1%8C&alternateImg=&id=31818690&image=20777%2F207776108_1.jpg&name=%D0%9F%D0%BE%D0%BB%D1%83%D0%BE%D1%81%D1%8C&number=PDS0590",
+      "status": "sourced",
+      "rows": [
+        {
+          "make": "HYUNDAI",
+          "model": "CRETA",
+          "years": "01.2016 - 01.2021",
+          "engine": "1.6; G4FG",
+          "power": "90 kW / 123 hp",
+          "displacement": "1591 cc",
+          "cylinders": "4",
+          "transmission": "6-speed automatic only",
+          "notes": "Front axle left; length 656 mm; wheel/differential external splines 27/27; seal diameter 60 mm; ABS ring 46 teeth; M22x1.5."
+        }
+      ]
+    }
+  ],
+  "unresolved": [
+    {
+      "article": "PSE2069",
+      "offer_id": 25975,
+      "source_url": "https://patron.ru/ru/catalog/%D0%9F%D0%BE%D0%B8%D1%81%D0%BA%20%D0%BF%D0%BE%20%D0%BD%D0%BE%D0%BC%D0%B5%D1%80%D1%83/PSE2069/part/PSE2069?searchText=PSE2069&pageNumber=1&alt=%D0%92%D1%82%D1%83%D0%BB%D0%BA%D0%B0%20%D1%81%D1%82%D0%B0%D0%B1%D0%B8%D0%BB%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%D0%B0&alternateImg=&id=10454061&image=347%2F3472129_1.jpg&name=%D0%92%D1%82%D1%83%D0%BB%D0%BA%D0%B0%20%D1%81%D1%82%D0%B0%D0%B1%D0%B8%D0%BB%D0%B8%D0%B7%D0%B0%D1%82%D0%BE%D1%80%D0%B0&number=PSE2069",
+      "status": "unresolved_not_imported",
+      "reason": "Manufacturer characteristics state front axle / inner, while description states rear / inner. Supplier name says Kia but manufacturer description names Audi A3 and VW Golf/Passat. No applicability imported until independent identity/position clarification."
+    }
+  ],
+  "verification": [
+    "Read AGENTS and current atomic catalogue importer; no code changes required.",
+    "Fresh DB checks: both targets had zero fitments; filled PSA443301 skipped.",
+    "UI confirms two products loaded; DB verifies 3 pairs / 9 configurations.",
+    "PDS0590 limited to front left, 1.6 G4FG and six-speed automatic; all source measurements retained.",
+    "No new photo staging, producer, consumer, deployment or restart."
+  ],
+  "source_discovery": [
+    {
+      "brand": "AKIKA",
+      "official_referrer": "https://www.phaeton.kz/personalBrands",
+      "linked_url": "https://akika.asia/",
+      "result": "Public Phaeton distributor page links this brand site, independently establishing the source pointer. Web click timed out; no browser fallback or protocol variation attempted. Transient, retry same supported path on a later run if needed."
+    },
+    {
+      "brand": "WINKOD",
+      "official_referrer": "https://www.phaeton.kz/personalBrands",
+      "linked_url": "https://winkod.com/",
+      "result": "Public Phaeton own-brand page links this site. Web click timed out; no browser fallback or protocol variation attempted.",
+      "priority_offer": {
+        "id": 25128,
+        "supplier_id": 5,
+        "article": "W349085SA"
+      }
+    },
+    {
+      "brand": "BLUE PRINT",
+      "article": "ADJ134307",
+      "url": "https://partsfinder.bilsteingroup.com/en-US/article/blueprint/ADJ134307",
+      "result": "Web retrieval now reports URL not accessible via this tool. Do not repeat the rejected request via another URL/protocol/channel. Photo candidate remains not staged."
+    }
+  ],
+  "continuation": [
+    "Task remains incomplete; keep automation enabled and first verify live DB.",
+    "Needs-source photo queue remains preserved, not evidence of a consumer crash.",
+    "Continue independent allowed catalogues; ASVA/Alta-Karter, restricted 555, European BILSTEIN, PATRON PSA344359 full-URL retrieval and newly rejected BLUE PRINT request remain restricted as documented.",
+    "Do not confirm PSE2069 before independent resolution of front/rear and supplier identity conflicts.",
+    "AKIKA official site pointer is akika.asia linked by Phaeton; do not assume the old allowed importer akika.jp host is authoritative or substitute URLs. Its timeout is transient; source data and a bounded importer update are still required before saving."
+  ]
+}
