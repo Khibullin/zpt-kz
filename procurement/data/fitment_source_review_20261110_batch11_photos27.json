@@ -1,0 +1,1487 @@
+{
+  "checked_on": "2026-11-10",
+  "photo_staging_commit": "36405985dbc029dc2e081e5210f8e92ec1b39880",
+  "photo_results": [
+    {
+      "article": "AW1810407",
+      "evidence": {
+        "article": "AW1810407",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 22054,
+        "checked_at": "2026-11-10T16:58:17.120887+00:00",
+        "free_disk_bytes": 415518720,
+        "image_url": "https://aywiparts.ru/images/product/AW1810407/main.jpg",
+        "main_bytes": 19650,
+        "main_path": "products/optimized/8b408a1c8f1c05885cce2848fbbc4417f4eaa384f923eeb4012ca18c07807b43.webp",
+        "main_size": [
+          600,
+          400
+        ],
+        "source_bytes": 65832,
+        "source_url": "https://aywiparts.ru/product/view/13646",
+        "thumbnail_bytes": 2404,
+        "thumbnail_path": "products/optimized/dce0278796f121d31a436d99ddaf623bb523a54fec97783f69f3ce9d8cbb1269.webp",
+        "thumbnail_size": [
+          180,
+          120
+        ]
+      },
+      "id": 4401,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/13646",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1810581",
+      "evidence": {
+        "article": "AW1810581",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 18878,
+        "checked_at": "2026-11-10T16:58:18.518431+00:00",
+        "free_disk_bytes": 415494144,
+        "image_url": "https://aywiparts.ru/images/product/AW1810581/main.jpg",
+        "main_bytes": 16968,
+        "main_path": "products/optimized/3a43bbeb555d02c63cfaa86e21b9fac2b480ae81f4391c10509b2052c44f9ab2.webp",
+        "main_size": [
+          600,
+          400
+        ],
+        "source_bytes": 57006,
+        "source_url": "https://aywiparts.ru/product/view/13994",
+        "thumbnail_bytes": 1910,
+        "thumbnail_path": "products/optimized/a1a5420c1d40b0d4d6ca2958e9c62802a01afe283d4339d062352e7f948479a1.webp",
+        "thumbnail_size": [
+          180,
+          120
+        ]
+      },
+      "id": 4418,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/13994",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910010W",
+      "evidence": {
+        "article": "AW1910010W",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 18134,
+        "checked_at": "2026-11-10T16:58:19.822951+00:00",
+        "free_disk_bytes": 415473664,
+        "image_url": "https://aywiparts.ru/images/product/AW1910010W/main.jpg",
+        "main_bytes": 14372,
+        "main_path": "products/optimized/efe46fa797bef4397e0e69ee2ce5e001b2e5b7e096f2f6517248cce18e0d2017.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 52366,
+        "source_url": "https://aywiparts.ru/product/view/5677",
+        "thumbnail_bytes": 3762,
+        "thumbnail_path": "products/optimized/c7ea49f758b15e5d754270754fe93b1a87fdb4c84ada44e155e21c17cb6440c8.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4431,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5677",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910011",
+      "evidence": {
+        "article": "AW1910011",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19648,
+        "checked_at": "2026-11-10T16:58:21.091829+00:00",
+        "free_disk_bytes": 415449088,
+        "image_url": "https://aywiparts.ru/images/product/AW1910011/main.jpg",
+        "main_bytes": 15494,
+        "main_path": "products/optimized/49563ba3e4099844b8420c5bf98d0d7891407a5430c06359551e52f35e410590.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 55506,
+        "source_url": "https://aywiparts.ru/product/view/5679",
+        "thumbnail_bytes": 4154,
+        "thumbnail_path": "products/optimized/6111df340fd1aed6fea0ed08608fc65eaff9ec5026b10d1d036dfd39e35b1a83.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4432,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5679",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910013",
+      "evidence": {
+        "article": "AW1910013",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 21370,
+        "checked_at": "2026-11-10T16:58:22.710552+00:00",
+        "free_disk_bytes": 415424512,
+        "image_url": "https://aywiparts.ru/images/product/AW1910013/main.jpg",
+        "main_bytes": 17554,
+        "main_path": "products/optimized/d5ed6d0e1228996c38106dd2843127b9eb6353e0d6bd26a9a646050d240f5d3f.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 145238,
+        "source_url": "https://aywiparts.ru/product/view/5683",
+        "thumbnail_bytes": 3816,
+        "thumbnail_path": "products/optimized/5d9c0a4981682e745ebcfb1a379072ee49b553fbe783c66b4bb6ab4c77049a1d.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4433,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5683",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910017",
+      "evidence": {
+        "article": "AW1910017",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19268,
+        "checked_at": "2026-11-10T16:58:24.318573+00:00",
+        "free_disk_bytes": 415404032,
+        "image_url": "https://aywiparts.ru/images/product/AW1910017/main.jpg",
+        "main_bytes": 15464,
+        "main_path": "products/optimized/f52f2d98816fb66a4d4c2bc604301941d56cc0a5a085ce303c970856496c0017.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 53841,
+        "source_url": "https://aywiparts.ru/product/view/5691",
+        "thumbnail_bytes": 3804,
+        "thumbnail_path": "products/optimized/7f4d7d21e8816ea97d619c6eebf53f0c890fd462c951ccceb6444397591c279e.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4434,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5691",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910021W",
+      "evidence": {
+        "article": "AW1910021W",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19290,
+        "checked_at": "2026-11-10T16:58:25.813698+00:00",
+        "free_disk_bytes": 415383552,
+        "image_url": "https://aywiparts.ru/images/product/AW1910021W/main.jpg",
+        "main_bytes": 15280,
+        "main_path": "products/optimized/991aaea4dc918d736be957b84b19fe363f6a6743c27d1e6ce09c64638df2f221.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 54743,
+        "source_url": "https://aywiparts.ru/product/view/5699",
+        "thumbnail_bytes": 4010,
+        "thumbnail_path": "products/optimized/cef5460e3f6b4b4d8f21b32de8a28966b15f8e1b7c5717758eff5618eb76119f.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4435,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5699",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910024",
+      "evidence": {
+        "article": "AW1910024",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19620,
+        "checked_at": "2026-11-10T16:58:27.219782+00:00",
+        "free_disk_bytes": 415363072,
+        "image_url": "https://aywiparts.ru/images/product/AW1910024/main.jpg",
+        "main_bytes": 15538,
+        "main_path": "products/optimized/9b483a630cca5f7a3c1a5f25626620864ce7ac029ea3f96fbb918c4538ff39f2.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 55319,
+        "source_url": "https://aywiparts.ru/product/view/5705",
+        "thumbnail_bytes": 4082,
+        "thumbnail_path": "products/optimized/766e76b4644f5655d5ecedb2caea2a68f2317d8366dec4b9c2bbb13864accfe6.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4436,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5705",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910028W",
+      "evidence": {
+        "article": "AW1910028W",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 21370,
+        "checked_at": "2026-11-10T16:58:29.216521+00:00",
+        "free_disk_bytes": 415363072,
+        "image_url": "https://aywiparts.ru/images/product/AW1910028W/main.jpg",
+        "main_bytes": 17554,
+        "main_path": "products/optimized/d5ed6d0e1228996c38106dd2843127b9eb6353e0d6bd26a9a646050d240f5d3f.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 145238,
+        "source_url": "https://aywiparts.ru/product/view/5713",
+        "thumbnail_bytes": 3816,
+        "thumbnail_path": "products/optimized/5d9c0a4981682e745ebcfb1a379072ee49b553fbe783c66b4bb6ab4c77049a1d.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4437,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5713",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910029Y",
+      "evidence": {
+        "article": "AW1910029Y",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19268,
+        "checked_at": "2026-11-10T16:58:30.620190+00:00",
+        "free_disk_bytes": 415363072,
+        "image_url": "https://aywiparts.ru/images/product/AW1910029Y/main.jpg",
+        "main_bytes": 15464,
+        "main_path": "products/optimized/f52f2d98816fb66a4d4c2bc604301941d56cc0a5a085ce303c970856496c0017.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 53841,
+        "source_url": "https://aywiparts.ru/product/view/5715",
+        "thumbnail_bytes": 3804,
+        "thumbnail_path": "products/optimized/7f4d7d21e8816ea97d619c6eebf53f0c890fd462c951ccceb6444397591c279e.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4438,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5715",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910031W",
+      "evidence": {
+        "article": "AW1910031W",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19264,
+        "checked_at": "2026-11-10T16:58:40.562918+00:00",
+        "free_disk_bytes": 415342592,
+        "image_url": "https://aywiparts.ru/images/product/AW1910031W/main.jpg",
+        "main_bytes": 15374,
+        "main_path": "products/optimized/3b60344ad90fb8d843d60386b0224ec0724d39353681f99e47e3661ec261da0a.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 54225,
+        "source_url": "https://aywiparts.ru/product/view/5719",
+        "thumbnail_bytes": 3890,
+        "thumbnail_path": "products/optimized/4889d8add28f090664bae9b4146aa37ce8024307411a9766f72b830494e559fa.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4439,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5719",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910032W",
+      "evidence": {
+        "article": "AW1910032W",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 20370,
+        "checked_at": "2026-11-10T16:58:42.665880+00:00",
+        "free_disk_bytes": 415313920,
+        "image_url": "https://aywiparts.ru/images/product/AW1910032W/main.jpg",
+        "main_bytes": 16660,
+        "main_path": "products/optimized/e4f7ed0fcc4fc8ee9197db18bbe8e1b7d32d40ffaa0ddecd43b05af96d930487.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 143872,
+        "source_url": "https://aywiparts.ru/product/view/5721",
+        "thumbnail_bytes": 3710,
+        "thumbnail_path": "products/optimized/c9a72cf93cfa1f39e50dbaad2d9d197051ae4115bfcd49155473b7a1f352472b.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4440,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5721",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910036Y",
+      "evidence": {
+        "article": "AW1910036Y",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19648,
+        "checked_at": "2026-11-10T16:58:44.022805+00:00",
+        "free_disk_bytes": 415313920,
+        "image_url": "https://aywiparts.ru/images/product/AW1910036Y/main.jpg",
+        "main_bytes": 15494,
+        "main_path": "products/optimized/49563ba3e4099844b8420c5bf98d0d7891407a5430c06359551e52f35e410590.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 55506,
+        "source_url": "https://aywiparts.ru/product/view/5729",
+        "thumbnail_bytes": 4154,
+        "thumbnail_path": "products/optimized/6111df340fd1aed6fea0ed08608fc65eaff9ec5026b10d1d036dfd39e35b1a83.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4441,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5729",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1910040",
+      "evidence": {
+        "batch": "full-catalogue-20261110"
+      },
+      "id": 4442,
+      "note": "Точное совпадение или реальная фотография не найдены.",
+      "source_url": "https://aywiparts.ru/product/view/5737",
+      "status": "skipped",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1920005",
+      "evidence": {
+        "article": "AW1920005",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 20794,
+        "checked_at": "2026-11-10T16:58:46.115491+00:00",
+        "free_disk_bytes": 415285248,
+        "image_url": "https://aywiparts.ru/images/product/AW1920005/main.jpg",
+        "main_bytes": 16586,
+        "main_path": "products/optimized/07d08fc7bee0d81ca70d4ed6af451f73d56885ffeda11ce7ee471e2e85d6310d.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 56373,
+        "source_url": "https://aywiparts.ru/product/view/5775",
+        "thumbnail_bytes": 4208,
+        "thumbnail_path": "products/optimized/c75253b5e8a234eab897d363490968b4b230c9725fc484ce2c5fb938065728fe.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4444,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5775",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1920007",
+      "evidence": {
+        "article": "AW1920007",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 18854,
+        "checked_at": "2026-11-10T16:58:47.615310+00:00",
+        "free_disk_bytes": 415264768,
+        "image_url": "https://aywiparts.ru/images/product/AW1920007/main.jpg",
+        "main_bytes": 15004,
+        "main_path": "products/optimized/b189f2ec082157e52b600e85cbe95e2a102b0577980e0aa9aeefd1f5d7d47bc7.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 53557,
+        "source_url": "https://aywiparts.ru/product/view/5779",
+        "thumbnail_bytes": 3850,
+        "thumbnail_path": "products/optimized/2c49905e6de6dd1dbb0cc7ca7794d347e159422cf4b2d2624c663e2248d4ffd7.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4445,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5779",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1920047P",
+      "evidence": {
+        "article": "AW1920047P",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 18468,
+        "checked_at": "2026-11-10T16:58:48.730754+00:00",
+        "free_disk_bytes": 415244288,
+        "image_url": "https://aywiparts.ru/images/product/AW1920047P/main.jpg",
+        "main_bytes": 14706,
+        "main_path": "products/optimized/4450ea56f1c892402af1e170c3f58150c015093ac22e85bfe96ff885ca36de6d.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 52937,
+        "source_url": "https://aywiparts.ru/product/view/14186",
+        "thumbnail_bytes": 3762,
+        "thumbnail_path": "products/optimized/24f886017cb41c08396eb391f598f0ca3a051616fc36928aeeb304d41e125191.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4446,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/14186",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1930025B2",
+      "evidence": {
+        "article": "AW1930025B2",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19364,
+        "checked_at": "2026-11-10T16:58:49.862247+00:00",
+        "free_disk_bytes": 415223808,
+        "image_url": "https://aywiparts.ru/images/product/AW1930025B2/main.jpg",
+        "main_bytes": 15360,
+        "main_path": "products/optimized/ed2cde3bbf43fac5a2cb473b70ef63ed14e3ecd241b44845d6e06a97057b52a3.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 54713,
+        "source_url": "https://aywiparts.ru/product/view/21277",
+        "thumbnail_bytes": 4004,
+        "thumbnail_path": "products/optimized/11a9c1e76690f7c8d5e745f2ee28e746367cb593714c2247f3fc51f5940571f7.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4449,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/21277",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW2040038",
+      "evidence": {
+        "article": "AW2040038",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 20444,
+        "checked_at": "2026-11-10T16:58:50.984185+00:00",
+        "free_disk_bytes": 415223808,
+        "image_url": "https://aywiparts.ru/images/product/AW2040038/main.jpg",
+        "main_bytes": 16390,
+        "main_path": "products/optimized/c55599da24ffa976d7cdf614f2bee612cfdbbd06053d5192397d2ff60de041fc.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 56455,
+        "source_url": "https://aywiparts.ru/product/view/5965",
+        "thumbnail_bytes": 4054,
+        "thumbnail_path": "products/optimized/fa8b41d1375fa8b2a624dd62f8e82477e22029b092bbb5f64a291888ff669cb3.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4452,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5965",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW2055353",
+      "evidence": {
+        "article": "AW2055353",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 25034,
+        "checked_at": "2026-11-10T16:58:52.237308+00:00",
+        "free_disk_bytes": 415195136,
+        "image_url": "https://aywiparts.ru/images/product/AW2055353/main.jpg",
+        "main_bytes": 20452,
+        "main_path": "products/optimized/51b86761cd7f7a38a85d5cf0212d3c6856cc9f48f233b192618d7b2cb0405414.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 60491,
+        "source_url": "https://aywiparts.ru/product/view/5995",
+        "thumbnail_bytes": 4582,
+        "thumbnail_path": "products/optimized/557f6bf0d3ea7ebe5dedebb4b3b386cd4883273134ea5fd543d24b6bb1bc32ff.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 4454,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5995",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW2120354",
+      "evidence": {
+        "article": "AW2120354",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 18618,
+        "checked_at": "2026-11-10T16:58:55.703504+00:00",
+        "free_disk_bytes": 415174656,
+        "image_url": "https://aywiparts.ru/images/product/AW2120354/main.jpg",
+        "main_bytes": 16180,
+        "main_path": "products/optimized/30e55a565e9e83d7bd18ebe95761224924b2f35f4ff5126e7b7448a20000be10.webp",
+        "main_size": [
+          600,
+          400
+        ],
+        "source_bytes": 126577,
+        "source_url": "https://aywiparts.ru/product/view/7034",
+        "thumbnail_bytes": 2438,
+        "thumbnail_path": "products/optimized/c5d83daed24433344e73e4231ec42844bacb0d98daaf20215396cf0add69963b.webp",
+        "thumbnail_size": [
+          180,
+          120
+        ]
+      },
+      "id": 4459,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/7034",
+      "status": "done",
+      "supplier_id": 5
+    },
+    {
+      "article": "AW2130504",
+      "evidence": {
+        "article": "AW2130504",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 12706,
+        "checked_at": "2026-11-10T16:58:57.078562+00:00",
+        "free_disk_bytes": 415174656,
+        "image_url": "https://aywiparts.ru/images/product/AW2130504/main.jpg",
+        "main_bytes": 10958,
+        "main_path": "products/optimized/2844f498e59c91a944d7b11623387bcebcad00652290ace1a42c4518f9f5fc3f.webp",
+        "main_size": [
+          600,
+          400
+        ],
+        "source_bytes": 34559,
+        "source_url": "https://aywiparts.ru/product/view/14987",
+        "thumbnail_bytes": 1748,
+        "thumbnail_path": "products/optimized/dca94c3a73a860bd8daae5d320628b14439892b263183d80c0f05d0af4ffa450.webp",
+        "thumbnail_size": [
+          180,
+          120
+        ]
+      },
+      "id": 4470,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/14987",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW2130699",
+      "evidence": {
+        "article": "AW2130699",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 13440,
+        "checked_at": "2026-11-10T16:58:58.365411+00:00",
+        "free_disk_bytes": 415174656,
+        "image_url": "https://aywiparts.ru/images/product/AW2130699/main.jpg",
+        "main_bytes": 11676,
+        "main_path": "products/optimized/4bdafed98bf6c1f6a89b7b1025afc607bf042b1d213e9ddc019de0b66e63e0a5.webp",
+        "main_size": [
+          600,
+          400
+        ],
+        "source_bytes": 106187,
+        "source_url": "https://aywiparts.ru/product/view/15127",
+        "thumbnail_bytes": 1764,
+        "thumbnail_path": "products/optimized/37872ba04166aca25f9004662016c5747f26c5ec4b7ae5ec5fd3ba9db0c67ea2.webp",
+        "thumbnail_size": [
+          180,
+          120
+        ]
+      },
+      "id": 4474,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/15127",
+      "status": "done",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW2220481",
+      "evidence": {
+        "batch": "full-catalogue-20261110"
+      },
+      "id": 4483,
+      "note": "Точное совпадение или реальная фотография не найдены.",
+      "source_url": "https://aywiparts.ru/product/view/23120",
+      "status": "skipped",
+      "supplier_id": 3
+    },
+    {
+      "article": "AW1310177L",
+      "evidence": {
+        "article": "AW1310177L",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 7194,
+        "checked_at": "2026-11-10T16:59:01.343562+00:00",
+        "free_disk_bytes": 415162368,
+        "image_url": "https://aywiparts.ru/images/product/AW1310177L/main.jpg",
+        "main_bytes": 5834,
+        "main_path": "products/optimized/cea7ee7c188132042325105aefd207d6f4a5a3c5a83de6d541d2f7889623334c.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 64496,
+        "source_url": "https://aywiparts.ru/product/view/143",
+        "thumbnail_bytes": 1360,
+        "thumbnail_path": "products/optimized/9ef54ac3b8c8825ccf03a8f86b2a662f906f80e9557f362778ff7aeefdcc6702.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 8057,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/143",
+      "status": "done",
+      "supplier_id": 5
+    },
+    {
+      "article": "AW1360838L",
+      "evidence": {
+        "article": "AW1360838L",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 19816,
+        "checked_at": "2026-11-10T16:59:02.617429+00:00",
+        "free_disk_bytes": 415141888,
+        "image_url": "https://aywiparts.ru/images/product/AW1360838L/main.jpg",
+        "main_bytes": 15922,
+        "main_path": "products/optimized/5b5cd446c7e7ba48e22ba7ea0a83298195d352993b6a7ed14c4672f19d74229d.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 54248,
+        "source_url": "https://aywiparts.ru/product/view/10486",
+        "thumbnail_bytes": 3894,
+        "thumbnail_path": "products/optimized/ef9d4412bfd5ba020782668594630e6915dd782d69fce86423d6b080d6767ece.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 9820,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/10486",
+      "status": "done",
+      "supplier_id": 5
+    },
+    {
+      "article": "AW1370214LR",
+      "evidence": {
+        "article": "AW1370214LR",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 8116,
+        "checked_at": "2026-11-10T16:59:43.205617+00:00",
+        "free_disk_bytes": 415129600,
+        "image_url": "https://aywiparts.ru/images/product/AW1370214LR/main.jpg",
+        "main_bytes": 6444,
+        "main_path": "products/optimized/e3d03d74fcb4c4035347cd74cce2fe15029a07ddf2d4f305dd2a317713f2c05e.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 75302,
+        "source_url": "https://aywiparts.ru/product/view/2101",
+        "thumbnail_bytes": 1672,
+        "thumbnail_path": "products/optimized/464d161a593f64eb0fc6fb39b24074a1d5d059db2d2be171cf256118075e7bf6.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 10806,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/2101",
+      "status": "done",
+      "supplier_id": 5
+    },
+    {
+      "article": "AW1520645",
+      "evidence": {
+        "article": "AW1520645",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 14062,
+        "checked_at": "2026-11-10T16:59:44.355755+00:00",
+        "free_disk_bytes": 415113216,
+        "image_url": "https://aywiparts.ru/images/product/AW1520645/main.jpg",
+        "main_bytes": 11252,
+        "main_path": "products/optimized/8c475ca9379a6d0cef05c9d5034a153044a4e9a184c658518fc7222ff1f8e83c.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 44534,
+        "source_url": "https://aywiparts.ru/product/view/5239",
+        "thumbnail_bytes": 2810,
+        "thumbnail_path": "products/optimized/e9dc2c53571ea733f1fbc7ff2e076860b9a85bee732366afd1a2d56634090062.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 11744,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/5239",
+      "status": "done",
+      "supplier_id": 5
+    },
+    {
+      "article": "AW1320258LR",
+      "evidence": {
+        "article": "AW1320258LR",
+        "batch": "full-catalogue-20261110",
+        "brand": "AYWIPARTS",
+        "bytes": 7078,
+        "checked_at": "2026-11-10T16:59:45.479089+00:00",
+        "free_disk_bytes": 415100928,
+        "image_url": "https://aywiparts.ru/images/product/AW1320258LR/main.jpg",
+        "main_bytes": 5570,
+        "main_path": "products/optimized/2c1cee2a46343a6d8b7ec9286878fc7b3662c9ef2748f99c3276ae9268d7b374.webp",
+        "main_size": [
+          450,
+          280
+        ],
+        "source_bytes": 39916,
+        "source_url": "https://aywiparts.ru/product/view/741",
+        "thumbnail_bytes": 1508,
+        "thumbnail_path": "products/optimized/e60e80a8a7bba475000fa1bed4a780eb801441485d66befee4e33d935842c721.webp",
+        "thumbnail_size": [
+          180,
+          112
+        ]
+      },
+      "id": 21746,
+      "note": "Фотография точного товара из подтверждённого открытого каталога.",
+      "source_url": "https://aywiparts.ru/product/view/741",
+      "status": "done",
+      "supplier_id": 3
+    }
+  ],
+  "fitment_imports": [
+    {
+      "supplier_id": 3,
+      "checked_on": "2026-11-10",
+      "offers": [
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1810407",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1810407",
+          "source_url": "https://aywiparts.ru/product/view/13646",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "TOYOTA",
+              "model": "Caldina (ST246W)",
+              "years": "02-07",
+              "engine": "2.0",
+              "notes": "Передние колодки; 4WD; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Estima",
+              "years": "03-06",
+              "engine": "",
+              "notes": "Передние колодки; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Windom",
+              "years": "01-06",
+              "engine": "3.0",
+              "notes": "Передние колодки; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1810581",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1810581",
+          "source_url": "https://aywiparts.ru/product/view/13994",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "TOYOTA",
+              "model": "Camry",
+              "years": ">92",
+              "engine": "",
+              "notes": "Передние колодки; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Carina II",
+              "years": ">92",
+              "engine": "",
+              "notes": "Передние колодки; 13 дюймов; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Celica",
+              "years": ">90",
+              "engine": "",
+              "notes": "Передние колодки; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Corolla",
+              "years": ">92",
+              "engine": "",
+              "notes": "Передние колодки; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Starlet",
+              "years": ">92",
+              "engine": "",
+              "notes": "Передние колодки; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW2130504",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW2130504",
+          "source_url": "https://aywiparts.ru/product/view/14987",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "TOYOTA",
+              "model": "LAND Cruiser (J200)",
+              "years": "07>",
+              "engine": "4.6-5.7",
+              "notes": "Ремень 8PK2410; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Sequoia",
+              "years": "08>",
+              "engine": "4.6-5.7",
+              "notes": "Ремень 8PK2410; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "TOYOTA",
+              "model": "Tundra",
+              "years": "07>",
+              "engine": "4.6-5.7",
+              "notes": "Ремень 8PK2410; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "LEXUS",
+              "model": "GX460",
+              "years": "09>",
+              "engine": "",
+              "notes": "Ремень 8PK2410; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "LEXUS",
+              "model": "LX570",
+              "years": "07>",
+              "engine": "",
+              "notes": "Ремень 8PK2410; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW2130699",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW2130699",
+          "source_url": "https://aywiparts.ru/product/view/15127",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "HYUNDAI",
+              "model": "Sonata",
+              "years": "98-01",
+              "engine": "2.5",
+              "notes": "Ремень 6PK2000; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "HYUNDAI",
+              "model": "Sonata",
+              "years": "01>",
+              "engine": "2.7",
+              "notes": "Ремень 6PK2000; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "HYUNDAI",
+              "model": "Tucson",
+              "years": "04>",
+              "engine": "2.7",
+              "notes": "Ремень 6PK2000; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "KIA",
+              "model": "Sportage",
+              "years": "04>",
+              "engine": "2.7",
+              "notes": "Ремень 6PK2000; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "SAAB",
+              "model": "9-5",
+              "years": "97>",
+              "engine": "2.0-2.3T",
+              "notes": "Ремень 6PK2000; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "VW",
+              "model": "Transporter 4",
+              "years": "90-03",
+              "engine": "2.5",
+              "notes": "Ремень 6PK2000; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW2220481",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW2220481",
+          "source_url": "https://aywiparts.ru/product/view/23120",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "TOYOTA",
+              "model": "RAV4",
+              "years": "94-00",
+              "engine": "2.0",
+              "notes": "Ступица задняя; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1320258LR",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1320258LR",
+          "source_url": "https://aywiparts.ru/product/view/741",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "DAEWOO",
+              "model": "Nexia",
+              "years": "95-97",
+              "engine": "1.5-1.5 16V",
+              "notes": "Шаровая опора нижняя L/R; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "DAEWOO",
+              "model": "Espero",
+              "years": "93-99",
+              "engine": "1.5-2.0",
+              "notes": "Шаровая опора нижняя L/R; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "DAEWOO",
+              "model": "Lanos",
+              "years": "97>",
+              "engine": "1.4-1.6",
+              "notes": "Шаровая опора нижняя L/R; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "OPEL",
+              "model": "Kadett E",
+              "years": "84-91",
+              "engine": "1.2-2.0",
+              "notes": "Шаровая опора нижняя L/R; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "supplier_id": 5,
+      "checked_on": "2026-11-10",
+      "offers": [
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW2120354",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW2120354",
+          "source_url": "https://aywiparts.ru/product/view/7034",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "LADA",
+              "model": "2101-07",
+              "years": "",
+              "engine": "",
+              "notes": "Ремень 10x938; 2101-07 — модели, не годы.; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "LADA",
+              "model": "Niva",
+              "years": "",
+              "engine": "",
+              "notes": "Ремень 10x938; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1310177L",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1310177L",
+          "source_url": "https://aywiparts.ru/product/view/143",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "HYUNDAI",
+              "model": "Sonata (EF)",
+              "years": "98-04",
+              "engine": "2.0-3.3",
+              "notes": "Наконечник левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "HYUNDAI",
+              "model": "XG",
+              "years": "98>",
+              "engine": "2.5-3.0",
+              "notes": "Наконечник левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "KIA",
+              "model": "Optima/Magentis",
+              "years": "00-05",
+              "engine": "2.0-2.5",
+              "notes": "Наконечник левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "KIA",
+              "model": "Opirus (GH)",
+              "years": "03>",
+              "engine": "2.7-3.5",
+              "notes": "Наконечник левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1360838L",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1360838L",
+          "source_url": "https://aywiparts.ru/product/view/10486",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "HYUNDAI",
+              "model": "ix35 (LM)",
+              "years": "",
+              "engine": "",
+              "notes": "Рычаг передний левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "KIA",
+              "model": "Sportage III (SL)",
+              "years": "",
+              "engine": "",
+              "notes": "Рычаг передний левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "HYUNDAI",
+              "model": "Tucson II (LM)",
+              "years": "",
+              "engine": "",
+              "notes": "Рычаг передний левый; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1370214LR",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1370214LR",
+          "source_url": "https://aywiparts.ru/product/view/2101",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "CHEVROLET",
+              "model": "Matiz",
+              "years": "05>",
+              "engine": "0.8-1.0",
+              "notes": "Тяга рулевая L/R; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "DAEWOO",
+              "model": "Matiz",
+              "years": "98>",
+              "engine": "0.8-1.0",
+              "notes": "Тяга рулевая L/R; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        },
+        {
+          "brand": "AYWIPARTS",
+          "article": "AW1520645",
+          "source_brand": "AYWIPARTS",
+          "source_article": "AW1520645",
+          "source_url": "https://aywiparts.ru/product/view/5239",
+          "status": "sourced",
+          "rows": [
+            {
+              "make": "TOYOTA",
+              "model": "LAND CRUISER PRADO",
+              "years": "02-09",
+              "engine": "",
+              "notes": "ШРУС внутренний; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            },
+            {
+              "make": "LEXUS",
+              "model": "GX470",
+              "years": "02-09",
+              "engine": "",
+              "notes": "ШРУС внутренний; обозначения годов из каталога сохранены буквально, отсутствующие годы/двигатели не добавлялись."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "fitment_result": {
+    "offers": 11,
+    "make_model_pairs": 36,
+    "configurations": 37
+  },
+  "unresolved": [
+    {
+      "brand": "AYWIPARTS",
+      "article": "*ZAAW1370295LR",
+      "offer_id": 32073,
+      "photo_task_id": 10805,
+      "reason": "Полный артикул содержит префикс *ZA. Не удаляли его и не сопоставляли с иным артикулом производителя."
+    },
+    {
+      "reason": "У ламп и универсальных щёток в прочитанных источниках нет моделей и годов. Применимость не придумана; все прочитанные страницы сохранены отдельно.",
+      "articles": [
+        {
+          "article": "AW1910010W",
+          "source_url": "https://aywiparts.ru/product/view/5677"
+        },
+        {
+          "article": "AW1910011",
+          "source_url": "https://aywiparts.ru/product/view/5679"
+        },
+        {
+          "article": "AW1910013",
+          "source_url": "https://aywiparts.ru/product/view/5683"
+        },
+        {
+          "article": "AW1910017",
+          "source_url": "https://aywiparts.ru/product/view/5691"
+        },
+        {
+          "article": "AW1910021W",
+          "source_url": "https://aywiparts.ru/product/view/5699"
+        },
+        {
+          "article": "AW1910024",
+          "source_url": "https://aywiparts.ru/product/view/5705"
+        },
+        {
+          "article": "AW1910028W",
+          "source_url": "https://aywiparts.ru/product/view/5713"
+        },
+        {
+          "article": "AW1910029Y",
+          "source_url": "https://aywiparts.ru/product/view/5715"
+        },
+        {
+          "article": "AW1910031W",
+          "source_url": "https://aywiparts.ru/product/view/5719"
+        },
+        {
+          "article": "AW1910032W",
+          "source_url": "https://aywiparts.ru/product/view/5721"
+        },
+        {
+          "article": "AW1910036Y",
+          "source_url": "https://aywiparts.ru/product/view/5729"
+        },
+        {
+          "article": "AW1910040",
+          "source_url": "https://aywiparts.ru/product/view/5737"
+        },
+        {
+          "article": "AW1920005",
+          "source_url": "https://aywiparts.ru/product/view/5775"
+        },
+        {
+          "article": "AW1920007",
+          "source_url": "https://aywiparts.ru/product/view/5779"
+        },
+        {
+          "article": "AW1920047P",
+          "source_url": "https://aywiparts.ru/product/view/14186"
+        },
+        {
+          "article": "AW1930025B2",
+          "source_url": "https://aywiparts.ru/product/view/21277"
+        },
+        {
+          "article": "AW2040038",
+          "source_url": "https://aywiparts.ru/product/view/5965"
+        },
+        {
+          "article": "AW2055353",
+          "source_url": "https://aywiparts.ru/product/view/5995"
+        }
+      ]
+    }
+  ],
+  "sources": [
+    {
+      "article": "AW1810407",
+      "url": "https://aywiparts.ru/product/view/13646",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1810407/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000044444 шт 1.613 10.165х13.507х15.456 50\":\n      - cell \"000044444\"\n      - cell \"шт\"\n      - cell \"1.613\"\n      - cell \"10.165х13.507х15.456\"\n      - cell \"50\"\n- heading \"Колодки тормозные передние\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1810407\n- text: \"Товарная группа:\"\n- generic: Тормозные системы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: TOYOTA Caldina(ST246W) 2.0 4WD 02-07/Estima 03-06/Windom 3.0 01-06\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"04465-04080 Toyota\":\n      - cell \"04465-04080\"\n      - cell \"Toyota\"\n    - row \"04465-08030 Toyota\":\n      - cell \"04465-08030\"\n      - cell \"Toyota\"\n    - row \"04465-21020 Toyota\":\n      - cell \"04465-21020\"\n      - cell \"Toyota\"\n    - row \"04465-28510 Toyota\":\n      - cell \"04465-28510\"\n      - cell \"Toyota\"\n    - row \"04465-33270 Toyota\":\n      - cell \"04465-33270\"\n      - cell \"Toyota\"\n    - row \"04465-33280 Toyota\":\n      - cell \"04465-33280\"\n      - cell \"Toyota\"\n    - row \"04465-33350 Toyota\":\n      - cell \"04465-33350\"\n      - cell \"Toyota\"\n    - row \"04465-65020 Toyota\":\n      - cell \"04465-65020\"\n      - cell \"Toyota\"\n    - row \"04465-65021 Toyota\":\n      - cell \"04465-65021\"\n      - cell \"Toyota\"\n    - row \"04465-YZZEA Toyota\":\n      - cell \"04465-YZZEA\"\n      - cell \"Toyota\"\n    - row \"V9118A089 Toyota\":\n      - cell \"V9118A089\"\n      - cell \"Toyota\"\n    - row \"0446533270 LEXUS\":\n      - cell \"0446533270\"\n      - cell \"LEXUS\"\n    - row \"0446533280 LEXUS\":\n      - cell \"0446533280\"\n      - cell \"LEXUS\"\n    - row \"0446533340 LEXUS\":\n      - cell \"0446533340\"\n      - cell \"LEXUS\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgrou"
+    },
+    {
+      "article": "AW1810581",
+      "url": "https://aywiparts.ru/product/view/13994",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1810581/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000044618 шт 1.115 8.633х12.95х13.507 50\":\n      - cell \"000044618\"\n      - cell \"шт\"\n      - cell \"1.115\"\n      - cell \"8.633х12.95х13.507\"\n      - cell \"50\"\n- heading \"Колодки тормозные передние\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1810581\n- text: \"Товарная группа:\"\n- generic: Тормозные системы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: TOYOTA Camry >92/Carina II (13\") >92/Celica >90/Corolla >92/Starlet >92\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"00446-5YZZDK Toyota\":\n      - cell \"00446-5YZZDK\"\n      - cell \"Toyota\"\n    - row \"00491-12281 Toyota\":\n      - cell \"00491-12281\"\n      - cell \"Toyota\"\n    - row \"04465-10040 Toyota\":\n      - cell \"04465-10040\"\n      - cell \"Toyota\"\n    - row \"04465-12010 Toyota\":\n      - cell \"04465-12010\"\n      - cell \"Toyota\"\n    - row \"04465-12020 Toyota\":\n      - cell \"04465-12020\"\n      - cell \"Toyota\"\n    - row \"04465-12030 Toyota\":\n      - cell \"04465-12030\"\n      - cell \"Toyota\"\n    - row \"04465-12040 Toyota\":\n      - cell \"04465-12040\"\n      - cell \"Toyota\"\n    - row \"04465-12090 Toyota\":\n      - cell \"04465-12090\"\n      - cell \"Toyota\"\n    - row \"04465-12210 Toyota\":\n      - cell \"04465-12210\"\n      - cell \"Toyota\"\n    - row \"04465-12220 Toyota\":\n      - cell \"04465-12220\"\n      - cell \"Toyota\"\n    - row \"04465-12240 Toyota\":\n      - cell \"04465-12240\"\n      - cell \"Toyota\"\n    - row \"04465-12250 Toyota\":\n      - cell \"04465-12250\"\n      - cell \"Toyota\"\n    - row \"04465-12490 Toyota\":\n      - cell \"04465-12490\"\n      - cell \"Toyota\"\n    - row \"04465-12510 Toyota\":\n      - cell \"04465-12510\"\n      - cell \"Toyota\"\n    - row \"04465-12560 Toyota\":"
+    },
+    {
+      "article": "AW1910010W",
+      "url": "https://aywiparts.ru/product/view/5677",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910010W/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007095 шт 0.009 7х2х2 Нет в наличии\":\n      - cell \"000007095\"\n      - cell \"шт\"\n      - cell \"0.009\"\n      - cell \"7х2х2\"\n      - cell \"Нет в наличии\"\n- heading \"Лампа галогеновая H1 12V 55W P14.5S SUPER WHITE\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910010W\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H1 12V 55W P14.5S SUPER WHITE\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"030005050011 Volvo\":\n      - cell \"030005050011\"\n      - cell \"Volvo\"\n    - row \"0417204 Hymer\":\n      - cell \"0417204\"\n      - cell \"Hymer\"\n    - row \"07 50 9 064 001 Bmw\":\n      - cell \"07 50 9 064 001\"\n      - cell \"Bmw\"\n    - row \"14 151 090 Fiat/alfa/lancia\":\n      - cell \"14 151 090\"\n      - cell \"Fiat/alfa/lancia\"\n    - row \"14 151 095 Fiat/alfa/lancia\":\n      - cell \"14 151 095\"\n      - cell \"Fiat/alfa/lancia\"\n    - row \"20 98 009 Opel\":\n      - cell \"20 98 009\"\n      - cell \"Opel\"\n    - row \"20 98 279 Opel\":\n      - cell \"20 98 279\"\n      - cell \"Opel\"\n    - row \"20 98 342 Opel\":\n      - cell \"20 98 342\"\n      - cell \"Opel\"\n    - row \"20 004 374 284 Volvo\":\n      - cell \"20 004 374 284\"\n      - cell \"Volvo\"\n    - row \"4 345 856 Ford\":\n      - cell \"4 345 856\"\n      - cell \"Ford\"\n    - row \"4 374 284 Volvo\":\n      - cell \"4 374 284\"\n      - cell \"Volvo\"\n    - row \"5 050 011 Volvo\":\n      - cell \"5 050 011\"\n      - cell \"Volvo\"\n    - row \"6216.47 Citroen/peugeot\":\n      - cell \"6216.47\"\n      - cell \"Citroen/peugeot\"\n    - row \"6216.98 Citroen/peugeot\":\n      - cell \"6216.98\"\n      - cell \"Citroen/peugeot\"\n    - row \"63 21 6 926 908 Bmw\":\n      - cell "
+    },
+    {
+      "article": "AW1910011",
+      "url": "https://aywiparts.ru/product/view/5679",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910011/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007105 шт 0.011 4.668х2.462х4.463 9\":\n      - cell \"000007105\"\n      - cell \"шт\"\n      - cell \"0.011\"\n      - cell \"4.668х2.462х4.463\"\n      - cell \"9\"\n- heading \"Лампа галогеновая H3 24V 70W PK22S\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910011\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H3 24V 70W PK22S\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"32 009 011 Ford\":\n      - cell \"32 009 011\"\n      - cell \"Ford\"\n    - row \"5C46 13N429AA Ford\":\n      - cell \"5C46 13N429AA\"\n      - cell \"Ford\"\n    - row \"7 050 637 Volvo\":\n      - cell \"7 050 637\"\n      - cell \"Volvo\"\n    - row \"N400809000006 Mercedes-Benz\":\n      - cell \"N400809000006\"\n      - cell \"Mercedes-Benz\"\n    - row \"V1C4613465AA Ford\":\n      - cell \"V1C4613465AA\"\n      - cell \"Ford\"\n    - row \"32 009 011 Volvo\":\n      - cell \"32 009 011\"\n      - cell \"Volvo\"\n    - row \"5C46-13N429-AA Ford Usa\":\n      - cell \"5C46-13N429-AA\"\n      - cell \"Ford Usa\"\n    - row \"V1C4-613465-AA Ford Usa\":\n      - cell \"V1C4-613465-AA\"\n      - cell \"Ford Usa\"\n    - row \"9970-44-550L Mazda\":\n      - cell \"9970-44-550L\"\n      - cell \"Mazda\"\n    - row \"MH 056095 Mitsubishi\":\n      - cell \"MH 056095\"\n      - cell \"Mitsubishi\"\n    - row \"MH 056097 Mitsubishi\":\n      - cell \"MH 056097\"\n      - cell \"Mitsubishi\"\n    - row \"SZ980-32058 Toyota\":\n      - cell \"SZ980-32058\"\n      - cell \"Toyota\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"0 986 GL0 052 Bosch\":\n      - cell \"0 986 GL0 052\"\n      - "
+    },
+    {
+      "article": "AW1910013",
+      "url": "https://aywiparts.ru/product/view/5683",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910013/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007144 шт 0.021 5.489х3.283х6.361 50\":\n      - cell \"000007144\"\n      - cell \"шт\"\n      - cell \"0.021\"\n      - cell \"5.489х3.283х6.361\"\n      - cell \"50\"\n- heading \"Лампа галогеновая H27 12V 27W PGJ13 (881)\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910013\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H27 12V 27W PGJ13 (881)\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"18647-27009 Hyundai/kia\":\n      - cell \"18647-27009\"\n      - cell \"Hyundai/kia\"\n    - row \"8 324 008 520 Ssangyong\":\n      - cell \"8 324 008 520\"\n      - cell \"Ssangyong\"\n    - row \"9 664 000 270 Ssangyong\":\n      - cell \"9 664 000 270\"\n      - cell \"Ssangyong\"\n    - row \"94 535 557 General Motors\":\n      - cell \"94 535 557\"\n      - cell \"General Motors\"\n    - row \"9999Z-02043 Hyundai/kia\":\n      - cell \"9999Z-02043\"\n      - cell \"Hyundai/kia\"\n    - row \"S1864727009 Hyundai/kia\":\n      - cell \"S1864727009\"\n      - cell \"Hyundai/kia\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"12 060 Philips\":\n      - cell \"12 060\"\n      - cell \"Philips\"\n    - row \"12060C1 Philips\":\n      - cell \"12060C1\"\n      - cell \"Philips\"\n    - row \"48 040 Narva\":\n      - cell \"48 040\"\n      - cell \"Narva\"\n    - row \"48 042 Narva\":\n      - cell \"48 042\"\n      - cell \"Narva\"\n    - row \"881 Osram\":\n      - cell \"881\"\n      - cell \"Osram\"\n    - row \"L18127 Lynxauto\":\n      - cell \"L18127\"\n      - cell \"Lynxauto\"\n    - row \"032229 Valeo\":\n      - cell \"032229\"\n      - cell \"Valeo\"\n    - row \""
+    },
+    {
+      "article": "AW1910017",
+      "url": "https://aywiparts.ru/product/view/5691",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910017/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007121 шт 0.019 4.873х3.437х6.515 8\":\n      - cell \"000007121\"\n      - cell \"шт\"\n      - cell \"0.019\"\n      - cell \"4.873х3.437х6.515\"\n      - cell \"8\"\n- heading \"Лампа галогеновая H7 24V 70W PX26D\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910017\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H7 24V 70W PX26D\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"13 869 700 Volvo\":\n      - cell \"13 869 700\"\n      - cell \"Volvo\"\n    - row \"2 906 779 Volvo\":\n      - cell \"2 906 779\"\n      - cell \"Volvo\"\n    - row \"3C4613D140AA Ford\":\n      - cell \"3C4613D140AA\"\n      - cell \"Ford\"\n    - row \"N000000002142 Mercedes-Benz\":\n      - cell \"N000000002142\"\n      - cell \"Mercedes-Benz\"\n    - row \"N000000004221 Mercedes-Benz\":\n      - cell \"N000000004221\"\n      - cell \"Mercedes-Benz\"\n    - row \"3C46-13D140-AA Ford Usa\":\n      - cell \"3C46-13D140-AA\"\n      - cell \"Ford Usa\"\n    - row \"90981-17022 Toyota\":\n      - cell \"90981-17022\"\n      - cell \"Toyota\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"0 986 GL0 124 Bosch\":\n      - cell \"0 986 GL0 124\"\n      - cell \"Bosch\"\n    - row \"0 986 GL0 503 Bosch\":\n      - cell \"0 986 GL0 503\"\n      - cell \"Bosch\"\n    - row \"1 987 302 471 Bosch\":\n      - cell \"1 987 302 471\"\n      - cell \"Bosch\"\n    - row \"1 987 302 772 Bosch\":\n      - cell \"1 987 302 772\"\n      - cell \"Bosch\"\n    - row \"13 972 Philips\":\n      - cell \"13 972\"\n      - cell \"Philips\"\n    - row \"48 728 Narva\":\n      - cell \"48 728\"\n      - cell \"Na"
+    },
+    {
+      "article": "AW1910021W",
+      "url": "https://aywiparts.ru/product/view/5699",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910021W/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007127 шт 0.029 6.156х4.412х6.515 50\":\n      - cell \"000007127\"\n      - cell \"шт\"\n      - cell \"0.029\"\n      - cell \"6.156х4.412х6.515\"\n      - cell \"50\"\n- heading \"Лампа галогеновая H11 12V 55W PGJ19-2 SUPER WHITE\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910021W\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H11 12V 55W PGJ19-2 SUPER WHITE\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"09471-12210 Suzuki\":\n      - cell \"09471-12210\"\n      - cell \"Suzuki\"\n    - row \"13 503 374 General Motors\":\n      - cell \"13 503 374\"\n      - cell \"General Motors\"\n    - row \"13 586 977 General Motors\":\n      - cell \"13 586 977\"\n      - cell \"General Motors\"\n    - row \"1S7A-13009-BA Ford Usa\":\n      - cell \"1S7A-13009-BA\"\n      - cell \"Ford Usa\"\n    - row \"26271-00QAA Nissan\":\n      - cell \"26271-00QAA\"\n      - cell \"Nissan\"\n    - row \"26271-4A00B Nissan\":\n      - cell \"26271-4A00B\"\n      - cell \"Nissan\"\n    - row \"26296-8990D Nissan\":\n      - cell \"26296-8990D\"\n      - cell \"Nissan\"\n    - row \"26296-8990E Nissan\":\n      - cell \"26296-8990E\"\n      - cell \"Nissan\"\n    - row \"26296-8991B Nissan\":\n      - cell \"26296-8991B\"\n      - cell \"Nissan\"\n    - row \"26296-89945 Nissan\":\n      - cell \"26296-89945\"\n      - cell \"Nissan\"\n    - row \"26296-89948 Nissan\":\n      - cell \"26296-89948\"\n      - cell \"Nissan\"\n    - row \"26296-89949 Nissan\":\n      - cell \"26296-89949\"\n      - cell \"Nissan\"\n    - row \"26296-8994D Nissan\":\n      - cell \"26296-8994D\"\n      - cell \"Nissan\"\n    - row \"26296-AU300 Nissan\":\n      - cell \"26296-AU300\"\n      - cell \"Nissan\"\n    - row \"2"
+    },
+    {
+      "article": "AW1910024",
+      "url": "https://aywiparts.ru/product/view/5705",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910024/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007112 шт 0.034 5.797х4.258х8.31 50\":\n      - cell \"000007112\"\n      - cell \"шт\"\n      - cell \"0.034\"\n      - cell \"5.797х4.258х8.31\"\n      - cell \"50\"\n- heading \"Лампа галогеновая R2 12V 45/40W P45T\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910024\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: R2 12V 45/40W P45T\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"07 11 9 978 396 Bmw\":\n      - cell \"07 11 9 978 396\"\n      - cell \"Bmw\"\n    - row \"09471-12048 Suzuki\":\n      - cell \"09471-12048\"\n      - cell \"Suzuki\"\n    - row \"20 98 002 Opel\":\n      - cell \"20 98 002\"\n      - cell \"Opel\"\n    - row \"20 98 003 Opel\":\n      - cell \"20 98 003\"\n      - cell \"Opel\"\n    - row \"26719-89929 Nissan\":\n      - cell \"26719-89929\"\n      - cell \"Nissan\"\n    - row \"90981-13013 Toyota\":\n      - cell \"90981-13013\"\n      - cell \"Toyota\"\n    - row \"N 017 70 53 Vag\":\n      - cell \"N 017 70 53\"\n      - cell \"Vag\"\n    - row \"N072601012100 Mercedes-Benz\":\n      - cell \"N072601012100\"\n      - cell \"Mercedes-Benz\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"0 986 GL0 096 Bosch\":\n      - cell \"0 986 GL0 096\"\n      - cell \"Bosch\"\n    - row \"0574 Koito\":\n      - cell \"0574\"\n      - cell \"Koito\"\n    - row \"1 987 301 020 Bosch\":\n      - cell \"1 987 301 020\"\n      - cell \"Bosch\"\n    - row \"1 987 302 023 Bosch\":\n      - cell \"1 987 302 023\"\n      - cell \"Bosch\"\n    - row \"12 620 Philips\":\n      - cell \"12 620\"\n      - cell \"Philips\"\n    - row \"12620C1 Philips\":\n    "
+    },
+    {
+      "article": "AW1910028W",
+      "url": "https://aywiparts.ru/product/view/5713",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910028W/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007145 шт 0.02 7х3.5х3.5 50\":\n      - cell \"000007145\"\n      - cell \"шт\"\n      - cell \"0.02\"\n      - cell \"7х3.5х3.5\"\n      - cell \"50\"\n- heading \"Лампа галогеновая H27 12V 27W PGJ13 (881) SUPER WHITE\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910028W\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H27 12V 27W PGJ13 (881) SUPER WHITE\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"12 060 Philips\":\n      - cell \"12 060\"\n      - cell \"Philips\"\n    - row \"12060C1 Philips\":\n      - cell \"12060C1\"\n      - cell \"Philips\"\n    - row \"48 040 Narva\":\n      - cell \"48 040\"\n      - cell \"Narva\"\n    - row \"48 042 Narva\":\n      - cell \"48 042\"\n      - cell \"Narva\"\n    - row \"881 Osram\":\n      - cell \"881\"\n      - cell \"Osram\"\n    - row \"L18127B Lynxauto\":\n      - cell \"L18127B\"\n      - cell \"Lynxauto\"\n    - row \"032229 Valeo\":\n      - cell \"032229\"\n      - cell \"Valeo\"\n    - row \"480 403 000 Narva\":\n      - cell \"480 403 000\"\n      - cell \"Narva\"\n    - row \"480 423 000 Narva\":\n      - cell \"480 423 000\"\n      - cell \"Narva\"\n    - row \"8GH 008 991-031 Hella\":\n      - cell \"8GH 008 991-031\"\n      - cell \"Hella\"\n    - row \"93 027 329 Ge\":\n      - cell \"93 027 329\"\n      - cell \"Ge\"\n    - row \"B12721 Tesla\":\n      - cell \"B12721\"\n      - cell \"Tesla\"\n    - row \"P0729W Koito\":\n      - cell \"P0729W\"\n      - cell \"Koito\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых прои"
+    },
+    {
+      "article": "AW1910029Y",
+      "url": "https://aywiparts.ru/product/view/5715",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910029Y/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007120 шт 0.019 4.925х3.437х6.361 50\":\n      - cell \"000007120\"\n      - cell \"шт\"\n      - cell \"0.019\"\n      - cell \"4.925х3.437х6.361\"\n      - cell \"50\"\n- heading \"Лампа галогеновая H7 12V 55W PX26d YELLOW\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910029Y\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H7 12V 55W PX26d YELLOW\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"64210 ALL Osram\":\n      - cell \"64210 ALL\"\n      - cell \"Osram\"\n    - row \"8GH 007 157-481 Hella\":\n      - cell \"8GH 007 157-481\"\n      - cell \"Hella\"\n    - row \"L10755Y Lynxauto\":\n      - cell \"L10755Y\"\n      - cell \"Lynxauto\"\n    - row \"032522 Valeo\":\n      - cell \"032522\"\n      - cell \"Valeo\"\n    - row \"032523 Valeo\":\n      - cell \"032523\"\n      - cell \"Valeo\"\n    - row \"1 987 302 073 Bosch\":\n      - cell \"1 987 302 073\"\n      - cell \"Bosch\"\n    - row \"48 528 Narva\":\n      - cell \"48 528\"\n      - cell \"Narva\"\n    - row \"485 282 000 Narva\":\n      - cell \"485 282 000\"\n      - cell \"Narva\"\n    - row \"62210FBR-HCB Osram\":\n      - cell \"62210FBR-HCB\"\n      - cell \"Osram\"\n    - row \"64210ALL-HCB Osram\":\n      - cell \"64210ALL-HCB\"\n      - cell \"Osram\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\":\n  - /url: /about\n  - paragraph: Компания «AYWIPARTS» была основана"
+    },
+    {
+      "article": "AW1910031W",
+      "url": "https://aywiparts.ru/product/view/5719",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910031W/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007132 шт 0.03 6.105х4.412х6.515 1\":\n      - cell \"000007132\"\n      - cell \"шт\"\n      - cell \"0.03\"\n      - cell \"6.105х4.412х6.515\"\n      - cell \"1\"\n- heading \"Лампа галогеновая HB3 9005 12V 60W P20D SUPE WHITE\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910031W\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: HB3 9005 12V 60W P20D SUPE WHITE\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"1 999 437 General Motors\":\n      - cell \"1 999 437\"\n      - cell \"General Motors\"\n    - row \"12 450 314 General Motors\":\n      - cell \"12 450 314\"\n      - cell \"General Motors\"\n    - row \"13 589 425 General Motors\":\n      - cell \"13 589 425\"\n      - cell \"General Motors\"\n    - row \"18647-65009H Hyundai/kia\":\n      - cell \"18647-65009H\"\n      - cell \"Hyundai/kia\"\n    - row \"18647-65009S Hyundai/kia\":\n      - cell \"18647-65009S\"\n      - cell \"Hyundai/kia\"\n    - row \"26296-7S000 Nissan\":\n      - cell \"26296-7S000\"\n      - cell \"Nissan\"\n    - row \"26296-89912 Nissan\":\n      - cell \"26296-89912\"\n      - cell \"Nissan\"\n    - row \"26296-89917 Nissan\":\n      - cell \"26296-89917\"\n      - cell \"Nissan\"\n    - row \"26296-89923 Nissan\":\n      - cell \"26296-89923\"\n      - cell \"Nissan\"\n    - row \"26296-89940 Nissan\":\n      - cell \"26296-89940\"\n      - cell \"Nissan\"\n    - row \"26719-6A0A4 Nissan\":\n      - cell \"26719-6A0A4\"\n      - cell \"Nissan\"\n    - row \"26719-HA00A Nissan\":\n      - cell \"26719-HA00A\"\n      - cell \"Nissan\"\n    - row \"33103-SL5-A02 Honda\":\n      - cell \"33103-SL5-A02\"\n      - cell \"Honda\"\n    - row \"33115-S7A-003 Honda\":\n      - cell \"33115-S7A-003\"\n   "
+    },
+    {
+      "article": "AW1910032W",
+      "url": "https://aywiparts.ru/product/view/5721",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910032W/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007142 шт 0.018 7х3.5х3.5 7\":\n      - cell \"000007142\"\n      - cell \"шт\"\n      - cell \"0.018\"\n      - cell \"7х3.5х3.5\"\n      - cell \"7\"\n- heading \"Лампа галогеновая H27 12V 27W PG13 (880) SUPER WHITE\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910032W\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H27 12V 27W PG13 (880) SUPER WHITE\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"12 059 Philips\":\n      - cell \"12 059\"\n      - cell \"Philips\"\n    - row \"12059C1 Philips\":\n      - cell \"12059C1\"\n      - cell \"Philips\"\n    - row \"48 039 Narva\":\n      - cell \"48 039\"\n      - cell \"Narva\"\n    - row \"48 041 Narva\":\n      - cell \"48 041\"\n      - cell \"Narva\"\n    - row \"880 Osram\":\n      - cell \"880\"\n      - cell \"Osram\"\n    - row \"8GH 008 991-021 Hella\":\n      - cell \"8GH 008 991-021\"\n      - cell \"Hella\"\n    - row \"L18027B Lynxauto\":\n      - cell \"L18027B\"\n      - cell \"Lynxauto\"\n    - row \"032227 Valeo\":\n      - cell \"032227\"\n      - cell \"Valeo\"\n    - row \"1 987 302 024 Bosch\":\n      - cell \"1 987 302 024\"\n      - cell \"Bosch\"\n    - row \"480 393 000 Narva\":\n      - cell \"480 393 000\"\n      - cell \"Narva\"\n    - row \"480 413 000 Narva\":\n      - cell \"480 413 000\"\n      - cell \"Narva\"\n    - row \"93 027 328 Ge\":\n      - cell \"93 027 328\"\n      - cell \"Ge\"\n    - row \"B12711 Tesla\":\n      - cell \"B12711\"\n      - cell \"Tesla\"\n    - row \"P0728W Koito\":\n      - cell \"P0728W\"\n      - cell \"Koito\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании "
+    },
+    {
+      "article": "AW1910036Y",
+      "url": "https://aywiparts.ru/product/view/5729",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1910036Y/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007104 шт 0.01 7х2х2 50\":\n      - cell \"000007104\"\n      - cell \"шт\"\n      - cell \"0.01\"\n      - cell \"7х2х2\"\n      - cell \"50\"\n- heading \"Лампа галогеновая H3 12V 55W PK22s YELLOW\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910036Y\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H3 12V 55W PK22s YELLOW\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"48 521 Narva\":\n      - cell \"48 521\"\n      - cell \"Narva\"\n    - row \"64151 ALS Osram\":\n      - cell \"64151 ALS\"\n      - cell \"Osram\"\n    - row \"8GH 002 090-481 Hella\":\n      - cell \"8GH 002 090-481\"\n      - cell \"Hella\"\n    - row \"L10355Y Lynxauto\":\n      - cell \"L10355Y\"\n      - cell \"Lynxauto\"\n    - row \"1 987 302 033 Bosch\":\n      - cell \"1 987 302 033\"\n      - cell \"Bosch\"\n    - row \"485 212 000 Narva\":\n      - cell \"485 212 000\"\n      - cell \"Narva\"\n    - row \"62151FBR-HCB Osram\":\n      - cell \"62151FBR-HCB\"\n      - cell \"Osram\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\":\n  - /url: /about\n  - paragraph: Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешн"
+    },
+    {
+      "article": "AW1910040",
+      "url": "https://aywiparts.ru/product/view/5737",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007099 шт 0.011 4.536х3.528х3.528 50\":\n      - cell \"000007099\"\n      - cell \"шт\"\n      - cell \"0.011\"\n      - cell \"4.536х3.528х3.528\"\n      - cell \"50\"\n- heading \"Лампа галогеновая H3C 12V 100W PK22d/5\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1910040\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: H3C 12V 100W PK22d/5\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"P0753W Koito\":\n      - cell \"P0753W\"\n      - cell \"Koito\"\n    - row \"L15900 Lynxauto\":\n      - cell \"L15900\"\n      - cell \"Lynxauto\"\n    - row \"0753W Koito\":\n      - cell \"0753W\"\n      - cell \"Koito\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\":\n  - /url: /about\n  - paragraph: Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\n- heading \"Контакты представительства в Москве\" [level=4]\n- paragraph:\n  - text: Россия, 117279, г. Москва,\n  - text: ул. Миклухо-Маклая 36а, оф. 404\n- paragraph:\n  - link \"info@aywiparts.com\":\n    - /url: mailto:info@awyparts.com\n  - text: \"Телефон: +7 499 350 13 75\"\n- paragraph:\n  - link \"ГДЕ КУПИТЬ?\":\n    - /url: /gde-kupit\n    - generic: \n"
+    },
+    {
+      "article": "AW1920005",
+      "url": "https://aywiparts.ru/product/view/5775",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1920005/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007182 шт 0.003 2.506х2.506х6.405 10\":\n      - cell \"000007182\"\n      - cell \"шт\"\n      - cell \"0.003\"\n      - cell \"2.506х2.506х6.405\"\n      - cell \"10\"\n- heading \"Лампа накаливания W21/5W T20 12V 21/5W W3X16q\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1920005\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: W21/5W T20 12V 21/5W W3X16q\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"26261-89947 Nissan\":\n      - cell \"26261-89947\"\n      - cell \"Nissan\"\n    - row \"90981-11043 Toyota\":\n      - cell \"90981-11043\"\n      - cell \"Toyota\"\n    - row \"90981-11048 Toyota\":\n      - cell \"90981-11048\"\n      - cell \"Toyota\"\n    - row \"90981-13044 Toyota\":\n      - cell \"90981-13044\"\n      - cell \"Toyota\"\n    - row \"9970-08-215 Mazda\":\n      - cell \"9970-08-215\"\n      - cell \"Mazda\"\n    - row \"AY080-00057 Nissan\":\n      - cell \"AY080-00057\"\n      - cell \"Nissan\"\n    - row \"MS820027 Mitsubishi\":\n      - cell \"MS820027\"\n      - cell \"Mitsubishi\"\n    - row \"09471-12192 Suzuki\":\n      - cell \"09471-12192\"\n      - cell \"Suzuki\"\n    - row \"13 278 000 General Motors\":\n      - cell \"13 278 000\"\n      - cell \"General Motors\"\n    - row \"13 500 813 General Motors\":\n      - cell \"13 500 813\"\n      - cell \"General Motors\"\n    - row \"15 194 045 General Motors\":\n      - cell \"15 194 045\"\n      - cell \"General Motors\"\n    - row \"1N12-51-0X4 Mazda\":\n      - cell \"1N12-51-0X4\"\n      - cell \"Mazda\"\n    - row \"26 29 973 21R Renault\":\n      - cell \"26 29 973 21R\"\n      - cell \"Renault\"\n    - row \"26261-6A0A1 Nissan\":\n      - cell \"26261-6A0A1\"\n      - cell \"Nissan\"\n    - row \"2"
+    },
+    {
+      "article": "AW1920007",
+      "url": "https://aywiparts.ru/product/view/5779",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1920007/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007179 шт 0.008 2.553х2.553х6.266 Нет в наличии\":\n      - cell \"000007179\"\n      - cell \"шт\"\n      - cell \"0.008\"\n      - cell \"2.553х2.553х6.266\"\n      - cell \"Нет в наличии\"\n- heading \"Лампа накаливания P21W S25 24V 21W BA15S\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1920007\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: P21W S25 24V 21W BA15S\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"140 000 60 02 Mercedes-Benz\":\n      - cell \"140 000 60 02\"\n      - cell \"Mercedes-Benz\"\n    - row \"70 508 337 Volvo\":\n      - cell \"70 508 337\"\n      - cell \"Volvo\"\n    - row \"945 091 Volvo\":\n      - cell \"945 091\"\n      - cell \"Volvo\"\n    - row \"9-82691-347-0 Isuzu\":\n      - cell \"9-82691-347-0\"\n      - cell \"Isuzu\"\n    - row \"99134-11250 Toyota\":\n      - cell \"99134-11250\"\n      - cell \"Toyota\"\n    - row \"A 140 000 60 02 Mercedes-Benz\":\n      - cell \"A 140 000 60 02\"\n      - cell \"Mercedes-Benz\"\n    - row \"KDWHLO9590 Vag\":\n      - cell \"KDWHLO9590\"\n      - cell \"Vag\"\n    - row \"MH056215 Mitsubishi\":\n      - cell \"MH056215\"\n      - cell \"Mitsubishi\"\n    - row \"N 017 73 25 Vag\":\n      - cell \"N 017 73 25\"\n      - cell \"Vag\"\n    - row \"N072601024190 Mercedes-Benz\":\n      - cell \"N072601024190\"\n      - cell \"Mercedes-Benz\"\n    - row \"N072601024192 Mercedes-Benz\":\n      - cell \"N072601024192\"\n      - cell \"Mercedes-Benz\"\n    - row \"26099-99101 Nissan\":\n      - cell \"26099-99101\"\n      - cell \"Nissan\"\n    - row \"26099-Z9206 Nissan\":\n      - cell \"26099-Z9206\"\n      - cell \"Nissan\"\n    - row \"90981-16014 Toyota\":\n      - cell \"90981-16014\"\n      - cell \"To"
+    },
+    {
+      "article": "AW1920047P",
+      "url": "https://aywiparts.ru/product/view/14186",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1920047P/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000044718 шт 0.01 50\":\n      - cell \"000044718\"\n      - cell \"шт\"\n      - cell \"0.01\"\n      - cell\n      - cell \"50\"\n- heading \"Лампа накаливания T4 14V 1.12W\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1920047P\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: T4 14V 1.12W\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"L13542D Lynxauto\":\n      - cell \"L13542D\"\n      - cell \"Lynxauto\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\":\n  - /url: /about\n  - paragraph: Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\n- heading \"Контакты представительства в Москве\" [level=4]\n- paragraph:\n  - text: Россия, 117279, г. Москва,\n  - text: ул. Миклухо-Маклая 36а, оф. 404\n- paragraph:\n  - link \"info@aywiparts.com\":\n    - /url: mailto:info@awyparts.com\n  - text: \"Телефон: +7 499 350 13 75\"\n- paragraph:\n  - link \"ГДЕ КУПИТЬ?\":\n    - /url: /gde-kupit\n    - generic: \n    - text: ГДЕ КУПИТЬ?\n- heading \"Мы в социальных сетях\" [level=4]\n- link \"vk\":\n  - /url: https://vk.com/aywiparts\n  - img \"vk"
+    },
+    {
+      "article": "AW1930025B2",
+      "url": "https://aywiparts.ru/product/view/21277",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1930025B2/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000047969 шт 10\":\n      - cell \"000047969\"\n      - cell \"шт\"\n      - cell\n      - cell\n      - cell \"10\"\n    - row \"000049766 шт(1) Нет в наличии\":\n      - cell \"000049766\"\n      - cell \"шт(1)\"\n      - cell\n      - cell\n      - cell \"Нет в наличии\"\n- heading \"Комплект лампы газоразрядной D3S 12V 35W PK32D-5 4300K\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1930025B2\n- text: \"Товарная группа:\"\n- generic: Автомобильные лампы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: \"Оригинальный номер:\"\n- generic: \"Единица хранения:\"\n- generic: компл\n- generic: \"Применяемость:\"\n- generic: Комплект лампы газоразрядной D3S 12V 35W PK32D-5 4300K 2 шт.\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"31 290 593 Volvo\":\n      - cell \"31 290 593\"\n      - cell \"Volvo\"\n    - row \"4 855 951 Ford\":\n      - cell \"4 855 951\"\n      - cell \"Ford\"\n    - row \"LR009163 Land Rover\":\n      - cell \"LR009163\"\n      - cell \"Land Rover\"\n    - row \"N 107 218 01 Vag\":\n      - cell \"N 107 218 01\"\n      - cell \"Vag\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"42 302 Philips\":\n      - cell \"42 302\"\n      - cell \"Philips\"\n    - row \"42302C1 Philips\":\n      - cell \"42302C1\"\n      - cell \"Philips\"\n    - row \"42403VIC1 Philips\":\n      - cell \"42403VIC1\"\n      - cell \"Philips\"\n    - row \"42403VIS1 Philips\":\n      - cell \"42403VIS1\"\n      - cell \"Philips\"\n    - row \"42403XVC1 Philips\":\n      - cell \"42403XVC1\"\n      - cell \"Philips\"\n    - row \"42403XVS1 Philips\":\n      - cell \"42403XVS1\"\n      - cell \"Philips\"\n    - row \"66 340 Osram\":\n      - cell \"66 340\"\n      - cell \"Osram\"\n    - row \"89 901 313 Herth+Buss Elparts\":\n      - cell \"89 901 313\"\n      - cell \"Herth+Buss Elparts\"\n    - row \"8GS 009 028-201 Hella\":\n "
+    },
+    {
+      "article": "AW2040038",
+      "url": "https://aywiparts.ru/product/view/5965",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW2040038/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000036426 шт 0.231 7.899х8.795х16.205 50\":\n      - cell \"000036426\"\n      - cell \"шт\"\n      - cell \"0.231\"\n      - cell \"7.899х8.795х16.205\"\n      - cell \"50\"\n- heading \"Монолитные щётки (бескаркасные) 380 mm\" [level=3]\n- text: \"Артикул:\"\n- generic: AW2040038\n- text: \"Товарная группа:\"\n- generic: Щётки стеклоочистителя\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: 380 mm\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"3B9 955 427 Vag\":\n      - cell \"3B9 955 427\"\n      - cell \"Vag\"\n    - row \"8D9 955 425 Vag\":\n      - cell \"8D9 955 425\"\n      - cell \"Vag\"\n    - row \"28890-JD910 Nissan\":\n      - cell \"28890-JD910\"\n      - cell \"Nissan\"\n    - row \"28890-JD910C Nissan\":\n      - cell \"28890-JD910C\"\n      - cell \"Nissan\"\n    - row \"95 228 810 General Motors\":\n      - cell \"95 228 810\"\n      - cell \"General Motors\"\n    - row \"1A03-67-330 Mazda\":\n      - cell \"1A03-67-330\"\n      - cell \"Mazda\"\n    - row \"1A53-67-330 Mazda\":\n      - cell \"1A53-67-330\"\n      - cell \"Mazda\"\n    - row \"28790-70N00 Nissan\":\n      - cell \"28790-70N00\"\n      - cell \"Nissan\"\n    - row \"28790-70N05 Nissan\":\n      - cell \"28790-70N05\"\n      - cell \"Nissan\"\n    - row \"28890-6A00F Nissan\":\n      - cell \"28890-6A00F\"\n      - cell \"Nissan\"\n    - row \"28890-6A0A0 Nissan\":\n      - cell \"28890-6A0A0\"\n      - cell \"Nissan\"\n    - row \"28890-ES51A Nissan\":\n      - cell \"28890-ES51A\"\n      - cell \"Nissan\"\n    - row \"38340-76F10 Suzuki\":\n      - cell \"38340-76F10\"\n      - cell \"Suzuki\"\n    - row \"38340-77510 Suzuki\":\n      - cell \"38340-77510\"\n      - cell \"Suzuki\"\n    - row \"5-86011-160-0 Isuzu\":\n      - cell \"5-86011-160-0\"\n      - cell \"Isuzu"
+    },
+    {
+      "article": "AW2055353",
+      "url": "https://aywiparts.ru/product/view/5995",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW2055353/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000007091 компл 0.288 6.759х7.003х17.101 50\":\n      - cell \"000007091\"\n      - cell \"компл\"\n      - cell \"0.288\"\n      - cell \"6.759х7.003х17.101\"\n      - cell \"50\"\n- heading \"Каркасная щётка (комплект) 530 + 530 mm\" [level=3]\n- text: \"Артикул:\"\n- generic: AW2055353\n- text: \"Товарная группа:\"\n- generic: Щётки стеклоочистителя\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: компл\n- generic: \"Применяемость:\"\n- generic: 530mm\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"21100-5205070-02 Lada\":\n      - cell \"21100-5205070-02\"\n      - cell \"Lada\"\n    - row \"2110-5205070 Lada\":\n      - cell \"2110-5205070\"\n      - cell \"Lada\"\n    - row \"2115-5205070 Lada\":\n      - cell \"2115-5205070\"\n      - cell \"Lada\"\n    - row \"2115-5205070-01 Lada\":\n      - cell \"2115-5205070-01\"\n      - cell \"Lada\"\n    - row \"2115-5205070-03 Lada\":\n      - cell \"2115-5205070-03\"\n      - cell \"Lada\"\n    - row \"2115-5205070-04 Lada\":\n      - cell \"2115-5205070-04\"\n      - cell \"Lada\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"E53/B02 Champion\":\n      - cell \"E53/B02\"\n      - cell \"Champion\"\n- heading \"О компании\" [level=4]\n- link \"Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным видом деятельности компании было оказание услуг крупным производителям автозапчастей в сфере независимых производственных испытаний и контроля качества выпускаемой продукции. За годы успешной работы специалистами компании ...\":\n  - /url: /about\n  - paragraph: Компания «AYWIPARTS» была основана в 1993 году в Республике Корея. Первоначально основным ви"
+    },
+    {
+      "article": "AW2120354",
+      "url": "https://aywiparts.ru/product/view/7034",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW2120354/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000040212 шт 0.081 7.28х6.054х11.648 50\":\n      - cell \"000040212\"\n      - cell \"шт\"\n      - cell \"0.081\"\n      - cell \"7.28х6.054х11.648\"\n      - cell \"50\"\n- heading \"Ремень клиновой (10x938)\" [level=3]\n- text: \"Артикул:\"\n- generic: AW2120354\n- text: \"Товарная группа:\"\n- generic: Ремни\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: LADA 2101-07/Niva\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"000 997 08 92 Mercedes-Benz\":\n      - cell \"000 997 08 92\"\n      - cell \"Mercedes-Benz\"\n    - row \"004 997 87 92 Mercedes-Benz\":\n      - cell \"004 997 87 92\"\n      - cell \"Mercedes-Benz\"\n    - row \"049 903 137 D Vag\":\n      - cell \"049 903 137 D\"\n      - cell \"Vag\"\n    - row \"11720-06E06 Nissan\":\n      - cell \"11720-06E06\"\n      - cell \"Nissan\"\n    - row \"11720-08E06 Nissan\":\n      - cell \"11720-08E06\"\n      - cell \"Nissan\"\n    - row \"11720-08E07 Nissan\":\n      - cell \"11720-08E07\"\n      - cell \"Nissan\"\n    - row \"11720-30W00 Nissan\":\n      - cell \"11720-30W00\"\n      - cell \"Nissan\"\n    - row \"11720-80W00 Nissan\":\n      - cell \"11720-80W00\"\n      - cell \"Nissan\"\n    - row \"11720-80W10 Nissan\":\n      - cell \"11720-80W10\"\n      - cell \"Nissan\"\n    - row \"11950-08E05 Nissan\":\n      - cell \"11950-08E05\"\n      - cell \"Nissan\"\n    - row \"11950-08E15 Nissan\":\n      - cell \"11950-08E15\"\n      - cell \"Nissan\"\n    - row \"12 31 1 278 250 Bmw\":\n      - cell \"12 31 1 278 250\"\n      - cell \"Bmw\"\n    - row \"12 31 1 284 740 Bmw\":\n      - cell \"12 31 1 284 740\"\n      - cell \"Bmw\"\n    - row \"13 40 730 Opel\":\n      - cell \"13 40 730\"\n      - cell \"Opel\"\n    - row \"13 40 734 Opel\":\n      - cell \"13 40 734\"\n      - cell \"Opel\"\n"
+    },
+    {
+      "article": "AW2130504",
+      "url": "https://aywiparts.ru/product/view/14987",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW2130504/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000043903 шт 0.376 7.544х11.228х18.772 50\":\n      - cell \"000043903\"\n      - cell \"шт\"\n      - cell \"0.376\"\n      - cell \"7.544х11.228х18.772\"\n      - cell \"50\"\n- heading \"Ремень поликлиновой (8PK2410)\" [level=3]\n- text: \"Артикул:\"\n- generic: AW2130504\n- text: \"Товарная группа:\"\n- generic: Ремни\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: TOYOTA LAND Cruiser(J200) 4.6-5.7 07> / Sequoia 4.6-5.7 08> / Tundra 4.6-5.7 07>, LEXUS GX460 09> / LX570 07>\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"90916-02680 Toyota\":\n      - cell \"90916-02680\"\n      - cell \"Toyota\"\n    - row \"90916-A2014 Toyota\":\n      - cell \"90916-A2014\"\n      - cell \"Toyota\"\n    - row \"90916-02759 LEXUS\":\n      - cell \"90916-02759\"\n      - cell \"LEXUS\"\n    - row \"90916A2023 Toyota\":\n      - cell \"90916A2023\"\n      - cell \"Toyota\"\n    - row \"90916A2033 Toyota\":\n      - cell \"90916A2033\"\n      - cell \"Toyota\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"8PK2410 Gates\":\n      - cell \"8PK2410\"\n      - cell \"Gates\"\n    - row \"8PK2410 Lynxauto\":\n      - cell \"8PK2410\"\n      - cell \"Lynxauto\"\n    - row \"112-8PK2410 Ashika\":\n      - cell \"112-8PK2410\"\n      - cell \"Ashika\"\n    - row \"8PK2410 Dongil\":\n      - cell \"8PK2410\"\n      - cell \"Dongil\"\n    - row \"8PK2410 Japko\":\n      - cell \"8PK2410\"\n      - cell \"Japko\"\n    - row \"DV-8PK2410 Japanparts\":\n      - cell \"DV-8PK2410\"\n      - cell \"Japanparts\"\n    - row \"MB8PK2410 Mando\":\n      - cell \"MB8PK2410\"\n      - cell \"Mando\"\n    - row \"VKMV 8PK2410 Skf\":\n      - cell \"VKMV 8PK2410"
+    },
+    {
+      "article": "AW2130699",
+      "url": "https://aywiparts.ru/product/view/15127",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW2130699/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000044015 шт 0.229 9.722х8.101х15.494 7\":\n      - cell \"000044015\"\n      - cell \"шт\"\n      - cell \"0.229\"\n      - cell \"9.722х8.101х15.494\"\n      - cell \"7\"\n- heading \"Ремень поликлиновой (6PK2000)\" [level=3]\n- text: \"Артикул:\"\n- generic: AW2130699\n- text: \"Товарная группа:\"\n- generic: Ремни\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: HUYNDAI Sonata 2.5 98-01/2.7 01>/Tucson 2.7 04>, KIA Sportage 2.7 04>, SAAB 9-5 2.0-2.3T 97>, VW Transporter 4 2.5 90-03\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"002 993 89 96 Mercedes-Benz\":\n      - cell \"002 993 89 96\"\n      - cell \"Mercedes-Benz\"\n    - row \"25212-37110 Hyundai/kia\":\n      - cell \"25212-37110\"\n      - cell \"Hyundai/kia\"\n    - row \"25212-37112 Hyundai/kia\":\n      - cell \"25212-37112\"\n      - cell \"Hyundai/kia\"\n    - row \"53010 257 Chrysler\":\n      - cell \"53010 257\"\n      - cell \"Chrysler\"\n    - row \"A 002 993 89 96 Mercedes-Benz\":\n      - cell \"A 002 993 89 96\"\n      - cell \"Mercedes-Benz\"\n    - row \"008 997 90 92 Mercedes-Benz\":\n      - cell \"008 997 90 92\"\n      - cell \"Mercedes-Benz\"\n    - row \"011 997 53 92 Mercedes-Benz\":\n      - cell \"011 997 53 92\"\n      - cell \"Mercedes-Benz\"\n    - row \"062 903 137 Vag\":\n      - cell \"062 903 137\"\n      - cell \"Vag\"\n    - row \"074 903 137 AA Vag\":\n      - cell \"074 903 137 AA\"\n      - cell \"Vag\"\n    - row \"076 145 933 Vag\":\n      - cell \"076 145 933\"\n      - cell \"Vag\"\n    - row \"25212-37101 Hyundai/kia\":\n      - cell \"25212-37101\"\n      - cell \"Hyundai/kia\"\n    - row \"25212-37102 Hyundai/kia\":\n      - cell \"25212-37102\"\n      - cell \"Hyundai/kia\"\n    - row \"25212-37182 Hyundai/kia\":\n      - cell \"25"
+    },
+    {
+      "article": "AW2220481",
+      "url": "https://aywiparts.ru/product/view/23120",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000049783 шт 1.467 8.517х14.283х19.787 50\":\n      - cell \"000049783\"\n      - cell \"шт\"\n      - cell \"1.467\"\n      - cell \"8.517х14.283х19.787\"\n      - cell \"50\"\n- heading \"Ступица задняя\" [level=3]\n- text: \"Артикул:\"\n- generic: AW2220481\n- text: \"Товарная группа:\"\n- generic: Ступицы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: \"Оригинальный номер:\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: TOYOTA RAV4 2.0 94-00\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"42409-42010 Toyota\":\n      - cell \"42409-42010\"\n      - cell \"Toyota\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"0182-SXA10R Febest\":\n      - cell \"0182-SXA10R\"\n      - cell \"Febest\"\n    - row \"051161B Bendix\":\n      - cell \"051161B\"\n      - cell \"Bendix\"\n    - row \"27 315 Febi Bilstein\":\n      - cell \"27 315\"\n      - cell \"Febi Bilstein\"\n    - row \"38BWK01J-Y-2CA41 Nsk\":\n      - cell \"38BWK01J-Y-2CA41\"\n      - cell \"Nsk\"\n    - row \"512 038 Timken\":\n      - cell \"512 038\"\n      - cell \"Timken\"\n    - row \"6 942 Ruville\":\n      - cell \"6 942\"\n      - cell \"Ruville\"\n    - row \"713 6184 20 Fag\":\n      - cell \"713 6184 20\"\n      - cell \"Fag\"\n    - row \"764 523 Nk\":\n      - cell \"764 523\"\n      - cell \"Nk\"\n    - row \"982 762 Optimal\":\n      - cell \"982 762\"\n      - cell \"Optimal\"\n    - row \"GH22650 Gmb\":\n      - cell \"GH22650\"\n      - cell \"Gmb\"\n    - row \"R169.42 Snr\":\n      - cell \"R169.42\"\n      - cell \"Snr\"\n    - row \"TO-WB-12157 Moog\":\n      - cell \"TO-WB-12157\"\n      - cell \"Moog\"\n    - row \"VKBA 3728 Skf\":\n      - cell \"VKBA 3728\"\n      - cell \"Skf\"\n    - row \"WB-1031 Lynxauto\":\n      - cell \"WB-1031\"\n      - cell \"Lynxauto\"\n    - row \"WHB71185 Fenox\":\n      - cell \"WHB71185\"\n      - cell \"Fenox\"\n    - row \"ZA-38BWK01J-Y-2CA-01 N"
+    },
+    {
+      "article": "AW1310177L",
+      "url": "https://aywiparts.ru/product/view/143",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1310177L/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000010136 шт 0.688 8.4х13.152х15.141 2\":\n      - cell \"000010136\"\n      - cell \"шт\"\n      - cell \"0.688\"\n      - cell \"8.4х13.152х15.141\"\n      - cell \"2\"\n- heading \"Рулевой наконечник L\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1310177L\n- text: \"Товарная группа:\"\n- generic: Детали подвески\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: HYUNDAI Sonata(EF) 2.0-3.3 98-04 / XG 2.5-3.0 98>, KIA Optima/Magentis 2.0-2.5 00-05 / Opirus(GH) 2.7-3.5 03>\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"56820-38000 Hyundai/kia\":\n      - cell \"56820-38000\"\n      - cell \"Hyundai/kia\"\n    - row \"57780-38000 Hyundai/kia\":\n      - cell \"57780-38000\"\n      - cell \"Hyundai/kia\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"29 272 Febi Bilstein\":\n      - cell \"29 272\"\n      - cell \"Febi Bilstein\"\n    - row \"87 234 Sidem\":\n      - cell \"87 234\"\n      - cell \"Sidem\"\n    - row \"87 236 Sidem\":\n      - cell \"87 236\"\n      - cell \"Sidem\"\n    - row \"CEKH-29 Ctr\":\n      - cell \"CEKH-29\"\n      - cell \"Ctr\"\n    - row \"CEKK-26L Ctr\":\n      - cell \"CEKK-26L\"\n      - cell \"Ctr\"\n    - row \"HY-ES-2617 Moog\":\n      - cell \"HY-ES-2617\"\n      - cell \"Moog\"\n    - row \"HY-ES-2660 Moog\":\n      - cell \"HY-ES-2660\"\n      - cell \"Moog\"\n    - row \"SEK-8051L 555\":\n      - cell \"SEK-8051L\"\n      - cell \"555\"\n    - row \"C4166L Lynxauto\":\n      - cell \"C4166L\"\n      - cell \"Lynxauto\"\n    - row \"0292485 Ocap\":\n      - cell \"0292485\"\n      - cell \"Ocap\"\n    - row \"0710-0112 Gmb\":\n      - cell \"0710-0112\"\n      - cell \"Gmb\"\n    - row \"0711-"
+    },
+    {
+      "article": "AW1360838L",
+      "url": "https://aywiparts.ru/product/view/10486",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1360838L/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000042421 шт 5.088 10.176х27.018х30.878 1\":\n      - cell \"000042421\"\n      - cell \"шт\"\n      - cell \"5.088\"\n      - cell \"10.176х27.018х30.878\"\n      - cell \"1\"\n- heading \"Рычаг подвески передний нижний L с шаровой опорой\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1360838L\n- text: \"Товарная группа:\"\n- generic: Детали подвески\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"0\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: HYUNDAI ix35 (LM), KIA Sportage III (SL), HYUNDAI Tucson II (LM)\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"54500-2Y000 Hyundai/kia\":\n      - cell \"54500-2Y000\"\n      - cell \"Hyundai/kia\"\n    - row \"54500-2S600 Hyundai/kia\":\n      - cell \"54500-2S600\"\n      - cell \"Hyundai/kia\"\n    - row \"54500-2S000 Hyundai/kia\":\n      - cell \"54500-2S000\"\n      - cell \"Hyundai/kia\"\n    - row \"54500-2S100 Hyundai/kia\":\n      - cell \"54500-2S100\"\n      - cell \"Hyundai/kia\"\n    - row \"54500-2S500 Hyundai/kia\":\n      - cell \"54500-2S500\"\n      - cell \"Hyundai/kia\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"81 276 Sidem\":\n      - cell \"81 276\"\n      - cell \"Sidem\"\n    - row \"HY-WP-13301 Moog\":\n      - cell \"HY-WP-13301\"\n      - cell \"Moog\"\n    - row \"C5435L Lynxauto\":\n      - cell \"C5435L\"\n      - cell \"Lynxauto\"\n    - row \"CQ0166L Ctr\":\n      - cell \"CQ0166L\"\n      - cell \"Ctr\"\n    - row \"CQKH-102L Ctr\":\n      - cell \"CQKH-102L\"\n      - cell \"Ctr\"\n    - row \"0798092 Ocap\":\n      - cell \"0798092\"\n      - cell \"Ocap\"\n    - row \"174 497 Febi Bilstein\":\n      - cell \"174 497\"\n      - cell \"Febi Bilstein\"\n    - row \"49 400 489 Corteco\":\n "
+    },
+    {
+      "article": "AW1370214LR",
+      "url": "https://aywiparts.ru/product/view/2101",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1370214LR/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000005485 шт 0.473 8.289х9.726х13.484 1\":\n      - cell \"000005485\"\n      - cell \"шт\"\n      - cell \"0.473\"\n      - cell \"8.289х9.726х13.484\"\n      - cell \"1\"\n- heading \"Рулевая тяга L/R\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1370214LR\n- text: \"Товарная группа:\"\n- generic: Детали подвески\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: CHEVROLET Matiz 0.8-1.0 05>, DAEWOO Matiz 0.8-1.0 98>\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"521255 Daewoo\":\n      - cell \"521255\"\n      - cell \"Daewoo\"\n    - row \"93 741 074 General Motors\":\n      - cell \"93 741 074\"\n      - cell \"General Motors\"\n    - row \"521 255 General Motors\":\n      - cell \"521 255\"\n      - cell \"General Motors\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"26 796 Febi Bilstein\":\n      - cell \"26 796\"\n      - cell \"Febi Bilstein\"\n    - row \"89 012 Sidem\":\n      - cell \"89 012\"\n      - cell \"Sidem\"\n    - row \"89 013 Sidem\":\n      - cell \"89 013\"\n      - cell \"Sidem\"\n    - row \"CRKD-4 Ctr\":\n      - cell \"CRKD-4\"\n      - cell \"Ctr\"\n    - row \"DE-AX-1822 Moog\":\n      - cell \"DE-AX-1822\"\n      - cell \"Moog\"\n    - row \"C2051LR Lynxauto\":\n      - cell \"C2051LR\"\n      - cell \"Lynxauto\"\n    - row \"0602915 Ocap\":\n      - cell \"0602915\"\n      - cell \"Ocap\"\n    - row \"0604264 Ocap\":\n      - cell \"0604264\"\n      - cell \"Ocap\"\n    - row \"0812-0020 Gmb\":\n      - cell \"0812-0020\"\n      - cell \"Gmb\"\n    - row \"103-0W-D54 Ashika\":\n      - cell \"103-0W-D54\"\n      - cell \"Ashika\"\n    - row \"103D54 Japko\":\n      - cell \"103D54\"\n      - cell \"Japk"
+    },
+    {
+      "article": "AW1520645",
+      "url": "https://aywiparts.ru/product/view/5239",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1520645/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000006476 шт 3.767 13.089х14.9х29.381 1\":\n      - cell \"000006476\"\n      - cell \"шт\"\n      - cell \"3.767\"\n      - cell \"13.089х14.9х29.381\"\n      - cell \"1\"\n- heading \"Шрус Внутренний\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1520645\n- text: \"Товарная группа:\"\n- generic: Шрусы\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: TOYOTA LAND CRUISER PRADO 02-09/LEXUS GX470 02-09\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"43403-60020 Toyota\":\n      - cell \"43403-60020\"\n      - cell \"Toyota\"\n    - row \"43403-60040 Toyota\":\n      - cell \"43403-60040\"\n      - cell \"Toyota\"\n    - row \"43430-60080 Toyota\":\n      - cell \"43430-60080\"\n      - cell \"Toyota\"\n    - row \"43430-60081 Toyota\":\n      - cell \"43430-60081\"\n      - cell \"Toyota\"\n    - row \"43430-60082 Toyota\":\n      - cell \"43430-60082\"\n      - cell \"Toyota\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"0111-GRJ120 Febest\":\n      - cell \"0111-GRJ120\"\n      - cell \"Febest\"\n    - row \"CI-3721 Lynxauto\":\n      - cell \"CI-3721\"\n      - cell \"Lynxauto\"\n    - row \"TYIU-P120 Asva\":\n      - cell \"TYIU-P120\"\n      - cell \"Asva\"\n    - row \"TYIU-P120 Gsp\":\n      - cell \"TYIU-P120\"\n      - cell \"Gsp\"\n    - row \"0111-GRJ150 Febest\":\n      - cell \"0111-GRJ150\"\n      - cell \"Febest\"\n    - row \"GO 1989 Trialli\":\n      - cell \"GO 1989\"\n      - cell \"Trialli\"\n    - row \"42398032/S Formpart\":\n      - cell \"42398032/S\"\n      - cell \"Formpart\"\n    - row \"659049 Gsp\":\n      - cell \"659049\"\n      - cell \"Gsp\"\n    - row \"GA10052 Miles\":\n      - cell \"GA10052\"\n      -"
+    },
+    {
+      "article": "AW1320258LR",
+      "url": "https://aywiparts.ru/product/view/741",
+      "snapshot": "- list:\n  - link \"H\":\n    - /url: /\n  - link \"Вход\":\n    - /url: /user/auth\n  - link \"Регистрация\":\n    - /url: /registration/registration/registration\n- generic: \n- text: 8 499 350 13 75\n- banner:\n  - link \"aywiparts\":\n    - /url: /\n    - img \"aywiparts\"\n  - navigation:\n    - list:\n      - link \"О компании\":\n        - /url: /about\n      - link \"Продукция\":\n        - /url: /products\n      - link \"Каталог\":\n        - /url: /catalog\n      - link \"Где купить?\":\n        - /url: /gde-kupit\n  - textbox \"Поиск\"\n  - button\n- link:\n  - /url: /images/product/AW1320258LR/main.jpg\n- list:\n- heading \"Упаковка:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Единица хранения Вес кг Размер (ШхВхГ) мм Кол-во\":\n      - columnheader \"Код\"\n      - columnheader \"Единица хранения\"\n      - columnheader \"Вес кг\"\n      - columnheader \"Размер (ШхВхГ) мм\"\n      - columnheader \"Кол-во\"\n  - rowgroup:\n    - row \"000005156 шт 0.591 9.649х7.807х14.035 2\":\n      - cell \"000005156\"\n      - cell \"шт\"\n      - cell \"0.591\"\n      - cell \"9.649х7.807х14.035\"\n      - cell \"2\"\n- heading \"Шаровая опора нижняя L/R\" [level=3]\n- text: \"Артикул:\"\n- generic: AW1320258LR\n- text: \"Товарная группа:\"\n- generic: Детали подвески\n- heading \"Характеристики:\" [level=2]\n- generic: \"Страна происхождения:\"\n- generic: КОРЕЯ, РЕСПУБЛИКА\n- generic: \"Оригинальный номер:\"\n- generic: \"Кратность отгрузки:\"\n- generic: \"1\"\n- generic: \"Единица хранения:\"\n- generic: шт\n- generic: \"Применяемость:\"\n- generic: DAEWOO Nexia 1.5-1.5 16V 95-97/Espero 1.5-2.0 93-99/Lanos 1.4-1.6 97>, OPEL Kadett E 1.2-2.0 84-91\n- heading \"OEM:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"16 03 120 Opel\":\n      - cell \"16 03 120\"\n      - cell \"Opel\"\n    - row \"16 03 164 Opel\":\n      - cell \"16 03 164\"\n      - cell \"Opel\"\n    - row \"90 140 407 General Motors\":\n      - cell \"90 140 407\"\n      - cell \"General Motors\"\n    - row \"90 272 683 General Motors\":\n      - cell \"90 272 683\"\n      - cell \"General Motors\"\n    - row \"94 786 917 General Motors\":\n      - cell \"94 786 917\"\n      - cell \"General Motors\"\n    - row \"94 788 122 General Motors\":\n      - cell \"94 788 122\"\n      - cell \"General Motors\"\n    - row \"96 216 354 General Motors\":\n      - cell \"96 216 354\"\n      - cell \"General Motors\"\n    - row \"96 216 355 General Motors\":\n      - cell \"96 216 355\"\n      - cell \"General Motors\"\n- heading \"Кроссы:\" [level=3]\n- table:\n  - rowgroup:\n    - row \"Код Бренд\":\n      - columnheader \"Код\"\n      - columnheader \"Бренд\"\n  - rowgroup:\n    - row \"02620 Febi Bilstein\":\n      - cell \"02620\"\n      - cell \"Febi Bilstein\"\n    - row \"9 882 Sidem\":\n      - cell \"9 882\"\n      - cell \"Sidem\"\n    - row \"CBKD-1 Ctr\":\n      - cell \"CBKD-1\"\n      - cell \"Ctr\"\n    - row \"JBJ146 Trw\":\n      - cell \"JBJ146\"\n      - cell \"Trw\"\n"
+    }
+  ],
+  "source_rules": "ASVA и Альта-Картер запрещены. Только явный список источников, не вызывать stage_all_photos. Перед записью свежая проверка состояния и пустого фото."
+}
