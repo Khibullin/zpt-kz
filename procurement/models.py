@@ -139,7 +139,7 @@ class VehicleFitment(models.Model):
     model = models.CharField('Модель автомобиля', max_length=150)
     details = models.CharField('Поколение, годы, двигатель, ограничения', max_length=500, blank=True)
     configurations = models.JSONField('Модификации автомобиля по источнику', default=list, blank=True)
-    source_url = models.URLField('Источник применимости')
+    source_url = models.URLField('Источник применимости', max_length=2048)
     verified = models.BooleanField('Применимость проверена', default=False)
 
     class Meta:
