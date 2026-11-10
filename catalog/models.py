@@ -514,6 +514,13 @@ class Product(models.Model):
 
     supplier_thumbnail = models.ImageField(upload_to='products/', blank=True, default='')
 
+    @property
+    def storefront_image(self):
+        # A manager's replacement uses the normal upload path and takes priority.
+        if self.supplier_thumbnail and self.main_image.name.startswith('products/optimized/'):
+            return self.supplier_thumbnail
+        return self.main_image
+
     compatibility = models.TextField(
         blank=True,
         verbose_name='Совместимость'

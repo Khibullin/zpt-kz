@@ -43,7 +43,11 @@ def save_shared_image(storage,data):
     """Content addressing reuses identical encoded images, including after retry."""
     name='products/optimized/'+hashlib.sha256(data).hexdigest()+'.webp'
     if not storage.exists(name):
-        name=storage.save(name,ContentFile(data))
+        saved=storage.save(name,ContentFile(data))
+        if saved!=name and storage.exists(name):
+            storage.delete(saved)
+        else:
+            name=saved
     return name
 
 class SourceUnavailable(ValueError):
