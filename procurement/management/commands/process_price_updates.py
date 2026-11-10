@@ -29,6 +29,7 @@ class Command(BaseCommand):
             signal.signal(signal.SIGINT, stop)
         while running:
             close_old_connections()
+            photo_progress = 0
             try:
                 query = PriceUpdate.objects.filter(status__in=['ready', 'running']).order_by('pk')
                 if options['batch']:
@@ -56,7 +57,7 @@ class Command(BaseCommand):
                     if refresh_sitemap_snapshots():
                         self.stdout.write('Public sitemap snapshots refreshed')
                     from catalog.source_photos import process_photo_tasks
-                    process_photo_tasks(limit=10)
+                    photo_progress = process_photo_tasks(limit=10)
                 if options['watch']:
                     KaspiReviewTask.objects.filter(status='checking', updated_at__lt=timezone.now()-timedelta(minutes=30)).update(status='pending')
                     tasks = KaspiReviewTask.objects.filter(status='pending', offer__match_verified=True,
@@ -71,6 +72,10 @@ class Command(BaseCommand):
                 if not options['watch']:
                     raise
                 logger.exception('Price update paused; committed progress is retained')
+            # Polling delays are for an idle queue. Recheck price jobs and other
+            # work between photo batches, then keep draining staged photos.
+            if options['watch'] and photo_progress:
+                continue
             if not options['watch']:
                 break
             for _ in range(10):
