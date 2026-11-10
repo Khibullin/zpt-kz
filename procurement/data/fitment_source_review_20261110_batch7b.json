@@ -1,0 +1,424 @@
+{
+  "checked_on": "2026-11-10",
+  "supplier_id": 3,
+  "completed_offers": [
+    {
+      "brand": "MOTORAD",
+      "article": "214-77JK",
+      "source_brand": "MOTORAD",
+      "source_article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "status": "sourced",
+      "note": "Все 64 строк Applications на 4 страницах прочитаны. Исключены 8 строк с противоречием года и Date To/From; отложены для независимой проверки: NISSAN Primera Estate/Wagon 1998 [Date To: 04/93 Climate Zones: not for cold climates]; NISSAN Primera Estate/Wagon 1997 [Date To: 04/93 Climate Zones: not for cold climates]; NISSAN Primera Estate/Wagon 1996 [Date To: 04/93 Climate Zones: not for cold climates]; NISSAN Sunny 1995 [Date To: 10/92]; NISSAN Primera Estate/Wagon 1995 [Date To: 04/93 Climate Zones: not for cold climates]; NISSAN Sunny 1994 [Date To: 10/92]; NISSAN Primera Estate/Wagon 1994 [Date To: 04/93 Climate Zones: not for cold climates]; NISSAN Sunny 1993 [Date To: 10/92]",
+      "configurations": 56
+    },
+    {
+      "brand": "MOTORAD",
+      "article": "214-82JK",
+      "source_brand": "MOTORAD",
+      "source_article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "status": "sourced",
+      "note": "Все 90 строк Applications на 5 страницах прочитаны. Исключены 17 строк с противоречием года и Date To/From; отложены для независимой проверки: TOYOTA Funcruiser 1995 [Date From: 03/96]; TOYOTA Caldina 1995 [Date From: 03/96]; TOYOTA RAV 4 1995 [Date From: 03/96]; TOYOTA Carina E 1995 [Date From: 03/96]; TOYOTA Funcruiser 1994 [Date From: 03/96]; TOYOTA Caldina 1994 [Date From: 03/96]; TOYOTA RAV 4 1994 [Date From: 03/96]; TOYOTA Carina E 1994 [Date From: 03/96]; TOYOTA Caldina 1993 [Date From: 03/96]; TOYOTA Carina E 1993 [Date From: 03/96]; TOYOTA Caldina 1992 [Date From: 03/96]; TOYOTA Carina E 1992 [Date From: 03/96]; TOYOTA Celica (Nato) 1990 [Date From: 09/91]; TOYOTA Celica (Nato) 1989 [Date From: 09/91]",
+      "configurations": 73
+    },
+    {
+      "brand": "MOTORAD",
+      "article": "232-91K",
+      "source_brand": "MOTORAD",
+      "source_article": "232-91K",
+      "source_url": "https://eu.motorad.com/part/232-91k/",
+      "status": "sourced",
+      "note": "Все 345 строк Applications на 18 страницах прочитаны.",
+      "configurations": 345
+    },
+    {
+      "brand": "MOTORAD",
+      "article": "234-80K",
+      "source_brand": "MOTORAD",
+      "source_article": "234-80K",
+      "source_url": "https://eu.motorad.com/part/234-80k/",
+      "status": "sourced",
+      "note": "Все 205 строк Applications на 11 страницах прочитаны.",
+      "configurations": 205
+    },
+    {
+      "brand": "MOTORAD",
+      "article": "234-82K",
+      "source_brand": "MOTORAD",
+      "source_article": "234-82K",
+      "source_url": "https://eu.motorad.com/part/234-82k/",
+      "status": "sourced",
+      "note": "Все 125 строк Applications на 7 страницах прочитаны.",
+      "configurations": 125
+    },
+    {
+      "brand": "MOTORAD",
+      "article": "234-87K",
+      "source_brand": "MOTORAD",
+      "source_article": "234-87K",
+      "source_url": "https://eu.motorad.com/part/234-87k/",
+      "status": "sourced",
+      "note": "Все 898 строк Applications на 45 страницах прочитаны.",
+      "configurations": 898
+    },
+    {
+      "brand": "MOTORAD",
+      "article": "234-92K",
+      "source_brand": "MOTORAD",
+      "source_article": "234-92K",
+      "source_url": "https://eu.motorad.com/part/234-92k/",
+      "status": "sourced",
+      "note": "Все 412 строк Applications на 21 страницах прочитаны.",
+      "configurations": 412
+    }
+  ],
+  "unresolved_configurations": [
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1998",
+      "make": "NISSAN",
+      "model": "Primera Estate/Wagon",
+      "engine": "1.6L 1597CC 4-Cyl GA16DE/GA16DS Petrol",
+      "notes": "Date To: 04/93 Climate Zones: not for cold climates",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1997",
+      "make": "NISSAN",
+      "model": "Primera Estate/Wagon",
+      "engine": "1.6L 1597CC 4-Cyl GA16DE/GA16DS Petrol",
+      "notes": "Date To: 04/93 Climate Zones: not for cold climates",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1996",
+      "make": "NISSAN",
+      "model": "Primera Estate/Wagon",
+      "engine": "1.6L 1597CC 4-Cyl GA16DE/GA16DS Petrol",
+      "notes": "Date To: 04/93 Climate Zones: not for cold climates",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1995",
+      "make": "NISSAN",
+      "model": "Sunny",
+      "engine": "1.4L 1392CC 4-Cyl GA14DS Petrol",
+      "notes": "Date To: 10/92",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1995",
+      "make": "NISSAN",
+      "model": "Primera Estate/Wagon",
+      "engine": "1.6L 1597CC 4-Cyl GA16DE/GA16DS Petrol",
+      "notes": "Date To: 04/93 Climate Zones: not for cold climates",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1994",
+      "make": "NISSAN",
+      "model": "Sunny",
+      "engine": "1.4L 1392CC 4-Cyl GA14DS Petrol",
+      "notes": "Date To: 10/92",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1994",
+      "make": "NISSAN",
+      "model": "Primera Estate/Wagon",
+      "engine": "1.6L 1597CC 4-Cyl GA16DE/GA16DS Petrol",
+      "notes": "Date To: 04/93 Climate Zones: not for cold climates",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-77JK",
+      "source_url": "https://eu.motorad.com/part/214-77jk/",
+      "years": "1993",
+      "make": "NISSAN",
+      "model": "Sunny",
+      "engine": "1.4L 1392CC 4-Cyl GA14DS Petrol",
+      "notes": "Date To: 10/92",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1995",
+      "make": "TOYOTA",
+      "model": "Funcruiser",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1995",
+      "make": "TOYOTA",
+      "model": "Caldina",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1995",
+      "make": "TOYOTA",
+      "model": "RAV 4",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1995",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1974CC 4-Cyl 2C Diesel",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1995",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1994",
+      "make": "TOYOTA",
+      "model": "Funcruiser",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1994",
+      "make": "TOYOTA",
+      "model": "Caldina",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1994",
+      "make": "TOYOTA",
+      "model": "RAV 4",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1994",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1974CC 4-Cyl 2C Diesel",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1994",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1993",
+      "make": "TOYOTA",
+      "model": "Caldina",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1993",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1974CC 4-Cyl 2C Diesel",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1993",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1992",
+      "make": "TOYOTA",
+      "model": "Caldina",
+      "engine": "2.0L 1998CC 4-Cyl 3SFE Petrol",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1992",
+      "make": "TOYOTA",
+      "model": "Carina E",
+      "engine": "2.0L 1974CC 4-Cyl 2C Diesel",
+      "notes": "Date From: 03/96",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1990",
+      "make": "TOYOTA",
+      "model": "Celica (Nato)",
+      "engine": "2.2L 2164CC 4-Cyl 5SFE Petrol",
+      "notes": "Date From: 09/91",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    },
+    {
+      "article": "214-82JK",
+      "source_url": "https://eu.motorad.com/part/214-82jk/",
+      "years": "1989",
+      "make": "TOYOTA",
+      "model": "Celica (Nato)",
+      "engine": "2.2L 2164CC 4-Cyl 5SFE Petrol",
+      "notes": "Date From: 09/91",
+      "oem_coverage": "",
+      "optional_choice": "",
+      "reason": "Год противоречит Date To/From производителя."
+    }
+  ],
+  "verified_result": {
+    "offers": 7,
+    "make_model_pairs": 127,
+    "configurations": 2114,
+    "verified_offer_total": 4260,
+    "photos_added": 0,
+    "photo_tasks": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    }
+  },
+  "exceptions": [
+    {
+      "brand": "MOTORAD",
+      "article": "227-89K",
+      "offer_id": 50284,
+      "source_url": "https://eu.motorad.com/part/227-89k/",
+      "reason": "Производитель явно сообщил No applications found for this part. Не заполнялось."
+    },
+    {
+      "brand": "BILSTEIN",
+      "article": "12-243945",
+      "offer_id": 24809,
+      "source": "https://cart.bilsteinus.com/",
+      "reason": "Официальный каталог США: No Products Found для точного артикула. Не означает отсутствие применимости в Европе; не записано."
+    },
+    {
+      "brand": "BILSTEIN",
+      "article": "19-230238",
+      "offer_id": 24820,
+      "source": "https://cart.bilsteinus.com/",
+      "reason": "Официальный каталог США: No Products Found для точного артикула. Не записано."
+    },
+    {
+      "brand": "BILSTEIN",
+      "source": "https://workshop.bilstein.com/en/",
+      "reason": "Официальная страница ссылается на европейский каталог web1.carparts-cat.com. Переход через web retrieval вернул 403 Forbidden; альтернативным каналом не повторяли. Независимая работа продолжена в Motorad."
+    }
+  ],
+  "research_candidate": {
+    "source_url": "https://workshop.bilstein.com/wp-content/uploads/2021/03/BILSTEIN_Program-2020_EN.pdf",
+    "status": "not_imported",
+    "note": "Поиском найден официальный PDF с 12-243945. Строки по поисковой выдержке не записывали без полноценной проверки контекста и ограничений."
+  },
+  "next": "Read live DB before writing. Preserve restricted-source and exact-identity rules. Continue remaining supplier3/5 items and independent allowed sources."
+}
