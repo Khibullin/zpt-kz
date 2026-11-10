@@ -16,6 +16,9 @@ from django.utils import timezone
 from .models import Product, SupplierPhotoTask
 
 MAX_BYTES=2*1024*1024
+# The single consumer reuses HTTPS connections instead of negotiating TLS for
+# every page and photograph. Redirects, bounds and source-stop rules stay intact.
+_source_session=requests.Session()
 
 
 def optimized_images(data):
@@ -99,7 +102,7 @@ def matching_image(html,brand,article):
 
 
 def fetch_bytes(url,maximum=MAX_BYTES):
-    with requests.get(url,timeout=(4,8),stream=True,allow_redirects=False) as response:
+    with _source_session.get(url,timeout=(4,8),stream=True,allow_redirects=False) as response:
         if response.status_code in (403,429,503):
             raise SourceUnavailable(f'Поставщик недоступен: HTTP {response.status_code}; обработка остановлена без обхода ограничений.')
         response.raise_for_status()
