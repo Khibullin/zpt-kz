@@ -27,7 +27,7 @@ class UpdateForm(forms.Form):
         super().__init__(*args,**kwargs)
         for kind,label,_ in SOURCES:
             self.fields[kind+'_file']=forms.FileField(label='Файл XLSX',required=False,widget=forms.ClearableFileInput(attrs={'accept':'.xlsx'}))
-            self.fields[kind+'_date']=forms.DateField(label='Дата данных в файле',required=False,initial=timezone.localdate,widget=forms.DateInput(attrs={'type':'date'}))
+            self.fields[kind+'_date']=forms.DateField(label='Дата данных в файле',required=False,initial=timezone.localdate,widget=forms.DateInput(format='%Y-%m-%d',attrs={'type':'date'}))
     def clean(self):
         data=super().clean();chosen=False
         for kind,_,_ in SOURCES:

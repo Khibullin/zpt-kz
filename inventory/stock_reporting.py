@@ -101,17 +101,18 @@ def stock_rows(items=None, supplier=''):
         if supplier and item.matches_supplier:
             for attr,warehouse in [('pp1','PP1'),('pp2','PP2')]:
                 if getattr(item,attr+'_posted'):
-                    setattr(item,attr,sum(lot['quantity'] for lot in lots.get(warehouse,[]) if origin_names.get(lot['origin'])==supplier))
+                    setattr(item,attr,None if item.valuation_error else sum(lot['quantity'] for lot in lots.get(warehouse,[]) if origin_names.get(lot['origin'])==supplier))
+                    if item.valuation_error:setattr(item,attr+'_source','Не удалось определить партии поставщика · проверьте журнал движений')
                 elif supplier_name(item.source_supplier)!=supplier:
                     setattr(item,attr,None)
                 if supplier_name(item.source_supplier)!=supplier:
                     setattr(item,attr+'_snapshot',None)
                     setattr(item,attr+'_snapshot_present',False)
-                setattr(item,attr+'_present',any(origin_names.get(origin)==supplier for origin in origin_history[warehouse]) or (supplier_name(item.source_supplier)==supplier and getattr(item,attr+'_present')))
+                setattr(item,attr+'_present',any(origin_names.get(origin)==supplier for origin in origin_history[warehouse]) or (supplier_name(item.source_supplier)==supplier and getattr(item,attr+'_snapshot_present')))
             if supplier_name(item.source_supplier)!=supplier:item.kaspi=None
             item.supplier_label=supplier
         for attr in ['pp1','pp2']:
-            if not getattr(item,attr+'_present') and item.total_posted and (supplier or not item.source_supplier):
+            if not getattr(item,attr+'_present') and item.total_posted and not item.valuation_error and (supplier or not item.source_supplier):
                 setattr(item,attr,0)
                 setattr(item,attr+'_source','Движений по этому складу нет')
         known=[v for v in [item.pp1,item.pp2] if v is not None]

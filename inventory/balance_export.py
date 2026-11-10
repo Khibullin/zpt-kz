@@ -11,7 +11,7 @@ from openpyxl.utils import get_column_letter
 
 
 def value_stock(item, field, basis):
-    if item.filtered_stock is None:return None
+    if item.filtered_stock is None or (field=='total' and item.partial_total and basis!='posted'):return None
     fields=['pp1','pp2'] if field=='total' else [field]
     amount=Decimal(0);unknown=False
     for attr in fields:

@@ -33,6 +33,20 @@ class BalanceUpdateTests(TestCase):
     def file(self,raw,name='stock.xlsx'):
         return SimpleUploadedFile(name,raw,content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
 
+    def test_upload_dates_are_valid_html_dates(self):
+        r=self.client.get(reverse('inventory:updates'))
+        self.assertEqual(r.status_code,200)
+        self.assertContains(r,'value="'+timezone.localdate().isoformat()+'"',count=4)
+
+    def test_original_supplier_does_not_inherit_other_supplier_warehouse(self):
+        self.item.source_supplier='ТОО Азия Грейт';self.item.save()
+        batch=ImportBatch.objects.create(kind='pp1',digest='baseline',filename='pp1.xlsx',as_of=date.today(),created_by=self.user)
+        StockSnapshot.objects.create(batch=batch,warehouse='PP1',sku='001',name='Товар',quantity=4)
+        r=self.client.get(reverse('inventory:items'),{'warehouse':'PP2','supplier':'ТОО Азия Грейт'})
+        self.assertEqual(r.context['item_count'],0)
+        r=self.client.get(reverse('inventory:items'),{'warehouse':'PP1','supplier':'ТОО Азия Грейт'})
+        self.assertEqual(r.context['page'][0].filtered_stock,4)
+
     def test_supplier_on_other_warehouse_is_empty_and_valued_zero(self):
         r=self.client.get(reverse('inventory:items'),{'supplier':'Омега','warehouse':'PP1'})
         self.assertEqual(r.context['item_count'],0)
