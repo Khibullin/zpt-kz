@@ -127,12 +127,12 @@ def process_photo_tasks(limit=10):
     if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready']).update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready','web_ready']).update(status='pending')
     done=0
     pending=SupplierPhotoTask.objects.filter(status='pending')
     for host in {urlsplit(row['source_url']).netloc for row in blocked}:
         if host:pending=pending.exclude(source_url__startswith='https://'+host+'/')
-    pending=pending.annotate(source_priority=Case(When(source_url__startswith='https://omega-auto-parts.kz/',then=Value(1)),default=Value(0),output_field=IntegerField()))
+    pending=pending.annotate(source_priority=Case(When(evidence__source_probe=True,then=Value(-1)),When(source_url__startswith='https://omega-auto-parts.kz/',then=Value(1)),default=Value(0),output_field=IntegerField()))
     for task_id in list(pending.order_by('source_priority','pk').values_list('pk',flat=True)[:limit]):
         with transaction.atomic():
             task=SupplierPhotoTask.objects.select_for_update(skip_locked=True,of=('self',)).select_related('product','offer').filter(pk=task_id,status='pending').first()

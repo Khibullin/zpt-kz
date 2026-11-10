@@ -1,9 +1,23 @@
 import json
 from django.test import SimpleTestCase
-from catalog.manufacturer_photos import valid_page,matching_manufacturer_image
+from catalog.manufacturer_photos import valid_page,matching_manufacturer_image,discovered_page
 
 
 class ManufacturerPhotoTests(SimpleTestCase):
+    def test_febest_public_lookup_requires_exact_heading_brand_and_photo(self):
+        url=discovered_page('FEBEST','0101-ACA30F')
+        self.assertEqual(url,'https://febest.com.ua/catalogue/?product=0101-ACA30F')
+        photo='https://febest.com.ua/newfolder/product_image/0101-ACA30F.jpg?v=123'
+        html='<h1>0101-ACA30F</h1><img class="official-logo official-logo-eu" alt="FEBEST" src="/logo.png"><img class="zoomable" alt="0101-ACA30F" src="/newfolder/schemes/0101-ACA30F.png"><img class="zoomable" alt="0101-ACA30F" src="'+photo+'">'
+        self.assertEqual(matching_manufacturer_image(html,url,'FEBEST','0101-ACA30F'),photo)
+        self.assertEqual(matching_manufacturer_image(html,url,'OTHER','0101-ACA30F'),'')
+        self.assertEqual(matching_manufacturer_image(html,url,'FEBEST','0101-ACA30R'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('<h1>0101-ACA30F','<h1>0101-ACA30R'),url,'FEBEST','0101-ACA30F'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('/product_image/','/schemes/'),url,'FEBEST','0101-ACA30F'),'')
+        self.assertEqual(matching_manufacturer_image(html.replace('v=123','token=123'),url,'FEBEST','0101-ACA30F'),'')
+        self.assertEqual(discovered_page('OTHER','0101-ACA30F'),'')
+        self.assertEqual(discovered_page('FEBEST','../secret'),'')
+
     def test_555_requires_catalogue_article_and_matching_product_image_id(self):
         url='https://www.sankei-555.com/search/detail.php?p_id=3&sch_p_555no=SA-1631R'
         image='https://www.sankei-555.com/save_img/products/3/l_01.jpg'

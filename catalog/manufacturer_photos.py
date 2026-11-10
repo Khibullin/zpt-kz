@@ -3,7 +3,14 @@ import json
 import re
 from html import unescape
 from html.parser import HTMLParser
-from urllib.parse import parse_qs,urljoin,urlsplit
+from urllib.parse import parse_qs,urljoin,urlsplit,quote
+
+
+def discovered_page(brand,article):
+    """A verified public lookup route; page identity is rechecked before saving."""
+    if brand.strip().upper()=='FEBEST' and re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9.-]{0,119}',article.strip()):
+        return 'https://febest.com.ua/catalogue/?product='+quote(article.strip(),safe='')
+    return ''
 
 
 class Tags(HTMLParser):
@@ -20,6 +27,9 @@ def valid_page(url,brand):
     except ValueError:return False
     if p.scheme!='https' or p.fragment:return False
     brand=brand.strip().upper()
+    if p.netloc=='febest.com.ua' and brand=='FEBEST':
+        q=parse_qs(p.query,keep_blank_values=True)
+        return p.path=='/catalogue/' and set(q)=={'product'} and len(q['product'])==1 and bool(re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9.-]{0,119}',q['product'][0]))
     if p.netloc=='www.sankei-555.com' and brand=='555':
         q=parse_qs(p.query)
         return p.path=='/search/detail.php' and set(q)=={'p_id','sch_p_555no'} and len(q['p_id'])==1 and q['p_id'][0].isdigit() and len(q['sch_p_555no'])==1
@@ -65,4 +75,16 @@ def matching_manufacturer_image(html,url,brand,article):
             if tag!='a' or 'product-gallery' not in (attrs.get('class') or '').split():continue
             src=urljoin(url,attrs.get('href',''));target=urlsplit(src)
             if target.scheme=='https' and target.netloc==p.netloc and not target.query and not target.fragment and target.path.upper()=='/IMAGES/PRODUCT/'+expected+'/MAIN.JPG':return src
+    elif p.netloc=='febest.com.ua':
+        q=parse_qs(p.query)
+        if q['product'][0].upper()!=expected:return ''
+        headings=re.findall(r'<h1\b[^>]*>(.*?)</h1>',html,re.I|re.S)
+        if not any(text(h)==expected for h in headings):return ''
+        if not any(tag=='img' and (attrs.get('alt') or '').strip().upper()=='FEBEST' and 'official-logo' in (attrs.get('class') or '').split() for tag,attrs in tags):return ''
+        for tag,attrs in tags:
+            if tag!='img' or (attrs.get('alt') or '').strip().upper()!=expected or 'zoomable' not in (attrs.get('class') or '').split():continue
+            src=urljoin(url,attrs.get('src',''));target=urlsplit(src)
+            params=parse_qs(target.query,keep_blank_values=True)
+            if params and not (set(params)=={'v'} and len(params['v'])==1 and params['v'][0].isdigit()):continue
+            if target.scheme=='https' and target.netloc==p.netloc and not target.fragment and re.fullmatch(r'/newfolder/product_image/'+re.escape(expected)+r'\.(?:jpg|jpeg|png|webp)',target.path,re.I):return src
     return ''
