@@ -5,7 +5,7 @@ from time import perf_counter
 from django.core.cache import caches
 from urllib.parse import urlencode
 from django.core.paginator import Paginator
-from django.db.models import Q, F, Value, Case, When, CharField, Count
+from django.db.models import Q, F, Value, Case, When, CharField, Count, IntegerField
 from django.db import connection
 from django.core.exceptions import EmptyResultSet
 from django.shortcuts import render
@@ -256,12 +256,20 @@ def storefront(request):
                 for v,count in sorted(values.items(),key=lambda item:labels.get(item[0],item[0]).casefold())]
     facets={k:facet(k) for k in ('country','brand','model','year','engine','category','subgroup','maker')}
     found=apply_filters(base,filter_selection).select_related('seller_profile','brand','car_model__brand','category').prefetch_related('kaspi_listings','selected_models__brand','selected_brands','fitments__car_model__brand')
-    order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True)}.get(selected['sort'],'title')
+    order={'price':F('price').asc(nulls_last=True),'-price':F('price').desc(nulls_last=True),'title':'title'}.get(selected['sort'])
+    if order is None:
+        # Keep all products searchable; photos lead the default catalogue order.
+        found=found.annotate(storefront_photo_rank=Case(
+            When(Q(main_image__isnull=True)|Q(main_image=''),then=Value(1)),
+            default=Value(0),output_field=IntegerField()))
+        ordering=('storefront_photo_rank','title','pk')
+    else:
+        ordering=(order,'pk')
     # Sort a narrow ID projection; evaluate costly annotations and load related
     # data only for the current 24 cards, not the entire catalogue.
-    page=Paginator(found.order_by(order,'pk').values_list('pk',flat=True),24).get_page(request.GET.get('page'))
+    page=Paginator(found.order_by(*ordering).values_list('pk',flat=True),24).get_page(request.GET.get('page'))
     page_ids=list(page.object_list)
-    page.object_list=list(found.filter(pk__in=page_ids).order_by(order,'pk'))
+    page.object_list=list(found.filter(pk__in=page_ids).order_by(*ordering))
     for product in page:
         product.public_stock=public_stock_status(product)
         product.has_public_wholesale=False

@@ -310,7 +310,7 @@ def public_stock_status(product):
     qty = getattr(product, 'stock_qty', None)
     if getattr(product, 'supplier', '') in ('omega', 'procurement'):
         return {'code': 'in' if qty and qty > 0 else 'out',
-                'label': 'По прайсу поставщика' if qty and qty > 0 else 'Наличие уточняется',
+                'label': 'Доступно к заказу' if qty and qty > 0 else 'Наличие уточняется',
                 'can_buy': bool(qty and qty > 0 and not product.price_on_request), 'qty': qty or 0}
     if qty is None:
         return {

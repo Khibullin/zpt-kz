@@ -86,3 +86,21 @@ class StorefrontTests(TestCase):
         self.assertEqual(r.status_code,200)
         self.assertTrue(r.streaming)
         self.assertEqual(b''.join(r.streaming_content), b'')
+
+    def test_default_photos_lead_but_explicit_sort_and_all_products_remain(self):
+        photo=Product.objects.create(title='Я — товар с фото', main_image='products/photo.webp',
+            price=5000, seller_profile=self.seller, stock_qty=2)
+        r=self.client.get('/')
+        self.assertEqual(r.context['result_count'],2)
+        self.assertEqual([p.pk for p in r.context['products']],[photo.pk,self.product.pk])
+        self.assertContains(r,'Сначала с фото')
+        for sort in ('title','price'):
+            r=self.client.get('/',{'sort':sort})
+            self.assertEqual(r.context['products'][0].pk,self.product.pk)
+
+    def test_supplier_badge_uses_customer_copy(self):
+        self.product.supplier='procurement'
+        self.product.save()
+        r=self.client.get('/')
+        self.assertContains(r,'Доступно к заказу')
+        self.assertNotContains(r,'По прайсу поставщика')
