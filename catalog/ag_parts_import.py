@@ -875,11 +875,10 @@ def apply_images(product, photos, replace_images):
     if not photos:
         return
     if replace_images:
-        if product.main_image:
-            product.main_image.delete(save=False)
+        from catalog.image_storage import clear_main_image
+        clear_main_image(product)
         product.images.all().delete()
-        product.main_image = None
-        product.save(update_fields=['main_image'])
+        product.save(update_fields=['main_image','supplier_thumbnail'])
     existing = bool(product.main_image) or product.images.exists()
     if existing and not replace_images:
         for photo in photos:

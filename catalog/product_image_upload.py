@@ -169,9 +169,11 @@ def apply_product_image_plan(product: Product, plan: ProductImagePlan, *, new_lo
             img.delete()
 
     if plan.remove_main and not new_local_main and plan.main_remote is None:
-        if product.main_image:
-            product.main_image.delete(save=False)
-        product.main_image = None
+        from catalog.image_storage import clear_main_image
+        clear_main_image(product)
+
+    if new_local_main or plan.main_remote is not None:
+        product.supplier_thumbnail = ''
 
     if plan.main_remote is not None and not new_local_main:
         product.main_image.save(plan.main_remote.name, plan.main_remote, save=False)
