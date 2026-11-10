@@ -1,8 +1,27 @@
 from django.urls import path
 from . import purchasing
 from . import views, document_views, matching_views, tools_views
+from . import workspace_views as workspace
 app_name = 'inventory'
 urlpatterns = [
+    path('search/', workspace.search, name='search'),
+    path('archive-transfer/', workspace.archive_transfer, name='archive_transfer'),
+    path('balances-at/', workspace.balances_at, name='balances_at'),
+    path('restore-order/', workspace.restore_order, name='restore_order'),
+    path('receipts/', workspace.journal, {'kind':'receipt'}, name='receipts'),
+    path('transfers/', workspace.journal, {'kind':'transfer'}, name='transfers'),
+    path('journal/', workspace.journal, name='journal'),
+    path('goods/new/<str:kind>/', workspace.new_document, name='goods_new'),
+    path('goods/<int:pk>/', workspace.goods_detail, name='goods_detail'),
+    path('goods/<int:pk>/edit/', workspace.edit_goods, name='goods_edit'),
+    path('attachments/<int:pk>/', workspace.attachment, name='attachment'),
+    path('items/<int:pk>/', workspace.item_detail, name='item_detail'),
+    path('reports/', workspace.hub, {'section':'reports'}, name='reports'),
+    path('data/', workspace.hub, {'section':'data'}, name='data'),
+    path('money/', workspace.hub, {'section':'money'}, name='money'),
+    path('selling/', workspace.hub, {'section':'sales'}, name='selling'),
+    path('batches/<int:pk>/file/', workspace.batch_file, name='batch_file'),
+    path('sales/<int:pk>/link/', workspace.sale_link, name='sale_link'),
     path('purchases/',purchasing.purchases,name='purchases'),
     path('purchases/<int:pk>/action/<str:action>/',purchasing.purchase_action,name='purchase_action'),
     path('purchases/<int:pk>/listing/<int:line>/',purchasing.listing,name='purchase_listing'),
@@ -24,4 +43,4 @@ urlpatterns = [
     path('documents/<int:pk>/action/',document_views.document_action,name='document_action'),
     path('cash/',document_views.cash,name='cash'),
     path('new/<str:kind>/',document_views.create,name='create'),
-path('',views.dashboard,name='overview'),path('stock/',views.dashboard,{'section':'stock'},name='stock'),path('sales/',views.dashboard,{'section':'sales'},name='sales'),path('finance/',views.dashboard,{'section':'finance'},name='finance'),path('upload/',views.upload,name='upload')]
+path('',workspace.overview,name='overview'),path('stock/',views.dashboard,{'section':'stock'},name='stock'),path('sales/',views.dashboard,{'section':'sales'},name='sales'),path('finance/',views.dashboard,{'section':'finance'},name='finance'),path('upload/',views.upload,name='upload')]

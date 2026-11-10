@@ -48,17 +48,25 @@ def items(request):
     from .stock_reporting import stock_rows, stock_summary, stock_export, STOCK_HEADERS
     rows=stock_rows(rows)
     field={'PP1':'pp1','PP2':'pp2','Kaspi':'kaspi'}.get(request.GET.get('warehouse'),'total')
-    for item in rows:item.filtered_stock=getattr(item,field)
+    for item in rows:
+        item.filtered_stock=getattr(item,field)
+        item.filtered_source=getattr(item,field+'_source','Сумма PP1 и PP2; даты источников могут различаться')
+        item.filtered_posted=getattr(item,field+'_posted',False)
     stock_state=request.GET.get('stock_state')
     if stock_state=='positive':rows=[i for i in rows if getattr(i,field) is not None and getattr(i,field)>0]
     if stock_state=='zero':rows=[i for i in rows if getattr(i,field)==0]
     if stock_state=='unknown':rows=[i for i in rows if getattr(i,field) is None]
+    if request.GET.get('basis')=='posted':rows=[i for i in rows if getattr(i,field+'_posted',False)]
+    if request.GET.get('basis')=='snapshot':rows=[i for i in rows if not getattr(i,field+'_posted',False) and getattr(i,field) is not None]
     summary=stock_summary(rows)
     if request.GET.get('export')=='xlsx':
+        if request.GET.get('warehouse') in ['PP1','PP2'] and request.GET.get('compare')!='1':
+            return xlsx_response('warehouse-balances',['Артикул','Бренд','Товар','Склад','Количество','Единица','Источник'],([i.article,i.brand,i.name,request.GET['warehouse'],i.filtered_stock,i.get_unit_display(),i.filtered_source] for i in rows))
         return xlsx_response('stock-balances',STOCK_HEADERS,stock_export(rows))
     page=Paginator(rows,50).get_page(request.GET.get('page'))
     query=request.GET.copy();query.pop('page',None)
-    return render(request,'inventory/items.html',{'summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
+    selected_summary=next((s for s in summary if s['label']=={'PP1':'PP1','PP2':'PP2 · Rapida','Kaspi':'Kaspi'}.get(request.GET.get('warehouse'),'Всего PP1 + PP2')),summary[-1])
+    return render(request,'inventory/items.html',{'selected_summary':selected_summary,'selected_warehouse':request.GET.get('warehouse',''),'compare':request.GET.get('compare')=='1','summary':summary,'item_count':len(rows),'page':page,'q':q,'query':query.urlencode(),'brands':Item.objects.exclude(brand='').values_list('brand',flat=True).distinct().order_by('brand'),'units':Item._meta.get_field('unit').choices})
 
 @never_cache
 @accounting_access

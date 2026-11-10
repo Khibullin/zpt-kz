@@ -20,7 +20,7 @@ def order_summary(order):
     received=received_quantities(order)
     returns=order.stock_receipts.filter(kind='supplier_return',status='posted')
     returned={r['purchase_line']:r['q'] for r in returns.values('purchase_line').annotate(q=Sum('quantity'))}
-    payments=list(CashEntry.objects.filter(Q(purchase_order=order)|Q(stock_document__purchase_order=order),cancelled=False).distinct())
+    payments=list(CashEntry.objects.filter(Q(purchase_order=order)|Q(stock_document__purchase_order=order)|Q(goods_document__purchase_order=order),cancelled=False).distinct())
     paid=sum((e.amount if e.kind=='supplier' else -e.amount if e.kind=='supplier_refund' else Decimal(0) for e in payments),Decimal(0))
     value=sum((d.quantity*d.unit_cost for d in order.stock_receipts.filter(kind='receipt',status='posted')),Decimal(0))-sum((d.total_cost or Decimal(0) for d in returns),Decimal(0))
     ordered=sum(i['quantity'] for i in order.items)

@@ -68,7 +68,7 @@ class PurchaseAcceptanceTests(TestCase):
     def test_supplier_identity_not_merged_across_brands(self):
         accept_purchase(self.order.pk,self.user,self.header,[self.line])
         other=PurchaseOrder.objects.create(user=self.user,supplier=self.supplier,request_key=uuid.uuid4(),estimated_total=250,items=[{'article':'001','brand':'OTHER','name':'Другое','quantity':1,'cost':'250'}])
-        self.header.update(key=uuid.uuid4())
+        self.header.update(key=uuid.uuid4(),waybill='NA-OTHER')
         accept_purchase(other.pk,self.user,self.header,[{**self.line,'quantity':1,'unit':'piece'}])
         self.assertEqual(SupplierItem.objects.count(),2)
 

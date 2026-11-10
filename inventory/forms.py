@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 from django import forms
-from .models import Item, ItemAlias, StockDocument, MoneyAccount, CashEntry
+from .models import Item, ItemAlias, StockDocument, MoneyAccount, CashEntry, GoodsDocument
 
 class ItemForm(forms.ModelForm):
     class Meta:
@@ -61,10 +61,11 @@ class CashForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['kind'].choices=[c for c in self.fields['kind'].choices if c[0] not in ['transfer_in','transfer_out','supplier_refund']]
         self.fields['stock_document'].queryset=StockDocument.objects.filter(kind='receipt',status='posted').select_related('item')
+        self.fields['goods_document'].queryset=GoodsDocument.objects.filter(kind='receipt',lines__status='posted').distinct()
 
     class Meta:
         model=CashEntry
-        fields=['account','date','kind','amount','counterparty','category','stock_document','reference','note']
+        fields=['account','date','kind','amount','counterparty','category','goods_document','stock_document','reference','note']
         labels={'item':'Товар','account':'Счёт','stock_document':'Приход поставщика'}
         widgets={'date':forms.DateInput(attrs={'type':'date'})}
     def clean(self):
@@ -74,6 +75,8 @@ class CashForm(forms.ModelForm):
         if account and data.get('date') and data['date'] < account.opening_date:
             self.add_error('date','Платёж раньше даты начального остатка счёта')
         doc=data.get('stock_document')
+        bundle=data.get('goods_document')
+        if bundle and (data.get('kind')!='supplier' or doc):self.add_error('goods_document','Для оплаты выберите накладную или отдельную строку прихода, не обе сразу.')
         if doc and (data.get('kind') != 'supplier' or doc.kind != 'receipt' or doc.status != 'posted'):
             self.add_error('stock_document','Связать можно оплату поставщику с проведённым приходом')
         return data

@@ -114,8 +114,11 @@ def parse_file(raw, kind):
 @transaction.atomic
 def import_file(raw, kind, filename, as_of, user):
     parsed = parse_file(raw, kind)
-    batch, created = ImportBatch.objects.get_or_create(kind=kind, digest=hashlib.sha256(raw).hexdigest(), defaults=dict(filename=filename[:255], as_of=as_of, created_by=user))
+    batch, created = ImportBatch.objects.get_or_create(kind=kind, digest=hashlib.sha256(raw).hexdigest(), defaults=dict(filename=filename[:255], as_of=as_of, created_by=user, original_data=raw))
     if not created:
+        if not batch.original_data:
+            batch.original_data=raw
+            batch.save(update_fields=['original_data'])
         return batch, 0
     count = 0
     for data in parsed:

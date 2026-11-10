@@ -2,6 +2,7 @@ from decimal import Decimal
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.models import Sum, Max
+from django.utils import timezone
 from .costing import available_lots, take, slice_allocations, total_cost
 from .models import Item, StockDocument, StockEntry, StockEvent
 
@@ -21,7 +22,7 @@ def post_document(pk, user):
         raise ValidationError('Количество должно быть положительным.')
     if doc.unit_cost is not None and doc.unit_cost < 0:
         raise ValidationError('Себестоимость не может быть отрицательной.')
-    latest = StockEntry.objects.filter(document__item=doc.item).aggregate(latest=Max('document__date'))['latest']
+    latest = StockEntry.objects.filter(document__item=doc.item).aggregate(latest=Max('effective_on'))['latest']
     if latest and doc.date < latest:
         raise ValidationError('Дата раньше уже проведённых движений этого товара. Заднее число требует отдельной сверки.')
     if doc.kind not in StockDocument.Kind.values:raise ValidationError('Неизвестная операция')
@@ -89,8 +90,8 @@ def receive_transfer(pk, quantity, user):
         raise ValidationError('Перемещение недоступно для приёмки.')
     if quantity < 1 or quantity > doc.quantity-doc.received_quantity:
         raise ValidationError('Количество превышает непринятый остаток или равно нулю.')
-    StockEntry.objects.create(document=doc,warehouse='TRANSIT',quantity=-quantity,created_by=user)
-    StockEntry.objects.create(document=doc,warehouse=doc.destination,quantity=quantity,created_by=user)
+    StockEntry.objects.create(document=doc,warehouse='TRANSIT',quantity=-quantity,created_by=user,effective_on=timezone.localdate())
+    StockEntry.objects.create(document=doc,warehouse=doc.destination,quantity=quantity,created_by=user,effective_on=timezone.localdate())
     doc.received_quantity += quantity
     doc.status = 'received' if doc.received_quantity == doc.quantity else 'partial'
     doc.save(update_fields=['status','received_quantity'])

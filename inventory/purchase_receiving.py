@@ -11,7 +11,8 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from .permissions import accounting_access
 from procurement.models import PurchaseOrder, Activity, Supplier
-from .models import Item, SupplierItem, StockDocument
+from .models import Item, SupplierItem, StockDocument, GoodsDocument
+from .bundles import document_identity, attach
 from .services import post_document
 
 
@@ -19,6 +20,9 @@ class ReceiveForm(forms.Form):
     warehouse = forms.ChoiceField(label='Склад приёмки', choices=[('PP2','PP2 · Rapida'),('PP1','PP1 · Asia Grade')], initial='PP2')
     date = forms.DateField(label='Дата фактической приёмки', initial=timezone.localdate, widget=forms.DateInput(format='%Y-%m-%d',attrs={'type':'date'}))
     waybill = forms.CharField(label='Номер накладной', max_length=100, required=False)
+    waybill_date = forms.DateField(label='Дата накладной (отдельно от приёмки)', required=False, widget=forms.DateInput(format='%Y-%m-%d',attrs={'type':'date'}))
+    file = forms.FileField(label='Оригинал накладной PDF / XLSX / фото', required=False)
+    note = forms.CharField(label='Упаковки, расхождения и примечания', required=False, widget=forms.Textarea)
     version = forms.IntegerField(widget=forms.HiddenInput)
     key = forms.UUIDField(widget=forms.HiddenInput)
 
@@ -53,6 +57,15 @@ def accept_purchase(pk, user, header, lines):
     received = received_quantities(order)
     if not any(line['quantity'] for line in lines):
         raise ValidationError('Укажите фактически принятое количество хотя бы в одной строке.')
+    number=header['waybill'] or order.waybill_number or order.order_number
+    invoice_date=header.get('waybill_date') or header['date']
+    identity=document_identity('receipt',number,invoice_date,order.supplier.name,header['warehouse'])
+    bundle=GoodsDocument.objects.select_for_update().filter(identity=identity).first()
+    if bundle and bundle.purchase_order_id != order.pk:
+        raise ValidationError('Эта накладная уже сохранена отдельно или по другому заказу. Проверьте её в разделе приходов.')
+    if not bundle:
+        bundle=GoodsDocument.objects.create(kind='receipt',number=number,date=invoice_date,accepted_on=header['date'],warehouse=header['warehouse'],counterparty=order.supplier.name,purchase_order=order,identity=identity,note=header.get('note',''),created_by=user)
+    if header.get('file'):attach(bundle,header['file'],user)
     for index, (source, line) in enumerate(zip(order.items, lines)):
         qty = line['quantity']
         if qty > source['quantity'] - received.get(index,0):
@@ -74,7 +87,7 @@ def accept_purchase(pk, user, header, lines):
             digest=hashlib.sha256((source['brand']+'\0'+source['article']).encode()).hexdigest()[:24]
             item=Item.objects.create(code=f'SUP-{order.supplier_id}-{digest}',article=source['article'],brand=source['brand'],name=source['name'][:300],unit=line['unit'])
             SupplierItem.objects.create(supplier=order.supplier,article=source['article'],brand=source['brand'],item=item)
-        doc=StockDocument.objects.create(kind='receipt',item=item,warehouse=header['warehouse'],quantity=qty,unit_cost=line['cost'],counterparty=order.supplier.name,external_number=order.order_number,date=header['date'],created_by=user,purchase_order=order,purchase_line=index,receipt_key=header['key'],note=f"Закуплено у {order.supplier.name}. {order.order_number}. Накладная: {header['waybill'] or order.waybill_number or 'не указана'}")
+        doc=StockDocument.objects.create(bundle=bundle,kind='receipt',item=item,warehouse=header['warehouse'],quantity=qty,unit_cost=line['cost'],counterparty=order.supplier.name,external_number=number,date=header['date'],created_by=user,purchase_order=order,purchase_line=index,receipt_key=header['key'],note=f"Закуплено у {order.supplier.name}. {order.order_number}. Накладная: {number}. "+header.get('note',''))
         post_document(doc.pk,user)
     now=received_quantities(order)
     if all(now.get(i,0) >= row['quantity'] for i,row in enumerate(order.items)):
@@ -96,7 +109,7 @@ def receive_purchase(request,pk):
     for index,source in enumerate(order.items):
         item=links.get((source['article'],source['brand']))
         initial.append({'quantity':max(0,source['quantity']-received.get(index,0)),'cost':source['cost'],'unit':item.unit if item else ''})
-    form=ReceiveForm(request.POST or None,initial={'warehouse':order.destination,'date':timezone.localdate(),'waybill':order.waybill_number,'version':order.version,'key':uuid.uuid4()})
+    form=ReceiveForm(request.POST or None,request.FILES or None,initial={'warehouse':order.destination,'date':timezone.localdate(),'waybill':order.waybill_number,'version':order.version,'key':uuid.uuid4()})
     lines=ReceiveLines(request.POST or None,prefix='lines',initial=initial)
     if request.method=='POST' and form.is_valid() and lines.is_valid():
         try:

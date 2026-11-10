@@ -48,6 +48,8 @@ def stock_rows(items=None):
             setattr(item, attr + '_source', label)
         item.pp2 = ledger.get((item.pk, 'PP2'), item.kaspi)
         item.pp2_source = 'Проведённые документы' if (item.pk, 'PP2') in ledger else 'По Kaspi · ' + item.kaspi_source
+        item.pp1_posted = (item.pk, 'PP1') in ledger
+        item.pp2_posted = (item.pk, 'PP2') in ledger
         item.total = item.pp1 + item.pp2 if item.pp1 is not None and item.pp2 is not None else None
         item.difference = item.pp2 - item.kaspi if item.pp2 is not None and item.kaspi is not None else None
         item.transit = ledger.get((item.pk, 'TRANSIT'))

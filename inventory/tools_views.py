@@ -154,14 +154,21 @@ def prepare_openings(request):
 @never_cache
 @accounting_access
 def settlements(request):
-    rows=StockDocument.objects.filter(kind='receipt',status='posted',purchase_order__isnull=True).select_related('item').order_by('-date','-pk')
+    rows=StockDocument.objects.filter(kind='receipt',status='posted',purchase_order__isnull=True).select_related('item','bundle').order_by('-date','-pk')
     rows,form=date_filter(request,rows)
     q=request.GET.get('q','').strip()
     if q:rows=rows.filter(Q(counterparty__icontains=q)|Q(external_number__icontains=q)|Q(item__article__icontains=q))
     payments=dict(CashEntry.objects.filter(cancelled=False,kind='supplier',stock_document__isnull=False).values('stock_document_id').annotate(total=Sum('amount')).values_list('stock_document_id','total'))
-    result=[];total=paid=Decimal('0')
+    bundle_payments=dict(CashEntry.objects.filter(cancelled=False,kind='supplier',goods_document__isnull=False).values('goods_document_id').annotate(total=Sum('amount')).values_list('goods_document_id','total'))
+    result=[];total=paid=Decimal('0');seen_bundles=set()
     for doc in rows:
-        doc.amount=doc.quantity*doc.unit_cost;doc.paid=payments.get(doc.pk,Decimal('0'));doc.due=doc.amount-doc.paid
+        if doc.bundle_id in seen_bundles:continue
+        seen_bundles.add(doc.bundle_id)
+        parts=list(doc.bundle.lines.filter(kind='receipt',status='posted'))
+        returns=StockDocument.objects.filter(related_receipt_id__in=[p.pk for p in parts],kind='supplier_return',status='posted')
+        doc.amount=sum((p.quantity*p.unit_cost for p in parts),Decimal(0))-sum((p.total_cost or Decimal(0) for p in returns),Decimal(0))
+        doc.paid=sum((payments.get(p.pk,Decimal(0)) for p in parts),Decimal(0))+bundle_payments.get(doc.bundle_id,Decimal(0));doc.due=doc.amount-doc.paid
+        doc.item_label=f'Все позиции накладной ({len(parts)})'
         state=request.GET.get('payment','')
         if state=='unpaid' and doc.due<=0:continue
         if state=='paid' and doc.due!=0:continue
@@ -184,7 +191,7 @@ def settlements(request):
         result.append(SimpleNamespace(pk=order.order_number,date=order.created_at.date(),counterparty=order.supplier.name,external_number=order.display_title,item='Закупочный заказ · все приходы и платежи',amount=summary['receipt_value'],paid=summary['paid'],due=due))
         total+=summary['receipt_value'];paid+=summary['paid']
     if request.GET.get('export')=='xlsx':return xlsx_response('supplier-settlements',['Документ','Дата','Поставщик','Основание','Товар','Приход, ₸','Оплачено, ₸','Сальдо, ₸'],([d.pk,d.date,d.counterparty,d.external_number,str(d.item),d.amount,d.paid,d.due] for d in result))
-    unlinked=CashEntry.objects.filter(kind='supplier',cancelled=False,stock_document__isnull=True,purchase_order__isnull=True).aggregate(total=Sum('amount'))['total']
+    unlinked=CashEntry.objects.filter(kind='supplier',cancelled=False,stock_document__isnull=True,purchase_order__isnull=True,goods_document__isnull=True).aggregate(total=Sum('amount'))['total']
     query=request.GET.copy();query.pop('page',None)
     return render(request,'inventory/settlements.html',{'form':form,'page':Paginator(result,50).get_page(request.GET.get('page')),'total':total,'paid':paid,'due':total-paid,'unlinked':unlinked,'query':query.urlencode()})
 

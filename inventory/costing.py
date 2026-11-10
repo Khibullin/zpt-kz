@@ -24,7 +24,7 @@ def total_cost(allocations):
     if any(lot['unit_cost'] is None for lot in allocations):return None
     return sum((Decimal(lot['unit_cost'])*lot['quantity'] for lot in allocations),Decimal('0'))
 
-def available_lots(item):
+def available_lots(item, include_transit=False):
     stocks=defaultdict(list)
     transit=defaultdict(list)
     for entry in StockEntry.objects.filter(document__item=item).select_related('document').order_by('pk'):
@@ -47,4 +47,7 @@ def available_lots(item):
             take(stocks[entry.warehouse],-entry.quantity)
         elif doc.kind == 'return' and entry.quantity > 0:
             stocks[entry.warehouse].extend(dict(lot) for lot in doc.cost_allocations)
+    if include_transit:
+        for lots in transit.values():
+            stocks['TRANSIT'].extend(dict(lot) for lot in lots)
     return stocks

@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+import uuid
 
 class ImportBatch(models.Model):
     def __str__(self):
@@ -8,6 +9,7 @@ class ImportBatch(models.Model):
     kind = models.CharField(max_length=20)
     digest = models.CharField(max_length=64)
     filename = models.CharField(max_length=255)
+    original_data = models.BinaryField(null=True, editable=False)
     as_of = models.DateField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -50,7 +52,7 @@ class Item(models.Model):
     name = models.CharField('Название', max_length=300)
     brand = models.CharField('Бренд', max_length=120, blank=True)
     article = models.CharField('Артикул', max_length=120, blank=True)
-    unit = models.CharField('Единица учёта', max_length=15, choices=[('pending','Требует проверки'),('piece','Штука'),('set','Комплект')], default='piece')
+    unit = models.CharField('Единица учёта', max_length=15, choices=[('pending','Единица не подтверждена'),('piece','Штука'),('set','Комплект')], default='piece')
     preparation = models.JSONField(default=dict, blank=True, editable=False)
     def __str__(self):
         return f'{self.code} · {self.name}'
@@ -66,6 +68,21 @@ class ItemAlias(models.Model):
         constraints = [models.UniqueConstraint(fields=['source','code'], name='inventory_alias_unique'), models.CheckConstraint(condition=models.Q(multiplier__gte=1), name='inventory_alias_multiplier_positive')]
 
 class StockDocument(models.Model):
+    def save(self, *args, **kwargs):
+        from django.db import transaction
+        with transaction.atomic():
+            super().save(*args, **kwargs)
+            if not self.bundle_id:
+                defaults = dict(kind=self.kind, number=self.external_number, date=self.date, accepted_on=self.date,
+                    warehouse=self.warehouse, destination=self.destination, counterparty=self.counterparty,
+                    purchase_order_id=self.purchase_order_id, created_by_id=self.created_by_id)
+                if self.receipt_key:
+                    bundle, _ = GoodsDocument.objects.get_or_create(request_key=self.receipt_key, defaults=defaults)
+                else:
+                    bundle = GoodsDocument.objects.create(**defaults)
+                type(self).objects.filter(pk=self.pk).update(bundle=bundle)
+                self.bundle_id = bundle.pk
+
     def __str__(self):
         return f'№{self.pk} · {self.get_kind_display()} · {self.item.code} · {self.quantity}'
 
@@ -79,6 +96,7 @@ class StockDocument(models.Model):
         WRITEOFF='writeoff','Списание / недостача'
         SUPPLIER_RETURN='supplier_return','Возврат поставщику'
     kind = models.CharField('Операция', max_length=15, choices=Kind.choices)
+    bundle = models.ForeignKey('GoodsDocument', null=True, blank=True, on_delete=models.PROTECT, related_name='lines')
     purchase_order = models.ForeignKey('procurement.PurchaseOrder', null=True, blank=True, on_delete=models.PROTECT, related_name='stock_receipts')
     related_receipt = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True, related_name='supplier_returns')
     purchase_line = models.PositiveIntegerField(null=True, blank=True)
@@ -107,7 +125,13 @@ class StockDocument(models.Model):
         constraints = [models.UniqueConstraint(fields=['item','external_number'],condition=models.Q(kind='sale') & ~models.Q(external_number=''), name='inventory_sale_order_item'),models.CheckConstraint(condition=models.Q(quantity__gte=1), name='inventory_document_positive'),models.CheckConstraint(condition=models.Q(received_quantity__lte=models.F('quantity')), name='inventory_received_limit'),models.CheckConstraint(condition=models.Q(unit_cost__isnull=True)|models.Q(unit_cost__gte=0), name='inventory_cost_nonnegative')]
 
 class StockEntry(models.Model):
+    def save(self, *args, **kwargs):
+        if self.effective_on is None:
+            self.effective_on = self.document.date
+        super().save(*args, **kwargs)
+
     document = models.ForeignKey(StockDocument, on_delete=models.PROTECT, related_name='entries')
+    effective_on = models.DateField(null=True, editable=False)
     warehouse = models.CharField(max_length=7, choices=[('PP1','PP1'),('PP2','PP2'),('TRANSIT','В пути'),('DAMAGED','Брак')])
     quantity = models.IntegerField()
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -137,6 +161,7 @@ class CashEntry(models.Model):
     category = models.CharField('Статья', max_length=150, blank=True)
     purchase_order = models.ForeignKey('procurement.PurchaseOrder', on_delete=models.PROTECT, null=True, blank=True, related_name='payments')
     stock_document = models.ForeignKey(StockDocument, on_delete=models.PROTECT, null=True, blank=True)
+    goods_document = models.ForeignKey('GoodsDocument', on_delete=models.PROTECT, null=True, blank=True, related_name='payments', verbose_name='Накладная поставщика')
     reference = models.CharField('Номер платежа / основание', max_length=150)
     note = models.TextField('Комментарий', blank=True)
     created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
@@ -185,3 +210,43 @@ class PurchaseListing(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     class Meta:
         constraints = [models.UniqueConstraint(fields=['order','line'], name='inventory_purchase_listing_line')]
+
+
+class GoodsDocument(models.Model):
+    """One external document, many immutable stock movements/acceptance events."""
+    kind = models.CharField('Операция', max_length=15, choices=StockDocument.Kind.choices)
+    number = models.CharField('Номер накладной / документа', max_length=120, blank=True)
+    date = models.DateField('Дата документа')
+    accepted_on = models.DateField('Дата фактической приёмки / отправки', null=True, blank=True)
+    warehouse = models.CharField('Склад', max_length=3, choices=[('PP1','PP1 · Asia Grade'),('PP2','PP2 · Rapida')])
+    destination = models.CharField('Склад получения', max_length=3, blank=True, choices=[('PP1','PP1 · Asia Grade'),('PP2','PP2 · Rapida')])
+    counterparty = models.CharField('Поставщик / основание', max_length=250, blank=True)
+    purchase_order = models.ForeignKey('procurement.PurchaseOrder', null=True, blank=True, on_delete=models.PROTECT, related_name='goods_documents')
+    request_key = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    identity = models.CharField(max_length=64, null=True, unique=True, editable=False)
+    note = models.TextField('Комментарий', blank=True)
+    evidence_only = models.BooleanField(default=False, editable=False)
+    source_lines = models.JSONField(default=list, editable=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.get_kind_display()} · {self.number or "№" + str(self.pk)} · {self.counterparty}'
+
+
+class DocumentAttachment(models.Model):
+    document = models.ForeignKey(GoodsDocument, on_delete=models.PROTECT, related_name='attachments')
+    name = models.CharField(max_length=255)
+    digest = models.CharField(max_length=64)
+    data = models.BinaryField(editable=False)
+    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        constraints = [models.UniqueConstraint(fields=['document','digest'], name='inventory_attachment_digest')]
+
+
+class SaleReconciliation(models.Model):
+    operation = models.OneToOneField(KaspiOperation, on_delete=models.PROTECT, related_name='reconciliation')
+    document = models.ForeignKey(StockDocument, on_delete=models.PROTECT, related_name='kaspi_links')
+    confirmed_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.PROTECT)
+    created_at = models.DateTimeField(auto_now_add=True)

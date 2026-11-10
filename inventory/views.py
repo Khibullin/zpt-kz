@@ -28,6 +28,8 @@ class Filters(forms.Form):
 @never_cache
 @accounting_access
 def dashboard(request, section='overview'):
+    if section == 'finance':
+        section = 'sales'  # Compatibility URL; the menu has one Kaspi report.
     if section == 'stock' and request.GET.get('raw') != '1':
         from .document_views import items
         params=request.GET.copy()
@@ -42,7 +44,7 @@ def dashboard(request, section='overview'):
         stocks = StockSnapshot.objects.filter(batch=latest)
     if pp1:
         stocks = StockSnapshot.objects.filter(batch_id__in=[b.pk for b in [latest,pp1] if b])
-    ops = KaspiOperation.objects.all()
+    ops = KaspiOperation.objects.select_related('reconciliation__document__bundle').all()
     valid = form.is_valid()
     if valid:
         f = form.cleaned_data
