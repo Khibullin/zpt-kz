@@ -15,7 +15,8 @@ def stage_all_photos(apps=None):
         key=(row['brand'].strip().upper(),row['article'].strip().upper())
         sources.setdefault(key,(row['pk'],row['supplier_url']))
     existing={row['product_id']:row for row in Task.objects.values('pk','product_id','status','note','evidence')}
-    counts={'prepared':0,'maker_ready':0,'needs_source':0,'existing':0}
+    counts={'prepared':0,'maker_ready':0,'web_ready':0,'needs_source':0,'existing':0}
+    probes=0
     pending=[]
     rows=Listing.objects.filter(enabled=True,product__status='active').filter(
         Q(product__main_image='')|Q(product__main_image__isnull=True)
@@ -32,10 +33,18 @@ def stage_all_photos(apps=None):
             url=meta.get('source_url','')
             if meta.get('status')=='sourced' and valid_page(url,offer.brand):
                 source=(offer.pk,url);status='maker_ready'
+        extra={}
+        if not source:
+            from catalog.manufacturer_photos import discovered_page
+            url=discovered_page(offer.brand,offer.article)
+            if url:
+                source=(offer.pk,url);status='web_ready'
+                if probes<3:
+                    extra={'source_probe':True};probes+=1
         old=existing.get(row.product_id)
         note='' if source else 'Нужен подтверждённый источник фото по производителю и артикулу.'
         if old:
-            if old['status'] in ('pending','prepared','maker_ready','blocked') or (
+            if old['status'] in ('pending','prepared','maker_ready','web_ready','blocked') or (
                 old['evidence'].get('batch')==BATCH and old['status']!='needs_source'
             ) or (old['status']=='needs_source' and not source):
                 counts['existing']+=1
@@ -43,12 +52,12 @@ def stage_all_photos(apps=None):
             Task.objects.filter(pk=old['pk']).update(status=status,
                 offer_id=source[0] if source else offer.pk,
                 source_url=source[1] if source else '',note=note,
-                evidence={**old['evidence'],'batch':BATCH})
+                evidence={**old['evidence'],'batch':BATCH,**extra})
         else:
             pending.append(Task(product_id=row.product_id,
                 offer_id=source[0] if source else offer.pk,
                 source_url=source[1] if source else '',status=status,note=note,
-                evidence={'batch':BATCH}))
+                evidence={'batch':BATCH,**extra}))
             if len(pending)>=1000:
                 Task.objects.bulk_create(pending,ignore_conflicts=True,batch_size=500)
                 pending=[]

@@ -105,6 +105,23 @@ class SupplierAssetTests(TestCase):
         self.assertEqual(task.status,'maker_ready')
         self.assertEqual(task.source_url,url)
 
+    def test_full_queue_discovers_febest_page_without_supplier_link(self):
+        from catalog.photo_queue import stage_all_photos
+        self.task.delete()
+        Product.objects.filter(pk=self.product.pk).update(article='0101-ACA30F')
+        Offer.objects.filter(pk=self.offer.pk).update(brand='FEBEST',article='0101-ACA30F')
+        counts=stage_all_photos()
+        task=SupplierPhotoTask.objects.get(product=self.product)
+        self.assertEqual(counts['web_ready'],1)
+        self.assertEqual(task.status,'web_ready')
+        self.assertEqual(task.source_url,'https://febest.com.ua/catalogue/?product=0101-ACA30F')
+        self.assertTrue(task.evidence['source_probe'])
+        stage_all_photos()
+        self.assertEqual(SupplierPhotoTask.objects.count(),1)
+        self.product.refresh_from_db()
+        self.assertEqual(self.product.price,1300)
+        self.assertEqual(self.product.stock_qty,2)
+
     def test_compression_preserves_full_aspect_ratio_and_does_not_upscale(self):
         output=io.BytesIO()
         Image.new('RGB',(1600,800),'red').save(output,'PNG')
