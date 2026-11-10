@@ -54,6 +54,24 @@ class SupplierAssetTests(TestCase):
         with patch('catalog.source_photos.fetch_bytes',side_effect=AssertionError('No bypass')):
             self.assertEqual(process_photo_tasks(),0)
 
+    def test_source_block_does_not_stop_another_approved_manufacturer(self):
+        SupplierPhotoTask.objects.filter(pk=self.task.pk).update(status='blocked',note='HTTP 403',evidence={'block_kind':'source'})
+        product=Product.objects.create(title='555 SA-1631R',article='SA-1631R',seller_profile=self.product.seller_profile,price=1300,stock_qty=2)
+        offer=Offer.objects.create(supplier=Supplier.objects.create(name='Фаетон'),brand='555',article='SA-1631R',name='Рычаг',cost=1000,stock='2')
+        RetailListing.objects.create(product=product,offer=offer)
+        task=SupplierPhotoTask.objects.create(product=product,offer=offer,status='maker_ready',source_url='https://www.sankei-555.com/search/detail.php?p_id=3&sch_p_555no=SA-1631R')
+        html='<th>555 No.</th><td>SA-1631R</td><img id="rollover_view" src="https://www.sankei-555.com/save_img/products/3/l_01.jpg">'
+        png=base64.b64decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR4nGNgYGD4DwABBAEAX+XDSwAAAABJRU5ErkJggg==')
+        with tempfile.TemporaryDirectory() as folder,override_settings(MEDIA_ROOT=folder),patch('catalog.source_photos.fetch_bytes',side_effect=[html.encode(),png]) as fetch,patch('catalog.source_photos.time.sleep'):
+            self.assertEqual(process_photo_tasks(),1)
+            self.assertIn('sankei-555.com',fetch.call_args_list[0].args[0])
+        task.refresh_from_db();self.assertEqual(task.status,'done')
+
+    def test_storage_block_stops_all_sources(self):
+        SupplierPhotoTask.objects.filter(pk=self.task.pk).update(status='blocked',evidence={'block_kind':'storage'})
+        with patch('catalog.source_photos.fetch_bytes',side_effect=AssertionError('No disk expansion')):
+            self.assertEqual(process_photo_tasks(),0)
+
     def test_full_queue_stages_sources_and_records_missing_sources_idempotently(self):
         from catalog.photo_queue import stage_all_photos
         self.task.delete()
@@ -75,6 +93,17 @@ class SupplierAssetTests(TestCase):
         self.assertEqual(queued.status,'prepared')
         self.assertEqual(queued.offer_id,source.pk)
         self.assertEqual(RetailListing.objects.get(product=other).offer_id,offer.pk)
+
+    def test_full_queue_uses_verified_manufacturer_page_when_supplier_has_no_link(self):
+        from catalog.photo_queue import stage_all_photos
+        self.task.delete()
+        url='https://asva-trading.com/catalog/suspension/0120-002'
+        Product.objects.filter(pk=self.product.pk).update(article='0120-002')
+        Offer.objects.filter(pk=self.offer.pk).update(brand='ASVA',article='0120-002',characteristics={'manufacturer_applicability':{'status':'sourced','source_url':url}})
+        stage_all_photos()
+        task=SupplierPhotoTask.objects.get(product=self.product)
+        self.assertEqual(task.status,'maker_ready')
+        self.assertEqual(task.source_url,url)
 
     def test_compression_preserves_full_aspect_ratio_and_does_not_upscale(self):
         output=io.BytesIO()
