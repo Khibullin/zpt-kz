@@ -1,5 +1,6 @@
 """Bounded, owner-staged public supplier-photo import; never changes prices/stock."""
 import io
+import hashlib
 import json
 import re
 import shutil
@@ -7,7 +8,7 @@ import time
 from pathlib import Path
 from urllib.parse import urlsplit
 import requests
-from PIL import Image
+from PIL import Image, ImageOps
 from django.conf import settings
 from django.db import transaction
 from django.core.files.base import ContentFile
@@ -15,6 +16,35 @@ from django.utils import timezone
 from .models import Product, SupplierPhotoTask
 
 MAX_BYTES=2*1024*1024
+
+
+def optimized_images(data):
+    """Keep the entire part and aspect ratio; never enlarge source pixels."""
+    with Image.open(io.BytesIO(data)) as source:
+        if source.format not in ('JPEG', 'PNG', 'WEBP') or source.width*source.height>20_000_000:
+            raise ValueError('Неподходящий формат или размер изображения.')
+        picture=ImageOps.exif_transpose(source)
+        picture.thumbnail((800,800),Image.Resampling.LANCZOS)
+        picture=picture.convert('RGBA')
+        background=Image.new('RGBA',picture.size,'white')
+        background.alpha_composite(picture)
+        picture=background.convert('RGB')
+    result=[]
+    for edge,quality in ((800,80),(180,72)):
+        resized=picture.copy()
+        resized.thumbnail((edge,edge),Image.Resampling.LANCZOS)
+        output=io.BytesIO()
+        resized.save(output,'WEBP',quality=quality,method=6)
+        result.append((output.getvalue(),resized.size))
+    return result
+
+
+def save_shared_image(storage,data):
+    """Content addressing reuses identical encoded images, including after retry."""
+    name='products/optimized/'+hashlib.sha256(data).hexdigest()+'.webp'
+    if not storage.exists(name):
+        name=storage.save(name,ContentFile(data))
+    return name
 
 class SourceUnavailable(ValueError):
     pass
@@ -93,13 +123,9 @@ def process_photo_tasks(limit=10):
                         task.status='skipped';task.note='Точное совпадение или реальная фотография не найдены.'
                     else:
                         data=fetch_bytes(image_url)
-                        with Image.open(io.BytesIO(data)) as picture:
-                            if picture.format not in ('JPEG','PNG','WEBP') or picture.width*picture.height>20_000_000:
-                                raise ValueError('Неподходящий формат или размер изображения.')
-                            extension={'JPEG':'jpg','PNG':'png','WEBP':'webp'}[picture.format]
-                            picture.verify()
+                        (main,main_size),(thumb,thumb_size)=optimized_images(data)
                         media=Path(settings.MEDIA_ROOT);media.mkdir(parents=True,exist_ok=True)
-                        if shutil.disk_usage(media).free<len(data)+64*1024*1024:
+                        if shutil.disk_usage(media).free<len(main)+len(thumb)+64*1024*1024:
                             task.status='blocked';task.note='Недостаточно свободного места; тариф не изменён.'
                         else:
                             # Re-read immediately before saving; do not replace an image
@@ -108,15 +134,16 @@ def process_photo_tasks(limit=10):
                             if product.main_image or product.status!='active' or product.article.strip().upper()!=offer.article.strip().upper():
                                 task.status='skipped';task.note='Карточка обновлена менеджером; фото сохранено без изменений.'
                             else:
-                                product.main_image.save(f'supplier-{offer.pk}.{extension}',ContentFile(data),save=False)
+                                product.main_image.name=save_shared_image(product.main_image.storage,main)
+                                product.supplier_thumbnail.name=save_shared_image(product.supplier_thumbnail.storage,thumb)
                                 product.updated_at=timezone.now()
-                                product.save(update_fields=['main_image','updated_at'])
+                                product.save(update_fields=['main_image','supplier_thumbnail','updated_at'])
                                 type(offer).objects.filter(pk=offer.pk,photo_url='').update(photo_url=image_url)
                                 task.status='done';task.note='Фотография точного товара из открытого каталога поставщика.'
-                                task.evidence={'source_url':task.source_url,'image_url':image_url,'brand':offer.brand,'article':offer.article,'bytes':len(data),'checked_at':timezone.now().isoformat()}
+                                task.evidence={'source_url':task.source_url,'image_url':image_url,'brand':offer.brand,'article':offer.article,'source_bytes':len(data),'bytes':len(main)+len(thumb),'main_bytes':len(main),'thumbnail_bytes':len(thumb),'main_size':main_size,'thumbnail_size':thumb_size,'main_path':product.main_image.name,'thumbnail_path':product.supplier_thumbnail.name,'checked_at':timezone.now().isoformat()}
             except SourceUnavailable as error:
                 task.status='blocked';task.note=str(error)[:400]
-            except (requests.RequestException,ValueError,OSError,SyntaxError) as error:
+            except (requests.RequestException,ValueError,OSError,SyntaxError,Image.DecompressionBombError) as error:
                 task.status='skipped';task.note=str(error)[:400]
             task.save(update_fields=['status','note','evidence','updated_at']);done+=1
             if task.status=='blocked':break

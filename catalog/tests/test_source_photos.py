@@ -1,11 +1,13 @@
 import base64
 import tempfile
+import io
+from PIL import Image
 from unittest.mock import patch
 from django.test import TestCase,override_settings
 from django.contrib.auth.models import User
 from catalog.models import Product,SellerProfile,SupplierPhotoTask,PublicSitemapSnapshot,Category
 from procurement.models import Supplier,Offer,RetailListing
-from catalog.source_photos import matching_image,process_photo_tasks,SourceUnavailable
+from catalog.source_photos import matching_image,process_photo_tasks,SourceUnavailable,optimized_images,save_shared_image
 from catalog.product_display import public_product_title
 from core.seo_views import refresh_sitemap_snapshots
 from django.core.cache import caches
@@ -44,6 +46,28 @@ class SupplierAssetTests(TestCase):
         self.task.refresh_from_db();self.assertEqual(self.task.status,'blocked')
         with patch('catalog.source_photos.fetch_bytes',side_effect=AssertionError('No bypass')):
             self.assertEqual(process_photo_tasks(),0)
+
+    def test_compression_preserves_full_aspect_ratio_and_does_not_upscale(self):
+        output=io.BytesIO()
+        Image.new('RGB',(1600,800),'red').save(output,'PNG')
+        main,thumb=optimized_images(output.getvalue())
+        self.assertEqual(main[1],(800,400))
+        self.assertEqual(thumb[1],(180,90))
+        with Image.open(io.BytesIO(main[0])) as image:
+            self.assertEqual(image.format,'WEBP')
+        output=io.BytesIO()
+        Image.new('RGB',(60,30),'blue').save(output,'PNG')
+        self.assertEqual(optimized_images(output.getvalue())[0][1],(60,30))
+
+    def test_identical_encoded_images_reuse_storage_file(self):
+        from django.core.files.storage import FileSystemStorage
+        from pathlib import Path
+        with tempfile.TemporaryDirectory() as folder:
+            storage=FileSystemStorage(location=folder)
+            first=save_shared_image(storage,b'identical')
+            second=save_shared_image(storage,b'identical')
+            self.assertEqual(first,second)
+            self.assertEqual(len(list(Path(folder).rglob('*.webp'))),1)
 
     def test_cleanup_preserves_sku_and_raw_supplier_title(self):
         self.assertEqual(public_product_title(self.product),'PART-1 — фильтр')
