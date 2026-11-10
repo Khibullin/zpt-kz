@@ -623,7 +623,9 @@ def refresh_shared_fitments(request):
     supplier = request_supplier(request)
     if supplier is None:
         return HttpResponse('Выберите поставщика.', status=400)
-    result = fill_from_shared_base(supplier, request.user)
+    preferences, _ = Preferences.objects.get_or_create(user=request.user)
+    offers = best_candidates_query(Offer.objects.filter(supplier=supplier), preferences, timezone.localdate())
+    result = fill_from_shared_base(supplier, request.user, offers=offers)
     messages.success(request, f"Применимость дополнена у {result['offers']} товаров: "
         f"{result['make_model_pairs']} пар марка/модель. "
         f"Расхождений, оставленных на проверку: {result['conflicts']}.")

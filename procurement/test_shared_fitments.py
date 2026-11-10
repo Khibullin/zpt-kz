@@ -70,3 +70,16 @@ class SharedFitmentTests(TestCase):
         plain = get_user_model().objects.create_user(username='plain')
         self.client.force_login(plain)
         self.assertEqual(self.client.post(url).status_code, 403)
+
+    def test_supplier_catalogue_keeps_its_provenance_and_requires_exact_brand(self):
+        payload = json.loads(self.payload().getvalue())
+        entry = payload['offers'][0]
+        entry.update(source_url='https://shop.globalparts.kz/product/motorad/2028-77k',
+                     source_kind='supplier_catalogue', source_brand='MOTORAD')
+        self.assertEqual(import_catalogue_fitments(StringIO(json.dumps(payload)), self.target.name, date(2026,11,10), self.user), 1)
+        self.other.refresh_from_db()
+        self.assertIn('supplier_catalogue_applicability', self.other.characteristics)
+        self.assertNotIn('manufacturer_applicability', self.other.characteristics)
+        entry['source_brand'] = 'OTHER'
+        with self.assertRaises(ValueError):
+            import_catalogue_fitments(StringIO(json.dumps(payload)), self.target.name, date(2026,11,10), self.user)

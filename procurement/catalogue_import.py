@@ -35,14 +35,15 @@ def import_catalogue_fitments(file, supplier_name, date, user):
         if key in seen:
             raise ValueError('Бренд и артикул дублируются.')
         seen.add(key)
-        if row.get('source_article') != article:
+        if str(row.get('source_article', '')).casefold() != article.casefold() or str(row.get('source_brand', brand)).casefold() != brand.casefold():
             raise ValueError('Артикул не совпадает с прочитанным источником.')
         source = row.get('source_url', '')
         try:
             URLValidator(schemes=['https'])(source)
         except ValidationError:
             raise ValueError('Источник должен быть HTTPS-ссылкой каталога.')
-        if urlsplit(source).hostname not in ALLOWED.get(brand.upper(), set()):
+        supplier_catalogue = urlsplit(source).hostname == 'shop.globalparts.kz' and row.get('source_kind') == 'supplier_catalogue'
+        if not supplier_catalogue and urlsplit(source).hostname not in ALLOWED.get(brand.upper(), set()):
             raise ValueError('Источник не входит в список каталогов данного производителя.')
         if row.get('status') != 'sourced' or not isinstance(row.get('rows'), list) or not row['rows']:
             raise ValueError('Неподтверждённую применимость импортировать нельзя.')
@@ -68,7 +69,7 @@ def import_catalogue_fitments(file, supplier_name, date, user):
             model=model, configurations=configs, source_url=source, verified=True)
             for (make, model), configs in grouped.items()], batch_size=200)
         metadata = dict(offer.characteristics or {})
-        metadata['manufacturer_applicability'] = {'manufacturer': brand,
+        metadata['supplier_catalogue_applicability' if supplier_catalogue else 'manufacturer_applicability'] = {'manufacturer': brand,
             'checked_on': date.isoformat(), 'source_url': source, 'status': 'sourced',
             'note': row.get('note', '')}
         offer.characteristics = metadata

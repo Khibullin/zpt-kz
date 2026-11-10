@@ -4,6 +4,7 @@ from copy import deepcopy
 from urllib.parse import urlsplit
 
 from django.db import transaction
+from django.db.models.functions import Upper, Trim
 from .models import Offer, VehicleFitment, Activity
 
 
@@ -13,14 +14,23 @@ def identity(brand, article):
 
 
 @transaction.atomic
-def fill_from_shared_base(supplier, user):
+def fill_from_shared_base(supplier, user, offers=None):
+    candidates = (offers if offers is not None else Offer.objects.all()).filter(supplier=supplier).exclude(fitments__isnull=False)
+    target_keys = {identity(b, a) for b, a in candidates.values_list('brand', 'article')}
+    if not target_keys:
+        result = {'supplier': supplier.name, 'offers': 0, 'make_model_pairs': 0, 'conflicts': 0}
+        Activity.objects.create(user=user, action='shared_fitment_import', details=result)
+        return result
     sources = {}
-    for fit in VehicleFitment.objects.filter(verified=True).exclude(source_url='').select_related('offer').only('offer_id', 'make', 'model', 'details', 'configurations', 'source_url', 'offer__brand', 'offer__article').iterator(chunk_size=500):
+    reviewed = VehicleFitment.objects.alias(shared_article=Upper(Trim('offer__article')),
+        shared_brand=Upper(Trim('offer__brand'))).filter(verified=True,
+        shared_article__in={a for b, a in target_keys}, shared_brand__in={b for b, a in target_keys})
+    for fit in reviewed.exclude(source_url='').select_related('offer').only('offer_id', 'make', 'model', 'details', 'configurations', 'source_url', 'offer__brand', 'offer__article').iterator(chunk_size=500):
         if urlsplit(fit.source_url).scheme != 'https':
             continue
         key = identity(fit.offer.brand, fit.offer.article)
-        sources.setdefault(key, {}).setdefault(fit.offer_id, []).append(fit)
-    candidates = Offer.objects.filter(supplier=supplier).exclude(fitments__isnull=False)
+        if key in target_keys:
+            sources.setdefault(key, {}).setdefault(fit.offer_id, []).append(fit)
     updated = pairs = conflicts = 0
     for offer in candidates.iterator(chunk_size=200):
         choices = sources.get(identity(offer.brand, offer.article), {})

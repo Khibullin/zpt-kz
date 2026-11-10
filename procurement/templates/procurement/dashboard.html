@@ -37,7 +37,7 @@
 {% if can_manage and selected_supplier %}
 <form method="post" action="{% url 'procurement:refresh_shared_fitments' %}?supplier={{ selected_supplier.pk }}" style="margin:12px 0">{% csrf_token %}
 <button>Дополнить применимость из общей базы</button>
-<small>Точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
+<small>Для выгодных товаров: точный бренд и артикул; сохраняются годы, двигатели, ограничения и источники. Спорные и уже заполненные записи пропускаются.</small>
 </form>
 {% endif %}
 <div class="results-toolbar">
