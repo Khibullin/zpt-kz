@@ -1,0 +1,129 @@
+{
+  "checked_on": "2026-11-11",
+  "verified_at_utc": "2026-11-10 23:55:05 UTC",
+  "status": "applied_and_verified",
+  "supplier_id": 5,
+  "brand": "PATRON",
+  "source_checkpoint": "procurement/data/fitment_source_review_20261111_patron6_pending.json",
+  "source_checkpoint_commit": "56219760413fb236c3ecdac34183b675feb07f0b",
+  "result": {
+    "offers": 6,
+    "make_model_pairs": 29,
+    "configurations": 99,
+    "verified_offers_total": 4279,
+    "products_with_photos": 19105,
+    "photos_added": 0,
+    "photo_queue": {
+      "done": 18745,
+      "skipped": 1622,
+      "needs_source": 29126
+    },
+    "active_photo_tasks": 0
+  },
+  "targets": [
+    {
+      "article": "PE40201",
+      "offer_id": 26257,
+      "pairs": 14,
+      "configurations": 21,
+      "exact": true
+    },
+    {
+      "article": "PBD4287",
+      "offer_id": 26474,
+      "pairs": 6,
+      "configurations": 29,
+      "exact": true
+    },
+    {
+      "article": "PBD1023",
+      "offer_id": 26476,
+      "pairs": 1,
+      "configurations": 2,
+      "exact": true
+    },
+    {
+      "article": "PBD6024",
+      "offer_id": 26479,
+      "pairs": 3,
+      "configurations": 30,
+      "exact": true
+    },
+    {
+      "article": "PBD1433",
+      "offer_id": 26512,
+      "pairs": 4,
+      "configurations": 14,
+      "exact": true
+    },
+    {
+      "article": "PBD6008",
+      "offer_id": 26513,
+      "pairs": 1,
+      "configurations": 3,
+      "exact": true
+    }
+  ],
+  "write_method": {
+    "migration": "procurement.0021_reviewed_patron_fitments",
+    "commit": "718091399d396a404f7ce8b8af3786a623ad12df",
+    "importer": "procurement.catalogue_import.import_catalogue_fitments",
+    "reason": "Office upload navigation again returned technical stream/runtime/DOMSnapshot timeouts. No file upload or POST occurred. The same existing atomic safe importer applied only the six guarded exact offer IDs through a data migration.",
+    "guards": [
+      "Supplier 5 exact name and active staff superuser 1 checked",
+      "Full exact PATRON article and source identity; expected IDs only",
+      "Skip existing fitments, changed or duplicate identities",
+      "Existing importer rechecks exact offer with select_for_update and retains full source URLs",
+      "No broad photo staging, no new consumer, no price/stock/profit/schema change"
+    ]
+  },
+  "deployment": {
+    "id": "dep-dbpqroe0tbcc73fgnen0",
+    "status": "live",
+    "finished_at": "2026-11-10T23:52:55.662661Z",
+    "migration_applied_at": "2026-11-10T23:51:19.048833+00:00",
+    "health": "Render live; HEAD / 200 in logs",
+    "manual_restart": false
+  },
+  "verification": {
+    "all_99_configurations_and_29_pairs_match_frozen_payload_exactly": true,
+    "all_29_source_urls_preserved": true,
+    "manufacturer_metadata_preserved": true,
+    "activity_id": 5486,
+    "activity_offers": 6,
+    "activity_make_model_pairs": 29,
+    "additional_missing_exact_identity_matches_all_suppliers": 0,
+    "isolated_wrapper_guard_tests_passed": 4,
+    "python_compile_passed": true,
+    "django_full_test_suite_run": false
+  },
+  "restrictions_preserved": [
+    "PBD1433 Chevrolet Cobalt UZ only with ABS from 2013; no engine/end date invented",
+    "PBD14331 not used",
+    "All prior unresolved rows remain unconfirmed",
+    "All source/security refusals and ASVA/Alta-Karter exclusions remain in effect"
+  ],
+  "photo_followup": {
+    "supported_loader": "AYWIPARTS/FEBEST/approved supplier sources only; MOTORAD/PATRON not supported by current manufacturer photo validator",
+    "remaining_empty_needs_source": {
+      "AYWIPARTS": 1,
+      "MOTORAD": 237,
+      "PATRON": 278
+    },
+    "motorad_probe": {
+      "url": "https://eu.motorad.com/part/1014-100k/",
+      "exact_heading": "1014-100K",
+      "result": "Public page read through normal web retrieval; no exact real product image URL verified. Do not infer absent photo; not staged.",
+      "task_id": 13941,
+      "product_id": 15968,
+      "offer_id": 35159
+    }
+  },
+  "next_steps": [
+    "Six formerly pending PATRON targets are complete. Do not replay pending batch.",
+    "At next run first inspect fresh DB and live photo queue; never start competing consumer.",
+    "Continue remaining missing profitable supplier3/5 offers using independent permitted sources.",
+    "Photo source support requires verified exact product image and safe loader implementation before explicit task staging.",
+    "Task not complete; keep existing automation enabled."
+  ]
+}
