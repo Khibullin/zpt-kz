@@ -83,3 +83,11 @@ class SharedFitmentTests(TestCase):
         entry['source_brand'] = 'OTHER'
         with self.assertRaises(ValueError):
             import_catalogue_fitments(StringIO(json.dumps(payload)), self.target.name, date(2026,11,10), self.user)
+
+    def test_akika_catalogue_format_keeps_every_digit_and_suffix(self):
+        from .catalogue_import import source_article_matches
+        url = 'https://shop.globalparts.kz/product/akika/as09'
+        self.assertTrue(source_article_matches('AKIKA', 'AS-09', 'AS09', url, 'supplier_catalogue'))
+        for brand, article, source in [('AKIKA','AS-09','AS9'),('AKIKA','AS-09','AS090'),('AKIKA','AS-09L','AS09L'),('ASVA','AS-09','AS09')]:
+            self.assertFalse(source_article_matches(brand, article, source, url, 'supplier_catalogue'))
+        self.assertFalse(source_article_matches('AKIKA','AS-09','AS09','https://example.com/as09','supplier_catalogue'))

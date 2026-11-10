@@ -1,5 +1,6 @@
 """Import exact, sourced manufacturer applications without changing trade data."""
 import json
+import re
 from urllib.parse import urlsplit
 from django.db import transaction
 from django.core.validators import URLValidator
@@ -11,6 +12,22 @@ ALLOWED = {'ASVA': {'asva-trading.com'}, 'MOTORAD': {'eu.motorad.com'},
            '555': {'www.sankei-555.com'}, 'PATRON': {'patron.ru', 'www.patron.ru'},
            'BILSTEIN': {'cart.bilsteinus.com'}, 'BLUE PRINT': {'partsfinder.bilsteingroup.com'},
            'AKEBONO': {'www.akebono-brake.com'}, 'NGK': {'www.ngkntk.com'}}
+
+
+def source_article_matches(brand, article, source_article, source_url, source_kind):
+    if source_article.casefold() == article.casefold():
+        return True
+    # This catalogue prints AKIKA AS/AP numbers without the formatting hyphen.
+    # Keep every letter, digit and leading zero; suffixes and other brands do not match.
+    if brand.upper() != 'AKIKA' or source_kind != 'supplier_catalogue':
+        return False
+    try:
+        if urlsplit(source_url).hostname != 'shop.globalparts.kz':
+            return False
+    except ValueError:
+        return False
+    return bool(re.fullmatch(r'(?:AS|AP)-[0-9]+', article.upper())
+                and source_article.upper() == article.replace('-', '').upper())
 
 
 @transaction.atomic
@@ -35,7 +52,7 @@ def import_catalogue_fitments(file, supplier_name, date, user):
         if key in seen:
             raise ValueError('Бренд и артикул дублируются.')
         seen.add(key)
-        if str(row.get('source_article', '')).casefold() != article.casefold() or str(row.get('source_brand', brand)).casefold() != brand.casefold():
+        if not source_article_matches(brand, article, str(row.get('source_article', '')), str(row.get('source_url', '')), row.get('source_kind')) or str(row.get('source_brand', brand)).casefold() != brand.casefold():
             raise ValueError('Артикул не совпадает с прочитанным источником.')
         source = row.get('source_url', '')
         try:
@@ -71,6 +88,7 @@ def import_catalogue_fitments(file, supplier_name, date, user):
         metadata = dict(offer.characteristics or {})
         metadata['supplier_catalogue_applicability' if supplier_catalogue else 'manufacturer_applicability'] = {'manufacturer': brand,
             'checked_on': date.isoformat(), 'source_url': source, 'status': 'sourced',
+            'source_article': row['source_article'], 'source_brand': row.get('source_brand', brand),
             'note': row.get('note', '')}
         offer.characteristics = metadata
         offer.save(update_fields=['characteristics'])
