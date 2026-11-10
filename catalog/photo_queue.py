@@ -15,7 +15,7 @@ def stage_all_photos(apps=None):
         key=(row['brand'].strip().upper(),row['article'].strip().upper())
         sources.setdefault(key,(row['pk'],row['supplier_url']))
     existing={row['product_id']:row for row in Task.objects.values('pk','product_id','status','note','evidence')}
-    counts={'prepared':0,'needs_source':0,'existing':0}
+    counts={'prepared':0,'maker_ready':0,'needs_source':0,'existing':0}
     pending=[]
     rows=Listing.objects.filter(enabled=True,product__status='active').filter(
         Q(product__main_image='')|Q(product__main_image__isnull=True)
@@ -24,10 +24,18 @@ def stage_all_photos(apps=None):
         offer=row.offer
         source=sources.get((offer.brand.strip().upper(),offer.article.strip().upper()))
         status='prepared' if source else 'needs_source'
+        if not source:
+            from catalog.manufacturer_photos import valid_page
+            characteristics=offer.characteristics if isinstance(offer.characteristics,dict) else {}
+            meta=characteristics.get('manufacturer_applicability',{})
+            if not isinstance(meta,dict):meta={}
+            url=meta.get('source_url','')
+            if meta.get('status')=='sourced' and valid_page(url,offer.brand):
+                source=(offer.pk,url);status='maker_ready'
         old=existing.get(row.product_id)
         note='' if source else 'Нужен подтверждённый источник фото по производителю и артикулу.'
         if old:
-            if old['status'] in ('pending','prepared','blocked') or (
+            if old['status'] in ('pending','prepared','maker_ready','blocked') or (
                 old['evidence'].get('batch')==BATCH and old['status']!='needs_source'
             ) or (old['status']=='needs_source' and not source):
                 counts['existing']+=1

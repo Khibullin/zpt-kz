@@ -11,6 +11,7 @@ import requests
 from PIL import Image, ImageOps
 from django.conf import settings
 from django.db import transaction
+from django.db.models import Case,IntegerField,Value,When
 from django.core.files.base import ContentFile
 from django.utils import timezone
 from .models import Product, SupplierPhotoTask
@@ -58,8 +59,10 @@ class SourceUnavailable(ValueError):
     pass
 
 
-def public_page_url(url):
+def public_page_url(url,brand=''):
     parsed=urlsplit(url)
+    from .manufacturer_photos import valid_page
+    if valid_page(url,brand):return url
     if parsed.scheme!='https' or parsed.netloc!='omega-auto-parts.kz' or parsed.query or parsed.fragment or not parsed.path.startswith('/'):
         raise ValueError('Недопустимый адрес поставщика.')
     return url
@@ -120,13 +123,17 @@ def fetch_bytes(url,maximum=MAX_BYTES):
 
 
 def process_photo_tasks(limit=10):
-    # A source block stops the pilot, rather than retrying other URLs around it.
-    if SupplierPhotoTask.objects.filter(status='blocked').exists():return 0
+    blocked=list(SupplierPhotoTask.objects.filter(status='blocked').values('source_url','note','evidence'))
+    if any(row['evidence'].get('block_kind')=='storage' or row['note'].startswith('Недостаточно свободного места') for row in blocked):return 0
     # Prepared work is activated by the deployed consumer, not the old process
     # while Render runs schema/data migrations for the next release.
-    SupplierPhotoTask.objects.filter(status='prepared').update(status='pending')
+    SupplierPhotoTask.objects.filter(status__in=['prepared','maker_ready']).update(status='pending')
     done=0
-    for task_id in list(SupplierPhotoTask.objects.filter(status='pending').order_by('pk').values_list('pk',flat=True)[:limit]):
+    pending=SupplierPhotoTask.objects.filter(status='pending')
+    for host in {urlsplit(row['source_url']).netloc for row in blocked}:
+        if host:pending=pending.exclude(source_url__startswith='https://'+host+'/')
+    pending=pending.annotate(source_priority=Case(When(source_url__startswith='https://omega-auto-parts.kz/',then=Value(1)),default=Value(0),output_field=IntegerField()))
+    for task_id in list(pending.order_by('source_priority','pk').values_list('pk',flat=True)[:limit]):
         with transaction.atomic():
             task=SupplierPhotoTask.objects.select_for_update(skip_locked=True,of=('self',)).select_related('product','offer').filter(pk=task_id,status='pending').first()
             if task is None:continue
@@ -141,8 +148,12 @@ def process_photo_tasks(limit=10):
                     listing=RetailListing.objects.select_related('offer').filter(product=product,enabled=True).first()
                     if not listing or listing.offer.brand.strip().casefold()!=offer.brand.strip().casefold():
                         raise ValueError('Не подтверждено совпадение производителя.')
-                    html=fetch_bytes(public_page_url(task.source_url)).decode('utf-8',errors='replace')
-                    image_url=matching_image(html,offer.brand,offer.article)
+                    html=fetch_bytes(public_page_url(task.source_url,offer.brand)).decode('utf-8',errors='replace')
+                    if urlsplit(task.source_url).netloc=='omega-auto-parts.kz':
+                        image_url=matching_image(html,offer.brand,offer.article)
+                    else:
+                        from .manufacturer_photos import matching_manufacturer_image
+                        image_url=matching_manufacturer_image(html,task.source_url,offer.brand,offer.article)
                     if not image_url:
                         task.status='skipped';task.note='Точное совпадение или реальная фотография не найдены.'
                     else:
@@ -151,6 +162,7 @@ def process_photo_tasks(limit=10):
                         media=Path(settings.MEDIA_ROOT);media.mkdir(parents=True,exist_ok=True)
                         if shutil.disk_usage(media).free<len(main)+len(thumb)+64*1024*1024:
                             task.status='blocked';task.note='Недостаточно свободного места; тариф не изменён.'
+                            task.evidence={**task.evidence,'block_kind':'storage','free_disk_bytes':shutil.disk_usage(media).free}
                         else:
                             # Re-read immediately before saving; do not replace an image
                             # a manager added while the external source was loading.
@@ -163,10 +175,11 @@ def process_photo_tasks(limit=10):
                                 product.updated_at=timezone.now()
                                 product.save(update_fields=['main_image','supplier_thumbnail','updated_at'])
                                 type(offer).objects.filter(pk=offer.pk,photo_url='').update(photo_url=image_url)
-                                task.status='done';task.note='Фотография точного товара из открытого каталога поставщика.'
+                                task.status='done';task.note='Фотография точного товара из подтверждённого открытого каталога.'
                                 task.evidence={**task.evidence,'source_url':task.source_url,'image_url':image_url,'brand':offer.brand,'article':offer.article,'source_bytes':len(data),'bytes':len(main)+len(thumb),'main_bytes':len(main),'thumbnail_bytes':len(thumb),'main_size':main_size,'thumbnail_size':thumb_size,'main_path':product.main_image.name,'thumbnail_path':product.supplier_thumbnail.name,'free_disk_bytes':shutil.disk_usage(media).free,'checked_at':timezone.now().isoformat()}
             except SourceUnavailable as error:
                 task.status='blocked';task.note=str(error)[:400]
+                task.evidence={**task.evidence,'block_kind':'source'}
             except (requests.RequestException,ValueError,OSError,SyntaxError,Image.DecompressionBombError) as error:
                 task.status='skipped';task.note=str(error)[:400]
             task.save(update_fields=['status','note','evidence','updated_at']);done+=1
