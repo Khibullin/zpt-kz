@@ -40,6 +40,13 @@ class SupplierAssetTests(TestCase):
         with patch('catalog.source_photos.fetch_bytes',side_effect=AssertionError('No second download')):
             self.assertEqual(process_photo_tasks(),0)
 
+    def test_formatted_sku_requires_exact_article_in_same_product_name(self):
+        formatted=self.html.replace('"sku":"PART-1"','"sku":"PART1","name":"Фильтр PART-1"')
+        self.assertEqual(matching_image(formatted,'TEST','PART-1'),self.photo)
+        self.assertEqual(matching_image(formatted.replace('Фильтр PART-1','Фильтр PART-10'),'TEST','PART-1'),'')
+        self.assertEqual(matching_image(formatted.replace('"sku":"PART1"','"sku":"PART10"'),'TEST','PART-1'),'')
+        self.assertEqual(matching_image(formatted,'OTHER','PART-1'),'')
+
     def test_source_block_stops_pilot_without_retries(self):
         with patch('catalog.source_photos.fetch_bytes',side_effect=SourceUnavailable('HTTP 403')),patch('catalog.source_photos.time.sleep'):
             process_photo_tasks()

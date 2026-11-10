@@ -76,7 +76,16 @@ def matching_image(html,brand,article):
         for product in products(data):
             maker=product.get('brand',{})
             maker=maker.get('name','') if isinstance(maker,dict) else maker
-            if str(product.get('sku','')).strip().upper()!=article.strip().upper() or str(maker).strip().casefold()!=brand.strip().casefold():continue
+            sku=str(product.get('sku','')).strip().upper()
+            expected=article.strip().upper()
+            if not expected or not sku:continue
+            exact=sku==expected
+            # Some supplier pages put AF69006 in sku and AF-69006 in name.
+            # Accept formatting only when the SAME page also states the exact
+            # original article as a whole token. Never drop letters or suffixes.
+            if not exact and re.sub(r'[-\s]','',sku)==re.sub(r'[-\s]','',expected):
+                exact=bool(re.search(r'(?<!\w)'+re.escape(expected)+r'(?!\w)',str(product.get('name','')).upper()))
+            if not exact or str(maker).strip().casefold()!=brand.strip().casefold():continue
             images=product.get('image',[])
             if isinstance(images,str):images=[images]
             for url in images if isinstance(images,list) else []:
