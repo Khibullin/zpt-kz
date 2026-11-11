@@ -1,0 +1,42 @@
+{
+  "article": "202000607AA",
+  "brand": "JASHI",
+  "cost": 22500,
+  "has_fitment": true,
+  "id": 25188,
+  "kaspi_price": 29060,
+  "kaspi_url": "https://kaspi.kz/shop/p/jashi-perednii-202000607aa-1-sht-130904792/?c=750000000",
+  "main_image": "",
+  "name": "Амортизатор передний Chery",
+  "photo_status": "needs_source",
+  "product_id": 6728,
+  "profit": 2677.5,
+  "stock": "2",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 4701,
+  "offer_id": 25188,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "JASHI202000607AA: Автопитер выдаёт точную строку CheryArrizo8, но реальная фотография JASHI не подтверждена; существующая применимость сохранена.",
+  "checked_sources": [
+    {
+      "query": "\"JASHI\" \"202000607AA\"",
+      "result": "Bothengines:exactAutopiterrowArrizo8alreadyfit, no verifiedpartphoto"
+    },
+    {
+      "url": "https://autopiter.kz/goods/chery%20arrizo%20амортизатор%20передний%20левый",
+      "result": "Exactbrandfullarticle line insearch;fitexistingnochange"
+    }
+  ],
+  "next_offer_id": 25400,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true
+  }
+}
