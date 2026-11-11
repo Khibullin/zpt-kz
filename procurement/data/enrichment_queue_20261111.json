@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:19:16.290Z",
+  "checked_at": "2026-11-11T10:19:18.566Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -2934,14 +2934,14 @@
       "id": 35199,
       "kaspi_price": 16801,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-50387k-131371830/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/e0603131de9eabc7d8f3c63543a97b7916f6fda8823769a9cbd7af2394ca704b.webp",
       "name": "Термостат 87°С",
-      "photo_status": "needs_source",
+      "photo_status": "done",
       "product_id": 16006,
       "profit": 2449.875,
       "stock": "14",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/1003be4be96e81ab4cc51f0e02925fd3fe432d4e0eab4b019cf340861e97fa56.webp",
       "task_id": 13979
     },
     {
@@ -11118,7 +11118,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 35199,
+  "next_offer_id": 24819,
   "batch": {
     "supplier_id": 3,
     "batch_number": 2,
@@ -11224,14 +11224,14 @@
       22758,
       22944
     ],
-    "reviewed": 78,
+    "reviewed": 79,
     "published_fitments": 4,
-    "published_photos": 17,
+    "published_photos": 18,
     "unconfirmed": 61,
-    "next_offer_id": 35199,
-    "photos_present": 19,
+    "next_offer_id": 24819,
+    "photos_present": 20,
     "fitments_present": 57,
-    "both_present": 17,
+    "both_present": 18,
     "created_at": "2026-11-11T09:25:39.710Z",
     "fixed": true
   },
@@ -11281,7 +11281,8 @@
     24797,
     35215,
     35144,
-    35221
+    35221,
+    35199
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11461,16 +11462,17 @@
     35215,
     22534,
     35144,
-    35221
+    35221,
+    35199
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 178,
-    "remaining_unreviewed": 230,
+    "reviewed": 179,
+    "remaining_unreviewed": 229,
     "unconfirmed_reviewed": 132,
-    "remaining_missing_fields": 362,
-    "photo_added": 45,
+    "remaining_missing_fields": 361,
+    "photo_added": 46,
     "fitment_added": 29,
     "make_model_pairs_added": 79,
     "configurations_added": 108
@@ -11544,50 +11546,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "503-87K",
-      "brand": "MOTORAD",
-      "cost": 12001,
-      "has_fitment": true,
-      "id": 35199,
-      "kaspi_price": 16801,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-50387k-131371830/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 87°С",
-      "photo_status": "needs_source",
-      "product_id": 16006,
-      "profit": 2449.875,
-      "stock": "14",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13979,
-      "offer_id": 35199,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://cars245.com/en/item/motorad-50387K-thermostat-coolant/",
-      "source_label": "Cars245 — независимый каталог продавца",
-      "source_kind": "retailer_catalogue",
-      "source_article": "503-87K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4a87733e-3488-46e8-a99d-2852d0224178",
-      "image_url": "https://cars245images.cc/webp/big/motorad/04/motorad-50387K.jpg.webp",
-      "image_note": "Точная MOTORAD 503-87K: реальная фотография металлического термостата в корпусе с датчиком; карточка подтверждает 87°C и уплотнения. Существующая применимость сохранена.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://cars245.com/en/item/motorad-50387K-thermostat-coolant/",
-          "result": "Точная MOTORAD 503-87K: реальная фотография металлического термостата в корпусе с датчиком; карточка подтверждает 87°C и уплотнения. Существующая применимость сохранена."
-        }
-      ],
-      "next_offer_id": 24819,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "19-227870",
       "brand": "BILSTEIN",
