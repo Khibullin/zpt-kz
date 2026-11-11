@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5244,
   "offer_id": 25789,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://asiautos.net/products/ja8100-jac-t8-t8-pro-electric-fan-assembly-1308010p31f0-2023-2-0t-engine-cooling-high-quality-jac-spare-parts-asiautos-net",
   "source_label": "ASIAUTOS — независимый каталог продавца JAC",
@@ -24,11 +24,20 @@
   "source_article": "1308010P31F0",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/e306eb1c-8b6a-4943-9628-9f153d801438",
   "image_url": "https://asiautos.net/cdn/shop/files/1308010P31F0.jpg?v=1770678822&width=1946",
   "image_note": "Реальный один вентилятор в кожухе из точной карточки1308010P31F0; таблица указывает Brand:JAC и OEMwarranty. Существующая применимость сохранена, разные модели/годы других источников не переносились.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/b58b2beca09d74ad8fc0de1285f05fb0431bf34d8fb3eb3a5d81b477261a5a3a.webp",
+    "thumbnail_path": "products/optimized/185d5acd163f0133c6ee1dd727e34ebd543cfec87e7459535ba9b2af357bd0c4.webp",
+    "main_size": [
+      713,
+      713
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 26282,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:52:35.331Z"
+  },
+  "source_sha256": "2147db54880dc75d5574a7cd662200d15f7623cc585c7eaea8b960ab50e71afa",
+  "main_sha256": "b58b2beca09d74ad8fc0de1285f05fb0431bf34d8fb3eb3a5d81b477261a5a3a",
+  "main_size": [
+    713,
+    713
+  ],
+  "thumbnail_sha256": "185d5acd163f0133c6ee1dd727e34ebd543cfec87e7459535ba9b2af357bd0c4",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "453d5a997c729421b1a1f705ead7a96e239d5e6e",
+    "deploy": "dep-dbq5cfl9el5s73974so0",
+    "status": "live"
   }
 }
