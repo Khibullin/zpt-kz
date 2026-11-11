@@ -1,0 +1,42 @@
+{
+  "article": "AS-34",
+  "brand": "AKIKA",
+  "cost": 9222,
+  "has_fitment": false,
+  "id": 22818,
+  "kaspi_price": 12172,
+  "kaspi_url": "https://kaspi.kz/shop/p/akika-zadnii-as34-1-sht-115912960/?c=750000000",
+  "main_image": "",
+  "name": "AKIKA Амортизатор, зад. левый&правый",
+  "photo_status": "needs_source",
+  "product_id": 4547,
+  "profit": 1178.5,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2520,
+  "offer_id": 22818,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "unconfirmed_or_excluded"
+  },
+  "reason": "Точные фото и применимость AKIKA AS-34/AS34 не подтверждены; AS14/AS37/AP34/AS254/AS229 — другие полные артикулы,не используются.",
+  "checked_sources": [
+    {
+      "query": "\"AKIKA\" \"AS-34\"",
+      "result": "Other articles only"
+    },
+    {
+      "query": "\"AKIKA\" \"AS34\" амортизатор",
+      "result": "No results"
+    }
+  ],
+  "next_offer_id": 22938,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
