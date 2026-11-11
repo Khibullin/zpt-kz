@@ -1,0 +1,50 @@
+{
+  "article": "ST-58411-C9500",
+  "brand": "SAT",
+  "has_fitment": false,
+  "id": 26490,
+  "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-zadnie-st-58411-c9500-114988768/?c=750000000",
+  "main_image": "",
+  "name": "Диск тормозной Hyundai",
+  "photo_status": "needs_source",
+  "product_id": 8138,
+  "profit": 3780,
+  "stock": "2",
+  "supplier_id": 5,
+  "task_id": 6111,
+  "offer_id": 26490,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://satparts.ru/product/st-58411-c9500",
+  "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
+  "source_kind": "retailer_catalogue",
+  "source_article": "ST-58411-C9500",
+  "fitments": [
+    {
+      "make": "Hyundai",
+      "model": "Creta",
+      "generation": "1",
+      "years": "2015–2020",
+      "body": "SUV 5дв.",
+      "notes": "Задний невентилируемый диск262мм. Двигатель/регион/привод не указаны данным источником."
+    }
+  ],
+  "fitment_note": "Точная таблица карточки SATST-58411-C9500:CretaI2015–2020. Двигатели и4WD из иныхобъявлений не добавлены.",
+  "image_url": "https://static.autotrade.su/nomenclature/wm/b/76/765ec77747.jpg",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/d1815c45-e64b-4c43-ab71-359dae64e7a7",
+  "image_note": "Реальное фото одного заднего невентилируемого диска SATST-58411-C9500 с точной карточки продавца;визуально проверено.",
+  "photo": {
+    "status": "downloaded_exact_verified"
+  },
+  "checked_sources": [
+    {
+      "url": "https://satparts.ru/product/st-58411-c9500",
+      "result": "exactSATfullarticle;1firm fitmenttable row; realphoto"
+    }
+  ],
+  "next_offer_id": 26553,
+  "verification": {
+    "trade_data_unchanged": true,
+    "photo_visually_verified": true
+  }
+}
