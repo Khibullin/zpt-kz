@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14005,
   "offer_id": 35147,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/ngk-ignition-coil/u1001-48000",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48000",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a5441c5a-ea85-4d7b-aa03-edd85eff412a",
   "image_url": "https://cdn.spareto.com/variants/images_webp/000/525/628/medium/u1001-48000-B5C3326E.webp?1793006937",
   "image_note": "NGK48000(U1001),3контактаM4,катушка для распределителя;одна деталь,точная карточка Spareto.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/ac2e8a8cfa2f7f92b6a8f0a3d07c41f4282405a9b6fd5455cf102d9b6adc02a7.webp",
+    "thumbnail_path": "products/optimized/71bb5168f9948906a799c3c7478a6b3ad769cfaa9ff2cafa9819669ef0ec1258.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23717,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:48:28.583Z"
+  },
+  "source_sha256": "82236d4d54443a031d329768d94d11fdf97c3b160a2985ff55f0e3634ee73d7e",
+  "main_sha256": "ac2e8a8cfa2f7f92b6a8f0a3d07c41f4282405a9b6fd5455cf102d9b6adc02a7",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "71bb5168f9948906a799c3c7478a6b3ad769cfaa9ff2cafa9819669ef0ec1258",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "6a19252161cb12f233f8123e46324d6c88bf91bd",
+    "deploy": "dep-dbq3hlff3r2c73b7cb3g",
+    "status": "live"
   }
 }
