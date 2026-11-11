@@ -1,0 +1,44 @@
+{
+  "article": "1069-87K",
+  "brand": "MOTORAD",
+  "cost": 6580,
+  "has_fitment": true,
+  "id": 35160,
+  "kaspi_price": 11629,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-1069-87k-174077994/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 87°С",
+  "photo_status": "needs_source",
+  "product_id": 15972,
+  "profit": 3345.375,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13945,
+  "offer_id": 35160,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://spareto.com/products/motorad-thermostat-coolant/1069-87k",
+  "source_label": "Spareto — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "1069-87K",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/69e74c93-157a-4116-bc50-5327185979e5",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/003/675/119/medium/1069-87k-D48C9C90.webp?1793168265",
+  "image_note": "MOTORAD1069-87K,87°C,безкорпуса,суплотнением. Точная карточка и реальная деталь визуально проверены; существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://spareto.com/products/motorad-thermostat-coolant/1069-87k",
+      "result": "MOTORAD1069-87K,87°C,безкорпуса,суплотнением. Точная карточка и реальная деталь визуально проверены; существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 24801,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
