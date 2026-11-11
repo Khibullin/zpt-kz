@@ -138,6 +138,8 @@ def process_photo_tasks(limit=10):
     done+=process_bumper_photos(limit=max(0,limit-done))
     from .reviewed_zakaz_next3 import process_reviewed_photos as process_next3_photos
     done+=process_next3_photos(limit=max(0,limit-done))
+    from .reviewed_phaeton_resume4 import process_reviewed_photos as process_phresume4_photos
+    done += process_phresume4_photos(limit=max(0, limit - done))
     from .reviewed_phaeton_resume3 import process_reviewed_photos as process_phresume3_photos
     done += process_phresume3_photos(limit=max(0, limit - done))
     from .reviewed_phaeton_resume2 import process_reviewed_photos as process_phresume2_photos
