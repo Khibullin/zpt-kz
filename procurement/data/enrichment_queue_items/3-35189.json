@@ -16,19 +16,28 @@
   "supplier_thumbnail": "",
   "task_id": 13970,
   "offer_id": 35189,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://eu.motorad.com/part/412-79k/",
   "source_label": "MotoRad — каталог производителя",
-  "source_kind": "retailer_catalogue",
+  "source_kind": "manufacturer_catalogue",
   "source_article": "412-79K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3535be38-abb8-4aa9-87ae-4d54866b7f87",
   "image_url": "https://images.motorad.com/MotoRad-stills/412-79K_Angle.jpg",
   "image_note": "Точная официальная карточка412-79K,79°C,без корпуса,52/33мм,47мм. Визуально фотография одного металлического термостата с пружиной; точный Angle412-79K,не412-79безK. Существующая применимость сохранена; по фото не заявляется дополнительная комплектность.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/d17f64b94c6535526117036e6446868192a03270227854d3b019f1ae56cb9f44.webp",
+    "thumbnail_path": "products/optimized/7452a570421c0a7b49177f013d6f293109b7b6fef09c3dc95ea3e8003f08b804.webp",
+    "main_size": [
+      500,
+      500
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35145,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:27:05.427Z"
+  },
+  "source_sha256": "b31f3c99247c1c49fa49c55cd3af172d471684a163dea61dbb8ef5e9569b5845",
+  "main_sha256": "d17f64b94c6535526117036e6446868192a03270227854d3b019f1ae56cb9f44",
+  "main_size": [
+    500,
+    500
+  ],
+  "thumbnail_sha256": "7452a570421c0a7b49177f013d6f293109b7b6fef09c3dc95ea3e8003f08b804",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "status": "live"
   }
 }
