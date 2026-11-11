@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T10:21:37.372Z",
+  "checked_at": "2026-11-11T10:22:43.666Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -11822,6 +11822,50 @@
         }
       ],
       "next_offer_id": 22928,
+      "verification": {
+        "trade_data_unchanged": true
+      }
+    },
+    {
+      "article": "LX1481",
+      "brand": "MAHLE",
+      "cost": 7742,
+      "has_fitment": true,
+      "id": 35156,
+      "kaspi_price": 11597,
+      "kaspi_url": "https://kaspi.kz/shop/p/mahle-vozdushnyi-fil-tr-lx1481-124290683/?c=750000000",
+      "main_image": "",
+      "name": "MAHLE фильтр воздушный",
+      "photo_status": "needs_source",
+      "product_id": 15962,
+      "profit": 2155.375,
+      "stock": "1",
+      "supplier_id": 3,
+      "supplier_thumbnail": "",
+      "task_id": 13935,
+      "offer_id": 35156,
+      "status": "prepared_photo_existing_fitment",
+      "checked_on": "2026-11-11",
+      "source_url": "https://www.finditparts.com/products/4671300/mahle-lx1481",
+      "source_label": "FinditParts — независимый каталог продавца",
+      "source_kind": "retailer_catalogue",
+      "source_article": "LX1481",
+      "fitments": [],
+      "fitment_note": "Существующая применимость сохранена.",
+      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a6b26fcf-e74e-4a17-bdce-d7088cf1ea26",
+      "image_url": "https://db73q1dut0rlp.cloudfront.net/eyJ3aWR0aCI6NDM1LCJoZWlnaHQiOjQzNSwiZml0IjoiY29udGFpbiIsIndhdGVybWFya2VkIjp0cnVlLCJmb3JtYXQiOiJqcGciLCJrZXkiOiJhc3NldHMvaW1hZ2VzLzE2OTk5MjgwL3Byb2R1Y3QvM2I5YWIyYTE2MzIwYWNhNzNhODQ1ZjhmMDE0N2VkMjMuanBnIiwidmVyc2lvbiI6Mn0=.jpg?s=7b65b2903fdf00831e7b856b45ec1fb67cb2bbf47b96edd6ad0f371b0b688be7",
+      "image_note": "Точная MAHLE LX1481: реальная фотография одного прямоугольного воздушного фильтра с оранжевой рамкой. KMotorShopимеетcategory/sampleфото,исключено;существующая применимость сохранена.",
+      "photo": {
+        "status": "downloaded_visually_verified_not_queued"
+      },
+      "fitment_status": "existing_preserved",
+      "checked_sources": [
+        {
+          "url": "https://www.finditparts.com/products/4671300/mahle-lx1481",
+          "result": "Точная MAHLE LX1481: реальная фотография одного прямоугольного воздушного фильтра с оранжевой рамкой. KMotorShopимеетcategory/sampleфото,исключено;существующая применимость сохранена."
+        }
+      ],
+      "next_offer_id": 22867,
       "verification": {
         "trade_data_unchanged": true
       }
