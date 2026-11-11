@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 4476,
   "offer_id": 24798,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://aodars.ru/catalog/418/?page=40&q=",
   "source_label": "Аодарс — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "AW2220258",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/52e2f9e5-24b8-4ee5-9149-6b33efaf3da4",
   "image_url": "https://aodars.ru/media/product-img/193/192456.jpg",
   "image_note": "Точная карточка192456 AYWIpartsAW2220258,ступица в сборе с датчиком и гайкой;загружено полное фото детали,не обрезанная миниатюра.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/4633cd61991d20e716bc9165faa22e2d6d2cdc5f9cf419a8b1ad9c5f99515c37.webp",
+    "thumbnail_path": "products/optimized/7b05359937e5423af5ad12a3c454407601e4bf953e46e047a31d8c5b8f538880.webp",
+    "main_size": [
+      262,
+      387
+    ],
+    "thumbnail_size": [
+      122,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 35150,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T09:48:23.404Z"
+  },
+  "source_sha256": "61148c8252bb843d7a0d6a3b038431f471d9886fdc3f61e995565d1d74bbb504",
+  "main_sha256": "4633cd61991d20e716bc9165faa22e2d6d2cdc5f9cf419a8b1ad9c5f99515c37",
+  "main_size": [
+    262,
+    387
+  ],
+  "thumbnail_sha256": "7b05359937e5423af5ad12a3c454407601e4bf953e46e047a31d8c5b8f538880",
+  "thumbnail_size": [
+    122,
+    180
+  ],
+  "publication": {
+    "commit": "6a19252161cb12f233f8123e46324d6c88bf91bd",
+    "deploy": "dep-dbq3hlff3r2c73b7cb3g",
+    "status": "live"
   }
 }
