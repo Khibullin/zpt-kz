@@ -1,0 +1,39 @@
+{
+  "article": "0125ACA25LR",
+  "brand": "ASVA",
+  "cost": 12420,
+  "has_fitment": true,
+  "id": 23219,
+  "kaspi_price": 18680,
+  "kaspi_url": "https://kaspi.kz/shop/p/asva-rychag-podveski-0125aca25lr-173415174/?c=750000000",
+  "main_image": "",
+  "name": "ТЯГА ЗАДНЯЯ",
+  "photo_status": "needs_source",
+  "product_id": 4945,
+  "profit": 3675,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 2918,
+  "offer_id": 23219,
+  "status": "reviewed_source_restriction",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "existing_preserved",
+  "photo": {
+    "status": "not_requested_due_source_restriction"
+  },
+  "reason": "ASVA:автоматическая проверка безопасности отклонила независимую карточку бренда0121-008. Запросы источников ASVA не выполнялись; недостающие данные не выдуманы, существующие сохранены.",
+  "checked_sources": [
+    {
+      "journal": "procurement/data/enrichment_queue_items/3-23081.json",
+      "result": "Current explicit auto-reviewdenial applies toASVA requests; no retries or other channels"
+    }
+  ],
+  "next_offer_id": 23703,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_photo_preserved": false
+  }
+}
