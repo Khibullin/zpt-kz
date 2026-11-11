@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:13:01.072Z",
+  "checked_at": "2026-11-11T09:13:22.910Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9513,36 +9513,21 @@
     "Exact refused Kaspi URLs in item records must not be retried by alternative routes.",
     "shop.globalparts.kz/product/jashi/8402010u226ke; /product/bort/b334501; /product/patron/pbd4855; /product/jac/2804100s4500-f011 returned not accessible. Do not retry via other routes.",
     "All historical ASVA / Alta-Karter / refused MOTORAD / BILSTEIN / PATRON restrictions remain.",
-    "2026-11-11 current browser auto-review denied kaspi.kz origin for26220 and resources.cdn-kaspi.kz image for26530; no retries or other routes. Independent sources unaffected."
+    "2026-11-11 current browser auto-review denied kaspi.kz origin for26220 and resources.cdn-kaspi.kz image for26530; no retries or other routes. Independent sources unaffected.",
+    "2026-11-11 BRAVE BRSS58 Yandexmarket.yandex.uz SmartCaptcha; no bypass/retry. AutoFN111.01023.1 categoryfollowup403;do not retryotherroute."
   ],
-  "pending_publication": {
-    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
-    "offer_ids": [
-      26527,
-      28080,
-      26925,
-      25519,
-      26531,
-      25550,
-      25410,
-      26623
-    ],
-    "photos_prepared": 6,
-    "fitment_offers_prepared": 7,
-    "status": "committed_waiting_deploy",
-    "checked_at": "2026-11-11T09:08:30.017Z"
-  },
+  "pending_publication": null,
   "superseded_candidates": [
     26720,
     25488
   ],
   "actual_stats": {
-    "all_fitment_offers": 4375,
-    "all_photos": 19298,
+    "all_fitment_offers": 4382,
+    "all_photos": 19304,
     "batch": {
-      "both": 21,
-      "fitments": 66,
-      "photos": 23,
+      "both": 27,
+      "fitments": 73,
+      "photos": 29,
       "total": 100
     },
     "photo_queue": [
@@ -9575,18 +9560,18 @@
         "total": 268
       }
     ],
-    "checked_at": "2026-11-11T08:08:46.066Z",
+    "checked_at": "2026-11-11T09:13:22.910Z",
     "scope_note": "scope field is historical; fixed batch and explicit offer records are authoritative"
   },
-  "next_batch_instruction": "Continue56 remaining fixedZakazAuto100, next25201 then25198 inbatch.offer_ids. NoPhaeton before first100 complete. No repeat reviewed exceptions withoutnewsource.",
-  "technical_notes": "08c5ddc Live dep-dbq230dg1s2s739cu69g.3independentphotos+thumbs saved and UIloaded;3fitments/6pairs/6configs saved;5existingfitments unchanged.Trade data unchanged.5newphotoexceptions recorded.No pending work.Missing25494 checkpoint after409 staleSHA reconciled from canonical publisheditem using freshSHA;no repeateddataimport.",
+  "next_batch_instruction": "Continue17 remaining fixedZakazAuto100, next26709 then25231;noPhaeton beforecurrent100complete. No recheckexceptions withoutnewsource.",
+  "technical_notes": "cd711d8 Live dep-dbq313ijnfac739omoi0.6photos+6thumbs DB/UIverified,7fitmentoffers21pairs31configs. PATRON26527existingfitmentunchanged,all8tradeandpriorcharacteristicsunchanged. No pending work.",
   "latest_publication": {
-    "commit": "08c5ddc32f0a2d0527741382fe3e064c4c21216d",
-    "deploy": "dep-dbq230dg1s2s739cu69g",
+    "commit": "cd711d8063dc25b30ee190472db94956bff02d0b",
+    "deploy": "dep-dbq313ijnfac739omoi0",
     "status": "live",
-    "checked_photo_and_thumbnail": 3,
-    "checked_fitment_offers": 3,
-    "all_three_ui_images_loaded": true,
+    "checked_photo_and_thumbnail": 6,
+    "checked_fitment_offers": 7,
+    "all_six_ui_images_loaded": true,
     "unchanged_trade_data": true
   },
   "prepared_candidates": []
