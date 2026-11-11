@@ -1,0 +1,44 @@
+{
+  "article": "458-88K",
+  "brand": "MOTORAD",
+  "cost": 7015,
+  "has_fitment": true,
+  "id": 35196,
+  "kaspi_price": 9951,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-458-88k-113702346/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 88°С",
+  "photo_status": "needs_source",
+  "product_id": 16003,
+  "profit": 1442.125,
+  "stock": "4",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13976,
+  "offer_id": 35196,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cars245.com/ru/item/motorad-45888K-thermostat-coolant/",
+  "source_label": "Cars245 — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "458-88K",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/2a153664-251d-4e0b-8dc2-a0c5c560fd3e",
+  "image_url": "https://cars245images.cc/webp/big/motorad/3d/motorad-45888K.jpg.webp",
+  "image_note": "Точная карточка MOTORAD458-88K,88°C,EAN4037784012246. Визуально один термостат в металлическом угловом корпусе с уплотнением,фотоCars245; не инойартикул458безK. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://cars245.com/ru/item/motorad-45888K-thermostat-coolant/",
+      "result": "Точная карточка MOTORAD458-88K,88°C,EAN4037784012246. Визуально один термостат в металлическом угловом корпусе с уплотнением,фотоCars245; не инойартикул458безK. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 22113,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
