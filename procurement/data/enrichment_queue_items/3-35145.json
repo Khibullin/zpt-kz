@@ -1,0 +1,53 @@
+{
+  "article": "LAK169",
+  "brand": "MAHLE",
+  "cost": 4276,
+  "has_fitment": false,
+  "id": 35145,
+  "kaspi_price": 6849,
+  "kaspi_url": "https://kaspi.kz/shop/p/mahle-salonnyi-fil-tr-lak169-165308509/?c=750000000",
+  "main_image": "",
+  "name": "MAHLE фильтр салонный",
+  "photo_status": "needs_source",
+  "product_id": 15960,
+  "profit": 1466.875,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13933,
+  "offer_id": 35145,
+  "status": "prepared_photo_and_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.autoopt.ru/catalog/416067-filtr_vozdushnyj_salona_ford_fusion_fiesta_ugolnyj_mahle",
+  "source_label": "АвтоАльянс / Autoopt — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "LAK169",
+  "fitments": [
+    {
+      "make": "Ford",
+      "model": "Fusion"
+    },
+    {
+      "make": "Ford",
+      "model": "Fiesta"
+    }
+  ],
+  "fitment_note": "Продавец АвтоАльянс/Autoopt,точная карточка MAHLE LAK169:Ford Fusion и Fiesta,угольный салонный фильтр. Годы,двигатели,поколения и регион не указаны,не добавлялись; данные аналогов не переносились. Официальный поиск LAK169 не дал результата.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/26e2e2a4-8349-452c-a2d5-445cd3f0213a",
+  "image_url": "https://www.autoopt.ru/product_pictures/big/d1f/416067.jpg",
+  "image_note": "Визуально фотография одного серого угольного фильтра рядом с коробкойMAHLE Original,полныйLAK169нафильтрeикоробке;нечертёж/неLA169.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://www.autoopt.ru/catalog/416067-filtr_vozdushnyj_salona_ford_fusion_fiesta_ugolnyj_mahle",
+      "result": "Продавец АвтоАльянс/Autoopt,точная карточка MAHLE LAK169:Ford Fusion и Fiesta,угольный салонный фильтр. Годы,двигатели,поколения и регион не указаны,не добавлялись; данные аналогов не переносились. Официальный поиск LAK169 не дал результата."
+    }
+  ],
+  "next_offer_id": 22392,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
