@@ -42,7 +42,7 @@
   ],
   "supplier_id": 5,
   "checked_on": "2026-11-11",
-  "status": "deploy_submitted_not_yet_verified",
+  "status": "published_db_and_ui_verified",
   "commit": "04bf296e9af09ad54645b2697bd564204978c085",
   "photo": {
     "source_url": "https://www.hyundaipartsdeal.com/genuine/hyundai-cvvt-assy-int~24350-25000.html",
@@ -55,7 +55,9 @@
       180,
       135
     ],
-    "status": "prepared_not_confirmed_on_site"
+    "status": "saved_and_ui_loaded"
   },
-  "next_offer_id": 25371
+  "next_offer_id": 25371,
+  "verified_on": "2026-11-11",
+  "deploy": "dep-dbq0g2u7bikc738dsevg"
 }
