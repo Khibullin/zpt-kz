@@ -1,0 +1,44 @@
+{
+  "article": "568-97",
+  "brand": "MOTORAD",
+  "cost": 19779,
+  "has_fitment": true,
+  "id": 35204,
+  "kaspi_price": 26306,
+  "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-568-97-180623156/?c=750000000",
+  "main_image": "",
+  "name": "Термостат 97°С",
+  "photo_status": "needs_source",
+  "product_id": 16011,
+  "profit": 2988.75,
+  "stock": "5",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 13984,
+  "offer_id": 35204,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://cars245.com/en/item/motorad-56897-thermostat-coolant/",
+  "source_label": "Cars245 — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "568-97",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/a06babaa-2e8a-46b6-a863-9e348fc87876",
+  "image_url": "https://cars245images.cc/webp/big/motorad/55/motorad-56897.jpg.webp",
+  "image_note": "MOTORAD568-97,вкорпусе,97°C,безуплотнительного кольца/датчика по точной карточке. Временно прерванная загрузка штатно повторена одинраз,фотография реальнойдетали проверена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://cars245.com/en/item/motorad-56897-thermostat-coolant/",
+      "result": "MOTORAD568-97,вкорпусе,97°C,безуплотнительного кольца/датчика по точной карточке. Временно прерванная загрузка штатно повторена одинраз,фотография реальнойдетали проверена."
+    }
+  ],
+  "next_offer_id": 35135,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
