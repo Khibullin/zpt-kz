@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:26:39.321Z",
+  "checked_at": "2026-11-11T13:26:42.586Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -5886,14 +5886,14 @@
       "id": 35168,
       "kaspi_price": 6431,
       "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-25179k-131371824/?c=750000000",
-      "main_image": "",
+      "main_image": "products/optimized/4f695201a268346f2df7fb60c4a00ac52b6963930eff3caa69d7ec576a588e5f.webp",
       "name": "Термостат 79°С",
-      "photo_status": "needs_source",
+      "photo_status": "ui_verified_db_audit_pending",
       "product_id": 15976,
       "profit": 1141.125,
       "stock": "1",
       "supplier_id": 3,
-      "supplier_thumbnail": "",
+      "supplier_thumbnail": "products/optimized/cb65d274e9c567ba0aa8562d289ffcf13977c4d716e579a0e52b29cbecf104ba.webp",
       "task_id": 13949
     },
     {
@@ -11156,16 +11156,16 @@
       22123,
       22974
     ],
-    "reviewed": 24,
+    "reviewed": 25,
     "published_fitments": 0,
-    "published_photos": 1,
+    "published_photos": 2,
     "unconfirmed": 23,
-    "photos_present": 2,
+    "photos_present": 3,
     "fitments_present": 15,
-    "both_present": 1,
+    "both_present": 2,
     "created_at": "2026-11-11T13:04:15.851Z",
     "fixed": true,
-    "next_offer_id": 35168,
+    "next_offer_id": 35143,
     "scope_note": "Final original queue remainder; original saved profit order. Render read temporarily unavailable, verify each offer live UI before source/import; do not change scope."
   },
   "completed_offer_ids": [
@@ -11274,7 +11274,8 @@
     35193,
     22334,
     22174,
-    35183
+    35183,
+    35168
   ],
   "reviewed_offer_ids": [
     26787,
@@ -11675,16 +11676,17 @@
     23224,
     23339,
     22974,
-    35183
+    35183,
+    35168
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 399,
-    "remaining_unreviewed": 9,
+    "reviewed": 400,
+    "remaining_unreviewed": 8,
     "unconfirmed_reviewed": 293,
-    "remaining_missing_fields": 302,
-    "photo_added": 106,
+    "remaining_missing_fields": 301,
+    "photo_added": 107,
     "fitment_added": 55,
     "make_model_pairs_added": 126,
     "configurations_added": 164
@@ -11770,50 +11772,6 @@
     "db_verified": false
   },
   "prepared_candidates": [
-    {
-      "article": "251-79K",
-      "brand": "MOTORAD",
-      "cost": 4236,
-      "has_fitment": true,
-      "id": 35168,
-      "kaspi_price": 6431,
-      "kaspi_url": "https://kaspi.kz/shop/p/motorad-termostat-ohlazhdajuschaja-zhidkost-25179k-131371824/?c=750000000",
-      "main_image": "",
-      "name": "Термостат 79°С",
-      "photo_status": "needs_source",
-      "product_id": 15976,
-      "profit": 1141.125,
-      "stock": "1",
-      "supplier_id": 3,
-      "supplier_thumbnail": "",
-      "task_id": 13949,
-      "offer_id": 35168,
-      "status": "prepared_photo_existing_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://eu.motorad.com/part/251-79k/",
-      "source_label": "MOTORAD · каталог производителя",
-      "source_kind": "manufacturer_catalogue",
-      "source_article": "251-79K",
-      "fitments": [],
-      "fitment_note": "Существующая применимость сохранена.",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/b091f200-af05-40c6-bb80-b9ad9e977399",
-      "image_url": "https://images.motorad.com/MotoRad-stills/251-79K_Angle.jpg",
-      "image_note": "Точный полный артикул251-79K на сайте производителя;79°C,без корпуса. Реальное фото отдельного металлического термостата,не схема. Существующая применимость не изменяется;UIналичие1/закупка4236/Kaspi6431 совпадают с очередью.",
-      "photo": {
-        "status": "downloaded_visually_verified_not_queued"
-      },
-      "fitment_status": "existing_preserved",
-      "checked_sources": [
-        {
-          "url": "https://eu.motorad.com/part/251-79k/",
-          "result": "Точный полный артикул251-79K на сайте производителя;79°C,без корпуса. Реальное фото отдельного металлического термостата,не схема. Существующая применимость не изменяется;UIналичие1/закупка4236/Kaspi6431 совпадают с очередью."
-        }
-      ],
-      "next_offer_id": 22924,
-      "verification": {
-        "trade_data_unchanged": true
-      }
-    },
     {
       "article": "TI18289",
       "brand": "MAHLE",
@@ -12627,7 +12585,7 @@
     }
   ],
   "publication_pending": null,
-  "next_offer_id": 35168,
+  "next_offer_id": 35143,
   "verification_pending": [
     {
       "supplier_id": 3,
@@ -12706,6 +12664,26 @@
         "cost": 5080,
         "stock": "1",
         "kaspi_price": 7431
+      },
+      "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    },
+    {
+      "supplier_id": 3,
+      "offer_id": 35168,
+      "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+      "main_image": "products/optimized/4f695201a268346f2df7fb60c4a00ac52b6963930eff3caa69d7ec576a588e5f.webp",
+      "supplier_thumbnail": "products/optimized/cb65d274e9c567ba0aa8562d289ffcf13977c4d716e579a0e52b29cbecf104ba.webp",
+      "ui_verified": true,
+      "db_verified": false,
+      "checks_needed": [
+        "stored main+thumbnail",
+        "photo task status/evidence",
+        "trade values and old fitment metadata"
+      ],
+      "baseline_queue": {
+        "cost": 4236,
+        "stock": "1",
+        "kaspi_price": 6431
       },
       "reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
     }
