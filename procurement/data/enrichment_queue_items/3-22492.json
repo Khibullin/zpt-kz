@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2199,
   "offer_id": 22492,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.auto-doc.ie/555/13056476",
   "source_label": "AUTODOC — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SR-T180",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/29087805-89c8-48bd-9df7-ee9df54fa7a3",
   "image_url": "https://cdn.autodoc.de/thumb?id=13056476&m=0&n=0&lng=en&rev=94078121",
   "image_note": "Точная карточка 555 SR-T180, OEM45503-0C020/0C030; фото одной рулевой тяги с водяным знаком555 визуально проверено. Существующая применимость сохранена; широкие конфликтующие списки авто продавца не использованы.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/fd66e07d5c886044d5939c041caf1def614f7d60480f161a269e60024d8ef1e0.webp",
+    "thumbnail_path": "products/optimized/510518d0e4296d63af6ccff8cdaa397decf2465ce0acafbd94aa920e557e8c77.webp",
+    "main_size": [
+      283,
+      283
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23070,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:41.282Z"
+  },
+  "source_sha256": "1b5d2ff9beb0d9b30667e9fb97a47eeedf8fe02369f3c2426ff6217da467c3ac",
+  "main_sha256": "fd66e07d5c886044d5939c041caf1def614f7d60480f161a269e60024d8ef1e0",
+  "main_size": [
+    283,
+    283
+  ],
+  "thumbnail_sha256": "510518d0e4296d63af6ccff8cdaa397decf2465ce0acafbd94aa920e557e8c77",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
   }
 }
