@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 2165,
   "offer_id": 22458,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.auto-doc.at/555/13056289",
   "source_label": "AUTODOC — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "SR-7960",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/94a1875f-0f54-4ad3-b0dd-c098fb09302e",
   "image_url": "https://cdn.autodoc.de/thumb?id=13056289&m=0&n=0&lng=de&rev=94078121",
   "image_note": "Точная карточка 555SR-7960,резьбаM16x1.5/M12x1.25. Визуально одна рулевая тяга с водяным знаком555; не схема/пара. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/95b63465eee181561c13833f617d13ec8787bd26cde092bb48f24a5675c5a04e.webp",
+    "thumbnail_path": "products/optimized/963d6636bd183a7bbc180c65f44fe359d876f9c56d0d04a80cf743287c51be4d.webp",
+    "main_size": [
+      283,
+      283
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22665,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:27:02.551Z"
+  },
+  "source_sha256": "311fec275b45ee5523c2f1e8cd99fea8555383a501651775750b921a84e54321",
+  "main_sha256": "95b63465eee181561c13833f617d13ec8787bd26cde092bb48f24a5675c5a04e",
+  "main_size": [
+    283,
+    283
+  ],
+  "thumbnail_sha256": "963d6636bd183a7bbc180c65f44fe359d876f9c56d0d04a80cf743287c51be4d",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "d3c9542cecfd849c5e190b514d72acff618374d0",
+    "deploy": "dep-dbq5rv8ae00c73fr6cmg",
+    "status": "live"
   }
 }
