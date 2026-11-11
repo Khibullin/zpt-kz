@@ -1,0 +1,50 @@
+{
+  "article": "AW1910063Y",
+  "brand": "AYWIPARTS",
+  "cost": 939,
+  "has_fitment": false,
+  "id": 24764,
+  "kaspi_price": 2556,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-aw1910063y-galogennaja-hb1-1-sht-175148370/?c=750000000",
+  "main_image": "products/optimized/7db48a9af75b5c8743c9d80818b6ac8bc1709890407a21365ed6fe3f8cfb2c36.webp",
+  "name": "AYWIPARTS Лампа галогеновая HB1 9004 12V 65/45W P29T YELLOW",
+  "photo_status": "done",
+  "product_id": 6470,
+  "profit": 1047.5,
+  "stock": "2",
+  "supplier_id": 3,
+  "supplier_thumbnail": "products/optimized/3e7664d95c526e535ae59ebbf72c59e6dd7ab5743765f9a370b24e3168013530.webp",
+  "task_id": 4443,
+  "offer_id": 24764,
+  "status": "reviewed_source_exception",
+  "checked_on": "2026-11-11",
+  "fitments": [],
+  "fitment_status": "unconfirmed",
+  "photo": {
+    "status": "existing_preserved"
+  },
+  "reason": "AYWIPARTS AW1910063Y: существующее фото сохранено. Найдены только спецификации HB1/9004,12V65/45W,P29T,YELLOW и кроссы. Применимость страницы Narva480043000 относится другому бренду/артикулу и не переносится. Универсальность не заявлена. PDF производителя временно502,не постоянная блокировка.",
+  "checked_sources": [
+    {
+      "query": "\"AYWIPARTS\" \"AW1910063Y\"",
+      "result": "Exact lamp specifications and cross references only"
+    },
+    {
+      "url": "https://linkpart.ru/catalog/narva/480043000",
+      "result": "Other brand/article applications excluded"
+    },
+    {
+      "query": "\"AW1910063Y\" site:aywiparts.ru",
+      "result": "Manufacturer classification PDF; no exact application confirmed"
+    },
+    {
+      "url": "https://www.aywiparts.ru/file/download/name/1498645587_nrsrvelg.pdf",
+      "result": "Temporary 502 Bad Gateway"
+    }
+  ],
+  "next_offer_id": 22515,
+  "verification": {
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": false
+  }
+}
