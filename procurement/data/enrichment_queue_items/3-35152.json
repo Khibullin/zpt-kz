@@ -1,0 +1,44 @@
+{
+  "article": "48267",
+  "brand": "NGK",
+  "cost": 15530,
+  "has_fitment": true,
+  "id": 35152,
+  "kaspi_price": 19773,
+  "kaspi_url": "https://kaspi.kz/shop/p/svecha-zazhiganija-ngk-48267-124294722/?c=750000000",
+  "main_image": "",
+  "name": "NGK Катушка зажигания U5082",
+  "photo_status": "needs_source",
+  "product_id": 16043,
+  "profit": 1521.375,
+  "stock": "10",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 14016,
+  "offer_id": 35152,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://spareto.com/products/ngk-ignition-coil/u5082-48267",
+  "source_label": "Spareto — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "48267",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3d2ad23e-cc94-4567-87ae-0fbf55061c44",
+  "image_url": "https://cdn.spareto.com/variants/images_webp/000/544/682/large/u5082-48267-619BC001.webp?1793006983",
+  "image_note": "Точная карточка NGK48267/U5082,4контактаSAE,одна катушка. Визуально одна катушка с серебристым стержнем и чёрным разъёмом,логотипNGK. Существующая применимость сохранена.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://spareto.com/products/ngk-ignition-coil/u5082-48267",
+      "result": "Точная карточка NGK48267/U5082,4контактаSAE,одна катушка. Визуально одна катушка с серебристым стержнем и чёрным разъёмом,логотипNGK. Существующая применимость сохранена."
+    }
+  ],
+  "next_offer_id": 22301,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
