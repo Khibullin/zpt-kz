@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 5443,
   "offer_id": 25932,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://partsouq.com/en/search/all?q=555134H100",
   "source_label": "PartSouq — независимый каталог оригинальных Hyundai/Kia",
@@ -42,13 +42,22 @@
     }
   ],
   "fitment_note": "ТочнаяHyundai/Kia555134H100, сохранён исходный555134h100(различиетолькорегистрбуквы). CompatibilityGrandStarex/H-1: алиасыобъединены,неизвестныегоды/двигателине добавлены. 2009–2013относитсятолькокMexico. Фото—однавтулка и оригинальныйпакетHyundaiсэтикеткой55513 4H100.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/782038b0-1703-4faf-914e-aeb594b2de8e",
   "image_url": "https://partsouq.com/assets/PartThumbnail/assets/partsimages/Hyundai-/-KIA/555134H100.jpg",
   "image_note": "Реальная одна втулка заднего стабилизатора рядом с оригинальным пакетом Hyundai; точный55513 4H100читаетсянаэтикетке.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/4230c675f0e75223e8dd9ec51ecbb7677ccf65a4f8b9ddea2a9be3ba69095343.webp",
+    "thumbnail_path": "products/optimized/97a1d317efaafe3fa9f15531183e5494e51b35125bff84f4da2339590321a663.webp",
+    "main_size": [
+      340,
+      227
+    ],
+    "thumbnail_size": [
+      180,
+      120
+    ]
   },
-  "fitment_status": "prepared_not_imported",
+  "fitment_status": "saved_db_and_ui_verified",
   "checked_sources": [
     {
       "url": "https://partsouq.com/en/search/all?q=555134H100",
@@ -61,6 +70,29 @@
   ],
   "next_offer_id": 25372,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T11:06:03.644Z"
+  },
+  "source_sha256": "219cd0b41a1fc8b33901bad3527095b30fe12cc3a20957779a98bceffeac57fd",
+  "main_sha256": "4230c675f0e75223e8dd9ec51ecbb7677ccf65a4f8b9ddea2a9be3ba69095343",
+  "main_size": [
+    340,
+    227
+  ],
+  "thumbnail_sha256": "97a1d317efaafe3fa9f15531183e5494e51b35125bff84f4da2339590321a663",
+  "thumbnail_size": [
+    180,
+    120
+  ],
+  "publication": {
+    "commit": "44a99fc6d2aca7ad840396d2d3d5420d4cbea950",
+    "deploy": "dep-dbq4mt7f3r2c73b8rv50",
+    "status": "live"
   }
 }
