@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13963,
   "offer_id": 35182,
-  "status": "published_complete_pending_db_audit",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://eu.motorad.com/part/351-88k/",
   "source_label": "MOTORAD · каталог производителя",
@@ -27,7 +27,7 @@
   "image_url": "https://images.motorad.com/MotoRad-stills/351-88K_Angle.jpg",
   "image_note": "Точный полный артикул351-88K производителя,88°C,с корпусом и уплотнением. Фото показывает реальный металлический корпус с термостатом и отдельнымкольцом;не схема. Существующая применимость сохранена. UIналичие10,закупка8321/Kaspi11067 совпадают с очередью.",
   "photo": {
-    "status": "saved_ui_verified_db_audit_pending",
+    "status": "saved_db_and_ui_verified",
     "main_path": "products/optimized/c9ab3b56d77689b6b328843e670c9b9e35781f780c34db0f9f52921a166e6427.webp",
     "thumbnail_path": "products/optimized/291f6dfae1b899c990482da3627a9efcc71008337c4b0a7be4a5b6cca44aaf72.webp",
     "main_size": [
@@ -48,17 +48,31 @@
   ],
   "next_offer_id": 23095,
   "verification": {
-    "db_verified": false,
+    "db_verified": true,
     "ui_verified": true,
     "main_image_complete": true,
     "thumbnail_image_complete": true,
     "visible_trade_and_fitment_text_unchanged": true,
     "existing_metadata_preserved_by_import": true,
-    "checked_at": "2026-11-11T13:26:47.291Z",
-    "db_audit_pending_reason": "Render MCP temporary Internal errors/timeouts; fresh stored row metadata audit pending"
+    "checked_at": "2026-11-11T13:29:57.619Z",
+    "trade_data_unchanged": true,
+    "existing_fitment_preserved": true,
+    "existing_metadata_preserved": true,
+    "task_status": "done",
+    "source_and_image_hashes_match_manifest": true,
+    "db_fitment_pairs": 10,
+    "db_fitment_configurations": 10,
+    "db_existing_characteristic_keys": [
+      "supplier_catalogue_applicability",
+      "supplier_pack_size"
+    ],
+    "db_before_snapshot_available": false,
+    "preservation_evidence": "Photo-only bounded manifest contains no fitments; import does not write existing fitments or characteristics. Full visible card text before/after identical. Current DB fitments and metadata read and verified."
   },
   "publication": {
     "commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
-    "status": "images_visible_on_live_site_render_status_unavailable"
+    "source_commit": "b83355cd9994f3667e7ee7842b3bbc9cb23ee5a5",
+    "deploy": "dep-dbq6n1ks728c73961pb0",
+    "status": "live"
   }
 }
