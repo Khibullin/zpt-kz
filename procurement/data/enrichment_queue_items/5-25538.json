@@ -13,7 +13,7 @@
   "supplier_id": 5,
   "task_id": 5130,
   "offer_id": 25538,
-  "status": "prepared_photo_and_fitment",
+  "status": "published_db_and_ui_verified",
   "checked_on": "2026-11-11",
   "source_url": "https://kaspi.kz/shop/p/jashi-bamper-c281f271301-1501-dlja-changan-uni-v-2022-2024-130050251/?c=750000000",
   "source_label": "Характеристики точной карточки Kaspi — продавец",
@@ -30,12 +30,32 @@
   ],
   "fitment_note": "Точный бренд и полный артикул совпадают. Сохранены явно перечисленные годы, двигатель из дополнительной информации. Регион не указан.",
   "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p8e/p16/8356909.png?format=gallery-medium",
-  "local_path": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3a266367-1e5a-4c57-9ff5-925eb49a824f",
   "checked_sources": [
     {
       "url": "https://kaspi.kz/shop/p/jashi-bamper-c281f271301-1501-dlja-changan-uni-v-2022-2024-130050251/?c=750000000",
       "result": "exact brand/article, photo of bare bumper, years/engine verified"
     }
   ],
-  "next_offer_id": 25229
+  "next_offer_id": 25229,
+  "publication": {
+    "commit": "69ae517ffa2eef6247cbfb986ba982c1d64791c1",
+    "deploy": "dep-dbq148ks728c738up320",
+    "status": "live",
+    "checked_photo_and_thumbnail": 3,
+    "checked_fitment_offers": 3,
+    "all_three_ui_images_loaded": true,
+    "unchanged_trade_data": true
+  },
+  "verification": {
+    "photo": true,
+    "thumbnail": true,
+    "display": true,
+    "source_and_constraints": true,
+    "stock_and_profit_preserved": true,
+    "existing_fitment_preserved": true
+  },
+  "photo": {
+    "status": "saved_and_ui_loaded",
+    "image_url": "https://resources.cdn-kaspi.kz/img/m/p/p8e/p16/8356909.png?format=gallery-medium"
+  }
 }
