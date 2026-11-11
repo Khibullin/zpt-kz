@@ -1,12 +1,8 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T13:34:58.520Z",
-  "lease": {
-    "owner": "enrichment-20261111T0848Z",
-    "acquired_at": "2026-11-11T08:48:11.994Z",
-    "expires_at": "2026-11-11T13:54:00.667Z"
-  },
+  "checked_at": "2026-11-11T13:35:32.377Z",
+  "lease": null,
   "next_supplier": 3,
   "batch_size": 100,
   "queue": [
@@ -15625,7 +15621,16 @@
   "exceptions_index": "procurement/data/enrichment_queue_exceptions_20261111.json",
   "automation": {
     "id": "Automation_53216c82774c819184d7b160c159c83f",
-    "status": "ready_to_disable_after_completion",
-    "title": "Фото и применимость ZPT"
+    "title": "Фото и применимость ZPT",
+    "status": "disabled",
+    "is_enabled": false,
+    "disabled_at": "2026-11-11T13:35:00.330937+00:00",
+    "reason": "All408 incomplete offers reviewed, all prepared additions published and DB/UI verified;293 source exceptions documented."
+  },
+  "last_lease": {
+    "owner": "enrichment-20261111T0848Z",
+    "acquired_at": "2026-11-11T08:48:11.994Z",
+    "expires_at": "2026-11-11T13:54:00.667Z",
+    "released_at": "2026-11-11T13:35:32.377Z"
   }
 }
