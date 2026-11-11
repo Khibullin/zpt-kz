@@ -1,0 +1,56 @@
+{
+  "article": "18901002",
+  "brand": "RIVAL",
+  "cost": 11100,
+  "has_fitment": false,
+  "id": 26923,
+  "kaspi_price": 16259,
+  "kaspi_url": "https://kaspi.kz/shop/p/rival-18901002-changan-cs55-plus-uni-s-2022-2024-chernyi-121891341/?c=750000000",
+  "main_image": "",
+  "name": "Ковер багажника Changan",
+  "photo_status": "needs_source",
+  "product_id": 8508,
+  "profit": 2876.625,
+  "stock": "9",
+  "supplier_id": 5,
+  "supplier_thumbnail": "",
+  "task_id": 6481,
+  "offer_id": 26923,
+  "status": "prepared_fitment_photo_unconfirmed",
+  "checked_on": "2026-11-11",
+  "source_url": "https://www.vseinstrumenti.ru/product/kovrik-bagazhnika-dlya-changan-cs55-plus-2022-rival-18901002-13806757/",
+  "source_label": "ВсеИнструменты — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "18901002",
+  "fitments": [
+    {
+      "make": "Changan",
+      "model": "CS55 Plus",
+      "years": "2022–н.в.",
+      "region": "Рынок РФ",
+      "notes": "Коврик в багажник, полиуретан, с бортиком,1шт."
+    },
+    {
+      "make": "Changan",
+      "model": "UNI-S",
+      "years": "2024–н.в.",
+      "region": "Рынок РФ",
+      "notes": "Коврик в багажник, полиуретан, с бортиком,1шт."
+    }
+  ],
+  "fitment_note": "Точная карточкаRIVAL18901002 прочитана черезвебдоCAPTCHA: CS55Plus2022–н.в./UNI-S2024–н.в.,рынокРФ,полиуретан. Годы сохраненыоткрытымпределом, двигательнеуказан. БраузерзапросилCAPTCHA, фото не получено;повтор/обходне выполнялся.",
+  "photo": {
+    "status": "unconfirmed_browser_captcha"
+  },
+  "fitment_status": "prepared_not_imported",
+  "checked_sources": [
+    {
+      "url": "https://www.vseinstrumenti.ru/product/kovrik-bagazhnika-dlya-changan-cs55-plus-2022-rival-18901002-13806757/",
+      "result": "Exactfullcardpre-blockwebtext;browserCaptchaafterordinaryreload,nobypass"
+    }
+  ],
+  "next_offer_id": 26929,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
