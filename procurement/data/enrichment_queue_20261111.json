@@ -1,7 +1,7 @@
 {
   "schema": 1,
   "scope": "in-stock best_candidates displayed as Выгодные к закупке; admin preferences 12.5%, expenses250; no price/stock mutations",
-  "checked_at": "2026-11-11T09:24:45.405Z",
+  "checked_at": "2026-11-11T09:24:48.450Z",
   "lease": {
     "owner": "enrichment-20261111T0848Z",
     "acquired_at": "2026-11-11T08:48:11.994Z",
@@ -9267,7 +9267,7 @@
     }
   ],
   "results": [],
-  "next_offer_id": 26490,
+  "next_offer_id": 26466,
   "batch": {
     "supplier_id": 5,
     "batch_number": 1,
@@ -9373,14 +9373,14 @@
       25184,
       25210
     ],
-    "reviewed": 98,
-    "published_fitments": 24,
-    "published_photos": 26,
+    "reviewed": 99,
+    "published_fitments": 25,
+    "published_photos": 27,
     "unconfirmed": 71,
-    "next_offer_id": 26490,
-    "photos_present": 29,
-    "fitments_present": 74,
-    "both_present": 27
+    "next_offer_id": 26466,
+    "photos_present": 30,
+    "fitments_present": 75,
+    "both_present": 28
   },
   "completed_offer_ids": [
     26820,
@@ -9409,7 +9409,8 @@
     25519,
     26531,
     25410,
-    26623
+    26623,
+    26490
   ],
   "reviewed_offer_ids": [
     26787,
@@ -9509,19 +9510,20 @@
     25515,
     25184,
     25210,
-    26709
+    26709,
+    26490
   ],
   "result_directory": "procurement/data/enrichment_queue_items/",
   "summary": {
     "initial_unfinished": 408,
-    "reviewed": 98,
-    "remaining_unreviewed": 310,
+    "reviewed": 99,
+    "remaining_unreviewed": 309,
     "unconfirmed_reviewed": 71,
-    "remaining_missing_fields": 381,
-    "photo_added": 26,
-    "fitment_added": 24,
-    "make_model_pairs_added": 57,
-    "configurations_added": 68
+    "remaining_missing_fields": 380,
+    "photo_added": 27,
+    "fitment_added": 25,
+    "make_model_pairs_added": 58,
+    "configurations_added": 69
   },
   "prepared_candidate": null,
   "source_limits": [
@@ -9602,56 +9604,6 @@
     "unchanged_trade_data": true
   },
   "prepared_candidates": [
-    {
-      "article": "ST-58411-C9500",
-      "brand": "SAT",
-      "has_fitment": false,
-      "id": 26490,
-      "kaspi_url": "https://kaspi.kz/shop/p/diski-sat-zadnie-st-58411-c9500-114988768/?c=750000000",
-      "main_image": "",
-      "name": "Диск тормозной Hyundai",
-      "photo_status": "needs_source",
-      "product_id": 8138,
-      "profit": 3780,
-      "stock": "2",
-      "supplier_id": 5,
-      "task_id": 6111,
-      "offer_id": 26490,
-      "status": "prepared_photo_and_fitment",
-      "checked_on": "2026-11-11",
-      "source_url": "https://satparts.ru/product/st-58411-c9500",
-      "source_label": "SATparts.ru — независимый каталог продавца SAT (ИП Спиридонов)",
-      "source_kind": "retailer_catalogue",
-      "source_article": "ST-58411-C9500",
-      "fitments": [
-        {
-          "make": "Hyundai",
-          "model": "Creta",
-          "generation": "1",
-          "years": "2015–2020",
-          "body": "SUV 5дв.",
-          "notes": "Задний невентилируемый диск262мм. Двигатель/регион/привод не указаны данным источником."
-        }
-      ],
-      "fitment_note": "Точная таблица карточки SATST-58411-C9500:CretaI2015–2020. Двигатели и4WD из иныхобъявлений не добавлены.",
-      "image_url": "https://static.autotrade.su/nomenclature/wm/b/76/765ec77747.jpg",
-      "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/d1815c45-e64b-4c43-ab71-359dae64e7a7",
-      "image_note": "Реальное фото одного заднего невентилируемого диска SATST-58411-C9500 с точной карточки продавца;визуально проверено.",
-      "photo": {
-        "status": "downloaded_exact_verified"
-      },
-      "checked_sources": [
-        {
-          "url": "https://satparts.ru/product/st-58411-c9500",
-          "result": "exactSATfullarticle;1firm fitmenttable row; realphoto"
-        }
-      ],
-      "next_offer_id": 26553,
-      "verification": {
-        "trade_data_unchanged": true,
-        "photo_visually_verified": true
-      }
-    },
     {
       "article": "KD20",
       "brand": "Valeo",
