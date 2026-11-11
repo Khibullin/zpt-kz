@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13986,
   "offer_id": 35206,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://www.trodo.com/thermostat-coolant-motorad-578-87k",
   "source_label": "Trodo — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "578-87K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/639f91ad-5ecf-4d90-9fd4-35b5bce363d2",
   "image_url": "https://picdn.trodo.com/media/m2_catalog_cache/480x480%2FTecDoc%2F388%2F004%2F39%2Fnew_578__watermark_.jpg?1",
   "image_note": "Точная карточка MOTORAD 578-87K, EAN4037784023327,87°C,пластиковый корпус с уплотнением без датчика. Визуально один термостат в чёрном корпусе,водяной знак MotoRad; комплектность соответствует. Существующая применимость не изменялась.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/7ae672849a9d29501555168c9589b5b4c929b3e14c8afe5ceaf54f6a73d54ff1.webp",
+    "thumbnail_path": "products/optimized/12f249c4c5355232fb1ed72dd065e1eaa1b62090098af935d12153741953681b.webp",
+    "main_size": [
+      480,
+      480
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23248,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:38.590Z"
+  },
+  "source_sha256": "ee26ec62a43af7485f0e19ae214a9aa16fb33af5d954b9dda95e909e6c51ab02",
+  "main_sha256": "7ae672849a9d29501555168c9589b5b4c929b3e14c8afe5ceaf54f6a73d54ff1",
+  "main_size": [
+    480,
+    480
+  ],
+  "thumbnail_sha256": "12f249c4c5355232fb1ed72dd065e1eaa1b62090098af935d12153741953681b",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
   }
 }
