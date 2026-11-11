@@ -1,0 +1,44 @@
+{
+  "article": "AW2220193",
+  "brand": "AYWIPARTS",
+  "cost": 10403,
+  "has_fitment": true,
+  "id": 24797,
+  "kaspi_price": 15396,
+  "kaspi_url": "https://kaspi.kz/shop/p/aywiparts-stupitsa-aw2220193-165527658/?c=750000000",
+  "main_image": "",
+  "name": "AYWIPARTS Ступица задняя",
+  "photo_status": "skipped",
+  "product_id": 6502,
+  "profit": 2818.5,
+  "stock": "1",
+  "supplier_id": 3,
+  "supplier_thumbnail": "",
+  "task_id": 4475,
+  "offer_id": 24797,
+  "status": "prepared_photo_existing_fitment",
+  "checked_on": "2026-11-11",
+  "source_url": "https://aodars.ru/catalog/418/?page=40&q=",
+  "source_label": "Аодарс — независимый каталог продавца",
+  "source_kind": "retailer_catalogue",
+  "source_article": "AW2220193",
+  "fitments": [],
+  "fitment_note": "Существующая применимость сохранена.",
+  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/3ddab53b-8958-4cf9-9cb7-35e67e9dabb7",
+  "image_url": "https://aodars.ru/media/product-img/163/162917.jpg",
+  "image_note": "AYWIPARTSAW2220193,точнаястрока162917,ступицазадняявсборе. Полноефото и бренд/артикулпроверены. Armtekпервыйзапростаймаут(временный),другая карточкаАодарсдоступна.",
+  "photo": {
+    "status": "downloaded_visually_verified_not_queued"
+  },
+  "fitment_status": "existing_preserved",
+  "checked_sources": [
+    {
+      "url": "https://aodars.ru/catalog/418/?page=40&q=",
+      "result": "AYWIPARTSAW2220193,точнаястрока162917,ступицазадняявсборе. Полноефото и бренд/артикулпроверены. Armtekпервыйзапростаймаут(временный),другая карточкаАодарсдоступна."
+    }
+  ],
+  "next_offer_id": 22738,
+  "verification": {
+    "trade_data_unchanged": true
+  }
+}
