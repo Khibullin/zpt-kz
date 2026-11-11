@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 13977,
   "offer_id": 35197,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/motorad-thermostat-coolant/467-97k",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "467-97K",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/4a4b0c7e-84b8-49ba-b1eb-73226a2f0bdb",
   "image_url": "https://cdn.spareto.com/variants/images_webp/005/602/597/medium/467-97k-5456D99A.webp?1793166360",
   "image_note": "Точная MOTORAD467-97K: реальный термостат97°C в чёрном пластиковом корпусе с уплотнениями, без датчика, электрическое управление по карточке. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/61e61ce9fccd4f6ff96b8e8213aa683f99e8ec19510061c489d07c1f321eca3c.webp",
+    "thumbnail_path": "products/optimized/76fbd7296152e2c26902132c23fb63923b65327aeb7db818c78fe4993453c9f5.webp",
+    "main_size": [
+      360,
+      360
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 23013,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T10:29:28.586Z"
+  },
+  "source_sha256": "cd5a0bea476d3909e93f66ddc8fa9255157ddbe1ac072ffe511f4d0354079cbd",
+  "main_sha256": "61e61ce9fccd4f6ff96b8e8213aa683f99e8ec19510061c489d07c1f321eca3c",
+  "main_size": [
+    360,
+    360
+  ],
+  "thumbnail_sha256": "76fbd7296152e2c26902132c23fb63923b65327aeb7db818c78fe4993453c9f5",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "7dec204910db6a8f38f987b3c44771cacb96ea1c",
+    "deploy": "dep-dbq45q5g1s2s739fh1sg",
+    "status": "live"
   }
 }
