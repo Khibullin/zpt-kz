@@ -16,7 +16,7 @@
   "supplier_thumbnail": "",
   "task_id": 14012,
   "offer_id": 35134,
-  "status": "prepared_photo_existing_fitment",
+  "status": "published_complete",
   "checked_on": "2026-11-11",
   "source_url": "https://spareto.com/products/ngk-ignition-coil/u5019-48063",
   "source_label": "Spareto — независимый каталог продавца",
@@ -24,11 +24,20 @@
   "source_article": "48063",
   "fitments": [],
   "fitment_note": "Существующая применимость сохранена.",
-  "local_photo": "/opt/codex/downloads/208bc5b8-4c05-4187-a3d1-c16d90268fc5/126fe9e6-964d-49b8-8a91-cd9550b60aed",
   "image_url": "https://cdn.spareto.com/variants/images_webp/000/554/820/large/u5019-48063-9A6D92BD.webp?1793006973",
   "image_note": "Точная карточка NGK48063/U5019,2контактаSAE,одна катушка. Визуально фото одной длинной чёрной катушки с маркировкой NGK; не комплект. Существующая применимость сохранена.",
   "photo": {
-    "status": "downloaded_visually_verified_not_queued"
+    "status": "saved_db_and_ui_verified",
+    "main_path": "products/optimized/c5976868f06b9c1d7e4ac8965ed0c5a0221a4430b0c6f8eb8826b9c3cb80d260.webp",
+    "thumbnail_path": "products/optimized/e8852273ca90f51ef0f72773e207bdbf15da058b505d44568ed3d2ec2fe79b87.webp",
+    "main_size": [
+      720,
+      720
+    ],
+    "thumbnail_size": [
+      180,
+      180
+    ]
   },
   "fitment_status": "existing_preserved",
   "checked_sources": [
@@ -39,6 +48,29 @@
   ],
   "next_offer_id": 22748,
   "verification": {
-    "trade_data_unchanged": true
+    "db_verified": true,
+    "ui_verified": true,
+    "main_image_complete": true,
+    "thumbnail_image_complete": true,
+    "trade_data_unchanged": true,
+    "existing_metadata_preserved": true,
+    "existing_fitment_preserved": true,
+    "checked_at": "2026-11-11T12:10:43.781Z"
+  },
+  "source_sha256": "f11e7b476d185a0cef5874a6add8ba42e875b4f7aa27be211bbe5a0dc73e7888",
+  "main_sha256": "c5976868f06b9c1d7e4ac8965ed0c5a0221a4430b0c6f8eb8826b9c3cb80d260",
+  "main_size": [
+    720,
+    720
+  ],
+  "thumbnail_sha256": "e8852273ca90f51ef0f72773e207bdbf15da058b505d44568ed3d2ec2fe79b87",
+  "thumbnail_size": [
+    180,
+    180
+  ],
+  "publication": {
+    "commit": "5f2cf5c224c6b6ff8e2dbe7181a5ffc9b33ffd72",
+    "deploy": "dep-dbq5l0e7bikc738kc8fg",
+    "status": "live"
   }
 }
